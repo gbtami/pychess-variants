@@ -192,10 +192,10 @@ if (el instanceof Element) {
         // console.log('Loaded translations for lang', lang);
         start();
       })
-      .catch((error) => {
+      /*.catch((error) => {
         console.error('Could not load translations for lang', lang);
         console.error(error);
         i18n.setLocale('');
         start();
-      });
+      })*/;
 }

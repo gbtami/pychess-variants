@@ -7,6 +7,7 @@ import { getPockets, lc, colorCase } from './chess';
 import RoundController from './roundCtrl';
 import AnalysisController from './analysisCtrl';
 import { patch, bind } from './document';
+import {ChessgroundController} from "./bug/ChessgroundCtrl";
 
 export interface Moves {
     normal?: cg.Key[],
@@ -14,7 +15,7 @@ export interface Moves {
 }
 
 export class Gating {
-    private ctrl: RoundController | AnalysisController;
+    private ctrl: RoundController | AnalysisController | ChessgroundController;
 
     private gating : null | {
                 moves: Moves,
@@ -23,7 +24,7 @@ export class Gating {
 
     private choices: (cg.Role | "")[];
 
-    constructor(ctrl: RoundController | AnalysisController) {
+    constructor(ctrl: RoundController | AnalysisController | ChessgroundController) {
         this.ctrl = ctrl;
         this.gating = null;
         this.choices = [];

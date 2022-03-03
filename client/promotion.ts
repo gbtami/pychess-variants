@@ -7,16 +7,18 @@ import { PromotionSuffix } from './chess';
 import { patch, bind } from './document';
 import RoundController from './roundCtrl';
 import AnalysisController from './analysisCtrl';
+
 import { Api } from "chessgroundx/api";
+import {ChessgroundController} from "./bug/ChessgroundCtrl";
 
 type PromotionChoices = Partial<Record<cg.Role, PromotionSuffix>>;
 
 export class Promotion {
-    ctrl: RoundController | AnalysisController;
+    ctrl: RoundController | AnalysisController | ChessgroundController;
     promoting: {orig: cg.Key, dest: cg.Key, callback: (orig: string, dest: string, promo: string) => void} | null;
     choices: PromotionChoices;
 
-    constructor(ctrl: RoundController | AnalysisController) {
+    constructor(ctrl: RoundController | AnalysisController | ChessgroundController) {
         this.ctrl = ctrl;
         this.promoting = null;
         this.choices = {};

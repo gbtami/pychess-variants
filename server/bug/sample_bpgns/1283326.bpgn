@@ -1,0 +1,14 @@
+[Event "FICS rated bughouse match"]
+[Site "freechess.org"]
+[Date "2014-07-18"]
+[Time "18:44:37"]
+[WhiteA "Gnejs"][WhiteAElo "2051"]
+[BlackA "carlosfenix"][BlackAElo "1690"]
+[WhiteB "burpcow"][WhiteBElo "2229"]
+[BlackB "JKiller"][BlackBElo "2539"]
+[TimeControl "120+0"]
+[Lag "178 284 242 635 192 177 209 331"]
+[Result "*"]
+{C: This is game number 1283326 at http://www.bughousedb.com}
+1A. e4{118.585} 1B. e4{117.268} 1a. Nf6{118.687} 2A. Nc3{118.485} 2a. Nc6{118.109} 3A. d4{117.601} 3a. e6{117.687} 4A. e5{117.203} {R: carlosfenix requests to abort the game.}
+{Game aborted on move 1} *

@@ -1,0 +1,386 @@
+import { h, VNode } from 'snabbdom';
+
+import { _ } from '../i18n';
+import { VARIANTS, BOARD_FAMILIES, PIECE_FAMILIES } from '../chess';
+import { changeBoardCSS, changePieceCSS, getPieceImageUrl } from '../document';
+import AnalysisController from './analysisCtrl';
+import { NumberSettings, BooleanSettings } from '../settings';
+import { slider, checkbox } from '../view';
+import { model } from '../main';
+import * as cg from 'chessgroundx/types';
+
+
+class BoardSettings {
+    ctrl: AnalysisController | undefined; // BoardController | undefined
+    settings: { [ key: string]: NumberSettings | BooleanSettings };
+
+    constructor() {
+        this.settings = {};
+        this.settings["animation"] = new AnimationSettings(this);
+        this.settings["showDests"] = new ShowDestsSettings(this);
+        this.settings["autoPromote"] = new AutoPromoteSettings(this);
+        this.settings["arrow"] = new ArrowSettings(this);
+        this.settings["blindfold"] = new BlindfoldSettings(this);
+        this.settings["materialDifference"] = new MaterialDifferenceSettings(this);
+    }
+
+    getSettings(settingsType: string, family: string) {
+        const fullName = family + settingsType;
+        if (!this.settings[fullName]) {
+            switch (settingsType) {
+                case "BoardStyle":
+                    this.settings[fullName] = new BoardStyleSettings(this, family);
+                    break;
+                case "PieceStyle":
+                    this.settings[fullName] = new PieceStyleSettings(this, family);
+                    break;
+                case "Zoom":
+                    this.settings[fullName] = new ZoomSettings(this, family);
+                    break;
+                default:
+                    throw "Unknown settings type " + settingsType;
+            }
+        }
+        return this.settings[fullName];
+    }
+
+    updateBoardAndPieceStyles() {
+        Object.keys(BOARD_FAMILIES).forEach(family => this.updateBoardStyle(family));
+        Object.keys(PIECE_FAMILIES).forEach(family => this.updatePieceStyle(family));
+    }
+
+    updateBoardStyle(family: keyof typeof BOARD_FAMILIES) {
+        const idx = this.getSettings("BoardStyle", family as string).value as number;
+        const board = BOARD_FAMILIES[family].boardCSS[idx];
+        changeBoardCSS(model["asset-url"] , family as string, board);
+    }
+
+    updatePieceStyle(family: keyof typeof PIECE_FAMILIES) {
+        const idx = this.getSettings("PieceStyle", family as string).value as number;
+        let css = PIECE_FAMILIES[family].pieceCSS[idx];
+        changePieceCSS(model["asset-url"], family as string, css);
+        this.updateDropSuggestion();
+    }
+
+    updateDropSuggestion() {
+        // Redraw the piece being suggested for dropping in the new piece style
+        if (this.ctrl && this.ctrl.hasPockets) {
+            const chessground = this.ctrl.b1.chessground;//todo:niki: temporary use b1. - think later for proper solution and what makes sense at all
+            const el = document.querySelector('svg image') as HTMLElement;
+            // if there is any
+            if (el) {
+                const classNames = el.getAttribute('className')!.split(' ');
+                const role = classNames[0] as cg.Role;
+                const color = classNames[1] as cg.Color;
+                const orientation = this.ctrl.flip ? this.ctrl.b1.oppcolor : this.ctrl.b1.mycolor;//todo:niki:temp use b1
+                const side = color === orientation ? "ally" : "enemy";
+                chessground.set({ drawable: { pieces: { baseUrl: getPieceImageUrl(role, color, side)! } } });
+                chessground.redrawAll();
+            }
+        }
+    }
+
+    updateZoom(family: keyof typeof BOARD_FAMILIES) {
+        const variant = this.ctrl?.b1.variant;//todo:niki:temp use b1
+        if (variant && variant.board === family) {
+            const zoomSettings = this.getSettings("Zoom", family as string) as ZoomSettings;
+            const zoom = zoomSettings.value;
+            const el = document.querySelector('.cg-wrap:not(.pocket)') as HTMLElement;
+            if (el) {
+                document.body.setAttribute('style', '--zoom:' + zoom);
+                document.body.dispatchEvent(new Event('chessground.resize'));
+
+                if (this.ctrl instanceof AnalysisController && !this.ctrl.model["embed"]) {
+                    // analysisChart(this.ctrl);todo:niki:comment out for now - think later if makes sense in bug
+                }
+            }
+        }
+    }
+
+    updateBlindfold () {
+        this.settings["blindfold"].update();
+    }
+
+    view(variantName: string) {
+        if (!variantName) return h("div#board-settings");
+        const variant = VARIANTS[variantName];
+
+        const settingsList : VNode[] = [];
+
+        const boardFamily = VARIANTS[variantName].board;
+        const pieceFamily = VARIANTS[variantName].piece;
+
+        settingsList.push(this.settings["animation"].view());
+
+        settingsList.push(this.settings["showDests"].view());
+
+        if (variant.autoPromoteable)
+            settingsList.push(this.settings["autoPromote"].view());
+
+        settingsList.push(this.settings["arrow"].view());
+
+        settingsList.push(this.settings["blindfold"].view());
+
+        settingsList.push(this.settings["materialDifference"].view());
+
+        if (variantName === this.ctrl?.b1.variant.name)//todo;niki; temp use b1
+            settingsList.push(this.getSettings("Zoom", boardFamily as string).view());
+
+        settingsList.push(h('div#style-settings', [
+            this.getSettings("BoardStyle", boardFamily as string).view(),
+            this.getSettings("PieceStyle", pieceFamily as string).view(),
+            ])
+        );
+        
+        settingsList.push();
+
+        return h('div#board-settings', settingsList);
+    }
+
+    // TODO This should be in the theoretical "ChessgroundController" class,
+    // which is the common class between EditorController, RoundController, and AnalysisController
+    toggleOrientation() {
+        // if (this.ctrl) {todo:niki:comment out for now - this gonna be much different i feel
+        //     // TODO: handle berserk
+        //     if (this.ctrl instanceof RoundController && this.ctrl.tournamentGame && this.ctrl.ply < 2 && !this.ctrl.spectator) return;
+        //
+        //     this.ctrl.flip = !this.ctrl.flip;
+        //     this.ctrl.chessground.toggleOrientation();
+        //     this.updateDropSuggestion();
+        //
+        //     // console.log("FLIP");
+        //     if (this.ctrl instanceof RoundController && this.ctrl.variant.materialDifference) {
+        //         updateMaterial(this.ctrl);
+        //     }
+        //
+        //     // TODO: moretime button
+        //     if (this.ctrl instanceof RoundController) {
+        //         const new_running_clck = (this.ctrl.clocks[0].running) ? this.ctrl.clocks[1] : this.ctrl.clocks[0];
+        //         this.ctrl.clocks[0].pause(false);
+        //         this.ctrl.clocks[1].pause(false);
+        //
+        //         const tmp_clock = this.ctrl.clocks[0];
+        //         const tmp_clock_time = tmp_clock.duration;
+        //         this.ctrl.clocks[0].setTime(this.ctrl.clocks[1].duration);
+        //         this.ctrl.clocks[1].setTime(tmp_clock_time);
+        //         if (this.ctrl.status < 0) new_running_clck.start();
+        //
+        //         this.ctrl.vplayer0 = patch(this.ctrl.vplayer0, player('player0', this.ctrl.titles[this.ctrl.flip ? 1 : 0], this.ctrl.players[this.ctrl.flip ? 1 : 0], this.ctrl.ratings[this.ctrl.flip ? 1 : 0], this.ctrl.model["level"]));
+        //         this.ctrl.vplayer1 = patch(this.ctrl.vplayer1, player('player1', this.ctrl.titles[this.ctrl.flip ? 0 : 1], this.ctrl.players[this.ctrl.flip ? 0 : 1], this.ctrl.ratings[this.ctrl.flip ? 0 : 1], this.ctrl.model["level"]));
+        //
+        //         if (this.ctrl.variant.counting)
+        //             [this.ctrl.vmiscInfoW, this.ctrl.vmiscInfoB] = updateCount(this.ctrl.fullfen, this.ctrl.vmiscInfoB, this.ctrl.vmiscInfoW);
+        //
+        //         if (this.ctrl.variant.materialPoint)
+        //             [this.ctrl.vmiscInfoW, this.ctrl.vmiscInfoB] = updatePoint(this.ctrl.fullfen, this.ctrl.vmiscInfoB, this.ctrl.vmiscInfoW);
+        //     }
+        //
+        //     if (this.ctrl instanceof EditorController) {
+        //         iniPieces(this.ctrl, this.ctrl.vpieces0, this.ctrl.vpieces1);
+        //     }
+        // }
+    }
+}
+
+class AnimationSettings extends BooleanSettings {
+    readonly boardSettings: BoardSettings;
+
+    constructor(boardSettings: BoardSettings) {
+        super('animation', true);
+        this.boardSettings = boardSettings;
+    }
+
+    update(): void {
+        this.boardSettings.ctrl?.b1.chessground.set({ animation: { enabled: this.value } });//todo;niki;temp use b1
+    }
+
+    view(): VNode {
+        return h('div', checkbox(this, 'animation', _("Piece animation")));
+    }
+}
+
+class BoardStyleSettings extends NumberSettings {
+    readonly boardSettings: BoardSettings;
+    readonly boardFamily: string;
+
+    constructor(boardSettings: BoardSettings, boardFamily: string) {
+        super(boardFamily + '-board', 0);
+        this.boardSettings = boardSettings;
+        this.boardFamily = boardFamily;
+    }
+
+    update(): void {
+        this.boardSettings.updateBoardStyle(this.boardFamily);
+    }
+
+    view(): VNode {
+        const vboard = this.value;
+        const boards : VNode[] = [];
+
+        const boardCSS = BOARD_FAMILIES[this.boardFamily].boardCSS;
+        for (let i = 0; i < boardCSS.length; i++) {
+            boards.push(h('input#board' + i, {
+                on: { change: evt => this.value = Number((evt.target as HTMLInputElement).value) },
+                props: { type: "radio", name: "board", value: i },
+                attrs: { checked: vboard === i },
+            }));
+            boards.push(h('label.board.board' + i + '.' + this.boardFamily, {
+                attrs: { for: "board" + i },
+                style: { backgroundImage: `url('/static/images/board/${boardCSS[i]}')` },
+            }, ""));
+        }
+        return h('settings-board', boards);
+    }
+}
+
+class PieceStyleSettings extends NumberSettings {
+    readonly boardSettings: BoardSettings;
+    readonly pieceFamily: string;
+
+    constructor(boardSettings: BoardSettings, pieceFamily: string) {
+        super(pieceFamily + '-piece', 0);
+        this.boardSettings = boardSettings;
+        this.pieceFamily = pieceFamily;
+    }
+
+    update(): void {
+        this.boardSettings.updatePieceStyle(this.pieceFamily);
+    }
+
+    view(): VNode {
+        const vpiece = this.value;
+        const pieces : VNode[] = [];
+
+        const pieceCSS = PIECE_FAMILIES[this.pieceFamily].pieceCSS;
+        for (let i = 0; i < pieceCSS.length; i++) {
+            pieces.push(h('input#piece' + i, {
+                on: { change: e => this.value = Number((e.target as HTMLInputElement).value) },
+                props: { type: "radio", name: "piece", value: i },
+                attrs: { checked: vpiece === i },
+            }));
+            pieces.push(h('label.piece.piece' + i + '.' + this.pieceFamily, { attrs: { for: "piece" + i } }, ""));
+        }
+        return h('settings-pieces', pieces);
+    }
+}
+
+class ZoomSettings extends NumberSettings {
+    readonly boardSettings: BoardSettings;
+    readonly boardFamily: string;
+
+    constructor(boardSettings: BoardSettings, boardFamily: string) {
+        super(boardFamily + '-zoom', 80);
+        this.boardSettings = boardSettings;
+        this.boardFamily = boardFamily;
+    }
+
+    update(): void {
+        this.boardSettings.updateZoom(this.boardFamily);
+    }
+
+    view(): VNode {
+        return slider(this, 'zoom', 0, 100, this.boardFamily.includes("shogi") ? 1 : 1.15625);
+    }
+}
+
+class ShowDestsSettings extends BooleanSettings {
+    readonly boardSettings: BoardSettings;
+
+    constructor(boardSettings: BoardSettings) {
+        super('showDests', true);
+        this.boardSettings = boardSettings;
+    }
+
+    update(): void {
+        this.boardSettings.ctrl?.b1.chessground.set({ movable: { showDests: this.value }, dropmode: { showDropDests: this.value }, predroppable: { showDropDests: this.value } } );//todo;niki; temp use b1
+    }
+
+    view(): VNode {
+        return h('div', checkbox(this, 'showDests', _("Show piece destinations")));
+    }
+}
+
+class AutoPromoteSettings extends BooleanSettings {
+    readonly boardSettings: BoardSettings;
+
+    constructor(boardSettings: BoardSettings) {
+        super('autoPromote', false);
+        this.boardSettings = boardSettings;
+    }
+
+    update(): void {
+        // if (this.boardSettings.ctrl instanceof RoundController)todo:niki;comment out temporary
+        //     this.boardSettings.ctrl.autoPromote = this.value;
+    }
+
+    view(): VNode {
+        return h('div', checkbox(this, 'autoPromote', _("Promote to the top choice automatically")));
+    }
+}
+
+class ArrowSettings extends BooleanSettings {
+    readonly boardSettings: BoardSettings;
+
+    constructor(boardSettings: BoardSettings) {
+        super('arrow', true);
+        this.boardSettings = boardSettings;
+    }
+
+    update(): void {
+        if (this.boardSettings.ctrl instanceof AnalysisController)
+            this.boardSettings.ctrl.arrow = this.value;
+    }
+
+    view(): VNode {
+        return h('div', checkbox(this, 'arrow', _("Best move arrow in analysis board")));
+    }
+}
+
+class BlindfoldSettings extends BooleanSettings {
+    readonly boardSettings: BoardSettings;
+
+    constructor(boardSettings: BoardSettings) {
+        super('blindfold', false);
+        this.boardSettings = boardSettings;
+    }
+
+    update(): void {
+        // if (this.boardSettings.ctrl instanceof RoundController)todo:niki;comment out temporary
+        //     this.boardSettings.ctrl.blindfold = this.value;
+
+        const el = document.getElementById('mainboard') as HTMLInputElement;
+        if (el) {
+            if (this.value) {
+                el.classList.add('blindfold');
+            } else {
+                el.classList.remove('blindfold');
+            }
+        }
+
+    }
+
+    view(): VNode {
+        return h('div', checkbox(this, 'blindfold', _("Invisible pieces")));
+    }
+}
+
+class MaterialDifferenceSettings extends BooleanSettings {
+    readonly boardSettings: BoardSettings;
+
+    constructor(boardSettings: BoardSettings) {
+        super('materialDifference', false);
+        this.boardSettings = boardSettings;
+    }
+
+    update(): void {
+        // if (this.boardSettings.ctrl instanceof RoundController) {todo:niki:comment out temporary
+        //     this.boardSettings.ctrl.materialDifference = this.value;
+        //     updateMaterial(this.boardSettings.ctrl);
+        // }
+    }
+
+    view(): VNode {
+        return h('div', checkbox(this, 'captured', _("Show material difference")));
+    }
+}
+export const boardSettings = new BoardSettings();

@@ -32,6 +32,21 @@
         grid-template-rows: min-content 1fr;
         grid-template-areas: 'side . board gauge pocket-top' 'side . board gauge tools' 'side . board gauge tools' 'side . board gauge pocket-bot' 'uleft . uboard . move-controls';
     }
+    .analysis-app.bug {
+/*        grid-template-columns: minmax(230px, 20vw) 2vmin minmax(calc(70vmin * var(--board-scale)), calc(100vh * var(--board-scale) - calc(var(--site-header-height) + var(--site-header-margin)) - 3rem)) var(--gauge-gap) minmax(240px, 400px);*/
+/*        grid-template-columns: 2vmin minmax(calc(70vmin * var(--board-scale)), calc(100vh * var(--board-scale) - calc(var(--site-header-height) + var(--site-header-margin)) - 3rem)) var(--gauge-gap) minmax(240px, 400px) minmax(calc(70vmin * var(--board-scale)), calc(100vh * var(--board-scale) - calc(var(--site-header-height) + var(--site-header-margin)) - 3rem));*/
+        /*todo:niki:move list probably some max from this new expression and old one*/
+        grid-template-columns: minmax(calc(70vmin * var(--board-scale)), calc(100vh * var(--board-scale) - calc(var(--site-header-height) + var(--site-header-margin)) - 3rem))
+                               var(--gauge-gap)
+                               calc(var(--pocketLength) * (var(--cg-width) / var(--files)))
+                               calc(var(--pocketLength) * (var(--cg-width) / var(--files)))
+                               var(--gauge-gap)
+                               minmax(calc(70vmin * var(--board-scale)), calc(100vh * var(--board-scale) - calc(var(--site-header-height) + var(--site-header-margin)) - 3rem));
+        grid-template-rows: min-content 1fr;
+        grid-template-areas: 'board gauge pocket-top pocket-top-partner gaugePartner boardPartner' 'board gauge tools tools gaugePartner boardPartner' 'board gauge tools tools gaugePartner boardPartner' 'board gauge pocket-bot pocket-bot-partner gaugePartner boardPartner' 'uboard . move-controls move-controls . .'
+        /*'board . boardPartner' 'board mat-top boardPartner' 'board clock-top boardPartner' 'board expi-top boardPartner' 'board user-top boardPartner' 'board move-controls boardPartner' 'board moves boardPartner' 'board game-controls boardPartner' 'board user-bot boardPartner' 'board expi-bot boardPartner' 'board clock-bot boardPartner' 'board mat-bot boardPartner' 'board . boardPartner';*/
+    }
+
     /* move rank numbers to the left side of the board */
     .cg-wrap coords.side {
         right: auto;

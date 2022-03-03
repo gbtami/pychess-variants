@@ -7,6 +7,7 @@ import { selectVariant, VARIANTS } from './chess';
 import { renderTimeago } from './datetime';
 import { spinner } from './spinner';
 import { PyChessModel } from "./main";
+import { analysisView as bugAnalysisView} from "./bug/analysis";
 
 function runGround(vnode: VNode, model: PyChessModel) {
     const el = vnode.elm as HTMLElement;
@@ -91,6 +92,9 @@ export function embedView(model: PyChessModel): VNode[] {
 
 export function analysisView(model: PyChessModel): VNode[] {
     const variant = VARIANTS[model.variant];
+    if (variant === VARIANTS.bughouse){
+        return bugAnalysisView(model);
+    }
 
     renderTimeago();
 

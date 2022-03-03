@@ -19,6 +19,8 @@ export interface Step {
     vari?: Step[];
     sanSAN?: string;
 
+    boardName?: 'a' | 'b';
+    turnColorB?: cg.Color;//for second board of bughouse - todo:niki:i wonder if this is needed at all for either boards and variant
 }
 
 export interface CrossTable {

@@ -45,6 +45,7 @@ CONSERVATIVE_CAPA_FEN = "arnbqkbnrc/pppppppppp/10/10/10/10/PPPPPPPPPP/ARNBQKBNRC
 VARIANTS = (
     "chess",
     "chess960",
+    "bughouse",
     "crazyhouse",
     "crazyhouse960",
     "placement",
