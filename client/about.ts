@@ -92,7 +92,7 @@ export function aboutView(): VNode[] {
             ]),
             h('p', [
                 _('Additionally, you can check the Chess960 option for Chess, Crazyhouse, Atomic, S-chess, Capablanca, and Capahouse to start games from random positions with '),
-                h('a', { attrs: { href: 'https://en.wikipedia.org/wiki/Chess960#Castling_rules' } }, _('Chess960 castling rules.'))
+                h('a', { attrs: { href: 'https://en.wikipedia.org/wiki/Fischer_random_chess#Castling_rules' } }, _('Chess960 castling rules.'))
             ]),
             h('p', [
                 _('For move generation, validation, analysis, and engine play, we use '),
