@@ -58,6 +58,10 @@ class ArenaTournament(Tournament):
                         print("   find OK opp (they never played before!)", y.username)
                         pair_them(x, y)
                         return True
+                    elif self.ongoing_games == 0:
+                        print("   find OK opp (duel!)", y.username)
+                        pair_them(x, y)
+                        return True                        
                     else:
                         return False
 

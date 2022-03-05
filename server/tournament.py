@@ -353,7 +353,7 @@ class Tournament(ABC):
                         if now >= self.prev_pairing + self.wave + random.uniform(-self.wave_delta, self.wave_delta):
                             waiting_players = self.waiting_players()
                             nb_waiting_players = len(waiting_players)
-                            if nb_waiting_players == 2 or nb_waiting_players >= (4 if len(self.players) > 20 else 3):
+                            if nb_waiting_players >= 2:
                                 log.debug("Enough player (%s), do pairing", nb_waiting_players)
                                 await self.create_new_pairings(waiting_players)
                                 self.prev_pairing = now
@@ -808,7 +808,6 @@ class Tournament(ABC):
         bpscore = self.leaderboard.get(game.bplayer) // SCORE_SHIFT
         self.leaderboard.update({game.bplayer: SCORE_SHIFT * (bpscore + bpoint[0]) + bplayer.performance})
 
-        self.ongoing_games -= 1
         self.nb_games_finished += 1
 
         if game.result == "1-0":
@@ -818,7 +817,7 @@ class Tournament(ABC):
         elif game.result == "1/2-1/2":
             self.draw += 1
 
-        self.delayed_free(game, wplayer, bplayer)
+        asyncio.create_task(self.delayed_free(game, wplayer, bplayer))
 
         # TODO: save player points to db
         # await self.db_update_player(wplayer, self.players[wplayer])
@@ -844,10 +843,9 @@ class Tournament(ABC):
                         tgj = self.top_game_json
                         await self.broadcast(tgj)
 
-    def delayed_free(self, game, wplayer, bplayer):
-        # TODO: this should be a task, unless it slows down to send response to game end messages !!!
-        # if self.system == ARENA:
-        #     await asyncio.sleep(3)
+    async def delayed_free(self, game, wplayer, bplayer):
+        if self.system == ARENA:
+            await asyncio.sleep(3)
 
         wplayer.free = True
         bplayer.free = True
@@ -858,6 +856,8 @@ class Tournament(ABC):
                 wplayer.paused = True
             elif game.board.ply == 1:
                 bplayer.paused = True
+
+        self.ongoing_games -= 1                
 
     async def broadcast(self, response):
         for spectator in self.spectators:
