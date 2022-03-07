@@ -231,6 +231,12 @@ label.piece.piece4.janggi {
 label.piece.piece5.janggi {
     background-image: url('images/pieces/janggi/Ka_wooden/blue_king.svg');
 }
+label.piece.piece6.janggi {
+    background-image: url('images/pieces/janggi/intlblue/blue_king.svg');
+}
+label.piece.piece7.janggi {
+    background-image: url('images/pieces/janggi/intlgreen/blue_king.svg');
+}
 
 label.piece.piece0.shako {
     background-image: url('images/pieces/merida/shako/wC.svg');
