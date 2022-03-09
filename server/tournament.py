@@ -560,7 +560,7 @@ class Tournament(ABC):
             if len(self.players[player].games) == 0:
                 continue
             latest = self.players[player].games[-1]
-            if latest and latest.status in (CREATED, STARTED):
+            if latest and isinstance(latest, Game) and latest.status in (CREATED, STARTED):
                 self.players[player].games.pop()
                 self.players[player].points.pop()
                 self.players[player].nb_games -= 1
@@ -663,6 +663,10 @@ class Tournament(ABC):
             self.leaderboard_keys_view = SortedKeysView(self.leaderboard)
 
         games = await self.create_games(pairing)
+
+        # save pairings to db
+        asyncio.create_task(self.db_insert_pairing(games))
+
         return (pairing, games)
 
     def set_top_player(self):
@@ -969,9 +973,10 @@ class Tournament(ABC):
 
         asyncio.create_task(self.delayed_free(game, wplayer, bplayer))
 
-        # TODO: save player points to db
-        # await self.db_update_player(wplayer, self.players[wplayer])
-        # await self.db_update_player(bplayer, self.players[bplayer])
+        # save player points to db
+        asyncio.create_task(self.db_update_player(game.wplayer, wplayer))
+        asyncio.create_task(self.db_update_player(game.bplayer, bplayer))
+        asyncio.create_task(self.db_update_pairing(game))
 
         self.set_top_player()
 
@@ -1032,6 +1037,55 @@ class Tournament(ABC):
                 pass
             except Exception:
                 log.exception("Exception in tournament broadcast()")
+
+    async def db_insert_pairing(self, games):
+        pairing_documents = []
+        pairing_table = self.app["db"].tournament_pairing
+
+        for game in games:
+            if game.status == BYEGAME:  # TODO: Save or not save? This is the question.
+                continue
+
+            pairing_documents.append(
+                {
+                    "_id": game.id,
+                    "tid": self.id,
+                    "u": (game.wplayer.username, game.bplayer.username),
+                    "r": R2C[game.result],
+                    "d": game.date,
+                    "wr": game.wrating,
+                    "br": game.brating,
+                    "wb": game.wberserk,
+                    "bb": game.bberserk,
+                }
+            )
+
+        await pairing_table.insert_many(pairing_documents)
+
+    async def db_update_pairing(self, game):
+        pairing_table = self.app["db"].tournament_pairing
+
+        try:
+            new_data = {
+                "r": R2C[game.result],
+                "wb": game.wberserk,
+                "bb": game.bberserk,
+            }
+
+            print(
+                await pairing_table.find_one_and_update(
+                    {"_id": game.id},
+                    {"$set": new_data},
+                    return_document=ReturnDocument.AFTER,
+                )
+            )
+        except Exception:
+            if self.app["db"] is not None:
+                log.error(
+                    "db find_one_and_update pairing_table %s into %s failed !!!",
+                    game.id,
+                    self.id,
+                )
 
     async def db_update_player(self, user, player_data):
         if self.app["db"] is None:
@@ -1117,33 +1171,6 @@ class Tournament(ABC):
                 return_document=ReturnDocument.AFTER,
             )
         )
-
-        pairing_documents = []
-        pairing_table = self.app["db"].tournament_pairing
-
-        processed_games = set()
-
-        for user, user_data in self.players.items():
-            for game in user_data.games:
-                if game.status == BYEGAME:  # ByeGame
-                    continue
-                if game.id not in processed_games:
-                    pairing_documents.append(
-                        {
-                            "_id": game.id,
-                            "tid": self.id,
-                            "u": (game.wplayer.username, game.bplayer.username),
-                            "r": R2C[game.result],
-                            "d": game.date,
-                            "wr": game.wrating,
-                            "br": game.brating,
-                            "wb": game.wberserk,
-                            "bb": game.bberserk,
-                        }
-                    )
-                processed_games.add(game.id)
-
-        await pairing_table.insert_many(pairing_documents)
 
         for user in self.leaderboard:
             await self.db_update_player(user, self.players[user])
