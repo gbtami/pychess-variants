@@ -63,7 +63,7 @@ VARIANTS = (
     "coffeehill960",
     "antiplacement",
     "antihoppelpoppel",
-    "antishogun",
+#    "antishogun",
     "anticapablanca",
     "antichak",
     "antisynochess",
