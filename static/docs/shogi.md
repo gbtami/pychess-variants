@@ -301,3 +301,5 @@ Rook–Lance | rook, left lance
 8-Piece | rook, bishop, both lances, both knights, both silvers
 9-Piece | rook, bishop, both lances, both knights, both silvers, left gold
 10-Piece | rook, bishop, both lances, both knights, both silvers, both golds
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/YH63AlxpXkg" frameborder="0" allowfullscreen></iframe>
