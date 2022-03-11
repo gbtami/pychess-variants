@@ -181,6 +181,9 @@ label.piece.piece1.tori {
 label.piece.piece2.tori {
     background-image: url('images/pieces/tori/minimalist/0PhoenixBlack.svg');
 }
+label.piece.piece3.tori {
+    background-image: url('images/pieces/tori/Portella/0PhoenixBlack.png');
+}
 
 label.piece.piece0.xiangqi {
     background-image: url('images/pieces/xiangqi/2dhanzi/RK.svg');
