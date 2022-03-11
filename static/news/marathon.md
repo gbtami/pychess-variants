@@ -37,7 +37,7 @@ Is cheating authorized? No, it will get you a swift ban as usual.
 
 Don't you think this is unhealthy? Indeed. We decline all responsibility in case of epic tilt.
 
-What are the prizes? The winner takes the unique blue globe trophy home. Top ten players and top fifty also receive a trophy.
+What are the prizes? The winner takes the unique blue globe trophy home. Top fifteen players receive a trophy.
 
 ![Marathonrun](https://imgur.com/6SUAr7h.png)
 
