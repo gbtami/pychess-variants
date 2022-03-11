@@ -247,3 +247,5 @@ Common handicaps are as follows:
 * One-piece: Falcon
 * Two-piece: Falcon and Left Quail
 * Three-piece: Falcon and both Quails
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/5f9QKK7cm20" frameborder="0" allowfullscreen></iframe>
