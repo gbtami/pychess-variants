@@ -45,7 +45,6 @@ If you can't play this marathon, worry not, there will be others, later on.
 
 Now train and rest before the event starts! May the best and **craziest of us be victorious!**
 
-                                 [Discord](https://discord.gg/5qvjPQstKS) [Lichess Team](https://lichess.org/team/liantichessherokuappcom)
+[Discord](https://discord.gg/5qvjPQstKS) [Lichess Team](https://lichess.org/team/liantichessherokuappcom)
 
-                                 [Liantichess is a charity and entirely free/libre open source software.
-   All operating costs, development, and content are funded solely by user support.](https://liantichess.herokuapp.com/allplayers)
+[Liantichess is a charity and entirely free/libre open source software. All operating costs, development, and content are funded solely by user support.](https://liantichess.herokuapp.com/allplayers)
