@@ -370,7 +370,6 @@ then must defend it during the next %s Shield tournament!
     app["tourneysockets"][tournament_id] = {}
     app["tourneychat"][tournament_id] = collections.deque([], MAX_CHAT_LINES)
 
-    tournament.nb_games_finished = doc.get("nbGames", 0)
     tournament.winner = doc.get("winner", "")
 
     player_table = app["db"].tournament_player
@@ -421,8 +420,12 @@ then must defend it during the next %s Shield tournament!
     w_win, b_win, draw, berserk = 0, 0, 0, 0
     async for doc in cursor:
         res = doc["r"]
-        _id = doc["_id"]
         result = C2R[res]
+        # Skip aborted/unfinished games
+        if result == "*":
+            continue
+
+        _id = doc["_id"]
         wp, bp = doc["u"]
         wrating = doc["wr"]
         brating = doc["br"]
@@ -456,6 +459,8 @@ then must defend it during the next %s Shield tournament!
             berserk += 1
         if bberserk:
             berserk += 1
+
+        tournament.nb_games_finished += 1
 
     tournament.w_win = w_win
     tournament.b_win = b_win

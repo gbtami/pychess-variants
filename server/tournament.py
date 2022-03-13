@@ -14,6 +14,7 @@ from pymongo import ReturnDocument
 from broadcast import lobby_broadcast, discord_message
 from compress import R2C
 from const import (
+    ABORTED,
     CASUAL,
     RATED,
     CREATED,
@@ -921,6 +922,11 @@ class Tournament(ABC):
 
         wplayer = self.players[game.wplayer]
         bplayer = self.players[game.bplayer]
+
+        if game.status == ABORTED:
+            wplayer.points.pop()
+            bplayer.points.pop()
+            return
 
         if game.wberserk:
             wplayer.nb_berserk += 1
