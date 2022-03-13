@@ -15,26 +15,35 @@
 
 This happened to me a lot. I tried to use antichess opening strategies in the antichess variants on [liantichess](https://liantichess.herokuapp.com) but soon realised they don't work. So in this blog, I'll go over the openings and strategy of some of those variants.
 
-## [Anti-Atomic](https://liantichess.herokuapp.com/variants/antiatomic)
+# [Anti-Atomic](https://liantichess.herokuapp.com/variants/antiatomic)
 
 One thing to note about anti-atomic is that, don't open your queen too early. So, 1.d4 is a complete blunder
+
 ![1.d4 anti-atomic](https://i.imgur.com/ZQMv9oq.png)
+
 as after e5 dxe5 Ne7 Qxd7,
+
 ![d4 e5 dxe7 Ne7 Qxd7](https://i.imgur.com/mGmqWwH.png)
+
 White has 14 pieces left while black has 10. As in anti-atomic, a piece that is capturing also gets captured, this position is an easy win for black.
 
-#### Anti-Atomic Strategy
+# Anti-Atomic Strategy
 
 I and @vlad\_00 played a series of games of this, after which we both realised, that the best strategy here, is to either force your opponent to trade one piece for 3 or 4 or get rid of all your pawns. The "atomic problem" of pawns is what makes them easy targets for your opponent in endgames.
 
 Take [this game](https://liantichess.herokuapp.com/c65C4SKp) for example.
+
 After 3.d6, I chose to not give the queen away but a pawn instead as it had cost me lots of endgames in the games before. So after 6.c5, I was safe to give away my queen on the 8th move. Kd7 by black there was to prevent the queen from taking lots of pieces of mine.
+
 ![anti-atomic kd7](https://i.imgur.com/kL4zydy.png)
+
 10.Nc3 to get rid of the knights as they also cause problems sometimes. Although I never understood why Vlad played Ne4, I suppose it was to get rid of my main pieces as I had more pawns left than him.
+
 ![anti-atomic Ne4](https://i.imgur.com/rIoaIQ5.png)
+
 But I soon equalised after 17.h4. I think Bh6 was the point where it was clear 1-0, as it was a relatively simple KP v K endgame after that.
 
-## [Anti-Antichess](https://liantichess.herokuapp.com/variants/anti_antichess)
+# [Anti-Antichess](https://liantichess.herokuapp.com/variants/anti_antichess)
 
 Although I don't know much about this, I realised that this is basically chess with forced captures without a royal king. But @tolius has [made a BOT on lichess](https://lichess.org/@/anti-anti) against which you can practice anti-antichess, so I guess he is the expert here.
 
@@ -61,10 +70,14 @@ The coffee variants on liantichess are all about calculating [zwischenzugs/inter
 
 I would say, try to get your king to the 3rd/6th file within the first 7 moves. I think this game is heavily influenced by white, so I wanted to show you an [interesting zwischenzug which I found as black](https://liantichess.herokuapp.com/5R222sGj).
 It should probably go into the strategy guide that Nc3 d5 Nxd5 Qxd5 d4 is 0-1 in coffeehill with that zwischenzug. The idea is to give the white bishop as many captures as possible so the black king can advance freely.
+
 ![Coffeehill](https://i.imgur.com/ysoUymt.png)
+
 So, the only thing to be done is to set up 2 free capturable pieces and your king can advance into the centre. Although to **force** those moves, the order of moves is important.
 Obviously, we don't want our bishop to capture back on b7, so we go for b5, where we can set up two captures after playing Na6 later. After the bishop takes the rook, you can either play Bb7 or e5 first, provided that it comes before Na6. Now we can freely advance our king towards the centre
+
 ![Kingwalk coffeehill](https://i.imgur.com/ZDUlGBr.png)
+
 Now as it is white's move, the only 4 moves that can delay Kxe5# are Nf3, f4, Bf4 and Qd4, but they can all be stopped easily. Here is how:
 
 | For | Response | Image |
