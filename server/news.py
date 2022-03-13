@@ -1,4 +1,5 @@
 NEWS = {
+    "variants": "2022.03.13",
     "marathon": "2022.03.11",
     "Loserschess": "2022.01.01",
     "newvariants": "2022.01.02",

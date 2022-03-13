@@ -943,6 +943,16 @@ export function lobbyView(model: PyChessModel): VNode[] {
                 h('a.reflist', { attrs: {href: '/news'} }, _("Latest updates")),
             ]),
         h('posts', [
+            h('a.post', { attrs: {href: '/news/variants'} }, [
+                h('img', { attrs: {src: model["asset-url"] + '/images/variants.png'} }),
+                h('span.text', [
+                    h('strong', "How to play the variants on liantichess?"),
+                    h('span', 'antichess opening strategies does not work in the antichess variants'),
+                ]),
+                h('time', '2022.11.03'),
+            ]),
+
+        h('posts', [
             h('a.post', { attrs: {href: '/news/marathon'} }, [
                 h('img', { attrs: {src: model["asset-url"] + '/images/marathon.png'} }),
                 h('span.text', [
@@ -961,16 +971,6 @@ export function lobbyView(model: PyChessModel): VNode[] {
                 ]),
                 h('time', '2022.01.02'),
             ]),
-
-                h('posts', [
-                // TODO: create news documents in mongodb and load latest 3 dinamically here
-                    h('a.post', { attrs: {href: '/news/Loserschess'} }, [
-                        h('img', { attrs: {src: model["asset-url"] + '/images/new.png'} }),
-                        h('span.text', [
-                            h('strong', "New year, New variant"),
-                            h('span', 'Happy New Year'),
-                        ]),
-                        h('time', '2022.01.01'),
 
                  	    /*   
                 ]),
