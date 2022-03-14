@@ -31,7 +31,7 @@ In these images, green dots represent movement only, while yellow dots represent
 ### Soldier (S)
 ![Soldier](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/EmpireSoldier.png)
 
-The Soldiers replace the two middle Pawns. Soldiers both move and attack either one space forwards or one space to either side. These act as the bodyguards of the Kaiser; they're strongest when paired together. 
+The Soldiers replace the two middle Pawns. Soldiers both move and attack either one space forwards or one space to either side. These act as the bodyguards of the Kaiser; they're strongest when paired together. As Soldiers are not Pawns, they *don't* promote.
 
 ### Duke (D)
 
