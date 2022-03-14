@@ -1,4 +1,4 @@
-## Liantichess
+# [Liantichess](https://liantichess.herokuapp.com)
 
 [![Nodejs-CI](https://github.com/SriMethan/Liantichess/actions/workflows/nodejs.yml/badge.svg)](https://github.com/SriMethan/Liantichess/actions/workflows/nodejs.yml)
 
@@ -25,10 +25,10 @@ liantichess is a free server and it will remain free forever.
 
 ### Project setup
 ```
-pip3 install -r requirements.txt --user // Install python requirements
-yarn install                            // Install node requirements
-yarn dev                                // Compile typescript files to javascript
-yarn md                                 // Compile md files to html
+pip3 install -r requirements.txt --user 
+yarn install                            
+yarn dev                                
+yarn md                                 
 ```
 
 ### Start server
