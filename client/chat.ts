@@ -49,9 +49,10 @@ export function chatView(ctrl: RoundController | AnalysisController | Tournament
 }
 
 export function chatMessage (user: string, message: string, chatType: string, time?: number) {
-    const myDiv = document.getElementById(chatType + '-messages') as HTMLElement;
+    const chatDiv = document.getElementById(chatType + '-messages') as HTMLElement;
     // You must add border widths, padding and margins to the right.
-    const isScrolled = myDiv.scrollTop === myDiv.scrollHeight - myDiv.offsetHeight;
+    // Only scroll the chat on a new message if the user is at the very bottom of the chat
+    const isBottom = chatDiv.scrollHeight - (chatDiv.scrollTop + chatDiv.offsetHeight) < 80;
     const localTime = time ? new Date(time * 1000).toLocaleTimeString("default", { hour: "2-digit", minute: "2-digit", hour12: false }) : "";
 
     const container = document.getElementById('messages') as HTMLElement;
@@ -68,5 +69,5 @@ export function chatMessage (user: string, message: string, chatType: string, ti
         patch(container, h('div#messages', [ h("li.message", [h("div.time", localTime), h("user", h("a", { attrs: {href: "/@/" + user} }, user)), h("t", message)]) ]));
     }
 
-    if (isScrolled) setTimeout(() => {myDiv.scrollTop = myDiv.scrollHeight;}, 200);
+    if (isBottom) setTimeout(() => {chatDiv.scrollTop = chatDiv.scrollHeight;}, 200);
 }
