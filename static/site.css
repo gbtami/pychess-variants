@@ -362,6 +362,7 @@ iframe {
     display: flex;
     flex-flow: column nowrap;
     justify-content: right;
+    overflow: hidden;
 }
 .sidebar-second{
     grid-area: table;
