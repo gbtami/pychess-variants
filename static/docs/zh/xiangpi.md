@@ -122,63 +122,93 @@
 
 
 
-## 記譜"
+## 記譜
 
-As of October 2021, Pychess uses the World Xiangqi Federation (WXF) notation, which is the most commonly used notation internationally. This is much different than the Standard Algebraic Notation (SAN) used in Chess. The standard format is as follows:
+PyChess使用中國象棋座標式記譜法，請注意這與傳同的中式記譜法不同。
 
-[single-letter piece abbreviation][former *file*][operator indicating direction of movement][new file, or in the case of purely vertical movement, number of ranks traversed]
+中式記譜法:
 
-For comparison, the SAN used in chess is:
+[棋子][原棋子所在行][前進或後退][移動後所在行]
 
-[single-letter piece abbreviation][former *position*][capture indication][new position][check indication][analysis]
+ex 炮二平五
 
-### Symbols
+座標式記譜法:
 
-K = **K**ing
+[棋子][原所在行][新座標]
 
-A = **A**dvisor
+ex Che2
 
-E = **E**lephant
+## 說明
 
-H = **H**orse
+《座標記譜法》
 
-C = **C**annon
+座標方式是國際象棋棋譜的表示方式。它把國際象棋棋盤上
+的每格格子都按座標編上記號。只要知道起始座標和到達座
+標，就能記錄棋子移動的路線。
 
-R = Cha**R**iot
+《記譜方式》
 
-P = **P**awn
+仿照國際象棋，以紅方為正面，把象棋棋盤的縱線從左到右
+依次記為a b c d e f g h i，棋盤的橫線從下到上依次記為
+0 1 2 3 4 5 6 7 8 9
 
-## WXF Notation
+《棋子表示方式》
 
-Files are described differently in WXF notation. 
+帥 將 King（K）
+仕 士 Advisor（A）
+相 象 Bishop（B）
+馬 馬 Knight（N）
+車 車 Rook（R）
+炮 炮 Cannon（C）
+兵 卒 Pawn（P）
 
-**Files are numbered 1 to 9, from right to left.**
+[註1:世界象棋聯合會推薦"相"、"象"的代號為 Elephant,E ]
+[註2:世界象棋聯合會推薦"馬"的代號為 Horse,H]
 
-**Your opponent's files are also numbered from 1 to 9 from their viewpoint as well. Therefore, your cannon in file 2 faces the opponent's cannon in file 8.**
 
-Pieces are described by their file and how they move. Either they move forward (+) or backwards (-). Again, this is relative to the player. Your opponent moving towards you is still + because they are advancing.
+《記譜方式》
+「-」 移動，常省略
+「+」 將軍
+「#」 將殺
+「x」 吃子
 
-### Diagonal pieces and horses
 
-Notation for these pieces is simple + or - and their *new file destination*.
+Ex:
+1. Che2  (炮二平五) 　   Che7 (包８平５)
+2. Cexe6+ (炮五進四) 　  Ade8 (士４進５)
+3. Nhg2  (馬二進三) 　   Nhg7 (馬８進７)
+4. Cbe2  (炮八平五) 　   Nbc7 (馬２進３)
+5. Cee4  (前炮退二) 　   Rih9 (車９平８)
 
-For example, from the starting position, red's right horse on file 2 moving forward and to the left of the cannon would be H2+3. Moving to the edge instead is H2+1. If the elephant moved and did not block the horse, then moving sideways towards the palace is H2+4.
 
-Advisors and elephants work the same way.
+### 代號:
 
-### Orthogonal movement
+K = **K**ing 將
 
-Moving forwards and backwards is **+ or -** followed by *the number of spaces*.
+A = **A**dvisor 士
 
-Red pawn on file 5 moving forward = P5+1.
+E = **E**lephant 象
 
-Red chariot on file 1 moving 5 spaces backward is R1-5.
+H = **H**orse 馬
 
-Moving *sideways* is **=** followed by *new file destination*. The typical starting move of moving your right cannon to the center would be 1. C2=5. Moving the left cannon to the center would be 1. C8=5.
+C = **C**annon 包
 
-Sometimes, some players would use a "." instead of "=".
+R = Cha**R**iot 車
 
-### Disambiguation
+P = **P**awn 卒
+
+## WXF 記法
+
+將中式記法轉成英文字母和數字。各種棋子H（Horse - 馬）、R（Rook - 車）、C（Cannon - 炮）和P（Pawn - 兵）代替。「平」用「=」或「.」代替；「進」、「退」和「前」、「後」分別用「+」、「-」取代。如果同一行有兩隻相同棋子，則前面的以+表示，後面的以-表示，其後不加棋子所在行。
+例如四路有兩隻車，則前面那隻移到三路記做「前車平三」(R+=3)
+
+馬2進3（H2+3）：黑方在第2條直線上的馬向前再轉左，走到第3條直線上
+
+俥一進一（R1+1）：紅方在第一條直線上（即最右方）的俥向前一步
+
+後砲平4（C-=4 / C-.4）：黑方在某條直線上有兩隻黑砲，將較近黑方自己的一隻移動到第4條直線
+
+
 
 If two of the same piece are in the same file, then a + or - to specify if it's the more advanced piece (+) or the piece that's at a lower rank (-). For example, if two chariots are on the same file but on opposite sides of the river, and you wanted to move to the farther one to the center, that would be R+=5.
 
