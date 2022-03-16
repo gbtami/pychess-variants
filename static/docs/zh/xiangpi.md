@@ -2,7 +2,8 @@
 
 ![Boards](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/Boards.png)
 
-象棋是中國大陸、香港、台灣、馬來西亞、新加坡、越南、琉球地區所流行的傳統的2人對弈棋類遊戲。中國大陸為了進行區分稱此為中國象棋，將西方的「Chess」稱為國際象棋；台灣將「Chess」翻譯為「西洋棋」。據說從春秋戰國時期的「六博」演繹而來，也有一說是源自於古印度象棋恰圖蘭卡，傳入中國成寶應象棋。最後中國人在宋代改造成中國象棋。德國西洋棋歷史學家Peter Banaschak指出，唐代宰相牛僧孺的《玄怪錄》內沒有「炮」的寶應象棋是中國象棋的真正來源。
+
+象棋是中國大陸、香港、台灣、馬來西亞、新加坡、越南、琉球地區所流行的傳統的2人對弈棋類遊戲。中國大陸為了進行區分稱此為中國象棋，將西方的「Chess」稱為國際象棋；台灣將「Chess」翻譯為「西洋棋」。據說從春秋戰國時期的「六博」演繹而來，也有一說是源自於古印度象棋恰圖蘭卡，傳入中國成寶應象棋，最後中國人在宋代改造成中國象棋。德國西洋棋歷史學家Peter Banaschak指出，唐代宰相牛僧孺的《玄怪錄》內沒有「炮」的寶應象棋是中國象棋的真正來源。
 
 ## 一、為何要玩中國象棋
 
@@ -104,89 +105,94 @@
 
 ## 五、勝負:
 
-對一般棋局來說，只要一方「欠行」或者被「將死」，又或者自動認輸，另一方即可得勝。欠行和將死定義如下：
+對一般棋局來說，只要一方被「困斃」或者被「將死」，又或者自動認輸，另一方即可得勝。困斃和將死定義如下：
 
-行棋方無子可走，稱為欠行，亦稱為困斃。
+行棋方無子可走，稱為困斃。
 當一方的棋子攻擊範圍內包含了對方的將帥，準備在下一步吃掉它，稱為照將或將軍，簡稱將。
 被將軍的一方必須應將，即移動將帥或別的棋子來化解。無法應將的情況稱為「被將死」。
 
 首先超時的一方判負。
 
-雙方在若干步數之內都沒有吃過對方的棋子，由裁判決定結果（通常例勝之局判勝負，例和之局判和），或者使用西洋棋的50步規則，雙方在連續50步都沒有吃子時，直接判和。
+雙方在連續50步都沒有吃子時，直接判和。
 
-長打（即長捉、長將、長殺、或一將一要殺）的一方通常判負，以下為例外情況：
-
-將帥可以長捉（是指「可以用將/帥來長捉對方的棋子」
-
-兵卒可以長捉（但不包括長將或長殺），雙方不變判和
-
-
+長打（即長捉、長將、長殺）的一方判負。
 
 ## 六、記譜
 
 《棋子表示方式》
 
-棋子 | 代號
+棋子 | 英文代號
 ------------ | ------------- 
 帥 將| King（K）
 仕 士| Advisor（A）
-相 象| Elephant(E)
+相 象| Elephant(Ｅ)
 傌 馬| Horse（H）
 俥 車| Rook（R）
 炮 包| Cannon（C）
 兵 卒| Pawn（P）
 
+在開始之前請先熟悉中式記譜法:https://zh.wikipedia.org/wiki/%E8%B1%A1%E6%A3%8B#%E4%B8%AD%E5%BC%8F%E8%A8%98%E8%AD%9C%E6%B3%95
+
 PyChess在棋譜列使用傳統西式記譜法，若要匯出PGN檔案則是以中國象棋座標式記譜法表示。分述如下:
 
-### 西式記譜法:
-
-[棋子][原棋子所在行][前進或後退][移動後所在行]
-
-將中式記法轉成英文字母和數字。各種棋子H（Horse - 馬）、R（Rook - 車）、C（Cannon - 炮）和P（Pawn - 兵）代替。「平」用「=」或「.」代替；「進」、「退」和「前」、「後」分別用「+」、「-」取代。如果同一行有兩隻相同棋子，則前面的以+表示，後面的以-表示，其後不加棋子所在行。
-例如四路有兩隻車，則前面那隻移到三路記做「前車平三」(R+=3)
-
-ex
-
-馬2進3（H2+3）：黑方在第2條直線上的馬向前再轉左，走到第3條直線上
-
-俥一進一（R1+1）：紅方在第一條直線上（即最右方）的俥向前一步
-
-後砲平4（C-=4 / C-.4）：黑方在某條直線上有兩隻黑砲，將較近黑方自己的一隻移動到第4條直線
+### 1. 西式記譜法:
 
 
-ex 炮二平五
+**格式**: [棋子][原棋子所在行][前進或後退][移動後所在行]
 
-座標式記譜法:
+直接將中式記法轉成英文字母和數字。各種棋子以英文代號代替。「平」用「=」代替；「進」、「退」和「前」、「後」分別用「+」、「-」取代。如果同一行有兩隻相同棋子，則前面的以+表示，後面的以-表示，其後不加棋子所在行。
 
-[棋子][原所在行][新座標]
+例如:
 
-ex Che2
+* 馬2進3（H2+3）：黑方在第2條直線上的馬向前再轉左，走到第3條直線上
 
-## 說明
+* 俥一進一（R1+1）：紅方在第一條直線上（即最右方）的俥向前一步
 
-《座標記譜法》
+* 後砲平4（C-=4 / C-.4）：黑方在某條直線上有兩隻黑砲，將較近黑方自己的一隻移動到第4條直線
 
-座標方式是國際象棋棋譜的表示方式。它把國際象棋棋盤上
-的每格格子都按座標編上記號。只要知道起始座標和到達座
-標，就能記錄棋子移動的路線。
+### 2. 座標式記譜法:
 
-《記譜方式》
+**格式**: [棋子][新座標]
 
-仿照國際象棋，以紅方為正面，把象棋棋盤的縱線從左到右
-依次記為a b c d e f g h i，棋盤的橫線從下到上依次記為
-0 1 2 3 4 5 6 7 8 9
+仿照國際象棋，將棋盤上每一個格子點都建立座標。
 
+以紅方為正面，把象棋棋盤的縱線從左到右依次記為
 
+九|八|七|六|五|四|三|二|一
+-|-|-|-|-|-|-|-|-
+a|b|c|d|e|f|g|h|i
 
-[註1:世界象棋聯合會推薦"相"、"象"的代號為 Elephant,E ]
-[註2:世界象棋聯合會推薦"馬"的代號為 Horse,H]
+棋盤的橫線從下到上依次記為
 
+9|
+-|
+8|
+7|
+6|
+5|
+4|
+3|
+2|
+1|
+0
 
-《記譜方式》
+因此帥一開始所在的座標是e0
+
+**記譜方式**
+
 「-」 移動，常省略
+
 「+」 將軍
+
 「#」 將殺
+
 「x」 吃子
+
+若遇到兩種以上的動子可能時(例如紅開局中炮)，則需另外再註明該子的行號(或列號)。
+
+如開局炮二平五=Che2、炮八平五=Cbe2。
+
+又如兩隻車都在肋道，一隻在d3，一隻在d2，則前車平九記為R3a3。
 
 
 Ex:
@@ -196,45 +202,6 @@ Ex:
 4. Cbe2  (炮八平五) 　   Nbc7 (馬２進３)
 5. Cee4  (前炮退二) 　   Rih9 (車９平８)
 
-
-### 代號:
-
-K = **K**ing 將
-
-A = **A**dvisor 士
-
-E = **E**lephant 象
-
-H = **H**orse 馬
-
-C = **C**annon 包
-
-R = Cha**R**iot 車
-
-P = **P**awn 卒
-
-### WXF 記法
-
-將中式記法轉成英文字母和數字。各種棋子H（Horse - 馬）、R（Rook - 車）、C（Cannon - 炮）和P（Pawn - 兵）代替。「平」用「=」或「.」代替；「進」、「退」和「前」、「後」分別用「+」、「-」取代。如果同一行有兩隻相同棋子，則前面的以+表示，後面的以-表示，其後不加棋子所在行。
-例如四路有兩隻車，則前面那隻移到三路記做「前車平三」(R+=3)
-
-馬2進3（H2+3）：黑方在第2條直線上的馬向前再轉左，走到第3條直線上
-
-俥一進一（R1+1）：紅方在第一條直線上（即最右方）的俥向前一步
-
-後砲平4（C-=4 / C-.4）：黑方在某條直線上有兩隻黑砲，將較近黑方自己的一隻移動到第4條直線
-
-
-
-If two of the same piece are in the same file, then a + or - to specify if it's the more advanced piece (+) or the piece that's at a lower rank (-). For example, if two chariots are on the same file but on opposite sides of the river, and you wanted to move to the farther one to the center, that would be R+=5.
-
-Finally, if there are 3 or more pawns in the same file, then the pawns are numbered in order, with the pawn closest to you being numbered 1 and so forth. Then instead of using "P", pawns are referred to by their number. So if three pawns are all on file 5, and you wanted to advance the furthest pawn forwards, that would be "35+1".
-
-## Where are resources where I can learn Xiangqi?
-
-[Xiangqi in English] (http://www.xqinenglish.com/) is a good place for beginners. The website owner, Jim Png Hau Cheng, has also written several books, the  “Xiangqi Primer” series, which may be a worthwhile investment for serious learners.
-
-[Club Xiangqi](https://www.clubxiangqi.com/) is a site where you can play against tough players, most of which are Vietnamese.
 
 ## 七、策略
 
@@ -252,13 +219,11 @@ Finally, if there are 3 or more pawns in the same file, then the pawns are numbe
 
 ### 基本行棋原則
 
-* Similar to the knight and bishop in chess, the horse and cannon have opposing values based on the state of the board. 
-  * The horse is more defensive and less powerful in the early game because of too many pieces restricting its movement. It becomes much more powerful in the endgame when there are few pieces in its way (this is the opposite of the chess knight).  
-  * The cannon is more offensive and more potent in the early game because of the pieces it can use as screens. In the endgame, when the board is empty, its power decreases significantly. 
-* As above, use pieces to block the horse and elephants!
-* Do not think of an elephant as a bishop; they do not at all have similar roles despite their similar movement and starting position. It is strictly a defensive piece. Its offensive utility may be as a screen for a cannon.
-* *Discovery attacks* are far more prevalent in xiangqi than in chess or shogi because of the blockable pieces. Be ready to use them or defend against them.
-* *Double checks* are also more common, especially with the chariot and cannon in tandem.
+* 由於開局時子尚多，容易成為炮的炮架，所以炮在開局擁有相當強大的攻擊性。而到殘局時，由於子力變少炮容易成為孤炮，失去其戰鬥價值。反觀馬在開局時因為子力密集，易卡馬腳，因此成為需被保護的弱子，待殘局子力清空，馬的威力才真正發揮，能在近距離控制多個點位。 
+* 用車控制住肋道或二、八路，並卡住相眼、馬腳，或是占住河界。
+* 撐起士、相以完善防守，限制對方子力在自方區域的活動能力。
+* 不要讓對方架住空頭炮(炮、將之間沒有棋子)。如此炮會將那條線完全封死。
+* 開局讓子力生根(互相防守)，不要輕易讓馬脫根。
 
 ### 開局原則
 
@@ -276,9 +241,7 @@ Finally, if there are 3 or more pawns in the same file, then the pawns are numbe
 
 ![Screen horses](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/Screen_Horses.png)
 
-屏風馬是指在同一個棋局中，一位象棋棋手一起走馬二進三和馬八進七。
-
-在近代的中國象棋開局中，屏風馬是一個常用的後手 (黑棋) 防守的開局佈局。
+屏風馬是指在同一個棋局中，一位象棋棋手同時走馬二進三和馬八進七。
 
 屏風馬是一個防守穩健的佈局，可讓士象守護中宮、雙馬保護中兵。由於能有效果保護中兵，對將的保護很有利。
 
@@ -308,30 +271,28 @@ Finally, if there are 3 or more pawns in the same file, then the pawns are numbe
 
 與順手炮相似，只是改走與對手反向的炮，
 
-**5.**
+**5.三步虎**
 
 ![Three Step Tiger](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/Three_Step_Tiger.png)
 
-Black develops his chariot quickly by moving his cannon to the edge of the board. A typical sequence would be advancing the horse first, then cannon to the edge, then finally followed by chariot to the cannon's file.
+黑方上馬之後快速平邊炮亮車，是較激進的走法。
 
-Any other defenses are considered rare.
+### 其他先手開局
+紅方除了中炮局外，尚有其他開局，稱為緩攻類開局，並不會如中炮對黑方直接造成威脅。
 
-Aside from the cannon opening, Red has other options as well. These are called "soft openings" because it doesn't open with an immediate threat.
-
-**仙人指路** - 指先手走兵三進一或兵七進一，先開馬前兵，意在等待後手方表露意圖後再作打算，屬緩攻型佈局。因為它彈性大，可佈成各類陣勢。
+**1. 仙人指路** - 指先手走兵三進一或兵七進一，先開馬前兵，意在等待後手方表露意圖後再作打算，屬緩攻型佈局。因為它彈性大，可佈成各類陣勢，也非常常見。
 以兵七進一為例，後手方一般的應著為：
+* 砲８平５，稱為還中炮，不理會挺兵而逕自攻擊對方中兵，屬於攻擊型的應著。
+* 砲２平３，稱為卒底炮，又稱一聲雷，針對挺起的兵進行攻擊，同樣屬於攻擊型的應著。
+* 卒7進１，演變成對兵局，後手方針鋒相對，一樣不表示意圖，而且同樣彈性較大，之後能演變成多種不同類型的佈局,同樣亦是較穩健的應著。
+* 象３進５，演變成仙人指路對飛象，是甚為穩健的下法。
+* 馬８進７，演變成挺兵對起馬
 
-砲８平５，稱為還中炮，不理會挺兵而逕自攻擊對方中兵，屬於攻擊型的應著。
-砲２平３，稱為卒底炮，又稱一聲雷，針對挺起的兵進行攻擊，同樣屬於攻擊型的應著。
-卒7進１，演變成對兵局，後手方針鋒相對，一樣不表示意圖，而且同樣彈性較大，之後能演變成多種不同類型的佈局,同樣亦是較穩健的應著。
-象３進５，演變成仙人指路對飛象，是甚為穩健的下法。
-馬８進７，演變成挺兵對起馬
+**2. 飛象局** - 飛象護住中路，為高手常用的下法，比起一來一往的激烈對攻，此局較為隱晦含蓄，歛藏殺機，較不入套路之流。
 
-**飛象局** - 飛象護住中路，為高手常用的下法，比起一來一往的激烈對攻，此局較為隱晦含蓄，歛藏殺機，較不入套路之流。
+**3. 起馬局** - 走馬二進三或馬八進七，是AI最為推薦，分數最高的開局
 
-**三步虎** - Advancing a horse towards the middle. From there, Red can play the Two horse defence, Fan Gong Ma or Three Step Tiger openings with the colors reversed.
-
-Red can also play his cannon to the front corner of the palace ("Palcorner Cannon") or to the opposite corner ("Crosspalace Cannon"). These moves are also useful developing moves.  
+紅方尚有「士角炮」、「過宮炮」等開局。
 
 
 <iframe width="560" height="315" src="https://www.youtube.com/embed/5EDG5RP8OZ8" frameborder="0" allowfullscreen></iframe>
