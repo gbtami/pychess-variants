@@ -4,21 +4,21 @@
 
 象棋是中國大陸、香港、台灣、馬來西亞、新加坡、越南、琉球地區所流行的傳統的2人對弈棋類遊戲。中國大陸為了進行區分稱此為中國象棋，將西方的「Chess」稱為國際象棋；台灣將「Chess」翻譯為「西洋棋」。據說從春秋戰國時期的「六博」演繹而來，也有一說是源自於古印度象棋恰圖蘭卡，傳入中國成寶應象棋。最後中國人在宋代改造成中國象棋。德國西洋棋歷史學家Peter Banaschak指出，唐代宰相牛僧孺的《玄怪錄》內沒有「炮」的寶應象棋是中國象棋的真正來源。
 
-## 為何要玩中國象棋
+## 一、為何要玩中國象棋
 
 中國象棋相較西洋棋雖需時較長，步數較多，但亦有其精采之處。中國象棋的開局更為緊湊，比起佈陣決定盤面的「戰略」，更需要考驗棋手計算能力的「戰術」。
 它的局面豐富多樣，行棋輕快流暢，戰術凌厲，不像西洋棋常有子力擁塞的情況發生。相較西洋棋旨在發展空間，象棋更強調阻擋與搶占要道。學習象棋可以轉換另類思維，加上「炮」這個複雜而特別的棋子帶來許多別種棋所沒有的戰術，絕對可以增進你的棋感和敏銳度。
  
 
-## 規則
+## 二、規則
 所有的棋子都落在格子點上，且在縱橫的線上移動。開局由紅先行，黑其後，目的是將對方將死。與西洋棋不同的是，被困斃(stalemated無子可動)的一方算輸，另外長將和(perpetual checks)在象棋中也不成立。只要有一方連續動三次一樣的棋步該方就直接告負。
 
 
-## 棋盤
+## 三、棋盤
 
 象棋的棋盤由9條縱線和10條橫線相交而成。棋子放在各條線的相交點上，並在線上移動。棋盤中間的一行沒有畫上縱線，稱為「河界」，通常標上「楚河漢界」字樣，象徵楚漢相爭時的鴻溝。現行的中式記錄方法是：9條縱線，紅方從右到左用漢字「一」至「九」表示，黑方在自己的那一面從右到左用數字「1」至「9」表示。也就是說，紅方的縱線「一」就是黑方的縱線「9」，以此類推。第四條縱線（或第6條縱線）和第六條縱線（或第4條縱線）稱為「兩肋」、「兩肋線」，簡稱「肋」。棋盤上，劃有斜交叉線而構成「米」字形方格的地方，雙方各有一塊，稱為「九宮」，是將（帥）和士（仕）活動的區域。
 
-## 棋子
+## 四、棋子
 
 
 ### 將、帥
@@ -58,9 +58,9 @@
  
  ![Horse movement](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/HorseDiagram.png)
 
-馬行日：任何方向前進一步然後斜走一步（即「一步一尖」），或者說是先向前走兩步，再相應的垂直橫向走一步。
+馬行日：先向一個方向直走兩步，再橫向走一步。
 
-蹩馬腿（撬馬腳）：若前進方向與其緊挨的位置有任何棋子，就不能往那個方向走。
+卡馬腳(蹩馬腿)：若前進兩步的方向有棋子卡在第一步的位置，就不能往那個方向走。若棋子是卡在第二步的位置則還是可以跳馬的。
 
 最多能走八個方位（跟西洋棋的騎士一樣，但是西洋棋的騎士並無拐馬腳），有八面虎之稱，近距離殺傷力最強，同時又能憑著九彎十八拐的行進路線掩藏殺機，厲害無比。
 隨著戰局的進行，或是棋手實力越高，更易發揮其威力。
@@ -102,7 +102,7 @@
 與西洋棋不同，即使打到底線也不能升變成其他棋子，但過河就能橫移，加強能力。
 越到殘局威力越強，有時一兵（卒）可抵一馬或一炮，甚至一車。
 
-## 勝負:
+## 五、勝負:
 
 對一般棋局來說，只要一方「欠行」或者被「將死」，又或者自動認輸，另一方即可得勝。欠行和將死定義如下：
 
@@ -122,13 +122,37 @@
 
 
 
-## 記譜
+## 六、記譜
 
-PyChess使用中國象棋座標式記譜法，請注意這與傳同的中式記譜法不同。
+《棋子表示方式》
 
-中式記譜法:
+棋子 | 代號
+------------ | ------------- 
+帥 將| King（K）
+仕 士| Advisor（A）
+相 象| Elephant(E)
+傌 馬| Horse（H）
+俥 車| Rook（R）
+炮 包| Cannon（C）
+兵 卒| Pawn（P）
+
+PyChess在棋譜列使用傳統西式記譜法，若要匯出PGN檔案則是以中國象棋座標式記譜法表示。分述如下:
+
+### 西式記譜法:
 
 [棋子][原棋子所在行][前進或後退][移動後所在行]
+
+將中式記法轉成英文字母和數字。各種棋子H（Horse - 馬）、R（Rook - 車）、C（Cannon - 炮）和P（Pawn - 兵）代替。「平」用「=」或「.」代替；「進」、「退」和「前」、「後」分別用「+」、「-」取代。如果同一行有兩隻相同棋子，則前面的以+表示，後面的以-表示，其後不加棋子所在行。
+例如四路有兩隻車，則前面那隻移到三路記做「前車平三」(R+=3)
+
+ex
+
+馬2進3（H2+3）：黑方在第2條直線上的馬向前再轉左，走到第3條直線上
+
+俥一進一（R1+1）：紅方在第一條直線上（即最右方）的俥向前一步
+
+後砲平4（C-=4 / C-.4）：黑方在某條直線上有兩隻黑砲，將較近黑方自己的一隻移動到第4條直線
+
 
 ex 炮二平五
 
@@ -152,15 +176,7 @@ ex Che2
 依次記為a b c d e f g h i，棋盤的橫線從下到上依次記為
 0 1 2 3 4 5 6 7 8 9
 
-《棋子表示方式》
 
-帥 將 King（K）
-仕 士 Advisor（A）
-相 象 Bishop（B）
-馬 馬 Knight（N）
-車 車 Rook（R）
-炮 炮 Cannon（C）
-兵 卒 Pawn（P）
 
 [註1:世界象棋聯合會推薦"相"、"象"的代號為 Elephant,E ]
 [註2:世界象棋聯合會推薦"馬"的代號為 Horse,H]
@@ -197,7 +213,7 @@ R = Cha**R**iot 車
 
 P = **P**awn 卒
 
-## WXF 記法
+### WXF 記法
 
 將中式記法轉成英文字母和數字。各種棋子H（Horse - 馬）、R（Rook - 車）、C（Cannon - 炮）和P（Pawn - 兵）代替。「平」用「=」或「.」代替；「進」、「退」和「前」、「後」分別用「+」、「-」取代。如果同一行有兩隻相同棋子，則前面的以+表示，後面的以-表示，其後不加棋子所在行。
 例如四路有兩隻車，則前面那隻移到三路記做「前車平三」(R+=3)
@@ -220,23 +236,21 @@ Finally, if there are 3 or more pawns in the same file, then the pawns are numbe
 
 [Club Xiangqi](https://www.clubxiangqi.com/) is a site where you can play against tough players, most of which are Vietnamese.
 
-## Strategy
+## 七、策略
 
-### Piece Values
+### 子力價值
 
-Consensus piece values are as below
-
-Piece | Value 
+棋子 | 分數
 ------------ | ------------- 
-K | Infinite
-R | 9
-H | 4
-C | 4.5
-P | 1 before river or at last rank, 2 after river
-A | 2
-E | 2.5
+帥 將| 無限
+仕 士| 2
+相 象| 2.5
+傌 馬| 4
+俥 車| 9
+炮 包| 4.5
+兵 卒| 1，過河後變 2
 
-### General Principles
+### 基本行棋原則
 
 * Similar to the knight and bishop in chess, the horse and cannon have opposing values based on the state of the board. 
   * The horse is more defensive and less powerful in the early game because of too many pieces restricting its movement. It becomes much more powerful in the endgame when there are few pieces in its way (this is the opposite of the chess knight).  
@@ -246,37 +260,55 @@ E | 2.5
 * *Discovery attacks* are far more prevalent in xiangqi than in chess or shogi because of the blockable pieces. Be ready to use them or defend against them.
 * *Double checks* are also more common, especially with the chariot and cannon in tandem.
 
-### Opening Principles
+### 開局原則
 
-The following information is courtesy of [this site](http://www.shakki.info/english/openings.html)
+對於業餘棋手來說，有70%紅方開局走中炮，直接瞄準中路，目標明確且方便右翼子力出動，行棋較為套路，不易出錯。
 
-The most common opening move is the central cannon, which is a pretty obvious move because it opens aggression down the central file. About 70% of games start this way, so it's probably the best way to start learning the game.
+
 
 ![Cannon opening](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/CannonOpening.png)
 
-There are four very popular defenses, and a fifth will also be mentioned.
+瞭解中炮局是對新手不錯的還擇，以下將簡介四種黑方可以做出的應對，稱為四大開局:
 
-**1. Screen horses / Two horse defense**
+
+
+**1. 屏風馬**
 
 ![Screen horses](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/Screen_Horses.png)
 
-This is the most common defense. The goal of course is to have both horses protecting the center pawn. There are multiple variations.
+屏風馬是指在同一個棋局中，一位象棋棋手一起走馬二進三和馬八進七。
 
-**2. Fan Gong Ma / "Sandwich Horses"**
+在近代的中國象棋開局中，屏風馬是一個常用的後手 (黑棋) 防守的開局佈局。
 
-One horse is developed as normal, but before the other is developed, the cannon moves into a "palcorner cannon" position (cannon at the same side palace corner), then finally moves the second horse into place. Black will later connect the elephants to complete the defense. It's a relatively new opening.
+屏風馬是一個防守穩健的佈局，可讓士象守護中宮、雙馬保護中兵。由於能有效果保護中兵，對將的保護很有利。
+
+雙馬前進後 (即，馬二進三和馬八進七)，棋手一般會選擇卒七進一或卒三進一，這樣可讓單馬、甚至雙馬更為靈活，可立即出擊。
+
+可以有效果對抗對方紅棋的當頭炮開局，也可抗衡紅棋比較積極進攻的中炮盤頭馬。
+
+**2. 反宮馬**
+
+將炮動到士角使其更加靈活，可以直接牽制紅方左翼上馬八進七，往後也可發動肋道的攻勢。
+
+反宮馬最明顯的弱點是總有一邊馬沒有根 (沒有另一隻棋子保護這隻馬)。
+
+一旦沒有根的反宮馬被對方紅棋的車壓制，或被紅炮瞄準攻擊的時候，黑棋的防守會變得非常被動，造成難以抽出機會去反擊對手。
 
 ![Fan Gong Ma](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/Fan_Gong_Ma.png)
 
-**3. Same Direction Cannon**
+**3. 順手炮**
 
-Black moves the cannon from the same side that red moved his. Red capturing the defenseless center pawn is considered a move by amateurs because it loses time and black gets the initiative.
+順炮 (順手炮) 開局，是對炮局中的中炮局的一個主流開局佈局。順炮局的佈局過程是後手方 (黑棋) 跟先手方走的是同一邊的中炮開局。
 
-**4. Opposite Direction Cannon**
+在中國象棋中，能搶先是一個非常關鍵的贏棋因素。順炮局這個開局方式其實沒有大問題。相對於中炮對各種馬局的開局方式，使用順炮開局的後手方子力調動一般比較快，在一定程度上可跟先手方 (紅棋) 拼搶先手。
 
-Like the above, except the opposite cannon. The modern practice is to move the black cannon later though "Delayed Opposite Direction Cannon".
+後手方使用到順炮開局的情況，意味著在棋局中的雙方都屬於偏向進攻型的棋手，雙方在子力調動上都需要非常快速。先手方多數會走順車，後手方可走橫車，後手方在形勢上還是能保持著均勢。
 
-**5. Three Step Tiger**
+**4. 對炮局**
+
+與順手炮相似，只是改走與對手反向的炮，
+
+**5.**
 
 ![Three Step Tiger](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/Three_Step_Tiger.png)
 
@@ -286,15 +318,21 @@ Any other defenses are considered rare.
 
 Aside from the cannon opening, Red has other options as well. These are called "soft openings" because it doesn't open with an immediate threat.
 
-**Pawn Opening** - Advancing the 2nd or 4th pawn. This is a flexible opening allowing Red to adjust to Black's move. Black usually does not answer with the central cannon because Red could then play any of the central cannon openings with colors reversed and the pawn move would be an extra advantage.
+**仙人指路** - 指先手走兵三進一或兵七進一，先開馬前兵，意在等待後手方表露意圖後再作打算，屬緩攻型佈局。因為它彈性大，可佈成各類陣勢。
+以兵七進一為例，後手方一般的應著為：
 
-**Elephant Opening** - Advancing an elephant to the palace instead of a cannon. This is a solid defensive opening, where the king is protected.
+砲８平５，稱為還中炮，不理會挺兵而逕自攻擊對方中兵，屬於攻擊型的應著。
+砲２平３，稱為卒底炮，又稱一聲雷，針對挺起的兵進行攻擊，同樣屬於攻擊型的應著。
+卒7進１，演變成對兵局，後手方針鋒相對，一樣不表示意圖，而且同樣彈性較大，之後能演變成多種不同類型的佈局,同樣亦是較穩健的應著。
+象３進５，演變成仙人指路對飛象，是甚為穩健的下法。
+馬８進７，演變成挺兵對起馬
 
-**Horse Opening** - Advancing a horse towards the middle. From there, Red can play the Two horse defence, Fan Gong Ma or Three Step Tiger openings with the colors reversed.
+**飛象局** - 飛象護住中路，為高手常用的下法，比起一來一往的激烈對攻，此局較為隱晦含蓄，歛藏殺機，較不入套路之流。
+
+**三步虎** - Advancing a horse towards the middle. From there, Red can play the Two horse defence, Fan Gong Ma or Three Step Tiger openings with the colors reversed.
 
 Red can also play his cannon to the front corner of the palace ("Palcorner Cannon") or to the opposite corner ("Crosspalace Cannon"). These moves are also useful developing moves.  
 
-Other red opening moves are very rare.
 
 <iframe width="560" height="315" src="https://www.youtube.com/embed/5EDG5RP8OZ8" frameborder="0" allowfullscreen></iframe>
 
