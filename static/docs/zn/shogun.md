@@ -27,7 +27,7 @@
 
 ![Archbishop](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/ArchbishopShogun.png)
 
-国际象棋变体中的一种常见的仙灵棋子。再次游戏中，它升级从象而合并马的移动。因此，只有它能单人匹马把王将死。
+国际象棋变体中的一种常见的仙灵棋子。再此游戏中，它升级从象而合并马的移动。因此，只有它能单人匹马把王将死。
 
 ### 首相 | Mortar (M)
 
