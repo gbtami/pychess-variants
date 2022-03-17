@@ -22,7 +22,7 @@ A significant difference from Chess but similar to its Crazyhouse variant is tha
 
 將棋的棋盤是一個由10條橫線及10條直線相交的方格陣，而棋子則置於方格之內，也就是9列9行的棋盤。 靠近自己的3列是本陣，遠離自己而靠近對手的3列是敵陣。將棋的棋子呈鐘形，前端較尖。和中國象棋及西洋棋不同，將棋是以棋子前端的指的方向來區別所屬。將棋共有八種棋子（包含升級棋則有十四種），依據棋子重要性和強度棋子形狀有不同大小。每種棋子均有獨特的簡稱及走法，分述如下：
 
-All *minor* pieces move like a gold general when promoted. The gold general, therefore, cannot promote. Secondly, the two *major* pieces (rook and bishop), both gain the moves of a king on top of their original moves. The king does not promote.
+所有的**輕子**升變之後都以金將的走法戰鬥，而金將本身無法升變。另外兩個**大子** (飛車和角行)升變後，都會額外獲得「王將」的走法。
 
 
 ### 玉將、王將
@@ -149,7 +149,7 @@ All *minor* pieces move like a gold general when promoted. The gold general, the
 
 打入有以下限制：
 
-* 剛打入的棋子即使落在敵陣亦不能馬上升級，一定要以後多下一手才行。
+* 剛打入的棋子即使落在敵陣亦不能馬上升級，**一定要在移動一步之後才可升變**。也可以選擇移動後不升變，若之後要再升變，需要再移動一次才行。
 * 不能把棋子打入在一些不能再走的位置。例如步兵、香車都不能落在敵陣的底線；桂馬不能落在敵陣的底線及次底線。
 
 
@@ -165,9 +165,9 @@ All *minor* pieces move like a gold general when promoted. The gold general, the
 
 
 
-*長將* - 將棋容許連將但是不能重複同樣的手法長照（長將），若雙方重複循環同樣的方式照將、應照達四次時，則照將方違規，判負。 
+**長將** - 將棋容許連將但是不能重複同樣的手法長照（長將），若雙方重複循環同樣的方式照將、應照達四次時，則照將方違規，判負。 
 
-*千日手* - 雙方重複循環同樣的著法，使得局面沒有進一步變化達四次時，則視為和局。
+**千日手** - 雙方重複循環同樣的著法，使得局面沒有進一步變化達四次時，則視為和局。
 
 ***
 
@@ -207,16 +207,14 @@ P = pawn
 
 ### Symbols
 
-* Drops are either indicated with a \* (Hodges) or ‘ (Hosking). Here we use \*, so a pawn drop on 5e would be P*5e.
-* Moves that end in promotion add a + at the end. A pawn promoting on 1c would be P1c+.
-* If you choose to not promote, instead an = goes at the end.
-* Checks and checkmates are not notated.
+* 打入會加上 \*符號, 所以打入在5e的兵會記 P*5e
+* 升變會在其後加上+。例如一個在c1升變的兵會變 P1c+
+* 如果你選擇不升變，則在後面加上「=」
+* 將軍和將死並沒有特別標記
 
 ## 學習將棋的資源
 
-[Hidetchi’s YouTube channel](https://www.youtube.com/playlist?list=PL587865CAE59EB84A) is an excellent place for beginner and intermediate players, alike. They are in English and very carefully break down the aspects of the game. Please note that like all other resources, you will need to be familiar with the kanji pieces in order to understand the videos (he also introduces the pieces in the beginner videos).
-
-[81dojo.com](http://www.81dojo.com) is a site where you can play internationally against tougher players. However, it does not support correspondence play at this time.
+[Hidetchi 的 YouTube 頻道](https://www.youtube.com/playlist?list=PL587865CAE59EB84A) 非常適合初學都與中等程度者。
 
 ## 策略
 
