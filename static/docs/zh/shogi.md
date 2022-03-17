@@ -2,20 +2,22 @@
 
 ![Boards](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Boards.png)
 
-*Shogi* (将棋), 日本將棋，又稱日本象棋、亦稱本將棋（本，基本之意），是一種盛行於日本的棋類遊戲。將棋的始祖目前沒有確實實證，目前被普遍認為可能是中國的寶應象棋或是從東南亞傳入的印度恰圖蘭卡。在日本，將棋跟圍棋並列為兩大最受歡迎的棋，而且都設有段位與職業賽頭銜。
+*将棋*，しょうぎ (Shogi)，日本將棋，亦稱本將棋（本，基本之意），是一種盛行於日本的棋類遊戲。將棋的始祖目前沒有確實實證，目前被普遍認為可能是中國的寶應象棋或是從東南亞傳入的印度恰圖蘭卡。在日本，將棋跟圍棋並列為兩大最受歡迎的棋，而且都設有段位與職業賽頭銜。
 
 ## 為何要學將棋?
 
 將棋玩起來非常類似真實的戰場，不像中國象棋開局即展開攻殺，將棋非常強調開局佈陣的概念。
 
-If you enjoy Chess, Shogi is definitely worth trying. While slightly slower paced and longer than Chess, the game is also more dynamic and complex, leading to a very different experience. Shogi is between Chess and Go in terms of complexity, but don’t let that deter you. As with other chess variants, improving your skill in Shogi can  also improve your skills in Chess as well as open up new ways of thinking! [See here for more about that.](https://chessbase.in/news/peter-heine-nielsen-on-shogi)
+If you enjoy Chess, Shogi is definitely worth trying. While slightly slower paced and longer than Chess, the game is also more dynamic and complex, leading to a very different experience. Shogi is between Chess and Go in terms of complexity, but don’t let that deter you. As with other chess variants, improving your skill in Shogi can  also improve your skills in Chess as well as open up new ways of thinking! [你也可以看看這裡](https://chessbase.in/news/peter-heine-nielsen-on-shogi)
 
 ## 規則
 
 與棋他象棋類遊遊一樣，玩家輪流下棋，先將死對方者獲勝。
 
-A significant difference from Chess but similar to its Crazyhouse variant is that you can drop captured pieces onto the board as a move. There are a few restrictions to dropping notably with pawns, which are discussed later, but otherwise pieces can be generally dropped anywhere. Additionally, almost all pieces can be promoted. Pieces are promoted upon entering the promotion zone / enemy camp (last three ranks) or moving a piece already in the enemy camp. The piece will then flip over. Captured promoted pieces are returned to their unpromoted side when added to your hand.
+與象棋不同的是，你可以「俘虜」你吃掉的子並成為你的軍隊，且如圍棋般隨時可以將他們**打入**場任何位置上戰鬥。
+(有一些子有特殊限制，將在下文中介紹)。
 
+同時，幾乎所有的棋子都可以在成功進入敵陣(敵方底線上數三格內的區域)後，**升變**成更強的戰力(所以與其慢慢推進，你可以直接**打入**棋子到敵陣，只要再耗費一步即可升變)。因此將棋的子力是很均衡的，再弱的子都有升變的可能。
 
 
 ## 棋盤與棋子
@@ -27,7 +29,7 @@ A significant difference from Chess but similar to its Crazyhouse variant is tha
 
 ### 玉將、王將
 
-![BlackKings](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/BlackKings.png) 
+![BlackKings](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/BlackKings.png)
 
 ![WhiteKings](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/WhiteKings.png)
 
@@ -121,7 +123,7 @@ A significant difference from Chess but similar to its Crazyhouse variant is tha
 
 升變後叫「と金(成步)」
 
-### 升變
+## 升變 成駒
 
 ![PSilvers](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/PSilvers.png)
 
@@ -144,7 +146,7 @@ A significant difference from Chess but similar to its Crazyhouse variant is tha
 輕子|其他棋子|金將
 
 
-## 打入
+## 打入 持ち駒
 日本將棋最特別的是棋手可以花一手將己方吃掉的棋子放回棋盤成為己方棋子，這在日文稱為打入，大幅提高了將棋的複雜度。當一枚已升級的棋子被吃時，它的升級會被取消，打入時用原先的棋種表示。
 
 打入有以下限制：
@@ -155,8 +157,9 @@ A significant difference from Chess but similar to its Crazyhouse variant is tha
 
 
 對步兵的打入有一些額外規則:
-1) **二步一筋**:若某行已有無方未升變步兵，則不能在該行再打入步兵。 (若該行兵已升變則不在此限)。「二步一筋」在日本的將棋職業賽中為最常見犯規，自一九七七年迄今，在日本的將棋職業賽中已有44次「二步一筋」的記錄。 
-2) **打步詰** 指用打入步兵的方式使對方王將無法脫逃，若觸犯則直接判輸局。打步詰必須要「打」、「步」、「詰」三個條件同時成立才算數，所以以下的三種情形皆沒犯規：
+1) **二步一筋**: 若某行已有無方未升變步兵，則不能在該行再打入步兵。 (若該行兵已升變則不在此限)。「二步一筋」在日本的將棋職業賽中為最常見犯規，自一九七七年迄今，在日本的將棋職業賽中已有44次「二步一筋」的記錄。 
+2) **打步詰**: 指用打入步兵的方式使對方王將無法脫逃，若觸犯則直接判輸局。打步詰必須要「打」、「步」、「詰」三個條件同時成立才算數，所以以下的三種情形皆沒犯規：
+
 	* 走步詰：移動步兵，將死對方王將
 	* 打其他棋子詰：打入非步兵的棋子，將死對方王將
 	* 打步將：打入步兵，將軍對方王將但沒將死
@@ -177,9 +180,9 @@ A significant difference from Chess but similar to its Crazyhouse variant is tha
 
 ### 座標
 
-以阿拉伯數字表示直行，英文字母表示橫列。 The origin is the bottom left for the white player. However, since most diagrams are oriented for the black player (first player), these will seem to originate from the top right. As an example, the white king is on square 5a.
+以阿拉伯數字表示直行，英文字母表示橫列。原點落在王將方(後手)。然而，由於大部份的棋盤表示時是將玉將(先手)放在底部，因此原點會在最右上方。 例如，王將是落在 5a
 
-In the Hoskings notation, only numbers are used. Instead of 5e, someone might say 55 (5th rank, 5th file). This is similar to the Japanese style, which also uses numbers. 
+有時不管行列都由阿拉伯數字表示，比方5e有時也記作55(第五列, 第五行)。
 
 ### 棋子
 
@@ -216,13 +219,15 @@ P = 步兵
 
 [Hidetchi 的 YouTube 頻道](https://www.youtube.com/playlist?list=PL587865CAE59EB84A) 非常適合初學都與中等程度者。
 
+***
+
 ## 策略
 
 ### 子力價值
 
-與象棋不同，將棋中沒有標準的子力價值。 重要的是要記住，價值並沒有那麼重要，因為失去棋子不是永久性的，而位置更為重要。也就是說，有一個基本的子力價值體系，但職業棋手們也制定了更具體的價值:谷川和佐藤。如下所示。
+與象棋不同，將棋中沒有標準的子力價值。 重要的是要記住，價值並沒有那麼重要，因為失去棋子不是永久性的，而位置更為重要。也就是說，有一個基本的子力價值體系，但職業棋手們也制定了更具體的價值量表:谷川式和佐藤式。如下所示:
 
-棋子 | 基本值 | 谷川 | 佐藤
+棋子 | 基本價值 | 谷川 | 佐藤
 ------------ | ------------- | ------------- | -------------
 P | 1 | 1 | 1
 L | 3 | 5 | 6
@@ -240,26 +245,25 @@ R | 8 | 15 | 19
 
 ### 開局原則
 
-一般來說，有兩種類型的打開方式：*居飛車*和*振車車*。 在 *居飛車* 飛車 不會移動。 因此，主要攻擊棋盤的右側。 在*振飛車*中，飛車移動到左側（通常是第 2 到第 5 行），將進攻棋盤的另一側。
+一般來說，有兩種類型的開局方式：**居飛車**和**振飛車**。 在居飛車中飛車不會移動，因此主要攻擊棋盤的右側。在振飛車中，飛車移動到左側（通常是第 2 到第 5 行），將進攻棋盤的另一翼。
 
-這種差異很重要，因為開局（稱為 *joseki*）主要分為這兩者，並且可以極大地改變變型。 
+開局（稱為 *joseki*）主要分成這兩種，兩者差異極大。 
 
 ### 圍玉
 
-Castles in shogi are defensive formations that take multiple steps to form. Knowledge of castles is essential because weak king defenses can be quickly exploited with drops in your own territory. It is also important to know each castle’s strengths and weaknesses.
+圍玉是將王將動到角落並以其他棋子包圍以保護不受攻擊。通常需要多步才能完成。好的玩家需要了解各種圍玉的優缺點與變型。
 
-As above, castles depend on static / ranging rook matchup. In static rook openings, kings castle to the left. In ranging rook openings, kings castle to the right. There are many, many castles, many of which are covered in Hidetchi’s videos (see below). Here are three of the most important ones to know:
-將棋中的城堡是需要多個步驟才能形成的防禦陣型。 城堡的知識是必不可少的，因為在你自己的領土上可以迅速利用弱的國王防禦。 了解每座城堡的長處和短處也很重要。
+圍玉的位置受開局為居飛車或振飛車影響。在居飛車開局中，王將在左圍玉。在振飛車中則在右。以下是三種最常見的圍玉:
 
-如上所述，城堡取決於靜態/測距車對決。 在靜車開口處，國王城堡在左邊。 在不等的車口，國王城堡向右。 有很多很多城堡，其中許多都在 Hidetchi 的視頻中介紹過（見下文）。 以下是三個最重要圍玉：
-
-**矢倉**
+### 矢倉
 
 ![Yagura](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Yagura.png)
 
-The Yagura castle is one of the most powerful *static rook* castles, used against static rook. A mnemonic that may be useful for remembering the positions of the generals is “S G | G B”, or perhaps remembering that the king is guarded by the gold general, a strong defensive piece. Yagura is strong at its front, but weak on its edge and side.
+矢倉圍是將棋中採用於相居飛車和相振飛車的圍玉。通常簡稱為矢倉，與美濃、穴熊並列為最具代表性的圍玉。居飛車雙方圍出矢倉後戰鬥的戰型被稱為相矢倉，也常被直接簡稱為矢倉。
 
-For development of the Yagura, remember that generals always move diagonally to be most efficient. There are different josekis for developing the castle, but keep in mind that at any point white can attack and that you may have to react in between your developmental moves. The 24-move standard joseki is as follows (Source: Hidetchi):
+此圍玉上方很強，但相反的，因為守護到78金將的棋子只有玉將1枚而已，面對橫向而來的攻擊則效果並不是很好。然而金銀3枚均有集中防守到68的位置，因此也不能說面對橫向而來的攻擊防守薄弱。反而是在第一行，因為沒有金銀防守而顯得有點薄弱，例如有利用桂香飛角一口氣攻破的雀刺戰法。
+
+在矢倉圍玉的時候記住王將總是斜向移動以節省步數，且有許多種矢倉的變體，以應對對手不同的攻擊。以下是標準的24步矢倉圍:
 
 1. ☗P-7f
 2. ☖P-8d
@@ -286,7 +290,7 @@ For development of the Yagura, remember that generals always move diagonally to 
 23. ☗P-3f
 24. ☖P-4d
 
-**美濃**
+### 美濃
 
 ![Mino Castle](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Mino.png)
 
@@ -305,15 +309,25 @@ For development of the Yagura, remember that generals always move diagonally to 
 * P16 (給王將逃跑空間)
 * P46
 
-自此之後你就可以換子了，包括飛車以發起進攻。
+自此之後可以開始換子，包括飛車，以發起進攻。
 
-**穴熊**
+### 穴熊
 
 ![Anaguma](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Anaguma.png)
 
 十分著名的圍玉方式，曾在棋界流行數十年。它的防守非常強大，只不過要浩費許多步數完成。
 
-**雙翼攻擊**
+**優點**
+
+金銀的連結密集因而非常堅固，再加上玉將在端離戰場十分遙遠，形成了「絕對不會被王手（別稱Z）」的形，對手也因此不得不避免在攻略穴熊的時候犧牲大量棋子。基於這些優點，穴熊方得以採取大膽捨飛車和角行等大子的作戰，被稱為「只有穴熊才能做到的攻擊」。
+
+**缺點**
+
+首先，圍玉所需的手數非常多，對手常常在完成之前就挑起戰事。再來，圍玉完成之後因為棋子集中在盤上一側，自陣有許多空隙容易被對手打入角行。雖然橫向的守備力很高，對上方或端攻較弱，在終盤還因為玉將躲在棋盤的角落，在被攻擊的時候無處可逃。最後，因為自陣空隙太多容易被對手入玉，這種時候就已完全沒有勝算。這種雖然圍玉沒有被破壞卻輸棋的狀況被稱為「姿燒穴熊(烤全熊)」。
+
+此外，居飛車穴熊則多有遭對手角道直射的疑慮。許多居飛車穴熊的攻略法都包含角道的利用。
+
+### 雙翼攻擊
 
 雙方都使用居飛車並進車前兵進攻。需要注意的事，你必需要在對方的兵鞏到第5列前就上銀將保護角行。
 
