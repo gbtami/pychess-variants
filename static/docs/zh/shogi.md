@@ -177,35 +177,35 @@ A significant difference from Chess but similar to its Crazyhouse variant is tha
 
 ### 座標
 
-One noticeable difference is that the board coordinates are switched from chess. Files are numbered, and ranks are alphabetized. The origin is the bottom left for the white player. However, since most diagrams are oriented for the black player (first player), these will seem to originate from the top right. As an example, the white king is on square 5a.
+以阿拉伯數字表示直行，英文字母表示橫列。 The origin is the bottom left for the white player. However, since most diagrams are oriented for the black player (first player), these will seem to originate from the top right. As an example, the white king is on square 5a.
 
 In the Hoskings notation, only numbers are used. Instead of 5e, someone might say 55 (5th rank, 5th file). This is similar to the Japanese style, which also uses numbers. 
 
 ### 棋子
 
-K = king
+K = 王將
 
-G = gold general
+G = 金將
 
-S = silver general
+S = 銀將
 
-N = knight
+N = 桂馬
 
-L = lance
+L = 香車
 
-R = rook
+R = 飛車
 
-B = bishop
+B = 角行
 
-P = pawn
+P = 步兵
 
-+R or D = dragon king
++R or D = 龍王
 
-+B or H = dragon horse
++B or H = 龍馬
 
-+S, +N, +L, +P for the other promoted pieces, respectively.
++S, +N, +L, +P 其餘升變的輕子
 
-### Symbols
+### 標記
 
 * 打入會加上 \*符號, 所以打入在5e的兵會記 P*5e
 * 升變會在其後加上+。例如一個在c1升變的兵會變 P1c+
@@ -220,9 +220,9 @@ P = pawn
 
 ### 子力價值
 
-There is no standard piece value in shogi unlike chess. However, it's important to keep in mind that values are not worth as much, as losing pieces isn't permanent and position is far more important. That said, there is a basic piece value system, but professional players have also made more specific values; Tanigawa and Satoh's are shown below.
+與象棋不同，將棋中沒有標準的子力價值。 重要的是要記住，價值並沒有那麼重要，因為失去棋子不是永久性的，而位置更為重要。也就是說，有一個基本的子力價值體系，但職業棋手們也制定了更具體的價值:谷川和佐藤。如下所示。
 
-Piece | Basic | Tanigawa | Satoh 
+棋子 | 基本值 | 谷川 | 佐藤
 ------------ | ------------- | ------------- | -------------
 P | 1 | 1 | 1
 L | 3 | 5 | 6
@@ -240,15 +240,18 @@ R | 8 | 15 | 19
 
 ### 開局原則
 
-In general, there are two types of opening styles: *static rook* and *ranging rook*. In *static* rook, the rook does not move. Attacks, therefore, are directed on the right side of the board. In *ranging* rook, the rook moves to the left side (typically 2nd to 5th file), shifting the offense to that side of the board.
+一般來說，有兩種類型的打開方式：*居飛車*和*振車車*。 在 *居飛車* 飛車 不會移動。 因此，主要攻擊棋盤的右側。 在*振飛車*中，飛車移動到左側（通常是第 2 到第 5 行），將進攻棋盤的另一側。
 
-This difference matters because opening moves (called *joseki*) are classified as one of these two and can drastically change what kind of game is played. Certain static rook openings are meant for enemy static rook openings, while others are directed against ranging rook players.
+這種差異很重要，因為開局（稱為 *joseki*）主要分為這兩者，並且可以極大地改變變型。 
 
 ### 圍玉
 
 Castles in shogi are defensive formations that take multiple steps to form. Knowledge of castles is essential because weak king defenses can be quickly exploited with drops in your own territory. It is also important to know each castle’s strengths and weaknesses.
 
 As above, castles depend on static / ranging rook matchup. In static rook openings, kings castle to the left. In ranging rook openings, kings castle to the right. There are many, many castles, many of which are covered in Hidetchi’s videos (see below). Here are three of the most important ones to know:
+將棋中的城堡是需要多個步驟才能形成的防禦陣型。 城堡的知識是必不可少的，因為在你自己的領土上可以迅速利用弱的國王防禦。 了解每座城堡的長處和短處也很重要。
+
+如上所述，城堡取決於靜態/測距車對決。 在靜車開口處，國王城堡在左邊。 在不等的車口，國王城堡向右。 有很多很多城堡，其中許多都在 Hidetchi 的視頻中介紹過（見下文）。 以下是三個最重要圍玉：
 
 **矢倉**
 
