@@ -290,22 +290,22 @@ For development of the Yagura, remember that generals always move diagonally to 
 
 ![Mino Castle](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Mino.png)
 
-The Mino castle is a classic *ranging rook* castle, used against static rook. The king moves to the rook’s starting spot, the left gold moves up+right, and then the right silver moves up to form a “G G S” V formation. This castle is strong to the left, but weak to the front and edge.
+美濃是一個振飛車用來對付居飛車的圍玉，王將來到飛車的初始未置，金將走上&右，再上銀將，形成“金金銀” 。此圍玉在左側很強，但在上方較弱。
 
-Example opening for black using a 4th file rook:
+以下是一個美濃應對四間飛車的範例:
 
 * P76
-* B77 (protects the 86/8f square) 
-* P66 (reject bishop exchange if white opens bishop up)
-* R68 (fourth file rook)
+* B77 (保護 86/8f 格子) 
+* P66 (防止換角)
+* R68 (四間飛車)
 * S78 
 * K48 -> K38 -> K28
-* S38 (silver up)
-* G58 (gold up-right)
-* P16 (creates escape route for the king)
+* S38 (上銀)
+* G58 (上金)
+* P16 (給王將逃跑空間)
 * P46
 
-After this point, you are free to exchange bishops and as many pieces as you want, including rooks to generate an attack.
+自此之後你就可以換子了，包括飛車以發起進攻。
 
 **穴熊**
 
@@ -313,9 +313,9 @@ After this point, you are free to exchange bishops and as many pieces as you wan
 
 十分著名的圍玉方式，曾在棋界流行數十年。它的防守非常強大，只不過要浩費許多步數完成。
 
-**Double Wing Attack**
+**雙翼攻擊**
 
-Not a castle per se, but a *static rook* opening. Both sides advance their rook pawns, leading to an exchange. Part of the joseki is that the silvers must defend the bishop pawns before the enemy pawn reaches its target. Of note, this is AlphaZero’s favorite opening, accounting for more than half of its openings as black.
+雙方都使用居飛車並進車前兵進攻。需要注意的事，你必需要在對方的兵鞏到第5列前就上銀將保護角行。
 
 ## 讓子
 
