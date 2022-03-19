@@ -49,7 +49,7 @@ Stockfish是最強的西洋棋軟體之一，而 [Fairy-Stockfish](https://githu
 
 <details><summary>為什麼Pychess選擇這些變體?</summary>
 
-通常會加入各地流行的傳統棋類，也有加入一些較常見的西洋棋變體。然而，也還有一些變體沒有被加進去。Pychess 依靠 Fairy-Stockfish 的支援， 我們的程式碼也是由它來運作，因此不被Fairy-Stockfish支援的變體是不會被放上來的。</details>
+通常會加入各地流行的傳統棋類，也有加入一些較常見的西洋棋變體和Pychess玩家發明的變體。然而，也還有一些變體沒有被加進去。Pychess 依靠 Fairy-Stockfish 的支援， 我們的程式碼也是由它來運作，因此不被Fairy-Stockfish支援的變體是不會被放上來的。</details>
 
 <details><summary>Pychess會加入恰圖蘭卡(古印度象棋，所有象棋類遊戲的源頭)嗎?</summary>
 
@@ -75,15 +75,15 @@ Stockfish是最強的西洋棋軟體之一，而 [Fairy-Stockfish](https://githu
 
 <details><summary>時間"5+3"是什麼意思?</summary>
 
-Th這些是遊戲時間設置，"5+3" 代表每人有 5 *分鐘*, 每動一步則加 3 *秒*。你也當然也可以自由設定遊戲計時。</details>
+這些是遊戲時間設置，"5+3" 代表每人有 5 *分鐘*, 每動一步則加 3 *秒*。你也當然也可以自由設定遊戲計時。</details>
 
 <details><summary>"5+3(b)"那個(b)又是?</summary>
 
-The b signifies byo-yomi time control, which is different from increment, and is only used in certain variants (i.e. Shogi and Janggi). Each player has a fixed time bank (5 minutes, in this example), and then after that, they only have the byo-yomi period for the rest of their moves before losing. In this example, that means only 3 seconds per move. Typically, byo-yomi is played with more than just 3 seconds... usually anywhere from 10 seconds to 30 seconds.</details>
+b 代表倒數計時，這與加時不同，只有特定變體會有(例如:日本將棋和韓國將棋)。當雙方的時間用完時(在此範例裡是五分鐘)，雙方每步就只剩下倒數計時的時間可以動子。在此範例中，就是每步3秒。通常倒數計時是10秒或30秒。</details>
 
 <details><summary>什麼是電腦隨機走子?</summary>
 
-電腦隨機走子是讓電腦隨機移動的模式，主要是用來讓玩家熟悉遊戲規則。之後會建議與Fairy-Stockfish (就算是比較低等級的)對奕以增進棋感</details>
+電腦隨機走子是讓電腦隨機移動的模式，主要是用來讓玩家熟悉遊戲規則。之後會建議與Fairy-Stockfish (就算是比較低等級的)對奕以增進棋感。</details>
 
 ## 帳號、社群
 
@@ -93,18 +93,18 @@ The b signifies byo-yomi time control, which is different from increment, and is
 
 <details><summary>這會使我的 Lichess 帳密外洩嗎?</summary>
 
-No! That is done via OAuth and your password isn't revealed to Pychess, just like how you can log in to third-party websites with your Google or Facebook accounts.</details>
+不可能! 這是基於 OAuth 協定且你的密碼不會給予 Pychess, 就像你可以用你Google的帳號登入其他網站一樣。</details>
 
-<details><summary>What's the best way to contact the developers?</summary>
+<details><summary>怎麼跟網站的開發者聯係?</summary>
 
-You can try the lobby chat, although the developers might not be on to answer. More reliably, we use [Discord](https://discord.gg/aPs8RKr).</details>
+你可以試試大廳的聊天功能，雖然他們可能不會隨時上線。更好的方式是用[Discord](https://discord.gg/aPs8RKr)，通常都會看得到。</details>
 
-<details><summary>How is the site supported?</summary>
+<details><summary>此網站是如何維持運作的?</summary>
 
-Purely through donations. You can [become a patron](https://www.pychess.org/patron) to help us make this site better!</details>
+全靠贊助 Donate ! 你也可以[成為贊助者](https://www.pychess.org/patron) 來支持我們並讓Pychess網站改更好!</details>
 
-<details><summary>Can I contribute?</summary>
+<details><summary>我可以加入Pychess的行列嗎?</summary>
 
-You sure can! Pychess is open source. Please communicate your suggestions by [Github](https://github.com/gbtami/pychess-variants) or [Discord](https://discord.gg/aPs8RKr) </details>
+當然! Pychess 完全開源，在[Github](https://github.com/gbtami/pychess-variants)上你可以盡情創作修改，也可以加入我們[Discord](https://discord.gg/aPs8RKr)來和大家一起合作!</details>
 
 
