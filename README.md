@@ -33,20 +33,13 @@ yarn md
 python3 server/server.py
 ```
 
-The Wiki describes [how to setup a development environment](https://github.com/SriMethan/Liantichess/wiki/Setting-up-a-Liantichess-Development-environment-locally).
+The Wiki further describes [how to setup a development environment](https://github.com/SriMethan/Liantichess/wiki/Setting-up-a-Liantichess-Development-environment-locally).
 
 ## Supported browsers
 
-| Name              | Version | Notes                                             |
-| ----------------- | ------- | ------------------------------------------------- |
-| Chromium / Chrome | last 10 | Full support                                      |
-| Firefox           | 61+     | Full support (fastest local analysis since FF 79) |
-| Edge              | 91+     | Full support (reasonable support for 17+)         |
-| Opera             | 55+     | Reasonable support                                |
-| Safari            | 11.1+   | Reasonable support                                |
+Liantichess should support almost all browsers. Though older browsers (including any version of Internet Explorer) will not work. For your own sake, please upgrade. Security and performance, think about it!
 
-Older browsers (including any version of Internet Explorer) will not work.
-For your own sake, please upgrade. Security and performance, think about it!
+Only [Fairy-Stockfish analysis](https://liantichess.herokuapp.com/analysis/antichess) might not work on all browsers. The browser support can be found [here](https://github.com/TheYoBots/stockfish.wasm#requirements).
 
 ## Credits
 
