@@ -2,7 +2,7 @@ aiohttp-session==2.11.0
 aiohttp-sse==2.1.0
 aiohttp==3.8.1
 brotli==1.0.9
-cryptography==36.0.1
+cryptography==36.0.2
 dnspython==2.2.1
 htmlmin==0.1.12
 jinja2==3.0.3
