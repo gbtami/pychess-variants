@@ -41,11 +41,9 @@
 }
 .icon-Chennis:before {
   content: "\1f3be";
-  color: #9d67ae;
 }
 .icon-Chak:before {
   content: "\1f42c";
-  color: #9d67ad;
 }
 
 .icon-berserk:before {
@@ -53,7 +51,6 @@
 }
 .icon-ASEAN:before {
   content: "\267b";
-  color: #98812d;
 }
 .icon-discord:before {
   content: "\1f3ae";
@@ -352,9 +349,8 @@
 .icon-atomic960:before {
   content: "\5c";
 }
-.icon-Gorogoro:before {
+.icon-Gorogoroplus:before {
   content: "\1f431";
-  color: #3771c8;
 }
 .icon-mic:before {
   content: "\e91e";
