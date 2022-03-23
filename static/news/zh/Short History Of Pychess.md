@@ -1,4 +1,4 @@
-<h1 align="center">And Now for Something Completely Different</h1>
+<h1 align="center">現在，嶄新的旅程正要開始!</h1>
 
 <div class="meta-headline">
     <div class= "meta">
