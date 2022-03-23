@@ -26,6 +26,7 @@ NO_TOURNEY = [
     "atomic",
     "shogi",
     "minishogi",
+    "manchu",
 ]  # tournaments are available on lichess/lishogi
 SHIELDS = ["crazyhouse960", "atomic960", "makruk", "shinobi"]
 SEATURDAY = ["makruk", "makpong", "sittuyin", "cambodian", "asean"]
