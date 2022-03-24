@@ -43,4 +43,4 @@ Only [Fairy-Stockfish analysis](https://liantichess.herokuapp.com/analysis/antic
 
 ## Credits
 
-Credits to @gbtami for the main [code](https://github.com/gbtami/pychess-variants)
+Credits to [gbtami](https://github.com/gbtami) for the main [code](https://github.com/gbtami/pychess-variants)
