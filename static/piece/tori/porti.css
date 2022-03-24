@@ -1,0 +1,67 @@
+.tori .cg-wrap piece {
+    background-position: center;
+}
+.tori .cg-wrap piece.ally {
+    background-position: center 2;
+}
+.tori .cg-wrap piece.s-piece.ally {
+    background-image: url('../../images/pieces/tori/Portella/0Swallow.png');
+}
+.tori .cg-wrap piece.ps-piece.ally {
+    background-image: url('../../images/pieces/tori/Portella/0Goose.png');
+}
+.tori .cg-wrap piece.l-piece.ally {
+    background-image: url('../../images/pieces/tori/Portella/0LeftQuail.png');
+}
+.tori .cg-wrap piece.r-piece.ally {
+    background-image: url('../../images/pieces/tori/Portella/0RightQuail.png');
+}
+.tori .cg-wrap piece.p-piece.ally {
+    background-image: url('../../images/pieces/tori/Portella/0Pheasant.png');
+}
+.tori .cg-wrap piece.c-piece.ally {
+    background-image: url('../../images/pieces/tori/Portella/0Crane.png');
+}
+.tori .cg-wrap piece.f-piece.ally {
+    background-image: url('../../images/pieces/tori/Portella/0Falcon.png');
+}
+.tori .cg-wrap piece.pf-piece.ally {
+    background-image: url('../../images/pieces/tori/Portella/0Eagle.png');
+}
+.tori .cg-wrap piece.k-piece.white.ally {
+    background-image: url('../../images/pieces/tori/Portella/0PhoenixBlack.png');
+}
+.tori .cg-wrap piece.k-piece.black.ally {
+    background-image: url('../../images/pieces/tori/Portella/0PhoenixWhite.png');
+}
+
+.tori .cg-wrap piece.s-piece.enemy {
+    background-image: url('../../images/pieces/tori/Portella/1Swallow.png');
+}
+.tori .cg-wrap piece.ps-piece.enemy {
+    background-image: url('../../images/pieces/tori/Portella/1Goose.png');
+}
+.tori .cg-wrap piece.l-piece.enemy {
+    background-image: url('../../images/pieces/tori/Portella/1LeftQuail.png');
+}
+.tori .cg-wrap piece.r-piece.enemy {
+    background-image: url('../../images/pieces/tori/Portella/1RightQuail.png');
+}
+.tori .cg-wrap piece.p-piece.enemy {
+    background-image: url('../../images/pieces/tori/Portella/1Pheasant.png');
+}
+.tori .cg-wrap piece.c-piece.enemy {
+    background-image: url('../../images/pieces/tori/Portella/1Crane.png');
+}
+.tori .cg-wrap piece.f-piece.enemy {
+    background-image: url('../../images/pieces/tori/Portella/1Falcon.png');
+}
+.tori .cg-wrap piece.pf-piece.enemy {
+    background-image: url('../../images/pieces/tori/Portella/1Eagle.png');
+}
+.tori .cg-wrap piece.k-piece.white.enemy {
+    background-image: url('../../images/pieces/tori/Portella/1PhoenixBlack.png');
+}
+.tori .cg-wrap piece.k-piece.black.enemy {
+    background-image: url('../../images/pieces/tori/Portella/1PhoenixWhite.png');
+}

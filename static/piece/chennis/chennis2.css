@@ -1,0 +1,55 @@
+.chennis .cg-wrap piece.k-piece.white {
+    background-image: url('../../images/pieces/merida/wK.svg');
+}
+.chennis .cg-wrap piece.p-piece.white {
+    background-image: url('../../images/pieces/merida/wP.svg');
+}
+.chennis .cg-wrap piece.pp-piece.white {
+    background-image: url('../../images/pieces/merida/wR.svg');
+}
+.chennis .cg-wrap piece.m-piece.white {
+    background-image: url('../../images/pieces/shogun/merida/mono/wC.svg');
+}
+.chennis .cg-wrap piece.pm-piece.white {
+    background-image: url('../../images/pieces/merida/wN.svg');
+}
+.chennis .cg-wrap piece.s-piece.white {
+    background-image: url('../../images/pieces/merida/syno/wS.svg');
+}
+.chennis .cg-wrap piece.ps-piece.white {
+    background-image: url('../../images/pieces/merida/wB.svg');
+}
+.chennis .cg-wrap piece.f-piece.white {
+    background-image: url('../../images/pieces/shogun/merida/blue/wF.svg');
+}
+.chennis .cg-wrap piece.pf-piece.white {
+    background-image: url('../../images/pieces/merida/shako/wC.svg');
+}
+
+.chennis .cg-wrap piece.k-piece.black {
+    background-image: url('../../images/pieces/merida/bK.svg');
+}
+.chennis .cg-wrap piece.p-piece.black {
+    background-image: url('../../images/pieces/merida/bP.svg');
+}
+.chennis .cg-wrap piece.pp-piece.black {
+    background-image: url('../../images/pieces/merida/bR.svg');
+}
+.chennis .cg-wrap piece.m-piece.black {
+    background-image: url('../../images/pieces/shogun/merida/mono/bC.svg');
+}
+.chennis .cg-wrap piece.pm-piece.black {
+    background-image: url('../../images/pieces/merida/bN.svg');
+}
+.chennis .cg-wrap piece.s-piece.black {
+    background-image: url('../../images/pieces/merida/syno/bS.svg');
+}
+.chennis .cg-wrap piece.ps-piece.black {
+    background-image: url('../../images/pieces/merida/bB.svg');
+}
+.chennis .cg-wrap piece.f-piece.black {
+    background-image: url('../../images/pieces/shogun/merida/blue/bF.svg');
+}
+.chennis .cg-wrap piece.pf-piece.black {
+    background-image: url('../../images/pieces/merida/shako/bC.svg');
+}
