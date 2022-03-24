@@ -116,11 +116,12 @@ async def fishnet_acquire(request):
         return web.Response(status=404)
 
     worker = FISHNET_KEYS[key]
-    fv[worker] = "%s %s %s" % (version, en, nnue)
+    fv[worker] = "%s %s" % (version, en)
 
     if key not in request.app["workers"]:
         request.app["workers"].add(key)
         fm[worker].append("%s %s %s" % (datetime.now(timezone.utc), "-", "joined"))
+        fm[worker].append(nnue)
         request.app["users"]["Fairy-Stockfish"].online = True
 
     response = await get_work(request, data)
