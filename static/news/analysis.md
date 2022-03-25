@@ -12,7 +12,7 @@
 
 # Client-side analysis on Liantichess
 
-![image](https://imgur.com/EAanixd)
+![image](https://imgur.com/EAanixd.png)
 
 
 Oh yeah. Client-side analysis has been long requested. [YohaanSethNathan](https://liantichess.herokuapp.com/@/YohaanSethNathan) spent up his time and got it done!
