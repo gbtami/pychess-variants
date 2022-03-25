@@ -278,6 +278,11 @@ async def index(request):
         template = get_template("embed.html")
     else:
         template = get_template("index.html")
+        
+    if view == "lobby":
+        page_title = "Liantichess • Free Online Antichess Variants"
+    else:
+        page_title = "%s  • Liantichess" % view.capitalize()
 
     render = {
         "js": "/static/pychess-variants.js%s%s" % (BR_EXTENSION, SOURCE_VERSION),
@@ -285,7 +290,7 @@ async def index(request):
         "app_name": "PyChess",
         "languages": LANGUAGES,
         "lang": lang,
-        "title": view.capitalize(),
+        "title": page_title,
         "view": view,
         "asseturl": STATIC_ROOT,
         "view_css": ("round" if view == "tv" else view) + ".css",
