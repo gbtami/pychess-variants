@@ -943,13 +943,23 @@ export function lobbyView(model: PyChessModel): VNode[] {
                 h('a.reflist', { attrs: {href: '/news'} }, _("Latest updates")),
             ]),
         h('posts', [
+            h('a.post', { attrs: {href: '/news/analysis'} }, [
+                h('img', { attrs: {src: model["asset-url"] + '/images/analysis.png'} }),
+                h('span.text', [
+                    h('strong', "What's up on liantichess"),
+                    h('span', 'Exciting stuff is going on. Lets keep you in the loop.'),
+                ]),
+                h('time', '2022.03.25'),
+            ]),
+
+        h('posts', [
             h('a.post', { attrs: {href: '/news/variants'} }, [
                 h('img', { attrs: {src: model["asset-url"] + '/images/variants.png'} }),
                 h('span.text', [
                     h('strong', "How to play the variants on liantichess?"),
                     h('span', 'antichess opening strategies does not work in the antichess variants'),
                 ]),
-                h('time', '2022.11.03'),
+                h('time', '2022.03.11'),
             ]),
 
         h('posts', [
@@ -959,19 +969,8 @@ export function lobbyView(model: PyChessModel): VNode[] {
                     h('strong', "AntiChess Marathon #1"),
                     h('span', '24 hours of antichess. Do you have what it takes to win?'),
                 ]),
-                h('time', '2022.11.03'),
+                h('time', '2022.03.11'),
             ]),
-
-        h('posts', [
-            h('a.post', { attrs: {href: '/news/newvariants'} }, [
-                h('img', { attrs: {src: model["asset-url"] + '/images/newblog.png'} }),
-                h('span.text', [
-                    h('strong', "New variants and much more!"),
-                    h('span', 'many variants are now available on liantichess. But also other new features and many bug fixes.'),
-                ]),
-                h('time', '2022.01.02'),
-            ]),
-
                  	    /*   
                 ]),
                 h('a.post', { attrs: {href: '/news/Shinobi_Arrives_in_Time_For_the_Sakura_Blossoms'} }, [
