@@ -7,30 +7,30 @@
 
 ## 規則
 
-As this game is based off shogi, please see the corresponding guide for basic shogi rules first if you are not familiar with them.
+由於此變體基於日本將棋，如果不熟悉將棋基本規則請先查看日本將棋。
 
-The starting setup is as above. Unlike standard shogi, there is no knight or lance. There is only one pawn, a bishop and rook, and one of each general. Promotion is only done in the last rank.
+啟動設置如上。與標準將棋不同，沒有騎士或長槍。只有一個棋子，一個主教和一個車，每個將軍一個。晉升僅在最後一級進行。
 
-Rules from Shogi are summarized below:
+將棋的規則總結如下：
 
-*Drops* - The main exceptions to dropping a piece anywhere are with pawns. 
-1) Pawns cannot be dropped in the same file as another one of your unpromoted pawns (promoted are okay). 
-2) A pawn drop cannot checkmate, but checks are okay. 
-3) The final exception applies to all minor pieces. You cannot drop a piece so that it can’t move, which usually means the last rank… or the last two ranks in the case of a knight.
+*Drops* - 將棋子丟到任何地方的主要例外是用棋子。
+1) 棋子不能與另一個未升級的棋子放在同一個文件中（升級沒問題）。
+2）典當不能將死，但可以檢查。
+3) 最後的例外適用於所有小作品。你不能丟掉一塊讓它不能移動，這通常意味著最後一個等級……或者在騎士的情況下是最後兩個等級。
 
-*Perpetual check* - Repeating check resulting in the same position four times in a row is a loss to the player causing perpetual check. In chess, this results in a draw.
+*永久檢查* - 連續四次重複檢查導致相同位置是導致永久檢查的玩家的損失。在國際象棋中，這導致平局。
 
-*Repetition* - Similar to the above, repeating the same position (including pieces in hand) results in a draw.
+*重複* - 與上述類似，重複相同的位置（包括手中的棋子）會導致平局。
 
-*Timer* - Shogi uses a byo-yomi timer. Once the main clock expires, a player enters byo-yomi. If it is set at 30 seconds, then that player will only have 30 seconds to make his move from then for each of his/her moves or else lose the game on time.
+*計時器* - 將棋使用 byo-yomi 計時器。一旦主時鐘到期，玩家進入 byo-yomi。如果將其設置為 30 秒，那麼該玩家將只有 30 秒的時間來完成他/她的每一步移動，否則將按時輸掉比賽。
 
-## Pieces
+＃＃ 件
 
-This guide will be based on the internationalized set. Traditional sets use Chinese characters, *kanji*, and piece sets come in either a full 2-kanji form, a 1-kanji abbreviated form. As it is now, knowledge of the kanji will be required if you want to utilize all English resources. 
+本指南將基於國際化集。傳統套裝使用漢字 *kanji*，而件套採用完整的 2-kanji 形式和 1-kanji 縮寫形式。就像現在一樣，如果您想利用所有英語資源，則需要具備漢字知識。
 
-In general, shogi pieces are much more restricted than chess pieces. Minor pieces (i.e. not the rook or bishop) often move forward and not so much backwards.
+一般來說，將棋棋子比棋子更受限制。小棋子（即不是車或主教）經常向前移動，而不是向後移動。
 
-Regarding promoted pieces, most sets, including the ones used on this site, distinguish them by being colored red. There are two basic rules that will make learning all the pieces **much** less intimidating. All *minor* pieces move like a gold general when promoted. The gold general, therefore, cannot promote. Secondly, the two *major* pieces (rook and bishop), both gain the moves of a king on top of their original moves. The king does not promote.
+關於促銷作品，大多數套裝，包括本網站上使用的套裝，都以紅色來區分它們。有兩個基本規則可以讓學習所有部分**少**令人生畏。所有*次要*棋子在升級時都像金將軍一樣移動。因此，金將軍不能晉升。其次，兩個*主要*棋子（車和主教）都在其原始動作之上獲得了國王的動作。國王不提倡。
 
 
 ### King
