@@ -3,9 +3,9 @@
 
 ![Minishogi](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Minishogi.png)
 
-迷你The game was invented (or rediscovered) around 1970 by Shigenobu Kusumoto of Osaka, Japan.
+迷你將棋即是縮小版的日本將棋，使用5x5的棋盤，於1970由琉球的楠本重信發明。
 
-## Rules
+## 規則
 
 As this game is based off shogi, please see the corresponding guide for basic shogi rules first if you are not familiar with them.
 
