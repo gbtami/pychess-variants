@@ -7,113 +7,148 @@
 
 ## 規則
 
-由於此變體基於日本將棋，如果不熟悉將棋基本規則請先查看日本將棋。
+由於此變體基於日本將棋，如果不熟悉將棋規則請先查看[日本將棋](https://www.pychess.org/variants/shogi)。
 
-啟動設置如上。與標準將棋不同，沒有騎士或長槍。只有一個棋子，一個主教和一個車，每個將軍一個。晉升僅在最後一級進行。
+初使配置如上，沒有桂馬與香車，且只有一個步兵。
 
-將棋的規則總結如下：
+唯一與標準將棋不同規則是，只有到達最後一列才能升變。
 
-*Drops* - 將棋子丟到任何地方的主要例外是用棋子。
-1) 棋子不能與另一個未升級的棋子放在同一個文件中（升級沒問題）。
-2）典當不能將死，但可以檢查。
-3) 最後的例外適用於所有小作品。你不能丟掉一塊讓它不能移動，這通常意味著最後一個等級……或者在騎士的情況下是最後兩個等級。
+***
 
-*永久檢查* - 連續四次重複檢查導致相同位置是導致永久檢查的玩家的損失。在國際象棋中，這導致平局。
+## 簡附日本將棋的規則(刪去桂馬、香車)：
 
-*重複* - 與上述類似，重複相同的位置（包括手中的棋子）會導致平局。
+你可以「俘虜」你吃掉的子並成為你的軍隊，隨時可以將他們**打入**場上任何位置上戰鬥。
+(有一些子有特殊限制，將在下文中介紹)。
 
-*計時器* - 將棋使用 byo-yomi 計時器。一旦主時鐘到期，玩家進入 byo-yomi。如果將其設置為 30 秒，那麼該玩家將只有 30 秒的時間來完成他/她的每一步移動，否則將按時輸掉比賽。
+同時，棋子可以在成功進入敵陣後，**升變**成更強的戰力。
 
-＃＃ 件
+## 棋盤與棋子
 
-本指南將基於國際化集。傳統套裝使用漢字 *kanji*，而件套採用完整的 2-kanji 形式和 1-kanji 縮寫形式。就像現在一樣，如果您想利用所有英語資源，則需要具備漢字知識。
+### 玉將、王將
 
-一般來說，將棋棋子比棋子更受限制。小棋子（即不是車或主教）經常向前移動，而不是向後移動。
-
-關於促銷作品，大多數套裝，包括本網站上使用的套裝，都以紅色來區分它們。有兩個基本規則可以讓學習所有部分**少**令人生畏。所有*次要*棋子在升級時都像金將軍一樣移動。因此，金將軍不能晉升。其次，兩個*主要*棋子（車和主教）都在其原始動作之上獲得了國王的動作。國王不提倡。
-
-
-### King
-
-![BlackKings](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/BlackKings.png) 
+![BlackKings](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/BlackKings.png)
 
 ![WhiteKings](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/WhiteKings.png)
 
 ![KingDiagram](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/King.png)
 
-The king moves exactly like a chess king: one step in any direction. In kanji piece sets, the king with a dot, 玉將 gyokushō, is the black player, while the king without, 王將 ōshō, is the white player. 
+先手方為玉將。後手為王將。
 
-This is the only piece in the internationalized set to maintain its kanji form, 王. In these sets, the color black or white is also depicted in this piece. The wooden set uses a bar below the 王. 
+往八個方向行走，但只能走一格，猶如西洋棋的「王」。將死對方王將者獲勝。
 
-### Rook
+### 飛車
 
 ![Rooks](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Rooks.png)
 
 ![RookDiagram](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Rook.png)
 
-The rook moves exactly like a chess rook: any number of squares orthogonally. The international piece depicts a chariot, which refers to the Japanese name “flying chariot.” In English, the name rook is based off the Persian word for chariot. This is the most valuable unpromoted piece in the game, excluding the king.
+飛車的移動就如象棋的車，或西洋棋的城堡，可以任意前行或橫行。它是將棋最強的未升變棋子。
 
-### Bishop
+其升變後為龍王。
 
-![Bishops](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Bishops.png)
-
-![BishopDiagram](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Bishop.png)
-
-The bishop moves exactly like a chess bishop: any number of squares diagonally. The international piece depicts a traditional hat worn by a Japanese official. The bishop is the second most valuable unpromoted piece in the game, excluding the king.
-
-### Dragon King (Dragon, Promoted Rook)
+### 龍王
 
 ![Dragons](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Dragons.png)
 
 ![DragonDiagram](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Dragon.png)
 
-The dragon king is a promoted rook, which gains the king’s moves on top of a rook’s. This is the most valuable piece in the game, excluding the king.
+龍王是升變後的飛車，走法如本來的飛車加上西洋棋「王」的走法。它是場上最強的棋子。
 
-### Dragon Horse (Horse, Promoted Bishop)
+### 角行
+
+![Bishops](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Bishops.png)
+
+![BishopDiagram](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Bishop.png)
+
+象行的移動方式如西洋棋的主教，朝斜向移動任意步數。由於它所能控制的格子是場上總格子數的半，因此較飛車弱，為將棋第二強的未升變棋子。
+
+其升變後為龍馬。
+
+### 龍馬
 
 ![Horses](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Horses.png)
 
 ![HorseDiagram](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Horse.png)
 
-The dragon horse is a promoted bishop, which gains the king’s moves on top of a bishop’s. This is the second most valuable piece in the game, excluding the king.
+龍馬是升變後的角行，除了原本角行的走法，還加上西洋棋「王」的移動，因此可以到達場上任意一個格子，為場上第二強的棋子。
 
-Note: While some beginner chess players sometimes call the knight a horse, you can't make that mistake in shogi because they are two completely different pieces!
-
-### Gold General (Gold)
+### 金將
 
 ![Golds](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Golds.png)
 
 ![GoldDiagram](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Gold.png)
 
-While the movement pattern of the gold general may seem confusing at first, the easiest way to remember it is that it moves **one step orthogonally in any direction**… or any of the three squares in front. In the internationalized set, the protrusions of the helmet (including the golden circle symbol) also point in all its directions.
+向前、左前、右前、左、右或後行走一格，猶如中文「甲」字。
+金將無法升變。
 
-**All promoted minor pieces move exactly like a gold.**
 
-### Silver General (Silver)
+### 銀將
 
 ![Silvers](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Silvers.png)
 
 ![SilverDiagram](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Silver.png)
 
-While the movement pattern of the silver general may seem confusing at first, the easiest way to remember it is that it moves **one step diagonally in any direction**… or any of the three square in front. In the internationalized set, the protrusions of the helmet also point in all its directions.
+斜角方向或正前方行走一格。
 
-### Pawn
+升變後叫「成銀」，走法同金將。
+
+### 步兵
 
 ![Pawns](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Pawns.png)
 
 ![PawnDiagram](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Pawn.png)
 
-The pawn moves and captures by moving forward one square. This is different than the chess pawn. The pointy hat in the internationalized piece is a reminder.
+步兵的走法為直行一格。
 
-### Promoted minor pieces
+升變後叫「と金(成步)」，走法同金將。
+
+## 升變\|成駒
 
 ![PSilvers](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/PSilvers.png)
 
+![PKnights](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/PKnights.png)
+
+![PLances](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/PLances.png)
+
 ![Tokins](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Tokins.png)
 
-Unlike the dragon king and dragon horse, these do not have special names. The exception is the pawn, which is sometimes called by its Japanese name, *tokin*. As above, they move just like the gold general. Note that the kanji versions are all different stylistic variants of the character for gold.
+
+將棋的棋子設有升變制度。除了王將（玉將）、金將及已經升變的棋子外，棋盤上所有棋子均可升變，若棋子剛打入敵陣，則要多走一步才可升級。
+
+當一枚可升級的棋子移進、移出、或者在敵陣（在迷你將棋中是最後一行）中移動時，棋手可以選擇把該棋子翻轉升級或保持原狀，但是如果該棋子不升級的話會沒有辦法再走（例如走到敵陣的底線的步兵）則該棋子會被迫升級。
+
+大子(飛車、角行)升變後各自成為「龍王」、「龍馬」，其餘輕子升變後皆為金將。
+
+## 打入\|持ち駒
+
+將棋最特別的是棋手可以花一手將己方吃掉的棋子放回棋盤成為己方棋子，稱為打入。當一枚已升級的棋子被吃時，它的升級會被取消，打入時用原先的棋種表示。
+
+打入有以下限制：
+
+* 剛打入的棋子即使落在敵陣亦不能馬上升級，**一定要在移動一步之後才可升變**。也可以選擇移動後不升變，若之後要再升變，需要再移動一次才行。
+* 不能把棋子打入在一些不能再走的位置。例如步兵不能落在敵陣的底線。
 
 
-## Strategy
 
-Due to the smaller board size, the rook and bishop are not as dominant as standard shogi. However, their promotions are still very much threatening.
+對步兵的打入有一些額外規則:
+1) **二步一筋**: 若某行已有無方未升變步兵，則不能在該行再打入步兵。 (若該行兵已升變則不在此限)。「二步一筋」在日本的將棋職業賽中為最常見犯規，自一九七七年迄今，在日本的將棋職業賽中已有44次「二步一筋」的記錄。 
+2) **打步詰**: 指用打入步兵的方式使對方王將無法脫逃，若觸犯則直接判輸局。打步詰必須要「打」、「步」、「詰」三個條件同時成立才算數，所以以下的三種情形皆沒犯規：
+
+	* 走步詰：移動步兵，將死對方王將
+	* 打其他棋子詰：打入非步兵的棋子，將死對方王將
+	* 打步將：打入步兵，將軍對方王將但沒將死
+
+## 其他規則
+
+
+
+**長將** - 將棋容許連將但是不能重複同樣的手法長照（長將），若雙方重複循環同樣的方式照將、應照達四次時，則照將方違規，判負。 
+
+**千日手** - 雙方重複循環同樣的著法，使得局面沒有進一步變化達四次時，則視為和局。
+
+***
+
+
+## 策略
+
+由於棋盤較小，飛車與角行相對就不像將棋中那麼強。但在它們升變之後，依舊有很大的主宰力。
