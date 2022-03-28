@@ -153,7 +153,7 @@ export default class TournamentController {
     variant: Variant;
     chess960: boolean;
     rated: string;
-    startsAt: string;
+    startDate: string;
     visitedPlayer: string;
     secondsToStart: number;
     secondsToFinish: number;
@@ -168,7 +168,7 @@ export default class TournamentController {
         this.page = 1;
         this.tournamentStatus = T_STATUS[model["status"] as keyof typeof T_STATUS];
         this.visitedPlayer = '';
-        this.startsAt = model["date"];
+        this.startDate = model["date"];
         this.secondsToStart = 0;
         this.secondsToFinish = 0;
 

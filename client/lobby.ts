@@ -110,6 +110,7 @@ export class LobbyController {
     sock;
     // player;
     // logged_in;
+    anon: boolean;
     createMode: CreateMode;
     validGameData: boolean;
     readyState: number;
@@ -130,6 +131,7 @@ export class LobbyController {
         console.log("LobbyController constructor", el, model);
 
         this.model = model;
+        this.anon = model["anon"] === 'True';
         this.createMode = 'createGame';
         this.validGameData = false;
         this.seeks = [];

@@ -79,7 +79,7 @@ export function initializeClock(ctrl: TournamentController) {
         endtime = Date.now() + ctrl.secondsToStart * 1000;
         const remaining = getTimeRemaining(endtime);
         if (remaining.days > 0) {
-            const startDate = new Date(ctrl.model["date"]);
+            const startDate = new Date(ctrl.startDate);
             ctrl.clockdiv = patch(ctrl.clockdiv, h('div#clockdiv', [h('info-date', { attrs: { 'timestamp': startDate.toLocaleString("default", localeOptions) } })]));
         } else {
             ctrl.clockdiv = patch(ctrl.clockdiv, h('div#clockdiv', [h('span.shy', _('STARTING IN')), h('span#clock')]));

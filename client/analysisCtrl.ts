@@ -67,6 +67,7 @@ export default class AnalysisController {
     sock;
     chessground: Api;
     fullfen: string;
+    anon: boolean;
     wplayer: string;
     bplayer: string;
     base: number;
@@ -174,6 +175,7 @@ export default class AnalysisController {
         this.variant = VARIANTS[model["variant"]];
         this.chess960 = model["chess960"] === 'True';
         this.fullfen = model["fen"] as string;
+        this.anon = model["anon"] === 'True';
         this.wplayer = model["wplayer"] as string;
         this.bplayer = model["bplayer"] as string;
         this.base = model["base"];
