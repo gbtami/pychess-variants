@@ -13,7 +13,12 @@ export function chatView(ctrl: RoundController | AnalysisController | Tournament
             return;
         const message = (e.target as HTMLInputElement).value.trim();
         if ((e.keyCode === 13 || e.which === 13) && message.length > 0) {
-            ctrl.doSend({"type": chatType, "message": message, "gameId": ctrl.model["gameId"], "tournamentId": ctrl.model["tournamentId"], "room": ( (ctrl instanceof RoundController || ctrl instanceof AnalysisController) && ctrl.spectator) ? "spectator": "player"});
+            const m: any = {type: chatType, message: message, room: ("spectator" in ctrl && ctrl.spectator) ? "spectator" : "player"};
+            if ("gameId" in ctrl)
+                m["gameId"] = ctrl.gameId;
+            if ("tournamentId" in ctrl)
+                m["tournamentId"] = ctrl.tournamentId
+            ctrl.doSend(m);
             (e.target as HTMLInputElement).value = "";
         }
     }
@@ -24,7 +29,7 @@ export function chatView(ctrl: RoundController | AnalysisController | Tournament
         chatEntry.disabled = !activated;
         chatEntry.placeholder = activated ? (anon ? _('Sign in to chat') : _('Please be nice in the chat!')) : _("Chat is disabled");
     }
-    const anon = ctrl.model["anon"] === 'True';
+    const anon = ctrl.anon;
     return h(`div#${chatType}.${chatType}.chat`, [
         h('div.chatroom', [
             ((ctrl instanceof RoundController || ctrl instanceof AnalysisController) && ctrl.spectator) ? _('Spectator room') : _('Chat room'),

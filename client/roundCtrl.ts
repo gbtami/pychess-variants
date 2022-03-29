@@ -92,6 +92,7 @@ export default class RoundController {
     notation: cg.Notation;
     fullfen: string;
     username: string;
+    anon: boolean;
     wplayer: string;
     bplayer: string;
     base: number;
@@ -222,6 +223,7 @@ export default class RoundController {
         this.chess960 = model["chess960"] === 'True';
         this.fullfen = model["fen"];
         this.username = model["username"];
+        this.anon = model["anon"] === 'True';
         this.wplayer = model["wplayer"];
         this.bplayer = model["bplayer"];
         this.base = Number(model["base"]);

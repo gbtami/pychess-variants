@@ -67,6 +67,7 @@ export default class AnalysisController {
     sock;
     chessground: Api;
     fullfen: string;
+    anon: boolean;
     wplayer: string;
     bplayer: string;
     base: number;
@@ -174,6 +175,7 @@ export default class AnalysisController {
         this.variant = VARIANTS[model["variant"]];
         this.chess960 = model["chess960"] === 'True';
         this.fullfen = model["fen"] as string;
+        this.anon = model["anon"] === 'True';
         this.wplayer = model["wplayer"] as string;
         this.bplayer = model["bplayer"] as string;
         this.base = model["base"];
@@ -522,39 +524,36 @@ export default class AnalysisController {
 
         if (line.includes('readyok')) this.isEngineReady = true;
 
-        if (!this.localEngine) {
-            if (line.includes('UCI_Variant')) {
-                ffishModule().then((loadedModule: any) => {
-                    this.ffish = loadedModule;
-
-                    if (this.ffish !== null) {
-                        this.ffish.loadVariantConfig(variantsIni);
-                        this.notationAsObject = this.notation2ffishjs(this.notation);
-                        const availableVariants = this.ffish.variants();
-                        //console.log('Available variants:', availableVariants);
-                        if (this.model.variant === 'chess' || availableVariants.includes(this.model.variant)) {
-                            this.ffishBoard = new this.ffish.Board(this.variant.name, this.fullfen, this.chess960);
-                            this.dests = this.getDests();
-                            this.chessground.set({ movable: { color: this.turnColor, dests: this.dests } });
-                        } else {
-                            console.log("Selected variant is not supported by ffish.js");
-                        }
-                    }
-
-                    window.addEventListener("beforeunload", () => this.ffishBoard.delete());
-                });
-
-                // TODO: enable S-chess960 when stockfish.wasm catches upstream Fairy-Stockfish
-                if ((this.model.variant === 'chess' || line.includes(this.model.variant)) &&
-                    !(this.model.variant === 'seirawan' && this.chess960)) {
-                    this.localEngine = true;
-                    patch(document.getElementById('input') as HTMLElement, h('input#input', {attrs: {disabled: false}}));
-                } else {
-                    const v = this.model.variant + ((this.chess960) ? '960' : '');
-                    const title = _("Selected variant %1 is not supported by stockfish.wasm", v);
-                    patch(document.getElementById('slider') as HTMLElement, h('span.sw-slider', {attrs: {title: title}}));
-                }
+        if (line.startsWith('Fairy-Stockfish')) {
+            window.prompt = function() {
+                return variantsIni + '\nEOF';
             }
+            window.fsf.postMessage('load <<EOF');
+        }
+
+        if (!this.localEngine) {
+            ffishModule().then((loadedModule: any) => {
+                this.ffish = loadedModule;
+
+                if (this.ffish !== null) {
+                    this.ffish.loadVariantConfig(variantsIni);
+                    this.notationAsObject = this.notation2ffishjs(this.notation);
+                    const availableVariants = this.ffish.variants();
+                    console.log('Available variants:', availableVariants);
+                    if (this.model.variant === 'chess' || availableVariants.includes(this.model.variant)) {
+                        this.ffishBoard = new this.ffish.Board(this.variant.name, this.fullfen, this.chess960);
+                        this.dests = this.getDests();
+                        this.chessground.set({ movable: { color: this.turnColor, dests: this.dests } });
+                    } else {
+                        console.log("Selected variant is not supported by ffish.js");
+                    }
+                }
+
+                window.addEventListener("beforeunload", () => this.ffishBoard.delete());
+            });
+
+            this.localEngine = true;
+            patch(document.getElementById('input') as HTMLElement, h('input#input', {attrs: {disabled: false}}));
         }
 
         if (!this.localAnalysis || !this.isEngineReady) return;
