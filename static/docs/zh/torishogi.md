@@ -19,26 +19,19 @@
 
 *計時* - 禽將棋使用byo-yomi計時，請參看「[術語](https://www.pychess.org/variants/terminology)」
 
-## Intro to Pieces
 
-All Tori Shogi pieces (except two) are new, and learning them may be daunting for new players. This guide will draw to simplify this as much as possible. For starters, we will use the internationalized set\*. The symbols used in the international set are unique in that nearly every piece has a *mnemonic device in the shape of the bird/picture on the piece*, where the birds point to where they move, so please take advantage of this when learning the game. How does this work? Take a look at this *fake piece* below:
 
-![A fake piece](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/FakeBird.png)
+## 棋子
 
-If you were to guess, how would this make-believe piece move?  Note how it has a *long beak pointing up, long wings pointing to the sides, and long talons pointing diagonally backwards*. A logical guess would be that it moves like a *rook* orthogonally left and right (wings) and up (beak), while moving like a *bishop* diagonally backwards (talons). It also has a *small little tail poking straight down*, so it's also a reasonable assumption that this piece can also go backwards just a little bit, likely one space. Now, on to the real pieces.
+棋子造型預設為國際圖案版，每隻鳥的造型都代表其走法。
 
-Two pieces are very straightforward as they are just renamed versions of the king and pawn from Shogi. The rest of the pieces are all unique. To make things simple, these new pieces' movements fall into two main patterns: 
+棋子走法分為兩種，一種為單格型，一種為Y型。
 
-1. **Pieces that move like a king**
-2. **Pieces whose moves resemble a Y-shape (right-side up or upside-down)**
 
-As mentioned in the rules, **only two pieces promote**. The weakest piece in the game promotes to a very weak piece, while the strongest unpromoted piece in the game promotes into a far stronger piece. These two pieces will be discussed last, and both fall into the Y-shape class (both happen to be right-side up Y's).
 
-\* *Note* - Unlike other East Asian variants on this site, Tori Shogi uses the internationalized set as a default. This is because of vastly increased complexity of the kanji in this game, the relative complexity of the moves (which would benefit from mnemonic devices as employed by the international pieces), and the fact that these pieces are not used in other variants as far as we know. The traditional kanji set is of course available as well.
+## 單格型
 
-## The Fundamental Pieces
-
-These are the only two pieces without mnemonic devices in the birds, and these are the two pieces needed in almost every traditional chess variant. One is essentially the king, and the other is essentially a pawn, so the piece size and number should already be large clues as to which pieces these are.
+單格型的棋子一次只能走一格。
 
 ### 鵬
 
@@ -52,7 +45,7 @@ These are the only two pieces without mnemonic devices in the birds, and these a
 
 可向前走一格。
 
-升變後為「鵝」。
+升變後為**鵝**。
 
 ### 鷹
 
@@ -68,55 +61,49 @@ These are the only two pieces without mnemonic devices in the birds, and these a
 
 可朝前方、後方三格走一步。
 
-## ⅄-shaped Pieces
+## Y型
 
 ![Upside-down Y pieces](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/UpsidedownYPieces.png) 
 
-The main feature of these pieces is that their move patterns resemble an upside-down Y (⅄). *One is weak and can jump (like a chess knight). The other(s) is stronger and is a ranging piece (i.e. can move as many steps as it wants in that direction).* These exact words will be repeated for the next group of pieces.
+Y型棋子的走法類似英文字母**Y**。
 
-### Pheasant
+### 雉
 
 ![Pheasant](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Pheasant.png)
 
-The Pheasant (雉, *kiji*) moves either one space diagonally backward or can jump two spaces straight forward. *Jump* means that it can still go there even if there is a piece in the way (like a chess/shogi knight). Essentially, this piece is the Tori Shogi equivalent of the Shogi knight.
+可向前向跳二格(不會被前方棋子阻擋)，或向後斜向走一格。
 
-FYI, the red circle above the pheasant is the "rising sun" -- the green pheasant depicted here is the national bird of Japan.
-
-### Quails (Left and Right)
+### 鶉
 
 |   |   |
 --- | ---
 ![LeftQuail](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/LeftQuail.png) | ![RightQuail](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/RightQuail.png)
 
-The Quails (鶉, *uzura*) start in the corners of the board and are two separate pieces called the **Left Quail** and the **Right Quail**. Their movements are mirror images of each other. Both Quails can move any number of spaces forward (like a Rook or Lance), but they can also move backwards diagonally in the direction away from their starting side of the board. For example, the *Left* Quail can move diagonally *right* (in the direction of its talons). Finally, they can also move one space diagonally backwards on the opposite side, towards the bird's tail.
+鶉依據配置於左右兩側而走法不同，棋上會標明左或右字。
 
-The Quails are tied with the Falcon for being the strongest unpromoted piece in the game. However, unlike the Falcon, they cannot promote.
+左鶉可以向前或右後方自由行走，或向左後斜向走一格。
 
-A note on the kanji set: Traditional sets just use the character for quail on the front and "left" or "right" on the back. As players playing online cannot physically peek under the pieces, we put the kanji for left (左) and right (右) above the kanji for quail.
+右鶉可以向前或左後方自由行走，或向右後斜向走一格。
 
-## Y-shaped Pieces (Promoted Pieces)
+
+### 鵝與雕
 
 ![Promoted pieces](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/PromotedPieces.png) 
 
-Finally, the last two pieces are the two promoted pieces, which also happen to share a similarity in that their move patterns resemble a Y. *One is weak and can jump (like a chess knight). The other is stronger and is a ranging piece (i.e. can move as many steps as it wants in that direction).* 
 
-### Goose
+### 鵝
 
 ![Goose](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Goose.png)
 
-The Wild Goose (鴈, *kari*), or simply Goose, is the promoted form of the Swallow. It can jump exactly two spaces diagonally forward (left or right), or exactly two spaces straight backwards. Because of this unique pattern, the Goose can only reach a very limited number of spaces on the board (about one quarter of the board). 
+為燕的升變，可向斜前方、後方跳兩格。由於步伐大，它所能到達的位置很少。
 
-### Eagle
+### 雕
 
 ![Eagle](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Eagle.png) 
 
-The Mountain Hawk Eagle (鵰, *kumataka*), or simply Eagle, is the promoted form of the Falcon. Its moves are broken down into three components:
+為鷹的升變。除保留原本走法外，可以向斜前與後方自由行走，或向斜後方走最多兩格。
 
-1. It ranges in a Y-shape (wings and tail) -- It can move any number of spaces diagonally forward or straight backwards.
-2. It can move like a king (one step in any of the 8 spaces around the piece) -- this technically makes it a "Y-shaped piece" AND a "king-like piece", but the Y-shape is the dominant part of this piece.
-3. Finally, it can also move two spaces diagonally backwards (indicated by the Eagle's talons). This is not a jumping move; it can be blocked.
-
-This is by far the strongest piece in the game.
+這是最強的棋擬。
 
 ## Notation
 
