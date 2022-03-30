@@ -194,16 +194,22 @@ With nowhere to go, the quail will now be captured by a swallow, a great tradeof
 
 So this means the best time to make an edge attack is when a piece is blocking the square in front of the pheasant. In a majority of cases, this will be the crane. A good response to the swallow drop initiating an edge attack is to simply pull back the crane, opening up a retreat square for the quail. Bringing this back to the initial tips for openings, this means that opening with the crane diagonally in front of the pheasant is not a flawless strategy, and it has its own drawbacks!
 
+所以邊緣攻擊的最佳時機是雉前面的格子被一個棋子擋住。對燕子下落髮起邊緣攻擊的一個很好的反應是簡單地拉回起重機，為鵪鶉打開一個撤退廣場。 回到最初的開場技巧，這意味著在野雞的對角線前方開場並不是一個完美的策略，它也有自己的缺點！
+
 ### 殘局
 
 
-殘局是最重要的部分。你可以打出完美的千局和中局，但如果你無法將死對方，對手可以將你的失誤化顧轉機！殘局的目標是俘虜足夠的棋子來將對手的鳳凰將死。你甚至不需要子力優勢，只需正確的運子即可。 由於將死的方式有很多，因此無法在說明中涵蓋不同的情況。不過，有一些重要的提示:
+殘局是最重要的部分。你可以打出完美的開局和中局，但如果你無法將死對方，對手可以將你的失誤化為轉機！殘局的目標是俘虜足夠的棋子來將對手的鳳凰將死。你甚至不需要子力優勢，只需正確的運子即可。 由於將死的方式有很多，因此無法在說明中涵蓋不同的情況。不過，有一些重要的提示:
 
-* **Cranes and Falcons** are the classic pieces for mating, similar to Shogi generals. Be familiar for using these pieces in tandem to deliver checkmate.
-* **Geese** are very weak pieces, but they can be critical to checkmate as they are one of the few pieces that can attack forwards and diagonally. Try to get a goose two files away from the opponent's phoenix, then drop it back to position yourself for a strong crane/falcon drop.
-* **Falcons** are key pieces for making an easy checkmate. One great way to use them is to not drop them to immediately check the phoenix (where it can simply run away), but to drop it next to a spot where it *can* check the phoenix the next turn. Doing so will result in promotion to an Eagle, which is a much more powerful chaser. What can make this even more effective is when you drop it so that the falcon also threatens another piece. So even if the opponent blocks the simultaneous promotion and check, you can still grab another piece and promote.
-* **Pheasants and Quails** have backwards diagonal attacks too, remember that! They are most essential for ridding the phoenix of its defenders. Most importantly, remember the quail has an unlimited diagonal and can even be used to protect your own phoenix as you make your attack. Remember that as you go all in an attack, many pieces will exchange. If you fail to deliver checkmate, the oppponent can use these new pieces against you. That's where the quails can be very useful.
-* Do not forget that it is illegal to checkmate with a dropped Swallow. It *is* okay to check with a dropped swallow, leading to a checkmate by another piece the next turn though!
+
+* **鶴和鷹**是將軍常用的子。
+* **鵝**是非常弱的棋子，但常用來將殺，因為它是少數可以向前斜向攻擊的棋子之一。可以用它為鶴、雕生根，以將死對方鵬。
+* 
+* **鷹**很容易將對方將死。不要將它們打在鵬旁邊將軍（很容易跑掉），而是將其打在*可以*下一回合將到鵬的位置旁邊。這樣就可以升變為雕，這是一個更強大的棋子。更好的是打入鷹時，也同時威脅到另一子，形成捉雙。
+* **雉和鶉**也有向後斜向攻擊，這對於打破鵬的防御很重要。再者，鶉有無限的對角線，可以在你攻擊時用來保護你自己的鵬。請記住，當你全力將軍時會一直換子，若將死不成功，對手可以使用這些新棋子來發動攻擊，這就是鵪鶉非常有用的地方。
+* 不能用燕子直接將死對方(將軍是可以的)。
+
+##讓子
 
 ## 讓子
 
