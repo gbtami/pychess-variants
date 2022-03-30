@@ -17,7 +17,7 @@
 * 將對方的鵬將死和困斃為勝。
 * 重復走子三次算和。
 
-*計時* - 禽將棋使用byo-yomi計時，請參看「[術語](https://www.pychess.org/variants/terminology)」
+*計時* - 禽將棋使用byo-yomi計時，請參看「[術語](https://www.pychess.org/variants/terminology)」。
 
 
 
@@ -128,7 +128,7 @@ Y型棋子的走法類似英文字母**Y**。
 
 ### 記號
 
-* 打入記作 \*。例甘將燕打在3-3記作"S\*33"
+* 打入記作 \*。例如將燕打在3-3記作"S\*33"
 * 升變會在後方加上「+」。如燕在 1-1 升變記作 S11+.
 * 將和將死不特別標記。
 
@@ -136,7 +136,7 @@ Y型棋子的走法類似英文字母**Y**。
 
 ### 子力值值
 
-下列是將棋軟體列出的子力價值([看這裡](https://happyclam.github.io/project/2019-01-03/torishogiapp))。
+下列是禽將棋軟體列出的子力價值([看這裡](https://happyclam.github.io/project/2019-01-03/torishogiapp))。
 
 棋子 | 價值
 ------------ | -------------
@@ -148,7 +148,7 @@ Y型棋子的走法類似英文字母**Y**。
 *鵝* | 2
 *雕* | 16
 
-除燕外，其他子持有在手中時價值會下降。(其時筆者實戰下來覺得鶴比鶉來得強。)
+除燕外，其他子持有在手中時價值會下降。(其實筆者實戰下來覺得鶴比鶉強。)
 
 ### 開局
 
@@ -165,7 +165,7 @@ Y型棋子的走法類似英文字母**Y**。
 
 這些點是弱點，請記住這些點並用鵬或鷹保護，這樣鶴就不必一直守住這些點！
 
-推進鶉不是很有利（除非你想試圍玉），進燕讓對方吃或特別動鵬也不好。
+推進鶉不是很有利（除非你想圍玉）;進燕讓對方吃，或特別動鵬也不好。
 
 ### 燕
 
@@ -173,26 +173,28 @@ Y型棋子的走法類似英文字母**Y**。
 
 以下是有關燕子的戰術:
 
-**雙燕** (兩隻燕疊在一起)非常強。 因為這可以鎖住一條要道。缺點是你不太能夠動它，也不能再打入燕在那行。
-Because swallows tend to fly on and off the board at a dizzying rate, **you can treat them almost as currency**. Sometimes you may have so much that you have a lot of flexibility for attack. The front lines of the board tend to be defined by opposing swallows with a gap inbetween (no man's land). You can "spend" a swallow from your hand to essentially advance your line forward. You should do this when you have another piece (typically a crane or quail) to back up the advanced swallow.
+* **雙燕** (兩隻燕疊在一起)非常強。因為這可以鎖住一條要道。缺點是你不太能夠動它，也不能再打入燕在那行。
 
-When mounting a deep attack with swallows, if you manage to push one to the third to last rank (just behind the promotion zone), you can see the prize enemy bird in sight, but be careful! If you push your swallow *forward*, **you instead make a goose** because of forced promotion! To finish off the attack, you need to have a swallow ready to drop (and the ability to do so) to claim the bird on the other end.
+* 由於燕往往會以令人眼花繚亂的速度在場上交換，**幾乎可以將它們視為貨幣**。手中有很多燕會讓你的攻擊有很大的靈活性。燕常作為棋子的前線，如果你有鶴或鷹可以生根的話，可以打入燕來推進你的前線。
 
-![別做這種傻事!](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/ToriGooseMistake.png) 
+* 使用燕子深入敵陣攻擊時請小心，如果進入對方下二線，**它會被強迫升變成鵝**！
+
+(順序圖)![別做這種傻事!](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/ToriGooseMistake.png) 
 
 ### 邊緣攻擊
 
-邊緣攻擊是發動攻擊的好方法。如上所述，你可以犧牲一隻燕子來推進自己的燕子，以奪取敵方的鶉(將燕打在鶉前方)。下圖是成功進行邊緣攻擊時的順序：
+邊緣攻擊是發動攻擊的好方法。如上所述，你可以犧牲一隻燕子來推進自己的燕子，以奪取敵方的鶉(將燕打在鶉前方)。下面是成功進行邊緣攻擊時的順序圖(由左至右)：
 
 ![Edge Sequence!](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/ToriEdgeSequence.png) 
 
-With nowhere to go, the quail will now be captured by a swallow, a great tradeoff! *However*, that is **IF** the quail has nowhere to go. Remember, it can now go diagonally backwards! If there is a crane sitting in the space in front of the pheasant, then yes, the quail is now yours. Should that square be empty, then a good response to that initial swallow drop is to simply ignore it! If the swallow advances and takes your swallow, you retake with the quail. Once he pushes the remaining swallow, you can simply retreat your quail to the next file, and the *edge attack is foiled* (see below).
+由於鶉無處可緅，因此它只能選擇換子: 把燕吃掉，再被對方的鶉吃。
 
 ![Edge Sequence!](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/ToriFailedEdgeAttack.png) 
 
-So this means the best time to make an edge attack is when a piece is blocking the square in front of the pheasant. In a majority of cases, this will be the crane. A good response to the swallow drop initiating an edge attack is to simply pull back the crane, opening up a retreat square for the quail. Bringing this back to the initial tips for openings, this means that opening with the crane diagonally in front of the pheasant is not a flawless strategy, and it has its own drawbacks!
+但這只有在鶉無處可動的情況下成立，如果鶉斜後方是空的，那它還是可以往那邊撤退。
 
-所以邊緣攻擊的最佳時機是雉前面的格子被一個棋子擋住。對燕子下落髮起邊緣攻擊的一個很好的反應是簡單地拉回起重機，為鵪鶉打開一個撤退廣場。 回到最初的開場技巧，這意味著在野雞的對角線前方開場並不是一個完美的策略，它也有自己的缺點！
+因此這最好用來對付對方開局將鶴動到雉前的情況，因為鶴剛好會擋到鶉。
+
 
 ### 殘局
 
@@ -202,7 +204,6 @@ So this means the best time to make an edge attack is when a piece is blocking t
 
 * **鶴和鷹**是將軍常用的子。
 * **鵝**是非常弱的棋子，但常用來將殺，因為它是少數可以向前斜向攻擊的棋子之一。可以用它為鶴、雕生根，以將死對方鵬。
-* 
 * **鷹**很容易將對方將死。不要將它們打在鵬旁邊將軍（很容易跑掉），而是將其打在*可以*下一回合將到鵬的位置旁邊。這樣就可以升變為雕，這是一個更強大的棋子。更好的是打入鷹時，也同時威脅到另一子，形成捉雙。
 * **雉和鶉**也有向後斜向攻擊，這對於打破鵬的防御很重要。再者，鶉有無限的對角線，可以在你攻擊時用來保護你自己的鵬。請記住，當你全力將軍時會一直換子，若將死不成功，對手可以使用這些新棋子來發動攻擊，這就是鵪鶉非常有用的地方。
 * 不能用燕子直接將死對方(將軍是可以的)。
