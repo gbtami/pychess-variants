@@ -11,6 +11,6 @@ pyffish==0.0.70
 sortedcollections==2.1.0
 python-gettext==4.0
 objgraph==3.5.0
-black==22.1.0
+black==22.3.0
 mypy
 pre-commit
