@@ -80,3 +80,9 @@ yarn md                                 // Compile md files to html
 ```
 python3 server/server.py
 ```
+
+## Supported browsers
+
+Pychess-variants should support almost all browsers. Though older browsers (including any version of Internet Explorer) will not work. For your own sake, please upgrade. Security and performance, think about it!
+
+Only [Fairy-Stockfish analysis](https://www.pychess.org/analysis/chess) might not work on all browsers.
