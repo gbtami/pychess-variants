@@ -152,19 +152,6 @@ Y型棋子的走法類似英文字母**Y**。
 
 ### 開局
 
-There are essentially four reasonable opening moves...
-
-1+2: Take one of the opponent's swallows that are immediately opposing yours
-
-3+4: Move one of your cranes diagonally, in front of one of your pheasants
-
-Why is moving the crane straight one space bad? It stops defending the space in front of your pheasant, leading to an opportunistic swallow drop, followed by a pheasant capture.
-
-![Weak spots](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/ToriWeakSpots.png) 
-
-These spots are weak spots. Even if you do advance the crane, you want to remember those spots and defend it with the phoenix or falcon so that your crane does not have to babysit these squares!
-
-As for other possibilities, moving a swallow to be captured by another swallow is a losing move. Pheasants can't move. Advancing the quails is not very advantageous (unless you are trying for a castle), and moving the phoenix is also a bit too passive compared to the top options above.
 
 基本上有四個合理的開局動作:
 
@@ -182,17 +169,17 @@ As for other possibilities, moving a swallow to be captured by another swallow i
 
 ### 燕
 
-Swallows can be said to be the as Shogi pawns, but they are also vastly different. The ability to have two swallows per file changes strategy completely. Because of this, swallows are practically the heart and soul of the game, and knowing how to play them is one of the key parts to learning Tori Shogi.
+燕子可以說是將棋的步兵，但也大不相同。可打入兩隻燕子到同行完全改變了策略。因此，燕子實際上是遊戲的靈魂，知道如何運用它們是學習 Tori Shogi 的關鍵部分之一。
 
-To keep things brief, there are three things to keep in mind regarding swallows:
+以下是有關燕子的戰術:
 
-**Doubled swallows** (i.e. one swallow behind another) are very powerful. If you're able to advance swallows far enough, putting a swallow in front (for offense) or behind (for defense) can lock down a file. The one caveat is that you can no longer drop swallows on this file, and it's also hard to move. These two swallows can act like a wall or barrier, and in some cases, may make mating even more difficult. Be careful not to over extend on doubled swallows.
+**雙燕** (i.e. one swallow behind another) are very powerful. If you're able to advance swallows far enough, putting a swallow in front (for offense) or behind (for defense) can lock down a file. The one caveat is that you can no longer drop swallows on this file, and it's also hard to move. These two swallows can act like a wall or barrier, and in some cases, may make mating even more difficult. Be careful not to over extend on doubled swallows.
 
 Because swallows tend to fly on and off the board at a dizzying rate, **you can treat them almost as currency**. Sometimes you may have so much that you have a lot of flexibility for attack. The front lines of the board tend to be defined by opposing swallows with a gap inbetween (no man's land). You can "spend" a swallow from your hand to essentially advance your line forward. You should do this when you have another piece (typically a crane or quail) to back up the advanced swallow.
 
 When mounting a deep attack with swallows, if you manage to push one to the third to last rank (just behind the promotion zone), you can see the prize enemy bird in sight, but be careful! If you push your swallow *forward*, **you instead make a goose** because of forced promotion! To finish off the attack, you need to have a swallow ready to drop (and the ability to do so) to claim the bird on the other end.
 
-![Don't make this mistake!](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/ToriGooseMistake.png) 
+![別做這種傻事!](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/ToriGooseMistake.png) 
 
 ### Edge Attacks
 
@@ -207,9 +194,10 @@ With nowhere to go, the quail will now be captured by a swallow, a great tradeof
 
 So this means the best time to make an edge attack is when a piece is blocking the square in front of the pheasant. In a majority of cases, this will be the crane. A good response to the swallow drop initiating an edge attack is to simply pull back the crane, opening up a retreat square for the quail. Bringing this back to the initial tips for openings, this means that opening with the crane diagonally in front of the pheasant is not a flawless strategy, and it has its own drawbacks!
 
-### Endgame
+### 殘局
 
-The endgame is the most important part of Tori Shogi. You can play a perfect early and midgame, but if you cannot convert into a checkmate, the opponent can convert your blunders into a quick checkmate! The goal in endgame is to collect just enough pieces needed to checkmate the opponent's phoenix. You may not even need a material advantage. Simply taking advantage of the right positioning will do. Since there are so many ways the game can end, it would be impossible to cover different scenarios in this brief guide. I'll give you a few major tips though.
+
+殘局是最重要的部分。你可以打出完美的千局和中局，但如果你無法將死對方，對手可以將你的失誤化顧轉機！殘局的目標是俘虜足夠的棋子來將對手的鳳凰將死。你甚至不需要子力優勢，只需正確的運子即可。 由於將死的方式有很多，因此無法在說明中涵蓋不同的情況。不過，有一些重要的提示:
 
 * **Cranes and Falcons** are the classic pieces for mating, similar to Shogi generals. Be familiar for using these pieces in tandem to deliver checkmate.
 * **Geese** are very weak pieces, but they can be critical to checkmate as they are one of the few pieces that can attack forwards and diagonally. Try to get a goose two files away from the opponent's phoenix, then drop it back to position yourself for a strong crane/falcon drop.
