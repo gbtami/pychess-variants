@@ -173,18 +173,16 @@ Y型棋子的走法類似英文字母**Y**。
 
 以下是有關燕子的戰術:
 
-**雙燕** (i.e. one swallow behind another) are very powerful. If you're able to advance swallows far enough, putting a swallow in front (for offense) or behind (for defense) can lock down a file. The one caveat is that you can no longer drop swallows on this file, and it's also hard to move. These two swallows can act like a wall or barrier, and in some cases, may make mating even more difficult. Be careful not to over extend on doubled swallows.
-
+**雙燕** (兩隻燕疊在一起)非常強。 因為這可以鎖住一條要道。缺點是你不太能夠動它，也不能再打入燕在那行。
 Because swallows tend to fly on and off the board at a dizzying rate, **you can treat them almost as currency**. Sometimes you may have so much that you have a lot of flexibility for attack. The front lines of the board tend to be defined by opposing swallows with a gap inbetween (no man's land). You can "spend" a swallow from your hand to essentially advance your line forward. You should do this when you have another piece (typically a crane or quail) to back up the advanced swallow.
 
 When mounting a deep attack with swallows, if you manage to push one to the third to last rank (just behind the promotion zone), you can see the prize enemy bird in sight, but be careful! If you push your swallow *forward*, **you instead make a goose** because of forced promotion! To finish off the attack, you need to have a swallow ready to drop (and the ability to do so) to claim the bird on the other end.
 
 ![別做這種傻事!](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/ToriGooseMistake.png) 
 
-### Edge Attacks
+### 邊緣攻擊
 
-Edge attacks are great way of starting an attack. As mentioned above, you can "spend" a swallow to push your own swallow up and eventually make your way to claim the enemy quail (remember to use a swallow *drop* in front of the quail to take it!). However, there is one caveat! The following image demonstrates the sequence when making a successful edge attack:
-
+邊緣攻擊是發動攻擊的好方法。如上所述，你可以犧牲一隻燕子來推進自己的燕子，以奪取敵方的鶉(將燕打在鶉前方)。下圖是成功進行邊緣攻擊時的順序：
 
 ![Edge Sequence!](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/ToriEdgeSequence.png) 
 
@@ -208,8 +206,6 @@ So this means the best time to make an edge attack is when a piece is blocking t
 * **鷹**很容易將對方將死。不要將它們打在鵬旁邊將軍（很容易跑掉），而是將其打在*可以*下一回合將到鵬的位置旁邊。這樣就可以升變為雕，這是一個更強大的棋子。更好的是打入鷹時，也同時威脅到另一子，形成捉雙。
 * **雉和鶉**也有向後斜向攻擊，這對於打破鵬的防御很重要。再者，鶉有無限的對角線，可以在你攻擊時用來保護你自己的鵬。請記住，當你全力將軍時會一直換子，若將死不成功，對手可以使用這些新棋子來發動攻擊，這就是鵪鶉非常有用的地方。
 * 不能用燕子直接將死對方(將軍是可以的)。
-
-##讓子
 
 ## 讓子
 
