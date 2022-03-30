@@ -103,60 +103,54 @@ Y型棋子的走法類似英文字母**Y**。
 
 為鷹的升變。除保留原本走法外，可以向斜前與後方自由行走，或向斜後方走最多兩格。
 
-這是最強的棋擬。
+這是最強的棋子。
 
-## Notation
+## 記譜
 
-George Hodges originally created a notation system in 1976 which uses two-letter piece abbreviations. As we cannot use two-letters on Pychess, we use a modified version. The notation is otherwise the same as Shogi. We will still summarize the notation for players who are not familiar with Shogi notation. 
+禽將棋使用類似將棋的記譜法。在Pychess中，使用較通用的棋子縮寫。
 
-### Coordinates
+### 座標
 
-One noticeable difference is that the board coordinates are switched from chess. First is the file, then the rank. In traditional Hodges style, the first space is 1a. However, in modern days, international players prefer to use numbers (Hodgkin style), so the first space is "1-1". This is also how coordinates are described in Japanese (although with the second number written in kanji).
+原點在白方(後手方)的最右方，也就是棋盤的左上角，先記行再記列，例如白方鵬在4-1。
 
-The origin is the bottom left for the white player/gote. However, since most diagrams are oriented for the black player (sente, first player), these will seem to originate from the top right. As an example, the white phoenix is on square 4-1.
-
-### Piece Abbreviations
-Name | Hodges  | Pychess
+### 棋子縮寫
+棋子 | 英文  | Pychess縮寫
 ------------ | ------------- | -------------
-Phoenix | Ph | K 
-Swallow | Sw | S
-Falcon | Fa | F
-Crane | Cr | C
-Pheasant | Ph | P 
-Left Quail | LQ | L
-Right Quail | RQ | R 
-*Goose* | +Sw | +S
-*Eagle* | +Fa | +F
+鵬 | Ph | K
+燕 | Sw | S
+鷹 | Fa | F
+鶴 | Cr | C
+雉 | Ph | P 
+左鶉 | LQ | L
+右鶉 | RQ | R 
+*鵝* | +Sw | +S
+*雕* | +Fa | +F
 
-For the most part, the Pychess notation should make sense, as we use the first letter of the piece names. The only problem is two pieces start with a P, the Phoenix, and Pheasant. Therefore, the Phoenix is assigned to K, as it functions as the game's king. You may also think of it as a "Phoeni**K**s."
+### 記號
 
-### Symbols
+* 打入記作 \*。例甘將燕打在3-3記作"S\*33"
+* 升變會在後方加上「+」。如燕在 1-1 升變記作 S11+.
+* 將和將死不特別標記。
 
-* Drops are indicated with a \*. For example, a Swallow drop on 3-3 is "S\*33"
-* Moves that end in promotion add a + at the end. A Swallow promoting on 1-1 would be S11+.
-* Checks and checkmates are not notated.
+## 策略
 
-## Strategy
+### 子力值值
 
-### Piece Values
+下列是將棋軟體列出的子力價值([看這裡](https://happyclam.github.io/project/2019-01-03/torishogiapp))。
 
-Here are piece values used in a Tori Shogi app ([see here](https://happyclam.github.io/project/2019-01-03/torishogiapp)). These may not be the most accurate but can serve as a reference for comparing piece values.
-
-Piece | Value 
+棋子 | 價值
 ------------ | -------------
-Swallow | 1 
-Pheasant | 3
-Crane | 6
-Quails | 7
-Falcon | 7
-*Goose* | 2
-*Eagle* | 16
+燕 | 1 
+雉 | 3
+鶴 | 6
+鶉 | 7
+鷹 | 7
+*鵝* | 2
+*雕* | 16
 
-Pieces are worth slightly less in hand, except for the Swallow, which is slightly worth more in hand.
+除燕外，其他子持有在手中時價值會下降。(其時筆者實戰下來覺得鶴比鶉來得強。)
 
-Note that while these are the values used in that particular Shogi app, it has been the author's experience that cranes are actually worth more than quails, especially as they are more capable of delivering checkmate. In most cases, it's worth it to trade your own quail to take a crane.
-
-### Openings
+### 開局
 
 There are essentially four reasonable opening moves...
 
@@ -172,7 +166,21 @@ These spots are weak spots. Even if you do advance the crane, you want to rememb
 
 As for other possibilities, moving a swallow to be captured by another swallow is a losing move. Pheasants can't move. Advancing the quails is not very advantageous (unless you are trying for a castle), and moving the phoenix is also a bit too passive compared to the top options above.
 
-### Swallows
+基本上有四個合理的開局動作:
+
+1+2：拿下對手的一隻燕子
+
+3+4：對角移動你的一隻鶴到你的一隻雉前面
+
+若直接將鶴往前一步，對方可以將燕打入在雉前，而你無法防守。
+
+![弱點](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/ToriWeakSpots.png)
+
+這些點是弱點，請記住這些點並用鵬或鷹保護，這樣鶴就不必一直守住這些點！
+
+推進鶉不是很有利（除非你想試圍玉），進燕讓對方吃或特別動鵬也不好。
+
+### 燕
 
 Swallows can be said to be the as Shogi pawns, but they are also vastly different. The ability to have two swallows per file changes strategy completely. Because of this, swallows are practically the heart and soul of the game, and knowing how to play them is one of the key parts to learning Tori Shogi.
 
@@ -209,17 +217,13 @@ The endgame is the most important part of Tori Shogi. You can play a perfect ear
 * **Pheasants and Quails** have backwards diagonal attacks too, remember that! They are most essential for ridding the phoenix of its defenders. Most importantly, remember the quail has an unlimited diagonal and can even be used to protect your own phoenix as you make your attack. Remember that as you go all in an attack, many pieces will exchange. If you fail to deliver checkmate, the oppponent can use these new pieces against you. That's where the quails can be very useful.
 * Do not forget that it is illegal to checkmate with a dropped Swallow. It *is* okay to check with a dropped swallow, leading to a checkmate by another piece the next turn though!
 
-## Handicaps
+## 讓子
 
-Unlike chess and more similar to go, handicaps are a big part of teaching and should not be treated as one player giving pity to another. They are a great way to learn the game, and there are even standard strategies for different types. In Shogi, handicap games are fairly standard, and Tori Shogi should be no different.
+以下是常見的讓子:
 
-While normal games have black (*sente*) starting, **white is the handicap giver and therefore goes first**. White is called *uwate* while black is called *shitate*. Despite the handicap, the material difference can be overcome because of drops. And since there are fewer powerful pieces, black/*shitate* loses a lot more when a piece a captured.
-
-Common handicaps are as follows:
-
-* One-piece: Left Quail
-* One-piece: Falcon
-* Two-piece: Falcon and Left Quail
-* Three-piece: Falcon and both Quails
+* 讓一子: 左鶉
+* 讓一子: 鷹
+* 讓二子: 鷹如左熟
+* 讓三子: 鷹與雙鶉
 
 <iframe width="560" height="315" src="https://www.youtube.com/embed/5f9QKK7cm20" frameborder="0" allowfullscreen></iframe>
