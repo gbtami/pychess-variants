@@ -4,25 +4,20 @@
 --- | ---
 ![International Set](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/ToriIntl.png) | ![Traditional Set](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/ToriKanji.png)
 
-禽將棋是一個is a Shogi variant invented by Toyota Genryu in 1799, although traditionally attributed to his master Ōhashi Sōei. The game is played on a 7x7 board and is one of the oldest Shogi variants to use the drop rule. The game enjoys a relative degree of popularity to this day, including English-language books and tournaments.
+禽將棋是十八世紀時，將棋九世名人大橋宗英發明的日本將棋變體，棋子皆以飛禽為名。現流行於歐美。
 
-## Rules
+## 規則
 
-Tori Shogi rules are very similar to Shogi, so we will break it down to rules that are the same and rules that are different. The goal is to checkmate the opposing player's **Phoenix**, which is essentially the King.
 
-* **Drops** - Captured pieces can be dropped back onto the board as your move.
-* **Illegal drops** - The following drops are illegal:
-  * **Dropped Swallows cannot immediately mate** - Dropping a Swallow to immediately mate the opposing Phoenix. In Pychess, this will cause the player to lose. 
-  * **A swallow (equivalent of a pawn) cannot be dropped into a file containing *two* swallows of the same player**. This is different from Shogi, where the rule is only *one* pawn is allowed in each file.
-  * **You may not drop a piece where it can't move, such as a Swallow on the last rank.**
-* **Promotions** - Certain pieces can promote. This happens either moving (not dropping) into the promotion zone, or beginning a move from the promotion zone. The promotion zone is the last two ranks of the board. *Only two* pieces promote (unlike Shogi).
-  * Promotions are compulsory, unlike in Shogi.
-* **Repetition** - The rule for repetition (千日手 sennichite) in Tori Shogi is that if the same position occurs three times with the same player to play by repetition of moves, the player starting the sequence must vary the move. For two positions to be considered the same, the pieces in hand must be the same, as well as the position on the board. Note that in Shogi, repetition leads to a draw.
-* **Stalemate** is a loss for the player who cannot move their Phoenix. Note that this is technically not the actual rule: the real rule is an illegal move is a loss. Stalemate is a condition where the stalemated player can only make illegal moves.
+* 7×7格的將棋盤，接近自己的二行橫列為自陣，反之，接近對手的二行橫列為敵陣。棋子進入敵陣就必須升變。
+* 只有鷹與燕有升級棋，而且升級為強制性。
+* 棋子共六類，若包含升級棋則八種，各方有十六顆棋子。
+* 有打入與持駒規則。
+* 燕的打入類同於步兵，同樣不可打步詰，但可將燕打入於已有己方燕一子的一路，但不可打入己方燕已有兩子以上的一路。
+* 將對方的鵬將死和困斃為勝。
+* 重復走子三次算和。
 
-*Sente/Gote* - In Pychess, sente/gote correspond to black/white. *Sente* means the first player, and in the default set, is indicated by the Phoenix having dark wings.
-
-*Timer* - Tori Shogi uses a byo-yomi timer. Once the main clock expires, a player enters byo-yomi. If it is set at 30 seconds, then that player will only have 30 seconds to make his move from then for each of his/her moves or else lose the game on time.
+*計時* - 禽將棋使用byo-yomi計時，請參看「[術語](https://www.pychess.org/variants/terminology)」
 
 ## Intro to Pieces
 
@@ -45,41 +40,33 @@ As mentioned in the rules, **only two pieces promote**. The weakest piece in the
 
 These are the only two pieces without mnemonic devices in the birds, and these are the two pieces needed in almost every traditional chess variant. One is essentially the king, and the other is essentially a pawn, so the piece size and number should already be large clues as to which pieces these are.
 
-### Phoenix
+### 鵬
 
 ![Phoenix](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Phoenix.png) 
 
-The Phoenix (鵬, *ootori*) moves exactly like a chess king: one step in any direction. In the internationalized set, sente (marked as black) is the Phoenix with dark wings, while gote (marked as white) is the Phoenix with light wings.
+等同於玉將，可向八方走一格。若被將死則輸掉遊戲。
 
-### Swallow
+### 燕
 
 ![Swallow](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Swallow.png)
 
-The Swallow (燕, *tsubame*) is the same as the Shogi Pawn (but different than the Chess Pawn). It moves and captures by moving forward one square. This is the weakest piece in the game, just like any other pawn.
+可向前走一格。
 
-(While there is no explicit mnemonic in the Swallow's design, the bird is oriented upwards.)
+升變後為「鵝」。
 
-The Swallow is one of the two promotable pieces, and it promotes to the **Goose**.
-
-## King-like Pieces
-
-![King-like pieces](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/KinglikePieces.png) 
-
-These pieces are like the generals from Shogi, but even stronger. Why are they "king-like"? They move very much like a King (only step into any of the adjacent 8 squares) except missing a square or two, and they start right next to the Phoenix (this game's king). The key to these pieces is simply remembering which squares are their blind spots. On the international set, this is indicated by an open area in the side corresponding to the piece's blind spot.
-
-### Falcon
+### 鷹
 
 ![Falcon](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Falcon.png)
 
-The Falcon (鷹, *taka*) moves like a king except *it cannot move straight backwards* (on the picture, this is the empty space between the talons and tail at the bottom of the piece). This is the most powerful unpromoted piece in the game, as its large coverage allows it to deliver checkmate very easily.
+可朝後方以外的方向走一格。由於可以同時攻擊多方，常用於將死。
 
-The Falcon is the other of the two promotable pieces, and it promotes to the **Eagle**.
+升變後為**鵰**。
 
-### Crane
+### 鶴
 
 ![Crane](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Crane.png)
 
-The Crane (鶴, *tsuru*) moves like a king except *it cannot move sideways (left or right)* (on the picture, this is the empty space between the crane and the water it's standing on -- yes, treat the water as part of the mnemonic). While not as strong as the Falcon, the Crane is also a very strong piece.
+可朝前方、後方三格走一步。
 
 ## ⅄-shaped Pieces
 
