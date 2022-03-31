@@ -946,8 +946,8 @@ export function lobbyView(model: PyChessModel): VNode[] {
             h('a.post', { attrs: {href: '/news/fools'} }, [
                 h('img', { attrs: {src: model["asset-url"] + '/images/fools.jpg'} }),
                 h('span.text', [
-                    h('strong', "[April Fools] Liantichess's database is lost"),
-                    h('span', 'Liantichess Mongodb database is lost, It will delete all your games, and all the user accounts, and it will empty the oceans, silence the birds and shut down the sun.'),
+                    h('strong', "Liantichess's database is running out"),
+                    h('span', 'Liantichess Mongodb database has running out of space, It will delete all your games, and all the user accounts.'),
                 ]),
                 h('time', '2022.04.01'),
             ]),
