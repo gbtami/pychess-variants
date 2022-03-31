@@ -943,6 +943,15 @@ export function lobbyView(model: PyChessModel): VNode[] {
                 h('a.reflist', { attrs: {href: '/news'} }, _("Latest updates")),
             ]),
         h('posts', [
+            h('a.post', { attrs: {href: '/news/fools'} }, [
+                h('img', { attrs: {src: model["asset-url"] + '/images/fools.jpg'} }),
+                h('span.text', [
+                    h('strong', "[April Fools] Liantichess's database is lost"),
+                    h('span', 'Liantichess Mongodb database is lost, It will delete all your games, and all the user accounts, and it will empty the oceans, silence the birds and shut down the sun.'),
+                ]),
+                h('time', '2022.04.01'),
+            ]),
+        h('posts', [
             h('a.post', { attrs: {href: '/news/analysis'} }, [
                 h('img', { attrs: {src: model["asset-url"] + '/images/analysis.png'} }),
                 h('span.text', [
@@ -958,16 +967,6 @@ export function lobbyView(model: PyChessModel): VNode[] {
                 h('span.text', [
                     h('strong', "How to play the variants on liantichess?"),
                     h('span', 'antichess opening strategies does not work in the antichess variants'),
-                ]),
-                h('time', '2022.03.11'),
-            ]),
-
-        h('posts', [
-            h('a.post', { attrs: {href: '/news/marathon'} }, [
-                h('img', { attrs: {src: model["asset-url"] + '/images/marathon.png'} }),
-                h('span.text', [
-                    h('strong', "AntiChess Marathon #1"),
-                    h('span', '24 hours of antichess. Do you have what it takes to win?'),
                 ]),
                 h('time', '2022.03.11'),
             ]),
