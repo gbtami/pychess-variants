@@ -2,7 +2,7 @@
 
 ![Boards](https://github.com/gbtami/pychess-variants/blob/master/static/images/JanggiGuide/Boards.png)
 
-*Janggi* (장기, pronounced like “*jahng-ghee*”), ou Xadrez Coreano, é um jogo de tabuleiro clássico proveniente da Coreira. Este jogo é derivado do Xiangqi e é extremamente semelhante a este.
+*Janggi* (장기, pronounced like “*chahng-ghee*”), ou Xadrez Coreano, é um jogo de tabuleiro clássico proveniente da Coreira. Este jogo é derivado do Xiangqi e é extremamente semelhante a este.
 
 ## Regras: Tabuleiro e Configuração
 
