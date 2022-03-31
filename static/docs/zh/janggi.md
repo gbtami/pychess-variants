@@ -1,174 +1,163 @@
-# ![Janggi](https://github.com/gbtami/pychess-variants/blob/master/static/icons/Janggi.svg) Janggi
+# ![Janggi](https://github.com/gbtami/pychess-variants/blob/master/static/icons/Janggi.svg) 韓國將棋
 
 ![Boards](https://github.com/gbtami/pychess-variants/blob/master/static/images/JanggiGuide/Boards.png)
 
-*Janggi* (장기, pronounced like “*jahng-ghee*”), or Korean Chess, is a classic board game native to Korea. The game is derived from Xiangqi and is very similar to it.
+韓國將棋，韓文장기(“*jahng-ghee*”)，流行於朝鮮地區的象棋類遊戲，與中國象棋有相近發展的關係，在宋代以前由中國傳入高麗。
 
-## Rules: Board and Setup
 
-There are two sides, one is colored red (called Han), and the other blue (called Cho). The blue side can also be colored green. These two sides represent the two sides in the Chu-Han Contention from Chinese history. Red pieces are written using Chinese characters (hanja), while blue pieces are written in cursive-style hanja.
+## 棋盤
 
-Setup for all pieces except for the horse and elephant are as in the picture above. Like xiangqi, janggi is placed on a 9 x 10 board, where pieces are placed on intersections rather than squares. The 3x3 square with the X on each side is called the *Palace*. Unlike in most other chess variants, in janggi, players can choose the starting positions of the horses and elephants. There are four types to choose from:
+韓國將棋的棋盤與中國象棋的棋盤大致相同，差別在於沒有河界。
 
-1. Both horses are closer to the edge (*won ang ma*)
-2. Both horses are closer to the general (*yang gwee ma*)
-3. Left inner horse, right outer horse (*gwee ma*)
-4. Left outer horse, right inner horse (*mat sang jang gi*)
+### 棋盤佈置
 
-Red (Han) chooses his positioning first, then Blue (Cho) chooses. However, Blue is the first to move the pieces.
+韓國將棋主要有四種開局配置，在對局開始前，雙方各自都可以自由選擇其中一種配置。雖然楚方是先手，但選擇配置時，是由漢方先選擇，才輪到楚方。配置選好後就不得更改，並由楚方先行。配置的名稱主要是根據象的位置決定的。
 
-For repetitions and other game-end scenarios:
-* Perpetual check is a loss for the player checking after the third repetition
-* Repetitions that are not perpetual are adjudicated by material counting after the third repetitions
-* When the 50-move rule is reached (100 half-moves without capture), game is adjudicated by material counting
+1. 內象配置 - 兩隻象都在馬內側
+2. 外象配置 - 兩隻象都在馬外側
+3. 左象配置 - 左象在馬外側，右象在馬內側
+4. 右象配置 - 右象在馬外側，左象在馬內側
 
-## The Pieces
 
-This guide will be based on the internationalized set. Traditional sets use Chinese characters (hanja), and many sites, including Wikipedia, already explain the rules as such.
+## 棋子
 
-Several pieces have special moves utilizing the diagonals in either palace, which will be discussed below. In the diagrams, a lighter shade of green is used.
+韓國將棋的棋子是八角形，棋子大小不一。楚／漢為最大，表示它的重要性；然後為車、包、馬和象為第二大；士、卒／兵為最小。先手方為楚，以藍色或綠色代表，棋子名以草書漢字書寫；後手方為漢，以紅色代表，棋子名以正楷漢字書寫。棋子只有一面寫著棋子名，背面為空白，唯楚／漢例外兩面都寫著楚／漢，做為虛手時的用途，詳見後述。
 
-### King
+### 將 (楚／漢)
 
 ![Kings](https://github.com/gbtami/pychess-variants/blob/master/static/images/JanggiGuide/Kings.png) 
 
-The **King** (also known by its Chinese name, the **general**) is restricted to the palace and can move within lines of the palace. This means that when the King is in the center, it has 8 possible moves. However, on any other spot in the Palace, it only has 3 moves.
+將 (楚／漢)的走法為在九宮內沿著直線或斜線走一步，不能離開九宮。此外將還有虛手、照面等規則，詳見後述。
 
-*Special rule:* When a King faces the other King, this causes *bikjang*. The next player must then move his king out of the way or else the game is ended. See rules below regarding bikjang.
+**照面:** 當將主動移到和對方的將在同一直線上且彼此間無棋子時，為「**照面**」，目的是邀請對方結束對局，被照面的一方若沒立即移開或用棋子遮擋就必須接結束對局，以計分方式判定勝負。詳見下文「**規則**」。
+
+**虛手:** 輪到走棋的一方可以把自己的將翻面，表示棄權不走棋，直接讓對方繼續下，此動作為「虛手」。除了被將軍時之外，任何時候都可以自由虛手，也沒有次數限制，若雙方都虛手則和局。韓國將棋沒有困斃或逼和，當一方無子可動時只是被迫虛手，對局仍舊繼續進行。
 
 ![King and advisor](https://github.com/gbtami/pychess-variants/blob/master/static/images/JanggiGuide/Palace.png)
 
-### Advisor
+### 士
 
 ![Advisors](https://github.com/gbtami/pychess-variants/blob/master/static/images/JanggiGuide/Advisors.png) 
 
-The **Advisor** (also known by its Western name, the **guard**) moves exactly like the King, which is one space along lines within the palace. Like the King, the Advisor is confined to the palace.
+士的走法為在九宮內沿著**直線**或斜線走一步，不能離開九宮，即與將相同。
 
-### Horse
+### 馬
 
  ![Horses](https://github.com/gbtami/pychess-variants/blob/master/static/images/JanggiGuide/Horses.png)
  
  ![Horse movement](https://github.com/gbtami/pychess-variants/blob/master/static/images/JanggiGuide/HorseDiagram.png)
+ 
+馬的走法為直一步再斜一步，即與中國象棋的馬相同，路徑上若有棋子同樣會被拐腳。以上圖為例，打勾處為馬能走到的地方，藍色處為拐腳點。
 
-The **Horse** (also called by its Western name, the **knight**) moves almost exactly like a chess knight. However, instead of the usual “two steps orthogonally, then one to the side” teaching, it’s better to think of it as *one step orthogonally, then diagonally forward in either direction*, like a Y shape. The reason for this is that the horse **can be blocked** if a piece is adjacent to it. That will block off the two endpoints of that Y. Therefore, there can be situations where two horses are targeting each other, but only one can attack while the other is blocked. Strong moves take advantage of blocking the horse and limiting its movement.
-
-### Elephant
+### 象
 
  ![Elephants](https://github.com/gbtami/pychess-variants/blob/master/static/images/JanggiGuide/Elephants.png)
  
  ![Elephant movement](https://github.com/gbtami/pychess-variants/blob/master/static/images/JanggiGuide/ElephantDiagram.png)
 
-The **Elephant** is much different than its xiangqi counterpart. Movement is similar to the horse in that it moves in a Y-shaped pattern. While the horse moves one step orthogonally and then one step further diagonally, the elephant moves one step orthogonally and then *two* steps diagonally. The elephant, like the horse, can be blocked on any intervening point along this path.
+與中國象棋的象走田不一樣，韓國將棋象是是走2x3的長方型，即先朝一個方向直走一步，再朝斜向走**兩步**。與馬一樣，只有是行走的路徑上有子就會被卡象眼。
 
-### Chariot
+### 車
 
  ![Chariots](https://github.com/gbtami/pychess-variants/blob/master/static/images/JanggiGuide/Chariots.png)
  
  ![Chariot movement](https://github.com/gbtami/pychess-variants/blob/master/static/images/JanggiGuide/ChariotDiagram.png)
 
-The **Chariot** (also called by its Western name, the **rook**) moves exactly like a chess rook: any number of squares orthogonally. This is the most valuable piece in the game, excluding the king.
+車的走法為沿著直線或**九宮的斜線**走任意距離。
 
-*Palace move*: When in the palace, the chariot can also move along the diagonal lines.
 
-### Cannon
+### 包
 
 ![Cannons](https://github.com/gbtami/pychess-variants/blob/master/static/images/JanggiGuide/Cannons.png)
 
 ![Cannon movement](https://github.com/gbtami/pychess-variants/blob/master/static/images/JanggiGuide/CannonDiagram.png)
 
-The **Cannon** is slightly different than its xiangqi counterpart. It moves orthogonally like the chariot, but it needs an intervening piece (called a "screen") to hop over first. It can then capture the next piece along the same line. Unlike xiangqi, the Cannon cannot move without a screen.
+與中國象棋的包不一樣，不能像車一般任意移動，無論是走子或吃子都需要跳過一子。且有限制包不能吃包，且也不能跳過包移動，無論自己的還是對手的均不可跳過，故韓國將棋沒有雙包殺。
 
-*EXCEPTION*: The cannon cannot use another cannon as a screen. Additionally, it can't capture the opponent's cannons.
+當包在宮中時，還可以**沿著斜線**移動。亦即，當包在宮的一角，且中宮有子時，可斜跳至宮的另一角。
 
-*Palace move*: When in the palace, the cannon can also move along the diagonal line. Practically speaking, the cannon must be on one corner, where it can move or attack the opposite corner if a non-cannon piece is in the center (as in the diagram).
+總而言之，包的走法為沿著直線或**九宮的斜線**跳過一個棋子走任意距離。
 
-### Pawn
+### 兵、卒
 
 ![Pawns](https://github.com/gbtami/pychess-variants/blob/master/static/images/JanggiGuide/Pawns.png)
 
 ![Pawn movement](https://github.com/gbtami/pychess-variants/blob/master/static/images/JanggiGuide/PawnDiagram.png)
 
-The **Pawn** (also called by its Chinese name, the **soldier**) moves and captures by moving forward or sideways one square. This is different than the xiangqi pawn, which needed to cross the river first to move sideways.
+兵的走法為沿著直線或**九宮的斜線**前進一步，或橫著走一步。不能後退。
 
-*Palace move*: When in the palace, the pawn can also move forwards along the diagonal lines.
+## 記譜
 
-## Notation
+### 縮寫
 
-Janggi notation works much differently than other variants. First of all, coordinate numbering. From blue's perspective, ranks are numbered from 1 to 10 going down from top to bottom. However, the 10th rank is called 0. Files are numbered 1 to 9 from left to right. Describing a piece location is the opposite of chess. A location is described by *rank* then *file* (in all other variants, it's file, then rank). So for example, the blue chariot in the bottom left corner is at **01**. The intersection above it is **91**. The blue king is located at **95**.
+K = 將
 
-Describing moves does not have a standardized international version. We use a modified version of the Korean way. In Korean, the syntax is (starting location)(piece name in Korean)(ending location). Here on Pychess, we use (English piece abbreviation)(starting location)-(ending location). Like in chess, captures are denoted with x instead of -, check has a + at the end, and checkmate is #.
+A = 士
 
-For example, the left chariot moving three spaces up is denoted by R01-71. "R" refers to the chariot. For piece abbreviations, see below.
+E = 象
 
-### Abbreviations
+H = 馬
 
-K = **K**ing
+C = 包
 
-A = **A**dvisor
+R = 車
 
-E = **E**lephant
+P = 兵
 
-H = **H**orse
+現今韓國將棋的記譜方式是先以座標定位要移動的棋子，再寫棋子名，最後再寫目標處的座標。座標均以楚方的視角為基準，以兩個阿拉伯數字表示；第一個數字表示橫線，由上至下依序為1至9，最底為0；第二個數字表示緃線，由左至右依序為1至9。如：76象53，記錄象從76的位置移動到53的位置。
 
-C = **C**annon
+在 Pychess 中，我們使用 (英文縮寫)(初位置)-(末位置)，吃子在後方加上x，若將軍則在後加上+，將死為#。
 
-R = Cha**R**iot
-
-P = **P**awn
+因此，左車前進三格記作 R01-71。
 
 
+## 規則
 
-## Rules: Gameplay
 
-Like chess, the goal is to checkmate the other king.
+1. 與國際象棋一樣，目標是將死對方。
 
-Unlike most other chess variants, you may pass in Janggi. Therefore, stalemate is impossible. **To pass in Pychess, double-click on your King, or simply click the pass button on the right.**
+2. 與大多數其他國際象棋變體不同，Janggi可以虛手(pass)。因此，將不可能被困斃。 **要在Pychess中虛手，請雙擊將軍，或單擊右側的pass按鈕。**
 
-Unlike Xiangqi, the kings may face each other on the same file in Janggi. This creates a situation called **bikjang** ("laughing generals"). If the next player to move does not make a move to break bikjang (for example moving a king or moving a piece in between), then the game ends in a draw. For tournaments that don't allow draws, the value of the pieces on the board are counted up, and the player with the higher value wins.
+3. 當將主動移到和對方的將在同一直線上且彼此間無棋子時，為「**照面**」，目的是邀請對方結束對局，被照面的一方若沒立即移開或用棋子遮擋就必須接結束對局，以計分方式判定勝負。
 
-Piece | Value 
+棋子 | 計分
 ------------ | ------------- 
-Chariot | 13
-Cannon | 7
-Horse | 5
-Elephant | 3
-Advisor | 3
-Pawn | 2
+車 | 13
+包 | 7
+馬 | 5
+象 | 3
+士 | 3
+卒 | 2
 
-Because blue (Cho) starts the game, they start with an advantage and thus red (Han) also receives 1.5 points (*deom*) as a compensation. The .5 is added to avoid ties.
+由於藍方(楚方)先行較有優勢，因此紅方(漢方)額外獲得1.5分
 
-Currently, Pychess uses tournament style and does not allow draws. Therefore, games are settled by points when bikjang occurs.
+在可能「將軍」與「照面」同時發生，此時以「照面」為優先。
 
-Additionally, it's possible to cause bikjang and check at the same time. In this case, bikjang takes priority.
-
-Repetition is illegal; however, the way this is handled is variable. Repetition is not handled in Pychess, so in the event of repetition, the players should adjudicate the outcome between themselves.
-
-## Differences from Xiangqi
-
-Aside from the rules above...
-
-* There is no river in Janggi. Consequently, pawns and elephants move differently. Pawns can move sideways from the start. The Elephant moves completely differently.
-* Visually, pieces are on octagons rather than circles. Piece sizes also vary based on value. Kings (generals) are named after the two sides rather than being called "general." Boards use x's instead of crosses for starting pieces.
-* The Kings start in the middle of the palace instead of the back of the palace.
-* Cannons are different in that they both move and capture the same way (by jumping over a piece first). They also have additional restrictions.
-* The Palace affects all piece movement except the Horse and Elephant. Kings and advisors moves along the lines instead of only orthogonally or diagonally. Chariots, cannons, and pawns can move along the diagonals.
+4. 重複動子與長將:
+* 長將與重複動子三次者者判負。
+* 50步未將死則以計分決定勝負。
 
 
+## 與象棋不同之處
 
-## Strategy
+* 棋盤無河界
+* 有多種配置雙方皆可各自選擇；開局時將位於九宮正中心
+* 象直走一步再斜走兩步，無範圍限制，全盤都可走
+* 將走九宮的直線和斜線 
+* 包移動和吃子時都必須跳過棋子，且有限制不能跳過包亦不能吃包，可跳過一子走九宮的斜線
+* 除馬、象外，其餘棋子在宮中的走法皆改變，將、車、包、兵可走斜、士可走直。
 
-[These videos by Amphibian Hoplite](https://www.youtube.com/playlist?list=PL9corMEVRvP-HUJcF7I670pEqV3XNbkKM) are an excellent start for English players. Available resources in English are otherwise fairly limited.
 
-[Here](https://www.youtube.com/watch?v=pX_ZDjeqlJs) is another video by Kolo (AKA Galdian) that also goes over opening principles.
 
-### General Concepts
+## 策略
 
-* Pawn structure is very important. Because pawns can move sideways, they're strongest when protecting each other in pairs. A line of three pawns is a poor formation (because they're stretched out thin). Also because of this, it's not advised to advance pawns if possible.
+### 基本概念
 
-![Bad Pawn Formations](https://github.com/gbtami/pychess-variants/blob/master/static/images/JanggiGuide/BadPawns.png)
+* 因為兵可以橫向移動，互相生根，所以兵形很重要，也因此通常不會建議進兵。
 
-* Regarding the choice of horse-elephant positioning in setup, one way to think about it is how your elephants are positioned, and this has significant implications for the opening. An elephant on the outer position is able to move into towards the center between two pawns. However, an elephant in the inner position is blocked by the pawns (although it does protect them).
-* Continuing from this, the positioning of your elephant determines which **edge file to open up**. For example, when playing a setup where the left elephant can advance (and the opponent's opposite elephant is also on the outside), you want to move your left edge pawn to the side, opening up the chariot's file. The reason for this is that now the opponent's edge pawn cannot move, so if you attack the cannon file pawn with your elephant, if his edge pawn defends, he would lose his chariot. Note that if the opponent instead had two inner elephants, then you would instead open up the opposite edge.
+
+* 開局配置的重點是象該如何定位，這對開局有重大影響。外象能進到兩個卒之間。而內象則被卒擋住。
+* 再者，象的位置決定了要打開哪一邊線的攻擊。 例如，在左象配時（並且對手象也是外象），可以將左邊的卒移走，打開車的開放線，然後用象去攻擊對方的包路卒。原因是現在對方的邊兵不能動，如果他的邊兵防守包路卒，他就會掉卒請注意，如果對手有兩個內象，則改為開相反的邊線。
 
 ![Activating the elephant and chariot](https://github.com/gbtami/pychess-variants/blob/master/static/images/JanggiGuide/ActiveElephant.png)
 
