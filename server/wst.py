@@ -157,11 +157,11 @@ async def tournament_socket_handler(request):
                             "secondsToStart": (tournament.starts_at - now).total_seconds() if tournament.starts_at > now else 0,
                             "secondsToFinish": (tournament.ends_at - now).total_seconds() if tournament.starts_at < now else 0,
                         }
-                        if tournament.frequency == SHIELD:
-                            variant_name = tournament.variant + ("960" if tournament.chess960 else "")
-                            defender = users[request.app["shield_owners"][variant_name]]
-                            response["defender_title"] = defender.title
-                            response["defender_name"] = defender.username
+#                        if tournament.frequency == SHIELD:
+#                            variant_name = tournament.variant + ("960" if tournament.chess960 else "")
+#                            defender = users[request.app["shield_owners"][variant_name]]
+#                            response["defender_title"] = defender.title
+#                            response["defender_name"] = defender.username
                         await ws.send_json(response)
 
                         if (tournament.top_game is not None) and (tournament.top_game.status <= STARTED):
