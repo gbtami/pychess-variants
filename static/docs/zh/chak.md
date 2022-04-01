@@ -7,116 +7,128 @@
 The game of chess first arose from India (or so the common theory states), from where it evolved into western Chess in Persia where it spread to Europe and developed its modern form. East Asia has multiple rich forms of chess that offer something new but also infuse their culture into it. Many cultures throughout the world have a chess of their own. However, what about the native peoples of the Americas? Mesoamerica once had great empires. What if they had a chess of their own? 
 
 Chak is a game designed by Couch Tomato in 2021 specifically to answer this hypothetical question. The design philosophy was to start from scratch and use only the common elements from all forms of chess: a king, a rook-type piece, a knight-like piece, and some sort of pawns; the rest would develop organically infusing a specific Mesoamerican culture -- in this case, the Maya. For example, for the Maya and other Mesoamerican cultures, the native religion with ritual sacrifice was a fundamental part of society; the concept of an offering to the gods as well as the large temples are a key part of the game. 
+Chak 是 Couch Tomato 在 2021 年設計的遊戲，設計理念是使用象棋常見的元素：國王、車型棋子、騎士型棋子和兵，並引入的中美洲文化——在這種情況下，就是瑪雅人。 例如，對於瑪雅人和其他中美洲文化來說，具有祭祀儀式的本土宗教是社會的基本組成部分； 祭祀神靈的概念以及大型寺廟是遊戲的關鍵部分。
 
 The name Chak itself is derived from the Mayan God Chaac, the rain deity who possesses war-like fury. This matches the setting of Chak, which is a battlefield along a river. Finally, two words of warfare in Mayan epics include “Chuc-ah” (capture) and “Ch’ak” (decapitation).  In Chak, these are utilized as the win conditions of altar mate, and checkmate, respectively.
 
 ## 基本規則
 
-There are two sides, designated white and green, respectively. White moves first.
-
+分為白綠兩方，白方先行。
 
 ### 棋盤
 
-Chak is played on a 9x9 board as seen below:
+馬雅象棋的棋盤為 9x9 :
 
 ![Chak](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChakGuide/ChakBoard.png)
 
-There are three special regions:
+其中有三個特殊的區域:
 
--**River**, a special rank that marks the boundary for promotion. When certain pieces (the king and the pawn) move into the river, they promote. However, *they cannot move back behind the river*. Promoted pieces are committed to moving in the river and enemy side of the board for the rest of the game!
+-**河界**, 兩方的界限，王和兵過河後可升變，然而，**王與兵過河後不能再回去己方陣地**，只能待再對方一側。
 
--**Temple**, a 3x3 region that has no special function. However, this symbolically represents the start of the king and contains the altar, which is described next. Strategically, the temple is important because many special tactics take place in this region.
+-**神殿**, 一個象徵性的 3x3 位置，中心為**祭壇**，並無特殊功能。然而從戰略上講，神殿非常重要，因為有許多將死與登壇的戰術都在神殿發生。
 
--**Altar**, the central square of the temple. Moving your king into the enemy’s altar is one of the main methods of victory.
+-**祭壇**, 神殿的中心，將己方國王動至對方祭壇即獲勝。
 
 ### 勝負條件
 
-There are four ways to win:
+有三種勝利條件:
 
-**Checkmate** - Put the king in check with no legal moves.
+**將死** - 對方無法防止將軍。
 
-**Stalemate** - A player with no legal moves loses (unlike in Chess, where it is a draw). This is considered a subset of checkmate in Chak.
+**困斃** - 讓對方的王無處可動。
 
-**Altar mate** - Move your promoted king to the opponent’s altar without being in check to win.
+**登壇** - 將己方王動到對方祭壇，且不能被將軍。
 
-**Resignation** - Your opponent resigns.
 
-Other game-end conditions result in a draw:
+以下情形為和棋:
 
-**Repetition** - The same position is repeated three times.
+**重復動子** - 同一個局面連續重復三次。
 
-**50 moves** - A draw can be claimed if no capture has been made in the last 50 moves.
-
-**Draw offering** - A player offers a draw and the other player accepts.
+**50步無吃子** - 如果五十步都沒有棋子被吃則和棋。
 
 
 ## 棋子
 
-### King (K)
+### 國王 (K)
 ![King](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChakGuide/ChakKing.png)
 
-The King (*Ajaw*, which rhymes with Dachau) moves like a king in most classic forms of chess: one square in any direction. However, what is unique about the king in Chak is that it can promote upon reaching the river.
+國王 (*Ajaw*, 讀作 「Dachau」) 走法就如就如西洋棋的國王，朝八方走一格。
 
-### Divine King (D)
+國王過河後可升變為「神王」
+
+### 神王 (D)
 ![Divine King](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChakGuide/DivineKing.png)
 
-The Divine King moves up to *two* squares in any direction. It can also pass through squares that are threatened by the opponent’s pieces (in other words, it is not like the Western Chess king that cannot castle through check). Remember that as a promoted piece, it cannot go back beyond the river! The divine king has the ability to end the game by reaching the altar without moving into check. Because of its range, the divine king has the ability to deliver checkmate on an unpromoted king.
+神王可向任何方向移動最多*兩個*方格，也可以通過被對方棋子威脅的方格（換句話說，它不像西棋的王車易位，王的路徑上不能有棋子攻擊）。 請記住，國王一互升變，便不能退到河界後！由於其攻擊範圍，神王可以直接將未變的國王將死。
 
-Note that the symbol used only differs slightly from the king’s. They are meant to be the same, but the slight difference is to help players see the promotion and also for the two types of king to be distinct on the board editor.
+請注意，神王的符號「D」是為了與國王「K」區別。
 
-### Jaguar (J)
+### 美洲豹 (J)
 ![Jaguar](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChakGuide/Jaguar.png)
 
-The Jaguar moves like a hybrid knight and king: in detail, that is either 1) a leaping movement going two spaces in one direction and then one perpendicular to make an L shape, or 2) moving one step forward in any direction. This is generically also referred to as a “centaur” piece, and is the same as the General from Shogun Chess and Kheshig from Orda Chess. 
 
-The Jaguar is the most powerful piece in Chak, and its ability to fork multiple pieces make it incredibly dangerous.
+美洲豹的移動融合西洋棋的騎士和國王，即 
 
-### Quetzal (Q)
+1. 先朝一個方向走兩格，再垂直走一格，就如L型。
+
+或者:
+
+2. 朝八方移動一步。 
+
+這種走法在其他變體中常被稱為「半人馬」，與幕府將棋中的將軍和可汗西征棋中的禁衛相同。
+
+由於能同時打擊多個方位，美洲豹是馬雅象棋中最強的棋子。
+
+### 羽神(Q)
 ![Quetzal range](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChakGuide/QuetzalRange.png)
-The Quetzal is a tricky piece; it is similar to the Chess queen in that it can move any number of squares in any direction (orthogonally or diagonally)… *However*, it needs to hop over an intervening piece first to do so. For those familiar with Janggi, this is similar to the cannon in that game, but with the addition of diagonal movement and without the restrictions of being unable to interact with another cannon.
 
-The Quetzal is the second most powerful piece in Chak, but loses value significantly in the endgame.
+羽神的走法很特別，它類似於國際象棋皇后，因為它可以在任何方向（垂直或對角）移動任意格...... *但是*，它需要先跳過中間的棋子。對於熟悉韓國將棋的人來說，這與韓國將棋的「包」類似，但增加了對角線移動，且沒有「不能跳過對方的羽神」的限制。
+
+羽神是第二強的棋子，但就如象棋的炮，在殘局會因為沒有炮架而失去價值。
+
 ![Quetzal example](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChakGuide/QuetzalLegal.png)
 
-*Example*: In the following image, the quetzal can move the following spaces (red circle indicates capture).
+*範例*: 上圖中，羽神可以移動到以上格子(紅色代表吃子)。
 
-### Shaman (S)
+### 祭司 (S)
 ![Shaman](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChakGuide/Shaman.png)
 
-The Shaman moves one space diagonally or one space orthogonally forward or backwards.
+祭司朝前方及後方三格移動一步。
 
-The Shaman is one of the weakest pieces and is typically used more defensively due to its slow movement.
+由於步伐小，它是最弱的子之一，通常用來防守。
 
-Note that the piece symbol is shaped to help remind you of its movement.
+該棋子的形狀是用來提示它的走法。
 
-### Vulture (V)
+### 禿鷹 (V)
 ![Vulture](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChakGuide/Vulture.png)
 
-The Vulture is identical to the Chess Knight:  a leaping movement going two spaces in one direction and then one perpendicular to make an L shape.
+禿鷹的走法就如中國象棋的馬，只是沒有拐馬腳的規則(或如西洋棋的騎士)，先朝一個方向走兩格，再垂直走一格，就如L型。
 
-### Serpent (R)
+### 蚺蛇 (R)
 ![Serpent](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChakGuide/Serpent.png)
 
-The Serpent is identical to the Chess Rook:  orthogonal movement any number of spaces. This is the third strongest piece, after the Jaguar and Quetzal.
+蚺蛇就如中國象棋的車，可朝一個方向任意直行。
 
-### Pawn (P)
+它是第三強的子，僅次於美洲豹和羽神。
+
+### 兵 (P)
 ![Pawn](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChakGuide/ChakPawn.png)
 
-The Pawn can move either one square forward or one square sideways without capturing. To capture, it attacks one of the two forward diagonal squares. This is the same as a western Chess pawn, but with the added ability to move sideways. Once the pawn reaches the river, it promotes into a promoted pawn, or Warrior.
+兵的移動與攻擊是分開的。走法就如中國象棋的過河卒，吃子的方式卻如西棋的兵。
 
-### Warrior (W)
+兵過河後升變為「士」。
+
+### 士 (W)
 ![Warrior](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChakGuide/ChakWarrior.png)
 
-The Warrior (or Promoted Pawn) moves exactly like a shaman: one space diagonally or one space orthogonally forward or backwards. Unlike the shaman, it cannot move backwards across the river.
+士的走法就如祭司，朝前方與後方三格動一步。與祭司不同的是，士不能退回河界後。
 
-Note that the symbol used only differs slightly from the pawn’s. They are meant to be the same, but the slight difference is to help players see the promotion and also for the two types of pawns to be distinct on the board editor.
-
-### Offering (O)
+### 祭品 (O)
 ![Offering](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChakGuide/Offering.png)
 
 The Offering does not move or capture; it blocks the altar until captured. The piece exists not only for thematic purposes (serving as the offering at each player’s own altar), but also serves as a mount for the quetzal. Finally, because of its position, it also helps prevent your altar from a lone divine king if your own king has not left the temple, potentially forcing a draw if all other pieces are off the board. Without the offering, the divine king would be able to displace the defending king and take the altar.
 
-
+祭品不能移動或吃子，它一直待在在祭壇中心。這件作品不僅出於主題目的（作為每個玩家自己的祭壇上的祭品），而且還可作為羽神的炮架。 最後，由於它的位置，如果你自己的國王沒有離開神殿，它還有助於防止你的祭壇成為一個孤獨的神王，如果所有其他棋子都離開了棋盤，則可能會迫使平局。 沒有祭品，神王就能取代守王，奪取祭壇。
 
 
 ## Piece valuation
@@ -178,9 +190,9 @@ Fortress is set up with a piece defending the altar and every piece being defend
 
 All those examples are bareboned in a sense that if either side decided to move any of their pieces away from around the temple, they can no longer form a fortress. If both sides have a bareboned fortress like in above diagrams the game is a dead draw. On the other hand, if one side has a bareboned fortress and the other has a fortress plus any extra piece, as long as that extra piece can safely cross the river without being captured and join the attack on the fortress, it's almost always a win for the side with the extra piece.
 
-### Other defenses
+### 其他防禦
 
-#### Jaguar
+#### 美洲豹
 
 In a lone Jaguar vs a Divine King endgame either side can force a draw by repetition
 ![JaguarPerpetual](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChakGuide/JaguarPerpetual.png)
@@ -197,7 +209,7 @@ With the Offering still alive, it's a different story.
 
 In this position, green can go 1. Jf9; white's only move to keep attacking the Jaguar is Df7, but after 2. Je9+ Dg then 3. Jd9, then there is no way to attack the Jaguar in one move, and if white spends 2 moves to do so, green has one tempo to do something meaningful on the other side of the board. If white gets their King to f9, then after Jd8, there is again no way to attack in one move, so it's better to get the King to d7 so again we can force the Jaguar to move twice. If the draw by 50 move rule is close it might be important to remember those exact lines to enforce wasting as many moves as possible as green or save as many as white.
 
-#### Serpent
+#### 蚺蛇
 
 ![SerpentFortress](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChakGuide/SerpentFortress.png)
 
