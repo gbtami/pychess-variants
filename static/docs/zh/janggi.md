@@ -2,7 +2,7 @@
 
 ![Boards](https://github.com/gbtami/pychess-variants/blob/master/static/images/JanggiGuide/Boards.png)
 
-韓國將棋，韓文장기(“*jahng-ghee*”)，流行於朝鮮地區的象棋類遊戲，與中國象棋有相近發展的關係，在宋代以前由中國傳入高麗。
+韓國將棋，韓文장기(“*chahng-ghee*”)，流行於朝鮮地區的象棋類遊戲，與中國象棋有相近發展的關係，在宋代以前由中國傳入高麗。
 
 
 ## 棋盤
