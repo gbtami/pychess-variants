@@ -61,11 +61,11 @@
 
 可朝前方、後方三格走一步。
 
-## Y型
+## ⅄型
 
 ![Upside-down Y pieces](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/UpsidedownYPieces.png) 
 
-Y型棋子的走法類似英文字母**Y**。
+**⅄**型棋子的走法類似倒過來的英文字母**Y**。
 
 ### 雉
 
@@ -85,6 +85,8 @@ Y型棋子的走法類似英文字母**Y**。
 
 右鶉可以向前或左後方自由行走，或向右後斜向走一格。
 
+
+## **Y**型
 
 ### 鵝與雕
 
