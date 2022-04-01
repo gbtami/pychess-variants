@@ -1,4 +1,4 @@
-# ![Chak](https://github.com/gbtami/pychess-variants/blob/master/static/icons/Chak.svg) 馬雅象棋
+# ![Chak](https://github.com/gbtami/pychess-variants/blob/master/static/icons/Chak.svg) 馬雅象棋 | Chak
 
 ![Chak](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChakGuide/Chak.png)
 
@@ -6,10 +6,9 @@
 
 國際象棋遊戲最早起源於印度，爾後演變為波斯象棋，傳播到歐洲並發展出現代的形式。東亞也有豐富的象棋變體，融合了各地的傳統文化。世界各地的許多文化都有自己的象棋，然而，美洲原住民呢？ 中美洲曾經擁有偉大的帝國。如果他們也有自己的國際象棋呢？
 
-Chak is a game designed by Couch Tomato in 2021 specifically to answer this hypothetical question. The design philosophy was to start from scratch and use only the common elements from all forms of chess: a king, a rook-type piece, a knight-like piece, and some sort of pawns; the rest would develop organically infusing a specific Mesoamerican culture -- in this case, the Maya. For example, for the Maya and other Mesoamerican cultures, the native religion with ritual sacrifice was a fundamental part of society; the concept of an offering to the gods as well as the large temples are a key part of the game. 
-Chak 是 Couch Tomato 在 2021 年設計的遊戲，設計理念是使用象棋常見的元素：國王、車型棋子、騎士型棋子和兵，並引入的中美洲文化——在這種情況下，就是瑪雅人。 例如，對於瑪雅人和其他中美洲文化來說，具有祭祀儀式的本土宗教是社會的基本組成部分； 祭祀神靈的概念以及大型寺廟是遊戲的關鍵部分。
+馬雅象棋 Chak 是Couch Tomato 於 2021 年設計的遊戲，設計理念是使用象棋常見的元素：國王、車型棋子、騎士型棋子和兵，並引入的中美洲的馬雅文化。例如，對於馬雅和其他中美洲文化來說，社會的組成圍繞著祭祀儀式；因此，神靈祭祀和神殿成了遊戲的關鍵精神。
 
-The name Chak itself is derived from the Mayan God Chaac, the rain deity who possesses war-like fury. This matches the setting of Chak, which is a battlefield along a river. Finally, two words of warfare in Mayan epics include “Chuc-ah” (capture) and “Ch’ak” (decapitation).  In Chak, these are utilized as the win conditions of altar mate, and checkmate, respectively.
+Chak 這個詞來自馬雅神祇中雨神 Chaac，它掌管雨水、雷電與戰爭。剛好此遊戲的戰場是設在有河邊。而馬雅語中相似的兩個詞「Chuc-ah」(俘虜) 和「Ch’ak」(斬首)剛好成為了 Chak 中的 「登壇」和「將死」。
 
 ## 基本規則
 
@@ -161,7 +160,7 @@ The name Chak itself is derived from the Mayan God Chaac, the rain deity who pos
 
 ### 王 v.s 王 
 ![KvsKzugzwang](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChakGuide/KvsKzugzwang.png)
-國王是唯一的防守者，獲勝很容易。 攻擊者只需要到達一個位置，他們的國王在祭壇的一側，敵人的國王在角落裡，敵人可以移動。 然后防御者被迫將國王從寺廟中移開，攻擊者可以將國王移動到祭壇上。
+國王是唯一的防守者，獲勝很容易。攻擊者只需要到達一個位置，他們的國王在祭壇的一側，敵人的國王在角落裡，敵人可以移動。 然后防御者被迫將國王從寺廟中移開，攻擊者可以將國王移動到祭壇上。
 
 由於產品仍然存在，攻擊者仍然可以獲勝，但它更棘手。 攻擊者應該瞄準的不是祭壇伴侶，而是這種僵局：
 With the king being the only defender's piece, the win is pretty easy. The attacker only needs to reach a position with their king on the side of the altar, enemy king in the corner with enemy to move. Then the defender is forced to move the king away from the temple and the attacker can move the king to the altar. 
