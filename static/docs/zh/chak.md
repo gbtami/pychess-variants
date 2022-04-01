@@ -159,17 +159,18 @@ Chak 這個詞來自馬雅神祇中雨神 Chaac，它掌管雨水、雷電與戰
 殘局通常在搶先登上祭壇。在本節中，我們將關注以神王為唯一攻擊棋子的殘局。
 
 ### 王 v.s 王 
+
+若對方國王是唯一的防守者，攻擊者只需要迫使對方王移出神殿，便可以輕鬆登壇:
+
 ![KvsKzugzwang](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChakGuide/KvsKzugzwang.png)
-國王是唯一的防守者，獲勝很容易。攻擊者只需要到達一個位置，他們的國王在祭壇的一側，敵人的國王在角落裡，敵人可以移動。 然后防御者被迫將國王從寺廟中移開，攻擊者可以將國王移動到祭壇上。
 
-由於產品仍然存在，攻擊者仍然可以獲勝，但它更棘手。 攻擊者應該瞄準的不是祭壇伴侶，而是這種僵局：
-With the king being the only defender's piece, the win is pretty easy. The attacker only needs to reach a position with their king on the side of the altar, enemy king in the corner with enemy to move. Then the defender is forced to move the king away from the temple and the attacker can move the king to the altar. 
 
-With the offering still there, the attacker can still win, but it's trickier. What the attacker should be aiming for is not altar mate, but rather this stalemate:
+
+當祭品還在的時候，攻擊者仍然可以獲勝，但更加棘手。 攻擊者應該做的不是登壇，而是以下這種困斃：
 
 ![KvsKStalemate](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChakGuide/KvsKStalemate.png)
 
-An example line on how to force this position goes like this
+以下是走出這種困斃的棋譜:
 
 ![KvsKO](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChakGuide/KvsKO.png)
 
@@ -183,19 +184,22 @@ An example line on how to force this position goes like this
 
 5. Ke9 De7!
 
-...and we've reached the following position:
+如此形成以下局面:
 
 ![KvsKOzugzwang](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChakGuide/KvsKOzugzwang.png)
 
-where green is in zugzwang; moving the king to either side allows white to respond with a stalemate.
+此時綠方被迫移動，白方即可走出困斃。
+
+然而。 如果防守方多出一子（不動的羽神除外），情況就會發生巨大變化，如下:
 
 ![KvsKdraw](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChakGuide/KvsKdraw.png)
 
-However. if the defender has one more piece (except for an immobile quetzal) things change dramatically. No matter if the offering is still there or not, there is no way for the divine king to check the defender's king and cut off all squares within the temple it could go in one move, so green can always either move their other piece, or move the king within the temple. The only thing to be concerned about is blundering the other piece, so it's recommended to keep it on the last 4 ranks as the divine king can never get there. Once it's there defender, can just move (and safely premove) either moving the piece around the last 4 ranks, or the king within the temple, and the attacker is then helpless.
+不管祭品是否還在，神王都沒有辦法將死守方的王。唯一需要擔心的是下錯棋，讓自己多出來的一子被神王吃掉。因此建議將其保留在最後4列內，因為神王永遠無法到達那裡，如此雙方便和棋。
+
 
 ### 堡壘
 
-Fortress is set up with a piece defending the altar and every piece being defended. Against such a setup, a lone king is helpless. 
+堡壘是指有子防守著祭壇，如此對方便無計可施: 
 
 ![Fortresses](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChakGuide/Fortresses.png)
 
@@ -205,31 +209,32 @@ All those examples are bareboned in a sense that if either side decided to move 
 
 #### 美洲豹
 
-In a lone Jaguar vs a Divine King endgame either side can force a draw by repetition
+美幻豹對神王會因重複局面而和棋
+
 ![JaguarPerpetual](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChakGuide/JaguarPerpetual.png)
 
-...except when the side with the Jaguar can just ignore their Jaguar being under attack and run their King towards the altar like in this position.
+...除非對方可以直接棄子登壇。
 
 ![JaguarPerpetual2](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChakGuide/JaguarPerpetual2.png)
 
-White wins by just moving their King to c4 or c2 and to the altar on the next move.
 
-With the Offering still alive, it's a different story. 
+
+然而當祭品還在時，又是兩碼子事:
 
 ![JaguarvsKO](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChakGuide/JaguarvsKO.png)
 
-In this position, green can go 1. Jf9; white's only move to keep attacking the Jaguar is Df7, but after 2. Je9+ Dg then 3. Jd9, then there is no way to attack the Jaguar in one move, and if white spends 2 moves to do so, green has one tempo to do something meaningful on the other side of the board. If white gets their King to f9, then after Jd8, there is again no way to attack in one move, so it's better to get the King to d7 so again we can force the Jaguar to move twice. If the draw by 50 move rule is close it might be important to remember those exact lines to enforce wasting as many moves as possible as green or save as many as white.
+綠可走 1. Jf9; 白方唯一可以繼續攻擊美洲豹的走法為 Df7, 但當 2. Je9+ Dg 而 3. Jd9, 則將失去對美洲豹的威脅。而若白方花二步來攻擊美洲豹， 綠方可以在河的另一頭作更有義意的事。 若白把王動到f9, 則 Jd8 後，同樣也會失去對美洲豹的威脅。所以最好是把王動到 d7 來迫使美洲豹移動。最好記得以走法來形成和棋。
 
 #### 蚺蛇
 
 ![SerpentFortress](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChakGuide/SerpentFortress.png)
 
-The Serpent as a long range piece can easily move back and forth along the second rank, keeping an eye on the altar. If the Divine King stays on squares from which it can reach the altar directly, the Serpent has to stay there and is usually useless in breaking through the enemy fortress. So if green has a fortress as well, it's usually a draw.
+蚺蛇可以封住整條路線，如此神王便無法登壇。
 
 ![SerpentFortressTrap](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChakGuide/SerpentFortressTrap.png)
 
-However, moving away from the highlighted squares to harass the Serpent can be costly, like in this position:
+而且，若神王從劃記的格子離開去騷擾蚺蛇，可能會付出代價，例如:
 
 ![SerpentFortressTrap2](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChakGuide/SerpentFortressTrap2.png)
 
-White has abandoned the altar, allowing green to go Re8 and skewering both Shamans. If white moves the King back, e.g. to d7, green takes on e2, and as the Serpent still defends the altar, green is winning. If white tries something different, green can take one of the Shamans and still win.
+綠方棄蚺蛇攻擊白祭司，同時又守住綠祭壇。此時白祭司無論吃掉蚺蛇與否都無法阻止綠方登壇。
