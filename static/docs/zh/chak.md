@@ -6,9 +6,9 @@
 
 國際象棋遊戲最早起源於印度，爾後演變為波斯象棋，傳播到歐洲並發展出現代的形式。東亞也有豐富的象棋變體，融合了各地的傳統文化。世界各地的許多文化都有自己的象棋，然而，美洲原住民呢？ 中美洲曾經擁有偉大的帝國。如果他們也有自己的國際象棋呢？
 
-馬雅象棋 Chak 是Couch Tomato 於 2021 年設計的遊戲，設計理念是使用象棋常見的元素：國王、車型棋子、騎士型棋子和兵，並引入的中美洲的馬雅文化。例如，對於馬雅和其他中美洲文化來說，社會的組成圍繞著祭祀儀式；因此，神靈祭祀和神殿成了遊戲的關鍵精神。
+馬雅象棋 Chak 是Couch Tomato 於 2021 年設計的遊戲，設計理念是使用象棋常見的元素：國王、車、騎士和兵，並引入中美洲的馬雅文化。例如，對於馬雅和其他中美洲文化來說，社會的組成圍繞著祭祀儀式；因此，神靈祭祀和神殿成了遊戲的關鍵精神。
 
-Chak 這個詞來自馬雅神祇中雨神 Chaac，它掌管雨水、雷電與戰爭。剛好此遊戲的戰場是設在有河邊。而馬雅語中相似的兩個詞「Chuc-ah」(俘虜) 和「Ch’ak」(斬首)剛好成為了 Chak 中的 「登壇」和「將死」。
+Chak 這個詞來自馬雅神祇中雨神 Chaac，它掌管雨水、雷電與戰爭。剛好此遊戲的戰場是設在河邊。而馬雅語中相似的兩個詞「Chuc-ah」(俘虜) 和「Ch’ak」(斬首)剛好成為了 Chak 中的 「登壇」和「將死」。
 
 ## 基本規則
 
@@ -203,7 +203,7 @@ Chak 這個詞來自馬雅神祇中雨神 Chaac，它掌管雨水、雷電與戰
 
 ![Fortresses](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChakGuide/Fortresses.png)
 
-All those examples are bareboned in a sense that if either side decided to move any of their pieces away from around the temple, they can no longer form a fortress. If both sides have a bareboned fortress like in above diagrams the game is a dead draw. On the other hand, if one side has a bareboned fortress and the other has a fortress plus any extra piece, as long as that extra piece can safely cross the river without being captured and join the attack on the fortress, it's almost always a win for the side with the extra piece.
+以上這些範例都意謂著，若一方將棋子移開防守，將卸掉堡壘，若雙方都如此則導致和局。另一方面，若一方的堡壘有根而一方沒有，該子通常可以過河並攻擊對方的堡壘，通常多子的一方會獲勝。
 
 ### 其他防禦
 
