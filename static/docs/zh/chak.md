@@ -4,7 +4,7 @@
 
 ## 背景
 
-The game of chess first arose from India (or so the common theory states), from where it evolved into western Chess in Persia where it spread to Europe and developed its modern form. East Asia has multiple rich forms of chess that offer something new but also infuse their culture into it. Many cultures throughout the world have a chess of their own. However, what about the native peoples of the Americas? Mesoamerica once had great empires. What if they had a chess of their own? 
+國際象棋遊戲最早起源於印度，爾後演變為波斯象棋，傳播到歐洲並發展出現代的形式。東亞也有豐富的象棋變體，融合了各地的傳統文化。世界各地的許多文化都有自己的象棋，然而，美洲原住民呢？ 中美洲曾經擁有偉大的帝國。如果他們也有自己的國際象棋呢？
 
 Chak is a game designed by Couch Tomato in 2021 specifically to answer this hypothetical question. The design philosophy was to start from scratch and use only the common elements from all forms of chess: a king, a rook-type piece, a knight-like piece, and some sort of pawns; the rest would develop organically infusing a specific Mesoamerican culture -- in this case, the Maya. For example, for the Maya and other Mesoamerican cultures, the native religion with ritual sacrifice was a fundamental part of society; the concept of an offering to the gods as well as the large temples are a key part of the game. 
 Chak 是 Couch Tomato 在 2021 年設計的遊戲，設計理念是使用象棋常見的元素：國王、車型棋子、騎士型棋子和兵，並引入的中美洲文化——在這種情況下，就是瑪雅人。 例如，對於瑪雅人和其他中美洲文化來說，具有祭祀儀式的本土宗教是社會的基本組成部分； 祭祀神靈的概念以及大型寺廟是遊戲的關鍵部分。
@@ -50,6 +50,7 @@ The name Chak itself is derived from the Mayan God Chaac, the rain deity who pos
 ## 棋子
 
 ### 國王 (K)
+
 ![King](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChakGuide/ChakKing.png)
 
 國王 (*Ajaw*, 讀作 「Dachau」) 走法就如就如西洋棋的國王，朝八方走一格。
@@ -57,6 +58,7 @@ The name Chak itself is derived from the Mayan God Chaac, the rain deity who pos
 國王過河後可升變為「神王」
 
 ### 神王 (D)
+
 ![Divine King](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChakGuide/DivineKing.png)
 
 神王可向任何方向移動最多*兩個*方格，也可以通過被對方棋子威脅的方格（換句話說，它不像西棋的王車易位，王的路徑上不能有棋子攻擊）。 請記住，國王一互升變，便不能退到河界後！由於其攻擊範圍，神王可以直接將未變的國王將死。
@@ -64,6 +66,7 @@ The name Chak itself is derived from the Mayan God Chaac, the rain deity who pos
 請注意，神王的符號「D」是為了與國王「K」區別。
 
 ### 美洲豹 (J)
+
 ![Jaguar](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChakGuide/Jaguar.png)
 
 
@@ -80,6 +83,7 @@ The name Chak itself is derived from the Mayan God Chaac, the rain deity who pos
 由於能同時打擊多個方位，美洲豹是馬雅象棋中最強的棋子。
 
 ### 羽神(Q)
+
 ![Quetzal range](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChakGuide/QuetzalRange.png)
 
 羽神的走法很特別，它類似於國際象棋皇后，因為它可以在任何方向（垂直或對角）移動任意格...... *但是*，它需要先跳過中間的棋子。對於熟悉韓國將棋的人來說，這與韓國將棋的「包」類似，但增加了對角線移動，且沒有「不能跳過對方的羽神」的限制。
@@ -91,6 +95,7 @@ The name Chak itself is derived from the Mayan God Chaac, the rain deity who pos
 *範例*: 上圖中，羽神可以移動到以上格子(紅色代表吃子)。
 
 ### 祭司 (S)
+
 ![Shaman](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChakGuide/Shaman.png)
 
 祭司朝前方及後方三格移動一步。
@@ -100,11 +105,13 @@ The name Chak itself is derived from the Mayan God Chaac, the rain deity who pos
 該棋子的形狀是用來提示它的走法。
 
 ### 禿鷹 (V)
+
 ![Vulture](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChakGuide/Vulture.png)
 
 禿鷹的走法就如中國象棋的馬，只是沒有拐馬腳的規則(或如西洋棋的騎士)，先朝一個方向走兩格，再垂直走一格，就如L型。
 
 ### 蚺蛇 (R)
+
 ![Serpent](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChakGuide/Serpent.png)
 
 蚺蛇就如中國象棋的車，可朝一個方向任意直行。
@@ -112,6 +119,7 @@ The name Chak itself is derived from the Mayan God Chaac, the rain deity who pos
 它是第三強的子，僅次於美洲豹和羽神。
 
 ### 兵 (P)
+
 ![Pawn](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChakGuide/ChakPawn.png)
 
 兵的移動與攻擊是分開的。走法就如中國象棋的過河卒，吃子的方式卻如西棋的兵。
@@ -119,39 +127,43 @@ The name Chak itself is derived from the Mayan God Chaac, the rain deity who pos
 兵過河後升變為「士」。
 
 ### 士 (W)
+
 ![Warrior](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChakGuide/ChakWarrior.png)
 
 士的走法就如祭司，朝前方與後方三格動一步。與祭司不同的是，士不能退回河界後。
 
 ### 祭品 (O)
+
 ![Offering](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChakGuide/Offering.png)
 
-The Offering does not move or capture; it blocks the altar until captured. The piece exists not only for thematic purposes (serving as the offering at each player’s own altar), but also serves as a mount for the quetzal. Finally, because of its position, it also helps prevent your altar from a lone divine king if your own king has not left the temple, potentially forcing a draw if all other pieces are off the board. Without the offering, the divine king would be able to displace the defending king and take the altar.
-
-祭品不能移動或吃子，它一直待在在祭壇中心。這件作品不僅出於主題目的（作為每個玩家自己的祭壇上的祭品），而且還可作為羽神的炮架。 最後，由於它的位置，如果你自己的國王沒有離開神殿，它還有助於防止你的祭壇成為一個孤獨的神王，如果所有其他棋子都離開了棋盤，則可能會迫使平局。 沒有祭品，神王就能取代守王，奪取祭壇。
 
 
-## Piece valuation
+祭品不能移動或吃子，它一直待在在祭壇中心。設計上不只是為了主題（玩家獻上祭品），還可作為羽神的炮架。最後，如果你自己的國王在神殿內，它還有助於擋住神王的攻擊，如果此時沒有其他棋子則會強迫和棋。如果祭品在先前己被吃了，神王就有辦法登壇。
 
-Accurate piece values are unknown.  However, the following piece ranking is generally accepted: Jaguar > Quetzal > Serpent > Vulture > Shaman > Warrior > Pawn.
 
-## Strategy - Pieces and Basics
+## 子力價值
 
-**Quetzal**: One primary tip for beginners is always pay attention to the lines of sight for the quetzal. Specifically, at the beginning of the game, any piece that moves in front of the quetzal opens it up to an attack on the opposing jaguar, which is a slightly favorable move.
+詳細價值尚未知，但以下大小關係是己知的: 美洲豹 > 羽神 > 蚺蛇 > 禿鷹 > 祭司 > 士 > 兵
 
-**Jaguar**: Regarding the jaguar, build defenses and prevent the jaguar from crossing the river. If the jaguar crosses before your pieces are coordinated, it can singlehandedly capture multiple pieces with ease.
+## 策略 - 棋子基本動法
 
-**Pawns**: Pawns in Chak are actually quite flexible and strong and also threaten promotion very early. Because of all this, they are not as "expendable" as pawns in other games; make sure to get good value if you are wiling to trade off your pawns, as a one pawn difference at the end of the game could make the difference between a victory and loss.
+**羽神**: 始終注意羽神的路線。在遊戲開始時，任何移動到羽神前面的棋子都會作為炮架攻擊對方的美洲虎，這是一個稍微有利的交換。
 
-Tempo is very, very important in Chak, as it ultimately boils down to a race to get your king to the other side. Positional play is also very important. 
+**美洲豹**: 建立防禦並防止美洲豹過河。如果美洲豹在你的棋子生根之前就發攻擊，將可以輕鬆地捉雙。
 
-## Strategy - Endgames
+**兵**: 兵非常靈活和強大，並且很早就可升變。正因如此，它不像其他棋種的兵那樣可任意棄子；如果您願意棄兵，請確保獲得更好局勢，因為在遊戲結束時一個兵的差距可能會左右勝敗。
 
-Endgames often boil down to getting the king to the Altar faster then our opponent. In this section we'll focus mostly on endgames where Divine King is the only attacking piece.
+**神殿**: 神殿非常重要，因為對方的神王只要到達神殿就贏棋。
 
-### King vs King
+## 策略 - 殘局
+
+殘局通常在搶先登上祭壇。在本節中，我們將關注以神王為唯一攻擊棋子的殘局。
+
+### 王 v.s 王 
 ![KvsKzugzwang](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChakGuide/KvsKzugzwang.png)
+國王是唯一的防守者，獲勝很容易。 攻擊者只需要到達一個位置，他們的國王在祭壇的一側，敵人的國王在角落裡，敵人可以移動。 然后防御者被迫將國王從寺廟中移開，攻擊者可以將國王移動到祭壇上。
 
+由於產品仍然存在，攻擊者仍然可以獲勝，但它更棘手。 攻擊者應該瞄準的不是祭壇伴侶，而是這種僵局：
 With the king being the only defender's piece, the win is pretty easy. The attacker only needs to reach a position with their king on the side of the altar, enemy king in the corner with enemy to move. Then the defender is forced to move the king away from the temple and the attacker can move the king to the altar. 
 
 With the offering still there, the attacker can still win, but it's trickier. What the attacker should be aiming for is not altar mate, but rather this stalemate:
@@ -182,7 +194,7 @@ where green is in zugzwang; moving the king to either side allows white to respo
 
 However. if the defender has one more piece (except for an immobile quetzal) things change dramatically. No matter if the offering is still there or not, there is no way for the divine king to check the defender's king and cut off all squares within the temple it could go in one move, so green can always either move their other piece, or move the king within the temple. The only thing to be concerned about is blundering the other piece, so it's recommended to keep it on the last 4 ranks as the divine king can never get there. Once it's there defender, can just move (and safely premove) either moving the piece around the last 4 ranks, or the king within the temple, and the attacker is then helpless.
 
-### Fortresses 
+### 堡壘
 
 Fortress is set up with a piece defending the altar and every piece being defended. Against such a setup, a lone king is helpless. 
 
