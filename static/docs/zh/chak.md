@@ -1,8 +1,8 @@
-# ![Chak](https://github.com/gbtami/pychess-variants/blob/master/static/icons/Chak.svg) Chak
+# ![Chak](https://github.com/gbtami/pychess-variants/blob/master/static/icons/Chak.svg) 馬雅象棋
 
 ![Chak](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChakGuide/Chak.png)
 
-## Background
+## 背景
 
 The game of chess first arose from India (or so the common theory states), from where it evolved into western Chess in Persia where it spread to Europe and developed its modern form. East Asia has multiple rich forms of chess that offer something new but also infuse their culture into it. Many cultures throughout the world have a chess of their own. However, what about the native peoples of the Americas? Mesoamerica once had great empires. What if they had a chess of their own? 
 
@@ -10,12 +10,12 @@ Chak is a game designed by Couch Tomato in 2021 specifically to answer this hypo
 
 The name Chak itself is derived from the Mayan God Chaac, the rain deity who possesses war-like fury. This matches the setting of Chak, which is a battlefield along a river. Finally, two words of warfare in Mayan epics include “Chuc-ah” (capture) and “Ch’ak” (decapitation).  In Chak, these are utilized as the win conditions of altar mate, and checkmate, respectively.
 
-## Introduction and General Rules
+## 基本規則
 
 There are two sides, designated white and green, respectively. White moves first.
 
 
-### Board
+### 棋盤
 
 Chak is played on a 9x9 board as seen below:
 
@@ -29,7 +29,7 @@ There are three special regions:
 
 -**Altar**, the central square of the temple. Moving your king into the enemy’s altar is one of the main methods of victory.
 
-### Goals of the Game
+### 勝負條件
 
 There are four ways to win:
 
@@ -50,7 +50,7 @@ Other game-end conditions result in a draw:
 **Draw offering** - A player offers a draw and the other player accepts.
 
 
-## Pieces
+## 棋子
 
 ### King (K)
 ![King](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChakGuide/ChakKing.png)
