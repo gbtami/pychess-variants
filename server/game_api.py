@@ -62,6 +62,8 @@ async def get_variant_stats(request):
         period = ""
         async for doc in cursor:
             # print(doc)
+            if doc["_id"]["period"] < "2019-07":
+                continue
             if doc["_id"]["period"] != period:
                 period = doc["_id"]["period"]
                 # skip current period
@@ -81,6 +83,7 @@ async def get_variant_stats(request):
                 pass
 
         series = [{"name": variant, "data": variant_counts[variant]} for variant in VARIANTS]
+
         request.app[stats][cur_period] = series
 
     return web.json_response(series, dumps=partial(json.dumps, default=datetime.isoformat))
