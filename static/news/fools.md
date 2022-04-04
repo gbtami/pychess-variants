@@ -1,4 +1,4 @@
-<h1 align="center">Liantichess's database is running out</h1>
+<h1 align="center">[April Fools] Liantichess's database is running out</h1>
 
 <div class="meta-headline">
     <div class= "meta">
@@ -23,3 +23,5 @@ It had long been known by us moderators and developers that the database would e
 So its impossible to access old or even recent information's of users, games, tournaments etc. so if the database is out of space, liantichess server may go crazy without any users. Please do feel free to login to Liantichess again once the storage space runs out, and be assured that this will never occur again
 
 ![image](https://i.imgur.com/kzlOF3B.jpg)
+
+Have a good April Fools.
