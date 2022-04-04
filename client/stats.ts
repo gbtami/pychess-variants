@@ -4,7 +4,7 @@ import { h, VNode } from 'snabbdom';
 
 function createPeriods() {
     const periodList: string[] = [];
-    const date = new Date(2019, 5, 1, 0, 0, 0);  // (2019-06-01) the month is 0-indexed
+    const date = new Date(2019, 6, 1, 0, 0, 0);  // (2019-07-01) the month is 0-indexed
     const endDate = new Date();
     const months = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"];
 
