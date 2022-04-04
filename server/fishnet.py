@@ -166,14 +166,10 @@ async def fishnet_analysis(request):
                 if "analysis" not in game.steps[i]:
                     # TODO: save PV only for inaccuracy, mistake and blunder
                     # see https://github.com/lichess-org/lila/blob/master/modules/analyse/src/main/Advice.scala
-                    vp_in_san = "pv_san" in analysis.keys()
                     game.steps[i]["analysis"] = {
                         "s": analysis["score"],
                         "d": analysis["depth"],
-                        "p": analysis["pv_san"] if vp_in_san else analysis["pv"],
-                        "m": analysis["pv"].partition(" ")[
-                            0
-                        ],  # save first PV move to draw advice arrow
+                        "p": analysis["pv"],
                     }
                 else:
                     continue

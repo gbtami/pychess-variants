@@ -552,8 +552,15 @@ export default class AnalysisController {
                 window.addEventListener("beforeunload", () => this.ffishBoard.delete());
             });
 
-            this.localEngine = true;
-            patch(document.getElementById('input') as HTMLElement, h('input#input', {attrs: {disabled: false}}));
+            // TODO: Chennis has issues still
+            if (this.variant.name === 'chennis') {
+                const v = this.model.variant + ((this.chess960) ? '960' : '');
+                const title = _("Selected variant %1 is not supported by stockfish.wasm", v);
+                patch(document.getElementById('slider') as HTMLElement, h('span.sw-slider', {attrs: {title: title}}));
+            } else {
+                this.localEngine = true;
+                patch(document.getElementById('input') as HTMLElement, h('input#input', {attrs: {disabled: false}}));
+            }
         }
 
         if (!this.localAnalysis || !this.isEngineReady) return;
@@ -593,8 +600,7 @@ export default class AnalysisController {
             score = {cp: povEv};
         }
         const knps = nodes / elapsedMs;
-        const sanMoves = this.ffishBoard.variationSan(moves, this.notationAsObject);
-        const msg: MsgAnalysis = {type: 'local-analysis', ply: this.ply, color: this.turnColor.slice(0, 1), ceval: {d: depth, m: moves, p: sanMoves, s: score, k: knps}};
+        const msg: MsgAnalysis = {type: 'local-analysis', ply: this.ply, color: this.turnColor.slice(0, 1), ceval: {d: depth, p: moves, s: score, k: knps}};
         this.onMsgAnalysis(msg);
     };
 
@@ -626,9 +632,9 @@ export default class AnalysisController {
             }
         }
 
-        if (ceval?.p !== undefined && !!ceval.m) {
-            const pv_move = uci2cg(ceval.m.split(" ")[0]);
-            console.log("ARROW", this.arrow);
+        if (ceval?.p !== undefined) {
+            const pv_move = uci2cg(ceval.p.split(" ")[0]);
+            // console.log("ARROW", this.arrow);
             if (this.arrow) {
                 const atPos = pv_move.indexOf('@');
                 if (atPos > -1) {
@@ -672,7 +678,7 @@ export default class AnalysisController {
             }
             this.vinfo = patch(this.vinfo, h('info#info', info));
             let pvSan = ceval.p;
-            if (this.ffishBoard !== null) {
+            if (this.ffishBoard !== null && this.variant.name !== 'chennis') {
                 try {
                     pvSan = this.ffishBoard.variationSan(ceval.p, this.notationAsObject);
                     if (pvSan === '') pvSan = ceval.p;
@@ -680,14 +686,14 @@ export default class AnalysisController {
                     pvSan = ceval.p
                 }
             }
-            this.vpv = patch(this.vpv, h('div#pv', [h('pvline', ceval.p !== undefined ? pvSan : ceval.m)]));
+            this.vpv = patch(this.vpv, h('div#pv', [h('pvline', pvSan)]));
         } else {
             this.vscore = patch(this.vscore, h('score#score', ''));
             this.vinfo = patch(this.vinfo, h('info#info', _('in local browser')));
             this.vpv = patch(this.vpv, h('div#pv'));
         }
 
-        console.log(shapes0);
+        // console.log(shapes0);
         this.chessground.set({
             drawable: {autoShapes: shapes0},
         });
