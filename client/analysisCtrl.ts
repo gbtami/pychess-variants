@@ -633,11 +633,11 @@ export default class AnalysisController {
                 if (atPos > -1) {
                     const d = pv_move.slice(atPos + 1, atPos + 3) as cg.Key;
                     let color = turnColor;
-
+                    const variant = this.variant.name;
                     const dropPieceRole = util.roleOf(pv_move.slice(0, atPos) as cg.PieceLetter);
                     const orientation = this.flip ? this.oppcolor : this.mycolor;
                     const side = color === orientation ? "ally" : "enemy";
-                    const url = getPieceImageUrl(dropPieceRole, color, side);
+                    const url = getPieceImageUrl(variant, dropPieceRole, color, side);
                     this.chessground.set({ drawable: { pieces: { baseUrl: url! } } });
 
                     shapes0 = [{
