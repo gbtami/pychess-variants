@@ -552,15 +552,8 @@ export default class AnalysisController {
                 window.addEventListener("beforeunload", () => this.ffishBoard.delete());
             });
 
-            // TODO: Chennis has issues still
-            if (this.variant.name === 'chennis') {
-                const v = this.model.variant + ((this.chess960) ? '960' : '');
-                const title = _("Selected variant %1 is not supported by stockfish.wasm", v);
-                patch(document.getElementById('slider') as HTMLElement, h('span.sw-slider', {attrs: {title: title}}));
-            } else {
-                this.localEngine = true;
-                patch(document.getElementById('input') as HTMLElement, h('input#input', {attrs: {disabled: false}}));
-            }
+            this.localEngine = true;
+            patch(document.getElementById('input') as HTMLElement, h('input#input', {attrs: {disabled: false}}));
         }
 
         if (!this.localAnalysis || !this.isEngineReady) return;
@@ -678,12 +671,13 @@ export default class AnalysisController {
             }
             this.vinfo = patch(this.vinfo, h('info#info', info));
             let pvSan = ceval.p;
-            if (this.ffishBoard !== null && this.variant.name !== 'chennis') {
+            if (this.ffishBoard !== null) {
                 try {
+                    this.ffishBoard.setFen(this.fullfen);
                     pvSan = this.ffishBoard.variationSan(ceval.p, this.notationAsObject);
-                    if (pvSan === '') pvSan = ceval.p;
+                    if (pvSan === '') pvSan = '.';
                 } catch (error) {
-                    pvSan = ceval.p
+                    pvSan = '.';
                 }
             }
             this.vpv = patch(this.vpv, h('div#pv', [h('pvline', pvSan)]));
