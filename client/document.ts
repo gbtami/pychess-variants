@@ -28,7 +28,7 @@ export function getDocumentData(name: string) {
     }
 }
 
-export function getPieceImageUrl (role: cg.Role, color: cg.Color, side: string): string {
+export function getPieceImageUrl (variant: string, role: cg.Role, color: cg.Color, side: string): string {
     // Analysis drop move suggestion rendering needs piece images urls in chessground
     // We can use current variant .css to find appropriate images.
 
@@ -40,15 +40,35 @@ export function getPieceImageUrl (role: cg.Role, color: cg.Color, side: string):
             if (url) return url.slice(url.indexOf('/static'));
         }
     }
-    // In Kyoto Shogi not all droppable pieces are rendered in the pockets
+    // In Kyoto Shogi and Chennis not all droppable pieces are rendered in the pockets
     // because they may be dropped with flipped side as well. To solve this problem
     // we will construct piece image url from unprotmoted piece urls here.
-    const kyotoPromotedPieceRoles = ['pp-piece', 'pl-piece', 'pn-piece', 'ps-piece'];
-    const idx = kyotoPromotedPieceRoles.indexOf(role);
-    if (idx !== -1) {
-        const unpromoted = getPieceImageUrl(role.slice(1) as cg.Role, color, side);
-        const kyotoPromotedPieceNames = ['HI', 'TO', 'KI', 'KA'];
-        return unpromoted.slice(0, unpromoted.lastIndexOf('/') + 2) + kyotoPromotedPieceNames[idx] + '.svg'
+    if (variant === "kyotoshogi") {
+        const kyotoPromotedPieceRoles = ['pp-piece', 'pl-piece', 'pn-piece', 'ps-piece'];
+        const idx = kyotoPromotedPieceRoles.indexOf(role);
+        if (idx !== -1) {
+            const unpromoted = getPieceImageUrl(variant, role.slice(1) as cg.Role, color, side);
+            const kyotoPromotedPieceNames = ['HI', 'TO', 'KI', 'KA'];
+            return unpromoted.slice(0, unpromoted.lastIndexOf('/') + 2) + kyotoPromotedPieceNames[idx] + '.svg'
+        }
+    }
+    if (variant === "chennis") {
+        const chennisPromotedPieceRoles = ['pp-piece', 'pm-piece', 'ps-piece', 'pf-piece'];
+        const idx = chennisPromotedPieceRoles.indexOf(role);
+        if (idx !== -1) {
+            const chennisPromotedPieceNames = ['R', 'N', 'B', 'C'];
+            const unpromotedLetter = role.slice(1, 2).toUpperCase();
+            const unpromotedUrl = getPieceImageUrl(variant, role.slice(1) as cg.Role, color, side);
+            if (unpromotedUrl.includes('chennis')) {
+                return unpromotedUrl.slice(0, unpromotedUrl.lastIndexOf('/') + 2) + chennisPromotedPieceNames[idx] + unpromotedLetter + '.svg'
+            } else if (unpromotedUrl.includes('merida')) {
+                const base = '/static/images/pieces/merida/'
+                return ((unpromotedLetter === 'F') ? base + 'shako/' : base) + color.slice(0, 1) + chennisPromotedPieceNames[idx] + '.svg'
+            } else {
+                const base = '/static/images/pieces/green/'
+                return ((unpromotedLetter === 'F') ? base + 'synoshako/' : base) + color.slice(0, 1) + chennisPromotedPieceNames[idx] + '.svg'
+            }
+        }
     }
     return '/static/images/pieces/merida/';
 }
