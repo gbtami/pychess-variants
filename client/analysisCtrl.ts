@@ -183,7 +183,7 @@ export default class AnalysisController {
         this.status = model["status"] as number;
         this.steps = [];
         this.pgn = "";
-        this.ply = model["ply"];
+        this.ply = isNaN(model["ply"]) ? 0 : model["ply"];
 
         this.flip = false;
         this.settings = true;
@@ -295,6 +295,8 @@ export default class AnalysisController {
             this.vscore = document.getElementById('score') as HTMLElement;
             this.vinfo = document.getElementById('info') as HTMLElement;
             this.vpv = document.getElementById('pv') as HTMLElement;
+            const pgn = (this.isAnalysisBoard) ? this.getPgn() : this.pgn;
+            this.renderFENAndPGN(pgn);
         }
 
         if (this.variant.materialPoint) {
@@ -770,7 +772,7 @@ export default class AnalysisController {
 
         const vv = this.steps[plyVari]?.vari;
         const step = (plyVari > 0 && vv ) ? vv[ply] : this.steps[ply];
-
+        
         const move = uci2LastMove(step.move);
         let capture = false;
         if (move.length > 0) {
