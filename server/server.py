@@ -266,9 +266,8 @@ async def init_state(app):
 
         # if "highscore" not in db_collections:
         # Always create new highscore lists on server start
-        await generate_highscore(app["db"])
-        cursor = app["db"].highscore.find()
-        async for doc in cursor:
+        hs = await generate_highscore(app["db"])
+        for doc in hs:
             app["highscore"][doc["_id"]] = ValueSortedDict(neg, doc["scores"])
 
         if "crosstable" not in db_collections:
