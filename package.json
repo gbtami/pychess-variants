@@ -17,6 +17,7 @@
   "dependencies": {
     "chessgroundx": "^9.1.9",
     "ffish-es6": "^0.6.7",
+    "fairy-stockfish-nnue.wasm": "^1.0.0",
     "gettext.js": "^1.0.1",
     "highcharts": "^10.0.0",
     "howler": "^2.1.3",
@@ -56,7 +57,7 @@
     "zlib": "^1.0.5"
   },
   "scripts": {
-    "postinstall": "cp ./node_modules/ffish-es6/ffish.wasm static/ffish.wasm",
+    "postinstall": "./cp2static.sh",
     "dev": "rollup --config rollup.config.dev.js",
     "prod": "rollup --config rollup.config.prod.js",
     "md": "./md2html.sh",
