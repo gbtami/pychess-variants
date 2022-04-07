@@ -365,9 +365,6 @@ async def load_tournament(app, tournament_id, tournament_klass=None):
             continue
 
         _id = doc["_id"]
-        if result == "*":
-            continue
-
         wp, bp = doc["u"]
         wrating = doc["wr"]
         brating = doc["br"]
