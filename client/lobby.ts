@@ -103,7 +103,7 @@ interface Seek {
     title: string;
 }
 
-type CreateMode = 'createGame' | 'playFriend' | 'playAI' | 'playRM' | 'createHost';
+type CreateMode = 'createGame' | 'playFriend' | 'playAI' | 'createHost';
 
 export class LobbyController {
     model: PyChessModel;
@@ -187,6 +187,7 @@ export class LobbyController {
             document.getElementById('game-mode')!.style.display = (anon || this.createMode === 'playAI') ? 'none' : 'inline-flex';
             document.getElementById('challenge-block')!.style.display = 'inline-flex';
             document.getElementById('ailevel')!.style.display = this.createMode === 'playAI' ? 'block' : 'none';
+            document.getElementById('rmplay-block')!.style.display = this.createMode === 'playAI' ? 'block' : 'none';
             document.getElementById('id01')!.style.display = 'block';
             document.getElementById('color-button-group')!.style.display = 'block';
             document.getElementById('create-button')!.style.display = 'none';
@@ -238,10 +239,10 @@ export class LobbyController {
         });
     }
 
-    createBotChallengeMsg(variant: string, color: string, fen: string, minutes: number, increment: number, byoyomiPeriod: number, level: number, chess960: boolean, rated: boolean, alternateStart: string) {
+    createBotChallengeMsg(variant: string, color: string, fen: string, minutes: number, increment: number, byoyomiPeriod: number, level: number, rm: boolean, chess960: boolean, rated: boolean, alternateStart: string) {
         this.doSend({
             type: "create_ai_challenge",
-            rm: this.createMode === 'playRM',
+            rm: rm,
             user: this.model.username,
             variant: variant,
             fen: fen,
@@ -349,12 +350,14 @@ export class LobbyController {
 
         switch (this.createMode) {
             case 'playAI':
-            case 'playRM':
                 e = document.querySelector('input[name="level"]:checked') as HTMLInputElement;
                 const level = Number(e.value);
                 localStorage.seek_level = e.value;
                 // console.log(level, e.value, localStorage.getItem("seek_level"));
-                this.createBotChallengeMsg(variant.name, seekColor, fen, minutes, increment, byoyomiPeriod, level, chess960, rated, alternateStart);
+                e = document.getElementById('rmplay') as HTMLInputElement;
+                localStorage.seek_rmplay = e.checked;
+                const rm = e.checked;
+                this.createBotChallengeMsg(variant.name, seekColor, fen, minutes, increment, byoyomiPeriod, level, rm, chess960, rated, alternateStart);
                 break;
             case 'playFriend':
                 this.createInviteFriendMsg(variant.name, seekColor, fen, minutes, increment, byoyomiPeriod, chess960, rated, alternateStart);
@@ -383,6 +386,7 @@ export class LobbyController {
         const vRated = localStorage.seek_rated ?? "0";
         const vLevel = Number(localStorage.seek_level ?? "1");
         const vChess960 = localStorage.seek_chess960 ?? "false";
+        const vRMplay = localStorage.seek_rmplay ?? "false";
 
         const anon = this.model.anon === 'True';
         
@@ -468,6 +472,20 @@ export class LobbyController {
                             ]),
                         ]),
                         // if play with the machine
+                        h('div#rmplay-block', [
+                            h('label', { attrs: { for: "rmplay" } }, "Random-Mover"),
+                            h('input#rmplay', {
+                                props: {
+                                    name: "rmplay",
+                                    type: "checkbox",
+                                    title: _("Practice with Random-Mover"),
+                                },
+                                attrs: {
+                                    checked: vRMplay === "true"
+                                },
+                                on: { click: () => this.setRM() },
+                            }),
+                        ]),
                         // A.I.Level (1-8 buttons)
                         h('form#ailevel', [
                             h('h4', _("A.I. Level")),
@@ -492,7 +510,6 @@ export class LobbyController {
             h('button.lobby-button', { on: { click: () => this.createGame() } }, _("Create a game")),
             h('button.lobby-button', { on: { click: () => this.playFriend() } }, _("Play with a friend")),
             h('button.lobby-button', { on: { click: () => this.playAI() } }, _("Play with AI")),
-            h('button.lobby-button', { on: { click: () => this.playRM() } }, _("Practice with Random-Mover")),
             h('button.lobby-button', { on: { click: () => this.createHost() }, style: { display: this.model["tournamentDirector"] ? "block" : "none" } }, _("Host a game for others")),
         ];
     }
@@ -517,6 +534,7 @@ export class LobbyController {
         document.getElementById('game-mode')!.style.display = anon ? 'none' : 'inline-flex';
         document.getElementById('challenge-block')!.style.display = 'none';
         document.getElementById('ailevel')!.style.display = 'none';
+        document.getElementById('rmplay-block')!.style.display = 'none';
         document.getElementById('id01')!.style.display = 'block';
         document.getElementById('color-button-group')!.style.display = 'block';
         document.getElementById('create-button')!.style.display = 'none';
@@ -529,6 +547,7 @@ export class LobbyController {
         document.getElementById('game-mode')!.style.display = anon ? 'none' : 'inline-flex';
         document.getElementById('challenge-block')!.style.display = 'none';
         document.getElementById('ailevel')!.style.display = 'none';
+        document.getElementById('rmplay-block')!.style.display = 'none';
         document.getElementById('id01')!.style.display = 'block';
         document.getElementById('color-button-group')!.style.display = 'block';
         document.getElementById('create-button')!.style.display = 'none';
@@ -539,18 +558,9 @@ export class LobbyController {
         this.createMode = 'playAI';
         document.getElementById('game-mode')!.style.display = 'none';
         document.getElementById('challenge-block')!.style.display = 'none';
-        document.getElementById('ailevel')!.style.display = 'inline-block';
-        document.getElementById('id01')!.style.display = 'block';
-        document.getElementById('color-button-group')!.style.display = 'block';
-        document.getElementById('create-button')!.style.display = 'none';
-    }
-
-    playRM(variantName: string = '', chess960: boolean = false) {
-        this.preSelectVariant(variantName, chess960);
-        this.createMode = 'playRM';
-        document.getElementById('game-mode')!.style.display = 'none';
-        document.getElementById('challenge-block')!.style.display = 'none';
-        document.getElementById('ailevel')!.style.display = 'none';
+        const e = document.getElementById('rmplay') as HTMLInputElement;
+        document.getElementById('ailevel')!.style.display = e.checked ? 'none' : 'inline-block';
+        document.getElementById('rmplay-block')!.style.display = 'block';
         document.getElementById('id01')!.style.display = 'block';
         document.getElementById('color-button-group')!.style.display = 'block';
         document.getElementById('create-button')!.style.display = 'none';
@@ -563,6 +573,7 @@ export class LobbyController {
         document.getElementById('game-mode')!.style.display = anon ? 'none' : 'inline-flex';
         document.getElementById('challenge-block')!.style.display = 'none';
         document.getElementById('ailevel')!.style.display = 'none';
+        document.getElementById('rmplay-block')!.style.display = 'none';
         document.getElementById('id01')!.style.display = 'block';
         document.getElementById('color-button-group')!.style.display = 'none';
         document.getElementById('create-button')!.style.display = 'block';
@@ -628,6 +639,10 @@ export class LobbyController {
     private setRated(rated: string) {
         console.log("setRated", rated);
         this.setStartButtons();
+    }
+    private setRM() {
+        const e = document.getElementById('rmplay') as HTMLInputElement;
+        document.getElementById('ailevel')!.style.display = e.checked ? 'none' : 'block';
     }
     private setStartButtons() {
         this.validGameData = this.validateTimeControl() && this.validateFen();
