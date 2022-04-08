@@ -49,6 +49,7 @@ Additionally you can check Chess960 option in for Chess, Crazyhouse, Atomic, S-c
 
 For move generation, validation, analysis and engine play it uses
 - [Fairy-Stockfish](https://github.com/ianfab/Fairy-Stockfish)
+- [fairy-stockfish.wasm](https://github.com/ianfab/fairy-stockfish.wasm)
 - [fairyfishnet](https://github.com/gbtami/fairyfishnet) fork of [fishnet](https://github.com/lichess-org/fishnet)
 - [lichess-bot-variants](https://github.com/gbtami/lichess-bot-variants) fork of [lichess-bot](https://github.com/ShailChoksi/lichess-bot)
 
