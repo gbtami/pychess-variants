@@ -24,6 +24,7 @@ from const import (
     VARIANTS,
     VARIANT_ICONS,
     VARIANT_GROUPS,
+    TROPHY_KIND,
     RATED,
     IMPORTED,
     variant_display_name,
