@@ -96,7 +96,9 @@ export function aboutView(): VNode[] {
             ]),
             h('p', [
                 _('For move generation, validation, analysis, and engine play, we use '),
-                h('a', { attrs: { href: 'https://github.com/gbtami/Fairy-Stockfish' } }, 'Fairy-Stockfish'),
+                h('a', { attrs: { href: 'https://github.com/ianfab/Fairy-Stockfish' } }, 'Fairy-Stockfish'),
+                ", ",
+                h('a', { attrs: { href: 'https://github.com/ianfab/fairy-stockfish.wasm' } }, 'fairy-stockfish.wasm'),
                 ", ",
                 h('a', { attrs: { href: 'https://github.com/gbtami/fairyfishnet' } }, 'fairyfishnet'),
                 ", and ",
