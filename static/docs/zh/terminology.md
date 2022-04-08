@@ -1,95 +1,103 @@
-# Terminology
+# 介紹
 
-Throughout the site and in the guides, many different terms are used. Many of these terms are global and apply to all chess variants, some apply to several (byo-yomi), and some may have different implications depending the variant (e.g. stalemate). Any terms that apply to a single variant will be discussed there (e.g. many shogi terms). This page serves as a reference to hopefully clear up any confusion!
+在整個網站和規則說明中，使用了許多不同的術語。其中有些術語適用於所有象棋變體，有些只適用於其中幾種（例如byo-yomi），有些可能根據變體具有不同的含義（例如僵局）。
 
-# "Chess Variants"
+作為總敘，此篇文章將介紹所有的你會在Pychess上看的的棋類術語。
 
-Probably the most important term to clarify first is what a "**chess variant**" is. There is no doubt that games like Bughouse and Crazyhouse are chess variants, because they're derived from chess. However, regional games such as Xiangqi, Shogi, Janggi, and Makruk are all also labeled "chess variants," and this may cause confusion.
 
-The biggest library for chess variants, chessvariants.com has an entire article dedicated to the topic of ["What is a chess variant?"](https://www.chessvariants.com/what.html). At Pychess, we share the same sentiments. For the sake of brevity, "chess variant" means any turn-based strategy game, derived from Chatturanga, where pieces have distinct movements, and the goal is to capture or "checkmate" the opponent's king. Even though eastern variants are not derived from chess, they share a common ancestor, and their names for the game all mean "chess." In this manner, the "chess" in chess variant instead means a general concept of chess-like game, rather than the international FIDE chess. This is analagous to sports, where "football" has a different meaning in different regions.
+# 「國際象棋變體」
 
-As chess variants can mean both variants directly based on international chess, as well as all forms of "chess" (the all-encompassing term), there is a little ambiguity here. Most of the time, we can figure out which type is being referred to based on context. Still, it is a downside of having this ambiguous term, and perhaps when discussing all kinds of chess, then a more general term "chess-like variants" could be used. Still, this is not the standard terminology used today.
+首先最重要是「**國際象棋變體**」是什麼?
 
-# Pieces
+像四狂象棋和雙狂象棋都是真正的國際象棋的變種，因為它們只是改變國際象棋的規則。然而，中國象棋、日本將棋、韓國將棋和泰國象棋都是各地的傳統棋類，為何也被稱為「國際象棋變體」?
 
-**Fairy piece** - A piece not used in conventional chess, with the word "fairy" connotating "invented." It's unclear if pieces native to regional variants are considered "fairy pieces," but we favor not using this term for established games. However, a xiangqi cannon appearing in a chess variant (as in Shako), or a bishop appearing in a xiangqi variant would count as "fairy pieces," because they don't exist in the native game.
+通常在西方，「國際象棋變體」是指所有源自古印度怡圖蘭卡 Chatturanga 的回合制策略遊戲。每個棋子具有不同的走法，且目標皆是“將死”對手的王。儘管東方的棋種並非源自國際象棋，卻都來自於古印度。
 
-It should be noted that several pieces have the same piece-type, but different names. For example, the "rook" and "chariot" both referring to the same piece. The name should reflect the name used in the game being played.
+最大的國際象棋變體庫 chessvariants.com 有一整篇文章專門討論 [“什麼是國際象棋變體？”](https://www.chessvariants.com/what.html)
 
-## Classification
+# 仙靈棋子
 
-Because fairy pieces introduce dozens of possible pieces, there is a classification system for pieces. There are also notations used to describe movements, but that is outside of the scope of this page. There are three types of simple pieces:
+「仙靈」一詞在英文中表示「發明」，「仙靈棋子」指的是那些傳統西洋棋中沒有的棋子。但是，這個術語並不用於流傳已久的棋種，像中國象棋的「炮」就不算是「仙靈棋子」。然而，當「炮」出現在新的變體中（例如Shako），就會被視為是「仙靈棋子」。
 
-**Riders** (also called ranging pieces) are pieces that keep moving in a direction indefinitely until obstructed by another piece or the edge of the board. The rook and bishop in chess are classic examples.
 
-**Leapers** are pieces that have fixed movements and cannot be obstructed to reach their destination. The knight in chess is a classic example. The horse in xiangqi and janggi is a modified leaper because it can be blocked. Similar pieces have also been referred to as "lame leapers."
+## 棋子分類
 
-**Hoppers** are pieces that must first jump over another piece before it can move or capture. There are no hoppers in chess, but the cannon in Xiangqi (captures orthogonally by jumping over another piece first) as well as a different cannon in Janggi (both moves and captures orthogonally by jumping over another piece first) are the classic hoppers. (Note that technically, the xiangqi cannon is technically a hybrid rider-hopper because of its rider movement and hopper capture, while the janggi cannon is a pure hopper) 
+仙靈棋子可以簡單的分為五種：
 
-**Compound pieces** are pieces that combine the moves of two simple pieces. The chess queen, which combines the rook and bishop, is a classic example. Many fairy pieces are compound pieces.
+* **長距離型**: 可無限地沿一個方向移動，直到被另一個棋子擋住或碰到棋盤邊緣，例如中國象棋中的車。
 
-**Divergent pieces** are pieces that move in one way but attack differently. The chess pawn, which moves forward but attacks diagonally forward, is a classic example. Divergent pieces are especially prominent in Orda Chess/Mirror, Empire Chess, and Hoppel Poppel.
+* **跳躍型**: 棋子具有一定走法且無法阻礙其到達目的地。國際象棋中的騎士就是一個典型的例子。中國象棋和韓國將棋中的馬因為有「拐馬腳」的規則，便不算是跳躍型。
 
-# Time Control
+* **類炮型**: 必須先跳過另一子才能移動或吃子的棋子。例如中國象棋中的炮（先跳過另一棋子才能吃子）以及韓國將棋的「炮」（移動和吃子皆需跳過另一棋子）。
 
-Time controls determine the time restrictions that govern ending the game due to one player taking too long to move. One type of game, called **correspondence** games, uses long time controls of at least several hours, typically counted in days. Players typically play their moves whenever they happen to have a break in their day. As of now, correspondence is not available on Pychess, where games are instead meant to be finished in one sitting.
+* **複合型**: 結合其他兩種棋子走法的棋子，例如西洋棋中的后即是城堡和主教的結合。
 
-Games played in one sitting use a main timer set anywhere from 1 minute to 60 minutes typically, with each player having their own timer. A player may or may not have extra time throughout the game. There are three main timer types that dictate how extra time is given:
+* **分化型**: 攻擊與移動走法不同的棋子，例如西洋棋中的兵向前移動但向斜前方攻擊。分化型在可汗象棋、帝國象棋和跳跳西洋棋中尤為突出。
 
-1. **(Fischer) Increment** - Every time a player ends his turn, he/she gains a fixed amount of time to their clock. A game in Pychess labeled as "10+15" means 10 *minutes* on the starting timer, and a 15 second increment. This is the standard used for most variants.
+# 時間限制
 
-2. **Byo-yomi** - (Japanese for countdown) Once a player's main clock expires, he has a fixed amount of time to take his/her turns from that point on (i.e. extra time). This system is used in Shogi and Janggi. Multiple byo-yomi periods can be used, typically in Janggi. For example, if there are 3 periods, then that player can drain the clock up to 2 times before losing on the 3rd. This can be useful in a critical move, where a single period of byo-yomi is not enough time to assess the situation carefully. A game in Pychess labeled as "10+3x30(b)" means 10 *minutes* on the starting timer, then 3 periods of 30 second byo-yomi.
+**時間限制**限定雙方棋手的走棋時間。通常棋局都會設定在10~60分鐘，雙方玩家各自有計時器，分別計時。
 
-3. **Sudden death** - No extra time is given. A game that uses increment or byo-yomi can be played with sudden death by setting the respective slider to 0 seconds.
+計時器主要分為三種：
 
-# General concepts
+1. **加時制(Fischer)** - 每當棋手動子時，他都會獲得額外的加時。例如在Pychess中，標記為“10+15”的棋局帶表開始時，雙方計時器上各有「10分鐘，每動一步加15秒」。大部分的棋局使用此制。
 
-**Check** - Threatening the king with a piece that can capture it next turn if not addressed.
+2. **Byo-yomi** - (秒読み，日語讀秒），一旦棋手的計時器時間到了之後，每步就只剩下一定的時間可以移動，通常用於日本將棋和國將棋。
 
-**Checkmate** - The primary goal in chess, where the king cannot escape check. The player that is checkmated loses.
+byo-yomi還可以有外加。例如，如果有 3 段(period)外加，那玩家最多可以在耗完某一手的byo-yomi時，使用3段外加byo-yomi繼續讀秒(當然整場遊戲只有那3段，用完就沒了)。例如標記為“10+3x30(b)”的棋局帶表開始時，計時器各有「10 分鐘，byo-yomi 30秒，最多可以額外用3段」。這讓棋手可以在關鍵的一步，一段byo-yomi不夠用時，有更多的時間可以思考。
 
-**Stalemate** - When the king is not in check, but has no valid moves. In chess, this is a draw, but in many variants (such as xiangqi), it is a loss for the player that's stalemated.
+3. **驟死制** - 沒有額外的時間，計時器時間到即輸棋。
 
-**Repetition** - When the board state repeats itself, usually at least three times. This is often due to pieces chasing each other. Different variants handle repetition differently. Even within the same game, different federations have different rules for repetition.
+# 基本概念
 
-**Perpetual check** - Like repetition, but one player keeps checking the king and eventually repeating the same position. Rules for perpetual check similarly vary between variants and governing federations.
+**將軍** - 用一個棋子威脅國王，如果沒有應將，下一回合可以殺將。
 
-**Rank** - A row on the board.
+**將死** - 幾乎所有象棋的遊戲目標，若國王無法逃脫將軍，則被將死輸棋。
 
-**File** - A column on the board.
+**逼和** - 在有些棋種中(例如西洋棋)，當國王無處可逃時，視為平局，
 
-**Notation** - System used in each game to refer to the positions on the board, abbreviations for pieces, as well as movements for each turn.
+**重複** - 當棋盤狀態重複時，通常至少重複 3 次，代表局面無法進一步變化。不同的變體對重複有不同的勝負判決。
 
-**Standard Algebraic Notation (SAN)** - The notation used in chess. Each move is described by using the piece name (except for the pawn), followed by its destination. Additional letters are used for disambiguation.
+**長將** - 類似於重複，但一名玩家不斷將軍並重複相同動作。長將的勝負判定在各種變體中也不同。
 
-**Move** - A move in chess is a piece movement by both players. However, in shogi, a move is described as a single movement by each player. In chess, you can have "checkmate in 1," 2, 3, etc. But in shogi, you can only have checkmate in 1, 3, 5, 7, etc.
+**行** - 棋盤上的縱向的線。
 
-**Drop** - A move made by taking a captured piece and dropping it onto the board as your own. This is a staple of Shogi and Crazyhouse, but cannot be done in chess. Variants that allow drops are called "drop variants", and there are several in Pychess (often with the suffix "house")
+**列** - 棋盤上橫向的線。
 
-**Promotion Zone** - The area of the board in which pieces can promote. In chess, only pawns can promote on the furthest rank. However, in shogi, the promotion zone is the last three ranks, and most pieces can promote. Other variations can vary on how the promotion zone is defined.
+**棋譜** - 對局中使用棋譜來代表棋子在棋盤上的位置，及每回合的動作。
 
-# Tactics
+**標準代數記法 (SAN)** - 國際象棋中使用的記法。每一步都使用棋子名稱（兵除外）來描述，然後是其目的地。附加字母用於消除歧義。
 
-**Fork** - Attacking two pieces at the same time. Knights most commonly deliver forks in all variants. In drop variants, rooks and bishops are also a little more capable of delivering forks, especially bishops.
+**回合** - 西洋棋中的回合是指雙方各動一步。然而在其他棋中(例如將棋)，一回合只代表一方動了一步。例如在國際象棋中，「三合何將死」是五步。但在將棋中則是三步。
 
-![Fork example](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Fork.png)
+**打入** - 將吃掉的棋子作為自己的棋子放到場上上。這是將棋和雙狂象棋的主要特色。Pychess中可打入的變體通帶有「狂」字。
 
-**Pin** - Attacking a piece such that it can't move, or else it would expose a much higher value piece behind it (often the king).
+**升變** - 棋子到達特定區域後升級為更強的棋子，因棋而異。在國際象棋中，只有兵可以在到達底線後升變。日本將棋中，幾乎所有棋子都可升變。
 
-![Pin example](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Pin.png)
+# 戰術
 
-**Skewer** - Similar to a pin, but attacking two pieces in a line with the more valuable piece exposed in front. The more valuable piece is compelled to move, allowing the attacker to capture the exposed second piece.
+**捉雙** - 同時攻擊兩子。在所有變體中，馬最常用來捉雙。在有「打入」規則的變體中，車和主教、角行也能捉雙，尤其是主教。
 
-![Skewer example](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Skewer.png)
+![捉雙示例](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Fork.png)
 
-**Discovered attack** - One of your pieces would normally threaten an opposing piece, but is blocked by one of your own pieces. By moving your blocking piece (and often threatening another piece at the same time), this opens up the piece behind it to attack, which is called a discovered attack. Discovered attacks are particularly prominent in Xiangqi. 
+**牽制** - 攻擊一個不能移動的棋子，否則它會暴露它後面更高價值的棋子（通常是國王）。
 
-![Discovered attack example](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Discovery.png)
+![牽制示例](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Pin.png)
 
-In this situation, moving the knight to threaten the black queen also opens a discovered check on the king by the rook. Since black must respond to the check, white can then take the queen. 
+**串打** - 類似於牽制，但受攻擊的兩子並排在一條直線上。受攻擊的一方只能選擇一子逃離。
 
-**Sacrifice** - Losing material value in order to gain a better position.
+![串打示例](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Skewer.png)
 
-![Sacrifice example](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Sacrifice.png)
+**閃擊** - 閃開一子使其後原本被阻擋的棋子可以發動攻擊，同時閃開的棋子又可以攻擊到另一棋子，稱為「閃擊」。閃擊在西洋棋中尤為長見。
 
-In this example, if the white queen takes the black knight, it can easily be retaken by a pawn. However, that would open the knight to deliver checkmate (red arrow). The queen was sacrificed for a much greater reward.
+![閃擊](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Discovery.png)
+
+在此情況下，移動騎士讓城堡攻擊國王，同時騎士也威脅到黑后。由於黑方必須移動王，因此白方可以吃掉皇后。
+
+**犧牲** - 為了得到更好的盤勢而做出犧牲。
+
+![犧牲示例](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Sacrifice.png)
+
+在這個例子中，如果白方后吃了黑方的馬，它也會被兵吃掉。但這就讓騎士可以跳進去將死國王（紅色箭頭）。
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/e4jYQ0UMmGk" frameborder="0" allowfullscreen></iframe>

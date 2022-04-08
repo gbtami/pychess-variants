@@ -148,8 +148,13 @@ td.player-data {
     background-color: var(--bg-color2);
 }
 
-#games td {
+#games td.board {
     padding: 6px 12px 6px 12px;
+    align-self: center;
+}
+
+#games td.board.with-pockets {
+    padding: 46px 12px 44px 12px;
 }
 
 #games tr {

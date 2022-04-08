@@ -137,3 +137,5 @@ Some particular lines have been also played for multiple games. Here are the fou
 ![Stockfish Defense Queenside Push](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/QueensidePush.png)
 
 *Stockfish Defense- Queenside Push after 5. c4*
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/Ap4mGkR8HDA" frameborder="0" allowfullscreen></iframe>

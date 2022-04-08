@@ -13,7 +13,12 @@ export function chatView(ctrl: RoundController | AnalysisController | Tournament
             return;
         const message = (e.target as HTMLInputElement).value.trim();
         if ((e.keyCode === 13 || e.which === 13) && message.length > 0) {
-            ctrl.doSend({"type": chatType, "message": message, "gameId": ctrl.model["gameId"], "tournamentId": ctrl.model["tournamentId"], "room": ( (ctrl instanceof RoundController || ctrl instanceof AnalysisController) && ctrl.spectator) ? "spectator": "player"});
+            const m: any = {type: chatType, message: message, room: ("spectator" in ctrl && ctrl.spectator) ? "spectator" : "player"};
+            if ("gameId" in ctrl)
+                m["gameId"] = ctrl.gameId;
+            if ("tournamentId" in ctrl)
+                m["tournamentId"] = ctrl.tournamentId
+            ctrl.doSend(m);
             (e.target as HTMLInputElement).value = "";
         }
     }
@@ -24,7 +29,7 @@ export function chatView(ctrl: RoundController | AnalysisController | Tournament
         chatEntry.disabled = !activated;
         chatEntry.placeholder = activated ? (anon ? _('Sign in to chat') : _('Please be nice in the chat!')) : _("Chat is disabled");
     }
-    const anon = ctrl.model["anon"] === 'True';
+    const anon = ctrl.anon;
     return h(`div#${chatType}.${chatType}.chat`, [
         h('div.chatroom', [
             ((ctrl instanceof RoundController || ctrl instanceof AnalysisController) && ctrl.spectator) ? _('Spectator room') : _('Chat room'),
@@ -49,9 +54,10 @@ export function chatView(ctrl: RoundController | AnalysisController | Tournament
 }
 
 export function chatMessage (user: string, message: string, chatType: string, time?: number) {
-    const myDiv = document.getElementById(chatType + '-messages') as HTMLElement;
+    const chatDiv = document.getElementById(chatType + '-messages') as HTMLElement;
     // You must add border widths, padding and margins to the right.
-    const isScrolled = myDiv.scrollTop === myDiv.scrollHeight - myDiv.offsetHeight;
+    // Only scroll the chat on a new message if the user is at the very bottom of the chat
+    const isBottom = chatDiv.scrollHeight - (chatDiv.scrollTop + chatDiv.offsetHeight) < 80;
     const localTime = time ? new Date(time * 1000).toLocaleTimeString("default", { hour: "2-digit", minute: "2-digit", hour12: false }) : "";
 
     const container = document.getElementById('messages') as HTMLElement;
@@ -68,5 +74,5 @@ export function chatMessage (user: string, message: string, chatType: string, ti
         patch(container, h('div#messages', [ h("li.message", [h("div.time", localTime), h("user", h("a", { attrs: {href: "/@/" + user} }, user)), h("t", message)]) ]));
     }
 
-    if (isScrolled) setTimeout(() => {myDiv.scrollTop = myDiv.scrollHeight;}, 200);
+    if (isBottom) setTimeout(() => {chatDiv.scrollTop = chatDiv.scrollHeight;}, 200);
 }

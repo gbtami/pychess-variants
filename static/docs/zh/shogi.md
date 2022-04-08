@@ -1,118 +1,132 @@
-# ![Shogi](https://github.com/gbtami/pychess-variants/blob/master/static/icons/shogi.svg) Shogi
+# ![Shogi](https://github.com/gbtami/pychess-variants/blob/master/static/icons/shogi.svg) 將棋
 
 ![Boards](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Boards.png)
 
-*Shogi* (将棋), or Japanese Chess is a classic board game native to Japan and descended from Chaturanga, the same ancestor as Chess. In its modern form, it has been around since the 16th century. The game is very popular in Japan, where it is more played than western chess and there is a thriving professional scene. The game itself is both similar yet very distinct from western chess, introducing the ability to drop captured pieces back onto the board. 
+*将棋*，しょうぎ (Shogi)，日本將棋，亦稱本將棋（本，基本之意），是一種盛行於日本的棋類遊戲。將棋的始祖目前沒有確實實證，目前被普遍認為可能是中國的寶應象棋或是從東南亞傳入的印度恰圖蘭卡。在日本，將棋跟圍棋並列為兩大最受歡迎的棋，而且都設有段位與職業賽頭銜。
 
-## Why learn Shogi?
+## 為何要學將棋?
 
-If you enjoy Chess, Shogi is definitely worth trying. While slightly slower paced and longer than Chess, the game is also more dynamic and complex, leading to a very different experience. Shogi is between Chess and Go in terms of complexity, but don’t let that deter you. As with other chess variants, improving your skill in Shogi can  also improve your skills in Chess as well as open up new ways of thinking! [See here for more about that.](https://chessbase.in/news/peter-heine-nielsen-on-shogi)
+將棋玩起來非常類似真實的戰場，不像中國象棋開局即展開攻殺，它非常強調佈陣的概念，其多變足以讓你在每場開局築出不同的陣型。你也會看到進攻時將軍帶領著步兵逐漸推進、凌厲的飛車和角行在卒林間縱橫陷陣，王將在眾棋子的保獲下隱蔽到安全的堡壘。
 
-## Rules
+同時將棋的最大特色ーー**打入**，你可以俘虜對手的棋子，並作為己方軍力隨時投入戰場!這使得進攻變得非常刺激，並因此讓將棋具有僅次於圍棋的複雜度。另外**升變**也是十分有趣，小的棋子只要成功衝入敵營，就可以晉升為將軍繼續作戰!
 
-The rules are similar to Chess, so this guide will focus on the differences. Shogi is played on a 9 x 9 board. Players take turns moving pieces on a board to checkmate the enemy king. The black player, or *sente* (先手 first player), moves first, followed by white or *gote* (後手 second player), which is the opposite of chess. These colors are just arbitrary and do not reflect the actual color of pieces. 
+將棋總體行棋快速，殺機盡出，酐暢淋漓，想體會全新棋感的玩家不容錯過。
 
-A significant difference from Chess but similar to its Crazyhouse variant is that you can drop captured pieces onto the board as a move. There are a few restrictions to dropping notably with pawns, which are discussed later, but otherwise pieces can be generally dropped anywhere. Additionally, almost all pieces can be promoted. Pieces are promoted upon entering the promotion zone / enemy camp (last three ranks) or moving a piece already in the enemy camp. The piece will then flip over. Captured promoted pieces are returned to their unpromoted side when added to your hand.
+[更多資訊(英文)](https://chessbase.in/news/peter-heine-nielsen-on-shogi)
 
-## Pieces
+## 規則
 
-This guide will be based on the internationalized set. Traditional sets use Chinese characters, *kanji*, and piece sets come in either a full 2-kanji form, a 1-kanji abbreviated form. As it is now, knowledge of the kanji will be required if you want to utilize all English resources. 
+與棋他象棋類遊遊一樣，玩家輪流下棋，先將死對方者獲勝。
 
-In general, shogi pieces are much more restricted than chess pieces. Minor pieces (i.e. not the rook or bishop) often move forward and not so much backwards.
+你可以「俘虜」你吃掉的子並成為你的軍隊，隨時可以將他們**打入**場上任何位置上戰鬥。
+(有一些子有特殊限制，將在下文中介紹)。
 
-Regarding promoted pieces, most sets, including the ones used on this site, distinguish them by being colored red. There are two basic rules that will make learning all the pieces **much** less intimidating. All *minor* pieces move like a gold general when promoted. The gold general, therefore, cannot promote. Secondly, the two *major* pieces (rook and bishop), both gain the moves of a king on top of their original moves. The king does not promote.
+同時，棋子可以在成功進入敵陣後，**升變**成更強的戰力。
 
 
-### King
+## 棋盤與棋子
 
-![BlackKings](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/BlackKings.png) 
+將棋的棋盤是9列9行的棋盤。 靠近自己的3列是本陣，遠離自己而靠近對手的3列是敵陣。將棋的棋子呈鐘形，前端較尖。和中國象棋及西洋棋不同，將棋是以棋子前端的指的方向來區別所屬。將棋共有八種棋子（包含升級棋則有十四種），依據棋子重要性和強度棋子形狀有不同大小。每種棋子均有獨特的簡稱及走法，分述如下：
+
+### 玉將、王將
+
+![BlackKings](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/BlackKings.png)
 
 ![WhiteKings](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/WhiteKings.png)
 
 ![KingDiagram](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/King.png)
 
-The king moves exactly like a chess king: one step in any direction. In kanji piece sets, the king with a dot, 玉將 gyokushō, is the black player, while the king without, 王將 ōshō, is the white player. 
+先手方為玉將。後手為王將。
 
-This is the only piece in the internationalized set to maintain its kanji form, 王. In these sets, the color black or white is also depicted in this piece. The wooden set uses a bar below the 王. 
+往八個方向行走，但只能走一格，猶如西洋棋的「王」。將死對方王將者獲勝。
 
-### Rook
+### 飛車
 
 ![Rooks](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Rooks.png)
 
 ![RookDiagram](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Rook.png)
 
-The rook moves exactly like a chess rook: any number of squares orthogonally. The international piece depicts a chariot, which refers to the Japanese name “flying chariot.” In English, the name rook is based off the Persian word for chariot. This is the most valuable unpromoted piece in the game, excluding the king.
+飛車的移動就如象棋的車，或西洋棋的城堡，可以任意前行或橫行。它是將棋最強的未升變棋子。
 
-### Bishop
+其升變後為龍王。
 
-![Bishops](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Bishops.png)
-
-![BishopDiagram](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Bishop.png)
-
-The bishop moves exactly like a chess bishop: any number of squares diagonally. The international piece depicts a traditional hat worn by a Japanese official. The bishop is the second most valuable unpromoted piece in the game, excluding the king.
-
-### Dragon King (Dragon, Promoted Rook)
+### 龍王
 
 ![Dragons](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Dragons.png)
 
 ![DragonDiagram](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Dragon.png)
 
-The dragon king is a promoted rook, which gains the king’s moves on top of a rook’s. This is the most valuable piece in the game, excluding the king.
+龍王是升變後的飛車，走法如本來的飛車加上西洋棋「王」的走法。它是場上最強的棋子。
 
-### Dragon Horse (Horse, Promoted Bishop)
+### 角行
+
+![Bishops](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Bishops.png)
+
+![BishopDiagram](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Bishop.png)
+
+象行的移動方式如西洋棋的主教，朝斜向移動任意步數。由於它所能控制的格子是場上總格子數的半，因此較飛車弱，為將棋第二強的未升變棋子。
+
+其升變後為龍馬。
+
+### 龍馬
 
 ![Horses](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Horses.png)
 
 ![HorseDiagram](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Horse.png)
 
-The dragon horse is a promoted bishop, which gains the king’s moves on top of a bishop’s. This is the second most valuable piece in the game, excluding the king.
+龍馬是升變後的角行，除了原本角行的走法，還加上西洋棋「王」的移動，因此可以到達場上任意一個格子，為場上第二強的棋子。
 
-Note: While some beginner chess players sometimes call the knight a horse, you can't make that mistake in shogi because they are two completely different pieces!
-
-
-### Gold General (Gold)
+### 金將
 
 ![Golds](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Golds.png)
 
 ![GoldDiagram](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Gold.png)
 
-While the movement pattern of the gold general may seem confusing at first, the easiest way to remember it is that it moves **one step orthogonally in any direction**… or any of the three squares in front. In the internationalized set, the protrusions of the helmet (including the golden circle symbol) also point in all its directions.
+向前、左前、右前、左、右或後行走一格，猶如中文「甲」字。
+金將無法升變。
 
-**All promoted minor pieces move exactly like a gold.**
+**所有輕子升變後走法都等同金將**
 
-### Silver General (Silver)
+### 銀將
 
 ![Silvers](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Silvers.png)
 
 ![SilverDiagram](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Silver.png)
 
-While the movement pattern of the silver general may seem confusing at first, the easiest way to remember it is that it moves **one step diagonally in any direction**… or any of the three square in front. In the internationalized set, the protrusions of the helmet also point in all its directions.
+斜角方向或正前方行走一格。
 
-### Knight
+升變後叫「成銀」
+
+### 桂馬
 
 ![Knights](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Knights.png)
 
 ![KnightDiagram](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Knight.png)
 
-Similar to a chess knight, but can only move to the two spaces in front, i.e. it can move forward two and sideways one. Like the chess knight, this piece can jump over pieces.
+只能走到前兩格的左方或右方。
+桂馬是用跳的，所以中間的棋子並不阻礙桂馬前進。
 
-### Lance
+升變後叫「成桂」
 
 ![Lances](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Lances.png)
 
 ![LanceeDiagram](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Lance.png)
 
-A lance can only move forward, but in any number of squares (similar to a rook).
+向前走任意步數，不能跨過別的棋子。
 
-### Pawn
+升變後叫「成杏」
+
+### 步兵
 
 ![Pawns](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Pawns.png)
 
 ![PawnDiagram](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Pawn.png)
 
-The pawn moves and captures by moving forward one square. This is different than the chess pawn. The pointy hat in the internationalized piece is a reminder.
+步兵的走法為直行一格。
 
-### Promoted minor pieces
+升變後叫「と金(成步)」
+
+## 升變\|成駒
 
 ![PSilvers](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/PSilvers.png)
 
@@ -122,76 +136,102 @@ The pawn moves and captures by moving forward one square. This is different than
 
 ![Tokins](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Tokins.png)
 
-Unlike the dragon king and dragon horse, these do not have special names. The exception is the pawn, which is sometimes called by its Japanese name, *tokin*. As above, they move just like the gold general. Note that the kanji versions are all different stylistic variants of the character for gold.
+
+將棋的棋子設有升變制度。除了王將（玉將）、金將及已經升變的棋子外，棋盤上所有棋子均可升變，若棋子剛打入敵陣，則要多走一步才可升級。
+
+當一枚可升級的棋子移進、移出、或者在敵陣（位於距離棋手最遠的三行）中移動時，棋手可以選擇把該棋子翻轉升級或保持原狀，但是如果該棋子不升級的話會沒有辦法再走（例如走到敵陣的底線的步兵）則該棋子會被迫升級。
+
+大子(飛車、角行)升變後各自成為「龍王」、「龍馬」，其餘輕子升變後皆為金將。
+
+||升變前|升變後
+---|---|---
+大子|飛車、角行|龍王、龍馬
+輕子|其他棋子|金將
 
 
-## Additional Rules
+## 打入\|持ち駒
 
-*Drops* - The main exceptions to dropping a piece anywhere are with pawns. 
-1) Pawns cannot be dropped in the same file as another one of your unpromoted pawns (promoted are okay). 
-2) A pawn drop cannot checkmate, but checks are okay. 
-3) The final exception applies to all minor pieces. You cannot drop a piece so that it can’t move, which usually means the last rank… or the last two ranks in the case of a knight.
+將棋最特別的是棋手可以花一手將己方吃掉的棋子放回棋盤成為己方棋子，稱為打入。當一枚已升級的棋子被吃時，它的升級會被取消，打入時用原先的棋種表示。
 
-*Perpetual check* - Repeating check resulting in the same position four times in a row is a loss to the player causing perpetual check. In chess, this results in a draw.
+打入有以下限制：
 
-*Repetition* - Similar to the above, repeating the same position (including pieces in hand) results in a draw.
+* 剛打入的棋子即使落在敵陣亦不能馬上升級，**一定要在移動一步之後才可升變**。也可以選擇移動後不升變，若之後要再升變，需要再移動一次才行。
+* 不能把棋子打入在一些不能再走的位置。例如步兵、香車都不能落在敵陣的底線；桂馬不能落在敵陣的底線及次底線。
 
-*Timer* - Shogi uses a byo-yomi timer. Once the main clock expires, a player enters byo-yomi. If it is set at 30 seconds, then that player will only have 30 seconds to make his move from then for each of his/her moves or else lose the game on time.
 
-## Notation
 
-There are different notations used, including one in Japanese. We use a form of western notation (Hodges notation) similar to chess.
+對步兵的打入有一些額外規則:
+1) **二步一筋**: 若某行已有無方未升變步兵，則不能在該行再打入步兵。 (若該行兵已升變則不在此限)。「二步一筋」在日本的將棋職業賽中為最常見犯規，自一九七七年迄今，在日本的將棋職業賽中已有44次「二步一筋」的記錄。 
+2) **打步詰**: 指用打入步兵的方式使對方王將無法脫逃，若觸犯則直接判輸局。打步詰必須要「打」、「步」、「詰」三個條件同時成立才算數，所以以下的三種情形皆沒犯規：
 
-### Coordinates
+	* 走步詰：移動步兵，將死對方王將
+	* 打其他棋子詰：打入非步兵的棋子，將死對方王將
+	* 打步將：打入步兵，將軍對方王將但沒將死
 
-One noticeable difference is that the board coordinates are switched from chess. Files are numbered, and ranks are alphabetized. The origin is the bottom left for the white player. However, since most diagrams are oriented for the black player (first player), these will seem to originate from the top right. As an example, the white king is on square 5a.
+## 其他規則
 
-In the Hoskings notation, only numbers are used. Instead of 5e, someone might say 55 (5th rank, 5th file). This is similar to the Japanese style, which also uses numbers. 
 
-### Pieces
 
-K = king
+**長將** - 將棋容許連將但是不能重複同樣的手法長照（長將），若雙方重複循環同樣的方式照將、應照達四次時，則照將方違規，判負。 
 
-G = gold general
+**千日手** - 雙方重複循環同樣的著法，使得局面沒有進一步變化達四次時，則視為和局。
 
-S = silver general
+***
 
-N = knight
+## 記譜
 
-L = lance
+我們使用西式記譜(類似西洋棋)的記譜法。
 
-R = rook
+### 座標
 
-B = bishop
+以阿拉伯數字表示直行，英文字母表示橫列。原點落在王將方(後手)。然而，由於大部份的棋盤表示時是將玉將(先手)放在底部，因此原點會在最右上方。 例如，王將是落在 5a
 
-P = pawn
+有時不管行列都由阿拉伯數字表示，比方5e有時也記作55(第五列, 第五行)。
 
-+R or D = dragon king
+### 棋子
 
-+B or H = dragon horse
+K = 王將
 
-+S, +N, +L, +P for the other promoted pieces, respectively.
+G = 金將
 
-### Symbols
+S = 銀將
 
-* Drops are either indicated with a \* (Hodges) or ‘ (Hosking). Here we use \*, so a pawn drop on 5e would be P*5e.
-* Moves that end in promotion add a + at the end. A pawn promoting on 1c would be P1c+.
-* If you choose to not promote, instead an = goes at the end.
-* Checks and checkmates are not notated.
+N = 桂馬
 
-## Resources for Learning Shogi
+L = 香車
 
-[Hidetchi’s YouTube channel](https://www.youtube.com/playlist?list=PL587865CAE59EB84A) is an excellent place for beginner and intermediate players, alike. They are in English and very carefully break down the aspects of the game. Please note that like all other resources, you will need to be familiar with the kanji pieces in order to understand the videos (he also introduces the pieces in the beginner videos).
+R = 飛車
 
-[81dojo.com](http://www.81dojo.com) is a site where you can play internationally against tougher players. However, it does not support correspondence play at this time.
+B = 角行
 
-## Strategy
+P = 步兵
 
-### Piece Values
++R or D = 龍王
 
-There is no standard piece value in shogi unlike chess. However, it's important to keep in mind that values are not worth as much, as losing pieces isn't permanent and position is far more important. That said, there is a basic piece value system, but professional players have also made more specific values; Tanigawa and Satoh's are shown below.
++B or H = 龍馬
 
-Piece | Basic | Tanigawa | Satoh 
++S, +N, +L, +P 其餘升變的輕子
+
+### 標記
+
+* 打入會加上 \*符號, 所以打入在5e的兵會記 P*5e
+* 升變會在其後加上+。例如一個在c1升變的兵會變 P1c+
+* 如果你選擇不升變，則在後面加上「=」
+* 將軍和將死並沒有特別標記
+
+## 學習將棋的資源
+
+[Hidetchi 的 YouTube 頻道](https://www.youtube.com/playlist?list=PL587865CAE59EB84A) 非常適合初學都與中等程度者。
+
+***
+
+## 策略
+
+### 子力價值
+
+與象棋不同，將棋中沒有標準的子力價值。 重要的是要記住，價值並沒有那麼重要，因為失去棋子不是永久性的，而位置更為重要。也就是說，有一個基本的子力價值體系，但職業棋手們也制定了更具體的價值量表:谷川式和佐藤式。如下所示:
+
+棋子 | 基本價值 | 谷川 | 佐藤
 ------------ | ------------- | ------------- | -------------
 P | 1 | 1 | 1
 L | 3 | 5 | 6
@@ -207,25 +247,27 @@ R | 8 | 15 | 19
 *+N* |  | 10 | 
 *+S* |  | 9 | 
 
-### Opening Principles
+### 開局原則
 
-In general, there are two types of opening styles: *static rook* and *ranging rook*. In *static* rook, the rook does not move. Attacks, therefore, are directed on the right side of the board. In *ranging* rook, the rook moves to the left side (typically 2nd to 5th file), shifting the offense to that side of the board.
+一般來說，有兩種類型的開局方式：**居飛車**和**振飛車**。 在居飛車中飛車不會移動，因此主要攻擊棋盤的右側。在振飛車中，飛車移動到左側（通常是第 2 到第 5 行），將進攻棋盤的另一翼。
 
-This difference matters because opening moves (called *joseki*) are classified as one of these two and can drastically change what kind of game is played. Certain static rook openings are meant for enemy static rook openings, while others are directed against ranging rook players.
+開局（稱為 *joseki*）主要分成這兩種，兩者差異極大。 
 
-### Castles
+### 圍玉
 
-Castles in shogi are defensive formations that take multiple steps to form. Knowledge of castles is essential because weak king defenses can be quickly exploited with drops in your own territory. It is also important to know each castle’s strengths and weaknesses.
+圍玉是將王將動到角落並以其他棋子包圍以保護不受攻擊。通常需要多步才能完成。好的玩家需要了解各種圍玉的優缺點與變型。
 
-As above, castles depend on static / ranging rook matchup. In static rook openings, kings castle to the left. In ranging rook openings, kings castle to the right. There are many, many castles, many of which are covered in Hidetchi’s videos (see below). Here are three of the most important ones to know:
+圍玉的位置受開局為居飛車或振飛車影響。在居飛車開局中，王將在左圍玉。在振飛車中則在右。以下是三種最常見的圍玉:
 
-**Yagura (AKA Fortress)**
+### 矢倉
 
 ![Yagura](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Yagura.png)
 
-The Yagura castle is one of the most powerful *static rook* castles, used against static rook. A mnemonic that may be useful for remembering the positions of the generals is “S G | G B”, or perhaps remembering that the king is guarded by the gold general, a strong defensive piece. Yagura is strong at its front, but weak on its edge and side.
+矢倉圍是將棋中採用於相居飛車和相振飛車的圍玉。通常簡稱為矢倉，與美濃、穴熊並列為最具代表性的圍玉。居飛車雙方圍出矢倉後戰鬥的戰型被稱為相矢倉，也常被直接簡稱為矢倉。
 
-For development of the Yagura, remember that generals always move diagonally to be most efficient. There are different josekis for developing the castle, but keep in mind that at any point white can attack and that you may have to react in between your developmental moves. The 24-move standard joseki is as follows (Source: Hidetchi):
+此圍玉上方很強，但相反的，因為守護到78金將的棋子只有玉將1枚而已，面對橫向而來的攻擊則效果並不是很好。然而金銀3枚均有集中防守到68的位置，因此也不能說面對橫向而來的攻擊防守薄弱。反而是在第一行，因為沒有金銀防守而顯得有點薄弱，例如有利用桂香飛角一口氣攻破的雀刺戰法。
+
+在矢倉圍玉的時候記住王將總是斜向移動以節省步數，且有許多種矢倉的變體，以應對對手不同的攻擊。以下是標準的24步矢倉圍:
 
 1. ☗P-7f
 2. ☖P-8d
@@ -252,52 +294,60 @@ For development of the Yagura, remember that generals always move diagonally to 
 23. ☗P-3f
 24. ☖P-4d
 
-**Mino Castle**
+### 美濃
 
 ![Mino Castle](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Mino.png)
 
-The Mino castle is a classic *ranging rook* castle, used against static rook. The king moves to the rook’s starting spot, the left gold moves up+right, and then the right silver moves up to form a “G G S” V formation. This castle is strong to the left, but weak to the front and edge.
+美濃是一個振飛車用來對付居飛車的圍玉，王將來到飛車的初始未置，金將走上&右，再上銀將，形成“金金銀” 。此圍玉在左側很強，但在上方較弱。
 
-Example opening for black using a 4th file rook:
+以下是一個美濃應對四間飛車的範例:
 
 * P76
-* B77 (protects the 86/8f square) 
-* P66 (reject bishop exchange if white opens bishop up)
-* R68 (fourth file rook)
+* B77 (保護 86/8f 格子) 
+* P66 (防止換角)
+* R68 (四間飛車)
 * S78 
 * K48 -> K38 -> K28
-* S38 (silver up)
-* G58 (gold up-right)
-* P16 (creates escape route for the king)
+* S38 (上銀)
+* G58 (上金)
+* P16 (給王將逃跑空間)
 * P46
 
-After this point, you are free to exchange bishops and as many pieces as you want, including rooks to generate an attack.
+自此之後可以開始換子，包括飛車，以發起進攻。
 
-**Anaguma**
+### 穴熊
 
 ![Anaguma](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Anaguma.png)
 
-Anaguma (AKA “Bear in the hole”) is another *ranging rook* castle, and one of the most impenetrable in the game. However, it takes a long time to form.
+十分著名的圍玉方式，曾在棋界流行數十年。它的防守非常強大，只不過要浩費許多步數完成。
 
-**Double Wing Attack**
+**優點**
 
-Not a castle per se, but a *static rook* opening. Both sides advance their rook pawns, leading to an exchange. Part of the joseki is that the silvers must defend the bishop pawns before the enemy pawn reaches its target. Of note, this is AlphaZero’s favorite opening, accounting for more than half of its openings as black.
+金銀的連結密集因而非常堅固，再加上玉將在端離戰場十分遙遠，形成了「絕對不會被王手（別稱Z）」的形，對手也因此不得不避免在攻略穴熊的時候犧牲大量棋子。基於這些優點，穴熊方得以採取大膽捨飛車和角行等大子的作戰，被稱為「只有穴熊才能做到的攻擊」。
 
-## Handicaps
+**缺點**
 
-Unlike chess and more similar to go, handicaps are a big part of teaching and should not be treated as one player giving pity to another. They are a great way to learn the game, and there are even standard strategies for different types. In Shogi, handicap games are fairly standard, and the most common setups are described below.
+首先，圍玉所需的手數非常多，對手常常在完成之前就挑起戰事。再來，圍玉完成之後因為棋子集中在盤上一側，自陣有許多空隙容易被對手打入角行。雖然橫向的守備力很高，對上方或端攻較弱，在終盤還因為玉將躲在棋盤的角落，在被攻擊的時候無處可逃。最後，因為自陣空隙太多容易被對手入玉，這種時候就已完全沒有勝算。這種雖然圍玉沒有被破壞卻輸棋的狀況被稱為「姿燒穴熊(烤全熊)」。
 
-While normal games have black (*sente*) starting, **white goes first in handicap games**. White is called *uwate* while black is called *shitate*. Despite the handicap, the material difference can be overcome because of drops. And since there are fewer powerful pieces, black/*shitate* loses a lot more when a piece a captured.
+此外，居飛車穴熊則多有遭對手角道直射的疑慮。許多居飛車穴熊的攻略法都包含角道的利用。
 
-Name | pieces omitted
--- | --
-Lance | left lance
-Bishop | bishop
-Rook | rook
-Rook–Lance | rook, left lance 
-2-Piece | rook, bishop
-4-Piece | rook, bishop, both lances
-6-Piece | rook, bishop, both lances, both knights
-8-Piece | rook, bishop, both lances, both knights, both silvers
-9-Piece | rook, bishop, both lances, both knights, both silvers, left gold
-10-Piece | rook, bishop, both lances, both knights, both silvers, both golds
+### 雙翼攻擊
+
+雙方都使用居飛車並進車前兵進攻。需要注意的事，你必需要在對方的兵鞏到第5列前就上銀將保護角行。
+
+## 讓子
+
+為了讓相對較弱的棋手也有獲勝的機會，較強的棋手有時會讓子（日文稱為駒落）。在讓子的情況下，讓子方（即上手）必須在開局時永久除去自己一部分的棋子（即不能以任何方式將之放上棋盤）。不過，在國際賽上，讓子並不會因為兵力上的差異而為相對較弱的棋手造成明顯的優勢。現列如下：
+
+名稱 | 讓子
+--- | ---
+左香落 | 除去左旁香車
+角落 | 除去角行
+飛落 | 除去飛車
+飛香落 | 除去飛車與左旁香車
+二枚落 | 除去飛車與角行
+四枚落 | 除去飛車、角行與香車兩乘
+六枚落| 除去飛車、角行、香車兩乘與桂馬兩匹
+裸玉 | 除玉將外讓去所有子
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/YH63AlxpXkg" frameborder="0" allowfullscreen></iframe>

@@ -2,7 +2,7 @@
 
 ![Boards](https://github.com/gbtami/pychess-variants/blob/master/static/images/JanggiGuide/Boards.png)
 
-*Janggi* (장기, pronounced like “*jahng-ghee*”), or Korean Chess, is a classic board game native to Korea. The game is derived from Xiangqi and is very similar to it.
+*Janggi* (장기, pronounced like “*chahng-ghee*”), or Korean Chess, is a classic board game native to Korea. The game is derived from Xiangqi and is very similar to it.
 
 ## Rules: Board and Setup
 
@@ -171,3 +171,5 @@ Aside from the rules above...
 * Continuing from this, the positioning of your elephant determines which **edge file to open up**. For example, when playing a setup where the left elephant can advance (and the opponent's opposite elephant is also on the outside), you want to move your left edge pawn to the side, opening up the chariot's file. The reason for this is that now the opponent's edge pawn cannot move, so if you attack the cannon file pawn with your elephant, if his edge pawn defends, he would lose his chariot. Note that if the opponent instead had two inner elephants, then you would instead open up the opposite edge.
 
 ![Activating the elephant and chariot](https://github.com/gbtami/pychess-variants/blob/master/static/images/JanggiGuide/ActiveElephant.png)
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/KDkF2dEt41g" frameborder="0" allowfullscreen></iframe>

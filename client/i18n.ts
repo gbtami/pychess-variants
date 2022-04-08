@@ -76,6 +76,18 @@ export const translatedVariantDisplayNames = [
     _("orda"), _("synochess"), _("shinobi"), _("empire"), _("orda mirror"), _("chak"),
 ];
 
+export const translatedCustomStartPositions = [
+    _('PawnsPushed'), _('PawnsPassed'), _('UpsideDown'), _('Theban'), _('No castle'),
+
+    _('Lance HC'), _('Bishop HC'), _('Rook HC'), _('Rook+Lance HC'), _('2-Piece HC'), _('4-Piece HC'), _('6-Piece HC'), _('8-Piece HC'), _('9-Piece HC'), _('10-Piece HC'),
+
+    _('Gorogoro Plus N+L'), _('Original (No N+L)'),
+
+    _('Left Quail HC'), _('Falcon HC'), _('Falcon + Left Quail HC'), _('Falcon + Both Quails HC'),
+
+    _('Bird'), _('Carrera'), _('Gothic'), _('Embassy'), _('Conservative'),
+];
+
 class LanguageSettings extends StringSettings {
     constructor() {
         super('lang', 'en');

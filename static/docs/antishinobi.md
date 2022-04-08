@@ -14,9 +14,10 @@ AntiShinobi Chess is a chess variant designed in 2021 by Couch Tomato with help 
 5.	Pawns on either side can only promote to a Captain (see below).
 6.	An additional method of victory is available: called **campmate**. Campmate is achieved by moving one’s king into the final rank without moving into check.
 7.	**Stalemate** - loss for the player who can't move (rather than draw as in chess)
-8.	**Repetiiton** - loss for the player who repeats a board position 3 times. Typically this is done through chasing a king or orther piece.
-9.	The Clan cannot castle.
-10.	Other rules, including Kingdom moves and en passant, are as in standard international chess.
+8.	**Perpetual check** - Repeating check resulting in the same position four times in a row is a loss to the player causing perpetual check. In chess, this results in a draw.
+9.	**Repetition** - Similar to the above, repeating the same position results in a draw.
+10.	The Clan cannot castle.
+11.	Other rules, including Kingdom moves and en passant, are as in standard international chess.
 
 ## Clan Pieces
 

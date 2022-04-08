@@ -1,5 +1,8 @@
 from settings import static_url
 
+SCHEDULE_MAX_DAYS = 7
+TOURNAMENT_SPOTLIGHTS_MAX = 4
+
 # Max number of lobby chat lines (deque limit)
 MAX_CHAT_LINES = 100
 
@@ -19,7 +22,24 @@ DAILY, WEEKLY, MONTHLY, YEARLY, MARATHON, SHIELD = "d", "w", "m", "y", "a", "s"
 ARENA, RR, SWISS = range(3)
 
 # translations
-LANGUAGES = ["de", "en", "es", "gl_ES", "fr", "hu", "it", "ja", "ko", "nl", "pl", "pt", "ru", "th", "tr", "zh"]
+LANGUAGES = [
+    "de",
+    "en",
+    "es",
+    "gl_ES",
+    "fr",
+    "hu",
+    "it",
+    "ja",
+    "ko",
+    "nl",
+    "pl",
+    "pt",
+    "ru",
+    "th",
+    "tr",
+    "zh",
+]
 
 # fishnet work types
 MOVE, ANALYSIS = 0, 1
@@ -28,8 +48,24 @@ MOVE, ANALYSIS = 0, 1
 CASUAL, RATED, IMPORTED = 0, 1, 2
 
 # game status
-CREATED, STARTED, ABORTED, MATE, RESIGN, STALEMATE, TIMEOUT, DRAW, FLAG, \
-    ABANDONE, CHEAT, BYEGAME, INVALIDMOVE, UNKNOWNFINISH, VARIANTEND, CLAIM = range(-2, 14)
+(
+    CREATED,
+    STARTED,
+    ABORTED,
+    MATE,
+    RESIGN,
+    STALEMATE,
+    TIMEOUT,
+    DRAW,
+    FLAG,
+    ABANDONE,
+    CHEAT,
+    BYEGAME,
+    INVALIDMOVE,
+    UNKNOWNFINISH,
+    VARIANTEND,
+    CLAIM,
+) = range(-2, 14)
 
 LOSERS = {
     "abandone": ABANDONE,
@@ -141,6 +177,7 @@ VARIANT_ICONS = {
     "minishogi": "6",
     "dobutsu": "8",
     "gorogoro": "🐱",
+    "gorogoroplus": "🐱",
     "torishogi": "🐦",
     "cambodian": "!",
     "shako": "9",
@@ -162,6 +199,7 @@ VARIANT_ICONS = {
 #    "ordamirror": "◩",
     "asean": "♻",
     "chak": "🐬",
+    "chennis": "🎾",
 }
 
 VARIANT_960_TO_PGN = {

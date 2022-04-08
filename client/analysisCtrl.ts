@@ -15,7 +15,7 @@ import { _ } from './i18n';
 import { Gating } from './gating';
 import { Promotion } from './promotion';
 import { sound } from './sound';
-import { uci2cg, cg2uci, VARIANTS, Variant, moveDests, notation } from './chess';
+import { uci2LastMove, uci2cg, cg2uci, VARIANTS, Variant, moveDests, notation } from './chess';
 import { crosstableView } from './crosstable';
 import { chatMessage, chatView } from './chat';
 import { createMovelistButtons, updateMovelist, selectMove, activatePlyVari } from './movelist';
@@ -67,6 +67,7 @@ export default class AnalysisController {
     sock;
     chessground: Api;
     fullfen: string;
+    anon: boolean;
     wplayer: string;
     bplayer: string;
     base: number;
@@ -175,6 +176,7 @@ export default class AnalysisController {
         this.variant = VARIANTS[model["variant"]];
         this.chess960 = model["chess960"] === 'True';
         this.fullfen = model["fen"] as string;
+        this.anon = model["anon"] === 'True';
         this.wplayer = model["wplayer"] as string;
         this.bplayer = model["bplayer"] as string;
         this.base = model["base"];
@@ -182,7 +184,7 @@ export default class AnalysisController {
         this.status = model["status"] as number;
         this.steps = [];
         this.pgn = "";
-        this.ply = model["ply"];
+        this.ply = isNaN(model["ply"]) ? 0 : model["ply"];
 
         this.flip = false;
         this.settings = true;
@@ -294,6 +296,8 @@ export default class AnalysisController {
             this.vscore = document.getElementById('score') as HTMLElement;
             this.vinfo = document.getElementById('info') as HTMLElement;
             this.vpv = document.getElementById('pv') as HTMLElement;
+            const pgn = (this.isAnalysisBoard) ? this.getPgn() : this.pgn;
+            this.renderFENAndPGN(pgn);
         }
 
         if (this.variant.materialPoint) {
@@ -400,24 +404,24 @@ export default class AnalysisController {
         if (container !== null) {
             const buttons = [
                 h('a.i-pgn', { on: { click: () => downloadPgnText("pychess-variants_" + this.gameId) } }, [
-                    h('i', {props: {title: _('Download game to PGN file')}, class: {"icon": true, "icon-download": true} }, _(' Download PGN'))]),
+                    h('i', {props: {title: _('Download game to PGN file')}, class: {"icon": true, "icon-download": true} }, _('Download PGN'))]),
                 h('a.i-pgn', { on: { click: () => copyTextToClipboard(this.uci_usi) } }, [
-                    h('i', {props: {title: _('Copy USI/UCI to clipboard')}, class: {"icon": true, "icon-clipboard": true} }, _(' Copy UCI/USI'))]),
+                    h('i', {props: {title: _('Copy USI/UCI to clipboard')}, class: {"icon": true, "icon-clipboard": true} }, _('Copy UCI/USI'))]),
                 h('a.i-pgn', { on: { click: () => copyBoardToPNG(this.fullfen) } }, [
-                    h('i', {props: {title: _('Download position to PNG image file')}, class: {"icon": true, "icon-download": true} }, _(' PNG image'))]),
+                    h('i', {props: {title: _('Download position to PNG image file')}, class: {"icon": true, "icon-download": true} }, _('PNG image'))]),
                 ]
 
             // Enable to delete imported games
             if (this.model["rated"] === '2' && this.importedBy === this.model["username"]) {
                 buttons.push(
                     h('a.i-pgn', { on: { click: () => this.deleteGame() } }, [
-                        h('i', {props: {title: _('Delete game')}, class: {"icon": true, "icon-trash-o": true} }, _(' Delete game'))])
+                        h('i', {props: {title: _('Delete game')}, class: {"icon": true, "icon-trash-o": true} }, _('Delete game'))])
                 );
             }
 
             if (this.steps[0].analysis === undefined && !this.isAnalysisBoard) {
                 buttons.push(h('button#request-analysis', { on: { click: () => this.drawAnalysisChart(true) } }, [
-                    h('i', {props: {title: _('Request Computer Analysis')}, class: {"icon": true, "icon-bar-chart": true} }, _(' Request Analysis'))])
+                    h('i', {props: {title: _('Request Computer Analysis')}, class: {"icon": true, "icon-bar-chart": true} }, _('Request Analysis'))])
                 );
             }
             patch(container, h('div', buttons));
@@ -485,21 +489,12 @@ export default class AnalysisController {
             }
         }
 
-        let lastMove: cg.Key[] | null = null;
-        if (msg.lastMove !== null) {
-            const lastMoveStr = uci2cg(msg.lastMove);
-            // drop lastMove causing scrollbar flicker,
-            // so we remove from part to avoid that
-            lastMove = lastMoveStr.indexOf('@') > -1 ? [lastMoveStr.slice(-2) as cg.Key] : [lastMoveStr.slice(0, 2) as cg.Key, lastMoveStr.slice(2, 4) as cg.Key];
-        }
-
+        const lastMove = uci2LastMove(msg.lastMove);
         const step = this.steps[this.steps.length - 1];
-        const capture = (lastMove !== null) && ((this.chessground.state.pieces.get(lastMove[1]) && step.san?.slice(0, 2) !== 'O-') || (step.san?.slice(1, 2) === 'x'));
+        const capture = (lastMove.length > 0) && ((this.chessground.state.pieces.get(lastMove[1]) && step.san?.slice(0, 2) !== 'O-') || (step.san?.slice(1, 2) === 'x'));
 
-        if (lastMove !== null && (this.turnColor === this.mycolor || this.spectator)) {
+        if (lastMove.length > 0 && (this.turnColor === this.mycolor || this.spectator)) {
             sound.moveSound(this.variant, capture);
-        } else {
-            lastMove = [];
         }
         this.checkStatus(msg);
 
@@ -517,10 +512,6 @@ export default class AnalysisController {
         }
     }
 
-    moveIndex = (ply: number) => {
-      return Math.floor((ply - 1) / 2) + 1 + (ply % 2 === 1 ? '.' : '...');
-    }
-
     notation2ffishjs = (n: cg.Notation) => {
         switch (n) {
             case cg.Notation.ALGEBRAIC: return this.ffish.Notation.SAN;
@@ -536,39 +527,36 @@ export default class AnalysisController {
 
         if (line.includes('readyok')) this.isEngineReady = true;
 
-        if (!this.localEngine) {
-            if (line.includes('UCI_Variant')) {
-                ffishModule().then((loadedModule: any) => {
-                    this.ffish = loadedModule;
-
-                    if (this.ffish !== null) {
-                        this.ffish.loadVariantConfig(variantsIni);
-                        this.notationAsObject = this.notation2ffishjs(this.notation);
-                        const availableVariants = this.ffish.variants();
-                        //console.log('Available variants:', availableVariants);
-                        if (this.model.variant === 'chess' || availableVariants.includes(this.model.variant)) {
-                            this.ffishBoard = new this.ffish.Board(this.variant.name, this.fullfen, this.chess960);
-                            this.dests = this.getDests();
-                            this.chessground.set({ movable: { color: this.turnColor, dests: this.dests } });
-                        } else {
-                            console.log("Selected variant is not supported by ffish.js");
-                        }
-                    }
-
-                    window.addEventListener("beforeunload", () => this.ffishBoard.delete());
-                });
-
-                // TODO: enable S-chess960 when stockfish.wasm catches upstream Fairy-Stockfish
-                if ((this.model.variant === 'chess' || line.includes(this.model.variant)) &&
-                    !(this.model.variant === 'seirawan' && this.chess960)) {
-                    this.localEngine = true;
-                    patch(document.getElementById('input') as HTMLElement, h('input#input', {attrs: {disabled: false}}));
-                } else {
-                    const v = this.model.variant + ((this.chess960) ? '960' : '');
-                    const title = _("Selected variant %1 is not supported by stockfish.wasm", v);
-                    patch(document.getElementById('slider') as HTMLElement, h('span.sw-slider', {attrs: {title: title}}));
-                }
+        if (line.startsWith('Fairy-Stockfish')) {
+            window.prompt = function() {
+                return variantsIni + '\nEOF';
             }
+            window.fsf.postMessage('load <<EOF');
+        }
+
+        if (!this.localEngine) {
+            ffishModule().then((loadedModule: any) => {
+                this.ffish = loadedModule;
+
+                if (this.ffish !== null) {
+                    this.ffish.loadVariantConfig(variantsIni);
+                    this.notationAsObject = this.notation2ffishjs(this.notation);
+                    const availableVariants = this.ffish.variants();
+                    console.log('Available variants:', availableVariants);
+                    if (this.model.variant === 'chess' || availableVariants.includes(this.model.variant)) {
+                        this.ffishBoard = new this.ffish.Board(this.variant.name, this.fullfen, this.chess960);
+                        this.dests = this.getDests();
+                        this.chessground.set({ movable: { color: this.turnColor, dests: this.dests } });
+                    } else {
+                        console.log("Selected variant is not supported by ffish.js");
+                    }
+                }
+
+                window.addEventListener("beforeunload", () => this.ffishBoard.delete());
+            });
+
+            this.localEngine = true;
+            patch(document.getElementById('input') as HTMLElement, h('input#input', {attrs: {disabled: false}}));
         }
 
         if (!this.localAnalysis || !this.isEngineReady) return;
@@ -608,8 +596,7 @@ export default class AnalysisController {
             score = {cp: povEv};
         }
         const knps = nodes / elapsedMs;
-        const sanMoves = this.ffishBoard.variationSan(moves, this.notationAsObject);
-        const msg: MsgAnalysis = {type: 'local-analysis', ply: this.ply, color: this.turnColor.slice(0, 1), ceval: {d: depth, m: moves, p: sanMoves, s: score, k: knps}};
+        const msg: MsgAnalysis = {type: 'local-analysis', ply: this.ply, color: this.turnColor.slice(0, 1), ceval: {d: depth, p: moves, s: score, k: knps}};
         this.onMsgAnalysis(msg);
     };
 
@@ -641,19 +628,19 @@ export default class AnalysisController {
             }
         }
 
-        if (ceval?.p !== undefined && !!ceval.m) {
-            const pv_move = uci2cg(ceval.m.split(" ")[0]);
-            console.log("ARROW", this.arrow);
+        if (ceval?.p !== undefined) {
+            const pv_move = uci2cg(ceval.p.split(" ")[0]);
+            // console.log("ARROW", this.arrow);
             if (this.arrow) {
                 const atPos = pv_move.indexOf('@');
                 if (atPos > -1) {
                     const d = pv_move.slice(atPos + 1, atPos + 3) as cg.Key;
                     let color = turnColor;
-
+                    const variant = this.variant.name;
                     const dropPieceRole = util.roleOf(pv_move.slice(0, atPos) as cg.PieceLetter);
                     const orientation = this.flip ? this.oppcolor : this.mycolor;
                     const side = color === orientation ? "ally" : "enemy";
-                    const url = getPieceImageUrl(dropPieceRole, color, side);
+                    const url = getPieceImageUrl(variant, dropPieceRole, color, side);
                     this.chessground.set({ drawable: { pieces: { baseUrl: url! } } });
 
                     shapes0 = [{
@@ -689,20 +676,21 @@ export default class AnalysisController {
             let pvSan = ceval.p;
             if (this.ffishBoard !== null) {
                 try {
+                    this.ffishBoard.setFen(this.fullfen);
                     pvSan = this.ffishBoard.variationSan(ceval.p, this.notationAsObject);
-                    if (pvSan === '') pvSan = ceval.p;
+                    if (pvSan === '') pvSan = '.';
                 } catch (error) {
-                    pvSan = ceval.p
+                    pvSan = '.';
                 }
             }
-            this.vpv = patch(this.vpv, h('div#pv', [h('pvline', ceval.p !== undefined ? pvSan : ceval.m)]));
+            this.vpv = patch(this.vpv, h('div#pv', [h('pvline', pvSan)]));
         } else {
             this.vscore = patch(this.vscore, h('score#score', ''));
             this.vinfo = patch(this.vinfo, h('info#info', _('in local browser')));
             this.vpv = patch(this.vpv, h('div#pv'));
         }
 
-        console.log(shapes0);
+        // console.log(shapes0);
         this.chessground.set({
             drawable: {autoShapes: shapes0},
         });
@@ -785,12 +773,10 @@ export default class AnalysisController {
 
         const vv = this.steps[plyVari]?.vari;
         const step = (plyVari > 0 && vv ) ? vv[ply] : this.steps[ply];
-
-        let move : cg.Key[] = [];
+        
+        const move = uci2LastMove(step.move);
         let capture = false;
-        if (step.move !== undefined) {
-            const moveStr = uci2cg(step.move);
-            move = moveStr.indexOf('@') > -1 ? [moveStr.slice(-2) as cg.Key] : [moveStr.slice(0, 2) as cg.Key, moveStr.slice(2, 4) as cg.Key];
+        if (move.length > 0) {
             // 960 king takes rook castling is not capture
             // TODO defer this logic to ffish.js
             capture = (this.chessground.state.pieces.get(move[move.length - 1]) !== undefined && step.san?.slice(0, 2) !== 'O-') || (step.san?.slice(1, 2) === 'x');
@@ -1010,18 +996,10 @@ export default class AnalysisController {
         const parts = msg.fen.split(" ");
         this.turnColor = parts[1] === "w" ? "white" : "black";
 
-        let lastMove: cg.Key[] = [];
-        if (msg.lastMove !== null) {
-            const lastMoveStr = uci2cg(msg.lastMove);
-            // drop lastMove causing scrollbar flicker,
-            // so we remove from part to avoid that
-            lastMove = lastMoveStr.indexOf('@') > -1 ? [lastMoveStr.slice(-2) as cg.Key] : [lastMoveStr.slice(0, 2) as cg.Key, lastMoveStr.slice(2, 4) as cg.Key];
-        }
-
         this.chessground.set({
             fen: this.fullfen,
             turnColor: this.turnColor,
-            lastMove: lastMove,
+            lastMove: uci2LastMove(msg.lastMove),
             check: msg.check,
             movable: {
                 color: this.turnColor,

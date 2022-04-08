@@ -47,6 +47,9 @@ label.piece.piece3.capa {
 label.piece.piece4.capa {
     background-image: url('images/pieces/kaneo/wA.svg');
 }
+label.piece.piece5.capa {
+    background-image: url('images/pieces/shogun/merida/blue/wA.svg');
+}
 
 label.piece.piece0.seirawan {
     background-image: url('images/pieces/merida/wH.svg');
@@ -62,6 +65,9 @@ label.piece.piece3.seirawan {
 }
 label.piece.piece4.seirawan {
     background-image: url('images/pieces/kaneo/wH.svg');
+}
+label.piece.piece5.seirawan {
+    background-image: url('images/pieces/shogun/merida/blue/wA.svg');
 }
 
 label.piece.piece0.makruk {
@@ -139,6 +145,12 @@ label.piece.piece8.shogi {
 label.piece.piece9.shogi {
     background-image: url('images/pieces/shogi/bw/0KA.svg');
 }
+label.piece.piece10.shogi {
+    background-image: url('images/pieces/shogi/Portella/Kanji/0KA.png');
+}
+label.piece.piece11.shogi {
+    background-image: url('images/pieces/shogi/Portella/Intl/0KA.png');
+}
 
 label.piece.piece0.kyoto {
     background-image: url('images/pieces/shogi/ctk/0KA.svg');
@@ -168,6 +180,9 @@ label.piece.piece1.tori {
 }
 label.piece.piece2.tori {
     background-image: url('images/pieces/tori/minimalist/0PhoenixBlack.svg');
+}
+label.piece.piece3.tori {
+    background-image: url('images/pieces/tori/Portella/0PhoenixBlack.png');
 }
 
 label.piece.piece0.xiangqi {
@@ -218,6 +233,12 @@ label.piece.piece4.janggi {
 }
 label.piece.piece5.janggi {
     background-image: url('images/pieces/janggi/Ka_wooden/blue_king.svg');
+}
+label.piece.piece6.janggi {
+    background-image: url('images/pieces/janggi/intlblue/blue_king.svg');
+}
+label.piece.piece7.janggi {
+    background-image: url('images/pieces/janggi/intlgreen/blue_king.svg');
 }
 
 label.piece.piece0.shako {
@@ -307,4 +328,13 @@ label.piece.piece1.ordamirror {
 }
 label.piece.piece0.chak {
     background-image: url('images/pieces/chak/WK.svg');
+}
+label.piece.piece0.chennis {
+    background-image: url('images/pieces/chennis/wMN.svg');
+}
+label.piece.piece1.chennis {
+    background-image: url('images/pieces/shogun/cburnett/mono/wC.svg');
+}
+label.piece.piece2.chennis {
+    background-image: url('images/pieces/shogun/merida/mono/wC.svg');
 }

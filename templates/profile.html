@@ -50,7 +50,7 @@
             <a class="icon icon-download" href="/games/export/{{ profile }}" download="{{ profile }}.pgn" title="{% trans %}Export games{% endtrans %}"></a>
             {% endif %}
             {% if not anon %}
-            <a class="icon icon-at" href="https://lichess.org/@/{{ profile }}" title="{% trans %}Lichess profile{% endtrans %}"></a>
+            <a class="icon icon-at" href="https://lichess.org/@/{{ profile }}" rel="noopener" target="_blank" title="{% trans %}Lichess profile{% endtrans %}"></a>
             {% endif %}
             </div>
         </div>

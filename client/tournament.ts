@@ -9,7 +9,7 @@ import { _ } from './i18n';
 import { patch } from './document';
 import { chatMessage, chatView } from './chat';
 //import { sound } from './sound';
-import { VARIANTS, uci2cg } from './chess';
+import { VARIANTS, uci2LastMove, Variant } from './chess';
 import { timeControlStr } from "./view";
 import { initializeClock, localeOptions } from './datetime';
 import { gameType } from './profile';
@@ -81,6 +81,8 @@ interface MsgUserConnectedTournament {
     urating: number;
     tstatus: number;
     description: string;
+    defender_name: string;
+    defender_title: string;
     secondsToStart: number;
     secondsToFinish: number;
 }
@@ -131,8 +133,8 @@ interface TopGame {
 }
 
 export default class TournamentController {
-    model: PyChessModel;
     sock;
+    tournamentId: string;
     readyState: number; // seems unused
     buttons: VNode;
     system: number;
@@ -148,30 +150,33 @@ export default class TournamentController {
     topGameId: string;
     topGameChessground: Api;
     playerGamesOn: boolean;
-    fc: string;
-    sc: string;
-    startsAt: string;
+    variant: Variant;
+    chess960: boolean;
+    rated: string;
+    startDate: string;
     visitedPlayer: string;
     secondsToStart: number;
     secondsToFinish: number;
+    username: string;
+    anon: boolean;
     
 
     constructor(el: HTMLElement, model: PyChessModel) {
         console.log("TournamentController constructor", el, model);
-        this.model = model;
+        this.tournamentId = model["tournamentId"]
         this.nbPlayers = 0;
         this.page = 1;
         this.tournamentStatus = T_STATUS[model["status"] as keyof typeof T_STATUS];
         this.visitedPlayer = '';
-        this.startsAt = model["date"];
+        this.startDate = model["date"];
         this.secondsToStart = 0;
         this.secondsToFinish = 0;
 
         const onOpen = (evt: Event) => {
             this.readyState = (evt.target as EventSource).readyState;
             console.log('onOpen()');
-            this.doSend({ type: "tournament_user_connected", username: this.model["username"], tournamentId: this.model["tournamentId"]});
-            this.doSend({ type: "get_players", "tournamentId": this.model["tournamentId"], page: this.page });
+            this.doSend({ type: "tournament_user_connected", username: model["username"], tournamentId: model["tournamentId"]});
+            this.doSend({ type: "get_players", "tournamentId": model["tournamentId"], page: this.page });
         }
 
         this.readyState = -1;
@@ -189,15 +194,18 @@ export default class TournamentController {
         const ws = (location.host.indexOf('0.0.0.0') === -1) ? 'wss://' : 'ws://'
         this.sock = new Sockette(ws + location.host + "/wst", opts);
 
-        const variant = VARIANTS[this.model.variant];
-        this.fc = variant.firstColor;
-        this.sc = variant.secondColor;
+        this.variant = VARIANTS[model["variant"]];
+        this.chess960 = model["chess960"] === "True";
+        this.rated = model["rated"]
 
         patch(document.getElementById('lobbychat') as HTMLElement, chatView(this, "lobbychat"));
         this.buttons = patch(document.getElementById('page-controls') as HTMLElement, this.renderButtons());
 
         this.clockdiv = patch(document.getElementById('clockdiv') as HTMLElement, h('div#clockdiv'));
         this.playerGamesOn = false;
+
+        this.username = model["username"];
+        this.anon = model["anon"] === "True";
 
         boardSettings.updateBoardAndPieceStyles();
     }
@@ -219,28 +227,28 @@ export default class TournamentController {
         }
         if (newPage !== this.page) {
             this.page = newPage;
-            this.doSend({ type: "get_players", "tournamentId": this.model["tournamentId"], "page": newPage });
+            this.doSend({ type: "get_players", "tournamentId": this.tournamentId, "page": newPage });
         }
     }
 
     goToMyPage() {
-        this.doSend({ type: "my_page", "tournamentId": this.model["tournamentId"] });
+        this.doSend({ type: "my_page", "tournamentId": this.tournamentId });
     }
 
     login() {
-        window.location.assign(this.model["home"] + '/login');
+        window.location.assign('/login');
     }
 
     join() {
-        this.doSend({ type: "join", "tournamentId": this.model["tournamentId"] });
+        this.doSend({ type: "join", "tournamentId": this.tournamentId });
     }
 
     pause() {
-        this.doSend({ type: "pause", "tournamentId": this.model["tournamentId"] });
+        this.doSend({ type: "pause", "tournamentId": this.tournamentId });
     }
 
     withdraw() {
-        this.doSend({ type: "withdraw", "tournamentId": this.model["tournamentId"] });
+        this.doSend({ type: "withdraw", "tournamentId": this.tournamentId });
     }
 
     renderButtons() {
@@ -276,7 +284,7 @@ export default class TournamentController {
             }
             break;
         }
-        if (this.model["anon"] === 'True' && 'created|started'.includes(this.tournamentStatus)) {
+        if (this.anon && 'created|started'.includes(this.tournamentStatus)) {
             button = h('button#action', { on: { click: () => this.login() }, class: {"icon": true, "icon-play": true} }, _('LOG IN'));
         }
         // console.log("updateActionButton()", this.tournamentStatus, button);
@@ -294,16 +302,16 @@ export default class TournamentController {
                 h('tr', [h('th', _('Players')), h('td', msg.nbPlayers)]),
                 h('tr', [h('th', _('Average rating')), h('td', Math.round(msg.sumRating / msg.nbPlayers))]),
                 h('tr', [h('th', _('Games played')), h('td', msg.nbGames)]),
-                h('tr', [h('th', _('White wins')), h('td', this.calcRate(msg.nbGames, msg.wWin))]),
-                h('tr', [h('th', _('Black wins')), h('td', this.calcRate(msg.nbGames, msg.bWin))]),
+                h('tr', [h('th', _('%1 wins', this.variant.firstColor)), h('td', this.calcRate(msg.nbGames, msg.wWin))]),
+                h('tr', [h('th', _('%1 wins', this.variant.secondColor)), h('td', this.calcRate(msg.nbGames, msg.bWin))]),
                 h('tr', [h('th', _('Draws')), h('td', this.calcRate(msg.nbGames, msg.draw))]),
                 h('tr', [h('div', _('Berserk rate')), h('td', this.calcRate(msg.nbGames * 2, msg.berserk))]),
             ]),
             h('table.tour-stats-links', [
                 h('a.i-dl.icon.icon-download', {
                     attrs: {
-                        href: '/games/export/tournament/' + this.model["tournamentId"],
-                        download: this.model["tournamentId"] + '.pgn',
+                        href: '/games/export/tournament/' + this.tournamentId,
+                        download: this.tournamentId + '.pgn',
                     },
                 }, _('Download all games')),
             ]),
@@ -319,10 +327,10 @@ export default class TournamentController {
 
     private playerView(player: TournamentPlayer, index: number) {
         if (player.name === this.visitedPlayer) {
-            this.doSend({ type: "get_games", tournamentId: this.model["tournamentId"], player: this.visitedPlayer });
+            this.doSend({ type: "get_games", tournamentId: this.tournamentId, player: this.visitedPlayer });
         }
         let fullScore = Math.trunc(player.score / SCORE_SHIFT);
-        if (this.system > 0 && this.model["variant"] !== 'janggi') fullScore = fullScore / 2;
+        if (this.system > 0 && this.variant.name !== 'janggi') fullScore = fullScore / 2;
         
         return h('tr', { on: { click: () => this.onClickPlayer(player.name) } }, [
             h('td.rank', [(player.paused) ? h('i', {class: {"icon": true, "icon-pause": true} }) : index]),
@@ -333,7 +341,7 @@ export default class TournamentController {
             ]),
             h('td.sheet', [h('div', player.points.map( (s: any) => {
                 let score = Array.isArray(s) ? s[0] : s;
-                if (this.system > 0 && score !== '*' && score !== '-' && this.model["variant"] !== 'janggi') score = score / 2;
+                if (this.system > 0 && score !== '*' && score !== '-' && this.variant.name !== 'janggi') score = score / 2;
                 const pointKlass = this.system > 0 ? '.point' : '';
                 const resultKlass = ((this.system > 0) ? (score >= 1) ? '.win': (score === 0.5) ? '.draw' : '.lose' : '');
                 if (score === 0.5) score = '½';
@@ -357,7 +365,7 @@ export default class TournamentController {
                 (document.getElementById('player') as HTMLElement).style.display = 'none';
                 this.playerGamesOn = false;
             } else {
-                this.doSend({ type: "get_games", tournamentId: this.model["tournamentId"], player: player });
+                this.doSend({ type: "get_games", tournamentId: this.tournamentId, player: player });
                 (document.getElementById('summary') as HTMLElement).style.display = 'none';
                 (document.getElementById('player') as HTMLElement).style.display = 'block';
                 this.playerGamesOn = true;
@@ -365,7 +373,7 @@ export default class TournamentController {
             }
         // started
         } else {
-            this.doSend({ type: "get_games", tournamentId: this.model["tournamentId"], player: player });
+            this.doSend({ type: "get_games", tournamentId: this.tournamentId, player: player });
             if (this.playerGamesOn && this.visitedPlayer === player) {
                 this.renderTopGame();
                 (document.getElementById('player') as HTMLElement).style.display = 'none';
@@ -412,7 +420,7 @@ export default class TournamentController {
                 h('td.result', '-')
             ]);
         } else {
-            const color = (game.color === 'w') ? this.fc : this.sc;
+            const color = (game.color === 'w') ? this.variant.firstColor : this.variant.secondColor;
             return h('tr', { on: { click: () => { window.open('/' + game.gameId, '_blank', 'noopener'); }}}, [
                 h('th', index),
                 h('td.player', [
@@ -429,6 +437,7 @@ export default class TournamentController {
                             "icon-blue":  color === "Blue",
                             "icon-gold":  color === "Gold",
                             "icon-pink":  color === "Pink",
+                            "icon-green": color === "Green",
                         }
                     }),
                 ]),
@@ -487,29 +496,34 @@ export default class TournamentController {
 
         const game = this.topGame;
         const variant = VARIANTS[game.variant];
-        const element = h(`selection#mainboard.${variant.board}.${variant.piece}`, {
+        const elements = [
+        h('div.player', [h('user', [h('rank', '#' + game.br), game.b]), h('div#bresult')]),
+        h(`div#mainboard.${variant.board}.${variant.piece}.${variant.boardMark}`, {
+            class: { "with-pockets": variant.pocketRoles('white') !== undefined },
             on: { click: () => window.location.assign('/' + game.gameId) }
-        }, h('div', [
-            h('div.player', [h('user', [h('rank', '#' + game.br), game.b]), h('div#bresult')]),
-            h(`div.cg-wrap.${variant.cg}`, {
-                hook: {
-                    insert: vnode => {
-                        const cg = Chessground(vnode.elm as HTMLElement,  {
-                            fen: game.fen,
-                            // lastMove: game.lastMove,// TODO: i dont see such property in python searching for "top_game"
-                            geometry: variant.geometry,
-                            coordinates: false,
-                            viewOnly: true
-                        });
-                        this.topGameChessground = cg;
-                        this.topGameId = game.gameId;
+            }, [
+                h(`div.cg-wrap.${variant.cg}.mini`, {
+                    hook: {
+                        insert: vnode => {
+                            const cg = Chessground(vnode.elm as HTMLElement,  {
+                                fen: game.fen,
+                                // lastMove: game.lastMove,// TODO: i dont see such property in python searching for "top_game"
+                                geometry: variant.geometry,
+                                coordinates: false,
+                                viewOnly: true,
+                                addDimensionsCssVars: true,
+                                pocketRoles: color => variant.pocketRoles(color),
+                            });
+                            this.topGameChessground = cg;
+                            this.topGameId = game.gameId;
+                        }
                     }
-                }
-            }),
-            h('div.player', [h('user', [h('rank', '#' + game.wr), game.w]), h('div#wresult')]),
-        ]));
+                }),
+        ]),
+        h('div.player', [h('user', [h('rank', '#' + game.wr), game.w]), h('div#wresult')]),
+        ];
 
-        patch(document.getElementById('top-game') as HTMLElement, h('div#top-game', element));
+        patch(document.getElementById('top-game') as HTMLElement, h('div#top-game', elements));
     }
 
     calcRate(nbGames: number, nbWin: number) {
@@ -569,7 +583,7 @@ export default class TournamentController {
             }
         }
 
-        if (this.page === msg.page || msg.requestedBy === this.model["username"]) {
+        if (this.page === msg.page || msg.requestedBy === this.username) {
             this.players = msg.players;
             this.page = msg.page;
             this.nbPlayers = msg.nbPlayers;
@@ -586,7 +600,7 @@ export default class TournamentController {
     }
 
     private onMsgGameUpdate() {
-        this.doSend({ type: "get_players", tournamentId: this.model["tournamentId"], page: this.page });
+        this.doSend({ type: "get_players", tournamentId: this.tournamentId, page: this.page });
     }
 
     durationString(minutes: number) {
@@ -615,18 +629,23 @@ export default class TournamentController {
         return h('div.description', text);
     }
 
+    renderDefender(name: string, title: string) {
+        return h('div.defender', [
+            _('Defender:'),
+            playerInfo(name, title)
+        ]);
+    }
 
     private onMsgUserConnected(msg: MsgUserConnectedTournament) {
-        const variant = VARIANTS[this.model.variant];
-        const chess960 = this.model.chess960 === 'True';
-        const dataIcon = variant.icon(chess960);
+        const chess960 = this.chess960;
+        const dataIcon = this.variant.icon(chess960);
 
         const trophy = document.getElementById('trophy') as Element;
         if (trophy && msg.frequency === SHIELD) patch(trophy, h('a', {class: {"shield-trophy": true} }, dataIcon));
         
         this.system = msg.tsystem;
         const tsystem = document.getElementById('tsystem') as Element;
-        patch(tsystem, h('div#tsystem', gameType(this.model["rated"]) + " • " + this.tSystem(this.system)));
+        patch(tsystem, h('div#tsystem', gameType(this.rated) + " • " + this.tSystem(this.system)));
 
         const tminutes = document.getElementById('tminutes') as Element;
         patch(tminutes, h('span#tminutes', this.durationString(msg.tminutes)));
@@ -639,15 +658,17 @@ export default class TournamentController {
             const fen = msg.startFen.split(" ").join('_').replace(/\+/g, '.');
             patch(startFen, h('p', [
                 _('Custom position') + ' • ',
-                h('a', { attrs: { href: '/analysis/' + this.model["variant"] + '?fen=' + fen } }, _('Analysis board'))
+                h('a', { attrs: { href: '/analysis/' + this.variant.name + '?fen=' + fen } }, _('Analysis board'))
             ]));
         }
 
         const description = document.getElementById('description') as Element;
         if (msg.description.length > 0 && description) patch(description, this.renderDescription(msg.description));
 
+        const defender = document.getElementById('defender') as Element;
+        if (msg.defender_name && defender) patch(defender, this.renderDefender(msg.defender_name, msg.defender_title));
 
-        this.model.username = msg.username;
+        this.username = msg.username;
         this.tournamentStatus = T_STATUS[msg.tstatus as keyof typeof T_STATUS];
         this.userStatus = msg.ustatus;
         this.userRating = msg.urating;
@@ -686,7 +707,7 @@ export default class TournamentController {
             this.renderEmptyTopGame();
             (document.getElementById('player') as HTMLElement).style.display = 'none';
             this.renderSummary(msg);
-            this.doSend({ type: "get_players", "tournamentId": this.model["tournamentId"], page: this.page });
+            this.doSend({ type: "get_players", "tournamentId": this.tournamentId, page: this.page });
         }
     }
 
@@ -703,18 +724,11 @@ export default class TournamentController {
             return;
         };
 
-        let lastMove: cg.Key[] = [];
-        if (msg.lastMove !== undefined) {
-            const lastMoveStr = uci2cg(msg.lastMove);
-            // drop lastMove causing scrollbar flicker,
-            // so we remove from part to avoid that
-            lastMove = lastMoveStr.includes('@') ? [lastMoveStr.slice(-2) as cg.Key] : [lastMoveStr.slice(0, 2) as cg.Key, lastMoveStr.slice(2, 4) as cg.Key];
-        }
         this.topGameChessground.set({
             fen: msg.fen,
             turnColor: msg.fen.split(" ")[1] === "w" ? "white" : "black",
             check: msg.check,
-            lastMove: lastMove,
+            lastMove: uci2LastMove(msg.lastMove),
         });
     }
 
@@ -814,7 +828,7 @@ export function tournamentView(model: PyChessModel): VNode[] {
     const variant = VARIANTS[model.variant];
     const chess960 = model.chess960 === 'True';
     const dataIcon = variant.icon(chess960);
-
+    document.body.setAttribute('style', `--ranks: ${variant.boardHeight}; --files: ${variant.boardWidth};`);
     return [
         h('aside.sidebar-first', [
             h('div.game-info', [
@@ -836,13 +850,14 @@ export function tournamentView(model: PyChessModel): VNode[] {
                 ]),
                 // TODO: update in onMsgUserConnected()
                 h('div#description'),
+                h('div#defender'),
                 h('div#requirements'),
                 h('div#startsAt'),
                 h('div#startFen'),
             ]),
             h('div#lobbychat')
         ]),
-        h('div.players', [
+        h(`div.players.${model["variant"]}`, [
             h('div.box', [
                 h('div.tour-header', [
                     h('div#trophy'),

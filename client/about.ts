@@ -18,7 +18,6 @@ export function aboutView(): VNode[] {
                 _("All supported games on Liantichess can be seen "),
                 h('a', { attrs: { href: 'https://liantichess.herokuapp.com/variants' } }, 'here'),
                 ", ",
-
             h('hr'),
             h('p', [
                 _('To play on Liantichess, you need to have an open and unmarked account on Lichess. '),
