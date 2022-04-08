@@ -91,16 +91,16 @@ For the disadvantaged side, a promoted pawn is a good decoy which must be trappe
 * 一方剩孤王，另一方只有士：64步
 
 ## 泰國象棋 vs 緬甸象棋
+
+緬甸象棋是一款與泰國象棋非常相似的遊戲，可以被視為是加速的泰國象棋，可能會跳過大約十幾個開局動作。緬甸象棋有一半的兵從第四排開始，而所有泰國象棋兵則從第三排開始。
  
-Sittuyin is a game very similar to Makruk, but played in Myanmar. In a sense, Sittuyin can be thought of as a kind of accelerated Makruk, potentially skipping ahead about a dozen opening moves. Half of the Sittuyin pawns start on the fourth rank, as opposed to all Makruk pawns starting from the third rank.
+泰國象棋必須通過策略進行開局設置，而緬甸象棋開局可以直接將棋子放置在想要的位置。
  
-Makruk players must negotiate their way towards getting a good opening setup from scratch, a vital skill for Makruk. Sittuyin players get to just set up their dream positions. Experience in either variant would be useful/beneficial in the other.
- 
-Makruk allows promoting pawns to multiple queens, which can quickly become dangerous. This makes Makruk pawns more valuable than Sittuyin pawns.
+泰國象棋的兵升變成數個皇后，很快就可以投入戰鬥。這使得泰國象棋兵比緬甸象棋兵更有價值。
 
 ## 策略
- 
-The pace is rather slow, with most pieces stepping only one square at a time. It's a good idea to organize and group together the pieces. Move them in formation as a group to provide mutual support. Do not try to open up the game on too many fronts. Coordination is key.
+
+大多數棋子一次只能走一格，因此最好成小組式的移動，以提供相互支持。不要試圖多方面打開戰鬥，協調才是關鍵。
 
 ## 戰術
  
