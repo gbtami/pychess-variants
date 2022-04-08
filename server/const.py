@@ -108,15 +108,9 @@ VARIANTS = (
     "antishinobi",
     "antigrandhouse",
     "atomic_giveaway_hill",
-    "atomic_giveaway_hill960"  
+    "atomic_giveaway_hill960",
     # We support to import/store/analyze these variants
     # but don't support to add them to leaderboard page
-    # "gothic",
-    # "gothhouse",
-    # "embassy",
-#    "orda",
-#    "ordamirror",
-    # "chak"
 )
 
 VARIANT_ICONS = {
@@ -252,12 +246,11 @@ TROPHIES = {
     "shield": (static_url("images/trophy/shield-gold.png"), "Shield"),
     "acwc21": (static_url("images/trophy/acwc21.png"), "2021 Champion"),
     "developer": (static_url("images/trophy/developer.png"), "Developer"),
-    "moderator": (static_url("images/trophy/moderator.png"), "Moderator")    
+    "moderator": (static_url("images/trophy/moderator.png"), "Moderator"),
 }
 
 TROPHY_KIND = (
     "liantichess",
-    "LAWC", 
     "antichess",
     "antichess960",
     "losers",
@@ -277,10 +270,17 @@ TROPHY_KIND = (
     "coffeehill",
     "coffeehill960",
     "antiplacement",
-    "antiminishogi",
     "antihoppelpoppel",
+#    "antishogun",
+    "anticapablanca",
+    "antichak",
+    "antisynochess",
+    "antiempire",
+    "antiorda",
+    "antishinobi",
+    "antigrandhouse",
     "atomic_giveaway_hill",
-    "atomic_giveaway_hill960"
+    "atomic_giveaway_hill960",
 )
 
 
