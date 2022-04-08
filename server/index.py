@@ -342,9 +342,9 @@ async def index(request):
         page_title = "%s  • Liantichess" % view.capitalize()
 
     if view == "lobby":
-        page_title = "PyChess • Free Online Chess Variants"
+        page_title = "Liantichess • Free Online Antichess Variants"
     else:
-        page_title = "%s • PyChess" % view.capitalize()
+        page_title = "%s • Liantichess" % view.capitalize()
 
     render = {
         "js": "/static/pychess-variants.js%s%s" % (BR_EXTENSION, SOURCE_VERSION),

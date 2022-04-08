@@ -191,7 +191,7 @@ def new_scheduled_tournaments(already_scheduled, now=None):
             new_tournaments_data.append(
                 {
                     "name": name,
-                    "createdBy": "PyChess",
+                    "createdBy": "Liantichess",
                     "frequency": plan.freq,
                     "variant": plan.variant,
                     "chess960": plan.is960,
