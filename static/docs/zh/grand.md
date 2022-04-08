@@ -1,58 +1,55 @@
 
-# ![Grand](https://github.com/gbtami/pychess-variants/blob/master/static/icons/grand.svg) Grand Chess
+# ![Grand](https://github.com/gbtami/pychess-variants/blob/master/static/icons/grand.svg) 西洋大象棋
 
 ![Grand Chess setup](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Grand.png)
 
-Grand Chess was created by Christian Freeling in 1984 and is one of the highest regarded chess variants according to the Chess Variants site.  
+西洋大象棋（Grand chess）是荷蘭人克里斯蒂安·費林在1984年推出的西洋棋變體。 
 
-## Rules
+## 規則
 
-The game is played on a 10 x 10 board, with additional files for the new Marshal (Knight/Rook)  and Cardinal (Knight/Bishop), which are both placed on the king side. Because of the larger board size, most of the starting pieces are moved up one rank, with the exception of the rooks which remain in the last ranks.
+使用10\*10格的棋盤。
 
-In addition to the pieces and setup, there are three other significant differences:
+棋子佈置為第三橫行皆為兵卒。第二橫行佈置從白方左側、黑方右側開始，皆為空格、騎士、主教、皇后、國王、首相、大主教、主教、騎士、空格。底橫行的左右角各有一城堡。
 
-* Pawns can promote when reaching the eighth or ninth rank. Promotion must happen upon reaching the 10th rank. If not possible (see next point), then the pawn can’t move.
-* Pawns can only promote to pieces of the same color that have been lost.
-* There is no castling.
+除了新增棋子和初始配置不同外，另有以下三個新增規則:
 
-(Please note that despite the names of Marshal and Cardinal, the notation used here uses A and C for both of those, respectively (as in Capablanca chess), so that the PGN is compatible with other chess variant software.)
+* 兵在到達第八列及第九列時升變，到第十列時則**必需**升變，若無法升變(見下點)，則該兵不可至進到第十行。
+* 兵只能升變成與它同色的棋子，且該棋子已經失去。
+* 沒有王車易位。
 
-## New Pieces
+其餘規則與正統象棋同。
 
-### Cardinal
+## 新棋子
+
+### 大主教
 
 ![Cardinal](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Princesses.png)
 
-Various symbols used for the cardinal. (Note that the hawk is only for Seiwaran Chess)
+大主教，Archbishop ：走法同西洋棋的主教 + 騎士(看棋子的樣子就知道了吧!)。記法簡稱為A。
 
 ![Cardinal moves](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Archbishop.png)
 
-The cardinal (A in Pychess, for archbishop) is a compound piece combining the moves of the **bishop** and **knight**. In terms of fairy pieces, this is generically known as the princess, but also has other names in different variants.
 
-The piece is often symbolized with a combination of a knight and bishop; most variants often do not specify how the piece should look otherwise (which is why we offer different piece sets to choose from).
+大主教是唯一可以單獨將死對方王的棋子。
 
-The cardinal is unique in that it is the only piece that can checkmate on its own, which you may be able to appreciate if you look at its movement/attack pattern.
+通常認為大主教的價值大於城堡，但遜於大象和王后。
 
-The value of a cardinal is considered slightly better than a rook, but less than the elephant and queen.
-
-### Marshal
+### 首相
 
 ![Marshal](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Empresses.png)
 
-Various symbols used for the marshal. (Note that the elephant is only for Seiwaran Chess)
+首相，Chancellor ：走法同西洋棋的城堡 + 騎士，記法簡稱為C。 (還有另一個名稱為大象，只會在S-Chess中使用)
 
 ![Marshal moves](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Chancellor.png)
 
-The marshal (C in Pychess, for chancellor) is a compound piece combining the moves of the **rook** and the **knight**. In terms of fairy pieces, this is generically known as the empress, but also has other names in different variants. 
 
-The piece is often symbolized with a combination of a knight and rook; most variants often do not specify how the piece should look otherwise (which is why we offer different piece sets to choose from).
+棋子價值比大主教高，但遜於或等於王后。
 
-The value of a marshal is considered better than a cardinal, but equivalent or slightly less than a queen.
+## 策略
 
-## Strategy
 
-Relatively little is known about many of the variants here. Creativity and attention to detail are always important. And so the following advice is tentative. 
+請不要以「象棋」的觀念，一開始就急於出動子力，在西洋大象棋中，有時重複的動同一子反而會給對方造成更多威脅。
 
-Try not to make "routine" developing moves. Sometimes it is worth spending more time to reposition fewer pieces optimally, rather than to develop many pieces suboptimally in less time. Even the variants which appear to resemble chess cannot be played with routine chess moves for very long.
+如果你有發現什麼新的戰術，請跟我們說!
 
-Continue to play more and if you discover new strategies or advice, let us know!
+<iframe width="560" height="315" src="https://www.youtube.com/embed/CRrncO-w524" frameborder="0" allowfullscreen></iframe>

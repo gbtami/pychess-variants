@@ -1,99 +1,88 @@
-# ![Orda chess](https://github.com/gbtami/pychess-variants/blob/master/static/icons/orda.svg) Orda Chess
+# ![Orda chess](https://github.com/gbtami/pychess-variants/blob/master/static/icons/orda.svg) 可汗西征棋 | Orda
 
 ![Orda](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Orda.png)
 
 ![Legend](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/OrdaLegend.png)
 
-Orda Chess is a chess variant designed in 2020 by Couch Tomato. The idea of the game was to create a true asymmetric chess with two different armies. Ralph Betza’s Chess with Different Armies was an inspiration, but the goal was to be a little more streamlined with the theme here. In this case, the theme of the new army is knight-based movement, where most pieces have an element of knight movement. Given the knight (or horse) theme, this was modeled after the Mongol army and named the Horde. In fact, an orda was a military structure for the people of the Steppes, which also gave rise to the English word “horde.” The original chess army is named the Kingdom for contrast. The game itself is incredibly balanced by engine evaluation (even more than standard chess), with a near 50-50 win ratio for the Kingdom and Horde.
+可汗西征棋是一種國際象棋變體，於2020由Couch Tomato推出。這次創造的是一個非對稱的變體，雙方使用不同的棋種。靈感來自Chess with different armies 的 Ralph Betza，走的是草原民族風格。仿照蒙古軍隊的特色，主題是「馬」的移動。事實上，Orda是一種蒙古軍事結構，意為皇室，而這也在英語中產生了一個新詞：Hordeーー遊牧民族。為了描繪拔都西征，敵對的軍隊是歐洲王室。遊戲本身極其平衡，甚至比國際象棋更平衡，雙方的勝率接近一半。
  
-## General Rules
-1.	Setup is as above. Despite new pieces, the placement of the Horde pieces mirror their chess counterparts.
-2.	The only pieces that the sides have in common are the pawns and the kings (the Horde king is called a khan).
-3.	The Kingdom (AKA White) *always moves first*.
-4.	The Horde (AKA Gold) cannot castle.
-5.	As the Horde’s pawns start on the third rank, they do not have the option to move two spaces or be captured by en passant. Kingdom pawns retain the ability to move two spaces initially and to be captured via en passant.
-6.	Pawns *on either side* can only promote to a queen or kheshig.
-7.	An additional method of victory is available: called **campmate**. Campmate is achieved by moving one’s king into the final rank without moving into check.
-8.	Other rules, including stalemate and repetition are as in chess.
+## 規則
+1.	設置如上所示。
+2.	雙方擁有兵和王（可汗）
+3.	王室方是先手。
+4.	可汗不可王車易位。
+5.	可汗的兵因為已經過了第二行不可前進兩格，相反王室的兵可以，而可以被吃過路兵。
+6.	雙方的兵只可升變為後或禁衛
+7.	雙方有另一個勝利條件：達陣ーー當一方的王能安全達到對方底線的時候，該方勝利。
+8.	其他規則跟國際象棋一樣，包括逼和(無子可動算和棋)和長將和。
 
-## Horde Pieces
-There are four new units unique* to the Horde: 2 Lancers, 2 Horse Archers, 2 Kheshigs, and 1 Yurt (* exception being that the Kingdom can still obtain a Kheshig by promotion). The Kheshigs are the strongest piece (knight + king movement) and lead each flank, while the Yurt is a fairly weak piece unlike the Queen. 
-The Horde’s king is called the Khan and has a different symbol, but is essentially the same as the Kingdom’s King, also using the same abbreviation (K) – the change is purely aesthetic and thematic. 
-The Horde's Lancer and Horse Archer are unique in that they capture differently than movement ("divergent" pieces, like the pawn). Remember that the Horde is horse-based, so the Lancer and Horse Archer both move like knights. They capture/check like rooks and bishops, respectively. The Kheshig is more traditional in that it captures where it moves; it combines the movements of the knight and king. Similarly, the Yurt also captures the same way it moves, which is as the silver general in Shogi.
+## 可汗方的棋子
+有四個可汗特有的新棋種：2個槍騎，2個射騎，2個禁衛，1個穹盧。禁衛最強（王和馬的移動），而穹盧相當弱。Horde的王叫做可汗，有自己的符號，但本質上就是國王，差異就造型和主題而已。槍騎和射騎很特別，因為他們的動子和吃子方式不一樣（猶如西洋棋的兵一樣）。射騎以馬的走法移動，以主教的方式吃子;槍騎也是以馬的走法移動，而以車的走法吃子。禁衛吃子與移動沒有差別，走法是王+馬。穹盧則就如日本將棋的銀將般移動和吃子。
 
-**Horde** piece	| **Kingdom** “counterpart”	| Movement | Capture/Check
+**可汗** 棋子	| **王室** 棋子	| 移動 | 吃掉移動
 -- | -- | -- | --
-Yurt | Queen | “Silver” | “Silver”
-Horse Archer | Bishop | Knight | Bishop
-Kheshig | Knight | Knight+King | Knight+King
-Lancer | Rook | Knight | Rook
+穹盧 | 後 | “銀將” | “銀將”
+射騎 | 象 | 馬 | 主教
+禁衛 | 馬 | 馬+王 | 馬+王
+槍騎 | 車 | 馬 | 車
 
-Details and diagrams of each piece are below. Green dots represent movement, red dots represent capture, and yellow represents both.
+下面是每個棋子的細節和圖示。綠色點代表移動走法，紅色點代表吃子走法，黃色點代表都可。
  
-### Yurt (Y)
+### 穹盧 | Yurt (Y)
 
 ![Yurt](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Yurt.png)
  
-The Yurt moves and captures one space diagonally or one space forward. This is the same as a silver general from Shogi or the bishop/khon from Makruk. There is only one yurt, starting in the queen’s spot, but unlike the queen, it is very much a minor piece, the weakest piece in the game aside from a pawn. It should not be underestimated though, because it is one of the few Horde pieces that can move and capture the same way. The other two are the Khan and Kheshig, which are the two most valuable pieces. Therefore, the yurt has the unique role of reliably supporting pawns and other pieces without fear of retaliation.
-A yurt is a mobile home for Mongol and Turkic peoples in the steppes of Asia. Their limited mobility but importance for supporting the army is reflected in this piece.
+穹盧能移動到斜角方向或往正前方行走一格，猶如日本將其的銀將。穹盧一開始站在後的位置，不過不像後它很弱，即為輕子。但在他的小範圍之內，他的控制強度很高，因為沒有人想跟他換子。穹盧對蒙古人和突厥人來說是一種可移動的房屋，它們的重要性和小移動能力反應在這個棋子上。
 
-### Kheshig (H)
+### 禁衛 | Keshig (H)
 
 ![Kheshig](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Kheshig.png)
- 
-The Kheshig is a hybrid piece that moves and captures as a knight and king combined. This piece type is also generically called the centaur. The kheshig starts in the knight’s spot, but unlike the knight, is the strongest Horde piece. It can be thought of the general that leads its own troops on each flank. It is generally preferred to keep the kheshigs safely behind during early to mid game because of their extreme importance to the Horde in the endgame.
-The kheshigs were the elite imperial guard for the Mongol royalty. Appropriately, it is incredibly difficult for the Kingdom to checkmate the khan without at least eliminating one of his kheshigs first.
 
-### Horse Archer (A)
+禁衛的移動融合馬和王的移動。禁衛一開始位於西洋棋「馬」的位置。不像馬，它是Horde的最強棋子。一般來說，因為它們比其他棋子重要，最好是不要輕易出動，因為開局的爭奪圍繞著小棋子，而如果禁衛因為被威脅而需要逃跑，你會因此而失先。禁衛本身是帝國的衛隊，所以在它們的守護下，王很難被將死。
+
+### 射騎 | Horse Archer (A)
 
 ![Horse Archer](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Archer.png)
- 
-The Horse Archer, or simply abbreviated Archer, is a unique divergent piece that moves and attacks differently. The archer moves as a knight but captures as a bishop. Because the archer is not colorbound, its value is greater than its bishop counterpart.
-Horse Archers were one of the two core components of the Mongol cavalry, functioning as the light cavalry. Their speed and prowess as mounted archers made them a unique threat. Their ability to quickly position themselves for a deadly skewer or fork make them a dangerous threat for the Kingdom.
+
+射騎是一枚分化棋子，移動猶如馬，吃子猶如主教。因為它能換方格的顏色而控制比主教更多的方格，所以比主教強一點。射騎是蒙古軍隊中一個核心主力，他們的速度和威力帶來兇猛的威脅。
  
-### Lancer (L)
+### 槍騎  | Lancer (L)
 
 ![Lancer](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Lancer.png)
- 
-The Lancer is a unique divergent piece that moves and attacks differently. The lancer moves as a knight but captures as a rook. Because the lancer is not as mobile as the rook, its value is generally weaker than the rook, and this becomes more pronounced in the endgame, as it cannot move across the board as quickly as a rook can. Its value is still comparable to the horse archer.
-Lancers were one of the two core components of the Mongol cavalry, functioning as the heavy cavalry. Despite being weaker than the rook, their ability to come into play much earlier in the game is an advantage that the Horde player should utilize.
 
+槍騎是一枚分化棋子，移動猶如馬，吃子猶如車。它的價值比車偏低，因為它的移動較慢，特別是在殘局。它應該還比射騎強一點。雖然槍騎比車弱，他們的機動性更強。槍騎是蒙古軍隊中另一個核心主力，做為重騎兵。
  
-## Piece valuation
+## 棋子價值
 
-Accurate piece values are unknown. However, these are the values used by Fairy Stockfish, noting that they are generic values, not necessarily specific to Orda chess.
+準確的棋子價值尚不清楚。以下是Fairy-stockfish所評估的。
 
-Kingdom piece	| Value (Early / Late) | Horde piece | Value (Early / Late)
+王室方	| 價值 (前期 / 後期) | 可汗方 | 價值 (前期 / 後期)
 -- | -- | -- | --
-Pawn | 120 / 213	| Pawn | 120 / 213
-Queen | 2538 / 2682	| Yurt | 630 / 630
-Bishop | 825 / 915	| Horse Archer	| 1100 / 1200
-Knight | 781 / 854	| Kheshig | 1800 / 1900
-Rook | 1276 / 1380	| Lancer | 1050 / 1250
+兵| 120 / 213	| 兵 | 120 / 213
+後 | 2538 / 2682	| 穹盧 | 630 / 630
+象 | 825 / 915	| 射騎	| 1100 / 1200
+馬 | 781 / 854	| 禁衛 | 1800 / 1900
+車 | 1276 / 1380	| 槍騎 | 1050 / 1250
 
-For those who want a more simplified approach, this table may be an approximation.
+下表更為簡明
 
-Kingdom piece	| Value | Horde piece	| Value
+王室方	| 價值 | 可汗方	| 價值
 -- | -- | -- | --
-Pawn | 1	| Pawn | 1
-Queen	| 9	| Yurt | 2
-Bishop | 3 | Horse Archer | 4
-Knight | 3 | Kheshig | 7
-Rook | 5 | Lancer | 4
+兵 | 1	| 兵 | 1
+後	| 9	| 穹盧 | 2
+象 | 3 | 射騎 | 4
+馬 | 3 | 禁衛 | 7
+車 | 5 | 槍騎 | 4
 
-## Strategy
-The game is still young, so strategy is still being developed! Much of the data is currently based on Engine play.
+## 戰略
+遊戲推出尚早，大部分的資料來自電腦對弈。
 
-The Horde cannot castle. However, a very fundamental component of a majority of Horde openings is to move the Khan to g7. Reaching this spot in within the first four moves is ideal – in fact, Fairy Stockfish opened up with Kf7 in 56% of its games. The rest is variable. 
-For the Kingdom, d4, g3, and b3 are the most common openings in that order.
+可汗不能王車易位，所以一個基本的戰略是將可汗移動到g7。Fairy stockfish程式在56%的遊戲中走了Kf7。王室方的首選依序是d4，g3，b3。可汗方的主要弱點是它的棋子不能保持威脅，如果他受到攻擊而需要撤退，就失去它們原先的攻擊。國王方可利用這一點。
 
-A major Horde weakness is that the lancers and horse archers cannot sustain a threat on a piece. If you attack a lancer/archer, if they must retreat, they lose their attack. It's important for the Kingdom to take advantage of this.
+### 開局
+以下分析來自Fairy-Stockfish的評估
 
-### Openings
-
-The following is based off an analysis of the first few moves played by Fairy-Stockfish against itself
-
-White first move	| Percent of games (number) | White Win % | Gold Win % | Gold response
+白方開局	| 遊戲比例 | 白方勝率 % | 金方勝率 % | 金方應手
 -- | -- | -- | -- | --
 d4 | 38%	(47) | 45% | 38% | Kf7 ~= c5 >> Hb7
 g3	| 24% (30)	| 33% | 43% | Kf7 >> d5
@@ -104,28 +93,28 @@ Nf3 | 3% (4) | 25% | 50% | e5 always
 e4 | 2% (3) | 33% | 67% | d5
 c4 | 1% (1) | 100% | 0% | Kf7
 
-Some particular lines have been also played for multiple games. Here are the four most common. We'll use the name "castle" for any variation where the Horde tucks away the khan to Kf7 as soon as possible. The last moves in parentheses are where variations start to significantly happen.
+四個最常見開局。“易位”代表金方很快把可汗移動到f7。小括弧代表其他選擇。
 
-**Benko's Castle - Double Corner Opening** - Most common opening
+**本科易位 - 雙角攻擊** - 最常見
 1. g3 Kf7
 2. e4 Kg7
 3. (Bd3 or Nf3) ...
 
 ![Benko's Castle](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/BenkoCastle.png)
 
-*Benko's Castle after 2... Kg7*
+*本科易位 2... Kg7*
 
-**Stockfish Defense - Closed Variation**
+**Stockfish 防禦 - 封閉變例**
 1. d4 c5
 2. dxc5 *bxc5*
 3. c4 Kf7
 4. (Nc3) ...
 
-**Stockfish Defense - Open Variation**
+**Stockfish Defense - 開放變例**
 1. d4 c5
 2. dxc5 *dxc5*
 
-**Stockfish Defense - Queenside Push**
+**Stockfish Defense - 后翼推進**
 1. d4 c5
 2. *e3* cxd4
 3. exd4 b5
@@ -134,4 +123,4 @@ Some particular lines have been also played for multiple games. Here are the fou
 
 ![Stockfish Defense Queenside Push](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/QueensidePush.png)
 
-*Stockfish Defense- Queenside Push after 5. c4*
+*Stockfish Defense - 后翼推進，走5. c4*

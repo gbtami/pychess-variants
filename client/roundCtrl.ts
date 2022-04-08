@@ -16,7 +16,7 @@ import { Gating } from './gating';
 import { Promotion } from './promotion';
 import { updateMaterial } from './material';
 import { sound } from './sound';
-import { uci2cg, cg2uci, VARIANTS, Variant, getCounting, isHandicap, notation } from './chess';
+import { uci2LastMove, cg2uci, VARIANTS, Variant, getCounting, isHandicap, notation } from './chess';
 import { crosstableView } from './crosstable';
 import { chatMessage, chatView } from './chat';
 import { createMovelistButtons, updateMovelist, updateResult, selectMove } from './movelist';
@@ -92,6 +92,7 @@ export default class RoundController {
     notation: cg.Notation;
     fullfen: string;
     username: string;
+    anon: boolean;
     wplayer: string;
     bplayer: string;
     base: number;
@@ -223,6 +224,7 @@ export default class RoundController {
         this.chess960 = model["chess960"] === 'True';
         this.fullfen = model["fen"];
         this.username = model["username"];
+        this.anon = model["anon"] === 'True';
         this.wplayer = model["wplayer"];
         this.bplayer = model["bplayer"];
         this.base = Number(model["base"]);
@@ -472,12 +474,15 @@ export default class RoundController {
         const container = document.getElementById('game-controls') as HTMLElement;
         if (!this.spectator) {
             const pass = this.variant.pass;
-            this.gameControls = patch(container, h('div.btn-controls', [
-                h('button#abort', { on: { click: () => this.abort() }, props: {title: _('Abort')} }, [h('i', {class: {"icon": true, "icon-abort": true} } ), ]),
-                h('button#count', _('Count')),
-                h('button#draw', { on: { click: () => (pass) ? this.pass() : this.draw() }, props: {title: (pass) ? _('Pass') : _("Draw")} }, [(pass) ? _('Pass') : h('i', '½')]),
-                h('button#resign', { on: { click: () => this.resign() }, props: {title: _("Resign")} }, [h('i', {class: {"icon": true, "icon-flag-o": true} } ), ]),
-            ]));
+            let buttons = [];
+            if (!this.tournamentGame) {
+                buttons.push(h('button#abort', { on: { click: () => this.abort() }, props: {title: _('Abort')} }, [h('i', {class: {"icon": true, "icon-abort": true} } ), ]));
+            }
+            buttons.push(h('button#count', _('Count')));
+            buttons.push(h('button#draw', { on: { click: () => (pass) ? this.pass() : this.draw() }, props: {title: (pass) ? _('Pass') : _("Draw")} }, [(pass) ? _('Pass') : h('i', '½')]));
+            buttons.push(h('button#resign', { on: { click: () => this.resign() }, props: {title: _("Resign")} }, [h('i', {class: {"icon": true, "icon-flag-o": true} } ), ]));
+            
+            this.gameControls = patch(container, h('div.btn-controls', buttons));
 
             const manualCount = this.variant.counting === 'makruk' && !(this.model['wtitle'] === 'BOT' || this.model['btitle'] === 'BOT');
             if (!manualCount)
@@ -896,21 +901,12 @@ export default class RoundController {
             if (container) patch(container, h('div'));
         }
 
-        let lastMove: cg.Key[] | null = null;
-        if (msg.lastMove !== null) {
-            const lastMoveStr = uci2cg(msg.lastMove);
-            // drop lastMove causing scrollbar flicker,
-            // so we remove from part to avoid that
-            lastMove = lastMoveStr.includes('@') ? [lastMoveStr.slice(-2) as cg.Key] : [lastMoveStr.slice(0, 2) as cg.Key, lastMoveStr.slice(2, 4) as cg.Key];
-        }
-
+        const lastMove = uci2LastMove(msg.lastMove);
         const step = this.steps[this.steps.length - 1];
-        const capture = (lastMove !== null) && ((this.chessground.state.pieces.get(lastMove[1]) && step.san?.slice(0, 2) !== 'O-') || (step.san?.slice(1, 2) === 'x'));
+        const capture = (lastMove.length > 0) && ((this.chessground.state.pieces.get(lastMove[1]) && step.san?.slice(0, 2) !== 'O-') || (step.san?.slice(1, 2) === 'x'));
 
-        if (lastMove !== null && (this.turnColor === this.mycolor || this.spectator)) {
+        if (lastMove.length > 0 && (this.turnColor === this.mycolor || this.spectator)) {
             if (!this.finishedGame) sound.moveSound(this.variant, capture);
-        } else {
-            lastMove = [];
         }
         this.checkStatus(msg);
         if (!this.spectator && msg.check && !this.finishedGame) {
@@ -938,24 +934,21 @@ export default class RoundController {
         this.clocks[oppclock].setTime(this.clocktimes[this.oppcolor]);
         this.clocks[myclock].setTime(this.clocktimes[this.mycolor]);
 
-        if (msg.ply <= 2) {
-            let bclock;
-            if (!this.flip) {
-                bclock = this.mycolor === "black" ? 1 : 0;
-            } else {
-                bclock = this.mycolor === "black" ? 0 : 1;
-            }
-            const wclock = 1 - bclock
-            if (this.model['wberserk'] === 'True' || msg.berserk.w) {
-                this.clocks[wclock].increment = 0;
-                this.clocks[wclock].setTime(this.base * 1000 * 30);
-            }
-            if (this.model['bberserk'] === 'True' || msg.berserk.b) {
-                this.clocks[bclock].increment = 0;
-                this.clocks[bclock].setTime(this.base * 1000 * 30);
-            }
+        let bclock;
+        if (!this.flip) {
+            bclock = this.mycolor === "black" ? 1 : 0;
+        } else {
+            bclock = this.mycolor === "black" ? 0 : 1;
         }
-
+        const wclock = 1 - bclock
+        if (this.model['wberserk'] === 'True' || msg.berserk.w) {
+            this.clocks[wclock].increment = 0;
+            if (msg.ply <= 2) this.clocks[wclock].setTime(this.base * 1000 * 30);
+        }
+        if (this.model['bberserk'] === 'True' || msg.berserk.b) {
+            this.clocks[bclock].increment = 0;
+            if (msg.ply <= 2) this.clocks[bclock].setTime(this.base * 1000 * 30);
+        }
 
         if (this.spectator) {
             if (latestPly) {
@@ -1019,11 +1012,9 @@ export default class RoundController {
         const step = this.steps[ply];
         if (step === undefined) return;
 
-        let move : cg.Key[] | undefined = undefined;
+        const move = uci2LastMove(step.move);
         let capture = false;
-        if (step['move'] !== undefined) {
-            const moveStr = uci2cg(step['move']);
-            move = moveStr.includes('@') ? [moveStr.slice(-2) as cg.Key] : [moveStr.slice(0, 2) as cg.Key, moveStr.slice(2, 4) as cg.Key];
+        if (move.length > 0) {
             // 960 king takes rook castling is not capture
             // TODO Defer this logic to ffish.js
             capture = (this.chessground.state.pieces.get(move[move.length - 1]) !== undefined && step.san?.slice(0, 2) !== 'O-') || (step.san?.slice(1, 2) === 'x');

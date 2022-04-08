@@ -2,70 +2,63 @@
 
 ![Shinobi](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Shinobi.png)
 
-Shinobi Chess is a chess variant designed in 2021 by Couch Tomato with help from Fables, fourth in the series of asymmetric games. The Western chess army (“the Kingdom,” black) has invaded the land of the Sakura Clan (pink/sakura). While having mostly weak pieces at the start, the Clan is very resourceful and can instantly recruit and summon allies to defend at a minute’s notice. The Clan starts with many pieces in hand and can drop them on its side of the board in lieu of moving a piece. Furthermore, they can promote upon reaching the far end of the board – these abilities are similar to the game of shogi, with the major exception that captured pieces do not go into a player’s hand, so each drop counts! The game itself is incredibly balanced by engine evaluation (even more than standard chess), with a near 50-50 win ratio for the Kingdom and Clan.
+Shinobi是一种国际象棋变体，在2019-2020被Couch Tomato跟Fables的帮助推出，非对称性变体系列之四。西洋棋部队（王国，黑方），入侵了Sakura Clan（粉红方）的领土。虽然分Clan最开始只有弱棋子，他们足智多谋，能即刻招募盟友为防御。Clan开始于很多的棋子在手里，可打入到自己的领土（前四行）。此外，他们的棋子，在达到最后两行之后，可升变。这些能力仿佛日本将其的规则，不过吃掉过的棋子不可打入。游戏本身按照象棋程序是极其平衡，甚至比国际象棋更平衡，双方的胜率接近一半
  
-## General Rules
-1.	Setup is as above; the Clan player starts with additional pieces in hand.
-2.	The Clan (pink/sakura) always moves first.
-3.	Clan pieces in hand can only be dropped in the first four ranks (first half of the board).
-4.	All minor Clan pieces promote upon reaching the **7th or 8th rank**. Similarly, Kingdom pawns now promote on the 7th rank instead of 8th.
-5.	Pawns on either side can only promote to a Captain (see below).
-6.	An additional method of victory is available: called **campmate**. Campmate is achieved by moving one’s king into the final rank without moving into check.
-7.	**Stalemate** - loss for the player who can't move (rather than draw as in chess)
-8.	**Repetiiton** - loss for the player who repeats a board position 3 times. Typically this is done through chasing a king or orther piece.
-9.	The Clan cannot castle.
-10.	Other rules, including Kingdom moves and en passant, are as in standard international chess.
+## 规则
+1.	设置如上所示。
+2.	Clan (分红方）是先手。
+3.	Clan手里的棋子只能打入前四行（棋盘的前一般）
+4.	所有Clan的小棋子在达到第七或第八行之后会升变。类似王国的兵只需要达到第七行就可升变。
+5.	双方的兵只可升变成队长
+6.	双方有另一个生理条件：Campmate. 这个情况会出现在一个王能安全达到对方的底线。
+7.	**Stalemate**  - 没有合法的棋步代表失败（不是按照国际象棋的和平）
+8.	**Repetiiton** - 三次重负同一局面代表失败。
+9.	Clan不可王车易位。
+10.	其他规则，包括王国的移动和吃过路兵跟国际象棋一样
 
-## Clan Pieces
+## Clan的棋子
 
-There are five new units unique to the Clan: the Ninja, the Dragon, Lances, Wooden Horses, and Monks. Captains are a new piece available to both sides, but only the Clan starts with one on the board. Do not be intimidated; all these pieces have movements that are very similar to the original chess pieces! The Ninja and Dragon are special pieces more unique pieces to the Clan, while the other new pieces are essentially weaker version of their Kingdom counterparts. The Ninja, the Dragon, and Captains do not promote. 
-The Clan also has access to the Kingdom pieces of the Rook, Bishop, and Knight after promotion.  The Clan’s king is called a Kage (K) and has a different symbol, but the change is purely aesthetic and thematic: it behaves like an orthodox King. Clan Rooks and Bishops look different, but the changes are also aesthetic.
+Clan有五个独特单位：忍着，龙王，香车，桂马和士。队长们（并的升变）也在双方的部队中，不过只有Clan一开始拥有。忍着和龙王更特殊，而其他棋子基本上是王国的弱对口单位。Clan在升变之后有权使用王国一样的棋子（车，象，马）。Clan的王可叫做Kage，拥有自己的标志，不过他行为国王。Clan的车和象也有自己的审美。
 
-### Captain (C)
+### 队长 | Captain (C)
 
 ![Captain](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/ClanCaptain.png)
 
-The Clan starts with one Captain in the Queen's spot. Additional Captains can be obtained by both sides by promoting their pawns at the 7th rank. The Captain has the same movement of a King. Of course, unlike the King, capturing a Captain does not end the game.
+一开始Clan后的位置倒是站一个队长。更多的队长可得到在兵达到第七行时。队长的移动如王一样，当然他们不是皇家的所以可能被吃掉。
 
-### Ninja (J)
+### 忍着 | Ninja (J)
 
 ![Ninja](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Ninja.png)
 
-The Ninja is a hybrid piece that combines the movements of the bishop and the knight. In many variants, this is also known as the Archbishop. The Ninja is the Clan's strongest piece and is a very tricky piece that can easily penetrate defenses. The Ninja is also the only piece capable of checkmating on its own! The Ninja is slightly weaker than the Queen.
+忍着是从象和马的融化中诞生，这棋子是Clan的大主教。这是他们的最强棋子，比只后弱一点。忍着是非常棘手而甚至能单人匹马把对方的王将死。忍着不可升变。
 
-The Ninja does not promote.
-
-### Dragon (D)
+### 龙王 | Dragon (D)
 
 ![Dragon](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Dragon.png)
 
-The Dragon is a hybrid piece that combines the movements of the rook and king (or for purists, rook and ferz). This is identical to the Dragon King (promoted Rook) in Shogi. The Dragon is weaker than the Ninja, but stronger than the Rook.
+龙王来自车和王的合作，就是日本将其的龙王（升变的车）。龙王不如忍着也不可升变，但无论怎样，它是Clan的佼佼者。
 
-The Dragon does not promote.
-
-### Lance (L)
+### 香车 (L)
 
 ![Lance](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Lance.png)
 
-The Lance is like a Rook but can only move straight forward. This is identical to the Lance in Shogi. One Lance starts in hand and can be thought of a droppable skewer. Because it can't retreat, make sure the drop counts! The Lances that start on the board are much less fiexible and serve to control the board. The **Lance promotes to a Rook** upon reaching the 7th (optional) or 8th (mandatory) ranks. The Lance is valued less than the typical minor Kingdom piece; however, it has hidden value in its ability to promote to one of the strongest pieces in the game.
+香车可向前走任意步数，类是四分之一的一辆车。正是日本将其的香车。一开始手里有一辆香车。因为他不可撤退，他们打入的威胁比他们的存在强数倍。初始的香车更不灵活，不过因为他们的存在对方不该让它们的列被打开。香车可升变成车在达到第七或第八行。香车的价值比其他棋子若，不过他们的存在不能忽视，因为他的潜在是升变成一枚极强的棋子。
 
-### Wooden Horse (H)
+### 桂马 | Wooden Horse (H)
 
 ![Wooden Horse](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Horse.png)
 
-The Wooden Horse (or Horse, for short) is like a Knight but can only move to the forward-most two spots. This is identical to the Knight in Shogi. One Horse starts in hand and can be thought of a droppable fork. Because it can't retreat, make sure the drop counts! The Knights that start on the board can exert pressure similarly, but must be moved carefully because they cannot retreat. The **Horse promotes to a Knight** upon reaching the 7th or 8th rank; promotion is mandatory. The Horse is valued less than the typical minor Kingdom piece; however, it has hidden value in its ability to promote to a Knight.
+桂马是一种顽固的马，只能移动到一匹马的最后两个方格，正犹如日本将其的桂马。一开始有一匹马在手里。因为不可撤退，它的打入需要考虑！一开始在部队中的两匹马也该认真移动。桂马会在达到最后两行之后升变成马。这个能力和威胁是一种幕后的强点。
 
-### Monk (M)
+### 士 | Monk (M)
 
 ![Monk](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Monk.png)
-
-The Monk moves one space diagonally, either forwards or backwards. In other variants, this is also known as a Ferz/Fers. Both Monks start in hand. **Monks may promote into a Bishop upon reaching the 7th or 8th ranks**. The Monk is weaker than the typical minor Kingdom piece; however, it has hidden value in its ability to promote to a Bishop.
+士的移动为斜向一格。一开始两个士在手里。士会升变成象在侵入最后两行时。跟桂马一样，这一点可逼迫王国不断的防御它的领域。
  
-## Strategy
-The game is still young, so strategy is still being developed! Much of the data is currently based on Engine play.
+## 战略
+游戏还年轻，战略还在发展中！大部分的数据来自电脑比赛
 
-Piece values are difficult to asssess given the ability to promote pieces. Please note that Stockfish evaluation may be off at the beginning of the game because of these promotions. However, the game is balanced in terms of outcome.
+棋子的价值难以评估，因为升变的能力。请注意Stockfish的一开始评价可查不少，不过它最后的胜率有平衡。
 
-### Openings
-
-A full analysis has not been performed. However, Fairy Stockfish overwhelmingly opens with **1. J@c3 Nc6**. After that, there is more variance to the openings.
+### 开局
+尚未进行过全面分析。可是Fairy-Stockfish极其喜欢1.忍着@c3。之后它不清楚。

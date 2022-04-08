@@ -42,6 +42,7 @@ export function gameInfo(model: PyChessModel): VNode {
                     "icon-blue":  fc === "Blue",
                     "icon-gold":  fc === "Gold",
                     "icon-pink":  fc === "Pink",
+                    "icon-green": fc === "Green",
                 }
             }),
             h('player', playerInfo(model, 'w')),
@@ -55,6 +56,7 @@ export function gameInfo(model: PyChessModel): VNode {
                     "icon-blue":  sc === "Blue",
                     "icon-gold":  sc === "Gold",
                     "icon-pink":  sc === "Pink",
+                    "icon-green": sc === "Green",
                 }
             }),
             h('player', playerInfo(model, 'b')),

@@ -1,43 +1,27 @@
 # Translations template for PROJECT.
-# Copyright (C) 2021 ORGANIZATION
+# Copyright (C) 2022 ORGANIZATION
 # This file is distributed under the same license as the PROJECT project.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2021.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
 # 
 # Translators:
 # Marken Foo <marken.foo.yw@gmail.com>, 2021
+# gbtami <gbtami@gmail.com>, 2022
 # 
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-09-24 16:47+0200\n"
+"POT-Creation-Date: 2022-01-11 22:23+0100\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
-"Last-Translator: Marken Foo <marken.foo.yw@gmail.com>, 2021\n"
+"Last-Translator: gbtami <gbtami@gmail.com>, 2022\n"
 "Language-Team: French (https://www.transifex.com/gbtami/teams/14790/fr/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.4.0\n"
+"Generated-By: Babel 2.8.0\n"
 "Language: fr\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
-
-#: ../templates/404.html:19
-msgid "404 GAME NOT FOUND"
-msgstr "404 PARTIE NON TROUVÉE"
-
-#: ../templates/404.html:21
-msgid "Sorry, not all games are saved on the Pychess server."
-msgstr ""
-"Désolé, pas toutes les parties sont sauvegardées sur le serveur de PyChess."
-
-#: ../templates/404.html:22
-msgid "Probably it was abandoned or stopped before the third move."
-msgstr "Elle était probablement abandonée ou annulée avant le troisième coup."
-
-#: ../templates/404.html:23
-msgid "Return to the main page"
-msgstr "Retour à la page principale"
 
 #: ../templates/closed.html:8
 msgid "This account is closed."
@@ -73,30 +57,30 @@ msgstr "Vainqueurs de tournois"
 msgid "Tournament shields"
 msgstr "Vainqueurs des boucliers"
 
-#: ../templates/profile.html:13
+#: ../templates/profile.html:14
 #, python-format
 msgid "%(count)s game"
 msgid_plural "%(count)s games"
 msgstr[0] "%(count)s partie"
 msgstr[1] "%(count)s parties"
 
-#: ../templates/profile.html:40
+#: ../templates/profile.html:42
 msgid "Watch games"
 msgstr "Regarder les parties"
 
-#: ../templates/profile.html:42
+#: ../templates/profile.html:44
 msgid "Challenge to a game"
 msgstr "Défier à une partie"
 
-#: ../templates/profile.html:45
+#: ../templates/profile.html:47
 msgid "Import game"
 msgstr "Importer une partie"
 
-#: ../templates/profile.html:48
+#: ../templates/profile.html:50
 msgid "Export games"
 msgstr "Exporter les parties"
 
-#: ../templates/profile.html:51
+#: ../templates/profile.html:53
 msgid "Lichess profile"
 msgstr "Profil Lichess"
 
@@ -151,3 +135,18 @@ msgstr "Commençant bientôt"
 #: ../templates/tournaments.html:22
 msgid "Finished"
 msgstr "Terminé"
+
+#: ../templates/tournaments.html:43
+msgid "Rated"
+msgstr "Classée"
+
+#: ../templates/tournaments.html:43
+msgid "Casual"
+msgstr "Amicale"
+
+#: ../templates/tournaments.html:50
+#, python-format
+msgid "%(count)s player"
+msgid_plural "%(count)s players"
+msgstr[0] "%(count)s joueur"
+msgstr[1] "%(count)s joueurs"

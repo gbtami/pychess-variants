@@ -1,7 +1,7 @@
 @import "hamburger.css";
 :root {
     --main-margin: 0;
-    --main-max-width: 1400px;
+    --main-max-width: 1300px;
     --gauge-gap: 17px;
     --site-header-height: 60px;
     --site-header-margin: 0px;
@@ -41,6 +41,7 @@
     --red-text: Crimson;
     --gold-text: GoldenRod;
     --pink-text: Pink;
+    --green-text: Green;
     --gray-text: #808080;
     --modal-bg: #fff;
     --box-header: #f5f5f5;
@@ -241,6 +242,13 @@ iframe {
     background-color: var(--bg-color0);
     padding: 1em;
 }
+
+.cont-link {
+    display: block;
+    text-align: right;
+    margin: 0.5em 1em 0.5em 0;
+}
+
 @media (min-width: 320px) {
     html {
         font-size: calc( 12px + 2 * ((100vw - 320px) / 880));
@@ -355,7 +363,6 @@ iframe {
     flex-flow: column nowrap;
     justify-content: right;
     overflow: hidden;
-    box-shadow: var(--base-shadow);
 }
 .sidebar-second{
     grid-area: table;
@@ -415,7 +422,7 @@ under-right {
     flex-flow: column nowrap;
 }
 
-div.about, div.guide, div.patron, div.closed, div.paste, div.invite, div.news {
+div.about, div.guide, div.patron, div.closed, div.paste, div.invite, div.news, div.not-found {
     grid-area: main;
     margin: 0 auto;
     border-radius: 3px;
@@ -423,9 +430,6 @@ div.about, div.guide, div.patron, div.closed, div.paste, div.invite, div.news {
     box-shadow: var(--base-shadow);
     background-color: var(--bg-color0);
     padding: 2rem;
-}
-div.about, div.paste, div.news {
-    width: 75%;
 }
 div.patron, div.invite {
     width: 50%;
@@ -436,7 +440,6 @@ div.guide, div.news {
 }
 
 div.guide, div.news, div.about {
-    max-width: 800px;
     padding: 20px 40px;
     font-size: 1.2em; 
 }
@@ -958,6 +961,9 @@ div.info2 {
     padding-left: 10px;
     padding-bottom: 6px;
 }
+div.info2 a {
+    color: var(--link-color-blue);
+}
 div.info2.games {
     padding-top: 26px;
 }
@@ -1052,6 +1058,10 @@ i-side, .icon-cloud-upload:before {
 .icon-pink:before {
     content: "\62";
     color: var(--pink-text);
+}
+.icon-green:before {
+    content: "\62";
+    color: var(--green-text);
 }
 .icon-online::before {
     color: var(--good);
@@ -1658,6 +1668,7 @@ label {
     background: var(--bg-color0);
     min-height: 15em;
     border-radius: 3px;
+    box-shadow: var(--base-shadow);
 }
 
 .chat .time {
@@ -1978,9 +1989,6 @@ div#ctable-container {
     background: linear-gradient(to bottom, var(--blue-active), var(--blue-passive) 100%);
     box-shadow: var(--base-shadow);
 }
-.tour-spotlight:last-child {
-    margin-bottom: 1em;
-}
 .tour-spotlight:hover {
  opacity:1
 }
@@ -2004,6 +2012,7 @@ div#ctable-container {
 .tour-spotlight .more {
     font-size: 0.85em;
 }
+
 a#zen-button {
     display: none;
 }

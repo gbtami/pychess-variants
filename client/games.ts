@@ -2,7 +2,7 @@ import { h, VNode } from 'snabbdom';
 
 import { Chessground } from 'chessgroundx';
 
-import { VARIANTS, uci2cg } from './chess';
+import { VARIANTS, uci2LastMove } from './chess';
 import { boardSettings } from './boardSettings';
 import { patch } from './document';
 import { timeControlStr } from './view';
@@ -25,6 +25,7 @@ export interface Game {
 function gameView(games: {[gameId: string]: Api}, game: Game, fen: cg.FEN, lastMove: cg.Key[]) {
     const variant = VARIANTS[game.variant];
     return h(`minigame#${game.gameId}.${variant.board}.${variant.piece}`, {
+        class: { "with-pockets": variant.pocketRoles('white') !== undefined },
         on: { click: () => window.location.assign('/' + game.gameId) }
     }, h('div', [
         h('div.row', [
@@ -37,13 +38,14 @@ function gameView(games: {[gameId: string]: Api}, game: Game, fen: cg.FEN, lastM
         h(`div.cg-wrap.${variant.cg}.mini`, {
             hook: {
                 insert: vnode => {
-                    // TODO Add pockets to game preview
                     const cg = Chessground(vnode.elm as HTMLElement, {
                         fen: fen,
                         lastMove: lastMove,
                         geometry: variant.geometry,
                         coordinates: false,
-                        viewOnly: true
+                        viewOnly: true,
+                        addDimensionsCssVars: true,
+                        pocketRoles: color => variant.pocketRoles(color),
                     });
                     games[game.gameId] = cg;
                 }
@@ -70,20 +72,10 @@ export function renderGames(): VNode[] {
                 const evtSource = new EventSource("/api/ongoing");
                 evtSource.onmessage = function(event) {
                     const message = JSON.parse(event.data);
-
                     const cg = games[message.gameId];
-
-                    const parts = message.fen.split(" ");
-                    let lastMove = message.lastMove;
-                    if (lastMove !== null) {
-                        lastMove = uci2cg(lastMove);
-                        lastMove = [lastMove.slice(0,2), lastMove.slice(2,4)];
-                        if (lastMove[0][1] === '@')
-                            lastMove = [lastMove[1]];
-                    }
                     cg.set({
-                        fen: parts[0],
-                        lastMove: lastMove,
+                        fen: message.fen,
+                        lastMove: uci2LastMove(message.lastMove),
                     });
                 }
             }

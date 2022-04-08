@@ -60,7 +60,9 @@ In the absence of mighty chess queens, the rooks dominate the board. Lateral roo
 
 ### Pawn (*Bia*)
 
-![Pawn](https://github.com/gbtami/pychess-variants/blob/master/static/images/MakrukGuide/Pawn.png?raw=true) ![ProPawn](https://github.com/gbtami/pychess-variants/blob/master/static/images/MakrukGuide/ProPawn.png?raw=true)
+|   |   |
+--- | ---
+![Pawn](https://github.com/gbtami/pychess-variants/blob/master/static/images/MakrukGuide/Pawn.png?raw=true) | ![ProPawn](https://github.com/gbtami/pychess-variants/blob/master/static/images/MakrukGuide/ProPawn.png?raw=true)
 
 The pawn moves and attacks the same as in chess. However, there is no double-step first move. Pawns promote and move like queens when they reach the sixth rank.
 

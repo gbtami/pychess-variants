@@ -1,19 +1,29 @@
-# ![Crazyhouse960](https://github.com/gbtami/pychess-variants/blob/master/static/icons/Crazyhouse960.svg) Crazyhouse 960
+# ![Crazyhouse960](https://github.com/gbtami/pychess-variants/blob/master/static/icons/Crazyhouse960.svg) 隨機雙狂象棋 Crazyhouse 960
 
-Crazyhouse 960 is a custom variant combining the rules of Crazyhouse with the random placement of Chess 960. The same rules apply to both games. As this is considered a derivative of Crazyhouse, please check the Crazyhouse rules in its separate guide. 960 rules are as below for a reminder.
+隨機雙狂象棋結何原本雙狂象棋與菲舍爾任意制象棋Chess960的規則。 由於這視為雙狂象棋的變體，因此請先熟悉雙狂象棋的規則，
 
-This variant can be played by checking the "Chess960" option when creating a Crazyhouse game.
+你可以在雙狂象棋的還項中還擇 960 模式來開始此遊戲。
 
-## 960 Rules
+菲舍爾任意制象棋Chess960的規則則簡單附註在下。
 
-The starting bottom ranks are randomized, but two rules must be followed:
+## 菲舍爾任意制象棋 Chess960
 
-The bishops must be placed on opposite-color squares.
-The king must be placed on a square between the rooks.
-Castling is the other major rule to take note of. Basically, regardless of where the rooks are, if you castle, the end position will be the same as if the rooks were in standard position. For example, a queenside castle will result with the king on the c file and the rook on the d file (notation: 0-0-0).
+棋子的初始排列順序隨機產生，但必須遵循下列原則：
 
-All other rules are as in Crazyhouse.
+* 黑白雙方的棋子必須呈對稱排列。
+* 各方的兩枚主教不可位於在同色格。
+* 各方的兩枚城堡只能位在國王的兩側。
+* 士兵必須位於第二、第七橫線。
+* 包括西洋棋的正統排列方式，棋盤初始排列一共有960種。
 
-## Clarifications
+任何一種排列都可進行王車易位，條件如同正統規則：王車之間不得有棋子；王車不得先移動過；王被將軍時不能易位；王移動時經過或到達的格子不能是對方攻擊的範圍。
 
-A king may not castle with a dropped rook.
+不論城堡和國王的初始位置在哪裡，王車易位後國王城堡的位置就如同傳統西洋棋。
+當王與a線方向的車易位時，王移到c1 (c8)，車到d1 (d8)；當與h線方向的車易位時，王到g1 (g8)，車到f1 (f8)。
+棋子的兵種、著法和普通西洋棋規則相同。
+
+其他規則都如原本的雙狂象棋。
+
+## 澄清
+
+打入的城堡不能進行王車易位。

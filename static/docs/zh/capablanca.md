@@ -2,50 +2,33 @@
 
 ![Capablanca setup](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Capablanca.png)
 
-Capablanca chess (or Capablanca's chess) was created by World Chess Champion José Raúl Capablanca in the 1920s. The game is played on a 10 x 8 board and adds two new hybrid pieces.
+Capablanca(卡帕布兰卡)象棋是国际象棋棋王Capablanca在其棋王任（~1920）内推出。这变体使用10*8格的棋盘而添加了两种棋子：大主教（马和象）和首相（马和车）。
 
-## Rules
+## 规则
+使用10*8格棋盘，因为需要加上两条直线为了大主教和首相，开始位置在象和马之间。大主教立于后那边（白方左侧）。王车易位也行，王会移动三格。兵可以升变如一样，加上升变为大主教或首相也可以。这变体本身还有一些变体关于布置，例如Gothic。
 
-The game is played on a 10 x 8 board, with additional files for the new Archbishop (Knight/Bishop) and Chancellor (Knight/Rook) pieces between the Bishop and Knight. The archbishop is on the queen side, and the chancellor is on the king side. For castling, the king then moves three squares instead of two. Pawns may promote to the archbishop and chancellor as well.
+## 新棋子
 
-There are several variants that have different starting positions. On this site, Gothic chess is one such variant available, where the  starting positions are swapped.
-
-## New Pieces
-
-### Archbishop
+### 大主教 | 公主 | Archbishop
 
 ![Archbishop](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Princesses.png)
 
-Various symbols used for the archbishop. (Note that the hawk is only for Seirawan Chess)
+大主教用的各种符号（老鹰为S-chess所用）
 
 ![Archbishop moves](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Archbishop.png)
 
-The archbishop (A) is a compound piece combining the moves of the **bishop** and **knight**. In terms of fairy pieces, this is generically known as the princess, but also has other names in different variants.
+大主教是一个复合棋子，组合动作方法从马和象。它的样子常常就是一匹马和一枚象，不过你可选择其他的图象。 只有它能单人匹马把王将死。大主教的价值不如首相或者后，但还是差不多。
 
-The piece is often symbolized with a combination of a knight and bishop; most variants often do not specify how the piece should look otherwise (which is why we offer different piece sets to choose from).
-
-The archbishop is unique in that it is the only piece that can checkmate on its own, which you may be able to appreciate if you look at its movement/attack pattern.
-
-The value of an archbishop is considered slightly better than a rook, but less than the chancellor and queen.
-
-### Chancellor
+### 首相 | Chancellor
 
 ![Chancellor](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Empresses.png)
 
-Various symbols used for the chancellor. (Note that the elephant is only for Seirawan Chess)
+首相用的各种符号（大象为S-chess所用）
 
 ![Chancellor moves](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Chancellor.png)
 
-The chancellor (C) is a compound piece combining the moves of the **rook** and the **knight**. In terms of fairy pieces, this is generically known as the empress, but also has other names in different variants. 
+首相是一个复合棋子，组合动作方法从马和车。它的样子常常就是一匹马和一辆车，不过你可以选择其他的图像。首相的价值被认为是比大主教高一些，跟后一样或者差一点
 
-The piece is often symbolized with a combination of a knight and rook; most variants often do not specify how the piece should look otherwise (which is why we offer different piece sets to choose from).
+### 战略
 
-The value of a chancellor is considered better than an archbishop, but equivalent or slightly less than a queen.
-
-### Strategy
-
-Relatively little is known about many of the variants here. Creativity and attention to detail are always important. And so the following advice is tentative. 
-
-Try not to make "routine" developing moves. Sometimes it is worth spending more time to reposition fewer pieces optimally, rather than to develop many pieces suboptimally in less time. Even the variants which appear to resemble chess cannot be played with routine chess moves for very long.
-
-Continue to play more and if you discover new strategies or advice, let us know!
+关于这里的变体知之甚少。创造力和对细节的关注都重要。所以一下建议是暂定的。王的安全比较重要，因为强大棋子的存在，而且王车易位比提交难。开发棋子的质量可比速度比较重要。如果你能发现新的战略，建议，你可以禀报！

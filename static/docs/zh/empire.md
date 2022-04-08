@@ -1,73 +1,67 @@
-# ![Empire chess](https://github.com/gbtami/pychess-variants/blob/master/static/icons/empire.svg) Empire Chess
+# ![Empire chess](https://github.com/gbtami/pychess-variants/blob/master/static/icons/empire.svg) 帝国棋 | Empire Chess
 
 ![Empire](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Empire.png)
 
-Empire Chess is a chess variant designed in 2020 by Couch Tomato, third in the series of asymmetric games (although available to play on Pychess later than the fourth game due to unique pieces that were not yet available). The mighty Empire (Gold army) has heard stories of the mighty queen of the Kingdom (Black army) and has proposed a marriage with its Duke. However, the Kingdom refused, leading to an Imperial invasion led by the Kaiser himself! 
+是一种国际象棋变体，在2019-2020被Couch Tomato推出，非对称性变体系列之四。强大的帝国(金方）听说过以为在战场上大权在握的女士，所以以为帝国国公提出了结婚。可惜，王国的国王反而娶了她。受辱的凯撒带着军队出发去惩罚他们！
 
-The Imperial army is incredibly powerful, with all its pieces stronger than the Royal counterpart as they can all move like queens, but attack like the standard Royal counterparts; the only exception is the counterpart to the Queen, the Duke, which can only attack like a King. For those who have played Orda Chess, this is similar except replace knight movement with Queen movement. 
+黄军非常强大，所有的棋子（国公之外）比对方对应强。主题像可汗v王室的主题，不过用后的走法代替吗的走法。另一个独特的规则是王凯撒对峙（象棋也有），这可增加将死的可能性。游戏是按照象棋程序极其平衡。双方的胜率接近一半。  
 
-Another unique feature is the King-Kaiser Faceoff rule, adding more checkmate possibilities (this may be familiar to those who have played Xiangqi or Synochess). 
-
-The game itself is incredibly balanced by engine evaluation (even more than standard chess), with a near 50-50 win ratio for the Kingdom and Empire.
- 
 ## General Rules
-1.	Setup is as above.
-2.	The Empire (gold) always moves first.
-3.  As Imperial pawns start on the third rank, they do not have the option to move two spaces or be captured by en passant. Royal pawns retain the ability to move two spaces initially and to be captured via en passant.
-4.	Pawns on either side can only promote to a queen.
-5.	**King-Kaiser Faceoff** - The King and Kaiser (the Imperial "king") cannot face each other on any rank or file, much like rook attack.
-6.	An additional method of victory is available: called **campmate**. Campmate is achieved by moving one’s king into the final rank without moving into check.
-7.	**Stalemate** - loss for the player who can't move (rather than draw as in chess)
-8.	**Repetition** - loss for the player who repeats a board position 3 times. Typically this is done through chasing a king or piece.
-8.	The Empire cannot castle.
-9.	Other rules, including Kingdom moves and [en passant](https://en.m.wikipedia.org/wiki/En_passant), are as in standard international chess.
+1.	设置如上所示
+2.	帝国（金方）是先手
+3.      帝国的兵因为已经过了第二行不可前进两格，相反王国的兵可以，而可以被吃过路兵。
+4.	双方的兵只可升变为后
+5.	**王凯撒对峙** - 王，凯撒在同一路（性或列）且两个棋子之间无任何棋子时，属于违规走法。
+6.	**Campmate** - 双方有另一个生理条件，这个情况会出现在一个王能安全达到对方的底线。
+7.	**Stalemate** - 没有合法的棋步代表失败（不是按照国际象棋的和平）
+8.	**Repetition** - 三次重负同一局面代表失败
+8.	帝国不可王车易位
+9.	其他规则，包括王国的移动和吃过路兵跟国际象棋一样
 
-## Imperial Pieces
+## 帝国棋子
 
-There are five new units unique to the Empire: two Soldiers, two Siege Towers, two Eagles, two Cardinals, and one Duke. All Imperial back-rank pieces move like queens but attack like their Royal counterparts. The exception is the Duke, which also moves like a Queen, but attacks like a King.  The Imperial "king" is called a Kaiser (K) and has a different symbol, but the change is purely aesthetic and thematic: it behaves like an orthodox King. 
+有五个新棋子属于帝国所用，2卒，2塔，2赢，2主教，1国公。帝国所有的第一行棋子可安然移动如后，攻击如他们王国的对应。国公是例外，只可攻击如王。帝国的王名称凯撒，有自己的表示不过跟对方的王实际上没有区别。
 
-In these images, green dots represent movement only, while yellow dots represent both movement and capture.
+下面是每个棋子的细节和图示。绿色点代表走法，红色点代表吃掉走法，黄色点代表都可
 
-### Soldier (S)
+### 卒 | Soldier (S)
 ![Soldier](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/EmpireSoldier.png)
 
-The Soldiers replace the two middle Pawns. Soldiers both move and attack either one space forwards or one space to either side. These act as the bodyguards of the Kaiser; they're strongest when paired together. 
+卒正是象棋升变过的兵，可左右或往前走一步，不可升变。
 
-### Duke (D)
+### 国公 | Duke (D)
 
 ![Duke](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Duke.png)
 
-The Duke is the counterpart to the Queen. It moves like a Queen, but attacks like a King only. This does not make it a weak piece. In the endgame, it is very capable of checkmating the King with help from any other piece, including the Kaiser itself (because of the King-Kaiser Faceoff rule).
+国公是后对应。他可移动如后，但只能攻击为一个王。这不代表他太弱了，在残局中他可跟一枚棋子的帮助把王将死，甚至凯撒（因为王凯撒对峙）。
 
-### Siege Tower (T)
+### 塔 | (T)
 
 ![Siege Tower](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Tower.png)
 
-The Siege Tower, or Tower for short, moves like a Queen, but attacks like a Rook only. Effectively, this also means that it is a Rook that can also peacefully move like a Bishop. This is the Empire's strongest piece.
+塔有后的安然走法，为了攻击有车的走法。算是一辆车加上象的安然走法。塔是帝国最强的棋子。
 
-### Eagle (E)
+### 赢 (E)
 
 ![Eagle](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Eagle.png)
 
-The Eagle moves like a Queen, but attacks like a Knight only. The value of an Eagle is very similar to that of a Knight and is consequently the weakest piece in the Empire (outside of Pawns and Soldiers).
+赢可如后移动，不过只可如马攻击。赢的价值跟马差不多所以是帝国最差的棋子（兵和卒之外）。
 
-### Cardinal (C)
+### 主教 | Cardinal (C)
 
 ![Cardinal](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Cardinal.png)
 
-The Cardinal moves like a Queen, but attacks like a Bishop only. Effectively, this also means that it is a Bishop that can also peacefully move like a Rook. As this is not colorbound like the Bishop, this is not much weaker than the Siege Tower and is consequently the second strongest piece in the Empire. 
+主教可如后移动，不过只可如象攻击。所以它算是一只象加上一辆安然车的走法。因为不像象，他可换方格的颜色，他不比塔若多少，算是帝国威力排名第二。
 
-## Piece valuation
+## 棋子价值
 
-Accurate piece values are unknown. However, these are the values used by the version of Fairy Stockfish used to balance the game.
+不清，下文是Fairy-Stockfish所用。
 
-Royal piece	| Value (Early / Late) | Imperial piece | Value (Early / Late)
+王国棋子	| 价值 (早期 / 晚期) | 帝国棋子 | 价值 (早期 / 晚期)
 -- | -- | -- | --
-Pawn | 120 / 213	| Pawn | 120 / 213
-Queen | 2538 / 2682	| Duke | 1050 / 1150
-Bishop | 825 / 915	| Cardinal	| 1225 / 1420
-Knight | 781 / 854	| Eagle | 1000 / 1075
-Rook | 1276 / 1380	| Tower | 1375 / 1480
- | | | Soldier | 200 / 270
-## Strategy
-The game is still young, so strategy is still being developed! 
+兵 | 120 / 213	| 兵 | 120 / 213
+后 | 2538 / 2682	| 国公 | 1050 / 1150
+象 | 825 / 915	| 主教	| 1225 / 1420
+马 | 781 / 854	| 赢 | 1000 / 1075
+车 | 1276 / 1380	| 塔 | 1375 / 1480
+ | | | 卒 | 200 / 270

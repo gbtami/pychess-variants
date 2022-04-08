@@ -64,7 +64,9 @@ export function createMovelistButtons (ctrl: AnalysisController | RoundControlle
                 "plyVari" in ctrl ? (ctrl.ply === 0 && ctrl.plyVari > 0) ? 0 : ctrl.plyVari: 0 )
             } 
         } }, [ h('i.icon.icon-step-backward') ]),
-        h('button', { on: { click: () => selectMove(ctrl, Math.min(ctrl.ply + 1, ("plyVari" in ctrl && ctrl.plyVari > 0 && vari? vari.length : ctrl.steps.length) - 1), "plyVari" in ctrl? ctrl.plyVari : 0) } }, [ h('i.icon.icon-step-forward') ]),
+        h('button', { on: { click: () => 
+            selectMove(ctrl, Math.min(ctrl.ply + 1, ("plyVari" in ctrl && ctrl.plyVari > 0 && vari? vari.length : ctrl.steps.length) - 1), "plyVari" in ctrl? ctrl.plyVari : 0) } },
+            [ h('i.icon.icon-step-forward') ]),
         h('button', { on: { click: () => selectMove(ctrl, ctrl.steps.length - 1) } }, [ h('i.icon.icon-fast-forward') ]),
     ]));
 }

@@ -1,4 +1,28 @@
 import json
+import logging
+
+log = logging.getLogger(__name__)
+
+
+async def discord_message(app, msg_type, msg):
+    """Send msg to discord-relay BOT"""
+    try:
+        lobby_sockets = app["lobbysockets"]
+        for dr_ws in lobby_sockets["Discord-Relay"]:
+            await dr_ws.send_json({"type": msg_type, "message": msg})
+            break
+    except (KeyError, ConnectionResetError):
+        # BOT disconnected
+        log.error("--- Discord-Relay disconnected!")
+
+
+async def broadcast_streams(app):
+    """Send live_streams to lobby"""
+    lobby_sockets = app["lobbysockets"]
+    live_streams = app["twitch"].live_streams + app["youtube"].live_streams
+    response = {"type": "streams", "items": live_streams}
+    print(response)
+    await lobby_broadcast(lobby_sockets, response)
 
 
 async def lobby_broadcast(sockets, response):
@@ -10,13 +34,12 @@ async def lobby_broadcast(sockets, response):
                 pass
 
 
-# TODO: do we really need users parameter here ???
-async def round_broadcast(game, users, response, full=False, channels=None):
+async def round_broadcast(game, response, full=False, channels=None):
     if game.spectators:
         for spectator in game.spectators:
             try:
-                if game.id in users[spectator.username].game_sockets:
-                    await users[spectator.username].game_sockets[game.id].send_json(response)
+                if game.id in spectator.game_sockets:
+                    await spectator.game_sockets[game.id].send_json(response)
             except (KeyError, ConnectionResetError):
                 # spectator was removed from users
                 pass
@@ -24,14 +47,14 @@ async def round_broadcast(game, users, response, full=False, channels=None):
     if full:
         if not game.wplayer.bot:
             try:
-                wplayer_ws = users[game.wplayer.username].game_sockets[game.id]
+                wplayer_ws = game.wplayer.game_sockets[game.id]
                 await wplayer_ws.send_json(response)
             except (KeyError, AttributeError, ConnectionResetError):
                 pass
 
         if not game.bplayer.bot:
             try:
-                bplayer_ws = users[game.bplayer.username].game_sockets[game.id]
+                bplayer_ws = game.bplayer.game_sockets[game.id]
                 await bplayer_ws.send_json(response)
             except (KeyError, AttributeError, ConnectionResetError):
                 pass

@@ -1,43 +1,26 @@
 # Translations template for PROJECT.
-# Copyright (C) 2021 ORGANIZATION
+# Copyright (C) 2022 ORGANIZATION
 # This file is distributed under the same license as the PROJECT project.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2021.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
 # 
 # Translators:
-# gbtami <gbtami@gmail.com>, 2021
+# gbtami <gbtami@gmail.com>, 2022
 # 
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-09-27 21:43+0200\n"
+"POT-Creation-Date: 2022-01-11 22:23+0100\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
-"Last-Translator: gbtami <gbtami@gmail.com>, 2021\n"
+"Last-Translator: gbtami <gbtami@gmail.com>, 2022\n"
 "Language-Team: Hungarian (https://www.transifex.com/gbtami/teams/14790/hu/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.4.0\n"
+"Generated-By: Babel 2.8.0\n"
 "Language: hu\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-
-#: ../templates/404.html:19
-msgid "404 GAME NOT FOUND"
-msgstr "404 JÁTSZMA NEM TALÁLHATÓ"
-
-#: ../templates/404.html:21
-msgid "Sorry, not all games are saved on the Pychess server."
-msgstr "Elnézést, de nincs minden játszma mentve a pychess szerveren."
-
-#: ../templates/404.html:22
-msgid "Probably it was abandoned or stopped before the third move."
-msgstr ""
-"Valószínűleg a játszmát elhagyták vagy már a harmadik lépés előtt véget ért."
-
-#: ../templates/404.html:23
-msgid "Return to the main page"
-msgstr "Visszatérés a fő oldalra"
 
 #: ../templates/closed.html:8
 msgid "This account is closed."
@@ -73,30 +56,30 @@ msgstr "Verseny győztesek"
 msgid "Tournament shields"
 msgstr "Verseny pajzsok"
 
-#: ../templates/profile.html:13
+#: ../templates/profile.html:14
 #, python-format
 msgid "%(count)s game"
 msgid_plural "%(count)s games"
 msgstr[0] "%(count)s játszma"
 msgstr[1] "%(count)s játszma"
 
-#: ../templates/profile.html:40
+#: ../templates/profile.html:42
 msgid "Watch games"
 msgstr "Játszmák figyelése"
 
-#: ../templates/profile.html:42
+#: ../templates/profile.html:44
 msgid "Challenge to a game"
 msgstr "Kihívás"
 
-#: ../templates/profile.html:45
+#: ../templates/profile.html:47
 msgid "Import game"
 msgstr "Játszma importálása"
 
-#: ../templates/profile.html:48
+#: ../templates/profile.html:50
 msgid "Export games"
 msgstr "Játszmák exportálása"
 
-#: ../templates/profile.html:51
+#: ../templates/profile.html:53
 msgid "Lichess profile"
 msgstr "Lichess profil"
 
@@ -151,3 +134,18 @@ msgstr "Hamarosan kezdődik"
 #: ../templates/tournaments.html:22
 msgid "Finished"
 msgstr "Befejezett"
+
+#: ../templates/tournaments.html:43
+msgid "Rated"
+msgstr "Értékelt"
+
+#: ../templates/tournaments.html:43
+msgid "Casual"
+msgstr "Nem értékelt"
+
+#: ../templates/tournaments.html:50
+#, python-format
+msgid "%(count)s player"
+msgid_plural "%(count)s players"
+msgstr[0] "%(count)s játékos"
+msgstr[1] "%(count)s játékos"

@@ -1,7 +1,9 @@
-# ![Placement](https://github.com/gbtami/pychess-variants/blob/master/static/icons/placement.svg) Placement Chess (Bronstein chess, Pre-Chess, Shuffle-Chess)
+# ![Placement](https://github.com/gbtami/pychess-variants/blob/master/static/icons/placement.svg) 自由擺置西洋棋 \| Placement (伯恩斯坦象棋)
 
-Pal Benko credited the idea of “Pre-Chess” or “Shuffle-Chess” to David Bronstein.
+帕爾．本科(Pal Benko)將此變體的發明歸功於大衛．伯恩斯坦(David Bronstein.)。與西洋棋變體網站上的自由擺置西洋棋不同，此變體的規則是:
 
-Different than the “Placement Chess” described on the Chess Variants site, this variant is simply a modification where players take turns placing their back rank pieces. Castling only works when the king and the corresponding rook are in their normal position.
+雙方玩家在棋局開始前輪流擺放底線的棋子，其餘規則與正統西洋棋相同。
 
-[See here for more about history](http://www.quantumgambitz.com/blog/chess/cga/bronstein-chess-pre-chess-shuffle-chess)
+特別的是，只有當王與城堡位於正統西洋棋原本的位子時，才可進行王車易位。
+
+[更多有關自由擺置西洋棋的資訊](http://www.quantumgambitz.com/blog/chess/cga/bronstein-chess-pre-chess-shuffle-chess)

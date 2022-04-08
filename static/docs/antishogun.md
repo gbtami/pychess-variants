@@ -72,3 +72,5 @@ With the 6th rank promotions, it is important to protect your own 3rd rank. This
 General strategy-wise, many players will be tempted to play this as crazyhouse. However, the game diverges quite quickly from crazyhouse due to the drop zone restriction. While players in crazyhouse will often take advantage of weaknesses in the opponents' camps to deliver devastating drops, the gameplay in Antishogun chess is more defensive. In Antishogun chess, your army needs to maneuver itself in a way to breach the opponents' camp; even the slightest breach can result in a piece promotion. Therefore, strategy relies more on chess tactics than crazyhouse tactics for this purpose, as well as for the purposes of delivering checkmate.
 
 The ability to drop pawns on the first rank (unlike in crazyhouse) allows a player to build a much stronger castle. To crack this, focus on gaining material and promoted pieces, then push at the weak point.
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/WRk3ZbX2bpA" frameborder="0" allowfullscreen></iframe>

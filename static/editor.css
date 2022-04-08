@@ -10,7 +10,7 @@
 @media (max-width: 799px) and (orientation: portrait) {
     .editor-app {
         grid-template-rows: auto;
-        grid-template-areas: 'poc-top' 'board' 'poc-bot' 'hint' 'pocket-top' 'pocket-bot' 'tools' 'uboard' 'side';
+        grid-template-areas: 'side' 'poc-top' 'pocket-top' 'board' 'pocket-bot' 'poc-bot' 'uboard' 'tools';
     }
     input#fen {
         padding: 4px 0 4px 0;
@@ -56,10 +56,6 @@ boardeditor {
     grid-area: poc-bot;
 }
 
-div.editorhint {
-    grid-area: hint;
-    align-self: end;
-}
 .editor-button-container {
     grid-area: tools;
     display: flex;
