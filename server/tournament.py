@@ -904,7 +904,7 @@ class Tournament(ABC):
                 "r": player_data.rating,
                 "pr": player_data.provisional,
                 "a": player_data.paused,
-                "f": player_data.win_streak == 2,
+                "f": player_data.win_streak, # win_streak == 2 means "fire"
                 "s": int(full_score / SCORE_SHIFT),
                 "g": player_data.nb_games,
                 "w": player_data.nb_win,

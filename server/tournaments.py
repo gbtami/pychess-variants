@@ -340,6 +340,7 @@ async def load_tournament(app, tournament_id, tournament_klass=None):
         tournament.players[user].nb_win = doc["w"]
         tournament.players[user].nb_berserk = doc.get("b", 0)
         tournament.players[user].performance = doc["e"]
+        tournament.players[user].win_streak = doc["f"]
 
         if not withdrawn:
             tournament.leaderboard.update({user: SCORE_SHIFT * (doc["s"]) + doc["e"]})
