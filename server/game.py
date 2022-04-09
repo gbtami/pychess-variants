@@ -235,6 +235,7 @@ class Game:
                 "san": None,
                 "turnColor": "black" if self.board.color == BLACK else "white",
                 "check": self.check,
+                "movetime": 0,
             }
         ]
 
@@ -282,7 +283,7 @@ class Game:
 
         # BOT players doesn't send times used for moves
         if self.bot_game:
-            movetime = int(round((cur_time - self.last_server_clock) * 1000))
+            movetime = int(round((cur_time - self.last_server_clock) * 1000)) if self.board.ply >= 2 else 0
             if clocks is None:
                 clocks = {
                     "white": self.ply_clocks[-1]["white"],
@@ -359,6 +360,7 @@ class Game:
                         "san": san,
                         "turnColor": "black" if self.board.color == BLACK else "white",
                         "check": self.check,
+                        "clocks": clocks,
                     }
                 )
                 self.stopwatch.restart()
@@ -377,9 +379,9 @@ class Game:
                     and self.status <= STARTED
                 ):
                     self.update_status(ABORTED)
-                    await self.save_game(with_clocks=True)
+                    await self.save_game()
 
-    async def save_game(self, with_clocks=False):
+    async def save_game(self):
         if self.saved:
             return
         self.saved = True
@@ -462,8 +464,8 @@ class Game:
             if self.variant == "janggi":
                 new_data["if"] = self.board.initial_fen
 
-            if with_clocks:
-                new_data["clocks"] = self.ply_clocks
+            #if self.rated == RATED:
+            new_data["t"] = [p["movetime"] for p in self.ply_clocks]
 
             if self.tournamentId is not None:
                 new_data["wb"] = self.wberserk
@@ -921,7 +923,7 @@ class Game:
 
             if self.status == STARTED and self.board.ply >= 2:
                 # We have to adjust current player latest saved clock time
-                # unless he will get free extra time on browser page refresh
+                # otherwise he will get free extra time on browser page refresh
                 # (also needed for spectators entering to see correct clock times)
 
                 cur_time = monotonic()
