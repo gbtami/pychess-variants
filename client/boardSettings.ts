@@ -78,11 +78,12 @@ class BoardSettings {
             // if there is any
             if (el) {
                 const classNames = el.getAttribute('className')!.split(' ');
+                const variant = this.ctrl.variant.name
                 const role = classNames[0] as cg.Role;
                 const color = classNames[1] as cg.Color;
                 const orientation = this.ctrl.flip ? this.ctrl.oppcolor : this.ctrl.mycolor;
                 const side = color === orientation ? "ally" : "enemy";
-                chessground.set({ drawable: { pieces: { baseUrl: getPieceImageUrl(role, color, side)! } } });
+                chessground.set({ drawable: { pieces: { baseUrl: getPieceImageUrl(variant, role, color, side)! } } });
                 chessground.redrawAll();
             }
         }

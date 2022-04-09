@@ -3,14 +3,10 @@ from decimal import Decimal
 from const import VARIANTS, HIGHSCORE_MIN_GAMES
 
 
-async def generate_highscore(db, variant=None):
+async def generate_highscore(db, one_variant=None):
+    limit = 50
     hs = []
-    if variant is None:
-        variants = VARIANTS
-        limit = 5
-    else:
-        variants = (variant,)
-        limit = 50
+    variants = VARIANTS if one_variant is None else (one_variant,)
 
     for variant in variants:
         # print(variant)
@@ -28,15 +24,15 @@ async def generate_highscore(db, variant=None):
         async for doc in cursor:
             scores[doc["_id"]] = int(round(Decimal(doc["perfs"][variant]["gl"]["r"]), 0))
 
-        if variant is None:
+        if one_variant is None:
             hs.append({"_id": variant, "scores": scores})
         else:
             hs = scores
 
-    if variant is None:
+    if one_variant is None:
         await db.highscore.drop()
         # bulk insert to highscore
         if len(hs) > 0:
             await db.highscore.insert_many(hs)
-    else:
-        return hs
+
+    return hs

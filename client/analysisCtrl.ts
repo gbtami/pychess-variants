@@ -183,7 +183,7 @@ export default class AnalysisController {
         this.status = model["status"] as number;
         this.steps = [];
         this.pgn = "";
-        this.ply = model["ply"];
+        this.ply = isNaN(model["ply"]) ? 0 : model["ply"];
 
         this.flip = false;
         this.settings = true;
@@ -295,6 +295,8 @@ export default class AnalysisController {
             this.vscore = document.getElementById('score') as HTMLElement;
             this.vinfo = document.getElementById('info') as HTMLElement;
             this.vpv = document.getElementById('pv') as HTMLElement;
+            const pgn = (this.isAnalysisBoard) ? this.getPgn() : this.pgn;
+            this.renderFENAndPGN(pgn);
         }
 
         if (this.variant.materialPoint) {
@@ -524,39 +526,36 @@ export default class AnalysisController {
 
         if (line.includes('readyok')) this.isEngineReady = true;
 
-        if (!this.localEngine) {
-            if (line.includes('UCI_Variant')) {
-                ffishModule().then((loadedModule: any) => {
-                    this.ffish = loadedModule;
-
-                    if (this.ffish !== null) {
-                        this.ffish.loadVariantConfig(variantsIni);
-                        this.notationAsObject = this.notation2ffishjs(this.notation);
-                        const availableVariants = this.ffish.variants();
-                        //console.log('Available variants:', availableVariants);
-                        if (this.model.variant === 'chess' || availableVariants.includes(this.model.variant)) {
-                            this.ffishBoard = new this.ffish.Board(this.variant.name, this.fullfen, this.chess960);
-                            this.dests = this.getDests();
-                            this.chessground.set({ movable: { color: this.turnColor, dests: this.dests } });
-                        } else {
-                            console.log("Selected variant is not supported by ffish.js");
-                        }
-                    }
-
-                    window.addEventListener("beforeunload", () => this.ffishBoard.delete());
-                });
-
-                // TODO: enable S-chess960 when stockfish.wasm catches upstream Fairy-Stockfish
-                if ((this.model.variant === 'chess' || line.includes(this.model.variant)) &&
-                    !(this.model.variant === 'seirawan' && this.chess960)) {
-                    this.localEngine = true;
-                    patch(document.getElementById('input') as HTMLElement, h('input#input', {attrs: {disabled: false}}));
-                } else {
-                    const v = this.model.variant + ((this.chess960) ? '960' : '');
-                    const title = _("Selected variant %1 is not supported by stockfish.wasm", v);
-                    patch(document.getElementById('slider') as HTMLElement, h('span.sw-slider', {attrs: {title: title}}));
-                }
+        if (line.startsWith('Fairy-Stockfish')) {
+            window.prompt = function() {
+                return variantsIni + '\nEOF';
             }
+            window.fsf.postMessage('load <<EOF');
+        }
+
+        if (!this.localEngine) {
+            ffishModule().then((loadedModule: any) => {
+                this.ffish = loadedModule;
+
+                if (this.ffish !== null) {
+                    this.ffish.loadVariantConfig(variantsIni);
+                    this.notationAsObject = this.notation2ffishjs(this.notation);
+                    const availableVariants = this.ffish.variants();
+                    console.log('Available variants:', availableVariants);
+                    if (this.model.variant === 'chess' || availableVariants.includes(this.model.variant)) {
+                        this.ffishBoard = new this.ffish.Board(this.variant.name, this.fullfen, this.chess960);
+                        this.dests = this.getDests();
+                        this.chessground.set({ movable: { color: this.turnColor, dests: this.dests } });
+                    } else {
+                        console.log("Selected variant is not supported by ffish.js");
+                    }
+                }
+
+                window.addEventListener("beforeunload", () => this.ffishBoard.delete());
+            });
+
+            this.localEngine = true;
+            patch(document.getElementById('input') as HTMLElement, h('input#input', {attrs: {disabled: false}}));
         }
 
         if (!this.localAnalysis || !this.isEngineReady) return;
@@ -596,8 +595,7 @@ export default class AnalysisController {
             score = {cp: povEv};
         }
         const knps = nodes / elapsedMs;
-        const sanMoves = this.ffishBoard.variationSan(moves, this.notationAsObject);
-        const msg: MsgAnalysis = {type: 'local-analysis', ply: this.ply, color: this.turnColor.slice(0, 1), ceval: {d: depth, m: moves, p: sanMoves, s: score, k: knps}};
+        const msg: MsgAnalysis = {type: 'local-analysis', ply: this.ply, color: this.turnColor.slice(0, 1), ceval: {d: depth, p: moves, s: score, k: knps}};
         this.onMsgAnalysis(msg);
     };
 
@@ -629,19 +627,19 @@ export default class AnalysisController {
             }
         }
 
-        if (ceval?.p !== undefined && !!ceval.m) {
-            const pv_move = uci2cg(ceval.m.split(" ")[0]);
-            console.log("ARROW", this.arrow);
+        if (ceval?.p !== undefined) {
+            const pv_move = uci2cg(ceval.p.split(" ")[0]);
+            // console.log("ARROW", this.arrow);
             if (this.arrow) {
                 const atPos = pv_move.indexOf('@');
                 if (atPos > -1) {
                     const d = pv_move.slice(atPos + 1, atPos + 3) as cg.Key;
                     let color = turnColor;
-
+                    const variant = this.variant.name;
                     const dropPieceRole = util.roleOf(pv_move.slice(0, atPos) as cg.PieceLetter);
                     const orientation = this.flip ? this.oppcolor : this.mycolor;
                     const side = color === orientation ? "ally" : "enemy";
-                    const url = getPieceImageUrl(dropPieceRole, color, side);
+                    const url = getPieceImageUrl(variant, dropPieceRole, color, side);
                     this.chessground.set({ drawable: { pieces: { baseUrl: url! } } });
 
                     shapes0 = [{
@@ -677,20 +675,21 @@ export default class AnalysisController {
             let pvSan = ceval.p;
             if (this.ffishBoard !== null) {
                 try {
+                    this.ffishBoard.setFen(this.fullfen);
                     pvSan = this.ffishBoard.variationSan(ceval.p, this.notationAsObject);
-                    if (pvSan === '') pvSan = ceval.p;
+                    if (pvSan === '') pvSan = '.';
                 } catch (error) {
-                    pvSan = ceval.p
+                    pvSan = '.';
                 }
             }
-            this.vpv = patch(this.vpv, h('div#pv', [h('pvline', ceval.p !== undefined ? pvSan : ceval.m)]));
+            this.vpv = patch(this.vpv, h('div#pv', [h('pvline', pvSan)]));
         } else {
             this.vscore = patch(this.vscore, h('score#score', ''));
             this.vinfo = patch(this.vinfo, h('info#info', _('in local browser')));
             this.vpv = patch(this.vpv, h('div#pv'));
         }
 
-        console.log(shapes0);
+        // console.log(shapes0);
         this.chessground.set({
             drawable: {autoShapes: shapes0},
         });
@@ -773,7 +772,7 @@ export default class AnalysisController {
 
         const vv = this.steps[plyVari]?.vari;
         const step = (plyVari > 0 && vv ) ? vv[ply] : this.steps[ply];
-
+        
         const move = uci2LastMove(step.move);
         let capture = false;
         if (move.length > 0) {
