@@ -283,7 +283,9 @@ class Game:
 
         # BOT players doesn't send times used for moves
         if self.bot_game:
-            movetime = int(round((cur_time - self.last_server_clock) * 1000)) if self.board.ply >= 2 else 0
+            movetime = (
+                int(round((cur_time - self.last_server_clock) * 1000)) if self.board.ply >= 2 else 0
+            )
             if clocks is None:
                 clocks = {
                     "white": self.ply_clocks[-1]["white"],

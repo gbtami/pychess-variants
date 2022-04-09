@@ -185,12 +185,13 @@ async def load_game(app, game_id):
             turnColor = "black" if game.board.color == BLACK else "white"
             if usi_format:
                 turnColor = "black" if turnColor == "white" else "white"
-            step = {"fen": game.board.fen,
-                    "move": move,
-                    "san": san,
-                    "turnColor": turnColor,
-                    "check": game.check,
-                    }
+            step = {
+                "fen": game.board.fen,
+                "move": move,
+                "san": san,
+                "turnColor": turnColor,
+                "check": game.check,
+            }
             if "t" in doc:
                 # TODO recreate the clock time of each player
                 step["clocks"] = {"movetime": movetimes[ply]}
