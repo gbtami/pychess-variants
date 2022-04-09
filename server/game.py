@@ -464,8 +464,8 @@ class Game:
             if self.variant == "janggi":
                 new_data["if"] = self.board.initial_fen
 
-            #if self.rated == RATED:
-            new_data["t"] = [p["movetime"] for p in self.ply_clocks]
+            if self.rated == RATED:
+                new_data["t"] = [p["movetime"] for p in self.ply_clocks]
 
             if self.tournamentId is not None:
                 new_data["wb"] = self.wberserk
