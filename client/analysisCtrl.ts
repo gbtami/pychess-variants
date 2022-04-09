@@ -951,7 +951,7 @@ export default class AnalysisController {
                     selectMove(this, this.ply);
                     return;
                 }
-                if (this.steps[this.plyVari]['vari'] === undefined || msg.ply === this.steps[this.plyVari].vari?.length) {
+                if (vv === undefined || msg.ply === vv?.length) {
                     // continuing the variation
                     this.plyVari = this.ffishBoard.gamePly();
                     this.steps[this.plyVari]['vari'] = [];
@@ -962,7 +962,7 @@ export default class AnalysisController {
                     }
                 }
             }
-            if (vv) vv.push(step);
+            if (this.steps[this.plyVari].vari !== undefined) { this.steps[this.plyVari]?.vari?.push(step);};
 
             const full = true;
             const activate = false;
