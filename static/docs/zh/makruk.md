@@ -68,7 +68,7 @@
 
 升變兵在殘局非常重要，與將死有密切關聯。
  
-對弱勢方(想要開始計步的話) a promoted pawn is a good decoy which must be trapped and captured before the bare king can be forced into checkmate. It can either stay near the king for additional protection, or failing that, lead enemy pieces away from it. Scattering the enemy pieces in this fashion can cost them valuable time to reorganize, thus giving the defending side some extra chance to draw the game under counting rules (see below).
+對弱勢方(想要開始計步的一方)，其升變兵是一個很好的誘餌，敵方必須先將其殺死，才能將死孤王。它既可以留在國王附近保護，也可以將敵人帶離國王。以這種方式分散敵人的棋子，使其耗費時間來重新組織，從而給防守方一些額外的機會在計步規則下和局（見下文）。
 
 ## 計步規則
 
@@ -96,7 +96,7 @@
  
 泰國象棋必須通過策略進行開局設置，而緬甸象棋開局可以直接將棋子放置在想要的位置。
  
-泰國象棋的兵升變成數個皇后，很快就可以投入戰鬥。這使得泰國象棋兵比緬甸象棋兵更有價值。
+泰國象棋的兵升變成數個士，很快就可以投入戰鬥。這使得泰國象棋兵比緬甸象棋兵更有價值。
 
 ## 策略
 
@@ -106,10 +106,10 @@
  
 **船是唯一可以串打的棋子，其它的棋子主要用於捉雙。**
 
-Most Sittuyin and Makruk games will actually reach the bitter (near) end.
-When one side has only a bare King remaining, there are certain "counting rules" (see above) which come into effect and put pressure on the stronger side. Such requirements offer the weaker side an incentive to play out the whole game. Therefore it is crucial to master all the basic checkmates against a lone King. There just isn't much point in playing these games if one can't finish off the bare King at the end.
+泰國象棋與緬甸象棋幾乎都會打到殘局。當一方只剩下國王時，就會進入「計步規則」(如以上)，給較優勢一方造成壓力。
+因此，掌握將死孤王的技術至關重要，如果優勢方不能在最後將死孤王，那麼前面的努力就有可能白費。
+
+由於對強子並沒有升變規則，到了遊戲末期會變得很難將死對方，因此請算好步數。
  
-Because there is no promotion to heavy pieces, it becomes harder to force a checkmate after the existing pieces have left the board. Plan accordingly and leave yourself with enough fire power.
- 
-請特別注意時間，as many of those mates require precision.
+最後，請特別注意時間。
  
