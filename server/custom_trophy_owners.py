@@ -8,4 +8,5 @@ CUSTOM_TROPHY_OWNERS = {
     ),
     "cFlour": ("liantichess", "moderator"),
     "YohaanSethNathan": ("liantichess", "developer"),
+#    "username": ("liantichess", "marathon"),
 }

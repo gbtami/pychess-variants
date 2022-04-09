@@ -247,6 +247,7 @@ TROPHIES = {
     "acwc21": (static_url("images/trophy/acwc21.png"), "2021 Champion"),
     "developer": (static_url("images/trophy/developer.png"), "Developer"),
     "moderator": (static_url("images/trophy/moderator.png"), "Moderator"),
+    "marathon": (static_url("images/trophy/marathon.png"), "Marathon Top 15!"),
 }
 
 TROPHY_KIND = (
