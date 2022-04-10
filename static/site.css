@@ -1794,7 +1794,7 @@ move {
 move.active {
     font-weight:bold;
 }
-eval {
+movetime, eval {
     font-size: .8em;
     padding-right: 8px;
     color: Gray;
@@ -2033,4 +2033,82 @@ a#zen-button {
 input:invalid {
     border: 1px solid red;
 }
+
+* Search Bar  */
+
+.searchbar {
+    padding-right: 8px;
+    /* border: 1px solid yellow; */
+    position: relative;
+    width: 50px;
+    height: var(--site-header-height);
+    border-radius: var(--site-header-height);
+    transition: 0.250s;
+    /* background: #fff; */
+    /* box-shadow: 0 0 0 5px #2573ef; */
+    overflow: hidden;
+}
+
+.searchbar.active {
+  width: 250px;  
+}
+
+.srchicon {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 60px;
+    height: var(--site-header-height);
+    /* border: 1px solid pink; */
+    /* background: #fff; */
+    border-radius: var(--site-header-height);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    cursor: pointer;
+}
+
+.srchicon::before {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    border: 3px solid var(--link-color);
+    border-radius: 50%; 
+    transform: translate(-5px,-2px);
+}
+
+.srchicon::after {
+    content: '';
+    position: absolute;
+    width: 3px;
+    height: 8px;
+    background:var(--link-color);
+    transform: translate(3px,6px) rotate(315deg);
+}
+
+.searchbar .input {
+    position: relative;
+    width: 300px;
+    height: 60px;
+    left: 60px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: none;
+}
+
+.searchbar .input input {
+    xxxposition: absolute;
+    top: 0;
+    width: 100%;
+    border: none;
+    outline: none;
+    font-size: 17px;
+    padding: 10px 0;
+    background: none;
+}
+
+/* Search Bar End  */
 

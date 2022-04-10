@@ -153,8 +153,10 @@ async def load_game(app, game_id):
             doc["a"][0]["m"] = mirror(usi2uci(doc["a"][0]["m"]))
         game.steps[0]["analysis"] = doc["a"][0]
 
+    if "t" in doc:
+        movetimes = doc["t"]
+
     if "mct" in doc:
-        print(doc["mct"])
         manual_count_toggled = iter(doc["mct"])
         count_started = -1
         count_ended = -1
@@ -183,15 +185,17 @@ async def load_game(app, game_id):
             turnColor = "black" if game.board.color == BLACK else "white"
             if usi_format:
                 turnColor = "black" if turnColor == "white" else "white"
-            game.steps.append(
-                {
-                    "fen": game.board.fen,
-                    "move": move,
-                    "san": san,
-                    "turnColor": turnColor,
-                    "check": game.check,
-                }
-            )
+            step = {
+                "fen": game.board.fen,
+                "move": move,
+                "san": san,
+                "turnColor": turnColor,
+                "check": game.check,
+            }
+            if "t" in doc:
+                # TODO recreate the clock time of each player
+                step["clocks"] = {"movetime": movetimes[ply]}
+            game.steps.append(step)
 
             if "a" in doc:
                 if usi_format and "m" in doc["a"][ply + 1]:

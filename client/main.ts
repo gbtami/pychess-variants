@@ -159,6 +159,21 @@ function start() {
 
     renderTimeago();
 
+    // searchbar
+    const srchicon = document.querySelector('.srchicon') as HTMLElement;
+    const searchbar = document.querySelector('.searchbar') as HTMLElement;
+    const searchBtn = document.querySelector('#searchbtn') as HTMLInputElement;
+    
+    srchicon.onclick = function(){
+        searchbar.classList.toggle('active');
+    }
+
+    searchBtn.addEventListener("keyup", function(e) {
+        if (e.keyCode === 13) {
+            window.location.href = `${model["home"]}/@/${searchBtn.value}`;
+        }
+    });
+
     // Clicking outside settings panel closes it
     const settingsPanel = patch(document.getElementById('settings-panel') as HTMLElement, settingsView()).elm as HTMLElement;
     const settings = document.getElementById('settings') as HTMLElement;
