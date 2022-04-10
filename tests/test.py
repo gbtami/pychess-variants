@@ -248,7 +248,7 @@ class HighscoreTestCase(AioHTTPTestCase):
     async def play_and_resign(self, game, player):
         clock = game.ply_clocks[0]["white"]
         for i, move in enumerate(("e2e4", "e7e5", "f2f4"), start=1):
-            await game.play_move(move, clocks={"white": clock, "black": clock}, ply=i)
+            await game.play_move(move, clocks={"white": clock, "black": clock, "movetime": 0}, ply=i)
         await game.game_ended(player, "resign")
 
     async def test_lost_but_still_there(self):
