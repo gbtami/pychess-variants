@@ -247,14 +247,13 @@ TROPHIES = {
     "acwc21": (static_url("images/trophy/acwc21.png"), "2021 Champion"),
     "developer": (static_url("images/trophy/developer.png"), "Developer"),
     "moderator": (static_url("images/trophy/moderator.png"), "Moderator"),
-    "marathon15": (static_url("images/trophy/marathon15.png"), "Marathon Top 15!"),
-    "marathon5": (static_url("images/trophy/marathon5.png"), "Marathon Top 5!"),
-    "marathon1": (static_url("images/trophy/marathon1.png"), "Marathon Winner!"),
+    "marathon15": (static_url("images/trophy/marathon15.png"), "2022 Spring Marathon Top 15!"),
+    "marathon5": (static_url("images/trophy/marathon5.png"), "2022 Spring Marathon Top 5!"),
+    "marathon1": (static_url("images/trophy/marathon1.png"), "2022 Spring Marathon Winner!"),
 }
 
 TROPHY_KIND = (
     "liantichess",
-    "liantichess 2022 Spring",
     "antichess",
     "antichess960",
     "losers",
