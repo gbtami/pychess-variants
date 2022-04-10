@@ -152,7 +152,10 @@ async def get_user_games(request):
     elif "/me" in request.path:
         session = await aiohttp_session.get_session(request)
         session_user = session.get("user_name")
-        filter_cond["$or"] = [{"us.0": session_user, "us.1": profileId}, {"us.1": session_user, "us.0": profileId}]
+        filter_cond["$or"] = [
+            {"us.0": session_user, "us.1": profileId},
+            {"us.1": session_user, "us.0": profileId},
+        ]
     else:
         filter_cond["us"] = profileId
 
