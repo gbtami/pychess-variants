@@ -243,6 +243,8 @@ async def index(request):
             rated = IMPORTED
         elif request.path[-6:] == "/rated":
             rated = RATED
+        elif request.path[-3:] == "/me":
+            rated = -1
         elif "/challenge" in request.path:
             view = "lobby"
             if user.anon and profileId != "Fairy-Stockfish":
