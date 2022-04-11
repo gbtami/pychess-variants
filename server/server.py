@@ -10,7 +10,7 @@ from urllib.parse import urlparse
 from datetime import datetime, timezone, timedelta
 from sys import platform
 
-if platform != "win32":
+if platform not in ("win32", "darwin"):
     import uvloop
 else:
     print("uvloop not installed")
