@@ -12,14 +12,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-01-23 09:40+0100\n"
+"POT-Creation-Date: 2022-04-11 12:19+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Last-Translator: gbtami <gbtami@gmail.com>, 2022\n"
 "Language-Team: Turkish (https://www.transifex.com/gbtami/teams/14790/tr/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.8.0\n"
+"Generated-By: Babel 2.9.1\n"
 "Language: tr\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
@@ -104,118 +104,114 @@ msgstr ""
 msgid "Currently supported games are "
 msgstr "Şu anda desteklenen oyunlar "
 
-#: ../client/about.ts:92
+#: ../client/about.ts:94
 msgid ""
 "Additionally, you can check the Chess960 option for Chess, Crazyhouse, "
 "Atomic, S-chess, Capablanca, and Capahouse to start games from random "
 "positions with "
 msgstr ""
 
-#: ../client/about.ts:93
+#: ../client/about.ts:95
 msgid "Chess960 castling rules."
 msgstr "Chess960 rok atma kuralları"
 
-#: ../client/about.ts:96
+#: ../client/about.ts:98
 msgid "For move generation, validation, analysis, and engine play, we use "
 msgstr ""
 "Hamle oluşturma, onaylama, hamle analizi ve analiz motoru olarak "
 "kullanılanlar: "
 
-#: ../client/about.ts:104
+#: ../client/about.ts:108
 msgid "On client side, the user interface of the game board is based on "
 msgstr ""
 "İstemci tarafında, kullanıcı arayüzünde kullanılan oyun tahtasını burada "
 "bulabilirsiniz: "
 
-#: ../client/about.ts:108
+#: ../client/about.ts:112
 msgid "The source code of the server is available on "
 msgstr "Sunucunun kaynak kodunu burada bulabilirsiniz: "
 
-#: ../client/about.ts:113
+#: ../client/about.ts:117
 msgid ""
 "To play on PyChess, you need to have an open and unmarked account on "
 "Lichess. "
 msgstr ""
 
-#: ../client/about.ts:114
+#: ../client/about.ts:118
 msgid ""
 "Regarding Privacy and Terms of Service, the rules of lichess.org are also "
 "applied here. "
 msgstr ""
 "Lichess.org’daki Gizlilik ve Hizmet Şartları kuralları da burada uygulanır."
 
-#: ../client/analysis.ts:38 ../client/editor.ts:32 ../client/lobby.ts:425
-#: ../client/lobby.ts:920 ../client/settingsView.ts:130
+#: ../client/analysis.ts:38 ../client/editor.ts:32 ../client/lobby.ts:431
+#: ../client/lobby.ts:941 ../client/settingsView.ts:130
 msgid "Variant"
 msgstr "Varyant"
 
-#: ../client/analysis.ts:125 ../client/analysisCtrl.ts:363
-#: ../client/analysisCtrl.ts:716
+#: ../client/analysis.ts:125 ../client/analysisCtrl.ts:367
+#: ../client/analysisCtrl.ts:712
 msgid "in local browser"
 msgstr "yerel tarayıcıda"
 
-#: ../client/analysisCtrl.ts:374
+#: ../client/analysisCtrl.ts:378
 msgid "You need an account to do that."
 msgstr "Bu işlemi yapabilmek için bir hesap ile oturum açmalısınız. "
 
-#: ../client/analysisCtrl.ts:413
+#: ../client/analysisCtrl.ts:417
 msgid "Download game to PGN file"
 msgstr "Oyunu PGN olarak indir"
 
-#: ../client/analysisCtrl.ts:413
+#: ../client/analysisCtrl.ts:417
 msgid "Download PGN"
 msgstr "PGN indir"
 
-#: ../client/analysisCtrl.ts:415
+#: ../client/analysisCtrl.ts:419
 msgid "Copy USI/UCI to clipboard"
 msgstr "USI/UCI yi panoya kopyala"
 
-#: ../client/analysisCtrl.ts:415
+#: ../client/analysisCtrl.ts:419
 msgid "Copy UCI/USI"
 msgstr "UCI/USI kopyala"
 
-#: ../client/analysisCtrl.ts:417
+#: ../client/analysisCtrl.ts:421
 msgid "Download position to PNG image file"
 msgstr "Pozisyonu PGN görseli olarak indir"
 
-#: ../client/analysisCtrl.ts:417
+#: ../client/analysisCtrl.ts:421
 msgid "PNG image"
 msgstr "PGN görseli"
 
-#: ../client/analysisCtrl.ts:425
+#: ../client/analysisCtrl.ts:429
 msgid "Delete game"
 msgstr ""
 
-#: ../client/analysisCtrl.ts:431
+#: ../client/analysisCtrl.ts:435
 msgid "Request Computer Analysis"
 msgstr "Bilgisayar analizi isteği gönder"
 
-#: ../client/analysisCtrl.ts:431
+#: ../client/analysisCtrl.ts:435
 msgid "Request Analysis"
 msgstr "Analiz isteği gönder"
 
-#: ../client/analysisCtrl.ts:445
+#: ../client/analysisCtrl.ts:449
 msgid "Are you sure you want to delete this game?"
 msgstr ""
 
-#: ../client/analysisCtrl.ts:575
-msgid "Selected variant %1 is not supported by stockfish.wasm"
-msgstr "Seçtiğiniz varyant %1 stockfish.wasm tarafından desteklenmemektedir. "
-
-#: ../client/analysisCtrl.ts:690
+#: ../client/analysisCtrl.ts:685
 msgid "Depth"
 msgstr "Derinlik"
 
-#: ../client/analysisCtrl.ts:695
+#: ../client/analysisCtrl.ts:690
 msgid "Go deeper"
 msgstr "Derinleştir"
 
-#: ../client/analysisCtrl.ts:1173 ../client/roundCtrl.ts:1351
-#: ../client/tournament.ts:693
+#: ../client/analysisCtrl.ts:1170 ../client/roundCtrl.ts:1356
+#: ../client/tournament.ts:698
 msgid "Spectators: "
 msgstr "İzleyiciler: "
 
-#: ../client/analysisCtrl.ts:1197 ../client/roundCtrl.ts:1432
+#: ../client/analysisCtrl.ts:1194 ../client/roundCtrl.ts:1437
 msgid "Requested game %1 not found!"
 msgstr "Talep ettiğiniz oyun %1 bulunamadı!"
 
@@ -227,27 +223,27 @@ msgstr "Açık"
 msgid "Dark"
 msgstr "Koyu"
 
-#: ../client/boardSettings.ts:206
+#: ../client/boardSettings.ts:207
 msgid "Piece animation"
 msgstr "Taş animasyonu"
 
-#: ../client/boardSettings.ts:307
+#: ../client/boardSettings.ts:308
 msgid "Show piece destinations"
 msgstr "Taşların gidebilecekleri kareleri göster"
 
-#: ../client/boardSettings.ts:325
+#: ../client/boardSettings.ts:326
 msgid "Promote to the top choice automatically"
 msgstr ""
 
-#: ../client/boardSettings.ts:343
+#: ../client/boardSettings.ts:344
 msgid "Best move arrow in analysis board"
 msgstr "En iyi hamleyi analiz tahtasında ok ile göster"
 
-#: ../client/boardSettings.ts:371
+#: ../client/boardSettings.ts:372
 msgid "Invisible pieces"
 msgstr "Görünmez taşlar"
 
-#: ../client/boardSettings.ts:391
+#: ../client/boardSettings.ts:392
 msgid "Show material difference"
 msgstr ""
 
@@ -259,31 +255,31 @@ msgstr "Başlangıç pozisyonu"
 msgid "Advantage"
 msgstr "Avantaj"
 
-#: ../client/chat.ts:25 ../client/chat.ts:40
+#: ../client/chat.ts:30 ../client/chat.ts:45
 msgid "Sign in to chat"
 msgstr "Sohbet için oturum aç"
 
-#: ../client/chat.ts:25 ../client/chat.ts:40
+#: ../client/chat.ts:30 ../client/chat.ts:45
 msgid "Please be nice in the chat!"
 msgstr "Lütfen sohbette nazik ol!"
 
-#: ../client/chat.ts:25
+#: ../client/chat.ts:30
 msgid "Chat is disabled"
 msgstr "Sohbet devre dışı bırakıldı"
 
-#: ../client/chat.ts:30
+#: ../client/chat.ts:35
 msgid "Spectator room"
 msgstr "İzleyici odası"
 
-#: ../client/chat.ts:30
+#: ../client/chat.ts:35
 msgid "Chat room"
 msgstr "Sohbet odası"
 
-#: ../client/chat.ts:31
+#: ../client/chat.ts:36
 msgid "Toggle the chat"
 msgstr "Sohbeti aç / kapat"
 
-#: ../client/chat.ts:61
+#: ../client/chat.ts:67
 msgid "Server"
 msgstr "Sunucu"
 
@@ -592,51 +588,47 @@ msgstr[1] "%1 saniye önce"
 msgid "STARTING IN"
 msgstr ""
 
-#: ../client/editorCtrl.ts:141 ../client/editorCtrl.ts:142
+#: ../client/editorCtrl.ts:139 ../client/editorCtrl.ts:140
 msgid "%1 to play"
 msgstr "Hamle sırası %1 taşlarda"
 
-#: ../client/editorCtrl.ts:145
+#: ../client/editorCtrl.ts:143
 msgid "Castling"
 msgstr "Rok atmak"
 
-#: ../client/editorCtrl.ts:148 ../client/i18n.ts:58 ../client/lobby.ts:502
+#: ../client/editorCtrl.ts:146 ../client/i18n.ts:58 ../client/lobby.ts:522
 msgid "White"
 msgstr "Beyaz"
 
-#: ../client/editorCtrl.ts:163 ../client/i18n.ts:58 ../client/lobby.ts:500
+#: ../client/editorCtrl.ts:161 ../client/i18n.ts:58 ../client/lobby.ts:520
 msgid "Black"
 msgstr "Siyah"
 
-#: ../client/editorCtrl.ts:179
+#: ../client/editorCtrl.ts:177
 msgid "FLIP BOARD"
 msgstr ""
 
-#: ../client/editorCtrl.ts:182
+#: ../client/editorCtrl.ts:180
 msgid "CLEAR BOARD"
 msgstr "TAHTAYI TEMİZLE"
 
-#: ../client/editorCtrl.ts:185
+#: ../client/editorCtrl.ts:183
 msgid "STARTING POSITION"
 msgstr "BAŞLANGIÇ POZİSYONU"
 
-#: ../client/editorCtrl.ts:188 ../client/roundCtrl.ts:779
+#: ../client/editorCtrl.ts:186 ../client/roundCtrl.ts:784
 msgid "ANALYSIS BOARD"
 msgstr "ANALİZ TAHTASI"
 
-#: ../client/editorCtrl.ts:191
+#: ../client/editorCtrl.ts:189
 msgid "PLAY WITH MACHINE"
 msgstr "BİLGİSAYARA KARŞI OYNA"
 
-#: ../client/editorCtrl.ts:191 ../client/lobby.ts:429
-msgid " (must be signed in)"
-msgstr "(oturum açmak gerekli)"
-
-#: ../client/editorCtrl.ts:194
+#: ../client/editorCtrl.ts:192
 msgid "EXPORT TO PNG"
 msgstr "PGN olarak dışa aktar"
 
-#: ../client/editorCtrl.ts:267 ../client/lobby.ts:640
+#: ../client/editorCtrl.ts:265 ../client/lobby.ts:653
 msgid "Invalid FEN"
 msgstr "Geçersiz FEN"
 
@@ -904,7 +896,7 @@ msgstr ""
 msgid "Conservative"
 msgstr ""
 
-#: ../client/invite.ts:34 ../client/lobby.ts:514
+#: ../client/invite.ts:34 ../client/lobby.ts:533
 msgid "Host a game for others"
 msgstr ""
 
@@ -950,85 +942,89 @@ msgstr ""
 msgid "The first person to come to this URL will play with you."
 msgstr "Bu URL ye gelen ilk kişi sizinle oynayacaktır."
 
-#: ../client/lobby.ts:417
+#: ../client/lobby.ts:423
 msgid "Cancel"
 msgstr "İptal"
 
-#: ../client/lobby.ts:422
+#: ../client/lobby.ts:428
 msgid "Challenge %1 to a game"
 msgstr "%1 adlı oyuncuyu oyuna davet et"
 
-#: ../client/lobby.ts:429
+#: ../client/lobby.ts:435
 msgid "Paste the FEN text here"
 msgstr "Buraya FEN metni ekleyin"
 
-#: ../client/lobby.ts:445
+#: ../client/lobby.ts:435
+msgid " (must be signed in)"
+msgstr "(oturum açmak gerekli)"
+
+#: ../client/lobby.ts:451
 msgid "Minutes per side:"
 msgstr "Taraf başına dakika: "
 
-#: ../client/lobby.ts:460
+#: ../client/lobby.ts:466
 msgid "Periods"
 msgstr "Periyodlar"
 
-#: ../client/lobby.ts:475 ../client/lobby.ts:753 ../client/profile.ts:25
+#: ../client/lobby.ts:481 ../client/lobby.ts:770 ../client/profile.ts:25
 msgid "Casual"
 msgstr "Puansız"
 
-#: ../client/lobby.ts:482 ../client/lobby.ts:751 ../client/profile.ts:20
+#: ../client/lobby.ts:488 ../client/lobby.ts:768 ../client/profile.ts:20
 msgid "Rated"
 msgstr "Puanlı"
 
-#: ../client/lobby.ts:490
-msgid "A.I. Level"
-msgstr "Yapay Zeka seviyesi"
-
-#: ../client/lobby.ts:501
-msgid "Random"
-msgstr "Rastgele"
-
-#: ../client/lobby.ts:505
-msgid "Create"
-msgstr ""
-
-#: ../client/lobby.ts:510 ../client/lobby/layer3.ts:40
-msgid "Create a game"
-msgstr "Yeni bir oyun kur"
-
-#: ../client/lobby.ts:511
-msgid "Play with a friend"
-msgstr "Bir arkadaşınla oyna"
-
-#: ../client/lobby.ts:512 ../client/lobby/layer3.ts:42
-msgid "Play with AI"
-msgstr ""
-
-#: ../client/lobby.ts:513 ../client/lobby/layer3.ts:43
+#: ../client/lobby.ts:499
 msgid "Practice with Random-Mover"
 msgstr ""
 
-#: ../client/lobby.ts:601
+#: ../client/lobby.ts:510
+msgid "A.I. Level"
+msgstr "Yapay Zeka seviyesi"
+
+#: ../client/lobby.ts:521
+msgid "Random"
+msgstr "Rastgele"
+
+#: ../client/lobby.ts:525
+msgid "Create"
+msgstr ""
+
+#: ../client/lobby.ts:530 ../client/lobby/layer3.ts:40
+msgid "Create a game"
+msgstr "Yeni bir oyun kur"
+
+#: ../client/lobby.ts:531
+msgid "Play with a friend"
+msgstr "Bir arkadaşınla oyna"
+
+#: ../client/lobby.ts:532 ../client/lobby/layer3.ts:42
+msgid "Play with AI"
+msgstr ""
+
+#: ../client/lobby.ts:614
 msgid "Byoyomi in seconds:"
 msgstr "Byoyomi saniyeleri: "
 
-#: ../client/lobby.ts:601
+#: ../client/lobby.ts:614
 msgid "Increment in seconds:"
 msgstr "Saniye olarak ekleme süresi: "
 
-#: ../client/lobby.ts:606
+#: ../client/lobby.ts:619
 msgid "Alternate Start"
 msgstr "Alternatif başlangıç"
 
-#: ../client/lobby.ts:749
+#: ../client/lobby.ts:766
 msgid "Custom"
 msgstr "Özel"
 
-#: ../client/lobby.ts:776 ../client/lobby.ts:901
+#: ../client/lobby.ts:794 ../client/lobby.ts:919
 msgid "%1 player"
 msgid_plural "%1 players"
 msgstr[0] "%1 oyuncu"
 msgstr[1] "%1 oyuncu "
 
-#: ../client/lobby.ts:862
+#: ../client/lobby.ts:880
 msgid ""
 "You have an unfinished game!\n"
 "Press OK to continue."
@@ -1036,49 +1032,53 @@ msgstr ""
 "Henüz tamamlanmamış bir oyununuz var!\n"
 "Devam etmek için OK tuşuna basın."
 
-#: ../client/lobby.ts:895
+#: ../client/lobby.ts:913
 msgid "%1 game in play"
 msgid_plural "%1 games in play"
 msgstr[0] "%1 oyun şu anda oynanıyor"
 msgstr[1] "%1 oyun şu anda oynanıyor"
 
-#: ../client/lobby.ts:917
+#: ../client/lobby.ts:929
+msgid "Tournament calendar"
+msgstr ""
+
+#: ../client/lobby.ts:938
 msgid "Player"
 msgstr "Oyuncu"
 
-#: ../client/lobby.ts:918
+#: ../client/lobby.ts:939
 msgid "Rating"
 msgstr "Puan"
 
-#: ../client/lobby.ts:919
+#: ../client/lobby.ts:940
 msgid "Time"
 msgstr "Süre"
 
-#: ../client/lobby.ts:921
+#: ../client/lobby.ts:942
 msgid "Mode"
 msgstr "Mod"
 
-#: ../client/lobby.ts:964
+#: ../client/lobby.ts:986
 msgid "Donate"
 msgstr "Bağış yap"
 
-#: ../client/lobby.ts:965
+#: ../client/lobby.ts:987
 msgid "FAQ"
 msgstr "Sıkça sorulanlar"
 
-#: ../client/lobby.ts:966
+#: ../client/lobby.ts:988
 msgid "Stats"
 msgstr "İstatistikler"
 
-#: ../client/lobby.ts:967
+#: ../client/lobby.ts:989
 msgid "About"
 msgstr "Hakkında"
 
-#: ../client/lobby.ts:972
+#: ../client/lobby.ts:994
 msgid "Latest updates"
 msgstr "En son güncellemeler"
 
-#: ../client/main.ts:141
+#: ../client/main.ts:144
 msgid "Thank you for your support!"
 msgstr "Desteğiniz için teşekkürler!"
 
@@ -1122,7 +1122,7 @@ msgstr "Pat"
 msgid "Time out"
 msgstr "Süre bitti"
 
-#: ../client/profile.ts:61 ../client/roundCtrl.ts:503
+#: ../client/profile.ts:61 ../client/roundCtrl.ts:507
 msgid "Draw"
 msgstr "Berabere"
 
@@ -1176,132 +1176,136 @@ msgstr[1] "%1 hamle "
 msgid "Computer analysis available"
 msgstr "Bilgisayar analizi mevcut"
 
-#: ../client/profile.ts:308
+#: ../client/profile.ts:310
 msgid "Games"
 msgstr "Oyunlar"
 
-#: ../client/profile.ts:309
+#: ../client/profile.ts:311
+msgid "Games with you"
+msgstr ""
+
+#: ../client/profile.ts:312
 msgctxt "UsePluralFormIfNeeded"
 msgid "Rated"
 msgstr "Puanlı"
 
-#: ../client/profile.ts:310
+#: ../client/profile.ts:313
 msgid "Imported"
 msgstr "İçe aktarıldı"
 
-#: ../client/roundCtrl.ts:426 ../client/roundCtrl.ts:1399
+#: ../client/roundCtrl.ts:428 ../client/roundCtrl.ts:1404
 msgid " +15 seconds"
 msgstr "+15 saniye"
 
-#: ../client/roundCtrl.ts:433
+#: ../client/roundCtrl.ts:435
 msgid "Give 15 seconds"
 msgstr "15 saniye ekle"
 
-#: ../client/roundCtrl.ts:451
+#: ../client/roundCtrl.ts:453
 msgid "Berserk"
 msgstr ""
 
-#: ../client/roundCtrl.ts:501
+#: ../client/roundCtrl.ts:504
 msgid "Abort"
 msgstr "İptal"
 
-#: ../client/roundCtrl.ts:502 ../client/roundCtrl.ts:1164
-#: ../client/roundCtrl.ts:1166
+#: ../client/roundCtrl.ts:506 ../client/roundCtrl.ts:1169
+#: ../client/roundCtrl.ts:1171
 msgid "Count"
 msgstr "Say"
 
-#: ../client/roundCtrl.ts:503
+#: ../client/roundCtrl.ts:507
 msgid "Pass"
 msgstr "Pas"
 
-#: ../client/roundCtrl.ts:504
+#: ../client/roundCtrl.ts:508
 msgid "Resign"
 msgstr "Terk et"
 
-#: ../client/roundCtrl.ts:566
+#: ../client/roundCtrl.ts:571
 msgid "Are you sure you want to draw?"
 msgstr ""
 
-#: ../client/roundCtrl.ts:568
+#: ../client/roundCtrl.ts:573
 msgid "Draw offer sent"
 msgstr ""
 
-#: ../client/roundCtrl.ts:580
+#: ../client/roundCtrl.ts:585
 msgid "Your opponent offers a draw"
 msgstr ""
 
-#: ../client/roundCtrl.ts:600
+#: ../client/roundCtrl.ts:605
 msgid "Are you sure you want to resign?"
 msgstr "Terk etmek istediğinize emin misiniz?"
 
-#: ../client/roundCtrl.ts:632
+#: ../client/roundCtrl.ts:637
 msgid "Blue (Cho)"
 msgstr "Mavi (Cho)"
 
-#: ../client/roundCtrl.ts:632
+#: ../client/roundCtrl.ts:637
 msgid "Red (Han)"
 msgstr "Kırmızı (Han)"
 
-#: ../client/roundCtrl.ts:633
+#: ../client/roundCtrl.ts:638
 msgid ""
 "Waiting for %1 to choose starting positions of the horses and elephants..."
 msgstr ""
 "%1 adlı oyuncunun atlar ve fillerin başlangıç pozisyonunu seçmesi "
 "bekleniyor..."
 
-#: ../client/roundCtrl.ts:673 ../client/roundCtrl.ts:675
+#: ../client/roundCtrl.ts:678 ../client/roundCtrl.ts:680
 msgid "Switch pieces"
 msgstr "Taş değiştir"
 
-#: ../client/roundCtrl.ts:674
+#: ../client/roundCtrl.ts:679
 msgid "Ready"
 msgstr "Hazır"
 
-#: ../client/roundCtrl.ts:708
+#: ../client/roundCtrl.ts:713
 msgid "VIEW REMATCH"
 msgstr ""
 
-#: ../client/roundCtrl.ts:715
+#: ../client/roundCtrl.ts:720
 msgid "Rematch offer sent"
 msgstr ""
 
-#: ../client/roundCtrl.ts:726
+#: ../client/roundCtrl.ts:731
 msgid "Your opponent offers a rematch"
 msgstr ""
 
-#: ../client/roundCtrl.ts:767
+#: ../client/roundCtrl.ts:772
 msgid "VIEW TOURNAMENT"
 msgstr ""
 
-#: ../client/roundCtrl.ts:770
+#: ../client/roundCtrl.ts:775
 msgid "BACK TO TOURNAMENT"
 msgstr ""
 
-#: ../client/roundCtrl.ts:772 ../client/tournament.ts:283
+#: ../client/roundCtrl.ts:777 ../client/tournament.ts:289
 msgid "PAUSE"
 msgstr ""
 
-#: ../client/roundCtrl.ts:775
+#: ../client/roundCtrl.ts:780
 msgid "REMATCH"
 msgstr "RÖVANŞ"
 
-#: ../client/roundCtrl.ts:776
+#: ../client/roundCtrl.ts:781
 msgid "NEW OPPONENT"
 msgstr "YENİ RAKİP"
 
-#: ../client/roundCtrl.ts:1162
+#: ../client/roundCtrl.ts:1167
 msgid "Stop counting"
 msgstr "Sayımı durdur"
 
-#: ../client/roundCtrl.ts:1162
+#: ../client/roundCtrl.ts:1167
 msgid "Stop"
 msgstr "Dur"
 
-#: ../client/roundCtrl.ts:1164 ../client/roundCtrl.ts:1166
+#: ../client/roundCtrl.ts:1169 ../client/roundCtrl.ts:1171
 msgid "Start counting"
 msgstr "Sayımı başlat"
 
-#: ../client/roundCtrl.ts:1311
+#: ../client/roundCtrl.ts:1316
 msgid "%1 second to play the first move"
 msgid_plural "%1 seconds to play the first move"
 msgstr[0] ""
@@ -1331,101 +1335,97 @@ msgstr "Tahta ayarları"
 msgid "Zen Mode"
 msgstr ""
 
-#: ../client/tournament.ts:256
+#: ../client/tournament.ts:262
 msgid "First"
 msgstr ""
 
-#: ../client/tournament.ts:257
+#: ../client/tournament.ts:263
 msgid "Prev"
 msgstr ""
 
-#: ../client/tournament.ts:261
+#: ../client/tournament.ts:267
 msgid "Next"
 msgstr ""
 
-#: ../client/tournament.ts:262
+#: ../client/tournament.ts:268
 msgid "Last"
 msgstr ""
 
-#: ../client/tournament.ts:263
+#: ../client/tournament.ts:269
 msgid "Scroll to your player"
 msgstr ""
 
-#: ../client/tournament.ts:274
+#: ../client/tournament.ts:280
 msgid "WITHDRAW"
 msgstr ""
 
-#: ../client/tournament.ts:276 ../client/tournament.ts:281
+#: ../client/tournament.ts:282 ../client/tournament.ts:287
 msgid "JOIN"
 msgstr ""
 
-#: ../client/tournament.ts:288
+#: ../client/tournament.ts:294
 msgid "LOG IN"
 msgstr ""
 
-#: ../client/tournament.ts:301
+#: ../client/tournament.ts:307
 msgid "Tournament complete"
 msgstr ""
 
-#: ../client/tournament.ts:303
+#: ../client/tournament.ts:309
 msgid "Players"
 msgstr ""
 
-#: ../client/tournament.ts:304
+#: ../client/tournament.ts:310
 msgid "Average rating"
 msgstr ""
 
-#: ../client/tournament.ts:305 ../client/tournament.ts:485
-#: ../client/tournament.ts:544 ../client/tournament.ts:554
-#: ../client/tournament.ts:564
+#: ../client/tournament.ts:311 ../client/tournament.ts:491
+#: ../client/tournament.ts:550 ../client/tournament.ts:560
+#: ../client/tournament.ts:570
 msgid "Games played"
 msgstr ""
 
-#: ../client/tournament.ts:306
-msgid "White wins"
+#: ../client/tournament.ts:312 ../client/tournament.ts:313
+msgid "%1 wins"
 msgstr ""
 
-#: ../client/tournament.ts:307
-msgid "Black wins"
-msgstr ""
-
-#: ../client/tournament.ts:308
+#: ../client/tournament.ts:314
 msgid "Draws"
 msgstr ""
 
-#: ../client/tournament.ts:309 ../client/tournament.ts:488
-#: ../client/tournament.ts:546 ../client/tournament.ts:556
-#: ../client/tournament.ts:566
+#: ../client/tournament.ts:315 ../client/tournament.ts:494
+#: ../client/tournament.ts:552 ../client/tournament.ts:562
+#: ../client/tournament.ts:572
 msgid "Berserk rate"
 msgstr ""
 
-#: ../client/tournament.ts:317
+#: ../client/tournament.ts:323
 msgid "Download all games"
 msgstr ""
 
-#: ../client/tournament.ts:484 ../client/tournament.ts:543
-#: ../client/tournament.ts:553 ../client/tournament.ts:563
+#: ../client/tournament.ts:490 ../client/tournament.ts:549
+#: ../client/tournament.ts:559 ../client/tournament.ts:569
 msgid "Performance"
 msgstr ""
 
-#: ../client/tournament.ts:486 ../client/tournament.ts:545
-#: ../client/tournament.ts:555 ../client/tournament.ts:565
+#: ../client/tournament.ts:492 ../client/tournament.ts:551
+#: ../client/tournament.ts:561 ../client/tournament.ts:571
 msgid "Win rate"
 msgstr ""
 
-#: ../client/tournament.ts:487
+#: ../client/tournament.ts:493
 msgid "Average opponent"
 msgstr ""
 
-#: ../client/tournament.ts:640
+#: ../client/tournament.ts:646
 msgid "Defender:"
 msgstr ""
 
-#: ../client/tournament.ts:667
+#: ../client/tournament.ts:672
 msgid "Custom position"
 msgstr ""
 
-#: ../client/tournament.ts:668
+#: ../client/tournament.ts:673
 msgid "Analysis board"
 msgstr ""
 
