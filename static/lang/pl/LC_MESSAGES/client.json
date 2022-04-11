@@ -297,6 +297,7 @@
         "%1 partii w trakcie",
         "%1 partii w trakcie"
     ],
+    "Tournament calendar": "Harmonogram turniejów",
     "Player": "Gracz",
     "Rating": "Ranking",
     "Time": "Tempo",
@@ -336,6 +337,7 @@
     ],
     "Computer analysis available": "Dostępna analiza komputerowa",
     "Games": "Partie",
+    "Games with you": "Partie z Tobą",
     "Imported": "Wgrane",
     " +15 seconds": "+15 sekund",
     "Give 15 seconds": "Dodaj 15 sekund",
@@ -388,6 +390,7 @@
     "Players": "Graczy",
     "Average rating": "Średni ranking",
     "Games played": "Partii rozegranych",
+    "%1 wins": "Wygrane przez %1",
     "Draws": "Remisy",
     "Berserk rate": "Procent berserków",
     "Download all games": "Pobierz wszystkie partie",

@@ -1112,7 +1112,7 @@ msgstr[3] "%1 partii w trakcie"
 
 #: ../client/lobby.ts:929
 msgid "Tournament calendar"
-msgstr ""
+msgstr "Harmonogram turniejów"
 
 #: ../client/lobby.ts:938
 msgid "Player"
@@ -1256,7 +1256,7 @@ msgstr "Partie"
 
 #: ../client/profile.ts:311
 msgid "Games with you"
-msgstr ""
+msgstr "Partie z Tobą"
 
 #: ../client/profile.ts:312
 msgctxt "UsePluralFormIfNeeded"
@@ -1461,7 +1461,7 @@ msgstr "Partii rozegranych"
 
 #: ../client/tournament.ts:312 ../client/tournament.ts:313
 msgid "%1 wins"
-msgstr ""
+msgstr "Wygrane przez %1"
 
 #: ../client/tournament.ts:314
 msgid "Draws"

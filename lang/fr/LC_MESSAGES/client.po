@@ -8,6 +8,7 @@
 # William Wu <fynmorph@gmail.com>, 2021
 # gbtami <gbtami@gmail.com>, 2022
 # Marken Foo <marken.foo.yw@gmail.com>, 2022
+# James Faure, 2022
 # 
 #, fuzzy
 msgid ""
@@ -16,7 +17,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2022-04-11 12:19+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
-"Last-Translator: Marken Foo <marken.foo.yw@gmail.com>, 2022\n"
+"Last-Translator: James Faure, 2022\n"
 "Language-Team: French (https://www.transifex.com/gbtami/teams/14790/fr/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -363,6 +364,8 @@ msgid ""
 "A wild Shogi variant on a 5x5 board where pieces flip into a different piece"
 " after each move."
 msgstr ""
+"Une variante folle de Shogi sur un échiquier 5x5 où les pièces sont "
+"retournées après chaque coup"
 
 #: ../client/chess.ts:411
 msgid ""
@@ -504,11 +507,11 @@ msgstr ""
 
 #: ../client/chess.ts:700
 msgid "Mayan chess. Inspired by cultural elements of Mesoamerica."
-msgstr ""
+msgstr "Les échecs Maya, inspirées par la culture Mésoaméricaine."
 
 #: ../client/chess.ts:711
 msgid "Pieces alternate between two forms with each move."
-msgstr ""
+msgstr "Les pièces alternent entre deux formes avec chaque coup"
 
 #: ../client/chess.ts:728
 msgid "Like Capablanca Chess but with Grand starting setup."
@@ -716,135 +719,135 @@ msgstr "échecs"
 
 #: ../client/i18n.ts:64
 msgid "crazyhouse"
-msgstr ""
+msgstr "crazyhouse"
 
 #: ../client/i18n.ts:64
 msgid "placement"
-msgstr ""
+msgstr "placement"
 
 #: ../client/i18n.ts:64
 msgid "atomic"
-msgstr ""
+msgstr "atomique"
 
 #: ../client/i18n.ts:66
 msgid "makruk"
-msgstr ""
+msgstr "makruk"
 
 #: ../client/i18n.ts:66
 msgid "makpong"
-msgstr ""
+msgstr "makpong"
 
 #: ../client/i18n.ts:66
 msgid "ouk chatrang"
-msgstr ""
+msgstr "ouk chatrang"
 
 #: ../client/i18n.ts:66
 msgid "sittuyin"
-msgstr ""
+msgstr "sittuyin"
 
 #: ../client/i18n.ts:66
 msgid "asean"
-msgstr ""
+msgstr "asean"
 
 #: ../client/i18n.ts:68
 msgid "shogi"
-msgstr ""
+msgstr "shogi"
 
 #: ../client/i18n.ts:68
 msgid "minishogi"
-msgstr ""
+msgstr "minishogi"
 
 #: ../client/i18n.ts:68
 msgid "kyoto shogi"
-msgstr ""
+msgstr "kyoto shogi"
 
 #: ../client/i18n.ts:69
 msgid "dobutsu"
-msgstr ""
+msgstr "dobutsu"
 
 #: ../client/i18n.ts:69
 msgid "gorogoro"
-msgstr ""
+msgstr "gorogoro"
 
 #: ../client/i18n.ts:69
 msgid "tori shogi"
-msgstr ""
+msgstr "tori shogi"
 
 #: ../client/i18n.ts:71
 msgid "xiangqi"
-msgstr ""
+msgstr "xiangqi"
 
 #: ../client/i18n.ts:71
 msgid "manchu"
-msgstr ""
+msgstr "manchu"
 
 #: ../client/i18n.ts:71
 msgid "janggi"
-msgstr ""
+msgstr "jianggi"
 
 #: ../client/i18n.ts:71
 msgid "minixiangqi"
-msgstr ""
+msgstr "minixiangqi"
 
 #: ../client/i18n.ts:73
 msgid "capablanca"
-msgstr ""
+msgstr "capablanca"
 
 #: ../client/i18n.ts:73
 msgid "capahouse"
-msgstr ""
+msgstr "capahouse"
 
 #: ../client/i18n.ts:73
 msgid "s-chess"
-msgstr ""
+msgstr "s-chess"
 
 #: ../client/i18n.ts:73
 msgid "s-house"
-msgstr ""
+msgstr "s-house"
 
 #: ../client/i18n.ts:74
 msgid "grand"
-msgstr ""
+msgstr "grand"
 
 #: ../client/i18n.ts:74
 msgid "grandhouse"
-msgstr ""
+msgstr "grandhouse"
 
 #: ../client/i18n.ts:74
 msgid "shako"
-msgstr ""
+msgstr "shako"
 
 #: ../client/i18n.ts:74
 msgid "shogun"
-msgstr ""
+msgstr "shogun"
 
 #: ../client/i18n.ts:74
 msgid "hoppel-poppel"
-msgstr ""
+msgstr "hoppel-poppel"
 
 #: ../client/i18n.ts:76
 msgid "orda"
-msgstr ""
+msgstr "orda"
 
 #: ../client/i18n.ts:76
 msgid "synochess"
-msgstr ""
+msgstr "syno-échecs"
 
 #: ../client/i18n.ts:76
 msgid "shinobi"
-msgstr ""
+msgstr "shinobi"
 
 #: ../client/i18n.ts:76
 msgid "empire"
-msgstr ""
+msgstr "empire"
 
 #: ../client/i18n.ts:76
 msgid "orda mirror"
-msgstr ""
+msgstr "orda miroir"
 
 #: ../client/i18n.ts:76
 msgid "chak"
-msgstr ""
+msgstr "chak"
 
 #: ../client/i18n.ts:80
 msgid "PawnsPushed"
@@ -932,7 +935,7 @@ msgstr ""
 
 #: ../client/i18n.ts:88
 msgid "Bird"
-msgstr ""
+msgstr "Oiseau"
 
 #: ../client/i18n.ts:88
 msgid "Carrera"
@@ -940,15 +943,15 @@ msgstr ""
 
 #: ../client/i18n.ts:88
 msgid "Gothic"
-msgstr ""
+msgstr "Gothique"
 
 #: ../client/i18n.ts:88
 msgid "Embassy"
-msgstr ""
+msgstr "Embassade"
 
 #: ../client/i18n.ts:88
 msgid "Conservative"
-msgstr ""
+msgstr "Conservateur"
 
 #: ../client/invite.ts:34 ../client/lobby.ts:533
 msgid "Host a game for others"
@@ -1096,7 +1099,7 @@ msgstr[1] "%1 parties en cours"
 
 #: ../client/lobby.ts:929
 msgid "Tournament calendar"
-msgstr ""
+msgstr "Calendrier des tournois"
 
 #: ../client/lobby.ts:938
 msgid "Player"
@@ -1208,7 +1211,7 @@ msgstr "Camp conquis"
 
 #: ../client/profile.ts:92
 msgid "Altar mate"
-msgstr ""
+msgstr "Mat d'autel"
 
 #: ../client/profile.ts:95
 msgid "Explosion of king"
@@ -1238,7 +1241,7 @@ msgstr "Parties jouées"
 
 #: ../client/profile.ts:311
 msgid "Games with you"
-msgstr ""
+msgstr "Parties avec vous"
 
 #: ../client/profile.ts:312
 msgctxt "UsePluralFormIfNeeded"
@@ -1259,7 +1262,7 @@ msgstr "Donner 15 secondes"
 
 #: ../client/roundCtrl.ts:453
 msgid "Berserk"
-msgstr ""
+msgstr "Berserk"
 
 #: ../client/roundCtrl.ts:504
 msgid "Abort"
@@ -1393,23 +1396,23 @@ msgstr "Mode Zen"
 
 #: ../client/tournament.ts:262
 msgid "First"
-msgstr ""
+msgstr "Premier"
 
 #: ../client/tournament.ts:263
 msgid "Prev"
-msgstr ""
+msgstr "Précedent"
 
 #: ../client/tournament.ts:267
 msgid "Next"
-msgstr ""
+msgstr "Suivant"
 
 #: ../client/tournament.ts:268
 msgid "Last"
-msgstr ""
+msgstr "Dernier"
 
 #: ../client/tournament.ts:269
 msgid "Scroll to your player"
-msgstr ""
+msgstr "Faites défiler jusqu'à votre joueur."
 
 #: ../client/tournament.ts:280
 msgid "WITHDRAW"
@@ -1443,7 +1446,7 @@ msgstr "Parties jouées"
 
 #: ../client/tournament.ts:312 ../client/tournament.ts:313
 msgid "%1 wins"
-msgstr ""
+msgstr "%1 victoires"
 
 #: ../client/tournament.ts:314
 msgid "Draws"
@@ -1453,7 +1456,7 @@ msgstr "Nulles"
 #: ../client/tournament.ts:552 ../client/tournament.ts:562
 #: ../client/tournament.ts:572
 msgid "Berserk rate"
-msgstr ""
+msgstr "taux de Berserk"
 
 #: ../client/tournament.ts:323
 msgid "Download all games"
@@ -1475,11 +1478,11 @@ msgstr "Opposition moyenne"
 
 #: ../client/tournament.ts:646
 msgid "Defender:"
-msgstr ""
+msgstr "Défenseur"
 
 #: ../client/tournament.ts:672
 msgid "Custom position"
-msgstr ""
+msgstr "Position personnalisée"
 
 #: ../client/tournament.ts:673
 msgid "Analysis board"
@@ -1732,7 +1735,7 @@ msgstr ""
 
 #: ../client/lobby/layer3.ts:97
 msgid "The cannon is a tricky piece that needs to be closely followed."
-msgstr ""
+msgstr "Le Canon est une pièce surprenante qui doit être suivie de près"
 
 #: ../client/lobby/layer3.ts:99
 msgid "Other piece sets are available, which may help avoid confusion."
@@ -1743,10 +1746,12 @@ msgstr ""
 #: ../client/lobby/layer3.ts:106
 msgid "Be aware of campmate - victory by moving your king into the 8th rank."
 msgstr ""
+"Soyez attentif au campmate - victoire obtenu par un roi ayant atteint la 8e "
+"rangée."
 
 #: ../client/lobby/layer3.ts:108
 msgid "Promoting the king prematurely can be dangerous."
-msgstr ""
+msgstr "Une promotion prématurée du Roi peut le mettre en danger."
 
 #: ../client/lobby/layer3.ts:111
 msgid "Maximizing khon and met's effectiveness is the key."

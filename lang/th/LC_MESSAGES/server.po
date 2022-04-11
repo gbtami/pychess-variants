@@ -4,22 +4,22 @@
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
 # 
 # Translators:
-# Ada Joule <ada.fulmina@gmail.com>, 2021
 # gbtami <gbtami@gmail.com>, 2022
+# Ada Joule <ada.fulmina@gmail.com>, 2022
 # 
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-01-11 22:23+0100\n"
+"POT-Creation-Date: 2022-04-11 12:19+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
-"Last-Translator: gbtami <gbtami@gmail.com>, 2022\n"
+"Last-Translator: Ada Joule <ada.fulmina@gmail.com>, 2022\n"
 "Language-Team: Thai (https://www.transifex.com/gbtami/teams/14790/th/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.8.0\n"
+"Generated-By: Babel 2.9.1\n"
 "Language: th\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
@@ -54,6 +54,10 @@ msgstr "ผู้ชนะการแข่งขัน"
 #: ../templates/players.html:37 ../templates/shields.html:6
 msgid "Tournament shields"
 msgstr "ผู้ถือโล่รางวัล"
+
+#: ../templates/players50.html:6
+msgid "Top 50"
+msgstr "50 อันดับแรก"
 
 #: ../templates/profile.html:14
 #, python-format
@@ -109,39 +113,43 @@ msgstr "ถอดหมาก"
 msgid "Variants"
 msgstr "ชนิดเกม"
 
-#: ../templates/template.html:29
+#: ../templates/template.html:35
 msgid "Login with Lichess"
 msgstr "เข้าสู่ระบบด้วย lichess"
 
-#: ../templates/template.html:29
+#: ../templates/template.html:35
 msgid "Log in"
 msgstr "เข้าสู่ระบบ"
 
-#: ../templates/tournaments.html:9
+#: ../templates/tournaments.html:8
+msgid "Tournament calendar"
+msgstr "ปฏิทินการแข่งขัน"
+
+#: ../templates/tournaments.html:10
 msgid "CREATE A NEW TOURNAMENT"
 msgstr "สร้างการแข่งขันใหม่"
 
-#: ../templates/tournaments.html:18
+#: ../templates/tournaments.html:19
 msgid "Now playing"
 msgstr "กำลังเล่นอยู่"
 
-#: ../templates/tournaments.html:20
+#: ../templates/tournaments.html:21
 msgid "Starting soon"
 msgstr "กำลังจะเริ่ม"
 
-#: ../templates/tournaments.html:22
+#: ../templates/tournaments.html:23
 msgid "Finished"
 msgstr "เสร็จสิ้น"
 
-#: ../templates/tournaments.html:43
+#: ../templates/tournaments.html:44
 msgid "Rated"
 msgstr "คิดคะแนน"
 
-#: ../templates/tournaments.html:43
+#: ../templates/tournaments.html:44
 msgid "Casual"
 msgstr "ไม่คิดคะแนน"
 
-#: ../templates/tournaments.html:50
+#: ../templates/tournaments.html:51
 #, python-format
 msgid "%(count)s player"
 msgid_plural "%(count)s players"
