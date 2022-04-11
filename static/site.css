@@ -1794,7 +1794,13 @@ move {
 move.active {
     font-weight:bold;
 }
-movetime, eval {
+movetime {
+    font-size: .6em;
+    padding-right: 8px;
+    color: Gray;
+    float: right;
+}
+eval {
     font-size: .8em;
     padding-right: 8px;
     color: Gray;
