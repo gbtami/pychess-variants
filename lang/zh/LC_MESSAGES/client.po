@@ -633,7 +633,7 @@ msgstr "雙狂象棋"
 
 #: ../client/i18n.ts:64
 msgid "placement"
-msgstr ""
+msgstr "任意擺置西洋棋"
 
 #: ../client/i18n.ts:64
 msgid "atomic"
@@ -705,7 +705,7 @@ msgstr "卡帕布蘭卡象棋"
 
 #: ../client/i18n.ts:73
 msgid "capahouse"
-msgstr ""
+msgstr "雙狂卡帕布蘭卡"
 
 #: ../client/i18n.ts:73
 msgid "s-chess"
@@ -793,7 +793,7 @@ msgstr ""
 
 #: ../client/i18n.ts:82
 msgid "Rook+Lance HC"
-msgstr ""
+msgstr "飛香落"
 
 #: ../client/i18n.ts:82
 msgid "2-Piece HC"
