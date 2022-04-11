@@ -265,6 +265,7 @@
         "%1 partita in corso",
         "%1 partite in corso"
     ],
+    "Tournament calendar": "Calendario tornei",
     "Player": "Giocatore",
     "Rating": "Punteggio",
     "Time": "Tempo",
@@ -302,6 +303,7 @@
     ],
     "Computer analysis available": "Analisi del computer disponibile",
     "Games": "Partite",
+    "Games with you": "Partite con te",
     "Imported": "Importate",
     " +15 seconds": "+15 secondi",
     "Give 15 seconds": "Concedi 15 secondi",
@@ -352,6 +354,7 @@
     "Players": "Giocatori",
     "Average rating": "Punteggio medio",
     "Games played": "Partite giocate",
+    "%1 wins": "%1 vittorie",
     "Draws": "Pareggi",
     "Berserk rate": "Tasso di Berserk",
     "Download all games": "Scarica tutte le partite",
