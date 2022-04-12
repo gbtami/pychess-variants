@@ -82,7 +82,7 @@ export function updateMovelist (ctrl: AnalysisController | RoundController, full
 
         const moveEl = [ h('san', move) ];
         const movetime = ctrl.steps[ply].clocks?.movetime;
-        if (movetime !== undefined)
+        if (ctrl instanceof AnalysisController && movetime !== undefined)
             // Move time is in milliseconds
             moveEl.push(h('movetime', (movetime / 1000).toFixed(1) + "s"));
         const scoreStr = ctrl.steps[ply]['scoreStr'] ?? '';

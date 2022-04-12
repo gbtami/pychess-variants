@@ -160,17 +160,19 @@ function start() {
     renderTimeago();
 
     // searchbar
-    const srchicon = document.querySelector('.srchicon') as HTMLElement;
-    const searchbar = document.querySelector('.searchbar') as HTMLElement;
-    const searchBtn = document.querySelector('#searchbtn') as HTMLInputElement;
+    const searchIcon = document.querySelector('.search-icon') as HTMLElement;
+    const searchBar = document.querySelector('.search-bar') as HTMLElement;
+    const searchInput = document.querySelector('#search-input') as HTMLInputElement;
     
-    srchicon.onclick = function(){
-        searchbar.classList.toggle('active');
+    searchIcon.onclick = function(){
+        searchBar.classList.toggle('active');
+        if (searchBar.classList.contains('active'))
+            searchInput.focus();
     }
 
-    searchBtn.addEventListener("keyup", function(e) {
+    searchInput.addEventListener("keyup", function(e) {
         if (e.keyCode === 13) {
-            window.location.href = `${model["home"]}/@/${searchBtn.value}`;
+            window.location.href = `${model["home"]}/@/${searchInput.value}`;
         }
     });
 
