@@ -166,6 +166,8 @@ function start() {
     
     searchIcon.onclick = function(){
         searchBar.classList.toggle('active');
+        if (searchBar.classList.contains('active'))
+            searchInput.focus();
     }
 
     searchInput.addEventListener("keyup", function(e) {
