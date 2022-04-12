@@ -1419,7 +1419,7 @@ msgstr "Játszmák száma"
 
 #: ../client/tournament.ts:312 ../client/tournament.ts:313
 msgid "%1 wins"
-msgstr "%1 győzelmek"
+msgstr "%1 győzelem"
 
 #: ../client/tournament.ts:314
 msgid "Draws"
