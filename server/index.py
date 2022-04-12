@@ -421,6 +421,7 @@ async def index(request):
         render["users"] = users
         render["online_users"] = online_users
         render["anon_online"] = anon_online
+        render["admin"] = user.username in ADMINS
         if variant is None:
             hs = request.app["highscore"]
             render["highscore"] = {variant: dict(hs[variant].items()[:10]) for variant in hs}

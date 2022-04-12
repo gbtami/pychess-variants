@@ -3,6 +3,11 @@
 <div id="main-wrap">
 <main class="page-menu players">
 <aside class="flat-bg">
+    {% if admin %}
+    <a class="allplayers-button" href="{{ home }}/allplayers">{% trans %}All players{% endtrans %}</a><br>
+    {% endif %}
+    <a class="allplayers-button" href="{{ home }}/tournaments/winners">{% trans %}Tournament winners{% endtrans %}</a><br>
+    <a class="allplayers-button" href="{{ home }}/tournaments/shields">{% trans %}Tournament shields{% endtrans %}</a>
     <table id="players">
         <thead>
             <tr>
@@ -32,9 +37,6 @@
             {% endif %}
         </tbody>
     </table>
-    <a class="allplayers-button" href="{{ home }}/allplayers">{% trans %}All players{% endtrans %}</a><br>
-    <a class="allplayers-button" href="{{ home }}/tournaments/winners">{% trans %}Tournament winners{% endtrans %}</a><br>
-    <a class="allplayers-button" href="{{ home }}/tournaments/shields">{% trans %}Tournament shields{% endtrans %}</a>
 </aside>
 <aside class="flat-bg">
     <div class="highscore">
