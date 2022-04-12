@@ -167,7 +167,8 @@ function start() {
     searchIcon.onclick = function(){
         searchBar.classList.toggle('active');
         if (searchBar.classList.contains('active'))
-            searchInput.focus();
+            // Add some delay so that the input won't eat the icon during the transition animation
+            setTimeout(() => searchInput.focus(), 200);
     }
 
     searchInput.addEventListener("keyup", function(e) {
