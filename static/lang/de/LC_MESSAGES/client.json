@@ -265,6 +265,7 @@
         "%1 laufende Partie",
         "%1 laufende Partien"
     ],
+    "Tournament calendar": "Turnierkalender ",
     "Player": "Spieler",
     "Rating": "Wertungszahl",
     "Time": "Zeit",
@@ -302,6 +303,7 @@
     ],
     "Computer analysis available": "Computer-Analyse verfügbar",
     "Games": "Spiele",
+    "Games with you": "Partien mit dir",
     "Imported": "Importiert",
     " +15 seconds": "+15 Sekunden",
     "Give 15 seconds": "Gebe 15 Sekunden",
@@ -352,6 +354,7 @@
     "Players": "Spieler",
     "Average rating": "Durchschnittliche Wertung",
     "Games played": "Gespielte Partien",
+    "%1 wins": "%1 Siege",
     "Draws": "Remisen",
     "Berserk rate": "Beserkrate",
     "Download all games": "Lade alle Partien herunter",
