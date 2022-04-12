@@ -2042,7 +2042,7 @@ input:invalid {
 
 /* Search Bar  */
 
-.searchbar {
+.search-bar {
     padding-right: 8px;
     position: relative;
     width: 50px;
@@ -2052,11 +2052,11 @@ input:invalid {
     overflow: hidden;
 }
 
-.searchbar.active {
+.search-bar.active {
   width: 250px;  
 }
 
-.srchicon {
+.search-icon {
     position: absolute;
     top: 0;
     left: 0;
@@ -2070,7 +2070,7 @@ input:invalid {
     cursor: pointer;
 }
 
-.srchicon::before {
+.search-icon::before {
     content: '';
     position: absolute;
     width: 16px;
@@ -2080,7 +2080,7 @@ input:invalid {
     transform: translate(-5px,-2px);
 }
 
-.srchicon::after {
+.search-icon::after {
     content: '';
     position: absolute;
     width: 3px;
@@ -2089,9 +2089,9 @@ input:invalid {
     transform: translate(3px,6px) rotate(315deg);
 }
 
-.searchbar .input {
+.search-bar .input {
     position: relative;
-    width: 190;
+    width: 190px;
     height: 60px;
     left: 60px;
     display: flex;
@@ -2100,7 +2100,7 @@ input:invalid {
     background: none;
 }
 
-.searchbar .input input {
+.search-bar .input input {
     top: 0;
     width: 100%;
     border: none;
