@@ -2044,14 +2044,11 @@ input:invalid {
 
 .searchbar {
     padding-right: 8px;
-    /* border: 1px solid yellow; */
     position: relative;
     width: 50px;
     height: var(--site-header-height);
     border-radius: var(--site-header-height);
     transition: 0.250s;
-    /* background: #fff; */
-    /* box-shadow: 0 0 0 5px #2573ef; */
     overflow: hidden;
 }
 
@@ -2065,8 +2062,6 @@ input:invalid {
     left: 0;
     width: 60px;
     height: var(--site-header-height);
-    /* border: 1px solid pink; */
-    /* background: #fff; */
     border-radius: var(--site-header-height);
     display: flex;
     justify-content: center;
@@ -2096,7 +2091,7 @@ input:invalid {
 
 .searchbar .input {
     position: relative;
-    width: 300px;
+    width: 190;
     height: 60px;
     left: 60px;
     display: flex;
@@ -2106,7 +2101,6 @@ input:invalid {
 }
 
 .searchbar .input input {
-    xxxposition: absolute;
     top: 0;
     width: 100%;
     border: none;
