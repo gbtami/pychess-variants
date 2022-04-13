@@ -66,6 +66,6 @@ function buildCalendar() {
 
 export function calendarView(): VNode[] {
     return [
-        h('div#fullcalendar', { hook: { insert: () => buildCalendar() } }),
+        h('div#fullcalendar.box', { hook: { insert: () => buildCalendar() } }),
     ];
 }
