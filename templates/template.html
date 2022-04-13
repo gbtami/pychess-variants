@@ -24,12 +24,13 @@
             </div>
         </div>
         <div class="site-buttons">
-            <div class="search-bar">
+            <form autocomplete="off" class="search-bar">
                 <div class="search-icon"></div>
                 <div class="input">
                     <input id="search-input" type="text" placeholder="Search">
                 </div>
-            </div>
+                <div id="ac-result"></div>
+            </form>
             <div id="username"><a class="user-link" href="/@/{{ username }}">{{ username }}</a></div>
             {% if guest %}
             <a class="login nav-link" href="/login" title="{% trans %}Login with Lichess{% endtrans %}">{% trans %}Log in{% endtrans %}</a>
