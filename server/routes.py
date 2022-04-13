@@ -31,7 +31,7 @@ from game_api import (
     get_variant_stats,
     cancel_invite,
 )
-from utils import import_game
+from utils import import_game, get_names
 from login import login, logout, oauth
 from index import index, robots, select_lang
 from wsl import lobby_socket_handler
@@ -107,6 +107,7 @@ get_routes = (
     ("/api/games", get_games),
     ("/api/invites", subscribe_invites),
     ("/api/ongoing", subscribe_games),
+    ("/api/names", get_names),
     ("/paste", index),
     (r"/games/export/monthly/{yearmonth:\d{6}}", export),
     ("/games/export/{profileId}", export),

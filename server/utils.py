@@ -857,3 +857,18 @@ def sanitize_fen(variant, initial_fen, chess960):
 
 def online_count(users):
     return sum((1 for user in users.values() if user.online))
+
+
+async def get_names(request):
+    names = []
+    prefix = request.rel_url.query.get("p")
+    if prefix is None or len(prefix) < 3:
+        return web.json_response(names)
+
+    # case insensitive _id prefix search
+    cursor = request.app["db"].user.find(
+        {"_id": {"$regex": "^%s" % prefix, "$options": "i"}}, limit=12
+    )
+    async for doc in cursor:
+        names.append(doc["_id"])
+    return web.json_response(names)
