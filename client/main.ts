@@ -167,10 +167,32 @@ function start() {
     searchIcon.onclick = function(){
         searchBar.classList.toggle('active');
         if (searchBar.classList.contains('active'))
-            searchInput.focus();
+            // Add some delay so that the input won't eat the icon during the transition animation
+            setTimeout(() => searchInput.focus(), 200);
+    }
+
+    function showResults(val: String) {
+        const acResult = document.getElementById("ac-result") as HTMLElement;
+        acResult.innerHTML = '';
+        if (val.length < 4) {
+            return;
+        }
+        fetch('/api/names?p=' + val)
+            .then(res => res.json())
+            .then(data => {
+                console.log(data);
+                const list = data.map((el: String) => `<li><a class="user-link" href="${model["home"]}/@/${el}">${el}</a></li>`);
+                console.log(list);
+                acResult.innerHTML = '<ul class="box">' + list.join('') + '</ul>';
+            })
+            .catch((err) => {
+            console.warn('Something went wrong.', err);
+            }
+        );
     }
 
     searchInput.addEventListener("keyup", function(e) {
+        showResults(searchInput.value);
         if (e.keyCode === 13) {
             window.location.href = `${model["home"]}/@/${searchInput.value}`;
         }
