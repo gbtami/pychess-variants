@@ -78,20 +78,37 @@ If you have only one feudal lord left on the board, then it has the ability to p
 
 Finally, if your only legal moves are promotion, you may opt not to promote and claim stalemate. On pychess, you can do so by **pressing the draw button** on the right side.
 
+
+
+## 計步規則
+
+緬甸象棋當殘局形成特定局面時，會引發計步規則，其機制類似象棋的六十步和規則及西洋棋的五十步和規則。緬甸象棋計步規則分為兩種；殘局計步和殺王計步。
+
+
+### 殘局計步
+
+當雙方都沒有兵或所剩的兵均已變成士，同時尚有其他子力時，即達成殘局計步的條件。殘局計步不是強制的，如果雙方都不想計步的話也可以照舊繼續下；但如果任何一方想要開始計步的話，另外一方必須接受。殘局計步規定為64步，由提出計步的一方計算，如果能對方在64步內將死計步方，即獲勝，超過64步無法將死則和局；但計步方不能在計步的過程中將死對方，如果他想要求勝，必須放棄計步，那麼累積的步數也會重新歸零計算，而在此之後雙方都仍可自由決定是否重新開始計步。
+
+### 殺王計步
+
+當任何一方被吃到只剩孤王時，即達成殺王計步的條件，並立即強制開始，且不能中途停止或重新歸零計算，若有正在進行的殘局計步則自動取消。殺王計步依攻方的子力有不同步數的要求(見下)，若一個局面同時可以被分類到多條規則時，一律算在須求步數最少的那條規則，例如：若一方剩孤王，另一方剩一個車、兩個兵、一個馬，會以16步開始計算。如果無法在規定步數完成將殺則和局。
+* 一方剩孤王，另一方有兩個車：8步
+* 一方剩孤王，另一方有一個車：16步
+* 一方剩孤王，另一方有兩個兵：22步
+* 一方剩孤王，另一方有兩個馬：32步
+* 一方剩孤王，另一方有一個兵：44步
+* 一方剩孤王，另一方有一個馬：64步
+* 一方剩孤王，另一方只有士：64步
+
 ## 其他規則
 
-*Stalemate* - Draw, as in International Chess
+*逼和* - 與西洋棋一樣，無子可動和棋。
 
-*Dead Position* - When checkmate is not possible with the remaining pieces, the game is a draw.
+*子力不足* - 當雙方子力皆不足以將死對方時和局。
 
-*Repetition* - The game may be drawn if the same position has occurred at least three times.
+*重複動子* - 如果相同局面連續出現三次算和。
 
-*50 Move Rule* - The game may be drawn if each player has made at least 50 consecutive moves without the movement of any pawn and without any capture.
-
-*Counting Rule* - As soon as a player has only a king left on his side, the number of pieces belonging to the opponent shall be observed. If the opponent has no pawns, the game is drawn when the player having only a king (lone king) manages to escape in a number of fixed moves against an opponent having particular pieces shown below:
-- If the opponent has at least one **rook**: 16 moves
-- If the opponent has at least one **bishop**: 44 moves
-- If the opponent has at least one **knight**: 64 moves
+*50步未吃子* - 若雙方50步內皆沒有吃子算和。
 
 ## 泰國象棋vs 緬甸象棋
  
