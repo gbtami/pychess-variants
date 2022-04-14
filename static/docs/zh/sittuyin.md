@@ -6,12 +6,12 @@
 
 ## 規則
 
-The general rules are extremely similar to Chess, so this guide will focus on the few differences. The boards are slightly different, with Sittuyin having two big diagonal lines dividing through the board. The sides are also red and black, with the red player moving first. The piece position in Sittuyin is much different compared to chess or Makruk. Key differences are as follows:
+緬甸象棋有兩條大對角線，棋子的配置如下: 
 
-* For starters, the feudal lords (pawns) start on staggered ranks (as you can see in the board above).
-* To start the game, the players (starting with the red player) alternate back and forth placing the remainder of their pieces on their halves of the boards.
-* The rooks can only be placed on the back rank.
-* Pawn (feudal lord) promotion works much differently. See the movement section below. 
+* 開始時，兵如圖中錯排排列。
+* 一開始由紅方先行，輪流將手中的棋子配置於己方陣地中。
+* 車只能置於底線。
+* 兵的升變有些不同，如下文。
 
 ## 棋子
 
