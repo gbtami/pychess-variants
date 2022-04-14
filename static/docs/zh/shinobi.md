@@ -1,13 +1,13 @@
-# ![Shinobi chess](https://github.com/gbtami/pychess-variants/blob/master/static/icons/shinobi.svg) Shinobi Chess
+# ![Shinobi chess](https://github.com/gbtami/pychess-variants/blob/master/static/icons/shinobi.svg) 忍棋
 
 ![Shinobi](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Shinobi.png)
 
-Shinobi是一种国际象棋变体，在2019-2020被Couch Tomato跟Fables的帮助推出，非对称性变体系列之四。西洋棋部队（王国，黑方），入侵了Sakura Clan（粉红方）的领土。虽然分Clan最开始只有弱棋子，他们足智多谋，能即刻招募盟友为防御。Clan开始于很多的棋子在手里，可打入到自己的领土（前四行）。此外，他们的棋子，在达到最后两行之后，可升变。这些能力仿佛日本将其的规则，不过吃掉过的棋子不可打入。游戏本身按照象棋程序是极其平衡，甚至比国际象棋更平衡，双方的胜率接近一半
+忍棋是2019-2020由Couch Tomato與Fables推出的遊戲，為非对称性变体系列之四。西洋棋軍隊（王国，黑方），入侵了櫻花忍者城寨（粉红方）的领土。虽然忍者門一開始軍力較弱，但能即刻招募盟友防御:开始時握有力在手中，可打入到自己的领土（前四行）。此外，忍方的棋子在达到最后两行之后可升变，有如日本将棋的规则，不过吃掉的棋子不可再打入。游戏本身极其平衡，甚至比国际象棋更平衡，双方的胜率接近一半。
  
 ## 规则
 1.	设置如上所示。
-2.	Clan (分红方）是先手。
-3.	Clan手里的棋子只能打入前四行（棋盘的前一般）
+2.  忍方 (粉红方）是先手。
+3.  忍方手里的棋子只能打入前四行（棋盘的前一般）
 4.	所有Clan的小棋子在达到第七或第八行之后会升变。类似王国的兵只需要达到第七行就可升变。
 5.	双方的兵只可升变成队长
 6.	双方有另一个生理条件：Campmate. 这个情况会出现在一个王能安全达到对方的底线。
