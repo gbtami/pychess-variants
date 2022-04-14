@@ -1,8 +1,8 @@
-# ![Sittuyin](https://github.com/gbtami/pychess-variants/blob/master/static/icons/sittuyin.svg) Sittuyin
+# ![Sittuyin](https://github.com/gbtami/pychess-variants/blob/master/static/icons/sittuyin.svg) 緬甸象棋
 
 ![Sittuyin](https://github.com/gbtami/pychess-variants/blob/master/static/images/SittuyinGuide/Sittuyin.png?raw=true)
 
-*Sittuyin*, or Burmese Chess is a classic board game native to Myanmar and is very similar to Makruk. The game is played in Myanmar, and although western chess is more popular there, there are efforts to revitalize the game. The pieces have the same movements as Makruk (Thai Chess), but the rules are slightly different. The game is plenty of fun in its own right, with its own balance/dynamics. The slightly slower pace can provide a good way to cultivate patience, and to hone strategic thinking.
+**緬甸象棋**,是流行於緬甸的圖版遊戲，由印度的恰圖蘭卡演變而來。其發音「Sittuyin」，來自恰圖蘭卡的梵語音轉。or Burmese Chess is a classic board game native to Myanmar and is very similar to Makruk. The game is played in Myanmar, and although western chess is more popular there, there are efforts to revitalize the game. The pieces have the same movements as Makruk (Thai Chess), but the rules are slightly different. The game is plenty of fun in its own right, with its own balance/dynamics. The slightly slower pace can provide a good way to cultivate patience, and to hone strategic thinking.
 
 ## Rules
 
