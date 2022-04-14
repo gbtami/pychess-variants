@@ -43,7 +43,7 @@
 
 /* .round-app grid has 2vmin grid-gap, but .analysis-app doesn't.
    Because of this the cross table needs extra top padding */
-div#ctable-container {
+div.ctable-container {
     padding-top: 3vmin;
 }
 
@@ -266,8 +266,13 @@ input[type="checkbox"] {
 }
 
 /* analysis chart */
+button#request-analysis {
+    display: none;
+}
 .chart-container {
     position: relative;
+    justify-content: center;
+    align-items: center;
 }
 #chart {
     width:100%;
@@ -276,4 +281,59 @@ input[type="checkbox"] {
 }
 .i-pgn .icon::before {
     padding-right: 4px;
+}
+
+div[role=tabpanel] {
+    height: 240px;
+    display: none;
+    text-align: left;
+    overflow-y: auto;
+    flex-flow: column;
+}
+div[role=tabpanel] textarea {
+    overflow-y: hidden;
+    background-color: var(--bg-color);
+    border: none;
+    resize: none;
+    outline: none;
+}
+div[role=tablist] {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: center;
+    align-items: flex-start;
+    border-top: 2px solid #d9d9d9;
+}
+span[role=tab] {
+    flex: 1 1 0;
+    text-align: center;
+    font-size: 0.9em;
+    padding: 0.4em 0.1em;
+    cursor: pointer;
+    position: relative;
+}
+span[aria-selected=true], span:hover::after {
+    color: #d64f00;
+    transform: scale(1);
+}
+div > span::after {
+    content:'';
+    background:rgba(214,79,0,0.6);
+    height:2px;
+    position:absolute;
+    width:96%;
+    left:2%;
+    top:-2px;
+    transition:all .25s;
+    transform:scale(0)
+}
+div#panel-4 {
+    font-size: 0.9em;
+}
+div#pgntext {
+    white-space: pre-wrap;
+    font-family: monospace;
+    user-select: all;
+    -moz-user-select: all
+    -webkit-user-select: all;
 }

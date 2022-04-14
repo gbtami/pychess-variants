@@ -175,8 +175,10 @@ body {
     color: var(--font-color);
     background: var(--bg-body);
     cursor: default;
+    margin-bottom: 2vmin;
 }
 body.no-select {
+    user-select: none;
     -moz-user-select: none;
     -webkit-user-select: none;
 }
@@ -383,6 +385,7 @@ under-left {
 }
 under-board {
     grid-area: uboard;
+    margin-top: 23px;
 }
 div#fentext {
     display: flex;
@@ -1875,7 +1878,7 @@ input#fen {
 }
 
 /* crosstable */
-div#ctable-container {
+div.ctable-container {
     display: flex;
     align-items: center;
     justify-content: center;
