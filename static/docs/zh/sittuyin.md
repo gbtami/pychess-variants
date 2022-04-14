@@ -13,27 +13,28 @@ The general rules are extremely similar to Chess, so this guide will focus on th
 * The rooks can only be placed on the back rank.
 * Pawn (feudal lord) promotion works much differently. See the movement section below. 
 
-## The Pieces
+## 棋子
 
-### King
+### 國王
 
 ![King](https://github.com/gbtami/pychess-variants/blob/master/static/images/SittuyinGuide/King.png?raw=true) 
 
-The king moves exactly the same as in chess.
+國王的移動就如西洋棋的國王，朝八方走一格。
 
-### General
+### 士
 
 ![General](https://github.com/gbtami/pychess-variants/blob/master/static/images/SittuyinGuide/General.png?raw=true)
 
-Unlike the queen in chess, the general is a relatively weak piece that only moves one space diagonally. Additional generals are gained through pawn promotion.
+士，走法與中國象棋的士相同，移動為斜向四格。
 
-The general is worth about 1.5 to 2 pawns in general. It is also the only renewable piece type. The general is a good piece to lead the attacks, useful for harassing more valuable enemy pieces. On occasion, they can also be sacrificed in exchange for well-positioned enemy pawns, to make way for the invasion.
+士值約1.5 到2 個兵，是領導攻擊的棋子，有助於騷擾更有價值的敵人棋子。有時，也可以用來犧牲以換掉有利位置的敵方棋子。
+
 
 Since it is rare for one side to be up by two pieces, the easy-to-promote-to general is commonly present in most endgames, assisting the stronger side in delivering checkmate.
 
 For the disadvantaged side, a general is a good decoy which must be trapped and captured before the bare king can be forced into checkmate. It can either stay near the general for additional protection, or failing that, lead enemy pieces away from it. Scattering the enemy pieces in this fashion can cost them valuable time to reorganize, thus giving the defending side some extra chance to draw the game under counting rules.
 
-### Elephant
+### 象
 
 ![Elephant](https://github.com/gbtami/pychess-variants/blob/master/static/images/SittuyinGuide/Elephant.png?raw=true)
 
@@ -45,21 +46,23 @@ The elephant is worth more than the queen, but generally not as much as a knight
 
 Elephants can sometimes prove slow/awkward to maneuver or retreat. It is therefore advisable to have some friendly pieces nearby to support and rescue them. In the endgame, it's usually safer to get a lone king behind the enemy bishop, compared to staying in its front.
 
-### Horse
+### 馬
 
  ![Horse](https://github.com/gbtami/pychess-variants/blob/master/static/images/SittuyinGuide/Horse.png?raw=true)
 
-The horse moves exactly the same as a knight in chess.
+馬走法與西洋棋的騎士相同，移動為跳躍至2x3的對角格，可以越子(沒有卡馬腳)。。
 
-The horses are not "minor pieces" in Sittuyin. They are major forces. Centralize and utilize them.
+馬在緬甸象棋中是強子，儘量讓它保持在中央，以控制更多方格。
 
-### Chariot
+### 車
 
  ![Chariot](https://github.com/gbtami/pychess-variants/blob/master/static/images/SittuyinGuide/Chariot.png?raw=true)
 
-The chariot moves exactly the same as a rook in chess.
 
-In the absence of mighty chess queens, the chariots dominate the board. Lateral chariot checks can be especially annoying. Aim for the seventh rank or even the sixth rank.
+車走法與象棋的車相同，移動為直向任意格。無西洋棋的王車易位規則。
+
+車是最強的子，主宰著盤面。
+
 
 ### Feudal lord
 
@@ -67,7 +70,7 @@ In the absence of mighty chess queens, the chariots dominate the board. Lateral 
 
 The pawn, or feudal lord, moves and attacks the same as a pawn in chess. However, there is no double-step first move. 
 
-#### Promotion
+#### 升變
 After a feudal lord reaches the diagonal line on the opponent's side of the board, the player can choose to promote that piece into a general instead of moving. Each side can only has *one* general at any given time, so this can only occur if their general has already been captured. Promotion does not happen on the move where the feudal lord reaches the promotion square, but rather any move after that.
 
 In the act of promotion, the feudal lord can promote on the same square it is on (in-place), or any one of the adjacent diagonal squares. On pychess, **in-place promotion** is performed by a **double-click** on the feudal lord, and **diagonal promotion** is performed by **moving** it to the desired square.
@@ -78,7 +81,7 @@ If you have only one feudal lord left on the board, then it has the ability to p
 
 Finally, if your only legal moves are promotion, you may opt not to promote and claim stalemate. On pychess, you can do so by **pressing the draw button** on the right side.
 
-## Other Rules
+## 其他規則
 
 *Stalemate* - Draw, as in International Chess
 
@@ -93,21 +96,23 @@ Finally, if your only legal moves are promotion, you may opt not to promote and 
 - If the opponent has at least one **bishop**: 44 moves
 - If the opponent has at least one **knight**: 64 moves
 
-## Makruk vs Sittuyin
+## 泰國象棋vs 緬甸象棋
  
-Makruk is a game very similar to Sittuyin, but played in Thailand. In a sense, Sittuyin can be thought of as a kind of accelerated Makruk, potentially skipping ahead about a dozen opening moves. Half of the Sittuyin pawns start on the fourth rank, as opposed to all Makruk pawns starting from the third rank.
+緬甸象棋是一款與泰國象棋非常相似的遊戲，可以被視為是加速的泰國象棋，可能會跳過大約十幾個開局動作。緬甸象棋有一半的兵從第四排開始，而所有泰國象棋兵則從第三排開始。
  
-Makruk players must negotiate their way towards getting a good opening setup from scratch, a vital skill for Makruk. Sittuyin players get to just set up their dream positions. Experience in either variant would be useful/beneficial in the other.
+泰國象棋必須通過策略進行開局設置，而緬甸象棋開局可以直接將棋子放置在想要的位置。
  
-Makruk allows promoting pawns to multiple queens, which can quickly become dangerous. This makes Makruk pawns more valuable than Sittuyin pawns.
+泰國象棋的兵可升變成數個士，很快就可以投入戰鬥。這使得泰國象棋兵比緬甸象棋兵更有價值。
 
-## Strategy
- 
-The pace is rather slow, with most pieces stepping only one square at a time. It's a good idea to organize and group together the pieces. Move them in formation as a group to provide mutual support. Do not try to open up the game on too many fronts. Coordination is key.
 
-## Tactics
  
-**Chariots are the only pieces that can pin or skewer pieces. The rest of the tactics mostly consist of forks.**
+## 策略
+
+大多數棋子一次只能走一格，因此最好成小組式的移動，以提供相互支持。不要試圖多方面打開戰鬥，協調才是關鍵。
+
+## 戰術
+ 
+**車是唯一可以串打的棋子，其它的棋子主要用於捉雙。**
 
 Most Sittuyin and Makruk games will actually reach the bitter (near) end.
 When one side has only a bare king remaining, there are certain "counting rules" (see above) which come into effect and put pressure on the stronger side. Such requirements offer the weaker side an incentive to play out the whole game. Therefore it is crucial to master all the basic checkmates against a lone king. There just isn't much point in playing these games if one can't finish off the bare King at the end.
