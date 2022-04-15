@@ -273,7 +273,7 @@ export default class AnalysisController {
         this.promotion = new Promotion(this);
 
         if (!this.isAnalysisBoard && !this.model["embed"]) {
-            this.ctableContainer = document.getElementById('ctable-container') as HTMLElement;
+            this.ctableContainer = document.getElementById('panel-3') as HTMLElement;
         }
 
         // Hide #chart div (embed view has no #chart)
@@ -298,6 +298,11 @@ export default class AnalysisController {
             this.vpv = document.getElementById('pv') as HTMLElement;
             const pgn = (this.isAnalysisBoard) ? this.getPgn() : this.pgn;
             this.renderFENAndPGN(pgn);
+
+            if (this.isAnalysisBoard) {
+                (document.querySelector('[role="tablist"]') as HTMLElement).style.display = 'none';
+                (document.querySelector('[tabindex="0"]') as HTMLElement).style.display = 'flex';
+            }
         }
 
         if (this.variant.materialPoint) {
@@ -419,11 +424,6 @@ export default class AnalysisController {
                 );
             }
 
-            if (this.steps[0].analysis === undefined && !this.isAnalysisBoard) {
-                buttons.push(h('button#request-analysis', { on: { click: () => this.drawAnalysisChart(true) } }, [
-                    h('i', {props: {title: _('Request Computer Analysis')}, class: {"icon": true, "icon-bar-chart": true} }, _('Request Analysis'))])
-                );
-            }
             patch(container, h('div', buttons));
         }
 
@@ -431,7 +431,7 @@ export default class AnalysisController {
         e.value = this.fullfen;
 
         container = document.getElementById('pgntext') as HTMLElement;
-        this.vpgn = patch(container, h('textarea#pgntext', { attrs: { rows: 13, readonly: true, spellcheck: false} }, pgn));
+        this.vpgn = patch(container, h('div#pgntext', pgn));
     }
 
     private deleteGame() {
@@ -471,7 +471,15 @@ export default class AnalysisController {
                 });
             updateMovelist(this);
 
-            if (this.steps[0].analysis !== undefined) {
+            if (this.steps[0].analysis === undefined) {
+                if (!this.isAnalysisBoard) {
+                    const el = document.getElementById('request-analysis') as HTMLElement;
+                    el.style.display = 'block';
+                    patch(el, h('button#request-analysis', { on: { click: () => this.drawAnalysisChart(true) } }, [
+                        h('i', {props: {title: _('Request Computer Analysis')}, class: {"icon": true, "icon-bar-chart": true} }, _('Request Analysis'))])
+                    );
+                }
+            } else {
                 this.vinfo = patch(this.vinfo, h('info#info', '-'));
                 this.drawAnalysisChart(false);
             }
@@ -542,7 +550,7 @@ export default class AnalysisController {
                     this.ffish.loadVariantConfig(variantsIni);
                     this.notationAsObject = this.notation2ffishjs(this.notation);
                     const availableVariants = this.ffish.variants();
-                    console.log('Available variants:', availableVariants);
+                    // console.log('Available variants:', availableVariants);
                     if (this.model.variant === 'chess' || availableVariants.includes(this.model.variant)) {
                         this.ffishBoard = new this.ffish.Board(this.variant.name, this.fullfen, this.chess960);
                         this.dests = this.getDests();
@@ -838,7 +846,7 @@ export default class AnalysisController {
 
         if (this.isAnalysisBoard) {
             const idxInVari = (plyVari > 0) ? ply : 0;
-            this.vpgn = patch(this.vpgn, h('textarea#pgntext', { attrs: { rows: 13, readonly: true, spellcheck: false} }, this.getPgn(idxInVari)));
+            this.vpgn = patch(this.vpgn, h('div#pgntext', this.getPgn(idxInVari)));
         } else {
             const hist = this.model["home"] + '/' + this.gameId + '?ply=' + ply.toString();
             window.history.replaceState({}, this.model['title'], hist);
@@ -976,7 +984,7 @@ export default class AnalysisController {
 
         if (this.isAnalysisBoard) {
             const idxInVari = (this.plyVari > 0) && vv ? vv.length - 1 : 0;
-            this.vpgn = patch(this.vpgn, h('textarea#pgntext', { attrs: { rows: 13, readonly: true, spellcheck: false} }, this.getPgn(idxInVari)));
+            this.vpgn = patch(this.vpgn, h('div#pgntext', this.getPgn(idxInVari)));
         }
         // TODO: But sending moves to the server will be useful to implement shared live analysis!
         // this.doSend({ type: "analysis_move", gameId: this.gameId, move: move, fen: this.fullfen, ply: this.ply + 1 });
@@ -1138,11 +1146,36 @@ export default class AnalysisController {
     }
 
     private onMsgCtable = (msg: MsgCtable, gameId: string) => {
-        // imported games has no crosstable
-        if (this.model["rated"] !== '2') {
-            this.ctableContainer = patch(this.ctableContainer, h('div#ctable-container'));
+        if (msg.ct) {
+            this.ctableContainer = patch(this.ctableContainer, h('panel-3'));
             this.ctableContainer = patch(this.ctableContainer, crosstableView(msg.ct, gameId));
         }
+
+        // Add a click event handler to each tab
+        const tabs = document.querySelectorAll('[role="tab"]');
+        tabs!.forEach(tab => {
+            tab.addEventListener('click', changeTabs);
+        });
+
+        function changeTabs(e: Event) {
+            const target = e.target as Element;
+            const parent = target!.parentNode;
+            const grandparent = parent!.parentNode;
+
+            // Remove all current selected tabs
+            parent!.querySelectorAll('[aria-selected="true"]').forEach(t => t.setAttribute('aria-selected', 'false'));
+
+            // Set this tab as selected
+            target.setAttribute('aria-selected', 'true');
+
+            // Hide all tab panels
+            grandparent!.querySelectorAll('[role="tabpanel"]').forEach(p => (p as HTMLElement).style.display = 'none');
+
+            // Show the selected panel
+            (grandparent!.parentNode!.querySelector(`#${target.getAttribute('aria-controls')}`)! as HTMLElement).style.display = 'flex';
+        }
+
+        (document.querySelector('[tabindex="0"]') as HTMLElement).style.display = 'flex';
     }
 
     private onMsgDeleted = () => {

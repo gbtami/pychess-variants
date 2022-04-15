@@ -436,7 +436,7 @@ export default class RoundController {
         }
 
         // initialize crosstable
-        this.ctableContainer = document.getElementById('ctable-container') as HTMLElement;
+        this.ctableContainer = document.querySelector('.ctable-container') as HTMLElement;
 
         const misc0 = document.getElementById('misc-info0') as HTMLElement;
         const misc1 = document.getElementById('misc-info1') as HTMLElement;
@@ -770,7 +770,7 @@ export default class RoundController {
             updateResult(this);
 
             if ("ct" in msg && msg.ct) {
-                this.ctableContainer = patch(this.ctableContainer, h('div#ctable-container'));
+                this.ctableContainer = patch(this.ctableContainer, h('div.ctable-container'));
                 this.ctableContainer = patch(this.ctableContainer, crosstableView(msg.ct, this.gameId));
             }
 
@@ -1367,7 +1367,7 @@ export default class RoundController {
 
     private onMsgCtable = (msg: MsgCtable, gameId: string) => {
         if (msg.ct) {
-            this.ctableContainer = patch(this.ctableContainer, h('div#ctable-container'));
+            this.ctableContainer = patch(this.ctableContainer, h('div.ctable-container'));
             this.ctableContainer = patch(this.ctableContainer, crosstableView(msg.ct, gameId));
         }
     }
