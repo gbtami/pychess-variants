@@ -60,7 +60,7 @@ from scheduler import create_scheduled_tournaments, new_scheduled_tournaments
 
 log = logging.getLogger(__name__)
 
-if platform != "win32":
+if platform not in ("win32", "darwin"):
     asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 
 

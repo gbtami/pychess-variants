@@ -173,8 +173,8 @@ function start() {
 
     function showResults(val: String) {
         const acResult = document.getElementById("ac-result") as HTMLElement;
-        acResult.innerHTML = '';
         if (val.length < 4) {
+            acResult.innerHTML = '';
             return;
         }
         fetch('/api/names?p=' + val)
