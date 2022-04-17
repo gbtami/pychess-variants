@@ -249,6 +249,7 @@
     "%1 game in play": [
         "%1 เกมที่กำลังเล่น"
     ],
+    "Tournament calendar": "ปฏิทินการแข่งขัน",
     "Player": "ผู้เล่น",
     "Rating": "คะแนน",
     "Time": "เวลา",
@@ -285,6 +286,7 @@
     ],
     "Computer analysis available": "มีการวิเคราะห์โดยคอมพิวเตอร์",
     "Games": "เกมทั้งหมด",
+    "Games with you": "เกมที่เล่นกับคุณ",
     "Imported": "นำเข้ามา",
     " +15 seconds": "+15 วินาที",
     "Give 15 seconds": "เพิ่มให้ 15 วินาที",
@@ -334,6 +336,7 @@
     "Players": "จำนวนผู้เล่น",
     "Average rating": "คะแนนเฉลี่ย",
     "Games played": "จำนวนเกม",
+    "%1 wins": "%1ชนะ",
     "Draws": "เสมอ",
     "Berserk rate": "อัตราเบอร์เซิร์ก",
     "Download all games": "ดาวน์โหลดเกมทั้งหมด",
