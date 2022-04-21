@@ -1192,7 +1192,7 @@ export default class RoundController {
                 this.prevPieces = new Map(this.chessground.state.pieces);
             }
 
-            // Janggi pass and Sittuyin in place promotion on double click
+            // Sittuyin in place promotion on double click
             if (lastKey === key && curTime - lastTime < 500) {
                 if (this.chessground.state.movable.dests.get(key)?.includes(key)) {
                     const piece = this.chessground.state.pieces.get(key)!;
@@ -1209,8 +1209,6 @@ export default class RoundController {
                         this.chessground.selectSquare(key);
                         sound.moveSound(this.variant, false);
                         this.sendMove(key, key, 'f');
-                    } else if (this.variant.pass && piece.role === 'k-piece') {
-                        this.pass();
                     }
                 }
                 lastKey = 'a0';
