@@ -197,11 +197,20 @@ async def load_game(app, game_id):
                 move_number = ((ply + 1) // 2) + (1 if ply % 2 == 0 else 0)
                 if ply >= 2:
                     if ply % 2 == 0:
-                        step["clocks"] = {"white": clocktimes_w[move_number - 1], "black": clocktimes_b[move_number - 2]}
+                        step["clocks"] = {
+                            "white": clocktimes_w[move_number - 1],
+                            "black": clocktimes_b[move_number - 2],
+                        }
                     else:
-                        step["clocks"] = {"white": clocktimes_w[move_number - 1], "black": clocktimes_b[move_number - 1]}
+                        step["clocks"] = {
+                            "white": clocktimes_w[move_number - 1],
+                            "black": clocktimes_b[move_number - 1],
+                        }
                 else:
-                    step["clocks"] = {"white": clocktimes_w[move_number - 1], "black": clocktimes_b[move_number - 1]}
+                    step["clocks"] = {
+                        "white": clocktimes_w[move_number - 1],
+                        "black": clocktimes_b[move_number - 1],
+                    }
 
             game.steps.append(step)
 
