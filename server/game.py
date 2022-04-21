@@ -134,7 +134,6 @@ class Game:
             {
                 "black": (base * 1000 * 60) + 0 if base > 0 else inc * 1000,
                 "white": (base * 1000 * 60) + 0 if base > 0 else inc * 1000,
-                "movetime": 0,
             }
         ]
         self.dests = {}
@@ -235,7 +234,7 @@ class Game:
                 "san": None,
                 "turnColor": "black" if self.board.color == BLACK else "white",
                 "check": self.check,
-                "movetime": 0,
+                "clocks": self.ply_clocks[0],
             }
         ]
 
@@ -290,7 +289,6 @@ class Game:
                 clocks = {
                     "white": self.ply_clocks[-1]["white"],
                     "black": self.ply_clocks[-1]["black"],
-                    "movetime": movetime,
                 }
 
             if cur_player.bot and self.board.ply >= 2:
@@ -467,7 +465,10 @@ class Game:
                 new_data["if"] = self.board.initial_fen
 
             if self.rated == RATED:
-                new_data["t"] = [p["movetime"] for p in self.ply_clocks]
+                # TODO: self.ply_clocks dict stores clock data redundant
+                # possible it would be better to use self.ply_clocks_w and self.ply_clocks_b arrays instead
+                new_data["cw"] = [p["white"] for p in self.ply_clocks[1:]][0::2]
+                new_data["cb"] = [p["black"] for p in self.ply_clocks[2:]][0::2]
 
             if self.tournamentId is not None:
                 new_data["wb"] = self.wberserk
