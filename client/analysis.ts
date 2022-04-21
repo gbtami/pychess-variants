@@ -107,7 +107,9 @@ export function analysisView(model: PyChessModel): VNode[] {
         h('div.analysis-app', [
             h('aside.sidebar-first', leftSide(model)),
             h(`selection#mainboard.${variant.board}.${variant.piece}.${variant.boardMark}`, [
+                h('div#anal-clock-top'),
                 h('div.cg-wrap.' + variant.cg, { hook: { insert: (vnode) => runGround(vnode, model) } }),
+                h('div#anal-clock-bottom'),
             ]),
             h('div#gauge', [
                 h('div.black',     { props: { style: "height: 50%;" } }),
@@ -167,10 +169,12 @@ export function analysisView(model: PyChessModel): VNode[] {
             h('under-board', [
                 h('div.chart-container', {attrs: {id: 'panel-1', role: 'tabpanel', tabindex: '-1', 'aria-labelledby': 'tab-1'}}, [
                     h('button#request-analysis'),
-                    h('div#chart'),
+                    h('div#chart-analysis'),
                     h('div#loader-wrapper', [spinner()])
                 ]),
-                h('div.movetimes', {attrs: {id: 'panel-2', role: 'tabpanel', tabindex: '-1', 'aria-labelledby': 'tab-2'}}),
+                h('div.chart-container', {attrs: {id: 'panel-2', role: 'tabpanel', tabindex: '-1', 'aria-labelledby': 'tab-2'}}, [
+                    h('div#chart-movetime'),
+                ]),
                 h('div.ctable-container', {attrs: {id: 'panel-3', role: 'tabpanel', tabindex: tabindexCt, 'aria-labelledby': 'tab-3'}}),
                 h('div', {attrs: {id: 'panel-4', role: 'tabpanel', tabindex: tabindexPgn, 'aria-labelledby': 'tab-4'}}, [
                     h('div#fentext', [

@@ -153,8 +153,9 @@ async def load_game(app, game_id):
             doc["a"][0]["m"] = mirror(usi2uci(doc["a"][0]["m"]))
         game.steps[0]["analysis"] = doc["a"][0]
 
-    if "t" in doc:
-        movetimes = doc["t"]
+    if "cw" in doc:
+        clocktimes_w = doc["cw"]
+        clocktimes_b = doc["cb"]
 
     if "mct" in doc:
         manual_count_toggled = iter(doc["mct"])
@@ -192,9 +193,16 @@ async def load_game(app, game_id):
                 "turnColor": turnColor,
                 "check": game.check,
             }
-            if "t" in doc:
-                # TODO recreate the clock time of each player
-                step["clocks"] = {"movetime": movetimes[ply]}
+            if "cw" in doc:
+                move_number = ((ply + 1) // 2) + (1 if ply % 2 == 0 else 0)
+                if ply >= 2:
+                    if ply % 2 == 0:
+                        step["clocks"] = {"white": clocktimes_w[move_number - 1], "black": clocktimes_b[move_number - 2]}
+                    else:
+                        step["clocks"] = {"white": clocktimes_w[move_number - 1], "black": clocktimes_b[move_number - 1]}
+                else:
+                    step["clocks"] = {"white": clocktimes_w[move_number - 1], "black": clocktimes_b[move_number - 1]}
+
             game.steps.append(step)
 
             if "a" in doc:
@@ -246,8 +254,10 @@ async def load_game(app, game_id):
         game.brdiff = ""
 
     if game.tournamentId is not None:
-        game.wberserk = doc.get("wb", False)
-        game.bberserk = doc.get("bb", False)
+        if doc.get("wb", False):
+            game.berserk("white")
+        if doc.get("bb", False):
+            game.berserk("black")
 
     if doc.get("by") is not None:
         game.imported_by = doc.get("by")

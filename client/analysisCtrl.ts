@@ -21,7 +21,9 @@ import { chatMessage, chatView } from './chat';
 import { createMovelistButtons, updateMovelist, selectMove, activatePlyVari } from './movelist';
 import { povChances } from './winningChances';
 import { copyTextToClipboard } from './clipboard';
-import { analysisChart } from './chart';
+import { analysisChart } from './analysisChart';
+import { movetimeChart } from './movetimeChart';
+import { renderClocks } from './analysisClock';
 import { copyBoardToPNG } from './png';
 import { updateCount, updatePoint } from './info';
 import { boardSettings } from './boardSettings';
@@ -114,6 +116,7 @@ export default class AnalysisController {
     animation: boolean;
     showDests: boolean;
     analysisChart: Chart;
+    movetimeChart: Chart;
     ctableContainer: VNode | HTMLElement;
     localEngine: boolean;
     localAnalysis: boolean;
@@ -276,13 +279,6 @@ export default class AnalysisController {
             this.ctableContainer = document.getElementById('panel-3') as HTMLElement;
         }
 
-        // Hide #chart div (embed view has no #chart)
-        if (!this.model["embed"]) {
-            const element = document.getElementById('chart') as HTMLElement;
-            element.style.display = 'none';
-        }
-
-
         createMovelistButtons(this);
         this.vmovelist = document.getElementById('movelist') as HTMLElement;
 
@@ -382,7 +378,7 @@ export default class AnalysisController {
             const loaderEl = document.getElementById('loader') as HTMLElement;
             loaderEl.style.display = 'block';
         }
-        const chartEl = document.getElementById('chart') as HTMLElement;
+        const chartEl = document.getElementById('chart-analysis') as HTMLElement;
         chartEl.style.display = 'block';
         analysisChart(this);
     }
@@ -460,7 +456,6 @@ export default class AnalysisController {
 
         if (msg.steps.length > 1) {
             this.steps = [];
-
             msg.steps.forEach((step, ply) => {
                 if (step.analysis !== undefined) {
                     step.ceval = step.analysis;
@@ -472,7 +467,7 @@ export default class AnalysisController {
             updateMovelist(this);
 
             if (this.steps[0].analysis === undefined) {
-                if (!this.isAnalysisBoard) {
+                if (!this.isAnalysisBoard && !this.model['embed']) {
                     const el = document.getElementById('request-analysis') as HTMLElement;
                     el.style.display = 'block';
                     patch(el, h('button#request-analysis', { on: { click: () => this.drawAnalysisChart(true) } }, [
@@ -483,6 +478,17 @@ export default class AnalysisController {
                 this.vinfo = patch(this.vinfo, h('info#info', '-'));
                 this.drawAnalysisChart(false);
             }
+            const clocktimes = this.steps[1]?.clocks?.white;
+            if (clocktimes !== undefined && !this.model['embed']) {
+                patch(document.getElementById('anal-clock-top') as HTMLElement, h('div.anal-clock.top'));
+                patch(document.getElementById('anal-clock-bottom') as HTMLElement, h('div.anal-clock.bottom'));
+                renderClocks(this);
+
+                const cmt = document.getElementById('chart-movetime') as HTMLElement;
+                cmt.style.display = 'block';
+                movetimeChart(this);
+            }
+
         } else {
             if (msg.ply === this.steps.length) {
                 const step: Step = {
@@ -828,6 +834,9 @@ export default class AnalysisController {
         }
 
         if (this.model["embed"]) return;
+
+        const clocktimes = this.steps[1]?.clocks?.white;
+        if (clocktimes !== undefined) renderClocks(this);
 
         if (this.ffishBoard !== null) {
             this.ffishBoard.setFen(this.fullfen);
