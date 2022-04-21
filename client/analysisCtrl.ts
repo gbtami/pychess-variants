@@ -835,7 +835,16 @@ export default class AnalysisController {
         if (this.model["embed"]) return;
 
         const clocktimes = this.steps[1]?.clocks?.white;
-        if (clocktimes !== undefined) renderClocks(this);
+        if (clocktimes !== undefined) {
+            renderClocks(this);
+            const hc = this.movetimeChart;
+            if (hc !== undefined) {
+                const idx = (step.turnColor === 'white') ? 1 : 0;
+                const turn = (ply + 1) >> 1;
+                const hcPt = hc.series[idx].data[turn-1];
+                if (hcPt !== undefined) hcPt.select();
+            }
+        }
 
         if (this.ffishBoard !== null) {
             this.ffishBoard.setFen(this.fullfen);

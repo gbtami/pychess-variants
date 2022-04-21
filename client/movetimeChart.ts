@@ -14,6 +14,8 @@ export interface MovePoint {
 export function movetimeChart(ctrl: AnalysisController) {
     let maxMove = 0, maxTotal = 0;
 
+    const highlightColor = '#3893E8';
+    const xAxisColor = '#cccccc99';
     const whiteAreaFill = 'rgba(255, 255, 255, 0.2)';
     const whiteColumnFill = 'rgba(255, 255, 255, 0.9)';
     const whiteColumnBorder = '#00000044';
@@ -68,6 +70,7 @@ export function movetimeChart(ctrl: AnalysisController) {
             label += '<br />' + formatClock(clock);
             maxTotal = Math.max(clock, maxTotal);
             totalSeries[colorName].push({
+                name: label,
                 x: ply,
                 y: color ? clock : -clock,
             });
@@ -76,22 +79,63 @@ export function movetimeChart(ctrl: AnalysisController) {
         labels.push(label);
     });
 
+    const clickableOptions = {
+        cursor: 'pointer',
+        events: {
+            click: function(event: any) {
+                if (event.point) {
+                    event.point.select();
+                    selectMove (ctrl, event.point.x)
+                }
+            }
+        },
+    };
+    const foregrondLineOptions = {
+        ...clickableOptions,
+        color: highlightColor,
+        lineWidth: 2,
+        states: {
+          hover: {
+            lineWidth: 2,
+          },
+        },
+        marker: {
+          radius: 1,
+          states: {
+            hover: {
+              radius: 3,
+              lineColor: highlightColor,
+              fillColor: 'white',
+            },
+            select: {
+              radius: 4,
+              lineColor: highlightColor,
+              fillColor: 'white',
+            },
+          },
+        },
+    };
+
     const chart = Highcharts.chart('chart-movetime', {
         chart: { type: 'column',
             alignTicks: false,
             spacing: [2, 0, 2, 0],
             animation: false,
             backgroundColor: undefined,
+            plotShadow: false,
         },
         credits: { enabled: false },
         legend: { enabled: false },
         title: { text: undefined },
         plotOptions: {
             series: {
-                animation: false
+                animation: false,
+                shadow: false,
             },
             area: {
+                ...foregrondLineOptions,
                 trackByArea: true,
+                color: highlightColor,
                 fillColor: whiteAreaFill,
                 negativeFillColor: blackAreaFill,
                 events: {
@@ -103,6 +147,7 @@ export function movetimeChart(ctrl: AnalysisController) {
                     }
                 },
             },
+            line: foregrondLineOptions,
             column: {
                 color: whiteColumnFill,
                 negativeColor: blackColumnFill,
@@ -111,6 +156,11 @@ export function movetimeChart(ctrl: AnalysisController) {
                 pointPadding: 0,
                 states: {
                     hover: { enabled: false },
+                    select: {
+                        enabled: false,
+                        color: highlightColor,
+                        borderColor: highlightColor,
+                    },
                 }
             }
         },
@@ -131,35 +181,68 @@ export function movetimeChart(ctrl: AnalysisController) {
             lineWidth: 0,
             tickWidth: 0
         },
-        yAxis: {
-            title: { text: undefined },
+        yAxis: [
+        {
+            title: { text: null },
             labels: { enabled: false },
+            alternateGridColor: undefined,
             min: -maxMove,
             max: maxMove,
-            startOnTick: false,
-            endOnTick: false,
-            lineWidth: 1,
             gridLineWidth: 0,
             plotLines: [{
-                color: '#a0a0a0',
+                color: xAxisColor,
                 width: 1,
                 value: 0,
+                zIndex: 10,
             }]
         },
-        series: [{
-            name: 'White Move Time',
-            type: 'column',
-            yAxis: 0,
-            data: moveSeries.white,
-            borderColor: whiteColumnBorder,
-        },
         {
-            name: 'Black Move Time',
-            type: 'column',
-            yAxis: 0,
-            data: moveSeries.black,
-            borderColor: blackColumnBorder,
+            title: { text: null },
+            min: -maxTotal,
+            max: maxTotal,
+            labels: { enabled: false },
+            gridLineWidth: 0,
         },
+        ],
+        series: [
+            {
+                name: 'White Clock Area',
+                type: 'area',
+                yAxis: 1,
+                data: totalSeries.white,
+            },
+            {
+                name: 'Black Clock Area',
+                type: 'area',
+                yAxis: 1,
+                data: totalSeries.black,
+            },
+            {
+                name: 'White Move Time',
+                type: 'column',
+                yAxis: 0,
+                data: moveSeries.white,
+                borderColor: whiteColumnBorder,
+            },
+            {
+                name: 'Black Move Time',
+                type: 'column',
+                yAxis: 0,
+                data: moveSeries.black,
+                borderColor: blackColumnBorder,
+            },
+            {
+                name: 'White Clock Line',
+                type: 'line',
+                yAxis: 1,
+                data: totalSeries.white,
+            },
+            {
+                name: 'Black Clock Line',
+                type: 'line',
+                yAxis: 1,
+                data: totalSeries.black,
+            },
         ]
     });
 
