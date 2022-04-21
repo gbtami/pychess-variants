@@ -71,6 +71,7 @@
     --chat-entry-bg: #fafaf9; 
     --toggle-bg: #c0c0c0;
     --slider-border: #a9a9a9;
+    --anal-clock: #bbd7f1;
 }
 [data-theme="dark"] {
     --dark-mode: 1;
@@ -126,6 +127,7 @@
     --chat-entry-bg: #262421; 
     --toggle-bg: #696969;
     --slider-border: #7a7a7a;
+    --anal-clock: #2b455d;;
 }
 [data-theme="dark"] .icon-black:before {
   content: "\63";
@@ -316,6 +318,7 @@ iframe {
 
 #mainboard {
     grid-area: board;
+    position: relative;
 }
 
 .lobby {
@@ -922,12 +925,12 @@ div#result {
     }
 }
 button#request-analysis, button#import, button.join, button.submit {
-    width: 200px;
-    padding: 4px;
+    padding: 0.8em 1em;
     margin: 2px 2px;
     border-radius: 4px;
     color: White;
     background-color: var(--blue-hover);
+    white-space:nowrap;
 }
 button.paste-url {
     padding: 4px;

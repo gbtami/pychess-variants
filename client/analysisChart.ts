@@ -30,7 +30,7 @@ export function analysisChart(ctrl: AnalysisController) {
             }
         }
     );
-    ctrl.analysisChart = Highcharts.chart('chart', {
+    ctrl.analysisChart = Highcharts.chart('chart-analysis', {
         chart: { type: 'area',
             spacing: [3, 0, 3, 0],
             animation: false,

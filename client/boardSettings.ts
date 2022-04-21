@@ -8,7 +8,8 @@ import RoundController from './roundCtrl';
 import { EditorController } from './editorCtrl';
 import { patch } from './document';
 import { iniPieces } from './pieces';
-import { analysisChart } from './chart';
+import { analysisChart } from './analysisChart';
+import { movetimeChart } from './movetimeChart';
 import { updateCount, updatePoint } from './info';
 import { updateMaterial } from './material';
 import { player } from './player';
@@ -101,6 +102,7 @@ class BoardSettings {
 
                 if (this.ctrl instanceof AnalysisController && !this.ctrl.model["embed"]) {
                     analysisChart(this.ctrl);
+                    movetimeChart(this.ctrl);
                 }
             }
         }
