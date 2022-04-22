@@ -19,15 +19,6 @@ from tournaments import new_tournament
 MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY = range(7)
 Plan = namedtuple("Plan", "freq, date, hour, variant, is960, base, inc, byo, duration")
 
-NO_TOURNEY = [
-    "chess",
-    "chess960",
-    "crazyhouse",
-    "atomic",
-    "shogi",
-    "minishogi",
-    "manchu",
-]  # tournaments are available on lichess/lishogi
 SHIELDS = ["crazyhouse960", "atomic960", "makruk", "shinobi"]
 SEATURDAY = ["makruk", "makpong", "sittuyin", "cambodian", "asean"]
 
@@ -53,7 +44,6 @@ MONTHLY_VARIANTS = (
     "synochess",
     "grandhouse",
     "shako",
-    "manchu",
     "torishogi",
     "seirawan960",
     "chennis",
