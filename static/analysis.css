@@ -43,7 +43,7 @@
                                var(--gauge-gap)
                                minmax(calc(70vmin * var(--board-scale)), calc(100vh * var(--board-scale) - calc(var(--site-header-height) + var(--site-header-margin)) - 3rem));
         grid-template-rows: min-content 1fr;
-        grid-template-areas: 'board gauge pocket-top pocket-top-partner gaugePartner boardPartner' 'board gauge tools tools gaugePartner boardPartner' 'board gauge tools tools gaugePartner boardPartner' 'board gauge pocket-bot pocket-bot-partner gaugePartner boardPartner' 'uboard . move-controls move-controls . .'
+        grid-template-areas: 'board gauge pocket-top pocket-top-partner gaugePartner boardPartner' 'board gauge tools tools gaugePartner boardPartner' 'board gauge tools tools gaugePartner boardPartner' 'board gauge pocket-bot pocket-bot-partner gaugePartner boardPartner' '. . move-controls move-controls . .' 'uboard uboard uboard uboard uboard uboard'
         /*'board . boardPartner' 'board mat-top boardPartner' 'board clock-top boardPartner' 'board expi-top boardPartner' 'board user-top boardPartner' 'board move-controls boardPartner' 'board moves boardPartner' 'board game-controls boardPartner' 'board user-bot boardPartner' 'board expi-bot boardPartner' 'board clock-bot boardPartner' 'board mat-bot boardPartner' 'board . boardPartner';*/
     }
 
@@ -61,16 +61,20 @@
 div#ctable-container {
     padding-top: 3vmin;
 }
-
 #gauge {
     grid-area: gauge;
+}
+#gaugePartner {
+    grid-area: gaugePartner;
+}
+#gauge, #gaugePartner {
     display: block;
     background-color: #fff;
     width: var(--gauge-gap);
     overflow: hidden;
     position: relative;
 }
-#gauge::after {
+#gauge::after, #gaugePartner::after {
     content: '';
     display: block;
     position: absolute;
@@ -80,11 +84,11 @@ div#ctable-container {
     right: 0;
     box-shadow: 0 0 5px rgba(0,0,0,0.7) inset;
 }
-#gauge .black {
+#gauge .black, #gaugePartner .black{
     background-color: #888;
     transition: height 1s;
 }
-#gauge .tick {
+#gauge .tick, #gaugePartner .tick{
     position: absolute;
     top: 0;
     left: 0;
@@ -92,13 +96,13 @@ div#ctable-container {
     border-bottom: 2px ridge #eee;
     opacity: 0.4;
 }
-#gauge .tick.zero {
+#gauge .tick.zero, #gaugePartner .tick.zero{
     opacity: 1;
     border-bottom: 7px solid rgba(214,79,0,0.4);
     margin-top: -3px;
 }
 @media (max-width: 799px) and (orientation: portrait) {
-    #gauge {
+    #gauge, #gaugePartner {
         display: none;
     }
 }
@@ -141,10 +145,13 @@ div#ceval {
     display: flex;
     padding: 6px;
 }
-div.info {
+div.info, div.infoBug {
     flex: 1 0 auto;
     align-self: center;
     line-height: 18px;
+}
+div.infoBug{
+    text-align: center;
 }
 a.icon.icon-plus-square {
     opacity:0.9;

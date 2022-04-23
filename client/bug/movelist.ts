@@ -4,11 +4,14 @@ import { boardSettings } from '../boardSettings';
 import AnalysisController from './analysisCtrl';
 import RoundController from '../roundCtrl';
 import { result } from '../profile'
-import { Step } from '../messages';
 import { patch } from '../document';
 
-export function selectMove (ctrl: AnalysisController | RoundController, ply: number, plyVari = 0): void {
-    ctrl.goPly(ply, plyVari);
+export function selectMove (ctrl: AnalysisController, ply: number, plyVari = 0): void {
+    // if (ctrl.steps[ply].boardName==='a')
+    //     ctrl.b1.goPly(ctrl.steps[ply].plyA!, plyVari);
+    // else
+    //     ctrl.b2.goPly(ctrl.steps[ply].plyB!, plyVari);
+    ctrl.goPly(ply);
     if (plyVari === 0) {
         activatePly(ctrl);
         scrollToPly(ctrl);
@@ -19,17 +22,17 @@ export function selectMove (ctrl: AnalysisController | RoundController, ply: num
 }
 
 function activatePly (ctrl: AnalysisController | RoundController) {
-    const active = document.querySelector('move.active');
+    const active = document.querySelector('move-bug.active');
     if (active) active.classList.remove('active');
 
-    const elPly = document.querySelector(`move[ply="${ctrl.ply}"]`);
+    const elPly = document.querySelector(`move-bug[ply="${ctrl.ply}"]`);
     if (elPly) elPly.classList.add('active');
 }
 
 function scrollToPly (ctrl: AnalysisController | RoundController) {
     if (ctrl.steps.length < 9) return;
     const movelistEl = document.getElementById('movelist') as HTMLElement;
-    const plyEl = movelistEl.querySelector('move.active') as HTMLElement | null;
+    const plyEl = movelistEl.querySelector('move-bug.active') as HTMLElement | null;
 
     let st: number | undefined = undefined;
 
@@ -75,16 +78,29 @@ export function updateMovelist (ctrl: AnalysisController, full = true, activate 
     const plyTo = ctrl.steps.length;
 
     const moves: VNode[] = [];
+    let lastColIdx = 0;
+    let plyA: number = 0;//maybe make it part of Steps - maybe have some function to calculate these - i feel i will need this logic again somewhere
+    let plyB: number = 0;
     for (let ply = plyFrom; ply < plyTo; ply++) {
         const move = ctrl.steps[ply].san;
         if (move === null) continue;
+
+        ctrl.steps[ply].boardName === 'a'? plyA++ : plyB++;
+
+        const colIdx = ctrl.steps[ply].boardName === 'a'? ctrl.steps[ply].turnColor === 'black'/*meaning move was made by white and now black's turn*/? 1 : 2 : ctrl.steps[ply].turnColor === 'black'? 3 : 4 ;
+        const countOfEmptyCellsToAdd = colIdx > lastColIdx? colIdx - lastColIdx - 1: 4 + colIdx - lastColIdx - 1;
+        for (let i = 0; i<countOfEmptyCellsToAdd;i++) {
+            moves.push(h('move-bug.counter'));
+            const el = h('move-bug', {});
+            moves.push(el);
+        }
+        lastColIdx = colIdx;
 
         const moveEl = [ h('san', move) ];
         const scoreStr = ctrl.steps[ply]['scoreStr'] ?? '';
         moveEl.push(h('eval#ply' + ply, scoreStr));
 
-        if (ply % 4 == 1)
-            moves.push(h('move.counter', (ply + 1) / 2));
+        moves.push(h('move-bug.counter',  Math.floor(ctrl.steps[ply].boardName === 'a'? (plyA + 1) / 2 : (plyB + 1) / 2 ) ) );
 
         const el = h('move-bug', {
             class: { active: ((ply === plyTo - 1) && activate) },
@@ -94,29 +110,29 @@ export function updateMovelist (ctrl: AnalysisController, full = true, activate 
 
         moves.push(el);
         
-        if (ctrl.steps[ply]['vari'] !== undefined && "plyVari" in ctrl) {
-            const variMoves = ctrl.steps[ply]['vari'];
-
-            if (ply % 2 !== 0) moves.push(h('move-bug', '...'));
-
-            moves.push(h('vari#vari' + ctrl.plyVari,
-                variMoves?
-                    variMoves.map((x: Step, idx: number) => {
-                    const currPly = ctrl.plyVari + idx;
-                    const moveCounter = (currPly % 2 !== 0) ? (currPly + 1) / 2 + '. ' : (idx === 0) ? Math.floor((currPly + 1) / 2) + '...' : ' ';
-                    return h('vari-move', {
-                        attrs: { ply: currPly },
-                        on: { click: () => selectMove(ctrl, idx, ctrl.plyVari) },
-                        }, [ h('san', moveCounter + x['san']) ]
-                    );
-                }) : []
-            ));
-
-            if (ply % 4 == 1) {
-                moves.push(h('move.counter', (ply + 1) / 2));
-                moves.push(h('move-bug', '...'));
-            }
-        }
+        // if (ctrl.steps[ply]['vari'] !== undefined && "plyVari" in ctrl) {
+        //     const variMoves = ctrl.steps[ply]['vari'];
+        //
+        //     if (ply % 2 !== 0) moves.push(h('move-bug', '...'));
+        //
+        //     moves.push(h('vari#vari' + ctrl.plyVari,
+        //         variMoves?
+        //             variMoves.map((x: Step, idx: number) => {
+        //             const currPly = ctrl.plyVari + idx;
+        //             const moveCounter = (currPly % 2 !== 0) ? (currPly + 1) / 2 + '. ' : (idx === 0) ? Math.floor((currPly + 1) / 2) + '...' : ' ';
+        //             return h('vari-move', {
+        //                 attrs: { ply: currPly },
+        //                 on: { click: () => selectMove(ctrl, idx, ctrl.plyVari) },
+        //                 }, [ h('san', moveCounter + x['san']) ]
+        //             );
+        //         }) : []
+        //     ));
+        //
+        //     if (ply % 4 == 1) {
+        //         moves.push(h('move.counter', (ply + 1) / 2));
+        //         moves.push(h('move-bug', '...'));
+        //     }
+        // }
     }
 
     if (ctrl.status >= 0 && needResult) {

@@ -20,6 +20,7 @@ import { Chart } from "highcharts";
 import { PyChessModel } from "../main";
 import {Ceval, Step} from "../messages";
 import {ChessgroundController} from "./ChessgroundCtrl";
+import {sound} from "../sound";
 
 const EVAL_REGEX = new RegExp(''
   + /^info depth (\d+) seldepth \d+ multipv (\d+) /.source
@@ -36,6 +37,7 @@ const maxThreads = Math.max((navigator.hardwareConcurrency || 1) - 1, 1);
 interface MsgAnalysisBoard {
     gameId: string;
     fen: string;
+    fenB?: string;
     ply: number;
     lastMove: string;
     dests: cg.Dests;
@@ -120,13 +122,20 @@ export default class AnalysisController {
 
         this.b1 = new ChessgroundController(el1, el1Pocket1, el1Pocket2, model.fen, model.variant, model.chess960==='True');//todo:niki:fen maybe should be parsed from bfen. what situation do we start from custom fen?
         this.b2 = new ChessgroundController(el2, el2Pocket1, el2Pocket2, model.fen, model.variant, model.chess960==='True');
+        this.b2.chessground.set({orientation:"black"});
+        this.b1.boardName = 'a';
+        this.b2.boardName = 'b';
+        this.b1.partnerCC = this.b2;
+        this.b2.partnerCC = this.b1;
+        this.b1.parent = this;
+        this.b2.parent = this;
 
-        this.b1.sendMove = (orig: cg.Orig, dest: cg.Key, promo: string) => {
-            this.sendMove(this.b1, orig, dest, promo);
-        }
-        this.b2.sendMove = (orig: cg.Orig, dest: cg.Key, promo: string) => {
-            this.sendMove(this.b2, orig, dest, promo);
-        }
+        // this.b1.sendMove = (orig: cg.Orig, dest: cg.Key, promo: string) => {
+        //     this.sendMove(this.b1, orig, dest, promo);
+        // }
+        // this.b2.sendMove = (orig: cg.Orig, dest: cg.Key, promo: string) => {
+        //     this.sendMove(this.b2, orig, dest, promo);
+        // }
 
         this.isAnalysisBoard = model["gameId"] === "";
 
@@ -198,11 +207,13 @@ export default class AnalysisController {
 
 
         this.steps.push({//todo:niki:need new format for bug steps - should i extend or make new class or whatever
-            'fen': this.fullBFEN,
+            // 'fen': this.fullBFEN,
+            'fen': model.fen,
+            'fenB': model.fen,
             'move': undefined,
             'check': false,
-            'turnColor': this.b1.turnColor,
-            'turnColorB': this.b2.turnColor,
+            'turnColor': this.b1.turnColor,//todo:niki:not relevant/meaningful
+            // 'turnColorB': this.b2.turnColor,
             });
 
         if (!this.isAnalysisBoard && !this.model["embed"]) {
@@ -717,88 +728,57 @@ export default class AnalysisController {
     // then plyVari > 0 and ply is the index inside vari movelist
     goPly = (ply: number, plyVari = 0) => {//todo:niki:temp comment out
         console.log(ply, plyVari);
-    //     if (this.localAnalysis) {
-    //         this.engineStop();
-    //         // Go back to the main line
-    //         if (plyVari === 0) {
-    //             const container = document.getElementById('vari') as HTMLElement;
-    //             patch(container, h('div#vari', ''));
-    //         }
-    //     }
-    //
-    //     const vv = this.steps[plyVari]?.vari;
-    //     const step = (plyVari > 0 && vv ) ? vv[ply] : this.steps[ply];
-    //
-    //     const move = uci2LastMove(step.move);
-    //     let capture = false;
-    //     if (move.length > 0) {
-    //         // 960 king takes rook castling is not capture
-    //         // TODO defer this logic to ffish.js
-    //         capture = (this.b1.chessground.state.pieces.get(move[move.length - 1]) !== undefined && step.san?.slice(0, 2) !== 'O-') || (step.san?.slice(1, 2) === 'x');
-    //     }
-    //
-    //     this.b1.chessground.set({
-    //         fen: step.fen,
-    //         turnColor: step.turnColor,
-    //         movable: {
-    //             color: step.turnColor,
-    //             dests: this.b1.dests,//todo;niki
-    //             },
-    //         check: step.check,
-    //         lastMove: move,
-    //     });
-    //
-    //     this.b1.fullfen = step.fen;
-    //
-    //     if (this.b1.variant.counting) {
-    //         updateCount(step.fen, document.getElementById('misc-infow') as HTMLElement, document.getElementById('misc-infob') as HTMLElement);
-    //     }
-    //
-    //     if (this.b1.variant.materialPoint) {
-    //         updatePoint(step.fen, document.getElementById('misc-infow') as HTMLElement, document.getElementById('misc-infob') as HTMLElement);
-    //     }
-    //
-    //     if (ply === this.ply + 1) {
-    //         sound.moveSound(this.b1.variant, capture);
-    //     }
-    //
-    //     // Go back to the main line
-    //     if (plyVari === 0) {
-    //         this.ply = ply
-    //     }
-    //     this.b1.turnColor = step.turnColor;
-    //
-    //     if (this.plyVari > 0 && plyVari === 0) {
-    //         this.steps[this.plyVari]['vari'] = undefined;
-    //         this.plyVari = 0;
-    //         updateMovelist(this);
-    //     }
-    //
-    //     if (this.model["embed"]) return;
-    //
-    //     //todo:niki:temporary comment out until figure out how to split this for 2 boards
-    //     // if (this.ffishBoard !== null) {
-    //     //     this.ffishBoard.setFen(this.b1.fullfen);
-    //     //     this.dests = this.getDests();
-    //     // }
-    //
-    //     this.drawEval(step.ceval, step.scoreStr, step.turnColor);
-    //     this.drawServerEval(ply, step.scoreStr);
-    //
-    //     // TODO: multi PV
-    //     this.maxDepth = maxDepth;
-    //     if (this.localAnalysis) this.engineGo(this.b1);
-    //
-    //     const e = document.getElementById('fullfen') as HTMLInputElement;
-    //     e.value = this.b1.fullfen;
-    //
-    //     if (this.isAnalysisBoard) {
-    //         const idxInVari = (plyVari > 0) ? ply : 0;
-    //         this.vpgn = patch(this.vpgn, h('textarea#pgntext', { attrs: { rows: 13, readonly: true, spellcheck: false} }, this.getPgn(idxInVari)));
-    //     } else {
-    //         const hist = this.model["home"] + '/' + this.gameId + '?ply=' + ply.toString();
-    //         window.history.replaceState({}, this.model['title'], hist);
-    //     }
+        this.ply = ply;
+
+        const step = this.steps[ply];
+        console.log(step);
+
+        const board=step.boardName==='a'?this.b1:this.b2;
+
+        const fen=step.boardName==='a'?step.fen: step.fenB;
+        const fenPartner=step.boardName==='b'?step.fen: step.fenB;
+
+        const move = step.boardName==='a'?uci2LastMove(step.move):uci2LastMove(step.moveB);
+        const movePartner = step.boardName==='b'?uci2LastMove(step.move):uci2LastMove(step.moveB);
+
+        let capture = false;
+        if (move.length > 0) {
+            // 960 king takes rook castling is not capture
+            // TODO defer this logic to ffish.js
+            capture = (board.chessground.state.pieces.get(move[move.length - 1]) !== undefined && step.san?.slice(0, 2) !== 'O-') || (step.san?.slice(1, 2) === 'x');
+        }
+
+        board.chessground.set({
+            fen: fen,
+            turnColor: step.turnColor,
+            movable: {
+                color: step.turnColor,
+                dests: board.dests,//todo:niki:probably has to re-init this for variations or disable moves until variations are supported - current value probably wrong either way
+                },
+            check: step.check,
+            lastMove: move,
+        });
+
+        board.partnerCC.chessground.set({fen: fenPartner, lastMove: movePartner});
+
+        board.fullfen = step.fen;
+        board.partnerCC.fullfen = fenPartner!;
+
+        if (ply === this.ply + 1) {
+            sound.moveSound(board.variant, capture);
+        }
+
+        // Go back to the main line
+        if (plyVari === 0) {
+            this.ply = ply;//todo:niki:this has to be local ply - cant remember why i need it though
+        }
+        board.turnColor = step.turnColor;
+
+        if (board.ffishBoard !== null) {
+            board.ffishBoard.setFen(board.fullfen);
+            board.dests = board.parent.getDests(board);//todo:niki:maybe do this before chessground set above.
+        }
+
     }
 
     doSend = (message: JSONObject) => {
@@ -884,19 +864,25 @@ export default class AnalysisController {
         this.onMsgAnalysisBoard(b, msg);
 
         const step = {
-            'fen': msg.fen,
-            'move': msg.lastMove,
+            fen: b.boardName==='a'? b.ffishBoard.fen(b.variant.showPromoted, 0): b.partnerCC.ffishBoard.fen(b.partnerCC.variant.showPromoted, 0),
+            fenB: b.boardName==='b'? b.ffishBoard.fen(b.variant.showPromoted, 0): b.partnerCC.ffishBoard.fen(b.partnerCC.variant.showPromoted, 0),
+            'move': b.boardName==='a'? msg.lastMove: this.steps[this.steps.length-1].move,
+            'moveB': b.boardName==='b'? msg.lastMove: this.steps[this.steps.length-1].moveB,
             'check': msg.check,
             'turnColor': b.turnColor,
             'san': san,
             'sanSAN': sanSAN,
-            'boardName': b.boardName
+            'boardName': b.boardName,
+            'plyA': this.b1.ply,
+            'plyB': this.b2.ply,
             };
 
         // New main line move
-        const sumPly = this.b1.ffishBoard.gamePly() + this.b2.ffishBoard.gamePly();
+        // const sumPly = this.b1.ffishBoard.gamePly() + this.b2.ffishBoard.gamePly();
+        const sumPly = this.b1.ply + this.b2.ply;
         if (sumPly === this.steps.length && this.plyVari === 0) {
             this.steps.push(step);
+            b.steps.push(step);
             this.ply = sumPly
             updateMovelist(this);
 
@@ -930,7 +916,7 @@ export default class AnalysisController {
         }
 
         const e = document.getElementById('fullfen') as HTMLInputElement;
-        e.value = b.fullfen;
+        e.value = this.b1.fullfen+" "+this.b2.fullfen;
 
         // if (this.isAnalysisBoard) {todo:niki
         //     const idxInVari = (b.plyVari > 0) && vv ? vv.length - 1 : 0;

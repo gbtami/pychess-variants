@@ -133,6 +133,16 @@ export function analysisView(model: PyChessModel): VNode[] {
                 h('div.tick',      { props: { style: "height: 75%;" } }),
                 h('div.tick',      { props: { style: "height: 87.5%;" } }),
             ]),
+            h('div#gaugePartner', [
+                h('div.black',     { props: { style: "height: 50%;" } }),
+                h('div.tick',      { props: { style: "height: 12.5%;" } }),
+                h('div.tick',      { props: { style: "height: 25%;" } }),
+                h('div.tick',      { props: { style: "height: 37.5%;" } }),
+                h('div.tick.zero', { props: { style: "height: 50%;" } }),
+                h('div.tick',      { props: { style: "height: 62.5%;" } }),
+                h('div.tick',      { props: { style: "height: 75%;" } }),
+                h('div.tick',      { props: { style: "height: 87.5%;" } }),
+            ]),
 
             h('div.pocket-top', [
                 h('div.' + variant.piece + '.' + model["variant"], [
@@ -151,8 +161,6 @@ export function analysisView(model: PyChessModel): VNode[] {
             h('div.analysis-tools', [
                 h('div#ceval', [
                     h('div.engine', [
-                        h('score#score', ''),
-                        h('div.info', ['Fairy-Stockfish 11+', h('br'), h('info#info', _('in local browser'))]),
                         h('label.switch', [
                             h('input#input', {
                                 props: {
@@ -161,6 +169,18 @@ export function analysisView(model: PyChessModel): VNode[] {
                                 },
                             }),
                             h('span#slider.sw-slider'),
+                        ]),
+                        h('score#score', ''),
+                        h('div.infoBug', ['Fairy-Stockfish 11+', h('br'), h('info#info', _('in local browser'))]),
+                        h('score#scorePartner', ''),
+                        h('label.switch', [
+                            h('input#inputPartner', {
+                                props: {
+                                    name: "engine",
+                                    type: "checkbox",
+                                },
+                            }),
+                            h('span#sliderPartner.sw-slider'),
                         ]),
                     ]),
                 ]),
@@ -200,7 +220,7 @@ export function analysisView(model: PyChessModel): VNode[] {
                         h('div#loader-wrapper', [spinner()])
                     ]),
                     h('div#fentext', [
-                        h('strong', 'FEN'),
+                        h('strong', 'BFEN'),
                         h('input#fullfen', {attrs: {readonly: true, spellcheck: false}})
                     ]),
                     h('div#copyfen'),

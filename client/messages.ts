@@ -6,7 +6,11 @@ import * as cg from "chessgroundx/types";
 
 export interface Step {
     fen: cg.FEN;
+    fenB?: cg.FEN;
+
     move: string | undefined;
+    moveB?: string | undefined;//todo:niki:would be nice not to have to duplicate this and fenB and instead derive it from previous moves when needed. also not store in db
+
     check: boolean;
     turnColor: cg.Color;
 
@@ -20,7 +24,9 @@ export interface Step {
     sanSAN?: string;
 
     boardName?: 'a' | 'b';
-    turnColorB?: cg.Color;//for second board of bughouse - todo:niki:i wonder if this is needed at all for either boards and variant
+    plyA?: number;//todo:niki:feel not needed. also next one
+    plyB?: number;
+    // turnColorB?: cg.Color;//for second board of bughouse - todo:niki:i wonder if this is needed at all for either boards and variant
 }
 
 export interface CrossTable {

@@ -1791,13 +1791,13 @@ move {
     box-sizing: border-box;
     justify-content: center;
 }
-move.active {
+move.active, move-bug.active {
     font-weight:bold;
 }
 move-bug {
     line-height: 1.9em;
     float: left;
-    flex: 0 0 21.75%;
+    flex: 0 0 21%;
     padding-left: 6px;
     box-sizing: border-box;
     justify-content: center;
@@ -1817,11 +1817,18 @@ move.counter {
     text-align: center;
 }
 
-vari-move:hover, move:hover {
+move-bug.counter {
+    color: Gray;
+    flex: 0 0 4%;
+    background-color: var(--bg-color2);
+    text-align: center;
+}
+
+vari-move:hover, move:hover, move-bug:hover {
     color: var(font-color);
     background-color: var(--blue-hover);
 }
-vari-move.active, move.active {
+vari-move.active, move.active, move-bug.active {
     background-color: var(--blue-active);
 }
 move.hidden {

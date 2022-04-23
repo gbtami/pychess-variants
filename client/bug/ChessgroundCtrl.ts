@@ -3,12 +3,17 @@ import {Gating} from "../gating";
 import {Promotion} from "../promotion";
 import * as cg from "chessgroundx/types";
 import {Chessground} from "chessgroundx";
-import {BOARD_FAMILIES, Variant, VARIANTS} from "../chess";
+import {BOARD_FAMILIES, uci2LastMove, Variant, VARIANTS} from "../chess";
 import * as util from "chessgroundx/util";
+import AnalysisController from "./analysisCtrl";
+import {patch} from "../document";
+import {h} from "snabbdom";
+import {Step} from "../messages";
+import {sound} from "../sound";
 
 export class ChessgroundController{
 
-
+    partnerCC: ChessgroundController;
 
     chessground: Api;
 
@@ -24,11 +29,14 @@ export class ChessgroundController{
 
     variant: Variant;
 
+    parent: AnalysisController;
+
     fullfen: cg.FEN;
 
     preaction: boolean;//todo:niki:where is this used usually?
 
     ply: number = 0;//todo:niki; only needed for cancel() of promotion.ts and gating.ts. so it can call goPly(which is currently not implemented either) to reset last move
+                    //todo:niki: gonna start using it also instead of this.ffishBoard.getPly(), because ply is messed up after calling setFen because of update of pockets after capture
     // plyVari: number;
 
     dests: cg.Dests;
@@ -39,6 +47,8 @@ export class ChessgroundController{
     ffishBoard: any;
 
     boardName: 'a' | 'b';
+
+    steps: Step[];
 
     constructor(el: HTMLElement,elPocket1: HTMLElement,elPocket2: HTMLElement, fullfen: string, variant: string, chess960: boolean) {
         this.chessground = this.createGround(el, elPocket1, elPocket2, fullfen);
@@ -84,12 +94,23 @@ export class ChessgroundController{
         // const fen_placement: cg.FEN = parts[0];
         this.turnColor = parts[1] === "w" ? "white" : "black";
 
+        this.steps = [];
+        this.steps.push({//todo:niki:i dont know if some better data structure can be invented to replace the 3 steps lists used now - 2 local for each board and 1 aggregate
+            'fen': this.fullfen,
+            'fenB': this.fullfen,//todo:niki:not correct but works if not 960
+            'move': undefined,
+            'check': false,
+            'turnColor': this.turnColor,
+            // 'turnColorB': this.b2.turnColor,
+        });
+
     }
 
     getGround = () => this.chessground;
 
     sendMove = (orig: cg.Orig, dest: cg.Key, promo: string) => {
-        console.log(orig, dest, promo);
+        this.ply++;
+        this.parent.sendMove(this, orig, dest, promo);
         //todo:niki:for now just so promotion and gating.ts compile. not sure if this is the right place and what overall design this whole stuff will end up with - aggregation vs inheritance
     }
 
@@ -108,6 +129,18 @@ export class ChessgroundController{
     onUserDrop = (role: cg.Role, dest: cg.Key, meta: cg.MoveMetadata) => {
         console.log(role, dest, meta);
         // onUserDrop(this, role, dest, meta); todo:niki
+        this.preaction = meta.predrop === true;
+        // decrease pocket count - todo: covers the gap before we receive board message confirming the move - then FEN is set
+        //                               and overwrites whole board+pocket and refreshes.
+        //                               Maybe consider decrease count on start of drag (like in editor mode)?
+        this.chessground.state.pockets![this.chessground.state.turnColor]![role]! --;
+        this.chessground.state.dom.redraw();
+        if (this.variant.promotion === 'kyoto') {
+            if (!this.promotion.start(role, 'a0', dest)) this.sendMove(util.dropOrigOf(role), dest, '');
+        } else {
+            this.sendMove(util.dropOrigOf(role), dest, '')
+        }
+        this.preaction = false;
     }
 
     onSelect = () => {
@@ -164,19 +197,29 @@ export class ChessgroundController{
             meta.captured = {role: "p-piece", color: moved.color === "white"? "black": "white"/*or could get it from pieces[pawnPos] probably*/};
         }
 
-        // // increase pocket count todo:niki: but now partners pocket
-        // // important only during gap before we receive board message from server and reset whole FEN (see also onUserDrop)
-        // if (ctrl.variant.drop && meta.captured) {
-        //     let role = meta.captured.role;
-        //     if (meta.captured.promoted)
-        //         role = (ctrl.variant.promotion === 'shogi' || ctrl.variant.promotion === 'kyoto') ? meta.captured.role.slice(1) as cg.Role : "p-piece";
-        //
-        //     const pocket = ctrl.chessground.state.pockets ? ctrl.chessground.state.pockets[util.opposite(meta.captured.color)] : undefined;
-        //     if (pocket && role && role in pocket) {
-        //         pocket[role]!++;
-        //         ctrl.chessground.state.dom.redraw(); // TODO: see todo comment also at same line in onUserDrop.
-        //     }
-        // }
+        // increase pocket count todo:niki: but now partners pocket
+        // important only during gap before we receive board message from server and reset whole FEN (see also onUserDrop)
+        if (/*ctrl.variant.drop && todo:not relevant for bughouse - if/when this class becomes generic bring this back maybe*/ meta.captured) {
+            let role = meta.captured.role;
+            if (meta.captured.promoted)
+                role =/* (ctrl.variant.promotion === 'shogi' || ctrl.variant.promotion === 'kyoto') ? meta.captured.role.slice(1) as cg.Role : todo:not relevant for bughouse - if/when this class becomes generic bring this back maybe*/ "p-piece";
+
+            if (this.partnerCC.chessground.state.pockets) {
+                const pocket = /*ctrl.chessground.state.pockets todo:not relevant for bughouse - if/when this class becomes generic bring this back?*/
+                    this.partnerCC.chessground.state.pockets[/*util.opposite(*/meta.captured.color/*)*/]/* : undefined*/;
+                if (pocket && role && role in pocket) {
+                    pocket[role]!++;
+                    let ff = this.partnerCC.ffishBoard.fen();
+                    console.log(ff);
+                    const f1 = this.partnerCC.chessground.getFen();
+                    const fenPocket = f1.match(/\[.*\]/)![0];
+                    this.partnerCC.fullfen=ff.replace(/\[.*\]/,fenPocket);;
+                    this.partnerCC.ffishBoard.setFen(this.partnerCC.fullfen);//todo:niki:hope it doesnt break anything this way. ply number i think is not correct now?
+                    this.partnerCC.dests = this.parent.getDests(this.partnerCC);
+                    this.partnerCC.chessground.state.dom.redraw(); // TODO: see todo comment also at same line in onUserDrop.
+                }
+            }
+        }
 
         //  gating elephant/hawk
         // if (ctrl.variant.gate) {
@@ -191,83 +234,89 @@ export class ChessgroundController{
 
 
     goPly = (ply: number, plyVari = 0) => {
-        console.log(ply, plyVari);
+        console.log("asdfasdf", ply, plyVari);
         //todo;niki: need so gating can compile - i wonder what is best design here now with 2 board - i guess used to reset board on cancel of promotion
-        // if (this.localAnalysis) {
-        //     this.engineStop();
-        //     // Go back to the main line
-        //     if (plyVari === 0) {
-        //         const container = document.getElementById('vari') as HTMLElement;
-        //         patch(container, h('div#vari', ''));
-        //     }
-        // }
-        //
+        // if (this.localAnalysis) {todo:niki
+        //     this.engineStop();todo:niki
+            // Go back to the main line
+            if (plyVari === 0) {
+                const container = document.getElementById('vari') as HTMLElement;
+                patch(container, h('div#vari', ''));
+            }
+        // }todo:niki
+
         // const vv = this.steps[plyVari]?.vari;
-        // const step = (plyVari > 0 && vv ) ? vv[ply] : this.steps[ply];
-        //
-        // const move = uci2LastMove(step.move);
-        // let capture = false;
-        // if (move.length > 0) {
-        //     // 960 king takes rook castling is not capture
-        //     // TODO defer this logic to ffish.js
-        //     capture = (this.b1.chessground.state.pieces.get(move[move.length - 1]) !== undefined && step.san?.slice(0, 2) !== 'O-') || (step.san?.slice(1, 2) === 'x');
-        // }
-        //
-        // this.b1.chessground.set({
-        //     fen: step.fen,
-        //     turnColor: step.turnColor,
-        //     movable: {
-        //         color: step.turnColor,
-        //         dests: this.dests,
-        //         },
-        //     check: step.check,
-        //     lastMove: move,
-        // });
-        //
-        // this.b1.fullfen = step.fen;
-        //
-        // if (this.b1.variant.counting) {
+        const step = /*(plyVari > 0 && vv ) ? vv[ply] :*/ this.steps[ply];
+        console.log(step);
+        const move = uci2LastMove(step.move);
+        let capture = false;
+        if (move.length > 0) {
+            // 960 king takes rook castling is not capture
+            // TODO defer this logic to ffish.js
+            capture = (this.chessground.state.pieces.get(move[move.length - 1]) !== undefined && step.san?.slice(0, 2) !== 'O-') || (step.san?.slice(1, 2) === 'x');
+        }
+
+        const fen=this.boardName==='a'?step.fen: step.fenB;
+        const fenPartner=this.boardName==='b'?step.fen: step.fenB;
+
+        this.chessground.set({
+            fen: fen,
+            turnColor: step.turnColor,
+            movable: {
+                color: step.turnColor,
+                dests: this.dests,
+                },
+            check: step.check,
+            lastMove: move,
+        });
+
+        this.partnerCC.chessground.set({fen: fenPartner});
+
+        this.fullfen = step.fen;
+        this.partnerCC.fullfen = fenPartner!;
+
+        // if (this.variant.counting) {
         //     updateCount(step.fen, document.getElementById('misc-infow') as HTMLElement, document.getElementById('misc-infob') as HTMLElement);
         // }
-        //
+
         // if (this.b1.variant.materialPoint) {
         //     updatePoint(step.fen, document.getElementById('misc-infow') as HTMLElement, document.getElementById('misc-infob') as HTMLElement);
         // }
-        //
-        // if (ply === this.ply + 1) {
-        //     sound.moveSound(this.b1.variant, capture);
-        // }
-        //
-        // // Go back to the main line
-        // if (plyVari === 0) {
-        //     this.ply = ply
-        // }
-        // this.b1.turnColor = step.turnColor;
-        //
-        // if (this.plyVari > 0 && plyVari === 0) {
+
+        if (ply === this.ply + 1) {
+            sound.moveSound(this.variant, capture);
+        }
+
+        // Go back to the main line
+        if (plyVari === 0) {
+            this.ply = ply
+        }
+        this.turnColor = step.turnColor;
+
+        // if (this.plyVari > 0 && plyVari === 0) {todo:niki:for now variations not supported - just browse games
         //     this.steps[this.plyVari]['vari'] = undefined;
         //     this.plyVari = 0;
         //     updateMovelist(this);
         // }
-        //
-        // if (this.model["embed"]) return;
-        //
-        // if (this.ffishBoard !== null) {
-        //     this.ffishBoard.setFen(this.b1.fullfen);
-        //     this.dests = this.getDests();
-        // }
-        //
+
+        // if (this.model["embed"]) return;todo:niki:not sure what that is
+
+        if (this.ffishBoard !== null) {
+            this.ffishBoard.setFen(this.fullfen);
+            this.dests = this.parent.getDests(this);
+        }
+
         // this.drawEval(step.ceval, step.scoreStr, step.turnColor);
         // this.drawServerEval(ply, step.scoreStr);
-        //
-        // // TODO: multi PV
-        // this.maxDepth = maxDepth;
+
+        // TODO: multi PV
+        // this.maxDepth = maxDepth;todo:niki:for now engine not in focus
         // if (this.localAnalysis) this.engineGo(this.b1);
-        //
+
         // const e = document.getElementById('fullfen') as HTMLInputElement;
         // e.value = this.b1.fullfen;
-        //
-        // if (this.isAnalysisBoard) {
+
+        // if (this.isAnalysisBoard) {todo:niki:not sure what this is
         //     const idxInVari = (plyVari > 0) ? ply : 0;
         //     this.vpgn = patch(this.vpgn, h('textarea#pgntext', { attrs: { rows: 13, readonly: true, spellcheck: false} }, this.getPgn(idxInVari)));
         // } else {
