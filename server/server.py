@@ -256,9 +256,11 @@ async def init_state(app):
             ):
                 await load_tournament(app, doc["_id"])
 
-        already_scheduled = await get_scheduled_tournaments(app)
-        new_tournaments_data = new_scheduled_tournaments(already_scheduled)
-        await create_scheduled_tournaments(app, new_tournaments_data)
+        # TODO: Enable on prod liantichess when time comes
+        if DEV:
+            already_scheduled = await get_scheduled_tournaments(app)
+            new_tournaments_data = new_scheduled_tournaments(already_scheduled)
+            await create_scheduled_tournaments(app, new_tournaments_data)
 
         asyncio.create_task(generate_shield(app))
 
