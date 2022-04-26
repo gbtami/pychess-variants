@@ -31,7 +31,7 @@ from game_api import (
     get_variant_stats,
     cancel_invite,
 )
-from utils import import_game
+from utils import import_game, get_names
 from login import login, logout, oauth
 from index import index, robots, select_lang
 from wsl import lobby_socket_handler
@@ -78,6 +78,7 @@ get_routes = (
     ("/@/{profileId}/challenge/{variant}", index),
     ("/@/{profileId}/perf/{variant}", index),
     ("/@/{profileId}/rated", index),
+    ("/@/{profileId}/me", index),
     ("/@/{profileId}/import", index),
     ("/level8win", index),
     ("/patron", index),
@@ -98,6 +99,7 @@ get_routes = (
     ("/api/{profileId}/loss", get_user_games),
     ("/api/{profileId}/rated", get_user_games),
     ("/api/{profileId}/import", get_user_games),
+    ("/api/{profileId}/me", get_user_games),
     ("/api/{profileId}/perf/{variant}", get_user_games),
     ("/api/calendar", tournament_calendar),
     ("/api/stats", get_variant_stats),
@@ -105,6 +107,7 @@ get_routes = (
     ("/api/games", get_games),
     ("/api/invites", subscribe_invites),
     ("/api/ongoing", subscribe_games),
+    ("/api/names", get_names),
     ("/paste", index),
     (r"/games/export/monthly/{yearmonth:\d{6}}", export),
     ("/games/export/{profileId}", export),

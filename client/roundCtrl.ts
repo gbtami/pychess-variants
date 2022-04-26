@@ -24,7 +24,7 @@ import { renderRdiff } from './profile'
 import { player } from './player';
 import { updateCount, updatePoint } from './info';
 import { notify } from './notification';
-import { Clocks, MsgBoard, MsgChat, MsgCtable, MsgFullChat, MsgGameEnd, MsgGameNotFound, MsgMove, MsgNewGame, MsgShutdown, MsgSpectators, MsgUserConnected, RDiffs, Step } from "./messages";
+import { Clocks, MsgBoard, MsgChat, MsgFullChat, MsgGameEnd, MsgGameNotFound, MsgMove, MsgNewGame, MsgShutdown, MsgSpectators, MsgUserConnected, RDiffs, Step, CrossTable } from "./messages";
 import { PyChessModel } from "./main";
 import AnalysisController from "./analysisCtrl";
 
@@ -435,7 +435,12 @@ export default class RoundController {
         }
 
         // initialize crosstable
-        this.ctableContainer = document.getElementById('ctable-container') as HTMLElement;
+        this.ctableContainer = document.querySelector('.ctable-container') as HTMLElement;
+
+        if (model["ct"]) {
+            this.ctableContainer = patch(this.ctableContainer, h('div.ctable-container'));
+            this.ctableContainer = patch(this.ctableContainer, crosstableView(model["ct"] as CrossTable, this.gameId));
+        }
 
         const misc0 = document.getElementById('misc-info0') as HTMLElement;
         const misc1 = document.getElementById('misc-info1') as HTMLElement;
@@ -769,7 +774,7 @@ export default class RoundController {
             updateResult(this);
 
             if ("ct" in msg && msg.ct) {
-                this.ctableContainer = patch(this.ctableContainer, h('div#ctable-container'));
+                this.ctableContainer = patch(this.ctableContainer, h('div.ctable-container'));
                 this.ctableContainer = patch(this.ctableContainer, crosstableView(msg.ct, this.gameId));
             }
 
@@ -1192,7 +1197,7 @@ export default class RoundController {
                 this.prevPieces = new Map(this.chessground.state.pieces);
             }
 
-            // Janggi pass and Sittuyin in place promotion on double click
+            // Sittuyin in place promotion on double click
             if (lastKey === key && curTime - lastTime < 500) {
                 if (this.chessground.state.movable.dests.get(key)?.includes(key)) {
                     const piece = this.chessground.state.pieces.get(key)!;
@@ -1209,8 +1214,6 @@ export default class RoundController {
                         this.chessground.selectSquare(key);
                         sound.moveSound(this.variant, false);
                         this.sendMove(key, key, 'f');
-                    } else if (this.variant.pass && piece.role === 'k-piece') {
-                        this.pass();
                     }
                 }
                 lastKey = 'a0';
@@ -1364,13 +1367,6 @@ export default class RoundController {
         alert(msg.message);
     }
 
-    private onMsgCtable = (msg: MsgCtable, gameId: string) => {
-        if (msg.ct) {
-            this.ctableContainer = patch(this.ctableContainer, h('div#ctable-container'));
-            this.ctableContainer = patch(this.ctableContainer, crosstableView(msg.ct, gameId));
-        }
-    }
-
     private onMsgCount = (msg: MsgCount) => {
         chatMessage("", msg.message, "roundchat");
         if (msg.message.endsWith("started")) {
@@ -1394,9 +1390,6 @@ export default class RoundController {
             case "board":
                 this.onMsgBoard(msg);
                 break;
-            case "crosstable":
-                this.onMsgCtable(msg, this.gameId);
-                break
             case "gameEnd":
                 this.checkStatus(msg);
                 break;

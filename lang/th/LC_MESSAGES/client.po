@@ -13,14 +13,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-01-23 09:40+0100\n"
+"POT-Creation-Date: 2022-04-17 15:52+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Last-Translator: Ada Joule <ada.fulmina@gmail.com>, 2022\n"
 "Language-Team: Thai (https://www.transifex.com/gbtami/teams/14790/th/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.8.0\n"
+"Generated-By: Babel 2.9.1\n"
 "Language: th\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
@@ -103,7 +103,7 @@ msgstr ""
 msgid "Currently supported games are "
 msgstr "เกมที่รองรับในปัจจุบัน ได้แก่ "
 
-#: ../client/about.ts:92
+#: ../client/about.ts:94
 msgid ""
 "Additionally, you can check the Chess960 option for Chess, Crazyhouse, "
 "Atomic, S-chess, Capablanca, and Capahouse to start games from random "
@@ -113,25 +113,25 @@ msgstr ""
 "Atomic, S-Chess, Capablanca, และ Capahouse "
 "เพื่อเริ่มเกมจากตำแหน่งเริ่มต้นแบบสุ่ม"
 
-#: ../client/about.ts:93
+#: ../client/about.ts:95
 msgid "Chess960 castling rules."
 msgstr "กฎการเข้าป้อมแบบ Chess960"
 
-#: ../client/about.ts:96
+#: ../client/about.ts:98
 msgid "For move generation, validation, analysis, and engine play, we use "
 msgstr ""
 "สำหรับการสร้างตาเดิน การทวนสอบ การวิเคราะห์ และการเดินหมากของคอมพิวเตอร์นั้น"
 " เราใช้ "
 
-#: ../client/about.ts:104
+#: ../client/about.ts:108
 msgid "On client side, the user interface of the game board is based on "
 msgstr "ในฝั่งผู้ใช้งาน ส่วนติดต่อผู้ใช้ของกระดานมีพื้นฐานมาจาก "
 
-#: ../client/about.ts:108
+#: ../client/about.ts:112
 msgid "The source code of the server is available on "
 msgstr "ซอร์สโค้ดของเว็บไซต์นี้สามารถดูได้ที่ "
 
-#: ../client/about.ts:113
+#: ../client/about.ts:117
 msgid ""
 "To play on PyChess, you need to have an open and unmarked account on "
 "Lichess. "
@@ -139,7 +139,7 @@ msgstr ""
 "ในการที่จะเล่นบน PyChess ได้ คุณจะต้องมีบัญชี Lichess "
 "ที่เปิดอยู่และไม่ถูกห้ามเล่นที่นั่น"
 
-#: ../client/about.ts:114
+#: ../client/about.ts:118
 msgid ""
 "Regarding Privacy and Terms of Service, the rules of lichess.org are also "
 "applied here. "
@@ -147,78 +147,90 @@ msgstr ""
 "สำหรับความเป็นส่วนตัว และข้อกำหนดในการให้บริการนั้น ที่นี่ใช้กฎเดียวกับ "
 "lichess.org"
 
-#: ../client/analysis.ts:38 ../client/editor.ts:32 ../client/lobby.ts:425
-#: ../client/lobby.ts:920 ../client/settingsView.ts:130
+#: ../client/analysis.ts:38 ../client/editor.ts:32 ../client/lobby.ts:431
+#: ../client/lobby.ts:941 ../client/settingsView.ts:130
 msgid "Variant"
 msgstr "ชนิดเกม"
 
-#: ../client/analysis.ts:125 ../client/analysisCtrl.ts:363
-#: ../client/analysisCtrl.ts:716
+#: ../client/analysis.ts:134 ../client/analysisCtrl.ts:365
+#: ../client/analysisCtrl.ts:718
 msgid "in local browser"
 msgstr "ในเบราเซอร์ภายในเครื่อง"
 
-#: ../client/analysisCtrl.ts:374
+#: ../client/analysis.ts:186
+msgid "Computer analysis"
+msgstr "การวิเคราะห์โดยคอมพิวเตอร์"
+
+#: ../client/analysis.ts:187
+msgid "Move times"
+msgstr "เวลาที่ใช้เดิน"
+
+#: ../client/analysis.ts:188
+msgid "Crosstable"
+msgstr "ประวัติผลการเล่น"
+
+#: ../client/analysis.ts:189
+msgid "FEN & PGN"
+msgstr "FEN & PGN"
+
+#: ../client/analysisCtrl.ts:376
 msgid "You need an account to do that."
 msgstr "จำเป็นต้องเข้าสู่ระบบ"
 
-#: ../client/analysisCtrl.ts:413
+#: ../client/analysisCtrl.ts:415
 msgid "Download game to PGN file"
 msgstr "ดาวน์โหลดเกมนี้เป็นไฟล์ PGN"
 
-#: ../client/analysisCtrl.ts:413
+#: ../client/analysisCtrl.ts:415
 msgid "Download PGN"
 msgstr "ดาวน์โหลด PGN"
 
-#: ../client/analysisCtrl.ts:415
+#: ../client/analysisCtrl.ts:417
 msgid "Copy USI/UCI to clipboard"
 msgstr "คัดลอก USI/UCI ไปยังคลิปบอร์ด"
 
-#: ../client/analysisCtrl.ts:415
+#: ../client/analysisCtrl.ts:417
 msgid "Copy UCI/USI"
 msgstr "คัดลอก UCI/USI"
 
-#: ../client/analysisCtrl.ts:417
+#: ../client/analysisCtrl.ts:419
 msgid "Download position to PNG image file"
 msgstr "ดาวน์โหลดตำแหน่งหมากเป็นไฟล์ภาพ PNG"
 
-#: ../client/analysisCtrl.ts:417
+#: ../client/analysisCtrl.ts:419
 msgid "PNG image"
 msgstr "ภาพ PNG"
 
-#: ../client/analysisCtrl.ts:425
+#: ../client/analysisCtrl.ts:427
 msgid "Delete game"
 msgstr "ลบเกม"
 
-#: ../client/analysisCtrl.ts:431
-msgid "Request Computer Analysis"
-msgstr "ขอการวิเคราะห์จากคอมพิวเตอร์"
-
-#: ../client/analysisCtrl.ts:431
-msgid "Request Analysis"
-msgstr "ขอการวิเคราะห์"
-
-#: ../client/analysisCtrl.ts:445
+#: ../client/analysisCtrl.ts:442
 msgid "Are you sure you want to delete this game?"
 msgstr "ต้องการลบเกมนี้จริงหรือไม่?"
 
-#: ../client/analysisCtrl.ts:575
-msgid "Selected variant %1 is not supported by stockfish.wasm"
-msgstr "เกม %1 ยังไม่มีการรองรับใน stockfish.wasm"
+#: ../client/analysisCtrl.ts:485
+msgid "Request Computer Analysis"
+msgstr "ขอการวิเคราะห์จากคอมพิวเตอร์"
 
-#: ../client/analysisCtrl.ts:690
+#: ../client/analysisCtrl.ts:485
+msgid "Request Analysis"
+msgstr "ขอการวิเคราะห์"
+
+#: ../client/analysisCtrl.ts:691
 msgid "Depth"
 msgstr "ความลึก"
 
-#: ../client/analysisCtrl.ts:695
+#: ../client/analysisCtrl.ts:696
 msgid "Go deeper"
 msgstr "ลึกกว่านี้"
 
-#: ../client/analysisCtrl.ts:1173 ../client/roundCtrl.ts:1351
-#: ../client/tournament.ts:693
+#: ../client/analysisCtrl.ts:1176 ../client/roundCtrl.ts:1356
+#: ../client/tournament.ts:698
 msgid "Spectators: "
 msgstr "ผู้ชม: "
 
-#: ../client/analysisCtrl.ts:1197 ../client/roundCtrl.ts:1432
+#: ../client/analysisCtrl.ts:1200 ../client/roundCtrl.ts:1437
 msgid "Requested game %1 not found!"
 msgstr "หาเกม %1 ไม่พบ!"
 
@@ -230,27 +242,27 @@ msgstr "สว่าง"
 msgid "Dark"
 msgstr "มืด"
 
-#: ../client/boardSettings.ts:206
+#: ../client/boardSettings.ts:208
 msgid "Piece animation"
 msgstr "การเคลื่อนไหวตัวหมาก"
 
-#: ../client/boardSettings.ts:307
+#: ../client/boardSettings.ts:309
 msgid "Show piece destinations"
 msgstr "แสดงตาที่สามารถเดินได้"
 
-#: ../client/boardSettings.ts:325
+#: ../client/boardSettings.ts:327
 msgid "Promote to the top choice automatically"
 msgstr "เลื่อนยศเป็นตัวเลือกบนสุดอัตโนมัติ"
 
-#: ../client/boardSettings.ts:343
+#: ../client/boardSettings.ts:345
 msgid "Best move arrow in analysis board"
 msgstr "แสดงลูกศรแนะนำตาเดินในกระดานวิเคราะห์"
 
-#: ../client/boardSettings.ts:371
+#: ../client/boardSettings.ts:373
 msgid "Invisible pieces"
 msgstr "ตัวหมากล่องหน"
 
-#: ../client/boardSettings.ts:391
+#: ../client/boardSettings.ts:393
 msgid "Show material difference"
 msgstr "แสดงความต่างศักดิ์หมาก"
 
@@ -258,35 +270,35 @@ msgstr "แสดงความต่างศักดิ์หมาก"
 msgid "Initial position"
 msgstr "ตำแหน่งเริ่มต้น"
 
-#: ../client/chart.ts:84
+#: ../client/chart.ts:103
 msgid "Advantage"
 msgstr "ความได้เปรียบ"
 
-#: ../client/chat.ts:25 ../client/chat.ts:40
+#: ../client/chat.ts:30 ../client/chat.ts:45
 msgid "Sign in to chat"
 msgstr "เข้าสู่ระบบเพื่อเริ่มแชต"
 
-#: ../client/chat.ts:25 ../client/chat.ts:40
+#: ../client/chat.ts:30 ../client/chat.ts:45
 msgid "Please be nice in the chat!"
 msgstr "กรุณาสนทนาอย่างสุภาพ"
 
-#: ../client/chat.ts:25
+#: ../client/chat.ts:30
 msgid "Chat is disabled"
 msgstr "ห้องแชตถูกปิดอยู่"
 
-#: ../client/chat.ts:30
+#: ../client/chat.ts:35
 msgid "Spectator room"
 msgstr "ห้องผู้ชม"
 
-#: ../client/chat.ts:30
+#: ../client/chat.ts:35
 msgid "Chat room"
 msgstr "ห้องแชต"
 
-#: ../client/chat.ts:31
+#: ../client/chat.ts:36
 msgid "Toggle the chat"
 msgstr "เปิด/ปิดแชต"
 
-#: ../client/chat.ts:61
+#: ../client/chat.ts:67
 msgid "Server"
 msgstr "เซิร์ฟเวอร์"
 
@@ -598,51 +610,47 @@ msgstr[0] "%1 วินาทีที่แล้ว"
 msgid "STARTING IN"
 msgstr "กำลังจะเริ่มในอีก"
 
-#: ../client/editorCtrl.ts:141 ../client/editorCtrl.ts:142
+#: ../client/editorCtrl.ts:139 ../client/editorCtrl.ts:140
 msgid "%1 to play"
 msgstr "ตา%1เดิน"
 
-#: ../client/editorCtrl.ts:145
+#: ../client/editorCtrl.ts:143
 msgid "Castling"
 msgstr "การเข้าป้อม"
 
-#: ../client/editorCtrl.ts:148 ../client/i18n.ts:58 ../client/lobby.ts:502
+#: ../client/editorCtrl.ts:146 ../client/i18n.ts:58 ../client/lobby.ts:522
 msgid "White"
 msgstr "ขาว"
 
-#: ../client/editorCtrl.ts:163 ../client/i18n.ts:58 ../client/lobby.ts:500
+#: ../client/editorCtrl.ts:161 ../client/i18n.ts:58 ../client/lobby.ts:520
 msgid "Black"
 msgstr "ดำ"
 
-#: ../client/editorCtrl.ts:179
+#: ../client/editorCtrl.ts:177
 msgid "FLIP BOARD"
 msgstr "กลับกระดาน"
 
-#: ../client/editorCtrl.ts:182
+#: ../client/editorCtrl.ts:180
 msgid "CLEAR BOARD"
 msgstr "ล้างกระดาน"
 
-#: ../client/editorCtrl.ts:185
+#: ../client/editorCtrl.ts:183
 msgid "STARTING POSITION"
 msgstr "ตำแหน่งเริ่มต้น"
 
-#: ../client/editorCtrl.ts:188 ../client/roundCtrl.ts:779
+#: ../client/editorCtrl.ts:186 ../client/roundCtrl.ts:784
 msgid "ANALYSIS BOARD"
 msgstr "วิเคราะห์เกม"
 
-#: ../client/editorCtrl.ts:191
+#: ../client/editorCtrl.ts:189
 msgid "PLAY WITH MACHINE"
 msgstr "เล่นกับคอมพิวเตอร์"
 
-#: ../client/editorCtrl.ts:191 ../client/lobby.ts:429
-msgid " (must be signed in)"
-msgstr "(ต้องเข้าสู่ระบบก่อน)"
-
-#: ../client/editorCtrl.ts:194
+#: ../client/editorCtrl.ts:192
 msgid "EXPORT TO PNG"
 msgstr "บันทึกเป็น PNG"
 
-#: ../client/editorCtrl.ts:267 ../client/lobby.ts:640
+#: ../client/editorCtrl.ts:265 ../client/lobby.ts:653
 msgid "Invalid FEN"
 msgstr "FEN ไม่ถูกต้อง"
 
@@ -910,7 +918,7 @@ msgstr "Embassy"
 msgid "Conservative"
 msgstr "Conservative"
 
-#: ../client/invite.ts:34 ../client/lobby.ts:514
+#: ../client/invite.ts:34 ../client/lobby.ts:533
 msgid "Host a game for others"
 msgstr "เปิดห้องให้ผู้อื่นเล่น"
 
@@ -956,84 +964,88 @@ msgstr "ผู้เล่นสองคนแรกที่เข้ามา
 msgid "The first person to come to this URL will play with you."
 msgstr "คนแรกที่เข้ามาที่ URL นี้จะได้เล่นกับคุณ"
 
-#: ../client/lobby.ts:417
+#: ../client/lobby.ts:423
 msgid "Cancel"
 msgstr "ยกเลิก"
 
-#: ../client/lobby.ts:422
+#: ../client/lobby.ts:428
 msgid "Challenge %1 to a game"
 msgstr "ท้า %1 เล่นเกม"
 
-#: ../client/lobby.ts:429
+#: ../client/lobby.ts:435
 msgid "Paste the FEN text here"
 msgstr "ใส่ FEN ตำแหน่งเริ่มต้นที่นี่"
 
-#: ../client/lobby.ts:445
+#: ../client/lobby.ts:435
+msgid " (must be signed in)"
+msgstr "(ต้องเข้าสู่ระบบก่อน)"
+
+#: ../client/lobby.ts:451
 msgid "Minutes per side:"
 msgstr "เวลาทั้งหมด (นาที):"
 
-#: ../client/lobby.ts:460
+#: ../client/lobby.ts:466
 msgid "Periods"
 msgstr "จำนวนรอบ"
 
-#: ../client/lobby.ts:475 ../client/lobby.ts:753 ../client/profile.ts:25
+#: ../client/lobby.ts:481 ../client/lobby.ts:770 ../client/profile.ts:25
 msgid "Casual"
 msgstr "ไม่คิดคะแนน"
 
-#: ../client/lobby.ts:482 ../client/lobby.ts:751 ../client/profile.ts:20
+#: ../client/lobby.ts:488 ../client/lobby.ts:768 ../client/profile.ts:20
 msgid "Rated"
 msgstr "คิดคะแนน"
 
-#: ../client/lobby.ts:490
-msgid "A.I. Level"
-msgstr "ระดับ AI"
-
-#: ../client/lobby.ts:501
-msgid "Random"
-msgstr "สุ่ม"
-
-#: ../client/lobby.ts:505
-msgid "Create"
-msgstr "สร้าง"
-
-#: ../client/lobby.ts:510 ../client/lobby/layer3.ts:40
-msgid "Create a game"
-msgstr "สร้างห้อง"
-
-#: ../client/lobby.ts:511
-msgid "Play with a friend"
-msgstr "เล่นกับเพื่อน"
-
-#: ../client/lobby.ts:512 ../client/lobby/layer3.ts:42
-msgid "Play with AI"
-msgstr "เล่นกับ AI"
-
-#: ../client/lobby.ts:513 ../client/lobby/layer3.ts:43
+#: ../client/lobby.ts:499
 msgid "Practice with Random-Mover"
 msgstr "หัดเล่นกับ Random-Mover"
 
-#: ../client/lobby.ts:601
+#: ../client/lobby.ts:510
+msgid "A.I. Level"
+msgstr "ระดับ AI"
+
+#: ../client/lobby.ts:521
+msgid "Random"
+msgstr "สุ่ม"
+
+#: ../client/lobby.ts:525
+msgid "Create"
+msgstr "สร้าง"
+
+#: ../client/lobby.ts:530 ../client/lobby/layer3.ts:40
+msgid "Create a game"
+msgstr "สร้างห้อง"
+
+#: ../client/lobby.ts:531
+msgid "Play with a friend"
+msgstr "เล่นกับเพื่อน"
+
+#: ../client/lobby.ts:532 ../client/lobby/layer3.ts:42
+msgid "Play with AI"
+msgstr "เล่นกับ AI"
+
+#: ../client/lobby.ts:614
 msgid "Byoyomi in seconds:"
 msgstr "เบียวโยมิ (วินาที):"
 
-#: ../client/lobby.ts:601
+#: ../client/lobby.ts:614
 msgid "Increment in seconds:"
 msgstr "ทดเวลาต่อตาเดิน (วินาที):"
 
-#: ../client/lobby.ts:606
+#: ../client/lobby.ts:619
 msgid "Alternate Start"
 msgstr "ตำแหน่งเริ่มต้นอื่น"
 
-#: ../client/lobby.ts:749
+#: ../client/lobby.ts:766
 msgid "Custom"
 msgstr "กำหนดเอง"
 
-#: ../client/lobby.ts:776 ../client/lobby.ts:901
+#: ../client/lobby.ts:794 ../client/lobby.ts:919
 msgid "%1 player"
 msgid_plural "%1 players"
 msgstr[0] "%1 คน"
 
-#: ../client/lobby.ts:862
+#: ../client/lobby.ts:880
 msgid ""
 "You have an unfinished game!\n"
 "Press OK to continue."
@@ -1041,48 +1053,52 @@ msgstr ""
 "คุณมีเกมที่ยังเล่นไม่จบอยู่!\n"
 "กด OK เพื่อไปต่อ"
 
-#: ../client/lobby.ts:895
+#: ../client/lobby.ts:913
 msgid "%1 game in play"
 msgid_plural "%1 games in play"
 msgstr[0] "%1 เกมที่กำลังเล่น"
 
-#: ../client/lobby.ts:917
+#: ../client/lobby.ts:929
+msgid "Tournament calendar"
+msgstr "ปฏิทินการแข่งขัน"
+
+#: ../client/lobby.ts:938
 msgid "Player"
 msgstr "ผู้เล่น"
 
-#: ../client/lobby.ts:918
+#: ../client/lobby.ts:939
 msgid "Rating"
 msgstr "คะแนน"
 
-#: ../client/lobby.ts:919
+#: ../client/lobby.ts:940
 msgid "Time"
 msgstr "เวลา"
 
-#: ../client/lobby.ts:921
+#: ../client/lobby.ts:942
 msgid "Mode"
 msgstr "รูปแบบการเล่น"
 
-#: ../client/lobby.ts:964
+#: ../client/lobby.ts:986
 msgid "Donate"
 msgstr "บริจาค"
 
-#: ../client/lobby.ts:965
+#: ../client/lobby.ts:987
 msgid "FAQ"
 msgstr "คำถามที่พบบ่อย"
 
-#: ../client/lobby.ts:966
+#: ../client/lobby.ts:988
 msgid "Stats"
 msgstr "สถิติ"
 
-#: ../client/lobby.ts:967
+#: ../client/lobby.ts:989
 msgid "About"
 msgstr "เกี่ยวกับ"
 
-#: ../client/lobby.ts:972
+#: ../client/lobby.ts:994
 msgid "Latest updates"
 msgstr "ข่าวล่าสุด"
 
-#: ../client/main.ts:141
+#: ../client/main.ts:144
 msgid "Thank you for your support!"
 msgstr "ขอบคุณสำหรับการสนับสนุน!"
 
@@ -1126,7 +1142,7 @@ msgstr "อับ"
 msgid "Time out"
 msgstr "หมดเวลา"
 
-#: ../client/profile.ts:61 ../client/roundCtrl.ts:503
+#: ../client/profile.ts:61 ../client/roundCtrl.ts:507
 msgid "Draw"
 msgstr "เสมอ"
 
@@ -1179,130 +1195,134 @@ msgstr[0] "%1 ตา"
 msgid "Computer analysis available"
 msgstr "มีการวิเคราะห์โดยคอมพิวเตอร์"
 
-#: ../client/profile.ts:308
+#: ../client/profile.ts:310
 msgid "Games"
 msgstr "เกมทั้งหมด"
 
-#: ../client/profile.ts:309
+#: ../client/profile.ts:311
+msgid "Games with you"
+msgstr "เกมที่เล่นกับคุณ"
+
+#: ../client/profile.ts:312
 msgctxt "UsePluralFormIfNeeded"
 msgid "Rated"
 msgstr "คิดคะแนน"
 
-#: ../client/profile.ts:310
+#: ../client/profile.ts:313
 msgid "Imported"
 msgstr "นำเข้ามา"
 
-#: ../client/roundCtrl.ts:426 ../client/roundCtrl.ts:1399
+#: ../client/roundCtrl.ts:428 ../client/roundCtrl.ts:1404
 msgid " +15 seconds"
 msgstr "+15 วินาที"
 
-#: ../client/roundCtrl.ts:433
+#: ../client/roundCtrl.ts:435
 msgid "Give 15 seconds"
 msgstr "เพิ่มให้ 15 วินาที"
 
-#: ../client/roundCtrl.ts:451
+#: ../client/roundCtrl.ts:453
 msgid "Berserk"
 msgstr "เบอร์เซิร์ก"
 
-#: ../client/roundCtrl.ts:501
+#: ../client/roundCtrl.ts:504
 msgid "Abort"
 msgstr "ยกเลิก"
 
-#: ../client/roundCtrl.ts:502 ../client/roundCtrl.ts:1164
-#: ../client/roundCtrl.ts:1166
+#: ../client/roundCtrl.ts:506 ../client/roundCtrl.ts:1169
+#: ../client/roundCtrl.ts:1171
 msgid "Count"
 msgstr "นับ"
 
-#: ../client/roundCtrl.ts:503
+#: ../client/roundCtrl.ts:507
 msgid "Pass"
 msgstr "ผ่าน"
 
-#: ../client/roundCtrl.ts:504
+#: ../client/roundCtrl.ts:508
 msgid "Resign"
 msgstr "ยอมแพ้"
 
-#: ../client/roundCtrl.ts:566
+#: ../client/roundCtrl.ts:571
 msgid "Are you sure you want to draw?"
 msgstr "ต้องการเสมอจริงหรือไม่?"
 
-#: ../client/roundCtrl.ts:568
+#: ../client/roundCtrl.ts:573
 msgid "Draw offer sent"
 msgstr "ส่งคำขอเสมอแล้ว"
 
-#: ../client/roundCtrl.ts:580
+#: ../client/roundCtrl.ts:585
 msgid "Your opponent offers a draw"
 msgstr "ฝ่ายตรงข้ามขอเสมอกับคุณ"
 
-#: ../client/roundCtrl.ts:600
+#: ../client/roundCtrl.ts:605
 msgid "Are you sure you want to resign?"
 msgstr "ต้องการยอมแพ้จริงหรือไม่?"
 
-#: ../client/roundCtrl.ts:632
+#: ../client/roundCtrl.ts:637
 msgid "Blue (Cho)"
 msgstr "น้ำเงิน (โช) "
 
-#: ../client/roundCtrl.ts:632
+#: ../client/roundCtrl.ts:637
 msgid "Red (Han)"
 msgstr "แดง (ฮัน) "
 
-#: ../client/roundCtrl.ts:633
+#: ../client/roundCtrl.ts:638
 msgid ""
 "Waiting for %1 to choose starting positions of the horses and elephants..."
 msgstr "กำลังรอให้ฝ่าย%1เลือกตำแหน่งเริ่มต้นของม้าและช้าง..."
 
-#: ../client/roundCtrl.ts:673 ../client/roundCtrl.ts:675
+#: ../client/roundCtrl.ts:678 ../client/roundCtrl.ts:680
 msgid "Switch pieces"
 msgstr "สลับตัวหมาก"
 
-#: ../client/roundCtrl.ts:674
+#: ../client/roundCtrl.ts:679
 msgid "Ready"
 msgstr "พร้อม"
 
-#: ../client/roundCtrl.ts:708
+#: ../client/roundCtrl.ts:713
 msgid "VIEW REMATCH"
 msgstr "ดูเกมที่เล่นอีก"
 
-#: ../client/roundCtrl.ts:715
+#: ../client/roundCtrl.ts:720
 msgid "Rematch offer sent"
 msgstr "ส่งคำขอเล่นอีกแล้ว"
 
-#: ../client/roundCtrl.ts:726
+#: ../client/roundCtrl.ts:731
 msgid "Your opponent offers a rematch"
 msgstr "ฝ่ายตรงข้ามขอเล่นกับคุณอีกครั้ง"
 
-#: ../client/roundCtrl.ts:767
+#: ../client/roundCtrl.ts:772
 msgid "VIEW TOURNAMENT"
 msgstr "ดูหน้าการแข่งขัน"
 
-#: ../client/roundCtrl.ts:770
+#: ../client/roundCtrl.ts:775
 msgid "BACK TO TOURNAMENT"
 msgstr "กลับสู่หน้าการแข่งขัน"
 
-#: ../client/roundCtrl.ts:772 ../client/tournament.ts:283
+#: ../client/roundCtrl.ts:777 ../client/tournament.ts:289
 msgid "PAUSE"
 msgstr "หยุดชั่วคราว"
 
-#: ../client/roundCtrl.ts:775
+#: ../client/roundCtrl.ts:780
 msgid "REMATCH"
 msgstr "ขอเล่นอีก"
 
-#: ../client/roundCtrl.ts:776
+#: ../client/roundCtrl.ts:781
 msgid "NEW OPPONENT"
 msgstr "หาคู่ต่อสู้ใหม่"
 
-#: ../client/roundCtrl.ts:1162
+#: ../client/roundCtrl.ts:1167
 msgid "Stop counting"
 msgstr "หยุดนับ"
 
-#: ../client/roundCtrl.ts:1162
+#: ../client/roundCtrl.ts:1167
 msgid "Stop"
 msgstr "หยุด"
 
-#: ../client/roundCtrl.ts:1164 ../client/roundCtrl.ts:1166
+#: ../client/roundCtrl.ts:1169 ../client/roundCtrl.ts:1171
 msgid "Start counting"
 msgstr "เริ่มนับ"
 
-#: ../client/roundCtrl.ts:1311
+#: ../client/roundCtrl.ts:1316
 msgid "%1 second to play the first move"
 msgid_plural "%1 seconds to play the first move"
 msgstr[0] "มีเวลาอีก %1 วินาทีสำหรับเดินตาแรก"
@@ -1331,101 +1351,97 @@ msgstr "ตั้งค่ากระดาน"
 msgid "Zen Mode"
 msgstr "โหมดสมาธิ"
 
-#: ../client/tournament.ts:256
+#: ../client/tournament.ts:262
 msgid "First"
 msgstr "หน้าแรก"
 
-#: ../client/tournament.ts:257
+#: ../client/tournament.ts:263
 msgid "Prev"
 msgstr "หน้าที่แล้ว"
 
-#: ../client/tournament.ts:261
+#: ../client/tournament.ts:267
 msgid "Next"
 msgstr "หน้าต่อไป"
 
-#: ../client/tournament.ts:262
+#: ../client/tournament.ts:268
 msgid "Last"
 msgstr "หน้าสุดท้าย"
 
-#: ../client/tournament.ts:263
+#: ../client/tournament.ts:269
 msgid "Scroll to your player"
 msgstr "เลื่อนไปหาตัวเอง"
 
-#: ../client/tournament.ts:274
+#: ../client/tournament.ts:280
 msgid "WITHDRAW"
 msgstr "ถอนตัว"
 
-#: ../client/tournament.ts:276 ../client/tournament.ts:281
+#: ../client/tournament.ts:282 ../client/tournament.ts:287
 msgid "JOIN"
 msgstr "เข้าร่วม"
 
-#: ../client/tournament.ts:288
+#: ../client/tournament.ts:294
 msgid "LOG IN"
 msgstr "เข้าสู่ระบบ"
 
-#: ../client/tournament.ts:301
+#: ../client/tournament.ts:307
 msgid "Tournament complete"
 msgstr "การแข่งขันเสร็จสิ้น"
 
-#: ../client/tournament.ts:303
+#: ../client/tournament.ts:309
 msgid "Players"
 msgstr "จำนวนผู้เล่น"
 
-#: ../client/tournament.ts:304
+#: ../client/tournament.ts:310
 msgid "Average rating"
 msgstr "คะแนนเฉลี่ย"
 
-#: ../client/tournament.ts:305 ../client/tournament.ts:485
-#: ../client/tournament.ts:544 ../client/tournament.ts:554
-#: ../client/tournament.ts:564
+#: ../client/tournament.ts:311 ../client/tournament.ts:491
+#: ../client/tournament.ts:550 ../client/tournament.ts:560
+#: ../client/tournament.ts:570
 msgid "Games played"
 msgstr "จำนวนเกม"
 
-#: ../client/tournament.ts:306
-msgid "White wins"
-msgstr "ขาวชนะ"
+#: ../client/tournament.ts:312 ../client/tournament.ts:313
+msgid "%1 wins"
+msgstr "%1ชนะ"
 
-#: ../client/tournament.ts:307
-msgid "Black wins"
-msgstr "ดำชนะ"
-
-#: ../client/tournament.ts:308
+#: ../client/tournament.ts:314
 msgid "Draws"
 msgstr "เสมอ"
 
-#: ../client/tournament.ts:309 ../client/tournament.ts:488
-#: ../client/tournament.ts:546 ../client/tournament.ts:556
-#: ../client/tournament.ts:566
+#: ../client/tournament.ts:315 ../client/tournament.ts:494
+#: ../client/tournament.ts:552 ../client/tournament.ts:562
+#: ../client/tournament.ts:572
 msgid "Berserk rate"
 msgstr "อัตราเบอร์เซิร์ก"
 
-#: ../client/tournament.ts:317
+#: ../client/tournament.ts:323
 msgid "Download all games"
 msgstr "ดาวน์โหลดเกมทั้งหมด"
 
-#: ../client/tournament.ts:484 ../client/tournament.ts:543
-#: ../client/tournament.ts:553 ../client/tournament.ts:563
+#: ../client/tournament.ts:490 ../client/tournament.ts:549
+#: ../client/tournament.ts:559 ../client/tournament.ts:569
 msgid "Performance"
 msgstr "สมรรถนะ"
 
-#: ../client/tournament.ts:486 ../client/tournament.ts:545
-#: ../client/tournament.ts:555 ../client/tournament.ts:565
+#: ../client/tournament.ts:492 ../client/tournament.ts:551
+#: ../client/tournament.ts:561 ../client/tournament.ts:571
 msgid "Win rate"
 msgstr "อัตราชนะ"
 
-#: ../client/tournament.ts:487
+#: ../client/tournament.ts:493
 msgid "Average opponent"
 msgstr "ค่าเฉลี่ยคู่แข่ง"
 
-#: ../client/tournament.ts:640
+#: ../client/tournament.ts:646
 msgid "Defender:"
 msgstr "ผู้ป้องกันโล่:"
 
-#: ../client/tournament.ts:667
+#: ../client/tournament.ts:672
 msgid "Custom position"
 msgstr "ตำแหน่งเริ่มต้นต่างจากปกติ"
 
-#: ../client/tournament.ts:668
+#: ../client/tournament.ts:673
 msgid "Analysis board"
 msgstr "ถอดหมาก"
 

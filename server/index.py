@@ -243,6 +243,8 @@ async def index(request):
             rated = IMPORTED
         elif request.path[-6:] == "/rated":
             rated = RATED
+        elif request.path[-3:] == "/me":
+            rated = -1
         elif "/challenge" in request.path:
             view = "lobby"
             if user.anon and profileId != "Fairy-Stockfish":
@@ -419,6 +421,7 @@ async def index(request):
         render["users"] = users
         render["online_users"] = online_users
         render["anon_online"] = anon_online
+        render["admin"] = user.username in ADMINS
         if variant is None:
             hs = request.app["highscore"]
             render["highscore"] = {variant: dict(hs[variant].items()[:10]) for variant in hs}
@@ -480,6 +483,7 @@ async def index(request):
             render["date"] = game.date.isoformat()
             render["title"] = game.browser_title
             render["ply"] = ply if ply is not None else game.board.ply - 1
+            render["ct"] = json.dumps(game.crosstable)
             if game.tournamentId is not None:
                 render["tournamentid"] = game.tournamentId
                 render["tournamentname"] = tournament_name

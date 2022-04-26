@@ -24,7 +24,8 @@ td rating {
     grid-gap: 0;
 }
 .allplayers-button {
-    padding-top: 10px;
+    padding-bottom: 1em;
+    display: inline-block;
 }
 .highscore, .shields, .winners {
     display: grid;

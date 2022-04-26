@@ -260,6 +260,8 @@ function loadGames(model: PyChessModel, page: number) {
         url = url + "/rated" + "?p=";
     } else if (model.rated === "2") {
         url = url + "/import" + "?p=";
+    } else if (model["rated"] === "-1") {
+        url = url + "/me" + "?p=";
     } else {
         url = url + "/all?p=";
     }
@@ -299,12 +301,16 @@ function observeSentinel(vnode: VNode, model: PyChessModel) {
 
 export function profileView(model: PyChessModel) {
     boardSettings.updateBoardAndPieceStyles();
+    let tabs: VNode[] = [];
+    tabs.push(h('div.sub-ratings', [h('a', { attrs: { href: '/@/' + model["profileid"] }, class: {"active": model["rated"] === "None"} }, _('Games'))]));
+    if (model["username"] !== model["profileid"]) {
+        tabs.push(h('div.sub-ratings', [h('a', { attrs: { href: '/@/' + model["profileid"] + '/me' }, class: {"active": model["rated"] === "-1" } }, _('Games with you'))]));
+    }
+    tabs.push(h('div.sub-ratings', [h('a', { attrs: { href: '/@/' + model["profileid"] + '/rated' }, class: {"active": model["rated"] === "1" } }, pgettext('UsePluralFormIfNeeded', 'Rated'))]));
+    tabs.push(h('div.sub-ratings', [h('a', { attrs: { href: '/@/' + model["profileid"] + '/import' }, class: {"active": model["rated"] === "2" } }, _('Imported'))]));
+
     return [
-        h('div.filter-tabs', [
-            h('div.sub-ratings', [h('a', { attrs: { href: '/@/' + model["profileid"] }, class: {"active": model["rated"] === "None"} }, _('Games'))]),
-            h('div.sub-ratings', [h('a', { attrs: { href: '/@/' + model["profileid"] + '/rated' }, class: {"active": model["rated"] === "1" } }, pgettext('UsePluralFormIfNeeded', 'Rated'))]),
-            h('div.sub-ratings', [h('a', { attrs: { href: '/@/' + model["profileid"] + '/import' }, class: {"active": model["rated"] === "2" } }, _('Imported'))]),
-        ]),
+        h('div.filter-tabs', tabs),
         h('table#games'),
         h('div#sentinel', { hook: { insert: (vnode) => observeSentinel(vnode, model) } }),
     ];

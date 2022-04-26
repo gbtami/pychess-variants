@@ -534,9 +534,6 @@ async def round_socket_handler(request):
                         }
                         await ws.send_json(response)
 
-                        response = {"type": "crosstable", "ct": game.crosstable}
-                        await ws.send_json(response)
-
                         response = {"type": "fullchat", "lines": list(game.messages)}
                         await ws.send_json(response)
 

@@ -21,7 +21,9 @@ import { chatMessage, chatView } from './chat';
 import { createMovelistButtons, updateMovelist, selectMove, activatePlyVari } from './movelist';
 import { povChances } from './winningChances';
 import { copyTextToClipboard } from './clipboard';
-import { analysisChart } from './chart';
+import { analysisChart } from './analysisChart';
+import { movetimeChart } from './movetimeChart';
+import { renderClocks } from './analysisClock';
 import { copyBoardToPNG } from './png';
 import { updateCount, updatePoint } from './info';
 import { boardSettings } from './boardSettings';
@@ -29,7 +31,7 @@ import { patch, downloadPgnText, getPieceImageUrl } from './document';
 import { variantsIni } from './variantsIni';
 import { Chart } from "highcharts";
 import { PyChessModel } from "./main";
-import { Ceval, MsgBoard, MsgChat, MsgCtable, MsgFullChat, MsgGameNotFound, MsgShutdown, MsgSpectators, MsgUserConnected, Step } from "./messages";
+import { Ceval, MsgBoard, MsgChat, MsgFullChat, MsgGameNotFound, MsgShutdown, MsgSpectators, MsgUserConnected, Step, CrossTable } from "./messages";
 import { onUserDrop, onUserMove } from "./roundCtrl";
 
 const EVAL_REGEX = new RegExp(''
@@ -114,6 +116,7 @@ export default class AnalysisController {
     animation: boolean;
     showDests: boolean;
     analysisChart: Chart;
+    movetimeChart: Chart;
     ctableContainer: VNode | HTMLElement;
     localEngine: boolean;
     localAnalysis: boolean;
@@ -272,15 +275,12 @@ export default class AnalysisController {
         this.promotion = new Promotion(this);
 
         if (!this.isAnalysisBoard && !this.model["embed"]) {
-            this.ctableContainer = document.getElementById('ctable-container') as HTMLElement;
+            this.ctableContainer = document.getElementById('panel-3') as HTMLElement;
+            if (model["ct"]) {
+                this.ctableContainer = patch(this.ctableContainer, h('panel-3'));
+                this.ctableContainer = patch(this.ctableContainer, crosstableView(model["ct"] as CrossTable, this.gameId));
+            }
         }
-
-        // Hide #chart div (embed view has no #chart)
-        if (!this.model["embed"]) {
-            const element = document.getElementById('chart') as HTMLElement;
-            element.style.display = 'none';
-        }
-
 
         createMovelistButtons(this);
         this.vmovelist = document.getElementById('movelist') as HTMLElement;
@@ -297,6 +297,11 @@ export default class AnalysisController {
             this.vpv = document.getElementById('pv') as HTMLElement;
             const pgn = (this.isAnalysisBoard) ? this.getPgn() : this.pgn;
             this.renderFENAndPGN(pgn);
+
+            if (this.isAnalysisBoard) {
+                (document.querySelector('[role="tablist"]') as HTMLElement).style.display = 'none';
+                (document.querySelector('[tabindex="0"]') as HTMLElement).style.display = 'flex';
+            }
         }
 
         if (this.variant.materialPoint) {
@@ -314,6 +319,31 @@ export default class AnalysisController {
             (document.getElementById('misc-infow') as HTMLElement).style.textAlign = 'center';
             (document.getElementById('misc-infob') as HTMLElement).style.textAlign = 'center';
         }
+
+        // Add a click event handler to each tab
+        const tabs = document.querySelectorAll('[role="tab"]');
+        tabs!.forEach(tab => {
+            tab.addEventListener('click', changeTabs);
+        });
+
+        function changeTabs(e: Event) {
+            const target = e.target as Element;
+            const parent = target!.parentNode;
+            const grandparent = parent!.parentNode;
+
+            // Remove all current selected tabs
+            parent!.querySelectorAll('[aria-selected="true"]').forEach(t => t.setAttribute('aria-selected', 'false'));
+
+            // Set this tab as selected
+            target.setAttribute('aria-selected', 'true');
+
+            // Hide all tab panels
+            grandparent!.querySelectorAll('[role="tabpanel"]').forEach(p => (p as HTMLElement).style.display = 'none');
+
+            // Show the selected panel
+            (grandparent!.parentNode!.querySelector(`#${target.getAttribute('aria-controls')}`)! as HTMLElement).style.display = 'flex';
+        }
+        (document.querySelector('[tabindex="0"]') as HTMLElement).style.display = 'flex';
 
         boardSettings.ctrl = this;
         const boardFamily = this.variant.board;
@@ -376,7 +406,7 @@ export default class AnalysisController {
             const loaderEl = document.getElementById('loader') as HTMLElement;
             loaderEl.style.display = 'block';
         }
-        const chartEl = document.getElementById('chart') as HTMLElement;
+        const chartEl = document.getElementById('chart-analysis') as HTMLElement;
         chartEl.style.display = 'block';
         analysisChart(this);
     }
@@ -418,11 +448,6 @@ export default class AnalysisController {
                 );
             }
 
-            if (this.steps[0].analysis === undefined && !this.isAnalysisBoard) {
-                buttons.push(h('button#request-analysis', { on: { click: () => this.drawAnalysisChart(true) } }, [
-                    h('i', {props: {title: _('Request Computer Analysis')}, class: {"icon": true, "icon-bar-chart": true} }, _('Request Analysis'))])
-                );
-            }
             patch(container, h('div', buttons));
         }
 
@@ -430,7 +455,7 @@ export default class AnalysisController {
         e.value = this.fullfen;
 
         container = document.getElementById('pgntext') as HTMLElement;
-        this.vpgn = patch(container, h('textarea#pgntext', { attrs: { rows: 13, readonly: true, spellcheck: false} }, pgn));
+        this.vpgn = patch(container, h('div#pgntext', pgn));
     }
 
     private deleteGame() {
@@ -459,7 +484,6 @@ export default class AnalysisController {
 
         if (msg.steps.length > 1) {
             this.steps = [];
-
             msg.steps.forEach((step, ply) => {
                 if (step.analysis !== undefined) {
                     step.ceval = step.analysis;
@@ -470,10 +494,29 @@ export default class AnalysisController {
                 });
             updateMovelist(this);
 
-            if (this.steps[0].analysis !== undefined) {
+            if (this.steps[0].analysis === undefined) {
+                if (!this.isAnalysisBoard && !this.model['embed']) {
+                    const el = document.getElementById('request-analysis') as HTMLElement;
+                    el.style.display = 'block';
+                    patch(el, h('button#request-analysis', { on: { click: () => this.drawAnalysisChart(true) } }, [
+                        h('i', {props: {title: _('Request Computer Analysis')}, class: {"icon": true, "icon-bar-chart": true} }, _('Request Analysis'))])
+                    );
+                }
+            } else {
                 this.vinfo = patch(this.vinfo, h('info#info', '-'));
                 this.drawAnalysisChart(false);
             }
+            const clocktimes = this.steps[1]?.clocks?.white;
+            if (clocktimes !== undefined && !this.model['embed']) {
+                patch(document.getElementById('anal-clock-top') as HTMLElement, h('div.anal-clock.top'));
+                patch(document.getElementById('anal-clock-bottom') as HTMLElement, h('div.anal-clock.bottom'));
+                renderClocks(this);
+
+                const cmt = document.getElementById('chart-movetime') as HTMLElement;
+                cmt.style.display = 'block';
+                movetimeChart(this);
+            }
+
         } else {
             if (msg.ply === this.steps.length) {
                 const step: Step = {
@@ -541,7 +584,7 @@ export default class AnalysisController {
                     this.ffish.loadVariantConfig(variantsIni);
                     this.notationAsObject = this.notation2ffishjs(this.notation);
                     const availableVariants = this.ffish.variants();
-                    console.log('Available variants:', availableVariants);
+                    // console.log('Available variants:', availableVariants);
                     if (this.model.variant === 'chess' || availableVariants.includes(this.model.variant)) {
                         this.ffishBoard = new this.ffish.Board(this.variant.name, this.fullfen, this.chess960);
                         this.dests = this.getDests();
@@ -820,6 +863,18 @@ export default class AnalysisController {
 
         if (this.model["embed"]) return;
 
+        const clocktimes = this.steps[1]?.clocks?.white;
+        if (clocktimes !== undefined) {
+            renderClocks(this);
+            const hc = this.movetimeChart;
+            if (hc !== undefined) {
+                const idx = (step.turnColor === 'white') ? 1 : 0;
+                const turn = (ply + 1) >> 1;
+                const hcPt = hc.series[idx].data[turn-1];
+                if (hcPt !== undefined) hcPt.select();
+            }
+        }
+
         if (this.ffishBoard !== null) {
             this.ffishBoard.setFen(this.fullfen);
             this.dests = this.getDests();
@@ -837,7 +892,7 @@ export default class AnalysisController {
 
         if (this.isAnalysisBoard) {
             const idxInVari = (plyVari > 0) ? ply : 0;
-            this.vpgn = patch(this.vpgn, h('textarea#pgntext', { attrs: { rows: 13, readonly: true, spellcheck: false} }, this.getPgn(idxInVari)));
+            this.vpgn = patch(this.vpgn, h('div#pgntext', this.getPgn(idxInVari)));
         } else {
             const hist = this.model["home"] + '/' + this.gameId + '?ply=' + ply.toString();
             window.history.replaceState({}, this.model['title'], hist);
@@ -951,7 +1006,7 @@ export default class AnalysisController {
                     selectMove(this, this.ply);
                     return;
                 }
-                if (this.steps[this.plyVari]['vari'] === undefined || msg.ply === this.steps[this.plyVari].vari?.length) {
+                if (vv === undefined || msg.ply === vv?.length) {
                     // continuing the variation
                     this.plyVari = this.ffishBoard.gamePly();
                     this.steps[this.plyVari]['vari'] = [];
@@ -962,7 +1017,7 @@ export default class AnalysisController {
                     }
                 }
             }
-            if (vv) vv.push(step);
+            if (this.steps[this.plyVari].vari !== undefined) { this.steps[this.plyVari]?.vari?.push(step);};
 
             const full = true;
             const activate = false;
@@ -975,7 +1030,7 @@ export default class AnalysisController {
 
         if (this.isAnalysisBoard) {
             const idxInVari = (this.plyVari > 0) && vv ? vv.length - 1 : 0;
-            this.vpgn = patch(this.vpgn, h('textarea#pgntext', { attrs: { rows: 13, readonly: true, spellcheck: false} }, this.getPgn(idxInVari)));
+            this.vpgn = patch(this.vpgn, h('div#pgntext', this.getPgn(idxInVari)));
         }
         // TODO: But sending moves to the server will be useful to implement shared live analysis!
         // this.doSend({ type: "analysis_move", gameId: this.gameId, move: move, fen: this.fullfen, ply: this.ply + 1 });
@@ -1136,14 +1191,6 @@ export default class AnalysisController {
         alert(msg.message);
     }
 
-    private onMsgCtable = (msg: MsgCtable, gameId: string) => {
-        // imported games has no crosstable
-        if (this.model["rated"] !== '2') {
-            this.ctableContainer = patch(this.ctableContainer, h('div#ctable-container'));
-            this.ctableContainer = patch(this.ctableContainer, crosstableView(msg.ct, gameId));
-        }
-    }
-
     private onMsgDeleted = () => {
         window.location.assign(this.model["home"] + "/@/" + this.model["username"] + '/import');
     }
@@ -1157,9 +1204,6 @@ export default class AnalysisController {
                 break;
             case "analysis_board":
                 this.onMsgAnalysisBoard(msg);
-                break
-            case "crosstable":
-                this.onMsgCtable(msg, this.gameId);
                 break
             case "analysis":
                 this.onMsgAnalysis(msg);

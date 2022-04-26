@@ -19,6 +19,7 @@ import { patch, getCookie } from './document';
 import { backgroundSettings } from './background';
 import { renderTimeago } from './datetime';
 import { zenButtonView, zenModeSettings } from './zen';
+import { CrossTable } from './messages';
 
 // redirect to correct URL except Heroku preview apps
 if (window.location.href.includes('heroku') && !window.location.href.includes('-pr-')) {
@@ -40,6 +41,7 @@ export type PyChessModel = {
     tournamentname: string;
     inviter: string;
     ply: number;
+    ct: CrossTable | string;
     wplayer: string;
     wtitle: string;
     wrating: string; // string, because can contain "?" suffix for provisional rating
@@ -67,6 +69,8 @@ export type PyChessModel = {
 
 function initModel(el: HTMLElement) {
     const user = getCookie("user");
+    let ct = el.getAttribute("data-ct") ?? "";
+    if (ct) ct = JSON.parse(ct);
     return {
         home : el.getAttribute("data-home") ?? "",
         anon : el.getAttribute("data-anon") ?? "",
@@ -82,6 +86,7 @@ function initModel(el: HTMLElement) {
         tournamentname : el.getAttribute("data-tournamentname") ?? "",
         inviter : el.getAttribute("data-inviter") ?? "",
         ply : parseInt(""+el.getAttribute("data-ply")),
+        ct: ct,
         wplayer : el.getAttribute("data-wplayer") ?? "",
         wtitle : el.getAttribute("data-wtitle") ?? "",
         wrating : el.getAttribute("data-wrating") ?? "",
@@ -158,6 +163,45 @@ function start() {
     );
 
     renderTimeago();
+
+    // searchbar
+    const searchIcon = document.querySelector('.search-icon') as HTMLElement;
+    const searchBar = document.querySelector('.search-bar') as HTMLElement;
+    const searchInput = document.querySelector('#search-input') as HTMLInputElement;
+    
+    searchIcon.onclick = function(){
+        searchBar.classList.toggle('active');
+        if (searchBar.classList.contains('active'))
+            // Add some delay so that the input won't eat the icon during the transition animation
+            setTimeout(() => searchInput.focus(), 200);
+    }
+
+    function showResults(val: String) {
+        const acResult = document.getElementById("ac-result") as HTMLElement;
+        if (val.length < 4) {
+            acResult.innerHTML = '';
+            return;
+        }
+        fetch('/api/names?p=' + val)
+            .then(res => res.json())
+            .then(data => {
+                console.log(data);
+                const list = data.map((el: String) => `<li><a class="user-link" href="${model["home"]}/@/${el}">${el}</a></li>`);
+                console.log(list);
+                acResult.innerHTML = '<ul class="box">' + list.join('') + '</ul>';
+            })
+            .catch((err) => {
+            console.warn('Something went wrong.', err);
+            }
+        );
+    }
+
+    searchInput.addEventListener("keyup", function(e) {
+        showResults(searchInput.value);
+        if (e.keyCode === 13) {
+            window.location.href = `${model["home"]}/@/${searchInput.value}`;
+        }
+    });
 
     // Clicking outside settings panel closes it
     const settingsPanel = patch(document.getElementById('settings-panel') as HTMLElement, settingsView()).elm as HTMLElement;

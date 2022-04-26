@@ -153,8 +153,11 @@ async def load_game(app, game_id):
             doc["a"][0]["m"] = mirror(usi2uci(doc["a"][0]["m"]))
         game.steps[0]["analysis"] = doc["a"][0]
 
+    if "cw" in doc:
+        clocktimes_w = doc["cw"]
+        clocktimes_b = doc["cb"]
+
     if "mct" in doc:
-        print(doc["mct"])
         manual_count_toggled = iter(doc["mct"])
         count_started = -1
         count_ended = -1
@@ -183,15 +186,33 @@ async def load_game(app, game_id):
             turnColor = "black" if game.board.color == BLACK else "white"
             if usi_format:
                 turnColor = "black" if turnColor == "white" else "white"
-            game.steps.append(
-                {
-                    "fen": game.board.fen,
-                    "move": move,
-                    "san": san,
-                    "turnColor": turnColor,
-                    "check": game.check,
-                }
-            )
+            step = {
+                "fen": game.board.fen,
+                "move": move,
+                "san": san,
+                "turnColor": turnColor,
+                "check": game.check,
+            }
+            if "cw" in doc:
+                move_number = ((ply + 1) // 2) + (1 if ply % 2 == 0 else 0)
+                if ply >= 2:
+                    if ply % 2 == 0:
+                        step["clocks"] = {
+                            "white": clocktimes_w[move_number - 1],
+                            "black": clocktimes_b[move_number - 2],
+                        }
+                    else:
+                        step["clocks"] = {
+                            "white": clocktimes_w[move_number - 1],
+                            "black": clocktimes_b[move_number - 1],
+                        }
+                else:
+                    step["clocks"] = {
+                        "white": clocktimes_w[move_number - 1],
+                        "black": clocktimes_b[move_number - 1],
+                    }
+
+            game.steps.append(step)
 
             if "a" in doc:
                 if usi_format and "m" in doc["a"][ply + 1]:
@@ -242,8 +263,10 @@ async def load_game(app, game_id):
         game.brdiff = ""
 
     if game.tournamentId is not None:
-        game.wberserk = doc.get("wb", False)
-        game.bberserk = doc.get("bb", False)
+        if doc.get("wb", False):
+            game.berserk("white")
+        if doc.get("bb", False):
+            game.berserk("black")
 
     if doc.get("by") is not None:
         game.imported_by = doc.get("by")
@@ -853,3 +876,18 @@ def sanitize_fen(variant, initial_fen, chess960):
 
 def online_count(users):
     return sum((1 for user in users.values() if user.online))
+
+
+async def get_names(request):
+    names = []
+    prefix = request.rel_url.query.get("p")
+    if prefix is None or len(prefix) < 3:
+        return web.json_response(names)
+
+    # case insensitive _id prefix search
+    cursor = request.app["db"].user.find(
+        {"_id": {"$regex": "^%s" % prefix, "$options": "i"}}, limit=12
+    )
+    async for doc in cursor:
+        names.append(doc["_id"])
+    return web.json_response(names)
