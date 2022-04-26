@@ -19,6 +19,7 @@ import { patch, getCookie } from './document';
 import { backgroundSettings } from './background';
 import { renderTimeago } from './datetime';
 import { zenButtonView, zenModeSettings } from './zen';
+import { CrossTable } from './messages';
 
 // redirect to correct URL except Heroku preview apps
 if (window.location.href.includes('heroku') && !window.location.href.includes('-pr-')) {
@@ -40,6 +41,7 @@ export type PyChessModel = {
     tournamentname: string;
     inviter: string;
     ply: number;
+    ct: CrossTable | string;
     wplayer: string;
     wtitle: string;
     wrating: string; // string, because can contain "?" suffix for provisional rating
@@ -67,6 +69,8 @@ export type PyChessModel = {
 
 function initModel(el: HTMLElement) {
     const user = getCookie("user");
+    let ct = el.getAttribute("data-ct") ?? "";
+    if (ct) ct = JSON.parse(ct);
     return {
         home : el.getAttribute("data-home") ?? "",
         anon : el.getAttribute("data-anon") ?? "",
@@ -82,6 +86,7 @@ function initModel(el: HTMLElement) {
         tournamentname : el.getAttribute("data-tournamentname") ?? "",
         inviter : el.getAttribute("data-inviter") ?? "",
         ply : parseInt(""+el.getAttribute("data-ply")),
+        ct: ct,
         wplayer : el.getAttribute("data-wplayer") ?? "",
         wtitle : el.getAttribute("data-wtitle") ?? "",
         wrating : el.getAttribute("data-wrating") ?? "",

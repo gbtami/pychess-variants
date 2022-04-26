@@ -31,7 +31,7 @@ import { patch, downloadPgnText, getPieceImageUrl } from './document';
 import { variantsIni } from './variantsIni';
 import { Chart } from "highcharts";
 import { PyChessModel } from "./main";
-import { Ceval, MsgBoard, MsgChat, MsgCtable, MsgFullChat, MsgGameNotFound, MsgShutdown, MsgSpectators, MsgUserConnected, Step } from "./messages";
+import { Ceval, MsgBoard, MsgChat, MsgFullChat, MsgGameNotFound, MsgShutdown, MsgSpectators, MsgUserConnected, Step, CrossTable } from "./messages";
 import { onUserDrop, onUserMove } from "./roundCtrl";
 
 const EVAL_REGEX = new RegExp(''
@@ -276,6 +276,10 @@ export default class AnalysisController {
 
         if (!this.isAnalysisBoard && !this.model["embed"]) {
             this.ctableContainer = document.getElementById('panel-3') as HTMLElement;
+            if (model["ct"]) {
+                this.ctableContainer = patch(this.ctableContainer, h('panel-3'));
+                this.ctableContainer = patch(this.ctableContainer, crosstableView(model["ct"] as CrossTable, this.gameId));
+            }
         }
 
         createMovelistButtons(this);
@@ -315,6 +319,31 @@ export default class AnalysisController {
             (document.getElementById('misc-infow') as HTMLElement).style.textAlign = 'center';
             (document.getElementById('misc-infob') as HTMLElement).style.textAlign = 'center';
         }
+
+        // Add a click event handler to each tab
+        const tabs = document.querySelectorAll('[role="tab"]');
+        tabs!.forEach(tab => {
+            tab.addEventListener('click', changeTabs);
+        });
+
+        function changeTabs(e: Event) {
+            const target = e.target as Element;
+            const parent = target!.parentNode;
+            const grandparent = parent!.parentNode;
+
+            // Remove all current selected tabs
+            parent!.querySelectorAll('[aria-selected="true"]').forEach(t => t.setAttribute('aria-selected', 'false'));
+
+            // Set this tab as selected
+            target.setAttribute('aria-selected', 'true');
+
+            // Hide all tab panels
+            grandparent!.querySelectorAll('[role="tabpanel"]').forEach(p => (p as HTMLElement).style.display = 'none');
+
+            // Show the selected panel
+            (grandparent!.parentNode!.querySelector(`#${target.getAttribute('aria-controls')}`)! as HTMLElement).style.display = 'flex';
+        }
+        (document.querySelector('[tabindex="0"]') as HTMLElement).style.display = 'flex';
 
         boardSettings.ctrl = this;
         const boardFamily = this.variant.board;
@@ -1162,39 +1191,6 @@ export default class AnalysisController {
         alert(msg.message);
     }
 
-    private onMsgCtable = (msg: MsgCtable, gameId: string) => {
-        if (msg.ct) {
-            this.ctableContainer = patch(this.ctableContainer, h('panel-3'));
-            this.ctableContainer = patch(this.ctableContainer, crosstableView(msg.ct, gameId));
-        }
-
-        // Add a click event handler to each tab
-        const tabs = document.querySelectorAll('[role="tab"]');
-        tabs!.forEach(tab => {
-            tab.addEventListener('click', changeTabs);
-        });
-
-        function changeTabs(e: Event) {
-            const target = e.target as Element;
-            const parent = target!.parentNode;
-            const grandparent = parent!.parentNode;
-
-            // Remove all current selected tabs
-            parent!.querySelectorAll('[aria-selected="true"]').forEach(t => t.setAttribute('aria-selected', 'false'));
-
-            // Set this tab as selected
-            target.setAttribute('aria-selected', 'true');
-
-            // Hide all tab panels
-            grandparent!.querySelectorAll('[role="tabpanel"]').forEach(p => (p as HTMLElement).style.display = 'none');
-
-            // Show the selected panel
-            (grandparent!.parentNode!.querySelector(`#${target.getAttribute('aria-controls')}`)! as HTMLElement).style.display = 'flex';
-        }
-
-        (document.querySelector('[tabindex="0"]') as HTMLElement).style.display = 'flex';
-    }
-
     private onMsgDeleted = () => {
         window.location.assign(this.model["home"] + "/@/" + this.model["username"] + '/import');
     }
@@ -1208,9 +1204,6 @@ export default class AnalysisController {
                 break;
             case "analysis_board":
                 this.onMsgAnalysisBoard(msg);
-                break
-            case "crosstable":
-                this.onMsgCtable(msg, this.gameId);
                 break
             case "analysis":
                 this.onMsgAnalysis(msg);
