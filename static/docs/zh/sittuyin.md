@@ -68,16 +68,11 @@
 兵走法與西洋棋的兵相類似，單純移動時直前進一步，但吃子時斜進一步。兵的第一步時不能走兩步，故無吃過路兵。
 
 #### 升變
-After a feudal lord reaches the diagonal line on the opponent's side of the board, the player can choose to promote that piece into a general instead of moving. Each side can only has *one* general at any given time, so this can only occur if their general has already been captured. Promotion does not happen on the move where the feudal lord reaches the promotion square, but rather any move after that.
+當兵到達對側的對角線後，玩家可以選擇在下一步將其升變為士。雙方各自只能有一隻士在場上，亦即兵只可能在己方士被吃後才有可能有升變。兵在升變時，可以選擇在**原地升級(鼠標點它兩下)** 或是往**斜向動一格(就會自動升變)**。然而，若升變後的士會攻擊到其他子，則不能升變。
 
-In the act of promotion, the feudal lord can promote on the same square it is on (in-place), or any one of the adjacent diagonal squares. On pychess, **in-place promotion** is performed by a **double-click** on the feudal lord, and **diagonal promotion** is performed by **moving** it to the desired square.
+若你只有一隻兵在場上，則該兵可以在任何格子升變。
 
-However, there are some more restrictions. Promotion cannot be made such that the new general will capture an enemy piece, attack an enemy piece, attack the enemy king, or put the enemy king in a discovery check.
-
-If you have only one feudal lord left on the board, then it has the ability to promote on any square.
-
-Finally, if your only legal moves are promotion, you may opt not to promote and claim stalemate. On pychess, you can do so by **pressing the draw button** on the right side.
-
+最後，右你的唯一合法走法唯升變，則你可以選擇不升變並宣告和局。在 Pychess ，你可以按 draw (和局) 按鈕來和局。
 
 
 ## 計步規則
