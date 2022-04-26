@@ -510,6 +510,8 @@ export default class RoundController {
         boardSettings.updatePieceStyle(pieceFamily);
         boardSettings.updateZoom(boardFamily);
         boardSettings.updateBlindfold();
+
+        this.onMsgBoard(model["board"] as MsgBoard);
     }
 
     getGround = () => this.chessground;
@@ -1261,8 +1263,6 @@ export default class RoundController {
             this.doSend({ type: "is_user_present", username: this.wplayer, gameId: this.gameId });
             this.doSend({ type: "is_user_present", username: this.bplayer, gameId: this.gameId });
 
-            // we want to know lastMove and check status
-            this.doSend({ type: "board", gameId: this.gameId });
         } else {
             this.firstmovetime = msg.firstmovetime || this.firstmovetime;
 
@@ -1275,8 +1275,10 @@ export default class RoundController {
             // prevent sending gameStart message when user just reconecting
             if (msg.ply === 0) {
                 this.doSend({ type: "ready", gameId: this.gameId });
+                if (this.variant.name === 'janggi') {
+                    this.doSend({ type: "board", gameId: this.gameId });
+                }
             }
-            this.doSend({ type: "board", gameId: this.gameId });
         }
     }
 
