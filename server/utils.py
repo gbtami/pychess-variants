@@ -889,5 +889,5 @@ async def get_names(request):
         {"_id": {"$regex": "^%s" % prefix, "$options": "i"}}, limit=12
     )
     async for doc in cursor:
-        names.append(doc["_id"])
+        names.append((doc["_id"], doc["title"]))
     return web.json_response(names)
