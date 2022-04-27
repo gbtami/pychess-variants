@@ -308,7 +308,9 @@ export class LobbyController {
             seekColor = color;
 
         e = document.getElementById('fen') as HTMLInputElement;
-        const fen = e.value;
+        let fen = e.value;
+        // Prevent to create 'custom' games with standard startFen
+        if (fen.trim() === variant.startFen) fen = '';
 
         let alternateStart = "";
         if (variant.alternateStart) {

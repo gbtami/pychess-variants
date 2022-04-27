@@ -24,7 +24,7 @@ import { renderRdiff } from './profile'
 import { player } from './player';
 import { updateCount, updatePoint } from './info';
 import { notify } from './notification';
-import { Clocks, MsgBoard, MsgChat, MsgCtable, MsgFullChat, MsgGameEnd, MsgGameNotFound, MsgMove, MsgNewGame, MsgShutdown, MsgSpectators, MsgUserConnected, RDiffs, Step } from "./messages";
+import { Clocks, MsgBoard, MsgChat, MsgFullChat, MsgGameEnd, MsgGameNotFound, MsgMove, MsgNewGame, MsgShutdown, MsgSpectators, MsgUserConnected, RDiffs, Step, CrossTable } from "./messages";
 import { PyChessModel } from "./main";
 import AnalysisController from "./analysisCtrl";
 
@@ -438,6 +438,11 @@ export default class RoundController {
         // initialize crosstable
         this.ctableContainer = document.querySelector('.ctable-container') as HTMLElement;
 
+        if (model["ct"]) {
+            this.ctableContainer = patch(this.ctableContainer, h('div.ctable-container'));
+            this.ctableContainer = patch(this.ctableContainer, crosstableView(model["ct"] as CrossTable, this.gameId));
+        }
+
         const misc0 = document.getElementById('misc-info0') as HTMLElement;
         const misc1 = document.getElementById('misc-info1') as HTMLElement;
 
@@ -506,6 +511,8 @@ export default class RoundController {
         boardSettings.updatePieceStyle(pieceFamily);
         boardSettings.updateZoom(boardFamily);
         boardSettings.updateBlindfold();
+
+        this.onMsgBoard(model["board"] as MsgBoard);
     }
 
     getGround = () => this.chessground;
@@ -1257,8 +1264,6 @@ export default class RoundController {
             this.doSend({ type: "is_user_present", username: this.wplayer, gameId: this.gameId });
             this.doSend({ type: "is_user_present", username: this.bplayer, gameId: this.gameId });
 
-            // we want to know lastMove and check status
-            this.doSend({ type: "board", gameId: this.gameId });
         } else {
             this.firstmovetime = msg.firstmovetime || this.firstmovetime;
 
@@ -1271,8 +1276,10 @@ export default class RoundController {
             // prevent sending gameStart message when user just reconecting
             if (msg.ply === 0) {
                 this.doSend({ type: "ready", gameId: this.gameId });
+                if (this.variant.name === 'janggi') {
+                    this.doSend({ type: "board", gameId: this.gameId });
+                }
             }
-            this.doSend({ type: "board", gameId: this.gameId });
         }
     }
 
@@ -1363,13 +1370,6 @@ export default class RoundController {
         alert(msg.message);
     }
 
-    private onMsgCtable = (msg: MsgCtable, gameId: string) => {
-        if (msg.ct) {
-            this.ctableContainer = patch(this.ctableContainer, h('div.ctable-container'));
-            this.ctableContainer = patch(this.ctableContainer, crosstableView(msg.ct, gameId));
-        }
-    }
-
     private onMsgCount = (msg: MsgCount) => {
         chatMessage("", msg.message, "roundchat");
         if (msg.message.endsWith("started")) {
@@ -1393,9 +1393,6 @@ export default class RoundController {
             case "board":
                 this.onMsgBoard(msg);
                 break;
-            case "crosstable":
-                this.onMsgCtable(msg, this.gameId);
-                break
             case "gameEnd":
                 this.checkStatus(msg);
                 break;

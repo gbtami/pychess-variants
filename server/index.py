@@ -493,6 +493,8 @@ async def index(request):
             render["date"] = game.date.isoformat()
             render["title"] = game.browser_title
             render["ply"] = ply if ply is not None else game.board.ply - 1
+            render["ct"] = json.dumps(game.crosstable)
+            render["board"] = json.dumps(game.get_board(full=True))
             if game.tournamentId is not None:
                 render["tournamentid"] = game.tournamentId
                 render["tournamentname"] = tournament_name

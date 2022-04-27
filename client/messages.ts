@@ -37,9 +37,6 @@ export interface CrossTable {
 
 }
 
-export interface MsgCtable {
-    ct: CrossTable
-}
 export interface MsgGameNotFound {
     gameId: string;
 }

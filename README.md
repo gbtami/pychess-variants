@@ -24,7 +24,7 @@ liantichess is a free server and it will remain free forever.
 ## Installation
 
 ### Prerequisites
-* You need mongodb up and running. [Mongo daemon](https://docs.mongodb.com/manual/installation/)
+* You need mongodb up and running. [Mongo daemon](https://www.mongodb.com/docs/manual/installation/)
 
 ```
 pip3 install -r requirements.txt --user 

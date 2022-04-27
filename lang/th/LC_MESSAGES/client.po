@@ -13,7 +13,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-04-11 12:19+0200\n"
+"POT-Creation-Date: 2022-04-17 15:52+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Last-Translator: Ada Joule <ada.fulmina@gmail.com>, 2022\n"
 "Language-Team: Thai (https://www.transifex.com/gbtami/teams/14790/th/)\n"
@@ -152,69 +152,85 @@ msgstr ""
 msgid "Variant"
 msgstr "ชนิดเกม"
 
-#: ../client/analysis.ts:125 ../client/analysisCtrl.ts:367
-#: ../client/analysisCtrl.ts:712
+#: ../client/analysis.ts:134 ../client/analysisCtrl.ts:365
+#: ../client/analysisCtrl.ts:718
 msgid "in local browser"
 msgstr "ในเบราเซอร์ภายในเครื่อง"
 
-#: ../client/analysisCtrl.ts:378
+#: ../client/analysis.ts:186
+msgid "Computer analysis"
+msgstr "การวิเคราะห์โดยคอมพิวเตอร์"
+
+#: ../client/analysis.ts:187
+msgid "Move times"
+msgstr "เวลาที่ใช้เดิน"
+
+#: ../client/analysis.ts:188
+msgid "Crosstable"
+msgstr "ประวัติผลการเล่น"
+
+#: ../client/analysis.ts:189
+msgid "FEN & PGN"
+msgstr "FEN & PGN"
+
+#: ../client/analysisCtrl.ts:376
 msgid "You need an account to do that."
 msgstr "จำเป็นต้องเข้าสู่ระบบ"
 
-#: ../client/analysisCtrl.ts:417
+#: ../client/analysisCtrl.ts:415
 msgid "Download game to PGN file"
 msgstr "ดาวน์โหลดเกมนี้เป็นไฟล์ PGN"
 
-#: ../client/analysisCtrl.ts:417
+#: ../client/analysisCtrl.ts:415
 msgid "Download PGN"
 msgstr "ดาวน์โหลด PGN"
 
-#: ../client/analysisCtrl.ts:419
+#: ../client/analysisCtrl.ts:417
 msgid "Copy USI/UCI to clipboard"
 msgstr "คัดลอก USI/UCI ไปยังคลิปบอร์ด"
 
-#: ../client/analysisCtrl.ts:419
+#: ../client/analysisCtrl.ts:417
 msgid "Copy UCI/USI"
 msgstr "คัดลอก UCI/USI"
 
-#: ../client/analysisCtrl.ts:421
+#: ../client/analysisCtrl.ts:419
 msgid "Download position to PNG image file"
 msgstr "ดาวน์โหลดตำแหน่งหมากเป็นไฟล์ภาพ PNG"
 
-#: ../client/analysisCtrl.ts:421
+#: ../client/analysisCtrl.ts:419
 msgid "PNG image"
 msgstr "ภาพ PNG"
 
-#: ../client/analysisCtrl.ts:429
+#: ../client/analysisCtrl.ts:427
 msgid "Delete game"
 msgstr "ลบเกม"
 
-#: ../client/analysisCtrl.ts:435
-msgid "Request Computer Analysis"
-msgstr "ขอการวิเคราะห์จากคอมพิวเตอร์"
-
-#: ../client/analysisCtrl.ts:435
-msgid "Request Analysis"
-msgstr "ขอการวิเคราะห์"
-
-#: ../client/analysisCtrl.ts:449
+#: ../client/analysisCtrl.ts:442
 msgid "Are you sure you want to delete this game?"
 msgstr "ต้องการลบเกมนี้จริงหรือไม่?"
 
-#: ../client/analysisCtrl.ts:685
+#: ../client/analysisCtrl.ts:485
+msgid "Request Computer Analysis"
+msgstr "ขอการวิเคราะห์จากคอมพิวเตอร์"
+
+#: ../client/analysisCtrl.ts:485
+msgid "Request Analysis"
+msgstr "ขอการวิเคราะห์"
+
+#: ../client/analysisCtrl.ts:691
 msgid "Depth"
 msgstr "ความลึก"
 
-#: ../client/analysisCtrl.ts:690
+#: ../client/analysisCtrl.ts:696
 msgid "Go deeper"
 msgstr "ลึกกว่านี้"
 
-#: ../client/analysisCtrl.ts:1170 ../client/roundCtrl.ts:1356
+#: ../client/analysisCtrl.ts:1176 ../client/roundCtrl.ts:1356
 #: ../client/tournament.ts:698
 msgid "Spectators: "
 msgstr "ผู้ชม: "
 
-#: ../client/analysisCtrl.ts:1194 ../client/roundCtrl.ts:1437
+#: ../client/analysisCtrl.ts:1200 ../client/roundCtrl.ts:1437
 msgid "Requested game %1 not found!"
 msgstr "หาเกม %1 ไม่พบ!"
 
@@ -226,27 +242,27 @@ msgstr "สว่าง"
 msgid "Dark"
 msgstr "มืด"
 
-#: ../client/boardSettings.ts:207
+#: ../client/boardSettings.ts:208
 msgid "Piece animation"
 msgstr "การเคลื่อนไหวตัวหมาก"
 
-#: ../client/boardSettings.ts:308
+#: ../client/boardSettings.ts:309
 msgid "Show piece destinations"
 msgstr "แสดงตาที่สามารถเดินได้"
 
-#: ../client/boardSettings.ts:326
+#: ../client/boardSettings.ts:327
 msgid "Promote to the top choice automatically"
 msgstr "เลื่อนยศเป็นตัวเลือกบนสุดอัตโนมัติ"
 
-#: ../client/boardSettings.ts:344
+#: ../client/boardSettings.ts:345
 msgid "Best move arrow in analysis board"
 msgstr "แสดงลูกศรแนะนำตาเดินในกระดานวิเคราะห์"
 
-#: ../client/boardSettings.ts:372
+#: ../client/boardSettings.ts:373
 msgid "Invisible pieces"
 msgstr "ตัวหมากล่องหน"
 
-#: ../client/boardSettings.ts:392
+#: ../client/boardSettings.ts:393
 msgid "Show material difference"
 msgstr "แสดงความต่างศักดิ์หมาก"
 
@@ -254,7 +270,7 @@ msgstr "แสดงความต่างศักดิ์หมาก"
 msgid "Initial position"
 msgstr "ตำแหน่งเริ่มต้น"
 
-#: ../client/chart.ts:84
+#: ../client/chart.ts:103
 msgid "Advantage"
 msgstr "ความได้เปรียบ"
 
