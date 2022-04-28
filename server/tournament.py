@@ -1045,6 +1045,8 @@ class Tournament(ABC):
                 log.exception("Exception in tournament broadcast()")
 
     async def db_insert_pairing(self, games):
+        if self.app["db"] is None:
+            return
         pairing_documents = []
         pairing_table = self.app["db"].tournament_pairing
 
@@ -1069,6 +1071,8 @@ class Tournament(ABC):
         await pairing_table.insert_many(pairing_documents)
 
     async def db_update_pairing(self, game):
+        if self.app["db"] is None:
+            return
         pairing_table = self.app["db"].tournament_pairing
 
         try:
