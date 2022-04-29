@@ -1,8 +1,8 @@
-import { h } from 'snabbdom/h';
-import { VNode } from 'snabbdom/vnode';
+import { h, VNode } from 'snabbdom';
+
 import { Howl } from 'howler';
 
-import { IVariant } from './chess';
+import { Variant } from './chess';
 import { StringSettings, NumberSettings } from './settings';
 import { radioList, slider } from './view';
 import { model } from './main';
@@ -26,6 +26,7 @@ class Sounds {
         LowTime: 'LowTime',
         Tick: 'Tick',
         Explosion: 'Explosion',
+        Berserk: 'Berserk',
     };
 
     tracks: { [key: string]: Howl };
@@ -42,7 +43,7 @@ class Sounds {
     }
 
     updateSoundTheme() {
-        Object.keys(Sounds.trackNames).forEach(key => {
+        Object.keys(Sounds.trackNames).forEach( (key: keyof typeof Sounds.trackNames) => {
             this.tracks[key] = this.buildSound(Sounds.trackNames[key]);
         });
     }
@@ -84,15 +85,16 @@ class Sounds {
     lowTime()       { if (this.audio()) this.tracks.LowTime.play(); }
     tick()          { if (this.audio()) this.tracks.Tick.play(); }
     explosion()     { if (this.audio()) this.tracks.Explosion.play(); }
+    berserk()       { if (this.audio()) this.tracks.Berserk.play(); }
 
-    private moveSoundSet = {
+    private moveSoundSet: {[k:string]: { move: ()=> void; capture: ()=>void;}} = {
         regular: { move: () => this.move(), capture: () => this.capture() },
         shogi: { move: () => this.shogimove(), capture: () => this.shogicapture() },
         atomic: { move: () => this.move(), capture: () => this.explosion() },
     };
 
-    moveSound(variant: IVariant, capture: boolean) {
-        const soundSet = this.moveSoundSet[variant.pieceSound];
+    moveSound(variant: Variant, capture: boolean) {
+        const soundSet = variant.pieceSound in this.moveSoundSet? this.moveSoundSet[variant.pieceSound] : this.moveSoundSet.regular ;
         if (capture)
             soundSet.capture();
         else

@@ -1,60 +1,47 @@
-import Module from '../static/ffish.js';
+import ffishModule from 'ffish-es6';
 
-import h from 'snabbdom/h';
-import { VNode } from 'snabbdom/vnode';
-
-import { init } from 'snabbdom';
-import klass from 'snabbdom/modules/class';
-import attributes from 'snabbdom/modules/attributes';
-import properties from 'snabbdom/modules/props';
-import listeners from 'snabbdom/modules/eventlisteners';
-
-const patch = init([klass, attributes, properties, listeners]);
+import { h, VNode } from 'snabbdom';
 
 import { Chessground } from 'chessgroundx';
 import { Api } from 'chessgroundx/api';
-import { Color, Variant, Notation } from 'chessgroundx/types';
+import * as cg from 'chessgroundx/types';
+import * as util from 'chessgroundx/util';
 
 import { _ } from './i18n';
-import { getPockets, VARIANTS, validFen, IVariant, hasCastling } from './chess'
+import { VARIANTS, validFen, Variant, hasCastling, unpromotedRole, promotedRole, notation } from './chess'
 import { boardSettings } from './boardSettings';
 import { iniPieces } from './pieces';
-import { updatePockets, Pockets, pockets2str } from './pocket';
-import { copyBoardToPNG } from './png'; 
-import { colorNames } from './profile';
+import { copyBoardToPNG } from './png';
 import { variantsIni } from './variantsIni';
+import { patch } from './document';
+import { PyChessModel } from "./main";
 
 export class EditorController {
     model;
     chessground: Api;
+    notation: cg.Notation;
     fullfen: string;
     startfen: string;
-    mycolor: Color;
-    oppcolor: Color;
+    mycolor: cg.Color;
+    oppcolor: cg.Color;
     parts: string[];
     castling: string;
-    pocketsPart: string;
-    pockets: Pockets;
-    variant: IVariant;
+    variant: Variant;
     hasPockets: boolean;
     vpieces0: VNode;
     vpieces1: VNode;
-    vpocket0: VNode;
-    vpocket1: VNode;
     vfen: VNode;
     vAnalysis: VNode;
     vChallenge: VNode;
-    anon: boolean;
     flip: boolean;
-    ffish;
-    ffishBoard;
+    ffish: any;
+    ffishBoard: any;
 
-    constructor(el, model) {
+    constructor(el: HTMLElement, model: PyChessModel) {
         this.model = model;
         this.variant = VARIANTS[model["variant"]];
         this.startfen = model["fen"] as string;
         this.flip = false;
-        this.anon = model["anon"] === 'True';
 
         this.parts = this.startfen.split(" ");
         this.castling = this.parts.length > 2 ? this.parts[2] : '';
@@ -63,23 +50,29 @@ export class EditorController {
         this.hasPockets = this.variant.pocket;
 
         // pocket part of the FEN (including brackets)
-        this.pocketsPart = (this.hasPockets) ? getPockets(this.startfen) : '';
+        // this.pocketsPart = (this.hasPockets) ? getPockets(this.startfen) : '';
+
+        this.notation = notation(this.variant);
 
         this.mycolor = 'white';
         this.oppcolor = 'black';
 
+        const pocket0 = document.getElementById('pocket0') as HTMLElement;
+        const pocket1 = document.getElementById('pocket1') as HTMLElement;
+
         this.chessground = Chessground(el, {
             fen: this.parts[0],
             autoCastle: false,
-            variant: this.variant.name as Variant,
+            variant: this.variant.name as cg.Variant,
             geometry: this.variant.geometry,
-            notation: (this.variant.name === 'janggi') ? Notation.JANGGI : Notation.DEFAULT, // TODO make this more generic / customisable
+            notation: this.notation,
             orientation: this.mycolor,
             movable: {
                 free: true,
             },
             events: {
                 change: this.onChange,
+                select: this.onSelect(),
             },
             selectable: {
                 enabled: false
@@ -87,8 +80,29 @@ export class EditorController {
             draggable: {
                 deleteOnDropOff: true,
             },
-        });
+            addDimensionsCssVars: true,
 
+            pocketRoles: color => this.variant.pocketRoles(color),
+        }, pocket0, pocket1);
+
+        //
+        ['mouseup', 'touchend'].forEach(name =>
+            [this.chessground.state.dom.elements.pocketTop, this.chessground.state.dom.elements.pocketBottom].forEach(pocketEl => {
+                if (pocketEl) pocketEl.addEventListener(name, (e: cg.MouchEvent) => {
+                    this.dropOnPocket(e);
+                } )
+            })
+        );
+        cg.eventsDragging.forEach(name =>
+            [this.chessground.state.dom.elements.pocketTop, this.chessground.state.dom.elements.pocketBottom].forEach(pocketEl => {
+                if (pocketEl) pocketEl?.childNodes.forEach(p => {
+                    p.addEventListener(name, (e: cg.MouchEvent) => {
+                    this.drag(e);
+                } ) });
+            })
+        );
+
+        //
         boardSettings.ctrl = this;
         const boardFamily = this.variant.board;
         const pieceFamily = this.variant.piece;
@@ -100,13 +114,6 @@ export class EditorController {
         const pieces0 = document.getElementById('pieces0') as HTMLElement;
         const pieces1 = document.getElementById('pieces1') as HTMLElement;
         iniPieces(this, pieces0, pieces1);
-
-        // initialize pockets
-        if (this.hasPockets) {
-            const pocket0 = document.getElementById('pocket0') as HTMLElement;
-            const pocket1 = document.getElementById('pocket1') as HTMLElement;
-            updatePockets(this, pocket0, pocket1);
-        }
 
         const e = document.getElementById('fen') as HTMLElement;
         this.vfen = patch(e,
@@ -120,8 +127,8 @@ export class EditorController {
         //const dataIcon = VARIANTS[this.variant].icon(false);
         const dataIcon = 'icon-' + this.variant.name;
         const container = document.getElementById('editor-button-container') as HTMLElement;
-        const firstColor = colorNames(this.variant.firstColor);
-        const secondColor = colorNames(this.variant.secondColor);
+        const firstColor = _(this.variant.firstColor);
+        const secondColor = _(this.variant.secondColor);
         if (container !== null) {
             const buttons = [
                 h('div#turn-block', [
@@ -166,25 +173,28 @@ export class EditorController {
                     ]),
                 ]),
 
+                h('a#flip.i-pgn', { on: { click: () => boardSettings.toggleOrientation() } }, [
+                    h('div.icon.icon-refresh', _('FLIP BOARD'))
+                ]),
                 h('a#clear.i-pgn', { on: { click: () => this.setEmptyFen() } }, [
-                    h('div', {class: {"icon": true, "icon-trash-o": true} }, _('CLEAR BOARD'))
+                    h('div.icon.icon-trash-o', _('CLEAR BOARD'))
                 ]),
                 h('a#start.i-pgn', { on: { click: () => this.setStartFen() } }, [
-                    h('div', {class: {"icon": true, [dataIcon]: true} }, _('STARTING POSITION'))
+                    h('div.icon.' + dataIcon, _('STARTING POSITION'))
                 ]),
                 h('a#analysis.i-pgn', { on: { click: () => this.setAnalysisFen() } }, [
-                    h('div', {class: {"icon": true, "icon-microscope": true} }, _('ANALYSIS BOARD'))
+                    h('div.icon.icon-microscope', _('ANALYSIS BOARD'))
                 ]),
                 h('a#challengeAI.i-pgn', { on: { click: () => this.setChallengeFen() } }, [
-                    h('div', {class: {"icon": true, "icon-bot": true} }, _('PLAY WITH MACHINE') + ((model["anon"] === 'True') ? _(' (must be signed in)') : ''))
+                    h('div.icon.icon-bot', _('PLAY WITH MACHINE'))
                 ]),
                 h('a#pgn.i-pgn', { on: { click: () => copyBoardToPNG(this.parts.join(' ')) } }, [
-                    h('div', {class: {"icon": true, "icon-download": true} }, _('EXPORT TO PNG'))
+                    h('div.icon.icon-download', _('EXPORT TO PNG'))
                 ])
             ];
             patch(container, h('div.editor-button-container', buttons));
 
-            new (Module as any)().then(loadedModule => {
+            ffishModule().then((loadedModule: any) => {
                 this.ffish = loadedModule;
 
                 if (this.ffish !== null) {
@@ -193,15 +203,16 @@ export class EditorController {
                 }
             });
         }
+
     }
 
-    private onChangeTurn = (e) => {
-        this.parts[1] = (e.target.value === 'white') ? 'w' : 'b';
+    private onChangeTurn = (e: Event) => {
+        this.parts[1] = ((<HTMLSelectElement>e.target).value === 'white') ? 'w' : 'b';
         this.onChange();
     }
 
     private onChangeCastl = () => {
-        const castlings = {
+        const castlings: {[key:string]:string} = {
             'wOO': 'K',
             'wOOO': 'Q',
             'bOO': 'k',
@@ -228,9 +239,9 @@ export class EditorController {
     }
 
     // Remove accidentally selected leading spaces from FEN (mostly may happen on mobile)
-    private onPasteFen = (e) => {
-        const data = e.clipboardData.getData('text');
-        e.target.value = data.trim();
+    private onPasteFen = (e: ClipboardEvent) => {
+        const data = e.clipboardData?.getData('text') ?? "";
+        (<HTMLInputElement>e.target).value = data.trim();
         e.preventDefault();
         this.setFen(true);
     }
@@ -243,12 +254,12 @@ export class EditorController {
         return valid && ffValid;
     }
 
-    private setInvalid = (invalid) => {
+    private setInvalid = (invalid: boolean) => {
         const analysis = document.getElementById('analysis') as HTMLElement;
         analysis.classList.toggle('disabled', invalid);
 
         const challenge = document.getElementById('challengeAI') as HTMLElement;
-        challenge.classList.toggle('disabled', invalid || this.anon);
+        challenge.classList.toggle('disabled', invalid);
 
         const e = document.getElementById('fen') as HTMLInputElement;
         e.setCustomValidity(invalid ? _('Invalid FEN') : '');
@@ -265,8 +276,8 @@ export class EditorController {
         const h = this.variant.boardHeight;
         const empty_fen = (String(w) + '/').repeat(h);
 
-        this.pocketsPart = (this.hasPockets) ? '[]' : '';
-        this.parts[0] = empty_fen + this.pocketsPart;
+        const pocketsPart = (this.hasPockets) ? '[]' : '';
+        this.parts[0] = empty_fen + pocketsPart;
         this.parts[1] = 'w'
         if (this.parts.length > 2) this.parts[2] = '-';
         const e = document.getElementById('fen') as HTMLInputElement;
@@ -284,11 +295,11 @@ export class EditorController {
         window.location.assign(this.model["home"] + '/@/Fairy-Stockfish/challenge/' + this.model["variant"] + '?fen=' + fen);
     }
 
-    setFen = (isInput) => {
+    setFen = (isInput: boolean) => {
         const fen = document.getElementById('fen') as HTMLInputElement;
         if (isInput) {
             this.parts = fen.value.split(' ');
-            this.pocketsPart = (this.hasPockets) ? getPockets(fen.value) : '';
+            // this.pocketsPart = (this.hasPockets) ? getPockets(fen.value) : '';
             this.chessground.set({ fen: fen.value });
             this.setInvalid(!this.validFen());
 
@@ -298,13 +309,10 @@ export class EditorController {
             }
 
             this.fullfen = fen.value;
-            if (this.hasPockets) {
-                updatePockets(this, this.vpocket0, this.vpocket1);
-            }
 
             if (hasCastling(this.variant, 'white')) {
                 if (this.parts.length >= 3) {
-                    const castlings = {
+                    const castlings: {[ket:string]: string} = {
                         'K': 'wOO',
                         'Q': 'wOOO',
                         'k': 'bOO',
@@ -325,10 +333,79 @@ export class EditorController {
     onChange = () => {
         // onChange() will get then set and validate FEN from chessground pieces
         this.chessground.set({lastMove: []});
-        this.pocketsPart = this.hasPockets ? pockets2str(this) : "";
-        this.parts[0] = this.chessground.getFen() + this.pocketsPart;
+        this.parts[0] = this.chessground.getFen();
         const e = document.getElementById('fen') as HTMLInputElement;
         e.value = this.parts.join(' ');
         this.setInvalid(!this.validFen());
     }
+
+    onSelect = () => {
+        let lastTime = performance.now();
+        let lastKey: cg.Key = 'a0';
+        return (key: cg.Key) => {
+            const curTime = performance.now();
+            if (lastKey === key && curTime - lastTime < 500) {
+                const piece = this.chessground.state.pieces.get(key);
+                if (piece) {
+                    const newColor = this.variant.drop ? util.opposite(piece.color) : piece.color;
+                    let newPiece: cg.Piece;
+                    if (piece.promoted) {
+                        newPiece = {
+                            color: newColor,
+                            role: unpromotedRole(this.variant, piece),
+                            promoted: false,
+                        };
+                    } else {
+                        const newRole = promotedRole(this.variant, piece);
+                        if (newRole !== piece.role) { // The piece can be promoted
+                            newPiece = {
+                                color: piece.color,
+                                role: newRole,
+                                promoted: true,
+                            };
+                        } else {
+                            newPiece = {
+                                color: newColor,
+                                role: piece.role,
+                                promoted: false,
+                            };
+                        }
+                    }
+                    const pieces = new Map([[key, newPiece]]);
+                    this.chessground.setPieces(pieces);
+                    this.onChange();
+                }
+                lastKey = 'a0';
+            } else {
+                lastKey = key;
+                lastTime = curTime;
+            }
+        }
+    }
+
+    dropOnPocket = (e: cg.MouchEvent): void => {
+        const el = e.target as HTMLElement;
+        const piece = this.chessground.state.draggable.current?.piece;
+        if (piece) {
+            const role = unpromotedRole(this.variant , piece);
+            const color = el.getAttribute('data-color') as cg.Color;
+            const pocket = this.chessground.state.pockets![color];
+            if (role in pocket!) {
+                pocket![role]!++;
+                this.onChange();
+            }
+        }
+    }
+
+    drag = (e: cg.MouchEvent): void => {
+        const el = e.target as HTMLElement;
+        const piece = this.chessground.state.draggable.current?.piece;
+        if (piece) {
+            this.chessground.state.pockets![piece.color]![piece.role]! --;
+            console.log(el);
+            console.log(piece);
+            console.log("editor");
+        }
+    }
+
 }

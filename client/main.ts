@@ -1,12 +1,4 @@
-import { init } from 'snabbdom';
-import klass from 'snabbdom/modules/class';
-import attributes from 'snabbdom/modules/attributes';
-import properties from 'snabbdom/modules/props';
-import listeners from 'snabbdom/modules/eventlisteners';
-import h from 'snabbdom/h';
-import { VNode } from 'snabbdom/vnode';
-
-const patch = init([klass, attributes, properties, listeners]);
+import { h, VNode } from 'snabbdom';
 
 import { _, i18n } from './i18n';
 import { aboutView } from './about';
@@ -19,56 +11,113 @@ import { editorView } from './editor';
 import { analysisView, embedView } from './analysis';
 import { profileView } from './profile';
 import { tournamentView } from './tournament';
+import { calendarView } from './calendar';
 import { pasteView } from './paste';
 import { statsView } from './stats';
 import { volumeSettings, soundThemeSettings } from './sound';
-import { getCookie } from './document';
+import { patch, getCookie } from './document';
 import { backgroundSettings } from './background';
 import { renderTimeago } from './datetime';
 import { zenButtonView, zenModeSettings } from './zen';
+import { CrossTable, MsgBoard } from './messages';
 
 // redirect to correct URL except Heroku preview apps
 if (window.location.href.includes('heroku') && !window.location.href.includes('-pr-')) {
     window.location.assign('https://www.pychess.org/');
 }
 
-export const model = {};
+export type PyChessModel = {
+    username: string;
+    home: string;
+    anon: string;
+    profileid: string;
+    title: string;
+    variant: string;
+    chess960: string;
+    rated: string;
+    level: number;
+    gameId: string;
+    tournamentId: string;
+    tournamentname: string;
+    inviter: string;
+    ply: number;
+    ct: CrossTable | string;
+    board: MsgBoard | string;
+    wplayer: string;
+    wtitle: string;
+    wrating: string; // string, because can contain "?" suffix for provisional rating
+    wrdiff: number;
+    wberserk: string;
+    bplayer: string;
+    btitle: string;
+    brating: string; // string, because can contain "?" suffix for provisional rating
+    brdiff: number;
+    bberserk: string;
+    fen: string;
+    base: number;
+    inc: number;
+    byo: number;
+    result: string;
+    status: number;
+    date: string;
+    tv: boolean;
+    embed: boolean;
+    seekEmpty: boolean;
+    tournamentDirector: boolean;
 
-export function view(el, model): VNode {
+    "asset-url": string;
+};
+
+function initModel(el: HTMLElement) {
     const user = getCookie("user");
-    if (user !== "") model["username"] = user;
+    let ct = el.getAttribute("data-ct") ?? "";
+    if (ct) ct = JSON.parse(ct);
+    let board = el.getAttribute("data-board") ?? "";
+    if (board) board = JSON.parse(board);
+    return {
+        home : el.getAttribute("data-home") ?? "",
+        anon : el.getAttribute("data-anon") ?? "",
+        profileid : el.getAttribute("data-profile") ?? "",
+        title : el.getAttribute("data-title") ?? "",
+        variant : el.getAttribute("data-variant") ?? "",
+        chess960 : el.getAttribute("data-chess960") ?? "",
+        rated : el.getAttribute("data-rated") ?? "",
+        level : parseInt(""+el.getAttribute("data-level")),
+        username : user !== "" ? user : el.getAttribute("data-user") ?? "",
+        gameId : el.getAttribute("data-gameid") ?? "",
+        tournamentId : el.getAttribute("data-tournamentid") ?? "",
+        tournamentname : el.getAttribute("data-tournamentname") ?? "",
+        inviter : el.getAttribute("data-inviter") ?? "",
+        ply : parseInt(""+el.getAttribute("data-ply")),
+        ct: ct,
+        board: board,
+        wplayer : el.getAttribute("data-wplayer") ?? "",
+        wtitle : el.getAttribute("data-wtitle") ?? "",
+        wrating : el.getAttribute("data-wrating") ?? "",
+        wrdiff : parseInt(""+el.getAttribute("data-wrdiff")),
+        wberserk : el.getAttribute("data-wberserk") ?? "",
+        bplayer : el.getAttribute("data-bplayer") ?? "",
+        btitle : el.getAttribute("data-btitle") ?? "",
+        brating : el.getAttribute("data-brating") ?? "",
+        brdiff : parseInt(""+el.getAttribute("data-brdiff")),
+        bberserk : el.getAttribute("data-bberserk") ?? "",
+        fen : el.getAttribute("data-fen") ?? "",
+        base : parseFloat(""+el.getAttribute("data-base")),
+        inc : parseInt(""+el.getAttribute("data-inc")),
+        byo : parseInt(""+el.getAttribute("data-byo")),
+        result : el.getAttribute("data-result") ?? "",
+        status : parseInt(""+el.getAttribute("data-status")),
+        date : el.getAttribute("data-date") ?? "",
+        tv : el.getAttribute("data-view") === 'tv',
+        embed : el.getAttribute("data-view") === 'embed',
+        seekEmpty : el.getAttribute("data-seekempty") === "True",
+        tournamentDirector: el.getAttribute("data-tournamentdirector") === "True",
 
-    model["home"] = el.getAttribute("data-home");
-    model["anon"] = el.getAttribute("data-anon");
-    model["profileid"] = el.getAttribute("data-profile");
-    model["title"] = el.getAttribute("data-title");
-    model["variant"] = el.getAttribute("data-variant");
-    model["chess960"] = el.getAttribute("data-chess960");
-    model["rated"] = el.getAttribute("data-rated");
-    model["level"] = el.getAttribute("data-level");
-    model["username"] = user !== "" ? user : el.getAttribute("data-user");
-    model["gameId"] = el.getAttribute("data-gameid");
-    model["tournamentId"] = el.getAttribute("data-tournamentid");
-    model["tournamentname"] = el.getAttribute("data-tournamentname");
-    model["inviter"] = el.getAttribute("data-inviter");
-    model["ply"] = el.getAttribute("data-ply");
-    model["wplayer"] = el.getAttribute("data-wplayer");
-    model["wtitle"] = el.getAttribute("data-wtitle");
-    model["wrating"] = el.getAttribute("data-wrating");
-    model["wrdiff"] = el.getAttribute("data-wrdiff");
-    model["bplayer"] = el.getAttribute("data-bplayer");
-    model["btitle"] = el.getAttribute("data-btitle");
-    model["brating"] = el.getAttribute("data-brating");
-    model["brdiff"] = el.getAttribute("data-brdiff");
-    model["fen"] = el.getAttribute("data-fen");
-    model["base"] = el.getAttribute("data-base");
-    model["inc"] = el.getAttribute("data-inc");
-    model["byo"] = el.getAttribute("data-byo");
-    model["result"] = el.getAttribute("data-result");
-    model["status"] = parseInt(el.getAttribute("data-status"));
-    model["date"] = el.getAttribute("data-date");
-    model["tv"] = el.getAttribute("data-view") === 'tv';
-    model["embed"] = el.getAttribute("data-view") === 'embed';
+        "asset-url": el.getAttribute("data-asset-url") ?? "",
+    };
+}
+
+export function view(el: HTMLElement, model: PyChessModel): VNode {
 
     switch (el.getAttribute("data-view")) {
     case 'about':
@@ -89,6 +138,8 @@ export function view(el, model): VNode {
         return h('div#main-wrap', editorView(model));
     case 'tournament':
         return h('div#main-wrap', [h('main.tour', tournamentView(model))]);
+    case 'calendar':
+        return h('div#calendar', calendarView());
     case 'games':
         return h('div', renderGames());
     case 'paste':
@@ -104,7 +155,7 @@ export function view(el, model): VNode {
 
 function start() {
     const placeholder = document.getElementById('placeholder');
-    if (placeholder)
+    if (placeholder && el)
         patch(placeholder, view(el, model));
 
     if (model["embed"]) return;
@@ -116,6 +167,48 @@ function start() {
     );
 
     renderTimeago();
+
+    // searchbar
+    const searchIcon = document.querySelector('.search-icon') as HTMLElement;
+    const searchBar = document.querySelector('.search-bar') as HTMLElement;
+    const searchInput = document.querySelector('#search-input') as HTMLInputElement;
+    
+    searchIcon.onclick = function(){
+        searchBar.classList.toggle('active');
+        if (searchBar.classList.contains('active'))
+            // Add some delay so that the input won't eat the icon during the transition animation
+            setTimeout(() => searchInput.focus(), 200);
+    }
+
+    function showResults(val: String) {
+        const acResult = document.getElementById("ac-result") as HTMLElement;
+        if (val.length < 4) {
+            acResult.innerHTML = '';
+            return;
+        }
+        fetch('/api/names?p=' + val)
+            .then(res => res.json())
+            .then(data => {
+                console.log(data);
+                const list = data.map((el: String) => {
+                    const title = (el[1]) ? `<player-title>${el[1]} </player-title>` : '';
+                    return `<li><a class="user-link" href="${model["home"]}/@/${el[0]}">${title}${el[0]}</a></li>`;
+                });
+                console.log(list);
+                acResult.innerHTML = '<ul class="box">' + list.join('') + '</ul>';
+            })
+            .catch((err) => {
+            console.warn('Something went wrong.', err);
+            }
+        );
+    }
+
+    searchInput.addEventListener("keyup", function(e) {
+        showResults(searchInput.value);
+        if (e.keyCode === 13) {
+            window.location.href = `${model["home"]}/@/${searchInput.value}`;
+        }
+    });
 
     // Clicking outside settings panel closes it
     const settingsPanel = patch(document.getElementById('settings-panel') as HTMLElement, settingsView()).elm as HTMLElement;
@@ -134,8 +227,9 @@ backgroundSettings.update();
 zenModeSettings.update();
 
 const el = document.getElementById('pychess-variants');
+export const model: PyChessModel = el? initModel(el) : initModel(new HTMLElement());
+
 if (el instanceof Element) {
-    model["asset-url"] = el.getAttribute("data-asset-url");
 
     // Always update sound theme before volume
     // Updating sound theme requires reloading sound files,
@@ -148,12 +242,13 @@ if (el instanceof Element) {
       .then(res => res.json())
       .then(translation => {
         i18n.loadJSON(translation, 'messages');
-        i18n.setLocale(lang);
+        i18n.setLocale(lang ?? "en");
         // console.log('Loaded translations for lang', lang);
         start();
       })
-      .catch(() => {
+      .catch((error) => {
         console.error('Could not load translations for lang', lang);
+        console.error(error);
         i18n.setLocale('');
         start();
       });

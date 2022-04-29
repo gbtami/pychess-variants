@@ -1,14 +1,17 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <meta name="description" content="Free Online Chess Variants">
+        <meta name="keywords" content="Chess variants xiangqi janggi shogi dobutsu gorogoro kyoto tori makruk sittuyin asean makpong capablanca seirawan grand shako shogun synochess orda shinobi empire chak chennis">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <meta name="theme-color" content="#dbd7d1"><title>{{ title }} • PyChess</title>
+        <meta name="theme-color" content="#dbd7d1"><title>{{ title }}</title>
         <link rel="stylesheet" href={{ static("chessground.css") }}>
         <link rel="stylesheet" href={{ static("board.css") }} crossorigin="anonymous">
         <link rel="stylesheet" href={{ static("piece/standard/empty.css") }}>
         <link rel="stylesheet" href={{ static("piece/seirawan/empty.css") }}>
         <link rel="stylesheet" href={{ static("piece/makruk/empty.css") }}>
         <link rel="stylesheet" href={{ static("piece/sittuyin/empty.css") }}>
+        <link rel="stylesheet" href={{ static("piece/asean/empty.css") }}>
         <link rel="stylesheet" href={{ static("piece/shogi/empty.css") }}>
         <link rel="stylesheet" href={{ static("piece/kyoto/empty.css") }}>
         <link rel="stylesheet" href={{ static("piece/tori/empty.css") }}>
@@ -24,32 +27,21 @@
         <link rel="stylesheet" href={{ static("piece/shinobi/empty.css") }}>
         <link rel="stylesheet" href={{ static("piece/empire/empty.css") }}>
         <link rel="stylesheet" href={{ static("piece/ordamirror/empty.css") }}>
+        <link rel="stylesheet" href={{ static("piece/chak/empty.css") }}>
+        <link rel="stylesheet" href={{ static("piece/chennis/empty.css") }}>
         <link rel="stylesheet" href={{ static("extensions.css") }}>
         <link rel="stylesheet" href={{ static("style.css") }}>
         <link rel="stylesheet" href={{ static("preview.css") }}>
         <link rel="preconnect" href="https://fonts.gstatic.com">
         <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Display:wght@100;200;300;400;500;600;700&family=Noto+Sans:wght@400;700&display=swap" rel="stylesheet">
         <link rel="stylesheet" href={{ static("site.css") }}>
         <link rel="stylesheet" href={{ static("reconnecting.css") }}>
+        <link rel="stylesheet" href={{ static("piece/mono/mono.css") }}>
         <link rel="stylesheet" href={{ static(view_css) }}>
         <link rel="icon" href={{ static("favicon/favicon.ico") }} type="image/x-icon" />
     </head>
-    <div id="preload">
-        <img src={{ static("images/board/makruk2.svg") }}/>
-        <img src={{ static("images/board/sittuyin.svg") }}/>
-        <img src={{ static("images/board/8x8brown.svg") }}/>
-        <img src={{ static("images/board/10x8brown.svg") }}/>
-        <img src={{ static("images/board/10x10brown.svg") }}/>
-        <img src={{ static("images/board/xiangqi.svg") }}/>
-        <img src={{ static("images/board/JanggiBrown.svg") }}/>
-        <img src={{ static("images/board/minixiangqi.svg") }}/>
-        <img src={{ static("images/board/shogi.svg") }}/>
-        <img src={{ static("images/board/minishogi.svg") }}/>
-        <img src={{ static("images/board/doubutsuboard.svg") }}/>
-        <img src={{ static("images/board/Grandboard.svg") }}/>
-        <img src={{ static("images/board/ShogunPlain.svg") }}/>
-    </div>
-    <body id="pychess-variants" style="--cgwrapwidth: 512px; --cgwrapheight: 512px; --zoom:80;"
+    <body id="pychess-variants" style="--zoom:80;"
                                 data-view="{{ view }}"
                                 data-asset-url="{{ asseturl }}"
                                 data-lang="{{ lang }}"
@@ -62,6 +54,8 @@
                                 data-tournamentname="{{ tournamentname }}"
                                 data-inviter="{{ inviter }}"
                                 data-ply="{{ ply }}"
+                                data-ct="{{ ct }}"
+                                data-board="{{ board }}"
                                 data-date="{{ date }}"
                                 data-result="{{ result }}"
                                 data-status="{{ status }}"
@@ -75,14 +69,18 @@
                                 data-wtitle="{{ wtitle }}"
                                 data-wrating="{{ wrating }}"
                                 data-wrdiff="{{ wrdiff }}"
+                                data-wberserk="{{ wberserk }}"
                                 data-bplayer="{{ bplayer }}"
                                 data-btitle="{{ btitle }}"
                                 data-brating="{{ brating }}"
                                 data-brdiff="{{ brdiff }}"
+                                data-bberserk="{{ bberserk }}"
                                 data-fen="{{ fen }}"
                                 data-base="{{ base }}"
                                 data-inc="{{ inc }}"
-                                data-byo="{{ byo }}">
+                                data-byo="{{ byo }}"
+                                data-seekempty="{{ seekempty }}"
+                                data-tournamentdirector="{{ tournamentdirector }}">
         {% block header %}{% endblock %}
         {% block content %}{% endblock %}
     </body>

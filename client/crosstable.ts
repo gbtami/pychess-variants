@@ -1,8 +1,10 @@
-import h from 'snabbdom/h';
+import { h, VNode } from 'snabbdom';
 
-export function crosstableView (ctable, gameId) {
+import { CrossTable } from "./messages";
+
+export function crosstableView (ctable: CrossTable, gameId: string) {
     const s1 = ctable.s1, s2 = ctable.s2, games = ctable.r;
-    let rows;
+    let rows : VNode[];
     if (games.length < 20) {
         rows = [h('fill')];
     } else {
@@ -49,5 +51,5 @@ export function crosstableView (ctable, gameId) {
 
     rows.push(h('div.ct-score', [lt1, lt2]));
 
-    return h('div#ctable-container', [ h('div.crosstable', rows) ]);
+    return h('div.ctable-container', {attrs: {id: 'panel-3', role: 'tabpanel', tabindex: '0', 'aria-labelledby': 'tab-3'}}, [ h('div.crosstable', rows) ]);
 }

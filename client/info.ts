@@ -1,15 +1,7 @@
-import { init } from 'snabbdom';
-import klass from 'snabbdom/modules/class';
-import attributes from 'snabbdom/modules/attributes';
-import properties from 'snabbdom/modules/props';
-import listeners from 'snabbdom/modules/eventlisteners';
-
-import { h } from 'snabbdom/h';
-import { VNode } from 'snabbdom/vnode';
+import { h, VNode } from 'snabbdom';
 
 import { getCounting, getJanggiPoints } from './chess';
-
-const patch = init([klass, attributes, properties, listeners]);
+import { patch } from './document';
 
 // Counting for makruk, cambodian, sittuyin
 export function updateCount(fen: string, whiteContainer: VNode | Element, blackContainer: VNode | Element) {

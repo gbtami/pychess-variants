@@ -1,9 +1,8 @@
-import { VNode } from "snabbdom/vnode";
-import { h } from 'snabbdom/h';
+import { h, VNode } from 'snabbdom';
 
 import { ISettings } from "./settings";
 
-export function radioList(settings: ISettings<string>, name: string, options: { [key: string]: string }, onchange: (evt, key: string) => void): VNode[] {
+export function radioList(settings: ISettings<string>, name: string, options: { [key: string]: string }, onchange: (evt: Event, key: string) => void): VNode[] {
     const result: VNode[] = [];
     Object.keys(options).forEach(key => {
         const id = name + "-" + key;

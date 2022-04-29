@@ -1,72 +1,59 @@
-# ![Shogun](https://github.com/gbtami/pychess-variants/blob/master/static/icons/shogun.svg) Shogun Chess
+# ![Shogun](https://github.com/gbtami/pychess-variants/blob/master/static/icons/shogun.svg) 幕府棋
 
 ![Shogun](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/ShogunPromotions3.png)
 
-Shogun Chess is a chess variant designed in 2019-2020 by Couch Tomato. While the game itself is a blend of western chess and shogi rules, the original idea for the game was a way to introduce the hybrid pieces (commonly known as the archbishop and chancellor) in a way different than other variants have done. For example, keeping an 8x8 instead of enlarging the board so as to not diminish the value of the minor pieces, or introduce them in a board that is not as cluttered as in S-chess. The idea evolved to introduce these pieces through the means of promotion from the minor pieces and the rook at an earlier rank than the 8th rank. Later, drops were also introduced into the rules as a means to increase the offensive options to offset the defensive nature introduced by the need to protect against the threat of promotion. Unique pawn and knight promotions as well as even a queen demotion were added to complete the theme and symmetry.
+幕府棋是一种国际象棋变体，在2019-2020被Couch Tomato推出。虽然这种变体是融西洋棋于将其的规则，原意
+是用跟通常的方式引进仙灵棋子（大主教和首相）。比如说，保持8x8棋盘而非让它扩大，这样不会减损小棋子的价值。另外我们希望避免S-chess的凌乱棋盘。思想演变到让小棋子在对方底线之前升变为仙灵棋。后来“打入“也加入规则为了增加攻击性的选择而抵消防御性质由于升变的威胁。兵棋和马的独特升变以及王后的降至也加入规则为了完成主题和对称性。
+名字本来暂定称为”General's Chess“，根据那时兵的升变，现在马的升变。然而，因为打入和升变地区的规则以日本将其为基础，日本語的”将军“一词听起来更合适。
 
-The name was originally tentatively "General's Chess," based on what was then the name of the pawn's promotion, now currently the name of the knight's promotion. However, with the drops and promotion zones based off shogi, the Japanese word for "general," shogun sounded more appropriate. The sho in shogun being the same as the one in shogi pays tribute to that as well.
+## 规则
 
-## General Rules
+1. 布置跟国际象棋一样
 
-1. Setup is exactly the same as chess.
+2. 新棋子如上图中的定义，它们的移动是以下纤细的描述。值得注意的是升变的棋子颜色不一样。此外，王后开始的形式是升变的，尽管它有新的未升变形式（士）。为了术语的缘故，车会称为小棋子，后，首相，大主教和将军(不包括队长)被认为大棋子。
 
-2. New pieces are as defined in the image above, and their moves are described in detail below. Of note, promoted sides are colored differently. Also, the queen *starts* as a promoted piece despite having a new unpromoted form (the Duchess). See details about drops below. For the sake of terminology, a rook will now be considered a "minor piece," while the queen, mortar, archbishop, and general (but NOT the captain) are considered "major pieces." 
+3. 升变：位于距离棋手最远的三行称为敌阵。当一枚可升级的棋子移进，移出，或者在敌阵中移动时，棋手可以选择把该棋子翻转升级或保持原装。每个起步者（或者打入者）棋子（除了王和王后外）可升级。然而，你只能拥有每种棋子一枚升变形式的。例如，如果白方拥有一枚大主教，他剩余的象不可升变直到现有的大主教被吃掉。
 
-3. The three farthest ranks are the promotion zone. Every starting (or dropped) piece except the king and queen may promote by moving into the promotion zone **or moving from within the promotion zone**. 
+4. 打入：犹如日本将其和crazyhouse一样，棋手可以花一手将己方吃掉的棋子放回棋盘成为己方棋子，当一枚已升级的棋子被吃时，它的升级被取消（这样王后可变回士）。打入被限制到先五行，正确的说不可打入到对方的敌阵。步兵可打入第一行！
 
-4. However, only one of *each* **major** piece (queen, mortar, archbishop, or general) can be out on each side at a time. For example, if a player has an archbishop in play, then a bishop cannot promote into an archbishop until the current one is captured.
+其他规则说明:
+* 车被打入之后不可做王车易位。
+* 兵被打入在第一行还可从第二行前进两格
+* 吃过路兵可行，不过不可直接升变。
 
-5. As in crazyhouse and shogi, captured pieces may be dropped back into the board as your own piece. Pieces can be dropped anywhere within the first 5 ranks (in other words, anywhere but the promotion zone). Note that unlike crazyhouse, **pawns can be dropped on the first rank**.
+## 棋子
 
-6. When promoted pieces are captured, they revert to their unpromoted side. This is the only way that a queen becomes a duchess.
-
-Additional minor rules for clarification:
-* Dropped rooks cannot castle, as in crazyhouse.
-* Pawns dropped on the first rank can still double step when reaching the second rank.
-* Pawns cannot promote if capturing by en passant. 
-
-(Note that images were designed for computer play. Over the board pieces are not available but would require shogi-like designs of two-sided directional pieces to be viable.)
-
-*Timer* - Shogun chess uses a byo-yomi timer. Once the main clock expires, a player enters byo-yomi. If it is set at 30 seconds, then that player will only have 30 seconds to make his move from then for each of his/her moves or else lose the game on time. The reason for using byo-yomi instead of the Fischer increment is that the endgame takes longer than the beginning, so byo-yomi guarantees time for each move.
-
-## Pieces
-
-### Archbishop (A)
+### 大主教 | 副官 | 公主 Archbishop (A)
 
 ![Archbishop](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/ArchbishopShogun.png)
 
-The archbishop is a hybrid piece seen in multiple other chess variants. In this game, it promotes from bishop and gains the move of a knight. Because of its unique moves, it is the only piece that can checkmate on its own.
+国际象棋变体中的一种常见的仙灵棋子。再此游戏中，它升级从象而合并马的移动。因此，只有它能单人匹马把王将死。
 
-### Mortar (M)
+### 首相 | Mortar (M)
 
 ![Mortar](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Mortar.png)
 
-The mortar is a hybrid piece seen in multiple other chess variants, often with other names such as the chancellor or marshall. In this game, it promotes from the rook and gains the move of a knight. 
+首相也是常见。再次游戏中，它升级从车而合并马的移动。
 
-### General (G)
+### 将军 | General | Centaur (G)
 
 ![General](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/General.png)
 
-The general is a hybrid piece, often known as a centaur. In this game, it promotes from the knight and gains the moves of a king.
+将军的移动如马或王的走法。
 
-### Captain (C)
+### 队长 | Captain (C)
 
 ![Captain](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Captain.png)
 
-The captain is the only promotion of the pawn and moves exactly like a king. As a non-royal piece, capturing a captain does not win the game. Also, unlike the rest of promoted pieces, there can be multiple captains, as it is not a major piece.
+队长升级从兵而走法跟王一样。与众不同，许多队长可能同时存在，因为它的身份是小棋子。
 
-### Duchess (F)
+### 士 | Duchess | Ferz (F) 
 
 ![Duchess](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Duchess.png)
 
-The duchess is the only demoted form of the queen, and only comes into play after capturing a queen, where it then becomes a duchess in hand. The duchess moves only one space diagonally (same movement as what's often called the "ferz," hence the abbreviation used). As a reminder, a duchess cannot promote to a queen when that player already has a queen on the board (polygamy is illegal in Shogun chess).
+士升变到王后，它只能在后被吃掉之后能存在与棋手手中的士。士的移动为斜向一格。别忘记，士不能升为后，如果棋手已经拥有一枚后（在幕府棋中，一夫多妻是非法的!）。
 
-## Strategy
+## 战略
 
-The game is still young, so strategy is still being developed! 
-
-With the 6th rank promotions, it is important to protect your own 3rd rank. This is something that a beginner can easily overlook.
-
-General strategy-wise, many players will be tempted to play this as crazyhouse. However, the game diverges quite quickly from crazyhouse due to the drop zone restriction. While players in crazyhouse will often take advantage of weaknesses in the opponents' camps to deliver devastating drops, the gameplay in shogun chess is more defensive. In shogun chess, your army needs to maneuver itself in a way to breach the opponents' camp; even the slightest breach can result in a piece promotion. Therefore, strategy relies more on chess tactics than crazyhouse tactics for this purpose, as well as for the purposes of delivering checkmate.
-
-The ability to drop pawns on the first rank (unlike in crazyhouse) allows a player to build a much stronger castle. To crack this, focus on gaining material and promoted pieces, then push at the weak point.
+游戏还年轻，没有太多的战略！
+重要是防御你的敌阵，而不让对方免费升变。战略跟Crazyhouse不一样，因为打入的严厉限制。无论怎样，王的安全有关键的重要性，而棋子价值相对位置被减少。位置包括多少方格双方能控制，特别重要是控制王周围的方格。因为兵能打入到第一行，双方可以建造一个非常坚固的城堡，不过这样不会为了对方造成问题。玩家们应该不断尝试激活他们的棋子而同时限制对方，希望如此钻孔子。

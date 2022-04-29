@@ -1,4 +1,4 @@
-import { getJanggiPoints, variants, VARIANTS, getPockets, isHandicap, validFen, cg2uci, uci2cg } from '../client/chess';
+import { getJanggiPoints, variants, VARIANTS, getPockets, isHandicap, validFen, cg2uci, uci2cg, UCIMove } from '../client/chess';
 import { expect } from 'chai';
 
 describe('getPockets test', 
@@ -38,7 +38,7 @@ describe('validFen test',
 describe('uci2cg test', 
     () => { 
         it('should chnage all occurences of "10" to ":" in UCI moves', () => { 
-            const result = uci2cg('a10j10');
+            const result = uci2cg('a10j10' as UCIMove);
             expect(result).to.be.equal('a:j:'); 
     }); 
 });

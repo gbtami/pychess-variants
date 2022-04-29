@@ -1,14 +1,4 @@
-import { init } from 'snabbdom';
-import { VNode } from 'snabbdom/vnode';
-import klass from 'snabbdom/modules/class';
-import attributes from 'snabbdom/modules/attributes';
-import properties from 'snabbdom/modules/props';
-import listeners from 'snabbdom/modules/eventlisteners';
-import style from 'snabbdom/modules/style';
-
-const patch = init([klass, attributes, properties, listeners, style]);
-
-import h from 'snabbdom/h';
+import { h, VNode } from 'snabbdom';
 
 import { _ } from './i18n';
 import { VARIANTS, BOARD_FAMILIES, PIECE_FAMILIES } from './chess';
@@ -16,13 +6,17 @@ import { changeBoardCSS, changePieceCSS, getPieceImageUrl } from './document';
 import AnalysisController from './analysisCtrl';
 import RoundController from './roundCtrl';
 import { EditorController } from './editorCtrl';
-import { analysisChart } from './chart';
+import { patch } from './document';
+import { iniPieces } from './pieces';
+import { analysisChart } from './analysisChart';
+import { movetimeChart } from './movetimeChart';
 import { updateCount, updatePoint } from './info';
-import { pocketView } from './pocket';
+import { updateMaterial } from './material';
 import { player } from './player';
 import { NumberSettings, BooleanSettings } from './settings';
 import { slider, checkbox } from './view';
 import { model } from './main';
+import * as cg from 'chessgroundx/types';
 
 
 class BoardSettings {
@@ -33,9 +27,10 @@ class BoardSettings {
         this.settings = {};
         this.settings["animation"] = new AnimationSettings(this);
         this.settings["showDests"] = new ShowDestsSettings(this);
-        this.settings["autoQueen"] = new AutoQueenSettings(this);
+        this.settings["autoPromote"] = new AutoPromoteSettings(this);
         this.settings["arrow"] = new ArrowSettings(this);
         this.settings["blindfold"] = new BlindfoldSettings(this);
+        this.settings["materialDifference"] = new MaterialDifferenceSettings(this);
     }
 
     getSettings(settingsType: string, family: string) {
@@ -63,16 +58,16 @@ class BoardSettings {
         Object.keys(PIECE_FAMILIES).forEach(family => this.updatePieceStyle(family));
     }
 
-    updateBoardStyle(family: string) {
-        const idx = this.getSettings("BoardStyle", family).value as number;
+    updateBoardStyle(family: keyof typeof BOARD_FAMILIES) {
+        const idx = this.getSettings("BoardStyle", family as string).value as number;
         const board = BOARD_FAMILIES[family].boardCSS[idx];
-        changeBoardCSS(model["asset-url"], family, board);
+        changeBoardCSS(model["asset-url"] , family as string, board);
     }
 
-    updatePieceStyle(family: string) {
-        const idx = this.getSettings("PieceStyle", family).value as number;
+    updatePieceStyle(family: keyof typeof PIECE_FAMILIES) {
+        const idx = this.getSettings("PieceStyle", family as string).value as number;
         let css = PIECE_FAMILIES[family].pieceCSS[idx];
-        changePieceCSS(model["asset-url"], family, css);
+        changePieceCSS(model["asset-url"], family as string, css);
         this.updateDropSuggestion();
     }
 
@@ -84,36 +79,30 @@ class BoardSettings {
             // if there is any
             if (el) {
                 const classNames = el.getAttribute('className')!.split(' ');
-                const role = classNames[0];
-                const color = classNames[1];
+                const variant = this.ctrl.variant.name
+                const role = classNames[0] as cg.Role;
+                const color = classNames[1] as cg.Color;
                 const orientation = this.ctrl.flip ? this.ctrl.oppcolor : this.ctrl.mycolor;
                 const side = color === orientation ? "ally" : "enemy";
-                chessground.set({ drawable: { pieces: { baseUrl: getPieceImageUrl(role, color, side)! } } });
+                chessground.set({ drawable: { pieces: { baseUrl: getPieceImageUrl(variant, role, color, side)! } } });
                 chessground.redrawAll();
             }
         }
     }
 
-    updateZoom(family: string) {
+    updateZoom(family: keyof typeof BOARD_FAMILIES) {
         const variant = this.ctrl?.variant;
         if (variant && variant.board === family) {
-            const zoomSettings = this.getSettings("Zoom", family) as ZoomSettings;
+            const zoomSettings = this.getSettings("Zoom", family as string) as ZoomSettings;
             const zoom = zoomSettings.value;
             const el = document.querySelector('.cg-wrap:not(.pocket)') as HTMLElement;
             if (el) {
                 document.body.setAttribute('style', '--zoom:' + zoom);
                 document.body.dispatchEvent(new Event('chessground.resize'));
 
-                const baseWidth = el.getBoundingClientRect()['width'];
-                const baseHeight = el.getBoundingClientRect()['height'];
-
-                const pxw = `${baseWidth}px`;
-                const pxh = `${baseHeight}px`;
-
-                document.body.setAttribute('style', '--cgwrapwidth:' + pxw + '; --cgwrapheight:' + pxh + '; --zoom:' + zoom);
-
                 if (this.ctrl instanceof AnalysisController && !this.ctrl.model["embed"]) {
                     analysisChart(this.ctrl);
+                    movetimeChart(this.ctrl);
                 }
             }
         }
@@ -136,22 +125,24 @@ class BoardSettings {
 
         settingsList.push(this.settings["showDests"].view());
 
-        if (variant.autoQueenable)
-            settingsList.push(this.settings["autoQueen"].view());
+        if (variant.autoPromoteable)
+            settingsList.push(this.settings["autoPromote"].view());
 
         settingsList.push(this.settings["arrow"].view());
 
         settingsList.push(this.settings["blindfold"].view());
 
+        settingsList.push(this.settings["materialDifference"].view());
+
         if (variantName === this.ctrl?.variant.name)
-            settingsList.push(this.getSettings("Zoom", boardFamily).view());
+            settingsList.push(this.getSettings("Zoom", boardFamily as string).view());
 
         settingsList.push(h('div#style-settings', [
-            this.getSettings("BoardStyle", boardFamily).view(),
-            this.getSettings("PieceStyle", pieceFamily).view(),
+            this.getSettings("BoardStyle", boardFamily as string).view(),
+            this.getSettings("PieceStyle", pieceFamily as string).view(),
             ])
         );
-
+        
         settingsList.push();
 
         return h('div#board-settings', settingsList);
@@ -161,17 +152,16 @@ class BoardSettings {
     // which is the common class between EditorController, RoundController, and AnalysisController
     toggleOrientation() {
         if (this.ctrl) {
+            // TODO: handle berserk
+            if (this.ctrl instanceof RoundController && this.ctrl.tournamentGame && this.ctrl.ply < 2 && !this.ctrl.spectator) return;
+
             this.ctrl.flip = !this.ctrl.flip;
             this.ctrl.chessground.toggleOrientation();
             this.updateDropSuggestion();
 
             // console.log("FLIP");
-            if (this.ctrl.hasPockets) {
-                const tmp_pocket = this.ctrl.pockets[0];
-                this.ctrl.pockets[0] = this.ctrl.pockets[1];
-                this.ctrl.pockets[1] = tmp_pocket;
-                this.ctrl.vpocket0 = patch(this.ctrl.vpocket0, pocketView(this.ctrl, this.ctrl.flip ? this.ctrl.mycolor : this.ctrl.oppcolor, "top"));
-                this.ctrl.vpocket1 = patch(this.ctrl.vpocket1, pocketView(this.ctrl, this.ctrl.flip ? this.ctrl.oppcolor : this.ctrl.mycolor, "bottom"));
+            if (this.ctrl instanceof RoundController && this.ctrl.variant.materialDifference) {
+                updateMaterial(this.ctrl);
             }
 
             // TODO: moretime button
@@ -194,6 +184,10 @@ class BoardSettings {
 
                 if (this.ctrl.variant.materialPoint)
                     [this.ctrl.vmiscInfoW, this.ctrl.vmiscInfoB] = updatePoint(this.ctrl.fullfen, this.ctrl.vmiscInfoB, this.ctrl.vmiscInfoW);
+            }
+
+            if (this.ctrl instanceof EditorController) {
+                iniPieces(this.ctrl, this.ctrl.vpieces0, this.ctrl.vpieces1);
             }
         }
     }
@@ -241,7 +235,10 @@ class BoardStyleSettings extends NumberSettings {
                 props: { type: "radio", name: "board", value: i },
                 attrs: { checked: vboard === i },
             }));
-            boards.push(h('label.board.board' + i + '.' + this.boardFamily, { attrs: { for: "board" + i } }, ""));
+            boards.push(h('label.board.board' + i + '.' + this.boardFamily, {
+                attrs: { for: "board" + i },
+                style: { backgroundImage: `url('/static/images/board/${boardCSS[i]}')` },
+            }, ""));
         }
         return h('settings-board', boards);
     }
@@ -314,21 +311,21 @@ class ShowDestsSettings extends BooleanSettings {
     }
 }
 
-class AutoQueenSettings extends BooleanSettings {
+class AutoPromoteSettings extends BooleanSettings {
     readonly boardSettings: BoardSettings;
 
     constructor(boardSettings: BoardSettings) {
-        super('autoqueen', false);
+        super('autoPromote', false);
         this.boardSettings = boardSettings;
     }
 
     update(): void {
         if (this.boardSettings.ctrl instanceof RoundController)
-            this.boardSettings.ctrl.autoqueen = this.value;
+            this.boardSettings.ctrl.autoPromote = this.value;
     }
 
     view(): VNode {
-        return h('div', checkbox(this, 'autoqueen', _("Promote to Queen automatically")));
+        return h('div', checkbox(this, 'autoPromote', _("Promote to the top choice automatically")));
     }
 }
 
@@ -378,4 +375,23 @@ class BlindfoldSettings extends BooleanSettings {
     }
 }
 
+class MaterialDifferenceSettings extends BooleanSettings {
+    readonly boardSettings: BoardSettings;
+
+    constructor(boardSettings: BoardSettings) {
+        super('materialDifference', false);
+        this.boardSettings = boardSettings;
+    }
+
+    update(): void {
+        if (this.boardSettings.ctrl instanceof RoundController) {
+            this.boardSettings.ctrl.materialDifference = this.value;
+            updateMaterial(this.boardSettings.ctrl);
+        }
+    }
+
+    view(): VNode {
+        return h('div', checkbox(this, 'captured', _("Show material difference")));
+    }
+}
 export const boardSettings = new BoardSettings();

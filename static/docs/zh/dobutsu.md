@@ -1,28 +1,33 @@
 
-# ![Dobutsu Shogi](https://github.com/gbtami/pychess-variants/blob/master/static/icons/Dobutsu.svg) Dobutsu Shogi
+# ![Dobutsu Shogi](https://github.com/gbtami/pychess-variants/blob/master/static/icons/Dobutsu.svg) 動物棋
 
 ![Dobutsu](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Dobutsu.png)
 
-Dobutsu Shogi  (どうぶつしょうぎ, "animal chess") is a small shogi variant for young children. It was invented by female professional shogi player Madoka Kitao (北尾 まどか, Kitao Madoka), partially to attract young girls to the game. It is played on a 3×4 board and generally follows the rules of standard shogi, with a few exceptions described below.
+動物棋 (どうぶつしょうぎ) 是很可愛的棋種，用來教小朋友小棋。由女將棋職業棋士北尾圓(北尾 まどか, Kitao Madoka)發明,主要規則與將棋相同。棋子的走法就印在棋子上(那些小點點!)
 
-## Rules
+## 規則
 
-The rules are simple, you must either capture the enemy Lion (King) or move your own Lion into the final rank. All piece moves are indicated on the pieces themselves (see the board above). There are no ranging pieces, so the Giraffe and Elephant only move one space each, despite being based on the Rook and Bishop.
+很簡單，勝利條件為殺死對方的獅子或讓自己的獅子進到對方底線，讓對方無子可動也視為贏棋。
 
-Like Shogi, pieces that are captured are sent to your own hand. In lieu of moving a piece, you can also drop these captured back on to the board as your own.
+與將棋一樣，你可以俘虜吃掉的棋子，並可以花一手打入場上。
 
-Unlike Shogi, only one piece can promote: The Chick (Pawn) promotes to a Hen (Tokin) when it reaches the final rank. 
+只有小雞可以升變，升變後為母雞。
 
+不像將棋，**長將與重複動子三次判和!**
+
+
+### 母雞
 ![Hen](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Hen.png)
 
-The Hen can move one space orthogonally in any direction like the Giraffe. Additionally, it can move diagonally forward by one space.
+母雞的走法等同金將，除上下左右行走一格外，還可以朝前斜走一格，如同中文「甲」字。
 
-Also unlike Shogi, there are no Chick/Pawn restrictions. You may drop two Chicks in the same file. You may drop a Chick in the final rank (this is ill-advised though, as this Chick is then unable to move). And you may checkmate with a dropped Chick.
+不像將棋，沒有二步一筋的規則(在這遊戲裡應該叫二雞一筋)，你可以在同一行打入兩隻小雞，你也可以把小雞打在對方底線(當然那隻小雞就不能動了，只能當路障)。你也可以直接用小雞將死對方。
 
-If the players play the same position three turns in a row, the game is a draw. Unlike in Shogi, perpetual check is also a draw.
 
-## Strategy
 
-Dobutsu Shogi is a solved game (in favor of the second player). However, to learn the moves for a perfect game is beyond the skill of most humans.
-[https://variantslove.netlify.app/](https://variantslove.netlify.app/) by Tasshaq is recommended for everyone.
-Bottom line: Enjoy the game. :)
+## 策略
+
+動物將棋是已經有解的遊戲(後手必勝)，然而，大多數人類是走不出來的。
+
+延伸閱讀: visualdennis 的 [https://variantslove.netlify.app/](https://variantslove.netlify.app/)推薦給大家。
+Bottom line: 享受這療癒的遊戲吧 :)

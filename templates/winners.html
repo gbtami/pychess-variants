@@ -3,17 +3,17 @@
 <div id="main-wrap">
 <main class="page-menu winners">
 <aside class="flat-bg">
-    <h1>Tournament winners</h1>
+    <h1>{% trans %}Tournament winners{% endtrans %}</h1>
     <div class="winners">
         {% for key in winners %}
         <div class="card">
             <div class="info0 icon" data-icon="{{ icons[key] }}">
-                <div class="variant">{{ variant_display_name(key) }}</div>
+                <a href="{{ home }}/tournaments/winners/{{ key }}"><div class="variant">{{ variant_display_name(key) }}</div></a>
             </div>
             {% for (user, date, tid) in winners[key] %}
                 <div class="player-data {{ loop.cycle('odd', 'even') }}">
                     <player>
-                        <a class="user-link" href="{{ home }}/@/{{ user }}"><player-title>{{ users[user].title }}</player-title> {{ user }}</a>
+                        <a class="user-link player" href="{{ home }}/@/{{ user }}"><player-title>{{ users[user].title }}</player-title> {{ user }}</a>
                         <a class="user-link tourney-date" href="{{ home }}/tournament/{{ tid }}">{{ date }}</a>
                     </player>
                 </div>

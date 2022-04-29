@@ -4,11 +4,12 @@
 <main class="tournaments box box-pad">
     <div class="box-top">
         <h1>{% trans %}Tournaments{% endtrans %}</h1>
-        {% if admin %}
         <div class="actions">
+            <a class="button calendar" href="{{ home }}/calendar">{% trans %}Tournament calendar{% endtrans %}</a>
+            {% if admin %}
             <a class="button icon icon-plus-square text" href="{{ home }}/tournaments/new">{% trans %}CREATE A NEW TOURNAMENT{% endtrans %}</a>
+            {% endif %}
         </div>
-        {% endif %}
     </div>
     {% for table in tables %}
     <table class="slist">
@@ -40,14 +41,14 @@
                     </a>
                 </td>
                 <td class="infos">
-                    <span class="system">{{ pairing_system_name(tourney.system) }} • {{ "Rated" if tourney.rated else "Casual" }}</span>
+                    <span class="system">{{ pairing_system_name(tourney.system) }} • {% if tourney.rated %}{% trans %}Rated{% endtrans %}{% else %}{% trans %}Casual{% endtrans %}{% endif %}</span>
                     <span>{{ time_control_str(tourney.base, tourney.inc, tourney.byoyomi_period) }} • {{ variant_display_name(tourney.variant + ('960' if tourney.chess960 else '')) }}</span>
                 </td>
                 <td>
                     <span class="starts">
                         <info-date timestamp="{{ tourney.starts_at }}"></info-date>
                     </span>
-                    <span>{{ tourney.nb_players }} players</span>
+                    <span>{% trans count=tourney.nb_players %}{{ count }} player{% pluralize %}{{ count }} players{% endtrans %}</span>
                 </td>
             </tr>
             {% endfor %}

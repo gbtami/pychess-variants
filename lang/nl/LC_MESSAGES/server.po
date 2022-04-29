@@ -1,0 +1,148 @@
+# Translations template for PROJECT.
+# Copyright (C) 2022 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
+# 
+# Translators:
+# Hema Worst <kevin@iisworks.com>, 2021
+# gbtami <gbtami@gmail.com>, 2022
+# 
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2022-01-11 22:23+0100\n"
+"PO-Revision-Date: 2020-05-04 12:19+0000\n"
+"Last-Translator: gbtami <gbtami@gmail.com>, 2022\n"
+"Language-Team: Dutch (https://www.transifex.com/gbtami/teams/14790/nl/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.8.0\n"
+"Language: nl\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: ../templates/closed.html:8
+msgid "This account is closed."
+msgstr "Dit account is gesloten."
+
+#: ../templates/patron.html:8
+msgid ""
+"As you know, pychess-variants is a free server and it will remain free forever. However, maintaining and improving the server costs time and money.\n"
+"If you like our work and find our server useful, please donate through patreon or paypal."
+msgstr ""
+
+#: ../templates/players.html:9
+msgid "Online"
+msgstr "Online"
+
+#: ../templates/players.html:28
+msgid "Anonymous"
+msgstr ""
+
+#: ../templates/players.html:35
+msgid "All players"
+msgstr "Alle spelers"
+
+#: ../templates/players.html:36 ../templates/winners.html:6
+msgid "Tournament winners"
+msgstr ""
+
+#: ../templates/players.html:37 ../templates/shields.html:6
+msgid "Tournament shields"
+msgstr ""
+
+#: ../templates/profile.html:14
+#, python-format
+msgid "%(count)s game"
+msgid_plural "%(count)s games"
+msgstr[0] "%(count)s partijen"
+msgstr[1] "%(count)s partijen"
+
+#: ../templates/profile.html:42
+msgid "Watch games"
+msgstr ""
+
+#: ../templates/profile.html:44
+msgid "Challenge to a game"
+msgstr ""
+
+#: ../templates/profile.html:47
+msgid "Import game"
+msgstr ""
+
+#: ../templates/profile.html:50
+msgid "Export games"
+msgstr ""
+
+#: ../templates/profile.html:53
+msgid "Lichess profile"
+msgstr ""
+
+#: ../templates/template.html:17
+msgid "Tv"
+msgstr "Tv"
+
+#: ../templates/template.html:18
+msgid "Current games"
+msgstr "Lopende partijen"
+
+#: ../templates/template.html:19 ../templates/tournaments.html:6
+msgid "Tournaments"
+msgstr "Toernooien"
+
+#: ../templates/template.html:20
+msgid "Players"
+msgstr "Spelers"
+
+#: ../templates/template.html:21
+msgid "Editor"
+msgstr "Editor"
+
+#: ../templates/template.html:22
+msgid "Analysis"
+msgstr "Analyse"
+
+#: ../templates/template.html:23
+msgid "Variants"
+msgstr ""
+
+#: ../templates/template.html:29
+msgid "Login with Lichess"
+msgstr "Login met Lichess"
+
+#: ../templates/template.html:29
+msgid "Log in"
+msgstr "Log in"
+
+#: ../templates/tournaments.html:9
+msgid "CREATE A NEW TOURNAMENT"
+msgstr "MAAK EEN NIEUW TOERNOOI"
+
+#: ../templates/tournaments.html:18
+msgid "Now playing"
+msgstr "Nu aan het spelen"
+
+#: ../templates/tournaments.html:20
+msgid "Starting soon"
+msgstr "Begint binnenkort"
+
+#: ../templates/tournaments.html:22
+msgid "Finished"
+msgstr "Afgelopen"
+
+#: ../templates/tournaments.html:43
+msgid "Rated"
+msgstr "Met rating"
+
+#: ../templates/tournaments.html:43
+msgid "Casual"
+msgstr "Vrijblijvend"
+
+#: ../templates/tournaments.html:50
+#, python-format
+msgid "%(count)s player"
+msgid_plural "%(count)s players"
+msgstr[0] "%(count)s speler"
+msgstr[1] "%(count)s spelers"

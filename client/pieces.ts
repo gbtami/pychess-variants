@@ -1,18 +1,11 @@
-import { h, init } from "snabbdom";
-import { VNode } from 'snabbdom/vnode';
-import klass from 'snabbdom/modules/class';
-import attributes from 'snabbdom/modules/attributes';
-import properties from 'snabbdom/modules/props';
-import style from 'snabbdom/modules/style';
-import listeners from 'snabbdom/modules/eventlisteners';
+import { h, VNode } from "snabbdom";
 
 import * as cg from 'chessgroundx/types';
+import * as util from 'chessgroundx/util';
 import { dragNewPiece } from 'chessgroundx/drag';
 
-import { EditorController}  from './editorCtrl';
-import { letter2role } from './chess';
-
-const patch = init([klass, attributes, properties, style, listeners]);
+import { EditorController }  from './editorCtrl';
+import { patch } from './document';
 
 type Position = 'top' | 'bottom';
 
@@ -21,11 +14,31 @@ const eventNames = ['mousedown', 'touchstart'];
 export function piecesView(ctrl: EditorController, color: cg.Color, position: Position) {
     const width = ctrl.variant.boardWidth;
     const height = ctrl.variant.boardHeight;
-    const roles = ctrl.variant.pieceRoles(color);
+    const roles: (cg.PieceLetter | '')[] = [...ctrl.variant.pieceRoles(color)];
+    if (['shogi', 'kyoto'].includes(ctrl.variant.promotion)) {
+        const len = roles.length;
+        const width = ctrl.variant.boardWidth;
+        const extraRoles = roles.filter(p => ctrl.variant.promoteablePieces.includes(p as cg.PieceLetter)).map(p => '+' + p as cg.PieceLetter);
+        if (len <= width && len + extraRoles.length > width) {
+            for (let i = len; i < width; i++)
+                roles.push('');
+            let j = 0;
+            for (let i = 0; i < len; i++) {
+                if (roles[i][0] === extraRoles[j][1]) {
+                    roles.push('+' + roles[i] as cg.PieceLetter);
+                    j++;
+                } else {
+                    roles.push('');
+                }
+            }
+        } else {
+            roles.push(...extraRoles);
+        }
+    }
     return h('div.pocket.' + position + '.editor.usable', {
         style: {
             '--editorLength': String(roles.length),
-            '--piecerows': String((roles.length > width) ? 2 : 1),
+            '--piecerows': String(Math.ceil(roles.length / width)),
             '--files': String(width),
             '--ranks': String(height),
         },
@@ -39,11 +52,12 @@ export function piecesView(ctrl: EditorController, color: cg.Color, position: Po
             }
         }
     }, roles.map(r => {
+        if (r === '') return h('piece.no-piece', { attrs: { 'data-nb': -1 } });
         const promoted = r.length > 1;
         if (r.endsWith('~')) {
-            r = r.slice(0, -1);
+            r = r.slice(0, -1) as cg.PieceLetter;
         }
-        const role = letter2role(r);
+        const role = util.roleOf(r);
         const orientation = ctrl.flip ? ctrl.oppcolor : ctrl.mycolor;
         const side = color === orientation ? "ally" : "enemy";
         return h(`piece.${role}.${promoted ? "promoted." : ""}${color}.${side}`, {
@@ -64,9 +78,11 @@ export function drag(ctrl: EditorController, e: cg.MouchEvent): void {
         color = el.getAttribute('data-color') as cg.Color,
         promoted = el.getAttribute('data-promoted') === 'true';
 
-    e.stopPropagation();
-    e.preventDefault();
-    dragNewPiece(ctrl.chessground.state, { color, role, promoted }, e);
+    if (role) {
+        e.stopPropagation();
+        e.preventDefault();
+        dragNewPiece(ctrl.chessground.state, { color, role, promoted }, e);
+    }
 }
 
 export function iniPieces(ctrl: EditorController, vpieces0: VNode | HTMLElement, vpieces1: VNode | HTMLElement): void {

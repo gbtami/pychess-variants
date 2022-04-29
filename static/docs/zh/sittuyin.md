@@ -1,106 +1,116 @@
-# ![Sittuyin](https://github.com/gbtami/pychess-variants/blob/master/static/icons/sittuyin.svg) Sittuyin
+# ![Sittuyin](https://github.com/gbtami/pychess-variants/blob/master/static/icons/sittuyin.svg) 緬甸象棋
 
 ![Sittuyin](https://github.com/gbtami/pychess-variants/blob/master/static/images/SittuyinGuide/Sittuyin.png?raw=true)
 
-*Sittuyin*, or Burmese Chess is a classic board game native to Myanmar and is very similar to Makruk. The game is played in Myanmar, and although western chess is more popular there, there are efforts to revitalize the game. The pieces have the same movements as Makruk (Thai Chess), but the rules are slightly different. The game is plenty of fun in its own right, with its own balance/dynamics. The slightly slower pace can provide a good way to cultivate patience, and to hone strategic thinking.
+**緬甸象棋**,是流行於緬甸的圖版遊戲，由印度的恰圖蘭卡演變而來，其發音「Sittuyin」，來自恰圖蘭卡的梵語音轉。緬甸象棋保留了恰圖蘭卡的思維與策略形式。遊戲本身十分有趣，步調稍慢，其原始的形式可以讓玩家體會古代象棋的獨特風格。主要盛行於緬甸地區(儘管當地更流行下西洋棋)。
 
-## Rules
+## 規則
 
-The general rules are extremely similar to Chess, so this guide will focus on the few differences. The boards are slightly different, with Sittuyin having two big diagonal lines dividing through the board. The sides are also red and black, with the red player moving first. The piece position in Sittuyin is much different compared to chess or Makruk. Key differences are as follows:
+緬甸象棋有兩條大對角線，棋子的配置如下: 
 
-* For starters, the feudal lords (pawns) start on staggered ranks (as you can see in the board above). 
-* To start the game, the players (starting with the red player) alternate back and forth placing the remainder of their pieces on their halves of the boards.
-* Pawn (feudal lord) promotion works much differently. See the movement section below. 
+* 開始時，兵如圖中錯排排列。
+* 一開始由紅方先行，輪流將手中的棋子配置於己方陣地中。
+* 車只能置於底線。
+* 兵的升變有些不同，如下文。
 
-Additional conditions for draws: 
+## 棋子
 
-* The game is drawn when the player to move has no legal move and his king is not in check. The game is said to end in 'stalemate'. This immediately ends the game, provided that the move producing the stalemate position was legal.
-* The game is drawn when a position has arisen in which neither player can checkmate the opponent's king with any series of legal moves. The game is said to end in a ‘dead position’. This immediately ends the game, provided that the move producing the position was legal. 
-* The game is drawn upon agreement between the two players during the game. This immediately ends the game. 
-* The game may be drawn if each player has made at least the last 50 consecutive moves without the movement of any pawn and without any capture.
-* As soon as a player has only a king left on his side, the number of pieces belong to the opponent shall be observed. The game may be drawn if the player having only a king (lone king) left on his side can manage to escape in a number of fixed moves (move count shall be done starting from the very first move of lonely king) against the opponent of having particular pieces shown below:
-  * Lone King vs. King & A Rook	- 16 moves
-  * Lone King vs. King & An Elephant & A General	- 44 moves 
-  * Lone King vs. King & A Knight & A General	- 64 moves
-
-## The Pieces
-
-### King
+### 國王
 
 ![King](https://github.com/gbtami/pychess-variants/blob/master/static/images/SittuyinGuide/King.png?raw=true) 
 
-The king moves exactly the same as in chess.
+國王的移動就如西洋棋的國王，朝八方走一格。
 
-### General
+### 士
 
 ![General](https://github.com/gbtami/pychess-variants/blob/master/static/images/SittuyinGuide/General.png?raw=true)
 
-Unlike the queen in chess, the general is a relatively weak piece that only moves one space diagonally. Additional generals are gained through pawn promotion.
+士，走法與中國象棋的士相同，移動為斜向四格。
 
-The general is worth about 1.5 to 2 pawns in general. It is also the only renewable piece type. The general is a good piece to lead the attacks, useful for harassing more valuable enemy pieces. On occasion, they can also be sacrificed in exchange for well-positioned enemy pawns, to make way for the invasion.
+士值約1.5 到2 個兵，是領導攻擊的棋子，有助於騷擾更有價值的敵人棋子。有時，也可以用來犧牲以換掉有利位置的敵方棋子。
 
-Since it is rare for one side to be up by two pieces, the easy-to-promote-to general is commonly present in most endgames, assisting the stronger side in delivering checkmate.
+通常很少能把兩個以上兵在殘局時升變為士，因此士在殘局非常重要，與將死有密切關聯。對弱勢方(想要開始計步的一方)，其士是一個很好的誘餌，敵方必須先將其殺死，才能將死孤王。它既可以留在國王附近保護，也可以將敵人帶離國王。以這種方式分散敵人的棋子，使其耗費時間來重新組織，從而給防守方一些額外的機會在計步規則下和局（見下文）。
 
-For the disadvantaged side, a general is a good decoy which must be trapped and captured before the bare king can be forced into checkmate. It can either stay near the general for additional protection, or failing that, lead enemy pieces away from it. Scattering the enemy pieces in this fashion can cost them valuable time to reorganize, thus giving the defending side some extra chance to draw the game under counting rules.
-
-### Elephant
+### 象
 
 ![Elephant](https://github.com/gbtami/pychess-variants/blob/master/static/images/SittuyinGuide/Elephant.png?raw=true)
 
-The elephant moves one step diagonally or one step forward, just like the silver general in shogi.
+象，走法同日本將棋的銀將、或緬甸象棋、馬來象棋的象，移動為斜向四格或直前一格。其為一枚強子，可以用來為其他棋子生根，也可以在國王旁保護。
+ 
+象比士強，但比馬弱，因為孤馬可以輕易從對方王旁逃離，而孤像不行;且其有時會不好撤退，所以最好旁邊有棋子可以支援。也因此在殘局，讓己方的王在對方的象後方會比在它前方好。
 
-The elephant is a powerful piece for controlling squares immediately in front of it, and for shouldering off enemy forces. It is also a good defender around its king.
-
-The elephant is worth more than the queen, but generally not as much as a knight. The justification may be that isolated knights have little trouble escaping from an enemy king, while isolated bishops can fall.
-
-Elephants can sometimes prove slow/awkward to maneuver or retreat. It is therefore advisable to have some friendly pieces nearby to support and rescue them. In the endgame, it's usually safer to get a lone king behind the enemy bishop, compared to staying in its front.
-
-### Horse
+### 馬
 
  ![Horse](https://github.com/gbtami/pychess-variants/blob/master/static/images/SittuyinGuide/Horse.png?raw=true)
 
-The horse moves exactly the same as a knight in chess.
+馬走法與西洋棋的騎士相同，移動為跳躍至2x3的對角格，可以越子(沒有卡馬腳)。
 
-The horses are not "minor pieces" in Sittuyin. They are major forces. Centralize and utilize them.
+馬在緬甸象棋中是強子，儘量讓它保持在中央，以控制更多方格。
 
-### Chariot
+### 車
 
  ![Chariot](https://github.com/gbtami/pychess-variants/blob/master/static/images/SittuyinGuide/Chariot.png?raw=true)
 
-The chariot moves exactly the same as a rook in chess.
 
-In the absence of mighty chess queens, the chariots dominate the board. Lateral chariot checks can be especially annoying. Aim for the seventh rank or even the sixth rank.
+車走法與象棋的車相同，移動為直向任意格。無西洋棋的王車易位規則。
 
-### Feudal lord
+車是最強的子，主宰著盤面。
+
+
+### 兵
 
 ![Pawn](https://github.com/gbtami/pychess-variants/blob/master/static/images/SittuyinGuide/Pawn.png?raw=true)
 
-The pawn, or feudal lord, moves and attacks the same as a pawn in chess. However, there is no double-step first move. 
+兵走法與西洋棋的兵相類似，單純移動時直前進一步，但吃子時斜進一步。兵的第一步時不能走兩步，故無吃過路兵。
 
-**Promotion**: After a feudal lord reaches the diagonal line on the opponent's side of the board, the player can choose to promote that piece into a general instead of moving. This can only occur *if* their general has already been captured. Promotion does not happen on the move where the feudal lord reaches the promotion square, but rather any move after that. In the act of promotion, the feudal lord can promote in place, or it can promote in any one of the adjacent diagonal squares. However, promotion cannot be made in a square in which the new general will be in an attacking position (threatening an enemy piece). If there is one feudal lord left on the board, then it has the ability to promote on its turn.
+#### 升變
+當兵到達對側的對角線後，玩家可以選擇在下一步將其升變為士。雙方各自只能有一隻士在場上，亦即兵只可能在己方士被吃後才有可能有升變。兵在升變時，可以選擇在**原地升級(鼠標點它兩下)** 或是往**斜向動一格(就會自動升變)**。然而，若升變後的士會攻擊到其他子，則不能升變。
 
-Finally, you may opt not to promote a feudal lord that reaches the final rank, which would result in stalemate if this is the last piece left.
+若你只有一隻兵在場上，則該兵可以在任何格子升變。
 
-## Makruk vs Sittuyin
- 
-Makruk is a game very similar to Sittuyin, but played in Thailand. In a sense, Sittuyin can be thought of as a kind of accelerated Makruk, potentially skipping ahead about a dozen opening moves. Half of the Sittuyin pawns start on the fourth rank, as opposed to all Makruk pawns starting from the third rank.
- 
-Makruk players must negotiate their way towards getting a good opening setup from scratch, a vital skill for Makruk. Sittuyin players get to just set up their dream positions. Experience in either variant would be useful/beneficial in the other.
- 
-Makruk allows promoting pawns to multiple queens, which can quickly become dangerous. This makes Makruk pawns more valuable than Sittuyin pawns.
+最後，若你的唯一合法走法唯升變，則你可以選擇不升變並宣告和局。在 Pychess ，你可以按 draw (和局) 按鈕來和局。
 
-## Strategy
- 
-The pace is rather slow, with most pieces stepping only one square at a time. It's a good idea to organize and group together the pieces. Move them in formation as a group to provide mutual support. Do not try to open up the game on too many fronts. Coordination is key.
 
-## Tactics
- 
-**Chariots are the only pieces that can pin or skewer pieces. The rest of the tactics mostly consist of forks.**
 
-Most Sittuyin and Makruk games will actually reach the bitter (near) end.
-When one side has only a bare king remaining, there are certain "counting rules" (see above) which come into effect and put pressure on the stronger side. Such requirements offer the weaker side an incentive to play out the whole game. Therefore it is crucial to master all the basic checkmates against a lone king. There just isn't much point in playing these games if one can't finish off the bare King at the end.
+## 其他規則
+
+*逼和* - 與西洋棋一樣，無子可動和棋。
+
+*子力不足* - 當雙方子力皆不足以將死對方時和局。
+
+*重複動子* - 如果相同局面連續出現三次算和。
+
+*50步未吃子* - 若雙方50步內皆沒有吃子算和。
+
+計步規則 - 當一方只剩孤王時，對方的棋子須要被檢視。若對方沒有兵，則達成殺王計步的條件，並立即強制開始，且不能中途停止或重新歸零計算。
+依照對手的子力，對手必須要在指定的步數內完成將殺，如果無法在規定步數完成將殺則和局。 
+
+* 一方剩孤王，另一方有一個車：16步內
+* 若對手至少有一象 : 44 步內
+* 一方剩孤王，另一方有至少一個馬：64步內
+
+## 泰國象棋vs 緬甸象棋
  
-Because there is no promotion to heavy pieces, it becomes harder to force a checkmate after the existing pieces have left the board. Plan accordingly and leave yourself with enough fire power.
+緬甸象棋是一款與泰國象棋非常相似的遊戲，可以被視為是加速的泰國象棋，可能會跳過大約十幾個開局動作。緬甸象棋有一半的兵從第四排開始，而所有泰國象棋兵則從第三排開始。
  
-Please allow yourself enough time on the clock, as many of those mates require precision.
+泰國象棋必須通過策略進行開局設置，而緬甸象棋開局可以直接將棋子放置在想要的位置。
+ 
+泰國象棋的兵可升變成數個士，很快就可以投入戰鬥。這使得泰國象棋兵比緬甸象棋兵更有價值。
+
+
+ 
+## 策略
+
+大多數棋子一次只能走一格，因此最好成小組式的移動，以提供相互支持。不要試圖多方面打開戰鬥，協調才是關鍵。
+
+## 戰術
+ 
+**車是唯一可以串打的棋子，其它的棋子主要用於捉雙。**
+
+泰國象棋與緬甸象棋幾乎都會打到殘局。當一方只剩下國王時，就會進入「計步規則」(如以上)，給較優勢一方造成壓力。
+因此，掌握將死孤王的技術至關重要，如果優勢方不能在最後將死孤王，那麼前面的努力就有可能白費。
+
+由於對強子並沒有升變規則，到了遊戲末期會變得很難將死對方，因此請算好步數。
+ 
+最後，請特別注意時間。
  

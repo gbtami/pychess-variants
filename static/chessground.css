@@ -1,23 +1,9 @@
-/*
- * Chessground base css properties.
- *
- * You need to include the css files in themes folder in order to have the
- * board and pieces displayed!
- */
-cg-container {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    display: block;
-    bottom: 0;
-}
 .cg-wrap {
-    background-size: cover;
+    box-sizing: content-box;
     position: relative;
     display: block;
-    width: 100%;
-    height: 0;
 }
+
 /* 8x8 */
 .cg-wrap.cg-512 {
     padding-bottom: 100%;
@@ -44,28 +30,28 @@ cg-container {
     padding-bottom: calc(420 * 100% / 364);
 }
 .cg-wrap.cg-448-516.mini {
-  width: 282px;
+  width: 224px;
 }
 /* 5x6 */
 .cg-wrap.cg-260-360 {
     padding-bottom: calc(540 * 100% / 390);
 }
 .cg-wrap.cg-260-360.mini {
-  width: 260px;
+  width: 192px;
 }
 /* 5x5 */
 .cg-wrap.cg-260 {
     padding-bottom: calc(450 * 100% / 390);
 }
 .cg-wrap.cg-260.mini {
-  width: 260px;
+  width: 192px;
 }
 /* 3x4 */
 .cg-wrap.cg-156 {
     padding-bottom: calc(480 * 100% / 312);
 }
 .cg-wrap.cg-156.mini {
-  width: 156px;
+  width: 132px;
 }
 
 /* 7x7 */
@@ -88,6 +74,27 @@ cg-container {
 }
 .cg-wrap.cg-640-640.mini {
   width: 320px;
+}
+/* 9x9 chak */
+.cg-wrap.cg-540 {
+    padding-bottom: 100%;
+}
+.cg-wrap.cg-540.mini {
+  width: 270px;
+}
+
+/* tooltip board in seek table */
+.cg-wrap.minitooltip {
+  width: 200px;
+}
+
+cg-container {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: block;
+    top: 0;
+    right: 0;
 }
 
 cg-board {
@@ -149,6 +156,11 @@ cg-board square {
   width: 10%;
   height: 10%;
 }
+/* 9x9 chak */
+.cg-540 cg-board square{
+  width: 11.11%;
+  height: 11.11%;
+}
 
 cg-board square.move-dest {
   background: radial-gradient(rgba(20, 85, 30, 0.5) 22%, #208530 0, rgba(0, 0, 0, 0.3) 0, rgba(0, 0, 0, 0) 0);
@@ -195,6 +207,7 @@ cg-board square.current-premove {
 }
 .blindfold piece {
   opacity: 0;
+  position: relative;
 }
 .cg-wrap.cg-640 piece {
   width: 10%;
@@ -233,20 +246,21 @@ cg-board square.current-premove {
   width: 10%;
   height: 10%;
 }
+.cg-wrap.cg-540 piece{
+  width: 11.11%;
+  height: 11.11%;
+}
 
 cg-board piece.dragging {
   cursor: move;
   z-index: 9;
 }
-cg-board piece.anim {
+piece.anim {
   z-index: 8;
 }
-cg-board piece.fading {
+piece.fading {
   z-index: 1;
   opacity: 0.5;
-}
-.cg-wrap square.move-dest:hover {
-  background-color: rgba(20, 85, 30, 0.3);
 }
 .cg-wrap piece.ghost {
   opacity: 0.3;
@@ -262,9 +276,36 @@ cg-board piece.fading {
   z-index: 2;
   opacity: 0.6;
 }
-.cg-wrap svg image {
+.cg-wrap piece svg image {
   opacity: 0.5;
 }
+
+.cg-wrap .cg-shapes,
+.cg-wrap .cg-custom-svgs {
+  overflow: hidden;
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.cg-wrap .cg-shapes {
+  opacity: 0.6;
+  z-index: 2;
+}
+
+.cg-wrap .cg-custom-svgs {
+  /* over piece.anim = 8, but under piece.dragging = 10 */
+  z-index: 9;
+  overflow: visible;
+}
+
+.cg-wrap .cg-custom-svgs svg {
+  overflow: visible;
+}
+
 .cg-wrap coords {
   position: absolute;
   display: flex;
@@ -279,32 +320,43 @@ cg-board piece.fading {
         display: none;
     }
 }
-.cg-wrap coords.ranks {
+.cg-wrap coords.side {
   right: var(--ranks-right);
   top: var(--ranks-top);
-  flex-flow: column-reverse;
   height: 100%;
   width: 12px;
 }
-.cg-wrap coords.ranks.black {
+.cg-wrap coords.side.forward, .cg-wrap coords.side.backward.black {
+  flex-flow: column-reverse;
+}
+.cg-wrap coords.side.backward, .cg-wrap coords.side.forward.black {
   flex-flow: column;
 }
-.cg-wrap coords.files {
+.cg-wrap coords.bottom {
   bottom: var(--files-bottom);
   left: var(--files-left);
-  flex-flow: row;
   width: 100%;
   height: 16px;
   text-align: center;
 }
-.cg-wrap coords.files.black {
+.cg-wrap coords.top {
+  top: var(--files-top);
+  left: var(--files-left);
+  width: 100%;
+  height: 16px;
+  text-align: center;
+}
+.cg-wrap coords.bottom.forward, .cg-wrap coords.bottom.backward.black, .cg-wrap coords.top.forward, .cg-wrap coords.top.backward.black {
+  flex-flow: row;
+}
+.cg-wrap coords.bottom.backward, .cg-wrap coords.bottom.forward.black, .cg-wrap coords.top.backward, .cg-wrap coords.top.forward.black {
   flex-flow: row-reverse;
 }
 .cg-wrap coords coord {
   flex: 1 1 auto;
 }
 @media (min-width: 800px) and (min-height: 500px) {
-    .cg-wrap coords.ranks coord {
+    .cg-wrap coords.side coord {
       transform: translateY(39%);
     }
 }

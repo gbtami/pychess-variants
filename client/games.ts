@@ -1,23 +1,31 @@
-import { init } from 'snabbdom';
-import klass from 'snabbdom/modules/class';
-import attributes from 'snabbdom/modules/attributes';
-import properties from 'snabbdom/modules/props';
-import listeners from 'snabbdom/modules/eventlisteners';
-
-const patch = init([klass, attributes, properties, listeners]);
-
-import h from 'snabbdom/h';
-import { VNode } from 'snabbdom/vnode';
+import { h, VNode } from 'snabbdom';
 
 import { Chessground } from 'chessgroundx';
 
-import { VARIANTS, uci2cg } from './chess';
+import { VARIANTS, uci2LastMove } from './chess';
 import { boardSettings } from './boardSettings';
+import { patch } from './document';
 import { timeControlStr } from './view';
+import { Api } from "chessgroundx/api";
+import * as cg from "chessgroundx/types";
 
-function gameView(games, game, fen, lastMove) {
+export interface Game {
+    gameId: string;
+    variant: string;
+    chess960: boolean;
+    base: number;
+    inc: number;
+    byoyomi: number;
+    b: string;
+    w: string;
+    fen: cg.FEN;
+    lastMove: cg.Key[];
+}
+
+function gameView(games: {[gameId: string]: Api}, game: Game, fen: cg.FEN, lastMove: cg.Key[]) {
     const variant = VARIANTS[game.variant];
     return h(`minigame#${game.gameId}.${variant.board}.${variant.piece}`, {
+        class: { "with-pockets": variant.pocketRoles('white') !== undefined },
         on: { click: () => window.location.assign('/' + game.gameId) }
     }, h('div', [
         h('div.row', [
@@ -35,7 +43,9 @@ function gameView(games, game, fen, lastMove) {
                         lastMove: lastMove,
                         geometry: variant.geometry,
                         coordinates: false,
-                        viewOnly: true
+                        viewOnly: true,
+                        addDimensionsCssVars: true,
+                        pocketRoles: color => variant.pocketRoles(color),
                     });
                     games[game.gameId] = cg;
                 }
@@ -55,27 +65,17 @@ export function renderGames(): VNode[] {
         if (this.readyState === 4 && this.status === 200) {
             const response = JSON.parse(this.responseText);
             const oldVNode = document.getElementById('games');
-            const games = {};
+            const games: {[gameId: string]: Api} = {};
             if (oldVNode instanceof Element) {
-                patch(oldVNode as HTMLElement, h('grid-container#games', response.map(game => gameView(games, game, game.fen, game.lastMove))));
+                patch(oldVNode as HTMLElement, h('grid-container#games', response.map((game: Game) => gameView(games, game, game.fen, game.lastMove))));
 
                 const evtSource = new EventSource("/api/ongoing");
                 evtSource.onmessage = function(event) {
                     const message = JSON.parse(event.data);
-
                     const cg = games[message.gameId];
-
-                    const parts = message.fen.split(" ");
-                    let lastMove = message.lastMove;
-                    if (lastMove !== null) {
-                        lastMove = uci2cg(lastMove);
-                        lastMove = [lastMove.slice(0,2), lastMove.slice(2,4)];
-                        if (lastMove[0][1] === '@')
-                            lastMove = [lastMove[1]];
-                    }
                     cg.set({
-                        fen: parts[0],
-                        lastMove: lastMove,
+                        fen: message.fen,
+                        lastMove: uci2LastMove(message.lastMove),
                     });
                 }
             }

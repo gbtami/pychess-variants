@@ -1,8 +1,8 @@
-import h from 'snabbdom/h';
+import { h } from 'snabbdom';
 
 import { aiLevel } from './profile';
 
-export function player(id, title, name, rating, level) {
+export function player(id: string, title: string, name: string, rating: string, level: number) {
     return h('round-' + id, [
         h('div.player-data', [
             h('i-side#' + id + '.online.icon', { class: { "icon-online": false, "icon-offline": true } }),

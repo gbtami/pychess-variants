@@ -1,8 +1,31 @@
+.page-menu.small {
+    max-width: 1000px;
+    width:100%;
+    margin: auto;
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+tr.player-data {
+    display: table-row;
+}
+td {
+    padding: 1rem;
+}
+td rank {
+    padding-left: 2rem;
+}
+td rating {
+    padding-right: 5rem;
+}
 .page-menu.players {
     grid-gap: 0;
 }
 .allplayers-button {
-    padding-top: 10px;
+    padding-bottom: 1em;
+    display: inline-block;
 }
 .highscore, .shields, .winners {
     display: grid;
@@ -10,20 +33,23 @@
     grid-gap: 6px;
     padding-left: 2px;
 }
-.shields, .winners {
+.highscore, .shields, .winners {
     grid-gap: 0;
     border: 1px solid var(--border-color);
     padding: 0;
+}
+.small aside .highscore {
+    border: 0;
 }
 .card {
     border: 1px solid var(--leaderboard);
     border-radius: .25rem;
     background-color: var(--bg-color1);
 }
-.shields, .winners {
+.highscore, .shields, .winners {
     border-radius: none;
 }
-.shields h1, .winners h1 {
+.highscore h1, .shields h1, .winners h1 {
     font-size: 2.5em;
 }
 .shields .card, .winners .card {
@@ -34,7 +60,7 @@
 }
 .card div.info0 {
     color: WhiteSmoke;
-    background-color: var(--leaderboard);
+    background-color: var(--gold);
     padding:0.2em;
 }
 div.info0.icon::before {
@@ -50,7 +76,7 @@ div.info0.icon::before {
     padding-bottom: 1vh;
     padding-left: 95px;
     position: relative;
-    font-size: 1.45em;
+    font-size: 1.3em;
     line-height: 2.5em;
 }
 .card h2 a {
@@ -78,4 +104,16 @@ div.info0.icon::before {
 .tourney-date {
     float: right;
     font-size: 16px;
+}
+.user-link.player {
+    display: inline-block;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    width: 60%;
+}
+.user-link.tourney-date {
+    color: var(--link-color-blue);
+}
+.highscore a {
+    color: fff;
 }

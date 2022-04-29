@@ -1,11 +1,10 @@
-import Highcharts from "highcharts";
+import Highcharts from 'highcharts';
 
-import h from 'snabbdom/h';
-import { VNode } from 'snabbdom/vnode';
+import { h, VNode } from 'snabbdom';
 
 function createPeriods() {
     const periodList: string[] = [];
-    const date = new Date(2019, 5, 1, 0, 0, 0);  // (2019-06-01) the month is 0-indexed
+    const date = new Date(2019, 6, 1, 0, 0, 0);  // (2019-07-01) the month is 0-indexed
     const endDate = new Date();
     const months = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"];
 
@@ -19,11 +18,14 @@ function createPeriods() {
 }
 
 function buildChart() {
+    const axisTypeEl = document.getElementById("linear") as HTMLInputElement;
+    const humanGamesEl = document.getElementById("humans") as HTMLInputElement;
+
     const xmlhttp = new XMLHttpRequest();
-    const url = "/api/stats"
+    const url = humanGamesEl.checked ? "/api/stats/humans" : "/api/stats";
 
     xmlhttp.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
+        if (this.readyState === 4 && this.status === 200) {
             const response = JSON.parse(this.responseText);
 
             if (!response.length) {
@@ -42,7 +44,7 @@ function buildChart() {
                     categories: createPeriods(),  
                 },
                 yAxis: {
-                    type: 'logarithmic',
+                    type: axisTypeEl.checked ? 'linear' : 'logarithmic',
                 },
                 responsive: {
                     rules: [{
@@ -67,5 +69,11 @@ function buildChart() {
 }
 
 export function statsView(): VNode[] {
-    return [ h('div#stats-chart', { hook: { insert: () => buildChart() } }) ];
+    return [
+        h('div#stats-chart', { hook: { insert: () => buildChart() } }),
+        h('input#linear', { props: { type: 'checkbox' }, on: { change: () => buildChart() } }),
+        h('label', { attrs: { for: 'linear' } }, 'Linear scale'),
+        h('input#humans', { props: { type: 'checkbox' }, on: { change: () => buildChart() } }),
+        h('label', { attrs: { for: 'humans' } }, 'Human games'),
+    ];
 }

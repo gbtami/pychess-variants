@@ -18,4 +18,4 @@ El resto de reglas son como en ajedrez estándar.
 ## Estrategia
 
 Los conceptos de estrategia y táctica del ajedrez normal son aplicables, ¡a excepción de las aperturas! Dado que la posición inicial es aleatoria, las líneas de apertura estándar no tienen utilidad.
-Recomendamos [https://nine-sixty.netlify.app/](https://nine-sixty.netlify.app/) por Tasshaq para todo el mundo.
+Recomendamos [https://nine-sixty.netlify.app/](https://nine-sixty.netlify.app/) por visualdennis para todo el mundo.

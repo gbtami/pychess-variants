@@ -18,4 +18,4 @@ Todas as outras regras do Xadrez são aplicadas nesta variante.
 ## Estratégia
 
 A estratégia e as tácticas do Xadrez Normal são aplicadas aqui, com a exceção das aberturas! Pelo facto da posição inicial ser aleatória, as aberturas do Xadrez normal não se aplicam. 
-[https://nine-sixty.netlify.app/](https://nine-sixty.netlify.app/) by Tasshaq is recommended for everyone.
+[https://nine-sixty.netlify.app/](https://nine-sixty.netlify.app/) by visualdennis is recommended for everyone.

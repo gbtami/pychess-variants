@@ -3,6 +3,11 @@
 <div id="main-wrap">
 <main class="page-menu players">
 <aside class="flat-bg">
+    {% if admin %}
+    <a class="allplayers-button" href="{{ home }}/allplayers">{% trans %}All players{% endtrans %}</a><br>
+    {% endif %}
+    <a class="allplayers-button" href="{{ home }}/tournaments/winners">{% trans %}Tournament winners{% endtrans %}</a><br>
+    <a class="allplayers-button" href="{{ home }}/tournaments/shields">{% trans %}Tournament shields{% endtrans %}</a>
     <table id="players">
         <thead>
             <tr>
@@ -32,16 +37,13 @@
             {% endif %}
         </tbody>
     </table>
-    <a class="allplayers-button" href="{{ home }}/allplayers">{% trans %}All players{% endtrans %}</a><br>
-    <a class="allplayers-button" href="{{ home }}/tournaments/winners">{% trans %}Tournament winners{% endtrans %}</a><br>
-    <a class="allplayers-button" href="{{ home }}/tournaments/shields">{% trans %}Shields{% endtrans %}</a>
 </aside>
 <aside class="flat-bg">
     <div class="highscore">
         {% for key in highscore %}
         <div class="card">
             <div class="info0 icon" data-icon="{{ icons[key] }}">
-                <div class="variant">{{ variant_display_name(key) }}</div>
+                <a href="{{ home }}/players/{{ key }}"><div class="variant">{{ variant_display_name(key) }}</div></a>
             </div>
             {% for user, score in highscore[key].items() %}
                 <div class="player-data {{ loop.cycle('odd', 'even') }}">

@@ -8,11 +8,13 @@
     grid-area: main;
     display: grid;
 }
-
+.sidebar-first {
+    box-shadow: none;
+}
 @media (max-width: 799px) and (orientation: portrait) {
     .analysis-app {
         grid-template-rows: auto;
-        grid-template-areas: 'mat-top' 'board' 'mat-bot' 'move-controls' 'ceval' 'pv' 'misc-info' 'vari' 'tools' 'uboard' 'side';
+        grid-template-areas: 'pocket-top' 'board' 'pocket-bot' 'move-controls' 'ceval' 'pv' 'misc-info' 'vari' 'tools' 'uboard' 'side';
     }
     under-left {
         display: none;
@@ -28,27 +30,48 @@
     .analysis-app {
         grid-template-columns: minmax(230px, 20vw) 2vmin minmax(calc(70vmin * var(--board-scale)), calc(100vh * var(--board-scale) - calc(var(--site-header-height) + var(--site-header-margin)) - 3rem)) var(--gauge-gap) minmax(240px, 400px);
         grid-template-rows: min-content 1fr;
-        grid-template-areas: 'side . board gauge mat-top' 'side . board gauge tools' 'side . board gauge tools' 'side . board gauge mat-bot' 'uleft . uboard . move-controls';
+        grid-template-areas: 'side . board gauge pocket-top' 'side . board gauge tools' 'side . board gauge tools' 'side . board gauge pocket-bot' 'uleft . uboard . move-controls';
     }
     /* move rank numbers to the left side of the board */
-    .cg-wrap coords.ranks {
+    .cg-wrap coords.side {
         right: auto;
     }
-    .cg-wrap coords.ranks coord {
-        transform: translate(var(--ranks-right), 39%);
-    }
-    /* shogi family */
-    .shogi .cg-wrap coords.ranks coord, .kyoto .cg-wrap coords.ranks coord, .dobutsu .cg-wrap coords.ranks coord {
-        transform: translate(0, 39%);
-    }
-    .shogi .cg-wrap coords.files, .kyoto .cg-wrap coords.files, .dobutsu .cg-wrap coords.files {
-        left: 0;
-        right: 0;
-    }
-    .shogi .cg-wrap coords.files coord, .kyoto .cg-wrap coords.files coord, .dobutsu .cg-wrap coords.files coord {
-        transform: translate(-15px, 39%);
+    .cg-wrap coords.side coord {
+        transform: translate(var(--ranks-left), 39%);
     }
 }
+
+.anal-clock {
+    position: absolute;
+    right: 0;
+    padding: 0 0.5em;
+    margin-left: 12px;
+    height: 20px;
+    font-weight: bold;
+    text-align: center;
+    background: var(--bg-color2);
+    box-shadow: var(--base-shadow);
+}
+.anal-clock.active {
+    background: var(--anal-clock);
+}
+.anal-clock.top {
+    top: -20px;
+}
+.anal-clock.bottom {
+    top: var(--cg-height, 100%);
+    z-index: 1;
+}
+.anal-clock tenths {
+    font-size: 80%;
+}
+
+/* .round-app grid has 2vmin grid-gap, but .analysis-app doesn't.
+   Because of this the cross table needs extra top padding */
+div.ctable-container {
+    padding-top: 3vmin;
+}
+
 #gauge {
     grid-area: gauge;
     display: block;
@@ -153,7 +176,7 @@ pvline {
     overflow: hidden;
     white-space: nowrap;
     min-width: 0;
-    max-width: var(--cgwrapwidth);
+    max-width: var(--cg-width);
     height: 28px;
     line-height: 28px;
     padding-left: 6px;
@@ -173,12 +196,10 @@ score {
 
 /* Local Fairy toggle */
 label.switch {
-    flex: 0 0 40px;
-    position: relative;
-    display: inline-block;
-    height: 22px;
-    padding: 0;
-    align-self: center;
+position: relative;
+display: inline-block;
+width: 42px;
+height: 24px;
 }
 
 .switch input {
@@ -188,44 +209,49 @@ label.switch {
 }
 
 .sw-slider {
-  position: absolute;
-  cursor: pointer;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: DarkGray;
-  border-radius: 22px;
-  -webkit-transition: .01s;
-  transition: .01s;
+position: absolute;
+cursor: pointer;
+border: 1px solid var(--border-color);
+border-radius: 24px;
+top: 0;
+left: 0;
+right: 0;
+bottom: 0;
+background-color: var(--toggle-bg);
+-webkit-transition: .1s;
+transition: .1s;
 }
 
 .sw-slider:before {
-  position: absolute;
-  content: "";
-  height: 22px;
-  width: 22px;
-  left: 0px;
-  bottom: 0px;
-  background-color: WhiteSmoke;
-  border-radius: 50%;
-  -webkit-transition: .01s;
-  transition: .01s;
+position: absolute;
+content: "";
+height: 22px;
+width: 22px;
+left: 0px;
+bottom: 0px;
+box-shadow: rgba(9, 30, 66, 0.25) 0px 1px 1px, rgba(9, 30, 66, 0.13) 0px 0px 1px 1px;
+background-color: var(--bg-color2);
+border-radius: 50%;
+-webkit-transition: .1s;
+transition: .1s
 }
 
 input:checked + .sw-slider {
-  background-color: var(--green-switch);
-  box-shadow: 0 0 2px Black;
+background-color: #629924;
 }
 
 input:focus + .sw-slider {
-  box-shadow: 0 0 2px gray;
+box-shadow: 0 0 12px var(--font-color);
 }
 
 input:checked + .sw-slider:before {
   -webkit-transform: translateX(26px);
   -ms-transform: translateX(26px);
   transform: translateX(18px);
+}
+
+.sw-slider:hover {
+box-shadow: 0 0 12px var(--font-color);
 }
 
 /* loader */
@@ -244,32 +270,20 @@ input:checked + .sw-slider:before {
     left: 50%;
     width: 40px;
     height: 40px;
-    border-radius: 50%;
-    border: 4px solid var(--bg-color2);
-    border-top: 4px solid DimGray;
-    -webkit-animation: spin 0.6s linear infinite;
-    animation: spin 0.6s linear infinite;
 }
 
-@-webkit-keyframes spin {
-    0% {
-        -webkit-transform: rotate(0deg);
-        transform: rotate(0deg);
-    }
-    100% {
-        -webkit-transform: rotate(360deg);
-        transform: rotate(360deg);
-    }
+.spinner {
+    stroke-dasharray: 400;
+    fill:none;
+    stroke-width:1.65;
+    animation: dash 4s cubic-bezier(0.72, 0, 0.18, 1.01) infinite;
 }
-@keyframes spin {
-    0% {
-        -webkit-transform: rotate(0deg);
-        transform: rotate(0deg);
-    }
-    100% {
-        -webkit-transform: rotate(360deg);
-        transform: rotate(360deg);
-    }
+
+@keyframes dash{
+    0% {stroke-dashoffset:400;stroke:gray;}
+    40% {stroke-dashoffset: 0;stroke:green;}
+    60% {stroke-dashoffset: 0;stroke:orange;}
+    100% {stroke-dashoffset: -400;stroke:red;}
 }
 
 input[type="checkbox"] {
@@ -277,11 +291,81 @@ input[type="checkbox"] {
 }
 
 /* analysis chart */
+button#request-analysis {
+    display: none;
+}
 .chart-container {
     position: relative;
+    justify-content: center;
+    align-items: center;
 }
-#chart {
+#chart-analysis, #chart-movetime {
+    display: none;
     width:100%;
     height:240px;
     background: linear-gradient(to bottom, rgba(255,255,255,0) 0%, rgba(255,255,255,0) 20%, rgba(128,128,128,0.2) 50%, rgba(255,255,255,0) 80%, rgba(255,255,255,0) 100%);
+}
+.i-pgn .icon::before {
+    padding-right: 4px;
+}
+
+div[role=tabpanel] {
+    height: 240px;
+    display: none;
+    text-align: left;
+    overflow-y: auto;
+}
+div[role=tabpanel] textarea {
+    overflow-y: hidden;
+    background-color: var(--bg-color);
+    border: none;
+    resize: none;
+    outline: none;
+}
+div[role=tablist] {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: center;
+    align-items: flex-start;
+    border-top: 2px solid #d9d9d9;
+}
+span[role=tab] {
+    flex: 1 1 0;
+    text-align: center;
+    font-size: 0.9em;
+    padding: 0.4em 0.1em;
+    cursor: pointer;
+    position: relative;
+}
+span[aria-selected=true], span:hover::after {
+    color: #d64f00;
+    transform: scale(1);
+}
+div > span::after {
+    content:'';
+    background:rgba(214,79,0,0.6);
+    height:2px;
+    position:absolute;
+    width:96%;
+    left:2%;
+    top:-2px;
+    transition:all .25s;
+    transform:scale(0)
+}
+/* Request analysis button (analysis chart) */
+div#panel-1 {
+    align-items: center;
+    justify-content: center;
+}
+/* FEN & PGN */
+div#panel-4 {
+    font-size: 0.9em;
+    flex-flow: column;
+}
+div#pgntext {
+    white-space: pre-wrap;
+    font-family: monospace;
+    user-select: all;
+    -moz-user-select: all
+    -webkit-user-select: all;
 }

@@ -1,15 +1,24 @@
-# ![Makpong](https://github.com/gbtami/pychess-variants/blob/master/static/icons/makpong.svg) Makpong
+# ![Makpong](https://github.com/gbtami/pychess-variants/blob/master/static/icons/makpong.svg) 防禦泰國象棋
 
 ![Makpong Board](https://github.com/gbtami/pychess-variants/blob/master/static/images/MakrukGuide/Makruk.png?raw=true)
 
-Makpong is a variant of Makruk (Thai chess) designed to reduce draws. It is played in Makruk single elimination tournaments in Thailand to decide a winner after a certain number of Makruk games have been drawn.
+防禦泰國象棋是用來防止和局的泰國象棋變體。主要在泰國得泰國象棋淘汰賽中使用。
 
-If you are not familiar with the rules of Makruk, please see that first.
+在開始前請先熟悉泰國象棋規則。
 
-## Rules
+## 規則
 
-The only difference from Makruk is as follows:
+唯一不一樣的地方是:
 
-* The king may not move away from check
+* 王不能躲開將軍。
 
-There were generally three ways to answer a check: move the king away, block with another piece, or capture the attacker. In Makpong, you are not allowed to move away from check, so you can only answer it by blocking the check or capturing the attacker. You are allowed to capture the attacker with the king, provided that it is legal to do so.
+為了澄清，以下是泰國象棋中王應將的方式:
+
+* 躲開
+* 用其他子擋住
+* 吃掉攻擊子
+
+而在防禦泰國象棋中，第一個規則「躲開」是不允許的。
+
+* 國王仍然可以吃掉未受保護的攻擊子。在這種情況下，國王並沒有*躲開*攻擊，所以是允許的。
+* 用多個棋子將軍國王必為將死。移動國王去吃掉任何一個都是不允許的，因為會*躲開*其他個攻擊子。

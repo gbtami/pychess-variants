@@ -1,3 +1,5 @@
+from typing import Tuple
+
 from collections import namedtuple
 from datetime import datetime, timezone
 
@@ -6,9 +8,11 @@ from tournament import ByeGame
 from tournaments import new_tournament
 from utils import load_game
 
-GameRecord = namedtuple('GameRecord', 'color, result, id, oppname')
+GameRecord = namedtuple("GameRecord", "color, result, id, oppname")
 
-pairings = {}
+Pairings = dict[str, Tuple[GameRecord, ...]]
+
+pairings: Pairings = {}
 
 pairings["borjigin"] = (
     GameRecord("w", "1-0", "wkqJzfGX", "Fairy-Stockfish"),
@@ -159,7 +163,9 @@ async def add_games(app):
 
             if game_id not in updated_games:
                 game = await load_game(app, game_id)
-                print("--- %s - %s --- %s" % (game.wplayer.username, game.bplayer.username, game.date))
+                print(
+                    "--- %s - %s --- %s" % (game.wplayer.username, game.bplayer.username, game.date)
+                )
                 wp = game.wplayer
                 bp = game.bplayer
 

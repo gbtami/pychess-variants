@@ -1,6 +1,4 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!-- Created with Inkscape (http://www.inkscape.org/) -->
-
 <svg
    xmlns:dc="http://purl.org/dc/elements/1.1/"
    xmlns:cc="http://creativecommons.org/ns#"
@@ -14,7 +12,7 @@
    viewBox="0 0 13.229166 13.229167"
    version="1.1"
    id="svg1579"
-   inkscape:version="0.92.4 (5da689c313, 2019-01-14)"
+   inkscape:version="1.0.1 (3bc2e813f5, 2020-09-07)"
    sodipodi:docname="KyotoShogi.svg">
   <defs
      id="defs1573">
@@ -45,11 +43,12 @@
      showgrid="false"
      units="px"
      showguides="true"
-     inkscape:window-width="1920"
-     inkscape:window-height="1017"
-     inkscape:window-x="1912"
-     inkscape:window-y="-8"
-     inkscape:window-maximized="1" />
+     inkscape:window-width="3840"
+     inkscape:window-height="2050"
+     inkscape:window-x="-12"
+     inkscape:window-y="-12"
+     inkscape:window-maximized="1"
+     inkscape:document-rotation="0" />
   <metadata
      id="metadata1576">
     <rdf:RDF>
@@ -68,7 +67,7 @@
      id="layer1"
      transform="translate(0,-283.77082)">
     <path
-       style="fill:#3771c8;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:0.93406713;stroke-opacity:0.48743723"
+       style="fill:#8d6c46;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:0.93406713;stroke-opacity:0.48743723"
        d="M 25 1.7617188 L 9.2734375 7.2578125 L 4.9648438 48.238281 L 45.035156 48.238281 L 40.726562 7.2578125 L 25 1.7617188 z M 23.625 14.273438 L 26.146484 14.273438 C 26.910373 14.42613 26.947265 14.733 26.259766 15.191406 L 26.259766 17.482422 L 37.71875 17.482422 L 37.71875 19.660156 L 12.396484 19.660156 L 12.396484 17.482422 L 23.625 17.482422 L 23.625 14.273438 z M 16.177734 21.835938 L 33.708984 21.835938 L 33.708984 30.773438 L 31.416016 30.773438 L 31.416016 30.085938 L 26.490234 30.085938 L 26.490234 38.566406 C 26.490234 39.78863 25.878472 40.398438 24.65625 40.398438 L 21.677734 40.398438 L 21.21875 37.878906 L 23.740234 37.878906 C 24.04579 37.878906 24.197266 37.725484 24.197266 37.419922 L 24.197266 30.085938 L 18.46875 30.085938 L 18.46875 31.117188 L 16.177734 31.117188 L 16.177734 21.835938 z M 18.46875 24.013672 L 18.46875 27.910156 L 31.416016 27.910156 L 31.416016 24.013672 L 18.46875 24.013672 z M 19.15625 31.804688 L 21.21875 33.753906 C 21.447915 34.13584 21.218749 34.287309 20.53125 34.210938 C 18.774306 36.273426 16.482639 38.031033 13.65625 39.482422 L 12.28125 36.847656 C 15.184028 35.472664 17.475694 33.790804 19.15625 31.804688 z M 30.615234 31.804688 C 32.219401 33.943573 34.511068 35.547732 37.490234 36.617188 L 36 39.138672 C 32.868056 37.992845 30.386068 36.083769 28.552734 33.410156 L 30.615234 31.804688 z "
        transform="matrix(0.26458333,0,0,0.26458333,0,283.77082)"
        id="path3112" />

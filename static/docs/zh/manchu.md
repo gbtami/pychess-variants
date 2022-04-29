@@ -1,12 +1,12 @@
 
-# ![Manchu Chess](https://github.com/gbtami/pychess-variants/blob/master/static/icons/Manchu.svg) Manchu Chess
+# ![滿州棋](https://github.com/gbtami/pychess-variants/blob/master/static/icons/Manchu.svg) 滿州棋
 
-Manchu chess (Chinese: 满洲棋; pinyin: *Mǎnzhōuqí*), also known as Yitong or Yitong chess (Chinese: 一统棋; pinyin: *Yìtǒngqí*), is an asymmetric variant of Xiangqi. It was created during the Qing Dynasty by the Bannermen and was one of the most popular board games among them.
+滿州棋，或稱一統棋，是一個非對稱中國象棋變體。於清朝時由滿州旗人發明，主要風行於八旗子弟之中。
 
-## Rules
+## 規則
 
-The board and pieces are almost the same as Xiangqi. The black side is unchanged, while the red side loses all its cannons, horses, and chariots except for a single chariot. That chariot combines the moves of the normal chariot, cannon, and horse. This piece is sometimes referred to as the *Banner.*
+棋盤與棋子幾乎與中國象棋一樣，黑方基本上沒有變化，只是紅方除去所有二傌、二炮，一俥，只剩一隻特別的俥。該俥同時具有車、馬、炮的走法。黑方在局面上看似占優，但稍有不慎，就會遭紅方入陣衝殺，最終導致滿盤皆輸。據說，紅車的原型來源於入關後索倫兵驍勇善戰之氣慨。
 
-## Strategy
+## 策略
 
-While black is the stronger side, the black player must be careful not to lose pieces too easily to the banner.
+小心紅俥!

@@ -1,6 +1,8 @@
 :root {
-  --ranks-right: -15px;
   --ranks-top: 0px;
+  --ranks-right: -15px;
+  --ranks-left: -8px;
+  --files-top: -15px;
   --files-bottom: -16px;
   --files-left: 0px;
   --ranks-top-shogi: -25px;
@@ -10,6 +12,26 @@
   --pocketLength: 5;
   --pocketMargin: 10px;
   --movelist-max-height: 8rem;
+}
+.mini .pocket {
+    width: 100%;
+    justify-content: center;
+}
+.mini .pocket piece {
+    flex: 0 0 calc(100% / var(--files));
+}
+.mini .pocket.top {
+    border-radius: 3px 3px 0px 0px;
+    position: absolute;
+    top: calc(-100% / var(--ranks));
+}
+.mini .pocket.bottom {
+    border-radius: 3px 3px 0px 0px;
+    position: absolute;
+    bottom: calc(-100% / var(--ranks));
+}
+.mini .pocket piece::after {
+    padding: 1px 0.1em;
 }
 #extension_choice {
   position: absolute;
@@ -82,19 +104,23 @@
 }
 
 .pocket {
-  width: calc(var(--pocketLength) * (var(--cgwrapwidth) / var(--files)));
-  height: calc(var(--cgwrapheight) / var(--ranks));
+  width: calc(var(--pocketLength) * (var(--cg-width) / var(--files)));
+  height: calc(var(--cg-height) / var(--ranks));
   border-radius: 3px;
   box-shadow: 0 2px 3px rgba(0,0,0,0.3) inset;
   background: #888;
   white-space: nowrap;
   display: flex;
+  --fs: calc(var(--cg-height) / var(--ranks));
+  font-size: var(--fs);
+  padding-bottom: 1px;
 }
 .pocket.top {
   margin-bottom: var(--pocketMargin);
 }
 .pocket.top.editor {
   margin-bottom: 18px;
+  flex-wrap: wrap-reverse;
 }
 .pocket.bottom {
   margin-top: var(--pocketMargin);
@@ -103,8 +129,9 @@
   margin-top: 18px;
 }
 .pocket .editor{
-  width: calc(var(--editorLength) * (var(--cgwrapwidth) / var(--files)));
+  width: calc(var(--editorLength) * (var(--cg-width) / var(--files)));
 }
+
 .pocket piece {
   flex: 0 0 calc(100% / var(--pocketLength));
   height: 100%!important;
@@ -123,11 +150,11 @@
 .pocket.usable piece:first-child:hover {
   border-radius: 3px 0 0 3px;
 }
-.pocket.usable piece {
+.pocket.usable piece:not(.no-piece) {
   cursor: pointer;
   pointer-events: auto;
 }
-.pocket.usable piece:hover {
+.pocket.usable piece:not(.no-piece):hover {
   background-color: #999;
   transition: background-color 0.13s;
 }
@@ -147,10 +174,16 @@
   right: 0;
   position: absolute;
   line-height: 0.9em;
-  padding: 3px 5px 4px 5px;
+  padding: 2px 0.2em;
   font-weight: bold;
   border-radius: 2px;
-  font-size: 1.1em;
+  font-size: 0.3em;
+}
+.mini .pocket piece::after {
+  font-size: 0.4em;
+}
+.shogi3x4 .mini .pocket piece::after, .shogi5x5 .mini .pocket piece::after, .shogi5x6 .mini .pocket piece::after {
+  font-size: 0.3em;
 }
 .pocket piece[data-nb='0']::after {
   content: none;
@@ -166,31 +199,28 @@
   box-shadow: 0 3px 4px rgba(0, 0, 0, 0.15) inset !important;
 }
 
-.shogi .cg-wrap coords.files, .kyoto .cg-wrap coords.files, .dobutsu .cg-wrap coords.files {
-  left: auto;
-  right: var(--ranks-right);
-  top: 0;
-  flex-flow: column-reverse;
-  height: 100%;
-  width: 12px;
-}
-.shogi .cg-wrap coords.files.black, .kyoto .cg-wrap coords.files.black, .dobutsu .cg-wrap coords.files.black {
-  flex-flow: column;
-}
-.shogi .cg-wrap coords.ranks, .kyoto .cg-wrap coords.ranks, .dobutsu .cg-wrap coords.ranks {
-  top: var(--ranks-top-shogi);
-  left: 0;
-  flex-flow: row;
+.campmate .cg-512 cg-container::before {
   width: 100%;
-  height: 16px;
-  text-align: center;
+  height: 12.5%;
+  top: 0%;
+  left: 0%;
+  background: rgba(230, 230, 230, 0.2);
+  box-shadow: 0 0 10px rgb(0 0 0 / 70%);
+  content: '';
+  z-index: 1;
+  position: absolute;
+  pointer-events: none;
 }
-.shogi .cg-wrap coords.ranks.black, .kyoto .cg-wrap coords.ranks.black, .dobutsu .cg-wrap coords.ranks.black {
-  flex-flow: row-reverse;
-}
-.shogi .cg-wrap coords coord, .kyoto .cg-wrap coords coord, .dobutsu .cg-wrap coords coord {
-  flex: 1 1 auto;
-}
-.shogi .cg-wrap coords.files coord, .kyoto .cg-wrap coords.files coord, .dobutsu .cg-wrap coords.files coord {
-  transform: translateY(39%);
+
+.campmate .cg-512 cg-container::after {
+  width: 100%;
+  height: 12.5%;
+  top: 87.5%;
+  left: 0%;
+  background: rgba(230, 230, 230, 0.2);
+  box-shadow: 0 0 10px rgb(0 0 0 / 70%);
+  content: '';
+  z-index: 1;
+  position: absolute;
+  pointer-events: none;
 }

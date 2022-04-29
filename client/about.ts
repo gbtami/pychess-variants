@@ -1,5 +1,4 @@
-import h from 'snabbdom/h';
-import { VNode } from 'snabbdom/vnode';
+import { h, VNode } from 'snabbdom';
 
 import { _ } from './i18n';
 import { model } from './main';
@@ -28,6 +27,8 @@ export function aboutView(): VNode[] {
                 h('a', { attrs: { href: 'https://www.pychess.org/variants/cambodian' } }, 'Ouk Chatrang'),
                 ", ",
                 h('a', { attrs: { href: 'https://www.pychess.org/variants/sittuyin' } }, 'Sittuyin'),
+                ", ",
+                h('a', { attrs: { href: 'https://www.pychess.org/variants/asean' } }, 'ASEAN Chess'),
                 ", ",
                 h('a', { attrs: { href: 'https://www.pychess.org/variants/shogi' } }, 'Shogi'),
                 ", ",
@@ -77,6 +78,10 @@ export function aboutView(): VNode[] {
                 ", ",
                 h('a', { attrs: { href: 'https://www.pychess.org/variants/ordamirror' } }, 'Orda Mirror'),
                 ", ",
+                h('a', { attrs: { href: 'https://www.pychess.org/variants/chak' } }, 'Chak'),
+                ", ",
+                h('a', { attrs: { href: 'https://www.pychess.org/variants/chennis' } }, 'Chennis'),
+                ", ",
                 h('a', { attrs: { href: 'https://www.pychess.org/variants/shouse' } }, 'S-house (S-chess+Crazyhouse)'),
                 ", ",
                 h('a', { attrs: { href: 'https://www.pychess.org/variants/capahouse' } }, 'Capahouse (Capablanca+Crazyhouse)'),
@@ -87,11 +92,13 @@ export function aboutView(): VNode[] {
             ]),
             h('p', [
                 _('Additionally, you can check the Chess960 option for Chess, Crazyhouse, Atomic, S-chess, Capablanca, and Capahouse to start games from random positions with '),
-                h('a', { attrs: { href: 'https://en.wikipedia.org/wiki/Chess960#Castling_rules' } }, _('Chess960 castling rules.'))
+                h('a', { attrs: { href: 'https://en.wikipedia.org/wiki/Fischer_random_chess#Castling_rules' } }, _('Chess960 castling rules.'))
             ]),
             h('p', [
                 _('For move generation, validation, analysis, and engine play, we use '),
-                h('a', { attrs: { href: 'https://github.com/gbtami/Fairy-Stockfish' } }, 'Fairy-Stockfish'),
+                h('a', { attrs: { href: 'https://github.com/ianfab/Fairy-Stockfish' } }, 'Fairy-Stockfish'),
+                ", ",
+                h('a', { attrs: { href: 'https://github.com/ianfab/fairy-stockfish.wasm' } }, 'fairy-stockfish.wasm'),
                 ", ",
                 h('a', { attrs: { href: 'https://github.com/gbtami/fairyfishnet' } }, 'fairyfishnet'),
                 ", and ",
@@ -107,6 +114,7 @@ export function aboutView(): VNode[] {
             ]),
             h('hr'),
             h('p', [
+                _('To play on PyChess, you need to have an open and unmarked account on Lichess. '),
                 _('Regarding Privacy and Terms of Service, the rules of lichess.org are also applied here. '),
                 h('a', { attrs: { href: 'https://lichess.org/privacy' } }, 'Privacy'),
                 ", ",

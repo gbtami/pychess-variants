@@ -3,10 +3,14 @@
     display: grid;
     grid-gap: 0.5rem;
 }
+.sidebar-first {
+    box-shadow: none;
+}
+
 @media (max-width: 799px) and (orientation: portrait) {
     .editor-app {
         grid-template-rows: auto;
-        grid-template-areas: 'poc-top' 'board' 'poc-bot' 'hint' 'mat-top' 'mat-bot' 'tools' 'uboard' 'side';
+        grid-template-areas: 'side' 'poc-top' 'pocket-top' 'board' 'pocket-bot' 'poc-bot' 'uboard' 'tools';
     }
     input#fen {
         padding: 4px 0 4px 0;
@@ -23,7 +27,7 @@
     .editor-app {
         grid-template-columns: minmax(230px, 20vw) 2vmin minmax(calc(70vmin * var(--board-scale)), calc(100vh * var(--board-scale) - calc(var(--site-header-height) + var(--site-header-margin)) - 3rem)) var(--gauge-gap) minmax(240px, 400px);
         grid-template-rows: auto;
-        grid-template-areas: 'side . poc-top . hint' 'side . board . mat-top' 'side . board . tools' 'side . poc-bot . mat-bot' 'uleft . uboard . .';
+        grid-template-areas: 'side . poc-top . hint' 'side . board . pocket-top' 'side . board . tools' 'side . poc-bot . pocket-bot' 'uleft . uboard . .';
     }
 }
 boardeditor {
@@ -35,8 +39,8 @@ boardeditor {
     justify-content: initial;
 }
 .pocket-wrapper .editor {
-    width: var(--cgwrapwidth);
-    height: calc(var(--piecerows) * var(--cgwrapheight) / var(--ranks));
+    width: var(--cg-width);
+    height: calc(var(--piecerows) * var(--cg-height) / var(--ranks));
     display: flex;
     flex-wrap: wrap;
 }
@@ -52,10 +56,6 @@ boardeditor {
     grid-area: poc-bot;
 }
 
-div.editorhint {
-    grid-area: hint;
-    align-self: end;
-}
 .editor-button-container {
     grid-area: tools;
     display: flex;
@@ -63,6 +63,7 @@ div.editorhint {
 }
 .editor-button-container .icon:before{
     font-size: 18px;
+    padding-right: 4px;
 }
 
 #turn-block {

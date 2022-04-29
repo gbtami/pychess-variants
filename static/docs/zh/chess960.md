@@ -1,21 +1,27 @@
-# ![960](https://github.com/gbtami/pychess-variants/blob/master/static/icons/960.svg) Chess960 (Fischer’s Random Chess)
+# ![960](https://github.com/gbtami/pychess-variants/blob/master/static/icons/960.svg) 菲舍爾任意制象棋 (Chess960)
 
-Chess960 was created by Bobby Fischer to make the game more variable and remove a lot of the rote memorization for openings that standard chess forces you into. This is one of the most popular variants, and it will separate those who have truly mastered strategy and tactics from those who rely on memorizing opening lines.
+菲舍爾任意制象棋，是由前西洋棋世界冠軍鮑比·菲舍爾（Bobby Fischer）在以不違反原先西洋棋的邏輯及平衡下，將固有體系完整地置入一個更廣闊的大體系中為前提，提出了一種西洋棋變體。他認為這種棋可讓棋手不再背頌複雜的佈局變例，而單純較量計算能力。
 
-This can be played by checking the 960 box for a standard chess game.
+原先的西洋棋可以視為960種變化中的一種。
 
-## Rules
+## 規則
 
-The starting bottom ranks are randomized, but two rules must be followed:
+棋子的初始排列順序可以隨機產生，但必須遵循下列原則：
 
-* The bishops must be placed on opposite-color squares.
-* The king must be placed on a square between the rooks.
+* 黑白雙方的棋子必須呈對稱排列。
+* 各方的兩枚主教不可位於在同色格。
+* 各方的兩枚城堡只能位在國王的兩側。
+* 士兵必須位於第二、第七橫線。
+* 包括西洋棋的正統排列方式，棋盤初始排列一共有960種。
 
-Castling is the other major rule to take note of. Basically, regardless of where the rooks are, if you castle, the end position will be the same as if the rooks were in standard position. For example, a queenside castle will result with the king on the c file and the rook on the d file (notation: 0-0-0).
+任何一種排列都可進行王車易位，條件如同正統規則：王車之間不得有棋子；王車不得先移動過；王被將軍時不能易位；王移動時經過或到達的格子不能是對方攻擊的範圍。
 
-All other rules are the same.
+不論城堡和國王的初始位置在哪裡，王車易位後國王城堡的位置就如同傳統西洋棋。
+當王與a線方向的車易位時，王移到c1 (c8)，車到d1 (d8)；當與h線方向的車易位時，王到g1 (g8)，車到f1 (f8)。
+棋子的兵種、著法和普通西洋棋規則相同。
 
-## Strategy
+## 策略
 
-Normal chess strategy and tactics apply, except for openings! Since the starting position is random, standard opening lines don’t apply.
-[https://nine-sixty.netlify.app/](https://nine-sixty.netlify.app/) by Tasshaq is recommended for everyone.
+正統西洋棋的戰術和戰略大致適用，但由於開局不固定，因此正統開局通常不適用。
+
+可以看看visualdennis的[https://nine-sixty.netlify.app/](https://nine-sixty.netlify.app/)以更了解這個遊戲。

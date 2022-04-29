@@ -46,7 +46,7 @@ Major regional variants have high precedence. For western chess variants, often 
 
 <details><summary>Can you add Shatranj?</summary>
 
-Shatranj is a dead variant, and there are similar games that are still alive (i.e. Makruk), so no. If you want to play Shatranj, there are other sites that offer it (i.e. [VChess](https://vchess.club/#/))</details>
+Shatranj is a dead variant, and there are similar games that are still alive (i.e. Makruk), so no. If you want to play Shatranj, there are other sites that offer it</details>
 
 <details><summary>Can you add XXX?</summary>
 

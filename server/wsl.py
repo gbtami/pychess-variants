@@ -6,14 +6,16 @@ import aiohttp
 from aiohttp import web
 import aiohttp_session
 
-from broadcast import lobby_broadcast
+from admin import silence
+from broadcast import lobby_broadcast, discord_message, broadcast_streams
+from chat import chat_response
 from const import STARTED
-from settings import ADMINS
+from settings import ADMINS, TOURNAMENT_DIRECTORS
 from seek import challenge, create_seek, get_seeks, Seek
 from user import User
-from utils import new_game, load_game, online_count, MyWebSocketResponse
-from misc import server_growth, server_state
-from tournament import tournament_spotlights
+from utils import join_seek, load_game, online_count, MyWebSocketResponse, remove_seek
+from misc import server_state
+from tournament_spotlights import tournament_spotlights
 
 log = logging.getLogger(__name__)
 
@@ -40,6 +42,8 @@ async def lobby_socket_handler(request):
     db = request.app["db"]
     invites = request.app["invites"]
     twitch = request.app["twitch"]
+    youtube = request.app["youtube"]
+    lobbychat = request.app["lobbychat"]
 
     ws = MyWebSocketResponse(heartbeat=3.0, receive_timeout=10.0)
 
@@ -83,25 +87,28 @@ async def lobby_socket_handler(request):
                         variant = data["variant"]
                         engine = users.get("Fairy-Stockfish")
 
-                        if engine is None or not engine.online:
-                            # TODO: message that engine is offline, but capture BOT will play instead
+                        if data["rm"] or (engine is None) or (not engine.online):
+                            # TODO: message that engine is offline, but Random-Mover BOT will play instead
                             engine = users.get("Random-Mover")
 
                         seek = Seek(
-                            user, variant,
+                            user,
+                            variant,
                             fen=data["fen"],
                             color=data["color"],
                             base=data["minutes"],
                             inc=data["increment"],
                             byoyomi_period=data["byoyomiPeriod"],
-                            level=data["level"],
-                            rated=data["rated"],
+                            level=0 if data["rm"] else data["level"],
+                            player1=user,
+                            rated=False,
                             chess960=data["chess960"],
-                            alternate_start=data["alternateStart"])
+                            alternate_start=data["alternateStart"],
+                        )
                         # print("SEEK", user, variant, data["fen"], data["color"], data["minutes"], data["increment"], data["level"], False, data["chess960"])
                         seeks[seek.id] = seek
 
-                        response = await new_game(request.app, engine, seek.id)
+                        response = await join_seek(request.app, engine, seek.id)
                         await ws.send_json(response)
 
                         if response["type"] != "error":
@@ -117,20 +124,7 @@ async def lobby_socket_handler(request):
                         print("create_seek", data)
                         seek = await create_seek(db, invites, seeks, user, data, ws)
                         await lobby_broadcast(sockets, get_seeks(seeks))
-
-                        if data.get("target"):
-                            queue = users[data["target"]].notify_queue
-                            if queue is not None:
-                                await queue.put(json.dumps({"notify": "new_challenge"}))
-
-                        # Send msg to discord-relay BOT
-                        try:
-                            for dr_ws in sockets["Discord-Relay"]:
-                                await dr_ws.send_json({"type": "create_seek", "message": seek.discord_msg})
-                                break
-                        except (KeyError, ConnectionResetError):
-                            # BOT disconnected
-                            log.error("--- Discord-Relay disconnected!")
+                        await discord_message(request.app, "create_seek", seek.discord_msg)
 
                     elif data["type"] == "create_invite":
                         no = await is_playing(request, user, ws)
@@ -141,6 +135,17 @@ async def lobby_socket_handler(request):
                         seek = await create_seek(db, invites, seeks, user, data, ws)
 
                         response = {"type": "invite_created", "gameId": seek.game_id}
+                        await ws.send_json(response)
+
+                    elif data["type"] == "create_host":
+                        no = user.username not in TOURNAMENT_DIRECTORS
+                        if no:
+                            continue
+
+                        print("create_host", data)
+                        seek = await create_seek(db, invites, seeks, user, data, ws, True)
+
+                        response = {"type": "host_created", "gameId": seek.game_id}
                         await ws.send_json(response)
 
                     elif data["type"] == "delete_seek":
@@ -166,15 +171,19 @@ async def lobby_socket_handler(request):
 
                         seek = seeks[data["seekID"]]
                         # print("accept_seek", seek.as_json)
-                        response = await new_game(request.app, user, data["seekID"])
+                        response = await join_seek(request.app, user, data["seekID"])
                         await ws.send_json(response)
 
-                        if seek.user.bot:
+                        if seek.creator.bot:
                             gameId = response["gameId"]
-                            seek.user.game_queues[gameId] = asyncio.Queue()
-                            await seek.user.event_queue.put(challenge(seek, response))
+                            seek.creator.game_queues[gameId] = asyncio.Queue()
+                            await seek.creator.event_queue.put(challenge(seek, response))
                         else:
-                            await seek.ws.send_json(response)
+                            if seek.ws is None:
+                                remove_seek(seeks, seek)
+                                await lobby_broadcast(sockets, get_seeks(seeks))
+                            else:
+                                await seek.ws.send_json(response)
 
                         # Inform others, new_game() deleted accepted seek allready.
                         await lobby_broadcast(sockets, get_seeks(seeks))
@@ -182,26 +191,45 @@ async def lobby_socket_handler(request):
                     elif data["type"] == "lobby_user_connected":
                         if session_user is not None:
                             if data["username"] and data["username"] != session_user:
-                                log.info("+++ Existing lobby_user %s socket connected as %s.", session_user, data["username"])
+                                log.info(
+                                    "+++ Existing lobby_user %s socket connected as %s.",
+                                    session_user,
+                                    data["username"],
+                                )
                                 session_user = data["username"]
                                 if session_user in users:
                                     user = users[session_user]
                                 else:
-                                    user = User(request.app, username=data["username"], anon=data["username"].startswith("Anon-"))
+                                    user = User(
+                                        request.app,
+                                        username=data["username"],
+                                        anon=data["username"].startswith("Anon-"),
+                                    )
                                     users[user.username] = user
                             else:
                                 if session_user in users:
                                     user = users[session_user]
                                 else:
-                                    user = User(request.app, username=data["username"], anon=data["username"].startswith("Anon-"))
+                                    user = User(
+                                        request.app,
+                                        username=data["username"],
+                                        anon=data["username"].startswith("Anon-"),
+                                    )
                                     users[user.username] = user
                         else:
-                            log.info("+++ Existing lobby_user %s socket reconnected.", data["username"])
+                            log.info(
+                                "+++ Existing lobby_user %s socket reconnected.",
+                                data["username"],
+                            )
                             session_user = data["username"]
                             if session_user in users:
                                 user = users[session_user]
                             else:
-                                user = User(request.app, username=data["username"], anon=data["username"].startswith("Anon-"))
+                                user = User(
+                                    request.app,
+                                    username=data["username"],
+                                    anon=data["username"].startswith("Anon-"),
+                                )
                                 users[user.username] = user
 
                         # update websocket
@@ -209,10 +237,13 @@ async def lobby_socket_handler(request):
                         user.update_online()
                         sockets[user.username] = user.lobby_sockets
 
-                        response = {"type": "lobby_user_connected", "username": user.username}
+                        response = {
+                            "type": "lobby_user_connected",
+                            "username": user.username,
+                        }
                         await ws.send_json(response)
 
-                        response = {"type": "fullchat", "lines": list(request.app["lobbychat"])}
+                        response = {"type": "fullchat", "lines": list(lobbychat)}
                         await ws.send_json(response)
 
                         # send game count
@@ -230,35 +261,57 @@ async def lobby_socket_handler(request):
                         if len(spotlights) > 0:
                             await ws.send_json({"type": "spotlights", "items": spotlights})
 
-                        streams = twitch.live_streams
+                        streams = twitch.live_streams + youtube.live_streams
                         if len(streams) > 0:
                             await ws.send_json({"type": "streams", "items": streams})
 
                     elif data["type"] == "lobbychat":
+                        if user.username.startswith("Anon-"):
+                            continue
+
                         message = data["message"]
                         response = None
 
                         if user.username in ADMINS:
                             if message.startswith("/silence"):
-                                spammer = data["message"].split()[-1]
-                                if spammer in users:
-                                    users[spammer].set_silence()
-                                    response = {"type": "lobbychat", "user": "", "message": "%s was timed out 10 minutes for spamming the chat." % spammer}
-                            elif message == "/growth":
-                                server_growth()
+                                response = silence(message, lobbychat, users)
+                                # silence message was already added to lobbychat in silence()
+
+                            elif message.startswith("/stream"):
+                                parts = message.split()
+                                if len(parts) >= 3:
+                                    if parts[1] == "add":
+                                        if len(parts) >= 5:
+                                            youtube.add(parts[2], parts[3], parts[4])
+                                        elif len(parts) >= 4:
+                                            youtube.add(parts[2], parts[3])
+                                        else:
+                                            youtube.add(parts[2])
+                                    elif parts[1] == "remove":
+                                        youtube.remove(parts[2])
+                                    await broadcast_streams(request.app)
+
                             elif message == "/state":
                                 server_state(request.app)
+
                             else:
-                                response = {"type": "lobbychat", "user": user.username, "message": data["message"]}
+                                response = chat_response(
+                                    "lobbychat", user.username, data["message"]
+                                )
+                                lobbychat.append(response)
+
                         elif user.anon and user.username != "Discord-Relay":
                             pass
+
                         else:
                             if user.silence == 0:
-                                response = {"type": "lobbychat", "user": user.username, "message": data["message"]}
+                                response = chat_response(
+                                    "lobbychat", user.username, data["message"]
+                                )
+                                lobbychat.append(response)
 
                         if response is not None:
                             await lobby_broadcast(sockets, response)
-                            request.app["lobbychat"].append(response)
 
                     elif data["type"] == "logout":
                         await ws.close()
@@ -268,7 +321,10 @@ async def lobby_socket_handler(request):
                         await ws.close(code=1009)
 
             elif msg.type == aiohttp.WSMsgType.CLOSED:
-                log.debug("--- Lobby websocket %s msg.type == aiohttp.WSMsgType.CLOSED", id(ws))
+                log.debug(
+                    "--- Lobby websocket %s msg.type == aiohttp.WSMsgType.CLOSED",
+                    id(ws),
+                )
                 break
 
             elif msg.type == aiohttp.WSMsgType.ERROR:
@@ -307,6 +363,6 @@ async def lobby_socket_handler(request):
                 # response = {"type": "lobbychat", "user": "", "message": "%s left the lobby" % user.username}
                 # await lobby_broadcast(sockets, response)
 
-                await user.clear_seeks(sockets, seeks)
+                await user.clear_seeks()
 
     return ws

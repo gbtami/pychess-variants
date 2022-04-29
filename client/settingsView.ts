@@ -1,17 +1,9 @@
-import { init } from "snabbdom";
-import klass from 'snabbdom/modules/class';
-import attributes from 'snabbdom/modules/attributes';
-import properties from 'snabbdom/modules/props';
-import listeners from 'snabbdom/modules/eventlisteners';
-
-const patch = init([klass, attributes, properties, listeners]);
-
-import { h } from 'snabbdom/h';
+import { h } from "snabbdom";
 
 import { backgroundSettings } from './background';
 import { boardSettings } from './boardSettings';
 import { selectVariant } from './chess';
-import { getDocumentData } from './document';
+import { patch, getDocumentData } from './document';
 import { _, translatedLanguage, languageSettings } from './i18n';
 import { volumeSettings, soundThemeSettings } from './sound';
 import { zenModeSettings } from './zen';
@@ -78,13 +70,13 @@ function settingsMenu() {
     ]);
 }
 
-function showSubsettings(evt) {
+function showSubsettings(evt: MouseEvent) {
     const mainSettings = document.getElementById('settings-main') as HTMLElement;
     const subSettings = document.getElementById('settings-sub') as HTMLElement;
 
     Array.from(subSettings.children).forEach((sub: HTMLElement) => sub.style.display = 'none');
 
-    const settingsName = evt.target.id.slice(4);
+    const settingsName = (<HTMLButtonElement>evt.target).id.slice(4);
     const targetSettings = document.getElementById('settings-' + settingsName) as HTMLElement;
     targetSettings.style.display = 'flex';
 

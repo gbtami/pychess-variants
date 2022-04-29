@@ -18,7 +18,7 @@ There are five additional rules that new players must be especially aware of! (A
 
 \*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*
 
-1.	**King Faceoff** – As in Xiangqi, **Kings may not face each other (on a file OR rank) without intervening pieces**, as if they were two rooks facing each other. Keep this in mind, as pieces can be pinned in between, or also be supported by the allied king.
+1.	**King Faceoff** – As in Xiangqi, **Kings may not face each other (on a file OR rank) without intervening pieces**, as if they were two rooks facing each other. Keep this in mind, as pieces can be pinned in between, or also be supported by the allied king. Additionally, **the white king cannot castle through a king faceoff**.
 2.	**Reinforcement Soldiers** – Red starts with two soldiers in hand. Instead of moving a piece on the board, the Dynasty player can drop a soldier onto an open square in rank 5 (Dynasty’s 4th rank), the same rank where the original soldiers start.
 3.	**Campmate** – A king that reaches the final rank (without moving into check) wins the game.
 4.	**Stalemate** – As in Xiangqi, stalemates are a loss (in Chess, they are a draw).
@@ -142,6 +142,8 @@ If you are white, avoid this situation. Always eye the cannons.
 
 ![Fool's Mate](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/FoolsMate.png)
 
+In this position Ce6+ forces Be5 which leads to Ce4#, in others it could be just mate, or at least force white to block the check with a piece and lose it.
+
 This is part of why 1. e3 is a standard opening. And if not 1. e3, then 2. e3. Afterwards, if a cannon does attack, it can be blocked by a bishop or knight, which will remain pinned for a while. 1. e4 is not recommended because it's actually an empty threat (the pawn is pinned from attacking because of facing kings).
 
 **Queenslayer**
@@ -150,4 +152,14 @@ This is an extremely deadly tactic that may end in an inevitable loss for white 
 
 ![Queenslayer](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Queenslayer.png)
 
-Once this position happens, the chariot can take the pawn, forcing the rook to retake the chariot. This now exposes the b1/g1 square to the cannon, which will either threaten AND pin the queen if attacking queenside (b1), or skewer the queen by check on the kingside (g1). Either way, the queen is lost.
+Once this position happens, the chariot can take the pawn, forcing the rook to retake the chariot. This now exposes the b1/g1 square to the cannon, which will either threaten AND pin the queen if attacking queenside (b1), or skewer the queen by check on the kingside (g1). Either way, the queen is lost. It should noted that the Queenslayer is not an opening line. It's a *tactic* for a certain situation when red's soldiers are shifted to open up the chariot and cannon files. Intentionally aiming to recreate this position by shifting soldiers open will likely be counterproductive for red.
+
+Moveover this trap can go wrong in 2 ways.
+
+![QueenslayerGoneWrongb1](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/QueenslayerGoneWrongb1.png)
+
+With no pawn on d3 blocking the path of the bishop white can save their queen by going Bb5+. No matter if red takes the bishop or moves the king out of check their cannon no longer hits b1, so white can just recapture the chariot.
+
+![QueenslayerGoneWrongg1](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/QueenslayerGoneWrongg1.png)
+
+Here red tries the same trick on the kingside. After Rxh2, Rxh2 Cxg1+ it seems the queen is lost as white is in check and defending by moving either the king or the bishop would allow Cxd1, except if white goes Bxb5+ red has to get out of check and white has time to move the queen out of the way.

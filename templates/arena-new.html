@@ -12,11 +12,10 @@
                 <div class="form-group">
                     <label class="form-label" for="form3-name">Name</label>
                     <div>
-                        <input id="form3-name" name="name" value="{{ tournamentname }}" class="form-control" minlength="2" maxlength="30" /> Arena
+                        <input id="form3-name" name="name" value="{{ tournamentname }}" class="form-control" minlength="2" maxlength="30" />
                         <br />
                         <small class="form-help">Pick a very safe name for the tournament.
-                            <br />Anything even slightly inappropriate could get your account closed.
-                            <br />Leave empty to name the tournament after a notable chess player.
+                            <br />Leave empty to name the tournament after a notable chess player (Not implemented on pychess atm!).
                         </small>
                     </div>
                 </div>
@@ -25,14 +24,13 @@
                         <div>
                             <label class="form-label" for="form3-rated">Rated</label>
                             <span class="form-check-input">
-                                <input id="form3-rated" name="rated" value="{{ rated }}" type="checkbox" class="form-control cmn-toggle" checked="checked"/>
+                                <input id="form3-rated" name="rated" value="1" type="checkbox" class="form-control cmn-toggle" {% if rated %}checked{% endif %}/>
                             </span>
                         </div>
                         <small class="form-help">Games are rated
                             <br />and impact players ratings
                         </small>
                     </div>
-                    <input type="hidden" name="rated" value="false" />
                     <div class="form-group form-half">
                         <label class="form-label" for="form3-variant">Variant</label>
                         <select id="form3-variant" name="variant" class="form-control">
@@ -161,7 +159,6 @@
                         <label class="form-label" for="form3-position">Starting position</label>
                         <input id="form3-position" name="position" class="form-control" />
                         <small class="form-help">Paste a valid FEN to start every game from a given position.
-                            <br />It only works for standard games, not with variants.
                             <br />You can use the 
                             <a href="/editor" rel="noopener" target="_blank">Board editor</a> to generate a FEN position, then paste it here.
                             <br />Leave empty to start games from the normal initial position.
@@ -213,7 +210,7 @@
                 <br />
                 <br />For example, two wins followed by a draw will be worth 6 points: 2 + 2 + (2 × 1)
             </p>
-            <h2>Arena Berserk (Not implemented on pychess atm!)</h2>
+            <h2>Arena Berserk</h2>
             <p>When a player clicks the Berserk button at the beginning of the game, they lose half of their clock time, but the win is worth one extra tournament point.
                 <br />
                 <br />Going Berserk in time controls with an increment also cancels the increment. (1+2 is an exception, it gives 1+0)
@@ -254,7 +251,7 @@
         minDate: 'today',
         maxDate: new Date(Date.now() + 1000 * 3600 * 24 * 31 * 3),
         monthSelectorType: 'static',
-        disableMobile: true, // https://flatpickr.js.org/mobile-support/ https://github.com/ornicar/lila/issues/8110
+        disableMobile: true, // https://flatpickr.js.org/mobile-support/ https://github.com/lichess-org/lila/issues/8110
     });</script>
     <script src="{{ js }}"></script>
 {% endblock %}

@@ -1,17 +1,44 @@
-from bot_api import account, playing, event_stream, game_stream, bot_abort,\
-    bot_resign, bot_chat, bot_move, challenge_accept, challenge_decline,\
-    create_bot_seek, challenge_create, bot_pong, bot_analysis
-from fishnet import fishnet_monitor, fishnet_key, fishnet_acquire,\
-    fishnet_abort, fishnet_analysis, fishnet_move
-from game_api import export, get_games, get_user_games, subscribe_games,\
-    subscribe_notify, subscribe_invites, get_variant_stats, cancel_invite
-from utils import import_game
+from bot_api import (
+    account,
+    playing,
+    event_stream,
+    game_stream,
+    bot_abort,
+    bot_resign,
+    bot_chat,
+    bot_move,
+    challenge_accept,
+    challenge_decline,
+    create_bot_seek,
+    challenge_create,
+    bot_pong,
+    bot_analysis,
+)
+from fishnet import (
+    fishnet_monitor,
+    fishnet_key,
+    fishnet_acquire,
+    fishnet_abort,
+    fishnet_analysis,
+    fishnet_move,
+)
+from game_api import (
+    export,
+    get_games,
+    get_user_games,
+    subscribe_games,
+    subscribe_invites,
+    get_variant_stats,
+    cancel_invite,
+)
+from utils import import_game, get_names
 from login import login, logout, oauth
 from index import index, robots, select_lang
 from wsl import lobby_socket_handler
 from wsr import round_socket_handler
 from wst import tournament_socket_handler
-from twitch import twitch
+from tournament_calendar import tournament_calendar
+from twitch import twitch_request_handler
 
 
 get_routes = (
@@ -23,7 +50,9 @@ get_routes = (
     ("/faq", index),
     ("/stats", index),
     ("/players", index),
+    ("/players/{variant}", index),
     ("/allplayers", index),
+    ("/calendar", index),
     ("/games", index),
     ("/tv", index),
     ("/analysis/{variant}", index),
@@ -31,12 +60,15 @@ get_routes = (
     ("/editor/{variant}", index),
     ("/editor/{variant}/{fen}", index),
     (r"/{gameId:\w{8}}", index),
+    (r"/{gameId:\w{8}}/{player:player[1-2]}", index),
     (r"/embed/{gameId:\w{8}}", index),
     ("/tournaments", index),
     ("/tournaments/new", index),
     (r"/tournaments/{tournamentId:\w{8}}/edit", index),
     ("/tournaments/shields", index),
+    ("/tournaments/shields/{variant}", index),
     ("/tournaments/winners", index),
+    ("/tournaments/winners/{variant}", index),
     (r"/tournament/{tournamentId:\w{8}}", index),
     (r"/tournament/{tournamentId:\w{8}}/pause", index),
     (r"/tournament/{tournamentId:\w{8}}/cancel", index),
@@ -46,6 +78,7 @@ get_routes = (
     ("/@/{profileId}/challenge/{variant}", index),
     ("/@/{profileId}/perf/{variant}", index),
     ("/@/{profileId}/rated", index),
+    ("/@/{profileId}/me", index),
     ("/@/{profileId}/import", index),
     ("/level8win", index),
     ("/patron", index),
@@ -66,12 +99,15 @@ get_routes = (
     ("/api/{profileId}/loss", get_user_games),
     ("/api/{profileId}/rated", get_user_games),
     ("/api/{profileId}/import", get_user_games),
+    ("/api/{profileId}/me", get_user_games),
     ("/api/{profileId}/perf/{variant}", get_user_games),
+    ("/api/calendar", tournament_calendar),
     ("/api/stats", get_variant_stats),
+    ("/api/stats/humans", get_variant_stats),
     ("/api/games", get_games),
     ("/api/invites", subscribe_invites),
     ("/api/ongoing", subscribe_games),
-    ("/api/notify", subscribe_notify),
+    ("/api/names", get_names),
     ("/paste", index),
     (r"/games/export/monthly/{yearmonth:\d{6}}", export),
     ("/games/export/{profileId}", export),
@@ -89,6 +125,7 @@ post_routes = (
     ("/api/bot/game/{gameId}/move/{move}", bot_move),
     ("/api/challenge/{username}", challenge_create),
     (r"/invite/accept/{gameId:\w{8}}", index),
+    (r"/invite/accept/{gameId:\w{8}}/{player:player[1-2]}", index),
     (r"/invite/cancel/{gameId:\w{8}}", cancel_invite),
     ("/api/challenge/{challengeId}/accept", challenge_accept),
     ("/api/challenge/{challengeId}/decline", challenge_decline),
@@ -102,5 +139,5 @@ post_routes = (
     ("/import", import_game),
     ("/tournaments/arena", index),
     (r"/tournament/{tournamentId:\w{8}}/edit", index),
-    ("/twitch", twitch),
+    ("/twitch", twitch_request_handler),
 )

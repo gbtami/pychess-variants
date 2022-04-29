@@ -1,86 +1,30 @@
-import { h } from "snabbdom";
-import { VNode } from 'snabbdom/vnode';
+import { h, VNode } from "snabbdom";
 
 import { _ } from './i18n';
 import AnalysisController from './analysisCtrl';
+import { gameInfo } from './gameInfo';
 import { selectVariant, VARIANTS } from './chess';
-import { timeago, renderTimeago } from './datetime';
-import { aiLevel, gameType, renderRdiff } from './profile';
-import { timeControlStr } from './view'
+import { renderTimeago } from './datetime';
+import { spinner } from './spinner';
+import { PyChessModel } from "./main";
 
-declare global {
-    interface Window {
-        onFSFline: (string) => void;
-        fsf;
-    }
-}
-
-function runGround(vnode: VNode, model) {
+function runGround(vnode: VNode, model: PyChessModel) {
     const el = vnode.elm as HTMLElement;
     const ctrl = new AnalysisController(el, model);
     window['onFSFline'] = ctrl.onFSFline;
 }
 
-function leftSide(model) {
-    const variant = VARIANTS[model.variant];
-    const chess960 = model.chess960 === 'True';
-    const dataIcon = variant.icon(chess960);
-    const fc = variant.firstColor;
-    const sc = variant.secondColor;
+function leftSide(model: PyChessModel) {
 
     if (model["gameId"] !== "") {
-        const tc = (model["base"] == "0" && model["inc"] == "0") ? "" : timeControlStr(model["base"], model["inc"], model["byo"]) + " • ";
         return [
-        h('div.game-info', [
-            h('div.info0.icon', { attrs: { "data-icon": dataIcon } }, [
-                h('div.info2', [
-                    h('div.tc', [
-                        tc + gameType(model["rated"]) + " • ",
-                        h('a.user-link', {
-                            attrs: {
-                                target: '_blank',
-                                href: '/variants/' + model["variant"] + (chess960 ? '960': ''),
-                            }
-                        },
-                            variant.displayName(chess960),
-                        ),
-                    ]),
-                    Number(model["status"]) >= 0 ? h('info-date', { attrs: { timestamp: model["date"]} }, timeago(model["date"])) : _("Playing right now"),
-                ]),
-            ]),
-            h('div.player-data', [
-                h('i-side.icon', {
-                    class: {
-                        "icon-white": fc === "White",
-                        "icon-black": fc === "Black",
-                        "icon-red":   fc === "Red",
-                        "icon-blue":  fc === "Blue",
-                        "icon-gold":  fc === "Gold",
-                        "icon-pink":  fc === "Pink",
-                    }
-                }),
-                h('player', playerInfo(model.wplayer, model.wtitle, model.level, model.wrating, model.wrdiff)),
-            ]),
-            h('div.player-data', [
-                h('i-side.icon', {
-                    class: {
-                        "icon-white": sc === "White",
-                        "icon-black": sc === "Black",
-                        "icon-red":   sc === "Red",
-                        "icon-blue":  sc === "Blue",
-                        "icon-gold":  sc === "Gold",
-                        "icon-pink":  sc === "Pink",
-                    }
-                }),
-                h('player', playerInfo(model.bplayer, model.btitle, model.level, model.brating, model.brdiff)),
-            ]),
-        ]),
-        h('div#roundchat'),
+            gameInfo(model),
+            h('div#roundchat'),
         ];
 
     } else {
 
-        const setVariant = (isInput) => {
+        const setVariant = (isInput: boolean) => {
             let e;
             e = document.getElementById('variant') as HTMLSelectElement;
             const variant = e.options[e.selectedIndex].value;
@@ -98,13 +42,13 @@ function leftSide(model) {
     }
 }
 
-export function embedView(model): VNode[] {
+export function embedView(model: PyChessModel): VNode[] {
     const variant = VARIANTS[model.variant];
     const chess960 = model.chess960 === 'True';
 
     return [
         h('div.embed-app', [
-            h('selection#mainboard.' + variant.board + '.' + variant.piece, [
+            h(`selection#mainboard.${variant.board}.${variant.piece}.${variant.boardMark}`, [
                 h('div.cg-wrap.' + variant.cg, { hook: { insert: (vnode) => runGround(vnode, model) } }),
             ]),
 
@@ -145,16 +89,27 @@ export function embedView(model): VNode[] {
     ];
 }
 
-export function analysisView(model): VNode[] {
+export function analysisView(model: PyChessModel): VNode[] {
     const variant = VARIANTS[model.variant];
+    const isAnalysisBoard = model["gameId"] === "";
+    const tabindexCt = (isAnalysisBoard) ? '-1' : '0';
+    const tabindexPgn = (isAnalysisBoard) ? '0' : '-1';
 
     renderTimeago();
+
+    const onClickFullfen = () => {
+        const el = document.getElementById('fullfen') as HTMLInputElement;
+        el.focus();
+        el.select();
+    }
 
     return [
         h('div.analysis-app', [
             h('aside.sidebar-first', leftSide(model)),
-            h('selection#mainboard.' + variant.board + '.' + variant.piece, [
+            h(`selection#mainboard.${variant.board}.${variant.piece}.${variant.boardMark}`, [
+                h('div#anal-clock-top'),
                 h('div.cg-wrap.' + variant.cg, { hook: { insert: (vnode) => runGround(vnode, model) } }),
+                h('div#anal-clock-bottom'),
             ]),
             h('div#gauge', [
                 h('div.black',     { props: { style: "height: 50%;" } }),
@@ -178,7 +133,7 @@ export function analysisView(model): VNode[] {
                 h('div#ceval', [
                     h('div.engine', [
                         h('score#score', ''),
-                        h('div.info', ['Fairy-Stockfish 11+', h('br'), h('info#info', _('in local browser'))]),
+                        h('div.info', ['Fairy-Stockfish 14+', h('br'), h('info#info', _('in local browser'))]),
                         h('label.switch', [
                             h('input#input', {
                                 props: {
@@ -212,28 +167,30 @@ export function analysisView(model): VNode[] {
             ]),
             h('under-left#spectators'),
             h('under-board', [
-                h('div#pgn', [
-                    h('div#ctable-container'),
-                    h('div.chart-container', [
-                        h('div#chart'),
-                        h('div#loader-wrapper', [h('div#loader')])
-                    ]),
+                h('div.chart-container', {attrs: {id: 'panel-1', role: 'tabpanel', tabindex: '-1', 'aria-labelledby': 'tab-1'}}, [
+                    h('button#request-analysis'),
+                    h('div#chart-analysis'),
+                    h('div#loader-wrapper', [spinner()])
+                ]),
+                h('div.chart-container', {attrs: {id: 'panel-2', role: 'tabpanel', tabindex: '-1', 'aria-labelledby': 'tab-2'}}, [
+                    h('div#chart-movetime'),
+                ]),
+                h('div.ctable-container', {attrs: {id: 'panel-3', role: 'tabpanel', tabindex: tabindexCt, 'aria-labelledby': 'tab-3'}}),
+                h('div', {attrs: {id: 'panel-4', role: 'tabpanel', tabindex: tabindexPgn, 'aria-labelledby': 'tab-4'}}, [
                     h('div#fentext', [
                         h('strong', 'FEN'),
-                        h('input#fullfen', {attrs: {readonly: true, spellcheck: false}})
+                        h('input#fullfen', {attrs: {readonly: true, spellcheck: false}, on: { click: onClickFullfen } })
                     ]),
                     h('div#copyfen'),
-                    h('div', [h('textarea#pgntext')]),
+                    h('div#pgntext'),
+                ]),
+                h('div', {attrs: {role: 'tablist', 'aria-label': 'Analysis Tabs'}}, [
+                    h('span', {attrs: {role: 'tab', 'aria-selected': false, 'aria-controls': 'panel-1', id: 'tab-1', tabindex: '-1'}}, _('Computer analysis')),
+                    h('span', {attrs: {role: 'tab', 'aria-selected': true, 'aria-controls': 'panel-2', id: 'tab-1', tabindex: '-1'}}, _('Move times')),
+                    h('span', {attrs: {role: 'tab', 'aria-selected': false, 'aria-controls': 'panel-3', id: 'tab-3', tabindex: tabindexCt}}, _('Crosstable')),
+                    h('span', {attrs: {role: 'tab', 'aria-selected': false, 'aria-controls': 'panel-4', id: 'tab-4', tabindex: tabindexPgn}}, _('FEN & PGN')),
                 ]),
             ]),
         ]),
     ];
-}
-
-function playerInfo(username: string, title: string, level: number, rating: number, rdiff: number | null) {
-    return h('a.user-link', { attrs: { href: '/@/' + username } }, [
-        h('player-title', " " + title + " "),
-        username + aiLevel(title, level) + (title !== 'BOT' ? (" (" + rating + ") ") : ''),
-        rdiff === null ? h('rdiff') : renderRdiff(rdiff),
-    ]);
 }

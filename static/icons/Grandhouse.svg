@@ -1,6 +1,4 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!-- Created with Inkscape (http://www.inkscape.org/) -->
-
 <svg
    xmlns:dc="http://purl.org/dc/elements/1.1/"
    xmlns:cc="http://creativecommons.org/ns#"
@@ -15,7 +13,7 @@
    version="1.1"
    id="svg1579"
    sodipodi:docname="Grandhouse.svg"
-   inkscape:version="0.92.4 (5da689c313, 2019-01-14)">
+   inkscape:version="1.0.1 (3bc2e813f5, 2020-09-07)">
   <defs
      id="defs1573">
     <inkscape:path-effect
@@ -100,12 +98,13 @@
      showgrid="false"
      units="px"
      showguides="true"
-     inkscape:window-width="1920"
-     inkscape:window-height="1017"
-     inkscape:window-x="1912"
-     inkscape:window-y="-8"
+     inkscape:window-width="3840"
+     inkscape:window-height="2050"
+     inkscape:window-x="-12"
+     inkscape:window-y="-12"
      inkscape:window-maximized="1"
-     inkscape:lockguides="true" />
+     inkscape:lockguides="true"
+     inkscape:document-rotation="0" />
   <metadata
      id="metadata1576">
     <rdf:RDF>
@@ -125,7 +124,7 @@
      transform="translate(0,-283.77082)"
      style="opacity:0.98999999">
     <path
-       style="opacity:1;fill:#88aa00;fill-opacity:1;stroke:none;stroke-width:3.34786987;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1;paint-order:normal"
+       style="opacity:1;fill:#5e894f;fill-opacity:1;stroke:none;stroke-width:3.34786987;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1;paint-order:normal"
        d="M 25.03125 1.6171875 C 17.876001 6.8994553 -4.6789705 26.255859 4.2148438 26.255859 L 9.9726562 26.255859 L 9.9726562 47.367188 L 40.03125 47.367188 L 40.03125 26.255859 L 46.009766 26.255859 C 54.597937 25.999343 31.80769 6.8994553 25.03125 1.6171875 z M 25.013672 17.083984 L 28.296875 20.246094 L 32.806641 19.597656 L 33.603516 24.083984 L 37.634766 26.212891 L 35.642578 30.310547 L 37.654297 34.400391 L 33.632812 36.544922 L 32.853516 41.035156 L 28.339844 40.408203 L 25.072266 43.582031 L 21.789062 40.421875 L 17.277344 41.070312 L 16.480469 36.582031 L 12.451172 34.457031 L 14.443359 30.357422 L 12.433594 26.267578 L 16.453125 24.121094 L 17.232422 19.630859 L 21.744141 20.259766 L 25.013672 17.083984 z M 25.042969 20.761719 A 9.5718891 9.5718891 0 0 0 15.470703 30.333984 A 9.5718891 9.5718891 0 0 0 25.042969 39.90625 A 9.5718891 9.5718891 0 0 0 34.615234 30.333984 A 9.5718891 9.5718891 0 0 0 25.042969 20.761719 z "
        transform="matrix(0.26458333,0,0,0.26458333,0,283.77082)"
        id="rect7553" />

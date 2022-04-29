@@ -9,8 +9,8 @@
 
 @media (max-width: 799px) and (orientation: portrait) {
     .round-app {
-        grid-template-rows: auto auto 36px auto auto min-content 36px auto auto auto auto auto auto auto;
-        grid-template-areas: 'move-controls' 'mat-top' 'user-top' 'clock-top' 'expi-top' 'board' 'user-bot' 'expi-bot' 'clock-bot' 'mat-bot' 'game-controls' 'moves' 'uboard' 'uleft';
+        grid-template-rows: auto auto auto 36px auto auto min-content 36px auto auto auto auto auto auto auto auto;
+        grid-template-areas: 'move-controls' 'mat-top' 'pocket-top' 'user-top' 'clock-top' 'expi-top' 'board' 'user-bot' 'offer' 'expi-bot' 'clock-bot' 'pocket-bot' 'mat-bot' 'game-controls' 'moves' 'uboard' 'uleft';
     }
     under-left {
         display: none;
@@ -20,8 +20,8 @@
 @media (min-width: 800px) {
     .round-app {
         grid-template-columns: minmax(calc(70vmin * var(--board-scale)), calc(100vh * var(--board-scale) - calc(var(--site-header-height) + var(--site-header-margin)) - 3rem)) minmax(240px, 400px);
-        grid-template-rows: min-content auto min-content auto auto auto auto auto auto auto min-content auto min-content;
-        grid-template-areas: 'board .' 'board mat-top' 'board clock-top' 'board expi-top' 'board user-top' 'board move-controls' 'board moves' 'board game-controls' 'board user-bot' 'board expi-bot' 'board clock-bot' 'board mat-bot' 'board .';
+        grid-template-rows: min-content auto auto min-content auto auto auto auto auto auto auto min-content auto auto min-content;
+        grid-template-areas: 'board .' 'board mat-top' 'board pocket-top' 'board clock-top' 'board expi-top' 'board user-top' 'board move-controls' 'board moves' 'board offer' 'board game-controls' 'board user-bot' 'board expi-bot' 'board clock-bot' 'board pocket-bot' 'board mat-bot' 'board .';
     }
 }
 
@@ -52,6 +52,42 @@
 #janggi-setup-buttons > #flipLeft:hover, #janggi-setup-buttons > #flipRight:hover {
     background: var(--rusty);
 }
+
+/* draw/rematch offer dialog */
+#offer-dialog {
+    display: flex;
+    grid-area: offer;
+    justify-content: space-between;
+    align-items: stretch;
+    align-content: center;
+    background: var(--bg-color2);
+    border-bottom: 1px solid var(--border-color);
+}
+#offer-dialog .reject {
+    color: var(--bad);
+    font-size: 1.5rem;
+    width: 15%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: var(--bg-color0);
+}
+#offer-dialog .text {
+    padding-top: 15px;
+    padding-bottom: 15px;
+    text-align: center;
+}
+#offer-dialog .accept {
+    color: var(--good);
+    font-size: 1.2rem;
+    width: 20%;
+    width: 15%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: var(--bg-color0);
+}
+
 /* game start expiration */
 .expiration {
     font-size: 0.9rem;
@@ -154,3 +190,24 @@ a#zen-button:hover {
 [data-zen="on"] a#zen-button {
     display: flex;
 }
+[data-zen="on"] #btn-settings {
+    display: none;
+}
+[data-zen="on"] #username {
+    display: none;
+}
+
+button.icon.icon-berserk {
+    border: none;
+    color: var(--font-color);
+    background-color: var(--bg-body);
+    font-size: 32px;
+    margin: 0;
+    padding: 0 0 0 4px;
+}
+.berserked {
+    display: flex;
+    margin-left: auto;
+}
+.berserked button.icon.icon-berserk {
+    color: var(--bad);

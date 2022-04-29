@@ -1,17 +1,9 @@
 // https://stackoverflow.com/questions/20618355/the-simplest-possible-javascript-countdown-timer
 
-import { init } from 'snabbdom';
-import klass from 'snabbdom/modules/class';
-import attributes from 'snabbdom/modules/attributes';
-import properties from 'snabbdom/modules/props';
-import listeners from 'snabbdom/modules/eventlisteners';
-
-const patch = init([klass, attributes, properties, listeners]);
-
-import { h } from 'snabbdom/h';
-import { VNode } from 'snabbdom/vnode';
+import { h, VNode } from 'snabbdom';
 
 import { sound } from './sound';
+import { patch } from './document';
 
 const HURRY = 10000;
 
@@ -21,9 +13,9 @@ export class Clock {
     granularity: number;
     running: boolean;
     connecting: boolean;
-    timeout: number | null;
+    timeout: ReturnType<typeof setTimeout> | null;
     startTime: number;
-    tickCallbacks: (() => void)[];
+    tickCallbacks: ((diff: number) => void)[];
     flagCallback: (() => void) | null;
     byoyomiCallback: (() => void) | null;
     el: HTMLElement | VNode;
@@ -108,14 +100,14 @@ export class Clock {
         timer();
     }
 
-    onTick(callback) {
+    onTick(callback: (diff: number) => void) {
         if (typeof callback === 'function') {
             this.tickCallbacks.push(callback);
         }
         return this;
     }
 
-    onFlag(callback) {
+    onFlag(callback: () => void) {
         if (typeof callback === 'function') {
             this.pause(false);
             this.flagCallback = callback;
@@ -123,7 +115,7 @@ export class Clock {
         return this;
     }
 
-    onByoyomi(callback) {
+    onByoyomi(callback: () => void) {
         if (typeof callback === 'function') {
             this.byoyomiCallback = callback;
         }
@@ -161,7 +153,7 @@ export class Clock {
         let minutes = Math.floor(millis / 60000);
         let seconds = (millis % 60000) / 1000;
         let secs, mins;
-        if (Math.floor(seconds) == 60) {
+        if (Math.floor(seconds) === 60) {
             minutes++;
             seconds = 0;
         }

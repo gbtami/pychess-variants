@@ -1,6 +1,4 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!-- Created with Inkscape (http://www.inkscape.org/) -->
-
 <svg
    xmlns:dc="http://purl.org/dc/elements/1.1/"
    xmlns:cc="http://creativecommons.org/ns#"
@@ -15,7 +13,7 @@
    version="1.1"
    id="svg1579"
    sodipodi:docname="Minixiangqi.svg"
-   inkscape:version="0.92.4 (5da689c313, 2019-01-14)">
+   inkscape:version="1.0.1 (3bc2e813f5, 2020-09-07)">
   <defs
      id="defs1573">
     <inkscape:path-effect
@@ -100,11 +98,12 @@
      showgrid="false"
      units="px"
      showguides="true"
-     inkscape:window-width="1920"
-     inkscape:window-height="1017"
-     inkscape:window-x="1912"
-     inkscape:window-y="-8"
-     inkscape:window-maximized="1" />
+     inkscape:window-width="3840"
+     inkscape:window-height="2050"
+     inkscape:window-x="-12"
+     inkscape:window-y="-12"
+     inkscape:window-maximized="1"
+     inkscape:document-rotation="0" />
   <metadata
      id="metadata1576">
     <rdf:RDF>
@@ -113,7 +112,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -124,11 +123,11 @@
      transform="translate(0,-283.77082)">
     <g
        aria-label="小"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:18.03733253px;line-height:1.25;font-family:KaiTi;-inkscape-font-specification:KaiTi;letter-spacing:0px;word-spacing:0px;fill:#ff5555;fill-opacity:1;stroke:none;stroke-width:0.67639989"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:18.03733253px;line-height:1.25;font-family:KaiTi;-inkscape-font-specification:KaiTi;letter-spacing:0px;word-spacing:0px;fill:#ae4f4f;fill-opacity:1;stroke:none;stroke-width:0.67639989"
        id="text5186">
       <path
          d="m 5.6149557,284.71352 0.088073,-0.009 q 1.26825,0.0705 2.2018228,0.66936 l -0.09688,0.92476 v 7.9706 q 0,1.49724 -0.9511874,1.78788 l -0.1937604,0.009 q -1.3387083,-0.13211 -1.3387083,-0.9688 v -0.0969 q 0,-0.0529 0.5724739,-0.57248 v -8.71041 q 0,-0.29945 -0.2818333,-1.00403 z m -2.9680571,4.18346 0.09688,-0.009 q 1.6205416,0.43155 1.6205416,1.24183 v 0.18495 q 0,1.31228 -3.91924466,3.47888 2.19301556,-2.76549 2.39558326,-4.53576 -0.1937604,0.009 -0.1937604,-0.17614 z m 6.8873017,-0.0704 q 3.2498907,1.14494 3.2498907,3.12658 -0.22899,1.58532 -0.572474,1.59412 -1.065682,0.044 -1.532469,-2.06971 0,-0.62532 -1.2418279,-2.55411 0.09688,0 0.09688,-0.0969 z"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:HanyiSentyTang;-inkscape-font-specification:HanyiSentyTang;stroke-width:0.67639989;fill:#ff5555;fill-opacity:1"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:HanyiSentyTang;-inkscape-font-specification:HanyiSentyTang;stroke-width:0.67639989;fill:#ae4f4f;fill-opacity:1"
          id="path5191" />
     </g>
   </g>

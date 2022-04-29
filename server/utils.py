@@ -1,21 +1,31 @@
 import logging
 import random
 from datetime import datetime, timezone
-import json
 
 from aiohttp import web
 from aiohttp.web import WebSocketResponse
 
 try:
     import pyffish as sf
+
     sf.set_option("VariantPath", "variants.ini")
 except ImportError:
     print("No pyffish module installed!")
 
 from glicko2.glicko2 import gl2
 from broadcast import round_broadcast
-from const import DRAW, STARTED, VARIANT_960_TO_PGN, INVALIDMOVE, GRANDS, \
-    UNKNOWNFINISH, CASUAL, RATED, IMPORTED, CONSERVATIVE_CAPA_FEN, T_STARTED
+from const import (
+    STARTED,
+    VARIANT_960_TO_PGN,
+    INVALIDMOVE,
+    GRANDS,
+    UNKNOWNFINISH,
+    CASUAL,
+    RATED,
+    IMPORTED,
+    CONSERVATIVE_CAPA_FEN,
+    T_STARTED,
+)
 from compress import decode_moves, encode_moves, R2C, C2R, V2C, C2V
 from convert import mirror5, mirror9, usi2uci, grand2zero, zero2grand
 from fairy import BLACK, STANDARD_FEN, FairyBoard
@@ -35,11 +45,11 @@ class MyWebSocketResponse(WebSocketResponse):
 
 
 async def tv_game(db, app):
-    """ Get latest played game id """
+    """Get latest played game id"""
     if app["tv"] is not None:
         return app["tv"]
     game_id = None
-    doc = await db.game.find_one({}, sort=[('$natural', -1)])
+    doc = await db.game.find_one({}, sort=[("$natural", -1)])
     if doc is not None:
         game_id = doc["_id"]
         app["tv"] = game_id
@@ -47,19 +57,19 @@ async def tv_game(db, app):
 
 
 async def tv_game_user(db, users, profileId):
-    """ Get latest played game id by a given user name"""
+    """Get latest played game id by a given user name"""
     if users[profileId].tv is not None:
         return users[profileId].tv
     game_id = None
-    doc = await db.game.find_one({"us": profileId}, sort=[('$natural', -1)])
+    doc = await db.game.find_one({"us": profileId}, sort=[("$natural", -1)])
     if doc is not None:
         game_id = doc["_id"]
         users[profileId].tv = game_id
     return game_id
 
 
-async def load_game(app, game_id, user=None):
-    """ Return Game object from app cache or from database """
+async def load_game(app, game_id):
+    """Return Game object from app cache or from database"""
     db = app["db"]
     games = app["games"]
     users = app["users"]
@@ -67,19 +77,8 @@ async def load_game(app, game_id, user=None):
         return games[game_id]
 
     doc = await db.game.find_one({"_id": game_id})
+
     if doc is None:
-        invites = app["invites"]
-        if game_id in invites:
-            seek_id = invites[game_id].id
-            await new_game(app, user, seek_id, game_id)
-            try:
-                # Put response data to sse subscribers queue
-                channels = app["invite_channels"]
-                for queue in channels:
-                    await queue.put(json.dumps({"gameId": game_id}))
-                return games[game_id]
-            except ConnectionResetError:
-                pass
         return None
 
     wp, bp = doc["us"]
@@ -109,13 +108,20 @@ async def load_game(app, game_id, user=None):
             parts = initial_fen.split()
             if len(parts) > 3 and parts[1] in "wb":
                 pockets = "[%s]" % parts[2] if parts[2] not in "-0" else ""
-                initial_fen = parts[0] + pockets + (" w" if parts[1] == "b" else " b") + " 0 " + parts[3]
+                initial_fen = (
+                    parts[0] + pockets + (" w" if parts[1] == "b" else " b") + " 0 " + parts[3]
+                )
             else:
                 initial_fen = parts[0] + (" w" if parts[1] == "b" else " b") + " 0"
             # print("   changed to:", initial_fen)
 
     game = Game(
-        app, game_id, variant, initial_fen, wplayer, bplayer,
+        app,
+        game_id,
+        variant,
+        initial_fen,
+        wplayer,
+        bplayer,
         base=doc["b"],
         inc=doc["i"],
         byoyomi_period=int(bool(doc.get("bp"))),
@@ -123,7 +129,8 @@ async def load_game(app, game_id, user=None):
         rated=doc.get("y"),
         chess960=bool(doc.get("z")),
         create=False,
-        tournamentId=doc.get("tid"))
+        tournamentId=doc.get("tid"),
+    )
 
     mlist = decode_moves(doc["m"], variant)
 
@@ -146,8 +153,11 @@ async def load_game(app, game_id, user=None):
             doc["a"][0]["m"] = mirror(usi2uci(doc["a"][0]["m"]))
         game.steps[0]["analysis"] = doc["a"][0]
 
+    if "cw" in doc:
+        clocktimes_w = doc["cw"]
+        clocktimes_b = doc["cb"]
+
     if "mct" in doc:
-        print(doc["mct"])
         manual_count_toggled = iter(doc["mct"])
         count_started = -1
         count_ended = -1
@@ -176,13 +186,33 @@ async def load_game(app, game_id, user=None):
             turnColor = "black" if game.board.color == BLACK else "white"
             if usi_format:
                 turnColor = "black" if turnColor == "white" else "white"
-            game.steps.append({
+            step = {
                 "fen": game.board.fen,
                 "move": move,
                 "san": san,
                 "turnColor": turnColor,
-                "check": game.check}
-            )
+                "check": game.check,
+            }
+            if "cw" in doc:
+                move_number = ((ply + 1) // 2) + (1 if ply % 2 == 0 else 0)
+                if ply >= 2:
+                    if ply % 2 == 0:
+                        step["clocks"] = {
+                            "white": clocktimes_w[move_number - 1],
+                            "black": clocktimes_b[move_number - 2],
+                        }
+                    else:
+                        step["clocks"] = {
+                            "white": clocktimes_w[move_number - 1],
+                            "black": clocktimes_b[move_number - 1],
+                        }
+                else:
+                    step["clocks"] = {
+                        "white": clocktimes_w[move_number - 1],
+                        "black": clocktimes_b[move_number - 1],
+                    }
+
+            game.steps.append(step)
 
             if "a" in doc:
                 if usi_format and "m" in doc["a"][ply + 1]:
@@ -193,7 +223,14 @@ async def load_game(app, game_id, user=None):
                     print("IndexError", ply, move, san)
 
         except Exception:
-            log.exception("ERROR: Exception in load_game() %s %s %s %s %s", game_id, variant, doc.get("if"), move, list(mlist))
+            log.exception(
+                "ERROR: Exception in load_game() %s %s %s %s %s",
+                game_id,
+                variant,
+                doc.get("if"),
+                move,
+                list(mlist),
+            )
             break
 
     if len(game.steps) > 1:
@@ -225,22 +262,16 @@ async def load_game(app, game_id, user=None):
         game.wrdiff = ""
         game.brdiff = ""
 
+    if game.tournamentId is not None:
+        if doc.get("wb", False):
+            game.berserk("white")
+        if doc.get("bb", False):
+            game.berserk("black")
+
+    if doc.get("by") is not None:
+        game.imported_by = doc.get("by")
+
     return game
-
-
-async def draw(games, data, agreement=False):
-    """ Draw or offer """
-    game = games[data["gameId"]]
-    if game.is_claimable_draw or agreement:
-        result = "1/2-1/2"
-        game.update_status(DRAW, result)
-        await game.save_game()
-        return {
-            "type": "gameEnd", "status": game.status, "result": game.result, "gameId": data["gameId"], "pgn": game.pgn, "ct": game.crosstable,
-            "rdiffs": {"brdiff": game.brdiff, "wrdiff": game.wrdiff} if game.status > STARTED and game.rated == RATED else ""}
-    response = {"type": "offer", "message": "Pass" if game.variant == "janggi" else "Draw offer sent", "room": "player", "user": ""}
-    game.messages.append(response)
-    return response
 
 
 async def import_game(request):
@@ -296,12 +327,10 @@ async def import_game(request):
         base, inc = 0, 0
 
     move_stack = data.get("moves", "").split(" ")
-    moves = encode_moves(
-        map(grand2zero, move_stack) if variant in GRANDS
-        else move_stack, variant)
+    moves = encode_moves(map(grand2zero, move_stack) if variant in GRANDS else move_stack, variant)
 
     game_id = await new_id(None if db is None else db.game)
-    existing = await db.game.find_one({'_id': {'$eq': game_id}})
+    existing = await db.game.find_one({"_id": {"$eq": game_id}})
     if existing:
         message = "Failed to create game. Game ID %s allready in mongodb." % game_id
         log.exception(message)
@@ -309,7 +338,16 @@ async def import_game(request):
 
     try:
         print(game_id, variant, initial_fen, wplayer, bplayer)
-        new_game = Game(app, game_id, variant, initial_fen, wplayer, bplayer, rated=IMPORTED, create=False)
+        new_game = Game(
+            app,
+            game_id,
+            variant,
+            initial_fen,
+            wplayer,
+            bplayer,
+            rated=IMPORTED,
+            create=False,
+        )
     except Exception:
         message = "Creating new Game %s failed!" % game_id
         log.exception(message)
@@ -336,7 +374,7 @@ async def import_game(request):
     if initial_fen or new_game.chess960:
         document["if"] = new_game.initial_fen
 
-    if variant.endswith("shogi") or variant in ("dobutsu", "gorogoro"):
+    if variant.endswith("shogi") or variant in ("dobutsu", "gorogoro", "gorogoroplus"):
         document["uci"] = 1
 
     wrating = data.get("WhiteElo")
@@ -353,12 +391,49 @@ async def import_game(request):
     return web.json_response({"gameId": game_id})
 
 
-async def new_game(app, user, seek_id, game_id=None):
+async def join_seek(app, user, seek_id, game_id=None, join_as="any"):
+    seeks = app["seeks"]
+    seek = seeks[seek_id]
+    log.info(
+        "+++ Seek %s joined by %s FEN:%s 960:%s",
+        seek_id,
+        user.username,
+        seek.fen,
+        seek.chess960,
+    )
+
+    if user is seek.player1 or user is seek.player2:
+        return {"type": "seek_yourself", "seekID": seek_id}
+
+    if join_as == "player1":
+        if seek.player1 is None:
+            seek.player1 = user
+        else:
+            return {"type": "seek_occupied", "seekID": seek_id}
+    elif join_as == "player2":
+        if seek.player2 is None:
+            seek.player2 = user
+        else:
+            return {"type": "seek_occupied", "seekID": seek_id}
+    else:
+        if seek.player1 is None:
+            seek.player1 = user
+        elif seek.player2 is None:
+            seek.player2 = user
+        else:
+            return {"type": "seek_occupied", "seekID": seek_id}
+
+    if seek.player1 is not None and seek.player2 is not None:
+        return await new_game(app, seek_id, game_id)
+    else:
+        return {"type": "seek_joined", "seekID": seek_id}
+
+
+async def new_game(app, seek_id, game_id=None):
     db = app["db"]
     games = app["games"]
     seeks = app["seeks"]
     seek = seeks[seek_id]
-    log.info("+++ Seek %s accepted by %s FEN:%s 960:%s", seek_id, user.username, seek.fen, seek.chess960)
 
     fen_valid = True
     if seek.fen:
@@ -371,12 +446,9 @@ async def new_game(app, user, seek_id, game_id=None):
     else:
         sanitized_fen = ""
 
-    if seek.color == "r":
-        wplayer = random.choice((user, seek.user))
-        bplayer = user if wplayer.username == seek.user.username else seek.user
-    else:
-        wplayer = seek.user if seek.color == "w" else user
-        bplayer = seek.user if seek.color == "b" else user
+    color = random.choice(("w", "b")) if seek.color == "r" else seek.color
+    wplayer = seek.player1 if color == "w" else seek.player2
+    bplayer = seek.player1 if color == "b" else seek.player2
 
     if game_id is not None:
         # game invitation
@@ -387,16 +459,30 @@ async def new_game(app, user, seek_id, game_id=None):
     # print("new_game", game_id, seek.variant, seek.fen, wplayer, bplayer, seek.base, seek.inc, seek.level, seek.rated, seek.chess960)
     try:
         game = Game(
-            app, game_id, seek.variant, sanitized_fen, wplayer, bplayer,
+            app,
+            game_id,
+            seek.variant,
+            sanitized_fen,
+            wplayer,
+            bplayer,
             base=seek.base,
             inc=seek.inc,
             byoyomi_period=seek.byoyomi_period,
             level=seek.level,
             rated=RATED if (seek.rated and (not wplayer.anon) and (not bplayer.anon)) else CASUAL,
             chess960=seek.chess960,
-            create=True)
+            create=True,
+        )
     except Exception:
-        log.exception("Creating new game %s failed! %s 960:%s FEN:%s %s vs %s", game_id, seek.variant, seek.chess960, seek.fen, wplayer, bplayer)
+        log.exception(
+            "Creating new game %s failed! %s 960:%s FEN:%s %s vs %s",
+            game_id,
+            seek.variant,
+            seek.chess960,
+            seek.fen,
+            wplayer,
+            bplayer,
+        )
         remove_seek(seeks, seek)
         return {"type": "error", "message": "Failed to create game"}
     games[game_id] = game
@@ -405,7 +491,12 @@ async def new_game(app, user, seek_id, game_id=None):
 
     await insert_game_to_db(game, app)
 
-    return {"type": "new_game", "gameId": game_id, "wplayer": wplayer.username, "bplayer": bplayer.username}
+    return {
+        "type": "new_game",
+        "gameId": game_id,
+        "wplayer": wplayer.username,
+        "bplayer": bplayer.username,
+    }
 
 
 async def insert_game_to_db(game, app):
@@ -438,7 +529,11 @@ async def insert_game_to_db(game, app):
     if game.initial_fen or game.chess960:
         document["if"] = game.initial_fen
 
-    if game.variant.endswith("shogi") or game.variant in ("dobutsu", "gorogoro"):
+    if game.variant.endswith("shogi") or game.variant in (
+        "dobutsu",
+        "gorogoro",
+        "gorogoroplus",
+    ):
         document["uci"] = 1
 
     result = await app["db"].game.insert_one(document)
@@ -451,10 +546,10 @@ async def insert_game_to_db(game, app):
 
 
 def remove_seek(seeks, seek):
-    if (not seek.user.bot) and seek.id in seeks:
+    if (not seek.creator.bot) and seek.id in seeks:
         del seeks[seek.id]
-        if seek.id in seek.user.seeks:
-            del seek.user.seeks[seek.id]
+        if seek.id in seek.creator.seeks:
+            del seek.creator.seeks[seek.id]
 
 
 # This will be removed when we can use ffishjs
@@ -473,10 +568,10 @@ def get_dests(board):
             dests[source] = [dest]
 
         if not move[-1].isdigit():
-            if not (board.variant in ("seirawan", "shouse") and (move[1] in ('1', '8'))):
+            if not (board.variant in ("seirawan", "shouse") and (move[1] in ("1", "8"))):
                 promotions.append(move)
 
-        if board.variant == "kyotoshogi" and move[0] == "+":
+        if board.variant in ("kyotoshogi", "chennis") and move[0] == "+":
             promotions.append(move)
 
     return (dests, promotions)
@@ -522,13 +617,26 @@ async def play_move(app, user, game, move, clocks=None, ply=None):
     # log.info("%s move %s %s %s - %s" % (user.username, move, gameId, game.wplayer.username, game.bplayer.username))
 
     if game.status <= STARTED:
+        if ply is not None and game.board.ply + 1 != ply:
+            log.info(
+                "invalid ply received - probably a re-sent move that has already been processed"
+            )
+            return
         try:
             await game.play_move(move, clocks, ply)
         except SystemError:
             invalid_move = True
-            log.exception("Game %s aborted because invalid move %s by %s !!!", gameId, move, user.username)
+            log.exception(
+                "Game %s aborted because invalid move %s by %s !!!",
+                gameId,
+                move,
+                user.username,
+            )
             game.status = INVALIDMOVE
             game.result = "0-1" if user.username == game.wplayer.username else "1-0"
+    else:
+        # never play moves in finished games!
+        return
 
     if not invalid_move:
         board_response = game.get_board(full=game.board.ply == 1)
@@ -543,7 +651,9 @@ async def play_move(app, user, game, move, clocks=None, ply=None):
     if user.bot and game.status > STARTED:
         await user.game_queues[gameId].put(game.game_end)
 
-    opp_name = game.wplayer.username if user.username == game.bplayer.username else game.bplayer.username
+    opp_name = (
+        game.wplayer.username if user.username == game.bplayer.username else game.bplayer.username
+    )
     if users[opp_name].bot:
         if game.status > STARTED:
             await users[opp_name].game_queues[gameId].put(game.game_end)
@@ -555,17 +665,27 @@ async def play_move(app, user, game, move, clocks=None, ply=None):
             if not invalid_move:
                 await opp_ws.send_json(board_response)
             if game.status > STARTED:
-                response = {"type": "gameEnd", "status": game.status, "result": game.result, "gameId": game.id, "pgn": game.pgn}
+                response = {
+                    "type": "gameEnd",
+                    "status": game.status,
+                    "result": game.result,
+                    "gameId": game.id,
+                    "pgn": game.pgn,
+                }
                 await opp_ws.send_json(response)
         except (KeyError, ConnectionResetError):
             pass
 
     if not invalid_move:
-        await round_broadcast(game, users, board_response, channels=app["game_channels"])
+        await round_broadcast(game, board_response, channels=app["game_channels"])
 
         if game.tournamentId is not None:
             tournament = app["tournaments"][game.tournamentId]
-            if (tournament.top_game is not None) and tournament.status == T_STARTED and tournament.top_game.id == gameId:
+            if (
+                (tournament.top_game is not None)
+                and tournament.status == T_STARTED
+                and tournament.top_game.id == gameId
+            ):
                 # no need to send lots of data to tournament top game
                 del board_response["dests"]
                 del board_response["promo"]
@@ -594,7 +714,9 @@ def pgn(doc):
             parts = initial_fen.split()
             if len(parts) > 3 and parts[1] in "wb":
                 pockets = "[%s]" % parts[2] if parts[2] not in "-0" else ""
-                initial_fen = parts[0] + pockets + (" w" if parts[1] == "b" else " b") + " 0 " + parts[3]
+                initial_fen = (
+                    parts[0] + pockets + (" w" if parts[1] == "b" else " b") + " 0 " + parts[3]
+                )
             else:
                 initial_fen = parts[0] + (" w" if parts[1] == "b" else " b") + " 0"
             # print("   changed to:", initial_fen)
@@ -621,7 +743,12 @@ def pgn(doc):
             log.exception("%s %s %s movelist contains invalid move", doc["_id"], variant, doc["d"])
             mlist = mlist[0]
 
-    moves = " ".join((move if ind % 2 == 1 else "%s. %s" % (((ind + 1) // 2) + 1, move) for ind, move in enumerate(mlist)))
+    moves = " ".join(
+        (
+            move if ind % 2 == 1 else "%s. %s" % (((ind + 1) // 2) + 1, move)
+            for ind, move in enumerate(mlist)
+        )
+    )
     no_setup = fen == STANDARD_FEN and not chess960
     # Use lichess format for crazyhouse games to support easy import
     setup_fen = fen if variant != "crazyhouse" else fen.replace("[]", "")
@@ -641,7 +768,8 @@ def pgn(doc):
         moves,
         C2R[doc["r"]],
         fen="" if no_setup else '[FEN "%s"]\n' % setup_fen,
-        setup="" if no_setup else '[SetUp "1"]\n')
+        setup="" if no_setup else '[SetUp "1"]\n',
+    )
 
 
 def sanitize_fen(variant, initial_fen, chess960):
@@ -666,11 +794,11 @@ def sanitize_fen(variant, initial_fen, chess960):
 
     # Only piece types listed in variant start position can be used later
     if variant == "dobutsu":
-        non_piece = "~+0123456789[]hH"
+        non_piece = "~+0123456789[]hH-"
     elif variant == "orda":
-        non_piece = "~+0123456789[]qH"
+        non_piece = "~+0123456789[]qH-"
     else:
-        non_piece = "~+0123456789[]"
+        non_piece = "~+0123456789[]-"
     invalid1 = any((c not in start[0] + non_piece for c in init[0]))
 
     # Required number of rows
@@ -680,7 +808,7 @@ def sanitize_fen(variant, initial_fen, chess960):
     if invalid2 and variant == "crazyhouse":
         if (init[0].count("/") == 8) and ("[" not in init[0]) and ("]" not in init[0]):
             k = init[0].rfind("/")
-            init[0] = init[0][:k] + "[" + init[0][k + 1:] + "]"
+            init[0] = init[0][:k] + "[" + init[0][k + 1 :] + "]"
             sanitized_fen = " ".join(init)
             invalid2 = False
 
@@ -697,24 +825,34 @@ def sanitize_fen(variant, initial_fen, chess960):
                 chess960 = False
             else:
                 invalid4 = any((c not in "ABCDEFGHIJabcdefghij-" for c in init[2]))
-        elif variant[-5:] != "shogi" and variant not in ("dobutsu", "gorogoro"):
+        elif variant[-5:] != "shogi" and variant not in (
+            "dobutsu",
+            "gorogoro",
+            "gorogoroplus",
+        ):
             invalid4 = any((c not in start[2] + "-" for c in init[2]))
 
         # Castling right need rooks and king placed in starting square
-        if (not invalid2) and (not invalid4) and not (chess960 and (variant in ("seirawan", "shouse"))):
+        if (
+            (not invalid2)
+            and (not invalid4)
+            and not (chess960 and (variant in ("seirawan", "shouse")))
+        ):
             rows = init[0].split("/")
-            backRankB = rows[1] if (variant == 'shako') else rows[0]
-            backRankW = rows[-2] if (variant == 'shako') else rows[-1]
+            backRankB = rows[1] if (variant == "shako") else rows[0]
+            backRankW = rows[-2] if (variant == "shako") else rows[-1]
             # cut off pockets
             k = backRankW.rfind("[")
             if k > 0:
                 backRankW = backRankW[:k]
-            rookPosQ = 1 if (variant == 'shako') else 0
-            rookPosK = -2 if (variant == 'shako') else -1
-            if ("q" in init[2] and backRankB[rookPosQ] != 'r') or \
-                ("k" in init[2] and backRankB[rookPosK] != 'r') or \
-                    ("Q" in init[2] and backRankW[rookPosQ] != 'R') or \
-                    ("K" in init[2] and backRankW[rookPosK] != 'R'):
+            rookPosQ = 1 if (variant == "shako") else 0
+            rookPosK = -2 if (variant == "shako") else -1
+            if (
+                ("q" in init[2] and backRankB[rookPosQ] != "r")
+                or ("k" in init[2] and backRankB[rookPosK] != "r")
+                or ("Q" in init[2] and backRankW[rookPosQ] != "R")
+                or ("K" in init[2] and backRankW[rookPosK] != "R")
+            ):
                 invalid4 = True
 
     # Number of kings
@@ -738,3 +876,18 @@ def sanitize_fen(variant, initial_fen, chess960):
 
 def online_count(users):
     return sum((1 for user in users.values() if user.online))
+
+
+async def get_names(request):
+    names = []
+    prefix = request.rel_url.query.get("p")
+    if prefix is None or len(prefix) < 3:
+        return web.json_response(names)
+
+    # case insensitive _id prefix search
+    cursor = request.app["db"].user.find(
+        {"_id": {"$regex": "^%s" % prefix, "$options": "i"}}, limit=12
+    )
+    async for doc in cursor:
+        names.append((doc["_id"], doc["title"]))
+    return web.json_response(names)

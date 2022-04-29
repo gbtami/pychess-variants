@@ -58,15 +58,15 @@
      guidetolerance="10"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:window-width="3360"
-     inkscape:window-height="1780"
+     inkscape:window-width="3840"
+     inkscape:window-height="2050"
      id="namedview1719"
      showgrid="false"
      inkscape:zoom="7.8666669"
      inkscape:cx="10.980382"
      inkscape:cy="15.179192"
-     inkscape:window-x="6708"
-     inkscape:window-y="1085"
+     inkscape:window-x="3828"
+     inkscape:window-y="-12"
      inkscape:window-maximized="1"
      inkscape:current-layer="g9447"
      inkscape:document-rotation="0" />
@@ -106,20 +106,20 @@ Original file is available at: https://commons.wikimedia.org/wiki/File:Shogi_gyo
          d="m -10.959999,6.2374999 -12.838,3.608 -7.051,44.4501791 39.9339998,-1.79e-4 -6.79,-44.163 z"
          id="path5694"
          inkscape:connector-curvature="0"
-         style="fill:#332c11;fill-opacity:1"
+         style="fill:#cdbc68;fill-opacity:1"
          sodipodi:nodetypes="cccccc" />
     </g>
     <g
-       aria-label="王"
-       transform="matrix(1.1890553,0,0,1.069744,-5.4845005,-2.8173302)"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:29.072px;line-height:1.25;font-family:PMingLiU;-inkscape-font-specification:PMingLiU;letter-spacing:0px;word-spacing:0px;display:inline;fill:#efbf00;fill-opacity:1;stroke:#efbf00;stroke-width:0.423169;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       id="text2298-4">
+       id="g1632"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:29.072px;line-height:1.25;font-family:PMingLiU;-inkscape-font-specification:PMingLiU;letter-spacing:0px;word-spacing:0px;display:inline;opacity:0.99;fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:0.423169;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       transform="matrix(1.1958245,0,0,1.075834,-5.7560482,-3.2068304)"
+       aria-label="王">
       <path
-         d="m 41.364137,42.418759 v 8.086113 h 6.078562 v 2.478001 h -6.078562 v 9.129483 h 10.901985 v 2.869265 H 27.96378 v -2.869265 h 10.788423 v -9.129483 h -6.237311 v -2.478001 h 6.237311 V 42.418759 H 30.77997 v -2.869265 h 18.596713 v 2.869265 z"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:MingLiU_HKSCS-ExtB;-inkscape-font-specification:MingLiU_HKSCS-ExtB;fill:#cdbc68;fill-opacity:1;stroke:#cdbc68;stroke-width:0.453493;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-         id="path4617"
+         sodipodi:nodetypes="ccccccccccccccccccccc"
          inkscape:connector-curvature="0"
-         sodipodi:nodetypes="ccccccccccccccccccccc" />
+         id="path1630"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:MingLiU_HKSCS-ExtB;-inkscape-font-specification:MingLiU_HKSCS-ExtB;fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:0.453165;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         d="m 41.364137,42.418759 v 8.086113 h 5.242152 l 0.83641,2.478001 h -6.078562 v 9.129483 H 51.42974 l 0.836382,2.869265 H 27.96378 l 0.836385,-2.869265 h 9.952038 V 52.982873 H 32.514892 L 33.351,50.504872 h 5.401203 V 42.418759 H 31.615795 L 30.77997,39.549494 h 18.596713 l -0.836163,2.869265 z" />
     </g>
   </g>
 </svg>

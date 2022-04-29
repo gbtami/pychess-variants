@@ -11,9 +11,11 @@ Shinobi Chess is a chess variant designed in 2021 by Couch Tomato with help from
 4.	All minor Clan pieces promote upon reaching the **7th or 8th rank**. Similarly, Kingdom pawns now promote on the 7th rank instead of 8th.
 5.	Pawns on either side can only promote to a Captain (see below).
 6.	An additional method of victory is available: called **campmate**. Campmate is achieved by moving one’s king into the final rank without moving into check.
-7.	Stalemate and repetition are both losses.
-8.	The Clan cannot castle.
-9.	Other rules, including Kingdom moves and en passant, are as in standard international chess.
+7.	**Stalemate** - loss for the player who can't move (rather than draw as in chess)
+8.	**Perpetual check** - Repeating check resulting in the same position four times in a row is a loss to the player causing perpetual check. In chess, this results in a draw.
+9.	**Repetition** - Similar to the above, repeating the same position results in a draw.
+10.	The Clan cannot castle.
+11.	Other rules, including Kingdom moves and en passant, are as in standard international chess.
 
 ## Clan Pieces
 

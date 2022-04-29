@@ -14,16 +14,33 @@
                 <span>DEV</span>
                 {% endif %}
                 </a>
-                <a class="nav-link" href="/tv">{% trans %}Tv{% endtrans %}</a>
-                <a class="nav-link" href="/games">{% trans %}Current games{% endtrans %}</a>
+                <section>
+                    <a class="nav-link" href="/tv">{% trans %}Watch{% endtrans %}</a>
+                    <div class="drp" >
+                        <a class="nav-link" href="/tv">{% trans %}Tv{% endtrans %}</a>
+                        <a class="nav-link" href="/games">{% trans %}Current games{% endtrans %}</a>
+                    </div>
+                </section>
                 <a class="nav-link" href="/tournaments">{% trans %}Tournaments{% endtrans %}</a>
                 <a class="nav-link" href="/players">{% trans %}Players{% endtrans %}</a>
-                <a class="nav-link" href="/editor/chess">{% trans %}Editor{% endtrans %}</a>
-                <a class="nav-link" href="/analysis/chess">{% trans %}Analysis{% endtrans %}</a>
+                <section>
+                    <a class="nav-link" href="/editor/chess">{% trans %}Tools{% endtrans %}</a>
+                    <div class="drp" >
+                        <a class="nav-link" href="/editor/chess">{% trans %}Editor{% endtrans %}</a>
+                        <a class="nav-link" href="/analysis/chess">{% trans %}Analysis{% endtrans %}</a>
+                    </div>
+                </section>
                 <a class="nav-link" href="/variants">{% trans %}Variants{% endtrans %}</a>
             </div>
         </div>
         <div class="site-buttons">
+            <form autocomplete="off" class="search-bar">
+                <div class="search-icon"></div>
+                <div class="input">
+                    <input id="search-input" type="text" placeholder="Search">
+                </div>
+                <div id="ac-result"></div>
+            </form>
             <div id="username"><a class="user-link" href="/@/{{ username }}">{{ username }}</a></div>
             {% if guest %}
             <a class="login nav-link" href="/login" title="{% trans %}Login with Lichess{% endtrans %}">{% trans %}Log in{% endtrans %}</a>
