@@ -338,11 +338,6 @@ async def index(request):
         template = get_template("embed.html")
     else:
         template = get_template("index.html")
-        
-    if view == "lobby":
-        page_title = "Liantichess • Free Online Antichess Variants"
-    else:
-        page_title = "%s  • Liantichess" % view.capitalize()
 
     if view == "lobby":
         page_title = "Liantichess • Free Online Antichess Variants"
