@@ -548,9 +548,6 @@ div.news {
 a.news {
   margin-right: 0.4em;
 }
-news-latest {
-  display: none;
-}
 posts {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));

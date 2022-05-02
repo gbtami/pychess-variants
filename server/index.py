@@ -250,6 +250,10 @@ async def index(request):
             if user.anon and profileId != "Fairy-Stockfish":
                 return web.HTTPFound("/")
 
+    # Play menu (Create a game)
+    if request.rel_url.query.get("any") is not None:
+        profileId = "any#"
+
     # Do we have gameId in request url?
     if (gameId is not None) and gameId != "variants":
         if view not in ("tv", "analysis", "embed"):

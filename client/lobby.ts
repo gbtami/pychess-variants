@@ -191,6 +191,11 @@ export class LobbyController {
             document.getElementById('id01')!.style.display = 'block';
             document.getElementById('color-button-group')!.style.display = 'block';
             document.getElementById('create-button')!.style.display = 'none';
+
+            if (model.profileid === 'any#') {
+                model.profileid = '';
+                this.createGame();
+            }
         }
 
         const e = document.getElementById("fen") as HTMLInputElement;
@@ -961,10 +966,6 @@ export function lobbyView(model: PyChessModel): VNode[] {
             h('a.reflist', { attrs: { href: '/about' } }, _("About")),
         ]),
         h('under-lobby', [
-            h('news-latest', [
-                h('icon', { attrs: {"data-icon": '2'} }),
-                h('a.reflist', { attrs: {href: '/news'} }, _("Latest updates")),
-            ]),
             h('posts', [
                 // TODO: create news documents in mongodb and load latest 3 dinamically here
                 h('a.post', { attrs: {href: '/news/Serving_a_New_Variant'} }, [
