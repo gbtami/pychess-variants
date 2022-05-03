@@ -274,10 +274,19 @@ export class EditorController {
     private setEmptyFen = () => {
         const w = this.variant.boardWidth;
         const h = this.variant.boardHeight;
-        const empty_fen = (String(w) + '/').repeat(h);
+        const emptyFen = Array(h).fill(String(w)).join('/');
 
-        const pocketsPart = (this.hasPockets) ? '[]' : '';
-        this.parts[0] = empty_fen + pocketsPart;
+        let pieces = '';
+        if (this.variant.drop) {
+            // For drop variants, move all pieces to black's pocket
+            const blackPocket: string[] = this.variant.pocketRoles('black') ?? [];
+            for (const c of this.fullfen.split(' ')[0].toLowerCase().split(''))
+                if (blackPocket.includes(c))
+                    pieces += c;
+        }
+
+        const pocketsPart = this.hasPockets ? '[' + pieces + ']' : '';
+        this.parts[0] = emptyFen + pocketsPart;
         this.parts[1] = 'w'
         if (this.parts.length > 2) this.parts[2] = '-';
         const e = document.getElementById('fen') as HTMLInputElement;

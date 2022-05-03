@@ -192,6 +192,11 @@ export class LobbyController {
             document.getElementById('id01')!.style.display = 'block';
             document.getElementById('color-button-group')!.style.display = 'block';
             document.getElementById('create-button')!.style.display = 'none';
+
+            if (model.profileid === 'any#') {
+                model.profileid = '';
+                this.createGame();
+            }
         }
 
         const e = document.getElementById("fen") as HTMLInputElement;
@@ -964,81 +969,32 @@ export function lobbyView(model: PyChessModel): VNode[] {
             h('a', { attrs: { href: '/games' } }, [ h('counter#g_cnt') ]),
         ]),
         h('under-lobby', [
-            h('news-latest', [
-                h('icon', { attrs: {"data-icon": '2'} }),
-                h('a.reflist', { attrs: {href: '/news'} }, _("Latest updates")),
-            ]),
-        h('posts', [
-            h('a.post', { attrs: {href: '/news/fools'} }, [
-                h('img', { attrs: {src: model["asset-url"] + '/images/fools.jpg'} }),
-                h('span.text', [
-                    h('strong', "[April Fools] Liantichess's database is running out"),
-                    h('span', 'Liantichess Mongodb database has running out of space, It will delete all your games, and all the user accounts.'),
-                ]),
-                h('time', '2022.04.01'),
-            ]),
-        h('posts', [
-            h('a.post', { attrs: {href: '/news/analysis'} }, [
-                h('img', { attrs: {src: model["asset-url"] + '/images/analysis.png'} }),
-                h('span.text', [
-                    h('strong', "What's up on liantichess"),
-                    h('span', 'Exciting stuff is going on. Lets keep you in the loop.'),
-                ]),
-                h('time', '2022.03.25'),
-            ]),
-
-        h('posts', [
-            h('a.post', { attrs: {href: '/news/variants'} }, [
-                h('img', { attrs: {src: model["asset-url"] + '/images/variants.png'} }),
-                h('span.text', [
-                    h('strong', "How to play the variants on liantichess?"),
-                    h('span', 'antichess opening strategies does not work in the antichess variants'),
-                ]),
-                h('time', '2022.03.11'),
-            ]),
-                 	    /*   
-                ]),
-                h('a.post', { attrs: {href: '/news/Shinobi_Arrives_in_Time_For_the_Sakura_Blossoms'} }, [
-                    h('img', { attrs: {src: model["asset-url"] + '/icons/shinobi.svg'} }),
+            h('posts', [
+                // TODO: create news documents in mongodb and load latest 3 dinamically here
+                h('a.post', { attrs: {href: '/news/fools'} }, [
+                    h('img', { attrs: {src: model["asset-url"] + '/images/fools.jpg'} }),
                     h('span.text', [
-                        h('strong', "Shinobi Arrives in Time For the Sakura Blossoms"),
-                        h('span', 'Shinobi Chess has arrived!'),
+                        h('strong', "[April Fools] Liantichess's database is running out"),
+                        h('span', 'Liantichess Mongodb database has running out of space, It will delete all your games, and all the user accounts.'),
                     ]),
-                    h('time', '2021.04.21'),
+                    h('time', '2022.04.01'),
                 ]),
-                h('a.post', { attrs: {href: '/news/The_Winner_Is_Tasshaq'} }, [
-                    h('img', { attrs: {src: model["asset-url"] + '/icons/Dobutsu.svg'} }),
+                h('a.post', { attrs: {href: '/news/analysis'} }, [
+                    h('img', { attrs: {src: model["asset-url"] + '/images/analysis.png'} }),
                     h('span.text', [
-                        h('strong', "And the winner is Tasshaq"),
-                        h('span', 'Subjective report on 1st Dōbutsu Tournament'),
+                        h('strong', "What's up on liantichess"),
+                        h('span', 'Exciting stuff is going on. Lets keep you in the loop.'),
                     ]),
-                    h('time', '2021.03.28'),
+                    h('time', '2022.03.25'),
                 ]),
-                h('a.post', { attrs: {href: '/news/New_Weapons_Arrived'} }, [
-                    h('img', { attrs: {src: model["asset-url"] + '/images/RS-24.jpg'} }),
+                h('a.post', { attrs: {href: '/news/variants'} }, [
+                    h('img', { attrs: {src: model["asset-url"] + '/images/variants.png'} }),
                     h('span.text', [
-                        h('strong', "Atomic chess and Atomic960 are here"),
-                        h('span', 'New Weapons Arrived'),
+                        h('strong', "How to play the variants on liantichess?"),
+                        h('span', 'antichess opening strategies does not work in the antichess variants'),
                     ]),
-                    h('time', '2021.03.03'),
+                    h('time', '2022.03.11'),
                 ]),
-                h('a.post', { attrs: {href: '/news/Short_History_Of_Pychess'} }, [
-                    h('img', { attrs: {src: model["asset-url"] + '/images/TomatoPlasticSet.svg'} }),
-                    h('span.text', [
-                        h('strong', "And Now for Something Completely Different"),
-                        h('span', 'Short History Of Pychess'),
-                    ]),
-                    h('time', '2021.02.27'),
-                ]),
-                h('a.post', { attrs: {href: '/news/Dobutsu_Tournament'} }, [
-                    h('img', { attrs: {src: model["asset-url"] + '/icons/Dobutsu.svg'} }),
-                    h('span.text', [
-                        h('strong', "PyChess tournament announcement"),
-                        h('span', 'The 1st Dōbutsu Tournament on PyChess'),
-                    ]),
-                    h('time', '2021.02.04'),
-                ]),
-                */ 
             ]),
         ]),
     ];
