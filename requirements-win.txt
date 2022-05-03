@@ -6,7 +6,7 @@ cryptography==37.0.1
 dnspython==2.2.1
 htmlmin==0.1.12
 jinja2==3.1.1
-motor==2.5.1
+motor==3.0.0
 pyffish==0.0.72
 sortedcollections==2.1.0
 python-gettext==4.0
