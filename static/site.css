@@ -645,13 +645,13 @@ ul.guide li {
 }
 .nav-link {
   line-height: var(--site-header-height);
+  padding: 0 0.7rem;
 }
 .nav-link:link,
 .nav-link:visited {
   color: var(--link-color);
   text-align: center;
   text-decoration: none;
-  padding-right: 8px;
 }
 .nav-link:hover,
 .nav-link:active {
@@ -691,11 +691,12 @@ ul.guide li {
 .topnav a {
   float: left;
   height: var(--site-header-height);
-  padding: 0px 4px 0px 4px;
   text-decoration: none;
-  font-size: 17px;
+  font-size: 14px;
 }
-
+.topnav section > a {
+    text-transform: uppercase;
+}
 .topnav span {
   position: relative;
   top: -12px;
