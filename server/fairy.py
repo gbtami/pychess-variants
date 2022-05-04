@@ -26,6 +26,7 @@ class FairyBoard:
         self.chess960 = chess960
         self.sfen = False
         self.show_promoted = variant in ("makruk", "makpong", "cambodian")
+        self.nnue = initial_fen == ""
         self.initial_fen = (
             initial_fen if initial_fen else self.start_fen(variant, chess960, disabled_fen)
         )
