@@ -1179,7 +1179,7 @@ msgstr "添加15秒"
 
 #: ../client/roundCtrl.ts:453
 msgid "Berserk"
-msgstr ""
+msgstr "狂暴模式"
 
 #: ../client/roundCtrl.ts:509
 msgid "Abort"

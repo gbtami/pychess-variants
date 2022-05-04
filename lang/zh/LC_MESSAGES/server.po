@@ -13,7 +13,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-04-17 15:52+0200\n"
+"POT-Creation-Date: 2022-05-02 23:28+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Last-Translator: NelloHo, 2022\n"
 "Language-Team: Chinese (https://www.transifex.com/gbtami/teams/14790/zh/)\n"
@@ -87,46 +87,66 @@ msgid "Lichess profile"
 msgstr "Lichess个人资料"
 
 #: ../templates/template.html:18
-msgid "Watch"
-msgstr "觀看"
+msgid "Play"
+msgstr "遊戲"
 
 #: ../templates/template.html:20
-msgid "Tv"
-msgstr "TV"
+msgid "Create a game"
+msgstr "創建遊戲"
 
-#: ../templates/template.html:21
-msgid "Current games"
-msgstr "当前对局"
-
-#: ../templates/template.html:24 ../templates/tournaments.html:6
+#: ../templates/template.html:21 ../templates/tournaments.html:6
 msgid "Tournaments"
 msgstr "锦标赛"
 
 #: ../templates/template.html:25
+msgid "Watch"
+msgstr "觀看"
+
+#: ../templates/template.html:27
+msgid "Tv"
+msgstr "TV"
+
+#: ../templates/template.html:28
+msgid "Current games"
+msgstr "当前对局"
+
+#: ../templates/template.html:32
+msgid "Community"
+msgstr "社群"
+
+#: ../templates/template.html:34
 msgid "Players"
 msgstr "棋手"
 
-#: ../templates/template.html:27
+#: ../templates/template.html:35
+msgid "Blog"
+msgstr "網誌"
+
+#: ../templates/template.html:36
+msgid "Donate"
+msgstr "捐款"
+
+#: ../templates/template.html:40
 msgid "Tools"
 msgstr "工具"
 
-#: ../templates/template.html:29
+#: ../templates/template.html:42
 msgid "Editor"
 msgstr "棋盘编辑器"
 
-#: ../templates/template.html:30
+#: ../templates/template.html:43
 msgid "Analysis"
 msgstr "分析面板"
 
-#: ../templates/template.html:33
+#: ../templates/template.html:46
 msgid "Variants"
 msgstr "棋类"
 
-#: ../templates/template.html:46
+#: ../templates/template.html:59
 msgid "Login with Lichess"
 msgstr "Lichess登录"
 
-#: ../templates/template.html:46
+#: ../templates/template.html:59
 msgid "Log in"
 msgstr "登录"
 
