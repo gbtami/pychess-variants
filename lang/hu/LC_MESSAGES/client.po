@@ -12,7 +12,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-04-17 15:52+0200\n"
+"POT-Creation-Date: 2022-05-02 23:28+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Last-Translator: gbtami <gbtami@gmail.com>, 2022\n"
 "Language-Team: Hungarian (https://www.transifex.com/gbtami/teams/14790/hu/)\n"
@@ -142,90 +142,98 @@ msgstr ""
 "A személyes adatok védelme és a felhasználási feltételek tekintetében itt is"
 " a lichess.org szabályai érvényesek."
 
-#: ../client/analysis.ts:38 ../client/editor.ts:32 ../client/lobby.ts:431
-#: ../client/lobby.ts:941 ../client/settingsView.ts:130
+#: ../client/analysis.ts:38 ../client/editor.ts:32 ../client/lobby.ts:439
+#: ../client/lobby.ts:949 ../client/settingsView.ts:130
 msgid "Variant"
 msgstr "Variáns"
 
-#: ../client/analysis.ts:134 ../client/analysisCtrl.ts:365
-#: ../client/analysisCtrl.ts:718
+#: ../client/analysis.ts:136 ../client/analysisCtrl.ts:403
+#: ../client/analysisCtrl.ts:762
 msgid "in local browser"
 msgstr "a böngészőben"
 
-#: ../client/analysis.ts:186
+#: ../client/analysis.ts:188
 msgid "Computer analysis"
 msgstr "Számítógépes elemzés"
 
-#: ../client/analysis.ts:187
+#: ../client/analysis.ts:189
 msgid "Move times"
 msgstr "Lépésidők"
 
-#: ../client/analysis.ts:188
+#: ../client/analysis.ts:190
 msgid "Crosstable"
 msgstr "Eredménytábla"
 
-#: ../client/analysis.ts:189
+#: ../client/analysis.ts:191
 msgid "FEN & PGN"
 msgstr "FEN & PGN"
 
-#: ../client/analysisCtrl.ts:376
+#: ../client/analysisChart.ts:21
+msgid "Initial position"
+msgstr "Kezdőállás"
+
+#: ../client/analysisChart.ts:84
+msgid "Advantage"
+msgstr "Előny"
+
+#: ../client/analysisCtrl.ts:414
 msgid "You need an account to do that."
 msgstr "Csak regisztrált felhasználók számára elérhető."
 
-#: ../client/analysisCtrl.ts:415
+#: ../client/analysisCtrl.ts:453
 msgid "Download game to PGN file"
 msgstr "Játszma leöltése PGN fájlba."
 
-#: ../client/analysisCtrl.ts:415
+#: ../client/analysisCtrl.ts:453
 msgid "Download PGN"
 msgstr "PGN letöltése"
 
-#: ../client/analysisCtrl.ts:417
+#: ../client/analysisCtrl.ts:455
 msgid "Copy USI/UCI to clipboard"
 msgstr "UCI/USI másolása a vágólapra."
 
-#: ../client/analysisCtrl.ts:417
+#: ../client/analysisCtrl.ts:455
 msgid "Copy UCI/USI"
 msgstr "UCI/USI másolása"
 
-#: ../client/analysisCtrl.ts:419
+#: ../client/analysisCtrl.ts:457
 msgid "Download position to PNG image file"
 msgstr "Állás másolása PNG kép fájlba."
 
-#: ../client/analysisCtrl.ts:419
+#: ../client/analysisCtrl.ts:457
 msgid "PNG image"
 msgstr "PNG kép"
 
-#: ../client/analysisCtrl.ts:427
+#: ../client/analysisCtrl.ts:465
 msgid "Delete game"
 msgstr "Játszma törlése"
 
-#: ../client/analysisCtrl.ts:442
+#: ../client/analysisCtrl.ts:480
 msgid "Are you sure you want to delete this game?"
 msgstr "Biztosan törölni akarod ezt a játszmát?"
 
-#: ../client/analysisCtrl.ts:485
+#: ../client/analysisCtrl.ts:522
 msgid "Request Computer Analysis"
 msgstr "Számítógépes elemzés kérése"
 
-#: ../client/analysisCtrl.ts:485
+#: ../client/analysisCtrl.ts:522
 msgid "Request Analysis"
 msgstr "Elemzés kérése"
 
-#: ../client/analysisCtrl.ts:691
+#: ../client/analysisCtrl.ts:735
 msgid "Depth"
 msgstr "mélység"
 
-#: ../client/analysisCtrl.ts:696
+#: ../client/analysisCtrl.ts:740
 msgid "Go deeper"
 msgstr "Mélyebben"
 
-#: ../client/analysisCtrl.ts:1176 ../client/roundCtrl.ts:1356
+#: ../client/analysisCtrl.ts:1229 ../client/roundCtrl.ts:1360
 #: ../client/tournament.ts:698
 msgid "Spectators: "
 msgstr "Nézők: "
 
-#: ../client/analysisCtrl.ts:1200 ../client/roundCtrl.ts:1437
+#: ../client/analysisCtrl.ts:1253 ../client/roundCtrl.ts:1441
 msgid "Requested game %1 not found!"
 msgstr "A kért %1 játszma nem található!"
 
@@ -237,37 +245,29 @@ msgstr "Világos"
 msgid "Dark"
 msgstr "Sötét"
 
-#: ../client/boardSettings.ts:208
+#: ../client/boardSettings.ts:209
 msgid "Piece animation"
 msgstr "Bábuk animációja"
 
-#: ../client/boardSettings.ts:309
+#: ../client/boardSettings.ts:310
 msgid "Show piece destinations"
 msgstr "Lehetséges lépések mutatása"
 
-#: ../client/boardSettings.ts:327
+#: ../client/boardSettings.ts:328
 msgid "Promote to the top choice automatically"
 msgstr "Automatikus figura átváltoztatás"
 
-#: ../client/boardSettings.ts:345
+#: ../client/boardSettings.ts:346
 msgid "Best move arrow in analysis board"
 msgstr "Legjobb lépés nyíl az elemzőtáblán"
 
-#: ../client/boardSettings.ts:373
+#: ../client/boardSettings.ts:374
 msgid "Invisible pieces"
 msgstr "Láthatatlan bábuk"
 
-#: ../client/boardSettings.ts:393
+#: ../client/boardSettings.ts:394
 msgid "Show material difference"
 msgstr "Bábuk közötti különbség"
-
-#: ../client/chart.ts:21
-msgid "Initial position"
-msgstr "Kezdőállás"
-
-#: ../client/chart.ts:103
-msgid "Advantage"
-msgstr "Előny"
 
 #: ../client/chat.ts:30 ../client/chat.ts:45
 msgid "Sign in to chat"
@@ -645,11 +645,11 @@ msgstr "%1 lép"
 msgid "Castling"
 msgstr "Sáncolás"
 
-#: ../client/editorCtrl.ts:146 ../client/i18n.ts:58 ../client/lobby.ts:522
+#: ../client/editorCtrl.ts:146 ../client/i18n.ts:58 ../client/lobby.ts:530
 msgid "White"
 msgstr "Világos"
 
-#: ../client/editorCtrl.ts:161 ../client/i18n.ts:58 ../client/lobby.ts:520
+#: ../client/editorCtrl.ts:161 ../client/i18n.ts:58 ../client/lobby.ts:528
 msgid "Black"
 msgstr "Sötét"
 
@@ -665,7 +665,7 @@ msgstr "ÜRES TÁBLA"
 msgid "STARTING POSITION"
 msgstr "KEZDŐÁLLÁS"
 
-#: ../client/editorCtrl.ts:186 ../client/roundCtrl.ts:784
+#: ../client/editorCtrl.ts:186 ../client/roundCtrl.ts:791
 msgid "ANALYSIS BOARD"
 msgstr "ELEMZÉS"
 
@@ -677,7 +677,7 @@ msgstr "JÁTÉK A GÉP ELLEN"
 msgid "EXPORT TO PNG"
 msgstr "EXPORTÁLÁS PNG KÉPKÉNT"
 
-#: ../client/editorCtrl.ts:265 ../client/lobby.ts:653
+#: ../client/editorCtrl.ts:265 ../client/lobby.ts:661
 msgid "Invalid FEN"
 msgstr "Érvénytelen FEN"
 
@@ -945,7 +945,7 @@ msgstr "Embassy"
 msgid "Conservative"
 msgstr "Conservative"
 
-#: ../client/invite.ts:34 ../client/lobby.ts:533
+#: ../client/invite.ts:34 ../client/lobby.ts:541
 msgid "Host a game for others"
 msgstr "Játszma létrehozása másoknak."
 
@@ -992,89 +992,89 @@ msgstr ""
 msgid "The first person to come to this URL will play with you."
 msgstr "Az első ember, aki felkeresi ezt a címet, az lesz az ellenfeled."
 
-#: ../client/lobby.ts:423
+#: ../client/lobby.ts:431
 msgid "Cancel"
 msgstr "Mégsem"
 
-#: ../client/lobby.ts:428
+#: ../client/lobby.ts:436
 msgid "Challenge %1 to a game"
 msgstr "%1 kihívása egy játszmára"
 
-#: ../client/lobby.ts:435
+#: ../client/lobby.ts:443
 msgid "Paste the FEN text here"
 msgstr "Másold ide a FEN szöveget"
 
-#: ../client/lobby.ts:435
+#: ../client/lobby.ts:443
 msgid " (must be signed in)"
 msgstr " (jelentkezz be ehhez)"
 
-#: ../client/lobby.ts:451
+#: ../client/lobby.ts:459
 msgid "Minutes per side:"
 msgstr "Perc játékosonként"
 
-#: ../client/lobby.ts:466
+#: ../client/lobby.ts:474
 msgid "Periods"
 msgstr "Periódus"
 
-#: ../client/lobby.ts:481 ../client/lobby.ts:770 ../client/profile.ts:25
+#: ../client/lobby.ts:489 ../client/lobby.ts:778 ../client/profile.ts:25
 msgid "Casual"
 msgstr "Nem értékelt"
 
-#: ../client/lobby.ts:488 ../client/lobby.ts:768 ../client/profile.ts:20
+#: ../client/lobby.ts:496 ../client/lobby.ts:776 ../client/profile.ts:20
 msgid "Rated"
 msgstr "Értékelt"
 
-#: ../client/lobby.ts:499
+#: ../client/lobby.ts:507
 msgid "Practice with Random-Mover"
 msgstr "Gyakorlás a robottal"
 
-#: ../client/lobby.ts:510
+#: ../client/lobby.ts:518
 msgid "A.I. Level"
 msgstr "A.I.szint"
 
-#: ../client/lobby.ts:521
+#: ../client/lobby.ts:529
 msgid "Random"
 msgstr "Véletlen szín"
 
-#: ../client/lobby.ts:525
+#: ../client/lobby.ts:533
 msgid "Create"
 msgstr "Létrehozás"
 
-#: ../client/lobby.ts:530 ../client/lobby/layer3.ts:40
+#: ../client/lobby.ts:538 ../client/lobby/layer3.ts:40
 msgid "Create a game"
 msgstr "Játék létrehozása"
 
-#: ../client/lobby.ts:531
+#: ../client/lobby.ts:539
 msgid "Play with a friend"
 msgstr "Játék egy ismerőssel"
 
-#: ../client/lobby.ts:532 ../client/lobby/layer3.ts:42
+#: ../client/lobby.ts:540 ../client/lobby/layer3.ts:42
 msgid "Play with AI"
 msgstr "Játék a gép ellen"
 
-#: ../client/lobby.ts:614
+#: ../client/lobby.ts:622
 msgid "Byoyomi in seconds:"
 msgstr "Byoyomi másodpercben"
 
-#: ../client/lobby.ts:614
+#: ../client/lobby.ts:622
 msgid "Increment in seconds:"
 msgstr "Plusz idő másodpercben"
 
-#: ../client/lobby.ts:619
+#: ../client/lobby.ts:627
 msgid "Alternate Start"
 msgstr "Kezdőállás"
 
-#: ../client/lobby.ts:766
+#: ../client/lobby.ts:774
 msgid "Custom"
 msgstr "Egyéni"
 
-#: ../client/lobby.ts:794 ../client/lobby.ts:919
+#: ../client/lobby.ts:802 ../client/lobby.ts:927
 msgid "%1 player"
 msgid_plural "%1 players"
 msgstr[0] "%1 játékos"
 msgstr[1] "%1 játékos"
 
-#: ../client/lobby.ts:880
+#: ../client/lobby.ts:888
 msgid ""
 "You have an unfinished game!\n"
 "Press OK to continue."
@@ -1082,53 +1082,49 @@ msgstr ""
 "Van egy befejezetlen játszmád!\n"
 "OK a folytatáshoz"
 
-#: ../client/lobby.ts:913
+#: ../client/lobby.ts:921
 msgid "%1 game in play"
 msgid_plural "%1 games in play"
 msgstr[0] "%1 játszma"
 msgstr[1] "%1 játszma"
 
-#: ../client/lobby.ts:929
+#: ../client/lobby.ts:937
 msgid "Tournament calendar"
 msgstr "Versenynaptár"
 
-#: ../client/lobby.ts:938
+#: ../client/lobby.ts:946
 msgid "Player"
 msgstr "Játékos"
 
-#: ../client/lobby.ts:939
+#: ../client/lobby.ts:947
 msgid "Rating"
 msgstr "Értékszám"
 
-#: ../client/lobby.ts:940
+#: ../client/lobby.ts:948
 msgid "Time"
 msgstr "Játékidő"
 
-#: ../client/lobby.ts:942
+#: ../client/lobby.ts:950
 msgid "Mode"
 msgstr "Mód"
 
-#: ../client/lobby.ts:986
+#: ../client/lobby.ts:994
 msgid "Donate"
 msgstr "Támogatás"
 
-#: ../client/lobby.ts:987
+#: ../client/lobby.ts:995
 msgid "FAQ"
 msgstr "GYIK"
 
-#: ../client/lobby.ts:988
+#: ../client/lobby.ts:996
 msgid "Stats"
 msgstr "Statisztika"
 
-#: ../client/lobby.ts:989
+#: ../client/lobby.ts:997
 msgid "About"
 msgstr "Névjegy"
 
-#: ../client/lobby.ts:994
-msgid "Latest updates"
-msgstr "Legutóbbi frissítések"
-
-#: ../client/main.ts:144
+#: ../client/main.ts:153
 msgid "Thank you for your support!"
 msgstr "Köszönet a támogatásért!"
 
@@ -1172,7 +1168,7 @@ msgstr "Patt"
 msgid "Time out"
 msgstr "Letelt az idő"
 
-#: ../client/profile.ts:61 ../client/roundCtrl.ts:507
+#: ../client/profile.ts:61 ../client/roundCtrl.ts:512
 msgid "Draw"
 msgstr "Döntetlen"
 
@@ -1226,7 +1222,7 @@ msgstr[1] "%1 lépés"
 msgid "Computer analysis available"
 msgstr "Számítógépes elemzés elérhető"
 
-#: ../client/profile.ts:310
+#: ../client/profile.ts:309
 msgid "Games"
 msgstr "Játszmák"
 
@@ -1234,16 +1230,16 @@ msgstr "Játszmák"
 msgid "Games with you"
 msgstr "Játszmák veled"
 
-#: ../client/profile.ts:312
+#: ../client/profile.ts:313
 msgctxt "UsePluralFormIfNeeded"
 msgid "Rated"
 msgstr "Értékelt"
 
-#: ../client/profile.ts:313
+#: ../client/profile.ts:314
 msgid "Imported"
 msgstr "Importált"
 
-#: ../client/roundCtrl.ts:428 ../client/roundCtrl.ts:1404
+#: ../client/roundCtrl.ts:428 ../client/roundCtrl.ts:1408
 msgid " +15 seconds"
 msgstr "+15 másodperc"
 
@@ -1255,105 +1251,105 @@ msgstr "+15 másodperc az ellenfélnek"
 msgid "Berserk"
 msgstr "Berserk"
 
-#: ../client/roundCtrl.ts:504
+#: ../client/roundCtrl.ts:509
 msgid "Abort"
 msgstr "Játszma elvetése"
 
-#: ../client/roundCtrl.ts:506 ../client/roundCtrl.ts:1169
-#: ../client/roundCtrl.ts:1171
+#: ../client/roundCtrl.ts:511 ../client/roundCtrl.ts:1176
+#: ../client/roundCtrl.ts:1178
 msgid "Count"
 msgstr "Számolás"
 
-#: ../client/roundCtrl.ts:507
+#: ../client/roundCtrl.ts:512
 msgid "Pass"
 msgstr "Passz"
 
-#: ../client/roundCtrl.ts:508
+#: ../client/roundCtrl.ts:513
 msgid "Resign"
 msgstr "Feladás"
 
-#: ../client/roundCtrl.ts:571
+#: ../client/roundCtrl.ts:578
 msgid "Are you sure you want to draw?"
 msgstr "Biztosan döntetlent akarsz?"
 
-#: ../client/roundCtrl.ts:573
+#: ../client/roundCtrl.ts:580
 msgid "Draw offer sent"
 msgstr "Döntetlen ajánlat elküldve."
 
-#: ../client/roundCtrl.ts:585
+#: ../client/roundCtrl.ts:592
 msgid "Your opponent offers a draw"
 msgstr "Az ellenfeled döntetlent ajánlott."
 
-#: ../client/roundCtrl.ts:605
+#: ../client/roundCtrl.ts:612
 msgid "Are you sure you want to resign?"
 msgstr "Biztosan fel akarod adni?"
 
-#: ../client/roundCtrl.ts:637
+#: ../client/roundCtrl.ts:644
 msgid "Blue (Cho)"
 msgstr "Kék (Cho)"
 
-#: ../client/roundCtrl.ts:637
+#: ../client/roundCtrl.ts:644
 msgid "Red (Han)"
 msgstr "Piros (Han)"
 
-#: ../client/roundCtrl.ts:638
+#: ../client/roundCtrl.ts:645
 msgid ""
 "Waiting for %1 to choose starting positions of the horses and elephants..."
 msgstr " %1 kiválaszthatja a lovak és elefántok kezdő pozícióját..."
 
-#: ../client/roundCtrl.ts:678 ../client/roundCtrl.ts:680
+#: ../client/roundCtrl.ts:685 ../client/roundCtrl.ts:687
 msgid "Switch pieces"
 msgstr "Figurák cseréje"
 
-#: ../client/roundCtrl.ts:679
+#: ../client/roundCtrl.ts:686
 msgid "Ready"
 msgstr "Kész"
 
-#: ../client/roundCtrl.ts:713
+#: ../client/roundCtrl.ts:720
 msgid "VIEW REMATCH"
 msgstr "VISZZAVÁGÓ JÁTSZMA"
 
-#: ../client/roundCtrl.ts:720
+#: ../client/roundCtrl.ts:727
 msgid "Rematch offer sent"
 msgstr "Visszavágó ajánlat elküldve."
 
-#: ../client/roundCtrl.ts:731
+#: ../client/roundCtrl.ts:738
 msgid "Your opponent offers a rematch"
 msgstr "Az ellenfeled visszavágót ajánlott."
 
-#: ../client/roundCtrl.ts:772
+#: ../client/roundCtrl.ts:779
 msgid "VIEW TOURNAMENT"
 msgstr "VERSENY MEGNÉZÉSE"
 
-#: ../client/roundCtrl.ts:775
+#: ../client/roundCtrl.ts:782
 msgid "BACK TO TOURNAMENT"
 msgstr "VISSZA A VERSENYHEZ"
 
-#: ../client/roundCtrl.ts:777 ../client/tournament.ts:289
+#: ../client/roundCtrl.ts:784 ../client/tournament.ts:289
 msgid "PAUSE"
 msgstr "SZÜNET"
 
-#: ../client/roundCtrl.ts:780
+#: ../client/roundCtrl.ts:787
 msgid "REMATCH"
 msgstr "VISSZAVÁGÓ"
 
-#: ../client/roundCtrl.ts:781
+#: ../client/roundCtrl.ts:788
 msgid "NEW OPPONENT"
 msgstr "ÚJ JÁTSZMA"
 
-#: ../client/roundCtrl.ts:1167
+#: ../client/roundCtrl.ts:1174
 msgid "Stop counting"
 msgstr "Számolás leállítása"
 
-#: ../client/roundCtrl.ts:1167
+#: ../client/roundCtrl.ts:1174
 msgid "Stop"
 msgstr "Stop!"
 
-#: ../client/roundCtrl.ts:1169 ../client/roundCtrl.ts:1171
+#: ../client/roundCtrl.ts:1176 ../client/roundCtrl.ts:1178
 msgid "Start counting"
 msgstr "számolás indítása"
 
-#: ../client/roundCtrl.ts:1316
+#: ../client/roundCtrl.ts:1321
 msgid "%1 second to play the first move"
 msgid_plural "%1 seconds to play the first move"
 msgstr[0] "%1 másodperc az első lépésig"
