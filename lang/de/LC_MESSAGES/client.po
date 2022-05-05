@@ -166,19 +166,19 @@ msgstr "im lokalen Browser"
 
 #: ../client/analysis.ts:188
 msgid "Computer analysis"
-msgstr ""
+msgstr "Computer-Analyse"
 
 #: ../client/analysis.ts:189
 msgid "Move times"
-msgstr ""
+msgstr "Zug Zeiten"
 
 #: ../client/analysis.ts:190
 msgid "Crosstable"
-msgstr ""
+msgstr "Tabelle"
 
 #: ../client/analysis.ts:191
 msgid "FEN & PGN"
-msgstr ""
+msgstr "FEN & PGN"
 
 #: ../client/analysisChart.ts:21
 msgid "Initial position"

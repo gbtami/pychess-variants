@@ -15,7 +15,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-04-11 12:19+0200\n"
+"POT-Creation-Date: 2022-05-02 23:28+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Last-Translator: Jonathan Kubik <j.kubik97@gmail.com>, 2022\n"
 "Language-Team: German (https://www.transifex.com/gbtami/teams/14790/de/)\n"
@@ -40,25 +40,25 @@ msgstr ""
 "Servers Zeit und Geld. Wenn dir unsere Arbeit gefällt und du unseren Server "
 "nützlich findest, spende bitte über unser Patreon oder PayPal. "
 
-#: ../templates/players.html:9
-msgid "Online"
-msgstr "Online"
-
-#: ../templates/players.html:28
-msgid "Anonymous"
-msgstr "Anonymous"
-
-#: ../templates/players.html:35
+#: ../templates/players.html:7
 msgid "All players"
 msgstr "Alle Spieler"
 
-#: ../templates/players.html:36 ../templates/winners.html:6
+#: ../templates/players.html:9 ../templates/winners.html:6
 msgid "Tournament winners"
 msgstr "Turnier Sieger"
 
-#: ../templates/players.html:37 ../templates/shields.html:6
+#: ../templates/players.html:10 ../templates/shields.html:6
 msgid "Tournament shields"
 msgstr "Turnier Schilder"
+
+#: ../templates/players.html:14
+msgid "Online"
+msgstr "Online"
+
+#: ../templates/players.html:33
+msgid "Anonymous"
+msgstr "Anonymous"
 
 #: ../templates/players50.html:6
 msgid "Top 50"
@@ -91,39 +91,67 @@ msgstr "Partien exportieren"
 msgid "Lichess profile"
 msgstr "Lichess Profil"
 
-#: ../templates/template.html:17
-msgid "Tv"
-msgstr "TV"
-
 #: ../templates/template.html:18
-msgid "Current games"
-msgstr "Laufende Partien"
+msgid "Play"
+msgstr "Spielen"
 
-#: ../templates/template.html:19 ../templates/tournaments.html:6
+#: ../templates/template.html:20
+msgid "Create a game"
+msgstr "Spiel erstellen"
+
+#: ../templates/template.html:21 ../templates/tournaments.html:6
 msgid "Tournaments"
 msgstr "Turniere"
 
-#: ../templates/template.html:20
+#: ../templates/template.html:25
+msgid "Watch"
+msgstr "Zuschauen"
+
+#: ../templates/template.html:27
+msgid "Tv"
+msgstr "TV"
+
+#: ../templates/template.html:28
+msgid "Current games"
+msgstr "Laufende Partien"
+
+#: ../templates/template.html:32
+msgid "Community"
+msgstr "Gemeinschaft"
+
+#: ../templates/template.html:34
 msgid "Players"
 msgstr "Spieler"
 
-#: ../templates/template.html:21
+#: ../templates/template.html:35
+msgid "Blog"
+msgstr "Blog"
+
+#: ../templates/template.html:36
+msgid "Donate"
+msgstr "Spenden"
+
+#: ../templates/template.html:40
+msgid "Tools"
+msgstr "Werkzeuge"
+
+#: ../templates/template.html:42
 msgid "Editor"
 msgstr "Editor"
 
-#: ../templates/template.html:22
+#: ../templates/template.html:43
 msgid "Analysis"
 msgstr "Analyse"
 
-#: ../templates/template.html:23
+#: ../templates/template.html:46
 msgid "Variants"
 msgstr "Varianten"
 
-#: ../templates/template.html:35
+#: ../templates/template.html:59
 msgid "Login with Lichess"
 msgstr "Mit Lichess einloggen"
 
-#: ../templates/template.html:35
+#: ../templates/template.html:59
 msgid "Log in"
 msgstr "Anmelden"
 
