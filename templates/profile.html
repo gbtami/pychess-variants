@@ -49,6 +49,9 @@
             {% if (not anon) and (profile_title != "BOT") %}
             <a class="icon icon-download" href="/games/export/{{ profile }}" download="{{ profile }}.pgn" title="{% trans %}Export games{% endtrans %}"></a>
             {% endif %}
+            {% if admin %}
+            <a class="icon icon-download" href="/games/json/{{ profile }}" download="{{ profile }}.json" title="Export games to json"></a>
+            {% endif %}
             {% if not anon %}
             <a class="icon icon-at" href="https://lichess.org/@/{{ profile }}" rel="noopener" target="_blank" title="{% trans %}Lichess profile{% endtrans %}"></a>
             {% endif %}
