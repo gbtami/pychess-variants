@@ -33,18 +33,20 @@ def write_fens(json_file, stream, variant, count):
     generator = generate_fens(json_file, variant)
     for _ in range(count):
         fen, _id = next(generator)
-        stream.write(
-            "{};variant {}".format(fen, variant) + (";id {}".format(_id)) + os.linesep
-        )
+        stream.write("{};variant {}".format(fen, variant) + (";id {}".format(_id)) + os.linesep)
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-i", "--input-file", help="json file containing pychess games")
-    parser.add_argument("-v", "--variant", default="chess", help="variant to generate positions for")
-    parser.add_argument("-p", "--variant-path", default="", help="custom variants definition file path")
+    parser.add_argument(
+        "-v", "--variant", default="chess", help="variant to generate positions for"
+    )
+    parser.add_argument(
+        "-p", "--variant-path", default="", help="custom variants definition file path"
+    )
     parser.add_argument("-c", "--count", type=int, default=1000, help="number of positions")
-    args = parser.parse_args()
 
+    args = parser.parse_args()
     sf.set_option("VariantPath", args.variant_path)
     write_fens(args.input_file, sys.stdout, args.variant, args.count)

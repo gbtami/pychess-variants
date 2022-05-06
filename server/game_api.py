@@ -197,13 +197,15 @@ async def get_user_games(request):
                 doc["tn"] = await get_tournament_name(request.app, tournament_id)
 
             if uci_moves:
-                game_doc_list.append({
-                    "id": doc["_id"],
-                    "variant": doc["v"],
-                    "is960": doc.get("z", 0),
-                    "fen": doc.get("if"),
-                    "moves": decode_moves(doc["m"], doc["v"])
-                })
+                game_doc_list.append(
+                    {
+                        "id": doc["_id"],
+                        "variant": doc["v"],
+                        "is960": doc.get("z", 0),
+                        "fen": doc.get("if"),
+                        "moves": decode_moves(doc["m"], doc["v"]),
+                    }
+                )
             else:
                 game_doc_list.append(doc)
 
