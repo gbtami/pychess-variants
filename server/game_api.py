@@ -202,6 +202,7 @@ async def get_user_games(request):
                         "id": doc["_id"],
                         "variant": doc["v"],
                         "is960": doc.get("z", 0),
+                        "users": doc["us"],
                         "fen": doc.get("if"),
                         "moves": decode_moves(doc["m"], doc["v"]),
                     }
