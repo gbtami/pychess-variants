@@ -10,8 +10,6 @@ def generate_fens(json_file, variant):
     if variant not in sf.variants():
         raise Exception("Unsupported variant: {}".format(variant))
 
-    start_fen = sf.start_fen(variant)
-
     fens = set()
     with open(json_file, "r") as f:
         games = json.load(f)
@@ -21,9 +19,15 @@ def generate_fens(json_file, variant):
 
             move_stack = []
             _id = game["id"]
+            is960 = game["is960"] == 1
+            if game["fen"]:
+                start_fen = game["fen"]
+            else:
+                start_fen = sf.start_fen(variant)
+
             for move in game["moves"]:
                 move_stack.append(move)
-                fen = sf.get_fen(variant, start_fen, move_stack)
+                fen = sf.get_fen(variant, start_fen, move_stack, is960)
                 if fen not in fens:
                     fens.add(fen)
                     yield fen, _id
