@@ -310,9 +310,17 @@ export default class TournamentController {
                 h('a.i-dl.icon.icon-download', {
                     attrs: {
                         href: '/games/export/tournament/' + this.tournamentId,
-                        download: this.tournamentId + '.pgn',
+                        download: 'pychess_tournament_' + this.tournamentId + '.pgn',
                     },
                 }, _('Download all games')),
+            ]),
+            h('table.tour-stats-links', [
+                h('a.i-dl.icon.icon-download', {
+                    attrs: {
+                        href: '/tournament/json/' + this.tournamentId,
+                        download: 'pychess_tournament_' + this.tournamentId + '.json',
+                    },
+                }, _('Download all games in JSON')),
             ]),
         ]);
         const el = document.getElementById('summarybox') as HTMLElement;
