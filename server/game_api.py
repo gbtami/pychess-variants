@@ -107,6 +107,9 @@ async def get_user_games(request):
     level = request.rel_url.query.get("x")
     variant = request.path[request.path.rfind("/") + 1 :]
 
+    # produce UCI move list for puzzle generator
+    uci_moves = "/json" in request.path
+
     if "/win" in request.path:
         filter_cond["$or"] = [
             {"r": "a", "us.0": profileId},
@@ -138,7 +141,7 @@ async def get_user_games(request):
     elif "/import" in request.path:
         filter_cond["by"] = profileId
         filter_cond["y"] = 2
-    elif "/perf" in request.path and variant in VARIANTS:
+    elif ("/perf" in request.path or uci_moves) and variant in VARIANTS:
         if variant.endswith("960"):
             v = V2C[variant[:-3]]
             z = 1
@@ -167,7 +170,10 @@ async def get_user_games(request):
     if profileId is not None:
         # print("FILTER:", filter_cond)
         cursor = db.game.find(filter_cond)
-        cursor.sort("d", -1).skip(int(page_num) * GAME_PAGE_SIZE).limit(GAME_PAGE_SIZE)
+        if uci_moves:
+            cursor.sort("d", -1)
+        else:
+            cursor.sort("d", -1).skip(int(page_num) * GAME_PAGE_SIZE).limit(GAME_PAGE_SIZE)
         async for doc in cursor:
             # filter out private games
             if (
@@ -190,7 +196,19 @@ async def get_user_games(request):
             if tournament_id is not None:
                 doc["tn"] = await get_tournament_name(request.app, tournament_id)
 
-            game_doc_list.append(doc)
+            if uci_moves:
+                game_doc_list.append(
+                    {
+                        "id": doc["_id"],
+                        "variant": doc["v"],
+                        "is960": doc.get("z", 0),
+                        "users": doc["us"],
+                        "fen": doc.get("if"),
+                        "moves": decode_moves(doc["m"], doc["v"]),
+                    }
+                )
+            else:
+                game_doc_list.append(doc)
 
     return web.json_response(game_doc_list, dumps=partial(json.dumps, default=datetime.isoformat))
 

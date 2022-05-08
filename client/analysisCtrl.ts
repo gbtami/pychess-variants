@@ -351,6 +351,8 @@ export default class AnalysisController {
         boardSettings.updateBoardStyle(boardFamily);
         boardSettings.updatePieceStyle(pieceFamily);
         boardSettings.updateZoom(boardFamily);
+
+        this.onMsgBoard(model["board"] as MsgBoard);
     }
 
     getGround = () => this.chessground;
@@ -1155,8 +1157,6 @@ export default class AnalysisController {
 
     private onMsgUserConnected = (msg: MsgUserConnected) => {
         this.model["username"] = msg["username"];
-        // we want to know lastMove and check status
-        this.doSend({ type: "board", gameId: this.gameId });
     }
 
     private onMsgSpectators = (msg: MsgSpectators) => {

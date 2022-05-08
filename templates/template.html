@@ -15,14 +15,27 @@
                 {% endif %}
                 </a>
                 <section>
+                    <a class="nav-link" href="/?any">{% trans %}Play{% endtrans %}</a>
+                    <div class="drp" >
+                        <a class="nav-link" href="/?any">{% trans %}Create a game{% endtrans %}</a>
+                        <a class="nav-link" href="/tournaments">{% trans %}Tournaments{% endtrans %}</a>
+                    </div>
+                </section>
+                <section>
                     <a class="nav-link" href="/tv">{% trans %}Watch{% endtrans %}</a>
                     <div class="drp" >
                         <a class="nav-link" href="/tv">{% trans %}Tv{% endtrans %}</a>
                         <a class="nav-link" href="/games">{% trans %}Current games{% endtrans %}</a>
                     </div>
                 </section>
-                <a class="nav-link" href="/tournaments">{% trans %}Tournaments{% endtrans %}</a>
-                <a class="nav-link" href="/players">{% trans %}Players{% endtrans %}</a>
+                <section>
+                    <a class="nav-link" href="/players">{% trans %}Community{% endtrans %}</a>
+                    <div class="drp" >
+                        <a class="nav-link" href="/players">{% trans %}Players{% endtrans %}</a>
+                        <a class="nav-link" href="/news">{% trans %}Blog{% endtrans %}</a>
+                        <a class="nav-link" href="/patron">{% trans %}Donate{% endtrans %}</a>
+                    </div>
+                </section>
                 <section>
                     <a class="nav-link" href="/editor/chess">{% trans %}Tools{% endtrans %}</a>
                     <div class="drp" >
@@ -30,7 +43,9 @@
                         <a class="nav-link" href="/analysis/chess">{% trans %}Analysis{% endtrans %}</a>
                     </div>
                 </section>
-                <a class="nav-link" href="/variants">{% trans %}Variants{% endtrans %}</a>
+                <section>
+                    <a class="nav-link" href="/variants">{% trans %}Variants{% endtrans %}</a>
+                </section>
             </div>
         </div>
         <div class="site-buttons">

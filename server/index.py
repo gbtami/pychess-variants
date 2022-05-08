@@ -250,6 +250,10 @@ async def index(request):
             if user.anon and profileId != "Fairy-Stockfish":
                 return web.HTTPFound("/")
 
+    # Play menu (Create a game)
+    if request.rel_url.query.get("any") is not None:
+        profileId = "any#"
+
     # Do we have gameId in request url?
     if (gameId is not None) and gameId != "variants":
         if view not in ("tv", "analysis", "embed"):
@@ -410,6 +414,7 @@ async def index(request):
             render["variant"] = variant
         render["profile_title"] = users[profileId].title if profileId in users else ""
         render["rated"] = rated
+        render["admin"] = user.username in ADMINS
 
     elif view == "players":
         online_users = [
@@ -484,6 +489,7 @@ async def index(request):
             render["title"] = game.browser_title
             render["ply"] = ply if ply is not None else game.board.ply - 1
             render["ct"] = json.dumps(game.crosstable)
+            render["board"] = json.dumps(game.get_board(full=True))
             if game.tournamentId is not None:
                 render["tournamentid"] = game.tournamentId
                 render["tournamentname"] = tournament_name
