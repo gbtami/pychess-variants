@@ -36,6 +36,9 @@ class PrintAllFensVisitor(chess.pgn.BaseVisitor):
 
     def visit_board(self, board):
         if self.relevant:
+            # python-chess can't recognize 960 in non Chess960 games
+            # but using it for non 960 games as well doesn't hurt
+            board.chess960 = True
             self.fens.append(
                 "{};variant {};site {}".format(board.fen(), self.uci_variant, self.site)
             )
