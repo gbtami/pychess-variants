@@ -7,6 +7,20 @@ import json
 
 import pyffish as sf
 
+GRANDS = ("xiangqi", "manchu", "grand", "grandhouse", "shako", "janggi")
+
+
+def zero2grand(move):
+    if move[1] == "@":
+        return "%s@%s%s" % (move[0], move[2], int(move[3:]) + 1)
+    return "%s%s%s%s%s" % (
+        move[0],
+        int(move[1]) + 1,
+        move[2],
+        int(move[3]) + 1,
+        move[4] if len(move) == 5 else "",
+    )
+
 
 def generate_fens(json_file, stream, variant, count):
     if variant not in sf.variants():
@@ -19,21 +33,28 @@ def generate_fens(json_file, stream, variant, count):
             if game["variant"] != variant:
                 continue
 
-            moves = game["moves"]
-            _id = game["id"]
-            is960 = game["is960"] == 1
-            if game["fen"]:
-                start_fen = game["fen"]
-            else:
-                start_fen = sf.start_fen(variant)
+            try:
+                moves = game["moves"]
+                if variant in GRANDS:
+                    moves = list(map(zero2grand, moves))
+                _id = game["id"]
+                is960 = game["is960"] == 1
+                if game["fen"]:
+                    start_fen = game["fen"]
+                else:
+                    start_fen = sf.start_fen(variant)
 
-            for i in range(len(moves)):
-                fen = sf.get_fen(variant, start_fen, moves[:i], is960)
-                stream.write("{};variant {};site https://www.pychess.org/{}{}".format(fen, variant, _id, os.linesep))
+                for i in range(1, len(moves)):
+                    fen = sf.get_fen(variant, start_fen, moves[:i], is960)
+                    stream.write("{};variant {};site https://www.pychess.org/{}{}".format(fen, variant, _id, os.linesep))
 
-            cnt += 1
-            if cnt >= count:
-                break
+                cnt += 1
+                if cnt >= count:
+                    break
+
+            except SystemError:
+                # Possible an old game saved in USI format
+                continue
 
 
 if __name__ == "__main__":

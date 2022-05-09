@@ -31,7 +31,6 @@ class PrintAllFensVisitor(chess.pgn.BaseVisitor):
 
     def end_headers(self):
         if not self.relevant:
-            print(self.uci_variant, self.site)
             # Optimization hint: Do not even bother parsing the moves.
             return chess.pgn.SKIP
 
@@ -47,14 +46,20 @@ def write_fens(pgn_file, stream, variant, count):
     visitor = functools.partial(PrintAllFensVisitor, variant=variant)
     with open(pgn_file) as pgn:
         cnt = 0
-        while cnt <= count:
+        while True:
             fens = chess.pgn.read_game(pgn, Visitor=visitor)
-            if not fens:
+            if fens is None:
+                break
+            elif len(fens) == 0:
                 continue
             else:
                 cnt += 1
+
             for fen in fens:
                 stream.write(fen + os.linesep)
+
+            if cnt > count:
+                break
 
 
 if __name__ == "__main__":
