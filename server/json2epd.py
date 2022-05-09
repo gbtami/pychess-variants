@@ -1,3 +1,5 @@
+""" Generates EPD positions from JSON games file saved from pychess.org """
+
 import argparse
 import os
 import sys
@@ -6,18 +8,18 @@ import json
 import pyffish as sf
 
 
-def generate_fens(json_file, variant):
+def generate_fens(json_file, stream, variant, count):
     if variant not in sf.variants():
         raise Exception("Unsupported variant: {}".format(variant))
 
-    fens = set()
     with open(json_file, "r") as f:
         games = json.load(f)
+        cnt = 0
         for game in games:
             if game["variant"] != variant:
                 continue
 
-            move_stack = []
+            moves = game["moves"]
             _id = game["id"]
             is960 = game["is960"] == 1
             if game["fen"]:
@@ -25,19 +27,13 @@ def generate_fens(json_file, variant):
             else:
                 start_fen = sf.start_fen(variant)
 
-            for move in game["moves"]:
-                move_stack.append(move)
-                fen = sf.get_fen(variant, start_fen, move_stack, is960)
-                if fen not in fens:
-                    fens.add(fen)
-                    yield fen, _id
+            for i in range(len(moves)):
+                fen = sf.get_fen(variant, start_fen, moves[:i], is960)
+                stream.write("{};variant {};site https://www.pychess.org/{}{}".format(fen, variant, _id, os.linesep))
 
-
-def write_fens(json_file, stream, variant, count):
-    generator = generate_fens(json_file, variant)
-    for _ in range(count):
-        fen, _id = next(generator)
-        stream.write("{};variant {}".format(fen, variant) + (";id {}".format(_id)) + os.linesep)
+            cnt += 1
+            if cnt >= count:
+                break
 
 
 if __name__ == "__main__":
@@ -49,8 +45,8 @@ if __name__ == "__main__":
     parser.add_argument(
         "-p", "--variant-path", default="", help="custom variants definition file path"
     )
-    parser.add_argument("-c", "--count", type=int, default=1000, help="number of positions")
+    parser.add_argument("-c", "--count", type=int, default=1000, help="number of games")
 
     args = parser.parse_args()
     sf.set_option("VariantPath", args.variant_path)
-    write_fens(args.input_file, sys.stdout, args.variant, args.count)
+    generate_fens(args.input_file, sys.stdout, args.variant, args.count)
