@@ -36,7 +36,9 @@ class PrintAllFensVisitor(chess.pgn.BaseVisitor):
 
     def visit_board(self, board):
         if self.relevant:
-            self.fens.append("{};variant {};site {}".format(board.fen(), self.uci_variant, self.site))
+            self.fens.append(
+                "{};variant {};site {}".format(board.fen(), self.uci_variant, self.site)
+            )
 
     def result(self):
         return self.fens
@@ -65,9 +67,7 @@ def write_fens(pgn_file, stream, variant, count):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-i", "--input-file", help="pgn file containing lichess games")
-    parser.add_argument(
-        "-v", "--variant", help="variant to generate positions for"
-    )
+    parser.add_argument("-v", "--variant", help="variant to generate positions for")
     parser.add_argument("-c", "--count", type=int, default=1000, help="number of games")
 
     args = parser.parse_args()

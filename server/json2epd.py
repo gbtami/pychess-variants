@@ -46,7 +46,11 @@ def generate_fens(json_file, stream, variant, count):
 
                 for i in range(1, len(moves)):
                     fen = sf.get_fen(variant, start_fen, moves[:i], is960)
-                    stream.write("{};variant {};site https://www.pychess.org/{}{}".format(fen, variant, _id, os.linesep))
+                    stream.write(
+                        "{};variant {};site https://www.pychess.org/{}{}".format(
+                            fen, variant, _id, os.linesep
+                        )
+                    )
 
                 cnt += 1
                 if cnt >= count:
