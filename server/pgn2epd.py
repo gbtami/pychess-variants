@@ -11,9 +11,9 @@ from chess.variant import find_variant
 
 
 def game_count(filename):
-    f = open(filename, 'rb')
-    bufgen = iter(functools.partial(f.raw.read, 1024*1024), b'')
-    return sum(buf.count(b'[Event') for buf in bufgen)
+    f = open(filename, "rb")
+    bufgen = iter(functools.partial(f.raw.read, 1024 * 1024), b"")
+    return sum(buf.count(b"[Event") for buf in bufgen)
 
 
 class PrintAllFensVisitor(chess.pgn.BaseVisitor):
