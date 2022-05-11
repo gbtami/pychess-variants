@@ -5,6 +5,7 @@ import os
 import sys
 import json
 
+from tqdm import tqdm
 import pyffish as sf
 
 GRANDS = ("xiangqi", "manchu", "grand", "grandhouse", "shako", "janggi")
@@ -29,7 +30,7 @@ def generate_fens(json_file, stream, variant, count):
     with open(json_file, "r") as f:
         games = json.load(f)
         cnt = 0
-        for game in games:
+        for game in tqdm(games):
             if game["variant"] != variant:
                 continue
 

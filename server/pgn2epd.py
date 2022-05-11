@@ -5,8 +5,15 @@ import functools
 import os
 import sys
 
+from tqdm import tqdm
 import chess.pgn
 from chess.variant import find_variant
+
+
+def game_count(filename):
+    f = open(filename, 'rb')
+    bufgen = iter(functools.partial(f.raw.read, 1024*1024), b'')
+    return sum(buf.count(b'[Event') for buf in bufgen)
 
 
 class PrintAllFensVisitor(chess.pgn.BaseVisitor):
@@ -50,21 +57,23 @@ class PrintAllFensVisitor(chess.pgn.BaseVisitor):
 def write_fens(pgn_file, stream, variant, count):
     visitor = functools.partial(PrintAllFensVisitor, variant=variant)
     with open(pgn_file) as pgn:
-        cnt = 0
-        while True:
-            fens = chess.pgn.read_game(pgn, Visitor=visitor)
-            if fens is None:
-                break
-            elif len(fens) == 0:
-                continue
-            else:
-                cnt += 1
+        with tqdm(total=game_count(pgn_file)) as pbar:
+            cnt = 0
+            while True:
+                fens = chess.pgn.read_game(pgn, Visitor=visitor)
+                pbar.update(1)
+                if fens is None:
+                    break
+                elif len(fens) == 0:
+                    continue
+                else:
+                    cnt += 1
 
-            for fen in fens:
-                stream.write(fen + os.linesep)
+                for fen in fens:
+                    stream.write(fen + os.linesep)
 
-            if cnt > count:
-                break
+                if cnt > count:
+                    break
 
 
 if __name__ == "__main__":
