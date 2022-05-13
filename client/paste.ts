@@ -93,12 +93,17 @@ export function pasteView(model: PyChessModel): VNode[] {
 
                     const game = ffish.readGamePGN(pgn);
 
-                    // TODO: crazyhouse960 but without 960? (export to lichess hack)
-                    const is960 = game.headers('Variant').endsWith('960');
-                    variant = game.headers('Variant').toLowerCase().replace('960', '');
+                    variant = "chess";
+                    const v = game.headers("Variant");
+                    //console.log("Variant:", v);
+                    if (v) variant = v.toLowerCase();
+
                     initialFen = VARIANTS[variant].startFen;
                     const f = game.headers("FEN");
                     if (f) initialFen = f;
+
+                    // TODO: crazyhouse960 but without 960? (export to lichess hack)
+                    const is960 = variant.includes("960") || variant.includes('random');
 
                     board = new ffish.Board(variant, initialFen, is960);
 
