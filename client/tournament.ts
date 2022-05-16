@@ -11,7 +11,7 @@ import { chatMessage, chatView } from './chat';
 //import { sound } from './sound';
 import { VARIANTS, uci2LastMove, Variant } from './chess';
 import { timeControlStr } from "./view";
-import { initializeClock, localeOptions } from './datetime';
+import { initializeClock, localeOptions } from './tournamentClock';
 import { gameType } from './profile';
 import { boardSettings } from './boardSettings';
 import { Api } from "chessgroundx/api";
