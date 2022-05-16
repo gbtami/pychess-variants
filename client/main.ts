@@ -64,8 +64,7 @@ export type PyChessModel = {
     embed: boolean;
     seekEmpty: boolean;
     tournamentDirector: boolean;
-
-    "asset-url": string;
+    assetURL: string;
 };
 
 function initModel(el: HTMLElement) {
@@ -112,8 +111,7 @@ function initModel(el: HTMLElement) {
         embed : el.getAttribute("data-view") === 'embed',
         seekEmpty : el.getAttribute("data-seekempty") === "True",
         tournamentDirector: el.getAttribute("data-tournamentdirector") === "True",
-
-        "asset-url": el.getAttribute("data-asset-url") ?? "",
+        assetURL: el.getAttribute("data-asset-url") ?? "",
     };
 }
 
@@ -234,11 +232,12 @@ if (el instanceof Element) {
     // Always update sound theme before volume
     // Updating sound theme requires reloading sound files,
     // while updating volume does not
+    soundThemeSettings.initURL(model.assetURL);
     soundThemeSettings.update();
     volumeSettings.update();
 
     const lang = el.getAttribute("data-lang");
-    fetch(model["asset-url"] + '/lang/' + lang + '/LC_MESSAGES/client.json')
+    fetch(model.assetURL + '/lang/' + lang + '/LC_MESSAGES/client.json')
       .then(res => res.json())
       .then(translation => {
         i18n.loadJSON(translation, 'messages');

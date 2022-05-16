@@ -61,13 +61,13 @@ class BoardSettings {
     updateBoardStyle(family: keyof typeof BOARD_FAMILIES) {
         const idx = this.getSettings("BoardStyle", family as string).value as number;
         const board = BOARD_FAMILIES[family].boardCSS[idx];
-        changeBoardCSS(model["asset-url"] , family as string, board);
+        changeBoardCSS(model.assetURL , family as string, board);
     }
 
     updatePieceStyle(family: keyof typeof PIECE_FAMILIES) {
         const idx = this.getSettings("PieceStyle", family as string).value as number;
         let css = PIECE_FAMILIES[family].pieceCSS[idx];
-        changePieceCSS(model["asset-url"], family as string, css);
+        changePieceCSS(model.assetURL, family as string, css);
         this.updateDropSuggestion();
     }
 

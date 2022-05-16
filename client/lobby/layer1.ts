@@ -16,7 +16,7 @@ import { layer2xiangqi } from './layer2xiangqi';
 
 
 export function variantPanels (lobbyCtrl: LobbyController): VNode {
-    const assetUrl = lobbyCtrl.model['asset-url'];
+    const assetUrl = lobbyCtrl.model.assetURL;
 
     for (const family of Object.keys(BOARD_FAMILIES)) {
         let css: string;

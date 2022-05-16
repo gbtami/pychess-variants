@@ -661,7 +661,7 @@ export default class RoundController {
         if (this.status >= 0) return;
 
         const opp_name = this.model["username"] === this.wplayer ? this.bplayer : this.wplayer;
-        const logoUrl = `${this.model["asset-url"]}/favicon/android-icon-192x192.png`;
+        const logoUrl = `${this.model.assetURL}/favicon/android-icon-192x192.png`;
         notify('pychess.org', {body: `${opp_name}\n${msg}`, icon: logoUrl});
     }
 

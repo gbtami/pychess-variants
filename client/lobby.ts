@@ -969,7 +969,7 @@ export function lobbyView(model: PyChessModel): VNode[] {
             h('posts', [
                 // TODO: create news documents in mongodb and load latest 3 dinamically here
                 h('a.post', { attrs: {href: '/news/Serving_a_New_Variant'} }, [
-                    h('img', { attrs: {src: model["asset-url"] + '/images/ChessTennis.jpg'} }),
+                    h('img', { attrs: {src: model.assetURL + '/images/ChessTennis.jpg'} }),
                     h('span.text', [
                         h('strong', "Tennis and chess"),
                         h('span', 'Serving a New Variant'),
@@ -977,7 +977,7 @@ export function lobbyView(model: PyChessModel): VNode[] {
                     h('time', '2022.02.01'),
                 ]),
                 h('a.post', { attrs: {href: '/news/Merry_Chakmas'} }, [
-                    h('img', { attrs: {src: model["asset-url"] + '/images/QuetzalinTikal.png'} }),
+                    h('img', { attrs: {src: model.assetURL + '/images/QuetzalinTikal.png'} }),
                     h('span.text', [
                         h('strong', "Christmas gift from PyChess"),
                         h('span', 'Merry Chak-mas!'),
@@ -985,7 +985,7 @@ export function lobbyView(model: PyChessModel): VNode[] {
                     h('time', '2021.12.24'),
                 ]),
                 h('a.post', { attrs: {href: '/news/Cold_Winter'} }, [
-                    h('img', { attrs: {src: model["asset-url"] + '/images/board/ChakArt.jpg'} }),
+                    h('img', { attrs: {src: model.assetURL + '/images/board/ChakArt.jpg'} }),
                     h('span.text', [
                         h('strong', "Summary of latest changes"),
                         h('span', 'Cold winter'),
@@ -994,7 +994,7 @@ export function lobbyView(model: PyChessModel): VNode[] {
                 ]),
                 /*
                 h('a.post', { attrs: {href: '/news/Hot_Summer'} }, [
-                    h('img', { attrs: {src: model["asset-url"] + '/images/AngryBirds.png'} }),
+                    h('img', { attrs: {src: model.assetURL + '/images/AngryBirds.png'} }),
                     h('span.text', [
                         h('strong', "New variant, new engine and more"),
                         h('span', 'Hot summer'),
@@ -1002,7 +1002,7 @@ export function lobbyView(model: PyChessModel): VNode[] {
                     h('time', '2021.09.02'),
                 ]),
                 h('a.post', { attrs: {href: '/news/Empire_Chess_and_Orda_Mirror_Have_Arrived'} }, [
-                    h('img', { attrs: {src: model["asset-url"] + '/images/Darth-Vader-Comic.jpg'} }),
+                    h('img', { attrs: {src: model.assetURL + '/images/Darth-Vader-Comic.jpg'} }),
                     h('span.text', [
                         h('strong', "Empire Chess and Orda Mirror Have Arrived!"),
                         h('span', 'New variants'),
@@ -1010,7 +1010,7 @@ export function lobbyView(model: PyChessModel): VNode[] {
                     h('time', '2021.07.30'),
                 ]),
                 h('a.post', { attrs: {href: '/news/Shinobi_Arrives_in_Time_For_the_Sakura_Blossoms'} }, [
-                    h('img', { attrs: {src: model["asset-url"] + '/icons/shinobi.svg'} }),
+                    h('img', { attrs: {src: model.assetURL + '/icons/shinobi.svg'} }),
                     h('span.text', [
                         h('strong', "Shinobi Arrives in Time For the Sakura Blossoms"),
                         h('span', 'Shinobi Chess has arrived!'),
@@ -1018,7 +1018,7 @@ export function lobbyView(model: PyChessModel): VNode[] {
                     h('time', '2021.04.21'),
                 ]),
                 h('a.post', { attrs: {href: '/news/The_Winner_Is_Tasshaq'} }, [
-                    h('img', { attrs: {src: model["asset-url"] + '/icons/Dobutsu.svg'} }),
+                    h('img', { attrs: {src: model.assetURL + '/icons/Dobutsu.svg'} }),
                     h('span.text', [
                         h('strong', "And the winner is Tasshaq"),
                         h('span', 'Subjective report on 1st Dōbutsu Tournament'),
@@ -1026,7 +1026,7 @@ export function lobbyView(model: PyChessModel): VNode[] {
                     h('time', '2021.03.28'),
                 ]),
                 h('a.post', { attrs: {href: '/news/New_Weapons_Arrived'} }, [
-                    h('img', { attrs: {src: model["asset-url"] + '/images/RS-24.jpg'} }),
+                    h('img', { attrs: {src: model.assetURL + '/images/RS-24.jpg'} }),
                     h('span.text', [
                         h('strong', "Atomic chess and Atomic960 are here"),
                         h('span', 'New Weapons Arrived'),
@@ -1034,7 +1034,7 @@ export function lobbyView(model: PyChessModel): VNode[] {
                     h('time', '2021.03.03'),
                 ]),
                 h('a.post', { attrs: {href: '/news/Short_History_Of_Pychess'} }, [
-                    h('img', { attrs: {src: model["asset-url"] + '/images/TomatoPlasticSet.svg'} }),
+                    h('img', { attrs: {src: model.assetURL + '/images/TomatoPlasticSet.svg'} }),
                     h('span.text', [
                         h('strong', "And Now for Something Completely Different"),
                         h('span', 'Short History Of Pychess'),
@@ -1042,7 +1042,7 @@ export function lobbyView(model: PyChessModel): VNode[] {
                     h('time', '2021.02.27'),
                 ]),
                 h('a.post', { attrs: {href: '/news/Dobutsu_Tournament'} }, [
-                    h('img', { attrs: {src: model["asset-url"] + '/icons/Dobutsu.svg'} }),
+                    h('img', { attrs: {src: model.assetURL + '/icons/Dobutsu.svg'} }),
                     h('span.text', [
                         h('strong', "PyChess tournament announcement"),
                         h('span', 'The 1st Dōbutsu Tournament on PyChess'),
