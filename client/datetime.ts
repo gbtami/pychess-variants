@@ -1,8 +1,4 @@
-import { h } from 'snabbdom';
-
 import { _, ngettext } from './i18n';
-import { patch } from './document';
-
 
 export function timeago(date: string) {
     const TZdate = (new Date(date)).getTime();

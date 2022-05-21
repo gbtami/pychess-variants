@@ -1,6 +1,6 @@
 import { h, VNode } from 'snabbdom';
 
-import AnalysisController from './analysisCtrl';
+import { AnalysisController } from './analysisCtrl';
 import { patch } from './document';
 
 export function renderClocks(ctrl: AnalysisController) {

@@ -2,7 +2,8 @@ import Highcharts from "highcharts";
 
 import { _ } from './i18n';
 import { selectMove } from './movelist';
-import AnalysisController from './analysisCtrl';
+import { AnalysisController } from './analysisCtrl';
+import { Step } from "./messages";
 
 export interface MovePoint {
   y: number;
@@ -35,7 +36,7 @@ export function movetimeChart(ctrl: AnalysisController) {
 
     const logC = Math.pow(Math.log(3), 2);
 
-    ctrl.steps.forEach((step, ply) => {
+    ctrl.steps.forEach((step: Step, ply: number) => {
         const turn = (ply + 1) >> 1;
         const color = ply & 1;
         const colorName = color ? 'white' : 'black';

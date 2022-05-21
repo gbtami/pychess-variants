@@ -7,12 +7,11 @@ import { Chessground } from 'chessgroundx';
 import { JSONObject } from './types';
 import { _, ngettext } from './i18n';
 import { patch } from './document';
-import { chatMessage, chatView } from './chat';
+import { chatMessage, chatView, IChatController } from './chat';
 import { validFen, VARIANTS, selectVariant, Variant } from './chess';
-import { boardSettings } from './boardSettings';
 import { timeControlStr } from './view';
 import { notify } from './notification';
-import { PyChessModel } from "./main";
+import { PyChessModel } from "./types";
 import { MsgChat, MsgFullChat } from "./messages";
 import { variantPanels } from './lobby/layer1';
 
@@ -105,7 +104,7 @@ interface Seek {
 
 type CreateMode = 'createGame' | 'playFriend' | 'playAI' | 'createHost';
 
-export class LobbyController {
+export class LobbyController implements IChatController {
     model: PyChessModel;
     sock;
     // player;
@@ -940,8 +939,6 @@ export function lobbyView(model: PyChessModel): VNode[] {
             modal.style.display = "none";
     });
     */
-
-    boardSettings.updateBoardAndPieceStyles();
 
     return [
         h('aside.sidebar-first', [

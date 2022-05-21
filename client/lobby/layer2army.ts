@@ -4,7 +4,7 @@ import { _ } from '../i18n';
 import { VARIANTS } from '../chess';
 import { LobbyController } from '../lobby';
 import { patch } from '../document';
-import { goBackToLayer1 } from './layer1';
+import { goBackToLayer1 } from './util';
 import { layer3variant } from './layer3';
 
 

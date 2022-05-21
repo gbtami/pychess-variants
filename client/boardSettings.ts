@@ -1,27 +1,42 @@
 import { h, VNode } from 'snabbdom';
 
-import { _ } from './i18n';
-import { VARIANTS, BOARD_FAMILIES, PIECE_FAMILIES } from './chess';
-import { changeBoardCSS, changePieceCSS, getPieceImageUrl } from './document';
-import AnalysisController from './analysisCtrl';
-import RoundController from './roundCtrl';
-import { EditorController } from './editorCtrl';
-import { patch } from './document';
-import { iniPieces } from './pieces';
-import { analysisChart } from './analysisChart';
-import { movetimeChart } from './movetimeChart';
-import { updateCount, updatePoint } from './info';
-import { updateMaterial } from './material';
-import { player } from './player';
-import { NumberSettings, BooleanSettings } from './settings';
-import { slider, checkbox } from './view';
-import { model } from './main';
 import * as cg from 'chessgroundx/types';
+import { Api } from 'chessgroundx/api';
 
+import { _ } from './i18n';
+import { Variant, VARIANTS, BOARD_FAMILIES, PIECE_FAMILIES } from './chess';
+import { changeBoardCSS, changePieceCSS, getPieceImageUrl } from './document';
+import { updateMaterial } from './material';
+import { ISettings, NumberSettings, BooleanSettings } from './settings';
+import { slider, checkbox } from './view';
+import { PyChessModel } from "./types";
+
+export interface IBoardController {
+    readonly chessground: Api;
+
+    readonly variant: Variant;
+    readonly mycolor: cg.Color;
+    readonly oppcolor: cg.Color;
+    readonly hasPockets: boolean;
+
+    notation: cg.Notation;
+    fullfen: string;
+    flip: boolean;
+
+    model?: PyChessModel;
+    autoPromote?: boolean;
+    arrow?: boolean;
+    blindfold?: boolean;
+    materialDifference?: boolean;
+    chartFunctions?: any[];
+    vmaterial0?: VNode | HTMLElement;
+    vmaterial1?: VNode | HTMLElement;
+}
 
 class BoardSettings {
-    ctrl: AnalysisController | RoundController | EditorController | undefined; // BoardController | undefined
-    settings: { [ key: string]: NumberSettings | BooleanSettings };
+    ctrl: IBoardController;
+    settings: { [ key: string]: ISettings<number | boolean> };
+    assetURL: string;
 
     constructor() {
         this.settings = {};
@@ -61,13 +76,13 @@ class BoardSettings {
     updateBoardStyle(family: keyof typeof BOARD_FAMILIES) {
         const idx = this.getSettings("BoardStyle", family as string).value as number;
         const board = BOARD_FAMILIES[family].boardCSS[idx];
-        changeBoardCSS(model.assetURL , family as string, board);
+        changeBoardCSS(this.assetURL , family as string, board);
     }
 
     updatePieceStyle(family: keyof typeof PIECE_FAMILIES) {
         const idx = this.getSettings("PieceStyle", family as string).value as number;
         let css = PIECE_FAMILIES[family].pieceCSS[idx];
-        changePieceCSS(model.assetURL, family as string, css);
+        changePieceCSS(this.assetURL, family as string, css);
         this.updateDropSuggestion();
     }
 
@@ -100,9 +115,11 @@ class BoardSettings {
                 document.body.setAttribute('style', '--zoom:' + zoom);
                 document.body.dispatchEvent(new Event('chessground.resize'));
 
-                if (this.ctrl instanceof AnalysisController && !this.ctrl.model["embed"]) {
-                    analysisChart(this.ctrl);
-                    movetimeChart(this.ctrl);
+                // Analysis needs to zoom analysisChart and movetimeChart as well
+                if ('chartFunctions' in this.ctrl && this.ctrl.chartFunctions) {
+                    this.ctrl.chartFunctions.forEach((func: any) => {
+                        func(this.ctrl);
+                    });
                 }
             }
         }
@@ -146,50 +163,6 @@ class BoardSettings {
         settingsList.push();
 
         return h('div#board-settings', settingsList);
-    }
-
-    // TODO This should be in the theoretical "ChessgroundController" class,
-    // which is the common class between EditorController, RoundController, and AnalysisController
-    toggleOrientation() {
-        if (this.ctrl) {
-            // TODO: handle berserk
-            if (this.ctrl instanceof RoundController && this.ctrl.tournamentGame && this.ctrl.ply < 2 && !this.ctrl.spectator) return;
-
-            this.ctrl.flip = !this.ctrl.flip;
-            this.ctrl.chessground.toggleOrientation();
-            this.updateDropSuggestion();
-
-            // console.log("FLIP");
-            if (this.ctrl instanceof RoundController && this.ctrl.variant.materialDifference) {
-                updateMaterial(this.ctrl);
-            }
-
-            // TODO: moretime button
-            if (this.ctrl instanceof RoundController) {
-                const new_running_clck = (this.ctrl.clocks[0].running) ? this.ctrl.clocks[1] : this.ctrl.clocks[0];
-                this.ctrl.clocks[0].pause(false);
-                this.ctrl.clocks[1].pause(false);
-
-                const tmp_clock = this.ctrl.clocks[0];
-                const tmp_clock_time = tmp_clock.duration;
-                this.ctrl.clocks[0].setTime(this.ctrl.clocks[1].duration);
-                this.ctrl.clocks[1].setTime(tmp_clock_time);
-                if (this.ctrl.status < 0) new_running_clck.start();
-
-                this.ctrl.vplayer0 = patch(this.ctrl.vplayer0, player('player0', this.ctrl.titles[this.ctrl.flip ? 1 : 0], this.ctrl.players[this.ctrl.flip ? 1 : 0], this.ctrl.ratings[this.ctrl.flip ? 1 : 0], this.ctrl.model["level"]));
-                this.ctrl.vplayer1 = patch(this.ctrl.vplayer1, player('player1', this.ctrl.titles[this.ctrl.flip ? 0 : 1], this.ctrl.players[this.ctrl.flip ? 0 : 1], this.ctrl.ratings[this.ctrl.flip ? 0 : 1], this.ctrl.model["level"]));
-
-                if (this.ctrl.variant.counting)
-                    [this.ctrl.vmiscInfoW, this.ctrl.vmiscInfoB] = updateCount(this.ctrl.fullfen, this.ctrl.vmiscInfoB, this.ctrl.vmiscInfoW);
-
-                if (this.ctrl.variant.materialPoint)
-                    [this.ctrl.vmiscInfoW, this.ctrl.vmiscInfoB] = updatePoint(this.ctrl.fullfen, this.ctrl.vmiscInfoB, this.ctrl.vmiscInfoW);
-            }
-
-            if (this.ctrl instanceof EditorController) {
-                iniPieces(this.ctrl, this.ctrl.vpieces0, this.ctrl.vpieces1);
-            }
-        }
     }
 }
 
@@ -320,8 +293,9 @@ class AutoPromoteSettings extends BooleanSettings {
     }
 
     update(): void {
-        if (this.boardSettings.ctrl instanceof RoundController)
-            this.boardSettings.ctrl.autoPromote = this.value;
+        const ctrl = this.boardSettings.ctrl;
+        if ('autoPromote' in ctrl)
+            ctrl.autoPromote = this.value;
     }
 
     view(): VNode {
@@ -338,8 +312,9 @@ class ArrowSettings extends BooleanSettings {
     }
 
     update(): void {
-        if (this.boardSettings.ctrl instanceof AnalysisController)
-            this.boardSettings.ctrl.arrow = this.value;
+        const ctrl = this.boardSettings.ctrl;
+        if ('arrow' in ctrl)
+            ctrl.arrow = this.value;
     }
 
     view(): VNode {
@@ -356,8 +331,9 @@ class BlindfoldSettings extends BooleanSettings {
     }
 
     update(): void {
-        if (this.boardSettings.ctrl instanceof RoundController)
-            this.boardSettings.ctrl.blindfold = this.value;
+        const ctrl = this.boardSettings.ctrl;
+        if ('blindfold' in ctrl)
+            ctrl.blindfold = this.value;
 
         const el = document.getElementById('mainboard') as HTMLInputElement;
         if (el) {
@@ -384,9 +360,10 @@ class MaterialDifferenceSettings extends BooleanSettings {
     }
 
     update(): void {
-        if (this.boardSettings.ctrl instanceof RoundController) {
-            this.boardSettings.ctrl.materialDifference = this.value;
-            updateMaterial(this.boardSettings.ctrl);
+        const ctrl = this.boardSettings.ctrl;
+        if ('materialDifference' in ctrl) {
+            ctrl.materialDifference = this.value;
+            updateMaterial(ctrl);
         }
     }
 

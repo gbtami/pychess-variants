@@ -1,6 +1,7 @@
 import { h, VNode } from 'snabbdom';
 
 import { Chessground } from 'chessgroundx';
+import * as cg from "chessgroundx/types";
 
 import { _, ngettext, pgettext } from './i18n';
 import { uci2LastMove, VARIANTS, Variant } from './chess';
@@ -8,8 +9,7 @@ import { patch } from './document';
 import { renderTimeago } from './datetime';
 import { boardSettings } from './boardSettings';
 import { timeControlStr } from './view';
-import { PyChessModel } from "./main";
-import * as cg from "chessgroundx/types";
+import { PyChessModel } from "./types";
 import { Ceval } from "./messages";
 
 export function gameType(rated: string | number) {
@@ -300,6 +300,7 @@ function observeSentinel(vnode: VNode, model: PyChessModel) {
 }
 
 export function profileView(model: PyChessModel) {
+    boardSettings.assetURL = model.assetURL;
     boardSettings.updateBoardAndPieceStyles();
     let tabs: VNode[] = [];
     tabs.push(h('div.sub-ratings', [h('a', { attrs: { href: '/@/' + model["profileid"] }, class: {"active": model["rated"] === "None"} }, _('Games'))]));

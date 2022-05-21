@@ -1,4 +1,8 @@
-import TournamentController from "./tournament";
+import { h } from 'snabbdom';
+
+import { _ } from './i18n';
+import { patch } from './document';
+import { TournamentController } from "./tournament";
 
 export const localeOptions: Intl.DateTimeFormatOptions = {
     year: 'numeric',

@@ -7,7 +7,7 @@ import { Chessground } from 'chessgroundx';
 import { JSONObject } from './types';
 import { _ } from './i18n';
 import { patch } from './document';
-import { chatMessage, chatView } from './chat';
+import { chatMessage, chatView, IChatController } from './chat';
 //import { sound } from './sound';
 import { VARIANTS, uci2LastMove, Variant } from './chess';
 import { timeControlStr } from "./view";
@@ -15,7 +15,7 @@ import { initializeClock, localeOptions } from './tournamentClock';
 import { gameType } from './profile';
 import { boardSettings } from './boardSettings';
 import { Api } from "chessgroundx/api";
-import { PyChessModel } from "./main";
+import { PyChessModel } from "./types";
 import { MsgBoard, MsgChat, MsgFullChat, MsgSpectators, MsgGameEnd, MsgNewGame } from "./messages";
 import * as cg from 'chessgroundx/types';
 
@@ -132,7 +132,7 @@ interface TopGame {
     byoyomi: number;
 }
 
-export default class TournamentController {
+export class TournamentController implements IChatController {
     sock;
     tournamentId: string;
     readyState: number; // seems unused
@@ -159,7 +159,6 @@ export default class TournamentController {
     secondsToFinish: number;
     username: string;
     anon: boolean;
-    
 
     constructor(el: HTMLElement, model: PyChessModel) {
         console.log("TournamentController constructor", el, model);
@@ -206,6 +205,7 @@ export default class TournamentController {
         this.username = model["username"];
         this.anon = model["anon"] === "True";
 
+        boardSettings.assetURL = model.assetURL;
         boardSettings.updateBoardAndPieceStyles();
     }
 

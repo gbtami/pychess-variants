@@ -1,12 +1,9 @@
 import { h, VNode } from 'snabbdom';
 
-import * as cg from 'chessgroundx/types';
-import { Chessground } from 'chessgroundx';
-
 import { _ } from '../i18n';
 import { LobbyController } from '../lobby';
-import { patch, changeBoardCSS, changePieceCSS } from '../document';
-import { BOARD_FAMILIES, PIECE_FAMILIES, Variant } from '../chess';
+import { changeBoardCSS, changePieceCSS } from '../document';
+import { BOARD_FAMILIES, PIECE_FAMILIES } from '../chess';
 import { layer2chess } from './layer2chess';
 import { layer2fairy } from './layer2fairy';
 import { layer2army } from './layer2army';
@@ -100,29 +97,4 @@ export function variantPanels (lobbyCtrl: LobbyController): VNode {
             ]),
         ]),
     ]);
-}
-
-export function goBackToLayer1(lobbyCtrl: LobbyController, containerId: string): void {
-    const container = document.getElementById(containerId) as HTMLElement;
-    if (container) patch(container, variantPanels(lobbyCtrl));
-}
-
-export function variantBoard(variant: Variant, fen: string, check: boolean=false, lastMove: cg.Key[] | undefined=undefined): VNode {
-    return h(`selection#mainboard.${variant.board}.${variant.piece}.${variant.boardMark}`, [
-        h(`div.cg-wrap.${variant.cg}`, {
-            hook: {
-                insert: vnode => {
-                    Chessground(vnode.elm as HTMLElement,  {
-                        fen: fen,
-                        turnColor: fen.split(" ")[1] === "b" ? "white" : "black",
-                        check: check,
-                        lastMove: lastMove,
-                        geometry: variant.geometry,
-                        coordinates: false,
-                        viewOnly: true
-                    });
-                }
-            }
-        }),
-    ])
 }

@@ -2,21 +2,20 @@ import { h, toVNode } from 'snabbdom';
 
 import * as util from 'chessgroundx/util';
 import * as cg from 'chessgroundx/types';
+import { Api } from "chessgroundx/api";
 
 import { PromotionSuffix } from './chess';
 import { patch, bind } from './document';
-import RoundController from './roundCtrl';
-import AnalysisController from './analysisCtrl';
-import { Api } from "chessgroundx/api";
+import { GameController } from './gameCtrl';
 
 type PromotionChoices = Partial<Record<cg.Role, PromotionSuffix>>;
 
 export class Promotion {
-    ctrl: RoundController | AnalysisController;
+    ctrl: GameController;
     promoting: {orig: cg.Key, dest: cg.Key, callback: (orig: string, dest: string, promo: string) => void} | null;
     choices: PromotionChoices;
 
-    constructor(ctrl: RoundController | AnalysisController) {
+    constructor(ctrl: GameController) {
         this.ctrl = ctrl;
         this.promoting = null;
         this.choices = {};
@@ -36,8 +35,7 @@ export class Promotion {
                 undefined :
                 util.roleOf(autoSuffix as cg.PieceLetter);
 
-            if (this.ctrl instanceof RoundController &&
-                this.ctrl.variant.autoPromoteable &&
+            if (this.ctrl.variant.autoPromoteable &&
                 this.ctrl.autoPromote &&
                 !disableAutoPromote &&
                 autoRole &&

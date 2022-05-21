@@ -4,7 +4,7 @@ import * as cg from 'chessgroundx/types';
 import * as util from 'chessgroundx/util';
 import { dragNewPiece } from 'chessgroundx/drag';
 
-import { EditorController }  from './editorCtrl';
+import { EditorController } from './editorCtrl';
 import { patch } from './document';
 
 type Position = 'top' | 'bottom';

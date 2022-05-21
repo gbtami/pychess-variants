@@ -5,7 +5,7 @@ import { VARIANTS } from './chess';
 import { aiLevel, gameType, renderRdiff } from './profile';
 import { timeago, } from './datetime';
 import { timeControlStr } from "./view";
-import { PyChessModel } from "./main";
+import { PyChessModel } from "./types";
 
 
 export function gameInfo(model: PyChessModel): VNode {
