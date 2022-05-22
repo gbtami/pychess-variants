@@ -51,8 +51,8 @@ export function movetimeChart(ctrl: AnalysisController) {
         if (ply <= 2) {step.clocks!.movetime = 0;
         } else {
             step.clocks!.movetime = (ply % 2 === 1) ?
-                (ctrl.steps[ply-1].clocks?.white! - ctrl.steps[ply].clocks?.white!) :
-                (ctrl.steps[ply-1].clocks?.black! - ctrl.steps[ply].clocks?.black!);
+                (ctrl.steps[ply-2].clocks?.white! - (ctrl.steps[ply].clocks?.white! - ctrl.inc * 1000)) :
+                (ctrl.steps[ply-2].clocks?.black! - (ctrl.steps[ply].clocks?.black! - ctrl.inc * 1000));
         }
 
         const y = Math.pow(Math.log(0.005 * Math.min(step.clocks!.movetime, 12e4) + 3), 2) - logC;
@@ -117,7 +117,7 @@ export function movetimeChart(ctrl: AnalysisController) {
         },
     };
 
-    const chart = Highcharts.chart('chart-movetime', {
+    ctrl.movetimeChart = Highcharts.chart('chart-movetime', {
         chart: { type: 'column',
             alignTicks: false,
             spacing: [2, 0, 2, 0],
@@ -246,8 +246,6 @@ export function movetimeChart(ctrl: AnalysisController) {
             },
         ]
     });
-
-    ctrl.movetimeChart = chart;
 }
 
 const formatClock = (movetime: number) => {

@@ -368,7 +368,7 @@ export class AnalysisController extends GameController {
 
                 const cmt = document.getElementById('chart-movetime') as HTMLElement;
                 cmt.style.display = 'block';
-                //movetimeChart(this);
+                movetimeChart(this);
             }
 
         } else {
