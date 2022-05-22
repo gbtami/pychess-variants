@@ -1,7 +1,7 @@
 import { h, VNode } from 'snabbdom';
 
 import { GameController } from './gameCtrl';
-import { result } from './profile'
+import { result } from './result'
 import { Step } from './messages';
 import { patch } from './document';
 

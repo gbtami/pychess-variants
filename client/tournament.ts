@@ -12,7 +12,7 @@ import { chatMessage, chatView, IChatController } from './chat';
 import { VARIANTS, uci2LastMove, Variant } from './chess';
 import { timeControlStr } from "./view";
 import { initializeClock, localeOptions } from './tournamentClock';
-import { gameType } from './profile';
+import { gameType } from './result';
 import { boardSettings } from './boardSettings';
 import { Api } from "chessgroundx/api";
 import { PyChessModel } from "./types";

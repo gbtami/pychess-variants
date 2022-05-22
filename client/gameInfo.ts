@@ -2,7 +2,7 @@ import { h, VNode } from "snabbdom";
 
 import { _ } from './i18n';
 import { VARIANTS } from './chess';
-import { aiLevel, gameType, renderRdiff } from './profile';
+import { aiLevel, gameType, renderRdiff } from './result';
 import { timeago, } from './datetime';
 import { timeControlStr } from "./view";
 import { PyChessModel } from "./types";

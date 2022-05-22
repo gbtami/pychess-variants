@@ -3,7 +3,7 @@ import { h, VNode } from 'snabbdom';
 import { _ } from './i18n';
 import { VARIANTS } from './chess';
 import { patch } from './document';
-import { gameType } from './profile';
+import { gameType } from './result';
 import { copyTextToClipboard } from './clipboard';
 import { timeControlStr } from './view';
 import { PyChessModel } from './types';

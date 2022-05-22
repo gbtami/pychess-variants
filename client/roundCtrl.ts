@@ -15,7 +15,7 @@ import { uci2LastMove, cg2uci, getCounting, isHandicap } from './chess';
 import { crosstableView } from './crosstable';
 import { chatMessage, chatView } from './chat';
 import { createMovelistButtons, updateMovelist, updateResult, selectMove } from './movelist';
-import { renderRdiff } from './profile'
+import { renderRdiff } from './result'
 import { player } from './player';
 import { updateCount, updatePoint } from './info';
 import { notify } from './notification';
