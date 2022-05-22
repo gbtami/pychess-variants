@@ -667,14 +667,18 @@ class Game:
 
                 # Pawn drop mate
                 # TODO: remove this when https://github.com/ianfab/Fairy-Stockfish/issues/48 resolves
-                if self.board.move_stack[-1][0:2] == "P@" and self.variant in (
-                    "shogi",
-                    "minishogi",
-                    "gorogoro",
-                    "gorogoroplus",
-                    "torishogi",
-                ):
-                    self.status = INVALIDMOVE
+                if self.board.move_stack[-1][1] == "@":
+                    if (
+                        self.board.move_stack[-1][0] == "P"
+                        and self.variant
+                        in (
+                            "shogi",
+                            "minishogi",
+                            "gorogoro",
+                            "gorogoroplus",
+                        )
+                    ) or (self.board.move_stack[-1][0] == "S" and self.variant == "torishogi"):
+                        self.status = INVALIDMOVE
             else:
                 self.status = STALEMATE
 
