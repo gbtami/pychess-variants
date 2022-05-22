@@ -9,7 +9,7 @@ import { _, ngettext } from './i18n';
 import { patch } from './document';
 import { boardSettings } from './boardSettings';
 import { Clock } from './clock';
-import { updateMaterial } from './material';
+import { updateMaterial } from './materialView';
 import { sound } from './sound';
 import { uci2LastMove, cg2uci, getCounting, isHandicap } from './chess';
 import { crosstableView } from './crosstable';

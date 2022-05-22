@@ -3,16 +3,12 @@ import * as util from 'chessgroundx/util';
 import { read } from 'chessgroundx/fen';
 import { readPockets } from 'chessgroundx/pocket';
 
-import { h, VNode } from 'snabbdom';
-
-import { IBoardController } from './boardSettings';
-import { RoundController } from './roundCtrl';
+import { ChessgroundController } from './cgCtrl';
 import { Variant } from './chess';
-import { patch } from './document';
 
 export type MaterialImbalance = {[index: string]:number};
 
-function mapPiece(piece: string, variant: string): string {
+export function mapPiece(piece: string, variant: string): string {
     piece = piece.split('-')[0];
     if (variant === 'makruk' || variant === 'makpong' || variant === 'cambodian') {
         if (piece === '~m') return 'm';
@@ -56,7 +52,7 @@ export function calculateInitialImbalance(variant: Variant): MaterialImbalance {
     return imbalances;
 }
 
-function calculateImbalance(ctrl: RoundController | IBoardController): MaterialImbalance {
+export function calculateImbalance(ctrl: ChessgroundController): MaterialImbalance {
     let imbalances = Object.assign({}, ctrl.variant.initialMaterialImbalance);
     let topMaterialColor = ctrl.flip ? ctrl.mycolor : ctrl.oppcolor, bottomMaterialColor = ctrl.flip ? ctrl.oppcolor : ctrl.mycolor;
     for (let piece of ctrl.chessground.state.pieces) {
@@ -80,45 +76,4 @@ function calculateImbalance(ctrl: RoundController | IBoardController): MaterialI
         }
     }
     return imbalances;
-}
-
-function generateContent(ctrl: RoundController | IBoardController, imbalances: MaterialImbalance, color: cg.Color): VNode[] {
-    let result : VNode[] = [];
-    let order : string[] = ctrl.variant.pieceRoles(color === 'white' ? 'black' : 'white').concat(ctrl.variant.pieceRoles(color));
-    if (ctrl.variant.promotion === 'shogi') {
-        for (let piece of ctrl.variant.promoteablePieces) {
-            order.push(mapPiece('p' + piece, ctrl.variant.name));
-        }
-    }
-    for (let piece of order) {
-        let mappedPiece = mapPiece(piece, ctrl.variant.name);
-        let difference = imbalances[mappedPiece] * (color === 'white' ? 1 : -1);
-        if (difference > 0) {
-            imbalances[mappedPiece] = 0;
-            let current_div : VNode[] = [];
-            for (let i = 0; i < difference; ++i) {
-                current_div.push(h('mpiece.' + mappedPiece))
-            }
-            result.push(h('div', current_div));
-        }
-    }
-    return result;
-}
-
-function makeMaterialVNode(ctrl: RoundController | IBoardController, which: string, color: cg.Color, content: VNode[], disabled = false): VNode {
-    return h('div.material.material-' + which + '.' + color + '.' + ctrl.variant.piece + (disabled ? '.disabled' : ''), content);
-}
-
-export function updateMaterial (ctrl: RoundController | IBoardController) {
-    if (!ctrl.variant.materialDifference) return;
-    let topMaterialColor = ctrl.flip ? ctrl.mycolor : ctrl.oppcolor, bottomMaterialColor = ctrl.flip ? ctrl.oppcolor : ctrl.mycolor;
-    if (!ctrl.materialDifference) {
-        ctrl.vmaterial0 = patch(ctrl.vmaterial0!, makeMaterialVNode(ctrl, 'top', topMaterialColor, [], true));
-        ctrl.vmaterial1 = patch(ctrl.vmaterial1!, makeMaterialVNode(ctrl, 'bottom', bottomMaterialColor, [], true));
-        return;
-    }
-    let imbalances = calculateImbalance(ctrl);
-    let topMaterialContent = generateContent(ctrl, imbalances, topMaterialColor), bottomMaterialContent = generateContent(ctrl, imbalances, bottomMaterialColor);
-    ctrl.vmaterial0 = patch(ctrl.vmaterial0!, makeMaterialVNode(ctrl, 'top', topMaterialColor, topMaterialContent));
-    ctrl.vmaterial1 = patch(ctrl.vmaterial1!, makeMaterialVNode(ctrl, 'bottom', bottomMaterialColor, bottomMaterialContent));
 }
