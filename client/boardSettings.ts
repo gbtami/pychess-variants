@@ -6,7 +6,6 @@ import { Api } from 'chessgroundx/api';
 import { _ } from './i18n';
 import { Variant, VARIANTS, BOARD_FAMILIES, PIECE_FAMILIES } from './chess';
 import { changeBoardCSS, changePieceCSS, getPieceImageUrl } from './document';
-import { updateMaterial } from './material';
 import { ISettings, NumberSettings, BooleanSettings } from './settings';
 import { slider, checkbox } from './view';
 import { PyChessModel } from "./types";
@@ -28,6 +27,7 @@ export interface IBoardController {
     arrow?: boolean;
     blindfold?: boolean;
     materialDifference?: boolean;
+    materialFunction?: any;
     chartFunctions?: any[];
     vmaterial0?: VNode | HTMLElement;
     vmaterial1?: VNode | HTMLElement;
@@ -363,7 +363,9 @@ class MaterialDifferenceSettings extends BooleanSettings {
         const ctrl = this.boardSettings.ctrl;
         if ('materialDifference' in ctrl) {
             ctrl.materialDifference = this.value;
-            updateMaterial(ctrl);
+            if ('materialFunction' in ctrl && ctrl.materialFunction) {
+                ctrl.materialFunction(ctrl);
+            }
         }
     }
 
