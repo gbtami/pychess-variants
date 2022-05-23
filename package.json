@@ -17,7 +17,7 @@
   "dependencies": {
     "chessgroundx": "^9.1.9",
     "ffish-es6": "^0.6.8",
-    "fairy-stockfish-nnue.wasm": "^1.0.0",
+    "fairy-stockfish-nnue.wasm": "^1.0.1",
     "gettext.js": "^1.1.1",
     "highcharts": "^10.1.0",
     "howler": "^2.2.3",
