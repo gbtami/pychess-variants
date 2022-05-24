@@ -7,9 +7,7 @@ import { PyChessModel } from "./types";
 
 function runEditor(vnode: VNode, model: PyChessModel) {
     const el = vnode.elm as HTMLElement;
-    const ctrl = new EditorController(el, model);
-    const cg = ctrl.chessground;
-    window['cg'] = cg;
+    new EditorController(el, model);
 }
 
 export function editorView(model: PyChessModel): VNode[] {
