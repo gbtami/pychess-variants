@@ -1,41 +1,36 @@
-# ![S-House](https://github.com/gbtami/pychess-variants/blob/master/static/icons/SHouse.svg) S-House
+# ![S-House](https://github.com/gbtami/pychess-variants/blob/master/static/icons/SHouse.svg) 雙狂S-Chess | S-House
 
-S-House is a custom variant combining the rules of S-Chess (AKA Seirawan or SHARPER chess) with the drop rules of Crazyhouse. The same rules apply to both games. As this is considered a derivative of S-chess, please check the rules in its separate guide. Crazyhouse rules are as below for a reminder.
+S-House 結合了 S-Chess 和雙狂象棋的規則，請先熟悉兩者的規則。
 
-## Crazyhouse Rules
+## 雙狂象棋的規則
 
-Drops can be performed with captured pieces, which would be done in lieu of moving a piece on the board. Drops are annotated with @. So for example, R@e4 means rook drop at e4. The rules for dropping pieces are as follows:
+除使用正統的西洋棋規則外，另外加上簡化的日本將棋持駒（打入）規則。記譜方式同一般，但棋子打入時用@符號表示。每回玩家可選擇移動自己的棋子，或將俘虜來的棋子放置沒有被佔據的格子上。將棋子放回時必須遵循下列原則：
 
-* Drops resulting in immediate checkmate are permitted. Unlike in shogi, this includes pawn drops.
-* Pawns may not be dropped on the players' 1st or 8th ranks.
-* Pawns that have been promoted and later captured are dropped as pawns.
-* Dropped white and black pawns on the 2nd and 7th ranks, respectively, are permitted to make a two-square move as their first move after the drop.
-* A dropped rook can't castle.
+* 可以打入棋子直接將死對方，與日本將棋不同的是，雙狂象棋允許打步詰(打入兵以直接將死對方)
+* 兵不得打在第一排和第八排
+* 升級後的兵被俘虜後，打入時要還原成兵（與日本將棋相同，打入升變後的棋子時必須還原）
+* 打入己方兵線(第二排)的兵第一步可走一格或兩格
+* 打入場上的車，不可進行王車易位
 
-## Clarifications
 
-The elephant and hawk are also counted as pieces in hand, so they are able to be dropped on the board starting from the beginning.
+## 澄清
 
-## New Pieces
+大象和老鷹一開始就可以打入場上。
 
-### Hawk
+## 新棋子
+
+### 鷹
 
 ![Hawk](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Hawk.png)
 
-The hawk (H) is a compound piece combining the moves of the **bishop** and **knight**. In terms of fairy pieces, this is generically known as the princess, but also has other names in different variants.
+鷹的走法等於騎士加上主教。它是唯一可以直接將死對方王的棋
+鷹的價值一般認為比城堡高，但比大象和后低。
 
-The hawk is unique in that it is the only piece that can checkmate on its own, which you may be able to appreciate if you look at its movement/attack pattern.
 
-The value of a hawk is considered slightly better than a rook, but less than the elephant and queen.
-
-### Elephant
+### 大象
 
 ![Elephant](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/ElephantSeirawan.png)
 
-The elephant (E) is a compound piece combining the moves of the **rook** and the **knight**. In terms of fairy pieces, this is generically known as the empress, but also has other names in different variants. 
+大象的走法等同馬加上城堡，一般認為它的價值比鷹高，但是跟后相等或是低一些。
 
-The value of an elephant is considered better than a hawk, but equivalent or slightly less than a queen.
 
-## Strategy
-
-As in standard crazyhouse, the piece values don't align with the chess piece values, and as in standard crazyhouse, sacrificing material for fast development, attacks on the enemy King, or just for defence, are often wise. Sometimes it is better to reinforce defenders around one's King rather than try to save them. Here we may refer you to sources in standard crazyhouse strategy...
