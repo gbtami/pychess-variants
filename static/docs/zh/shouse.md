@@ -19,7 +19,7 @@ S-House 結合了 S-Chess 和雙狂象棋的規則，請先熟悉兩者的規則
 
 ## 新棋子
 
-### 鷹
+### 老鷹
 
 ![Hawk](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Hawk.png)
 
