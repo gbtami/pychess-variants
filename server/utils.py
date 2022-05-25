@@ -299,6 +299,15 @@ async def import_game(request):
         users[bp] = bplayer
 
     variant = data.get("Variant", "chess").lower()
+    chess960 = variant.endswith("960")
+    variant = variant.removesuffix("960")
+    if variant == "caparandom":
+        variant = "capablanca"
+        chess960 = True
+    elif variant == "fischerandom":
+        variant = "chess"
+        chess960 = True
+
     initial_fen = data.get("FEN", "")
     final_fen = data.get("final_fen", "")
     status = int(data.get("Status", UNKNOWNFINISH))
@@ -346,6 +355,7 @@ async def import_game(request):
             wplayer,
             bplayer,
             rated=IMPORTED,
+            chess960=chess960,
             create=False,
         )
     except Exception:

@@ -388,11 +388,13 @@ div.player {
     margin-bottom: 1em;
     text-align: center;
 }
+#summary table tr {
+    line-height: 2em;
+}
 #summary table td {
     font-weight: bold;
     padding: 0 0 0 1em;
     text-align: right;
-    line-height: 2em;
 }
 .tour-stats-links {
     margin: 2em auto 0 auto;

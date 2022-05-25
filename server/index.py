@@ -414,7 +414,6 @@ async def index(request):
             render["variant"] = variant
         render["profile_title"] = users[profileId].title if profileId in users else ""
         render["rated"] = rated
-        render["admin"] = user.username in ADMINS
 
     elif view == "players":
         online_users = [

@@ -89,6 +89,36 @@ async def get_variant_stats(request):
     return web.json_response(series, dumps=partial(json.dumps, default=datetime.isoformat))
 
 
+async def get_tournament_games(request):
+    tournaments = request.app["tournaments"]
+    db = request.app["db"]
+    tournamentId = request.match_info.get("tournamentId")
+
+    if tournamentId is not None and tournamentId not in tournaments:
+        await asyncio.sleep(3)
+        return web.json_response({})
+
+    cursor = db.game.find({"tid": tournamentId})
+    game_doc_list = []
+
+    async for doc in cursor:
+        doc["v"] = C2V[doc["v"]]
+        doc["r"] = C2R[doc["r"]]
+        game_doc_list.append(
+            {
+                "id": doc["_id"],
+                "variant": doc["v"],
+                "is960": doc.get("z", 0),
+                "users": doc["us"],
+                "result": doc["r"],
+                "fen": doc.get("if"),
+                "moves": decode_moves(doc["m"], doc["v"]),
+            }
+        )
+
+    return web.json_response(game_doc_list, dumps=partial(json.dumps, default=datetime.isoformat))
+
+
 async def get_user_games(request):
     users = request.app["users"]
     db = request.app["db"]
@@ -203,6 +233,7 @@ async def get_user_games(request):
                         "variant": doc["v"],
                         "is960": doc.get("z", 0),
                         "users": doc["us"],
+                        "result": doc["r"],
                         "fen": doc.get("if"),
                         "moves": decode_moves(doc["m"], doc["v"]),
                     }
