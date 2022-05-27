@@ -20,19 +20,25 @@ export function diff(lhs: MaterialDiff, rhs: MaterialDiff): MaterialDiff {
 }
 
 function equivalentLetter(variant: Variant, letter: cg.PieceLetter): cg.PieceLetter {
-    // This is the exception to the "no checking variant name directly" rule
-    //         since these info is highly variant-specific
-    switch (variant.name) {
-        case 'makruk':
-        case 'makpong':
-        case 'cambodian':
-            if (letter === ('m~' as cg.PieceLetter))
-                return 'm';
+    if (variant.drop) {
+        if (letter.startsWith('+'))
+            return letter.slice(1) as cg.PieceLetter;
+        else
+            return letter;
+    } else {
+        // This is the exception to the "no checking variant name directly" rule
+        //         since these info is highly variant-specific
+        switch (variant.name) {
+            case 'makruk':
+                case 'makpong':
+                case 'cambodian':
+                if (letter === ('m~' as cg.PieceLetter))
+            return 'm';
             else
                 return letter;
 
-        case 'shinobi':
-            switch (letter) {
+            case 'shinobi':
+                switch (letter) {
                 case '+l': return 'r';
                 case '+h': return 'n';
                 case '+m': return 'b';
@@ -40,14 +46,15 @@ function equivalentLetter(variant: Variant, letter: cg.PieceLetter): cg.PieceLet
                 default  : return letter;
             }
 
-        case 'chak':
-            if (letter === '+k')
-                return 'k';
+            case 'chak':
+                if (letter === '+k')
+            return 'k';
             else
                 return letter;
 
-        default:
-            return letter;
+            default:
+                return letter;
+        }
     }
 }
 
@@ -78,6 +85,12 @@ export function calculateMaterialDiff(variant: Variant, fen?: string): MaterialD
     return materialDiff;
 }
 
+export function calculatePieceNumber(variant: Variant, fen?: string): MaterialDiff {
+    if (!fen) fen = variant.startFen;
+    // Calculate material difference as if all pieces were black
+    return calculateMaterialDiff(variant, fen.toLowerCase());
+}
+
 function calculateGameImbalance(ctrl: RoundController): MaterialDiff {
     return diff(calculateMaterialDiff(ctrl.variant, ctrl.fullfen), ctrl.variant.initialMaterialImbalance);
 }
@@ -91,7 +104,6 @@ function generateContent(ctrl: RoundController, imbalance: MaterialDiff, color: 
         if (!keys.includes(p))
             keys.push(p);
     }
-
     if (ctrl.variant.promotion === 'shogi') {
         for (const piece of ctrl.variant.promoteablePieces) {
             const p = equivalentLetter(ctrl.variant, piece);
@@ -123,10 +135,8 @@ export function updateMaterial(ctrl: RoundController, vmaterial0?: VNode | HTMLE
     const topColor = ctrl.flip ? ctrl.mycolor : ctrl.oppcolor;
     const bottomColor = ctrl.flip ? ctrl.oppcolor : ctrl.mycolor;
 
-    if (!vmaterial0)
-        vmaterial0 = ctrl.vmaterial0;
-    if (!vmaterial1)
-        vmaterial1 = ctrl.vmaterial1;
+    if (!vmaterial0) vmaterial0 = ctrl.vmaterial0;
+    if (!vmaterial1) vmaterial1 = ctrl.vmaterial1;
 
     if (!ctrl.materialDifference) {
         ctrl.vmaterial0 = patch(vmaterial0, makeMaterialVNode(ctrl, 'top', topColor, [], true));

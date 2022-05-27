@@ -10,6 +10,7 @@ import * as util from 'chessgroundx/util';
 import { _ } from './i18n';
 import { VARIANTS, validFen, Variant, hasCastling, unpromotedRole, promotedRole, notation } from './chess'
 import { boardSettings } from './boardSettings';
+import { diff, calculatePieceNumber } from './material';
 import { iniPieces } from './pieces';
 import { copyBoardToPNG } from './png';
 import { variantsIni } from './variantsIni';
@@ -179,6 +180,9 @@ export class EditorController {
                 h('a#clear.i-pgn', { on: { click: () => this.setEmptyFen() } }, [
                     h('div.icon.icon-trash-o', _('CLEAR BOARD'))
                 ]),
+                this.variant.drop ? h('a#fill.i-pgn', { on: { click: () => this.fillHand() } }, [
+                    h('div.icon.icon-sign-in', _("FILL %1'S HAND", _(this.variant.secondColor).toUpperCase()))
+                ]) : '',
                 h('a#start.i-pgn', { on: { click: () => this.setStartFen() } }, [
                     h('div.icon.' + dataIcon, _('STARTING POSITION'))
                 ]),
@@ -276,22 +280,28 @@ export class EditorController {
         const h = this.variant.boardHeight;
         const emptyFen = Array(h).fill(String(w)).join('/');
 
-        let pieces = '';
-        if (this.variant.drop) {
-            // For drop variants, move all pieces to black's pocket
-            const blackPocket: string[] = this.variant.pocketRoles('black') ?? [];
-            for (const c of this.fullfen.split(' ')[0].toLowerCase().split(''))
-                if (blackPocket.includes(c))
-                    pieces += c;
-        }
-
-        const pocketsPart = this.hasPockets ? '[' + pieces + ']' : '';
+        const pocketsPart = this.hasPockets ? '[]' : '';
         this.parts[0] = emptyFen + pocketsPart;
         this.parts[1] = 'w'
         if (this.parts.length > 2) this.parts[2] = '-';
         const e = document.getElementById('fen') as HTMLInputElement;
         e.value = this.parts.join(' ');
         this.setFen(true);
+    }
+
+    private fillHand = () => {
+        const initialMaterial = calculatePieceNumber(this.variant);
+        const currentMaterial = calculatePieceNumber(this.variant, this.fullfen);
+        const neededMaterial = diff(initialMaterial, currentMaterial);
+
+        const blackPocket = this.chessground.state.pockets!['black']!;
+        for (const [letter, num] of neededMaterial) {
+            const role = util.roleOf(letter);
+            if (role in blackPocket && num > 0)
+                blackPocket[role]! += num;
+        }
+
+        this.onChange();
     }
 
     private setAnalysisFen = () => {
@@ -308,7 +318,6 @@ export class EditorController {
         const fen = document.getElementById('fen') as HTMLInputElement;
         if (isInput) {
             this.parts = fen.value.split(' ');
-            // this.pocketsPart = (this.hasPockets) ? getPockets(fen.value) : '';
             this.chessground.set({ fen: fen.value });
             this.setInvalid(!this.validFen());
 
@@ -343,8 +352,9 @@ export class EditorController {
         // onChange() will get then set and validate FEN from chessground pieces
         this.chessground.set({lastMove: []});
         this.parts[0] = this.chessground.getFen();
+        this.fullfen = this.parts.join(' ');
         const e = document.getElementById('fen') as HTMLInputElement;
-        e.value = this.parts.join(' ');
+        e.value = this.fullfen;
         this.setInvalid(!this.validFen());
     }
 
@@ -398,9 +408,9 @@ export class EditorController {
         if (piece) {
             const role = unpromotedRole(this.variant , piece);
             const color = el.getAttribute('data-color') as cg.Color;
-            const pocket = this.chessground.state.pockets![color];
-            if (role in pocket!) {
-                pocket![role]!++;
+            const pocket = this.chessground.state.pockets![color]!;
+            if (role in pocket) {
+                pocket[role]!++;
                 this.onChange();
             }
         }
