@@ -368,7 +368,7 @@ export default class RoundController {
         this.vplayer0 = patch(player0, player('player0', this.titles[0], this.players[0], this.ratings[0], model["level"]));
         this.vplayer1 = patch(player1, player('player1', this.titles[1], this.players[1], this.ratings[1], model["level"]));
 
-        if (this.variant.materialDifference) {
+        if (this.variant.materialDiff) {
             const material0 = document.querySelector('.material-top') as HTMLElement;
             const material1 = document.querySelector('.material-bottom') as HTMLElement;
             updateMaterial(this, material0, material1);

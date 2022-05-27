@@ -6,7 +6,7 @@ import { read } from 'chessgroundx/fen';
 
 import { _ } from './i18n';
 
-import { MaterialImbalance, calculateInitialImbalance } from './material'
+import { MaterialDiff, calculateMaterialDiff } from './material'
 
 export const ranksUCI = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'] as const;
 export type UCIRank = typeof ranksUCI[number];
@@ -135,8 +135,8 @@ export class Variant {
     readonly pass: boolean;
     readonly boardMark: 'campmate' | 'none';
     readonly showPromoted: boolean;
-    readonly materialDifference : boolean;
-    readonly initialMaterialImbalance : MaterialImbalance;
+    readonly materialDiff : boolean;
+    readonly initialMaterialImbalance : MaterialDiff;
 
     readonly alternateStart?: { [ name: string ]: string };
 
@@ -179,8 +179,8 @@ export class Variant {
         this.pass = data.pass ?? false;
         this.boardMark = data.boardMark ?? 'none';
         this.showPromoted = data.showPromoted ?? false;
-        this.materialDifference = data.materialDifference ?? !this.drop;
-        this.initialMaterialImbalance = this.materialDifference ? calculateInitialImbalance(this) : {};
+        this.materialDiff = data.materialDifference ?? !this.drop;
+        this.initialMaterialImbalance = this.materialDiff ? calculateMaterialDiff(this) : new Map();
 
         this.alternateStart = data.alternateStart;
 
