@@ -7,7 +7,7 @@ import * as util from 'chessgroundx/util';
 import { _ } from './i18n';
 import { patch } from './document';
 import { Step, MsgChat, MsgFullChat, MsgSpectators, MsgShutdown,MsgGameNotFound } from './messages';
-import { uci2LastMove } from './chess';
+import { uci2LastMove, moveDests, uci2cg } from './chess';
 import { Gating } from './gating';
 import { Promotion } from './promotion';
 import { ChessgroundController } from './cgCtrl';
@@ -138,9 +138,37 @@ export abstract class GameController extends ChessgroundController implements IC
             'check': false,
             'turnColor': this.turnColor,
             });
+
+        this.setDests();
     }
 
     getGround = () => this.chessground;
+
+    setDests = () => {
+        if (this.ffishBoard === undefined) {
+            // At very first time we may have to wait for ffish module to initialize
+            setTimeout(this.setDests, 100);
+        } else {
+            const legalMoves = this.ffishBoard.legalMoves().split(" ");
+            const dests: cg.Dests = moveDests(legalMoves);
+            // list of legal promotion moves
+            this.promotions = [];
+            legalMoves.forEach((move: string) => {
+                const moveStr = uci2cg(move);
+                
+                const tail = moveStr.slice(-1);
+                if (tail > '9' || tail === '+' || tail === '-') {
+                    if (!(this.variant.gate && (moveStr.slice(1, 2) === '1' || moveStr.slice(1, 2) === '8'))) {
+                        this.promotions.push(moveStr);
+                    }
+                }
+                if (this.variant.promotion === 'kyoto' && moveStr.slice(0, 1) === '+') {
+                    this.promotions.push(moveStr);
+                }
+            });
+            this.chessground.set({ movable: { dests: dests }});
+        }
+    }
 
     abstract doSendMove(orig: cg.Orig, dest: cg.Key, promo: string): void;
 
@@ -167,11 +195,11 @@ export abstract class GameController extends ChessgroundController implements IC
             turnColor: step.turnColor,
             movable: {
                 color: step.turnColor,
-                dests: this.dests,
                 },
             check: step.check,
             lastMove: move,
         });
+        this.setDests();
 
         this.turnColor = step.turnColor;
         this.fullfen = step.fen;

@@ -8,7 +8,7 @@ import { DrawShape } from 'chessgroundx/draw';
 
 import { _ } from './i18n';
 import { sound } from './sound';
-import { uci2LastMove, uci2cg, cg2uci, moveDests } from './chess';
+import { uci2LastMove, uci2cg, cg2uci } from './chess';
 import { crosstableView } from './crosstable';
 import { chatView } from './chat';
 import { createMovelistButtons, updateMovelist, selectMove, activatePlyVari } from './movelist';
@@ -43,8 +43,6 @@ interface MsgAnalysisBoard {
     fen: string;
     ply: number;
     lastMove: string;
-    dests: cg.Dests;
-    promo: string[];
     bikjang: boolean;
     check: boolean;
 }
@@ -326,10 +324,7 @@ export class AnalysisController extends GameController {
         // console.log("got board msg:", msg);
         this.ply = msg.ply
         this.fullfen = msg.fen;
-        this.dests = new Map(Object.entries(msg.dests)) as cg.Dests;
-        // list of legal promotion moves
-        this.promotions = msg.promo;
-
+        this.setDests();
         const parts = msg.fen.split(" ");
         this.turnColor = parts[1] === "w" ? "white" : "black";
 
@@ -421,15 +416,6 @@ export class AnalysisController extends GameController {
         }
 
         if (!this.localEngine) {
-            const availableVariants = this.ffish.variants();
-            // console.log('Available variants:', availableVariants);
-            if (this.model.variant === 'chess' || availableVariants.includes(this.model.variant)) {
-                this.dests = this.getDests();
-                this.chessground.set({ movable: { color: this.turnColor, dests: this.dests } });
-            } else {
-                console.log("Selected variant is not supported by ffish.js");
-            }
-
             this.localEngine = true;
             patch(document.getElementById('input') as HTMLElement, h('input#input', {attrs: {disabled: false}}));
         }
@@ -612,28 +598,6 @@ export class AnalysisController extends GameController {
         }
     }
 
-    getDests = () => {
-        const legalMoves = this.ffishBoard.legalMoves().split(" ");
-        // console.log(legalMoves);
-        const dests: cg.Dests = moveDests(legalMoves);
-        this.promotions = [];
-        legalMoves.forEach((move: string) => {
-            const moveStr = uci2cg(move);
-            
-            const tail = moveStr.slice(-1);
-            if (tail > '9' || tail === '+' || tail === '-') {
-                if (!(this.variant.gate && (moveStr.slice(1, 2) === '1' || moveStr.slice(1, 2) === '8'))) {
-                    this.promotions.push(moveStr);
-                }
-            }
-            if (this.variant.promotion === 'kyoto' && moveStr.slice(0, 1) === '+') {
-                this.promotions.push(moveStr);
-            }
-        });
-        this.chessground.set({ movable: { dests: dests }});
-        return dests;
-    }
-
     // When we are moving inside a variation move list
     // then plyVari > 0 and ply is the index inside vari movelist
     goPly = (ply: number, plyVari = 0) => {
@@ -672,7 +636,7 @@ export class AnalysisController extends GameController {
         }
         if (this.ffishBoard) {
             this.ffishBoard.setFen(this.fullfen);
-            this.dests = this.getDests();
+            this.setDests();
         }
 
         this.drawEval(step.ceval, step.scoreStr, step.turnColor);
@@ -735,7 +699,7 @@ export class AnalysisController extends GameController {
         // console.log('sendMove()', move, san);
         // Instead of sending moves to the server we can get new FEN and dests from ffishjs
         this.ffishBoard.push(move);
-        this.dests = this.getDests();
+        this.setDests();
 
         // We can't use ffishBoard.gamePly() to determine newply because it returns +1 more
         // when new this.ffish.Board() initial FEN moving color was "b"
@@ -747,8 +711,6 @@ export class AnalysisController extends GameController {
             fen: this.ffishBoard.fen(this.variant.showPromoted, 0),
             ply: newPly,
             lastMove: move,
-            dests: this.dests,
-            promo: this.promotions,
             bikjang: this.ffishBoard.isBikjang(),
             check: this.ffishBoard.isCheck(),
         }
@@ -816,9 +778,6 @@ export class AnalysisController extends GameController {
         if (this.localAnalysis) this.engineStop();
 
         this.fullfen = msg.fen;
-        this.dests = msg.dests;
-        // list of legal promotion moves
-        this.promotions = msg.promo;
         this.ply = msg.ply
 
         const parts = msg.fen.split(" ");
@@ -831,7 +790,6 @@ export class AnalysisController extends GameController {
             check: msg.check,
             movable: {
                 color: this.turnColor,
-                dests: this.dests,
             },
         });
 
