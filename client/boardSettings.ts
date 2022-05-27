@@ -160,7 +160,7 @@ class BoardSettings {
             this.updateDropSuggestion();
 
             // console.log("FLIP");
-            if (this.ctrl instanceof RoundController && this.ctrl.variant.materialDifference) {
+            if (this.ctrl instanceof RoundController && this.ctrl.variant.materialDiff) {
                 updateMaterial(this.ctrl);
             }
 
