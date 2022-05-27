@@ -6,74 +6,88 @@ import { readPockets } from 'chessgroundx/pocket';
 import { ChessgroundController } from './cgCtrl';
 import { Variant } from './chess';
 
-export type MaterialImbalance = {[index: string]:number};
+export type MaterialDiff = Map<cg.PieceLetter, number>;
 
-export function mapPiece(piece: string, variant: string): string {
-    piece = piece.split('-')[0];
-    if (variant === 'makruk' || variant === 'makpong' || variant === 'cambodian') {
-        if (piece === '~m') return 'm';
-        return piece;
-    }
-    if (variant === 'shinobi') {
-        if (piece === '+l' || piece === 'pl') return 'r';
-        if (piece === '+h' || piece === 'ph') return 'n';
-        if (piece === '+m' || piece === 'pm') return 'b';
-        if (piece === '+p' || piece === 'pp') return 'c';
-        return piece;
-    }
-    if (variant == 'chak') {
-        if (piece === '+k' || piece === 'pk') return 'k';
-        return piece;
-    }
-    return piece;
+export function diff(lhs: MaterialDiff, rhs: MaterialDiff): MaterialDiff {
+    const keys = new Set([...lhs.keys(), ...rhs.keys()]);
+    const res = new Map()
+    for (const piece of keys)
+        res.set(piece, (lhs.get(piece) ?? 0) - (rhs.get(piece) ?? 0));
+    return res;
 }
 
-export function calculateInitialImbalance(variant: Variant): MaterialImbalance {
-    let imbalances : MaterialImbalance = {};
-    for (let piece of variant.pieceRoles('white')) imbalances[mapPiece(piece, variant.name)] = 0;
-    for (let piece of variant.pieceRoles('black')) imbalances[mapPiece(piece, variant.name)] = 0;
-    if (variant.promotion === 'shogi') {
-        for (let piece of variant.promoteablePieces) {
-            imbalances[mapPiece('p' + piece, variant.name)] = 0;
+export function equivalentLetter(variant: Variant, letter: cg.PieceLetter): cg.PieceLetter {
+    if (variant.drop) {
+        if (letter.startsWith('+'))
+            return letter.slice(1) as cg.PieceLetter;
+        else
+            return letter;
+    } else {
+        // This is the exception to the "no checking variant name directly" rule
+        //         since these info is highly variant-specific
+        switch (variant.name) {
+            case 'makruk':
+                case 'makpong':
+                case 'cambodian':
+                if (letter === ('m~' as cg.PieceLetter))
+            return 'm';
+            else
+                return letter;
+
+            case 'shinobi':
+                switch (letter) {
+                case '+l': return 'r';
+                case '+h': return 'n';
+                case '+m': return 'b';
+                case '+p': return 'c';
+                default  : return letter;
+            }
+
+            case 'chak':
+                if (letter === '+k')
+            return 'k';
+            else
+                return letter;
+
+            default:
+                return letter;
         }
     }
-    for (let [_, piece] of read(variant.startFen)) {
-        imbalances[mapPiece(piece.role, variant.name)] += (piece.color === 'white') ? -1 : 1;
+}
+
+export function calculateMaterialDiff(variant: Variant, fen?: string): MaterialDiff {
+    if (!fen) fen = variant.startFen;
+    const materialDiff : MaterialDiff = new Map();
+
+    for (const [_, piece] of read(fen)) {
+        const letter = equivalentLetter(variant, util.letterOf(piece.role));
+        const num = materialDiff.get(letter) ?? 0;
+        materialDiff.set(letter, (piece.color === 'white') ? num - 1 : num + 1);
     }
+
+    // TODO Make chessgroundx include pockets in fen read
     if (variant.pocket) {
-        let initialPockets = readPockets(variant.startFen, variant.pocketRoles.bind(variant));
-        for (let [piece, count] of Object.entries(initialPockets.white!)) {
-            imbalances[mapPiece(piece, variant.name)] -= count;
+        let initialPockets = readPockets(fen, variant.pocketRoles.bind(variant));
+        for (const [role, count] of Object.entries(initialPockets.white ?? {})) {
+            const letter = equivalentLetter(variant, util.letterOf(role as cg.Role));
+            const num = materialDiff.get(letter) ?? 0;
+            materialDiff.set(letter, num - count);
         }
-        for (let [piece, count] of Object.entries(initialPockets.black!)) {
-            imbalances[mapPiece(piece, variant.name)] += count;
+        for (const [role, count] of Object.entries(initialPockets.black ?? {})) {
+            const letter = equivalentLetter(variant, util.letterOf(role as cg.Role));
+            const num = materialDiff.get(letter) ?? 0;
+            materialDiff.set(letter, num + count);
         }
     }
-    return imbalances;
+    return materialDiff;
 }
 
-export function calculateImbalance(ctrl: ChessgroundController): MaterialImbalance {
-    let imbalances = Object.assign({}, ctrl.variant.initialMaterialImbalance);
-    let topMaterialColor = ctrl.flip ? ctrl.mycolor : ctrl.oppcolor, bottomMaterialColor = ctrl.flip ? ctrl.oppcolor : ctrl.mycolor;
-    for (let piece of ctrl.chessground.state.pieces) {
-        let pieceObject = piece[1];
-        let mappedPiece = mapPiece(pieceObject!.role, ctrl.variant.name);
-        if (pieceObject!.color == 'white') {
-            imbalances[mappedPiece]++;
-        }
-        else {
-            imbalances[mappedPiece]--;
-        }
-    }
-    if (ctrl.chessground.state.pockets) {
-        const pocketTop = ctrl.chessground.state.pockets[util.opposite(ctrl.chessground.state.orientation)];
-        const pocketBottom = ctrl.chessground.state.pockets[ctrl.chessground.state.orientation];
-        for (let piece in pocketTop) {
-            imbalances[mapPiece(piece, ctrl.variant.name)] += (topMaterialColor === 'white' ? 1 : -1) * pocketTop[piece as cg.Role]!;
-        }
-        for (let piece in pocketBottom) {
-            imbalances[mapPiece(piece, ctrl.variant.name)] += (bottomMaterialColor === 'white' ? 1 : -1) * pocketBottom[piece as cg.Role]!;
-        }
-    }
-    return imbalances;
+export function calculatePieceNumber(variant: Variant, fen?: string): MaterialDiff {
+    if (!fen) fen = variant.startFen;
+    // Calculate material difference as if all pieces were black
+    return calculateMaterialDiff(variant, fen.toLowerCase());
+}
+
+export function calculateGameImbalance(ctrl: ChessgroundController): MaterialDiff {
+    return diff(calculateMaterialDiff(ctrl.variant, ctrl.fullfen), ctrl.variant.initialMaterialImbalance);
 }

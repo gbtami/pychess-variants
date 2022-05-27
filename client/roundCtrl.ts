@@ -250,7 +250,7 @@ export class RoundController extends GameController {
         this.vplayer0 = patch(player0, player('player0', this.titles[0], this.players[0], this.ratings[0], model["level"]));
         this.vplayer1 = patch(player1, player('player1', this.titles[1], this.players[1], this.ratings[1], model["level"]));
 
-        if (this.variant.materialDifference) {
+        if (this.variant.materialDiff) {
             this.vmaterial0 = document.querySelector('.material-top') as HTMLElement;
             this.vmaterial1 = document.querySelector('.material-bottom') as HTMLElement;
             updateMaterial(this);
@@ -397,7 +397,7 @@ export class RoundController extends GameController {
         boardSettings.updateDropSuggestion();
 
         // console.log("FLIP");
-        if (this.variant.materialDifference) {
+        if (this.variant.materialDiff) {
             updateMaterial(this);
         }
 
