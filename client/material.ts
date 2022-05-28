@@ -3,7 +3,6 @@ import * as util from 'chessgroundx/util';
 import { read } from 'chessgroundx/fen';
 import { readPockets } from 'chessgroundx/pocket';
 
-import { ChessgroundController } from './cgCtrl';
 import { Variant } from './chess';
 
 export type MaterialDiff = Map<cg.PieceLetter, number>;
@@ -88,6 +87,6 @@ export function calculatePieceNumber(variant: Variant, fen?: string): MaterialDi
     return calculateMaterialDiff(variant, fen.toLowerCase());
 }
 
-export function calculateGameImbalance(ctrl: ChessgroundController): MaterialDiff {
-    return diff(calculateMaterialDiff(ctrl.variant, ctrl.fullfen), ctrl.variant.initialMaterialImbalance);
+export function calculateGameImbalance(variant: Variant, fen: string): MaterialDiff {
+    return diff(calculateMaterialDiff(variant, fen), variant.initialMaterialImbalance);
 }

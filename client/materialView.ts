@@ -1,63 +1,51 @@
-import * as cg from 'chessgroundx/types';
-import * as util from 'chessgroundx/util';
-
 import { h, VNode } from 'snabbdom';
 
 import { patch } from './document';
-import { calculateGameImbalance, equivalentLetter, MaterialDiff } from './material';
+import { Variant } from './chess';
+import { calculateGameImbalance } from './material';
 import { RoundController } from './roundCtrl';
 
-function generateContent(ctrl: RoundController, imbalance: MaterialDiff, color: cg.Color): VNode[] {
-    const result : VNode[] = [];
+function generateContent(variant: Variant, fen: string): [VNode[], VNode[]] {
+    const imbalance = calculateGameImbalance(variant, fen);
+    const whiteContent: VNode[] = [];
+    const blackContent: VNode[] = [];
 
-    const keys = [...ctrl.variant.pieceRoles(util.opposite(color))]
-    for (const piece of ctrl.variant.pieceRoles(color)) {
-        const p = equivalentLetter(ctrl.variant, piece);
-        if (!keys.includes(p))
-            keys.push(p);
+    for (const [letter, num] of imbalance) {
+        if (num === 0) continue;
+        const content = num > 0 ? blackContent : whiteContent;
+        const pieceDiff = Math.abs(num);
+        const currentDiv: VNode[] = [];
+        for (let i = 0; i < pieceDiff; i++)
+            currentDiv.push(h('mpiece.' + letter));
+        content.push(h('div', currentDiv));
     }
-    if (ctrl.variant.promotion === 'shogi') {
-        for (const piece of ctrl.variant.promoteablePieces) {
-            const p = equivalentLetter(ctrl.variant, piece);
-            if (!keys.includes(p))
-                keys.push(p);
-        }
-    }
-
-    for (const letter of keys) {
-        const p = equivalentLetter(ctrl.variant, letter);
-        const pieceDiff = (imbalance.get(p) ?? 0) * (color === 'white' ? -1 : 1);
-        if (pieceDiff > 0) {
-            const current_div : VNode[] = [];
-            for (let i = 0; i < pieceDiff; i++)
-                current_div.push(h('mpiece.' + p))
-            result.push(h('div', current_div));
-        }
-    }
-    return result;
+    return [whiteContent, blackContent];
 }
 
-function makeMaterialVNode(ctrl: RoundController, position: 'top'|'bottom', color: cg.Color, content: VNode[], disabled = false): VNode {
-    return h(`div.material.material-${position}.${color}.${ctrl.variant.piece}${disabled ? '.disabled' : ''}`, content);
+function makeMaterialVNode(variant: Variant, position: 'top'|'bottom', content: VNode[], disabled = false): VNode {
+    return h(`div.material.material-${position}.${variant.piece}${disabled ? '.disabled' : ''}`, content);
 }
 
-export function updateMaterial(ctrl: RoundController, vmaterial0?: VNode | HTMLElement, vmaterial1?: VNode | HTMLElement) {
-    if (!ctrl.variant.materialDiff) return;
+export function updateMaterial(ctrl: RoundController) {
 
     const topColor = ctrl.flip ? ctrl.mycolor : ctrl.oppcolor;
-    const bottomColor = ctrl.flip ? ctrl.oppcolor : ctrl.mycolor;
-
-    if (!vmaterial0) vmaterial0 = ctrl.vmaterial0;
-    if (!vmaterial1) vmaterial1 = ctrl.vmaterial1;
+    const vmaterial0 = ctrl.vmaterial0;
+    const vmaterial1 = ctrl.vmaterial1;
+    const variant = ctrl.variant;
+    const fen = ctrl.fullfen;
 
     if (!ctrl.materialDifference) {
-        ctrl.vmaterial0 = patch(vmaterial0, makeMaterialVNode(ctrl, 'top', topColor, [], true));
-        ctrl.vmaterial1 = patch(vmaterial1, makeMaterialVNode(ctrl, 'bottom', bottomColor, [], true));
+        ctrl.vmaterial0 = patch(vmaterial0, makeMaterialVNode(variant, 'top', [], true));
+        ctrl.vmaterial1 = patch(vmaterial1, makeMaterialVNode(variant, 'bottom', [], true));
         return;
     }
-    const imbalance = calculateGameImbalance(ctrl);
-    const topContent = generateContent(ctrl, imbalance, topColor);
-    const bottomContent = generateContent(ctrl, imbalance, bottomColor);
-    ctrl.vmaterial0 = patch(vmaterial0, makeMaterialVNode(ctrl, 'top', topColor, topContent));
-    ctrl.vmaterial1 = patch(vmaterial1, makeMaterialVNode(ctrl, 'bottom', bottomColor, bottomContent));
+
+    const [whiteContent, blackContent] = generateContent(variant, fen);
+    if (topColor === 'white') {
+        ctrl.vmaterial0 = patch(vmaterial0, makeMaterialVNode(variant, 'top', whiteContent));
+        ctrl.vmaterial1 = patch(vmaterial1, makeMaterialVNode(variant, 'bottom', blackContent));
+    } else {
+        ctrl.vmaterial0 = patch(vmaterial0, makeMaterialVNode(variant, 'top', blackContent));
+        ctrl.vmaterial1 = patch(vmaterial1, makeMaterialVNode(variant, 'bottom', whiteContent));
+    }
 }
