@@ -11,7 +11,7 @@ export interface IChatController {
     tournamentId?: string;
 }
 
-export function chatView(ctrl: IChatController, chatType: string) { // TODO: instead of | better have some IChatController interface implemented by these classes
+export function chatView(ctrl: IChatController, chatType: string) {
     const spectator = ("spectator" in ctrl && ctrl.spectator);
 
     function onKeyPress (e: KeyboardEvent) {
