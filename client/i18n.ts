@@ -26,7 +26,9 @@ export const LANGUAGES = {
     ru: "Pусский",
     th: "ไทย",
     tr: "Türkçe",
-    zh: "简体中文",
+    zh: "中文",
+    zh_CN: "简体中文",
+    zh_TW: "繁體中文",
 };
 
 const LANGUAGETEXT: {[key:string]: string} = {
@@ -46,6 +48,8 @@ const LANGUAGETEXT: {[key:string]: string} = {
     th: "ภาษา",
     tr: "Dil",
     zh: "语言",
+    zh_CN: "语言",
+    zh_TW: "語言",
 };
 
 const preferredLang = window.navigator.language.slice(0, 2);
