@@ -363,7 +363,7 @@ msgstr "正統中國象棋，世界中最廣泛的象棋類游戲之一。"
 msgid ""
 "Xiangqi variant where one side has a chariot that can also move as a cannon "
 "or horse."
-msgstr "一個象棋變體，車可以同時又具有炮和馬的走法。"
+msgstr "一個像棋變體，車可以同時又具有炮和馬的走法。"
 
 #: ../client/chess.ts:505
 msgid ""
@@ -1637,7 +1637,7 @@ msgstr "讓國王太早升變會很危險"
 
 #: ../client/lobby/layer3.ts:111
 msgid "Maximizing khon and met's effectiveness is the key."
-msgstr "儘可能發揮士、象的戰力"
+msgstr "盡可能發揮士、象的戰力"
 
 #: ../client/lobby/layer3.ts:113
 msgid "Watch out for knight checks, since they cannot be blocked."

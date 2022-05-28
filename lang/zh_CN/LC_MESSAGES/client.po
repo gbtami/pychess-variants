@@ -32,7 +32,7 @@ msgid ""
 "create such a powerful engine for FREE. That's a lot of great minds and "
 "computing power they've managed to harness."
 msgstr ""
-"\"对于我来说，我们能走到今天，在很大程度上要归功于Stockfish。他们召集了全球的志愿者，本着开源的精神，共同创造了一个如此强大的免费引擎。他们这可是聚集了很多优秀的人才和计算能力。"
+"\"对于我来说，我们能走到今天，在很大程度上要归功于Stockfish。他们召集了全球的志愿者，本着开源的精神，共同创造了一个如此强大的免费引擎。他们这可是聚集了很多优秀的人才和计算能力。 "
 
 #: ../client/about.ts:10
 msgid ""
@@ -117,7 +117,7 @@ msgstr "本服务器的源码投稿在"
 msgid ""
 "To play on PyChess, you need to have an open and unmarked account on "
 "Lichess. "
-msgstr "使用PyChess之前，你必需先擁用一個Lichess帳號。"
+msgstr "使用PyChess之前，你必需先拥用一个Lichess帐号。"
 
 #: ../client/about.ts:118
 msgid ""
@@ -137,15 +137,15 @@ msgstr "在本地浏览器"
 
 #: ../client/analysis.ts:188
 msgid "Computer analysis"
-msgstr "電腦分析"
+msgstr "电脑分析"
 
 #: ../client/analysis.ts:189
 msgid "Move times"
-msgstr "行棋時間"
+msgstr "行棋时间"
 
 #: ../client/analysis.ts:190
 msgid "Crosstable"
-msgstr "圖表"
+msgstr "图表"
 
 #: ../client/analysis.ts:191
 msgid "FEN & PGN"
@@ -189,11 +189,11 @@ msgstr "PNG图像"
 
 #: ../client/analysisCtrl.ts:465
 msgid "Delete game"
-msgstr "刪除遊戲"
+msgstr "删除游戏"
 
 #: ../client/analysisCtrl.ts:480
 msgid "Are you sure you want to delete this game?"
-msgstr "您確定要刪除此遊戲嗎？"
+msgstr "您确定要删除此游戏吗？"
 
 #: ../client/analysisCtrl.ts:522
 msgid "Request Computer Analysis"
@@ -342,17 +342,17 @@ msgstr "将棋的狂野5x5变体，动子后子会翻换。"
 #: ../client/chess.ts:411
 msgid ""
 "3x4 game with cute animals, designed to teach children how to play Shogi."
-msgstr "棋子為動物的3x4棋盤，用來教小朋友怎麼下將棋。"
+msgstr "棋子为动物的3x4棋盘，用来教小朋友怎么下将棋。"
 
 #: ../client/chess.ts:426 ../client/chess.ts:442
 msgid "5x6 Shogi designed to introduce tactics with the generals."
-msgstr "5x6將棋是用來向大眾介紹戰術的。"
+msgstr "5x6将棋是用来向大众介绍战术的。"
 
 #: ../client/chess.ts:462
 msgid ""
 "A confrontational 7x7 variant with unique pieces each named after different "
 "birds."
-msgstr "棋子以不同鳥類命名的7x7變例。"
+msgstr "棋子以不同鸟类命名的7x7变例。"
 
 #: ../client/chess.ts:484
 msgid ""
@@ -363,7 +363,7 @@ msgstr "正统中国象棋，世界中最广泛的象棋类游戏之一。"
 msgid ""
 "Xiangqi variant where one side has a chariot that can also move as a cannon "
 "or horse."
-msgstr "一個象棋變體，車可以同時又具有炮和馬的走法。"
+msgstr "一个象棋变体，车可以同时又具有炮和马的走法。"
 
 #: ../client/chess.ts:505
 msgid ""
@@ -373,7 +373,7 @@ msgstr "朝鲜将棋。相似象棋，但玩法异同。本站使用大赛规则
 
 #: ../client/chess.ts:518
 msgid "Compact version of Xiangqi played on a 7x7 board without a river."
-msgstr "縮小版象棋，棋盤大小為7x7，沒有河。"
+msgstr "缩小版象棋，棋盘大小为7x7，没有河。"
 
 #: ../client/chess.ts:528
 msgid ""
@@ -428,13 +428,13 @@ msgstr "非对称棋类，单方指挥走法如马但吃法不一致的棋子。
 msgid ""
 "Asymmetric East vs. West variant which pits the western Chess army against a"
 " Xiangqi and Janggi-styled army."
-msgstr "不對稱的東方vs西方變體。西洋棋的子對上中國象棋和韓國將棋的子。"
+msgstr "不对称的东方vs西方变体。西洋棋的子对上中国象棋和韩国将棋的子。"
 
 #: ../client/chess.ts:661
 msgid ""
 "Asymmetric variant which pits the western Chess army against a drop-based, "
 "Shogi-styled army."
-msgstr "非對稱棋種變例，由西洋棋的子對上可打入的將棋棋子。"
+msgstr "非对称棋种变例，由西洋棋的子对上可打入的将棋棋子。"
 
 #: ../client/chess.ts:677
 msgid ""
@@ -445,15 +445,15 @@ msgstr "非对称棋类，单方指挥走法如皇后但吃法不一致的棋子
 #: ../client/chess.ts:689
 msgid ""
 "Orda Chess variant with two Horde armies. The Falcon replaces the Yurt."
-msgstr "雙方皆為可汗軍隊，且由獵鷹取代穹廬。"
+msgstr "双方皆为可汗军队，且由猎鹰取代穹庐。"
 
 #: ../client/chess.ts:700
 msgid "Mayan chess. Inspired by cultural elements of Mesoamerica."
-msgstr "馬雅象棋，靈感來自於中美洲的馬雅文化。"
+msgstr "马雅象棋，灵感来自于中美洲的马雅文化。"
 
 #: ../client/chess.ts:711
 msgid "Pieces alternate between two forms with each move."
-msgstr "棋子只每動一步就要換面。"
+msgstr "棋子只每动一步就要换面。"
 
 #: ../client/chess.ts:728
 msgid "Like Capablanca Chess but with Grand starting setup."
@@ -637,7 +637,7 @@ msgstr "粉红棋"
 
 #: ../client/i18n.ts:60
 msgid "Green"
-msgstr "綠"
+msgstr "绿"
 
 #: ../client/i18n.ts:64
 msgid "chess"
@@ -645,11 +645,11 @@ msgstr "国际象棋"
 
 #: ../client/i18n.ts:64
 msgid "crazyhouse"
-msgstr "雙狂象棋"
+msgstr "双狂象棋"
 
 #: ../client/i18n.ts:64
 msgid "placement"
-msgstr "任意擺置西洋棋"
+msgstr "任意摆置西洋棋"
 
 #: ../client/i18n.ts:64
 msgid "atomic"
@@ -661,7 +661,7 @@ msgstr "泰国象棋"
 
 #: ../client/i18n.ts:66
 msgid "makpong"
-msgstr "防禦泰國象棋"
+msgstr "防御泰国象棋"
 
 #: ../client/i18n.ts:66
 msgid "ouk chatrang"
@@ -717,11 +717,11 @@ msgstr "迷你象棋"
 
 #: ../client/i18n.ts:73
 msgid "capablanca"
-msgstr "卡帕布蘭卡象棋"
+msgstr "卡帕布兰卡象棋"
 
 #: ../client/i18n.ts:73
 msgid "capahouse"
-msgstr "雙狂卡帕布蘭卡"
+msgstr "双狂卡帕布兰卡"
 
 #: ../client/i18n.ts:73
 msgid "s-chess"
@@ -737,7 +737,7 @@ msgstr "西洋大象棋"
 
 #: ../client/i18n.ts:74
 msgid "grandhouse"
-msgstr "雙狂西洋大象棋"
+msgstr "双狂西洋大象棋"
 
 #: ../client/i18n.ts:74
 msgid "shako"
@@ -745,7 +745,7 @@ msgstr ""
 
 #: ../client/i18n.ts:74
 msgid "shogun"
-msgstr "幕府將棋"
+msgstr "幕府将棋"
 
 #: ../client/i18n.ts:74
 msgid "hoppel-poppel"
@@ -765,7 +765,7 @@ msgstr "忍棋"
 
 #: ../client/i18n.ts:76
 msgid "empire"
-msgstr "帝國象棋"
+msgstr "帝国象棋"
 
 #: ../client/i18n.ts:76
 msgid "orda mirror"
@@ -773,7 +773,7 @@ msgstr "可汗象棋"
 
 #: ../client/i18n.ts:76
 msgid "chak"
-msgstr "馬雅象棋"
+msgstr "马雅象棋"
 
 #: ../client/i18n.ts:80
 msgid "PawnsPushed"
@@ -785,7 +785,7 @@ msgstr ""
 
 #: ../client/i18n.ts:80
 msgid "UpsideDown"
-msgstr "反轉"
+msgstr "反转"
 
 #: ../client/i18n.ts:80
 msgid "Theban"
@@ -793,7 +793,7 @@ msgstr "底比斯"
 
 #: ../client/i18n.ts:80
 msgid "No castle"
-msgstr "沒有王車易位"
+msgstr "没有王车易位"
 
 #: ../client/i18n.ts:82
 msgid "Lance HC"
@@ -805,11 +805,11 @@ msgstr "角落"
 
 #: ../client/i18n.ts:82
 msgid "Rook HC"
-msgstr "飛落"
+msgstr "飞落"
 
 #: ../client/i18n.ts:82
 msgid "Rook+Lance HC"
-msgstr "飛香落"
+msgstr "飞香落"
 
 #: ../client/i18n.ts:82
 msgid "2-Piece HC"
@@ -845,23 +845,23 @@ msgstr ""
 
 #: ../client/i18n.ts:86
 msgid "Left Quail HC"
-msgstr "讓左鶉"
+msgstr "让左鹑"
 
 #: ../client/i18n.ts:86
 msgid "Falcon HC"
-msgstr "讓去鷹"
+msgstr "让去鹰"
 
 #: ../client/i18n.ts:86
 msgid "Falcon + Left Quail HC"
-msgstr "讓去鷹和左鶉"
+msgstr "让去鹰和左鹑"
 
 #: ../client/i18n.ts:86
 msgid "Falcon + Both Quails HC"
-msgstr "讓去鷹和雙鶉"
+msgstr "让去鹰和双鹑"
 
 #: ../client/i18n.ts:88
 msgid "Bird"
-msgstr "鳥"
+msgstr "鸟"
 
 #: ../client/i18n.ts:88
 msgid "Carrera"
@@ -999,7 +999,7 @@ msgstr ""
 
 #: ../client/lobby.ts:774
 msgid "Custom"
-msgstr "自訂"
+msgstr "自订"
 
 #: ../client/lobby.ts:802 ../client/lobby.ts:927
 msgid "%1 player"
@@ -1021,7 +1021,7 @@ msgstr[0] "%1 对局进行中"
 
 #: ../client/lobby.ts:937
 msgid "Tournament calendar"
-msgstr "錦標賽日程"
+msgstr "锦标赛日程"
 
 #: ../client/lobby.ts:946
 msgid "Player"
@@ -1129,7 +1129,7 @@ msgstr "抢占"
 
 #: ../client/profile.ts:92
 msgid "Altar mate"
-msgstr "登壇"
+msgstr "登坛"
 
 #: ../client/profile.ts:95
 msgid "Explosion of king"
@@ -1158,7 +1158,7 @@ msgstr "对局"
 
 #: ../client/profile.ts:311
 msgid "Games with you"
-msgstr "與你對局"
+msgstr "与你对局"
 
 #: ../client/profile.ts:313
 msgctxt "UsePluralFormIfNeeded"
@@ -1318,15 +1318,15 @@ msgstr "前一步"
 
 #: ../client/tournament.ts:267
 msgid "Next"
-msgstr "後一步"
+msgstr "后一步"
 
 #: ../client/tournament.ts:268
 msgid "Last"
-msgstr "最後一步"
+msgstr "最后一步"
 
 #: ../client/tournament.ts:269
 msgid "Scroll to your player"
-msgstr "滑動到你的"
+msgstr "滑动到你的"
 
 #: ../client/tournament.ts:280
 msgid "WITHDRAW"
@@ -1441,15 +1441,13 @@ msgstr "汗国 VS 汗国"
 
 #: ../client/lobby/layer2army.ts:48
 msgid "Clan: Drop-based army"
-msgstr "樱流派：持有打入权利"
-
-#: ../client/lobby/layer2army.ts:55
+msgstr "樱流派：持有打入权利"#: ../client/lobby/layer2army.ts:55
 msgid "Dynasty: Xiangqi-based army"
 msgstr "皇朝：其棋子基于中国象棋"
 
 #: ../client/lobby/layer2army.ts:62
 msgid "Mayan chess"
-msgstr "馬雅象棋"
+msgstr "马雅象棋"
 
 #: ../client/lobby/layer2chess.ts:20
 msgid "Variants using a basic chess set but with different rules."
@@ -1471,23 +1469,23 @@ msgstr "= 可添加打入规则。"
 
 #: ../client/lobby/layer2fairy.ts:39
 msgid "Knight hybrid pieces"
-msgstr "融合「馬」的元素的棋子"
+msgstr "融合「马」的元素的棋子"
 
 #: ../client/lobby/layer2fairy.ts:50
 msgid "8x8 with new pieces"
-msgstr "8x8的新棋種"
+msgstr "8x8的新棋种"
 
 #: ../client/lobby/layer2fairy.ts:57
 msgid "Cannon and Elephant from Xiangqi"
-msgstr "來自象棋的炮與象"
+msgstr "来自象棋的炮与象"
 
 #: ../client/lobby/layer2fairy.ts:67
 msgid "10x10 with new pieces"
-msgstr "10x10的新棋種"
+msgstr "10x10的新棋种"
 
 #: ../client/lobby/layer2fairy.ts:74
 msgid "Crazyhouse with promotions"
-msgstr "雙狂象棋的可升變版本"
+msgstr "双狂象棋的可升变版本"
 
 #: ../client/lobby/layer2fairy.ts:81
 msgid "Bishops and Knights swap their capture moves"
@@ -1579,19 +1577,19 @@ msgstr "提示："
 
 #: ../client/lobby/layer3.ts:64
 msgid "Fischer's random chess where the back row are randomized."
-msgstr "費舍爾任意制象棋的底線棋子為隨機排列"
+msgstr "费舍尔任意制象棋的底线棋子为随机排列"
 
 #: ../client/lobby/layer3.ts:66
 msgid "Crazyhouse with random back row."
-msgstr "底線棋子隨機排列的雙狂象棋"
+msgstr "底线棋子随机排列的双狂象棋"
 
 #: ../client/lobby/layer3.ts:68
 msgid "Atomic Chess with random back row."
-msgstr "底線棋子隨機排列的核象棋"
+msgstr "底线棋子随机排列的核象棋"
 
 #: ../client/lobby/layer3.ts:81
 msgid "Move the king on top of the rook to castle."
-msgstr "將國王動到城堡上方以換位"
+msgstr "将国王动到城堡上方以换位"
 
 #: ../client/lobby/layer3.ts:83
 msgid "You can play more at lichess.org."
@@ -1607,15 +1605,15 @@ msgstr "只有把王和车打入它们在国际象棋的普通位置时才能王
 msgid ""
 "You can choose different starting setups including Embassy Chess and Gothic "
 "Chess."
-msgstr "你可以選擇不同的開局配置，如信使棋、歌德棋"
+msgstr "你可以选择不同的开局配置，如信使棋、歌德棋"
 
 #: ../client/lobby/layer3.ts:91
 msgid "For a drop version, choose GRANDHOUSE from the dropdown menu."
-msgstr "若想要雙狂版本，在下拉選單中選擇「雙狂大象棋」"
+msgstr "若想要双狂版本，在下拉选单中选择「双狂大象棋」"
 
 #: ../client/lobby/layer3.ts:93
 msgid "For a drop version, choose S-HOUSE from the dropdown menu."
-msgstr "雙狂版請從選單中選擇S-HOUSE"
+msgstr "双狂版请从选单中选择S-HOUSE"
 
 #: ../client/lobby/layer3.ts:95
 msgid "The queen actually demotes upon capture, so it is not worth as much."
@@ -1623,7 +1621,7 @@ msgstr ""
 
 #: ../client/lobby/layer3.ts:97
 msgid "The cannon is a tricky piece that needs to be closely followed."
-msgstr "炮是一可複雜多變的棋子"
+msgstr "炮是一可复杂多变的棋子"
 
 #: ../client/lobby/layer3.ts:99
 msgid "Other piece sets are available, which may help avoid confusion."
@@ -1631,15 +1629,15 @@ msgstr "也有其他棋子的配置、以避免混淆"
 
 #: ../client/lobby/layer3.ts:106
 msgid "Be aware of campmate - victory by moving your king into the 8th rank."
-msgstr "請注意達陣這個規則 - 率先將國王動至對方底線者勝利"
+msgstr "请注意达阵这个规则 - 率先将国王动至对方底线者胜利"
 
 #: ../client/lobby/layer3.ts:108
 msgid "Promoting the king prematurely can be dangerous."
-msgstr "讓國王太早升變會很危險"
+msgstr "让国王太早升变会很危险"
 
 #: ../client/lobby/layer3.ts:111
 msgid "Maximizing khon and met's effectiveness is the key."
-msgstr "儘可能發揮士、象的戰力"
+msgstr "尽可能发挥士、象的战力"
 
 #: ../client/lobby/layer3.ts:113
 msgid "Watch out for knight checks, since they cannot be blocked."
@@ -1647,7 +1645,7 @@ msgstr "要留意马叫将，无法挡。"
 
 #: ../client/lobby/layer3.ts:115
 msgid "You can use placement to utilize your stronger pieces from the start."
-msgstr "自由擺置西洋棋可以自由配置開局"
+msgstr "自由摆置西洋棋可以自由配置开局"
 
 #: ../client/lobby/layer3.ts:117
 msgid "King safety is important. Use the king leap move to save time."
@@ -1655,7 +1653,7 @@ msgstr "王的安全很重要"
 
 #: ../client/lobby/layer3.ts:119
 msgid "The ability to promote to rook makes for a dynamic endgame."
-msgstr "可升變為車使得殘局變得很激烈"
+msgstr "可升变为车使得残局变得很激烈"
 
 #: ../client/lobby/layer3.ts:124 ../client/lobby/layer3.ts:136
 msgid "Internationalized sets are available by going to settings."
@@ -1665,7 +1663,7 @@ msgstr "在设置中可选择使用国际化棋子。"
 msgid ""
 "Despite the simple appearance, there is still quite a bit of depth "
 "underlying this game."
-msgstr "僅管遊戲看似簡單，仍有許多奧妙可以深究"
+msgstr "仅管游戏看似简单，仍有许多奥妙可以深究"
 
 #: ../client/lobby/layer3.ts:128
 msgid "Sets that show both sides are available by going to settings."
@@ -1675,4 +1673,4 @@ msgstr ""
 msgid ""
 "Reading the rules are a necessity to understand the movements before "
 "playing."
-msgstr "在開始遊戲前，請先詳閱遊戲規則。"
+msgstr "在开始游戏前，请先详阅游戏规则。"

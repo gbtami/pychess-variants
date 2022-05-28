@@ -58,7 +58,7 @@ msgstr "匿名"
 
 #: ../templates/players50.html:6
 msgid "Top 50"
-msgstr "前50強"
+msgstr "前50强"
 
 #: ../templates/profile.html:14
 #, python-format
@@ -88,11 +88,11 @@ msgstr "Lichess个人资料"
 
 #: ../templates/template.html:18
 msgid "Play"
-msgstr "遊戲"
+msgstr "游戏"
 
 #: ../templates/template.html:20
 msgid "Create a game"
-msgstr "創建遊戲"
+msgstr "创建游戏"
 
 #: ../templates/template.html:21 ../templates/tournaments.html:6
 msgid "Tournaments"
@@ -100,7 +100,7 @@ msgstr "锦标赛"
 
 #: ../templates/template.html:25
 msgid "Watch"
-msgstr "觀看"
+msgstr "观看"
 
 #: ../templates/template.html:27
 msgid "Tv"
@@ -120,7 +120,7 @@ msgstr "棋手"
 
 #: ../templates/template.html:35
 msgid "Blog"
-msgstr "網誌"
+msgstr "网志"
 
 #: ../templates/template.html:36
 msgid "Donate"
@@ -152,7 +152,7 @@ msgstr "登录"
 
 #: ../templates/tournaments.html:8
 msgid "Tournament calendar"
-msgstr "錦標賽日程"
+msgstr "锦标赛日程"
 
 #: ../templates/tournaments.html:10
 msgid "CREATE A NEW TOURNAMENT"
