@@ -147,7 +147,7 @@ export class Variant {
     icon(chess960 = false) { return chess960 ? this._icon960 : this._icon; }
     readonly pieceSound: string;
 
-    constructor(data: IVariant) {
+    constructor(data: VariantConfig) {
         this.name = data.name;
         this._displayName = data.displayName ?? data.name;
         this._tooltip = data.tooltip;
@@ -193,7 +193,7 @@ export class Variant {
 
 }
 
-export interface IVariant { // TODO explain what each parameter of the variant config means
+interface VariantConfig { // TODO explain what each parameter of the variant config means
     name: string;
 
     displayName?: string;
