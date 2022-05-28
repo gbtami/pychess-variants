@@ -105,11 +105,18 @@ interface Seek {
 type CreateMode = 'createGame' | 'playFriend' | 'playAI' | 'createHost';
 
 export class LobbyController implements IChatController {
-    model: PyChessModel;
-    sock;
+    sock: Sockette;
+    home: string;
+    assetURL: string;
     // player;
     // logged_in;
+    username: string;
+    profileid: string;
     anon: boolean;
+    title: string;
+    tournamentDirector: boolean;
+    fen: string;
+    variant: string;
     createMode: CreateMode;
     validGameData: boolean;
     readyState: number;
@@ -129,8 +136,15 @@ export class LobbyController implements IChatController {
     constructor(el: HTMLElement, model: PyChessModel) {
         console.log("LobbyController constructor", el, model);
 
-        this.model = model;
+        this.home = model["home"];
+        this.assetURL = model["assetURL"];
+        this.username = model["username"];
         this.anon = model["anon"] === 'True';
+        this.title = model["title"];
+        this.tournamentDirector = model["tournamentDirector"];
+        this.fen = model["fen"];
+        this.variant = model["variant"];
+        this.profileid = model["profileid"]
         this.createMode = 'createGame';
         this.validGameData = false;
         this.seeks = [];
@@ -142,12 +156,12 @@ export class LobbyController implements IChatController {
             // prevent losing my seeks in case of websocket reconnections
             if (this.seeks !== undefined) {
                 this.seeks.forEach( (s: Seek) => {
-                    if (s.user === this.model["username"]) {
+                    if (s.user === this.username) {
                         this.createSeekMsg(s.variant, s.color, s.fen, s.base, s.inc, s.byoyomi, s.chess960, s.rated, s.alternateStart);
                     }
                 });
             }
-            this.doSend({ type: "lobby_user_connected", username: this.model["username"]});
+            this.doSend({ type: "lobby_user_connected", username: this.username});
             this.doSend({ type: "get_seeks" });
         }
 
@@ -179,11 +193,10 @@ export class LobbyController implements IChatController {
         this.spotlights = document.getElementById('spotlights') as HTMLElement;
 
         // challenge!
-        const anon = this.model.anon === 'True';
-        if (model.profileid !== "") {
-            if (model.profileid === 'Fairy-Stockfish') this.createMode = 'playAI';
-            else if (model.profileid === 'Invite-friend') this.createMode = 'playFriend';
-            document.getElementById('game-mode')!.style.display = (anon || this.createMode === 'playAI') ? 'none' : 'inline-flex';
+        if (this.profileid !== "") {
+            if (this.profileid === 'Fairy-Stockfish') this.createMode = 'playAI';
+            else if (this.profileid === 'Invite-friend') this.createMode = 'playFriend';
+            document.getElementById('game-mode')!.style.display = (this.anon || this.createMode === 'playAI') ? 'none' : 'inline-flex';
             document.getElementById('challenge-block')!.style.display = 'inline-flex';
             document.getElementById('ailevel')!.style.display = this.createMode === 'playAI' ? 'block' : 'none';
             document.getElementById('rmplay-block')!.style.display = this.createMode === 'playAI' ? 'block' : 'none';
@@ -191,16 +204,16 @@ export class LobbyController implements IChatController {
             document.getElementById('color-button-group')!.style.display = 'block';
             document.getElementById('create-button')!.style.display = 'none';
 
-            if (model.profileid === 'any#') {
-                model.profileid = '';
+            if (this.profileid === 'any#') {
+                this.profileid = '';
                 this.createGame();
             }
         }
 
         const e = document.getElementById("fen") as HTMLInputElement;
-        if (this.model.fen !== "")
-            e.value = this.model.fen;
-        if (anon)
+        if (this.fen !== "")
+            e.value = this.fen;
+        if (this.anon)
             e.disabled = true;
     }
 
@@ -212,8 +225,8 @@ export class LobbyController implements IChatController {
     createSeekMsg(variant: string, color: string, fen: string, minutes: number, increment: number, byoyomiPeriod: number, chess960: boolean, rated: boolean, alternateStart: string) {
         this.doSend({
             type: "create_seek",
-            user: this.model.username,
-            target: this.model.profileid,
+            user: this.username,
+            target: this.profileid,
             variant: variant,
             fen: fen,
             minutes: minutes,
@@ -229,7 +242,7 @@ export class LobbyController implements IChatController {
     createInviteFriendMsg(variant: string, color: string, fen: string, minutes: number, increment: number, byoyomiPeriod: number, chess960: boolean, rated: boolean, alternateStart: string) {
         this.doSend({
             type: "create_invite",
-            user: this.model.username,
+            user: this.username,
             target: 'Invite-friend',
             variant: variant,
             fen: fen,
@@ -247,7 +260,7 @@ export class LobbyController implements IChatController {
         this.doSend({
             type: "create_ai_challenge",
             rm: rm,
-            user: this.model.username,
+            user: this.username,
             variant: variant,
             fen: fen,
             minutes: minutes,
@@ -264,7 +277,7 @@ export class LobbyController implements IChatController {
     createHostMsg(variant: string, color: string, fen: string, minutes: number, increment: number, byoyomiPeriod: number, chess960: boolean, rated: boolean, alternateStart: string) {
         this.doSend({
             type: "create_host",
-            user: this.model.username,
+            user: this.username,
             target: 'Invite-friend',
             variant: variant,
             fen: fen,
@@ -282,7 +295,7 @@ export class LobbyController implements IChatController {
         // console.log("isNewSeek()?", variant, color, fen, minutes, increment, byoyomiPeriod, chess960, rated);
         // console.log(this.seeks);
         return !this.seeks.some(seek =>
-            seek.user === this.model["username"] && 
+            seek.user === this.username && 
             seek.variant === variant &&
             seek.fen === fen &&
             seek.color === color &&
@@ -337,8 +350,8 @@ export class LobbyController implements IChatController {
         e = document.querySelector('input[name="mode"]:checked') as HTMLInputElement;
         let rated: boolean;
         if (this.createMode === 'playAI' ||
-            this.model.anon === "True" ||
-            this.model.title === "BOT" ||
+            this.anon ||
+            this.title === "BOT" ||
             fen !== "" ||
             (minutes < 1 && increment === 0) ||
             (minutes === 0 && increment === 1)
@@ -376,15 +389,15 @@ export class LobbyController implements IChatController {
                     this.createSeekMsg(variant.name, seekColor, fen, minutes, increment, byoyomiPeriod, chess960, rated, alternateStart);
         }
         // prevent to create challenges continuously
-        this.model.profileid = '';
-        window.history.replaceState({}, this.model.title, '/');
+        this.profileid = '';
+        window.history.replaceState({}, this.title, '/');
 
         // We need to ask the user for permission
         notify(null, undefined);
     }
 
     renderSeekButtons() {
-        const vVariant = this.model.variant || localStorage.seek_variant || "chess";
+        const vVariant = this.variant || localStorage.seek_variant || "chess";
         // 5+3 default TC needs vMin 9 because of the partial numbers at the beginning of minutesValues
         const vMin = localStorage.seek_min ?? "9";
         const vInc = localStorage.seek_inc ?? "3";
@@ -394,8 +407,6 @@ export class LobbyController implements IChatController {
         const vChess960 = localStorage.seek_chess960 ?? "false";
         const vRMplay = localStorage.seek_rmplay ?? "false";
 
-        const anon = this.model.anon === 'True';
-        
         return [
             h('div#id01.modal', [
                 h('form.modal-content', [
@@ -405,8 +416,8 @@ export class LobbyController implements IChatController {
                                 click: () => {
                                     document.getElementById('id01')!.style.display = 'none';
                                     // prevent creating challenges continuously
-                                    this.model.profileid = '';
-                                    window.history.replaceState({}, this.model.title, '/');
+                                    this.profileid = '';
+                                    window.history.replaceState({}, this.title, '/');
                                 }
                             },
                             attrs: { 'data-icon': 'j' }, props: { title: _("Cancel") }
@@ -414,14 +425,14 @@ export class LobbyController implements IChatController {
                     ]),
                     h('div.container', [
                         h('div#challenge-block', [
-                            h('h3', _('Challenge %1 to a game', this.model.profileid)),
+                            h('h3', _('Challenge %1 to a game', this.profileid)),
                         ]),
                         h('div', [
                             h('label', { attrs: { for: "variant" } }, _("Variant")),
                             selectVariant("variant", vVariant, () => this.setVariant(), () => this.setVariant()),
                         ]),
                         h('input#fen', {
-                            props: { name: 'fen', placeholder: _('Paste the FEN text here') + (anon ? _(' (must be signed in)') : ''),  autocomplete: "off" },
+                            props: { name: 'fen', placeholder: _('Paste the FEN text here') + (this.anon ? _(' (must be signed in)') : ''),  autocomplete: "off" },
                             on: { input: () => this.setFen() },
                         }),
                         h('div#alternate-start-block'),
@@ -516,7 +527,7 @@ export class LobbyController implements IChatController {
             h('button.lobby-button', { on: { click: () => this.createGame() } }, _("Create a game")),
             h('button.lobby-button', { on: { click: () => this.playFriend() } }, _("Play with a friend")),
             h('button.lobby-button', { on: { click: () => this.playAI() } }, _("Play with AI")),
-            h('button.lobby-button', { on: { click: () => this.createHost() }, style: { display: this.model["tournamentDirector"] ? "block" : "none" } }, _("Host a game for others")),
+            h('button.lobby-button', { on: { click: () => this.createHost() }, style: { display: this.tournamentDirector ? "block" : "none" } }, _("Host a game for others")),
         ];
     }
 
@@ -535,9 +546,8 @@ export class LobbyController implements IChatController {
 
     createGame(variantName: string = '', chess960: boolean = false) {
         this.preSelectVariant(variantName, chess960);
-        const anon = this.model.anon === 'True';
         this.createMode = 'createGame';
-        document.getElementById('game-mode')!.style.display = anon ? 'none' : 'inline-flex';
+        document.getElementById('game-mode')!.style.display = this.anon ? 'none' : 'inline-flex';
         document.getElementById('challenge-block')!.style.display = 'none';
         document.getElementById('ailevel')!.style.display = 'none';
         document.getElementById('rmplay-block')!.style.display = 'none';
@@ -548,9 +558,8 @@ export class LobbyController implements IChatController {
 
     playFriend(variantName: string = '', chess960: boolean = false) {
         this.preSelectVariant(variantName, chess960);
-        const anon = this.model.anon === 'True';
         this.createMode = 'playFriend';
-        document.getElementById('game-mode')!.style.display = anon ? 'none' : 'inline-flex';
+        document.getElementById('game-mode')!.style.display = this.anon ? 'none' : 'inline-flex';
         document.getElementById('challenge-block')!.style.display = 'none';
         document.getElementById('ailevel')!.style.display = 'none';
         document.getElementById('rmplay-block')!.style.display = 'none';
@@ -574,9 +583,8 @@ export class LobbyController implements IChatController {
 
     createHost(variantName: string = '', chess960: boolean = false) {
         this.preSelectVariant(variantName, chess960);
-        const anon = this.model.anon === 'True';
         this.createMode = 'createHost';
-        document.getElementById('game-mode')!.style.display = anon ? 'none' : 'inline-flex';
+        document.getElementById('game-mode')!.style.display = this.anon ? 'none' : 'inline-flex';
         document.getElementById('challenge-block')!.style.display = 'none';
         document.getElementById('ailevel')!.style.display = 'none';
         document.getElementById('rmplay-block')!.style.display = 'none';
@@ -687,7 +695,7 @@ export class LobbyController implements IChatController {
 
         return this.hide(seek) ? "" : h('tr', { on: { click: () => this.onClickSeek(seek) } }, [
             h('td', [ this.colorIcon(seek.color) ]),
-            h('td', [ this.challengeIcon(seek), this.title(seek), this.user(seek) ]),
+            h('td', [ this.challengeIcon(seek), this.seekTitle(seek), this.user(seek) ]),
             h('td', seek.rating),
             h('td', timeControlStr(seek.base, seek.inc, seek.byoyomi)),
             h('td.icon', { attrs: { "data-icon": variant.icon(chess960) } }, [h('variant-name', " " + variant.displayName(chess960))]),
@@ -699,10 +707,10 @@ export class LobbyController implements IChatController {
     }
 
     private onClickSeek(seek: Seek) {
-        if (seek["user"] === this.model["username"]) {
-            this.doSend({ type: "delete_seek", seekID: seek["seekID"], player: this.model["username"] });
+        if (seek["user"] === this.username) {
+            this.doSend({ type: "delete_seek", seekID: seek["seekID"], player: this.username });
         } else {
-            this.doSend({ type: "accept_seek", seekID: seek["seekID"], player: this.model["username"] });
+            this.doSend({ type: "accept_seek", seekID: seek["seekID"], player: this.username });
         }
     }
     private colorIcon(color: string) {
@@ -715,21 +723,21 @@ export class LobbyController implements IChatController {
         });
     }
     private challengeIcon(seek: Seek) {
-        const swords = (seek["user"] === this.model['username']) ? 'vs-swords.lobby.icon' : 'vs-swords.lobby.opp.icon';
+        const swords = (seek["user"] === this.username) ? 'vs-swords.lobby.icon' : 'vs-swords.lobby.opp.icon';
         return (seek['target'] === '') ? null : h(swords, { attrs: {"data-icon": '"'} });
     }
-    private title(seek: Seek) {
+    private seekTitle(seek: Seek) {
         return (seek['target'] === '') ? h('player-title', " " + seek["title"] + " ") : null;
     }
     private user(seek: Seek) {
-        if (seek["target"] === '' || seek["target"] === this.model["username"])
+        if (seek["target"] === '' || seek["target"] === this.username)
             return seek["user"];
         else
             return seek["target"];
     }
     private hide(seek: Seek) {
-        return ((this.model["anon"] === 'True' || this.model["title"] === 'BOT') && seek["rated"]) ||
-            (seek['target'] !== '' && this.model['username'] !== seek['user'] && this.model['username'] !== seek['target']);
+        return ((this.anon || this.title === 'BOT') && seek["rated"]) ||
+            (seek['target'] !== '' && this.username !== seek['user'] && this.username !== seek['target']);
     }
     private tooltip(seek: Seek, variant: Variant) {
         let tooltipImage;
@@ -855,7 +863,6 @@ export class LobbyController implements IChatController {
         patch(oldSeeks, h('table#seeks', this.renderSeeks(msg.seeks)));
     }
     private onMsgNewGame(msg: MsgNewGame) {
-        // console.log("LobbyController.onMsgNewGame()", this.model["gameId"])
         window.location.assign('/' + msg.gameId);
     }
     private onMsgGameInProgress(msg: MsgGameInProgress) {
@@ -863,7 +870,7 @@ export class LobbyController implements IChatController {
         if (response) window.location.assign('/' + msg.gameId);
     }
     private onMsgUserConnected(msg: MsgUserConnected) {
-        this.model.username = msg.username;
+        this.username = msg.username;
     }
     private onMsgChat(msg: MsgChat) {
         chatMessage(msg.user, msg.message, "lobbychat", msg.time);
