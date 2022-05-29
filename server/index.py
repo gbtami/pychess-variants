@@ -522,7 +522,7 @@ async def index(request):
         render["groups"] = VARIANT_GROUPS
 
         # variant None indicates intro.md
-        if lang in ("es", "hu", "it", "pt", "fr", "zh"):
+        if lang in ("es", "hu", "it", "pt", "fr", "zh", "zh_CN", "zh_TW"):
             locale = ".%s" % lang
         else:
             locale = ""
