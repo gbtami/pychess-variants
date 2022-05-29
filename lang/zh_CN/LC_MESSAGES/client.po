@@ -4,19 +4,16 @@
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
 # 
 # Translators:
-# Li Yao'an, 2021
-# Marken Foo <marken.foo.yw@gmail.com>, 2021
 # gbtami <gbtami@gmail.com>, 2022
-# NelloHo, 2022
 # 
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-04-11 12:19+0200\n"
+"POT-Creation-Date: 2022-05-02 23:28+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
-"Last-Translator: NelloHo, 2022\n"
+"Last-Translator: gbtami <gbtami@gmail.com>, 2022\n"
 "Language-Team: Chinese (China) (https://www.transifex.com/gbtami/teams/14790/zh_CN/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -32,7 +29,8 @@ msgid ""
 "create such a powerful engine for FREE. That's a lot of great minds and "
 "computing power they've managed to harness."
 msgstr ""
-"\"对于我来说，我们能走到今天，在很大程度上要归功于Stockfish。他们召集了全球的志愿者，本着开源的精神，共同创造了一个如此强大的免费引擎。他们这可是聚集了很多优秀的人才和计算能力。 "
+"\"对于我来说，我们能走到今天，在很大程度上要归功于Stockfish。他们召集了全球的志愿者，本着开源的精神，共同创造了一个如此强大的免费引擎。他们这可是聚集了很多优秀的人才和计算能力。"
+" "
 
 #: ../client/about.ts:10
 msgid ""
@@ -1441,7 +1439,9 @@ msgstr "汗国 VS 汗国"
 
 #: ../client/lobby/layer2army.ts:48
 msgid "Clan: Drop-based army"
-msgstr "樱流派：持有打入权利"#: ../client/lobby/layer2army.ts:55
+msgstr "樱流派：持有打入权利"
+
+#: ../client/lobby/layer2army.ts:55
 msgid "Dynasty: Xiangqi-based army"
 msgstr "皇朝：其棋子基于中国象棋"
 
