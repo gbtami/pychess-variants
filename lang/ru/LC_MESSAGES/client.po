@@ -168,7 +168,7 @@ msgstr "Время на ход"
 
 #: ../client/analysis.ts:190
 msgid "Crosstable"
-msgstr ""
+msgstr "Общий счет встреч"
 
 #: ../client/analysis.ts:191
 msgid "FEN & PGN"
