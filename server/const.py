@@ -38,7 +38,6 @@ LANGUAGES = [
     "ru",
     "th",
     "tr",
-    "zh",
     "zh_CN",
     "zh_TW",
 ]

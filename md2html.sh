@@ -7,7 +7,7 @@ export PATH="../../node_modules/.bin/:$PATH"
 
 for f in *.md; do
 	showdown makehtml -i "$f" -o "$(basename -- "$f" .md).html" --flavor github
-	for lang in es hu it pt fr zh zh_CN zh_TW; do
+	for lang in es hu it pt fr zh_CN zh_TW; do
 		if [ -e "$lang/$f" ]; then
 			showdown makehtml -i "$lang/$f" -o "$(basename -- "$f" .md).$lang.html" --flavor github
 		else
