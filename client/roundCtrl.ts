@@ -1,7 +1,6 @@
 import Sockette from 'sockette';
 
 import { h, VNode } from 'snabbdom';
-
 import * as cg from 'chessgroundx/types';
 
 import { JSONObject } from './types';
@@ -20,65 +19,11 @@ import { player } from './player';
 import { updateCount, updatePoint } from './info';
 import { notify } from './notification';
 import { Clocks, MsgBoard, MsgGameEnd, MsgMove, MsgNewGame, MsgUserConnected, RDiffs, CrossTable } from "./messages";
+import { MsgUserDisconnected, MsgUserPresent, MsgMoreTime, MsgDrawOffer, MsgDrawRejected, MsgRematchOffer, MsgRematchRejected, MsgCount, MsgSetup, MsgGameStart, MsgViewRematch, MsgUpdateTV, MsgBerserk } from './roundType';
 import { PyChessModel } from "./types";
 import { GameController } from './gameCtrl';
 
 let rang = false;
-
-interface MsgUserDisconnected {
-    username: string;
-}
-
-interface MsgUserPresent {
-    username: string;
-}
-
-interface MsgMoreTime {
-    username: string;
-}
-
-interface MsgDrawOffer {
-    message: string;
-    username: string;
-}
-
-interface MsgDrawRejected {
-    message: string;
-}
-
-interface MsgRematchOffer {
-    message: string;
-    username: string;
-}
-
-interface MsgRematchRejected {
-    message: string;
-}
-
-interface MsgCount {
-    message: string;
-}
-
-interface MsgSetup {
-    fen: cg.FEN;
-    color: cg.Color;
-}
-
-interface MsgGameStart {
-    gameId: string;
-}
-
-interface MsgViewRematch {
-    gameId: string;
-}
-
-interface MsgUpdateTV {
-    gameId: string;
-}
-
-interface MsgBerserk {
-    color: cg.Color;
-}
 
 export class RoundController extends GameController {
     byoyomi: boolean;

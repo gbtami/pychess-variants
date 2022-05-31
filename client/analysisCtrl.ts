@@ -24,6 +24,7 @@ import { variantsIni } from './variantsIni';
 import { Chart } from "highcharts";
 import { PyChessModel } from "./types";
 import { Ceval, MsgBoard, MsgUserConnected, Step, CrossTable } from "./messages";
+import { MsgAnalysis, MsgAnalysisBoard } from './analysisType';
 import { GameController } from './gameCtrl';
 
 const EVAL_REGEX = new RegExp(''
@@ -38,21 +39,6 @@ const maxThreads = Math.max((navigator.hardwareConcurrency || 1) - 1, 1);
 
 function titleCase (words: string) {return words.split(' ').map(w =>  w.substring(0,1).toUpperCase() + w.substring(1).toLowerCase()).join(' ');}
 
-interface MsgAnalysisBoard {
-    gameId: string;
-    fen: string;
-    ply: number;
-    lastMove: string;
-    bikjang: boolean;
-    check: boolean;
-}
-
-interface MsgAnalysis {
-    type: string;
-    ply: number;
-    ceval: Ceval;
-    color: string;
-}
 
 export class AnalysisController extends GameController {
     vpgn: VNode;
