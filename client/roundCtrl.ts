@@ -280,8 +280,8 @@ export class RoundController extends GameController {
         this.clocks[1].onTick(this.clocks[1].renderTime);
 
         const onMoreTime = () => {
-            if (this.model['wtitle'] === 'BOT' || this.model['btitle'] === 'BOT' || this.spectator || this.status >= 0 || this.flip) return;
-            const clockIdx = (this.flip) ? 1 : 0;
+            if (this.model['wtitle'] === 'BOT' || this.model['btitle'] === 'BOT' || this.spectator || this.status >= 0 || this.flipped()) return;
+            const clockIdx = (this.flipped()) ? 1 : 0;
             this.clocks[clockIdx].setTime(this.clocks[clockIdx].duration + 15 * 1000);
             this.doSend({ type: "moretime", gameId: this.gameId });
             const oppName = (this.model["username"] === this.wplayer) ? this.bplayer : this.wplayer;
@@ -344,7 +344,7 @@ export class RoundController extends GameController {
         const byoyomiCallback = () => {
             if (this.turnColor === this.mycolor) {
                 // console.log("Byoyomi", this.clocks[1].byoyomiPeriod);
-                const oppclock = !this.flip ? 0 : 1;
+                const oppclock = !this.flipped() ? 0 : 1;
                 const myclock = 1 - oppclock;
                 this.doSend({ type: "byoyomi", gameId: this.gameId, color: this.mycolor, period: this.clocks[myclock].byoyomiPeriod });
             }
@@ -412,8 +412,8 @@ export class RoundController extends GameController {
         this.clocks[1].setTime(tmp_clock_time);
         if (this.status < 0) new_running_clck.start();
 
-        this.vplayer0 = patch(this.vplayer0, player('player0', this.titles[this.flip ? 1 : 0], this.players[this.flip ? 1 : 0], this.ratings[this.flip ? 1 : 0], this.model["level"]));
-        this.vplayer1 = patch(this.vplayer1, player('player1', this.titles[this.flip ? 0 : 1], this.players[this.flip ? 0 : 1], this.ratings[this.flip ? 0 : 1], this.model["level"]));
+        this.vplayer0 = patch(this.vplayer0, player('player0', this.titles[this.flipped() ? 1 : 0], this.players[this.flipped() ? 1 : 0], this.ratings[this.flipped() ? 1 : 0], this.model["level"]));
+        this.vplayer1 = patch(this.vplayer1, player('player1', this.titles[this.flipped() ? 0 : 1], this.players[this.flipped() ? 0 : 1], this.ratings[this.flipped() ? 0 : 1], this.model["level"]));
 
         if (this.variant.counting)
             [this.vmiscInfoW, this.vmiscInfoB] = updateCount(this.fullfen, this.vmiscInfoB, this.vmiscInfoW);
@@ -424,7 +424,7 @@ export class RoundController extends GameController {
 
     private berserk = (color: cg.Color) => {
         let bclock;
-        if (!this.flip) {
+        if (!this.flipped()) {
             bclock = this.mycolor === "black" ? 1 : 0;
         } else {
             bclock = this.mycolor === "black" ? 0 : 1;
@@ -813,7 +813,7 @@ export class RoundController extends GameController {
             this.updatePoint(msg.fen);
         }
 
-        const oppclock = !this.flip ? 0 : 1;
+        const oppclock = !this.flipped() ? 0 : 1;
         const myclock = 1 - oppclock;
 
         this.clocks[0].pause(false);
@@ -827,7 +827,7 @@ export class RoundController extends GameController {
         this.clocks[myclock].setTime(this.clocktimes[this.mycolor]);
 
         let bclock;
-        if (!this.flip) {
+        if (!this.flipped()) {
             bclock = this.mycolor === "black" ? 1 : 0;
         } else {
             bclock = this.mycolor === "black" ? 0 : 1;
@@ -918,7 +918,7 @@ export class RoundController extends GameController {
     doSendMove = (orig: cg.Orig, dest: cg.Key, promo: string) => {
         this.clearDialog();
         // pause() will add increment!
-        const oppclock = !this.flip ? 0 : 1
+        const oppclock = !this.flipped() ? 0 : 1
         const myclock = 1 - oppclock;
         const movetime = (this.clocks[myclock].running) ? Date.now() - this.clocks[myclock].startTime : 0;
         this.clocks[myclock].pause((this.base === 0 && this.ply < 2) ? false : true);
@@ -928,7 +928,7 @@ export class RoundController extends GameController {
 
         // console.log("sendMove(move)", move);
         let bclock, clocks;
-        if (!this.flip) {
+        if (!this.flipped()) {
             bclock = this.mycolor === "black" ? 1 : 0;
         } else {
             bclock = this.mycolor === "black" ? 0 : 1;
@@ -1018,7 +1018,7 @@ export class RoundController extends GameController {
     private renderExpiration = () => {
         if (this.spectator) return;
         let position = (this.turnColor === this.mycolor) ? "bottom": "top";
-        if (this.flip) position = (position === "top") ? "bottom" : "top";
+        if (this.flipped()) position = (position === "top") ? "bottom" : "top";
         let expi = (position === 'top') ? 0 : 1;
         const timeLeft = Math.max(0, this.expiStart - Date.now() + this.firstmovetime );
         // console.log("renderExpiration()", position, timeLeft);

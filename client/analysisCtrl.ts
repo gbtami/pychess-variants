@@ -499,7 +499,7 @@ export class AnalysisController extends GameController {
                     let color = turnColor;
                     const variant = this.variant.name;
                     const dropPieceRole = util.roleOf(pv_move.slice(0, atPos) as cg.PieceLetter);
-                    const orientation = this.flip ? this.oppcolor : this.mycolor;
+                    const orientation = this.flipped() ? this.oppcolor : this.mycolor;
                     const side = color === orientation ? "ally" : "enemy";
                     const url = getPieceImageUrl(variant, dropPieceRole, color, side);
                     this.chessground.set({ drawable: { pieces: { baseUrl: url! } } });

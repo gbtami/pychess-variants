@@ -28,7 +28,7 @@ function makeMaterialVNode(variant: Variant, position: 'top'|'bottom', content: 
 
 export function updateMaterial(ctrl: RoundController) {
 
-    const topColor = ctrl.flip ? ctrl.mycolor : ctrl.oppcolor;
+    const topColor = ctrl.flipped() ? ctrl.mycolor : ctrl.oppcolor;
     const vmaterial0 = ctrl.vmaterial0;
     const vmaterial1 = ctrl.vmaterial1;
     const variant = ctrl.variant;

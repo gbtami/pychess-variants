@@ -27,7 +27,6 @@ export class EditorController extends ChessgroundController {
         super(el, model);
         this.model = model;
         this.startfen = model["fen"] as string;
-        this.flip = false;
 
         this.parts = this.startfen.split(" ");
         this.castling = this.parts.length > 2 ? this.parts[2] : '';

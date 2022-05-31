@@ -20,7 +20,6 @@ export interface IBoardController {
 
     notation: cg.Notation;
     fullfen: string;
-    flip: boolean;
 
     model?: PyChessModel;
     autoPromote?: boolean;
@@ -31,6 +30,8 @@ export interface IBoardController {
     chartFunctions?: any[];
     vmaterial0?: VNode | HTMLElement;
     vmaterial1?: VNode | HTMLElement;
+
+    flipped(): boolean;
 }
 
 class BoardSettings {
@@ -97,7 +98,7 @@ class BoardSettings {
                 const variant = this.ctrl.variant.name
                 const role = classNames[0] as cg.Role;
                 const color = classNames[1] as cg.Color;
-                const orientation = this.ctrl.flip ? this.ctrl.oppcolor : this.ctrl.mycolor;
+                const orientation = this.ctrl.flipped() ? this.ctrl.oppcolor : this.ctrl.mycolor;
                 const side = color === orientation ? "ally" : "enemy";
                 chessground.set({ drawable: { pieces: { baseUrl: getPieceImageUrl(variant, role, color, side)! } } });
                 chessground.redrawAll();

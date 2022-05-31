@@ -28,8 +28,9 @@ export abstract class ChessgroundController implements IBoardController {
     oppcolor: cg.Color;
 
     fullfen: string;
-    flip: boolean;
     notation: cg.Notation;
+
+    flipped() { return this.chessground.state.orientation === 'black'; }
 
     constructor(el: HTMLElement, model: PyChessModel) {
         this.model = model;
@@ -43,7 +44,6 @@ export abstract class ChessgroundController implements IBoardController {
         this.oppcolor = 'black';
         this.fullfen = model.fen as string;
         this.notation = notation(this.variant);
-        this.flip = false;
 
         const pocket0 = document.getElementById('pocket0') as HTMLElement;
         const pocket1 = document.getElementById('pocket1') as HTMLElement;
@@ -79,7 +79,6 @@ export abstract class ChessgroundController implements IBoardController {
     }
 
     toggleOrientation() {
-        this.flip = !this.flip;
         this.chessground.toggleOrientation();
     }
 
