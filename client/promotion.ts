@@ -12,7 +12,7 @@ type PromotionChoices = Partial<Record<cg.Role, PromotionSuffix>>;
 
 export class Promotion {
     ctrl: GameController;
-    promoting: {orig: cg.Key, dest: cg.Key, callback: (orig: string, dest: string, promo: string) => void} | null;
+    promoting: {orig: cg.Key, dest: cg.Key} | null;
     choices: PromotionChoices;
 
     constructor(ctrl: GameController) {
@@ -54,7 +54,6 @@ export class Promotion {
                 this.promoting = {
                     orig: orig,
                     dest: dest,
-                    callback: this.ctrl.sendMove,
                 };
             }
 
@@ -137,9 +136,9 @@ export class Promotion {
 
             if (this.ctrl.variant.promotion === 'kyoto') {
                 const dropOrig = util.dropOrigOf(role);
-                if (this.promoting.callback) this.promoting.callback(dropOrig, this.promoting.dest, "");
+                this.ctrl.sendMove(dropOrig, this.promoting.dest, "");
             } else {
-                if (this.promoting.callback) this.promoting.callback(this.promoting.orig, this.promoting.dest, promo!);
+                this.ctrl.sendMove(this.promoting.orig, this.promoting.dest, promo!);
             }
 
             this.promoting = null;
