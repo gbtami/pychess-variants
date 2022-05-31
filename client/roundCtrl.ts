@@ -36,7 +36,6 @@ export class RoundController extends GameController {
     tournamentGame: boolean;
     clockOn: boolean;
     materialDifference: boolean;
-    materialFunction: any;
     vmaterial0: VNode | HTMLElement;
     vmaterial1: VNode | HTMLElement;
     vmiscInfoW: VNode;
@@ -62,7 +61,6 @@ export class RoundController extends GameController {
 
     constructor(el: HTMLElement, model: PyChessModel) {
         super(el, model);
-        this.materialFunction = this.updateMaterial;
         this.focus = !document.hidden;
         document.addEventListener("visibilitychange", () => {this.focus = !document.hidden});
         window.addEventListener('blur', () => {this.focus = false});

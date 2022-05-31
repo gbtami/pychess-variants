@@ -26,7 +26,7 @@ export interface IBoardController {
     arrow?: boolean;
     blindfold?: boolean;
     materialDifference?: boolean;
-    materialFunction?: any;
+    updateMaterial?: any;
     chartFunctions?: any[];
     vmaterial0?: VNode | HTMLElement;
     vmaterial1?: VNode | HTMLElement;
@@ -364,8 +364,8 @@ class MaterialDifferenceSettings extends BooleanSettings {
         const ctrl = this.boardSettings.ctrl;
         if ('materialDifference' in ctrl) {
             ctrl.materialDifference = this.value;
-            if ('materialFunction' in ctrl && ctrl.materialFunction) {
-                ctrl.materialFunction(ctrl);
+            if ('updateMaterial' in ctrl) {
+                ctrl.updateMaterial();
             }
         }
     }
