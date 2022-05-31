@@ -8,9 +8,9 @@ import { _, ngettext } from './i18n';
 import { patch } from './document';
 import { boardSettings } from './boardSettings';
 import { Clock } from './clock';
-import { updateMaterial } from './materialView';
+import { calculateGameImbalance } from './material';
 import { sound } from './sound';
-import { uci2LastMove, cg2uci, getCounting, isHandicap } from './chess';
+import { uci2LastMove, cg2uci, getCounting, isHandicap, Variant } from './chess';
 import { crosstableView } from './crosstable';
 import { chatMessage, chatView } from './chat';
 import { createMovelistButtons, updateMovelist, updateResult, selectMove } from './movelist';
@@ -62,7 +62,7 @@ export class RoundController extends GameController {
 
     constructor(el: HTMLElement, model: PyChessModel) {
         super(el, model);
-        this.materialFunction = updateMaterial;
+        this.materialFunction = this.updateMaterial;
         this.focus = !document.hidden;
         document.addEventListener("visibilitychange", () => {this.focus = !document.hidden});
         window.addEventListener('blur', () => {this.focus = false});
@@ -198,7 +198,7 @@ export class RoundController extends GameController {
         if (this.variant.materialDiff) {
             this.vmaterial0 = document.querySelector('.material-top') as HTMLElement;
             this.vmaterial1 = document.querySelector('.material-bottom') as HTMLElement;
-            updateMaterial(this);
+            this.updateMaterial();
         }
 
         // initialize expirations
@@ -343,7 +343,7 @@ export class RoundController extends GameController {
 
         // console.log("FLIP");
         if (this.variant.materialDiff) {
-            updateMaterial(this);
+            this.updateMaterial();
         }
 
         // TODO: moretime button
@@ -842,7 +842,7 @@ export class RoundController extends GameController {
                 }
             }
         }
-        updateMaterial(this);
+        this.updateMaterial();
     }
 
     goPly = (ply: number, plyVari = 0) => {
@@ -857,7 +857,7 @@ export class RoundController extends GameController {
             }
         });
 
-        updateMaterial(this);
+        this.updateMaterial();
     }
 
     doSendMove = (orig: cg.Orig, dest: cg.Key, promo: string) => {
@@ -925,6 +925,51 @@ export class RoundController extends GameController {
 
     private updatePoint = (fen: cg.FEN) => {
         [this.vmiscInfoW, this.vmiscInfoB] = updatePoint(fen, this.vmiscInfoW, this.vmiscInfoB);
+    }
+
+    private generateContent(variant: Variant, fen: string): [VNode[], VNode[]] {
+        const imbalance = calculateGameImbalance(variant, fen);
+        const whiteContent: VNode[] = [];
+        const blackContent: VNode[] = [];
+
+        for (const [letter, num] of imbalance) {
+            if (num === 0) continue;
+            const content = num > 0 ? blackContent : whiteContent;
+            const pieceDiff = Math.abs(num);
+            const currentDiv: VNode[] = [];
+            for (let i = 0; i < pieceDiff; i++)
+                currentDiv.push(h('mpiece.' + letter));
+            content.push(h('div', currentDiv));
+        }
+        return [whiteContent, blackContent];
+    }
+
+    private makeMaterialVNode(variant: Variant, position: 'top'|'bottom', content: VNode[], disabled = false): VNode {
+        return h(`div.material.material-${position}.${variant.piece}${disabled ? '.disabled' : ''}`, content);
+    }
+
+    private updateMaterial() {
+
+        const topColor = this.flipped() ? this.mycolor : this.oppcolor;
+        const vmaterial0 = this.vmaterial0;
+        const vmaterial1 = this.vmaterial1;
+        const variant = this.variant;
+        const fen = this.fullfen;
+
+        if (!this.materialDifference) {
+            this.vmaterial0 = patch(vmaterial0, this.makeMaterialVNode(variant, 'top', [], true));
+            this.vmaterial1 = patch(vmaterial1, this.makeMaterialVNode(variant, 'bottom', [], true));
+            return;
+        }
+
+        const [whiteContent, blackContent] = this.generateContent(variant, fen);
+        if (topColor === 'white') {
+            this.vmaterial0 = patch(vmaterial0, this.makeMaterialVNode(variant, 'top', whiteContent));
+            this.vmaterial1 = patch(vmaterial1, this.makeMaterialVNode(variant, 'bottom', blackContent));
+        } else {
+            this.vmaterial0 = patch(vmaterial0, this.makeMaterialVNode(variant, 'top', blackContent));
+            this.vmaterial1 = patch(vmaterial1, this.makeMaterialVNode(variant, 'bottom', whiteContent));
+        }
     }
 
     private setPremove = (orig: cg.Key, dest: cg.Key, metadata?: cg.SetPremoveMetadata) => {
