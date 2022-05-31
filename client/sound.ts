@@ -150,10 +150,6 @@ class SoundThemeSettings extends StringSettings {
         super('soundtheme', 'standard');
     }
 
-    initURL(assetURL: string): void {
-        this.assetURL = assetURL;
-    }
-
     update(): void {
         sound.updateSoundTheme(this.assetURL);
     }

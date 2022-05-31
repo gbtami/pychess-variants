@@ -26,6 +26,7 @@ import { GameController } from './gameCtrl';
 let rang = false;
 
 export class RoundController extends GameController {
+    berserked: {wberserk: boolean, bberserk: boolean};
     byoyomi: boolean;
     byoyomiPeriod: number;
     clocks: [Clock, Clock];
@@ -34,6 +35,8 @@ export class RoundController extends GameController {
     expiStart: number;
     firstmovetime: number;
     tournamentGame: boolean;
+    profileid: string;
+    level: number;
     clockOn: boolean;
     materialDifference: boolean;
     vmaterial0: VNode | HTMLElement;
@@ -86,7 +89,7 @@ export class RoundController extends GameController {
             cl.remove('offline');
             cl.add('online');
 
-            this.doSend({ type: "game_user_connected", username: this.model["username"], gameId: this.model["gameId"] });
+            this.doSend({ type: "game_user_connected", username: this.username, gameId: this.gameId });
         };
 
         const opts = {
@@ -119,6 +122,9 @@ export class RoundController extends GameController {
         this.byoyomi = this.variant.timeControl === 'byoyomi';
         this.finishedGame = this.status >= 0;
         this.tv = model["tv"];
+        this.profileid = model["profileid"];
+        this.level = model["level"];
+        this.berserked = {wberserk: model["wberserk"] === "True", bberserk: model["bberserk"] === "True"};
 
         this.settings = true;
         this.blindfold = localStorage.blindfold === undefined ? false : localStorage.blindfold === "true";
@@ -135,7 +141,7 @@ export class RoundController extends GameController {
 
         const berserkId = (this.mycolor === "white") ? "wberserk" : "bberserk";
         // Not berserked yet, but allowed to do it
-        this.berserkable = !this.spectator && this.tournamentGame && this.base > 0 && this.model[berserkId] !== 'True';
+        this.berserkable = !this.spectator && this.tournamentGame && this.base > 0 && !this.berserked[berserkId];
 
         this.chessground.set({
             orientation: this.mycolor,
@@ -190,8 +196,8 @@ export class RoundController extends GameController {
         // initialize users
         const player0 = document.getElementById('rplayer0') as HTMLElement;
         const player1 = document.getElementById('rplayer1') as HTMLElement;
-        this.vplayer0 = patch(player0, player('player0', this.titles[0], this.players[0], this.ratings[0], model["level"]));
-        this.vplayer1 = patch(player1, player('player1', this.titles[1], this.players[1], this.ratings[1], model["level"]));
+        this.vplayer0 = patch(player0, player('player0', this.titles[0], this.players[0], this.ratings[0], this.level));
+        this.vplayer1 = patch(player1, player('player1', this.titles[1], this.players[1], this.ratings[1], this.level));
 
         if (this.variant.materialDiff) {
             this.vmaterial0 = document.querySelector('.material-top') as HTMLElement;
@@ -216,22 +222,22 @@ export class RoundController extends GameController {
         // If player berserked, set increment to 0. Actual clock duration value will be set by onMsgBoard()
         const bclock = this.mycolor === "black" ? 1 : 0;
         const wclock = 1 - bclock;
-        if (this.model['wberserk'] === 'True') this.clocks[wclock].increment = 0;
-        if (this.model['bberserk'] === 'True') this.clocks[bclock].increment = 0;
+        if (this.berserked['wberserk']) this.clocks[wclock].increment = 0;
+        if (this.berserked['bberserk']) this.clocks[bclock].increment = 0;
 
         this.clocks[0].onTick(this.clocks[0].renderTime);
         this.clocks[1].onTick(this.clocks[1].renderTime);
 
         const onMoreTime = () => {
-            if (this.model['wtitle'] === 'BOT' || this.model['btitle'] === 'BOT' || this.spectator || this.status >= 0 || this.flipped()) return;
+            if (this.wtitle === 'BOT' || this.btitle === 'BOT' || this.spectator || this.status >= 0 || this.flipped()) return;
             const clockIdx = (this.flipped()) ? 1 : 0;
             this.clocks[clockIdx].setTime(this.clocks[clockIdx].duration + 15 * 1000);
             this.doSend({ type: "moretime", gameId: this.gameId });
-            const oppName = (this.model["username"] === this.wplayer) ? this.bplayer : this.wplayer;
+            const oppName = (this.username === this.wplayer) ? this.bplayer : this.wplayer;
             chatMessage('', oppName + _(' +15 seconds'), "roundchat");
         }
 
-        if (!this.spectator && model["rated"] !== '1' && this.model['wtitle'] !== 'BOT' && this.model['btitle'] !== 'BOT') {
+        if (!this.spectator && this.rated !== '1' && this.wtitle !== 'BOT' && this.btitle !== 'BOT') {
             const container = document.getElementById('more-time') as HTMLElement;
             patch(container, h('div#more-time', [
                 h('button.icon.icon-plus-square', {
@@ -313,7 +319,7 @@ export class RoundController extends GameController {
             
             this.gameControls = patch(container, h('div.btn-controls', buttons));
 
-            const manualCount = this.variant.counting === 'makruk' && !(this.model['wtitle'] === 'BOT' || this.model['btitle'] === 'BOT');
+            const manualCount = this.variant.counting === 'makruk' && !(this.wtitle === 'BOT' || this.btitle === 'BOT');
             if (!manualCount)
                 patch(document.getElementById('count') as HTMLElement, h('div'));
 
@@ -355,8 +361,8 @@ export class RoundController extends GameController {
         this.clocks[1].setTime(tmp_clock_time);
         if (this.status < 0) new_running_clck.start();
 
-        this.vplayer0 = patch(this.vplayer0, player('player0', this.titles[this.flipped() ? 1 : 0], this.players[this.flipped() ? 1 : 0], this.ratings[this.flipped() ? 1 : 0], this.model["level"]));
-        this.vplayer1 = patch(this.vplayer1, player('player1', this.titles[this.flipped() ? 0 : 1], this.players[this.flipped() ? 0 : 1], this.ratings[this.flipped() ? 0 : 1], this.model["level"]));
+        this.vplayer0 = patch(this.vplayer0, player('player0', this.titles[this.flipped() ? 1 : 0], this.players[this.flipped() ? 1 : 0], this.ratings[this.flipped() ? 1 : 0], this.level));
+        this.vplayer1 = patch(this.vplayer1, player('player1', this.titles[this.flipped() ? 0 : 1], this.players[this.flipped() ? 0 : 1], this.ratings[this.flipped() ? 0 : 1], this.level));
 
         if (this.variant.counting)
             [this.vmiscInfoW, this.vmiscInfoB] = updateCount(this.fullfen, this.vmiscInfoB, this.vmiscInfoW);
@@ -381,7 +387,7 @@ export class RoundController extends GameController {
         sound.berserk();
 
         const berserkId = (color === "white") ? "wberserk" : "bberserk";
-        this.model[berserkId] = 'True';
+        this.berserked[berserkId] = true;
         const infoContainer = document.getElementById(berserkId) as HTMLElement;
         if (infoContainer) patch(infoContainer, h('icon.icon-berserk'));
 
@@ -489,8 +495,8 @@ export class RoundController extends GameController {
     private notifyMsg = (msg: string) => {
         if (this.status >= 0) return;
 
-        const opp_name = this.model["username"] === this.wplayer ? this.bplayer : this.wplayer;
-        const logoUrl = `${this.model.assetURL}/favicon/android-icon-192x192.png`;
+        const opp_name = this.username === this.wplayer ? this.bplayer : this.wplayer;
+        const logoUrl = `${this.home}/static/favicon/android-icon-192x192.png`;
         notify('pychess.org', {body: `${opp_name}\n${msg}`, icon: logoUrl});
     }
 
@@ -509,12 +515,12 @@ export class RoundController extends GameController {
     }
 
     private onMsgNewGame = (msg: MsgNewGame) => {
-        window.location.assign(this.model["home"] + '/' + msg["gameId"]);
+        window.location.assign(this.home + '/' + msg["gameId"]);
     }
 
     private onMsgViewRematch = (msg: MsgViewRematch) => {
         const btns_after = document.querySelector('.btn-controls.after') as HTMLElement;
-        let rematch_button = h('button.newopp', { on: { click: () => window.location.assign(this.model["home"] + '/' + msg["gameId"]) } }, _("VIEW REMATCH"));
+        let rematch_button = h('button.newopp', { on: { click: () => window.location.assign(this.home + '/' + msg["gameId"]) } }, _("VIEW REMATCH"));
         let rematch_button_location = btns_after!.insertBefore(document.createElement('div'), btns_after!.firstChild);
         patch(rematch_button_location, rematch_button);
     }
@@ -547,11 +553,11 @@ export class RoundController extends GameController {
     }
 
     private joinTournament = () => {
-        window.location.assign(this.model["home"] + '/tournament/' + this.tournamentId);
+        window.location.assign(this.home + '/tournament/' + this.tournamentId);
     }
 
     private pauseTournament = () => {
-        window.location.assign(this.model["home"] + '/tournament/' + this.tournamentId + '/pause');
+        window.location.assign(this.home + '/tournament/' + this.tournamentId + '/pause');
     }
 
     private gameOver = (rdiffs: RDiffs) => {
@@ -580,10 +586,10 @@ export class RoundController extends GameController {
                 }
             } else {
                 buttons.push(h('button.rematch', { on: { click: () => this.rematch() } }, _("REMATCH")));
-                buttons.push(h('button.newopp', { on: { click: () => this.newOpponent(this.model["home"]) } }, _("NEW OPPONENT")));
+                buttons.push(h('button.newopp', { on: { click: () => this.newOpponent(this.home) } }, _("NEW OPPONENT")));
             }
         }
-        buttons.push(h('button.analysis', { on: { click: () => this.analysis(this.model["home"]) } }, _("ANALYSIS BOARD")));
+        buttons.push(h('button.analysis', { on: { click: () => this.analysis(this.home) } }, _("ANALYSIS BOARD")));
         patch(this.gameControls, h('div.btn-controls.after', buttons));
     }
 
@@ -614,7 +620,7 @@ export class RoundController extends GameController {
             if (container instanceof Element) patch(container, h('extension'));
 
             if (this.tv) {
-                setInterval(() => {this.doSend({ type: "updateTV", gameId: this.gameId, profileId: this.model["profileid"] });}, 2000);
+                setInterval(() => {this.doSend({ type: "updateTV", gameId: this.gameId, profileId: this.profileid });}, 2000);
             }
 
             this.clearDialog();
@@ -623,13 +629,13 @@ export class RoundController extends GameController {
 
     private onMsgUpdateTV = (msg: MsgUpdateTV) => {
         if (msg.gameId !== this.gameId) {
-            if (this.model["profileid"] !== "") {
-                window.location.assign(this.model["home"] + '/@/' + this.model["profileid"] + '/tv');
+            if (this.profileid !== "") {
+                window.location.assign(this.home + '/@/' + this.profileid + '/tv');
             } else {
-                window.location.assign(this.model["home"] + '/tv');
+                window.location.assign(this.home + '/tv');
             }
             // TODO: reuse current websocket to fix https://github.com/gbtami/pychess-variants/issues/142
-            // this.doSend({ type: "game_user_connected", username: this.model["username"], gameId: msg.gameId });
+            // this.doSend({ type: "game_user_connected", username: this.username, gameId: msg.gameId });
         }
     }
 
@@ -776,11 +782,11 @@ export class RoundController extends GameController {
             bclock = this.mycolor === "black" ? 0 : 1;
         }
         const wclock = 1 - bclock
-        if (this.model['wberserk'] === 'True' || msg.berserk.w) {
+        if (this.berserked['wberserk'] || msg.berserk.w) {
             this.clocks[wclock].increment = 0;
             if (msg.ply <= 2) this.clocks[wclock].setTime(this.base * 1000 * 30);
         }
-        if (this.model['bberserk'] === 'True' || msg.berserk.b) {
+        if (this.berserked['bberserk'] || msg.berserk.b) {
             this.clocks[bclock].increment = 0;
             if (msg.ply <= 2) this.clocks[bclock].setTime(this.base * 1000 * 30);
         }
@@ -879,7 +885,7 @@ export class RoundController extends GameController {
         const wclock = 1 - bclock
 
         let increment = 0;
-        if (this.model[(this.mycolor === "white") ? "wberserk" : "bberserk"] !== 'True') {
+        if (!this.berserked[(this.mycolor === "white") ? "wberserk" : "bberserk"]) {
             increment = (this.inc > 0 && this.ply >= 2 && !this.byoyomi) ? this.inc * 1000 : 0;
         }
 
@@ -1035,7 +1041,7 @@ export class RoundController extends GameController {
     }
 
     private onMsgUserConnected = (msg: MsgUserConnected) => {
-        this.model["username"] = msg["username"];
+        this.username = msg["username"];
         if (this.spectator) {
             this.doSend({ type: "is_user_present", username: this.wplayer, gameId: this.gameId });
             this.doSend({ type: "is_user_present", username: this.bplayer, gameId: this.gameId });
@@ -1043,7 +1049,7 @@ export class RoundController extends GameController {
         } else {
             this.firstmovetime = msg.firstmovetime || this.firstmovetime;
 
-            const opp_name = this.model["username"] === this.wplayer ? this.bplayer : this.wplayer;
+            const opp_name = this.username === this.wplayer ? this.bplayer : this.wplayer;
             this.doSend({ type: "is_user_present", username: opp_name, gameId: this.gameId });
 
             const container = document.getElementById('player1') as HTMLElement;

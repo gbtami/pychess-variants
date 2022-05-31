@@ -27,6 +27,7 @@ export abstract class GameController extends ChessgroundController implements IC
     wplayer: string;
     bplayer: string;
     aiLevel: number;
+    rated: string;
 
     base: number;
     inc: number;
@@ -34,6 +35,10 @@ export abstract class GameController extends ChessgroundController implements IC
     players: string[];
     titles: string[];
     ratings: string[];
+    wtitle: string;
+    btitle: string;
+    wrating: string;
+    brating: string;
 
     // Helpers
     gating: Gating;
@@ -95,6 +100,10 @@ export abstract class GameController extends ChessgroundController implements IC
         this.steps = [];
         this.pgn = "";
         this.ply = isNaN(model["ply"]) ? 0 : model["ply"];
+        this.wtitle = model["wtitle"];
+        this.btitle = model["btitle"];
+        this.wrating = model["wrating"];
+        this.brating = model["brating"];
 
         this.spectator = this.username !== this.wplayer && this.username !== this.bplayer;
 
@@ -119,12 +128,12 @@ export abstract class GameController extends ChessgroundController implements IC
             this.mycolor === "white" ? this.wplayer : this.bplayer
         ];
         this.titles = [
-            this.mycolor === "white" ? this.model['btitle'] : this.model['wtitle'],
-            this.mycolor === "white" ? this.model['wtitle'] : this.model['btitle']
+            this.mycolor === "white" ? this.btitle : this.wtitle,
+            this.mycolor === "white" ? this.wtitle : this.btitle
         ];
         this.ratings = [
-            this.mycolor === "white" ? this.model['brating'] : this.model['wrating'],
-            this.mycolor === "white" ? this.model['wrating'] : this.model['brating']
+            this.mycolor === "white" ? this.brating : this.wrating,
+            this.mycolor === "white" ? this.wrating : this.brating
         ];
 
         this.result = "*";

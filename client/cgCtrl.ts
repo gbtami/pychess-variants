@@ -12,7 +12,6 @@ import { PyChessModel } from './types';
 import { variantsIni } from './variantsIni';
 
 export abstract class ChessgroundController implements IBoardController {
-    model: PyChessModel;
     readonly home: string;
 
     chessground: Api;
@@ -33,7 +32,6 @@ export abstract class ChessgroundController implements IBoardController {
     flipped() { return this.chessground.state.orientation === 'black'; }
 
     constructor(el: HTMLElement, model: PyChessModel) {
-        this.model = model;
         this.home = model.home;
 
         this.variant = VARIANTS[model.variant];

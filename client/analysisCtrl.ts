@@ -62,20 +62,22 @@ export class AnalysisController extends GameController {
     prevPieces: cg.Pieces;
     arrow: boolean;
     importedBy: string;
+    embed: boolean;
 
     constructor(el: HTMLElement, model: PyChessModel) {
         super(el, model);
-        this.isAnalysisBoard = model["gameId"] === "";
-        if (!model["embed"]) {
+        this.embed = this.gameId === undefined;
+        this.isAnalysisBoard = this.gameId === "";
+        if (!this.embed) {
             this.chartFunctions = [analysisChart, movetimeChart];
         }
 
         const onOpen = (evt: Event) => {
             console.log("ctrl.onOpen()", evt);
-            if (this.model['embed']) {
-                this.doSend({ type: "embed_user_connected", gameId: this.model["gameId"] });
+            if (this.embed) {
+                this.doSend({ type: "embed_user_connected", gameId: this.gameId });
             } else if (!this.isAnalysisBoard) {
-                this.doSend({ type: "game_user_connected", username: this.model["username"], gameId: this.model["gameId"] });
+                this.doSend({ type: "game_user_connected", username: this.username, gameId: this.gameId });
             }
         };
 
@@ -131,7 +133,7 @@ export class AnalysisController extends GameController {
             },
         });
 
-        if (!this.isAnalysisBoard && !this.model["embed"]) {
+        if (!this.isAnalysisBoard && !this.embed) {
             this.ctableContainer = document.getElementById('panel-3') as HTMLElement;
             if (model["ct"]) {
                 this.ctableContainer = patch(this.ctableContainer, h('panel-3'));
@@ -142,11 +144,11 @@ export class AnalysisController extends GameController {
         createMovelistButtons(this);
         this.vmovelist = document.getElementById('movelist') as HTMLElement;
 
-        if (!this.isAnalysisBoard && !this.model["embed"]) {
+        if (!this.isAnalysisBoard && !this.embed) {
             patch(document.getElementById('roundchat') as HTMLElement, chatView(this, "roundchat"));
         }
 
-        if (!this.model["embed"]) {
+        if (!this.embed) {
             patch(document.getElementById('input') as HTMLElement, h('input#input', this.renderInput()));
 
             this.vscore = document.getElementById('score') as HTMLElement;
@@ -233,14 +235,14 @@ export class AnalysisController extends GameController {
 
     private drawAnalysisChart = (withRequest: boolean) => {
         if (withRequest) {
-            if (this.model["anon"] === 'True') {
+            if (this.anon) {
                 alert(_('You need an account to do that.'));
                 return;
             }
             const element = document.getElementById('request-analysis') as HTMLElement;
             if (element !== null) element.style.display = 'none';
 
-            this.doSend({ type: "analysis", username: this.model["username"], gameId: this.gameId });
+            this.doSend({ type: "analysis", username: this.username, gameId: this.gameId });
             const loaderEl = document.getElementById('loader') as HTMLElement;
             loaderEl.style.display = 'block';
         }
@@ -250,7 +252,7 @@ export class AnalysisController extends GameController {
     }
 
     private checkStatus = (msg: MsgBoard | MsgAnalysisBoard) => {
-        if ((msg.gameId !== this.gameId && !this.isAnalysisBoard) || this.model["embed"]) return;
+        if ((msg.gameId !== this.gameId && !this.isAnalysisBoard) || this.embed) return;
         if (("status" in msg && msg.status >= 0) || this.isAnalysisBoard) {
 
             // Save finished game full pgn sent by server
@@ -279,7 +281,7 @@ export class AnalysisController extends GameController {
                 ]
 
             // Enable to delete imported games
-            if (this.model["rated"] === '2' && this.importedBy === this.model["username"]) {
+            if (this.rated === '2' && this.importedBy === this.username) {
                 buttons.push(
                     h('a.i-pgn', { on: { click: () => this.deleteGame() } }, [
                         h('i', {props: {title: _('Delete game')}, class: {"icon": true, "icon-trash-o": true} }, _('Delete game'))])
@@ -330,7 +332,7 @@ export class AnalysisController extends GameController {
             updateMovelist(this);
 
             if (this.steps[0].analysis === undefined) {
-                if (!this.isAnalysisBoard && !this.model['embed']) {
+                if (!this.isAnalysisBoard && !this.embed) {
                     const el = document.getElementById('request-analysis') as HTMLElement;
                     el.style.display = 'block';
                     patch(el, h('button#request-analysis', { on: { click: () => this.drawAnalysisChart(true) } }, [
@@ -342,7 +344,7 @@ export class AnalysisController extends GameController {
                 this.drawAnalysisChart(false);
             }
             const clocktimes = this.steps[1]?.clocks?.white;
-            if (clocktimes !== undefined && !this.model['embed']) {
+            if (clocktimes !== undefined && !this.embed) {
                 patch(document.getElementById('anal-clock-top') as HTMLElement, h('div.anal-clock.top'));
                 patch(document.getElementById('anal-clock-bottom') as HTMLElement, h('div.anal-clock.bottom'));
                 renderClocks(this);
@@ -383,8 +385,7 @@ export class AnalysisController extends GameController {
                 lastMove: lastMove,
             });
         }
-        if (this.model["ply"] > 0) {
-            this.ply = this.model["ply"]
+        if (this.ply > 0) {
             selectMove(this, this.ply);
         }
     }
@@ -568,8 +569,8 @@ export class AnalysisController extends GameController {
         if (this.chess960) {
             window.fsf.postMessage('setoption name UCI_Chess960 value true');
         }
-        if (this.model.variant !== 'chess') {
-            window.fsf.postMessage('setoption name UCI_Variant value ' + this.model.variant);
+        if (this.variant.name !== 'chess') {
+            window.fsf.postMessage('setoption name UCI_Variant value ' + this.variant);
         }
         //console.log('setoption name Threads value ' + maxThreads);
         window.fsf.postMessage('setoption name Threads value ' + maxThreads);
@@ -604,7 +605,7 @@ export class AnalysisController extends GameController {
             updateMovelist(this);
         }
 
-        if (this.model["embed"]) return;
+        if (this.embed) return;
 
         const vv = this.steps[plyVari]?.vari;
         const step = (plyVari > 0 && vv) ? vv[ply] : this.steps[ply];
@@ -639,8 +640,8 @@ export class AnalysisController extends GameController {
             const idxInVari = (plyVari > 0) ? ply : 0;
             this.vpgn = patch(this.vpgn, h('div#pgntext', this.getPgn(idxInVari)));
         } else {
-            const hist = this.model["home"] + '/' + this.gameId + '?ply=' + ply.toString();
-            window.history.replaceState({}, this.model['title'], hist);
+            const hist = this.home + '/' + this.gameId + '?ply=' + ply.toString();
+            window.history.replaceState({}, '', hist);
         }
     }
 
@@ -664,7 +665,7 @@ export class AnalysisController extends GameController {
         const today = new Date().toISOString().substring(0, 10).replace(/-/g, '.');
 
         const event = '[Event "?"]';
-        const site = `[Site "${this.model['home']}/analysis/${this.variant.name}"]`;
+        const site = `[Site "${this.home}/analysis/${this.variant.name}"]`;
         const date = `[Date "${today}"]`;
         const white = '[White "?"]';
         const black = '[Black "?"]';
@@ -832,11 +833,11 @@ export class AnalysisController extends GameController {
     }
 
     private onMsgUserConnected = (msg: MsgUserConnected) => {
-        this.model["username"] = msg["username"];
+        this.username = msg["username"];
     }
 
     private onMsgDeleted = () => {
-        window.location.assign(this.model["home"] + "/@/" + this.model["username"] + '/import');
+        window.location.assign(this.home + "/@/" + this.username + '/import');
     }
 
     protected onMessage(evt: MessageEvent) {

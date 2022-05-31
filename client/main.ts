@@ -191,7 +191,7 @@ if (el instanceof Element) {
     // Always update sound theme before volume
     // Updating sound theme requires reloading sound files,
     // while updating volume does not
-    soundThemeSettings.initURL(model.assetURL);
+    soundThemeSettings.assetURL = model.assetURL;
     soundThemeSettings.update();
     volumeSettings.update();
 
