@@ -134,6 +134,8 @@ async def index(request):
         session["user_name"] = user.username
 
     lang = session.get("lang", "en")
+    if lang not in LANGUAGES:
+        lang = "en"
     get_template = request.app["jinja"][lang].get_template
 
     view = "lobby"
