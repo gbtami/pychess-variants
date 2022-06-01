@@ -154,8 +154,9 @@ async def load_game(app, game_id):
         game.steps[0]["analysis"] = doc["a"][0]
 
     if "cw" in doc:
-        clocktimes_w = doc["cw"]
-        clocktimes_b = doc["cb"]
+        base_clock_time = (game.base * 1000 * 60) + (0 if game.base > 0 else game.inc * 1000)
+        clocktimes_w = doc["cw"] if len(doc["cw"]) > 0 else [base_clock_time]
+        clocktimes_b = doc["cb"] if len(doc["cb"]) > 0 else [base_clock_time]
 
     if "mct" in doc:
         manual_count_toggled = iter(doc["mct"])
