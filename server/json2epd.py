@@ -26,40 +26,40 @@ def zero2grand(move):
 def generate_fens(json_file, stream, variant, count):
     if variant not in sf.variants():
         raise Exception("Unsupported variant: {}".format(variant))
+    with open("output.epd", "w") as output:
+        with open(json_file, "r") as f:
+            games = json.load(f)
+            cnt = 0
+            for game in tqdm(games):
+                if game["variant"] != variant:
+                    continue
 
-    with open(json_file, "r") as f:
-        games = json.load(f)
-        cnt = 0
-        for game in tqdm(games):
-            if game["variant"] != variant:
-                continue
+                try:
+                    moves = game["moves"]
+                    if variant in GRANDS:
+                        moves = list(map(zero2grand, moves))
+                    _id = game["id"]
+                    is960 = game["is960"] == 1
+                    if game["fen"]:
+                        start_fen = game["fen"]
+                    else:
+                        start_fen = sf.start_fen(variant)
 
-            try:
-                moves = game["moves"]
-                if variant in GRANDS:
-                    moves = list(map(zero2grand, moves))
-                _id = game["id"]
-                is960 = game["is960"] == 1
-                if game["fen"]:
-                    start_fen = game["fen"]
-                else:
-                    start_fen = sf.start_fen(variant)
-
-                for i in range(1, len(moves)):
-                    fen = sf.get_fen(variant, start_fen, moves[:i], is960)
-                    stream.write(
-                        "{};variant {};site https://www.pychess.org/{}{}".format(
-                            fen, variant, _id, os.linesep
+                    for i in range(1, len(moves)):
+                        fen = sf.get_fen(variant, start_fen, moves[:i], is960)
+                        stream.write(
+                            "{};variant {};site https://www.pychess.org/{}{}".format(
+                                fen, variant, _id, os.linesep
+                            )
                         )
-                    )
+                        output.write("{}\n".format(fen))
+                    cnt += 1
+                    if cnt >= count:
+                        break
 
-                cnt += 1
-                if cnt >= count:
-                    break
-
-            except SystemError:
-                # Possible an old game saved in USI format
-                continue
+                except SystemError:
+                    # Possible an old game saved in USI format
+                    continue
 
 
 if __name__ == "__main__":
