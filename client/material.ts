@@ -47,9 +47,9 @@ export function equivalentLetter(variant: Variant, letter: cg.PieceLetter): cg.P
 
             case 'chak':
                 if (letter === '+k')
-            return 'k';
-            else
-                return letter;
+                    return 'k';
+                else
+                    return letter;
 
             default:
                 return letter;
@@ -87,6 +87,7 @@ export function calculateMaterialDiff(variant: Variant, fen?: string): MaterialD
 export function calculatePieceNumber(variant: Variant, fen?: string): MaterialDiff {
     if (!fen) fen = variant.startFen;
     // Calculate material difference as if all pieces were black
+    // This results in counting the number of pieces on the board
     return calculateMaterialDiff(variant, fen.toLowerCase());
 }
 
