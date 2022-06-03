@@ -1,11 +1,10 @@
+import { h, VNode } from 'snabbdom';
+
 import * as cg from 'chessgroundx/types';
 import * as util from 'chessgroundx/util';
 import { read } from 'chessgroundx/fen';
 import { readPockets } from 'chessgroundx/pocket';
 
-import { h, VNode } from 'snabbdom';
-
-import RoundController from './roundCtrl';
 import { Variant } from './chess';
 import { patch } from './document';
 
@@ -19,7 +18,7 @@ export function diff(lhs: MaterialDiff, rhs: MaterialDiff): MaterialDiff {
     return res;
 }
 
-function equivalentLetter(variant: Variant, letter: cg.PieceLetter): cg.PieceLetter {
+export function equivalentLetter(variant: Variant, letter: cg.PieceLetter): cg.PieceLetter {
     if (variant.drop) {
         if (letter.startsWith('+'))
             return letter.slice(1) as cg.PieceLetter;
@@ -91,12 +90,12 @@ export function calculatePieceNumber(variant: Variant, fen?: string): MaterialDi
     return calculateMaterialDiff(variant, fen.toLowerCase());
 }
 
-function calculateGameImbalance(ctrl: RoundController): MaterialDiff {
-    return diff(calculateMaterialDiff(ctrl.variant, ctrl.fullfen), ctrl.variant.initialMaterialImbalance);
+export function calculateGameImbalance(variant: Variant, fen: string): MaterialDiff {
+    return diff(calculateMaterialDiff(variant, fen), variant.initialMaterialImbalance);
 }
 
-function generateContent(ctrl: RoundController): [VNode[], VNode[]] {
-    const imbalance = calculateGameImbalance(ctrl);
+function generateContent(variant: Variant, fen: string): [VNode[], VNode[]] {
+    const imbalance = calculateGameImbalance(variant, fen);
     const whiteContent: VNode[] = [];
     const blackContent: VNode[] = [];
 
@@ -106,36 +105,27 @@ function generateContent(ctrl: RoundController): [VNode[], VNode[]] {
         const pieceDiff = Math.abs(num);
         const currentDiv: VNode[] = [];
         for (let i = 0; i < pieceDiff; i++)
-            currentDiv.push(h('mpiece.' + letter));
+        currentDiv.push(h('mpiece.' + letter));
         content.push(h('div', currentDiv));
     }
     return [whiteContent, blackContent];
 }
 
-function makeMaterialVNode(ctrl: RoundController, position: 'top'|'bottom', content: VNode[], disabled = false): VNode {
-    return h(`div.material.material-${position}.${ctrl.variant.piece}${disabled ? '.disabled' : ''}`, content);
+function makeMaterialVNode(variant: Variant, position: 'top'|'bottom', content: VNode[], disabled = false): VNode {
+    return h(`div.material.material-${position}.${variant.piece}${disabled ? '.disabled' : ''}`, content);
 }
 
-export function updateMaterial(ctrl: RoundController, vmaterial0?: VNode | HTMLElement, vmaterial1?: VNode | HTMLElement) {
-    if (!ctrl.variant.materialDiff) return;
+export function updateMaterial(variant: Variant, fen: string, vmaterialTop: VNode | HTMLElement, vmaterialBottom: VNode | HTMLElement, flip: boolean): [VNode, VNode] {
+    const [whiteContent, blackContent] = generateContent(variant, fen);
+    return [
+        patch(vmaterialTop, makeMaterialVNode(variant, 'top', flip ? whiteContent : blackContent)),
+        patch(vmaterialBottom, makeMaterialVNode(variant, 'bottom', flip ? blackContent : whiteContent)),
+    ];
+}
 
-    const topColor = ctrl.flip ? ctrl.mycolor : ctrl.oppcolor;
-
-    if (!vmaterial0) vmaterial0 = ctrl.vmaterial0;
-    if (!vmaterial1) vmaterial1 = ctrl.vmaterial1;
-
-    if (!ctrl.materialDifference) {
-        ctrl.vmaterial0 = patch(vmaterial0, makeMaterialVNode(ctrl, 'top', [], true));
-        ctrl.vmaterial1 = patch(vmaterial1, makeMaterialVNode(ctrl, 'bottom', [], true));
-        return;
-    }
-
-    const [whiteContent, blackContent] = generateContent(ctrl);
-    if (topColor === 'white') {
-        ctrl.vmaterial0 = patch(vmaterial0, makeMaterialVNode(ctrl, 'top', whiteContent));
-        ctrl.vmaterial1 = patch(vmaterial1, makeMaterialVNode(ctrl, 'bottom', blackContent));
-    } else {
-        ctrl.vmaterial0 = patch(vmaterial0, makeMaterialVNode(ctrl, 'top', blackContent));
-        ctrl.vmaterial1 = patch(vmaterial1, makeMaterialVNode(ctrl, 'bottom', whiteContent));
-    }
+export function emptyMaterial(variant: Variant): [VNode, VNode] {
+    return [
+        makeMaterialVNode(variant, 'top', [], true),
+        makeMaterialVNode(variant, 'bottom', [], true),
+    ];
 }

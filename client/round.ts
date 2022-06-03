@@ -1,10 +1,10 @@
 import { h, VNode } from "snabbdom";
 
 import { VARIANTS } from './chess';
-import RoundController from './roundCtrl';
+import { RoundController } from './roundCtrl';
 import { gameInfo } from './gameInfo';
 import { renderTimeago } from './datetime';
-import { PyChessModel } from "./main";
+import { PyChessModel } from "./types";
 
 function runGround(vnode: VNode, model: PyChessModel) {
     const el = vnode.elm as HTMLElement;

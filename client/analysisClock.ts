@@ -1,11 +1,11 @@
 import { h, VNode } from 'snabbdom';
 
-import AnalysisController from './analysisCtrl';
+import { AnalysisController } from './analysisCtrl';
 import { patch } from './document';
 
 export function renderClocks(ctrl: AnalysisController) {
     const isWhiteTurn = ctrl.turnColor === "white";
-    const whitePov = !ctrl.flip;
+    const whitePov = !ctrl.flipped();
 
     const wclass = whitePov ? 'bottom' : 'top';
     const wtime = ctrl.steps[ctrl.ply]?.clocks?.white;

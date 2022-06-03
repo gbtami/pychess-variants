@@ -1,10 +1,10 @@
 import { h, VNode } from 'snabbdom';
 
 import { _ } from './i18n';
-import { model } from './main';
+import { PyChessModel } from "./types";
 
 
-export function aboutView(): VNode[] {
+export function aboutView(model: PyChessModel): VNode[] {
     const untitled = [
         _("\"To me, how we've got here today is owing to Stockfish in a BIG way. They rallied global volunteers to come together in the open-source spirit and create such a powerful engine for FREE. That's a lot of great minds and computing power they've managed to harness."),
         _("Then we've got Lichess to thank. Lichess was also born out of the same open-source spirit, and it too drew in great people as well. Once Lichess incorporated Stockfish as its brains, the rest is history."),
@@ -14,7 +14,7 @@ export function aboutView(): VNode[] {
     ]
     return [
         h('div.about', [
-            h('img.center', { attrs: { src: `${model["asset-url"]}/favicon/favicon-96x96.png` } }),
+            h('img.center', { attrs: { src: `${model.assetURL}/favicon/favicon-96x96.png` } }),
             h('h1', { attrs: { align: 'center' } }, _('About pychess')),
             h('p', _('Pychess is a free, open-source chess server designed to play several chess variants.')),
             h('p', [

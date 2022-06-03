@@ -1,72 +1,40 @@
-import ffishModule from 'ffish-es6';
-
 import { h, VNode } from 'snabbdom';
 
-import { Chessground } from 'chessgroundx';
-import { Api } from 'chessgroundx/api';
 import * as cg from 'chessgroundx/types';
 import * as util from 'chessgroundx/util';
 
 import { _ } from './i18n';
-import { VARIANTS, validFen, Variant, hasCastling, unpromotedRole, promotedRole, notation } from './chess'
-import { boardSettings } from './boardSettings';
+import { validFen, hasCastling, unpromotedRole, promotedRole, notation } from './chess'
 import { diff, calculatePieceNumber } from './material';
 import { iniPieces } from './pieces';
 import { copyBoardToPNG } from './png';
-import { variantsIni } from './variantsIni';
 import { patch } from './document';
-import { PyChessModel } from "./main";
+import { PyChessModel } from "./types";
+import { ChessgroundController } from './cgCtrl';
 
-export class EditorController {
+export class EditorController extends ChessgroundController {
     model;
-    chessground: Api;
-    notation: cg.Notation;
-    fullfen: string;
     startfen: string;
-    mycolor: cg.Color;
-    oppcolor: cg.Color;
     parts: string[];
     castling: string;
-    variant: Variant;
-    hasPockets: boolean;
     vpieces0: VNode;
     vpieces1: VNode;
     vfen: VNode;
     vAnalysis: VNode;
     vChallenge: VNode;
-    flip: boolean;
-    ffish: any;
-    ffishBoard: any;
 
     constructor(el: HTMLElement, model: PyChessModel) {
+        super(el, model);
         this.model = model;
-        this.variant = VARIANTS[model["variant"]];
         this.startfen = model["fen"] as string;
-        this.flip = false;
 
         this.parts = this.startfen.split(" ");
         this.castling = this.parts.length > 2 ? this.parts[2] : '';
-        this.fullfen = this.startfen;
-
-        this.hasPockets = this.variant.pocket;
-
-        // pocket part of the FEN (including brackets)
-        // this.pocketsPart = (this.hasPockets) ? getPockets(this.startfen) : '';
 
         this.notation = notation(this.variant);
 
-        this.mycolor = 'white';
-        this.oppcolor = 'black';
-
-        const pocket0 = document.getElementById('pocket0') as HTMLElement;
-        const pocket1 = document.getElementById('pocket1') as HTMLElement;
-
-        this.chessground = Chessground(el, {
-            fen: this.parts[0],
+        this.chessground.set({
             autoCastle: false,
-            variant: this.variant.name as cg.Variant,
-            geometry: this.variant.geometry,
-            notation: this.notation,
             orientation: this.mycolor,
             movable: {
                 free: true,
@@ -81,10 +49,7 @@ export class EditorController {
             draggable: {
                 deleteOnDropOff: true,
             },
-            addDimensionsCssVars: true,
-
-            pocketRoles: color => this.variant.pocketRoles(color),
-        }, pocket0, pocket1);
+        });
 
         //
         ['mouseup', 'touchend'].forEach(name =>
@@ -102,14 +67,6 @@ export class EditorController {
                 } ) });
             })
         );
-
-        //
-        boardSettings.ctrl = this;
-        const boardFamily = this.variant.board;
-        const pieceFamily = this.variant.piece;
-        boardSettings.updateBoardStyle(boardFamily);
-        boardSettings.updatePieceStyle(pieceFamily);
-        boardSettings.updateZoom(boardFamily);
 
         // initialize pieces
         const pieces0 = document.getElementById('pieces0') as HTMLElement;
@@ -174,7 +131,7 @@ export class EditorController {
                     ]),
                 ]),
 
-                h('a#flip.i-pgn', { on: { click: () => boardSettings.toggleOrientation() } }, [
+                h('a#flip.i-pgn', { on: { click: () => this.toggleOrientation() } }, [
                     h('div.icon.icon-refresh', _('FLIP BOARD'))
                 ]),
                 h('a#clear.i-pgn', { on: { click: () => this.setEmptyFen() } }, [
@@ -197,17 +154,15 @@ export class EditorController {
                 ])
             ];
             patch(container, h('div.editor-button-container', buttons));
-
-            ffishModule().then((loadedModule: any) => {
-                this.ffish = loadedModule;
-
-                if (this.ffish !== null) {
-                    this.ffish.loadVariantConfig(variantsIni);
-                    this.ffishBoard = new this.ffish.Board(this.variant.name, this.fullfen, this.model.chess960 === 'True');
-                }
-            });
         }
+    }
 
+    toggleOrientation() {
+        super.toggleOrientation()
+
+        if (this.vpieces0 !== undefined && this.vpieces1 !== undefined) {
+            iniPieces(this, this.vpieces0, this.vpieces1);
+        }
     }
 
     private onChangeTurn = (e: Event) => {

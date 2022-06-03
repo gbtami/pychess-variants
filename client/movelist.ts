@@ -1,13 +1,11 @@
 import { h, VNode } from 'snabbdom';
 
-import { boardSettings } from './boardSettings';
-import AnalysisController from './analysisCtrl';
-import RoundController from './roundCtrl';
-import { result } from './profile'
+import { GameController } from './gameCtrl';
+import { result } from './result'
 import { Step } from './messages';
 import { patch } from './document';
 
-export function selectMove (ctrl: AnalysisController | RoundController, ply: number, plyVari = 0): void {
+export function selectMove (ctrl: GameController, ply: number, plyVari = 0): void {
     ctrl.goPly(ply, plyVari);
     if (plyVari === 0) {
         activatePly(ctrl);
@@ -18,7 +16,7 @@ export function selectMove (ctrl: AnalysisController | RoundController, ply: num
 
 }
 
-function activatePly (ctrl: AnalysisController | RoundController) {
+function activatePly (ctrl: GameController) {
     const active = document.querySelector('move.active');
     if (active) active.classList.remove('active');
 
@@ -26,7 +24,7 @@ function activatePly (ctrl: AnalysisController | RoundController) {
     if (elPly) elPly.classList.add('active');
 }
 
-function scrollToPly (ctrl: AnalysisController | RoundController) {
+function scrollToPly (ctrl: GameController) {
     if (ctrl.steps.length < 9) return;
     const movelistEl = document.getElementById('movelist') as HTMLElement;
     const plyEl = movelistEl.querySelector('move.active') as HTMLElement | null;
@@ -50,11 +48,11 @@ export function activatePlyVari (ply: number) {
     if (elPly) elPly.classList.add('active');
 }
 
-export function createMovelistButtons (ctrl: AnalysisController | RoundController) {
+export function createMovelistButtons (ctrl: GameController) {
     const container = document.getElementById('move-controls') as HTMLElement;
     const vari = "plyVari" in ctrl? ctrl.steps[ctrl.plyVari]['vari']: undefined;
     ctrl.moveControls = patch(container, h('div#btn-controls-top.btn-controls', [
-        h('button#flip', { on: { click: () => boardSettings.toggleOrientation() } }, [ h('i.icon.icon-refresh') ]),
+        h('button#flip', { on: { click: () => ctrl.toggleOrientation() } }, [ h('i.icon.icon-refresh') ]),
         h('button', { on: { click: () => selectMove(ctrl, 0) } }, [ h('i.icon.icon-fast-backward') ]),
         h('button', { on: { click: () => { 
             // this line is necessary, but I don't understand why
@@ -71,7 +69,7 @@ export function createMovelistButtons (ctrl: AnalysisController | RoundControlle
     ]));
 }
 
-export function updateMovelist (ctrl: AnalysisController | RoundController, full = true, activate = true, needResult = true) {
+export function updateMovelist (ctrl: GameController, full = true, activate = true, needResult = true) {
     const plyFrom = (full) ? 1 : ctrl.steps.length -1
     const plyTo = ctrl.steps.length;
 
@@ -138,7 +136,7 @@ export function updateMovelist (ctrl: AnalysisController | RoundController, full
     }
 }
 
-export function updateResult (ctrl: AnalysisController | RoundController) {
+export function updateResult (ctrl: GameController) {
     if (ctrl.status < 0) return;
 
     // Prevent to render it twice

@@ -19,54 +19,12 @@ import { patch, getCookie } from './document';
 import { backgroundSettings } from './background';
 import { renderTimeago } from './datetime';
 import { zenButtonView, zenModeSettings } from './zen';
-import { CrossTable, MsgBoard } from './messages';
+import { PyChessModel } from './types';
 
 // redirect to correct URL except Heroku preview apps
 if (window.location.href.includes('heroku') && !window.location.href.includes('-pr-')) {
     window.location.assign('https://www.pychess.org/');
 }
-
-export type PyChessModel = {
-    username: string;
-    home: string;
-    anon: string;
-    profileid: string;
-    title: string;
-    variant: string;
-    chess960: string;
-    rated: string;
-    level: number;
-    gameId: string;
-    tournamentId: string;
-    tournamentname: string;
-    inviter: string;
-    ply: number;
-    ct: CrossTable | string;
-    board: MsgBoard | string;
-    wplayer: string;
-    wtitle: string;
-    wrating: string; // string, because can contain "?" suffix for provisional rating
-    wrdiff: number;
-    wberserk: string;
-    bplayer: string;
-    btitle: string;
-    brating: string; // string, because can contain "?" suffix for provisional rating
-    brdiff: number;
-    bberserk: string;
-    fen: string;
-    base: number;
-    inc: number;
-    byo: number;
-    result: string;
-    status: number;
-    date: string;
-    tv: boolean;
-    embed: boolean;
-    seekEmpty: boolean;
-    tournamentDirector: boolean;
-
-    "asset-url": string;
-};
 
 function initModel(el: HTMLElement) {
     const user = getCookie("user");
@@ -112,8 +70,7 @@ function initModel(el: HTMLElement) {
         embed : el.getAttribute("data-view") === 'embed',
         seekEmpty : el.getAttribute("data-seekempty") === "True",
         tournamentDirector: el.getAttribute("data-tournamentdirector") === "True",
-
-        "asset-url": el.getAttribute("data-asset-url") ?? "",
+        assetURL: el.getAttribute("data-asset-url") ?? "",
     };
 }
 
@@ -121,7 +78,7 @@ export function view(el: HTMLElement, model: PyChessModel): VNode {
 
     switch (el.getAttribute("data-view")) {
     case 'about':
-        return h('div#main-wrap', aboutView());
+        return h('div#main-wrap', aboutView(model));
     case 'level8win':
     case 'profile':
         return h('div#profile', profileView(model));
@@ -141,7 +98,7 @@ export function view(el: HTMLElement, model: PyChessModel): VNode {
     case 'calendar':
         return h('div#calendar', calendarView());
     case 'games':
-        return h('div', renderGames());
+        return h('div', renderGames(model));
     case 'paste':
         return h('div#main-wrap', pasteView(model));
     case 'stats':
@@ -234,11 +191,12 @@ if (el instanceof Element) {
     // Always update sound theme before volume
     // Updating sound theme requires reloading sound files,
     // while updating volume does not
+    soundThemeSettings.assetURL = model.assetURL;
     soundThemeSettings.update();
     volumeSettings.update();
 
-    const lang = el.getAttribute("data-lang");
-    fetch(model["asset-url"] + '/lang/' + lang + '/LC_MESSAGES/client.json')
+    const lang = el.getAttribute("data-lang") ?? 'en';
+    fetch(model.assetURL + '/lang/' + lang + '/LC_MESSAGES/client.json')
       .then(res => res.json())
       .then(translation => {
         i18n.loadJSON(translation, 'messages');
