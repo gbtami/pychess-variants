@@ -942,7 +942,7 @@ export class RoundController extends GameController {
 
     private updateMaterial(): void {
         if (this.variant.materialDiff && this.materialDifference)
-            [this.vmaterial0, this.vmaterial1] = updateMaterial(this.variant, this.fullfen, this.vmaterial0, this.vmaterial1, this.chessground.state.orientation);
+            [this.vmaterial0, this.vmaterial1] = updateMaterial(this.variant, this.fullfen, this.vmaterial0, this.vmaterial1, this.flipped());
         else
             [this.vmaterial0, this.vmaterial1] = emptyMaterial(this.variant);
     }

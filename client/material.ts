@@ -115,11 +115,11 @@ function makeMaterialVNode(variant: Variant, position: 'top'|'bottom', content: 
     return h(`div.material.material-${position}.${variant.piece}${disabled ? '.disabled' : ''}`, content);
 }
 
-export function updateMaterial(variant: Variant, fen: string, vmaterialTop: VNode | HTMLElement, vmaterialBottom: VNode | HTMLElement, orientation: cg.Color): [VNode, VNode] {
+export function updateMaterial(variant: Variant, fen: string, vmaterialTop: VNode | HTMLElement, vmaterialBottom: VNode | HTMLElement, flip: boolean): [VNode, VNode] {
     const [whiteContent, blackContent] = generateContent(variant, fen);
     return [
-        patch(vmaterialTop, makeMaterialVNode(variant, 'top', orientation === 'white' ? blackContent : whiteContent)),
-        patch(vmaterialBottom, makeMaterialVNode(variant, 'bottom', orientation === 'white' ? whiteContent : blackContent)),
+        patch(vmaterialTop, makeMaterialVNode(variant, 'top', flip ? whiteContent : blackContent)),
+        patch(vmaterialBottom, makeMaterialVNode(variant, 'bottom', flip ? blackContent : whiteContent)),
     ];
 }
 
