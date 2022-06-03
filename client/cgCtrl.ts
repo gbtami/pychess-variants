@@ -29,8 +29,6 @@ export abstract class ChessgroundController implements IBoardController {
     fullfen: string;
     notation: cg.Notation;
 
-    flipped() { return this.chessground.state.orientation === 'black'; }
-
     constructor(el: HTMLElement, model: PyChessModel) {
         this.home = model.home;
 
@@ -78,6 +76,10 @@ export abstract class ChessgroundController implements IBoardController {
 
     toggleOrientation() {
         this.chessground.toggleOrientation();
+    }
+
+    flipped() {
+        return this.chessground.state.orientation === 'black';
     }
 
     notation2ffishjs = (n: cg.Notation) => {
