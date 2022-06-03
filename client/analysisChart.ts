@@ -93,7 +93,7 @@ export function analysisChart(ctrl: AnalysisController) {
         xAxis: {
             title: { text: undefined },
             labels: { enabled: false },
-            gridLineWidth: 1,
+            gridLineWidth: 0,
             lineWidth: 0,
             tickWidth: 0
         },
