@@ -8,15 +8,15 @@ import { _, ngettext } from './i18n';
 import { patch } from './document';
 import { boardSettings } from './boardSettings';
 import { Clock } from './clock';
-import { calculateGameImbalance } from './material';
 import { sound } from './sound';
-import { uci2LastMove, cg2uci, getCounting, isHandicap, Variant } from './chess';
+import { uci2LastMove, cg2uci, getCounting, isHandicap } from './chess';
 import { crosstableView } from './crosstable';
 import { chatMessage, chatView } from './chat';
 import { createMovelistButtons, updateMovelist, updateResult, selectMove } from './movelist';
 import { renderRdiff } from './result'
 import { player } from './player';
 import { updateCount, updatePoint } from './info';
+import { updateMaterial, emptyMaterial } from './material';
 import { notify } from './notification';
 import { Clocks, MsgBoard, MsgGameEnd, MsgMove, MsgNewGame, MsgUserConnected, RDiffs, CrossTable } from "./messages";
 import { MsgUserDisconnected, MsgUserPresent, MsgMoreTime, MsgDrawOffer, MsgDrawRejected, MsgRematchOffer, MsgRematchRejected, MsgCount, MsgSetup, MsgGameStart, MsgViewRematch, MsgUpdateTV, MsgBerserk } from './roundType';
@@ -200,8 +200,10 @@ export class RoundController extends GameController {
         this.vplayer1 = patch(player1, player('player1', this.titles[1], this.players[1], this.ratings[1], this.level));
 
         if (this.variant.materialDiff) {
-            this.vmaterial0 = document.querySelector('.material-top') as HTMLElement;
-            this.vmaterial1 = document.querySelector('.material-bottom') as HTMLElement;
+            const materialTop = document.querySelector('.material-top') as HTMLElement;
+            const materialBottom = document.querySelector('.material-bottom') as HTMLElement;
+            this.vmaterial0 = this.mycolor === 'white' ? materialBottom : materialTop;
+            this.vmaterial1 = this.mycolor === 'black' ? materialBottom : materialTop;
             this.updateMaterial();
         }
 
@@ -369,6 +371,8 @@ export class RoundController extends GameController {
 
         if (this.variant.materialPoint)
             [this.vmiscInfoW, this.vmiscInfoB] = updatePoint(this.fullfen, this.vmiscInfoB, this.vmiscInfoW);
+
+        this.updateMaterial();
     }
 
     private berserk = (color: cg.Color) => {
@@ -936,49 +940,11 @@ export class RoundController extends GameController {
         [this.vmiscInfoW, this.vmiscInfoB] = updatePoint(fen, this.vmiscInfoW, this.vmiscInfoB);
     }
 
-    private generateContent(variant: Variant, fen: string): [VNode[], VNode[]] {
-        const imbalance = calculateGameImbalance(variant, fen);
-        const whiteContent: VNode[] = [];
-        const blackContent: VNode[] = [];
-
-        for (const [letter, num] of imbalance) {
-            if (num === 0) continue;
-            const content = num > 0 ? blackContent : whiteContent;
-            const pieceDiff = Math.abs(num);
-            const currentDiv: VNode[] = [];
-            for (let i = 0; i < pieceDiff; i++)
-                currentDiv.push(h('mpiece.' + letter));
-            content.push(h('div', currentDiv));
-        }
-        return [whiteContent, blackContent];
-    }
-
-    private makeMaterialVNode(variant: Variant, position: 'top'|'bottom', content: VNode[], disabled = false): VNode {
-        return h(`div.material.material-${position}.${variant.piece}${disabled ? '.disabled' : ''}`, content);
-    }
-
-    private updateMaterial() {
-
-        const topColor = this.flipped() ? this.mycolor : this.oppcolor;
-        const vmaterial0 = this.vmaterial0;
-        const vmaterial1 = this.vmaterial1;
-        const variant = this.variant;
-        const fen = this.fullfen;
-
-        if (!this.materialDifference) {
-            this.vmaterial0 = patch(vmaterial0, this.makeMaterialVNode(variant, 'top', [], true));
-            this.vmaterial1 = patch(vmaterial1, this.makeMaterialVNode(variant, 'bottom', [], true));
-            return;
-        }
-
-        const [whiteContent, blackContent] = this.generateContent(variant, fen);
-        if (topColor === 'white') {
-            this.vmaterial0 = patch(vmaterial0, this.makeMaterialVNode(variant, 'top', whiteContent));
-            this.vmaterial1 = patch(vmaterial1, this.makeMaterialVNode(variant, 'bottom', blackContent));
-        } else {
-            this.vmaterial0 = patch(vmaterial0, this.makeMaterialVNode(variant, 'top', blackContent));
-            this.vmaterial1 = patch(vmaterial1, this.makeMaterialVNode(variant, 'bottom', whiteContent));
-        }
+    private updateMaterial(): void {
+        if (this.variant.materialDiff && this.materialDifference)
+            [this.vmaterial0, this.vmaterial1] = updateMaterial(this.variant, this.fullfen, this.vmaterial0, this.vmaterial1, this.chessground.state.orientation);
+        else
+            [this.vmaterial0, this.vmaterial1] = emptyMaterial(this.variant);
     }
 
     private setPremove = (orig: cg.Key, dest: cg.Key, metadata?: cg.SetPremoveMetadata) => {

@@ -1,9 +1,12 @@
+import { h, VNode } from 'snabbdom';
+
 import * as cg from 'chessgroundx/types';
 import * as util from 'chessgroundx/util';
 import { read } from 'chessgroundx/fen';
 import { readPockets } from 'chessgroundx/pocket';
 
 import { Variant } from './chess';
+import { patch } from './document';
 
 export type MaterialDiff = Map<cg.PieceLetter, number>;
 
@@ -89,4 +92,40 @@ export function calculatePieceNumber(variant: Variant, fen?: string): MaterialDi
 
 export function calculateGameImbalance(variant: Variant, fen: string): MaterialDiff {
     return diff(calculateMaterialDiff(variant, fen), variant.initialMaterialImbalance);
+}
+
+function generateContent(variant: Variant, fen: string): [VNode[], VNode[]] {
+    const imbalance = calculateGameImbalance(variant, fen);
+    const whiteContent: VNode[] = [];
+    const blackContent: VNode[] = [];
+
+    for (const [letter, num] of imbalance) {
+        if (num === 0) continue;
+        const content = num > 0 ? blackContent : whiteContent;
+        const pieceDiff = Math.abs(num);
+        const currentDiv: VNode[] = [];
+        for (let i = 0; i < pieceDiff; i++)
+        currentDiv.push(h('mpiece.' + letter));
+        content.push(h('div', currentDiv));
+    }
+    return [whiteContent, blackContent];
+}
+
+function makeMaterialVNode(variant: Variant, position: 'top'|'bottom', content: VNode[], disabled = false): VNode {
+    return h(`div.material.material-${position}.${variant.piece}${disabled ? '.disabled' : ''}`, content);
+}
+
+export function updateMaterial(variant: Variant, fen: string, vmaterialTop: VNode | HTMLElement, vmaterialBottom: VNode | HTMLElement, orientation: cg.Color): [VNode, VNode] {
+    const [whiteContent, blackContent] = generateContent(variant, fen);
+    return [
+        patch(vmaterialTop, makeMaterialVNode(variant, 'top', orientation === 'white' ? blackContent : whiteContent)),
+        patch(vmaterialBottom, makeMaterialVNode(variant, 'bottom', orientation === 'white' ? whiteContent : blackContent)),
+    ];
+}
+
+export function emptyMaterial(variant: Variant): [VNode, VNode] {
+    return [
+        makeMaterialVNode(variant, 'top', [], true),
+        makeMaterialVNode(variant, 'bottom', [], true),
+    ];
 }
