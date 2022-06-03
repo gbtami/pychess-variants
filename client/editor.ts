@@ -3,13 +3,11 @@ import { h, VNode } from 'snabbdom';
 import { _ } from './i18n';
 import { selectVariant, VARIANTS } from './chess';
 import { EditorController } from './editorCtrl';
-import { PyChessModel } from "./main";
+import { PyChessModel } from "./types";
 
 function runEditor(vnode: VNode, model: PyChessModel) {
     const el = vnode.elm as HTMLElement;
-    const ctrl = new EditorController(el, model);
-    const cg = ctrl.chessground;
-    window['cg'] = cg;
+    new EditorController(el, model);
 }
 
 export function editorView(model: PyChessModel): VNode[] {

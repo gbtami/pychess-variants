@@ -134,6 +134,8 @@ async def index(request):
         session["user_name"] = user.username
 
     lang = session.get("lang", "en")
+    if lang not in LANGUAGES:
+        lang = "en"
     get_template = request.app["jinja"][lang].get_template
 
     view = "lobby"
@@ -249,6 +251,10 @@ async def index(request):
             view = "lobby"
             if user.anon and profileId != "Fairy-Stockfish":
                 return web.HTTPFound("/")
+
+    # Play menu (Create a game)
+    if request.rel_url.query.get("any") is not None:
+        profileId = "any#"
 
     # Do we have gameId in request url?
     if (gameId is not None) and gameId != "variants":
@@ -483,6 +489,8 @@ async def index(request):
             render["date"] = game.date.isoformat()
             render["title"] = game.browser_title
             render["ply"] = ply if ply is not None else game.board.ply - 1
+            render["ct"] = json.dumps(game.crosstable)
+            render["board"] = json.dumps(game.get_board(full=True))
             if game.tournamentId is not None:
                 render["tournamentid"] = game.tournamentId
                 render["tournamentname"] = tournament_name
@@ -516,7 +524,7 @@ async def index(request):
         render["groups"] = VARIANT_GROUPS
 
         # variant None indicates intro.md
-        if lang in ("es", "hu", "it", "pt", "fr", "zh"):
+        if lang in ("es", "hu", "it", "pt", "fr", "zh", "zh_CN", "zh_TW"):
             locale = ".%s" % lang
         else:
             locale = ""

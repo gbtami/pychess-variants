@@ -14,7 +14,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-04-11 12:19+0200\n"
+"POT-Creation-Date: 2022-05-02 23:28+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Last-Translator: NelloHo, 2022\n"
 "Language-Team: Chinese (https://www.transifex.com/gbtami/teams/14790/zh/)\n"
@@ -125,74 +125,98 @@ msgid ""
 "applied here. "
 msgstr "关于隐私和服务条款，我们向lichess.org借之而行。"
 
-#: ../client/analysis.ts:38 ../client/editor.ts:32 ../client/lobby.ts:431
-#: ../client/lobby.ts:941 ../client/settingsView.ts:130
+#: ../client/analysis.ts:38 ../client/editor.ts:32 ../client/lobby.ts:439
+#: ../client/lobby.ts:949 ../client/settingsView.ts:130
 msgid "Variant"
 msgstr "棋类"
 
-#: ../client/analysis.ts:125 ../client/analysisCtrl.ts:367
-#: ../client/analysisCtrl.ts:712
+#: ../client/analysis.ts:136 ../client/analysisCtrl.ts:403
+#: ../client/analysisCtrl.ts:762
 msgid "in local browser"
 msgstr "在本地浏览器"
 
-#: ../client/analysisCtrl.ts:378
+#: ../client/analysis.ts:188
+msgid "Computer analysis"
+msgstr "電腦分析"
+
+#: ../client/analysis.ts:189
+msgid "Move times"
+msgstr "行棋時間"
+
+#: ../client/analysis.ts:190
+msgid "Crosstable"
+msgstr "圖表"
+
+#: ../client/analysis.ts:191
+msgid "FEN & PGN"
+msgstr "FEN和PGN"
+
+#: ../client/analysisChart.ts:21
+msgid "Initial position"
+msgstr "初始局面"
+
+#: ../client/analysisChart.ts:84
+msgid "Advantage"
+msgstr "优势"
+
+#: ../client/analysisCtrl.ts:414
 msgid "You need an account to do that."
 msgstr "请登录以完成该操作。"
 
-#: ../client/analysisCtrl.ts:417
+#: ../client/analysisCtrl.ts:453
 msgid "Download game to PGN file"
 msgstr "下载本局到PGN文件"
 
-#: ../client/analysisCtrl.ts:417
+#: ../client/analysisCtrl.ts:453
 msgid "Download PGN"
 msgstr "下载PGN"
 
-#: ../client/analysisCtrl.ts:419
+#: ../client/analysisCtrl.ts:455
 msgid "Copy USI/UCI to clipboard"
 msgstr "复制USI/UCI到剪贴板"
 
-#: ../client/analysisCtrl.ts:419
+#: ../client/analysisCtrl.ts:455
 msgid "Copy UCI/USI"
 msgstr "复制UCI/USI"
 
-#: ../client/analysisCtrl.ts:421
+#: ../client/analysisCtrl.ts:457
 msgid "Download position to PNG image file"
 msgstr "下载本局面到PNG图像文件"
 
-#: ../client/analysisCtrl.ts:421
+#: ../client/analysisCtrl.ts:457
 msgid "PNG image"
 msgstr "PNG图像"
 
-#: ../client/analysisCtrl.ts:429
+#: ../client/analysisCtrl.ts:465
 msgid "Delete game"
 msgstr "刪除遊戲"
 
-#: ../client/analysisCtrl.ts:435
-msgid "Request Computer Analysis"
-msgstr "要求电脑分析"
-
-#: ../client/analysisCtrl.ts:435
-msgid "Request Analysis"
-msgstr "要求分析"
-
-#: ../client/analysisCtrl.ts:449
+#: ../client/analysisCtrl.ts:480
 msgid "Are you sure you want to delete this game?"
 msgstr "您確定要刪除此遊戲嗎？"
 
-#: ../client/analysisCtrl.ts:685
+#: ../client/analysisCtrl.ts:522
+msgid "Request Computer Analysis"
+msgstr "要求电脑分析"
+
+#: ../client/analysisCtrl.ts:522
+msgid "Request Analysis"
+msgstr "要求分析"
+
+#: ../client/analysisCtrl.ts:735
 msgid "Depth"
 msgstr "深度"
 
-#: ../client/analysisCtrl.ts:690
+#: ../client/analysisCtrl.ts:740
 msgid "Go deeper"
 msgstr "深入分析"
 
-#: ../client/analysisCtrl.ts:1170 ../client/roundCtrl.ts:1356
+#: ../client/analysisCtrl.ts:1229 ../client/roundCtrl.ts:1360
 #: ../client/tournament.ts:698
 msgid "Spectators: "
 msgstr "观众："
 
-#: ../client/analysisCtrl.ts:1194 ../client/roundCtrl.ts:1437
+#: ../client/analysisCtrl.ts:1253 ../client/roundCtrl.ts:1441
 msgid "Requested game %1 not found!"
 msgstr "未找到要求的棋局 %1 ！"
 
@@ -204,37 +228,29 @@ msgstr "亮"
 msgid "Dark"
 msgstr "暗"
 
-#: ../client/boardSettings.ts:207
+#: ../client/boardSettings.ts:209
 msgid "Piece animation"
 msgstr "棋子动画"
 
-#: ../client/boardSettings.ts:308
+#: ../client/boardSettings.ts:310
 msgid "Show piece destinations"
 msgstr "表示棋子走到位置"
 
-#: ../client/boardSettings.ts:326
+#: ../client/boardSettings.ts:328
 msgid "Promote to the top choice automatically"
 msgstr "自动升变为第一选择"
 
-#: ../client/boardSettings.ts:344
+#: ../client/boardSettings.ts:346
 msgid "Best move arrow in analysis board"
 msgstr "箭头指示最佳着"
 
-#: ../client/boardSettings.ts:372
+#: ../client/boardSettings.ts:374
 msgid "Invisible pieces"
 msgstr "隐形棋子"
 
-#: ../client/boardSettings.ts:392
+#: ../client/boardSettings.ts:394
 msgid "Show material difference"
 msgstr "显示子力差别"
-
-#: ../client/chart.ts:21
-msgid "Initial position"
-msgstr "初始局面"
-
-#: ../client/chart.ts:84
-msgid "Advantage"
-msgstr "优势"
 
 #: ../client/chat.ts:30 ../client/chat.ts:45
 msgid "Sign in to chat"
@@ -262,7 +278,7 @@ msgstr "聊天开关"
 
 #: ../client/chat.ts:67
 msgid "Server"
-msgstr "服务器"
+msgstr "伺服器"
 
 #: ../client/chess.ts:240
 msgid "Chess, unmodified, as it's played by FIDE standards."
@@ -429,7 +445,7 @@ msgstr "非对称棋类，单方指挥走法如皇后但吃法不一致的棋子
 #: ../client/chess.ts:689
 msgid ""
 "Orda Chess variant with two Horde armies. The Falcon replaces the Yurt."
-msgstr ""
+msgstr "雙方皆為可汗軍隊，且由獵鷹取代穹廬。"
 
 #: ../client/chess.ts:700
 msgid "Mayan chess. Inspired by cultural elements of Mesoamerica."
@@ -563,11 +579,11 @@ msgstr "%1 走棋"
 msgid "Castling"
 msgstr "王车易位权"
 
-#: ../client/editorCtrl.ts:146 ../client/i18n.ts:58 ../client/lobby.ts:522
+#: ../client/editorCtrl.ts:146 ../client/i18n.ts:58 ../client/lobby.ts:530
 msgid "White"
 msgstr "白棋"
 
-#: ../client/editorCtrl.ts:161 ../client/i18n.ts:58 ../client/lobby.ts:520
+#: ../client/editorCtrl.ts:161 ../client/i18n.ts:58 ../client/lobby.ts:528
 msgid "Black"
 msgstr "黑棋"
 
@@ -583,7 +599,7 @@ msgstr "清空棋盘"
 msgid "STARTING POSITION"
 msgstr "起始局面"
 
-#: ../client/editorCtrl.ts:186 ../client/roundCtrl.ts:784
+#: ../client/editorCtrl.ts:186 ../client/roundCtrl.ts:791
 msgid "ANALYSIS BOARD"
 msgstr "拆棋"
 
@@ -595,7 +611,7 @@ msgstr "和电脑下棋"
 msgid "EXPORT TO PNG"
 msgstr "导出PNG"
 
-#: ../client/editorCtrl.ts:265 ../client/lobby.ts:653
+#: ../client/editorCtrl.ts:265 ../client/lobby.ts:661
 msgid "Invalid FEN"
 msgstr "无法识别FEN"
 
@@ -709,11 +725,11 @@ msgstr "雙狂卡帕布蘭卡"
 
 #: ../client/i18n.ts:73
 msgid "s-chess"
-msgstr ""
+msgstr "s-chess"
 
 #: ../client/i18n.ts:73
 msgid "s-house"
-msgstr ""
+msgstr "s-house"
 
 #: ../client/i18n.ts:74
 msgid "grand"
@@ -721,7 +737,7 @@ msgstr "西洋大象棋"
 
 #: ../client/i18n.ts:74
 msgid "grandhouse"
-msgstr ""
+msgstr "雙狂西洋大象棋"
 
 #: ../client/i18n.ts:74
 msgid "shako"
@@ -737,11 +753,11 @@ msgstr "跳跳西洋棋"
 
 #: ../client/i18n.ts:76
 msgid "orda"
-msgstr ""
+msgstr "可汗西征棋"
 
 #: ../client/i18n.ts:76
 msgid "synochess"
-msgstr ""
+msgstr "象棋vs西洋棋"
 
 #: ../client/i18n.ts:76
 msgid "shinobi"
@@ -773,7 +789,7 @@ msgstr "反轉"
 
 #: ../client/i18n.ts:80
 msgid "Theban"
-msgstr ""
+msgstr "底比斯"
 
 #: ../client/i18n.ts:80
 msgid "No castle"
@@ -781,15 +797,15 @@ msgstr "沒有王車易位"
 
 #: ../client/i18n.ts:82
 msgid "Lance HC"
-msgstr ""
+msgstr "左香落"
 
 #: ../client/i18n.ts:82
 msgid "Bishop HC"
-msgstr ""
+msgstr "角落"
 
 #: ../client/i18n.ts:82
 msgid "Rook HC"
-msgstr ""
+msgstr "飛落"
 
 #: ../client/i18n.ts:82
 msgid "Rook+Lance HC"
@@ -829,19 +845,19 @@ msgstr ""
 
 #: ../client/i18n.ts:86
 msgid "Left Quail HC"
-msgstr ""
+msgstr "讓左鶉"
 
 #: ../client/i18n.ts:86
 msgid "Falcon HC"
-msgstr ""
+msgstr "讓去鷹"
 
 #: ../client/i18n.ts:86
 msgid "Falcon + Left Quail HC"
-msgstr ""
+msgstr "讓去鷹和左鶉"
 
 #: ../client/i18n.ts:86
 msgid "Falcon + Both Quails HC"
-msgstr ""
+msgstr "讓去鷹和雙鶉"
 
 #: ../client/i18n.ts:88
 msgid "Bird"
@@ -853,17 +869,17 @@ msgstr ""
 
 #: ../client/i18n.ts:88
 msgid "Gothic"
-msgstr ""
+msgstr "哥德"
 
 #: ../client/i18n.ts:88
 msgid "Embassy"
-msgstr ""
+msgstr "大使"
 
 #: ../client/i18n.ts:88
 msgid "Conservative"
-msgstr ""
+msgstr "保守的"
 
-#: ../client/invite.ts:34 ../client/lobby.ts:533
+#: ../client/invite.ts:34 ../client/lobby.ts:541
 msgid "Host a game for others"
 msgstr "为它人主持棋局"
 
@@ -909,88 +925,88 @@ msgstr "首先浏览此URL的两个人将互相对弈。"
 msgid "The first person to come to this URL will play with you."
 msgstr "您将和首先浏览此URL的人对弈。"
 
-#: ../client/lobby.ts:423
+#: ../client/lobby.ts:431
 msgid "Cancel"
 msgstr "取消"
 
-#: ../client/lobby.ts:428
+#: ../client/lobby.ts:436
 msgid "Challenge %1 to a game"
 msgstr "挑战 %1 下棋"
 
-#: ../client/lobby.ts:435
+#: ../client/lobby.ts:443
 msgid "Paste the FEN text here"
 msgstr "在此处粘贴FEN字串"
 
-#: ../client/lobby.ts:435
+#: ../client/lobby.ts:443
 msgid " (must be signed in)"
 msgstr "（必须登录）"
 
-#: ../client/lobby.ts:451
+#: ../client/lobby.ts:459
 msgid "Minutes per side:"
 msgstr "各方时限（分钟）："
 
-#: ../client/lobby.ts:466
+#: ../client/lobby.ts:474
 msgid "Periods"
 msgstr "次数"
 
-#: ../client/lobby.ts:481 ../client/lobby.ts:770 ../client/profile.ts:25
+#: ../client/lobby.ts:489 ../client/lobby.ts:778 ../client/profile.ts:25
 msgid "Casual"
 msgstr "无积分"
 
-#: ../client/lobby.ts:488 ../client/lobby.ts:768 ../client/profile.ts:20
+#: ../client/lobby.ts:496 ../client/lobby.ts:776 ../client/profile.ts:20
 msgid "Rated"
 msgstr "积分"
 
-#: ../client/lobby.ts:499
+#: ../client/lobby.ts:507
 msgid "Practice with Random-Mover"
 msgstr "和随机走子电脑下棋"
 
-#: ../client/lobby.ts:510
+#: ../client/lobby.ts:518
 msgid "A.I. Level"
 msgstr "A.I.级别"
 
-#: ../client/lobby.ts:521
+#: ../client/lobby.ts:529
 msgid "Random"
 msgstr "随机"
 
-#: ../client/lobby.ts:525
+#: ../client/lobby.ts:533
 msgid "Create"
 msgstr "创建"
 
-#: ../client/lobby.ts:530 ../client/lobby/layer3.ts:40
+#: ../client/lobby.ts:538 ../client/lobby/layer3.ts:40
 msgid "Create a game"
 msgstr "创建对局"
 
-#: ../client/lobby.ts:531
+#: ../client/lobby.ts:539
 msgid "Play with a friend"
 msgstr "和朋友下棋"
 
-#: ../client/lobby.ts:532 ../client/lobby/layer3.ts:42
+#: ../client/lobby.ts:540 ../client/lobby/layer3.ts:42
 msgid "Play with AI"
 msgstr "和电脑下棋"
 
-#: ../client/lobby.ts:614
+#: ../client/lobby.ts:622
 msgid "Byoyomi in seconds:"
 msgstr "读秒："
 
-#: ../client/lobby.ts:614
+#: ../client/lobby.ts:622
 msgid "Increment in seconds:"
 msgstr "每步加时（秒）："
 
-#: ../client/lobby.ts:619
+#: ../client/lobby.ts:627
 msgid "Alternate Start"
 msgstr ""
 
-#: ../client/lobby.ts:766
+#: ../client/lobby.ts:774
 msgid "Custom"
 msgstr "自訂"
 
-#: ../client/lobby.ts:794 ../client/lobby.ts:919
+#: ../client/lobby.ts:802 ../client/lobby.ts:927
 msgid "%1 player"
 msgid_plural "%1 players"
 msgstr[0] "%1 在线棋手"
 
-#: ../client/lobby.ts:880
+#: ../client/lobby.ts:888
 msgid ""
 "You have an unfinished game!\n"
 "Press OK to continue."
@@ -998,52 +1014,48 @@ msgstr ""
 "您正在下一局未结束的棋！\n"
 "请按确定以继续。"
 
-#: ../client/lobby.ts:913
+#: ../client/lobby.ts:921
 msgid "%1 game in play"
 msgid_plural "%1 games in play"
 msgstr[0] "%1 对局进行中"
 
-#: ../client/lobby.ts:929
+#: ../client/lobby.ts:937
 msgid "Tournament calendar"
-msgstr ""
+msgstr "錦標賽日程"
 
-#: ../client/lobby.ts:938
+#: ../client/lobby.ts:946
 msgid "Player"
 msgstr "棋手"
 
-#: ../client/lobby.ts:939
+#: ../client/lobby.ts:947
 msgid "Rating"
 msgstr "积分"
 
-#: ../client/lobby.ts:940
+#: ../client/lobby.ts:948
 msgid "Time"
 msgstr "时限"
 
-#: ../client/lobby.ts:942
+#: ../client/lobby.ts:950
 msgid "Mode"
 msgstr "模式"
 
-#: ../client/lobby.ts:986
+#: ../client/lobby.ts:994
 msgid "Donate"
 msgstr "捐赠"
 
-#: ../client/lobby.ts:987
+#: ../client/lobby.ts:995
 msgid "FAQ"
 msgstr "常见问题"
 
-#: ../client/lobby.ts:988
+#: ../client/lobby.ts:996
 msgid "Stats"
 msgstr "数据"
 
-#: ../client/lobby.ts:989
+#: ../client/lobby.ts:997
 msgid "About"
 msgstr "关于我们"
 
-#: ../client/lobby.ts:994
-msgid "Latest updates"
-msgstr "最新更新"
-
-#: ../client/main.ts:144
+#: ../client/main.ts:153
 msgid "Thank you for your support!"
 msgstr "感谢您的支持！"
 
@@ -1087,7 +1099,7 @@ msgstr "逼和"
 msgid "Time out"
 msgstr "超时"
 
-#: ../client/profile.ts:61 ../client/roundCtrl.ts:507
+#: ../client/profile.ts:61 ../client/roundCtrl.ts:512
 msgid "Draw"
 msgstr "和棋"
 
@@ -1117,7 +1129,7 @@ msgstr "抢占"
 
 #: ../client/profile.ts:92
 msgid "Altar mate"
-msgstr ""
+msgstr "登壇"
 
 #: ../client/profile.ts:95
 msgid "Explosion of king"
@@ -1140,24 +1152,24 @@ msgstr[0] "%1 步"
 msgid "Computer analysis available"
 msgstr "提供电脑分析"
 
-#: ../client/profile.ts:310
+#: ../client/profile.ts:309
 msgid "Games"
 msgstr "对局"
 
 #: ../client/profile.ts:311
 msgid "Games with you"
-msgstr ""
+msgstr "與你對局"
 
-#: ../client/profile.ts:312
+#: ../client/profile.ts:313
 msgctxt "UsePluralFormIfNeeded"
 msgid "Rated"
 msgstr "积分"
 
-#: ../client/profile.ts:313
+#: ../client/profile.ts:314
 msgid "Imported"
 msgstr "导入的棋局"
 
-#: ../client/roundCtrl.ts:428 ../client/roundCtrl.ts:1404
+#: ../client/roundCtrl.ts:428 ../client/roundCtrl.ts:1408
 msgid " +15 seconds"
 msgstr "+15秒"
 
@@ -1167,107 +1179,107 @@ msgstr "添加15秒"
 
 #: ../client/roundCtrl.ts:453
 msgid "Berserk"
-msgstr ""
+msgstr "狂暴模式"
 
-#: ../client/roundCtrl.ts:504
+#: ../client/roundCtrl.ts:509
 msgid "Abort"
 msgstr "中止本局"
 
-#: ../client/roundCtrl.ts:506 ../client/roundCtrl.ts:1169
-#: ../client/roundCtrl.ts:1171
+#: ../client/roundCtrl.ts:511 ../client/roundCtrl.ts:1176
+#: ../client/roundCtrl.ts:1178
 msgid "Count"
 msgstr "数"
 
-#: ../client/roundCtrl.ts:507
+#: ../client/roundCtrl.ts:512
 msgid "Pass"
 msgstr "虚着"
 
-#: ../client/roundCtrl.ts:508
+#: ../client/roundCtrl.ts:513
 msgid "Resign"
 msgstr "认输"
 
-#: ../client/roundCtrl.ts:571
+#: ../client/roundCtrl.ts:578
 msgid "Are you sure you want to draw?"
 msgstr "您确定要提和吗？"
 
-#: ../client/roundCtrl.ts:573
+#: ../client/roundCtrl.ts:580
 msgid "Draw offer sent"
 msgstr "提和要求已发送"
 
-#: ../client/roundCtrl.ts:585
+#: ../client/roundCtrl.ts:592
 msgid "Your opponent offers a draw"
 msgstr "对方提和"
 
-#: ../client/roundCtrl.ts:605
+#: ../client/roundCtrl.ts:612
 msgid "Are you sure you want to resign?"
 msgstr "您确定要认输吗？"
 
-#: ../client/roundCtrl.ts:637
+#: ../client/roundCtrl.ts:644
 msgid "Blue (Cho)"
 msgstr "绿方（楚）"
 
-#: ../client/roundCtrl.ts:637
+#: ../client/roundCtrl.ts:644
 msgid "Red (Han)"
 msgstr "红方（汉）"
 
-#: ../client/roundCtrl.ts:638
+#: ../client/roundCtrl.ts:645
 msgid ""
 "Waiting for %1 to choose starting positions of the horses and elephants..."
 msgstr "等待 %1 选择己方马和象的起始位置 ..."
 
-#: ../client/roundCtrl.ts:678 ../client/roundCtrl.ts:680
+#: ../client/roundCtrl.ts:685 ../client/roundCtrl.ts:687
 msgid "Switch pieces"
 msgstr "易位"
 
-#: ../client/roundCtrl.ts:679
+#: ../client/roundCtrl.ts:686
 msgid "Ready"
 msgstr "确定"
 
-#: ../client/roundCtrl.ts:713
+#: ../client/roundCtrl.ts:720
 msgid "VIEW REMATCH"
 msgstr "观看重赛"
 
-#: ../client/roundCtrl.ts:720
+#: ../client/roundCtrl.ts:727
 msgid "Rematch offer sent"
 msgstr "重赛请求已发送"
 
-#: ../client/roundCtrl.ts:731
+#: ../client/roundCtrl.ts:738
 msgid "Your opponent offers a rematch"
 msgstr "对方请求重赛"
 
-#: ../client/roundCtrl.ts:772
+#: ../client/roundCtrl.ts:779
 msgid "VIEW TOURNAMENT"
 msgstr "观看锦标赛"
 
-#: ../client/roundCtrl.ts:775
+#: ../client/roundCtrl.ts:782
 msgid "BACK TO TOURNAMENT"
 msgstr "返回锦标赛"
 
-#: ../client/roundCtrl.ts:777 ../client/tournament.ts:289
+#: ../client/roundCtrl.ts:784 ../client/tournament.ts:289
 msgid "PAUSE"
 msgstr "暂停"
 
-#: ../client/roundCtrl.ts:780
+#: ../client/roundCtrl.ts:787
 msgid "REMATCH"
 msgstr "重赛"
 
-#: ../client/roundCtrl.ts:781
+#: ../client/roundCtrl.ts:788
 msgid "NEW OPPONENT"
 msgstr "新对手"
 
-#: ../client/roundCtrl.ts:1167
+#: ../client/roundCtrl.ts:1174
 msgid "Stop counting"
 msgstr "停止数步"
 
-#: ../client/roundCtrl.ts:1167
+#: ../client/roundCtrl.ts:1174
 msgid "Stop"
 msgstr "停"
 
-#: ../client/roundCtrl.ts:1169 ../client/roundCtrl.ts:1171
+#: ../client/roundCtrl.ts:1176 ../client/roundCtrl.ts:1178
 msgid "Start counting"
 msgstr "开始数步"
 
-#: ../client/roundCtrl.ts:1316
+#: ../client/roundCtrl.ts:1321
 msgid "%1 second to play the first move"
 msgid_plural "%1 seconds to play the first move"
 msgstr[0] "剩 %1 秒下第一步棋"
@@ -1314,7 +1326,7 @@ msgstr "最後一步"
 
 #: ../client/tournament.ts:269
 msgid "Scroll to your player"
-msgstr ""
+msgstr "滑動到你的"
 
 #: ../client/tournament.ts:280
 msgid "WITHDRAW"
@@ -1579,7 +1591,7 @@ msgstr "底線棋子隨機排列的核象棋"
 
 #: ../client/lobby/layer3.ts:81
 msgid "Move the king on top of the rook to castle."
-msgstr ""
+msgstr "將國王動到城堡上方以換位"
 
 #: ../client/lobby/layer3.ts:83
 msgid "You can play more at lichess.org."
@@ -1595,15 +1607,15 @@ msgstr "只有把王和车打入它们在国际象棋的普通位置时才能王
 msgid ""
 "You can choose different starting setups including Embassy Chess and Gothic "
 "Chess."
-msgstr ""
+msgstr "你可以選擇不同的開局配置，如信使棋、歌德棋"
 
 #: ../client/lobby/layer3.ts:91
 msgid "For a drop version, choose GRANDHOUSE from the dropdown menu."
-msgstr ""
+msgstr "若想要雙狂版本，在下拉選單中選擇「雙狂大象棋」"
 
 #: ../client/lobby/layer3.ts:93
 msgid "For a drop version, choose S-HOUSE from the dropdown menu."
-msgstr ""
+msgstr "雙狂版請從選單中選擇S-HOUSE"
 
 #: ../client/lobby/layer3.ts:95
 msgid "The queen actually demotes upon capture, so it is not worth as much."
@@ -1615,19 +1627,19 @@ msgstr "炮是一可複雜多變的棋子"
 
 #: ../client/lobby/layer3.ts:99
 msgid "Other piece sets are available, which may help avoid confusion."
-msgstr ""
+msgstr "也有其他棋子的配置、以避免混淆"
 
 #: ../client/lobby/layer3.ts:106
 msgid "Be aware of campmate - victory by moving your king into the 8th rank."
-msgstr ""
+msgstr "請注意達陣這個規則 - 率先將國王動至對方底線者勝利"
 
 #: ../client/lobby/layer3.ts:108
 msgid "Promoting the king prematurely can be dangerous."
-msgstr ""
+msgstr "讓國王太早升變會很危險"
 
 #: ../client/lobby/layer3.ts:111
 msgid "Maximizing khon and met's effectiveness is the key."
-msgstr ""
+msgstr "儘可能發揮士、象的戰力"
 
 #: ../client/lobby/layer3.ts:113
 msgid "Watch out for knight checks, since they cannot be blocked."
@@ -1635,15 +1647,15 @@ msgstr "要留意马叫将，无法挡。"
 
 #: ../client/lobby/layer3.ts:115
 msgid "You can use placement to utilize your stronger pieces from the start."
-msgstr ""
+msgstr "自由擺置西洋棋可以自由配置開局"
 
 #: ../client/lobby/layer3.ts:117
 msgid "King safety is important. Use the king leap move to save time."
-msgstr ""
+msgstr "王的安全很重要"
 
 #: ../client/lobby/layer3.ts:119
 msgid "The ability to promote to rook makes for a dynamic endgame."
-msgstr ""
+msgstr "可升變為車使得殘局變得很激烈"
 
 #: ../client/lobby/layer3.ts:124 ../client/lobby/layer3.ts:136
 msgid "Internationalized sets are available by going to settings."

@@ -23,8 +23,8 @@ export interface Step {
         // TODO white and black should actually be mandatory but I'll leave
         // the feature that use them, namely, reflecting time on the clocks
         // on the round page of a finished game, for a later date -Ada
-        white?: number,
-        black?: number,
+        white: number,
+        black: number,
         movetime: number,
     },
 }
@@ -37,9 +37,6 @@ export interface CrossTable {
 
 }
 
-export interface MsgCtable {
-    ct: CrossTable
-}
 export interface MsgGameNotFound {
     gameId: string;
 }

@@ -3,21 +3,20 @@ import Sockette from 'sockette';
 import { h, VNode } from 'snabbdom';
 
 import { Chessground } from 'chessgroundx';
+import { Api } from "chessgroundx/api";
 
-import { JSONObject } from './types';
+import { JSONObject, PyChessModel } from './types';
 import { _ } from './i18n';
 import { patch } from './document';
-import { chatMessage, chatView } from './chat';
+import { chatMessage, chatView, IChatController } from './chat';
 //import { sound } from './sound';
 import { VARIANTS, uci2LastMove, Variant } from './chess';
 import { timeControlStr } from "./view";
-import { initializeClock, localeOptions } from './datetime';
-import { gameType } from './profile';
+import { initializeClock, localeOptions } from './tournamentClock';
+import { gameType } from './result';
 import { boardSettings } from './boardSettings';
-import { Api } from "chessgroundx/api";
-import { PyChessModel } from "./main";
 import { MsgBoard, MsgChat, MsgFullChat, MsgSpectators, MsgGameEnd, MsgNewGame } from "./messages";
-import * as cg from 'chessgroundx/types';
+import { MsgUserStatus, MsgGetGames, TournamentGame, MsgTournamentStatus, MsgUserConnectedTournament, MsgGetPlayers, TournamentPlayer, MsgError, MsgPing, TopGame } from './tournamentType';
 
 const T_STATUS = {
     0: "created",
@@ -33,106 +32,8 @@ const SCORE_SHIFT = 100000;
 
 const SHIELD = 's';
 
-interface MsgUserStatus {
-    ustatus: string;
-}
 
-interface MsgGetGames {
-    rank: number;
-    name: string;
-    title: string;
-    games: TournamentGame[];
-    perf: number;
-    nbWin: number;
-    nbGames: number;
-    nbBerserk: number;
-}
-
-interface TournamentGame {
-    gameId: string;
-    title: string;
-    name: string;
-    result: string;
-    color: string;
-    rating: number;
-}
-
-interface MsgTournamentStatus {
-    tstatus: number;
-    secondsToFinish: number;
-    nbPlayers: number;
-    sumRating: number;
-    nbGames: number;
-    wWin: number;
-    bWin: number;
-    draw: number;
-    berserk: number;
-}
-
-interface MsgUserConnectedTournament {
-    tsystem: number;
-    tminutes: number;
-    frequency: string;
-    startsAt: string;
-    startFen: cg.FEN;
-
-    username: string;
-    ustatus: string;
-    urating: number;
-    tstatus: number;
-    description: string;
-    defender_name: string;
-    defender_title: string;
-    secondsToStart: number;
-    secondsToFinish: number;
-}
-
-interface MsgGetPlayers {
-    page: number;
-    requestedBy: string;
-    nbPlayers: number;
-    nbGames: number;
-
-    players: TournamentPlayer[];
-    podium?: TournamentPlayer[];
-}
-
-interface TournamentPlayer {
-    name: string;
-    score: number;
-    paused: boolean;
-    title: string;
-    rating: number;
-    points: any[]; // TODO: I am not sure what elements can be in here. most of the time i see 2-element arrays (i think first is the result, second a streak flag or somthing). But i've seen also string '*' as well and there is that chck about isArray that might mean more cases with numeric scalars exist
-    fire: number;
-    perf: number;
-    nbGames: number;
-    nbWin: number;
-    nbBerserk: number;
-}
-
-interface MsgError {
-    message: string;
-}
-interface MsgPing {
-    timestamp: string;
-}
-
-interface TopGame {
-    gameId: string;
-    variant: string;
-    fen: cg.FEN;
-    w: string;
-    b: string;
-    wr: number;
-    br: number;
-    chess960: boolean;
-    base: number;
-    inc: number;
-    byoyomi: number;
-}
-
-export default class TournamentController {
+export class TournamentController implements IChatController {
     sock;
     tournamentId: string;
     readyState: number; // seems unused
@@ -159,7 +60,6 @@ export default class TournamentController {
     secondsToFinish: number;
     username: string;
     anon: boolean;
-    
 
     constructor(el: HTMLElement, model: PyChessModel) {
         console.log("TournamentController constructor", el, model);
@@ -206,6 +106,7 @@ export default class TournamentController {
         this.username = model["username"];
         this.anon = model["anon"] === "True";
 
+        boardSettings.assetURL = model.assetURL;
         boardSettings.updateBoardAndPieceStyles();
     }
 
@@ -310,9 +211,17 @@ export default class TournamentController {
                 h('a.i-dl.icon.icon-download', {
                     attrs: {
                         href: '/games/export/tournament/' + this.tournamentId,
-                        download: this.tournamentId + '.pgn',
+                        download: 'pychess_tournament_' + this.tournamentId + '.pgn',
                     },
                 }, _('Download all games')),
+            ]),
+            h('table.tour-stats-links', [
+                h('a.i-dl.icon.icon-download', {
+                    attrs: {
+                        href: '/tournament/json/' + this.tournamentId,
+                        download: 'pychess_tournament_' + this.tournamentId + '.json',
+                    },
+                }, _('Download all games in JSON')),
             ]),
         ]);
         const el = document.getElementById('summarybox') as HTMLElement;

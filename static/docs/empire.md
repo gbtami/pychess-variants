@@ -71,3 +71,5 @@ Rook | 1276 / 1380	| Tower | 1375 / 1480
  | | | Soldier | 200 / 270
 ## Strategy
 The game is still young, so strategy is still being developed! 
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/0HqKri2R5ls" frameborder="0" allowfullscreen></iframe>

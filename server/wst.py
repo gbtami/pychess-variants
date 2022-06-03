@@ -236,6 +236,8 @@ async def tournament_socket_handler(request):
                         if user.username in ADMINS:
                             if message.startswith("/silence"):
                                 response = silence(message, tourneychat[tournamentId], users)
+                                # silence message was already added to lobbychat in silence()
+
                             elif message.startswith("/abort"):
                                 if tournament.status in (T_CREATED, T_STARTED):
                                     await tournament.abort()
@@ -243,15 +245,20 @@ async def tournament_socket_handler(request):
                                 response = chat_response(
                                     "lobbychat", user.username, data["message"]
                                 )
+                                tourneychat[tournamentId].append(response)
+
+                        elif user.anon:
+                            pass
+
                         else:
                             if user.silence == 0:
                                 response = chat_response(
                                     "lobbychat", user.username, data["message"]
                                 )
+                                tourneychat[tournamentId].append(response)
 
                         if response is not None:
                             await tournament.broadcast(response)
-                            tourneychat[tournamentId].append(response)
 
                     elif data["type"] == "logout":
                         await ws.close()
