@@ -655,9 +655,14 @@ export class RoundController extends GameController {
         }
         if (latestPly) this.ply = msg.ply;
 
-        if (this.ply === 0 && this.variant.name !== 'janggi') {
-            this.expiStart = Date.now();
-            setTimeout(this.showExpiration, 350);
+        if (this.ply === 0) {
+            if (this.variant.name === 'janggi') {
+                // force to set new dests after setup phase!
+                latestPly = true;
+            } else {
+                this.expiStart = Date.now();
+                setTimeout(this.showExpiration, 350);
+            }
         }
 
         if (this.ply >= 2) {
