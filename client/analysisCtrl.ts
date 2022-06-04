@@ -570,7 +570,7 @@ export class AnalysisController extends GameController {
             window.fsf.postMessage('setoption name UCI_Chess960 value true');
         }
         if (this.variant.name !== 'chess') {
-            window.fsf.postMessage('setoption name UCI_Variant value ' + this.variant);
+            window.fsf.postMessage('setoption name UCI_Variant value ' + this.variant.name);
         }
         //console.log('setoption name Threads value ' + maxThreads);
         window.fsf.postMessage('setoption name Threads value ' + maxThreads);
