@@ -120,7 +120,7 @@ export default class AnalysisController {
 
     constructor(el1: HTMLElement,el1Pocket1: HTMLElement,el1Pocket2: HTMLElement,el2: HTMLElement,el2Pocket1: HTMLElement,el2Pocket2: HTMLElement, model: PyChessModel) {
 
-        this.b1 = new ChessgroundController(el1, el1Pocket1, el1Pocket2, model.fen, model.variant, model.chess960==='True');//todo:niki:fen maybe should be parsed from bfen. what situation do we start from custom fen?
+        this.b1 = new ChessgroundController(el1, el1Pocket1, el1Pocket2, model.fen, model.variant, model.chess960==='True'); //todo:niki:fen maybe should be parsed from bfen. what situation do we start from custom fen?
         this.b2 = new ChessgroundController(el2, el2Pocket1, el2Pocket2, model.fen, model.variant, model.chess960==='True');
         this.b2.chessground.set({orientation:"black"});
         this.b1.boardName = 'a';
