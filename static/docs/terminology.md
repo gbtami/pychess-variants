@@ -93,3 +93,6 @@ In this situation, moving the knight to threaten the black queen also opens a di
 ![Sacrifice example](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Sacrifice.png)
 
 In this example, if the white queen takes the black knight, it can easily be retaken by a pawn. However, that would open the knight to deliver checkmate (red arrow). The queen was sacrificed for a much greater reward.
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/e4jYQ0UMmGk" frameborder="0" allowfullscreen></iframe>
+

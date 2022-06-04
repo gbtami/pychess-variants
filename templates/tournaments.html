@@ -4,11 +4,12 @@
 <main class="tournaments box box-pad">
     <div class="box-top">
         <h1>{% trans %}Tournaments{% endtrans %}</h1>
-        {% if admin %}
         <div class="actions">
+            <a class="button calendar" href="{{ home }}/calendar">{% trans %}Tournament calendar{% endtrans %}</a>
+            {% if admin %}
             <a class="button icon icon-plus-square text" href="{{ home }}/tournaments/new">{% trans %}CREATE A NEW TOURNAMENT{% endtrans %}</a>
+            {% endif %}
         </div>
-        {% endif %}
     </div>
     {% for table in tables %}
     <table class="slist">

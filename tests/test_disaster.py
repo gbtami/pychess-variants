@@ -54,7 +54,7 @@ async def agen_players():
         "tid": "12345678",
         "uid": "wplayer",
         "w": 0,
-        "wd": False
+        "wd": False,
     }
 
     yield {
@@ -71,7 +71,7 @@ async def agen_players():
         "tid": "12345678",
         "uid": "bplayer",
         "w": 0,
-        "wd": False
+        "wd": False,
     }
 
 
@@ -110,7 +110,6 @@ class ArenaTestTournament(Tournament):
 
 
 class GamePlayTestCase(AioHTTPTestCase):
-
     async def startup(self, app):
         self.tid = "12345678"
         now = datetime.now(timezone.utc)
@@ -134,7 +133,7 @@ class GamePlayTestCase(AioHTTPTestCase):
             "system": 9,
             "v": "n",
             "y": 1,
-            "z": 0
+            "z": 0,
         }
 
         self.app["db"] = MongoMock()
@@ -143,9 +142,13 @@ class GamePlayTestCase(AioHTTPTestCase):
         self.app["db"].tournament.find_one_and_update = AsyncMock(return_value=doc)
         self.app["db"].tournament.delete_many = AsyncMock(return_value=None)
 
-        self.app["db"].tournament_player.find = MagicMock(return_value=(i async for i in agen_players()))
+        self.app["db"].tournament_player.find = MagicMock(
+            return_value=(i async for i in agen_players())
+        )
 
-        self.app["db"].tournament_pairing.find = MagicMock(return_value=(i async for i in agen_pairings()))
+        self.app["db"].tournament_pairing.find = MagicMock(
+            return_value=(i async for i in agen_pairings())
+        )
         self.app["db"].tournament_pairing.insert_many = AsyncMock(return_value=None)
 
         self.app["db"].game.find_one = AsyncMock(return_value=None)
@@ -155,7 +158,9 @@ class GamePlayTestCase(AioHTTPTestCase):
         self.app["db"].user.find_one_and_update = AsyncMock(return_value=None)
 
         # self.tournament = ArenaTestTournament(self.app, self.tid, before_start=0, minutes=0.1)
-        self.tournament = await load_tournament(self.app, self.tid, tournament_klass=ArenaTestTournament)
+        self.tournament = await load_tournament(
+            self.app, self.tid, tournament_klass=ArenaTestTournament
+        )
 
         self.test_wplayer = self.app["users"]["wplayer"]
         self.test_bplayer = self.app["users"]["bplayer"]
@@ -195,5 +200,5 @@ class GamePlayTestCase(AioHTTPTestCase):
         self.assertEqual(self.tournament.status, T_FINISHED)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main(verbosity=2)

@@ -26,7 +26,8 @@ export const LANGUAGES = {
     ru: "Pусский",
     th: "ไทย",
     tr: "Türkçe",
-    zh: "简体中文",
+    zh_CN: "简体中文",
+    zh_TW: "繁體中文",
 };
 
 const LANGUAGETEXT: {[key:string]: string} = {
@@ -45,7 +46,8 @@ const LANGUAGETEXT: {[key:string]: string} = {
     ru: "Язык",
     th: "ภาษา",
     tr: "Dil",
-    zh: "语言",
+    zh_CN: "语言",
+    zh_TW: "語言",
 };
 
 const preferredLang = window.navigator.language.slice(0, 2);
@@ -73,7 +75,19 @@ export const translatedVariantDisplayNames = [
     _("capablanca"), _("capahouse"), _("s-chess"), _("s-house"),
     _("grand"), _("grandhouse"), _("shako"), _("shogun"), _("hoppel-poppel"),
 
-    _("orda"), _("synochess"), _("shinobi"), _("empire"), _("orda mirror"), _("chak"),
+    _("orda"), _("synochess"), _("shinobi"), _("empire"), _("orda mirror"), _("chak"), _("chennis"),
+];
+
+export const translatedCustomStartPositions = [
+    _('PawnsPushed'), _('PawnsPassed'), _('UpsideDown'), _('Theban'), _('No castle'),
+
+    _('Lance HC'), _('Bishop HC'), _('Rook HC'), _('Rook+Lance HC'), _('2-Piece HC'), _('4-Piece HC'), _('6-Piece HC'), _('8-Piece HC'), _('9-Piece HC'), _('10-Piece HC'),
+
+    _('Gorogoro Plus N+L'), _('Original (No N+L)'),
+
+    _('Left Quail HC'), _('Falcon HC'), _('Falcon + Left Quail HC'), _('Falcon + Both Quails HC'),
+
+    _('Bird'), _('Carrera'), _('Gothic'), _('Embassy'), _('Conservative'),
 ];
 
 class LanguageSettings extends StringSettings {

@@ -38,3 +38,4 @@ jobs:
         PYTHONPATH=server python tests/test_compress.py
         PYTHONPATH=server python tests/test_tournament.py
         PYTHONPATH=server python tests/test_disaster.py
+        PYTHONPATH=server python tests/test_scheduler.py

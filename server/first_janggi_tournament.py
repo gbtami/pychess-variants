@@ -8,7 +8,7 @@ from tournament import ByeGame
 from tournaments import new_tournament
 from utils import load_game
 
-GameRecord = namedtuple('GameRecord', 'color, result, id, oppname')
+GameRecord = namedtuple("GameRecord", "color, result, id, oppname")
 
 Pairings = dict[str, Tuple[GameRecord, ...]]
 
@@ -163,7 +163,9 @@ async def add_games(app):
 
             if game_id not in updated_games:
                 game = await load_game(app, game_id)
-                print("--- %s - %s --- %s" % (game.wplayer.username, game.bplayer.username, game.date))
+                print(
+                    "--- %s - %s --- %s" % (game.wplayer.username, game.bplayer.username, game.date)
+                )
                 wp = game.wplayer
                 bp = game.bplayer
 

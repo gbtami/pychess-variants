@@ -38,21 +38,23 @@ Currently supported games are:
 - [Empire Chess](https://www.pychess.org/variants/empire)
 - [Orda Mirror](https://www.pychess.org/variants/ordamirror)
 - [Chak](https://www.pychess.org/variants/chak)
+- [Chennis](https://www.pychess.org/variants/chennis)
 - [S-house (S-chess+Crazyhouse)](https://www.pychess.org/variants/shouse)
 - [Capahouse (Capablanca+Crazyhouse)](https://www.pychess.org/variants/capahouse)
 - [Grandhouse (Grand chess+Crazyhouse)](https://www.pychess.org/variants/grandhouse)
 - [Chess](https://www.pychess.org/variants/chess)
 
 Additionally you can check Chess960 option in for Chess, Crazyhouse, Atomic, S-chess, Capablanca and Capahouse to start games from random positions with 
-[Chess960 castling rules](https://en.wikipedia.org/wiki/Chess960#Castling_rules)
+[Chess960 castling rules](https://en.wikipedia.org/wiki/Fischer_random_chess#Castling_rules)
 
 For move generation, validation, analysis and engine play it uses
 - [Fairy-Stockfish](https://github.com/ianfab/Fairy-Stockfish)
-- [fairyfishnet](https://github.com/gbtami/fairyfishnet) fork of [fishnet](https://github.com/niklasf/fishnet)
-- [lichess-bot-variants](https://github.com/gbtami/lichess-bot-variants) fork of [lichess-bot](https://github.com/careless25/lichess-bot)
+- [fairy-stockfish.wasm](https://github.com/ianfab/fairy-stockfish.wasm)
+- [fairyfishnet](https://github.com/gbtami/fairyfishnet) fork of [fishnet](https://github.com/lichess-org/fishnet)
+- [lichess-bot-variants](https://github.com/gbtami/lichess-bot-variants) fork of [lichess-bot](https://github.com/ShailChoksi/lichess-bot)
 
 On client side it is based on
-[chessgroundx](https://github.com/gbtami/chessgroundx) fork of [chessground](https://github.com/ornicar/chessground)
+[chessgroundx](https://github.com/gbtami/chessgroundx) fork of [chessground](https://github.com/lichess-org/chessground)
 
 ##
 
@@ -64,7 +66,7 @@ Your contribution will be greatly appreciated and help me continue to develop th
 ## Installation
 
 ### Prerequisites
-* You need mongodb up and running. [Mongo daemon](https://docs.mongodb.com/manual/installation/)
+* You need mongodb up and running. [Mongo daemon](https://www.mongodb.com/docs/manual/installation/)
 
 
 ### Project setup
@@ -79,3 +81,9 @@ yarn md                                 // Compile md files to html
 ```
 python3 server/server.py
 ```
+
+## Supported browsers
+
+Pychess-variants should support almost all browsers. Though older browsers (including any version of Internet Explorer) will not work. For your own sake, please upgrade. Security and performance, think about it!
+
+Only [Fairy-Stockfish analysis](https://www.pychess.org/analysis/chess) might not work on all browsers.

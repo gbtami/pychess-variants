@@ -56,3 +56,5 @@ Relatively little is known about many of the variants here. Creativity and atten
 Try not to make "routine" developing moves. Sometimes it is worth spending more time to reposition fewer pieces optimally, rather than to develop many pieces suboptimally in less time. Even the variants which appear to resemble chess cannot be played with routine chess moves for very long.
 
 Continue to play more and if you discover new strategies or advice, let us know!
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/CRrncO-w524" frameborder="0" allowfullscreen></iframe>

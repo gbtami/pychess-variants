@@ -1,10 +1,10 @@
 import { h, VNode } from "snabbdom";
 
 import { VARIANTS } from './chess';
-import RoundController from './roundCtrl';
+import { RoundController } from './roundCtrl';
 import { gameInfo } from './gameInfo';
 import { renderTimeago } from './datetime';
-import { PyChessModel } from "./main";
+import { PyChessModel } from "./types";
 
 function runGround(vnode: VNode, model: PyChessModel) {
     const el = vnode.elm as HTMLElement;
@@ -76,7 +76,7 @@ export function roundView(model: PyChessModel): VNode[] {
         h('under-left#spectators'),
         h('under-board', [
             h('div#janggi-setup-buttons'),
-            h('div#ctable-container'),
+            h('div.ctable-container'),
         ]),
     ];
 }

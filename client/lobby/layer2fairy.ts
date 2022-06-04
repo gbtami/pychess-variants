@@ -4,12 +4,12 @@ import { _ } from '../i18n';
 import { VARIANTS } from '../chess';
 import { patch } from '../document';
 import { LobbyController } from '../lobby';
-import { goBackToLayer1 } from './layer1';
+import { goBackToLayer1 } from './util';
 import { layer3variant } from './layer3';
 
 
 export function layer2fairy (lobbyCtrl: LobbyController, containerId: string): void {
-    const assetUrl = lobbyCtrl.model['asset-url'];
+    const assetUrl = lobbyCtrl.assetURL;
     const layer2cont = h('div#layer2fairycont.layer-2-container.fairy-grid', [
         h('button.layer-2-category generic-variant-info.generic-fairy', [
             h('div.layer-two-category-info', [

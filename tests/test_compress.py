@@ -13,7 +13,6 @@ sf.set_option("VariantPath", "variants.ini")
 
 
 class EncodeDecodeTestCase(unittest.TestCase):
-
     def test_encode_decode(self):
         for idx, variant in enumerate(VARIANTS):
             print(idx, variant)
@@ -22,10 +21,15 @@ class EncodeDecodeTestCase(unittest.TestCase):
             # fill the pockets with possible pieces
             for empty_pocket in ("[]", "[-]"):
                 if empty_pocket in FEN:
-                    pocket = "".join([i for i in set(FEN.split()[0]) if i in string.ascii_letters and i not in "Kk"])
+                    pocket = "".join(
+                        [
+                            i
+                            for i in set(FEN.split()[0])
+                            if i in string.ascii_letters and i not in "Kk"
+                        ]
+                    )
                     parts = FEN.split(empty_pocket)
                     FEN = "%s[%s]%s" % (parts[0], pocket, parts[1])
-                # print(idx, variant, FEN)
 
             board = FairyBoard(variant, initial_fen=FEN)
             moves = board.legal_moves()
@@ -34,5 +38,5 @@ class EncodeDecodeTestCase(unittest.TestCase):
             self.assertEqual(saved_restored, moves)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main(verbosity=2)

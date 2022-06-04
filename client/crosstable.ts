@@ -51,5 +51,5 @@ export function crosstableView (ctable: CrossTable, gameId: string) {
 
     rows.push(h('div.ct-score', [lt1, lt2]));
 
-    return h('div#ctable-container', [ h('div.crosstable', rows) ]);
+    return h('div.ctable-container', {attrs: {id: 'panel-3', role: 'tabpanel', tabindex: '0', 'aria-labelledby': 'tab-3'}}, [ h('div.crosstable', rows) ]);
 }

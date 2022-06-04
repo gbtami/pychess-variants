@@ -1,5 +1,8 @@
 from settings import static_url
 
+SCHEDULE_MAX_DAYS = 7
+TOURNAMENT_SPOTLIGHTS_MAX = 4
+
 # Max number of lobby chat lines (deque limit)
 MAX_CHAT_LINES = 100
 
@@ -19,7 +22,25 @@ DAILY, WEEKLY, MONTHLY, YEARLY, MARATHON, SHIELD = "d", "w", "m", "y", "a", "s"
 ARENA, RR, SWISS = range(3)
 
 # translations
-LANGUAGES = ["de", "en", "es", "gl_ES", "fr", "hu", "it", "ja", "ko", "nl", "pl", "pt", "ru", "th", "tr", "zh"]
+LANGUAGES = [
+    "de",
+    "en",
+    "es",
+    "gl_ES",
+    "fr",
+    "hu",
+    "it",
+    "ja",
+    "ko",
+    "nl",
+    "pl",
+    "pt",
+    "ru",
+    "th",
+    "tr",
+    "zh_CN",
+    "zh_TW",
+]
 
 # fishnet work types
 MOVE, ANALYSIS = 0, 1
@@ -28,8 +49,24 @@ MOVE, ANALYSIS = 0, 1
 CASUAL, RATED, IMPORTED = 0, 1, 2
 
 # game status
-CREATED, STARTED, ABORTED, MATE, RESIGN, STALEMATE, TIMEOUT, DRAW, FLAG, \
-    ABANDONE, CHEAT, BYEGAME, INVALIDMOVE, UNKNOWNFINISH, VARIANTEND, CLAIM = range(-2, 14)
+(
+    CREATED,
+    STARTED,
+    ABORTED,
+    MATE,
+    RESIGN,
+    STALEMATE,
+    TIMEOUT,
+    DRAW,
+    FLAG,
+    ABANDONE,
+    CHEAT,
+    BYEGAME,
+    INVALIDMOVE,
+    UNKNOWNFINISH,
+    VARIANTEND,
+    CLAIM,
+) = range(-2, 14)
 
 LOSERS = {
     "abandone": ABANDONE,
@@ -90,7 +127,7 @@ VARIANTS = (
     "empire",
     "ordamirror",
     "chak",
-    # "chennis"
+    "chennis",
 )
 
 VARIANT_ICONS = {
@@ -138,7 +175,7 @@ VARIANT_ICONS = {
     "ordamirror": "◩",
     "asean": "♻",
     "chak": "🐬",
-    # "chennis": "🎾",
+    "chennis": "🎾",
 }
 
 VARIANT_960_TO_PGN = {
@@ -146,7 +183,7 @@ VARIANT_960_TO_PGN = {
     "capablanca": "Caparandom",
     "capahouse": "Capahouse960",
     "crazyhouse": "Crazyhouse",  # to let lichess import work
-    "atomic": "Atomic",          # to let lichess import work
+    "atomic": "Atomic",  # to let lichess import work
     "seirawan": "Seirawan960",
     # some early game is accidentally saved as 960 in mongodb
     "shogi": "Shogi",
@@ -157,11 +194,39 @@ VARIANT_960_TO_PGN = {
 }
 
 CATEGORIES = {
-    "chess": ("chess", "chess960", "crazyhouse", "crazyhouse960", "placement", "atomic", "atomic960"),
-    "fairy": ("capablanca", "capablanca960", "capahouse", "capahouse960", "seirawan", "seirawan960", "shouse", "grand", "grandhouse", "shako", "shogun", "hoppelpoppel"),
+    "chess": (
+        "chess",
+        "chess960",
+        "crazyhouse",
+        "crazyhouse960",
+        "placement",
+        "atomic",
+        "atomic960",
+    ),
+    "fairy": (
+        "capablanca",
+        "capablanca960",
+        "capahouse",
+        "capahouse960",
+        "seirawan",
+        "seirawan960",
+        "shouse",
+        "grand",
+        "grandhouse",
+        "shako",
+        "shogun",
+        "hoppelpoppel",
+    ),
     "army": ("orda", "synochess", "shinobi", "empire", "ordamirror", "chak", "chennis"),
     "makruk": ("makruk", "makpong", "cambodian", "sittuyin", "asean"),
-    "shogi": ("shogi", "minishogi", "kyotoshogi", "dobutsu", "gorogoroplus", "torishogi"),
+    "shogi": (
+        "shogi",
+        "minishogi",
+        "kyotoshogi",
+        "dobutsu",
+        "gorogoroplus",
+        "torishogi",
+    ),
     "xiangqi": ("xiangqi", "manchu", "janggi", "minixiangqi"),
 }
 
@@ -176,8 +241,9 @@ TROPHIES = {
     "top50": (static_url("images/trophy/Fancy-Gold-Cup.png"), "Top 50!"),
     "top100": (static_url("images/trophy/Gold-Cup.png"), "Top 100!"),
     "shield": (static_url("images/trophy/shield-gold.png"), "Shield"),
-    # an example custom trophy from lichess
+    # some example custom trophy from lichess
     "acwc19": (static_url("images/trophy/acwc19.png"), "World Champion 2019"),
+    "3wc21": (static_url("images/trophy/3wc21.png"), "World Champion 2021"),
 }
 
 

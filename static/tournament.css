@@ -172,7 +172,6 @@ td.sheet {
     text-align: right;
     padding-right: 0px;
     padding-left: 0px;
-    letter-spacing: 0.1em;
     width: 100%;
 }
 td.sheet > * {
@@ -182,6 +181,10 @@ td.sheet div {
     display: flex;
     flex-flow: row wrap;
     justify-content: flex-end;
+    gap: 0.1em;
+}
+div.janggi td.sheet div {
+    gap: 0.3em;
 }
 td.sheet score {
     opacity: 0.7;
@@ -385,11 +388,13 @@ div.player {
     margin-bottom: 1em;
     text-align: center;
 }
+#summary table tr {
+    line-height: 2em;
+}
 #summary table td {
     font-weight: bold;
     padding: 0 0 0 1em;
     text-align: right;
-    line-height: 2em;
 }
 .tour-stats-links {
     margin: 2em auto 0 auto;

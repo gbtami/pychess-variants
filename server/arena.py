@@ -51,8 +51,17 @@ class ArenaTournament(Tournament):
                 if nb_waiting_players == 2:
                     y = waiting_players[1]
 
-                    if y.username not in (g.wplayer.username if g.bplayer.username == x.username else g.bplayer.username for g in self.players[x].games):
+                    if y.username not in (
+                        g.wplayer.username
+                        if g.bplayer.username == x.username
+                        else g.bplayer.username
+                        for g in self.players[x].games
+                    ):
                         print("   find OK opp (they never played before!)", y.username)
+                        pair_them(x, y)
+                        return True
+                    elif self.ongoing_games == 0:
+                        print("   find OK opp (duel!)", y.username)
                         pair_them(x, y)
                         return True
                     else:
@@ -81,7 +90,11 @@ class ArenaTournament(Tournament):
                     if self.players[x].color_balance < color_balance_limit:
                         # player x played more black games
                         if self.players[x].color_balance >= self.players[y].color_balance:
-                            print("   FAILED color_balance x vs y", self.players[x].color_balance, self.players[y].color_balance)
+                            print(
+                                "   FAILED color_balance x vs y",
+                                self.players[x].color_balance,
+                                self.players[y].color_balance,
+                            )
                             continue
                         else:
                             find = True

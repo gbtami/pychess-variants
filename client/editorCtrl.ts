@@ -1,73 +1,40 @@
-import ffishModule from 'ffish-es6';
-
 import { h, VNode } from 'snabbdom';
 
-import { Chessground } from 'chessgroundx';
-import { Api } from 'chessgroundx/api';
 import * as cg from 'chessgroundx/types';
 import * as util from 'chessgroundx/util';
 
 import { _ } from './i18n';
-import { VARIANTS, validFen, Variant, hasCastling, unpromotedRole, promotedRole, notation } from './chess'
-import { boardSettings } from './boardSettings';
+import { validFen, hasCastling, unpromotedRole, promotedRole, notation } from './chess'
+import { diff, calculatePieceNumber } from './material';
 import { iniPieces } from './pieces';
 import { copyBoardToPNG } from './png';
-import { variantsIni } from './variantsIni';
 import { patch } from './document';
-import { PyChessModel } from "./main";
+import { PyChessModel } from "./types";
+import { ChessgroundController } from './cgCtrl';
 
-export class EditorController {
+export class EditorController extends ChessgroundController {
     model;
-    chessground: Api;
-    notation: cg.Notation;
-    fullfen: string;
     startfen: string;
-    mycolor: cg.Color;
-    oppcolor: cg.Color;
     parts: string[];
     castling: string;
-    variant: Variant;
-    hasPockets: boolean;
     vpieces0: VNode;
     vpieces1: VNode;
     vfen: VNode;
     vAnalysis: VNode;
     vChallenge: VNode;
-    anon: boolean;
-    flip: boolean;
-    ffish: any;
-    ffishBoard: any;
 
     constructor(el: HTMLElement, model: PyChessModel) {
+        super(el, model);
         this.model = model;
-        this.variant = VARIANTS[model["variant"]];
         this.startfen = model["fen"] as string;
-        this.flip = false;
-        this.anon = model["anon"] === 'True';
 
         this.parts = this.startfen.split(" ");
         this.castling = this.parts.length > 2 ? this.parts[2] : '';
-        this.fullfen = this.startfen;
-
-        this.hasPockets = this.variant.pocket;
-
-        // pocket part of the FEN (including brackets)
-        // this.pocketsPart = (this.hasPockets) ? getPockets(this.startfen) : '';
 
         this.notation = notation(this.variant);
 
-        this.mycolor = 'white';
-        this.oppcolor = 'black';
-
-        const pocket0 = document.getElementById('pocket0') as HTMLElement;
-        const pocket1 = document.getElementById('pocket1') as HTMLElement;
-
-        this.chessground = Chessground(el, {
-            fen: this.parts[0],
+        this.chessground.set({
             autoCastle: false,
-            variant: this.variant.name as cg.Variant,
-            geometry: this.variant.geometry,
-            notation: this.notation,
             orientation: this.mycolor,
             movable: {
                 free: true,
@@ -82,10 +49,7 @@ export class EditorController {
             draggable: {
                 deleteOnDropOff: true,
             },
-            addDimensionsCssVars: true,
-
-            pocketRoles: color => this.variant.pocketRoles(color),
-        }, pocket0, pocket1);
+        });
 
         //
         ['mouseup', 'touchend'].forEach(name =>
@@ -103,14 +67,6 @@ export class EditorController {
                 } ) });
             })
         );
-
-        //
-        boardSettings.ctrl = this;
-        const boardFamily = this.variant.board;
-        const pieceFamily = this.variant.piece;
-        boardSettings.updateBoardStyle(boardFamily);
-        boardSettings.updatePieceStyle(pieceFamily);
-        boardSettings.updateZoom(boardFamily);
 
         // initialize pieces
         const pieces0 = document.getElementById('pieces0') as HTMLElement;
@@ -175,12 +131,15 @@ export class EditorController {
                     ]),
                 ]),
 
-                h('a#flip.i-pgn', { on: { click: () => boardSettings.toggleOrientation() } }, [
+                h('a#flip.i-pgn', { on: { click: () => this.toggleOrientation() } }, [
                     h('div.icon.icon-refresh', _('FLIP BOARD'))
                 ]),
                 h('a#clear.i-pgn', { on: { click: () => this.setEmptyFen() } }, [
                     h('div.icon.icon-trash-o', _('CLEAR BOARD'))
                 ]),
+                this.variant.drop ? h('a#fill.i-pgn', { on: { click: () => this.fillHand() } }, [
+                    h('div.icon.icon-sign-in', _("FILL %1'S HAND", _(this.variant.secondColor).toUpperCase()))
+                ]) : '',
                 h('a#start.i-pgn', { on: { click: () => this.setStartFen() } }, [
                     h('div.icon.' + dataIcon, _('STARTING POSITION'))
                 ]),
@@ -188,24 +147,22 @@ export class EditorController {
                     h('div.icon.icon-microscope', _('ANALYSIS BOARD'))
                 ]),
                 h('a#challengeAI.i-pgn', { on: { click: () => this.setChallengeFen() } }, [
-                    h('div.icon.icon-bot', _('PLAY WITH MACHINE') + ((model["anon"] === 'True') ? _(' (must be signed in)') : ''))
+                    h('div.icon.icon-bot', _('PLAY WITH MACHINE'))
                 ]),
                 h('a#pgn.i-pgn', { on: { click: () => copyBoardToPNG(this.parts.join(' ')) } }, [
                     h('div.icon.icon-download', _('EXPORT TO PNG'))
                 ])
             ];
             patch(container, h('div.editor-button-container', buttons));
-
-            ffishModule().then((loadedModule: any) => {
-                this.ffish = loadedModule;
-
-                if (this.ffish !== null) {
-                    this.ffish.loadVariantConfig(variantsIni);
-                    this.ffishBoard = new this.ffish.Board(this.variant.name, this.fullfen, this.model.chess960 === 'True');
-                }
-            });
         }
+    }
 
+    toggleOrientation() {
+        super.toggleOrientation()
+
+        if (this.vpieces0 !== undefined && this.vpieces1 !== undefined) {
+            iniPieces(this, this.vpieces0, this.vpieces1);
+        }
     }
 
     private onChangeTurn = (e: Event) => {
@@ -261,7 +218,7 @@ export class EditorController {
         analysis.classList.toggle('disabled', invalid);
 
         const challenge = document.getElementById('challengeAI') as HTMLElement;
-        challenge.classList.toggle('disabled', invalid || this.anon);
+        challenge.classList.toggle('disabled', invalid);
 
         const e = document.getElementById('fen') as HTMLInputElement;
         e.setCustomValidity(invalid ? _('Invalid FEN') : '');
@@ -276,15 +233,29 @@ export class EditorController {
     private setEmptyFen = () => {
         const w = this.variant.boardWidth;
         const h = this.variant.boardHeight;
-        const empty_fen = (String(w) + '/').repeat(h);
+        const emptyFen = Array(h).fill(String(w)).join('/');
 
-        const pocketsPart = (this.hasPockets) ? '[]' : '';
-        this.parts[0] = empty_fen + pocketsPart;
+        const pocketsPart = this.hasPockets ? '[]' : '';
+        this.parts[0] = emptyFen + pocketsPart;
         this.parts[1] = 'w'
         if (this.parts.length > 2) this.parts[2] = '-';
         const e = document.getElementById('fen') as HTMLInputElement;
         e.value = this.parts.join(' ');
         this.setFen(true);
+    }
+
+    private fillHand = () => {
+        const initialMaterial = calculatePieceNumber(this.variant);
+        const currentMaterial = calculatePieceNumber(this.variant, this.fullfen);
+        const neededMaterial = diff(initialMaterial, currentMaterial);
+
+        const blackPocket = this.chessground.state.pockets!['black']!;
+        for (const [role, num] of neededMaterial) {
+            if (role in blackPocket && num > 0)
+                blackPocket[role]! += num;
+        }
+
+        this.onChange();
     }
 
     private setAnalysisFen = () => {
@@ -301,7 +272,6 @@ export class EditorController {
         const fen = document.getElementById('fen') as HTMLInputElement;
         if (isInput) {
             this.parts = fen.value.split(' ');
-            // this.pocketsPart = (this.hasPockets) ? getPockets(fen.value) : '';
             this.chessground.set({ fen: fen.value });
             this.setInvalid(!this.validFen());
 
@@ -336,8 +306,9 @@ export class EditorController {
         // onChange() will get then set and validate FEN from chessground pieces
         this.chessground.set({lastMove: []});
         this.parts[0] = this.chessground.getFen();
+        this.fullfen = this.parts.join(' ');
         const e = document.getElementById('fen') as HTMLInputElement;
-        e.value = this.parts.join(' ');
+        e.value = this.fullfen;
         this.setInvalid(!this.validFen());
     }
 
@@ -391,9 +362,9 @@ export class EditorController {
         if (piece) {
             const role = unpromotedRole(this.variant , piece);
             const color = el.getAttribute('data-color') as cg.Color;
-            const pocket = this.chessground.state.pockets![color];
-            if (role in pocket!) {
-                pocket![role]!++;
+            const pocket = this.chessground.state.pockets![color]!;
+            if (role in pocket) {
+                pocket[role]!++;
                 this.onChange();
             }
         }

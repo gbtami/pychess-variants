@@ -40,10 +40,10 @@
      inkscape:window-height="2050"
      id="namedview9536"
      showgrid="false"
-     inkscape:zoom="5.656854"
-     inkscape:cx="-64.086169"
-     inkscape:cy="69.817475"
-     inkscape:window-x="3828"
+     inkscape:zoom="22.627416"
+     inkscape:cx="-2.0541963"
+     inkscape:cy="27.943608"
+     inkscape:window-x="-12"
      inkscape:window-y="-12"
      inkscape:window-maximized="1"
      inkscape:current-layer="svg9534"
@@ -114,19 +114,4 @@
      stroke="none"
      id="path7081"
      style="stroke-width:0.75" />
-  <g
-     id="g11072"
-     style="stroke:#ffffff;stroke-opacity:1"
-     transform="translate(1.3556841,-8.892856)">
-    <path
-       style="fill:none;fill-opacity:1;stroke:#ececec;stroke-width:1;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       d="m 12.178118,40.973213 c 3.493619,-3.67615 6.270629,-7.210837 7.410714,-12.299107"
-       id="path10760"
-       sodipodi:nodetypes="cc" />
-    <path
-       style="fill:#000080;fill-opacity:1;stroke:#ececec;stroke-width:1;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       d="m 11.240618,33.763392 c 1.432124,1.235343 2.289772,1.882485 4.375,2.633927"
-       id="path10762"
-       sodipodi:nodetypes="cc" />
-  </g>
 </svg>
