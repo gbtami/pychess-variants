@@ -29,8 +29,8 @@ export interface Step {
     // turnColorB?: cg.Color;//for second board of bughouse - todo:niki:i wonder if this is needed at all for either boards and variant
     clocks?: {
         // TODO white and black should actually be mandatory but I'll leave
-        //      the feature that use them, namely, reflecting time on the clocks
-        //      on the round page of a finished game, for a later date -Ada
+        // the feature that use them, namely, reflecting time on the clocks
+        // on the round page of a finished game, for a later date -Ada
         white: number,
         black: number,
         movetime: number,
