@@ -514,6 +514,7 @@ async def index(request):
         render["rounds"] = tournament.rounds
         render["frequency"] = tournament.frequency
         render["status"] = tournament.status
+        render["title"] = tournament.browser_title
 
     if view == "level8win":
         render["level"] = 8
