@@ -250,8 +250,7 @@ export class EditorController extends ChessgroundController {
         const neededMaterial = diff(initialMaterial, currentMaterial);
 
         const blackPocket = this.chessground.state.pockets!['black']!;
-        for (const [letter, num] of neededMaterial) {
-            const role = util.roleOf(letter);
+        for (const [role, num] of neededMaterial) {
             if (role in blackPocket && num > 0)
                 blackPocket[role]! += num;
         }
