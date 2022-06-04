@@ -5,177 +5,177 @@ mpiece {
     background-size: cover;
     display: inline-block;
 }
-mpiece.p {
+mpiece.p-piece {
     margin-left: -15px;
 }
 .material div {
     display: inline-block;
     margin-left: 10px;
 }
-mpiece.k {
+mpiece.k-piece {
     background-image: url('../../images/pieces/mono/king.svg');
 }
-mpiece.q {
+mpiece.q-piece {
     background-image: url('../../images/pieces/mono/queen.svg');
 }
-mpiece.r {
+mpiece.r-piece {
     background-image: url('../../images/pieces/mono/rook.svg');
 }
-mpiece.b {
+mpiece.b-piece {
     background-image: url('../../images/pieces/mono/bishop.svg');
 }
-mpiece.n {
+mpiece.n-piece {
     background-image: url('../../images/pieces/mono/knight.svg');
 }
-mpiece.p {
+mpiece.p-piece {
     background-image: url('../../images/pieces/mono/pawn.svg');
 }
 
-.makruk mpiece.s, .sittuyin mpiece.s, .asean mpiece.b {
+.makruk mpiece.s-piece, .sittuyin mpiece.s-piece, .asean mpiece.b-piece {
     background-image: url('../../images/pieces/mono/makruk-bishop.svg');
 }
-.makruk mpiece.m, .sittuyin mpiece.f, .asean mpiece.q {
+.makruk mpiece.m-piece, .sittuyin mpiece.f-piece, .asean mpiece.q-piece {
     background-image: url('../../images/pieces/mono/makruk-promoted-pawn.svg');
 }
 
-.capa mpiece.c, .grand mpiece.c {
+.capa mpiece.c-piece, .grand mpiece.c-piece {
     background-image: url('../../images/pieces/mono/chancellor.svg');
 }
-.capa mpiece.a, .grand mpiece.a {
+.capa mpiece.a-piece, .grand mpiece.a-piece {
     background-image: url('../../images/pieces/mono/archbishop.svg');
 }
 
-.seirawan mpiece.e {
+.seirawan mpiece.e-piece {
     background-image: url('../../images/pieces/mono/seirawan-elephant.svg');
 }
-.seirawan mpiece.h {
+.seirawan mpiece.h-piece {
     background-image: url('../../images/pieces/mono/hawk.svg');
 }
 
-.shako mpiece.c {
+.shako mpiece.c-piece {
     background-image: url('../../images/pieces/mono/shako-cannon.svg');
 }
-.shako mpiece.e {
+.shako mpiece.e-piece {
     background-image: url('../../images/pieces/mono/shako-elephant.svg');
 }
 
-.hoppel mpiece.n {
+.hoppel mpiece.n-piece {
     background-image: url('../../images/pieces/mono/kangaroo.svg');
 }
-.hoppel mpiece.b {
+.hoppel mpiece.b-piece {
     background-image: url('../../images/pieces/mono/snake.svg');
 }
 
-.xiangqi mpiece.r, .janggi mpiece.r, .xiangqi mpiece.m {
+.xiangqi mpiece.r-piece, .janggi mpiece.r-piece, .xiangqi mpiece.m-piece {
     background-image: url('../../images/pieces/mono/chariot.svg');
 }
-.xiangqi mpiece.b, .janggi mpiece.b {
+.xiangqi mpiece.b-piece, .janggi mpiece.b-piece {
     background-image: url('../../images/pieces/mono/shako-elephant.svg');
 }
-.xiangqi mpiece.a, .janggi mpiece.a {
+.xiangqi mpiece.a-piece, .janggi mpiece.a-piece {
     background-image: url('../../images/pieces/mono/advisor.svg');
 }
-.xiangqi mpiece.c {
+.xiangqi mpiece.c-piece {
     background-image: url('../../images/pieces/mono/xiangqi-cannon.svg');
 }
-.janggi mpiece.c {
+.janggi mpiece.c-piece {
     background-image: url('../../images/pieces/mono/janggi-cannon.svg');
 }
-.xiangqi mpiece.p, .janggi mpiece.p {
+.xiangqi mpiece.p-piece, .janggi mpiece.p-piece {
     background-image: url('../../images/pieces/mono/soldier.svg');
 }
 
-.orda mpiece.l, .ordamirror mpiece.l {
+.orda mpiece.l-piece, .ordamirror mpiece.l-piece {
     background-image: url('../../images/pieces/mono/lancer.svg');
 }
-.orda mpiece.h, .ordamirror mpiece.h {
+.orda mpiece.h-piece, .ordamirror mpiece.h-piece {
     background-image: url('../../images/pieces/mono/kheshig.svg');
 }
-.orda mpiece.a, .ordamirror mpiece.a {
+.orda mpiece.a-piece, .ordamirror mpiece.a-piece {
     background-image: url('../../images/pieces/mono/archer.svg');
 }
-.orda mpiece.y {
+.orda mpiece.y-piece {
     background-image: url('../../images/pieces/mono/yurt.svg');
 }
-.ordamirror mpiece.f {
+.ordamirror mpiece.f-piece {
     background-image: url('../../images/pieces/mono/falcon.svg');
 }
 
-.synochess mpiece.e {
+.synochess mpiece.e-piece {
     background-image: url('../../images/pieces/mono/shako-elephant.svg');
 }
-.synochess mpiece.a {
+.synochess mpiece.a-piece {
     background-image: url('../../images/pieces/mono/advisor.svg');
 }
-.synochess mpiece.s {
+.synochess mpiece.s-piece {
     background-image: url('../../images/pieces/mono/soldier.svg');
 }
-.synochess mpiece.c {
+.synochess mpiece.c-piece {
     background-image: url('../../images/pieces/mono/synochess-cannon.svg');
 }
-.synochess.black mpiece.r {
+.synochess.black mpiece.r-piece {
     background-image: url('../../images/pieces/mono/synochess-rook.svg');
 }
 
-.shinobi mpiece.l {
+.shinobi mpiece.l-piece {
     background-image: url('../../images/pieces/mono/lance.svg');
 }
-.shinobi mpiece.h {
+.shinobi mpiece.h-piece {
     background-image: url('../../images/pieces/mono/wooden-horse.svg');
 }
-.shinobi mpiece.m {
+.shinobi mpiece.m-piece {
     background-image: url('../../images/pieces/mono/monk.svg');
 }
-.shinobi mpiece.c {
+.shinobi mpiece.c-piece {
     background-image: url('../../images/pieces/mono/captain.svg');
 }
-.shinobi mpiece.d {
+.shinobi mpiece.d-piece {
     background-image: url('../../images/pieces/mono/dragon.svg');
 }
-.shinobi mpiece.j {
+.shinobi mpiece.j-piece {
     background-image: url('../../images/pieces/mono/ninja.svg');
 }
-.shinobi.white mpiece.r {
+.shinobi.white mpiece.r-piece {
     background-image: url('../../images/pieces/mono/shinobi-rook.svg');
 }
 
-.empire mpiece.d {
+.empire mpiece.d-piece {
     background-image: url('../../images/pieces/mono/duke.svg');
 }
-.empire mpiece.t {
+.empire mpiece.t-piece {
     background-image: url('../../images/pieces/mono/tower.svg');
 }
-.empire mpiece.c {
+.empire mpiece.c-piece {
     background-image: url('../../images/pieces/mono/cardinal.svg');
 }
-.empire mpiece.e {
+.empire mpiece.e-piece {
     background-image: url('../../images/pieces/mono/eagle.svg');
 }
-.empire mpiece.s {
+.empire mpiece.s-piece {
     background-image: url('../../images/pieces/mono/soldier.svg');
 }
 
-.chak mpiece.p {
+.chak mpiece.p-piece {
     background-image: url('../../images/pieces/mono/chak-pawn.svg');
 }
-.chak mpiece.r {
+.chak mpiece.r-piece {
     background-image: url('../../images/pieces/mono/serpent.svg');
 }
-.chak mpiece.v {
+.chak mpiece.v-piece {
     background-image: url('../../images/pieces/mono/vulture.svg');
 }
-.chak mpiece.s {
+.chak mpiece.s-piece {
     background-image: url('../../images/pieces/mono/shaman.svg');
 }
-.chak mpiece.q {
+.chak mpiece.q-piece {
     background-image: url('../../images/pieces/mono/quetzal.svg');
 }
-.chak mpiece.j {
+.chak mpiece.j-piece {
     background-image: url('../../images/pieces/mono/jaguar.svg');
 }
-.chak mpiece.o {
+.chak mpiece.o-piece {
     background-image: url('../../images/pieces/mono/offering.svg');
 }
-.chak mpiece.pp {
+.chak mpiece.pp-piece {
     background-image: url('../../images/pieces/mono/warrior.svg');
 }
