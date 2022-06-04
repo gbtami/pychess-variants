@@ -1,0 +1,183 @@
+# Translations template for PROJECT.
+# Copyright (C) 2022 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
+# 
+# Translators:
+# gbtami <gbtami@gmail.com>, 2022
+# 
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2022-05-02 23:28+0200\n"
+"PO-Revision-Date: 2020-05-04 12:19+0000\n"
+"Last-Translator: gbtami <gbtami@gmail.com>, 2022\n"
+"Language-Team: Chinese (Taiwan) (https://www.transifex.com/gbtami/teams/14790/zh_TW/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.9.1\n"
+"Language: zh_TW\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#: ../templates/closed.html:8
+msgid "This account is closed."
+msgstr "此帳戶已被關閉。"
+
+#: ../templates/patron.html:8
+msgid ""
+"As you know, pychess-variants is a free server and it will remain free forever. However, maintaining and improving the server costs time and money.\n"
+"If you like our work and find our server useful, please donate through patreon or paypal."
+msgstr ""
+"如您所知，pychess-"
+"variants是免費為您提供的，而永遠會是免費的。然而，維持與更新我們的服務器導致時間與金錢的消費。如果您想支持我們的工作，請通過我們的Patreon或PayPal捐贈。"
+
+#: ../templates/players.html:7
+msgid "All players"
+msgstr "棋手一覽"
+
+#: ../templates/players.html:9 ../templates/winners.html:6
+msgid "Tournament winners"
+msgstr "錦標賽冠軍"
+
+#: ../templates/players.html:10 ../templates/shields.html:6
+msgid "Tournament shields"
+msgstr "盾牌賽冠軍"
+
+#: ../templates/players.html:14
+msgid "Online"
+msgstr "在線"
+
+#: ../templates/players.html:33
+msgid "Anonymous"
+msgstr "匿名"
+
+#: ../templates/players50.html:6
+msgid "Top 50"
+msgstr "前50強"
+
+#: ../templates/profile.html:14
+#, python-format
+msgid "%(count)s game"
+msgid_plural "%(count)s games"
+msgstr[0] "%(count)s 對局"
+
+#: ../templates/profile.html:42
+msgid "Watch games"
+msgstr "觀看棋局"
+
+#: ../templates/profile.html:44
+msgid "Challenge to a game"
+msgstr "挑戰"
+
+#: ../templates/profile.html:47
+msgid "Import game"
+msgstr "導入棋局"
+
+#: ../templates/profile.html:50
+msgid "Export games"
+msgstr "導出棋局"
+
+#: ../templates/profile.html:53
+msgid "Lichess profile"
+msgstr "Lichess個人資料"
+
+#: ../templates/template.html:18
+msgid "Play"
+msgstr "遊戲"
+
+#: ../templates/template.html:20
+msgid "Create a game"
+msgstr "創建遊戲"
+
+#: ../templates/template.html:21 ../templates/tournaments.html:6
+msgid "Tournaments"
+msgstr "錦標賽"
+
+#: ../templates/template.html:25
+msgid "Watch"
+msgstr "觀看"
+
+#: ../templates/template.html:27
+msgid "Tv"
+msgstr "TV"
+
+#: ../templates/template.html:28
+msgid "Current games"
+msgstr "當前對局"
+
+#: ../templates/template.html:32
+msgid "Community"
+msgstr "社群"
+
+#: ../templates/template.html:34
+msgid "Players"
+msgstr "棋手"
+
+#: ../templates/template.html:35
+msgid "Blog"
+msgstr "網誌"
+
+#: ../templates/template.html:36
+msgid "Donate"
+msgstr "捐款"
+
+#: ../templates/template.html:40
+msgid "Tools"
+msgstr "工具"
+
+#: ../templates/template.html:42
+msgid "Editor"
+msgstr "棋盤編輯器"
+
+#: ../templates/template.html:43
+msgid "Analysis"
+msgstr "分析面板"
+
+#: ../templates/template.html:46
+msgid "Variants"
+msgstr "棋類"
+
+#: ../templates/template.html:59
+msgid "Login with Lichess"
+msgstr "Lichess登錄"
+
+#: ../templates/template.html:59
+msgid "Log in"
+msgstr "登錄"
+
+#: ../templates/tournaments.html:8
+msgid "Tournament calendar"
+msgstr "錦標賽日程"
+
+#: ../templates/tournaments.html:10
+msgid "CREATE A NEW TOURNAMENT"
+msgstr "創建錦標賽"
+
+#: ../templates/tournaments.html:19
+msgid "Now playing"
+msgstr "正在進行"
+
+#: ../templates/tournaments.html:21
+msgid "Starting soon"
+msgstr "即將開始"
+
+#: ../templates/tournaments.html:23
+msgid "Finished"
+msgstr "已完畢"
+
+#: ../templates/tournaments.html:44
+msgid "Rated"
+msgstr "積分"
+
+#: ../templates/tournaments.html:44
+msgid "Casual"
+msgstr "無積分"
+
+#: ../templates/tournaments.html:51
+#, python-format
+msgid "%(count)s player"
+msgid_plural "%(count)s players"
+msgstr[0] "%(count)s 在線棋手"

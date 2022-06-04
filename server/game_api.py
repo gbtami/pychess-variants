@@ -34,26 +34,27 @@ async def get_variant_stats(request):
         db = request.app["db"]
 
         pipeline = [
-            {"$group": {
-                "_id": {
-                    "period": {"$dateToString": {
-                        "format": "%Y-%m",
-                        "date": "$d"}},
-                    "v": "$v",
-                    "960": "$z",
-                },
-                "count": {"$sum": 1}
-            }
+            {
+                "$group": {
+                    "_id": {
+                        "period": {"$dateToString": {"format": "%Y-%m", "date": "$d"}},
+                        "v": "$v",
+                        "960": "$z",
+                    },
+                    "count": {"$sum": 1},
+                }
             },
-            {"$sort": {"_id": 1}}
+            {"$sort": {"_id": 1}},
         ]
         if "/humans" in request.path:
-            pipeline.insert(0, {"$match": {
-                "us": {
-                    "$not": {"$elemMatch": {"$in": ["Fairy-Stockfish", "Random-Mover"]}}
-                }
-            }
-            })
+            pipeline.insert(
+                0,
+                {
+                    "$match": {
+                        "us": {"$not": {"$elemMatch": {"$in": ["Fairy-Stockfish", "Random-Mover"]}}}
+                    }
+                },
+            )
         cursor = db.game.aggregate(pipeline)
 
         variant_counts = {variant: [] for variant in VARIANTS}
@@ -61,6 +62,8 @@ async def get_variant_stats(request):
         period = ""
         async for doc in cursor:
             # print(doc)
+            if doc["_id"]["period"] < "2019-07":
+                continue
             if doc["_id"]["period"] != period:
                 period = doc["_id"]["period"]
                 # skip current period
@@ -80,9 +83,40 @@ async def get_variant_stats(request):
                 pass
 
         series = [{"name": variant, "data": variant_counts[variant]} for variant in VARIANTS]
+
         request.app[stats][cur_period] = series
 
     return web.json_response(series, dumps=partial(json.dumps, default=datetime.isoformat))
+
+
+async def get_tournament_games(request):
+    tournaments = request.app["tournaments"]
+    db = request.app["db"]
+    tournamentId = request.match_info.get("tournamentId")
+
+    if tournamentId is not None and tournamentId not in tournaments:
+        await asyncio.sleep(3)
+        return web.json_response({})
+
+    cursor = db.game.find({"tid": tournamentId})
+    game_doc_list = []
+
+    async for doc in cursor:
+        doc["v"] = C2V[doc["v"]]
+        doc["r"] = C2R[doc["r"]]
+        game_doc_list.append(
+            {
+                "id": doc["_id"],
+                "variant": doc["v"],
+                "is960": doc.get("z", 0),
+                "users": doc["us"],
+                "result": doc["r"],
+                "fen": doc.get("if"),
+                "moves": decode_moves(doc["m"], doc["v"]),
+            }
+        )
+
+    return web.json_response(game_doc_list, dumps=partial(json.dumps, default=datetime.isoformat))
 
 
 async def get_user_games(request):
@@ -101,10 +135,16 @@ async def get_user_games(request):
     filter_cond = {}
     # print("URL", request.rel_url)
     level = request.rel_url.query.get("x")
-    variant = request.path[request.path.rfind("/") + 1:]
+    variant = request.path[request.path.rfind("/") + 1 :]
+
+    # produce UCI move list for puzzle generator
+    uci_moves = "/json" in request.path
 
     if "/win" in request.path:
-        filter_cond["$or"] = [{"r": "a", "us.0": profileId}, {"r": "b", "us.1": profileId}]
+        filter_cond["$or"] = [
+            {"r": "a", "us.0": profileId},
+            {"r": "b", "us.1": profileId},
+        ]
     elif "/loss" in request.path:
         # level8win requests Fairy-Stockfish lost games
         if level is not None:
@@ -112,23 +152,43 @@ async def get_user_games(request):
                 {"$or": [{"r": "a", "us.1": profileId}, {"r": "b", "us.0": profileId}]},
                 {"x": int(level)},
                 {"$or": [{"if": None}, {"v": "j"}]},  # Janggi games always have initial FEN!
-                {"$or": [{"s": MATE}, {"s": VARIANTEND}, {"s": INVALIDMOVE}, {"s": CLAIM}]},
+                {
+                    "$or": [
+                        {"s": MATE},
+                        {"s": VARIANTEND},
+                        {"s": INVALIDMOVE},
+                        {"s": CLAIM},
+                    ]
+                },
             ]
         else:
-            filter_cond["$or"] = [{"r": "a", "us.1": profileId}, {"r": "b", "us.0": profileId}]
+            filter_cond["$or"] = [
+                {"r": "a", "us.1": profileId},
+                {"r": "b", "us.0": profileId},
+            ]
     elif "/rated" in request.path:
         filter_cond["$or"] = [{"y": 1, "us.1": profileId}, {"y": 1, "us.0": profileId}]
     elif "/import" in request.path:
         filter_cond["by"] = profileId
         filter_cond["y"] = 2
-    elif "/perf" in request.path and variant in VARIANTS:
+    elif ("/perf" in request.path or uci_moves) and variant in VARIANTS:
         if variant.endswith("960"):
             v = V2C[variant[:-3]]
             z = 1
         else:
             v = V2C[variant]
             z = 0
-        filter_cond["$or"] = [{"v": v, "z": z, "us.1": profileId}, {"v": v, "z": z, "us.0": profileId}]
+        filter_cond["$or"] = [
+            {"v": v, "z": z, "us.1": profileId},
+            {"v": v, "z": z, "us.0": profileId},
+        ]
+    elif "/me" in request.path:
+        session = await aiohttp_session.get_session(request)
+        session_user = session.get("user_name")
+        filter_cond["$or"] = [
+            {"us.0": session_user, "us.1": profileId},
+            {"us.1": session_user, "us.0": profileId},
+        ]
     else:
         filter_cond["us"] = profileId
 
@@ -140,10 +200,18 @@ async def get_user_games(request):
     if profileId is not None:
         # print("FILTER:", filter_cond)
         cursor = db.game.find(filter_cond)
-        cursor.sort('d', -1).skip(int(page_num) * GAME_PAGE_SIZE).limit(GAME_PAGE_SIZE)
+        if uci_moves:
+            cursor.sort("d", -1)
+        else:
+            cursor.sort("d", -1).skip(int(page_num) * GAME_PAGE_SIZE).limit(GAME_PAGE_SIZE)
         async for doc in cursor:
             # filter out private games
-            if "p" in doc and doc["p"] == 1 and session_user != doc["us"][0] and session_user != doc["us"][1]:
+            if (
+                "p" in doc
+                and doc["p"] == 1
+                and session_user != doc["us"][0]
+                and session_user != doc["us"][1]
+            ):
                 continue
 
             doc["v"] = C2V[doc["v"]]
@@ -158,7 +226,20 @@ async def get_user_games(request):
             if tournament_id is not None:
                 doc["tn"] = await get_tournament_name(request.app, tournament_id)
 
-            game_doc_list.append(doc)
+            if uci_moves:
+                game_doc_list.append(
+                    {
+                        "id": doc["_id"],
+                        "variant": doc["v"],
+                        "is960": doc.get("z", 0),
+                        "users": doc["us"],
+                        "result": doc["r"],
+                        "fen": doc.get("if"),
+                        "moves": decode_moves(doc["m"], doc["v"]),
+                    }
+                )
+            else:
+                game_doc_list.append(doc)
 
     return web.json_response(game_doc_list, dumps=partial(json.dumps, default=datetime.isoformat))
 
@@ -187,7 +268,7 @@ async def subscribe_invites(request):
     async with sse_response(request) as response:
         app = request.app
         queue = asyncio.Queue()
-        app['invite_channels'].add(queue)
+        app["invite_channels"].add(queue)
         try:
             while not response.task.done():
                 payload = await queue.get()
@@ -196,7 +277,7 @@ async def subscribe_invites(request):
         except ConnectionResetError:
             pass
         finally:
-            app['invite_channels'].remove(queue)
+            app["invite_channels"].remove(queue)
     return response
 
 
@@ -204,7 +285,7 @@ async def subscribe_games(request):
     async with sse_response(request) as response:
         app = request.app
         queue = asyncio.Queue()
-        app['game_channels'].add(queue)
+        app["game_channels"].add(queue)
         try:
             while not response.task.done():
                 payload = await queue.get()
@@ -213,24 +294,30 @@ async def subscribe_games(request):
         except ConnectionResetError:
             pass
         finally:
-            app['game_channels'].remove(queue)
+            app["game_channels"].remove(queue)
     return response
 
 
 async def get_games(request):
     games = request.app["games"]
     # TODO: filter last 10 by variant
-    return web.json_response([{
-        "gameId": game.id,
-        "variant": game.variant,
-        "fen": game.board.fen,
-        "w": game.wplayer.username,
-        "b": game.bplayer.username,
-        "chess960": game.chess960,
-        "base": game.base,
-        "inc": game.inc,
-        "byoyomi": game.byoyomi_period
-    } for game in games.values() if game.status == STARTED][-20:])
+    return web.json_response(
+        [
+            {
+                "gameId": game.id,
+                "variant": game.variant,
+                "fen": game.board.fen,
+                "w": game.wplayer.username,
+                "b": game.bplayer.username,
+                "chess960": game.chess960,
+                "base": game.base,
+                "inc": game.inc,
+                "byoyomi": game.byoyomi_period,
+            }
+            for game in games.values()
+            if game.status == STARTED
+        ][-20:]
+    )
 
 
 async def export(request):
@@ -258,11 +345,12 @@ async def export(request):
     elif session_user in ADMINS:
         yearmonth = request.match_info.get("yearmonth")
         print("---", yearmonth[:4], yearmonth[4:])
-        filter_cond = {}
-        filter_cond["$and"] = [
-            {"$expr": {"$eq": [{"$year": "$d"}, int(yearmonth[:4])]}},
-            {"$expr": {"$eq": [{"$month": "$d"}, int(yearmonth[4:])]}},
-        ]
+        filter_cond = {
+            "$and": [
+                {"$expr": {"$eq": [{"$year": "$d"}, int(yearmonth[:4])]}},
+                {"$expr": {"$eq": [{"$month": "$d"}, int(yearmonth[4:])]}},
+            ]
+        }
         cursor = db.game.find(filter_cond)
 
     if cursor is not None:
@@ -276,8 +364,13 @@ async def export(request):
                 game_counter += 1
             except Exception:
                 failed += 1
-                log.error("Failed to load game %s %s %s (early games may contain invalid moves)", doc["_id"], C2V[doc["v"]], doc["d"].strftime("%Y.%m.%d"))
+                log.error(
+                    "Failed to load game %s %s %s (early games may contain invalid moves)",
+                    doc["_id"],
+                    C2V[doc["v"]],
+                    doc["d"].strftime("%Y.%m.%d"),
+                )
                 continue
-        print('failed/all:', failed, game_counter)
+        print("failed/all:", failed, game_counter)
     pgn_text = "\n".join(game_list)
     return web.Response(text=pgn_text, content_type="text/pgn")

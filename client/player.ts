@@ -1,6 +1,6 @@
 import { h } from 'snabbdom';
 
-import { aiLevel } from './profile';
+import { aiLevel } from './result';
 
 export function player(id: string, title: string, name: string, rating: string, level: number) {
     return h('round-' + id, [

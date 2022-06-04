@@ -18,7 +18,9 @@ async def BOT_task(bot, app):
                 line = await bot.game_queues[game.id].get()
                 bot.game_queues[game.id].task_done()
             except ValueError:
-                log.error("task_done() called more times than there were items placed in the queue in ai.py game_task()")
+                log.error(
+                    "task_done() called more times than there were items placed in the queue in ai.py game_task()"
+                )
             except KeyError:
                 log.error("Break in BOT_task() game_task(). %s not in ai.game_queues", game.id)
                 if game.status <= STARTED:
@@ -48,6 +50,7 @@ async def BOT_task(bot, app):
             "variant": game.variant,
             "chess960": game.chess960,
             "moves": " ".join(game.board.move_stack),  # moves of the game (UCI)
+            "nnue": game.board.nnue,
         }
         app["works"][work_id] = work
         app["fishnet"].put_nowait((MOVE, work_id))
@@ -59,7 +62,9 @@ async def BOT_task(bot, app):
         try:
             bot.event_queue.task_done()
         except ValueError:
-            log.error("task_done() called more times than there were items placed in the queue in ai.py AI_move()")
+            log.error(
+                "task_done() called more times than there were items placed in the queue in ai.py AI_move()"
+            )
 
         event = json.loads(line)
         # print("+++ AI event_queue.get()", event)

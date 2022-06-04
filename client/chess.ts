@@ -6,7 +6,7 @@ import { read } from 'chessgroundx/fen';
 
 import { _ } from './i18n';
 
-import { MaterialImbalance, calculateInitialImbalance } from './material'
+import { MaterialDiff, calculateMaterialDiff } from './material'
 
 export const ranksUCI = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'] as const;
 export type UCIRank = typeof ranksUCI[number];
@@ -52,17 +52,17 @@ export const BOARD_FAMILIES: { [key: string]: BoardFamily } = {
 
 export const PIECE_FAMILIES: { [key: string]: PieceFamily } = {
     standard: { pieceCSS: ["standard", "green", "alpha", "chess_kaneo", "santa"] },
-    capa: { pieceCSS: ["capa0", "capa1", "capa2", "capa3", "capa4"] },
-    seirawan: { pieceCSS: ["seir1", "seir0", "seir2", "seir3", "seir4"] },
+    capa: { pieceCSS: ["capa0", "capa1", "capa2", "capa3", "capa4", "capa5"] },
+    seirawan: { pieceCSS: ["seir1", "seir0", "seir2", "seir3", "seir4", "seir5"] },
     makruk: { pieceCSS: ["makrukwb", "makrukwr", "makruk", "makruks", "makruki"] },
     sittuyin: { pieceCSS: ["sittuyins", "sittuyinkagr", "sittuyinkabr", "sittuyinm", "sittuyini"] },
     asean: { pieceCSS: ["aseani", "aseanm", "aseanc", "aseans"] },
-    shogi: { pieceCSS: ["shogik", "shogi", "shogiw", "shogip", "shogim", "shogip3d", "shogikw3d", "shogid", "shogiim", "shogibw"] },
+    shogi: { pieceCSS: ["shogik", "shogi", "shogiw", "shogip", "shogim", "shogip3d", "shogikw3d", "shogid", "shogiim", "shogibw", "portk", "porti"] },
     kyoto: { pieceCSS: ["kyoto", "kyotok", "kyotoks", "kyotoi", "kyotod"] },
     dobutsu: { pieceCSS: ["dobutsu"] },
-    tori: { pieceCSS: ["torii", "torik", "torim"] },
+    tori: { pieceCSS: ["torii", "torik", "torim", "porti"] },
     xiangqi: { pieceCSS: ["xiangqi2d", "xiangqi2di", "xiangqi", "xiangqict3", "xiangqihnz", "xiangqict2", "xiangqihnzw", "xiangqict2w", "xiangqiwikim", "xiangqiKa"] },
-    janggi: { pieceCSS: ["janggihb", "janggihg", "janggiikak", "janggiikaw", "janggikak", "janggikaw"] },
+    janggi: { pieceCSS: ["janggihb", "janggihg", "janggiikak", "janggiikaw", "janggikak", "janggikaw", "janggiib", "janggiig"] },
     shako: { pieceCSS: ["shako0", "shako1", "shako2"] },
     shogun: { pieceCSS: ["shogun0", "shogun1", "shogun2", "shogun3", "shogun4", "shogun5"] },
     orda: { pieceCSS: ["orda0", "orda1"] },
@@ -72,7 +72,7 @@ export const PIECE_FAMILIES: { [key: string]: PieceFamily } = {
     empire: { pieceCSS: ["empire0", "empire1"] },
     ordamirror: { pieceCSS: ["ordamirror0", "ordamirror1"] },
     chak: { pieceCSS: ["chak0"] },
-    chennis: { pieceCSS: ["chennis0"] },
+    chennis: { pieceCSS: ["chennis0", "chennis1", "chennis2"] },
 };
 
 type MandatoryPromotionPredicate = (role: cg.Role, orig: cg.Key, dest: cg.Key, color: cg.Color) => boolean;
@@ -135,8 +135,8 @@ export class Variant {
     readonly pass: boolean;
     readonly boardMark: 'campmate' | 'none';
     readonly showPromoted: boolean;
-    readonly materialDifference : boolean;
-    readonly initialMaterialImbalance : MaterialImbalance;
+    readonly materialDiff : boolean;
+    readonly initialMaterialImbalance : MaterialDiff;
 
     readonly alternateStart?: { [ name: string ]: string };
 
@@ -179,8 +179,8 @@ export class Variant {
         this.pass = data.pass ?? false;
         this.boardMark = data.boardMark ?? 'none';
         this.showPromoted = data.showPromoted ?? false;
-        this.materialDifference = data.materialDifference ?? !this.drop;
-        this.initialMaterialImbalance = this.materialDifference ? calculateInitialImbalance(this) : {};
+        this.materialDiff = data.materialDifference ?? !this.drop;
+        this.initialMaterialImbalance = this.materialDiff ? calculateMaterialDiff(this) : new Map();
 
         this.alternateStart = data.alternateStart;
 
@@ -779,7 +779,7 @@ const variantGroups: { [ key: string ]: { variants: string[] } } = {
     shogi:    { variants: [ "shogi", "minishogi", "kyotoshogi", "dobutsu", "gorogoroplus", "torishogi" ] },
     xiangqi:  { variants: [ "xiangqi", "manchu", "janggi", "minixiangqi" ] },
     fairy:    { variants: [ "capablanca", "capahouse", "seirawan", "shouse", "grand", "grandhouse", "shako", "shogun", "hoppelpoppel" ] },
-    army:     { variants: [ "orda", "synochess", "shinobi", "empire", "ordamirror", "chak" ] },
+    army:     { variants: [ "orda", "synochess", "shinobi", "empire", "ordamirror", "chak", "chennis" ] },
 };
 
 function variantGroupLabel(group: string): string {

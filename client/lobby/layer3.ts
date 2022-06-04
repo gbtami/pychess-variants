@@ -4,7 +4,7 @@ import { _ } from '../i18n';
 import { LobbyController } from '../lobby';
 import { patch } from '../document';
 import { Variant, VARIANTS } from '../chess';
-import { variantBoard } from './layer1';
+import { variantBoard } from './util';
 import { layer2chess } from './layer2chess';
 import { layer2fairy } from './layer2fairy';
 import { layer2army } from './layer2army';
@@ -40,7 +40,7 @@ export function layer3variant (container2Id: string, lobbyCtrl: LobbyController,
                 h('li.l3links', { class: {"icon": true, "icon-crossedswords": true}, on: { click: () => lobbyCtrl.createGame(variantName, chess960) } }, _('Create a game')),
                 h('li.l3links', { class: {"icon": true, "icon-crossedswords": true}, on: { click: () => lobbyCtrl.playFriend(variantName, chess960) } }, _('Challenge a friend')),
                 h('li.l3links', { class: {"icon": true, "icon-bot": true}, on: { click: () => lobbyCtrl.playAI(variantName, chess960) } }, _('Play with AI')),
-                h('li.l3links', { class: {"icon": true, "icon-droid": true}, on: { click: () => lobbyCtrl.playRM(variantName, chess960) } }, _('Practice with Random-Mover')),
+//                h('li.l3links', { class: {"icon": true, "icon-droid": true}, on: { click: () => lobbyCtrl.playRM(variantName, chess960) } }, _('Practice with Random-Mover')),
             ]),
             h('h5#chessl3back', { class: {"icon": true, "icon-reply": true}, on: { click: () => leve2func(lobbyCtrl, container3Id) } }, _('Go Back')),
         ]),
@@ -49,7 +49,7 @@ export function layer3variant (container2Id: string, lobbyCtrl: LobbyController,
         ]),
         h('button.layer-2-category l3t', [
             h('p.variant-extra-info', (chess960) ? chess960Tooltip(variant.name) : variant.tooltip()),
-            h('a.variant-extra-info', { class: {"icon": true, "icon-book": true}, attrs: { href: lobbyCtrl.model['home'] + '/variants/' + variant.name, target: '_blank' } }, _('Rules')),
+            h('a.variant-extra-info', { class: {"icon": true, "icon-book": true}, attrs: { href: lobbyCtrl.home + '/variants/' + variant.name, target: '_blank' } }, _('Rules')),
             h('p.variant-extra-info', _('Tip: ') + proTip(variant.name, chess960)),
         ]),
     ]);

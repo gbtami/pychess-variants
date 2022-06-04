@@ -5,7 +5,6 @@ import { Howl } from 'howler';
 import { Variant } from './chess';
 import { StringSettings, NumberSettings } from './settings';
 import { radioList, slider } from './view';
-import { model } from './main';
 
 
 class Sounds {
@@ -42,19 +41,19 @@ class Sounds {
         });
     }
 
-    updateSoundTheme() {
+    updateSoundTheme(assetURL: string) {
         Object.keys(Sounds.trackNames).forEach( (key: keyof typeof Sounds.trackNames) => {
-            this.tracks[key] = this.buildSound(Sounds.trackNames[key]);
+            this.tracks[key] = this.buildSound(assetURL, Sounds.trackNames[key]);
         });
     }
 
-    private buildSound(trackName: string) {
+    private buildSound(assetURL: string, trackName: string) {
         const soundTheme = soundThemeSettings.value;
         const soundTrack = (soundTheme === 'silent') ? 'Silence' : trackName;
         const sound = new Howl({
             src: [
-                model["asset-url"] + '/sound/' + soundTheme + '/' + soundTrack + '.ogg',
-                model["asset-url"] + '/sound/' + soundTheme + '/' + soundTrack + '.mp3'
+                assetURL + '/sound/' + soundTheme + '/' + soundTrack + '.ogg',
+                assetURL + '/sound/' + soundTheme + '/' + soundTrack + '.mp3'
             ],
             onplayerror: function() {
                 sound.once('unlock', function() {
@@ -145,13 +144,14 @@ const soundThemes = {
 };
 
 class SoundThemeSettings extends StringSettings {
+    assetURL: string;
     
     constructor() {
         super('soundtheme', 'standard');
     }
 
     update(): void {
-        sound.updateSoundTheme();
+        sound.updateSoundTheme(this.assetURL);
     }
 
     view(): VNode {

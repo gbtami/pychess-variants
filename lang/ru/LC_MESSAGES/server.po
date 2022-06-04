@@ -5,22 +5,22 @@
 # 
 # Translators:
 # Стримы с шахами и матами, 2021
-# Артем Артем, 2021
 # gbtami <gbtami@gmail.com>, 2022
+# Артем Артем, 2022
 # 
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-01-11 22:23+0100\n"
+"POT-Creation-Date: 2022-05-02 23:28+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
-"Last-Translator: gbtami <gbtami@gmail.com>, 2022\n"
+"Last-Translator: Артем Артем, 2022\n"
 "Language-Team: Russian (https://www.transifex.com/gbtami/teams/14790/ru/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.8.0\n"
+"Generated-By: Babel 2.9.1\n"
 "Language: ru\n"
 "Plural-Forms: nplurals=4; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || (n%100>=11 && n%100<=14)? 2 : 3);\n"
 
@@ -36,25 +36,29 @@ msgstr ""
 "Как вы знаете, pychess-variants - это бесплатный сервер, и он останется бесплатным навсегда. Однако обслуживание и улучшение сервера стоит времени и денег.\n"
 "Если вам нравится наша работа и вы находите наш сервер полезным, пожалуйста, сделайте пожертвование через Patreon или PayPal."
 
-#: ../templates/players.html:9
-msgid "Online"
-msgstr "Онлайн"
-
-#: ../templates/players.html:28
-msgid "Anonymous"
-msgstr " Аноним"
-
-#: ../templates/players.html:35
+#: ../templates/players.html:7
 msgid "All players"
 msgstr "Все игроки"
 
-#: ../templates/players.html:36 ../templates/winners.html:6
+#: ../templates/players.html:9 ../templates/winners.html:6
 msgid "Tournament winners"
 msgstr "Победители турниров"
 
-#: ../templates/players.html:37 ../templates/shields.html:6
+#: ../templates/players.html:10 ../templates/shields.html:6
 msgid "Tournament shields"
 msgstr "Щиты турниров"
+
+#: ../templates/players.html:14
+msgid "Online"
+msgstr "Онлайн"
+
+#: ../templates/players.html:33
+msgid "Anonymous"
+msgstr " Аноним"
+
+#: ../templates/players50.html:6
+msgid "Top 50"
+msgstr "Лучшие 50"
 
 #: ../templates/profile.html:14
 #, python-format
@@ -85,67 +89,99 @@ msgstr "Экспорт игр"
 msgid "Lichess profile"
 msgstr "Lichess профиль"
 
-#: ../templates/template.html:17
-msgid "Tv"
-msgstr "ТВ"
-
 #: ../templates/template.html:18
-msgid "Current games"
-msgstr "Текущие игры"
+msgid "Play"
+msgstr "Игра"
 
-#: ../templates/template.html:19 ../templates/tournaments.html:6
+#: ../templates/template.html:20
+msgid "Create a game"
+msgstr "Создать игру"
+
+#: ../templates/template.html:21 ../templates/tournaments.html:6
 msgid "Tournaments"
 msgstr "Турниры"
 
-#: ../templates/template.html:20
+#: ../templates/template.html:25
+msgid "Watch"
+msgstr "Просмотр"
+
+#: ../templates/template.html:27
+msgid "Tv"
+msgstr "ТВ"
+
+#: ../templates/template.html:28
+msgid "Current games"
+msgstr "Текущие игры"
+
+#: ../templates/template.html:32
+msgid "Community"
+msgstr "Сообщество"
+
+#: ../templates/template.html:34
 msgid "Players"
 msgstr "Игроки"
 
-#: ../templates/template.html:21
+#: ../templates/template.html:35
+msgid "Blog"
+msgstr "Блог"
+
+#: ../templates/template.html:36
+msgid "Donate"
+msgstr "Пожертвовать"
+
+#: ../templates/template.html:40
+msgid "Tools"
+msgstr "Инструменты"
+
+#: ../templates/template.html:42
 msgid "Editor"
 msgstr "Редактор"
 
-#: ../templates/template.html:22
+#: ../templates/template.html:43
 msgid "Analysis"
 msgstr "Анализ"
 
-#: ../templates/template.html:23
+#: ../templates/template.html:46
 msgid "Variants"
 msgstr "Варианты"
 
-#: ../templates/template.html:29
+#: ../templates/template.html:59
 msgid "Login with Lichess"
 msgstr "Войти через Lichess"
 
-#: ../templates/template.html:29
+#: ../templates/template.html:59
 msgid "Log in"
 msgstr "Войти"
 
-#: ../templates/tournaments.html:9
+#: ../templates/tournaments.html:8
+msgid "Tournament calendar"
+msgstr "Календарь турниров"
+
+#: ../templates/tournaments.html:10
 msgid "CREATE A NEW TOURNAMENT"
 msgstr "СОЗДАТЬ НОВЫЙ ТУРНИР"
 
-#: ../templates/tournaments.html:18
+#: ../templates/tournaments.html:19
 msgid "Now playing"
 msgstr "Сейчас играются"
 
-#: ../templates/tournaments.html:20
+#: ../templates/tournaments.html:21
 msgid "Starting soon"
 msgstr "Скоро начнутся"
 
-#: ../templates/tournaments.html:22
+#: ../templates/tournaments.html:23
 msgid "Finished"
 msgstr "Законченные"
 
-#: ../templates/tournaments.html:43
+#: ../templates/tournaments.html:44
 msgid "Rated"
 msgstr "Рейтинговая"
 
-#: ../templates/tournaments.html:43
+#: ../templates/tournaments.html:44
 msgid "Casual"
 msgstr "Товарищеская"
 
-#: ../templates/tournaments.html:50
+#: ../templates/tournaments.html:51
 #, python-format
 msgid "%(count)s player"
 msgid_plural "%(count)s players"

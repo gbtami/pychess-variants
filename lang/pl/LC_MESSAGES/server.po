@@ -4,22 +4,22 @@
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
 # 
 # Translators:
-# a b <kezsulap@gmail.com>, 2021
 # gbtami <gbtami@gmail.com>, 2022
+# a b <kezsulap@gmail.com>, 2022
 # 
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-01-11 22:23+0100\n"
+"POT-Creation-Date: 2022-05-02 23:28+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
-"Last-Translator: gbtami <gbtami@gmail.com>, 2022\n"
+"Last-Translator: a b <kezsulap@gmail.com>, 2022\n"
 "Language-Team: Polish (https://www.transifex.com/gbtami/teams/14790/pl/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.8.0\n"
+"Generated-By: Babel 2.9.1\n"
 "Language: pl\n"
 "Plural-Forms: nplurals=4; plural=(n==1 ? 0 : (n%10>=2 && n%10<=4) && (n%100<12 || n%100>14) ? 1 : n!=1 && (n%10>=0 && n%10<=1) || (n%10>=5 && n%10<=9) || (n%100>=12 && n%100<=14) ? 2 : 3);\n"
 
@@ -37,25 +37,29 @@ msgstr ""
 "pieniądze. Jeśli podoba Ci się nasza praca i uważasz, że nasz serwer jest "
 "przydatny możesz wesprzeć nas na patreonie lub paypalu"
 
-#: ../templates/players.html:9
-msgid "Online"
-msgstr "Online"
-
-#: ../templates/players.html:28
-msgid "Anonymous"
-msgstr "Anonimowi"
-
-#: ../templates/players.html:35
+#: ../templates/players.html:7
 msgid "All players"
 msgstr "Wszyscy gracze"
 
-#: ../templates/players.html:36 ../templates/winners.html:6
+#: ../templates/players.html:9 ../templates/winners.html:6
 msgid "Tournament winners"
 msgstr "Zwycięzcy turniejów"
 
-#: ../templates/players.html:37 ../templates/shields.html:6
+#: ../templates/players.html:10 ../templates/shields.html:6
 msgid "Tournament shields"
 msgstr "Shieldy"
+
+#: ../templates/players.html:14
+msgid "Online"
+msgstr "Online"
+
+#: ../templates/players.html:33
+msgid "Anonymous"
+msgstr "Anonimowi"
+
+#: ../templates/players50.html:6
+msgid "Top 50"
+msgstr "Top 50"
 
 #: ../templates/profile.html:14
 #, python-format
@@ -86,67 +90,99 @@ msgstr "Pobierz partie"
 msgid "Lichess profile"
 msgstr "Profil na Lichessie"
 
-#: ../templates/template.html:17
-msgid "Tv"
-msgstr "Tv"
-
 #: ../templates/template.html:18
-msgid "Current games"
-msgstr "Partie w toku"
+msgid "Play"
+msgstr "Zagraj"
 
-#: ../templates/template.html:19 ../templates/tournaments.html:6
+#: ../templates/template.html:20
+msgid "Create a game"
+msgstr "Nowa partia"
+
+#: ../templates/template.html:21 ../templates/tournaments.html:6
 msgid "Tournaments"
 msgstr "Turnieje"
 
-#: ../templates/template.html:20
+#: ../templates/template.html:25
+msgid "Watch"
+msgstr "Oglądaj"
+
+#: ../templates/template.html:27
+msgid "Tv"
+msgstr "Tv"
+
+#: ../templates/template.html:28
+msgid "Current games"
+msgstr "Partie w toku"
+
+#: ../templates/template.html:32
+msgid "Community"
+msgstr "Społeczność"
+
+#: ../templates/template.html:34
 msgid "Players"
 msgstr "Gracze"
 
-#: ../templates/template.html:21
+#: ../templates/template.html:35
+msgid "Blog"
+msgstr "Blog"
+
+#: ../templates/template.html:36
+msgid "Donate"
+msgstr "Wesprzyj"
+
+#: ../templates/template.html:40
+msgid "Tools"
+msgstr "Narzędzia"
+
+#: ../templates/template.html:42
 msgid "Editor"
 msgstr "Edytor"
 
-#: ../templates/template.html:22
+#: ../templates/template.html:43
 msgid "Analysis"
 msgstr "Analiza"
 
-#: ../templates/template.html:23
+#: ../templates/template.html:46
 msgid "Variants"
 msgstr "Odmiany"
 
-#: ../templates/template.html:29
+#: ../templates/template.html:59
 msgid "Login with Lichess"
 msgstr "Zaloguj się kontem z Lichess"
 
-#: ../templates/template.html:29
+#: ../templates/template.html:59
 msgid "Log in"
 msgstr "Zaloguj się"
 
-#: ../templates/tournaments.html:9
+#: ../templates/tournaments.html:8
+msgid "Tournament calendar"
+msgstr "Harmonogram turniejów"
+
+#: ../templates/tournaments.html:10
 msgid "CREATE A NEW TOURNAMENT"
 msgstr "UTWÓRZ TURNIEJ"
 
-#: ../templates/tournaments.html:18
+#: ../templates/tournaments.html:19
 msgid "Now playing"
 msgstr "W trakcie"
 
-#: ../templates/tournaments.html:20
+#: ../templates/tournaments.html:21
 msgid "Starting soon"
 msgstr "Planowane"
 
-#: ../templates/tournaments.html:22
+#: ../templates/tournaments.html:23
 msgid "Finished"
 msgstr "Zakończone"
 
-#: ../templates/tournaments.html:43
+#: ../templates/tournaments.html:44
 msgid "Rated"
 msgstr "Rankingowa"
 
-#: ../templates/tournaments.html:43
+#: ../templates/tournaments.html:44
 msgid "Casual"
 msgstr "Towarzyska"
 
-#: ../templates/tournaments.html:50
+#: ../templates/tournaments.html:51
 #, python-format
 msgid "%(count)s player"
 msgid_plural "%(count)s players"

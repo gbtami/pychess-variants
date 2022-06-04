@@ -4,10 +4,8 @@ import * as util from 'chessgroundx/util';
 import * as cg from 'chessgroundx/types';
 
 import { getPockets, lc, colorCase } from './chess';
-import RoundController from './roundCtrl';
-import AnalysisController from './analysisCtrl';
+import { GameController } from './gameCtrl';
 import { patch, bind } from './document';
-import {ChessgroundController} from "./bug/ChessgroundCtrl";
 
 export interface Moves {
     normal?: cg.Key[],
@@ -15,16 +13,15 @@ export interface Moves {
 }
 
 export class Gating {
-    private ctrl: RoundController | AnalysisController | ChessgroundController;
+    private ctrl: GameController;
 
     private gating : null | {
                 moves: Moves,
-                callback: (orig: string, dest: string, promo: string) => void,
     };
 
     private choices: (cg.Role | "")[];
 
-    constructor(ctrl: RoundController | AnalysisController | ChessgroundController) {
+    constructor(ctrl: GameController) {
         this.ctrl = ctrl;
         this.gating = null;
         this.choices = [];
@@ -89,7 +86,6 @@ export class Gating {
             this.drawGating(moves, color, orientation);
             this.gating = {
                 moves: moves,
-                callback: this.ctrl.sendMove,
             };
             return true;
         }
@@ -163,17 +159,17 @@ export class Gating {
             if (gatedPieceRole && move) this.gate(move[0], color, gatedPieceRole);
 
             const gatedPieceLetter = gatedPieceRole ? util.letterOf(gatedPieceRole) : "";
-            if (move && this.gating.callback) {
+            if (move) {
                 if (moveType === "special") {
                     if (gatedPieceLetter === "") {
                         // empty gating was chosen on vacant rook square (simple castling)
-                        this.gating.callback(move[1], move[2], gatedPieceLetter);
+                        this.ctrl.sendMove(move[1], move[2], gatedPieceLetter);
                     } else {
                         // gating to rook square while castling need special UCI move (rook takes king)
-                        this.gating.callback(move[0], move[1], gatedPieceLetter);
+                        this.ctrl.sendMove(move[0], move[1], gatedPieceLetter);
                     }
                 } else {
-                    this.gating.callback(move[0], move[1], gatedPieceLetter);
+                    this.ctrl.sendMove(move[0], move[1], gatedPieceLetter);
                 }
             }
             this.gating = null;

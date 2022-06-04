@@ -1,5 +1,3 @@
-# This is a basic workflow to help you get started with Actions
-
 name: Nodejs-CI
 
 on: [pull_request, push]
@@ -20,4 +18,6 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
     - run: yarn install
+    - run: yarn dev
+    - run: yarn md
     # Disable until it's fixed - run: yarn test

@@ -8,7 +8,17 @@ from datetime import datetime, timezone
 
 from aiohttp.test_utils import AioHTTPTestCase
 
-from const import BYEGAME, STARTED, VARIANTS, ARENA, RR, SWISS, T_CREATED, T_STARTED, T_FINISHED
+from const import (
+    BYEGAME,
+    STARTED,
+    VARIANTS,
+    ARENA,
+    RR,
+    SWISS,
+    T_CREATED,
+    T_STARTED,
+    T_FINISHED,
+)
 from fairy import BLACK
 from game import MAX_PLY
 from glicko2.glicko2 import DEFAULT_PERF
@@ -22,6 +32,7 @@ from arena import ArenaTournament
 from rr import RRTournament
 from swiss import SwissTournament
 from utils import play_move
+
 # from misc import timeit
 
 PERFS = {variant: DEFAULT_PERF for variant in VARIANTS}
@@ -30,12 +41,11 @@ ONE_TEST_ONLY = False
 
 
 class TestTournament(Tournament):
-
     async def join_players(self, nb_players):
         self.game_tasks = set()
 
         for i in range(nb_players):
-            name = (id8() + id8())[:random.randint(1, 16)]
+            name = (id8() + id8())[: random.randint(1, 16)]
             player = User(self.app, username=name, title="TEST", perfs=PERFS)
             self.app["users"][player.username] = player
             player.tournament_sockets[self.id] = set((None,))
@@ -61,7 +71,7 @@ class TestTournament(Tournament):
 
     # @timeit
     async def play_random(self, game):
-        """ Play random moves for TEST players """
+        """Play random moves for TEST players"""
         if game.status == BYEGAME:  # ByeGame
             return
 
@@ -95,7 +105,7 @@ class TestTournament(Tournament):
                     clocks = {
                         "white": game.ply_clocks[-1]["white"],
                         "black": game.ply_clocks[-1]["black"],
-                        "movetime": 0
+                        "movetime": 0,
                     }
                     await play_move(self.app, cur_player, game, move, clocks=clocks)
             await asyncio.sleep(0.1)
@@ -143,21 +153,30 @@ async def create_arena_test(app):
     await app["db"].tournament_player.delete_many({"tid": tid})
     await app["db"].tournament_pairing.delete_many({"tid": tid})
 
-    tournament = ArenaTestTournament(app, tid, variant="gorogoroplus", name="Test Arena", chess960=False, base=1, before_start=0.1, minutes=20, created_by="PyChess")
-#    tournament = SwissTestTournament(app, tid, variant="makpong", name="First Makpong Swiss", before_start=0.1, rounds=7, created_by="PyChess")
-#    tournament = RRTestTournament(app, tid, variant="makpong", name="First Makpong RR", before_start=0.1, rounds=7, created_by="PyChess")
+    tournament = ArenaTestTournament(
+        app,
+        tid,
+        variant="gorogoroplus",
+        name="Test Arena",
+        chess960=False,
+        base=1,
+        before_start=0.1,
+        minutes=20,
+        created_by="PyChess",
+    )
+    #    tournament = SwissTestTournament(app, tid, variant="makpong", name="First Makpong Swiss", before_start=0.1, rounds=7, created_by="PyChess")
+    #    tournament = RRTestTournament(app, tid, variant="makpong", name="First Makpong RR", before_start=0.1, rounds=7, created_by="PyChess")
     app["tournaments"][tid] = tournament
     app["tourneysockets"][tid] = {}
     app["tourneychat"][tid] = collections.deque([], 100)
 
     await upsert_tournament_to_db(tournament, app)
 
-#    await tournament.join_players(6)
+    #    await tournament.join_players(6)
     await tournament.join_players(19)
 
 
 class TournamentTestCase(AioHTTPTestCase):
-
     async def tearDownAsync(self):
         has_games = len(self.app["games"]) > 0
 
@@ -192,7 +211,9 @@ class TournamentTestCase(AioHTTPTestCase):
     async def test_tournament_without_players(self):
         self.app["db"] = None
         tid = id8()
-        self.tournament = ArenaTestTournament(self.app, tid, before_start=1.0 / 60.0, minutes=2.0 / 60.0)
+        self.tournament = ArenaTestTournament(
+            self.app, tid, before_start=1.0 / 60.0, minutes=2.0 / 60.0
+        )
         self.app["tournaments"][tid] = self.tournament
 
         self.assertEqual(self.tournament.status, T_CREATED)
@@ -262,7 +283,10 @@ class TournamentTestCase(AioHTTPTestCase):
         await self.tournament.clock_task
 
         self.assertEqual(self.tournament.status, T_FINISHED)
-        self.assertEqual([len(player.games) for player in self.tournament.players.values()], NB_PLAYERS * [NB_ROUNDS])
+        self.assertEqual(
+            [len(player.games) for player in self.tournament.players.values()],
+            NB_PLAYERS * [NB_ROUNDS],
+        )
 
     @unittest.skipIf(ONE_TEST_ONLY, "1 test only")
     async def test_tournament_pairing_1_min_ARENA(self):
@@ -300,8 +324,11 @@ class TournamentTestCase(AioHTTPTestCase):
         await self.tournament.clock_task
 
         self.assertEqual(self.tournament.status, T_FINISHED)
-        self.assertEqual([len(player.games) for player in self.tournament.players.values()], NB_PLAYERS * [NB_ROUNDS])
+        self.assertEqual(
+            [len(player.games) for player in self.tournament.players.values()],
+            NB_PLAYERS * [NB_ROUNDS],
+        )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main(verbosity=2)

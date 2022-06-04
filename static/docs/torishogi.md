@@ -1,6 +1,8 @@
 # ![Tori Shogi](https://github.com/gbtami/pychess-variants/blob/master/static/icons/ToriShogi.svg) Tori Shogi
 
-![International Set](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/ToriIntl.png)![Traditional Set](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/ToriKanji.png)
+|   |   |
+--- | ---
+![International Set](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/ToriIntl.png) | ![Traditional Set](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/ToriKanji.png)
 
 *Tori Shogi* (禽将棋/鳥将棋), Japanese for Bird Chess/Shogi, is a Shogi variant invented by Toyota Genryu in 1799, although traditionally attributed to his master Ōhashi Sōei. The game is played on a 7x7 board and is one of the oldest Shogi variants to use the drop rule. The game enjoys a relative degree of popularity to this day, including English-language books and tournaments.
 
@@ -95,7 +97,9 @@ FYI, the red circle above the pheasant is the "rising sun" -- the green pheasant
 
 ### Quails (Left and Right)
 
-![LeftQuail](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/LeftQuail.png) ![RightQuail](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/RightQuail.png)
+|   |   |
+--- | ---
+![LeftQuail](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/LeftQuail.png) | ![RightQuail](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/RightQuail.png)
 
 The Quails (鶉, *uzura*) start in the corners of the board and are two separate pieces called the **Left Quail** and the **Right Quail**. Their movements are mirror images of each other. Both Quails can move any number of spaces forward (like a Rook or Lance), but they can also move backwards diagonally in the direction away from their starting side of the board. For example, the *Left* Quail can move diagonally *right* (in the direction of its talons). Finally, they can also move one space diagonally backwards on the opposite side, towards the bird's tail.
 
@@ -200,11 +204,11 @@ Swallows can be said to be the as Shogi pawns, but they are also vastly differen
 
 To keep things brief, there are three things to keep in mind regarding swallows:
 
-1. **Doubled swallows** (i.e. one swallow behind another) are very powerful. If you're able to advance swallows far enough, putting a swallow in front (for offense) or behind (for defense) can lock down a file. The one caveat is that you can no longer drop swallows on this file, and it's also hard to move. These two swallows can act like a wall or barrier, and in some cases, may make mating even more difficult. Be careful not to over extend on doubled swallows.
+**Doubled swallows** (i.e. one swallow behind another) are very powerful. If you're able to advance swallows far enough, putting a swallow in front (for offense) or behind (for defense) can lock down a file. The one caveat is that you can no longer drop swallows on this file, and it's also hard to move. These two swallows can act like a wall or barrier, and in some cases, may make mating even more difficult. Be careful not to over extend on doubled swallows.
 
-2. Because swallows tend to fly on and off the board at a dizzying rate, **you can treat them almost as currency**. Sometimes you may have so much that you have a lot of flexibility for attack. The front lines of the board tend to be defined by opposing swallows with a gap inbetween (no man's land). You can "spend" a swallow from your hand to essentially advance your line forward. You should do this when you have another piece (typically a crane or quail) to back up the advanced swallow.
+Because swallows tend to fly on and off the board at a dizzying rate, **you can treat them almost as currency**. Sometimes you may have so much that you have a lot of flexibility for attack. The front lines of the board tend to be defined by opposing swallows with a gap inbetween (no man's land). You can "spend" a swallow from your hand to essentially advance your line forward. You should do this when you have another piece (typically a crane or quail) to back up the advanced swallow.
 
-3. When mounting a deep attack with swallows, if you manage to push one to the third to last rank (just behind the promotion zone), you can see the prize enemy bird in sight, but be careful! If you push your swallow *forward*, **you instead make a goose** because of forced promotion! To finish off the attack, you need to have a swallow ready to drop (and the ability to do so) to claim the bird on the other end.
+When mounting a deep attack with swallows, if you manage to push one to the third to last rank (just behind the promotion zone), you can see the prize enemy bird in sight, but be careful! If you push your swallow *forward*, **you instead make a goose** because of forced promotion! To finish off the attack, you need to have a swallow ready to drop (and the ability to do so) to claim the bird on the other end.
 
 ![Don't make this mistake!](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/ToriGooseMistake.png) 
 
@@ -243,3 +247,5 @@ Common handicaps are as follows:
 * One-piece: Falcon
 * Two-piece: Falcon and Left Quail
 * Three-piece: Falcon and both Quails
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/5f9QKK7cm20" frameborder="0" allowfullscreen></iframe>

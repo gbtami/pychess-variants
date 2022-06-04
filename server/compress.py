@@ -89,17 +89,25 @@ def encode_moves(moves, variant):
     if variant in ("kyotoshogi", "chennis"):
         return [
             chr(M2C[move[0:2]]) + chr(M2C[move[3:5]]) + "@"
-            if move[0] == "+" else
-            chr(M2C[move[0:2]]) + chr(M2C[move[2:4]]) + (move[4] if len(move) == 5 else "")
-            for move in moves]
-    return [chr(M2C[move[0:2]]) + chr(M2C[move[2:4]]) + (move[4] if len(move) == 5 else "") for move in moves]
+            if move[0] == "+"
+            else chr(M2C[move[0:2]]) + chr(M2C[move[2:4]]) + (move[4] if len(move) == 5 else "")
+            for move in moves
+        ]
+    return [
+        chr(M2C[move[0:2]]) + chr(M2C[move[2:4]]) + (move[4] if len(move) == 5 else "")
+        for move in moves
+    ]
 
 
 def decode_moves(moves, variant):
     if variant in ("kyotoshogi", "chennis"):
         return [
             C2M[ord(move[0])] + "@" + C2M[ord(move[1])]
-            if move[-1] == "@" else
-            C2M[ord(move[0])] + C2M[ord(move[1])] + (move[2] if len(move) == 3 else "")
-            for move in moves]
-    return [C2M[ord(move[0])] + C2M[ord(move[1])] + (move[2] if len(move) == 3 else "") for move in moves]
+            if move[-1] == "@"
+            else C2M[ord(move[0])] + C2M[ord(move[1])] + (move[2] if len(move) == 3 else "")
+            for move in moves
+        ]
+    return [
+        C2M[ord(move[0])] + C2M[ord(move[1])] + (move[2] if len(move) == 3 else "")
+        for move in moves
+    ]

@@ -15,6 +15,7 @@ TWITCH_STREAMERS = {
     "mugwortcrazyhouse": "Mugwort",
     "jannleecrazyhouse": "LM JannLee",
     "okeizh": "okei",
+    "krazy8_chess": "FM Crazy_Eight",
     "gbtami": "gbtami",
 }
 
@@ -22,4 +23,5 @@ TWITCH_STREAMERS = {
 YOUTUBE_STREAMERS = {
     "UCksfz2MkgxAKNJDvzemO3iA": "Janggi-France",
     "UCCeCZHAoTr4TGDt3hr_AQig": "kalavas",
+    "UCr6RfQga70yMM9-nuzAYTsA": "lichess",
 }
