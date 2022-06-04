@@ -6,15 +6,7 @@ import { Api } from "chessgroundx/api";
 
 import { PromotionSuffix } from './chess';
 import { patch, bind } from './document';
-// <<<<<<< HEAD
-// import RoundController from './roundCtrl';
-// import AnalysisController from './analysisCtrl';
-//
-// import { Api } from "chessgroundx/api";
-// import {ChessgroundController} from "./bug/ChessgroundCtrl";
-// =======
 import { GameController } from './gameCtrl';
-// >>>>>>> 28e075d15a0f3c0b9934cc34f46c1332a343222f
 
 type PromotionChoices = Partial<Record<cg.Role, PromotionSuffix>>;
 

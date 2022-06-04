@@ -341,7 +341,7 @@ iframe {
     grid-template-rows: fit-content(0);
     grid-template-areas: 'app app side' 'uleft uboard .';
     grid-gap: 2vmin;
-}
+  }
 
 }
 
