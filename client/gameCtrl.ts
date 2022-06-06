@@ -151,6 +151,13 @@ export abstract class GameController extends ChessgroundController implements IC
         this.setDests();
     }
 
+    flipped() {
+        return (
+            (this.chessground.state.orientation === 'black' && this.mycolor === 'white') ||
+            (this.chessground.state.orientation === 'white' && this.mycolor === 'black')
+        );
+    }
+
     getGround = () => this.chessground;
 
     setDests = () => {
