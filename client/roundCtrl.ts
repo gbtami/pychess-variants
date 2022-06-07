@@ -1109,6 +1109,8 @@ export class RoundController extends GameController {
 
     protected onMessage(evt: MessageEvent) {
         // console.log("<+++ onMessage():", evt.data);
+        super.onMessage(evt);
+
         const msg = JSON.parse(evt.data);
         switch (msg.type) {
             case "board":
