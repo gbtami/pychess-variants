@@ -91,7 +91,7 @@ export class AnalysisController extends GameController {
             onerror: (e: Event) => console.log('Error:', e),
             };
 
-        const ws = (location.protocol.indexOf('https') > -1) ? 'ws://' : 'wss://';
+        const ws = (location.protocol.indexOf('https') > -1) ? 'wss://' : 'ws://';
         this.sock = new Sockette(ws + location.host + "/wsr", opts);
 
         // is local stockfish.wasm engine supports current variant?
