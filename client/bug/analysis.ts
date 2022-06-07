@@ -5,7 +5,7 @@ import {gameInfo} from '../gameInfo';
 import {selectVariant, VARIANTS} from '../chess';
 import {renderTimeago} from '../datetime';
 import {spinner} from '../spinner';
-import {PyChessModel} from "../main";
+import {PyChessModel} from "../types";
 import AnalysisController from "./analysisCtrl";
 
 // function runGround(vnode: VNode, model: PyChessModel) {

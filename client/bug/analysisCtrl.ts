@@ -17,7 +17,7 @@ import { boardSettings } from './boardSettings';
 import { patch, getPieceImageUrl } from '../document';
 import { variantsIni } from '../variantsIni';
 import { Chart } from "highcharts";
-import { PyChessModel } from "../main";
+import { PyChessModel } from "../types";
 import {Ceval, Step} from "../messages";
 import {ChessgroundController} from "./ChessgroundCtrl";
 import {sound} from "../sound";
@@ -120,8 +120,8 @@ export default class AnalysisController {
 
     constructor(el1: HTMLElement,el1Pocket1: HTMLElement,el1Pocket2: HTMLElement,el2: HTMLElement,el2Pocket1: HTMLElement,el2Pocket2: HTMLElement, model: PyChessModel) {
 
-        this.b1 = new ChessgroundController(el1, el1Pocket1, el1Pocket2, model.fen, model.variant, model.chess960==='True'); //todo:niki:fen maybe should be parsed from bfen. what situation do we start from custom fen?
-        this.b2 = new ChessgroundController(el2, el2Pocket1, el2Pocket2, model.fen, model.variant, model.chess960==='True');
+        this.b1 = new ChessgroundController(el1, el1Pocket1, el1Pocket2, model); //todo:niki:fen maybe should be parsed from bfen. what situation do we start from custom fen?
+        this.b2 = new ChessgroundController(el2, el2Pocket1, el2Pocket2, model);
         this.b2.chessground.set({orientation:"black"});
         this.b1.boardName = 'a';
         this.b2.boardName = 'b';
@@ -603,7 +603,7 @@ export default class AnalysisController {
                     const dropPieceRole = util.roleOf(pv_move.slice(0, atPos) as cg.PieceLetter);
                     const orientation = this.flip ? this.b1.oppcolor : this.b1.mycolor;
                     const side = color === orientation ? "ally" : "enemy";
-                    const url = getPieceImageUrl(dropPieceRole, color, side);
+                    const url = getPieceImageUrl("bughouse", dropPieceRole, color, side);
                     this.b1.chessground.set({ drawable: { pieces: { baseUrl: url! } } });//todo:parametrize b1/b2 or do for both or something when decide how
 
                     shapes0 = [{

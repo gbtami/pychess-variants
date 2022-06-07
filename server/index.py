@@ -515,15 +515,12 @@ async def index(request):
         render["frequency"] = tournament.frequency
         render["status"] = tournament.status
         render["title"] = tournament.browser_title
-<<<<<<< HEAD
-=======
 
     # variant None indicates intro.md
     if lang in ("es", "hu", "it", "pt", "fr", "zh", "zh_CN", "zh_TW"):
         locale = ".%s" % lang
     else:
         locale = ""
->>>>>>> 609782b5d4d837da59fbca72219c194f32a336eb
 
     if view == "level8win":
         render["level"] = 8
@@ -533,15 +530,6 @@ async def index(request):
         render["icons"] = VARIANT_ICONS
         render["groups"] = VARIANT_GROUPS
 
-<<<<<<< HEAD
-        # variant None indicates intro.md
-        if lang in ("es", "hu", "it", "pt", "fr", "zh", "zh_CN", "zh_TW"):
-            locale = ".%s" % lang
-        else:
-            locale = ""
-
-=======
->>>>>>> 609782b5d4d837da59fbca72219c194f32a336eb
         if variant == "terminology":
             render["variant"] = "docs/terminology%s.html" % locale
         else:

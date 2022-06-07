@@ -1,9 +1,7 @@
 import { h, VNode } from 'snabbdom';
 
-import { boardSettings } from '../boardSettings';
 import AnalysisController from './analysisCtrl';
-import RoundController from '../roundCtrl';
-import { result } from '../profile'
+import { result } from '../result'
 import { patch } from '../document';
 
 export function selectMove (ctrl: AnalysisController, ply: number, plyVari = 0): void {
@@ -21,7 +19,7 @@ export function selectMove (ctrl: AnalysisController, ply: number, plyVari = 0):
 
 }
 
-function activatePly (ctrl: AnalysisController | RoundController) {
+function activatePly (ctrl: AnalysisController ) {
     const active = document.querySelector('move-bug.active');
     if (active) active.classList.remove('active');
 
@@ -29,7 +27,7 @@ function activatePly (ctrl: AnalysisController | RoundController) {
     if (elPly) elPly.classList.add('active');
 }
 
-function scrollToPly (ctrl: AnalysisController | RoundController) {
+function scrollToPly (ctrl: AnalysisController ) {
     if (ctrl.steps.length < 9) return;
     const movelistEl = document.getElementById('movelist') as HTMLElement;
     const plyEl = movelistEl.querySelector('move-bug.active') as HTMLElement | null;
@@ -57,8 +55,8 @@ export function createMovelistButtons (ctrl: AnalysisController/* | RoundControl
     const container = document.getElementById('move-controls') as HTMLElement;
     const vari = /*todo;niki;comentout for now "plyVari" in ctrl*/ 1 > 2? ctrl.steps[ctrl.plyVari]['vari']: undefined;
     ctrl.moveControls = patch(container, h('div#btn-controls-top.btn-controls', [
-        h('button#flip', { on: { click: () => boardSettings.toggleOrientation() } }, [ h('i.icon.icon-refresh') ]),
-        h('button#flip', { on: { click: () => boardSettings.toggleOrientation() } }, [ h('i.icon.icon-refresh') ]),//todo:niki:another icon for switch boards rotated maybe or horizontal arrows
+        h('button#flip', { on: { click: () => {ctrl.b1.toggleOrientation();ctrl.b2.toggleOrientation()} } }, [ h('i.icon.icon-refresh') ]),
+        h('button#flip', { on: { click: () => console.log("TODO: switch boards") } }, [ h('i.icon.icon-refresh') ]),//todo:niki:another icon for switch boards rotated maybe or horizontal arrows
         h('button', { on: { click: () => selectMove(ctrl, 0) } }, [ h('i.icon.icon-fast-backward') ]),
         h('button', { on: { click: () => { 
             // this line is necessary, but I don't understand why

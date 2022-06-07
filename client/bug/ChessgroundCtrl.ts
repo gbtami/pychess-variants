@@ -10,8 +10,10 @@ import {patch} from "../document";
 import {h} from "snabbdom";
 import {Step} from "../messages";
 import {sound} from "../sound";
+import {GameController} from "../gameCtrl";
+import {PyChessModel} from "../types";
 
-export class ChessgroundController{
+export class ChessgroundController extends GameController {
 
     partnerCC: ChessgroundController;
 
@@ -50,15 +52,18 @@ export class ChessgroundController{
 
     steps: Step[];
 
-    constructor(el: HTMLElement,elPocket1: HTMLElement,elPocket2: HTMLElement, fullfen: string, variant: string, chess960: boolean) {
-        this.chessground = this.createGround(el, elPocket1, elPocket2, fullfen);
+    constructor(el: HTMLElement,elPocket1: HTMLElement,elPocket2: HTMLElement, model: PyChessModel) {
+        super(el, model);
+
+        this.fullfen = model.fen;
+        this.variant = VARIANTS[model.variant];
+        this.chess960 = model.chess960==='True';//todo:niki:i am having second thought if i need this here really 960 should be true/false for both boards, but logically feel the right place here
+
+        this.chessground = this.createGround(el, elPocket1, elPocket2, this.fullfen);
 
         this.gating = new Gating(this);
         this.promotion = new Promotion(this);
 
-        this.variant = VARIANTS[variant];
-        this.chess960 = chess960;//todo:niki:i am having second thought if i need this here really 960 should be true/false for both boards, but logically feel the right place here
-        this.fullfen = fullfen;
 
         // this.plyVari = 0;
 
@@ -104,6 +109,11 @@ export class ChessgroundController{
             // 'turnColorB': this.b2.turnColor,
         });
 
+    }
+
+    doSendMove = (orig: cg.Orig, dest: cg.Key, promo: string) => {
+        //todo: no idea what the purpose of this is - lets get it compilable first
+        console.log(orig, dest, promo);
     }
 
     getGround = () => this.chessground;
@@ -177,7 +187,7 @@ export class ChessgroundController{
         }
     }
 
-    private onUserMove = (orig: cg.Key, dest: cg.Key, meta: cg.MoveMetadata) => {
+    onUserMove = (orig: cg.Key, dest: cg.Key, meta: cg.MoveMetadata) => {
         console.log(orig, dest, meta);
         const ctrl = this;
         ctrl.preaction = meta.premove;

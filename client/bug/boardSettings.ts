@@ -52,13 +52,13 @@ class BoardSettings {
     updateBoardStyle(family: keyof typeof BOARD_FAMILIES) {
         const idx = this.getSettings("BoardStyle", family as string).value as number;
         const board = BOARD_FAMILIES[family].boardCSS[idx];
-        changeBoardCSS(model["asset-url"] , family as string, board);
+        changeBoardCSS(model["assetURL"] , family as string, board);
     }
 
     updatePieceStyle(family: keyof typeof PIECE_FAMILIES) {
         const idx = this.getSettings("PieceStyle", family as string).value as number;
         let css = PIECE_FAMILIES[family].pieceCSS[idx];
-        changePieceCSS(model["asset-url"], family as string, css);
+        changePieceCSS(model["assetURL"], family as string, css);
         this.updateDropSuggestion();
     }
 
@@ -74,7 +74,7 @@ class BoardSettings {
                 const color = classNames[1] as cg.Color;
                 const orientation = this.ctrl.flip ? this.ctrl.b1.oppcolor : this.ctrl.b1.mycolor;//todo:niki:temp use b1
                 const side = color === orientation ? "ally" : "enemy";
-                chessground.set({ drawable: { pieces: { baseUrl: getPieceImageUrl(role, color, side)! } } });
+                chessground.set({ drawable: { pieces: { baseUrl: getPieceImageUrl("bughouse", role, color, side)! } } });
                 chessground.redrawAll();
             }
         }

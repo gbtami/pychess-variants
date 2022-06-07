@@ -5,7 +5,7 @@ import { h, VNode } from 'snabbdom';
 import { _ } from '../i18n';
 import { variantsIni } from '../variantsIni';
 import { VARIANTS } from '../chess';
-import { PyChessModel } from "../main";
+import { PyChessModel } from "../types";
 
 const BRAINKING_SITE = '[Site "BrainKing.com (Prague, Czech Republic)"]';
 const EMBASSY_FEN = '[FEN "rnbqkmcbnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBQKMCBNR w KQkq - 0 1"]';
