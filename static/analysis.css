@@ -51,6 +51,7 @@
     text-align: center;
     background: var(--bg-color2);
     box-shadow: var(--base-shadow);
+    z-index: 1;
 }
 .anal-clock.active {
     background: var(--anal-clock);
@@ -60,7 +61,6 @@
 }
 .anal-clock.bottom {
     top: var(--cg-height, 100%);
-    z-index: 1;
 }
 .anal-clock tenths {
     font-size: 80%;
