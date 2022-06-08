@@ -104,6 +104,7 @@ export abstract class GameController extends ChessgroundController implements IC
         this.btitle = model["btitle"];
         this.wrating = model["wrating"];
         this.brating = model["brating"];
+        this.rated = model["rated"];
 
         this.spectator = this.username !== this.wplayer && this.username !== this.bplayer;
 
