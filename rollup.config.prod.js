@@ -8,6 +8,8 @@ const postcss = require('rollup-plugin-postcss')
 
 export default {
     input: "client/main.ts",
+    context: 'null',
+    moduleContext: 'null',
     output: {
         name: "PychessVariants",
         file: "static/pychess-variants.js",

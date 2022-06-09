@@ -134,6 +134,8 @@ async def index(request):
         session["user_name"] = user.username
 
     lang = session.get("lang", "en")
+    if lang not in LANGUAGES:
+        lang = "en"
     get_template = request.app["jinja"][lang].get_template
 
     view = "lobby"
@@ -512,6 +514,13 @@ async def index(request):
         render["rounds"] = tournament.rounds
         render["frequency"] = tournament.frequency
         render["status"] = tournament.status
+        render["title"] = tournament.browser_title
+
+    # variant None indicates intro.md
+    if lang in ("es", "hu", "it", "pt", "fr", "zh", "zh_CN", "zh_TW"):
+        locale = ".%s" % lang
+    else:
+        locale = ""
 
     if view == "level8win":
         render["level"] = 8
@@ -520,12 +529,6 @@ async def index(request):
     elif view == "variants":
         render["icons"] = VARIANT_ICONS
         render["groups"] = VARIANT_GROUPS
-
-        # variant None indicates intro.md
-        if lang in ("es", "hu", "it", "pt", "fr", "zh"):
-            locale = ".%s" % lang
-        else:
-            locale = ""
 
         if variant == "terminology":
             render["variant"] = "docs/terminology%s.html" % locale
@@ -544,8 +547,7 @@ async def index(request):
         render["news_item"] = "news/%s.html" % news_item
 
     elif view == "faq":
-        # TODO: make it translatable similar to above variant pages
-        render["faq"] = "docs/faq.html"
+        render["faq"] = "docs/faq%s.html" % locale
 
     elif view == "editor" or (view == "analysis" and gameId is None):
         if fen is None:

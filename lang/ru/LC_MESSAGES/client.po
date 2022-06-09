@@ -160,19 +160,19 @@ msgstr "в браузере"
 
 #: ../client/analysis.ts:188
 msgid "Computer analysis"
-msgstr ""
+msgstr "Компьютерный анализ"
 
 #: ../client/analysis.ts:189
 msgid "Move times"
-msgstr ""
+msgstr "Время на ход"
 
 #: ../client/analysis.ts:190
 msgid "Crosstable"
-msgstr ""
+msgstr "Общий счет встреч"
 
 #: ../client/analysis.ts:191
 msgid "FEN & PGN"
-msgstr ""
+msgstr "FEN и PGN"
 
 #: ../client/analysisChart.ts:21
 msgid "Initial position"
@@ -1133,7 +1133,7 @@ msgstr[3] "%1 партий играется"
 
 #: ../client/lobby.ts:937
 msgid "Tournament calendar"
-msgstr ""
+msgstr "Календарь турниров"
 
 #: ../client/lobby.ts:946
 msgid "Player"
@@ -1273,7 +1273,7 @@ msgstr "Игры"
 
 #: ../client/profile.ts:311
 msgid "Games with you"
-msgstr ""
+msgstr "Игры с тобой"
 
 #: ../client/profile.ts:313
 msgctxt "UsePluralFormIfNeeded"
@@ -1478,7 +1478,7 @@ msgstr "Сыграно партий"
 
 #: ../client/tournament.ts:312 ../client/tournament.ts:313
 msgid "%1 wins"
-msgstr ""
+msgstr "%1 побед"
 
 #: ../client/tournament.ts:314
 msgid "Draws"

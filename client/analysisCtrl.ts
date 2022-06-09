@@ -1,23 +1,16 @@
-import ffishModule from 'ffish-es6';
-
 import Sockette from 'sockette';
 
 import { h, VNode } from 'snabbdom';
 
-import { Chessground } from 'chessgroundx';
-import { Api } from 'chessgroundx/api';
 import * as cg from 'chessgroundx/types';
 import * as util from 'chessgroundx/util';
 import { DrawShape } from 'chessgroundx/draw';
 
-import { JSONObject } from './types';
 import { _ } from './i18n';
-import { Gating } from './gating';
-import { Promotion } from './promotion';
 import { sound } from './sound';
-import { uci2LastMove, uci2cg, cg2uci, VARIANTS, Variant, moveDests, notation } from './chess';
+import { uci2LastMove, uci2cg, cg2uci } from './chess';
 import { crosstableView } from './crosstable';
-import { chatMessage, chatView } from './chat';
+import { chatView } from './chat';
 import { createMovelistButtons, updateMovelist, selectMove, activatePlyVari } from './movelist';
 import { povChances } from './winningChances';
 import { copyTextToClipboard } from './clipboard';
@@ -25,14 +18,14 @@ import { analysisChart } from './analysisChart';
 import { movetimeChart } from './movetimeChart';
 import { renderClocks } from './analysisClock';
 import { copyBoardToPNG } from './png';
-import { updateCount, updatePoint } from './info';
 import { boardSettings } from './boardSettings';
 import { patch, downloadPgnText, getPieceImageUrl } from './document';
 import { variantsIni } from './variantsIni';
 import { Chart } from "highcharts";
-import { PyChessModel } from "./main";
-import { Ceval, MsgBoard, MsgChat, MsgFullChat, MsgGameNotFound, MsgShutdown, MsgSpectators, MsgUserConnected, Step, CrossTable } from "./messages";
-import { onUserDrop, onUserMove } from "./roundCtrl";
+import { PyChessModel } from "./types";
+import { Ceval, MsgBoard, MsgUserConnected, Step, CrossTable } from "./messages";
+import { MsgAnalysis, MsgAnalysisBoard } from './analysisType';
+import { GameController } from './gameCtrl';
 
 const EVAL_REGEX = new RegExp(''
   + /^info depth (\d+) seldepth \d+ multipv (\d+) /.source
@@ -46,100 +39,45 @@ const maxThreads = Math.max((navigator.hardwareConcurrency || 1) - 1, 1);
 
 function titleCase (words: string) {return words.split(' ').map(w =>  w.substring(0,1).toUpperCase() + w.substring(1).toLowerCase()).join(' ');}
 
-interface MsgAnalysisBoard {
-    gameId: string;
-    fen: string;
-    ply: number;
-    lastMove: string;
-    dests: cg.Dests;
-    promo: string[];
-    bikjang: boolean;
-    check: boolean;
-}
 
-interface MsgAnalysis {
-    type: string;
-    ply: number;
-    ceval: Ceval;
-    color: string;
-}
-
-export default class AnalysisController {
-    model;
-    sock;
-    chessground: Api;
-    fullfen: string;
-    anon: boolean;
-    wplayer: string;
-    bplayer: string;
-    base: number;
-    inc: number;
-    mycolor: cg.Color;
-    oppcolor: cg.Color;
-    turnColor: cg.Color;
-    gameId: string;
-    variant: Variant;
-    chess960: boolean;
-    hasPockets: boolean;
-    vplayer0: VNode;
-    vplayer1: VNode;
-    vmaterial0: VNode;
-    vmaterial1: VNode;
+export class AnalysisController extends GameController {
     vpgn: VNode;
     vscore: VNode | HTMLElement;
     vinfo: VNode | HTMLElement;
     vpv: VNode | HTMLElement;
-    vmovelist: VNode | HTMLElement;
-    gameControls: VNode;
-    moveControls: VNode;
-    gating: Gating;
-    promotion: Promotion;
-    dests: cg.Dests;
-    promotions: string[];
-    lastmove: cg.Key[];
-    premove: {orig: cg.Key, dest: cg.Key, metadata?: cg.SetPremoveMetadata} | null;
-    predrop: {role: cg.Role, key: cg.Key} | null;
-    preaction: boolean;
-    result: string;
-    flip: boolean;
-    spectator: boolean;
     settings: boolean;
-    status: number;
-    steps: Step[];
-    pgn: string;
     uci_usi: string;
-    ply: number;
     plyVari: number;
-    players: string[];
-    titles: string[];
-    ratings: string[];
     animation: boolean;
     showDests: boolean;
     analysisChart: Chart;
     movetimeChart: Chart;
-    ctableContainer: VNode | HTMLElement;
+    chartFunctions: any[];
     localEngine: boolean;
     localAnalysis: boolean;
-    ffish: any;
-    ffishBoard: any;
     maxDepth: number;
     isAnalysisBoard: boolean;
     isEngineReady: boolean;
-    notation: cg.Notation;
     notationAsObject: any;
     prevPieces: cg.Pieces;
     arrow: boolean;
     importedBy: string;
+    embed: boolean;
 
     constructor(el: HTMLElement, model: PyChessModel) {
-        this.isAnalysisBoard = model["gameId"] === "";
+        super(el, model);
+        this.embed = this.gameId === undefined;
+        this.isAnalysisBoard = this.gameId === "";
+        if (!this.embed) {
+            this.chartFunctions = [analysisChart, movetimeChart];
+        }
 
         const onOpen = (evt: Event) => {
             console.log("ctrl.onOpen()", evt);
-            if (this.model['embed']) {
-                this.doSend({ type: "embed_user_connected", gameId: this.model["gameId"] });
+            if (this.embed) {
+                this.doSend({ type: "embed_user_connected", gameId: this.gameId });
             } else if (!this.isAnalysisBoard) {
-                this.doSend({ type: "game_user_connected", username: this.model["username"], gameId: this.model["gameId"] });
+                this.doSend({ type: "game_user_connected", username: this.username, gameId: this.gameId });
             }
         };
 
@@ -153,7 +91,7 @@ export default class AnalysisController {
             onerror: (e: Event) => console.log('Error:', e),
             };
 
-        const ws = (location.host.indexOf('pychess') === -1) ? 'ws://' : 'wss://';
+        const ws = (location.protocol.indexOf('https') > -1) ? 'wss://' : 'ws://';
         this.sock = new Sockette(ws + location.host + "/wsr", opts);
 
         // is local stockfish.wasm engine supports current variant?
@@ -166,102 +104,26 @@ export default class AnalysisController {
         this.isEngineReady = false;
 
         // loaded Fairy-Stockfish ffish.js wasm module
-        this.ffish = null;
-        this.ffishBoard = null;
         this.maxDepth = maxDepth;
 
         // current interactive analysis variation ply
         this.plyVari = 0;
 
-        this.model = model;
-        this.gameId = model["gameId"] as string;
-        this.variant = VARIANTS[model["variant"]];
-        this.chess960 = model["chess960"] === 'True';
-        this.fullfen = model["fen"] as string;
-        this.anon = model["anon"] === 'True';
-        this.wplayer = model["wplayer"] as string;
-        this.bplayer = model["bplayer"] as string;
-        this.base = model["base"];
-        this.inc = model["inc"] as number;
-        this.status = model["status"] as number;
-        this.steps = [];
-        this.pgn = "";
-        this.ply = isNaN(model["ply"]) ? 0 : model["ply"];
-
-        this.flip = false;
         this.settings = true;
-        this.animation = localStorage.animation === undefined ? true : localStorage.animation === "true";
-        this.showDests = localStorage.showDests === undefined ? true : localStorage.showDests === "true";
         this.arrow = localStorage.arrow === undefined ? true : localStorage.arrow === "true";
         this.importedBy = '';
 
-        this.spectator = this.model["username"] !== this.wplayer && this.model["username"] !== this.bplayer;
-        this.hasPockets = this.variant.pocket;
-
-        this.notation = notation(this.variant);
-
-        // orientation = this.mycolor
-        if (this.spectator) {
-            this.mycolor = 'white';
-            this.oppcolor = 'black';
-        } else {
-            this.mycolor = this.model["username"] === this.wplayer ? 'white' : 'black';
-            this.oppcolor = this.model["username"] === this.wplayer ? 'black' : 'white';
-        }
-
-        // players[0] is top player, players[1] is bottom player
-        this.players = [
-            this.mycolor === "white" ? this.bplayer : this.wplayer,
-            this.mycolor === "white" ? this.wplayer : this.bplayer
-        ];
-        this.titles = [
-            this.mycolor === "white" ? this.model['btitle'] : this.model['wtitle'],
-            this.mycolor === "white" ? this.model['wtitle'] : this.model['btitle']
-        ];
-        this.ratings = [
-            this.mycolor === "white" ? this.model['brating'] : this.model['wrating'],
-            this.mycolor === "white" ? this.model['wrating'] : this.model['brating']
-        ];
-
-        this.result = "*";
-        const parts = this.fullfen.split(" ");
-
-        const fen_placement: cg.FEN = parts[0];
-        this.turnColor = parts[1] === "w" ? "white" : "black";
-
-        this.steps.push({
-            'fen': this.fullfen,
-            'move': undefined,
-            'check': false,
-            'turnColor': this.turnColor,
-            });
-
-        const pocket0 = this.hasPockets? document.getElementById('pocket0') as HTMLElement: undefined;
-        const pocket1 = this.hasPockets? document.getElementById('pocket1') as HTMLElement: undefined;
-
-        this.chessground = Chessground(el, {
-             fen: fen_placement as cg.FEN,
-             variant: this.variant.name as cg.Variant,
-             chess960: this.chess960,
-             geometry: this.variant.geometry,
-             notation: this.notation,
-             orientation: this.mycolor,
-             turnColor: this.turnColor,
-             animation: { enabled: this.animation },
-             addDimensionsCssVars: true,
-
-             pocketRoles: this.variant.pocketRoles.bind(this.variant),
-        }, pocket0, pocket1);
-
         this.chessground.set({
+            orientation: this.mycolor,
+            turnColor: this.turnColor,
             animation: { enabled: this.animation },
             movable: {
                 free: false,
                 color: this.mycolor,
                 showDests: this.showDests,
                 events: {
-                    after: this.onUserMove,
-                    afterNewPiece: this.onUserDrop,
+                    after: (orig, dest, meta) => this.onUserMove(orig, dest, meta),
+                    afterNewPiece: (role, dest, meta) => this.onUserDrop(role, dest, meta),
                 }
             },
             events: {
@@ -271,10 +133,7 @@ export default class AnalysisController {
             },
         });
 
-        this.gating = new Gating(this);
-        this.promotion = new Promotion(this);
-
-        if (!this.isAnalysisBoard && !this.model["embed"]) {
+        if (!this.isAnalysisBoard && !this.embed) {
             this.ctableContainer = document.getElementById('panel-3') as HTMLElement;
             if (model["ct"]) {
                 this.ctableContainer = patch(this.ctableContainer, h('panel-3'));
@@ -285,11 +144,11 @@ export default class AnalysisController {
         createMovelistButtons(this);
         this.vmovelist = document.getElementById('movelist') as HTMLElement;
 
-        if (!this.isAnalysisBoard && !this.model["embed"]) {
+        if (!this.isAnalysisBoard && !this.embed) {
             patch(document.getElementById('roundchat') as HTMLElement, chatView(this, "roundchat"));
         }
 
-        if (!this.model["embed"]) {
+        if (!this.embed) {
             patch(document.getElementById('input') as HTMLElement, h('input#input', this.renderInput()));
 
             this.vscore = document.getElementById('score') as HTMLElement;
@@ -345,34 +204,13 @@ export default class AnalysisController {
         }
         (document.querySelector('[tabindex="0"]') as HTMLElement).style.display = 'flex';
 
-        boardSettings.ctrl = this;
-        const boardFamily = this.variant.board;
-        const pieceFamily = this.variant.piece;
-        boardSettings.updateBoardStyle(boardFamily);
-        boardSettings.updatePieceStyle(pieceFamily);
-        boardSettings.updateZoom(boardFamily);
-
         this.onMsgBoard(model["board"] as MsgBoard);
     }
 
-    getGround = () => this.chessground;
-
-    private pass = () => {
-        let passKey = 'a0';
-        const pieces = this.chessground.state.pieces;
-        const dests = this.chessground.state.movable.dests!;
-        for (const [k, p] of pieces) {
-            if (p.role === 'k-piece' && p.color === this.turnColor) {
-                if ((dests.get(k)?.includes(k))) passKey = k;
-            }
-        }
-        if (passKey !== 'a0') {
-            // prevent calling pass() again by selectSquare() -> onSelect()
-            this.chessground.state.movable.dests = undefined;
-            this.chessground.selectSquare(passKey as cg.Key);
-            sound.moveSound(this.variant, false);
-            this.sendMove(passKey as cg.Key, passKey as cg.Key, '');
-        }
+    toggleOrientation() {
+        super.toggleOrientation()
+        boardSettings.updateDropSuggestion();
+        //TODO: clocks !!!
     }
 
     private renderInput = () => {
@@ -397,14 +235,14 @@ export default class AnalysisController {
 
     private drawAnalysisChart = (withRequest: boolean) => {
         if (withRequest) {
-            if (this.model["anon"] === 'True') {
+            if (this.anon) {
                 alert(_('You need an account to do that.'));
                 return;
             }
             const element = document.getElementById('request-analysis') as HTMLElement;
             if (element !== null) element.style.display = 'none';
 
-            this.doSend({ type: "analysis", username: this.model["username"], gameId: this.gameId });
+            this.doSend({ type: "analysis", username: this.username, gameId: this.gameId });
             const loaderEl = document.getElementById('loader') as HTMLElement;
             loaderEl.style.display = 'block';
         }
@@ -414,7 +252,7 @@ export default class AnalysisController {
     }
 
     private checkStatus = (msg: MsgBoard | MsgAnalysisBoard) => {
-        if ((msg.gameId !== this.gameId && !this.isAnalysisBoard) || this.model["embed"]) return;
+        if ((msg.gameId !== this.gameId && !this.isAnalysisBoard) || this.embed) return;
         if (("status" in msg && msg.status >= 0) || this.isAnalysisBoard) {
 
             // Save finished game full pgn sent by server
@@ -443,7 +281,7 @@ export default class AnalysisController {
                 ]
 
             // Enable to delete imported games
-            if (this.model["rated"] === '2' && this.importedBy === this.model["username"]) {
+            if (this.rated === '2' && this.importedBy === this.username) {
                 buttons.push(
                     h('a.i-pgn', { on: { click: () => this.deleteGame() } }, [
                         h('i', {props: {title: _('Delete game')}, class: {"icon": true, "icon-trash-o": true} }, _('Delete game'))])
@@ -474,10 +312,7 @@ export default class AnalysisController {
         // console.log("got board msg:", msg);
         this.ply = msg.ply
         this.fullfen = msg.fen;
-        this.dests = new Map(Object.entries(msg.dests)) as cg.Dests;
-        // list of legal promotion moves
-        this.promotions = msg.promo;
-
+        this.setDests();
         const parts = msg.fen.split(" ");
         this.turnColor = parts[1] === "w" ? "white" : "black";
 
@@ -497,7 +332,7 @@ export default class AnalysisController {
             updateMovelist(this);
 
             if (this.steps[0].analysis === undefined) {
-                if (!this.isAnalysisBoard && !this.model['embed']) {
+                if (!this.isAnalysisBoard && !this.embed) {
                     const el = document.getElementById('request-analysis') as HTMLElement;
                     el.style.display = 'block';
                     patch(el, h('button#request-analysis', { on: { click: () => this.drawAnalysisChart(true) } }, [
@@ -509,7 +344,7 @@ export default class AnalysisController {
                 this.drawAnalysisChart(false);
             }
             const clocktimes = this.steps[1]?.clocks?.white;
-            if (clocktimes !== undefined && !this.model['embed']) {
+            if (clocktimes !== undefined && !this.embed) {
                 patch(document.getElementById('anal-clock-top') as HTMLElement, h('div.anal-clock.top'));
                 patch(document.getElementById('anal-clock-bottom') as HTMLElement, h('div.anal-clock.bottom'));
                 renderClocks(this);
@@ -550,19 +385,8 @@ export default class AnalysisController {
                 lastMove: lastMove,
             });
         }
-        if (this.model["ply"] > 0) {
-            this.ply = this.model["ply"]
+        if (this.ply > 0) {
             selectMove(this, this.ply);
-        }
-    }
-
-    notation2ffishjs = (n: cg.Notation) => {
-        switch (n) {
-            case cg.Notation.ALGEBRAIC: return this.ffish.Notation.SAN;
-            case cg.Notation.SHOGI_ARBNUM: return this.ffish.Notation.SHOGI_HODGES_NUMBER;
-            case cg.Notation.JANGGI: return this.ffish.Notation.JANGGI;
-            case cg.Notation.XIANGQI_ARBNUM: return this.ffish.Notation.XIANGQI_WXF;
-            default: return this.ffish.Notation.SAN;
         }
     }
 
@@ -579,26 +403,6 @@ export default class AnalysisController {
         }
 
         if (!this.localEngine) {
-            ffishModule().then((loadedModule: any) => {
-                this.ffish = loadedModule;
-
-                if (this.ffish !== null) {
-                    this.ffish.loadVariantConfig(variantsIni);
-                    this.notationAsObject = this.notation2ffishjs(this.notation);
-                    const availableVariants = this.ffish.variants();
-                    // console.log('Available variants:', availableVariants);
-                    if (this.model.variant === 'chess' || availableVariants.includes(this.model.variant)) {
-                        this.ffishBoard = new this.ffish.Board(this.variant.name, this.fullfen, this.chess960);
-                        this.dests = this.getDests();
-                        this.chessground.set({ movable: { color: this.turnColor, dests: this.dests } });
-                    } else {
-                        console.log("Selected variant is not supported by ffish.js");
-                    }
-                }
-
-                window.addEventListener("beforeunload", () => this.ffishBoard.delete());
-            });
-
             this.localEngine = true;
             patch(document.getElementById('input') as HTMLElement, h('input#input', {attrs: {disabled: false}}));
         }
@@ -682,7 +486,7 @@ export default class AnalysisController {
                     let color = turnColor;
                     const variant = this.variant.name;
                     const dropPieceRole = util.roleOf(pv_move.slice(0, atPos) as cg.PieceLetter);
-                    const orientation = this.flip ? this.oppcolor : this.mycolor;
+                    const orientation = this.flipped() ? this.oppcolor : this.mycolor;
                     const side = color === orientation ? "ally" : "enemy";
                     const url = getPieceImageUrl(variant, dropPieceRole, color, side);
                     this.chessground.set({ drawable: { pieces: { baseUrl: url! } } });
@@ -718,7 +522,7 @@ export default class AnalysisController {
             }
             this.vinfo = patch(this.vinfo, h('info#info', info));
             let pvSan = ceval.p;
-            if (this.ffishBoard !== null) {
+            if (this.ffishBoard) {
                 try {
                     this.ffishBoard.setFen(this.fullfen);
                     pvSan = this.ffishBoard.variationSan(ceval.p, this.notationAsObject);
@@ -731,7 +535,7 @@ export default class AnalysisController {
         } else {
             this.vscore = patch(this.vscore, h('score#score', ''));
             this.vinfo = patch(this.vinfo, h('info#info', _('in local browser')));
-            this.vpv = patch(this.vpv, h('div#pv'));
+            this.vpv = patch(this.vpv, h('div#pv', (this.localAnalysis) ? [h('pvline', '-')] : ''));
         }
 
         // console.log(shapes0);
@@ -765,8 +569,8 @@ export default class AnalysisController {
         if (this.chess960) {
             window.fsf.postMessage('setoption name UCI_Chess960 value true');
         }
-        if (this.model.variant !== 'chess') {
-            window.fsf.postMessage('setoption name UCI_Variant value ' + this.model.variant);
+        if (this.variant.name !== 'chess') {
+            window.fsf.postMessage('setoption name UCI_Variant value ' + this.variant.name);
         }
         //console.log('setoption name Threads value ' + maxThreads);
         window.fsf.postMessage('setoption name Threads value ' + maxThreads);
@@ -781,31 +585,11 @@ export default class AnalysisController {
         }
     }
 
-    getDests = () => {
-        const legalMoves = this.ffishBoard.legalMoves().split(" ");
-        // console.log(legalMoves);
-        const dests: cg.Dests = moveDests(legalMoves);
-        this.promotions = [];
-        legalMoves.forEach((move: string) => {
-            const moveStr = uci2cg(move);
-            
-            const tail = moveStr.slice(-1);
-            if (tail > '9' || tail === '+' || tail === '-') {
-                if (!(this.variant.gate && (moveStr.slice(1, 2) === '1' || moveStr.slice(1, 2) === '8'))) {
-                    this.promotions.push(moveStr);
-                }
-            }
-            if (this.variant.promotion === 'kyoto' && moveStr.slice(0, 1) === '+') {
-                this.promotions.push(moveStr);
-            }
-        });
-        this.chessground.set({ movable: { dests: dests }});
-        return dests;
-    }
-
     // When we are moving inside a variation move list
     // then plyVari > 0 and ply is the index inside vari movelist
     goPly = (ply: number, plyVari = 0) => {
+        super.goPly(ply, plyVari);
+
         if (this.localAnalysis) {
             this.engineStop();
             // Go back to the main line
@@ -815,55 +599,16 @@ export default class AnalysisController {
             }
         }
 
-        const vv = this.steps[plyVari]?.vari;
-        const step = (plyVari > 0 && vv ) ? vv[ply] : this.steps[ply];
-        
-        const move = uci2LastMove(step.move);
-        let capture = false;
-        if (move.length > 0) {
-            // 960 king takes rook castling is not capture
-            // TODO defer this logic to ffish.js
-            capture = (this.chessground.state.pieces.get(move[move.length - 1]) !== undefined && step.san?.slice(0, 2) !== 'O-') || (step.san?.slice(1, 2) === 'x');
-        }
-
-        this.chessground.set({
-            fen: step.fen,
-            turnColor: step.turnColor,
-            movable: {
-                color: step.turnColor,
-                dests: this.dests,
-                },
-            check: step.check,
-            lastMove: move,
-        });
-
-        this.fullfen = step.fen;
-
-        if (this.variant.counting) {
-            updateCount(step.fen, document.getElementById('misc-infow') as HTMLElement, document.getElementById('misc-infob') as HTMLElement);
-        }
-
-        if (this.variant.materialPoint) {
-            updatePoint(step.fen, document.getElementById('misc-infow') as HTMLElement, document.getElementById('misc-infob') as HTMLElement);
-        }
-
-        if (ply === this.ply + 1) {
-            sound.moveSound(this.variant, capture);
-        }
-
-        // Go back to the main line
-        if (plyVari === 0) {
-            this.ply = ply
-        }
-        this.turnColor = step.turnColor;
-
         if (this.plyVari > 0 && plyVari === 0) {
             this.steps[this.plyVari]['vari'] = undefined;
             this.plyVari = 0;
             updateMovelist(this);
         }
 
-        if (this.model["embed"]) return;
+        if (this.embed) return;
+
+        const vv = this.steps[plyVari]?.vari;
+        const step = (plyVari > 0 && vv) ? vv[ply] : this.steps[ply];
 
         const clocktimes = this.steps[1]?.clocks?.white;
         if (clocktimes !== undefined) {
@@ -876,10 +621,9 @@ export default class AnalysisController {
                 if (hcPt !== undefined) hcPt.select();
             }
         }
-
-        if (this.ffishBoard !== null) {
+        if (this.ffishBoard) {
             this.ffishBoard.setFen(this.fullfen);
-            this.dests = this.getDests();
+            this.setDests();
         }
 
         this.drawEval(step.ceval, step.scoreStr, step.turnColor);
@@ -896,29 +640,8 @@ export default class AnalysisController {
             const idxInVari = (plyVari > 0) ? ply : 0;
             this.vpgn = patch(this.vpgn, h('div#pgntext', this.getPgn(idxInVari)));
         } else {
-            const hist = this.model["home"] + '/' + this.gameId + '?ply=' + ply.toString();
-            window.history.replaceState({}, this.model['title'], hist);
-        }
-    }
-
-    doSend = (message: JSONObject) => {
-        // console.log("---> doSend():", message);
-        this.sock.send(JSON.stringify(message));
-    }
-
-    private onMove = () => {
-        return (orig: cg.Key, dest: cg.Key, capturedPiece: cg.Piece) => {
-            console.log("   ground.onMove()", orig, dest, capturedPiece);
-            sound.moveSound(this.variant, !!capturedPiece);
-        }
-    }
-
-    private onDrop = () => {
-        return (piece: cg.Piece, dest: cg.Key) => {
-            // console.log("ground.onDrop()", piece, dest);
-            if (dest !== 'a0' && piece.role) {
-                sound.moveSound(this.variant, false);
-            }
+            const hist = this.home + '/' + this.gameId + '?ply=' + ply.toString();
+            window.history.replaceState({}, '', hist);
         }
     }
 
@@ -942,7 +665,7 @@ export default class AnalysisController {
         const today = new Date().toISOString().substring(0, 10).replace(/-/g, '.');
 
         const event = '[Event "?"]';
-        const site = `[Site "${this.model['home']}/analysis/${this.variant.name}"]`;
+        const site = `[Site "${this.home}/analysis/${this.variant.name}"]`;
         const date = `[Date "${today}"]`;
         const white = '[White "?"]';
         const black = '[Black "?"]';
@@ -954,7 +677,7 @@ export default class AnalysisController {
         return `${event}\n${site}\n${date}\n${white}\n${black}\n${result}\n${variant}\n${fen}\n${setup}\n\n${moveText} *\n`;
     }
 
-    sendMove = (orig: cg.Orig, dest: cg.Key, promo: string) => {
+    doSendMove = (orig: cg.Orig, dest: cg.Key, promo: string) => {
         const move = cg2uci(orig + dest + promo);
         const san = this.ffishBoard.sanMove(move, this.notationAsObject);
         const sanSAN = this.ffishBoard.sanMove(move);
@@ -963,7 +686,7 @@ export default class AnalysisController {
         // console.log('sendMove()', move, san);
         // Instead of sending moves to the server we can get new FEN and dests from ffishjs
         this.ffishBoard.push(move);
-        this.dests = this.getDests();
+        this.setDests();
 
         // We can't use ffishBoard.gamePly() to determine newply because it returns +1 more
         // when new this.ffish.Board() initial FEN moving color was "b"
@@ -975,8 +698,6 @@ export default class AnalysisController {
             fen: this.ffishBoard.fen(this.variant.showPromoted, 0),
             ply: newPly,
             lastMove: move,
-            dests: this.dests,
-            promo: this.promotions,
             bikjang: this.ffishBoard.isBikjang(),
             check: this.ffishBoard.isCheck(),
         }
@@ -1044,9 +765,6 @@ export default class AnalysisController {
         if (this.localAnalysis) this.engineStop();
 
         this.fullfen = msg.fen;
-        this.dests = msg.dests;
-        // list of legal promotion moves
-        this.promotions = msg.promo;
         this.ply = msg.ply
 
         const parts = msg.fen.split(" ");
@@ -1059,51 +777,10 @@ export default class AnalysisController {
             check: msg.check,
             movable: {
                 color: this.turnColor,
-                dests: this.dests,
             },
         });
 
         if (this.localAnalysis) this.engineGo();
-    }
-
-    private onUserMove = (orig: cg.Key, dest: cg.Key, meta: cg.MoveMetadata) => {
-        onUserMove(this, orig, dest, meta);
-    }
-
-    private onUserDrop = (role: cg.Role, dest: cg.Key, meta: cg.MoveMetadata) => {
-        onUserDrop(this, role, dest, meta);
-    }
-
-    private onSelect = () => {
-        return (key: cg.Key) => {
-            if (this.chessground.state.movable.dests === undefined) return;
-
-            // Save state.pieces to help recognise 960 castling (king takes rook) moves
-            // Shouldn't this be implemented in chessground instead?
-            if (this.chess960 && this.variant.gate) {
-                this.prevPieces = new Map(this.chessground.state.pieces);
-            }
-
-            // Janggi pass and Sittuyin in place promotion on Ctrl+click
-            if (this.chessground.state.stats.ctrlKey &&
-                (this.chessground.state.movable.dests.get(key)?.includes(key))
-                ) {
-                const piece = this.chessground.state.pieces.get(key);
-                if (this.variant.name === 'sittuyin') { // TODO make this more generic
-                    // console.log("Ctrl in place promotion", key);
-                    const pieces: cg.PiecesDiff = new Map();
-                    pieces.set(key, {
-                        color: piece!.color,
-                        role: 'f-piece',
-                        promoted: true
-                    });
-                    this.chessground.setPieces(pieces);
-                    this.sendMove(key, key, 'f');
-                } else if (this.variant.pass && piece!.role === 'k-piece') {
-                    this.pass();
-                }
-            }
-        }
     }
 
     private buildScoreStr = (color: string, analysis: Ceval) => {
@@ -1156,47 +833,17 @@ export default class AnalysisController {
     }
 
     private onMsgUserConnected = (msg: MsgUserConnected) => {
-        this.model["username"] = msg["username"];
-    }
-
-    private onMsgSpectators = (msg: MsgSpectators) => {
-        const container = document.getElementById('spectators') as HTMLElement;
-        patch(container, h('under-left#spectators', _('Spectators: ') + msg.spectators));
-    }
-
-    private onMsgChat = (msg: MsgChat) => {
-        if ((this.spectator && msg.room === 'spectator') || (!this.spectator && msg.room !== 'spectator') || msg.user.length === 0) {
-            chatMessage(msg.user, msg.message, "roundchat", msg.time);
-        }
-    }
-
-    private onMsgFullChat = (msg: MsgFullChat) => {
-        // To prevent multiplication of messages we have to remove old messages div first
-        patch(document.getElementById('messages') as HTMLElement, h('div#messages-clear'));
-        // then create a new one
-        patch(document.getElementById('messages-clear') as HTMLElement, h('div#messages'));
-        msg.lines.forEach((line) => {
-            if ((this.spectator && line.room === 'spectator') || (!this.spectator && line.room !== 'spectator') || line.user.length === 0) {
-                chatMessage(line.user, line.message, "roundchat", line.time);
-            }
-        });
-    }
-
-    private onMsgGameNotFound = (msg: MsgGameNotFound) => {
-        alert(_("Requested game %1 not found!", msg['gameId']));
-        window.location.assign(this.model["home"]);
-    }
-
-    private onMsgShutdown = (msg: MsgShutdown) => {
-        alert(msg.message);
+        this.username = msg["username"];
     }
 
     private onMsgDeleted = () => {
-        window.location.assign(this.model["home"] + "/@/" + this.model["username"] + '/import');
+        window.location.assign(this.home + "/@/" + this.username + '/import');
     }
 
-    private onMessage = (evt: MessageEvent) => {
+    protected onMessage(evt: MessageEvent) {
         // console.log("<+++ onMessage():", evt.data);
+        super.onMessage(evt);
+
         const msg = JSON.parse(evt.data);
         switch (msg.type) {
             case "board":
@@ -1212,24 +859,6 @@ export default class AnalysisController {
             case "game_user_connected":
                 this.onMsgUserConnected(msg);
                 break;
-            case "spectators":
-                this.onMsgSpectators(msg);
-                break
-            case "roundchat":
-                this.onMsgChat(msg);
-                break;
-            case "fullchat":
-                this.onMsgFullChat(msg);
-                break;
-            case "game_not_found":
-                this.onMsgGameNotFound(msg);
-                break
-            case "shutdown":
-                this.onMsgShutdown(msg);
-                break;
-            case "logout":
-                this.doSend({type: "logout"});
-                break;
             case "request_analysis":
                 this.onMsgRequestAnalysis()
                 break;
@@ -1238,5 +867,4 @@ export default class AnalysisController {
                 break;
         }
     }
-
 }

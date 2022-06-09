@@ -1,13 +1,14 @@
 import { h, VNode } from 'snabbdom';
 
+import { Api } from "chessgroundx/api";
+import * as cg from "chessgroundx/types";
 import { Chessground } from 'chessgroundx';
 
 import { VARIANTS, uci2LastMove } from './chess';
 import { boardSettings } from './boardSettings';
 import { patch } from './document';
 import { timeControlStr } from './view';
-import { Api } from "chessgroundx/api";
-import * as cg from "chessgroundx/types";
+import { PyChessModel } from "./types";
 
 export interface Game {
     gameId: string;
@@ -55,7 +56,8 @@ function gameView(games: {[gameId: string]: Api}, game: Game, fen: cg.FEN, lastM
     ]));
 }
 
-export function renderGames(): VNode[] {
+export function renderGames(model: PyChessModel): VNode[] {
+    boardSettings.assetURL = model.assetURL;
     boardSettings.updateBoardAndPieceStyles();
 
     const xmlhttp = new XMLHttpRequest();

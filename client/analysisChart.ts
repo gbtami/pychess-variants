@@ -3,11 +3,12 @@ import Highcharts from "highcharts";
 import { _ } from './i18n';
 import { selectMove } from './movelist';
 import { povChances } from './winningChances';
-import AnalysisController from './analysisCtrl';
+import { AnalysisController } from './analysisCtrl';
+import { Step } from "./messages";
 
 export function analysisChart(ctrl: AnalysisController) {
     const scores = ctrl.steps.map(
-        (step, ply) => {
+        (step: Step, ply: number) => {
             if (step.ceval !== undefined) {
                 const score = step.ceval.s;
                 const color = (ctrl.variant.firstColor === "Black") ? step.turnColor === 'black' ? 'white' : 'black' : step.turnColor;
@@ -92,7 +93,7 @@ export function analysisChart(ctrl: AnalysisController) {
         xAxis: {
             title: { text: undefined },
             labels: { enabled: false },
-            gridLineWidth: 1,
+            gridLineWidth: 0,
             lineWidth: 0,
             tickWidth: 0
         },

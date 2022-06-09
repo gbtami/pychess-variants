@@ -26,7 +26,8 @@ export const LANGUAGES = {
     ru: "Pусский",
     th: "ไทย",
     tr: "Türkçe",
-    zh: "简体中文",
+    zh_CN: "简体中文",
+    zh_TW: "繁體中文",
 };
 
 const LANGUAGETEXT: {[key:string]: string} = {
@@ -45,7 +46,8 @@ const LANGUAGETEXT: {[key:string]: string} = {
     ru: "Язык",
     th: "ภาษา",
     tr: "Dil",
-    zh: "语言",
+    zh_CN: "语言",
+    zh_TW: "語言",
 };
 
 const preferredLang = window.navigator.language.slice(0, 2);
@@ -73,7 +75,7 @@ export const translatedVariantDisplayNames = [
     _("capablanca"), _("capahouse"), _("s-chess"), _("s-house"),
     _("grand"), _("grandhouse"), _("shako"), _("shogun"), _("hoppel-poppel"),
 
-    _("orda"), _("synochess"), _("shinobi"), _("empire"), _("orda mirror"), _("chak"),
+    _("orda"), _("synochess"), _("shinobi"), _("empire"), _("orda mirror"), _("chak"), _("chennis"),
 ];
 
 export const translatedCustomStartPositions = [

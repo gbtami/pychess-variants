@@ -4,7 +4,7 @@ import * as cg from 'chessgroundx/types';
 import * as util from 'chessgroundx/util';
 import { dragNewPiece } from 'chessgroundx/drag';
 
-import { EditorController }  from './editorCtrl';
+import { EditorController } from './editorCtrl';
 import { patch } from './document';
 
 type Position = 'top' | 'bottom';
@@ -58,7 +58,7 @@ export function piecesView(ctrl: EditorController, color: cg.Color, position: Po
             r = r.slice(0, -1) as cg.PieceLetter;
         }
         const role = util.roleOf(r);
-        const orientation = ctrl.flip ? ctrl.oppcolor : ctrl.mycolor;
+        const orientation = ctrl.flipped() ? ctrl.oppcolor : ctrl.mycolor;
         const side = color === orientation ? "ally" : "enemy";
         return h(`piece.${role}.${promoted ? "promoted." : ""}${color}.${side}`, {
             attrs: {
@@ -86,6 +86,6 @@ export function drag(ctrl: EditorController, e: cg.MouchEvent): void {
 }
 
 export function iniPieces(ctrl: EditorController, vpieces0: VNode | HTMLElement, vpieces1: VNode | HTMLElement): void {
-    ctrl.vpieces0 = patch(vpieces0, piecesView(ctrl, ctrl.flip ? ctrl.mycolor : ctrl.oppcolor, "top"));
-    ctrl.vpieces1 = patch(vpieces1, piecesView(ctrl, ctrl.flip ? ctrl.oppcolor : ctrl.mycolor, "bottom"));
+    ctrl.vpieces0 = patch(vpieces0, piecesView(ctrl, ctrl.flipped() ? ctrl.mycolor : ctrl.oppcolor, "top"));
+    ctrl.vpieces1 = patch(vpieces1, piecesView(ctrl, ctrl.flipped() ? ctrl.oppcolor : ctrl.mycolor, "bottom"));
 }

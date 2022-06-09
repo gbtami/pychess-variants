@@ -1,11 +1,11 @@
 import { h, VNode } from 'snabbdom';
 
-import AnalysisController from './analysisCtrl';
+import { AnalysisController } from './analysisCtrl';
 import { patch } from './document';
 
 export function renderClocks(ctrl: AnalysisController) {
     const isWhiteTurn = ctrl.turnColor === "white";
-    const whitePov = !ctrl.flip;
+    const whitePov = !ctrl.flipped();
 
     const wclass = whitePov ? 'bottom' : 'top';
     const wtime = ctrl.steps[ctrl.ply]?.clocks?.white;
@@ -39,8 +39,8 @@ function clockContent(time: number): Array<string | VNode> {
     millis = date.getUTCMilliseconds(),
     sep = ':',
     baseStr = pad2(date.getUTCMinutes()) + sep + pad2(date.getUTCSeconds());
-  if (time >= 360000) return [Math.floor(time / 360000) + sep + baseStr];
-  return time >= 6000 ? [baseStr] : [baseStr, h('tenths', '.' + Math.floor(millis / 100).toString())];
+  if (time >= 3600000) return [Math.floor(time / 3600000) + sep + baseStr];
+  return time >= 60000 ? [baseStr] : [baseStr, h('tenths', '.' + Math.floor(millis / 100).toString())];
 }
 
 function pad2(num: number): string {

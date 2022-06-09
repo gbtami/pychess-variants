@@ -2,21 +2,20 @@ import { h, toVNode } from 'snabbdom';
 
 import * as util from 'chessgroundx/util';
 import * as cg from 'chessgroundx/types';
+import { Api } from "chessgroundx/api";
 
 import { PromotionSuffix } from './chess';
 import { patch, bind } from './document';
-import RoundController from './roundCtrl';
-import AnalysisController from './analysisCtrl';
-import { Api } from "chessgroundx/api";
+import { GameController } from './gameCtrl';
 
 type PromotionChoices = Partial<Record<cg.Role, PromotionSuffix>>;
 
 export class Promotion {
-    ctrl: RoundController | AnalysisController;
-    promoting: {orig: cg.Key, dest: cg.Key, callback: (orig: string, dest: string, promo: string) => void} | null;
+    ctrl: GameController;
+    promoting: {orig: cg.Key, dest: cg.Key} | null;
     choices: PromotionChoices;
 
-    constructor(ctrl: RoundController | AnalysisController) {
+    constructor(ctrl: GameController) {
         this.ctrl = ctrl;
         this.promoting = null;
         this.choices = {};
@@ -36,8 +35,7 @@ export class Promotion {
                 undefined :
                 util.roleOf(autoSuffix as cg.PieceLetter);
 
-            if (this.ctrl instanceof RoundController &&
-                this.ctrl.variant.autoPromoteable &&
+            if (this.ctrl.variant.autoPromoteable &&
                 this.ctrl.autoPromote &&
                 !disableAutoPromote &&
                 autoRole &&
@@ -56,7 +54,6 @@ export class Promotion {
                 this.promoting = {
                     orig: orig,
                     dest: dest,
-                    callback: this.ctrl.sendMove,
                 };
             }
 
@@ -139,9 +136,9 @@ export class Promotion {
 
             if (this.ctrl.variant.promotion === 'kyoto') {
                 const dropOrig = util.dropOrigOf(role);
-                if (this.promoting.callback) this.promoting.callback(dropOrig, this.promoting.dest, "");
+                this.ctrl.sendMove(dropOrig, this.promoting.dest, "");
             } else {
-                if (this.promoting.callback) this.promoting.callback(this.promoting.orig, this.promoting.dest, promo!);
+                this.ctrl.sendMove(this.promoting.orig, this.promoting.dest, promo!);
             }
 
             this.promoting = null;

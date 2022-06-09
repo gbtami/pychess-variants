@@ -789,7 +789,7 @@ msgstr "反轉"
 
 #: ../client/i18n.ts:80
 msgid "Theban"
-msgstr ""
+msgstr "底比斯"
 
 #: ../client/i18n.ts:80
 msgid "No castle"
@@ -1591,7 +1591,7 @@ msgstr "底線棋子隨機排列的核象棋"
 
 #: ../client/lobby/layer3.ts:81
 msgid "Move the king on top of the rook to castle."
-msgstr ""
+msgstr "將國王動到城堡上方以換位"
 
 #: ../client/lobby/layer3.ts:83
 msgid "You can play more at lichess.org."
@@ -1607,11 +1607,11 @@ msgstr "只有把王和车打入它们在国际象棋的普通位置时才能王
 msgid ""
 "You can choose different starting setups including Embassy Chess and Gothic "
 "Chess."
-msgstr ""
+msgstr "你可以選擇不同的開局配置，如信使棋、歌德棋"
 
 #: ../client/lobby/layer3.ts:91
 msgid "For a drop version, choose GRANDHOUSE from the dropdown menu."
-msgstr ""
+msgstr "若想要雙狂版本，在下拉選單中選擇「雙狂大象棋」"
 
 #: ../client/lobby/layer3.ts:93
 msgid "For a drop version, choose S-HOUSE from the dropdown menu."
@@ -1627,7 +1627,7 @@ msgstr "炮是一可複雜多變的棋子"
 
 #: ../client/lobby/layer3.ts:99
 msgid "Other piece sets are available, which may help avoid confusion."
-msgstr ""
+msgstr "也有其他棋子的配置、以避免混淆"
 
 #: ../client/lobby/layer3.ts:106
 msgid "Be aware of campmate - victory by moving your king into the 8th rank."
@@ -1639,7 +1639,7 @@ msgstr "讓國王太早升變會很危險"
 
 #: ../client/lobby/layer3.ts:111
 msgid "Maximizing khon and met's effectiveness is the key."
-msgstr ""
+msgstr "儘可能發揮士、象的戰力"
 
 #: ../client/lobby/layer3.ts:113
 msgid "Watch out for knight checks, since they cannot be blocked."
