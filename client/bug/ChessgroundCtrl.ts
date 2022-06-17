@@ -17,7 +17,7 @@ export class ChessgroundController extends GameController {
 
     partnerCC: ChessgroundController;
 
-    chessground: Api;
+    // chessground: Api;
 
     gating: Gating;
     promotion: Promotion;
@@ -41,7 +41,7 @@ export class ChessgroundController extends GameController {
                     //todo:niki: gonna start using it also instead of this.ffishBoard.getPly(), because ply is messed up after calling setFen because of update of pockets after capture
     // plyVari: number;
 
-    dests: cg.Dests;
+    // dests: cg.Dests;
 
     promotions: string[];//on each turn, it is populated from possible moves that are promotions - todo;niki; should implement the population of this array - currently commented out probably
 
@@ -53,13 +53,13 @@ export class ChessgroundController extends GameController {
     steps: Step[];
 
     constructor(el: HTMLElement,elPocket1: HTMLElement,elPocket2: HTMLElement, model: PyChessModel) {
-        super(el, model);
+        super(el, model,elPocket1,elPocket2);
 
         this.fullfen = model.fen;
         this.variant = VARIANTS[model.variant];
         this.chess960 = model.chess960==='True';//todo:niki:i am having second thought if i need this here really 960 should be true/false for both boards, but logically feel the right place here
 
-        this.chessground = this.createGround(el, elPocket1, elPocket2, this.fullfen);
+        this.chessground = this.createGround(el, elPocket1, elPocket2, this.fullfen);//todo:fullfen is not passed in default logic inherited
 
         this.gating = new Gating(this);
         this.promotion = new Promotion(this);
@@ -223,9 +223,9 @@ export class ChessgroundController extends GameController {
                     console.log(ff);
                     const f1 = this.partnerCC.chessground.getFen();
                     const fenPocket = f1.match(/\[.*\]/)![0];
-                    this.partnerCC.fullfen=ff.replace(/\[.*\]/,fenPocket);;
+                    this.partnerCC.fullfen=ff.replace(/\[.*\]/,fenPocket);
                     this.partnerCC.ffishBoard.setFen(this.partnerCC.fullfen);//todo:niki:hope it doesnt break anything this way. ply number i think is not correct now?
-                    this.partnerCC.dests = this.parent.getDests(this.partnerCC);
+                    this.partnerCC.setDests();//dests = this.parent.getDests(this.partnerCC);
                     this.partnerCC.chessground.state.dom.redraw(); // TODO: see todo comment also at same line in onUserDrop.
                 }
             }
@@ -313,7 +313,8 @@ export class ChessgroundController extends GameController {
 
         if (this.ffishBoard !== null) {
             this.ffishBoard.setFen(this.fullfen);
-            this.dests = this.parent.getDests(this);
+            // this.dests = this.parent.getDests(this);
+            this.setDests();
         }
 
         // this.drawEval(step.ceval, step.scoreStr, step.turnColor);

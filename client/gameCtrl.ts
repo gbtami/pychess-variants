@@ -86,8 +86,8 @@ export abstract class GameController extends ChessgroundController implements IC
     // analysis
     plyVari: number;
 
-    constructor(el: HTMLElement, model: PyChessModel) {
-        super (el, model);
+    constructor(el: HTMLElement, model: PyChessModel, pocket0: HTMLElement, pocket1: HTMLElement) {
+        super (el, model, pocket0, pocket1);
 
         this.gameId = model["gameId"] as string;
         this.tournamentId = model["tournamentId"]

@@ -1,4 +1,4 @@
-import ffishModule from 'ffish-es6';
+// import ffishModule from 'ffish-es6';
 
 import Sockette from 'sockette';
 
@@ -10,24 +10,24 @@ import { DrawShape } from 'chessgroundx/draw';
 
 import { JSONObject } from '../types';
 import { _ } from '../i18n';
-import {uci2LastMove, uci2cg, cg2uci, moveDests, notation} from '../chess';
+import {uci2LastMove, uci2cg, cg2uci, notation} from '../chess';
 import { createMovelistButtons, updateMovelist, selectMove, activatePlyVari } from './movelist';
 import { povChances } from '../winningChances';
 import { boardSettings } from './boardSettings';
 import { patch, getPieceImageUrl } from '../document';
-import { variantsIni } from '../variantsIni';
+// import { variantsIni } from '../variantsIni';
 import { Chart } from "highcharts";
 import { PyChessModel } from "../types";
 import {Ceval, Step} from "../messages";
 import {ChessgroundController} from "./ChessgroundCtrl";
 import {sound} from "../sound";
 
-const EVAL_REGEX = new RegExp(''
-  + /^info depth (\d+) seldepth \d+ multipv (\d+) /.source
-  + /score (cp|mate) ([-\d]+) /.source
-  + /(?:(upper|lower)bound )?nodes (\d+) nps \S+ /.source
-  + /(?:hashfull \d+ )?(?:tbhits \d+ )?time (\S+) /.source
-  + /pv (.+)/.source);
+// const EVAL_REGEX = new RegExp(''
+//   + /^info depth (\d+) seldepth \d+ multipv (\d+) /.source
+//   + /score (cp|mate) ([-\d]+) /.source
+//   + /(?:(upper|lower)bound )?nodes (\d+) nps \S+ /.source
+//   + /(?:hashfull \d+ )?(?:tbhits \d+ )?time (\S+) /.source
+//   + /pv (.+)/.source);
 
 const maxDepth = 18;
 const maxThreads = Math.max((navigator.hardwareConcurrency || 1) - 1, 1);
@@ -46,12 +46,12 @@ interface MsgAnalysisBoard {
     check: boolean;
 }
 
-interface MsgAnalysis {
-    type: string;
-    ply: number;
-    ceval: Ceval;
-    color: string;
-}
+// interface MsgAnalysis {
+//     type: string;
+//     ply: number;
+//     ceval: Ceval;
+//     color: string;
+// }
 
 export default class AnalysisController {
     model;
@@ -470,97 +470,98 @@ export default class AnalysisController {
         }
     }
 
-    loadFFishModule = (b: ChessgroundController  ) : any => {
-        ffishModule().then((loadedModule: any) => {
+    // loadFFishModule = (b: ChessgroundController  ) : any => {
+    //     ffishModule().then((loadedModule: any) => {
+    //
+    //         if (loadedModule) {
+    //             b.ffish=loadedModule;
+    //             b.ffish.loadVariantConfig(variantsIni);
+    //
+    //             const availableVariants = b.ffish.variants();
+    //
+    //             if (this.model.variant === 'chess' || availableVariants.includes(this.model.variant)) {
+    //                 b.ffishBoard = new b.ffish.Board(b.variant.name, b.fullfen, b.chess960);
+    //
+    //                 // b.dests = this.getDests(b);
+    //                 b.setDests();
+    //                 b.chessground.set({ movable: { color: b.turnColor, dests: b.dests } });
+    //             } else {
+    //                 console.log("Selected variant is not supported by ffish.js");
+    //             }
+    //             if (!this.notationAsObject) this.notationAsObject = this.notation2ffishjs(this.notation, b.ffish);
+    //         }
+    //
+    //     });
+    // }
 
-            if (loadedModule) {
-                b.ffish=loadedModule;
-                b.ffish.loadVariantConfig(variantsIni);
-
-                const availableVariants = b.ffish.variants();
-
-                if (this.model.variant === 'chess' || availableVariants.includes(this.model.variant)) {
-                    b.ffishBoard = new b.ffish.Board(b.variant.name, b.fullfen, b.chess960);
-
-                    b.dests = this.getDests(b);
-                    b.chessground.set({ movable: { color: b.turnColor, dests: b.dests } });
-                } else {
-                    console.log("Selected variant is not supported by ffish.js");
-                }
-                if (!this.notationAsObject) this.notationAsObject = this.notation2ffishjs(this.notation, b.ffish);
-            }
-
-        });
-    }
-
-    onFSFline = (line: string) => {
-        //console.log(line);
-
-        if (line.includes('readyok')) this.isEngineReady = true;
-
-        if (!this.localEngine) {
-            if (line.includes('UCI_Variant')) {//todo:niki:i dont understand why we wait for this to init ffish
-
-                this.loadFFishModule(this.b1);
-                this.loadFFishModule(this.b2);
-
-                window.addEventListener("beforeunload", () => { this.b1.ffishBoard.delete(); this.b2.ffishBoard.delete(); } );
-
-                // TODO: enable S-chess960 when stockfish.wasm catches upstream Fairy-Stockfish
-                if ((this.model.variant === 'chess' || line.includes(this.model.variant)) &&
-                    !(this.model.variant === 'seirawan' && this.b1.chess960)) {
-                    this.localEngine = true;
-                    patch(document.getElementById('input') as HTMLElement, h('input#input', {attrs: {disabled: false}}));
-                } else {
-                    const v = this.model.variant + ((this.b1.chess960) ? '960' : '');
-                    const title = _("Selected variant %1 is not supported by stockfish.wasm", v);
-                    patch(document.getElementById('slider') as HTMLElement, h('span.sw-slider', {attrs: {title: title}}));
-                }
-            }
-        }
-
-        if (!this.localAnalysis || !this.isEngineReady) return;
-
-        const matches = line.match(EVAL_REGEX);
-        if (!matches) {
-            if (line.includes('mate 0')) {
-                const msg: MsgAnalysis = {type: 'local-analysis', ply: this.ply, color: this.b1.turnColor.slice(0, 1), ceval: {d: 0, s: {mate: 0}}};//todo;niki;no idea what is happening here - just putting b1 to compile
-                this.onMsgAnalysis(msg);
-            }
-            return;
-        }
-
-        //todo:niki:commenting out below 30 lines - analysis will implement later
-        // const depth = parseInt(matches[1]),
-        //     multiPv = parseInt(matches[2]),
-        //     isMate = matches[3] === 'mate',
-        //     povEv = parseInt(matches[4]),
-        //     evalType = matches[5],
-        //     nodes = parseInt(matches[6]),
-        //     elapsedMs: number = parseInt(matches[7]),
-        //     moves = matches[8];
-        // //console.log("---", depth, multiPv, isMate, povEv, evalType, nodes, elapsedMs, moves);
-        //
-        // // Sometimes we get #0. Let's just skip it.
-        // if (isMate && !povEv) return;
-        //
-        // // For now, ignore most upperbound/lowerbound messages.
-        // // The exception is for multiPV, sometimes non-primary PVs
-        // // only have an upperbound.
-        // // See: https://github.com/ddugovic/Stockfish/issues/228
-        // if (evalType && multiPv === 1) return;
-
-        // let score;
-        // if (isMate) {
-        //     score = {mate: povEv};
-        // } else {
-        //     score = {cp: povEv};
-        // }
-        // const knps = nodes / elapsedMs;
-        // const sanMoves = this.ffishBoard.variationSan(moves, this.notationAsObject);
-        // const msg: MsgAnalysis = {type: 'local-analysis', ply: this.ply, color: this.b1.turnColor.slice(0, 1), ceval: {d: depth, m: moves, p: sanMoves, s: score, k: knps}};//todo;niki;not idea what this is putting b1 so it compiles
-        // this.onMsgAnalysis(msg);
-    };
+    // onFSFline = (line: string) => {
+    //     //console.log(line);
+    //
+    //     if (line.includes('readyok')) this.isEngineReady = true;
+    //
+    //     if (!this.localEngine) {
+    //         if (line.includes('UCI_Variant')) {//todo:niki:i dont understand why we wait for this to init ffish
+    //
+    //             this.loadFFishModule(this.b1);
+    //             this.loadFFishModule(this.b2);
+    //
+    //             window.addEventListener("beforeunload", () => { this.b1.ffishBoard.delete(); this.b2.ffishBoard.delete(); } );
+    //
+    //             // TODO: enable S-chess960 when stockfish.wasm catches upstream Fairy-Stockfish
+    //             if ((this.model.variant === 'chess' || line.includes(this.model.variant)) &&
+    //                 !(this.model.variant === 'seirawan' && this.b1.chess960)) {
+    //                 this.localEngine = true;
+    //                 patch(document.getElementById('input') as HTMLElement, h('input#input', {attrs: {disabled: false}}));
+    //             } else {
+    //                 const v = this.model.variant + ((this.b1.chess960) ? '960' : '');
+    //                 const title = _("Selected variant %1 is not supported by stockfish.wasm", v);
+    //                 patch(document.getElementById('slider') as HTMLElement, h('span.sw-slider', {attrs: {title: title}}));
+    //             }
+    //         }
+    //     }
+    //
+    //     if (!this.localAnalysis || !this.isEngineReady) return;
+    //
+    //     const matches = line.match(EVAL_REGEX);
+    //     if (!matches) {
+    //         if (line.includes('mate 0')) {
+    //             const msg: MsgAnalysis = {type: 'local-analysis', ply: this.ply, color: this.b1.turnColor.slice(0, 1), ceval: {d: 0, s: {mate: 0}}};//todo;niki;no idea what is happening here - just putting b1 to compile
+    //             this.onMsgAnalysis(msg);
+    //         }
+    //         return;
+    //     }
+    //
+    //     //todo:niki:commenting out below 30 lines - analysis will implement later
+    //     // const depth = parseInt(matches[1]),
+    //     //     multiPv = parseInt(matches[2]),
+    //     //     isMate = matches[3] === 'mate',
+    //     //     povEv = parseInt(matches[4]),
+    //     //     evalType = matches[5],
+    //     //     nodes = parseInt(matches[6]),
+    //     //     elapsedMs: number = parseInt(matches[7]),
+    //     //     moves = matches[8];
+    //     // //console.log("---", depth, multiPv, isMate, povEv, evalType, nodes, elapsedMs, moves);
+    //     //
+    //     // // Sometimes we get #0. Let's just skip it.
+    //     // if (isMate && !povEv) return;
+    //     //
+    //     // // For now, ignore most upperbound/lowerbound messages.
+    //     // // The exception is for multiPV, sometimes non-primary PVs
+    //     // // only have an upperbound.
+    //     // // See: https://github.com/ddugovic/Stockfish/issues/228
+    //     // if (evalType && multiPv === 1) return;
+    //
+    //     // let score;
+    //     // if (isMate) {
+    //     //     score = {mate: povEv};
+    //     // } else {
+    //     //     score = {cp: povEv};
+    //     // }
+    //     // const knps = nodes / elapsedMs;
+    //     // const sanMoves = this.ffishBoard.variationSan(moves, this.notationAsObject);
+    //     // const msg: MsgAnalysis = {type: 'local-analysis', ply: this.ply, color: this.b1.turnColor.slice(0, 1), ceval: {d: depth, m: moves, p: sanMoves, s: score, k: knps}};//todo;niki;not idea what this is putting b1 so it compiles
+    //     // this.onMsgAnalysis(msg);
+    // };
 
     onMoreDepth = () => {
         this.maxDepth = 99;
@@ -701,28 +702,33 @@ export default class AnalysisController {
         }
     }
 
-    getDests = (b: ChessgroundController) => {
-        const legalMoves = b.ffishBoard.legalMoves().split(" ");
-        // console.log(legalMoves);
-        const dests: cg.Dests = moveDests(legalMoves);
-        b.promotions = [];
-        legalMoves.forEach((move: string) => {
-            const moveStr = uci2cg(move);
-
-            const tail = moveStr.slice(-1);
-            if (tail > '9' || tail === '+' || tail === '-') {
-                if (!(b.variant.gate && (moveStr.slice(1, 2) === '1' || moveStr.slice(1, 2) === '8'))) {
-                    b.promotions.push(moveStr);
-                }
-            }
-            if (b.variant.promotion === 'kyoto' && moveStr.slice(0, 1) === '+') {
-                b.promotions.push(moveStr);
-            }
-        });
-        b.chessground.set({ movable: { dests: dests }});
-
-        return dests;
-    }
+    // getDests = (b: ChessgroundController) => {
+    //     if (b.ffishBoard === undefined) {
+    //         // At very first time we may have to wait for ffish module to initialize
+    //         setTimeout(this.setDests, 100);
+    //     } else {
+    //         const legalMoves = b.ffishBoard.legalMoves().split(" ");
+    //         // console.log(legalMoves);
+    //         const dests: cg.Dests = moveDests(legalMoves);
+    //         b.promotions = [];
+    //         legalMoves.forEach((move: string) => {
+    //             const moveStr = uci2cg(move);
+    //
+    //             const tail = moveStr.slice(-1);
+    //             if (tail > '9' || tail === '+' || tail === '-') {
+    //                 if (!(b.variant.gate && (moveStr.slice(1, 2) === '1' || moveStr.slice(1, 2) === '8'))) {
+    //                     b.promotions.push(moveStr);
+    //                 }
+    //             }
+    //             if (b.variant.promotion === 'kyoto' && moveStr.slice(0, 1) === '+') {
+    //                 b.promotions.push(moveStr);
+    //             }
+    //         });
+    //         b.chessground.set({movable: {dests: dests}});
+    //
+    //         return dests;
+    //     }
+    // }
 
     // When we are moving inside a variation move list
     // then plyVari > 0 and ply is the index inside vari movelist
@@ -776,7 +782,8 @@ export default class AnalysisController {
 
         if (board.ffishBoard !== null) {
             board.ffishBoard.setFen(board.fullfen);
-            board.dests = board.parent.getDests(board);//todo:niki:maybe do this before chessground set above.
+            // board.dests = board.parent.setDests(board);//todo:niki:maybe do this before chessground set above.
+            board.setDests();
         }
 
     }
@@ -836,14 +843,15 @@ export default class AnalysisController {
 
     sendMove = (b: ChessgroundController, orig: cg.Orig, dest: cg.Key, promo: string) => {
         const move = cg2uci(orig + dest + promo);
-        const san = b.ffishBoard.sanMove(move, this.notationAsObject);
+        const san = b.ffishBoard.sanMove(move, b.notationAsObject);
         const sanSAN = b.ffishBoard.sanMove(move);
         const vv = this.steps[this.plyVari]['vari'];
 
         // console.log('sendMove()', move, san);
         // Instead of sending moves to the server we can get new FEN and dests from ffishjs
         b.ffishBoard.push(move);
-        b.dests = this.getDests(b);
+        // b.dests = this.getDests(b);
+        b.setDests();
 
         // We can't use ffishBoard.gamePly() to determine newply because it returns +1 more
         // when new this.ffish.Board() initial FEN moving color was "b"
@@ -932,7 +940,7 @@ export default class AnalysisController {
         if (this.localAnalysis) this.engineStop();
 
         b.fullfen = msg.fen;
-        b.dests = msg.dests;
+        // b.dests = msg.dests;
         // list of legal promotion moves
         b.promotions = msg.promo;
         this.ply = msg.ply
@@ -947,7 +955,7 @@ export default class AnalysisController {
             check: msg.check,
             movable: {
                 color: b.turnColor,
-                dests: b.dests,
+                // dests: b.dests,
             },
         });
 
@@ -1010,27 +1018,27 @@ export default class AnalysisController {
     //     return scoreStr;
     // }
 
-    private onMsgAnalysis = (msg: MsgAnalysis) => {
-        console.log(msg);
-    //     if (msg['ceval']['s'] === undefined) return;
-    //
-    //     const scoreStr = this.buildScoreStr(msg.color, msg.ceval);
-    //
-    //     // Server side analysis message
-    //     if (msg.type === 'analysis') {
-    //         this.steps[msg.ply]['ceval'] = msg.ceval;
-    //         this.steps[msg.ply]['scoreStr'] = scoreStr;
-    //
-    //         if (this.steps.every((step) => {return step.scoreStr !== undefined;})) {
-    //             const element = document.getElementById('loader-wrapper') as HTMLElement;
-    //             element.style.display = 'none';
-    //         }
-    //         this.drawServerEval(msg.ply, scoreStr);
-    //     } else {
-    //         const turnColor = msg.color === 'w' ? 'white' : 'black';
-    //         this.drawEval(msg.ceval, scoreStr, turnColor);
-    //     }
-    }
+    // private onMsgAnalysis = (msg: MsgAnalysis) => {
+    //     console.log(msg);
+    // //     if (msg['ceval']['s'] === undefined) return;
+    // //
+    // //     const scoreStr = this.buildScoreStr(msg.color, msg.ceval);
+    // //
+    // //     // Server side analysis message
+    // //     if (msg.type === 'analysis') {
+    // //         this.steps[msg.ply]['ceval'] = msg.ceval;
+    // //         this.steps[msg.ply]['scoreStr'] = scoreStr;
+    // //
+    // //         if (this.steps.every((step) => {return step.scoreStr !== undefined;})) {
+    // //             const element = document.getElementById('loader-wrapper') as HTMLElement;
+    // //             element.style.display = 'none';
+    // //         }
+    // //         this.drawServerEval(msg.ply, scoreStr);
+    // //     } else {
+    // //         const turnColor = msg.color === 'w' ? 'white' : 'black';
+    // //         this.drawEval(msg.ceval, scoreStr, turnColor);
+    // //     }
+    // }
 
     // User running a fishnet worker asked new server side analysis with chat message: !analysis
     // private onMsgRequestAnalysis = () => {todo:niki:this makes sense to exist at least maybe

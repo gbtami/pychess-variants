@@ -65,7 +65,7 @@ export class AnalysisController extends GameController {
     embed: boolean;
 
     constructor(el: HTMLElement, model: PyChessModel) {
-        super(el, model);
+        super(el, model, document.getElementById('pocket0') as HTMLElement, document.getElementById('pocket1') as HTMLElement);//todo:niki:those elements best be passed as args
         this.embed = this.gameId === undefined;
         this.isAnalysisBoard = this.gameId === "";
         if (!this.embed) {

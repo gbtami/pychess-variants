@@ -95,13 +95,13 @@ function leftSide(model: PyChessModel) {
 // }
 
 function createBoards(mainboardVNode: VNode, bugboardVNode: VNode, mainboardPocket0: VNode, mainboardPocket1: VNode, bugboardPocket0: VNode, bugboardPocket1: VNode, model: PyChessModel) {
-    /*this.ctrl = */const ctrl = new AnalysisController(mainboardVNode.elm as HTMLElement,
+    /*this.ctrl = *//*const ctrl = */new AnalysisController(mainboardVNode.elm as HTMLElement,
         mainboardPocket0.elm as HTMLElement,
         mainboardPocket1.elm as HTMLElement,
         bugboardVNode.elm as HTMLElement,
         bugboardPocket0.elm as HTMLElement, bugboardPocket1.elm as HTMLElement,
         model);
-    window['onFSFline'] = ctrl.onFSFline;
+    // window['onFSFline'] = ctrl.onFSFline;
 }
 
 export function analysisView(model: PyChessModel): VNode[] {
@@ -147,14 +147,14 @@ export function analysisView(model: PyChessModel): VNode[] {
             h('div.pocket-top', [
                 h('div.' + variant.piece + '.' + model["variant"], [
                     h('div.cg-wrap.pocket', [
-                        h('div#pocket0', { hook: { insert: (vnode)=>{mainboardPocket0=vnode}}}),
+                        h('div#pocket00', { hook: { insert: (vnode)=>{mainboardPocket0=vnode}}}),
                     ]),
                 ]),
             ]),
             h('div.pocket-top-partner', [
                 h('div.' + variant.piece + '.' + model["variant"], [
                     h('div.cg-wrap.pocket', [
-                        h('div#pocket0', { hook: { insert: (vnode)=>{bugboardPocket0=vnode}}}),
+                        h('div#pocket10', { hook: { insert: (vnode)=>{bugboardPocket0=vnode}}}),
                     ]),
                 ]),
             ]),
@@ -200,14 +200,14 @@ export function analysisView(model: PyChessModel): VNode[] {
             h('div.pocket-bot', [
                 h('div.' + variant.piece + '.' + model["variant"], [
                     h('div.cg-wrap.pocket', [
-                        h('div#pocket1', { hook: { insert: (vnode)=>{mainboardPocket1=vnode}}}),
+                        h('div#pocket01', { hook: { insert: (vnode)=>{mainboardPocket1=vnode}}}),
                     ]),
                 ]),
             ]),
             h('div.pocket-bot-partner', [
                 h('div.' + variant.piece + '.' + model["variant"], [
                     h('div.cg-wrap.pocket', [
-                        h('div#pocket1', { hook: { insert: (vnode)=>{bugboardPocket1=vnode}}}),
+                        h('div#pocket11', { hook: { insert: (vnode)=>{bugboardPocket1=vnode}}}),
                     ]),
                 ]),
             ]),

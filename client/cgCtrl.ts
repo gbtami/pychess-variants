@@ -29,7 +29,7 @@ export abstract class ChessgroundController implements IBoardController {
     fullfen: string;
     notation: cg.Notation;
 
-    constructor(el: HTMLElement, model: PyChessModel) {
+    constructor(el: HTMLElement, model: PyChessModel, pocket0: HTMLElement, pocket1: HTMLElement) {
         this.home = model.home;
 
         this.variant = VARIANTS[model.variant];
@@ -40,9 +40,6 @@ export abstract class ChessgroundController implements IBoardController {
         this.oppcolor = 'black';
         this.fullfen = model.fen as string;
         this.notation = notation(this.variant);
-
-        const pocket0 = document.getElementById('pocket0') as HTMLElement;
-        const pocket1 = document.getElementById('pocket1') as HTMLElement;
 
         const parts = this.fullfen.split(" ");
         const fen_placement: cg.FEN = parts[0];
