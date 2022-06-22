@@ -1,5 +1,5 @@
 import itertools
-import chess
+from bug import chess
 
 from pgn import BaseVisitor, SkipType
 from typing import Optional, Union
@@ -10,7 +10,7 @@ class StringExporter(BaseVisitor[str]):
     """
     Allows exporting a game as a string.
 
-    >>> import chess.pgn
+    >>> from bug import chess
     >>>
     >>> game = chess.pgn.Game()
     >>>

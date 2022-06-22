@@ -16,7 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-import chess
+from bug import chess
 import collections
 import struct
 import os
@@ -25,7 +25,7 @@ import random
 import typing
 
 from types import TracebackType
-from typing import Any, Callable, Container, Iterator, List, Optional, Type, Union
+from typing import Callable, Container, Iterator, List, Optional, Type, Union
 
 
 PathLike = Union[str, bytes]
@@ -384,7 +384,8 @@ class MemoryMappedReader:
     def __contains__(self, entry: Entry) -> bool:
         return any(current == entry for current in self.find_all(entry.key, minimum_weight=entry.weight))
 
-    def find_all(self, board: Union[chess.Board, int], *, minimum_weight: int = 1, exclude_moves: Container[chess.Move] = ()) -> Iterator[Entry]:
+    def find_all(self, board: Union[chess.Board, int], *, minimum_weight: int = 1, exclude_moves: Container[
+        chess.Move] = ()) -> Iterator[Entry]:
         """Seeks a specific position and yields corresponding entries."""
         try:
             key = int(board)  # type: ignore
@@ -418,7 +419,8 @@ class MemoryMappedReader:
 
             yield entry
 
-    def find(self, board: Union[chess.Board, int], *, minimum_weight: int = 1, exclude_moves: Container[chess.Move] = ()) -> Entry:
+    def find(self, board: Union[chess.Board, int], *, minimum_weight: int = 1, exclude_moves: Container[
+        chess.Move] = ()) -> Entry:
         """
         Finds the main entry for the given position or Zobrist hash.
 
@@ -437,13 +439,15 @@ class MemoryMappedReader:
         except ValueError:
             raise IndexError()
 
-    def get(self, board: Union[chess.Board, int], default: Optional[Entry] = None, *, minimum_weight: int = 1, exclude_moves: Container[chess.Move] = ()) -> Optional[Entry]:
+    def get(self, board: Union[chess.Board, int], default: Optional[Entry] = None, *, minimum_weight: int = 1, exclude_moves: Container[
+        chess.Move] = ()) -> Optional[Entry]:
         try:
             return self.find(board, minimum_weight=minimum_weight, exclude_moves=exclude_moves)
         except IndexError:
             return default
 
-    def choice(self, board: Union[chess.Board, int], *, minimum_weight: int = 1, exclude_moves: Container[chess.Move] = (), random=random) -> Entry:
+    def choice(self, board: Union[chess.Board, int], *, minimum_weight: int = 1, exclude_moves: Container[
+        chess.Move] = (), random=random) -> Entry:
         """
         Uniformly selects a random entry for the given position.
 
@@ -499,8 +503,8 @@ def open_reader(path: PathLike) -> MemoryMappedReader:
     The following example opens a book to find all entries for the start
     position:
 
-    >>> import chess
-    >>> import chess.polyglot
+    >>> from bug import chess
+    >>> import bug.chess.polyglot
     >>>
     >>> board = chess.Board()
     >>>

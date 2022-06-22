@@ -17,11 +17,10 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 import copy
 import itertools
-from collections import defaultdict, OrderedDict
-from typing import DefaultDict, Sequence
+from collections import OrderedDict
 from typing import Dict, Generic, Hashable, Iterable, Iterator, List, Optional, Type, TypeVar, Union, Tuple
 
-import chess
+from bug import chess
 
 
 class SuicideBoard(chess.Board):
@@ -659,8 +658,8 @@ class CrazyhousePocket:
         return "CrazyhousePocket('{}')".format(str(self))
 
     def _repr_svg_(self) -> str:
-        import chess.svg
-        return chess.svg.pocket(self, width=400)
+        import bug.chess.svg
+        return bug.chess.svg.pocket(self, width=400)
 
     def copy(self: CrazyhousePocketT) -> CrazyhousePocketT:
         pocket = type(self)(self.color)
@@ -1104,8 +1103,8 @@ class BughouseBoards:
         return self._boards
 
     def _repr_svg_(self):
-        import chess.svg
-        return chess.svg.bughouse_boards(
+        import bug.chess.svg
+        return bug.chess.svg.bughouse_boards(
             boards=self,
             size=800,
             lastmoveL=self.boards[LEFT].peek() if self.boards[LEFT].move_stack else None,

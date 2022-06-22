@@ -17,7 +17,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-import collections
 import ctypes
 import ctypes.util
 import fnmatch
@@ -28,7 +27,7 @@ import os.path
 import struct
 import typing
 
-import chess
+from bug import chess
 
 from types import TracebackType
 from typing import Any, BinaryIO, Callable, Dict, List, Optional, Tuple, Type, Union
@@ -1507,7 +1506,8 @@ class TableBlock:
 
 
 class Request:
-    def __init__(self, white_squares: List[int], white_types: List[chess.PieceType], black_squares: List[int], black_types: List[chess.PieceType], side: int, epsq: int):
+    def __init__(self, white_squares: List[int], white_types: List[chess.PieceType], black_squares: List[int], black_types: List[
+        chess.PieceType], side: int, epsq: int):
         self.white_squares, self.white_types = sortlists(white_squares, white_types)
         self.black_squares, self.black_types = sortlists(black_squares, black_types)
         self.realside = side
@@ -1563,8 +1563,8 @@ class PythonTablebase:
 
         In the example position white to move will get mated in 10 half-moves:
 
-        >>> import chess
-        >>> import chess.gaviota
+        >>> from bug import chess
+        >>> import bug.chess.gaviota
         >>>
         >>> with chess.gaviota.open_tablebase("data/gaviota") as tablebase:
         ...     board = chess.Board("8/8/8/8/8/8/8/K2kr3 w - - 0 1")
@@ -1645,8 +1645,8 @@ class PythonTablebase:
         Returns ``1`` if the side to move is winning, ``0`` if it is a draw,
         and ``-1`` if the side to move is losing.
 
-        >>> import chess
-        >>> import chess.gaviota
+        >>> from bug import chess
+        >>> import bug.chess.gaviota
         >>>
         >>> with chess.gaviota.open_tablebase("data/gaviota") as tablebase:
         ...     board = chess.Board("8/4k3/8/B7/8/8/8/4K3 w - - 0 1")

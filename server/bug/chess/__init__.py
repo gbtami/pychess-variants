@@ -36,7 +36,7 @@ import re
 import itertools
 import typing
 
-from typing import ClassVar, Callable, Dict, Generic, Hashable, Iterable, Iterator, List, Mapping, MutableSet, Optional, SupportsInt, Tuple, Type, TypeVar, Union
+from typing import ClassVar, Callable, Dict, Generic, Hashable, Iterable, Iterator, List, Mapping, Optional, SupportsInt, Tuple, Type, TypeVar, Union
 
 
 Color = bool
@@ -418,8 +418,7 @@ class Piece:
         return self.symbol()
 
     def _repr_svg_(self) -> str:
-        import chess.svg
-        return chess.svg.piece(self, size=45)
+        return bug.chess.svg.piece(self, size=45)
 
     def __eq__(self, other: object) -> bool:
         if isinstance(other, Piece):
@@ -541,7 +540,7 @@ class Move:
         forfeits en passant capturing). Null moves evaluate to ``False`` in
         boolean contexts.
 
-        >>> import chess
+        >>> from bug import chess
         >>>
         >>> bool(chess.Move.null())
         False
@@ -766,7 +765,7 @@ class BaseBoard:
         Detects an absolute pin (and its direction) of the given square to
         the king of the given color.
 
-        >>> import chess
+        >>> from bug import chess
         >>>
         >>> board = chess.Board("rnb1k2r/ppp2ppp/5n2/3q4/1b1P4/2N5/PP3PPP/R1BQKBNR w KQkq - 3 7")
         >>> board.is_pinned(chess.WHITE, chess.C3)
@@ -1199,8 +1198,7 @@ class BaseBoard:
         return "".join(builder)
 
     def _repr_svg_(self) -> str:
-        import chess.svg
-        return chess.svg.board(board=self, size=400)
+        return bug.chess.svg.board(board=self, size=400)
 
     def __eq__(self, board: object) -> bool:
         if isinstance(board, BaseBoard):
@@ -1284,7 +1282,7 @@ class BaseBoard:
         """
         Creates a new board, initialized with a Chess960 starting position.
 
-        >>> import chess
+        >>> from bug import chess
         >>> import random
         >>>
         >>> board = chess.Board.from_chess960_pos(random.randint(0, 959))
@@ -1898,7 +1896,7 @@ class Board(BaseBoard):
         Updates the position with the given move and puts it onto the
         move stack.
 
-        >>> import chess
+        >>> from bug import chess
         >>>
         >>> board = chess.Board()
         >>>
@@ -2378,7 +2376,7 @@ class Board(BaseBoard):
 
         *hmvc* and *fmvc* are not included by default. You can use:
 
-        >>> import chess
+        >>> from bug import chess
         >>>
         >>> board = chess.Board()
         >>> board.epd(hmvc=board.halfmove_clock, fmvc=board.fullmove_number)
@@ -3327,8 +3325,7 @@ class Board(BaseBoard):
             return "{}({!r}, chess960=True)".format(type(self).__name__, self.fen())
 
     def _repr_svg_(self) -> str:
-        import chess.svg
-        return chess.svg.board(
+        return bug.chess.svg.board(
             board=self,
             size=400,
             lastmove=self.peek() if self.move_stack else None,
@@ -3468,7 +3465,7 @@ class SquareSet:
     """
     A set of squares.
 
-    >>> import chess
+    >>> from bug import chess
     >>>
     >>> squares = chess.SquareSet([chess.A8, chess.A1])
     >>> squares
@@ -3755,15 +3752,14 @@ class SquareSet:
         return "".join(builder)
 
     def _repr_svg_(self) -> str:
-        import chess.svg
-        return chess.svg.board(squares=self, size=400)
+        return bug.chess.svg.board(squares=self, size=400)
 
     @classmethod
     def from_square(cls, square: Square) -> "SquareSet":
         """
         Creates a :class:`~chess.SquareSet` from a single square.
 
-        >>> import chess
+        >>> from bug import chess
         >>>
         >>> chess.SquareSet.from_square(chess.A1) == chess.BB_A1
         True

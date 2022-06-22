@@ -25,10 +25,10 @@ import struct
 import threading
 import typing
 
-import chess
+from bug import chess
 
 from types import TracebackType
-from typing import Dict, Iterator, List, Mapping, MutableMapping, Optional, Tuple, Type, Union
+from typing import Iterator, List, MutableMapping, Optional, Tuple, Type, Union
 
 
 PathLike = Union[str, bytes]
@@ -1659,8 +1659,8 @@ class Tablebase:
         loss. Mate can be forced but the position can be drawn due to the
         fifty-move rule.
 
-        >>> import chess
-        >>> import chess.syzygy
+        >>> from bug import chess
+        >>> import bug.chess.syzygy
         >>>
         >>> with chess.syzygy.open_tablebase("data/syzygy/regular") as tablebase:
         ...     board = chess.Board("8/2K5/4B3/3N4/8/8/4k3/8 b - - 0 1")
@@ -1682,7 +1682,8 @@ class Tablebase:
 
         # Validate piece count.
         if chess.popcount(board.occupied) > 7:
-            raise KeyError("syzygy tables support up to 6 (and experimentally 7) pieces, not {}: {}".format(chess.popcount(board.occupied), board.fen()))
+            raise KeyError("syzygy tables support up to 6 (and experimentally 7) pieces, not {}: {}".format(
+                chess.popcount(board.occupied), board.fen()))
 
         # Probe.
         v, _ = self.probe_ab(board, -2, 2)
@@ -1853,8 +1854,8 @@ class Tablebase:
         Engines like Stockfish calculate themselves, checking with DTZ, but
         only play according to DTZ if they can not manage on their own.
 
-        >>> import chess
-        >>> import chess.syzygy
+        >>> from bug import chess
+        >>> import bug.chess.syzygy
         >>>
         >>> with chess.syzygy.open_tablebase("data/syzygy/regular") as tablebase:
         ...     board = chess.Board("8/2K5/4B3/3N4/8/8/4k3/8 b - - 0 1")
@@ -1939,7 +1940,8 @@ class Tablebase:
         self.close()
 
 
-def open_tablebase(directory: PathLike, *, load_wdl: bool = True, load_dtz: bool = True, max_fds: Optional[int] = 128, VariantBoard: Type[chess.Board] = chess.Board) -> Tablebase:
+def open_tablebase(directory: PathLike, *, load_wdl: bool = True, load_dtz: bool = True, max_fds: Optional[int] = 128, VariantBoard: Type[
+    chess.Board] = chess.Board) -> Tablebase:
     """
     Opens a collection of tables for probing. See
     :class:`~chess.syzygy.Tablebase`.

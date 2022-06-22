@@ -9,7 +9,7 @@ import { PyChessModel } from "../types";
 
 const BRAINKING_SITE = '[Site "BrainKing.com (Prague, Czech Republic)"]';
 const EMBASSY_FEN = '[FEN "rnbqkmcbnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBQKMCBNR w KQkq - 0 1"]';
-
+const BUGHOUSE_VARIANT = '[Variant "Bughouse"]';
 
 export function pasteView(model: PyChessModel): VNode[] {
     let ffish: any = null;
@@ -17,10 +17,35 @@ export function pasteView(model: PyChessModel): VNode[] {
         ffish = loadedModule;
     });
 
+    const importGameBugH = (pgn: string) => {
+        const XHR = new XMLHttpRequest();
+        const FD  = new FormData();
+        FD.append("pgn", pgn)
+        XHR.onreadystatechange = function() {
+            if (this.readyState === 4 && this.status === 200) {
+                const response = JSON.parse(this.responseText);
+                if (response['gameId'] !== undefined) {
+                    window.location.assign(model["home"] + '/analysis/' + response['gameId']);
+                } else if (response['error'] !== undefined) {
+                    alert(response['error']);
+                }
+            }
+        };
+
+        XHR.open("POST", "/import", true);
+        XHR.send(FD);
+    }
+
     const importGame = (model: PyChessModel, ffish: any) => {
         const e = document.getElementById("pgnpaste") as HTMLInputElement;
         //console.log('PGN:', e.value);
         let pgn = e.value;
+
+        if (pgn.indexOf(BUGHOUSE_VARIANT) !== -1 ) {
+            importGameBugH(pgn);
+            return;
+        }
+
         // Add missing Variant tag and switch short/long castling notations
         if (pgn.indexOf(BRAINKING_SITE) !== -1 && pgn.indexOf(EMBASSY_FEN) !== -1) {
             const lines = pgn.split(/\n/);

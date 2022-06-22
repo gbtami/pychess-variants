@@ -24,8 +24,8 @@ import weakref
 from typing import Callable, Dict, Generic, Iterable, Iterator, List, Mapping, MutableMapping, Set, TextIO, Tuple, Type, \
     TypeVar, Optional, Union
 
-import chess
-from chess.variant import BughouseBoards
+from bug import chess
+from bug.chess.variant import BughouseBoards
 
 LOGGER = logging.getLogger(__name__)
 
@@ -579,7 +579,7 @@ class Headers(MutableMapping[str, str]):
         if "Variant" not in self or self.is_chess960() or self.is_wild():
             return chess.Board
         else:
-            from chess.variant import find_variant
+            from bug.chess.variant import find_variant
             return find_variant(self["Variant"])
 
     def board(self) -> Union[chess.Board, BughouseBoards]:
@@ -959,7 +959,7 @@ class StringExporter(BaseVisitor[str]):
     """
     Allows exporting a game as a string.
 
-    >>> import chess.pgn
+    >>> from bug import chess
     >>>
     >>> game = chess.pgn.Game()
     >>>
@@ -1046,9 +1046,9 @@ class StringExporter(BaseVisitor[str]):
     def visit_move(self, board: Union[chess.Board, chess.variant.BughouseBoards], move: chess.Move) -> None:
         if self.variations or not self.variation_depth:
             # Write the move number.
-            if isinstance(board, chess.variant.BughouseBoards):
+            if isinstance(board, bug.chess.variant.BughouseBoards):
                 board = board.boards[move.board_id]
-                if board.board_id == chess.variant.BOARD_A:
+                if board.board_id == bug.chess.variant.BOARD_A:
                     if board.turn == 0:
                         player = 'a'
                     else:
@@ -1091,7 +1091,7 @@ class FileExporter(StringExporter):
     There will always be a blank line after each game. Handling encodings is up
     to the caller.
 
-    >>> import chess.pgn
+    >>> from bug import chess
     >>>
     >>> game = chess.pgn.Game()
     >>>
@@ -1126,11 +1126,11 @@ class FileExporter(StringExporter):
         return self.__repr__()
 
 
-def read_game(handle: TextIO, *, Visitor: Callable[[], BaseVisitor[ResultT]] = GameBuilder) -> Optional[ResultT]:
+def read_game(pgn: str, *, Visitor: Callable[[], BaseVisitor[ResultT]] = GameBuilder) -> Optional[ResultT]:
     """
     Reads a game from a file opened in text mode.
 
-    >>> import chess.pgn
+    >>> from bug import chess
     >>>
     >>> pgn = open("data/pgn/kasparov-deep-blue-1997.pgn")
     >>>
@@ -1178,22 +1178,23 @@ def read_game(handle: TextIO, *, Visitor: Callable[[], BaseVisitor[ResultT]] = G
     """
     visitor = Visitor()
     # checks if file is bughouse(.bgpn) file
-    is_bughouse = handle.name.endswith(".bpgn")
+    is_bughouse = True  # handle.name.endswith(".bpgn")
     found_game = False
     skipping_game = False
     headers = None
     managed_headers = None
 
     # Ignore leading empty lines and comments.
-    line = handle.readline().lstrip("\ufeff")
+    lines = pgn.splitlines(True)
+    line = readLine(lines).lstrip("\ufeff")
     while line.isspace() or line.startswith("%") or line.startswith(";"):
-        line = handle.readline()
+        line = readLine(lines)  # handle.readline()
 
     # Parse game headers.
     while line:
         # Ignore comments.
         if line.startswith("%") or line.startswith(";"):
-            line = handle.readline()
+            line = readLine(lines)  # handle.readline()
             continue
 
         # First token of the game.
@@ -1218,7 +1219,7 @@ def read_game(handle: TextIO, *, Visitor: Callable[[], BaseVisitor[ResultT]] = G
             else:
                 break
 
-        line = handle.readline()
+        line = readLine(lines)  # handle.readline()
 
     if not found_game:
         return None
@@ -1228,7 +1229,7 @@ def read_game(handle: TextIO, *, Visitor: Callable[[], BaseVisitor[ResultT]] = G
 
     # Ignore single empty line after headers.
     if line.isspace():
-        line = handle.readline()
+        line = readLine(lines)  # handle.readline()
 
     if not skipping_game:
         # Chess variant.
@@ -1261,7 +1262,7 @@ def read_game(handle: TextIO, *, Visitor: Callable[[], BaseVisitor[ResultT]] = G
                 if line.isspace():
                     break
                 elif line.startswith("%"):
-                    line = handle.readline()
+                    line = readLine(lines)  # handle.readline()
                     continue
 
             for match in SKIP_MOVETEXT_REGEX.finditer(line):
@@ -1273,7 +1274,7 @@ def read_game(handle: TextIO, *, Visitor: Callable[[], BaseVisitor[ResultT]] = G
                 elif token == "}":
                     in_comment = False
 
-            line = handle.readline()
+            line = readLine(lines)  # handle.readline()
 
         visitor.end_game()
         return visitor.result()
@@ -1286,7 +1287,7 @@ def read_game(handle: TextIO, *, Visitor: Callable[[], BaseVisitor[ResultT]] = G
 
         # Ignore comments.
         if line.startswith("%") or line.startswith(";"):
-            line = handle.readline()
+            line = readLine(lines)  # handle.readline()
             continue
 
         # An empty line means the end of a game.
@@ -1306,7 +1307,7 @@ def read_game(handle: TextIO, *, Visitor: Callable[[], BaseVisitor[ResultT]] = G
                 comment_lines = []
                 while line and "}" not in line:
                     comment_lines.append(line.rstrip())
-                    line = handle.readline()
+                    line = lines.pop(0)  # handle.readline()
                 end_index = line.find("}")
                 comment_lines.append(line[:end_index])
                 if "}" in line:
@@ -1371,11 +1372,15 @@ def read_game(handle: TextIO, *, Visitor: Callable[[], BaseVisitor[ResultT]] = G
                 visitor.visit_board(board_stack[-1])
 
         if read_next_line:
-            line = handle.readline()
+            line = readLine(lines)  # handle.readline()
 
     visitor.end_game()
     return visitor.result()
 
+def readLine(lines) -> str:
+    if lines:
+        return lines.pop(0)
+    return ''
 
 def read_headers(handle: TextIO) -> Optional[Headers]:
     """
@@ -1387,7 +1392,7 @@ def read_headers(handle: TextIO) -> Optional[Headers]:
 
     This example scans for the first game with Kasparov as the white player.
 
-    >>> import chess.pgn
+    >>> from bug import chess
     >>>
     >>> pgn = open("data/pgn/kasparov-deep-blue-1997.pgn")
     >>>
@@ -1432,7 +1437,46 @@ BoardCreator = BoardBuilder
 
 
 if __name__ == "__main__":
-    import chess.pgn
-    pgn = open("/home/oregano/asdf.bpgn")
-    first_game = chess.pgn.read_game(pgn)
+    import bug.chess.pgn
+    pgn = """[Event "Live Chess - Bughouse"]
+[Site "Chess.com"]
+[Date "2022.02.22"]
+[Round "?"]
+[WhiteA "?"]
+[BlackA "?"]
+[WhiteB "?"]
+[BlackB "?"]
+[Result "0-1"]
+[Variant "Bughouse"]
+[SetUp "1"]
+[FEN "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR/ w KQkq - 0 1 | rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR/ w KQkq - 0 1"]
+[ECO "B00"]
+[WhiteElo "1911"]
+[BlackElo "1887"]
+[TimeControl "180"]
+[EndTime "8:25:14 PST"]
+[Termination "blunderman1 won by checkmate"]
+
+1A. e4 1a. e5 2A. d4 2a. Nc6 3A. dxe5 3a. Nxe5 4A. Nf3 4a. Nxf3+ 5A. gxf3 5a.
+Nf6 6A. Rg1 6a. Bc5 7A. Bc4 7a. d5 8A. Bxd5 8a. Nxd5 9A. Qxd5 9a. Bxf2+ 10A.
+Kxf2 1B. e4 {[%clk 0:00:01.3]} 1b. e6 {[%clk 0:00:00.1]} 2B. d4 {[%clk
+0:00:01.6]} 2b. Be7 {[%clk 0:00:00.1]} 3B. Nc3 {[%clk 0:00:02]} 3b. d6 {[%clk
+0:00:00.1]} 4B. Nf3 {[%clk 0:00:02.8]} 4b. Nf6 {[%clk 0:00:00.7]} 5B. Bg5 {[%clk
+0:00:04]} 5b. $146@g4 {[%clk 0:00:00.8]} 6B. Qd2 {[%clk 0:00:03.3]} 6b. Nc6 {[%clk
+0:00:01]} 7B. Bxf6 {[%clk 0:00:02.2]} 10a. $146@h3+ 11A. Kg2 11a. Qxd5 12A. exd5
+7b. Bxf6 {[%clk 0:00:01.1]} 8B. $146@h5 {[%clk 0:00:01.5]} 8b. e5 {[%clk
+0:00:05.3]} 9B. Nxf6+ {[%clk 0:00:01.5]} 12a. B@c5 13A. B@a4+ 9b. Qxf6 {[%clk
+0:00:01.6]} 10B. B@g5 {[%clk 0:00:01.4]} 10b. B@f4 {[%clk 0:00:08.9]} 11B. Bxf4
+{[%clk 0:00:03.4]} 13a. B@d7 11b. exf4 {[%clk 0:00:03.3]} 12B. e5 {[%clk
+0:00:01.4]} 12b. @e3 {[%clk 0:00:08.1]} 13B. exf6 {[%clk 0:00:02.6]} 13b. exd2+
+{[%clk 0:00:01.3]} 14A. Q@e4+ 14B. Nxd2 {[%clk 0:00:00.4]} 14a. @e7 15A. Bxd7+
+15a. Bxd7 16A. B@e3 14b. Nxf6 {[%clk 0:00:04]} 15B. O-O-O {[%clk 0:00:02.7]}
+15b. @a3 {[%clk 0:00:08.7]} 16B. bxa3 {[%clk 0:00:01.5]} 16b. Q@a1+ {[%clk
+0:00:03]} 17B. Ndb1 {[%clk 0:00:02]} 17b. B@b2+ {[%clk 0:00:04.3]} 18B. Kd2
+{[%clk 0:00:00.8]} 18b. Bxc3+ {[%clk 0:00:01.1]} 19B. Nxc3 {[%clk 0:00:00.8]}
+19b. $146@e4+ {[%clk 0:00:05.6]} 20B. Nxe4 {[%clk 0:00:02.1]} 16a. $146@f4+ 17A. Qxf4
+17a. Nxf4+ 18A. Bxf4 18a. Q@f2+ 19A. Kh1 20b. Nxe4+ {[%clk 0:00:00.9]} 21B. Ke1
+{[%clk 0:00:01.8]} 19a. Qxg1# 0-1
+    """
+    first_game = bug.chess.pgn.read_game(pgn)
     print(first_game)

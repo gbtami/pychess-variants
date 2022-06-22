@@ -20,14 +20,14 @@
 # <https://en.wikipedia.org/wiki/User:Cburnett> and also licensed under the
 # GNU General Public License.
 
-import chess
+from bug import chess
 import math
 
 import xml.etree.ElementTree as ET
 
 from typing import Iterable, Optional, Tuple, Union, Sequence
 
-from chess import variant
+from bug.chess import variant
 
 SQUARE_SIZE = 45
 MARGIN = 20
@@ -122,8 +122,8 @@ def piece(piece: chess.Piece, size: Optional[int] = None) -> str:
     """
     Renders the given :class:`chess.Piece` as an SVG image.
 
-    >>> import chess
-    >>> import chess.svg
+    >>> from bug import chess
+    >>> import bug.chess.svg
     >>>
     >>> chess.svg.piece(chess.Piece.from_symbol("R"))  # doctest: +SKIP
 
@@ -254,8 +254,8 @@ def board(board: Optional[chess.BaseBoard] = None, *,
     :param add_definitions: Whether or not to add piece and board defintions. Is only considered when base_svg is
                             not None.
 
-    >>> import chess
-    >>> import chess.svg
+    >>> from bug import chess
+    >>> import bug.chess.svg
     >>>
     >>> board = chess.Board("8/8/8/8/4N3/8/8/8 w - - 0 1")
     >>> squares = board.attacks(chess.E4)
@@ -266,7 +266,7 @@ def board(board: Optional[chess.BaseBoard] = None, *,
     margin = MARGIN if coordinates else 0
     if base_svg is not None:
         svg = base_svg
-    elif isinstance(board, chess.variant.CrazyhouseBoard):
+    elif isinstance(board, bug.chess.variant.CrazyhouseBoard):
         ratio = (12 * SQUARE_SIZE + 2 * margin) / (8 * SQUARE_SIZE + 2 * margin)
         size_tuple = (size, int(size * ratio)) if size is not None else None
         svg = _svg((8 * SQUARE_SIZE + 2 * margin, 12 * SQUARE_SIZE + 2 * margin), size_tuple)
@@ -290,7 +290,7 @@ def board(board: Optional[chess.BaseBoard] = None, *,
         if check is not None:
             defs.append(ET.fromstring(CHECK_GRADIENT))
 
-    if isinstance(board, chess.variant.CrazyhouseBoard):
+    if isinstance(board, bug.chess.variant.CrazyhouseBoard):
         svg_board = ET.SubElement(svg, "g", {
             "transform": "translate(0, {})".format(2 * SQUARE_SIZE)
         })
