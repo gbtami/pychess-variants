@@ -50,6 +50,9 @@ class PrintAllFensVisitor(chess.pgn.BaseVisitor):
                 "{};variant {};site {}".format(board.fen(), self.uci_variant, self.site)
             )
 
+    def begin_variation(self):
+        return chess.pgn.SKIP
+
     def result(self):
         return self.fens
 
