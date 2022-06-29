@@ -310,7 +310,6 @@ export class AnalysisController extends GameController {
         this.importedBy = msg.by;
 
         // console.log("got board msg:", msg);
-        this.ply = msg.ply
         this.fullfen = msg.fen;
         this.setDests();
         const parts = msg.fen.split(" ");

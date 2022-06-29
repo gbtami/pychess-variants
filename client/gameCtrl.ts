@@ -322,7 +322,6 @@ export abstract class GameController extends ChessgroundController implements IC
  * Custom variant-specific logic to be triggered on move and alter state of board/pocket depending on variant rules.
  * TODO: contains also some ui logic - maybe good to split pure chess rules (which maybe can go to chess.ts?)
  *       from rendering dialogs and
- * TODO: Unify this with analysisCtrl
  * */
     protected onUserMove(orig: cg.Key, dest: cg.Key, meta: cg.MoveMetadata) {
         this.preaction = meta.premove;
