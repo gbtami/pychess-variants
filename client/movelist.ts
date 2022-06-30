@@ -74,16 +74,24 @@ export function updateMovelist (ctrl: GameController, full = true, activate = tr
     const plyTo = ctrl.steps.length;
 
     const moves: VNode[] = [];
+
+    const blackStarts = ctrl.steps[0].turnColor === 'black';
+    if (blackStarts && plyFrom === 1) {
+        moves.push(h('move.counter', 1));
+        moves.push(h('move', '...'));
+    }
+
     for (let ply = plyFrom; ply < plyTo; ply++) {
         const move = ctrl.steps[ply].san;
         if (move === null) continue;
 
+        const whiteMove = ctrl.steps[ply].turnColor === 'black';
         const moveEl = [ h('san', move) ];
         const scoreStr = ctrl.steps[ply]['scoreStr'] ?? '';
         moveEl.push(h('eval#ply' + ply, scoreStr));
 
-        if (ply % 2 !== 0)
-            moves.push(h('move.counter', (ply + 1) / 2));
+        if (whiteMove)
+            moves.push(h('move.counter', Math.ceil((ply + 1) / 2)));
 
         const el = h('move', {
             class: { active: ((ply === plyTo - 1) && activate) },
@@ -96,12 +104,12 @@ export function updateMovelist (ctrl: GameController, full = true, activate = tr
         if (ctrl.steps[ply]['vari'] !== undefined && "plyVari" in ctrl) {
             const variMoves = ctrl.steps[ply]['vari'];
 
-            if (ply % 2 !== 0) moves.push(h('move', '...'));
+            if (whiteMove) moves.push(h('move', '...'));
 
             moves.push(h('vari#vari' + ctrl.plyVari,
                 variMoves?
                     variMoves.map((x: Step, idx: number) => {
-                    const currPly = ctrl.plyVari + idx;
+                    const currPly = ctrl.plyVari + idx + ((blackStarts) ? 1 : 0);
                     const moveCounter = (currPly % 2 !== 0) ? (currPly + 1) / 2 + '. ' : (idx === 0) ? Math.floor((currPly + 1) / 2) + '...' : ' ';
                     return h('vari-move', {
                         attrs: { ply: currPly },
@@ -111,8 +119,8 @@ export function updateMovelist (ctrl: GameController, full = true, activate = tr
                 }) : []
             ));
 
-            if (ply % 2 !== 0) {
-                moves.push(h('move.counter', (ply + 1) / 2));
+            if (whiteMove) {
+                moves.push(h('move.counter', Math.ceil((ply + 1) / 2)));
                 moves.push(h('move', '...'));
             }
         }

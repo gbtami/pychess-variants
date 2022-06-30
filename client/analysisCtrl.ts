@@ -119,7 +119,7 @@ export class AnalysisController extends GameController {
             animation: { enabled: this.animation },
             movable: {
                 free: false,
-                color: this.mycolor,
+                color: this.turnColor,
                 showDests: this.showDests,
                 events: {
                     after: (orig, dest, meta) => this.onUserMove(orig, dest, meta),
@@ -648,7 +648,7 @@ export class AnalysisController extends GameController {
         const moves : string[] = [];
         for (let ply = 1; ply <= this.ply; ply++) {
             const moveCounter = (ply % 2 !== 0) ? (ply + 1) / 2 + '.' : '';
-            if (this.steps[ply].vari !== undefined && this.plyVari > 0) {
+            if (this.steps[ply] && this.steps[ply].vari && this.plyVari > 0) {
                 const variMoves = this.steps[ply].vari;
                 if (variMoves) {
                     for (let idx = 0; idx <= idxInVari; idx++) {
@@ -657,7 +657,9 @@ export class AnalysisController extends GameController {
                 }
                 break;
             }
-            moves.push(moveCounter + this.steps[ply]['sanSAN']);
+            if (this.steps[ply]) {
+                moves.push(moveCounter + this.steps[ply]['sanSAN']);
+            }
         }
         const moveText = moves.join(' ');
 
@@ -712,10 +714,14 @@ export class AnalysisController extends GameController {
             'sanSAN': sanSAN,
             };
 
+        // Possible this should be fixed in ffish.js
+        const blackStarts = this.steps[0].turnColor === 'black';
+        const ffishBoardPly = this.ffishBoard.gamePly() + ((blackStarts) ? -1 : 0);
+
         // New main line move
-        if (this.ffishBoard.gamePly() === this.steps.length && this.plyVari === 0) {
+        if (ffishBoardPly === this.steps.length && this.plyVari === 0) {
             this.steps.push(step);
-            this.ply = this.ffishBoard.gamePly()
+            this.ply = ffishBoardPly
             updateMovelist(this);
 
             this.checkStatus(msg);
@@ -730,12 +736,12 @@ export class AnalysisController extends GameController {
                 }
                 if (vv === undefined || msg.ply === vv?.length) {
                     // continuing the variation
-                    this.plyVari = this.ffishBoard.gamePly();
+                    this.plyVari = ffishBoardPly;
                     this.steps[this.plyVari]['vari'] = [];
                 } else {
                     // variation in the variation: drop old moves
                     if ( vv ) {
-                        this.steps[this.plyVari]['vari'] = vv.slice(0, this.ffishBoard.gamePly() - this.plyVari);
+                        this.steps[this.plyVari]['vari'] = vv.slice(0, ffishBoardPly - this.plyVari);
                     }
                 }
             }
