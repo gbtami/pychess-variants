@@ -39,8 +39,8 @@ function clockContent(time: number): Array<string | VNode> {
     millis = date.getUTCMilliseconds(),
     sep = ':',
     baseStr = pad2(date.getUTCMinutes()) + sep + pad2(date.getUTCSeconds());
-  if (time >= 360000) return [Math.floor(time / 360000) + sep + baseStr];
-  return time >= 6000 ? [baseStr] : [baseStr, h('tenths', '.' + Math.floor(millis / 100).toString())];
+  if (time >= 3600000) return [Math.floor(time / 3600000) + sep + baseStr];
+  return time >= 60000 ? [baseStr] : [baseStr, h('tenths', '.' + Math.floor(millis / 100).toString())];
 }
 
 function pad2(num: number): string {
