@@ -646,18 +646,35 @@ export class AnalysisController extends GameController {
 
     private getPgn = (idxInVari  = 0) => {
         const moves : string[] = [];
-        for (let ply = 1; ply <= this.ply; ply++) {
-            const moveCounter = (ply % 2 !== 0) ? (ply + 1) / 2 + '.' : '';
+        let moveCounter: string = '';
+        let whiteMove: boolean = true;
+        let blackStarts: boolean = this.steps[0].turnColor === 'black';
+
+        for (let ply = 1; ply <= Math.max(this.ply, this.plyVari); ply++) {
+            // we are in a variation line of the game
             if (this.steps[ply] && this.steps[ply].vari && this.plyVari > 0) {
                 const variMoves = this.steps[ply].vari;
                 if (variMoves) {
+                    blackStarts = variMoves[0].turnColor === 'white';
                     for (let idx = 0; idx <= idxInVari; idx++) {
+                        if (blackStarts && ply ===1 && idx === 0) {
+                            moveCounter = '1...';
+                        } else {
+                            whiteMove = variMoves[idx].turnColor === 'black';
+                            moveCounter = (whiteMove) ? Math.ceil((ply + idx + 1) / 2) + '.' : '';
+                        }
                         moves.push(moveCounter + variMoves[idx].sanSAN);
-                    }
+                    };
+                    break;
                 }
-                break;
-            }
-            if (this.steps[ply]) {
+            // we are in the main line
+            } else {
+                if (blackStarts && ply === 1) {
+                    moveCounter = '1...';
+                } else {
+                    whiteMove = this.steps[ply].turnColor === 'black';
+                    moveCounter = (whiteMove) ? Math.ceil((ply + 1) / 2) + '.' : '';
+                }
                 moves.push(moveCounter + this.steps[ply]['sanSAN']);
             }
         }
