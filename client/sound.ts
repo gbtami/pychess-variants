@@ -141,6 +141,9 @@ const soundThemes = {
     silent: "Silent",
     standard: "Standard",
     robot: "Robot",
+    nes: "NES",
+    sfx: "SFX",
+    piano: "Piano",
 };
 
 class SoundThemeSettings extends StringSettings {
