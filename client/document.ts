@@ -5,8 +5,7 @@ import * as cg from "chessgroundx/types";
 export const patch = init([classModule, attributesModule, propsModule, eventListenersModule, styleModule]);
 
 export function downloadPgnText(filename: string) {
-    const text = (document.getElementById('pgntext') as HTMLInputElement).value;
-
+    const text = (document.getElementById('pgntext') as HTMLInputElement).innerHTML;
     const element = document.createElement('a');
     element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
     element.setAttribute('download', filename);
