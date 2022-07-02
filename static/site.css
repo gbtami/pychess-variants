@@ -864,7 +864,7 @@ button#btn-zen:hover {
 }
 
 #settings-sound > div > div {
-  flex-direction: row;
+  flex-direction: column;
 }
 
 #board-settings > div {
