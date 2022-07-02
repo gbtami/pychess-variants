@@ -1,0 +1,36 @@
+.standard .cg-wrap piece.p-piece.white {
+    background-image: url('../../images/pieces/maestro/wP.svg');
+}
+.standard .cg-wrap piece.b-piece.white {
+    background-image: url('../../images/pieces/maestro/wB.svg');
+}
+.standard .cg-wrap piece.n-piece.white {
+    background-image: url('../../images/pieces/maestro/wN.svg');
+}
+.standard .cg-wrap piece.r-piece.white {
+    background-image: url('../../images/pieces/maestro/wR.svg');
+}
+.standard .cg-wrap piece.q-piece.white {
+    background-image: url('../../images/pieces/maestro/wQ.svg');
+}
+.standard .cg-wrap piece.k-piece.white {
+    background-image: url('../../images/pieces/maestro/wK.svg');
+}
+.standard .cg-wrap piece.p-piece.black {
+    background-image: url('../../images/pieces/maestro/bP.svg');
+}
+.standard .cg-wrap piece.b-piece.black {
+    background-image: url('../../images/pieces/maestro/bB.svg');
+}
+.standard .cg-wrap piece.n-piece.black {
+    background-image: url('../../images/pieces/maestro/bN.svg');
+}
+.standard .cg-wrap piece.r-piece.black {
+    background-image: url('../../images/pieces/maestro/bR.svg');
+}
+.standard .cg-wrap piece.q-piece.black {
+    background-image: url('../../images/pieces/maestro/bQ.svg');
+}
+.standard .cg-wrap piece.k-piece.black {
+    background-image: url('../../images/pieces/maestro/bK.svg');
+}
