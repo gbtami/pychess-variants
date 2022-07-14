@@ -44,4 +44,5 @@ export type PyChessModel = {
     seekEmpty: boolean;
     tournamentDirector: boolean;
     assetURL: string;
+    puzzle: string;
 };
