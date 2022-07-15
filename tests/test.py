@@ -101,6 +101,35 @@ class GameResultTestCase(AioHTTPTestCase):
         self.assertEqual(game.result, "1-0")
         self.assertEqual(game.status, MATE)
 
+    async def test_janggi_flag_0(self):
+        game = Game(self.app, "12345678", "janggi", "", self.wplayer, self.bplayer)
+        await game.game_ended(self.bplayer, "flag")
+
+        self.assertEqual(game.result, "1-0")
+
+    async def test_janggi_flag_1(self):
+        game = Game(self.app, "12345678", "janggi", "", self.wplayer, self.bplayer)
+        game.bsetup = False
+        await game.game_ended(self.wplayer, "flag")
+
+        self.assertEqual(game.result, "0-1")
+
+    async def test_janggi_flag_2(self):
+        game = Game(self.app, "12345678", "janggi", "", self.wplayer, self.bplayer)
+        game.bsetup = False
+        game.wsetup = False
+        await game.game_ended(self.wplayer, "flag")
+
+        self.assertEqual(game.result, "0-1")
+
+    async def test_janggi_flag_3(self):
+        game = Game(self.app, "12345678", "janggi", "", self.wplayer, self.bplayer)
+        game.bsetup = False
+        game.wsetup = False
+        await game.game_ended(self.bplayer, "flag")
+
+        self.assertEqual(game.result, "1-0")
+
 
 class SanitizeFenTestCase(unittest.TestCase):
     def test_fen_default(self):

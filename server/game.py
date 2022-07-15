@@ -199,7 +199,9 @@ class Game:
                 self.bsetup = False
                 self.wsetup = False
             else:
+                # Red (the second player) have to choose the starting positions of the horses and elephants
                 self.bsetup = not self.bplayer.bot
+                # Blue (the first player) have to choose the starting positions of the horses and elephants
                 self.wsetup = not self.wplayer.bot
                 if self.bplayer.bot:
                     self.board.janggi_setup("b")
@@ -872,9 +874,13 @@ class Game:
         if self.result == "*":
             if reason == "abort":
                 result = "*"
-            elif self.variant == "janggi" and self.wsetup and reason == "flag":
-                # In Janggi game the second player (red) failed to do the setup phase in time
-                result = "1-0"
+            elif self.variant == "janggi" and reason == "flag" and (self.bsetup or self.wsetup):
+                if self.bsetup:
+                    # In Janggi game the second player (red, who have to do the setup first!) failed to do the setup phase in time
+                    result = "1-0"
+                elif self.wsetup:
+                    # the first player (blue) failed to do the setup phase in time
+                    result = "0-1"
             else:
                 if reason == "flag":
                     w, b = self.board.insufficient_material()
