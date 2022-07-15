@@ -21,10 +21,7 @@ async def next_puzzle(db, variant):
     # puzzle_filter = filter_expr(True, skipped, variant)
     # puzzle = await db.puzzle.find_one(puzzle_filter, sort=[("$natural", -1)])
 
-    pipeline = [
-        {"$match": {"_id": {"$nin": skipped}}},
-        {"$sample": {"size": 1}}
-    ]
+    pipeline = [{"$match": {"_id": {"$nin": skipped}}}, {"$sample": {"size": 1}}]
     cursor = db.puzzle.aggregate(pipeline)
 
     puzzle = None
