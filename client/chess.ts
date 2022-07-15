@@ -1107,3 +1107,11 @@ export function notation(variant: Variant): cg.Notation {
     }
     return cgNotation;
 }
+
+export function colorIcon(variant: string, color: string) {
+    if (variantGroups.shogi.variants.includes(variant)) {
+        return (color === 'Black') ? 'icon-sente' : 'icon-gote';
+    } else {
+        return `icon-${color.toLowerCase()}`;
+    }
+}
