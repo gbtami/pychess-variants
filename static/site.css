@@ -151,6 +151,22 @@
   vertical-align: middle;
   opacity: 0.6;
 }
+.icon-sente:before {
+  content: '☗';
+  vertical-align: unset;
+}
+.icon-gote:before {
+  content: '☖';
+  vertical-align: unset;
+}
+[data-theme='dark'] .icon-sente:before {
+  content: '☖';
+  vertical-align: unset;
+}
+[data-theme='dark'] .icon-gote:before {
+  content: '☗';
+  vertical-align: unset;
+}
 img {
   max-width: 100%;
   height: auto;
