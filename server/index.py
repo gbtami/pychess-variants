@@ -55,6 +55,10 @@ from tournaments import (
     create_or_update_tournament,
     get_tournament_name,
 )
+from puzzle import (
+    get_puzzle,
+    next_puzzle,
+)
 from custom_trophy_owners import CUSTOM_TROPHY_OWNERS
 
 log = logging.getLogger(__name__)
@@ -143,7 +147,6 @@ async def index(request):
     ply = request.rel_url.query.get("ply")
 
     tournamentId = request.match_info.get("tournamentId")
-
     if request.path == "/about":
         view = "about"
     elif request.path == "/faq":
@@ -217,6 +220,8 @@ async def index(request):
             await tournament.pause(user)
     elif request.path.startswith("/calendar"):
         view = "calendar"
+    elif request.path.startswith("/puzzle"):
+        view = "puzzle"
 
     profileId = request.match_info.get("profileId")
     if profileId is not None and profileId not in users:
@@ -454,6 +459,21 @@ async def index(request):
         render["time_control_str"] = time_control_str
         render["tables"] = await get_latest_tournaments(request.app)
         render["admin"] = user.username in ADMINS
+
+    elif view == "puzzle":
+        puzzleId = request.match_info.get("puzzleId")
+        if puzzleId is None:
+            # TODO: select random variant for daily puzzles
+            puzzle = await next_puzzle(request, user)
+        else:
+            puzzle = await get_puzzle(request, puzzleId)
+        render["view_css"] = "analysis.css"
+        render["variant"] = puzzle["variant"]
+        render["fen"] = puzzle["fen"]
+        render["puzzle"] = json.dumps(puzzle)
+        print("---- PUZZLE ---")
+        print(render)
+        print("---------------")
 
     if (gameId is not None) and gameId != "variants":
         if view == "invite":

@@ -369,3 +369,149 @@ div#pgntext {
     -moz-user-select: all
     -webkit-user-select: all;
 }
+
+/* PUZZLE */
+.feedback:not(.after) {
+    padding: 2em;
+}
+.feedback {
+    flex: 1 0 9rem;
+    background: var(--bg-meta);
+    justify-content: center;
+}
+.feedback .player {
+    display: flex;
+    align-items: center;
+}
+.feedback .no-square {
+    flex: 0 0 64px;
+    height: 64px;
+    margin-right: 10px;
+    background-size: cover;
+}
+.feedback .icon {
+    display: block;
+    width: 64px;
+    height: 64px;
+    font-size: 50px;
+    line-height: 64px;
+    text-align: center;
+}
+.feedback.fail .icon {
+    color: var(--bad);
+}
+.feedback.good .icon {
+    color: var(--good);
+}
+piece.standard, piece.capa, piece.seirawn, piece.hoppel, piece.shako, piece.asean, piece.shogun, piece.shinobi, piece.synochess, piece.orda, piece.empire, piece.chennis {
+    background-image: url('images/pieces/merida/wK.svg');
+}
+piece.makruk {
+    background-image: url('images/pieces/makruk/ada/WK.svg');
+}
+piece.sittuyin {
+    background-image: url('images/pieces/sittuyin/original/WK.svg');
+}
+piece.shogi, piece.kyoto {
+    background-image: url('images/pieces/shogi/ctk/0GY.svg');
+}
+piece.dobutsu {
+    background-image: url('images/pieces/shogi/Ka/0GY.svg');
+}
+piece.tori.w {
+    background-image: url('images/pieces/tori/intl/0PhoenixWhite.svg');
+}
+piece.tori.b {
+    background-image: url('images/pieces/tori/intl/0PhoenixBlack.svg');
+}
+piece.xiangqi.w {
+    background-image: url('images/pieces/xiangqi/2dhanzi/WK.svg');
+}
+piece.xiangqi.w {
+    background-image: url('images/pieces/xiangqi/2dhanzi/BK.svg');
+}
+piece.janggi.w {
+    background-image: url('images/pieces/janggi/hanjablue/blue_king.svg');
+}
+piece.janggi.b {
+    background-image: url('images/pieces/janggi/hanjablue/red_king.svg');
+}
+piece.orda.b {
+    background-image: url('images/pieces/orda/merida/bK.svg');
+}
+piece.ordamirror {
+    background-image: url('images/pieces/orda/merida/wK.svg');
+}
+piece.chak {
+    background-image: url('images/pieces/chak/WK.svg');
+}
+piece.chennis {
+    background-image: url('images/pieces/chennis/wMN.svg');
+}
+
+.feedback .instruction strong {
+    font-size: 1.5em;
+}
+.feedback .instruction > * {
+    display: block;
+}
+.feedback .view-solution {
+    margin-top: 1.5em;
+    text-align: center;
+    visibility: hidden;
+    opacity: 0;
+}
+.feedback .view-solution.show {
+    visibility: visible;
+    opacity: 0.8;
+    transition: opacity 1.5s;
+}
+.feedback.after {
+    flex-flow: column;
+    max-height: 50%;
+}
+.feedback .complete {
+    display: flex;
+    justify-content: center;
+    font-size: 1.3em;
+    white-space: nowrap;
+    padding: 1em 2em;
+}
+div.more {
+    border-top: 1px solid var(--border-color);
+    padding: 1em 2em;
+    flex-flow: row wrap;
+    text-align: center;
+    justify-content: space-between;
+}
+.button.button-empty, .button.button-empty:hover {
+    color: var(--link-hover);
+}
+.button.button-empty {
+    text-transform: uppercase;
+    transition: none;
+    background: none;
+    box-shadow: none;
+    padding: 0.8em 1em;
+}
+.button.button-empty:not(.disabled):hover {
+    box-shadow:0 2px 5px 0 rgba(0,0,0,0.225);
+}
+.turn-white:before {
+    color: var(--white-text);
+}
+.turn-black:before {
+    color: var(--black-text);
+}
+.turn-blue:before {
+    color: var(--blue-text);
+}
+.turn-red:before {
+    color: var(--red-text);
+}
+.turn-gold:before {
+    color: var(--gold-text);
+}
+.turn-pink:before {
+    color: var(--pink-text);
+}

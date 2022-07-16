@@ -43,6 +43,9 @@ class User:
         self.lobby_sockets = set()
         self.tournament_sockets = {}  # {tournamentId: set()}
 
+        self.puzzles = []
+        self.puzzle_variant = None
+
         self.game_sockets = {}
         self.title = title
         self.game_in_progress = None
