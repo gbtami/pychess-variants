@@ -464,9 +464,9 @@ async def index(request):
         puzzleId = request.match_info.get("puzzleId")
         if puzzleId is None:
             # TODO: select random variant for daily puzzles
-            puzzle = await next_puzzle(request.app["db"], "chess")
+            puzzle = await next_puzzle(request, user)
         else:
-            puzzle = await get_puzzle(request.app["db"], puzzleId)
+            puzzle = await get_puzzle(request, puzzleId)
         render["view_css"] = "analysis.css"
         render["variant"] = puzzle["variant"]
         render["fen"] = puzzle["fen"]

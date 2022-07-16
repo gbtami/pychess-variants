@@ -63,7 +63,8 @@ export class PuzzleController extends GameController {
     }
 
     viewSolution() {
-        console.log('View the solution');
+        this.solution.slice(this.ply).forEach((move: UCIMove) => this.makeMove(move));
+        this.puzzleComplete();
     }
 
     doSendMove(orig: cg.Orig, dest: cg.Key, promo: string) {
@@ -86,7 +87,7 @@ export class PuzzleController extends GameController {
         }
     }
 
-    makeMove(move:UCIMove) {
+    makeMove(move: UCIMove) {
         const san = this.ffishBoard.sanMove(move, this.notationAsObject);
         this.moves.push(move);
         this.ffishBoard.push(move);
@@ -192,6 +193,6 @@ export class PuzzleController extends GameController {
     }
 
     continueTraining() {
-        console.log('Continue training');
+        window.location.assign(`${this.home}/puzzle`);
     }
 }

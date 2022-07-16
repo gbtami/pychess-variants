@@ -1,32 +1,32 @@
-def filter_expr(reviewed: bool, skipped: list, variant: str):
-    f = {
-        "$and": [
-            {"review": {"$exists": reviewed}},
-            {"variant": variant},
-        ]
-    }
-    if skipped:
-        f["$and"] += [{"_id": {"$ne": _id}} for _id in skipped]
-    return f
-
-
-async def get_puzzle(db, puzzleId):
-    puzzle = await db.puzzle.find_one({"_id": puzzleId})
+async def get_puzzle(request, puzzleId):
+    puzzle = await request.app["db"].puzzle.find_one({"_id": puzzleId})
     return puzzle
 
 
-async def next_puzzle(db, variant):
-    # TODO: save user solved/skipped puzzles
-    skipped = []
-    # puzzle_filter = filter_expr(True, skipped, variant)
-    # puzzle = await db.puzzle.find_one(puzzle_filter, sort=[("$natural", -1)])
+async def next_puzzle(request, user):
+    skipped = user.puzzles
+    if user.puzzle_variant is None:
+        pipeline = [{"$match": {"_id": {"$nin": skipped}}}, {"$sample": {"size": 1}}]
+    else:
+        pipeline = [
+            {"$match": {"$and": [{"_id": {"$nin": skipped}}, {"variant": user.puzzle_variant}]}},
+            {"$sample": {"size": 1}},
+        ]
 
-    pipeline = [{"$match": {"_id": {"$nin": skipped}}}, {"$sample": {"size": 1}}]
-    cursor = db.puzzle.aggregate(pipeline)
+    cursor = request.app["db"].puzzle.aggregate(pipeline)
 
     puzzle = None
     async for doc in cursor:
         puzzle = doc
         break
 
+    if puzzle is None:
+        puzzle = {
+            "_id": "0",
+            "variant": "chess",
+            "fen": "rnbqkbnr/pppp1ppp/8/4p3/6P1/5P2/PPPPP2P/RNBQKBNR[] b KQkq - 0 1",
+            "moves": "d8h4",
+        }
+
+    user.puzzles.append(puzzle["_id"])
     return puzzle
