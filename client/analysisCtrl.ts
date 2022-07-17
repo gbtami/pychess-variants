@@ -133,6 +133,15 @@ export class AnalysisController extends GameController {
             },
         });
 
+        if (this.isAnalysisBoard && this.fullfen) {
+            this.steps.push({
+            'fen': this.fullfen,
+            'move': undefined,
+            'check': false,
+            'turnColor': this.turnColor,
+            });
+        }
+
         if (!this.isAnalysisBoard && !this.embed) {
             this.ctableContainer = document.getElementById('panel-3') as HTMLElement;
             if (model["ct"]) {
