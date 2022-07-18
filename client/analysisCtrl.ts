@@ -19,7 +19,7 @@ import { movetimeChart } from './movetimeChart';
 import { renderClocks } from './analysisClock';
 import { copyBoardToPNG } from './png';
 import { boardSettings } from './boardSettings';
-import { patch, downloadPgnText, getPieceImageUrl } from './document';
+import { patch, downloadPgnText } from './document';
 import { variantsIni } from './variantsIni';
 import { Chart } from "highcharts";
 import { PyChessModel } from "./types";
@@ -132,6 +132,15 @@ export class AnalysisController extends GameController {
                 select: this.onSelect(),
             },
         });
+
+        if (this.isAnalysisBoard && this.fullfen) {
+            this.steps.push({
+            'fen': this.fullfen,
+            'move': undefined,
+            'check': false,
+            'turnColor': this.turnColor,
+            });
+        }
 
         if (!this.isAnalysisBoard && !this.embed) {
             this.ctableContainer = document.getElementById('panel-3') as HTMLElement;
@@ -483,12 +492,7 @@ export class AnalysisController extends GameController {
                 if (atPos > -1) {
                     const d = pv_move.slice(atPos + 1, atPos + 3) as cg.Key;
                     let color = turnColor;
-                    const variant = this.variant.name;
                     const dropPieceRole = util.roleOf(pv_move.slice(0, atPos) as cg.PieceLetter);
-                    const orientation = this.flipped() ? this.oppcolor : this.mycolor;
-                    const side = color === orientation ? "ally" : "enemy";
-                    const url = getPieceImageUrl(variant, dropPieceRole, color, side);
-                    this.chessground.set({ drawable: { pieces: { baseUrl: url! } } });
 
                     shapes0 = [{
                         orig: d,
@@ -497,7 +501,7 @@ export class AnalysisController extends GameController {
                             color: color,
                             role: dropPieceRole
                         }},
-                        { orig: d, brush: 'paleGreen'}
+                        { orig: d, brush: 'paleGreen' }
                     ];
                 } else {
                     const o = pv_move.slice(0, 2) as cg.Key;
@@ -607,7 +611,7 @@ export class AnalysisController extends GameController {
         if (this.embed) return;
 
         const vv = this.steps[plyVari]?.vari;
-        const step = (plyVari > 0 && vv) ? vv[ply] : this.steps[ply];
+        const step = (plyVari > 0 && vv) ? vv[ply - plyVari] : this.steps[ply];
 
         const clocktimes = this.steps[1]?.clocks?.white;
         if (clocktimes !== undefined) {
@@ -626,7 +630,7 @@ export class AnalysisController extends GameController {
         }
 
         this.drawEval(step.ceval, step.scoreStr, step.turnColor);
-        this.drawServerEval(ply, step.scoreStr);
+        if (plyVari === 0) this.drawServerEval(ply, step.scoreStr);
 
         // TODO: multi PV
         this.maxDepth = maxDepth;
@@ -636,7 +640,7 @@ export class AnalysisController extends GameController {
         e.value = this.fullfen;
 
         if (this.isAnalysisBoard) {
-            const idxInVari = (plyVari > 0) ? ply : 0;
+            const idxInVari = (plyVari > 0) ? ply - plyVari : 0;
             this.vpgn = patch(this.vpgn, h('div#pgntext', this.getPgn(idxInVari)));
         } else {
             const hist = this.home + '/' + this.gameId + '?ply=' + ply.toString();
@@ -650,7 +654,7 @@ export class AnalysisController extends GameController {
         let whiteMove: boolean = true;
         let blackStarts: boolean = this.steps[0].turnColor === 'black';
 
-        for (let ply = 1; ply <= Math.max(this.ply, this.plyVari); ply++) {
+        for (let ply = 1; ply <= this.ply; ply++) {
             // we are in a variation line of the game
             if (this.steps[ply] && this.steps[ply].vari && this.plyVari > 0) {
                 const variMoves = this.steps[ply].vari;
@@ -706,10 +710,7 @@ export class AnalysisController extends GameController {
         this.ffishBoard.push(move);
         this.setDests();
 
-        // We can't use ffishBoard.gamePly() to determine newply because it returns +1 more
-        // when new this.ffish.Board() initial FEN moving color was "b"
-        const moves = this.ffishBoard.moveStack().split(' ');
-        const newPly = moves.length;
+        const newPly = this.ply + 1;
 
         const msg : MsgAnalysisBoard = {
             gameId: this.gameId,
@@ -734,7 +735,6 @@ export class AnalysisController extends GameController {
         // Possible this should be fixed in ffish.js
         const blackStarts = this.steps[0].turnColor === 'black';
         const ffishBoardPly = this.ffishBoard.gamePly() + ((blackStarts) ? -1 : 0);
-
         // New main line move
         if (ffishBoardPly === this.steps.length && this.plyVari === 0) {
             this.steps.push(step);
@@ -744,16 +744,16 @@ export class AnalysisController extends GameController {
             this.checkStatus(msg);
         // variation move
         } else {
-            // new variation starts
-            if (newPly === 1) {
-                if (msg.lastMove === this.steps[this.ply].move) {
+            // possible new variation move
+            if (this.ffishBoard.moveStack().split(' ').length === 1) {
+                if (msg.lastMove === this.steps[this.ply - 1].move) {
                     // existing main line played
                     selectMove(this, this.ply);
                     return;
                 }
-                if (vv === undefined || msg.ply === vv?.length) {
-                    // continuing the variation
-                    this.plyVari = ffishBoardPly;
+                // new variation starts
+                if (vv === undefined) {
+                    this.plyVari = this.ply;
                     this.steps[this.plyVari]['vari'] = [];
                 } else {
                     // variation in the variation: drop old moves
@@ -762,12 +762,19 @@ export class AnalysisController extends GameController {
                     }
                 }
             }
-            if (this.steps[this.plyVari].vari !== undefined) { this.steps[this.plyVari]?.vari?.push(step);};
+            // continuing the variation
+            if (this.steps[this.plyVari].vari !== undefined) {
+                this.steps[this.plyVari]?.vari?.push(step);
+            };
 
             const full = true;
             const activate = false;
             updateMovelist(this, full, activate);
-            if (vv) activatePlyVari(this.plyVari + vv.length - 1);
+            if (vv) {
+                activatePlyVari(this.plyVari + vv.length - 1);
+            } else if (vv === undefined && this.plyVari > 0) {
+                activatePlyVari(this.plyVari);
+            }
         }
 
         const e = document.getElementById('fullfen') as HTMLInputElement;

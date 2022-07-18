@@ -5,7 +5,7 @@ import { Api } from 'chessgroundx/api';
 
 import { _ } from './i18n';
 import { Variant, VARIANTS, BOARD_FAMILIES, PIECE_FAMILIES } from './chess';
-import { changeBoardCSS, changePieceCSS, getPieceImageUrl } from './document';
+import { changeBoardCSS, changePieceCSS } from './document';
 import { ISettings, NumberSettings, BooleanSettings } from './settings';
 import { slider, checkbox } from './view';
 import { PyChessModel } from "./types";
@@ -94,13 +94,6 @@ class BoardSettings {
             const el = document.querySelector('svg image') as HTMLElement;
             // if there is any
             if (el) {
-                const classNames = el.getAttribute('className')!.split(' ');
-                const variant = this.ctrl.variant.name
-                const role = classNames[0] as cg.Role;
-                const color = classNames[1] as cg.Color;
-                const orientation = this.ctrl.flipped() ? this.ctrl.oppcolor : this.ctrl.mycolor;
-                const side = color === orientation ? "ally" : "enemy";
-                chessground.set({ drawable: { pieces: { baseUrl: getPieceImageUrl(variant, role, color, side)! } } });
                 chessground.redrawAll();
             }
         }

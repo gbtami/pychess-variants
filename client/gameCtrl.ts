@@ -83,7 +83,7 @@ export abstract class GameController extends ChessgroundController implements IC
     clickDropEnabled: boolean;
     autoPromote?: boolean;
 
-    // analysis
+    // Main line ply where analysis variation starts
     plyVari: number;
 
     constructor(el: HTMLElement, model: PyChessModel, pocket0: HTMLElement, pocket1: HTMLElement) {
@@ -196,7 +196,7 @@ export abstract class GameController extends ChessgroundController implements IC
 
     goPly(ply: number, plyVari = 0) {
         const vv = this.steps[plyVari]?.vari;
-        const step = (plyVari > 0 && vv) ? vv[ply] : this.steps[ply];
+        const step = (plyVari > 0 && vv) ? vv[ply - plyVari] : this.steps[ply];
         if (step === undefined) return;
 
         const move = uci2LastMove(step.move);
