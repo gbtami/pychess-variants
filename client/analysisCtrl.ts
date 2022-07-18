@@ -63,6 +63,7 @@ export class AnalysisController extends GameController {
     arrow: boolean;
     importedBy: string;
     embed: boolean;
+    fsfEngineBoard: any;  // used to convert pv UCI move list to SAN
 
     constructor(el: HTMLElement, model: PyChessModel) {
         super(el, model);
@@ -404,6 +405,8 @@ export class AnalysisController extends GameController {
         if (!this.localEngine) {
             this.localEngine = true;
             patch(document.getElementById('input') as HTMLElement, h('input#input', {attrs: {disabled: false}}));
+            this.fsfEngineBoard = new this.ffish.Board(this.variant.name, this.fullfen, this.chess960);
+            window.addEventListener('beforeunload', () => this.fsfEngineBoard.delete());
         }
 
         if (!this.localAnalysis || !this.isEngineReady) return;
@@ -516,10 +519,10 @@ export class AnalysisController extends GameController {
             }
             this.vinfo = patch(this.vinfo, h('info#info', info));
             let pvSan = ceval.p;
-            if (this.ffishBoard) {
+            if (this.fsfEngineBoard) {
                 try {
-                    this.ffishBoard.setFen(this.fullfen);
-                    pvSan = this.ffishBoard.variationSan(ceval.p, this.notationAsObject);
+                    this.fsfEngineBoard.setFen(this.fullfen);
+                    pvSan = this.fsfEngineBoard.variationSan(ceval.p, this.notationAsObject);
                     if (pvSan === '') pvSan = '.';
                 } catch (error) {
                     pvSan = '.';
