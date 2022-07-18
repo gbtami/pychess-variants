@@ -122,7 +122,7 @@ export class Variant {
 
     readonly promotion: PromotionType;
     readonly promotionOrder: PromotionSuffix[];
-    readonly promoteablePieces: cg.PieceLetter[];
+    readonly promoteableRoles: cg.Role[];
     readonly isMandatoryPromotion: MandatoryPromotionPredicate;
     readonly timeControl: string;
     readonly counting?: string;
@@ -166,7 +166,7 @@ export class Variant {
 
         this.promotion = data.promotion ?? "regular";
         this.promotionOrder = data.promotionOrder ?? (this.promotion === "shogi" || this.promotion === "kyoto" ? ["+", ""] : ["q", "c", "e", "a", "h", "n", "r", "b", "p"]);
-        this.promoteablePieces = data.promoteablePieces ?? ["p"];
+        this.promoteableRoles = data.promoteablePieces?.map(util.roleOf) ?? ["p-piece"];
         this.isMandatoryPromotion = data.isMandatoryPromotion ?? alwaysMandatory;
         this.timeControl = data.timeControl ?? "incremental";
         this.counting = data.counting;
@@ -1032,7 +1032,7 @@ export function unpromotedRole(variant: Variant, piece: cg.Piece): cg.Role {
 }
 
 export function promotedRole(variant: Variant, piece: cg.Piece): cg.Role {
-    if (!piece.promoted && variant.promoteablePieces.includes(util.letterOf(piece.role))) {
+    if (!piece.promoted && variant.promoteableRoles.includes(piece.role)) {
         switch (variant.promotion) {
             case 'shogi':
             case 'kyoto':
