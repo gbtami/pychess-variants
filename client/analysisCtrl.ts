@@ -63,6 +63,7 @@ export class AnalysisController extends GameController {
     arrow: boolean;
     importedBy: string;
     embed: boolean;
+    fsfEngineBoard: any;  // used to convert pv UCI move list to SAN
 
     constructor(el: HTMLElement, model: PyChessModel) {
         super(el, model);
@@ -132,15 +133,6 @@ export class AnalysisController extends GameController {
                 select: this.onSelect(),
             },
         });
-
-        if (this.isAnalysisBoard && this.fullfen) {
-            this.steps.push({
-            'fen': this.fullfen,
-            'move': undefined,
-            'check': false,
-            'turnColor': this.turnColor,
-            });
-        }
 
         if (!this.isAnalysisBoard && !this.embed) {
             this.ctableContainer = document.getElementById('panel-3') as HTMLElement;
@@ -413,6 +405,8 @@ export class AnalysisController extends GameController {
         if (!this.localEngine) {
             this.localEngine = true;
             patch(document.getElementById('input') as HTMLElement, h('input#input', {attrs: {disabled: false}}));
+            this.fsfEngineBoard = new this.ffish.Board(this.variant.name, this.fullfen, this.chess960);
+            window.addEventListener('beforeunload', () => this.fsfEngineBoard.delete());
         }
 
         if (!this.localAnalysis || !this.isEngineReady) return;
@@ -525,10 +519,10 @@ export class AnalysisController extends GameController {
             }
             this.vinfo = patch(this.vinfo, h('info#info', info));
             let pvSan = ceval.p;
-            if (this.ffishBoard) {
+            if (this.fsfEngineBoard) {
                 try {
-                    this.ffishBoard.setFen(this.fullfen);
-                    pvSan = this.ffishBoard.variationSan(ceval.p, this.notationAsObject);
+                    this.fsfEngineBoard.setFen(this.fullfen);
+                    pvSan = this.fsfEngineBoard.variationSan(ceval.p, this.notationAsObject);
                     if (pvSan === '') pvSan = '.';
                 } catch (error) {
                     pvSan = '.';
@@ -732,9 +726,7 @@ export class AnalysisController extends GameController {
             'sanSAN': sanSAN,
             };
 
-        // Possible this should be fixed in ffish.js
-        const blackStarts = this.steps[0].turnColor === 'black';
-        const ffishBoardPly = this.ffishBoard.gamePly() + ((blackStarts) ? -1 : 0);
+        const ffishBoardPly = this.ffishBoard.moveStack().split(' ').length;
         // New main line move
         if (ffishBoardPly === this.steps.length && this.plyVari === 0) {
             this.steps.push(step);
@@ -745,7 +737,7 @@ export class AnalysisController extends GameController {
         // variation move
         } else {
             // possible new variation move
-            if (this.ffishBoard.moveStack().split(' ').length === 1) {
+            if (ffishBoardPly === 1) {
                 if (msg.lastMove === this.steps[this.ply - 1].move) {
                     // existing main line played
                     selectMove(this, this.ply);
