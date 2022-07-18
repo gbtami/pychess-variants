@@ -844,7 +844,7 @@ export default class AnalysisController {
     sendMove = (b: ChessgroundController, orig: cg.Orig, dest: cg.Key, promo: string) => {
         const move = cg2uci(orig + dest + promo);
         const san = b.ffishBoard.sanMove(move, b.notationAsObject);
-        const sanSAN = b.ffishBoard.sanMove(move);
+        const sanSAN = b.ffishBoard.sanMove(move);// todo niki what is this?
         const vv = this.steps[this.plyVari]['vari'];
 
         // console.log('sendMove()', move, san);
@@ -871,7 +871,7 @@ export default class AnalysisController {
 
         this.onMsgAnalysisBoard(b, msg);
 
-        const step = {
+        const step = {  //no matter on which board the ply is happening i always need both fens and moves for both boards. this way when jumping to a ply in the middle of the list i can setup both boards and highlight both last moves
             fen: b.boardName==='a'? b.ffishBoard.fen(b.variant.showPromoted, 0): b.partnerCC.ffishBoard.fen(b.partnerCC.variant.showPromoted, 0),
             fenB: b.boardName==='b'? b.ffishBoard.fen(b.variant.showPromoted, 0): b.partnerCC.ffishBoard.fen(b.partnerCC.variant.showPromoted, 0),
             'move': b.boardName==='a'? msg.lastMove: this.steps[this.steps.length-1].move,

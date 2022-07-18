@@ -12,6 +12,7 @@ import {Step} from "../messages";
 import {sound} from "../sound";
 import {GameController} from "../gameCtrl";
 import {PyChessModel} from "../types";
+import {RoundController} from "./roundCtrl";
 
 export class ChessgroundController extends GameController {
 
@@ -31,7 +32,7 @@ export class ChessgroundController extends GameController {
 
     variant: Variant;
 
-    parent: AnalysisController;
+    parent: AnalysisController | RoundController;
 
     fullfen: cg.FEN;
 

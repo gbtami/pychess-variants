@@ -295,6 +295,12 @@ iframe {
   grid-template-areas: '. . main . .';
   margin-top: var(--site-header-margin);
 }
+#main-wrap.bug {
+  display: grid;
+  grid-template-columns: minmax(auto, auto);/*todo:niki:no idea what im doing*/
+  grid-template-areas: 'main';
+  margin-top: var(--site-header-margin);
+}
 
 @media (max-width: 799px) and (orientation: portrait) {
   #main-wrap {

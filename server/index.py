@@ -299,7 +299,7 @@ async def index(request):
             if (ply is not None) and (view != "embed"):
                 view = "analysis"
 
-            if user.username not in (game.wplayer.username, game.bplayer.username):
+            if not game.is_player(user):
                 game.spectators.add(user)
 
             if game.tournamentId is not None:
@@ -480,7 +480,7 @@ async def index(request):
             render["btitle"] = game.bplayer.title
             render["brating"] = game.brating
             render["brdiff"] = game.brdiff
-            render["fen"] = game.board.fen
+            render["fen"] = game.fen  # game.board.fen
             render["base"] = game.base
             render["inc"] = game.inc
             render["byo"] = game.byoyomi_period
@@ -488,7 +488,7 @@ async def index(request):
             render["status"] = game.status
             render["date"] = game.date.isoformat()
             render["title"] = game.browser_title
-            render["ply"] = ply if ply is not None else game.board.ply - 1
+            render["ply"] = ply if ply is not None else game.ply - 1
             render["ct"] = json.dumps(game.crosstable)
             render["board"] = json.dumps(game.get_board(full=True))
             if game.tournamentId is not None:

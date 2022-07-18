@@ -5,6 +5,7 @@ import { RoundController } from './roundCtrl';
 import { gameInfo } from './gameInfo';
 import { renderTimeago } from './datetime';
 import { PyChessModel } from "./types";
+import { roundView as bugRoundView } from "./bug/round";
 
 function runGround(vnode: VNode, model: PyChessModel) {
     const el = vnode.elm as HTMLElement;
@@ -15,6 +16,10 @@ function runGround(vnode: VNode, model: PyChessModel) {
 
 export function roundView(model: PyChessModel): VNode[] {
     const variant = VARIANTS[model.variant];
+
+    if (variant === VARIANTS.bughouse){
+        return bugRoundView(model);
+    }
 
     renderTimeago();
 

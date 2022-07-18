@@ -5,6 +5,8 @@ from datetime import datetime, timezone
 from aiohttp import web
 from aiohttp.web import WebSocketResponse
 
+from bug.utils import load_game_bug
+
 try:
     import pyffish as sf
 
@@ -81,6 +83,10 @@ async def load_game(app, game_id):
     if doc is None:
         return None
 
+    variant = C2V[doc["v"]]
+
+    if variant == "bughouse":
+        return await load_game_bug(app, game_id)
     wp, bp = doc["us"]
     if wp in users:
         wplayer = users[wp]
@@ -94,7 +100,6 @@ async def load_game(app, game_id):
         bplayer = User(app, username=bp, anon=True)
         users[bp] = bplayer
 
-    variant = C2V[doc["v"]]
 
     initial_fen = doc.get("if")
 

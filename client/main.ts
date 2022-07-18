@@ -84,7 +84,10 @@ export function view(el: HTMLElement, model: PyChessModel): VNode {
         return h('div#profile', profileView(model));
     case 'tv':
     case 'round':
-        return h('div#main-wrap', [h('main.round', roundView(model))]);
+        switch (model.variant) {
+            case 'bughouse': return h('div#main-wrap.bug', [h('main.round.bug', roundView(model))]);
+            default: return h('div#main-wrap', [h('main.round', roundView(model))]);
+        }
     case 'embed':
         return h('div', embedView(model));
     case 'analysis':

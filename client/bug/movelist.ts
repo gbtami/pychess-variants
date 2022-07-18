@@ -3,8 +3,9 @@ import { h, VNode } from 'snabbdom';
 import AnalysisController from './analysisCtrl';
 import { result } from '../result'
 import { patch } from '../document';
+import {RoundController} from "./roundCtrl";
 
-export function selectMove (ctrl: AnalysisController, ply: number, plyVari = 0): void {
+export function selectMove (ctrl: AnalysisController | RoundController, ply: number, plyVari = 0): void {
     // if (ctrl.steps[ply].boardName==='a')
     //     ctrl.b1.goPly(ctrl.steps[ply].plyA!, plyVari);
     // else
@@ -19,7 +20,7 @@ export function selectMove (ctrl: AnalysisController, ply: number, plyVari = 0):
 
 }
 
-function activatePly (ctrl: AnalysisController ) {
+function activatePly (ctrl: AnalysisController | RoundController ) {
     const active = document.querySelector('move-bug.active');
     if (active) active.classList.remove('active');
 
@@ -27,7 +28,7 @@ function activatePly (ctrl: AnalysisController ) {
     if (elPly) elPly.classList.add('active');
 }
 
-function scrollToPly (ctrl: AnalysisController ) {
+function scrollToPly (ctrl: AnalysisController | RoundController) {
     if (ctrl.steps.length < 9) return;
     const movelistEl = document.getElementById('movelist') as HTMLElement;
     const plyEl = movelistEl.querySelector('move-bug.active') as HTMLElement | null;
@@ -51,7 +52,7 @@ export function activatePlyVari (ply: number) {
     if (elPly) elPly.classList.add('active');
 }
 
-export function createMovelistButtons (ctrl: AnalysisController/* | RoundController*/) {
+export function createMovelistButtons (ctrl: AnalysisController | RoundController ) {
     const container = document.getElementById('move-controls') as HTMLElement;
     const vari = /*todo;niki;comentout for now "plyVari" in ctrl*/ 1 > 2? ctrl.steps[ctrl.plyVari]['vari']: undefined;
     ctrl.moveControls = patch(container, h('div#btn-controls-top.btn-controls', [
@@ -71,7 +72,7 @@ export function createMovelistButtons (ctrl: AnalysisController/* | RoundControl
     ]));
 }
 
-export function updateMovelist (ctrl: AnalysisController, full = true, activate = true, needResult = true) {
+export function updateMovelist (ctrl: AnalysisController | RoundController, full = true, activate = true, needResult = true) {
     const plyFrom = (full) ? 1 : ctrl.steps.length -1
     const plyTo = ctrl.steps.length;
 
@@ -151,7 +152,7 @@ export function updateMovelist (ctrl: AnalysisController, full = true, activate 
     }
 }
 
-export function updateResult (ctrl: AnalysisController) {
+export function updateResult (ctrl: AnalysisController | RoundController) {
     if (ctrl.status < 0) return;
 
     // Prevent to render it twice

@@ -80,7 +80,8 @@ async def import_game_bpgn(request):
     chess960 = False  # variant.endswith("960")
     #variant = variant.removesuffix("960")
 
-    initial_fen = first_game.headers.get("FEN", "")
+    # todo: replace with valid intial fen for now - maybe fix the problematic fen that ends with / instead of [] eventually - that is how chess.com fen looks like and doesnt parse well here
+    initial_fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[] w KQkq - 0 1 | rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[] w KQkq - 0 1"  # first_game.headers.get("FEN", "")
     final_fen = first_game.headers.get("final_fen", "")
     status = int(first_game.headers.get("Status", UNKNOWNFINISH))
     result = first_game.headers.get("Result", "*")
@@ -95,6 +96,8 @@ async def import_game_bpgn(request):
     try:
         minute = False
         tc = first_game.headers.get("TimeControl", "").split("+")
+        if len(tc) == 1:
+            tc.append("0")
         if tc[0][-1] == "分":
             minute = True
             tc[0] = tc[0][:-1]

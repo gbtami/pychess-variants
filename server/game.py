@@ -5,6 +5,8 @@ import random
 from datetime import datetime, timezone
 from time import monotonic
 
+from user import User
+
 try:
     import pyffish as sf
 
@@ -611,6 +613,17 @@ class Game:
                 self.chess960,
                 {self.bplayer.username: int(round(br.mu, 0))},
             )
+
+    def is_player(self, user: User) -> bool:
+        return user.username in (self.wplayer.username, self.bplayer.username)
+
+    @property
+    def fen(self):
+        return self.board.fen
+
+    @property
+    def ply(self):
+        return self.board.ply
 
     def update_status(self, status=None, result=None):
         if self.status > STARTED:
