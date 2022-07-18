@@ -133,15 +133,6 @@ export class AnalysisController extends GameController {
             },
         });
 
-        if (this.isAnalysisBoard && this.fullfen) {
-            this.steps.push({
-            'fen': this.fullfen,
-            'move': undefined,
-            'check': false,
-            'turnColor': this.turnColor,
-            });
-        }
-
         if (!this.isAnalysisBoard && !this.embed) {
             this.ctableContainer = document.getElementById('panel-3') as HTMLElement;
             if (model["ct"]) {
@@ -732,9 +723,7 @@ export class AnalysisController extends GameController {
             'sanSAN': sanSAN,
             };
 
-        // Possible this should be fixed in ffish.js
-        const blackStarts = this.steps[0].turnColor === 'black';
-        const ffishBoardPly = this.ffishBoard.gamePly() + ((blackStarts) ? -1 : 0);
+        const ffishBoardPly = this.ffishBoard.moveStack().split(' ').length;
         // New main line move
         if (ffishBoardPly === this.steps.length && this.plyVari === 0) {
             this.steps.push(step);
@@ -745,7 +734,7 @@ export class AnalysisController extends GameController {
         // variation move
         } else {
             // possible new variation move
-            if (this.ffishBoard.moveStack().split(' ').length === 1) {
+            if (ffishBoardPly === 1) {
                 if (msg.lastMove === this.steps[this.ply - 1].move) {
                     // existing main line played
                     selectMove(this, this.ply);
