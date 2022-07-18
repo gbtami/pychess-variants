@@ -166,7 +166,7 @@ export class Variant {
 
         this.promotion = data.promotion ?? "regular";
         this.promotionOrder = data.promotionOrder ?? (this.promotion === "shogi" || this.promotion === "kyoto" ? ["+", ""] : ["q", "c", "e", "a", "h", "n", "r", "b", "p"]);
-        this.promoteableRoles = data.promoteablePieces?.map(util.roleOf) ?? ["p-piece"];
+        this.promoteableRoles = data.promoteableLetters?.map(util.roleOf) ?? ["p-piece"];
         this.isMandatoryPromotion = data.isMandatoryPromotion ?? alwaysMandatory;
         this.timeControl = data.timeControl ?? "incremental";
         this.counting = data.counting;
@@ -210,7 +210,7 @@ interface VariantConfig { // TODO explain what each parameter of the variant con
 
     promotion?: PromotionType;
     promotionOrder?: PromotionSuffix[];
-    promoteablePieces?: cg.PieceLetter[];
+    promoteableLetters?: cg.PieceLetter[];
     isMandatoryPromotion?: MandatoryPromotionPredicate;
     timeControl?: string;
     counting?: string;
@@ -349,7 +349,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         pieceLetters: ["k", "g", "r", "b", "s", "n", "l", "p"],
         pocketLetters: ["p", "l", "n", "s", "g", "b", "r"],
         promotion: "shogi",
-        promoteablePieces: ["p", "l", "n", "s", "r", "b"],
+        promoteableLetters: ["p", "l", "n", "s", "r", "b"],
         isMandatoryPromotion: distanceBased({ p: 1, l: 1, n: 2 }, 9),
         timeControl: "byoyomi",
         pieceSound: "shogi",
@@ -378,7 +378,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         pieceLetters: ["k", "g", "r", "b", "s", "p"],
         pocketLetters: ["p", "s", "g", "b", "r"],
         promotion: "shogi",
-        promoteablePieces: ["p", "s", "r", "b"],
+        promoteableLetters: ["p", "s", "r", "b"],
         isMandatoryPromotion: distanceBased({ p: 1 }, 5),
         timeControl: "byoyomi",
         pieceSound: "shogi",
@@ -394,7 +394,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         pieceLetters: ["k", "l", "s", "n", "p"],
         pocketLetters: ["p", "l", "n", "s"],
         promotion: "kyoto",
-        promoteablePieces: ["p", "l", "n", "s"],
+        promoteableLetters: ["p", "l", "n", "s"],
         isMandatoryPromotion: (_role: cg.Role, orig: cg.Key, _dest: cg.Key, _color: cg.Color) => orig !== 'a0',
         timeControl: "byoyomi",
         pieceSound: "shogi",
@@ -410,7 +410,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         pieceLetters: ["l", "g", "e", "c"],
         pocketLetters: ["e", "g", "c"],
         promotion: "shogi",
-        promoteablePieces: ["c"],
+        promoteableLetters: ["c"],
         timeControl: "byoyomi",
         pieceSound: "shogi",
         drop: true,
@@ -425,7 +425,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         pieceLetters: ["k", "g", "s", "p"],
         pocketLetters: ["p", "s", "g"],
         promotion: "shogi",
-        promoteablePieces: ["p", "s"],
+        promoteableLetters: ["p", "s"],
         isMandatoryPromotion: distanceBased({ p: 1 }, 6),
         timeControl: "byoyomi",
         pieceSound: "shogi",
@@ -441,7 +441,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         pieceLetters: ["k", "g", "s", "n", "l", "p"],
         pocketLetters: ["p", "l", "n", "s", "g"],
         promotion: "shogi",
-        promoteablePieces: ["p", "s", "n", "l"],
+        promoteableLetters: ["p", "s", "n", "l"],
         isMandatoryPromotion: distanceBased({ p: 1, l: 1, n: 2 }, 6),
         timeControl: "byoyomi",
         pieceSound: "shogi",
@@ -461,7 +461,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         pieceLetters: ["k", "c", "p", "l", "r", "f", "s"],
         pocketLetters: ["s", "p", "l", "r", "c", "f"],
         promotion: "shogi",
-        promoteablePieces: ["s", "f"],
+        promoteableLetters: ["s", "f"],
         timeControl: "byoyomi",
         pieceSound: "shogi",
         drop: true,
@@ -481,7 +481,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         board: "xiangqi9x10", piece: "xiangqi",
         firstColor: "Red", secondColor: "Black",
         pieceLetters: ["k", "a", "c", "r", "b", "n", "p"],
-        promoteablePieces: [],
+        promoteableLetters: [],
         icon: "|",
     }),
 
@@ -492,7 +492,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         firstColor: "Red", secondColor: "Black",
         pieceLetters: ["k", "a", "m", "b", "p"],
         pieceLetters2: ["k", "a", "c", "r", "b", "n", "p"],
-        promoteablePieces: [],
+        promoteableLetters: [],
         icon: "{",
     }),
 
@@ -502,7 +502,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         board: "janggi9x10", piece: "janggi",
         firstColor: "Blue", secondColor: "Red",
         pieceLetters: ["k", "a", "c", "r", "b", "n", "p"],
-        promoteablePieces: [],
+        promoteableLetters: [],
         timeControl: "byoyomi",
         materialPoint: "janggi",
         pass: true,
@@ -515,7 +515,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         board: "xiangqi7x7", piece: "xiangqi",
         firstColor: "Red", secondColor: "Black",
         pieceLetters: ["k", "c", "r", "n", "p"],
-        promoteablePieces: [],
+        promoteableLetters: [],
         icon: "7",
     }),
 
@@ -612,7 +612,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         pieceLetters: ["k", "f", "r", "b", "n", "p"],
         pocketLetters: ["p", "n", "b", "r", "f"],
         promotion: "shogi",
-        promoteablePieces: ["p", "f", "r", "b", "n"],
+        promoteableLetters: ["p", "f", "r", "b", "n"],
         isMandatoryPromotion: distanceBased({ p: 1 }, 8),
         timeControl: "byoyomi",
         enPassant: true, drop: true,
@@ -663,7 +663,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         pocketLetters: ["l", "h", "m", "d", "j"],
         pocketLetters2: [],
         promotion: "shogi",
-        promoteablePieces: ["p", "l", "h", "m"],
+        promoteableLetters: ["p", "l", "h", "m"],
         enPassant: true,
         boardMark: 'campmate',
         icon: "🐢",
@@ -699,7 +699,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         firstColor: "White", secondColor: "Green",
         pieceLetters: ["r", "v", "s", "q", "k", "j", "o", "p"],
         promotion: "shogi",
-        promoteablePieces: ["p", "k"],
+        promoteableLetters: ["p", "k"],
         icon: "🐬",
     }),
 
@@ -710,7 +710,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         pieceLetters: ["k", "p", "m", "s", "f"],
         pocketLetters: ["p", "m", "s", "f"],
         promotion: "kyoto",
-        promoteablePieces: ["p", "m", "s", "f"],
+        promoteableLetters: ["p", "m", "s", "f"],
         isMandatoryPromotion: (_role: cg.Role, orig: cg.Key, _dest: cg.Key, _color: cg.Color) => orig !== 'a0',
         drop: true,
         icon: "🎾",
