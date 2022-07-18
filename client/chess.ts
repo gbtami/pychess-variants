@@ -114,11 +114,9 @@ export class Variant {
     readonly firstColor: ColorName;
     readonly secondColor: ColorName;
 
-    private readonly _pieceRoles: [ cg.Role[], cg.Role[] ];
-    pieceRoles(color: cg.Color) { return color === "white" ? this._pieceRoles[0] : this._pieceRoles[1]; }
+    readonly pieceRoles: Record<cg.Color, cg.Role[]>;
     readonly pocket: boolean;
-    private readonly _pocketRoles: [ cg.Role[] | undefined, cg.Role[] | undefined ];
-    pocketRoles(color: cg.Color) { return color === "white" ? this._pocketRoles[0] : this._pocketRoles[1]; }
+    readonly pocketRoles: Record<cg.Color, cg.Role[]> | undefined;
 
     readonly promotion: PromotionType;
     readonly promotionOrder: PromotionSuffix[];
@@ -160,9 +158,16 @@ export class Variant {
 
         this.firstColor = data.firstColor ?? "White";
         this.secondColor = data.secondColor ?? "Black";
-        this._pieceRoles = [ data.pieceLetters.map(util.roleOf), (data.pieceLetters2 ?? data.pieceLetters).map(util.roleOf) ];
+        this.pieceRoles = {
+            white: data.pieceLetters.map(util.roleOf),
+            black: (data.pieceLetters2 ?? data.pieceLetters).map(util.roleOf)
+        };
         this.pocket = !!(data.pocketLetters || data.pocketLetters2);
-        this._pocketRoles = [ data.pocketLetters?.map(util.roleOf), (data.pocketLetters2 ?? data.pocketLetters)?.map(util.roleOf) ];
+        this.pocketRoles = data.pocketLetters ? {
+            white: data.pocketLetters.map(util.roleOf),
+            black: (data.pocketLetters2 ?? data.pocketLetters).map(util.roleOf),
+        } :
+            undefined;
 
         this.promotion = data.promotion ?? "regular";
         this.promotionOrder = data.promotionOrder ?? (this.promotion === "shogi" || this.promotion === "kyoto" ? ["+", ""] : ["q", "c", "e", "a", "h", "n", "r", "b", "p"]);

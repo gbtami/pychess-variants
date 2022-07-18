@@ -23,7 +23,7 @@ export function variantBoard(variant: Variant, fen: string, check: boolean=false
                         turnColor: fen.split(" ")[1] === "b" ? "white" : "black",
                         check: check,
                         lastMove: lastMove,
-                        geometry: variant.geometry,
+                        dimensions: variant.boardDimensions,
                         coordinates: false,
                         viewOnly: true
                     });

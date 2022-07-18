@@ -47,7 +47,7 @@ export class Gating {
             let rookOrig: cg.Key | null = null;
             const moveLength = dest.charCodeAt(0) - orig.charCodeAt(0);
 
-            const movedPiece = ground.state.pieces.get(dest);
+            const movedPiece = ground.state.boardState.pieces.get(dest);
             const movedRole: cg.Role = movedPiece?.role ?? "k-piece";
             if (movedRole === "k-piece") {
                 // King long move is always castling move

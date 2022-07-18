@@ -50,10 +50,10 @@ export abstract class ChessgroundController implements IBoardController {
         this.chessground = Chessground(el, {
             fen: fen_placement as cg.FEN,
             variant: this.variant.name as cg.Variant,
-            geometry: this.variant.geometry,
+            dimensions: this.variant.boardDimensions,
             notation: this.notation,
             addDimensionsCssVars: true,
-            pocketRoles: this.variant.pocketRoles.bind(this.variant),
+            pocketRoles: this.variant.pocketRoles,
         }, pocket0, pocket1);
 
         boardSettings.ctrl = this;

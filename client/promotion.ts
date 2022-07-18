@@ -24,7 +24,7 @@ export class Promotion {
     start(movingRole: cg.Role, orig: cg.Key, dest: cg.Key, disableAutoPromote: boolean = false) {
         const ground = this.ctrl.getGround();
         // in 960 castling case (king takes rook) dest piece may be undefined
-        if (ground.state.pieces.get(dest) === undefined) return false;
+        if (ground.state.boardState.pieces.get(dest) === undefined) return false;
 
         if (this.canPromote(movingRole, orig, dest)) {
             const color = this.ctrl.turnColor;
@@ -107,7 +107,7 @@ export class Promotion {
 
     private promote(g: Api, key: cg.Key, role: cg.Role) {
         const pieces: cg.PiecesDiff = new Map();
-        const piece = g.state.pieces.get(key);
+        const piece = g.state.boardState.pieces.get(key);
         if (piece && piece.role !== role) {
             pieces.set(key, {
                 color: piece.color,

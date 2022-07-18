@@ -204,7 +204,7 @@ export abstract class GameController extends ChessgroundController implements IC
         if (move.length > 0) {
             // 960 king takes rook castling is not capture
             // TODO Defer this logic to ffish.js
-            capture = (this.chessground.state.pieces.get(move[move.length - 1]) !== undefined && step.san?.slice(0, 2) !== 'O-') || (step.san?.slice(1, 2) === 'x');
+            capture = (this.chessground.state.boardState.pieces.get(move[move.length - 1]) !== undefined && step.san?.slice(0, 2) !== 'O-') || (step.san?.slice(1, 2) === 'x');
         }
 
         this.chessground.set({
@@ -268,13 +268,13 @@ export abstract class GameController extends ChessgroundController implements IC
             // Save state.pieces to help recognise 960 castling (king takes rook) moves
             // Shouldn't this be implemented in chessground instead?
             if (this.chess960 && this.variant.gate) {
-                this.prevPieces = new Map(this.chessground.state.pieces);
+                this.prevPieces = new Map(this.chessground.state.boardState.pieces);
             }
 
             // Sittuyin in place promotion on double click
             if (lastKey === key && curTime - lastTime < 500) {
                 if (this.chessground.state.movable.dests.get(key)?.includes(key)) {
-                    const piece = this.chessground.state.pieces.get(key)!;
+                    const piece = this.chessground.state.boardState.pieces.get(key)!;
                     if (this.variant.name === 'sittuyin') { // TODO make this more generic
                         // console.log("Ctrl in place promotion", key);
                         const pieces: cg.Pieces = new Map();
@@ -300,7 +300,7 @@ export abstract class GameController extends ChessgroundController implements IC
 
     protected pass = () => {
         let passKey: cg.Key = 'a0';
-        const pieces = this.chessground.state.pieces;
+        const pieces = this.chessground.state.boardState.pieces;
         const dests = this.chessground.state.movable.dests!;
         for (const [k, p] of pieces) {
             if (p.role === 'k-piece' && p.color === this.turnColor)
@@ -326,7 +326,7 @@ export abstract class GameController extends ChessgroundController implements IC
     protected onUserMove(orig: cg.Key, dest: cg.Key, meta: cg.MoveMetadata) {
         this.preaction = meta.premove;
         // chessground doesn't knows about ep, so we have to remove ep captured pawn
-        const pieces = this.chessground.state.pieces;
+        const pieces = this.chessground.state.boardState.pieces;
         // console.log("ground.onUserMove()", orig, dest, meta);
         let moved = pieces.get(dest);
         // Fix king to rook 960 castling case
@@ -346,9 +346,11 @@ export abstract class GameController extends ChessgroundController implements IC
             if (meta.captured.promoted)
                 role = (this.variant.promotion === 'shogi' || this.variant.promotion === 'kyoto') ? meta.captured.role.slice(1) as cg.Role : "p-piece";
 
-            const pocket = this.chessground.state.pockets ? this.chessground.state.pockets[util.opposite(meta.captured.color)] : undefined;
-            if (pocket && role && role in pocket) {
-                pocket[role]!++;
+            const pockets = this.chessground.state.boardState.pockets;
+            const color = util.opposite(meta.captured.color);
+            const pocket = pockets ? pockets[color] : undefined;
+            if (pocket && role && this.variant.pocketRoles![color].includes(role)) {
+                util.changeNumber(pocket, role, 1);
                 this.chessground.state.dom.redraw(); // TODO: see todo comment also at same line in onUserDrop.
             }
         }
@@ -370,10 +372,14 @@ export abstract class GameController extends ChessgroundController implements IC
  * */
     protected onUserDrop(role: cg.Role, dest: cg.Key, meta: cg.MoveMetadata) {
         this.preaction = meta.predrop === true;
-        // decrease pocket count - todo: covers the gap before we receive board message confirming the move - then FEN is set
+        // decrease pocket count - TODO: covers the gap before we receive board message confirming the move - then FEN is set
         //                               and overwrites whole board+pocket and refreshes.
         //                               Maybe consider decrease count on start of drag (like in editor mode)?
-        this.chessground.state.pockets![this.chessground.state.turnColor]![role]! --;
+        util.changeNumber(
+            this.chessground.state.boardState.pockets![this.chessground.state.turnColor],
+            role,
+            -1
+        );
         this.chessground.state.dom.redraw();
         if (this.variant.promotion === 'kyoto') {
             if (!this.promotion.start(role, 'a0', dest)) this.sendMove(util.dropOrigOf(role), dest, '');

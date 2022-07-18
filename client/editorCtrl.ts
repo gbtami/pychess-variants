@@ -249,10 +249,10 @@ export class EditorController extends ChessgroundController {
         const currentMaterial = calculatePieceNumber(this.variant, this.fullfen);
         const neededMaterial = diff(initialMaterial, currentMaterial);
 
-        const blackPocket = this.chessground.state.pockets!['black']!;
+        const blackPocket = this.chessground.state.boardState.pockets!['black']!;
         for (const [role, num] of neededMaterial) {
-            if (role in blackPocket && num > 0)
-                blackPocket[role]! += num;
+            if (this.variant.pocketRoles!.black.includes(role) && num > 0)
+                util.changeNumber(blackPocket, role, num);
         }
 
         this.onChange();
@@ -318,7 +318,7 @@ export class EditorController extends ChessgroundController {
         return (key: cg.Key) => {
             const curTime = performance.now();
             if (lastKey === key && curTime - lastTime < 500) {
-                const piece = this.chessground.state.pieces.get(key);
+                const piece = this.chessground.state.boardState.pieces.get(key);
                 if (piece) {
                     const newColor = this.variant.drop ? util.opposite(piece.color) : piece.color;
                     let newPiece: cg.Piece;
@@ -360,25 +360,26 @@ export class EditorController extends ChessgroundController {
         const el = e.target as HTMLElement;
         const piece = this.chessground.state.draggable.current?.piece;
         if (piece) {
-            const role = unpromotedRole(this.variant , piece);
+            const role = unpromotedRole(this.variant, piece);
             const color = el.getAttribute('data-color') as cg.Color;
-            const pocket = this.chessground.state.pockets![color]!;
-            if (role in pocket) {
-                pocket[role]!++;
+            const pocket = this.chessground.state.boardState.pockets![color];
+            if (this.variant.pocketRoles![color].includes(role)) {
+                util.changeNumber(pocket, role, 1);
                 this.onChange();
             }
         }
     }
 
     drag = (e: cg.MouchEvent): void => {
+        // TODO This is bugged on touch input
         const el = e.target as HTMLElement;
         const piece = this.chessground.state.draggable.current?.piece;
         if (piece) {
-            this.chessground.state.pockets![piece.color]![piece.role]! --;
+            const pocket = this.chessground.state.boardState.pockets![piece.color];
+            util.changeNumber(pocket, piece.role, -1);
             console.log(el);
             console.log(piece);
             console.log("editor");
         }
     }
-
 }
