@@ -363,7 +363,7 @@ export class EditorController extends ChessgroundController {
             const role = unpromotedRole(this.variant, piece);
             const color = el.getAttribute('data-color') as cg.Color;
             const pocket = this.chessground.state.boardState.pockets![color];
-            if (this.variant.pocketRoles![color].includes(role)) {
+            if (this.chessground.state.pocketRoles![color].includes(role)) {
                 util.changeNumber(pocket, role, 1);
                 this.onChange();
             }

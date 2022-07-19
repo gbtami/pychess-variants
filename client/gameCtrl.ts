@@ -7,7 +7,7 @@ import * as util from 'chessgroundx/util';
 import { _ } from './i18n';
 import { patch } from './document';
 import { Step, MsgChat, MsgFullChat, MsgSpectators, MsgShutdown,MsgGameNotFound } from './messages';
-import { uci2LastMove, moveDests, uci2cg } from './chess';
+import { uci2LastMove, moveDests, uci2cg, unpromotedRole } from './chess';
 import { Gating } from './gating';
 import { Promotion } from './promotion';
 import { ChessgroundController } from './cgCtrl';
@@ -342,15 +342,11 @@ export abstract class GameController extends ChessgroundController implements IC
         // increase pocket count
         // important only during gap before we receive board message from server and reset whole FEN (see also onUserDrop)
         if (this.variant.drop && meta.captured) {
-            let role = meta.captured.role;
-            if (meta.captured.promoted)
-                role = (this.variant.promotion === 'shogi' || this.variant.promotion === 'kyoto') ? meta.captured.role.slice(1) as cg.Role : "p-piece";
-
-            const pockets = this.chessground.state.boardState.pockets;
+            const role = unpromotedRole(this.variant, meta.captured);
+            const pockets = this.chessground.state.boardState.pockets!;
             const color = util.opposite(meta.captured.color);
-            const pocket = pockets ? pockets[color] : undefined;
-            if (pocket && role && this.variant.pocketRoles![color].includes(role)) {
-                util.changeNumber(pocket, role, 1);
+            if (this.chessground.state.pocketRoles![color].includes(role)) {
+                util.changeNumber(pockets[color], role, 1);
                 this.chessground.state.dom.redraw(); // TODO: see todo comment also at same line in onUserDrop.
             }
         }
