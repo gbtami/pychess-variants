@@ -115,3 +115,4 @@ Because there is no promotion to heavy pieces, it becomes harder to force a chec
  
 Please allow yourself enough time on the clock, as many of those mates require precision.
  
+<iframe width="560" height="315" src="https://www.youtube.com/embed/uyNsTgo8ylI" frameborder="0" allowfullscreen></iframe>
