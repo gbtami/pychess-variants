@@ -33,9 +33,9 @@ class Clock:
             # give some time to make first move
             if self.ply < 2:
                 if self.game.rated == CASUAL:
-                    # Casual games are not times for the first moves of either
+                    # Casual games are not timed for the first moves of either
                     # player. We stop the clock to prevent unnecessary clock
-                    # updates and giving players unlimited time.
+                    # updates and to give players unlimited time.
                     self.running = False
                     return
                 # Rated games have their first move time set
@@ -59,12 +59,7 @@ class Clock:
                     # until the other side gets the win claim,
                     # and a disconnection gets 120 seconds.
                     if self.ply >= 2:
-                        await asyncio.sleep(20 + self.game.byoyomi_period * self.game.inc) 
-                    elif self.game.rated == CASUAL:
-                        # Ignore "time_for_first_move" in a casual game
-                        # and continue early
-                        await asyncio.sleep(1)
-                        continue
+                        await asyncio.sleep(20 + self.game.byoyomi_period * self.game.inc)  
 
                     # If FLAG was not received we have to act
                     if self.game.status < ABORTED and self.secs <= 0 and self.running:
