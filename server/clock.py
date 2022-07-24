@@ -1,7 +1,7 @@
 import asyncio
 import logging
 
-from const import ABORTED
+from const import ABORTED, CASUAL
 from fairy import WHITE, BLACK
 from broadcast import round_broadcast
 
@@ -16,6 +16,7 @@ class Clock:
     def __init__(self, game):
         self.game = game
         self.running = False
+        self.secs = -1
         self.restart()
         self.clock_task = asyncio.create_task(self.countdown())
 
@@ -31,6 +32,13 @@ class Clock:
         else:
             # give some time to make first move
             if self.ply < 2:
+                if self.game.rated == CASUAL:
+                    # Casual games are not times for the first moves of either
+                    # player. We stop the clock to prevent unnecessary clock
+                    # updates and giving players unlimited time.
+                    self.running = False
+                    return
+                # Rated games have their first move time set
                 self.secs = self.time_for_first_move
             else:
                 self.secs = self.game.ply_clocks[self.ply][
@@ -40,7 +48,7 @@ class Clock:
 
     async def countdown(self):
         while True:
-            while self.secs > 0 and self.running:
+            while self.running and self.secs > 0:
                 await asyncio.sleep(1)
                 self.secs -= 1000
 
@@ -51,7 +59,12 @@ class Clock:
                     # until the other side gets the win claim,
                     # and a disconnection gets 120 seconds.
                     if self.ply >= 2:
-                        await asyncio.sleep(20 + self.game.byoyomi_period * self.game.inc)
+                        await asyncio.sleep(20 + self.game.byoyomi_period * self.game.inc) 
+                    elif self.game.rated == CASUAL:
+                        # Ignore "time_for_first_move" in a casual game
+                        # and continue early
+                        await asyncio.sleep(1)
+                        continue
 
                     # If FLAG was not received we have to act
                     if self.game.status < ABORTED and self.secs <= 0 and self.running:
