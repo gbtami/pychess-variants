@@ -981,7 +981,9 @@ export class RoundController extends GameController {
     }
 
     private renderExpiration = () => {
-        if (this.spectator) return;
+        // We return sooner in case the client belongs to a spectator or the 
+        // game is casual as casual games can't expire.
+        if (this.spectator || this.rated === "0") return;
         let position = (this.turnColor === this.mycolor) ? "bottom": "top";
         if (this.flipped()) position = (position === "top") ? "bottom" : "top";
         let expi = (position === 'top') ? 0 : 1;
