@@ -499,7 +499,10 @@ export class AnalysisController extends GameController {
                     pvSan = '.';
                 }
             }
-            this.pvView(pvlineIdx, h('pvline', pvSan));
+            this.pvView(pvlineIdx, h('pvline', [
+                (this.multipv > 1) ? h('strong', scoreStr) : '',
+                pvSan,
+            ]));
         } else {
             this.pvView(pvlineIdx, h('pvline', (this.localAnalysis) ? h('pvline', '-') : ''));
         }
