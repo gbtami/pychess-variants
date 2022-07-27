@@ -179,7 +179,11 @@ pvline {
     max-width: var(--cg-width);
     height: 28px;
     line-height: 28px;
+    font-size: 13px;
     padding-left: 6px;
+}
+pvline strong {
+    padding-right: 6px;
 }
 @media (max-width: 799px) and (orientation: portrait) {
     pvline {
