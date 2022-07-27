@@ -164,7 +164,7 @@ a.icon.icon-plus-square {
     margin-left: 4px;
     cursor: pointer;
 }
-div#pv {
+div.pv {
     grid-area: pv;
     display: flex;
     flex: 0 1 auto;

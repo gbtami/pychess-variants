@@ -145,7 +145,13 @@ export function analysisView(model: PyChessModel): VNode[] {
                         ]),
                     ]),
                 ]),
-                h('div#pv'),
+                h('div.pvbox', [
+                    h('div#pv1'),
+                    h('div#pv2'),
+                    h('div#pv3'),
+                    h('div#pv4'),
+                    h('div#pv5'),
+                ]),
                 h('div.movelist-block', [
                     h('div#movelist'),
                 ]),

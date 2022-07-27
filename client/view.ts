@@ -16,12 +16,15 @@ export function radioList(settings: ISettings<string>, name: string, options: { 
     return result;
 }
 
-export function slider(settings: ISettings<number>, name: string, min = 0, max = 100, step = 1) {
+export function slider(settings: ISettings<number>, name: string, min = 0, max = 100, step = 1, text: string) {
     const id = name;
-    return h(`input#${id}.slider`, {
-        props: { name: name, type: "range", min: min, max: max, step: step, value: settings.value },
-        on: { input: e => settings.value = Number((e.target as HTMLInputElement).value) },
-    });
+    return [
+        h(`input#${id}.slider`, {
+            props: { name: name, type: "range", min: min, max: max, step: step, value: settings.value },
+            on: { input: e => settings.value = Number((e.target as HTMLInputElement).value) },
+        }),
+        h('label', { attrs: { for: id } }, text),
+    ];
 }
 
 export function checkbox(settings: ISettings<boolean>, name: string, text: string) {
