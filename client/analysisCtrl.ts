@@ -482,6 +482,11 @@ export class AnalysisController extends GameController {
         this.engineGo();
     }
 
+    makePvMove (pv_line: string) {
+        const move = uci2cg(pv_line.split(" ")[0]);
+        this.doSendMove(move.slice(0, 2) as cg.Orig, move.slice(2, 4) as cg.Key, move.slice(4, 5));
+    }
+
     // Updates PV, score, gauge and the best move arrow
     drawEval = (ceval: Ceval | undefined, scoreStr: string | undefined, turnColor: cg.Color) => {
 
@@ -489,7 +494,7 @@ export class AnalysisController extends GameController {
 
         // Render PV line
         if (ceval?.p !== undefined) {
-            let pvSan = ceval.p;
+            let pvSan: string | VNode = ceval.p;
             if (this.fsfEngineBoard) {
                 try {
                     this.fsfEngineBoard.setFen(this.fullfen);
@@ -498,6 +503,9 @@ export class AnalysisController extends GameController {
                 } catch (error) {
                     pvSan = '.';
                 }
+            }
+            if (pvSan !== '.') {
+                pvSan = h('pv-san', { on: { click: () => this.makePvMove(ceval.p as string) } } , pvSan)
             }
             this.pvView(pvlineIdx, h('pvline', [
                 (this.multipv > 1) ? h('strong', scoreStr) : '',
