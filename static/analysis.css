@@ -171,6 +171,9 @@ div.pv {
     border-bottom: 1px solid var(--border-color);
     background-color: var(--bg-color0);
 }
+div.pv:hover {
+    background-color: var(--pv-hover);
+}
 pvline {
     text-overflow: ellipsis;
     overflow: hidden;
