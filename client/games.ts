@@ -9,6 +9,7 @@ import { boardSettings } from './boardSettings';
 import { patch } from './document';
 import { timeControlStr } from './view';
 import { PyChessModel } from "./types";
+import {aiLevel} from './result';
 
 export interface Game {
     gameId: string;
@@ -18,7 +19,10 @@ export interface Game {
     inc: number;
     byoyomi: number;
     b: string;
+    bTitle: string;
     w: string;
+    wTitle: string;
+    level: number;
     fen: cg.FEN;
     lastMove: cg.Key[];
 }
@@ -26,7 +30,10 @@ export interface Game {
 function gameView(games: {[gameId: string]: Api}, game: Game, fen: cg.FEN, lastMove: cg.Key[]) {
     const variant = VARIANTS[game.variant];
     return h(`minigame#${game.gameId}.${variant.board}.${variant.piece}`, {
-        class: { "with-pockets": variant.pocketRoles('white') !== undefined },
+        class: { 
+            "with-pockets": variant.pocketRoles('white') !== undefined,
+            "smaller-text": game.bTitle == "BOT",
+        },
         on: { click: () => window.location.assign('/' + game.gameId) }
     }, h('div', [
         h('div.row', [
@@ -34,7 +41,10 @@ function gameView(games: {[gameId: string]: Api}, game: Game, fen: cg.FEN, lastM
                 h('div.icon', { props: { title: variant.displayName(game.chess960) }, attrs: { "data-icon": variant.icon(game.chess960) } }),
                 h('div.tc', timeControlStr(game.base, game.inc, game.byoyomi)),
             ]),
-            h('div.name', game.b),
+            h('div.name', [
+                h('player-title', " " + game.bTitle + " "),
+                game.b + aiLevel(game.bTitle, game.level)
+            ]),
         ]),
         h(`div.cg-wrap.${variant.cg}.mini`, {
             hook: {
@@ -52,7 +62,10 @@ function gameView(games: {[gameId: string]: Api}, game: Game, fen: cg.FEN, lastM
                 }
             }
         }),
-        h('div.name', game.w),
+        h('div.name', [
+            h('player-title', " " + game.wTitle + " "),
+            game.w + aiLevel(game.wTitle, game.level)
+        ]),
     ]));
 }
 
