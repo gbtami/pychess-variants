@@ -30,7 +30,10 @@ export interface Game {
 function gameView(games: {[gameId: string]: Api}, game: Game, fen: cg.FEN, lastMove: cg.Key[]) {
     const variant = VARIANTS[game.variant];
     return h(`minigame#${game.gameId}.${variant.board}.${variant.piece}`, {
-        class: { "with-pockets": variant.pocketRoles('white') !== undefined },
+        class: { 
+            "with-pockets": variant.pocketRoles('white') !== undefined,
+            "smaller-text": game.bTitle == "BOT",
+        },
         on: { click: () => window.location.assign('/' + game.gameId) }
     }, h('div', [
         h('div.row', [
