@@ -242,18 +242,15 @@ export abstract class GameController extends ChessgroundController implements IC
     }
 
     protected onMove = () => {
-        return (orig: cg.Key, dest: cg.Key, capturedPiece: cg.Piece) => {
-            console.log("   ground.onMove()", orig, dest, capturedPiece);
+        return (_orig: cg.Key, _dest: cg.Key, capturedPiece: cg.Piece) => {
             sound.moveSound(this.variant, !!capturedPiece);
         }
     }
 
     protected onDrop = () => {
         return (piece: cg.Piece, dest: cg.Key) => {
-            // console.log("ground.onDrop()", piece, dest);
-            if (dest !== 'a0' && piece.role) {
+            if (dest !== 'a0' && piece.role)
                 sound.moveSound(this.variant, false);
-            }
         }
     }
 
@@ -303,15 +300,17 @@ export abstract class GameController extends ChessgroundController implements IC
         const pieces = this.chessground.state.boardState.pieces;
         const dests = this.chessground.state.movable.dests!;
         for (const [k, p] of pieces) {
-            if (p.role === 'k-piece' && p.color === this.turnColor)
+            if (p.role === 'k-piece' && p.color === this.turnColor) {
                 if (dests.get(k)?.includes(k)) {
                     passKey = k;
                     break;
                 }
+            }
         }
         if (passKey !== 'a0') {
             // prevent calling pass() again by selectSquare() -> onSelect()
             this.chessground.state.movable.dests = undefined;
+            // TODO try using "unselect"
             this.chessground.selectSquare(passKey);
             sound.moveSound(this.variant, false);
             this.sendMove(passKey, passKey, '');
@@ -325,19 +324,19 @@ export abstract class GameController extends ChessgroundController implements IC
  * */
     protected onUserMove(orig: cg.Key, dest: cg.Key, meta: cg.MoveMetadata) {
         this.preaction = meta.premove;
-        // chessground doesn't knows about ep, so we have to remove ep captured pawn
         const pieces = this.chessground.state.boardState.pieces;
         // console.log("ground.onUserMove()", orig, dest, meta);
         let moved = pieces.get(dest);
         // Fix king to rook 960 castling case
         if (moved === undefined) moved = {role: 'k-piece', color: this.mycolor} as cg.Piece;
         if (meta.captured === undefined && moved !== undefined && moved.role === "p-piece" && orig[0] !== dest[0] && this.variant.enPassant) {
+            // chessground doesn't know about en passant, so we have to remove the captured pawn manually
             const pos = util.key2pos(dest),
-            pawnPos: cg.Pos = [pos[0], pos[1] + (this.mycolor === 'white' ? -1 : 1)];
+                pawnPos: cg.Pos = [pos[0], pos[1] + (this.mycolor === 'white' ? -1 : 1)];
+            meta.captured = pieces.get(util.pos2key(pawnPos));
             const diff: cg.PiecesDiff = new Map();
             diff.set(util.pos2key(pawnPos), undefined);
             this.chessground.setPieces(diff);
-            meta.captured = {role: "p-piece", color: moved.color === "white"? "black": "white"/*or could get it from pieces[pawnPos] probably*/};
         }
         // increase pocket count
         // important only during gap before we receive board message from server and reset whole FEN (see also onUserDrop)

@@ -270,7 +270,14 @@ class ShowDestsSettings extends BooleanSettings {
     }
 
     update(): void {
-        this.boardSettings.ctrl?.chessground.set({ movable: { showDests: this.value }, dropmode: { showDropDests: this.value }, predroppable: { showDropDests: this.value } } );
+        this.boardSettings.ctrl?.chessground.set({
+            movable: {
+                showDests: this.value,
+            },
+            premovable: {
+                showDests: this.value,
+            }
+        });
     }
 
     view(): VNode {
