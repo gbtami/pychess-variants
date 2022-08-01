@@ -153,7 +153,7 @@ export class RoundController extends GameController {
         if (this.spectator) {
             this.chessground.set({
                 //viewOnly: false,
-                movable: { free: false },
+                movable: { free: false, color: undefined },
                 draggable: { enabled: false },
                 premovable: { enabled: false },
                 predroppable: { enabled: false },
