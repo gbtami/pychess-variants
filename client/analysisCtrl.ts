@@ -669,7 +669,7 @@ export class AnalysisController extends GameController {
         if (this.variant.name !== 'chess') {
             this.fsfPostMessage('setoption name UCI_Variant value ' + this.variant.name);
         }
-        if (this.evalFile === undefined) {
+        if (this.evalFile === '' || !this.nnueOk) {
             this.fsfPostMessage('setoption name Use NNUE value false');
         } else {
             this.fsfPostMessage('setoption name Use NNUE value true');
