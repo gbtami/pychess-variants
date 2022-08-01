@@ -308,11 +308,14 @@ async def get_games(request):
                 "variant": game.variant,
                 "fen": game.board.fen,
                 "w": game.wplayer.username,
+                "wTitle": game.wplayer.title,
                 "b": game.bplayer.username,
+                "bTitle": game.bplayer.title,
                 "chess960": game.chess960,
                 "base": game.base,
                 "inc": game.inc,
                 "byoyomi": game.byoyomi_period,
+                "level": game.level,
             }
             for game in games.values()
             if game.status == STARTED

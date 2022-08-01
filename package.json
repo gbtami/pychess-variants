@@ -28,7 +28,8 @@
     "@fullcalendar/daygrid": "^5.10.1",
     "@fullcalendar/interaction": "^5.10.1",
     "@fullcalendar/list": "^5.10.1",
-    "@fullcalendar/timegrid": "^5.10.1"
+    "@fullcalendar/timegrid": "^5.10.1",
+    "idb-keyval": "^6.2.0"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^22.0.0",
