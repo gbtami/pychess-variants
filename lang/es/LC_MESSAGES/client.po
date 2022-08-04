@@ -7,22 +7,23 @@
 # Ignacio Poggi <ignaciop.3@gmail.com>, 2020
 # Jose Doval Gonzalez <pepellou@gmail.com>, 2021
 # gbtami <gbtami@gmail.com>, 2022
+# Andersok, 2022
 # 
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-05-02 23:28+0200\n"
+"POT-Creation-Date: 2022-08-04 13:33+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
-"Last-Translator: gbtami <gbtami@gmail.com>, 2022\n"
+"Last-Translator: Andersok, 2022\n"
 "Language-Team: Spanish (https://www.transifex.com/gbtami/teams/14790/es/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.9.1\n"
 "Language: es\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Plural-Forms: nplurals=3; plural=n == 1 ? 0 : n != 0 && n % 1000000 == 0 ? 1 : 2;\n"
 
 #: ../client/about.ts:9
 msgid ""
@@ -116,7 +117,7 @@ msgstr ""
 
 #: ../client/about.ts:95
 msgid "Chess960 castling rules."
-msgstr "Reglas de enroque para Aleatorio Fischer."
+msgstr "Reglas de enroque para Chess960."
 
 #: ../client/about.ts:98
 msgid "For move generation, validation, analysis, and engine play, we use "
@@ -147,100 +148,103 @@ msgstr ""
 "En lo que respecta a la privacidad y condiciones de uso, las reglas de "
 "lichess.org también se aplican aquí."
 
-#: ../client/analysis.ts:38 ../client/editor.ts:32 ../client/lobby.ts:439
-#: ../client/lobby.ts:949 ../client/settingsView.ts:130
+#: ../client/analysis.ts:38 ../client/editor.ts:30 ../client/lobby.ts:360
+#: ../client/lobby.ts:865 ../client/settingsView.ts:130
 msgid "Variant"
 msgstr "Variante"
 
-#: ../client/analysis.ts:136 ../client/analysisCtrl.ts:403
-#: ../client/analysisCtrl.ts:762
+#: ../client/analysis.ts:138
+msgid "Multi-threaded WebAssembly (classical evaluation)"
+msgstr ""
+
+#: ../client/analysis.ts:140 ../client/analysisCtrl.ts:278
+#: ../client/analysisCtrl.ts:663
 msgid "in local browser"
 msgstr "en el navegador local"
 
-#: ../client/analysis.ts:188
+#: ../client/analysis.ts:199
 msgid "Computer analysis"
 msgstr ""
 
-#: ../client/analysis.ts:189
+#: ../client/analysis.ts:200
 msgid "Move times"
 msgstr ""
 
-#: ../client/analysis.ts:190
+#: ../client/analysis.ts:201
 msgid "Crosstable"
 msgstr ""
 
-#: ../client/analysis.ts:191
+#: ../client/analysis.ts:202
 msgid "FEN & PGN"
 msgstr ""
 
-#: ../client/analysisChart.ts:21
+#: ../client/analysisChart.ts:22
 msgid "Initial position"
 msgstr "Posición inicial"
 
-#: ../client/analysisChart.ts:84
+#: ../client/analysisChart.ts:85
 msgid "Advantage"
 msgstr "Ventaja"
 
-#: ../client/analysisCtrl.ts:414
+#: ../client/analysisCtrl.ts:291
 msgid "You need an account to do that."
 msgstr "Necesita una cuenta para hacer eso."
 
-#: ../client/analysisCtrl.ts:453
+#: ../client/analysisCtrl.ts:330
 msgid "Download game to PGN file"
 msgstr "Descargar partida como archivo PGN"
 
-#: ../client/analysisCtrl.ts:453
+#: ../client/analysisCtrl.ts:330
 msgid "Download PGN"
 msgstr "Descargar PGN"
 
-#: ../client/analysisCtrl.ts:455
+#: ../client/analysisCtrl.ts:332
 msgid "Copy USI/UCI to clipboard"
 msgstr "Copiar USI/UCI al portapapeles"
 
-#: ../client/analysisCtrl.ts:455
+#: ../client/analysisCtrl.ts:332
 msgid "Copy UCI/USI"
 msgstr "Copiar USI/UCI"
 
-#: ../client/analysisCtrl.ts:457
+#: ../client/analysisCtrl.ts:334
 msgid "Download position to PNG image file"
 msgstr "Descargar posición como archivo de imagen PNG"
 
-#: ../client/analysisCtrl.ts:457
+#: ../client/analysisCtrl.ts:334
 msgid "PNG image"
 msgstr "Imagen PNG"
 
-#: ../client/analysisCtrl.ts:465
+#: ../client/analysisCtrl.ts:342
 msgid "Delete game"
 msgstr ""
 
-#: ../client/analysisCtrl.ts:480
+#: ../client/analysisCtrl.ts:357
 msgid "Are you sure you want to delete this game?"
 msgstr ""
 
-#: ../client/analysisCtrl.ts:522
+#: ../client/analysisCtrl.ts:394
 msgid "Request Computer Analysis"
 msgstr "Solicitar análisis de ordenador"
 
-#: ../client/analysisCtrl.ts:522
+#: ../client/analysisCtrl.ts:394
 msgid "Request Analysis"
 msgstr "Solicitar análisis"
 
-#: ../client/analysisCtrl.ts:735
+#: ../client/analysisCtrl.ts:456
+msgid "Try browser page reload."
+msgstr ""
+
+#: ../client/analysisCtrl.ts:490
+msgid "Multi-threaded WebAssembly (with NNUE evaluation)"
+msgstr ""
+
+#: ../client/analysisCtrl.ts:647
 msgid "Depth"
 msgstr "Profundidad"
 
-#: ../client/analysisCtrl.ts:740
+#: ../client/analysisCtrl.ts:652
 msgid "Go deeper"
 msgstr "Ir a más profundidad"
-
-#: ../client/analysisCtrl.ts:1229 ../client/roundCtrl.ts:1360
-#: ../client/tournament.ts:698
-msgid "Spectators: "
-msgstr "Espectadores:"
-
-#: ../client/analysisCtrl.ts:1253 ../client/roundCtrl.ts:1441
-msgid "Requested game %1 not found!"
-msgstr "¡No se encontró la partida solicitada %1!"
 
 #: ../client/background.ts:9
 msgid "Light"
@@ -250,55 +254,63 @@ msgstr "Claro"
 msgid "Dark"
 msgstr "Oscuro"
 
-#: ../client/boardSettings.ts:209
+#: ../client/boardSettings.ts:189
 msgid "Piece animation"
 msgstr "Animación de las piezas"
 
-#: ../client/boardSettings.ts:310
+#: ../client/boardSettings.ts:273
+msgid "Zoom"
+msgstr ""
+
+#: ../client/boardSettings.ts:290
 msgid "Show piece destinations"
 msgstr "Mostrar la posición final de las piezas"
 
-#: ../client/boardSettings.ts:328
+#: ../client/boardSettings.ts:309
 msgid "Promote to the top choice automatically"
 msgstr ""
 
-#: ../client/boardSettings.ts:346
+#: ../client/boardSettings.ts:328
 msgid "Best move arrow in analysis board"
 msgstr "Flecha de mejor movimiento en el tablero de análisis"
 
-#: ../client/boardSettings.ts:374
+#: ../client/boardSettings.ts:348
+msgid "MultiPV"
+msgstr ""
+
+#: ../client/boardSettings.ts:399
 msgid "Invisible pieces"
 msgstr "Piezas invisibles"
 
-#: ../client/boardSettings.ts:394
+#: ../client/boardSettings.ts:422
 msgid "Show material difference"
 msgstr ""
 
-#: ../client/chat.ts:30 ../client/chat.ts:45
+#: ../client/chat.ts:36 ../client/chat.ts:51
 msgid "Sign in to chat"
 msgstr "Inicie sesión para chatear"
 
-#: ../client/chat.ts:30 ../client/chat.ts:45
+#: ../client/chat.ts:36 ../client/chat.ts:51
 msgid "Please be nice in the chat!"
 msgstr "¡Por favor, sea amable en el chat!"
 
-#: ../client/chat.ts:30
+#: ../client/chat.ts:36
 msgid "Chat is disabled"
 msgstr "El chat está desactivado"
 
-#: ../client/chat.ts:35
+#: ../client/chat.ts:41
 msgid "Spectator room"
 msgstr "Sala de espectadores"
 
-#: ../client/chat.ts:35
+#: ../client/chat.ts:41
 msgid "Chat room"
 msgstr "Sala de chat"
 
-#: ../client/chat.ts:36
+#: ../client/chat.ts:42
 msgid "Toggle the chat"
 msgstr "Activar/desactivar el chat"
 
-#: ../client/chat.ts:67
+#: ../client/chat.ts:73
 msgid "Server"
 msgstr "Servidor"
 
@@ -351,6 +363,8 @@ msgid ""
 "Japanese Chess, and the standard 9x9 version played today with drops and "
 "promotions. "
 msgstr ""
+"Ajedrez Japonés, actual versión estándar sobre tablero de 9x9, con "
+"reintroducción de piezas capturadas y promoción."
 
 #: ../client/chess.ts:379
 msgid ""
@@ -404,520 +418,548 @@ msgid ""
 "Play with the hybrid pieces, archbishop (B+N) and chancellor (R+N), on a "
 "10x8 board."
 msgstr ""
+"Juega con piezas híbridas, arzobispo (alfíl + caballo) y canciller (torre + "
+"caballo), en un tablero de 10x8."
 
-#: ../client/chess.ts:545
+#: ../client/chess.ts:546
 msgid "Capablanca with Crazyhouse drop rules."
 msgstr ""
 
-#: ../client/chess.ts:562
+#: ../client/chess.ts:563
 msgid ""
 "Hybrid pieces, the hawk (B+N) and elephant (R+N), can enter the board after "
 "moving a back rank piece."
 msgstr ""
 
-#: ../client/chess.ts:572
+#: ../client/chess.ts:573
 msgid "S-Chess with Crazyhouse drop rules."
 msgstr ""
 
-#: ../client/chess.ts:582
+#: ../client/chess.ts:583
 msgid ""
 "Play with the hybrid pieces, archbishop (B+N) and chancellor (R+N), on a "
 "grand 10x10 board."
 msgstr ""
 
-#: ../client/chess.ts:592
+#: ../client/chess.ts:593
 msgid "Grand Chess with Crazyhouse drop rules."
 msgstr ""
 
-#: ../client/chess.ts:603
+#: ../client/chess.ts:604
 msgid ""
 "Introduces the cannon and elephant from Xiangqi into a 10x10 chess board."
 msgstr ""
 
-#: ../client/chess.ts:613
+#: ../client/chess.ts:614
 msgid "Pieces promote and can be dropped, similar to Shogi."
 msgstr ""
 
-#: ../client/chess.ts:627
+#: ../client/chess.ts:628
 msgid "Knights capture as bishops; bishops  capture as knights."
 msgstr ""
 
-#: ../client/chess.ts:636
+#: ../client/chess.ts:637
 msgid ""
 "Asymmetric variant where one army has pieces that move like knights but "
 "capture differently."
 msgstr ""
 
-#: ../client/chess.ts:649
+#: ../client/chess.ts:650
 msgid ""
 "Asymmetric East vs. West variant which pits the western Chess army against a"
 " Xiangqi and Janggi-styled army."
 msgstr ""
 
-#: ../client/chess.ts:661
+#: ../client/chess.ts:662
 msgid ""
 "Asymmetric variant which pits the western Chess army against a drop-based, "
 "Shogi-styled army."
 msgstr ""
 
-#: ../client/chess.ts:677
+#: ../client/chess.ts:678
 msgid ""
 "Asymmetric variant where one army has pieces that move like queens but "
 "capture as usual."
 msgstr ""
 
-#: ../client/chess.ts:689
+#: ../client/chess.ts:690
 msgid ""
 "Orda Chess variant with two Horde armies. The Falcon replaces the Yurt."
 msgstr ""
 
-#: ../client/chess.ts:700
+#: ../client/chess.ts:701
 msgid "Mayan chess. Inspired by cultural elements of Mesoamerica."
 msgstr ""
 
-#: ../client/chess.ts:711
+#: ../client/chess.ts:712
 msgid "Pieces alternate between two forms with each move."
 msgstr ""
 
-#: ../client/chess.ts:728
+#: ../client/chess.ts:729
 msgid "Like Capablanca Chess but with Grand starting setup."
 msgstr ""
 
-#: ../client/chess.ts:738
+#: ../client/chess.ts:739
 msgid "Like Capablanca Chess but with a different starting setup."
 msgstr ""
 
-#: ../client/chess.ts:748
+#: ../client/chess.ts:749
 msgid "Gothic with Crazyhouse drop rules."
 msgstr ""
 
-#: ../client/chess.ts:773 ../client/lobby/layer1.ts:54
+#: ../client/chess.ts:774 ../client/lobby/layer1.ts:51
 #: ../client/lobby/layer2chess.ts:18
 msgid "Chess Variants"
 msgstr ""
 
-#: ../client/chess.ts:774 ../client/lobby/layer1.ts:78
+#: ../client/chess.ts:775 ../client/lobby/layer1.ts:75
 #: ../client/lobby/layer2makruk.ts:16
 msgid "Makruk Variants"
 msgstr ""
 
-#: ../client/chess.ts:775 ../client/lobby/layer1.ts:86
+#: ../client/chess.ts:776 ../client/lobby/layer1.ts:83
 #: ../client/lobby/layer2shogi.ts:17
 msgid "Shogi Variants"
 msgstr ""
 
-#: ../client/chess.ts:776 ../client/lobby/layer1.ts:94
+#: ../client/chess.ts:777 ../client/lobby/layer1.ts:91
 #: ../client/lobby/layer2xiangqi.ts:16
 msgid "Xiangqi Variants"
 msgstr ""
 
-#: ../client/chess.ts:777 ../client/lobby/layer1.ts:62
+#: ../client/chess.ts:778 ../client/lobby/layer1.ts:59
 #: ../client/lobby/layer2fairy.ts:16
 msgid "Fairy Piece Variants"
 msgstr ""
 
-#: ../client/chess.ts:778 ../client/lobby/layer1.ts:70
+#: ../client/chess.ts:779 ../client/lobby/layer1.ts:67
 #: ../client/lobby/layer2army.ts:16
 msgid "New Army Variants"
 msgstr ""
 
-#: ../client/datetime.ts:32
+#: ../client/datetime.ts:20
 msgid "in %1 year"
 msgid_plural "in %1 years"
 msgstr[0] "en %1 año"
 msgstr[1] "en %1 años"
+msgstr[2] "en %1 años"
 
-#: ../client/datetime.ts:32
+#: ../client/datetime.ts:20
 msgid "%1 year ago"
 msgid_plural "%1 years ago"
 msgstr[0] "Hace %1 año"
 msgstr[1] "Hace %1 años"
+msgstr[2] "Hace %1 años"
 
-#: ../client/datetime.ts:34
+#: ../client/datetime.ts:22
 msgid "in %1 month"
 msgid_plural "in %1 months"
 msgstr[0] "en %1 mes"
 msgstr[1] "en %1 meses"
+msgstr[2] "en %1 meses"
 
-#: ../client/datetime.ts:34
+#: ../client/datetime.ts:22
 msgid "%1 month ago"
 msgid_plural "%1 months ago"
 msgstr[0] "Hace %1 mes"
 msgstr[1] "Hace %1 meses"
+msgstr[2] "Hace %1 meses"
 
-#: ../client/datetime.ts:36
+#: ../client/datetime.ts:24
 msgid "in %1 week"
 msgid_plural "in %1 weeks"
 msgstr[0] "en %1 semana"
 msgstr[1] "en %1 semanas"
+msgstr[2] "en %1 semanas"
 
-#: ../client/datetime.ts:36
+#: ../client/datetime.ts:24
 msgid "%1 week ago"
 msgid_plural "%1 weeks ago"
 msgstr[0] "Hace %1 semana"
 msgstr[1] "Hace %1 semanas"
+msgstr[2] "Hace %1 semanas"
 
-#: ../client/datetime.ts:38
+#: ../client/datetime.ts:26
 msgid "in %1 day"
 msgid_plural "in %1 days"
 msgstr[0] "en %1 día"
 msgstr[1] "en %1 días"
+msgstr[2] "en %1 días"
 
-#: ../client/datetime.ts:38
+#: ../client/datetime.ts:26
 msgid "%1 day ago"
 msgid_plural "%1 days ago"
 msgstr[0] "Hace %1 día"
 msgstr[1] "Hace %1 días"
+msgstr[2] "Hace %1 días"
 
-#: ../client/datetime.ts:40
+#: ../client/datetime.ts:28
 msgid "in %1 hour"
 msgid_plural "in %1 hours"
 msgstr[0] "en %1 hora"
 msgstr[1] "en %1 horas"
+msgstr[2] "en %1 horas"
 
-#: ../client/datetime.ts:40
+#: ../client/datetime.ts:28
 msgid "%1 hour ago"
 msgid_plural "%1 hours ago"
 msgstr[0] "Hace %1 hora"
 msgstr[1] "Hace %1 horas"
+msgstr[2] "Hace %1 horas"
 
-#: ../client/datetime.ts:42
+#: ../client/datetime.ts:30
 msgid "in %1 minute"
 msgid_plural "in %1 minutes"
 msgstr[0] "en %1 minuto"
 msgstr[1] "en %1 minutos"
+msgstr[2] "en %1 minutos"
 
-#: ../client/datetime.ts:42
+#: ../client/datetime.ts:30
 msgid "%1 minute ago"
 msgid_plural "%1 minutes ago"
 msgstr[0] "Hace %1 minuto"
 msgstr[1] "Hace %1 minutos"
+msgstr[2] "Hace %1 minutos"
 
-#: ../client/datetime.ts:44
+#: ../client/datetime.ts:32
 msgid "in %1 second"
 msgid_plural "in %1 seconds"
 msgstr[0] "en %1 segundo"
 msgstr[1] "en %1 segundos"
+msgstr[2] "en %1 segundos"
 
-#: ../client/datetime.ts:44
+#: ../client/datetime.ts:32
 msgid "%1 second ago"
 msgid_plural "%1 seconds ago"
 msgstr[0] "Hace %1 segundo"
 msgstr[1] "Hace %1 segundos"
+msgstr[2] "Hace %1 segundos"
 
-#: ../client/datetime.ts:85
-msgid "STARTING IN"
-msgstr "COMENZANDO EN"
-
-#: ../client/editorCtrl.ts:139 ../client/editorCtrl.ts:140
+#: ../client/editorCtrl.ts:97 ../client/editorCtrl.ts:98
 msgid "%1 to play"
 msgstr "Juegan %1"
 
-#: ../client/editorCtrl.ts:143
+#: ../client/editorCtrl.ts:101
 msgid "Castling"
 msgstr "Enroque"
 
-#: ../client/editorCtrl.ts:146 ../client/i18n.ts:58 ../client/lobby.ts:530
+#: ../client/editorCtrl.ts:104 ../client/i18n.ts:60 ../client/lobby.ts:451
 msgid "White"
 msgstr "Blanco"
 
-#: ../client/editorCtrl.ts:161 ../client/i18n.ts:58 ../client/lobby.ts:528
+#: ../client/editorCtrl.ts:119 ../client/i18n.ts:60 ../client/lobby.ts:449
 msgid "Black"
 msgstr "Negro"
 
-#: ../client/editorCtrl.ts:177
+#: ../client/editorCtrl.ts:135
 msgid "FLIP BOARD"
 msgstr ""
 
-#: ../client/editorCtrl.ts:180
+#: ../client/editorCtrl.ts:138
 msgid "CLEAR BOARD"
 msgstr "LIMPIAR TABLERO"
 
-#: ../client/editorCtrl.ts:183
+#: ../client/editorCtrl.ts:141
+msgid "FILL %1'S HAND"
+msgstr ""
+
+#: ../client/editorCtrl.ts:144
 msgid "STARTING POSITION"
 msgstr "POSICIÓN INICIAL"
 
-#: ../client/editorCtrl.ts:186 ../client/roundCtrl.ts:791
+#: ../client/editorCtrl.ts:147 ../client/roundCtrl.ts:628
 msgid "ANALYSIS BOARD"
 msgstr "TABLERO DE ANÁLISIS"
 
-#: ../client/editorCtrl.ts:189
+#: ../client/editorCtrl.ts:150
 msgid "PLAY WITH MACHINE"
 msgstr "JUGAR CON EL ORDENADOR"
 
-#: ../client/editorCtrl.ts:192
+#: ../client/editorCtrl.ts:153
 msgid "EXPORT TO PNG"
 msgstr "EXPORTAR A PNG"
 
-#: ../client/editorCtrl.ts:265 ../client/lobby.ts:661
+#: ../client/editorCtrl.ts:224 ../client/lobby.ts:579
 msgid "Invalid FEN"
 msgstr "FEN inválido"
 
-#: ../client/gameInfo.ts:33 ../client/profile.ts:43
+#: ../client/gameCtrl.ts:388 ../client/tournament.ts:596
+msgid "Spectators: "
+msgstr "Espectadores:"
+
+#: ../client/gameCtrl.ts:410
+msgid "Requested game %1 not found!"
+msgstr "¡No se encontró la partida solicitada %1!"
+
+#: ../client/gameInfo.ts:31 ../client/result.ts:47
 msgid "Playing right now"
 msgstr "Jugando ahora"
 
-#: ../client/i18n.ts:58
+#: ../client/i18n.ts:60
 msgid "Red"
 msgstr "Rojo"
 
-#: ../client/i18n.ts:59
+#: ../client/i18n.ts:61
 msgid "Blue"
 msgstr "Azul"
 
-#: ../client/i18n.ts:59
+#: ../client/i18n.ts:61
 msgid "Gold"
 msgstr "Dorado"
 
-#: ../client/i18n.ts:59
+#: ../client/i18n.ts:61
 msgid "Pink"
 msgstr "Rosa"
 
-#: ../client/i18n.ts:60
+#: ../client/i18n.ts:62
 msgid "Green"
 msgstr ""
 
-#: ../client/i18n.ts:64
+#: ../client/i18n.ts:66
 msgid "chess"
 msgstr ""
 
-#: ../client/i18n.ts:64
+#: ../client/i18n.ts:66
 msgid "crazyhouse"
 msgstr ""
 
-#: ../client/i18n.ts:64
+#: ../client/i18n.ts:66
 msgid "placement"
 msgstr ""
 
-#: ../client/i18n.ts:64
+#: ../client/i18n.ts:66
 msgid "atomic"
 msgstr ""
 
-#: ../client/i18n.ts:66
+#: ../client/i18n.ts:68
 msgid "makruk"
 msgstr ""
 
-#: ../client/i18n.ts:66
+#: ../client/i18n.ts:68
 msgid "makpong"
 msgstr ""
 
-#: ../client/i18n.ts:66
+#: ../client/i18n.ts:68
 msgid "ouk chatrang"
 msgstr ""
 
-#: ../client/i18n.ts:66
+#: ../client/i18n.ts:68
 msgid "sittuyin"
 msgstr ""
 
-#: ../client/i18n.ts:66
+#: ../client/i18n.ts:68
 msgid "asean"
 msgstr ""
 
-#: ../client/i18n.ts:68
+#: ../client/i18n.ts:70
 msgid "shogi"
 msgstr ""
 
-#: ../client/i18n.ts:68
+#: ../client/i18n.ts:70
 msgid "minishogi"
 msgstr ""
 
-#: ../client/i18n.ts:68
+#: ../client/i18n.ts:70
 msgid "kyoto shogi"
 msgstr ""
 
-#: ../client/i18n.ts:69
+#: ../client/i18n.ts:71
 msgid "dobutsu"
 msgstr ""
 
-#: ../client/i18n.ts:69
+#: ../client/i18n.ts:71
 msgid "gorogoro"
 msgstr ""
 
-#: ../client/i18n.ts:69
+#: ../client/i18n.ts:71
 msgid "tori shogi"
 msgstr ""
 
-#: ../client/i18n.ts:71
+#: ../client/i18n.ts:73
 msgid "xiangqi"
 msgstr ""
 
-#: ../client/i18n.ts:71
+#: ../client/i18n.ts:73
 msgid "manchu"
 msgstr ""
 
-#: ../client/i18n.ts:71
+#: ../client/i18n.ts:73
 msgid "janggi"
 msgstr ""
 
-#: ../client/i18n.ts:71
+#: ../client/i18n.ts:73
 msgid "minixiangqi"
 msgstr ""
 
-#: ../client/i18n.ts:73
+#: ../client/i18n.ts:75
 msgid "capablanca"
 msgstr ""
 
-#: ../client/i18n.ts:73
+#: ../client/i18n.ts:75
 msgid "capahouse"
 msgstr ""
 
-#: ../client/i18n.ts:73
+#: ../client/i18n.ts:75
 msgid "s-chess"
 msgstr ""
 
-#: ../client/i18n.ts:73
+#: ../client/i18n.ts:75
 msgid "s-house"
 msgstr ""
 
-#: ../client/i18n.ts:74
+#: ../client/i18n.ts:76
 msgid "grand"
 msgstr ""
 
-#: ../client/i18n.ts:74
+#: ../client/i18n.ts:76
 msgid "grandhouse"
 msgstr ""
 
-#: ../client/i18n.ts:74
+#: ../client/i18n.ts:76
 msgid "shako"
 msgstr ""
 
-#: ../client/i18n.ts:74
+#: ../client/i18n.ts:76
 msgid "shogun"
 msgstr ""
 
-#: ../client/i18n.ts:74
+#: ../client/i18n.ts:76
 msgid "hoppel-poppel"
 msgstr ""
 
-#: ../client/i18n.ts:76
+#: ../client/i18n.ts:78
 msgid "orda"
 msgstr ""
 
-#: ../client/i18n.ts:76
+#: ../client/i18n.ts:78
 msgid "synochess"
 msgstr ""
 
-#: ../client/i18n.ts:76
+#: ../client/i18n.ts:78
 msgid "shinobi"
 msgstr ""
 
-#: ../client/i18n.ts:76
+#: ../client/i18n.ts:78
 msgid "empire"
 msgstr ""
 
-#: ../client/i18n.ts:76
+#: ../client/i18n.ts:78
 msgid "orda mirror"
 msgstr ""
 
-#: ../client/i18n.ts:76
+#: ../client/i18n.ts:78
 msgid "chak"
 msgstr ""
 
-#: ../client/i18n.ts:80
+#: ../client/i18n.ts:78
+msgid "chennis"
+msgstr ""
+
+#: ../client/i18n.ts:82
 msgid "PawnsPushed"
 msgstr ""
 
-#: ../client/i18n.ts:80
+#: ../client/i18n.ts:82
 msgid "PawnsPassed"
 msgstr ""
 
-#: ../client/i18n.ts:80
+#: ../client/i18n.ts:82
 msgid "UpsideDown"
 msgstr ""
 
-#: ../client/i18n.ts:80
+#: ../client/i18n.ts:82
 msgid "Theban"
 msgstr ""
 
-#: ../client/i18n.ts:80
+#: ../client/i18n.ts:82
 msgid "No castle"
 msgstr ""
 
-#: ../client/i18n.ts:82
+#: ../client/i18n.ts:84
 msgid "Lance HC"
 msgstr ""
 
-#: ../client/i18n.ts:82
+#: ../client/i18n.ts:84
 msgid "Bishop HC"
 msgstr ""
 
-#: ../client/i18n.ts:82
+#: ../client/i18n.ts:84
 msgid "Rook HC"
 msgstr ""
 
-#: ../client/i18n.ts:82
+#: ../client/i18n.ts:84
 msgid "Rook+Lance HC"
 msgstr ""
 
-#: ../client/i18n.ts:82
+#: ../client/i18n.ts:84
 msgid "2-Piece HC"
 msgstr ""
 
-#: ../client/i18n.ts:82
+#: ../client/i18n.ts:84
 msgid "4-Piece HC"
 msgstr ""
 
-#: ../client/i18n.ts:82
+#: ../client/i18n.ts:84
 msgid "6-Piece HC"
 msgstr ""
 
-#: ../client/i18n.ts:82
+#: ../client/i18n.ts:84
 msgid "8-Piece HC"
 msgstr ""
 
-#: ../client/i18n.ts:82
+#: ../client/i18n.ts:84
 msgid "9-Piece HC"
 msgstr ""
 
-#: ../client/i18n.ts:82
+#: ../client/i18n.ts:84
 msgid "10-Piece HC"
 msgstr ""
 
-#: ../client/i18n.ts:84
+#: ../client/i18n.ts:86
 msgid "Gorogoro Plus N+L"
 msgstr ""
 
-#: ../client/i18n.ts:84
+#: ../client/i18n.ts:86
 msgid "Original (No N+L)"
 msgstr ""
 
-#: ../client/i18n.ts:86
+#: ../client/i18n.ts:88
 msgid "Left Quail HC"
 msgstr ""
 
-#: ../client/i18n.ts:86
+#: ../client/i18n.ts:88
 msgid "Falcon HC"
 msgstr ""
 
-#: ../client/i18n.ts:86
+#: ../client/i18n.ts:88
 msgid "Falcon + Left Quail HC"
 msgstr ""
 
-#: ../client/i18n.ts:86
+#: ../client/i18n.ts:88
 msgid "Falcon + Both Quails HC"
 msgstr ""
 
-#: ../client/i18n.ts:88
+#: ../client/i18n.ts:90
 msgid "Bird"
 msgstr ""
 
-#: ../client/i18n.ts:88
+#: ../client/i18n.ts:90
 msgid "Carrera"
 msgstr ""
 
-#: ../client/i18n.ts:88
+#: ../client/i18n.ts:90
 msgid "Gothic"
 msgstr ""
 
-#: ../client/i18n.ts:88
+#: ../client/i18n.ts:90
 msgid "Embassy"
 msgstr ""
 
-#: ../client/i18n.ts:88
+#: ../client/i18n.ts:90
 msgid "Conservative"
 msgstr ""
 
-#: ../client/invite.ts:34 ../client/lobby.ts:541
+#: ../client/invite.ts:34 ../client/lobby.ts:462
 msgid "Host a game for others"
 msgstr ""
 
@@ -963,89 +1005,90 @@ msgstr ""
 msgid "The first person to come to this URL will play with you."
 msgstr "La primera persona en visitar esta URL jugará contigo."
 
-#: ../client/lobby.ts:431
+#: ../client/lobby.ts:352
 msgid "Cancel"
 msgstr "Cancelar"
 
-#: ../client/lobby.ts:436
+#: ../client/lobby.ts:357
 msgid "Challenge %1 to a game"
 msgstr "Desafiar %1 a una partida"
 
-#: ../client/lobby.ts:443
+#: ../client/lobby.ts:364
 msgid "Paste the FEN text here"
 msgstr "Pegar el texto FEN aquí"
 
-#: ../client/lobby.ts:443
+#: ../client/lobby.ts:364
 msgid " (must be signed in)"
 msgstr "(debe estar registrado)"
 
-#: ../client/lobby.ts:459
+#: ../client/lobby.ts:380
 msgid "Minutes per side:"
 msgstr "Minutos por lado:"
 
-#: ../client/lobby.ts:474
+#: ../client/lobby.ts:395
 msgid "Periods"
 msgstr "Períodos"
 
-#: ../client/lobby.ts:489 ../client/lobby.ts:778 ../client/profile.ts:25
+#: ../client/lobby.ts:410 ../client/lobby.ts:696 ../client/result.ts:16
 msgid "Casual"
 msgstr "Casual"
 
-#: ../client/lobby.ts:496 ../client/lobby.ts:776 ../client/profile.ts:20
+#: ../client/lobby.ts:417 ../client/lobby.ts:694 ../client/result.ts:11
 msgid "Rated"
 msgstr "Por puntos"
 
-#: ../client/lobby.ts:507
+#: ../client/lobby.ts:428
 msgid "Practice with Random-Mover"
 msgstr ""
 
-#: ../client/lobby.ts:518
+#: ../client/lobby.ts:439
 msgid "A.I. Level"
 msgstr "Nivel I.A."
 
-#: ../client/lobby.ts:529
+#: ../client/lobby.ts:450
 msgid "Random"
 msgstr "Aleatorio"
 
-#: ../client/lobby.ts:533
+#: ../client/lobby.ts:454
 msgid "Create"
 msgstr ""
 
-#: ../client/lobby.ts:538 ../client/lobby/layer3.ts:40
+#: ../client/lobby.ts:459 ../client/lobby/layer3.ts:40
 msgid "Create a game"
 msgstr "Crear una partida"
 
-#: ../client/lobby.ts:539
+#: ../client/lobby.ts:460
 msgid "Play with a friend"
 msgstr "Jugar con un amigo"
 
-#: ../client/lobby.ts:540 ../client/lobby/layer3.ts:42
+#: ../client/lobby.ts:461 ../client/lobby/layer3.ts:42
 msgid "Play with AI"
 msgstr "Juega con la IA"
 
-#: ../client/lobby.ts:622
+#: ../client/lobby.ts:540
 msgid "Byoyomi in seconds:"
 msgstr "Byoyomi en segundos:"
 
-#: ../client/lobby.ts:622
+#: ../client/lobby.ts:540
 msgid "Increment in seconds:"
 msgstr "Incremento en segundos:"
 
-#: ../client/lobby.ts:627
+#: ../client/lobby.ts:545
 msgid "Alternate Start"
 msgstr "Comienzo alternativo"
 
-#: ../client/lobby.ts:774
+#: ../client/lobby.ts:692
 msgid "Custom"
 msgstr "Personalizado"
 
-#: ../client/lobby.ts:802 ../client/lobby.ts:927
+#: ../client/lobby.ts:720 ../client/lobby.ts:843
 msgid "%1 player"
 msgid_plural "%1 players"
 msgstr[0] "%1 jugador"
 msgstr[1] "%1 jugadores"
+msgstr[2] "%1 jugadores"
 
-#: ../client/lobby.ts:888
+#: ../client/lobby.ts:804
 msgid ""
 "You have an unfinished game!\n"
 "Press OK to continue."
@@ -1053,49 +1096,74 @@ msgstr ""
 "¡Tiene un juego sin terminar!\n"
 "Presione OK para continuar."
 
-#: ../client/lobby.ts:921
+#: ../client/lobby.ts:837
 msgid "%1 game in play"
 msgid_plural "%1 games in play"
 msgstr[0] "%1 partida en juego"
 msgstr[1] "%1 partidas en juego"
+msgstr[2] "%1 partidas en juego"
 
-#: ../client/lobby.ts:937
+#: ../client/lobby.ts:853
 msgid "Tournament calendar"
 msgstr ""
 
-#: ../client/lobby.ts:946
+#: ../client/lobby.ts:862
 msgid "Player"
 msgstr "Jugador"
 
-#: ../client/lobby.ts:947
+#: ../client/lobby.ts:863
 msgid "Rating"
 msgstr "Puntuación"
 
-#: ../client/lobby.ts:948
+#: ../client/lobby.ts:864
 msgid "Time"
 msgstr "Tiempo"
 
-#: ../client/lobby.ts:950
+#: ../client/lobby.ts:866
 msgid "Mode"
 msgstr "Modo"
 
-#: ../client/lobby.ts:994
+#: ../client/lobby.ts:908
 msgid "Donate"
 msgstr "Donar"
 
-#: ../client/lobby.ts:995
+#: ../client/lobby.ts:909
 msgid "FAQ"
 msgstr "Preguntas frecuentes"
 
-#: ../client/lobby.ts:996
+#: ../client/lobby.ts:910
 msgid "Stats"
 msgstr "Estadísticas"
 
-#: ../client/lobby.ts:997
+#: ../client/lobby.ts:911
 msgid "About"
 msgstr "Acerca de"
 
-#: ../client/main.ts:153
+#: ../client/lobby.ts:918
+msgid "Fairy-Stockfish on PyChess"
+msgstr ""
+
+#: ../client/lobby.ts:919
+msgid "NNUE Everywhere"
+msgstr ""
+
+#: ../client/lobby.ts:926
+msgid "Tennis and chess"
+msgstr ""
+
+#: ../client/lobby.ts:927
+msgid "Serving a New Variant"
+msgstr ""
+
+#: ../client/lobby.ts:934
+msgid "Christmas gift from PyChess"
+msgstr ""
+
+#: ../client/lobby.ts:935
+msgid "Merry Chak-mas!"
+msgstr ""
+
+#: ../client/main.ts:108
 msgid "Thank you for your support!"
 msgstr "¡Gracias por su apoyo!"
 
@@ -1111,222 +1179,224 @@ msgstr "Pega el texto PGN aquí"
 msgid "IMPORT GAME"
 msgstr "IMPORTAR PARTIDA"
 
-#: ../client/profile.ts:23
-msgid "IMPORT"
-msgstr "IMPORTAR"
-
-#: ../client/profile.ts:30
-msgid "level %1"
-msgstr "nivel %1"
-
-#: ../client/profile.ts:46
-msgid "Game aborted"
-msgstr "Partida abortada"
-
-#: ../client/profile.ts:49
-msgid "Checkmate"
-msgstr "Jaque mate"
-
-#: ../client/profile.ts:52
-msgid "%1 resigned"
-msgstr "%1 abandonó"
-
-#: ../client/profile.ts:55
-msgid "Stalemate"
-msgstr "Tablas por ahogado"
-
-#: ../client/profile.ts:58 ../client/profile.ts:64
-msgid "Time out"
-msgstr "Se acabó el tiempo"
-
-#: ../client/profile.ts:61 ../client/roundCtrl.ts:512
-msgid "Draw"
-msgstr "Tablas"
-
-#: ../client/profile.ts:67
-msgid "%1 abandoned the game"
-msgstr "%1 abandonó la partida"
-
-#: ../client/profile.ts:70
-msgid "Cheat detected"
-msgstr "Trampa detectada"
-
-#: ../client/profile.ts:73
-msgid "Not started"
-msgstr "Sin iniciar"
-
-#: ../client/profile.ts:76
-msgid "Invalid move"
-msgstr "Movimiento inválido"
-
-#: ../client/profile.ts:79
-msgid "Unknown reason"
-msgstr "Razón desconocida"
-
-#: ../client/profile.ts:89
-msgid "Campmate"
-msgstr "Camp mate"
-
-#: ../client/profile.ts:92
-msgid "Altar mate"
-msgstr ""
-
-#: ../client/profile.ts:95
-msgid "Explosion of king"
-msgstr "Explosión del rey"
-
-#: ../client/profile.ts:98 ../client/profile.ts:105
-msgid "Point counting"
-msgstr "Conteo de puntos"
-
-#: ../client/profile.ts:108
-msgid "Repetition"
-msgstr "Repetición"
-
-#: ../client/profile.ts:245
+#: ../client/profile.ts:151
 msgid "%1 move"
 msgid_plural "%1 moves"
 msgstr[0] "%1 movimiento"
 msgstr[1] "%1 movimientos"
+msgstr[2] "%1 movimientos"
 
-#: ../client/profile.ts:246
+#: ../client/profile.ts:152
 msgid "Computer analysis available"
 msgstr "Análisis de ordenador disponible"
 
-#: ../client/profile.ts:309
+#: ../client/profile.ts:216
 msgid "Games"
 msgstr "Partidas"
 
-#: ../client/profile.ts:311
+#: ../client/profile.ts:218
 msgid "Games with you"
 msgstr ""
 
-#: ../client/profile.ts:313
+#: ../client/profile.ts:220
 msgctxt "UsePluralFormIfNeeded"
 msgid "Rated"
 msgstr "Por puntos"
 
-#: ../client/profile.ts:314
+#: ../client/profile.ts:221
 msgid "Imported"
 msgstr "Importado"
 
-#: ../client/roundCtrl.ts:428 ../client/roundCtrl.ts:1408
+#: ../client/result.ts:14
+msgid "IMPORT"
+msgstr "IMPORTAR"
+
+#: ../client/result.ts:21
+msgid "level %1"
+msgstr "nivel %1"
+
+#: ../client/result.ts:50
+msgid "Game aborted"
+msgstr "Partida abortada"
+
+#: ../client/result.ts:53
+msgid "Checkmate"
+msgstr "Jaque mate"
+
+#: ../client/result.ts:56
+msgid "%1 resigned"
+msgstr "%1 abandonó"
+
+#: ../client/result.ts:59
+msgid "Stalemate"
+msgstr "Tablas por ahogado"
+
+#: ../client/result.ts:62 ../client/result.ts:68
+msgid "Time out"
+msgstr "Se acabó el tiempo"
+
+#: ../client/result.ts:65 ../client/roundCtrl.ts:341
+msgid "Draw"
+msgstr "Tablas"
+
+#: ../client/result.ts:71
+msgid "%1 abandoned the game"
+msgstr "%1 abandonó la partida"
+
+#: ../client/result.ts:74
+msgid "Cheat detected"
+msgstr "Trampa detectada"
+
+#: ../client/result.ts:77
+msgid "Not started"
+msgstr "Sin iniciar"
+
+#: ../client/result.ts:80
+msgid "Invalid move"
+msgstr "Movimiento inválido"
+
+#: ../client/result.ts:83
+msgid "Unknown reason"
+msgstr "Razón desconocida"
+
+#: ../client/result.ts:93
+msgid "Campmate"
+msgstr "Camp mate"
+
+#: ../client/result.ts:96
+msgid "Altar mate"
+msgstr ""
+
+#: ../client/result.ts:99
+msgid "Explosion of king"
+msgstr "Explosión del rey"
+
+#: ../client/result.ts:102 ../client/result.ts:109
+msgid "Point counting"
+msgstr "Conteo de puntos"
+
+#: ../client/result.ts:112
+msgid "Repetition"
+msgstr "Repetición"
+
+#: ../client/roundCtrl.ts:257 ../client/roundCtrl.ts:1131
 msgid " +15 seconds"
 msgstr "+15 segundos"
 
-#: ../client/roundCtrl.ts:435
+#: ../client/roundCtrl.ts:264
 msgid "Give 15 seconds"
 msgstr "Dar 15 segundos"
 
-#: ../client/roundCtrl.ts:453
+#: ../client/roundCtrl.ts:282
 msgid "Berserk"
 msgstr ""
 
-#: ../client/roundCtrl.ts:509
+#: ../client/roundCtrl.ts:338
 msgid "Abort"
 msgstr "Abortar"
 
-#: ../client/roundCtrl.ts:511 ../client/roundCtrl.ts:1176
-#: ../client/roundCtrl.ts:1178
+#: ../client/roundCtrl.ts:340 ../client/roundCtrl.ts:987
+#: ../client/roundCtrl.ts:989
 msgid "Count"
 msgstr "Contar"
 
-#: ../client/roundCtrl.ts:512
+#: ../client/roundCtrl.ts:341
 msgid "Pass"
 msgstr "Pasar"
 
-#: ../client/roundCtrl.ts:513
+#: ../client/roundCtrl.ts:342
 msgid "Resign"
 msgstr "Abandonar"
 
-#: ../client/roundCtrl.ts:578
+#: ../client/roundCtrl.ts:436
 msgid "Are you sure you want to draw?"
 msgstr ""
 
-#: ../client/roundCtrl.ts:580
+#: ../client/roundCtrl.ts:438
 msgid "Draw offer sent"
 msgstr ""
 
-#: ../client/roundCtrl.ts:592
+#: ../client/roundCtrl.ts:450
 msgid "Your opponent offers a draw"
 msgstr ""
 
-#: ../client/roundCtrl.ts:612
+#: ../client/roundCtrl.ts:470
 msgid "Are you sure you want to resign?"
 msgstr "¿Está seguro que desea abandonar?"
 
-#: ../client/roundCtrl.ts:644
+#: ../client/roundCtrl.ts:481
 msgid "Blue (Cho)"
 msgstr "Azul (Cho)"
 
-#: ../client/roundCtrl.ts:644
+#: ../client/roundCtrl.ts:481
 msgid "Red (Han)"
 msgstr "Rojo (Han)"
 
-#: ../client/roundCtrl.ts:645
+#: ../client/roundCtrl.ts:482
 msgid ""
 "Waiting for %1 to choose starting positions of the horses and elephants..."
 msgstr ""
 "Esperando que %1 elija las posiciones iniciales de los caballos y "
 "elefantes..."
 
-#: ../client/roundCtrl.ts:685 ../client/roundCtrl.ts:687
+#: ../client/roundCtrl.ts:522 ../client/roundCtrl.ts:524
 msgid "Switch pieces"
 msgstr "Cambiar piezas"
 
-#: ../client/roundCtrl.ts:686
+#: ../client/roundCtrl.ts:523
 msgid "Ready"
 msgstr "Listo"
 
-#: ../client/roundCtrl.ts:720
+#: ../client/roundCtrl.ts:557
 msgid "VIEW REMATCH"
 msgstr ""
 
-#: ../client/roundCtrl.ts:727
+#: ../client/roundCtrl.ts:564
 msgid "Rematch offer sent"
 msgstr ""
 
-#: ../client/roundCtrl.ts:738
+#: ../client/roundCtrl.ts:575
 msgid "Your opponent offers a rematch"
 msgstr ""
 
-#: ../client/roundCtrl.ts:779
+#: ../client/roundCtrl.ts:616
 msgid "VIEW TOURNAMENT"
 msgstr "VER TORNEO"
 
-#: ../client/roundCtrl.ts:782
+#: ../client/roundCtrl.ts:619
 msgid "BACK TO TOURNAMENT"
 msgstr "VOLVER AL TORNEO"
 
-#: ../client/roundCtrl.ts:784 ../client/tournament.ts:289
+#: ../client/roundCtrl.ts:621 ../client/tournament.ts:189
 msgid "PAUSE"
 msgstr "PAUSAR"
 
-#: ../client/roundCtrl.ts:787
+#: ../client/roundCtrl.ts:624
 msgid "REMATCH"
 msgstr "REVANCHA"
 
-#: ../client/roundCtrl.ts:788
+#: ../client/roundCtrl.ts:625
 msgid "NEW OPPONENT"
 msgstr "NUEVO OPONENTE"
 
-#: ../client/roundCtrl.ts:1174
+#: ../client/roundCtrl.ts:985
 msgid "Stop counting"
 msgstr "Parar el conteo"
 
-#: ../client/roundCtrl.ts:1174
+#: ../client/roundCtrl.ts:985
 msgid "Stop"
 msgstr "Parar"
 
-#: ../client/roundCtrl.ts:1176 ../client/roundCtrl.ts:1178
+#: ../client/roundCtrl.ts:987 ../client/roundCtrl.ts:989
 msgid "Start counting"
 msgstr "Iniciar el conteo"
 
-#: ../client/roundCtrl.ts:1321
+#: ../client/roundCtrl.ts:1069
 msgid "%1 second to play the first move"
 msgid_plural "%1 seconds to play the first move"
 msgstr[0] ""
 msgstr[1] ""
+msgstr[2] ""
 
 #: ../client/settingsView.ts:54
 msgid "Log out"
@@ -1352,99 +1422,115 @@ msgstr "Preferencias del tablero"
 msgid "Zen Mode"
 msgstr "Modo Zen"
 
-#: ../client/tournament.ts:262
+#: ../client/sound.ts:137
+msgid "Volume"
+msgstr ""
+
+#: ../client/tournament.ts:162
 msgid "First"
 msgstr "Primera"
 
-#: ../client/tournament.ts:263
+#: ../client/tournament.ts:163
 msgid "Prev"
 msgstr "Anterior"
 
-#: ../client/tournament.ts:267
+#: ../client/tournament.ts:167
 msgid "Next"
 msgstr "Siguiente"
 
-#: ../client/tournament.ts:268
+#: ../client/tournament.ts:168
 msgid "Last"
 msgstr "Última"
 
-#: ../client/tournament.ts:269
+#: ../client/tournament.ts:169
 msgid "Scroll to your player"
 msgstr "Localizar jugador"
 
-#: ../client/tournament.ts:280
+#: ../client/tournament.ts:180
 msgid "WITHDRAW"
 msgstr "RETIRARSE"
 
-#: ../client/tournament.ts:282 ../client/tournament.ts:287
+#: ../client/tournament.ts:182 ../client/tournament.ts:187
 msgid "JOIN"
 msgstr "UNIRSE"
 
-#: ../client/tournament.ts:294
+#: ../client/tournament.ts:194
 msgid "LOG IN"
 msgstr "IDENTIFICARSE"
 
-#: ../client/tournament.ts:307
+#: ../client/tournament.ts:207
 msgid "Tournament complete"
 msgstr "Torneo completo"
 
-#: ../client/tournament.ts:309
+#: ../client/tournament.ts:209
 msgid "Players"
 msgstr "Jugadores"
 
-#: ../client/tournament.ts:310
+#: ../client/tournament.ts:210
 msgid "Average rating"
 msgstr "Rating medio"
 
-#: ../client/tournament.ts:311 ../client/tournament.ts:491
-#: ../client/tournament.ts:550 ../client/tournament.ts:560
-#: ../client/tournament.ts:570
+#: ../client/tournament.ts:211 ../client/tournament.ts:389
+#: ../client/tournament.ts:448 ../client/tournament.ts:458
+#: ../client/tournament.ts:468
 msgid "Games played"
 msgstr "Partidas jugadas"
 
-#: ../client/tournament.ts:312 ../client/tournament.ts:313
+#: ../client/tournament.ts:212 ../client/tournament.ts:213
 msgid "%1 wins"
 msgstr ""
 
-#: ../client/tournament.ts:314
+#: ../client/tournament.ts:214
 msgid "Draws"
 msgstr "Tablas"
 
-#: ../client/tournament.ts:315 ../client/tournament.ts:494
-#: ../client/tournament.ts:552 ../client/tournament.ts:562
-#: ../client/tournament.ts:572
+#: ../client/tournament.ts:215 ../client/tournament.ts:392
+#: ../client/tournament.ts:450 ../client/tournament.ts:460
+#: ../client/tournament.ts:470
 msgid "Berserk rate"
 msgstr ""
 
-#: ../client/tournament.ts:323
+#: ../client/tournament.ts:223
 msgid "Download all games"
 msgstr "Descargar todas las partidas"
 
-#: ../client/tournament.ts:490 ../client/tournament.ts:549
-#: ../client/tournament.ts:559 ../client/tournament.ts:569
+#: ../client/tournament.ts:231
+msgid "Download all games in JSON"
+msgstr ""
+
+#: ../client/tournament.ts:388 ../client/tournament.ts:447
+#: ../client/tournament.ts:457 ../client/tournament.ts:467
 msgid "Performance"
 msgstr "Rendimiento"
 
-#: ../client/tournament.ts:492 ../client/tournament.ts:551
-#: ../client/tournament.ts:561 ../client/tournament.ts:571
+#: ../client/tournament.ts:390 ../client/tournament.ts:449
+#: ../client/tournament.ts:459 ../client/tournament.ts:469
 msgid "Win rate"
 msgstr "Porcentaje de victorias"
 
-#: ../client/tournament.ts:493
+#: ../client/tournament.ts:391
 msgid "Average opponent"
 msgstr "Nivel medio rivales"
 
-#: ../client/tournament.ts:646
+#: ../client/tournament.ts:544
 msgid "Defender:"
 msgstr ""
 
-#: ../client/tournament.ts:672
+#: ../client/tournament.ts:570
 msgid "Custom position"
 msgstr "Posición personalizada"
 
-#: ../client/tournament.ts:673
+#: ../client/tournament.ts:571
 msgid "Analysis board"
 msgstr "Tablero de análisis"
+
+#: ../client/tournamentClock.ts:42
+msgid "STARTING IN"
+msgstr "COMENZANDO EN"
+
+#: ../client/view.ts:49
+msgid "Page reload required after change"
+msgstr ""
 
 #: ../client/zen.ts:9
 msgid "Off"
@@ -1473,7 +1559,7 @@ msgstr "Volver"
 
 #: ../client/lobby/layer2army.ts:27
 msgid "Horde: Horse-based army"
-msgstr ""
+msgstr "Orda: Ejército basado en movimientos de caballo."
 
 #: ../client/lobby/layer2army.ts:34
 msgid "Empire: Queen-based army"
@@ -1515,7 +1601,7 @@ msgstr ""
 
 #: ../client/lobby/layer2fairy.ts:39
 msgid "Knight hybrid pieces"
-msgstr ""
+msgstr "Piezas híbridas de caballo"
 
 #: ../client/lobby/layer2fairy.ts:50
 msgid "8x8 with new pieces"
@@ -1595,7 +1681,7 @@ msgstr ""
 
 #: ../client/lobby/layer2xiangqi.ts:27
 msgid "Chinese Chess, one of the most played games in the world"
-msgstr ""
+msgstr "Ajedrez Chino, uno de los juegos más populares del mundo."
 
 #: ../client/lobby/layer2xiangqi.ts:34
 msgid "Korean Chess, based on Xiangqi but very different"
@@ -1632,6 +1718,8 @@ msgstr ""
 #: ../client/lobby/layer3.ts:68
 msgid "Atomic Chess with random back row."
 msgstr ""
+"Ajedrez Atómico con las piezas de la primer fila dispuestas de forma "
+"aleatoria."
 
 #: ../client/lobby/layer3.ts:81
 msgid "Move the king on top of the rook to castle."
