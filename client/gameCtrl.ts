@@ -356,28 +356,15 @@ export abstract class GameController extends ChessgroundController implements IC
         }
     }
 
-/**
- * Variant specific logic for when dropping a piece from pocket is performed
- * todo: decreasing of pocket happens here as well even though virtually no variant ever has a drop rule that doesn't decrease pocket.
- *       Only reason currently this is not in chessground is editor where we have a second "pocket" that serves as a palette
- *       Also maybe nice ot think if ui+communication logic can be split out of here (same for onUserMove) so only chess rules remain?
- * */
+    /**
+     * Variant specific logic for when dropping a piece from pocket is performed
+     */
     protected onUserDrop(role: cg.Role, dest: cg.Key, meta: cg.MoveMetadata) {
         this.preaction = meta.premove;
-        // decrease pocket count - TODO: covers the gap before we receive board message confirming the move - then FEN is set
-        //                               and overwrites whole board+pocket and refreshes.
-        //                               Maybe consider decrease count on start of drag (like in editor mode)?
-        util.changeNumber(
-            this.chessground.state.boardState.pockets![this.chessground.state.turnColor],
-            role,
-            -1
-        );
-        this.chessground.state.dom.redraw();
-        if (this.variant.promotion === 'kyoto') {
+        if (this.variant.promotion === 'kyoto')
             if (!this.promotion.start(role, 'a0', dest)) this.sendMove(util.dropOrigOf(role), dest, '');
-        } else {
+        else
             this.sendMove(util.dropOrigOf(role), dest, '')
-        }
         this.preaction = false;
     }
 

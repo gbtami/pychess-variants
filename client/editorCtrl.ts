@@ -51,20 +51,11 @@ export class EditorController extends ChessgroundController {
             },
         });
 
-        //
         ['mouseup', 'touchend'].forEach(name =>
             [this.chessground.state.dom.elements.pocketTop, this.chessground.state.dom.elements.pocketBottom].forEach(pocketEl => {
                 if (pocketEl) pocketEl.addEventListener(name, (e: cg.MouchEvent) => {
                     this.dropOnPocket(e);
                 } )
-            })
-        );
-        cg.eventsDragging.forEach(name =>
-            [this.chessground.state.dom.elements.pocketTop, this.chessground.state.dom.elements.pocketBottom].forEach(pocketEl => {
-                if (pocketEl) pocketEl?.childNodes.forEach(p => {
-                    p.addEventListener(name, (e: cg.MouchEvent) => {
-                    this.drag(e);
-                } ) });
             })
         );
 
@@ -367,19 +358,6 @@ export class EditorController extends ChessgroundController {
                 util.changeNumber(pocket, role, 1);
                 this.onChange();
             }
-        }
-    }
-
-    drag = (e: cg.MouchEvent): void => {
-        // TODO This is bugged on touch input
-        const el = e.target as HTMLElement;
-        const piece = this.chessground.state.draggable.current?.piece;
-        if (piece) {
-            const pocket = this.chessground.state.boardState.pockets![piece.color];
-            util.changeNumber(pocket, piece.role, -1);
-            console.log(el);
-            console.log(piece);
-            console.log("editor");
         }
     }
 }
