@@ -884,6 +884,14 @@ export function lobbyView(model: PyChessModel): VNode[] {
         h('under-lobby', [
             h('posts', [
                 // TODO: create news documents in mongodb and load latest 3 dinamically here
+                h('a.post', { attrs: {href: '/news/NNUE_Everywhere'} }, [
+                    h('img', { attrs: {src: model.assetURL + '/images/Weights-nn-62ef826d1a6d.png'} }),
+                    h('span.text', [
+                        h('strong', "Fairy-Stockfish on PyChess"),
+                        h('span', 'NNUE Everywhere'),
+                    ]),
+                    h('time', '2022.08.04'),
+                ]),
                 h('a.post', { attrs: {href: '/news/Serving_a_New_Variant'} }, [
                     h('img', { attrs: {src: model.assetURL + '/images/ChessTennis.jpg'} }),
                     h('span.text', [
@@ -900,6 +908,7 @@ export function lobbyView(model: PyChessModel): VNode[] {
                     ]),
                     h('time', '2021.12.24'),
                 ]),
+                /*
                 h('a.post', { attrs: {href: '/news/Cold_Winter'} }, [
                     h('img', { attrs: {src: model.assetURL + '/images/board/ChakArt.jpg'} }),
                     h('span.text', [
@@ -908,7 +917,6 @@ export function lobbyView(model: PyChessModel): VNode[] {
                     ]),
                     h('time', '2021.12.21'),
                 ]),
-                /*
                 h('a.post', { attrs: {href: '/news/Hot_Summer'} }, [
                     h('img', { attrs: {src: model.assetURL + '/images/AngryBirds.png'} }),
                     h('span.text', [
