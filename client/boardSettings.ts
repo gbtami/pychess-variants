@@ -274,9 +274,6 @@ class ShowDestsSettings extends BooleanSettings {
             movable: {
                 showDests: this.value,
             },
-            premovable: {
-                showDests: this.value,
-            }
         });
     }
 

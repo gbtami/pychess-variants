@@ -22,7 +22,7 @@ export class Promotion {
     }
 
     start(movingRole: cg.Role, orig: cg.Key, dest: cg.Key, disableAutoPromote: boolean = false) {
-        const ground = this.ctrl.getGround();
+        const ground = this.ctrl.chessground;
         // in 960 castling case (king takes rook) dest piece may be undefined
         if (ground.state.boardState.pieces.get(dest) === undefined) return false;
 
@@ -131,7 +131,7 @@ export class Promotion {
     private finish(role: cg.Role) {
         if (this.promoting) {
             this.drawNoPromo();
-            this.promote(this.ctrl.getGround(), this.promoting.dest, role);
+            this.promote(this.ctrl.chessground, this.promoting.dest, role);
             const promo = this.choices[role];
 
             if (this.ctrl.variant.promotion === 'kyoto') {

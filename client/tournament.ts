@@ -409,7 +409,7 @@ export class TournamentController implements IChatController {
                                 dimensions: variant.boardDimensions,
                                 coordinates: false,
                                 viewOnly: true,
-                                addDimensionsCssVars: true,
+                                addDimensionsCssVarsTo: document.documentElement,
                                 pocketRoles: variant.pocketRoles,
                             });
                             this.topGameChessground = cg;

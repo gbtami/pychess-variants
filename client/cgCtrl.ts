@@ -52,7 +52,7 @@ export abstract class ChessgroundController implements IBoardController {
             variant: this.variant.name as cg.Variant,
             dimensions: this.variant.boardDimensions,
             notation: this.notation,
-            addDimensionsCssVars: true,
+            addDimensionsCssVarsTo: document.documentElement,
             pocketRoles: this.variant.pocketRoles,
         }, pocket0, pocket1);
 

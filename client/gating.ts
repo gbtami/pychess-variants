@@ -15,9 +15,7 @@ export interface Moves {
 export class Gating {
     private ctrl: GameController;
 
-    private gating : null | {
-                moves: Moves,
-    };
+    private gating : null | { moves: Moves };
 
     private choices: (cg.Role | "")[];
 
@@ -28,7 +26,7 @@ export class Gating {
     }
 
     start(fen: cg.FEN, orig: cg.Key, dest: cg.Key) {
-        const ground = this.ctrl.getGround();
+        const ground = this.ctrl.chessground;
         if (this.canGate(fen, orig)) {
             const pocket = getPockets(fen);
             const color = this.ctrl.turnColor;
@@ -137,8 +135,7 @@ export class Gating {
     }
 
     private gate(orig: cg.Key, color: cg.Color, role: cg.Role) {
-        const g = this.ctrl.getGround();
-        g.newPiece({ "role": role, "color": color }, orig)
+        this.ctrl.chessground.newPiece({ "role": role, "color": color }, orig, true);
     }
 
     private drawGating(moves: Moves, color: cg.Color, orientation: cg.Color) {

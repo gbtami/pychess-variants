@@ -50,8 +50,7 @@ export abstract class GameController extends ChessgroundController implements IC
     setupFen: string;
     prevPieces: cg.Pieces;
 
-    premove: { orig: cg.Key, dest: cg.Key, metadata?: cg.SetPremoveMetadata } | undefined;
-    predrop: { role: cg.Role, key: cg.Key } | undefined;
+    premove?: { orig: cg.Orig, dest: cg.Key, metadata?: cg.SetPremoveMetadata };
     preaction: boolean;
 
     steps: Step[];
@@ -158,8 +157,6 @@ export abstract class GameController extends ChessgroundController implements IC
             (this.chessground.state.orientation === 'white' && this.mycolor === 'black')
         );
     }
-
-    getGround = () => this.chessground;
 
     setDests = () => {
         if (this.ffishBoard === undefined) {
@@ -366,7 +363,7 @@ export abstract class GameController extends ChessgroundController implements IC
  *       Also maybe nice ot think if ui+communication logic can be split out of here (same for onUserMove) so only chess rules remain?
  * */
     protected onUserDrop(role: cg.Role, dest: cg.Key, meta: cg.MoveMetadata) {
-        this.preaction = meta.predrop === true;
+        this.preaction = meta.premove;
         // decrease pocket count - TODO: covers the gap before we receive board message confirming the move - then FEN is set
         //                               and overwrites whole board+pocket and refreshes.
         //                               Maybe consider decrease count on start of drag (like in editor mode)?

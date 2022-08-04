@@ -45,7 +45,7 @@ function gameView(games: {[gameId: string]: Api}, game: Game, fen: cg.FEN, lastM
                         dimensions: variant.boardDimensions,
                         coordinates: false,
                         viewOnly: true,
-                        addDimensionsCssVars: true,
+                        addDimensionsCssVarsTo: document.documentElement,
                         pocketRoles: variant.pocketRoles,
                     });
                     games[game.gameId] = cg;

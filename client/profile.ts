@@ -75,7 +75,7 @@ function renderGames(model: PyChessModel, games: Game[]) {
                                 fen: game["f"],
                                 lastMove: uci2LastMove(game.lm),
                                 dimensions: variant.boardDimensions,
-                                addDimensionsCssVars: true,
+                                addDimensionsCssVarsTo: document.documentElement,
                                 pocketRoles: variant.pocketRoles,
                             })
                         }

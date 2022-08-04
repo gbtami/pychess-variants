@@ -156,7 +156,6 @@ export class RoundController extends GameController {
                 movable: { free: false },
                 draggable: { enabled: false },
                 premovable: { enabled: false },
-                predroppable: { enabled: false },
                 events: { move: this.onMove() }
             });
         } else {
@@ -176,13 +175,6 @@ export class RoundController extends GameController {
                     events: {
                         set: this.setPremove,
                         unset: this.unsetPremove,
-                        }
-                },
-                predroppable: {
-                    enabled: true,
-                    events: {
-                        set: this.setPredrop,
-                        unset: this.unsetPredrop,
                         }
                 },
                 events: {
@@ -836,7 +828,6 @@ export class RoundController extends GameController {
                     // prevent sending premove/predrop when (auto)reconnecting websocked asks server to (re)sends the same board to us
                     // console.log("trying to play premove....");
                     if (this.premove) this.performPremove();
-                    if (this.predrop) this.performPredrop();
                 }
                 if (this.clockOn && msg.status < 0) {
                     this.clocks[myclock].start();
@@ -947,7 +938,7 @@ export class RoundController extends GameController {
             [this.vmaterial0, this.vmaterial1] = emptyMaterial(this.variant);
     }
 
-    private setPremove = (orig: cg.Key, dest: cg.Key, metadata?: cg.SetPremoveMetadata) => {
+    private setPremove = (orig: cg.Orig, dest: cg.Key, metadata?: cg.SetPremoveMetadata) => {
         this.premove = { orig, dest, metadata };
         // console.log("setPremove() to:", orig, dest, meta);
     }
@@ -957,27 +948,11 @@ export class RoundController extends GameController {
         this.preaction = false;
     }
 
-    private setPredrop = (role: cg.Role, key: cg.Key) => {
-        this.predrop = { role, key };
-        // console.log("setPredrop() to:", role, key);
-    }
-
-    private unsetPredrop = () => {
-        this.predrop = undefined;
-        this.preaction = false;
-    }
-
     private performPremove = () => {
         // const { orig, dest, meta } = this.premove;
         // TODO: promotion?
         // console.log("performPremove()", orig, dest, meta);
         this.chessground.playPremove();
-    }
-
-    private performPredrop = () => {
-        // const { role, key } = this.predrop;
-        // console.log("performPredrop()", role, key);
-        this.chessground.playPredrop();
     }
 
     private renderExpiration = () => {

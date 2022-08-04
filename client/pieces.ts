@@ -1,7 +1,6 @@
 import { h, VNode } from "snabbdom";
 
 import * as cg from 'chessgroundx/types';
-import { dragNewPiece } from 'chessgroundx/drag';
 
 import { EditorController } from './editorCtrl';
 import { patch } from './document';
@@ -81,7 +80,7 @@ export function drag(ctrl: EditorController, e: cg.MouchEvent): void {
     if (role) {
         e.stopPropagation();
         e.preventDefault();
-        dragNewPiece(ctrl.chessground.state, { color, role, promoted }, e);
+        ctrl.chessground.dragNewPiece({ color, role, promoted }, false, e);
     }
 }
 
