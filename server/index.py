@@ -516,7 +516,7 @@ async def index(request):
         render["status"] = tournament.status
         render["title"] = tournament.browser_title
 
-    # variant None indicates intro.md
+    # variant None indicates terminology.md
     if lang in ("es", "hu", "it", "pt", "fr", "zh", "zh_CN", "zh_TW"):
         locale = ".%s" % lang
     else:
@@ -544,7 +544,7 @@ async def index(request):
         news_item = news_item.replace("_", " ")
 
         render["news"] = NEWS
-        render["news_item"] = "news/%s.html" % news_item
+        render["news_item"] = "news/%s%s.html" % (news_item, locale)
 
     elif view == "faq":
         render["faq"] = "docs/faq%s.html" % locale

@@ -29,7 +29,14 @@ mv *.html ../../templates/docs
 cd ../news
 
 for f in *.md; do
-showdown makehtml -i "$f" -o "$(basename -- "$f" .md).html" --flavor github
+	showdown makehtml -i "$f" -o "$(basename -- "$f" .md).html" --flavor github
+	for lang in es hu it pt fr zh_CN zh_TW; do
+		if [ -e "$lang/$f" ]; then
+			showdown makehtml -i "$lang/$f" -o "$(basename -- "$f" .md).$lang.html" --flavor github
+		else
+			showdown makehtml -i "$f" -o "$(basename -- "$f" .md).$lang.html" --flavor github
+		fi
+	done
 done
 
 find . -type f -name "*.html" -exec perl -pi -e s,$SRC,$DST,g '{}' +

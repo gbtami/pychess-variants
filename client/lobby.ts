@@ -883,28 +883,27 @@ export function lobbyView(model: PyChessModel): VNode[] {
         ]),
         h('under-lobby', [
             h('posts', [
-                // TODO: create news documents in mongodb and load latest 3 dinamically here
                 h('a.post', { attrs: {href: '/news/NNUE_Everywhere'} }, [
                     h('img', { attrs: {src: model.assetURL + '/images/Weights-nn-62ef826d1a6d.png'} }),
                     h('span.text', [
-                        h('strong', "Fairy-Stockfish on PyChess"),
-                        h('span', 'NNUE Everywhere'),
+                        h('strong', _("Fairy-Stockfish on PyChess")),
+                        h('span', _('NNUE Everywhere')),
                     ]),
                     h('time', '2022.08.04'),
                 ]),
                 h('a.post', { attrs: {href: '/news/Serving_a_New_Variant'} }, [
                     h('img', { attrs: {src: model.assetURL + '/images/ChessTennis.jpg'} }),
                     h('span.text', [
-                        h('strong', "Tennis and chess"),
-                        h('span', 'Serving a New Variant'),
+                        h('strong', _("Tennis and chess")),
+                        h('span', _('Serving a New Variant')),
                     ]),
                     h('time', '2022.02.01'),
                 ]),
                 h('a.post', { attrs: {href: '/news/Merry_Chakmas'} }, [
                     h('img', { attrs: {src: model.assetURL + '/images/QuetzalinTikal.png'} }),
                     h('span.text', [
-                        h('strong', "Christmas gift from PyChess"),
-                        h('span', 'Merry Chak-mas!'),
+                        h('strong', _("Christmas gift from PyChess")),
+                        h('span', _('Merry Chak-mas!')),
                     ]),
                     h('time', '2021.12.24'),
                 ]),
