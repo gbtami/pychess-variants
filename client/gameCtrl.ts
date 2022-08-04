@@ -322,36 +322,37 @@ export abstract class GameController extends ChessgroundController implements IC
     protected onUserMove(orig: cg.Key, dest: cg.Key, meta: cg.MoveMetadata) {
         this.preaction = meta.premove;
         const pieces = this.chessground.state.boardState.pieces;
-        // console.log("ground.onUserMove()", orig, dest, meta);
         let moved = pieces.get(dest);
         // Fix king to rook 960 castling case
         if (moved === undefined) moved = {role: 'k-piece', color: this.mycolor} as cg.Piece;
+
+        // chessground doesn't know about en passant, so we have to remove the captured pawn manually
         if (meta.captured === undefined && moved !== undefined && moved.role === "p-piece" && orig[0] !== dest[0] && this.variant.enPassant) {
-            // chessground doesn't know about en passant, so we have to remove the captured pawn manually
             const pos = util.key2pos(dest),
-                pawnPos: cg.Pos = [pos[0], pos[1] + (this.mycolor === 'white' ? -1 : 1)];
-            meta.captured = pieces.get(util.pos2key(pawnPos));
-            const diff: cg.PiecesDiff = new Map();
-            diff.set(util.pos2key(pawnPos), undefined);
-            this.chessground.setPieces(diff);
+                pawnKey = util.pos2key([pos[0], pos[1] + (this.mycolor === 'white' ? -1 : 1)]);
+            meta.captured = pieces.get(pawnKey);
+            pieces.delete(pawnKey);
         }
-        // increase pocket count
-        // important only during gap before we receive board message from server and reset whole FEN (see also onUserDrop)
+
+        // add the captured piece to the pocket
+        // chessground doesn't know what piece to revert a captured promoted piece into, so it needs to be handled here
         if (this.variant.drop && meta.captured) {
             const role = unpromotedRole(this.variant, meta.captured);
             const pockets = this.chessground.state.boardState.pockets!;
             const color = util.opposite(meta.captured.color);
-            if (this.chessground.state.pocketRoles![color].includes(role)) {
+            if (this.variant.pocketRoles![color].includes(role)) {
                 util.changeNumber(pockets[color], role, 1);
-                this.chessground.state.dom.redraw(); // TODO: see todo comment also at same line in onUserDrop.
+                this.chessground.state.dom.redraw();
             }
         }
 
         //  gating elephant/hawk
         if (this.variant.gate) {
-            if (!this.promotion.start(moved.role, orig, dest, meta.ctrlKey) && !this.gating.start(this.fullfen, orig, dest)) this.sendMove(orig, dest, '');
+            if (!this.promotion.start(moved.role, orig, dest, meta.ctrlKey) && !this.gating.start(this.fullfen, orig, dest))
+                this.sendMove(orig, dest, '');
         } else {
-            if (!this.promotion.start(moved.role, orig, dest, meta.ctrlKey)) this.sendMove(orig, dest, '');
+            if (!this.promotion.start(moved.role, orig, dest, meta.ctrlKey))
+                this.sendMove(orig, dest, '');
             this.preaction = false;
         }
     }
@@ -361,10 +362,12 @@ export abstract class GameController extends ChessgroundController implements IC
      */
     protected onUserDrop(role: cg.Role, dest: cg.Key, meta: cg.MoveMetadata) {
         this.preaction = meta.premove;
-        if (this.variant.promotion === 'kyoto')
-            if (!this.promotion.start(role, 'a0', dest)) this.sendMove(util.dropOrigOf(role), dest, '');
-        else
+        if (this.variant.promotion === 'kyoto') {
+            if (!this.promotion.start(role, 'a0', dest))
+                this.sendMove(util.dropOrigOf(role), dest, '');
+        } else {
             this.sendMove(util.dropOrigOf(role), dest, '')
+        }
         this.preaction = false;
     }
 
