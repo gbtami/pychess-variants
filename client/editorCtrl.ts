@@ -305,7 +305,7 @@ export class EditorController extends ChessgroundController {
 
     onSelect = () => {
         let lastTime = performance.now();
-        let lastKey: cg.Key = 'a0';
+        let lastKey: cg.Key | undefined;
         return (key: cg.Key) => {
             const curTime = performance.now();
             if (lastKey === key && curTime - lastTime < 500) {
@@ -339,7 +339,7 @@ export class EditorController extends ChessgroundController {
                     this.chessground.setPieces(pieces);
                     this.onChange();
                 }
-                lastKey = 'a0';
+                lastKey = undefined;
             } else {
                 lastKey = key;
                 lastTime = curTime;

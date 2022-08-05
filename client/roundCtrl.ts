@@ -167,7 +167,7 @@ export class RoundController extends GameController {
                     showDests: this.showDests,
                     events: {
                         after: (orig, dest, meta) => this.onUserMove(orig, dest, meta),
-                        afterNewPiece: (role, dest, meta) => this.onUserDrop(role, dest, meta),
+                        afterNewPiece: (piece, dest, meta) => this.onUserDrop(piece, dest, meta),
                     }
                 },
                 premovable: {
@@ -938,7 +938,7 @@ export class RoundController extends GameController {
             [this.vmaterial0, this.vmaterial1] = emptyMaterial(this.variant);
     }
 
-    private setPremove = (orig: cg.Orig, dest: cg.Key, metadata?: cg.SetPremoveMetadata) => {
+    private setPremove = (orig: cg.Selectable, dest: cg.Key, metadata?: cg.SetPremoveMetadata) => {
         this.premove = { orig, dest, metadata };
         // console.log("setPremove() to:", orig, dest, meta);
     }

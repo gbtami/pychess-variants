@@ -12,16 +12,15 @@ type PromotionChoices = Partial<Record<cg.Role, PromotionSuffix>>;
 
 export class Promotion {
     ctrl: GameController;
-    promoting: {orig: cg.Key, dest: cg.Key} | null;
+    promoting?: { orig: cg.Orig, dest: cg.Key };
     choices: PromotionChoices;
 
     constructor(ctrl: GameController) {
         this.ctrl = ctrl;
-        this.promoting = null;
         this.choices = {};
     }
 
-    start(movingRole: cg.Role, orig: cg.Key, dest: cg.Key, disableAutoPromote: boolean = false) {
+    start(movingRole: cg.Role, orig: cg.Orig, dest: cg.Key, disableAutoPromote: boolean = false) {
         const ground = this.ctrl.chessground;
         // in 960 castling case (king takes rook) dest piece may be undefined
         if (ground.state.boardState.pieces.get(dest) === undefined) return false;
@@ -62,18 +61,18 @@ export class Promotion {
         return false;
     }
 
-    private promotionFilter(move: string, role: cg.Role, orig: cg.Key, dest: cg.Key) {
+    private promotionFilter(move: string, role: cg.Role, orig: cg.Orig, dest: cg.Key) {
         if (this.ctrl.variant.promotion === 'kyoto')
-            if (orig === "a0")
+            if (orig)
                 return move.startsWith("+" + util.letterOf(role, true));
         return move.slice(0, -1) === orig + dest;
     }
 
-    private canPromote(role: cg.Role, orig: cg.Key, dest: cg.Key) {
+    private canPromote(role: cg.Role, orig: cg.Orig, dest: cg.Key) {
         return this.ctrl.promotions.some(move => this.promotionFilter(move, role, orig, dest));
     }
 
-    private promotionChoices(role: cg.Role, orig: cg.Key, dest: cg.Key) {
+    private promotionChoices(role: cg.Role, orig: cg.Orig, dest: cg.Key) {
         const variant = this.ctrl.variant;
         const possiblePromotions = this.ctrl.promotions.filter(move => this.promotionFilter(move, role, orig, dest));
         const choice: PromotionChoices = {};
@@ -82,7 +81,7 @@ export class Promotion {
                 choice["p" + role as cg.Role] = "+";
                 break;
             case 'kyoto':
-                if (orig === "a0" || possiblePromotions[0].slice(-1) === "+")
+                if (util.isDropOrig(orig) || possiblePromotions[0].slice(-1) === "+")
                     choice["p" + role as cg.Role] = "+";
                 else
                     choice[role.slice(1) as cg.Role] = "-";
@@ -101,20 +100,18 @@ export class Promotion {
         return choice;
     }
 
-    private isMandatoryPromotion(role: cg.Role, orig: cg.Key, dest: cg.Key) {
+    private isMandatoryPromotion(role: cg.Role, orig: cg.Orig, dest: cg.Key) {
         return this.ctrl.variant.isMandatoryPromotion(role, orig, dest, this.ctrl.mycolor);
     }
 
     private promote(g: Api, key: cg.Key, role: cg.Role) {
-        const pieces: cg.PiecesDiff = new Map();
         const piece = g.state.boardState.pieces.get(key);
         if (piece && piece.role !== role) {
-            pieces.set(key, {
+            g.state.boardState.pieces.set(key, {
                 color: piece.color,
                 role: role,
                 promoted: true
             });
-            g.setPieces(pieces);
         }
     }
 
@@ -141,7 +138,7 @@ export class Promotion {
                 this.ctrl.sendMove(this.promoting.orig, this.promoting.dest, promo!);
             }
 
-            this.promoting = null;
+            this.promoting = undefined;
         }
     }
 

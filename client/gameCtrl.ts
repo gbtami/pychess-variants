@@ -50,7 +50,7 @@ export abstract class GameController extends ChessgroundController implements IC
     setupFen: string;
     prevPieces: cg.Pieces;
 
-    premove?: { orig: cg.Orig, dest: cg.Key, metadata?: cg.SetPremoveMetadata };
+    premove?: { orig: cg.Selectable, dest: cg.Key, metadata?: cg.SetPremoveMetadata };
     preaction: boolean;
 
     steps: Step[];
@@ -245,15 +245,15 @@ export abstract class GameController extends ChessgroundController implements IC
     }
 
     protected onDrop = () => {
-        return (piece: cg.Piece, dest: cg.Key) => {
-            if (dest !== 'a0' && piece.role)
+        return (piece: cg.Piece, _dest: cg.Key) => {
+            if (piece.role)
                 sound.moveSound(this.variant, false);
         }
     }
 
     protected onSelect = () => {
         let lastTime = performance.now();
-        let lastKey: cg.Key = 'a0';
+        let lastKey: cg.Key | undefined;
         return (key: cg.Key) => {
             if (this.chessground.state.movable.dests === undefined) return;
 
@@ -284,7 +284,7 @@ export abstract class GameController extends ChessgroundController implements IC
                         this.sendMove(key, key, 'f');
                     }
                 }
-                lastKey = 'a0';
+                lastKey = undefined;
             } else {
                 lastKey = key;
                 lastTime = curTime;
@@ -293,7 +293,7 @@ export abstract class GameController extends ChessgroundController implements IC
     }
 
     protected pass = () => {
-        let passKey: cg.Key = 'a0';
+        let passKey: cg.Key | undefined;
         const pieces = this.chessground.state.boardState.pieces;
         const dests = this.chessground.state.movable.dests!;
         for (const [k, p] of pieces) {
@@ -304,21 +304,17 @@ export abstract class GameController extends ChessgroundController implements IC
                 }
             }
         }
-        if (passKey !== 'a0') {
+        if (passKey) {
             // prevent calling pass() again by selectSquare() -> onSelect()
-            this.chessground.state.movable.dests = undefined;
-            // TODO try using "unselect"
-            this.chessground.selectSquare(passKey);
+            this.chessground.unselect();
             sound.moveSound(this.variant, false);
             this.sendMove(passKey, passKey, '');
         }
     }
 
-/**
- * Custom variant-specific logic to be triggered on move and alter state of board/pocket depending on variant rules.
- * TODO: contains also some ui logic - maybe good to split pure chess rules (which maybe can go to chess.ts?)
- *       from rendering dialogs and
- * */
+    /**
+      * Custom variant-specific logic to be triggered on move and alter state of board/pocket depending on variant rules.
+      */
     protected onUserMove(orig: cg.Key, dest: cg.Key, meta: cg.MoveMetadata) {
         this.preaction = meta.premove;
         const pieces = this.chessground.state.boardState.pieces;
@@ -360,10 +356,11 @@ export abstract class GameController extends ChessgroundController implements IC
     /**
      * Variant specific logic for when dropping a piece from pocket is performed
      */
-    protected onUserDrop(role: cg.Role, dest: cg.Key, meta: cg.MoveMetadata) {
+    protected onUserDrop(piece: cg.Piece, dest: cg.Key, meta: cg.MoveMetadata) {
         this.preaction = meta.premove;
+        const role = piece.role;
         if (this.variant.promotion === 'kyoto') {
-            if (!this.promotion.start(role, 'a0', dest))
+            if (!this.promotion.start(role, util.dropOrigOf(role), dest))
                 this.sendMove(util.dropOrigOf(role), dest, '');
         } else {
             this.sendMove(util.dropOrigOf(role), dest, '')

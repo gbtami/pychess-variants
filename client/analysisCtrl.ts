@@ -123,7 +123,7 @@ export class AnalysisController extends GameController {
                 showDests: this.showDests,
                 events: {
                     after: (orig, dest, meta) => this.onUserMove(orig, dest, meta),
-                    afterNewPiece: (role, dest, meta) => this.onUserDrop(role, dest, meta),
+                    afterNewPiece: (piece, dest, meta) => this.onUserDrop(piece, dest, meta),
                 }
             },
             events: {

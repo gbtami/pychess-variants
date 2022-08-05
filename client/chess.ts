@@ -75,7 +75,7 @@ export const PIECE_FAMILIES: { [key: string]: PieceFamily } = {
     chennis: { pieceCSS: ["chennis0", "chennis1", "chennis2"] },
 };
 
-type MandatoryPromotionPredicate = (role: cg.Role, orig: cg.Key, dest: cg.Key, color: cg.Color) => boolean;
+type MandatoryPromotionPredicate = (role: cg.Role, orig: cg.Orig, dest: cg.Key, color: cg.Color) => boolean;
 
 const alwaysMandatory: MandatoryPromotionPredicate = () => true;
 
@@ -400,7 +400,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         pocketLetters: ["p", "l", "n", "s"],
         promotion: "kyoto",
         promoteableLetters: ["p", "l", "n", "s"],
-        isMandatoryPromotion: (_role: cg.Role, orig: cg.Key, _dest: cg.Key, _color: cg.Color) => orig !== 'a0',
+        isMandatoryPromotion: (_role: cg.Role, orig: cg.Orig, _dest: cg.Key, _color: cg.Color) => util.isKey(orig),
         timeControl: "byoyomi",
         pieceSound: "shogi",
         drop: true,
@@ -716,7 +716,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         pocketLetters: ["p", "m", "s", "f"],
         promotion: "kyoto",
         promoteableLetters: ["p", "m", "s", "f"],
-        isMandatoryPromotion: (_role: cg.Role, orig: cg.Key, _dest: cg.Key, _color: cg.Color) => orig !== 'a0',
+        isMandatoryPromotion: (_role: cg.Role, orig: cg.Orig, _dest: cg.Key, _color: cg.Color) => util.isKey(orig),
         drop: true,
         icon: "🎾",
     }),
