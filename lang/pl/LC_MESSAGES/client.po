@@ -705,7 +705,7 @@ msgstr "WYCZYŚĆ PLANSZĘ"
 
 #: ../client/editorCtrl.ts:141
 msgid "FILL %1'S HAND"
-msgstr ""
+msgstr "Wypełnij rękę drugiego gracza"
 
 #: ../client/editorCtrl.ts:144
 msgid "STARTING POSITION"
@@ -1187,7 +1187,7 @@ msgstr "O nas"
 
 #: ../client/lobby.ts:918
 msgid "Fairy-Stockfish on PyChess"
-msgstr ""
+msgstr "Fairy-Stockfish na Pychessie"
 
 #: ../client/lobby.ts:919
 msgid "NNUE Everywhere"
