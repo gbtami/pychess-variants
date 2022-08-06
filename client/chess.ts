@@ -117,6 +117,7 @@ export class Variant {
     readonly pieceRoles: Record<cg.Color, cg.Role[]>;
     readonly pocket: boolean;
     readonly pocketRoles: Record<cg.Color, cg.Role[]> | undefined;
+    readonly kingRoles: cg.Role[];
 
     readonly promotion: PromotionType;
     readonly promotionOrder: PromotionSuffix[];
@@ -168,6 +169,7 @@ export class Variant {
             black: (data.pocketLetters2 ?? data.pocketLetters).map(util.roleOf),
         } :
             undefined;
+        this.kingRoles = data.kingLetters?.map(util.roleOf) ?? ["k-piece"];
 
         this.promotion = data.promotion ?? "regular";
         this.promotionOrder = data.promotionOrder ?? (this.promotion === "shogi" || this.promotion === "kyoto" ? ["+", ""] : ["q", "c", "e", "a", "h", "n", "r", "b", "p"]);
@@ -212,6 +214,7 @@ interface VariantConfig { // TODO explain what each parameter of the variant con
     pieceLetters2?: cg.PieceLetter[];
     pocketLetters?: cg.PieceLetter[];
     pocketLetters2?: cg.PieceLetter[];
+    kingLetters?: cg.PieceLetter[];
 
     promotion?: PromotionType;
     promotionOrder?: PromotionSuffix[];
@@ -414,6 +417,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         firstColor: "Black", secondColor: "White",
         pieceLetters: ["l", "g", "e", "c"],
         pocketLetters: ["e", "g", "c"],
+        kingLetters: ["l"],
         promotion: "shogi",
         promoteableLetters: ["c"],
         timeControl: "byoyomi",
@@ -703,6 +707,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         board: "chak9x9", piece: "chak",
         firstColor: "White", secondColor: "Green",
         pieceLetters: ["r", "v", "s", "q", "k", "j", "o", "p"],
+        kingLetters: ["k", "+k"],
         promotion: "shogi",
         promoteableLetters: ["p", "k"],
         icon: "🐬",
