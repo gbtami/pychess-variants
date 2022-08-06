@@ -83,7 +83,7 @@ export abstract class GameController extends ChessgroundController implements IC
     clickDropEnabled: boolean;
     autoPromote?: boolean;
 
-    // analysis
+    // Main line ply where analysis variation starts
     plyVari: number;
 
     constructor(el: HTMLElement, model: PyChessModel) {
@@ -196,7 +196,7 @@ export abstract class GameController extends ChessgroundController implements IC
 
     goPly(ply: number, plyVari = 0) {
         const vv = this.steps[plyVari]?.vari;
-        const step = (plyVari > 0 && vv) ? vv[ply] : this.steps[ply];
+        const step = (plyVari > 0 && vv) ? vv[ply - plyVari] : this.steps[ply];
         if (step === undefined) return;
 
         const move = uci2LastMove(step.move);
@@ -322,7 +322,6 @@ export abstract class GameController extends ChessgroundController implements IC
  * Custom variant-specific logic to be triggered on move and alter state of board/pocket depending on variant rules.
  * TODO: contains also some ui logic - maybe good to split pure chess rules (which maybe can go to chess.ts?)
  *       from rendering dialogs and
- * TODO: Unify this with analysisCtrl
  * */
     protected onUserMove(orig: cg.Key, dest: cg.Key, meta: cg.MoveMetadata) {
         this.preaction = meta.premove;

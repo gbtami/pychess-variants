@@ -15,7 +15,7 @@
   },
   "funding": "patreon.com/pychess",
   "dependencies": {
-    "chessgroundx": "^9.2.0",
+    "chessgroundx": "^9.3.0",
     "ffish-es6": "^0.6.8",
     "fairy-stockfish-nnue.wasm": "^1.0.1",
     "gettext.js": "^1.1.1",
@@ -28,7 +28,8 @@
     "@fullcalendar/daygrid": "^5.10.1",
     "@fullcalendar/interaction": "^5.10.1",
     "@fullcalendar/list": "^5.10.1",
-    "@fullcalendar/timegrid": "^5.10.1"
+    "@fullcalendar/timegrid": "^5.10.1",
+    "idb-keyval": "^6.2.0"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^22.0.0",
@@ -40,7 +41,7 @@
     "@types/mocha": "^9.1.0",
     "chai": "^4.2.0",
     "esm": "^3.2.25",
-    "jsdom": "^19.0.0",
+    "jsdom": "^20.0.0",
     "jsdom-global": "^3.0.2",
     "mocha": "^10.0.0",
     "po2json": "^0.4.5",
