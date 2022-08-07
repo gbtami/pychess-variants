@@ -1,6 +1,8 @@
 import Sockette from 'sockette';
 
 import { h, VNode } from 'snabbdom';
+import { premove } from 'chessgroundx/premove';
+import { predrop } from 'chessgroundx/predrop';
 import * as cg from 'chessgroundx/types';
 
 import { JSONObject } from './types';
@@ -172,10 +174,12 @@ export class RoundController extends GameController {
                 },
                 premovable: {
                     enabled: true,
+                    premoveFunc: premove(this.variant.name, this.chess960, this.variant.boardDimensions),
+                    predropFunc: predrop(this.variant.name, this.variant.boardDimensions),
                     events: {
                         set: this.setPremove,
                         unset: this.unsetPremove,
-                        }
+                    }
                 },
                 events: {
                     move: this.onMove(),
