@@ -107,11 +107,11 @@ export class Promotion {
     private promote(g: Api, key: cg.Key, role: cg.Role) {
         const piece = g.state.boardState.pieces.get(key);
         if (piece && piece.role !== role) {
-            g.state.boardState.pieces.set(key, {
+            g.setPieces(new Map([[key, {
                 color: piece.color,
                 role: role,
                 promoted: true
-            });
+            }]]));
         }
     }
 

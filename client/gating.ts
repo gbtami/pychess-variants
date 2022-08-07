@@ -72,10 +72,10 @@ export class Gating {
                 if (rookOrig!==null && !this.inCastlingTargets(rookOrig, color, moveLength)) {
                     moves["special"] = [rookOrig, orig, dest];
                 }
-                const pieces: cg.PiecesDiff = new Map();
-                pieces.set(((moveLength > 0) ? "f" : "d") + orig[1] as cg.Key, {color: color, role: 'r-piece'});
-                pieces.set(((moveLength > 0) ? "g" : "c") + orig[1] as cg.Key, {color: color, role: 'k-piece'});
-                ground.setPieces(pieces);
+                ground.setPieces(new Map([
+                    [((moveLength > 0) ? "f" : "d") + orig[1] as cg.Key, {color: color, role: 'r-piece'}],
+                    [((moveLength > 0) ? "g" : "c") + orig[1] as cg.Key, {color: color, role: 'k-piece'}],
+                ]));
             }
 
             // It is possible in 960 that we have no valid gating square finally

@@ -271,13 +271,11 @@ export abstract class GameController extends ChessgroundController implements IC
                     const piece = this.chessground.state.boardState.pieces.get(key)!;
                     if (this.variant.name === 'sittuyin') { // TODO make this more generic
                         // console.log("Ctrl in place promotion", key);
-                        const pieces: cg.Pieces = new Map();
-                        pieces.set(key, {
+                        this.chessground.setPieces(new Map([[key, {
                             color: piece.color,
                             role: 'f-piece',
                             promoted: true
-                        });
-                        this.chessground.setPieces(pieces);
+                        }]]));
                         this.chessground.state.movable.dests = undefined;
                         this.chessground.selectSquare(key);
                         sound.moveSound(this.variant, false);
@@ -327,7 +325,7 @@ export abstract class GameController extends ChessgroundController implements IC
             const pos = util.key2pos(dest),
                 pawnKey = util.pos2key([pos[0], pos[1] + (this.mycolor === 'white' ? -1 : 1)]);
             meta.captured = pieces.get(pawnKey);
-            pieces.delete(pawnKey);
+            this.chessground.setPieces(new Map([[pawnKey, undefined]]));
         }
 
         // add the captured piece to the pocket
