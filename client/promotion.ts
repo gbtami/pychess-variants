@@ -63,7 +63,7 @@ export class Promotion {
 
     private promotionFilter(move: string, role: cg.Role, orig: cg.Orig, dest: cg.Key) {
         if (this.ctrl.variant.promotion === 'kyoto')
-            if (orig)
+            if (util.isDropOrig(orig))
                 return move.startsWith("+" + util.letterOf(role, true));
         return move.slice(0, -1) === orig + dest;
     }
