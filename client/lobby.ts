@@ -656,7 +656,11 @@ export class LobbyController implements IChatController {
         if (seek.fen) {
             tooltipImage = h('minigame.' + variant.board + '.' + variant.piece, [
                 h('div.cg-wrap.' + variant.cg + '.minitooltip',
-                    { hook: { insert: (vnode) => Chessground(vnode.elm as HTMLElement,{ coordinates: false, fen: seek.fen, geometry: variant.geometry }) } }
+                    { hook: { insert: (vnode) => Chessground(vnode.elm as HTMLElement, {
+                        coordinates: false,
+                        fen: seek.fen,
+                        dimensions: variant.boardDimensions,
+                    })}}
                 ),
             ]);
         } else {

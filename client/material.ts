@@ -1,8 +1,7 @@
 import { h, VNode } from 'snabbdom';
 
 import * as cg from 'chessgroundx/types';
-import { read } from 'chessgroundx/fen';
-import { readPockets } from 'chessgroundx/pocket';
+import { read as fenRead } from 'chessgroundx/fen';
 
 import { Variant } from './chess';
 import { patch } from './document';
@@ -51,22 +50,21 @@ export function equivalentRole(variant: Variant, role: cg.Role): cg.Role {
 export function calculateMaterialDiff(variant: Variant, fen?: string): MaterialDiff {
     if (!fen) fen = variant.startFen;
     const materialDiff : MaterialDiff = new Map();
+    const boardState = fenRead(fen, variant.boardDimensions);
 
-    for (const [_, piece] of read(fen)) {
+    for (const [_, piece] of boardState.pieces) {
         const letter = equivalentRole(variant, piece.role);
         const num = materialDiff.get(letter) ?? 0;
         materialDiff.set(letter, (piece.color === 'white') ? num - 1 : num + 1);
     }
 
-    // TODO Make chessgroundx include pockets in fen read
-    if (variant.pocket) {
-        const initialPockets = readPockets(fen, variant.pocketRoles.bind(variant));
-        for (const [role, count] of Object.entries(initialPockets.white ?? {})) {
+    if (boardState.pockets) {
+        for (const [role, count] of boardState.pockets.white.entries()) {
             const letter = equivalentRole(variant, role as cg.Role);
             const num = materialDiff.get(letter) ?? 0;
             materialDiff.set(letter, num - count);
         }
-        for (const [role, count] of Object.entries(initialPockets.black ?? {})) {
+        for (const [role, count] of boardState.pockets.black.entries()) {
             const letter = equivalentRole(variant, role as cg.Role);
             const num = materialDiff.get(letter) ?? 0;
             materialDiff.set(letter, num + count);

@@ -30,8 +30,8 @@ export interface Game {
 function gameView(games: {[gameId: string]: Api}, game: Game, fen: cg.FEN, lastMove: cg.Key[]) {
     const variant = VARIANTS[game.variant];
     return h(`minigame#${game.gameId}.${variant.board}.${variant.piece}`, {
-        class: { 
-            "with-pockets": variant.pocketRoles('white') !== undefined,
+        class: {
+            "with-pockets": variant.drop,
             "smaller-text": game.bTitle == "BOT",
         },
         on: { click: () => window.location.assign('/' + game.gameId) }
@@ -52,11 +52,11 @@ function gameView(games: {[gameId: string]: Api}, game: Game, fen: cg.FEN, lastM
                     const cg = Chessground(vnode.elm as HTMLElement, {
                         fen: fen,
                         lastMove: lastMove,
-                        geometry: variant.geometry,
+                        dimensions: variant.boardDimensions,
                         coordinates: false,
                         viewOnly: true,
-                        addDimensionsCssVars: true,
-                        pocketRoles: color => variant.pocketRoles(color),
+                        addDimensionsCssVarsTo: document.documentElement,
+                        pocketRoles: variant.pocketRoles,
                     });
                     games[game.gameId] = cg;
                 }

@@ -1,6 +1,8 @@
 import Sockette from 'sockette';
 
 import { h, VNode } from 'snabbdom';
+import { premove } from 'chessgroundx/premove';
+import { predrop } from 'chessgroundx/predrop';
 import * as cg from 'chessgroundx/types';
 
 import { JSONObject } from './types';
@@ -156,7 +158,6 @@ export class RoundController extends GameController {
                 movable: { free: false, color: undefined },
                 draggable: { enabled: false },
                 premovable: { enabled: false },
-                predroppable: { enabled: false },
                 events: { move: this.onMove() }
             });
         } else {
@@ -168,22 +169,17 @@ export class RoundController extends GameController {
                     showDests: this.showDests,
                     events: {
                         after: (orig, dest, meta) => this.onUserMove(orig, dest, meta),
-                        afterNewPiece: (role, dest, meta) => this.onUserDrop(role, dest, meta),
+                        afterNewPiece: (piece, dest, meta) => this.onUserDrop(piece, dest, meta),
                     }
                 },
                 premovable: {
                     enabled: true,
+                    premoveFunc: premove(this.variant.name, this.chess960, this.variant.boardDimensions),
+                    predropFunc: predrop(this.variant.name, this.variant.boardDimensions),
                     events: {
                         set: this.setPremove,
                         unset: this.unsetPremove,
-                        }
-                },
-                predroppable: {
-                    enabled: true,
-                    events: {
-                        set: this.setPredrop,
-                        unset: this.unsetPredrop,
-                        }
+                    }
                 },
                 events: {
                     move: this.onMove(),
@@ -694,10 +690,10 @@ export class RoundController extends GameController {
             // so we filter out rook takes king moves (h1e1h, h1e1e) from dests
             for (const orig in msg.dests) {
                 if (orig[1] !== '@') {
-                const movingPiece = this.chessground.state.pieces.get(orig as cg.Key);
+                const movingPiece = this.chessground.state.boardState.pieces.get(orig as cg.Key);
                 if (movingPiece !== undefined && movingPiece.role === "r-piece") {
                     msg.dests[orig] = msg.dests[orig].filter(x => {
-                        const destPiece = this.chessground.state.pieces.get(x);
+                        const destPiece = this.chessground.state.boardState.pieces.get(x);
                         return destPiece === undefined || destPiece.role !== 'k-piece';
                     });
                 }
@@ -753,7 +749,7 @@ export class RoundController extends GameController {
 
         const lastMove = uci2LastMove(msg.lastMove);
         const step = this.steps[this.steps.length - 1];
-        const capture = (lastMove.length > 0) && ((this.chessground.state.pieces.get(lastMove[1]) && step.san?.slice(0, 2) !== 'O-') || (step.san?.slice(1, 2) === 'x'));
+        const capture = (lastMove.length > 0) && ((this.chessground.state.boardState.pieces.get(lastMove[1]) && step.san?.slice(0, 2) !== 'O-') || (step.san?.slice(1, 2) === 'x'));
 
         if (lastMove.length > 0 && (this.turnColor === this.mycolor || this.spectator)) {
             if (!this.finishedGame) sound.moveSound(this.variant, capture);
@@ -836,7 +832,6 @@ export class RoundController extends GameController {
                     // prevent sending premove/predrop when (auto)reconnecting websocked asks server to (re)sends the same board to us
                     // console.log("trying to play premove....");
                     if (this.premove) this.performPremove();
-                    if (this.predrop) this.performPredrop();
                 }
                 if (this.clockOn && msg.status < 0) {
                     this.clocks[myclock].start();
@@ -947,7 +942,7 @@ export class RoundController extends GameController {
             [this.vmaterial0, this.vmaterial1] = emptyMaterial(this.variant);
     }
 
-    private setPremove = (orig: cg.Key, dest: cg.Key, metadata?: cg.SetPremoveMetadata) => {
+    private setPremove = (orig: cg.Selectable, dest: cg.Key, metadata?: cg.SetPremoveMetadata) => {
         this.premove = { orig, dest, metadata };
         // console.log("setPremove() to:", orig, dest, meta);
     }
@@ -957,27 +952,11 @@ export class RoundController extends GameController {
         this.preaction = false;
     }
 
-    private setPredrop = (role: cg.Role, key: cg.Key) => {
-        this.predrop = { role, key };
-        // console.log("setPredrop() to:", role, key);
-    }
-
-    private unsetPredrop = () => {
-        this.predrop = undefined;
-        this.preaction = false;
-    }
-
     private performPremove = () => {
         // const { orig, dest, meta } = this.premove;
         // TODO: promotion?
         // console.log("performPremove()", orig, dest, meta);
         this.chessground.playPremove();
-    }
-
-    private performPredrop = () => {
-        // const { role, key } = this.predrop;
-        // console.log("performPredrop()", role, key);
-        this.chessground.playPredrop();
     }
 
     private renderExpiration = () => {
