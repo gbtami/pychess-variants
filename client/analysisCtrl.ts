@@ -140,7 +140,7 @@ export class AnalysisController extends GameController {
                 showDests: this.showDests,
                 events: {
                     after: (orig, dest, meta) => this.onUserMove(orig, dest, meta),
-                    afterNewPiece: (role, dest, meta) => this.onUserDrop(role, dest, meta),
+                    afterNewPiece: (piece, dest, meta) => this.onUserDrop(piece, dest, meta),
                 }
             },
             events: {
@@ -408,7 +408,7 @@ export class AnalysisController extends GameController {
 
         const lastMove = uci2LastMove(msg.lastMove);
         const step = this.steps[this.steps.length - 1];
-        const capture = (lastMove.length > 0) && ((this.chessground.state.pieces.get(lastMove[1]) && step.san?.slice(0, 2) !== 'O-') || (step.san?.slice(1, 2) === 'x'));
+        const capture = (lastMove.length > 0) && ((this.chessground.state.boardState.pieces.get(lastMove[1]) && step.san?.slice(0, 2) !== 'O-') || (step.san?.slice(1, 2) === 'x'));
 
         if (lastMove.length > 0 && (this.turnColor === this.mycolor || this.spectator)) {
             sound.moveSound(this.variant, capture);
