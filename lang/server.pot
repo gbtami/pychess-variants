@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-05-02 23:28+0200\n"
+"POT-Creation-Date: 2022-08-04 13:33+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -77,7 +77,7 @@ msgstr ""
 msgid "Export games"
 msgstr ""
 
-#: ../templates/profile.html:53
+#: ../templates/profile.html:54
 msgid "Lichess profile"
 msgstr ""
 
@@ -133,15 +133,15 @@ msgstr ""
 msgid "Analysis"
 msgstr ""
 
-#: ../templates/template.html:46
+#: ../templates/template.html:47
 msgid "Variants"
 msgstr ""
 
-#: ../templates/template.html:59
+#: ../templates/template.html:61
 msgid "Login with Lichess"
 msgstr ""
 
-#: ../templates/template.html:59
+#: ../templates/template.html:61
 msgid "Log in"
 msgstr ""
 

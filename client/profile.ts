@@ -14,35 +14,35 @@ import { Ceval } from "./messages";
 import { aiLevel, gameType, result, renderRdiff } from './result';
 
 interface Game {
-    _id: string;
-    z: number;
-    v: string;
-    f: cg.FEN;
-    lm: string;
+    _id: string; // mongodb document id
+    z: number; // chess960 (0/1)
+    v: string; // variant name
+    f: cg.FEN; // FEN 
+    lm: string; // last move
 
-    b: number;
-    i: number;
-    bp: number;
+    b: number; // TC base
+    i: number; // TC increment
+    bp: number; // TC byoyomi period
 
-    y: string;
-    d: string;
+    y: string; // casual/rated/imported (0/1/2)
+    d: string; // datetime
 
-    tid?: string;
-    tn?: string;
+    tid?: string; // tournament id
+    tn?: string; // tournament name
 
-    wb?: boolean;
-    bb?: boolean;
+    wb?: boolean; // white berserk
+    bb?: boolean; // black berserk
 
-    us: string[];
-    wt: string;
-    bt: string;
-    x: number;
-    p0: Player;
-    p1: Player;
-    s: number;
-    r: string;
+    us: string[]; // users (wplayer name, bplayer name)
+    wt: string; // white title
+    bt: string; // black title
+    x: number; // Fairy level
+    p0: Player; // white performance rating (rating, diff)
+    p1: Player; // black performance rating (rating, diff)
+    s: number; // game status range(-2, 14) as CREATED, STARTED, ABORTED, MATE, ... see in const.py
+    r: string; // game result string (1-0, 0-1, 1/2-1/2, *)
     m: string[]; // moves in compressed format as they are stored in mongo. Only used for count of moves here
-    a: Ceval[];
+    a: Ceval[]; // analysis
 }
 
 interface Player {
