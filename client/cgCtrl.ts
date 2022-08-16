@@ -49,7 +49,7 @@ export abstract class ChessgroundController implements IBoardController {
             fen: fen_placement as cg.FEN,
             dimensions: this.variant.boardDimensions,
             notation: this.notation,
-            addDimensionsCssVarsTo: document.documentElement,
+            addDimensionsCssVarsTo: document.body,
             kingRoles: this.variant.kingRoles,
             pocketRoles: this.variant.pocketRoles,
         }, pocket0, pocket1);

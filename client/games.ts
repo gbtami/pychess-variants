@@ -31,7 +31,7 @@ function gameView(games: {[gameId: string]: Api}, game: Game, fen: cg.FEN, lastM
     const variant = VARIANTS[game.variant];
     return h(`minigame#${game.gameId}.${variant.board}.${variant.piece}`, {
         class: {
-            "with-pockets": variant.drop,
+            "with-pockets": variant.pocket,
             "smaller-text": game.bTitle == "BOT",
         },
         on: { click: () => window.location.assign('/' + game.gameId) }
@@ -55,7 +55,6 @@ function gameView(games: {[gameId: string]: Api}, game: Game, fen: cg.FEN, lastM
                         dimensions: variant.boardDimensions,
                         coordinates: false,
                         viewOnly: true,
-                        addDimensionsCssVarsTo: document.documentElement,
                         pocketRoles: variant.pocketRoles,
                     });
                     games[game.gameId] = cg;
