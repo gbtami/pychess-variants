@@ -131,7 +131,7 @@ export class EditorController extends ChessgroundController {
                 h('a#clear.i-pgn', { on: { click: () => this.setEmptyFen() } }, [
                     h('div.icon.icon-trash-o', _('CLEAR BOARD'))
                 ]),
-                this.variant.drop ? h('a#fill.i-pgn', { on: { click: () => this.fillHand() } }, [
+                this.variant.captureToHand ? h('a#fill.i-pgn', { on: { click: () => this.fillHand() } }, [
                     h('div.icon.icon-sign-in', _("FILL %1'S HAND", _(this.variant.secondColor).toUpperCase()))
                 ]) : '',
                 h('a#start.i-pgn', { on: { click: () => this.setStartFen() } }, [
@@ -313,7 +313,7 @@ export class EditorController extends ChessgroundController {
             if (lastKey === key && curTime - lastTime < 500) {
                 const piece = this.chessground.state.boardState.pieces.get(key);
                 if (piece) {
-                    const newColor = this.variant.drop ? util.opposite(piece.color) : piece.color;
+                    const newColor = this.variant.captureToHand ? util.opposite(piece.color) : piece.color;
                     let newPiece: cg.Piece;
                     if (piece.promoted) {
                         newPiece = {

@@ -128,12 +128,12 @@ export class Variant {
     readonly materialPoint?: string;
     readonly enPassant: boolean;
     readonly autoPromoteable: boolean;
-    readonly drop: boolean;
+    readonly captureToHand: boolean;
     readonly gate: boolean;
     readonly pass: boolean;
     readonly boardMark: 'campmate' | 'none';
     readonly showPromoted: boolean;
-    readonly materialDiff : boolean;
+    readonly showMaterialDiff : boolean;
     readonly initialMaterialImbalance : MaterialDiff;
 
     readonly alternateStart?: { [ name: string ]: string };
@@ -180,13 +180,13 @@ export class Variant {
         this.materialPoint = data.materialPoint;
         this.enPassant = data.enPassant ?? false;
         this.autoPromoteable = this.promotionOrder.length > 2;
-        this.drop = data.drop ?? false;
+        this.captureToHand = data.captureToHand ?? false;
         this.gate = data.gate ?? false;
         this.pass = data.pass ?? false;
         this.boardMark = data.boardMark ?? 'none';
         this.showPromoted = data.showPromoted ?? false;
-        this.materialDiff = data.materialDifference ?? !this.drop;
-        this.initialMaterialImbalance = this.materialDiff ? calculateMaterialDiff(this) : new Map();
+        this.showMaterialDiff = !this.captureToHand;
+        this.initialMaterialImbalance = this.showMaterialDiff ? calculateMaterialDiff(this) : new Map();
 
         this.alternateStart = data.alternateStart;
 
@@ -223,11 +223,10 @@ interface VariantConfig { // TODO explain what each parameter of the variant con
     timeControl?: string;
     counting?: string;
     materialPoint?: string;
-    drop?: boolean;
+    captureToHand?: boolean;
     gate?: boolean;
     pass?: boolean;
     boardMark?: 'campmate' | 'none';
-    materialDifference?: boolean;
     pieceSound?: string;
     showPromoted?: boolean;
 
@@ -262,7 +261,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         board: "standard8x8", piece: "standard",
         pieceLetters: ["k", "q", "r", "b", "n", "p"],
         pocketLetters: ["p", "n", "b", "r", "q"],
-        enPassant: true, drop: true,
+        enPassant: true, captureToHand: true,
         alternateStart: {
             '': '',
             'PawnsPushed': "rnbqkbnr/8/8/pppppppp/PPPPPPPP/8/8/RNBQKBNR w - - 0 1",
@@ -361,7 +360,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         isMandatoryPromotion: distanceBased({ p: 1, l: 1, n: 2 }, 9),
         timeControl: "byoyomi",
         pieceSound: "shogi",
-        drop: true,
+        captureToHand: true,
         alternateStart: {
             '': '',
             'Lance HC': 'lnsgkgsn1/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL[-] b 0 1',
@@ -390,7 +389,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         isMandatoryPromotion: distanceBased({ p: 1 }, 5),
         timeControl: "byoyomi",
         pieceSound: "shogi",
-        drop: true,
+        captureToHand: true,
         icon: "6",
     }),
 
@@ -406,7 +405,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         isMandatoryPromotion: (_role: cg.Role, orig: cg.Orig, _dest: cg.Key, _color: cg.Color) => util.isKey(orig),
         timeControl: "byoyomi",
         pieceSound: "shogi",
-        drop: true,
+        captureToHand: true,
         icon: ")",
     }),
 
@@ -422,7 +421,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         promoteableLetters: ["c"],
         timeControl: "byoyomi",
         pieceSound: "shogi",
-        drop: true,
+        captureToHand: true,
         icon: "8",
     }),
 
@@ -438,7 +437,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         isMandatoryPromotion: distanceBased({ p: 1 }, 6),
         timeControl: "byoyomi",
         pieceSound: "shogi",
-        drop: true,
+        captureToHand: true,
         icon: "🐱",
     }),
 
@@ -454,7 +453,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         isMandatoryPromotion: distanceBased({ p: 1, l: 1, n: 2 }, 6),
         timeControl: "byoyomi",
         pieceSound: "shogi",
-        drop: true,
+        captureToHand: true,
         alternateStart: {
             'Gorogoro Plus N+L': '',
             'Original (No N+L)': 'sgkgs/5/1ppp1/1PPP1/5/SGKGS[-] w 0 1'
@@ -473,7 +472,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         promoteableLetters: ["s", "f"],
         timeControl: "byoyomi",
         pieceSound: "shogi",
-        drop: true,
+        captureToHand: true,
         alternateStart: {
             '': '',
             'Left Quail HC': 'rpckcp1/3f3/sssssss/2s1S2/SSSSSSS/3F3/LPCKCPR[] b 0 1',
@@ -552,7 +551,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         board: "standard10x8", piece: "capa",
         pieceLetters: ["k", "q", "c", "a", "r", "b", "n", "p"],
         pocketLetters: ["p", "n", "b", "r", "a", "c", "q"],
-        enPassant: true, drop: true,
+        enPassant: true, captureToHand: true,
         alternateStart: {
             '': '',
             'Bird': 'rnbcqkabnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBCQKABNR w KQkq - 0 1',
@@ -579,7 +578,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         board: "standard8x8", piece: "seirawan",
         pieceLetters: ["k", "q", "e", "h", "r", "b", "n", "p"],
         pocketLetters: ["p", "n", "b", "r", "h", "e", "q"],
-        enPassant: true, drop: true, gate: true,
+        enPassant: true, captureToHand: true, gate: true,
         icon: "$",
     }),
 
@@ -600,7 +599,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         pieceLetters: ["k", "q", "c", "a", "r", "b", "n", "p"],
         pocketLetters: ["p", "n", "b", "r", "a", "c", "q"],
         isMandatoryPromotion: distanceBased({ p: 1 }, 10),
-        enPassant: true, drop: true,
+        enPassant: true, captureToHand: true,
         icon: "*",
     }),
 
@@ -624,7 +623,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         promoteableLetters: ["p", "f", "r", "b", "n"],
         isMandatoryPromotion: distanceBased({ p: 1 }, 8),
         timeControl: "byoyomi",
-        enPassant: true, drop: true,
+        enPassant: true, captureToHand: true,
         icon: "-",
     }),
 
@@ -722,7 +721,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         promotion: "kyoto",
         promoteableLetters: ["p", "m", "s", "f"],
         isMandatoryPromotion: (_role: cg.Role, orig: cg.Orig, _dest: cg.Key, _color: cg.Color) => util.isKey(orig),
-        drop: true,
+        captureToHand: true,
         icon: "🎾",
     }),
 
@@ -754,7 +753,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         board: "standard10x8", piece: "capa",
         pieceLetters: ["k", "q", "c", "a", "r", "b", "n", "p"],
         pocketLetters: ["p", "n", "b", "r", "a", "c", "q"],
-        enPassant: true, drop: true,
+        enPassant: true, captureToHand: true,
         icon: "P",
     }),
 };

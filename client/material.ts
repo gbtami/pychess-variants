@@ -17,7 +17,7 @@ export function diff(lhs: MaterialDiff, rhs: MaterialDiff): MaterialDiff {
 }
 
 export function equivalentRole(variant: Variant, role: cg.Role): cg.Role {
-    if (variant.drop) {
+    if (variant.captureToHand) {
         if (role.indexOf('-') > 1)
             return role.slice(1) as cg.Role;
         else
