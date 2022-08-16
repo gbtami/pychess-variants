@@ -50,7 +50,7 @@ interface Player {
     d: number;
 }
 
-function toutnamentInfo(game: Game) {
+function tournamentInfo(game: Game) {
     let elements = [h('info-date', { attrs: { timestamp: game["d"] } })];
     if (game["tid"]) {
         elements.push(h('span', " • "));
@@ -65,7 +65,7 @@ function renderGames(model: PyChessModel, games: Game[]) {
         const chess960 = game.z === 1;
 
         return h('tr', [h('a', { attrs: { href : '/' + game["_id"] } }, [
-            h('td.board', { class: { "with-pockets": variant.captureToHand } }, [
+            h('td.board', { class: { "with-pockets": variant.pocket } }, [
                 h(`selection.${variant.board}.${variant.piece}`, [
                     h(`div.cg-wrap.${variant.cg}.mini`, {
                         hook: {
@@ -75,7 +75,6 @@ function renderGames(model: PyChessModel, games: Game[]) {
                                 fen: game["f"],
                                 lastMove: uci2LastMove(game.lm),
                                 dimensions: variant.boardDimensions,
-                                addDimensionsCssVarsTo: document.documentElement,
                                 pocketRoles: variant.pocketRoles,
                             })
                         }
@@ -87,7 +86,7 @@ function renderGames(model: PyChessModel, games: Game[]) {
                     // h('div.info1.icon', { attrs: { "data-icon": (game["z"] === 1) ? "V" : "" } }),
                     h('div.info2', [
                         h('div.tc', timeControlStr(game["b"], game["i"], game["bp"]) + " • " + gameType(game["y"]) + " • " + variant.displayName(chess960)),
-                        h('div', toutnamentInfo(game)),
+                        h('div', tournamentInfo(game)),
                     ]),
                 ]),
                 h('div.info-middle', [

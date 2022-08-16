@@ -397,7 +397,7 @@ export class TournamentController implements IChatController {
         const elements = [
         h('div.player', [h('user', [h('rank', '#' + game.br), game.b]), h('div#bresult')]),
         h(`div#mainboard.${variant.board}.${variant.piece}.${variant.boardMark}`, {
-            class: { "with-pockets": variant.captureToHand },
+            class: { "with-pockets": variant.pocket },
             on: { click: () => window.location.assign('/' + game.gameId) }
             }, [
                 h(`div.cg-wrap.${variant.cg}.mini`, {
@@ -409,7 +409,7 @@ export class TournamentController implements IChatController {
                                 dimensions: variant.boardDimensions,
                                 coordinates: false,
                                 viewOnly: true,
-                                addDimensionsCssVarsTo: document.documentElement,
+                                addDimensionsCssVarsTo: document.body,
                                 pocketRoles: variant.pocketRoles,
                             });
                             this.topGameChessground = cg;
