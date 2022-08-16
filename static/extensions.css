@@ -132,37 +132,41 @@
   width: calc(var(--editorLength) * (var(--cg-width) / var(--files)));
 }
 
-.pocket piece {
+.pocket square, .pocket nosquare {
   flex: 0 0 calc(100% / var(--pocketLength));
-  height: 100%!important;
-  width: 100%!important;
-  position: relative!important;
+  position: relative !important;
+}
+
+.pocket piece {
+  height: 100% !important;
+  width: 100% !important;
   background-position: center;
 }
 
-.pocket piece.selected-square{
+.pocket square.selected-square{
   background-color: #14551e80 !important;
 }
 
-.pocket .editor piece {
-  flex: 0 0 calc(100% / var(--editorLength));
-}
-.pocket.usable piece:first-child:hover {
+.pocket.usable square:first-child:hover {
   border-radius: 3px 0 0 3px;
 }
-.pocket.usable piece:not(.no-piece) {
+.pocket.usable square {
   cursor: pointer;
   pointer-events: auto;
 }
-.pocket.usable piece:not(.no-piece):hover {
+.pocket.usable square:hover {
   background-color: #999;
   transition: background-color 0.13s;
 }
-.pocket.usable piece.premove {
+.pocket.usable square.premove {
   background-color: #555;
 }
-.pocket.usable piece.premove:hover {
+.pocket.usable square.premove:hover {
   background-color: #666;
+}
+.pocket square.last-move {
+  will-change: transform;
+  background-color: rgba(155, 199, 0, 0.41);
 }
 .pocket piece[data-nb='0'] {
   cursor: auto;

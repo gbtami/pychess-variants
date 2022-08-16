@@ -13,7 +13,7 @@ export function goBackToLayer1(lobbyCtrl: LobbyController, containerId: string):
     if (container) patch(container, variantPanels(lobbyCtrl));
 }
 
-export function variantBoard(variant: Variant, fen: string, check: boolean=false, lastMove: cg.Key[] | undefined=undefined): VNode {
+export function variantBoard(variant: Variant, fen: string, check: boolean=false, lastMove?: cg.Move): VNode {
     return h(`selection#mainboard.${variant.board}.${variant.piece}.${variant.boardMark}`, [
         h(`div.cg-wrap.${variant.cg}`, {
             hook: {

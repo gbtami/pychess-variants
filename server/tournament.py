@@ -403,6 +403,7 @@ class Tournament(ABC):
             "base": self.top_game.base,
             "inc": self.top_game.inc,
             "byoyomi": self.top_game.byoyomi_period,
+            "lastMove": self.top_game.lastmove,
         }
 
     def waiting_players(self):

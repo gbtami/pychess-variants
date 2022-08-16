@@ -49,6 +49,9 @@ export class EditorController extends ChessgroundController {
             draggable: {
                 deleteOnDropOff: true,
             },
+            highlight: {
+                lastMove: false,
+            },
         });
 
         ['mouseup', 'touchend'].forEach(name =>
@@ -295,7 +298,6 @@ export class EditorController extends ChessgroundController {
 
     onChange = () => {
         // onChange() will get then set and validate FEN from chessground pieces
-        this.chessground.set({lastMove: []});
         this.parts[0] = this.chessground.getFen();
         this.fullfen = this.parts.join(' ');
         const e = document.getElementById('fen') as HTMLInputElement;

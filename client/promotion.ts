@@ -32,7 +32,7 @@ export class Promotion {
             const autoSuffix = this.ctrl.variant.promotionOrder[0];
             const autoRole = ["shogi", "kyoto"].includes(this.ctrl.variant.promotion) ?
                 undefined :
-                util.roleOf(autoSuffix as cg.PieceLetter);
+                util.roleOf(autoSuffix as cg.Letter);
 
             if (this.ctrl.variant.autoPromoteable &&
                 this.ctrl.autoPromote &&
@@ -88,7 +88,7 @@ export class Promotion {
                 break;
             default:
                 possiblePromotions.
-                    map(move => move.slice(-1) as cg.PieceLetter).
+                    map(move => move.slice(-1) as cg.Letter).
                     sort((a, b) => variant.promotionOrder.indexOf(a) - variant.promotionOrder.indexOf(b)).
                     forEach(letter => {
                         choice[util.roleOf(letter)] = letter;

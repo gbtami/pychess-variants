@@ -12,7 +12,7 @@ export const ranksUCI = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'] as c
 export type UCIRank = typeof ranksUCI[number];
 export type UCIKey =  'a0' | `${cg.File}${UCIRank}`;
 export type UCIOrig = UCIKey | cg.DropOrig;
-export type PromotionSuffix = cg.PieceLetter | "+" | "-" | "";
+export type PromotionSuffix = cg.Letter | "+" | "-" | "";
 
 export type UCIMove = `${UCIOrig}${UCIKey}`; // TODO: this is missing suffix for promotion which is also part of the move
 export type CGMove = `${cg.Orig}${cg.Key}`; // TODO: this is missing suffix for promotion which is also part of the move
@@ -210,15 +210,15 @@ interface VariantConfig { // TODO explain what each parameter of the variant con
 
     firstColor?: ColorName;
     secondColor?: ColorName;
-    pieceLetters: cg.PieceLetter[];
-    pieceLetters2?: cg.PieceLetter[];
-    pocketLetters?: cg.PieceLetter[];
-    pocketLetters2?: cg.PieceLetter[];
-    kingLetters?: cg.PieceLetter[];
+    pieceLetters: cg.Letter[];
+    pieceLetters2?: cg.Letter[];
+    pocketLetters?: cg.Letter[];
+    pocketLetters2?: cg.Letter[];
+    kingLetters?: cg.Letter[];
 
     promotion?: PromotionType;
     promotionOrder?: PromotionSuffix[];
-    promoteableLetters?: cg.PieceLetter[];
+    promoteableLetters?: cg.Letter[];
     isMandatoryPromotion?: MandatoryPromotionPredicate;
     timeControl?: string;
     counting?: string;
@@ -298,7 +298,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         name: "makruk", tooltip: () => _("Thai Chess. A game closely resembling the original Chaturanga. Similar to Chess but with a different queen and bishop."),
         startFen: "rnsmksnr/8/pppppppp/8/8/PPPPPPPP/8/RNSKMSNR w - - 0 1",
         board: "makruk8x8", piece: "makruk",
-        pieceLetters: ["k", "s", "m", "n", "r", "p", "m~" as cg.PieceLetter],
+        pieceLetters: ["k", "s", "m", "n", "r", "p", "m~" as cg.Letter],
         promotionOrder: ["m"],
         counting: "makruk",
         showPromoted: true,
@@ -309,7 +309,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         name: "makpong", tooltip: () => _("Makruk variant where kings cannot move to escape out of check."),
         startFen: "rnsmksnr/8/pppppppp/8/8/PPPPPPPP/8/RNSKMSNR w - - 0 1",
         board: "makruk8x8", piece: "makruk",
-        pieceLetters: ["k", "s", "m", "n", "r", "p", "m~" as cg.PieceLetter],
+        pieceLetters: ["k", "s", "m", "n", "r", "p", "m~" as cg.Letter],
         promotionOrder: ["m"],
         counting: "makruk",
         showPromoted: true,
@@ -320,7 +320,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         name: "cambodian", displayName: "ouk chatrang", tooltip: () => _("Cambodian Chess. Makruk with a few additional opening abilities."),
         startFen: "rnsmksnr/8/pppppppp/8/8/PPPPPPPP/8/RNSKMSNR w DEde - 0 1",
         board: "makruk8x8", piece: "makruk",
-        pieceLetters: ["k", "s", "m", "n", "r", "p", "m~" as cg.PieceLetter],
+        pieceLetters: ["k", "s", "m", "n", "r", "p", "m~" as cg.Letter],
         promotionOrder: ["m"],
         counting: "makruk",
         showPromoted: true,
@@ -822,10 +822,11 @@ export function uci2cg(move: string): string {
     return move.replace(/10/g, ":");
 }
 
-export function uci2LastMove(move: string | undefined): cg.Key[] {
-    if (!move) return [];
-    const moveStr = uci2cg(move!);
-    return moveStr.includes('@') ? [moveStr.slice(-2) as cg.Key] : [moveStr.slice(0, 2) as cg.Key, moveStr.slice(2, 4) as cg.Key];
+export function uci2LastMove(move: string | undefined): cg.Move | undefined {
+    if (!move) return undefined;
+    let moveStr = uci2cg(move);
+    if (moveStr.startsWith('+')) moveStr = moveStr.slice(1);
+    return [ moveStr.slice(0, 2) as cg.Orig, moveStr.slice(2) as cg.Key ];
 }
 
 export function cg2uci(move: string): string {
@@ -1048,7 +1049,7 @@ export function promotedRole(variant: Variant, piece: cg.Piece): cg.Role {
             case 'kyoto':
                 return 'p' + piece.role as cg.Role;
             default:
-                return util.roleOf(variant.promotionOrder[0] as cg.PieceLetter);
+                return util.roleOf(variant.promotionOrder[0] as cg.Letter);
         }
     } else {
         return piece.role;

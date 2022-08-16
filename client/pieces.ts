@@ -38,6 +38,7 @@ export function piecesView(ctrl: EditorController, color: cg.Color, position: Po
     }
     return h('div.pocket.' + position + '.editor.usable', {
         style: {
+            '--pocketLength': String(width),
             '--editorLength': String(roles.length),
             '--piecerows': String(Math.ceil(roles.length / width)),
             '--files': String(width),
@@ -53,26 +54,26 @@ export function piecesView(ctrl: EditorController, color: cg.Color, position: Po
             }
         }
     }, roles.map(role => {
-        if (role === '') return h('piece.no-piece', { attrs: { 'data-nb': -1 } });
+        if (role === '') return h('nosquare');
         const promoted = role.slice(0, role.indexOf('-')).length > 1;
         if (role[1] === '~')
             role = role[0] + role.slice(2) as cg.Role;
         const orientation = ctrl.flipped() ? ctrl.oppcolor : ctrl.mycolor;
         const side = color === orientation ? "ally" : "enemy";
-        return h(`piece.${role}.${promoted ? "promoted." : ""}${color}.${side}`, {
+        return h('square', h(`piece.${role}.${promoted ? "promoted." : ""}${color}.${side}`, {
             attrs: {
                 'data-role': role,
                 'data-color': color,
                 'data-promoted': promoted ? 'true' : 'false',
                 'data-nb': -1,
             }
-        });
+        }));
     }));
 }
 
 export function drag(ctrl: EditorController, e: cg.MouchEvent): void {
     if (e.button !== undefined && e.button !== 0) return; // only touch or left click
-    const el = e.target as HTMLElement,
+    const el = (e.target as HTMLElement).firstChild as HTMLElement,
         role = el.getAttribute('data-role') as cg.Role,
         color = el.getAttribute('data-color') as cg.Color,
         promoted = el.getAttribute('data-promoted') === 'true';

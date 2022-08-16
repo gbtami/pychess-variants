@@ -50,7 +50,7 @@ export abstract class GameController extends ChessgroundController implements IC
     setupFen: string;
     prevPieces: cg.Pieces;
 
-    premove?: { orig: cg.Selectable, dest: cg.Key, metadata?: cg.SetPremoveMetadata };
+    premove?: { orig: cg.Orig, dest: cg.Key, metadata?: cg.SetPremoveMetadata };
     preaction: boolean;
 
     steps: Step[];
@@ -198,10 +198,10 @@ export abstract class GameController extends ChessgroundController implements IC
 
         const move = uci2LastMove(step.move);
         let capture = false;
-        if (move.length > 0) {
+        if (move) {
             // 960 king takes rook castling is not capture
             // TODO Defer this logic to ffish.js
-            capture = (this.chessground.state.boardState.pieces.get(move[move.length - 1]) !== undefined && step.san?.slice(0, 2) !== 'O-') || (step.san?.slice(1, 2) === 'x');
+            capture = (this.chessground.state.boardState.pieces.get(move[1]) !== undefined && step.san?.slice(0, 2) !== 'O-') || (step.san?.slice(1, 2) === 'x');
         }
 
         this.chessground.set({
