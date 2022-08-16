@@ -17,7 +17,7 @@
     width: 100%;
     justify-content: center;
 }
-.mini .pocket piece {
+.mini .pocket square {
     flex: 0 0 calc(100% / var(--files));
 }
 .mini .pocket.top {
