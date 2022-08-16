@@ -405,7 +405,7 @@ export class TournamentController implements IChatController {
                         insert: vnode => {
                             const cg = Chessground(vnode.elm as HTMLElement,  {
                                 fen: game.fen,
-                                // lastMove: game.lastMove,// TODO: i dont see such property in python searching for "top_game"
+                                lastMove: game.lastMove,
                                 dimensions: variant.boardDimensions,
                                 coordinates: false,
                                 viewOnly: true,

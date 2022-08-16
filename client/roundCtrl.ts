@@ -749,9 +749,9 @@ export class RoundController extends GameController {
 
         const lastMove = uci2LastMove(msg.lastMove);
         const step = this.steps[this.steps.length - 1];
-        const capture = (lastMove.length > 0) && ((this.chessground.state.boardState.pieces.get(lastMove[1]) && step.san?.slice(0, 2) !== 'O-') || (step.san?.slice(1, 2) === 'x'));
+        const capture = !!lastMove && ((this.chessground.state.boardState.pieces.get(lastMove[1]) && step.san?.slice(0, 2) !== 'O-') || (step.san?.slice(1, 2) === 'x'));
 
-        if (lastMove.length > 0 && (this.turnColor === this.mycolor || this.spectator)) {
+        if (lastMove && (this.turnColor === this.mycolor || this.spectator)) {
             if (!this.finishedGame) sound.moveSound(this.variant, capture);
         }
         this.checkStatus(msg);
@@ -942,7 +942,7 @@ export class RoundController extends GameController {
             [this.vmaterial0, this.vmaterial1] = emptyMaterial(this.variant);
     }
 
-    private setPremove = (orig: cg.Selectable, dest: cg.Key, metadata?: cg.SetPremoveMetadata) => {
+    private setPremove = (orig: cg.Orig, dest: cg.Key, metadata?: cg.SetPremoveMetadata) => {
         this.premove = { orig, dest, metadata };
         // console.log("setPremove() to:", orig, dest, meta);
     }

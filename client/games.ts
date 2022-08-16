@@ -24,10 +24,10 @@ export interface Game {
     wTitle: string;
     level: number;
     fen: cg.FEN;
-    lastMove: cg.Key[];
+    lastMove: cg.Move;
 }
 
-function gameView(games: {[gameId: string]: Api}, game: Game, fen: cg.FEN, lastMove: cg.Key[]) {
+function gameView(games: {[gameId: string]: Api}, game: Game, fen: cg.FEN, lastMove: cg.Move) {
     const variant = VARIANTS[game.variant];
     return h(`minigame#${game.gameId}.${variant.board}.${variant.piece}`, {
         class: {
