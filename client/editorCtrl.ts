@@ -350,7 +350,7 @@ export class EditorController extends ChessgroundController {
     }
 
     dropOnPocket = (e: cg.MouchEvent): void => {
-        const el = e.target as HTMLElement;
+        const el = (e.target as HTMLElement).firstChild as HTMLElement;
         const piece = this.chessground.state.draggable.current?.piece;
         if (piece) {
             const role = unpromotedRole(this.variant, piece);
