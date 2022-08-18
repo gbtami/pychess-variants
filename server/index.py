@@ -46,6 +46,7 @@ from settings import (
 from generate_highscore import generate_highscore
 from misc import time_control_str
 from news import NEWS
+from videos import VIDEOS, VIDEO_TAGS
 from user import User
 from utils import load_game, join_seek, tv_game, tv_game_user
 from tournaments import (
@@ -154,6 +155,9 @@ async def index(request):
         view = "news"
     elif request.path.startswith("/variants"):
         view = "variants"
+    elif request.path.startswith("/video"):
+        videoId = request.match_info.get("videoId")
+        view = "videos" if videoId is None else "video"
     elif request.path.startswith("/players"):
         view = "players"
     elif request.path == "/allplayers":
@@ -329,6 +333,10 @@ async def index(request):
         template = get_template("news.html")
     elif view == "variants":
         template = get_template("variants.html")
+    elif view == "videos":
+        template = get_template("videos.html")
+    elif view == "video":
+        template = get_template("video.html")
     elif view == "patron":
         template = get_template("patron.html")
     elif view == "faq":
@@ -536,6 +544,14 @@ async def index(request):
             render["variant"] = (
                 "docs/" + ("terminology" if variant is None else variant) + "%s.html" % locale
             )
+
+    elif view == "videos":
+        render["videos"] = VIDEOS
+        render["tags"] = VIDEO_TAGS
+
+    elif view == "video":
+        render["view_css"] = "videos.css"
+        render["videoId"] = videoId
 
     elif view == "news":
         news_item = request.match_info.get("news_item")

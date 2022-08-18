@@ -69,7 +69,11 @@ async def on_prepare(request, response):
         # brotli compressed js
         response.headers["Content-Encoding"] = "br"
         return
-    elif request.path.startswith("/variants") or request.path.startswith("/news"):
+    elif (
+        request.path.startswith("/variants")
+        or request.path.startswith("/news")
+        or request.path.startswith("/video")
+    ):
         # Learn and News pages may have links to other sites
         response.headers["Cross-Origin-Resource-Policy"] = "cross-origin"
         return

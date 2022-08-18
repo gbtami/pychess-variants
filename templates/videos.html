@@ -1,0 +1,27 @@
+{% extends "template.html" %}
+{% block content %}
+<div id="main-wrap">
+<main class="page-menu">
+<aside>
+    <ul class="guide">
+    {% for key in tags %}
+    <li>
+    <a href="{{ home }}/video?tags={{ key }}"><span>{{ key }}</span></a>
+    </li>
+    {% endfor %}
+    </ul>
+</aside>
+<div class="videos">
+    <div class="box-top"><h1>Chess variant videos</h1></div>
+    <div class="video">
+    {% for key in videos %}
+    <a class="card" href="{{ home }}/video/{{ key }}"><span class="duration">{{ videos[key][1] }}</span><figure style="background-image: url(https://img.youtube.com/vi/{{ key }}/0.jpg)"><img src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/50598/video-thumb-placeholder-16-9.png"/></figure><span class="info"><span class="title">{{ videos[key][0] }}<span></span></a>
+    {% endfor %}
+    </div>
+</div>
+</main>
+</div>
+{% endblock %}
+{% block js %}
+    <script src="{{ js }}"></script>
+{% endblock %}
