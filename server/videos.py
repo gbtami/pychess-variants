@@ -268,14 +268,6 @@ VIDEOS = [
         "duration": "20:38",
     },
     {
-        "_id": "6BgHBQ8AN6o",
-        "title": "How to play Shogi(将棋) -Lesson#37- Shogi Variants",
-        "author": "HIDETCHI",
-        "tags": ["Shogi"],
-        "target": "beginner",
-        "duration": "10:17",
-    },
-    {
         "_id": "QnkQW7ICj3Y",
         "title": "Shogi Exercise #1 - Pawn Tactics",
         "author": "HIDETCHI",
