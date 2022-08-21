@@ -90,6 +90,8 @@ get_routes = (
     ("/news/{news_item}", index),
     ("/variants", index),
     ("/variants/{variant}", index),
+    ("/video", index),
+    ("/video/{videoId}", index),
     ("/wsl", lobby_socket_handler),
     ("/wsr", round_socket_handler),
     ("/wst", tournament_socket_handler),
