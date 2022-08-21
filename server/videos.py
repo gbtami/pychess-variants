@@ -275,4 +275,20 @@ VIDEOS = [
         "target": "beginner",
         "duration": "10:17",
     },
+    {
+        "_id": "QnkQW7ICj3Y",
+        "title": "Shogi Exercise #1 - Pawn Tactics",
+        "author": "HIDETCHI",
+        "tags": ["Shogi", "Tactics"],
+        "target": "beginner",
+        "duration": "10:17",
+    },
+    {
+        "_id": "PKRdiUIwVwg",
+        "title": "Shogi Exercise #2 - Pawn Tactics",
+        "author": "HIDETCHI",
+        "tags": ["Shogi", "Tactics"],
+        "target": "beginner",
+        "duration": "10:17",
+    },
 ]
