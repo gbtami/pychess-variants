@@ -287,6 +287,8 @@ async def init_state(app):
         await app["db"].game.create_index("by")
 
         if "video" not in db_collections:
+            if DEV:
+                await app["db"].video.drop()
             await app["db"].video.insert_many(VIDEOS)
 
     except Exception:
