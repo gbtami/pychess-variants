@@ -4,9 +4,9 @@
 <main class="page-menu">
 <aside>
     <ul class="guide">
-    {% for key in tags %}
+    {% for tag in tags %}
     <li>
-    <a href="{{ home }}/video?tags={{ key }}"><span>{{ key }}</span></a>
+    <a href="{{ home }}/video?tags={{ tag }}"><span>{{ tag }}</span></a>
     </li>
     {% endfor %}
     </ul>
@@ -14,9 +14,9 @@
 <div class="videos">
     <div class="box-top"><h1>Chess variant videos</h1></div>
     <div class="video">
-    {% for key in videos %}
-    <a class="card" href="{{ home }}/video/{{ key }}"><span class="duration">{{ videos[key][1] }}</span><figure style="background-image: url(https://img.youtube.com/vi/{{ key }}/0.jpg)"><img src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/50598/video-thumb-placeholder-16-9.png"/></figure><span class="info"><span class="title">{{ videos[key][0] }}<span></span></a>
-    {% endfor %}
+    {%- for video in videos -%}
+    <a class="card" href="{{ home }}/video/{{ video['_id'] }}"><span class="duration">{{ video['duration'] }}</span><figure style="background-image: url(https://img.youtube.com/vi/{{ video['_id'] }}/0.jpg)"></figure><span class="info"><span class="title">{{ video['title'] }}</span></span><span class="reveal"><span class="full-title">{{ video['title'] }}</span><span class="author">{{ video['author'] }}</span><span class="target">{{ video['target'] }}</span><span class="tags">{% for vtag in video['tags'] %}<span class="vtag">🏷 {{ vtag }}</span>{% endfor %}</span></span></a>
+    {%- endfor -%}
     </div>
 </div>
 </main>

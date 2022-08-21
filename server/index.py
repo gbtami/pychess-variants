@@ -46,7 +46,7 @@ from settings import (
 from generate_highscore import generate_highscore
 from misc import time_control_str
 from news import NEWS
-from videos import VIDEOS, VIDEO_TAGS
+from videos import VIDEO_TAGS
 from user import User
 from utils import load_game, join_seek, tv_game, tv_game_user
 from tournaments import (
@@ -546,12 +546,22 @@ async def index(request):
             )
 
     elif view == "videos":
-        render["videos"] = VIDEOS
+        tag = request.rel_url.query.get("tags")
+        videos = []
+        if tag is None:
+            cursor = db.video.find()
+        else:
+            cursor = db.video.find({"tags": tag})
+
+        async for doc in cursor:
+            videos.append(doc)
+        render["videos"] = videos
         render["tags"] = VIDEO_TAGS
 
     elif view == "video":
         render["view_css"] = "videos.css"
         render["videoId"] = videoId
+        render["tags"] = VIDEO_TAGS
 
     elif view == "news":
         news_item = request.match_info.get("news_item")

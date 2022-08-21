@@ -1,6 +1,5 @@
 .videos {
   grid-area: content;
-  margin: 0 auto;
   padding: 2rem;
   border-radius: 3px;
   box-shadow: var(--base-shadow);
@@ -31,17 +30,6 @@ figure {
   padding-bottom: 56.25%; 
   height: 0;
 }
-figure img {
-  display: block;
-  max-width: 100%;
-  height: auto;
-  opacity: 0;
-  transition: all .20s;
-}
-figure img:hover {
-  opacity: 1;
-  transform: scale(1);
-}
 span.info {
   display: block;
   background: var(--bg-color2);
@@ -63,6 +51,23 @@ span.duration {
   color: var(--font-color);
   background: var(--bg-seek);
 }
+span.full-title, span.author, span.target, span.tags {
+  display: block;
+  color: var(--font-color);
+}
+.tags span {
+  display: block;
+}
+span.full-title {
+  font-weight: bold;
+}
+span.author, span.target {
+  margin-bottom: 0.8em;
+}
+span.target {
+  text-transform: uppercase;
+  text-align: center;
+}
 .show {
   grid-area: content;
 }
@@ -78,4 +83,21 @@ span.duration {
   left: 0;
   width: 100%;
   height: 100%;
+}
+.video .card .reveal {
+  opacity: 0;
+  position: absolute;
+  top: 100%;
+  width: 100%;
+  height: 80%;
+  border-top: 1px solid var(--border-color);
+  z-index: 1;
+  padding: 10px 10px 0 10px;
+  opacity: 0;
+  transition: all 150ms;
+  background: var(--bg-color2);
+}
+.video .card:hover .reveal {
+  transform:translateY(-100%);
+  opacity: 1;
 }

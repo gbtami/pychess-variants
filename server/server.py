@@ -57,6 +57,7 @@ from tournaments import load_tournament, get_scheduled_tournaments
 from twitch import Twitch
 from youtube import Youtube
 from scheduler import create_scheduled_tournaments, new_scheduled_tournaments
+from videos import VIDEOS
 
 log = logging.getLogger(__name__)
 
@@ -284,6 +285,9 @@ async def init_state(app):
         await app["db"].game.create_index("v")
         await app["db"].game.create_index("y")
         await app["db"].game.create_index("by")
+
+        if "video" not in db_collections:
+            await app["db"].video.insert_many(VIDEOS)
 
     except Exception:
         print("Maybe mongodb is not running...")
