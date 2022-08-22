@@ -8,7 +8,7 @@
     "Pychess is a free, open-source chess server designed to play several chess variants.": "Pychess es un servidor gratuito y de código abierto, diseñado para jugar muchas variantes de ajedrez.",
     "Currently supported games are ": "Los juegos actualmente soportados son",
     "Additionally, you can check the Chess960 option for Chess, Crazyhouse, Atomic, S-chess, Capablanca, and Capahouse to start games from random positions with ": "A mayores, puedes seleccionar la opción \"Ajedrez 960\" para Ajedrez, Crazyhouse, Atomic, S-chess, Capablanca y Capahouse para empezar partidas desde posiciones aleatorias con",
-    "Chess960 castling rules.": "Reglas de enroque para Aleatorio Fischer.",
+    "Chess960 castling rules.": "Reglas de enroque para Chess960.",
     "For move generation, validation, analysis, and engine play, we use ": "Para la generación de movimientos, validación, análisis y jugadas hechas por el motor, utilizamos",
     "On client side, the user interface of the game board is based on ": "Del lado del cliente, la interfaz de usuario del tablero está basada en",
     "The source code of the server is available on ": "El código fuente del servidor está disponible en",
@@ -28,8 +28,6 @@
     "Request Analysis": "Solicitar análisis",
     "Depth": "Profundidad",
     "Go deeper": "Ir a más profundidad",
-    "Spectators: ": "Espectadores:",
-    "Requested game %1 not found!": "¡No se encontró la partida solicitada %1!",
     "Light": "Claro",
     "Dark": "Oscuro",
     "Piece animation": "Animación de las piezas",
@@ -47,63 +45,78 @@
     "Take captured pieces and drop them back on to the board as your own.": "Suelta las piezas capturadas en el tablero como propias.",
     "Choose where your pieces start.": "Escoge dónde comienzan tus piezas.",
     "Pieces explode upon capture.": "Las piezas explotan con las capturas.",
+    "Japanese Chess, and the standard 9x9 version played today with drops and promotions. ": "Ajedrez Japonés, actual versión estándar sobre tablero de 9x9, con reintroducción de piezas capturadas y promoción.",
+    "Play with the hybrid pieces, archbishop (B+N) and chancellor (R+N), on a 10x8 board.": "Juega con piezas híbridas, arzobispo (alfíl + caballo) y canciller (torre + caballo), en un tablero de 10x8.",
     "in %1 year": [
         "en %1 año",
+        "en %1 años",
         "en %1 años"
     ],
     "%1 year ago": [
         "Hace %1 año",
+        "Hace %1 años",
         "Hace %1 años"
     ],
     "in %1 month": [
         "en %1 mes",
+        "en %1 meses",
         "en %1 meses"
     ],
     "%1 month ago": [
         "Hace %1 mes",
+        "Hace %1 meses",
         "Hace %1 meses"
     ],
     "in %1 week": [
         "en %1 semana",
+        "en %1 semanas",
         "en %1 semanas"
     ],
     "%1 week ago": [
         "Hace %1 semana",
+        "Hace %1 semanas",
         "Hace %1 semanas"
     ],
     "in %1 day": [
         "en %1 día",
+        "en %1 días",
         "en %1 días"
     ],
     "%1 day ago": [
         "Hace %1 día",
+        "Hace %1 días",
         "Hace %1 días"
     ],
     "in %1 hour": [
         "en %1 hora",
+        "en %1 horas",
         "en %1 horas"
     ],
     "%1 hour ago": [
         "Hace %1 hora",
+        "Hace %1 horas",
         "Hace %1 horas"
     ],
     "in %1 minute": [
         "en %1 minuto",
+        "en %1 minutos",
         "en %1 minutos"
     ],
     "%1 minute ago": [
         "Hace %1 minuto",
+        "Hace %1 minutos",
         "Hace %1 minutos"
     ],
     "in %1 second": [
         "en %1 segundo",
+        "en %1 segundos",
         "en %1 segundos"
     ],
     "%1 second ago": [
         "Hace %1 segundo",
+        "Hace %1 segundos",
         "Hace %1 segundos"
     ],
-    "STARTING IN": "COMENZANDO EN",
     "%1 to play": "Juegan %1",
     "Castling": "Enroque",
     "White": "Blanco",
@@ -114,6 +127,8 @@
     "PLAY WITH MACHINE": "JUGAR CON EL ORDENADOR",
     "EXPORT TO PNG": "EXPORTAR A PNG",
     "Invalid FEN": "FEN inválido",
+    "Spectators: ": "Espectadores:",
+    "Requested game %1 not found!": "¡No se encontró la partida solicitada %1!",
     "Playing right now": "Jugando ahora",
     "Red": "Rojo",
     "Blue": "Azul",
@@ -143,11 +158,13 @@
     "Custom": "Personalizado",
     "%1 player": [
         "%1 jugador",
+        "%1 jugadores",
         "%1 jugadores"
     ],
     "You have an unfinished game!\nPress OK to continue.": "¡Tiene un juego sin terminar!\nPresione OK para continuar.",
     "%1 game in play": [
         "%1 partida en juego",
+        "%1 partidas en juego",
         "%1 partidas en juego"
     ],
     "Player": "Jugador",
@@ -162,6 +179,14 @@
     "Invalid PGN": "PGN inválido",
     "Paste the PGN text here": "Pega el texto PGN aquí",
     "IMPORT GAME": "IMPORTAR PARTIDA",
+    "%1 move": [
+        "%1 movimiento",
+        "%1 movimientos",
+        "%1 movimientos"
+    ],
+    "Computer analysis available": "Análisis de ordenador disponible",
+    "Games": "Partidas",
+    "Imported": "Importado",
     "IMPORT": "IMPORTAR",
     "level %1": "nivel %1",
     "Game aborted": "Partida abortada",
@@ -179,13 +204,6 @@
     "Explosion of king": "Explosión del rey",
     "Point counting": "Conteo de puntos",
     "Repetition": "Repetición",
-    "%1 move": [
-        "%1 movimiento",
-        "%1 movimientos"
-    ],
-    "Computer analysis available": "Análisis de ordenador disponible",
-    "Games": "Partidas",
-    "Imported": "Importado",
     " +15 seconds": "+15 segundos",
     "Give 15 seconds": "Dar 15 segundos",
     "Abort": "Abortar",
@@ -231,13 +249,18 @@
     "Average opponent": "Nivel medio rivales",
     "Custom position": "Posición personalizada",
     "Analysis board": "Tablero de análisis",
+    "STARTING IN": "COMENZANDO EN",
     "Off": "Desactivado",
     "On": "Activado",
     "ZEN MODE": "MODO ZEN",
     "Go Back": "Volver",
+    "Horde: Horse-based army": "Orda: Ejército basado en movimientos de caballo.",
+    "Knight hybrid pieces": "Piezas híbridas de caballo",
+    "Chinese Chess, one of the most played games in the world": "Ajedrez Chino, uno de los juegos más populares del mundo.",
+    "Atomic Chess with random back row.": "Ajedrez Atómico con las piezas de la primer fila dispuestas de forma aleatoria.",
     "UsePluralFormIfNeeded\u0004Rated": "Por puntos",
     "": {
         "language": "es",
-        "plural-forms": "nplurals=2; plural=(n != 1);"
+        "plural-forms": "nplurals=3; plural=n == 1 ? 0 : n != 0 && n % 1000000 == 0 ? 1 : 2;"
     }
 }

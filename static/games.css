@@ -49,6 +49,15 @@ minigame .name {
     padding-top: 4px;
 }
 
+minigame.smaller-text.dobutsu, minigame.smaller-text.shogi5x5, minigame.smaller-text.shogi5x6 {
+    font-size: 0.7em;
+}
+minigame.smaller-text.shogi7x7 {
+    font-size: 0.8em;
+}
+minigame.smaller-text.chennis7x7, minigame.smaller-text.xiangqi7x7, minigame.smaller-text.shogun8x8 {
+    font-size: 0.9em;
+}
 minigame.with-pockets .row {
     padding-bottom: 44px;
 }

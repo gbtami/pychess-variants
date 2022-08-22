@@ -397,7 +397,7 @@ export class TournamentController implements IChatController {
         const elements = [
         h('div.player', [h('user', [h('rank', '#' + game.br), game.b]), h('div#bresult')]),
         h(`div#mainboard.${variant.board}.${variant.piece}.${variant.boardMark}`, {
-            class: { "with-pockets": variant.pocketRoles('white') !== undefined },
+            class: { "with-pockets": variant.pocket },
             on: { click: () => window.location.assign('/' + game.gameId) }
             }, [
                 h(`div.cg-wrap.${variant.cg}.mini`, {
@@ -405,12 +405,12 @@ export class TournamentController implements IChatController {
                         insert: vnode => {
                             const cg = Chessground(vnode.elm as HTMLElement,  {
                                 fen: game.fen,
-                                // lastMove: game.lastMove,// TODO: i dont see such property in python searching for "top_game"
-                                geometry: variant.geometry,
+                                lastMove: game.lastMove,
+                                dimensions: variant.boardDimensions,
                                 coordinates: false,
                                 viewOnly: true,
-                                addDimensionsCssVars: true,
-                                pocketRoles: color => variant.pocketRoles(color),
+                                addDimensionsCssVarsTo: document.body,
+                                pocketRoles: variant.pocketRoles,
                             });
                             this.topGameChessground = cg;
                             this.topGameId = game.gameId;

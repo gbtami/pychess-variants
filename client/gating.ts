@@ -15,9 +15,7 @@ export interface Moves {
 export class Gating {
     private ctrl: GameController;
 
-    private gating : null | {
-                moves: Moves,
-    };
+    private gating : null | { moves: Moves };
 
     private choices: (cg.Role | "")[];
 
@@ -28,7 +26,7 @@ export class Gating {
     }
 
     start(fen: cg.FEN, orig: cg.Key, dest: cg.Key) {
-        const ground = this.ctrl.getGround();
+        const ground = this.ctrl.chessground;
         if (this.canGate(fen, orig)) {
             const pocket = getPockets(fen);
             const color = this.ctrl.turnColor;
@@ -47,7 +45,7 @@ export class Gating {
             let rookOrig: cg.Key | null = null;
             const moveLength = dest.charCodeAt(0) - orig.charCodeAt(0);
 
-            const movedPiece = ground.state.pieces.get(dest);
+            const movedPiece = ground.state.boardState.pieces.get(dest);
             const movedRole: cg.Role = movedPiece?.role ?? "k-piece";
             if (movedRole === "k-piece") {
                 // King long move is always castling move
@@ -74,10 +72,10 @@ export class Gating {
                 if (rookOrig!==null && !this.inCastlingTargets(rookOrig, color, moveLength)) {
                     moves["special"] = [rookOrig, orig, dest];
                 }
-                const pieces: cg.PiecesDiff = new Map();
-                pieces.set(((moveLength > 0) ? "f" : "d") + orig[1] as cg.Key, {color: color, role: 'r-piece'});
-                pieces.set(((moveLength > 0) ? "g" : "c") + orig[1] as cg.Key, {color: color, role: 'k-piece'});
-                ground.setPieces(pieces);
+                ground.setPieces(new Map([
+                    [((moveLength > 0) ? "f" : "d") + orig[1] as cg.Key, {color: color, role: 'r-piece'}],
+                    [((moveLength > 0) ? "g" : "c") + orig[1] as cg.Key, {color: color, role: 'k-piece'}],
+                ]));
             }
 
             // It is possible in 960 that we have no valid gating square finally
@@ -137,8 +135,7 @@ export class Gating {
     }
 
     private gate(orig: cg.Key, color: cg.Color, role: cg.Role) {
-        const g = this.ctrl.getGround();
-        g.newPiece({ "role": role, "color": color }, orig)
+        this.ctrl.chessground.newPiece({ "role": role, "color": color }, orig, true);
     }
 
     private drawGating(moves: Moves, color: cg.Color, orientation: cg.Color) {

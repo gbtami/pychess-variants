@@ -218,6 +218,12 @@ label.piece.piece8.xiangqi {
 label.piece.piece9.xiangqi {
     background-image: url('images/pieces/xiangqi/Ka/red_king.svg');
 }
+label.piece.piece10.xiangqi {
+    background-image: url('images/pieces/xiangqi/ttxqhanzi/red_king.svg');
+}
+label.piece.piece11.xiangqi {
+    background-image: url('images/pieces/xiangqi/ttxqintl/red_king.svg');
+}
 
 label.piece.piece0.janggi {
     background-image: url('images/pieces/janggi/hanjablue/blue_king.svg');

@@ -78,6 +78,7 @@ export interface MsgBoard {
 
 export interface Ceval {
     d: number;
+    multipv?: number;
     m?: string;
     p?: string;
     s: { cp?: number ; mate?: number};

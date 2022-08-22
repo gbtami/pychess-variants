@@ -49,22 +49,16 @@ export class EditorController extends ChessgroundController {
             draggable: {
                 deleteOnDropOff: true,
             },
+            highlight: {
+                lastMove: false,
+            },
         });
 
-        //
         ['mouseup', 'touchend'].forEach(name =>
             [this.chessground.state.dom.elements.pocketTop, this.chessground.state.dom.elements.pocketBottom].forEach(pocketEl => {
                 if (pocketEl) pocketEl.addEventListener(name, (e: cg.MouchEvent) => {
                     this.dropOnPocket(e);
                 } )
-            })
-        );
-        cg.eventsDragging.forEach(name =>
-            [this.chessground.state.dom.elements.pocketTop, this.chessground.state.dom.elements.pocketBottom].forEach(pocketEl => {
-                if (pocketEl) pocketEl?.childNodes.forEach(p => {
-                    p.addEventListener(name, (e: cg.MouchEvent) => {
-                    this.drag(e);
-                } ) });
             })
         );
 
@@ -137,7 +131,7 @@ export class EditorController extends ChessgroundController {
                 h('a#clear.i-pgn', { on: { click: () => this.setEmptyFen() } }, [
                     h('div.icon.icon-trash-o', _('CLEAR BOARD'))
                 ]),
-                this.variant.drop ? h('a#fill.i-pgn', { on: { click: () => this.fillHand() } }, [
+                this.variant.captureToHand ? h('a#fill.i-pgn', { on: { click: () => this.fillHand() } }, [
                     h('div.icon.icon-sign-in', _("FILL %1'S HAND", _(this.variant.secondColor).toUpperCase()))
                 ]) : '',
                 h('a#start.i-pgn', { on: { click: () => this.setStartFen() } }, [
@@ -249,10 +243,10 @@ export class EditorController extends ChessgroundController {
         const currentMaterial = calculatePieceNumber(this.variant, this.fullfen);
         const neededMaterial = diff(initialMaterial, currentMaterial);
 
-        const blackPocket = this.chessground.state.pockets!['black']!;
+        const blackPocket = this.chessground.state.boardState.pockets!['black']!;
         for (const [role, num] of neededMaterial) {
-            if (role in blackPocket && num > 0)
-                blackPocket[role]! += num;
+            if (this.variant.pocketRoles!.black.includes(role) && num > 0)
+                util.changeNumber(blackPocket, role, num);
         }
 
         this.onChange();
@@ -304,7 +298,6 @@ export class EditorController extends ChessgroundController {
 
     onChange = () => {
         // onChange() will get then set and validate FEN from chessground pieces
-        this.chessground.set({lastMove: []});
         this.parts[0] = this.chessground.getFen();
         this.fullfen = this.parts.join(' ');
         const e = document.getElementById('fen') as HTMLInputElement;
@@ -314,13 +307,13 @@ export class EditorController extends ChessgroundController {
 
     onSelect = () => {
         let lastTime = performance.now();
-        let lastKey: cg.Key = 'a0';
+        let lastKey: cg.Key | undefined;
         return (key: cg.Key) => {
             const curTime = performance.now();
             if (lastKey === key && curTime - lastTime < 500) {
-                const piece = this.chessground.state.pieces.get(key);
+                const piece = this.chessground.state.boardState.pieces.get(key);
                 if (piece) {
-                    const newColor = this.variant.drop ? util.opposite(piece.color) : piece.color;
+                    const newColor = this.variant.captureToHand ? util.opposite(piece.color) : piece.color;
                     let newPiece: cg.Piece;
                     if (piece.promoted) {
                         newPiece = {
@@ -348,7 +341,7 @@ export class EditorController extends ChessgroundController {
                     this.chessground.setPieces(pieces);
                     this.onChange();
                 }
-                lastKey = 'a0';
+                lastKey = undefined;
             } else {
                 lastKey = key;
                 lastTime = curTime;
@@ -357,28 +350,16 @@ export class EditorController extends ChessgroundController {
     }
 
     dropOnPocket = (e: cg.MouchEvent): void => {
-        const el = e.target as HTMLElement;
+        const el = (e.target as HTMLElement).firstChild as HTMLElement;
         const piece = this.chessground.state.draggable.current?.piece;
         if (piece) {
-            const role = unpromotedRole(this.variant , piece);
+            const role = unpromotedRole(this.variant, piece);
             const color = el.getAttribute('data-color') as cg.Color;
-            const pocket = this.chessground.state.pockets![color]!;
-            if (role in pocket) {
-                pocket[role]!++;
+            const pocket = this.chessground.state.boardState.pockets![color];
+            if (this.chessground.state.pocketRoles![color].includes(role)) {
+                util.changeNumber(pocket, role, 1);
                 this.onChange();
             }
         }
     }
-
-    drag = (e: cg.MouchEvent): void => {
-        const el = e.target as HTMLElement;
-        const piece = this.chessground.state.draggable.current?.piece;
-        if (piece) {
-            this.chessground.state.pockets![piece.color]![piece.role]! --;
-            console.log(el);
-            console.log(piece);
-            console.log("editor");
-        }
-    }
-
 }

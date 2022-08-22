@@ -656,7 +656,11 @@ export class LobbyController implements IChatController {
         if (seek.fen) {
             tooltipImage = h('minigame.' + variant.board + '.' + variant.piece, [
                 h('div.cg-wrap.' + variant.cg + '.minitooltip',
-                    { hook: { insert: (vnode) => Chessground(vnode.elm as HTMLElement,{ coordinates: false, fen: seek.fen, geometry: variant.geometry }) } }
+                    { hook: { insert: (vnode) => Chessground(vnode.elm as HTMLElement, {
+                        coordinates: false,
+                        fen: seek.fen,
+                        dimensions: variant.boardDimensions,
+                    })}}
                 ),
             ]);
         } else {
@@ -883,23 +887,31 @@ export function lobbyView(model: PyChessModel): VNode[] {
         ]),
         h('under-lobby', [
             h('posts', [
-                // TODO: create news documents in mongodb and load latest 3 dinamically here
+                h('a.post', { attrs: {href: '/news/NNUE_Everywhere'} }, [
+                    h('img', { attrs: {src: model.assetURL + '/images/Weights-nn-62ef826d1a6d.png'} }),
+                    h('span.text', [
+                        h('strong', _("Fairy-Stockfish on PyChess")),
+                        h('span', _('NNUE Everywhere')),
+                    ]),
+                    h('time', '2022.08.04'),
+                ]),
                 h('a.post', { attrs: {href: '/news/Serving_a_New_Variant'} }, [
                     h('img', { attrs: {src: model.assetURL + '/images/ChessTennis.jpg'} }),
                     h('span.text', [
-                        h('strong', "Tennis and chess"),
-                        h('span', 'Serving a New Variant'),
+                        h('strong', _("Tennis and chess")),
+                        h('span', _('Serving a New Variant')),
                     ]),
                     h('time', '2022.02.01'),
                 ]),
                 h('a.post', { attrs: {href: '/news/Merry_Chakmas'} }, [
                     h('img', { attrs: {src: model.assetURL + '/images/QuetzalinTikal.png'} }),
                     h('span.text', [
-                        h('strong', "Christmas gift from PyChess"),
-                        h('span', 'Merry Chak-mas!'),
+                        h('strong', _("Christmas gift from PyChess")),
+                        h('span', _('Merry Chak-mas!')),
                     ]),
                     h('time', '2021.12.24'),
                 ]),
+                /*
                 h('a.post', { attrs: {href: '/news/Cold_Winter'} }, [
                     h('img', { attrs: {src: model.assetURL + '/images/board/ChakArt.jpg'} }),
                     h('span.text', [
@@ -908,7 +920,6 @@ export function lobbyView(model: PyChessModel): VNode[] {
                     ]),
                     h('time', '2021.12.21'),
                 ]),
-                /*
                 h('a.post', { attrs: {href: '/news/Hot_Summer'} }, [
                     h('img', { attrs: {src: model.assetURL + '/images/AngryBirds.png'} }),
                     h('span.text', [
