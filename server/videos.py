@@ -164,6 +164,14 @@ VIDEOS = [
         "duration": "2:27:11",
     },
     {
+        "_id": "tSXZbbeR-kU",
+        "title": "GM Yasser Seirawan Introduces S-Chess!",
+        "author": "chessbrah",
+        "tags": ["S-Chess", "Puzzle", "Endgame"],
+        "target": "intermediate",
+        "duration": "1:27:55",
+    },
+    {
         "_id": "-b91uceklhM",
         "title": "หมากรุกไทย: เว็บใหม่มาเเรง Pychess.org (มีเอไอให้เล่นฟรี)",
         "author": "หมากรุกไทย ฆราวาสผู้ใฝ่รู้",
