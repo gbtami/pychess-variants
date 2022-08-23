@@ -1,7 +1,6 @@
 import asyncio
 import collections
 import logging
-import random
 from datetime import datetime, timezone
 from time import monotonic
 
@@ -136,8 +135,6 @@ class Game:
                 "white": (base * 1000 * 60) + 0 if base > 0 else inc * 1000,
             }
         ]
-        self.dests = {}
-        self.promotions = []
         self.lastmove = None
         self.check = False
         self.status = CREATED
@@ -224,9 +221,8 @@ class Game:
             self.wplayer.username,
             self.bplayer.username,
         )
-        self.random_move = ""
+        self.legal_moves = self.board.legal_moves()
 
-        self.set_dests()
         if self.board.move_stack:
             self.check = self.board.is_checked()
 
@@ -339,7 +335,7 @@ class Game:
                 self.lastmove = move
                 self.board.push(move)
                 self.ply_clocks.append(clocks)
-                self.set_dests()
+                self.legal_moves = self.board.legal_moves()
                 self.update_status()
 
                 # Stop manual counting when the king is bared
@@ -647,7 +643,7 @@ class Game:
             self.status = DRAW
             self.result = "1/2-1/2"
 
-        if not self.dests:
+        if not self.legal_moves:
             game_result_value = self.board.game_result()
             self.result = result_string_from_value(self.board.color, game_result_value)
 
@@ -712,33 +708,6 @@ class Game:
                 self.bplayer.game_in_progress = None
             if not self.wplayer.bot:
                 self.wplayer.game_in_progress = None
-
-    def set_dests(self):
-        dests = {}
-        promotions = []
-        moves = self.board.legal_moves()
-        if self.random_mover:
-            self.random_move = random.choice(moves) if moves else ""
-
-        for move in moves:
-            # chessgroundx key uses ":" for tenth rank
-            if self.variant in GRANDS:
-                move = move.replace("10", ":")
-            source, dest = move[0:2], move[2:4]
-            if source in dests:
-                dests[source].append(dest)
-            else:
-                dests[source] = [dest]
-
-            if not move[-1].isdigit():
-                if not (self.variant in ("seirawan", "shouse") and move[1] in ("1", "8")):
-                    promotions.append(move)
-
-            if self.variant in ("kyotoshogi", "chennis") and move[0] == "+":
-                promotions.append(move)
-
-        self.dests = dests
-        self.promotions = promotions
 
     def print_game(self):
         print(self.pgn)
@@ -966,8 +935,6 @@ class Game:
             "fen": self.board.fen,
             "lastMove": self.lastmove,
             "steps": steps,
-            "dests": self.dests,
-            "promo": self.promotions,
             "check": self.check,
             "ply": self.board.ply,
             "clocks": {"black": clocks["black"], "white": clocks["white"]},
@@ -977,7 +944,6 @@ class Game:
             if self.status > STARTED and self.rated == RATED
             else "",
             "uci_usi": self.uci_usi if self.status > STARTED else "",
-            "rm": self.random_move if self.status <= STARTED else "",
             "ct": crosstable,
             "berserk": {"w": self.wberserk, "b": self.bberserk},
             "by": self.imported_by,
