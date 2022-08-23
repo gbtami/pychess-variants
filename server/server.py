@@ -83,6 +83,10 @@ async def on_prepare(request, response):
         response.headers["Cross-Origin-Opener-Policy"] = "same-origin"
         response.headers["Cross-Origin-Embedder-Policy"] = "require-corp"
 
+        if request.match_info.get("gameId") is not None:
+            response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+            response.headers["Expires"] = "0"
+
 
 def make_app(with_db=True) -> Application:
     app = web.Application()

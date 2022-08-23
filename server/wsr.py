@@ -175,7 +175,6 @@ async def round_socket_handler(request):
                         opp_player = users[opp_name]
 
                         game.steps[0]["fen"] = data["fen"]
-                        game.set_dests()
 
                         if data["color"] == "black":
                             game.bsetup = False
@@ -189,7 +188,6 @@ async def round_socket_handler(request):
                             if opp_player.bot:
                                 game.board.janggi_setup("w")
                                 game.steps[0]["fen"] = game.board.initial_fen
-                                game.set_dests()
                             else:
                                 opp_ws = users[opp_name].game_sockets[data["gameId"]]
                                 await opp_ws.send_json(response)

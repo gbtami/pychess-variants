@@ -2,6 +2,7 @@
 
 import asyncio
 import logging
+import random
 import unittest
 from datetime import datetime, timezone
 from operator import neg
@@ -214,7 +215,7 @@ class GamePlayTestCase(AioHTTPTestCase):
 
     async def play_random(self, game):
         while game.status <= STARTED:
-            move = game.random_move
+            move = random.choice(game.legal_moves)
             await game.play_move(move, clocks={"white": 60, "black": 60})
 
     async def test_game_play(self):
