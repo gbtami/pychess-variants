@@ -84,9 +84,9 @@ class Clock:
 
     @property
     def time_for_first_move(self):
-        # Fix 30s for janggi becuse it has setup phase
-        if self.game.variant == "janggi":
-            return 30 * 1000
+        # Fix 45s for janggi becuse it has setup phase
+        if self.game.variant == "janggi" or self.game.chess960:
+            return 45 * 1000
 
         egt = self.estimate_game_time
         base = 0
@@ -113,4 +113,4 @@ class Clock:
             else:  # classical
                 base = 35
 
-        return (int(base * 5 / 4) if self.game.chess960 else base) * 1000
+        return base * 1000
