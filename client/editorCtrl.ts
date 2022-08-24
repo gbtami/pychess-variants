@@ -242,13 +242,9 @@ export class EditorController extends ChessgroundController {
         const initialMaterial = calculatePieceNumber(this.variant);
         const currentMaterial = calculatePieceNumber(this.variant, this.fullfen);
         const neededMaterial = diff(initialMaterial, currentMaterial);
-
-        const blackPocket = this.chessground.state.boardState.pockets!['black']!;
-        for (const [role, num] of neededMaterial) {
-            if (this.variant.pocketRoles!.black.includes(role) && num > 0)
-                util.changeNumber(blackPocket, role, num);
-        }
-
+        for (const [role, num] of neededMaterial)
+            if (num > 0)
+                this.chessground.changePocket({ role, color: 'black' }, num);
         this.onChange();
     }
 
@@ -353,13 +349,12 @@ export class EditorController extends ChessgroundController {
         const el = e.target as HTMLElement;
         const piece = this.chessground.state.draggable.current?.piece;
         if (piece) {
-            const role = unpromotedRole(this.variant, piece);
-            const color = el.getAttribute('data-color') as cg.Color;
-            const pocket = this.chessground.state.boardState.pockets![color];
-            if (this.chessground.state.pocketRoles![color].includes(role)) {
-                util.changeNumber(pocket, role, 1);
-                this.onChange();
-            }
+            const addedPiece = {
+                role: unpromotedRole(this.variant, piece),
+                color: el.getAttribute('data-color') as cg.Color,
+            };
+            this.chessground.changePocket(addedPiece, 1);
+            this.onChange();
         }
     }
 }

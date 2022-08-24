@@ -331,13 +331,12 @@ export abstract class GameController extends ChessgroundController implements IC
         // add the captured piece to the pocket
         // chessground doesn't know what piece to revert a captured promoted piece into, so it needs to be handled here
         if (this.variant.captureToHand && meta.captured) {
-            const role = unpromotedRole(this.variant, meta.captured);
-            const pockets = this.chessground.state.boardState.pockets!;
-            const color = util.opposite(meta.captured.color);
-            if (this.variant.pocketRoles![color].includes(role)) {
-                util.changeNumber(pockets[color], role, 1);
-                this.chessground.state.dom.redraw();
-            }
+            const piece = {
+                role: unpromotedRole(this.variant, meta.captured),
+                color: util.opposite(meta.captured.color),
+            };
+            this.chessground.changePocket(piece, 1);
+            this.chessground.state.dom.redraw();
         }
 
         //  gating elephant/hawk
