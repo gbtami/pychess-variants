@@ -114,5 +114,6 @@ When one side has only a bare King remaining, there are certain "counting rules"
 Because there is no promotion to heavy pieces, it becomes harder to force a checkmate after the existing pieces have left the board. Plan accordingly and leave yourself with enough fire power.
  
 Please allow yourself enough time on the clock, as many of those mates require precision.
- 
+
+[https://thechesspolyglot.netlify.app/2020/04/21/knf-v-k/](https://thechesspolyglot.netlify.app/2020/04/21/knf-v-k/) by Illion is recommended for everyone.
 <iframe width="560" height="315" src="https://www.youtube.com/embed/uyNsTgo8ylI" frameborder="0" allowfullscreen></iframe>

@@ -16,6 +16,7 @@ VIDEO_TAGS = (
     "S-Chess",
     "Match",
     "Tournament",
+    "Hu Ronghua",
 )
 
 VIDEOS = [
@@ -290,5 +291,13 @@ VIDEOS = [
         "tags": ["Shogi", "Tactics"],
         "target": "beginner",
         "duration": "10:17",
+    },
+    {
+        "_id": "YH2RAJo6Z-4",
+        "title": "Xiangqi Grand Master Profile Hu Ronghua with ENGLISH Subtitles",
+        "author": "Snail's Wild World of Xiangqi Chinese Chess",
+        "tags": ["Xiangqi", "Hu Ronghua"],
+        "target": "beginner",
+        "duration": "25:31",
     },
 ]
