@@ -135,12 +135,14 @@
 .pocket square, .pocket nosquare {
   flex: 0 0 calc(100% / var(--pocketLength));
   position: relative !important;
+  pointer-events: none;
 }
 
 .pocket piece {
   height: 100% !important;
   width: 100% !important;
   background-position: center;
+  pointer-events: auto;
 }
 
 .pocket square.selected-square{
@@ -152,7 +154,6 @@
 }
 .pocket.usable square {
   cursor: pointer;
-  pointer-events: auto;
 }
 .pocket.usable square:hover {
   background-color: #999;
