@@ -54,18 +54,19 @@ export class EditorController extends ChessgroundController {
             },
         });
 
-        ['mouseup', 'touchend'].forEach(name =>
-            [this.chessground.state.dom.elements.pocketTop, this.chessground.state.dom.elements.pocketBottom].forEach(pocketEl => {
-                if (pocketEl) pocketEl.addEventListener(name, (e: cg.MouchEvent) => {
-                    this.dropOnPocket(e);
-                } )
-            })
-        );
+        [this.chessground.state.dom.elements.pocketTop, this.chessground.state.dom.elements.pocketBottom].forEach(pocketEl => {
+            pocketEl?.addEventListener('mouseup', this.dropOnPocket);
+            pocketEl?.addEventListener('touchend', this.dropOnPocket);
+        });
+
+        this.chessground.state.dom.elements.board.addEventListener('touchend', this.dropOnPocket);
 
         // initialize pieces
         const pieces0 = document.getElementById('pieces0') as HTMLElement;
         const pieces1 = document.getElementById('pieces1') as HTMLElement;
         iniPieces(this, pieces0, pieces1);
+        this.vpieces0.elm?.addEventListener('touchend', this.dropOnPocket);
+        this.vpieces1.elm?.addEventListener('touchend', this.dropOnPocket);
 
         const e = document.getElementById('fen') as HTMLElement;
         this.vfen = patch(e,
@@ -345,16 +346,16 @@ export class EditorController extends ChessgroundController {
         }
     }
 
-    dropOnPocket = (e: cg.MouchEvent): void => {
-        const el = e.target as HTMLElement;
-        const piece = this.chessground.state.draggable.current?.piece;
-        if (piece) {
-            const addedPiece = {
-                role: unpromotedRole(this.variant, piece),
-                color: el.getAttribute('data-color') as cg.Color,
-            };
-            this.chessground.changePocket(addedPiece, 1);
-            this.onChange();
+    dropOnPocket = (): void => {
+        const dragCurrent = this.chessground.state.draggable.current;
+        if (dragCurrent) {
+            const el = document.elementFromPoint(dragCurrent.pos[0], dragCurrent.pos[1]);
+            const role = unpromotedRole(this.variant, dragCurrent.piece);
+            const color = el?.getAttribute('data-color') as cg.Color | undefined;
+            if (color) {
+                this.chessground.changePocket({ role, color }, 1);
+                this.onChange();
+            }
         }
     }
 }
