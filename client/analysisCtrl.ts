@@ -39,6 +39,8 @@ const EVAL_REGEX = new RegExp(''
 const maxDepth = 18;
 const maxThreads = Math.max((navigator.hardwareConcurrency || 1) - 1, 1);
 
+const emptySan = '\xa0';
+
 function titleCase (words: string) {return words.split(' ').map(w =>  w.substring(0,1).toUpperCase() + w.substring(1).toLowerCase()).join(' ');}
 
 
@@ -75,7 +77,7 @@ export class AnalysisController extends GameController {
 
     constructor(el: HTMLElement, model: PyChessModel) {
         super(el, model);
-        this.fsfDebug = true;
+        this.fsfDebug = false;
         this.fsfError = [];
         this.embed = this.gameId === undefined;
         this.isAnalysisBoard = this.gameId === "";
@@ -234,15 +236,23 @@ export class AnalysisController extends GameController {
 
     pvboxIni() {
         if (this.localAnalysis) this.engineStop();
-        for (let i = 4; i >= 0; i--) {
-            this.vpvlines[i] = patch(this.vpvlines[i], h(`div#pv${i + 1}`, {props: {class: {"pv": `${i + 1 <= this.multipv}`}}}));
-        }
+        this.clearPvlines();
         if (this.localAnalysis) this.engineGo();
     }
 
     pvView(i: number, pv: VNode | undefined) {
         if (this.vpvlines === undefined) this.pvboxIni();
         this.vpvlines[i] = patch(this.vpvlines[i], h(`div#pv${i + 1}.pv`, pv));
+    }
+
+    clearPvlines() {
+        for (let i = 4; i >= 0; i--) {
+            if (i + 1 <= this.multipv && this.localAnalysis) {
+                this.vpvlines[i] = patch(this.vpvlines[i], h(`div#pv${i + 1}.pv`, [h('pvline', h('pvline', '-'))]));
+            } else {
+                this.vpvlines[i] = patch(this.vpvlines[i], h(`div#pv${i + 1}`));
+            }
+        }
     }
 
     toggleOrientation() {
@@ -262,11 +272,8 @@ export class AnalysisController extends GameController {
                     this.vinfo = patch(this.vinfo, h('info#info', '-'));
                     this.pvboxIni();
                 } else {
-                    this.vinfo = patch(this.vinfo, h('info#info', _('in local browser')));
-                    for (let i = 4; i >= 0; i--) {
-                        this.vpvlines[i] = patch(this.vpvlines[i], h(`div#pv${i + 1}`, {props: {class: { "pv": false }}}));
-                    }
                     this.engineStop();
+                    this.pvboxIni();
                 }
             }}
         };
@@ -484,15 +491,7 @@ export class AnalysisController extends GameController {
 
         const matches = line.match(EVAL_REGEX);
         if (!matches) {
-            if (line.includes('mate 0')) {
-                let msg: MsgAnalysis;
-                this.vpvlines.forEach((_, i) => {
-                    if (i + 1 <= this.multipv) {
-                        msg = {type: 'local-analysis', ply: this.ply, color: this.turnColor.slice(0, 1), ceval: {multipv: i + 1, d: 0, s: {mate: 0}}};
-                        this.onMsgAnalysis(msg);
-                    }
-                });
-            }
+            if (line.includes('mate 0')) this.clearPvlines();
             return;
         }
 
@@ -549,18 +548,15 @@ export class AnalysisController extends GameController {
                 try {
                     this.fsfEngineBoard.setFen(this.fullfen);
                     pvSan = this.fsfEngineBoard.variationSan(ceval.p, this.notationAsObject);
-                    if (pvSan === '') pvSan = '.';
+                    if (pvSan === '') pvSan = emptySan;
                 } catch (error) {
-                    pvSan = '.';
+                    pvSan = emptySan;
                 }
             }
-            if (pvSan !== '.') {
+            if (pvSan !== emptySan) {
                 pvSan = h('pv-san', { on: { click: () => this.makePvMove(ceval.p as string) } } , pvSan)
+                this.pvView(pvlineIdx, h('pvline', [(this.multipv > 1 && this.localAnalysis) ? h('strong', scoreStr) : '', pvSan]));
             }
-            this.pvView(pvlineIdx, h('pvline', [
-                (this.multipv > 1) ? h('strong', scoreStr) : '',
-                pvSan,
-            ]));
         } else {
             this.pvView(pvlineIdx, h('pvline', (this.localAnalysis) ? h('pvline', '-') : ''));
         }
@@ -707,6 +703,7 @@ export class AnalysisController extends GameController {
 
         if (this.localAnalysis) {
             this.engineStop();
+            this.clearPvlines();
             // Go back to the main line
             if (plyVari === 0) {
                 const container = document.getElementById('vari') as HTMLElement;
@@ -902,6 +899,7 @@ export class AnalysisController extends GameController {
         // console.log("got analysis_board msg:", msg);
         if (msg.gameId !== this.gameId) return;
         if (this.localAnalysis) this.engineStop();
+        this.clearPvlines();
 
         this.fullfen = msg.fen;
         this.ply = msg.ply
