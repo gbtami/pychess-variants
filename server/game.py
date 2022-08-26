@@ -262,7 +262,10 @@ class Game:
 
         if self.status > STARTED:
             return
-        if self.status == CREATED:
+
+        # In Janggi games self.status was already set to STARTED when setup phase ended
+        # so we have to check board.ply instead here!
+        if self.board.ply == 0:
             self.status = STARTED
             self.app["g_cnt"][0] += 1
             response = {"type": "g_cnt", "cnt": self.app["g_cnt"][0]}
