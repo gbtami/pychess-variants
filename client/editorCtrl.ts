@@ -345,9 +345,12 @@ export class EditorController extends ChessgroundController {
         const dragCurrent = this.chessground.state.draggable.current;
         if (dragCurrent) {
             const el = document.elementFromPoint(dragCurrent.pos[0], dragCurrent.pos[1]);
-            const role = unpromotedRole(this.variant, dragCurrent.piece);
-            const color = el?.getAttribute('data-color') as cg.Color | undefined;
-            if (color) {
+            // Needs to check whether the drop is actually on a pocket since touchend events
+            //     are bound to the *starting* point of the touch, not the end point
+            const onPocket = Number(el?.getAttribute('data-nb') ?? -1) >= 0;
+            if (onPocket) {
+                const role = unpromotedRole(this.variant, dragCurrent.piece);
+                const color = el?.getAttribute('data-color') as cg.Color;
                 this.chessground.changePocket({ role, color }, 1);
                 this.onChangeBoard();
             }
