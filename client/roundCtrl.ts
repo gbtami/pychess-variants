@@ -165,7 +165,7 @@ export class RoundController extends GameController {
                 animation: { enabled: this.animation },
                 movable: {
                     free: false,
-                    color: this.mycolor,
+                    color: (this.variant.name === 'janggi' && this.status === -2) ? undefined : this.mycolor,
                     showDests: this.showDests,
                     events: {
                         after: (orig, dest, meta) => this.onUserMove(orig, dest, meta),
@@ -804,7 +804,7 @@ export class RoundController extends GameController {
                         turnColor: this.turnColor,
                         movable: {
                             free: false,
-                            color: this.mycolor,
+                            color: (this.variant.name === 'janggi' && this.status === -2) ? undefined : this.mycolor,
                         },
                         check: msg.check,
                         lastMove: lastMove,

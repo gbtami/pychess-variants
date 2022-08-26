@@ -193,6 +193,8 @@ async def round_socket_handler(request):
                                 await opp_ws.send_json(response)
                         else:
                             game.wsetup = False
+                            game.status = STARTED
+
                             response = game.get_board(full=True)
                             # log.info("User %s asked board. Server sent: %s" % (user.username, board_response["fen"]))
                             await ws.send_json(response)
