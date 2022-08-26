@@ -71,7 +71,7 @@ export function piecesView(ctrl: EditorController, color: cg.Color, position: Po
     }));
 }
 
-export function drag(ctrl: EditorController, e: cg.MouchEvent): void {
+function drag(ctrl: EditorController, e: cg.MouchEvent): void {
     if (e.button !== undefined && e.button !== 0) return; // only touch or left click
     const el = e.target as HTMLElement,
         role = el.getAttribute('data-role') as cg.Role,
