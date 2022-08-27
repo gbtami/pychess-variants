@@ -563,31 +563,6 @@ def remove_seek(seeks, seek):
             del seek.creator.seeks[seek.id]
 
 
-# This will be removed when we can use ffishjs
-def get_dests(board):
-    dests = {}
-    promotions = []
-    moves = board.legal_moves()
-
-    for move in moves:
-        if board.variant in GRANDS:
-            move = grand2zero(move)
-        source, dest = move[0:2], move[2:4]
-        if source in dests:
-            dests[source].append(dest)
-        else:
-            dests[source] = [dest]
-
-        if not move[-1].isdigit():
-            if not (board.variant in ("seirawan", "shouse") and (move[1] in ("1", "8"))):
-                promotions.append(move)
-
-        if board.variant in ("kyotoshogi", "chennis") and move[0] == "+":
-            promotions.append(move)
-
-    return (dests, promotions)
-
-
 async def analysis_move(app, user, game, move, fen, ply):
     invalid_move = False
 
@@ -597,7 +572,6 @@ async def analysis_move(app, user, game, move, fen, ply):
         # san = board.get_san(move)
         lastmove = move
         board.push(move)
-        dests, promotions = get_dests(board)
         check = board.is_checked()
     except Exception:
         invalid_move = True
@@ -612,8 +586,6 @@ async def analysis_move(app, user, game, move, fen, ply):
             "fen": board.fen,
             "ply": ply,
             "lastMove": lastmove,
-            "dests": dests,
-            "promo": promotions,
             "check": check,
         }
 
@@ -698,8 +670,6 @@ async def play_move(app, user, game, move, clocks=None, ply=None):
                 and tournament.top_game.id == gameId
             ):
                 # no need to send lots of data to tournament top game
-                del board_response["dests"]
-                del board_response["promo"]
                 del board_response["pgn"]
                 del board_response["uci_usi"]
                 del board_response["ct"]

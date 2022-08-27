@@ -125,8 +125,6 @@ export class LobbyController implements IChatController {
         const e = document.getElementById("fen") as HTMLInputElement;
         if (this.fen !== "")
             e.value = this.fen;
-        if (this.anon)
-            e.disabled = true;
     }
 
     doSend(message: JSONObject) {

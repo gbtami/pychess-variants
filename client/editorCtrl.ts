@@ -40,7 +40,7 @@ export class EditorController extends ChessgroundController {
                 free: true,
             },
             events: {
-                change: this.onChange,
+                change: this.onChangeBoard,
                 select: this.onSelect(),
             },
             selectable: {
@@ -54,25 +54,25 @@ export class EditorController extends ChessgroundController {
             },
         });
 
-        ['mouseup', 'touchend'].forEach(name =>
-            [this.chessground.state.dom.elements.pocketTop, this.chessground.state.dom.elements.pocketBottom].forEach(pocketEl => {
-                if (pocketEl) pocketEl.addEventListener(name, (e: cg.MouchEvent) => {
-                    this.dropOnPocket(e);
-                } )
-            })
-        );
+        [this.chessground.state.dom.elements.pocketTop, this.chessground.state.dom.elements.pocketBottom].forEach(pocketEl => {
+            pocketEl?.addEventListener('mouseup', this.dropOnPocket);
+            pocketEl?.addEventListener('touchend', this.dropOnPocket);
+        });
+
+        this.chessground.state.dom.elements.board.addEventListener('touchend', this.dropOnPocket);
 
         // initialize pieces
         const pieces0 = document.getElementById('pieces0') as HTMLElement;
         const pieces1 = document.getElementById('pieces1') as HTMLElement;
         iniPieces(this, pieces0, pieces1);
+        this.vpieces0.elm?.addEventListener('touchend', this.dropOnPocket);
+        this.vpieces1.elm?.addEventListener('touchend', this.dropOnPocket);
 
         const e = document.getElementById('fen') as HTMLElement;
         this.vfen = patch(e,
             h('input#fen', {
                 props: { name: 'fen', value: model["fen"] },
-                on: { input: () => this.setFen(true), paste: (e) => this.onPasteFen(e) },
-                hook: {insert: () => this.setFen(false) },
+                on: { input: () => this.onChangeFen(), paste: (e) => this.onPasteFen(e) },
             }),
         );
 
@@ -99,13 +99,13 @@ export class EditorController extends ChessgroundController {
                         h('input#wOO', {
                             props: {name: "wOO", type: "checkbox"},
                             attrs: {checked: this.parts[2].includes('K')},
-                            on: { change: () => this.onChangeCastl() },
+                            on: { change: () => this.onChangeCastling() },
                         }),
                         h('label.OOO', { attrs: { for: "wOOO" } }, "O-O-O"),
                         h('input#wOOO', {
                             props: {name: "wOOO", type: "checkbox"},
                             attrs: {checked: this.parts[2].includes('Q')},
-                            on: { change: () => this.onChangeCastl() },
+                            on: { change: () => this.onChangeCastling() },
                         }),
                     ]),
                     (!hasCastling(this.variant, 'black')) ? '' :
@@ -114,13 +114,13 @@ export class EditorController extends ChessgroundController {
                         h('input#bOO', {
                             props: {name: "bOO", type: "checkbox"},
                             attrs: {checked: this.parts[2].includes('k')},
-                            on: { change: () => this.onChangeCastl() },
+                            on: { change: () => this.onChangeCastling() },
                         }),
                         h('label.OOO', { attrs: { for: "bOOO" } }, "O-O-O"),
                         h('input#bOOO', {
                             props: {name: "bOOO", type: "checkbox"},
                             attrs: {checked: this.parts[2].includes('q')},
-                            on: { change: () => this.onChangeCastl() },
+                            on: { change: () => this.onChangeCastling() },
                         }),
                     ]),
                 ]),
@@ -161,10 +161,10 @@ export class EditorController extends ChessgroundController {
 
     private onChangeTurn = (e: Event) => {
         this.parts[1] = ((<HTMLSelectElement>e.target).value === 'white') ? 'w' : 'b';
-        this.onChange();
+        this.onChangeBoard();
     }
 
-    private onChangeCastl = () => {
+    private onChangeCastling = () => {
         const castlings: {[key:string]:string} = {
             'wOO': 'K',
             'wOOO': 'Q',
@@ -188,7 +188,7 @@ export class EditorController extends ChessgroundController {
 
         this.parts[2] = castl.join('') + gatings;
         if (this.parts[2].length === 0) this.parts[2] = '-';
-        this.onChange();
+        this.onChangeBoard();
     }
 
     // Remove accidentally selected leading spaces from FEN (mostly may happen on mobile)
@@ -196,7 +196,7 @@ export class EditorController extends ChessgroundController {
         const data = e.clipboardData?.getData('text') ?? "";
         (<HTMLInputElement>e.target).value = data.trim();
         e.preventDefault();
-        this.setFen(true);
+        this.onChangeFen();
     }
 
     private validFen = () => {
@@ -221,7 +221,7 @@ export class EditorController extends ChessgroundController {
     private setStartFen = () => {
         const e = document.getElementById('fen') as HTMLInputElement;
         e.value = this.startfen;
-        this.setFen(true);
+        this.onChangeFen();
     }
 
     private setEmptyFen = () => {
@@ -235,21 +235,17 @@ export class EditorController extends ChessgroundController {
         if (this.parts.length > 2) this.parts[2] = '-';
         const e = document.getElementById('fen') as HTMLInputElement;
         e.value = this.parts.join(' ');
-        this.setFen(true);
+        this.onChangeFen();
     }
 
     private fillHand = () => {
         const initialMaterial = calculatePieceNumber(this.variant);
         const currentMaterial = calculatePieceNumber(this.variant, this.fullfen);
         const neededMaterial = diff(initialMaterial, currentMaterial);
-
-        const blackPocket = this.chessground.state.boardState.pockets!['black']!;
-        for (const [role, num] of neededMaterial) {
-            if (this.variant.pocketRoles!.black.includes(role) && num > 0)
-                util.changeNumber(blackPocket, role, num);
-        }
-
-        this.onChange();
+        for (const [role, num] of neededMaterial)
+            if (num > 0)
+                this.chessground.changePocket({ role, color: 'black' }, num);
+        this.onChangeBoard();
     }
 
     private setAnalysisFen = () => {
@@ -262,41 +258,37 @@ export class EditorController extends ChessgroundController {
         window.location.assign(this.model["home"] + '/@/Fairy-Stockfish/challenge/' + this.model["variant"] + '?fen=' + fen);
     }
 
-    setFen = (isInput: boolean) => {
+    private onChangeFen = () => {
         const fen = document.getElementById('fen') as HTMLInputElement;
-        if (isInput) {
-            this.parts = fen.value.split(' ');
-            this.chessground.set({ fen: fen.value });
-            this.setInvalid(!this.validFen());
+        this.parts = fen.value.split(' ');
+        this.chessground.set({ fen: fen.value });
+        this.setInvalid(!this.validFen());
 
-            if (this.parts.length > 1) {
-                const turn = document.getElementById('turn') as HTMLInputElement;
-                turn.value = (this.parts[1] === 'w') ? 'white' : 'black';
-            }
+        if (this.parts.length > 1) {
+            const turn = document.getElementById('turn') as HTMLInputElement;
+            turn.value = (this.parts[1] === 'w') ? 'white' : 'black';
+        }
 
-            this.fullfen = fen.value;
+        this.fullfen = fen.value;
 
-            if (hasCastling(this.variant, 'white')) {
-                if (this.parts.length >= 3) {
-                    const castlings: {[ket:string]: string} = {
-                        'K': 'wOO',
-                        'Q': 'wOOO',
-                        'k': 'bOO',
-                        'q': 'bOOO',
-                    }
-                    for (const key in castlings) {
-                        const el = document.getElementById(castlings[key]) as HTMLInputElement;
-                        // There are no black castlings in asymmetric variants!
-                        if (el !== null) el.checked = this.parts[2].includes(key);
-                    }
+        if (hasCastling(this.variant, 'white')) {
+            if (this.parts.length >= 3) {
+                const castlings: {[ket:string]: string} = {
+                    'K': 'wOO',
+                    'Q': 'wOOO',
+                    'k': 'bOO',
+                    'q': 'bOOO',
+                }
+                for (const key in castlings) {
+                    const el = document.getElementById(castlings[key]) as HTMLInputElement;
+                    // There are no black castlings in asymmetric variants!
+                    if (el !== null) el.checked = this.parts[2].includes(key);
                 }
             }
-        } else {
-            fen.value = this.startfen;
         }
     }
 
-    onChange = () => {
+    private onChangeBoard = () => {
         // onChange() will get then set and validate FEN from chessground pieces
         this.parts[0] = this.chessground.getFen();
         this.fullfen = this.parts.join(' ');
@@ -305,7 +297,7 @@ export class EditorController extends ChessgroundController {
         this.setInvalid(!this.validFen());
     }
 
-    onSelect = () => {
+    private onSelect = () => {
         let lastTime = performance.now();
         let lastKey: cg.Key | undefined;
         return (key: cg.Key) => {
@@ -339,7 +331,7 @@ export class EditorController extends ChessgroundController {
                     }
                     const pieces = new Map([[key, newPiece]]);
                     this.chessground.setPieces(pieces);
-                    this.onChange();
+                    this.onChangeBoard();
                 }
                 lastKey = undefined;
             } else {
@@ -349,16 +341,18 @@ export class EditorController extends ChessgroundController {
         }
     }
 
-    dropOnPocket = (e: cg.MouchEvent): void => {
-        const el = (e.target as HTMLElement).firstChild as HTMLElement;
-        const piece = this.chessground.state.draggable.current?.piece;
-        if (piece) {
-            const role = unpromotedRole(this.variant, piece);
-            const color = el.getAttribute('data-color') as cg.Color;
-            const pocket = this.chessground.state.boardState.pockets![color];
-            if (this.chessground.state.pocketRoles![color].includes(role)) {
-                util.changeNumber(pocket, role, 1);
-                this.onChange();
+    private dropOnPocket = (): void => {
+        const dragCurrent = this.chessground.state.draggable.current;
+        if (dragCurrent) {
+            const el = document.elementFromPoint(dragCurrent.pos[0], dragCurrent.pos[1]);
+            // Needs to check whether the drop is actually on a pocket since touchend events
+            //     are bound to the *starting* point of the touch, not the end point
+            const onPocket = Number(el?.getAttribute('data-nb') ?? -1) >= 0;
+            if (onPocket) {
+                const role = unpromotedRole(this.variant, dragCurrent.piece);
+                const color = el?.getAttribute('data-color') as cg.Color;
+                this.chessground.changePocket({ role, color }, 1);
+                this.onChangeBoard();
             }
         }
     }

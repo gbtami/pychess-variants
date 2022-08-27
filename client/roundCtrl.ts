@@ -165,7 +165,7 @@ export class RoundController extends GameController {
                 animation: { enabled: this.animation },
                 movable: {
                     free: false,
-                    color: this.mycolor,
+                    color: (this.variant.name === 'janggi' && this.status === -2) ? undefined : this.mycolor,
                     showDests: this.showDests,
                     events: {
                         after: (orig, dest, meta) => this.onUserMove(orig, dest, meta),
@@ -683,30 +683,14 @@ export class RoundController extends GameController {
         }
 
         this.fullfen = msg.fen;
-
-        if (this.variant.gate) {
-            // When castling with gating is possible 
-            // e1g1, e1g1h, e1g1e, h1e1h, h1e1e all will be offered by moving our king two squares
-            // so we filter out rook takes king moves (h1e1h, h1e1e) from dests
-            for (const orig in msg.dests) {
-                if (orig[1] !== '@') {
-                const movingPiece = this.chessground.state.boardState.pieces.get(orig as cg.Key);
-                if (movingPiece !== undefined && movingPiece.role === "r-piece") {
-                    msg.dests[orig] = msg.dests[orig].filter(x => {
-                        const destPiece = this.chessground.state.boardState.pieces.get(x);
-                        return destPiece === undefined || destPiece.role !== 'k-piece';
-                    });
-                }
-                }
-            }
+        if (this.ffishBoard) {
+            this.ffishBoard.setFen(this.fullfen);
+            this.setDests();
         }
+
         const parts = msg.fen.split(" ");
         this.turnColor = parts[1] === "w" ? "white" : "black";
 
-        this.dests = (msg.status < 0) ? new Map(Object.entries(msg.dests)) : new Map();
-
-        // list of legal promotion moves
-        this.promotions = msg.promo;
         this.clocktimes = msg.clocks || this.clocktimes;
 
         this.result = msg.result;
@@ -820,8 +804,7 @@ export class RoundController extends GameController {
                         turnColor: this.turnColor,
                         movable: {
                             free: false,
-                            color: this.mycolor,
-                            dests: this.dests,
+                            color: (this.variant.name === 'janggi' && this.status === -2) ? undefined : this.mycolor,
                         },
                         check: msg.check,
                         lastMove: lastMove,
@@ -856,15 +839,10 @@ export class RoundController extends GameController {
     goPly = (ply: number, plyVari = 0) => {
         super.goPly(ply, plyVari);
 
-        const step = this.steps[ply];
-        this.chessground.set({
-            movable: {
-                free: false,
-                color: this.spectator ? undefined : step.turnColor,
-                dests: (this.turnColor === this.mycolor && this.result === "*" && ply === this.steps.length - 1) ? this.dests : undefined,
-            }
-        });
-
+        if (this.turnColor !== this.mycolor || this.result !== "*" || ply !== this.steps.length - 1) {
+            this.chessground.set({ movable: { dests: undefined } });
+        }
+        
         this.updateMaterial();
     }
 
