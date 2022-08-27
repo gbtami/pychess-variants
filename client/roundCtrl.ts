@@ -306,13 +306,15 @@ export class RoundController extends GameController {
 
         const container = document.getElementById('game-controls') as HTMLElement;
         if (!this.spectator) {
-            const pass = this.variant.pass;
             let buttons = [];
             if (!this.tournamentGame) {
                 buttons.push(h('button#abort', { on: { click: () => this.abort() }, props: {title: _('Abort')} }, [h('i', {class: {"icon": true, "icon-abort": true} } ), ]));
             }
             buttons.push(h('button#count', _('Count')));
-            buttons.push(h('button#draw', { on: { click: () => (pass) ? this.pass() : this.draw() }, props: {title: (pass) ? _('Pass') : _("Draw")} }, [(pass) ? _('Pass') : h('i', '½')]));
+            if (this.variant.pass)
+                buttons.push(h('button#draw', { on: { click: () => { if (this.mycolor === this.turnColor) this.pass(); } }, props: { title: _('Pass') } }, _('Pass')));
+            else
+                buttons.push(h('button#draw', { on: { click: () => this.draw() }, props: { title: _('Draw') } }, h('i', '½')));
             buttons.push(h('button#resign', { on: { click: () => this.resign() }, props: {title: _("Resign")} }, [h('i', {class: {"icon": true, "icon-flag-o": true} } ), ]));
             
             this.gameControls = patch(container, h('div.btn-controls', buttons));
