@@ -77,10 +77,9 @@ export abstract class GameController extends ChessgroundController implements IC
     spectator: boolean;
 
     // Settings
-    animation: boolean;
-    showDests: boolean;
     clickDropEnabled: boolean;
     autoPromote?: boolean;
+    dblClickPass?: boolean;
 
     // Main line ply where analysis variation starts
     plyVari: number;
@@ -106,9 +105,6 @@ export abstract class GameController extends ChessgroundController implements IC
         this.rated = model["rated"];
 
         this.spectator = this.username !== this.wplayer && this.username !== this.bplayer;
-
-        this.animation = localStorage.animation === undefined ? true : localStorage.animation === "true";
-        this.showDests = localStorage.showDests === undefined ? true : localStorage.showDests === "true";
 
         this.gating = new Gating(this);
         this.promotion = new Promotion(this);
@@ -141,6 +137,15 @@ export abstract class GameController extends ChessgroundController implements IC
 
         this.turnColor = parts[1] === "w" ? "white" : "black";
 
+        this.chessground.set({
+            animation: {
+                enabled: localStorage.animation === undefined || localStorage.animation === "true",
+            },
+            movable: {
+                showDests: localStorage.showDests === undefined || localStorage.showDests === "true",
+            },
+        });
+
         this.steps.push({
             'fen': this.fullfen,
             'move': undefined,
@@ -152,10 +157,7 @@ export abstract class GameController extends ChessgroundController implements IC
     }
 
     flipped() {
-        return (
-            (this.chessground.state.orientation === 'black' && this.mycolor === 'white') ||
-            (this.chessground.state.orientation === 'white' && this.mycolor === 'black')
-        );
+        return this.chessground.state.orientation !== this.mycolor;
     }
 
     setDests = () => {
@@ -266,7 +268,7 @@ export abstract class GameController extends ChessgroundController implements IC
             }
 
             // Sittuyin in place promotion on double click
-            if (lastKey === key && curTime - lastTime < 500) {
+            if (this.chessground.state.stats.ctrlKey || (lastKey === key && curTime - lastTime < 500)) {
                 if (this.chessground.state.movable.dests.get(key)?.includes(key)) {
                     const piece = this.chessground.state.boardState.pieces.get(key)!;
                     if (this.variant.name === 'sittuyin') { // TODO make this more generic
@@ -280,6 +282,8 @@ export abstract class GameController extends ChessgroundController implements IC
                         this.chessground.selectSquare(key);
                         sound.moveSound(this.variant, false);
                         this.sendMove(key, key, 'f');
+                    } else if ((this.chessground.state.stats.ctrlKey || this.dblClickPass) && this.variant.pass) {
+                        this.pass(key);
                     }
                 }
                 lastKey = undefined;
@@ -290,15 +294,16 @@ export abstract class GameController extends ChessgroundController implements IC
         }
     }
 
-    protected pass = () => {
-        let passKey: cg.Key | undefined;
-        const pieces = this.chessground.state.boardState.pieces;
-        const dests = this.chessground.state.movable.dests!;
-        for (const [k, p] of pieces) {
-            if (p.role === 'k-piece' && p.color === this.turnColor) {
-                if (dests.get(k)?.includes(k)) {
-                    passKey = k;
-                    break;
+    protected pass = (passKey?: cg.Key) => {
+        if (!passKey) {
+            const pieces = this.chessground.state.boardState.pieces;
+            const dests = this.chessground.state.movable.dests!;
+            for (const [k, p] of pieces) {
+                if (p.role === 'k-piece' && p.color === this.turnColor) {
+                    if (dests.get(k)?.includes(k)) {
+                        passKey = k;
+                        break;
+                    }
                 }
             }
         }
