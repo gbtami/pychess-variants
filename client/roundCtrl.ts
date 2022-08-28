@@ -165,7 +165,7 @@ export class RoundController extends GameController {
                 animation: { enabled: this.animation },
                 movable: {
                     free: false,
-                    color: (this.variant.name === 'janggi' && this.status === -2) ? undefined : this.mycolor,
+                    color: (this.variant.setup && this.status === -2) ? undefined : this.mycolor,
                     showDests: this.showDests,
                     events: {
                         after: (orig, dest, meta) => this.onUserMove(orig, dest, meta),
@@ -658,7 +658,7 @@ export class RoundController extends GameController {
         if (latestPly) this.ply = msg.ply;
 
         if (this.ply === 0) {
-            if (this.variant.name === 'janggi') {
+            if (this.variant.setup) {
                 // force to set new dests after setup phase!
                 latestPly = true;
             } else {
@@ -806,7 +806,7 @@ export class RoundController extends GameController {
                         turnColor: this.turnColor,
                         movable: {
                             free: false,
-                            color: (this.variant.name === 'janggi' && this.status === -2) ? undefined : this.mycolor,
+                            color: (this.variant.setup && this.status === -2) ? undefined : this.mycolor,
                         },
                         check: msg.check,
                         lastMove: lastMove,
@@ -990,7 +990,7 @@ export class RoundController extends GameController {
             // prevent sending gameStart message when user just reconecting
             if (msg.ply === 0) {
                 this.doSend({ type: "ready", gameId: this.gameId });
-                if (this.variant.name === 'janggi') {
+                if (this.variant.setup) {
                     this.doSend({ type: "board", gameId: this.gameId });
                 }
             }

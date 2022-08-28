@@ -131,6 +131,7 @@ export class Variant {
     readonly captureToHand: boolean;
     readonly gate: boolean;
     readonly pass: boolean;
+    readonly setup: boolean;
     readonly boardMark: 'campmate' | 'none';
     readonly showPromoted: boolean;
     readonly showMaterialDiff : boolean;
@@ -183,6 +184,7 @@ export class Variant {
         this.captureToHand = data.captureToHand ?? false;
         this.gate = data.gate ?? false;
         this.pass = data.pass ?? false;
+        this.setup = data.setup ?? false;
         this.boardMark = data.boardMark ?? 'none';
         this.showPromoted = data.showPromoted ?? false;
         this.showMaterialDiff = !this.captureToHand;
@@ -226,6 +228,7 @@ interface VariantConfig { // TODO explain what each parameter of the variant con
     captureToHand?: boolean;
     gate?: boolean;
     pass?: boolean;
+    setup?: boolean;
     boardMark?: 'campmate' | 'none';
     pieceSound?: string;
     showPromoted?: boolean;
@@ -513,7 +516,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         promoteableLetters: [],
         timeControl: "byoyomi",
         materialPoint: "janggi",
-        pass: true,
+        pass: true, setup: true,
         icon: "=",
     }),
 
