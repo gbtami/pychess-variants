@@ -53,8 +53,6 @@ export class AnalysisController extends GameController {
     uci_usi: string;
     plyVari: number;
     plyInsideVari: number;
-    animation: boolean;
-    showDests: boolean;
     analysisChart: Chart;
     movetimeChart: Chart;
     chartFunctions: any[];
@@ -126,6 +124,7 @@ export class AnalysisController extends GameController {
         this.plyInsideVari = -1
 
         this.settings = true;
+        this.dblClickPass = true;
         this.arrow = localStorage.arrow === undefined ? true : localStorage.arrow === "true";
         this.multipv = localStorage.multipv === undefined ? 1 : Math.max(1, Math.min(5, parseInt(localStorage.multipv)));
         this.evalFile = localStorage[`${this.variant.name}-nnue`] === undefined ? '' : localStorage[`${this.variant.name}-nnue`];
@@ -135,11 +134,9 @@ export class AnalysisController extends GameController {
         this.chessground.set({
             orientation: this.mycolor,
             turnColor: this.turnColor,
-            animation: { enabled: this.animation },
             movable: {
                 free: false,
                 color: this.turnColor,
-                showDests: this.showDests,
                 events: {
                     after: (orig, dest, meta) => this.onUserMove(orig, dest, meta),
                     afterNewPiece: (piece, dest, meta) => this.onUserDrop(piece, dest, meta),

@@ -50,8 +50,6 @@ export class RoundController extends GameController {
     berserkable: boolean;
     settings: boolean;
     tv: boolean;
-    animation: boolean;
-    showDests: boolean;
     blindfold: boolean;
     handicap: boolean;
     setupFen: string;
@@ -149,7 +147,6 @@ export class RoundController extends GameController {
             orientation: this.mycolor,
             turnColor: this.turnColor,
             autoCastle: this.variant.name !== 'cambodian', // TODO make more generic
-            animation: { enabled: this.animation },
         });
 
         if (this.spectator) {
@@ -162,11 +159,9 @@ export class RoundController extends GameController {
             });
         } else {
             this.chessground.set({
-                animation: { enabled: this.animation },
                 movable: {
                     free: false,
                     color: (this.variant.setup && this.status === -2) ? undefined : this.mycolor,
-                    showDests: this.showDests,
                     events: {
                         after: (orig, dest, meta) => this.onUserMove(orig, dest, meta),
                         afterNewPiece: (piece, dest, meta) => this.onUserDrop(piece, dest, meta),
