@@ -282,7 +282,7 @@ export abstract class GameController extends ChessgroundController implements IC
                         this.chessground.selectSquare(key);
                         sound.moveSound(this.variant, false);
                         this.sendMove(key, key, 'f');
-                    } else if ((this.chessground.state.stats.ctrlKey || this.dblClickPass) && this.variant.pass && piece.role === 'k-piece' && piece.color === this.mycolor) {
+                    } else if ((this.chessground.state.stats.ctrlKey || this.dblClickPass) && this.variant.pass) {
                         this.pass(key);
                     }
                 }
