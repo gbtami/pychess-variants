@@ -19,6 +19,11 @@ export type CGMove = `${cg.Orig}${cg.Key}`; // TODO: this is missing suffix for 
 
 export type ColorName = "White" | "Black" | "Red" | "Blue" | "Gold" | "Pink" | "Green";
 export type PromotionType = "regular" | "shogi" | "kyoto";
+export type TimeControlType = "incremental" | "byoyomi";
+export type CountingType = "makruk" | "asean";
+export type MaterialPointType = "janggi";
+export type BoardMarkType = "campmate" | "none";
+export type PieceSoundType = "regular" | "atomic" | "shogi";
 
 export interface BoardFamily {
     dimensions: cg.BoardDimensions;
@@ -123,15 +128,16 @@ export class Variant {
     readonly promotionOrder: PromotionSuffix[];
     readonly promoteableRoles: cg.Role[];
     readonly isMandatoryPromotion: MandatoryPromotionPredicate;
-    readonly timeControl: string;
-    readonly counting?: string;
-    readonly materialPoint?: string;
+    readonly timeControl: TimeControlType;
+    readonly counting?: CountingType;
+    readonly materialPoint?: MaterialPointType;
     readonly enPassant: boolean;
     readonly autoPromoteable: boolean;
     readonly captureToHand: boolean;
     readonly gate: boolean;
     readonly pass: boolean;
-    readonly boardMark: 'campmate' | 'none';
+    readonly setup: boolean;
+    readonly boardMark: BoardMarkType;
     readonly showPromoted: boolean;
     readonly showMaterialDiff : boolean;
     readonly initialMaterialImbalance : MaterialDiff;
@@ -143,7 +149,7 @@ export class Variant {
     private readonly _icon: string;
     private readonly _icon960: string;
     icon(chess960 = false) { return chess960 ? this._icon960 : this._icon; }
-    readonly pieceSound: string;
+    readonly pieceSound: PieceSoundType;
 
     constructor(data: VariantConfig) {
         this.name = data.name;
@@ -183,6 +189,7 @@ export class Variant {
         this.captureToHand = data.captureToHand ?? false;
         this.gate = data.gate ?? false;
         this.pass = data.pass ?? false;
+        this.setup = data.setup ?? false;
         this.boardMark = data.boardMark ?? 'none';
         this.showPromoted = data.showPromoted ?? false;
         this.showMaterialDiff = !this.captureToHand;
@@ -198,43 +205,59 @@ export class Variant {
     }
 }
 
-interface VariantConfig { // TODO explain what each parameter of the variant config means
-    name: string;
+interface VariantConfig {
+    name: string; // The name of this variant as defined in Fairy-Stockfish
 
-    displayName?: string;
+    displayName?: string; // The display name of this variant for use on the website
 
-    tooltip: () => string;
-    startFen: string;
-    board: keyof typeof BOARD_FAMILIES;
-    piece: keyof typeof PIECE_FAMILIES;
+    tooltip: () => string; // The tooltip of this variant when its name is hovered
+    startFen: string; // The FEN string that represents the starting position
+    board: keyof typeof BOARD_FAMILIES; // The board style family
+    piece: keyof typeof PIECE_FAMILIES; // The piece style family
 
-    firstColor?: ColorName;
-    secondColor?: ColorName;
-    pieceLetters: cg.Letter[];
-    pieceLetters2?: cg.Letter[];
-    pocketLetters?: cg.Letter[];
-    pocketLetters2?: cg.Letter[];
-    kingLetters?: cg.Letter[];
+    firstColor?: ColorName; // The name of the first-mover's color
+    secondColor?: ColorName; // The name of the second-mover's color
+    pieceLetters: cg.Letter[]; // The letters of pieces available for the first-mover
+    pieceLetters2?: cg.Letter[]; // The letters of pieces available for the second-mover IF it is different from the first-mover
+    pocketLetters?: cg.Letter[]; // The letters of pieces in the pocket of the first-mover
+    pocketLetters2?: cg.Letter[]; // The letters of pieces in the pocket of the second-mover IF it is different from the first-mover
+    kingLetters?: cg.Letter[]; // The letters of the piece(s) that will be marked for check
 
-    promotion?: PromotionType;
-    promotionOrder?: PromotionSuffix[];
-    promoteableLetters?: cg.Letter[];
-    isMandatoryPromotion?: MandatoryPromotionPredicate;
-    timeControl?: string;
-    counting?: string;
-    materialPoint?: string;
-    captureToHand?: boolean;
-    gate?: boolean;
-    pass?: boolean;
-    boardMark?: 'campmate' | 'none';
-    pieceSound?: string;
-    showPromoted?: boolean;
+    promotion?: PromotionType; // The type of promotion of this variant
+        // (default) "regular" = Chess-style, pawns promote to one or more other pieces
+        // "shogi" = Shogi-style, multiple pieces can promote, each piece has a specific piece type it promotes to
+        // "kyoto" = Kyoto Shogi, like shogi, but pieces can also demote and can be dropped in promoted state
+    promotionOrder?: PromotionSuffix[]; // The order of pieces to be shown in promotion choice
+    promoteableLetters?: cg.Letter[]; // The letters of pieces that can promote
+    isMandatoryPromotion?: MandatoryPromotionPredicate; // Specific condition to determine if a piece promotion is mandatory
+    timeControl?: TimeControlType; // Default time control type
+        // (default) "incremental" = Fischer increment. An amount of time is added to the clock after each move
+        // "byoyomi" = Overtime. An amount of time is given for each move after the main time runs out
+    counting?: CountingType; // Counting type.
+        // Specifically used for SEA variants
+    materialPoint?: MaterialPointType; // Material point display.
+        // Specifically used for Janggi but other variants can possibly use this too
+    captureToHand?: boolean; // Whether captured pieces are added to the pocket
+    gate?: boolean; // Whether this variant has piece gating.
+        // Specifically used for S-Chess
+    pass?: boolean; // Whether this variant allows players to pass their turn without moving any pieces
+    setup?: boolean; // Whether this variant has a pre-game setup phase issued by the server
+    boardMark?: BoardMarkType; // Board mark type
+        // "campmate" = Mark the last row of each side to indicate that moving the king to these squares wins the game
+        // (default) "none" = Mark nothing
+    pieceSound?: PieceSoundType; // Piece sound type
+        // (default) "regular" = Regular chess piece sound
+        // "atomic" = Atomic piece sound, with explosion on capture
+        // "shogi" = Shogi piece sound, indicating relatively flat pieces instead of miniature-type pieces
 
-    enPassant?: boolean;
-    alternateStart?: {[key:string]: string};
-    chess960?: boolean;
-    icon: string;
-    icon960?: string;
+    showPromoted?: boolean; // Whether promoted pieces should be marked in the FEN.
+        // Specifically used for Makruk's promoted pawns to display them differently from a regular met
+
+    enPassant?: boolean; // Whether this variant has en passant
+    alternateStart?: {[key:string]: string}; // Alternate starting positions, possibly handicap positions
+    chess960?: boolean; // Whether this variant has a random mode
+    icon: string; // The icon letter in the site's font
+    icon960?: string; // The icon of the 960 version
 }
 
 export const VARIANTS: { [name: string]: Variant } = {
@@ -513,7 +536,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         promoteableLetters: [],
         timeControl: "byoyomi",
         materialPoint: "janggi",
-        pass: true,
+        pass: true, setup: true,
         icon: "=",
     }),
 
