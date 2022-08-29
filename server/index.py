@@ -471,7 +471,8 @@ async def index(request):
     elif view == "puzzle":
         if variant in VARIANTS:
             user.puzzle_variant = variant
-            print(variant)
+        else:
+            user.puzzle_variant = None
 
         puzzleId = request.match_info.get("puzzleId")
         if puzzleId is None:

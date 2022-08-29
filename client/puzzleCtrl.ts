@@ -191,6 +191,6 @@ export class PuzzleController extends GameController {
     }
 
     continueTraining() {
-        window.location.assign(`${this.home}/puzzle`);
+        window.location.assign(location.href);
     }
 }
