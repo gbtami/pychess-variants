@@ -469,12 +469,17 @@ async def index(request):
         render["admin"] = user.username in ADMINS
 
     elif view == "puzzle":
+        if variant in VARIANTS:
+            user.puzzle_variant = variant
+            print(variant)
+
         puzzleId = request.match_info.get("puzzleId")
         if puzzleId is None:
             # TODO: select random variant for daily puzzles
             puzzle = await next_puzzle(request, user)
         else:
             puzzle = await get_puzzle(request, puzzleId)
+
         render["view_css"] = "analysis.css"
         render["variant"] = puzzle["variant"]
         render["fen"] = puzzle["fen"]

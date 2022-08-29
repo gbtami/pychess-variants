@@ -28,13 +28,11 @@ export class PuzzleController extends GameController {
         this.plyVari = 0;
 
         this.chessground.set({
-            animation: { enabled: true },
             orientation: this.turnColor,
             turnColor: this.turnColor,
             movable: {
                 free: false,
                 color: this.turnColor,
-                showDests: this.showDests,
                 events: {
                     after: (orig, dest, meta) => this.onUserMove(orig, dest, meta),
                     afterNewPiece: (role, dest, meta) => this.onUserDrop(role, dest, meta),

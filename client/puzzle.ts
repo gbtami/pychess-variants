@@ -25,7 +25,7 @@ function leftSide(model: PyChessModel) {
             let e;
             e = document.getElementById('variant') as HTMLSelectElement;
             const variant = e.options[e.selectedIndex].value;
-            if (isInput) window.location.assign('/analysis/' + variant);
+            if (isInput) window.location.assign('/puzzle/' + variant);
         }
 
         const vVariant = model.variant || "chess";
