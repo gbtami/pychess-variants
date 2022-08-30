@@ -152,10 +152,11 @@ div#ceval {
 }
 .engine {
     display: flex;
+    align-items: stretch;
     padding: 6px;
 }
 div.info {
-    flex: 1 0 auto;
+    flex: 1 1 auto;
     align-self: center;
     line-height: 18px;
 }
@@ -206,6 +207,7 @@ score {
 
 /* Local Fairy toggle */
 label.switch {
+flex: 0 0 40px;
 position: relative;
 display: inline-block;
 width: 42px;
@@ -381,17 +383,20 @@ div#pgntext {
 }
 
 /* PUZZLE */
-.feedback:not(.after) {
-    padding: 2em;
-}
 .feedback {
+    display: flex;
+    flex-flow: column;
     flex: 1 0 9rem;
     background: var(--bg-meta);
     justify-content: center;
 }
+.feedback:not(.after) {
+    padding: 2em;
+}
 .feedback .player {
     display: flex;
     align-items: center;
+    justify-content: center;
 }
 .feedback .no-square {
     flex: 0 0 64px;

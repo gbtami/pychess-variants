@@ -50,6 +50,9 @@ export class PuzzleController extends GameController {
 
         createMovelistButtons(this);
         this.vmovelist = document.getElementById('movelist') as HTMLElement;
+
+        const engineEl = document.querySelector('.engine') as HTMLElement;
+        engineEl.style.display = 'none';
         
         const viewSolutionEl = document.querySelector('.solution') as HTMLElement;
         patch(viewSolutionEl,
@@ -187,13 +190,15 @@ export class PuzzleController extends GameController {
             h('div.feedback.after', [
                 h('div.complete', _('Success!')),
                 h('div.more', [
-                    h('a.button.button-empty',
+                    h('a',
                         { on: { click: () => this.continueTraining() } },
                         _('Continue training')
                     ),
                 ]),
             ])
         )
+        const engineEl = document.querySelector('.engine') as HTMLElement;
+        engineEl.style.display = 'flex';
     }
 
     continueTraining() {
