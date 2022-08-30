@@ -45,6 +45,14 @@ VIDEOS = [
         "duration": "13:36",
     },
     {
+        "_id": "wzxgy2qJMwM",
+        "title": "The weirdest bug in the history of pychess (how to play placement chess)",
+        "author": "PyChess",
+        "tags": ["Placement", "Opening", "Puzzle"],
+        "target": "intermediate",
+        "duration": "14:20",
+    },
+    {
         "_id": "uyNsTgo8ylI",
         "title": "Makruk (Thai Chess) - How to play",
         "author": "PyChess",

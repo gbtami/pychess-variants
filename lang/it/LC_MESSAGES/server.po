@@ -13,7 +13,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-04-11 12:19+0200\n"
+"POT-Creation-Date: 2022-08-04 13:33+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Last-Translator: Armando Gagliardi <armandogagliardi0@gmail.com>, 2022\n"
 "Language-Team: Italian (https://www.transifex.com/gbtami/teams/14790/it/)\n"
@@ -22,7 +22,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.9.1\n"
 "Language: it\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Plural-Forms: nplurals=3; plural=n == 1 ? 0 : n != 0 && n % 1000000 == 0 ? 1 : 2;\n"
 
 #: ../templates/closed.html:8
 msgid "This account is closed."
@@ -36,25 +36,25 @@ msgstr ""
 "Come sai, pychess-variants è un server gratis e lo rimarrà per sempre. Tuttavia, mantenere e migliorare i server costa tempo e denaro.\n"
 "Se apprezzi il nostro lavoro e trovi il nostro server utile, per favore, fai una donazione attraverso Patreon o Paypal"
 
-#: ../templates/players.html:9
-msgid "Online"
-msgstr "Online"
-
-#: ../templates/players.html:28
-msgid "Anonymous"
-msgstr "Anonimo"
-
-#: ../templates/players.html:35
+#: ../templates/players.html:7
 msgid "All players"
 msgstr "Tutti i giocatori"
 
-#: ../templates/players.html:36 ../templates/winners.html:6
+#: ../templates/players.html:9 ../templates/winners.html:6
 msgid "Tournament winners"
 msgstr "Vincitori del torneo"
 
-#: ../templates/players.html:37 ../templates/shields.html:6
+#: ../templates/players.html:10 ../templates/shields.html:6
 msgid "Tournament shields"
 msgstr "Tornei Shield"
+
+#: ../templates/players.html:14
+msgid "Online"
+msgstr "Online"
+
+#: ../templates/players.html:33
+msgid "Anonymous"
+msgstr "Anonimo"
 
 #: ../templates/players50.html:6
 msgid "Top 50"
@@ -66,6 +66,7 @@ msgid "%(count)s game"
 msgid_plural "%(count)s games"
 msgstr[0] "%(count)s partita"
 msgstr[1] "%(count)s partite"
+msgstr[2] "%(count)s partite"
 
 #: ../templates/profile.html:42
 msgid "Watch games"
@@ -83,43 +84,71 @@ msgstr "Importa partita"
 msgid "Export games"
 msgstr "Esporta partite"
 
-#: ../templates/profile.html:53
+#: ../templates/profile.html:54
 msgid "Lichess profile"
 msgstr "Profilo Lichess"
 
-#: ../templates/template.html:17
-msgid "Tv"
-msgstr "Tv"
-
 #: ../templates/template.html:18
-msgid "Current games"
-msgstr "Partite in corso"
+msgid "Play"
+msgstr "Gioca"
 
-#: ../templates/template.html:19 ../templates/tournaments.html:6
+#: ../templates/template.html:20
+msgid "Create a game"
+msgstr "Crea una partita"
+
+#: ../templates/template.html:21 ../templates/tournaments.html:6
 msgid "Tournaments"
 msgstr "Tornei"
 
-#: ../templates/template.html:20
+#: ../templates/template.html:25
+msgid "Watch"
+msgstr "Guarda"
+
+#: ../templates/template.html:27
+msgid "Tv"
+msgstr "Tv"
+
+#: ../templates/template.html:28
+msgid "Current games"
+msgstr "Partite in corso"
+
+#: ../templates/template.html:32
+msgid "Community"
+msgstr "Giocatori"
+
+#: ../templates/template.html:34
 msgid "Players"
 msgstr "Giocatori"
 
-#: ../templates/template.html:21
+#: ../templates/template.html:35
+msgid "Blog"
+msgstr "Blog"
+
+#: ../templates/template.html:36
+msgid "Donate"
+msgstr "Dona"
+
+#: ../templates/template.html:40
+msgid "Tools"
+msgstr "Strumenti"
+
+#: ../templates/template.html:42
 msgid "Editor"
 msgstr "Editor"
 
-#: ../templates/template.html:22
+#: ../templates/template.html:43
 msgid "Analysis"
 msgstr "Analisi"
 
-#: ../templates/template.html:23
+#: ../templates/template.html:47
 msgid "Variants"
 msgstr "Varianti"
 
-#: ../templates/template.html:35
+#: ../templates/template.html:61
 msgid "Login with Lichess"
 msgstr "Login con Lichess"
 
-#: ../templates/template.html:35
+#: ../templates/template.html:61
 msgid "Log in"
 msgstr "Log in"
 
@@ -157,3 +186,4 @@ msgid "%(count)s player"
 msgid_plural "%(count)s players"
 msgstr[0] "%(count)s giocatore"
 msgstr[1] "%(count)s giocatori"
+msgstr[2] "%(count)s giocatori"
