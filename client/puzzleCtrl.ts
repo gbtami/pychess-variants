@@ -58,6 +58,12 @@ export class PuzzleController extends GameController {
                 _('View the solution')
             )
         );
+
+        function showSolution() {
+            const viewSolutionEl = document.querySelector('.view-solution') as HTMLElement;
+            patch(viewSolutionEl, h('div.view-solution', { class: { show: true } }));
+        }
+        setTimeout(showSolution, 4000);
     }
 
     viewSolution() {
