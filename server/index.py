@@ -346,7 +346,7 @@ async def index(request):
         template = get_template("patron.html")
     elif view == "faq":
         template = get_template("FAQ.html")
-    elif view == "analysis":
+    elif view in ("analysis", "puzzle"):
         template = get_template("analysis.html")
     elif view == "embed":
         template = get_template("embed.html")

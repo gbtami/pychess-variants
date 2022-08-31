@@ -8,7 +8,8 @@ import { PyChessModel } from "./types";
 
 function runPuzzle(vnode: VNode, model: PyChessModel) {
     const el = vnode.elm as HTMLElement;
-    new PuzzleController(el, model);
+    const ctrl = new PuzzleController(el, model);
+    window['onFSFline'] = ctrl.onFSFline;
 }
 
 function leftSide(model: PyChessModel) {
@@ -47,7 +48,16 @@ export function puzzleView(model: PyChessModel): VNode[] {
             h(`selection#mainboard.${variant.board}.${variant.piece}.${variant.boardMark}`, [
                 h('div.cg-wrap.' + variant.cg, { hook: { insert: (vnode) => runPuzzle(vnode, model) } }),
             ]),
-
+            h('div#gauge', [
+                h('div.black',     { props: { style: "height: 50%;" } }),
+                h('div.tick',      { props: { style: "height: 12.5%;" } }),
+                h('div.tick',      { props: { style: "height: 25%;" } }),
+                h('div.tick',      { props: { style: "height: 37.5%;" } }),
+                h('div.tick.zero', { props: { style: "height: 50%;" } }),
+                h('div.tick',      { props: { style: "height: 62.5%;" } }),
+                h('div.tick',      { props: { style: "height: 75%;" } }),
+                h('div.tick',      { props: { style: "height: 87.5%;" } }),
+            ]),
             h('div.pocket-top', [
                 h('div.' + variant.piece + '.' + model["variant"], [
                     h('div.cg-wrap.pocket', [
@@ -60,7 +70,12 @@ export function puzzleView(model: PyChessModel): VNode[] {
                 h('div#ceval', [
                     h('div.engine', [
                         h('score#score', ''),
-                        h('div.info', ['Fairy-Stockfish 14+', h('br'), h('info#info', _('in local browser'))]),
+                        h('div.info', [
+                            'Fairy-Stockfish 14+ ',
+                            h('span.nnue', { props: { title: _('Multi-threaded WebAssembly (classical evaluation)') } } , 'HCE'),
+                            h('br'),
+                            h('info#info', _('in local browser'))
+                        ]),
                         h('label.switch', [
                             h('input#input', {
                                 props: {
@@ -72,10 +87,17 @@ export function puzzleView(model: PyChessModel): VNode[] {
                         ]),
                     ]),
                 ]),
-                h('div#pv'),
+                h('div.pvbox', [
+                    h('div#pv1'),
+                    h('div#pv2'),
+                    h('div#pv3'),
+                    h('div#pv4'),
+                    h('div#pv5'),
+                ]),
                 h('div.movelist-block', [
                     h('div#movelist'),
                 ]),
+                h('div#vari'),
                 h('div#misc-info', [
                     h('div#misc-infow'),
                     h('div#misc-info-center'),

@@ -2,19 +2,21 @@ import { h, VNode } from 'snabbdom'
 import * as cg from 'chessgroundx/types';
 
 import { _ } from './i18n';
-import { GameController } from './gameCtrl';
+import { AnalysisController } from './analysisCtrl';
 import { PyChessModel } from "./types";
 import { patch } from './document';
 import { uci2LastMove, UCIMove, cg2uci } from './chess';
-import { createMovelistButtons, updateMovelist } from './movelist';
+import { updateMovelist } from './movelist';
 
-export class PuzzleController extends GameController {
+export class PuzzleController extends AnalysisController {
     username: string;
     _id: string;
     playerEl: VNode | HTMLElement;
     solution: UCIMove[];
     solutionSan: string[];
     moves: UCIMove[] = [];
+    failed: boolean;
+    completed: boolean;
 
     constructor(el: HTMLElement, model: PyChessModel) {
         super(el, model);
@@ -26,6 +28,8 @@ export class PuzzleController extends GameController {
         this.steps = [{"fen": this.fullfen, "turnColor": this.turnColor, "check": false, "move": undefined}];
         this.ply = 0;
         this.plyVari = 0;
+        this.failed = false;
+        this.completed = false;
 
         this.chessground.set({
             orientation: this.turnColor,
@@ -48,8 +52,8 @@ export class PuzzleController extends GameController {
         this.playerEl = document.querySelector('.player') as HTMLElement;
         this.yourTurn();
 
-        createMovelistButtons(this);
-        this.vmovelist = document.getElementById('movelist') as HTMLElement;
+        const gaugeEl = document.getElementById('gauge') as HTMLElement;
+        gaugeEl.style.display = 'none';
 
         const engineEl = document.querySelector('.engine') as HTMLElement;
         engineEl.style.display = 'none';
@@ -75,12 +79,18 @@ export class PuzzleController extends GameController {
     }
 
     doSendMove(orig: cg.Orig, dest: cg.Key, promo: string) {
+        if (this.completed) {
+            super.doSendMove(orig, dest, promo);
+            return;
+        }
+
         const move = cg2uci(orig + dest + promo) as UCIMove;
         if (this.solution[this.ply] !== move) {
             this.goPly(this.ply);
             this.ffishBoard.setFen(this.fullfen);
             this.setDests();
-            this.notTheMove();
+            const san = this.ffishBoard.sanMove(move, this.notationAsObject);
+            this.notTheMove(san);
             return;
         }
 
@@ -127,7 +137,6 @@ export class PuzzleController extends GameController {
             lastMove: uci2LastMove(move)
         }
     }
-
     yourTurn() {
         const turnColor = this.fullfen.split(" ")[1];
         const tc = (turnColor === 'w') ? this.variant.firstColor : this.variant.secondColor;
@@ -154,11 +163,13 @@ export class PuzzleController extends GameController {
         );
     }
 
-    notTheMove() {
+    notTheMove(san: string) {
+        this.failed = true;
         this.playerEl = patch(this.playerEl,
             h('div.player', [
                 h('div.icon', '✗'),
                 h('div.instruction', [
+                    h('san', [san, h('span.fail', '?')]),
                     h('strong', _("That's not the move!")),
                     h('em', _('Try something else.')),
                 ]),
@@ -185,10 +196,11 @@ export class PuzzleController extends GameController {
     }
 
     puzzleComplete() {
+        this.completed = true;
         const feedbackEl = document.querySelector('.feedback') as HTMLInputElement;
         patch(feedbackEl, 
             h('div.feedback.after', [
-                h('div.complete', _('Success!')),
+                h('div.complete', _('Puzzle complete!')),
                 h('div.more', [
                     h('a',
                         { on: { click: () => this.continueTraining() } },
@@ -197,6 +209,9 @@ export class PuzzleController extends GameController {
                 ]),
             ])
         )
+        // TODO: this breaks mobile view!
+        //const gaugeEl = document.getElementById('gauge') as HTMLElement;
+        //gaugeEl.style.display = 'block';
         const engineEl = document.querySelector('.engine') as HTMLElement;
         engineEl.style.display = 'flex';
     }

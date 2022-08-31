@@ -69,6 +69,7 @@ export class AnalysisController extends GameController {
     nnueOk: boolean;
     importedBy: string;
     embed: boolean;
+    puzzle: boolean;
     fsfDebug: boolean;
     fsfError: string[];
     fsfEngineBoard: any;  // used to convert pv UCI move list to SAN
@@ -78,7 +79,8 @@ export class AnalysisController extends GameController {
         this.fsfDebug = false;
         this.fsfError = [];
         this.embed = this.gameId === undefined;
-        this.isAnalysisBoard = this.gameId === "";
+        this.puzzle = model["puzzle"] !== undefined;
+        this.isAnalysisBoard = this.gameId === "" && !this.puzzle;
         if (!this.embed) {
             this.chartFunctions = [analysisChart, movetimeChart];
         }
@@ -160,7 +162,7 @@ export class AnalysisController extends GameController {
         createMovelistButtons(this);
         this.vmovelist = document.getElementById('movelist') as HTMLElement;
 
-        if (!this.isAnalysisBoard && !this.embed) {
+        if (!this.isAnalysisBoard && !this.embed && !this.puzzle) {
             patch(document.getElementById('roundchat') as HTMLElement, chatView(this, "roundchat"));
         }
 
@@ -171,9 +173,10 @@ export class AnalysisController extends GameController {
             this.vinfo = document.getElementById('info') as HTMLElement;
             this.vpvlines = [...Array(5).fill(null).map((_, i) => document.querySelector(`.pvbox :nth-child(${i + 1})`) as HTMLElement)];
 
-            const pgn = (this.isAnalysisBoard) ? this.getPgn() : this.pgn;
-            this.renderFENAndPGN(pgn);
-
+            if (!this.puzzle) {
+                const pgn = (this.isAnalysisBoard) ? this.getPgn() : this.pgn;
+                this.renderFENAndPGN(pgn);
+            }
             if (this.isAnalysisBoard) {
                 (document.querySelector('[role="tablist"]') as HTMLElement).style.display = 'none';
                 (document.querySelector('[tabindex="0"]') as HTMLElement).style.display = 'flex';
@@ -219,7 +222,9 @@ export class AnalysisController extends GameController {
             // Show the selected panel
             (grandparent!.parentNode!.querySelector(`#${target.getAttribute('aria-controls')}`)! as HTMLElement).style.display = 'flex';
         }
-        (document.querySelector('[tabindex="0"]') as HTMLElement).style.display = 'flex';
+        if (!this.puzzle) {
+            (document.querySelector('[tabindex="0"]') as HTMLElement).style.display = 'flex';
+        }
 
         this.onMsgBoard(model["board"] as MsgBoard);
     }
@@ -535,6 +540,7 @@ export class AnalysisController extends GameController {
 
     // Updates PV, score, gauge and the best move arrow
     drawEval = (ceval: Ceval | undefined, scoreStr: string | undefined, turnColor: cg.Color) => {
+        if (ceval === undefined) return;
 
         const pvlineIdx = (ceval && ceval.multipv) ? ceval.multipv - 1 : 0;
 
@@ -736,20 +742,22 @@ export class AnalysisController extends GameController {
         }
 
         this.drawEval(step.ceval, step.scoreStr, step.turnColor);
-        if (plyVari === 0) this.drawServerEval(ply, step.scoreStr);
+        if (plyVari === 0 && !this.puzzle) this.drawServerEval(ply, step.scoreStr);
 
         this.maxDepth = maxDepth;
         if (this.localAnalysis) this.engineGo();
 
-        const e = document.getElementById('fullfen') as HTMLInputElement;
-        e.value = this.fullfen;
-
-        if (this.isAnalysisBoard) {
-            const idxInVari = (plyVari > 0) ? ply - plyVari : 0;
-            this.vpgn = patch(this.vpgn, h('div#pgntext', this.getPgn(idxInVari)));
-        } else {
-            const hist = this.home + '/' + this.gameId + '?ply=' + ply.toString();
-            window.history.replaceState({}, '', hist);
+        if (!this.puzzle) {
+            const e = document.getElementById('fullfen') as HTMLInputElement;
+            e.value = this.fullfen;
+        
+            if (this.isAnalysisBoard) {
+                const idxInVari = (plyVari > 0) ? ply - plyVari : 0;
+                this.vpgn = patch(this.vpgn, h('div#pgntext', this.getPgn(idxInVari)));
+            } else {
+                const hist = this.home + '/' + this.gameId + '?ply=' + ply.toString();
+                window.history.replaceState({}, '', hist);
+            }
         }
     }
 
@@ -804,11 +812,11 @@ export class AnalysisController extends GameController {
         return `${event}\n${site}\n${date}\n${white}\n${black}\n${result}\n${variant}\n${fen}\n${setup}\n\n${moveText} *\n`;
     }
 
-    doSendMove = (orig: cg.Orig, dest: cg.Key, promo: string) => {
+    doSendMove (orig: cg.Orig, dest: cg.Key, promo: string) {
         const move = cg2uci(orig + dest + promo);
         const san = this.ffishBoard.sanMove(move, this.notationAsObject);
         const sanSAN = this.ffishBoard.sanMove(move);
-        const vv = this.steps[this.plyVari]['vari'];
+        const vv = this.steps[this.plyVari]?.vari;
 
         // console.log('sendMove()', move, san);
         // Instead of sending moves to the server we can get new FEN and dests from ffishjs
@@ -881,12 +889,14 @@ export class AnalysisController extends GameController {
             }
         }
 
-        const e = document.getElementById('fullfen') as HTMLInputElement;
-        e.value = this.fullfen;
+        if (!this.puzzle) {
+            const e = document.getElementById('fullfen') as HTMLInputElement;
+            e.value = this.fullfen;
 
-        if (this.isAnalysisBoard) {
-            const idxInVari = (this.plyVari > 0) && vv ? vv.length - 1 : 0;
-            this.vpgn = patch(this.vpgn, h('div#pgntext', this.getPgn(idxInVari)));
+            if (this.isAnalysisBoard) {
+                const idxInVari = (this.plyVari > 0) && vv ? vv.length - 1 : 0;
+                this.vpgn = patch(this.vpgn, h('div#pgntext', this.getPgn(idxInVari)));
+            }
         }
         // TODO: But sending moves to the server will be useful to implement shared live analysis!
         // this.doSend({ type: "analysis_move", gameId: this.gameId, move: move, fen: this.fullfen, ply: this.ply + 1 });
