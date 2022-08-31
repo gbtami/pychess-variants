@@ -92,7 +92,7 @@ export function view(el: HTMLElement, model: PyChessModel): VNode {
     case 'analysis':
         return h('div#main-wrap', analysisView(model));
     case 'puzzle':
-        return h('div', puzzleView(model));
+        return h('div#main-wrap', puzzleView(model));
     case 'invite':
         return h('div#main-wrap', inviteView(model));
     case 'editor':

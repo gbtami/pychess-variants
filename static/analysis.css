@@ -383,6 +383,17 @@ div#pgntext {
 }
 
 /* PUZZLE */
+.puzzle-info {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  background: var(--bg-color0);
+  box-shadow: var(--base-shadow);
+  margin-bottom: 16px;
+  padding: 12px;
+  font-size: 14px;
+  border-radius: 3px;
+}
 .feedback {
     display: flex;
     flex-flow: column;
