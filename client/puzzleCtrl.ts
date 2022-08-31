@@ -11,6 +11,7 @@ import { updateMovelist } from './movelist';
 export class PuzzleController extends AnalysisController {
     username: string;
     _id: string;
+    site: string;
     playerEl: VNode | HTMLElement;
     solution: UCIMove[];
     solutionSan: string[];
@@ -22,6 +23,8 @@ export class PuzzleController extends AnalysisController {
         super(el, model);
 
         const data = JSON.parse(model.puzzle);
+        this._id = data._id;
+        this.site = data.site;
         this.solution = data.moves.split(',');
         this.username = model.username;
         this.moves = [];
@@ -66,6 +69,8 @@ export class PuzzleController extends AnalysisController {
             )
         );
 
+        this.renderInfos();
+
         function showSolution() {
             const viewSolutionEl = document.querySelector('.view-solution') as HTMLElement;
             patch(viewSolutionEl, h('div.view-solution', { class: { show: true } }));
@@ -73,6 +78,27 @@ export class PuzzleController extends AnalysisController {
         setTimeout(showSolution, 4000);
     }
 
+    renderInfos() {
+        const infosEl = document.querySelector('.infos') as HTMLElement;
+        patch(infosEl, h('div.game-info', [
+            h('section', [
+                h('div.info0.icon.icon-puzzle', [
+                    h('div.info2', [
+                        h('div', [_('Puzzle '), h('a', { attrs: { href: `/puzzle/${this._id}` } }, `#${this._id}`) ]),
+                        h('div', [_('Rating: '), '1500?']),
+                        h('div', [_('Played '), '0'])
+                    ])
+                ]),
+            ]),
+            h('div.info0.icon', { attrs: { "data-icon": this.variant.icon() } }, [
+                h('div.info2', [
+                    _('Source: '),
+                    h('a', { attrs: { href: this.site } }, this.site)
+                ]),
+            ])
+        ]));
+    }
+            
     viewSolution() {
         this.solution.slice(this.ply).forEach((move: UCIMove) => this.makeMove(move));
         this.puzzleComplete();

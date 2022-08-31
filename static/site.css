@@ -153,6 +153,10 @@
   vertical-align: middle;
   opacity: 0.6;
 }
+.icon-puzzle:before {
+  content: '🎯';
+  color: var(--font-color);
+}
 .icon-sente:before {
   content: '☗';
   vertical-align: unset;
