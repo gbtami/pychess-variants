@@ -412,11 +412,14 @@ div#pgntext {
     line-height: 64px;
     text-align: center;
 }
-.feedback.fail .icon {
+.feedback.fail .icon, san span.fail {
     color: var(--bad);
 }
 .feedback.good .icon {
     color: var(--good);
+}
+.instruction san {
+    font-size: 1.5em;
 }
 piece.standard, piece.capa, piece.seirawn, piece.hoppel, piece.shako, piece.asean, piece.shogun, piece.shinobi, piece.synochess, piece.orda, piece.empire, piece.chennis {
     background-image: url('images/pieces/merida/wK.svg');
