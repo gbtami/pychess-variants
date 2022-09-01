@@ -79,6 +79,7 @@ export class PuzzleController extends AnalysisController {
     }
 
     renderInfos() {
+        const source = (!this.site || this.site.includes('fairy-stockfish')) ? 'https://fairy-stockfish.github.io' : this.site;
         const infosEl = document.querySelector('.infos') as HTMLElement;
         patch(infosEl, h('div.game-info', [
             h('section', [
@@ -93,7 +94,7 @@ export class PuzzleController extends AnalysisController {
             h('div.info0.icon', { attrs: { "data-icon": this.variant.icon() } }, [
                 h('div.info2', [
                     _('Source: '),
-                    h('a', { attrs: { href: this.site } }, this.site)
+                    h('a', { attrs: { href: source } }, source.slice(source.indexOf('://') + 3))
                 ]),
             ])
         ]));
