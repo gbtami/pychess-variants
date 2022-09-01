@@ -5,13 +5,17 @@ async def get_puzzle(request, puzzleId):
 
 async def next_puzzle(request, user):
     skipped = user.puzzles
-    if user.puzzle_variant is None:
-        pipeline = [{"$match": {"_id": {"$nin": skipped}}}, {"$sample": {"size": 1}}]
-    else:
-        pipeline = [
-            {"$match": {"$and": [{"_id": {"$nin": skipped}}, {"variant": user.puzzle_variant}]}},
-            {"$sample": {"size": 1}},
-        ]
+    filters = [
+        {"_id": {"$nin": skipped}},
+        {"cooked": {"$ne": True}},
+    ]
+    if user.puzzle_variant is not None:
+        filters.appen({"variant": user.puzzle_variant})
+
+    pipeline = [
+        {"$match": {"$and": filters}},
+        {"$sample": {"size": 1}},
+    ]
 
     cursor = request.app["db"].puzzle.aggregate(pipeline)
 
