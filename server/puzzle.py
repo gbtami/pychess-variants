@@ -10,7 +10,7 @@ async def next_puzzle(request, user):
         {"cooked": {"$ne": True}},
     ]
     if user.puzzle_variant is not None:
-        filters.appen({"variant": user.puzzle_variant})
+        filters.append({"variant": user.puzzle_variant})
 
     pipeline = [
         {"$match": {"$and": filters}},
