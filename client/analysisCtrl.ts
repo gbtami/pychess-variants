@@ -540,8 +540,6 @@ export class AnalysisController extends GameController {
 
     // Updates PV, score, gauge and the best move arrow
     drawEval = (ceval: Ceval | undefined, scoreStr: string | undefined, turnColor: cg.Color) => {
-        if (ceval === undefined) return;
-
         const pvlineIdx = (ceval && ceval.multipv) ? ceval.multipv - 1 : 0;
 
         // Render PV line
@@ -560,7 +558,7 @@ export class AnalysisController extends GameController {
                 pvSan = h('pv-san', { on: { click: () => this.makePvMove(ceval.p as string) } } , pvSan)
                 this.pvView(pvlineIdx, h('pvline', [(this.multipv > 1 && this.localAnalysis) ? h('strong', scoreStr) : '', pvSan]));
             }
-        } else {
+        } else if (ceval === undefined) {
             this.pvView(pvlineIdx, h('pvline', (this.localAnalysis) ? h('pvline', '-') : ''));
         }
 
@@ -647,11 +645,13 @@ export class AnalysisController extends GameController {
             patch(evalEl, h('eval#ply' + String(ply), scoreStr));
         }
 
-        analysisChart(this);
-        const hc = this.analysisChart;
-        if (hc !== undefined) {
-            const hcPt = hc.series[0].data[ply];
-            if (hcPt !== undefined) hcPt.select();
+        if (!this.puzzle) {
+            analysisChart(this);
+            const hc = this.analysisChart;
+            if (hc !== undefined) {
+                const hcPt = hc.series[0].data[ply];
+                if (hcPt !== undefined) hcPt.select();
+            }
         }
     }
 
@@ -742,7 +742,7 @@ export class AnalysisController extends GameController {
         }
 
         this.drawEval(step.ceval, step.scoreStr, step.turnColor);
-        if (plyVari === 0 && !this.puzzle) this.drawServerEval(ply, step.scoreStr);
+        if (plyVari === 0) this.drawServerEval(ply, step.scoreStr);
 
         this.maxDepth = maxDepth;
         if (this.localAnalysis) this.engineGo();

@@ -165,7 +165,6 @@ export class PuzzleController extends AnalysisController {
     }
     yourTurn() {
         const turnColor = this.fullfen.split(" ")[1];
-        const tc = (turnColor === 'w') ? this.variant.firstColor : this.variant.secondColor;
         const first = _(this.variant.firstColor);
         const second = _(this.variant.secondColor);
         this.playerEl = patch(this.playerEl,
