@@ -6,12 +6,14 @@ import { patch } from '../document';
 import { Clock } from '../clock';
 import {chatMessage, chatView, IChatController} from '../chat';
 import {createMovelistButtons, updateMovelist} from './movelist';
-import {Clocks, MsgBoard, MsgGameEnd, MsgMove, MsgUserConnected, Step} from "../messages";
+import {Clocks, MsgBoard, MsgGameEnd, MsgMove, MsgUserConnected, RDiffs, Step} from "../messages";
 import { MsgUserDisconnected, MsgUserPresent, MsgMoreTime, MsgDrawOffer, MsgDrawRejected, MsgRematchOffer, MsgRematchRejected, MsgCount, MsgUpdateTV } from '../roundType';
 import {JSONObject, PyChessModel} from "../types";
 import {ChessgroundController} from "./ChessgroundCtrl";
 import {uci2LastMove} from "../chess";
 import {sound} from "../sound";
+import {renderRdiff} from "../result";
+import {player} from "../player";
 
 export class RoundController implements IChatController/*extends GameController todo:does it make sense for these guys - also AnalysisControl which is older before this refactring that introduced this stuff*/ {
 
@@ -75,8 +77,31 @@ export class RoundController implements IChatController/*extends GameController 
 
     spectator: boolean;
 
+    gameControls: VNode;//todo:niki: usually inherited from gameCtrl
+    readonly home: string;
 
+    vplayerA0: VNode;
+    vplayerA1: VNode;
+
+    vplayerB0: VNode;
+    vplayerB1: VNode;
+
+    players: string[];
+    titles: string[];
+    ratings: string[];
+
+    wplayer: string;
+    bplayer: string;
+
+    wtitle: string;
+    btitle: string;
+    wrating: string;
+    brating: string;
+
+    mycolor: string = "white";//todo: for now always white - good enough for specators mode and not sure if needed at all, but easier for now to copy paste the rest that depends on it
     constructor(el1: HTMLElement,el1Pocket1: HTMLElement,el1Pocket2: HTMLElement,el2: HTMLElement,el2Pocket1: HTMLElement,el2Pocket2: HTMLElement, model: PyChessModel) {
+
+        this.home = model.home;
 
         this.b1 = new ChessgroundController(el1, el1Pocket1, el1Pocket2, model); //todo:niki:fen maybe should be parsed from bfen. what situation do we start from custom fen?
         this.b2 = new ChessgroundController(el2, el2Pocket1, el2Pocket2, model);
@@ -226,10 +251,32 @@ export class RoundController implements IChatController/*extends GameController 
         // }
 
         // initialize users
-        // const player0 = document.getElementById('rplayer0') as HTMLElement;
-        // const player1 = document.getElementById('rplayer1') as HTMLElement;
-        // this.vplayer0 = patch(player0, player('player0', this.titles[0], this.players[0], this.ratings[0], this.level));
-        // this.vplayer1 = patch(player1, player('player1', this.titles[1], this.players[1], this.ratings[1], this.level));
+        this.wplayer = model["wplayer"];
+        this.bplayer = model["bplayer"];
+
+        this.wtitle = model["wtitle"];
+        this.btitle = model["btitle"];
+        this.wrating = model["wrating"];
+        this.brating = model["brating"];
+
+        this.players = [
+            this.mycolor === "white" ? this.bplayer : this.wplayer,
+            this.mycolor === "white" ? this.wplayer : this.bplayer
+        ];
+        this.titles = [
+            this.mycolor === "white" ? this.btitle : this.wtitle,
+            this.mycolor === "white" ? this.wtitle : this.btitle
+        ];
+        this.ratings = [
+            this.mycolor === "white" ? this.brating : this.wrating,
+            this.mycolor === "white" ? this.wrating : this.brating
+        ];
+
+
+        const player0 = document.getElementById('rplayer0') as HTMLElement;
+        const player1 = document.getElementById('rplayer1') as HTMLElement;
+        this.vplayerA0 = patch(player0, player('player0', this.titles[0], this.players[0], this.ratings[0], this.level));
+        this.vplayerA1 = patch(player1, player('player1', this.titles[1], this.players[1], this.ratings[1], this.level));
         //
         // if (this.variant.materialDiff) {
         //     const materialTop = document.querySelector('.material-top') as HTMLElement;
@@ -340,7 +387,7 @@ export class RoundController implements IChatController/*extends GameController 
         //     this.clocks[1].onFlag(flagCallback);
         // }
 
-        // const container = document.getElementById('game-controls') as HTMLElement;
+        const container = document.getElementById('game-controls') as HTMLElement;
         // if (!this.spectator) {
         //     const pass = this.variant.pass;
         //     let buttons = [];
@@ -358,7 +405,7 @@ export class RoundController implements IChatController/*extends GameController 
         //         patch(document.getElementById('count') as HTMLElement, h('div'));
         //
         // } else {
-        //     this.gameControls = patch(container, h('div.btn-controls'));
+            this.gameControls = patch(container, h('div.btn-controls'));
         // }
 
         createMovelistButtons(this);
@@ -469,9 +516,10 @@ export class RoundController implements IChatController/*extends GameController 
     //     ]));
     // }
     //
-    // private clearDialog = () => {
-    //     this.vdialog = patch(this.vdialog, h('div#offer-dialog', []));
-    // }
+    private clearDialog = () => {
+        this.vdialog = patch(this.vdialog, h('div#offer-dialog', []));
+    }
+
     //
     // private resign = () => {
     //     // console.log("Resign");
@@ -565,10 +613,11 @@ export class RoundController implements IChatController/*extends GameController 
     //     patch(rematch_button_location, rematch_button);
     // }
     //
-    // private rematch = () => {
-    //     this.doSend({ type: "rematch", gameId: this.gameId, handicap: this.handicap });
-    //     this.setDialog(_("Rematch offer sent"));
-    // }
+    private rematch = () => {
+        console.log("rematch not implemented")
+        // this.doSend({ type: "rematch", gameId: this.gameId, handicap: this.handicap });
+        // this.setDialog(_("Rematch offer sent"));
+    }
     //
     // private rejectRematchOffer = () => {
     //     this.doSend({ type: "reject_rematch", gameId: this.gameId });
@@ -583,14 +632,15 @@ export class RoundController implements IChatController/*extends GameController 
     //     ]));
     // }
     //
-    // private newOpponent = (home: string) => {
-    //     this.doSend({"type": "leave", "gameId": this.gameId});
-    //     window.location.assign(home);
-    // }
+    private newOpponent = (home: string) => {
+        console.log("newOpponent not implemented ", home);
+        // this.doSend({"type": "leave", "gameId": this.gameId});
+        // window.location.assign(home);
+    }
     //
-    // private analysis = (home: string) => {
-    //     window.location.assign(home + '/' + this.gameId + '?ply=' + this.ply.toString());
-    // }
+    private analysis = (home: string) => {
+        window.location.assign(home + '/' + this.gameId + '?ply=' + this.ply.toString());
+    }
     //
     // private joinTournament = () => {
     //     window.location.assign(this.home + '/tournament/' + this.tournamentId);
@@ -600,72 +650,58 @@ export class RoundController implements IChatController/*extends GameController 
     //     window.location.assign(this.home + '/tournament/' + this.tournamentId + '/pause');
     // }
 
-    // private gameOver = (rdiffs: RDiffs) => {
-    //     let container;
-    //     container = document.getElementById('wrdiff') as HTMLElement;
-    //     if (container) patch(container, renderRdiff(rdiffs["wrdiff"]));
-    //
-    //     container = document.getElementById('brdiff') as HTMLElement;
-    //     if (container) patch(container, renderRdiff(rdiffs["brdiff"]));
-    //
-    //     // console.log(rdiffs)
-    //     this.gameControls = patch(this.gameControls, h('div'));
-    //     let buttons: VNode[] = [];
-    //     if (!this.spectator) {
-    //         if (this.tournamentGame) {
-    //             // TODO: isOver = ?
-    //             const isOver = false;
-    //             if (isOver) {
-    //                 buttons.push(h('button.newopp', { on: { click: () => this.joinTournament() } },
-    //                     [h('div', {class: {"icon": true, 'icon-play3': true} }, _("VIEW TOURNAMENT"))]));
-    //             } else {
-    //                 buttons.push(h('button.newopp', { on: { click: () => this.joinTournament() } },
-    //                     [h('div', {class: {"icon": true, 'icon-play3': true} }, _("BACK TO TOURNAMENT"))]));
-    //                 buttons.push(h('button.newopp', { on: { click: () => this.pauseTournament() } },
-    //                     [h('div', {class: {"icon": true, 'icon-pause2': true} }, _("PAUSE"))]));
-    //             }
-    //         } else {
-    //             buttons.push(h('button.rematch', { on: { click: () => this.rematch() } }, _("REMATCH")));
-    //             buttons.push(h('button.newopp', { on: { click: () => this.newOpponent(this.home) } }, _("NEW OPPONENT")));
-    //         }
-    //     }
-    //     buttons.push(h('button.analysis', { on: { click: () => this.analysis(this.home) } }, _("ANALYSIS BOARD")));
-    //     patch(this.gameControls, h('div.btn-controls.after', buttons));
-    // }
+    private gameOver = (rdiffs: RDiffs) => {
+        let container;
+        container = document.getElementById('wrdiff') as HTMLElement;
+        if (container) patch(container, renderRdiff(rdiffs["wrdiff"]));
+
+        container = document.getElementById('brdiff') as HTMLElement;
+        if (container) patch(container, renderRdiff(rdiffs["brdiff"]));
+
+        // console.log(rdiffs)
+        this.gameControls = patch(this.gameControls, h('div'));
+        let buttons: VNode[] = [];
+        if (!this.spectator) {
+            buttons.push(h('button.rematch', { on: { click: () => this.rematch() } }, _("REMATCH")));
+            buttons.push(h('button.newopp', { on: { click: () => this.newOpponent(this.home) } }, _("NEW OPPONENT")));
+        }
+        buttons.push(h('button.analysis', { on: { click: () => this.analysis(this.home) } }, _("ANALYSIS BOARD")));
+        patch(this.gameControls, h('div.btn-controls.after', buttons));
+    }
 
     private checkStatus = (msg: MsgBoard | MsgGameEnd) => {
         console.log(msg);
-        // if (msg.gameId !== this.gameId) return;
-        // if (msg.status >= 0) {
-        //     this.status = msg.status;
-        //     this.result = msg.result;
-        //     this.clocks[0].pause(false);
-        //     this.clocks[1].pause(false);
-        //     this.dests = new Map();
-        //
-        //     if (this.result !== "*" && !this.spectator && !this.finishedGame)
-        //         sound.gameEndSound(msg.result, this.mycolor);
-        //
-        //     if ("rdiffs" in msg) this.gameOver(msg.rdiffs);
-        //     selectMove(this, this.ply);
-        //
-        //     updateResult(this);
-        //
-        //     if ("ct" in msg && msg.ct) {
-        //         this.ctableContainer = patch(this.ctableContainer, h('div.ctable-container'));
-        //         this.ctableContainer = patch(this.ctableContainer, crosstableView(msg.ct, this.gameId));
-        //     }
-        //
-        //     // clean up gating/promotion widget left over the ground while game ended by time out
-        //     const container = document.getElementById('extension_choice') as HTMLElement;
-        //     if (container instanceof Element) patch(container, h('extension'));
-        //
-        //     if (this.tv) {
-        //         setInterval(() => {this.doSend({ type: "updateTV", gameId: this.gameId, profileId: this.profileid });}, 2000);
-        //     }
-        //
-        //     this.clearDialog();
-        // }
+        if (msg.gameId !== this.gameId) return;
+        if (msg.status >= 0) {
+            this.status = msg.status;
+            this.result = msg.result;
+            this.clocks[0].pause(false);
+            this.clocks[1].pause(false);
+            // this.dests = new Map();
+
+            // if (this.result !== "*" && !this.spectator && !this.finishedGame) todo:niki: i dont understand why !finishedGame and we issue a gameEndSound
+            //     sound.gameEndSound(msg.result, this.mycolor); todo:niki: i dont understand why it matters whose color it is?
+
+            if ("rdiffs" in msg) this.gameOver(msg.rdiffs); //todo:niki: am i still using rdiffs - probably i should for boardA
+            // selectMove(this, this.ply);TODO:NIKI
+
+            // updateResult(this);TODO:NIKI
+
+            // if ("ct" in msg && msg.ct) {
+            //     this.ctableContainer = patch(this.ctableContainer, h('div.ctable-container'));
+            //     this.ctableContainer = patch(this.ctableContainer, crosstableView(msg.ct, this.gameId));
+            // }
+
+            // clean up gating/promotion widget left over the ground while game ended by time out
+            const container = document.getElementById('extension_choice') as HTMLElement;
+            if (container instanceof Element) patch(container, h('extension'));
+
+            if (this.tv) {
+                setInterval(() => {this.doSend({ type: "updateTV", gameId: this.gameId, profileId: this.profileid });}, 2000);
+            }
+
+            this.clearDialog();
+        }
     }
 
     private onMsgUpdateTV = (msg: MsgUpdateTV) => {

@@ -13,8 +13,8 @@ import { _ } from '../i18n';
 import {uci2LastMove, uci2cg, cg2uci, notation} from '../chess';
 import { createMovelistButtons, updateMovelist, selectMove, activatePlyVari } from './movelist';
 import { povChances } from '../winningChances';
-import { boardSettings } from './boardSettings';
-import { patch, getPieceImageUrl } from '../document';
+// import { boardSettings } from './boardSettings';
+import { patch } from '../document';
 // import { variantsIni } from '../variantsIni';
 import { Chart } from "highcharts";
 import { PyChessModel } from "../types";
@@ -259,12 +259,12 @@ export default class AnalysisController {
         //     (document.getElementById('misc-infob') as HTMLElement).style.textAlign = 'center';
         // }
 
-        boardSettings.ctrl = this;
-        const boardFamily = this.b1.variant.board;//either b1 or b2
-        const pieceFamily = this.b1.variant.piece;
-        boardSettings.updateBoardStyle(boardFamily);
-        boardSettings.updatePieceStyle(pieceFamily);
-        boardSettings.updateZoom(boardFamily);
+        // boardSettings.ctrl = this;
+        // const boardFamily = this.b1.variant.board;//either b1 or b2
+        // const pieceFamily = this.b1.variant.piece;
+        // boardSettings.updateBoardStyle(boardFamily);
+        // boardSettings.updatePieceStyle(pieceFamily);
+        // boardSettings.updateZoom(boardFamily);
     }
 
     //todo:niki:not correct implementation for now - pockets are not with brackets according to this: https://bughousedb.com/Lieven_BPGN_Standard.txt
@@ -602,10 +602,10 @@ export default class AnalysisController {
                     let color = turnColor;
 
                     const dropPieceRole = util.roleOf(pv_move.slice(0, atPos) as cg.PieceLetter);
-                    const orientation = this.flip ? this.b1.oppcolor : this.b1.mycolor;
-                    const side = color === orientation ? "ally" : "enemy";
-                    const url = getPieceImageUrl("bughouse", dropPieceRole, color, side);
-                    this.b1.chessground.set({ drawable: { pieces: { baseUrl: url! } } });//todo:parametrize b1/b2 or do for both or something when decide how
+                    // const orientation = this.flip ? this.b1.oppcolor : this.b1.mycolor;
+                    // const side = color === orientation ? "ally" : "enemy";
+                    // const url = getPieceImageUrl("bughouse", dropPieceRole, color, side);
+                    // this.b1.chessground.set({ drawable: { pieces: { baseUrl: url! } } });//todo:parametrize b1/b2 or do for both or something when decide how
 
                     shapes0 = [{
                         orig: d,
