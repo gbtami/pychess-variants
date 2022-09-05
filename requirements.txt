@@ -12,7 +12,7 @@ pyffish==0.0.72
 sortedcollections==2.1.0
 python-gettext==4.1
 uvloop==0.16.0
-tqdm==4.64.0
+tqdm==4.64.1
 objgraph==3.5.0
 black==22.6.0
 mypy
