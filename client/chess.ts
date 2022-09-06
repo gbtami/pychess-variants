@@ -855,6 +855,26 @@ export function cg2uci(move: string): string {
     return move.replace(/:/g, "10");
 }
 
+// Add missing empty pockets if needed
+// Change from "/" lichess zh pocket format to "[]"
+export function sanitizedFen(variant: Variant, fen: string): string {
+    const parts = fen.split(' ');
+    const placement = parts[0];
+    if (placement && !placement.includes('[') && !placement.includes(']')) {
+        if (lc(placement, '/', false) === 8 && variant.name === "crazyhouse") {
+            if (placement.endsWith('/')) {
+                parts[0] = `${placement.slice(0, -1)}[]`;
+            } else {
+                const k = placement.lastIndexOf("/");
+                parts[0] = `${placement.slice(0, k)}[${placement.slice(k + 1)}]`;
+            }
+        } else if (variant.pocket && !placement.includes('[') && !placement.includes(']')) {
+            parts[0] = `${placement}[]`;
+        }
+    }
+    return parts.join(' ');
+}
+
 // TODO Will be deprecated after WASM Fairy integration
 export function validFen(variant: Variant, fen: string): boolean {
     const as = variant.alternateStart;
