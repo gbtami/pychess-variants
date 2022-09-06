@@ -4,7 +4,7 @@ import * as cg from 'chessgroundx/types';
 import * as util from 'chessgroundx/util';
 
 import { _ } from './i18n';
-import { validFen, hasCastling, unpromotedRole, promotedRole, notation } from './chess'
+import { lc, validFen, hasCastling, unpromotedRole, promotedRole, notation } from './chess'
 import { diff, calculatePieceNumber } from './material';
 import { iniPieces } from './pieces';
 import { copyBoardToPNG } from './png';
@@ -193,8 +193,9 @@ export class EditorController extends ChessgroundController {
 
     // Remove accidentally selected leading spaces from FEN (mostly may happen on mobile)
     private onPasteFen = (e: ClipboardEvent) => {
-        const data = e.clipboardData?.getData('text') ?? "";
-        (<HTMLInputElement>e.target).value = data.trim();
+        const data = e.clipboardData?.getData('text').trim() ?? "";
+        const fen = this.sanitizedFen(data);
+        (<HTMLInputElement>e.target).value = fen;
         e.preventDefault();
         this.onChangeFen();
     }
@@ -258,8 +259,29 @@ export class EditorController extends ChessgroundController {
         window.location.assign(this.model["home"] + '/@/Fairy-Stockfish/challenge/' + this.model["variant"] + '?fen=' + fen);
     }
 
+    // Add missing empty pockets if needed
+    // Change from "/" lichess zh pocket format to "[]"
+    private sanitizedFen = (fen: string) => {
+        this.parts = fen.split(' ');
+        const placement = this.parts[0];
+        if (placement && !placement.includes('[') && !placement.includes(']')) {
+            if (lc(placement, '/', false) === 8 && this.variant.name === "crazyhouse") {
+                if (placement.endsWith('/')) {
+                    this.parts[0] = `${placement.slice(0, -1)}[]`;
+                } else {
+                    const k = placement.lastIndexOf("/");
+                    this.parts[0] = `${placement.slice(0, k)}[${placement.slice(k + 1)}]`;
+                }
+            } else if (this.variant.pocket && !placement.includes('[') && !placement.includes(']')) {
+                this.parts[0] = `${placement}[]`;
+            }
+        }
+        return this.parts.join(' ');
+    }
+
     private onChangeFen = () => {
         const fen = document.getElementById('fen') as HTMLInputElement;
+        fen.value = this.sanitizedFen(fen.value);
         this.parts = fen.value.split(' ');
         this.chessground.set({ fen: fen.value });
         this.setInvalid(!this.validFen());
