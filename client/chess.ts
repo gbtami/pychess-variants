@@ -339,7 +339,7 @@ export const VARIANTS: { [name: string]: Variant } = {
     }),
 
     cambodian: new Variant({
-        name: "cambodian", displayName: "ouk chatrang", tooltip: () => _("Cambodian Chess. Makruk with a few additional opening abilities."),
+        name: "cambodian", displayName: "ouk chaktrang", tooltip: () => _("Cambodian Chess. Makruk with a few additional opening abilities."),
         startFen: "rnsmksnr/8/pppppppp/8/8/PPPPPPPP/8/RNSKMSNR w DEde - 0 1",
         board: "makruk8x8", piece: "makruk",
         pieceLetters: ["k", "s", "m", "n", "r", "p", "m~" as cg.Letter],
