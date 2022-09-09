@@ -1037,7 +1037,8 @@ export function getCounting(fen: string): [number, number, string, string] {
     const board = parts[0];
     const whitePieces = (board.match(/[A-Z]/g) || []).length;
     const blackPieces = (board.match(/[a-z]/g) || []).length;
-    const countingType = (countingLimit === 0) ? 'none' : ((whitePieces > 1 && blackPieces > 1) ? 'board' : 'piece');
+    const pawns = (board.match(/[Pp]/g) || []).length;
+    const countingType = (countingLimit === 0) ? 'none' : (pawns === 0 && (whitePieces <= 1 || blackPieces <= 1) ? 'piece' : 'board');
 
     const sideToMove = parts[1];
     const opponent = (sideToMove === 'w') ? 'b' : 'w';

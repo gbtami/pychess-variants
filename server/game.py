@@ -162,8 +162,9 @@ class Game:
 
                 white_pieces = sum(1 for c in board_state if c.isupper())
                 black_pieces = sum(1 for c in board_state if c.islower())
+                pawns = sum(1 for c in board_state if c in ('P', 'p'))
                 if counting_limit > 0 and counting_ply > 0:
-                    if white_pieces <= 1 or black_pieces <= 1:
+                    if pawns == 0 and (white_pieces <= 1 or black_pieces <= 1):
                         # Disable manual count if either side is already down to lone king
                         count_started = 0
                         self.manual_count = False
@@ -341,16 +342,6 @@ class Game:
                 self.legal_moves = self.board.legal_moves()
                 self.update_status()
 
-                # Stop manual counting when the king is bared
-                if self.board.count_started != 0:
-                    board_state = self.board.fen.split()[0]
-                    white_pieces = sum(1 for c in board_state if c.isupper())
-                    black_pieces = sum(1 for c in board_state if c.islower())
-                    if white_pieces <= 1 or black_pieces <= 1:
-                        if self.board.count_started > 0:
-                            self.stop_manual_count()
-                        self.board.count_started = 0
-
                 if self.status > STARTED:
                     await self.save_game()
 
@@ -373,14 +364,14 @@ class Game:
                 await self.save_game()
 
             # TODO: this causes random game abort
-            if False:  # not self.bot_game:
-                opp_color = self.steps[-1]["turnColor"]
-                if (
-                    clocks[opp_color] < self.ply_clocks[ply - 1][opp_color]
-                    and self.status <= STARTED
-                ):
-                    self.update_status(ABORTED)
-                    await self.save_game()
+            # if False:  # not self.bot_game:
+                # opp_color = self.steps[-1]["turnColor"]
+                # if (
+                    # clocks[opp_color] < self.ply_clocks[ply - 1][opp_color]
+                    # and self.status <= STARTED
+                # ):
+                    # self.update_status(ABORTED)
+                    # await self.save_game()
 
     async def save_game(self):
         if self.saved:
