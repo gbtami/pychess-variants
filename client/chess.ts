@@ -339,7 +339,7 @@ export const VARIANTS: { [name: string]: Variant } = {
     }),
 
     cambodian: new Variant({
-        name: "cambodian", displayName: "ouk chatrang", tooltip: () => _("Cambodian Chess. Makruk with a few additional opening abilities."),
+        name: "cambodian", displayName: "ouk chaktrang", tooltip: () => _("Cambodian Chess. Makruk with a few additional opening abilities."),
         startFen: "rnsmksnr/8/pppppppp/8/8/PPPPPPPP/8/RNSKMSNR w DEde - 0 1",
         board: "makruk8x8", piece: "makruk",
         pieceLetters: ["k", "s", "m", "n", "r", "p", "m~" as cg.Letter],
@@ -686,12 +686,12 @@ export const VARIANTS: { [name: string]: Variant } = {
 
     shinobi: new Variant({
         name: "shinobi", tooltip: () => _("Asymmetric variant which pits the western Chess army against a drop-based, Shogi-styled army."),
-        startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/LH1CK1HL[LHMMDJ] w kq - 0 1",
+        startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/LH1DK1HL[LHMMCJ] w kq - 0 1",
         board: "standard8x8", piece: "shinobi",
         firstColor: "Pink", secondColor: "Black",
         pieceLetters: ["k", "d", "j", "c", "l", "h", "m", "p"],
         pieceLetters2: ["k", "q", "r", "b", "n", "p"],
-        pocketLetters: ["l", "h", "m", "d", "j"],
+        pocketLetters: ["l", "h", "m", "c", "d", "j"],
         pocketLetters2: [],
         promotion: "shogi",
         promoteableLetters: ["p", "l", "h", "m"],
