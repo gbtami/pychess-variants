@@ -897,7 +897,7 @@ export class RoundController extends GameController {
             const [ , , countingSide, countingType ] = getCounting(fen);
             const myturn = this.mycolor === this.turnColor;
             if (countingType === 'board')
-                if ((countingSide === 'w' && this.mycolor === 'white') || (countingSide === 'b' && this.mycolor === 'black'))
+                if (countingSide === this.mycolor[0])
                     patch(countButton, h('button#count', { on: { click: () => this.stopCount() }, props: {title: _('Stop counting')}, class: { disabled: !myturn } }, _('Stop')));
                 else
                     patch(countButton, h('button#count', { on: { click: () => this.startCount() }, props: {title: _('Start counting')}, class: { disabled: !(myturn && countingSide === '') } }, _('Count')));
