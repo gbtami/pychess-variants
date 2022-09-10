@@ -686,12 +686,12 @@ export const VARIANTS: { [name: string]: Variant } = {
 
     shinobi: new Variant({
         name: "shinobi", tooltip: () => _("Asymmetric variant which pits the western Chess army against a drop-based, Shogi-styled army."),
-        startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/LH1DK1HL[LHMMCJ] w kq - 0 1",
+        startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/LH2K1HL[LHMMDZZ] w kq - 0 1",
         board: "standard8x8", piece: "shinobi",
         firstColor: "Pink", secondColor: "Black",
-        pieceLetters: ["k", "d", "j", "c", "l", "h", "m", "p"],
+        pieceLetters: ["k", "d", "j", "c", "l", "h", "m", "p", "s"],
         pieceLetters2: ["k", "q", "r", "b", "n", "p"],
-        pocketLetters: ["l", "h", "m", "c", "d", "j"],
+        pocketLetters: ["l", "h", "m", "c", "d", "j", "s"],
         pocketLetters2: [],
         promotion: "shogi",
         promoteableLetters: ["p", "l", "h", "m"],
