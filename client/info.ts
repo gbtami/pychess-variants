@@ -9,17 +9,19 @@ export function updateCount(fen: string, whiteContainer: VNode | Element, blackC
     whiteContainer = patch(whiteContainer, h('div#misc-infow', ''));
     blackContainer = patch(blackContainer, h('div#misc-infob', ''));
 
+    const countingStr = `${Math.floor((countingPly + 1)/2)}/${countingLimit/2 + (countingLimit/2)%2}`;
+
     if (countingLimit !== 0 && countingPly !== 0) {
         if (countingSide === 'w')
-            whiteContainer = patch(whiteContainer, h('div#misc-infow', `${Math.floor((countingPly+1)/2)}/${countingLimit/2}`));
+            whiteContainer = patch(whiteContainer, h('div#misc-infow', countingStr));
         else
-            blackContainer = patch(blackContainer, h('div#misc-infob', `${Math.floor((countingPly+1)/2)}/${countingLimit/2}`));
+            blackContainer = patch(blackContainer, h('div#misc-infob', countingStr));
     }
 
     return [whiteContainer, blackContainer];
 }
 
-// Point count for janggi
+// Material point for janggi
 export function updatePoint(fen: string, choContainer: VNode | Element, hanContainer: VNode | Element) {
     const board = fen.split(" ")[0];
     const [choPoint, hanPoint] = getJanggiPoints(board);
