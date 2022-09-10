@@ -339,7 +339,7 @@ export const VARIANTS: { [name: string]: Variant } = {
     }),
 
     cambodian: new Variant({
-        name: "cambodian", displayName: "ouk chatrang", tooltip: () => _("Cambodian Chess. Makruk with a few additional opening abilities."),
+        name: "cambodian", displayName: "ouk chaktrang", tooltip: () => _("Cambodian Chess. Makruk with a few additional opening abilities."),
         startFen: "rnsmksnr/8/pppppppp/8/8/PPPPPPPP/8/RNSKMSNR w DEde - 0 1",
         board: "makruk8x8", piece: "makruk",
         pieceLetters: ["k", "s", "m", "n", "r", "p", "m~" as cg.Letter],
@@ -855,6 +855,26 @@ export function cg2uci(move: string): string {
     return move.replace(/:/g, "10");
 }
 
+// Add missing empty pockets if needed
+// Change from "/" lichess zh pocket format to "[]"
+export function sanitizedFen(variant: Variant, fen: string): string {
+    const parts = fen.split(' ');
+    const placement = parts[0];
+    if (placement && !placement.includes('[') && !placement.includes(']')) {
+        if (lc(placement, '/', false) === 8 && variant.name === "crazyhouse") {
+            if (placement.endsWith('/')) {
+                parts[0] = `${placement.slice(0, -1)}[]`;
+            } else {
+                const k = placement.lastIndexOf("/");
+                parts[0] = `${placement.slice(0, k)}[${placement.slice(k + 1)}]`;
+            }
+        } else if (variant.pocket && !placement.includes('[') && !placement.includes(']')) {
+            parts[0] = `${placement}[]`;
+        }
+    }
+    return parts.join(' ');
+}
+
 // TODO Will be deprecated after WASM Fairy integration
 export function validFen(variant: Variant, fen: string): boolean {
     const as = variant.alternateStart;
@@ -1017,7 +1037,8 @@ export function getCounting(fen: string): [number, number, string, string] {
     const board = parts[0];
     const whitePieces = (board.match(/[A-Z]/g) || []).length;
     const blackPieces = (board.match(/[a-z]/g) || []).length;
-    const countingType = (countingLimit === 0) ? 'none' : ((whitePieces > 1 && blackPieces > 1) ? 'board' : 'piece');
+    const pawns = (board.match(/[Pp]/g) || []).length;
+    const countingType = (countingLimit === 0) ? 'none' : (pawns === 0 && (whitePieces <= 1 || blackPieces <= 1) ? 'piece' : 'board');
 
     const sideToMove = parts[1];
     const opponent = (sideToMove === 'w') ? 'b' : 'w';

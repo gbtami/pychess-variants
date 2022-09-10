@@ -36,7 +36,7 @@ export function layer2makruk (lobbyCtrl: LobbyController, containerId: string): 
         h('button.layer-2-category.chatrang', { on: { click: () => layer3variant('layer2makrukcont', lobbyCtrl, 'cambodian', false) } }, [
             h('div.variant-title-l2', [
                 h('div.icon', { attrs: { 'data-icon': VARIANTS['cambodian'].icon(false) } }),
-                h('h3', 'Ouk Chatrang'),
+                h('h3', 'Ouk Chaktrang'),
             ]),
             h('p.variant-extra-info', _('Cambodian Chess. Makruk with extra starting moves.')),
         ]),

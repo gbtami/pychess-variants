@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-08-04 13:33+0200\n"
+"POT-Creation-Date: 2022-09-09 12:21+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -105,43 +105,47 @@ msgstr ""
 msgid "Current games"
 msgstr ""
 
-#: ../templates/template.html:32
+#: ../templates/template.html:29
+msgid "Video library"
+msgstr ""
+
+#: ../templates/template.html:33
 msgid "Community"
 msgstr ""
 
-#: ../templates/template.html:34
+#: ../templates/template.html:35
 msgid "Players"
 msgstr ""
 
-#: ../templates/template.html:35
+#: ../templates/template.html:36
 msgid "Blog"
 msgstr ""
 
-#: ../templates/template.html:36
+#: ../templates/template.html:37
 msgid "Donate"
 msgstr ""
 
-#: ../templates/template.html:40
+#: ../templates/template.html:41
 msgid "Tools"
 msgstr ""
 
-#: ../templates/template.html:42
+#: ../templates/template.html:43
 msgid "Editor"
 msgstr ""
 
-#: ../templates/template.html:43
+#: ../templates/template.html:44
 msgid "Analysis"
 msgstr ""
 
-#: ../templates/template.html:47
+#: ../templates/template.html:48
 msgid "Variants"
 msgstr ""
 
-#: ../templates/template.html:61
+#: ../templates/template.html:62
 msgid "Login with Lichess"
 msgstr ""
 
-#: ../templates/template.html:61
+#: ../templates/template.html:62
 msgid "Log in"
 msgstr ""
 
