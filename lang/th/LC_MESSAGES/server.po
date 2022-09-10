@@ -12,7 +12,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-05-02 23:28+0200\n"
+"POT-Creation-Date: 2022-09-09 12:21+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Last-Translator: Ada Joule <ada.fulmina@gmail.com>, 2022\n"
 "Language-Team: Thai (https://www.transifex.com/gbtami/teams/14790/th/)\n"
@@ -81,7 +81,7 @@ msgstr "นำเข้าเกม"
 msgid "Export games"
 msgstr "บันทึกไฟล์เกม"
 
-#: ../templates/profile.html:53
+#: ../templates/profile.html:54
 msgid "Lichess profile"
 msgstr "หน้าบัญชี lichess"
 
@@ -109,43 +109,47 @@ msgstr "ทีวี"
 msgid "Current games"
 msgstr "เกมที่กำลังเล่น"
 
-#: ../templates/template.html:32
+#: ../templates/template.html:29
+msgid "Video library"
+msgstr "คลังวิดีโอ"
+
+#: ../templates/template.html:33
 msgid "Community"
 msgstr "ชุมชน"
 
-#: ../templates/template.html:34
+#: ../templates/template.html:35
 msgid "Players"
 msgstr "ผู้เล่น"
 
-#: ../templates/template.html:35
+#: ../templates/template.html:36
 msgid "Blog"
 msgstr "บล็อก"
 
-#: ../templates/template.html:36
+#: ../templates/template.html:37
 msgid "Donate"
 msgstr "บริจาค"
 
-#: ../templates/template.html:40
+#: ../templates/template.html:41
 msgid "Tools"
 msgstr "อุปกรณ์"
 
-#: ../templates/template.html:42
+#: ../templates/template.html:43
 msgid "Editor"
 msgstr "ตั้งกระดาน"
 
-#: ../templates/template.html:43
+#: ../templates/template.html:44
 msgid "Analysis"
 msgstr "ถอดหมาก"
 
-#: ../templates/template.html:46
+#: ../templates/template.html:48
 msgid "Variants"
 msgstr "ชนิดเกม"
 
-#: ../templates/template.html:59
+#: ../templates/template.html:62
 msgid "Login with Lichess"
 msgstr "เข้าสู่ระบบด้วย lichess"
 
-#: ../templates/template.html:59
+#: ../templates/template.html:62
 msgid "Log in"
 msgstr "เข้าสู่ระบบ"
 
