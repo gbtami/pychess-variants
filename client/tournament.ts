@@ -1,4 +1,4 @@
-import Sockette from 'sockette';
+import WebsocketHeartbeatJs from 'websocket-heartbeat-js';
 
 import { h, VNode } from 'snabbdom';
 
@@ -72,26 +72,22 @@ export class TournamentController implements IChatController {
         this.secondsToStart = 0;
         this.secondsToFinish = 0;
 
-        const onOpen = (evt: Event) => {
-            this.readyState = (evt.target as EventSource).readyState;
-            console.log('onOpen()');
+        const onOpen = () => {
             this.doSend({ type: "tournament_user_connected", username: model["username"], tournamentId: model["tournamentId"]});
             this.doSend({ type: "get_players", "tournamentId": model["tournamentId"], page: this.page });
         }
 
-        this.readyState = -1;
-        const opts = {
-            maxAttempts: 20,
-            onopen: (e: Event) => onOpen(e),
-            onmessage: (e: MessageEvent) => this.onMessage(e),
-            onreconnect: (e: Event | CloseEvent) => console.log('Reconnecting in tournament...', e),
-            onmaximum: (e: CloseEvent) => console.log('Stop Attempting!', e),
-            onclose: (e: CloseEvent) => {console.log('Closed!', e);},
-            onerror: (e: Event) => console.log('Error:', e),
-        };
-
         const ws = location.protocol.indexOf('https') > -1 ? 'wss://' : 'ws://';
-        this.sock = new Sockette(ws + location.host + "/wst", opts);
+        const options = {
+            url: ws + location.host + '/wst',
+            pingTimeout: 2500, 
+            pongTimeout: 9000, 
+            reconnectTimeout: 3500,
+            pingMsg: "/n"
+        }
+        this.sock = new WebsocketHeartbeatJs(options);
+        this.sock.onopen = () => onOpen();
+        this.sock.onmessage = (e: MessageEvent) => this.onMessage(e);
 
         this.variant = VARIANTS[model["variant"]];
         this.chess960 = model["chess960"] === "True";
@@ -665,6 +661,7 @@ export class TournamentController implements IChatController {
 
     onMessage(evt: MessageEvent) {
         //console.log("<+++ tournament onMessage():", evt.data);
+        if (evt.data === '/n') return;
         const msg = JSON.parse(evt.data);
         switch (msg.type) {
             case "ustatus":
