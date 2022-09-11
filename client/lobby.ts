@@ -1,4 +1,4 @@
-import Sockette from 'sockette';
+import WebsocketHeartbeatJs from 'websocket-heartbeat-js';
 
 import { h, VNode } from 'snabbdom';
 
@@ -17,7 +17,7 @@ import { variantPanels } from './lobby/layer1';
 import { Stream, Spotlight, MsgInviteCreated, MsgHostCreated, MsgGetSeeks, MsgNewGame, MsgGameInProgress, MsgUserConnected, MsgPing, MsgError, MsgShutdown, MsgGameCounter, MsgUserCounter, MsgStreams, MsgSpotlights, Seek, CreateMode } from './lobbyType';
 
 export class LobbyController implements IChatController {
-    sock: Sockette;
+    sock: WebsocketHeartbeatJs;
     home: string;
     assetURL: string;
     // player;
@@ -61,8 +61,7 @@ export class LobbyController implements IChatController {
         this.validGameData = false;
         this.seeks = [];
 
-        const onOpen = (evt: Event) => {
-            this.readyState = (evt.target as EventSource).readyState;
+        const onOpen = () => {
             console.log('onOpen()');
             // console.log("---CONNECTED", evt);
             // prevent losing my seeks in case of websocket reconnections
@@ -77,24 +76,18 @@ export class LobbyController implements IChatController {
             this.doSend({ type: "get_seeks" });
         }
 
-        this.readyState = -1;
-        const opts = {
-            maxAttempts: 20,
-            onopen: (e: Event) => onOpen(e),
-            onmessage: (e: MessageEvent) => this.onMessage(e),
-            onreconnect: (e: Event | CloseEvent) => console.log('Reconnecting in lobby...', e),
-            onmaximum: (e: CloseEvent) => console.log('Stop Attempting!', e),
-            onclose: (e: CloseEvent) => {console.log('Closed!', e);},
-            onerror: (e: Event) => console.log('Error:', e),
-        };
-
         const ws = location.protocol.indexOf('https') > -1 ? 'wss://' : 'ws://';
-        this.sock = new Sockette(ws + location.host + "/wsl", opts);
-
-        // get seeks when we are coming back after a game
-        if (this.readyState === 1) {
-            this.doSend({ type: "get_seeks" });
+        const options = {
+            url: ws + location.host + '/wsl',
+            pingTimeout: 2500, 
+            pongTimeout: 9000, 
+            reconnectTimeout: 3500,
+            pingMsg: "/n"
         }
+        this.sock = new WebsocketHeartbeatJs(options);
+        this.sock.onopen = () => onOpen();
+        this.sock.onmessage = (e: MessageEvent) => this.onMessage(e);
+
         patch(document.getElementById('seekbuttons') as HTMLElement, h('div#seekbuttons', this.renderSeekButtons()));
         patch(document.getElementById('lobbychat') as HTMLElement, chatView(this, "lobbychat"));
 
@@ -711,6 +704,7 @@ export class LobbyController implements IChatController {
 
     onMessage(evt: MessageEvent) {
         // console.log("<+++ lobby onMessage():", evt.data);
+        if (evt.data === '/n') return;
         const msg = JSON.parse(evt.data);
         switch (msg.type) {
             case "get_seeks":

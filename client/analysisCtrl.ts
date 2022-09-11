@@ -1,4 +1,4 @@
-import Sockette from 'sockette';
+import WebsocketHeartbeatJs from 'websocket-heartbeat-js';
 
 import { h, VNode } from 'snabbdom';
 
@@ -83,8 +83,7 @@ export class AnalysisController extends GameController {
             this.chartFunctions = [analysisChart, movetimeChart];
         }
 
-        const onOpen = (evt: Event) => {
-            console.log("ctrl.onOpen()", evt);
+        const onOpen = () => {
             if (this.embed) {
                 this.doSend({ type: "embed_user_connected", gameId: this.gameId });
             } else if (!this.isAnalysisBoard) {
@@ -92,18 +91,17 @@ export class AnalysisController extends GameController {
             }
         };
 
-        const opts = {
-            maxAttempts: 10,
-            onopen: (e: Event) => onOpen(e),
-            onmessage: (e: MessageEvent) => this.onMessage(e),
-            onreconnect: (e: Event) => console.log('Reconnecting in round...', e),
-            onmaximum: (e: Event) => console.log('Stop Attempting!', e),
-            onclose: (e: Event) => console.log('Closed!', e),
-            onerror: (e: Event) => console.log('Error:', e),
-            };
-
         const ws = (location.protocol.indexOf('https') > -1) ? 'wss://' : 'ws://';
-        this.sock = new Sockette(ws + location.host + "/wsr", opts);
+        const options = {
+            url: ws + location.host + '/wsr',
+            pingTimeout: 2500, 
+            pongTimeout: 9000, 
+            reconnectTimeout: 3500,
+            pingMsg: "/n"
+        }
+        this.sock = new WebsocketHeartbeatJs(options);
+        this.sock.onopen = () => onOpen();
+        this.sock.onmessage = (e: MessageEvent) => this.onMessage(e);
 
         // is local stockfish.wasm engine supports current variant?
         this.localEngine = false;
@@ -978,6 +976,7 @@ export class AnalysisController extends GameController {
         // console.log("<+++ onMessage():", evt.data);
         super.onMessage(evt);
 
+        if (evt.data === '/n') return;
         const msg = JSON.parse(evt.data);
         switch (msg.type) {
             case "board":
