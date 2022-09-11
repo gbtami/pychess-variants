@@ -53,7 +53,7 @@ async def tournament_socket_handler(request):
                     log.debug("Got 'close' msg.")
                     break
                 elif msg.data == "/n":
-                    await ws.send_str('/n')
+                    await ws.send_str("/n")
                 else:
                     data = json.loads(msg.data)
                     if not data["type"] == "pong":
