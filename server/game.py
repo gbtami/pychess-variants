@@ -162,7 +162,7 @@ class Game:
 
                 white_pieces = sum(1 for c in board_state if c.isupper())
                 black_pieces = sum(1 for c in board_state if c.islower())
-                pawns = sum(1 for c in board_state if c in ('P', 'p'))
+                pawns = sum(1 for c in board_state if c in ("P", "p"))
                 if counting_limit > 0 and counting_ply > 0:
                     if pawns == 0 and (white_pieces <= 1 or black_pieces <= 1):
                         # Disable manual count if either side is already down to lone king
@@ -362,16 +362,6 @@ class Game:
                 result = "1-0" if self.board.color == BLACK else "0-1"
                 self.update_status(INVALIDMOVE, result)
                 await self.save_game()
-
-            # TODO: this causes random game abort
-            # if False:  # not self.bot_game:
-                # opp_color = self.steps[-1]["turnColor"]
-                # if (
-                    # clocks[opp_color] < self.ply_clocks[ply - 1][opp_color]
-                    # and self.status <= STARTED
-                # ):
-                    # self.update_status(ABORTED)
-                    # await self.save_game()
 
     async def save_game(self):
         if self.saved:

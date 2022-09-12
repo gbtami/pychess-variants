@@ -1,4 +1,4 @@
-import Sockette from 'sockette';
+import WebsocketHeartbeatJs from 'websocket-heartbeat-js';
 
 import { h, VNode } from 'snabbdom';
 import * as cg from 'chessgroundx/types';
@@ -17,7 +17,7 @@ import { sound } from './sound';
 import { chatMessage, IChatController } from './chat';
 
 export abstract class GameController extends ChessgroundController implements IChatController {
-    sock: Sockette;
+    sock: WebsocketHeartbeatJs;
 
     // Info
     username: string;
@@ -404,6 +404,7 @@ export abstract class GameController extends ChessgroundController implements IC
 
     protected onMessage(evt: MessageEvent) {
         // console.log("<+++ onMessage():", evt.data);
+        if (evt.data === '/n') return;
         const msg = JSON.parse(evt.data);
         switch (msg.type) {
             case "spectators":
