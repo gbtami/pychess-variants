@@ -1,10 +1,9 @@
-import WebsocketHeartbeatJs from 'websocket-heartbeat-js';
-
 import { h, VNode } from 'snabbdom';
 import { premove } from 'chessgroundx/premove';
 import { predrop } from 'chessgroundx/predrop';
 import * as cg from 'chessgroundx/types';
 
+import { newWebsocket } from './socket';
 import { JSONObject } from './types';
 import { _, ngettext } from './i18n';
 import { patch } from './document';
@@ -106,15 +105,7 @@ export class RoundController extends GameController {
             patch(container, h('i-side.online#player1', {class: {"icon": true, "icon-online": false, "icon-offline": true}}));
         };
 
-        const ws = (location.protocol.indexOf('https') > -1) ? 'wss://' : 'ws://';
-        const options = {
-            url: ws + location.host + '/wsr',
-            pingTimeout: 2500, 
-            pongTimeout: 9000, 
-            reconnectTimeout: 3500,
-            pingMsg: "/n"
-        }
-        this.sock = new WebsocketHeartbeatJs(options);
+        this.sock = newWebsocket('wsr');
         this.sock.onopen = () => onOpen();
         this.sock.onreconnect = () => onReconnect();
         this.sock.onmessage = (e: MessageEvent) => this.onMessage(e);

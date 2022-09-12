@@ -4,6 +4,7 @@ import { h, VNode } from 'snabbdom';
 
 import { Chessground } from 'chessgroundx';
 
+import { newWebsocket } from './socket';
 import { JSONObject } from './types';
 import { _, ngettext } from './i18n';
 import { patch } from './document';
@@ -76,15 +77,7 @@ export class LobbyController implements IChatController {
             this.doSend({ type: "get_seeks" });
         }
 
-        const ws = location.protocol.indexOf('https') > -1 ? 'wss://' : 'ws://';
-        const options = {
-            url: ws + location.host + '/wsl',
-            pingTimeout: 2500, 
-            pongTimeout: 9000, 
-            reconnectTimeout: 3500,
-            pingMsg: "/n"
-        }
-        this.sock = new WebsocketHeartbeatJs(options);
+        this.sock = newWebsocket('wsl');
         this.sock.onopen = () => onOpen();
         this.sock.onmessage = (e: MessageEvent) => this.onMessage(e);
 

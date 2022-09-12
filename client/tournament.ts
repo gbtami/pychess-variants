@@ -1,10 +1,9 @@
-import WebsocketHeartbeatJs from 'websocket-heartbeat-js';
-
 import { h, VNode } from 'snabbdom';
 
 import { Chessground } from 'chessgroundx';
 import { Api } from "chessgroundx/api";
 
+import { newWebsocket } from './socket';
 import { JSONObject, PyChessModel } from './types';
 import { _ } from './i18n';
 import { patch } from './document';
@@ -77,15 +76,7 @@ export class TournamentController implements IChatController {
             this.doSend({ type: "get_players", "tournamentId": model["tournamentId"], page: this.page });
         }
 
-        const ws = location.protocol.indexOf('https') > -1 ? 'wss://' : 'ws://';
-        const options = {
-            url: ws + location.host + '/wst',
-            pingTimeout: 2500, 
-            pongTimeout: 9000, 
-            reconnectTimeout: 3500,
-            pingMsg: "/n"
-        }
-        this.sock = new WebsocketHeartbeatJs(options);
+        this.sock = newWebsocket('wst');
         this.sock.onopen = () => onOpen();
         this.sock.onmessage = (e: MessageEvent) => this.onMessage(e);
 
