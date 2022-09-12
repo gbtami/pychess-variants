@@ -686,7 +686,7 @@ export const VARIANTS: { [name: string]: Variant } = {
 
     shinobi: new Variant({
         name: "shinobi", tooltip: () => _("Asymmetric variant which pits the western Chess army against a drop-based, Shogi-styled army."),
-        startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/LH2K1HL[LHMMDZZ] w kq - 0 1",
+        startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/LH2K1HL[LHMMDSS] w kq - 0 1",
         board: "standard8x8", piece: "shinobi",
         firstColor: "Pink", secondColor: "Black",
         pieceLetters: ["k", "d", "j", "c", "l", "h", "m", "p", "s"],
@@ -884,8 +884,9 @@ export function validFen(variant: Variant, fen: string): boolean {
     const variantName = variant.name;
     const startfen = variant.startFen;
     const start = startfen.split(' ');
+    console.log(start);
     const parts = fen.split(' ');
-
+    console.log(parts);
     // Need starting color
     if (parts.length < 2) return false;
 
