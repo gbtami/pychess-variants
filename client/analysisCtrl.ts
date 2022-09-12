@@ -1,5 +1,3 @@
-import WebsocketHeartbeatJs from 'websocket-heartbeat-js';
-
 import { h, VNode } from 'snabbdom';
 
 import * as idb from 'idb-keyval';
@@ -8,6 +6,7 @@ import * as cg from 'chessgroundx/types';
 import * as util from 'chessgroundx/util';
 import { DrawShape } from 'chessgroundx/draw';
 
+import { newWebsocket } from './socket';
 import { _ } from './i18n';
 import { sound } from './sound';
 import { uci2LastMove, uci2cg, cg2uci } from './chess';
@@ -91,15 +90,7 @@ export class AnalysisController extends GameController {
             }
         };
 
-        const ws = (location.protocol.indexOf('https') > -1) ? 'wss://' : 'ws://';
-        const options = {
-            url: ws + location.host + '/wsr',
-            pingTimeout: 2500, 
-            pongTimeout: 9000, 
-            reconnectTimeout: 3500,
-            pingMsg: "/n"
-        }
-        this.sock = new WebsocketHeartbeatJs(options);
+        this.sock = newWebsocket('wsr');
         this.sock.onopen = () => onOpen();
         this.sock.onmessage = (e: MessageEvent) => this.onMessage(e);
 
