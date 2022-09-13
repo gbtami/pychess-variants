@@ -5,15 +5,16 @@
 # 
 # Translators:
 # gbtami <gbtami@gmail.com>, 2022
+# 何承恩, 2022
 # 
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-05-02 23:28+0200\n"
+"POT-Creation-Date: 2022-09-09 12:21+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
-"Last-Translator: gbtami <gbtami@gmail.com>, 2022\n"
+"Last-Translator: 何承恩, 2022\n"
 "Language-Team: Chinese (Taiwan) (https://www.transifex.com/gbtami/teams/14790/zh_TW/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -80,7 +81,7 @@ msgstr "導入棋局"
 msgid "Export games"
 msgstr "導出棋局"
 
-#: ../templates/profile.html:53
+#: ../templates/profile.html:54
 msgid "Lichess profile"
 msgstr "Lichess個人資料"
 
@@ -108,43 +109,47 @@ msgstr "TV"
 msgid "Current games"
 msgstr "當前對局"
 
-#: ../templates/template.html:32
+#: ../templates/template.html:29
+msgid "Video library"
+msgstr "影片庫"
+
+#: ../templates/template.html:33
 msgid "Community"
 msgstr "社群"
 
-#: ../templates/template.html:34
+#: ../templates/template.html:35
 msgid "Players"
 msgstr "棋手"
 
-#: ../templates/template.html:35
+#: ../templates/template.html:36
 msgid "Blog"
 msgstr "網誌"
 
-#: ../templates/template.html:36
+#: ../templates/template.html:37
 msgid "Donate"
 msgstr "捐款"
 
-#: ../templates/template.html:40
+#: ../templates/template.html:41
 msgid "Tools"
 msgstr "工具"
 
-#: ../templates/template.html:42
+#: ../templates/template.html:43
 msgid "Editor"
 msgstr "棋盤編輯器"
 
-#: ../templates/template.html:43
+#: ../templates/template.html:44
 msgid "Analysis"
 msgstr "分析面板"
 
-#: ../templates/template.html:46
+#: ../templates/template.html:48
 msgid "Variants"
 msgstr "棋類"
 
-#: ../templates/template.html:59
+#: ../templates/template.html:62
 msgid "Login with Lichess"
 msgstr "Lichess登錄"
 
-#: ../templates/template.html:59
+#: ../templates/template.html:62
 msgid "Log in"
 msgstr "登錄"
 
