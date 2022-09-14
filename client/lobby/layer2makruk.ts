@@ -22,35 +22,35 @@ export function layer2makruk (lobbyCtrl: LobbyController, containerId: string): 
         h('button.layer-2-category.makrukl2', { on: { click: () => layer3variant('layer2makrukcont', lobbyCtrl, 'makruk', false) } }, [
             h('div.variant-title-l2', [
                 h('div.icon', { attrs: { 'data-icon': VARIANTS['makruk'].icon(false) } }),
-                h('h3', 'Makruk'),
+                h('h3', VARIANTS['makruk'].displayName()),
             ]),
             h('p.variant-extra-info', _('Thai Chess. Similar to Chess but with a different queen and bishop.')),
         ]),
         h('button.layer-2-category.makpong', { on: { click: () => layer3variant('layer2makrukcont', lobbyCtrl, 'makpong', false) } }, [
             h('div.variant-title-l2', [
                 h('div.icon', { attrs: { 'data-icon': VARIANTS['makpong'].icon(false) } }),
-                h('h3', 'Makpong'),
+                h('h3', VARIANTS['makpong'].displayName()),
             ]),
             h('p.variant-extra-info', _('Makruk variant. Kings cannot move when checked.')),
         ]),
         h('button.layer-2-category.chatrang', { on: { click: () => layer3variant('layer2makrukcont', lobbyCtrl, 'cambodian', false) } }, [
             h('div.variant-title-l2', [
                 h('div.icon', { attrs: { 'data-icon': VARIANTS['cambodian'].icon(false) } }),
-                h('h3', 'Ouk Chaktrang'),
+                h('h3', VARIANTS['cambodian'].displayName()),
             ]),
             h('p.variant-extra-info', _('Cambodian Chess. Makruk with extra starting moves.')),
         ]),
         h('button.layer-2-category.sittuyin', { on: { click: () => layer3variant('layer2makrukcont', lobbyCtrl, 'sittuyin', false) } }, [
             h('div.variant-title-l2', [
                 h('div.icon', { attrs: { 'data-icon': VARIANTS['sittuyin'].icon(false) } }),
-                h('h3', 'Sittuyin'),
+                h('h3', VARIANTS['sittuyin'].displayName()),
             ]),
             h('p.variant-extra-info', _('Burmese Chess. You may place your starting pieces.')),
         ]),
         h('button.layer-2-category.asean', { on: { click: () => layer3variant('layer2makrukcont', lobbyCtrl, 'asean', false) } }, [
             h('div.variant-title-l2', [
                 h('div.icon', { attrs: { 'data-icon': VARIANTS['asean'].icon(false) } }),
-                h('h3', 'ASEAN'),
+                h('h3', VARIANTS['asean'].displayName()),
             ]),
             h('p.variant-extra-info', _('Makruk with International Chess influence.')),
         ]),

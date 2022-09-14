@@ -334,16 +334,6 @@ async def load_tournament(app, tournament_id, tournament_klass=None):
     elif tournament_klass is not None:
         tournament_class = tournament_klass
 
-    if doc.get("fr") == SHIELD:
-        doc["d"] = (
-            """
-This Shield trophy is unique.
-The winner keeps it for one month,
-then must defend it during the next %s Shield tournament!
-"""
-            % variant_display_name(C2V[doc["v"]]).title()
-        )
-
     tournament = tournament_class(
         app,
         doc["_id"],
