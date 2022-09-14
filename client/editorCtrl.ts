@@ -4,7 +4,7 @@ import * as cg from 'chessgroundx/types';
 import * as util from 'chessgroundx/util';
 
 import { _ } from './i18n';
-import { sanitizedFen, validFen, hasCastling, unpromotedRole, promotedRole, notation } from './chess'
+import { validFen, hasCastling, unpromotedRole, promotedRole, notation } from './chess'
 import { diff, calculatePieceNumber } from './material';
 import { iniPieces } from './pieces';
 import { copyBoardToPNG } from './png';
@@ -193,8 +193,7 @@ export class EditorController extends ChessgroundController {
 
     // Remove accidentally selected leading spaces from FEN (mostly may happen on mobile)
     private onPasteFen = (e: ClipboardEvent) => {
-        const data = e.clipboardData?.getData('text').trim() ?? "";
-        (<HTMLInputElement>e.target).value = sanitizedFen(this.variant, data);
+        (<HTMLInputElement>e.target).value = e.clipboardData?.getData('text').trim() ?? "";
         e.preventDefault();
         this.onChangeFen();
     }
@@ -259,9 +258,7 @@ export class EditorController extends ChessgroundController {
     }
 
     private onChangeFen = () => {
-        const fenEl = document.getElementById('fen') as HTMLInputElement;
-        const fen = sanitizedFen(this.variant, fenEl.value);
-        fenEl.value = fen;
+        const fen = (document.getElementById('fen') as HTMLInputElement).value;
         this.parts = fen.split(' ');
         this.chessground.set({ fen: fen });
         this.setInvalid(!this.validFen());
