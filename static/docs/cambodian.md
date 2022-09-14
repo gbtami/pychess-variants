@@ -76,7 +76,7 @@ During its first move, the king can jump like a knight to the second row. This m
 
 ![Rook's Aiming](https://github.com/gbtami/pychess-variants/blob/master/static/images/OukGuide/rookaim.png)
 
-Furthermore, if an enemy rook moves into the same rank or file as the king, it *permanently* loses this ability. The king can no longer jump even if the rook moves away afterwards.
+Furthermore, if an enemy rook moves into the same rank or file as the king, "indirectly attacking" it, it *permanently* loses this ability. The king can no longer jump even if the rook moves away afterwards.
 
 ### The queen's special move
 
