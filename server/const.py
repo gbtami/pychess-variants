@@ -270,7 +270,9 @@ def variant_display_name(variant):
 
 #  Deferred translations!
 
-def _(message): return message
+
+def _(message):
+    return message
 
 
 TRANSLATED_PAIRING_SYSTEM_NAMES = {
