@@ -9,5 +9,7 @@ export function newWebsocket(target:string) {
         reconnectTimeout: 3500,
         pingMsg: "/n"
     }
-    return new WebsocketHeartbeatJs(options);
+    const socket = new WebsocketHeartbeatJs(options);
+    window.addEventListener('beforeunload', () => socket.close());
+    return socket;
 }

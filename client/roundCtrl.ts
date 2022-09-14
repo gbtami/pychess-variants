@@ -69,7 +69,6 @@ export class RoundController extends GameController {
         window.addEventListener('focus', () => {this.focus = true});
 
         const onOpen = () => {
-            console.log('onOpen() in round...');
             if ( this.lastMaybeSentMsgMove  && this.lastMaybeSentMsgMove.ply === this.ply + 1 ) {
                 // if this.ply === this.lastMaybeSentMsgMove.ply it would mean the move message was received by server and it has replied with "board" message, confirming and updating the state, including this.ply
                 // since they are not equal, but also one ply behind, means we should try to re-send it
@@ -489,11 +488,6 @@ export class RoundController extends GameController {
         notify('pychess.org', {body: `${opp_name}\n${msg}`, icon: logoUrl});
     }
 
-    private newWindowLocation = (url: string) => {
-        this.sock.close();
-        window.location.assign(url);
-    }
-
     private onMsgBerserk = (msg: MsgBerserk) => {
         if (!this.spectator && msg['color'] === this.mycolor) return;
         this.berserk(msg['color'])
@@ -509,12 +503,12 @@ export class RoundController extends GameController {
     }
 
     private onMsgNewGame = (msg: MsgNewGame) => {
-        this.newWindowLocation(this.home + '/' + msg["gameId"]);
+        window.location.assign(this.home + '/' + msg["gameId"]);
     }
 
     private onMsgViewRematch = (msg: MsgViewRematch) => {
         const btns_after = document.querySelector('.btn-controls.after') as HTMLElement;
-        let rematch_button = h('button.newopp', { on: { click: () => this.newWindowLocation(this.home + '/' + msg["gameId"]) } }, _("VIEW REMATCH"));
+        let rematch_button = h('button.newopp', { on: { click: () => window.location.assign(this.home + '/' + msg["gameId"]) } }, _("VIEW REMATCH"));
         let rematch_button_location = btns_after!.insertBefore(document.createElement('div'), btns_after!.firstChild);
         patch(rematch_button_location, rematch_button);
     }
@@ -539,19 +533,19 @@ export class RoundController extends GameController {
 
     private newOpponent = (home: string) => {
         this.doSend({"type": "leave", "gameId": this.gameId});
-        this.newWindowLocation(home);
+        window.location.assign(home);
     }
 
     private analysis = (home: string) => {
-        this.newWindowLocation(home + '/' + this.gameId + '?ply=' + this.ply.toString());
+        window.location.assign(home + '/' + this.gameId + '?ply=' + this.ply.toString());
     }
 
     private joinTournament = () => {
-        this.newWindowLocation(this.home + '/tournament/' + this.tournamentId);
+        window.location.assign(this.home + '/tournament/' + this.tournamentId);
     }
 
     private pauseTournament = () => {
-        this.newWindowLocation(this.home + '/tournament/' + this.tournamentId + '/pause');
+        window.location.assign(this.home + '/tournament/' + this.tournamentId + '/pause');
     }
 
     private gameOver = (rdiffs: RDiffs) => {
@@ -624,9 +618,9 @@ export class RoundController extends GameController {
     private onMsgUpdateTV = (msg: MsgUpdateTV) => {
         if (msg.gameId !== this.gameId) {
             if (this.profileid !== "") {
-                this.newWindowLocation(this.home + '/@/' + this.profileid + '/tv');
+                window.location.assign(this.home + '/@/' + this.profileid + '/tv');
             } else {
-                this.newWindowLocation(this.home + '/tv');
+                window.location.assign(this.home + '/tv');
             }
             // TODO: reuse current websocket to fix https://github.com/gbtami/pychess-variants/issues/142
             // this.doSend({ type: "game_user_connected", username: this.username, gameId: msg.gameId });

@@ -207,11 +207,11 @@ msgstr "要求分析"
 
 #: ../client/analysisCtrl.ts:460
 msgid "Try browser page reload."
-msgstr ""
+msgstr "請重新載入網頁。"
 
 #: ../client/analysisCtrl.ts:494
 msgid "Multi-threaded WebAssembly (with NNUE evaluation)"
-msgstr ""
+msgstr "多進程WebAssembly(具有NNUE評估)"
 
 #: ../client/analysisCtrl.ts:640
 msgid "Depth"
@@ -251,7 +251,7 @@ msgstr "箭頭指示最佳著"
 
 #: ../client/boardSettings.ts:352
 msgid "MultiPV"
-msgstr ""
+msgstr "多線程"
 
 #: ../client/boardSettings.ts:403
 msgid "Invisible pieces"
@@ -682,7 +682,7 @@ msgstr "防禦泰國象棋"
 
 #: ../client/i18n.ts:68
 msgid "ouk chaktrang"
-msgstr ""
+msgstr "高棉象棋"
 
 #: ../client/i18n.ts:68
 msgid "sittuyin"
@@ -794,7 +794,7 @@ msgstr "馬雅象棋"
 
 #: ../client/i18n.ts:78
 msgid "chennis"
-msgstr ""
+msgstr "網球棋"
 
 #: ../client/i18n.ts:82
 msgid "PawnsPushed"
@@ -1082,19 +1082,19 @@ msgstr ""
 
 #: ../client/lobby.ts:925
 msgid "NNUE Everywhere"
-msgstr ""
+msgstr "到處皆有NNUE"
 
 #: ../client/lobby.ts:932
 msgid "Tennis and chess"
-msgstr ""
+msgstr "網球與象棋"
 
 #: ../client/lobby.ts:933
 msgid "Serving a New Variant"
-msgstr ""
+msgstr "提供一個新的變體"
 
 #: ../client/lobby.ts:940
 msgid "Christmas gift from PyChess"
-msgstr ""
+msgstr "PyChess的聖誔禮物"
 
 #: ../client/lobby.ts:941
 msgid "Merry Chak-mas!"

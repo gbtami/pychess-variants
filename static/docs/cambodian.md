@@ -76,7 +76,7 @@ During its first move, the king can jump like a knight to the second row. This m
 
 ![Rook's Aiming](https://github.com/gbtami/pychess-variants/blob/master/static/images/OukGuide/rookaim.png)
 
-Furthermore, if an enemy rook moves into the same rank or file as the king, it *permanently* loses this ability. The king can no longer jump even if the rook moves away afterwards.
+Furthermore, if an enemy rook moves into the same rank or file as the king, "indirectly attacking" it, it *permanently* loses this ability. The king can no longer jump even if the rook moves away afterwards.
 
 ### The queen's special move
 
@@ -132,7 +132,6 @@ Because there is no promotion to heavy pieces, it becomes harder to force a chec
 Please allow yourself enough time on the clock, as many of those mates require precision.
 
 [https://thechesspolyglot.netlify.app/2020/04/21/knf-v-k/](https://thechesspolyglot.netlify.app/2020/04/21/knf-v-k/) by Illion is recommended for everyone.
-<iframe width="560" height="315" src="https://www.youtube.com/embed/uyNsTgo8ylI" frameborder="0" allowfullscreen></iframe>
 
 ## Reference
 
