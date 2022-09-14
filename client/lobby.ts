@@ -9,7 +9,7 @@ import { JSONObject } from './types';
 import { _, ngettext } from './i18n';
 import { patch } from './document';
 import { chatMessage, chatView, IChatController } from './chat';
-import { validFen, VARIANTS, selectVariant, Variant, sanitizedFen } from './chess';
+import { validFen, VARIANTS, selectVariant, Variant } from './chess';
 import { timeControlStr } from './view';
 import { notify } from './notification';
 import { PyChessModel } from "./types";
@@ -538,11 +538,7 @@ export class LobbyController implements IChatController {
         this.setStartButtons();
     }
     private setFen() {
-        const variantEl = document.getElementById('variant') as HTMLSelectElement;
-        const variant = VARIANTS[variantEl.options[variantEl.selectedIndex].value];
-
         const e = document.getElementById('fen') as HTMLInputElement;
-        e.value = sanitizedFen(variant, e.value);
         e.setCustomValidity(this.validateFen() ? '' : _('Invalid FEN'));
         this.setStartButtons();
     }
