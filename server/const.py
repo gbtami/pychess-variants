@@ -16,7 +16,7 @@ MAX_NAMED_SPECTATORS = 20
 T_CREATED, T_STARTED, T_ABORTED, T_FINISHED, T_ARCHIVED = range(5)
 
 # tournament frequency
-DAILY, WEEKLY, MONTHLY, YEARLY, MARATHON, SHIELD = "d", "w", "m", "y", "a", "s"
+HOURLY, DAILY, WEEKLY, MONTHLY, YEARLY, MARATHON, SHIELD = "h", "d", "w", "m", "y", "a", "s"
 
 # tournament pairing
 ARENA, RR, SWISS = range(3)
@@ -281,6 +281,17 @@ TRANSLATED_PAIRING_SYSTEM_NAMES = {
     2: _("Swiss"),
 }
 
+TRANSLATED_FREQUENCY_NAMES = {
+    "h": _("Hourly"),
+    "d": _("Daily"),
+    "w": _("Weekly"),
+    "m": _("Monthly"),
+    "y": _("Yearly"),
+    "a": _("Marathon"),
+    "s": _("Shield"),
+    "S": _("SEAturday"),
+}
+
 TRANSLATED_VARIANT_NAMES = {
     "chess": _("Chess"),
     "chess960": _("Chess960"),
@@ -330,14 +341,6 @@ TRANSLATED_VARIANT_NAMES = {
     "ordamirror": _("Orda Mirror"),
     "chak": _("Chak"),
     "chennis": _("Chennis"),
-}
-
-TRANSLATED_FREQUENCY_NAMES = {
-    "SEAturday": _("SEAturday"),
-    "Shield": _("Shield"),
-    "Monthly": _("Monthly"),
-    "Weekly": _("Weekly"),
-    "Daily": _("Daily"),
 }
 
 del _

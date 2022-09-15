@@ -474,7 +474,7 @@ async def index(request):
         render["icons"] = VARIANT_ICONS
         render["pairing_system_name"] = pairing_system_name
         render["time_control_str"] = time_control_str
-        render["tables"] = await get_latest_tournaments(request.app)
+        render["tables"] = await get_latest_tournaments(request.app, lang_translation)
         render["admin"] = user.username in ADMINS
 
     elif view == "puzzle":
@@ -546,7 +546,11 @@ async def index(request):
 
     if tournamentId is not None:
         render["tournamentid"] = tournamentId
-        render["tournamentname"] = tournament.name
+        render["tournamentname"] = (
+            tournament.translated_name(lang_translation)
+            if tournament.frequency
+            else tournament.name
+        )
         render["description"] = tournament.description
         render["variant"] = tournament.variant
         render["chess960"] = tournament.chess960
