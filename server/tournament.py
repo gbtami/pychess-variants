@@ -1249,7 +1249,11 @@ class Tournament(ABC):
 
     def translated_name(self, lang_translation):
         # Weekly makruk category == SEAturday
-        frequency = "S" if self.variant in CATEGORIES["makruk"] and self.frequency == "w" else self.frequency
+        frequency = (
+            "S"
+            if self.variant in CATEGORIES["makruk"] and self.frequency == "w"
+            else self.frequency
+        )
         if frequency == "s":
             return "%s %s %s" % (
                 lang_translation.gettext(TRANSLATED_VARIANT_NAMES[self.variant]),
