@@ -1,23 +1,36 @@
 # TODO: make videos page paginated
 
-VIDEO_TAGS = (
-    "Howto",
-    "Introduction",
-    "Opening",
-    "Middlegame",
-    "Endgame",
-    "Fundamentals",
-    "Tactics",
-    "Puzzle",
-    "Janggi",
-    "Xiangqi",
-    "Makruk",
-    "Shogi",
-    "S-Chess",
-    "Match",
-    "Tournament",
-    "Hu Ronghua",
-)
+#  Deferred translations!
+def _(message):
+    return message
+
+
+VIDEO_TAGS = {
+    "Howto": _("Howto"),
+    "Introduction": _("Introduction"),
+    "Opening": _("Opening"),
+    "Middlegame": _("Middlegame"),
+    "Endgame": _("Endgame"),
+    "Fundamentals": _("Fundamentals"),
+    "Tactics": _("Tactics"),
+    "Puzzle": _("Puzzle"),
+    "Janggi": _("Janggi"),
+    "Xiangqi": _("Xiangqi"),
+    "Makruk": _("Makruk"),
+    "Shogi": _("Shogi"),
+    "S-Chess": _("S-Chess"),
+    "Match": _("Match"),
+    "Tournament": _("Tournament"),
+    "Hu Ronghua": _("Hu Ronghua"),
+}
+
+VIDEO_TARGETS = {
+    "beginner": _("beginner"),
+    "intermediate": _("intermediate"),
+    "advanced": _("advanced"),
+}
+
+del _
 
 VIDEOS = [
     {

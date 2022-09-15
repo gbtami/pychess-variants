@@ -46,7 +46,7 @@ from settings import (
 from generate_highscore import generate_highscore
 from misc import time_control_str
 from news import NEWS
-from videos import VIDEO_TAGS
+from videos import VIDEO_TAGS, VIDEO_TARGETS
 from user import User
 from utils import load_game, join_seek, tv_game, tv_game_user
 from tournaments import (
@@ -147,6 +147,12 @@ async def index(request):
 
     def pairing_system_name(system):
         return lang_translation.gettext(TRANSLATED_PAIRING_SYSTEM_NAMES[system])
+
+    def video_tag(tag):
+        return lang_translation.gettext(VIDEO_TAGS[tag])
+
+    def video_target(target):
+        return lang_translation.gettext(VIDEO_TARGETS[target])
 
     view = "lobby"
     gameId = request.match_info.get("gameId")
@@ -570,6 +576,8 @@ async def index(request):
             videos.append(doc)
         render["videos"] = videos
         render["tags"] = VIDEO_TAGS
+        render["video_tag"] = video_tag
+        render["video_target"] = video_target
 
     elif view == "video":
         render["view_css"] = "videos.css"
