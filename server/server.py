@@ -197,7 +197,8 @@ async def init_state(app):
     asyncio.create_task(BOT_task(ai, app))
     asyncio.create_task(BOT_task(rm, app))
 
-    # Configure templating.
+    # Configure translations and templating.
+    app["gettext"] = {}
     app["jinja"] = {}
     base = os.path.dirname(__file__)
     for lang in LANGUAGES:
@@ -231,6 +232,7 @@ async def init_state(app):
         env.globals["static"] = static_url
 
         app["jinja"][lang] = env
+        app["gettext"][lang] = translation
 
     if app["db"] is None:
         return

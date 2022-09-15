@@ -334,11 +334,11 @@ export class TournamentController implements IChatController {
     private tSystem(system: number) {
         switch (system) {
         case 0:
-            return "Arena";
+            return _('Arena');
         case 1:
-            return "Round-Robin";
+            return _('Round-Robin');
         default:
-            return "Swiss";
+            return _('Swiss');
         }
     }
 
@@ -547,6 +547,12 @@ export class TournamentController implements IChatController {
             ]));
         }
 
+        if (msg.defender_name !== undefined) {
+            msg.description = _(
+                'This Shield trophy is unique. The winner keeps it for one month, then must defend it during the next %1 Shield tournament!',
+                this.variant.displayName(chess960)
+            );
+        }
         const description = document.getElementById('description') as Element;
         if (msg.description.length > 0 && description) patch(description, this.renderDescription(msg.description));
 

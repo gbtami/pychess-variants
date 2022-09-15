@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-09-09 12:21+0200\n"
+"POT-Creation-Date: 2022-09-15 15:18+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Last-Translator: gbtami <gbtami@gmail.com>, 2022\n"
 "Language-Team: Hungarian (https://www.transifex.com/gbtami/teams/14790/hu/)\n"
@@ -21,6 +21,214 @@ msgstr ""
 "Generated-By: Babel 2.9.1\n"
 "Language: hu\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: ../server/const.py:279
+msgid "Arena"
+msgstr "Aréna"
+
+#: ../server/const.py:280
+msgid "Round-Robin"
+msgstr "Körmérkőzés"
+
+#: ../server/const.py:281
+msgid "Swiss"
+msgstr "Svájci"
+
+#: ../server/const.py:285
+msgid "Hourly"
+msgstr "Óránkénti"
+
+#: ../server/const.py:286
+msgid "Daily"
+msgstr "Napi"
+
+#: ../server/const.py:287
+msgid "Weekly"
+msgstr "Heti"
+
+#: ../server/const.py:288
+msgid "Monthly"
+msgstr "Havi"
+
+#: ../server/const.py:289
+msgid "Yearly"
+msgstr "Éves"
+
+#: ../server/const.py:290
+msgid "Marathon"
+msgstr "Maraton"
+
+#: ../server/const.py:291
+msgid "Shield"
+msgstr "Pajzs"
+
+#: ../server/const.py:292
+msgid "SEAturday"
+msgstr "SEAturday"
+
+#: ../server/const.py:296
+msgid "Chess"
+msgstr "Sakk"
+
+#: ../server/const.py:297
+msgid "Chess960"
+msgstr "Sakk960"
+
+#: ../server/const.py:298
+msgid "Crazyhouse"
+msgstr "Crazyhouse"
+
+#: ../server/const.py:299
+msgid "Crazyhouse960"
+msgstr "Crazyhouse960"
+
+#: ../server/const.py:300
+msgid "Placement"
+msgstr "Placement"
+
+#: ../server/const.py:301
+msgid "Atomic"
+msgstr "Atom"
+
+#: ../server/const.py:302
+msgid "Atomic960"
+msgstr "Atom960"
+
+#: ../server/const.py:303
+msgid "Makruk"
+msgstr "Makruk"
+
+#: ../server/const.py:304
+msgid "Makpong"
+msgstr "Makpong"
+
+#: ../server/const.py:305
+msgid "Ouk Chaktrang"
+msgstr "Ouk Chaktrang"
+
+#: ../server/const.py:306
+msgid "Sittuyin"
+msgstr "Sittuyin"
+
+#: ../server/const.py:307
+msgid "ASEAN"
+msgstr "ASEAN"
+
+#: ../server/const.py:308
+msgid "Shogi"
+msgstr "Sógi"
+
+#: ../server/const.py:309
+msgid "Minishogi"
+msgstr "Minishógi"
+
+#: ../server/const.py:310
+msgid "Kyoto Shogi"
+msgstr "Kiotó Sógi"
+
+#: ../server/const.py:311
+msgid "Dobutsu"
+msgstr "Dobutsu"
+
+#: ../server/const.py:314
+msgid "Gorogoro+"
+msgstr "Gorogoro+"
+
+#: ../server/const.py:315
+msgid "Tori Shogi"
+msgstr "Tori Sógi"
+
+#: ../server/const.py:316
+msgid "Xiangqi"
+msgstr "Xiangqi"
+
+#: ../server/const.py:317
+msgid "Manchu"
+msgstr "Manchu"
+
+#: ../server/const.py:318
+msgid "Janggi"
+msgstr "Janggi"
+
+#: ../server/const.py:319
+msgid "Minixiangqi"
+msgstr "Minixiangqi"
+
+#: ../server/const.py:320
+msgid "Capablanca"
+msgstr "Capablanca"
+
+#: ../server/const.py:321
+msgid "Capablanca960"
+msgstr "Capablanca960"
+
+#: ../server/const.py:322
+msgid "Capahouse"
+msgstr "Capahouse"
+
+#: ../server/const.py:323
+msgid "Capahouse960"
+msgstr "Capahouse960"
+
+#: ../server/const.py:329
+msgid "S-Chess"
+msgstr "S-Chess"
+
+#: ../server/const.py:330
+msgid "S-Chess960"
+msgstr "S-Chess960"
+
+#: ../server/const.py:331
+msgid "S-House"
+msgstr "S-House"
+
+#: ../server/const.py:332
+msgid "Grand"
+msgstr "Grand"
+
+#: ../server/const.py:333
+msgid "Grandhouse"
+msgstr "Grandhouse"
+
+#: ../server/const.py:334
+msgid "Shogun"
+msgstr "Shogun"
+
+#: ../server/const.py:335
+msgid "Shako"
+msgstr "Shako"
+
+#: ../server/const.py:336
+msgid "Hoppel-Poppel"
+msgstr "Hoppel-Poppel"
+
+#: ../server/const.py:337
+msgid "Orda Chess"
+msgstr "Orda Chess"
+
+#: ../server/const.py:338
+msgid "Synochess"
+msgstr "Synochess"
+
+#: ../server/const.py:339
+msgid "Shinobi"
+msgstr "Shinobi"
+
+#: ../server/const.py:340
+msgid "Empire"
+msgstr "Empire"
+
+#: ../server/const.py:341
+msgid "Orda Mirror"
+msgstr "Orda Mirror"
+
+#: ../server/const.py:342
+msgid "Chak"
+msgstr "Chak"
+
+#: ../server/const.py:343
+msgid "Chennis"
+msgstr "Chennis"
 
 #: ../templates/closed.html:8
 msgid "This account is closed."
@@ -100,58 +308,62 @@ msgid "Tournaments"
 msgstr "Versenyek"
 
 #: ../templates/template.html:25
+msgid "Puzzles"
+msgstr "Feladványok"
+
+#: ../templates/template.html:28
 msgid "Watch"
 msgstr "Néznivaló"
 
-#: ../templates/template.html:27
+#: ../templates/template.html:30
 msgid "Tv"
 msgstr "Tv"
 
-#: ../templates/template.html:28
+#: ../templates/template.html:31
 msgid "Current games"
 msgstr "Játszmák"
 
-#: ../templates/template.html:29
+#: ../templates/template.html:32
 msgid "Video library"
 msgstr "Videó könyvtár"
 
-#: ../templates/template.html:33
+#: ../templates/template.html:36
 msgid "Community"
 msgstr "Közösség"
 
-#: ../templates/template.html:35
+#: ../templates/template.html:38
 msgid "Players"
 msgstr "Játékosok"
 
-#: ../templates/template.html:36
+#: ../templates/template.html:39
 msgid "Blog"
 msgstr "Blog"
 
-#: ../templates/template.html:37
+#: ../templates/template.html:40
 msgid "Donate"
 msgstr "Támogatás"
 
-#: ../templates/template.html:41
+#: ../templates/template.html:44
 msgid "Tools"
 msgstr "Eszközök"
 
-#: ../templates/template.html:43
+#: ../templates/template.html:46
 msgid "Editor"
 msgstr "Szerkesztő"
 
-#: ../templates/template.html:44
+#: ../templates/template.html:47
 msgid "Analysis"
 msgstr "Elemzés"
 
-#: ../templates/template.html:48
+#: ../templates/template.html:51
 msgid "Variants"
 msgstr "Variánsok"
 
-#: ../templates/template.html:62
+#: ../templates/template.html:65
 msgid "Login with Lichess"
 msgstr "Bejelentkezés lichess azonosítóval"
 
-#: ../templates/template.html:62
+#: ../templates/template.html:65
 msgid "Log in"
 msgstr "Bejelentkezés"
 

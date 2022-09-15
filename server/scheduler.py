@@ -187,6 +187,7 @@ def new_scheduled_tournaments(already_scheduled, now=None):
             variant_name = variant_display_name(
                 plan.variant + ("960" if plan.is960 else "")
             ).title()
+
             if plan.freq == SHIELD:
                 name = "%s Shield Arena" % variant_name
             elif plan.freq == MONTHLY:

@@ -234,7 +234,7 @@ async def get_scheduled_tournaments(app, nb_max=30):
     return tournaments
 
 
-async def get_latest_tournaments(app):
+async def get_latest_tournaments(app, lang_translation):
     tournaments = app["tournaments"]
     started, scheduled, completed = [], [], []
 
@@ -279,6 +279,9 @@ async def get_latest_tournaments(app):
                 with_clock=False,
             )
             tournament.nb_players = doc["nbPlayers"]
+
+        if tournament.frequency:
+            tournament.name = tournament.translated_name(lang_translation)
 
         if doc["status"] == T_STARTED:
             started.append(tournament)
@@ -333,16 +336,6 @@ async def load_tournament(app, tournament_id, tournament_klass=None):
         tournament_class = RRTournament
     elif tournament_klass is not None:
         tournament_class = tournament_klass
-
-    if doc.get("fr") == SHIELD:
-        doc["d"] = (
-            """
-This Shield trophy is unique.
-The winner keeps it for one month,
-then must defend it during the next %s Shield tournament!
-"""
-            % variant_display_name(C2V[doc["v"]]).title()
-        )
 
     tournament = tournament_class(
         app,

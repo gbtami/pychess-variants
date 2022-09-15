@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-09-09 12:21+0200\n"
+"POT-Creation-Date: 2022-09-15 15:18+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,6 +16,214 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.9.1\n"
+
+#: ../server/const.py:279
+msgid "Arena"
+msgstr ""
+
+#: ../server/const.py:280
+msgid "Round-Robin"
+msgstr ""
+
+#: ../server/const.py:281
+msgid "Swiss"
+msgstr ""
+
+#: ../server/const.py:285
+msgid "Hourly"
+msgstr ""
+
+#: ../server/const.py:286
+msgid "Daily"
+msgstr ""
+
+#: ../server/const.py:287
+msgid "Weekly"
+msgstr ""
+
+#: ../server/const.py:288
+msgid "Monthly"
+msgstr ""
+
+#: ../server/const.py:289
+msgid "Yearly"
+msgstr ""
+
+#: ../server/const.py:290
+msgid "Marathon"
+msgstr ""
+
+#: ../server/const.py:291
+msgid "Shield"
+msgstr ""
+
+#: ../server/const.py:292
+msgid "SEAturday"
+msgstr ""
+
+#: ../server/const.py:296
+msgid "Chess"
+msgstr ""
+
+#: ../server/const.py:297
+msgid "Chess960"
+msgstr ""
+
+#: ../server/const.py:298
+msgid "Crazyhouse"
+msgstr ""
+
+#: ../server/const.py:299
+msgid "Crazyhouse960"
+msgstr ""
+
+#: ../server/const.py:300
+msgid "Placement"
+msgstr ""
+
+#: ../server/const.py:301
+msgid "Atomic"
+msgstr ""
+
+#: ../server/const.py:302
+msgid "Atomic960"
+msgstr ""
+
+#: ../server/const.py:303
+msgid "Makruk"
+msgstr ""
+
+#: ../server/const.py:304
+msgid "Makpong"
+msgstr ""
+
+#: ../server/const.py:305
+msgid "Ouk Chaktrang"
+msgstr ""
+
+#: ../server/const.py:306
+msgid "Sittuyin"
+msgstr ""
+
+#: ../server/const.py:307
+msgid "ASEAN"
+msgstr ""
+
+#: ../server/const.py:308
+msgid "Shogi"
+msgstr ""
+
+#: ../server/const.py:309
+msgid "Minishogi"
+msgstr ""
+
+#: ../server/const.py:310
+msgid "Kyoto Shogi"
+msgstr ""
+
+#: ../server/const.py:311
+msgid "Dobutsu"
+msgstr ""
+
+#: ../server/const.py:314
+msgid "Gorogoro+"
+msgstr ""
+
+#: ../server/const.py:315
+msgid "Tori Shogi"
+msgstr ""
+
+#: ../server/const.py:316
+msgid "Xiangqi"
+msgstr ""
+
+#: ../server/const.py:317
+msgid "Manchu"
+msgstr ""
+
+#: ../server/const.py:318
+msgid "Janggi"
+msgstr ""
+
+#: ../server/const.py:319
+msgid "Minixiangqi"
+msgstr ""
+
+#: ../server/const.py:320
+msgid "Capablanca"
+msgstr ""
+
+#: ../server/const.py:321
+msgid "Capablanca960"
+msgstr ""
+
+#: ../server/const.py:322
+msgid "Capahouse"
+msgstr ""
+
+#: ../server/const.py:323
+msgid "Capahouse960"
+msgstr ""
+
+#: ../server/const.py:329
+msgid "S-Chess"
+msgstr ""
+
+#: ../server/const.py:330
+msgid "S-Chess960"
+msgstr ""
+
+#: ../server/const.py:331
+msgid "S-House"
+msgstr ""
+
+#: ../server/const.py:332
+msgid "Grand"
+msgstr ""
+
+#: ../server/const.py:333
+msgid "Grandhouse"
+msgstr ""
+
+#: ../server/const.py:334
+msgid "Shogun"
+msgstr ""
+
+#: ../server/const.py:335
+msgid "Shako"
+msgstr ""
+
+#: ../server/const.py:336
+msgid "Hoppel-Poppel"
+msgstr ""
+
+#: ../server/const.py:337
+msgid "Orda Chess"
+msgstr ""
+
+#: ../server/const.py:338
+msgid "Synochess"
+msgstr ""
+
+#: ../server/const.py:339
+msgid "Shinobi"
+msgstr ""
+
+#: ../server/const.py:340
+msgid "Empire"
+msgstr ""
+
+#: ../server/const.py:341
+msgid "Orda Mirror"
+msgstr ""
+
+#: ../server/const.py:342
+msgid "Chak"
+msgstr ""
+
+#: ../server/const.py:343
+msgid "Chennis"
+msgstr ""
 
 #: ../templates/closed.html:8
 msgid "This account is closed."
@@ -94,58 +302,62 @@ msgid "Tournaments"
 msgstr ""
 
 #: ../templates/template.html:25
-msgid "Watch"
-msgstr ""
-
-#: ../templates/template.html:27
-msgid "Tv"
+msgid "Puzzles"
 msgstr ""
 
 #: ../templates/template.html:28
+msgid "Watch"
+msgstr ""
+
+#: ../templates/template.html:30
+msgid "Tv"
+msgstr ""
+
+#: ../templates/template.html:31
 msgid "Current games"
 msgstr ""
 
-#: ../templates/template.html:29
+#: ../templates/template.html:32
 msgid "Video library"
 msgstr ""
 
-#: ../templates/template.html:33
+#: ../templates/template.html:36
 msgid "Community"
 msgstr ""
 
-#: ../templates/template.html:35
+#: ../templates/template.html:38
 msgid "Players"
 msgstr ""
 
-#: ../templates/template.html:36
+#: ../templates/template.html:39
 msgid "Blog"
 msgstr ""
 
-#: ../templates/template.html:37
+#: ../templates/template.html:40
 msgid "Donate"
 msgstr ""
 
-#: ../templates/template.html:41
+#: ../templates/template.html:44
 msgid "Tools"
 msgstr ""
 
-#: ../templates/template.html:43
+#: ../templates/template.html:46
 msgid "Editor"
 msgstr ""
 
-#: ../templates/template.html:44
+#: ../templates/template.html:47
 msgid "Analysis"
 msgstr ""
 
-#: ../templates/template.html:48
+#: ../templates/template.html:51
 msgid "Variants"
 msgstr ""
 
-#: ../templates/template.html:62
+#: ../templates/template.html:65
 msgid "Login with Lichess"
 msgstr ""
 
-#: ../templates/template.html:62
+#: ../templates/template.html:65
 msgid "Log in"
 msgstr ""
 
