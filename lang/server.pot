@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-09-15 15:18+0200\n"
+"POT-Creation-Date: 2022-09-15 22:54+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -89,7 +89,7 @@ msgstr ""
 msgid "Atomic960"
 msgstr ""
 
-#: ../server/const.py:303
+#: ../server/const.py:303 ../server/videos.py:19
 msgid "Makruk"
 msgstr ""
 
@@ -109,7 +109,7 @@ msgstr ""
 msgid "ASEAN"
 msgstr ""
 
-#: ../server/const.py:308
+#: ../server/const.py:308 ../server/videos.py:20
 msgid "Shogi"
 msgstr ""
 
@@ -133,7 +133,7 @@ msgstr ""
 msgid "Tori Shogi"
 msgstr ""
 
-#: ../server/const.py:316
+#: ../server/const.py:316 ../server/videos.py:18
 msgid "Xiangqi"
 msgstr ""
 
@@ -141,7 +141,7 @@ msgstr ""
 msgid "Manchu"
 msgstr ""
 
-#: ../server/const.py:318
+#: ../server/const.py:318 ../server/videos.py:17
 msgid "Janggi"
 msgstr ""
 
@@ -165,7 +165,7 @@ msgstr ""
 msgid "Capahouse960"
 msgstr ""
 
-#: ../server/const.py:329
+#: ../server/const.py:329 ../server/videos.py:21
 msgid "S-Chess"
 msgstr ""
 
@@ -223,6 +223,62 @@ msgstr ""
 
 #: ../server/const.py:343
 msgid "Chennis"
+msgstr ""
+
+#: ../server/videos.py:9
+msgid "Howto"
+msgstr ""
+
+#: ../server/videos.py:10
+msgid "Introduction"
+msgstr ""
+
+#: ../server/videos.py:11
+msgid "Opening"
+msgstr ""
+
+#: ../server/videos.py:12
+msgid "Middlegame"
+msgstr ""
+
+#: ../server/videos.py:13
+msgid "Endgame"
+msgstr ""
+
+#: ../server/videos.py:14
+msgid "Fundamentals"
+msgstr ""
+
+#: ../server/videos.py:15
+msgid "Tactics"
+msgstr ""
+
+#: ../server/videos.py:16
+msgid "Puzzle"
+msgstr ""
+
+#: ../server/videos.py:22
+msgid "Match"
+msgstr ""
+
+#: ../server/videos.py:23
+msgid "Tournament"
+msgstr ""
+
+#: ../server/videos.py:24
+msgid "Hu Ronghua"
+msgstr ""
+
+#: ../server/videos.py:28
+msgid "beginner"
+msgstr ""
+
+#: ../server/videos.py:29
+msgid "intermediate"
+msgstr ""
+
+#: ../server/videos.py:30
+msgid "advanced"
 msgstr ""
 
 #: ../templates/closed.html:8
@@ -395,4 +451,8 @@ msgid "%(count)s player"
 msgid_plural "%(count)s players"
 msgstr[0] ""
 msgstr[1] ""
+
+#: ../templates/videos.html:15
+msgid "Chess variant videos"
+msgstr ""
 
