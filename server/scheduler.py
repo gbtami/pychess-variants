@@ -187,7 +187,19 @@ def new_scheduled_tournaments(already_scheduled, now=None):
             variant_name = variant_display_name(
                 plan.variant + ("960" if plan.is960 else "")
             ).title()
-            if plan.freq == ""
+
+            if plan.freq == SHIELD:
+                name = "%s Shield Arena" % variant_name
+            elif plan.freq == MONTHLY:
+                if plan.variant in CATEGORIES["makruk"]:
+                    name = "SEAturday %s Arena" % variant_name
+                else:
+                    name = "Monthly %s Arena" % variant_name
+            elif plan.freq == WEEKLY:
+                name = "Weekly %s Arena" % variant_name
+            elif plan.freq == DAILY:
+                name = "Daily %s Arena" % variant_name
+            else:
                 name = "%s Arena" % variant_name
 
             new_tournaments_data.append(
