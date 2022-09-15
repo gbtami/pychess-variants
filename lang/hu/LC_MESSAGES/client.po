@@ -12,7 +12,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-09-15 01:19+0200\n"
+"POT-Creation-Date: 2022-09-15 15:18+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Last-Translator: gbtami <gbtami@gmail.com>, 2022\n"
 "Language-Team: Hungarian (https://www.transifex.com/gbtami/teams/14790/hu/)\n"
@@ -143,15 +143,16 @@ msgstr ""
 " a lichess.org szabályai érvényesek."
 
 #: ../client/analysis.ts:38 ../client/editor.ts:30 ../client/lobby.ts:343
-#: ../client/lobby.ts:853 ../client/settingsView.ts:130
+#: ../client/lobby.ts:853 ../client/puzzle.ts:27 ../client/settingsView.ts:130
 msgid "Variant"
 msgstr "Variáns"
 
-#: ../client/analysis.ts:138
+#: ../client/analysis.ts:138 ../client/puzzle.ts:65
 msgid "Multi-threaded WebAssembly (classical evaluation)"
 msgstr "Többszálú WebAssembly (hagyományos értékelés)"
 
-#: ../client/analysis.ts:140 ../client/analysisCtrl.ts:645
+#: ../client/analysis.ts:140 ../client/analysisCtrl.ts:649
+#: ../client/puzzle.ts:67
 msgid "in local browser"
 msgstr "a böngészőben"
 
@@ -179,63 +180,63 @@ msgstr "Kezdőállás"
 msgid "Advantage"
 msgstr "Előny"
 
-#: ../client/analysisCtrl.ts:284
+#: ../client/analysisCtrl.ts:289
 msgid "You need an account to do that."
 msgstr "Csak regisztrált felhasználók számára elérhető."
 
-#: ../client/analysisCtrl.ts:323
+#: ../client/analysisCtrl.ts:328
 msgid "Download game to PGN file"
 msgstr "Játszma leöltése PGN fájlba."
 
-#: ../client/analysisCtrl.ts:323
+#: ../client/analysisCtrl.ts:328
 msgid "Download PGN"
 msgstr "PGN letöltése"
 
-#: ../client/analysisCtrl.ts:325
+#: ../client/analysisCtrl.ts:330
 msgid "Copy USI/UCI to clipboard"
 msgstr "UCI/USI másolása a vágólapra."
 
-#: ../client/analysisCtrl.ts:325
+#: ../client/analysisCtrl.ts:330
 msgid "Copy UCI/USI"
 msgstr "UCI/USI másolása"
 
-#: ../client/analysisCtrl.ts:327
+#: ../client/analysisCtrl.ts:332
 msgid "Download position to PNG image file"
 msgstr "Állás másolása PNG kép fájlba."
 
-#: ../client/analysisCtrl.ts:327
+#: ../client/analysisCtrl.ts:332
 msgid "PNG image"
 msgstr "PNG kép"
 
-#: ../client/analysisCtrl.ts:335
+#: ../client/analysisCtrl.ts:340
 msgid "Delete game"
 msgstr "Játszma törlése"
 
-#: ../client/analysisCtrl.ts:350
+#: ../client/analysisCtrl.ts:355
 msgid "Are you sure you want to delete this game?"
 msgstr "Biztosan törölni akarod ezt a játszmát?"
 
-#: ../client/analysisCtrl.ts:387
+#: ../client/analysisCtrl.ts:392
 msgid "Request Computer Analysis"
 msgstr "Számítógépes elemzés kérése"
 
-#: ../client/analysisCtrl.ts:387
+#: ../client/analysisCtrl.ts:392
 msgid "Request Analysis"
 msgstr "Elemzés kérése"
 
-#: ../client/analysisCtrl.ts:449
+#: ../client/analysisCtrl.ts:454
 msgid "Try browser page reload."
 msgstr "Próbáld meg újratölteni az oldalt. "
 
-#: ../client/analysisCtrl.ts:483
+#: ../client/analysisCtrl.ts:488
 msgid "Multi-threaded WebAssembly (with NNUE evaluation)"
 msgstr "Többszálú WebAssembly (NNUE értékelés)"
 
-#: ../client/analysisCtrl.ts:629
+#: ../client/analysisCtrl.ts:633
 msgid "Depth"
 msgstr "mélység"
 
-#: ../client/analysisCtrl.ts:634
+#: ../client/analysisCtrl.ts:638
 msgid "Go deeper"
 msgstr "Mélyebben"
 
@@ -1173,7 +1174,7 @@ msgstr "PyChess ajándék Karácsonyra"
 msgid "Merry Chak-mas!"
 msgstr "Boldog Karácsonyt!"
 
-#: ../client/main.ts:108
+#: ../client/main.ts:112
 msgid "Thank you for your support!"
 msgstr "Köszönet a támogatásért!"
 
@@ -1215,6 +1216,58 @@ msgstr "Értékelt"
 #: ../client/profile.ts:220
 msgid "Imported"
 msgstr "Importált"
+
+#: ../client/puzzleCtrl.ts:68
+msgid "View the solution"
+msgstr "Megoldás megtekintése"
+
+#: ../client/puzzleCtrl.ts:88
+msgid "Puzzle "
+msgstr "Feladvány"
+
+#: ../client/puzzleCtrl.ts:89
+msgid "Rating: "
+msgstr "Értékszám:"
+
+#: ../client/puzzleCtrl.ts:90
+msgid "Played "
+msgstr "Beküldve"
+
+#: ../client/puzzleCtrl.ts:96
+msgid "Source: "
+msgstr "Forrás:"
+
+#: ../client/puzzleCtrl.ts:175
+msgid "Your turn"
+msgstr "Te következel"
+
+#: ../client/puzzleCtrl.ts:176
+msgid "Find the best move for %1."
+msgstr "Találd meg %1 legjobb lépését."
+
+#: ../client/puzzleCtrl.ts:189
+msgid "That's not the move!"
+msgstr "Nem a legjobb lépés!"
+
+#: ../client/puzzleCtrl.ts:190
+msgid "Try something else."
+msgstr "Próbálkozz mással."
+
+#: ../client/puzzleCtrl.ts:204
+msgid "Best move!"
+msgstr "A legjobb lépés!"
+
+#: ../client/puzzleCtrl.ts:205
+msgid "Keep going..."
+msgstr "Folytasd..."
+
+#: ../client/puzzleCtrl.ts:219
+msgid "Puzzle complete!"
+msgstr "A feladvány befejezve!"
+
+#: ../client/puzzleCtrl.ts:223
+msgid "Continue training"
+msgstr "Gyakorlás folytatása"
 
 #: ../client/result.ts:14
 msgid "IMPORT"
