@@ -26,9 +26,9 @@ from const import (
     VARIANT_GROUPS,
     RATED,
     IMPORTED,
-    variant_display_name,
-    pairing_system_name,
     T_CREATED,
+    TRANSLATED_VARIANT_NAMES,
+    TRANSLATED_PAIRING_SYSTEM_NAMES,
 )
 from fairy import FairyBoard
 from glicko2.glicko2 import DEFAULT_PERF, PROVISIONAL_PHI
@@ -142,6 +142,15 @@ async def index(request):
     if lang not in LANGUAGES:
         lang = "en"
     get_template = request.app["jinja"][lang].get_template
+
+    lang_translation = request.app["gettext"][lang]
+    lang_translation.install()
+
+    def variant_display_name(variant):
+        return lang_translation.gettext(TRANSLATED_VARIANT_NAMES[variant])
+
+    def pairing_system_name(system):
+        return lang_translation.gettext(TRANSLATED_PAIRING_SYSTEM_NAMES[system])
 
     view = "lobby"
     gameId = request.match_info.get("gameId")

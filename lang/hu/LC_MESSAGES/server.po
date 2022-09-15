@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-09-09 12:21+0200\n"
+"POT-Creation-Date: 2022-09-15 01:19+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Last-Translator: gbtami <gbtami@gmail.com>, 2022\n"
 "Language-Team: Hungarian (https://www.transifex.com/gbtami/teams/14790/hu/)\n"
@@ -21,6 +21,202 @@ msgstr ""
 "Generated-By: Babel 2.9.1\n"
 "Language: hu\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: ../server/const.py:277
+msgid "Arena"
+msgstr "Aréna"
+
+#: ../server/const.py:278
+msgid "Round-Robin"
+msgstr "Körmérkőzés"
+
+#: ../server/const.py:279
+msgid "Swiss"
+msgstr "Svájci"
+
+#: ../server/const.py:283
+msgid "Chess"
+msgstr "Sakk"
+
+#: ../server/const.py:284
+msgid "Chess960"
+msgstr "Sakk960"
+
+#: ../server/const.py:285
+msgid "Crazyhouse"
+msgstr "Crazyhouse"
+
+#: ../server/const.py:286
+msgid "Crazyhouse960"
+msgstr "Crazyhouse960"
+
+#: ../server/const.py:287
+msgid "Placement"
+msgstr "Placement"
+
+#: ../server/const.py:288
+msgid "Atomic"
+msgstr "Atom"
+
+#: ../server/const.py:289
+msgid "Atomic960"
+msgstr "Atom960"
+
+#: ../server/const.py:290
+msgid "Makruk"
+msgstr "Makruk"
+
+#: ../server/const.py:291
+msgid "Makpong"
+msgstr "Makpong"
+
+#: ../server/const.py:292
+msgid "Ouk Chaktrang"
+msgstr "Ouk Chaktrang"
+
+#: ../server/const.py:293
+msgid "Sittuyin"
+msgstr "Sittuyin"
+
+#: ../server/const.py:294
+msgid "ASEAN"
+msgstr "ASEAN"
+
+#: ../server/const.py:295
+msgid "Shogi"
+msgstr "Sógi"
+
+#: ../server/const.py:296
+msgid "Minishogi"
+msgstr "Minishógi"
+
+#: ../server/const.py:297
+msgid "Kyoto Shogi"
+msgstr "Kiotó Sógi"
+
+#: ../server/const.py:298
+msgid "Dobutsu"
+msgstr "Dobutsu"
+
+#: ../server/const.py:301
+msgid "Gorogoro+"
+msgstr "Gorogoro+"
+
+#: ../server/const.py:302
+msgid "Tori Shogi"
+msgstr "Tori Sógi"
+
+#: ../server/const.py:303
+msgid "Xiangqi"
+msgstr "Xiangqi"
+
+#: ../server/const.py:304
+msgid "Manchu"
+msgstr "Manchu"
+
+#: ../server/const.py:305
+msgid "Janggi"
+msgstr "Janggi"
+
+#: ../server/const.py:306
+msgid "Minixiangqi"
+msgstr "Minixiangqi"
+
+#: ../server/const.py:307
+msgid "Capablanca"
+msgstr "Capablanca"
+
+#: ../server/const.py:308
+msgid "Capablanca960"
+msgstr "Capablanca960"
+
+#: ../server/const.py:309
+msgid "Capahouse"
+msgstr "Capahouse"
+
+#: ../server/const.py:310
+msgid "Capahouse960"
+msgstr "Capahouse960"
+
+#: ../server/const.py:316
+msgid "S-Chess"
+msgstr "S-Chess"
+
+#: ../server/const.py:317
+msgid "S-Chess960"
+msgstr "S-Chess960"
+
+#: ../server/const.py:318
+msgid "S-House"
+msgstr "S-House"
+
+#: ../server/const.py:319
+msgid "Grand"
+msgstr "Grand"
+
+#: ../server/const.py:320
+msgid "Grandhouse"
+msgstr "Grandhouse"
+
+#: ../server/const.py:321
+msgid "Shogun"
+msgstr "Shogun"
+
+#: ../server/const.py:322
+msgid "Shako"
+msgstr "Shako"
+
+#: ../server/const.py:323
+msgid "Hoppel-Poppel"
+msgstr "Hoppel-Poppel"
+
+#: ../server/const.py:324
+msgid "Orda Chess"
+msgstr "Orda Chess"
+
+#: ../server/const.py:325
+msgid "Synochess"
+msgstr "Synochess"
+
+#: ../server/const.py:326
+msgid "Shinobi"
+msgstr "Shinobi"
+
+#: ../server/const.py:327
+msgid "Empire"
+msgstr "Empire"
+
+#: ../server/const.py:328
+msgid "Orda Mirror"
+msgstr "Orda Mirror"
+
+#: ../server/const.py:329
+msgid "Chak"
+msgstr "Chak"
+
+#: ../server/const.py:330
+msgid "Chennis"
+msgstr "Chennis"
+
+#: ../server/const.py:334
+msgid "SEAturday"
+msgstr "SEAturday"
+
+#: ../server/const.py:335
+msgid "Shield"
+msgstr "Pajzs"
+
+#: ../server/const.py:336
+msgid "Monthly"
+msgstr "Havi"
+
+#: ../server/const.py:337
+msgid "Weekly"
+msgstr "Heti"
+
+#: ../server/const.py:338
+msgid "Daily"
+msgstr "Napi"
 
 #: ../templates/closed.html:8
 msgid "This account is closed."
