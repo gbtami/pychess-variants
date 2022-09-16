@@ -12,7 +12,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-09-15 15:18+0200\n"
+"POT-Creation-Date: 2022-09-15 22:54+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Last-Translator: a b <kezsulap@gmail.com>, 2022\n"
 "Language-Team: Polish (https://www.transifex.com/gbtami/teams/14790/pl/)\n"
@@ -1264,15 +1264,15 @@ msgstr "Zobacz rozwiązanie "
 
 #: ../client/puzzleCtrl.ts:88
 msgid "Puzzle "
-msgstr ""
+msgstr "Zadanie"
 
 #: ../client/puzzleCtrl.ts:89
 msgid "Rating: "
-msgstr ""
+msgstr "Poziom: "
 
 #: ../client/puzzleCtrl.ts:90
 msgid "Played "
-msgstr ""
+msgstr "Rozwiązywane "
 
 #: ../client/puzzleCtrl.ts:96
 msgid "Source: "
@@ -1280,35 +1280,35 @@ msgstr "Źrôdło"
 
 #: ../client/puzzleCtrl.ts:175
 msgid "Your turn"
-msgstr ""
+msgstr "Twój ruch"
 
 #: ../client/puzzleCtrl.ts:176
 msgid "Find the best move for %1."
-msgstr ""
+msgstr "Znajdź najlepszy ruch."
 
 #: ../client/puzzleCtrl.ts:189
 msgid "That's not the move!"
-msgstr ""
+msgstr "To nie jest właściwy ruch!"
 
 #: ../client/puzzleCtrl.ts:190
 msgid "Try something else."
-msgstr ""
+msgstr "Spróbuj czegoś innego."
 
 #: ../client/puzzleCtrl.ts:204
 msgid "Best move!"
-msgstr ""
+msgstr "Najlepszy ruch!"
 
 #: ../client/puzzleCtrl.ts:205
 msgid "Keep going..."
-msgstr ""
+msgstr "Kontynuuj…"
 
 #: ../client/puzzleCtrl.ts:219
 msgid "Puzzle complete!"
-msgstr ""
+msgstr "Sukces!"
 
 #: ../client/puzzleCtrl.ts:223
 msgid "Continue training"
-msgstr ""
+msgstr "Kontynuuj trening"
 
 #: ../client/result.ts:14
 msgid "IMPORT"
@@ -1610,7 +1610,7 @@ msgstr "Round-robin"
 
 #: ../client/tournament.ts:350
 msgid "Swiss"
-msgstr ""
+msgstr "System szwajcarski"
 
 #: ../client/tournament.ts:375 ../client/tournament.ts:433
 #: ../client/tournament.ts:443 ../client/tournament.ts:453
@@ -1643,6 +1643,8 @@ msgid ""
 "This Shield trophy is unique. The winner keeps it for one month, then must "
 "defend it during the next %1 Shield tournament!"
 msgstr ""
+"Shield jest wyjątkowym trofeum. Zwycięzca otrzymuje je na miesiąc i broni w "
+"następnym turnieju."
 
 #: ../client/tournamentClock.ts:42
 msgid "STARTING IN"
