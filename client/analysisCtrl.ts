@@ -310,16 +310,8 @@ export class AnalysisController extends GameController {
                     h('i', {props: {title: _('Copy USI/UCI to clipboard')}, class: {"icon": true, "icon-clipboard": true} }, _('Copy UCI/USI'))]),
                 h('a.i-pgn', { on: { click: () => copyBoardToPNG(this.fullfen) } }, [
                     h('i', {props: {title: _('Download position to PNG image file')}, class: {"icon": true, "icon-download": true} }, _('PNG image'))]),
+                h('div#imported'),
                 ]
-
-            // Enable to delete imported games
-            if (this.rated === '2' && this.importedBy === this.username) {
-                buttons.push(
-                    h('a.i-pgn', { on: { click: () => this.deleteGame() } }, [
-                        h('i', {props: {title: _('Delete game')}, class: {"icon": true, "icon-trash-o": true} }, _('Delete game'))])
-                );
-            }
-
             patch(container, h('div', buttons));
         }
 
@@ -340,6 +332,14 @@ export class AnalysisController extends GameController {
         if (msg.gameId !== this.gameId) return;
 
         this.importedBy = msg.by;
+        // Enable to delete imported games
+        if (this.rated === '2' && this.importedBy === this.username) {
+            const importedEl = document.getElementById('imported') as HTMLElement;
+            patch(importedEl,
+                h('a.i-pgn', { on: { click: () => this.deleteGame() } }, [
+                    h('i', {props: {title: _('Delete game')}, class: {"icon": true, "icon-trash-o": true} }, _('Delete game'))])
+            );
+        }
 
         // console.log("got board msg:", msg);
         this.fullfen = msg.fen;
