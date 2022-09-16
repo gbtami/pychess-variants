@@ -1255,11 +1255,11 @@ msgstr "¡Mejor jugada!"
 
 #: ../client/puzzleCtrl.ts:205
 msgid "Keep going..."
-msgstr ""
+msgstr "Continúa..."
 
 #: ../client/puzzleCtrl.ts:219
 msgid "Puzzle complete!"
-msgstr ""
+msgstr "¡Puzzle completado!"
 
 #: ../client/puzzleCtrl.ts:223
 msgid "Continue training"
@@ -1368,15 +1368,15 @@ msgstr "Abandonar"
 
 #: ../client/roundCtrl.ts:420
 msgid "Are you sure you want to draw?"
-msgstr ""
+msgstr "¿Seguro que quieres hacer tablas?"
 
 #: ../client/roundCtrl.ts:422
 msgid "Draw offer sent"
-msgstr ""
+msgstr "Oferta de tablas enviada"
 
 #: ../client/roundCtrl.ts:434
 msgid "Your opponent offers a draw"
-msgstr ""
+msgstr "Tu rival ofrece tablas"
 
 #: ../client/roundCtrl.ts:454
 msgid "Are you sure you want to resign?"
@@ -1407,15 +1407,15 @@ msgstr "Listo"
 
 #: ../client/roundCtrl.ts:541
 msgid "VIEW REMATCH"
-msgstr ""
+msgstr "VER REVANCHA"
 
 #: ../client/roundCtrl.ts:548
 msgid "Rematch offer sent"
-msgstr ""
+msgstr "Oferta de revancha enviada"
 
 #: ../client/roundCtrl.ts:559
 msgid "Your opponent offers a rematch"
-msgstr ""
+msgstr "Tu rival ofrece una revancha"
 
 #: ../client/roundCtrl.ts:600
 msgid "VIEW TOURNAMENT"
@@ -1452,9 +1452,9 @@ msgstr "Iniciar el conteo"
 #: ../client/roundCtrl.ts:1007
 msgid "%1 second to play the first move"
 msgid_plural "%1 seconds to play the first move"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
+msgstr[0] "%1 segundo para hacer la primera jugada"
+msgstr[1] "%1 segundos para hacer la primera jugada"
+msgstr[2] "%1 segundos para hacer la primera jugada"
 
 #: ../client/settingsView.ts:54
 msgid "Log out"
@@ -1482,7 +1482,7 @@ msgstr "Modo Zen"
 
 #: ../client/sound.ts:137
 msgid "Volume"
-msgstr ""
+msgstr "Volumen"
 
 #: ../client/tournament.ts:149
 msgid "First"
@@ -1536,7 +1536,7 @@ msgstr "Partidas jugadas"
 
 #: ../client/tournament.ts:199 ../client/tournament.ts:200
 msgid "%1 wins"
-msgstr ""
+msgstr "%1 victorias"
 
 #: ../client/tournament.ts:201
 msgid "Draws"
@@ -1554,19 +1554,19 @@ msgstr "Descargar todas las partidas"
 
 #: ../client/tournament.ts:218
 msgid "Download all games in JSON"
-msgstr ""
+msgstr "Descargar todas las partidas en JSON"
 
 #: ../client/tournament.ts:346
 msgid "Arena"
-msgstr ""
+msgstr "Arena"
 
 #: ../client/tournament.ts:348
 msgid "Round-Robin"
-msgstr ""
+msgstr "Round-Robin"
 
 #: ../client/tournament.ts:350
 msgid "Swiss"
-msgstr ""
+msgstr "Suizo"
 
 #: ../client/tournament.ts:375 ../client/tournament.ts:433
 #: ../client/tournament.ts:443 ../client/tournament.ts:453
@@ -1584,7 +1584,7 @@ msgstr "Nivel medio rivales"
 
 #: ../client/tournament.ts:530
 msgid "Defender:"
-msgstr ""
+msgstr "Defensor:"
 
 #: ../client/tournament.ts:556
 msgid "Custom position"
@@ -1606,7 +1606,7 @@ msgstr "COMENZANDO EN"
 
 #: ../client/view.ts:49
 msgid "Page reload required after change"
-msgstr ""
+msgstr "Recarga de la página necesaria tras cambio"
 
 #: ../client/zen.ts:9
 msgid "Off"
@@ -1625,6 +1625,9 @@ msgid ""
 "These variants have new armies with completely new pieces! Most of these "
 "variants pit these armies against the standard Chess army."
 msgstr ""
+"¡Estas variantes tienen nuevos ejércitos con piezas completamente nuevas! La"
+" mayoría de estas variantes enfrentan estos ejércitos contra el ejército "
+"estándar de Ajedrez."
 
 #: ../client/lobby/layer2army.ts:19 ../client/lobby/layer2chess.ts:21
 #: ../client/lobby/layer2fairy.ts:26 ../client/lobby/layer2makruk.ts:19
@@ -1660,12 +1663,15 @@ msgstr ""
 #: ../client/lobby/layer2chess.ts:20
 msgid "Variants using a basic chess set but with different rules."
 msgstr ""
+"Variantes que usan un juego de piezas básico pero con reglas diferentes."
 
 #: ../client/lobby/layer2fairy.ts:18
 msgid ""
 "These variants have new pieces to try! Many of them have larger boards, and "
 "some also have new rules."
 msgstr ""
+"¡Estas variantes tienen nuevas piezas para probar! Muchas de ellas tienen "
+"tableros más grandes, y algunas también tienen nuevas reglas."
 
 #: ../client/lobby/layer2fairy.ts:21
 msgid " = Random (960) variant available. "
