@@ -1699,15 +1699,15 @@ msgstr ""
 
 #: ../client/lobby/layer2fairy.ts:74
 msgid "Crazyhouse with promotions"
-msgstr ""
+msgstr "Crazyhouse con promociones"
 
 #: ../client/lobby/layer2fairy.ts:81
 msgid "Bishops and Knights swap their capture moves"
-msgstr ""
+msgstr "Alfiles y Caballos intercambian sus movimientos de captura"
 
 #: ../client/lobby/layer2makruk.ts:18
 msgid "Southeast Asian variants, closely related to Western Chess."
-msgstr ""
+msgstr "Variantes del Sudeste Asiático, muy cercanas al Ajedrez Occidental."
 
 #: ../client/lobby/layer2makruk.ts:27
 msgid "Thai Chess. Similar to Chess but with a different queen and bishop."
@@ -1779,23 +1779,25 @@ msgstr ""
 
 #: ../client/lobby/layer3.ts:41
 msgid "Challenge a friend"
-msgstr ""
+msgstr "Reta a un amigo"
 
 #: ../client/lobby/layer3.ts:52
 msgid "Rules"
-msgstr ""
+msgstr "Reglas"
 
 #: ../client/lobby/layer3.ts:53
 msgid "Tip: "
-msgstr ""
+msgstr "Consejo:"
 
 #: ../client/lobby/layer3.ts:64
 msgid "Fischer's random chess where the back row are randomized."
 msgstr ""
+"Ajedrez aleatorio de Fischer donde las piezas de la primera fila son "
+"colocadas al azar."
 
 #: ../client/lobby/layer3.ts:66
 msgid "Crazyhouse with random back row."
-msgstr ""
+msgstr "Crazyhouse con primera fila al azar."
 
 #: ../client/lobby/layer3.ts:68
 msgid "Atomic Chess with random back row."
@@ -1805,11 +1807,11 @@ msgstr ""
 
 #: ../client/lobby/layer3.ts:81
 msgid "Move the king on top of the rook to castle."
-msgstr ""
+msgstr "Mueve el rey encima de la torre para enrocar."
 
 #: ../client/lobby/layer3.ts:83
 msgid "You can play more at lichess.org."
-msgstr ""
+msgstr "Puedes jugar más en lichess.org."
 
 #: ../client/lobby/layer3.ts:86
 msgid ""
