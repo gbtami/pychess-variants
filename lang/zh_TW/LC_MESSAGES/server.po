@@ -77,59 +77,59 @@ msgstr ""
 
 #: ../server/const.py:298
 msgid "Crazyhouse"
-msgstr ""
+msgstr "雙狂象棋"
 
 #: ../server/const.py:299
 msgid "Crazyhouse960"
-msgstr ""
+msgstr "雙狂象棋960"
 
 #: ../server/const.py:300
 msgid "Placement"
-msgstr ""
+msgstr "任意擺置西洋棋"
 
 #: ../server/const.py:301
 msgid "Atomic"
-msgstr ""
+msgstr "核象棋"
 
 #: ../server/const.py:302
 msgid "Atomic960"
-msgstr ""
+msgstr "核象棋960"
 
 #: ../server/const.py:303 ../server/videos.py:19
 msgid "Makruk"
-msgstr ""
+msgstr "泰國象棋"
 
 #: ../server/const.py:304
 msgid "Makpong"
-msgstr ""
+msgstr "防禦泰國象棋"
 
 #: ../server/const.py:305
 msgid "Ouk Chaktrang"
-msgstr ""
+msgstr "高棉象棋"
 
 #: ../server/const.py:306
 msgid "Sittuyin"
-msgstr ""
+msgstr "緬甸象棋"
 
 #: ../server/const.py:307
 msgid "ASEAN"
-msgstr ""
+msgstr "東南亞象棋"
 
 #: ../server/const.py:308 ../server/videos.py:20
 msgid "Shogi"
-msgstr ""
+msgstr "日本將棋"
 
 #: ../server/const.py:309
 msgid "Minishogi"
-msgstr ""
+msgstr "迷你將棋"
 
 #: ../server/const.py:310
 msgid "Kyoto Shogi"
-msgstr ""
+msgstr "京都將棋"
 
 #: ../server/const.py:311
 msgid "Dobutsu"
-msgstr ""
+msgstr "動物將棋"
 
 #: ../server/const.py:314
 msgid "Gorogoro+"
@@ -137,23 +137,23 @@ msgstr ""
 
 #: ../server/const.py:315
 msgid "Tori Shogi"
-msgstr ""
+msgstr "禽將棋"
 
 #: ../server/const.py:316 ../server/videos.py:18
 msgid "Xiangqi"
-msgstr ""
+msgstr "象棋"
 
 #: ../server/const.py:317
 msgid "Manchu"
-msgstr ""
+msgstr "滿洲棋"
 
 #: ../server/const.py:318 ../server/videos.py:17
 msgid "Janggi"
-msgstr ""
+msgstr "韓國將棋"
 
 #: ../server/const.py:319
 msgid "Minixiangqi"
-msgstr ""
+msgstr "迷你象棋"
 
 #: ../server/const.py:320
 msgid "Capablanca"
@@ -351,11 +351,11 @@ msgstr "Lichess個人資料"
 
 #: ../templates/template.html:18
 msgid "Play"
-msgstr "遊戲"
+msgstr "對局"
 
 #: ../templates/template.html:20
 msgid "Create a game"
-msgstr "創建遊戲"
+msgstr "創建對局"
 
 #: ../templates/template.html:21 ../templates/tournaments.html:6
 msgid "Tournaments"
