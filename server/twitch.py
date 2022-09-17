@@ -1,3 +1,4 @@
+import asyncio
 import hmac
 import hashlib
 import logging
@@ -234,6 +235,13 @@ async def twitch_request_handler(request):
         streamer = event["broadcaster_user_login"]
         log.debug("--- twitch notification --- %s %s", streamer, event)
 
+        async def remove(keep_time):
+            await asyncio.sleep(keep_time)
+
+            if streamer in twitch.streams:
+                del twitch.streams[streamer]
+                await broadcast_streams(request.app)
+
         if header_sub_type == "stream.online":
             if event["type"] == "live":
                 if streamer not in twitch.streams:
@@ -244,6 +252,8 @@ async def twitch_request_handler(request):
                         "title": "",
                     }
                     await broadcast_streams(request.app)
+
+                    asyncio.create_task(remove(3600))  # 1 hour
 
         elif header_sub_type == "stream.offline":
             if streamer in twitch.streams:
