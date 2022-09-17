@@ -38,23 +38,23 @@ msgstr "По швейцарской системе"
 
 #: ../server/const.py:285
 msgid "Hourly"
-msgstr "Ежечасно"
+msgstr "Ежечасная"
 
 #: ../server/const.py:286
 msgid "Daily"
-msgstr "Ежедневно"
+msgstr "Ежедневная"
 
 #: ../server/const.py:287
 msgid "Weekly"
-msgstr "Еженедельно"
+msgstr "Еженедельная"
 
 #: ../server/const.py:288
 msgid "Monthly"
-msgstr "Ежемесячно"
+msgstr "Ежемесячная"
 
 #: ../server/const.py:289
 msgid "Yearly"
-msgstr "Ежегодно"
+msgstr "Ежегодная"
 
 #: ../server/const.py:290
 msgid "Marathon"
