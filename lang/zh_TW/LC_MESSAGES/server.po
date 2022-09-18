@@ -12,7 +12,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-09-09 12:21+0200\n"
+"POT-Creation-Date: 2022-09-15 22:54+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Last-Translator: 何承恩, 2022\n"
 "Language-Team: Chinese (Taiwan) (https://www.transifex.com/gbtami/teams/14790/zh_TW/)\n"
@@ -22,6 +22,270 @@ msgstr ""
 "Generated-By: Babel 2.9.1\n"
 "Language: zh_TW\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
+
+#: ../server/const.py:279
+msgid "Arena"
+msgstr "競技場"
+
+#: ../server/const.py:280
+msgid "Round-Robin"
+msgstr ""
+
+#: ../server/const.py:281
+msgid "Swiss"
+msgstr "瑞士制"
+
+#: ../server/const.py:285
+msgid "Hourly"
+msgstr "每小時"
+
+#: ../server/const.py:286
+msgid "Daily"
+msgstr "每日"
+
+#: ../server/const.py:287
+msgid "Weekly"
+msgstr "每周"
+
+#: ../server/const.py:288
+msgid "Monthly"
+msgstr "每月"
+
+#: ../server/const.py:289
+msgid "Yearly"
+msgstr "每年"
+
+#: ../server/const.py:290
+msgid "Marathon"
+msgstr "馬拉松"
+
+#: ../server/const.py:291
+msgid "Shield"
+msgstr "盾牌賽"
+
+#: ../server/const.py:292
+msgid "SEAturday"
+msgstr ""
+
+#: ../server/const.py:296
+msgid "Chess"
+msgstr "西洋棋"
+
+#: ../server/const.py:297
+msgid "Chess960"
+msgstr ""
+
+#: ../server/const.py:298
+msgid "Crazyhouse"
+msgstr "雙狂象棋"
+
+#: ../server/const.py:299
+msgid "Crazyhouse960"
+msgstr "雙狂象棋960"
+
+#: ../server/const.py:300
+msgid "Placement"
+msgstr "任意擺置西洋棋"
+
+#: ../server/const.py:301
+msgid "Atomic"
+msgstr "核象棋"
+
+#: ../server/const.py:302
+msgid "Atomic960"
+msgstr "核象棋960"
+
+#: ../server/const.py:303 ../server/videos.py:19
+msgid "Makruk"
+msgstr "泰國象棋"
+
+#: ../server/const.py:304
+msgid "Makpong"
+msgstr "防禦泰國象棋"
+
+#: ../server/const.py:305
+msgid "Ouk Chaktrang"
+msgstr "高棉象棋"
+
+#: ../server/const.py:306
+msgid "Sittuyin"
+msgstr "緬甸象棋"
+
+#: ../server/const.py:307
+msgid "ASEAN"
+msgstr "東南亞象棋"
+
+#: ../server/const.py:308 ../server/videos.py:20
+msgid "Shogi"
+msgstr "日本將棋"
+
+#: ../server/const.py:309
+msgid "Minishogi"
+msgstr "迷你將棋"
+
+#: ../server/const.py:310
+msgid "Kyoto Shogi"
+msgstr "京都將棋"
+
+#: ../server/const.py:311
+msgid "Dobutsu"
+msgstr "動物將棋"
+
+#: ../server/const.py:314
+msgid "Gorogoro+"
+msgstr ""
+
+#: ../server/const.py:315
+msgid "Tori Shogi"
+msgstr "禽將棋"
+
+#: ../server/const.py:316 ../server/videos.py:18
+msgid "Xiangqi"
+msgstr "象棋"
+
+#: ../server/const.py:317
+msgid "Manchu"
+msgstr "滿洲棋"
+
+#: ../server/const.py:318 ../server/videos.py:17
+msgid "Janggi"
+msgstr "韓國將棋"
+
+#: ../server/const.py:319
+msgid "Minixiangqi"
+msgstr "迷你象棋"
+
+#: ../server/const.py:320
+msgid "Capablanca"
+msgstr ""
+
+#: ../server/const.py:321
+msgid "Capablanca960"
+msgstr ""
+
+#: ../server/const.py:322
+msgid "Capahouse"
+msgstr ""
+
+#: ../server/const.py:323
+msgid "Capahouse960"
+msgstr ""
+
+#: ../server/const.py:329 ../server/videos.py:21
+msgid "S-Chess"
+msgstr ""
+
+#: ../server/const.py:330
+msgid "S-Chess960"
+msgstr ""
+
+#: ../server/const.py:331
+msgid "S-House"
+msgstr ""
+
+#: ../server/const.py:332
+msgid "Grand"
+msgstr ""
+
+#: ../server/const.py:333
+msgid "Grandhouse"
+msgstr ""
+
+#: ../server/const.py:334
+msgid "Shogun"
+msgstr ""
+
+#: ../server/const.py:335
+msgid "Shako"
+msgstr ""
+
+#: ../server/const.py:336
+msgid "Hoppel-Poppel"
+msgstr ""
+
+#: ../server/const.py:337
+msgid "Orda Chess"
+msgstr ""
+
+#: ../server/const.py:338
+msgid "Synochess"
+msgstr ""
+
+#: ../server/const.py:339
+msgid "Shinobi"
+msgstr ""
+
+#: ../server/const.py:340
+msgid "Empire"
+msgstr ""
+
+#: ../server/const.py:341
+msgid "Orda Mirror"
+msgstr ""
+
+#: ../server/const.py:342
+msgid "Chak"
+msgstr ""
+
+#: ../server/const.py:343
+msgid "Chennis"
+msgstr ""
+
+#: ../server/videos.py:9
+msgid "Howto"
+msgstr ""
+
+#: ../server/videos.py:10
+msgid "Introduction"
+msgstr ""
+
+#: ../server/videos.py:11
+msgid "Opening"
+msgstr ""
+
+#: ../server/videos.py:12
+msgid "Middlegame"
+msgstr ""
+
+#: ../server/videos.py:13
+msgid "Endgame"
+msgstr ""
+
+#: ../server/videos.py:14
+msgid "Fundamentals"
+msgstr ""
+
+#: ../server/videos.py:15
+msgid "Tactics"
+msgstr ""
+
+#: ../server/videos.py:16
+msgid "Puzzle"
+msgstr ""
+
+#: ../server/videos.py:22
+msgid "Match"
+msgstr ""
+
+#: ../server/videos.py:23
+msgid "Tournament"
+msgstr ""
+
+#: ../server/videos.py:24
+msgid "Hu Ronghua"
+msgstr ""
+
+#: ../server/videos.py:28
+msgid "beginner"
+msgstr ""
+
+#: ../server/videos.py:29
+msgid "intermediate"
+msgstr ""
+
+#: ../server/videos.py:30
+msgid "advanced"
+msgstr ""
 
 #: ../templates/closed.html:8
 msgid "This account is closed."
@@ -87,69 +351,73 @@ msgstr "Lichess個人資料"
 
 #: ../templates/template.html:18
 msgid "Play"
-msgstr "遊戲"
+msgstr "對局"
 
 #: ../templates/template.html:20
 msgid "Create a game"
-msgstr "創建遊戲"
+msgstr "創建對局"
 
 #: ../templates/template.html:21 ../templates/tournaments.html:6
 msgid "Tournaments"
 msgstr "錦標賽"
 
 #: ../templates/template.html:25
+msgid "Puzzles"
+msgstr ""
+
+#: ../templates/template.html:28
 msgid "Watch"
 msgstr "觀看"
 
-#: ../templates/template.html:27
+#: ../templates/template.html:30
 msgid "Tv"
 msgstr "TV"
 
-#: ../templates/template.html:28
+#: ../templates/template.html:31
 msgid "Current games"
 msgstr "當前對局"
 
-#: ../templates/template.html:29
+#: ../templates/template.html:32
 msgid "Video library"
 msgstr "影片庫"
 
-#: ../templates/template.html:33
+#: ../templates/template.html:36
 msgid "Community"
 msgstr "社群"
 
-#: ../templates/template.html:35
+#: ../templates/template.html:38
 msgid "Players"
 msgstr "棋手"
 
-#: ../templates/template.html:36
+#: ../templates/template.html:39
 msgid "Blog"
 msgstr "網誌"
 
-#: ../templates/template.html:37
+#: ../templates/template.html:40
 msgid "Donate"
 msgstr "捐款"
 
-#: ../templates/template.html:41
+#: ../templates/template.html:44
 msgid "Tools"
 msgstr "工具"
 
-#: ../templates/template.html:43
+#: ../templates/template.html:46
 msgid "Editor"
 msgstr "棋盤編輯器"
 
-#: ../templates/template.html:44
+#: ../templates/template.html:47
 msgid "Analysis"
 msgstr "分析面板"
 
-#: ../templates/template.html:48
+#: ../templates/template.html:51
 msgid "Variants"
 msgstr "棋類"
 
-#: ../templates/template.html:62
+#: ../templates/template.html:65
 msgid "Login with Lichess"
 msgstr "Lichess登錄"
 
-#: ../templates/template.html:62
+#: ../templates/template.html:65
 msgid "Log in"
 msgstr "登錄"
 
@@ -186,3 +454,7 @@ msgstr "無積分"
 msgid "%(count)s player"
 msgid_plural "%(count)s players"
 msgstr[0] "%(count)s 在線棋手"
+
+#: ../templates/videos.html:15
+msgid "Chess variant videos"
+msgstr ""

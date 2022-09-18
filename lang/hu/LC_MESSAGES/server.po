@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-09-15 15:18+0200\n"
+"POT-Creation-Date: 2022-09-15 22:54+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Last-Translator: gbtami <gbtami@gmail.com>, 2022\n"
 "Language-Team: Hungarian (https://www.transifex.com/gbtami/teams/14790/hu/)\n"
@@ -60,7 +60,7 @@ msgstr "Maraton"
 
 #: ../server/const.py:291
 msgid "Shield"
-msgstr "Pajzs"
+msgstr "Vándorkupa"
 
 #: ../server/const.py:292
 msgid "SEAturday"
@@ -94,7 +94,7 @@ msgstr "Atom"
 msgid "Atomic960"
 msgstr "Atom960"
 
-#: ../server/const.py:303
+#: ../server/const.py:303 ../server/videos.py:19
 msgid "Makruk"
 msgstr "Makruk"
 
@@ -114,7 +114,7 @@ msgstr "Sittuyin"
 msgid "ASEAN"
 msgstr "ASEAN"
 
-#: ../server/const.py:308
+#: ../server/const.py:308 ../server/videos.py:20
 msgid "Shogi"
 msgstr "Sógi"
 
@@ -138,7 +138,7 @@ msgstr "Gorogoro+"
 msgid "Tori Shogi"
 msgstr "Tori Sógi"
 
-#: ../server/const.py:316
+#: ../server/const.py:316 ../server/videos.py:18
 msgid "Xiangqi"
 msgstr "Xiangqi"
 
@@ -146,7 +146,7 @@ msgstr "Xiangqi"
 msgid "Manchu"
 msgstr "Manchu"
 
-#: ../server/const.py:318
+#: ../server/const.py:318 ../server/videos.py:17
 msgid "Janggi"
 msgstr "Janggi"
 
@@ -170,7 +170,7 @@ msgstr "Capahouse"
 msgid "Capahouse960"
 msgstr "Capahouse960"
 
-#: ../server/const.py:329
+#: ../server/const.py:329 ../server/videos.py:21
 msgid "S-Chess"
 msgstr "S-Chess"
 
@@ -230,6 +230,62 @@ msgstr "Chak"
 msgid "Chennis"
 msgstr "Chennis"
 
+#: ../server/videos.py:9
+msgid "Howto"
+msgstr "Hogyan"
+
+#: ../server/videos.py:10
+msgid "Introduction"
+msgstr "Bevezetés"
+
+#: ../server/videos.py:11
+msgid "Opening"
+msgstr "Megnyitás"
+
+#: ../server/videos.py:12
+msgid "Middlegame"
+msgstr "Középjáték"
+
+#: ../server/videos.py:13
+msgid "Endgame"
+msgstr "Végjáték"
+
+#: ../server/videos.py:14
+msgid "Fundamentals"
+msgstr "Alapok"
+
+#: ../server/videos.py:15
+msgid "Tactics"
+msgstr "Taktika"
+
+#: ../server/videos.py:16
+msgid "Puzzle"
+msgstr "Feledvány"
+
+#: ../server/videos.py:22
+msgid "Match"
+msgstr "Páros mérkőzés"
+
+#: ../server/videos.py:23
+msgid "Tournament"
+msgstr "Verseny"
+
+#: ../server/videos.py:24
+msgid "Hu Ronghua"
+msgstr "Hu Ronghua"
+
+#: ../server/videos.py:28
+msgid "beginner"
+msgstr "kezdő"
+
+#: ../server/videos.py:29
+msgid "intermediate"
+msgstr "középhaladó"
+
+#: ../server/videos.py:30
+msgid "advanced"
+msgstr "haladó"
+
 #: ../templates/closed.html:8
 msgid "This account is closed."
 msgstr "Ezt a fiókot lezárták."
@@ -254,7 +310,7 @@ msgstr "Verseny győztesek"
 
 #: ../templates/players.html:10 ../templates/shields.html:6
 msgid "Tournament shields"
-msgstr "Verseny pajzsok"
+msgstr "Vándorkupák"
 
 #: ../templates/players.html:14
 msgid "Online"
@@ -401,3 +457,7 @@ msgid "%(count)s player"
 msgid_plural "%(count)s players"
 msgstr[0] "%(count)s játékos"
 msgstr[1] "%(count)s játékos"
+
+#: ../templates/videos.html:15
+msgid "Chess variant videos"
+msgstr "Sakk variáns videók"
