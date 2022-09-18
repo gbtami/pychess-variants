@@ -1,10 +1,9 @@
-import Sockette from 'sockette';
-
 import { h, VNode } from 'snabbdom';
 import { premove } from 'chessgroundx/premove';
 import { predrop } from 'chessgroundx/predrop';
 import * as cg from 'chessgroundx/types';
 
+import { newWebsocket } from './socket';
 import { JSONObject } from './types';
 import { _, ngettext } from './i18n';
 import { patch } from './document';
@@ -69,8 +68,7 @@ export class RoundController extends GameController {
         window.addEventListener('blur', () => {this.focus = false});
         window.addEventListener('focus', () => {this.focus = true});
 
-        const onOpen = (evt: Event) => {
-            console.log("ctrl.onOpen()", evt);
+        const onOpen = () => {
             if ( this.lastMaybeSentMsgMove  && this.lastMaybeSentMsgMove.ply === this.ply + 1 ) {
                 // if this.ply === this.lastMaybeSentMsgMove.ply it would mean the move message was received by server and it has replied with "board" message, confirming and updating the state, including this.ply
                 // since they are not equal, but also one ply behind, means we should try to re-send it
@@ -92,31 +90,24 @@ export class RoundController extends GameController {
             this.doSend({ type: "game_user_connected", username: this.username, gameId: this.gameId });
         };
 
-        const opts = {
-            maxAttempts: 10,
-            onopen: (e: Event) => onOpen(e),
-            onmessage: (e: MessageEvent) => this.onMessage(e),
-            onreconnect: (e: Event | CloseEvent) => {
+        const onReconnect = () => {
+            this.clocks[0].connecting = true;
+            this.clocks[1].connecting = true;
+            console.log('Reconnecting in round...');
 
-                this.clocks[0].connecting = true;
-                this.clocks[1].connecting = true;
-                console.log('Reconnecting in round...', e);
+            // relevant to the "reconnecting" message in lower left corner
+            document.body.classList.add('offline');
+            document.body.classList.remove('online');
+            document.body.classList.add('reconnected'); // this will trigger the animation once we get "online" class added back on reconnect
 
-                // relevant to the "reconnecting" message in lower left corner
-                document.body.classList.add('offline');
-                document.body.classList.remove('online');
-                document.body.classList.add('reconnected'); // this will trigger the animation once we get "online" class added back on reconnect
+            const container = document.getElementById('player1') as HTMLElement;
+            patch(container, h('i-side.online#player1', {class: {"icon": true, "icon-online": false, "icon-offline": true}}));
+        };
 
-                const container = document.getElementById('player1') as HTMLElement;
-                patch(container, h('i-side.online#player1', {class: {"icon": true, "icon-online": false, "icon-offline": true}}));
-                },
-            onmaximum: (e: CloseEvent) => console.log('Stop Attempting!', e),
-            onclose: (e: CloseEvent) => console.log('Closed!', e),
-            onerror: (e: Event) => console.log('Error:', e),
-            };
-
-        const ws = (location.protocol.indexOf('https') > -1) ? 'wss://' : 'ws://';
-        this.sock = new Sockette(ws + location.host + "/wsr", opts);
+        this.sock = newWebsocket('wsr');
+        this.sock.onopen = () => onOpen();
+        this.sock.onreconnect = () => onReconnect();
+        this.sock.onmessage = (e: MessageEvent) => this.onMessage(e);
 
         this.byoyomiPeriod = Number(model["byo"]);
         this.byoyomi = this.variant.timeControl === 'byoyomi';
@@ -1067,6 +1058,7 @@ export class RoundController extends GameController {
         // console.log("<+++ onMessage():", evt.data);
         super.onMessage(evt);
 
+        if (evt.data === '/n') return;
         const msg = JSON.parse(evt.data);
         switch (msg.type) {
             case "board":

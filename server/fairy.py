@@ -20,8 +20,6 @@ log = logging.getLogger(__name__)
 
 class FairyBoard:
     def __init__(self, variant, initial_fen="", chess960=False, count_started=0, disabled_fen=""):
-        if variant == "shogun":
-            sf.set_option("Protocol", "uci")
         self.variant = variant
         self.chess960 = chess960
         self.sfen = False

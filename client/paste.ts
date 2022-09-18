@@ -25,9 +25,20 @@ export function pasteView(model: PyChessModel): VNode[] {
         // Add missing Variant tag and switch short/long castling notations
         if (pgn.indexOf(BRAINKING_SITE) !== -1 && pgn.indexOf(EMBASSY_FEN) !== -1) {
             const lines = pgn.split(/\n/);
+
+            // fix FEN
             const fenIndex = lines.findIndex((elem) => {return elem.startsWith('[FEN ');});
             lines[fenIndex] = `[FEN "${VARIANTS['embassy'].startFen}"]`;
-            lines.splice(fenIndex, 0, '[Variant "Embassy"]');
+
+            const variantIndex = lines.findIndex((elem) => {return elem.startsWith('[Variant ');});
+            if (variantIndex < 0) {
+                // add missing variant tag
+                lines.splice(variantIndex, 0, '[Variant "Capablanca"]');
+            } else {
+                // change variant to Capa
+                lines.splice(variantIndex, 1, '[Variant "Capablanca"]');
+            }
+
             lines.forEach((line, idx) => {if (idx > fenIndex) lines[idx] = line.replace(/(O-O-O|O-O)/g, (match) => { return match === 'O-O' ? 'O-O-O' : 'O-O' });});
             pgn = lines.join('\n');
         }
@@ -140,10 +151,9 @@ export function pasteView(model: PyChessModel): VNode[] {
                     }
                 }
             };
-
+            console.log(FD);
             XHR.open("POST", "/import", true);
             XHR.send(FD);
-
         }
     }
 

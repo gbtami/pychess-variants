@@ -780,7 +780,7 @@ ul.guide li {
     position: absolute;
     left: 0;
     top: 50px;
-    min-width: 10rem;
+    min-width: 12rem;
     border-left: 2px solid #3692e7;
     border-radius: 0 3px 3px 3px;
     text-align: left;
@@ -1076,7 +1076,7 @@ button.analysis:hover {
 
 .i-pgn {
   float: left;
-  padding: 10px;
+  padding: 6px;
   color: var(--link-color-blue);
 }
 

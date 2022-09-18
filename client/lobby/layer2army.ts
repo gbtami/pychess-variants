@@ -22,42 +22,42 @@ export function layer2army (lobbyCtrl: LobbyController, containerId: string): vo
         h('button.layer-2-category.capablanca', { on: { click: () => layer3variant('layer2armycont', lobbyCtrl, 'orda', false) } }, [
             h('div.variant-title-l2', [
                 h('div.icon', { attrs: { 'data-icon': VARIANTS['orda'].icon(false) } }),
-                h('h3', 'Orda'),
+                h('h3', VARIANTS['orda'].displayName()),
             ]),
             h('p.variant-extra-info', _('Horde: Horse-based army')),
         ]),
         h('button.layer-2-category.schess', { on: { click: () => layer3variant('layer2armycont', lobbyCtrl, 'empire', false) } }, [
             h('div.variant-title-l2', [
                 h('div.icon', { attrs: { 'data-icon': VARIANTS['empire'].icon(false) } }),
-                h('h3', 'Empire'),
+                h('h3', VARIANTS['empire'].displayName()),
             ]),
             h('p.variant-extra-info', _('Empire: Queen-based army')),
         ]),
         h('button.layer-2-category.shako', { on: { click: () => layer3variant('layer2armycont', lobbyCtrl, 'ordamirror', false) } }, [
             h('div.variant-title-l2', [
                 h('div.icon', { attrs: { 'data-icon': VARIANTS['ordamirror'].icon(false) } }),
-                h('h3', 'Orda Mirror'),
+                h('h3', VARIANTS['ordamirror'].displayName()),
             ]),
             h('p.variant-extra-info', _('Horde vs Horde')),
         ]),
         h('button.layer-2-category.grand', { on: { click: () => layer3variant('layer2armycont', lobbyCtrl, 'shinobi', false) } }, [
             h('div.variant-title-l2', [
                 h('div.icon', { attrs: { 'data-icon': VARIANTS['shinobi'].icon(false) } }),
-                h('h3', 'Shinobi'),
+                h('h3', VARIANTS['shinobi'].displayName()),
             ]),
             h('p.variant-extra-info', _('Clan: Drop-based army')),
         ]),
         h('button.layer-2-category.shogun', { on: { click: () => layer3variant('layer2armycont', lobbyCtrl, 'synochess', false) } }, [
             h('div.variant-title-l2', [
                 h('div.icon', { attrs: { 'data-icon': VARIANTS['synochess'].icon(false) } }),
-                h('h3', 'Synochess'),
+                h('h3', VARIANTS['synochess'].displayName()),
             ]),
             h('p.variant-extra-info', _('Dynasty: Xiangqi-based army')),
         ]),
         h('button.layer-2-category.hoppelpoppel', { on: { click: () => layer3variant('layer2armycont', lobbyCtrl, 'chak', false) } }, [
             h('div.variant-title-l2', [
                 h('div.icon', { attrs: { 'data-icon': VARIANTS['chak'].icon(false) } }),
-                h('h3', 'Chak'),
+                h('h3', VARIANTS['chak'].displayName()),
             ]),
             h('p.variant-extra-info', _('Mayan chess')),
         ]),

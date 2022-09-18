@@ -1,5 +1,3 @@
-import Sockette from 'sockette';
-
 import { h, VNode } from 'snabbdom';
 
 import * as idb from 'idb-keyval';
@@ -8,6 +6,7 @@ import * as cg from 'chessgroundx/types';
 import * as util from 'chessgroundx/util';
 import { DrawShape } from 'chessgroundx/draw';
 
+import { newWebsocket } from './socket';
 import { _ } from './i18n';
 import { sound } from './sound';
 import { uci2LastMove, uci2cg, cg2uci } from './chess';
@@ -83,8 +82,7 @@ export class AnalysisController extends GameController {
             this.chartFunctions = [analysisChart, movetimeChart];
         }
 
-        const onOpen = (evt: Event) => {
-            console.log("ctrl.onOpen()", evt);
+        const onOpen = () => {
             if (this.embed) {
                 this.doSend({ type: "embed_user_connected", gameId: this.gameId });
             } else if (!this.isAnalysisBoard) {
@@ -92,18 +90,9 @@ export class AnalysisController extends GameController {
             }
         };
 
-        const opts = {
-            maxAttempts: 10,
-            onopen: (e: Event) => onOpen(e),
-            onmessage: (e: MessageEvent) => this.onMessage(e),
-            onreconnect: (e: Event) => console.log('Reconnecting in round...', e),
-            onmaximum: (e: Event) => console.log('Stop Attempting!', e),
-            onclose: (e: Event) => console.log('Closed!', e),
-            onerror: (e: Event) => console.log('Error:', e),
-            };
-
-        const ws = (location.protocol.indexOf('https') > -1) ? 'wss://' : 'ws://';
-        this.sock = new Sockette(ws + location.host + "/wsr", opts);
+        this.sock = newWebsocket('wsr');
+        this.sock.onopen = () => onOpen();
+        this.sock.onmessage = (e: MessageEvent) => this.onMessage(e);
 
         // is local stockfish.wasm engine supports current variant?
         this.localEngine = false;
@@ -321,16 +310,8 @@ export class AnalysisController extends GameController {
                     h('i', {props: {title: _('Copy USI/UCI to clipboard')}, class: {"icon": true, "icon-clipboard": true} }, _('Copy UCI/USI'))]),
                 h('a.i-pgn', { on: { click: () => copyBoardToPNG(this.fullfen) } }, [
                     h('i', {props: {title: _('Download position to PNG image file')}, class: {"icon": true, "icon-download": true} }, _('PNG image'))]),
+                h('div#imported'),
                 ]
-
-            // Enable to delete imported games
-            if (this.rated === '2' && this.importedBy === this.username) {
-                buttons.push(
-                    h('a.i-pgn', { on: { click: () => this.deleteGame() } }, [
-                        h('i', {props: {title: _('Delete game')}, class: {"icon": true, "icon-trash-o": true} }, _('Delete game'))])
-                );
-            }
-
             patch(container, h('div', buttons));
         }
 
@@ -351,6 +332,14 @@ export class AnalysisController extends GameController {
         if (msg.gameId !== this.gameId) return;
 
         this.importedBy = msg.by;
+        // Enable to delete imported games
+        if (this.rated === '2' && this.importedBy === this.username) {
+            const importedEl = document.getElementById('imported') as HTMLElement;
+            patch(importedEl,
+                h('a.i-pgn', { on: { click: () => this.deleteGame() } }, [
+                    h('i', {props: {title: _('Delete game')}, class: {"icon": true, "icon-trash-o": true} }, _('Delete game'))])
+            );
+        }
 
         // console.log("got board msg:", msg);
         this.fullfen = msg.fen;
@@ -978,6 +967,7 @@ export class AnalysisController extends GameController {
         // console.log("<+++ onMessage():", evt.data);
         super.onMessage(evt);
 
+        if (evt.data === '/n') return;
         const msg = JSON.parse(evt.data);
         switch (msg.type) {
             case "board":

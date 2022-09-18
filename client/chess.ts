@@ -856,26 +856,6 @@ export function cg2uci(move: string): string {
     return move.replace(/:/g, "10");
 }
 
-// Add missing empty pockets if needed
-// Change from "/" lichess zh pocket format to "[]"
-export function sanitizedFen(variant: Variant, fen: string): string {
-    const parts = fen.split(' ');
-    const placement = parts[0];
-    if (placement && !placement.includes('[') && !placement.includes(']')) {
-        if (lc(placement, '/', false) === 8 && variant.name === "crazyhouse") {
-            if (placement.endsWith('/')) {
-                parts[0] = `${placement.slice(0, -1)}[]`;
-            } else {
-                const k = placement.lastIndexOf("/");
-                parts[0] = `${placement.slice(0, k)}[${placement.slice(k + 1)}]`;
-            }
-        } else if (variant.pocket && !placement.includes('[') && !placement.includes(']')) {
-            parts[0] = `${placement}[]`;
-        }
-    }
-    return parts.join(' ');
-}
-
 // TODO Will be deprecated after WASM Fairy integration
 export function validFen(variant: Variant, fen: string): boolean {
     const as = variant.alternateStart;
@@ -901,58 +881,35 @@ export function validFen(variant: Variant, fen: string): boolean {
     // Brackets paired
     if (lc(placement, '[', false) !== lc(placement, ']', false)) return false;
 
-    // Split board part and pocket part
-    const leftBracketPos = placement.indexOf('[');
-    const board = (leftBracketPos === -1) ? placement : placement.slice(0, leftBracketPos);
-    //const pocket = placement.slice(leftBracketPos);
-    //const startLeftBracketPos = start.indexOf('[');
-    //const startBoard = startPlacement.slice(0, startLeftBracketPos);
-    //const startPocket = startPlacement.slice(startLeftBracketPos);
 
-    // Convert FEN board to board array
-    const toBoardArray = (board: string) => {
-        const toRowArray = (row: string) => {
-            const stuffedRow = row.replace('10', '_'.repeat(10)).replace(/\d/g, (x: string) => '_'.repeat(parseInt(x)) );
-            const rowArray : string[] = [];
-            let promoted = false;
-            for (const c of stuffedRow) {
-                switch (c) {
-                    case '+':
-                        promoted = true;
-                        break;
-                    case '~':
-                        rowArray[rowArray.length - 1] = rowArray[rowArray.length - 1] + '~';
-                        break;
-                    default:
-                        if (promoted) {
-                            rowArray.push('+' + c);
-                            promoted = false;
-                        }
-                        else
-                            rowArray.push(c);
-                }
-            }
-            return rowArray;
-        };
-        return board.split('/').map(toRowArray);
-    };
-
-    const boardArray = toBoardArray(board);
-    //const startBoardArray = toBoardArray(startBoard);
+    // Check with chessgroundx's parsing
+    const boardState = read(placement, variant.boardDimensions);
+    const width = variant.boardDimensions.width;
+    const height = variant.boardDimensions.height;
 
     // Correct board size
-    const boardHeight = variant.boardDimensions.height;
-    const boardWidth = variant.boardDimensions.width;
+    if (lc(placement, '/', false) < height - 1) return false;
+    for (const [k, _] of boardState.pieces) {
+        const pos = util.key2pos(k);
+        if (pos[0] > width - 1 || pos[1] > height - 1)
+            return false;
+    }
 
-    if (boardArray.length !== boardHeight) return false;
-    if (boardArray.some((row: string[]) => row.length !== boardWidth)) return false;
+    // Touching kings
+    if (variantName !== 'atomic' && touchingKings(boardState.pieces)) return false;
 
     // Starting colors
     if (parts[1] !== 'b' && parts[1] !== 'w') return false;
 
     // Castling rights (piece virginity)
     good = (variantName === 'seirawan' || variantName === 'shouse') ? 'KQABCDEFGHkqabcdefgh-' : start[2] + "-";
-    const wrong = (element: string) => {good.indexOf(element) === -1;};
+    const wrong = (element: string) => !good.includes(element);
+    const rookStart: { [right: string]: cg.Pos } = {
+        K: (variantName === 'shako') ? [width - 2, 1] : [width - 1, 0],
+        Q: (variantName === 'shako') ? [1, 1] : [0, 0],
+        k: (variantName === 'shako') ? [width - 2, height - 2] : [width - 1, height - 1],
+        q: (variantName === 'shako') ? [1, height - 2] : [0, height - 1],
+    };
     if (parts.length > 2 && variantName !== 'dobutsu') {
         if (parts[2].split('').some(wrong)) return false;
 
@@ -964,38 +921,27 @@ export function validFen(variant: Variant, fen: string): boolean {
             // Castling right need rooks and king placed in starting square
             // capablanca: "rnabqkbcnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNABQKBCNR w KQkq - 0 1",
             // shako: "c8c/ernbqkbnre/pppppppppp/10/10/10/10/PPPPPPPPPP/ERNBQKBNRE/C8C w KQkq - 0 1",
-            const rookPos = {
-                K: (variantName === 'shako') ? boardArray[boardHeight - 2][boardWidth - 2] : boardArray[boardHeight - 1][boardWidth - 1],
-                Q: (variantName === 'shako') ? boardArray[boardHeight - 2][1] : boardArray[boardHeight - 1][0],
-                k: (variantName === 'shako') ? boardArray[1][boardWidth - 2] : boardArray[0][boardWidth - 1],
-                q: (variantName === 'shako') ? boardArray[1][1] : boardArray[0][0],
-            };
-
             for (const c of parts[2]) {
+                const piece = rookStart[c] ? boardState.pieces.get(util.pos2key(rookStart[c])) : undefined;
+                const color = c === c.toUpperCase() ? 'white' : 'black';
                 switch (c) {
                     case 'K':
                     case 'Q':
-                        if (rookPos[c] !== 'R') return false;
-                        // TODO check king position
-                        break;
                     case 'k':
                     case 'q':
-                        if (rookPos[c] !== 'r') return false;
+                        if (!piece || !util.samePiece(piece, { role: 'r-piece', color: color }))
+                            return false;
                         // TODO check king position
                         break;
-                        // TODO Column-based right
+                    // TODO Gating right
                 }
             }
         //}
     }
 
     // Number of kings
-    const king = (variantName === "dobutsu") ? "l" : "k";
+    const king = util.letterOf(variant.kingRoles[0]);
     if (lc(placement, king, false) !== 1 || lc(placement, king, true) !== 1) return false;
-
-    // Touching kings
-    const pieces = read(parts[0], variant.boardDimensions).pieces;
-    if (variantName !== 'atomic' && touchingKings(pieces)) return false;
 
     return true;
 }

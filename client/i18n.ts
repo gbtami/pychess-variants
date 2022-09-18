@@ -68,7 +68,7 @@ export const translatedVariantDisplayNames = [
     _("makruk"), _("makpong"), _("ouk chaktrang"), _("sittuyin"), _("asean"),
 
     _("shogi"), _("minishogi"), _("kyoto shogi"),
-    _("dobutsu"), _("gorogoro"), _("tori shogi"),
+    _("dobutsu"), _("gorogoro"), _("gorogoro+"), _("tori shogi"),
 
     _("xiangqi"), _("manchu"), _("janggi"), _("minixiangqi"),
 

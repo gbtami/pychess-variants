@@ -22,3 +22,5 @@ async def generate_shield(app):
 
         if len(app["shield"][variant]) > 0:
             app["shield_owners"][variant] = app["shield"][variant][0][0]
+        else:
+            app["shield_owners"][variant] = "Fairy-Stockfish"

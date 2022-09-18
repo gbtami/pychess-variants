@@ -13,7 +13,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-05-02 23:28+0200\n"
+"POT-Creation-Date: 2022-09-15 22:54+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Last-Translator: Артем Артем, 2022\n"
 "Language-Team: Russian (https://www.transifex.com/gbtami/teams/14790/ru/)\n"
@@ -23,6 +23,270 @@ msgstr ""
 "Generated-By: Babel 2.9.1\n"
 "Language: ru\n"
 "Plural-Forms: nplurals=4; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || (n%100>=11 && n%100<=14)? 2 : 3);\n"
+
+#: ../server/const.py:279
+msgid "Arena"
+msgstr "Арена"
+
+#: ../server/const.py:280
+msgid "Round-Robin"
+msgstr "По-круговой"
+
+#: ../server/const.py:281
+msgid "Swiss"
+msgstr "По швейцарской системе"
+
+#: ../server/const.py:285
+msgid "Hourly"
+msgstr "Ежечасная"
+
+#: ../server/const.py:286
+msgid "Daily"
+msgstr "Ежедневная"
+
+#: ../server/const.py:287
+msgid "Weekly"
+msgstr "Еженедельная"
+
+#: ../server/const.py:288
+msgid "Monthly"
+msgstr "Ежемесячная"
+
+#: ../server/const.py:289
+msgid "Yearly"
+msgstr "Ежегодная"
+
+#: ../server/const.py:290
+msgid "Marathon"
+msgstr "Марафон"
+
+#: ../server/const.py:291
+msgid "Shield"
+msgstr "Щит"
+
+#: ../server/const.py:292
+msgid "SEAturday"
+msgstr "Субботняя"
+
+#: ../server/const.py:296
+msgid "Chess"
+msgstr "Шахматы"
+
+#: ../server/const.py:297
+msgid "Chess960"
+msgstr "Шахматы960"
+
+#: ../server/const.py:298
+msgid "Crazyhouse"
+msgstr "Крейзихаус"
+
+#: ../server/const.py:299
+msgid "Crazyhouse960"
+msgstr "Крейзихаус960"
+
+#: ../server/const.py:300
+msgid "Placement"
+msgstr "Расстановка"
+
+#: ../server/const.py:301
+msgid "Atomic"
+msgstr "Атомные"
+
+#: ../server/const.py:302
+msgid "Atomic960"
+msgstr "Атомные960"
+
+#: ../server/const.py:303 ../server/videos.py:19
+msgid "Makruk"
+msgstr "Макрук"
+
+#: ../server/const.py:304
+msgid "Makpong"
+msgstr "Макпонг"
+
+#: ../server/const.py:305
+msgid "Ouk Chaktrang"
+msgstr "Ок Чактранг"
+
+#: ../server/const.py:306
+msgid "Sittuyin"
+msgstr "Ситтуйин"
+
+#: ../server/const.py:307
+msgid "ASEAN"
+msgstr "АСЕАН"
+
+#: ../server/const.py:308 ../server/videos.py:20
+msgid "Shogi"
+msgstr "Сёги"
+
+#: ../server/const.py:309
+msgid "Minishogi"
+msgstr "Минисёги"
+
+#: ../server/const.py:310
+msgid "Kyoto Shogi"
+msgstr "Киото Сёги"
+
+#: ../server/const.py:311
+msgid "Dobutsu"
+msgstr "Добуцу"
+
+#: ../server/const.py:314
+msgid "Gorogoro+"
+msgstr "Горогоро+"
+
+#: ../server/const.py:315
+msgid "Tori Shogi"
+msgstr "Тори Сёги"
+
+#: ../server/const.py:316 ../server/videos.py:18
+msgid "Xiangqi"
+msgstr "Сянци"
+
+#: ../server/const.py:317
+msgid "Manchu"
+msgstr "Маньчжурские"
+
+#: ../server/const.py:318 ../server/videos.py:17
+msgid "Janggi"
+msgstr "Чанги"
+
+#: ../server/const.py:319
+msgid "Minixiangqi"
+msgstr "Минисянци"
+
+#: ../server/const.py:320
+msgid "Capablanca"
+msgstr "Капабланка"
+
+#: ../server/const.py:321
+msgid "Capablanca960"
+msgstr "Капабланка960"
+
+#: ../server/const.py:322
+msgid "Capahouse"
+msgstr "Капахаус"
+
+#: ../server/const.py:323
+msgid "Capahouse960"
+msgstr "Капахаус960"
+
+#: ../server/const.py:329 ../server/videos.py:21
+msgid "S-Chess"
+msgstr "S-Шахматы"
+
+#: ../server/const.py:330
+msgid "S-Chess960"
+msgstr "S-Шахматы960"
+
+#: ../server/const.py:331
+msgid "S-House"
+msgstr "S-Хаус"
+
+#: ../server/const.py:332
+msgid "Grand"
+msgstr "Гранд"
+
+#: ../server/const.py:333
+msgid "Grandhouse"
+msgstr "Грандхаус"
+
+#: ../server/const.py:334
+msgid "Shogun"
+msgstr "Сёгун"
+
+#: ../server/const.py:335
+msgid "Shako"
+msgstr "Шако"
+
+#: ../server/const.py:336
+msgid "Hoppel-Poppel"
+msgstr "Хоппель-Поппель"
+
+#: ../server/const.py:337
+msgid "Orda Chess"
+msgstr "Ордынские  Шахматы"
+
+#: ../server/const.py:338
+msgid "Synochess"
+msgstr "Синочесс"
+
+#: ../server/const.py:339
+msgid "Shinobi"
+msgstr "Синоби"
+
+#: ../server/const.py:340
+msgid "Empire"
+msgstr "Империя"
+
+#: ../server/const.py:341
+msgid "Orda Mirror"
+msgstr "Зеркальная Орда"
+
+#: ../server/const.py:342
+msgid "Chak"
+msgstr "Чак"
+
+#: ../server/const.py:343
+msgid "Chennis"
+msgstr "Ченнис"
+
+#: ../server/videos.py:9
+msgid "Howto"
+msgstr "Как это"
+
+#: ../server/videos.py:10
+msgid "Introduction"
+msgstr "Введение"
+
+#: ../server/videos.py:11
+msgid "Opening"
+msgstr "Дебют"
+
+#: ../server/videos.py:12
+msgid "Middlegame"
+msgstr "Миттельшпиль"
+
+#: ../server/videos.py:13
+msgid "Endgame"
+msgstr "Эндшпиль"
+
+#: ../server/videos.py:14
+msgid "Fundamentals"
+msgstr "Основы"
+
+#: ../server/videos.py:15
+msgid "Tactics"
+msgstr "Тактика"
+
+#: ../server/videos.py:16
+msgid "Puzzle"
+msgstr "Задача"
+
+#: ../server/videos.py:22
+msgid "Match"
+msgstr "Матч"
+
+#: ../server/videos.py:23
+msgid "Tournament"
+msgstr "Турнир"
+
+#: ../server/videos.py:24
+msgid "Hu Ronghua"
+msgstr "Ху Жунхуа"
+
+#: ../server/videos.py:28
+msgid "beginner"
+msgstr "начинающий"
+
+#: ../server/videos.py:29
+msgid "intermediate"
+msgstr "средний"
+
+#: ../server/videos.py:30
+msgid "advanced"
+msgstr "продвинутый"
 
 #: ../templates/closed.html:8
 msgid "This account is closed."
@@ -85,7 +349,7 @@ msgstr "Импорт игры"
 msgid "Export games"
 msgstr "Экспорт игр"
 
-#: ../templates/profile.html:53
+#: ../templates/profile.html:54
 msgid "Lichess profile"
 msgstr "Lichess профиль"
 
@@ -102,54 +366,62 @@ msgid "Tournaments"
 msgstr "Турниры"
 
 #: ../templates/template.html:25
+msgid "Puzzles"
+msgstr "Задачи"
+
+#: ../templates/template.html:28
 msgid "Watch"
 msgstr "Просмотр"
 
-#: ../templates/template.html:27
+#: ../templates/template.html:30
 msgid "Tv"
 msgstr "ТВ"
 
-#: ../templates/template.html:28
+#: ../templates/template.html:31
 msgid "Current games"
 msgstr "Текущие игры"
 
 #: ../templates/template.html:32
+msgid "Video library"
+msgstr "Видео лаборатория"
+
+#: ../templates/template.html:36
 msgid "Community"
 msgstr "Сообщество"
 
-#: ../templates/template.html:34
+#: ../templates/template.html:38
 msgid "Players"
 msgstr "Игроки"
 
-#: ../templates/template.html:35
+#: ../templates/template.html:39
 msgid "Blog"
 msgstr "Блог"
 
-#: ../templates/template.html:36
+#: ../templates/template.html:40
 msgid "Donate"
 msgstr "Пожертвовать"
 
-#: ../templates/template.html:40
+#: ../templates/template.html:44
 msgid "Tools"
 msgstr "Инструменты"
 
-#: ../templates/template.html:42
+#: ../templates/template.html:46
 msgid "Editor"
 msgstr "Редактор"
 
-#: ../templates/template.html:43
+#: ../templates/template.html:47
 msgid "Analysis"
 msgstr "Анализ"
 
-#: ../templates/template.html:46
+#: ../templates/template.html:51
 msgid "Variants"
 msgstr "Варианты"
 
-#: ../templates/template.html:59
+#: ../templates/template.html:65
 msgid "Login with Lichess"
 msgstr "Войти через Lichess"
 
-#: ../templates/template.html:59
+#: ../templates/template.html:65
 msgid "Log in"
 msgstr "Войти"
 
@@ -189,3 +461,7 @@ msgstr[0] "%(count)s игрок"
 msgstr[1] "%(count)s игрока"
 msgstr[2] "%(count)s игроков"
 msgstr[3] "%(count)s игроков"
+
+#: ../templates/videos.html:15
+msgid "Chess variant videos"
+msgstr "Видео о шахматных вариантах"

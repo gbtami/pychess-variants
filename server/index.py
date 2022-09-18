@@ -26,9 +26,9 @@ from const import (
     VARIANT_GROUPS,
     RATED,
     IMPORTED,
-    variant_display_name,
-    pairing_system_name,
     T_CREATED,
+    TRANSLATED_VARIANT_NAMES,
+    TRANSLATED_PAIRING_SYSTEM_NAMES,
 )
 from fairy import FairyBoard
 from glicko2.glicko2 import DEFAULT_PERF, PROVISIONAL_PHI
@@ -46,7 +46,7 @@ from settings import (
 from generate_highscore import generate_highscore
 from misc import time_control_str
 from news import NEWS
-from videos import VIDEO_TAGS
+from videos import VIDEO_TAGS, VIDEO_TARGETS
 from user import User
 from utils import load_game, join_seek, tv_game, tv_game_user
 from tournaments import (
@@ -138,6 +138,21 @@ async def index(request):
     if lang not in LANGUAGES:
         lang = "en"
     get_template = request.app["jinja"][lang].get_template
+
+    lang_translation = request.app["gettext"][lang]
+    lang_translation.install()
+
+    def variant_display_name(variant):
+        return lang_translation.gettext(TRANSLATED_VARIANT_NAMES[variant])
+
+    def pairing_system_name(system):
+        return lang_translation.gettext(TRANSLATED_PAIRING_SYSTEM_NAMES[system])
+
+    def video_tag(tag):
+        return lang_translation.gettext(VIDEO_TAGS[tag])
+
+    def video_target(target):
+        return lang_translation.gettext(VIDEO_TARGETS[target])
 
     view = "lobby"
     gameId = request.match_info.get("gameId")
@@ -460,7 +475,7 @@ async def index(request):
         render["icons"] = VARIANT_ICONS
         render["pairing_system_name"] = pairing_system_name
         render["time_control_str"] = time_control_str
-        render["tables"] = await get_latest_tournaments(request.app)
+        render["tables"] = await get_latest_tournaments(request.app, lang_translation)
         render["admin"] = user.username in ADMINS
 
     if (gameId is not None) and gameId != "variants":
@@ -507,7 +522,11 @@ async def index(request):
 
     if tournamentId is not None:
         render["tournamentid"] = tournamentId
-        render["tournamentname"] = tournament.name
+        render["tournamentname"] = (
+            tournament.translated_name(lang_translation)
+            if tournament.frequency
+            else tournament.name
+        )
         render["description"] = tournament.description
         render["variant"] = tournament.variant
         render["chess960"] = tournament.chess960
@@ -557,6 +576,8 @@ async def index(request):
             videos.append(doc)
         render["videos"] = videos
         render["tags"] = VIDEO_TAGS
+        render["video_tag"] = video_tag
+        render["video_target"] = video_target
 
     elif view == "video":
         render["view_css"] = "videos.css"

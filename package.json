@@ -15,7 +15,7 @@
   },
   "funding": "patreon.com/pychess",
   "dependencies": {
-    "chessgroundx": "^10.2.1",
+    "chessgroundx": "^10.2.2",
     "ffish-es6": "^0.6.8",
     "fairy-stockfish-nnue.wasm": "^1.0.1",
     "gettext.js": "^1.1.1",
@@ -23,7 +23,7 @@
     "howler": "^2.2.3",
     "html-to-image": "^1.9.0",
     "snabbdom": "^3.1.0",
-    "sockette": "^2.0.6",
+    "websocket-heartbeat-js": "^1.1.0",
     "@fullcalendar/core": "^5.10.1",
     "@fullcalendar/daygrid": "^5.10.1",
     "@fullcalendar/interaction": "^5.10.1",
