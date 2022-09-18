@@ -71,6 +71,12 @@ export class PuzzleController extends AnalysisController {
 
         this.renderInfos();
 
+        // When we have no puzzle for a given variant just show start FEN
+        if (!this.solution[0]) {
+            this.puzzleComplete();
+            return;
+        }
+
         function showSolution() {
             const viewSolutionEl = document.querySelector('.view-solution') as HTMLElement;
             patch(viewSolutionEl, h('div.view-solution', { class: { show: true } }));
