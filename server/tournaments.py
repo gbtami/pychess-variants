@@ -2,6 +2,8 @@ import collections
 import logging
 from datetime import datetime, timezone
 
+import aiohttp_session
+
 from broadcast import discord_message
 from compress import C2V, V2C, C2R
 from const import (
@@ -306,7 +308,15 @@ async def get_latest_tournaments(app, lang_translation):
 
 async def get_tournament_name(request, tournament_id):
     """Return Tournament name from app cache or from database"""
-    lang = request.rel_url.query.get("l", "en")
+    lang = request.rel_url.query.get("l")
+    if lang is None:
+        session = await aiohttp_session.get_session(request)
+        session_user = session.get("user_name")
+        users = request.app["users"]
+        try:
+            lang = users[session_user].lang
+        except KeyError:
+            lang = "en"
 
     if tournament_id in request.app["tourneynames"][lang]:
         return request.app["tourneynames"][lang][tournament_id]
