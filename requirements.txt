@@ -10,7 +10,7 @@ motor==3.0.0
 pyffish==0.0.73
 sortedcollections==2.1.0
 python-gettext==4.1
-uvloop==0.16.0
+uvloop==0.17.0
 objgraph==3.5.0
 black==22.8.0
 mypy
