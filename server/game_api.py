@@ -192,9 +192,7 @@ async def get_user_games(request):
     else:
         filter_cond["us"] = profileId
 
-    page_num = request.rel_url.query.get("p")
-    if not page_num:
-        page_num = 0
+    page_num = request.rel_url.query.get("p", 0)
 
     game_doc_list = []
     if profileId is not None:
@@ -224,7 +222,7 @@ async def get_user_games(request):
 
             tournament_id = doc.get("tid")
             if tournament_id is not None:
-                doc["tn"] = await get_tournament_name(request.app, tournament_id)
+                doc["tn"] = await get_tournament_name(request, tournament_id)
 
             if uci_moves:
                 game_doc_list.append(

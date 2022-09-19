@@ -3,7 +3,7 @@ import { h, VNode } from 'snabbdom';
 import { Chessground } from 'chessgroundx';
 import * as cg from "chessgroundx/types";
 
-import { _, ngettext, pgettext } from './i18n';
+import { _, ngettext, pgettext, languageSettings } from './i18n';
 import { uci2LastMove, VARIANTS } from './chess';
 import { patch } from './document';
 import { renderTimeago } from './datetime';
@@ -133,20 +133,23 @@ function renderGames(model: PyChessModel, games: Game[]) {
 }
 
 function loadGames(model: PyChessModel, page: number) {
+    const lang = languageSettings.value;
+    console.log(lang);
+
     const xmlhttp = new XMLHttpRequest();
     let url = "/api/" + model["profileid"]
     if (model.level) {
-        url = url + "/loss?x=8&p=";
+        url = `${url}/loss?l=${lang}&x=8&p=`;
     } else if (model.variant) {
-        url = url + "/perf/" + model.variant + "?p=";
+        url = `${url}/perf/${model.variant}?l=${lang}&p=`;
     } else if (model.rated === "1") {
-        url = url + "/rated" + "?p=";
+        url = `${url}/rated?l=${lang}&p=`;
     } else if (model.rated === "2") {
-        url = url + "/import" + "?p=";
+        url = `${url}/import?l=${lang}&p=`;
     } else if (model["rated"] === "-1") {
-        url = url + "/me" + "?p=";
+        url = `${url}/me?l=${lang}&p=`;
     } else {
-        url = url + "/all?p=";
+        url = `${url}/all?l=${lang}&p=`;
     }
 
     xmlhttp.onreadystatechange = function() {
@@ -163,7 +166,7 @@ function loadGames(model: PyChessModel, page: number) {
             renderTimeago();
         }
     };
-    xmlhttp.open("GET", url + page, true);
+    xmlhttp.open("GET", `${url}${page}`, true);
     xmlhttp.send();
 }
 

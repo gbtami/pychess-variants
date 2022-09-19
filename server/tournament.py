@@ -32,10 +32,6 @@ from const import (
     SHIELD,
     variant_display_name,
     MAX_CHAT_LINES,
-    CATEGORIES,
-    TRANSLATED_FREQUENCY_NAMES,
-    TRANSLATED_PAIRING_SYSTEM_NAMES,
-    TRANSLATED_VARIANT_NAMES,
 )
 from game import Game
 from user import User
@@ -1246,23 +1242,3 @@ class Tournament(ABC):
             time_text,
             url,
         )
-
-    def translated_name(self, lang_translation):
-        # Weekly makruk category == SEAturday
-        frequency = (
-            "S"
-            if self.variant in CATEGORIES["makruk"] and self.frequency == "w"
-            else self.frequency
-        )
-        if frequency == "s":
-            return "%s %s %s" % (
-                lang_translation.gettext(TRANSLATED_VARIANT_NAMES[self.variant]),
-                lang_translation.gettext(TRANSLATED_FREQUENCY_NAMES[frequency]),
-                lang_translation.gettext(TRANSLATED_PAIRING_SYSTEM_NAMES[self.system]),
-            )
-        else:
-            return "%s %s %s" % (
-                lang_translation.gettext(TRANSLATED_FREQUENCY_NAMES[frequency]),
-                lang_translation.gettext(TRANSLATED_VARIANT_NAMES[self.variant]),
-                lang_translation.gettext(TRANSLATED_PAIRING_SYSTEM_NAMES[self.system]),
-            )
