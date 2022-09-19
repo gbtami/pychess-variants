@@ -330,4 +330,12 @@ VIDEOS = [
         "target": "beginner",
         "duration": "9:08",
     },
+    {
+        "_id": "IFKSuw2rthE",
+        "title": "Janggi - Mate in 3 (or 2) Puzzles",
+        "author": "Amphibian Hoplite",
+        "tags": ["Janggi", "Puzzle"],
+        "target": "beginner",
+        "duration": "10:01",
+    },
 ]
