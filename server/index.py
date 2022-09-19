@@ -321,9 +321,6 @@ async def index(request):
             if user.username not in (game.wplayer.username, game.bplayer.username):
                 game.spectators.add(user)
 
-            if game.tournamentId is not None:
-                tournament_name = await get_tournament_name(request.app, game.tournamentId)
-
     if view in ("profile", "level8win"):
         if (profileId in users) and not users[profileId].enabled:
             template = get_template("closed.html")
@@ -515,18 +512,16 @@ async def index(request):
             render["ct"] = json.dumps(game.crosstable)
             render["board"] = json.dumps(game.get_board(full=True))
             if game.tournamentId is not None:
+                tournament_name = await get_tournament_name(request, game.tournamentId)
                 render["tournamentid"] = game.tournamentId
                 render["tournamentname"] = tournament_name
                 render["wberserk"] = game.wberserk
                 render["bberserk"] = game.bberserk
 
     if tournamentId is not None:
+        tournament_name = await get_tournament_name(request, tournamentId)
         render["tournamentid"] = tournamentId
-        render["tournamentname"] = (
-            tournament.translated_name(lang_translation)
-            if tournament.frequency
-            else tournament.name
-        )
+        render["tournamentname"] = tournament_name
         render["description"] = tournament.description
         render["variant"] = tournament.variant
         render["chess960"] = tournament.chess960
