@@ -322,4 +322,12 @@ VIDEOS = [
         "target": "beginner",
         "duration": "25:31",
     },
+    {
+        "_id": "-1jXt-QbuEA",
+        "title": "A Concept in Xiangqi Opening",
+        "author": "Singapore Xiangqi Academy",
+        "tags": ["Xiangqi", "Opening"],
+        "target": "beginner",
+        "duration": "9:08",
+    },
 ]
