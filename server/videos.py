@@ -19,6 +19,7 @@ VIDEO_TAGS = {
     "Makruk": _("Makruk"),
     "Shogi": _("Shogi"),
     "S-Chess": _("S-Chess"),
+    "Placement": _("Placement"),
     "Match": _("Match"),
     "Tournament": _("Tournament"),
     "Hu Ronghua": _("Hu Ronghua"),
