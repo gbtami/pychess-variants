@@ -708,7 +708,7 @@ msgstr "ОЧИСТИТЬ ДОСКУ"
 
 #: ../client/editorCtrl.ts:135
 msgid "FILL %1'S HAND"
-msgstr "ЗАПОЛНИТЬ %1 РУКУ"
+msgstr "ЗАПОЛНИТЬ РУКУ ПРОТИВНИКА"
 
 #: ../client/editorCtrl.ts:138
 msgid "STARTING POSITION"
@@ -844,19 +844,19 @@ msgstr "минисянци"
 
 #: ../client/i18n.ts:75
 msgid "capablanca"
-msgstr "Капабланка"
+msgstr "капабланка"
 
 #: ../client/i18n.ts:75
 msgid "capahouse"
-msgstr "Капахаус"
+msgstr "капахаус"
 
 #: ../client/i18n.ts:75
 msgid "s-chess"
-msgstr "S-шахматы"
+msgstr "s-шахматы"
 
 #: ../client/i18n.ts:75
 msgid "s-house"
-msgstr "S-хаус"
+msgstr "s-хаус"
 
 #: ../client/i18n.ts:76
 msgid "grand"
@@ -1269,7 +1269,7 @@ msgstr "Посмотреть решение"
 
 #: ../client/puzzleCtrl.ts:88
 msgid "Puzzle "
-msgstr "Задача"
+msgstr "Задача № "
 
 #: ../client/puzzleCtrl.ts:89
 msgid "Rating: "
@@ -1277,7 +1277,7 @@ msgstr "Рейтинг:"
 
 #: ../client/puzzleCtrl.ts:90
 msgid "Played "
-msgstr "Сыграно"
+msgstr "Решено "
 
 #: ../client/puzzleCtrl.ts:96
 msgid "Source: "
@@ -1285,19 +1285,19 @@ msgstr "Источник:"
 
 #: ../client/puzzleCtrl.ts:175
 msgid "Your turn"
-msgstr "Твоя очередь"
+msgstr "Ваш ход"
 
 #: ../client/puzzleCtrl.ts:176
 msgid "Find the best move for %1."
-msgstr "Найдите лучший ход для %1."
+msgstr "Ходят и выигрывают %1."
 
 #: ../client/puzzleCtrl.ts:189
 msgid "That's not the move!"
-msgstr "Это не ход!"
+msgstr "Плохой ход!"
 
 #: ../client/puzzleCtrl.ts:190
 msgid "Try something else."
-msgstr "Попробуйте что-нибудь другое."
+msgstr "Попробуйте иначе."
 
 #: ../client/puzzleCtrl.ts:204
 msgid "Best move!"
@@ -1305,15 +1305,15 @@ msgstr "Лучший ход!"
 
 #: ../client/puzzleCtrl.ts:205
 msgid "Keep going..."
-msgstr "Продолжать ходить..."
+msgstr "Продолжайте..."
 
 #: ../client/puzzleCtrl.ts:219
 msgid "Puzzle complete!"
-msgstr "Задача завершена!"
+msgstr "Задача решена!"
 
 #: ../client/puzzleCtrl.ts:223
 msgid "Continue training"
-msgstr "Продолжить обучение"
+msgstr "Продолжить тренировку"
 
 #: ../client/result.ts:14
 msgid "IMPORT"
@@ -1585,7 +1585,7 @@ msgstr "Сыграно партий"
 
 #: ../client/tournament.ts:199 ../client/tournament.ts:200
 msgid "%1 wins"
-msgstr "%1 побед"
+msgstr "%1 победили"
 
 #: ../client/tournament.ts:201
 msgid "Draws"
@@ -1611,7 +1611,7 @@ msgstr "Арена"
 
 #: ../client/tournament.ts:348
 msgid "Round-Robin"
-msgstr "По-круговой"
+msgstr "По круговой системе"
 
 #: ../client/tournament.ts:350
 msgid "Swiss"

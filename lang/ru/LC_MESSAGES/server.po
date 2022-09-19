@@ -30,7 +30,7 @@ msgstr "Арена"
 
 #: ../server/const.py:280
 msgid "Round-Robin"
-msgstr "По-круговой"
+msgstr "По круговой системе"
 
 #: ../server/const.py:281
 msgid "Swiss"
@@ -234,7 +234,7 @@ msgstr "Ченнис"
 
 #: ../server/videos.py:9
 msgid "Howto"
-msgstr "Как это"
+msgstr "Как играть"
 
 #: ../server/videos.py:10
 msgid "Introduction"
