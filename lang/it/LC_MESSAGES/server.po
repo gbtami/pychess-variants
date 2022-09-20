@@ -13,7 +13,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-08-04 13:33+0200\n"
+"POT-Creation-Date: 2022-09-15 22:54+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Last-Translator: Armando Gagliardi <armandogagliardi0@gmail.com>, 2022\n"
 "Language-Team: Italian (https://www.transifex.com/gbtami/teams/14790/it/)\n"
@@ -23,6 +23,270 @@ msgstr ""
 "Generated-By: Babel 2.9.1\n"
 "Language: it\n"
 "Plural-Forms: nplurals=3; plural=n == 1 ? 0 : n != 0 && n % 1000000 == 0 ? 1 : 2;\n"
+
+#: ../server/const.py:279
+msgid "Arena"
+msgstr "Arena"
+
+#: ../server/const.py:280
+msgid "Round-Robin"
+msgstr "Torneo all'italiana"
+
+#: ../server/const.py:281
+msgid "Swiss"
+msgstr "Torneo svizzero"
+
+#: ../server/const.py:285
+msgid "Hourly"
+msgstr "Orario"
+
+#: ../server/const.py:286
+msgid "Daily"
+msgstr "Giornaliero"
+
+#: ../server/const.py:287
+msgid "Weekly"
+msgstr "Settimanale"
+
+#: ../server/const.py:288
+msgid "Monthly"
+msgstr "Mensile"
+
+#: ../server/const.py:289
+msgid "Yearly"
+msgstr "Annuale"
+
+#: ../server/const.py:290
+msgid "Marathon"
+msgstr "Maratona"
+
+#: ../server/const.py:291
+msgid "Shield"
+msgstr "Scudo"
+
+#: ../server/const.py:292
+msgid "SEAturday"
+msgstr "SEAbato"
+
+#: ../server/const.py:296
+msgid "Chess"
+msgstr "Scacchi"
+
+#: ../server/const.py:297
+msgid "Chess960"
+msgstr "Scacchi960"
+
+#: ../server/const.py:298
+msgid "Crazyhouse"
+msgstr "Crazyhouse"
+
+#: ../server/const.py:299
+msgid "Crazyhouse960"
+msgstr "Crazyhouse960"
+
+#: ../server/const.py:300
+msgid "Placement"
+msgstr "Pre-Scacchi"
+
+#: ../server/const.py:301
+msgid "Atomic"
+msgstr "Atomic"
+
+#: ../server/const.py:302
+msgid "Atomic960"
+msgstr "Atomic960"
+
+#: ../server/const.py:303 ../server/videos.py:19
+msgid "Makruk"
+msgstr "Makruk"
+
+#: ../server/const.py:304
+msgid "Makpong"
+msgstr "Makpong"
+
+#: ../server/const.py:305
+msgid "Ouk Chaktrang"
+msgstr "Ouk Chaktrang"
+
+#: ../server/const.py:306
+msgid "Sittuyin"
+msgstr "Sittuyin"
+
+#: ../server/const.py:307
+msgid "ASEAN"
+msgstr "ASEAN"
+
+#: ../server/const.py:308 ../server/videos.py:20
+msgid "Shogi"
+msgstr "Shogi"
+
+#: ../server/const.py:309
+msgid "Minishogi"
+msgstr "Minishogi"
+
+#: ../server/const.py:310
+msgid "Kyoto Shogi"
+msgstr "Kyoto Shogi"
+
+#: ../server/const.py:311
+msgid "Dobutsu"
+msgstr "Dobutsu"
+
+#: ../server/const.py:314
+msgid "Gorogoro+"
+msgstr "Gorogoro+"
+
+#: ../server/const.py:315
+msgid "Tori Shogi"
+msgstr "Tori Shogi"
+
+#: ../server/const.py:316 ../server/videos.py:18
+msgid "Xiangqi"
+msgstr "Xiangqi"
+
+#: ../server/const.py:317
+msgid "Manchu"
+msgstr "Manchu"
+
+#: ../server/const.py:318 ../server/videos.py:17
+msgid "Janggi"
+msgstr "Janggi"
+
+#: ../server/const.py:319
+msgid "Minixiangqi"
+msgstr "Minixiangqi"
+
+#: ../server/const.py:320
+msgid "Capablanca"
+msgstr "Capablanca"
+
+#: ../server/const.py:321
+msgid "Capablanca960"
+msgstr "Capablanca960"
+
+#: ../server/const.py:322
+msgid "Capahouse"
+msgstr "Capahouse"
+
+#: ../server/const.py:323
+msgid "Capahouse960"
+msgstr "Capahouse960"
+
+#: ../server/const.py:329 ../server/videos.py:21
+msgid "S-Chess"
+msgstr "S-Chess"
+
+#: ../server/const.py:330
+msgid "S-Chess960"
+msgstr "S-Chess960"
+
+#: ../server/const.py:331
+msgid "S-House"
+msgstr "S-House"
+
+#: ../server/const.py:332
+msgid "Grand"
+msgstr "Grand"
+
+#: ../server/const.py:333
+msgid "Grandhouse"
+msgstr "Grandhouse"
+
+#: ../server/const.py:334
+msgid "Shogun"
+msgstr "Shogun"
+
+#: ../server/const.py:335
+msgid "Shako"
+msgstr "Shako"
+
+#: ../server/const.py:336
+msgid "Hoppel-Poppel"
+msgstr "Hoppel-Poppel"
+
+#: ../server/const.py:337
+msgid "Orda Chess"
+msgstr "Orda"
+
+#: ../server/const.py:338
+msgid "Synochess"
+msgstr "Synochess"
+
+#: ../server/const.py:339
+msgid "Shinobi"
+msgstr "Shinobi"
+
+#: ../server/const.py:340
+msgid "Empire"
+msgstr "Empire"
+
+#: ../server/const.py:341
+msgid "Orda Mirror"
+msgstr "Orda Mirror"
+
+#: ../server/const.py:342
+msgid "Chak"
+msgstr "Chak"
+
+#: ../server/const.py:343
+msgid "Chennis"
+msgstr "Chennis"
+
+#: ../server/videos.py:9
+msgid "Howto"
+msgstr "Tutorial"
+
+#: ../server/videos.py:10
+msgid "Introduction"
+msgstr "Introduzione"
+
+#: ../server/videos.py:11
+msgid "Opening"
+msgstr "Apertura"
+
+#: ../server/videos.py:12
+msgid "Middlegame"
+msgstr "Mediogioco"
+
+#: ../server/videos.py:13
+msgid "Endgame"
+msgstr "Finale"
+
+#: ../server/videos.py:14
+msgid "Fundamentals"
+msgstr "Fondamentali"
+
+#: ../server/videos.py:15
+msgid "Tactics"
+msgstr "Tattiche"
+
+#: ../server/videos.py:16
+msgid "Puzzle"
+msgstr "Puzzle"
+
+#: ../server/videos.py:22
+msgid "Match"
+msgstr "Match"
+
+#: ../server/videos.py:23
+msgid "Tournament"
+msgstr "Torneo"
+
+#: ../server/videos.py:24
+msgid "Hu Ronghua"
+msgstr "Hu Ronghua"
+
+#: ../server/videos.py:28
+msgid "beginner"
+msgstr "principiante"
+
+#: ../server/videos.py:29
+msgid "intermediate"
+msgstr "livello intermedio"
+
+#: ../server/videos.py:30
+msgid "advanced"
+msgstr "livello avanzato"
 
 #: ../templates/closed.html:8
 msgid "This account is closed."
@@ -101,54 +365,62 @@ msgid "Tournaments"
 msgstr "Tornei"
 
 #: ../templates/template.html:25
+msgid "Puzzles"
+msgstr "Puzzles"
+
+#: ../templates/template.html:28
 msgid "Watch"
 msgstr "Guarda"
 
-#: ../templates/template.html:27
+#: ../templates/template.html:30
 msgid "Tv"
 msgstr "Tv"
 
-#: ../templates/template.html:28
+#: ../templates/template.html:31
 msgid "Current games"
 msgstr "Partite in corso"
 
 #: ../templates/template.html:32
+msgid "Video library"
+msgstr "Libreria video"
+
+#: ../templates/template.html:36
 msgid "Community"
 msgstr "Giocatori"
 
-#: ../templates/template.html:34
+#: ../templates/template.html:38
 msgid "Players"
 msgstr "Giocatori"
 
-#: ../templates/template.html:35
+#: ../templates/template.html:39
 msgid "Blog"
 msgstr "Blog"
 
-#: ../templates/template.html:36
+#: ../templates/template.html:40
 msgid "Donate"
 msgstr "Dona"
 
-#: ../templates/template.html:40
+#: ../templates/template.html:44
 msgid "Tools"
 msgstr "Strumenti"
 
-#: ../templates/template.html:42
+#: ../templates/template.html:46
 msgid "Editor"
 msgstr "Editor"
 
-#: ../templates/template.html:43
+#: ../templates/template.html:47
 msgid "Analysis"
 msgstr "Analisi"
 
-#: ../templates/template.html:47
+#: ../templates/template.html:51
 msgid "Variants"
 msgstr "Varianti"
 
-#: ../templates/template.html:61
+#: ../templates/template.html:65
 msgid "Login with Lichess"
 msgstr "Login con Lichess"
 
-#: ../templates/template.html:61
+#: ../templates/template.html:65
 msgid "Log in"
 msgstr "Log in"
 
@@ -187,3 +459,7 @@ msgid_plural "%(count)s players"
 msgstr[0] "%(count)s giocatore"
 msgstr[1] "%(count)s giocatori"
 msgstr[2] "%(count)s giocatori"
+
+#: ../templates/videos.html:15
+msgid "Chess variant videos"
+msgstr "Video su varianti di scacchi"

@@ -144,7 +144,7 @@ async def init_state(app):
     app["tourneysockets"] = {}
 
     # cache for profile game list page {tournamentId: tournament.name, ...}
-    app["tourneynames"] = {}
+    app["tourneynames"] = {lang: {} for lang in LANGUAGES}
 
     app["tournaments"] = {}
 

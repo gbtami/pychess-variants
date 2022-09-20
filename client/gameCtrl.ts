@@ -295,23 +295,25 @@ export abstract class GameController extends ChessgroundController implements IC
     }
 
     protected pass = (passKey?: cg.Key) => {
-        if (!passKey) {
-            const pieces = this.chessground.state.boardState.pieces;
-            const dests = this.chessground.state.movable.dests!;
-            for (const [k, p] of pieces) {
-                if (p.role === 'k-piece' && p.color === this.turnColor) {
-                    if (dests.get(k)?.includes(k)) {
-                        passKey = k;
-                        break;
+        if (this.turnColor === this.chessground.state.movable.color || this.chessground.state.movable.color === 'both') {
+            if (!passKey) {
+                const pieces = this.chessground.state.boardState.pieces;
+                const dests = this.chessground.state.movable.dests;
+                for (const [k, p] of pieces) {
+                    if (p.role === 'k-piece' && p.color === this.turnColor) {
+                        if (dests?.get(k)?.includes(k)) {
+                            passKey = k;
+                            break;
+                        }
                     }
                 }
             }
-        }
-        if (passKey) {
-            // prevent calling pass() again by selectSquare() -> onSelect()
-            this.chessground.unselect();
-            sound.moveSound(this.variant, false);
-            this.sendMove(passKey, passKey, '');
+            if (passKey) {
+                // prevent calling pass() again by selectSquare() -> onSelect()
+                this.chessground.unselect();
+                sound.moveSound(this.variant, false);
+                this.sendMove(passKey, passKey, '');
+            }
         }
     }
 
