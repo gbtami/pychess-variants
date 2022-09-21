@@ -669,6 +669,10 @@ async def select_lang(request):
         if session_user in users:
             user = users[session_user]
             user.lang = lang
+            if user.db is not None:
+                await user.db.user.find_one_and_update(
+                    {"_id": user.username}, {"$set": {"lang": lang}}
+                )
         session["lang"] = lang
         return web.HTTPFound(referer)
     else:

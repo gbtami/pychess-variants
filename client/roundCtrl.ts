@@ -827,10 +827,10 @@ export class RoundController extends GameController {
     goPly = (ply: number, plyVari = 0) => {
         super.goPly(ply, plyVari);
 
-        if (this.turnColor !== this.mycolor || this.result !== "*" || ply !== this.steps.length - 1) {
+        if (this.spectator || this.turnColor !== this.mycolor || this.result !== "*" || ply !== this.steps.length - 1) {
             this.chessground.set({ movable: { dests: undefined } });
         }
-        
+
         this.updateMaterial();
     }
 
