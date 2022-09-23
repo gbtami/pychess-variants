@@ -29,11 +29,13 @@ class User:
         title="",
         perfs=None,
         enabled=True,
+        lang="en",
     ):
         self.app = app
         self.db = app["db"] if "db" in app else None
         self.bot = False if username == "PyChessBot" else bot
         self.anon = anon
+        self.lang = lang
         if username is None:
             self.anon = True
             self.username = "Anon-" + id8()
@@ -78,8 +80,6 @@ class User:
         # purge inactive anon users after ANON_TIMEOUT sec
         if self.anon and self.username not in RESERVED_USERS:
             self.remove_task = asyncio.create_task(self.remove())
-
-        self.lang = "en"
 
     async def remove(self):
         while True:
