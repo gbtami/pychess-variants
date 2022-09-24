@@ -943,12 +943,14 @@ export class RoundController extends GameController {
                 rang = true;
             }
             const secs: number = Math.floor(timeLeft / 1000);
-            this.expirations[expi] = patch(this.expirations[expi], h('div#expiration-' + position + '.expiration',
-                {class:
-                    {emerg, 'bar-glider': this.turnColor === this.mycolor}
-                },
-                [ngettext('%1 second to play the first move', '%1 seconds to play the first move', secs)]
-            ));
+            if (!isNaN(secs)) {
+                this.expirations[expi] = patch(this.expirations[expi], h('div#expiration-' + position + '.expiration',
+                    {class:
+                        {emerg, 'bar-glider': this.turnColor === this.mycolor}
+                    },
+                    [ngettext('%1 second to play the first move', '%1 seconds to play the first move', secs)]
+                ));
+            }
         }
     }
 
