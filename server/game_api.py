@@ -192,6 +192,15 @@ async def get_user_games(request):
     else:
         filter_cond["us"] = profileId
 
+    if "/import" not in request.path:
+        new_filter_cond = {
+            "$and": [
+                filter_cond,
+                {"y": {"$ne": 2}},
+            ]
+        }
+        filter_cond = new_filter_cond
+
     page_num = request.rel_url.query.get("p", 0)
 
     game_doc_list = []
