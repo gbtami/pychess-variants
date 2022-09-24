@@ -13,7 +13,7 @@
 .shinobi .cg-wrap piece.k-piece.white {
     background-image: url('../../images/pieces/shinobi/cburnett/wK.svg');
 }
-.shinobi .cg-wrap piece.m-piece.white {
+.shinobi .cg-wrap piece.t-piece.white {
     background-image: url('../../images/pieces/shinobi/cburnett/wM.svg');
 }
 .shinobi .cg-wrap piece.d-piece.white {
@@ -34,8 +34,8 @@
 .shinobi .cg-wrap piece.ph-piece.white {
     background-image: url('../../images/pieces/shinobi/cburnett/wN.svg');
 }
-.shinobi .cg-wrap piece.pm-piece.white {
-    background-image: url('../../images/pieces/shinobi/cburnett/wB.svg');
+.shinobi .cg-wrap piece.pt-piece.white {
+    background-image: url('../../images/pieces/cburnett/wH.svg');
 }
 
 .shinobi .cg-wrap piece.p-piece.black {
