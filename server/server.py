@@ -144,7 +144,7 @@ async def init_state(app):
     app["tourneysockets"] = {}
 
     # cache for profile game list page {tournamentId: tournament.name, ...}
-    app["tourneynames"] = {}
+    app["tourneynames"] = {lang: {} for lang in LANGUAGES}
 
     app["tournaments"] = {}
 
@@ -253,6 +253,7 @@ async def init_state(app):
                     bot=doc.get("title") == "BOT",
                     perfs=perfs,
                     enabled=doc.get("enabled", True),
+                    lang=doc.get("lang", "en"),
                 )
 
         await app["db"].tournament.create_index("startsAt")

@@ -321,9 +321,6 @@ async def index(request):
             if user.username not in (game.wplayer.username, game.bplayer.username):
                 game.spectators.add(user)
 
-            if game.tournamentId is not None:
-                tournament_name = await get_tournament_name(request.app, game.tournamentId)
-
     if view in ("profile", "level8win"):
         if (profileId in users) and not users[profileId].enabled:
             template = get_template("closed.html")
@@ -515,18 +512,16 @@ async def index(request):
             render["ct"] = json.dumps(game.crosstable)
             render["board"] = json.dumps(game.get_board(full=True))
             if game.tournamentId is not None:
+                tournament_name = await get_tournament_name(request, game.tournamentId)
                 render["tournamentid"] = game.tournamentId
                 render["tournamentname"] = tournament_name
                 render["wberserk"] = game.wberserk
                 render["bberserk"] = game.bberserk
 
     if tournamentId is not None:
+        tournament_name = await get_tournament_name(request, tournamentId)
         render["tournamentid"] = tournamentId
-        render["tournamentname"] = (
-            tournament.translated_name(lang_translation)
-            if tournament.frequency
-            else tournament.name
-        )
+        render["tournamentname"] = tournament_name
         render["description"] = tournament.description
         render["variant"] = tournament.variant
         render["chess960"] = tournament.chess960
@@ -612,6 +607,7 @@ async def index(request):
     try:
         text = await template.render_async(render)
     except Exception:
+        log.exception("ERROR: template.render_async() failed.")
         return web.HTTPFound("/")
 
     response = web.Response(text=html_minify(text), content_type="text/html")
@@ -638,6 +634,15 @@ async def select_lang(request):
     if lang is not None:
         referer = request.headers.get("REFERER")
         session = await aiohttp_session.get_session(request)
+        session_user = session.get("user_name")
+        users = request.app["users"]
+        if session_user in users:
+            user = users[session_user]
+            user.lang = lang
+            if user.db is not None:
+                await user.db.user.find_one_and_update(
+                    {"_id": user.username}, {"$set": {"lang": lang}}
+                )
         session["lang"] = lang
         return web.HTTPFound(referer)
     else:

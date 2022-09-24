@@ -2,6 +2,8 @@ import collections
 import logging
 from datetime import datetime, timezone
 
+import aiohttp_session
+
 from broadcast import discord_message
 from compress import C2V, V2C, C2R
 from const import (
@@ -18,6 +20,10 @@ from const import (
     SHIELD,
     VARIANTS,
     MAX_CHAT_LINES,
+    CATEGORIES,
+    TRANSLATED_FREQUENCY_NAMES,
+    TRANSLATED_PAIRING_SYSTEM_NAMES,
+    TRANSLATED_VARIANT_NAMES,
 )
 from newid import new_id
 from user import User
@@ -196,7 +202,6 @@ async def get_winners(app, shield, variant=None):
         winners = []
         cursor = app["db"].tournament.find(filter_cond, sort=[("startsAt", -1)], limit=limit)
         async for doc in cursor:
-            print("---", doc)
             winners.append((doc["winner"], doc["startsAt"].strftime("%Y.%m.%d"), doc["_id"]))
 
         wi[variant] = winners
@@ -281,7 +286,13 @@ async def get_latest_tournaments(app, lang_translation):
             tournament.nb_players = doc["nbPlayers"]
 
         if tournament.frequency:
-            tournament.name = tournament.translated_name(lang_translation)
+            tournament.name = translated_tournament_name(
+                tournament.variant,
+                tournament.chess960,
+                tournament.frequency,
+                tournament.system,
+                lang_translation,
+            )
 
         if doc["status"] == T_STARTED:
             started.append(tournament)
@@ -295,23 +306,56 @@ async def get_latest_tournaments(app, lang_translation):
     return (started, scheduled, completed)
 
 
-async def get_tournament_name(app, tournament_id):
+async def get_tournament_name(request, tournament_id):
     """Return Tournament name from app cache or from database"""
-    if tournament_id in app["tourneynames"]:
-        return app["tourneynames"][tournament_id]
+    lang = request.rel_url.query.get("l")
+    if lang is None:
+        session = await aiohttp_session.get_session(request)
+        session_user = session.get("user_name")
+        users = request.app["users"]
+        try:
+            lang = users[session_user].lang
+        except KeyError:
+            lang = "en"
 
-    tournaments = app["tournaments"]
+    if tournament_id in request.app["tourneynames"][lang]:
+        return request.app["tourneynames"][lang][tournament_id]
+
+    tournaments = request.app["tournaments"]
     name = ""
 
+    lang_translation = request.app["gettext"][lang]
+    lang_translation.install()
+
     if tournament_id in tournaments:
-        name = tournaments[tournament_id].name
+        tournament = tournaments[tournament_id]
+        if tournament.frequency:
+            name = translated_tournament_name(
+                tournament.variant,
+                tournament.chess960,
+                tournament.frequency,
+                tournament.system,
+                lang_translation,
+            )
+        else:
+            name = tournament.name
     else:
-        db = app["db"]
+        db = request.app["db"]
         doc = await db.tournament.find_one({"_id": tournament_id})
         if doc is not None:
-            name = doc["name"]
+            frequency = doc.get("fr", "")
+            if frequency:
+                name = translated_tournament_name(
+                    C2V[doc["v"]],
+                    bool(doc.get("z")),
+                    frequency,
+                    doc["system"],
+                    lang_translation,
+                )
+            else:
+                name = doc["name"]
 
-    app["tourneynames"][tournament_id] = name
+    request.app["tourneynames"][lang][tournament_id] = name
     return name
 
 
@@ -462,3 +506,21 @@ async def load_tournament(app, tournament_id, tournament_klass=None):
     tournament.nb_berserk = berserk
 
     return tournament
+
+
+def translated_tournament_name(variant, chess960, frequency, system, lang_translation):
+    # Weekly makruk category == SEAturday
+    frequency = "S" if variant in CATEGORIES["makruk"] and frequency == "w" else frequency
+    variant_name = variant + ("960" if chess960 else "")
+    if frequency == "s":
+        return "%s %s %s" % (
+            lang_translation.gettext(TRANSLATED_VARIANT_NAMES[variant_name]),
+            lang_translation.gettext(TRANSLATED_FREQUENCY_NAMES[frequency]),
+            lang_translation.gettext(TRANSLATED_PAIRING_SYSTEM_NAMES[system]),
+        )
+    else:
+        return "%s %s %s" % (
+            lang_translation.gettext(TRANSLATED_FREQUENCY_NAMES[frequency]),
+            lang_translation.gettext(TRANSLATED_VARIANT_NAMES[variant_name]),
+            lang_translation.gettext(TRANSLATED_PAIRING_SYSTEM_NAMES[system]),
+        )

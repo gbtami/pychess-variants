@@ -298,7 +298,7 @@ export class RoundController extends GameController {
             }
             buttons.push(h('button#count', _('Count')));
             if (this.variant.pass)
-                buttons.push(h('button#draw', { on: { click: () => { if (this.mycolor === this.turnColor) this.pass(); } }, props: { title: _('Pass') } }, _('Pass')));
+                buttons.push(h('button#draw', { on: { click: () => this.pass() }, props: { title: _('Pass') } }, _('Pass')));
             else
                 buttons.push(h('button#draw', { on: { click: () => this.draw() }, props: { title: _('Draw') } }, h('i', '½')));
             buttons.push(h('button#resign', { on: { click: () => this.resign() }, props: {title: _("Resign")} }, [h('i', {class: {"icon": true, "icon-flag-o": true} } ), ]));
@@ -827,10 +827,10 @@ export class RoundController extends GameController {
     goPly = (ply: number, plyVari = 0) => {
         super.goPly(ply, plyVari);
 
-        if (this.turnColor !== this.mycolor || this.result !== "*" || ply !== this.steps.length - 1) {
+        if (this.spectator || this.turnColor !== this.mycolor || this.result !== "*" || ply !== this.steps.length - 1) {
             this.chessground.set({ movable: { dests: undefined } });
         }
-        
+
         this.updateMaterial();
     }
 
@@ -943,12 +943,14 @@ export class RoundController extends GameController {
                 rang = true;
             }
             const secs: number = Math.floor(timeLeft / 1000);
-            this.expirations[expi] = patch(this.expirations[expi], h('div#expiration-' + position + '.expiration',
-                {class:
-                    {emerg, 'bar-glider': this.turnColor === this.mycolor}
-                },
-                [ngettext('%1 second to play the first move', '%1 seconds to play the first move', secs)]
-            ));
+            if (!isNaN(secs)) {
+                this.expirations[expi] = patch(this.expirations[expi], h('div#expiration-' + position + '.expiration',
+                    {class:
+                        {emerg, 'bar-glider': this.turnColor === this.mycolor}
+                    },
+                    [ngettext('%1 second to play the first move', '%1 seconds to play the first move', secs)]
+                ));
+            }
         }
     }
 
