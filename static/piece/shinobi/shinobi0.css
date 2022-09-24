@@ -13,7 +13,7 @@
 .shinobi .cg-wrap piece.k-piece.white {
     background-image: url('../../images/pieces/shinobi/merida/wK.svg');
 }
-.shinobi .cg-wrap piece.m-piece.white {
+.shinobi .cg-wrap piece.t-piece.white {
     background-image: url('../../images/pieces/shinobi/merida/wM.svg');
 }
 .shinobi .cg-wrap piece.d-piece.white {
@@ -34,8 +34,8 @@
 .shinobi .cg-wrap piece.ph-piece.white {
     background-image: url('../../images/pieces/shinobi/merida/wN.svg');
 }
-.shinobi .cg-wrap piece.pm-piece.white {
-    background-image: url('../../images/pieces/shinobi/merida/wB.svg');
+.shinobi .cg-wrap piece.pt-piece.white {
+    background-image: url('../../images/pieces/merida/wH.svg');
 }
 
 .shinobi .cg-wrap piece.p-piece.black {
