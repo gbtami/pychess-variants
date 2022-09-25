@@ -8,6 +8,7 @@ import { patch } from './document';
 import { uci2LastMove, UCIMove, cg2uci } from './chess';
 import { updateMovelist } from './movelist';
 
+
 export class PuzzleController extends AnalysisController {
     username: string;
     _id: string;
@@ -73,7 +74,7 @@ export class PuzzleController extends AnalysisController {
 
         // When we have no puzzle for a given variant just show start FEN
         if (!this.solution[0]) {
-            this.puzzleComplete();
+            this.puzzleComplete(false);
             return;
         }
 
@@ -108,7 +109,7 @@ export class PuzzleController extends AnalysisController {
             
     viewSolution() {
         this.solution.slice(this.ply).forEach((move: UCIMove) => this.makeMove(move));
-        this.puzzleComplete();
+        this.puzzleComplete(false);
     }
 
     doSendMove(orig: cg.Orig, dest: cg.Key, promo: string) {
@@ -133,7 +134,7 @@ export class PuzzleController extends AnalysisController {
             this.makeMove(this.solution[this.ply]);
             this.bestMove();
         } else {
-            this.puzzleComplete();
+            this.puzzleComplete(true);
         }
     }
 
@@ -217,12 +218,12 @@ export class PuzzleController extends AnalysisController {
         feedbackEl.classList.toggle('good', true);
     }
 
-    puzzleComplete() {
+    puzzleComplete(success: boolean) {
         this.completed = true;
         const feedbackEl = document.querySelector('.feedback') as HTMLInputElement;
         patch(feedbackEl, 
             h('div.feedback.after', [
-                h('div.complete', _('Puzzle complete!')),
+                h('div.complete', (success) ? _('Success!') : _('Puzzle complete!')),
                 h('div.more', [
                     h('a',
                         { on: { click: () => this.continueTraining() } },
