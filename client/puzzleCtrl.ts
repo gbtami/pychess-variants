@@ -120,6 +120,20 @@ export class PuzzleController extends AnalysisController {
 
         const move = cg2uci(orig + dest + promo) as UCIMove;
         if (this.solution[this.ply] !== move) {
+            if (this.moves.length + 1 === this.solution.length) {
+                this.ffishBoard.push(move);
+                const win_result = (this.turnColor === 'white' ? '1-0' : '0-1');
+                // last move can be any winning one
+                if (this.ffishBoard.result() === win_result){
+                    this.ffishBoard.pop();
+                    this.makeMove(move);
+                    this.puzzleComplete(true);
+                    return;
+                } else {
+                    this.ffishBoard.pop();
+                };
+            };
+
             this.goPly(this.ply);
             this.ffishBoard.setFen(this.fullfen);
             this.setDests();
