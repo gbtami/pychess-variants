@@ -1,3 +1,6 @@
+import pyffish as sf
+
+
 async def get_puzzle(request, puzzleId):
     puzzle = await request.app["db"].puzzle.find_one({"_id": puzzleId})
     return puzzle
@@ -10,7 +13,10 @@ async def next_puzzle(request, user):
         {"cooked": {"$ne": True}},
     ]
     if user.puzzle_variant is not None:
-        filters.append({"variant": user.puzzle_variant})
+        variant = user.puzzle_variant
+        filters.append({"variant": variant})
+    else:
+        variant = "chess"
 
     pipeline = [
         {"$match": {"$and": filters}},
@@ -27,9 +33,9 @@ async def next_puzzle(request, user):
     if puzzle is None:
         puzzle = {
             "_id": "0",
-            "variant": "chess",
-            "fen": "rnbqkbnr/pppp1ppp/8/4p3/6P1/5P2/PPPPP2P/RNBQKBNR[] b KQkq - 0 1",
-            "moves": "d8h4",
+            "variant": variant,
+            "fen": sf.start_fen(variant),
+            "moves": "",
         }
 
     user.puzzles.append(puzzle["_id"])

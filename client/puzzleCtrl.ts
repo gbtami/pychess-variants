@@ -8,6 +8,7 @@ import { patch } from './document';
 import { uci2LastMove, UCIMove, cg2uci } from './chess';
 import { updateMovelist } from './movelist';
 
+
 export class PuzzleController extends AnalysisController {
     username: string;
     _id: string;
@@ -71,6 +72,12 @@ export class PuzzleController extends AnalysisController {
 
         this.renderInfos();
 
+        // When we have no puzzle for a given variant just show start FEN
+        if (!this.solution[0]) {
+            this.puzzleComplete(false);
+            return;
+        }
+
         function showSolution() {
             const viewSolutionEl = document.querySelector('.view-solution') as HTMLElement;
             patch(viewSolutionEl, h('div.view-solution', { class: { show: true } }));
@@ -102,7 +109,7 @@ export class PuzzleController extends AnalysisController {
             
     viewSolution() {
         this.solution.slice(this.ply).forEach((move: UCIMove) => this.makeMove(move));
-        this.puzzleComplete();
+        this.puzzleComplete(false);
     }
 
     doSendMove(orig: cg.Orig, dest: cg.Key, promo: string) {
@@ -113,6 +120,20 @@ export class PuzzleController extends AnalysisController {
 
         const move = cg2uci(orig + dest + promo) as UCIMove;
         if (this.solution[this.ply] !== move) {
+            if (this.moves.length + 1 === this.solution.length) {
+                this.ffishBoard.push(move);
+                const win_result = (this.turnColor === 'white' ? '1-0' : '0-1');
+                // last move can be any winning one
+                if (this.ffishBoard.result() === win_result){
+                    this.ffishBoard.pop();
+                    this.makeMove(move);
+                    this.puzzleComplete(true);
+                    return;
+                } else {
+                    this.ffishBoard.pop();
+                };
+            };
+
             this.goPly(this.ply);
             this.ffishBoard.setFen(this.fullfen);
             this.setDests();
@@ -127,7 +148,7 @@ export class PuzzleController extends AnalysisController {
             this.makeMove(this.solution[this.ply]);
             this.bestMove();
         } else {
-            this.puzzleComplete();
+            this.puzzleComplete(true);
         }
     }
 
@@ -211,12 +232,12 @@ export class PuzzleController extends AnalysisController {
         feedbackEl.classList.toggle('good', true);
     }
 
-    puzzleComplete() {
+    puzzleComplete(success: boolean) {
         this.completed = true;
         const feedbackEl = document.querySelector('.feedback') as HTMLInputElement;
         patch(feedbackEl, 
             h('div.feedback.after', [
-                h('div.complete', _('Puzzle complete!')),
+                h('div.complete', (success) ? _('Success!') : _('Puzzle complete!')),
                 h('div.more', [
                     h('a',
                         { on: { click: () => this.continueTraining() } },
