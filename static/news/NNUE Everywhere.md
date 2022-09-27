@@ -18,7 +18,7 @@ The first time I heard about neural network usage in chess engine programming wa
 Later he joined the Google DeepMind team, and they developed the legendary [AlphaZero](https://arxiv.org/abs/1712.01815) in 2017, a general reinforcement learning algorithm that masters chess, shogi, and Go through self-play.
 It was a huge sensation, but it needed 4 first generation TPUs to run and an enormous amount of TPUs to train the net, meaning it was not available for the masses.
 
-Open source developers started to work on similar projects immediately, and in 2018 Yu Nasu introduced a very powerful new approach, NNUE (ƎUИИ, Efficiently Updatable Neural Networks), wich was used in Shogi engines later.
+Open source developers started to work on similar projects immediately, and in 2018 Yu Nasu introduced a very powerful new approach, NNUE (ƎUИИ, Efficiently Updatable Neural Networks), which was used in Shogi engines later.
 
 After long debates, with the help of Japanese programmer Nodchip, Stockfish deveopers released Stockfish 12 NNUE in 2020.
 
