@@ -35,6 +35,10 @@ from const import (
     T_STARTED,
     MAX_CHAT_LINES,
     SCHEDULE_MAX_DAYS,
+    ARENA,
+    WEEKLY,
+    MONTHLY,
+    SHIELD,
 )
 from generate_crosstable import generate_crosstable
 from generate_highscore import generate_highscore
@@ -53,10 +57,16 @@ from settings import (
     static_url,
 )
 from user import User
-from tournaments import load_tournament, get_scheduled_tournaments
+from tournaments import load_tournament, get_scheduled_tournaments, translated_tournament_name
 from twitch import Twitch
 from youtube import Youtube
-from scheduler import create_scheduled_tournaments, new_scheduled_tournaments
+from scheduler import (
+    create_scheduled_tournaments,
+    new_scheduled_tournaments,
+    MONTHLY_VARIANTS,
+    SEATURDAY,
+    SHIELDS,
+)
 from videos import VIDEOS
 
 log = logging.getLogger(__name__)
@@ -143,7 +153,7 @@ async def init_state(app):
     # one dict per tournament! {tournamentId: {user.username: user.tournament_sockets, ...}, ...}
     app["tourneysockets"] = {}
 
-    # cache for profile game list page {tournamentId: tournament.name, ...}
+    # translated scheduled tournament names {(variant, frequency, t_type): tournament.name, ...}
     app["tourneynames"] = {lang: {} for lang in LANGUAGES}
 
     app["tournaments"] = {}
@@ -233,6 +243,19 @@ async def init_state(app):
 
         app["jinja"][lang] = env
         app["gettext"][lang] = translation
+
+        translation.install()
+
+        for variant in VARIANTS:
+            if variant in MONTHLY_VARIANTS or variant in SEATURDAY:
+                tname = translated_tournament_name(variant, MONTHLY, ARENA, translation)
+                app["tourneynames"][lang][(variant, MONTHLY, ARENA)] = tname
+            if variant in SEATURDAY:
+                tname = translated_tournament_name(variant, WEEKLY, ARENA, translation)
+                app["tourneynames"][lang][(variant, WEEKLY, ARENA)] = tname
+            if variant in SHIELDS:
+                tname = translated_tournament_name(variant, SHIELD, ARENA, translation)
+                app["tourneynames"][lang][(variant, SHIELD, ARENA)] = tname
 
     if app["db"] is None:
         return

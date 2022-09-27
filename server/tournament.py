@@ -582,7 +582,7 @@ class Tournament(ABC):
         await self.broadcast_spotlight()
 
     async def broadcast_spotlight(self):
-        spotlights = tournament_spotlights(self.app["tournaments"])
+        spotlights = tournament_spotlights(self.app)
         lobby_sockets = self.app["lobbysockets"]
         response = {"type": "spotlights", "items": spotlights}
         await lobby_broadcast(lobby_sockets, response)
