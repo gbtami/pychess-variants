@@ -6,7 +6,7 @@ import { Chessground } from 'chessgroundx';
 
 import { newWebsocket } from './socket';
 import { JSONObject } from './types';
-import { _, ngettext } from './i18n';
+import { _, ngettext, languageSettings } from './i18n';
 import { patch } from './document';
 import { chatMessage, chatView, IChatController } from './chat';
 import { validFen, VARIANTS, selectVariant, Variant } from './chess';
@@ -677,11 +677,13 @@ export class LobbyController implements IChatController {
         const chess960 = spotlight.chess960;
         const variantName = variant.displayName(chess960);
         const dataIcon = variant.icon(chess960);
+        const lang = languageSettings.value;
+        const name = spotlight.names[lang] ?? spotlight.names['en'];
 
         return h('a.tour-spotlight', { attrs: { "href": "/tournament/" + spotlight.tid } }, [
             h('i.icon', { attrs: { "data-icon": dataIcon } }),
             h('span.content', [
-                h('span.name', spotlight.name),
+                h('span.name', name),
                 h('span.more', [
                     h('variant', variantName + ' • '),
                     h('nb', ngettext('%1 player', '%1 players', spotlight.nbPlayers) + ' • '),

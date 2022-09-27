@@ -134,7 +134,6 @@ function renderGames(model: PyChessModel, games: Game[]) {
 
 function loadGames(model: PyChessModel, page: number) {
     const lang = languageSettings.value;
-    console.log(lang);
 
     const xmlhttp = new XMLHttpRequest();
     let url = "/api/" + model["profileid"]

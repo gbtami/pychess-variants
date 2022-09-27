@@ -472,7 +472,7 @@ async def index(request):
         render["icons"] = VARIANT_ICONS
         render["pairing_system_name"] = pairing_system_name
         render["time_control_str"] = time_control_str
-        render["tables"] = await get_latest_tournaments(request.app, lang_translation)
+        render["tables"] = await get_latest_tournaments(request.app, lang)
         render["admin"] = user.username in ADMINS
 
     if (gameId is not None) and gameId != "variants":
