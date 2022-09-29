@@ -18,7 +18,7 @@ import { patch } from '../document';
 // import { variantsIni } from '../variantsIni';
 import { Chart } from "highcharts";
 import { PyChessModel } from "../types";
-import {Ceval, Step} from "../messages";
+import {Ceval, MsgBoard, Step} from "../messages";
 import {ChessgroundController} from "./ChessgroundCtrl";
 import {sound} from "../sound";
 
@@ -243,6 +243,9 @@ export default class AnalysisController {
             this.vpv = document.getElementById('pv') as HTMLElement;
         }
 
+        this.onMsgBoard(model["board"] as MsgBoard);
+
+
         // if (this.variant.materialPoint) {todo:niki:not relevant now, probably ever
         //     const miscW = document.getElementById('misc-infow') as HTMLElement;
         //     const miscB = document.getElementById('misc-infob') as HTMLElement;
@@ -314,26 +317,26 @@ export default class AnalysisController {
         };
     }
 
-    // private drawAnalysisChart = (withRequest: boolean) => {
-    //     console.log("drawAnalysisChart "+withRequest)
-    //     // if (withRequest) {
-    //     //     if (this.model["anon"] === 'True') {
-    //     //         alert(_('You need an account to do that.'));
-    //     //         return;
-    //     //     }
-    //     //     const element = document.getElementById('request-analysis') as HTMLElement;
-    //     //     if (element !== null) element.style.display = 'none';
-    //     //
-    //     //     this.doSend({ type: "analysis", username: this.model["username"], gameId: this.gameId });
-    //     //     const loaderEl = document.getElementById('loader') as HTMLElement;
-    //     //     loaderEl.style.display = 'block';
-    //     // }
-    //     // const chartEl = document.getElementById('chart') as HTMLElement;
-    //     // chartEl.style.display = 'block';
-    //     // analysisChart(this);
-    // }
+    private drawAnalysisChart = (withRequest: boolean) => {
+        console.log("drawAnalysisChart "+withRequest)
+        // if (withRequest) {
+        //     if (this.model["anon"] === 'True') {
+        //         alert(_('You need an account to do that.'));
+        //         return;
+        //     }
+        //     const element = document.getElementById('request-analysis') as HTMLElement;
+        //     if (element !== null) element.style.display = 'none';
+        //
+        //     this.doSend({ type: "analysis", username: this.model["username"], gameId: this.gameId });
+        //     const loaderEl = document.getElementById('loader') as HTMLElement;
+        //     loaderEl.style.display = 'block';
+        // }
+        // const chartEl = document.getElementById('chart') as HTMLElement;
+        // chartEl.style.display = 'block';
+        // analysisChart(this);
+    }
 
-    private checkStatus = (msg: MsgAnalysisBoard) => {
+    private checkStatus = (msg: MsgAnalysisBoard | MsgBoard) => {
         if ((msg.gameId !== this.gameId && !this.isAnalysisBoard) || this.model["embed"]) return;
 
         // but on analysis page we always present pgn move list leading to current shown position!
@@ -384,77 +387,77 @@ export default class AnalysisController {
     //     }
     // }
 
-    // private onMsgBoard = (msg: MsgBoard) => {
-    //     if (msg.gameId !== this.gameId) return;
-    //
-    //     this.importedBy = msg.by;
-    //
-    //     // console.log("got board msg:", msg);
-    //     this.ply = msg.ply
-    //     this.fullfen = msg.fen;
-    //     this.dests = new Map(Object.entries(msg.dests)) as cg.Dests;
-    //     // list of legal promotion moves
-    //     this.promotions = msg.promo;
-    //
-    //     const parts = msg.fen.split(" ");
-    //     this.turnColor = parts[1] === "w" ? "white" : "black";
-    //
-    //     this.result = msg.result;
-    //     this.status = msg.status;
-    //
-    //     if (msg.steps.length > 1) {
-    //         this.steps = [];
-    //
-    //         msg.steps.forEach((step, ply) => {
-    //             if (step.analysis !== undefined) {
-    //                 step.ceval = step.analysis;
-    //                 const scoreStr = this.buildScoreStr(ply % 2 === 0 ? "w" : "b", step.analysis);
-    //                 step.scoreStr = scoreStr;
-    //             }
-    //             this.steps.push(step);
-    //             });
-    //         updateMovelist(this);
-    //
-    //         if (this.steps[0].analysis !== undefined) {
-    //             this.vinfo = patch(this.vinfo, h('info#info', '-'));
-    //             this.drawAnalysisChart(false);
-    //         }
-    //     } else {
-    //         if (msg.ply === this.steps.length) {
-    //             const step: Step = {
-    //                 'fen': msg.fen,
-    //                 'move': msg.lastMove,
-    //                 'check': msg.check,
-    //                 'turnColor': this.turnColor,
-    //                 'san': msg.steps[0].san,
-    //                 };
-    //             this.steps.push(step);
-    //             updateMovelist(this);
-    //         }
-    //     }
-    //
-    //     const lastMove = uci2LastMove(msg.lastMove);
-    //     const step = this.steps[this.steps.length - 1];
-    //     const capture = (lastMove.length > 0) && ((this.chessground.state.pieces.get(lastMove[1]) && step.san?.slice(0, 2) !== 'O-') || (step.san?.slice(1, 2) === 'x'));
-    //
-    //     if (lastMove.length > 0 && (this.turnColor === this.mycolor || this.spectator)) {
-    //         sound.moveSound(this.variant, capture);
-    //     }
-    //     this.checkStatus(msg);
-    //
-    //     if (this.spectator) {
-    //         this.chessground.set({
-    //             fen: this.fullfen,
-    //             turnColor: this.turnColor,
-    //             check: msg.check,
-    //             lastMove: lastMove,
-    //         });
-    //     }
-    //     if (this.model["ply"] > 0) {
-    //         this.ply = this.model["ply"]
-    //         selectMove(this, this.ply);
-    //     }
-    // }
+    private onMsgBoard = (msg: MsgBoard) => {
+        if (msg.gameId !== this.gameId) return;
+
+        this.importedBy = msg.by;
+
+        // console.log("got board msg:", msg);
+        this.ply = msg.ply
+        // this.fullfen = msg.fen;
+        // this.dests = new Map(Object.entries(msg.dests)) as cg.Dests;
+        // list of legal promotion moves
+        // this.promotions = msg.promo;
+
+        // const parts = msg.fen.split(" ");
+        // this.turnColor = parts[1] === "w" ? "white" : "black";
+
+        this.result = msg.result;
+        this.status = msg.status;
+
+        if (msg.steps.length > 1) {
+            this.steps = [];
+
+            msg.steps.forEach((step, ply) => {
+                if (step.analysis !== undefined) {
+                    step.ceval = step.analysis;
+                    const scoreStr = this.buildScoreStr(ply % 2 === 0 ? "w" : "b", step.analysis);
+                    step.scoreStr = scoreStr;
+                }
+                this.steps.push(step);
+                });
+            updateMovelist(this);
+
+            if (this.steps[0].analysis !== undefined) {
+                this.vinfo = patch(this.vinfo, h('info#info', '-'));
+                this.drawAnalysisChart(false);
+            }
+        } else {/*
+            if (msg.ply === this.steps.length) {
+                const step: Step = {
+                    'fen': msg.fen,
+                    'move': msg.lastMove,
+                    'check': msg.check,
+                    'turnColor': this.turnColor,
+                    'san': msg.steps[0].san,
+                    };
+                this.steps.push(step);
+                updateMovelist(this);
+            }*/
+        }
+
+        // const lastMove = uci2LastMove(msg.lastMove);
+        // const step = this.steps[this.steps.length - 1];
+        // const capture = (lastMove.length > 0) && ((this.chessground.state.pieces.get(lastMove[1]) && step.san?.slice(0, 2) !== 'O-') || (step.san?.slice(1, 2) === 'x'));
+        //
+        // if (lastMove.length > 0 && (this.turnColor === this.mycolor || this.spectator)) {
+        //     sound.moveSound(this.variant, capture);
+        // }
+        this.checkStatus(msg);
+
+        // if (this.spectator) {
+        //     this.chessground.set({
+        //         fen: this.fullfen,
+        //         turnColor: this.turnColor,
+        //         check: msg.check,
+        //         lastMove: lastMove,
+        //     });
+        // }
+        if (this.model["ply"] > 0) {
+            this.ply = this.model["ply"]
+            selectMove(this, this.ply);
+        }
+    }
 
     moveIndex = (ply: number) => {
       return Math.floor((ply - 1) / 2) + 1 + (ply % 2 === 1 ? '.' : '...');
@@ -1001,22 +1004,22 @@ export default class AnalysisController {
     //     }
     // }
 
-    // private buildScoreStr = (color: string, analysis: Ceval) => {
-    //     const score = analysis['s'];
-    //     let scoreStr = '';
-    //     let ceval : number;
-    //     if (score['mate'] !== undefined) {
-    //         ceval = score['mate']
-    //         const sign = ((color === 'b' && Number(ceval) > 0) || (color === 'w' && Number(ceval) < 0)) ? '-': '';
-    //         scoreStr = '#' + sign + Math.abs(Number(ceval));
-    //     } else if (score['cp'] !== undefined) {
-    //         ceval = score['cp']
-    //         let nscore = Number(ceval) / 100.0;
-    //         if (color === 'b') nscore = -nscore;
-    //         scoreStr = nscore.toFixed(1);
-    //     }
-    //     return scoreStr;
-    // }
+    private buildScoreStr = (color: string, analysis: Ceval) => {
+        const score = analysis['s'];
+        let scoreStr = '';
+        let ceval : number;
+        if (score['mate'] !== undefined) {
+            ceval = score['mate']
+            const sign = ((color === 'b' && Number(ceval) > 0) || (color === 'w' && Number(ceval) < 0)) ? '-': '';
+            scoreStr = '#' + sign + Math.abs(Number(ceval));
+        } else if (score['cp'] !== undefined) {
+            ceval = score['cp']
+            let nscore = Number(ceval) / 100.0;
+            if (color === 'b') nscore = -nscore;
+            scoreStr = nscore.toFixed(1);
+        }
+        return scoreStr;
+    }
 
     // private onMsgAnalysis = (msg: MsgAnalysis) => {
     //     console.log(msg);

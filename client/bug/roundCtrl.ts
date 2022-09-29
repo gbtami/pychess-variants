@@ -250,6 +250,8 @@ export class RoundController implements IChatController/*extends GameController 
         //     });
         // }
 
+        this.ply = isNaN(model["ply"]) ? 0 : model["ply"];
+
         // initialize users
         this.wplayer = model["wplayer"];
         this.bplayer = model["bplayer"];
