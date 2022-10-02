@@ -33,7 +33,7 @@
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^22.0.0",
-    "@rollup/plugin-node-resolve": "^13.0.5",
+    "@rollup/plugin-node-resolve": "^14.1.0",
     "@rollup/plugin-typescript": "^8.2.5",
     "@types/chai": "^4.2.12",
     "@types/gettext.js": "^1.0.0",
