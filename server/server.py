@@ -142,6 +142,7 @@ async def init_state(app):
         app["db"] = None
 
     app["users"] = {
+        "PyChess": User(app, bot=True, username="PyChess"),
         "Random-Mover": User(app, bot=True, username="Random-Mover"),
         "Fairy-Stockfish": User(app, bot=True, username="Fairy-Stockfish"),
         "Discord-Relay": User(app, anon=True, username="Discord-Relay"),
@@ -184,6 +185,8 @@ async def init_state(app):
 
     # last game played
     app["tv"] = None
+
+    app["daily-puzzles"] = {}  # {date: puzzle, ...}
 
     app["twitch"] = Twitch(app)
     if not DEV:

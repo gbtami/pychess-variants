@@ -430,6 +430,7 @@ iframe {
   flex-flow: column nowrap;
   justify-content: center;
   margin: 2em 0 0 0;
+  position: relative;
 }
 .sidebar-second.analysis {
   justify-content: none;
@@ -474,12 +475,6 @@ div.pgn {
   height: 30vh;
   background-color: var(--bg-color2);
   border: 1px solid var(--input-border);
-}
-under-right {
-  grid-area: utable;
-  flex: 1;
-  display: flex;
-  flex-flow: column nowrap;
 }
 
 div.about,
@@ -1010,7 +1005,6 @@ button.paste-url {
   margin: 4px 2px;
   cursor: pointer;
   box-shadow: var(--base-shadow);
-  border-radius: 3px;
 }
 .lobby-button {
   width: 100%;
@@ -1388,7 +1382,8 @@ table#seeks {
 #seekbuttons {
   display: flex;
   flex-flow: column;
-  margin: 0 1em 0 1em;
+  flex: 1 1 auto;
+  justify-content: center;
 }
 #seekbuttons > button {
   color: var(--button-text);

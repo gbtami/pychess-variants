@@ -57,6 +57,7 @@ get_routes = (
     ("/games", index),
     ("/tv", index),
     ("/puzzle", index),
+    ("/puzzle/daily", index),
     (r"/puzzle/{puzzleId:\w{5}}", index),
     ("/puzzle/{variant}", index),
     ("/analysis/{variant}", index),
