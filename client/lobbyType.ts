@@ -11,7 +11,7 @@ export interface Spotlight {
     variant: string;
     chess960: boolean;
     nbPlayers: number;
-    name: string;
+    names: {[key: string]: string};
     startsAt: string;
     tid: string;
 }
