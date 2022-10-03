@@ -11,6 +11,7 @@ import { _, ngettext, languageSettings } from './i18n';
 import { patch } from './document';
 import { chatMessage, chatView, IChatController } from './chat';
 import { validFen, VARIANTS, selectVariant, Variant, uci2LastMove } from './chess';
+import { boardSettings } from './boardSettings';
 import { timeControlStr } from './view';
 import { notify } from './notification';
 import { PyChessModel } from "./types";
@@ -703,6 +704,9 @@ export class LobbyController implements IChatController {
 
     renderTvGame() {
         if (this.tvGame === undefined) return;
+
+        boardSettings.assetURL = this.assetURL;
+        boardSettings.updateBoardAndPieceStyles();
 
         const game = this.tvGame;
         const variant = VARIANTS[game.variant];
