@@ -159,6 +159,7 @@ async def init_state(app):
     app["tournaments"] = {}
 
     # lichess allows 7 team message per week, so we will send one (comulative) per day only
+    # TODO: save/restore from db
     app["sent_lichess_team_msg"] = []
 
     # one deque per tournament! {tournamentId: collections.deque([], MAX_CHAT_LINES), ...}
@@ -174,6 +175,7 @@ async def init_state(app):
     app["shield"] = {}
     app["shield_owners"] = {}  # {variant: username, ...}
 
+    # TODO: save/restore monthly stats from db when current month is over
     app["stats"] = {}
     app["stats_humans"] = {}
 

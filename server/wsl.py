@@ -38,6 +38,7 @@ async def lobby_socket_handler(request):
 
     users = request.app["users"]
     sockets = request.app["lobbysockets"]
+    games = request.app["games"]
     seeks = request.app["seeks"]
     db = request.app["db"]
     invites = request.app["invites"]
@@ -266,6 +267,9 @@ async def lobby_socket_handler(request):
                         streams = twitch.live_streams + youtube.live_streams
                         if len(streams) > 0:
                             await ws.send_json({"type": "streams", "items": streams})
+
+                        if (request.app["tv"] is not None):
+                            await ws.send_json(games[request.app["tv"]].tv_game_json)
 
                     elif data["type"] == "lobbychat":
                         if user.username.startswith("Anon-"):

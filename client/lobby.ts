@@ -3,19 +3,20 @@ import WebsocketHeartbeatJs from 'websocket-heartbeat-js';
 import { h, VNode } from 'snabbdom';
 
 import { Chessground } from 'chessgroundx';
+import { Api } from "chessgroundx/api";
 
 import { newWebsocket } from './socket';
 import { JSONObject } from './types';
 import { _, ngettext, languageSettings } from './i18n';
 import { patch } from './document';
 import { chatMessage, chatView, IChatController } from './chat';
-import { validFen, VARIANTS, selectVariant, Variant } from './chess';
+import { validFen, VARIANTS, selectVariant, Variant, uci2LastMove } from './chess';
 import { timeControlStr } from './view';
 import { notify } from './notification';
 import { PyChessModel } from "./types";
-import { MsgChat, MsgFullChat } from "./messages";
+import { MsgBoard, MsgChat, MsgFullChat } from "./messages";
 import { variantPanels } from './lobby/layer1';
-import { Stream, Spotlight, MsgInviteCreated, MsgHostCreated, MsgGetSeeks, MsgNewGame, MsgGameInProgress, MsgUserConnected, MsgPing, MsgError, MsgShutdown, MsgGameCounter, MsgUserCounter, MsgStreams, MsgSpotlights, Seek, CreateMode } from './lobbyType';
+import { Stream, Spotlight, MsgInviteCreated, MsgHostCreated, MsgGetSeeks, MsgNewGame, MsgGameInProgress, MsgUserConnected, MsgPing, MsgError, MsgShutdown, MsgGameCounter, MsgUserCounter, MsgStreams, MsgSpotlights, Seek, CreateMode, TvGame } from './lobbyType';
 
 export class LobbyController implements IChatController {
     sock: WebsocketHeartbeatJs;
@@ -36,6 +37,9 @@ export class LobbyController implements IChatController {
     seeks: Seek[];
     streams: VNode | HTMLElement;
     spotlights: VNode | HTMLElement;
+    tvGame: TvGame;
+    tvGameId: string;
+    tvGameChessground: Api;
     minutesValues = [
         0, 1 / 4, 1 / 2, 3 / 4, 1, 3 / 2, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
         17, 18, 19, 20, 25, 30, 35, 40, 45, 60, 75, 90
@@ -693,6 +697,46 @@ export class LobbyController implements IChatController {
         ]);
     }
 
+    renderEmptyTvGame() {
+        patch(document.getElementById('tv-game') as HTMLElement, h('div#tv-game.empty'));
+    }
+
+    renderTvGame() {
+        if (this.tvGame === undefined) return;
+
+        const game = this.tvGame;
+        const variant = VARIANTS[game.variant];
+        const elements = [
+        h('div.player', [h('tv-user', [h('player-title', game.bt), ' ' + game.b + ' ', h('rating', game.br)])]),
+        h(`div#mainboard.${variant.board}.${variant.piece}.${variant.boardMark}`, {
+            class: { "with-pockets": variant.pocket },
+            style: { "--ranks": (variant.pocket) ? String(variant.boardHeight) : "undefined" },
+            on: { click: () => window.location.assign('/' + game.gameId) }
+            }, [
+                h(`div.cg-wrap.${variant.cg}.mini`, {
+                    hook: {
+                        insert: vnode => {
+                            const cg = Chessground(vnode.elm as HTMLElement,  {
+                                fen: game.fen,
+                                lastMove: game.lastMove,
+                                dimensions: variant.boardDimensions,
+                                coordinates: false,
+                                viewOnly: true,
+                                addDimensionsCssVarsTo: document.body,
+                                pocketRoles: variant.pocketRoles,
+                            });
+                            this.tvGameChessground = cg;
+                            this.tvGameId = game.gameId;
+                        }
+                    }
+                }),
+        ]),
+        h('div.player', [h('tv-user', [h('player-title', game.wt), ' ' + game.w + ' ', h('rating', game.wr)])]),
+        ];
+
+        patch(document.getElementById('tv-game') as HTMLElement, h('div#tv-game', elements));
+    }
+
     onMessage(evt: MessageEvent) {
         // console.log("<+++ lobby onMessage():", evt.data);
         if (evt.data === '/n') return;
@@ -718,6 +762,12 @@ export class LobbyController implements IChatController {
                 break;
             case "ping":
                 this.onMsgPing(msg);
+                break;
+            case "tv_game":
+                this.onMsgTvGame(msg);
+                break;
+            case "board":
+                this.onMsgBoard(msg);
                 break;
             case "g_cnt":
                 this.onMsgGameCounter(msg);
@@ -816,6 +866,25 @@ export class LobbyController implements IChatController {
             h('a.cont-link', { attrs: { href: '/calendar' } }, _('Tournament calendar') + ' »'),
         ]));
     }
+
+    private onMsgTvGame(msg: TvGame) {
+        this.tvGame = msg;
+        this.renderEmptyTvGame();
+        this.renderTvGame();
+    }
+
+    private onMsgBoard = (msg: MsgBoard) => {
+        if (this.tvGameChessground === undefined || this.tvGameId !== msg.gameId) {
+            return;
+        };
+
+        this.tvGameChessground.set({
+            fen: msg.fen,
+            turnColor: msg.fen.split(" ")[1] === "w" ? "white" : "black",
+            check: msg.check,
+            lastMove: uci2LastMove(msg.lastMove),
+        });
+    }
 }
 
 function seekHeader() {
@@ -872,6 +941,7 @@ export function lobbyView(model: PyChessModel): VNode[] {
             h('a.reflist', { attrs: { href: '/stats' } }, _("Stats")),
             h('a.reflist', { attrs: { href: '/about' } }, _("About")),
         ]),
+        h('div.tv', [h('div#tv-game')]),
         h('under-lobby', [
             h('posts', [
                 h('a.post', { attrs: {href: '/news/NNUE_Everywhere'} }, [
