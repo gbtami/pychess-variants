@@ -116,6 +116,9 @@ export class LobbyController implements IChatController {
         const e = document.getElementById("fen") as HTMLInputElement;
         if (this.fen !== "")
             e.value = this.fen;
+
+        boardSettings.assetURL = model.assetURL;
+        boardSettings.updateBoardAndPieceStyles();
     }
 
     doSend(message: JSONObject) {
@@ -699,14 +702,11 @@ export class LobbyController implements IChatController {
     }
 
     renderEmptyTvGame() {
-        patch(document.getElementById('tv-game') as HTMLElement, h('div#tv-game.empty'));
+        patch(document.getElementById('tv-game') as HTMLElement, h('a#tv-game.empty'));
     }
 
     renderTvGame() {
         if (this.tvGame === undefined) return;
-
-        boardSettings.assetURL = this.assetURL;
-        boardSettings.updateBoardAndPieceStyles();
 
         const game = this.tvGame;
         const variant = VARIANTS[game.variant];
@@ -722,7 +722,7 @@ export class LobbyController implements IChatController {
                         insert: vnode => {
                             const cg = Chessground(vnode.elm as HTMLElement,  {
                                 fen: game.fen,
-                                lastMove: game.lastMove,
+                                lastMove: uci2LastMove(game.lastMove),
                                 dimensions: variant.boardDimensions,
                                 coordinates: false,
                                 viewOnly: true,
@@ -738,7 +738,10 @@ export class LobbyController implements IChatController {
         h('div.player', [h('tv-user', [h('player-title', game.wt), ' ' + game.w + ' ', h('rating', game.wr)])]),
         ];
 
-        patch(document.getElementById('tv-game') as HTMLElement, h('div#tv-game', elements));
+        patch(document.getElementById('tv-game') as HTMLElement, h('a#tv-game', elements));
+
+        boardSettings.assetURL = this.assetURL;
+        boardSettings.updateBoardAndPieceStyles();
     }
 
     onMessage(evt: MessageEvent) {
@@ -911,17 +914,35 @@ function runSeeks(vnode: VNode, model: PyChessModel) {
 }
 
 export function lobbyView(model: PyChessModel): VNode[] {
+    const puzzle = JSON.parse(model.puzzle);
+    const variant = VARIANTS[puzzle.variant];
+    const turnColor = puzzle.fen.split(" ")[1];
+    const first = _(variant.firstColor);
+    const second = _(variant.secondColor);
 
-    /* TODO move this to appropriate place
-    // Get the modal
-    const modal = document.getElementById('id01')!;
-
-    // When the user clicks anywhere outside of the modal, close it
-    document.addEventListener("click", function(event) {
-        if (!modal.contains(event.target as Node))
-            modal.style.display = "none";
-    });
-    */
+    const dailyPuzzle = [
+        h('span.text', _('Puzzle of the day')),
+        h(`div#mainboard.${variant.board}.${variant.piece}.${variant.boardMark}`, {
+            class: { "with-pockets": variant.pocket },
+            style: { "--ranks": (variant.pocket) ? String(variant.boardHeight) : "undefined" },
+            }, [
+                h(`div.cg-wrap.${variant.cg}.mini`, {
+                    hook: {
+                        insert: vnode => {
+                            Chessground(vnode.elm as HTMLElement,  {
+                                fen: puzzle.fen,
+                                dimensions: variant.boardDimensions,
+                                coordinates: false,
+                                viewOnly: true,
+                                addDimensionsCssVarsTo: document.body,
+                                pocketRoles: variant.pocketRoles,
+                            });
+                        }
+                    }
+                }),
+        ]),
+        h('span.text', _('%1 to play', (turnColor === 'w') ? first : second)),
+    ];
 
     return [
         h('aside.sidebar-first', [
@@ -935,7 +956,13 @@ export function lobbyView(model: PyChessModel): VNode[] {
             ]),
         ]),
         h('div#variants-catalog'),
-        h('aside.sidebar-second', [ h('div#seekbuttons') ]),
+        h('aside.sidebar-second', [
+            h('div#seekbuttons'),
+            h('div.lobby-count', [
+                h('a', { attrs: { href: '/players' } }, [ h('counter#u_cnt') ]),
+                h('a', { attrs: { href: '/games' } }, [ h('counter#g_cnt') ]),
+            ]),
+        ]),
         h('under-left', [
             h('a.reflist', { attrs: { href: 'https://discord.gg/aPs8RKr', rel: "noopener", target: "_blank" } }, 'Discord'),
             h('a.reflist', { attrs: { href: 'https://github.com/gbtami/pychess-variants', rel: "noopener", target: "_blank" } }, 'Github'),
@@ -945,7 +972,7 @@ export function lobbyView(model: PyChessModel): VNode[] {
             h('a.reflist', { attrs: { href: '/stats' } }, _("Stats")),
             h('a.reflist', { attrs: { href: '/about' } }, _("About")),
         ]),
-        h('div.tv', [h('div#tv-game')]),
+        h('div.tv', [h('a#tv-game', { attrs: {href: '/tv'} })]),
         h('under-lobby', [
             h('posts', [
                 h('a.post', { attrs: {href: '/news/NNUE_Everywhere'} }, [
@@ -1040,9 +1067,6 @@ export function lobbyView(model: PyChessModel): VNode[] {
                 */ 
             ]),
         ]),
-        h('under-right', [
-            h('a', { attrs: { href: '/players' } }, [ h('counter#u_cnt') ]),
-            h('a', { attrs: { href: '/games' } }, [ h('counter#g_cnt') ]),
-        ]),
+        h('div.puzzle', [h('a#daily-puzzle', { attrs: {href: '/puzzle/daily'} }, dailyPuzzle)]),
     ];
 }

@@ -9,22 +9,26 @@
 }
 @media (max-width: 799px) and (orientation: portrait) {
     .lobby {
-        grid-template-areas: 'table' 'app' 'vpanel' 'side' 'uleft' 'utable' 'blog' 'tv';
+        grid-template-areas: 'table' 'app' 'vpanel' 'side' 'blog' 'tv' 'puzzle' 'utable' 'uleft';
     }
-
     .sidebar-second {
-
     margin: 1em 0 1em 0;
-
     }
-
 }
 @media (min-width: 800px) {
     .lobby {
         grid-template-columns: repeat(4, 1fr);
-        grid-template-rows: fit-content(0) minmax(375px, max-content) fit-content(0);
-        grid-template-areas: 'side app app table' 'side vpanel vpanel table' 'tv blog blog utable' 'uleft blog blog utable';
+        grid-template-rows: fit-content(0) 380px fit-content(0);
+        grid-auto-rows: 1fr;
+        grid-template-areas: 'side app app table' 'side vpanel vpanel table' 'tv blog blog puzzle' 'uleft blog blog utable';
     }
+}
+.lobby-count {
+  flex: 1;
+  display: flex;
+  flex-flow: column nowrap;
+  position: absolute;
+  bottom: 0;
 }
 .tv {
     grid-area: tv;
@@ -32,6 +36,15 @@
 }
 .tv #mainboard {
     padding-bottom: calc((var(--cg-height) / (var(--ranks)) * 2));
+}
+.puzzle {
+    grid-area: puzzle;
+    display: block;
+}
+.puzzle .text {
+    display: block;
+    text-align: right;
+    margin-right: 1ch;
 }
 .seeks {
     display: grid;

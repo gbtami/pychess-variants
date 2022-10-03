@@ -1,9 +1,25 @@
+import random
+from datetime import datetime, timezone
+
 import pyffish as sf
 
 
 async def get_puzzle(request, puzzleId):
     puzzle = await request.app["db"].puzzle.find_one({"_id": puzzleId})
     return puzzle
+
+
+async def get_daily_puzzle(request):
+    today = datetime.now(timezone.utc).date()
+    daily_puzzles = request.app["daily-puzzles"]
+    if today not in daily_puzzles:
+        user = request.app["users"]["PyChess"]
+        # skip previous daily puzzles TODO: save/restore from mongodb
+        user.puzzles = [puzzle["_id"] for puzzle in daily_puzzles.values()]
+        # TODO: random
+        user.puzzle_variant = random.choice(("xiangqi", "shogi", "chess", "crazyhouse"))
+        request.app["daily-puzzles"][today] = await next_puzzle(request, user)
+    return request.app["daily-puzzles"][today]
 
 
 async def next_puzzle(request, user):

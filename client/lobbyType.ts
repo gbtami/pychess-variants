@@ -101,7 +101,7 @@ export interface TvGame {
     base: number;
     inc: number;
     byoyomi: number;
-    lastMove: cg.Move;
+    lastMove: string;
 }
 
 export type CreateMode = 'createGame' | 'playFriend' | 'playAI' | 'createHost';
