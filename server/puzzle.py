@@ -34,17 +34,19 @@ async def next_puzzle(request, user):
     else:
         variant = "chess"
 
-    pipeline = [
-        {"$match": {"$and": filters}},
-        {"$sample": {"size": 1}},
-    ]
-
-    cursor = request.app["db"].puzzle.aggregate(pipeline)
-
     puzzle = None
-    async for doc in cursor:
-        puzzle = doc
-        break
+
+    if request.app["db"] is not None:
+        pipeline = [
+            {"$match": {"$and": filters}},
+            {"$sample": {"size": 1}},
+        ]
+
+        cursor = request.app["db"].puzzle.aggregate(pipeline)
+
+        async for doc in cursor:
+            puzzle = doc
+            break
 
     if puzzle is None:
         puzzle = {
