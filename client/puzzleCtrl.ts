@@ -5,7 +5,7 @@ import { _ } from './i18n';
 import { AnalysisController } from './analysisCtrl';
 import { PyChessModel } from "./types";
 import { patch } from './document';
-import { uci2LastMove, UCIMove, cg2uci } from './chess';
+import { uci2LastMove, UCIMove, cg2uci, variants } from './chess';
 import { updateMovelist } from './movelist';
 
 
@@ -254,6 +254,15 @@ export class PuzzleController extends AnalysisController {
     }
 
     continueTraining() {
-        window.location.assign(location.href);
+        let loc = location.href;
+        if (!loc.endsWith('/puzzle')) {
+            const parts = loc.split('/');
+            const tail = parts[parts.length - 1];
+            // individual puzzle pages (id at the URL end) and daily have to continue on /puzzle page
+            if (!variants.includes(tail)) {
+                loc = '/puzzle'
+            }
+        }
+        window.location.assign(loc);
     }
 }
