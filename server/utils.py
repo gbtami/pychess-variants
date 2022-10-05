@@ -842,11 +842,13 @@ def sanitize_fen(variant, initial_fen, chess960):
     invalid5 = init[0].count(bking) != 1 or init[0].count(wking) != 1
 
     # Opp king already in check
-    curr_color = init[1]
-    opp_color = "w" if curr_color == "b" else "b"
-    init[1] = init[1].replace(curr_color, opp_color)
-    board = FairyBoard(variant, " ".join(init), chess960)
-    invalid6 = board.is_checked()
+    invalid6 = False
+    if not (invalid0 or invalid1 or invalid2 or invalid3 or invalid4 or invalid5):
+        curr_color = init[1]
+        opp_color = "w" if curr_color == "b" else "b"
+        init[1] = init[1].replace(curr_color, opp_color)
+        board = FairyBoard(variant, " ".join(init), chess960)
+        invalid6 = board.is_checked()
 
     if invalid0 or invalid1 or invalid2 or invalid3 or invalid4 or invalid5 or invalid6:
         print(invalid0, invalid1, invalid2, invalid3, invalid4, invalid5, invalid6)
