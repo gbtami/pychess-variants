@@ -667,12 +667,15 @@ def parse_accept_language(accept_language):
 
 def detect_locale(request):
     default_locale = "en"
-    locale_q_pairs = parse_accept_language(request.headers.get("Accept-Language"))
+    accept_language = request.headers.get("Accept-Language")
 
-    for pair in locale_q_pairs:
-        for locale in LANGUAGES:
-            # pair[0] is locale, pair[1] is q value
-            if pair[0].replace("-", "_").lower().startswith(locale.lower()):
-                return locale
+    if accept_language is not None:
+        locale_q_pairs = parse_accept_language(accept_language)
+
+        for pair in locale_q_pairs:
+            for locale in LANGUAGES:
+                # pair[0] is locale, pair[1] is q value
+                if pair[0].replace("-", "_").lower().startswith(locale.lower()):
+                    return locale
 
     return default_locale
