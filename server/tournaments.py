@@ -508,7 +508,7 @@ async def load_tournament(app, tournament_id, tournament_klass=None):
 
 def translated_tournament_name(variant, frequency, system, lang_translation):
     # Weekly makruk category == SEAturday
-    frequency = "S" if variant in CATEGORIES["makruk"] and frequency == "w" else frequency
+    frequency = "S" if variant in CATEGORIES["makruk"] and frequency == "m" else frequency
     if frequency == "s":
         return "%s %s %s" % (
             lang_translation.gettext(TRANSLATED_VARIANT_NAMES[variant]),
