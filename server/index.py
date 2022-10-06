@@ -134,9 +134,10 @@ async def index(request):
         users[user.username] = user
         session["user_name"] = user.username
 
-    lang = session.get("lang", "en")
-    if lang not in LANGUAGES:
-        lang = "en"
+    lang = session.get("lang")
+    if lang is None:
+        lang = detect_locale(request)
+
     get_template = request.app["jinja"][lang].get_template
 
     lang_translation = request.app["gettext"][lang]
@@ -647,3 +648,31 @@ async def select_lang(request):
         return web.HTTPFound(referer)
     else:
         raise web.HTTPNotFound()
+
+
+def parse_accept_language(accept_language):
+    languages = accept_language.split(",")
+    locale_q_pairs = []
+
+    for language in languages:
+        parts = language.split(";")
+        if parts[0] == language:
+            # no q => q = 1
+            locale_q_pairs.append((language.strip(), "1"))
+        else:
+            locale_q_pairs.append((parts[0].strip(), parts[1].split("=")[1]))
+
+    return locale_q_pairs
+
+
+def detect_locale(request):
+    default_locale = "en"
+    locale_q_pairs = parse_accept_language(request.headers.get("Accept-Language"))
+
+    for pair in locale_q_pairs:
+        for locale in LANGUAGES:
+            # pair[0] is locale, pair[1] is q value
+            if pair[0].replace("-", "_").lower().startswith(locale.lower()):
+                return locale
+
+    return default_locale
