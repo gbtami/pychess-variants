@@ -67,6 +67,14 @@ VIDEOS = [
         "duration": "14:20",
     },
     {
+        "_id": "hLv7kJQWukg",
+        "title": "King vs king endgame (in Synochess and Empire)",
+        "author": "PyChess",
+        "tags": ["Endgame", "Puzzle"],
+        "target": "intermediate",
+        "duration": "9:58",
+    },
+    {
         "_id": "uyNsTgo8ylI",
         "title": "Makruk (Thai Chess) - How to play",
         "author": "PyChess",
