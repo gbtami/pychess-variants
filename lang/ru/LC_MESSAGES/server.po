@@ -206,7 +206,7 @@ msgstr "Хоппель-Поппель"
 
 #: ../server/const.py:337
 msgid "Orda Chess"
-msgstr "Ордынские  Шахматы"
+msgstr "Орда"
 
 #: ../server/const.py:338
 msgid "Synochess"

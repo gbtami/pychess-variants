@@ -20,7 +20,7 @@ Rules from Shogi are summarized below:
 
 *Perpetual check* - Repeating check resulting in the same position four times in a row is a loss to the player causing perpetual check. In chess, this results in a draw.
 
-*Repetition* - Similar to the above, repeating the same position (including pieces in hand) results in a draw.
+*Repetition* - Repeating the same position four times in a row is a loss to the first player (sente).
 
 *Timer* - Shogi uses a byo-yomi timer. Once the main clock expires, a player enters byo-yomi. If it is set at 30 seconds, then that player will only have 30 seconds to make his move from then for each of his/her moves or else lose the game on time.
 
