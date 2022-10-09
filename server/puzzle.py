@@ -1,6 +1,8 @@
 import random
 from datetime import datetime, timezone
 
+from aiohttp import web
+
 import pyffish as sf
 
 
@@ -58,3 +60,15 @@ async def next_puzzle(request, user):
 
     user.puzzles.append(puzzle["_id"])
     return puzzle
+
+
+async def puzzle_complete(request):
+    puzzle_id = request.match_info.get("puzzleId")
+    data = await request.post()
+    print(puzzle_id, data)
+
+    response = {
+        "rdiff": 0,
+        "bdiff": 1,
+    }
+    return web.json_response(response)
