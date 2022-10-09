@@ -411,10 +411,11 @@ async def index(request):
                     render["trophies"][i] = (v, "top1")
             render["trophies"] = sorted(render["trophies"], key=lambda x: x[1])
 
-            shield_owners = request.app["shield_owners"]
-            render["trophies"] += [
-                (v, "shield") for v in shield_owners if shield_owners[v] == profileId
-            ]
+            if not users[profileId].bot:
+                shield_owners = request.app["shield_owners"]
+                render["trophies"] += [
+                    (v, "shield") for v in shield_owners if shield_owners[v] == profileId
+                ]
 
             if profileId in CUSTOM_TROPHY_OWNERS:
                 trophies = CUSTOM_TROPHY_OWNERS[profileId]
