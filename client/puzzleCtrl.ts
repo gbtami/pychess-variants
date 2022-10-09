@@ -201,6 +201,9 @@ export class PuzzleController extends AnalysisController {
     }
 
     notTheMove(san: string) {
+        if (!this.failed) {
+            this.postSuccess(false);
+        }
         this.failed = true;
         this.playerEl = patch(this.playerEl,
             h('div.player', [
@@ -233,6 +236,9 @@ export class PuzzleController extends AnalysisController {
     }
 
     puzzleComplete(success: boolean) {
+        if (!this.failed) {
+            this.postSuccess(true);
+        }
         this.completed = true;
         const feedbackEl = document.querySelector('.feedback') as HTMLInputElement;
         patch(feedbackEl, 
@@ -264,5 +270,30 @@ export class PuzzleController extends AnalysisController {
             }
         }
         window.location.assign(loc);
+    }
+
+    postSuccess(success: boolean) {
+        const color = this.fullfen.split(" ")[1];
+        // TODO
+        const rated = true;
+
+        const XHR = new XMLHttpRequest();
+        const FD  = new FormData();
+        FD.append('win', `${success}`);
+        FD.append('variant', `${this.variant.name}`);
+        FD.append('color', color);
+        FD.append('rated', `${rated}`);
+
+        XHR.onreadystatechange = function() {
+            if (this.readyState === 4 && this.status === 200) {
+                const response = JSON.parse(this.responseText);
+                if (response['error'] !== undefined) {
+                    console.log(response['error']);
+                }
+            }
+        }
+        XHR.open("POST", `/puzzle/complete/${this._id}`, true);
+        XHR.send(FD);
+        console.log(FD);
     }
 }
