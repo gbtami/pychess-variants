@@ -72,8 +72,8 @@ export class PuzzleController extends AnalysisController {
 
         this.renderInfos();
 
-        // When we have no puzzle for a given variant just show start FEN
-        if (!this.solution[0]) {
+        // When we have no puzzle for a given variant just show start FEN with _id: '0'
+        if (this._id === '0') {
             this.puzzleComplete(false);
             return;
         }
@@ -201,6 +201,7 @@ export class PuzzleController extends AnalysisController {
     }
 
     notTheMove(san: string) {
+        // post only on first failed move
         if (!this.failed) {
             this.postSuccess(false);
         }
@@ -236,8 +237,12 @@ export class PuzzleController extends AnalysisController {
     }
 
     puzzleComplete(success: boolean) {
-        if (!this.failed) {
+        if (!this.failed && success) {
+            // completed without any failed move
             this.postSuccess(true);
+        } else if (!success && self._id !== '0') {
+            // failed by viewing the solution
+            this.postSuccess(false);
         }
         this.completed = true;
         const feedbackEl = document.querySelector('.feedback') as HTMLInputElement;
