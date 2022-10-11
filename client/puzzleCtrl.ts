@@ -240,7 +240,7 @@ export class PuzzleController extends AnalysisController {
         if (!this.failed && success) {
             // completed without any failed move
             this.postSuccess(true);
-        } else if (!success && self._id !== '0') {
+        } else if (!success && this._id !== '0') {
             // failed by viewing the solution
             this.postSuccess(false);
         }
