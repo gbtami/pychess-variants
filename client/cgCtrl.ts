@@ -67,8 +67,12 @@ export abstract class ChessgroundController implements IBoardController {
             this.ffish = loadedModule;
             this.ffish.loadVariantConfig(variantsIni);
             this.notationAsObject = this.notation2ffishjs(this.notation);
-            this.ffishBoard = new this.ffish.Board(this.variant.name, this.fullfen, this.chess960);
-            window.addEventListener('beforeunload', () => this.ffishBoard.delete());
+            try {
+                this.ffishBoard = new this.ffish.Board(this.variant.name, this.fullfen, this.chess960);
+                window.addEventListener('beforeunload', () => this.ffishBoard.delete());
+            } catch (error) {
+                console.log('ffish.Board() creation failed.', this.variant.name);
+            }
         });
     }
 

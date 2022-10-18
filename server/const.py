@@ -128,6 +128,7 @@ VARIANTS = (
     "ordamirror",
     "chak",
     "chennis",
+    "chushogi",
 )
 
 VARIANT_ICONS = {
@@ -176,6 +177,7 @@ VARIANT_ICONS = {
     "asean": "♻",
     "chak": "🐬",
     "chennis": "🎾",
+    "chushogi": "🦁",
 }
 
 VARIANT_960_TO_PGN = {
@@ -226,6 +228,7 @@ CATEGORIES = {
         "dobutsu",
         "gorogoroplus",
         "torishogi",
+        "chushogi",
     ),
     "xiangqi": ("xiangqi", "manchu", "janggi", "minixiangqi"),
 }
@@ -264,6 +267,8 @@ def variant_display_name(variant):
         return "KYOTO SHOGI"
     elif variant == "torishogi":
         return "TORI SHOGI"
+    elif variant == "chushogi":
+        return "CHU SHOGI"
     else:
         return variant.upper()
 
@@ -341,6 +346,7 @@ TRANSLATED_VARIANT_NAMES = {
     "ordamirror": _("Orda Mirror"),
     "chak": _("Chak"),
     "chennis": _("Chennis"),
+    "chushogi": _("Chu Shogi"),
 }
 
 del _

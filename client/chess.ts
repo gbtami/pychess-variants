@@ -53,6 +53,7 @@ export const BOARD_FAMILIES: { [key: string]: BoardFamily } = {
     shogun8x8: { dimensions: { width: 8, height: 8 }, cg: "cg-512", boardCSS: ["ShogunPlain.svg", "ShogunMaple.png", "ShogunMaple2.png", "ShogunBlue.svg", "8x8brown.svg", "8x8maple.jpg"] },
     chak9x9:{ dimensions: { width: 9, height: 9 }, cg: "cg-540", boardCSS: ["StandardChakBoard.svg", "ColoredChakBoard.svg", "ChakArt.jpg"] },
     chennis7x7:{ dimensions: { width: 7, height: 7 }, cg: "cg-448", boardCSS: ["WimbledonBoard.svg", "FrenchOpenBoard.svg", "USOpenBoard.svg"] },
+    shogi12x12: { dimensions: { width: 12, height: 12 }, cg: "cg-768", boardCSS: ["chushogi.svg", "oak.png"] },
 };
 
 export const PIECE_FAMILIES: { [key: string]: PieceFamily } = {
@@ -78,6 +79,7 @@ export const PIECE_FAMILIES: { [key: string]: PieceFamily } = {
     ordamirror: { pieceCSS: ["ordamirror0", "ordamirror1"] },
     chak: { pieceCSS: ["chak0"] },
     chennis: { pieceCSS: ["chennis0", "chennis1", "chennis2"] },
+    chushogi: { pieceCSS: ["chushogi0"] },
 };
 
 type MandatoryPromotionPredicate = (role: cg.Role, orig: cg.Orig, dest: cg.Key, color: cg.Color) => boolean;
@@ -506,6 +508,19 @@ export const VARIANTS: { [name: string]: Variant } = {
         icon: "🐦",
     }),
 
+    chushogi: new Variant({
+        name: "chushogi", tooltip: () => _("16x16 Shogi without drops."),
+        startFen: "lfcsgekgscfl/a1b1txot1b1a/mvrhdqndhrvm/pppppppppppp/3i4i3/12/12/3I4I3/PPPPPPPPPPPP/MVRHDNQDHRVM/A1B1TOXT1B1A/LFCSGKEGSCFL w - 1",
+        board: "shogi12x12", piece: "chushogi",
+        firstColor: "Black", secondColor: "White",
+        pieceLetters:       ["p", "r", "b", "g", "s", "l", "a", "e", "c", "f", "h", "d", "o", "x", "i", "t", "m", "v", "k", "q", "n"],
+        promotion: "shogi",
+        promoteableLetters: ["p", "r", "b", "g", "s", "l", "a", "e", "c", "f", "h", "d", "o", "x", "i", "t", "m", "v"],
+        timeControl: "byoyomi",
+        pieceSound: "shogi",
+        icon: "🦁",
+    }),
+
     xiangqi: new Variant({
         name: "xiangqi", tooltip: () => _("Chinese Chess, one of the oldest and most played board games in the world."),
         startFen: "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1",
@@ -788,7 +803,7 @@ export const enabledVariants = variants.filter(v => !disabledVariants.includes(v
 const variantGroups: { [ key: string ]: { variants: string[] } } = {
     standard: { variants: [ "chess", "crazyhouse", "placement", "atomic" ] },
     sea:      { variants: [ "makruk", "makpong", "cambodian", "sittuyin", "asean" ] },
-    shogi:    { variants: [ "shogi", "minishogi", "kyotoshogi", "dobutsu", "gorogoroplus", "torishogi" ] },
+    shogi:    { variants: [ "shogi", "minishogi", "kyotoshogi", "dobutsu", "gorogoroplus", "torishogi", "chushogi" ] },
     xiangqi:  { variants: [ "xiangqi", "manchu", "janggi", "minixiangqi" ] },
     fairy:    { variants: [ "capablanca", "capahouse", "seirawan", "shouse", "grand", "grandhouse", "shako", "shogun", "hoppelpoppel" ] },
     army:     { variants: [ "orda", "synochess", "shinobi", "empire", "ordamirror", "chak", "chennis" ] },
@@ -1095,6 +1110,7 @@ export function notation(variant: Variant): cg.Notation {
         case 'gorogoro':
         case 'gorogoroplus':
         case 'torishogi':
+        case 'chushogi':
             cgNotation = cg.Notation.SHOGI_ARBNUM;
             break;
         case 'xiangqi':

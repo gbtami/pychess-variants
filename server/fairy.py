@@ -53,6 +53,8 @@ class FairyBoard:
             while new_fen == disabled_fen:
                 new_fen = self.shuffle_start()
             return new_fen
+        elif variant == "chushogi":
+            return "lfcsgekgscfl/a1b1txot1b1a/mvrhdqndhrvm/pppppppppppp/3i4i3/12/12/3I4I3/PPPPPPPPPPPP/MVRHDNQDHRVM/A1B1TOXT1B1A/LFCSGKEGSCFL w - 1"
         return sf.start_fen(variant)
 
     @property
