@@ -31,6 +31,9 @@
 .shogi3x4 cg-board {
     background-image: url('images/board/dobutsuboard.svg');
 }
+.shogi12x12 cg-board {
+    background-image: url('images/board/oak.png');
+}
 .xiangqi9x10 cg-board {
     background-image: url('images/board/xiangqi.svg');
 }
