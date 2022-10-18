@@ -163,6 +163,14 @@ VIDEOS = [
         "duration": "2:06",
     },
     {
+        "_id": "c8nZQiq6VgY",
+        "title": "CAPABLANCA CHESS",
+        "author": "ChessNetwork",
+        "tags": ["Howto"],
+        "target": "intermediate",
+        "duration": "16:23",
+    },
+    {
         "_id": "HNYWioiltH0",
         "title": "Capablanca Chess - How to Play",
         "author": "PyChess",
