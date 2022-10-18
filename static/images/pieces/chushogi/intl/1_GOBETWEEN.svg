@@ -21,9 +21,9 @@
      inkscape:pagecheckerboard="0"
      inkscape:deskcolor="#d1d1d1"
      showgrid="false"
-     inkscape:zoom="1.3789568"
-     inkscape:cx="141.77384"
-     inkscape:cy="71.430811"
+     inkscape:zoom="0.9750697"
+     inkscape:cx="149.2201"
+     inkscape:cy="-117.4275"
      inkscape:window-width="3840"
      inkscape:window-height="2036"
      inkscape:window-x="3828"
@@ -94,26 +94,26 @@
        inkscape:menu="Bevels"
        inkscape:menu-tooltip="Basic specular bevel to use for building textures"
        style="color-interpolation-filters:sRGB;"
-       id="filter35008"
-       x="-0.087808977"
-       y="-0.03906917"
-       width="1.175618"
-       height="1.0781383">
+       id="filter3178"
+       x="-0.074850437"
+       y="-0.035659968"
+       width="1.1497009"
+       height="1.0713199">
       <feGaussianBlur
          stdDeviation="6"
          in="SourceGraphic"
          result="result0"
-         id="feGaussianBlur34990" />
+         id="feGaussianBlur3160" />
       <feDiffuseLighting
          lighting-color="rgb(255,255,255)"
          diffuseConstant="1"
          surfaceScale="4"
          result="result5"
-         id="feDiffuseLighting34994">
+         id="feDiffuseLighting3164">
         <feDistantLight
            elevation="45"
            azimuth="235"
-           id="feDistantLight34992" />
+           id="feDistantLight3162" />
       </feDiffuseLighting>
       <feComposite
          k1="1.4"
@@ -121,12 +121,12 @@
          in="result5"
          result="fbSourceGraphic"
          operator="arithmetic"
-         id="feComposite34996" />
+         id="feComposite3166" />
       <feGaussianBlur
          result="result0"
          in="fbSourceGraphic"
          stdDeviation="6"
-         id="feGaussianBlur34998" />
+         id="feGaussianBlur3168" />
       <feSpecularLighting
          specularExponent="25"
          specularConstant="1"
@@ -134,11 +134,11 @@
          lighting-color="rgb(255,255,255)"
          result="result1"
          in="result0"
-         id="feSpecularLighting35002">
+         id="feSpecularLighting3172">
         <feDistantLight
-           azimuth="279"
+           azimuth="280"
            elevation="45"
-           id="feDistantLight35000" />
+           id="feDistantLight3170" />
       </feSpecularLighting>
       <feComposite
          k3="1"
@@ -147,13 +147,13 @@
          in="fbSourceGraphic"
          in2="result1"
          result="result4"
-         id="feComposite35004" />
+         id="feComposite3174" />
       <feComposite
          operator="in"
          result="result2"
          in2="SourceGraphic"
          in="result4"
-         id="feComposite35006" />
+         id="feComposite3176" />
     </filter>
   </defs>
   <path
@@ -208,8 +208,8 @@
      opacity=".7"
      id="path33622" />
   <path
-     id="path28997"
-     style="color:#000000;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:medium;line-height:normal;font-family:sans-serif;font-variant-ligatures:normal;font-variant-position:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-alternates:normal;font-variant-east-asian:normal;font-feature-settings:normal;font-variation-settings:normal;text-indent:0;text-align:start;text-decoration:none;text-decoration-line:none;text-decoration-style:solid;text-decoration-color:#000000;letter-spacing:normal;word-spacing:normal;text-transform:none;writing-mode:lr-tb;direction:ltr;text-orientation:mixed;dominant-baseline:auto;baseline-shift:baseline;text-anchor:start;white-space:normal;shape-padding:0;shape-margin:0;inline-size:0;clip-rule:nonzero;display:inline;overflow:visible;visibility:visible;opacity:0.99;isolation:auto;mix-blend-mode:normal;color-interpolation:sRGB;color-interpolation-filters:linearRGB;solid-color:#000000;solid-opacity:1;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:17.0305;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:stroke fill markers;color-rendering:auto;image-rendering:auto;shape-rendering:auto;text-rendering:auto;enable-background:accumulate;stop-color:#000000;filter:url(#filter35008)"
-     d="m 660.3948,950.90401 c 3.81,-0.1804 6.9596,-2.8778 7.8486,-6.6015 24.6634,-105.7188 48.1991,-164.7542 152.0266,-235.77207 5.7404,-3.93954 4.6228,-12.76095 -2.032,-15.11553 -34.5796,-12.25804 -44.8107,-5.21716 -77.6884,-24.01061 -66.327,-37.9199 -49.5986,-146.81626 0,-174.14588 33.0631,-18.21687 43.1088,-11.75512 77.6884,-24.01061 6.5278,-2.3622 7.6708,-11.176 2.032,-15.11554 C 716.4425,385.11441 692.9119,326.079 668.2434,220.36018 c -1.016,-3.72364 -4.0386,-6.42112 -7.8486,-6.60146 h -0.023 c -4.0386,-0.12776 -7.62,2.6289 -8.5344,6.60146 -24.6634,105.71856 -48.2219,164.75931 -152.1383,235.77209 -5.7404,3.93446 -4.6228,12.74826 2.032,15.1003 33.3501,12.04721 43.246,6.33984 77.7341,24.10713 58.5063,30.14064 57.8078,144.41951 0,173.98357 -34.5211,17.65299 -44.384,12.05992 -77.7341,24.10713 -6.5278,2.3622 -7.6708,11.16584 -2.032,15.1003 103.9164,71.01281 127.4749,130.05351 152.1383,235.77211 1.016,3.9725 4.4958,6.731 8.5344,6.6014 z"
+     id="path2299"
+     style="color:#000000;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:medium;line-height:normal;font-family:sans-serif;font-variant-ligatures:normal;font-variant-position:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-alternates:normal;font-variant-east-asian:normal;font-feature-settings:normal;font-variation-settings:normal;text-indent:0;text-align:start;text-decoration:none;text-decoration-line:none;text-decoration-style:solid;text-decoration-color:#000000;letter-spacing:normal;word-spacing:normal;text-transform:none;writing-mode:lr-tb;direction:ltr;text-orientation:mixed;dominant-baseline:auto;baseline-shift:baseline;text-anchor:start;white-space:normal;shape-padding:0;shape-margin:0;inline-size:0;clip-rule:nonzero;display:inline;overflow:visible;visibility:visible;opacity:0.99;isolation:auto;mix-blend-mode:normal;color-interpolation:sRGB;color-interpolation-filters:linearRGB;solid-color:#000000;solid-opacity:1;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:19.3064;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:stroke fill markers;color-rendering:auto;image-rendering:auto;shape-rendering:auto;text-rendering:auto;enable-background:accumulate;stop-color:#000000;filter:url(#filter3178)"
+     d="m 660.46158,994.1779 c 4.48404,-0.19776 8.16961,-3.15401 9.22132,-7.23369 28.9362,-115.82545 56.53634,-180.50464 178.32678,-258.31162 6.73654,-4.31622 5.41962,-13.98148 -2.26437,-16.5603 -40.56123,-13.42908 -52.56444,-5.71453 -91.12863,-26.30707 -77.80134,-41.54476 -58.18065,-160.85158 0,-190.79384 38.78202,-19.95895 50.5674,-12.8781 91.12863,-26.30718 7.66909,-2.57958 8.98895,-12.24408 2.26437,-16.56019 C 726.21924,374.29692 698.61781,309.61782 669.6829,193.79237 c -1.07259,-4.07913 -4.73728,-7.03582 -9.22132,-7.23369 h -0.027 c -4.74022,-0.1399 -8.92631,2.88099 -10.0138,7.23369 -28.93022,115.82501 -56.56461,180.51003 -178.46085,258.31164 -6.74253,4.31162 -5.41364,13.96581 2.26436,16.54387 39.12161,13.19856 50.72881,6.94675 91.18283,26.41224 68.62717,33.0221 67.80959,158.22587 0,190.61603 -40.49273,19.34202 -52.06122,13.21368 -91.18283,26.41235 -7.66615,2.57959 -8.99786,12.23214 -2.26436,16.54387 121.89624,77.8015 149.5304,142.4865 178.46085,258.31162 1.07259,4.3515 5.27651,7.37338 10.0138,7.23369 z"
      sodipodi:nodetypes="scccsscccsscccsscccss" />
 </svg>

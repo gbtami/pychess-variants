@@ -21,14 +21,14 @@
      inkscape:pagecheckerboard="0"
      inkscape:deskcolor="#d1d1d1"
      showgrid="false"
-     inkscape:zoom="1.3789568"
-     inkscape:cx="384.34853"
-     inkscape:cy="197.25056"
-     inkscape:window-width="1941"
-     inkscape:window-height="1732"
-     inkscape:window-x="4101"
-     inkscape:window-y="212"
-     inkscape:window-maximized="0"
+     inkscape:zoom="0.6894784"
+     inkscape:cx="-92.098607"
+     inkscape:cy="21.03039"
+     inkscape:window-width="3840"
+     inkscape:window-height="2036"
+     inkscape:window-x="3828"
+     inkscape:window-y="-12"
+     inkscape:window-maximized="1"
      inkscape:current-layer="svg18291" />
   <style
      id="style18192"><![CDATA[.B{color-interpolation-filters:sRGB}.C{fill-opacity:.98}]]></style>
@@ -88,138 +88,6 @@
       <feGaussianBlur
          stdDeviation="2.441"
          id="feGaussianBlur18210" />
-    </filter>
-    <filter
-       inkscape:label="Combined Lighting"
-       inkscape:menu="Bevels"
-       inkscape:menu-tooltip="Basic specular bevel to use for building textures"
-       style="color-interpolation-filters:sRGB;"
-       id="filter26662"
-       x="-0.040485346"
-       y="-0.03205782"
-       width="1.0809707"
-       height="1.0641156">
-      <feGaussianBlur
-         stdDeviation="6"
-         in="SourceGraphic"
-         result="result0"
-         id="feGaussianBlur26644" />
-      <feDiffuseLighting
-         lighting-color="rgb(255,255,255)"
-         diffuseConstant="1"
-         surfaceScale="4"
-         result="result5"
-         id="feDiffuseLighting26648">
-        <feDistantLight
-           elevation="45"
-           azimuth="235"
-           id="feDistantLight26646" />
-      </feDiffuseLighting>
-      <feComposite
-         k1="1.4"
-         in2="SourceGraphic"
-         in="result5"
-         result="fbSourceGraphic"
-         operator="arithmetic"
-         id="feComposite26650" />
-      <feGaussianBlur
-         result="result0"
-         in="fbSourceGraphic"
-         stdDeviation="6"
-         id="feGaussianBlur26652" />
-      <feSpecularLighting
-         specularExponent="25"
-         specularConstant="1"
-         surfaceScale="4"
-         lighting-color="rgb(255,255,255)"
-         result="result1"
-         in="result0"
-         id="feSpecularLighting26656">
-        <feDistantLight
-           azimuth="235"
-           elevation="45"
-           id="feDistantLight26654" />
-      </feSpecularLighting>
-      <feComposite
-         k3="1"
-         k2="1"
-         operator="arithmetic"
-         in="fbSourceGraphic"
-         in2="result1"
-         result="result4"
-         id="feComposite26658" />
-      <feComposite
-         operator="in"
-         result="result2"
-         in2="SourceGraphic"
-         in="result4"
-         id="feComposite26660" />
-    </filter>
-    <filter
-       inkscape:label="Combined Lighting"
-       inkscape:menu="Bevels"
-       inkscape:menu-tooltip="Basic specular bevel to use for building textures"
-       style="color-interpolation-filters:sRGB;"
-       id="filter27470"
-       x="-0.041735848"
-       y="-0.033287951"
-       width="1.0834717"
-       height="1.0665759">
-      <feGaussianBlur
-         stdDeviation="6"
-         in="SourceGraphic"
-         result="result0"
-         id="feGaussianBlur27452" />
-      <feDiffuseLighting
-         lighting-color="rgb(255,255,255)"
-         diffuseConstant="1"
-         surfaceScale="4"
-         result="result5"
-         id="feDiffuseLighting27456">
-        <feDistantLight
-           elevation="45"
-           azimuth="235"
-           id="feDistantLight27454" />
-      </feDiffuseLighting>
-      <feComposite
-         k1="1.4"
-         in2="SourceGraphic"
-         in="result5"
-         result="fbSourceGraphic"
-         operator="arithmetic"
-         id="feComposite27458" />
-      <feGaussianBlur
-         result="result0"
-         in="fbSourceGraphic"
-         stdDeviation="6"
-         id="feGaussianBlur27460" />
-      <feSpecularLighting
-         specularExponent="25"
-         specularConstant="1"
-         surfaceScale="4"
-         lighting-color="rgb(255,255,255)"
-         result="result1"
-         in="result0"
-         id="feSpecularLighting27464">
-        <feDistantLight
-           azimuth="235"
-           elevation="45"
-           id="feDistantLight27462" />
-      </feSpecularLighting>
-      <feComposite
-         k3="1"
-         k2="1"
-         operator="arithmetic"
-         in="fbSourceGraphic"
-         in2="result1"
-         result="result4"
-         id="feComposite27466" />
-      <feComposite
-         operator="in"
-         result="result2"
-         in2="SourceGraphic"
-         in="result4"
-         id="feComposite27468" />
     </filter>
     <filter
        inkscape:label="Combined Lighting"
@@ -353,5 +221,6 @@
   <path
      id="path27925"
      style="fill:#020202;fill-opacity:1;stroke:none;stroke-width:18.0747;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:stroke fill markers;filter:url(#filter28288)"
-     d="M 660.9091,344.193 609.486,536.08306 c 0,0 33.0226,-3.98272 50.6222,-3.99034 17.6581,-0.0102 52.3999,3.99034 52.3999,3.99034 z m 276.009,114.25144 -172.0464,99.32717 c 6e-4,-5.1e-4 26.1694,20.53589 38.6179,32.97477 12.4918,12.47901 34.2253,39.87366 34.2253,39.87366 z m -551.9042,0.0259 99.1981,172.17535 c 0,0 21.7399,-27.39414 34.2306,-39.87341 12.4485,-12.43838 38.6171,-32.97503 38.6176,-32.97478 z M 660.997,556.0096 A 178.48763,178.48763 0 0 0 482.512,734.49481 178.48763,178.48763 0 0 0 660.997,912.97977 178.48763,178.48763 0 0 0 839.4873,734.49481 178.48763,178.48763 0 0 0 660.997,556.0096 Z m -82.3412,73.77833 c 0.046,-0.003 0.093,0.002 0.1397,0 0.1,-0.002 0.2007,0.01 0.3048,0.0155 l 163.2716,-0.0155 c 3.0785,-0.10414 5.2858,2.94894 4.2367,5.83946 l -7.4117,22.80411 c -0.7112,1.7018 -2.413,2.75082 -4.2316,2.64668 h -58.849 v 55.14388 h 41.8838 c 1.9812,-0.0348 3.716,1.2446 4.2367,3.15722 l 7.4041,19.62657 c 1.0668,2.91592 -1.143,5.93598 -4.2316,5.82422 h -49.2991 v 63.08138 h 84.2995 c 1.9812,-0.0345 3.716,1.27 4.2367,3.17754 l 6.8784,22.80411 c 0.5842,2.54 -1.143,4.98348 -3.7008,5.28574 H 554.7051 c -2.7838,0 -4.8463,-2.58064 -4.2316,-5.28574 l 7.4092,-22.80411 c 0.4572,-1.7272 1.9304,-2.97942 3.7058,-3.17754 h 83.2404 v -63.08138 h -50.3743 c -3.0887,0.11277 -5.2959,-2.94894 -4.2367,-5.83946 l 7.4117,-19.61133 c 0.508,-1.8796 2.286,-3.19786 4.2519,-3.17246 h 42.9278 v -55.12839 h -58.3014 c -1.8288,0.11278 -3.5483,-0.9652 -4.2519,-2.66192 l -7.4092,-22.78887 c -0.9906,-2.75082 0.9398,-5.6642 3.8075,-5.83946 z m -116.1323,53.22161 -191.8901,51.42304 191.8901,51.59906 c 0,0 -4.0005,-34.74286 -3.9904,-52.39992 0.01,-17.59965 3.9904,-50.62218 3.9904,-50.62218 z m 396.823,0 c 0,0 3.9827,33.02507 3.9903,50.62218 0.01,17.65807 -3.9903,52.39992 -3.9903,52.39992 l 191.8901,-51.59906 z m -375.0672,155.3598 -99.3325,172.04636 172.1754,-99.20326 c 0,0 -27.3942,-21.73477 -39.8734,-34.22521 -12.4384,-12.44854 -32.97,-38.61738 -32.9695,-38.61789 z m 353.3736,0.0259 c 5e-4,5e-4 -20.5308,26.16935 -32.9697,38.61789 -12.479,12.49171 -39.8734,34.22521 -39.8734,34.22521 L 936.98,1010.4416 Z m -228.1669,94.51107 51.4231,191.89009 51.599,-191.89009 c 0,0 -34.7428,4.0005 -52.3999,3.99034 -17.5996,-0.007 -50.6222,-3.99034 -50.6222,-3.99034 z" />
+     d="M 660.9091,344.193 609.486,536.08306 c 0,0 33.0226,-3.98272 50.6222,-3.99034 17.6581,-0.0102 52.3999,3.99034 52.3999,3.99034 z m 276.009,114.25144 -172.0464,99.32717 c 6e-4,-5.1e-4 26.1694,20.53589 38.6179,32.97477 12.4918,12.47901 34.2253,39.87366 34.2253,39.87366 z m -551.9042,0.0259 99.1981,172.17535 c 0,0 21.7399,-27.39414 34.2306,-39.87341 12.4485,-12.43838 38.6171,-32.97503 38.6176,-32.97478 z M 660.997,556.0096 A 178.48763,178.48763 0 0 0 482.512,734.49481 178.48763,178.48763 0 0 0 660.997,912.97977 178.48763,178.48763 0 0 0 839.4873,734.49481 178.48763,178.48763 0 0 0 660.997,556.0096 Z m -82.3412,73.77833 c 0.046,-0.003 0.093,0.002 0.1397,0 0.1,-0.002 0.2007,0.01 0.3048,0.0155 l 163.2716,-0.0155 c 3.0785,-0.10414 5.2858,2.94894 4.2367,5.83946 l -7.4117,22.80411 c -0.7112,1.7018 -2.413,2.75082 -4.2316,2.64668 h -58.849 v 55.14388 h 41.8838 c 1.9812,-0.0348 3.716,1.2446 4.2367,3.15722 l 7.4041,19.62657 c 1.0668,2.91592 -1.143,5.93598 -4.2316,5.82422 h -49.2991 v 63.08138 h 84.2995 c 1.9812,-0.0345 3.716,1.27 4.2367,3.17754 l 6.8784,22.80411 c 0.5842,2.54 -1.143,4.98348 -3.7008,5.28574 H 554.7051 c -2.7838,0 -4.8463,-2.58064 -4.2316,-5.28574 l 7.4092,-22.80411 c 0.4572,-1.7272 1.9304,-2.97942 3.7058,-3.17754 h 83.2404 v -63.08138 h -50.3743 c -3.0887,0.11277 -5.2959,-2.94894 -4.2367,-5.83946 l 7.4117,-19.61133 c 0.508,-1.8796 2.286,-3.19786 4.2519,-3.17246 h 42.9278 v -55.12839 h -58.3014 c -1.8288,0.11278 -3.5483,-0.9652 -4.2519,-2.66192 l -7.4092,-22.78887 c -0.9906,-2.75082 0.9398,-5.6642 3.8075,-5.83946 z m -116.1323,53.22161 -191.8901,51.42304 191.8901,51.59906 c 0,0 -4.0005,-34.74286 -3.9904,-52.39992 0.01,-17.59965 3.9904,-50.62218 3.9904,-50.62218 z m 396.823,0 c 0,0 3.9827,33.02507 3.9903,50.62218 0.01,17.65807 -3.9903,52.39992 -3.9903,52.39992 l 191.8901,-51.59906 z m -375.0672,155.3598 -99.3325,172.04636 172.1754,-99.20326 c 0,0 -27.3942,-21.73477 -39.8734,-34.22521 -12.4384,-12.44854 -32.97,-38.61738 -32.9695,-38.61789 z m 353.3736,0.0259 c 5e-4,5e-4 -20.5308,26.16935 -32.9697,38.61789 -12.479,12.49171 -39.8734,34.22521 -39.8734,34.22521 L 936.98,1010.4416 Z m -228.1669,94.51107 51.4231,191.89009 51.599,-191.89009 c 0,0 -34.7428,4.0005 -52.3999,3.99034 -17.5996,-0.007 -50.6222,-3.99034 -50.6222,-3.99034 z"
+     transform="matrix(1.1098762,0,0,1.1098762,-74.482539,-69.191135)" />
 </svg>
