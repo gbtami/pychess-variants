@@ -188,13 +188,13 @@
     background-image: url('../../images/pieces/chushogi/intl/0_PHOENIX.svg');
 }
 .chushogi .cg-wrap piece.x-piece.enemy {
-    background-image: url('../../images/pieces/chushogi/intl/0_PHOENIX.svg');
+    background-image: url('../../images/pieces/chushogi/intl/1_PHOENIX.svg');
 }
 .chushogi .cg-wrap piece.px-piece.ally {
     background-image: url('../../images/pieces/chushogi/intl/0_PROMOTEDPHOENIX.svg');
 }
 .chushogi .cg-wrap piece.px-piece.enemy {
-    background-image: url('../../images/pieces/chushogi/intl/0_PROMOTEDPHOENIX.svg');
+    background-image: url('../../images/pieces/chushogi/intl/1_PROMOTEDPHOENIX.svg');
 }
 .chushogi .cg-wrap piece.i-piece.ally {
     background-image: url('../../images/pieces/chushogi/intl/0_GOBETWEEN.svg');
