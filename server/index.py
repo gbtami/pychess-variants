@@ -475,7 +475,7 @@ async def index(request):
         render["pairing_system_name"] = pairing_system_name
         render["time_control_str"] = time_control_str
         render["tables"] = await get_latest_tournaments(request.app, lang)
-        render["admin"] = user.username in ADMINS
+        render["td"] = user.username in TOURNAMENT_DIRECTORS
 
     if (gameId is not None) and gameId != "variants":
         if view == "invite":

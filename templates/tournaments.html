@@ -6,7 +6,7 @@
         <h1>{% trans %}Tournaments{% endtrans %}</h1>
         <div class="actions">
             <a class="button calendar" href="{{ home }}/calendar">{% trans %}Tournament calendar{% endtrans %}</a>
-            {% if admin %}
+            {% if td %}
             <a class="button icon icon-plus-square text" href="{{ home }}/tournaments/new">{% trans %}CREATE A NEW TOURNAMENT{% endtrans %}</a>
             {% endif %}
         </div>
