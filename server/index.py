@@ -204,7 +204,7 @@ async def index(request):
             view = "winners"
         else:
             view = "tournaments"
-            if user.username in ADMINS:
+            if user.username in TOURNAMENT_DIRECTORS:
                 if request.path.endswith("/new"):
                     view = "arena-new"
                 elif request.path.endswith("/edit"):
@@ -222,7 +222,7 @@ async def index(request):
         if tournament is None:
             return web.HTTPFound("/")
 
-        if user.username in ADMINS and tournament.status == T_CREATED:
+        if user.username in TOURNAMENT_DIRECTORS and tournament.status == T_CREATED:
             if request.path.endswith("/edit"):
                 data = await request.post()
                 await create_or_update_tournament(
@@ -603,6 +603,7 @@ async def index(request):
 
     elif view == "arena-new":
         render["edit"] = tournamentId is not None
+        render["admin"] = user.username in ADMINS
         if tournamentId is None:
             render["rated"] = True
 
