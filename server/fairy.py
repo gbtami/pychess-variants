@@ -5,10 +5,14 @@ import random
 
 try:
     import pyffish as sf
+    sf.set_option("VariantPath", "variants.ini")
 except ImportError:
     print("No pyffish module installed!")
+    raise
 
 from const import CATEGORIES
+
+FSF_VARIANTS = sf.variants()
 
 WHITE, BLACK = False, True
 FILES = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j"]
@@ -276,9 +280,6 @@ class FairyBoard:
 
 
 if __name__ == "__main__":
-
-    sf.set_option("VariantPath", "variants.ini")
-
     board = FairyBoard("shogi")
     print(board.fen)
     board.print_pos()

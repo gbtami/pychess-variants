@@ -12,7 +12,7 @@ from sortedcollections import ValueSortedDict
 from aiohttp.test_utils import AioHTTPTestCase
 
 from const import CREATED, STARTED, VARIANTS, STALEMATE, MATE
-from fairy import FairyBoard
+from fairy import FairyBoard, FSF_VARIANTS
 from glicko2.glicko2 import DEFAULT_PERF, Glicko2, WIN, LOSS
 from game import Game
 from login import RESERVED_USERS
@@ -137,6 +137,11 @@ class SanitizeFenTestCase(unittest.TestCase):
         for variant in VARIANTS:
             chess960 = variant.endswith("960")
             variant_name = variant[:-3] if chess960 else variant
+
+            if variant_name not in FSF_VARIANTS:
+                print("%s is not supported by FSF" % variant)
+                continue
+
             board = FairyBoard(variant_name, chess960=chess960)
             fen = board.initial_fen
             print()
@@ -224,6 +229,11 @@ class GamePlayTestCase(AioHTTPTestCase):
             print(i, variant)
             variant960 = variant.endswith("960")
             variant_name = variant[:-3] if variant960 else variant
+
+            if variant_name not in FSF_VARIANTS:
+                print("%s is not supported by FSF" % variant)
+                continue
+
             game_id = id8()
             game = Game(
                 self.app,
