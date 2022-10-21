@@ -6,7 +6,7 @@ import unittest
 import pyffish as sf
 
 from compress import encode_moves, decode_moves
-from fairy import FairyBoard
+from fairy import FairyBoard, FSF_VARIANTS
 from const import VARIANTS
 
 sf.set_option("VariantPath", "variants.ini")
@@ -17,6 +17,11 @@ class EncodeDecodeTestCase(unittest.TestCase):
         for idx, variant in enumerate(VARIANTS):
             print(idx, variant)
             variant = variant.rstrip("960")
+
+            if variant not in FSF_VARIANTS:
+                print("%s is not supported by FSF" % variant)
+                continue
+
             FEN = sf.start_fen(variant)
             # fill the pockets with possible pieces
             for empty_pocket in ("[]", "[-]"):
