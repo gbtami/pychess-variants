@@ -173,6 +173,7 @@
                         <small class="form-help">In your own local timezone. This overrides the &quot;Time before tournament starts&quot; setting</small>
                     </div>
 
+                    {% if admin %}
                     <div class="form-check form-group">
                         <div>
                             <label class="form-label" for="form3-shield">Shield</label>
@@ -180,11 +181,9 @@
                                 <input id="form3-shield" name="shield" value="true" type="checkbox" class="form-control cmn-toggle"/>
                             </span>
                         </div>
-                        <small class="form-help">This will be removed
-                            <br />when we will have sheduled tourneys.
-                        </small>
                     </div>
                     <input type="hidden" name="shield" value="false" />
+                    {% endif %}
                 </div>
 
                 <div class="form-actions">
@@ -234,7 +233,7 @@
             <h2>Other important rules.</h2>
             <p>There is a countdown for your first move. Failing to make a move within this time will forfeit the game to your opponent.</p>
             <p>Drawing the game within the first 10 moves will earn neither player any points.</p>
-            <p>Draw streaks: When a player has consecutive draws in an arena, only the first draw will result in a point, or draws lasting more than 30 moves. The draw streak can only be broken by a win, not a loss or a draw.</p>
+            <p>Draw streaks: When a player has consecutive draws in an arena, only the first draw will result in a point, or draws lasting more than 30 moves. The draw streak can only be broken by a win, not a loss or a draw (Not implemented on pychess atm!).</p>
         </div>
     </main>
 </div>
