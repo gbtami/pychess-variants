@@ -46,7 +46,7 @@ async def create_or_update_tournament(app, username, form, tournament=None):
     base = float(form["clockTime"])
     inc = int(form["clockIncrement"])
     bp = int(form["byoyomiPeriod"])
-    frequency = SHIELD if form["shield"] == "true" else ""
+    frequency = SHIELD if form.get("shield", "") == "true" else ""
 
     if form["startDate"]:
         start_date = datetime.fromisoformat(form["startDate"].rstrip("Z")).replace(
