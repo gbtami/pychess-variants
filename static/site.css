@@ -559,7 +559,7 @@ under-lobby {
 }
 div.news {
   margin: 0;
-  padding: 0;
+  padding: 5vh;
 }
 a.news {
   margin-right: 0.4em;
