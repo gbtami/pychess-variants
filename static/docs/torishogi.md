@@ -4,7 +4,7 @@
 --- | ---
 ![International Set](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/ToriIntl.png) | ![Traditional Set](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/ToriKanji.png)
 
-*Tori Shogi* (禽将棋/鳥将棋), Japanese for Bird Chess/Shogi, is a Shogi variant invented by Toyota Genryu in 1799, although traditionally attributed to his master Ōhashi Sōei. The game is played on a 7x7 board and is one of the oldest Shogi variants to use the drop rule. The game enjoys a relative degree of popularity to this day, including English-language books and tournaments.
+*Tori Shogi* (禽将棋/鳥将棋), Japanese for Bird Shogi, is a Shogi variant invented by Toyota Genryu in 1799, although traditionally attributed to his master Ōhashi Sōei. The game is played on a 7x7 board and is one of the oldest Shogi variants to use the drop rule. The game enjoys a relative degree of popularity to this day, including English-language books and tournaments.
 
 ## Rules
 
@@ -17,7 +17,7 @@ Tori Shogi rules are very similar to Shogi, so we will break it down to rules th
   * **You may not drop a piece where it can't move, such as a Swallow on the last rank.**
 * **Promotions** - Certain pieces can promote. This happens either moving (not dropping) into the promotion zone, or beginning a move from the promotion zone. The promotion zone is the last two ranks of the board. *Only two* pieces promote (unlike Shogi).
   * Promotions are compulsory, unlike in Shogi.
-* **Repetition** - The rule for repetition (千日手 sennichite) in Tori Shogi is that if the same position occurs three times with the same player to play by repetition of moves, the player starting the sequence must vary the move. For two positions to be considered the same, the pieces in hand must be the same, as well as the position on the board. Note that in Shogi, repetition leads to a draw.
+* **Repetition** - The rule for repetition (千日手 sennichite) in Tori Shogi is that if the same position occurs three times with the same player to play by repetition of moves, the player starting the sequence must vary the move. Otherwise, causing repitition is illegal and ends as a *loss*. For two positions to be considered the same, the pieces in hand must be the same, as well as the position on the board. Note that this is different than Shogi, where repetition leads to a draw.
 * **Stalemate** is a loss for the player who cannot move their Phoenix. Note that this is technically not the actual rule: the real rule is an illegal move is a loss. Stalemate is a condition where the stalemated player can only make illegal moves.
 
 *Sente/Gote* - In Pychess, sente/gote correspond to black/white. *Sente* means the first player, and in the default set, is indicated by the Phoenix having dark wings.
@@ -26,15 +26,15 @@ Tori Shogi rules are very similar to Shogi, so we will break it down to rules th
 
 ## Intro to Pieces
 
-All Tori Shogi pieces (except two) are new, and learning them may be daunting for new players. This guide will draw to simplify this as much as possible. For starters, we will use the internationalized set\*. The symbols used in the international set are unique in that nearly every piece has a *mnemonic device in the shape of the bird/picture on the piece*, where the birds point to where they move, so please take advantage of this when learning the game. How does this work? Take a look at this *fake piece* below:
+All Tori Shogi pieces (except two) are new, and learning them may be daunting for new players. This guide will draw to simplify this as much as possible. For starters, we will use the internationalized set\*. The symbols used in the international set are unique in that nearly every piece has a *mnemonic device in the shape of the bird/picture on the piece*, where the birds point to where they move. How does this work? Take a look at this *fake piece* below:
 
 ![A fake piece](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/FakeBird.png)
 
-If you were to guess, how would this make-believe piece move?  Note how it has a *long beak pointing up, long wings pointing to the sides, and long talons pointing diagonally backwards*. A logical guess would be that it moves like a *rook* orthogonally left and right (wings) and up (beak), while moving like a *bishop* diagonally backwards (talons). It also has a *small little tail poking straight down*, so it's also a reasonable assumption that this piece can also go backwards just a little bit, likely one space. Now, on to the real pieces.
+All the points and protrusions on this piece (heads, wings, etc) would point to the directions it moves. Now, on to the real pieces.
 
 Two pieces are very straightforward as they are just renamed versions of the king and pawn from Shogi. The rest of the pieces are all unique. To make things simple, these new pieces' movements fall into two main patterns: 
 
-1. **Pieces that move like a king**
+1. **Pieces that move like a king (single-step movers)**
 2. **Pieces whose moves resemble a Y-shape (right-side up or upside-down)**
 
 As mentioned in the rules, **only two pieces promote**. The weakest piece in the game promotes to a very weak piece, while the strongest unpromoted piece in the game promotes into a far stronger piece. These two pieces will be discussed last, and both fall into the Y-shape class (both happen to be right-side up Y's).
@@ -65,7 +65,7 @@ The Swallow is one of the two promotable pieces, and it promotes to the **Goose*
 
 ![King-like pieces](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/KinglikePieces.png) 
 
-These pieces are like the generals from Shogi, but even stronger. Why are they "king-like"? They move very much like a King (only step into any of the adjacent 8 squares) except missing a square or two, and they start right next to the Phoenix (this game's king). The key to these pieces is simply remembering which squares are their blind spots. On the international set, this is indicated by an open area in the side corresponding to the piece's blind spot.
+These pieces are like the generals from Shogi, but even stronger. Why are they "king-like"? They move very much like a King (only step into any of the adjacent 8 squares) except missing a square or two, and they start right next to the Phoenix (this game's "king"). The key to these pieces is simply remembering which squares are their blind spots. On the international set, this is indicated by an open area in the side corresponding to the piece's blind spot.
 
 ### Falcon
 
@@ -85,15 +85,15 @@ The Crane (鶴, *tsuru*) moves like a king except *it cannot move sideways (left
 
 ![Upside-down Y pieces](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/UpsidedownYPieces.png) 
 
-The main feature of these pieces is that their move patterns resemble an upside-down Y (⅄). *One is weak and can jump (like a chess knight). The other(s) is stronger and is a ranging piece (i.e. can move as many steps as it wants in that direction).* These exact words will be repeated for the next group of pieces.
+The main feature of these pieces is that their move patterns resemble an upside-down Y (⅄). *One is weak and can jump (like a chess knight). The other(s) is stronger and is a ranging piece (i.e. can move as many steps as it wants in that direction).*
 
 ### Pheasant
 
 ![Pheasant](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Pheasant.png)
 
-The Pheasant (雉, *kiji*) moves either one space diagonally backward or can jump two spaces straight forward. *Jump* means that it can still go there even if there is a piece in the way (like a chess/shogi knight). Essentially, this piece is the Tori Shogi equivalent of the Shogi knight.
+The Pheasant (雉, *kiji*) moves either one space diagonally backward or can jump two spaces straight forward. *Jump* means that it can still go there even if there is a piece in the way. Essentially, this piece is the Tori Shogi equivalent of the Shogi knight because of the jump.
 
-FYI, the red circle above the pheasant is the "rising sun" -- the green pheasant depicted here is the national bird of Japan.
+Sidenote: the red circle above the pheasant is the "rising sun" -- the green pheasant depicted here is the national bird of Japan.
 
 ### Quails (Left and Right)
 
@@ -105,7 +105,7 @@ The Quails (鶉, *uzura*) start in the corners of the board and are two separate
 
 The Quails are tied with the Falcon for being the strongest unpromoted piece in the game. However, unlike the Falcon, they cannot promote.
 
-A note on the kanji set: Traditional sets just use the character for quail on the front and "left" or "right" on the back. As players playing online cannot physically peek under the pieces, we put the kanji for left (左) and right (右) above the kanji for quail.
+A note on the *kanji* set: Traditional sets just use the character for quail on the front and "left" or "right" on the back. As players playing online cannot physically peek under the pieces, we put the kanji for left (左) and right (右) above the kanji for quail.
 
 ## Y-shaped Pieces (Promoted Pieces)
 
@@ -127,7 +127,7 @@ The Mountain Hawk Eagle (鵰, *kumataka*), or simply Eagle, is the promoted form
 
 1. It ranges in a Y-shape (wings and tail) -- It can move any number of spaces diagonally forward or straight backwards.
 2. It can move like a king (one step in any of the 8 spaces around the piece) -- this technically makes it a "Y-shaped piece" AND a "king-like piece", but the Y-shape is the dominant part of this piece.
-3. Finally, it can also move two spaces diagonally backwards (indicated by the Eagle's talons). This is not a jumping move; it can be blocked.
+3. Finally, it can also move up to two spaces diagonally backwards (indicated by the Eagle's talons). This is not a jumping move; it can be blocked.
 
 This is by far the strongest piece in the game.
 
@@ -180,7 +180,7 @@ Falcon | 7
 
 Pieces are worth slightly less in hand, except for the Swallow, which is slightly worth more in hand.
 
-Note that while these are the values used in that particular Shogi app, it has been the author's experience that cranes are actually worth more than quails, especially as they are more capable of delivering checkmate. In most cases, it's worth it to trade your own quail to take a crane.
+Note that while these are the values used in that particular Shogi app, **please take these numbers with a grain of salt**. it has been the author's experience that **cranes are actually worth more than quails**, especially as they are more capable of delivering checkmate. In most cases, it's worth it to trade your own quail to take a crane. This has also been confirmed by Stockfish analysis
 
 ### Openings
 

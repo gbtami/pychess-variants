@@ -775,6 +775,7 @@ export class RoundController extends GameController {
                     turnColor: this.turnColor,
                     check: msg.check,
                     lastMove: lastMove,
+                    movable: { color: undefined },
                 });
             }
             if (this.clockOn && msg.status < 0) {
@@ -828,7 +829,7 @@ export class RoundController extends GameController {
         super.goPly(ply, plyVari);
 
         if (this.spectator || this.turnColor !== this.mycolor || this.result !== "*" || ply !== this.steps.length - 1) {
-            this.chessground.set({ movable: { dests: undefined } });
+            this.chessground.set({ movable: { color: undefined } });
         }
 
         this.updateMaterial();

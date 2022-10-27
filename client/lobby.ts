@@ -975,6 +975,14 @@ export function lobbyView(model: PyChessModel): VNode[] {
         h('div.tv', [h('a#tv-game', { attrs: {href: '/tv'} })]),
         h('under-lobby', [
             h('posts', [
+                h('a.post', { attrs: {href: '/news/Crazyhouse960_Tournament_Spring_Invitational_2022'} }, [
+                    h('img', { attrs: {src: model.assetURL + '/images/one-flew-over-the-cuckoos-nest.jpg '} }),
+                    h('span.text', [
+                        h('strong', _("Crazyhouse960 Tournament Spring Invitational 2022")),
+                        h('span', _('Final Standings')),
+                    ]),
+                    h('time', '2022.10.02'),
+                ]),
                 h('a.post', { attrs: {href: '/news/NNUE_Everywhere'} }, [
                     h('img', { attrs: {src: model.assetURL + '/images/Weights-nn-62ef826d1a6d.png'} }),
                     h('span.text', [
@@ -991,6 +999,7 @@ export function lobbyView(model: PyChessModel): VNode[] {
                     ]),
                     h('time', '2022.02.01'),
                 ]),
+                /*
                 h('a.post', { attrs: {href: '/news/Merry_Chakmas'} }, [
                     h('img', { attrs: {src: model.assetURL + '/images/QuetzalinTikal.png'} }),
                     h('span.text', [
@@ -999,7 +1008,6 @@ export function lobbyView(model: PyChessModel): VNode[] {
                     ]),
                     h('time', '2021.12.24'),
                 ]),
-                /*
                 h('a.post', { attrs: {href: '/news/Cold_Winter'} }, [
                     h('img', { attrs: {src: model.assetURL + '/images/board/ChakArt.jpg'} }),
                     h('span.text', [
