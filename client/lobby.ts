@@ -981,7 +981,7 @@ export function lobbyView(model: PyChessModel): VNode[] {
                         h('strong', _("Crazyhouse960 Tournament Spring Invitational 2022")),
                         h('span', _('Final Standings')),
                     ]),
-                    h('time', '2022.08.04'),
+                    h('time', '2022.10.02'),
                 ]),
                 h('a.post', { attrs: {href: '/news/NNUE_Everywhere'} }, [
                     h('img', { attrs: {src: model.assetURL + '/images/Weights-nn-62ef826d1a6d.png'} }),
