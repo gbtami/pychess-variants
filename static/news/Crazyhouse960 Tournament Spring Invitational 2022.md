@@ -11,10 +11,10 @@
     </div>
 </div>
 
+![One Flew Over the Cuckoo's Nest (1975)](https://github.com/gbtami/pychess-variants/blob/master/static/images/one-flew-over-the-cuckoos-nest.jpg)
 <p align="center">
-  <img src="https://github.com/gbtami/pychess-variants/blob/master/static/icons/Crazyhouse960.svg" width="150" height="150">
+  (By the way, the image is from One Flew Over the Cuckoo's Nest (1975), highly recommended movie)
 </p>
-<br>
 
 Hello everyone,
 
