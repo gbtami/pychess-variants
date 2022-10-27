@@ -976,7 +976,7 @@ export function lobbyView(model: PyChessModel): VNode[] {
         h('under-lobby', [
             h('posts', [
                 h('a.post', { attrs: {href: '/news/Crazyhouse960_Tournament_Spring_Invitational_2022'} }, [
-                    h('img', { attrs: {src: model.assetURL + '/icons/Crazyhouse960.svg'} }),
+                    h('img', { attrs: {src: model.assetURL + '/images/one-flew-over-the-cuckoos-nest.jpg '} }),
                     h('span.text', [
                         h('strong', _("Crazyhouse960 Tournament Spring Invitational 2022")),
                         h('span', _('Final Standings')),
