@@ -1,4 +1,5 @@
 NEWS = {
+    "Crazyhouse960_Tournament_Spring_Invitational_2022": "2022-10-02",
     "NNUE_Everywhere": "2022-08-04",
     "Serving_a_New_Variant": "2022-02-01",
     "Merry_Chakmas": "2021-12-24",
