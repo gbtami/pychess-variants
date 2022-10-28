@@ -104,6 +104,7 @@ async def get_work(request, data):
 
 async def fishnet_acquire(request):
     data = await request.json()
+    print("fishnet_acquire()", data)
 
     fm = request.app["fishnet_monitor"]
     fv = request.app["fishnet_versions"]
