@@ -1,4 +1,4 @@
-aiohttp-session==2.11.0
+aiohttp-session==2.12.0
 aiohttp-sse==2.1.0
 aiohttp==3.8.3
 brotli==1.0.9
