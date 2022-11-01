@@ -16,7 +16,7 @@
   "funding": "patreon.com/pychess",
   "dependencies": {
     "chessgroundx": "^10.2.2",
-    "ffish-es6": "^0.6.9",
+    "ffish-es6": "^0.7.0",
     "fairy-stockfish-nnue.wasm": "^1.0.1",
     "gettext.js": "^1.1.1",
     "highcharts": "^10.1.0",
