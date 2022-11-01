@@ -21,8 +21,11 @@ log = logging.getLogger(__name__)
 
 
 async def is_playing(request, user, ws):
+    # Prevent None user to handle seeks
+    if user is None:
+        return True
     # Prevent users to start new games if they have an unfinished one
-    if (user is not None) and user.game_in_progress is not None:
+    if user.game_in_progress is not None:
         game = await load_game(request.app, user.game_in_progress)
         if (game is None) or game.status > STARTED:
             user.game_in_progress = None
