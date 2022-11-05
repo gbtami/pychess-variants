@@ -53,7 +53,7 @@ async def round_socket_handler(request):
     game = None
     opp_ws = None
 
-    log.debug("-------------------------- NEW round WEBSOCKET by %s", user)
+    log.info("-------------------------- NEW round WEBSOCKET by %s from %s", session_user, request.remote)
 
     try:
         async for msg in ws:
