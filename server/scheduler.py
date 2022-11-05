@@ -51,7 +51,10 @@ MONTHLY_VARIANTS = (
     "xiangqi",
 )
 
-# Old tournaments, paused atm., but needed to create translated tourney names
+# Old MONTHLY tournaments, needed to create translated tourney names
+NO_MORE_VARIANTS = ("manchu",)
+
+# Old WEEKLY tournaments, paused atm., but needed to create translated tourney names
 WEEKLY_VARIANTS = (
     "crazyhouse960",
     "atomic960",
