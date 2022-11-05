@@ -64,6 +64,7 @@ from scheduler import (
     create_scheduled_tournaments,
     new_scheduled_tournaments,
     MONTHLY_VARIANTS,
+    WEEKLY_VARIANTS,
     SEATURDAY,
     SHIELDS,
 )
@@ -250,7 +251,7 @@ async def init_state(app):
             if variant in MONTHLY_VARIANTS or variant in SEATURDAY:
                 tname = translated_tournament_name(variant, MONTHLY, ARENA, translation)
                 app["tourneynames"][lang][(variant, MONTHLY, ARENA)] = tname
-            if variant in SEATURDAY:
+            if variant in SEATURDAY or variant in WEEKLY_VARIANTS:
                 tname = translated_tournament_name(variant, WEEKLY, ARENA, translation)
                 app["tourneynames"][lang][(variant, WEEKLY, ARENA)] = tname
             if variant in SHIELDS:

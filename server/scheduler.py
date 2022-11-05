@@ -51,6 +51,12 @@ MONTHLY_VARIANTS = (
     "xiangqi",
 )
 
+# Old tournaments, paused atm., but needed to create translated tourney names
+WEEKLY_VARIANTS = (
+    "crazyhouse960",
+    "atomic960",
+)
+
 # Monthly Variant Tournaments need different TC
 TC_MONTHLY_VARIANTS = {v: (3, 2, 0) for v in MONTHLY_VARIANTS}
 
