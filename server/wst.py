@@ -44,7 +44,7 @@ async def tournament_socket_handler(request):
         session.invalidate()
         return web.HTTPFound("/")
 
-    log.debug("-------------------------- NEW tournament WEBSOCKET by %s", user)
+    log.info("--- NEW tournament WEBSOCKET by %s from %s", session_user, request.remote)
 
     try:
         async for msg in ws:
