@@ -62,7 +62,10 @@ async def round_socket_handler(request):
                     log.debug("Got 'close' msg.")
                     break
                 elif msg.data == "/n":
-                    await ws.send_str("/n")
+                    try:
+                        await ws.send_str("/n")
+                    except ConnectionResetError:
+                        break
                 else:
                     data = json.loads(msg.data)
                     # log.debug("Websocket (%s) message: %s" % (id(ws), msg))
