@@ -66,7 +66,7 @@ async def lobby_socket_handler(request):
         session.invalidate()
         return web.HTTPFound("/")
 
-    log.debug("-------------------------- NEW lobby WEBSOCKET by %s", user)
+    log.info("--- NEW lobby WEBSOCKET by %s from %s", session_user, request.remote)
 
     try:
         async for msg in ws:
