@@ -1,11 +1,12 @@
-import Sockette from 'sockette';
+import WebsocketHeartbeatJs from 'websocket-heartbeat-js';
 
 import { h, VNode } from 'snabbdom';
 
 import { Chessground } from 'chessgroundx';
 
+import { newWebsocket } from './socket';
 import { JSONObject } from './types';
-import { _, ngettext } from './i18n';
+import { _, ngettext, languageSettings } from './i18n';
 import { patch } from './document';
 import { chatMessage, chatView, IChatController } from './chat';
 import { validFen, VARIANTS, selectVariant, Variant } from './chess';
@@ -17,7 +18,7 @@ import { variantPanels } from './lobby/layer1';
 import { Stream, Spotlight, MsgInviteCreated, MsgHostCreated, MsgGetSeeks, MsgNewGame, MsgGameInProgress, MsgUserConnected, MsgPing, MsgError, MsgShutdown, MsgGameCounter, MsgUserCounter, MsgStreams, MsgSpotlights, Seek, CreateMode } from './lobbyType';
 
 export class LobbyController implements IChatController {
-    sock: Sockette;
+    sock: WebsocketHeartbeatJs;
     home: string;
     assetURL: string;
     // player;
@@ -61,8 +62,7 @@ export class LobbyController implements IChatController {
         this.validGameData = false;
         this.seeks = [];
 
-        const onOpen = (evt: Event) => {
-            this.readyState = (evt.target as EventSource).readyState;
+        const onOpen = () => {
             console.log('onOpen()');
             // console.log("---CONNECTED", evt);
             // prevent losing my seeks in case of websocket reconnections
@@ -77,24 +77,10 @@ export class LobbyController implements IChatController {
             this.doSend({ type: "get_seeks" });
         }
 
-        this.readyState = -1;
-        const opts = {
-            maxAttempts: 20,
-            onopen: (e: Event) => onOpen(e),
-            onmessage: (e: MessageEvent) => this.onMessage(e),
-            onreconnect: (e: Event | CloseEvent) => console.log('Reconnecting in lobby...', e),
-            onmaximum: (e: CloseEvent) => console.log('Stop Attempting!', e),
-            onclose: (e: CloseEvent) => {console.log('Closed!', e);},
-            onerror: (e: Event) => console.log('Error:', e),
-        };
+        this.sock = newWebsocket('wsl');
+        this.sock.onopen = () => onOpen();
+        this.sock.onmessage = (e: MessageEvent) => this.onMessage(e);
 
-        const ws = location.protocol.indexOf('https') > -1 ? 'wss://' : 'ws://';
-        this.sock = new Sockette(ws + location.host + "/wsl", opts);
-
-        // get seeks when we are coming back after a game
-        if (this.readyState === 1) {
-            this.doSend({ type: "get_seeks" });
-        }
         patch(document.getElementById('seekbuttons') as HTMLElement, h('div#seekbuttons', this.renderSeekButtons()));
         patch(document.getElementById('lobbychat') as HTMLElement, chatView(this, "lobbychat"));
 
@@ -125,8 +111,6 @@ export class LobbyController implements IChatController {
         const e = document.getElementById("fen") as HTMLInputElement;
         if (this.fen !== "")
             e.value = this.fen;
-        if (this.anon)
-            e.disabled = true;
     }
 
     doSend(message: JSONObject) {
@@ -656,7 +640,11 @@ export class LobbyController implements IChatController {
         if (seek.fen) {
             tooltipImage = h('minigame.' + variant.board + '.' + variant.piece, [
                 h('div.cg-wrap.' + variant.cg + '.minitooltip',
-                    { hook: { insert: (vnode) => Chessground(vnode.elm as HTMLElement,{ coordinates: false, fen: seek.fen, geometry: variant.geometry }) } }
+                    { hook: { insert: (vnode) => Chessground(vnode.elm as HTMLElement, {
+                        coordinates: false,
+                        fen: seek.fen,
+                        dimensions: variant.boardDimensions,
+                    })}}
                 ),
             ]);
         } else {
@@ -689,11 +677,13 @@ export class LobbyController implements IChatController {
         const chess960 = spotlight.chess960;
         const variantName = variant.displayName(chess960);
         const dataIcon = variant.icon(chess960);
+        const lang = languageSettings.value;
+        const name = spotlight.names[lang] ?? spotlight.names['en'];
 
         return h('a.tour-spotlight', { attrs: { "href": "/tournament/" + spotlight.tid } }, [
             h('i.icon', { attrs: { "data-icon": dataIcon } }),
             h('span.content', [
-                h('span.name', spotlight.name),
+                h('span.name', name),
                 h('span.more', [
                     h('variant', variantName + ' • '),
                     h('nb', ngettext('%1 player', '%1 players', spotlight.nbPlayers) + ' • '),
@@ -705,6 +695,7 @@ export class LobbyController implements IChatController {
 
     onMessage(evt: MessageEvent) {
         // console.log("<+++ lobby onMessage():", evt.data);
+        if (evt.data === '/n') return;
         const msg = JSON.parse(evt.data);
         switch (msg.type) {
             case "get_seeks":
@@ -883,20 +874,36 @@ export function lobbyView(model: PyChessModel): VNode[] {
         ]),
         h('under-lobby', [
             h('posts', [
-                // TODO: create news documents in mongodb and load latest 3 dinamically here
+                h('a.post', { attrs: {href: '/news/Crazyhouse960_Tournament_Spring_Invitational_2022'} }, [
+                    h('img', { attrs: {src: model.assetURL + '/images/one-flew-over-the-cuckoos-nest.jpg '} }),
+                    h('span.text', [
+                        h('strong', _("Crazyhouse960 Tournament Spring Invitational 2022")),
+                        h('span', _('Final Standings')),
+                    ]),
+                    h('time', '2022.10.02'),
+                ]),
+                h('a.post', { attrs: {href: '/news/NNUE_Everywhere'} }, [
+                    h('img', { attrs: {src: model.assetURL + '/images/Weights-nn-62ef826d1a6d.png'} }),
+                    h('span.text', [
+                        h('strong', _("Fairy-Stockfish on PyChess")),
+                        h('span', _('NNUE Everywhere')),
+                    ]),
+                    h('time', '2022.08.04'),
+                ]),
                 h('a.post', { attrs: {href: '/news/Serving_a_New_Variant'} }, [
                     h('img', { attrs: {src: model.assetURL + '/images/ChessTennis.jpg'} }),
                     h('span.text', [
-                        h('strong', "Tennis and chess"),
-                        h('span', 'Serving a New Variant'),
+                        h('strong', _("Tennis and chess")),
+                        h('span', _('Serving a New Variant')),
                     ]),
                     h('time', '2022.02.01'),
                 ]),
+                /*
                 h('a.post', { attrs: {href: '/news/Merry_Chakmas'} }, [
                     h('img', { attrs: {src: model.assetURL + '/images/QuetzalinTikal.png'} }),
                     h('span.text', [
-                        h('strong', "Christmas gift from PyChess"),
-                        h('span', 'Merry Chak-mas!'),
+                        h('strong', _("Christmas gift from PyChess")),
+                        h('span', _('Merry Chak-mas!')),
                     ]),
                     h('time', '2021.12.24'),
                 ]),
@@ -908,7 +915,6 @@ export function lobbyView(model: PyChessModel): VNode[] {
                     ]),
                     h('time', '2021.12.21'),
                 ]),
-                /*
                 h('a.post', { attrs: {href: '/news/Hot_Summer'} }, [
                     h('img', { attrs: {src: model.assetURL + '/images/AngryBirds.png'} }),
                     h('span.text', [

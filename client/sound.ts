@@ -2,6 +2,7 @@ import { h, VNode } from 'snabbdom';
 
 import { Howl } from 'howler';
 
+import { _ } from './i18n';
 import { Variant } from './chess';
 import { StringSettings, NumberSettings } from './settings';
 import { radioList, slider } from './view';
@@ -133,7 +134,7 @@ class VolumeSettings extends NumberSettings {
     }
 
     view(): VNode {
-        return slider(this, 'sound-volume', 0, 1, 0.01);
+        return h('div', slider(this, 'sound-volume', 0, 1, 0.01, _('Volume')));
     }
 }
 
@@ -141,6 +142,9 @@ const soundThemes = {
     silent: "Silent",
     standard: "Standard",
     robot: "Robot",
+    nes: "NES",
+    sfx: "SFX",
+    piano: "Piano",
 };
 
 class SoundThemeSettings extends StringSettings {

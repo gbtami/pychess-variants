@@ -1,7 +1,7 @@
 import asyncio
 import logging
 
-from const import ABORTED
+from const import ABORTED, CASUAL
 from fairy import WHITE, BLACK
 from broadcast import round_broadcast
 
@@ -16,6 +16,7 @@ class Clock:
     def __init__(self, game):
         self.game = game
         self.running = False
+        self.secs = -1
         self.restart()
         self.clock_task = asyncio.create_task(self.countdown())
 
@@ -31,6 +32,13 @@ class Clock:
         else:
             # give some time to make first move
             if self.ply < 2:
+                if self.game.rated == CASUAL:
+                    # Casual games are not timed for the first moves of either
+                    # player. We stop the clock to prevent unnecessary clock
+                    # updates and to give players unlimited time.
+                    self.running = False
+                    return
+                # Rated games have their first move time set
                 self.secs = self.time_for_first_move
             else:
                 self.secs = self.game.ply_clocks[self.ply][
@@ -40,7 +48,7 @@ class Clock:
 
     async def countdown(self):
         while True:
-            while self.secs > 0 and self.running:
+            while self.running and self.secs > 0:
                 await asyncio.sleep(1)
                 self.secs -= 1000
 
@@ -76,9 +84,9 @@ class Clock:
 
     @property
     def time_for_first_move(self):
-        # Fix 30s for janggi becuse it has setup phase
-        if self.game.variant == "janggi":
-            return 30 * 1000
+        # Fix 45s for janggi becuse it has setup phase
+        if self.game.variant == "janggi" or self.game.chess960:
+            return 45 * 1000
 
         egt = self.estimate_game_time
         base = 0
@@ -105,4 +113,4 @@ class Clock:
             else:  # classical
                 base = 35
 
-        return (int(base * 5 / 4) if self.game.chess960 else base) * 1000
+        return base * 1000

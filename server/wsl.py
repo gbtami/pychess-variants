@@ -21,6 +21,9 @@ log = logging.getLogger(__name__)
 
 
 async def is_playing(request, user, ws):
+    # Prevent None user to handle seeks
+    if user is None:
+        return True
     # Prevent users to start new games if they have an unfinished one
     if user.game_in_progress is not None:
         game = await load_game(request.app, user.game_in_progress)
@@ -62,7 +65,7 @@ async def lobby_socket_handler(request):
         session.invalidate()
         return web.HTTPFound("/")
 
-    log.debug("-------------------------- NEW lobby WEBSOCKET by %s", user)
+    log.info("--- NEW lobby WEBSOCKET by %s from %s", session_user, request.remote)
 
     try:
         async for msg in ws:
@@ -70,6 +73,8 @@ async def lobby_socket_handler(request):
                 if msg.data == "close":
                     log.debug("Got 'close' msg.")
                     break
+                elif msg.data == "/n":
+                    await ws.send_str("/n")
                 else:
                     data = json.loads(msg.data)
                     if not data["type"] == "pong":
@@ -257,7 +262,7 @@ async def lobby_socket_handler(request):
                         else:
                             await ws.send_json(response)
 
-                        spotlights = tournament_spotlights(request.app["tournaments"])
+                        spotlights = tournament_spotlights(request.app)
                         if len(spotlights) > 0:
                             await ws.send_json({"type": "spotlights", "items": spotlights})
 

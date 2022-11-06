@@ -16,7 +16,7 @@ MAX_NAMED_SPECTATORS = 20
 T_CREATED, T_STARTED, T_ABORTED, T_FINISHED, T_ARCHIVED = range(5)
 
 # tournament frequency
-DAILY, WEEKLY, MONTHLY, YEARLY, MARATHON, SHIELD = "d", "w", "m", "y", "a", "s"
+HOURLY, DAILY, WEEKLY, MONTHLY, YEARLY, MARATHON, SHIELD = "h", "d", "w", "m", "y", "a", "s"
 
 # tournament pairing
 ARENA, RR, SWISS = range(3)
@@ -255,7 +255,7 @@ def variant_display_name(variant):
     elif variant == "shouse":
         return "S-HOUSE"
     elif variant == "cambodian":
-        return "OUK CHATRANG"
+        return "OUK CHAKTRANG"
     elif variant == "ordamirror":
         return "ORDA MIRROR"
     elif variant == "gorogoroplus":
@@ -268,12 +268,79 @@ def variant_display_name(variant):
         return variant.upper()
 
 
-def pairing_system_name(system):
-    if system == 0:
-        return "Arena"
-    elif system == 1:
-        return "Round-Robin"
-    elif system == 2:
-        return "Swiss"
-    else:
-        return ""
+#  Deferred translations!
+
+
+def _(message):
+    return message
+
+
+TRANSLATED_PAIRING_SYSTEM_NAMES = {
+    0: _("Arena"),
+    1: _("Round-Robin"),
+    2: _("Swiss"),
+}
+
+TRANSLATED_FREQUENCY_NAMES = {
+    "h": _("Hourly"),
+    "d": _("Daily"),
+    "w": _("Weekly"),
+    "m": _("Monthly"),
+    "y": _("Yearly"),
+    "a": _("Marathon"),
+    "s": _("Shield"),
+    "S": _("SEAturday"),
+}
+
+TRANSLATED_VARIANT_NAMES = {
+    "chess": _("Chess"),
+    "chess960": _("Chess960"),
+    "crazyhouse": _("Crazyhouse"),
+    "crazyhouse960": _("Crazyhouse960"),
+    "placement": _("Placement"),
+    "atomic": _("Atomic"),
+    "atomic960": _("Atomic960"),
+    "makruk": _("Makruk"),
+    "makpong": _("Makpong"),
+    "cambodian": _("Ouk Chaktrang"),
+    "sittuyin": _("Sittuyin"),
+    "asean": _("ASEAN"),
+    "shogi": _("Shogi"),
+    "minishogi": _("Minishogi"),
+    "kyotoshogi": _("Kyoto Shogi"),
+    "dobutsu": _("Dobutsu"),
+    # Gorogoro is superseded by Gorogoro Plus
+    # "gorogoro",
+    "gorogoroplus": _("Gorogoro+"),
+    "torishogi": _("Tori Shogi"),
+    "xiangqi": _("Xiangqi"),
+    "manchu": _("Manchu"),
+    "janggi": _("Janggi"),
+    "minixiangqi": _("Minixiangqi"),
+    "capablanca": _("Capablanca"),
+    "capablanca960": _("Capablanca960"),
+    "capahouse": _("Capahouse"),
+    "capahouse960": _("Capahouse960"),
+    # We support to import/store/analyze these variants
+    # but don't support to add them to leaderboard page
+    # "gothic",
+    # "gothhouse",
+    # "embassy",
+    "seirawan": _("S-Chess"),
+    "seirawan960": _("S-Chess960"),
+    "shouse": _("S-House"),
+    "grand": _("Grand"),
+    "grandhouse": _("Grandhouse"),
+    "shogun": _("Shogun"),
+    "shako": _("Shako"),
+    "hoppelpoppel": _("Hoppel-Poppel"),
+    "orda": _("Orda Chess"),
+    "synochess": _("Synochess"),
+    "shinobi": _("Shinobi"),
+    "empire": _("Empire"),
+    "ordamirror": _("Orda Mirror"),
+    "chak": _("Chak"),
+    "chennis": _("Chennis"),
+}
+
+del _

@@ -6,17 +6,34 @@ import { Step } from './messages';
 import { patch } from './document';
 
 export function selectMove (ctrl: GameController, ply: number, plyVari = 0): void {
+    //console.log("selectMove()", ply, plyVari);
+
+    let plyMax = ctrl.steps.length - 1;
+    const vari = "plyVari" in ctrl ? ctrl.steps[ctrl.plyVari]['vari']: undefined;
+    if (vari && ctrl.plyVari > 0) plyMax = ctrl.plyVari + vari.length - 1;
+
+    if (ply < 0 || ply > plyMax) {
+        return
+    }
+
+    if (plyVari > 0 && ply < plyVari) {
+        // back to the main line
+        plyVari = 0;
+    }
+
     ctrl.goPly(ply, plyVari);
+
     if (plyVari === 0) {
         activatePly(ctrl);
         scrollToPly(ctrl);
     } else {
-        activatePlyVari(ply + plyVari);
+        activatePlyVari(ply);
     }
 
 }
 
 function activatePly (ctrl: GameController) {
+    //console.log('activatePly()', ctrl.ply, ctrl.plyVari);
     const active = document.querySelector('move.active');
     if (active) active.classList.remove('active');
 
@@ -40,7 +57,7 @@ function scrollToPly (ctrl: GameController) {
 }
 
 export function activatePlyVari (ply: number) {
-    console.log('activatePlyVari()', ply);
+    //console.log('activatePlyVari()', ply);
     const active = document.querySelector('vari-move.active');
     if (active) active.classList.remove('active');
 
@@ -50,21 +67,11 @@ export function activatePlyVari (ply: number) {
 
 export function createMovelistButtons (ctrl: GameController) {
     const container = document.getElementById('move-controls') as HTMLElement;
-    const vari = "plyVari" in ctrl? ctrl.steps[ctrl.plyVari]['vari']: undefined;
     ctrl.moveControls = patch(container, h('div#btn-controls-top.btn-controls', [
         h('button#flip', { on: { click: () => ctrl.toggleOrientation() } }, [ h('i.icon.icon-refresh') ]),
         h('button', { on: { click: () => selectMove(ctrl, 0) } }, [ h('i.icon.icon-fast-backward') ]),
-        h('button', { on: { click: () => { 
-            // this line is necessary, but I don't understand why
-            ctrl.ply = Math.min(ctrl.ply, "plyVari" in ctrl && ctrl.plyVari > 0 && vari? vari.length - 1 : Number.MAX_VALUE);
-            selectMove(ctrl, 
-                (ctrl.ply === 0 && "plyVari" in ctrl && ctrl.plyVari > 0) ? ctrl.plyVari : Math.max(ctrl.ply - 1, 0),
-                "plyVari" in ctrl ? (ctrl.ply === 0 && ctrl.plyVari > 0) ? 0 : ctrl.plyVari: 0 )
-            } 
-        } }, [ h('i.icon.icon-step-backward') ]),
-        h('button', { on: { click: () => 
-            selectMove(ctrl, Math.min(ctrl.ply + 1, ("plyVari" in ctrl && ctrl.plyVari > 0 && vari? vari.length : ctrl.steps.length) - 1), "plyVari" in ctrl? ctrl.plyVari : 0) } },
-            [ h('i.icon.icon-step-forward') ]),
+        h('button', { on: { click: () => selectMove(ctrl, ctrl.ply - 1, ctrl.plyVari) } }, [ h('i.icon.icon-step-backward') ]),
+        h('button', { on: { click: () => selectMove(ctrl, ctrl.ply + 1, ctrl.plyVari) } }, [ h('i.icon.icon-step-forward') ]),
         h('button', { on: { click: () => selectMove(ctrl, ctrl.steps.length - 1) } }, [ h('i.icon.icon-fast-forward') ]),
     ]));
 }
@@ -74,16 +81,24 @@ export function updateMovelist (ctrl: GameController, full = true, activate = tr
     const plyTo = ctrl.steps.length;
 
     const moves: VNode[] = [];
+
+    const blackStarts = ctrl.steps[0].turnColor === 'black';
+    if (blackStarts && plyFrom === 1) {
+        moves.push(h('move.counter', 1));
+        moves.push(h('move', '...'));
+    }
+
     for (let ply = plyFrom; ply < plyTo; ply++) {
         const move = ctrl.steps[ply].san;
         if (move === null) continue;
 
+        const whiteMove = ctrl.steps[ply].turnColor === 'black';
         const moveEl = [ h('san', move) ];
         const scoreStr = ctrl.steps[ply]['scoreStr'] ?? '';
         moveEl.push(h('eval#ply' + ply, scoreStr));
 
-        if (ply % 2 !== 0)
-            moves.push(h('move.counter', (ply + 1) / 2));
+        if (whiteMove)
+            moves.push(h('move.counter', Math.ceil((ply + 1) / 2)));
 
         const el = h('move', {
             class: { active: ((ply === plyTo - 1) && activate) },
@@ -96,23 +111,23 @@ export function updateMovelist (ctrl: GameController, full = true, activate = tr
         if (ctrl.steps[ply]['vari'] !== undefined && "plyVari" in ctrl) {
             const variMoves = ctrl.steps[ply]['vari'];
 
-            if (ply % 2 !== 0) moves.push(h('move', '...'));
+            if (whiteMove) moves.push(h('move', '...'));
 
             moves.push(h('vari#vari' + ctrl.plyVari,
                 variMoves?
                     variMoves.map((x: Step, idx: number) => {
-                    const currPly = ctrl.plyVari + idx;
+                    const currPly = ctrl.plyVari + idx + ((blackStarts) ? 1 : 0);
                     const moveCounter = (currPly % 2 !== 0) ? (currPly + 1) / 2 + '. ' : (idx === 0) ? Math.floor((currPly + 1) / 2) + '...' : ' ';
                     return h('vari-move', {
-                        attrs: { ply: currPly },
-                        on: { click: () => selectMove(ctrl, idx, ctrl.plyVari) },
+                        attrs: { ply: ctrl.plyVari + idx },
+                        on: { click: () => selectMove(ctrl, ctrl.plyVari + idx, ctrl.plyVari) },
                         }, [ h('san', moveCounter + x['san']) ]
                     );
                 }) : []
             ));
 
-            if (ply % 2 !== 0) {
-                moves.push(h('move.counter', (ply + 1) / 2));
+            if (whiteMove) {
+                moves.push(h('move.counter', Math.ceil((ply + 1) / 2)));
                 moves.push(h('move', '...'));
             }
         }

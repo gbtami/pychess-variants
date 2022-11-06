@@ -53,7 +53,7 @@ async def round_socket_handler(request):
     game = None
     opp_ws = None
 
-    log.debug("-------------------------- NEW round WEBSOCKET by %s", user)
+    log.info("--- NEW round WEBSOCKET by %s from %s", session_user, request.remote)
 
     try:
         async for msg in ws:
@@ -61,6 +61,11 @@ async def round_socket_handler(request):
                 if msg.data == "close":
                     log.debug("Got 'close' msg.")
                     break
+                elif msg.data == "/n":
+                    try:
+                        await ws.send_str("/n")
+                    except ConnectionResetError:
+                        break
                 else:
                     data = json.loads(msg.data)
                     # log.debug("Websocket (%s) message: %s" % (id(ws), msg))
@@ -175,7 +180,6 @@ async def round_socket_handler(request):
                         opp_player = users[opp_name]
 
                         game.steps[0]["fen"] = data["fen"]
-                        game.set_dests()
 
                         if data["color"] == "black":
                             game.bsetup = False
@@ -189,12 +193,13 @@ async def round_socket_handler(request):
                             if opp_player.bot:
                                 game.board.janggi_setup("w")
                                 game.steps[0]["fen"] = game.board.initial_fen
-                                game.set_dests()
                             else:
                                 opp_ws = users[opp_name].game_sockets[data["gameId"]]
                                 await opp_ws.send_json(response)
                         else:
                             game.wsetup = False
+                            game.status = STARTED
+
                             response = game.get_board(full=True)
                             # log.info("User %s asked board. Server sent: %s" % (user.username, board_response["fen"]))
                             await ws.send_json(response)
@@ -577,10 +582,14 @@ async def round_socket_handler(request):
                         opp_player = users[opp_name]
 
                         if not opp_player.bot:
-                            opp_ws = users[opp_name].game_sockets[data["gameId"]]
-                            response = {"type": "moretime", "username": opp_name}
-                            await opp_ws.send_json(response)
-                            await round_broadcast(game, response)
+                            try:
+                                opp_ws = users[opp_name].game_sockets[data["gameId"]]
+                                response = {"type": "moretime", "username": opp_name}
+                                await opp_ws.send_json(response)
+                                await round_broadcast(game, response)
+                            except KeyError:
+                                # opp disconnected
+                                pass
 
                     elif data["type"] == "roundchat":
                         if user.username.startswith("Anon-"):

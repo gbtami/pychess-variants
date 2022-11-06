@@ -1,16 +1,15 @@
-import Sockette from 'sockette';
-
 import { h, VNode } from 'snabbdom';
 
 import { Chessground } from 'chessgroundx';
 import { Api } from "chessgroundx/api";
 
+import { newWebsocket } from './socket';
 import { JSONObject, PyChessModel } from './types';
 import { _ } from './i18n';
 import { patch } from './document';
 import { chatMessage, chatView, IChatController } from './chat';
 //import { sound } from './sound';
-import { VARIANTS, uci2LastMove, Variant } from './chess';
+import { colorIcon, VARIANTS, uci2LastMove, Variant } from './chess';
 import { timeControlStr } from "./view";
 import { initializeClock, localeOptions } from './tournamentClock';
 import { gameType } from './result';
@@ -72,26 +71,14 @@ export class TournamentController implements IChatController {
         this.secondsToStart = 0;
         this.secondsToFinish = 0;
 
-        const onOpen = (evt: Event) => {
-            this.readyState = (evt.target as EventSource).readyState;
-            console.log('onOpen()');
+        const onOpen = () => {
             this.doSend({ type: "tournament_user_connected", username: model["username"], tournamentId: model["tournamentId"]});
             this.doSend({ type: "get_players", "tournamentId": model["tournamentId"], page: this.page });
         }
 
-        this.readyState = -1;
-        const opts = {
-            maxAttempts: 20,
-            onopen: (e: Event) => onOpen(e),
-            onmessage: (e: MessageEvent) => this.onMessage(e),
-            onreconnect: (e: Event | CloseEvent) => console.log('Reconnecting in tournament...', e),
-            onmaximum: (e: CloseEvent) => console.log('Stop Attempting!', e),
-            onclose: (e: CloseEvent) => {console.log('Closed!', e);},
-            onerror: (e: Event) => console.log('Error:', e),
-        };
-
-        const ws = location.protocol.indexOf('https') > -1 ? 'wss://' : 'ws://';
-        this.sock = new Sockette(ws + location.host + "/wst", opts);
+        this.sock = newWebsocket('wst');
+        this.sock.onopen = () => onOpen();
+        this.sock.onmessage = (e: MessageEvent) => this.onMessage(e);
 
         this.variant = VARIANTS[model["variant"]];
         this.chess960 = model["chess960"] === "True";
@@ -337,17 +324,7 @@ export class TournamentController implements IChatController {
                 ]),
                 h('td', game.rating),
                 h('td', [
-                    h('i-side.icon', {
-                        class: {
-                            "icon-white": color === "White",
-                            "icon-black": color === "Black",
-                            "icon-red":   color === "Red",
-                            "icon-blue":  color === "Blue",
-                            "icon-gold":  color === "Gold",
-                            "icon-pink":  color === "Pink",
-                            "icon-green": color === "Green",
-                        }
-                    }),
+                    h('i-side.icon', {class: {[colorIcon(this.variant.name, color)]: true}}),
                 ]),
                 this.result(game.result, game.color),
             ]);
@@ -357,11 +334,11 @@ export class TournamentController implements IChatController {
     private tSystem(system: number) {
         switch (system) {
         case 0:
-            return "Arena";
+            return _('Arena');
         case 1:
-            return "Round-Robin";
+            return _('Round-Robin');
         default:
-            return "Swiss";
+            return _('Swiss');
         }
     }
 
@@ -407,7 +384,7 @@ export class TournamentController implements IChatController {
         const elements = [
         h('div.player', [h('user', [h('rank', '#' + game.br), game.b]), h('div#bresult')]),
         h(`div#mainboard.${variant.board}.${variant.piece}.${variant.boardMark}`, {
-            class: { "with-pockets": variant.pocketRoles('white') !== undefined },
+            class: { "with-pockets": variant.pocket },
             on: { click: () => window.location.assign('/' + game.gameId) }
             }, [
                 h(`div.cg-wrap.${variant.cg}.mini`, {
@@ -415,12 +392,12 @@ export class TournamentController implements IChatController {
                         insert: vnode => {
                             const cg = Chessground(vnode.elm as HTMLElement,  {
                                 fen: game.fen,
-                                // lastMove: game.lastMove,// TODO: i dont see such property in python searching for "top_game"
-                                geometry: variant.geometry,
+                                lastMove: game.lastMove,
+                                dimensions: variant.boardDimensions,
                                 coordinates: false,
                                 viewOnly: true,
-                                addDimensionsCssVars: true,
-                                pocketRoles: color => variant.pocketRoles(color),
+                                addDimensionsCssVarsTo: document.body,
+                                pocketRoles: variant.pocketRoles,
                             });
                             this.topGameChessground = cg;
                             this.topGameId = game.gameId;
@@ -570,6 +547,12 @@ export class TournamentController implements IChatController {
             ]));
         }
 
+        if (msg.defender_name !== undefined) {
+            msg.description = _(
+                'This Shield trophy is unique. The winner keeps it for one month, then must defend it during the next %1 Shield tournament!',
+                this.variant.displayName(chess960)
+            );
+        }
         const description = document.getElementById('description') as Element;
         if (msg.description.length > 0 && description) patch(description, this.renderDescription(msg.description));
 
@@ -675,6 +658,7 @@ export class TournamentController implements IChatController {
 
     onMessage(evt: MessageEvent) {
         //console.log("<+++ tournament onMessage():", evt.data);
+        if (evt.data === '/n') return;
         const msg = JSON.parse(evt.data);
         switch (msg.type) {
             case "ustatus":

@@ -1,4 +1,4 @@
-import Sockette from 'sockette';
+import WebsocketHeartbeatJs from 'websocket-heartbeat-js';
 
 import { h, VNode } from 'snabbdom';
 import * as cg from 'chessgroundx/types';
@@ -7,7 +7,7 @@ import * as util from 'chessgroundx/util';
 import { _ } from './i18n';
 import { patch } from './document';
 import { Step, MsgChat, MsgFullChat, MsgSpectators, MsgShutdown,MsgGameNotFound } from './messages';
-import { uci2LastMove, moveDests, uci2cg } from './chess';
+import { uci2LastMove, moveDests, uci2cg, unpromotedRole } from './chess';
 import { Gating } from './gating';
 import { Promotion } from './promotion';
 import { ChessgroundController } from './cgCtrl';
@@ -17,7 +17,7 @@ import { sound } from './sound';
 import { chatMessage, IChatController } from './chat';
 
 export abstract class GameController extends ChessgroundController implements IChatController {
-    sock: Sockette;
+    sock: WebsocketHeartbeatJs;
 
     // Info
     username: string;
@@ -50,8 +50,7 @@ export abstract class GameController extends ChessgroundController implements IC
     setupFen: string;
     prevPieces: cg.Pieces;
 
-    premove: { orig: cg.Key, dest: cg.Key, metadata?: cg.SetPremoveMetadata } | undefined;
-    predrop: { role: cg.Role, key: cg.Key } | undefined;
+    premove?: { orig: cg.Orig, dest: cg.Key, metadata?: cg.SetPremoveMetadata };
     preaction: boolean;
 
     steps: Step[];
@@ -78,12 +77,11 @@ export abstract class GameController extends ChessgroundController implements IC
     spectator: boolean;
 
     // Settings
-    animation: boolean;
-    showDests: boolean;
     clickDropEnabled: boolean;
     autoPromote?: boolean;
+    dblClickPass?: boolean;
 
-    // analysis
+    // Main line ply where analysis variation starts
     plyVari: number;
 
     constructor(el: HTMLElement, model: PyChessModel) {
@@ -107,9 +105,6 @@ export abstract class GameController extends ChessgroundController implements IC
         this.rated = model["rated"];
 
         this.spectator = this.username !== this.wplayer && this.username !== this.bplayer;
-
-        this.animation = localStorage.animation === undefined ? true : localStorage.animation === "true";
-        this.showDests = localStorage.showDests === undefined ? true : localStorage.showDests === "true";
 
         this.gating = new Gating(this);
         this.promotion = new Promotion(this);
@@ -142,6 +137,15 @@ export abstract class GameController extends ChessgroundController implements IC
 
         this.turnColor = parts[1] === "w" ? "white" : "black";
 
+        this.chessground.set({
+            animation: {
+                enabled: localStorage.animation === undefined || localStorage.animation === "true",
+            },
+            movable: {
+                showDests: localStorage.showDests === undefined || localStorage.showDests === "true",
+            },
+        });
+
         this.steps.push({
             'fen': this.fullfen,
             'move': undefined,
@@ -153,13 +157,8 @@ export abstract class GameController extends ChessgroundController implements IC
     }
 
     flipped() {
-        return (
-            (this.chessground.state.orientation === 'black' && this.mycolor === 'white') ||
-            (this.chessground.state.orientation === 'white' && this.mycolor === 'black')
-        );
+        return this.chessground.state.orientation !== this.mycolor;
     }
-
-    getGround = () => this.chessground;
 
     setDests = () => {
         if (this.ffishBoard === undefined) {
@@ -196,15 +195,15 @@ export abstract class GameController extends ChessgroundController implements IC
 
     goPly(ply: number, plyVari = 0) {
         const vv = this.steps[plyVari]?.vari;
-        const step = (plyVari > 0 && vv) ? vv[ply] : this.steps[ply];
+        const step = (plyVari > 0 && vv) ? vv[ply - plyVari] : this.steps[ply];
         if (step === undefined) return;
 
         const move = uci2LastMove(step.move);
         let capture = false;
-        if (move.length > 0) {
+        if (move) {
             // 960 king takes rook castling is not capture
             // TODO Defer this logic to ffish.js
-            capture = (this.chessground.state.pieces.get(move[move.length - 1]) !== undefined && step.san?.slice(0, 2) !== 'O-') || (step.san?.slice(1, 2) === 'x');
+            capture = (this.chessground.state.boardState.pieces.get(move[1]) !== undefined && step.san?.slice(0, 2) !== 'O-') || (step.san?.slice(1, 2) === 'x');
         }
 
         this.chessground.set({
@@ -242,24 +241,21 @@ export abstract class GameController extends ChessgroundController implements IC
     }
 
     protected onMove = () => {
-        return (orig: cg.Key, dest: cg.Key, capturedPiece: cg.Piece) => {
-            console.log("   ground.onMove()", orig, dest, capturedPiece);
+        return (_orig: cg.Key, _dest: cg.Key, capturedPiece: cg.Piece) => {
             sound.moveSound(this.variant, !!capturedPiece);
         }
     }
 
     protected onDrop = () => {
-        return (piece: cg.Piece, dest: cg.Key) => {
-            // console.log("ground.onDrop()", piece, dest);
-            if (dest !== 'a0' && piece.role) {
+        return (piece: cg.Piece, _dest: cg.Key) => {
+            if (piece.role)
                 sound.moveSound(this.variant, false);
-            }
         }
     }
 
     protected onSelect = () => {
         let lastTime = performance.now();
-        let lastKey: cg.Key = 'a0';
+        let lastKey: cg.Key | undefined;
         return (key: cg.Key) => {
             if (this.chessground.state.movable.dests === undefined) return;
 
@@ -268,29 +264,29 @@ export abstract class GameController extends ChessgroundController implements IC
             // Save state.pieces to help recognise 960 castling (king takes rook) moves
             // Shouldn't this be implemented in chessground instead?
             if (this.chess960 && this.variant.gate) {
-                this.prevPieces = new Map(this.chessground.state.pieces);
+                this.prevPieces = new Map(this.chessground.state.boardState.pieces);
             }
 
             // Sittuyin in place promotion on double click
-            if (lastKey === key && curTime - lastTime < 500) {
+            if (this.chessground.state.stats.ctrlKey || (lastKey === key && curTime - lastTime < 500)) {
                 if (this.chessground.state.movable.dests.get(key)?.includes(key)) {
-                    const piece = this.chessground.state.pieces.get(key)!;
+                    const piece = this.chessground.state.boardState.pieces.get(key)!;
                     if (this.variant.name === 'sittuyin') { // TODO make this more generic
                         // console.log("Ctrl in place promotion", key);
-                        const pieces: cg.Pieces = new Map();
-                        pieces.set(key, {
+                        this.chessground.setPieces(new Map([[key, {
                             color: piece.color,
                             role: 'f-piece',
                             promoted: true
-                        });
-                        this.chessground.setPieces(pieces);
+                        }]]));
                         this.chessground.state.movable.dests = undefined;
                         this.chessground.selectSquare(key);
                         sound.moveSound(this.variant, false);
                         this.sendMove(key, key, 'f');
+                    } else if ((this.chessground.state.stats.ctrlKey || this.dblClickPass) && this.variant.pass) {
+                        this.pass(key);
                     }
                 }
-                lastKey = 'a0';
+                lastKey = undefined;
             } else {
                 lastKey = key;
                 lastTime = curTime;
@@ -298,86 +294,78 @@ export abstract class GameController extends ChessgroundController implements IC
         }
     }
 
-    protected pass = () => {
-        let passKey: cg.Key = 'a0';
-        const pieces = this.chessground.state.pieces;
-        const dests = this.chessground.state.movable.dests!;
-        for (const [k, p] of pieces) {
-            if (p.role === 'k-piece' && p.color === this.turnColor)
-                if (dests.get(k)?.includes(k)) {
-                    passKey = k;
-                    break;
+    protected pass = (passKey?: cg.Key) => {
+        if (this.turnColor === this.chessground.state.movable.color || this.chessground.state.movable.color === 'both') {
+            if (!passKey) {
+                const pieces = this.chessground.state.boardState.pieces;
+                const dests = this.chessground.state.movable.dests;
+                for (const [k, p] of pieces) {
+                    if (p.role === 'k-piece' && p.color === this.turnColor) {
+                        if (dests?.get(k)?.includes(k)) {
+                            passKey = k;
+                            break;
+                        }
+                    }
                 }
-        }
-        if (passKey !== 'a0') {
-            // prevent calling pass() again by selectSquare() -> onSelect()
-            this.chessground.state.movable.dests = undefined;
-            this.chessground.selectSquare(passKey);
-            sound.moveSound(this.variant, false);
-            this.sendMove(passKey, passKey, '');
+            }
+            if (passKey) {
+                // prevent calling pass() again by selectSquare() -> onSelect()
+                this.chessground.unselect();
+                sound.moveSound(this.variant, false);
+                this.sendMove(passKey, passKey, '');
+            }
         }
     }
 
-/**
- * Custom variant-specific logic to be triggered on move and alter state of board/pocket depending on variant rules.
- * TODO: contains also some ui logic - maybe good to split pure chess rules (which maybe can go to chess.ts?)
- *       from rendering dialogs and
- * TODO: Unify this with analysisCtrl
- * */
+    /**
+      * Custom variant-specific logic to be triggered on move and alter state of board/pocket depending on variant rules.
+      */
     protected onUserMove(orig: cg.Key, dest: cg.Key, meta: cg.MoveMetadata) {
         this.preaction = meta.premove;
-        // chessground doesn't knows about ep, so we have to remove ep captured pawn
-        const pieces = this.chessground.state.pieces;
-        // console.log("ground.onUserMove()", orig, dest, meta);
+        const pieces = this.chessground.state.boardState.pieces;
         let moved = pieces.get(dest);
         // Fix king to rook 960 castling case
         if (moved === undefined) moved = {role: 'k-piece', color: this.mycolor} as cg.Piece;
+
+        // chessground doesn't know about en passant, so we have to remove the captured pawn manually
         if (meta.captured === undefined && moved !== undefined && moved.role === "p-piece" && orig[0] !== dest[0] && this.variant.enPassant) {
             const pos = util.key2pos(dest),
-            pawnPos: cg.Pos = [pos[0], pos[1] + (this.mycolor === 'white' ? -1 : 1)];
-            const diff: cg.PiecesDiff = new Map();
-            diff.set(util.pos2key(pawnPos), undefined);
-            this.chessground.setPieces(diff);
-            meta.captured = {role: "p-piece", color: moved.color === "white"? "black": "white"/*or could get it from pieces[pawnPos] probably*/};
+                pawnKey = util.pos2key([pos[0], pos[1] + (this.mycolor === 'white' ? -1 : 1)]);
+            meta.captured = pieces.get(pawnKey);
+            this.chessground.setPieces(new Map([[pawnKey, undefined]]));
         }
-        // increase pocket count
-        // important only during gap before we receive board message from server and reset whole FEN (see also onUserDrop)
-        if (this.variant.drop && meta.captured) {
-            let role = meta.captured.role;
-            if (meta.captured.promoted)
-                role = (this.variant.promotion === 'shogi' || this.variant.promotion === 'kyoto') ? meta.captured.role.slice(1) as cg.Role : "p-piece";
 
-            const pocket = this.chessground.state.pockets ? this.chessground.state.pockets[util.opposite(meta.captured.color)] : undefined;
-            if (pocket && role && role in pocket) {
-                pocket[role]!++;
-                this.chessground.state.dom.redraw(); // TODO: see todo comment also at same line in onUserDrop.
-            }
+        // add the captured piece to the pocket
+        // chessground doesn't know what piece to revert a captured promoted piece into, so it needs to be handled here
+        if (this.variant.captureToHand && meta.captured) {
+            const piece = {
+                role: unpromotedRole(this.variant, meta.captured),
+                color: util.opposite(meta.captured.color),
+            };
+            this.chessground.changePocket(piece, 1);
+            this.chessground.state.dom.redraw();
         }
 
         //  gating elephant/hawk
         if (this.variant.gate) {
-            if (!this.promotion.start(moved.role, orig, dest, meta.ctrlKey) && !this.gating.start(this.fullfen, orig, dest)) this.sendMove(orig, dest, '');
+            if (!this.promotion.start(moved.role, orig, dest, meta.ctrlKey) && !this.gating.start(this.fullfen, orig, dest))
+                this.sendMove(orig, dest, '');
         } else {
-            if (!this.promotion.start(moved.role, orig, dest, meta.ctrlKey)) this.sendMove(orig, dest, '');
+            if (!this.promotion.start(moved.role, orig, dest, meta.ctrlKey))
+                this.sendMove(orig, dest, '');
             this.preaction = false;
         }
     }
 
-/**
- * Variant specific logic for when dropping a piece from pocket is performed
- * todo: decreasing of pocket happens here as well even though virtually no variant ever has a drop rule that doesn't decrease pocket.
- *       Only reason currently this is not in chessground is editor where we have a second "pocket" that serves as a palette
- *       Also maybe nice ot think if ui+communication logic can be split out of here (same for onUserMove) so only chess rules remain?
- * */
-    protected onUserDrop(role: cg.Role, dest: cg.Key, meta: cg.MoveMetadata) {
-        this.preaction = meta.predrop === true;
-        // decrease pocket count - todo: covers the gap before we receive board message confirming the move - then FEN is set
-        //                               and overwrites whole board+pocket and refreshes.
-        //                               Maybe consider decrease count on start of drag (like in editor mode)?
-        this.chessground.state.pockets![this.chessground.state.turnColor]![role]! --;
-        this.chessground.state.dom.redraw();
+    /**
+     * Variant specific logic for when dropping a piece from pocket is performed
+     */
+    protected onUserDrop(piece: cg.Piece, dest: cg.Key, meta: cg.MoveMetadata) {
+        this.preaction = meta.premove;
+        const role = piece.role;
         if (this.variant.promotion === 'kyoto') {
-            if (!this.promotion.start(role, 'a0', dest)) this.sendMove(util.dropOrigOf(role), dest, '');
+            if (!this.promotion.start(role, util.dropOrigOf(role), dest))
+                this.sendMove(util.dropOrigOf(role), dest, '');
         } else {
             this.sendMove(util.dropOrigOf(role), dest, '')
         }
@@ -418,6 +406,7 @@ export abstract class GameController extends ChessgroundController implements IC
 
     protected onMessage(evt: MessageEvent) {
         // console.log("<+++ onMessage():", evt.data);
+        if (evt.data === '/n') return;
         const msg = JSON.parse(evt.data);
         switch (msg.type) {
             case "spectators":

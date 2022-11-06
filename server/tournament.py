@@ -403,6 +403,7 @@ class Tournament(ABC):
             "base": self.top_game.base,
             "inc": self.top_game.inc,
             "byoyomi": self.top_game.byoyomi_period,
+            "lastMove": self.top_game.lastmove,
         }
 
     def waiting_players(self):
@@ -581,7 +582,7 @@ class Tournament(ABC):
         await self.broadcast_spotlight()
 
     async def broadcast_spotlight(self):
-        spotlights = tournament_spotlights(self.app["tournaments"])
+        spotlights = tournament_spotlights(self.app)
         lobby_sockets = self.app["lobbysockets"]
         response = {"type": "spotlights", "items": spotlights}
         await lobby_broadcast(lobby_sockets, response)
@@ -1073,8 +1074,8 @@ class Tournament(ABC):
                     "bb": game.bberserk,
                 }
             )
-
-        await pairing_table.insert_many(pairing_documents)
+        if len(pairing_documents) > 0:
+            await pairing_table.insert_many(pairing_documents)
 
     async def db_update_pairing(self, game):
         if self.app["db"] is None:

@@ -44,7 +44,7 @@ async def tournament_socket_handler(request):
         session.invalidate()
         return web.HTTPFound("/")
 
-    log.debug("-------------------------- NEW tournament WEBSOCKET by %s", user)
+    log.info("--- NEW tournament WEBSOCKET by %s from %s", session_user, request.remote)
 
     try:
         async for msg in ws:
@@ -52,6 +52,8 @@ async def tournament_socket_handler(request):
                 if msg.data == "close":
                     log.debug("Got 'close' msg.")
                     break
+                elif msg.data == "/n":
+                    await ws.send_str("/n")
                 else:
                     data = json.loads(msg.data)
                     if not data["type"] == "pong":

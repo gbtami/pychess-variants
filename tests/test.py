@@ -2,6 +2,7 @@
 
 import asyncio
 import logging
+import random
 import unittest
 from datetime import datetime, timezone
 from operator import neg
@@ -101,6 +102,35 @@ class GameResultTestCase(AioHTTPTestCase):
         self.assertEqual(game.result, "1-0")
         self.assertEqual(game.status, MATE)
 
+    async def test_janggi_flag_0(self):
+        game = Game(self.app, "12345678", "janggi", "", self.wplayer, self.bplayer)
+        await game.game_ended(self.bplayer, "flag")
+
+        self.assertEqual(game.result, "1-0")
+
+    async def test_janggi_flag_1(self):
+        game = Game(self.app, "12345678", "janggi", "", self.wplayer, self.bplayer)
+        game.bsetup = False
+        await game.game_ended(self.wplayer, "flag")
+
+        self.assertEqual(game.result, "0-1")
+
+    async def test_janggi_flag_2(self):
+        game = Game(self.app, "12345678", "janggi", "", self.wplayer, self.bplayer)
+        game.bsetup = False
+        game.wsetup = False
+        await game.game_ended(self.wplayer, "flag")
+
+        self.assertEqual(game.result, "0-1")
+
+    async def test_janggi_flag_3(self):
+        game = Game(self.app, "12345678", "janggi", "", self.wplayer, self.bplayer)
+        game.bsetup = False
+        game.wsetup = False
+        await game.game_ended(self.bplayer, "flag")
+
+        self.assertEqual(game.result, "1-0")
+
 
 class SanitizeFenTestCase(unittest.TestCase):
     def test_fen_default(self):
@@ -185,7 +215,7 @@ class GamePlayTestCase(AioHTTPTestCase):
 
     async def play_random(self, game):
         while game.status <= STARTED:
-            move = game.random_move
+            move = random.choice(game.legal_moves)
             await game.play_move(move, clocks={"white": 60, "black": 60})
 
     async def test_game_play(self):
@@ -248,7 +278,9 @@ class HighscoreTestCase(AioHTTPTestCase):
     async def play_and_resign(self, game, player):
         clock = game.ply_clocks[0]["white"]
         for i, move in enumerate(("e2e4", "e7e5", "f2f4"), start=1):
-            await game.play_move(move, clocks={"white": clock, "black": clock, "movetime": 0}, ply=i)
+            await game.play_move(
+                move, clocks={"white": clock, "black": clock, "movetime": 0}, ply=i
+            )
         await game.game_ended(player, "resign")
 
     async def test_lost_but_still_there(self):

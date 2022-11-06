@@ -133,7 +133,12 @@ export function analysisView(model: PyChessModel): VNode[] {
                 h('div#ceval', [
                     h('div.engine', [
                         h('score#score', ''),
-                        h('div.info', ['Fairy-Stockfish 14+', h('br'), h('info#info', _('in local browser'))]),
+                        h('div.info', [
+                            'Fairy-Stockfish 14+ ',
+                            h('span.nnue', { props: { title: _('Multi-threaded WebAssembly (classical evaluation)') } } , 'HCE'),
+                            h('br'),
+                            h('info#info', _('in local browser'))
+                        ]),
                         h('label.switch', [
                             h('input#input', {
                                 props: {
@@ -145,7 +150,13 @@ export function analysisView(model: PyChessModel): VNode[] {
                         ]),
                     ]),
                 ]),
-                h('div#pv'),
+                h('div.pvbox', [
+                    h('div#pv1'),
+                    h('div#pv2'),
+                    h('div#pv3'),
+                    h('div#pv4'),
+                    h('div#pv5'),
+                ]),
                 h('div.movelist-block', [
                     h('div#movelist'),
                 ]),
