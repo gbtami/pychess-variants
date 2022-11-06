@@ -141,10 +141,12 @@ class VolumeSettings extends NumberSettings {
 const soundThemes = {
     silent: "Silent",
     standard: "Standard",
-    robot: "Robot",
+    piano: "Piano",
     nes: "NES",
     sfx: "SFX",
-    piano: "Piano",
+    futuristic: "Futuristic",
+    lisp: "Lisp",
+    robot: "Robot",
 };
 
 class SoundThemeSettings extends StringSettings {

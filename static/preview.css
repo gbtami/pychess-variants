@@ -34,6 +34,12 @@ label.piece.piece4.standard {
 label.piece.piece5.standard {
     background-image: url('images/pieces/maestro/wN.svg');
 }
+label.piece.piece6.standard {
+    background-image: url('images/pieces/dubrovny/wN.svg');
+}
+label.piece.piece7.standard {
+    background-image: url('images/pieces/disguised/w.svg');
+}
 
 label.piece.piece0.capa {
     background-image: url('images/pieces/merida/wA.svg');
