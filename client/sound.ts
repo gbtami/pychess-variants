@@ -145,6 +145,7 @@ const soundThemes = {
     nes: "NES",
     sfx: "SFX",
     piano: "Piano",
+    futuristic: "Futuristic",
 };
 
 class SoundThemeSettings extends StringSettings {
