@@ -1,0 +1,36 @@
+.standard .cg-wrap piece.p-piece.white {
+    background-image: url('../../images/pieces/dubrovny/wP.svg');
+}
+.standard .cg-wrap piece.b-piece.white {
+    background-image: url('../../images/pieces/dubrovny/wB.svg');
+}
+.standard .cg-wrap piece.n-piece.white {
+    background-image: url('../../images/pieces/dubrovny/wN.svg');
+}
+.standard .cg-wrap piece.r-piece.white {
+    background-image: url('../../images/pieces/dubrovny/wR.svg');
+}
+.standard .cg-wrap piece.q-piece.white {
+    background-image: url('../../images/pieces/dubrovny/wQ.svg');
+}
+.standard .cg-wrap piece.k-piece.white {
+    background-image: url('../../images/pieces/dubrovny/wK.svg');
+}
+.standard .cg-wrap piece.p-piece.black {
+    background-image: url('../../images/pieces/dubrovny/bP.svg');
+}
+.standard .cg-wrap piece.b-piece.black {
+    background-image: url('../../images/pieces/dubrovny/bB.svg');
+}
+.standard .cg-wrap piece.n-piece.black {
+    background-image: url('../../images/pieces/dubrovny/bN.svg');
+}
+.standard .cg-wrap piece.r-piece.black {
+    background-image: url('../../images/pieces/dubrovny/bR.svg');
+}
+.standard .cg-wrap piece.q-piece.black {
+    background-image: url('../../images/pieces/dubrovny/bQ.svg');
+}
+.standard .cg-wrap piece.k-piece.black {
+    background-image: url('../../images/pieces/dubrovny/bK.svg');
+}
