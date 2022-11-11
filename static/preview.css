@@ -59,6 +59,9 @@ label.piece.piece4.capa {
 label.piece.piece5.capa {
     background-image: url('images/pieces/shogun/merida/blue/wA.svg');
 }
+label.piece.piece6.capa {
+    background-image: url('images/pieces/disguised/w.svg');
+}
 
 label.piece.piece0.seirawan {
     background-image: url('images/pieces/merida/wH.svg');
@@ -78,6 +81,9 @@ label.piece.piece4.seirawan {
 label.piece.piece5.seirawan {
     background-image: url('images/pieces/shogun/merida/blue/wA.svg');
 }
+label.piece.piece6.seirawan {
+    background-image: url('images/pieces/disguised/w.svg');
+}
 
 label.piece.piece0.makruk {
     background-image: url('images/pieces/makruk/ada/bB.svg');
@@ -93,6 +99,9 @@ label.piece.piece3.makruk {
 }
 label.piece.piece4.makruk {
     background-image: url('images/pieces/merida/bS.svg');
+}
+label.piece.piece5.makruk {
+    background-image: url('images/pieces/disguised/w.svg');
 }
 
 label.piece.piece0.sittuyin  {
@@ -110,6 +119,9 @@ label.piece.piece3.sittuyin  {
 label.piece.piece4.sittuyin  {
     background-image: url('images/pieces/merida/bS.svg');
 }
+label.piece.piece5.sittuyin {
+    background-image: url('images/pieces/disguised/w.svg');
+}
 
 label.piece.piece0.asean {
     background-image: url('images/pieces/merida/bS.svg');
@@ -122,6 +134,9 @@ label.piece.piece2.asean {
 }
 label.piece.piece3.asean {
     background-image: url('images/pieces/sittuyin/original/bB.svg');
+}
+label.piece.piece4.asean {
+    background-image: url('images/pieces/disguised/w.svg');
 }
 
 label.piece.piece0.shogi {
@@ -265,6 +280,9 @@ label.piece.piece1.shako {
 label.piece.piece2.shako {
     background-image: url('images/pieces/green/synoshako/wC.svg');
 }
+label.piece.piece3.shako {
+    background-image: url('images/pieces/disguised/w.svg');
+}
 
 label.piece.piece0.shogun {
     background-image: url('images/pieces/shogun/merida/blue/wC.svg');
@@ -283,6 +301,9 @@ label.piece.piece4.shogun {
 }
 label.piece.piece5.shogun {
     background-image: url('images/pieces/shogun/cburnett/mono/wC.svg');
+}
+label.piece.piece6.shogun {
+    background-image: url('images/pieces/disguised/w.svg');
 }
 
 label.piece.piece0.orda {
@@ -319,6 +340,9 @@ label.piece.piece1.hoppel {
 }
 label.piece.piece2.hoppel {
     background-image: url('images/pieces/hoppel/animal/bN.svg');
+}
+label.piece.piece3.hoppel {
+    background-image: url('images/pieces/disguised/w.svg');
 }
 
 label.piece.piece0.shinobi {
