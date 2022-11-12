@@ -1,0 +1,6 @@
+.synochess .cg-wrap piece.white {
+    background-image: url('../../images/pieces/disguised/w.svg');
+}
+.synochess .cg-wrap piece.black {
+    background-image: url('../../images/pieces/disguised/r.svg');
+}

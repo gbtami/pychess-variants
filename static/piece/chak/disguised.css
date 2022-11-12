@@ -1,0 +1,6 @@
+.chak .cg-wrap piece.white {
+    background-image: url('../../images/pieces/disguised/chak-w.svg');
+}
+.chak .cg-wrap piece.black {
+    background-image: url('../../images/pieces/disguised/chak-g.svg');
+}
