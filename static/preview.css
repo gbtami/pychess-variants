@@ -201,6 +201,9 @@ label.piece.piece5.kyoto {
 label.piece.piece0.dobutsu {
     background-image: url('images/pieces/shogi/Ka/0GY.svg');
 }
+label.piece.piece1.dobutsu {
+    background-image: url('images/pieces/disguised/dobutsu-w.svg');
+}
 
 label.piece.piece0.tori {
     background-image: url('images/pieces/tori/Intl/0PhoenixBlack.svg');
