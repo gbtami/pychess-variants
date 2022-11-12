@@ -1,67 +1,6 @@
-.shogun .cg-wrap piece.p-piece.black {
+.shogun .cg-wrap piece.black {
     background-image: url('../../images/pieces/disguised/b.svg');
 }
-.shogun .cg-wrap piece.b-piece.black {
-    background-image: url('../../images/pieces/disguised/b.svg');
-}
-.shogun .cg-wrap piece.n-piece.black {
-    background-image: url('../../images/pieces/disguised/b.svg');
-}
-.shogun .cg-wrap piece.r-piece.black {
-    background-image: url('../../images/pieces/disguised/b.svg');
-}
-.shogun .cg-wrap piece.f-piece.black {
-    background-image: url('../../images/pieces/disguised/b.svg');
-}
-.shogun .cg-wrap piece.k-piece.black {
-    background-image: url('../../images/pieces/disguised/b.svg');
-}
-.shogun .cg-wrap piece.pf-piece.black {
-    background-image: url('../../images/pieces/disguised/b.svg');
-}
-.shogun .cg-wrap piece.pn-piece.black {
-    background-image: url('../../images/pieces/disguised/b.svg');
-}
-.shogun .cg-wrap piece.pr-piece.black {
-    background-image: url('../../images/pieces/disguised/b.svg');
-}
-.shogun .cg-wrap piece.pb-piece.black {
-    background-image: url('../../images/pieces/disguised/b.svg');
-}
-.shogun .cg-wrap piece.pp-piece.black {
-    background-image: url('../../images/pieces/disguised/b.svg');
-}
-
-.shogun .cg-wrap piece.p-piece.white {
-    background-image: url('../../images/pieces/disguised/w.svg');
-}
-.shogun .cg-wrap piece.b-piece.white {
-    background-image: url('../../images/pieces/disguised/w.svg');
-}
-.shogun .cg-wrap piece.n-piece.white {
-    background-image: url('../../images/pieces/disguised/w.svg');
-}
-.shogun .cg-wrap piece.r-piece.white {
-    background-image: url('../../images/pieces/disguised/w.svg');
-}
-.shogun .cg-wrap piece.f-piece.white {
-    background-image: url('../../images/pieces/disguised/w.svg');
-}
-.shogun .cg-wrap piece.k-piece.white {
-    background-image: url('../../images/pieces/disguised/w.svg');
-}
-.shogun .cg-wrap piece.pf-piece.white {
-    background-image: url('../../images/pieces/disguised/w.svg');
-}
-.shogun .cg-wrap piece.pn-piece.white {
-    background-image: url('../../images/pieces/disguised/w.svg');
-}
-.shogun .cg-wrap piece.pr-piece.white {
-    background-image: url('../../images/pieces/disguised/w.svg');
-}
-.shogun .cg-wrap piece.pb-piece.white {
-    background-image: url('../../images/pieces/disguised/w.svg');
-}
-.shogun .cg-wrap piece.pp-piece.white {
+.shogun .cg-wrap piece.white {
     background-image: url('../../images/pieces/disguised/w.svg');
 }

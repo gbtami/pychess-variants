@@ -1,0 +1,6 @@
+.orda .cg-wrap piece.white {
+    background-image: url('../../images/pieces/disguised/w.svg');
+}
+.orda .cg-wrap piece.black {
+    background-image: url('../../images/pieces/disguised/g.svg');
+}

@@ -1,0 +1,6 @@
+.shogi .cg-wrap piece.ally {
+    background-image: url('../../images/pieces/disguised/shogi-ally.svg');
+}
+.shogi .cg-wrap piece.enemy {
+    background-image: url('../../images/pieces/disguised/shogi-enemy.svg');
+}
