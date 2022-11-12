@@ -1,49 +1,6 @@
-.seirawan .cg-wrap piece.h-piece.white {
+.seirawan .cg-wrap piece.white {
     background-image: url('../../images/pieces/disguised/w.svg');
 }
-.seirawan .cg-wrap piece.e-piece.white {
-    background-image: url('../../images/pieces/disguised/w.svg');
-}
-.seirawan .cg-wrap piece.h-piece.black {
-    background-image: url('../../images/pieces/disguised/b.svg');
-}
-.seirawan .cg-wrap piece.e-piece.black {
-    background-image: url('../../images/pieces/disguised/b.svg');
-}
-
-.seirawan .cg-wrap piece.p-piece.white {
-    background-image: url('../../images/pieces/disguised/w.svg');
-}
-.seirawan .cg-wrap piece.b-piece.white {
-    background-image: url('../../images/pieces/disguised/w.svg');
-}
-.seirawan .cg-wrap piece.n-piece.white {
-    background-image: url('../../images/pieces/disguised/w.svg');
-}
-.seirawan .cg-wrap piece.r-piece.white {
-    background-image: url('../../images/pieces/disguised/w.svg');
-}
-.seirawan .cg-wrap piece.q-piece.white {
-    background-image: url('../../images/pieces/disguised/w.svg');
-}
-.seirawan .cg-wrap piece.k-piece.white {
-    background-image: url('../../images/pieces/disguised/w.svg');
-}
-.seirawan .cg-wrap piece.p-piece.black {
-    background-image: url('../../images/pieces/disguised/b.svg');
-}
-.seirawan .cg-wrap piece.b-piece.black {
-    background-image: url('../../images/pieces/disguised/b.svg');
-}
-.seirawan .cg-wrap piece.n-piece.black {
-    background-image: url('../../images/pieces/disguised/b.svg');
-}
-.seirawan .cg-wrap piece.r-piece.black {
-    background-image: url('../../images/pieces/disguised/b.svg');
-}
-.seirawan .cg-wrap piece.q-piece.black {
-    background-image: url('../../images/pieces/disguised/b.svg');
-}
-.seirawan .cg-wrap piece.k-piece.black {
+.seirawan .cg-wrap piece.black {
     background-image: url('../../images/pieces/disguised/b.svg');
 }

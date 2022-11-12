@@ -1,0 +1,6 @@
+.empire .cg-wrap piece.white {
+    background-image: url('../../images/pieces/disguised/g.svg');
+}
+.empire .cg-wrap piece.black {
+    background-image: url('../../images/pieces/disguised/b.svg');
+}

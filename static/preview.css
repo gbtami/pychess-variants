@@ -101,7 +101,7 @@ label.piece.piece4.makruk {
     background-image: url('images/pieces/merida/bS.svg');
 }
 label.piece.piece5.makruk {
-    background-image: url('images/pieces/disguised/w.svg');
+    background-image: url('images/pieces/disguised/b.svg');
 }
 
 label.piece.piece0.sittuyin  {
@@ -120,7 +120,7 @@ label.piece.piece4.sittuyin  {
     background-image: url('images/pieces/merida/bS.svg');
 }
 label.piece.piece5.sittuyin {
-    background-image: url('images/pieces/disguised/w.svg');
+    background-image: url('images/pieces/disguised/sittuyin-g.svg');
 }
 
 label.piece.piece0.asean {
@@ -136,7 +136,7 @@ label.piece.piece3.asean {
     background-image: url('images/pieces/sittuyin/original/bB.svg');
 }
 label.piece.piece4.asean {
-    background-image: url('images/pieces/disguised/w.svg');
+    background-image: url('images/pieces/disguised/b.svg');
 }
 
 label.piece.piece0.shogi {
@@ -175,6 +175,9 @@ label.piece.piece10.shogi {
 label.piece.piece11.shogi {
     background-image: url('images/pieces/shogi/Portella/Intl/0KA.png');
 }
+label.piece.piece12.shogi {
+    background-image: url('images/pieces/disguised/shogi-ally.svg');
+}
 
 label.piece.piece0.kyoto {
     background-image: url('images/pieces/shogi/ctk/0KA.svg');
@@ -191,9 +194,15 @@ label.piece.piece3.kyoto {
 label.piece.piece4.kyoto {
     background-image: url('images/pieces/shogi/Ka/0KA.svg');
 }
+label.piece.piece5.kyoto {
+    background-image: url('images/pieces/disguised/shogi-ally.svg');
+}
 
 label.piece.piece0.dobutsu {
     background-image: url('images/pieces/shogi/Ka/0GY.svg');
+}
+label.piece.piece1.dobutsu {
+    background-image: url('images/pieces/disguised/dobutsu-w.svg');
 }
 
 label.piece.piece0.tori {
@@ -207,6 +216,9 @@ label.piece.piece2.tori {
 }
 label.piece.piece3.tori {
     background-image: url('images/pieces/tori/Portella/0PhoenixBlack.png');
+}
+label.piece.piece4.tori {
+    background-image: url('images/pieces/disguised/shogi-ally.svg');
 }
 
 label.piece.piece0.xiangqi {
@@ -245,6 +257,9 @@ label.piece.piece10.xiangqi {
 label.piece.piece11.xiangqi {
     background-image: url('images/pieces/xiangqi/ttxqintl/red_king.svg');
 }
+label.piece.piece12.xiangqi {
+    background-image: url('images/pieces/disguised/xiangqi-r.svg');
+}
 
 label.piece.piece0.janggi {
     background-image: url('images/pieces/janggi/hanjablue/blue_king.svg');
@@ -269,6 +284,9 @@ label.piece.piece6.janggi {
 }
 label.piece.piece7.janggi {
     background-image: url('images/pieces/janggi/intlgreen/blue_king.svg');
+}
+label.piece.piece8.janggi {
+    background-image: url('images/pieces/disguised/janggi-b.svg');
 }
 
 label.piece.piece0.shako {
@@ -312,6 +330,9 @@ label.piece.piece0.orda {
 label.piece.piece1.orda {
     background-image: url('images/pieces/orda/cburnett/bH.svg');
 }
+label.piece.piece2.orda {
+    background-image: url('images/pieces/disguised/g.svg');
+}
 
 label.piece.piece0.synochess {
     background-image: url('images/pieces/synochess/intl-red/bR.svg');
@@ -331,6 +352,9 @@ label.piece.piece4.synochess {
 label.piece.piece5.synochess {
     background-image: url('images/pieces/xiangqi/hnz/red_chariot.svg');
 }
+label.piece.piece6.synochess {
+    background-image: url('images/pieces/disguised/r.svg');
+}
 
 label.piece.piece0.hoppel {
     background-image: url('images/pieces/merida/bN.svg');
@@ -342,7 +366,7 @@ label.piece.piece2.hoppel {
     background-image: url('images/pieces/hoppel/animal/bN.svg');
 }
 label.piece.piece3.hoppel {
-    background-image: url('images/pieces/disguised/w.svg');
+    background-image: url('images/pieces/disguised/b.svg');
 }
 
 label.piece.piece0.shinobi {
@@ -351,12 +375,18 @@ label.piece.piece0.shinobi {
 label.piece.piece1.shinobi {
     background-image: url('images/pieces/shinobi/cburnett/wJ.svg');
 }
+label.piece.piece2.shinobi {
+    background-image: url('images/pieces/disguised/p.svg');
+}
 
 label.piece.piece0.empire {
     background-image: url('images/pieces/empire/merida/wC.svg');
 }
 label.piece.piece1.empire {
     background-image: url('images/pieces/empire/cburnett/wC.svg');
+}
+label.piece.piece2.empire {
+    background-image: url('images/pieces/disguised/g.svg');
 }
 
 label.piece.piece0.ordamirror {
@@ -365,8 +395,15 @@ label.piece.piece0.ordamirror {
 label.piece.piece1.ordamirror {
     background-image: url('images/pieces/orda/cburnett/bH.svg');
 }
+label.piece.piece2.ordamirror {
+    background-image: url('images/pieces/disguised/g.svg');
+}
+
 label.piece.piece0.chak {
     background-image: url('images/pieces/chak/WK.svg');
+}
+label.piece.piece1.chak {
+    background-image: url('images/pieces/disguised/chak-w.svg');
 }
 label.piece.piece0.chennis {
     background-image: url('images/pieces/chennis/wMN.svg');
@@ -376,4 +413,7 @@ label.piece.piece1.chennis {
 }
 label.piece.piece2.chennis {
     background-image: url('images/pieces/shogun/merida/mono/wC.svg');
+}
+label.piece.piece3.chennis {
+    background-image: url('images/pieces/disguised/w.svg');
 }
