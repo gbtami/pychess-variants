@@ -1,36 +1,6 @@
-.standard .cg-wrap piece.p-piece.white {
+.standard .cg-wrap piece.white {
     background-image: url('../../images/pieces/disguised/w.svg');
 }
-.standard .cg-wrap piece.b-piece.white {
-    background-image: url('../../images/pieces/disguised/w.svg');
-}
-.standard .cg-wrap piece.n-piece.white {
-    background-image: url('../../images/pieces/disguised/w.svg');
-}
-.standard .cg-wrap piece.r-piece.white {
-    background-image: url('../../images/pieces/disguised/w.svg');
-}
-.standard .cg-wrap piece.q-piece.white {
-    background-image: url('../../images/pieces/disguised/w.svg');
-}
-.standard .cg-wrap piece.k-piece.white {
-    background-image: url('../../images/pieces/disguised/w.svg');
-}
-.standard .cg-wrap piece.p-piece.black {
-    background-image: url('../../images/pieces/disguised/b.svg');
-}
-.standard .cg-wrap piece.b-piece.black {
-    background-image: url('../../images/pieces/disguised/b.svg');
-}
-.standard .cg-wrap piece.n-piece.black {
-    background-image: url('../../images/pieces/disguised/b.svg');
-}
-.standard .cg-wrap piece.r-piece.black {
-    background-image: url('../../images/pieces/disguised/b.svg');
-}
-.standard .cg-wrap piece.q-piece.black {
-    background-image: url('../../images/pieces/disguised/b.svg');
-}
-.standard .cg-wrap piece.k-piece.black {
+.standard .cg-wrap piece.black {
     background-image: url('../../images/pieces/disguised/b.svg');
 }
