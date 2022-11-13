@@ -53,6 +53,7 @@ export const BOARD_FAMILIES: { [key: string]: BoardFamily } = {
     shogun8x8: { dimensions: { width: 8, height: 8 }, cg: "cg-512", boardCSS: ["ShogunPlain.svg", "ShogunMaple.png", "ShogunMaple2.png", "ShogunBlue.svg", "8x8brown.svg", "8x8maple.jpg"] },
     chak9x9:{ dimensions: { width: 9, height: 9 }, cg: "cg-540", boardCSS: ["StandardChakBoard.svg", "ColoredChakBoard.svg", "ChakArt.jpg"] },
     chennis7x7:{ dimensions: { width: 7, height: 7 }, cg: "cg-448", boardCSS: ["WimbledonBoard.svg", "FrenchOpenBoard.svg", "USOpenBoard.svg"] },
+    mansindam9x9: { dimensions: { width: 9, height: 9 }, cg: "cg-540", boardCSS: ["9x9mansindam.svg"] },
 };
 
 export const PIECE_FAMILIES: { [key: string]: PieceFamily } = {
@@ -78,6 +79,7 @@ export const PIECE_FAMILIES: { [key: string]: PieceFamily } = {
     ordamirror: { pieceCSS: ["ordamirror0", "ordamirror1", "disguised"] },
     chak: { pieceCSS: ["chak0", "disguised"] },
     chennis: { pieceCSS: ["chennis0", "chennis1", "chennis2", "disguised"] },
+    mansindam: { pieceCSS: ["mansindam"] },
 };
 
 type MandatoryPromotionPredicate = (role: cg.Role, orig: cg.Orig, dest: cg.Key, color: cg.Color) => boolean;
@@ -748,6 +750,18 @@ export const VARIANTS: { [name: string]: Variant } = {
         icon: "🎾",
     }),
 
+    mansindam: new Variant({
+        name: "mansindam", tooltip: () => _("Pantheon tale"),
+        startFen: "rnbakqcnm/9/ppppppppp/9/9/9/PPPPPPPPP/9/MNCQKABNR[] w - - 0 1",
+        board: "mansindam9x9", piece: "mansindam",
+        pieceLetters: ["k", "r", "n", "b", "a", "q", "c", "m", "p"],
+        pocketLetters: ["p", "n", "b", "r", "a", "q", "c", "m"],
+        promotion: "shogi",
+        promoteableLetters: ["n", "b", "r", "c", "m", "p"],
+        boardMark: 'campmate',
+        icon: "℘",
+    }),
+
     // We support to import/store/analyze some variants
     // but don't want to add them to leaderboard page
     embassy: new Variant({
@@ -790,7 +804,7 @@ const variantGroups: { [ key: string ]: { variants: string[] } } = {
     sea:      { variants: [ "makruk", "makpong", "cambodian", "sittuyin", "asean" ] },
     shogi:    { variants: [ "shogi", "minishogi", "kyotoshogi", "dobutsu", "gorogoroplus", "torishogi" ] },
     xiangqi:  { variants: [ "xiangqi", "manchu", "janggi", "minixiangqi" ] },
-    fairy:    { variants: [ "capablanca", "capahouse", "seirawan", "shouse", "grand", "grandhouse", "shako", "shogun", "hoppelpoppel" ] },
+    fairy:    { variants: [ "capablanca", "capahouse", "seirawan", "shouse", "grand", "grandhouse", "shako", "shogun", "hoppelpoppel", "mansindam" ] },
     army:     { variants: [ "orda", "synochess", "shinobi", "empire", "ordamirror", "chak", "chennis" ] },
 };
 

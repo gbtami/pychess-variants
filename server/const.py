@@ -128,6 +128,7 @@ VARIANTS = (
     "ordamirror",
     "chak",
     "chennis",
+    "mansindam",
 )
 
 VARIANT_ICONS = {
@@ -176,6 +177,7 @@ VARIANT_ICONS = {
     "asean": "♻",
     "chak": "🐬",
     "chennis": "🎾",
+    "mansindam": "℘",
 }
 
 VARIANT_960_TO_PGN = {
@@ -341,6 +343,7 @@ TRANSLATED_VARIANT_NAMES = {
     "ordamirror": _("Orda Mirror"),
     "chak": _("Chak"),
     "chennis": _("Chennis"),
+    "mansindam": _("mansindam"),
 }
 
 del _
