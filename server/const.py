@@ -325,7 +325,7 @@ TRANSLATED_VARIANT_NAMES = {
     # but don't support to add them to leaderboard page
     # "gothic",
     # "gothhouse",
-    "embassy": _("Embassy"),
+    # "embassy",
     "seirawan": _("S-Chess"),
     "seirawan960": _("S-Chess960"),
     "shouse": _("S-House"),

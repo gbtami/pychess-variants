@@ -33,10 +33,10 @@ export function pasteView(model: PyChessModel): VNode[] {
             const variantIndex = lines.findIndex((elem) => {return elem.startsWith('[Variant ');});
             if (variantIndex < 0) {
                 // add missing variant tag
-                lines.splice(variantIndex, 0, '[Variant "Embassy"]');
+                lines.splice(variantIndex, 0, '[Variant "Capablanca"]');
             } else {
-                // change variant to Embassy
-                lines.splice(variantIndex, 1, '[Variant "Embassy"]');
+                // change variant to Capa
+                lines.splice(variantIndex, 1, '[Variant "Capablanca"]');
             }
 
             lines.forEach((line, idx) => {if (idx > fenIndex) lines[idx] = line.replace(/(O-O-O|O-O)/g, (match) => { return match === 'O-O' ? 'O-O-O' : 'O-O' });});
