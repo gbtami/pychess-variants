@@ -209,7 +209,7 @@ export class LobbyController implements IChatController {
 
         let e;
         e = document.getElementById('variant') as HTMLSelectElement;
-        const variant = VARIANTS[e.options[e.selectedIndex].value];
+        let variant = VARIANTS[e.options[e.selectedIndex].value];
         localStorage.seek_variant = variant.name;
 
         // TODO Standardize seek color
@@ -228,6 +228,10 @@ export class LobbyController implements IChatController {
         if (variant.alternateStart) {
             e = document.getElementById('alternate-start') as HTMLSelectElement;
             alternateStart = e.options[e.selectedIndex].value;
+            if (fen === VARIANTS['embassy'].startFen) {
+                console.log(alternateStart);
+                variant = VARIANTS['embassy'];
+            }
         }
 
         e = document.getElementById('min') as HTMLInputElement;
@@ -653,9 +657,9 @@ export class LobbyController implements IChatController {
         return h('span.tooltiptext', [ tooltipImage ]);
     }
     private mode(seek: Seek) {
-        if (seek.alternateStart)
+        if (seek.alternateStart && seek.alternateStart !== 'Embassy')
             return _(seek.alternateStart);
-        else if (seek.fen)
+        else if (seek.fen && seek.alternateStart !== 'Embassy')
             return _("Custom");
         else if (seek.rated)
             return _("Rated");
