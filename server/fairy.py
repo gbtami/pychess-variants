@@ -61,7 +61,7 @@ class FairyBoard:
         self.initial_fen = (
             initial_fen if initial_fen else self.start_fen(variant, chess960, disabled_fen)
         )
-        self.move_stack = []
+        self.move_stack: list[str] = []
         self.ply = 0
         self.color = WHITE if self.initial_fen.split()[1] == "w" else BLACK
         self.fen = self.initial_fen
