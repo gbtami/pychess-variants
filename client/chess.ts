@@ -837,6 +837,20 @@ export function selectVariant(id: string, selected: string, onChange: EventListe
     );
 }
 
+// Some variants need to be treated differently according to the FEN.
+// Refer to server/fairy.py for more information
+export function moddedVariant(variantName: string, chess960: boolean, pieces: cg.Pieces, castling: string): string {
+    if (!chess960 && ["capablanca", "capahouse"].includes(variantName)) {
+        const whiteKing = pieces.get('e1');
+        const blackKing = pieces.get('e8');
+        if (castling !== '-' &&
+            ((!castling.includes('K') && !castling.includes('Q')) || (whiteKing && util.samePiece(whiteKing, { role: 'k-piece', color: 'white' }))) &&
+            ((!castling.includes('k') && !castling.includes('q')) || (blackKing && util.samePiece(blackKing, { role: 'k-piece', color: 'black' }))))
+            return variantName.includes("house") ? "embassyhouse" : "embassy";
+    }
+    return variantName;
+}
+
 const handicapKeywords = [ "HC", "Handicap", "Odds" ];
 export function isHandicap(name: string): boolean {
     return handicapKeywords.some(keyword => name.endsWith(keyword));
