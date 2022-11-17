@@ -19,8 +19,9 @@ log = logging.getLogger(__name__)
 
 
 def file_of(piece: str, rank: str) -> int:
-    """ Returns the 0-based file of the specified piece in the rank.
-        Returns -1 if the piece is not in the rank.
+    """
+    Returns the 0-based file of the specified piece in the rank.
+    Returns -1 if the piece is not in the rank.
     """
     pos = rank.find(piece)
     if pos >= 0:
@@ -30,23 +31,28 @@ def file_of(piece: str, rank: str) -> int:
 
 
 def modded_variant(variant: str, chess960: bool, initial_fen: str) -> str:
-    """ Some variants need to be treated differently by pyffish. """
+    """Some variants need to be treated differently by pyffish."""
     if not chess960 and variant in ("capablanca", "capahouse") and initial_fen:
-        """ E-file king in a Capablanca/Capahouse variant.
-            The game will be treated as an Embassy game for the purpose of castling.
-            The king starts on the e-file if it is on the e-file in the starting rank and can castle.
+        """
+        E-file king in a Capablanca/Capahouse variant.
+        The game will be treated as an Embassy game for the purpose of castling.
+        The king starts on the e-file if it is on the e-file in the starting rank and can castle.
         """
         parts = initial_fen.split()
-        ranks = parts[0].split('/')
-        if (parts[2] != '-' and
-                (('K' not in parts[2] and 'Q' not in parts[2]) or file_of('K', ranks[7]) == 4) and
-                (('k' not in parts[2] and 'q' not in parts[2]) or file_of('k', ranks[0]) == 4)):
+        ranks = parts[0].split("/")
+        if (
+            parts[2] != "-"
+            and (("K" not in parts[2] and "Q" not in parts[2]) or file_of("K", ranks[7]) == 4)
+            and (("k" not in parts[2] and "q" not in parts[2]) or file_of("k", ranks[0]) == 4)
+        ):
             return "embassyhouse" if "house" in variant else "embassy"
     return variant
 
 
 class FairyBoard:
-    def __init__(self, variant: str, initial_fen="", chess960=False, count_started=0, disabled_fen=""):
+    def __init__(
+        self, variant: str, initial_fen="", chess960=False, count_started=0, disabled_fen=""
+    ):
         self.variant = modded_variant(variant, chess960, initial_fen)
         self.chess960 = chess960
         self.sfen = False
