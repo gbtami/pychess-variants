@@ -18,9 +18,36 @@ STANDARD_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 log = logging.getLogger(__name__)
 
 
+def file_of(piece: str, rank: str) -> int:
+    """ Returns the 0-based file of the specified piece in the rank.
+        Returns -1 if the piece is not in the rank.
+    """
+    pos = rank.find(piece)
+    if pos >= 0:
+        return sum(int(p) if p.isdigit() else 1 for p in rank[:pos])
+    else:
+        return -1
+
+
+def variant_mod(variant: str, fen: str) -> str:
+    """ Some variants need to be treated differently by pyffish. """
+    if variant in ("capablanca", "capahouse"):
+        """ E-file king in a Capablanca/Capahouse variant.
+            The game will be treated as an Embassy game for the purpose of castling.
+            The king starts on the e-file if it is on the e-file in the starting rank and can castle.
+        """
+        parts = fen.split()
+        ranks = parts[0].split('/')
+        if (parts[2] != '-' and
+            (('K' not in parts[2] and 'Q' not in parts[2]) or file_of('K', ranks[7]) == 4) and
+            (('k' not in parts[2] and 'q' not in parts[2]) or file_of('k', ranks[0]) == 4)):
+            return "embassyhouse" if "house" in variant else "embassy"
+    return variant
+
+
 class FairyBoard:
-    def __init__(self, variant, initial_fen="", chess960=False, count_started=0, disabled_fen=""):
-        self.variant = variant
+    def __init__(self, variant: str, initial_fen="", chess960=False, count_started=0, disabled_fen=""):
+        self.variant = variant_mod(variant, initial_fen)
         self.chess960 = chess960
         self.sfen = False
         self.show_promoted = variant in ("makruk", "makpong", "cambodian")
