@@ -4,7 +4,7 @@ import { Api } from 'chessgroundx/api';
 
 import ffishModule from 'ffish-es6';
 
-import { Variant, VARIANTS, notation } from './chess';
+import { Variant, VARIANTS, notation, moddedVariant } from './chess';
 import { boardSettings, IBoardController } from './boardSettings';
 import { PyChessModel } from './types';
 import { variantsIni } from './variantsIni';
@@ -67,7 +67,10 @@ export abstract class ChessgroundController implements IBoardController {
             this.ffish = loadedModule;
             this.ffish.loadVariantConfig(variantsIni);
             this.notationAsObject = this.notation2ffishjs(this.notation);
-            this.ffishBoard = new this.ffish.Board(this.variant.name, this.fullfen, this.chess960);
+            this.ffishBoard = new this.ffish.Board(
+                moddedVariant(this.variant.name, this.chess960, this.chessground.state.boardState.pieces, parts[2]),
+                this.fullfen,
+                this.chess960);
             window.addEventListener('beforeunload', () => this.ffishBoard.delete());
         });
     }
