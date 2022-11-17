@@ -29,14 +29,14 @@ def file_of(piece: str, rank: str) -> int:
         return -1
 
 
-def variant_mod(variant: str, fen: str) -> str:
+def modded_variant(variant: str, initial_fen: str) -> str:
     """ Some variants need to be treated differently by pyffish. """
-    if variant in ("capablanca", "capahouse"):
+    if variant in ("capablanca", "capahouse") and initial_fen:
         """ E-file king in a Capablanca/Capahouse variant.
             The game will be treated as an Embassy game for the purpose of castling.
             The king starts on the e-file if it is on the e-file in the starting rank and can castle.
         """
-        parts = fen.split()
+        parts = initial_fen.split()
         ranks = parts[0].split('/')
         if (parts[2] != '-' and
             (('K' not in parts[2] and 'Q' not in parts[2]) or file_of('K', ranks[7]) == 4) and
@@ -47,7 +47,7 @@ def variant_mod(variant: str, fen: str) -> str:
 
 class FairyBoard:
     def __init__(self, variant: str, initial_fen="", chess960=False, count_started=0, disabled_fen=""):
-        self.variant = variant_mod(variant, initial_fen)
+        self.variant = modded_variant(variant, initial_fen)
         self.chess960 = chess960
         self.sfen = False
         self.show_promoted = variant in ("makruk", "makpong", "cambodian")
