@@ -129,6 +129,7 @@ VARIANTS = (
     "chak",
     "chennis",
     "chushogi",
+    "mansindam",
 )
 
 VARIANT_ICONS = {
@@ -179,6 +180,7 @@ VARIANT_ICONS = {
     "chak": "🐬",
     "chennis": "🎾",
     "chushogi": "🦁",
+    "mansindam": "℘",
 }
 
 VARIANT_960_TO_PGN = {
@@ -348,6 +350,7 @@ TRANSLATED_VARIANT_NAMES = {
     "chak": _("Chak"),
     "chennis": _("Chennis"),
     "chushogi": _("Chu Shogi"),
+    "mansindam": _("mansindam"),
 }
 
 del _
