@@ -563,7 +563,7 @@ export const VARIANTS: { [name: string]: Variant } = {
             'Conservative': 'arnbqkbnrc/pppppppppp/10/10/10/10/PPPPPPPPPP/ARNBQKBNRC w KQkq - 0 1',
             'Embassy': 'rnbqkcabnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBQKCABNR w KQkq - 0 1',
             'Gothic': 'rnbqckabnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBQCKABNR w KQkq - 0 1',
-            'Schoolbook': 'rqnbakbncr/pppppppppp/10/10/10/10/PPPPPPPPPP/RQNBAKBNCR w KQkq - 0 1'
+            'Schoolbook': 'rqnbakbncr/pppppppppp/10/10/10/10/PPPPPPPPPP/RQNBAKBNCR w KQkq - 0 1',
         },
         chess960: true, icon: "P", icon960: ",",
     }),
@@ -577,10 +577,12 @@ export const VARIANTS: { [name: string]: Variant } = {
         enPassant: true, captureToHand: true,
         alternateStart: {
             '': '',
-            'Bird': 'rnbcqkabnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBCQKABNR w KQkq - 0 1',
-            'Carrera': 'rcnbqkbnar/pppppppppp/10/10/10/10/PPPPPPPPPP/RCNBQKBNAR w KQkq - 0 1',
-            'Gothic': 'rnbqckabnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBQCKABNR w KQkq - 0 1',
-            'Embassy': 'rnbqkcabnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBQKCABNR w KQkq - 0 1'
+            'Bird': 'rnbcqkabnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBCQKABNR[] w KQkq - 0 1',
+            'Carrera': 'rcnbqkbnar/pppppppppp/10/10/10/10/PPPPPPPPPP/RCNBQKBNAR[] w KQkq - 0 1',
+            'Conservative': 'arnbqkbnrc/pppppppppp/10/10/10/10/PPPPPPPPPP/ARNBQKBNRC[] w KQkq - 0 1',
+            'Embassy': 'rnbqkcabnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBQKCABNR[] w KQkq - 0 1',
+            'Gothic': 'rnbqckabnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBQCKABNR[] w KQkq - 0 1',
+            'Schoolbook': 'rqnbakbncr/pppppppppp/10/10/10/10/PPPPPPPPPP/RQNBAKBNCR[] w KQkq - 0 1',
         },
         chess960: true, icon: "&", icon960: "'",
     }),
@@ -760,6 +762,16 @@ export const VARIANTS: { [name: string]: Variant } = {
         icon: "P",
     }),
 
+    embassyhouse: new Variant({
+        name: "embassyhouse", tooltip: () => _("Embassy with Crazyhouse drop rules."),
+        startFen: "rnbqkcabnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBQKCABNR[] w KQkq - 0 1",
+        board: "standard10x8", piece: "capa",
+        pieceLetters: ["k", "q", "c", "a", "r", "b", "n", "p"],
+        pocketLetters: ["p", "n", "b", "r", "a", "c", "q"],
+        enPassant: true, captureToHand: true,
+        icon: "&",
+    }),
+
     gothic: new Variant({
         name: "gothic", tooltip: () => _("Like Capablanca Chess but with a different starting setup."),
         startFen: "rnbqckabnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBQCKABNR w KQkq - 0 1",
@@ -777,12 +789,12 @@ export const VARIANTS: { [name: string]: Variant } = {
         pieceLetters: ["k", "q", "c", "a", "r", "b", "n", "p"],
         pocketLetters: ["p", "n", "b", "r", "a", "c", "q"],
         enPassant: true, captureToHand: true,
-        icon: "P",
+        icon: "&",
     }),
 };
 
 export const variants = Object.keys(VARIANTS);
-const disabledVariants = [ "gothic", "gothhouse", "embassy", "gorogoro" ];
+const disabledVariants = [ "gothic", "gothhouse", "embassy", "embassyhouse", "gorogoro" ];
 export const enabledVariants = variants.filter(v => !disabledVariants.includes(v));
 
 const variantGroups: { [ key: string ]: { variants: string[] } } = {

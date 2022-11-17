@@ -150,6 +150,7 @@ VARIANT_ICONS = {
     "gothic": "P",
     "gothhouse": "&",
     "embassy": "P",
+    "embassyhouse": "&",
     "minishogi": "6",
     "dobutsu": "8",
     "gorogoro": "🐱",
