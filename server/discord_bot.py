@@ -4,12 +4,11 @@ import os
 import discord
 from discord.ext.commands import Bot
 
-from lobby_broadcast import lobby_broadcast
+from broadcast import lobby_broadcast
 
 log = logging.getLogger("discord")
 log.setLevel(logging.INFO)
 
-DISCORD_TOKEN = os.getenv("DISCORD_TOKEN", "")
 SERVER_ID = 634298688663191582
 PYCHESS_LOBBY_CHANNEL_ID = 653203449927827456
 GAME_SEEK_CHANNEL_ID = 823862902648995910
