@@ -15,10 +15,6 @@ SILENCE = 10 * 60
 ANON_TIMEOUT = 10 * 60
 
 
-class MissingRatingsException(Exception):
-    pass
-
-
 class User:
     def __init__(
         self,
@@ -61,8 +57,6 @@ class User:
         self.online = False
 
         if perfs is None:
-            if (not anon) and (not bot) and (title != "TEST"):
-                raise MissingRatingsException(username)
             self.perfs = {variant: DEFAULT_PERF for variant in VARIANTS}
         else:
             self.perfs = {
@@ -71,8 +65,6 @@ class User:
             }
 
         if pperfs is None:
-            if (not anon) and (not bot) and (title != "TEST"):
-                raise MissingRatingsException(username)
             self.pperfs = {variant: DEFAULT_PERF for variant in VARIANTS}
         else:
             self.pperfs = {
