@@ -71,6 +71,11 @@ export function roundView(model: PyChessModel): VNode[] {
     return [
         h('aside.sidebar-first', [
             gameInfo(model),
+            h('div#move-controls'),
+            h('div.movelist-block', [
+                h('div#movelist'),
+            ]),
+
         ]),
         h('div.round-app.bug', { hook: {insert: ()=>{createBoards(mainboardVNode, bugboardVNode, mainboardPocket0, mainboardPocket1, bugboardPocket0, bugboardPocket1, model)}}},[
             h(`selection#mainboard.${variant.board}.${variant.piece}.${variant.boardMark}`, [
@@ -107,10 +112,6 @@ export function roundView(model: PyChessModel): VNode[] {
                 h('div#roundchat'),
 
                 h('div#expiration-top'),
-                h('div#move-controls'),
-                h('div.movelist-block', [
-                    h('div#movelist'),
-                ]),
                 h('div#offer-dialog'),
                 h('div#game-controls'),
                 h('div#expiration-bottom'),

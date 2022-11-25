@@ -180,9 +180,10 @@ class GameBug:
 
         self.steps = [
             {
-                "fen": self.initial_fen if self.initial_fen else self.boards["a"].initial_fen + " | " + self.boards["b"].initial_fen,
+                "fen": self.boards["a"].initial_fen,
+                "fenB": self.boards["b"].initial_fen,
                 "san": None,
-                "turnColor": "white",  # todo: not sure whats the point of this in the initial dummy step - support from custom starting fen but still why we need it # "black" if self.board.color == BLACK else "white",
+                "turnColor": "white",  # todo: doesn't make sense in this initial step now - maybe have 2 fields for both boards for this reason when we don't have "active" board for last move and this.
                 "check": self.check,
                 "clocks": self.ply_clocks[0],
             }

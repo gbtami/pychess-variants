@@ -53,10 +53,13 @@ export class ChessgroundController extends GameController {
 
     steps: Step[];
 
-    constructor(el: HTMLElement,elPocket1: HTMLElement,elPocket2: HTMLElement, model: PyChessModel) {
+    constructor(el: HTMLElement,elPocket1: HTMLElement,elPocket2: HTMLElement, boardName: 'a' | 'b', model: PyChessModel) {
         super(el, model,elPocket1,elPocket2);
 
-        this.fullfen = model.fen;
+        this.boardName = boardName;
+        const fens = model.fen.split(" | ");
+        this.fullfen = this.boardName === "a" ? fens[0]: fens[1];
+
         this.variant = VARIANTS[model.variant];
         this.chess960 = model.chess960==='True';//todo:niki:i am having second thought if i need this here really 960 should be true/false for both boards, but logically feel the right place here
 
@@ -103,7 +106,7 @@ export class ChessgroundController extends GameController {
         this.steps = [];
         this.steps.push({//todo:niki:i dont know if some better data structure can be invented to replace the 3 steps lists used now - 2 local for each board and 1 aggregate
             'fen': this.fullfen,
-            'fenB': this.fullfen,//todo:niki:not correct but works if not 960
+            'fenB': this.fullfen,
             'move': undefined,
             'check': false,
             'turnColor': this.turnColor,
