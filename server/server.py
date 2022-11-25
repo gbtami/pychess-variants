@@ -272,9 +272,8 @@ async def init_state(app):
         cursor = app["db"].user.find()
         async for doc in cursor:
             if doc["_id"] not in app["users"]:
-                perfs = doc.get("perfs")
-                if perfs is None:
-                    perfs = {variant: DEFAULT_PERF for variant in VARIANTS}
+                perfs = doc.get("perfs", {variant: DEFAULT_PERF for variant in VARIANTS})
+                pperfs = doc.get("pperfs", {variant: DEFAULT_PERF for variant in VARIANTS})
 
                 app["users"][doc["_id"]] = User(
                     app,
@@ -282,6 +281,7 @@ async def init_state(app):
                     title=doc.get("title"),
                     bot=doc.get("title") == "BOT",
                     perfs=perfs,
+                    pperfs=pperfs,
                     enabled=doc.get("enabled", True),
                     lang=doc.get("lang", "en"),
                 )

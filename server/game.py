@@ -388,6 +388,9 @@ class Game:
             # not to mention that BOT players want to abort games after 20 sec inactivity
             await asyncio.sleep(keep_time)
 
+            if self.id == self.app["tv"]:
+                self.app["tv"] = None
+
             try:
                 del self.games[self.id]
             except KeyError:

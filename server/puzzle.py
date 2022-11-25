@@ -2,8 +2,11 @@ import random
 from datetime import datetime, timezone
 
 from aiohttp import web
+import aiohttp_session
 
 import pyffish as sf
+
+from glicko2.glicko2 import DEFAULT_PERF, gl2, Rating
 
 
 async def get_puzzle(request, puzzleId):
@@ -63,12 +66,94 @@ async def next_puzzle(request, user):
 
 
 async def puzzle_complete(request):
-    puzzle_id = request.match_info.get("puzzleId")
-    data = await request.post()
-    print(puzzle_id, data)
+    puzzleId = request.match_info.get("puzzleId")
+    post_data = await request.post()
+    print(puzzleId, post_data)
+    rated = post_data["rated"] == "true"
 
+    if not rated:
+        return
+
+    puzzle_data = await get_puzzle(request, puzzleId)
+    puzzle = Puzzle(request.app["db"], puzzle_data)
+
+    users = request.app["users"]
+    session = await aiohttp_session.get_session(request)
+    user = users[session.get("user_name")]
+
+    variant = post_data["variant"]
+    chess960 = False  # TODO: add chess960 to xxx960 variant puzzles
+    color = post_data["color"]
+    win = post_data["win"] == "true"
+
+    if color[0] == "w":
+        wplayer, bplayer = user, puzzle
+        white_rating = user.get_rating(variant, chess960)
+        black_rating = puzzle.get_rating(variant, chess960)
+        result = "1-0" if win else "0-1"
+    else:
+        wplayer, bplayer = puzzle, user
+        white_rating = puzzle.get_rating(variant, chess960)
+        black_rating = user.get_rating(variant, chess960)
+        result = "0-1" if win else "1-0"
+
+    perfs = await update_ratings(
+        wplayer, bplayer, white_rating, black_rating, variant, chess960, result
+    )
+    print(perfs)
     response = {
         "rdiff": 0,
         "bdiff": 1,
     }
     return web.json_response(response)
+
+
+async def update_ratings(wplayer, bplayer, white_rating, black_rating, variant, chess960, result):
+    if result == "1-0":
+        (white_score, black_score) = (1.0, 0.0)
+    elif result == "0-1":
+        (white_score, black_score) = (0.0, 1.0)
+    else:
+        raise RuntimeError("game.result: unexpected result code")
+
+    wr = gl2.rate(white_rating, [(white_score, black_rating)])
+    br = gl2.rate(black_rating, [(black_score, white_rating)])
+
+    await wplayer.set_prating(variant, chess960, wr)
+    await bplayer.set_prating(variant, chess960, br)
+
+    wrdiff = int(round(wr.mu - white_rating.mu, 0))
+    p0 = {"e": white_rating, "d": wrdiff}
+
+    brdiff = int(round(br.mu - black_rating.mu, 0))
+    p1 = {"e": black_rating, "d": brdiff}
+
+    return (p0, p1)
+
+
+class Puzzle:
+    def __init__(self, db, puzzle_data):
+        self.db = db
+        self.puzzle_data = puzzle_data
+        self.puzzleId = puzzle_data["_id"]
+        self.perf = puzzle_data.get("perf", DEFAULT_PERF)
+
+    def get_rating(self, variant: str, chess960: bool) -> Rating:
+        gl = self.perf["gl"]
+        la = self.perf["la"]
+        return gl2.create_rating(gl["r"], gl["d"], gl["v"], la)
+
+    async def set_prating(self, _variant: str, _chess960: bool, rating: Rating):
+        gl = {"r": rating.mu, "d": rating.phi, "v": rating.sigma}
+        la = datetime.now(timezone.utc)
+        nb = self.perf.get("nb", 0)
+        self.perf = {
+            "gl": gl,
+            "la": la,
+            "nb": nb + 1,
+        }
+
+        if self.db is not None:
+            await self.db.puzzle.find_one_and_update(
+                {"_id": self.puzzleId}, {"$set": {"perf": self.perf}}
+            )

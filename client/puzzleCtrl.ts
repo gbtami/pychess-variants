@@ -17,8 +17,11 @@ export class PuzzleController extends AnalysisController {
     solution: UCIMove[];
     solutionSan: string[];
     moves: UCIMove[] = [];
+    color: string;
     failed: boolean;
     completed: boolean;
+    posted: boolean;
+    gaugeNeeded: boolean;
 
     constructor(el: HTMLElement, model: PyChessModel) {
         super(el, model);
@@ -32,8 +35,10 @@ export class PuzzleController extends AnalysisController {
         this.steps = [{"fen": this.fullfen, "turnColor": this.turnColor, "check": false, "move": undefined}];
         this.ply = 0;
         this.plyVari = 0;
+        this.color = this.turnColor;
         this.failed = false;
         this.completed = false;
+        this.posted = false;
 
         this.chessground.set({
             orientation: this.turnColor,
@@ -57,7 +62,9 @@ export class PuzzleController extends AnalysisController {
         this.yourTurn();
 
         const gaugeEl = document.getElementById('gauge') as HTMLElement;
-        gaugeEl.style.display = 'none';
+        // On mobile view (and while solving) we don't use gauge
+        this.gaugeNeeded = window.getComputedStyle(gaugeEl).display === 'block';
+        if (this.gaugeNeeded) gaugeEl.style.display = 'none';
 
         const engineEl = document.querySelector('.engine') as HTMLElement;
         engineEl.style.display = 'none';
@@ -257,9 +264,10 @@ export class PuzzleController extends AnalysisController {
                 ]),
             ])
         )
-        // TODO: this breaks mobile view!
-        //const gaugeEl = document.getElementById('gauge') as HTMLElement;
-        //gaugeEl.style.display = 'block';
+        if (this.gaugeNeeded) {
+            const gaugeEl = document.getElementById('gauge') as HTMLElement;
+            gaugeEl.style.display = 'block';
+        }
         const engineEl = document.querySelector('.engine') as HTMLElement;
         engineEl.style.display = 'flex';
     }
@@ -278,7 +286,8 @@ export class PuzzleController extends AnalysisController {
     }
 
     postSuccess(success: boolean) {
-        const color = this.fullfen.split(" ")[1];
+        if (this.posted) return;
+        this.posted = true;
         // TODO
         const rated = true;
 
@@ -286,7 +295,7 @@ export class PuzzleController extends AnalysisController {
         const FD  = new FormData();
         FD.append('win', `${success}`);
         FD.append('variant', `${this.variant.name}`);
-        FD.append('color', color);
+        FD.append('color', this.color);
         FD.append('rated', `${rated}`);
 
         XHR.onreadystatechange = function() {

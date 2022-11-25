@@ -510,7 +510,7 @@ async def index(request):
         render["view_css"] = "analysis.css"
         render["variant"] = puzzle["variant"]
         render["fen"] = puzzle["fen"]
-        render["puzzle"] = json.dumps(puzzle)
+        render["puzzle"] = json.dumps(puzzle, default=datetime.isoformat)
 
     if (gameId is not None) and gameId != "variants":
         if view == "invite":
