@@ -11,7 +11,7 @@ from sortedcollections import ValueSortedDict
 from sortedcontainers import SortedKeysView
 from pymongo import ReturnDocument
 
-from broadcast import lobby_broadcast, discord_message
+from broadcast import lobby_broadcast
 from compress import R2C
 from const import (
     ABORTED,
@@ -440,8 +440,7 @@ class Tournament(ABC):
                     elif (not self.notify2) and remaining_mins_to_start <= NOTIFY2_MINUTES:
                         self.notify1 = True
                         self.notify2 = True
-                        await discord_message(
-                            self.app,
+                        await self.app["discord"].send_to_discord(
                             "notify_tournament",
                             self.notify_discord_msg(remaining_mins_to_start),
                         )
@@ -449,8 +448,7 @@ class Tournament(ABC):
 
                     elif (not self.notify1) and remaining_mins_to_start <= NOTIFY1_MINUTES:
                         self.notify1 = True
-                        await discord_message(
-                            self.app,
+                        await self.app["discord"].send_to_discord(
                             "notify_tournament",
                             self.notify_discord_msg(remaining_mins_to_start),
                         )

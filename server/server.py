@@ -40,6 +40,7 @@ from const import (
     MONTHLY,
     SHIELD,
 )
+from discord_bot import DiscordBot, FakeDiscordBot, intents
 from generate_crosstable import generate_crosstable
 from generate_highscore import generate_highscore
 from generate_shield import generate_shield
@@ -48,6 +49,7 @@ from index import handle_404
 from routes import get_routes, post_routes
 from settings import (
     DEV,
+    DISCORD_TOKEN,
     MAX_AGE,
     SECRET_KEY,
     MONGO_HOST,
@@ -265,7 +267,13 @@ async def init_state(app):
                 app["tourneynames"][lang][(variant, SHIELD, ARENA)] = tname
 
     if app["db"] is None:
+        app["discord"] = FakeDiscordBot()
         return
+
+    # create Discord bot
+    bot = DiscordBot(lobbysockets=app["lobbysockets"], command_prefix="!", intents=intents)
+    app["discord"] = bot
+    asyncio.create_task(bot.start(DISCORD_TOKEN))
 
     # Read tournaments, users and highscore from db
     try:

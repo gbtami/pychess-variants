@@ -4,7 +4,6 @@ from datetime import datetime, timezone
 
 import aiohttp_session
 
-from broadcast import discord_message
 from compress import C2V, V2C, C2R
 from const import (
     CASUAL,
@@ -94,7 +93,7 @@ async def create_or_update_tournament(app, username, form, tournament=None):
 
 async def broadcast_tournament_creation(app, tournament):
     await tournament.broadcast_spotlight()
-    await discord_message(app, "create_tournament", tournament.create_discord_msg)
+    await app["discord"].send_to_discord("create_tournament", tournament.create_discord_msg)
 
 
 async def new_tournament(app, data):
