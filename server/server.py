@@ -187,12 +187,6 @@ async def init_state(app):
     # last game played
     app["tv"] = None
 
-    # create Discord bot
-    bot = DiscordBot(lobbysockets=app["lobbysockets"], command_prefix="!", intents=intents)
-    app["discord"] = bot
-    async with bot:
-        await bot.start(DISCORD_TOKEN)
-
     app["twitch"] = Twitch(app)
     if not DEV:
         asyncio.create_task(app["twitch"].init_subscriptions())
@@ -269,6 +263,11 @@ async def init_state(app):
 
     if app["db"] is None:
         return
+
+    # create Discord bot
+    bot = DiscordBot(lobbysockets=app["lobbysockets"], command_prefix="!", intents=intents)
+    app["discord"] = bot
+    asyncio.create_task(bot.start(DISCORD_TOKEN))
 
     # Read tournaments, users and highscore from db
     try:

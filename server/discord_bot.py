@@ -1,4 +1,5 @@
 import logging
+from time import time
 
 import discord
 from discord.ext.commands import Bot
@@ -6,9 +7,11 @@ from discord.ext.commands import Bot
 from broadcast import lobby_broadcast
 
 log = logging.getLogger("discord")
-log.setLevel(logging.INFO)
+log.setLevel(logging.WARNING)
 
+# pychess-players Discord server
 SERVER_ID = 634298688663191582
+
 PYCHESS_LOBBY_CHANNEL_ID = 653203449927827456
 GAME_SEEK_CHANNEL_ID = 823862902648995910
 TOURNAMENT_CHANNEL_ID = 861234739820888074
@@ -77,6 +80,29 @@ class DiscordBot(Bot):
 
         self.lobbysockets = lobbysockets
 
+        self.pychess_lobby_channel = None
+        self.game_seek_channel = None
+        self.tournament_channel = None
+        self.announcement_channel = None
+
+    async def on_message(self, msg):
+        log.debug("---on_message() %s", msg)
+        if msg.author.id == self.user.id or msg.channel.id != PYCHESS_LOBBY_CHANNEL_ID:
+            log.debug("---self.user msg OR other channel.id -> return")
+            return
+
+        log.debug("+++ msg is OK -> send_json()")
+        await lobby_broadcast(
+            self.lobbysockets,
+            {
+                "type": "lobbychat",
+                "user": "Discord-Relay",
+                "message": "%s: %s" % (msg.author.name, msg.content),
+                "time": int(time()),
+            },
+        )
+
+    def get_channels(self):
         # Get the pychess-lobby channel
         self.pychess_lobby_channel = self.get_channel(PYCHESS_LOBBY_CHANNEL_ID)
         log.debug("pychess_lobby_channel is: %s", self.pychess_lobby_channel)
@@ -90,36 +116,30 @@ class DiscordBot(Bot):
         self.announcement_channel = self.get_channel(ANNOUNCEMENT_CHANNEL_ID)
         log.debug("announcement_channel is: %s", self.announcement_channel)
 
-    async def on_message(self, msg):
-        log.debug("---on_message() %s", msg)
-        if msg.author.id == self.user.id or msg.channel.id != PYCHESS_LOBBY_CHANNEL_ID:
-            log.debug("---self.user msg OR other channel.id -> return")
-            return
-
-        if self.lobby_ws is None:
-            log.debug("---self.lobby_ws is None -> return")
-            return
-
-        log.debug("+++ msg is OK -> send_json()")
-        await lobby_broadcast(
-            self.lobbysockets,
-            {"type": "lobbychat", "user": "", "message": "%s: %s" % (msg.author.name, msg.content)},
-        )
-
     async def send_to_discord(self, msg_type, msg, user=None):
-        if msg_type == "lobbychat" and user and user != "Discord-Relay":
+        await self.wait_until_ready()
+
+        if self.pychess_lobby_channel is None:
+            self.get_channels()
+
+        if (
+            self.pychess_lobby_channel is not None
+            and msg_type == "lobbychat"
+            and user
+            and user != "Discord-Relay"
+        ):
             log.debug("+++ lobbychat msg: %s %s", user, msg)
             await self.pychess_lobby_channel.send("**%s**: %s" % (user, msg))
 
-        elif msg_type == "create_seek":
+        elif self.game_seek_channel is not None and msg_type == "create_seek":
             log.debug("+++ create_seek msg: %s", msg)
             await self.game_seek_channel.send("%s" % msg)
 
-        elif msg_type == "create_tournament":
+        elif self.tournament_channel is not None and msg_type == "create_tournament":
             log.debug("+++ create_tournament msg: %s", msg)
             await self.tournament_channel.send("%s" % msg)
 
-        elif msg_type == "notify_tournament":
+        elif self.announcement_channel is not None and msg_type == "notify_tournament":
             log.debug("+++ notify_tournament msg: %s", msg)
             await self.announcement_channel.send("%s %s" % (self.get_role_mentions(msg), msg))
 
