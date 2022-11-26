@@ -23,6 +23,15 @@ log = logging.getLogger(__name__)
 async def tournament_socket_handler(request):
 
     users = request.app["users"]
+
+    session = await aiohttp_session.get_session(request)
+    session_user = session.get("user_name")
+    user = users[session_user] if session_user is not None and session_user in users else None
+
+    if (user is not None) and (not user.enabled):
+        session.invalidate()
+        return web.HTTPFound("/")
+
     sockets = request.app["tourneysockets"]
     lobby_sockets = request.app["lobbysockets"]
     tourneychat = request.app["tourneychat"]
@@ -34,15 +43,6 @@ async def tournament_socket_handler(request):
         return web.HTTPFound("/")
 
     await ws.prepare(request)
-
-    session = await aiohttp_session.get_session(request)
-    session_user = session.get("user_name")
-    user = users[session_user] if session_user is not None and session_user in users else None
-
-    if (user is not None) and (not user.enabled):
-        await ws.close()
-        session.invalidate()
-        return web.HTTPFound("/")
 
     log.info("--- NEW tournament WEBSOCKET by %s from %s", session_user, request.remote)
 
