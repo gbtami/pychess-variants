@@ -40,7 +40,7 @@ from const import (
     MONTHLY,
     SHIELD,
 )
-from discord_bot import DiscordBot, intents
+from discord_bot import DiscordBot, FakeDiscordBot, intents
 from generate_crosstable import generate_crosstable
 from generate_highscore import generate_highscore
 from generate_shield import generate_shield
@@ -262,6 +262,7 @@ async def init_state(app):
                 app["tourneynames"][lang][(variant, SHIELD, ARENA)] = tname
 
     if app["db"] is None:
+        app["discord"] = FakeDiscordBot()
         return
 
     # create Discord bot

@@ -74,6 +74,11 @@ CATEGORIES = {
 intents = discord.Intents(messages=True, guilds=True, message_content=True)
 
 
+class FakeDiscordBot:
+    async def send_to_discord(self, msg_type, msg, user=None):
+        print(msg_type, user, msg)
+
+
 class DiscordBot(Bot):
     def __init__(self, lobbysockets, *args, **kwargs):
         Bot.__init__(self, *args, **kwargs)
