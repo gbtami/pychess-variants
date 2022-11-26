@@ -40,6 +40,15 @@ async def is_playing(request, user, ws):
 async def lobby_socket_handler(request):
 
     users = request.app["users"]
+
+    session = await aiohttp_session.get_session(request)
+    session_user = session.get("user_name")
+    user = users[session_user] if session_user is not None and session_user in users else None
+
+    if (user is not None) and (not user.enabled):
+        session.invalidate()
+        return web.HTTPFound("/")
+
     sockets = request.app["lobbysockets"]
     seeks = request.app["seeks"]
     db = request.app["db"]
@@ -55,15 +64,6 @@ async def lobby_socket_handler(request):
         return web.HTTPFound("/")
 
     await ws.prepare(request)
-
-    session = await aiohttp_session.get_session(request)
-    session_user = session.get("user_name")
-    user = users[session_user] if session_user is not None and session_user in users else None
-
-    if (user is not None) and (not user.enabled):
-        await ws.close()
-        session.invalidate()
-        return web.HTTPFound("/")
 
     log.info("--- NEW lobby WEBSOCKET by %s from %s", session_user, request.remote)
 
