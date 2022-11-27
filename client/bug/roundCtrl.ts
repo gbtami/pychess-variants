@@ -418,6 +418,37 @@ export class RoundController implements IChatController/*extends GameController 
         this.onMsgBoard(model["board"] as MsgBoard);
     }
 
+    flipBoards = (): void => {
+        this.b1.toggleOrientation();
+        this.b2.toggleOrientation();
+    }
+
+    switchBoards = (): void => {
+
+        const swap = function (nodeA: HTMLElement, nodeB: HTMLElement) {
+            const parentA = nodeA.parentNode;
+            const siblingA = nodeA.nextSibling === nodeB ? nodeA : nodeA.nextSibling;
+
+            // Move `nodeA` to before the `nodeB`
+            nodeB.parentNode!.insertBefore(nodeA, nodeB);
+
+            // Move `nodeB` to before the sibling of `nodeA`
+            parentA!.insertBefore(nodeB, siblingA);
+        };
+        let mainboardVNode = document.getElementById('mainboard');
+        let mainboardPocket0 = document.getElementById('pocket00');
+        let mainboardPocket1 = document.getElementById('pocket01');
+
+        let bugboardVNode = document.getElementById('bugboard');
+        let bugboardPocket0 = document.getElementById('pocket10');
+        let bugboardPocket1 = document.getElementById('pocket11');
+
+        swap(mainboardVNode!, bugboardVNode!);
+        swap(mainboardPocket0!, bugboardPocket0!);
+        swap(mainboardPocket1!, bugboardPocket1!);
+    }
+
+
     sendMove = (b: ChessgroundController, orig: cg.Orig, dest: cg.Key, promo: string) => {
         console.log(b,orig,dest,promo);
     }

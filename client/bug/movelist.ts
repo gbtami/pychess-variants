@@ -56,8 +56,8 @@ export function createMovelistButtons (ctrl: AnalysisController | RoundControlle
     const container = document.getElementById('move-controls') as HTMLElement;
     const vari = /*todo;niki;comentout for now "plyVari" in ctrl*/ 1 > 2? ctrl.steps[ctrl.plyVari]['vari']: undefined;
     ctrl.moveControls = patch(container, h('div#btn-controls-top.btn-controls', [
-        h('button#flip', { on: { click: () => {ctrl.b1.toggleOrientation();ctrl.b2.toggleOrientation()} } }, [ h('i.icon.icon-refresh') ]),
-        h('button#flip', { on: { click: () => console.log("TODO: switch boards") } }, [ h('i.icon.icon-refresh') ]),//todo:niki:another icon for switch boards rotated maybe or horizontal arrows
+        h('button#flip', { on: { click: () => ctrl.flipBoards() } }, [ h('i.icon.icon-refresh') ]),
+        h('button#flip', { on: { click: () => ctrl.switchBoards() } }, [ h('i.icon.icon-refresh') ]),//todo:niki:another icon for switch boards rotated maybe or horizontal arrows
         h('button', { on: { click: () => selectMove(ctrl, 0) } }, [ h('i.icon.icon-fast-backward') ]),
         h('button', { on: { click: () => { 
             // this line is necessary, but I don't understand why

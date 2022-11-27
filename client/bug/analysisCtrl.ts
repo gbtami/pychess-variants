@@ -268,6 +268,41 @@ export default class AnalysisController {
         // boardSettings.updateZoom(boardFamily);
     }
 
+    flipBoards = (): void => {
+        this.b1.toggleOrientation();
+        this.b2.toggleOrientation();
+    }
+
+    switchBoards = (): void => {
+        //todo:niki:not sure if best implementation possible below
+        const swap = function (nodeA: HTMLElement, nodeB: HTMLElement) {
+            const parentA = nodeA.parentNode;
+            const siblingA = nodeA.nextSibling === nodeB ? nodeA : nodeA.nextSibling;
+
+            // Move `nodeA` to before the `nodeB`
+            nodeB.parentNode!.insertBefore(nodeA, nodeB);
+
+            // Move `nodeB` to before the sibling of `nodeA`
+            parentA!.insertBefore(nodeB, siblingA);
+        };
+        let mainboardVNode = document.getElementById('mainboard');
+        let mainboardPocket0 = document.getElementById('pocket00');
+        let mainboardPocket1 = document.getElementById('pocket01');
+
+        let bugboardVNode = document.getElementById('bugboard');
+        let bugboardPocket0 = document.getElementById('pocket10');
+        let bugboardPocket1 = document.getElementById('pocket11');
+
+        let a = mainboardVNode!.style.gridArea || "board";
+        mainboardVNode!.style.gridArea = bugboardVNode!.style.gridArea || "boardPartner";
+        bugboardVNode!.style.gridArea = a;
+
+        swap(mainboardPocket0!, bugboardPocket0!);
+        swap(mainboardPocket1!, bugboardPocket1!);
+        this.b1.chessground.redrawAll();
+        this.b2.chessground.redrawAll();
+    }
+
     //todo:niki:not correct implementation for now - pockets are not with brackets according to this: https://bughousedb.com/Lieven_BPGN_Standard.txt
     toBFEN = (fenA: cg.FEN, fenB: cg.FEN): string => {
         return fenA+" | "+fenB;

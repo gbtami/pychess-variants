@@ -55,6 +55,8 @@ class FairyBoard:
             while new_fen == disabled_fen:
                 new_fen = self.shuffle_start()
             return new_fen
+        if variant == "bughouse":
+            return sf.start_fen(variant) + " | "+sf.start_fen(variant) # todo:niki:or maybe use another property caled bfen and leave fen empty?
         return sf.start_fen(variant)
 
     @property
