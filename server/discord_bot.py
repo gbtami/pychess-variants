@@ -51,10 +51,10 @@ class FakeDiscordBot:
 
 
 class DiscordBot(Bot):
-    def __init__(self, lobbysockets, *args, **kwargs):
-        Bot.__init__(self, *args, **kwargs)
+    def __init__(self, app):
+        Bot.__init__(self, command_prefix="!", intents=intents)
 
-        self.lobbysockets = lobbysockets
+        self.app = app
 
         self.pychess_lobby_channel = None
         self.game_seek_channel = None
@@ -67,16 +67,15 @@ class DiscordBot(Bot):
             log.debug("---self.user msg OR other channel.id -> return")
             return
 
-        log.debug("+++ msg is OK -> send_json()")
-        await lobby_broadcast(
-            self.lobbysockets,
-            {
-                "type": "lobbychat",
-                "user": "Discord-Relay",
-                "message": "%s: %s" % (msg.author.name, msg.content),
-                "time": int(time()),
-            },
-        )
+        response = {
+            "type": "lobbychat",
+            "user": "Discord-Relay",
+            "message": "%s: %s" % (msg.author.name, msg.content),
+            "time": int(time()),
+        }
+
+        self.app["lobbychat"].append(response)
+        await lobby_broadcast(self.app["lobbysockets"], response)
 
     def get_channels(self):
         # Get the pychess-lobby channel
