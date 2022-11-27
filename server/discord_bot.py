@@ -4,6 +4,7 @@ from time import time
 import discord
 from discord.ext.commands import Bot
 
+from const import CATEGORIES
 from broadcast import lobby_broadcast
 
 log = logging.getLogger("discord")
@@ -39,36 +40,6 @@ ROLES = {
     "chess": 658545185571209221,
     "chak": 940232991182041098,
     "chennis": 940233624048009236,
-}
-
-CATEGORIES = {
-    "chess": (
-        "chess",
-        "chess960",
-        "crazyhouse",
-        "crazyhouse960",
-        "placement",
-        "atomic",
-        "atomic960",
-    ),
-    "fairy": (
-        "capablanca",
-        "capablanca960",
-        "capahouse",
-        "capahouse960",
-        "seirawan",
-        "seirawan960",
-        "shouse",
-        "grand",
-        "grandhouse",
-        "shako",
-        "shogun",
-        "hoppelpoppel",
-    ),
-    "army": ("orda", "synochess", "shinobi", "empire", "ordamirror", "chak", "chennis"),
-    "makruk": ("makruk", "makpong", "cambodian", "sittuyin", "asean"),
-    "shogi": ("shogi", "minishogi", "kyotoshogi", "dobutsu", "gorogoroplus", "torishogi"),
-    "xiangqi": ("xiangqi", "manchu", "janggi", "minixiangqi"),
 }
 
 intents = discord.Intents(messages=True, guilds=True, message_content=True)
