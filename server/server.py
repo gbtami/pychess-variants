@@ -40,7 +40,7 @@ from const import (
     MONTHLY,
     SHIELD,
 )
-from discord_bot import DiscordBot, FakeDiscordBot, intents
+from discord_bot import DiscordBot, FakeDiscordBot
 from generate_crosstable import generate_crosstable
 from generate_highscore import generate_highscore
 from generate_shield import generate_shield
@@ -271,7 +271,7 @@ async def init_state(app):
         return
 
     # create Discord bot
-    bot = DiscordBot(lobbysockets=app["lobbysockets"], command_prefix="!", intents=intents)
+    bot = DiscordBot(app)
     app["discord"] = bot
     asyncio.create_task(bot.start(DISCORD_TOKEN))
 

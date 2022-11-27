@@ -4,6 +4,7 @@ from time import time
 import discord
 from discord.ext.commands import Bot
 
+from const import CATEGORIES
 from broadcast import lobby_broadcast
 
 log = logging.getLogger("discord")
@@ -41,36 +42,6 @@ ROLES = {
     "chennis": 940233624048009236,
 }
 
-CATEGORIES = {
-    "chess": (
-        "chess",
-        "chess960",
-        "crazyhouse",
-        "crazyhouse960",
-        "placement",
-        "atomic",
-        "atomic960",
-    ),
-    "fairy": (
-        "capablanca",
-        "capablanca960",
-        "capahouse",
-        "capahouse960",
-        "seirawan",
-        "seirawan960",
-        "shouse",
-        "grand",
-        "grandhouse",
-        "shako",
-        "shogun",
-        "hoppelpoppel",
-    ),
-    "army": ("orda", "synochess", "shinobi", "empire", "ordamirror", "chak", "chennis"),
-    "makruk": ("makruk", "makpong", "cambodian", "sittuyin", "asean"),
-    "shogi": ("shogi", "minishogi", "kyotoshogi", "dobutsu", "gorogoroplus", "torishogi"),
-    "xiangqi": ("xiangqi", "manchu", "janggi", "minixiangqi"),
-}
-
 intents = discord.Intents(messages=True, guilds=True, message_content=True)
 
 
@@ -80,10 +51,10 @@ class FakeDiscordBot:
 
 
 class DiscordBot(Bot):
-    def __init__(self, lobbysockets, *args, **kwargs):
-        Bot.__init__(self, *args, **kwargs)
+    def __init__(self, app):
+        Bot.__init__(self, command_prefix="!", intents=intents)
 
-        self.lobbysockets = lobbysockets
+        self.app = app
 
         self.pychess_lobby_channel = None
         self.game_seek_channel = None
@@ -96,16 +67,15 @@ class DiscordBot(Bot):
             log.debug("---self.user msg OR other channel.id -> return")
             return
 
-        log.debug("+++ msg is OK -> send_json()")
-        await lobby_broadcast(
-            self.lobbysockets,
-            {
-                "type": "lobbychat",
-                "user": "Discord-Relay",
-                "message": "%s: %s" % (msg.author.name, msg.content),
-                "time": int(time()),
-            },
-        )
+        response = {
+            "type": "lobbychat",
+            "user": "Discord-Relay",
+            "message": "%s: %s" % (msg.author.name, msg.content),
+            "time": int(time()),
+        }
+
+        self.app["lobbychat"].append(response)
+        await lobby_broadcast(self.app["lobbysockets"], response)
 
     def get_channels(self):
         # Get the pychess-lobby channel
