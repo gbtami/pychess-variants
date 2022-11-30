@@ -9,7 +9,7 @@ import aiohttp_session
 from admin import silence
 from chat import chat_response
 from const import STARTED, SHIELD
-from settings import ADMINS
+from settings import TOURNAMENT_DIRECTORS
 from utils import MyWebSocketResponse, online_count
 from user import User
 from tournaments import load_tournament
@@ -235,7 +235,7 @@ async def tournament_socket_handler(request):
                         message = data["message"]
                         response = None
 
-                        if user.username in ADMINS:
+                        if user.username in TOURNAMENT_DIRECTORS:
                             if message.startswith("/silence"):
                                 response = silence(message, tourneychat[tournamentId], users)
                                 # silence message was already added to lobbychat in silence()
