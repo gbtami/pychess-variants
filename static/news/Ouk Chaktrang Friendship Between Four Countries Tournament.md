@@ -44,7 +44,42 @@ Thank everyone for participating in the tournament. Additionally, for all chess 
 [Phan Trọng Bình](/@/VIE_Phan_Trong_Binh)  
 [Trần Nguyễn Hoàng Lâm](/@/VIE_Tran_Nguyen_Hoan)
 
-// TODO links to games
+Links to the Games  
+Round 1  
+[Worathep Timsri vs Warot Kananub](https://www.pychess.org/3ZJ0xqU3)  
+[Wynn Zaw Htun vs Nyein Chan](https://www.pychess.org/29RxtO36)  
+[Bora Chheav vs Sok Limheng](https://www.pychess.org/pSzuoJei)  
+[Phan Trọng Bình vs Trần Nguyễn Hoàng Lâm](https://www.pychess.org/Y48IEaIU)  
+Round 2  
+[Nyein Chan vs Bora Chheav](https://www.pychess.org/zUMo42ou)  
+[Worathep Timsri vs Wynn Zaw Htun](https://www.pychess.org/Y48IEaIU)  
+[Warot Kananub vs Trần Nguyễn Hoàng Lâm](https://www.pychess.org/Aa9CsTS3)  
+[Sok Limheng vs Phan Trọng Bình](https://www.pychess.org/gC2Bsr3P)  
+Round 3  
+[Bora Chheav vs Worathep Timsri](https://www.pychess.org/WOlVmdYP)  
+[Trần Nguyễn Hoàng Lâm vs Sok Limheng](https://www.pychess.org/LLw2IAPX)  
+[Wynn Zaw Htun vs Warot Kananub](https://www.pychess.org/8LuIscCA)  
+[Phan Trọng Bình vs Nyein Chan](https://www.pychess.org/BnjDAOTw)  
+Round 4  
+[Warot Kananub vs Sok Limheng](https://www.pychess.org/wwqVXgdC)  
+[Worathep Timsri vs Phan Trọng Bình](https://www.pychess.org/g3sA0ByY)  
+[Nyein Chan vs Trần Nguyễn Hoàng Lâm](https://www.pychess.org/m9j4YzfD)  
+[Wynn Zaw Htun vs Bora Chheav](https://www.pychess.org/o5z9yoAH)  
+Round 5  
+[Trần Nguyễn Hoàng Lâm vs Worathep Timsri](https://www.pychess.org/vJXxX1OR)  
+[Bora Chheav vs Warot Kananub](https://www.pychess.org/nhRHSW3C)  
+[Sok Limheng vs Nyein Chan](https://www.pychess.org/QlKGjTgF)  
+[Phan Trọng Bình vs Wynn Zaw Htun](https://www.pychess.org/wljrcVah)  
+Round 6  
+[Warot Kananub vs Nyein Chan](https://www.pychess.org/qRxE8qyF)  
+[Wynn Zaw Htun vs Trần Nguyễn Hoàng Lâm](https://www.pychess.org/FXGPfVpN)  
+[Bora Chheav vs Phan Trọng Bình](https://www.pychess.org/tMVg19xa)  
+[Worathep Timsri vs Sok Limheng](https://www.pychess.org/OSVTK5cy)  
+Round 7  
+[Trần Nguyễn Hoàng Lâm vs Bora Chheav](https://www.pychess.org/TtCNkxpg)  
+[Sok Limheng vs Wynn Zaw Htun](https://www.pychess.org/XJxcYaNF)  
+[Nyein Chan vs Worathep Timsri](https://www.pychess.org/2AD5XPXe)  
+[Phan Trọng Bình vs Warot Kananub](https://www.pychess.org/yqR0Og7I)  
 
 <p align="center">
   <img src="https://github.com/gbtami/pychess-variants/blob/master/static/icons/cambodian.svg" width="25" height="25">
