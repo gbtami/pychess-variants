@@ -2,7 +2,7 @@
 
 <div class="meta-headline">
     <div class= "meta">
-        <span class="text">2022.12.01</span>
+        <span class="text">2022.11.30</span>
         <span class="text"><a href="/@/furumin999">@furumin999</a></span>
         <span class="text">Announcements</span>
     </div>
@@ -23,7 +23,7 @@ This tournament serves as a promotion for Ouk Chaktrang, the form of chess playe
 
 In addition, this tournament also serves as an introduction to the Ouk Chaktrang tournament in the next year's SEA Games, a biennial sport event of the Southeast Asia region, being held in Cambodia. Some of the participants are confirmed to be participating in the SEA Games as well.
 
-As of today, 1st December 2022, the tournament has concluded. In terms of the individual results, the Cambodian champion [Bora Chheav](/@/CAM_Bora_Chheav) secured the 1st place with his spectacular performance, winning five of his seven games and drawing the other two. Meanwhile, Thailand's Makruk Grandmasters [Worathep Timsri](/@/THA_Worathep_Timsri) and [Warot Kananub](/@/THA_Warot_Kananub) grabbed the 2nd and 3rd place with their amazing skills. However, in terms of team results, Team Thailand, getting the same score as Team Cambodia, has edged the 1st place by number of wins, the first tiebreak.
+As of today, 30 November 2022, the tournament has concluded. In terms of the individual results, the Cambodian champion [Bora Chheav](/@/CAM_Bora_Chheav) secured the 1st place with his spectacular performance, winning five of his seven games and drawing the other two. Meanwhile, Thailand's Makruk Grandmasters [Worathep Timsri](/@/THA_Worathep_Timsri) and [Warot Kananub](/@/THA_Warot_Kananub) grabbed the 2nd and 3rd place with their amazing skills. However, in terms of team results, Team Thailand, getting the same score as Team Cambodia, has edged the 1st place by number of wins, the first tiebreak.
 
 <p align="center">
   <img src="https://github.com/gbtami/pychess-variants/blob/master/static/images/four-countries-score-individual.png" width="450">
