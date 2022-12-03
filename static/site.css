@@ -608,6 +608,7 @@ a.post img {
   height: auto;
   max-height: 125px;
   border-radius: 3px;
+  object-fit: cover;
 }
 a.post span.text {
   display: flex;

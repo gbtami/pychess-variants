@@ -979,11 +979,14 @@ export class RoundController extends GameController {
             // prevent sending gameStart message when user just reconecting
             if (msg.ply === 0) {
                 this.doSend({ type: "ready", gameId: this.gameId });
-                if (this.variant.setup) {
-                    this.doSend({ type: "board", gameId: this.gameId });
-                }
+            //    if (this.variant.setup) {
+            //        this.doSend({ type: "board", gameId: this.gameId });
+            //    }
             }
         }
+        // We always need this to get possible moves made while our websocket connection was established
+        // fixes https://github.com/gbtami/pychess-variants/issues/962
+        this.doSend({ type: "board", gameId: this.gameId });
     }
 
     private onMsgUserPresent = (msg: MsgUserPresent) => {

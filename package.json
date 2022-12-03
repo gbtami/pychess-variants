@@ -16,7 +16,7 @@
   "funding": "patreon.com/pychess",
   "dependencies": {
     "chessgroundx": "^10.2.2",
-    "ffish-es6": "^0.7.0",
+    "ffish-es6": "^0.7.1",
     "fairy-stockfish-nnue.wasm": "^1.0.1",
     "gettext.js": "^1.1.1",
     "highcharts": "^10.1.0",
@@ -34,7 +34,7 @@
   "devDependencies": {
     "@rollup/plugin-commonjs": "^23.0.2",
     "@rollup/plugin-node-resolve": "^15.0.1",
-    "@rollup/plugin-typescript": "^9.0.2",
+    "@rollup/plugin-typescript": "^10.0.1",
     "@types/chai": "^4.2.12",
     "@types/gettext.js": "^1.0.0",
     "@types/howler": "^2.2.4",
