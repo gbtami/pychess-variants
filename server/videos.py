@@ -410,4 +410,20 @@ VIDEOS = [
         "target": "beginner",
         "duration": "17:59",
     },
+    {
+        "_id": "950nyyjOirU",
+        "title": "25 Xiangqi Checkmate Strategies (Part 1) | Chinese Chess game tips for beginners",
+        "author": "Xiangqi Chinese Chess",
+        "tags": ["Xiangqi", "Tactics"],
+        "target": "beginner",
+        "duration": "10:50",
+    },
+    {
+        "_id": "MyLXgkL4C5A",
+        "title": "The Most Popular Openings in Xiangqi | An Intro to the Chinese Chess Opening",
+        "author": "Xiangqi Chinese Chess",
+        "tags": ["Xiangqi", "Opening"],
+        "target": "beginner",
+        "duration": "11:27",
+    },
 ]
