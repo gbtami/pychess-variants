@@ -192,9 +192,11 @@ export class Clock {
     }
 
     renderTime(time: number) {
-        if (this.granularity > 100 && time < HURRY)
-            this.granularity = 100;
-        this.el = patch(this.el, this.view(time));
+        if (!isNaN(time)) {
+            if (this.granularity > 100 && time < HURRY)
+                this.granularity = 100;
+            this.el = patch(this.el, this.view(time));
+        }
     }
 
 }

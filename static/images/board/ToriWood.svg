@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <svg
-   xmlns:dc="http://purl.org/dc/elements/1.1/"
-   xmlns:cc="http://creativecommons.org/ns#"
-   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-   xmlns:svg="http://www.w3.org/2000/svg"
-   xmlns="http://www.w3.org/2000/svg"
-   xmlns:xlink="http://www.w3.org/1999/xlink"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    version="1.1"
    viewBox="0 0 364 420"
    id="svg851"
    sodipodi:docname="WoodToriBoard.svg"
-   inkscape:version="1.0.1 (3bc2e813f5, 2020-09-07)"
+   inkscape:version="1.2 (dc2aedaf03, 2022-05-15)"
    width="364"
-   height="420">
+   height="420"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:dc="http://purl.org/dc/elements/1.1/">
   <metadata
      id="metadata855">
     <rdf:RDF>
@@ -23,7 +23,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -40,14 +40,17 @@
      inkscape:window-height="2050"
      id="namedview853"
      showgrid="false"
-     inkscape:zoom="1.5703703"
-     inkscape:cx="88.524546"
-     inkscape:cy="360.86326"
-     inkscape:window-x="-12"
+     inkscape:zoom="2.220839"
+     inkscape:cx="219.96192"
+     inkscape:cy="269.49275"
+     inkscape:window-x="3828"
      inkscape:window-y="-12"
      inkscape:window-maximized="1"
      inkscape:current-layer="svg851"
-     inkscape:document-rotation="0" />
+     inkscape:document-rotation="0"
+     inkscape:showpageshadow="2"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1" />
   <defs
      id="defs839">
     <pattern
@@ -59,14 +62,6 @@
        xlink:href="#grid"
        id="pattern3317" />
     <pattern
-       inkscape:collect="always"
-       xlink:href="#pattern2153"
-       id="pattern2159" />
-    <pattern
-       inkscape:collect="always"
-       xlink:href="#grid"
-       id="pattern2153" />
-    <pattern
        id="grid"
        width="52"
        height="60"
@@ -77,17 +72,6 @@
          style="fill:#FFFFFF;fill-opacity:0.0;stroke-width:2;stroke:black"
          id="rect836" />
     </pattern>
-    <clipPath
-       clipPathUnits="userSpaceOnUse"
-       id="clipPath2155">
-      <rect
-         id="rect2157"
-         height="540"
-         width="468"
-         style="fill:url(#pattern2159)"
-         x="0"
-         y="0" />
-    </clipPath>
     <clipPath
        clipPathUnits="userSpaceOnUse"
        id="clipPath3319">
@@ -117,4 +101,24 @@
      style="fill:none;stroke:#000000;stroke-width:1px"
      id="path22173"
      sodipodi:nodetypes="cccccccccccccccccccccccccccccccc" />
+  <circle
+     cx="104"
+     cy="120"
+     r="4"
+     id="circle843" />
+  <circle
+     cx="104"
+     cy="300"
+     r="4"
+     id="circle845" />
+  <circle
+     cx="260"
+     cy="120"
+     r="4"
+     id="circle847" />
+  <circle
+     cx="260"
+     cy="300"
+     r="4"
+     id="circle849" />
 </svg>

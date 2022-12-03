@@ -308,3 +308,5 @@ Bástya-Lándzsás | bástya és a bal oldali lándzsás
 8 bábu | bástya, futó, mindkét lándzsás, mindkét lovas, mindkét ezüsttábornok
 9 bábu | bástya, futó, mindkét lándzsás, mindkét lovas, mindkét ezüsttábornok, bal oldali aranytábornok
 10 bábu | bástya, futó, mindkét lándzsás, mindkét lovas, mindkét ezüsttábornok, mindkét aranytábornok
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/AVSLOcdDj1M" frameborder="0" allowfullscreen></iframe>

@@ -24,7 +24,7 @@ export function aboutView(model: PyChessModel): VNode[] {
                 ", ",
                 h('a', { attrs: { href: 'https://www.pychess.org/variants/makpong' } }, 'Makpong'),
                 ", ",
-                h('a', { attrs: { href: 'https://www.pychess.org/variants/cambodian' } }, 'Ouk Chatrang'),
+                h('a', { attrs: { href: 'https://www.pychess.org/variants/cambodian' } }, 'Ouk Chaktrang'),
                 ", ",
                 h('a', { attrs: { href: 'https://www.pychess.org/variants/sittuyin' } }, 'Sittuyin'),
                 ", ",

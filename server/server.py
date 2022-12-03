@@ -35,7 +35,12 @@ from const import (
     T_STARTED,
     MAX_CHAT_LINES,
     SCHEDULE_MAX_DAYS,
+    ARENA,
+    WEEKLY,
+    MONTHLY,
+    SHIELD,
 )
+from discord_bot import DiscordBot, FakeDiscordBot
 from generate_crosstable import generate_crosstable
 from generate_highscore import generate_highscore
 from generate_shield import generate_shield
@@ -44,6 +49,7 @@ from index import handle_404
 from routes import get_routes, post_routes
 from settings import (
     DEV,
+    DISCORD_TOKEN,
     MAX_AGE,
     SECRET_KEY,
     MONGO_HOST,
@@ -53,10 +59,19 @@ from settings import (
     static_url,
 )
 from user import User
-from tournaments import load_tournament, get_scheduled_tournaments
+from tournaments import load_tournament, get_scheduled_tournaments, translated_tournament_name
 from twitch import Twitch
 from youtube import Youtube
-from scheduler import create_scheduled_tournaments, new_scheduled_tournaments
+from scheduler import (
+    create_scheduled_tournaments,
+    new_scheduled_tournaments,
+    MONTHLY_VARIANTS,
+    WEEKLY_VARIANTS,
+    NO_MORE_VARIANTS,
+    SEATURDAY,
+    SHIELDS,
+)
+from videos import VIDEOS
 
 log = logging.getLogger(__name__)
 
@@ -69,7 +84,11 @@ async def on_prepare(request, response):
         # brotli compressed js
         response.headers["Content-Encoding"] = "br"
         return
-    elif request.path.startswith("/variants") or request.path.startswith("/news"):
+    elif (
+        request.path.startswith("/variants")
+        or request.path.startswith("/news")
+        or request.path.startswith("/video")
+    ):
         # Learn and News pages may have links to other sites
         response.headers["Cross-Origin-Resource-Policy"] = "cross-origin"
         return
@@ -77,6 +96,10 @@ async def on_prepare(request, response):
         # required to get stockfish.wasm in Firefox
         response.headers["Cross-Origin-Opener-Policy"] = "same-origin"
         response.headers["Cross-Origin-Embedder-Policy"] = "require-corp"
+
+        if request.match_info.get("gameId") is not None:
+            response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+            response.headers["Expires"] = "0"
 
 
 def make_app(with_db=True) -> Application:
@@ -134,8 +157,8 @@ async def init_state(app):
     # one dict per tournament! {tournamentId: {user.username: user.tournament_sockets, ...}, ...}
     app["tourneysockets"] = {}
 
-    # cache for profile game list page {tournamentId: tournament.name, ...}
-    app["tourneynames"] = {}
+    # translated scheduled tournament names {(variant, frequency, t_type): tournament.name, ...}
+    app["tourneynames"] = {lang: {} for lang in LANGUAGES}
 
     app["tournaments"] = {}
 
@@ -188,7 +211,8 @@ async def init_state(app):
     asyncio.create_task(BOT_task(ai, app))
     asyncio.create_task(BOT_task(rm, app))
 
-    # Configure templating.
+    # Configure translations and templating.
+    app["gettext"] = {}
     app["jinja"] = {}
     base = os.path.dirname(__file__)
     for lang in LANGUAGES:
@@ -222,9 +246,29 @@ async def init_state(app):
         env.globals["static"] = static_url
 
         app["jinja"][lang] = env
+        app["gettext"][lang] = translation
+
+        translation.install()
+
+        for variant in VARIANTS:
+            if variant in MONTHLY_VARIANTS or variant in SEATURDAY or variant in NO_MORE_VARIANTS:
+                tname = translated_tournament_name(variant, MONTHLY, ARENA, translation)
+                app["tourneynames"][lang][(variant, MONTHLY, ARENA)] = tname
+            if variant in SEATURDAY or variant in WEEKLY_VARIANTS:
+                tname = translated_tournament_name(variant, WEEKLY, ARENA, translation)
+                app["tourneynames"][lang][(variant, WEEKLY, ARENA)] = tname
+            if variant in SHIELDS:
+                tname = translated_tournament_name(variant, SHIELD, ARENA, translation)
+                app["tourneynames"][lang][(variant, SHIELD, ARENA)] = tname
 
     if app["db"] is None:
+        app["discord"] = FakeDiscordBot()
         return
+
+    # create Discord bot
+    bot = DiscordBot(app)
+    app["discord"] = bot
+    asyncio.create_task(bot.start(DISCORD_TOKEN))
 
     # Read tournaments, users and highscore from db
     try:
@@ -242,6 +286,7 @@ async def init_state(app):
                     bot=doc.get("title") == "BOT",
                     perfs=perfs,
                     enabled=doc.get("enabled", True),
+                    lang=doc.get("lang", "en"),
                 )
 
         await app["db"].tournament.create_index("startsAt")
@@ -280,6 +325,11 @@ async def init_state(app):
         await app["db"].game.create_index("v")
         await app["db"].game.create_index("y")
         await app["db"].game.create_index("by")
+
+        if "video" not in db_collections:
+            if DEV:
+                await app["db"].video.drop()
+            await app["db"].video.insert_many(VIDEOS)
 
     except Exception:
         print("Maybe mongodb is not running...")

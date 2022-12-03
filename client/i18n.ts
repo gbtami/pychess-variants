@@ -65,10 +65,10 @@ export const translatedColorNames = [
 export const translatedVariantDisplayNames = [
     _("chess"), _("crazyhouse"), _("placement"), _("atomic"),
 
-    _("makruk"), _("makpong"), _("ouk chatrang"), _("sittuyin"), _("asean"),
+    _("makruk"), _("makpong"), _("ouk chaktrang"), _("sittuyin"), _("asean"),
 
     _("shogi"), _("minishogi"), _("kyoto shogi"),
-    _("dobutsu"), _("gorogoro"), _("tori shogi"),
+    _("dobutsu"), _("gorogoro"), _("gorogoro+"), _("tori shogi"),
 
     _("xiangqi"), _("manchu"), _("janggi"), _("minixiangqi"),
 

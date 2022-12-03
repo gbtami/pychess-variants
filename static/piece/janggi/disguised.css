@@ -1,0 +1,6 @@
+.janggi .cg-wrap piece.white {
+    background-image: url('../../images/pieces/disguised/janggi-b.svg');
+}
+.janggi .cg-wrap piece.black {
+    background-image: url('../../images/pieces/disguised/janggi-r.svg');
+}

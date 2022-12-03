@@ -97,4 +97,5 @@ export interface TopGame {
     base: number;
     inc: number;
     byoyomi: number;
+    lastMove: cg.Move;
 }

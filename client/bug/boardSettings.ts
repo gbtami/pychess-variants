@@ -277,7 +277,7 @@ class ZoomSettings extends NumberSettings {
     }
 
     view(): VNode {
-        return slider(this, 'zoom', 0, 100, this.boardFamily.includes("shogi") ? 1 : 1.15625);
+        return h('div', slider(this, 'zoom', 0, 100, this.boardFamily.includes("shogi") ? 1 : 1.15625, _('Zoom')));
     }
 }
 
@@ -290,7 +290,7 @@ class ShowDestsSettings extends BooleanSettings {
     }
 
     update(): void {
-        this.boardSettings.ctrl?.b1.chessground.set({ movable: { showDests: this.value }, dropmode: { showDropDests: this.value }, predroppable: { showDropDests: this.value } } );//todo;niki; temp use b1
+        this.boardSettings.ctrl?.b1.chessground.set({ movable: { showDests: this.value } } );//todo;niki; temp use b1
     }
 
     view(): VNode {

@@ -1,7 +1,6 @@
 import asyncio
 import collections
 import logging
-import random
 from datetime import datetime, timezone
 from time import monotonic
 
@@ -138,8 +137,6 @@ class Game:
                 "white": (base * 1000 * 60) + 0 if base > 0 else inc * 1000,
             }
         ]
-        self.dests = {}
-        self.promotions = []
         self.lastmove = None
         self.check = False
         self.status = CREATED
@@ -167,8 +164,9 @@ class Game:
 
                 white_pieces = sum(1 for c in board_state if c.isupper())
                 black_pieces = sum(1 for c in board_state if c.islower())
+                pawns = sum(1 for c in board_state if c in ("P", "p"))
                 if counting_limit > 0 and counting_ply > 0:
-                    if white_pieces <= 1 or black_pieces <= 1:
+                    if pawns == 0 and (white_pieces <= 1 or black_pieces <= 1):
                         # Disable manual count if either side is already down to lone king
                         count_started = 0
                         self.manual_count = False
@@ -226,9 +224,8 @@ class Game:
             self.wplayer.username,
             self.bplayer.username,
         )
-        self.random_move = ""
+        self.legal_moves = self.board.legal_moves()
 
-        self.set_dests()
         if self.board.move_stack:
             self.check = self.board.is_checked()
 
@@ -268,7 +265,10 @@ class Game:
 
         if self.status > STARTED:
             return
-        if self.status == CREATED:
+
+        # In Janggi games self.status was already set to STARTED when setup phase ended
+        # so we have to check board.ply instead here!
+        if self.board.ply == 0:
             self.status = STARTED
             self.app["g_cnt"][0] += 1
             response = {"type": "g_cnt", "cnt": self.app["g_cnt"][0]}
@@ -341,18 +341,8 @@ class Game:
                 self.lastmove = move
                 self.board.push(move)
                 self.ply_clocks.append(clocks)
-                self.set_dests()
+                self.legal_moves = self.board.legal_moves()
                 self.update_status()
-
-                # Stop manual counting when the king is bared
-                if self.board.count_started != 0:
-                    board_state = self.board.fen.split()[0]
-                    white_pieces = sum(1 for c in board_state if c.isupper())
-                    black_pieces = sum(1 for c in board_state if c.islower())
-                    if white_pieces <= 1 or black_pieces <= 1:
-                        if self.board.count_started > 0:
-                            self.stop_manual_count()
-                        self.board.count_started = 0
 
                 if self.status > STARTED:
                     await self.save_game()
@@ -374,16 +364,6 @@ class Game:
                 result = "1-0" if self.board.color == BLACK else "0-1"
                 self.update_status(INVALIDMOVE, result)
                 await self.save_game()
-
-            # TODO: this causes random game abort
-            if False:  # not self.bot_game:
-                opp_color = self.steps[-1]["turnColor"]
-                if (
-                    clocks[opp_color] < self.ply_clocks[ply - 1][opp_color]
-                    and self.status <= STARTED
-                ):
-                    self.update_status(ABORTED)
-                    await self.save_game()
 
     async def save_game(self):
         if self.saved:
@@ -660,7 +640,7 @@ class Game:
             self.status = DRAW
             self.result = "1/2-1/2"
 
-        if not self.dests:
+        if not self.legal_moves:
             game_result_value = self.board.game_result()
             self.result = result_string_from_value(self.board.color, game_result_value)
 
@@ -725,33 +705,6 @@ class Game:
                 self.bplayer.game_in_progress = None
             if not self.wplayer.bot:
                 self.wplayer.game_in_progress = None
-
-    def set_dests(self):
-        dests = {}
-        promotions = []
-        moves = self.board.legal_moves()
-        if self.random_mover:
-            self.random_move = random.choice(moves) if moves else ""
-
-        for move in moves:
-            # chessgroundx key uses ":" for tenth rank
-            if self.variant in GRANDS:
-                move = move.replace("10", ":")
-            source, dest = move[0:2], move[2:4]
-            if source in dests:
-                dests[source].append(dest)
-            else:
-                dests[source] = [dest]
-
-            if not move[-1].isdigit():
-                if not (self.variant in ("seirawan", "shouse") and move[1] in ("1", "8")):
-                    promotions.append(move)
-
-            if self.variant in ("kyotoshogi", "chennis") and move[0] == "+":
-                promotions.append(move)
-
-        self.dests = dests
-        self.promotions = promotions
 
     def print_game(self):
         print(self.pgn)
@@ -979,8 +932,6 @@ class Game:
             "fen": self.board.fen,
             "lastMove": self.lastmove,
             "steps": steps,
-            "dests": self.dests,
-            "promo": self.promotions,
             "check": self.check,
             "ply": self.board.ply,
             "clocks": {"black": clocks["black"], "white": clocks["white"]},
@@ -990,7 +941,6 @@ class Game:
             if self.status > STARTED and self.rated == RATED
             else "",
             "uci_usi": self.uci_usi if self.status > STARTED else "",
-            "rm": self.random_move if self.status <= STARTED else "",
             "ct": crosstable,
             "berserk": {"w": self.wberserk, "b": self.bberserk},
             "by": self.imported_by,

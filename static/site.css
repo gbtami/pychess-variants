@@ -74,6 +74,7 @@
   --toggle-bg: #c0c0c0;
   --slider-border: #a9a9a9;
   --anal-clock: #bbd7f1;
+  --pv-hover: #e0ebd3;
 }
 [data-theme='dark'] {
   --dark-mode: 1;
@@ -134,6 +135,7 @@
   --toggle-bg: #696969;
   --slider-border: #7a7a7a;
   --anal-clock: #2b455d;
+  --pv-hover: #323c22;
 }
 [data-theme='dark'] .icon-black:before {
   content: '\63';
@@ -578,7 +580,7 @@ under-lobby {
 }
 div.news {
   margin: 0;
-  padding: 0;
+  padding: 5vh;
 }
 a.news {
   margin-right: 0.4em;
@@ -797,7 +799,7 @@ ul.guide li {
     position: absolute;
     left: 0;
     top: 50px;
-    min-width: 10rem;
+    min-width: 12rem;
     border-left: 2px solid #3692e7;
     border-radius: 0 3px 3px 3px;
     text-align: left;
@@ -1093,7 +1095,7 @@ button.analysis:hover {
 
 .i-pgn {
   float: left;
-  padding: 10px;
+  padding: 6px;
   color: var(--link-color-blue);
 }
 

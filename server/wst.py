@@ -23,6 +23,15 @@ log = logging.getLogger(__name__)
 async def tournament_socket_handler(request):
 
     users = request.app["users"]
+
+    session = await aiohttp_session.get_session(request)
+    session_user = session.get("user_name")
+    user = users[session_user] if session_user is not None and session_user in users else None
+
+    if (user is not None) and (not user.enabled):
+        session.invalidate()
+        return web.HTTPFound("/")
+
     sockets = request.app["tourneysockets"]
     lobby_sockets = request.app["lobbysockets"]
     tourneychat = request.app["tourneychat"]
@@ -35,16 +44,7 @@ async def tournament_socket_handler(request):
 
     await ws.prepare(request)
 
-    session = await aiohttp_session.get_session(request)
-    session_user = session.get("user_name")
-    user = users[session_user] if session_user is not None and session_user in users else None
-
-    if (user is not None) and (not user.enabled):
-        await ws.close()
-        session.invalidate()
-        return web.HTTPFound("/")
-
-    log.debug("-------------------------- NEW tournament WEBSOCKET by %s", user)
+    log.info("--- NEW tournament WEBSOCKET by %s from %s", session_user, request.remote)
 
     try:
         async for msg in ws:
@@ -52,6 +52,8 @@ async def tournament_socket_handler(request):
                 if msg.data == "close":
                     log.debug("Got 'close' msg.")
                     break
+                elif msg.data == "/n":
+                    await ws.send_str("/n")
                 else:
                     data = json.loads(msg.data)
                     if not data["type"] == "pong":

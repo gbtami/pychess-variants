@@ -15,7 +15,12 @@
     "To play on PyChess, you need to have an open and unmarked account on Lichess. ": "Per giocare su PyChess, hai bisogno di un account su Lichess.",
     "Regarding Privacy and Terms of Service, the rules of lichess.org are also applied here. ": "Per quanto riguarda la Privacy ed i Termini di servizio, le regole di lichess.org si applicano anche qui.",
     "Variant": "Variante",
+    "Multi-threaded WebAssembly (classical evaluation)": "Multi-threaded WebAssembly (valutazione classica)",
     "in local browser": "nel browser locale",
+    "Computer analysis": "Analisi del computer",
+    "Move times": "Tempo per mossa",
+    "Crosstable": "Crosstable",
+    "FEN & PGN": "FEN & PGN",
     "Initial position": "Posizione iniziale",
     "Advantage": "Vantaggio",
     "You need an account to do that.": "Hai bisogno di un account per questo.",
@@ -29,16 +34,18 @@
     "Are you sure you want to delete this game?": "Sicuro di volere eliminare questa partita?",
     "Request Computer Analysis": "Richiedi Analisi del Computer",
     "Request Analysis": "Richiedi Analisi",
+    "Try browser page reload.": "Prova a ricaricare la pagina",
+    "Multi-threaded WebAssembly (with NNUE evaluation)": "Multi-threaded WebAssembly (con valutazione NNUE)",
     "Depth": "Profondità",
     "Go deeper": "Aumenta la profondità",
-    "Spectators: ": "Spettatori:",
-    "Requested game %1 not found!": "Partita richiesta %1 non trovata!",
     "Light": "Chiaro",
     "Dark": "Scuro",
     "Piece animation": "Animazione pezzi",
+    "Zoom": "Zoom",
     "Show piece destinations": "Mostra le mosse possibili",
     "Promote to the top choice automatically": "Promuovi a pezzo \"di prima scelta\" automaticamente",
     "Best move arrow in analysis board": "Freccia della mossa migliore in scacchiera d'analisi",
+    "MultiPV": "MultiPV",
     "Invisible pieces": "Pezzi invisibili",
     "Show material difference": "Mostra la differenza di materiale",
     "Sign in to chat": "Registrati per chattare",
@@ -94,72 +101,88 @@
     "New Army Variants": "Varianti con nuovi schieramenti",
     "in %1 year": [
         "fra %1 anno",
+        "fra %1 anni",
         "fra %1 anni"
     ],
     "%1 year ago": [
         "%1 anno fa",
+        "%1 anni fa",
         "%1 anni fa"
     ],
     "in %1 month": [
         "tra %1 mese",
+        "tra %1 mesi",
         "tra %1 mesi"
     ],
     "%1 month ago": [
         "%1 mese fa",
+        "%1 mesi fa",
         "%1 mesi fa"
     ],
     "in %1 week": [
         "tra %1 settimana",
+        "tra %1 settimane",
         "tra %1 settimane"
     ],
     "%1 week ago": [
         "%1 settimana fa",
+        "%1 settimane fa",
         "%1 settimane fa"
     ],
     "in %1 day": [
         "tra %1 giorno",
+        "tra %1 giorni",
         "tra %1 giorni"
     ],
     "%1 day ago": [
         "%1 giorno fa",
+        "%1 giorni fa",
         "%1 giorni fa"
     ],
     "in %1 hour": [
         "tra %1 ora",
+        "tra %1 ore",
         "tra %1 ore"
     ],
     "%1 hour ago": [
         "%1 ora fa",
+        "%1 ore fa",
         "%1 ore fa"
     ],
     "in %1 minute": [
         "tra %1 minuto",
+        "tra %1 minuti",
         "tra %1 minuti"
     ],
     "%1 minute ago": [
         "%1 minuto fa",
+        "%1 minuti fa",
         "%1 minuti fa"
     ],
     "in %1 second": [
         "tra %1 secondo",
+        "tra %1 secondi",
         "tra %1 secondi"
     ],
     "%1 second ago": [
         "%1 secondo fa",
+        "%1 secondi fa",
         "%1 secondi fa"
     ],
-    "STARTING IN": "INIZIA TRA",
     "%1 to play": "%1 muove",
     "Castling": "Arrocco",
     "White": "Bianco",
     "Black": "Nero",
     "FLIP BOARD": "RUOTA LA SCACCHIERA",
     "CLEAR BOARD": "SVUOTA LA SCACCHIERA",
+    "FILL %1'S HAND": "RIEMPI LA TASCA DEL %1",
     "STARTING POSITION": "POSIZIONE DI PARTENZA",
     "ANALYSIS BOARD": "SCACCHIERA DI ANALISI",
     "PLAY WITH MACHINE": "GIOCA CON IL COMPUTER",
     "EXPORT TO PNG": "ESPORTA IN PGN",
     "Invalid FEN": "FEN invalido",
+    "Spectators: ": "Spettatori:",
+    "Requested game %1 not found!": "Partita richiesta %1 non trovata!",
     "Playing right now": "In corso",
     "Red": "Rosso",
     "Blue": "Blu",
@@ -172,7 +195,7 @@
     "atomic": "atomic",
     "makruk": "makruk",
     "makpong": "makpong",
-    "ouk chatrang": "ouk chatrang",
+    "ouk chaktrang": "ouk chaktrang",
     "sittuyin": "sittuyin",
     "asean": "asean",
     "shogi": "shogi",
@@ -180,6 +203,7 @@
     "kyoto shogi": "kyoto shogi",
     "dobutsu": "dobutsu",
     "gorogoro": "gorogoro",
+    "gorogoro+": "gorogoro+",
     "tori shogi": "tori shogi",
     "xiangqi": "xiangqi",
     "manchu": "manchu",
@@ -200,6 +224,7 @@
     "empire": "empire",
     "orda mirror": "orda mirror",
     "chak": "chak",
+    "chennis": "chennis",
     "PawnsPushed": "PedoniSpinti",
     "PawnsPassed": "PedoniPassati",
     "UpsideDown": "SottoSopra",
@@ -258,11 +283,13 @@
     "Custom": "Personalizzato",
     "%1 player": [
         "%1 giocatore",
+        "%1 giocatori",
         "%1 giocatori"
     ],
     "You have an unfinished game!\nPress OK to continue.": "Hai una partita in corso!\nClicca OK per continuarla.",
     "%1 game in play": [
         "%1 partita in corso",
+        "%1 partite in corso",
         "%1 partite in corso"
     ],
     "Tournament calendar": "Calendario tornei",
@@ -274,10 +301,38 @@
     "FAQ": "FAQ",
     "Stats": "Statistiche",
     "About": "Info",
+    "Fairy-Stockfish on PyChess": "Fairy-Stockfish su PyChess",
+    "NNUE Everywhere": "NNUE Dovunque",
+    "Tennis and chess": "Tennis e scacchi",
+    "Serving a New Variant": "Caricando una Nuova Variante",
+    "Christmas gift from PyChess": "Regalo di Natale da parte di PyChess",
+    "Merry Chak-mas!": "Merry Chak-mas!",
     "Thank you for your support!": "Grazie per il tuo supporto!",
     "Invalid PGN": "PGN invalido",
     "Paste the PGN text here": "Incolla il PGN qui",
     "IMPORT GAME": "IMPORTA PARTITA",
+    "%1 move": [
+        "%1 mossa",
+        "%1 mosse",
+        "%1 mosse"
+    ],
+    "Computer analysis available": "Analisi del computer disponibile",
+    "Games": "Partite",
+    "Games with you": "Partite con te",
+    "Imported": "Importate",
+    "View the solution": "Vedi la soluzione",
+    "Puzzle ": "Puzzle ",
+    "Rating: ": "Rating: ",
+    "Played ": "Giocato",
+    "Source: ": "Fonte:",
+    "Your turn": "Il tuo turno",
+    "Find the best move for %1.": "Trova la mossa migliore per il %1.",
+    "That's not the move!": "Non è questa la mossa!",
+    "Try something else.": "Prova qualcos'altro.",
+    "Best move!": "La mossa migliore!",
+    "Keep going...": "Continua...",
+    "Puzzle complete!": "Puzzle completato!",
+    "Continue training": "Continua ad allenarti",
     "IMPORT": "IMPORTA",
     "level %1": "livello %1",
     "Game aborted": "Partita annullata",
@@ -296,14 +351,6 @@
     "Explosion of king": "Esplosione del re",
     "Point counting": "Conta dei punti",
     "Repetition": "Ripetizione",
-    "%1 move": [
-        "%1 mossa",
-        "%1 mosse"
-    ],
-    "Computer analysis available": "Analisi del computer disponibile",
-    "Games": "Partite",
-    "Games with you": "Partite con te",
-    "Imported": "Importate",
     " +15 seconds": "+15 secondi",
     "Give 15 seconds": "Concedi 15 secondi",
     "Berserk": "Berserk",
@@ -333,6 +380,7 @@
     "Start counting": "Comincia il conteggio",
     "%1 second to play the first move": [
         "%1 secondo per muovere",
+        "%1 secondi per muovere",
         "%1 secondi per muovere"
     ],
     "Log out": "Esci",
@@ -341,6 +389,7 @@
     "Background": "Sfondo",
     "Board Settings": "Impostazioni scacchiera",
     "Zen Mode": "Modalità Zen",
+    "Volume": "Volume",
     "First": "Primo",
     "Prev": "Precedente",
     "Next": "Prossimo",
@@ -357,12 +406,19 @@
     "Draws": "Pareggi",
     "Berserk rate": "Tasso di Berserk",
     "Download all games": "Scarica tutte le partite",
+    "Download all games in JSON": "Scarica tutte le partite in JSON",
+    "Arena": "Arena",
+    "Round-Robin": "Torneo all'italiana",
+    "Swiss": "Torneo svizzero",
     "Performance": "Performance",
     "Win rate": "Tasso di vittorie",
     "Average opponent": "Avversario medio",
     "Defender:": "Difensore:",
     "Custom position": "Posizione personalizzata",
     "Analysis board": "Scacchiera d'analisi",
+    "This Shield trophy is unique. The winner keeps it for one month, then must defend it during the next %1 Shield tournament!": "Questo trofeo Shield è unico. Chi lo vince lo detiene per un mese, poi dovrà difenderlo durante il prossimo torneo Shield di %1!",
+    "STARTING IN": "INIZIA TRA",
+    "Page reload required after change": "È richiesto ricaricare la pagina dopo le modifiche",
     "Off": "Disattivo",
     "On": "Attivo",
     "ZEN MODE": "MODALITÀ ZEN",
@@ -431,6 +487,6 @@
     "UsePluralFormIfNeeded\u0004Rated": "Classificata",
     "": {
         "language": "it",
-        "plural-forms": "nplurals=2; plural=(n != 1);"
+        "plural-forms": "nplurals=3; plural=n == 1 ? 0 : n != 0 && n % 1000000 == 0 ? 1 : 2;"
     }
 }
