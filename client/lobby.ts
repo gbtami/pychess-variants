@@ -975,6 +975,14 @@ export function lobbyView(model: PyChessModel): VNode[] {
         h('div.tv', [h('a#tv-game', { attrs: {href: '/tv'} })]),
         h('under-lobby', [
             h('posts', [
+                h('a.post', { attrs: {href: '/news/Ouk_Chaktrang_Friendship_Between_Four_Countries_Tournament'} }, [
+                    h('img', { attrs: {src: model.assetURL + '/images/four-countries.jpg'} }),
+                    h('span.text', [
+                        h('strong', _("Ouk Chaktrang Friendship Between Four Countries Tournament")),
+                        h('span', _('Promoting Our Southeast Asian Brethren')),
+                    ]),
+                    h('time', '2022.12.01'),
+                ]),
                 h('a.post', { attrs: {href: '/news/Crazyhouse960_Tournament_Spring_Invitational_2022'} }, [
                     h('img', { attrs: {src: model.assetURL + '/images/one-flew-over-the-cuckoos-nest.jpg '} }),
                     h('span.text', [
@@ -991,6 +999,7 @@ export function lobbyView(model: PyChessModel): VNode[] {
                     ]),
                     h('time', '2022.08.04'),
                 ]),
+                /*
                 h('a.post', { attrs: {href: '/news/Serving_a_New_Variant'} }, [
                     h('img', { attrs: {src: model.assetURL + '/images/ChessTennis.jpg'} }),
                     h('span.text', [
@@ -999,6 +1008,7 @@ export function lobbyView(model: PyChessModel): VNode[] {
                     ]),
                     h('time', '2022.02.01'),
                 ]),
+                */
                 /*
                 h('a.post', { attrs: {href: '/news/Merry_Chakmas'} }, [
                     h('img', { attrs: {src: model.assetURL + '/images/QuetzalinTikal.png'} }),

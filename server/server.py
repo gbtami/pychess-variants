@@ -271,9 +271,12 @@ async def init_state(app):
         return
 
     # create Discord bot
-    bot = DiscordBot(app)
-    app["discord"] = bot
-    asyncio.create_task(bot.start(DISCORD_TOKEN))
+    if DEV:
+        app["discord"] = FakeDiscordBot()
+    else:
+        bot = DiscordBot(app)
+        app["discord"] = bot
+        asyncio.create_task(bot.start(DISCORD_TOKEN))
 
     # Read tournaments, users and highscore from db
     try:
