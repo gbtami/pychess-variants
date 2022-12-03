@@ -1,0 +1,24 @@
+{% extends "template.html" %}
+{% block content %}
+<div id="main-wrap">
+<main class="page-menu">
+  <aside>
+    <ul class="guide">
+    {% for tag in tags %}
+    <li>
+    <a href="{{ home }}/video?tags={{ tag }}"><span>{{ tag }}</span></a>
+    </li>
+    {% endfor %}
+    </ul>
+</aside>
+<div class="show">
+    <div class="iframe-container">
+    <iframe src="https://www.youtube.com/embed/{{ videoId }}" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+    </div>
+  </div>
+</main>
+</div>
+{% endblock %}
+{% block js %}
+    <script src="{{ js }}"></script>
+{% endblock %}

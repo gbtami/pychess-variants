@@ -2,7 +2,7 @@
 
 ![Makruk](https://github.com/gbtami/pychess-variants/blob/master/static/images/MakrukGuide/Makruk.png?raw=true)
 
-*Makruk*, or Thai Chess, is a classic board game native to Thailand and is closely descended from Chaturanga, the same ancestor as Chess. The game is played in Thailand and Cambodia, where it is known as *Ouk Chatrang* (with slightly different rules). Makruk offers a taste of ancient Chess in the original form before the introduction of modern rules quickened the pace. The game is plenty of fun in its  own right, with its own balance/dynamics. The slightly slower pace can provide a good way to cultivate patience, and to hone strategic thinking.
+*Makruk*, or Thai Chess, is a classic board game native to Thailand and is closely descended from Chaturanga, the same ancestor as Chess. Makruk offers a taste of ancient Chess in the original form before the introduction of modern rules quickened the pace. The game is plenty of fun in its  own right, with its own balance/dynamics. The slightly slower pace can provide a good way to cultivate patience, and to hone strategic thinking.
 
 Kramnik has tried his hand at Makruk, and had this insight to offer, "Makruk Thai is more strategic than International Chess. You have to plan your operations with total care since Makruk Thai can be compared to an anticipated endgame of International Chess."
  
@@ -72,15 +72,25 @@ For the disadvantaged side, a promoted pawn is a good decoy which must be trappe
 
 ## Counting Rules
 
-When neither side has any unpromoted pawns, the game must be completed within a certain number of moves or it is declared a draw. In real games, the disadvantaged player verbally counts his moves according to these rules.
+To prevent the games going on forever, there are rules that will declare the game a draw if it does not end in a certain number of moves, similar to Chess's 50-move rule. The maximum number of moves allowed will be called the **limit**.
+
+During the endgame, one of the player will most likely have some advantage and be the one trying to win, *chasing* the other's king into checkmate, while the other player try to *escape* with a draw. For the purpose of this rule document the player with advantage will be called the **chasing player**, while the one with disadvantage will be called the **escaping player**.
+
+In real over-the-board games, the escaping player verbally counts their moves. On PyChess, the current count and the limit are shown on the escaping player's side.
+
+The chasing player has to win before the count **exceeds** the limit. Otherwise, the game is declared a draw.
 
 ### Board's Honor Counting
 
-When there are no unpromoted pawns left on the board, the disadvantaged player may start the board's honor counting. The count starts from 1, and mate must be achieved in 64 moves (that is, before the count goes to 65) or the game is a draw. The player may choose to stop counting at any time, but if either player wants to start counting again, the count will restart from 1. If the disadvantaged player checkmates the advantaged side and did not stop counting, the game is declared a draw.
+When there are **no unpromoted pawns left** on the board, the player with disadvantage may start the board's honor counting. The count **starts from 1**, and the counting **limit is 64**.
+
+The player may choose to stop counting at any time, but if either player wants to start counting again, the count will restart from 1. While the escaping player is counting, the chasing player may declare the game a draw at any time. If the player who does the counting somehow checkmates the other player and did not stop counting, the game is declared a draw.
 
 ### Piece's Honor Counting
 
-When there are no unpromoted pawns left on the board, and the last piece (that is not the king) of the disadvantaged player is captured, the piece's honor counting will start. This overrides the board's honor counting. The count starts from the number of pieces left on the board, including both kings, plus one. The limit of the count is based on the pieces the advantaged player has on the board, determined by the minimum number from these conditions:
+When there are **no unpromoted pawns left** on the board, and one of the players has **only the king left**, the piece's honor counting will start. This **overrides** the board's honor counting.
+
+The count **starts from the number of pieces left** on the board, including both kings, plus one. The counting **limit is based on the material advantage** of the chasing player, determined by the minimum number among these conditions:
 * If there are two rooks: 8
 * If there is one rook: 16
 * If there are two bishops: 22
@@ -89,8 +99,8 @@ When there are no unpromoted pawns left on the board, and the last piece (that i
 * If there is one knight: 64
 * If there are only (any number of) queen and promoted pawns: 64
 
-The winning player has to checkmate his opponent's king before the count exceeds the limit. Otherwise, the game is declared a draw. Once the piece's honor counting is started, the limit is set in stone, and it will not change in any case, even if the pieces on the board get captured.
-For example, if White has two rooks against a lone black king, the piece's honor counting will go from 5 to 8. If Black captures one of the white rooks, the count does not restart, nor is the limit recalculated. The game is still drawn after Black counts to 9.
+Once the piece's honor counting is started, the limit is set in stone, and it will not change no matter what, even if the pieces on the board get captured afterwards.
+For example, if White has two rooks against a lone black king, the piece's honor counting will go from 5 to 8. If Black then captures one of the white rooks, the count does not restart, nor is the limit recalculated. The game is still drawn after Black counts to 9.
 
 ## Makruk vs Sittuyin
  
@@ -114,4 +124,6 @@ When one side has only a bare King remaining, there are certain "counting rules"
 Because there is no promotion to heavy pieces, it becomes harder to force a checkmate after the existing pieces have left the board. Plan accordingly and leave yourself with enough fire power.
  
 Please allow yourself enough time on the clock, as many of those mates require precision.
- 
+
+[https://thechesspolyglot.netlify.app/2020/04/21/knf-v-k/](https://thechesspolyglot.netlify.app/2020/04/21/knf-v-k/) by Illion is recommended for everyone.
+<iframe width="560" height="315" src="https://www.youtube.com/embed/uyNsTgo8ylI" frameborder="0" allowfullscreen></iframe>

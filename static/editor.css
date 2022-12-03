@@ -36,18 +36,13 @@ boardeditor {
     justify-content: center;
 }
 .pocket-wrapper {
-    justify-content: initial;
+    justify-content: right;
 }
 .pocket-wrapper .editor {
     width: var(--cg-width);
     height: calc(var(--piecerows) * var(--cg-height) / var(--ranks));
     display: flex;
     flex-wrap: wrap;
-}
-.pocket-wrapper .editor piece {
-    flex: 0 0 calc(100% / var(--files));
-    height: auto!important;
-    width: auto!important;
 }
 .pocket-wrapper.top {
     grid-area: poc-top;

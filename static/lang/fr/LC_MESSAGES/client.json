@@ -15,7 +15,9 @@
     "To play on PyChess, you need to have an open and unmarked account on Lichess. ": "Pour jouer sur PyChess, il faut un compte sur Lichess ouvert et non-marqué",
     "Regarding Privacy and Terms of Service, the rules of lichess.org are also applied here. ": "En ce qui concerne la confidentialité et les conditions d'utilisation, nous appliquons ici celles de lichess.org.",
     "Variant": "Variante",
+    "Multi-threaded WebAssembly (classical evaluation)": "WebAssembly multithread (évaluation classique)",
     "in local browser": "dans le navigateur local",
+    "Computer analysis": "Analyse de l'ordinateur",
     "Initial position": "Position de départ",
     "Advantage": "Avantage",
     "You need an account to do that.": "Compte utilisateur requis.",
@@ -29,13 +31,13 @@
     "Are you sure you want to delete this game?": "Êtes-vous sûr de vouloir supprimer la partie ?",
     "Request Computer Analysis": "Demander l'analyse de l'ordinateur",
     "Request Analysis": "Demander l'analyse",
+    "Try browser page reload.": "Essayez de recharger la page du navigateur.",
     "Depth": "Profondeur",
     "Go deeper": "Approfondir l'analyse",
-    "Spectators: ": "Spectateurs : ",
-    "Requested game %1 not found!": "Partie demandée %1 non trouvée !",
     "Light": "Clair",
     "Dark": "Sombre",
     "Piece animation": "Animation des pièces",
+    "Zoom": "Zoom",
     "Show piece destinations": "Mettre en évidence les cases de destination",
     "Promote to the top choice automatically": "Promouvoir au premier choix automatiquement",
     "Best move arrow in analysis board": "Flèche du meilleur coup pendant l'analyse",
@@ -94,61 +96,74 @@
     "New Army Variants": "Variantes aux nouvelles armées",
     "in %1 year": [
         "dans %1 an",
+        "dans %1 ans",
         "dans %1 ans"
     ],
     "%1 year ago": [
+        "Il y a %1 ans",
         "Il y a %1 ans",
         "Il y a %1 ans"
     ],
     "in %1 month": [
         "dans %1 mois",
+        "dans %1 mois",
         "dans %1 mois"
     ],
     "%1 month ago": [
+        "Il y a %1 mois",
         "Il y a %1 mois",
         "Il y a %1 mois"
     ],
     "in %1 week": [
         "dans %1 semaine",
+        "dans %1 semaines",
         "dans %1 semaines"
     ],
     "%1 week ago": [
         "Il y a %1 semaine",
+        "Il y a %1 semaines",
         "Il y a %1 semaines"
     ],
     "in %1 day": [
         "dans %1 jour",
+        "dans %1 jours",
         "dans %1 jours"
     ],
     "%1 day ago": [
         "Il y a %1 jour",
+        "Il y a %1 jours",
         "Il y a %1 jours"
     ],
     "in %1 hour": [
         "dans %1 heure",
+        "dans %1 heures",
         "dans %1 heures"
     ],
     "%1 hour ago": [
         "Il y a %1 heure",
+        "Il y a %1 heures",
         "Il y a %1 heures"
     ],
     "in %1 minute": [
         "dans %1 minute",
+        "dans %1 minutes",
         "dans %1 minutes"
     ],
     "%1 minute ago": [
         "Il y a %1 minute",
+        "Il y a %1 minutes",
         "Il y a %1 minutes"
     ],
     "in %1 second": [
         "dans %1 seconde",
+        "dans %1 secondes",
         "dans %1 secondes"
     ],
     "%1 second ago": [
         "Il y a %1 seconde",
+        "Il y a %1 secondes",
         "Il y a %1 secondes"
     ],
-    "STARTING IN": "COMMENCE DANS",
     "%1 to play": "Trait aux %1",
     "Castling": "Roque",
     "White": "Les blancs",
@@ -160,6 +175,8 @@
     "PLAY WITH MACHINE": "JOUER CONTRE L'ORDINATEUR",
     "EXPORT TO PNG": "EXPORTER AU FORMAT PNG",
     "Invalid FEN": "FEN invalide",
+    "Spectators: ": "Spectateurs : ",
+    "Requested game %1 not found!": "Partie demandée %1 non trouvée !",
     "Playing right now": "En cours",
     "Red": "Les rouges",
     "Blue": "Les bleus",
@@ -172,7 +189,6 @@
     "atomic": "atomique",
     "makruk": "makruk",
     "makpong": "makpong",
-    "ouk chatrang": "ouk chatrang",
     "sittuyin": "sittuyin",
     "asean": "asean",
     "shogi": "shogi",
@@ -200,6 +216,7 @@
     "empire": "empire",
     "orda mirror": "orda miroir",
     "chak": "chak",
+    "No castle": "Pas de roque",
     "Bird": "Oiseau",
     "Gothic": "Gothique",
     "Embassy": "Embassade",
@@ -236,11 +253,13 @@
     "Custom": "Custom",
     "%1 player": [
         "%1 joueur",
+        "%1 joueurs",
         "%1 joueurs"
     ],
     "You have an unfinished game!\nPress OK to continue.": "Vous avez une partie non-terminée !\nAppuyer sur \"OK\" pour continuer.",
     "%1 game in play": [
         "%1 partie en cours",
+        "%1 parties en cours",
         "%1 parties en cours"
     ],
     "Tournament calendar": "Calendrier des tournois",
@@ -252,10 +271,34 @@
     "FAQ": "FAQ",
     "Stats": "Statistiques",
     "About": "À propos",
+    "Tennis and chess": "Tennis et échecs",
+    "Christmas gift from PyChess": "Cadeau de Noël de PyChess",
     "Thank you for your support!": "Merci pour votre soutien !",
     "Invalid PGN": "PGN invalide",
     "Paste the PGN text here": "Coller la PGN ici",
     "IMPORT GAME": "IMPORTER LA PARTIE",
+    "%1 move": [
+        "%1 coup",
+        "%1 coups",
+        "%1 coups"
+    ],
+    "Computer analysis available": "Analyse d'ordinateur disponible",
+    "Games": "Parties jouées",
+    "Games with you": "Parties avec vous",
+    "Imported": "Parties importées",
+    "View the solution": "Voir la solution",
+    "Puzzle ": "Puzzle",
+    "Rating: ": "Classement\\:",
+    "Played ": "Joué",
+    "Source: ": "Source:",
+    "Your turn": "Votre tour",
+    "Find the best move for %1.": "Trouvez le meilleur coup pour %1.",
+    "That's not the move!": "Ce n'est pas le bon coup!",
+    "Try something else.": "Essayez autre chose.",
+    "Best move!": "Meilleur coup!",
+    "Keep going...": "Continuez...",
+    "Puzzle complete!": "Puzzle terminé!",
+    "Continue training": "Continuer l'entrainement",
     "IMPORT": "IMPORTER",
     "level %1": "niveau %1",
     "Game aborted": "Partie annulée",
@@ -274,14 +317,6 @@
     "Explosion of king": "Explosion du roi",
     "Point counting": "Comptage de points",
     "Repetition": "Répétition",
-    "%1 move": [
-        "%1 coup",
-        "%1 coups"
-    ],
-    "Computer analysis available": "Analyse d'ordinateur disponible",
-    "Games": "Parties jouées",
-    "Games with you": "Parties avec vous",
-    "Imported": "Parties importées",
     " +15 seconds": "+15 secondes",
     "Give 15 seconds": "Donner 15 secondes",
     "Berserk": "Berserk",
@@ -311,6 +346,7 @@
     "Start counting": "Commencer à compter les coups",
     "%1 second to play the first move": [
         "%1 seconde pour jouer le premier coup",
+        "%1 secondes pour jouer le premier coup",
         "%1 secondes pour jouer le premier coup"
     ],
     "Log out": "Déconnexion",
@@ -319,6 +355,7 @@
     "Background": "Arrière-plan",
     "Board Settings": "Réglages de l'échiquier",
     "Zen Mode": "Mode Zen",
+    "Volume": "Volume",
     "First": "Premier",
     "Prev": "Précedent",
     "Next": "Suivant",
@@ -335,12 +372,15 @@
     "Draws": "Nulles",
     "Berserk rate": "taux de Berserk",
     "Download all games": "Télécharger toutes les parties",
+    "Download all games in JSON": "Télécharger toutes les parties en JSON",
     "Performance": "Performance",
     "Win rate": "Taux de victoires",
     "Average opponent": "Opposition moyenne",
     "Defender:": "Défenseur",
     "Custom position": "Position personnalisée",
     "Analysis board": "Échiquier d'analyse",
+    "STARTING IN": "COMMENCE DANS",
+    "Page reload required after change": "Rechargement de la page nécessaire après un changement",
     "Off": "Désactiver",
     "On": "Activer",
     "ZEN MODE": "MODE ZEN",
@@ -409,6 +449,6 @@
     "UsePluralFormIfNeeded\u0004Rated": "Classée",
     "": {
         "language": "fr",
-        "plural-forms": "nplurals=2; plural=(n > 1);"
+        "plural-forms": "nplurals=3; plural=(n == 0 || n == 1) ? 0 : n != 0 && n % 1000000 == 0 ? 1 : 2;"
     }
 }

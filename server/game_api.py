@@ -192,9 +192,16 @@ async def get_user_games(request):
     else:
         filter_cond["us"] = profileId
 
-    page_num = request.rel_url.query.get("p")
-    if not page_num:
-        page_num = 0
+    if "/import" not in request.path:
+        new_filter_cond = {
+            "$and": [
+                filter_cond,
+                {"y": {"$ne": 2}},
+            ]
+        }
+        filter_cond = new_filter_cond
+
+    page_num = request.rel_url.query.get("p", 0)
 
     game_doc_list = []
     if profileId is not None:
@@ -224,7 +231,7 @@ async def get_user_games(request):
 
             tournament_id = doc.get("tid")
             if tournament_id is not None:
-                doc["tn"] = await get_tournament_name(request.app, tournament_id)
+                doc["tn"] = await get_tournament_name(request, tournament_id)
 
             if uci_moves:
                 game_doc_list.append(
@@ -308,11 +315,14 @@ async def get_games(request):
                 "variant": game.variant,
                 "fen": game.board.fen,
                 "w": game.wplayer.username,
+                "wTitle": game.wplayer.title,
                 "b": game.bplayer.username,
+                "bTitle": game.bplayer.title,
                 "chess960": game.chess960,
                 "base": game.base,
                 "inc": game.inc,
                 "byoyomi": game.byoyomi_period,
+                "level": game.level,
             }
             for game in games.values()
             if game.status == STARTED

@@ -1,0 +1,6 @@
+.shogun .cg-wrap piece.black {
+    background-image: url('../../images/pieces/disguised/b.svg');
+}
+.shogun .cg-wrap piece.white {
+    background-image: url('../../images/pieces/disguised/w.svg');
+}

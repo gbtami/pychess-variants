@@ -1,0 +1,6 @@
+.dobutsu .cg-wrap piece.black {
+    background-image: url('../../images/pieces/disguised/dobutsu-w.svg');
+}
+.dobutsu .cg-wrap piece.white {
+    background-image: url('../../images/pieces/disguised/dobutsu-b.svg');
+}

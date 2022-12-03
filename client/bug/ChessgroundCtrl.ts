@@ -140,20 +140,20 @@ export class ChessgroundController extends GameController {
         }
     }
 
-    onUserDrop = (role: cg.Role, dest: cg.Key, meta: cg.MoveMetadata) => {
-        console.log(role, dest, meta);
+    onUserDrop = (piece: cg.Piece, dest: cg.Key, meta: cg.MoveMetadata) => {
+        console.log(piece, dest, meta);
         // onUserDrop(this, role, dest, meta); todo:niki
-        this.preaction = meta.predrop === true;
-        // decrease pocket count - todo: covers the gap before we receive board message confirming the move - then FEN is set
-        //                               and overwrites whole board+pocket and refreshes.
-        //                               Maybe consider decrease count on start of drag (like in editor mode)?
-        this.chessground.state.pockets![this.chessground.state.turnColor]![role]! --;
-        this.chessground.state.dom.redraw();
-        if (this.variant.promotion === 'kyoto') {
-            if (!this.promotion.start(role, 'a0', dest)) this.sendMove(util.dropOrigOf(role), dest, '');
-        } else {
-            this.sendMove(util.dropOrigOf(role), dest, '')
-        }
+        this.preaction = meta.premove;
+        // // decrease pocket count - todo: covers the gap before we receive board message confirming the move - then FEN is set
+        // //                               and overwrites whole board+pocket and refreshes.
+        // //                               Maybe consider decrease count on start of drag (like in editor mode)?
+        // (this.chessground.state.boardState.pockets![this.chessground.state.turnColor] as Pocket).set(piece.role]! --;
+        // this.chessground.state.dom.redraw();
+        // if (this.variant.promotion === 'kyoto') {
+        //     if (!this.promotion.start(piece.role, 'a0', dest)) this.sendMove(util.dropOrigOf(piece.role), dest, '');
+        // } else {
+            this.sendMove(util.dropOrigOf(piece.role), dest, '')
+        // }
         this.preaction = false;
     }
 
@@ -173,7 +173,7 @@ export class ChessgroundController extends GameController {
             if (this.chessground.state.stats.ctrlKey &&
                 (this.chessground.state.movable.dests.get(key)?.includes(key))
                 ) {
-                const piece = this.chessground.state.pieces.get(key);
+                const piece = this.chessground.state.boardState.pieces.get(key);
                 if (this.variant.name === 'sittuyin') { // TODO make this more generic
                     // console.log("Ctrl in place promotion", key);
                     const pieces: cg.PiecesDiff = new Map();
@@ -196,7 +196,7 @@ export class ChessgroundController extends GameController {
         const ctrl = this;
         ctrl.preaction = meta.premove;
         // chessground doesn't knows about ep, so we have to remove ep captured pawn
-        const pieces = ctrl.chessground.state.pieces;
+        const pieces = ctrl.chessground.state.boardState.pieces;
         // console.log("ground.onUserMove()", orig, dest, meta);
         let moved = pieces.get(dest);
         // Fix king to rook 960 castling case
@@ -218,11 +218,12 @@ export class ChessgroundController extends GameController {
             if (meta.captured.promoted)
                 role =/* (ctrl.variant.promotion === 'shogi' || ctrl.variant.promotion === 'kyoto') ? meta.captured.role.slice(1) as cg.Role : todo:not relevant for bughouse - if/when this class becomes generic bring this back maybe*/ "p-piece";
 
-            if (this.partnerCC.chessground.state.pockets) {
+            if (this.partnerCC.chessground.state.boardState.pockets) {
                 const pocket = /*ctrl.chessground.state.pockets todo:not relevant for bughouse - if/when this class becomes generic bring this back?*/
-                    this.partnerCC.chessground.state.pockets[/*util.opposite(*/meta.captured.color/*)*/]/* : undefined*/;
+                    this.partnerCC.chessground.state.boardState.pockets[/*util.opposite(*/meta.captured.color/*)*/]/* : undefined*/;
                 if (pocket && role && role in pocket) {
-                    pocket[role]!++;
+                    // pocket[role]!++;todo:niki:changed to below line as part of merge from upstream - not sure whats happening with this
+                    pocket.set(role, pocket.get(role)! + 1);
                     let ff = this.partnerCC.ffishBoard.fen();
                     console.log(ff);
                     const f1 = this.partnerCC.chessground.getFen();
@@ -264,10 +265,10 @@ export class ChessgroundController extends GameController {
         console.log(step);
         const move = uci2LastMove(step.move);
         let capture = false;
-        if (move.length > 0) {
+        if (move) {
             // 960 king takes rook castling is not capture
             // TODO defer this logic to ffish.js
-            capture = (this.chessground.state.pieces.get(move[move.length - 1]) !== undefined && step.san?.slice(0, 2) !== 'O-') || (step.san?.slice(1, 2) === 'x');
+            capture = (this.chessground.state.boardState.pieces.get(move[1]) !== undefined && step.san?.slice(0, 2) !== 'O-') || (step.san?.slice(1, 2) === 'x');
         }
 
         const fen=this.boardName==='a'?step.fen: step.fenB;
@@ -354,16 +355,16 @@ export class ChessgroundController extends GameController {
 
     const chessground = Chessground(el, {
          fen: fen_placement as cg.FEN,
-         variant: 'crazyhouse' as cg.Variant,//todo:niki:why does cg need to be aware of variants?
-         chess960: false,
-         geometry: BOARD_FAMILIES.standard8x8.geometry,
+         // variant: 'crazyhouse' as cg.Variant,//todo:niki:why does cg need to be aware of variants?
+         // chess960: false,
+         dimensions: BOARD_FAMILIES.standard8x8.dimensions,
          notation: cg.Notation.ALGEBRAIC,
          orientation: 'white',//todo:niki
          turnColor: 'white',//todo:niki
          animation: { enabled: false },//todo:niki
-         addDimensionsCssVars: true,
+         addDimensionsCssVarsTo: document.body,
 
-         pocketRoles: VARIANTS.crazyhouse.pocketRoles.bind(VARIANTS.crazyhouse),
+         pocketRoles: VARIANTS.crazyhouse.pocketRoles,
     }, pocket0, pocket1);
 
     chessground.set({

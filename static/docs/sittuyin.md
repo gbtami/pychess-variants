@@ -70,7 +70,7 @@ The pawn, or feudal lord, moves and attacks the same as a pawn in chess. However
 #### Promotion
 After a feudal lord reaches the diagonal line on the opponent's side of the board, the player can choose to promote that piece into a general instead of moving. Each side can only has *one* general at any given time, so this can only occur if their general has already been captured. Promotion does not happen on the move where the feudal lord reaches the promotion square, but rather any move after that.
 
-In the act of promotion, the feudal lord can promote on the same square it is on (in-place), or any one of the adjacent diagonal squares. On pychess, **in-place promotion** is performed by a **double-click** on the feudal lord, and **diagonal promotion** is performed by **moving** it to the desired square.
+In the act of promotion, the feudal lord can promote on the same square it is on (in-place), or any one of the adjacent diagonal squares. On pychess, **in-place promotion** is performed by a **Double-Click** or **Ctrl+Click** on the feudal lord, and **diagonal promotion** is performed by **moving** it to the desired square.
 
 However, there are some more restrictions. Promotion cannot be made such that the new general will capture an enemy piece, attack an enemy piece, attack the enemy king, or put the enemy king in a discovery check.
 

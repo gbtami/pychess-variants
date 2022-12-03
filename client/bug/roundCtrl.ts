@@ -937,10 +937,10 @@ export class RoundController implements IChatController/*extends GameController 
         const movePartner = step.boardName==='b'?uci2LastMove(step.move):uci2LastMove(step.moveB);
 
         let capture = false;
-        if (move.length > 0) {
+        if (move) {
             // 960 king takes rook castling is not capture
             // TODO defer this logic to ffish.js
-            capture = (board.chessground.state.pieces.get(move[move.length - 1]) !== undefined && step.san?.slice(0, 2) !== 'O-') || (step.san?.slice(1, 2) === 'x');
+            capture = (board.chessground.state.boardState.pieces.get(move[1]) !== undefined && step.san?.slice(0, 2) !== 'O-') || (step.san?.slice(1, 2) === 'x');
         }
 
         board.chessground.set({

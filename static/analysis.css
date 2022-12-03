@@ -160,6 +160,9 @@ div.ctable-container {
 }
 
 /* Engine info */
+.nnue {
+    color: var(--good);
+}
 div#ceval {
     grid-area: ceval;
     background-color: var(--bg-color2);
@@ -186,12 +189,15 @@ a.icon.icon-plus-square {
     margin-left: 4px;
     cursor: pointer;
 }
-div#pv {
+div.pv {
     grid-area: pv;
     display: flex;
     flex: 0 1 auto;
     border-bottom: 1px solid var(--border-color);
     background-color: var(--bg-color0);
+}
+div.pv:hover {
+    background-color: var(--pv-hover);
 }
 pvline {
     text-overflow: ellipsis;
@@ -201,7 +207,11 @@ pvline {
     max-width: var(--cg-width);
     height: 28px;
     line-height: 28px;
+    font-size: 13px;
     padding-left: 6px;
+}
+pvline strong {
+    padding-right: 6px;
 }
 @media (max-width: 799px) and (orientation: portrait) {
     pvline {

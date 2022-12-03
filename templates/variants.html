@@ -12,7 +12,7 @@
     {% for key in variants %}
     <li>
     <div class="icon {{ groups[key] }}" data-icon="{{ icons[key] }}">
-        <a href="{{ home }}/variants/{{ key }}">{{ variant_display_name(key).title() }}</a>
+        <a href="{{ home }}/variants/{{ key }}">{{ variant_display_name(key) }}</a>
     </div>
     </li>
     {% endfor %}

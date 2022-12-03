@@ -1,6 +1,6 @@
 // import ffishModule from 'ffish-es6';
 
-import Sockette from 'sockette';
+import { newWebsocket } from '../socket';
 
 import { h, VNode } from 'snabbdom';
 
@@ -118,7 +118,20 @@ export default class AnalysisController {
     arrow: boolean;
     importedBy: string;
 
+    embed: boolean;
+
+    fsfDebug: boolean;
+    fsfError: string[];
+    fsfEngineBoard: any;  // used to convert pv UCI move list to SAN
+
+    username: string;
+
     constructor(el1: HTMLElement,el1Pocket1: HTMLElement,el1Pocket2: HTMLElement,el2: HTMLElement,el2Pocket1: HTMLElement,el2Pocket2: HTMLElement, model: PyChessModel) {
+
+        this.fsfDebug = false;
+        this.fsfError = [];
+        this.embed = this.gameId === undefined;
+        this.username = model["username"];
 
         this.b1 = new ChessgroundController(el1, el1Pocket1, el1Pocket2, 'a', model); //todo:niki:fen maybe should be parsed from bfen. what situation do we start from custom fen?
         this.b2 = new ChessgroundController(el2, el2Pocket1, el2Pocket2, 'b', model);
@@ -137,27 +150,17 @@ export default class AnalysisController {
 
         this.isAnalysisBoard = model["gameId"] === "";
 
-        const onOpen = (evt: Event) => {
-            console.log("ctrl.onOpen()", evt);
-            if (this.model['embed']) {
-                this.doSend({ type: "embed_user_connected", gameId: this.model["gameId"] });
+        const onOpen = () => {
+            if (this.embed) {
+                this.doSend({ type: "embed_user_connected", gameId: this.gameId });
             } else if (!this.isAnalysisBoard) {
-                this.doSend({ type: "game_user_connected", username: this.model["username"], gameId: this.model["gameId"] });
+                this.doSend({ type: "game_user_connected", username: this.username, gameId: this.gameId });
             }
         };
 
-        const opts = {
-            maxAttempts: 10,
-            onopen: (e: Event) => onOpen(e),
-            onmessage: (e: MessageEvent) => this.onMessage(e),
-            onreconnect: (e: Event) => console.log('Reconnecting in round...', e),
-            onmaximum: (e: Event) => console.log('Stop Attempting!', e),
-            onclose: (e: Event) => console.log('Closed!', e),
-            onerror: (e: Event) => console.log('Error:', e),
-            };
-
-        const ws = (location.protocol.indexOf('https') > -1) ? 'wss://' : 'ws://';
-        this.sock = new Sockette(ws + location.host + "/wsr", opts);
+        this.sock = newWebsocket('wsr');
+        this.sock.onopen = () => onOpen();
+        this.sock.onmessage = (e: MessageEvent) => this.onMessage(e);
 
         // is local stockfish.wasm engine supports current variant?
         this.localEngine = false;
@@ -637,7 +640,7 @@ export default class AnalysisController {
                     const d = pv_move.slice(atPos + 1, atPos + 3) as cg.Key;
                     let color = turnColor;
 
-                    const dropPieceRole = util.roleOf(pv_move.slice(0, atPos) as cg.PieceLetter);
+                    const dropPieceRole = util.roleOf(pv_move.slice(0, atPos) as cg.Letter);
                     // const orientation = this.flip ? this.b1.oppcolor : this.b1.mycolor;
                     // const side = color === orientation ? "ally" : "enemy";
                     // const url = getPieceImageUrl("bughouse", dropPieceRole, color, side);
@@ -784,10 +787,10 @@ export default class AnalysisController {
         const movePartner = step.boardName==='b'?uci2LastMove(step.move):uci2LastMove(step.moveB);
 
         let capture = false;
-        if (move.length > 0) {
+        if (move) {
             // 960 king takes rook castling is not capture
             // TODO defer this logic to ffish.js
-            capture = (board.chessground.state.pieces.get(move[move.length - 1]) !== undefined && step.san?.slice(0, 2) !== 'O-') || (step.san?.slice(1, 2) === 'x');
+            capture = (board.chessground.state.boardState.pieces.get(move[1]) !== undefined && step.san?.slice(0, 2) !== 'O-') || (step.san?.slice(1, 2) === 'x');
         }
 
         board.chessground.set({
