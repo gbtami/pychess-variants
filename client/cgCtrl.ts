@@ -60,7 +60,7 @@ export abstract class ChessgroundController implements IBoardController {
         boardSettings.updateZoom(boardFamily);
         boardSettings.updateBlindfold();
 
-        new ffishModule().then((loadedModule: any) => {
+        ffishModule().then((loadedModule: any) => {
             this.ffish = loadedModule;
             this.ffish.loadVariantConfig(variantsIni);
             this.notationAsObject = this.notation2ffishjs(this.notation);

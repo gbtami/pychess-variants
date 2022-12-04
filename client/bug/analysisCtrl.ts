@@ -92,6 +92,7 @@ export default class AnalysisController {
     uci_usi: string;
     ply: number;
     plyVari: number;
+    plyInsideVari: number;
     // players: string[];
     // titles: string[];
     // ratings: string[];
@@ -182,6 +183,7 @@ export default class AnalysisController {
 
         // current interactive analysis variation ply
         this.plyVari = 0;
+        this.plyInsideVari = -1
 
         this.model = model;
         this.gameId = model["gameId"] as string;
@@ -780,8 +782,8 @@ export default class AnalysisController {
 
         const board=step.boardName==='a'?this.b1:this.b2;
 
-        const fen=step.boardName==='a'?step.fen: step.fenB;
-        const fenPartner=step.boardName==='b'?step.fen: step.fenB;
+        const fen=step.boardName==='a'?step.fen: step.fenB!;
+        const fenPartner=step.boardName==='b'?step.fen: step.fenB!;
 
         const move = step.boardName==='a'?uci2LastMove(step.move):uci2LastMove(step.moveB);
         const movePartner = step.boardName==='b'?uci2LastMove(step.move):uci2LastMove(step.moveB);
@@ -804,10 +806,11 @@ export default class AnalysisController {
             lastMove: move,
         });
 
-        board.partnerCC.chessground.set({fen: fenPartner, lastMove: movePartner});
+        const turnColorPartner = fenPartner.split(' ')[1] === "w"? "white": "black";//todo:niki:why not make util function to get this from fen and drop Step.turnColor - maybe even in chessground
+        board.partnerCC.chessground.set({fen: fenPartner, lastMove: movePartner, turnColor: turnColorPartner, movable: {color: turnColorPartner}});
 
-        board.fullfen = step.fen;
-        board.partnerCC.fullfen = fenPartner!;
+        board.fullfen = fen;
+        board.partnerCC.fullfen = fenPartner;
 
         if (ply === this.ply + 1) {
             sound.moveSound(board.variant, capture);
@@ -819,10 +822,19 @@ export default class AnalysisController {
         }
         board.turnColor = step.turnColor;
 
-        if (board.ffishBoard !== null) {
+        if (board.ffishBoard) {
             board.ffishBoard.setFen(board.fullfen);
-            // board.dests = board.parent.setDests(board);//todo:niki:maybe do this before chessground set above.
             board.setDests();
+        }
+        //todo:niki:actually try removing this below - no longer sure if needed/helping. there were other bugs to fix also and not sure which one helped and if this is needed at all
+        //todo:niki:not great on first load when ffishboard not initialized yet.
+        //     probably same bug exist in normal, but here in 2 board more visible because even after scroll of moves of one board, the second's dests dont get refreshed
+        //     that is why i am adding this here, otherwise it shouldn't really be needed as position doesn't change, but
+        //     we onle need it now because we dont know if second board ever got initialized
+        //todo:niki:can we find a way to better wait for initializing of ffishboard stuff? put code like this in some lambda and pass it to some promise or something, maybe?
+        if (board.partnerCC.ffishBoard) {
+            board.partnerCC.ffishBoard.setFen(board.partnerCC.fullfen);
+            board.partnerCC.setDests();
         }
 
     }
@@ -926,11 +938,12 @@ export default class AnalysisController {
 
         // New main line move
         // const sumPly = this.b1.ffishBoard.gamePly() + this.b2.ffishBoard.gamePly();
-        const sumPly = this.b1.ply + this.b2.ply;
-        if (sumPly === this.steps.length && this.plyVari === 0) {
+        // const sumPly = this.b1.ply + this.b2.ply;
+        const moveIdx = (this.plyVari === 0) ? this.ply : this.plyInsideVari;
+        if (moveIdx === this.steps.length && this.plyVari === 0) {
             this.steps.push(step);
             b.steps.push(step);
-            this.ply = sumPly
+            this.ply = moveIdx;
             updateMovelist(this);
 
             this.checkStatus(msg);
@@ -945,12 +958,12 @@ export default class AnalysisController {
                 }
                 if (this.steps[this.plyVari]['vari'] === undefined || msg.ply === this.steps[this.plyVari].vari?.length) {
                     // continuing the variation
-                    this.plyVari = sumPly;
+                    this.plyVari = moveIdx;
                     this.steps[this.plyVari]['vari'] = [];
                 } else {
                     // variation in the variation: drop old moves
                     if ( vv ) {
-                        this.steps[this.plyVari]['vari'] = vv.slice(0, sumPly - this.plyVari);
+                        this.steps[this.plyVari]['vari'] = vv.slice(0, moveIdx - this.plyVari);
                     }
                 }
             }

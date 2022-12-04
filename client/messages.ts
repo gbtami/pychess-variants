@@ -12,7 +12,7 @@ export interface Step {
     moveB?: string | undefined;//todo:niki:would be nice not to have to duplicate this and fenB and instead derive it from previous moves when needed. also not store in db
 
     check: boolean;
-    turnColor: cg.Color;
+    turnColor: cg.Color;//todo:niki:why do we need this at all - we have it in the fen
 
     san?: string;
     analysis?: Ceval;
