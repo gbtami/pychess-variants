@@ -711,7 +711,6 @@ export class LobbyController implements IChatController {
         const game = this.tvGame;
         const variant = VARIANTS[game.variant];
         const elements = [
-        h('div.player', [h('tv-user', [h('player-title', game.bt), ' ' + game.b + ' ', h('rating', game.br)])]),
         h(`div#mainboard.${variant.board}.${variant.piece}.${variant.boardMark}`, {
             class: { "with-pockets": variant.pocket },
             style: { "--ranks": (variant.pocket) ? String(variant.boardHeight) : "undefined" },
@@ -735,7 +734,10 @@ export class LobbyController implements IChatController {
                     }
                 }),
         ]),
-        h('div.player', [h('tv-user', [h('player-title', game.wt), ' ' + game.w + ' ', h('rating', game.wr)])]),
+        h('span.vstext', [
+            h('div.player', [h('tv-user', [h('player-title', game.bt), ' ' + game.b + ' ', h('rating', game.br)])]),
+            h('div.player', [h('tv-user', [h('player-title', game.wt), ' ' + game.w + ' ', h('rating', game.wr)])]),
+        ]),
         ];
 
         patch(document.getElementById('tv-game') as HTMLElement, h('a#tv-game', elements));
@@ -921,7 +923,10 @@ export function lobbyView(model: PyChessModel): VNode[] {
     const second = _(variant.secondColor);
 
     const dailyPuzzle = [
-        h('span.text', _('Puzzle of the day')),
+        h('span.vstext', [
+            h('span.text', _('Puzzle of the day')),
+            h('span.text', _('%1 to play', (turnColor === 'w') ? first : second)),
+        ]),
         h(`div#mainboard.${variant.board}.${variant.piece}.${variant.boardMark}`, {
             class: { "with-pockets": variant.pocket },
             style: { "--ranks": (variant.pocket) ? String(variant.boardHeight) : "undefined" },
@@ -941,7 +946,6 @@ export function lobbyView(model: PyChessModel): VNode[] {
                     }
                 }),
         ]),
-        h('span.text', _('%1 to play', (turnColor === 'w') ? first : second)),
     ];
 
     return [

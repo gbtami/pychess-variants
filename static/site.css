@@ -2313,3 +2313,16 @@ input:invalid {
   width: 100%;
 }
 /* Search Bar End  */
+
+div.tv cg-container, div.puzzle cg-container {
+  right: unset;
+}
+
+.vstext {
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--font-color);
+  width: var(--cg-width);
+}
