@@ -24,7 +24,7 @@ VIDEO_TAGS = {
     "Match": _("Match"),
     "Tournament": _("Tournament"),
     "Hu Ronghua": _("Hu Ronghua"),
-    "Joshiharu Habu": _("Joshiharu Habu"),
+    "Yoshiharu Habu": _("Yoshiharu Habu"),
 }
 
 VIDEO_TARGETS = {
@@ -440,7 +440,7 @@ VIDEOS = [
         "_id": "82U8LR6MSV0",
         "title": "Aesthetics of game : shogi, Japanese traditional culture",
         "author": "ANA Global Channel",
-        "tags": ["Shogi", "Joshiharu Habu"],
+        "tags": ["Shogi", "Yoshiharu Habu"],
         "target": "beginner",
         "duration": "9:46",
     },
