@@ -150,7 +150,7 @@ async def index(request):
         return lang_translation.gettext(TRANSLATED_PAIRING_SYSTEM_NAMES[system])
 
     def video_tag(tag):
-        return lang_translation.gettext(VIDEO_TAGS[tag])
+        return lang_translation.gettext(VIDEO_TAGS.get(tag, tag))
 
     def video_target(target):
         return lang_translation.gettext(VIDEO_TARGETS[target])
