@@ -24,6 +24,7 @@ VIDEO_TAGS = {
     "Match": _("Match"),
     "Tournament": _("Tournament"),
     "Hu Ronghua": _("Hu Ronghua"),
+    "Yoshiharu Habu": _("Yoshiharu Habu"),
 }
 
 VIDEO_TARGETS = {
@@ -426,5 +427,21 @@ VIDEOS = [
         "tags": ["Xiangqi", "Opening"],
         "target": "beginner",
         "duration": "11:27",
+    },
+    {
+        "_id": "yi6qNq5Uaww",
+        "title": "1st Capablanca Chess Arena",
+        "author": "ChessNetwork",
+        "tags": ["Capablanca", "Tournament"],
+        "target": "beginner",
+        "duration": "57:52",
+    },
+    {
+        "_id": "82U8LR6MSV0",
+        "title": "Aesthetics of game : shogi, Japanese traditional culture",
+        "author": "ANA Global Channel",
+        "tags": ["Shogi", "Yoshiharu Habu"],
+        "target": "beginner",
+        "duration": "9:46",
     },
 ]
