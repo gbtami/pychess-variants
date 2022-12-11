@@ -13,6 +13,7 @@ export class PuzzleController extends AnalysisController {
     username: string;
     _id: string;
     site: string;
+    played: number;
     playerEl: VNode | HTMLElement;
     solution: UCIMove[];
     solutionSan: string[];
@@ -25,10 +26,10 @@ export class PuzzleController extends AnalysisController {
 
     constructor(el: HTMLElement, model: PyChessModel) {
         super(el, model);
-
         const data = JSON.parse(model.puzzle);
         this._id = data._id;
         this.site = data.site;
+        this.played = data.played ?? "0";
         this.solution = data.moves.split(',');
         this.username = model.username;
         this.moves = [];
@@ -101,7 +102,7 @@ export class PuzzleController extends AnalysisController {
                     h('div.info2', [
                         h('div', [_('Puzzle '), h('a', { attrs: { href: `/puzzle/${this._id}` } }, `#${this._id}`) ]),
                         h('div', [_('Rating: '), '1500?']),
-                        h('div', [_('Played '), '0'])
+                        h('div', [_('Played '), this.played])
                     ])
                 ]),
             ]),

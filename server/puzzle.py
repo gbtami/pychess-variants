@@ -71,11 +71,13 @@ async def puzzle_complete(request):
     print(puzzleId, post_data)
     rated = post_data["rated"] == "true"
 
-    if not rated:
-        return
-
     puzzle_data = await get_puzzle(request, puzzleId)
     puzzle = Puzzle(request.app["db"], puzzle_data)
+
+    await puzzle.set_played()
+
+    if not rated:
+        return
 
     users = request.app["users"]
     session = await aiohttp_session.get_session(request)
@@ -156,4 +158,10 @@ class Puzzle:
         if self.db is not None:
             await self.db.puzzle.find_one_and_update(
                 {"_id": self.puzzleId}, {"$set": {"perf": self.perf}}
+            )
+
+    async def set_played(self):
+        if self.db is not None:
+            await self.db.puzzle.find_one_and_update(
+                {"_id": self.puzzleId}, {"$set": {"played": self.puzzle_data.get("played", 0) + 1}}
             )
