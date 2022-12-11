@@ -22,7 +22,7 @@ export class ChessgroundController extends GameController {
 
     mycolor: cg.Color;
     oppcolor: cg.Color;
-    turnColor: cg.Color;
+    turnColor: cg.Color;// todo: don't think this is ever used as other then temp variable before setting turncolor to CG
 
     chess960: boolean;
     prevPieces: cg.Pieces;

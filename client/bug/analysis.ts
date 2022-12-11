@@ -71,7 +71,9 @@ export function analysisView(model: PyChessModel): VNode[] {
         h('div.analysis-app.bug', { hook: {insert: ()=>{createBoards(mainboardVNode, bugboardVNode, mainboardPocket0, mainboardPocket1, bugboardPocket0, bugboardPocket1, model)}}}, [
             h('aside.sidebar-first', leftSide(model)),
             h(`selection#mainboard.${variant.board}.${variant.piece}.${variant.boardMark}`, [
+                h('div#anal-clock-top'),
                 h('div.cg-wrap.' + variant.cg, { hook: { insert: (vnode) => mainboardVNode = vnode/*runGround(vnode, model)*/ } }),
+                h('div#anal-clock-bottom'),
             ]),
             h(`selection#bugboard.${variant.board}.${variant.piece}.${variant.boardMark}`, [
                 h('div.cg-wrap.' + variant.cg, { hook: { insert: (vnode) => bugboardVNode = vnode/*runGround(vnode, model)*/ } }),

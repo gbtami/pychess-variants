@@ -10,7 +10,7 @@ import { DrawShape } from 'chessgroundx/draw';
 
 import { JSONObject } from '../types';
 import { _ } from '../i18n';
-import {uci2LastMove, uci2cg, cg2uci, notation} from '../chess';
+import {uci2LastMove, uci2cg, cg2uci, notation, VARIANTS} from '../chess';
 import { createMovelistButtons, updateMovelist, selectMove, activatePlyVari } from './movelist';
 import { povChances } from '../winningChances';
 // import { boardSettings } from './boardSettings';
@@ -21,6 +21,7 @@ import { PyChessModel } from "../types";
 import {Ceval, MsgBoard, Step} from "../messages";
 import {ChessgroundController} from "./ChessgroundCtrl";
 import {sound} from "../sound";
+import {renderClocks} from "./analysisClock";
 
 // const EVAL_REGEX = new RegExp(''
 //   + /^info depth (\d+) seldepth \d+ multipv (\d+) /.source
@@ -74,7 +75,10 @@ export default class AnalysisController {
     vpgn: VNode;
     vscore: VNode | HTMLElement;
     vinfo: VNode | HTMLElement;
-    vpv: VNode | HTMLElement;
+    vpvlines: VNode[] | HTMLElement[];
+
+    vpv: VNode | HTMLElement; // todo.niki.whatis this?
+
     vmovelist: VNode | HTMLElement;
     gameControls: VNode;
     moveControls: VNode;
@@ -117,6 +121,11 @@ export default class AnalysisController {
     notationAsObject: any;
 
     arrow: boolean;
+
+    multipv: number;
+    evalFile: string;
+    nnueOk: boolean;
+
     importedBy: string;
 
     embed: boolean;
@@ -195,13 +204,19 @@ export default class AnalysisController {
         this.status = model["status"] as number;
         this.steps = [];
         this.pgn = "";
-        this.ply = model["ply"];
+        this.ply = isNaN(model["ply"]) ? 0 : model["ply"];
 
         this.flip = false;
         this.settings = true;
         this.animation = localStorage.animation === undefined ? true : localStorage.animation === "true";
         this.showDests = localStorage.showDests === undefined ? true : localStorage.showDests === "true";
         this.arrow = localStorage.arrow === undefined ? true : localStorage.arrow === "true";
+
+        this.multipv = localStorage.multipv === undefined ? 1 : Math.max(1, Math.min(5, parseInt(localStorage.multipv)));
+        const variant = VARIANTS[model.variant];
+        this.evalFile = localStorage[`${variant.name}-nnue`] === undefined ? '' : localStorage[`${variant.name}-nnue`];
+        this.nnueOk = false;
+
         this.importedBy = '';
 
         this.hasPockets = true;//todo:niki:check whats the purpose of this? this.variant.pocket;
@@ -271,6 +286,34 @@ export default class AnalysisController {
         // boardSettings.updateBoardStyle(boardFamily);
         // boardSettings.updatePieceStyle(pieceFamily);
         // boardSettings.updateZoom(boardFamily);
+    }
+
+    nnueIni() {
+        if (this.localAnalysis && this.nnueOk) {
+            this.engineStop();
+            this.engineGo(this.b1);//todo:niki:parameter
+        }
+    }
+
+    pvboxIni() {
+        if (this.localAnalysis) this.engineStop();
+        this.clearPvlines();
+        if (this.localAnalysis) this.engineGo(this.b1);  //todo:niki:param
+    }
+
+    pvView(i: number, pv: VNode | undefined) {
+        if (this.vpvlines === undefined) this.pvboxIni();
+        this.vpvlines[i] = patch(this.vpvlines[i], h(`div#pv${i + 1}.pv`, pv));
+    }
+
+    clearPvlines() {
+        for (let i = 4; i >= 0; i--) {
+            if (i + 1 <= this.multipv && this.localAnalysis) {
+                this.vpvlines[i] = patch(this.vpvlines[i], h(`div#pv${i + 1}.pv`, [h('pvline', h('pvline', '-'))]));
+            } else {
+                this.vpvlines[i] = patch(this.vpvlines[i], h(`div#pv${i + 1}`));
+            }
+        }
     }
 
     flipBoards = (): void => {
@@ -460,6 +503,17 @@ export default class AnalysisController {
                 this.vinfo = patch(this.vinfo, h('info#info', '-'));
                 this.drawAnalysisChart(false);
             }
+            const clocktimes = this.steps[1]?.clocks?.white;
+            if (true || clocktimes !== undefined && !this.embed) {
+                patch(document.getElementById('anal-clock-top') as HTMLElement, h('div.anal-clock.top'));
+                patch(document.getElementById('anal-clock-bottom') as HTMLElement, h('div.anal-clock.bottom'));
+                renderClocks(this.b1);
+
+                const cmt = document.getElementById('chart-movetime') as HTMLElement;
+                cmt.style.display = 'block';
+                // movetimeChart(this);
+            }
+
         } else {/*
             if (msg.ply === this.steps.length) {
                 const step: Step = {
@@ -775,9 +829,10 @@ export default class AnalysisController {
     // then plyVari > 0 and ply is the index inside vari movelist
     goPly = (ply: number, plyVari = 0) => {//todo:niki:temp comment out
         console.log(ply, plyVari);
-        this.ply = ply;
+        const vv = this.steps[plyVari]?.vari;
+        const step = (plyVari > 0 && vv) ? vv[ply - plyVari] : this.steps[ply];
+        if (step === undefined) return;
 
-        const step = this.steps[ply];
         console.log(step);
 
         const board=step.boardName==='a'?this.b1:this.b2;
@@ -816,11 +871,31 @@ export default class AnalysisController {
             sound.moveSound(board.variant, capture);
         }
 
-        // Go back to the main line
-        if (plyVari === 0) {
-            this.ply = ply;//todo:niki:this has to be local ply - cant remember why i need it though
+        this.ply = ply;
+
+        ////////////// above is more or less copy/pasted from gameCtrl.ts->goPLy. other places just call super.goPly
+
+        if (this.plyVari > 0) {
+            this.plyInsideVari = ply - plyVari;
         }
-        board.turnColor = step.turnColor;
+
+        if (this.localAnalysis) {
+            this.engineStop();
+            this.clearPvlines();
+            // Go back to the main line
+            if (plyVari === 0) {
+                const container = document.getElementById('vari') as HTMLElement;
+                patch(container, h('div#vari', ''));
+            }
+        }
+
+        // Go back to the main line
+        if (this.plyVari > 0 && plyVari === 0) {
+            this.steps[this.plyVari]['vari'] = undefined;
+            this.plyVari = 0;
+            updateMovelist(this);
+        }
+        board.turnColor = step.turnColor;//todo: probably not needed here and other places as well where its set
 
         if (board.ffishBoard) {
             board.ffishBoard.setFen(board.fullfen);
@@ -906,8 +981,8 @@ export default class AnalysisController {
 
         // We can't use ffishBoard.gamePly() to determine newply because it returns +1 more
         // when new this.ffish.Board() initial FEN moving color was "b"
-        const moves = b.ffishBoard.moveStack().split(' ');
-        const newPly = moves.length;
+        // const moves = b.ffishBoard.moveStack().split(' ');
+        const newPly = this.ply + 1;
 
         const msg : MsgAnalysisBoard = {
             gameId: this.gameId,
@@ -935,11 +1010,14 @@ export default class AnalysisController {
             'plyA': this.b1.ply,
             'plyB': this.b2.ply,
             };
-
-        // New main line move
-        // const sumPly = this.b1.ffishBoard.gamePly() + this.b2.ffishBoard.gamePly();
-        // const sumPly = this.b1.ply + this.b2.ply;
+        console.log(">>>>>>>>>>>>>>>>>>>>>")
+        console.log(b.partnerCC.ffishBoard.moveStack().split(' '));
+        console.log(b.ffishBoard.moveStack().split(' '));
+        const ffishBoardPly = b.ffishBoard.moveStack().split(' ').length;
+        const partnerBoardHasNoMoves = b.partnerCC.ffishBoard.moveStack().split(' ')[0] === '' ;
+        const ffishPartnerBoardPly = partnerBoardHasNoMoves? 0: b.partnerCC.ffishBoard.moveStack().split(' ').length;
         const moveIdx = (this.plyVari === 0) ? this.ply : this.plyInsideVari;
+        // New main line move
         if (moveIdx === this.steps.length && this.plyVari === 0) {
             this.steps.push(step);
             b.steps.push(step);
@@ -949,38 +1027,45 @@ export default class AnalysisController {
             this.checkStatus(msg);
         // variation move
         } else {
-            // new variation starts
-            if (newPly === 1) {
-                if (msg.lastMove === this.steps[this.ply].move) {
+            // possible new variation starts
+            if (ffishBoardPly === 1 && partnerBoardHasNoMoves) {
+                if (msg.lastMove === this.steps[this.ply - 1].move) {
                     // existing main line played
                     selectMove(this, this.ply);
                     return;
                 }
-                if (this.steps[this.plyVari]['vari'] === undefined || msg.ply === this.steps[this.plyVari].vari?.length) {
-                    // continuing the variation
+                // new variation starts
+                if (vv === undefined) {
                     this.plyVari = moveIdx;
                     this.steps[this.plyVari]['vari'] = [];
                 } else {
                     // variation in the variation: drop old moves
                     if ( vv ) {
-                        this.steps[this.plyVari]['vari'] = vv.slice(0, moveIdx - this.plyVari);
+                        this.steps[this.plyVari]['vari'] = vv.slice(0, ffishBoardPly + ffishPartnerBoardPly - this.plyVari); // todo:niki: probably doesn't work
                     }
                 }
             }
-            if (vv) vv.push(step);
+            // continuing the variation
+            if (this.steps[this.plyVari].vari !== undefined) {
+                this.steps[this.plyVari]?.vari?.push(step);
+            };
 
             const full = true;
             const activate = false;
             updateMovelist(this, full, activate);
-            if (vv) activatePlyVari(this.plyVari + vv.length - 1);
+            if (vv) {
+                activatePlyVari(this.plyVari + vv.length - 1);
+            } else if (vv === undefined && this.plyVari > 0) {
+                activatePlyVari(this.plyVari);
+            }
         }
 
         const e = document.getElementById('fullfen') as HTMLInputElement;
         e.value = this.b1.fullfen+" "+this.b2.fullfen;
 
-        // if (this.isAnalysisBoard) {todo:niki
+        // if (this.isAnalysisBoard) {//todo:niki
         //     const idxInVari = (b.plyVari > 0) && vv ? vv.length - 1 : 0;
-        //     // this.vpgn = patch(this.vpgn, h('textarea#pgntext', { attrs: { rows: 13, readonly: true, spellcheck: false} }, this.getPgn(idxInVari)));
+        //     this.vpgn = patch(this.vpgn, h('textarea#pgntext', { attrs: { rows: 13, readonly: true, spellcheck: false} }, this.getPgn(idxInVari)));
         // }
         // TODO: But sending moves to the server will be useful to implement shared live analysis!
         // this.doSend({ type: "analysis_move", gameId: this.gameId, move: move, fen: this.fullfen, ply: this.ply + 1 });

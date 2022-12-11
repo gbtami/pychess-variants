@@ -4,18 +4,28 @@ import AnalysisController from './analysisCtrl';
 import { result } from '../result'
 import { patch } from '../document';
 import {RoundController} from "./roundCtrl";
+import {Step} from "../messages";
 
 export function selectMove (ctrl: AnalysisController | RoundController, ply: number, plyVari = 0): void {
-    // if (ctrl.steps[ply].boardName==='a')
-    //     ctrl.b1.goPly(ctrl.steps[ply].plyA!, plyVari);
-    // else
-    //     ctrl.b2.goPly(ctrl.steps[ply].plyB!, plyVari);
-    ctrl.goPly(ply);
+    let plyMax = ctrl.steps.length - 1;
+    const vari = "plyVari" in ctrl ? ctrl.steps[ctrl.plyVari]['vari']: undefined;
+    if (vari && ctrl.plyVari > 0) plyMax = ctrl.plyVari + vari.length - 1;
+
+    if (ply < 0 || ply > plyMax) {
+        return
+    }
+
+    if (plyVari > 0 && ply < plyVari) {
+        // back to the main line
+        plyVari = 0;
+    }
+
+    ctrl.goPly(ply, plyVari);
     if (plyVari === 0) {
         activatePly(ctrl);
         scrollToPly(ctrl);
     } else {
-        activatePlyVari(ply + plyVari);
+        activatePlyVari(ply);
     }
 
 }
@@ -72,6 +82,14 @@ export function createMovelistButtons (ctrl: AnalysisController | RoundControlle
     ]));
 }
 
+function fillWithEmpty(moves: VNode[], countOfEmptyCellsToAdd: number) {
+    for (let i = 0; i<countOfEmptyCellsToAdd;i++) {
+        moves.push(h('move-bug.counter'));
+        const el = h('move-bug', {});
+        moves.push(el);
+    }
+}
+
 export function updateMovelist (ctrl: AnalysisController | RoundController, full = true, activate = true, needResult = true) {
     const plyFrom = (full) ? 1 : ctrl.steps.length -1
     const plyTo = ctrl.steps.length;
@@ -80,6 +98,7 @@ export function updateMovelist (ctrl: AnalysisController | RoundController, full
     let lastColIdx = 0;
     let plyA: number = 0;//maybe make it part of Steps - maybe have some function to calculate these - i feel i will need this logic again somewhere
     let plyB: number = 0;
+    let didWeRenderVariSectionAfterLastMove = false;
     for (let ply = plyFrom; ply < plyTo; ply++) {
         const move = ctrl.steps[ply].san;
         if (move === null) continue;
@@ -87,11 +106,13 @@ export function updateMovelist (ctrl: AnalysisController | RoundController, full
         ctrl.steps[ply].boardName === 'a'? plyA++ : plyB++;
 
         const colIdx = ctrl.steps[ply].boardName === 'a'? ctrl.steps[ply].turnColor === 'black'/*meaning move was made by white and now black's turn*/? 1 : 2 : ctrl.steps[ply].turnColor === 'black'? 3 : 4 ;
-        const countOfEmptyCellsToAdd = colIdx > lastColIdx? colIdx - lastColIdx - 1: 4 + colIdx - lastColIdx - 1;
-        for (let i = 0; i<countOfEmptyCellsToAdd;i++) {
-            moves.push(h('move-bug.counter'));
-            const el = h('move-bug', {});
-            moves.push(el);
+
+        if (didWeRenderVariSectionAfterLastMove) {
+            fillWithEmpty(moves, colIdx-1);
+            didWeRenderVariSectionAfterLastMove=false;
+        } else {
+            const countOfEmptyCellsToAdd = colIdx > lastColIdx? colIdx - lastColIdx - 1: 4 + colIdx - lastColIdx - 1;
+            fillWithEmpty(moves, countOfEmptyCellsToAdd);
         }
         lastColIdx = colIdx;
 
@@ -108,30 +129,36 @@ export function updateMovelist (ctrl: AnalysisController | RoundController, full
         }, moveEl);
 
         moves.push(el);
-        
-        // if (ctrl.steps[ply]['vari'] !== undefined && "plyVari" in ctrl) {
-        //     const variMoves = ctrl.steps[ply]['vari'];
-        //
-        //     if (ply % 2 !== 0) moves.push(h('move-bug', '...'));
-        //
-        //     moves.push(h('vari#vari' + ctrl.plyVari,
-        //         variMoves?
-        //             variMoves.map((x: Step, idx: number) => {
-        //             const currPly = ctrl.plyVari + idx;
-        //             const moveCounter = (currPly % 2 !== 0) ? (currPly + 1) / 2 + '. ' : (idx === 0) ? Math.floor((currPly + 1) / 2) + '...' : ' ';
-        //             return h('vari-move', {
-        //                 attrs: { ply: currPly },
-        //                 on: { click: () => selectMove(ctrl, idx, ctrl.plyVari) },
-        //                 }, [ h('san', moveCounter + x['san']) ]
-        //             );
-        //         }) : []
-        //     ));
-        //
-        //     if (ply % 4 == 1) {
-        //         moves.push(h('move.counter', (ply + 1) / 2));
-        //         moves.push(h('move-bug', '...'));
-        //     }
-        // }
+
+        if (ctrl.steps[ply]['vari'] !== undefined && "plyVari" in ctrl) {
+            const variMoves = ctrl.steps[ply]['vari'];
+
+            if (ply % 2 !== 0) moves.push(h('move-bug', '...'));
+
+            let plyAVari = plyA;
+            let plyBVari = plyB;
+
+            moves.push(h('vari#vari' + ctrl.plyVari,
+                variMoves?
+                    variMoves.map((x: Step, idx: number) => {
+                    const currPlyGlobal = ctrl.plyVari + idx;
+                    const currPlyBoard = x.boardName ==='a'? ++plyAVari: ++plyBVari;
+                    const boardName = x.turnColor === 'white'? x.boardName: x.boardName!.toUpperCase();
+                    const moveCounter = Math.floor((currPlyBoard + 1) / 2) + boardName! + '. ';
+                    return h('vari-move', {
+                        attrs: { ply: currPlyGlobal },
+                        on: { click: () => selectMove(ctrl, ctrl.plyVari + idx, ctrl.plyVari) },
+                        }, [ h('san', moveCounter + x['san']) ]
+                    );
+                }) : []
+            ));
+
+            if (ply % 4 == 1) {
+                moves.push(h('move.counter', (ply + 1) / 2));
+                moves.push(h('move-bug', '...'));
+            }
+            didWeRenderVariSectionAfterLastMove = true;
+        }
     }
 
     if (ctrl.status >= 0 && needResult) {
