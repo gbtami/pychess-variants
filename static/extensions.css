@@ -229,3 +229,7 @@
   position: absolute;
   pointer-events: none;
 }
+
+piece .*-piece {
+    background-image: url('../../images/pieces/duck/duck.svg');
+}

@@ -87,6 +87,7 @@ VARIANTS = (
     "placement",
     "atomic",
     "atomic960",
+    "duck",
     "makruk",
     "makpong",
     "cambodian",
@@ -177,6 +178,7 @@ VARIANT_ICONS = {
     "asean": "♻",
     "chak": "🐬",
     "chennis": "🎾",
+    "duck": "🦆",
 }
 
 VARIANT_960_TO_PGN = {
@@ -203,6 +205,7 @@ CATEGORIES = {
         "placement",
         "atomic",
         "atomic960",
+        "duck",
     ),
     "fairy": (
         "capablanca",
@@ -301,6 +304,7 @@ TRANSLATED_VARIANT_NAMES = {
     "placement": _("Placement"),
     "atomic": _("Atomic"),
     "atomic960": _("Atomic960"),
+    "duck": _("Duck"),
     "makruk": _("Makruk"),
     "makpong": _("Makpong"),
     "cambodian": _("Ouk Chaktrang"),
