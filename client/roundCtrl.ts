@@ -1061,7 +1061,7 @@ export class RoundController extends GameController {
     }
 
     protected onMessage(evt: MessageEvent) {
-        // console.log("<+++ onMessage():", evt.data);
+        console.log("<+++ onMessage():", evt.data);
         super.onMessage(evt);
 
         if (evt.data === '/n') return;

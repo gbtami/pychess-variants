@@ -320,7 +320,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         name: "duck", tooltip: () => _("Quack."),
         startFen: "rnbqkbnr/pppppppp/8/4*3/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
         board: "standard8x8", piece: "standard",
-        pieceLetters: ["k", "q", "r", "b", "n", "p"],
+        pieceLetters: ["k", "q", "r", "b", "n", "p", "*"],
         enPassant: true,
         icon: "🦆",
     }),
