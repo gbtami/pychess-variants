@@ -135,6 +135,7 @@ export class Variant {
     readonly autoPromoteable: boolean;
     readonly captureToHand: boolean;
     readonly gate: boolean;
+    readonly duck: boolean;
     readonly pass: boolean;
     readonly setup: boolean;
     readonly boardMark: BoardMarkType;
@@ -188,6 +189,7 @@ export class Variant {
         this.autoPromoteable = this.promotionOrder.length > 2;
         this.captureToHand = data.captureToHand ?? false;
         this.gate = data.gate ?? false;
+        this.duck = data.duck ?? false;
         this.pass = data.pass ?? false;
         this.setup = data.setup ?? false;
         this.boardMark = data.boardMark ?? 'none';
@@ -240,6 +242,8 @@ interface VariantConfig {
     captureToHand?: boolean; // Whether captured pieces are added to the pocket
     gate?: boolean; // Whether this variant has piece gating.
         // Specifically used for S-Chess
+    duck?: boolean; // Whether this variant has duck move.
+        // Specifically used for Duck chess
     pass?: boolean; // Whether this variant allows players to pass their turn without moving any pieces
     setup?: boolean; // Whether this variant has a pre-game setup phase issued by the server
     boardMark?: BoardMarkType; // Board mark type
@@ -321,7 +325,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         startFen: "rnbqkbnr/pppppppp/8/4*3/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
         board: "standard8x8", piece: "standard",
         pieceLetters: ["k", "q", "r", "b", "n", "p", "*"],
-        enPassant: true,
+        enPassant: true, duck: true,
         icon: "🦆",
     }),
 
