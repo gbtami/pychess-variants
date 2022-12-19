@@ -14,6 +14,6 @@ sortedcollections==2.1.0
 python-gettext==4.1
 uvloop==0.17.0
 objgraph==3.5.0
-black==22.10.0
+black==22.12.0
 mypy
 pre-commit

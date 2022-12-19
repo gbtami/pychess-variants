@@ -551,7 +551,7 @@ export class TournamentController implements IChatController {
             msg.description = _(
                 'This Shield trophy is unique. The winner keeps it for one month, then must defend it during the next %1 Shield tournament!',
                 this.variant.displayName(chess960)
-            );
+            ) + ' ' + msg.description;
         }
         const description = document.getElementById('description') as Element;
         if (msg.description.length > 0 && description) patch(description, this.renderDescription(msg.description));
