@@ -1098,6 +1098,31 @@ export function moveDests(legalMoves: UCIMove[]): cg.Dests {
     return dests;
 }
 
+// Create duck move dests from valid moves filtered by first leg move
+// Fairy-Stockfish always uses first leg 'to' square as second leg 'from' square, but
+// chessground dests should use real duck from square (except the very first white duck placement)
+// f.e. move list after e2e4 (fromSquare is e4 because there is no duck on the board still)
+// e2e4,e4e2 e2e4,e4a3 e2e4,e4b3 e2e4,e4c3 ...
+// after 1.e2e4,e4e7 d7d5 (fromSquare of the duck is e7 now)
+// d7d5,d5d7 d7d5,d5e2 d7d5,d5a3 d7d5,d5b3 ...
+export function duckMoveDests(legalMoves: UCIMove[], fromSquare: cg.Key): cg.Dests {
+    const dests: cg.Dests = new Map();
+    const toSqares = legalMoves.map(move => move.slice(-2) as cg.Key);
+    dests.set(fromSquare, toSqares);
+    return dests;
+}
+
+// Return the duck square (represented by *) from FEN 
+export function duckSquare(fen: string): undefined | cg.Key {
+    const parts = fen.split('/');
+    const rank = parts.findIndex(part => part.includes('*'));
+    if (rank === -1) return undefined;
+    const duckPart = parts[rank];
+    const duckPartFilled = duckPart.replace(/[1-7]/g, m => '_'.repeat(parseInt(m)));
+    const file = duckPartFilled.indexOf('*');
+    return `${'abcdefgh'.charAt(file)}${8-rank}` as cg.Key;
+}
+
 // Count given letter occurences in a string
 export function lc(str: string, letter: string, uppercase: boolean): number {
     if (uppercase)

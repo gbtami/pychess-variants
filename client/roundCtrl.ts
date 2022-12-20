@@ -55,6 +55,7 @@ export class RoundController extends GameController {
     prevPieces: cg.Pieces;
     focus: boolean;
     finishedGame: boolean;
+    duckChessMove: string;
     lastMaybeSentMsgMove: MsgMove; // Always store the last "move" message that was passed for sending via websocket.
                           // In case of bad connection, we are never sure if it was sent (thus the name)
                           // until a "board" message from server is received from server that confirms it.
@@ -112,6 +113,7 @@ export class RoundController extends GameController {
         this.byoyomiPeriod = Number(model["byo"]);
         this.byoyomi = this.variant.timeControl === 'byoyomi';
         this.finishedGame = this.status >= 0;
+        this.duckChessMove = '';
         this.tv = model["tv"];
         this.profileid = model["profileid"];
         this.level = model["level"];
@@ -837,6 +839,30 @@ export class RoundController extends GameController {
 
     doSendMove = (orig: cg.Orig, dest: cg.Key, promo: string) => {
         this.clearDialog();
+
+        let move = cg2uci(orig + dest + promo);
+
+        if (this.variant.duck) {
+            // first leg made with standard chess piece
+            if (this.duckChessMove.length === 0) {
+                let kingCount = 0;
+                const pieces = this.chessground.state.boardState.pieces;
+                pieces.forEach((piece) => {if (piece.role.startsWith('k')) kingCount = kingCount + 1});
+                // In case of king capture game is over and no need to move the duck
+                if (kingCount === 1) {
+                    move = move + ',' + dest + orig;
+                } else {
+                    this.duckChessMove = move;
+                    this.setDuckDests(move);
+                    return;
+                }
+            // second leg made with the duck
+            } else {
+                move = this.duckChessMove + ',' + this.duckChessMove.slice(2, 4) + dest;
+                this.duckChessMove = '';
+            }
+        }
+
         // pause() will add increment!
         const oppclock = !this.flipped() ? 0 : 1
         const myclock = 1 - oppclock;
@@ -844,9 +870,6 @@ export class RoundController extends GameController {
         this.clocks[myclock].pause((this.base === 0 && this.ply < 2) ? false : true);
         // console.log("sendMove(orig, dest, prom)", orig, dest, promo);
 
-        const move = cg2uci(orig + dest + promo);
-
-        // console.log("sendMove(move)", move);
         let bclock, clocks;
         if (!this.flipped()) {
             bclock = this.mycolor === "black" ? 1 : 0;
@@ -1061,7 +1084,7 @@ export class RoundController extends GameController {
     }
 
     protected onMessage(evt: MessageEvent) {
-        console.log("<+++ onMessage():", evt.data);
+        // console.log("<+++ onMessage():", evt.data);
         super.onMessage(evt);
 
         if (evt.data === '/n') return;
