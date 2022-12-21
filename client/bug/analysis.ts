@@ -48,18 +48,18 @@ function leftSide(model: PyChessModel) {
 }
 
 function createBoards(mainboardVNode: VNode, bugboardVNode: VNode, mainboardPocket0: VNode, mainboardPocket1: VNode, bugboardPocket0: VNode, bugboardPocket1: VNode, model: PyChessModel) {
-    /*this.ctrl = *//*const ctrl = */new AnalysisController(mainboardVNode.elm as HTMLElement,
+    /*this.ctrl = */ const ctrl = new AnalysisController(mainboardVNode.elm as HTMLElement,
         mainboardPocket0.elm as HTMLElement,
         mainboardPocket1.elm as HTMLElement,
         bugboardVNode.elm as HTMLElement,
         bugboardPocket0.elm as HTMLElement, bugboardPocket1.elm as HTMLElement,
         model);
-    // window['onFSFline'] = ctrl.onFSFline;
+    window['onFSFline'] = ctrl.onFSFline;
 }
 
 export function analysisView(model: PyChessModel): VNode[] {
 
-    window['onFSFline'] = (line: string) => {console.log(line)};//todo:niki: temporary here so it doesnt crash
+    // window['onFSFline'] = (line: string) => {console.log(line)};//todo:niki: temporary here so it doesnt crash
 
     const variant = VARIANTS[model.variant];
 
@@ -69,14 +69,16 @@ export function analysisView(model: PyChessModel): VNode[] {
 
     return [
         h('div.analysis-app.bug', { hook: {insert: ()=>{createBoards(mainboardVNode, bugboardVNode, mainboardPocket0, mainboardPocket1, bugboardPocket0, bugboardPocket1, model)}}}, [
-            h('aside.sidebar-first', leftSide(model)),
+            h('div.bug-game-info', leftSide(model)),
             h(`selection#mainboard.${variant.board}.${variant.piece}.${variant.boardMark}`, [
                 h('div#anal-clock-top'),
                 h('div.cg-wrap.' + variant.cg, { hook: { insert: (vnode) => mainboardVNode = vnode/*runGround(vnode, model)*/ } }),
                 h('div#anal-clock-bottom'),
             ]),
             h(`selection#bugboard.${variant.board}.${variant.piece}.${variant.boardMark}`, [
+                h('div#anal-clock-top-bug'),
                 h('div.cg-wrap.' + variant.cg, { hook: { insert: (vnode) => bugboardVNode = vnode/*runGround(vnode, model)*/ } }),
+                h('div#anal-clock-bottom-bug'),
             ]),
             h('div#gauge', [
                 h('div.black',     { props: { style: "height: 50%;" } }),
@@ -139,7 +141,13 @@ export function analysisView(model: PyChessModel): VNode[] {
                         ]),
                     ]),
                 ]),
-                h('div#pv'),
+                h('div.pvbox', [
+                    h('div#pv1'),
+                    h('div#pv2'),
+                    h('div#pv3'),
+                    h('div#pv4'),
+                    h('div#pv5'),
+                ]),
                 h('div.movelist-block', [
                     h('div#movelist'),
                 ]),

@@ -90,10 +90,19 @@ async def load_game_bug(app, game_id):
     if "a" in doc:
         game.steps[0]["analysis"] = doc["a"][0]
 
+    base_clock_time = (game.base * 1000 * 60) + (0 if game.base > 0 else game.inc * 1000)
+
     if "cw" in doc:
-        base_clock_time = (game.base * 1000 * 60) + (0 if game.base > 0 else game.inc * 1000)
         clocktimes_w = doc["cw"] if len(doc["cw"]) > 0 else [base_clock_time]
         clocktimes_b = doc["cb"] if len(doc["cb"]) > 0 else [base_clock_time]
+        clocktimes_w.insert(0, base_clock_time)
+        clocktimes_b.insert(0, base_clock_time)
+
+    if "cwB" in doc:
+        clocktimes_wB = doc["cwB"] if len(doc["cwB"]) > 0 else [base_clock_time]
+        clocktimes_bB = doc["cbB"] if len(doc["cbB"]) > 0 else [base_clock_time]
+        clocktimes_wB.insert(0, base_clock_time)
+        clocktimes_bB.insert(0, base_clock_time)
 
     if "mct" in doc:
         manual_count_toggled = iter(doc["mct"])
@@ -121,7 +130,6 @@ async def load_game_bug(app, game_id):
                     game.board.count_started = ply
 
             board_name = "a" if doc["o"][ply] == 0 else "b"  # todo why am i not storing a/b instead of 0/1. either that or compress to bits maybe
-            board_ply[board_name] += 1
             last_move, last_move_b = move if board_name == "a" else last_move, move if board_name == "b" else last_move_b
 
             if move[1:2] != "@":
@@ -137,8 +145,9 @@ async def load_game_bug(app, game_id):
             san = game.boards[board_name].get_san(move)
             game.boards[board_name].push(move)
             game.check = game.boards[board_name].is_checked()
+
             # turnColor = "black" if game.board.color == BLACK else "white" todo: should i use board at all here? i mean adding a second one - maybe for fen ahd and check - but still can happen on client as well
-            turn_color = "white" if board_ply[board_name] % 2 == 0 else "black"
+            turn_color = "white" if (board_ply[board_name]+1) % 2 == 0 else "black"
 
             # No matter on which board the ply is happening i always need both fens and moves for both boards.
             # This way when jumping to a ply in the middle of the list i can setup both boards and highlight both last moves
@@ -152,24 +161,44 @@ async def load_game_bug(app, game_id):
                 "turnColor": turn_color,
                 "check": game.check,
             }
-            if "cw" in doc:
-                move_number = ((ply + 1) // 2) + (1 if ply % 2 == 0 else 0)
-                if ply >= 2:
-                    if ply % 2 == 0:
-                        step["clocks"] = {
-                            "white": clocktimes_w[move_number - 1],
-                            "black": clocktimes_b[move_number - 2],
-                        }
-                    else:
-                        step["clocks"] = {
-                            "white": clocktimes_w[move_number - 1],
-                            "black": clocktimes_b[move_number - 1],
-                        }
+            if "cw" in doc and board_name == 'a':
+                move_number = 1 + ((board_ply[board_name] + 1) // 2) + (1 if board_ply[board_name] % 2 == 0 else 0)
+                # if board_ply[board_name] >= 2:
+                if board_ply[board_name] % 2 == 0:
+                    step["clocks"] = {
+                        "white": clocktimes_w[move_number - 1],
+                        "black": clocktimes_b[move_number - 2],
+                    }
                 else:
                     step["clocks"] = {
                         "white": clocktimes_w[move_number - 1],
                         "black": clocktimes_b[move_number - 1],
                     }
+                # else:
+                #     step["clocks"] = {
+                #         "white": clocktimes_w[move_number - 1],
+                #         "black": clocktimes_b[move_number - 1],
+                #     }
+            if "cwB" in doc and board_name == 'b':
+                move_number = 1 + ((board_ply[board_name] + 1) // 2) + (1 if board_ply[board_name] % 2 == 0 else 0)
+                # if board_ply[board_name] >= 2:
+                if board_ply[board_name] % 2 == 0:
+                    step["clocks"] = {
+                        "white": clocktimes_wB[move_number - 1],
+                        "black": clocktimes_bB[move_number - 2],
+                    }
+                else:
+                    step["clocks"] = {
+                        "white": clocktimes_wB[move_number - 1],
+                        "black": clocktimes_bB[move_number - 1],
+                    }
+                # else:
+                #     step["clocks"] = {
+                #         "white": clocktimes_wB[move_number - 1],
+                #         "black": clocktimes_bB[move_number - 1],
+                #     }
+
+            board_ply[board_name] += 1
 
             game.steps.append(step)
 

@@ -387,7 +387,8 @@ iframe {
 }
 
 #bugboard {
-    grid-area: boardPartner;
+  grid-area: boardPartner;
+  position: relative;
 }
 
 .lobby {
@@ -455,6 +456,15 @@ under-left {
   align-content: flex-start;
   flex-flow: row wrap;
 }
+
+.bug-game-info {
+  grid-area: gameinfo;
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: right;
+  overflow: hidden;
+}
+
 under-board {
   grid-area: uboard;
   margin-top: 23px;

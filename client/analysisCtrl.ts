@@ -74,7 +74,7 @@ export class AnalysisController extends GameController {
 
     constructor(el: HTMLElement, model: PyChessModel) {
         super(el, model, document.getElementById('pocket0') as HTMLElement, document.getElementById('pocket1') as HTMLElement);//todo:niki:those elements best be passed as args
-        this.fsfDebug = false;
+        this.fsfDebug = true;
         this.fsfError = [];
         this.embed = this.gameId === undefined;
         this.isAnalysisBoard = this.gameId === "";

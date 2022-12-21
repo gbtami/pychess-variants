@@ -10,7 +10,7 @@ import { DrawShape } from 'chessgroundx/draw';
 
 import { JSONObject } from '../types';
 import { _ } from '../i18n';
-import {uci2LastMove, uci2cg, cg2uci, notation, VARIANTS} from '../chess';
+import {uci2LastMove, uci2cg, cg2uci, notation, VARIANTS, moddedVariant} from '../chess';
 import { createMovelistButtons, updateMovelist, selectMove, activatePlyVari } from './movelist';
 import { povChances } from '../winningChances';
 // import { boardSettings } from './boardSettings';
@@ -22,6 +22,10 @@ import {Ceval, MsgBoard, Step} from "../messages";
 import {ChessgroundController} from "./ChessgroundCtrl";
 import {sound} from "../sound";
 import {renderClocks} from "./analysisClock";
+import {variantsIni} from "../variantsIni";
+import * as idb from "idb-keyval";
+import {MsgAnalysis} from "../analysisType";
+import ffishModule from "ffish-es6";
 
 // const EVAL_REGEX = new RegExp(''
 //   + /^info depth (\d+) seldepth \d+ multipv (\d+) /.source
@@ -29,9 +33,17 @@ import {renderClocks} from "./analysisClock";
 //   + /(?:(upper|lower)bound )?nodes (\d+) nps \S+ /.source
 //   + /(?:hashfull \d+ )?(?:tbhits \d+ )?time (\S+) /.source
 //   + /pv (.+)/.source);
+const EVAL_REGEX = new RegExp(''
+  + /^info depth (\d+) seldepth \d+ multipv (\d+) /.source
+  + /score (cp|mate) ([-\d]+) /.source
+  + /(?:(upper|lower)bound )?nodes (\d+) nps \S+ /.source
+  + /(?:hashfull \d+ )?(?:tbhits \d+ )?time (\S+) /.source
+  + /pv (.+)/.source);
 
 const maxDepth = 18;
 const maxThreads = Math.max((navigator.hardwareConcurrency || 1) - 1, 1);
+
+const emptySan = '\xa0';
 
 // function titleCase (words: string) {return words.split(' ').map(w =>  w.substring(0,1).toUpperCase() + w.substring(1).toLowerCase()).join(' ');}
 
@@ -74,10 +86,12 @@ export default class AnalysisController {
     vmaterial1: VNode;
     vpgn: VNode;
     vscore: VNode | HTMLElement;
+    vscorePartner: VNode | HTMLElement;
     vinfo: VNode | HTMLElement;
     vpvlines: VNode[] | HTMLElement[];
 
-    vpv: VNode | HTMLElement; // todo.niki.whatis this?
+    // vpv: VNode | HTMLElement; // todo.niki.whatis this?
+    readonly variant = VARIANTS['bughouse'];
 
     vmovelist: VNode | HTMLElement;
     gameControls: VNode;
@@ -105,7 +119,7 @@ export default class AnalysisController {
     analysisChart: Chart;
     ctableContainer: VNode | HTMLElement;
     localEngine: boolean;
-    localAnalysis: boolean;
+    // localAnalysis: boolean;
 
     // ffish1: any;
     // ffish2: any;
@@ -118,6 +132,8 @@ export default class AnalysisController {
     isEngineReady: boolean;
     notation: cg.Notation;//todo:niki:not sure if i need now long term - short term probably no, what is notation when we talk about bughouse - what if bugshogi?
 
+    ffish: any;
+    ffishBoard: any;
     notationAsObject: any;
 
     arrow: boolean;
@@ -136,9 +152,19 @@ export default class AnalysisController {
 
     username: string;
 
+    notation2ffishjs = (n: cg.Notation) => {
+        switch (n) {
+            case cg.Notation.ALGEBRAIC: return this.ffish.Notation.SAN;
+            case cg.Notation.SHOGI_ARBNUM: return this.ffish.Notation.SHOGI_HODGES_NUMBER;
+            case cg.Notation.JANGGI: return this.ffish.Notation.JANGGI;
+            case cg.Notation.XIANGQI_ARBNUM: return this.ffish.Notation.XIANGQI_WXF;
+            default: return this.ffish.Notation.SAN;
+        }
+    }
+
     constructor(el1: HTMLElement,el1Pocket1: HTMLElement,el1Pocket2: HTMLElement,el2: HTMLElement,el2Pocket1: HTMLElement,el2Pocket2: HTMLElement, model: PyChessModel) {
 
-        this.fsfDebug = false;
+        this.fsfDebug = true;
         this.fsfError = [];
         this.embed = this.gameId === undefined;
         this.username = model["username"];
@@ -150,6 +176,18 @@ export default class AnalysisController {
         this.b2.partnerCC = this.b1;
         this.b1.parent = this;
         this.b2.parent = this;
+
+        const parts = this.b1.fullfen.split(" ");
+        ffishModule().then((loadedModule: any) => {
+            this.ffish = loadedModule;
+            this.ffish.loadVariantConfig(variantsIni);
+            this.notationAsObject = this.notation2ffishjs(this.notation);
+            this.ffishBoard = new this.ffish.Board(
+                moddedVariant(this.variant.name, false/*this.chess960*/, this.b1.chessground.state.boardState.pieces, parts[2]),
+                this.b1.fullfen,
+                false/*this.chess960*/);
+            window.addEventListener('beforeunload', () => this.ffishBoard.delete());
+        });
 
         // this.b1.sendMove = (orig: cg.Orig, dest: cg.Key, promo: string) => {
         //     this.sendMove(this.b1, orig, dest, promo);
@@ -176,7 +214,7 @@ export default class AnalysisController {
         this.localEngine = false;
 
         // is local engine analysis enabled? (the switch)
-        this.localAnalysis = false;
+        // this.localAnalysis = false;
 
         // UCI isready/readyok
         this.isEngineReady = false;
@@ -254,12 +292,31 @@ export default class AnalysisController {
         // }
 
         if (!this.model["embed"]) {
-            patch(document.getElementById('input') as HTMLElement, h('input#input', this.renderInput()));
+            patch(document.getElementById('input') as HTMLElement, h('input#input', this.renderInput(this.b1)));
+            patch(document.getElementById('inputPartner') as HTMLElement, h('input#inputPartner', this.renderInput(this.b2)));
 
             this.vscore = document.getElementById('score') as HTMLElement;
+            this.vscorePartner = document.getElementById('scorePartner') as HTMLElement;
             this.vinfo = document.getElementById('info') as HTMLElement;
-            this.vpv = document.getElementById('pv') as HTMLElement;
+            this.vpvlines = [...Array(5).fill(null).map((_, i) => document.querySelector(`.pvbox :nth-child(${i + 1})`) as HTMLElement)];
+
+            // const pgn = (this.isAnalysisBoard) ? this.getPgn() : this.pgn;
+            // this.renderFENAndPGN(pgn);
+
+            // if (this.isAnalysisBoard) {
+            //     (document.querySelector('[role="tablist"]') as HTMLElement).style.display = 'none';
+            //     (document.querySelector('[tabindex="0"]') as HTMLElement).style.display = 'flex';
+            // }
         }
+
+        // if (!this.model["embed"]) {
+        //     patch(document.getElementById('input') as HTMLElement, h('input#input', this.renderInput(this.b1)));
+        //     patch(document.getElementById('inputPartner') as HTMLElement, h('input#inputPartner', this.renderInput(this.b2)));
+        //
+        //     this.vscore = document.getElementById('score') as HTMLElement;
+        //     this.vinfo = document.getElementById('info') as HTMLElement;
+        //     this.vpv = document.getElementById('pv') as HTMLElement;
+        // }
 
         this.onMsgBoard(model["board"] as MsgBoard);
 
@@ -289,16 +346,23 @@ export default class AnalysisController {
     }
 
     nnueIni() {
-        if (this.localAnalysis && this.nnueOk) {
+        if (this.b1.localAnalysis && this.nnueOk) {
             this.engineStop();
-            this.engineGo(this.b1);//todo:niki:parameter
+            this.engineGo(this.b1);
+        } else if (this.b2.localAnalysis && this.nnueOk) {
+            this.engineStop();
+            this.engineGo(this.b2);
         }
     }
 
     pvboxIni() {
-        if (this.localAnalysis) this.engineStop();
+        if (this.b1.localAnalysis || this.b2.localAnalysis) this.engineStop();
         this.clearPvlines();
-        if (this.localAnalysis) this.engineGo(this.b1);  //todo:niki:param
+        if (this.b1.localAnalysis) {
+            this.engineGo(this.b1);
+        } else if (this.b2.localAnalysis) {
+            this.engineGo(this.b2);
+        }
     }
 
     pvView(i: number, pv: VNode | undefined) {
@@ -308,7 +372,7 @@ export default class AnalysisController {
 
     clearPvlines() {
         for (let i = 4; i >= 0; i--) {
-            if (i + 1 <= this.multipv && this.localAnalysis) {
+            if (i + 1 <= this.multipv && (this.b1.localAnalysis || this.b2.localAnalysis)) {
                 this.vpvlines[i] = patch(this.vpvlines[i], h(`div#pv${i + 1}.pv`, [h('pvline', h('pvline', '-'))]));
             } else {
                 this.vpvlines[i] = patch(this.vpvlines[i], h(`div#pv${i + 1}`));
@@ -378,21 +442,23 @@ export default class AnalysisController {
     //     }
     // }
 
-    private renderInput = () => {
+    private renderInput = (cc: ChessgroundController) => {
         return {
             attrs: {
                 disabled: !this.localEngine,
             },
             on: {change: () => {
-                this.localAnalysis = !this.localAnalysis;
-                if (this.localAnalysis) {
+                cc.localAnalysis = !cc.localAnalysis;
+                if (cc.localAnalysis) {
+                    cc.partnerCC.localAnalysis = false;
+                    const partnerCheckboxId = cc.partnerCC.boardName == 'a'? 'input': 'inputPartner';
+                    (document.getElementById(partnerCheckboxId) as HTMLInputElement).checked = false;
+
                     this.vinfo = patch(this.vinfo, h('info#info', '-'));
-                    this.engineStop();
-                    this.engineGo(this.b1);//todo:niki:for now only 1st board - maybe gonna need 2 engines or some way to do it in sequence
+                    this.pvboxIni();
                 } else {
-                    this.vinfo = patch(this.vinfo, h('info#info', _('in local browser')));
-                    this.vpv = patch(this.vpv, h('div#pv'));
                     this.engineStop();
+                    this.pvboxIni();
                 }
             }}
         };
@@ -507,10 +573,12 @@ export default class AnalysisController {
             if (true || clocktimes !== undefined && !this.embed) {
                 patch(document.getElementById('anal-clock-top') as HTMLElement, h('div.anal-clock.top'));
                 patch(document.getElementById('anal-clock-bottom') as HTMLElement, h('div.anal-clock.bottom'));
-                renderClocks(this.b1);
+                patch(document.getElementById('anal-clock-top-bug') as HTMLElement, h('div.anal-clock.top.bug'));
+                patch(document.getElementById('anal-clock-bottom-bug') as HTMLElement, h('div.anal-clock.bottom.bug'));
+                renderClocks(this);
 
                 const cmt = document.getElementById('chart-movetime') as HTMLElement;
-                cmt.style.display = 'block';
+                if (cmt) cmt.style.display = 'block';
                 // movetimeChart(this);
             }
 
@@ -555,16 +623,6 @@ export default class AnalysisController {
       return Math.floor((ply - 1) / 2) + 1 + (ply % 2 === 1 ? '.' : '...');
     }
 
-    notation2ffishjs = (n: cg.Notation, ffish: any) => {
-        switch (n) {
-            case cg.Notation.ALGEBRAIC: return ffish.Notation.SAN;
-            case cg.Notation.SHOGI_ARBNUM: return ffish.Notation.SHOGI_HODGES_NUMBER;
-            case cg.Notation.JANGGI: return ffish.Notation.JANGGI;
-            case cg.Notation.XIANGQI_ARBNUM: return ffish.Notation.XIANGQI_WXF;
-            default: return ffish.Notation.SAN;
-        }
-    }
-
     // loadFFishModule = (b: ChessgroundController  ) : any => {
     //     ffishModule().then((loadedModule: any) => {
     //
@@ -588,75 +646,138 @@ export default class AnalysisController {
     //
     //     });
     // }
+    fsfPostMessage(msg: string) {
+        if (this.fsfDebug) console.debug('<---', msg);
+        window.fsf.postMessage(msg);
+    }
 
-    // onFSFline = (line: string) => {
-    //     //console.log(line);
-    //
-    //     if (line.includes('readyok')) this.isEngineReady = true;
-    //
-    //     if (!this.localEngine) {
-    //         if (line.includes('UCI_Variant')) {//todo:niki:i dont understand why we wait for this to init ffish
-    //
-    //             this.loadFFishModule(this.b1);
-    //             this.loadFFishModule(this.b2);
-    //
-    //             window.addEventListener("beforeunload", () => { this.b1.ffishBoard.delete(); this.b2.ffishBoard.delete(); } );
-    //
-    //             // TODO: enable S-chess960 when stockfish.wasm catches upstream Fairy-Stockfish
-    //             if ((this.model.variant === 'chess' || line.includes(this.model.variant)) &&
-    //                 !(this.model.variant === 'seirawan' && this.b1.chess960)) {
-    //                 this.localEngine = true;
-    //                 patch(document.getElementById('input') as HTMLElement, h('input#input', {attrs: {disabled: false}}));
-    //             } else {
-    //                 const v = this.model.variant + ((this.b1.chess960) ? '960' : '');
-    //                 const title = _("Selected variant %1 is not supported by stockfish.wasm", v);
-    //                 patch(document.getElementById('slider') as HTMLElement, h('span.sw-slider', {attrs: {title: title}}));
-    //             }
-    //         }
-    //     }
-    //
-    //     if (!this.localAnalysis || !this.isEngineReady) return;
-    //
-    //     const matches = line.match(EVAL_REGEX);
-    //     if (!matches) {
-    //         if (line.includes('mate 0')) {
-    //             const msg: MsgAnalysis = {type: 'local-analysis', ply: this.ply, color: this.b1.turnColor.slice(0, 1), ceval: {d: 0, s: {mate: 0}}};//todo;niki;no idea what is happening here - just putting b1 to compile
-    //             this.onMsgAnalysis(msg);
-    //         }
-    //         return;
-    //     }
-    //
-    //     //todo:niki:commenting out below 30 lines - analysis will implement later
-    //     // const depth = parseInt(matches[1]),
-    //     //     multiPv = parseInt(matches[2]),
-    //     //     isMate = matches[3] === 'mate',
-    //     //     povEv = parseInt(matches[4]),
-    //     //     evalType = matches[5],
-    //     //     nodes = parseInt(matches[6]),
-    //     //     elapsedMs: number = parseInt(matches[7]),
-    //     //     moves = matches[8];
-    //     // //console.log("---", depth, multiPv, isMate, povEv, evalType, nodes, elapsedMs, moves);
-    //     //
-    //     // // Sometimes we get #0. Let's just skip it.
-    //     // if (isMate && !povEv) return;
-    //     //
-    //     // // For now, ignore most upperbound/lowerbound messages.
-    //     // // The exception is for multiPV, sometimes non-primary PVs
-    //     // // only have an upperbound.
-    //     // // See: https://github.com/ddugovic/Stockfish/issues/228
-    //     // if (evalType && multiPv === 1) return;
-    //
-    //     // let score;
-    //     // if (isMate) {
-    //     //     score = {mate: povEv};
-    //     // } else {
-    //     //     score = {cp: povEv};
-    //     // }
-    //     // const knps = nodes / elapsedMs;
-    //     // const sanMoves = this.ffishBoard.variationSan(moves, this.notationAsObject);
-    //     // const msg: MsgAnalysis = {type: 'local-analysis', ply: this.ply, color: this.b1.turnColor.slice(0, 1), ceval: {d: depth, m: moves, p: sanMoves, s: score, k: knps}};//todo;niki;not idea what this is putting b1 so it compiles
-    //     // this.onMsgAnalysis(msg);
-    // };
+    onFSFline = (line: string) => {
+        if (this.fsfDebug) console.debug('--->', line);
+
+        if (line.startsWith('info')) {
+            const error = 'info string ERROR: ';
+            if (line.startsWith(error)) {
+                this.fsfError.push(line.slice(error.length));
+                if (line.includes('terminated')) {
+                    const suggestion = _('Try browser page reload.');
+                    this.fsfError.push('');
+                    this.fsfError.push(suggestion);
+                    const errorMsg = this.fsfError.join('\n');
+                    alert(errorMsg);
+                    return;
+                }
+            }
+        }
+
+        if (line.includes('readyok')) this.isEngineReady = true;
+
+        if (line.startsWith('Fairy-Stockfish')) {
+            window.prompt = function() {
+                return variantsIni + '\nEOF';
+            }
+            this.fsfPostMessage('load <<EOF');
+        }
+
+        if (!this.localEngine) {
+            this.localEngine = true;
+            patch(document.getElementById('input') as HTMLElement, h('input#input', {attrs: {disabled: false}}));
+            patch(document.getElementById('inputPartner') as HTMLElement, h('input#inputPartner', {attrs: {disabled: false}}));
+            this.fsfEngineBoard = new this.ffish.Board(this.variant.name, this.b1.fullfen, false);
+
+            if (this.evalFile) {
+                idb.get(`${this.variant.name}--nnue-file`).then((nnuefile) => {
+                    if (nnuefile === this.evalFile) {
+                        idb.get(`${this.variant.name}--nnue-data`).then((data) => {
+                            const array = new Uint8Array(data);
+                            const filename = "/" + this.evalFile;
+                            window.fsf.FS.writeFile(filename, array);
+                            console.log('Loaded to fsf.FS:', filename);
+                            this.nnueOk = true;
+                            const nnueEl = document.querySelector('.nnue') as HTMLElement;
+                            const title = _('Multi-threaded WebAssembly (with NNUE evaluation)');
+                            patch(nnueEl, h('span.nnue', { props: {title: title } } , 'NNUE'));
+                        });
+                    }
+                });
+            }
+
+            window.addEventListener('beforeunload', () => this.fsfEngineBoard.delete());
+
+        }
+
+        if (!(this.b1.localAnalysis || this.b2.localAnalysis) || !this.isEngineReady) return;
+
+        const matches = line.match(EVAL_REGEX);
+        if (!matches) {
+            if (line.includes('mate 0')) this.clearPvlines();
+            return;
+        }
+
+        const depth = parseInt(matches[1]),
+            multiPv = parseInt(matches[2]),
+            isMate = matches[3] === 'mate',
+            povEv = parseInt(matches[4]),
+            evalType = matches[5],
+            nodes = parseInt(matches[6]),
+            elapsedMs: number = parseInt(matches[7]),
+            moves = matches[8];
+        //console.log("---", depth, multiPv, isMate, povEv, evalType, nodes, elapsedMs, moves);
+
+        // Sometimes we get #0. Let's just skip it.
+        if (isMate && !povEv) return;
+
+        // For now, ignore most upperbound/lowerbound messages.
+        // The exception is for multiPV, sometimes non-primary PVs
+        // only have an upperbound.
+        // See: https://github.com/ddugovic/Stockfish/issues/228
+        if (evalType && multiPv === 1) return;
+
+        let score;
+        if (isMate) {
+            score = {mate: povEv};
+        } else {
+            score = {cp: povEv};
+        }
+        const knps = nodes / elapsedMs;
+        const boardInAnalysis = this.b1.localAnalysis? this.b1: this.b2;// todo:niki: move this somewhere so it can be used in other places where i do 'or' and stuff
+        const msg: MsgAnalysis = {type: 'local-analysis', ply: this.ply, color: boardInAnalysis.turnColor.slice(0, 1), ceval: {d: depth, multipv: multiPv, p: moves, s: score, k: knps}};
+        this.onMsgAnalysis(msg, boardInAnalysis);
+    };
+
+    engineStop = () => {
+        this.isEngineReady = false;
+        this.fsfPostMessage('stop');
+        this.fsfPostMessage('isready');
+    }
+
+    engineGo = (cc: ChessgroundController) => {
+        if (false/*this.chess960*/) {
+            this.fsfPostMessage('setoption name UCI_Chess960 value true');
+        }
+        if (this.variant.name !== 'chess') {
+            this.fsfPostMessage('setoption name UCI_Variant value ' + /*'crazyhouse'*/this.variant.name);
+        }
+        if (this.evalFile === '' || !this.nnueOk) {
+            this.fsfPostMessage('setoption name Use NNUE value false');
+        } else {
+            this.fsfPostMessage('setoption name Use NNUE value true');
+            this.fsfPostMessage('setoption name EvalFile value ' + this.evalFile);
+        }
+
+        //console.log('setoption name Threads value ' + maxThreads);
+        this.fsfPostMessage('setoption name Threads value ' + maxThreads);
+
+        this.fsfPostMessage('setoption name MultiPV value ' + this.multipv);
+
+        //console.log('position fen ', this.fullfen);
+        this.fsfPostMessage('position fen ' + cc.fullfen);
+
+        if (this.maxDepth >= 99) {
+            this.fsfPostMessage('go depth 99');
+        } else {
+            this.fsfPostMessage('go movetime 90000 depth ' + this.maxDepth);
+        }
+    }
 
     onMoreDepth = () => {
         this.maxDepth = 99;
@@ -664,19 +785,49 @@ export default class AnalysisController {
         this.engineGo(this.b1);//todo:niki:i guess we really need 2 engines. does this reset analysis from start? or re-uses what is so far evalueated and digs deeper from current depth?
     }
 
-    // Updates PV, score, gauge and the best move arrow
-    drawEval = (ceval: Ceval | undefined, scoreStr: string | undefined, turnColor: cg.Color) => {
-        let shapes0: DrawShape[] = [];
-        this.b1.chessground.setAutoShapes(shapes0);
-        this.b2.chessground.setAutoShapes(shapes0);
+    makePvMove (pv_line: string, cc: ChessgroundController) {
+        const move = uci2cg(pv_line.split(" ")[0]);
+        this.sendMove(cc, move.slice(0, 2) as cg.Orig, move.slice(2, 4) as cg.Key, move.slice(4, 5));
+    }
 
-        const gaugeEl = document.getElementById('gauge') as HTMLElement;
-        if (gaugeEl) {
+    // Updates PV, score, gauge and the best move arrow
+    drawEval = (ceval: Ceval | undefined, scoreStr: string | undefined, turnColor: cg.Color, boardInAnalysis: ChessgroundController) => {
+
+        const pvlineIdx = (ceval && ceval.multipv) ? ceval.multipv - 1 : 0;
+
+        // Render PV line
+        if (ceval?.p !== undefined) {
+            let pvSan: string | VNode = ceval.p;
+            if (this.fsfEngineBoard) {
+                try {
+                    this.fsfEngineBoard.setFen(boardInAnalysis.fullfen);
+                    pvSan = this.fsfEngineBoard.variationSan(ceval.p, this.notationAsObject);
+                    if (pvSan === '') pvSan = emptySan;
+                } catch (error) {
+                    pvSan = emptySan;
+                }
+            }
+            if (pvSan !== emptySan) {
+                pvSan = h('pv-san', { on: { click: () => this.makePvMove(ceval.p as string, boardInAnalysis) } } , pvSan)
+                this.pvView(pvlineIdx, h('pvline', [(this.multipv > 1 && boardInAnalysis.localAnalysis) ? h('strong', scoreStr) : '', pvSan]));
+            }
+        } else {
+            this.pvView(pvlineIdx, h('pvline', (boardInAnalysis.localAnalysis) ? h('pvline', '-') : ''));
+        }
+
+        // Render gauge, arrow and main score value for first PV line only
+        if (pvlineIdx > 0) return;
+
+        let shapes0: DrawShape[] = [];
+        boardInAnalysis.chessground.setAutoShapes(shapes0);
+
+        const gaugeEl = document.getElementById(boardInAnalysis.boardName == 'a'? 'gauge': 'gaugePartner') as HTMLElement;
+        if (gaugeEl && pvlineIdx === 0) {
             const blackEl = gaugeEl.querySelector('div.black') as HTMLElement | undefined;
             if (blackEl && ceval !== undefined) {
                 const score = ceval['s'];
                 // TODO set gauge colour according to the variant's piece colour
-                const color = (this.b1.variant.firstColor === "Black") ? turnColor === 'black' ? 'white' : 'black' : turnColor;
+                const color = (this.variant.firstColor === "Black") ? turnColor === 'black' ? 'white' : 'black' : turnColor;
                 if (score !== undefined) {
                     const ev = povChances(color, score);
                     blackEl.style.height = String(100 - (ev + 1) * 50) + '%';
@@ -687,20 +838,15 @@ export default class AnalysisController {
             }
         }
 
-        if (ceval?.p !== undefined && !!ceval.m) {
-            const pv_move = uci2cg(ceval.m.split(" ")[0]);
-            console.log("ARROW", this.arrow);
-            if (this.arrow) {
+        if (ceval?.p !== undefined) {
+            const pv_move = uci2cg(ceval.p.split(" ")[0]);
+            // console.log("ARROW", this.arrow);
+            if (this.arrow && pvlineIdx === 0) {
                 const atPos = pv_move.indexOf('@');
                 if (atPos > -1) {
                     const d = pv_move.slice(atPos + 1, atPos + 3) as cg.Key;
                     let color = turnColor;
-
                     const dropPieceRole = util.roleOf(pv_move.slice(0, atPos) as cg.Letter);
-                    // const orientation = this.flip ? this.b1.oppcolor : this.b1.mycolor;
-                    // const side = color === orientation ? "ally" : "enemy";
-                    // const url = getPieceImageUrl("bughouse", dropPieceRole, color, side);
-                    // this.b1.chessground.set({ drawable: { pieces: { baseUrl: url! } } });//todo:parametrize b1/b2 or do for both or something when decide how
 
                     shapes0 = [{
                         orig: d,
@@ -709,7 +855,7 @@ export default class AnalysisController {
                             color: color,
                             role: dropPieceRole
                         }},
-                        { orig: d, brush: 'paleGreen'}
+                        { orig: d, brush: 'paleGreen' }
                     ];
                 } else {
                     const o = pv_move.slice(0, 2) as cg.Key;
@@ -717,7 +863,13 @@ export default class AnalysisController {
                     shapes0 = [{ orig: o, dest: d, brush: 'paleGreen', piece: undefined },];
                 }
             }
-            this.vscore = patch(this.vscore, h('score#score', scoreStr));
+
+            if (boardInAnalysis.boardName == 'a'){
+                this.vscore = patch(this.vscore, h('score#score', scoreStr));
+            } else {
+                this.vscorePartner = patch(this.vscorePartner, h('score#scorePartner', scoreStr));
+            }
+
             const info = [h('span', _('Depth') + ' ' + String(ceval.d) + '/' + this.maxDepth)];
             if (ceval.k) {
                 if (ceval.d === this.maxDepth && this.maxDepth !== 99) {
@@ -732,25 +884,17 @@ export default class AnalysisController {
                 }
             }
             this.vinfo = patch(this.vinfo, h('info#info', info));
-            let pvSan = ceval.p;
-            //todo:niki: temporary commenting out until i figure out how to do that
-            // if (this.ffishBoard !== null) {
-            //     try {
-            //         pvSan = this.ffishBoard.variationSan(ceval.p, this.notationAsObject);
-            //         if (pvSan === '') pvSan = ceval.p;
-            //     } catch (error) {
-            //         pvSan = ceval.p
-            //     }
-            // }
-            this.vpv = patch(this.vpv, h('div#pv', [h('pvline', ceval.p !== undefined ? pvSan : ceval.m)]));
         } else {
-            this.vscore = patch(this.vscore, h('score#score', ''));
+            if (boardInAnalysis.boardName == 'a') {
+                this.vscore = patch(this.vscore, h('score#score', ''));
+            } else {
+                this.vscorePartner = patch(this.vscorePartner, h('score#scorePartner', ''));
+            }
             this.vinfo = patch(this.vinfo, h('info#info', _('in local browser')));
-            this.vpv = patch(this.vpv, h('div#pv'));
         }
 
-        console.log(shapes0);
-        this.b1.chessground.set({
+        // console.log(shapes0);
+        boardInAnalysis.chessground.set({
             drawable: {autoShapes: shapes0},
         });
     }
@@ -769,32 +913,6 @@ export default class AnalysisController {
     //         const hcPt = hc.series[0].data[ply];
     //         if (hcPt !== undefined) hcPt.select();
     //     }
-    }
-
-    engineStop = () => {
-        this.isEngineReady = false;
-        window.fsf.postMessage('stop');
-        window.fsf.postMessage('isready');
-    }
-
-    engineGo = (cc: ChessgroundController) => {
-        if (cc.chess960) {
-            window.fsf.postMessage('setoption name UCI_Chess960 value true');
-        }
-        if (this.model.variant !== 'chess') {
-            window.fsf.postMessage('setoption name UCI_Variant value ' + this.model.variant);
-        }
-        //console.log('setoption name Threads value ' + maxThreads);
-        window.fsf.postMessage('setoption name Threads value ' + maxThreads);
-
-        //console.log('position fen ', this.fullfen);
-        window.fsf.postMessage('position fen ' + cc.fullfen);
-
-        if (this.maxDepth >= 99) {
-            window.fsf.postMessage('go depth 99');
-        } else {
-            window.fsf.postMessage('go movetime 90000 depth ' + this.maxDepth);
-        }
     }
 
     // getDests = (b: ChessgroundController) => {
@@ -879,7 +997,7 @@ export default class AnalysisController {
             this.plyInsideVari = ply - plyVari;
         }
 
-        if (this.localAnalysis) {
+        if (this.b1.localAnalysis || this.b2.localAnalysis) {
             this.engineStop();
             this.clearPvlines();
             // Go back to the main line
@@ -897,6 +1015,17 @@ export default class AnalysisController {
         }
         board.turnColor = step.turnColor;//todo: probably not needed here and other places as well where its set
 
+        // const clocktimes = this.steps[1]?.clocks?.white;
+        // if (clocktimes !== undefined) {
+            renderClocks(this);
+        //     const hc = this.movetimeChart;
+        //     if (hc !== undefined) {
+        //         const idx = (step.turnColor === 'white') ? 1 : 0;
+        //         const turn = (ply + 1) >> 1;
+        //         const hcPt = hc.series[idx].data[turn-1];
+        //         if (hcPt !== undefined) hcPt.select();
+        //     }
+        // }
         if (board.ffishBoard) {
             board.ffishBoard.setFen(board.fullfen);
             board.setDests();
@@ -1074,7 +1203,7 @@ export default class AnalysisController {
     private onMsgAnalysisBoard = (b: ChessgroundController, msg: MsgAnalysisBoard) => {
         // console.log("got analysis_board msg:", msg);
         if (msg.gameId !== this.gameId) return;
-        if (this.localAnalysis) this.engineStop();
+        if (b.localAnalysis) this.engineStop();
 
         b.fullfen = msg.fen;
         // b.dests = msg.dests;
@@ -1096,7 +1225,7 @@ export default class AnalysisController {
             },
         });
 
-        if (this.localAnalysis) this.engineGo(b);
+        if (b.localAnalysis) this.engineGo(b);
     }
 
 
@@ -1155,27 +1284,27 @@ export default class AnalysisController {
         return scoreStr;
     }
 
-    // private onMsgAnalysis = (msg: MsgAnalysis) => {
-    //     console.log(msg);
-    // //     if (msg['ceval']['s'] === undefined) return;
-    // //
-    // //     const scoreStr = this.buildScoreStr(msg.color, msg.ceval);
-    // //
-    // //     // Server side analysis message
-    // //     if (msg.type === 'analysis') {
-    // //         this.steps[msg.ply]['ceval'] = msg.ceval;
-    // //         this.steps[msg.ply]['scoreStr'] = scoreStr;
-    // //
-    // //         if (this.steps.every((step) => {return step.scoreStr !== undefined;})) {
-    // //             const element = document.getElementById('loader-wrapper') as HTMLElement;
-    // //             element.style.display = 'none';
-    // //         }
-    // //         this.drawServerEval(msg.ply, scoreStr);
-    // //     } else {
-    // //         const turnColor = msg.color === 'w' ? 'white' : 'black';
-    // //         this.drawEval(msg.ceval, scoreStr, turnColor);
-    // //     }
-    // }
+    private onMsgAnalysis = (msg: MsgAnalysis, boardInAnalysis: ChessgroundController) => {
+        // console.log(msg);
+        if (msg['ceval']['s'] === undefined) return;
+
+        const scoreStr = this.buildScoreStr(msg.color, msg.ceval);
+
+        // Server side analysis message
+        if (msg.type === 'analysis') {
+            this.steps[msg.ply]['ceval'] = msg.ceval;
+            this.steps[msg.ply]['scoreStr'] = scoreStr;
+
+            if (this.steps.every((step) => {return step.scoreStr !== undefined;})) {
+                const element = document.getElementById('loader-wrapper') as HTMLElement;
+                element.style.display = 'none';
+            }
+            this.drawServerEval(msg.ply, scoreStr);
+        } else {
+            const turnColor = msg.color === 'w' ? 'white' : 'black';
+            this.drawEval(msg.ceval, scoreStr, turnColor, boardInAnalysis);
+        }
+    }
 
     // User running a fishnet worker asked new server side analysis with chat message: !analysis
     // private onMsgRequestAnalysis = () => {todo:niki:this makes sense to exist at least maybe

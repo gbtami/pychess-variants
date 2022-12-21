@@ -24,13 +24,19 @@ log = logging.getLogger(__name__)
 
 def get_main_variation(game: Game) -> [list,list]:
     variations = game.variations
+    turns = {0: 'w', 1: 'w'}
     moves = []
     boards = []
+    move_times = {0: {'w': [], 'b': []}, 1: {'w': [], 'b': []}}
     while variations:
+        board = variations[0].move.board_id
+        turn = turns[board]
+        turns[board] = 'b' if turn == 'w' else 'w'
         moves.append(variations[0].move.uci())
-        boards.append(variations[0].move.board_id)
+        move_times[board][turn].append(int(variations[0].move.move_time * 1000) if variations[0].move.move_time is not None else None)
+        boards.append(board)
         variations = variations[0].variations
-    return [moves, boards]
+    return [moves, move_times, boards]
 
 async def import_game_bpgn(request):
     data = await request.post()
@@ -110,7 +116,7 @@ async def import_game_bpgn(request):
         log.exception("TimeControl tag parsing failed")
         base, inc = 0, 0
 
-    [move_stack, boards] = get_main_variation(first_game)  # data.get("moves", "").split(" ")
+    [move_stack, move_times, boards] = get_main_variation(first_game)  # data.get("moves", "").split(" ")
     moves = encode_moves(map(grand2zero, move_stack) if variant in GRANDS else move_stack, variant)
 
     game_id = await new_id(None if db is None else db.game)
@@ -147,6 +153,10 @@ async def import_game_bpgn(request):
         "bp": 0,
         "m": moves,
         "o": boards,
+        "cw": move_times[0]['w'],
+        "cb": move_times[0]['b'],
+        "cwB": move_times[1]['w'],
+        "cbB": move_times[1]['b'],
         "d": date,
         "f": final_fen,
         "s": status,

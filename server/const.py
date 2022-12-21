@@ -311,6 +311,7 @@ TRANSLATED_VARIANT_NAMES = {
     "minishogi": _("Minishogi"),
     "kyotoshogi": _("Kyoto Shogi"),
     "dobutsu": _("Dobutsu"),
+    "bughouse": _("Bughouse"),
     # Gorogoro is superseded by Gorogoro Plus
     # "gorogoro",
     "gorogoroplus": _("Gorogoro+"),

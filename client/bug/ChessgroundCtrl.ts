@@ -49,6 +49,7 @@ export class ChessgroundController extends GameController {
     boardName: 'a' | 'b';
 
     steps: Step[];
+    localAnalysis: boolean = false;
 
     constructor(el: HTMLElement,elPocket1: HTMLElement,elPocket2: HTMLElement, boardName: 'a' | 'b', model: PyChessModel) {
         super(el, model,elPocket1,elPocket2);
@@ -340,49 +341,49 @@ export class ChessgroundController extends GameController {
 
 
     createGround = (el: HTMLElement, pocket0:HTMLElement|undefined, pocket1:HTMLElement|undefined, fullfen: string): Api => {
+        // const pocket0 = this.hasPockets? document.getElementById('pocket0') as HTMLElement: undefined;
+        // const pocket1 = this.hasPockets? document.getElementById('pocket1') as HTMLElement: undefined;
 
+        // const fullfen = model["fen"] as string;
+        const parts = fullfen.split(" ");
+        const fen_placement: cg.FEN = parts[0];
 
+        const chessground = Chessground(el, {
+             fen: fen_placement as cg.FEN,
+             // variant: 'crazyhouse' as cg.Variant,//todo:niki:why does cg need to be aware of variants?
+             // chess960: false,
+             dimensions: BOARD_FAMILIES.standard8x8.dimensions,
+             notation: cg.Notation.ALGEBRAIC,
+             orientation: 'white',//todo:niki
+             turnColor: 'white',//todo:niki
+             animation: { enabled: false },//todo:niki
+             addDimensionsCssVarsTo: document.body,
 
-    // const pocket0 = this.hasPockets? document.getElementById('pocket0') as HTMLElement: undefined;
-    // const pocket1 = this.hasPockets? document.getElementById('pocket1') as HTMLElement: undefined;
+             pocketRoles: VARIANTS.crazyhouse.pocketRoles,
+        }, pocket0, pocket1);
 
-    // const fullfen = model["fen"] as string;
-    const parts = fullfen.split(" ");
-    const fen_placement: cg.FEN = parts[0];
-
-    const chessground = Chessground(el, {
-         fen: fen_placement as cg.FEN,
-         // variant: 'crazyhouse' as cg.Variant,//todo:niki:why does cg need to be aware of variants?
-         // chess960: false,
-         dimensions: BOARD_FAMILIES.standard8x8.dimensions,
-         notation: cg.Notation.ALGEBRAIC,
-         orientation: 'white',//todo:niki
-         turnColor: 'white',//todo:niki
-         animation: { enabled: false },//todo:niki
-         addDimensionsCssVarsTo: document.body,
-
-         pocketRoles: VARIANTS.crazyhouse.pocketRoles,
-    }, pocket0, pocket1);
-
-    chessground.set({
-        animation: { enabled: false },
-        movable: {
-            free: false,
-            color: 'white',
-            showDests: true,//todo:niki
+        chessground.set({
+            animation: { enabled: false },
+            movable: {
+                free: false,
+                color: 'white',
+                showDests: true,//todo:niki
+                events: {
+                    after: this.onUserMove,
+                    afterNewPiece: this.onUserDrop,
+                }
+            },
             events: {
-                after: this.onUserMove,
-                afterNewPiece: this.onUserDrop,
-            }
-        },
-        events: {
-            move: this.onMove(),
-            dropNewPiece: this.onDrop(),
-            select: this.onSelect(),
-        },
-    });
-    return chessground;
-}
+                move: this.onMove(),
+                dropNewPiece: this.onDrop(),
+                select: this.onSelect(),
+            },
+        });
+        return chessground;
+    }
+
+
+
 }
 
 

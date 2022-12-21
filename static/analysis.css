@@ -43,7 +43,7 @@
                                var(--gauge-gap)
                                minmax(calc(70vmin * var(--board-scale)), calc(100vh * var(--board-scale) - calc(var(--site-header-height) + var(--site-header-margin)) - 3rem));
         grid-template-rows: min-content 1fr;
-        grid-template-areas: 'board gauge pocket-top pocket-top-partner gaugePartner boardPartner' 'board gauge tools tools gaugePartner boardPartner' 'board gauge tools tools gaugePartner boardPartner' 'board gauge pocket-bot pocket-bot-partner gaugePartner boardPartner' '. . move-controls move-controls . .' 'uboard uboard uboard uboard uboard uboard'
+        grid-template-areas: 'board gauge pocket-top pocket-top-partner gaugePartner boardPartner' 'board gauge tools tools gaugePartner boardPartner' 'board gauge tools tools gaugePartner boardPartner' 'board gauge pocket-bot pocket-bot-partner gaugePartner boardPartner' '. . move-controls move-controls . .' 'uboard uboard uboard uboard uboard uboard' 'gameinfo gameinfo gameinfo gameinfo gameinfo gameinfo'
         /*'board . boardPartner' 'board mat-top boardPartner' 'board clock-top boardPartner' 'board expi-top boardPartner' 'board user-top boardPartner' 'board move-controls boardPartner' 'board moves boardPartner' 'board game-controls boardPartner' 'board user-bot boardPartner' 'board expi-bot boardPartner' 'board clock-bot boardPartner' 'board mat-bot boardPartner' 'board . boardPartner';*/
     }
 
@@ -67,6 +67,10 @@
     background: var(--bg-color2);
     box-shadow: var(--base-shadow);
     z-index: 1;
+}
+.anal-clock.bug {
+    left:0;
+    right:initial;
 }
 .anal-clock.active {
     background: var(--anal-clock);
