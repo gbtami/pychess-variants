@@ -422,6 +422,11 @@ export class AnalysisController extends GameController {
     }
 
     onFSFline = (line: string) => {
+        // There is no Duck Chess support in fairy-wasm atm
+        if (this.variant.name === 'duck') {
+            return;
+        }
+
         if (this.fsfDebug) console.debug('--->', line);
 
         if (line.startsWith('info')) {
