@@ -40,7 +40,9 @@ label.piece.piece6.standard {
 label.piece.piece7.standard {
     background-image: url('images/pieces/disguised/w.svg');
 }
-
+label.piece.piece8.standard {
+    background-image: url('images/pieces/atopdown/wn.svg');
+}
 label.piece.piece0.capa {
     background-image: url('images/pieces/merida/wA.svg');
 }
