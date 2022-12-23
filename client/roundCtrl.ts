@@ -860,6 +860,7 @@ export class RoundController extends GameController {
             } else {
                 move = this.duckChessMove + ',' + this.duckChessMove.slice(2, 4) + dest;
                 this.duckChessMove = '';
+                sound.moveSound(this.variant, false);
             }
         }
 
