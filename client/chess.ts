@@ -321,7 +321,7 @@ export const VARIANTS: { [name: string]: Variant } = {
     }),
 
     duck: new Variant({
-        name: "duck", tooltip: () => _("Quack."),
+        name: "duck", tooltip: () => _("The duck must be moved to a new square after every turn."),
         startFen: "rnbqkbnr/pppppppp/8/4*3/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
         board: "standard8x8", piece: "standard",
         pieceLetters: ["k", "q", "r", "b", "n", "p", "*"],
