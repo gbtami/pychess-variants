@@ -325,6 +325,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         startFen: "rnbqkbnr/pppppppp/8/4*3/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
         board: "standard8x8", piece: "standard",
         pieceLetters: ["k", "q", "r", "b", "n", "p", "*"],
+        pieceLetters2: ["k", "q", "r", "b", "n", "p"],
         enPassant: true, duck: true,
         icon: "🦆",
     }),
@@ -911,9 +912,15 @@ export function validFen(variant: Variant, fen: string): boolean {
     // Allowed characters in placement part
     const placement = parts[0];
     const startPlacement = start[0];
-    let good = startPlacement + ((variantName === "orda") ? "Hq" : "") + ((variantName === "dobutsu") ? "Hh" : "") + "~+0123456789[]-";
+    let good = startPlacement + 
+        ((variantName === "orda") ? "Hq" : "") +
+        ((variantName === "dobutsu") ? "Hh" : "") +
+        ((variantName === "duck") ? "*" : "") +
+        "~+0123456789[]-";
     const alien = (element: string) => !good.includes(element);
     if (placement.split('').some(alien)) return false;
+
+    if (variantName === "duck" && lc(placement, "*", false) > 1) return false;
 
     // Brackets paired
     if (lc(placement, '[', false) !== lc(placement, ']', false)) return false;
