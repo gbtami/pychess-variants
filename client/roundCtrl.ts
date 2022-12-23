@@ -10,7 +10,7 @@ import { patch } from './document';
 import { boardSettings } from './boardSettings';
 import { Clock } from './clock';
 import { sound } from './sound';
-import { uci2LastMove, cg2uci, getCounting, isHandicap } from './chess';
+import { uci2LastMove, getCounting, isHandicap } from './chess';
 import { crosstableView } from './crosstable';
 import { chatMessage, chatView } from './chat';
 import { createMovelistButtons, updateMovelist, updateResult, selectMove } from './movelist';
@@ -55,7 +55,6 @@ export class RoundController extends GameController {
     prevPieces: cg.Pieces;
     focus: boolean;
     finishedGame: boolean;
-    duckChessMove: string;
     lastMaybeSentMsgMove: MsgMove; // Always store the last "move" message that was passed for sending via websocket.
                           // In case of bad connection, we are never sure if it was sent (thus the name)
                           // until a "board" message from server is received from server that confirms it.
@@ -113,7 +112,6 @@ export class RoundController extends GameController {
         this.byoyomiPeriod = Number(model["byo"]);
         this.byoyomi = this.variant.timeControl === 'byoyomi';
         this.finishedGame = this.status >= 0;
-        this.duckChessMove = '';
         this.tv = model["tv"];
         this.profileid = model["profileid"];
         this.level = model["level"];
@@ -837,39 +835,14 @@ export class RoundController extends GameController {
         this.updateMaterial();
     }
 
-    doSendMove = (orig: cg.Orig, dest: cg.Key, promo: string) => {
+    doSendMove = (move: string) => {
         this.clearDialog();
-
-        let move = cg2uci(orig + dest + promo);
-
-        if (this.variant.duck) {
-            // first leg made with standard chess piece
-            if (this.duckChessMove.length === 0) {
-                let kingCount = 0;
-                const pieces = this.chessground.state.boardState.pieces;
-                pieces.forEach((piece) => {if (piece.role.startsWith('k')) kingCount = kingCount + 1});
-                // In case of king capture game is over and no need to move the duck
-                if (kingCount === 1) {
-                    move = move + ',' + dest + orig;
-                } else {
-                    this.duckChessMove = move;
-                    this.setDuckDests(move);
-                    return;
-                }
-            // second leg made with the duck
-            } else {
-                move = this.duckChessMove + ',' + this.duckChessMove.slice(2, 4) + dest;
-                this.duckChessMove = '';
-                sound.moveSound(this.variant, false);
-            }
-        }
 
         // pause() will add increment!
         const oppclock = !this.flipped() ? 0 : 1
         const myclock = 1 - oppclock;
         const movetime = (this.clocks[myclock].running) ? Date.now() - this.clocks[myclock].startTime : 0;
         this.clocks[myclock].pause((this.base === 0 && this.ply < 2) ? false : true);
-        // console.log("sendMove(orig, dest, prom)", orig, dest, promo);
 
         let bclock, clocks;
         if (!this.flipped()) {

@@ -7,7 +7,7 @@ import * as util from 'chessgroundx/util';
 import { _ } from './i18n';
 import { patch } from './document';
 import { Step, MsgChat, MsgFullChat, MsgSpectators, MsgShutdown,MsgGameNotFound } from './messages';
-import { uci2LastMove, moveDests, duckMoveDests, duckSquare, uci2cg, unpromotedRole } from './chess';
+import { uci2LastMove, moveDests, duckMoveDests, duckSquare, cg2uci, uci2cg, unpromotedRole } from './chess';
 import { Gating } from './gating';
 import { Promotion } from './promotion';
 import { ChessgroundController } from './cgCtrl';
@@ -46,6 +46,7 @@ export abstract class GameController extends ChessgroundController implements IC
 
     // Game state
     turnColor: cg.Color;
+    duckChessMove: string;
 
     setupFen: string;
     prevPieces: cg.Pieces;
@@ -136,6 +137,7 @@ export abstract class GameController extends ChessgroundController implements IC
         const parts = this.fullfen.split(" ");
 
         this.turnColor = parts[1] === "w" ? "white" : "black";
+        this.duckChessMove = '';
 
         this.chessground.set({
             animation: {
@@ -207,10 +209,34 @@ export abstract class GameController extends ChessgroundController implements IC
         this.chessground.set({ movable: { dests: this.dests }, turnColor: this.turnColor });
     }
 
-    abstract doSendMove(orig: cg.Orig, dest: cg.Key, promo: string): void;
+    abstract doSendMove(move: string): void;
 
     sendMove(orig: cg.Orig, dest: cg.Key, promo: string) {
-        this.doSendMove(orig, dest, promo);
+        let move = cg2uci(orig + dest + promo);
+
+        if (this.variant.duck) {
+            // first leg made with standard chess piece
+            if (this.duckChessMove.length === 0) {
+                let kingCount = 0;
+                const pieces = this.chessground.state.boardState.pieces;
+                pieces.forEach((piece) => {if (piece.role.startsWith('k')) kingCount = kingCount + 1});
+                // In case of king capture game is over and no need to move the duck
+                if (kingCount === 1) {
+                    move = move + ',' + dest + orig;
+                } else {
+                    this.duckChessMove = move;
+                    this.setDuckDests(move);
+                    return;
+                }
+            // second leg made with the duck
+            } else {
+                move = this.duckChessMove + ',' + this.duckChessMove.slice(2, 4) + dest;
+                this.duckChessMove = '';
+                sound.moveSound(this.variant, false);
+            }
+        }
+
+        this.doSendMove(move);
     }
 
     goPly(ply: number, plyVari = 0) {
