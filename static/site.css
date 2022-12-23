@@ -362,7 +362,7 @@ iframe {
     grid-template-columns:
       2*minmax(calc(70vmin * var(--board-scale)), calc(100vh * var(--board-scale) - calc(var(--site-header-height) + var(--site-header-margin)) - 3rem))
       minmax(240px, 400px);
-    grid-template-rows: fit-content(0) fit-content(0) 143px;
+    grid-template-rows: fit-content(0) fit-content(0) 743px;
     grid-template-areas: 'app app' 'uleft uboard' 'side side';
     /*grid-gap: 2vmin; i am not sure what is the point f this whole selector in min-width:800px, why i have it and in what cases it makes sense*/
   }

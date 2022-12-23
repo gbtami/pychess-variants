@@ -133,7 +133,7 @@ export function updateMovelist (ctrl: AnalysisController | RoundController, full
         if (ctrl.steps[ply]['vari'] !== undefined && "plyVari" in ctrl) {
             const variMoves = ctrl.steps[ply]['vari'];
 
-            if (ply % 2 !== 0) moves.push(h('move-bug', '...'));
+            // if (ply % 2 !== 0) moves.push(h('move-bug', '...'));
 
             let plyAVari = plyA;
             let plyBVari = plyB;
@@ -153,10 +153,10 @@ export function updateMovelist (ctrl: AnalysisController | RoundController, full
                 }) : []
             ));
 
-            if (ply % 4 == 1) {
-                moves.push(h('move.counter', (ply + 1) / 2));
-                moves.push(h('move-bug', '...'));
-            }
+            // if (ply % 4 == 1) {
+            //     moves.push(h('move.counter', (ply + 1) / 2));
+            //     moves.push(h('move-bug', '...'));
+            // }
             didWeRenderVariSectionAfterLastMove = true;
         }
     }
