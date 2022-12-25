@@ -347,6 +347,7 @@ async def init_state(app):
         # from test_tournament import create_dev_arena_tournament
         # await create_dev_arena_tournament(app)
         from ouk_four_countries_tournament import add_games
+
         await add_games(app)
 
 
