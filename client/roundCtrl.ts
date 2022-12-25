@@ -10,7 +10,7 @@ import { patch } from './document';
 import { boardSettings } from './boardSettings';
 import { Clock } from './clock';
 import { sound } from './sound';
-import { uci2LastMove, cg2uci, getCounting, isHandicap } from './chess';
+import { uci2LastMove, getCounting, isHandicap } from './chess';
 import { crosstableView } from './crosstable';
 import { chatMessage, chatView } from './chat';
 import { createMovelistButtons, updateMovelist, updateResult, selectMove } from './movelist';
@@ -835,18 +835,15 @@ export class RoundController extends GameController {
         this.updateMaterial();
     }
 
-    doSendMove = (orig: cg.Orig, dest: cg.Key, promo: string) => {
+    doSendMove = (move: string) => {
         this.clearDialog();
+
         // pause() will add increment!
         const oppclock = !this.flipped() ? 0 : 1
         const myclock = 1 - oppclock;
         const movetime = (this.clocks[myclock].running) ? Date.now() - this.clocks[myclock].startTime : 0;
         this.clocks[myclock].pause((this.base === 0 && this.ply < 2) ? false : true);
-        // console.log("sendMove(orig, dest, prom)", orig, dest, promo);
 
-        const move = cg2uci(orig + dest + promo);
-
-        // console.log("sendMove(move)", move);
         let bclock, clocks;
         if (!this.flipped()) {
             bclock = this.mycolor === "black" ? 1 : 0;

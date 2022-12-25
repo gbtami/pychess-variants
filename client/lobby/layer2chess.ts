@@ -12,6 +12,7 @@ export function layer2chess (lobbyCtrl: LobbyController, containerId: string): v
     const placement = VARIANTS['placement'];
     const crazyhouse = VARIANTS['crazyhouse'];
     const atomic = VARIANTS['atomic'];
+    const duck = VARIANTS['duck'];
     const layer2cont = h('div#layer2chesscont.layer-2-container', [
         h('button.layer-2-category generic-variant-info.generic', [
             h('div.layer-two-category-info', [
@@ -61,6 +62,12 @@ export function layer2chess (lobbyCtrl: LobbyController, containerId: string): v
             h('div.variant-title-l2', [
                 h('div.icon', { attrs: { 'data-icon': atomic.icon(true) } }),
                 h('h3', VARIANTS['atomic'].displayName(true))
+            ]),
+        ]),
+        h('button.layer-2-category.duck', { on: { click: () => layer3variant('layer2chesscont', lobbyCtrl, 'duck', false) } }, [
+            h('div.variant-title-l2', [
+                h('div.icon', { attrs: { 'data-icon': duck.icon(false) } }),
+                h('h3', VARIANTS['duck'].displayName())
             ]),
         ]),
     ]);

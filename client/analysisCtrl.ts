@@ -9,7 +9,7 @@ import { DrawShape } from 'chessgroundx/draw';
 import { newWebsocket } from './socket';
 import { _ } from './i18n';
 import { sound } from './sound';
-import { uci2LastMove, uci2cg, cg2uci } from './chess';
+import { uci2LastMove, uci2cg } from './chess';
 import { crosstableView } from './crosstable';
 import { chatView } from './chat';
 import { createMovelistButtons, updateMovelist, selectMove, activatePlyVari } from './movelist';
@@ -422,6 +422,11 @@ export class AnalysisController extends GameController {
     }
 
     onFSFline = (line: string) => {
+        // There is no Duck Chess support in fairy-wasm atm
+        if (this.variant.name === 'duck') {
+            return;
+        }
+
         if (this.fsfDebug) console.debug('--->', line);
 
         if (line.startsWith('info')) {
@@ -519,7 +524,7 @@ export class AnalysisController extends GameController {
 
     makePvMove (pv_line: string) {
         const move = uci2cg(pv_line.split(" ")[0]);
-        this.doSendMove(move.slice(0, 2) as cg.Orig, move.slice(2, 4) as cg.Key, move.slice(4, 5));
+        this.doSendMove(move);
     }
 
     // Updates PV, score, gauge and the best move arrow
@@ -793,13 +798,11 @@ export class AnalysisController extends GameController {
         return `${event}\n${site}\n${date}\n${white}\n${black}\n${result}\n${variant}\n${fen}\n${setup}\n\n${moveText} *\n`;
     }
 
-    doSendMove = (orig: cg.Orig, dest: cg.Key, promo: string) => {
-        const move = cg2uci(orig + dest + promo);
+    doSendMove = (move: string) => {
         const san = this.ffishBoard.sanMove(move, this.notationAsObject);
         const sanSAN = this.ffishBoard.sanMove(move);
         const vv = this.steps[this.plyVari]['vari'];
 
-        // console.log('sendMove()', move, san);
         // Instead of sending moves to the server we can get new FEN and dests from ffishjs
         this.ffishBoard.push(move);
         this.setDests();

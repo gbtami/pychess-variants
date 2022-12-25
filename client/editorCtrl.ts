@@ -202,7 +202,7 @@ export class EditorController extends ChessgroundController {
         const fen = (document.getElementById('fen') as HTMLInputElement).value;
         const valid = validFen(this.variant, fen);
         const ff = this.ffish.validateFen(fen, this.variant.name);
-        const ffValid = (ff === 1) || (this.variant.gate && ff === -5);
+        const ffValid = (ff === 1) || (this.variant.gate && ff === -5) || (this.variant.duck && ff === -10);
         return valid && ffValid;
     }
 

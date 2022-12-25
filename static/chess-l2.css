@@ -123,9 +123,14 @@
  grid-row: 3/4;
 }
 
+.duck {
+    grid-column: 3/3;
+    grid-row: 4/5;
+}
+
 /* Variant Category Button Content  */
 
-.chess960 .variant-title-l2, .chess-l2 .variant-title-l2,.placement .variant-title-l2, .crazyhouse .variant-title-l2, .crazyhouse960 .variant-title-l2,.atomic .variant-title-l2,.atomic960 .variant-title-l2
+.duck .variant-title-l2, .chess960 .variant-title-l2, .chess-l2 .variant-title-l2,.placement .variant-title-l2, .crazyhouse .variant-title-l2, .crazyhouse960 .variant-title-l2,.atomic .variant-title-l2,.atomic960 .variant-title-l2
 {
     /* border: 1px solid red; */
     display: flex;
@@ -147,7 +152,7 @@
     margin-right: 5px;
 }
 
-.chess960 img, .chess-l2 img, .placement img, .crazyhouse img, .crazyhouse960 img, .atomic img, .atomic960 img, .capablanca img, .shako img, .shogun img, .hoppelpoppel img, .grand img, .schess img {
+.duck img, .chess960 img, .chess-l2 img, .placement img, .crazyhouse img, .crazyhouse960 img, .atomic img, .atomic960 img, .capablanca img, .shako img, .shogun img, .hoppelpoppel img, .grand img, .schess img {
     /* border: 1px solid blue; */
     /* height: 100%;
     width: 100%; */
@@ -195,6 +200,11 @@
      grid-column: 2/3;
      grid-row: 6/7;
     }
+
+    .duck {
+       grid-column:2/3;
+       grid-row: 5/6;
+    }
 }
 
 /* Mobile and makes it one column  */
@@ -231,9 +241,14 @@
      grid-row: 4/5;
     }
 
+    .duck {
+     grid-column: 2/2;
+     grid-row: 4/5;
+    }
+
     .generic-variant-info {
-        grid-column: 2/3;
-        grid-row: 4/5;
+        grid-column: 1/3;
+        grid-row: 5/5;
     }
 
 
@@ -279,7 +294,7 @@
 
     
 
-.chess960 .variant-title-l2, .chess-l2 .variant-title-l2,.placement .variant-title-l2, .crazyhouse .variant-title-l2, .crazyhouse960 .variant-title-l2,.atomic .variant-title-l2,.atomic960 .variant-title-l2 {
+.duck .variant-title-l2, .chess960 .variant-title-l2, .chess-l2 .variant-title-l2,.placement .variant-title-l2, .crazyhouse .variant-title-l2, .crazyhouse960 .variant-title-l2,.atomic .variant-title-l2,.atomic960 .variant-title-l2 {
 
     justify-content: center;
 
