@@ -7,7 +7,7 @@ import * as util from 'chessgroundx/util';
 import { _ } from './i18n';
 import { patch } from './document';
 import { Step, MsgChat, MsgFullChat, MsgSpectators, MsgShutdown,MsgGameNotFound } from './messages';
-import { uci2LastMove, moveDests, uci2cg, unpromotedRole } from './chess';
+import { uci2LastMove, moveDests, duckMoveDests, cg2uci, uci2cg, unpromotedRole } from './chess';
 import { Gating } from './gating';
 import { Promotion } from './promotion';
 import { ChessgroundController } from './cgCtrl';
@@ -46,6 +46,7 @@ export abstract class GameController extends ChessgroundController implements IC
 
     // Game state
     turnColor: cg.Color;
+    duckChessMove: string;
 
     setupFen: string;
     prevPieces: cg.Pieces;
@@ -136,6 +137,7 @@ export abstract class GameController extends ChessgroundController implements IC
         const parts = this.fullfen.split(" ");
 
         this.turnColor = parts[1] === "w" ? "white" : "black";
+        this.duckChessMove = '';
 
         this.chessground.set({
             animation: {
@@ -166,11 +168,12 @@ export abstract class GameController extends ChessgroundController implements IC
             setTimeout(this.setDests, 100);
         } else {
             const legalMoves = this.ffishBoard.legalMoves().split(" ");
-            const dests: cg.Dests = moveDests(legalMoves);
+            this.dests = moveDests(legalMoves);
             // list of legal promotion moves
             this.promotions = [];
             legalMoves.forEach((move: string) => {
-                const moveStr = uci2cg(move);
+                // In duck chess we have to cut off the second leg part (the duck move)
+                const moveStr = (this.variant.duck) ? move.slice(0, -5) : uci2cg(move);
                 
                 const tail = moveStr.slice(-1);
                 if (tail > '9' || tail === '+' || tail === '-') {
@@ -182,15 +185,66 @@ export abstract class GameController extends ChessgroundController implements IC
                     this.promotions.push(moveStr);
                 }
             });
-            this.chessground.set({ movable: { dests: dests }});
+            this.chessground.set({ movable: { dests: this.dests }});
         }
     }
 
-    abstract doSendMove(orig: cg.Orig, dest: cg.Key, promo: string): void;
+    setDuckDests = (move: string) => {
+        const legalMoves = this.ffishBoard.legalMoves();
+        // valid moves starting with the given piece move
+        const filteredMoves = legalMoves.split(" ").filter((m: string) => m.startsWith(move));
+
+        let fromSquare = undefined;
+        const pieces = this.chessground.state.boardState.pieces;
+        for (const [k, p] of pieces) {
+            if (p.role === '_-piece') {
+                fromSquare = k;
+                break;
+            }
+        }
+
+        // In case of white first move there is no duck on the board at all
+        // so we have to pass the given move dest square as fromSquare param to duckMoveDests()
+        if (fromSquare === undefined) {
+            // The new duck will be placed by one click on some empty square in onSelect()
+            fromSquare = move.slice(2, 4) as cg.Key;
+        } else {
+            // turn the duck piece color to the opposite to let it be movable on chessground
+            this.chessground.state.boardState.pieces.get(fromSquare)!.color = this.turnColor;
+        };
+
+        this.dests = duckMoveDests(filteredMoves, fromSquare);
+        this.chessground.set({ movable: { dests: this.dests }, turnColor: this.turnColor });
+    }
+
+    abstract doSendMove(move: string): void;
 
     sendMove(orig: cg.Orig, dest: cg.Key, promo: string) {
-        console.log(orig, dest, promo);
-        this.doSendMove(orig, dest, promo);
+        let move = cg2uci(orig + dest + promo);
+
+        if (this.variant.duck) {
+            // first leg made with standard chess piece
+            if (this.duckChessMove.length === 0) {
+                let kingCount = 0;
+                const pieces = this.chessground.state.boardState.pieces;
+                pieces.forEach((piece) => {if (piece.role.startsWith('k')) kingCount = kingCount + 1});
+                // In case of king capture game is over and no need to move the duck
+                if (kingCount === 1) {
+                    move = move + ',' + dest + orig;
+                } else {
+                    this.duckChessMove = move;
+                    this.setDuckDests(move);
+                    return;
+                }
+            // second leg made with the duck
+            } else {
+                move = this.duckChessMove + ',' + this.duckChessMove.slice(2, 4) + dest;
+                this.duckChessMove = '';
+                sound.moveSound(this.variant, false);
+            }
+        }
+
+        this.doSendMove(move);
     }
 
     goPly(ply: number, plyVari = 0) {
@@ -258,6 +312,20 @@ export abstract class GameController extends ChessgroundController implements IC
         let lastKey: cg.Key | undefined;
         return (key: cg.Key) => {
             if (this.chessground.state.movable.dests === undefined) return;
+
+            // In duck chess after white first move made (this.ply === 0 && this.dests.size === 1)
+            // white have to add the duck by one click on some empty square
+            // because it is not on the board still 
+            if (this.variant.duck && this.ply === 0 && this.dests.size === 1) {
+                if (this.chessground.state.boardState.pieces.get(key) === undefined) {
+                    this.chessground.setPieces(new Map([[key, {
+                        color: 'white',
+                        role: '_-piece',
+                    }]]));
+                    this.sendMove(key, key, '');
+                }
+                return;
+            };
 
             const curTime = performance.now();
 

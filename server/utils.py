@@ -758,7 +758,8 @@ def sanitize_fen(variant, initial_fen, chess960):
     if variant == "capablanca" and initial_fen == CONSERVATIVE_CAPA_FEN:
         return True, initial_fen
 
-    if sf.validate_fen(initial_fen, variant, chess960) != sf.FEN_OK:
+    sf_validate = sf.validate_fen(initial_fen, variant, chess960)
+    if sf_validate != sf.FEN_OK and variant != "duck":
         return False, ""
 
     # Initial_fen needs validation to prevent segfaulting in pyffish
@@ -781,6 +782,8 @@ def sanitize_fen(variant, initial_fen, chess960):
         non_piece = "~+0123456789[]hH-"
     elif variant == "orda":
         non_piece = "~+0123456789[]qH-"
+    elif variant == "duck":
+        non_piece = "~+0123456789[]*-"
     else:
         non_piece = "~+0123456789[]-"
     invalid1 = any((c not in start[0] + non_piece for c in init[0]))
