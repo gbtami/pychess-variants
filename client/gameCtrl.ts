@@ -7,7 +7,7 @@ import * as util from 'chessgroundx/util';
 import { _ } from './i18n';
 import { patch } from './document';
 import { Step, MsgChat, MsgFullChat, MsgSpectators, MsgShutdown,MsgGameNotFound } from './messages';
-import { uci2LastMove, moveDests, duckMoveDests, duckSquare, cg2uci, uci2cg, unpromotedRole } from './chess';
+import { uci2LastMove, moveDests, duckMoveDests, cg2uci, uci2cg, unpromotedRole } from './chess';
 import { Gating } from './gating';
 import { Promotion } from './promotion';
 import { ChessgroundController } from './cgCtrl';
@@ -194,7 +194,15 @@ export abstract class GameController extends ChessgroundController implements IC
         // valid moves starting with the given piece move
         const filteredMoves = legalMoves.split(" ").filter((m: string) => m.startsWith(move));
 
-        let fromSquare = duckSquare(this.fullfen);
+        let fromSquare = undefined;
+        const pieces = this.chessground.state.boardState.pieces;
+        for (const [k, p] of pieces) {
+            if (p.role === '_-piece') {
+                fromSquare = k;
+                break;
+            }
+        }
+
         // In case of white first move there is no duck on the board at all
         // so we have to pass the given move dest square as fromSquare param to duckMoveDests()
         if (fromSquare === undefined) {

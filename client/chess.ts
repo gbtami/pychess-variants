@@ -1119,17 +1119,6 @@ export function duckMoveDests(legalMoves: UCIMove[], fromSquare: cg.Key): cg.Des
     return dests;
 }
 
-// Return the duck square (represented by *) from FEN 
-export function duckSquare(fen: string): undefined | cg.Key {
-    const parts = fen.split('/');
-    const rank = parts.findIndex(part => part.includes('*'));
-    if (rank === -1) return undefined;
-    const duckPart = parts[rank];
-    const duckPartFilled = duckPart.replace(/[1-7]/g, m => '_'.repeat(parseInt(m)));
-    const file = duckPartFilled.indexOf('*');
-    return `${'abcdefgh'.charAt(file)}${8-rank}` as cg.Key;
-}
-
 // Count given letter occurences in a string
 export function lc(str: string, letter: string, uppercase: boolean): number {
     if (uppercase)
