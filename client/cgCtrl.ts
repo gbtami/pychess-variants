@@ -65,7 +65,6 @@ export abstract class ChessgroundController implements IBoardController {
 
         new ffishModule().then((loadedModule: any) => {
             this.ffish = loadedModule;
-            console.log(this.ffish.variants());
             this.ffish.loadVariantConfig(variantsIni);
             this.notationAsObject = this.notation2ffishjs(this.notation);
             this.ffishBoard = new this.ffish.Board(
