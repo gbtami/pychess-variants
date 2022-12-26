@@ -21,7 +21,3 @@ You may castle in the same way as normal chess, provided that the king and rook 
 There is no stalemate in the usual sense – for instance, the position (WK a1 / BK a3 / Duck b1) with White to move is a win for Black, since White is forced to move his king to either a2 or b2, where it can be captured by Black’s king. (Of course, in this instance, White has no possible way to block with the duck.)
 
 In place of stalemate, Duck Chess has the following special “fowling” rule: if the player on turn has no possible moves whatsoever – not even a king move onto an attacked square – then the player without a move has been “fowled” and wins the game immediately. (Due to the extreme difficulty of arranging such a position, this rule has virtually no impact on practical play – it is mainly relevant to composed Duck Chess problems.)
-
-Finally, the standard notation for recording a turn in Duck Chess is to write down the chess move portion of the turn in the usual way, followed by an “@” symbol and the square on which the duck was placed. For instance, the move “Qxh7@g5” denotes the chess move Qxh7, followed by the duck being placed at g5. There is no symbol for check or checkmate.
-
-
