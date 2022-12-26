@@ -1,5 +1,6 @@
 NEWS = {
-    "Ouk_Chaktrang_Friendship_Between_Four_Countries_Tournament": "2022-11-30",
+    "Duck_Chess": "2022-12-26",
+    "Ouk_Chaktrang_Friendship_Between_Four_Countries_Tournament": "2022-12-01",
     "Crazyhouse960_Tournament_Spring_Invitational_2022": "2022-10-02",
     "NNUE_Everywhere": "2022-08-04",
     "Serving_a_New_Variant": "2022-02-01",
