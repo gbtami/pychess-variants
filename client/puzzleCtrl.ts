@@ -5,7 +5,7 @@ import { _ } from './i18n';
 import { AnalysisController } from './analysisCtrl';
 import { PyChessModel } from "./types";
 import { patch } from './document';
-import { uci2LastMove, UCIMove, cg2uci, variants } from './chess';
+import { uci2LastMove, UCIMove, variants } from './chess';
 import { updateMovelist } from './movelist';
 
 
@@ -120,13 +120,12 @@ export class PuzzleController extends AnalysisController {
         this.puzzleComplete(false);
     }
 
-    doSendMove(orig: cg.Orig, dest: cg.Key, promo: string) {
+    doSendMove = (move: string) => {
         if (this.completed) {
-            super.doSendMove(orig, dest, promo);
+            super.doSendMove(move);
             return;
         }
 
-        const move = cg2uci(orig + dest + promo) as UCIMove;
         if (this.solution[this.ply] !== move) {
             if (this.moves.length + 1 === this.solution.length) {
                 this.ffishBoard.push(move);
@@ -160,9 +159,9 @@ export class PuzzleController extends AnalysisController {
         }
     }
 
-    makeMove(move: UCIMove) {
+    makeMove(move: string) {
         const san = this.ffishBoard.sanMove(move, this.notationAsObject);
-        this.moves.push(move);
+        this.moves.push(move as UCIMove);
         this.ffishBoard.push(move);
 
         this.chessground.set(this.cgConfig(move));
@@ -180,7 +179,7 @@ export class PuzzleController extends AnalysisController {
         updateMovelist(this);
     }
 
-    cgConfig = (move: UCIMove) => {
+    cgConfig = (move: string) => {
         this.fullfen = this.ffishBoard.fen(this.variant.showPromoted, 0);
         this.turnColor = this.fullfen.split(" ")[1] === "w" ? "white" : "black" as cg.Color;
         return {
