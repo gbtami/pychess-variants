@@ -64,6 +64,7 @@ WEEKLY_VARIANTS = (
 
 # Monthly Variant Tournaments need different TC
 TC_MONTHLY_VARIANTS = {v: (3, 2, 0) for v in MONTHLY_VARIANTS}
+TC_MONTHLY_VARIANTS["duck"] = (3, 5, 0)
 
 for v in CATEGORIES["fairy"]:
     TC_MONTHLY_VARIANTS[v] = (3, 3, 0)
