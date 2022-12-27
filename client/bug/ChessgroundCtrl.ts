@@ -219,7 +219,10 @@ export class ChessgroundController extends GameController {
             if (this.partnerCC.chessground.state.boardState.pockets) {
                 const pocket = /*ctrl.chessground.state.pockets todo:not relevant for bughouse - if/when this class becomes generic bring this back?*/
                     this.partnerCC.chessground.state.boardState.pockets[/*util.opposite(*/meta.captured.color/*)*/]/* : undefined*/;
-                if (pocket && role && role in pocket) {
+                if (!pocket.has(role)){
+                    pocket.set(role, 0);
+                }
+                // if (pocket && role && pocket.has(role)) {
                     // pocket[role]!++;todo:niki:changed to below line as part of merge from upstream - not sure whats happening with this
                     pocket.set(role, pocket.get(role)! + 1);
                     let ff = this.partnerCC.ffishBoard.fen();
@@ -230,7 +233,7 @@ export class ChessgroundController extends GameController {
                     this.partnerCC.ffishBoard.setFen(this.partnerCC.fullfen);//todo:niki:hope it doesnt break anything this way. ply number i think is not correct now?
                     this.partnerCC.setDests();//dests = this.parent.getDests(this.partnerCC);
                     this.partnerCC.chessground.state.dom.redraw(); // TODO: see todo comment also at same line in onUserDrop.
-                }
+                // }
             }
         }
 
