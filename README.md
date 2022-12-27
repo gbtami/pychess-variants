@@ -25,6 +25,7 @@ Currently supported games are:
 - [Placement chess](https://www.pychess.org/variants/placement)
 - [Crazyhouse](https://www.pychess.org/variants/crazyhouse)
 - [Atomic](https://www.pychess.org/variants/atomic)
+- [Duck chess](https://www.pychess.org/variants/duck)
 - [S-chess](https://www.pychess.org/variants/seirawan)
 - [Capablanca](https://www.pychess.org/variants/capablanca)
 - [Gothic](https://www.pychess.org/variants/gothic)
