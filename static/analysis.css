@@ -505,13 +505,13 @@ piece.synochess.b {
 .feedback .instruction > * {
     display: block;
 }
-.feedback .view-solution {
+.feedback .view-solution, .feedback .view-hint {
     margin-top: 1.5em;
     text-align: center;
     visibility: hidden;
     opacity: 0;
 }
-.feedback .view-solution.show {
+.feedback .view-solution.show, .feedback .view-hint.show {
     visibility: visible;
     opacity: 0.8;
     transition: opacity 1.5s;

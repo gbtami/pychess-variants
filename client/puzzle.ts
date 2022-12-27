@@ -95,6 +95,9 @@ export function puzzleView(model: PyChessModel): VNode[] {
                 ]),
                 h('div.feedback', [
                     h('div.player'),
+                    h('div.view-hint', [
+                        h('a.button.hint'),
+                    ]),
                     h('div.view-solution', [
                         h('a.button.solution'),
                     ]),

@@ -30,7 +30,8 @@ export class PuzzleController extends AnalysisController {
         this._id = data._id;
         this.site = data.site;
         this.played = data.played ?? "0";
-        this.solution = data.moves.split(',');
+        // We have to split the duck move list on every second comma!
+        this.solution = (model.variant==='duck') ? data.moves.match(/[^,]+,[^,]+/g) : data.moves.split(',');
         this.username = model.username;
         this.moves = [];
         this.steps = [{"fen": this.fullfen, "turnColor": this.turnColor, "check": false, "move": undefined}];
@@ -70,6 +71,14 @@ export class PuzzleController extends AnalysisController {
         const engineEl = document.querySelector('.engine') as HTMLElement;
         engineEl.style.display = 'none';
         
+        const viewHintEl = document.querySelector('.hint') as HTMLElement;
+        patch(viewHintEl,
+            h('a.button.hint.button-empty',
+                { on: { click: () => this.viewHint() } },
+                _('Hint')
+            )
+        );
+
         const viewSolutionEl = document.querySelector('.solution') as HTMLElement;
         patch(viewSolutionEl,
             h('a.button.solution.button-empty',
@@ -86,11 +95,13 @@ export class PuzzleController extends AnalysisController {
             return;
         }
 
-        function showSolution() {
+        function showHintAndSolution() {
+            const viewHintEl = document.querySelector('.view-hint') as HTMLElement;
+            patch(viewHintEl, h('div.view-hint', { class: { show: true } }));
             const viewSolutionEl = document.querySelector('.view-solution') as HTMLElement;
             patch(viewSolutionEl, h('div.view-solution', { class: { show: true } }));
         }
-        setTimeout(showSolution, 4000);
+        setTimeout(showHintAndSolution, 4000);
     }
 
     renderInfos() {
@@ -118,6 +129,14 @@ export class PuzzleController extends AnalysisController {
     viewSolution() {
         this.solution.slice(this.ply).forEach((move: UCIMove) => this.makeMove(move));
         this.puzzleComplete(false);
+    }
+
+    viewHint() {
+        this.failed = true;
+        const shapes0 = this.shapeFromMove(this.solution[this.ply], this.turnColor);
+        this.chessground.set({
+            drawable: {autoShapes: shapes0},
+        });
     }
 
     doSendMove = (move: string) => {
@@ -189,7 +208,8 @@ export class PuzzleController extends AnalysisController {
                 color: this.turnColor,
             },
             check: this.ffishBoard.isCheck(),
-            lastMove: uci2LastMove(move)
+            lastMove: uci2LastMove(move),
+            drawable: {autoShapes: []},
         }
     }
     yourTurn() {

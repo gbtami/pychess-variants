@@ -32,6 +32,7 @@ async def next_puzzle(request, user):
     filters = [
         {"_id": {"$nin": skipped}},
         {"cooked": {"$ne": True}},
+        {"review": {"$ne": False}},
     ]
     if user.puzzle_variant is not None:
         variant = user.puzzle_variant
