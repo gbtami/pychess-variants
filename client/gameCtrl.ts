@@ -186,6 +186,10 @@ export abstract class GameController extends ChessgroundController implements IC
                 }
             });
             this.chessground.set({ movable: { dests: this.dests }});
+
+            if (this.steps.length === 1) {
+                this.chessground.set({ check: (this.ffishBoard.isCheck()) ? this.turnColor : false});
+            }
         }
     }
 
