@@ -408,14 +408,6 @@ export class AnalysisController extends GameController {
         }
         this.checkStatus(msg);
 
-        if (this.spectator) {
-            this.chessground.set({
-                fen: this.fullfen,
-                turnColor: this.turnColor,
-                check: msg.check,
-                lastMove: lastMove,
-            });
-        }
         if (this.ply > 0) {
             selectMove(this, this.ply);
         }
