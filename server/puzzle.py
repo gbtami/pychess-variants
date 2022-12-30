@@ -51,7 +51,14 @@ async def next_puzzle(request, user):
         cursor = request.app["db"].puzzle.aggregate(pipeline)
 
         async for doc in cursor:
-            puzzle = doc
+            puzzle = {
+                "_id": doc["_id"],
+                "variant": doc["variant"],
+                "fen": doc["fen"],
+                "moves": doc["moves"],
+                "site": doc.get("site", ""),
+                "played": doc.get("played", 0),
+            }
             break
 
     if puzzle is None:
