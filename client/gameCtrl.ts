@@ -278,6 +278,10 @@ export abstract class GameController extends ChessgroundController implements IC
         this.turnColor = step.turnColor;
         this.fullfen = step.fen;
 
+        if (this.variant.duck) {
+            this.duckChessMove = '';
+        }
+
         if (this.variant.counting) {
             updateCount(step.fen, document.getElementById('misc-infow') as HTMLElement, document.getElementById('misc-infob') as HTMLElement);
         }
