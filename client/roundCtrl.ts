@@ -4,7 +4,6 @@ import { predrop } from 'chessgroundx/predrop';
 import * as cg from 'chessgroundx/types';
 
 import { newWebsocket } from './socket';
-import { JSONObject } from './types';
 import { _, ngettext } from './i18n';
 import { patch } from './document';
 import { boardSettings } from './boardSettings';
@@ -19,7 +18,7 @@ import { player } from './player';
 import { updateCount, updatePoint } from './info';
 import { updateMaterial, emptyMaterial } from './material';
 import { notify } from './notification';
-import { Clocks, MsgBoard, MsgGameEnd, MsgMove, MsgNewGame, MsgUserConnected, RDiffs, CrossTable } from "./messages";
+import { Clocks, MsgBoard, MsgGameEnd, MsgNewGame, MsgUserConnected, RDiffs, CrossTable } from "./messages";
 import { MsgUserDisconnected, MsgUserPresent, MsgMoreTime, MsgDrawOffer, MsgDrawRejected, MsgRematchOffer, MsgRematchRejected, MsgCount, MsgSetup, MsgGameStart, MsgViewRematch, MsgUpdateTV, MsgBerserk } from './roundType';
 import { PyChessModel } from "./types";
 import { GameController } from './gameCtrl';
@@ -55,11 +54,6 @@ export class RoundController extends GameController {
     prevPieces: cg.Pieces;
     focus: boolean;
     finishedGame: boolean;
-    lastMaybeSentMsgMove: MsgMove; // Always store the last "move" message that was passed for sending via websocket.
-                          // In case of bad connection, we are never sure if it was sent (thus the name)
-                          // until a "board" message from server is received from server that confirms it.
-                          // So if at any moment connection drops, after reconnect we always resend it.
-                          // If server received and processed it the first time, it will just ignore it
 
     constructor(el: HTMLElement, model: PyChessModel) {
         super(el, model);
@@ -69,17 +63,6 @@ export class RoundController extends GameController {
         window.addEventListener('focus', () => {this.focus = true});
 
         const onOpen = () => {
-            if ( this.lastMaybeSentMsgMove  && this.lastMaybeSentMsgMove.ply === this.ply + 1 ) {
-                // if this.ply === this.lastMaybeSentMsgMove.ply it would mean the move message was received by server and it has replied with "board" message, confirming and updating the state, including this.ply
-                // since they are not equal, but also one ply behind, means we should try to re-send it
-                try {
-                    console.log("resending unsent message ", this.lastMaybeSentMsgMove);
-                    this.doSend(this.lastMaybeSentMsgMove);
-                } catch (e) {
-                    console.log("could not even REsend unsent message ", this.lastMaybeSentMsgMove)
-                }
-            }
-
             this.clocks[0].connecting = false;
             this.clocks[1].connecting = false;
 
@@ -862,8 +845,8 @@ export class RoundController extends GameController {
 
         clocks = {movetime: (this.preaction) ? 0 : movetime, black: bclocktime, white: wclocktime};
 
-        this.lastMaybeSentMsgMove = { type: "move", gameId: this.gameId, move: move, clocks: clocks, ply: this.ply + 1 };
-        this.doSend(this.lastMaybeSentMsgMove as JSONObject);
+        const message = { type: "move", gameId: this.gameId, move: move, clocks: clocks, ply: this.ply + 1 };
+        this.doSend(message);
 
         if (this.preaction) {
             this.clocks[myclock].setTime(this.clocktimes[this.mycolor] + increment);
