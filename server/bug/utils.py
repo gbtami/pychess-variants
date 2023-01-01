@@ -232,11 +232,15 @@ async def load_game_bug(app, game_id):
     game.result = C2R[doc["r"]]
 
     try:
-        game.wrating = doc["p0"]["e"]
-        game.brating = doc["p1"]["e"]
+        game.wrating_a = doc["p0"]["e"]
+        game.brating_a = doc["p1"]["e"]
+        game.wrating_b = doc["p2"]["e"]
+        game.brating_b = doc["p3"]["e"]
     except KeyError:
-        game.wrating = "1500?"
-        game.brating = "1500?"
+        game.wrating_a = "1500?"
+        game.brating_a = "1500?"
+        game.wrating_b = "1500?"
+        game.brating_b = "1500?"
 
     game.white_rating = gl2.create_rating(int(game.wrating.rstrip("?")))
     game.black_rating = gl2.create_rating(int(game.brating.rstrip("?")))

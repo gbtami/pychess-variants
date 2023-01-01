@@ -591,7 +591,11 @@ export class LobbyController implements IChatController {
 
         return this.hide(seek) ? "" : h('tr', { on: { click: () => this.onClickSeek(seek) } }, [
             h('td', [ this.colorIcon(seek.color) ]),
-            h('td', [ this.challengeIcon(seek), this.seekTitle(seek), this.user(seek) ]),
+            h('td', variant == VARIANTS['bughouse']?[ h('div', [ this.challengeIcon(seek), this.seekTitle(seek), seek.user ]),
+                                    h('div', [ this.challengeIcon(seek), this.seekTitle(seek), seek.bugUserPartner ]),
+                                    h('div', [ this.challengeIcon(seek), this.seekTitle(seek), seek.bugOpp ]),
+                                    h('div', [ this.challengeIcon(seek), this.seekTitle(seek), seek.bugOppPartner ]) ]
+                :[ this.challengeIcon(seek), this.seekTitle(seek), this.user(seek) ]),
             h('td', seek.rating),
             h('td', timeControlStr(seek.base, seek.inc, seek.byoyomi)),
             h('td.icon', { attrs: { "data-icon": variant.icon(chess960) } }, [h('variant-name', " " + variant.displayName(chess960))]),
@@ -603,7 +607,7 @@ export class LobbyController implements IChatController {
     }
 
     private onClickSeek(seek: Seek) {
-        if (seek["user"] === this.username) {
+        if (seek["user"] === this.username && seek.variant !== 'bughouse') {
             this.doSend({ type: "delete_seek", seekID: seek["seekID"], player: this.username });
         } else {
             this.doSend({ type: "accept_seek", seekID: seek["seekID"], player: this.username });

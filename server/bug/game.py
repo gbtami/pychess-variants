@@ -547,10 +547,17 @@ class GameBug:
         return self.bplayerA  # temporary for compatibitly everywhere this stuff is accessed now
     @property
     def byoyomi_period(self):
-        return ""
+        return 0
     @property
     def crosstable(self):
         return ""
+
+    @property
+    def wrating(self):
+        return self.wrating_a  # temporary for compatibitly everywhere this stuff is accessed now
+    @property
+    def brating(self):
+        return self.brating_a  # temporary for compatibitly everywhere this stuff is accessed now
 
     @property
     def fen(self):
@@ -888,10 +895,10 @@ class GameBug:
             "promoB": self.promotions_b,
             "check": self.check,
             "ply": self.boards["a"].ply + self.boards["b"].ply,  # todo niki - just use global ply counter and moves list eventually. just putting this here so it is correct but not best
-            "clocks": {"black": clocks["black"], "white": clocks["white"]},
+            "clocks": {"black": clocks["black"], "white": clocks["white"]}, # todo niki
             # "byo": byoyomi_periods,
             "pgn": self.pgn if self.status > STARTED else "",
-            "rdiffs": {"brdiff": self.brdiff, "wrdiff": self.wrdiff}
+            "rdiffs": {"brdiff": self.brdiff, "wrdiff": self.wrdiff} # todo niki
             if self.status > STARTED and self.rated == RATED
             else "",
             "uci_usi": self.uci_usi if self.status > STARTED else "",

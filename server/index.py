@@ -519,6 +519,15 @@ async def index(request):
                 render["tournamentname"] = tournament_name
                 render["wberserk"] = game.wberserk
                 render["bberserk"] = game.bberserk
+            if game.variant == "bughouse":
+                render["wplayerB"] = game.wplayerB.username
+                render["wtitleB"] = game.wplayerB.title
+                render["wratingB"] = game.wrating_b
+                render["wrdiffB"] = game.wrdiff # todo:niki
+                render["bplayerB"] = game.bplayerB.username
+                render["btitleB"] = game.bplayerB.title
+                render["bratingB"] = game.brating_b
+                render["brdiffB"] = game.brdiff # todo:niki
 
     if tournamentId is not None:
         tournament_name = await get_tournament_name(request, tournamentId)

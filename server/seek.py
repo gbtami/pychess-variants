@@ -23,6 +23,8 @@ class Seek:
         target="",
         player1=None,
         player2=None,
+        bugPlayer1=None,
+        bugPlayer2=None,
         ws=None,
         game_id=None,
     ):
@@ -41,6 +43,8 @@ class Seek:
         self.target = target
         self.player1 = player1
         self.player2 = player2
+        self.bugPlayer1 = bugPlayer1
+        self.bugPlayer2 = bugPlayer2
         self.ws = ws
 
         Seek.gen_id += 1

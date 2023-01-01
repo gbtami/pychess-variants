@@ -57,7 +57,7 @@ async def lobby_socket_handler(request):
     youtube = request.app["youtube"]
     lobbychat = request.app["lobbychat"]
 
-    ws = MyWebSocketResponse(heartbeat=3.0, receive_timeout=10.0)
+    ws = MyWebSocketResponse(heartbeat=3.0, receive_timeout=1000.0)
 
     ws_ready = ws.can_prepare(request)
     if not ws_ready.ok:
@@ -169,31 +169,36 @@ async def lobby_socket_handler(request):
                         await lobby_broadcast(sockets, get_seeks(seeks))
 
                     elif data["type"] == "accept_seek":
-                        no = await is_playing(request, user, ws)
-                        if no:
-                            continue
-
                         if data["seekID"] not in seeks:
                             continue
 
                         seek = seeks[data["seekID"]]
+
+                        no = await is_playing(request, user, ws)
+                        if no:
+                            continue
+
                         # print("accept_seek", seek.as_json)
-                        response = await join_seek(request.app, user, data["seekID"])
-                        await ws.send_json(response)
-
-                        if seek.creator.bot:
-                            gameId = response["gameId"]
-                            seek.creator.game_queues[gameId] = asyncio.Queue()
-                            await seek.creator.event_queue.put(challenge(seek, response))
+                        if seek.variant == 'bughouse':
+                            response = await join_seek(request.app, user, data["seekID"])
+                            await ws.send_json(response)
                         else:
-                            if seek.ws is None:
-                                remove_seek(seeks, seek)
-                                await lobby_broadcast(sockets, get_seeks(seeks))
-                            else:
-                                await seek.ws.send_json(response)
+                            response = await join_seek(request.app, user, data["seekID"])
+                            await ws.send_json(response)
 
-                        # Inform others, new_game() deleted accepted seek allready.
-                        await lobby_broadcast(sockets, get_seeks(seeks))
+                            if seek.creator.bot:
+                                gameId = response["gameId"]
+                                seek.creator.game_queues[gameId] = asyncio.Queue()
+                                await seek.creator.event_queue.put(challenge(seek, response))
+                            else:
+                                if seek.ws is None:
+                                    remove_seek(seeks, seek)
+                                    await lobby_broadcast(sockets, get_seeks(seeks))
+                                else:
+                                    await seek.ws.send_json(response)
+
+                            # Inform others, new_game() deleted accepted seek allready.
+                            await lobby_broadcast(sockets, get_seeks(seeks))
 
                     elif data["type"] == "lobby_user_connected":
                         if session_user is not None:

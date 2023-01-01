@@ -7,24 +7,25 @@ import { Clock } from '../clock';
 import {chatMessage, chatView, IChatController} from '../chat';
 import {createMovelistButtons, updateMovelist} from './movelist';
 import {Clocks, MsgBoard, MsgGameEnd, MsgMove, MsgUserConnected, RDiffs, Step} from "../messages";
-import { MsgUserDisconnected, MsgUserPresent, MsgMoreTime, MsgDrawOffer, MsgDrawRejected, MsgRematchOffer, MsgRematchRejected, MsgCount, MsgUpdateTV } from '../roundType';
+import { MsgUserDisconnected, MsgUserPresent, MsgDrawOffer, MsgDrawRejected, MsgRematchOffer, MsgRematchRejected, MsgUpdateTV } from '../roundType';
 import {JSONObject, PyChessModel} from "../types";
 import {ChessgroundController} from "./ChessgroundCtrl";
 import {uci2LastMove} from "../chess";
 import {sound} from "../sound";
 import {renderRdiff} from "../result";
 import {player} from "../player";
+import {newWebsocket} from "../socket";
+import WebsocketHeartbeatJs from "websocket-heartbeat-js";
+import {notify} from "../notification";
 
 export class RoundController implements IChatController/*extends GameController todo:does it make sense for these guys - also AnalysisControl which is older before this refactring that introduced this stuff*/ {
+    sock: WebsocketHeartbeatJs;
 
     b1: ChessgroundController;
     b2: ChessgroundController;
 
+    username: string;
     gameId: string;
-    doSend = (message: JSONObject) => {
-        console.log("---> doSend():", message);
-        // this.sock.send(JSON.stringify(message));
-    }
     readonly anon: boolean;
 
     steps: Step[];
@@ -35,24 +36,23 @@ export class RoundController implements IChatController/*extends GameController 
     status: number;
     result: string;
 
-    berserked: {wberserk: boolean, bberserk: boolean};
-    byoyomi: boolean;
-    byoyomiPeriod: number;
+    autoPromote: boolean;
+
     clocks: [Clock, Clock];
+    clocksB: [Clock, Clock];
     clocktimes: Clocks;
-    expirations: [VNode | HTMLElement, VNode | HTMLElement];
+    clocktimesB: Clocks;
+    // expirations: [VNode | HTMLElement, VNode | HTMLElement];
     expiStart: number;
     firstmovetime: number;
-    tournamentGame: boolean;
     profileid: string;
     level: number;
     clockOn: boolean;
-    materialDifference: boolean;
     vmaterial0: VNode | HTMLElement;
     vmaterial1: VNode | HTMLElement;
     vmiscInfoW: VNode;
     vmiscInfoB: VNode;
-    vpng: VNode;
+
     vdialog: VNode;
     berserkable: boolean;
     settings: boolean;
@@ -90,6 +90,10 @@ export class RoundController implements IChatController/*extends GameController 
     titles: string[];
     ratings: string[];
 
+    playersB: string[];
+    titlesB: string[];
+    ratingsB: string[];
+
     wplayer: string;
     bplayer: string;
 
@@ -98,7 +102,16 @@ export class RoundController implements IChatController/*extends GameController 
     wrating: string;
     brating: string;
 
-    mycolor: string = "white";//todo: for now always white - good enough for specators mode and not sure if needed at all, but easier for now to copy paste the rest that depends on it
+    wplayerB: string;
+    bplayerB: string;
+
+    wtitleB: string;
+    btitleB: string;
+    wratingB: string;
+    bratingB: string;
+
+    mycolor: Map<'a'|'b', Set<cg.Color>> = new Map<'a'|'b', Set<cg.Color>>([['a', new Set()],['b', new Set()]]);
+
     constructor(el1: HTMLElement,el1Pocket1: HTMLElement,el1Pocket2: HTMLElement,el2: HTMLElement,el2Pocket1: HTMLElement,el2Pocket2: HTMLElement, model: PyChessModel) {
 
         this.home = model.home;
@@ -114,89 +127,71 @@ export class RoundController implements IChatController/*extends GameController 
         this.base = Number(model["base"]);
         this.inc = Number(model["inc"]);
         this.gameId = model["gameId"] as string;
+        this.username = model["username"];
         this.anon = model.anon === 'True';
 
-        this.spectator = true;
 
         // super(el, model, document.getElementById('pocket0') as HTMLElement, document.getElementById('pocket1') as HTMLElement);//todo:niki:those elements best be passed as args
         this.focus = !document.hidden;
         document.addEventListener("visibilitychange", () => {this.focus = !document.hidden});
         window.addEventListener('blur', () => {this.focus = false});
         window.addEventListener('focus', () => {this.focus = true});
+//
+        const onOpen = () => {
+            if ( this.lastMaybeSentMsgMove  && this.lastMaybeSentMsgMove.ply === this.ply + 1 ) {
+                // if this.ply === this.lastMaybeSentMsgMove.ply it would mean the move message was received by server and it has replied with "board" message, confirming and updating the state, including this.ply
+                // since they are not equal, but also one ply behind, means we should try to re-send it
+                try {
+                    console.log("resending unsent message ", this.lastMaybeSentMsgMove);
+                    this.doSend(this.lastMaybeSentMsgMove);
+                } catch (e) {
+                    console.log("could not even REsend unsent message ", this.lastMaybeSentMsgMove)
+                }
+            }
 
-        // const onOpen = (evt: Event) => {
-        //     console.log("ctrl.onOpen()", evt);
-        //     // if ( this.lastMaybeSentMsgMove  && this.lastMaybeSentMsgMove.ply === this.ply + 1 ) {
-        //     //     // if this.ply === this.lastMaybeSentMsgMove.ply it would mean the move message was received by server and it has replied with "board" message, confirming and updating the state, including this.ply
-        //     //     // since they are not equal, but also one ply behind, means we should try to re-send it
-        //     //     try {
-        //     //         console.log("resending unsent message ", this.lastMaybeSentMsgMove);
-        //     //         this.doSend(this.lastMaybeSentMsgMove);
-        //     //     } catch (e) {
-        //     //         console.log("could not even REsend unsent message ", this.lastMaybeSentMsgMove)
-        //     //     }
-        //     // }
-        //     //
-        //     // this.clocks[0].connecting = false;
-        //     // this.clocks[1].connecting = false;
-        //     //
-        //     // const cl = document.body.classList; // removing the "reconnecting" message in lower left corner
-        //     // cl.remove('offline');
-        //     // cl.add('online');
-        //     //
-        //     // this.doSend({ type: "game_user_connected", username: this.username, gameId: this.gameId });
-        // };
+            this.clocks[0].connecting = false;
+            this.clocks[1].connecting = false;
 
-        // const opts = {
-        //     maxAttempts: 10,
-        //     onopen: (e: Event) => onOpen(e),
-        //     onmessage: (e: MessageEvent) => this.onMessage(e),
-        //     onreconnect: (e: Event | CloseEvent) => {
-        //
-        //         this.clocks[0].connecting = true;
-        //         this.clocks[1].connecting = true;
-        //         console.log('Reconnecting in round...', e);
-        //
-        //         // relevant to the "reconnecting" message in lower left corner
-        //         document.body.classList.add('offline');
-        //         document.body.classList.remove('online');
-        //         document.body.classList.add('reconnected'); // this will trigger the animation once we get "online" class added back on reconnect
-        //
-        //         const container = document.getElementById('player1') as HTMLElement;
-        //         patch(container, h('i-side.online#player1', {class: {"icon": true, "icon-online": false, "icon-offline": true}}));
-        //         },
-        //     onmaximum: (e: CloseEvent) => console.log('Stop Attempting!', e),
-        //     onclose: (e: CloseEvent) => console.log('Closed!', e),
-        //     onerror: (e: Event) => console.log('Error:', e),
-        //     };
-        //
-        // const ws = (location.protocol.indexOf('https') > -1) ? 'wss://' : 'ws://';
-        // this.sock = new Sockette(ws + location.host + "/wsr", opts);
+            const cl = document.body.classList; // removing the "reconnecting" message in lower left corner
+            cl.remove('offline');
+            cl.add('online');
 
-        // this.byoyomiPeriod = Number(model["byo"]);
-        // this.byoyomi = this.variant.timeControl === 'byoyomi';
-        this.finishedGame = true; //this.status >= 0;
+            this.doSend({ type: "game_user_connected", username: this.username, gameId: this.gameId });
+        };
+
+        const onReconnect = () => {
+            this.clocks[0].connecting = true;
+            this.clocks[1].connecting = true;
+            console.log('Reconnecting in round...');
+
+            // relevant to the "reconnecting" message in lower left corner
+            document.body.classList.add('offline');
+            document.body.classList.remove('online');
+            document.body.classList.add('reconnected'); // this will trigger the animation once we get "online" class added back on reconnect
+
+            const container = document.getElementById('player1a') as HTMLElement;
+            patch(container, h('i-side.online#player1a', {class: {"icon": true, "icon-online": false, "icon-offline": true}}));
+        };
+
+        this.sock = newWebsocket('wsr');
+        this.sock.onopen = () => onOpen();
+        this.sock.onreconnect = () => onReconnect();
+        this.sock.onmessage = (e: MessageEvent) => this.onMessage(e);
+//
+        this.finishedGame = this.status >= 0;
         this.tv = model["tv"];
         this.profileid = model["profileid"];
         this.level = model["level"];
-        this.berserked = {wberserk: model["wberserk"] === "True", bberserk: model["bberserk"] === "True"};
 
         this.settings = true;
         this.blindfold = localStorage.blindfold === undefined ? false : localStorage.blindfold === "true";
-        // this.autoPromote = localStorage.autoPromote === undefined ? false : localStorage.autoPromote === "true";
-        this.materialDifference = localStorage.materialDifference === undefined ? false : localStorage.materialDifference === "true";
-
-        // this.handicap = this.variant.alternateStart ? Object.keys(this.variant.alternateStart!).some(alt => isHandicap(alt) && this.variant.alternateStart![alt] === this.fullfen) : false;
+        this.autoPromote = localStorage.autoPromote === undefined ? false : localStorage.autoPromote === "true";
 
         // this.preaction = false;
 
         // this.tournamentGame = this.tournamentId !== '';
         // const parts = this.fullfen.split(" ");
         this.clockOn = false;//(Number(parts[parts.length - 1]) >= 2);
-
-        // const berserkId = (this.mycolor === "white") ? "wberserk" : "bberserk";
-        // Not berserked yet, but allowed to do it
-        // this.berserkable = !this.spectator && this.tournamentGame && this.base > 0 && !this.berserked[berserkId];
 
         // this.chessground.set({
         //     orientation: this.mycolor,
@@ -259,133 +254,98 @@ export class RoundController implements IChatController/*extends GameController 
         this.wrating = model["wrating"];
         this.brating = model["brating"];
 
+        this.wplayerB = model.wplayerB;
+        this.bplayerB = model.bplayerB;
+
+        this.wtitleB = model.wtitleB;
+        this.btitleB = model.btitleB;
+        this.wratingB = model.wratingB;
+        this.bratingB = model.bratingB;
+//
+        if (this.wplayer === this.username) this.mycolor.get('a')!.add('white');
+        if (this.bplayer === this.username) this.mycolor.get('a')!.add('black');
+        if (this.wplayerB === this.username) this.mycolor.get('b')!.add('white');
+        if (this.bplayerB === this.username) this.mycolor.get('b')!.add('black');
+//
+
+        this.spectator = this.username !== this.wplayer && this.username !== this.bplayer && this.username !== this.wplayerB && this.username !== this.bplayerB;
+        //todo:niki:rethink eventually maybe this: below it is overly compicated because i want to support same player playing on all 4 boards or other arbitrary combinations for now
+// board A - 0 means top, 1 means bottom
         this.players = [
-            this.mycolor === "white" ? this.bplayer : this.wplayer,
-            this.mycolor === "white" ? this.wplayer : this.bplayer
+            this.mycolor.get('a')!.size === 0 || this.mycolor.get('a')!.has("white") ? this.bplayer : this.wplayer,
+            this.mycolor.get('a')!.size === 0 || this.mycolor.get('a')!.has("white") ? this.wplayer : this.bplayer
         ];
         this.titles = [
-            this.mycolor === "white" ? this.btitle : this.wtitle,
-            this.mycolor === "white" ? this.wtitle : this.btitle
+            this.mycolor.get('a')!.size === 0 || this.mycolor.get('a')!.has("white") ? this.btitle : this.wtitle,
+            this.mycolor.get('a')!.size === 0 || this.mycolor.get('a')!.has("white") ? this.wtitle : this.btitle
         ];
         this.ratings = [
-            this.mycolor === "white" ? this.brating : this.wrating,
-            this.mycolor === "white" ? this.wrating : this.brating
+            this.mycolor.get('a')!.size === 0 || this.mycolor.get('a')!.has("white") ? this.brating : this.wrating,
+            this.mycolor.get('a')!.size === 0 || this.mycolor.get('a')!.has("white") ? this.wrating : this.brating
+        ];
+// board B - 0 means top, 1 means bottom
+        this.playersB = [
+            !this.mycolor.get('a')!.has("white") && this.mycolor.get('b')!.has("white") ? this.bplayerB : this.wplayerB,
+            !this.mycolor.get('a')!.has("white") && this.mycolor.get('b')!.has("white") ? this.wplayerB : this.bplayerB
+        ];
+        this.titlesB = [
+            !this.mycolor.get('a')!.has("white") && this.mycolor.get('b')!.has("white") ? this.btitleB : this.wtitleB,
+            !this.mycolor.get('a')!.has("white") && this.mycolor.get('b')!.has("white") ? this.wtitleB : this.btitleB
+        ];
+        this.ratingsB = [
+            !this.mycolor.get('a')!.has("white") && this.mycolor.get('b')!.has("white") ? this.bratingB : this.wratingB,
+            !this.mycolor.get('a')!.has("white") && this.mycolor.get('b')!.has("white") ? this.wratingB : this.bratingB
         ];
 
+        const player0a = document.getElementById('rplayer0a') as HTMLElement;
+        const player1a = document.getElementById('rplayer1a') as HTMLElement;
+        this.vplayerA0 = patch(player0a, player('round-player0','player0a', this.titles[0], this.players[0], this.ratings[0], this.level));
+        this.vplayerA1 = patch(player1a, player('round-player1', 'player1a', this.titles[1], this.players[1], this.ratings[1], this.level));
 
-        const player0 = document.getElementById('rplayer0') as HTMLElement;
-        const player1 = document.getElementById('rplayer1') as HTMLElement;
-        this.vplayerA0 = patch(player0, player('player0', this.titles[0], this.players[0], this.ratings[0], this.level));
-        this.vplayerA1 = patch(player1, player('player1', this.titles[1], this.players[1], this.ratings[1], this.level));
-        //
-        // if (this.variant.materialDiff) {
-        //     const materialTop = document.querySelector('.material-top') as HTMLElement;
-        //     const materialBottom = document.querySelector('.material-bottom') as HTMLElement;
-        //     this.vmaterial0 = this.mycolor === 'white' ? materialBottom : materialTop;
-        //     this.vmaterial1 = this.mycolor === 'black' ? materialBottom : materialTop;
-        //     this.updateMaterial();
-        // }
-
-        // initialize expirations
-        this.expirations = [
-            document.getElementById('expiration-top') as HTMLElement,
-            document.getElementById('expiration-bottom') as HTMLElement
-        ];
+        const player0b = document.getElementById('rplayer0b') as HTMLElement;
+        const player1b = document.getElementById('rplayer1b') as HTMLElement;
+        this.vplayerB0 = patch(player0b, player('round-player0.bug', 'player0b', this.titlesB[0], this.playersB[0], this.ratingsB[0], this.level));
+        this.vplayerB1 = patch(player1b, player('round-player1.bug', 'player1b', this.titlesB[1], this.playersB[1], this.ratingsB[1], this.level));
 
         this.clocktimes = {'white': this.base * 1000 * 60, 'black': this.base * 1000 * 60}
+        this.clocktimesB = {'white': this.base * 1000 * 60, 'black': this.base * 1000 * 60}
 
         // initialize clocks
         // this.clocktimes = {};
-        const c0 = new Clock(this.base, this.inc, this.byoyomiPeriod, document.getElementById('clock0') as HTMLElement, 'clock0');
-        const c1 = new Clock(this.base, this.inc, this.byoyomiPeriod, document.getElementById('clock1') as HTMLElement, 'clock1');
-        this.clocks = [c0, c1];
-
-        // If player berserked, set increment to 0. Actual clock duration value will be set by onMsgBoard()
-        const bclock = false/*this.mycolor === "black" */? 1 : 0;
-        const wclock = 1 - bclock;
-        if (this.berserked['wberserk']) this.clocks[wclock].increment = 0;
-        if (this.berserked['bberserk']) this.clocks[bclock].increment = 0;
+        const c0a = new Clock(this.base, this.inc, 0, document.getElementById('clock0a') as HTMLElement, 'clock0a');
+        const c1a = new Clock(this.base, this.inc, 0, document.getElementById('clock1a') as HTMLElement, 'clock1a');
+        const c0b = new Clock(this.base, this.inc, 0, document.getElementById('clock0b') as HTMLElement, 'clock0b');
+        const c1b = new Clock(this.base, this.inc, 0, document.getElementById('clock1b') as HTMLElement, 'clock1b');
+        this.clocks = [c0a, c1a];
+        this.clocksB = [c0b, c1b];
 
         this.clocks[0].onTick(this.clocks[0].renderTime);
         this.clocks[1].onTick(this.clocks[1].renderTime);
 
-        // const onMoreTime = () => {
-        //     if (this.wtitle === 'BOT' || this.btitle === 'BOT' || this.spectator || this.status >= 0 || this.flipped()) return;
-        //     const clockIdx = (this.flipped()) ? 1 : 0;
-        //     this.clocks[clockIdx].setTime(this.clocks[clockIdx].duration + 15 * 1000);
-        //     this.doSend({ type: "moretime", gameId: this.gameId });
-        //     const oppName = (this.username === this.wplayer) ? this.bplayer : this.wplayer;
-        //     chatMessage('', oppName + _(' +15 seconds'), "roundchat");
-        // }
+        this.clocksB[0].onTick(this.clocksB[0].renderTime);
+        this.clocksB[1].onTick(this.clocksB[1].renderTime);
 
-        // if (!this.spectator && this.rated !== '1' && this.wtitle !== 'BOT' && this.btitle !== 'BOT') {
-        //     const container = document.getElementById('more-time') as HTMLElement;
-        //     patch(container, h('div#more-time', [
-        //         h('button.icon.icon-plus-square', {
-        //             props: {type: "button", title: _("Give 15 seconds")},
-        //             on: { click: () => onMoreTime() }
-        //         })
-        //     ]));
-        // }
+        const flagCallback0 = () => {
+            if ( this.mycolor.get('a')!.has(this.b1.turnColor) ) {
+                this.b1.chessground.stop();
+                this.b2.chessground.stop();
+                // console.log("Flag");
+                this.doSend({ type: "flag", gameId: this.gameId });
+            }
+        }
+        const flagCallback1 = () => {
+            if ( this.mycolor.get('b')!.has(this.b2.turnColor) ) {
+                this.b1.chessground.stop();
+                this.b2.chessground.stop();
+                // console.log("Flag");
+                this.doSend({ type: "flag", gameId: this.gameId });
+            }
+        }
 
-        // const onBerserk = () => {
-        //     if (this.berserkable) {
-        //         this.berserkable = false;
-        //         this.berserk(this.mycolor);
-        //         this.doSend({ type: "berserk", gameId: this.gameId, color: this.mycolor });
-        //     }
-        // }
-
-        // if (this.berserkable && this.status < 0 && this.ply < 2) {
-        //     const container = document.getElementById('berserk1') as HTMLElement;
-        //     patch(container, h('div#berserk1', [
-        //         h('button.icon.icon-berserk', {
-        //             props: {type: "button", title: _("Berserk")},
-        //             on: { click: () => onBerserk() }
-        //         })
-        //     ]));
-        // }
-
-        // initialize crosstable
-        // this.ctableContainer = document.querySelector('.ctable-container') as HTMLElement;
-        //
-        // if (model["ct"]) {
-        //     this.ctableContainer = patch(this.ctableContainer, h('div.ctable-container'));
-        //     this.ctableContainer = patch(this.ctableContainer, crosstableView(model["ct"] as CrossTable, this.gameId));
-        // }
-
-        // const misc0 = document.getElementById('misc-info0') as HTMLElement;
-        // const misc1 = document.getElementById('misc-info1') as HTMLElement;
-
-        // initialize material point and counting indicator
-        // if (this.variant.materialPoint || this.variant.counting) {
-        //     this.vmiscInfoW = this.mycolor === 'white' ? patch(misc1, h('div#misc-infow')) : patch(misc0, h('div#misc-infow'));
-        //     this.vmiscInfoB = this.mycolor === 'black' ? patch(misc1, h('div#misc-infob')) : patch(misc0, h('div#misc-infob'));
-        // }
-
-        // const flagCallback = () => {
-        //     if (this.turnColor === this.mycolor) {
-        //         this.chessground.stop();
-        //         // console.log("Flag");
-        //         this.doSend({ type: "flag", gameId: this.gameId });
-        //     }
-        // }
-
-        // const byoyomiCallback = () => {
-        //     if (this.turnColor === this.mycolor) {
-        //         // console.log("Byoyomi", this.clocks[1].byoyomiPeriod);
-        //         const oppclock = !this.flipped() ? 0 : 1;
-        //         const myclock = 1 - oppclock;
-        //         this.doSend({ type: "byoyomi", gameId: this.gameId, color: this.mycolor, period: this.clocks[myclock].byoyomiPeriod });
-        //     }
-        // }
-
-        // if (!this.spectator) {
-        //     if (this.byoyomiPeriod > 0) {
-        //         this.clocks[1].onByoyomi(byoyomiCallback);
-        //     }
-        //     this.clocks[1].onFlag(flagCallback);
-        // }
+        if (!this.spectator) {
+            this.clocks[0].onFlag(flagCallback0);
+            this.clocks[1].onFlag(flagCallback1);
+        }
 
         const container = document.getElementById('game-controls') as HTMLElement;
         // if (!this.spectator) {
@@ -453,65 +413,6 @@ export class RoundController implements IChatController/*extends GameController 
         console.log(b,orig,dest,promo);
     }
 
-    // toggleOrientation() {
-    //     // TODO: handle berserk
-    //     if (this.tournamentGame && this.ply < 2 && !this.spectator) return;
-    //
-    //     super.toggleOrientation()
-    //
-    //     boardSettings.updateDropSuggestion();
-    //
-    //     // console.log("FLIP");
-    //     if (this.variant.materialDiff) {
-    //         this.updateMaterial();
-    //     }
-    //
-    //     // TODO: moretime button
-    //     const new_running_clck = (this.clocks[0].running) ? this.clocks[1] : this.clocks[0];
-    //     this.clocks[0].pause(false);
-    //     this.clocks[1].pause(false);
-    //
-    //     const tmp_clock = this.clocks[0];
-    //     const tmp_clock_time = tmp_clock.duration;
-    //     this.clocks[0].setTime(this.clocks[1].duration);
-    //     this.clocks[1].setTime(tmp_clock_time);
-    //     if (this.status < 0) new_running_clck.start();
-    //
-    //     this.vplayer0 = patch(this.vplayer0, player('player0', this.titles[this.flipped() ? 1 : 0], this.players[this.flipped() ? 1 : 0], this.ratings[this.flipped() ? 1 : 0], this.level));
-    //     this.vplayer1 = patch(this.vplayer1, player('player1', this.titles[this.flipped() ? 0 : 1], this.players[this.flipped() ? 0 : 1], this.ratings[this.flipped() ? 0 : 1], this.level));
-    //
-    //     if (this.variant.counting)
-    //         [this.vmiscInfoW, this.vmiscInfoB] = updateCount(this.fullfen, this.vmiscInfoB, this.vmiscInfoW);
-    //
-    //     if (this.variant.materialPoint)
-    //         [this.vmiscInfoW, this.vmiscInfoB] = updatePoint(this.fullfen, this.vmiscInfoB, this.vmiscInfoW);
-    //
-    //     this.updateMaterial();
-    // }
-    //
-    // private berserk = (color: cg.Color) => {
-    //     let bclock;
-    //     if (!this.flipped()) {
-    //         bclock = this.mycolor === "black" ? 1 : 0;
-    //     } else {
-    //         bclock = this.mycolor === "black" ? 0 : 1;
-    //     }
-    //     const wclock = 1 - bclock
-    //     const clockIdx = (color === 'white') ? wclock : bclock;
-    //
-    //     this.clocks[clockIdx].increment = 0;
-    //     this.clocks[clockIdx].setTime(this.base * 1000 * 30);
-    //     this.clocktimes[color] = this.base * 1000 * 30;
-    //     sound.berserk();
-    //
-    //     const berserkId = (color === "white") ? "wberserk" : "bberserk";
-    //     this.berserked[berserkId] = true;
-    //     const infoContainer = document.getElementById(berserkId) as HTMLElement;
-    //     if (infoContainer) patch(infoContainer, h('icon.icon-berserk'));
-    //
-    //     const container = document.getElementById(`berserk${clockIdx}`) as HTMLElement;
-    //     patch(container, h(`div#berserk${clockIdx}.berserked`, [h('button.icon.icon-berserk')]));
-    // }
     //
     // private abort = () => {
     //     // console.log("Abort");
@@ -611,14 +512,14 @@ export class RoundController implements IChatController/*extends GameController 
     //     ]));
     // }
 
-    // private notifyMsg = (msg: string) => {
-    //     if (this.status >= 0) return;
-    //
-    //     const opp_name = this.username === this.wplayer ? this.bplayer : this.wplayer;
-    //     const logoUrl = `${this.home}/static/favicon/android-icon-192x192.png`;
-    //     notify('pychess.org', {body: `${opp_name}\n${msg}`, icon: logoUrl});
-    // }
-    //
+    private notifyMsg = (msg: string) => {
+        if (this.status >= 0) return;
+
+        const opp_name = this.username === this.wplayer ? this.bplayer : this.wplayer;
+        const logoUrl = `${this.home}/static/favicon/android-icon-192x192.png`;
+        notify('pychess.org', {body: `${opp_name}\n${msg}`, icon: logoUrl});
+    }
+
     // private onMsgBerserk = (msg: MsgBerserk) => {
     //     if (!this.spectator && msg['color'] === this.mycolor) return;
     //     this.berserk(msg['color'])
@@ -708,6 +609,8 @@ export class RoundController implements IChatController/*extends GameController 
             this.result = msg.result;
             this.clocks[0].pause(false);
             this.clocks[1].pause(false);
+            this.clocksB[0].pause(false);
+            this.clocksB[1].pause(false);
             // this.dests = new Map();
 
             // if (this.result !== "*" && !this.spectator && !this.finishedGame) todo:niki: i dont understand why !finishedGame and we issue a gameEndSound
@@ -751,6 +654,8 @@ export class RoundController implements IChatController/*extends GameController 
     private onMsgBoard = (msg: MsgBoard) => {
         console.log(msg);
         if (msg.gameId !== this.gameId) return;
+        const board = msg.steps[0].boardName === 'a'? this.b1: this.b2;
+        board.turnColor = board.turnColor === 'white'? 'black': 'white';
 
         // console.log("got board msg:", msg);
         let latestPly;
@@ -764,26 +669,6 @@ export class RoundController implements IChatController/*extends GameController 
                                                                         // receive while offline. Not sure if it could be ahead with more than 2 ply
         }
         if (latestPly) this.ply = msg.ply;
-
-        // if (this.ply === 0) {
-        //     if (this.variant.name === 'janggi') {
-        //         // force to set new dests after setup phase!
-        //         latestPly = true;
-        //     } else {
-        //         this.expiStart = Date.now();
-        //         setTimeout(this.showExpiration, 350);
-        //     }
-        // }
-
-        // if (this.ply === 1 || this.ply === 2) {
-            // this.expiStart = 0;
-            // this.renderExpiration();
-            // if (this.ply === 1) {
-            //     this.expiStart = Date.now();
-            //     setTimeout(this.showExpiration, 350);
-            // }
-        // }
-
 
         // list of legal promotion moves
         this.clocktimes = msg.clocks || this.clocktimes;
@@ -804,29 +689,30 @@ export class RoundController implements IChatController/*extends GameController 
             const result = false;
             updateMovelist(this, full, activate, result);
         } else { // single step message
-            // if (msg.ply === this.steps.length) {
-            //     const step = {
-            //         'fen': msg.fen,
-            //         'move': msg.lastMove,
-            //         'check': msg.check,
-            //         'turnColor': this.turnColor,
-            //         'san': msg.steps[0].san,
-            //         };
-            //     this.steps.push(step);
-            //     const full = false;
-            //     const activate = !this.spectator || latestPly;
-            //     const result = false;
-            //     updateMovelist(this, full, activate, result);
-            // }
+            if (msg.ply === this.steps.length) {
+                // const step = {
+                //     'fen': msg.fen,
+                //     'move': msg.lastMove,
+                //     'check': msg.check,
+                //     'turnColor': this.turnColor,
+                //     'san': msg.steps[0].san,
+                //     }; todo:niki:why not use step[0] and do this above? temporary doing it like this will see what will go wrong when testing
+                this.steps.push(msg.steps[0]);
+                const full = false;
+                const activate = !this.spectator || latestPly;
+                const result = false;
+                updateMovelist(this, full, activate, result);
+            }
         }
 
         this.clockOn = Number(msg.ply) >= 2;
-        if ((!this.spectator && this.clockOn) || this.tournamentGame) {
+        if ( !this.spectator && this.clockOn ) {
             const container = document.getElementById('abort') as HTMLElement;
             if (container) patch(container, h('div'));
         }
 
-        // const lastMove = uci2LastMove(msg.lastMove);
+        //todo:niki:sound not implemented for now
+        const lastMove = uci2LastMove(msg.lastMove);
         // const step = this.steps[this.steps.length - 1];
         // const capture = (lastMove.length > 0) && ((this.chessground.state.pieces.get(lastMove[1]) && step.san?.slice(0, 2) !== 'O-') || (step.san?.slice(1, 2) === 'x'));
         //
@@ -847,23 +733,8 @@ export class RoundController implements IChatController/*extends GameController 
         this.clocks[oppclock].setTime(this.clocktimes['black']);
         this.clocks[myclock].setTime(this.clocktimes['white']);
 
-        let bclock;
-        // if (!this.flipped()) {
-        //     bclock = this.mycolor === "black" ? 1 : 0;
-        // } else {
-            bclock = /*this.mycolor === "black" ? 0 :*/ 1;
-        // }
-        const wclock = 1 - bclock
-        if (this.berserked['wberserk'] || msg.berserk.w) {
-            this.clocks[wclock].increment = 0;
-            if (msg.ply <= 2) this.clocks[wclock].setTime(this.base * 1000 * 30);
-        }
-        if (this.berserked['bberserk'] || msg.berserk.b) {
-            this.clocks[bclock].increment = 0;
-            if (msg.ply <= 2) this.clocks[bclock].setTime(this.base * 1000 * 30);
-        }
-
         if (this.spectator) {
+            //todo:niki:spectator mode not implemented for now
             if (latestPly) {
                 // this.chessground.set({
                 //     fen: this.fullfen,
@@ -873,53 +744,66 @@ export class RoundController implements IChatController/*extends GameController 
                 // });
             }
             if (this.clockOn && msg.status < 0) {
-                // if (this.turnColor === this.mycolor) {
-                //     this.clocks[myclock].start();
-                // } else {
-                //     this.clocks[oppclock].start();
-                // }
+                if (this.b1.turnColor === 'white') {
+                    this.clocks[1].start();
+                } else {
+                    this.clocks[0].start();
+                }
+                if (this.b2.turnColor === 'white') {
+                    this.clocks[0].start();
+                } else {
+                    this.clocks[1].start();
+                }
             }
         } else {
-            // if (this.turnColor === this.mycolor) {
-            //     if (latestPly) {
-            //         this.chessground.set({
-            //             fen: this.fullfen,
-            //             turnColor: this.turnColor,
-            //             movable: {
-            //                 free: false,
-            //                 color: this.mycolor,
-            //                 dests: this.dests,
-            //             },
-            //             check: msg.check,
-            //             lastMove: lastMove,
-            //         });
-            //
-            //         if (!this.focus) this.notifyMsg(`Played ${step.san}\nYour turn.`);
-            //
-            //         // prevent sending premove/predrop when (auto)reconnecting websocked asks server to (re)sends the same board to us
-            //         // console.log("trying to play premove....");
-            //         if (this.premove) this.performPremove();
-            //         if (this.predrop) this.performPredrop();
-            //     }
-            //     if (this.clockOn && msg.status < 0) {
-            //         this.clocks[myclock].start();
-            //         // console.log('MY CLOCK STARTED');
-            //     }
-            // } else {
-            //     this.chessground.set({
-            //         // giving fen here will place castling rooks to their destination in chess960 variants
-            //         fen: parts[0],
-            //         turnColor: this.turnColor,
-            //         check: msg.check,
-            //     });
-            //     if (this.clockOn && msg.status < 0) {
-            //         this.clocks[oppclock].start();
-            //         // console.log('OPP CLOCK  STARTED');
-            //     }
-            // }
+
+            if (this.mycolor.get(msg.steps[0].boardName!)!.has(board.turnColor)) {
+                if (latestPly) {
+                    board.chessground.set({
+                        fen: msg.fen,
+                        turnColor: board.turnColor,
+                        movable: {
+                            free: false,
+                            color: this.mycolor.get(msg.steps[0].boardName!)!.size > 1? 'both': this.mycolor.get(msg.steps[0].boardName!)!.values().next().value,
+                            // dests: msg.dests,
+                        },
+                        check: msg.check,
+                        lastMove: lastMove,
+                    });
+
+                    if (!this.focus) this.notifyMsg(`Played ${msg.steps[0].san}\nYour turn.`);
+
+                    // prevent sending premove/predrop when (auto)reconnecting websocked asks server to (re)sends the same board to us
+                    // console.log("trying to play premove....");
+                    //todo:niki:premoves/drops
+                    // if (this.premove) this.performPremove();
+                    // if (this.predrop) this.performPredrop();
+                }
+                if (this.clockOn && msg.status < 0) {
+                    (msg.steps[0].boardName === 'a'? this.clocks: this.clocksB)[myclock].start(); //todo: consider using map as with mycolor., other places as well
+                    // console.log('MY CLOCK STARTED');
+                }
+            } else {
+                board.chessground.set({
+                    // giving fen here will place castling rooks to their destination in chess960 variants
+                    fen: msg.fen,
+                    turnColor: board.turnColor,
+                    check: msg.check,
+                });
+                if (this.clockOn && msg.status < 0) {
+                    (msg.steps[0].boardName === 'a'? this.clocks: this.clocksB)[oppclock].start();
+                    // console.log('OPP CLOCK  STARTED');
+                }
+            }
         }
         // this.updateMaterial();
     }
+
+    doSend = (message: JSONObject) => {
+        console.log("---> doSend():", message);
+        // this.sock.send(JSON.stringify(message));
+    }
+
 
     goPly = (ply: number, plyVari = 0) => {
         console.log(ply, plyVari);
@@ -1083,37 +967,6 @@ export class RoundController implements IChatController/*extends GameController 
     //     this.chessground.playPredrop();
     // }
 
-    // private renderExpiration = () => {
-    //     // if (this.spectator) return;
-    //     // let position = (this.turnColor === this.mycolor) ? "bottom": "top";
-    //     // if (this.flipped()) position = (position === "top") ? "bottom" : "top";
-    //     // let expi = (position === 'top') ? 0 : 1;
-    //     // const timeLeft = Math.max(0, this.expiStart - Date.now() + this.firstmovetime );
-    //     // // console.log("renderExpiration()", position, timeLeft);
-    //     // if (timeLeft === 0 || this.status >= 0) {
-    //     //     this.expirations[expi] = patch(this.expirations[expi], h('div#expiration-' + position));
-    //     // } else {
-    //     //     const emerg = (this.turnColor === this.mycolor && timeLeft < 8000);
-    //     //     if (!rang && emerg) {
-    //     //         sound.lowTime();
-    //     //         rang = true;
-    //     //     }
-    //     //     const secs: number = Math.floor(timeLeft / 1000);
-    //     //     this.expirations[expi] = patch(this.expirations[expi], h('div#expiration-' + position + '.expiration',
-    //     //         {class:
-    //     //             {emerg, 'bar-glider': this.turnColor === this.mycolor}
-    //     //         },
-    //     //         [ngettext('%1 second to play the first move', '%1 seconds to play the first move', secs)]
-    //     //     ));
-    //     // }
-    // }
-
-    // private showExpiration = () => {
-    //     // if (this.expiStart === 0 || this.spectator) return;
-    //     // this.renderExpiration();
-    //     // setTimeout(this.showExpiration, 250);
-    // }
-
     private onMsgUserConnected = (msg: MsgUserConnected) => {
         console.log(msg);
         // this.username = msg["username"];
@@ -1162,19 +1015,6 @@ export class RoundController implements IChatController/*extends GameController 
         // }
     }
 
-    private onMsgMoreTime = (msg: MsgMoreTime) => {
-        chatMessage('', msg.username + _(' +15 seconds'), "roundchat");
-        // if (this.spectator) {
-        //     if (msg.username === this.players[0]) {
-        //         this.clocks[0].setTime(this.clocks[0].duration + 15 * 1000);
-        //     } else {
-        //         this.clocks[1].setTime(this.clocks[1].duration + 15 * 1000);
-        //     }
-        // } else {
-        //     this.clocks[1].setTime(this.clocks[1].duration + 15 * 1000);
-        // }
-    }
-
     private onMsgDrawOffer = (msg: MsgDrawOffer) => {
         chatMessage("", msg.message, "roundchat");
         // if (!this.spectator && msg.username !== this.username) this.renderDrawOffer();
@@ -1195,26 +1035,10 @@ export class RoundController implements IChatController/*extends GameController 
         // this.clearDialog();
     }
 
-    private onMsgCount = (msg: MsgCount) => {
-        chatMessage("", msg.message, "roundchat");
-        // if (msg.message.endsWith("started")) {
-        //     if (this.turnColor === 'white')
-        //         this.vmiscInfoW = patch(this.vmiscInfoW, h('div#misc-infow', '0/64'));
-        //     else
-        //         this.vmiscInfoB = patch(this.vmiscInfoB, h('div#misc-infob', '0/64'));
-        // }
-        // else if (msg.message.endsWith("stopped")) {
-        //     if (this.turnColor === 'white')
-        //         this.vmiscInfoW = patch(this.vmiscInfoW, h('div#misc-infow', ''));
-        //     else
-        //         this.vmiscInfoB = patch(this.vmiscInfoB, h('div#misc-infob', ''));
-        // }
-    }
-
     protected onMessage(evt: MessageEvent) {
-        // console.log("<+++ onMessage():", evt.data);
+        console.log("<+++ onMessage():", evt.data);
         // super.onMessage(evt);
-
+        if (evt.data === '/n') return; // todo:niki: not sure where this comes from, temporary working around it like this
         const msg = JSON.parse(evt.data);
         switch (msg.type) {
             case "board":
@@ -1253,17 +1077,11 @@ export class RoundController implements IChatController/*extends GameController 
             case "rematch_rejected":
                 this.onMsgRematchRejected(msg);
                 break;
-            case "moretime":
-                this.onMsgMoreTime(msg);
-                break;
             case "updateTV":
                 this.onMsgUpdateTV(msg);
                 break
             case "setup":
                 // this.onMsgSetup(msg);
-                break;
-            case "count":
-                this.onMsgCount(msg);
                 break;
             case "berserk":
                 // this.onMsgBerserk(msg);

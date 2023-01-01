@@ -1271,6 +1271,13 @@ rating {
   float: right;
   font-size: 16px;
 }
+
+round-player0.bug rating,
+round-player1.bug rating {
+  float: left;
+  font-size: 16px;
+}
+
 rating span {
   font-size: 12px;
 }
@@ -1651,8 +1658,14 @@ button:disabled {
 .info-wrap0 {
   grid-area: clock-top;
 }
+.info-wrap0.bug {
+  grid-area: clockB-top;
+}
 .info-wrap1 {
   grid-area: clock-bot;
+}
+.info-wrap1.bug {
+  grid-area: clockB-bot;
 }
 @media (max-width: 799px) and (orientation: portrait) {
   .info-wrap0 {
@@ -1688,10 +1701,21 @@ round-player0 {
 round-player1 {
   grid-area: user-bot;
 }
+round-player0.bug {
+  grid-area: userB-top;
+  justify-content: right;
+}
+round-player1.bug {
+  grid-area: userB-bot;
+  justify-content: right;
+}
 .clock-wrap {
   display: flex;
   flex-direction: row;
   flex-grow: 1;
+}
+.clock-wrap.bug {
+  flex-direction: row-reverse;
 }
 #more-time {
   float: right;

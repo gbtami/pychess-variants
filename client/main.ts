@@ -49,16 +49,29 @@ function initModel(el: HTMLElement) {
         ply : parseInt(""+el.getAttribute("data-ply")),
         ct: ct,
         board: board,
+
         wplayer : el.getAttribute("data-wplayer") ?? "",
         wtitle : el.getAttribute("data-wtitle") ?? "",
         wrating : el.getAttribute("data-wrating") ?? "",
         wrdiff : parseInt(""+el.getAttribute("data-wrdiff")),
         wberserk : el.getAttribute("data-wberserk") ?? "",
+
         bplayer : el.getAttribute("data-bplayer") ?? "",
         btitle : el.getAttribute("data-btitle") ?? "",
         brating : el.getAttribute("data-brating") ?? "",
         brdiff : parseInt(""+el.getAttribute("data-brdiff")),
         bberserk : el.getAttribute("data-bberserk") ?? "",
+
+        wplayerB : el.getAttribute("data-wplayer-b") ?? "",
+        wtitleB : el.getAttribute("data-wtitle-b") ?? "",
+        wratingB : el.getAttribute("data-wrating-b") ?? "",
+        wrdiffB : parseInt(""+el.getAttribute("data-wrdiff-b")),
+
+        bplayerB : el.getAttribute("data-bplayer-b") ?? "",
+        btitleB : el.getAttribute("data-btitle-b") ?? "",
+        bratingB : el.getAttribute("data-brating-b") ?? "",
+        brdiffB : parseInt(""+el.getAttribute("data-brdiff-b")),
+
         fen : el.getAttribute("data-fen") ?? "",
         base : parseFloat(""+el.getAttribute("data-base")),
         inc : parseInt(""+el.getAttribute("data-inc")),

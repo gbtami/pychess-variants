@@ -2,6 +2,7 @@ import { h } from "snabbdom";
 
 import { _ } from './i18n';
 import { patch } from './document';
+import {RoundController} from "./bug/roundCtrl";
 
 export interface IChatController {
     anon: boolean;
@@ -13,7 +14,7 @@ export interface IChatController {
 
 export function chatView(ctrl: IChatController, chatType: string) {
     const spectator = ("spectator" in ctrl && ctrl.spectator);
-
+    const bughouse = ctrl instanceof RoundController;
     function onKeyPress (e: KeyboardEvent) {
         if (!(<HTMLInputElement>document.getElementById('checkbox')).checked)
             return;
@@ -37,7 +38,7 @@ export function chatView(ctrl: IChatController, chatType: string) {
     }
     const anon = ctrl.anon;
     return h(`div#${chatType}.${chatType}.chat`, [
-        h('div.chatroom', [
+        bughouse? h('div.chatroom'): h('div.chatroom', [
             (spectator) ? _('Spectator room') : _('Chat room'),
             h('input#checkbox', { props: { title: _("Toggle the chat"), name: "checkbox", type: "checkbox", checked: "true" }, on: { click: onClick } })
         ]),
