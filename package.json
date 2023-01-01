@@ -24,7 +24,7 @@
     "html-to-image": "^1.10.8",
     "snabbdom": "^3.1.0",
     "websocket-heartbeat-js": "^1.1.0",
-    "@fullcalendar/core": "^5.10.1",
+    "@fullcalendar/core": "^6.0.2",
     "@fullcalendar/daygrid": "^5.10.1",
     "@fullcalendar/interaction": "^5.10.1",
     "@fullcalendar/list": "^5.10.1",
