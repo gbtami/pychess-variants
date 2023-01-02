@@ -540,8 +540,8 @@ async def round_socket_handler(request):
                             "type": "game_user_connected",
                             "username": user.username,
                             "gameId": data["gameId"],
-                            "ply": game.board.ply,
-                            "firstmovetime": game.stopwatch.secs,
+                            "ply": game.ply,
+                            "firstmovetime": game.stopwatch.secs if hasattr(game, "stopwatch") else 0,
                         }
                         await ws.send_json(response)
 

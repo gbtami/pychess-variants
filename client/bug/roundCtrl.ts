@@ -10,7 +10,7 @@ import {Clocks, MsgBoard, MsgGameEnd, MsgMove, MsgUserConnected, RDiffs, Step} f
 import { MsgUserDisconnected, MsgUserPresent, MsgDrawOffer, MsgDrawRejected, MsgRematchOffer, MsgRematchRejected, MsgUpdateTV } from '../roundType';
 import {JSONObject, PyChessModel} from "../types";
 import {ChessgroundController} from "./ChessgroundCtrl";
-import {uci2LastMove} from "../chess";
+import {cg2uci, uci2LastMove} from "../chess";
 import {sound} from "../sound";
 import {renderRdiff} from "../result";
 import {player} from "../player";
@@ -243,6 +243,7 @@ export class RoundController implements IChatController/*extends GameController 
         //     });
         // }
 
+        this.steps = [];
         this.ply = isNaN(model["ply"]) ? 0 : model["ply"];
 
         // initialize users
@@ -411,6 +412,7 @@ export class RoundController implements IChatController/*extends GameController 
 
     sendMove = (b: ChessgroundController, orig: cg.Orig, dest: cg.Key, promo: string) => {
         console.log(b,orig,dest,promo);
+        this.doSendMove(b, orig, dest, promo);
     }
 
     //
@@ -654,8 +656,6 @@ export class RoundController implements IChatController/*extends GameController 
     private onMsgBoard = (msg: MsgBoard) => {
         console.log(msg);
         if (msg.gameId !== this.gameId) return;
-        const board = msg.steps[0].boardName === 'a'? this.b1: this.b2;
-        board.turnColor = board.turnColor === 'white'? 'black': 'white';
 
         // console.log("got board msg:", msg);
         let latestPly;
@@ -724,6 +724,7 @@ export class RoundController implements IChatController/*extends GameController 
         //     sound.check();
         // }
 
+        //todo:niki:when server sends board message, should it always send clocks for both board or only for the one we are updating?
         const oppclock = /*!this.flipped() ?*/ 0 /*: 1*/;
         const myclock = 1 - oppclock;
 
@@ -733,6 +734,14 @@ export class RoundController implements IChatController/*extends GameController 
         this.clocks[oppclock].setTime(this.clocktimes['black']);
         this.clocks[myclock].setTime(this.clocktimes['white']);
 
+        const isInitialBoardMessage = !(msg.steps[0].boardName);
+        const board = msg.steps[0].boardName === 'a'? this.b1: this.b2;
+        if (isInitialBoardMessage) {
+            this.b1.turnColor = "white"; //todo:niki:probably dont need this initialization, but do need the if-else so not to switch turn color on first message. Alternatively could get the turn color from the server though - as in other variants i think
+            this.b2.turnColor = "white";
+        } else {
+            board.turnColor = board.turnColor === 'white' ? 'black' : 'white';
+        }
         if (this.spectator) {
             //todo:niki:spectator mode not implemented for now
             if (latestPly) {
@@ -756,18 +765,33 @@ export class RoundController implements IChatController/*extends GameController 
                 }
             }
         } else {
+            const fens = msg.fen.split(" | ");
 
-            if (this.mycolor.get(msg.steps[0].boardName!)!.has(board.turnColor)) {
+
+            if (isInitialBoardMessage || this.mycolor.get(msg.steps[0].boardName!)!.has(board.turnColor)) {
+                //when message is for opp's move or it is the initializiation board message:
                 if (latestPly) {
-                    board.chessground.set({
-                        fen: msg.fen,
-                        turnColor: board.turnColor,
+                    //todo:niki: i need to update both board only on initial board message and tbh only if 960 but for now lets always do it
+                    this.b1.chessground.set({
+                        fen: fens[0],
+                        turnColor: this.b1.turnColor,
                         movable: {
                             free: false,
-                            color: this.mycolor.get(msg.steps[0].boardName!)!.size > 1? 'both': this.mycolor.get(msg.steps[0].boardName!)!.values().next().value,
+                            color: this.mycolor.get('a')!.size > 1? 'both': this.b1.turnColor,
                             // dests: msg.dests,
                         },
-                        check: msg.check,
+                        check: msg.check,//todo:niki:which board is this about?
+                        lastMove: lastMove,
+                    });
+                    this.b2.chessground.set({
+                        fen: fens[1],
+                        turnColor: this.b2.turnColor,
+                        movable: {
+                            free: false,
+                            color: this.mycolor.get('b')!.size > 1? 'both': this.b2.turnColor,
+                            // dests: msg.dests,
+                        },
+                        check: msg.check,//todo:niki:which board is this about?
                         lastMove: lastMove,
                     });
 
@@ -784,10 +808,17 @@ export class RoundController implements IChatController/*extends GameController 
                     // console.log('MY CLOCK STARTED');
                 }
             } else {
-                board.chessground.set({
+                //when message is about the move i just made
+                this.b1.chessground.set({
                     // giving fen here will place castling rooks to their destination in chess960 variants
-                    fen: msg.fen,
-                    turnColor: board.turnColor,
+                    fen: fens[0],
+                    turnColor: this.b1.turnColor,
+                    check: msg.check,
+                });
+                this.b1.chessground.set({
+                    // giving fen here will place castling rooks to their destination in chess960 variants
+                    fen: fens[1],
+                    turnColor: this.b1.turnColor,
                     check: msg.check,
                 });
                 if (this.clockOn && msg.status < 0) {
@@ -801,7 +832,7 @@ export class RoundController implements IChatController/*extends GameController 
 
     doSend = (message: JSONObject) => {
         console.log("---> doSend():", message);
-        // this.sock.send(JSON.stringify(message));
+        this.sock.send(JSON.stringify(message));
     }
 
 
@@ -860,79 +891,43 @@ export class RoundController implements IChatController/*extends GameController 
         }
     }
 
-    // doSendMove = (orig: cg.Orig, dest: cg.Key, promo: string) => {
-    //     this.clearDialog();
-    //     // pause() will add increment!
-    //     const oppclock = !this.flipped() ? 0 : 1
-    //     const myclock = 1 - oppclock;
-    //     const movetime = (this.clocks[myclock].running) ? Date.now() - this.clocks[myclock].startTime : 0;
-    //     this.clocks[myclock].pause((this.base === 0 && this.ply < 2) ? false : true);
-    //     // console.log("sendMove(orig, dest, prom)", orig, dest, promo);
-    //
-    //     const move = cg2uci(orig + dest + promo);
-    //
-    //     // console.log("sendMove(move)", move);
-    //     let bclock, clocks;
-    //     if (!this.flipped()) {
-    //         bclock = this.mycolor === "black" ? 1 : 0;
-    //     } else {
-    //         bclock = this.mycolor === "black" ? 0 : 1;
-    //     }
-    //     const wclock = 1 - bclock
-    //
-    //     let increment = 0;
-    //     if (!this.berserked[(this.mycolor === "white") ? "wberserk" : "bberserk"]) {
-    //         increment = (this.inc > 0 && this.ply >= 2 && !this.byoyomi) ? this.inc * 1000 : 0;
-    //     }
-    //
-    //     const bclocktime = (this.mycolor === "black" && this.preaction) ? this.clocktimes.black + increment: this.clocks[bclock].duration;
-    //     const wclocktime = (this.mycolor === "white" && this.preaction) ? this.clocktimes.white + increment: this.clocks[wclock].duration;
-    //
-    //     clocks = {movetime: (this.preaction) ? 0 : movetime, black: bclocktime, white: wclocktime};
-    //
-    //     this.lastMaybeSentMsgMove = { type: "move", gameId: this.gameId, move: move, clocks: clocks, ply: this.ply + 1 };
-    //     this.doSend(this.lastMaybeSentMsgMove as JSONObject);
-    //
-    //     if (this.preaction) {
-    //         this.clocks[myclock].setTime(this.clocktimes[this.mycolor] + increment);
-    //     }
-    //     if (this.clockOn) this.clocks[oppclock].start();
-    // }
-    //
-    // private startCount = () => {
-    //     this.doSend({ type: "count", gameId: this.gameId, mode: "start" });
-    // }
-    //
-    // private stopCount = () => {
-    //     this.doSend({ type: "count", gameId: this.gameId, mode: "stop" });
-    // }
-    //
-    // private updateCount = (fen: cg.FEN) => {
-    //     [this.vmiscInfoW, this.vmiscInfoB] = updateCount(fen, this.vmiscInfoW, this.vmiscInfoB);
-    //     const countButton = document.getElementById('count') as HTMLElement;
-    //     if (countButton) {
-    //         const [ , , countingSide, countingType ] = getCounting(fen);
-    //         const myturn = this.mycolor === this.turnColor;
-    //         if (countingType === 'board')
-    //             if ((countingSide === 'w' && this.mycolor === 'white') || (countingSide === 'b' && this.mycolor === 'black'))
-    //                 patch(countButton, h('button#count', { on: { click: () => this.stopCount() }, props: {title: _('Stop counting')}, class: { disabled: !myturn } }, _('Stop')));
-    //             else
-    //                 patch(countButton, h('button#count', { on: { click: () => this.startCount() }, props: {title: _('Start counting')}, class: { disabled: !(myturn && countingSide === '') } }, _('Count')));
-    //         else
-    //             patch(countButton, h('button#count', { props: {title: _('Start counting')}, class: { disabled: true } }, _('Count')));
-    //     }
-    // }
-    //
-    // private updatePoint = (fen: cg.FEN) => {
-    //     [this.vmiscInfoW, this.vmiscInfoB] = updatePoint(fen, this.vmiscInfoW, this.vmiscInfoB);
-    // }
-    //
-    // private updateMaterial(): void {
-    //     if (this.variant.materialDiff && this.materialDifference)
-    //         [this.vmaterial0, this.vmaterial1] = updateMaterial(this.variant, this.fullfen, this.vmaterial0, this.vmaterial1, this.flipped());
-    //     else
-    //         [this.vmaterial0, this.vmaterial1] = emptyMaterial(this.variant);
-    // }
+    doSendMove = (b: ChessgroundController, orig: cg.Orig, dest: cg.Key, promo: string) => {
+        this.clearDialog();
+        // pause() will add increment!
+        const oppclock = !b.flipped() ? 0 : 1
+        const myclock = 1 - oppclock;
+        const clock = (b.boardName === 'a'? this.clocks: this.clocksB);
+        const movetime = (clock[myclock].running) ? Date.now() - clock[myclock].startTime : 0;
+        clock[myclock].pause((this.base === 0 && this.ply < 2) ? false : true);
+        // console.log("sendMove(orig, dest, prom)", orig, dest, promo);
+
+        const move = cg2uci(orig + dest + promo);
+//todo:this is all wrong - i should get the move color from the move itself so can support same user playing both sides but lets make it compile first then think:
+        const moveColor = this.mycolor.get(b.boardName)!.has("black")? "black" : "white";
+        // console.log("sendMove(move)", move);
+        let bclock, clocks;
+        if (!b.flipped()) {
+            bclock = this.mycolor.get(b.boardName)!.has("black") ? 1 : 0;
+        } else {
+            bclock = this.mycolor.get(b.boardName)!.has("black") ? 0 : 1;
+        }
+        const wclock = 1 - bclock
+
+        const increment = (this.inc > 0 && this.ply >= 2) ? this.inc * 1000 : 0;
+        const bclocktime = (this.mycolor.get(b.boardName)!.has("black") && b.preaction) ? this.clocktimes.black + increment: this.clocks[bclock].duration;
+        const wclocktime = (this.mycolor.get(b.boardName)!.has("white") && b.preaction) ? this.clocktimes.white + increment: this.clocks[wclock].duration;
+
+        clocks = {movetime: (b.preaction) ? 0 : movetime, black: bclocktime, white: wclocktime};
+
+        this.lastMaybeSentMsgMove = { type: "move", gameId: this.gameId, move: move, clocks: clocks, ply: this.ply + 1 };
+        this.doSend(this.lastMaybeSentMsgMove as JSONObject);
+
+        if (b.preaction) {
+            this.clocks[myclock].setTime(this.clocktimes[moveColor] + increment);
+        }
+        if (this.clockOn) this.clocks[oppclock].start();
+    }
+
     //
     // private setPremove = (orig: cg.Key, dest: cg.Key, metadata?: cg.SetPremoveMetadata) => {
     //     this.premove = { orig, dest, metadata };

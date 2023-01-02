@@ -215,7 +215,7 @@ class GameBug:
         #     self.ply_clocks[0]["black"] = self.berserk_time
 
     async def play_move(self, move, clocks=None, ply=None, board="a"):
-        self.stopwatch.stop()
+        # self.stopwatch.stop()
         self.byo_correction = 0
 
         if self.status > STARTED:
@@ -295,7 +295,7 @@ class GameBug:
                         "clocks": clocks,
                     }
                 )
-                self.stopwatch.restart()
+                # self.stopwatch.restart()
 
             except Exception:
                 log.exception("ERROR: Exception in game %s play_move() %s", self.id, move)
@@ -322,11 +322,11 @@ class GameBug:
             log.exception("Save IMPORTED game %s ???", self.id)
             return
 
-        self.stopwatch.clock_task.cancel()
-        try:
-            await self.stopwatch.clock_task
-        except asyncio.CancelledError:
-            pass
+        # self.stopwatch.clock_task.cancel()
+        # try:
+        #     await self.stopwatch.clock_task
+        # except asyncio.CancelledError:
+        #     pass
 
         if self.boards["a"].ply > 0 or self.boards["b"].ply > 0:  # todo niki no idea what this is - just gonna or both boards now
             self.app["g_cnt"][0] -= 1

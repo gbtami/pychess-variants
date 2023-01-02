@@ -771,7 +771,7 @@ async def play_move(app, user, game, move, clocks=None, ply=None):
     # log.info("%s move %s %s %s - %s" % (user.username, move, gameId, game.wplayer.username, game.bplayer.username))
 
     if game.status <= STARTED:
-        if ply is not None and game.board.ply + 1 != ply:
+        if ply is not None and game.ply + 1 != ply:
             log.info(
                 "invalid ply received - probably a re-sent move that has already been processed"
             )
@@ -793,7 +793,7 @@ async def play_move(app, user, game, move, clocks=None, ply=None):
         return
 
     if not invalid_move:
-        board_response = game.get_board(full=game.board.ply == 1)
+        board_response = game.get_board(full=game.ply == 1)
 
         if not user.bot:
             try:
