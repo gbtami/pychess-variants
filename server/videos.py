@@ -51,7 +51,8 @@ VIDEOS = [
         "tags": ["Tactics"],
         "target": "beginner",
         "duration": "33:00",
-    },    {
+    },
+    {
         "_id": "Qddn3o6yX_M",
         "title": "Chak (Mayan Chess) - How to play",
         "author": "PyChess",
