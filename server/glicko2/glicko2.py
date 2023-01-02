@@ -28,9 +28,6 @@ PHI = 350
 SIGMA = 0.06
 TAU = 0.75  # system constant which constrains the change in volatility over time
 EPSILON = 0.000001
-#: A constant which is used to standardize the logistic function to
-#: `1/(1+exp(-x))` from `1/(1+10^(-r/400))`
-Q = math.log(10) / 400
 
 MIN_MU = 600
 MIN_PHI = 30
@@ -119,7 +116,7 @@ class Glicko2:
         """The original form is `g(RD)`. This function reduces the impact of
         games as a function of an opponent's RD.
         """
-        return 1 / math.sqrt(1 + (3 * rating.phi**2) / (math.pi**2))
+        return 1.0 / math.sqrt(1 + (3 * rating.phi**2) / (math.pi**2))
 
     @staticmethod
     def expect_score(rating, other_rating, impact):
@@ -179,7 +176,6 @@ class Glicko2:
         # Step 4. Compute the quantity difference, the estimated improvement in
         #         rating by comparing the pre-period rating to the performance
         #         rating based only on game outcomes.
-        d_square_inv = 0
         variance_inv = 0
         difference = 0
 
@@ -197,22 +193,23 @@ class Glicko2:
             expected_score = self.expect_score(rating, other_rating, impact)
             variance_inv += impact**2 * expected_score * (1 - expected_score)
             difference += impact * (actual_score - expected_score)
-            d_square_inv += expected_score * (1 - expected_score) * (Q**2) * (impact**2)
 
         difference /= variance_inv
         variance = 1.0 / variance_inv
-        denom = rating.phi**-2 + d_square_inv
-        phi = math.sqrt(1 / denom)
+
         # Step 5. Determine the new value, Sigma', ot the sigma. This
         #         computation requires iteration.
         sigma = self.determine_sigma(rating, difference, variance)
+
         # Step 6. Update the rating deviation to the new pre-rating period
         #         value, Phi*.
         # phi_star = math.sqrt(phi ** 2 + sigma ** 2)
-        phi_star = pre_rating_RD(phi, sigma, rating.ltime)
+        phi_star = pre_rating_RD(rating.phi, sigma, rating.ltime)
+
         # Step 7. Update the rating and RD to the new values, Mu' and Phi'.
-        phi = 1 / math.sqrt(1 / phi_star**2 + 1 / variance)
+        phi = 1.0 / math.sqrt(1 / phi_star**2 + 1 / variance)
         mu = rating.mu + phi**2 * (difference / variance)
+
         # Step 8. Convert ratings and RD's back to original scale.
         return self.scale_up(self.create_rating(mu, phi, sigma, rating.ltime))
 

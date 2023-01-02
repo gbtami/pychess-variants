@@ -98,6 +98,9 @@ export function result(variant: Variant, status: number, result: string) {
                 case 'atomic':
                     text = _('Explosion of king');
                     break;
+                case 'duck':
+                    text = _('King captured');
+                    break;
                 default:
                     text = _('Point counting');
                     break;

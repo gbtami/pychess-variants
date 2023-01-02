@@ -56,7 +56,7 @@ export const BOARD_FAMILIES: { [key: string]: BoardFamily } = {
 };
 
 export const PIECE_FAMILIES: { [key: string]: PieceFamily } = {
-    standard: { pieceCSS: ["standard", "green", "alpha", "chess_kaneo", "santa", "maestro", "dubrovny", "disguised"] },
+    standard: { pieceCSS: ["standard", "green", "alpha", "chess_kaneo", "santa", "maestro", "dubrovny", "disguised", "atopdown"] },
     capa: { pieceCSS: ["capa0", "capa1", "capa2", "capa3", "capa4", "capa5", "disguised"] },
     seirawan: { pieceCSS: ["seir1", "seir0", "seir2", "seir3", "seir4", "seir5", "disguised"] },
     makruk: { pieceCSS: ["makrukwb", "makrukwr", "makruk", "makruks", "makruki", "disguised"] },
@@ -135,6 +135,7 @@ export class Variant {
     readonly autoPromoteable: boolean;
     readonly captureToHand: boolean;
     readonly gate: boolean;
+    readonly duck: boolean;
     readonly pass: boolean;
     readonly setup: boolean;
     readonly boardMark: BoardMarkType;
@@ -188,6 +189,7 @@ export class Variant {
         this.autoPromoteable = this.promotionOrder.length > 2;
         this.captureToHand = data.captureToHand ?? false;
         this.gate = data.gate ?? false;
+        this.duck = data.duck ?? false;
         this.pass = data.pass ?? false;
         this.setup = data.setup ?? false;
         this.boardMark = data.boardMark ?? 'none';
@@ -240,6 +242,8 @@ interface VariantConfig {
     captureToHand?: boolean; // Whether captured pieces are added to the pocket
     gate?: boolean; // Whether this variant has piece gating.
         // Specifically used for S-Chess
+    duck?: boolean; // Whether this variant has duck move.
+        // Specifically used for Duck chess
     pass?: boolean; // Whether this variant allows players to pass their turn without moving any pieces
     setup?: boolean; // Whether this variant has a pre-game setup phase issued by the server
     boardMark?: BoardMarkType; // Board mark type
@@ -333,6 +337,16 @@ export const VARIANTS: { [name: string]: Variant } = {
         enPassant: true,
         pieceSound: "atomic",
         chess960: true, icon: "~", icon960: "\\",
+    }),
+
+    duck: new Variant({
+        name: "duck", tooltip: () => _("The duck must be moved to a new square after every turn."),
+        startFen: "rnbqkbnr/pppppppp/8/4*3/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+        board: "standard8x8", piece: "standard",
+        pieceLetters: ["k", "q", "r", "b", "n", "p", "*"],
+        pieceLetters2: ["k", "q", "r", "b", "n", "p"],
+        enPassant: true, duck: true,
+        icon: "🦆",
     }),
 
     makruk: new Variant({
@@ -817,7 +831,7 @@ const disabledVariants = [ "gothic", "gothhouse", "embassy", "embassyhouse", "go
 export const enabledVariants = variants.filter(v => !disabledVariants.includes(v));
 
 const variantGroups: { [ key: string ]: { variants: string[] } } = {
-    standard: { variants: [ "chess", "bughouse", "crazyhouse", "placement", "atomic" ] },
+    standard: { variants: [ "chess", "bughouse", "crazyhouse", "placement", "atomic", "duck" ] },
     sea:      { variants: [ "makruk", "makpong", "cambodian", "sittuyin", "asean" ] },
     shogi:    { variants: [ "shogi", "minishogi", "kyotoshogi", "dobutsu", "gorogoroplus", "torishogi" ] },
     xiangqi:  { variants: [ "xiangqi", "manchu", "janggi", "minixiangqi" ] },
@@ -917,9 +931,15 @@ export function validFen(variant: Variant, fen: string): boolean {
     // Allowed characters in placement part
     const placement = parts[0];
     const startPlacement = start[0];
-    let good = startPlacement + ((variantName === "orda") ? "Hq" : "") + ((variantName === "dobutsu") ? "Hh" : "") + "~+0123456789[]-";
+    let good = startPlacement + 
+        ((variantName === "orda") ? "Hq" : "") +
+        ((variantName === "dobutsu") ? "Hh" : "") +
+        ((variantName === "duck") ? "*" : "") +
+        "~+0123456789[]-";
     const alien = (element: string) => !good.includes(element);
     if (placement.split('').some(alien)) return false;
+
+    if (variantName === "duck" && lc(placement, "*", false) > 1) return false;
 
     // Brackets paired
     if (lc(placement, '[', false) !== lc(placement, ']', false)) return false;
@@ -1101,6 +1121,20 @@ export function moveDests(legalMoves: UCIMove[]): cg.Dests {
         else
             dests.set(orig, [ dest ]);
     });
+    return dests;
+}
+
+// Create duck move dests from valid moves filtered by first leg move
+// Fairy-Stockfish always uses first leg 'to' square as second leg 'from' square, but
+// chessground dests should use real duck from square (except the very first white duck placement)
+// f.e. move list after e2e4 (fromSquare is e4 because there is no duck on the board still)
+// e2e4,e4e2 e2e4,e4a3 e2e4,e4b3 e2e4,e4c3 ...
+// after 1.e2e4,e4e7 d7d5 (fromSquare of the duck is e7 now)
+// d7d5,d5d7 d7d5,d5e2 d7d5,d5a3 d7d5,d5b3 ...
+export function duckMoveDests(legalMoves: UCIMove[], fromSquare: cg.Key): cg.Dests {
+    const dests: cg.Dests = new Map();
+    const toSqares = legalMoves.map(move => move.slice(-2) as cg.Key);
+    dests.set(fromSquare, toSqares);
     return dests;
 }
 

@@ -1,0 +1,39 @@
+.standard .cg-wrap piece._-piece {
+    background-image: url('../../images/pieces/duck.svg');
+}
+.standard .cg-wrap piece.p-piece.white {
+    background-image: url('../../images/pieces/atopdown/wp.svg');
+}
+.standard .cg-wrap piece.b-piece.white {
+    background-image: url('../../images/pieces/atopdown/wb.svg');
+}
+.standard .cg-wrap piece.n-piece.white {
+    background-image: url('../../images/pieces/atopdown/wn.svg');
+}
+.standard .cg-wrap piece.r-piece.white {
+    background-image: url('../../images/pieces/atopdown/wr.svg');
+}
+.standard .cg-wrap piece.q-piece.white {
+    background-image: url('../../images/pieces/atopdown/wq.svg');
+}
+.standard .cg-wrap piece.k-piece.white {
+    background-image: url('../../images/pieces/atopdown/wk.svg');
+}
+.standard .cg-wrap piece.p-piece.black {
+    background-image: url('../../images/pieces/atopdown/bp.svg');
+}
+.standard .cg-wrap piece.b-piece.black {
+    background-image: url('../../images/pieces/atopdown/bb.svg');
+}
+.standard .cg-wrap piece.n-piece.black {
+    background-image: url('../../images/pieces/atopdown/bn.svg');
+}
+.standard .cg-wrap piece.r-piece.black {
+    background-image: url('../../images/pieces/atopdown/br.svg');
+}
+.standard .cg-wrap piece.q-piece.black {
+    background-image: url('../../images/pieces/atopdown/bq.svg');
+}
+.standard .cg-wrap piece.k-piece.black {
+    background-image: url('../../images/pieces/atopdown/bk.svg');
+}

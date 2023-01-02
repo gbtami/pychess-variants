@@ -84,6 +84,8 @@ function proTip (variant: string, chess960: boolean) {
         }
     case 'placement':
         return _('Castling is only possible if the king and rook are dropped to their usual places like in standard Chess.');
+    case 'duck':
+        return _('Quack.');
 // fairy
     case 'capablanca':
         return _('You can choose different starting setups including Embassy Chess and Gothic Chess.');

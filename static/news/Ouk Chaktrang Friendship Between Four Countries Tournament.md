@@ -49,7 +49,7 @@ Round 1
 [Worathep Timsri vs Warot Kananub](https://www.pychess.org/3ZJ0xqU3)  
 [Wynn Zaw Htun vs Nyein Chan](https://www.pychess.org/29RxtO36)  
 [Bora Chheav vs Sok Limheng](https://www.pychess.org/pSzuoJei)  
-[Phan Trọng Bình vs Trần Nguyễn Hoàng Lâm](https://www.pychess.org/Y48IEaIU)  
+[Phan Trọng Bình vs Trần Nguyễn Hoàng Lâm](https://www.pychess.org/vNSoK4sb)
 Round 2  
 [Nyein Chan vs Bora Chheav](https://www.pychess.org/zUMo42ou)  
 [Worathep Timsri vs Wynn Zaw Htun](https://www.pychess.org/Y48IEaIU)  
