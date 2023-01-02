@@ -37,6 +37,22 @@ del _
 
 VIDEOS = [
     {
+        "_id": "BqvYsPAufB8",
+        "title": "DUCK CHESS",
+        "author": "Eric Rosen",
+        "tags": ["Howto"],
+        "target": "beginner",
+        "duration": "19:01",
+    },
+    {
+        "_id": "Qddn3o6yX_M",
+        "title": "Chak (Mayan Chess) - How to play",
+        "author": "PyChess",
+        "tags": ["Howto"],
+        "target": "beginner",
+        "duration": "14:27",
+    },
+    {
         "_id": "Vyc4Llxgke8",
         "title": "Introduction to the PyChess Website",
         "author": "PyChess",

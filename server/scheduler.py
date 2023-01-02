@@ -49,6 +49,8 @@ MONTHLY_VARIANTS = (
     "chennis",
     "capablanca",
     "xiangqi",
+    "duck",
+    "shinobi",
 )
 
 # Old MONTHLY tournaments, needed to create translated tourney names
@@ -62,6 +64,7 @@ WEEKLY_VARIANTS = (
 
 # Monthly Variant Tournaments need different TC
 TC_MONTHLY_VARIANTS = {v: (3, 2, 0) for v in MONTHLY_VARIANTS}
+TC_MONTHLY_VARIANTS["duck"] = (3, 5, 0)
 
 for v in CATEGORIES["fairy"]:
     TC_MONTHLY_VARIANTS[v] = (3, 3, 0)
@@ -141,7 +144,7 @@ class Scheduler:
 
         plans += [
             Plan(SHIELD, self.second_monthly(MONDAY), 18, "crazyhouse", True, 3, 2, 0, 180),  # 960
-            Plan(SHIELD, self.second_monthly(THURSDAY), 18, "shinobi", False, 3, 4, 0, 180),
+            # Plan(SHIELD, self.second_monthly(THURSDAY), 18, "shinobi", False, 3, 4, 0, 180),
             Plan(SHIELD, self.second_monthly(SATURDAY), 12, "makruk", False, 5, 3, 0, 180),
             Plan(SHIELD, self.third_monthly(SUNDAY), 12, "atomic", True, 3, 2, 0, 180),  # 960
             Plan(MONTHLY, self.first_monthly(SATURDAY), 12, "asean", False, 3, 2, 0, 90),

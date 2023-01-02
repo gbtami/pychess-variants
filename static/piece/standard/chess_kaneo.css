@@ -1,3 +1,6 @@
+.standard .cg-wrap piece._-piece {
+    background-image: url('../../images/pieces/duck.svg');
+}
 .standard .cg-wrap piece.p-piece.white {
     background-image: url('../../images/pieces/kaneo/wP.svg');
 }

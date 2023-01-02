@@ -17,6 +17,7 @@ TWITCH_STREAMERS = {
     "okeizh": "okei",
     "krazy8_chess": "FM Crazy_Eight",
     "gbtami": "gbtami",
+    "e_pluszak": "e-pluszak",
 }
 
 # TODO

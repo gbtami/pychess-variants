@@ -48,6 +48,7 @@ V2C = {
     "asean": "S",
     "chak": "C",
     "chennis": "H",
+    "duck": "U",
 }
 C2V = {v: k for k, v in V2C.items()}
 
@@ -93,6 +94,15 @@ def encode_moves(moves, variant):
             else chr(M2C[move[0:2]]) + chr(M2C[move[2:4]]) + (move[4] if len(move) == 5 else "")
             for move in moves
         ]
+    elif variant == "duck":
+        return [
+            chr(M2C[move[0:2]])  # first leg 'from'
+            + chr(M2C[move[2:4]])  # first leg 'to'
+            + chr(M2C[move[-2:]])  # duck 'to'
+            + (move[4] if len(move) == 10 else "")  # promotion
+            for move in moves
+        ]
+
     return [
         chr(M2C[move[0:2]]) + chr(M2C[move[2:4]]) + (move[4] if len(move) == 5 else "")
         for move in moves
@@ -107,6 +117,17 @@ def decode_moves(moves, variant):
             else C2M[ord(move[0])] + C2M[ord(move[1])] + (move[2] if len(move) == 3 else "")
             for move in moves
         ]
+    elif variant == "duck":
+        return [
+            C2M[ord(move[0])]
+            + C2M[ord(move[1])]
+            + (move[3] if len(move) == 4 else "")
+            + ","
+            + C2M[ord(move[1])]
+            + C2M[ord(move[2])]
+            for move in moves
+        ]
+
     return [
         C2M[ord(move[0])] + C2M[ord(move[1])] + (move[2] if len(move) == 3 else "")
         for move in moves
