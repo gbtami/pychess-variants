@@ -74,6 +74,11 @@ export class RoundController extends GameController {
         };
 
         const onReconnect = () => {
+            if (this.finishedGame) {
+                // Prevent endless reconnections from finished games
+                this.sock.close();
+                return
+            }
             this.clocks[0].connecting = true;
             this.clocks[1].connecting = true;
             console.log('Reconnecting in round...');
