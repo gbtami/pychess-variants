@@ -72,7 +72,6 @@ export abstract class GameController extends ChessgroundController implements IC
     ctableContainer: VNode | HTMLElement;
     clickDrop: cg.Piece | undefined;
 
-    dests: cg.Dests; // stores all possible moves for all pieces of the player whose turn it is currently
     lastmove: cg.Key[];
 
     spectator: boolean;
@@ -168,7 +167,7 @@ export abstract class GameController extends ChessgroundController implements IC
             setTimeout(this.setDests, 100);
         } else {
             const legalMoves = this.ffishBoard.legalMoves().split(" ");
-            this.dests = moveDests(legalMoves);
+            const dests = moveDests(legalMoves);
             // list of legal promotion moves
             this.promotions = [];
             legalMoves.forEach((move: string) => {
@@ -185,7 +184,7 @@ export abstract class GameController extends ChessgroundController implements IC
                     this.promotions.push(moveStr);
                 }
             });
-            this.chessground.set({ movable: { dests: this.dests }});
+            this.chessground.set({ movable: { dests: dests }});
 
             if (this.steps.length === 1) {
                 this.chessground.set({ check: (this.ffishBoard.isCheck()) ? this.turnColor : false});
@@ -217,8 +216,8 @@ export abstract class GameController extends ChessgroundController implements IC
             this.chessground.state.boardState.pieces.get(fromSquare)!.color = this.turnColor;
         };
 
-        this.dests = duckMoveDests(filteredMoves, fromSquare);
-        this.chessground.set({ movable: { dests: this.dests }, turnColor: this.turnColor });
+        const dests = duckMoveDests(filteredMoves, fromSquare);
+        this.chessground.set({ movable: { dests: dests }, turnColor: this.turnColor });
     }
 
     abstract doSendMove(move: string): void;
@@ -321,10 +320,10 @@ export abstract class GameController extends ChessgroundController implements IC
         return (key: cg.Key) => {
             if (this.chessground.state.movable.dests === undefined) return;
 
-            // In duck chess after white first move made (this.ply === 0 && this.dests.size === 1)
+            // In duck chess after white first move made (startfen && dests.size === 1)
             // white have to add the duck by one click on some empty square
             // because it is not on the board still 
-            if (this.variant.duck && this.ply === 0 && this.dests.size === 1) {
+            if (this.variant.duck && this.fullfen === this.variant.startFen && this.chessground.state.movable.dests.size === 1) {
                 if (this.chessground.state.boardState.pieces.get(key) === undefined) {
                     this.chessground.setPieces(new Map([[key, {
                         color: 'white',

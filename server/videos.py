@@ -45,6 +45,14 @@ VIDEOS = [
         "duration": "19:01",
     },
     {
+        "_id": "Xeil4C9rU34",
+        "title": "Speedrun vs NEW Duck Chess A.I.",
+        "author": "Eric Rosen",
+        "tags": ["Tactics"],
+        "target": "beginner",
+        "duration": "33:00",
+    },
+    {
         "_id": "Qddn3o6yX_M",
         "title": "Chak (Mayan Chess) - How to play",
         "author": "PyChess",
