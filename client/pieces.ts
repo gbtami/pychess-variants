@@ -18,6 +18,7 @@ export function piecesView(ctrl: EditorController, color: cg.Color, position: Po
         const len = roles.length;
         const width = ctrl.variant.boardWidth;
         const extraRoles = roles.
+            filter(_ => !ctrl.variant.isPromotedOnSquare).
             filter(r => ctrl.variant.promoteableRoles.includes(r as cg.Role)).
             map(r => promotedRole(ctrl.variant, { role: r as cg.Role, color: color }));
         if (len <= width && len + extraRoles.length > width) {
