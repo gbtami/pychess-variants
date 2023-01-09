@@ -10,9 +10,9 @@ import { GameController } from './gameCtrl';
 
 type PromotionChoices = Partial<Record<cg.Role, PromotionSuffix>>;
 
-export class Promotion {
+export class PromotionInput {
     ctrl: GameController;
-    promoting?: { orig: cg.Orig, dest: cg.Key };
+    promoting?: { piece: cg.Piece, orig: cg.Orig, dest: cg.Key, meta: cg.MoveMetadata };
     choices: PromotionChoices;
 
     constructor(ctrl: GameController) {
@@ -20,17 +20,18 @@ export class Promotion {
         this.choices = {};
     }
 
-    start(piece: cg.Piece, orig: cg.Orig, dest: cg.Key, disableAutoPromote: boolean = false) {
-        // Automatically reject on a duck move
-        if (piece.role === '_-piece') return false;
-
+    start(piece: cg.Piece, orig: cg.Orig, dest: cg.Key, meta: cg.MoveMetadata): void {
         const ground = this.ctrl.chessground;
         // in 960 castling case (king takes rook) dest piece may be undefined
-        if (ground.state.boardState.pieces.get(dest) === undefined) return false;
+        if (ground.state.boardState.pieces.get(dest) === undefined) {
+            this.ctrl.processInput(piece, orig, dest, meta, '', 'promotion');
+            return;
+        }
 
         const choices = this.promotionChoices(piece, orig, dest);
         const autoSuffix = this.ctrl.variant.promotion.order[0];
         const autoRole = this.ctrl.variant.promotion.type === "shogi" ? undefined : util.roleOf(autoSuffix as cg.Letter);
+        const disableAutoPromote = meta.ctrlKey;
         if (this.ctrl.variant.promotion.autoPromoteable &&
             this.ctrl.autoPromote &&
             !disableAutoPromote &&
@@ -40,22 +41,13 @@ export class Promotion {
         else
             this.choices = choices;
 
-        const color = piece.color;
-        const orientation = ground.state.orientation;
+        this.promoting = { piece, orig, dest, meta };
         if (Object.keys(this.choices).length === 1) {
             const role = Object.keys(this.choices)[0] as cg.Role;
-            if (role === piece.role) return false;
-            const promo = this.choices[role];
-            this.promote(ground, dest, role);
-            this.ctrl.sendMove(orig, dest, promo!);
+            this.finish(role);
         } else {
-            this.drawPromo(dest, color, orientation);
-            this.promoting = {
-                orig: orig,
-                dest: dest,
-            };
+            this.drawPromo(dest, piece.color, ground.state.orientation);
         }
-        return true;
     }
 
     private promotionChoices(piece: cg.Piece, orig: cg.Orig, dest: cg.Key): PromotionChoices {
@@ -93,7 +85,7 @@ export class Promotion {
 
     private drawNoPromo() {
         const container = document.getElementById('extension_choice') as HTMLElement;
-        patch(container, h('extension'));
+        if (container) patch(container, h('extension'));
     }
 
     private finish(role: cg.Role) {
@@ -103,9 +95,9 @@ export class Promotion {
             const promo = this.choices[role];
 
             if (util.isDropOrig(this.promoting.orig))
-                this.ctrl.sendMove(util.dropOrigOf(role), this.promoting.dest, "");
+                this.ctrl.processInput(this.promoting.piece, util.dropOrigOf(role), this.promoting.dest, this.promoting.meta, '', 'promotion');
             else
-                this.ctrl.sendMove(this.promoting.orig, this.promoting.dest, promo!);
+                this.ctrl.processInput(this.promoting.piece, this.promoting.orig, this.promoting.dest, this.promoting.meta, promo!, 'promotion');
 
             this.promoting = undefined;
         }
@@ -160,5 +152,4 @@ export class Promotion {
             })
         );
     }
-
 }

@@ -8,13 +8,16 @@ import { _ } from './i18n';
 import { patch } from './document';
 import { Step, MsgChat, MsgFullChat, MsgSpectators, MsgShutdown,MsgGameNotFound } from './messages';
 import { uci2LastMove, moveDests, duckMoveDests, cg2uci, unpromotedRole } from './chess';
-import { Gating } from './gating';
-import { Promotion } from './promotion';
+import { GatingInput } from './gating';
+import { PromotionInput } from './promotion';
 import { ChessgroundController } from './cgCtrl';
 import { JSONObject, PyChessModel } from './types';
 import { updateCount, updatePoint } from './info';
 import { sound } from './sound';
 import { chatMessage, IChatController } from './chat';
+import { DuckInput } from './duck';
+
+type InputType = 'gating' | 'promotion' | 'duck';
 
 export abstract class GameController extends ChessgroundController implements IChatController {
     sock: WebsocketHeartbeatJs;
@@ -41,12 +44,13 @@ export abstract class GameController extends ChessgroundController implements IC
     brating: string;
 
     // Helpers
-    gating: Gating;
-    promotion: Promotion;
+    gating: GatingInput;
+    promotion: PromotionInput;
+    duck: DuckInput;
 
     // Game state
     turnColor: cg.Color;
-    duckChessMove: string;
+    suffix: string;
 
     setupFen: string;
     prevPieces: cg.Pieces;
@@ -105,8 +109,9 @@ export abstract class GameController extends ChessgroundController implements IC
 
         this.spectator = this.username !== this.wplayer && this.username !== this.bplayer;
 
-        this.gating = new Gating(this);
-        this.promotion = new Promotion(this);
+        this.gating = new GatingInput(this);
+        this.promotion = new PromotionInput(this);
+        this.duck = new DuckInput(this);
 
         // orientation = this.mycolor
         if (this.spectator) {
@@ -135,7 +140,7 @@ export abstract class GameController extends ChessgroundController implements IC
         const parts = this.fullfen.split(" ");
 
         this.turnColor = parts[1] === "w" ? "white" : "black";
-        this.duckChessMove = '';
+        this.suffix = '';
 
         this.chessground.set({
             animation: {
@@ -204,32 +209,32 @@ export abstract class GameController extends ChessgroundController implements IC
 
     abstract doSendMove(move: string): void;
 
-    sendMove(orig: cg.Orig, dest: cg.Key, promo: string) {
-        let move = cg2uci(orig + dest + promo);
-
-        if (this.variant.rules.duck) {
-            // first leg made with standard chess piece
-            if (this.duckChessMove.length === 0) {
-                let kingCount = 0;
-                const pieces = this.chessground.state.boardState.pieces;
-                pieces.forEach((piece) => {if (piece.role.startsWith('k')) kingCount = kingCount + 1});
-                // In case of king capture game is over and no need to move the duck
-                if (kingCount === 1) {
-                    move = move + ',' + dest + orig;
-                } else {
-                    this.duckChessMove = move;
-                    this.setDuckDests(move);
-                    return;
-                }
-            // second leg made with the duck
-            } else {
-                move = this.duckChessMove + ',' + this.duckChessMove.slice(2, 4) + dest;
-                this.duckChessMove = '';
-                sound.moveSound(this.variant, false);
-            }
+    processInput(piece: cg.Piece, orig: cg.Orig, dest: cg.Key, meta: cg.MoveMetadata, lastSuffix?: string, lastInputType?: InputType): void {
+        switch (lastInputType) {
+            case undefined:
+                this.suffix = '';
+                if (this.variant.rules.gate && util.isKey(orig))
+                    this.gating.start(this.fullfen, orig, dest);
+                else
+                    this.promotion.start(piece, orig, dest, meta);
+                break;
+            case 'gating':
+            case 'promotion':
+                this.suffix += lastSuffix;
+                if (this.variant.rules.duck)
+                    this.duck.start(piece, orig, dest, meta);
+                else
+                    this.sendMove(orig, dest, this.suffix);
+                break;
+            case 'duck':
+                this.suffix += lastSuffix;
+                this.sendMove(orig, dest, this.suffix);
+                break;
         }
+    }
 
-        this.doSendMove(move);
+    sendMove(orig: cg.Orig, dest: cg.Key, promo: string) {
+        this.doSendMove(cg2uci(orig + dest + promo));
     }
 
     goPly(ply: number, plyVari = 0) {
@@ -258,10 +263,6 @@ export abstract class GameController extends ChessgroundController implements IC
 
         this.turnColor = step.turnColor;
         this.fullfen = step.fen;
-
-        if (this.variant.rules.duck) {
-            this.duckChessMove = '';
-        }
 
         if (this.variant.ui.counting) {
             updateCount(step.fen, document.getElementById('misc-infow') as HTMLElement, document.getElementById('misc-infob') as HTMLElement);
@@ -300,21 +301,12 @@ export abstract class GameController extends ChessgroundController implements IC
         let lastTime = performance.now();
         let lastKey: cg.Key | undefined;
         return (key: cg.Key) => {
-            if (this.chessground.state.movable.dests === undefined) return;
-
-            // In duck chess after white first move made (startfen && dests.size === 1)
-            // white have to add the duck by one click on some empty square
-            // because it is not on the board still 
-            if (this.variant.rules.duck && this.fullfen === this.variant.startFen && this.chessground.state.movable.dests.size === 1) {
-                if (this.chessground.state.boardState.pieces.get(key) === undefined) {
-                    this.chessground.setPieces(new Map([[key, {
-                        color: 'white',
-                        role: '_-piece',
-                    }]]));
-                    this.sendMove(key, key, '');
-                }
+            if (this.duck.inputState === 'click') {
+                this.duck.duckClick(key);
                 return;
-            };
+            }
+
+            if (this.chessground.state.movable.dests === undefined) return;
 
             const curTime = performance.now();
 
@@ -338,7 +330,7 @@ export abstract class GameController extends ChessgroundController implements IC
                         this.chessground.state.movable.dests = undefined;
                         this.chessground.selectSquare(key);
                         sound.moveSound(this.variant, false);
-                        this.sendMove(key, key, 'f');
+                        this.processInput(piece, key, key, { premove: false }, 'f', 'promotion');
                     } else if ((this.chessground.state.stats.ctrlKey || this.dblClickPass) && this.variant.rules.pass) {
                         this.pass(key);
                     }
@@ -378,6 +370,11 @@ export abstract class GameController extends ChessgroundController implements IC
       * Custom variant-specific logic to be triggered on move and alter state of board/pocket depending on variant rules.
       */
     protected onUserMove(orig: cg.Key, dest: cg.Key, meta: cg.MoveMetadata) {
+        if (this.duck.inputState === "move") {
+            this.duck.duckMove(orig, dest);
+            return;
+        }
+
         this.preaction = meta.premove;
         const pieces = this.chessground.state.boardState.pieces;
         let moved = pieces.get(dest);
@@ -403,15 +400,8 @@ export abstract class GameController extends ChessgroundController implements IC
             this.chessground.state.dom.redraw();
         }
 
-        // gating elephant/hawk
-        if (this.variant.rules.gate) {
-            if (!this.gating.start(this.fullfen, orig, dest) && !this.promotion.start(moved, orig, dest, meta.ctrlKey))
-                this.sendMove(orig, dest, '');
-        } else {
-            if (!this.promotion.start(moved, orig, dest, meta.ctrlKey))
-                this.sendMove(orig, dest, '');
-            this.preaction = false;
-        }
+        this.processInput(moved, orig, dest, meta);
+        this.preaction = false;
     }
 
     /**
@@ -420,12 +410,7 @@ export abstract class GameController extends ChessgroundController implements IC
     protected onUserDrop(piece: cg.Piece, dest: cg.Key, meta: cg.MoveMetadata) {
         this.preaction = meta.premove;
         const role = piece.role;
-        if (this.variant.promotion.type === 'shogi') {
-            if (!this.promotion.start(piece, util.dropOrigOf(role), dest))
-                this.sendMove(util.dropOrigOf(role), dest, '');
-        } else {
-            this.sendMove(util.dropOrigOf(role), dest, '')
-        }
+        this.processInput(piece, util.dropOrigOf(role), dest, meta);
         this.preaction = false;
     }
 
