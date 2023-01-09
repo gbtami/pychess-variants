@@ -2,13 +2,14 @@ aiohttp-session==2.12.0
 aiohttp-sse==2.1.0
 aiohttp==3.8.3
 brotli==1.0.9
-cryptography==38.0.4
+cryptography==39.0.0
 discord.py==2.1.0
 dnspython==2.2.1
 htmlmin==0.1.12
 jinja2==3.1.2
 motor==3.1.1
 pymongo==4.3.3
+pyopenssl==23.0.0
 pyffish==0.0.76
 sortedcollections==2.1.0
 python-gettext==4.1
