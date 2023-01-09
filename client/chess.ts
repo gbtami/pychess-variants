@@ -748,7 +748,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         startFen: "rvsqkjsvr/4o4/p1p1p1p1p/9/9/9/P1P1P1P1P/4O4/RVSJKQSVR w - - 0 1",
         board: "chak9x9", piece: "chak",
         firstColor: "White", secondColor: "Green",
-        pieceLetters: ["r", "v", "s", "q", "k", "j", "o", "p"],
+        pieceLetters: ["k", "j", "q", "r", "v", "s", "o", "p"],
         kingLetters: ["k", "+k"],
         promotion: "shogi",
         promoteableLetters: ['p', 'k'],
