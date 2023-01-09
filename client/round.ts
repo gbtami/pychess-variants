@@ -1,9 +1,9 @@
 import { h, VNode } from "snabbdom";
 
-import { VARIANTS } from './chess';
 import { RoundController } from './roundCtrl';
 import { gameInfo } from './gameInfo';
 import { renderTimeago } from './datetime';
+import { VARIANTS } from './variants';
 import { PyChessModel } from "./types";
 
 function runGround(vnode: VNode, model: PyChessModel) {

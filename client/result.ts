@@ -1,7 +1,7 @@
 import { h } from 'snabbdom';
 
 import { _ } from './i18n';
-import { Variant } from './chess';
+import { Variant } from './variants';
 
 export function gameType(rated: string | number) {
     switch (rated) {

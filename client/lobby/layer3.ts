@@ -3,7 +3,7 @@ import { h } from 'snabbdom';
 import { _ } from '../i18n';
 import { LobbyController } from '../lobby';
 import { patch } from '../document';
-import { Variant, VARIANTS } from '../chess';
+import { Variant, VARIANTS } from '../variants';
 import { variantBoard } from './util';
 import { layer2chess } from './layer2chess';
 import { layer2fairy } from './layer2fairy';

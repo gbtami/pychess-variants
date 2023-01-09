@@ -9,13 +9,14 @@ import { JSONObject } from './types';
 import { _, ngettext, languageSettings } from './i18n';
 import { patch } from './document';
 import { chatMessage, chatView, IChatController } from './chat';
-import { validFen, VARIANTS, selectVariant, Variant } from './chess';
+import { VARIANTS, selectVariant, Variant } from './variants';
 import { timeControlStr } from './view';
 import { notify } from './notification';
 import { PyChessModel } from "./types";
 import { MsgChat, MsgFullChat } from "./messages";
 import { variantPanels } from './lobby/layer1';
 import { Stream, Spotlight, MsgInviteCreated, MsgHostCreated, MsgGetSeeks, MsgNewGame, MsgGameInProgress, MsgUserConnected, MsgPing, MsgError, MsgShutdown, MsgGameCounter, MsgUserCounter, MsgStreams, MsgSpotlights, Seek, CreateMode } from './lobbyType';
+import { validFen } from './chess';
 
 export class LobbyController implements IChatController {
     sock: WebsocketHeartbeatJs;

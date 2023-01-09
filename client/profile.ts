@@ -4,7 +4,8 @@ import { Chessground } from 'chessgroundx';
 import * as cg from "chessgroundx/types";
 
 import { _, ngettext, pgettext, languageSettings } from './i18n';
-import { uci2LastMove, VARIANTS } from './chess';
+import { uci2LastMove } from './chess';
+import { VARIANTS } from './variants';
 import { patch } from './document';
 import { renderTimeago } from './datetime';
 import { boardSettings } from './boardSettings';

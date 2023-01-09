@@ -3,8 +3,8 @@ import { h, VNode } from 'snabbdom';
 import * as cg from 'chessgroundx/types';
 import { read as fenRead } from 'chessgroundx/fen';
 
-import { Variant } from './chess';
 import { patch } from './document';
+import { Variant } from './variants';
 
 export type MaterialDiff = Map<cg.Role, number>;
 export type Equivalence = Partial<Record<cg.Role, cg.Role>>;

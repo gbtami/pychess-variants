@@ -4,11 +4,11 @@ import * as cg from 'chessgroundx/types';
 import { Api } from 'chessgroundx/api';
 
 import { _ } from './i18n';
-import { Variant, VARIANTS, BOARD_FAMILIES, PIECE_FAMILIES } from './chess';
 import { changeBoardCSS, changePieceCSS } from './document';
 import { ISettings, NumberSettings, BooleanSettings, StringSettings } from './settings';
 import { slider, checkbox, nnueFile } from './view';
 import { PyChessModel } from "./types";
+import { BOARD_FAMILIES, PIECE_FAMILIES, Variant, VARIANTS } from './variants';
 
 export interface IBoardController {
     readonly chessground: Api;

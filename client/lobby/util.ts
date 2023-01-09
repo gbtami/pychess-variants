@@ -4,7 +4,7 @@ import * as cg from 'chessgroundx/types';
 import { Chessground } from 'chessgroundx';
 
 import { patch } from '../document';
-import { Variant } from '../chess';
+import { Variant } from '../variants';
 import { LobbyController } from '../lobby';
 import { variantPanels } from './layer1';
 

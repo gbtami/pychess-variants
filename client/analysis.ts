@@ -3,7 +3,7 @@ import { h, VNode } from "snabbdom";
 import { _ } from './i18n';
 import { AnalysisController } from './analysisCtrl';
 import { gameInfo } from './gameInfo';
-import { selectVariant, VARIANTS } from './chess';
+import { selectVariant, VARIANTS } from './variants';
 import { renderTimeago } from './datetime';
 import { spinner } from './spinner';
 import { PyChessModel } from "./types";

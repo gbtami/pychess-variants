@@ -1,7 +1,7 @@
 import { h, VNode } from 'snabbdom';
 
 import { _ } from './i18n';
-import { VARIANTS } from './chess';
+import { VARIANTS } from './variants';
 import { patch } from './document';
 import { gameType } from './result';
 import { copyTextToClipboard } from './clipboard';

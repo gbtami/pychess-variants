@@ -4,9 +4,9 @@ import { Api } from 'chessgroundx/api';
 
 import ffishModule from 'ffish-es6';
 
-import { Variant, VARIANTS, notation, moddedVariant } from './chess';
 import { boardSettings, IBoardController } from './boardSettings';
 import { PyChessModel } from './types';
+import { Variant, VARIANTS, notation, moddedVariant } from './variants';
 import { variantsIni } from './variantsIni';
 
 export abstract class ChessgroundController implements IBoardController {
