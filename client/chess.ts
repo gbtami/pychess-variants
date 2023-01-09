@@ -114,11 +114,11 @@ export interface Variant {
         readonly strict?: {
             readonly isPromoted: (piece: cg.Piece, pos: cg.Pos) => boolean;
         };
+        readonly autoPromoteable: boolean;
     };
     readonly rules: {
         readonly defaultTimeControl: TimeControlType;
         readonly enPassant: boolean;
-        readonly autoPromoteable: boolean;
         readonly gate: boolean;
         readonly duck: boolean;
         readonly pass: boolean;
@@ -143,13 +143,13 @@ function variant(config: VariantConfig): Variant {
     return {
         name: config.name,
         _displayName: config.displayName ?? config.name,
-        displayName: (chess960 = false) => _(this._displayName).toUpperCase() + (chess960 ? '960' : ''),
+        displayName: function (chess960 = false) { return _(this._displayName).toUpperCase() + (chess960 ? '960' : ''); },
         _tooltip: config.tooltip,
-        get tooltip() { return _(this._tooltip()) },
+        get tooltip() { return _(this._tooltip) },
         chess960: !!config.chess960,
         _icon: config.icon,
         _icon960: config.icon960 ?? config.icon,
-        icon: (chess960 = false) => chess960 ? this._icon960 : this._icon,
+        icon: function (chess960 = false) { return chess960 ? this._icon960 : this._icon; },
         startFen: config.startFen,
         boardFamily: config.boardFamily,
         board: BOARD_FAMILIES[config.boardFamily],
@@ -181,10 +181,10 @@ function variant(config: VariantConfig): Variant {
             order: config.promotion?.order ?? (config.promotion?.type === 'shogi' ? ['+', ''] : ['q', 'c', 'e', 'a', 'h', 'n', 'r', 'b', 'p']),
             roles: (config.promotion?.roles ?? ['p']).map(util.roleOf),
             strict: config.promotion?.strict,
+            get autoPromoteable() { return this.order.length > 2 },
         },
         rules: {
             defaultTimeControl: config.rules?.defaultTimeControl ?? 'incremental',
-            get autoPromoteable() { return this.promotion.order.length > 2 },
             enPassant: !!config.rules?.enPassant,
             gate: !!config.rules?.gate,
             duck: !!config.rules?.duck,
@@ -1126,6 +1126,20 @@ export function moveDests(legalMoves: UCIMove[]): cg.Dests {
             dests.set(orig, [ dest ]);
     });
     return dests;
+}
+
+export function promotionSuffix(move: UCIMove): PromotionSuffix {
+    if (move.startsWith('+')) {
+        return '+';
+    } else {
+        const comma = move.indexOf(',');
+        if (comma > -1) move = move.substring(0, comma) as UCIMove;
+        const last = move.slice(-1);
+        if (last.match(/[a-z+-]/))
+            return last as PromotionSuffix;
+        else
+            return '';
+    }
 }
 
 // Create duck move dests from valid moves filtered by first leg move

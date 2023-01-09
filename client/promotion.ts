@@ -4,7 +4,7 @@ import * as util from 'chessgroundx/util';
 import * as cg from 'chessgroundx/types';
 import { Api } from "chessgroundx/api";
 
-import { PromotionSuffix } from './chess';
+import { UCIMove, PromotionSuffix, promotedRole, unpromotedRole, promotionSuffix } from './chess';
 import { patch, bind } from './document';
 import { GameController } from './gameCtrl';
 
@@ -20,88 +20,59 @@ export class Promotion {
         this.choices = {};
     }
 
-    start(movingRole: cg.Role, orig: cg.Orig, dest: cg.Key, disableAutoPromote: boolean = false) {
+    start(piece: cg.Piece, orig: cg.Orig, dest: cg.Key, disableAutoPromote: boolean = false) {
         const ground = this.ctrl.chessground;
         // in 960 castling case (king takes rook) dest piece may be undefined
         if (ground.state.boardState.pieces.get(dest) === undefined) return false;
 
-        if (this.canPromote(movingRole, orig, dest)) {
-            const color = this.ctrl.turnColor;
-            const orientation = ground.state.orientation;
-            const pchoices = this.promotionChoices(movingRole, orig, dest);
-            const autoSuffix = this.ctrl.variant.promotionOrder[0];
-            const autoRole = ["shogi", "kyoto"].includes(this.ctrl.variant.promotion) ?
-                undefined :
-                util.roleOf(autoSuffix as cg.Letter);
+        const choices = this.promotionChoices(piece, orig, dest);
+        const autoSuffix = this.ctrl.variant.promotion.order[0];
+        const autoRole = this.ctrl.variant.promotion.type === "shogi" ? undefined : util.roleOf(autoSuffix as cg.Letter);
+        if (this.ctrl.variant.promotion.autoPromoteable &&
+            this.ctrl.autoPromote &&
+            !disableAutoPromote &&
+            autoRole &&
+            autoRole in choices)
+            this.choices = { [autoRole]: autoSuffix };
+        else
+            this.choices = choices;
 
-            if (this.ctrl.variant.autoPromoteable &&
-                this.ctrl.autoPromote &&
-                !disableAutoPromote &&
-                autoRole &&
-                autoRole in pchoices)
-                this.choices = { [autoRole]: autoSuffix };
-            else
-                this.choices = pchoices;
+        console.log(choices);
 
-            if (Object.keys(this.choices).length === 1) {
-                const role = Object.keys(this.choices)[0] as cg.Role;
-                const promo = this.choices[role];
-                this.promote(ground, dest, role);
-                this.ctrl.sendMove(orig, dest, promo!);
-            } else {
-                this.drawPromo(dest, color, orientation);
-                this.promoting = {
-                    orig: orig,
-                    dest: dest,
-                };
-            }
-
-            return true;
+        const color = piece.color;
+        const orientation = ground.state.orientation;
+        if (Object.keys(this.choices).length === 1) {
+            const role = Object.keys(this.choices)[0] as cg.Role;
+            if (role === piece.role) return false;
+            const promo = this.choices[role];
+            this.promote(ground, dest, role);
+            this.ctrl.sendMove(orig, dest, promo!);
+        } else {
+            this.drawPromo(dest, color, orientation);
+            this.promoting = {
+                orig: orig,
+                dest: dest,
+            };
         }
-        return false;
+        return true;
     }
 
-    private promotionFilter(move: string, role: cg.Role, orig: cg.Orig, dest: cg.Key) {
-        if (this.ctrl.variant.promotion === 'kyoto')
-            if (util.isDropOrig(orig))
-                return move.startsWith("+" + util.letterOf(role, true));
-        return move.slice(0, -1) === orig + dest;
-    }
-
-    private canPromote(role: cg.Role, orig: cg.Orig, dest: cg.Key) {
-        return this.ctrl.promotions.some(move => this.promotionFilter(move, role, orig, dest));
-    }
-
-    private promotionChoices(role: cg.Role, orig: cg.Orig, dest: cg.Key) {
+    private promotionChoices(piece: cg.Piece, orig: cg.Orig, dest: cg.Key): PromotionChoices {
         const variant = this.ctrl.variant;
-        const possiblePromotions = this.ctrl.promotions.filter(move => this.promotionFilter(move, role, orig, dest));
-        const choice: PromotionChoices = {};
-        switch (variant.promotion) {
-            case 'shogi':
-                choice["p" + role as cg.Role] = "+";
-                break;
-            case 'kyoto':
-                if (util.isDropOrig(orig) || possiblePromotions[0].slice(-1) === "+")
-                    choice["p" + role as cg.Role] = "+";
-                else
-                    choice[role.slice(1) as cg.Role] = "-";
-                break;
-            default:
-                possiblePromotions.
-                    map(move => move.slice(-1) as cg.Letter).
-                    sort((a, b) => variant.promotionOrder.indexOf(a) - variant.promotionOrder.indexOf(b)).
-                    forEach(letter => {
-                        choice[util.roleOf(letter)] = letter;
-                    });
-        }
+        const possiblePromotions = (this.ctrl.ffishBoard.legalMoves().split(" ") as UCIMove[]).filter(move => move.includes(orig + dest));
+        console.log(possiblePromotions);
+        const choices: PromotionChoices = {};
 
-        if (!this.isMandatoryPromotion(role, orig, dest))
-            choice[role] = "";
-        return choice;
-    }
+        possiblePromotions.map(promotionSuffix).forEach(suffix => {
+            let role: cg.Role;
+            if (suffix === '+') role = promotedRole(variant, piece);
+            else if (suffix === '-') role = unpromotedRole(variant, piece);
+            else if (suffix === '') role = piece.role;
+            else role = util.roleOf(suffix);
+            choices[role] = suffix;
+        });
 
-    private isMandatoryPromotion(role: cg.Role, orig: cg.Orig, dest: cg.Key) {
-        return this.ctrl.variant.isMandatoryPromotion(role, orig, dest, this.ctrl.mycolor);
+        return choices;
     }
 
     private promote(g: Api, key: cg.Key, role: cg.Role) {
@@ -131,12 +102,10 @@ export class Promotion {
             this.promote(this.ctrl.chessground, this.promoting.dest, role);
             const promo = this.choices[role];
 
-            if (this.ctrl.variant.promotion === 'kyoto') {
-                const dropOrig = util.dropOrigOf(role);
-                this.ctrl.sendMove(dropOrig, this.promoting.dest, "");
-            } else {
+            if (util.isDropOrig(this.promoting.orig))
+                this.ctrl.sendMove(util.dropOrigOf(role), this.promoting.dest, "");
+            else
                 this.ctrl.sendMove(this.promoting.orig, this.promoting.dest, promo!);
-            }
 
             this.promoting = undefined;
         }
@@ -149,11 +118,13 @@ export class Promotion {
     }
 
     private view(dest: cg.Key, color: cg.Color, orientation: cg.Color) {
-        const width = this.ctrl.variant.boardWidth;
-        const height = this.ctrl.variant.boardHeight;
+        const variant = this.ctrl.variant;
+        const width = variant.board.dimensions.width;
+        const height = variant.board.dimensions.height;
         const pos = util.key2pos(dest);
 
-        const choices = Object.keys(this.choices);
+        const choices = Object.keys(this.choices) as cg.Role[];
+        choices.sort((a, b) => variant.promotion.order.indexOf(this.choices[a]!) - variant.promotion.order.indexOf(this.choices[b]!));
 
         const direction = color === orientation ? "bottom" : "top";
         const leftFile = (orientation === "white") ? pos[0] : width - 1 - pos[0];

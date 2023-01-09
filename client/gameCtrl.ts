@@ -7,7 +7,7 @@ import * as util from 'chessgroundx/util';
 import { _ } from './i18n';
 import { patch } from './document';
 import { Step, MsgChat, MsgFullChat, MsgSpectators, MsgShutdown,MsgGameNotFound } from './messages';
-import { uci2LastMove, moveDests, duckMoveDests, cg2uci, uci2cg, unpromotedRole } from './chess';
+import { uci2LastMove, moveDests, duckMoveDests, cg2uci, unpromotedRole } from './chess';
 import { Gating } from './gating';
 import { Promotion } from './promotion';
 import { ChessgroundController } from './cgCtrl';
@@ -55,7 +55,6 @@ export abstract class GameController extends ChessgroundController implements IC
     preaction: boolean;
 
     steps: Step[];
-    promotions: string[];
 
     // TODO: moveList: MoveList;
     status: number;
@@ -168,24 +167,7 @@ export abstract class GameController extends ChessgroundController implements IC
         } else {
             const legalMoves = this.ffishBoard.legalMoves().split(" ");
             const dests = moveDests(legalMoves);
-            // list of legal promotion moves
-            this.promotions = [];
-            legalMoves.forEach((move: string) => {
-                // In duck chess we have to cut off the second leg part (the duck move)
-                const moveStr = (this.variant.rules.duck) ? move.slice(0, -5) : uci2cg(move);
-                
-                const tail = moveStr.slice(-1);
-                if (tail > '9' || tail === '+' || tail === '-') {
-                    if (!(this.variant.rules.gate && (moveStr.slice(1, 2) === '1' || moveStr.slice(1, 2) === '8'))) {
-                        this.promotions.push(moveStr);
-                    }
-                }
-                if (moveStr.slice(0, 1) === '+') {
-                    this.promotions.push(moveStr);
-                }
-            });
             this.chessground.set({ movable: { dests: dests }});
-
             if (this.steps.length === 1) {
                 this.chessground.set({ check: (this.ffishBoard.isCheck()) ? this.turnColor : false});
             }
@@ -423,10 +405,10 @@ export abstract class GameController extends ChessgroundController implements IC
 
         // gating elephant/hawk
         if (this.variant.rules.gate) {
-            if (!this.promotion.start(moved.role, orig, dest, meta.ctrlKey) && !this.gating.start(this.fullfen, orig, dest))
+            if (!this.promotion.start(moved, orig, dest, meta.ctrlKey) && !this.gating.start(this.fullfen, orig, dest))
                 this.sendMove(orig, dest, '');
         } else {
-            if (!this.promotion.start(moved.role, orig, dest, meta.ctrlKey))
+            if (!this.promotion.start(moved, orig, dest, meta.ctrlKey))
                 this.sendMove(orig, dest, '');
             this.preaction = false;
         }
@@ -439,7 +421,7 @@ export abstract class GameController extends ChessgroundController implements IC
         this.preaction = meta.premove;
         const role = piece.role;
         if (this.variant.promotion.type === 'shogi') {
-            if (!this.promotion.start(role, util.dropOrigOf(role), dest))
+            if (!this.promotion.start(piece, util.dropOrigOf(role), dest))
                 this.sendMove(util.dropOrigOf(role), dest, '');
         } else {
             this.sendMove(util.dropOrigOf(role), dest, '')

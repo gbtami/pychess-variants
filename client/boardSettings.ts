@@ -144,7 +144,7 @@ class BoardSettings {
 
         settingsList.push(this.settings["showDests"].view());
 
-        if (variant.rules.autoPromoteable)
+        if (variant.promotion.autoPromoteable)
             settingsList.push(this.settings["autoPromote"].view());
 
         settingsList.push(this.settings["arrow"].view());
