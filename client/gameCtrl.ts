@@ -405,7 +405,7 @@ export abstract class GameController extends ChessgroundController implements IC
 
         // gating elephant/hawk
         if (this.variant.rules.gate) {
-            if (!this.promotion.start(moved, orig, dest, meta.ctrlKey) && !this.gating.start(this.fullfen, orig, dest))
+            if (!this.gating.start(this.fullfen, orig, dest) && !this.promotion.start(moved, orig, dest, meta.ctrlKey))
                 this.sendMove(orig, dest, '');
         } else {
             if (!this.promotion.start(moved, orig, dest, meta.ctrlKey))

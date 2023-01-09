@@ -21,6 +21,9 @@ export class Promotion {
     }
 
     start(piece: cg.Piece, orig: cg.Orig, dest: cg.Key, disableAutoPromote: boolean = false) {
+        // Automatically reject on a duck move
+        if (piece.role === '_-piece') return false;
+
         const ground = this.ctrl.chessground;
         // in 960 castling case (king takes rook) dest piece may be undefined
         if (ground.state.boardState.pieces.get(dest) === undefined) return false;
@@ -36,8 +39,6 @@ export class Promotion {
             this.choices = { [autoRole]: autoSuffix };
         else
             this.choices = choices;
-
-        console.log(choices);
 
         const color = piece.color;
         const orientation = ground.state.orientation;
@@ -60,7 +61,6 @@ export class Promotion {
     private promotionChoices(piece: cg.Piece, orig: cg.Orig, dest: cg.Key): PromotionChoices {
         const variant = this.ctrl.variant;
         const possiblePromotions = (this.ctrl.ffishBoard.legalMoves().split(" ") as UCIMove[]).filter(move => move.includes(orig + dest));
-        console.log(possiblePromotions);
         const choices: PromotionChoices = {};
 
         possiblePromotions.map(promotionSuffix).forEach(suffix => {

@@ -1090,12 +1090,10 @@ export function getJanggiPoints(board: string): number[] {
 
 export function unpromotedRole(variant: Variant, piece: cg.Piece): cg.Role {
     if (piece.promoted) {
-        switch (variant.promotion.type) {
-            case 'shogi':
-                return piece.role.slice(1) as cg.Role;
-            default:
-                return 'p-piece';
-        }
+        if (variant.promotion.type === 'shogi')
+            return piece.role.slice(1) as cg.Role;
+        else
+            return 'p-piece';
     } else {
         return piece.role;
     }
@@ -1103,12 +1101,10 @@ export function unpromotedRole(variant: Variant, piece: cg.Piece): cg.Role {
 
 export function promotedRole(variant: Variant, piece: cg.Piece): cg.Role {
     if (!piece.promoted && variant.promotion.roles.includes(piece.role)) {
-        switch (variant.promotion.type) {
-            case 'shogi':
-                return 'p' + piece.role as cg.Role;
-            default:
-                return util.roleOf(variant.promotion.order[0] as cg.Letter);
-        }
+        if (variant.promotion.type === 'shogi')
+            return 'p' + piece.role as cg.Role;
+        else
+            return util.roleOf(variant.promotion.order[0] as cg.Letter);
     } else {
         return piece.role;
     }
