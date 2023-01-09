@@ -128,6 +128,7 @@ export class Variant {
     readonly promotionOrder: PromotionSuffix[];
     readonly promoteableRoles: cg.Role[];
     readonly isMandatoryPromotion: MandatoryPromotionPredicate;
+    readonly isPromotedOnSquare?: (piece: cg.Piece, pos: cg.Pos) => boolean;
     readonly timeControl: TimeControlType;
     readonly counting?: CountingType;
     readonly materialPoint?: MaterialPointType;
@@ -182,6 +183,7 @@ export class Variant {
         this.promotionOrder = data.promotionOrder ?? (this.promotion === "shogi" || this.promotion === "kyoto" ? ["+", ""] : ["q", "c", "e", "a", "h", "n", "r", "b", "p"]);
         this.promoteableRoles = data.promoteableLetters?.map(util.roleOf) ?? ["p-piece"];
         this.isMandatoryPromotion = data.isMandatoryPromotion ?? alwaysMandatory;
+        this.isPromotedOnSquare = data.isPromotedOnSquare;
         this.timeControl = data.timeControl ?? "incremental";
         this.counting = data.counting;
         this.materialPoint = data.materialPoint;
@@ -229,9 +231,11 @@ interface VariantConfig {
         // (default) "regular" = Chess-style, pawns promote to one or more other pieces
         // "shogi" = Shogi-style, multiple pieces can promote, each piece has a specific piece type it promotes to
         // "kyoto" = Kyoto Shogi, like shogi, but pieces can also demote and can be dropped in promoted state
+        // TODO maybe shogi and kyoto should be merged -Ada
     promotionOrder?: PromotionSuffix[]; // The order of pieces to be shown in promotion choice
-    promoteableLetters?: cg.Letter[]; // The letters of pieces that can promote
-    isMandatoryPromotion?: MandatoryPromotionPredicate; // Specific condition to determine if a piece promotion is mandatory
+    promoteableLetters?: cg.Letter[]; // The letters of pieces that could promote, used to add promoted pieces to the editor
+    isMandatoryPromotion?: MandatoryPromotionPredicate; // (TODO this should no longer be necessary -Ada) Specific condition to determine if a piece promotion is mandatory
+    isPromotedOnSquare?: (piece: cg.Piece, pos: cg.Pos) => boolean; // For variants where some pieces' promotion states are strictly determined by its residing square. Similar to Xiangqi's soldier but actually uses the promotion mechanic. Used to switch the pieces in the editor.
     timeControl?: TimeControlType; // Default time control type
         // (default) "incremental" = Fischer increment. An amount of time is added to the clock after each move
         // "byoyomi" = Overtime. An amount of time is given for each move after the main time runs out
@@ -747,7 +751,18 @@ export const VARIANTS: { [name: string]: Variant } = {
         pieceLetters: ["r", "v", "s", "q", "k", "j", "o", "p"],
         kingLetters: ["k", "+k"],
         promotion: "shogi",
-        promoteableLetters: ["p", "k"],
+        promoteableLetters: ['p', 'k'],
+        isPromotedOnSquare: (piece: cg.Piece, pos: cg.Pos) => {
+            switch (piece.role) {
+                case 'p-piece':
+                case 'pp-piece':
+                case 'k-piece':
+                case 'pk-piece':
+                    return (piece.color === 'white' && pos[1] >= 4) || (piece.color === 'black' && pos[1] <= 4);
+                default:
+                    return false;
+            }
+        },
         icon: "🐬",
     }),
 

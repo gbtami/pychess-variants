@@ -288,6 +288,21 @@ export class EditorController extends ChessgroundController {
     }
 
     private onChangeBoard = () => {
+        if (this.variant.isPromotedOnSquare) {
+            // Convert each piece to its correct promotion state
+            for (const [key, piece] of this.chessground.state.boardState.pieces) {
+                if (this.variant.isPromotedOnSquare(piece, util.key2pos(key))) {
+                    piece.role = promotedRole(this.variant, piece);
+                    piece.promoted = true;
+                }
+                else {
+                    piece.role = unpromotedRole(this.variant, piece);
+                    piece.promoted = false;
+                }
+            }
+            this.chessground.redrawAll();
+        }
+
         // onChange() will get then set and validate FEN from chessground pieces
         this.parts[0] = this.chessground.getFen();
         this.fullfen = this.parts.join(' ');
