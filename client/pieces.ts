@@ -11,15 +11,14 @@ type Position = 'top' | 'bottom';
 const eventNames = ['mousedown', 'touchstart'];
 
 export function piecesView(ctrl: EditorController, color: cg.Color, position: Position) {
-    const width = ctrl.variant.boardWidth;
-    const height = ctrl.variant.boardHeight;
-    const roles: (cg.Role | '')[] = [...ctrl.variant.pieceRoles[color]];
-    if (['shogi', 'kyoto'].includes(ctrl.variant.promotion)) {
+    const width = ctrl.variant.board.dimensions.width;
+    const height = ctrl.variant.board.dimensions.height;
+    const roles: (cg.Role | '')[] = [...ctrl.variant.roles.pieceRow[color]];
+    if (ctrl.variant.promotion.type === 'shogi') {
         const len = roles.length;
-        const width = ctrl.variant.boardWidth;
         const extraRoles = roles.
-            filter(_ => !ctrl.variant.isPromotedOnSquare).
-            filter(r => ctrl.variant.promoteableRoles.includes(r as cg.Role)).
+            filter(_ => !ctrl.variant.promotion.strict).
+            filter(r => ctrl.variant.promotion.roles.includes(r as cg.Role)).
             map(r => promotedRole(ctrl.variant, { role: r as cg.Role, color: color }));
         if (len <= width && len + extraRoles.length > width) {
             for (let i = len; i < width; i++)

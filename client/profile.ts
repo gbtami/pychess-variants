@@ -65,17 +65,17 @@ function renderGames(model: PyChessModel, games: Game[]) {
         const chess960 = game.z === 1;
 
         return h('tr', [h('a', { attrs: { href : '/' + game["_id"] } }, [
-            h('td.board', { class: { "with-pockets": variant.pocket } }, [
-                h(`selection.${variant.board}.${variant.piece}`, [
-                    h(`div.cg-wrap.${variant.cg}.mini`, {
+            h('td.board', { class: { "with-pockets": !!variant.pocket } }, [
+                h(`selection.${variant.boardFamily}.${variant.pieceFamily}`, [
+                    h(`div.cg-wrap.${variant.board.cg}.mini`, {
                         hook: {
                             insert: vnode => Chessground(vnode.elm as HTMLElement, {
                                 coordinates: false,
                                 viewOnly: true,
                                 fen: game["f"],
                                 lastMove: uci2LastMove(game.lm),
-                                dimensions: variant.boardDimensions,
-                                pocketRoles: variant.pocketRoles,
+                                dimensions: variant.board.dimensions,
+                                pocketRoles: variant.pocket?.roles,
                             })
                         }
                     }),

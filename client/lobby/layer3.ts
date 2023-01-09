@@ -48,7 +48,7 @@ export function layer3variant (container2Id: string, lobbyCtrl: LobbyController,
             variantBoard(variant, variant.startFen),
         ]),
         h('button.layer-2-category l3t', [
-            h('p.variant-extra-info', (chess960) ? chess960Tooltip(variant.name) : variant.tooltip()),
+            h('p.variant-extra-info', (chess960) ? chess960Tooltip(variant.name) : variant.tooltip),
             h('a.variant-extra-info', { class: {"icon": true, "icon-book": true}, attrs: { href: lobbyCtrl.home + '/variants/' + variant.name, target: '_blank' } }, _('Rules')),
             h('p.variant-extra-info', _('Tip: ') + proTip(variant.name, chess960)),
         ]),

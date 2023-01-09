@@ -109,7 +109,7 @@ class BoardSettings {
 
     updateZoom(family: keyof typeof BOARD_FAMILIES) {
         const variant = this.ctrl?.variant;
-        if (variant && variant.board === family) {
+        if (variant && variant.boardFamily === family) {
             const zoomSettings = this.getSettings("Zoom", family as string) as ZoomSettings;
             const zoom = zoomSettings.value;
             const el = document.querySelector('.cg-wrap:not(.pocket)') as HTMLElement;
@@ -137,14 +137,14 @@ class BoardSettings {
 
         const settingsList : VNode[] = [];
 
-        const boardFamily = VARIANTS[variantName].board;
-        const pieceFamily = VARIANTS[variantName].piece;
+        const boardFamily = VARIANTS[variantName].boardFamily;
+        const pieceFamily = VARIANTS[variantName].pieceFamily;
 
         settingsList.push(this.settings["animation"].view());
 
         settingsList.push(this.settings["showDests"].view());
 
-        if (variant.autoPromoteable)
+        if (variant.rules.autoPromoteable)
             settingsList.push(this.settings["autoPromote"].view());
 
         settingsList.push(this.settings["arrow"].view());

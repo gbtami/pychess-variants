@@ -32,7 +32,7 @@ export abstract class ChessgroundController implements IBoardController {
 
         this.variant = VARIANTS[model.variant];
         this.chess960 = model.chess960 === 'True';
-        this.hasPockets = this.variant.pocket;
+        this.hasPockets = !!this.variant.pocket;
         this.anon = model.anon === 'True';
         this.mycolor = 'white';
         this.oppcolor = 'black';
@@ -47,17 +47,17 @@ export abstract class ChessgroundController implements IBoardController {
 
         this.chessground = Chessground(el, {
             fen: fen_placement as cg.FEN,
-            dimensions: this.variant.boardDimensions,
+            dimensions: this.variant.board.dimensions,
             notation: this.notation,
             addDimensionsCssVarsTo: document.body,
-            kingRoles: this.variant.kingRoles,
-            pocketRoles: this.variant.pocketRoles,
+            kingRoles: this.variant.roles.kings,
+            pocketRoles: this.variant.pocket?.roles,
         }, pocket0, pocket1);
 
         boardSettings.ctrl = this;
         boardSettings.assetURL = model.assetURL;
-        const boardFamily = this.variant.board;
-        const pieceFamily = this.variant.piece;
+        const boardFamily = this.variant.boardFamily;
+        const pieceFamily = this.variant.pieceFamily;
         boardSettings.updateBoardStyle(boardFamily);
         boardSettings.updatePieceStyle(pieceFamily);
         boardSettings.updateZoom(boardFamily);

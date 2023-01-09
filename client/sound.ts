@@ -94,7 +94,7 @@ class Sounds {
     };
 
     moveSound(variant: Variant, capture: boolean) {
-        const soundSet = variant.pieceSound in this.moveSoundSet? this.moveSoundSet[variant.pieceSound] : this.moveSoundSet.regular ;
+        const soundSet = variant.ui.pieceSound in this.moveSoundSet? this.moveSoundSet[variant.ui.pieceSound] : this.moveSoundSet.regular;
         if (capture)
             soundSet.capture();
         else
@@ -151,7 +151,7 @@ const soundThemes = {
 
 class SoundThemeSettings extends StringSettings {
     assetURL: string;
-    
+
     constructor() {
         super('soundtheme', 'standard');
     }

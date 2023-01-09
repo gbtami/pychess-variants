@@ -172,15 +172,15 @@ export abstract class GameController extends ChessgroundController implements IC
             this.promotions = [];
             legalMoves.forEach((move: string) => {
                 // In duck chess we have to cut off the second leg part (the duck move)
-                const moveStr = (this.variant.duck) ? move.slice(0, -5) : uci2cg(move);
+                const moveStr = (this.variant.rules.duck) ? move.slice(0, -5) : uci2cg(move);
                 
                 const tail = moveStr.slice(-1);
                 if (tail > '9' || tail === '+' || tail === '-') {
-                    if (!(this.variant.gate && (moveStr.slice(1, 2) === '1' || moveStr.slice(1, 2) === '8'))) {
+                    if (!(this.variant.rules.gate && (moveStr.slice(1, 2) === '1' || moveStr.slice(1, 2) === '8'))) {
                         this.promotions.push(moveStr);
                     }
                 }
-                if (this.variant.promotion === 'kyoto' && moveStr.slice(0, 1) === '+') {
+                if (moveStr.slice(0, 1) === '+') {
                     this.promotions.push(moveStr);
                 }
             });
@@ -225,7 +225,7 @@ export abstract class GameController extends ChessgroundController implements IC
     sendMove(orig: cg.Orig, dest: cg.Key, promo: string) {
         let move = cg2uci(orig + dest + promo);
 
-        if (this.variant.duck) {
+        if (this.variant.rules.duck) {
             // first leg made with standard chess piece
             if (this.duckChessMove.length === 0) {
                 let kingCount = 0;
@@ -277,15 +277,15 @@ export abstract class GameController extends ChessgroundController implements IC
         this.turnColor = step.turnColor;
         this.fullfen = step.fen;
 
-        if (this.variant.duck) {
+        if (this.variant.rules.duck) {
             this.duckChessMove = '';
         }
 
-        if (this.variant.counting) {
+        if (this.variant.ui.counting) {
             updateCount(step.fen, document.getElementById('misc-infow') as HTMLElement, document.getElementById('misc-infob') as HTMLElement);
         }
 
-        if (this.variant.materialPoint) {
+        if (this.variant.ui.materialPoint) {
             updatePoint(step.fen, document.getElementById('misc-infow') as HTMLElement, document.getElementById('misc-infob') as HTMLElement);
         }
 
@@ -323,7 +323,7 @@ export abstract class GameController extends ChessgroundController implements IC
             // In duck chess after white first move made (startfen && dests.size === 1)
             // white have to add the duck by one click on some empty square
             // because it is not on the board still 
-            if (this.variant.duck && this.fullfen === this.variant.startFen && this.chessground.state.movable.dests.size === 1) {
+            if (this.variant.rules.duck && this.fullfen === this.variant.startFen && this.chessground.state.movable.dests.size === 1) {
                 if (this.chessground.state.boardState.pieces.get(key) === undefined) {
                     this.chessground.setPieces(new Map([[key, {
                         color: 'white',
@@ -338,7 +338,7 @@ export abstract class GameController extends ChessgroundController implements IC
 
             // Save state.pieces to help recognise 960 castling (king takes rook) moves
             // Shouldn't this be implemented in chessground instead?
-            if (this.chess960 && this.variant.gate) {
+            if (this.chess960 && this.variant.rules.gate) {
                 this.prevPieces = new Map(this.chessground.state.boardState.pieces);
             }
 
@@ -357,7 +357,7 @@ export abstract class GameController extends ChessgroundController implements IC
                         this.chessground.selectSquare(key);
                         sound.moveSound(this.variant, false);
                         this.sendMove(key, key, 'f');
-                    } else if ((this.chessground.state.stats.ctrlKey || this.dblClickPass) && this.variant.pass) {
+                    } else if ((this.chessground.state.stats.ctrlKey || this.dblClickPass) && this.variant.rules.pass) {
                         this.pass(key);
                     }
                 }
@@ -403,7 +403,7 @@ export abstract class GameController extends ChessgroundController implements IC
         if (moved === undefined) moved = {role: 'k-piece', color: this.mycolor} as cg.Piece;
 
         // chessground doesn't know about en passant, so we have to remove the captured pawn manually
-        if (meta.captured === undefined && moved !== undefined && moved.role === "p-piece" && orig[0] !== dest[0] && this.variant.enPassant) {
+        if (meta.captured === undefined && moved !== undefined && moved.role === "p-piece" && orig[0] !== dest[0] && this.variant.rules.enPassant) {
             const pos = util.key2pos(dest),
                 pawnKey = util.pos2key([pos[0], pos[1] + (this.mycolor === 'white' ? -1 : 1)]);
             meta.captured = pieces.get(pawnKey);
@@ -412,7 +412,7 @@ export abstract class GameController extends ChessgroundController implements IC
 
         // add the captured piece to the pocket
         // chessground doesn't know what piece to revert a captured promoted piece into, so it needs to be handled here
-        if (this.variant.captureToHand && meta.captured) {
+        if (this.variant.pocket?.captureToHand && meta.captured) {
             const piece = {
                 role: unpromotedRole(this.variant, meta.captured),
                 color: util.opposite(meta.captured.color),
@@ -421,8 +421,8 @@ export abstract class GameController extends ChessgroundController implements IC
             this.chessground.state.dom.redraw();
         }
 
-        //  gating elephant/hawk
-        if (this.variant.gate) {
+        // gating elephant/hawk
+        if (this.variant.rules.gate) {
             if (!this.promotion.start(moved.role, orig, dest, meta.ctrlKey) && !this.gating.start(this.fullfen, orig, dest))
                 this.sendMove(orig, dest, '');
         } else {
@@ -438,7 +438,7 @@ export abstract class GameController extends ChessgroundController implements IC
     protected onUserDrop(piece: cg.Piece, dest: cg.Key, meta: cg.MoveMetadata) {
         this.preaction = meta.premove;
         const role = piece.role;
-        if (this.variant.promotion === 'kyoto') {
+        if (this.variant.promotion.type === 'shogi') {
             if (!this.promotion.start(role, util.dropOrigOf(role), dest))
                 this.sendMove(util.dropOrigOf(role), dest, '');
         } else {
