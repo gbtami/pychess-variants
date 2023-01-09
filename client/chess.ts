@@ -183,7 +183,7 @@ function variant(config: VariantConfig): Variant {
             strict: config.promotion?.strict,
         },
         rules: {
-            defaultTimeControl: config.rules?.timeControl ?? 'incremental',
+            defaultTimeControl: config.rules?.defaultTimeControl ?? 'incremental',
             get autoPromoteable() { return this.promotion.order.length > 2 },
             enPassant: !!config.rules?.enPassant,
             gate: !!config.rules?.gate,
@@ -268,7 +268,7 @@ interface VariantConfig {
     // (default: false)
     rules?: {
         // Default time control (default: incremental)
-        timeControl?: TimeControlType;
+        defaultTimeControl?: TimeControlType;
         // Chess's en passant
         enPassant?: boolean;
         // S-Chess gating
@@ -430,7 +430,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         roles: { pieceRow: ["k", "g", "r", "b", "s", "n", "l", "p"] },
         pocket: { roles: ["p", "l", "n", "s", "g", "b", "r"], captureToHand: true },
         promotion: { type: "shogi", roles: ["p", "l", "n", "s", "r", "b"] },
-        rules: { timeControl: "byoyomi" },
+        rules: { defaultTimeControl: "byoyomi" },
         ui: { pieceSound: "shogi" },
         alternateStart: {
             '': '',
@@ -456,7 +456,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         roles: { pieceRow: ["k", "g", "r", "b", "s", "p"] },
         pocket: { roles: ["p", "s", "g", "b", "r"], captureToHand: true },
         promotion: { type: "shogi", roles: ["p", "s", "r", "b"] },
-        rules: { timeControl: "byoyomi" },
+        rules: { defaultTimeControl: "byoyomi" },
         ui: { pieceSound: "shogi" },
     }),
 
@@ -469,7 +469,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         roles: { pieceRow: ["k", "l", "s", "n", "p"] },
         pocket: { roles: ["p", "l", "n", "s"], captureToHand: true },
         promotion: { type: "shogi", roles: ["p", "l", "n", "s"] },
-        rules: { timeControl: "byoyomi" },
+        rules: { defaultTimeControl: "byoyomi" },
         ui: { pieceSound: "shogi" },
     }),
 
@@ -482,7 +482,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         roles: { pieceRow: ["l", "g", "e", "c"], kings: ["l"] },
         pocket: { roles: ["e", "g", "c"], captureToHand: true },
         promotion: { type: "shogi", roles: ["c"] },
-        rules: { timeControl: "byoyomi" },
+        rules: { defaultTimeControl: "byoyomi" },
         ui: { pieceSound: "shogi" },
     }),
 
@@ -495,7 +495,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         roles: { pieceRow: ["k", "g", "s", "p"] },
         pocket: { roles: ["p", "s", "g"], captureToHand: true },
         promotion: { type: "shogi", roles: ["p", "s"] },
-        rules: { timeControl: "byoyomi" },
+        rules: { defaultTimeControl: "byoyomi" },
         ui: { pieceSound: "shogi" },
     }),
 
@@ -508,7 +508,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         roles: { pieceRow: ["k", "g", "s", "n", "l", "p"] },
         pocket: { roles: ["p", "l", "n", "s", "g"], captureToHand: true },
         promotion: { type: "shogi", roles: ["p", "s", "n", "l"] },
-        rules: { timeControl: "byoyomi" },
+        rules: { defaultTimeControl: "byoyomi" },
         ui: { pieceSound: "shogi" },
         alternateStart: {
             'Gorogoro Plus N+L': '',
@@ -525,7 +525,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         roles: { pieceRow: ["k", "c", "p", "l", "r", "f", "s"] },
         pocket: { roles: ["s", "p", "l", "r", "c", "f"], captureToHand: true },
         promotion: { type: "shogi", roles: ["s", "f"] },
-        rules: { timeControl: "byoyomi" },
+        rules: { defaultTimeControl: "byoyomi" },
         ui: { pieceSound: "shogi" },
         alternateStart: {
             '': '',
@@ -564,7 +564,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         colors: { first: "Blue", second: "Red" },
         roles: { pieceRow: ["k", "a", "c", "r", "b", "n", "p"] },
         promotion: { type: "regular", roles: [] },
-        rules: { timeControl: "byoyomi", pass: true, setup: true },
+        rules: { defaultTimeControl: "byoyomi", pass: true, setup: true },
         ui: { materialPoint: "janggi" },
     }),
 
@@ -672,7 +672,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         roles: { pieceRow: ["k", "f", "r", "b", "n", "p"] },
         pocket: { roles: ["p", "n", "b", "r", "f"], captureToHand: true },
         promotion: { type: "shogi", roles: ["p", "f", "r", "b", "n"] },
-        rules: {timeControl: "byoyomi", enPassant: true },
+        rules: {defaultTimeControl: "byoyomi", enPassant: true },
     }),
 
     hoppelpoppel: variant({
