@@ -302,7 +302,7 @@ export abstract class GameController extends ChessgroundController implements IC
         let lastKey: cg.Key | undefined;
         return (key: cg.Key) => {
             if (this.duck.inputState === 'click') {
-                this.duck.duckClick(key);
+                this.duck.moveDuck(key);
                 return;
             }
 
@@ -371,7 +371,7 @@ export abstract class GameController extends ChessgroundController implements IC
       */
     protected onUserMove(orig: cg.Key, dest: cg.Key, meta: cg.MoveMetadata) {
         if (this.duck.inputState === "move") {
-            this.duck.duckMove(orig, dest);
+            this.duck.moveDuck(dest);
             return;
         }
 

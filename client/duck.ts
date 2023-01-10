@@ -51,17 +51,9 @@ export class DuckInput {
         }
     }
 
-    duckClick(key: cg.Key): void {
+    moveDuck(key: cg.Key): void {
         if (this.duckDests.includes(key) && this.ducking) {
             this.ctrl.processInput(this.ducking.piece, this.ducking.orig, this.ducking.dest, this.ducking.meta, ',' + this.ducking.dest + key, 'duck');
-            this.inputState = undefined;
-            this.ducking = undefined;
-        }
-    }
-
-    duckMove(_orig: cg.Key, dest: cg.Key): void {
-        if (this.ducking) {
-            this.ctrl.processInput(this.ducking.piece, this.ducking.orig, this.ducking.dest, this.ducking.meta, ',' + this.ducking.dest + dest, 'duck');
             this.inputState = undefined;
             this.ducking = undefined;
         }
