@@ -2,7 +2,7 @@ import { h } from "snabbdom";
 
 import { backgroundSettings } from './background';
 import { boardSettings } from './boardSettings';
-import { selectVariant } from './chess';
+import { selectVariant } from './variants';
 import { patch, getDocumentData } from './document';
 import { _, translatedLanguage, languageSettings } from './i18n';
 import { volumeSettings, soundThemeSettings } from './sound';

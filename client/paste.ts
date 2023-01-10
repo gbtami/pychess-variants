@@ -4,7 +4,7 @@ import { h, VNode } from 'snabbdom';
 
 import { _ } from './i18n';
 import { variantsIni } from './variantsIni';
-import { VARIANTS } from './chess';
+import { VARIANTS } from './variants';
 import { parseKif, resultString } from '../client/kif';
 import { PyChessModel } from "./types";
 

@@ -8,16 +8,17 @@ import { newWebsocket } from './socket';
 import { JSONObject } from './types';
 import { _, ngettext, languageSettings } from './i18n';
 import { patch } from './document';
-import { chatMessage, chatView, IChatController } from './chat';
-import { validFen, VARIANTS, selectVariant, Variant } from './chess';
+import { chatMessage, chatView, ChatController } from './chat';
+import { VARIANTS, selectVariant, Variant } from './variants';
 import { timeControlStr } from './view';
 import { notify } from './notification';
 import { PyChessModel } from "./types";
 import { MsgChat, MsgFullChat } from "./messages";
 import { variantPanels } from './lobby/layer1';
 import { Stream, Spotlight, MsgInviteCreated, MsgHostCreated, MsgGetSeeks, MsgNewGame, MsgGameInProgress, MsgUserConnected, MsgPing, MsgError, MsgShutdown, MsgGameCounter, MsgUserCounter, MsgStreams, MsgSpotlights, Seek, CreateMode } from './lobbyType';
+import { validFen } from './chess';
 
-export class LobbyController implements IChatController {
+export class LobbyController implements ChatController {
     sock: WebsocketHeartbeatJs;
     home: string;
     assetURL: string;
@@ -239,7 +240,7 @@ export class LobbyController implements IChatController {
         localStorage.seek_inc = e.value;
 
         e = document.getElementById('byo') as HTMLInputElement;
-        const byoyomi = variant.timeControl === "byoyomi";
+        const byoyomi = variant.rules.defaultTimeControl === "byoyomi";
         const byoyomiPeriod = (byoyomi && increment > 0) ? Number(e.value) : 0;
         localStorage.seek_byo = e.value;
 
@@ -493,7 +494,7 @@ export class LobbyController implements IChatController {
         let e;
         e = document.getElementById('variant') as HTMLSelectElement;
         const variant = VARIANTS[e.options[e.selectedIndex].value];
-        const byoyomi = variant.timeControl === "byoyomi";
+        const byoyomi = variant.rules.defaultTimeControl === "byoyomi";
         // TODO use toggle class instead of setting style directly
         document.getElementById('chess960-block')!.style.display = variant.chess960 ? 'block' : 'none';
         document.getElementById('byoyomi-period')!.style.display = byoyomi ? 'block' : 'none';
@@ -638,12 +639,12 @@ export class LobbyController implements IChatController {
     private tooltip(seek: Seek, variant: Variant) {
         let tooltipImage;
         if (seek.fen) {
-            tooltipImage = h('minigame.' + variant.board + '.' + variant.piece, [
-                h('div.cg-wrap.' + variant.cg + '.minitooltip',
+            tooltipImage = h('minigame.' + variant.boardFamily + '.' + variant.pieceFamily, [
+                h('div.cg-wrap.' + variant.board.cg + '.minitooltip',
                     { hook: { insert: (vnode) => Chessground(vnode.elm as HTMLElement, {
                         coordinates: false,
                         fen: seek.fen,
-                        dimensions: variant.boardDimensions,
+                        dimensions: variant.board.dimensions,
                     })}}
                 ),
             ]);

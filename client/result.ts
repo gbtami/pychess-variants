@@ -1,7 +1,7 @@
 import { h } from 'snabbdom';
 
 import { _ } from './i18n';
-import { Variant } from './chess';
+import { Variant } from './variants';
 
 export function gameType(rated: string | number) {
     switch (rated) {
@@ -39,8 +39,8 @@ export function result(variant: Variant, status: number, result: string) {
     let text = '';
     const variantName = variant.name;
     // console.log("result()", variantName, status, result);
-    const first = _(variant.firstColor);
-    const second = _(variant.secondColor);
+    const first = _(variant.colors.first);
+    const second = _(variant.colors.second);
     switch (status) {
         case -2:
         case -1:

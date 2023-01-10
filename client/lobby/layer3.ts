@@ -3,7 +3,7 @@ import { h } from 'snabbdom';
 import { _ } from '../i18n';
 import { LobbyController } from '../lobby';
 import { patch } from '../document';
-import { Variant, VARIANTS } from '../chess';
+import { Variant, VARIANTS } from '../variants';
 import { variantBoard } from './util';
 import { layer2chess } from './layer2chess';
 import { layer2fairy } from './layer2fairy';
@@ -48,7 +48,7 @@ export function layer3variant (container2Id: string, lobbyCtrl: LobbyController,
             variantBoard(variant, variant.startFen),
         ]),
         h('button.layer-2-category l3t', [
-            h('p.variant-extra-info', (chess960) ? chess960Tooltip(variant.name) : variant.tooltip()),
+            h('p.variant-extra-info', (chess960) ? chess960Tooltip(variant.name) : variant.tooltip),
             h('a.variant-extra-info', { class: {"icon": true, "icon-book": true}, attrs: { href: lobbyCtrl.home + '/variants/' + variant.name, target: '_blank' } }, _('Rules')),
             h('p.variant-extra-info', _('Tip: ') + proTip(variant.name, chess960)),
         ]),

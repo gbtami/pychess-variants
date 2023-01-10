@@ -3,7 +3,7 @@ import { h } from "snabbdom";
 import { _ } from './i18n';
 import { patch } from './document';
 
-export interface IChatController {
+export interface ChatController {
     anon: boolean;
     doSend: any;
     spectator?: boolean;
@@ -11,7 +11,7 @@ export interface IChatController {
     tournamentId?: string;
 }
 
-export function chatView(ctrl: IChatController, chatType: string) {
+export function chatView(ctrl: ChatController, chatType: string) {
     const spectator = ("spectator" in ctrl && ctrl.spectator);
 
     function onKeyPress (e: KeyboardEvent) {

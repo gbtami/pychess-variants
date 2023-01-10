@@ -61,7 +61,6 @@ export class AnalysisController extends GameController {
     isAnalysisBoard: boolean;
     isEngineReady: boolean;
     notationAsObject: any;
-    prevPieces: cg.Pieces;
     arrow: boolean;
     multipv: number;
     evalFile: string;
@@ -169,7 +168,7 @@ export class AnalysisController extends GameController {
             }
         }
 
-        if (this.variant.materialPoint) {
+        if (this.variant.ui.materialPoint) {
             const miscW = document.getElementById('misc-infow') as HTMLElement;
             const miscB = document.getElementById('misc-infob') as HTMLElement;
             miscW.style.textAlign = 'right';
@@ -180,7 +179,7 @@ export class AnalysisController extends GameController {
             (document.getElementById('misc-info') as HTMLElement).style.justifyContent = 'space-around';
         }
 
-        if (this.variant.counting) {
+        if (this.variant.ui.counting) {
             (document.getElementById('misc-infow') as HTMLElement).style.textAlign = 'center';
             (document.getElementById('misc-infob') as HTMLElement).style.textAlign = 'center';
         }
@@ -556,7 +555,7 @@ export class AnalysisController extends GameController {
             if (blackEl && ceval !== undefined) {
                 const score = ceval['s'];
                 // TODO set gauge colour according to the variant's piece colour
-                const color = (this.variant.firstColor === "Black") ? turnColor === 'black' ? 'white' : 'black' : turnColor;
+                const color = (this.variant.colors.first === "Black") ? turnColor === 'black' ? 'white' : 'black' : turnColor;
                 if (score !== undefined) {
                     const ev = povChances(color, score);
                     blackEl.style.height = String(100 - (ev + 1) * 50) + '%';
@@ -803,7 +802,7 @@ export class AnalysisController extends GameController {
 
         const msg : MsgAnalysisBoard = {
             gameId: this.gameId,
-            fen: this.ffishBoard.fen(this.variant.showPromoted, 0),
+            fen: this.ffishBoard.fen(this.variant.ui.showPromoted, 0),
             ply: newPly,
             lastMove: move,
             bikjang: this.ffishBoard.isBikjang(),
