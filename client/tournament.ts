@@ -7,7 +7,7 @@ import { newWebsocket } from './socket';
 import { JSONObject, PyChessModel } from './types';
 import { _ } from './i18n';
 import { patch } from './document';
-import { chatMessage, chatView, IChatController } from './chat';
+import { chatMessage, chatView, ChatController } from './chat';
 import { colorIcon, uci2LastMove } from './chess';
 import { VARIANTS, Variant } from './variants';
 import { timeControlStr } from "./view";
@@ -32,7 +32,7 @@ const SCORE_SHIFT = 100000;
 const SHIELD = 's';
 
 
-export class TournamentController implements IChatController {
+export class TournamentController implements ChatController {
     sock;
     tournamentId: string;
     readyState: number; // seems unused

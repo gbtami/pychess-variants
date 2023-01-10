@@ -16,9 +16,9 @@ import { ChessgroundController } from './cgCtrl';
 import { JSONObject, PyChessModel } from './types';
 import { updateCount, updatePoint } from './info';
 import { sound } from './sound';
-import { chatMessage, IChatController } from './chat';
+import { chatMessage, ChatController } from './chat';
 
-export abstract class GameController extends ChessgroundController implements IChatController {
+export abstract class GameController extends ChessgroundController implements ChatController {
     sock: WebsocketHeartbeatJs;
 
     // Info
