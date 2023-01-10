@@ -144,7 +144,7 @@ export function validFen(variant: Variant, fen: string): boolean {
     }
 
     // Number of kings
-    const king = util.letterOf(variant.roles.kings[0]);
+    const king = util.letterOf(variant.kingRoles[0]);
     if (lc(placement, king, false) !== 1 || lc(placement, king, true) !== 1) return false;
 
     return true;

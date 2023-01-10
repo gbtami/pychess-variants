@@ -30,7 +30,8 @@ export class DuckInput {
         }
 
         // Automatically move the duck if a king is captured, as the game is already over
-        if (meta.captured && this.ctrl.variant.roles.kings.includes(meta.captured.role)) {
+        // This assumes each side only has one king in any duck variant
+        if (meta.captured && this.ctrl.variant.kingRoles.includes(meta.captured.role)) {
             this.ctrl.processInput(piece, orig, dest, meta, ',' + dest + orig, 'duck');
             return;
         }
@@ -40,6 +41,7 @@ export class DuckInput {
         if (duckKey === undefined) {
             this.inputState = 'click';
         } else {
+            // Change the duck's color so that it became movable by the player
             this.ctrl.chessground.state.boardState.pieces.get(duckKey)!.color = piece.color;
             this.ctrl.chessground.set({
                 turnColor: piece.color,

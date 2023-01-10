@@ -17,7 +17,7 @@ export interface PieceFamily {
     readonly pieceCSS: string[];
 }
 
-export const BOARD_FAMILIES: { [key: string]: BoardFamily } = {
+export const BOARD_FAMILIES: Record<string, BoardFamily> = {
     standard8x8: { dimensions: { width: 8, height: 8 }, cg: "cg-512", boardCSS: ["8x8brown.svg", "8x8blue.svg", "8x8green.svg", "8x8maple.jpg", "8x8olive.jpg", "8x8santa.png", "8x8wood2.jpg", "8x8wood4.jpg", "8x8ic.svg", "8x8purple.svg"] },
     standard10x8: { dimensions: { width: 10, height: 8 }, cg: "cg-640", boardCSS: ["10x8brown.svg", "10x8blue.svg", "10x8green.svg", "10x8maple.jpg", "10x8olive.jpg"] },
     standard10x10: { dimensions: { width: 10, height: 10 }, cg: "cg-640-640", boardCSS: ["10x10brown.svg", "10x10blue.svg", "10x10green.svg", "10x10maple.jpg", "10x10olive.jpg"] },
@@ -37,7 +37,7 @@ export const BOARD_FAMILIES: { [key: string]: BoardFamily } = {
     chennis7x7:{ dimensions: { width: 7, height: 7 }, cg: "cg-448", boardCSS: ["WimbledonBoard.svg", "FrenchOpenBoard.svg", "USOpenBoard.svg"] },
 };
 
-export const PIECE_FAMILIES: { [key: string]: PieceFamily } = {
+export const PIECE_FAMILIES: Record<string, PieceFamily> = {
     standard: { pieceCSS: ["standard", "green", "alpha", "chess_kaneo", "santa", "maestro", "dubrovny", "disguised", "atopdown"] },
     capa: { pieceCSS: ["capa0", "capa1", "capa2", "capa3", "capa4", "capa5", "disguised"] },
     seirawan: { pieceCSS: ["seir1", "seir0", "seir2", "seir3", "seir4", "seir5", "disguised"] },
@@ -81,10 +81,8 @@ export interface Variant {
         readonly first: ColorName;
         readonly second: ColorName;
     }
-    readonly roles: {
-        readonly pieceRow: Record<cg.Color, cg.Role[]>;
-        readonly kings: cg.Role[];
-    };
+    readonly pieceRow: Record<cg.Color, cg.Role[]>;
+    readonly kingRoles: cg.Role[];
     readonly pocket?: {
         readonly roles: Record<cg.Color, cg.Role[]> | undefined;
         readonly captureToHand: boolean;
@@ -138,16 +136,14 @@ function variant(config: VariantConfig): Variant {
         pieceFamily: config.pieceFamily,
         piece: PIECE_FAMILIES[config.pieceFamily],
         colors: config.colors ?? { first: 'White', second: 'Black' },
-        roles: {
-            pieceRow: Array.isArray(config.roles.pieceRow) ? {
-                white: config.roles.pieceRow.map(util.roleOf),
-                black: config.roles.pieceRow.map(util.roleOf),
-            } : {
-                white: config.roles.pieceRow.white.map(util.roleOf),
-                black: config.roles.pieceRow.black.map(util.roleOf),
-            },
-            kings: (config.roles.kings ?? ['k']).map(util.roleOf),
+        pieceRow: Array.isArray(config.pieceRow) ? {
+            white: config.pieceRow.map(util.roleOf),
+            black: config.pieceRow.map(util.roleOf),
+        } : {
+            white: config.pieceRow.white.map(util.roleOf),
+            black: config.pieceRow.black.map(util.roleOf),
         },
+        kingRoles: (config.kingRoles ?? ['k']).map(util.roleOf),
         pocket: config.pocket ? {
             roles: Array.isArray(config.pocket.roles) ? {
                 white: config.pocket.roles.map(util.roleOf),
@@ -215,13 +211,11 @@ interface VariantConfig {
         // (default: Black)
         second: ColorName;
     }
-    roles: {
-        // Pieces on the editor's piece row
-        // Use the record version if the pieces of each side are different
-        pieceRow: cg.Letter[] | Record<cg.Color, cg.Letter[]>;
-        // Pieces considered king for check marking (default: ['k'])
-        kings?: cg.Letter[];
-    };
+    // Pieces on the editor's piece row
+    // Use the record version if the pieces of each side are different
+    pieceRow: cg.Letter[] | Record<cg.Color, cg.Letter[]>;
+    // Pieces considered king for check marking (default: ['k'])
+    kingRoles?: cg.Letter[];
     pocket?: {
         // Pieces in the pocket
         // Use the record version if the pieces of each side are different
@@ -284,13 +278,13 @@ interface VariantConfig {
     alternateStart?: Record<string, string>;
 }
 
-export const VARIANTS: { [name: string]: Variant } = {
+export const VARIANTS: Record<string, Variant> = {
     chess: variant({
         name: "chess", tooltip: "Chess, unmodified, as it's played by FIDE standards.",
         startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
         chess960: true, icon: "M", icon960: "V",
         boardFamily: "standard8x8", pieceFamily: "standard",
-        roles: { pieceRow: ["k", "q", "r", "b", "n", "p"] },
+        pieceRow: ["k", "q", "r", "b", "n", "p"],
         rules: { enPassant: true },
         alternateStart: {
             '': "",
@@ -307,7 +301,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[] w KQkq - 0 1",
         chess960: true, icon: "+", icon960: "%",
         boardFamily: "standard8x8", pieceFamily: "standard",
-        roles: { pieceRow: ["k", "q", "r", "b", "n", "p"] },
+        pieceRow: ["k", "q", "r", "b", "n", "p"],
         pocket: {
             roles: ["p", "n", "b", "r", "q"],
             captureToHand: true,
@@ -328,7 +322,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         startFen: "8/pppppppp/8/8/8/8/PPPPPPPP/8[KQRRBBNNkqrrbbnn] w - - 0 1",
         icon: "S",
         boardFamily: "standard8x8", pieceFamily: "standard",
-        roles: { pieceRow: ["k", "q", "r", "b", "n", "p"] },
+        pieceRow: ["k", "q", "r", "b", "n", "p"],
         pocket: { roles: ["n", "b", "r", "q", "k"], captureToHand: false },
         rules: { enPassant: true },
     }),
@@ -338,7 +332,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
         chess960: true, icon: "~", icon960: "\\",
         boardFamily: "standard8x8", pieceFamily: "standard",
-        roles: { pieceRow: ["k", "q", "r", "b", "n", "p"] },
+        pieceRow: ["k", "q", "r", "b", "n", "p"],
         rules: { enPassant: true },
         ui: { pieceSound: "atomic" },
     }),
@@ -348,7 +342,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
         icon: "🦆",
         boardFamily: "standard8x8", pieceFamily: "standard",
-        roles: { pieceRow: { white: ["k", "q", "r", "b", "n", "p", "*"], black: ["k", "q", "r", "b", "n", "p"] } },
+        pieceRow: { white: ["k", "q", "r", "b", "n", "p", "*"], black: ["k", "q", "r", "b", "n", "p"] },
         rules: { enPassant: true, duck: true },
     }),
 
@@ -357,7 +351,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         startFen: "rnsmksnr/8/pppppppp/8/8/PPPPPPPP/8/RNSKMSNR w - - 0 1",
         icon: "Q",
         boardFamily: "makruk8x8", pieceFamily: "makruk",
-        roles: { pieceRow: ["k", "s", "m", "n", "r", "p", "m~" as cg.Letter] },
+        pieceRow: ["k", "s", "m", "n", "r", "p", "m~" as cg.Letter],
         promotion: { type: "regular", order: ["m"] },
         ui: { counting: "makruk", showPromoted: true },
     }),
@@ -367,7 +361,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         startFen: "rnsmksnr/8/pppppppp/8/8/PPPPPPPP/8/RNSKMSNR w - - 0 1",
         icon: "O",
         boardFamily: "makruk8x8", pieceFamily: "makruk",
-        roles: { pieceRow: ["k", "s", "m", "n", "r", "p", "m~" as cg.Letter] },
+        pieceRow: ["k", "s", "m", "n", "r", "p", "m~" as cg.Letter],
         promotion: { type: "regular", order: ["m"] },
         ui: { counting: "makruk", showPromoted: true },
     }),
@@ -377,7 +371,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         startFen: "rnsmksnr/8/pppppppp/8/8/PPPPPPPP/8/RNSKMSNR w DEde - 0 1",
         icon: "!",
         boardFamily: "makruk8x8", pieceFamily: "makruk",
-        roles: { pieceRow: ["k", "s", "m", "n", "r", "p", "m~" as cg.Letter] },
+        pieceRow: ["k", "s", "m", "n", "r", "p", "m~" as cg.Letter],
         promotion: { type: "regular", order: ["m"] },
         ui: { counting: "makruk", showPromoted: true },
     }),
@@ -388,7 +382,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         icon: ":",
         boardFamily: "sittuyin8x8", pieceFamily: "sittuyin",
         colors: { first: "Red", second: "Black" },
-        roles: { pieceRow: ["k", "f", "s", "n", "r", "p"] },
+        pieceRow: ["k", "f", "s", "n", "r", "p"],
         pocket: { roles: ["r", "n", "s", "f", "k"], captureToHand: false },
         promotion: { type: "regular", order: ["f"] },
     }),
@@ -398,7 +392,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         startFen: "rnbqkbnr/8/pppppppp/8/8/PPPPPPPP/8/RNBQKBNR w - - 0 1",
         icon: "♻",
         boardFamily: "standard8x8", pieceFamily: "asean",
-        roles: { pieceRow: ["k", "q", "b", "n", "r", "p"] },
+        pieceRow: ["k", "q", "b", "n", "r", "p"],
         promotion: { type: "regular", order: ["r", "n", "b", "q"] },
         ui: { counting: "asean" },
     }),
@@ -409,7 +403,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         icon: "K",
         boardFamily: "shogi9x9", pieceFamily: "shogi",
         colors: { first: "Black", second: "White" },
-        roles: { pieceRow: ["k", "g", "r", "b", "s", "n", "l", "p"] },
+        pieceRow: ["k", "g", "r", "b", "s", "n", "l", "p"],
         pocket: { roles: ["p", "l", "n", "s", "g", "b", "r"], captureToHand: true },
         promotion: { type: "shogi", roles: ["p", "l", "n", "s", "r", "b"] },
         rules: { defaultTimeControl: "byoyomi" },
@@ -435,7 +429,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         icon: "6",
         boardFamily: "shogi5x5", pieceFamily: "shogi",
         colors: { first: "Black", second: "White" },
-        roles: { pieceRow: ["k", "g", "r", "b", "s", "p"] },
+        pieceRow: ["k", "g", "r", "b", "s", "p"],
         pocket: { roles: ["p", "s", "g", "b", "r"], captureToHand: true },
         promotion: { type: "shogi", roles: ["p", "s", "r", "b"] },
         rules: { defaultTimeControl: "byoyomi" },
@@ -448,7 +442,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         icon: ")",
         boardFamily: "shogi5x5", pieceFamily: "kyoto",
         colors: { first: "Black", second: "White" },
-        roles: { pieceRow: ["k", "l", "s", "n", "p"] },
+        pieceRow: ["k", "l", "s", "n", "p"],
         pocket: { roles: ["p", "l", "n", "s"], captureToHand: true },
         promotion: { type: "shogi", roles: ["p", "l", "n", "s"] },
         rules: { defaultTimeControl: "byoyomi" },
@@ -461,7 +455,8 @@ export const VARIANTS: { [name: string]: Variant } = {
         icon: "8",
         boardFamily: "shogi3x4", pieceFamily: "dobutsu",
         colors: { first: "Black", second: "White" },
-        roles: { pieceRow: ["l", "g", "e", "c"], kings: ["l"] },
+        pieceRow: ["l", "g", "e", "c"],
+        kingRoles: ["l"],
         pocket: { roles: ["e", "g", "c"], captureToHand: true },
         promotion: { type: "shogi", roles: ["c"] },
         rules: { defaultTimeControl: "byoyomi" },
@@ -474,7 +469,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         icon: "🐱",
         boardFamily: "shogi5x6", pieceFamily: "shogi",
         colors: { first: "Black", second: "White" },
-        roles: { pieceRow: ["k", "g", "s", "p"] },
+        pieceRow: ["k", "g", "s", "p"],
         pocket: { roles: ["p", "s", "g"], captureToHand: true },
         promotion: { type: "shogi", roles: ["p", "s"] },
         rules: { defaultTimeControl: "byoyomi" },
@@ -487,7 +482,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         icon: "🐱",
         boardFamily: "shogi5x6", pieceFamily: "shogi",
         colors: { first: "Black", second: "White" },
-        roles: { pieceRow: ["k", "g", "s", "n", "l", "p"] },
+        pieceRow: ["k", "g", "s", "n", "l", "p"],
         pocket: { roles: ["p", "l", "n", "s", "g"], captureToHand: true },
         promotion: { type: "shogi", roles: ["p", "s", "n", "l"] },
         rules: { defaultTimeControl: "byoyomi" },
@@ -504,7 +499,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         icon: "🐦",
         boardFamily: "shogi7x7", pieceFamily: "tori",
         colors: { first: "Black", second: "White" },
-        roles: { pieceRow: ["k", "c", "p", "l", "r", "f", "s"] },
+        pieceRow: ["k", "c", "p", "l", "r", "f", "s"],
         pocket: { roles: ["s", "p", "l", "r", "c", "f"], captureToHand: true },
         promotion: { type: "shogi", roles: ["s", "f"] },
         rules: { defaultTimeControl: "byoyomi" },
@@ -524,7 +519,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         icon: "|",
         boardFamily: "xiangqi9x10", pieceFamily: "xiangqi",
         colors: { first: "Red", second: "Black" },
-        roles:{ pieceRow: ["k", "a", "c", "r", "b", "n", "p"] },
+        pieceRow: ["k", "a", "c", "r", "b", "n", "p"],
         promotion: { type: "regular", roles: [] },
     }),
 
@@ -534,7 +529,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         icon: "{",
         boardFamily: "xiangqi9x10", pieceFamily: "xiangqi",
         colors: { first: "Red", second: "Black" },
-        roles: { pieceRow: { white: ["k", "a", "m", "b", "p"], black: ["k", "a", "c", "r", "b", "n", "p"] } },
+        pieceRow: { white: ["k", "a", "m", "b", "p"], black: ["k", "a", "c", "r", "b", "n", "p"] },
         promotion: { type: "regular", roles: [] },
     }),
 
@@ -544,7 +539,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         icon: "=",
         boardFamily: "janggi9x10", pieceFamily: "janggi",
         colors: { first: "Blue", second: "Red" },
-        roles: { pieceRow: ["k", "a", "c", "r", "b", "n", "p"] },
+        pieceRow: ["k", "a", "c", "r", "b", "n", "p"],
         promotion: { type: "regular", roles: [] },
         rules: { defaultTimeControl: "byoyomi", pass: true, setup: true },
         ui: { materialPoint: "janggi" },
@@ -556,7 +551,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         icon: "7",
         boardFamily: "xiangqi7x7", pieceFamily: "xiangqi",
         colors: { first: "Red", second: "Black" },
-        roles: { pieceRow: ["k", "c", "r", "n", "p"] },
+        pieceRow: ["k", "c", "r", "n", "p"],
         promotion: { type: "regular", roles: [] },
     }),
 
@@ -565,7 +560,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         startFen: "rnabqkbcnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNABQKBCNR w KQkq - 0 1",
         chess960: true, icon: "P", icon960: ",",
         boardFamily: "standard10x8", pieceFamily: "capa",
-        roles: { pieceRow: ["k", "q", "c", "a", "r", "b", "n", "p"] },
+        pieceRow: ["k", "q", "c", "a", "r", "b", "n", "p"],
         rules: { enPassant: true },
         alternateStart: {
             '': '',
@@ -583,7 +578,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         startFen: "rnabqkbcnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNABQKBCNR[] w KQkq - 0 1",
         chess960: true, icon: "&", icon960: "'",
         boardFamily: "standard10x8", pieceFamily: "capa",
-        roles: { pieceRow: ["k", "q", "c", "a", "r", "b", "n", "p"] },
+        pieceRow: ["k", "q", "c", "a", "r", "b", "n", "p"],
         pocket: { roles: ["p", "n", "b", "r", "a", "c", "q"], captureToHand: true },
         rules: { enPassant: true },
         alternateStart: {
@@ -602,7 +597,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[HEhe] w KQBCDFGkqbcdfg - 0 1",
         icon: "L",  chess960: true, icon960: "}",
         boardFamily: "standard8x8", pieceFamily: "seirawan",
-        roles: { pieceRow: ["k", "q", "e", "h", "r", "b", "n", "p"] },
+        pieceRow: ["k", "q", "e", "h", "r", "b", "n", "p"],
         pocket: { roles: ["h", "e"], captureToHand: false },
         rules: { enPassant: true, gate: true },
     }),
@@ -612,7 +607,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[HEhe] w KQBCDFGkqbcdfg - 0 1",
         icon: "$",
         boardFamily: "standard8x8", pieceFamily: "seirawan",
-        roles: { pieceRow: ["k", "q", "e", "h", "r", "b", "n", "p"] },
+        pieceRow: ["k", "q", "e", "h", "r", "b", "n", "p"],
         pocket: { roles: ["p", "n", "b", "r", "h", "e", "q"], captureToHand: true },
         rules: { enPassant: true, gate: true },
     }),
@@ -622,7 +617,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         startFen: "r8r/1nbqkcabn1/pppppppppp/10/10/10/10/PPPPPPPPPP/1NBQKCABN1/R8R w - - 0 1",
         icon: "(",
         boardFamily: "grand10x10", pieceFamily: "capa",
-        roles: { pieceRow: ["k", "q", "c", "a", "r", "b", "n", "p"] },
+        pieceRow: ["k", "q", "c", "a", "r", "b", "n", "p"],
         rules: { enPassant: true },
     }),
 
@@ -631,7 +626,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         startFen: "r8r/1nbqkcabn1/pppppppppp/10/10/10/10/PPPPPPPPPP/1NBQKCABN1/R8R[] w - - 0 1",
         icon: "*",
         boardFamily: "grand10x10", pieceFamily: "capa",
-        roles: { pieceRow: ["k", "q", "c", "a", "r", "b", "n", "p"] },
+        pieceRow: ["k", "q", "c", "a", "r", "b", "n", "p"],
         pocket: { roles: ["p", "n", "b", "r", "a", "c", "q"], captureToHand: true },
         rules: { enPassant: true },
     }),
@@ -641,7 +636,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         startFen: "c8c/ernbqkbnre/pppppppppp/10/10/10/10/PPPPPPPPPP/ERNBQKBNRE/C8C w KQkq - 0 1",
         icon: "9",
         boardFamily: "standard10x10", pieceFamily: "shako",
-        roles: { pieceRow: ["k", "q", "e", "c", "r", "b", "n", "p"] },
+        pieceRow: ["k", "q", "e", "c", "r", "b", "n", "p"],
         promotion: { type: "regular", order: ["q", "n", "c", "r", "e", "b"] },
         rules: { enPassant: true },
     }),
@@ -651,7 +646,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         startFen: "rnb+fkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNB+FKBNR w KQkq - 0 1",
         icon: "-",
         boardFamily: "shogun8x8", pieceFamily: "shogun",
-        roles: { pieceRow: ["k", "f", "r", "b", "n", "p"] },
+        pieceRow: ["k", "f", "r", "b", "n", "p"],
         pocket: { roles: ["p", "n", "b", "r", "f"], captureToHand: true },
         promotion: { type: "shogi", roles: ["p", "f", "r", "b", "n"] },
         rules: {defaultTimeControl: "byoyomi", enPassant: true },
@@ -662,7 +657,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
         icon: "`",
         boardFamily: "standard8x8", pieceFamily: "hoppel",
-        roles: { pieceRow: ["k", "q", "r", "b", "n", "p"] },
+        pieceRow: ["k", "q", "r", "b", "n", "p"],
         rules: { enPassant: true },
     }),
 
@@ -672,7 +667,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         icon: "R",
         boardFamily: "standard8x8", pieceFamily: "orda",
         colors: { first: "White", second: "Gold" },
-        roles: { pieceRow: { white: ["k", "q", "r", "b", "n", "p", "h"], black: ["k", "y", "l", "a", "h", "p", "q"] } },
+        pieceRow: { white: ["k", "q", "r", "b", "n", "p", "h"], black: ["k", "y", "l", "a", "h", "p", "q"] },
         promotion: { type: "regular", order: ["q", "h"] },
         rules: { enPassant: true },
         ui: { boardMark: 'campmate' },
@@ -684,7 +679,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         icon: "_",
         boardFamily: "standard8x8", pieceFamily: "synochess",
         colors: { first: "White", second: "Red" },
-        roles: { pieceRow: { white: ["k", "q", "r", "b", "n", "p"], black: ["k", "a", "c", "r", "e", "n", "s"] } },
+        pieceRow: { white: ["k", "q", "r", "b", "n", "p"], black: ["k", "a", "c", "r", "e", "n", "s"] },
         pocket: { roles: { white: [], black: ["s"] }, captureToHand: false },
         ui: { boardMark: 'campmate' },
     }),
@@ -695,7 +690,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         icon: "🐢",
         boardFamily: "standard8x8", pieceFamily: "shinobi",
         colors: { first: "Pink", second: "Black" },
-        roles: { pieceRow: { white: ["k", "d", "j", "c", "l", "h", "m", "p"], black: ["k", "q", "r", "b", "n", "p"] } },
+        pieceRow: { white: ["k", "d", "j", "c", "l", "h", "m", "p"], black: ["k", "q", "r", "b", "n", "p"] },
         pocket: { roles: { white: ["l", "h", "m", "d", "j"], black: [] }, captureToHand: false },
         promotion: { type: "shogi", roles: ["p", "l", "h", "m"] },
         rules: { enPassant: true },
@@ -717,7 +712,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         icon: "♚",
         boardFamily: "standard8x8", pieceFamily: "empire",
         colors: { first: "Gold", second: "Black" },
-        roles: { pieceRow: { white: ["k", "d", "t", "c", "e", "p", "s", "q"], black: ["k", "q", "r", "b", "n", "p"] } },
+        pieceRow: { white: ["k", "d", "t", "c", "e", "p", "s", "q"], black: ["k", "q", "r", "b", "n", "p"] },
         rules: { enPassant: true },
         ui: { boardMark: 'campmate' },
     }),
@@ -728,7 +723,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         icon: "◩",
         boardFamily: "standard8x8", pieceFamily: "ordamirror",
         colors: { first: "White", second: "Gold" },
-        roles: { pieceRow: ["k", "f", "l", "a", "h", "p"] },
+        pieceRow: ["k", "f", "l", "a", "h", "p"],
         promotion: { type: "regular", order: ["h", "l", "f", "a"] },
         ui: { boardMark: 'campmate' },
     }),
@@ -739,7 +734,8 @@ export const VARIANTS: { [name: string]: Variant } = {
         icon: "🐬",
         boardFamily: "chak9x9", pieceFamily: "chak",
         colors: { first: "White", second: "Green" },
-        roles: { pieceRow: ["r", "v", "s", "q", "k", "j", "o", "p"], kings: ["k", "+k"] },
+        pieceRow: ["r", "v", "s", "q", "k", "j", "o", "p"],
+        kingRoles: ["k", "+k"],
         promotion: { type: "shogi", roles: ["p", "k"],
             strict: {
                 isPromoted: (piece: cg.Piece, pos: cg.Pos) => {
@@ -767,7 +763,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         startFen: "p1m1s1f/1k5/7/7/7/5K1/F1S1M1P[] w - 0 1",
         icon: "🎾",
         boardFamily: "chennis7x7", pieceFamily: "chennis",
-        roles: { pieceRow: ["k", "p", "m", "s", "f"] },
+        pieceRow: ["k", "p", "m", "s", "f"],
         pocket: { roles: ["p", "m", "s", "f"], captureToHand: true },
         promotion: { type: "shogi", roles: ["p", "m", "s", "f"] },
     }),
@@ -779,7 +775,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         startFen: "rnbqkcabnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBQKCABNR w KQkq - 0 1",
         icon: "P",
         boardFamily: "standard10x8", pieceFamily: "capa",
-        roles: { pieceRow: ["k", "q", "c", "a", "r", "b", "n", "p"] },
+        pieceRow: ["k", "q", "c", "a", "r", "b", "n", "p"],
         rules: { enPassant: true },
     }),
 
@@ -788,7 +784,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         startFen: "rnbqkcabnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBQKCABNR[] w KQkq - 0 1",
         icon: "&",
         boardFamily: "standard10x8", pieceFamily: "capa",
-        roles: { pieceRow: ["k", "q", "c", "a", "r", "b", "n", "p"] },
+        pieceRow: ["k", "q", "c", "a", "r", "b", "n", "p"],
         pocket: { roles: ["p", "n", "b", "r", "a", "c", "q"], captureToHand: true },
         rules: { enPassant: true },
     }),
@@ -798,7 +794,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         startFen: "rnbqckabnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBQCKABNR w KQkq - 0 1",
         icon: "P",
         boardFamily: "standard10x8", pieceFamily: "capa",
-        roles: { pieceRow: ["k", "q", "c", "a", "r", "b", "n", "p"] },
+        pieceRow: ["k", "q", "c", "a", "r", "b", "n", "p"],
         rules: { enPassant: true },
     }),
 
@@ -807,7 +803,7 @@ export const VARIANTS: { [name: string]: Variant } = {
         startFen: "rnbqckabnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBQCKABNR[] w KQkq - 0 1",
         icon: "&",
         boardFamily: "standard10x8", pieceFamily: "capa",
-        roles: { pieceRow: ["k", "q", "c", "a", "r", "b", "n", "p"] },
+        pieceRow: ["k", "q", "c", "a", "r", "b", "n", "p"],
         pocket: { roles: ["p", "n", "b", "r", "a", "c", "q"], captureToHand: true },
         rules: { enPassant: true },
     }),
@@ -871,7 +867,7 @@ export function moddedVariant(variantName: string, chess960: boolean, pieces: cg
     return variantName;
 }
 
-// TODO merge into the variant interface
+// TODO merge into the variant type
 export function notation(variant: Variant): cg.Notation {
     let cgNotation = cg.Notation.ALGEBRAIC;
     switch (variant.name) {

@@ -13,7 +13,7 @@ const eventNames = ['mousedown', 'touchstart'];
 export function piecesView(ctrl: EditorController, color: cg.Color, position: Position) {
     const width = ctrl.variant.board.dimensions.width;
     const height = ctrl.variant.board.dimensions.height;
-    const roles: (cg.Role | '')[] = [...ctrl.variant.roles.pieceRow[color]];
+    const roles: (cg.Role | '')[] = [...ctrl.variant.pieceRow[color]];
     if (ctrl.variant.promotion.type === 'shogi') {
         const len = roles.length;
         const extraRoles = roles.
