@@ -2,9 +2,9 @@ import { h, VNode } from "snabbdom";
 
 import * as cg from 'chessgroundx/types';
 
+import { patch } from '@/document';
+import { promotedRole } from "@/chess";
 import { EditorController } from './editorCtrl';
-import { patch } from './document';
-import { promotedRole } from "./chess";
 
 type Position = 'top' | 'bottom';
 

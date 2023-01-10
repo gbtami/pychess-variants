@@ -1,9 +1,9 @@
 import { h, VNode } from 'snabbdom';
 
-import { _ } from './i18n';
+import { _ } from '@/i18n';
+import { PyChessModel } from "@/types";
+import { selectVariant, VARIANTS } from '@/variants';
 import { EditorController } from './editorCtrl';
-import { PyChessModel } from "./types";
-import { selectVariant, VARIANTS } from './variants';
 
 function runEditor(vnode: VNode, model: PyChessModel) {
     const el = vnode.elm as HTMLElement;

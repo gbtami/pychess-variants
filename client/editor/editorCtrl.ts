@@ -3,18 +3,18 @@ import { h, VNode } from 'snabbdom';
 import * as cg from 'chessgroundx/types';
 import * as util from 'chessgroundx/util';
 
-import { _ } from './i18n';
-import { validFen, hasCastling, unpromotedRole, promotedRole } from './chess'
-import { diff, calculatePieceNumber } from './material';
+import { _ } from '@/i18n';
+import { validFen, hasCastling, unpromotedRole, promotedRole } from '@/chess'
+import { diff, calculatePieceNumber } from '@/material';
+import { copyBoardToPNG } from '@/png';
+import { patch } from '@/document';
+import { PyChessModel } from "@/types";
+import { ChessgroundController } from '@/cgCtrl';
+import { notation } from '@/variants';
 import { initPieceRow } from './pieceRow';
-import { copyBoardToPNG } from './png';
-import { patch } from './document';
-import { PyChessModel } from "./types";
-import { ChessgroundController } from './cgCtrl';
-import { notation } from './variants';
 
 export class EditorController extends ChessgroundController {
-    model;
+    model: PyChessModel;
     startfen: string;
     parts: string[];
     castling: string;
