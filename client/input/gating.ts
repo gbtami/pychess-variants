@@ -17,11 +17,16 @@ export class GatingInput extends ExtraInput {
         this.choices = {};
     }
 
+    /*
+     * NOTE: This code only works with S-Chess, S-Chess960, and S-House
+     *       Some parts assume an 8x8 board
+     *       Please modify as you see fit if other gating variants come along
+     */
     start(piece: cg.Piece, orig: cg.Orig, dest: cg.Key, meta: cg.MoveMetadata): void {
         this.data = { piece, orig, dest, meta };
 
         if (!this.ctrl.variant.rules.gate || util.isDropOrig(orig) || !this.canGate(orig)) {
-            this.next('-');
+            this.next('-'); // The '-' suffix means gating is not initiated and tell the controller to initiate promotion instead
             return;
         }
 
@@ -29,19 +34,25 @@ export class GatingInput extends ExtraInput {
         this.choices[orig] = this.gatingChoices(orig, dest);
 
         if (piece.role === 'k-piece' && orig[1] === dest[1]) {
+            // Handle castling giving gating choices on two squares
             const rookOrig = this.ctrl.chess960 ? dest : (dest[0] === 'g' ? 'h' : 'a') + orig[1] as cg.Key;
             const rookChoices = this.gatingChoices(rookOrig, orig);
             if (rookChoices.length > 0) {
-                rookChoices.push('');
+                rookChoices.push(''); // Add the empty choice to the rook square for aesthetics
                 this.choices[rookOrig] = rookChoices;
                 if (this.choices[orig]!.length <= 1)
+                    // Delete the choice from the king's square
+                    // if you can gate on the rook's square but not the king's
+                    // This is purely for aesthetics
                     delete this.choices[orig];
             }
         }
 
         const keys = Object.keys(this.choices);
         if (keys.length === 1 && this.choices[keys[0] as cg.Key]!.length === 1)
-            this.finish('-', orig);
+            // Handle the cases of 960 castling with no possible gating square
+            // and S-House moving an unmoved piece with nothing in the pocket
+            this.finish('', orig);
         else
             this.drawGating(piece.color, this.ctrl.chessground.state.orientation);
     }
@@ -89,24 +100,22 @@ export class GatingInput extends ExtraInput {
         if (container) patch(container, h('extension'));
     }
 
-    private finish(role: cg.Role | '' | '-', key: cg.Key): void {
+    private finish(role: cg.Role | '', key: cg.Key): void {
         if (this.data) {
             console.log(role, key);
             this.drawNoGating()
-            if (role === '' || role === '-') {
-                this.next(role);
-            } else {
-                this.gate(key, { role: role, color: this.data.piece.color });
-                if (key === this.data.orig)
-                    this.next(util.letterOf(role));
-                else
-                    this.castlingNext(util.letterOf(role), key);
-            }
+            if (role !== '') this.gate(key, { role: role, color: this.data.piece.color });
+            const letter = role === '' ? '' : util.letterOf(role);
+            if (key === this.data.orig)
+                this.next(letter);
+            else
+                this.castlingNext(letter, key);
             this.choices = {};
         }
     }
 
     private castlingNext(suffix: string, key: cg.Key): void {
+        // Handle gating on the rook's square in castling
         if (this.data)
             this.ctrl.processInput(this.data.piece, key, this.data.orig as cg.Key, this.data.meta, suffix, this.type);
         this.data = undefined;
