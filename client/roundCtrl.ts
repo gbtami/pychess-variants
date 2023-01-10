@@ -51,7 +51,6 @@ export class RoundController extends GameController {
     blindfold: boolean;
     handicap: boolean;
     setupFen: string;
-    prevPieces: cg.Pieces;
     focus: boolean;
     finishedGame: boolean;
 

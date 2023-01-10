@@ -61,7 +61,6 @@ export class AnalysisController extends GameController {
     isAnalysisBoard: boolean;
     isEngineReady: boolean;
     notationAsObject: any;
-    prevPieces: cg.Pieces;
     arrow: boolean;
     multipv: number;
     evalFile: string;

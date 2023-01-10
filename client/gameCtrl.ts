@@ -52,7 +52,6 @@ export abstract class GameController extends ChessgroundController implements IC
     suffix: string;
 
     setupFen: string;
-    prevPieces: cg.Pieces;
 
     premove?: { orig: cg.Orig, dest: cg.Key, metadata?: cg.SetPremoveMetadata };
     preaction: boolean;
@@ -310,12 +309,6 @@ export abstract class GameController extends ChessgroundController implements IC
             if (this.chessground.state.movable.dests === undefined) return;
 
             const curTime = performance.now();
-
-            // Save state.pieces to help recognise 960 castling (king takes rook) moves
-            // Shouldn't this be implemented in chessground instead?
-            if (this.chess960 && this.variant.rules.gate) {
-                this.prevPieces = new Map(this.chessground.state.boardState.pieces);
-            }
 
             // Sittuyin in place promotion on double click
             if (this.chessground.state.stats.ctrlKey || (lastKey === key && curTime - lastTime < 500)) {
