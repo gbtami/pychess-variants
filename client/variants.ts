@@ -84,7 +84,7 @@ export interface Variant {
     readonly pieceRow: Record<cg.Color, cg.Role[]>;
     readonly kingRoles: cg.Role[];
     readonly pocket?: {
-        readonly roles: Record<cg.Color, cg.Role[]> | undefined;
+        readonly roles: Record<cg.Color, cg.Role[]>;
         readonly captureToHand: boolean;
     };
     readonly promotion: {

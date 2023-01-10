@@ -8,16 +8,15 @@ import { _ } from './i18n';
 import { patch } from './document';
 import { Step, MsgChat, MsgFullChat, MsgSpectators, MsgShutdown,MsgGameNotFound } from './messages';
 import { uci2LastMove, moveDests, duckMoveDests, cg2uci, unpromotedRole } from './chess';
-import { GatingInput } from './gating';
-import { PromotionInput } from './promotion';
+import { InputType } from '@/input/input';
+import { GatingInput } from './input/gating';
+import { PromotionInput } from './input/promotion';
+import { DuckInput } from './input/duck';
 import { ChessgroundController } from './cgCtrl';
 import { JSONObject, PyChessModel } from './types';
 import { updateCount, updatePoint } from './info';
 import { sound } from './sound';
 import { chatMessage, IChatController } from './chat';
-import { DuckInput } from './duck';
-
-type InputType = 'gating' | 'promotion' | 'duck';
 
 export abstract class GameController extends ChessgroundController implements IChatController {
     sock: WebsocketHeartbeatJs;
@@ -213,18 +212,19 @@ export abstract class GameController extends ChessgroundController implements IC
         switch (lastInputType) {
             case undefined:
                 this.suffix = '';
-                if (this.variant.rules.gate && util.isKey(orig))
-                    this.gating.start(this.fullfen, orig, dest);
-                else
-                    this.promotion.start(piece, orig, dest, meta);
+                this.gating.start(piece, orig, dest, meta);
                 break;
             case 'gating':
+                if (lastSuffix === '-') {
+                    this.promotion.start(piece, orig, dest, meta);
+                } else {
+                    this.suffix += lastSuffix;
+                    this.duck.start(piece, orig, dest, meta);
+                }
+                break;
             case 'promotion':
                 this.suffix += lastSuffix;
-                if (this.variant.rules.duck)
-                    this.duck.start(piece, orig, dest, meta);
-                else
-                    this.sendMove(orig, dest, this.suffix);
+                this.duck.start(piece, orig, dest, meta);
                 break;
             case 'duck':
                 this.suffix += lastSuffix;
@@ -263,6 +263,7 @@ export abstract class GameController extends ChessgroundController implements IC
 
         this.turnColor = step.turnColor;
         this.fullfen = step.fen;
+        this.suffix = '';
 
         if (this.variant.ui.counting) {
             updateCount(step.fen, document.getElementById('misc-infow') as HTMLElement, document.getElementById('misc-infob') as HTMLElement);
@@ -302,7 +303,7 @@ export abstract class GameController extends ChessgroundController implements IC
         let lastKey: cg.Key | undefined;
         return (key: cg.Key) => {
             if (this.duck.inputState === 'click') {
-                this.duck.moveDuck(key);
+                this.duck.finish(key);
                 return;
             }
 
@@ -371,7 +372,7 @@ export abstract class GameController extends ChessgroundController implements IC
       */
     protected onUserMove(orig: cg.Key, dest: cg.Key, meta: cg.MoveMetadata) {
         if (this.duck.inputState === "move") {
-            this.duck.moveDuck(dest);
+            this.duck.finish(dest);
             return;
         }
 
