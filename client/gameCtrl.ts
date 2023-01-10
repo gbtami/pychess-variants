@@ -263,6 +263,7 @@ export abstract class GameController extends ChessgroundController implements Ch
         this.turnColor = step.turnColor;
         this.fullfen = step.fen;
         this.suffix = '';
+        this.duck.inputState = undefined;
 
         if (this.variant.ui.counting) {
             updateCount(step.fen, document.getElementById('misc-infow') as HTMLElement, document.getElementById('misc-infob') as HTMLElement);
