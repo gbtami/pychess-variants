@@ -23,7 +23,6 @@ export type MaterialPointType = "janggi";
 export type BoardMarkType = "campmate";
 export type PieceSoundType = "regular" | "atomic" | "shogi";
 
-
 const handicapKeywords = [ "HC", "Handicap", "Odds" ];
 export function isHandicap(name: string): boolean {
     return handicapKeywords.some(keyword => name.endsWith(keyword));

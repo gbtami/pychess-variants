@@ -734,7 +734,7 @@ export const VARIANTS: Record<string, Variant> = {
         icon: "🐬",
         boardFamily: "chak9x9", pieceFamily: "chak",
         colors: { first: "White", second: "Green" },
-        pieceRow: ["r", "v", "s", "q", "k", "j", "o", "p"],
+        pieceRow: ["k", "j", "q", "r", "v", "s", "o", "p"],
         kingRoles: ["k", "+k"],
         promotion: { type: "shogi", roles: ["p", "k"],
             strict: {
