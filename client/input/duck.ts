@@ -1,20 +1,27 @@
 import * as cg from 'chessgroundx/types';
 
-import { uci2cg, UCIMove } from './chess';
-import { GameController } from './gameCtrl';
+import { uci2cg, UCIMove } from '@/chess';
+import { GameController } from '@/gameCtrl';
+import { ExtraInput } from './input';
 
-export class DuckInput {
-    ctrl: GameController;
+export class DuckInput extends ExtraInput {
     inputState?: 'click' | 'move';
-    ducking?: { piece: cg.Piece, orig: cg.Orig, dest: cg.Key, meta: cg.MoveMetadata };
     duckDests: cg.Key[];
 
     constructor(ctrl: GameController) {
-        this.ctrl = ctrl;
+        super(ctrl);
+        this.type = 'duck';
         this.inputState = undefined;
     }
 
     start(piece: cg.Piece, orig: cg.Orig, dest: cg.Key, meta: cg.MoveMetadata): void {
+        this.data = { piece, orig, dest, meta };
+
+        if (!this.ctrl.variant.rules.duck) {
+            this.next('');
+            return;
+        }
+
         this.duckDests = (this.ctrl.ffishBoard.legalMoves().split(" ") as UCIMove[]).
             filter(move => move.includes(orig + dest)).
             map(uci2cg).
@@ -32,11 +39,9 @@ export class DuckInput {
         // Automatically move the duck if a king is captured, as the game is already over
         // This assumes each side only has one king in any duck variant
         if (meta.captured && this.ctrl.variant.kingRoles.includes(meta.captured.role)) {
-            this.ctrl.processInput(piece, orig, dest, meta, ',' + dest + orig, 'duck');
+            this.finish(orig as cg.Key);
             return;
         }
-
-        this.ducking = { piece, orig, dest, meta };
 
         if (duckKey === undefined) {
             this.inputState = 'click';
@@ -53,11 +58,11 @@ export class DuckInput {
         }
     }
 
-    moveDuck(key: cg.Key): void {
-        if (this.duckDests.includes(key) && this.ducking) {
-            this.ctrl.processInput(this.ducking.piece, this.ducking.orig, this.ducking.dest, this.ducking.meta, ',' + this.ducking.dest + key, 'duck');
+    finish(key: cg.Key): void {
+        if (this.duckDests.includes(key) && this.data) {
+            this.next(',' + this.data.dest + key);
             this.inputState = undefined;
-            this.ducking = undefined;
+            this.data = undefined;
         }
     }
 }

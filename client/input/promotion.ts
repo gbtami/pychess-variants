@@ -2,29 +2,29 @@ import { h, toVNode, VNode } from 'snabbdom';
 
 import * as util from 'chessgroundx/util';
 import * as cg from 'chessgroundx/types';
-import { Api } from "chessgroundx/api";
 
-import { UCIMove, PromotionSuffix, promotedRole, unpromotedRole, promotionSuffix } from './chess';
-import { patch, bind } from './document';
-import { GameController } from './gameCtrl';
+import { UCIMove, PromotionSuffix, promotedRole, unpromotedRole, promotionSuffix } from '@/chess';
+import { patch, bind } from '@/document';
+import { GameController } from '@/gameCtrl';
+import { ExtraInput } from './input';
 
 type PromotionChoices = Partial<Record<cg.Role, PromotionSuffix>>;
 
-export class PromotionInput {
-    ctrl: GameController;
-    promoting?: { piece: cg.Piece, orig: cg.Orig, dest: cg.Key, meta: cg.MoveMetadata };
-    choices: PromotionChoices;
+export class PromotionInput extends ExtraInput {
+    private choices: PromotionChoices;
 
     constructor(ctrl: GameController) {
-        this.ctrl = ctrl;
+        super(ctrl);
+        this.type = 'promotion';
         this.choices = {};
     }
 
     start(piece: cg.Piece, orig: cg.Orig, dest: cg.Key, meta: cg.MoveMetadata): void {
-        const ground = this.ctrl.chessground;
+        this.data = { piece, orig, dest, meta };
+
         // in 960 castling case (king takes rook) dest piece may be undefined
-        if (ground.state.boardState.pieces.get(dest) === undefined) {
-            this.ctrl.processInput(piece, orig, dest, meta, '', 'promotion');
+        if (this.ctrl.chessground.state.boardState.pieces.get(dest) === undefined) {
+            this.next('');
             return;
         }
 
@@ -32,6 +32,7 @@ export class PromotionInput {
         const autoSuffix = this.ctrl.variant.promotion.order[0];
         const autoRole = this.ctrl.variant.promotion.type === "shogi" ? undefined : util.roleOf(autoSuffix as cg.Letter);
         const disableAutoPromote = meta.ctrlKey;
+
         if (this.ctrl.variant.promotion.autoPromoteable &&
             this.ctrl.autoPromote &&
             !disableAutoPromote &&
@@ -41,12 +42,11 @@ export class PromotionInput {
         else
             this.choices = choices;
 
-        this.promoting = { piece, orig, dest, meta };
         if (Object.keys(this.choices).length === 1) {
             const role = Object.keys(this.choices)[0] as cg.Role;
             this.finish(role);
         } else {
-            this.drawPromo(dest, piece.color, ground.state.orientation);
+            this.drawPromo(dest, piece.color);
         }
     }
 
@@ -67,10 +67,11 @@ export class PromotionInput {
         return choices;
     }
 
-    private promote(g: Api, key: cg.Key, role: cg.Role): void {
-        const piece = g.state.boardState.pieces.get(key);
+    private promote(key: cg.Key, role: cg.Role): void {
+        const ground = this.ctrl.chessground;
+        const piece = ground.state.boardState.pieces.get(key);
         if (piece && piece.role !== role) {
-            g.setPieces(new Map([[key, {
+            ground.setPieces(new Map([[key, {
                 color: piece.color,
                 role: role,
                 promoted: true
@@ -78,9 +79,9 @@ export class PromotionInput {
         }
     }
 
-    private drawPromo(dest: cg.Key, color: cg.Color, orientation: cg.Color): void {
+    private drawPromo(dest: cg.Key, color: cg.Color): void {
         const container = toVNode(document.querySelector('extension') as Node);
-        patch(container, this.view(dest, color, orientation));
+        patch(container, this.view(dest, color, this.ctrl.chessground.state.orientation));
     }
 
     private drawNoPromo(): void {
@@ -89,18 +90,21 @@ export class PromotionInput {
     }
 
     private finish(role: cg.Role): void {
-        if (this.promoting) {
+        if (this.data) {
             this.drawNoPromo();
-            this.promote(this.ctrl.chessground, this.promoting.dest, role);
-            const promo = this.choices[role];
-
-            if (util.isDropOrig(this.promoting.orig))
-                this.ctrl.processInput(this.promoting.piece, util.dropOrigOf(role), this.promoting.dest, this.promoting.meta, '', 'promotion');
+            this.promote(this.data.dest, role);
+            if (util.isDropOrig(this.data.orig))
+                this.dropNext(role);
             else
-                this.ctrl.processInput(this.promoting.piece, this.promoting.orig, this.promoting.dest, this.promoting.meta, promo!, 'promotion');
-
-            this.promoting = undefined;
+                this.next(this.choices[role]!);
         }
+    }
+
+    private dropNext(role: cg.Role): void {
+        // Dropped promotion is executed by modifying the orig
+        if (this.data)
+            this.ctrl.processInput(this.data.piece, util.dropOrigOf(role), this.data.dest, this.data.meta, '', 'promotion');
+        this.data = undefined;
     }
 
     private cancel(): void {
