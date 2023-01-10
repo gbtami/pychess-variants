@@ -10,7 +10,7 @@ type Position = 'top' | 'bottom';
 
 const eventNames = ['mousedown', 'touchstart'];
 
-export function piecesView(ctrl: EditorController, color: cg.Color, position: Position) {
+export function pieceRowView(ctrl: EditorController, color: cg.Color, position: Position) {
     const width = ctrl.variant.board.dimensions.width;
     const height = ctrl.variant.board.dimensions.height;
     const roles: (cg.Role | '')[] = [...ctrl.variant.pieceRow[color]];
@@ -85,7 +85,7 @@ function drag(ctrl: EditorController, e: cg.MouchEvent): void {
     }
 }
 
-export function iniPieces(ctrl: EditorController, vpieces0: VNode | HTMLElement, vpieces1: VNode | HTMLElement): void {
-    ctrl.vpieces0 = patch(vpieces0, piecesView(ctrl, ctrl.flipped() ? ctrl.mycolor : ctrl.oppcolor, "top"));
-    ctrl.vpieces1 = patch(vpieces1, piecesView(ctrl, ctrl.flipped() ? ctrl.oppcolor : ctrl.mycolor, "bottom"));
+export function initPieceRow(ctrl: EditorController, vpieces0: VNode | HTMLElement, vpieces1: VNode | HTMLElement): void {
+    ctrl.vpieces0 = patch(vpieces0, pieceRowView(ctrl, ctrl.flipped() ? ctrl.mycolor : ctrl.oppcolor, "top"));
+    ctrl.vpieces1 = patch(vpieces1, pieceRowView(ctrl, ctrl.flipped() ? ctrl.oppcolor : ctrl.mycolor, "bottom"));
 }

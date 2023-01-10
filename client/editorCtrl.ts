@@ -6,7 +6,7 @@ import * as util from 'chessgroundx/util';
 import { _ } from './i18n';
 import { validFen, hasCastling, unpromotedRole, promotedRole } from './chess'
 import { diff, calculatePieceNumber } from './material';
-import { iniPieces } from './pieces';
+import { initPieceRow } from './pieceRow';
 import { copyBoardToPNG } from './png';
 import { patch } from './document';
 import { PyChessModel } from "./types";
@@ -65,7 +65,7 @@ export class EditorController extends ChessgroundController {
         // initialize pieces
         const pieces0 = document.getElementById('pieces0') as HTMLElement;
         const pieces1 = document.getElementById('pieces1') as HTMLElement;
-        iniPieces(this, pieces0, pieces1);
+        initPieceRow(this, pieces0, pieces1);
         this.vpieces0.elm?.addEventListener('touchend', this.dropOnPocket);
         this.vpieces1.elm?.addEventListener('touchend', this.dropOnPocket);
 
@@ -156,7 +156,7 @@ export class EditorController extends ChessgroundController {
         super.toggleOrientation()
 
         if (this.vpieces0 !== undefined && this.vpieces1 !== undefined) {
-            iniPieces(this, this.vpieces0, this.vpieces1);
+            initPieceRow(this, this.vpieces0, this.vpieces1);
         }
     }
 
