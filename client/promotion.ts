@@ -1,4 +1,4 @@
-import { h, toVNode } from 'snabbdom';
+import { h, toVNode, VNode } from 'snabbdom';
 
 import * as util from 'chessgroundx/util';
 import * as cg from 'chessgroundx/types';
@@ -67,7 +67,7 @@ export class PromotionInput {
         return choices;
     }
 
-    private promote(g: Api, key: cg.Key, role: cg.Role) {
+    private promote(g: Api, key: cg.Key, role: cg.Role): void {
         const piece = g.state.boardState.pieces.get(key);
         if (piece && piece.role !== role) {
             g.setPieces(new Map([[key, {
@@ -78,17 +78,17 @@ export class PromotionInput {
         }
     }
 
-    private drawPromo(dest: cg.Key, color: cg.Color, orientation: cg.Color) {
+    private drawPromo(dest: cg.Key, color: cg.Color, orientation: cg.Color): void {
         const container = toVNode(document.querySelector('extension') as Node);
         patch(container, this.view(dest, color, orientation));
     }
 
-    private drawNoPromo() {
+    private drawNoPromo(): void {
         const container = document.getElementById('extension_choice') as HTMLElement;
         if (container) patch(container, h('extension'));
     }
 
-    private finish(role: cg.Role) {
+    private finish(role: cg.Role): void {
         if (this.promoting) {
             this.drawNoPromo();
             this.promote(this.ctrl.chessground, this.promoting.dest, role);
@@ -103,13 +103,12 @@ export class PromotionInput {
         }
     }
 
-    private cancel() {
+    private cancel(): void {
         this.drawNoPromo();
         this.ctrl.goPly(this.ctrl.ply);
-        return;
     }
 
-    private view(dest: cg.Key, color: cg.Color, orientation: cg.Color) {
+    private view(dest: cg.Key, color: cg.Color, orientation: cg.Color): VNode {
         const variant = this.ctrl.variant;
         const width = variant.board.dimensions.width;
         const height = variant.board.dimensions.height;
