@@ -9,17 +9,18 @@ import { newWebsocket } from './socket';
 import { JSONObject } from './types';
 import { _, ngettext, languageSettings } from './i18n';
 import { patch } from './document';
-import { chatMessage, chatView, IChatController } from './chat';
-import { validFen, VARIANTS, selectVariant, Variant, uci2LastMove } from './chess';
 import { boardSettings } from './boardSettings';
+import { chatMessage, chatView, ChatController } from './chat';
+import { VARIANTS, selectVariant, Variant } from './variants';
 import { timeControlStr } from './view';
 import { notify } from './notification';
 import { PyChessModel } from "./types";
 import { MsgBoard, MsgChat, MsgFullChat } from "./messages";
 import { variantPanels } from './lobby/layer1';
 import { Stream, Spotlight, MsgInviteCreated, MsgHostCreated, MsgGetSeeks, MsgNewGame, MsgGameInProgress, MsgUserConnected, MsgPing, MsgError, MsgShutdown, MsgGameCounter, MsgUserCounter, MsgStreams, MsgSpotlights, Seek, CreateMode, TvGame } from './lobbyType';
+import { validFen, uci2LastMove } from './chess';
 
-export class LobbyController implements IChatController {
+export class LobbyController implements ChatController {
     sock: WebsocketHeartbeatJs;
     home: string;
     assetURL: string;
@@ -247,7 +248,7 @@ export class LobbyController implements IChatController {
         localStorage.seek_inc = e.value;
 
         e = document.getElementById('byo') as HTMLInputElement;
-        const byoyomi = variant.timeControl === "byoyomi";
+        const byoyomi = variant.rules.defaultTimeControl === "byoyomi";
         const byoyomiPeriod = (byoyomi && increment > 0) ? Number(e.value) : 0;
         localStorage.seek_byo = e.value;
 
@@ -501,7 +502,7 @@ export class LobbyController implements IChatController {
         let e;
         e = document.getElementById('variant') as HTMLSelectElement;
         const variant = VARIANTS[e.options[e.selectedIndex].value];
-        const byoyomi = variant.timeControl === "byoyomi";
+        const byoyomi = variant.rules.defaultTimeControl === "byoyomi";
         // TODO use toggle class instead of setting style directly
         document.getElementById('chess960-block')!.style.display = variant.chess960 ? 'block' : 'none';
         document.getElementById('byoyomi-period')!.style.display = byoyomi ? 'block' : 'none';
@@ -646,12 +647,12 @@ export class LobbyController implements IChatController {
     private tooltip(seek: Seek, variant: Variant) {
         let tooltipImage;
         if (seek.fen) {
-            tooltipImage = h('minigame.' + variant.board + '.' + variant.piece, [
-                h('div.cg-wrap.' + variant.cg + '.minitooltip',
+            tooltipImage = h('minigame.' + variant.boardFamily + '.' + variant.pieceFamily, [
+                h('div.cg-wrap.' + variant.board.cg + '.minitooltip',
                     { hook: { insert: (vnode) => Chessground(vnode.elm as HTMLElement, {
                         coordinates: false,
                         fen: seek.fen,
-                        dimensions: variant.boardDimensions,
+                        dimensions: variant.board.dimensions,
                     })}}
                 ),
             ]);
@@ -711,22 +712,22 @@ export class LobbyController implements IChatController {
         const game = this.tvGame;
         const variant = VARIANTS[game.variant];
         const elements = [
-        h(`div#mainboard.${variant.board}.${variant.piece}.${variant.boardMark}`, {
-            class: { "with-pockets": variant.pocket },
-            style: { "--ranks": (variant.pocket) ? String(variant.boardHeight) : "undefined" },
+        h(`div#mainboard.${variant.boardFamily}.${variant.pieceFamily}.${variant.ui.boardMark}`, {
+            class: { "with-pockets": !!variant.pocket },
+            style: { "--ranks": (variant.pocket) ? String(variant.board.dimensions.height) : "undefined" },
             on: { click: () => window.location.assign('/' + game.gameId) }
             }, [
-                h(`div.cg-wrap.${variant.cg}.mini`, {
+                h(`div.cg-wrap.${variant.board.cg}.mini`, {
                     hook: {
                         insert: vnode => {
                             const cg = Chessground(vnode.elm as HTMLElement,  {
                                 fen: game.fen,
                                 lastMove: uci2LastMove(game.lastMove),
-                                dimensions: variant.boardDimensions,
+                                dimensions: variant.board.dimensions,
                                 coordinates: false,
                                 viewOnly: true,
                                 addDimensionsCssVarsTo: document.body,
-                                pocketRoles: variant.pocketRoles,
+                                pocketRoles: variant.pocket?.roles,
                             });
                             this.tvGameChessground = cg;
                             this.tvGameId = game.gameId;
@@ -919,28 +920,28 @@ export function lobbyView(model: PyChessModel): VNode[] {
     const puzzle = JSON.parse(model.puzzle);
     const variant = VARIANTS[puzzle.variant];
     const turnColor = puzzle.fen.split(" ")[1];
-    const first = _(variant.firstColor);
-    const second = _(variant.secondColor);
+    const first = _(variant.colors.first);
+    const second = _(variant.colors.second);
 
     const dailyPuzzle = [
         h('span.vstext', [
             h('span.text', _('Puzzle of the day')),
             h('span.text', _('%1 to play', (turnColor === 'w') ? first : second)),
         ]),
-        h(`div#mainboard.${variant.board}.${variant.piece}.${variant.boardMark}`, {
-            class: { "with-pockets": variant.pocket },
-            style: { "--ranks": (variant.pocket) ? String(variant.boardHeight) : "undefined" },
+        h(`div#mainboard.${variant.boardFamily}.${variant.pieceFamily}.${variant.ui.boardMark}`, {
+            class: { "with-pockets": !!variant.pocket },
+            style: { "--ranks": (variant.pocket) ? String(variant.board.dimensions.height) : "undefined" },
             }, [
-                h(`div.cg-wrap.${variant.cg}.mini`, {
+                h(`div.cg-wrap.${variant.board.cg}.mini`, {
                     hook: {
                         insert: vnode => {
                             Chessground(vnode.elm as HTMLElement,  {
                                 fen: puzzle.fen,
-                                dimensions: variant.boardDimensions,
+                                dimensions: variant.board.dimensions,
                                 coordinates: false,
                                 viewOnly: true,
                                 addDimensionsCssVarsTo: document.body,
-                                pocketRoles: variant.pocketRoles,
+                                pocketRoles: variant.pocket?.roles,
                             });
                         }
                     }

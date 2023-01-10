@@ -4,7 +4,8 @@ import { Chessground } from 'chessgroundx';
 import * as cg from "chessgroundx/types";
 
 import { _, ngettext, pgettext, languageSettings } from './i18n';
-import { uci2LastMove, VARIANTS } from './chess';
+import { uci2LastMove } from './chess';
+import { VARIANTS } from './variants';
 import { patch } from './document';
 import { renderTimeago } from './datetime';
 import { boardSettings } from './boardSettings';
@@ -65,17 +66,17 @@ function renderGames(model: PyChessModel, games: Game[]) {
         const chess960 = game.z === 1;
 
         return h('tr', [h('a', { attrs: { href : '/' + game["_id"] } }, [
-            h('td.board', { class: { "with-pockets": variant.pocket } }, [
-                h(`selection.${variant.board}.${variant.piece}`, [
-                    h(`div.cg-wrap.${variant.cg}.mini`, {
+            h('td.board', { class: { "with-pockets": !!variant.pocket } }, [
+                h(`selection.${variant.boardFamily}.${variant.pieceFamily}`, [
+                    h(`div.cg-wrap.${variant.board.cg}.mini`, {
                         hook: {
                             insert: vnode => Chessground(vnode.elm as HTMLElement, {
                                 coordinates: false,
                                 viewOnly: true,
                                 fen: game["f"],
                                 lastMove: uci2LastMove(game.lm),
-                                dimensions: variant.boardDimensions,
-                                pocketRoles: variant.pocketRoles,
+                                dimensions: variant.board.dimensions,
+                                pocketRoles: variant.pocket?.roles,
                             })
                         }
                     }),

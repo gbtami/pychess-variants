@@ -5,8 +5,9 @@ import { _ } from './i18n';
 import { AnalysisController } from './analysisCtrl';
 import { PyChessModel } from "./types";
 import { patch } from './document';
-import { uci2LastMove, UCIMove, variants } from './chess';
+import { uci2LastMove, UCIMove } from './chess';
 import { updateMovelist } from './movelist';
+import { variants } from './variants';
 
 
 export class PuzzleController extends AnalysisController {
@@ -199,7 +200,7 @@ export class PuzzleController extends AnalysisController {
     }
 
     cgConfig = (move: string) => {
-        this.fullfen = this.ffishBoard.fen(this.variant.showPromoted, 0);
+        this.fullfen = this.ffishBoard.fen(this.variant.ui.showPromoted, 0);
         this.turnColor = this.fullfen.split(" ")[1] === "w" ? "white" : "black" as cg.Color;
         return {
             fen: this.fullfen,
@@ -214,8 +215,8 @@ export class PuzzleController extends AnalysisController {
     }
     yourTurn() {
         const turnColor = this.fullfen.split(" ")[1];
-        const first = _(this.variant.firstColor);
-        const second = _(this.variant.secondColor);
+        const first = _(this.variant.colors.first);
+        const second = _(this.variant.colors.second);
         this.playerEl = patch(this.playerEl,
             h('div.player', [
                 h(`piece.${this.variant.piece}.${turnColor}.no-square`),

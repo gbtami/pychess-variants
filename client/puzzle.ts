@@ -2,7 +2,7 @@ import { h, VNode } from "snabbdom";
 
 import { _ } from './i18n';
 import { PuzzleController } from './puzzleCtrl';
-import { selectVariant, VARIANTS } from './chess';
+import { selectVariant, VARIANTS } from './variants';
 import { PyChessModel } from "./types";
 
 function runPuzzle(vnode: VNode, model: PyChessModel) {
@@ -35,8 +35,8 @@ export function puzzleView(model: PyChessModel): VNode[] {
     return [
         h('div.analysis-app', [
             h('aside.sidebar-first', leftSide(model)),
-            h(`selection#mainboard.${variant.board}.${variant.piece}.${variant.boardMark}`, [
-                h('div.cg-wrap.' + variant.cg, { hook: { insert: (vnode) => runPuzzle(vnode, model) } }),
+            h(`selection#mainboard.${variant.boardFamily}.${variant.pieceFamily}.${variant.ui.boardMark}`, [
+                h('div.cg-wrap.' + variant.board.cg, { hook: { insert: (vnode) => runPuzzle(vnode, model) } }),
             ]),
             h('div#gauge', [
                 h('div.black',     { props: { style: "height: 50%;" } }),

@@ -7,7 +7,7 @@ import { lobbyView } from './lobby';
 import { roundView } from './round';
 import { inviteView } from './invite';
 import { renderGames } from './games';
-import { editorView } from './editor';
+import { editorView } from '@/editor/editor';
 import { analysisView, embedView } from './analysis';
 import { puzzleView } from './puzzle';
 import { profileView } from './profile';
