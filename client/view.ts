@@ -2,10 +2,10 @@ import { h, VNode } from 'snabbdom';
 
 import * as idb from 'idb-keyval';
 
-import { ISettings } from "./settings";
+import { Settings } from "./settings";
 import { _ } from './i18n';
 
-export function radioList(settings: ISettings<string>, name: string, options: { [key: string]: string }, onchange: (evt: Event, key: string) => void): VNode[] {
+export function radioList(settings: Settings<string>, name: string, options: { [key: string]: string }, onchange: (evt: Event, key: string) => void): VNode[] {
     const result: VNode[] = [];
     Object.keys(options).forEach(key => {
         const id = name + "-" + key;
@@ -19,7 +19,7 @@ export function radioList(settings: ISettings<string>, name: string, options: { 
     return result;
 }
 
-export function slider(settings: ISettings<number>, name: string, min = 0, max = 100, step = 1, text: string) {
+export function slider(settings: Settings<number>, name: string, min = 0, max = 100, step = 1, text: string) {
     const id = name;
     return [
         h(`input#${id}.slider`, {
@@ -30,7 +30,7 @@ export function slider(settings: ISettings<number>, name: string, min = 0, max =
     ];
 }
 
-export function checkbox(settings: ISettings<boolean>, name: string, text: string) {
+export function checkbox(settings: Settings<boolean>, name: string, text: string) {
     const id = name;
     return [
         h(`input#${id}`, {
@@ -42,7 +42,7 @@ export function checkbox(settings: ISettings<boolean>, name: string, text: strin
     ];
 }
 
-export function nnueFile(settings: ISettings<string>, name: string, text: string, variant: string) {
+export function nnueFile(settings: Settings<string>, name: string, text: string, variant: string) {
     const id = name;
     return [
         h(`input#${id}`, {
@@ -78,7 +78,7 @@ export function nnueFile(settings: ISettings<string>, name: string, text: string
     ];
 }
 
-function saveNnueFileToIdb (settings: ISettings<string>, variant: string, file: File) {
+function saveNnueFileToIdb (settings: Settings<string>, variant: string, file: File) {
     const fileName = file.name;
     var fileReader = new FileReader();
     fileReader.onload = function(event) {

@@ -5,7 +5,7 @@ import { Api } from 'chessgroundx/api';
 
 import { _ } from './i18n';
 import { changeBoardCSS, changePieceCSS } from './document';
-import { ISettings, NumberSettings, BooleanSettings, StringSettings } from './settings';
+import { Settings, NumberSettings, BooleanSettings, StringSettings } from './settings';
 import { slider, checkbox, nnueFile } from './view';
 import { PyChessModel } from "./types";
 import { BOARD_FAMILIES, PIECE_FAMILIES, Variant, VARIANTS } from './variants';
@@ -40,7 +40,7 @@ export interface IBoardController {
 
 class BoardSettings {
     ctrl: IBoardController;
-    settings: { [ key: string]: ISettings<number | boolean | string> };
+    settings: { [ key: string]: Settings<number | boolean | string> };
     assetURL: string;
 
     constructor() {

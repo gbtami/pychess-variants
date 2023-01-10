@@ -2,14 +2,7 @@ import { VNode } from 'snabbdom';
 
 import { getDocumentData } from './document';
 
-export interface ISettings<T> {
-    readonly name: string;
-    value: T;
-    update(): void;
-    view(): VNode;
-}
-
-abstract class Settings<T> implements ISettings<T> {
+export abstract class Settings<T> {
     readonly name: string;
     protected _value: T;
 
