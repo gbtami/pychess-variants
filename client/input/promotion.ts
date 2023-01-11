@@ -101,7 +101,7 @@ export class PromotionInput extends ExtraInput {
     }
 
     private dropNext(role: cg.Role): void {
-        // Dropped promotion is executed by modifying the orig
+        // Drop promotion is executed by modifying the orig
         if (this.data)
             this.ctrl.processInput(this.data.piece, util.dropOrigOf(role), this.data.dest, this.data.meta, '', 'promotion');
         this.data = undefined;
