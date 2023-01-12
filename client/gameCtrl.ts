@@ -7,7 +7,7 @@ import * as util from 'chessgroundx/util';
 import { _ } from './i18n';
 import { patch } from './document';
 import { Step, MsgChat, MsgFullChat, MsgSpectators, MsgShutdown,MsgGameNotFound } from './messages';
-import { uci2LastMove, moveDests, duckMoveDests, cg2uci, unpromotedRole } from './chess';
+import { uci2LastMove, moveDests, duckMoveDests, cg2uci, unpromotedRole, UCIMove } from './chess';
 import { InputType } from '@/input/input';
 import { GatingInput } from './input/gating';
 import { PromotionInput } from './input/promotion';
@@ -169,7 +169,7 @@ export abstract class GameController extends ChessgroundController implements Ch
             setTimeout(this.setDests, 100);
         } else {
             const legalMoves = this.ffishBoard.legalMoves().split(" ");
-            const dests = moveDests(legalMoves);
+            const dests = moveDests(legalMoves as UCIMove[]);
             this.chessground.set({ movable: { dests: dests }});
             if (this.steps.length === 1) {
                 this.chessground.set({ check: (this.ffishBoard.isCheck()) ? this.turnColor : false});

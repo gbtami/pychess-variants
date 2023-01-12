@@ -2,7 +2,7 @@ import * as cg from 'chessgroundx/types';
 import { Chessground } from 'chessgroundx';
 import { Api } from 'chessgroundx/api';
 
-import ffishModule from 'ffish-es6';
+import ffishModule, { FairyStockfish, Board, Notation } from 'ffish-es6';
 
 import { boardSettings, IBoardController } from './boardSettings';
 import { PyChessModel } from './types';
@@ -13,9 +13,9 @@ export abstract class ChessgroundController implements IBoardController {
     readonly home: string;
 
     chessground: Api;
-    ffish: any;
-    ffishBoard: any;
-    notationAsObject: any;
+    ffish: FairyStockfish;
+    ffishBoard: Board;
+    notationAsObject: Notation;
 
     readonly variant : Variant;
     readonly chess960 : boolean;
