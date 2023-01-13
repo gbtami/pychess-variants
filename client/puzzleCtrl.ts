@@ -151,7 +151,7 @@ export class PuzzleController extends AnalysisController {
                 this.ffishBoard.push(move);
                 const win_result = (this.turnColor === 'white' ? '1-0' : '0-1');
                 // last move can be any winning one
-                if (this.ffishBoard.result() === win_result){
+                if (this.ffishBoard.result(false) === win_result){
                     this.ffishBoard.pop();
                     this.makeMove(move);
                     this.puzzleComplete(true);
