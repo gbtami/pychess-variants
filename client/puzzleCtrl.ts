@@ -140,7 +140,7 @@ export class PuzzleController extends AnalysisController {
         });
     }
 
-    doSendMove = (move: string) => {
+    doSendMove(move: string) {
         if (this.completed) {
             super.doSendMove(move);
             return;
