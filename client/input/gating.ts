@@ -86,8 +86,8 @@ export class GatingInput extends ExtraInput {
         return possibleGating.map(promotionSuffix).map(s => s === '' ? '' : util.roleOf(s as cg.Letter));
     }
 
-    private gate(orig: cg.Key, piece: cg.Piece): void {
-        this.ctrl.chessground.newPiece(piece, orig, true);
+    private gate(piece: cg.Piece, key: cg.Key): void {
+        this.ctrl.chessground.newPiece(piece, key, true);
     }
 
     private drawGating(color: cg.Color, orientation: cg.Color): void {
@@ -103,13 +103,17 @@ export class GatingInput extends ExtraInput {
     private finish(role: cg.Role | '', key: cg.Key): void {
         if (this.data) {
             console.log(role, key);
-            this.drawNoGating()
-            if (role !== '') this.gate(key, { role: role, color: this.data.piece.color });
+            this.drawNoGating();
             const letter = role === '' ? '' : util.letterOf(role);
-            if (key === this.data.orig)
-                this.next(letter);
-            else
-                this.castlingNext(letter, key);
+            if (role === '') {
+                this.next('');
+            } else {
+                this.gate({ role: role, color: this.data.piece.color }, key);
+                if (key === this.data.orig)
+                    this.next(letter);
+                else
+                    this.castlingNext(letter, key);
+            }
             this.choices = {};
         }
     }

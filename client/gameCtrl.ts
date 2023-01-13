@@ -7,7 +7,7 @@ import * as util from 'chessgroundx/util';
 import { _ } from './i18n';
 import { patch } from './document';
 import { Step, MsgChat, MsgFullChat, MsgSpectators, MsgShutdown,MsgGameNotFound } from './messages';
-import { uci2LastMove, moveDests, duckMoveDests, cg2uci, unpromotedRole } from './chess';
+import { uci2LastMove, moveDests, cg2uci, unpromotedRole, UCIMove } from './chess';
 import { InputType } from '@/input/input';
 import { GatingInput } from './input/gating';
 import { PromotionInput } from './input/promotion';
@@ -169,40 +169,12 @@ export abstract class GameController extends ChessgroundController implements Ch
             setTimeout(this.setDests, 100);
         } else {
             const legalMoves = this.ffishBoard.legalMoves().split(" ");
-            const dests = moveDests(legalMoves);
+            const dests = moveDests(legalMoves as UCIMove[]);
             this.chessground.set({ movable: { dests: dests }});
             if (this.steps.length === 1) {
                 this.chessground.set({ check: (this.ffishBoard.isCheck()) ? this.turnColor : false});
             }
         }
-    }
-
-    setDuckDests = (move: string) => {
-        const legalMoves = this.ffishBoard.legalMoves();
-        // valid moves starting with the given piece move
-        const filteredMoves = legalMoves.split(" ").filter((m: string) => m.startsWith(move));
-
-        let fromSquare = undefined;
-        const pieces = this.chessground.state.boardState.pieces;
-        for (const [k, p] of pieces) {
-            if (p.role === '_-piece') {
-                fromSquare = k;
-                break;
-            }
-        }
-
-        // In case of white first move there is no duck on the board at all
-        // so we have to pass the given move dest square as fromSquare param to duckMoveDests()
-        if (fromSquare === undefined) {
-            // The new duck will be placed by one click on some empty square in onSelect()
-            fromSquare = move.slice(2, 4) as cg.Key;
-        } else {
-            // turn the duck piece color to the opposite to let it be movable on chessground
-            this.chessground.state.boardState.pieces.get(fromSquare)!.color = this.turnColor;
-        };
-
-        const dests = duckMoveDests(filteredMoves, fromSquare);
-        this.chessground.set({ movable: { dests: dests }, turnColor: this.turnColor });
     }
 
     abstract doSendMove(move: string): void;
