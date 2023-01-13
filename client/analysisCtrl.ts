@@ -789,7 +789,7 @@ export class AnalysisController extends GameController {
         return `${event}\n${site}\n${date}\n${white}\n${black}\n${result}\n${variant}\n${fen}\n${setup}\n\n${moveText} *\n`;
     }
 
-    doSendMove = (move: string) => {
+    doSendMove(move: string) {
         const san = this.ffishBoard.sanMove(move, this.notationAsObject);
         const sanSAN = this.ffishBoard.sanMove(move);
         const vv = this.steps[this.plyVari]['vari'];
