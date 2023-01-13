@@ -821,7 +821,7 @@ export class RoundController extends GameController {
         this.updateMaterial();
     }
 
-    doSendMove = (move: string) => {
+    doSendMove(move: string) {
         this.clearDialog();
 
         // pause() will add increment!
