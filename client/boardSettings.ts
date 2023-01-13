@@ -10,7 +10,7 @@ import { slider, checkbox, nnueFile } from './view';
 import { PyChessModel } from "./types";
 import { BOARD_FAMILIES, PIECE_FAMILIES, Variant, VARIANTS } from './variants';
 
-export interface IBoardController {
+export interface BoardController {
     readonly chessground: Api;
 
     readonly variant: Variant;
@@ -39,7 +39,7 @@ export interface IBoardController {
 }
 
 class BoardSettings {
-    ctrl: IBoardController;
+    ctrl: BoardController;
     settings: { [ key: string]: Settings<number | boolean | string> };
     assetURL: string;
 
