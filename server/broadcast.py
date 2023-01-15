@@ -22,6 +22,7 @@ async def lobby_broadcast(sockets, response):
                 pass
 
 
+#todo:niki: what about when 4 players like bug
 async def round_broadcast(game, response, full=False, channels=None):
     if game.spectators:
         for spectator in game.spectators:

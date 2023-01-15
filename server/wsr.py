@@ -92,6 +92,7 @@ async def round_socket_handler(request):
                                     data["move"],
                                     data["clocks"],
                                     data["ply"],
+                                    data["board"]
                                 )
                             except Exception:
                                 log.exception(

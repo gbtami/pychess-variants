@@ -6,8 +6,17 @@ import { patch } from '../document';
 import { Clock } from '../clock';
 import {chatMessage, chatView, IChatController} from '../chat';
 import {createMovelistButtons, updateMovelist} from './movelist';
-import {Clocks, MsgBoard, MsgGameEnd, MsgMove, MsgUserConnected, RDiffs, Step} from "../messages";
-import { MsgUserDisconnected, MsgUserPresent, MsgDrawOffer, MsgDrawRejected, MsgRematchOffer, MsgRematchRejected, MsgUpdateTV } from '../roundType';
+import {Clocks, MsgBoard, MsgFullChat, MsgGameEnd, MsgMove, MsgUserConnected, RDiffs, Step} from "../messages";
+import {
+    MsgUserDisconnected,
+    MsgUserPresent,
+    MsgDrawOffer,
+    MsgDrawRejected,
+    MsgRematchOffer,
+    MsgRematchRejected,
+    MsgUpdateTV,
+    MsgGameStart
+} from '../roundType';
 import {JSONObject, PyChessModel} from "../types";
 import {ChessgroundController} from "./ChessgroundCtrl";
 import {cg2uci, uci2LastMove} from "../chess";
@@ -527,14 +536,14 @@ export class RoundController implements IChatController/*extends GameController 
     //     this.berserk(msg['color'])
     // }
     //
-    // private onMsgGameStart = (msg: MsgGameStart) => {
-    //     // console.log("got gameStart msg:", msg);
-    //     if (msg.gameId !== this.gameId) return;
-    //     if (!this.spectator) {
-    //         sound.genericNotify();
-    //         if (!this.focus) this.notifyMsg('joined the game.');
-    //     }
-    // }
+    private onMsgGameStart = (msg: MsgGameStart) => {
+        // console.log("got gameStart msg:", msg);
+        if (msg.gameId !== this.gameId) return;
+        if (!this.spectator) {
+            sound.genericNotify();
+            if (!this.focus) this.notifyMsg('joined the game.');
+        }
+    }
     //
     // private onMsgNewGame = (msg: MsgNewGame) => {
     //     window.location.assign(this.home + '/' + msg["gameId"]);
@@ -919,7 +928,8 @@ export class RoundController implements IChatController/*extends GameController 
 
         clocks = {movetime: (b.preaction) ? 0 : movetime, black: bclocktime, white: wclocktime};
 
-        this.lastMaybeSentMsgMove = { type: "move", gameId: this.gameId, move: move, clocks: clocks, ply: this.ply + 1 };
+        //todo:niki:need to add board here - aslo how does the fact that we have 2 boards affect this logic? e.g. in simul mode maybe we need to save 2 moves for the 2 boards when we simuling
+        this.lastMaybeSentMsgMove = { type: "move", gameId: this.gameId, move: move, clocks: clocks, ply: this.ply + 1, board: b.boardName };
         this.doSend(this.lastMaybeSentMsgMove as JSONObject);
 
         if (b.preaction) {
@@ -964,39 +974,50 @@ export class RoundController implements IChatController/*extends GameController 
 
     private onMsgUserConnected = (msg: MsgUserConnected) => {
         console.log(msg);
-        // this.username = msg["username"];
-        // if (this.spectator) {
-        //     this.doSend({ type: "is_user_present", username: this.wplayer, gameId: this.gameId });
-        //     this.doSend({ type: "is_user_present", username: this.bplayer, gameId: this.gameId });
-        //
-        // } else {
-        //     this.firstmovetime = msg.firstmovetime || this.firstmovetime;
-        //
-        //     const opp_name = this.username === this.wplayer ? this.bplayer : this.wplayer;
-        //     this.doSend({ type: "is_user_present", username: opp_name, gameId: this.gameId });
-        //
-        //     const container = document.getElementById('player1') as HTMLElement;
-        //     patch(container, h('i-side.online#player1', {class: {"icon": true, "icon-online": true, "icon-offline": false}}));
-        //
-        //     // prevent sending gameStart message when user just reconecting
-        //     if (msg.ply === 0) {
-        //         this.doSend({ type: "ready", gameId: this.gameId });
-        //         if (this.variant.name === 'janggi') {
-        //             this.doSend({ type: "board", gameId: this.gameId });
-        //         }
-        //     }
-        // }
+        this.username = msg["username"];
+        if (this.spectator) {
+            console.log('todo');
+            // this.doSend({ type: "is_user_present", username: this.wplayer, gameId: this.gameId });
+            // this.doSend({ type: "is_user_present", username: this.bplayer, gameId: this.gameId });
+
+        } else {
+            this.firstmovetime = msg.firstmovetime || this.firstmovetime;
+
+            const opp_name = this.username === this.wplayer ? this.bplayer : this.wplayer;
+            this.doSend({ type: "is_user_present", username: opp_name, gameId: this.gameId });
+            // todo: 2 more is_user_present calls for the other board maybe
+
+            const container = document.getElementById('player1a') as HTMLElement;
+            patch(container, h('i-side.online#player1a', {class: {"icon": true, "icon-online": true, "icon-offline": false}}));
+
+            // prevent sending gameStart message when user just reconecting
+            if (msg.ply === 0) {
+                this.doSend({ type: "ready", gameId: this.gameId });
+            }
+        }
+        // We always need this to get possible moves made while our websocket connection was established
+        // fixes https://github.com/gbtami/pychess-variants/issues/962
+        this.doSend({ type: "board", gameId: this.gameId });
     }
 
     private onMsgUserPresent = (msg: MsgUserPresent) => {
         console.log(msg);
-        // if (msg.username === this.players[0]) {
-        //     const container = document.getElementById('player0') as HTMLElement;
-        //     patch(container, h('i-side.online#player0', {class: {"icon": true, "icon-online": true, "icon-offline": false}}));
-        // } else {
-        //     const container = document.getElementById('player1') as HTMLElement;
-        //     patch(container, h('i-side.online#player1', {class: {"icon": true, "icon-online": true, "icon-offline": false}}));
-        // }
+        if (msg.username === this.players[0]) {
+            const container = document.getElementById('player0a') as HTMLElement;
+            patch(container, h('i-side.online#player0a', {class: {"icon": true, "icon-online": true, "icon-offline": false}}));
+        }
+        if (msg.username === this.players[1]) {
+            const container = document.getElementById('player1a') as HTMLElement;
+            patch(container, h('i-side.online#player1a', {class: {"icon": true, "icon-online": true, "icon-offline": false}}));
+        }
+        if (msg.username === this.playersB[0]) {
+            const container = document.getElementById('player0b') as HTMLElement;
+            patch(container, h('i-side.online#player0b', {class: {"icon": true, "icon-online": true, "icon-offline": false}}));
+        }
+        if (msg.username === this.playersB[1]) {
+            const container = document.getElementById('player1b') as HTMLElement;
+            patch(container, h('i-side.online#player1b', {class: {"icon": true, "icon-online": true, "icon-offline": false}}));
+        }
     }
 
     private onMsgUserDisconnected = (msg: MsgUserDisconnected) => {
@@ -1030,12 +1051,44 @@ export class RoundController implements IChatController/*extends GameController 
         // this.clearDialog();
     }
 
+    private onMsgFullChat = (msg: MsgFullChat) => {
+        // To prevent multiplication of messages we have to remove old messages div first
+        patch(document.getElementById('messages') as HTMLElement, h('div#messages-clear'));
+        // then create a new one
+        patch(document.getElementById('messages-clear') as HTMLElement, h('div#messages'));
+        msg.lines.forEach((line) => {
+            if ((this.spectator && line.room === 'spectator') || (!this.spectator && line.room !== 'spectator') || line.user.length === 0) {
+                chatMessage(line.user, line.message, "roundchat", line.time);
+            }
+        });
+    }
+
     protected onMessage(evt: MessageEvent) {
         console.log("<+++ onMessage():", evt.data);
         // super.onMessage(evt);
         if (evt.data === '/n') return; // todo:niki: not sure where this comes from, temporary working around it like this
         const msg = JSON.parse(evt.data);
         switch (msg.type) {
+            // copy pated from gameCtl.ts->onMessage, which is otherwise inherited in normal roundCtrl
+            case "spectators":
+                // this.onMsgSpectators(msg);
+                break;
+            case "roundchat":
+                // this.onMsgChat(msg);
+                break;
+            case "fullchat":
+                this.onMsgFullChat(msg);
+                break;
+            case "game_not_found":
+                // this.onMsgGameNotFound(msg);
+                break
+            case "shutdown":
+                // this.onMsgShutdown(msg);
+                break;
+            case "logout":
+                // this.doSend({type: "logout"});
+                break;
+            // ~copy pated from gameCtl.ts->onMessage, which is otherwise inherited in normal roundCtrl
             case "board":
                 this.onMsgBoard(msg);
                 break;
@@ -1043,7 +1096,7 @@ export class RoundController implements IChatController/*extends GameController 
                 this.checkStatus(msg);
                 break;
             case "gameStart":
-                // this.onMsgGameStart(msg);
+                this.onMsgGameStart(msg);
                 break;
             case "game_user_connected":
                 this.onMsgUserConnected(msg);

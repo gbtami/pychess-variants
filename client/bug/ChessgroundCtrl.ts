@@ -113,9 +113,9 @@ export class ChessgroundController extends GameController {
 
     }
 
-    doSendMove = (orig: cg.Orig, dest: cg.Key, promo: string) => {
+    doSendMove = (move: string) => {
         //todo: no idea what the purpose of this is - lets get it compilable first
-        console.log(orig, dest, promo);
+        console.log(move);
     }
 
     getGround = () => this.chessground;

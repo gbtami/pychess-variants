@@ -182,6 +182,13 @@ async def lobby_socket_handler(request):
                         if seek.variant == 'bughouse':
                             response = await join_seek(request.app, user, data["seekID"])
                             await ws.send_json(response)
+
+                            if seek.ws is None:
+                                remove_seek(seeks, seek)
+                                await lobby_broadcast(sockets, get_seeks(seeks))
+                            else:
+                                await seek.ws.send_json(response)
+
                         else:
                             response = await join_seek(request.app, user, data["seekID"])
                             await ws.send_json(response)

@@ -412,37 +412,43 @@ async def join_seek_bughouse(app, user, seek_id, game_id=None, join_as="any"):
     seeks = app["seeks"]
     seek = seeks[seek_id]
 
-    if join_as == "player1":
-        if seek.player1 is None:
-            seek.player1 = user
-        else:
-            return {"type": "seek_occupied", "seekID": seek_id}
-    elif join_as == "player2":
-        if seek.player2 is None:
-            seek.player2 = user
-        else:
-            return {"type": "seek_occupied", "seekID": seek_id}
-    elif join_as == "bugPlayer1":
-        if seek.bugPlayer1 is None:
-            seek.bugPlayer1 = user
-        else:
-            return {"type": "seek_occupied", "seekID": seek_id}
-    elif join_as == "bugPlayer2":
-        if seek.bugPlayer2 is None:
-            seek.bugPlayer2 = user
-        else:
-            return {"type": "seek_occupied", "seekID": seek_id}
-    else:
-        if seek.player1 is None:
-            seek.player1 = user
-        elif seek.player2 is None:
-            seek.player2 = user
-        elif seek.bugPlayer1 is None:
-            seek.bugPlayer1 = user
-        elif seek.bugPlayer2 is None:
-            seek.bugPlayer2 = user
-        else:
-            return {"type": "seek_occupied", "seekID": seek_id}
+# todo:niki:temporary commenting out this logic, it will become relevant later where full 4 player mode is implemented, but for now we do only simul 1 vs 1 games
+    # if join_as == "player1":
+    #     if seek.player1 is None:
+    #         seek.player1 = user
+    #     else:
+    #         return {"type": "seek_occupied", "seekID": seek_id}
+    # elif join_as == "player2":
+    #     if seek.player2 is None:
+    #         seek.player2 = user
+    #     else:
+    #         return {"type": "seek_occupied", "seekID": seek_id}
+    # elif join_as == "bugPlayer1":
+    #     if seek.bugPlayer1 is None:
+    #         seek.bugPlayer1 = user
+    #     else:
+    #         return {"type": "seek_occupied", "seekID": seek_id}
+    # elif join_as == "bugPlayer2":
+    #     if seek.bugPlayer2 is None:
+    #         seek.bugPlayer2 = user
+    #     else:
+    #         return {"type": "seek_occupied", "seekID": seek_id}
+    # else:
+    #     if seek.player1 is None:
+    #         seek.player1 = user
+    #     elif seek.player2 is None:
+    #         seek.player2 = user
+    #     elif seek.bugPlayer1 is None:
+    #         seek.bugPlayer1 = user
+    #     elif seek.bugPlayer2 is None:
+    #         seek.bugPlayer2 = user
+    #     else:
+    #         return {"type": "seek_occupied", "seekID": seek_id}
+
+    seek.player1 = seek.creator
+    seek.player2 = user
+    seek.bugPlayer1 = user
+    seek.bugPlayer2 = seek.creator
 
     if seek.player1 is not None and seek.player2 is not None and seek.bugPlayer1 is not None and seek.bugPlayer2 is not None:
         return await new_game_bughouse(app, seek_id, game_id)
@@ -764,7 +770,7 @@ async def analysis_move(app, user, game, move, fen, ply):
     await ws.send_json(analysis_board_response)
 
 
-async def play_move(app, user, game, move, clocks=None, ply=None):
+async def play_move(app, user, game, move, clocks=None, ply=None, board=None):
     gameId = game.id
     users = app["users"]
     invalid_move = False
@@ -777,7 +783,10 @@ async def play_move(app, user, game, move, clocks=None, ply=None):
             )
             return
         try:
-            await game.play_move(move, clocks, ply)
+            if board is not None:
+                await game.play_move(move, clocks, ply, board)
+            else:
+                await game.play_move(move, clocks, ply)
         except SystemError:
             invalid_move = True
             log.exception(
