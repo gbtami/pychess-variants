@@ -21,6 +21,7 @@ VIDEO_TAGS = {
     "S-Chess": _("S-Chess"),
     "Capablanca": _("Capablanca"),
     "Placement": _("Placement"),
+    "Duck": _("Duck"),
     "Match": _("Match"),
     "Tournament": _("Tournament"),
     "Hu Ronghua": _("Hu Ronghua"),
@@ -43,6 +44,14 @@ VIDEOS = [
         "tags": ["Howto"],
         "target": "beginner",
         "duration": "19:01",
+    },
+    {
+        "_id": "k20Civy_a3E",
+        "title": "First duck chess arena on pychess [HIGHLIGHTS]",
+        "author": "PyChess",
+        "tags": ["Duck", "Tournament"],
+        "target": "intermediate",
+        "duration": "23:47",
     },
     {
         "_id": "Xeil4C9rU34",
