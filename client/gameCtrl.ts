@@ -218,7 +218,7 @@ export abstract class GameController extends ChessgroundController implements Ch
         if (move) {
             // 960 king takes rook castling is not capture
             // TODO Defer this logic to ffish.js
-            capture = (this.chessground.state.boardState.pieces.get(move[1]) !== undefined && step.san?.slice(0, 2) !== 'O-') || (step.san?.slice(1, 2) === 'x');
+            capture = (this.chessground.state.boardState.pieces.get(move[1] as cg.Key) !== undefined && step.san?.slice(0, 2) !== 'O-') || (step.san?.slice(1, 2) === 'x');
         }
 
         this.chessground.set({

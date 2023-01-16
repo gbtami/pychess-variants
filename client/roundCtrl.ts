@@ -707,7 +707,7 @@ export class RoundController extends GameController {
 
         const lastMove = uci2LastMove(msg.lastMove);
         const step = this.steps[this.steps.length - 1];
-        const capture = !!lastMove && ((this.chessground.state.boardState.pieces.get(lastMove[1]) && step.san?.slice(0, 2) !== 'O-') || (step.san?.slice(1, 2) === 'x'));
+        const capture = !!lastMove && ((this.chessground.state.boardState.pieces.get(lastMove[1] as cg.Key) && step.san?.slice(0, 2) !== 'O-') || (step.san?.slice(1, 2) === 'x'));
 
         if (lastMove && (this.turnColor === this.mycolor || this.spectator)) {
             if (!this.finishedGame) sound.moveSound(this.variant, capture);

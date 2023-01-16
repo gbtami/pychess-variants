@@ -42,11 +42,14 @@ export function uci2cg(move: string): string {
     return move.replace(/10/g, ":");
 }
 
-export function uci2LastMove(move: string | undefined): cg.Move | undefined {
+export function uci2LastMove(move: string | undefined): cg.Orig[] | undefined {
     if (!move) return undefined;
     let moveStr = uci2cg(move);
     if (moveStr.startsWith('+')) moveStr = moveStr.slice(1);
-    return [ moveStr.slice(0, 2) as cg.Orig, moveStr.slice(2) as cg.Key ];
+    const comma = moveStr.indexOf(',');
+    const lastMove = [ moveStr.slice(0, 2) as cg.Orig, moveStr.slice(2, 4) as cg.Key ];
+    if (comma > -1) lastMove.push(moveStr.slice(-2) as cg.Key);
+    return lastMove;
 }
 
 export function cg2uci(move: string): string {
