@@ -1,6 +1,5 @@
 import * as cg from 'chessgroundx/types';
 
-import { uci2cg, UCIMove } from '@/chess';
 import { GameController } from '@/gameCtrl';
 import { ExtraInput } from './input';
 
@@ -23,9 +22,8 @@ export class DuckInput extends ExtraInput {
             return;
         }
 
-        this.duckDests = (this.ctrl.ffishBoard.legalMoves().split(" ") as UCIMove[]).
+        this.duckDests = this.ctrl.legalMoves().
             filter(move => move.includes(orig + dest)).
-            map(uci2cg).
             map(move => move.slice(-2)) as cg.Key[];
 
         let duckKey: cg.Key | undefined;
