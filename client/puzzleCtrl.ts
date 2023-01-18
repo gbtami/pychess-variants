@@ -5,7 +5,7 @@ import { _ } from './i18n';
 import { AnalysisController } from './analysisCtrl';
 import { PyChessModel } from "./types";
 import { patch } from './document';
-import { uci2LastMove, UCIMove } from './chess';
+import { uci2LastMove, UCIMove, uci2cg } from './chess';
 import { updateMovelist } from './movelist';
 import { variants } from './variants';
 
@@ -134,7 +134,8 @@ export class PuzzleController extends AnalysisController {
 
     viewHint() {
         this.failed = true;
-        const shapes0 = this.shapeFromMove(this.solution[this.ply], this.turnColor);
+        const pv_move = uci2cg(this.solution[this.ply]);
+        const shapes0 = this.shapeFromMove(pv_move, this.turnColor);
         this.chessground.set({
             drawable: {autoShapes: shapes0},
         });
