@@ -4,10 +4,11 @@ import { Api } from 'chessgroundx/api';
 
 import ffishModule, { FairyStockfish, Board, Notation } from 'ffish-es6';
 
-import { boardSettings, BoardController } from './boardSettings';
-import { PyChessModel } from './types';
-import { Variant, VARIANTS, notation, moddedVariant } from './variants';
-import { variantsIni } from './variantsIni';
+import { boardSettings, BoardController } from '@/boardSettings';
+import { CGMove, uci2cg } from '@/chess';
+import { PyChessModel } from '@/types';
+import { Variant, VARIANTS, notation, moddedVariant } from '@/variants';
+import { variantsIni } from '@/variantsIni';
 
 export abstract class ChessgroundController implements BoardController {
     readonly home: string;
@@ -75,15 +76,19 @@ export abstract class ChessgroundController implements BoardController {
         });
     }
 
-    toggleOrientation() {
+    toggleOrientation(): void {
         this.chessground.toggleOrientation();
     }
 
-    flipped() {
+    flipped(): boolean {
         return this.chessground.state.orientation === 'black';
     }
 
-    notation2ffishjs = (n: cg.Notation) => {
+    legalMoves(): CGMove[] {
+        return this.ffishBoard.legalMoves().split(" ").map(uci2cg) as CGMove[];
+    }
+
+    notation2ffishjs(n: cg.Notation): Notation {
         switch (n) {
             case cg.Notation.ALGEBRAIC: return this.ffish.Notation.SAN;
             case cg.Notation.SHOGI_ARBNUM: return this.ffish.Notation.SHOGI_HODGES_NUMBER;

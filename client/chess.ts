@@ -261,7 +261,7 @@ export function moveDests(legalMoves: UCIMove[]): cg.Dests {
     return dests;
 }
 
-export function promotionSuffix(move: UCIMove): PromotionSuffix {
+export function promotionSuffix(move: UCIMove | CGMove): PromotionSuffix {
     if (move.startsWith('+')) {
         return '+';
     } else {

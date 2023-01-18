@@ -3,7 +3,7 @@ import { h, toVNode, VNode } from 'snabbdom';
 import * as util from 'chessgroundx/util';
 import * as cg from 'chessgroundx/types';
 
-import { UCIMove, PromotionSuffix, promotedRole, unpromotedRole, promotionSuffix } from '@/chess';
+import { PromotionSuffix, promotedRole, unpromotedRole, promotionSuffix } from '@/chess';
 import { patch, bind } from '@/document';
 import { GameController } from '@/gameCtrl';
 import { ExtraInput } from './input';
@@ -52,7 +52,7 @@ export class PromotionInput extends ExtraInput {
 
     private promotionChoices(piece: cg.Piece, orig: cg.Orig, dest: cg.Key): PromotionChoices {
         const variant = this.ctrl.variant;
-        const possiblePromotions = (this.ctrl.ffishBoard.legalMoves().split(" ") as UCIMove[]).filter(move => move.includes(orig + dest));
+        const possiblePromotions = this.ctrl.legalMoves().filter(move => move.includes(orig + dest));
         const choices: PromotionChoices = {};
 
         possiblePromotions.map(promotionSuffix).forEach(suffix => {

@@ -3,7 +3,7 @@ import { h, VNode, toVNode } from 'snabbdom';
 import * as util from 'chessgroundx/util';
 import * as cg from 'chessgroundx/types';
 
-import { colorCase, UCIMove, promotionSuffix } from '@/chess';
+import { colorCase, promotionSuffix } from '@/chess';
 import { GameController } from '@/gameCtrl';
 import { patch, bind } from '@/document';
 import { ExtraInput } from './input';
@@ -82,7 +82,7 @@ export class GatingInput extends ExtraInput {
     }
 
     private gatingChoices(orig: cg.Key, dest: cg.Key): (cg.Role | '')[] {
-        const possibleGating = (this.ctrl.ffishBoard.legalMoves().split(" ") as UCIMove[]).filter(move => move.includes(orig + dest));
+        const possibleGating = this.ctrl.legalMoves().filter(move => move.includes(orig + dest));
         return possibleGating.map(promotionSuffix).map(s => s === '' ? '' : util.roleOf(s as cg.Letter));
     }
 
