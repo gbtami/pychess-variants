@@ -1,6 +1,6 @@
 import { h, VNode } from 'snabbdom';
 
-import Chessground from 'chessgroundx';
+import { Chessground } from 'chessgroundx';
 import * as cg from "chessgroundx/types";
 
 import { _, ngettext, pgettext, languageSettings } from './i18n';

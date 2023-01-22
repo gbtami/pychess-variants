@@ -16,6 +16,7 @@ const baseOpts = {
     outfile: './static/pychess-variants.js',
     plugins: [
         NodeResolve.default({
+            mainFields: [ 'browser', 'module', 'main' ],
             extensions: [ ".js", ".ts" ],
         }),
     ],
