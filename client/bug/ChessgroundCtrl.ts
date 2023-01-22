@@ -219,7 +219,7 @@ export class ChessgroundController extends GameController {
             if (this.partnerCC.chessground.state.boardState.pockets) {
                 const pocket = /*ctrl.chessground.state.pockets todo:not relevant for bughouse - if/when this class becomes generic bring this back?*/
                     this.partnerCC.chessground.state.boardState.pockets[/*util.opposite(*/meta.captured.color/*)*/]/* : undefined*/;
-                if (!pocket.has(role)){
+                if (!pocket.has(role)) {
                     pocket.set(role, 0);
                 }
                 // if (pocket && role && pocket.has(role)) {

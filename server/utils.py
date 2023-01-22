@@ -447,8 +447,8 @@ async def join_seek_bughouse(app, user, seek_id, game_id=None, join_as="any"):
 
     seek.player1 = seek.creator
     seek.player2 = user
-    seek.bugPlayer1 = user
-    seek.bugPlayer2 = seek.creator
+    seek.bugPlayer1 = seek.creator
+    seek.bugPlayer2 = user
 
     if seek.player1 is not None and seek.player2 is not None and seek.bugPlayer1 is not None and seek.bugPlayer2 is not None:
         return await new_game_bughouse(app, seek_id, game_id)

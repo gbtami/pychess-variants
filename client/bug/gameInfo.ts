@@ -36,14 +36,14 @@ export function gameInfo(model: PyChessModel): VNode {
             h('player', playerInfo(model, 'w', 'a')),
             h('div', {style:{display:"inline", paddingRight:"8px"}},'+'),
             h('i-side.icon', {class: {[colorIcon(model.variant, variant.secondColor)]: true}}),
-            h('player', playerInfo(model, 'b', 'a')),
+            h('player', playerInfo(model, 'b', 'b')),
         ]),
         h('div.player-data', [
             h('i-side.icon', {class: {[colorIcon(model.variant, variant.secondColor)]: true}}),
-            h('player', playerInfo(model, 'b', 'b')),
+            h('player', playerInfo(model, 'w', 'b')),
             h('div', {style:{display:"inline", paddingRight:"8px"}},'+'),
             h('i-side.icon', {class: {[colorIcon(model.variant, variant.firstColor)]: true}}),
-            h('player', playerInfo(model, 'w', 'b')),
+            h('player', playerInfo(model, 'b', 'a')),
         ]),
         ]),
         h('section', [
@@ -56,7 +56,7 @@ export function gameInfo(model: PyChessModel): VNode {
 
 function playerInfo(model: PyChessModel, color: string, board: string) {
 
-    const username = model[board == "a"? color === "w"? "wplayer": "bplayer": color === "w"? "wplayerB": "bplayerB"];
+    const username = model[board == "a"? (color === "w"? "wplayer": "bplayer"): (color === "w"? "wplayerB": "bplayerB")];
     const title = model[board == "a"? color === "w"? "wtitle": "btitle": color === "w"? "wtitleB": "btitleB"];
     const level = model.level;
     const rating = model[board == "a"? color === "w"? "wrating": "brating": color === "w"? "wratingB": "bratingB"];

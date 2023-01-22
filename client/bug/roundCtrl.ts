@@ -125,14 +125,6 @@ export class RoundController implements IChatController/*extends GameController 
 
         this.home = model.home;
 
-        this.b1 = new ChessgroundController(el1, el1Pocket1, el1Pocket2, 'a', model); //todo:niki:fen maybe should be parsed from bfen. what situation do we start from custom fen?
-        this.b2 = new ChessgroundController(el2, el2Pocket1, el2Pocket2, 'b', model);
-        this.b2.chessground.set({orientation:"black"});
-        this.b1.partnerCC = this.b2;
-        this.b2.partnerCC = this.b1;
-        this.b1.parent = this;
-        this.b2.parent = this;
-
         this.base = Number(model["base"]);
         this.inc = Number(model["inc"]);
         this.gameId = model["gameId"] as string;
@@ -378,6 +370,38 @@ export class RoundController implements IChatController/*extends GameController 
             this.gameControls = patch(container, h('div.btn-controls'));
         // }
 
+        //////////////
+
+        this.b1 = new ChessgroundController(el1, el1Pocket1, el1Pocket2, 'a', model); //todo:niki:fen maybe should be parsed from bfen. what situation do we start from custom fen?
+        this.b2 = new ChessgroundController(el2, el2Pocket1, el2Pocket2, 'b', model);
+        this.b2.chessground.set({orientation:"black"});
+        this.b1.partnerCC = this.b2;
+        this.b2.partnerCC = this.b1;
+        this.b1.parent = this;
+        this.b2.parent = this;
+
+        ///////
+
+        this.b1.chessground.set({
+            orientation: this.mycolor.get('a')!.has('white')? 'white': 'black',
+            turnColor: 'white',
+            movable: {
+                free: false,
+                color: this.mycolor.get('a')!.has('white')? 'white': 'black'
+            },
+            autoCastle: true, // TODO:niki:what is this?
+        });
+        this.b2.chessground.set({
+            orientation: this.mycolor.get('b')!.has('white')? 'white': 'black',
+            turnColor: 'white',
+            movable: {
+                free: false,
+                color: this.mycolor.get('b')!.has('white')? 'white': 'black'
+            },
+            autoCastle: true, // TODO:niki:what is this?
+        });
+
+        ////////////
         createMovelistButtons(this);
         this.vmovelist = document.getElementById('movelist') as HTMLElement;
 
@@ -743,14 +767,8 @@ export class RoundController implements IChatController/*extends GameController 
         this.clocks[oppclock].setTime(this.clocktimes['black']);
         this.clocks[myclock].setTime(this.clocktimes['white']);
 
-        const isInitialBoardMessage = !(msg.steps[0].boardName);
-        const board = msg.steps[0].boardName === 'a'? this.b1: this.b2;
-        if (isInitialBoardMessage) {
-            this.b1.turnColor = "white"; //todo:niki:probably dont need this initialization, but do need the if-else so not to switch turn color on first message. Alternatively could get the turn color from the server though - as in other variants i think
-            this.b2.turnColor = "white";
-        } else {
-            board.turnColor = board.turnColor === 'white' ? 'black' : 'white';
-        }
+        const isInitialBoardMessage = !(msg.steps[msg.steps.length-1].boardName);//todo:niki:not sure why step[0] is still being sent with every move, but when initial board message, that is always the only element (respectively also the last)
+
         if (this.spectator) {
             //todo:niki:spectator mode not implemented for now
             if (latestPly) {
@@ -775,64 +793,104 @@ export class RoundController implements IChatController/*extends GameController 
             }
         } else {
             const fens = msg.fen.split(" | ");
+            const fenA = fens[0];
+            const fenB = fens[1];
 
+            if (isInitialBoardMessage) {
+                    this.b1.turnColor = "white"; //todo:niki:probably dont need this initialization, but do need the if-else so not to switch turn color on first message. Alternatively could get the turn color from the server though - as in other variants i think
+                    this.b2.turnColor = "white";
 
-            if (isInitialBoardMessage || this.mycolor.get(msg.steps[0].boardName!)!.has(board.turnColor)) {
-                //when message is for opp's move or it is the initializiation board message:
-                if (latestPly) {
-                    //todo:niki: i need to update both board only on initial board message and tbh only if 960 but for now lets always do it
                     this.b1.chessground.set({
-                        fen: fens[0],
-                        turnColor: this.b1.turnColor,
+                        fen: fenA,
+                        turnColor: 'white',
                         movable: {
                             free: false,
-                            color: this.mycolor.get('a')!.size > 1? 'both': this.b1.turnColor,
-                            // dests: msg.dests,
+                            color: this.mycolor.get('a')!.has("white")? "white": "black",
+                            // dests: boardName='a'?msg.dests:msg.dests,
                         },
-                        check: msg.check,//todo:niki:which board is this about?
-                        lastMove: lastMove,
+                      //  check: msg.check,//todo:niki:which board is this about?
+                        //lastMove: lastMove,
                     });
                     this.b2.chessground.set({
-                        fen: fens[1],
-                        turnColor: this.b2.turnColor,
+                        fen: fenB,
+                        turnColor: 'white',
                         movable: {
                             free: false,
-                            color: this.mycolor.get('b')!.size > 1? 'both': this.b2.turnColor,
-                            // dests: msg.dests,
+                            color: this.mycolor.get('b')!.has("white")? "white": "black",
+                            // dests: boardName='a'?msg.dests:msg.dests,
                         },
-                        check: msg.check,//todo:niki:which board is this about?
-                        lastMove: lastMove,
+                       // check: msg.check,//todo:niki:which board is this about?
+                        //lastMove: lastMove,
                     });
 
-                    if (!this.focus) this.notifyMsg(`Played ${msg.steps[0].san}\nYour turn.`);
-
-                    // prevent sending premove/predrop when (auto)reconnecting websocked asks server to (re)sends the same board to us
-                    // console.log("trying to play premove....");
-                    //todo:niki:premoves/drops
-                    // if (this.premove) this.performPremove();
-                    // if (this.predrop) this.performPredrop();
-                }
-                if (this.clockOn && msg.status < 0) {
-                    (msg.steps[0].boardName === 'a'? this.clocks: this.clocksB)[myclock].start(); //todo: consider using map as with mycolor., other places as well
-                    // console.log('MY CLOCK STARTED');
-                }
             } else {
-                //when message is about the move i just made
-                this.b1.chessground.set({
-                    // giving fen here will place castling rooks to their destination in chess960 variants
-                    fen: fens[0],
-                    turnColor: this.b1.turnColor,
-                    check: msg.check,
-                });
-                this.b1.chessground.set({
-                    // giving fen here will place castling rooks to their destination in chess960 variants
-                    fen: fens[1],
-                    turnColor: this.b1.turnColor,
-                    check: msg.check,
-                });
-                if (this.clockOn && msg.status < 0) {
-                    (msg.steps[0].boardName === 'a'? this.clocks: this.clocksB)[oppclock].start();
-                    // console.log('OPP CLOCK  STARTED');
+                const boardName = msg.steps[msg.steps.length-1].boardName as 'a'|'b';//todo:niki:change this to step[0] if/when that board message is fixed to have just one element in steps and stop always sending that redundnat initial dummy step (if it is indeed redundant)
+                //todo:niki:update to above's todo, actually it sometimes sends it with 2 elements, sometimes just with one - gotta check what is wrong with python code and how it works in other variants. for now always getting the last element should be robust in all cases
+                const board = boardName === 'a'? this.b1: this.b2;
+                const fen = boardName == 'a'? fenA : fenB;
+                board.turnColor = board.turnColor === 'white' ? 'black' : 'white';
+
+                if (board.ffishBoard) {
+                    board.ffishBoard.setFen(fen);
+                    board.setDests();
+                }
+                if (this.mycolor.get(boardName)!.has(msg.steps[0].turnColor)) {
+                    //when message is for opp's move
+                    if (latestPly) {
+                        //todo:niki: i need to update both board only on initial board message and tbh only if 960 but for now lets always do it
+                        // this.b1.chessground.set({
+                        //     fen: fens[0],
+                        //     turnColor: this.b1.turnColor,
+                        //     movable: {
+                        //         free: false,
+                        //         color: this.mycolor.get('a')!.size > 1? 'both': this.b1.turnColor,
+                        //         // dests: msg.dests,
+                        //     },
+                        //     check: msg.check,//todo:niki:which board is this about?
+                        //     lastMove: lastMove,
+                        // });
+                        // this.b2.chessground.set({
+                        //     fen: fens[1],
+                        //     turnColor: this.b2.turnColor,
+                        //     movable: {
+                        //         free: false,
+                        //         color: this.mycolor.get('b')!.size > 1? 'both': this.b2.turnColor,
+                        //         // dests: msg.dests,
+                        //     },
+                        //     check: msg.check,//todo:niki:which board is this about?
+                        //     lastMove: lastMove,
+                        // });
+                        board.chessground.set({
+                            fen: fen,
+                            turnColor: board.turnColor,
+                            check: msg.check,//todo:niki:which board is this about?
+                            lastMove: lastMove,
+                        });
+
+                        if (!this.focus) this.notifyMsg(`Played ${msg.steps[0].san}\nYour turn.`);
+
+                        // prevent sending premove/predrop when (auto)reconnecting websocked asks server to (re)sends the same board to us
+                        // console.log("trying to play premove....");
+                        //todo:niki:premoves/drops
+                        // if (this.premove) this.performPremove();
+                        // if (this.predrop) this.performPredrop();
+                    }
+                    if (this.clockOn && msg.status < 0) {
+                        (msg.steps[msg.steps.length-1].boardName === 'a'? this.clocks: this.clocksB)[myclock].start(); //todo: consider using map as with mycolor., other places as well
+                        // console.log('MY CLOCK STARTED');
+                    }
+                } else {
+                    //when message is about the move i just made
+                    board.chessground.set({
+                        // giving fen here will place castling rooks to their destination in chess960 variants
+                        fen: fen,
+                        turnColor: board.turnColor,
+                        check: msg.check,
+                    });
+                    if (this.clockOn && msg.status < 0) {
+                        (msg.steps[msg.steps.length-1].boardName === 'a'? this.clocks: this.clocksB)[oppclock].start();
+                        // console.log('OPP CLOCK  STARTED');
+                    }
                 }
             }
         }

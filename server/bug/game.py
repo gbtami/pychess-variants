@@ -889,7 +889,7 @@ class GameBug:
             "fen": self.boards["a"].fen + " | " + self.boards["b"].fen,
             "lastMove": self.lastmove,
             "steps": steps,
-            "destsA": self.dests_a,
+            "dests": self.dests_a,
             "destsB": self.dests_b,
             "promoA": self.promotions_a,
             "promoB": self.promotions_b,
