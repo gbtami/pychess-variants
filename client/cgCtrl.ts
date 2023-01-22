@@ -1,5 +1,5 @@
 import * as cg from 'chessgroundx/types';
-import { Chessground } from 'chessgroundx';
+import Chessground from 'chessgroundx';
 import { Api } from 'chessgroundx/api';
 
 import ffishModule, { FairyStockfish, Board, Notation } from 'ffish-es6';

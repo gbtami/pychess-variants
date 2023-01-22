@@ -1,7 +1,7 @@
 import { h, VNode } from 'snabbdom';
 
 import * as cg from 'chessgroundx/types';
-import { Chessground } from 'chessgroundx';
+import Chessground from 'chessgroundx';
 
 import { patch } from '../document';
 import { Variant } from '../variants';
