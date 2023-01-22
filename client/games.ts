@@ -2,7 +2,7 @@ import { h, VNode } from 'snabbdom';
 
 import { Api } from "chessgroundx/api";
 import * as cg from "chessgroundx/types";
-import Chessground from 'chessgroundx';
+import { Chessground } from 'chessgroundx';
 
 import { uci2LastMove } from './chess';
 import { boardSettings } from './boardSettings';

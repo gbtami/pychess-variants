@@ -2,7 +2,7 @@ import WebsocketHeartbeatJs from 'websocket-heartbeat-js';
 
 import { h, VNode } from 'snabbdom';
 
-import Chessground from 'chessgroundx';
+import { Chessground } from 'chessgroundx';
 
 import { newWebsocket } from './socket';
 import { JSONObject } from './types';
