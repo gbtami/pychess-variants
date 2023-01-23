@@ -59,6 +59,7 @@ NO_MORE_VARIANTS = ("manchu",)
 WEEKLY_VARIANTS = (
     "crazyhouse960",
     "atomic960",
+    "duck",
 )
 
 # Monthly Variant Tournaments need different TC
