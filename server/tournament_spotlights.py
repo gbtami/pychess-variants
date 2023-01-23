@@ -1,5 +1,3 @@
-from datetime import datetime
-
 from const import (
     LANGUAGES,
     T_STARTED,
