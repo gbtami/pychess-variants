@@ -15,5 +15,6 @@ sortedcollections==2.1.0
 python-gettext==4.1
 objgraph==3.5.0
 black==22.12.0
+flake8==6.0.0
 mypy
 pre-commit
