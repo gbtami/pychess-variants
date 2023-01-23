@@ -49,7 +49,6 @@ MONTHLY_VARIANTS = (
     "chennis",
     "capablanca",
     "xiangqi",
-    "duck",
     "shinobi",
 )
 
@@ -63,8 +62,7 @@ WEEKLY_VARIANTS = (
 )
 
 # Monthly Variant Tournaments need different TC
-TC_MONTHLY_VARIANTS = {v: (3, 2, 0) for v in MONTHLY_VARIANTS}
-TC_MONTHLY_VARIANTS["duck"] = (3, 5, 0)
+TC_MONTHLY_VARIANTS: dict[str, tuple[int, int, int]] = {v: (3, 2, 0) for v in MONTHLY_VARIANTS}
 
 for v in CATEGORIES["fairy"]:
     TC_MONTHLY_VARIANTS[v] = (3, 3, 0)
@@ -154,6 +152,7 @@ class Scheduler:
             # Plan(WEEKLY, self.next_day_of_week(FRIDAY), 18, "crazyhouse", True, 3, 0, 0, 60),  # 960
             # Plan(WEEKLY, self.next_day_of_week(TUESDAY), 18, "atomic", True, 3, 0, 0, 60),  # 960
             Plan(WEEKLY, self.next_day_of_week(THURSDAY), 14, "makruk", False, 3, 2, 0, 90),
+            Plan(WEEKLY, self.next_day_of_week(SUNDAY), 18, "duck", False, 3, 5, 0, 90),
         ]
 
         return plans
