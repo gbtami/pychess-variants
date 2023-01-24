@@ -256,7 +256,11 @@ async def init_state(app):
         translation.install()
 
         for variant in VARIANTS:
-            if variant in MONTHLY_VARIANTS or variant in SEATURDAY or variant in PAUSED_MONTHLY_VARIANTS:
+            if (
+                variant in MONTHLY_VARIANTS
+                or variant in SEATURDAY
+                or variant in PAUSED_MONTHLY_VARIANTS
+            ):
                 tname = translated_tournament_name(variant, MONTHLY, ARENA, translation)
                 app["tourneynames"][lang][(variant, MONTHLY, ARENA)] = tname
             if variant in SEATURDAY or variant in WEEKLY_VARIANTS:
