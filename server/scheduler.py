@@ -53,12 +53,13 @@ MONTHLY_VARIANTS = (
 )
 
 # Old MONTHLY tournaments, needed to create translated tourney names
-NO_MORE_VARIANTS = ("manchu",)
+PAUSED_MONTHLY_VARIANTS = ("manchu", "duck")
 
 # Old WEEKLY tournaments, paused atm., but needed to create translated tourney names
 WEEKLY_VARIANTS = (
     "crazyhouse960",
     "atomic960",
+    "duck",
 )
 
 # Monthly Variant Tournaments need different TC
