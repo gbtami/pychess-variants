@@ -663,9 +663,6 @@ class Game:
                         self.status = INVALIDMOVE
             else:
                 self.status = STALEMATE
-                if self.variant == "duck":
-                    # TODO: Remove this when Fairy-Stockfish fixes it in Duck chess rules
-                    self.result = "1-0" if self.board.color == WHITE else "0-1"
 
         else:
             # end the game by 50 move rule and repetition automatically
