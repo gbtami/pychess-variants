@@ -1,5 +1,4 @@
 import * as esbuild from 'esbuild';
-import NodeResolve from '@esbuild-plugins/node-resolve';
 import { compress } from 'esbuild-plugin-compress';
 
 const args = process.argv;
@@ -14,12 +13,6 @@ const baseOpts = {
     format: 'iife',
     bundle: true,
     outfile: './static/pychess-variants.js',
-    plugins: [
-        NodeResolve.default({
-            mainFields: [ 'browser', 'module', 'main' ],
-            extensions: [ ".js", ".ts" ],
-        }),
-    ],
 };
 
 if (dev) {
@@ -33,7 +26,6 @@ if (dev) {
         minify: true,
         write: false,
         plugins: [
-            ...baseOpts.plugins,
             compress(),
         ],
     });
