@@ -516,6 +516,7 @@ export class AnalysisController extends GameController {
     shapeFromMove (pv_move: string, turnColor: cg.Color): DrawShape[] {
         let shapes0: DrawShape[] = [];
         const atPos = pv_move.indexOf('@');
+        // drop
         if (atPos > -1) {
             const d = pv_move.slice(atPos + 1, atPos + 3) as cg.Key;
             const dropPieceRole = util.roleOf(pv_move.slice(0, atPos) as cg.Letter);
@@ -530,9 +531,24 @@ export class AnalysisController extends GameController {
                 { orig: d, brush: 'paleGreen' }
             ];
         } else {
+            // arrow
             const o = pv_move.slice(0, 2) as cg.Key;
             const d = pv_move.slice(2, 4) as cg.Key;
             shapes0 = [{ orig: o, dest: d, brush: 'paleGreen', piece: undefined },];
+
+            // duck
+            if (this.variant.rules.duck) {
+                shapes0.push({
+                    orig: pv_move.slice(-2) as cg.Key,
+                    brush: 'paleGreen',
+                    piece: {
+                        color: turnColor,
+                        role: '_-piece'
+                    }
+                })
+            }
+
+            // TODO: gating, promotion
         }
         return shapes0
     }
