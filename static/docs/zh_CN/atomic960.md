@@ -1,6 +1,6 @@
-# ![Atomic960](https://github.com/gbtami/pychess-variants/blob/master/static/icons/Atomic960.svg) 随机核象棋 Atomic 960
+# ![Atomic960](https://github.com/gbtami/pychess-variants/blob/master/static/icons/Atomic960.svg) 随机核爆象棋 Atomic 960
 
-随机核象结何原本核象棋与菲舍尔任意制象棋Chess960的规则。由于这视为核象棋的变体，因此请先熟悉核象棋的规则，
+随机核象结何原本核爆象棋与菲舍尔任意制象棋Chess960的规则。由于这视为核爆象棋的变体，因此请先熟悉核爆象棋的规则，
 
 你可以在象棋的还项中还择 960 模式来开始此游戏。
 
@@ -22,4 +22,4 @@
 当王与a线方向的车易位时，王移到c1 (c8)，车到d1 (d8)；当与h线方向的车易位时，王到g1 (g8)，车到f1 (f8)。
 棋子的兵种、着法和普通西洋棋规则相同。
 
-其他规则都如原本的核象棋。
+其他规则都如原本的核爆象棋。
