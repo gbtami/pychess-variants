@@ -37,7 +37,8 @@ export class PromotionInput extends ExtraInput {
             this.ctrl.autoPromote &&
             !disableAutoPromote &&
             autoRole &&
-            autoRole in choices)
+            autoSuffix &&
+            choices[autoRole] === autoSuffix)
             this.choices = { [autoRole]: autoSuffix };
         else
             this.choices = choices;
