@@ -1,91 +1,89 @@
-# ![Chennis](https://github.com/gbtami/pychess-variants/blob/master/static/icons/Chennis.svg) Chennis
+# ![Chennis](https://github.com/gbtami/pychess-variants/blob/master/static/icons/Chennis.svg) 网球棋
 
 ![Chennis](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChennisGuide/Chennis.png)
 
-## Background
+## 背景
 
-Chennis is a game designed by Couch Tomato in 2021 primarily designed as a variant of Kyoto Shogi. Since Kyoto Shogi is a solved game, the goal was to create a more balanced game as well as something more accessible to international chess players. To use less shogi-like pieces, more long-range pieces were needed and thus a larger board. And to keep the king easy enough to mate, restrictions were created. These restrictions coincidentally resulted in a tennis court-shaped board, and hence Chennis was born! Due to the use of cannons and restricted king areas, the game can also be said to feature elements of Xiangqi, making it a game that combines multiple historical chess variants. In terms of balance, the game is approximately 60-40, in favor of white, which achieves what it sets out to do from the initial design.
+网球棋(Chennis)是 Couch Tomato 于 2021 年推出的棋类游戏，最初的设想是制作一个京都将棋的变种。由于京都将棋已经被完全解决，网球棋的目的是创作一个更为平衡的游戏，同时引入不同的棋子使得国际象棋玩家更容易上手。为尽量减少将棋类棋子的出现，就需要更多的远距离棋子和更大的棋盘。然后，为了控制将杀的难度，给王增加了活动范围的限制。因为双方王的活动范围像一个网球场，因此定名为网球棋。由于引入了炮、限制了活动范围，某种意义上也可以说网球棋也借鉴了中国象棋，这意味着网球棋结合了许多流行棋类中的元素。在平衡方面，目前双方的胜率为先手（白）胜率约为60%。
 
-## Introduction and General Rules
+## 简介与基本规则
 
-There are two sides, designated white and black, respectively. White moves first. Each piece (other than the king) has *two sides*; after each move, the piece changes to its counterpart piece (typically marked as red on the white pieces and marked as blue on the black pieces).
+游戏分黑白双方，白棋先走。所有的棋子（王除外）都有两种形态，每次行动之后都必须变换成另一种形态。在游戏界面上，即将变换成的棋子会以红色/蓝色提示。
 
 ![Piece Swaps](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChennisGuide/Swap.png)
 
-When you capture a piece, it goes into your hand. On a future turn, you can drop that piece onto the board on any open square *as either side of the piece*. For example, for the Rook-Pawn combo, you can drop it as a rook or as a pawn.
+当你吃掉对方棋子时，那个被吃的棋子会返回你的手中，类似将棋的驹台。这些棋子可供打入，与将棋的打入相同。但是，你可以在打入时**自由选择以哪一形态进入棋盘**。例如：对于“车-兵”棋子，您可以任选它是当作车打入，还是当作兵打入。
 
-### Board
+### 棋盘
 
-Chennis is played on a 7x7 board as seen below:
+网球棋的棋盘为7x7，如下图：
 
 ![Chak](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChennisGuide/ChennisCourt.png)
 
-Pieces that are not the king can move anywhere on the board. There are four types of regions, which determine where the kings can move:
+所有棋子（王除外）可以在棋盘任意位置行动。棋盘分为四个区域，和双方王的行动范围有关：
 
-**White's Court**: Only the white king can move in this region.
+**白方半场|White's Court**: 仅白王可在此区域行动。
 
-**Black's Court**: Only the black king can move in this region.
+**黑方半场|Black's Court**: 仅黑王可在此区域行动。
 
-**Net**, a 5 square region in the middle that actually belongs to both courts, so both kings can move in this region.
+**球网区|Net**, 棋盘中间的5格区域。这是双方王的公共区域，双方的王均可在此区域行动。
 
-**Sidelines**, the edges files; *neither* king can move in these areas.
+**边线|Sidelines**, 棋盘两边的两列，双方的王均**不可**在此区域行动。
 
-### Goals of the Game
+### 游戏胜败目标
 
-There are three ways to win:
+获胜有以下两种方式：
 
-**Checkmate** - Put the king in check with no legal moves.
+**将杀 | Checkmate** - 攻击对方国王，且对方无法解除将军。
 
-**Stalemate** - A player with no legal moves loses (unlike in Chess, where it is a draw). 
+**困毙 | Stalemate** - 使对方无子可动，即使王未被攻击（与国际象棋的逼和不同）。
 
-**Resignation** - Your opponent resigns.
+## 棋子
 
-## Pieces
+王和国际象棋的王完全相同，八方行动一格。王只能在自己的半场和球网区移动。注意：您可以在己方半场用王攻击对方位于球网区的王。
 
-The King (K) is the same as in any form of chess and can move on square in any direction as long as it's within the the legal area (see above). Keep in mind that a king can mate another king that's at the net.
+其余的棋子每方有4枚。它们分别是：
 
-There are four piece pairs:
+车-兵、象-卒、马-兵长、炮-士。
 
-Rook-Pawn
+其中，车、马、象、兵的走法与国际象棋完全相同，但兵取消了向前两格的走法。
 
-Bishop-Soldier
+每个棋子的形态大致可以分为直走形态和斜走形态，一个棋子行动之后会切换成另一种形态。
+下面是另外四个棋子的走法。
 
-Knight-Mayor
-
-Cannon-Ferz
-
-The rook, pawn, knight, and bishop move exactly as in chess. If you are not familiar with these pieces, please check out of a chess guide. The only exception is that the pawn does not have the two step move as in chess.
-
-In general, each pair has opposite movement: Diagonally-attacking pieces turn into orthogonally-attacking pieces and vice-versa.
-
-### Soldier (S)
+### 卒 | Soldier (S)
 ![Soldier](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChennisGuide/Soldier.png)
 
-The Soldier moves one space forwards or one space sideways. It turns into a Bishop after moving.
+卒可以向前、左、右行动一格。它是象的对应形态。
 
-### Mayor (M)
+### 兵长 | Mayor (M)
 ![Mayor](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChennisGuide/Mayor.png)
 
-The Mayor moves exactly like the king (one space in any direction). It turns into a Knight after moving.
+兵长走法和王一样，即八方行动一格。它是马的对应形态。
 
-### Ferz (F)
+### 士 | Ferz (F)
 ![Ferz](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChennisGuide/Ferz.png)
 
-The Ferz moves exactly one space diagonally. It turns into a Cannon after moving.
+士可以斜走一格。它是炮的对应形态。
 
-### Cannon (C)
+### 炮 | Cannon (C)
 ![Cannon Move](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChennisGuide/CannonMove.png)
 
 ![Cannon Attack](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChennisGuide/CannonAttack.png)
 
-The Cannon moves like a rook (any number of squares orthogonally), but to capture, it needs to hop over an intervening piece. This is the same as the cannon in Xiangqi. It turns into a Ferz after moving.
+炮的走法和中国象棋相同，即直行任意距离，隔一子吃子。它是士的对应形态。
 
-## Piece valuation
+## 棋子价值
 
-Accurate piece values are unknown. In general, for dropping games such as Chennis, the situation is more important than strict piece evaluation. However, the Knight-Mayor is generally considered the best piece combo because both sides are flexible.
+准确的棋子价值难以计算。在这类具有打入设定的棋中，具体的局面往往比死板的棋子价值更为重要。在四个棋子中，通常认为马-兵长的组合作用更大，因为两种形态都很灵活。
 
-## Strategy 
+## 策略 
 
-Strategy is still being developed as the game is quite new.
+游戏推出时间较短，策略尚在研究中。
 
-For beginners, I can't stress enough to remember where the king can move. That means pieces can be dropped on the sideline and threaten the king without retaliation from the king.
+对于新玩家的一条建议：
+**务必记住王的行动范围！**
+**务必记住王的行动范围！**
+**务必记住王的行动范围！**
+*（重要的事情说三遍）*
+您的王只能在己方半场和球网区行动，**不能走到边线**。这意味着边线的棋子可以近距离攻击王而不会受到王的反击。
