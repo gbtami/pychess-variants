@@ -4,13 +4,12 @@ import { predrop } from 'chessgroundx/predrop';
 import * as cg from 'chessgroundx/types';
 
 import { newWebsocket } from './socket';
-import { JSONObject } from './types';
 import { _, ngettext } from './i18n';
 import { patch } from './document';
 import { boardSettings } from './boardSettings';
 import { Clock } from './clock';
 import { sound } from './sound';
-import { uci2LastMove, cg2uci, getCounting, isHandicap } from './chess';
+import { uci2LastMove, getCounting, isHandicap } from './chess';
 import { crosstableView } from './crosstable';
 import { chatMessage, chatView } from './chat';
 import { createMovelistButtons, updateMovelist, updateResult, selectMove } from './movelist';
@@ -19,7 +18,7 @@ import { player } from './player';
 import { updateCount, updatePoint } from './info';
 import { updateMaterial, emptyMaterial } from './material';
 import { notify } from './notification';
-import { Clocks, MsgBoard, MsgGameEnd, MsgMove, MsgNewGame, MsgUserConnected, RDiffs, CrossTable } from "./messages";
+import { Clocks, MsgBoard, MsgGameEnd, MsgNewGame, MsgUserConnected, RDiffs, CrossTable } from "./messages";
 import { MsgUserDisconnected, MsgUserPresent, MsgMoreTime, MsgDrawOffer, MsgDrawRejected, MsgRematchOffer, MsgRematchRejected, MsgCount, MsgSetup, MsgGameStart, MsgViewRematch, MsgUpdateTV, MsgBerserk } from './roundType';
 import { PyChessModel } from "./types";
 import { GameController } from './gameCtrl';
@@ -27,7 +26,7 @@ import { GameController } from './gameCtrl';
 let rang = false;
 
 export class RoundController extends GameController {
-    berserked: {wberserk: boolean, bberserk: boolean};
+    berserked: { wberserk: boolean, bberserk: boolean };
     byoyomi: boolean;
     byoyomiPeriod: number;
     clocks: [Clock, Clock];
@@ -52,14 +51,8 @@ export class RoundController extends GameController {
     blindfold: boolean;
     handicap: boolean;
     setupFen: string;
-    prevPieces: cg.Pieces;
     focus: boolean;
     finishedGame: boolean;
-    lastMaybeSentMsgMove: MsgMove; // Always store the last "move" message that was passed for sending via websocket.
-                          // In case of bad connection, we are never sure if it was sent (thus the name)
-                          // until a "board" message from server is received from server that confirms it.
-                          // So if at any moment connection drops, after reconnect we always resend it.
-                          // If server received and processed it the first time, it will just ignore it
 
     constructor(el: HTMLElement, model: PyChessModel) {
         super(el, model);
@@ -69,17 +62,6 @@ export class RoundController extends GameController {
         window.addEventListener('focus', () => {this.focus = true});
 
         const onOpen = () => {
-            if ( this.lastMaybeSentMsgMove  && this.lastMaybeSentMsgMove.ply === this.ply + 1 ) {
-                // if this.ply === this.lastMaybeSentMsgMove.ply it would mean the move message was received by server and it has replied with "board" message, confirming and updating the state, including this.ply
-                // since they are not equal, but also one ply behind, means we should try to re-send it
-                try {
-                    console.log("resending unsent message ", this.lastMaybeSentMsgMove);
-                    this.doSend(this.lastMaybeSentMsgMove);
-                } catch (e) {
-                    console.log("could not even REsend unsent message ", this.lastMaybeSentMsgMove)
-                }
-            }
-
             this.clocks[0].connecting = false;
             this.clocks[1].connecting = false;
 
@@ -91,6 +73,11 @@ export class RoundController extends GameController {
         };
 
         const onReconnect = () => {
+            if (this.finishedGame) {
+                // Prevent endless reconnections from finished games
+                this.sock.close();
+                return
+            }
             this.clocks[0].connecting = true;
             this.clocks[1].connecting = true;
             console.log('Reconnecting in round...');
@@ -110,7 +97,7 @@ export class RoundController extends GameController {
         this.sock.onmessage = (e: MessageEvent) => this.onMessage(e);
 
         this.byoyomiPeriod = Number(model["byo"]);
-        this.byoyomi = this.variant.timeControl === 'byoyomi';
+        this.byoyomi = this.variant.rules.defaultTimeControl === 'byoyomi';
         this.finishedGame = this.status >= 0;
         this.tv = model["tv"];
         this.profileid = model["profileid"];
@@ -152,7 +139,7 @@ export class RoundController extends GameController {
             this.chessground.set({
                 movable: {
                     free: false,
-                    color: (this.variant.setup && this.status === -2) ? undefined : this.mycolor,
+                    color: (this.variant.rules.setup && this.status === -2) ? undefined : this.mycolor,
                     events: {
                         after: (orig, dest, meta) => this.onUserMove(orig, dest, meta),
                         afterNewPiece: (piece, dest, meta) => this.onUserDrop(piece, dest, meta),
@@ -160,8 +147,8 @@ export class RoundController extends GameController {
                 },
                 premovable: {
                     enabled: true,
-                    premoveFunc: premove(this.variant.name, this.chess960, this.variant.boardDimensions),
-                    predropFunc: predrop(this.variant.name, this.variant.boardDimensions),
+                    premoveFunc: premove(this.variant.name, this.chess960, this.variant.board.dimensions),
+                    predropFunc: predrop(this.variant.name, this.variant.board.dimensions),
                     events: {
                         set: this.setPremove,
                         unset: this.unsetPremove,
@@ -181,7 +168,7 @@ export class RoundController extends GameController {
         this.vplayer0 = patch(player0, player('player0', this.titles[0], this.players[0], this.ratings[0], this.level));
         this.vplayer1 = patch(player1, player('player1', this.titles[1], this.players[1], this.ratings[1], this.level));
 
-        if (this.variant.showMaterialDiff) {
+        if (this.variant.material.showDiff) {
             const materialTop = document.querySelector('.material-top') as HTMLElement;
             const materialBottom = document.querySelector('.material-bottom') as HTMLElement;
             this.vmaterial0 = this.mycolor === 'white' ? materialBottom : materialTop;
@@ -261,7 +248,7 @@ export class RoundController extends GameController {
         const misc1 = document.getElementById('misc-info1') as HTMLElement;
 
         // initialize material point and counting indicator
-        if (this.variant.materialPoint || this.variant.counting) {
+        if (this.variant.ui.materialPoint || this.variant.ui.counting) {
             this.vmiscInfoW = this.mycolor === 'white' ? patch(misc1, h('div#misc-infow')) : patch(misc0, h('div#misc-infow'));
             this.vmiscInfoB = this.mycolor === 'black' ? patch(misc1, h('div#misc-infob')) : patch(misc0, h('div#misc-infob'));
         }
@@ -297,7 +284,7 @@ export class RoundController extends GameController {
                 buttons.push(h('button#abort', { on: { click: () => this.abort() }, props: {title: _('Abort')} }, [h('i', {class: {"icon": true, "icon-abort": true} } ), ]));
             }
             buttons.push(h('button#count', _('Count')));
-            if (this.variant.pass)
+            if (this.variant.rules.pass)
                 buttons.push(h('button#draw', { on: { click: () => this.pass() }, props: { title: _('Pass') } }, _('Pass')));
             else
                 buttons.push(h('button#draw', { on: { click: () => this.draw() }, props: { title: _('Draw') } }, h('i', '½')));
@@ -305,7 +292,7 @@ export class RoundController extends GameController {
             
             this.gameControls = patch(container, h('div.btn-controls', buttons));
 
-            const manualCount = this.variant.counting === 'makruk' && !(this.wtitle === 'BOT' || this.btitle === 'BOT');
+            const manualCount = this.variant.ui.counting === 'makruk' && !(this.wtitle === 'BOT' || this.btitle === 'BOT');
             if (!manualCount)
                 patch(document.getElementById('count') as HTMLElement, h('div'));
 
@@ -332,7 +319,7 @@ export class RoundController extends GameController {
         boardSettings.updateDropSuggestion();
 
         // console.log("FLIP");
-        if (this.variant.showMaterialDiff) {
+        if (this.variant.material.showDiff) {
             this.updateMaterial();
         }
 
@@ -350,10 +337,10 @@ export class RoundController extends GameController {
         this.vplayer0 = patch(this.vplayer0, player('player0', this.titles[this.flipped() ? 1 : 0], this.players[this.flipped() ? 1 : 0], this.ratings[this.flipped() ? 1 : 0], this.level));
         this.vplayer1 = patch(this.vplayer1, player('player1', this.titles[this.flipped() ? 0 : 1], this.players[this.flipped() ? 0 : 1], this.ratings[this.flipped() ? 0 : 1], this.level));
 
-        if (this.variant.counting)
+        if (this.variant.ui.counting)
             [this.vmiscInfoW, this.vmiscInfoB] = updateCount(this.fullfen, this.vmiscInfoB, this.vmiscInfoW);
 
-        if (this.variant.materialPoint)
+        if (this.variant.ui.materialPoint)
             [this.vmiscInfoW, this.vmiscInfoB] = updatePoint(this.fullfen, this.vmiscInfoB, this.vmiscInfoW);
 
         this.updateMaterial();
@@ -588,7 +575,6 @@ export class RoundController extends GameController {
             this.result = msg.result;
             this.clocks[0].pause(false);
             this.clocks[1].pause(false);
-            this.dests = new Map();
 
             if (this.result !== "*" && !this.spectator && !this.finishedGame)
                 sound.gameEndSound(msg.result, this.mycolor);
@@ -644,7 +630,7 @@ export class RoundController extends GameController {
         if (latestPly) this.ply = msg.ply;
 
         if (this.ply === 0) {
-            if (this.variant.setup) {
+            if (this.variant.rules.setup) {
                 // force to set new dests after setup phase!
                 latestPly = true;
             } else {
@@ -721,7 +707,7 @@ export class RoundController extends GameController {
 
         const lastMove = uci2LastMove(msg.lastMove);
         const step = this.steps[this.steps.length - 1];
-        const capture = !!lastMove && ((this.chessground.state.boardState.pieces.get(lastMove[1]) && step.san?.slice(0, 2) !== 'O-') || (step.san?.slice(1, 2) === 'x'));
+        const capture = !!lastMove && ((this.chessground.state.boardState.pieces.get(lastMove[1] as cg.Key) && step.san?.slice(0, 2) !== 'O-') || (step.san?.slice(1, 2) === 'x'));
 
         if (lastMove && (this.turnColor === this.mycolor || this.spectator)) {
             if (!this.finishedGame) sound.moveSound(this.variant, capture);
@@ -731,11 +717,11 @@ export class RoundController extends GameController {
             sound.check();
         }
 
-        if (this.variant.counting) {
+        if (this.variant.ui.counting) {
             this.updateCount(msg.fen);
         }
 
-        if (this.variant.materialPoint) {
+        if (this.variant.ui.materialPoint) {
             this.updatePoint(msg.fen);
         }
 
@@ -793,7 +779,7 @@ export class RoundController extends GameController {
                         turnColor: this.turnColor,
                         movable: {
                             free: false,
-                            color: (this.variant.setup && this.status === -2) ? undefined : this.mycolor,
+                            color: (this.variant.rules.setup && this.status === -2) ? undefined : this.mycolor,
                         },
                         check: msg.check,
                         lastMove: lastMove,
@@ -835,18 +821,15 @@ export class RoundController extends GameController {
         this.updateMaterial();
     }
 
-    doSendMove = (orig: cg.Orig, dest: cg.Key, promo: string) => {
+    doSendMove(move: string) {
         this.clearDialog();
+
         // pause() will add increment!
         const oppclock = !this.flipped() ? 0 : 1
         const myclock = 1 - oppclock;
         const movetime = (this.clocks[myclock].running) ? Date.now() - this.clocks[myclock].startTime : 0;
         this.clocks[myclock].pause((this.base === 0 && this.ply < 2) ? false : true);
-        // console.log("sendMove(orig, dest, prom)", orig, dest, promo);
 
-        const move = cg2uci(orig + dest + promo);
-
-        // console.log("sendMove(move)", move);
         let bclock, clocks;
         if (!this.flipped()) {
             bclock = this.mycolor === "black" ? 1 : 0;
@@ -865,8 +848,8 @@ export class RoundController extends GameController {
 
         clocks = {movetime: (this.preaction) ? 0 : movetime, black: bclocktime, white: wclocktime};
 
-        this.lastMaybeSentMsgMove = { type: "move", gameId: this.gameId, move: move, clocks: clocks, ply: this.ply + 1 };
-        this.doSend(this.lastMaybeSentMsgMove as JSONObject);
+        const message = { type: "move", gameId: this.gameId, move: move, clocks: clocks, ply: this.ply + 1 };
+        this.doSend(message);
 
         if (this.preaction) {
             this.clocks[myclock].setTime(this.clocktimes[this.mycolor] + increment);
@@ -903,7 +886,7 @@ export class RoundController extends GameController {
     }
 
     private updateMaterial(): void {
-        if (this.variant.showMaterialDiff && this.materialDifference)
+        if (this.variant.material.showDiff && this.materialDifference)
             [this.vmaterial0, this.vmaterial1] = updateMaterial(this.variant, this.fullfen, this.vmaterial0, this.vmaterial1, this.flipped());
         else
             [this.vmaterial0, this.vmaterial1] = emptyMaterial(this.variant);
@@ -979,11 +962,14 @@ export class RoundController extends GameController {
             // prevent sending gameStart message when user just reconecting
             if (msg.ply === 0) {
                 this.doSend({ type: "ready", gameId: this.gameId });
-                if (this.variant.setup) {
-                    this.doSend({ type: "board", gameId: this.gameId });
-                }
+            //    if (this.variant.setup) {
+            //        this.doSend({ type: "board", gameId: this.gameId });
+            //    }
             }
         }
+        // We always need this to get possible moves made while our websocket connection was established
+        // fixes https://github.com/gbtami/pychess-variants/issues/962
+        this.doSend({ type: "board", gameId: this.gameId });
     }
 
     private onMsgUserPresent = (msg: MsgUserPresent) => {

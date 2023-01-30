@@ -40,6 +40,7 @@ from const import (
     MONTHLY,
     SHIELD,
 )
+from discord_bot import DiscordBot, FakeDiscordBot
 from generate_crosstable import generate_crosstable
 from generate_highscore import generate_highscore
 from generate_shield import generate_shield
@@ -48,6 +49,7 @@ from index import handle_404
 from routes import get_routes, post_routes
 from settings import (
     DEV,
+    DISCORD_TOKEN,
     MAX_AGE,
     SECRET_KEY,
     MONGO_HOST,
@@ -65,7 +67,7 @@ from scheduler import (
     new_scheduled_tournaments,
     MONTHLY_VARIANTS,
     WEEKLY_VARIANTS,
-    NO_MORE_VARIANTS,
+    PAUSED_MONTHLY_VARIANTS,
     SEATURDAY,
     SHIELDS,
 )
@@ -249,7 +251,11 @@ async def init_state(app):
         translation.install()
 
         for variant in VARIANTS:
-            if variant in MONTHLY_VARIANTS or variant in SEATURDAY or variant in NO_MORE_VARIANTS:
+            if (
+                variant in MONTHLY_VARIANTS
+                or variant in SEATURDAY
+                or variant in PAUSED_MONTHLY_VARIANTS
+            ):
                 tname = translated_tournament_name(variant, MONTHLY, ARENA, translation)
                 app["tourneynames"][lang][(variant, MONTHLY, ARENA)] = tname
             if variant in SEATURDAY or variant in WEEKLY_VARIANTS:
@@ -260,7 +266,16 @@ async def init_state(app):
                 app["tourneynames"][lang][(variant, SHIELD, ARENA)] = tname
 
     if app["db"] is None:
+        app["discord"] = FakeDiscordBot()
         return
+
+    # create Discord bot
+    if DEV:
+        app["discord"] = FakeDiscordBot()
+    else:
+        bot = DiscordBot(app)
+        app["discord"] = bot
+        asyncio.create_task(bot.start(DISCORD_TOKEN))
 
     # Read tournaments, users and highscore from db
     try:

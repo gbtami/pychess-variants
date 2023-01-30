@@ -8,8 +8,20 @@
 
 ## 规则
 
-与泰国象棋唯一不一样的是，在没有子被吃掉之前，棋手有以下的选则:
+与泰国象棋不一样的是，多了以下两条规则:
 
-* 国王的第一步，且不能被将军，可以如马般横向的移动到第二横排。
+### 跳王
 
-* 士的第一步，可以将它朝正前方直跳二格 (可以越子)。
+![King's Jump](https://github.com/gbtami/pychess-variants/blob/master/static/images/OukGuide/kingleap.png)
+
+王若没有移动过，则可以像马一样移动到第二线。此走法不能吃子，且被将军的情况下不能这样做。
+
+![Rook's Aiming](https://github.com/gbtami/pychess-variants/blob/master/static/images/OukGuide/rookaim.png)
+
+若对方的车移动到和己方的王同行或同列，则此走法自动丢失，不能再使用。
+
+### 挺士
+
+![Met's Jump](https://github.com/gbtami/pychess-variants/blob/master/static/images/OukGuide/metleap.png)
+
+若士没有移动过，可以向前跳两格（可越子）。此走法不能吃子。

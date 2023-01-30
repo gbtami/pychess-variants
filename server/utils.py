@@ -754,9 +754,13 @@ def pgn(doc):
 
 
 def sanitize_fen(variant, initial_fen, chess960):
-    # Prevent this particular one to fail on our general sastling check
+    # Prevent this particular one to fail on our general castling check
     if variant == "capablanca" and initial_fen == CONSERVATIVE_CAPA_FEN:
         return True, initial_fen
+
+    sf_validate = sf.validate_fen(initial_fen, variant, chess960)
+    if sf_validate != sf.FEN_OK and variant != "duck":
+        return False, ""
 
     # Initial_fen needs validation to prevent segfaulting in pyffish
     sanitized_fen = initial_fen
@@ -778,6 +782,8 @@ def sanitize_fen(variant, initial_fen, chess960):
         non_piece = "~+0123456789[]hH-"
     elif variant == "orda":
         non_piece = "~+0123456789[]qH-"
+    elif variant == "duck":
+        non_piece = "~+0123456789[]*-"
     else:
         non_piece = "~+0123456789[]-"
     invalid1 = any((c not in start[0] + non_piece for c in init[0]))
@@ -852,8 +858,7 @@ def sanitize_fen(variant, initial_fen, chess960):
 
     if invalid0 or invalid1 or invalid2 or invalid3 or invalid4 or invalid5 or invalid6:
         print(invalid0, invalid1, invalid2, invalid3, invalid4, invalid5, invalid6)
-        sanitized_fen = start_fen
-        return False, start_fen
+        return False, ""
     return True, sanitized_fen
 
 
