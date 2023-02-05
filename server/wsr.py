@@ -92,7 +92,8 @@ async def round_socket_handler(request):
                                     data["move"],
                                     data["clocks"],
                                     data["ply"],
-                                    data["board"]
+                                    data["board"] if "board" in data else None,
+                                    data["partnerFen"] if "partnerFen" in data else None,
                                 )
                             except Exception:
                                 log.exception(

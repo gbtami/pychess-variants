@@ -212,28 +212,25 @@ export class ChessgroundController extends GameController {
         // increase pocket count todo:niki: but now partners pocket
         // important only during gap before we receive board message from server and reset whole FEN (see also onUserDrop)
         if (/*ctrl.variant.drop && todo:not relevant for bughouse - if/when this class becomes generic bring this back maybe*/ meta.captured) {
-            let role = meta.captured.role;
-            if (meta.captured.promoted)
-                role =/* (ctrl.variant.promotion === 'shogi' || ctrl.variant.promotion === 'kyoto') ? meta.captured.role.slice(1) as cg.Role : todo:not relevant for bughouse - if/when this class becomes generic bring this back maybe*/ "p-piece";
+            const role = meta.captured.promoted? "p-piece": meta.captured.role;
 
             if (this.partnerCC.chessground.state.boardState.pockets) {
+                // update pocket mode of partner board:
                 const pocket = /*ctrl.chessground.state.pockets todo:not relevant for bughouse - if/when this class becomes generic bring this back?*/
                     this.partnerCC.chessground.state.boardState.pockets[/*util.opposite(*/meta.captured.color/*)*/]/* : undefined*/;
                 if (!pocket.has(role)) {
                     pocket.set(role, 0);
                 }
-                // if (pocket && role && pocket.has(role)) {
-                    // pocket[role]!++;todo:niki:changed to below line as part of merge from upstream - not sure whats happening with this
-                    pocket.set(role, pocket.get(role)! + 1);
-                    let ff = this.partnerCC.ffishBoard.fen();
-                    console.log(ff);
-                    const f1 = this.partnerCC.chessground.getFen();
-                    const fenPocket = f1.match(/\[.*\]/)![0];
-                    this.partnerCC.fullfen=ff.replace(/\[.*\]/,fenPocket);
-                    this.partnerCC.ffishBoard.setFen(this.partnerCC.fullfen);//todo:niki:hope it doesnt break anything this way. ply number i think is not correct now?
-                    this.partnerCC.setDests();//dests = this.parent.getDests(this.partnerCC);
-                    this.partnerCC.chessground.state.dom.redraw(); // TODO: see todo comment also at same line in onUserDrop.
-                // }
+                pocket.set(role, pocket.get(role)! + 1);
+                // update fen of partner board:
+                let ff = this.partnerCC.ffishBoard.fen();
+                const f1 = this.partnerCC.chessground.getFen(); // we updated pocket model, so now chessground returns correct new fen with updated pockets
+                const fenPocket = f1.match(/\[.*\]/)![0]; // how the pocket should look like
+                this.partnerCC.fullfen=ff.replace(/\[.*\]/,fenPocket);
+                this.partnerCC.ffishBoard.setFen(this.partnerCC.fullfen);//todo:niki:hope it doesnt break anything this way. ply number i think is not correct now?
+                this.partnerCC.setDests();//dests = this.parent.getDests(this.partnerCC);
+
+                this.partnerCC.chessground.state.dom.redraw(); // TODO: see todo comment also at same line in onUserDrop.
             }
         }
 
@@ -360,8 +357,7 @@ export class ChessgroundController extends GameController {
              orientation: 'white',//todo:niki
              turnColor: 'white',//todo:niki
              animation: { enabled: false },//todo:niki
-             addDimensionsCssVarsTo: document.body,
-
+             addDimensionsCssVarsTo: this.boardName === 'a'? document.body: undefined, // todo:niki, i was hoping this check will result in only setting those variables once by first board, this avoiding that loop of resizing that happens but i guess not enough
              pocketRoles: VARIANTS.crazyhouse.pocketRoles,
         }, pocket0, pocket1);
 

@@ -147,7 +147,7 @@ class GameBug:
         self.check = False
         self.status = CREATED
         self.result = "*"
-        self.last_server_clock = monotonic()
+        self.last_server_clock = monotonic()  # the last time a move was made
 
         self.id = gameId
 
@@ -189,7 +189,8 @@ class GameBug:
             }
         ]
 
-        # self.stopwatch = Clock(self)
+        self.stopwatches = {'a': Clock(self, self.boards["a"]),
+                            'b': Clock(self, self.boards["b"])}
 
         if not self.bplayerA.bot:
             self.bplayerA.game_in_progress = self.id
@@ -214,8 +215,8 @@ class GameBug:
         #     self.bberserk = True
         #     self.ply_clocks[0]["black"] = self.berserk_time
 
-    async def play_move(self, move, clocks=None, ply=None, board="a"):
-        # self.stopwatch.stop()
+    async def play_move(self, move, clocks=None, ply=None, board="a", partnerFen=None):
+        self.stopwatches[board].stop()
         self.byo_correction = 0
 
         if self.status > STARTED:
@@ -239,41 +240,44 @@ class GameBug:
 
         cur_time = monotonic()
 
-        # BOT players doesn't send times used for moves todo: why?
-        if self.bot_game:
-            movetime = (
-                int(round((cur_time - self.last_server_clock) * 1000)) if self.boards[board].ply >= 2 else 0
-            )
-            if clocks is None:
-                clocks = {
-                    "white": self.ply_clocks[-1]["white"],
-                    "black": self.ply_clocks[-1]["black"],
-                }
-
-            if cur_player.bot and self.boards[board].ply >= 2:
-                cur_color = "black" if self.boards[board].color == BLACK else "white"
-                clocks[cur_color] = max(
-                    0, self.clocks[cur_color] - movetime + (self.inc * 1000)
-                )
-
-                if clocks[cur_color] == 0:
-                    w, b = self.boards[board].insufficient_material()
-                    if (
-                        (w and b)
-                        or (cur_color == "black" and w)
-                        or (cur_color == "white" and b)
-                    ):
-                        result = "1/2-1/2"
-                    else:
-                        result = "1-0" if self.boards[board].color == BLACK else "0-1"
-                    self.update_status(FLAG, result)
-                    print(self.result, "flag")
-                    await self.save_game()
+        # BOT players doesn't send times (i.e. clocks parameter) used for moves todo:niki:for now we dont support bughouse bots
+        # if self.bot_game:
+        #     movetime = (
+        #         int(round((cur_time - self.last_server_clock) * 1000))  # if self.boards[board].ply >= 2 else 0
+        #     )  # basically meaning how much time has past since last time this method was called in millis
+        #     if clocks is None:  # meaning a bot is making the move, meaning next if is also making same test just differently
+        #         clocks = {
+        #             "white": self.ply_clocks[-1]["white"],
+        #             "black": self.ply_clocks[-1]["black"],
+        #         }
+        #
+        #     if cur_player.bot:  # and self.boards[board].ply >= 2:
+        #         cur_color = "black" if self.boards[board].color == BLACK else "white"
+        #         clocks[cur_color] = max(
+        #             0, self.clocks[cur_color] - movetime + (self.inc * 1000)
+        #         )
+        #
+        #         if clocks[cur_color] == 0:
+        #             w, b = self.boards[board].insufficient_material()
+        #             if (
+        #                 (w and b)
+        #                 or (cur_color == "black" and w)
+        #                 or (cur_color == "white" and b)
+        #             ):
+        #                 result = "1/2-1/2"
+        #             else:
+        #                 result = "1-0" if self.boards[board].color == BLACK else "0-1"
+        #             self.update_status(FLAG, result)
+        #             print(self.result, "flag")
+        #             await self.save_game()
 
         self.last_server_clock = cur_time
 
         if self.status <= STARTED:
             try:
+                partnerBoard = "a" if board == "b" else "b"
+                self.boards[partnerBoard].fen = partnerFen # todo:niki: temporary shortcut that i feel is not secure - ideally this should be generated on server primarily (and only?)
+
                 san = self.boards[board].get_san(move)
                 self.lastmove = move
                 self.boards[board].push(move)
@@ -295,7 +299,7 @@ class GameBug:
                         "clocks": clocks,
                     }
                 )
-                # self.stopwatch.restart()
+                self.stopwatches[board].restart()
 
             except Exception:
                 log.exception("ERROR: Exception in game %s play_move() %s", self.id, move)
@@ -322,13 +326,19 @@ class GameBug:
             log.exception("Save IMPORTED game %s ???", self.id)
             return
 
-        # self.stopwatch.clock_task.cancel()
-        # try:
-        #     await self.stopwatch.clock_task
-        # except asyncio.CancelledError:
-        #     pass
+        self.stopwatches['a'].clock_task.cancel()
+        try:
+            await self.stopwatches['a'].clock_task
+        except asyncio.CancelledError:
+            pass
 
-        if self.boards["a"].ply > 0 or self.boards["b"].ply > 0:  # todo niki no idea what this is - just gonna or both boards now
+        self.stopwatches['b'].clock_task.cancel()
+        try:
+            await self.stopwatches['b'].clock_task
+        except asyncio.CancelledError:
+            pass
+
+        if self.boards["a"].ply > 0 or self.boards["b"].ply > 0:  # todo niki seems like it is updating some stats for current game count in lobby page. wonder why we check for ply count
             self.app["g_cnt"][0] -= 1
             response = {"type": "g_cnt", "cnt": self.app["g_cnt"][0]}
             await lobby_broadcast(self.app["lobbysockets"], response)
@@ -385,9 +395,11 @@ class GameBug:
                 "s": self.status,
                 "r": R2C[self.result],
                 "m": encode_moves(
-                    self.boards["a"].move_stack, # todo niki probably best to maintain separate list of steps similar to cliend-side structures. for now just lets have something that passes static analysis
+                    [x["move"] for x in self.steps[1:]],
+                    #self.boards["a"].move_stack, # todo niki probably best to maintain separate list of steps similar to cliend-side structures. for now just lets have something that passes static analysis
                     self.variant
                 ),
+                "o": [0 if x["boardName"] == 'a' else 1 for x in self.steps[1:]]
             }
 
             # if self.rated == RATED and self.result != "*": # todo niki fix together with update_rating when decide how to do bughouse ratings
@@ -610,41 +622,31 @@ class GameBug:
 
         if not self.dests_a or not self.dests_b:
             board_which_ended = "a" if not self.dests_a else "b"
-            game_result_value = self.boards[board_which_ended].game_result()
+            game_result_value = self.boards[board_which_ended].game_result_no_history()
             self.result = result_string_from_value(self.boards[board_which_ended].color, game_result_value)
 
-            if self.boards[board_which_ended].is_immediate_game_end()[0]:
-                self.status = VARIANTEND
-            elif self.check:
-                self.status = MATE
+            # todo: commenting this because i feel it should always be MATE. Also is_immediate_game_end doesn't work because it relies on history - if we actually need it should create _no_history version of it as well
+            # if self.boards[board_which_ended].is_immediate_game_end()[0]:
+            #     self.status = VARIANTEND
+            # elif self.check:
+            self.status = MATE
 
-                if self.variant == "atomic" and game_result_value == 0:
-                    # If Fairy game_result() is 0 it is not mate but stalemate
-                    self.status = STALEMATE
-
-                # Draw if the checkmating player is the one counting
-                if self.boards[board_which_ended].count_started > 0:
-                    counting_side = "b" if self.boards[board_which_ended].count_started % 2 == 0 else "w"
-                    if self.result == ("1-0" if counting_side == "w" else "0-1"):
-                        self.status = DRAW
-                        self.result = "1/2-1/2"
-
-                # Pawn drop mate
-                # TODO: remove this when https://github.com/ianfab/Fairy-Stockfish/issues/48 resolves
-                if self.boards[board_which_ended].move_stack[-1][1] == "@":
-                    if (
-                        self.boards[board_which_ended].move_stack[-1][0] == "P"
-                        and self.variant
-                        in (
-                            "shogi",
-                            "minishogi",
-                            "gorogoro",
-                            "gorogoroplus",
-                        )
-                    ) or (self.boards[board_which_ended].move_stack[-1][0] == "S" and self.variant == "torishogi"):
-                        self.status = INVALIDMOVE
-            else:
-                self.status = STALEMATE
+            # Pawn drop mate
+            # TODO: remove this when https://github.com/ianfab/Fairy-Stockfish/issues/48 resolves
+            # if self.boards[board_which_ended].move_stack[-1][1] == "@":
+            #     if (
+            #         self.boards[board_which_ended].move_stack[-1][0] == "P"
+            #         and self.variant
+            #         in (
+            #             "shogi",
+            #             "minishogi",
+            #             "gorogoro",
+            #             "gorogoroplus",
+            #         )
+            #     ) or (self.boards[board_which_ended].move_stack[-1][0] == "S" and self.variant == "torishogi"):
+            #         self.status = INVALIDMOVE
+            # else:
+            #     self.status = STALEMATE
 
         else:
             pass # todo niki dont think this applies to bughouse but should check/discuss at some point
@@ -676,8 +678,8 @@ class GameBug:
         dests_b = {}
         promotions_a = []
         promotions_b = []
-        moves_a = self.boards["a"].legal_moves()
-        moves_b = self.boards["b"].legal_moves()
+        moves_a = self.boards["a"].legal_moves_no_history()
+        moves_b = self.boards["b"].legal_moves_no_history()
         if self.random_mover:  # todo niki i do not understand why this move is generated here at this moment - whose turn is it?
             self.random_move_a = random.choice(moves_a) if moves_a else ""
             self.random_move_b = random.choice(moves_b) if moves_b else ""

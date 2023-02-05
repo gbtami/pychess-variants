@@ -770,7 +770,7 @@ async def analysis_move(app, user, game, move, fen, ply):
     await ws.send_json(analysis_board_response)
 
 
-async def play_move(app, user, game, move, clocks=None, ply=None, board=None):
+async def play_move(app, user, game, move, clocks=None, ply=None, board=None, partnerFen=None):
     gameId = game.id
     users = app["users"]
     invalid_move = False
@@ -784,7 +784,7 @@ async def play_move(app, user, game, move, clocks=None, ply=None, board=None):
             return
         try:
             if board is not None:
-                await game.play_move(move, clocks, ply, board)
+                await game.play_move(move, clocks, ply, board, partnerFen)
             else:
                 await game.play_move(move, clocks, ply)
         except SystemError:
@@ -802,7 +802,7 @@ async def play_move(app, user, game, move, clocks=None, ply=None, board=None):
         return
 
     if not invalid_move:
-        board_response = game.get_board(full=game.ply == 1)
+        board_response = game.get_board()  # (full=game.ply == 1) todo:niki:i dont understand why this was so. why full when 1st ply?
 
         if not user.bot:
             try:

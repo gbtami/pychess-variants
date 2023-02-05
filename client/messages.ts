@@ -133,6 +133,7 @@ export type MsgMove = { // cannot be interface because canot be converted to an 
      move: string;
      clocks: { movetime: number; white: number; black: number; }; // looks a lot like Clocks interface, but maybe overkil to reuse it - i dont know
      ply: number;
-     board?: 'a' | 'b';//todo:really only needed if simuling, because otherwise on server we should get which board it is based on who the user. TODO: add check that the move message comes from the correct user though - i dont see such check even for regular variants so what heppns if opp forges a message from our name
+     board?: 'a' | 'b';  // todo:really only needed if simuling, because otherwise on server we should get which board it is based on who the user. TODO: add check that the move message comes from the correct user though - i dont see such check even for regular variants so what heppns if opp forges a message from our name
+     partnerFen?: cg.FEN;  // todo:niki:more like temporary shortcut solution for passing piece to partner pocket - ideally should calculate that on server (as well) and not rely on client.
 }
 

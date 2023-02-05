@@ -445,7 +445,41 @@ export class RoundController implements IChatController/*extends GameController 
 
     sendMove = (b: ChessgroundController, orig: cg.Orig, dest: cg.Key, promo: string) => {
         console.log(b,orig,dest,promo);
-        this.doSendMove(b, orig, dest, promo);
+        this.clearDialog();
+        // pause() will add increment!
+        const oppclock = !b.flipped() ? 0 : 1
+        const myclock = 1 - oppclock;
+        const clock = (b.boardName === 'a'? this.clocks: this.clocksB);
+        const movetime = (clock[myclock].running) ? Date.now() - clock[myclock].startTime : 0;
+        clock[myclock].pause((this.base === 0 && this.ply < 2) ? false : true);
+        // console.log("sendMove(orig, dest, prom)", orig, dest, promo);
+
+        const move = cg2uci(orig + dest + promo);
+//todo:this is all wrong - i should get the move color from the move itself so can support same user playing both sides but lets make it compile first then think:
+        const moveColor = this.mycolor.get(b.boardName)!.has("black")? "black" : "white";
+        // console.log("sendMove(move)", move);
+        let bclock, clocks;
+        if (!b.flipped()) {
+            bclock = this.mycolor.get(b.boardName)!.has("black") ? 1 : 0;
+        } else {
+            bclock = this.mycolor.get(b.boardName)!.has("black") ? 0 : 1;
+        }
+        const wclock = 1 - bclock
+
+        const increment = (this.inc > 0 && this.ply >= 2) ? this.inc * 1000 : 0;
+        const bclocktime = (this.mycolor.get(b.boardName)!.has("black") && b.preaction) ? this.clocktimes.black + increment: this.clocks[bclock].duration;
+        const wclocktime = (this.mycolor.get(b.boardName)!.has("white") && b.preaction) ? this.clocktimes.white + increment: this.clocks[wclock].duration;
+
+        clocks = {movetime: (b.preaction) ? 0 : movetime, black: bclocktime, white: wclocktime};
+
+        //todo:niki:need to add board here - aslo how does the fact that we have 2 boards affect this logic? e.g. in simul mode maybe we need to save 2 moves for the 2 boards when we simuling
+        this.lastMaybeSentMsgMove = { type: "move", gameId: this.gameId, move: move, clocks: clocks, ply: this.ply + 1, board: b.boardName, partnerFen: b.partnerCC.fullfen };
+        this.doSend(this.lastMaybeSentMsgMove as JSONObject);
+
+        if (b.preaction) {
+            this.clocks[myclock].setTime(this.clocktimes[moveColor] + increment);
+        }
+        if (this.clockOn) this.clocks[oppclock].start();
     }
 
     //
@@ -703,8 +737,6 @@ export class RoundController implements IChatController/*extends GameController 
         }
         if (latestPly) this.ply = msg.ply;
 
-        // list of legal promotion moves
-        this.clocktimes = msg.clocks || this.clocktimes;
 
         this.result = msg.result;
         this.status = msg.status;
@@ -738,34 +770,7 @@ export class RoundController implements IChatController/*extends GameController 
             }
         }
 
-        this.clockOn = Number(msg.ply) >= 2;
-        if ( !this.spectator && this.clockOn ) {
-            const container = document.getElementById('abort') as HTMLElement;
-            if (container) patch(container, h('div'));
-        }
-
-        //todo:niki:sound not implemented for now
-        const lastMove = uci2LastMove(msg.lastMove);
-        // const step = this.steps[this.steps.length - 1];
-        // const capture = (lastMove.length > 0) && ((this.chessground.state.pieces.get(lastMove[1]) && step.san?.slice(0, 2) !== 'O-') || (step.san?.slice(1, 2) === 'x'));
-        //
-        // if (lastMove.length > 0 && (this.turnColor === this.mycolor || this.spectator)) {
-        //     if (!this.finishedGame) sound.moveSound(this.variant, capture);
-        // }
         this.checkStatus(msg);
-        // if (!this.spectator && msg.check && !this.finishedGame) {
-        //     sound.check();
-        // }
-
-        //todo:niki:when server sends board message, should it always send clocks for both board or only for the one we are updating?
-        const oppclock = /*!this.flipped() ?*/ 0 /*: 1*/;
-        const myclock = 1 - oppclock;
-
-        this.clocks[0].pause(false);
-        this.clocks[1].pause(false);
-
-        this.clocks[oppclock].setTime(this.clocktimes['black']);
-        this.clocks[myclock].setTime(this.clocktimes['white']);
 
         const isInitialBoardMessage = !(msg.steps[msg.steps.length-1].boardName);//todo:niki:not sure why step[0] is still being sent with every move, but when initial board message, that is always the only element (respectively also the last)
 
@@ -828,14 +833,49 @@ export class RoundController implements IChatController/*extends GameController 
                 //todo:niki:update to above's todo, actually it sometimes sends it with 2 elements, sometimes just with one - gotta check what is wrong with python code and how it works in other variants. for now always getting the last element should be robust in all cases
                 const board = boardName === 'a'? this.b1: this.b2;
                 const fen = boardName == 'a'? fenA : fenB;
+                const fenPartner = boardName == 'a'? fenB : fenA;
+
                 board.turnColor = board.turnColor === 'white' ? 'black' : 'white';
+
+                if (boardName == 'a') {
+                    this.clocktimes = msg.clocks || this.clocktimes;
+                } else {
+                    this.clocktimesB = msg.clocks || this.clocktimes;
+                }
+                this.clockOn = Number(msg.ply) >= 2;
+                if ( !this.spectator && this.clockOn ) {
+                    const container = document.getElementById('abort') as HTMLElement;
+                    if (container) patch(container, h('div'));
+                }
+
+                //todo:niki:sound not implemented for now
+                const lastMove = uci2LastMove(msg.lastMove);
+                // const step = this.steps[this.steps.length - 1];
+                // const capture = (lastMove.length > 0) && ((this.chessground.state.pieces.get(lastMove[1]) && step.san?.slice(0, 2) !== 'O-') || (step.san?.slice(1, 2) === 'x'));
+                //
+                // if (lastMove.length > 0 && (this.turnColor === this.mycolor || this.spectator)) {
+                //     if (!this.finishedGame) sound.moveSound(this.variant, capture);
+                // }
+                // if (!this.spectator && msg.check && !this.finishedGame) {
+                //     sound.check();
+                // }
+
+                //todo:niki:when server sends board message, should it always send clocks for both board or only for the one we are updating?
+                const oppclock = /*!this.flipped() ?*/ 0 /*: 1*/;
+                const myclock = 1 - oppclock;
+
+                this.clocks[0].pause(false);
+                this.clocks[1].pause(false);
+
+                this.clocks[oppclock].setTime(this.clocktimes['black']);
+                this.clocks[myclock].setTime(this.clocktimes['white']);
 
                 if (board.ffishBoard) {
                     board.ffishBoard.setFen(fen);
                     board.setDests();
                 }
                 if (this.mycolor.get(boardName)!.has(msg.steps[0].turnColor)) {
-                    //when message is for opp's move
+                    //when message is for opp's move, meaning turnColor is my color - it is now my turn after this message
                     if (latestPly) {
                         //todo:niki: i need to update both board only on initial board message and tbh only if 960 but for now lets always do it
                         // this.b1.chessground.set({
@@ -866,7 +906,10 @@ export class RoundController implements IChatController/*extends GameController 
                             check: msg.check,//todo:niki:which board is this about?
                             lastMove: lastMove,
                         });
-
+                        //todo:niki: updating model probably should be regardless of whetehre it is latestPly:
+                        board.fullfen = fen;
+                        board.partnerCC.fullfen = fenPartner;//todo:niki:setter or something maybe
+                        board.partnerCC.chessground.set({ fen: fenPartner});
                         if (!this.focus) this.notifyMsg(`Played ${msg.steps[0].san}\nYour turn.`);
 
                         // prevent sending premove/predrop when (auto)reconnecting websocked asks server to (re)sends the same board to us
@@ -887,6 +930,9 @@ export class RoundController implements IChatController/*extends GameController 
                         turnColor: board.turnColor,
                         check: msg.check,
                     });
+                    board.fullfen = fen;
+                    board.partnerCC.fullfen = fenPartner;
+                    board.partnerCC.chessground.set({ fen: fenPartner});
                     if (this.clockOn && msg.status < 0) {
                         (msg.steps[msg.steps.length-1].boardName === 'a'? this.clocks: this.clocksB)[oppclock].start();
                         // console.log('OPP CLOCK  STARTED');
@@ -956,44 +1002,6 @@ export class RoundController implements IChatController/*extends GameController 
             // board.dests = board.parent.setDests(board);//todo:niki:maybe do this before chessground set above.
             board.setDests();
         }
-    }
-
-    doSendMove = (b: ChessgroundController, orig: cg.Orig, dest: cg.Key, promo: string) => {
-        this.clearDialog();
-        // pause() will add increment!
-        const oppclock = !b.flipped() ? 0 : 1
-        const myclock = 1 - oppclock;
-        const clock = (b.boardName === 'a'? this.clocks: this.clocksB);
-        const movetime = (clock[myclock].running) ? Date.now() - clock[myclock].startTime : 0;
-        clock[myclock].pause((this.base === 0 && this.ply < 2) ? false : true);
-        // console.log("sendMove(orig, dest, prom)", orig, dest, promo);
-
-        const move = cg2uci(orig + dest + promo);
-//todo:this is all wrong - i should get the move color from the move itself so can support same user playing both sides but lets make it compile first then think:
-        const moveColor = this.mycolor.get(b.boardName)!.has("black")? "black" : "white";
-        // console.log("sendMove(move)", move);
-        let bclock, clocks;
-        if (!b.flipped()) {
-            bclock = this.mycolor.get(b.boardName)!.has("black") ? 1 : 0;
-        } else {
-            bclock = this.mycolor.get(b.boardName)!.has("black") ? 0 : 1;
-        }
-        const wclock = 1 - bclock
-
-        const increment = (this.inc > 0 && this.ply >= 2) ? this.inc * 1000 : 0;
-        const bclocktime = (this.mycolor.get(b.boardName)!.has("black") && b.preaction) ? this.clocktimes.black + increment: this.clocks[bclock].duration;
-        const wclocktime = (this.mycolor.get(b.boardName)!.has("white") && b.preaction) ? this.clocktimes.white + increment: this.clocks[wclock].duration;
-
-        clocks = {movetime: (b.preaction) ? 0 : movetime, black: bclocktime, white: wclocktime};
-
-        //todo:niki:need to add board here - aslo how does the fact that we have 2 boards affect this logic? e.g. in simul mode maybe we need to save 2 moves for the 2 boards when we simuling
-        this.lastMaybeSentMsgMove = { type: "move", gameId: this.gameId, move: move, clocks: clocks, ply: this.ply + 1, board: b.boardName };
-        this.doSend(this.lastMaybeSentMsgMove as JSONObject);
-
-        if (b.preaction) {
-            this.clocks[myclock].setTime(this.clocktimes[moveColor] + increment);
-        }
-        if (this.clockOn) this.clocks[oppclock].start();
     }
 
     //

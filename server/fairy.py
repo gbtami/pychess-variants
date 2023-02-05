@@ -86,8 +86,8 @@ class FairyBoard:
             while new_fen == disabled_fen:
                 new_fen = self.shuffle_start()
             return new_fen
-        if variant == "bughouse":
-            return sf.start_fen(variant) + " | "+sf.start_fen(variant) # todo:niki:or maybe use another property caled bfen and leave fen empty?
+        if variant == "bughouse":  # todo:niki: this is strange, why am i concating the fen like this - does it really expect the full fen for both board or was i tripping when wrote this code?
+            return sf.start_fen(variant) + " | "+sf.start_fen(variant)  # todo:niki:or maybe use another property caled bfen and leave fen empty?
         return sf.start_fen(variant)
 
     @property
@@ -113,10 +113,14 @@ class FairyBoard:
             self.ply -= 1
             self.color = not self.color
             log.error(
-                "ERROR: sf.get_fen() failed on %s %s %s",
-                self.initial_fen,
-                ",".join(self.move_stack),
+                "ERROR: sf.get_fen() failed on %s %s %s %s %s %s %s",
+                self.variant,
+                self.fen,
+                move,
                 self.chess960,
+                self.sfen,
+                self.show_promoted,
+                self.count_started
             )
             raise
 
@@ -126,6 +130,10 @@ class FairyBoard:
     def legal_moves(self):
         # move legality can depend on history, e.g., passing and bikjang
         return sf.legal_moves(self.variant, self.initial_fen, self.move_stack, self.chess960)
+
+    def legal_moves_no_history(self):
+        # move legality can depend on history, e.g., passing and bikjang
+        return sf.legal_moves(self.variant, self.fen, [], self.chess960)
 
     def is_checked(self):
         return sf.gives_check(self.variant, self.fen, [], self.chess960)
@@ -154,6 +162,9 @@ class FairyBoard:
 
     def game_result(self):
         return sf.game_result(self.variant, self.initial_fen, self.move_stack, self.chess960)
+
+    def game_result_no_history(self):
+        return sf.game_result(self.variant, self.fen, [], self.chess960)
 
     def print_pos(self):
         print()

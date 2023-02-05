@@ -13,8 +13,9 @@ ESTIMATE_MOVES = 40
 class Clock:
     """Check game start and abandoned games time out"""
 
-    def __init__(self, game):
+    def __init__(self, game, board=None):
         self.game = game
+        self.board = board if board is not None else game.board
         self.running = False
         self.secs = -1
         self.restart()
@@ -25,8 +26,8 @@ class Clock:
         return self.secs
 
     def restart(self, secs=None):
-        self.ply = self.game.board.ply
-        self.color = self.game.board.color
+        self.ply = self.board.ply
+        self.color = self.board.color
         if secs is not None:
             self.secs = secs
         else:
@@ -54,7 +55,7 @@ class Clock:
 
             # Time was running out
             if self.running:
-                if self.game.board.ply == self.ply:
+                if self.board.ply == self.ply:
                     # On lichess rage quit waits 10 seconds
                     # until the other side gets the win claim,
                     # and a disconnection gets 120 seconds.
