@@ -195,7 +195,6 @@ def new_scheduled_tournaments(already_scheduled, now=None):
             and (plan.freq, plan.variant, plan.is960, starts_at, plan.duration)
             not in already_scheduled
         ):
-
             variant_name = variant_display_name(
                 plan.variant + ("960" if plan.is960 else "")
             ).title()

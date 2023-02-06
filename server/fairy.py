@@ -307,7 +307,6 @@ class FairyBoard:
 
 
 if __name__ == "__main__":
-
     sf.set_option("VariantPath", "variants.ini")
 
     board = FairyBoard("shogi")
