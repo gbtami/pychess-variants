@@ -117,11 +117,6 @@ function start() {
 
     if (model["embed"]) return;
 
-    (document.querySelector('.hamburger') as HTMLElement).addEventListener('click', () => {
-        document.querySelectorAll('.topnav a').forEach(nav => nav.classList.toggle('navbar-show'));
-        (document.querySelector('.hamburger') as HTMLElement).classList.toggle('is-active');
-        }
-    );
 
     renderTimeago();
 
@@ -129,13 +124,7 @@ function start() {
     const searchIcon = document.querySelector('.search-icon') as HTMLElement;
     const searchBar = document.querySelector('.search-bar') as HTMLElement;
     const searchInput = document.querySelector('#search-input') as HTMLInputElement;
-    
-    searchIcon.onclick = function(){
-        searchBar.classList.toggle('active');
-        if (searchBar.classList.contains('active'))
-            // Add some delay so that the input won't eat the icon during the transition animation
-            setTimeout(() => searchInput.focus(), 200);
-    }
+
 
     function showResults(val: String) {
         const acResult = document.getElementById("ac-result") as HTMLElement;
@@ -160,12 +149,6 @@ function start() {
         );
     }
 
-    searchInput.addEventListener("keyup", function(e) {
-        showResults(searchInput.value);
-        if (e.keyCode === 13) {
-            window.location.href = `${model["home"]}/@/${searchInput.value}`;
-        }
-    });
 
     // Clicking outside settings panel closes it
     const settingsPanel = patch(document.getElementById('settings-panel') as HTMLElement, settingsView()).elm as HTMLElement;

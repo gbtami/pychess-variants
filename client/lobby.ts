@@ -83,7 +83,6 @@ export class LobbyController implements ChatController {
         this.sock.onmessage = (e: MessageEvent) => this.onMessage(e);
 
         patch(document.getElementById('seekbuttons') as HTMLElement, h('div#seekbuttons', this.renderSeekButtons()));
-        patch(document.getElementById('lobbychat') as HTMLElement, chatView(this, "lobbychat"));
 
         patch(document.getElementById('variants-catalog') as HTMLElement, variantPanels(this));
 
