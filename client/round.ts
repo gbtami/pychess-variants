@@ -19,10 +19,6 @@ export function roundView(model: PyChessModel): VNode[] {
     renderTimeago();
 
     return [
-        h('aside.sidebar-first', [
-            gameInfo(model),
-            h('div#roundchat'),
-        ]),
         h('div.round-app', [
             h(`selection#mainboard.${variant.boardFamily}.${variant.pieceFamily}.${variant.ui.boardMark}`, [
                 h('div.cg-wrap.' + variant.board.cg, {
@@ -72,11 +68,6 @@ export function roundView(model: PyChessModel): VNode[] {
                 ]),
             ]),
             h('div.material.material-bottom.' + variant.pieceFamily + '.disabled'),
-        ]),
-        h('under-left#spectators'),
-        h('under-board', [
-            h('div#janggi-setup-buttons'),
-            h('div.ctable-container'),
         ]),
     ];
 }

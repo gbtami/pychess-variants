@@ -59,7 +59,7 @@ function playerInfo(model: PyChessModel, color: string) {
 
     return h('a.user-link', { attrs: { href: '/@/' + username } }, [
         h('player-title', " " + title + " "),
-        username + aiLevel(title, level) + (title !== 'BOT' ? (" (" + rating + ") ") : ''),
+        username + aiLevel(title, level),
         model["status"] < 1 || model["rated"] !== '1' ? h('rdiff#' + color + 'rdiff') : renderRdiff(rdiff),
         (berserk === "True") ? h('icon.icon-berserk') : h('berserk#' + color + 'berserk'),
     ]);
