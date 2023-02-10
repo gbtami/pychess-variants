@@ -31,7 +31,7 @@ export function variantPanels (lobbyCtrl: LobbyController): VNode {
         changeBoardCSS(assetUrl, family, css);
     }
 
-    for (const family of Object.keys(PIECE_FAMILIES)) { 
+    for (const family of Object.keys(PIECE_FAMILIES)) {
         let css: string;
         switch (family) {
             case 'standard': css = 'green'; break;
