@@ -289,7 +289,7 @@ export class RoundController extends GameController {
             else
                 buttons.push(h('button#draw', { on: { click: () => this.draw() }, props: { title: _('Draw') } }, h('i', '½')));
             buttons.push(h('button#resign', { on: { click: () => this.resign() }, props: {title: _("Resign")} }, [h('i', {class: {"icon": true, "icon-flag-o": true} } ), ]));
-            
+
             this.gameControls = patch(container, h('div.btn-controls', buttons));
 
             const manualCount = this.variant.ui.counting === 'makruk' && !(this.wtitle === 'BOT' || this.btitle === 'BOT');
@@ -490,12 +490,12 @@ export class RoundController extends GameController {
     }
 
     private onMsgNewGame = (msg: MsgNewGame) => {
-        window.location.assign(this.home + '/' + msg["gameId"]);
+        window.location.assign('/' + msg["gameId"]);
     }
 
     private onMsgViewRematch = (msg: MsgViewRematch) => {
         const btns_after = document.querySelector('.btn-controls.after') as HTMLElement;
-        let rematch_button = h('button.newopp', { on: { click: () => window.location.assign(this.home + '/' + msg["gameId"]) } }, _("VIEW REMATCH"));
+        let rematch_button = h('button.newopp', { on: { click: () => window.location.assign('/' + msg["gameId"]) } }, _("VIEW REMATCH"));
         let rematch_button_location = btns_after!.insertBefore(document.createElement('div'), btns_after!.firstChild);
         patch(rematch_button_location, rematch_button);
     }
@@ -520,19 +520,19 @@ export class RoundController extends GameController {
 
     private newOpponent = (home: string) => {
         this.doSend({"type": "leave", "gameId": this.gameId});
-        window.location.assign(home);
+        window.location.assign('/');
     }
 
     private analysis = (home: string) => {
-        window.location.assign(home + '/' + this.gameId + '?ply=' + this.ply.toString());
+        window.location.assign('/' + this.gameId + '?ply=' + this.ply.toString());
     }
 
     private joinTournament = () => {
-        window.location.assign(this.home + '/tournament/' + this.tournamentId);
+        window.location.assign('/tournament/' + this.tournamentId);
     }
 
     private pauseTournament = () => {
-        window.location.assign(this.home + '/tournament/' + this.tournamentId + '/pause');
+        window.location.assign('/tournament/' + this.tournamentId + '/pause');
     }
 
     private gameOver = (rdiffs: RDiffs) => {
@@ -604,9 +604,9 @@ export class RoundController extends GameController {
     private onMsgUpdateTV = (msg: MsgUpdateTV) => {
         if (msg.gameId !== this.gameId) {
             if (this.profileid !== "") {
-                window.location.assign(this.home + '/@/' + this.profileid + '/tv');
+                window.location.assign('/@/' + this.profileid + '/tv');
             } else {
-                window.location.assign(this.home + '/tv');
+                window.location.assign('/tv');
             }
             // TODO: reuse current websocket to fix https://github.com/gbtami/pychess-variants/issues/142
             // this.doSend({ type: "game_user_connected", username: this.username, gameId: msg.gameId });
@@ -675,7 +675,7 @@ export class RoundController extends GameController {
             const container = document.getElementById('movelist') as HTMLElement;
             patch(container, h('div#movelist'));
 
-            msg.steps.forEach((step) => { 
+            msg.steps.forEach((step) => {
                 this.steps.push(step);
                 });
             const full = true;
@@ -910,7 +910,7 @@ export class RoundController extends GameController {
     }
 
     private renderExpiration = () => {
-        // We return sooner in case the client belongs to a spectator or the 
+        // We return sooner in case the client belongs to a spectator or the
         // game is casual as casual games can't expire.
         if (this.spectator || this.rated === "0") return;
         let position = (this.turnColor === this.mycolor) ? "bottom": "top";
