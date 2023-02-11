@@ -292,8 +292,7 @@ export class LobbyController implements ChatController {
         notify(null, undefined);
     }
 
-    renderSeekButtons(model: PyChessModel) {
-        console.log('model',model)
+    renderSeekButtons() {
         const vVariant = this.variant || localStorage.seek_variant || "chess";
         // 5+3 default TC needs vMin 9 because of the partial numbers at the beginning of minutesValues
         const vMin = localStorage.seek_min ?? "9";
