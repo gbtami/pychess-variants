@@ -30,7 +30,7 @@ export function inviteView(model: PyChessModel): VNode[] {
     if (!player?.match(/player[1-2]/)) player = "";
 
     switch (model["inviter"]) {
-        case "": 
+        case "":
             title = seekEmpty ? _('Host a game for others') : _('Challenge to a game');
             formAction = '/invite/cancel/' + gameId;
             buttonClass = {red: true};
@@ -85,9 +85,9 @@ export function inviteView(model: PyChessModel): VNode[] {
                         h('div', _('To invite someone to play, give them this URL:')),
                         h('div', [
                             h('label', {attrs: {for: "invite-url-player1"}}, _(variant.colors.first)),
-                            h('input#invite-url-player1', {attrs: {readonly: true, spellcheck: false, value: model["home"] + gameURLPlayer1}}),
+                            h('input#invite-url-player1', {attrs: {readonly: true, spellcheck: false, value: window.location.host + gameURLPlayer1}}),
                             h('button#paste-url-player1', { class: { "paste-url": true }, on: { click: () => {
-                                copyTextToClipboard(model["home"] + gameURLPlayer1);
+                                copyTextToClipboard(window.location.host + gameURLPlayer1);
                                 patch(document.getElementById('paste-icon-player1') as HTMLElement,
                                     h('i#paste-icon-player1', {props: {title: _('Copy URL')}, class: {"icon": true, "icon-check": true} }));
                             } } }, [
@@ -95,9 +95,9 @@ export function inviteView(model: PyChessModel): VNode[] {
                         ]),
                         h('div', [
                             h('label', {attrs: {for: "invite-url-player2"}}, _(variant.colors.second)),
-                            h('input#invite-url-player2', {attrs: {readonly: true, spellcheck: false, value: model["home"] + gameURLPlayer2}}),
+                            h('input#invite-url-player2', {attrs: {readonly: true, spellcheck: false, value: window.location.host + gameURLPlayer2}}),
                             h('button#paste-url-player2', { class: { "paste-url": true }, on: { click: () => {
-                                copyTextToClipboard(model["home"] + gameURLPlayer2);
+                                copyTextToClipboard(window.location.host + gameURLPlayer2);
                                 patch(document.getElementById('paste-icon-player2') as HTMLElement,
                                     h('i#paste-icon-player2', {props: {title: _('Copy URL')}, class: {"icon": true, "icon-check": true} }));
                             } } }, [
@@ -107,9 +107,9 @@ export function inviteView(model: PyChessModel): VNode[] {
                     ]) :
                     h('div.inviteinfo', [
                         h('div', _('To invite someone to play, give them this URL:')),
-                        h('input#invite-url', {attrs: {readonly: true, spellcheck: false, value: model["home"] + gameURL}}),
+                        h('input#invite-url', {attrs: {readonly: true, spellcheck: false, value: window.location.host + gameURL}}),
                         h('button#paste-url', { class: { "paste-url": true }, on: { click: () => {
-                            copyTextToClipboard(model["home"] + gameURL);
+                            copyTextToClipboard(window.location.host + gameURL);
                             patch(document.getElementById('paste-icon') as HTMLElement,
                                 h('i#paste-icon', {props: {title: _('Copy URL')}, class: {"icon": true, "icon-check": true} }));
                         } } }, [
