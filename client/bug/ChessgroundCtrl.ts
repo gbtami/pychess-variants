@@ -10,6 +10,8 @@ import {Step} from "../messages";
 import {GameController} from "../gameCtrl";
 import {PyChessModel} from "../types";
 import {RoundController} from "./roundCtrl";
+import {premove} from "chessgroundx/premove";
+import {predrop} from "chessgroundx/predrop";
 
 export class ChessgroundController extends GameController {
 
@@ -138,6 +140,10 @@ export class ChessgroundController extends GameController {
         }
     }
 
+    flipped(): boolean {
+        return false;
+    }
+
     onUserDrop = (piece: cg.Piece, dest: cg.Key, meta: cg.MoveMetadata) => {
         console.log(piece, dest, meta);
         // onUserDrop(this, role, dest, meta); todo:niki
@@ -187,6 +193,13 @@ export class ChessgroundController extends GameController {
                 }*/
             }
         }
+    }
+
+    performPremove = () => {
+        // const { orig, dest, meta } = this.premove;
+        // TODO: promotion?
+        // console.log("performPremove()", orig, dest, meta);
+        this.chessground.playPremove();
     }
 
     onUserMove = (orig: cg.Key, dest: cg.Key, meta: cg.MoveMetadata) => {
@@ -339,6 +352,15 @@ export class ChessgroundController extends GameController {
     //     // }
     // }
 
+    private setPremove = (orig: cg.Orig, dest: cg.Key, metadata?: cg.SetPremoveMetadata) => {
+        this.premove = { orig, dest, metadata };
+        // console.log("setPremove() to:", orig, dest, meta);
+    }
+
+    private unsetPremove = () => {
+        this.premove = undefined;
+        this.preaction = false;
+    }
 
     createGround = (el: HTMLElement, pocket0:HTMLElement|undefined, pocket1:HTMLElement|undefined, fullfen: string): Api => {
         // const pocket0 = this.hasPockets? document.getElementById('pocket0') as HTMLElement: undefined;
@@ -370,6 +392,15 @@ export class ChessgroundController extends GameController {
                 events: {
                     after: this.onUserMove,
                     afterNewPiece: this.onUserDrop,
+                }
+            },
+            premovable: {
+                enabled: true,
+                premoveFunc: premove(this.variant.name, this.chess960, this.variant.boardDimensions),
+                predropFunc: predrop(this.variant.name, this.variant.boardDimensions),
+                events: {
+                    set: this.setPremove,
+                    unset: this.unsetPremove,
                 }
             },
             events: {

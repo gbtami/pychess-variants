@@ -26,13 +26,13 @@ class Clock:
         return self.secs
 
     def restart(self, secs=None):
-        self.ply = self.board.ply
+        self.ply = self.game.ply # todo:niki:what would be abort rules for bughouseif one board starts playing but the other desont. then ply still bigger than 2
         self.color = self.board.color
         if secs is not None:
             self.secs = secs
         else:
             # give some time to make first move
-            if self.ply < 2:
+            if self.ply < 2 and self.game.variant != "bughouse":
                 if self.game.rated == CASUAL:
                     # Casual games are not timed for the first moves of either
                     # player. We stop the clock to prevent unnecessary clock
@@ -55,7 +55,7 @@ class Clock:
 
             # Time was running out
             if self.running:
-                if self.board.ply == self.ply:
+                if self.board.ply == self.ply: # todo:niki: in what situation this could possible not be an equality?
                     # On lichess rage quit waits 10 seconds
                     # until the other side gets the win claim,
                     # and a disconnection gets 120 seconds.
@@ -64,10 +64,16 @@ class Clock:
 
                     # If FLAG was not received we have to act
                     if self.game.status < ABORTED and self.secs <= 0 and self.running:
-                        user = self.game.bplayer if self.color == BLACK else self.game.wplayer
+                        if self.game.variant == "bughouse":
+                            if self.board == self.game.boards['a']:
+                                user = self.game.bplayerA if self.color == BLACK else self.game.wplayerA
+                            else:
+                                user = self.game.bplayerB if self.color == BLACK else self.game.wplayerB
+                        else:
+                            user = self.game.bplayer if self.color == BLACK else self.game.wplayer
                         reason = (
                             "abort"
-                            if (self.ply < 2) and (self.game.tournamentId is None)
+                            if (self.ply < 2) and (self.game.tournamentId is None) # todo:niki: how abort should work in bughouse
                             else "flag"
                         )
                         async with self.game.move_lock:

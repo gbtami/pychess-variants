@@ -79,6 +79,8 @@ class GameBug:
         self.bplayerA = bplayerA
         self.wplayerB = wplayerB
         self.bplayerB = bplayerB
+        self.team1 = [self.wplayerA.username, self.bplayerB.username]
+        self.team2 = [self.bplayerA.username, self.wplayerB.username]
         self.rated = rated
         self.base = base
         self.inc = inc
@@ -133,12 +135,22 @@ class GameBug:
         self.messages = collections.deque([], MAX_CHAT_LINES)
         self.date = datetime.now(timezone.utc)
 
-        self.ply_clocks = [
+        self._ply_clocks = {"a": [
             {
                 "black": (base * 1000 * 60) + 0 if base > 0 else inc * 1000,
                 "white": (base * 1000 * 60) + 0 if base > 0 else inc * 1000,
             }
-        ]
+        ], "b": [
+            {
+                "black": (base * 1000 * 60) + 0 if base > 0 else inc * 1000,
+                "white": (base * 1000 * 60) + 0 if base > 0 else inc * 1000,
+            }
+        ], "merged": [
+            {
+                "black": (base * 1000 * 60) + 0 if base > 0 else inc * 1000,
+                "white": (base * 1000 * 60) + 0 if base > 0 else inc * 1000,
+            }
+        ]}
         self.dests_a = {}
         self.dests_b = {}
         self.promotions_a = []
@@ -185,7 +197,7 @@ class GameBug:
                 "san": None,
                 "turnColor": "white",  # todo: doesn't make sense in this initial step now - maybe have 2 fields for both boards for this reason when we don't have "active" board for last move and this.
                 "check": self.check,
-                "clocks": self.ply_clocks[0],
+                "clocks": self._ply_clocks["a"][0], # todo:niki: i dont know if it is needed at all, if yes probably should have it for both boards
             }
         ]
 
@@ -210,10 +222,10 @@ class GameBug:
         pass
         # if color == "white" and not self.wberserk:
         #     self.wberserk = True
-        #     self.ply_clocks[0]["white"] = self.berserk_time
+        #     self._ply_clocks[0]["white"] = self.berserk_time
         # elif color == "black" and not self.bberserk:
         #     self.bberserk = True
-        #     self.ply_clocks[0]["black"] = self.berserk_time
+        #     self._ply_clocks[0]["black"] = self.berserk_time
 
     async def play_move(self, move, clocks=None, ply=None, board="a", partnerFen=None):
         self.stopwatches[board].stop()
@@ -247,8 +259,8 @@ class GameBug:
         #     )  # basically meaning how much time has past since last time this method was called in millis
         #     if clocks is None:  # meaning a bot is making the move, meaning next if is also making same test just differently
         #         clocks = {
-        #             "white": self.ply_clocks[-1]["white"],
-        #             "black": self.ply_clocks[-1]["black"],
+        #             "white": self._ply_clocks[-1]["white"],
+        #             "black": self._ply_clocks[-1]["black"],
         #         }
         #
         #     if cur_player.bot:  # and self.boards[board].ply >= 2:
@@ -281,17 +293,21 @@ class GameBug:
                 san = self.boards[board].get_san(move)
                 self.lastmove = move
                 self.boards[board].push(move)
-                self.ply_clocks.append(clocks)
+                self._ply_clocks[board].append(clocks)
+                self._ply_clocks["merged"].append(clocks)
                 self.set_dests()
                 self.update_status()
 
                 if self.status > STARTED:
                     await self.save_game()
-
+                moveA = move if board == "a" else ""
+                moveB = move if board == "b" else ""
                 self.steps.append(
                     {
-                        "fen": self.boards[board].fen,
-                        "move": move,
+                        "fen": self.boards["a"].fen,
+                        "fenB": self.boards["b"].fen,
+                        "move": moveA,
+                        "moveB": moveB,
                         "boardName": board,
                         "san": san,
                         "turnColor": "black" if self.boards[board].color == BLACK else "white",
@@ -311,7 +327,7 @@ class GameBug:
             # if False:  # not self.bot_game:
             #     opp_color = self.steps[-1]["turnColor"]
             #     if (
-            #         clocks[opp_color] < self.ply_clocks[ply - 1][opp_color]
+            #         clocks[opp_color] < self._ply_clocks[ply - 1][opp_color]
             #         and self.status <= STARTED
             #     ):
             #         self.update_status(ABORTED)
@@ -395,7 +411,7 @@ class GameBug:
                 "s": self.status,
                 "r": R2C[self.result],
                 "m": encode_moves(
-                    [x["move"] for x in self.steps[1:]],
+                    [x["move"]+x["moveB"] for x in self.steps[1:]],
                     #self.boards["a"].move_stack, # todo niki probably best to maintain separate list of steps similar to cliend-side structures. for now just lets have something that passes static analysis
                     self.variant
                 ),
@@ -406,11 +422,13 @@ class GameBug:
             #     new_data["p0"] = self.p0
             #     new_data["p1"] = self.p1
 
-            if self.rated == RATED:
-                # TODO: self.ply_clocks dict stores clock data redundant
-                # possible it would be better to use self.ply_clocks_w and self.ply_clocks_b arrays instead
-                new_data["cw"] = [p["white"] for p in self.ply_clocks[1:]][0::2]
-                new_data["cb"] = [p["black"] for p in self.ply_clocks[2:]][0::2]
+            # if self.rated == RATED:
+            # TODO: self._ply_clocks dict stores clock data redundant
+            # possible it would be better to use self._ply_clocks_w and self._ply_clocks_b arrays instead
+            new_data["cw"] = [p["white"] for p in self._ply_clocks["a"][1:]][0::2]
+            new_data["cb"] = [p["black"] for p in self._ply_clocks["a"][2:]][0::2]
+            new_data["cwB"] = [p["white"] for p in self._ply_clocks["b"][1:]][0::2]
+            new_data["cbB"] = [p["black"] for p in self._ply_clocks["b"][2:]][0::2]
 
             # if self.tournamentId is not None:
             #     new_data["wb"] = self.wberserk
@@ -550,6 +568,10 @@ class GameBug:
         #         self.chess960,
         #         {self.bplayer.username: int(round(br.mu, 0))},
         #     )
+
+    @property
+    def ply_clocks(self):
+        return self._ply_clocks["merged"]
 
     @property
     def wplayer(self):
@@ -768,7 +790,7 @@ class GameBug:
 
     @property
     def clocks(self):
-        return self.ply_clocks[-1]
+        return self._ply_clocks["merged"][-1]
 
     @property
     def is_claimable_draw(self): # todo niki - not sure this makes much sense in bughouse
@@ -840,10 +862,7 @@ class GameBug:
             if reason == "abort":
                 result = "*"
             else:
-                if reason == "flag":
-                    result = "0-1" if user.username == self.wplayerA.username else "1-0" # todo niki - i have just hardcoded board A for now so it "compiles" and does something. Actual logic i have to think about
-                else:
-                    result = "0-1" if user.username == self.wplayerA.username else "1-0" # todo niki - i have just hardcoded board A for now so it "compiles" and does something. Actual logic i have to think about
+                result = "0-1" if user.username in self.team1 else "1-0"
 
             self.update_status(LOSERS[reason], result)
             await self.save_game()
@@ -864,7 +883,7 @@ class GameBug:
         if full:
             steps = self.steps
 
-            # To not touch self.ply_clocks we are creating deep copy from clocks
+            # To not touch self._ply_clocks we are creating deep copy from clocks
             clocks = {"black": self.clocks["black"], "white": self.clocks["white"]}
 
             if self.status == STARTED and self.boards["a"].ply >= 2: # todo niki temporary hardocding board "a" - no idea what this is

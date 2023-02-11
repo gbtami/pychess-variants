@@ -152,6 +152,8 @@ export class RoundController implements IChatController/*extends GameController 
 
             this.clocks[0].connecting = false;
             this.clocks[1].connecting = false;
+            this.clocksB[0].connecting = false;
+            this.clocksB[1].connecting = false;
 
             const cl = document.body.classList; // removing the "reconnecting" message in lower left corner
             cl.remove('offline');
@@ -163,6 +165,8 @@ export class RoundController implements IChatController/*extends GameController 
         const onReconnect = () => {
             this.clocks[0].connecting = true;
             this.clocks[1].connecting = true;
+            this.clocksB[0].connecting = true;
+            this.clocksB[1].connecting = true;
             console.log('Reconnecting in round...');
 
             // relevant to the "reconnecting" message in lower left corner
@@ -188,61 +192,7 @@ export class RoundController implements IChatController/*extends GameController 
         this.blindfold = localStorage.blindfold === undefined ? false : localStorage.blindfold === "true";
         this.autoPromote = localStorage.autoPromote === undefined ? false : localStorage.autoPromote === "true";
 
-        // this.preaction = false;
-
-        // this.tournamentGame = this.tournamentId !== '';
-        // const parts = this.fullfen.split(" ");
-        this.clockOn = false;//(Number(parts[parts.length - 1]) >= 2);
-
-        // this.chessground.set({
-        //     orientation: this.mycolor,
-        //     turnColor: this.turnColor,
-        //     autoCastle: this.variant.name !== 'cambodian', // TODO make more generic
-        //     animation: { enabled: this.animation },
-        // });
-
-        // if (this.spectator) {
-        //     this.chessground.set({
-        //         //viewOnly: false,
-        //         movable: { free: false },
-        //         draggable: { enabled: false },
-        //         premovable: { enabled: false },
-        //         predroppable: { enabled: false },
-        //         events: { move: this.onMove() }
-        //     });
-        // } else {
-        //     this.chessground.set({
-        //         animation: { enabled: this.animation },
-        //         movable: {
-        //             free: false,
-        //             color: this.mycolor,
-        //             showDests: this.showDests,
-        //             events: {
-        //                 after: (orig, dest, meta) => this.onUserMove(orig, dest, meta),
-        //                 afterNewPiece: (role, dest, meta) => this.onUserDrop(role, dest, meta),
-        //             }
-        //         },
-        //         premovable: {
-        //             enabled: true,
-        //             events: {
-        //                 set: this.setPremove,
-        //                 unset: this.unsetPremove,
-        //                 }
-        //         },
-        //         predroppable: {
-        //             enabled: true,
-        //             events: {
-        //                 set: this.setPredrop,
-        //                 unset: this.unsetPredrop,
-        //                 }
-        //         },
-        //         events: {
-        //             move: this.onMove(),
-        //             dropNewPiece: this.onDrop(),
-        //             select: this.onSelect(),
-        //         },
-        //     });
-        // }
+        this.clockOn = true;//(Number(parts[parts.length - 1]) >= 2);
 
         this.steps = [];
         this.ply = isNaN(model["ply"]) ? 0 : model["ply"];
@@ -347,6 +297,8 @@ export class RoundController implements IChatController/*extends GameController 
         if (!this.spectator) {
             this.clocks[0].onFlag(flagCallback0);
             this.clocks[1].onFlag(flagCallback1);
+            this.clocksB[0].onFlag(flagCallback0);
+            this.clocksB[1].onFlag(flagCallback1);
         }
 
         const container = document.getElementById('game-controls') as HTMLElement;
@@ -446,19 +398,26 @@ export class RoundController implements IChatController/*extends GameController 
     sendMove = (b: ChessgroundController, orig: cg.Orig, dest: cg.Key, promo: string) => {
         console.log(b,orig,dest,promo);
         this.clearDialog();
-        // pause() will add increment!
-        const oppclock = !b.flipped() ? 0 : 1
+
+        //moveColor is "my color" on that board
+        const moveColor = this.mycolor.get(b.boardName)!.has("black")? "black" : "white";
+
+        const oppclock = b.chessground.state.orientation === moveColor? 0: 1; // only makes sense when board is flipped which not supported in gameplay yet and itself only makes sense in spectators mode todo: also switching boards to be implemented
         const myclock = 1 - oppclock;
-        const clock = (b.boardName === 'a'? this.clocks: this.clocksB);
-        const movetime = (clock[myclock].running) ? Date.now() - clock[myclock].startTime : 0;
-        clock[myclock].pause((this.base === 0 && this.ply < 2) ? false : true);
+
+        // const oppclock = !b.flipped() ? 0 : 1
+        // const myclock = 1 - oppclock;
+        const clocks = (b.boardName === 'a'? this.clocks: this.clocksB);
+        const clocktimes = (b.boardName === 'a'? this.clocktimes: this.clocktimesB);
+
+        const movetime = (clocks[myclock].running) ? Date.now() - clocks[myclock].startTime : 0;
+        // pause() will ALWAYS add increment, even on first move, because (for now) we dont have aborting timeout
+        clocks[myclock].pause(true);
         // console.log("sendMove(orig, dest, prom)", orig, dest, promo);
 
         const move = cg2uci(orig + dest + promo);
-//todo:this is all wrong - i should get the move color from the move itself so can support same user playing both sides but lets make it compile first then think:
-        const moveColor = this.mycolor.get(b.boardName)!.has("black")? "black" : "white";
         // console.log("sendMove(move)", move);
-        let bclock, clocks;
+        let bclock, msgClocks;
         if (!b.flipped()) {
             bclock = this.mycolor.get(b.boardName)!.has("black") ? 1 : 0;
         } else {
@@ -466,20 +425,19 @@ export class RoundController implements IChatController/*extends GameController 
         }
         const wclock = 1 - bclock
 
-        const increment = (this.inc > 0 && this.ply >= 2) ? this.inc * 1000 : 0;
-        const bclocktime = (this.mycolor.get(b.boardName)!.has("black") && b.preaction) ? this.clocktimes.black + increment: this.clocks[bclock].duration;
-        const wclocktime = (this.mycolor.get(b.boardName)!.has("white") && b.preaction) ? this.clocktimes.white + increment: this.clocks[wclock].duration;
+        const increment = (this.inc > 0 /*&& this.ply >= 2*/) ? this.inc * 1000 : 0;
+        const bclocktime = (this.mycolor.get(b.boardName)!.has("black") && b.preaction) ? clocktimes.black + increment: clocks[bclock].duration;
+        const wclocktime = (this.mycolor.get(b.boardName)!.has("white") && b.preaction) ? clocktimes.white + increment: clocks[wclock].duration;
 
-        clocks = {movetime: (b.preaction) ? 0 : movetime, black: bclocktime, white: wclocktime};
+        msgClocks = {movetime: (b.preaction) ? 0 : movetime, black: bclocktime, white: wclocktime};
 
-        //todo:niki:need to add board here - aslo how does the fact that we have 2 boards affect this logic? e.g. in simul mode maybe we need to save 2 moves for the 2 boards when we simuling
-        this.lastMaybeSentMsgMove = { type: "move", gameId: this.gameId, move: move, clocks: clocks, ply: this.ply + 1, board: b.boardName, partnerFen: b.partnerCC.fullfen };
+        this.lastMaybeSentMsgMove = { type: "move", gameId: this.gameId, move: move, clocks: msgClocks, ply: this.ply + 1, board: b.boardName, partnerFen: b.partnerCC.fullfen };
         this.doSend(this.lastMaybeSentMsgMove as JSONObject);
 
         if (b.preaction) {
-            this.clocks[myclock].setTime(this.clocktimes[moveColor] + increment);
+            clocks[myclock].setTime(clocktimes[moveColor] + increment);
         }
-        if (this.clockOn) this.clocks[oppclock].start();
+        if (this.clockOn) clocks[oppclock].start();
     }
 
     //
@@ -784,18 +742,18 @@ export class RoundController implements IChatController/*extends GameController 
                 //     lastMove: lastMove,
                 // });
             }
-            if (this.clockOn && msg.status < 0) {
-                if (this.b1.turnColor === 'white') {
-                    this.clocks[1].start();
-                } else {
-                    this.clocks[0].start();
-                }
-                if (this.b2.turnColor === 'white') {
-                    this.clocks[0].start();
-                } else {
-                    this.clocks[1].start();
-                }
-            }
+            // if (this.clockOn && msg.status < 0) {
+            //     if (this.b1.turnColor === 'white') {
+            //         this.clocks[1].start();
+            //     } else {
+            //         this.clocks[0].start();
+            //     }
+            //     if (this.b2.turnColor === 'white') {
+            //         this.clocks[0].start();
+            //     } else {
+            //         this.clocks[1].start();
+            //     }
+            // }
         } else {
             const fens = msg.fen.split(" | ");
             const fenA = fens[0];
@@ -827,7 +785,10 @@ export class RoundController implements IChatController/*extends GameController 
                        // check: msg.check,//todo:niki:which board is this about?
                         //lastMove: lastMove,
                     });
-
+                    const whiteClockA = this.mycolor.get('a')!.has("white")? 1: 0;
+                    const whiteClockB = this.mycolor.get('b')!.has("white")? 1: 0;
+                    this.clocks[whiteClockA].start();
+                    this.clocksB[whiteClockB].start();
             } else {
                 const boardName = msg.steps[msg.steps.length-1].boardName as 'a'|'b';//todo:niki:change this to step[0] if/when that board message is fixed to have just one element in steps and stop always sending that redundnat initial dummy step (if it is indeed redundant)
                 //todo:niki:update to above's todo, actually it sometimes sends it with 2 elements, sometimes just with one - gotta check what is wrong with python code and how it works in other variants. for now always getting the last element should be robust in all cases
@@ -838,11 +799,13 @@ export class RoundController implements IChatController/*extends GameController 
                 board.turnColor = board.turnColor === 'white' ? 'black' : 'white';
 
                 if (boardName == 'a') {
-                    this.clocktimes = msg.clocks || this.clocktimes;
+                    this.clocktimes = msg.clocks || this.clocktimes; //todo:niki:have the feeling this or is redundant. probably only initial board message doesnt have clocktimes. maybe even it has. not sure
                 } else {
                     this.clocktimesB = msg.clocks || this.clocktimes;
                 }
-                this.clockOn = Number(msg.ply) >= 2;
+
+                //hiding abort button - todo:niki:we dont realy have abort button (for now)
+                this.clockOn = true;// Number(msg.ply) >= 2;
                 if ( !this.spectator && this.clockOn ) {
                     const container = document.getElementById('abort') as HTMLElement;
                     if (container) patch(container, h('div'));
@@ -860,21 +823,38 @@ export class RoundController implements IChatController/*extends GameController 
                 //     sound.check();
                 // }
 
-                //todo:niki:when server sends board message, should it always send clocks for both board or only for the one we are updating?
-                const oppclock = /*!this.flipped() ?*/ 0 /*: 1*/;
-                const myclock = 1 - oppclock;
+                const msgTurnColor = msg.steps[0].turnColor;
+                const msgMoveColor = msgTurnColor === 'white'? 'black': 'white';
+                const myMove = !this.mycolor.get(boardName)!.has(msgTurnColor); // the received move was made by me
+                if (!myMove) {
+                    // resetting clocks on the client that has just sent them seems like a bad idea
+                    const myColor = myMove ? msgMoveColor: msgTurnColor;
+                    const oppColor = myColor === 'white'? 'black': 'white';
+                    //todo:niki:when server sends board message, should it always send clocks for both board or only for the one we are updating?
 
-                this.clocks[0].pause(false);
-                this.clocks[1].pause(false);
+                    const clocks = boardName === 'a'? this.clocks: this.clocksB;
+                    const clocktimes = boardName === 'a'? this.clocktimes: this.clocktimesB;
 
-                this.clocks[oppclock].setTime(this.clocktimes['black']);
-                this.clocks[myclock].setTime(this.clocktimes['white']);
+                    const oppclock = board.chessground.state.orientation === myColor? 0: 1; // only makes sense when board is flipped which not supported in gameplay yet and itself only makes sense in spectators mode todo: also switching boards to be implemented
+                    const myclock = 1 - oppclock;
+                    // const turnClock = myMove? oppclock: myclock; // the clock of whoever's turn it is
 
+                    clocks[0].pause(false);// one of these is supposed to be paused already
+                    clocks[1].pause(false);
+
+                    clocks[oppclock].setTime(clocktimes[oppColor]);
+                    // clocks[myclock].setTime(clocktimes[myColor]);
+
+                    if (this.clockOn && msg.status < 0) {
+                        clocks[myclock].start(); //todo: consider using map as with mycolor., other places as well
+                        // console.log('MY CLOCK STARTED');
+                    }
+                }
                 if (board.ffishBoard) {
                     board.ffishBoard.setFen(fen);
                     board.setDests();
                 }
-                if (this.mycolor.get(boardName)!.has(msg.steps[0].turnColor)) {
+                if (!myMove) {
                     //when message is for opp's move, meaning turnColor is my color - it is now my turn after this message
                     if (latestPly) {
                         //todo:niki: i need to update both board only on initial board message and tbh only if 960 but for now lets always do it
@@ -914,13 +894,7 @@ export class RoundController implements IChatController/*extends GameController 
 
                         // prevent sending premove/predrop when (auto)reconnecting websocked asks server to (re)sends the same board to us
                         // console.log("trying to play premove....");
-                        //todo:niki:premoves/drops
-                        // if (this.premove) this.performPremove();
-                        // if (this.predrop) this.performPredrop();
-                    }
-                    if (this.clockOn && msg.status < 0) {
-                        (msg.steps[msg.steps.length-1].boardName === 'a'? this.clocks: this.clocksB)[myclock].start(); //todo: consider using map as with mycolor., other places as well
-                        // console.log('MY CLOCK STARTED');
+                        if (board.premove) board.performPremove();
                     }
                 } else {
                     //when message is about the move i just made
@@ -933,10 +907,6 @@ export class RoundController implements IChatController/*extends GameController 
                     board.fullfen = fen;
                     board.partnerCC.fullfen = fenPartner;
                     board.partnerCC.chessground.set({ fen: fenPartner});
-                    if (this.clockOn && msg.status < 0) {
-                        (msg.steps[msg.steps.length-1].boardName === 'a'? this.clocks: this.clocksB)[oppclock].start();
-                        // console.log('OPP CLOCK  STARTED');
-                    }
                 }
             }
         }
