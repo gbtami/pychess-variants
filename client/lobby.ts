@@ -292,7 +292,8 @@ export class LobbyController implements ChatController {
         notify(null, undefined);
     }
 
-    renderSeekButtons() {
+    renderSeekButtons(model: PyChessModel) {
+        console.log('model',model)
         const vVariant = this.variant || localStorage.seek_variant || "chess";
         // 5+3 default TC needs vMin 9 because of the partial numbers at the beginning of minutesValues
         const vMin = localStorage.seek_min ?? "9";
@@ -320,6 +321,7 @@ export class LobbyController implements ChatController {
                         }),
                     ]),
                     h('div.container', [
+                        h('div.players',["players"]),
                         h('div#challenge-block', [
                             h('h3', _('Challenge %1 to a game', this.profileid)),
                         ]),
@@ -851,19 +853,15 @@ export function lobbyView(model: PyChessModel): VNode[] {
     */
 
     return [
-        h('aside.sidebar-first', [
-        ]),
+        // h('aside.sidebar-first', [
+        // ]),
         h('div.seeks', [
             h('div#seeks-table', [
                 h('div#seeks-wrapper', h('table#seeks', { hook: { insert: vnode => runSeeks(vnode, model) } })),
             ]),
         ]),
-        h('div#variants-catalog'),
-        h('aside.sidebar-second', [ h('div#seekbuttons') ]),
-
-        h('under-right', [
-            h('counter#u_cnt'),
-            h('counter#g_cnt')
-        ]),
+        // h('div#variants-catalog'),
+        h('aside.sidebar-second',[h('div.active-player',[h('counter#u_cnt'), h('counter#g_cnt')]),
+        h('div#seekbuttons') ])
     ];
 }

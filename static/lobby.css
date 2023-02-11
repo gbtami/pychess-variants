@@ -19,12 +19,9 @@
     }
 
 }
-@media (min-width: 800px) {
-    .lobby {
-        grid-template-columns: repeat(4, 1fr);
-        grid-template-rows: fit-content(0) minmax(375px, max-content) fit-content(0);
-        grid-template-areas: 'side app app table' 'side vpanel vpanel table' 'uleft blog blog utable';
-    }
+.lobby {
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-areas: 'app table';
 }
 .seeks {
     display: grid;
