@@ -564,7 +564,6 @@ export class RoundController extends GameController {
                 buttons.push(h('button.newopp', { on: { click: () => this.newOpponent(this.home) } }, _("NEW OPPONENT")));
             }
         }
-        buttons.push(h('button.analysis', { on: { click: () => this.analysis(this.home) } }, _("ANALYSIS BOARD")));
         patch(this.gameControls, h('div.btn-controls.after', buttons));
     }
 

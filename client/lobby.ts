@@ -420,9 +420,9 @@ export class LobbyController implements ChatController {
                     ]),
                 ]),
             ]),
-            h('button.lobby-button', { on: { click: () => this.createGame() } }, _("Create a game")),
-            h('button.lobby-button', { on: { click: () => this.playFriend() } }, _("Play with a friend")),
-            h('button.lobby-button', { on: { click: () => this.playAI() } }, _("Play with AI")),
+            h('button.lobby-button', { on: { click: () => this.createGame() } }, _("Random Opponent")),
+            h('button.lobby-button', { on: { click: () => this.playFriend() } }, _("Play a friend")),
+            h('button.lobby-button', { on: { click: () => this.playAI() } }, _("Play vs. Computer")),
             h('button.lobby-button', { on: { click: () => this.createHost() }, style: { display: this.tournamentDirector ? "block" : "none" } }, _("Host a game for others")),
         ];
     }
