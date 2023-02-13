@@ -169,8 +169,9 @@ class GameBug:
         #         disabled_fen = self.initial_fen
         #         self.initial_fen = ""
 
-        self.boards = {"a": FairyBoard(self.variant, self.initial_fen.split("|")[0].strip(), self.chess960, 0, disabled_fen),
-                       "b": FairyBoard(self.variant, self.initial_fen.split("|")[1].strip(), self.chess960, 0, disabled_fen)}
+        fen = initial_fen if initial_fen else FairyBoard.shuffle_start(self.variant) if chess960 else FairyBoard.start_fen(self.variant)
+        self.boards = {"a": FairyBoard(self.variant, fen, self.chess960, 0, disabled_fen), # self.initial_fen.split("|")[0].strip()
+                       "b": FairyBoard(self.variant, fen, self.chess960, 0, disabled_fen)} # self.initial_fen.split("|")[1].strip()
 
         self.overtime = False
 

@@ -510,7 +510,7 @@ async def new_game_bughouse(app, seek_id, game_id=None):
             remove_seek(seeks, seek)
             return {"type": "error", "message": message}
     else:
-        sanitized_fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[] w KQkq - 0 1 | rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[] w KQkq - 0 1"
+        sanitized_fen = ""  # "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[] w KQkq - 0 1 | rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[] w KQkq - 0 1"
 
     color = random.choice(("w", "b")) if seek.color == "r" else seek.color
     wplayer, bug_bplayer = (seek.player1, seek.bugPlayer1) if color == "w" else (seek.player2, seek.bugPlayer2)
@@ -893,7 +893,7 @@ def pgn(doc):
     elif variant in GRANDS:
         mlist = list(map(zero2grand, mlist))
 
-    fen = initial_fen if initial_fen is not None else sf.start_fen(variant)
+    fen = initial_fen if initial_fen is not None else FairyBoard.start_fen(variant)
     # print(variant, fen, mlist)
     try:
         mlist = sf.get_san_moves(variant, fen, mlist, chess960, sf.NOTATION_SAN)
@@ -945,7 +945,7 @@ def sanitize_fen(variant, initial_fen, chess960):
     # Initial_fen needs validation to prevent segfaulting in pyffish
     sanitized_fen = initial_fen
 
-    start_fen = sf.start_fen(variant)  # self.board.start_fen(self.variant)
+    start_fen = FairyBoard.start_fen(variant)  # self.board.start_fen(self.variant)
     start = start_fen.split()
     init = initial_fen.split()
 

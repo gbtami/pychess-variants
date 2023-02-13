@@ -604,7 +604,7 @@ async def index(request):
 
     elif view == "editor" or (view == "analysis" and gameId is None):
         if fen is None:
-            fen = FairyBoard(variant).start_fen(variant)
+            fen = FairyBoard.start_fen(variant)
         else:
             fen = fen.replace(".", "+").replace("_", " ")
         render["variant"] = variant

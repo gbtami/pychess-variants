@@ -59,7 +59,7 @@ class FairyBoard:
         self.show_promoted = variant in ("makruk", "makpong", "cambodian")
         self.nnue = initial_fen == ""
         self.initial_fen = (
-            initial_fen if initial_fen else self.start_fen(variant, chess960, disabled_fen)
+            initial_fen if initial_fen else FairyBoard.start_fen(variant, chess960, disabled_fen)
         )
         self.move_stack: list[str] = []
         self.ply = 0
@@ -80,15 +80,14 @@ class FairyBoard:
         else:
             self.notation = sf.NOTATION_SAN
 
-    def start_fen(self, variant, chess960=False, disabled_fen=""):
+    @staticmethod
+    def start_fen(variant, chess960=False, disabled_fen=""):
         if chess960:
-            new_fen = self.shuffle_start()
+            new_fen = FairyBoard.shuffle_start(variant)
             while new_fen == disabled_fen:
-                new_fen = self.shuffle_start()
+                new_fen = FairyBoard.shuffle_start(variant)
             return new_fen
-        if variant == "bughouse":  # todo:niki: this is strange, why am i concating the fen like this - does it really expect the full fen for both board or was i tripping when wrote this code?
-            return sf.start_fen(variant) + " | "+sf.start_fen(variant)  # todo:niki:or maybe use another property caled bfen and leave fen empty?
-        return sf.start_fen(variant)
+        return FairyBoard.start_fen(variant)
 
     @property
     def initial_sfen(self):
@@ -211,15 +210,16 @@ class FairyBoard:
         self.initial_fen = fen
         self.fen = self.initial_fen
 
-    def shuffle_start(self):
+    @staticmethod
+    def shuffle_start(variant):
         """Create random initial position.
         The king is placed somewhere between the two rooks.
         The bishops are placed on opposite-colored squares.
         Same for queen and archbishop in caparandom."""
 
         castl = ""
-        capa = self.variant in ("capablanca", "capahouse")
-        seirawan = self.variant in ("seirawan", "shouse")
+        capa = variant in ("capablanca", "capahouse")
+        seirawan = variant in ("seirawan", "shouse")
 
         # https://www.chessvariants.com/contests/10/crc.html
         # we don't skip spositions that have unprotected pawns
@@ -308,7 +308,7 @@ class FairyBoard:
         else:
             body = "/pppppppp/8/8/8/8/PPPPPPPP/"
 
-        if self.variant in ("crazyhouse", "capahouse"):
+        if variant in ("crazyhouse", "capahouse", "bughouse"):
             holdings = "[]"
         elif seirawan:
             holdings = "[HEhe]"
@@ -379,7 +379,7 @@ if __name__ == "__main__":
     print(board.legal_moves())
 
     print("--- SHOGUN ---")
-    print(sf.start_fen("shogun"))
+    print(FairyBoard.start_fen("shogun"))
     board = FairyBoard("shogun")
     for move in ("c2c4", "b8c6", "b2b4", "b7b5", "c4b5", "c6b8"):
         print("push move", move, board.get_san(move))

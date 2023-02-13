@@ -83,6 +83,7 @@ VARIANTS = (
     "chess",
     "chess960",
     "bughouse",
+    "bughouse960",
     "crazyhouse",
     "crazyhouse960",
     "placement",
@@ -318,6 +319,7 @@ TRANSLATED_VARIANT_NAMES = {
     "kyotoshogi": _("Kyoto Shogi"),
     "dobutsu": _("Dobutsu"),
     "bughouse": _("Bughouse"),
+    "bughouse960": _("Bughouse960"),
     # Gorogoro is superseded by Gorogoro Plus
     # "gorogoro",
     "gorogoroplus": _("Gorogoro+"),

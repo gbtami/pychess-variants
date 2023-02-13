@@ -16,7 +16,8 @@ export function chatView(ctrl: IChatController, chatType: string) {
     const spectator = ("spectator" in ctrl && ctrl.spectator);
     const bughouse = ctrl instanceof RoundController;
     function onKeyPress (e: KeyboardEvent) {
-        if (!(<HTMLInputElement>document.getElementById('checkbox')).checked)
+        const cb = (<HTMLInputElement>document.getElementById('checkbox'));
+        if (cb && !cb.checked)
             return;
         const message = (e.target as HTMLInputElement).value.trim();
         if ((e.keyCode === 13 || e.which === 13) && message.length > 0) {
@@ -36,7 +37,7 @@ export function chatView(ctrl: IChatController, chatType: string) {
         chatEntry.disabled = !activated;
         chatEntry.placeholder = activated ? (anon ? _('Sign in to chat') : _('Please be nice in the chat!')) : _("Chat is disabled");
     }
-    const anon = ctrl.anon;
+    const anon = ctrl.anon && !bughouse;
     return h(`div#${chatType}.${chatType}.chat`, [
         bughouse? h('div.chatroom'): h('div.chatroom', [
             (spectator) ? _('Spectator room') : _('Chat room'),

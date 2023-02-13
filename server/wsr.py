@@ -599,7 +599,7 @@ async def round_socket_handler(request):
                                 pass
 
                     elif data["type"] == "roundchat":
-                        if user.username.startswith("Anon-"):
+                        if user.username.startswith("Anon-") and game.variant != "bughouse":
                             continue
 
                         gameId = data["gameId"]

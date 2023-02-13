@@ -17,7 +17,7 @@ class EncodeDecodeTestCase(unittest.TestCase):
         for idx, variant in enumerate(VARIANTS):
             print(idx, variant)
             variant = variant.rstrip("960")
-            FEN = sf.start_fen(variant)
+            FEN = FairyBoard.start_fen(variant)
             # fill the pockets with possible pieces
             for empty_pocket in ("[]", "[-]"):
                 if empty_pocket in FEN:

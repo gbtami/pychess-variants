@@ -6,7 +6,7 @@ import { patch } from '../document';
 import { Clock } from '../clock';
 import {chatMessage, chatView, IChatController} from '../chat';
 import {createMovelistButtons, updateMovelist} from './movelist';
-import {Clocks, MsgBoard, MsgFullChat, MsgGameEnd, MsgMove, MsgUserConnected, RDiffs, Step} from "../messages";
+import {Clocks, MsgBoard, MsgChat, MsgFullChat, MsgGameEnd, MsgMove, MsgUserConnected, RDiffs, Step} from "../messages";
 import {
     MsgUserDisconnected,
     MsgUserPresent,
@@ -1099,6 +1099,12 @@ export class RoundController implements IChatController/*extends GameController 
         });
     }
 
+    private onMsgChat = (msg: MsgChat) => {
+        if ((this.spectator && msg.room === 'spectator') || (!this.spectator && msg.room !== 'spectator') || msg.user.length === 0) {
+            chatMessage(msg.user, msg.message, "roundchat", msg.time);
+        }
+    }
+
     protected onMessage(evt: MessageEvent) {
         console.log("<+++ onMessage():", evt.data);
         // super.onMessage(evt);
@@ -1110,7 +1116,7 @@ export class RoundController implements IChatController/*extends GameController 
                 // this.onMsgSpectators(msg);
                 break;
             case "roundchat":
-                // this.onMsgChat(msg);
+                this.onMsgChat(msg);
                 break;
             case "fullchat":
                 this.onMsgFullChat(msg);
