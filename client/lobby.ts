@@ -330,10 +330,11 @@ export class LobbyController implements ChatController {
                         h('input#fen', {
                             props: { name: 'fen', placeholder: _('Paste the FEN text here') + (this.anon ? _(' (must be signed in)') : ''),  autocomplete: "off" },
                             on: { input: () => this.setFen() },
+                            style: {"display":"none"},
                         }),
-                        h('div#alternate-start-block'),
+                        h('div#alternate-start-block', {style: {"display":"none"}}),
                         h('div#chess960-block', [
-                            h('label', { attrs: { for: "chess960" } }, "Chess960"),
+                            h('label', { attrs: { for: "chess960" }, style: {"display":"none"} }, "Chess960"),
                             h('input#chess960', {
                                 props: {
                                     name: "chess960",
@@ -342,6 +343,7 @@ export class LobbyController implements ChatController {
                                 attrs: {
                                     checked: vChess960 === "true"
                                 },
+                                style: {"display":"none"},
                             }),
                         ]),
                         h('label', { attrs: { for: "min" } }, _("Minutes per side:")),
@@ -386,8 +388,9 @@ export class LobbyController implements ChatController {
                         ]),
                         // if play with the machine
                         h('div#rmplay-block', [
-                            h('label', { attrs: { for: "rmplay" } }, "Random-Mover"),
+                            h('label', { attrs: { for: "rmplay" }, style: {"display":"none"}, }, "Random-Mover"),
                             h('input#rmplay', {
+                                style: {"display":"none"},
                                 props: {
                                     name: "rmplay",
                                     type: "checkbox",
@@ -401,7 +404,7 @@ export class LobbyController implements ChatController {
                         ]),
                         // A.I.Level (1-8 buttons)
                         h('form#ailevel', [
-                            h('h4', _("A.I. Level")),
+                            h('h4', _("Computer Level")),
                             h('div.radio-group',
                                 [ 0, 1, 2, 3, 4, 5, 6, 7, 8 ].map(level => [
                                     h('input#ai' + level, { props: { type: "radio", name: "level", value: level }, attrs: { checked: vLevel === level } }),
