@@ -300,18 +300,13 @@ iframe {
     font-size: 14px;
   }
 }
-@media (min-width: 800px) {
-  body {
-    --main-margin: 1vw;
-  }
-}
+
 #main-wrap {
+  max-width: 800px;
   display: grid;
-  grid-template-columns:
-    var(--main-margin) 1fr minmax(auto, var(--main-max-width))
-    1fr var(--main-margin);
-  grid-template-areas: '. . main . .';
-  margin-top: var(--site-header-margin);
+  grid-template-columns:none;
+  grid-template-areas: 'main';
+  margin: auto;
 }
 
 @media (max-width: 799px) and (orientation: portrait) {
@@ -339,17 +334,9 @@ iframe {
 
 @media (min-width: 800px) {
   .round {
-    grid-template-columns:
-      minmax(230px, 20vw) minmax(
-        calc(70vmin * var(--board-scale)),
-        calc(
-          100vh * var(--board-scale) -
-            calc(var(--site-header-height) + var(--site-header-margin)) - 3rem
-        )
-      )
-      minmax(240px, 400px);
+    grid-template-columns: none;
     grid-template-rows: fit-content(0);
-    grid-template-areas: 'side app app' 'uleft uboard .';
+    grid-template-areas: 'app';
     grid-gap: 2vmin;
   }
 }
@@ -383,9 +370,9 @@ iframe {
 }
 @media (min-width: 800px) {
   .lobby {
-    grid-template-columns: repeat(4, 1fr);
-    grid-template-rows: repeat(2, fit-content(0));
-    grid-template-areas: 'side app app table' 'uleft blog blog utable';
+    grid-template-columns: none;
+    grid-template-rows: none;
+    grid-template-areas: 'app table';
   }
 }
 .seeks {
@@ -1381,7 +1368,7 @@ table#seeks {
 #seekbuttons {
   display: flex;
   flex-flow: column;
-  margin: 0 1em 0 1em;
+  margin: 0;
 }
 #seekbuttons > button {
   color: var(--button-text);

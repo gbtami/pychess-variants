@@ -19,7 +19,7 @@
 
 @media (min-width: 800px) {
     .round-app {
-        grid-template-columns: minmax(calc(70vmin * var(--board-scale)), calc(100vh * var(--board-scale) - calc(var(--site-header-height) + var(--site-header-margin)) - 3rem)) minmax(240px, 400px);
+        grid-template-columns: 3fr 1fr;
         grid-template-rows: min-content auto auto min-content auto auto auto auto auto auto auto min-content auto auto min-content;
         grid-template-areas: 'board .' 'board mat-top' 'board pocket-top' 'board clock-top' 'board expi-top' 'board user-top' 'board move-controls' 'board moves' 'board offer' 'board game-controls' 'board user-bot' 'board expi-bot' 'board clock-bot' 'board pocket-bot' 'board mat-bot' 'board .';
     }

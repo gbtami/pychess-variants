@@ -5,7 +5,7 @@
 .lobby {
     grid-area: main;
     display: grid;
-    grid-gap: 2vmin;
+    grid-gap: 3vmin;
 }
 @media (max-width: 799px) and (orientation: portrait) {
     .lobby {
@@ -19,9 +19,12 @@
     }
 
 }
-.lobby {
-    grid-template-columns: repeat(2, 1fr);
-    grid-template-areas: 'app table';
+@media (min-width: 800px) {
+    .lobby {
+        grid-template-columns: 3fr 1fr;
+        grid-template-areas: 'app table';
+        min-height: 600px;
+    }
 }
 .seeks {
     display: grid;
