@@ -320,7 +320,6 @@ export class LobbyController implements ChatController {
                         }),
                     ]),
                     h('div.container', [
-                        h('div.players',["players"]),
                         h('div#challenge-block', [
                             h('h3', _('Challenge %1 to a game', this.profileid)),
                         ]),
@@ -687,7 +686,7 @@ export class LobbyController implements ChatController {
                 h('span.name', name),
                 h('span.more', [
                     h('variant', variantName + ' • '),
-                    h('nb', ngettext('%1 player', '%1 players', spotlight.nbPlayers) + ' • '),
+                    h('nb', ngettext('%1 Player', '%1 Players', spotlight.nbPlayers) + ' • '),
                     h('info-date', { attrs: { "timestamp": spotlight.startsAt } } )
                 ])
             ])
@@ -799,12 +798,12 @@ export class LobbyController implements ChatController {
     private onMsgGameCounter(msg: MsgGameCounter) {
         // console.log("Gcnt=", msg.cnt);
         const gameCount = document.getElementById('g_cnt') as HTMLElement;
-        patch(gameCount, h('counter#g_cnt', ngettext('%1 game in play', '%1 games in play', msg.cnt)));
+        patch(gameCount, h('counter#g_cnt', ngettext('%1 Game in play', '%1 Games in play', msg.cnt)));
     }
     private onMsgUserCounter(msg: MsgUserCounter) {
         // console.log("Ucnt=", msg.cnt);
         const userCount = document.getElementById('u_cnt') as HTMLElement;
-        patch(userCount as HTMLElement, h('counter#u_cnt', ngettext('%1 player', '%1 players', msg.cnt)));
+        patch(userCount as HTMLElement, h('counter#u_cnt', ngettext('%1 Player', '%1 Players', msg.cnt)));
     }
 
     private onMsgStreams(msg: MsgStreams) {

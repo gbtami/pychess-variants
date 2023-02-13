@@ -100,9 +100,9 @@ font-size: 1.3rem;
 /* Second Column with Image */
 
 [data-icon]:before {
-    font-size: 1.8em;
+    font-size: 1.2em;
     vertical-align: middle;
-    opacity: 0.6;
+    opacity: 1;
 }
 
 .layer-3-container .l3img {

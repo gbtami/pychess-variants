@@ -13,8 +13,7 @@
   --link-color: #5e5e5e;
   --link-hover: #1b78d0;
   --text-shadow: #fff;
-  --bg-body: #edebe9 linear-gradient(to bottom, #dbd7d1, #edebe9 116px)
-    no-repeat;
+  --bg-body: #16202c;
   --bg-color0: #fff;
   --bg-color1: White;
   --bg-color2: WhiteSmoke;
@@ -47,10 +46,10 @@
   --gray-text: #808080;
   --modal-bg: #fff;
   --box-header: #f5f5f5;
-  --button-new-game: linear-gradient(to bottom, #f5f5f5 0%, #ededed 100%);
-  --button-new-game-hover: linear-gradient(to bottom, #fafafa 0%, #f2f2f2 100%);
-  --button-text: #787878;
-  --button-text-hover: #787878;
+  --button-new-game: #00c2fe;
+  --button-new-game-hover: #02a1e3;
+  --button-text: #000;
+  --button-text-hover: #000;
   --scrollbar-thumb: #dbdbdb;
   --scrollbar-thumb-hover: #b3b3b3;
   --input-border: #ccc;
@@ -990,11 +989,11 @@ button.paste-url {
   margin: 4px 2px;
   cursor: pointer;
   box-shadow: var(--base-shadow);
-  border-radius: 3px;
+  border-radius: 10px;
 }
 .lobby-button {
   width: 100%;
-  margin: 20px 2px;
+  margin: 8px 0;
 }
 @media (max-width: 799px) and (orientation: portrait) {
   .lobby-button {
@@ -1310,24 +1309,25 @@ table#seeks {
   border-radius: 3px;
   font-size: 14px;
   width: 100%;
+  color: #000;
 }
 #seeks-table {
   box-shadow: var(--base-shadow);
-  background-position: center;
-  background-image: url('images/seek-bg.svg');
-  background-color: var(--bg-seek);
-  background-blend-mode: overlay;
-  background-size: 100% 100%;
+  background-position: 0 38px;
+  background-image: url('images/board/8x8maple.jpg');
+  /* background-color: var(--bg-seek);
+  background-blend-mode: overlay; */
+  background-size: 100% 107%;
   width: 100%;
   height: 100%;
 }
 #seeks-wrapper {
   height: 320px;
-  overflow-y: scroll;
-  -ms-overflow-style: scrollbar;
+  /* overflow-y: scroll;
+  -ms-overflow-style: scrollbar; */
 }
 #seeks thead {
-  background: var(--bg-color2);
+  background: #294d6d;
 }
 /*
 #santa {
@@ -1343,7 +1343,7 @@ table#seeks {
 #seeks td {
   white-space: nowrap;
   font-weight: inherit;
-  padding: 0.5em 0.7em 0.5em 0.7em;
+  padding: 0.55em 0.7em 0.55em 0.7em;
 }
 @media (max-width: 799px) and (orientation: portrait) {
   #seeks th,
@@ -1355,15 +1355,17 @@ table#seeks {
   position: sticky;
   top: 0;
   z-index: 2;
-  color: var(--button-text);
+  color: #fff;
+  padding: 0.7em;
 }
 #seeks tbody tr {
   cursor: pointer;
-  border-bottom: 1px solid var(--bg-color2);
+  border-bottom: 1px solid #4c2424;
+  background: rgba(255,255,255,0.8);
   z-index: 1;
 }
 #seeks tbody tr:hover {
-  background-color: var(--rusty);
+  background: rgba(255,255,255,1);
 }
 #seekbuttons {
   display: flex;
@@ -1373,19 +1375,13 @@ table#seeks {
 #seekbuttons > button {
   color: var(--button-text);
   background: var(--button-new-game);
-  font-size: 1.1rem;
+  font-size: 1rem;
   text-transform: uppercase;
-  font-weight: 300;
-  text-shadow: 0 1px 0 var(--text-shadow);
+  font-weight: bold;
 }
 #seekbuttons > button:hover {
   color: var(--button-text-hover);
   background: var(--button-new-game-hover);
-}
-#seekbuttons > button:focus {
-  background: #ff4f00;
-  color: #fff;
-  text-shadow: 0 1px 1px #000000;
 }
 /* The Modal (background) */
 .modal {
@@ -1468,9 +1464,9 @@ input {
 /* Modal Content/Box */
 .modal-content {
   background-color: var(--modal-bg);
-  margin: 10 auto 15% auto; /* 5% from the top, 15% from the bottom and centered */
+  margin: 10 auto 15% 1.5%; /* 5% from the top, 15% from the bottom and centered */
   border-radius: 3px;
-  width: 30%; /* Could be more or less, depending on screen size */
+  width: 70.5%; /* Could be more or less, depending on screen size */
   border: 1px solid var(--bg-color2);
 }
 @media (max-width: 799px) and (orientation: portrait) {
@@ -1490,12 +1486,13 @@ input {
   position: absolute;
   right: -16px;
   top: -16px;
-  color: #999;
+  color: #888;
   background: var(--bg-color1);
   width: 32px;
   height: 32px;
   font-size: 18px;
   border-radius: 50%;
+  box-shadow: 0 0 10px #777;
 }
 @media (max-width: 799px) and (orientation: portrait) {
   .close {
@@ -1506,8 +1503,7 @@ input {
 .close:hover,
 .close:focus {
   cursor: pointer;
-  color: #fff;
-  background: var(--bad);
+  color: #000;
 }
 
 #color-button-group {
@@ -1515,7 +1511,7 @@ input {
 }
 
 #color-button-group > button {
-  color: var(--font-color);
+  color: #000;
   background: var(--button-new-game);
 }
 #create-button {
@@ -1800,9 +1796,9 @@ label {
 }
 
 .radio-group input[type='radio']:checked + label {
-  box-shadow: inset 0 2px 5px #537c23;
+  box-shadow: inset 0 2px 5px var(--button-new-game-hover);
   color: White;
-  background: #629924;
+  background: var(--button-new-game);
   text-shadow: 0 1px 1px #003d00;
 }
 
@@ -2036,7 +2032,7 @@ vari-move {
 
 input#fen {
   width: 100%;
-  margin: 0;
+  margin: 10px 0;
 }
 
 /* crosstable */

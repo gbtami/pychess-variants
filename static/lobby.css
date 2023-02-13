@@ -5,7 +5,7 @@
 .lobby {
     grid-area: main;
     display: grid;
-    grid-gap: 3vmin;
+    grid-gap: 10px;
 }
 @media (max-width: 799px) and (orientation: portrait) {
     .lobby {
@@ -23,7 +23,8 @@
     .lobby {
         grid-template-columns: 3fr 1fr;
         grid-template-areas: 'app table';
-        min-height: 600px;
+        min-height: 540px;
+        grid-gap: 18px;
     }
 }
 .seeks {
@@ -59,4 +60,17 @@
     height: 15px;
     width: auto;
     filter: saturate(0.1);
+}
+
+.active-player{
+    background: #294d6d;
+    border-radius: 13px;
+    color: #ffffff;
+    padding: 18px;
+    width: 100%;
+    margin-bottom: 8px;
+}
+.active-player counter{
+    display: block;
+    font-size: 15px;
 }
