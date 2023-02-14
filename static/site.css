@@ -1535,9 +1535,9 @@ div.btn-controls.after {
   display: flex;
   flex-flow: column nowrap;
   justify-content: center;
-  background: var(--bg-color1);
-  box-shadow: var(--btn-shadow);
-  border-radius: 3px;
+}
+div.btn-controls.after button{
+  margin-bottom: 10px;
 }
 
 #btn-controls-top button {
@@ -1698,6 +1698,8 @@ button.icon::-moz-focus-inner {
   color: var(--clock-running-color);
   background-color: #eee;
   border-radius: 5px;
+  padding: 6px 10px;
+  font-size: 1.5em;
 }
 
 .clock.hurry {
@@ -1727,7 +1729,6 @@ button.icon::-moz-focus-inner {
 
 
 .clock-time.sec {
-  padding-right: 12px;
   box-sizing: border-box;
 }
 
