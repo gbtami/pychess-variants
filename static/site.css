@@ -1170,7 +1170,7 @@ round-player {
 .player-data {
   display: block;
   justify-content: center;
-  padding: 2px 6px;
+  padding: 2px 6px 2px 0;
 }
 player-title {
   color: var(--gold);
@@ -1537,11 +1537,13 @@ div.btn-controls.after {
   justify-content: center;
   background: var(--bg-color1);
   box-shadow: var(--btn-shadow);
+  border-radius: 3px;
 }
 
 #btn-controls-top button {
   font-size: 12px;
   border: 1px solid #e2e2e2;
+  border-radius: 3px;
   color: #fff;
   height: 34px;
 }
@@ -1560,6 +1562,8 @@ div.btn-controls.after {
   background-color: var(--bg-color0);
   cursor: pointer;
   border: 1px solid #e2e2e2;
+  border-radius: 3px;
+  margin: 0 2px;
 }
 
 button {
@@ -1627,7 +1631,7 @@ round-player1 {
   display: flex;
   justify-content: left;
   font-size: 1em;
-  padding: 0 0.3em;
+  padding: 0;
   line-height: 50px;
   align-self: center;
   background: var(--bg-color0);
@@ -1717,14 +1721,10 @@ button.icon::-moz-focus-inner {
 }
 
 .clock-time.min {
-  padding-left: 12px;
+  padding-left: 0;
   box-sizing: border-box;
 }
-@media (max-width: 799px) and (orientation: portrait) {
-  .clock-time.min {
-    padding-left: 4px;
-  }
-}
+
 
 .clock-time.sec {
   padding-right: 12px;
@@ -1943,7 +1943,7 @@ li.message.server {
   flex-flow: row wrap;
   position: relative;
   line-height: 1.7;
-  font-size: 1.1em;
+  font-size: 1em;
   align-items: center;
   align-content: flex-start;
   background: var(--bg-color0);
@@ -1951,8 +1951,8 @@ li.message.server {
 move {
   line-height: 1.9em;
   float: left;
-  flex: 0 0 43.5%;
-  padding-left: 6px;
+  flex: 0 0 calc(50% - 15px);
+  padding:0 7px;
   box-sizing: border-box;
   justify-content: center;
 }
@@ -1973,16 +1973,16 @@ eval {
 }
 
 move.counter {
-  color: Gray;
-  flex: 0 0 13%;
-  background-color: var(--bg-color2);
+  flex: 0 0 30px;
+  width: 30px;
+  background-color: #315c7f;
   text-align: center;
 }
 
 vari-move:hover,
 move:hover {
   color: #fff;
-  background-color: var(--blue-hover);
+  background-color: #315c7f;
 }
 vari-move.active,
 move.active {
