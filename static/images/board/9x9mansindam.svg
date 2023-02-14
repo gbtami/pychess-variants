@@ -2,17 +2,17 @@
 <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 540 540">
    <defs>
       <pattern id="grid1" width="120" height="120" patternUnits="userSpaceOnUse">
-        <rect width="60" height="60" style="fill:#b58863"/>
-        <rect width="60" height="60" style="fill:#f0d9b5" x="60" y="0"/>
-        <rect width="60" height="60" style="fill:#f0d9b5" x="0" y="60"/>
-        <rect width="60" height="60" style="fill:#b58863" x="60" y="60"/>
+        <rect width="60" height="60" style="fill:#C8E0A8"/>
+        <rect width="60" height="60" style="fill:#F0FFC0" x="60" y="0"/>
+        <rect width="60" height="60" style="fill:#F0FFC0" x="0" y="60"/>
+        <rect width="60" height="60" style="fill:#C8E0A8" x="60" y="60"/>
       </pattern>
 
       <pattern id="grid2" width="120" height="120" patternUnits="userSpaceOnUse">
-        <rect width="60" height="60" style="fill:#b58863"/>
-        <rect width="60" height="60" style="fill:#f0d9b5" x="60" y="0"/>
-        <rect width="60" height="60" style="fill:#f0d9b5" x="0" y="60"/>
-        <rect width="60" height="60" style="fill:#b58863" x="60" y="60"/>
+        <rect width="60" height="60" style="fill:#C8E0A8"/>
+        <rect width="60" height="60" style="fill:#F0FFC0" x="60" y="0"/>
+        <rect width="60" height="60" style="fill:#F0FFC0" x="0" y="60"/>
+        <rect width="60" height="60" style="fill:#C8E0A8" x="60" y="60"/>
       </pattern>
     </defs>
     
