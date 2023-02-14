@@ -201,6 +201,7 @@ bers = t
 customPiece1 = i:BNW
 customPiece2 = s:RNF
 promotionRank = 7
+mandatoryPiecePromotion = true
 doubleStep = false
 castling = false
 promotedPieceType = p:g n:e b:h r:t c:i m:s
