@@ -16,6 +16,7 @@
       </pattern>
     </defs>
     
+    <rect width="540" height="540"/>
     <rect width="540" height="180" fill="url(#grid1)" />
     <rect width="540" height="180" fill="url(#grid2)" x="0" y="180"/>
     <rect width="540" height="180" fill="url(#grid1)" x="0" y="360" />
