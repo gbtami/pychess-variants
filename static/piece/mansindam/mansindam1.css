@@ -56,8 +56,11 @@
 .mansindam .cg-wrap piece.q-piece.ally {
     background-image: url('../../images/pieces/mansindam/wQ.svg');
 }
-.mansindam .cg-wrap piece.k-piece.ally {
+.mansindam .cg-wrap piece.k-piece.white.ally {
     background-image: url('../../images/pieces/mansindam/wK.svg');
+}
+.mansindam .cg-wrap piece.k-piece.white.enemy {
+    background-image: url('../../images/pieces/mansindam/wK reversed.svg');
 }
 .mansindam .cg-wrap piece.p-piece.enemy {
     background-image: url('../../images/pieces/mansindam/bP.svg');
@@ -86,6 +89,9 @@
 .mansindam .cg-wrap piece.q-piece.enemy {
     background-image: url('../../images/pieces/mansindam/bQ.svg');
 }
-.mansindam .cg-wrap piece.k-piece.enemy {
+.mansindam .cg-wrap piece.k-piece.black.enemy {
     background-image: url('../../images/pieces/mansindam/bK.svg');
+}
+.mansindam .cg-wrap piece.k-piece.black.ally {
+    background-image: url('../../images/pieces/mansindam/bK reversed.svg');
 }
