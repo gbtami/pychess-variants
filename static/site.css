@@ -14,20 +14,20 @@
   --link-hover: #1b78d0;
   --text-shadow: #fff;
   --bg-body: #16202c;
-  --bg-color0: #fff;
+  --bg-color0: #294d6d;
   --bg-color1: White;
   --bg-color2: WhiteSmoke;
   --bg-seek: rgba(255, 255, 255, 0.8);
   --bg-meta: #f7f6f5;
   --bg-input: #fafaf9;
   --game-hover: #d1e6fa;
-  --green-hover: #89b25b;
+  --green-hover: #00c2fe;
   --green-switch: #629924;
   --blue-active: #d1e4f6;
   --blue-passive: #c5d8e9;
   --blue-hover: #1b78d0;
   --invite-game: #eff5e9;
-  --good: #629924;
+  --good: #00c2fe;
   --bad: #c33;
   --gold: #d59020;
   --rusty: rgba(214, 79, 0, 0.5);
@@ -145,12 +145,12 @@
 [data-icon]:before {
   font-size: 1.2em;
   vertical-align: middle;
-  opacity: 0.6;
+  opacity: 0.8;
 }
 [class*=' icon-']:before {
   font-size: 1.2em;
   vertical-align: middle;
-  opacity: 0.6;
+  opacity: 0.8;
 }
 .icon-sente:before {
   content: '☗';
@@ -318,6 +318,8 @@ iframe {
 }
 
 .round {
+  background: var(--bg-color0);
+  color: #fff;
   grid-area: main;
   display: grid;
   grid-template-columns: 1fr;
@@ -355,6 +357,9 @@ iframe {
 #mainboard {
   grid-area: board;
   position: relative;
+  background: #fff;
+  color: #000;
+  padding: 0 15px 15px 0;
 }
 
 .lobby {
@@ -958,20 +963,14 @@ div a {
   flex-flow: column nowrap;
   justify-content: center;
   background: var(--bg-color0);
-  box-shadow: var(--base-shadow);
-  border-bottom: 1px solid var(--border-color);
 }
 
 div#result {
   width: 100%;
   display: block;
   padding: 12px 0;
-  font-family: Roboto, sans-serif;
-  font-size: 16px;
-  font-style: italic;
-  font-weight: bold;
+  font-size: 14px;
   text-align: center;
-  border-top: 1px solid var(--bg-color2);
 }
 
 .lobby-button,
@@ -1037,8 +1036,8 @@ div.import {
 button.rematch {
   border: none;
   color: var(--font-color);
-  background: var(--rematch);
-  padding: 18px 0;
+  background: var(--bg-body);
+  padding: 12px 0;
   cursor: pointer;
 }
 button.rematch:hover {
@@ -1327,7 +1326,7 @@ table#seeks {
   -ms-overflow-style: scrollbar; */
 }
 #seeks thead {
-  background: #294d6d;
+  background: var(--bg-color0);
 }
 /*
 #santa {
@@ -1408,7 +1407,6 @@ input {
   border: 1px solid var(--input-border);
   box-sizing: border-box;
   color: var(--font-color);
-  background: var(--bg-color0);
 }
 
 /* Center the image and position the close button */
@@ -1525,6 +1523,7 @@ input {
 }
 #btn-controls-top {
   grid-area: move-controls;
+  padding-bottom: 15px;
 }
 div.btn-controls {
   grid-area: game-controls;
@@ -1541,20 +1540,26 @@ div.btn-controls.after {
 }
 
 #btn-controls-top button {
-  font-size: 14px;
-  background: var(--bg-color2);
+  font-size: 12px;
+  border: 1px solid #e2e2e2;
+  color: #fff;
+  height: 34px;
+}
+#btn-controls-top #flip{
+  margin-right: 15px;
 }
 #btn-controls-top button:hover {
-  background: var(--green-hover);
+  background: var(--bg-body);
 }
 
 .btn-controls button {
   flex: 1;
-  height: 40px;
+  height: 34px;
   border: none;
-  color: var(--font-color);
+  color: #fff;
   background-color: var(--bg-color0);
   cursor: pointer;
+  border: 1px solid #e2e2e2;
 }
 
 button {
@@ -1566,7 +1571,7 @@ button:disabled {
 
 .btn-controls button:hover {
   color: #fff;
-  background-color: var(--green-hover);
+  background-color: var(--bg-body);
 }
 
 .btn-controls button#gear.selected {
@@ -1581,7 +1586,7 @@ button:disabled {
 }
 
 .btn-controls i {
-  font-size: 1.8em;
+  font-size: 1.3em;
 }
 
 #btn-controls-top i {
@@ -1621,7 +1626,7 @@ round-player0,
 round-player1 {
   display: flex;
   justify-content: left;
-  font-size: 1.2em;
+  font-size: 1em;
   padding: 0 0.3em;
   line-height: 50px;
   align-self: center;
@@ -1675,9 +1680,8 @@ button.icon::-moz-focus-inner {
   display: inline-flex;
   text-align: center;
   font-family: 'Roboto Mono', 'Roboto';
-  font-size: 2.9em;
+  font-size: 2em;
   font-weight: bold;
-  box-shadow: var(--btn-shadow);
   background-color: var(--bg-color0);
 }
 
@@ -1688,7 +1692,8 @@ button.icon::-moz-focus-inner {
 }
 .clock.running {
   color: var(--clock-running-color);
-  background-color: var(--clock-running-bg);
+  background-color: #eee;
+  border-radius: 5px;
 }
 
 .clock.hurry {
@@ -1976,12 +1981,13 @@ move.counter {
 
 vari-move:hover,
 move:hover {
-  color: var(font-color);
+  color: #fff;
   background-color: var(--blue-hover);
 }
 vari-move.active,
 move.active {
   background-color: var(--blue-active);
+  color: #444;
 }
 move.hidden {
   visibility: hidden;

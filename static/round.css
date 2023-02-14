@@ -19,7 +19,8 @@
 
 @media (min-width: 800px) {
     .round-app {
-        grid-template-columns: 3fr 1fr;
+        padding-right: 15px;
+        grid-template-columns: 2.9fr 1.1fr;
         grid-template-rows: min-content auto auto min-content auto auto auto auto auto auto auto min-content auto auto min-content;
         grid-template-areas: 'board .' 'board mat-top' 'board pocket-top' 'board clock-top' 'board expi-top' 'board user-top' 'board move-controls' 'board moves' 'board offer' 'board game-controls' 'board user-bot' 'board expi-bot' 'board clock-bot' 'board pocket-bot' 'board mat-bot' 'board .';
     }
@@ -60,8 +61,7 @@
     justify-content: space-between;
     align-items: stretch;
     align-content: center;
-    background: var(--bg-color2);
-    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 10px;
 }
 #offer-dialog .reject {
     color: var(--bad);
