@@ -474,7 +474,7 @@ export class RoundController extends GameController {
 
         const opp_name = this.username === this.wplayer ? this.bplayer : this.wplayer;
         const logoUrl = `${this.home}/static/favicon/android-icon-192x192.png`;
-        notify('pychess.org', {body: `${opp_name}\n${msg}`, icon: logoUrl});
+        notify('www.coolmathgames.org', {body: `${opp_name}\n${msg}`, icon: logoUrl});
     }
 
     private onMsgBerserk = (msg: MsgBerserk) => {
