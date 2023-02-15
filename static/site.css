@@ -484,9 +484,16 @@ div.not-found {
   background-color: var(--bg-color0);
   padding: 2rem;
 }
-div.patron,
-div.invite {
+div.patron{
   width: 50%;
+}
+div.invite{
+  width: 100%;
+  background: none;
+  box-shadow: none;
+}
+div.invite h1{
+  color: #fff;
 }
 
 div.guide,
@@ -1377,6 +1384,7 @@ table#seeks {
   font-size: 1rem;
   text-transform: uppercase;
   font-weight: bold;
+  outline: none;
 }
 #seekbuttons > button:hover {
   color: var(--button-text-hover);
@@ -1662,12 +1670,12 @@ round-player1 {
 }
 button.icon.icon-plus-square {
   border: none;
-  opacity: 0.4;
-  color: var(--link-color-blue);
-  background-color: var(--bg-body);
-  font-size: 32px;
+  opacity: 0.8;
+  color: #fff;
+  background: none;
+  font-size: 22px;
   cursor: pointer;
-  margin: 0;
+  margin: 0 0 0 10px;
   padding: 0 0 0 4px;
 }
 button.icon.icon-plus-square:hover {

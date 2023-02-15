@@ -323,14 +323,13 @@ export class LobbyController implements ChatController {
                         h('div#challenge-block', [
                             h('h3', _('Challenge %1 to a game', this.profileid)),
                         ]),
-                        h('div', [
+                        h('div.hide', [
                             h('label', { attrs: { for: "variant" } }, _("Variant")),
                             selectVariant("variant", vVariant, () => this.setVariant(), () => this.setVariant()),
                         ]),
-                        h('input#fen', {
+                        h('input#fen.hide', {
                             props: { name: 'fen', placeholder: _('Paste the FEN text here') + (this.anon ? _(' (must be signed in)') : ''),  autocomplete: "off" },
-                            on: { input: () => this.setFen() },
-                            style: {"display":"none"},
+                            on: { input: () => this.setFen() }
                         }),
                         h('div#alternate-start-block', {style: {"display":"none"}}),
                         h('div#chess960-block', [
@@ -593,15 +592,15 @@ export class LobbyController implements ChatController {
         const chess960 = seek.chess960;
 
         return this.hide(seek) ? "" : h('tr', { on: { click: () => this.onClickSeek(seek) } }, [
-            h('td', [ this.colorIcon(seek.color) ]),
-            h('td', [ this.challengeIcon(seek), this.seekTitle(seek), this.user(seek) ]),
-            h('td', seek.rating),
+            // h('td', [ this.challengeIcon(seek), this.seekTitle(seek), this.user(seek) ]),
+            // h('td', seek.rating),
             h('td', timeControlStr(seek.base, seek.inc, seek.byoyomi)),
             h('td.icon', { attrs: { "data-icon": variant.icon(chess960) } }, [h('variant-name', " " + variant.displayName(chess960))]),
             h('td', { class: { tooltip: seek.fen !== '' } }, [
                 this.tooltip(seek, variant),
                 this.mode(seek),
             ]),
+            h('td', [ this.colorIcon(seek.color) ]),
         ]);
     }
 
@@ -824,12 +823,12 @@ export class LobbyController implements ChatController {
 function seekHeader() {
     return h('thead', [
         h('tr', [
-            h('th', [h('div#santa')]),
-            h('th', _('Player')),
-            h('th', _('Rating')),
+            // h('th', _('Player')),
+            // h('th', _('Rating')),
             h('th', _('Time')),
             h('th', _('Variant')),
-            h('th', _('Mode'))
+            h('th', _('Mode')),
+            h('th', [h('div#santa')])
         ])
     ]);
 }

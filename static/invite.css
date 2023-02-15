@@ -11,7 +11,7 @@ div.invitegame div.info0 {
 }
 div.invitegame div.info0::before {
     font-size: 64px;
-    color: var(--green-switch);
+    color: var(--bg-body);
 }
 div.invitegame div.info2 {
     font-size: 24px;
@@ -21,7 +21,7 @@ div.rated {
     margin-left: auto;
     justify-content: center;
     font-size: 28px;
-    color: var(--green-switch);
+    color: var(--bg-body);
 }
 div.inviteinfo {
     background-color: var(--bg-color2);
