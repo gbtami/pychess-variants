@@ -76,7 +76,7 @@
 }
 .invite-model{
     display: flex;
-    padding: 30px 24px 24px;
+    padding: 60px 24px 24px;
     position: relative;
 }
 .invite-model #closecontainer{
@@ -146,7 +146,7 @@
     font-size: 1.5em;
     font-weight: bold;
     top: 20px;
-    display: none;
+    text-transform: uppercase;
 }
 @media (max-width: 799px) and (orientation: portrait){
     .invite-model{
@@ -186,9 +186,7 @@
     color: var(--button-text-hover);
     background: var(--button-new-game-hover);
 }
-.two-col{
-    padding-top: 60px;
-}
+
 .two-col .invite-title{
     position: absolute;
     display: block;

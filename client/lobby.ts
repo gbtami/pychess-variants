@@ -306,7 +306,7 @@ export class LobbyController implements ChatController {
 
         return [
             h('div#id01.modal', h('div.modal-content.invite-model',[
-                h('h3.invite-title','PLAY A FRIEND'),
+                h('h3.invite-title'),
                 h('div.invite-frnd',[h('h2.section-title','JOIN A GAME'),h('p', _('If your friend gave you a game code, enter it here:')),
                 h('form#invite-join', {props: {method: "post", action: ""}}, [
                   h('input#invite-code', {attrs: { spellcheck: false, value: ""}}),
@@ -322,6 +322,7 @@ export class LobbyController implements ChatController {
                                     // prevent creating challenges continuously
                                     this.profileid = '';
                                     window.history.replaceState({}, this.title, '/');
+                                    document.querySelector('.invite-model')!.classList.remove('two-col');
                                 }
                             },
                             attrs: { 'data-icon': 'j' }, props: { title: _("Cancel") }
@@ -449,8 +450,10 @@ export class LobbyController implements ChatController {
             if (check) check.checked = chess960;
         }
     }
-
+    
     createGame(variantName: string = '', chess960: boolean = false) {
+        //random opponent call
+        document.querySelector('.invite-title')!.innerHTML = "Play a random opponent";
         this.preSelectVariant(variantName, chess960);
         this.createMode = 'createGame';
         document.getElementById('game-mode')!.style.display = this.anon ? 'none' : 'inline-flex';
@@ -463,6 +466,9 @@ export class LobbyController implements ChatController {
     }
 
     playFriend(variantName: string = '', chess960: boolean = false) {
+        //playFriend  call
+        document.querySelector('.invite-title')!.innerHTML = "Play a friend";
+        document.querySelector('.invite-model')!.classList.add('two-col');
         this.preSelectVariant(variantName, chess960);
         this.createMode = 'playFriend';
         document.getElementById('game-mode')!.style.display = this.anon ? 'none' : 'inline-flex';
@@ -475,6 +481,8 @@ export class LobbyController implements ChatController {
     }
 
     playAI(variantName: string = '', chess960: boolean = false) {
+        //play computer call
+        document.querySelector('.invite-title')!.innerHTML = "Play vs. computer";
         this.preSelectVariant(variantName, chess960);
         this.createMode = 'playAI';
         document.getElementById('game-mode')!.style.display = 'none';
