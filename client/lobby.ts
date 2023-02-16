@@ -302,6 +302,7 @@ export class LobbyController implements ChatController {
         const vLevel = Number(localStorage.seek_level ?? "1");
         const vChess960 = localStorage.seek_chess960 ?? "false";
         const vRMplay = localStorage.seek_rmplay ?? "false";
+        var buttonClicked = 'w';
 
         return [
             h('div#id01.modal', h('div.modal-content.invite-model',[
@@ -417,12 +418,12 @@ export class LobbyController implements ChatController {
                             ),
                         ]),
                         h('div#color-button-group', [
-                            h('button.icon.icon-black', { props: { type: "button", title: _("Black") }, on: { click: () => this.createSeek('b') } }),
-                            h('button.icon.icon-adjust', { props: { type: "button", title: _("Random") }, on: { click: () => this.createSeek('r') } }),
-                            h('button.icon.icon-white', { props: { type: "button", title: _("White") }, on: { click: () => this.createSeek('w') } }),
+                            h('button.icon.icon-black', { props: { type: "button", title: _("Black") }, on: { click: () => {buttonClicked = 'b';} } }),
+                            h('button.icon.icon-adjust', { props: { type: "button", title: _("Random") }, on: { click: () => {buttonClicked = 'r';} } }),
+                            h('button.icon.icon-white', { props: { type: "button", title: _("White") }, on: { click: () => {buttonClicked = 'w';} } }),
                         ]),
                         h('div#create-button', [
-                            h('button', { props: { type: "button" }, on: { click: () => this.createSeek('w') } }, _("Create")),
+                            h('button', { props: { type: "button" }, on: { click: () => this.createSeek(buttonClicked) } }, _("Create Game")),
                         ]),
                     ]),
                 ]),
@@ -468,7 +469,7 @@ export class LobbyController implements ChatController {
         document.getElementById('rmplay-block')!.style.display = 'none';
         document.getElementById('id01')!.style.display = 'block';
         document.getElementById('color-button-group')!.style.display = 'block';
-        document.getElementById('create-button')!.style.display = 'none';
+        document.getElementById('create-button')!.style.display = 'block';
     }
 
     playAI(variantName: string = '', chess960: boolean = false) {
