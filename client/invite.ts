@@ -82,12 +82,12 @@ export function inviteView(model: PyChessModel): VNode[] {
             (model["inviter"] === "") ?
                 ( (seekEmpty) ?
                     h('div.inviteinfo', [
-                        h('div', _('To invite someone to play, give them this URL:')),
+                        h('div', _('To invite someone to play, give them this code:')),
                         h('div', [
                             h('label', {attrs: {for: "invite-url-player1"}}, _(variant.colors.first)),
                             h('input#invite-url-player1', {attrs: {readonly: true, spellcheck: false, value: window.location.host + gameURLPlayer1}}),
                             h('button#paste-url-player1', { class: { "paste-url": true }, on: { click: () => {
-                                copyTextToClipboard(window.location.host + gameURLPlayer1);
+                                copyTextToClipboard(gameURLPlayer1);
                                 patch(document.getElementById('paste-icon-player1') as HTMLElement,
                                     h('i#paste-icon-player1', {props: {title: _('Copy URL')}, class: {"icon": true, "icon-check": true} }));
                             } } }, [
@@ -97,7 +97,7 @@ export function inviteView(model: PyChessModel): VNode[] {
                             h('label', {attrs: {for: "invite-url-player2"}}, _(variant.colors.second)),
                             h('input#invite-url-player2', {attrs: {readonly: true, spellcheck: false, value: window.location.host + gameURLPlayer2}}),
                             h('button#paste-url-player2', { class: { "paste-url": true }, on: { click: () => {
-                                copyTextToClipboard(window.location.host + gameURLPlayer2);
+                                copyTextToClipboard(gameURLPlayer2);
                                 patch(document.getElementById('paste-icon-player2') as HTMLElement,
                                     h('i#paste-icon-player2', {props: {title: _('Copy URL')}, class: {"icon": true, "icon-check": true} }));
                             } } }, [
@@ -106,19 +106,19 @@ export function inviteView(model: PyChessModel): VNode[] {
                         h('div', _('The first two people to come to this URL will play with each other.')),
                     ]) :
                     h('div.inviteinfo', [
-                        h('div', _('To invite someone to play, give them this URL:')),
-                        h('input#invite-url', {attrs: {readonly: true, spellcheck: false, value: window.location.host + gameURL}}),
+                        h('div', _('To invite someone to play, give them this code:')),
+                        h('input#invite-url', {attrs: {readonly: true, spellcheck: false, value: gameId}}),
                         h('button#paste-url', { class: { "paste-url": true }, on: { click: () => {
-                            copyTextToClipboard(window.location.host + gameURL);
+                            copyTextToClipboard(gameId);
                             patch(document.getElementById('paste-icon') as HTMLElement,
                                 h('i#paste-icon', {props: {title: _('Copy URL')}, class: {"icon": true, "icon-check": true} }));
                         } } }, [
                             h('i#paste-icon', {props: {title: _('Copy URL')}, class: {"icon": true, "icon-clipboard": true} })]),
                         h('div', _('The first person to come to this URL will play with you.')),
-                        h('div', _('To join someone, enter the unique code:')),
+                        h('div', _('If your friend gave you a game code, enter it here:')),
                         h('form#invite-join', {props: {method: "post", action: ""}}, [
                           h('input#invite-code', {attrs: { spellcheck: false, value: ""}}),
-                          h('button#join-player2', { attrs:{value:"Join"}, class: { "join-submit": true }, on: { click: () => {var inviteCode = document.getElementById('invite-code').value; if(inviteCode != '') {document.getElementById("invite-join").action = "/invite/accept/" + inviteCode;} } } }, "Join")
+                          h('button#join-player2', { attrs:{value:"Join"}, class: { "join-submit": true }, on: { click: () => {var inviteCode = document.getElementById('invite-code').value; if(inviteCode != '') {document.getElementById("invite-join").action = "/invite/accept/" + inviteCode;} } } }, "Join Game")
                         ])
                   ]) ) :
                 h('div'),
