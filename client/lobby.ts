@@ -459,7 +459,7 @@ export class LobbyController implements ChatController {
         document.getElementById('rmplay-block')!.style.display = 'none';
         document.getElementById('id01')!.style.display = 'block';
         document.getElementById('color-button-group')!.style.display = 'block';
-        document.getElementById('create-button')!.style.display = 'none';
+        document.getElementById('create-button')!.style.display = 'block';
     }
 
     playFriend(variantName: string = '', chess960: boolean = false) {
@@ -484,7 +484,7 @@ export class LobbyController implements ChatController {
         document.getElementById('rmplay-block')!.style.display = 'block';
         document.getElementById('id01')!.style.display = 'block';
         document.getElementById('color-button-group')!.style.display = 'block';
-        document.getElementById('create-button')!.style.display = 'none';
+        document.getElementById('create-button')!.style.display = 'block';
     }
 
     createHost(variantName: string = '', chess960: boolean = false) {
