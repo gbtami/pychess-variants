@@ -76,23 +76,83 @@
 }
 .invite-model{
     display: flex;
+    padding: 30px 24px 24px;
+    position: relative;
+}
+.invite-model #closecontainer{
+    position: static;
 }
 .invite-frnd{
-    flex: 1;
+    flex: 0 0 50%;
+}
+
+.invite-model .section-title{
+    text-align: center;
+    font-size: 1.2em;
+    margin-bottom: 10px;
+    padding: 0;
+    display: none;
+}
+.invite-model .container{
+    padding: 0;
 }
 .join-form{
-    flex: 1;
+    flex: 0 0 100%;
 }
 .invite-frnd{
-    padding: 40px 26px 0;
+    padding: 0 26px 0 0;
+    position: relative;
+    display: none;
+}
+.invite-frnd:before{
+    content: 'or';
+    position: absolute;
+    right: -9px;
+    top: 0;
+    opacity: 0.5;
+    font-size: 1.2em;
+}
+.join-form #create-button button{
+    padding: 10px 2px;
+    font-size: 16px;
+    box-shadow: var(--base-shadow);
+    border-radius: 10px;
+    border: none;
+    outline: none;
+    width: 100%;
+    max-width: 200px;
+    margin: auto;
+    color: var(--button-text);
+    text-transform: uppercase;
+
+}
+.join-form #create-button button:hover{
+    color: var(--button-text-hover);
+    background: var(--button-new-game-hover);
+}
+.invite-frnd:after{
+    content: '';
+    width: 1px;
+    height: calc(100% - 25px);
+    background: #c0c0c0;
+    position: absolute;
+    right: -2px;
+    top: 25px;
+}
+.invite-title{
+    position: absolute;
+    width: 100%;
+    text-align: center;
+    font-size: 1.5em;
+    font-weight: bold;
+    top: 20px;
+    display: none;
 }
 @media (max-width: 799px) and (orientation: portrait){
     .invite-model{
-        padding: 10px 10px 20px;
-    }
-    .invite-model .close {
-        right: -22px;
-        top: -28px;
+        padding-left: 10px;
+        padding-right: 10;
+        padding-bottom: 20px;
     }
     .invite-frnd{
         padding: 0 15px 0 0;
@@ -118,8 +178,28 @@
     max-width: 200px;
     margin: auto;
     display: block;
+    padding: 10px 2px;
+    text-transform: uppercase;
+    font-size: 16px;
 }
 .invite-frnd .lobby-button:hover{
     color: var(--button-text-hover);
     background: var(--button-new-game-hover);
+}
+.two-col{
+    padding-top: 60px;
+}
+.two-col .invite-title{
+    position: absolute;
+    display: block;
+}
+.two-col .invite-frnd{
+    display: block;
+}
+.two-col .section-title{
+    display: block;
+}
+.two-col .join-form {
+    flex: 0 0 50%;
+    padding: 0 0 0 26px;
 }

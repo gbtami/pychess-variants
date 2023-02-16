@@ -306,12 +306,14 @@ export class LobbyController implements ChatController {
 
         return [
             h('div#id01.modal', h('div.modal-content.invite-model',[
-                h('div.invite-frnd',[h('p', _('If your friend gave you a game code, enter it here:')),
+                h('h3.invite-title','PLAY A FRIEND'),
+                h('div.invite-frnd',[h('h2.section-title','JOIN A GAME'),h('p', _('If your friend gave you a game code, enter it here:')),
                 h('form#invite-join', {props: {method: "post", action: ""}}, [
                   h('input#invite-code', {attrs: { spellcheck: false, value: ""}}),
                   h('button#join-player2.lobby-button.join-submit', { attrs:{value:"Join"},  on: { click: () => {var inviteCode = document.getElementById('invite-code').value; if(inviteCode != '') {document.getElementById("invite-join").action = "/invite/accept/" + inviteCode;} } } }, "Join Game")
                 ])]),
                 h('form.join-form', [
+                    h('h3.section-title','CREATE A NEW GAME'),
                     h('div#closecontainer', [
                         h('span.close', {
                             on: {
