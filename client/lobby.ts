@@ -426,7 +426,7 @@ export class LobbyController implements ChatController {
                             h('button.icon.icon-white', { props: { type: "button", title: _("White") }, on: { click: () => {buttonClicked = 'w';} } }),
                         ]),
                         h('div#create-button', [
-                            h('button', { props: { type: "button" }, on: { click: () => this.createSeek(buttonClicked) } }, _("Create Game")),
+                            h('button', { props: { type: "button" }, on: { click: () => this.createSeek(buttonClicked) } }),
                         ]),
                     ]),
                 ]),
@@ -454,6 +454,7 @@ export class LobbyController implements ChatController {
     createGame(variantName: string = '', chess960: boolean = false) {
         //random opponent call
         document.querySelector('.invite-title')!.innerHTML = "Play a random opponent";
+        document.querySelector('#create-button button')!.innerHTML = 'Create a game';
         this.preSelectVariant(variantName, chess960);
         this.createMode = 'createGame';
         document.getElementById('game-mode')!.style.display = this.anon ? 'none' : 'inline-flex';
@@ -468,6 +469,7 @@ export class LobbyController implements ChatController {
     playFriend(variantName: string = '', chess960: boolean = false) {
         //playFriend  call
         document.querySelector('.invite-title')!.innerHTML = "Play a friend";
+        document.querySelector('#create-button button')!.innerHTML = 'Create a game';
         document.querySelector('.invite-model')!.classList.add('two-col');
         this.preSelectVariant(variantName, chess960);
         this.createMode = 'playFriend';
@@ -483,6 +485,7 @@ export class LobbyController implements ChatController {
     playAI(variantName: string = '', chess960: boolean = false) {
         //play computer call
         document.querySelector('.invite-title')!.innerHTML = "Play vs. computer";
+        document.querySelector('#create-button button')!.innerHTML = 'Start';
         this.preSelectVariant(variantName, chess960);
         this.createMode = 'playAI';
         document.getElementById('game-mode')!.style.display = 'none';
