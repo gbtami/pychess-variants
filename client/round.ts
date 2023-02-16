@@ -1,7 +1,7 @@
 import { h, VNode } from "snabbdom";
 
 import { RoundController } from './roundCtrl';
-import { gameInfo } from './gameInfo';
+// import { gameInfo } from './gameInfo';
 import { renderTimeago } from './datetime';
 import { VARIANTS } from './variants';
 import { PyChessModel } from "./types";

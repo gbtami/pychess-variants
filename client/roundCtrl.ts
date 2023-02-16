@@ -307,7 +307,7 @@ export class RoundController extends GameController {
 
         this.vdialog = patch(document.getElementById('offer-dialog')!, h('div#offer-dialog', ""));
 
-        patch(document.getElementById('roundchat') as HTMLElement, chatView(this, "roundchat"));
+        // patch(document.getElementById('roundchat') as HTMLElement, chatView(this, "roundchat"));
 
         this.onMsgBoard(model["board"] as MsgBoard);
     }

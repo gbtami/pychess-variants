@@ -392,17 +392,17 @@ export abstract class GameController extends ChessgroundController implements Ch
         }
     }
 
-    private onMsgFullChat = (msg: MsgFullChat) => {
-        // To prevent multiplication of messages we have to remove old messages div first
-        patch(document.getElementById('messages') as HTMLElement, h('div#messages-clear'));
-        // then create a new one
-        patch(document.getElementById('messages-clear') as HTMLElement, h('div#messages'));
-        msg.lines.forEach((line) => {
-            if ((this.spectator && line.room === 'spectator') || (!this.spectator && line.room !== 'spectator') || line.user.length === 0) {
-                chatMessage(line.user, line.message, "roundchat", line.time);
-            }
-        });
-    }
+    // private onMsgFullChat = (msg: MsgFullChat) => {
+    //     // To prevent multiplication of messages we have to remove old messages div first
+    //     patch(document.getElementById('messages') as HTMLElement, h('div#messages-clear'));
+    //     // then create a new one
+    //     patch(document.getElementById('messages-clear') as HTMLElement, h('div#messages'));
+    //     msg.lines.forEach((line) => {
+    //         if ((this.spectator && line.room === 'spectator') || (!this.spectator && line.room !== 'spectator') || line.user.length === 0) {
+    //             chatMessage(line.user, line.message, "roundchat", line.time);
+    //         }
+    //     });
+    // }
 
     private onMsgGameNotFound = (msg: MsgGameNotFound) => {
         alert(_("Requested game %1 not found!", msg['gameId']));
@@ -424,9 +424,9 @@ export abstract class GameController extends ChessgroundController implements Ch
             case "roundchat":
                 this.onMsgChat(msg);
                 break;
-            case "fullchat":
-                this.onMsgFullChat(msg);
-                break;
+            // case "fullchat":
+            //     this.onMsgFullChat(msg);
+            //     break;
             case "game_not_found":
                 this.onMsgGameNotFound(msg);
                 break

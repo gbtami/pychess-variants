@@ -84,7 +84,7 @@ export class LobbyController implements ChatController {
 
         patch(document.getElementById('seekbuttons') as HTMLElement, h('div#seekbuttons', this.renderSeekButtons()));
 
-        patch(document.getElementById('variants-catalog') as HTMLElement, variantPanels(this));
+        // patch(document.getElementById('variants-catalog') as HTMLElement, variantPanels(this));
 
         this.streams = document.getElementById('streams') as HTMLElement;
 
@@ -715,9 +715,9 @@ export class LobbyController implements ChatController {
             case "lobbychat":
                 this.onMsgChat(msg);
                 break;
-            case "fullchat":
-                this.onMsgFullChat(msg);
-                break;
+            // case "fullchat":
+            //     this.onMsgFullChat(msg);
+            //     break;
             case "ping":
                 this.onMsgPing(msg);
                 break;
@@ -730,9 +730,9 @@ export class LobbyController implements ChatController {
             case "streams":
                 this.onMsgStreams(msg);
                 break;
-            case "spotlights":
-                this.onMsgSpotlights(msg);
-                break;
+            // case "spotlights":
+            //     this.onMsgSpotlights(msg);
+            //     break;
             case "invite_created":
                 this.onMsgInviteCreated(msg);
                 break;
@@ -780,14 +780,14 @@ export class LobbyController implements ChatController {
     private onMsgChat(msg: MsgChat) {
         chatMessage(msg.user, msg.message, "lobbychat", msg.time);
     }
-    private onMsgFullChat(msg: MsgFullChat) {
-        // To prevent multiplication of messages we have to remove old messages div first
-        patch(document.getElementById('messages') as HTMLElement, h('div#messages-clear'));
-        // then create a new one
-        patch(document.getElementById('messages-clear') as HTMLElement, h('div#messages'));
-        // console.log("NEW FULL MESSAGES");
-        msg.lines.forEach(line => chatMessage(line.user, line.message, "lobbychat", line.time));
-    }
+    // private onMsgFullChat(msg: MsgFullChat) {
+    //     // To prevent multiplication of messages we have to remove old messages div first
+    //     patch(document.getElementById('messages') as HTMLElement, h('div#messages-clear'));
+    //     // then create a new one
+    //     patch(document.getElementById('messages-clear') as HTMLElement, h('div#messages'));
+    //     // console.log("NEW FULL MESSAGES");
+    //     msg.lines.forEach(line => chatMessage(line.user, line.message, "lobbychat", line.time));
+    // }
     private onMsgPing(msg: MsgPing) {
         this.doSend({ type: "pong", timestamp: msg.timestamp });
     }
@@ -812,12 +812,12 @@ export class LobbyController implements ChatController {
         this.streams = patch(this.streams, h('div#streams', msg.items.map(stream => this.streamView(stream))));
     }
 
-    private onMsgSpotlights(msg: MsgSpotlights) {
-        this.spotlights = patch(this.spotlights, h('div#spotlights', [
-            h('div', msg.items.map(spotlight => this.spotlightView(spotlight))),
-            h('a.cont-link', { attrs: { href: '/calendar' } }, _('Tournament calendar') + ' »'),
-        ]));
-    }
+    // private onMsgSpotlights(msg: MsgSpotlights) {
+    //     this.spotlights = patch(this.spotlights, h('div#spotlights', [
+    //         h('div', msg.items.map(spotlight => this.spotlightView(spotlight))),
+    //         h('a.cont-link', { attrs: { href: '/calendar' } }, _('Tournament calendar') + ' »'),
+    //     ]));
+    // }
 }
 
 function seekHeader() {

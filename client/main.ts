@@ -151,14 +151,14 @@ function start() {
 
 
     // Clicking outside settings panel closes it
-    const settingsPanel = patch(document.getElementById('settings-panel') as HTMLElement, settingsView()).elm as HTMLElement;
-    const settings = document.getElementById('settings') as HTMLElement;
-    document.addEventListener("click", function(event) {
-        if (!settingsPanel.contains(event.target as Node))
-            settings.style.display = 'none';
-    });
+    // const settingsPanel = patch(document.getElementById('settings-panel') as HTMLElement, settingsView()).elm as HTMLElement;
+    // const settings = document.getElementById('settings') as HTMLElement;
+    // document.addEventListener("click", function(event) {
+    //     if (!settingsPanel.contains(event.target as Node))
+    //         settings.style.display = 'none';
+    // });
 
-    patch(document.getElementById('zen-button') as HTMLElement, zenButtonView()).elm as HTMLElement;
+    // patch(document.getElementById('zen-button') as HTMLElement, zenButtonView()).elm as HTMLElement;
 }
 
 window.addEventListener('resize', () => document.body.dispatchEvent(new Event('chessground.resize')));
