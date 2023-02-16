@@ -74,3 +74,52 @@
     display: block;
     font-size: 15px;
 }
+.invite-model{
+    display: flex;
+}
+.invite-frnd{
+    flex: 1;
+}
+.join-form{
+    flex: 1;
+}
+.invite-frnd{
+    padding: 40px 26px 0;
+}
+@media (max-width: 799px) and (orientation: portrait){
+    .invite-model{
+        padding: 10px 10px 20px;
+    }
+    .invite-model .close {
+        right: -22px;
+        top: -28px;
+    }
+    .invite-frnd{
+        padding: 0 15px 0 0;
+    }
+    .join-form{
+        padding-left: 15px;
+    }
+}
+.invite-frnd p{
+    margin-bottom: 15px;
+    padding: 0;
+    font-size: 1.2em;
+}
+.invite-frnd input{
+    width: 100%;
+    margin: 0 0 15px;
+    height: 45px;
+    outline: none;
+}
+.invite-frnd .lobby-button{
+    background: var(--button-new-game);
+    color: var(--button-text);
+    max-width: 200px;
+    margin: auto;
+    display: block;
+}
+.invite-frnd .lobby-button:hover{
+    color: var(--button-text-hover);
+    background: var(--button-new-game-hover);
+}

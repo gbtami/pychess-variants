@@ -116,10 +116,10 @@ export function inviteView(model: PyChessModel): VNode[] {
                             h('i#paste-icon', {props: {title: _('Copy URL')}, class: {"icon": true, "icon-clipboard": true} })]),
                         h('div', _('The first person to come to this URL will play with you.')),
                         h('div', _('If your friend gave you a game code, enter it here:')),
-                        h('form#invite-join', {props: {method: "post", action: ""}}, [
-                          h('input#invite-code', {attrs: { spellcheck: false, value: ""}}),
-                          h('button#join-player2', { attrs:{value:"Join"}, class: { "join-submit": true }, on: { click: () => {var inviteCode = document.getElementById('invite-code').value; if(inviteCode != '') {document.getElementById("invite-join").action = "/invite/accept/" + inviteCode;} } } }, "Join Game")
-                        ])
+                        // h('form#invite-join', {props: {method: "post", action: ""}}, [
+                        //   h('input#invite-code', {attrs: { spellcheck: false, value: ""}}),
+                        //   h('button#join-player2', { attrs:{value:"Join"}, class: { "join-submit": true }, on: { click: () => {var inviteCode = document.getElementById('invite-code').value; if(inviteCode != '') {document.getElementById("invite-join").action = "/invite/accept/" + inviteCode;} } } }, "Join Game")
+                        // ])
                   ]) ) :
                 h('div'),
             // TODO Wait actually should have cancel button but the server doesn't support it at the moment

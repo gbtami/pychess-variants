@@ -1470,15 +1470,14 @@ input {
 /* Modal Content/Box */
 .modal-content {
   background-color: var(--modal-bg);
-  margin: 10 auto 15% 1.5%; /* 5% from the top, 15% from the bottom and centered */
+  margin: 10 auto 15% 4.5%; /* 5% from the top, 15% from the bottom and centered */
   border-radius: 3px;
-  width: 70.5%; /* Could be more or less, depending on screen size */
+  width: 65.5%; /* Could be more or less, depending on screen size */
   border: 1px solid var(--bg-color2);
 }
 @media (max-width: 799px) and (orientation: portrait) {
   .modal-content {
-    margin: 0;
-    width: 100%;
+    width: 91%;
   }
   .modal-content .container {
     padding: 0;
@@ -1502,7 +1501,7 @@ input {
 }
 @media (max-width: 799px) and (orientation: portrait) {
   .close {
-    right: 2px;
+    right: -8px;
     top: -16px;
   }
 }

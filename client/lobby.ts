@@ -304,8 +304,13 @@ export class LobbyController implements ChatController {
         const vRMplay = localStorage.seek_rmplay ?? "false";
 
         return [
-            h('div#id01.modal', [
-                h('form.modal-content', [
+            h('div#id01.modal', h('div.modal-content.invite-model',[
+                h('div.invite-frnd',[h('p', _('If your friend gave you a game code, enter it here:')),
+                h('form#invite-join', {props: {method: "post", action: ""}}, [
+                  h('input#invite-code', {attrs: { spellcheck: false, value: ""}}),
+                  h('button#join-player2.lobby-button.join-submit', { attrs:{value:"Join"},  on: { click: () => {var inviteCode = document.getElementById('invite-code').value; if(inviteCode != '') {document.getElementById("invite-join").action = "/invite/accept/" + inviteCode;} } } }, "Join Game")
+                ])]),
+                h('form.join-form', [
                     h('div#closecontainer', [
                         h('span.close', {
                             on: {
@@ -421,7 +426,7 @@ export class LobbyController implements ChatController {
                         ]),
                     ]),
                 ]),
-            ]),
+            ])),
             h('button.lobby-button', { on: { click: () => this.createGame() } }, _("Random Opponent")),
             h('button.lobby-button', { on: { click: () => this.playFriend() } }, _("Play a friend")),
             h('button.lobby-button', { on: { click: () => this.playAI() } }, _("Play vs. Computer")),
