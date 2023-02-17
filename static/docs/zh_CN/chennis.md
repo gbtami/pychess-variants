@@ -52,21 +52,25 @@
 下面是另外四个棋子的走法。
 
 ### 卒 | Soldier (S)
+
 ![Soldier](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChennisGuide/Soldier.png)
 
 卒可以向前、左、右行动一格。它是象的对应形态。
 
 ### 兵长 | Mayor (M)
+
 ![Mayor](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChennisGuide/Mayor.png)
 
 兵长走法和王一样，即八方行动一格。它是马的对应形态。
 
 ### 士 | Ferz (F)
+
 ![Ferz](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChennisGuide/Ferz.png)
 
 士可以斜走一格。它是炮的对应形态。
 
 ### 炮 | Cannon (C)
+
 ![Cannon Move](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChennisGuide/CannonMove.png)
 
 ![Cannon Attack](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChennisGuide/CannonAttack.png)
@@ -77,7 +81,7 @@
 
 准确的棋子价值难以计算。在这类具有打入设定的棋中，具体的局面往往比死板的棋子价值更为重要。在四个棋子中，通常认为马-兵长的组合作用更大，因为两种形态都很灵活。
 
-## 策略 
+## 策略
 
 游戏推出时间较短，策略尚在研究中。
 
