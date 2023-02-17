@@ -1,10 +1,8 @@
-# ![Cambodian](https://github.com/gbtami/pychess-variants/blob/master/static/icons/cambodian.svg) 高棉象棋
+# ![Cambodian](https://github.com/gbtami/pychess-variants/blob/master/static/icons/cambodian.svg) 高棉象棋 | Out Chaktrang
 
 ![Cambodian Board](https://github.com/gbtami/pychess-variants/blob/master/static/images/MakrukGuide/Makruk.png?raw=true)
 
-高棉象棋(高棉语: អុក)是泰国象棋的变体。
-
-在开始前请先熟悉泰国象棋规则。
+高棉象棋(高棉语: អុក)是泰国象棋的变体，流行于柬埔寨。由于它与泰国象棋的基本规则几乎完全一样（包括计步规则），因此本文仅列出与泰国象棋的不同。如果您不熟悉泰国象棋，建议先阅读泰国象棋规则。
 
 ## 规则
 
