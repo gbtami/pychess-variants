@@ -79,6 +79,10 @@
     padding: 60px 24px 24px;
     position: relative;
 }
+.two-col.invite-model label{
+    padding-left: 0;
+    padding-right: 0;
+}
 .invite-model #closecontainer{
     position: static;
 }
@@ -130,6 +134,7 @@
     color: var(--button-text-hover);
     background: var(--button-new-game-hover);
 }
+.join-form .section-title{margin-bottom: 2px;}
 .invite-frnd:after{
     content: '';
     width: 1px;
@@ -148,23 +153,11 @@
     top: 20px;
     text-transform: uppercase;
 }
-@media (max-width: 799px) and (orientation: portrait){
-    .invite-model{
-        padding-left: 10px;
-        padding-right: 10;
-        padding-bottom: 20px;
-    }
-    .invite-frnd{
-        padding: 0 15px 0 0;
-    }
-    .join-form{
-        padding-left: 15px;
-    }
-}
+
 .invite-frnd p{
     margin-bottom: 15px;
     padding: 0;
-    font-size: 1.2em;
+    font-size: 1em;
 }
 .invite-frnd input{
     width: 100%;
@@ -200,4 +193,22 @@
 .two-col .join-form {
     flex: 0 0 50%;
     padding: 0 0 0 26px;
+}
+@media (max-width: 799px) and (orientation: portrait){
+    .join-form #create-button button,
+    .invite-frnd .lobby-button{font-size: 13px;}
+    .invite-model{
+        padding-left: 10px;
+        padding-right: 10;
+        padding-bottom: 20px;
+    }
+    .invite-frnd{
+        padding: 0 10px 0 0;
+    }
+    .two-col .join-form{
+        padding-left: 10px;
+    }
+    .invite-model .section-title{
+        font-size: 1.1em;
+    }
 }

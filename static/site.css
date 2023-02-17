@@ -1795,7 +1795,13 @@ button.icon.icon-white,
 button.icon.icon-adjust {
   font-size: 24px;
 }
-
+@media (max-width: 799px) and (orientation: portrait) {
+  button.icon.icon-black,
+  button.icon.icon-white,
+  button.icon.icon-adjust {
+    font-size: 4vw;
+  }
+}
 /* Casual/Rated and A.I. Level https://codepen.io/skeddles/pen/PbROLK */
 input[type='radio'] {
   position: absolute;
@@ -1830,7 +1836,11 @@ label {
   background-color: var(--bg-color2);
   text-shadow: 0 1px 0 var(--text-shadow);
 }
-
+@media (max-width: 799px) and (orientation: portrait) {
+  .radio-group label{
+    padding: 8px 10px
+  }
+}
 /* Chat */
 .chat {
   grid-area: chat;
