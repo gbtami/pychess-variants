@@ -21,7 +21,6 @@ log = logging.getLogger(__name__)
 
 
 async def tournament_socket_handler(request):
-
     users = request.app["users"]
 
     session = await aiohttp_session.get_session(request)
