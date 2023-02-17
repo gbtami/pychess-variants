@@ -1470,7 +1470,7 @@ input {
 /* Modal Content/Box */
 .modal-content {
   background-color: var(--modal-bg);
-  margin: 10 auto 15% 4.5%; /* 5% from the top, 15% from the bottom and centered */
+  margin: 10 auto 15% 4%; /* 5% from the top, 15% from the bottom and centered */
   border-radius: 3px;
   width: 65.5%; /* Could be more or less, depending on screen size */
   border: 1px solid var(--bg-color2);
@@ -1517,6 +1517,9 @@ input {
 
 #color-button-group > button {
   color: #000;
+  background: #efefef;
+}
+#color-button-group > button.active {
   background: var(--button-new-game);
 }
 #create-button {
@@ -1788,11 +1791,9 @@ button.icon {
   padding: 5px;
 }
 button.icon.icon-black,
-button.icon.icon-white {
-  font-size: 24px;
-}
+button.icon.icon-white,
 button.icon.icon-adjust {
-  font-size: 36px;
+  font-size: 24px;
 }
 
 /* Casual/Rated and A.I. Level https://codepen.io/skeddles/pen/PbROLK */

@@ -204,6 +204,7 @@ export class LobbyController implements ChatController {
     }
 
     createSeek(color: string) {
+        console.log('clicked')
         document.getElementById('id01')!.style.display='none';
         if (!this.validGameData) return;
 
@@ -302,7 +303,13 @@ export class LobbyController implements ChatController {
         const vLevel = Number(localStorage.seek_level ?? "1");
         const vChess960 = localStorage.seek_chess960 ?? "false";
         const vRMplay = localStorage.seek_rmplay ?? "false";
-        var buttonClicked = 'w';
+        var buttonClicked = 'r';
+        const addClass=(e:any)=>{
+            e.target.classList.add("active");
+            for (let sibling of e.target.parentNode.children) {
+                if (sibling !== e.target) sibling.classList.remove('active');
+            }
+        }
 
         return [
             h('div#id01.modal', h('div.modal-content.invite-model',[
@@ -421,9 +428,9 @@ export class LobbyController implements ChatController {
                             ),
                         ]),
                         h('div#color-button-group', [
-                            h('button.icon.icon-black', { props: { type: "button", title: _("Black") }, on: { click: () => {buttonClicked = 'b';} } }),
-                            h('button.icon.icon-adjust', { props: { type: "button", title: _("Random") }, on: { click: () => {buttonClicked = 'r';} } }),
-                            h('button.icon.icon-white', { props: { type: "button", title: _("White") }, on: { click: () => {buttonClicked = 'w';} } }),
+                            h('button.icon.icon-black', { props: { type: "button", title: _("Black") }, on: { click: (e) => {buttonClicked = 'b';addClass(e);} } }),
+                            h('button.icon.icon-adjust.active', { props: { type: "button", title: _("Random") }, on: { click: (e) => {buttonClicked = 'r';addClass(e);} } }),
+                            h('button.icon.icon-white', { props: { type: "button", title: _("White") }, on: { click: (e) => {buttonClicked = 'w';addClass(e);} } }),
                         ]),
                         h('div#create-button', [
                             h('button', { props: { type: "button" }, on: { click: () => this.createSeek(buttonClicked) } }),
