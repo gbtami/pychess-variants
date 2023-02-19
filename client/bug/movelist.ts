@@ -119,6 +119,17 @@ export function updateMovelist (ctrl: AnalysisController | RoundController, full
         const moveEl = [ h('san', move) ];
         const scoreStr = ctrl.steps[ply]['scoreStr'] ?? '';
         moveEl.push(h('eval#ply' + ply, scoreStr));
+        if (ctrl.steps[ply].chat) {
+            const chatMessages: VNode[] = [];
+            for (let x of ctrl.steps[ply].chat!) {
+                const min = Math.floor(x.time/60000);
+                const sec = Math.floor((x.time - min*60000)/1000);
+                const millis = x.time - sec*1000;
+                chatMessages.push(h("div", min+":"+sec+"."+millis+" "+x.username+": "+x.message))
+            }
+            moveEl.push(h('bugchat#ply' + ply, [ h("img", { attrs: { src: '/static/icons/discord.svg' } }),
+            h("div.bugchatpopup",chatMessages)]));
+        }
 
         moves.push(h('move-bug.counter',  Math.floor(ctrl.steps[ply].boardName === 'a'? (plyA + 1) / 2 : (plyB + 1) / 2 ) ) );
 

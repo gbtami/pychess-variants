@@ -35,6 +35,11 @@ export interface Step {
         black: number,
         movetime: number,
     },
+    chat?: {
+        message: string,
+        username: string,
+        time: number
+    }[],
 }
 
 export interface CrossTable {

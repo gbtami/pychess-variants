@@ -2050,6 +2050,43 @@ eval {
   float: right;
 }
 
+bugchat img{
+  margin-left: 1em;
+  width: 1.1em;
+  height: 1.1em;
+}
+
+.bugchatpopup {
+  visibility: hidden;
+  background-color: #3c3934;
+  position: fixed;
+  /*left: 0;
+  top: 50px;*/
+  min-width: 12rem;
+  border-left: 2px solid #3692e7;
+  border-radius: 0 3px 3px 3px;
+  text-align: left;
+  box-shadow: var(--base-shadow);
+}
+
+bugchat:hover .bugchatpopup {
+  visibility: visible;
+}
+
+/*.bugchat .discord-icon-container {
+  display: inline-flex;
+  align-items: center;
+  margin-right: 3px;
+  width: 0.8em;
+  height: 0.55em;
+  background: white;
+  background-position: center;
+  transform: translateY(2px);
+}
+.bugchat .discord-icon {
+  fill: #5865f2;
+}*/
+
 move.counter {
   color: Gray;
   flex: 0 0 13%;

@@ -100,6 +100,8 @@ class GameBug:
             self.bplayerA.username,
         )
 
+        self.chat = {}
+
         # rating info
         self.white_rating_a = wplayerA.get_rating(variant, chess960)
         self.white_rating_b = wplayerB.get_rating(variant, chess960)
@@ -227,6 +229,14 @@ class GameBug:
         # elif color == "black" and not self.bberserk:
         #     self.bberserk = True
         #     self._ply_clocks[0]["black"] = self.berserk_time
+
+    def handle_chat_message(self, user, message):
+        cur_ply = len(self.steps)
+        cur_time = monotonic()
+        time = int(round((cur_time - self.last_server_clock) * 1000))
+
+        self.chat.setdefault(str(cur_ply), []).append({"t": time, "u": user.username, "m": message})
+        # self.chat[cur_ply]
 
     async def play_move(self, move, clocks=None, ply=None, board="a", partnerFen=None):
         self.stopwatches[board].stop()
@@ -416,7 +426,8 @@ class GameBug:
                     #self.boards["a"].move_stack, # todo niki probably best to maintain separate list of steps similar to cliend-side structures. for now just lets have something that passes static analysis
                     self.variant
                 ),
-                "o": [0 if x["boardName"] == 'a' else 1 for x in self.steps[1:]]
+                "o": [0 if x["boardName"] == 'a' else 1 for x in self.steps[1:]],
+                "c": self.chat
             }
 
             # if self.rated == RATED and self.result != "*": # todo niki fix together with update_rating when decide how to do bughouse ratings

@@ -603,10 +603,10 @@ async def round_socket_handler(request):
                             continue
 
                         gameId = data["gameId"]
-
+                        message = data["message"]
                         # Users running a fishnet worker can ask server side analysis with chat message: !analysis
                         if (
-                            data["message"] == "!analysis"
+                            message == "!analysis"
                             and user.username in request.app["fishnet_versions"]
                         ):
                             for step in game.steps:
@@ -618,10 +618,13 @@ async def round_socket_handler(request):
                         response = chat_response(
                             "roundchat",
                             user.username,
-                            data["message"],
+                            message,
                             room=data["room"],
                         )
-                        game.messages.append(response)
+                        if game.variant != "bughouse": # todo:niki: add new method in both places
+                            game.messages.append(response)
+                        else:
+                            game.handle_chat_message(user, message)
 
                         for name in (game.wplayer.username, game.bplayer.username):
                             player = users[name]
@@ -629,7 +632,7 @@ async def round_socket_handler(request):
                                 if gameId in player.game_queues:
                                     await player.game_queues[gameId].put(
                                         '{"type": "chatLine", "username": "%s", "room": "spectator", "text": "%s"}\n'
-                                        % (user.username, data["message"])
+                                        % (user.username, message)
                                     )
                             else:
                                 if gameId in player.game_sockets:
