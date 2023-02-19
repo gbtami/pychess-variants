@@ -235,6 +235,13 @@ class GameBug:
         cur_time = monotonic()
         time = int(round((cur_time - self.last_server_clock) * 1000))
 
+        self.steps[cur_ply-1].setdefault("chat", []).append({
+            "message": message,
+            "username": user.username,
+            "time": cur_time
+        })
+
+        # todo:niki:get rid of this structure:
         self.chat.setdefault(str(cur_ply), []).append({"t": time, "u": user.username, "m": message})
         # self.chat[cur_ply]
 
