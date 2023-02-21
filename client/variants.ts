@@ -61,7 +61,7 @@ export const PIECE_FAMILIES: Record<string, PieceFamily> = {
     ordamirror: { pieceCSS: ["ordamirror0", "ordamirror1", "disguised"] },
     chak: { pieceCSS: ["chak0", "disguised"] },
     chennis: { pieceCSS: ["chennis0", "chennis1", "chennis2", "disguised"] },
-    mansindam: { pieceCSS: ["mansindam", "mansindam1"] },
+    mansindam: { pieceCSS: ["mansindam", "mansindam1", "mansindam2"] },
 };
 
 export interface Variant {
