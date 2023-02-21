@@ -1,54 +1,63 @@
-# ![Grand](https://github.com/gbtami/pychess-variants/blob/master/static/icons/grand.svg) 西洋大象棋
+# ![Grand](https://github.com/gbtami/pychess-variants/blob/master/static/icons/grand.svg) 大型国际象棋
 
 ![Grand Chess setup](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Grand.png)
 
-西洋大象棋（Grand chess）是荷兰人克里斯蒂安·费林在1984年推出的西洋棋变体。
+大型国际象棋（Grand chess）是荷兰人克里斯蒂安·弗林（Christian Freeling）在1984年推出的国际象棋变体。它是在众多国际象棋变体中最受欢迎的变体之一，曾被收录进多本书籍和杂志，并且在1996年举行过比赛。
 
 ## 规则
 
-使用10\*10格的棋盘。
+使用10×10的棋盘。
 
-棋子布置为第三横行皆为兵卒。第二横行布置从白方左侧、黑方右侧开始，皆为空格、骑士、主教、皇后、国王、首相、大主教、主教、骑士、空格。底横行的左右角各有一城堡。
+棋子布置如上图。
 
-除了新增棋子和初始配置不同外，另有以下三个新增规则:
+十枚兵摆满在第三行。
 
-* 兵在到达第八列及第九列时升变，到第十列时则**必需**升变，若无法升变(见下点)，则该兵不可至进到第十行。
-* 兵只能升变成与它同色的棋子，且该棋子已经失去。
+第二行的棋子，白方左右两侧a2和j2空白，中间八枚棋子依次为：马、象、后、王、元帅、大主教、象、马。黑方与白方每一列相对摆放，如同国际象棋。
+
+两枚车分别位于第一行的左右两角格。
+
+除了新增棋子和初始配置不同外，还有以下规则:
+
 * 没有王车易位。
+* 兵只能升变成己方被吃的棋子。
+* 兵在到达第8、第9行时即可升变，到第10行时则**必须**升变。
+  若无法升变（没有被吃的棋子或者被吃的棋子已经用于其他兵升变），则该兵不可前进到第10行。 
+  但在这种情况下，兵仍然可以将军。
 
-其余规则与正统象棋同。
+其余规则与国际象棋相同。
 
 ## 新棋子
 
-### 大主教
+### 大主教 | Archbishop
 
-![Cardinal](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Princesses.png)
+![Archbishop](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Princesses.png)
 
-大主教，Archbishop ：走法同西洋棋的主教 + 骑士(看棋子的样子就知道了吧!)。记法简称为A。
+以上为本站大主教可能出现的各种棋子造型。其中老鹰为S-chess所用。
 
-![Cardinal moves](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Archbishop.png)
+![Archbishop moves](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Archbishop.png)
 
+尽管在很多资料中这个棋子的称呼各有不同（有Princess，有Cardinal），但是在本站还是叫它大主教。大主教是一个复合棋子，它可以看成是马+象。
 
-大主教是唯一可以单独将死对方王的棋子。
+它棋子的造型一般如图，把象的下半部分拼在马下面。本站有其他的造型可以选择，不同的棋也有不同的造型。
 
-通常认为大主教的价值大于城堡，但逊于大象和王后。
+在走法上，它是本棋中唯一一个（理论上）能单独将杀的（虽然理论成立，但是实战很困难）。大主教的价值略低于首相和后。
 
-### 首相
+### 首相 | Chancellor
 
-![Marshal](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Empresses.png)
+![Chancellor](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Empresses.png)
 
-首相，Chancellor ：走法同西洋棋的城堡 + 骑士，记法简称为C。 (还有另一个名称为大象，只会在S-Chess中使用)
+以上是本站中首相可能会用的几种棋子造型。大象为S-chess所用。
 
-![Marshal moves](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Chancellor.png)
+![Chancellor moves](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Chancellor.png)
 
+首相是一个复合棋子，它可以看成车+马。如同大主教，它的棋子造型就是马头拼上车的下半部分。其他的棋有不同的造型，本站也可以切换棋子造型。
 
-棋子价值比大主教高，但逊于或等于王后。
+首相的价值一般认为比大主教略高一些，但和后相等或略小。
 
 ## 策略
 
+请不要以国际象棋的固有思维，一开始就急于出动子力，在大型国际象棋中，有时花几步将一个棋子运动到好的位置。反而会给对方造成更多威胁。
 
-请不要以「象棋」的观念，一开始就急于出动子力，在西洋大象棋中，有时重复的动同一子反而会给对方造成更多威胁。
-
-如果你有发现什么新的战术，请跟我们说!
+如果你有发现什么新的战术，欢迎交流!
 
 <iframe width="560" height="315" src="https://www.youtube.com/embed/CRrncO-w524" frameborder="0" allowfullscreen></iframe>

@@ -33,31 +33,34 @@
 
 ### 大主教
 
-![Cardinal](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Princesses.png)
+### 大主教 | Archbishop
 
-大主教，Archbishop ：走法同西洋棋的主教 + 骑士(看棋子的样子就知道了吧!)。记法简称为A。
+![Archbishop](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Princesses.png)
 
-![Cardinal moves](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Archbishop.png)
+以上为本站大主教可能出现的各种棋子造型。其中老鹰为S-chess所用。
 
+![Archbishop moves](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Archbishop.png)
 
-大主教是唯一可以单独将死对方王的棋子。
+尽管在很多资料中这个棋子的称呼各有不同（有Princess，有Cardinal），但是在本站还是叫它大主教。大主教是一个复合棋子，它可以看成是马+象。
 
-通常认为大主教的价值大于城堡，但逊于大象和王后。
+它棋子的造型一般如图，把象的下半部分拼在马下面。本站有其他的造型可以选择，不同的棋也有不同的造型。
 
-### 首相
+在走法上，它是（理论上）能单独将杀的（虽然理论成立，但是实战很困难）。大主教的价值略低于首相和后。
 
-![Marshal](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Empresses.png)
+### 首相 | Chancellor
 
-首相，Chancellor ：走法同西洋棋的城堡 + 骑士，记法简称为C。 (还有另一个名称为大象，只会在S-Chess中使用)
+![Chancellor](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Empresses.png)
 
-![Marshal moves](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Chancellor.png)
+以上是本站中首相可能会用的几种棋子造型。大象为S-chess所用。
 
+![Chancellor moves](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Chancellor.png)
 
-棋子价值比大主教高，但逊于或等于王后。
+首相是一个复合棋子，它可以看成车+马。如同大主教，它的棋子造型就是马头拼上车的下半部分。其他的棋有不同的造型，本站也可以切换棋子造型。
+
+首相的价值一般认为比大主教略高一些，但和后相等或略小。
 
 ## 策略
 
+请不要以国际象棋的固有思维，一开始就急于出动子力，在大型国际象棋中，有时重复的动同一子反而会给对方造成更多威胁。
 
-请不要以「象棋」的观念，一开始就急于出动子力，在西洋大象棋中，有时重复的动同一子反而会给对方造成更多威胁。
-
-子力价值与传统西洋棋同，由于打入的规则你可以不断地换子、弃子打入，并擅用骑士和兵的捉双。你也可以打入子在国王旁边加强防守。
+子力价值与传统国际象棋基本相同，由于打入的规则你可以不断地换子、弃子打入，并擅用骑士和兵的捉双。你也可以打入子在国王旁边加强防守。
