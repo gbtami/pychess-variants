@@ -32,12 +32,18 @@
         /*                       auto !*minmax(240px, 400px)*! !*calc(var(--pocketLength) * (var(--cg-width) / var(--files)))*!*/
         /*                       auto !*minmax(240px, 400px)*! !*calc(var(--pocketLength) * (var(--cg-width) / var(--files)))*!*/
         /*                       minmax(calc(70vmin * var(--board-scale)), calc(100vh * var(--board-scale) - calc(var(--site-header-height) + var(--site-header-margin)) - 3rem));*/
-        grid-template-columns: 560px
-                               auto /*minmax(240px, 400px)*/ /*calc(var(--pocketLength) * (var(--cg-width) / var(--files)))*/
-                               auto /*minmax(240px, 400px)*/ /*calc(var(--pocketLength) * (var(--cg-width) / var(--files)))*/
-                               560px;
-        grid-template-rows: min-content 1fr;
-        grid-template-areas: 'board pocket-top pocket-top-partner boardPartner' 'board clock-top clockB-top boardPartner' 'board user-top userB-top boardPartner' 'board tools tools boardPartner' 'board tools tools boardPartner' 'board user-bot userB-bot boardPartner' 'board clock-bot clockB-bot boardPartner' 'board pocket-bot pocket-bot-partner boardPartner' '. move-controls move-controls .' 'uboard uboard uboard uboard'
+        /*grid-template-columns: minmax(calc(70vmin * var(--board-scale)), calc(100vh * var(--board-scale) - calc(var(--site-header-height) + var(--site-header-margin)) - 3rem))*/
+        /*                       auto !*minmax(240px, 400px)*! !*calc(var(--pocketLength) * (var(--cg-width) / var(--files)))*!*/
+        /*                       auto !*minmax(240px, 400px)*! !*calc(var(--pocketLength) * (var(--cg-width) / var(--files)))*!*/
+        /*                       minmax(calc(70vmin * var(--board-scale)), calc(100vh * var(--board-scale) - calc(var(--site-header-height) + var(--site-header-margin)) - 3rem));*/
+        grid-template-columns: calc(30vw * var(--board-scale))
+                               calc(var(--pocketLength) * (var(--cg-width) / var(--files))) /*minmax(240px, 400px)*/ /*calc(var(--pocketLength) * (var(--cg-width) / var(--files)))*/
+                               calc(30vw * var(--board-scale))
+                               calc(var(--pocketLength) * (var(--cg-width) / var(--files))); /*minmax(240px, 400px)*/ /*calc(var(--pocketLength) * (var(--cg-width) / var(--files)))*/
+;
+
+        grid-template-rows: min-content min-content 1fr 1fr 1fr 1fr min-content min-content min-content;
+        grid-template-areas: 'board pocket-top boardPartner pocket-top-partner' 'board clock-top boardPartner clockB-top' 'board tools boardPartner toolsB' 'board tools boardPartner toolsB' 'board tools boardPartner toolsB' 'board tools boardPartner toolsB' 'board clock-bot boardPartner clockB-bot' 'board pocket-bot boardPartner pocket-bot-partner' '. move-controls move-controls .' 'uboard uboard uboard uboard'
         /*'board . boardPartner' 'board mat-top boardPartner' 'board clock-top boardPartner' 'board expi-top boardPartner' 'board user-top boardPartner' 'board move-controls boardPartner' 'board moves boardPartner' 'board game-controls boardPartner' 'board user-bot boardPartner' 'board expi-bot boardPartner' 'board clock-bot boardPartner' 'board mat-bot boardPartner' 'board . boardPartner';*/
     }
 
@@ -45,6 +51,12 @@
 
 .bug-round-tools {
     grid-area: tools;
+    display: flex;
+    flex-flow: column;
+}
+
+.bug-round-tools-part {
+    grid-area: toolsB;
     display: flex;
     flex-flow: column;
 }
@@ -236,3 +248,4 @@ button.icon.icon-berserk {
 }
 .berserked button.icon.icon-berserk {
     color: var(--bad);
+}

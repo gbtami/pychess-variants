@@ -15,6 +15,9 @@ export interface IChatController {
 export function chatView(ctrl: IChatController, chatType: string) {
     const spectator = ("spectator" in ctrl && ctrl.spectator);
     const bughouse = ctrl instanceof RoundController;
+    function blur (e: Event) {
+        (e.target as HTMLInputElement).focus()
+    }
     function onKeyPress (e: KeyboardEvent) {
         const cb = (<HTMLInputElement>document.getElementById('checkbox'));
         if (cb && !cb.checked)
@@ -55,8 +58,10 @@ export function chatView(ctrl: IChatController, chatType: string) {
             },
             attrs: {
                 maxlength: 140,
+                autofocus: "true"
             },
-            on: { keypress: onKeyPress },
+            on: { keypress: onKeyPress, blur: blur },
+
         })
     ]);
 }

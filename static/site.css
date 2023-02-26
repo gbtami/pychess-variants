@@ -1005,6 +1005,9 @@ div a {
   box-shadow: var(--base-shadow);
   border-bottom: 1px solid var(--border-color);
 }
+main.round.bug .movelist-block {
+  flex:1
+}
 
 div#result {
   width: 100%;
@@ -2005,6 +2008,19 @@ li.message.server {
   display: flex;
   height: var(--movelist-max-height);
   max-height: var(--movelist-max-height);
+  overflow-y: auto;
+  flex-flow: row wrap;
+  position: relative;
+  line-height: 1.7;
+  font-size: 1.1em;
+  align-items: center;
+  align-content: flex-start;
+  background: var(--bg-color0);
+}
+main.round.bug #movelist {
+  display: flex;
+  height: 100%;
+  max-height: unset;
   overflow-y: auto;
   flex-flow: row wrap;
   position: relative;
