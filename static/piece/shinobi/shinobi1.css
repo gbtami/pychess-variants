@@ -22,6 +22,9 @@
 .shinobi .cg-wrap piece.j-piece.white {
     background-image: url('../../images/pieces/shinobi/cburnett/wJ.svg');
 }
+.shinobi .cg-wrap piece.s-piece.white {
+    background-image: url('../../images/pieces/green/wS.svg');
+}
 .shinobi .cg-wrap piece.pp-piece.white {
     background-image: url('../../images/pieces/shinobi/cburnett/wC.svg');
 }
