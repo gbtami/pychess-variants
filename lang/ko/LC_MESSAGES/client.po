@@ -7,16 +7,16 @@
 # Leo Ha <yeoha123@gmail.com>, 2020
 # 이상백 <esangbaek@ajou.ac.kr>, 2020
 # gbtami <gbtami@gmail.com>, 2022
-# 설월신서향雪月申瑞香, 2022
+# 설월신서향雪月申瑞香（설월）, 2023
 # 
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-09-09 12:21+0200\n"
+"POT-Creation-Date: 2022-09-15 22:54+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
-"Last-Translator: 설월신서향雪月申瑞香, 2022\n"
+"Last-Translator: 설월신서향雪月申瑞香（설월）, 2023\n"
 "Language-Team: Korean (https://www.transifex.com/gbtami/teams/14790/ko/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -130,16 +130,17 @@ msgid ""
 "applied here. "
 msgstr "개인 정보 보호 및 서비스 약관과 관련하여 lichess.org의 규칙도 여기에 적용됩니다."
 
-#: ../client/analysis.ts:38 ../client/editor.ts:30 ../client/lobby.ts:358
-#: ../client/lobby.ts:871 ../client/settingsView.ts:130
+#: ../client/analysis.ts:38 ../client/editor.ts:30 ../client/lobby.ts:343
+#: ../client/lobby.ts:853 ../client/puzzle.ts:27 ../client/settingsView.ts:130
 msgid "Variant"
 msgstr "변형"
 
-#: ../client/analysis.ts:138
+#: ../client/analysis.ts:138 ../client/puzzle.ts:65
 msgid "Multi-threaded WebAssembly (classical evaluation)"
 msgstr ""
 
-#: ../client/analysis.ts:140 ../client/analysisCtrl.ts:656
+#: ../client/analysis.ts:140 ../client/analysisCtrl.ts:649
+#: ../client/puzzle.ts:67
 msgid "in local browser"
 msgstr "로컬 브라우저에서"
 
@@ -167,63 +168,63 @@ msgstr "초기 위치"
 msgid "Advantage"
 msgstr "유리한 점"
 
-#: ../client/analysisCtrl.ts:295
+#: ../client/analysisCtrl.ts:289
 msgid "You need an account to do that."
 msgstr "계정이 필요합니다."
 
-#: ../client/analysisCtrl.ts:334
+#: ../client/analysisCtrl.ts:328
 msgid "Download game to PGN file"
 msgstr "PGN 파일로 기보 저장하기"
 
-#: ../client/analysisCtrl.ts:334
+#: ../client/analysisCtrl.ts:328
 msgid "Download PGN"
 msgstr "PGN 파일로 저장"
 
-#: ../client/analysisCtrl.ts:336
+#: ../client/analysisCtrl.ts:330
 msgid "Copy USI/UCI to clipboard"
 msgstr "USI/UCI 클립보드에 복사하기"
 
-#: ../client/analysisCtrl.ts:336
+#: ../client/analysisCtrl.ts:330
 msgid "Copy UCI/USI"
 msgstr "UCI/USI 복사하기"
 
-#: ../client/analysisCtrl.ts:338
+#: ../client/analysisCtrl.ts:332
 msgid "Download position to PNG image file"
 msgstr "판을 PNG파일로 저장하기"
 
-#: ../client/analysisCtrl.ts:338
+#: ../client/analysisCtrl.ts:332
 msgid "PNG image"
 msgstr "PNG 이미지"
 
-#: ../client/analysisCtrl.ts:346
+#: ../client/analysisCtrl.ts:340
 msgid "Delete game"
 msgstr "게임 삭제"
 
-#: ../client/analysisCtrl.ts:361
+#: ../client/analysisCtrl.ts:355
 msgid "Are you sure you want to delete this game?"
 msgstr "정말 이 게임을 삭제하시겠습니까?"
 
-#: ../client/analysisCtrl.ts:398
+#: ../client/analysisCtrl.ts:392
 msgid "Request Computer Analysis"
 msgstr "컴퓨터 분석 요청하기"
 
-#: ../client/analysisCtrl.ts:398
+#: ../client/analysisCtrl.ts:392
 msgid "Request Analysis"
 msgstr "분석 의뢰하기"
 
-#: ../client/analysisCtrl.ts:460
+#: ../client/analysisCtrl.ts:454
 msgid "Try browser page reload."
 msgstr ""
 
-#: ../client/analysisCtrl.ts:494
+#: ../client/analysisCtrl.ts:488
 msgid "Multi-threaded WebAssembly (with NNUE evaluation)"
 msgstr ""
 
-#: ../client/analysisCtrl.ts:640
+#: ../client/analysisCtrl.ts:633
 msgid "Depth"
 msgstr "깊이"
 
-#: ../client/analysisCtrl.ts:645
+#: ../client/analysisCtrl.ts:638
 msgid "Go deeper"
 msgstr "더 알아보기"
 
@@ -241,7 +242,7 @@ msgstr "기물 애니메이션"
 
 #: ../client/boardSettings.ts:273
 msgid "Zoom"
-msgstr ""
+msgstr "확대하기"
 
 #: ../client/boardSettings.ts:294
 msgid "Show piece destinations"
@@ -323,7 +324,7 @@ msgstr "체크를 당했을 때 왕 기물이 움직일 수 없는 막룩 변형
 
 #: ../client/chess.ts:390
 msgid "Cambodian Chess. Makruk with a few additional opening abilities."
-msgstr "캄보디아 체스. 몇 가지의 추가적인 오프닝 능력이 있는 막룩."
+msgstr "캄보디아 체스. 몇 가지의 추가적인 오프닝 능력을 가진 막룩."
 
 #: ../client/chess.ts:401
 msgid ""
@@ -335,13 +336,13 @@ msgstr "버마 체스. 막룩과 비슷하지만 대국이 시작될 때 기물�
 msgid ""
 "Makruk using the board/pieces from International Chess as well as pawn "
 "promotion rules."
-msgstr "막룩은 국제 체스의 보드/기물과 폰 승진 규칙을 사용합니다."
+msgstr "막룩은 국제 체스의 보드/기물과 폰 진급 규칙을 사용합니다."
 
 #: ../client/chess.ts:423
 msgid ""
 "Japanese Chess, and the standard 9x9 version played today with drops and "
 "promotions. "
-msgstr "일본 체스와 표준 9x9 버전이 오늘 투입과 승격과 함께 플레이되었습니다."
+msgstr "일본 체스, 그리고 표준 9x9 버전이 오늘날 투입 및 진급을 가지고 플레이되었습니다."
 
 #: ../client/chess.ts:452
 msgid ""
@@ -394,11 +395,11 @@ msgstr "샹치의 소형 버전은 강이 없는 7x7 반상에서 플레이되�
 msgid ""
 "Play with the hybrid pieces, archbishop (B+N) and chancellor (R+N), on a "
 "10x8 board."
-msgstr "10x8의 반상에서 복합 기물인 아치비숍(비숍+나이트)과 챈슬러(룩+나이트)와 함께 플레이하세요."
+msgstr "10x8의 반상에서 복합 기물인 아치비숍(비숍+나이트)과 챈슬러(룩+나이트)랑 함께 플레이하세요."
 
 #: ../client/chess.ts:620
 msgid "Capablanca with Crazyhouse drop rules."
-msgstr "크레이지하우스의 투입 규칙이 있는 카파블랑카."
+msgstr "크레이지하우스의 투입 규칙을 가진 카파블랑카."
 
 #: ../client/chess.ts:637
 msgid ""
@@ -408,17 +409,17 @@ msgstr "복합 기물인 호크(비숍+나이트)와 엘리펀트(룩+나이트)
 
 #: ../client/chess.ts:647
 msgid "S-Chess with Crazyhouse drop rules."
-msgstr "크레이지하우스 투입 규칙이 있는 S-체스."
+msgstr "크레이지하우스 투입 규칙을 가진 S-체스."
 
 #: ../client/chess.ts:657
 msgid ""
 "Play with the hybrid pieces, archbishop (B+N) and chancellor (R+N), on a "
 "grand 10x10 board."
-msgstr "그랜드 10x10의 반상에서 복합 기물인 아치비숍(비숍+나이트)과 챈슬러(룩+나이트)와 함께 플레이하세요."
+msgstr "그랜드 10x10의 반상에서 복합 기물인 아치비숍(비숍+나이트)과 챈슬러(룩+나이트)랑 함께 플레이하세요."
 
 #: ../client/chess.ts:667
 msgid "Grand Chess with Crazyhouse drop rules."
-msgstr "크레이지하우스의 투입 규칙이 있는 그랜드 체스."
+msgstr "크레이지하우스의 투입 규칙을 가진 그랜드 체스."
 
 #: ../client/chess.ts:678
 msgid ""
@@ -472,7 +473,7 @@ msgstr "기물은 이동할 때마다 두 가지 형태로 번갈아 나타납�
 
 #: ../client/chess.ts:804
 msgid "Like Capablanca Chess but with Grand starting setup."
-msgstr "카파블랑카 체스와 비슷하지만 그랜드 체스의 기물 차림이 있습니다."
+msgstr "카파블랑카 체스와 비슷하지만 그랜드 체스의 기물 차림을 가집니다."
 
 #: ../client/chess.ts:814
 msgid "Like Capablanca Chess but with a different starting setup."
@@ -480,7 +481,7 @@ msgstr "카파블랑카 체스와 비슷하지만 기물 차림이 다릅니다.
 
 #: ../client/chess.ts:824
 msgid "Gothic with Crazyhouse drop rules."
-msgstr "크레이지하우스의 투입 규칙이 있는 고딕 체스."
+msgstr "크레이지하우스의 투입 규칙을 가진 고딕 체스."
 
 #: ../client/chess.ts:849 ../client/lobby/layer1.ts:51
 #: ../client/lobby/layer2chess.ts:18
@@ -590,11 +591,11 @@ msgstr "%1 대국"
 msgid "Castling"
 msgstr "캐슬링"
 
-#: ../client/editorCtrl.ts:98 ../client/i18n.ts:60 ../client/lobby.ts:449
+#: ../client/editorCtrl.ts:98 ../client/i18n.ts:60 ../client/lobby.ts:434
 msgid "White"
 msgstr "백"
 
-#: ../client/editorCtrl.ts:113 ../client/i18n.ts:60 ../client/lobby.ts:447
+#: ../client/editorCtrl.ts:113 ../client/i18n.ts:60 ../client/lobby.ts:432
 msgid "Black"
 msgstr "흑"
 
@@ -614,7 +615,7 @@ msgstr ""
 msgid "STARTING POSITION"
 msgstr "초기 배치"
 
-#: ../client/editorCtrl.ts:141 ../client/roundCtrl.ts:621
+#: ../client/editorCtrl.ts:141 ../client/roundCtrl.ts:612
 msgid "ANALYSIS BOARD"
 msgstr "판 분석하기"
 
@@ -626,11 +627,11 @@ msgstr "기계와 대국하기"
 msgid "EXPORT TO PNG"
 msgstr "PNG 파일로 내보내기"
 
-#: ../client/editorCtrl.ts:218 ../client/lobby.ts:581
+#: ../client/editorCtrl.ts:217 ../client/lobby.ts:562
 msgid "Invalid FEN"
 msgstr "유효하지 않은 FEN"
 
-#: ../client/gameCtrl.ts:375 ../client/tournament.ts:595
+#: ../client/gameCtrl.ts:375 ../client/tournament.ts:588
 msgid "Spectators: "
 msgstr "관중 :"
 
@@ -660,7 +661,7 @@ msgstr "분홍"
 
 #: ../client/i18n.ts:62
 msgid "Green"
-msgstr ""
+msgstr "초록"
 
 #: ../client/i18n.ts:66
 msgid "chess"
@@ -688,7 +689,7 @@ msgstr "막퐁"
 
 #: ../client/i18n.ts:68
 msgid "ouk chaktrang"
-msgstr ""
+msgstr "욱 차트랑"
 
 #: ../client/i18n.ts:68
 msgid "sittuyin"
@@ -696,7 +697,7 @@ msgstr "시투인"
 
 #: ../client/i18n.ts:68
 msgid "asean"
-msgstr ""
+msgstr "아세안"
 
 #: ../client/i18n.ts:70
 msgid "shogi"
@@ -717,6 +718,10 @@ msgstr "도부츠"
 #: ../client/i18n.ts:71
 msgid "gorogoro"
 msgstr "고로고로"
+
+#: ../client/i18n.ts:71
+msgid "gorogoro+"
+msgstr "고로고로+"
 
 #: ../client/i18n.ts:71
 msgid "tori shogi"
@@ -772,15 +777,15 @@ msgstr "쇼군"
 
 #: ../client/i18n.ts:76
 msgid "hoppel-poppel"
-msgstr ""
+msgstr "호플호플"
 
 #: ../client/i18n.ts:78
 msgid "orda"
-msgstr ""
+msgstr "오르다"
 
 #: ../client/i18n.ts:78
 msgid "synochess"
-msgstr ""
+msgstr "시노체스"
 
 #: ../client/i18n.ts:78
 msgid "shinobi"
@@ -792,15 +797,15 @@ msgstr "엠파이어"
 
 #: ../client/i18n.ts:78
 msgid "orda mirror"
-msgstr ""
+msgstr "오르다 거울"
 
 #: ../client/i18n.ts:78
 msgid "chak"
-msgstr ""
+msgstr "착"
 
 #: ../client/i18n.ts:78
 msgid "chennis"
-msgstr ""
+msgstr "첸니스"
 
 #: ../client/i18n.ts:82
 msgid "PawnsPushed"
@@ -808,7 +813,7 @@ msgstr ""
 
 #: ../client/i18n.ts:82
 msgid "PawnsPassed"
-msgstr ""
+msgstr "통과된 폰"
 
 #: ../client/i18n.ts:82
 msgid "UpsideDown"
@@ -824,43 +829,43 @@ msgstr "캐슬 없음"
 
 #: ../client/i18n.ts:84
 msgid "Lance HC"
-msgstr ""
+msgstr "향차 떼기"
 
 #: ../client/i18n.ts:84
 msgid "Bishop HC"
-msgstr ""
+msgstr "각행 떼기"
 
 #: ../client/i18n.ts:84
 msgid "Rook HC"
-msgstr ""
+msgstr "비차 떼기"
 
 #: ../client/i18n.ts:84
 msgid "Rook+Lance HC"
-msgstr ""
+msgstr "비차+향차 떼기"
 
 #: ../client/i18n.ts:84
 msgid "2-Piece HC"
-msgstr ""
+msgstr "2기물 떼기"
 
 #: ../client/i18n.ts:84
 msgid "4-Piece HC"
-msgstr ""
+msgstr "4기물 떼기"
 
 #: ../client/i18n.ts:84
 msgid "6-Piece HC"
-msgstr ""
+msgstr "6기물 떼기"
 
 #: ../client/i18n.ts:84
 msgid "8-Piece HC"
-msgstr ""
+msgstr "8기물 떼기"
 
 #: ../client/i18n.ts:84
 msgid "9-Piece HC"
-msgstr ""
+msgstr "9기물 떼기"
 
 #: ../client/i18n.ts:84
 msgid "10-Piece HC"
-msgstr ""
+msgstr "10기물 떼기"
 
 #: ../client/i18n.ts:86
 msgid "Gorogoro Plus N+L"
@@ -872,19 +877,19 @@ msgstr "원본 (N+L 없음)"
 
 #: ../client/i18n.ts:88
 msgid "Left Quail HC"
-msgstr ""
+msgstr "좌메추리 떼기"
 
 #: ../client/i18n.ts:88
 msgid "Falcon HC"
-msgstr ""
+msgstr "우메추리 떼기"
 
 #: ../client/i18n.ts:88
 msgid "Falcon + Left Quail HC"
-msgstr ""
+msgstr "매+좌메추리 떼기"
 
 #: ../client/i18n.ts:88
 msgid "Falcon + Both Quails HC"
-msgstr ""
+msgstr "매+양 메추리 떼기"
 
 #: ../client/i18n.ts:90
 msgid "Bird"
@@ -906,7 +911,7 @@ msgstr "엠버시"
 msgid "Conservative"
 msgstr ""
 
-#: ../client/invite.ts:34 ../client/lobby.ts:460
+#: ../client/invite.ts:34 ../client/lobby.ts:445
 msgid "Host a game for others"
 msgstr "다른 사람들을 위해 게임을 주최하기"
 
@@ -952,88 +957,88 @@ msgstr "이 URL로 처음 접속하는 두 사람끼리 대국합니다."
 msgid "The first person to come to this URL will play with you."
 msgstr "이 URL로 처음에 접속하는 사람과 대국을 진행합니다."
 
-#: ../client/lobby.ts:350
+#: ../client/lobby.ts:335
 msgid "Cancel"
 msgstr "취소"
 
-#: ../client/lobby.ts:355
+#: ../client/lobby.ts:340
 msgid "Challenge %1 to a game"
 msgstr "%1 님에게 대국 신청하기"
 
-#: ../client/lobby.ts:362
+#: ../client/lobby.ts:347
 msgid "Paste the FEN text here"
 msgstr "FEN 텍스트를 여기에 붙여 넣으세요"
 
-#: ../client/lobby.ts:362
+#: ../client/lobby.ts:347
 msgid " (must be signed in)"
 msgstr "(로그인 하셔야 합니다)"
 
-#: ../client/lobby.ts:378
+#: ../client/lobby.ts:363
 msgid "Minutes per side:"
 msgstr "대국자 자유시간 (분):"
 
-#: ../client/lobby.ts:393
+#: ../client/lobby.ts:378
 msgid "Periods"
 msgstr "횟수"
 
-#: ../client/lobby.ts:408 ../client/lobby.ts:702 ../client/result.ts:16
+#: ../client/lobby.ts:393 ../client/lobby.ts:683 ../client/result.ts:16
 msgid "Casual"
 msgstr "친선전"
 
-#: ../client/lobby.ts:415 ../client/lobby.ts:700 ../client/result.ts:11
+#: ../client/lobby.ts:400 ../client/lobby.ts:681 ../client/result.ts:11
 msgid "Rated"
 msgstr "승강전"
 
-#: ../client/lobby.ts:426
+#: ../client/lobby.ts:411
 msgid "Practice with Random-Mover"
 msgstr "무작위로 이동하는 AI와 연습하기"
 
-#: ../client/lobby.ts:437
+#: ../client/lobby.ts:422
 msgid "A.I. Level"
 msgstr "A.I. 수준"
 
-#: ../client/lobby.ts:448
+#: ../client/lobby.ts:433
 msgid "Random"
 msgstr "랜덤"
 
-#: ../client/lobby.ts:452
+#: ../client/lobby.ts:437
 msgid "Create"
 msgstr "생성"
 
-#: ../client/lobby.ts:457 ../client/lobby/layer3.ts:40
+#: ../client/lobby.ts:442 ../client/lobby/layer3.ts:40
 msgid "Create a game"
-msgstr "대국 생성하기"
+msgstr "게임 만들기"
 
-#: ../client/lobby.ts:458
+#: ../client/lobby.ts:443
 msgid "Play with a friend"
 msgstr "친구와 대국하기"
 
-#: ../client/lobby.ts:459 ../client/lobby/layer3.ts:42
+#: ../client/lobby.ts:444 ../client/lobby/layer3.ts:42
 msgid "Play with AI"
 msgstr "AI와 함께 플레이하세요"
 
-#: ../client/lobby.ts:538
+#: ../client/lobby.ts:523
 msgid "Byoyomi in seconds:"
 msgstr "초읽기"
 
-#: ../client/lobby.ts:538
+#: ../client/lobby.ts:523
 msgid "Increment in seconds:"
 msgstr "초 증가"
 
-#: ../client/lobby.ts:543
+#: ../client/lobby.ts:528
 msgid "Alternate Start"
 msgstr "교대 시작"
 
-#: ../client/lobby.ts:698
+#: ../client/lobby.ts:679
 msgid "Custom"
 msgstr "임의 지정"
 
-#: ../client/lobby.ts:726 ../client/lobby.ts:849
+#: ../client/lobby.ts:707 ../client/lobby.ts:831
 msgid "%1 player"
 msgid_plural "%1 players"
 msgstr[0] "%1 명의 플레이어"
 
-#: ../client/lobby.ts:810
+#: ../client/lobby.ts:792
 msgid ""
 "You have an unfinished game!\n"
 "Press OK to continue."
@@ -1041,84 +1046,84 @@ msgstr ""
 "아직 끝나지 않은 게임이 있습니다!\n"
 "OK 를 눌러 계속합니다."
 
-#: ../client/lobby.ts:843
+#: ../client/lobby.ts:825
 msgid "%1 game in play"
 msgid_plural "%1 games in play"
 msgstr[0] "%1 개의 게임이 진행 중"
 
-#: ../client/lobby.ts:859
+#: ../client/lobby.ts:841
 msgid "Tournament calendar"
-msgstr ""
+msgstr "토너먼트 달력"
 
-#: ../client/lobby.ts:868
+#: ../client/lobby.ts:850
 msgid "Player"
 msgstr "플레이어"
 
-#: ../client/lobby.ts:869
+#: ../client/lobby.ts:851
 msgid "Rating"
 msgstr "레이팅"
 
-#: ../client/lobby.ts:870
+#: ../client/lobby.ts:852
 msgid "Time"
 msgstr "시간"
 
-#: ../client/lobby.ts:872
+#: ../client/lobby.ts:854
 msgid "Mode"
 msgstr "모드 선택"
 
-#: ../client/lobby.ts:914
+#: ../client/lobby.ts:896
 msgid "Donate"
 msgstr "기부하기"
 
-#: ../client/lobby.ts:915
+#: ../client/lobby.ts:897
 msgid "FAQ"
 msgstr "자주 하는 질문"
 
-#: ../client/lobby.ts:916
+#: ../client/lobby.ts:898
 msgid "Stats"
 msgstr "통계"
 
-#: ../client/lobby.ts:917
+#: ../client/lobby.ts:899
 msgid "About"
 msgstr "더 알아보기"
 
-#: ../client/lobby.ts:924
+#: ../client/lobby.ts:906
 msgid "Fairy-Stockfish on PyChess"
 msgstr ""
 
-#: ../client/lobby.ts:925
+#: ../client/lobby.ts:907
 msgid "NNUE Everywhere"
 msgstr ""
 
-#: ../client/lobby.ts:932
+#: ../client/lobby.ts:914
 msgid "Tennis and chess"
 msgstr ""
 
-#: ../client/lobby.ts:933
+#: ../client/lobby.ts:915
 msgid "Serving a New Variant"
 msgstr ""
 
-#: ../client/lobby.ts:940
+#: ../client/lobby.ts:922
 msgid "Christmas gift from PyChess"
 msgstr ""
 
-#: ../client/lobby.ts:941
+#: ../client/lobby.ts:923
 msgid "Merry Chak-mas!"
 msgstr ""
 
-#: ../client/main.ts:108
+#: ../client/main.ts:112
 msgid "Thank you for your support!"
 msgstr "지원해 주셔서 감사합니다!"
 
-#: ../client/paste.ts:128
+#: ../client/paste.ts:139
 msgid "Invalid PGN"
 msgstr "유효하지 않은 PGN"
 
-#: ../client/paste.ts:152
+#: ../client/paste.ts:162
 msgid "Paste the PGN text here"
 msgstr "PGN 텍스트를 여기에 복사하세요"
 
-#: ../client/paste.ts:156
+#: ../client/paste.ts:166
 msgid "IMPORT GAME"
 msgstr "게임 불러오기"
 
@@ -1148,6 +1153,58 @@ msgstr "승강전"
 msgid "Imported"
 msgstr "내보낸 파일"
 
+#: ../client/puzzleCtrl.ts:68
+msgid "View the solution"
+msgstr "해답 보기"
+
+#: ../client/puzzleCtrl.ts:88
+msgid "Puzzle "
+msgstr "퍼즐"
+
+#: ../client/puzzleCtrl.ts:89
+msgid "Rating: "
+msgstr "레이팅:"
+
+#: ../client/puzzleCtrl.ts:90
+msgid "Played "
+msgstr ""
+
+#: ../client/puzzleCtrl.ts:96
+msgid "Source: "
+msgstr ""
+
+#: ../client/puzzleCtrl.ts:175
+msgid "Your turn"
+msgstr "당신 차례"
+
+#: ../client/puzzleCtrl.ts:176
+msgid "Find the best move for %1."
+msgstr ""
+
+#: ../client/puzzleCtrl.ts:189
+msgid "That's not the move!"
+msgstr ""
+
+#: ../client/puzzleCtrl.ts:190
+msgid "Try something else."
+msgstr ""
+
+#: ../client/puzzleCtrl.ts:204
+msgid "Best move!"
+msgstr "최선수!"
+
+#: ../client/puzzleCtrl.ts:205
+msgid "Keep going..."
+msgstr ""
+
+#: ../client/puzzleCtrl.ts:219
+msgid "Puzzle complete!"
+msgstr "퍼즐 완료!"
+
+#: ../client/puzzleCtrl.ts:223
+msgid "Continue training"
+msgstr "훈련 계속하기"
+
 #: ../client/result.ts:14
 msgid "IMPORT"
 msgstr "가져오기"
@@ -1176,7 +1233,7 @@ msgstr "부동"
 msgid "Time out"
 msgstr "시간 초과"
 
-#: ../client/result.ts:65 ../client/roundCtrl.ts:334
+#: ../client/result.ts:65 ../client/roundCtrl.ts:325
 msgid "Draw"
 msgstr "무승부"
 
@@ -1206,7 +1263,7 @@ msgstr "캠프메이트"
 
 #: ../client/result.ts:96
 msgid "Altar mate"
-msgstr ""
+msgstr "제단 메이트"
 
 #: ../client/result.ts:99
 msgid "Explosion of king"
@@ -1220,117 +1277,117 @@ msgstr "점수 승"
 msgid "Repetition"
 msgstr "반복"
 
-#: ../client/roundCtrl.ts:248 ../client/roundCtrl.ts:1078
+#: ../client/roundCtrl.ts:239 ../client/roundCtrl.ts:1069
 msgid " +15 seconds"
 msgstr "+15 초"
 
-#: ../client/roundCtrl.ts:255
+#: ../client/roundCtrl.ts:246
 msgid "Give 15 seconds"
 msgstr "15 초 부여하기"
 
-#: ../client/roundCtrl.ts:273
+#: ../client/roundCtrl.ts:264
 msgid "Berserk"
 msgstr ""
 
-#: ../client/roundCtrl.ts:328
+#: ../client/roundCtrl.ts:319
 msgid "Abort"
 msgstr "중단하기"
 
-#: ../client/roundCtrl.ts:330 ../client/roundCtrl.ts:953
-#: ../client/roundCtrl.ts:955
+#: ../client/roundCtrl.ts:321 ../client/roundCtrl.ts:944
+#: ../client/roundCtrl.ts:946
 msgid "Count"
 msgstr "계산하기"
 
-#: ../client/roundCtrl.ts:332
+#: ../client/roundCtrl.ts:323
 msgid "Pass"
 msgstr "한 수 쉼"
 
-#: ../client/roundCtrl.ts:335
+#: ../client/roundCtrl.ts:326
 msgid "Resign"
 msgstr "기권"
 
-#: ../client/roundCtrl.ts:429
+#: ../client/roundCtrl.ts:420
 msgid "Are you sure you want to draw?"
 msgstr "정말 무승부를 원하십니까?"
 
-#: ../client/roundCtrl.ts:431
+#: ../client/roundCtrl.ts:422
 msgid "Draw offer sent"
 msgstr "무승부 제안을 전달했습니다"
 
-#: ../client/roundCtrl.ts:443
+#: ../client/roundCtrl.ts:434
 msgid "Your opponent offers a draw"
 msgstr "상대가 무승부를 제안합니다"
 
-#: ../client/roundCtrl.ts:463
+#: ../client/roundCtrl.ts:454
 msgid "Are you sure you want to resign?"
 msgstr "기권 하시겠습니까?"
 
-#: ../client/roundCtrl.ts:474
+#: ../client/roundCtrl.ts:465
 msgid "Blue (Cho)"
 msgstr "청팀(초나라)"
 
-#: ../client/roundCtrl.ts:474
+#: ../client/roundCtrl.ts:465
 msgid "Red (Han)"
 msgstr "홍(한)"
 
-#: ../client/roundCtrl.ts:475
+#: ../client/roundCtrl.ts:466
 msgid ""
 "Waiting for %1 to choose starting positions of the horses and elephants..."
 msgstr "%1 에서 마와 상의 위치를 선택할 때 까지 기다려 주세요.."
 
-#: ../client/roundCtrl.ts:515 ../client/roundCtrl.ts:517
+#: ../client/roundCtrl.ts:506 ../client/roundCtrl.ts:508
 msgid "Switch pieces"
 msgstr "기물 바꾸기"
 
-#: ../client/roundCtrl.ts:516
+#: ../client/roundCtrl.ts:507
 msgid "Ready"
 msgstr "준비"
 
-#: ../client/roundCtrl.ts:550
+#: ../client/roundCtrl.ts:541
 msgid "VIEW REMATCH"
 msgstr "재대국 보기"
 
-#: ../client/roundCtrl.ts:557
+#: ../client/roundCtrl.ts:548
 msgid "Rematch offer sent"
 msgstr "재대국 제안을 전달했습니다."
 
-#: ../client/roundCtrl.ts:568
+#: ../client/roundCtrl.ts:559
 msgid "Your opponent offers a rematch"
 msgstr "상대가 재대국을 제안합니다"
 
-#: ../client/roundCtrl.ts:609
+#: ../client/roundCtrl.ts:600
 msgid "VIEW TOURNAMENT"
 msgstr "토너먼트 보기"
 
-#: ../client/roundCtrl.ts:612
+#: ../client/roundCtrl.ts:603
 msgid "BACK TO TOURNAMENT"
 msgstr "토너먼트로 돌아가기"
 
-#: ../client/roundCtrl.ts:614 ../client/tournament.ts:189
+#: ../client/roundCtrl.ts:605 ../client/tournament.ts:176
 msgid "PAUSE"
 msgstr "일시 중지"
 
-#: ../client/roundCtrl.ts:617
+#: ../client/roundCtrl.ts:608
 msgid "REMATCH"
 msgstr "재대국"
 
-#: ../client/roundCtrl.ts:618
+#: ../client/roundCtrl.ts:609
 msgid "NEW OPPONENT"
 msgstr "새로운 상대"
 
-#: ../client/roundCtrl.ts:951
+#: ../client/roundCtrl.ts:942
 msgid "Stop counting"
 msgstr "계산 중단하기"
 
-#: ../client/roundCtrl.ts:951
+#: ../client/roundCtrl.ts:942
 msgid "Stop"
 msgstr "중단하기"
 
-#: ../client/roundCtrl.ts:953 ../client/roundCtrl.ts:955
+#: ../client/roundCtrl.ts:944 ../client/roundCtrl.ts:946
 msgid "Start counting"
 msgstr "계산 시작하기"
 
-#: ../client/roundCtrl.ts:1016
+#: ../client/roundCtrl.ts:1007
 msgid "%1 second to play the first move"
 msgid_plural "%1 seconds to play the first move"
 msgstr[0] "첫 수를 두는 데 %1 초"
@@ -1363,103 +1420,121 @@ msgstr "Zen 모드"
 msgid "Volume"
 msgstr ""
 
-#: ../client/tournament.ts:162
+#: ../client/tournament.ts:149
 msgid "First"
 msgstr "첫째"
 
-#: ../client/tournament.ts:163
+#: ../client/tournament.ts:150
 msgid "Prev"
 msgstr "이전"
 
-#: ../client/tournament.ts:167
+#: ../client/tournament.ts:154
 msgid "Next"
 msgstr "다음"
 
-#: ../client/tournament.ts:168
+#: ../client/tournament.ts:155
 msgid "Last"
 msgstr "마지막"
 
-#: ../client/tournament.ts:169
+#: ../client/tournament.ts:156
 msgid "Scroll to your player"
 msgstr ""
 
-#: ../client/tournament.ts:180
+#: ../client/tournament.ts:167
 msgid "WITHDRAW"
 msgstr "무르기"
 
-#: ../client/tournament.ts:182 ../client/tournament.ts:187
+#: ../client/tournament.ts:169 ../client/tournament.ts:174
 msgid "JOIN"
-msgstr ""
+msgstr "참가"
 
-#: ../client/tournament.ts:194
+#: ../client/tournament.ts:181
 msgid "LOG IN"
 msgstr "로그인"
 
-#: ../client/tournament.ts:207
+#: ../client/tournament.ts:194
 msgid "Tournament complete"
 msgstr "토너먼트 완료"
 
-#: ../client/tournament.ts:209
+#: ../client/tournament.ts:196
 msgid "Players"
 msgstr "대국자"
 
-#: ../client/tournament.ts:210
+#: ../client/tournament.ts:197
 msgid "Average rating"
 msgstr "평균 레이팅"
 
-#: ../client/tournament.ts:211 ../client/tournament.ts:389
-#: ../client/tournament.ts:447 ../client/tournament.ts:457
-#: ../client/tournament.ts:467
+#: ../client/tournament.ts:198 ../client/tournament.ts:376
+#: ../client/tournament.ts:434 ../client/tournament.ts:444
+#: ../client/tournament.ts:454
 msgid "Games played"
 msgstr "플레이한 게임"
 
-#: ../client/tournament.ts:212 ../client/tournament.ts:213
+#: ../client/tournament.ts:199 ../client/tournament.ts:200
 msgid "%1 wins"
 msgstr ""
 
-#: ../client/tournament.ts:214
+#: ../client/tournament.ts:201
 msgid "Draws"
 msgstr "무승부"
 
-#: ../client/tournament.ts:215 ../client/tournament.ts:392
-#: ../client/tournament.ts:449 ../client/tournament.ts:459
-#: ../client/tournament.ts:469
+#: ../client/tournament.ts:202 ../client/tournament.ts:379
+#: ../client/tournament.ts:436 ../client/tournament.ts:446
+#: ../client/tournament.ts:456
 msgid "Berserk rate"
 msgstr ""
 
-#: ../client/tournament.ts:223
+#: ../client/tournament.ts:210
 msgid "Download all games"
 msgstr "모든 게임 다운로드"
 
-#: ../client/tournament.ts:231
+#: ../client/tournament.ts:218
 msgid "Download all games in JSON"
 msgstr ""
 
-#: ../client/tournament.ts:388 ../client/tournament.ts:446
-#: ../client/tournament.ts:456 ../client/tournament.ts:466
+#: ../client/tournament.ts:346
+msgid "Arena"
+msgstr ""
+
+#: ../client/tournament.ts:348
+msgid "Round-Robin"
+msgstr ""
+
+#: ../client/tournament.ts:350
+msgid "Swiss"
+msgstr "스위스"
+
+#: ../client/tournament.ts:375 ../client/tournament.ts:433
+#: ../client/tournament.ts:443 ../client/tournament.ts:453
 msgid "Performance"
 msgstr ""
 
-#: ../client/tournament.ts:390 ../client/tournament.ts:448
-#: ../client/tournament.ts:458 ../client/tournament.ts:468
+#: ../client/tournament.ts:377 ../client/tournament.ts:435
+#: ../client/tournament.ts:445 ../client/tournament.ts:455
 msgid "Win rate"
 msgstr "승률"
 
-#: ../client/tournament.ts:391
+#: ../client/tournament.ts:378
 msgid "Average opponent"
 msgstr "평균 상대"
 
-#: ../client/tournament.ts:543
+#: ../client/tournament.ts:530
 msgid "Defender:"
 msgstr ""
 
-#: ../client/tournament.ts:569
+#: ../client/tournament.ts:556
 msgid "Custom position"
 msgstr "위치 수정"
 
-#: ../client/tournament.ts:570
+#: ../client/tournament.ts:557
 msgid "Analysis board"
 msgstr "판 분석하기"
+
+#: ../client/tournament.ts:564
+msgid ""
+"This Shield trophy is unique. The winner keeps it for one month, then must "
+"defend it during the next %1 Shield tournament!"
+msgstr "이 방패는 특별합니다. 승자는 한 달 동안 방패를 가지고, 다음 %1 방패 토너먼트 동안 방패를 지켜야 합니다!"
 
 #: ../client/tournamentClock.ts:42
 msgid "STARTING IN"
@@ -1486,7 +1561,7 @@ msgid ""
 "These variants have new armies with completely new pieces! Most of these "
 "variants pit these armies against the standard Chess army."
 msgstr ""
-"이러한 변형들에는 완전히 새로운 기물들이 포함된 새로운 군대가 있습니다! 이러한 변형들의 대부분은 그들의 기물을 표준 체스 군대와 맞붙게"
+"이러한 변형들은 완전히 새로운 기물들이 포함된 새로운 군대를 가집니다! 이러한 변형들의 대부분은 자신들의 기물을 표준 체스 군대와 맞붙게"
 " 합니다."
 
 #: ../client/lobby/layer2army.ts:19 ../client/lobby/layer2chess.ts:21
@@ -1546,7 +1621,7 @@ msgstr "나이트 복합 기물들"
 
 #: ../client/lobby/layer2fairy.ts:50
 msgid "8x8 with new pieces"
-msgstr "새로운 기물들이 있는 8x8"
+msgstr "새로운 기물들을 가진 8x8"
 
 #: ../client/lobby/layer2fairy.ts:57
 msgid "Cannon and Elephant from Xiangqi"
@@ -1554,11 +1629,11 @@ msgstr "샹치의 포와 상"
 
 #: ../client/lobby/layer2fairy.ts:67
 msgid "10x10 with new pieces"
-msgstr "새로운 기물들이 있는 10x10"
+msgstr "새로운 기물들을 가진 10x10"
 
 #: ../client/lobby/layer2fairy.ts:74
 msgid "Crazyhouse with promotions"
-msgstr "승격이 있는 크레이지하우스"
+msgstr "진급을 가진 크레이지하우스"
 
 #: ../client/lobby/layer2fairy.ts:81
 msgid "Bishops and Knights swap their capture moves"
@@ -1578,7 +1653,7 @@ msgstr "막룩 변형. 왕 기물은 체크된 상태에서 움직일 수 없습
 
 #: ../client/lobby/layer2makruk.ts:41
 msgid "Cambodian Chess. Makruk with extra starting moves."
-msgstr "캄보디아 체스. 추가적인 시작 이동이 있는 막룩."
+msgstr "캄보디아 체스. 추가적인 시작 이동을 가진 막룩."
 
 #: ../client/lobby/layer2makruk.ts:48
 msgid "Burmese Chess. You may place your starting pieces."
@@ -1590,7 +1665,7 @@ msgstr "국제 체스의 영향을 받은 막룩"
 
 #: ../client/lobby/layer2shogi.ts:19
 msgid "The Japanese version of chess, which involves drops and promotions."
-msgstr "투입과 승격이 포함된 일본어판 체스."
+msgstr "투입과 진급이 포함된 일본판 체스."
 
 #: ../client/lobby/layer2shogi.ts:28
 msgid "Original Shogi"
@@ -1610,7 +1685,7 @@ msgstr "쇼기를 가르치기 위한 3x4 게임"
 
 #: ../client/lobby/layer2shogi.ts:56
 msgid "5x6 with Generals"
-msgstr "은장 및 금장이 있는 5x6"
+msgstr "은장과 금장을 가진 5x6"
 
 #: ../client/lobby/layer2shogi.ts:63
 msgid "7x7, Bird Shogi"
@@ -1654,11 +1729,11 @@ msgstr "백랭크가 무작위화된 피셔 랜덤 체스"
 
 #: ../client/lobby/layer3.ts:66
 msgid "Crazyhouse with random back row."
-msgstr "무작위 백랭크가 있는 크레이지하우스."
+msgstr "마지막 가로행이 무작위인 크레이지하우스."
 
 #: ../client/lobby/layer3.ts:68
 msgid "Atomic Chess with random back row."
-msgstr "무작위 백랭크가 있는 아토믹 체스."
+msgstr "마지막 개로행이 무작위인 아토믹 체스."
 
 #: ../client/lobby/layer3.ts:81
 msgid "Move the king on top of the rook to castle."

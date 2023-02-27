@@ -10,7 +10,8 @@ import { DrawShape } from 'chessgroundx/draw';
 
 import { JSONObject } from '../types';
 import { _ } from '../i18n';
-import {uci2LastMove, uci2cg, cg2uci, notation, VARIANTS, moddedVariant} from '../chess';
+import {uci2LastMove, uci2cg, cg2uci} from '../chess';
+import {VARIANTS, notation, moddedVariant} from "../variants"
 import { createMovelistButtons, updateMovelist, selectMove, activatePlyVari } from './movelist';
 import { povChances } from '../winningChances';
 // import { boardSettings } from './boardSettings';

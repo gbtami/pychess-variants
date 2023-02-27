@@ -4,7 +4,7 @@ import { h } from 'snabbdom';
 import { _ } from '../i18n';
 import { LobbyController } from '../lobby';
 import { patch } from '../document';
-import { VARIANTS } from '../chess';
+import { VARIANTS } from '../variants';
 import { goBackToLayer1, variantBoard } from './util';
 import { layer3variant } from './layer3';
 

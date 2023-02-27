@@ -49,22 +49,21 @@ MONTHLY_VARIANTS = (
     "chennis",
     "capablanca",
     "xiangqi",
-    "duck",
     "shinobi",
 )
 
 # Old MONTHLY tournaments, needed to create translated tourney names
-NO_MORE_VARIANTS = ("manchu",)
+PAUSED_MONTHLY_VARIANTS = ("manchu", "duck")
 
 # Old WEEKLY tournaments, paused atm., but needed to create translated tourney names
 WEEKLY_VARIANTS = (
     "crazyhouse960",
     "atomic960",
+    "duck",
 )
 
 # Monthly Variant Tournaments need different TC
-TC_MONTHLY_VARIANTS = {v: (3, 2, 0) for v in MONTHLY_VARIANTS}
-TC_MONTHLY_VARIANTS["duck"] = (3, 5, 0)
+TC_MONTHLY_VARIANTS: dict[str, tuple[int, int, int]] = {v: (3, 2, 0) for v in MONTHLY_VARIANTS}
 
 for v in CATEGORIES["fairy"]:
     TC_MONTHLY_VARIANTS[v] = (3, 3, 0)
@@ -154,6 +153,7 @@ class Scheduler:
             # Plan(WEEKLY, self.next_day_of_week(FRIDAY), 18, "crazyhouse", True, 3, 0, 0, 60),  # 960
             # Plan(WEEKLY, self.next_day_of_week(TUESDAY), 18, "atomic", True, 3, 0, 0, 60),  # 960
             Plan(WEEKLY, self.next_day_of_week(THURSDAY), 14, "makruk", False, 3, 2, 0, 90),
+            Plan(WEEKLY, self.next_day_of_week(SUNDAY), 18, "duck", False, 3, 5, 0, 90),
         ]
 
         return plans
@@ -195,7 +195,6 @@ def new_scheduled_tournaments(already_scheduled, now=None):
             and (plan.freq, plan.variant, plan.is960, starts_at, plan.duration)
             not in already_scheduled
         ):
-
             variant_name = variant_display_name(
                 plan.variant + ("960" if plan.is960 else "")
             ).title()

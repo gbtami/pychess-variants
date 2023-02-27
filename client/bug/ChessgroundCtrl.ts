@@ -1,9 +1,10 @@
 import {Api} from "chessgroundx/api";
-import {Gating} from "../gating";
-import {Promotion} from "../promotion";
+import {GatingInput} from "../input/gating";
+import {PromotionInput} from "../input/promotion";
 import * as cg from "chessgroundx/types";
 import {Chessground} from "chessgroundx";
-import {BOARD_FAMILIES,  Variant, VARIANTS} from "../chess";
+import {Variant} from "../chess";
+import {VARIANTS, BOARD_FAMILIES} from "../variants"
 import * as util from "chessgroundx/util";
 import AnalysisController from "./analysisCtrl";
 import {Step} from "../messages";
@@ -19,8 +20,8 @@ export class ChessgroundController extends GameController {
 
     // chessground: Api;
 
-    gating: Gating;
-    promotion: Promotion;
+    gating: GatingInput;
+    promotion: PromotionInput;
 
     mycolor: cg.Color;
     oppcolor: cg.Color;

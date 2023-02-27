@@ -103,6 +103,9 @@ label.piece.piece4.makruk {
     background-image: url('images/pieces/merida/bS.svg');
 }
 label.piece.piece5.makruk {
+    background-image: url('images/pieces/green/bS.svg');
+}
+label.piece.piece6.makruk {
     background-image: url('images/pieces/disguised/b.svg');
 }
 
@@ -121,7 +124,10 @@ label.piece.piece3.sittuyin  {
 label.piece.piece4.sittuyin  {
     background-image: url('images/pieces/merida/bS.svg');
 }
-label.piece.piece5.sittuyin {
+label.piece.piece5.sittuyin  {
+    background-image: url('images/pieces/green/bS.svg');
+}
+label.piece.piece6.sittuyin {
     background-image: url('images/pieces/disguised/sittuyin-g.svg');
 }
 
@@ -138,6 +144,9 @@ label.piece.piece3.asean {
     background-image: url('images/pieces/sittuyin/original/bB.svg');
 }
 label.piece.piece4.asean {
+    background-image: url('images/pieces/green/bS.svg');
+}
+label.piece.piece5.asean {
     background-image: url('images/pieces/disguised/b.svg');
 }
 

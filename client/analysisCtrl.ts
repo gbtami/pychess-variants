@@ -61,7 +61,6 @@ export class AnalysisController extends GameController {
     isAnalysisBoard: boolean;
     isEngineReady: boolean;
     notationAsObject: any;
-    prevPieces: cg.Pieces;
     arrow: boolean;
     multipv: number;
     evalFile: string;
@@ -169,7 +168,7 @@ export class AnalysisController extends GameController {
             }
         }
 
-        if (this.variant.materialPoint) {
+        if (this.variant.ui.materialPoint) {
             const miscW = document.getElementById('misc-infow') as HTMLElement;
             const miscB = document.getElementById('misc-infob') as HTMLElement;
             miscW.style.textAlign = 'right';
@@ -180,7 +179,7 @@ export class AnalysisController extends GameController {
             (document.getElementById('misc-info') as HTMLElement).style.justifyContent = 'space-around';
         }
 
-        if (this.variant.counting) {
+        if (this.variant.ui.counting) {
             (document.getElementById('misc-infow') as HTMLElement).style.textAlign = 'center';
             (document.getElementById('misc-infob') as HTMLElement).style.textAlign = 'center';
         }
@@ -401,7 +400,7 @@ export class AnalysisController extends GameController {
 
         const lastMove = uci2LastMove(msg.lastMove);
         const step = this.steps[this.steps.length - 1];
-        const capture = !!lastMove && ((this.chessground.state.boardState.pieces.get(lastMove[1]) && step.san?.slice(0, 2) !== 'O-') || (step.san?.slice(1, 2) === 'x'));
+        const capture = !!lastMove && ((this.chessground.state.boardState.pieces.get(lastMove[1] as cg.Key) && step.san?.slice(0, 2) !== 'O-') || (step.san?.slice(1, 2) === 'x'));
 
         if (lastMove && (this.turnColor === this.mycolor || this.spectator)) {
             sound.moveSound(this.variant, capture);
@@ -414,11 +413,6 @@ export class AnalysisController extends GameController {
     }
 
     onFSFline = (line: string) => {
-        // There is no Duck Chess support in fairy-wasm atm
-        if (this.variant.name === 'duck') {
-            return;
-        }
-
         if (this.fsfDebug) console.debug('--->', line);
 
         if (line.startsWith('info')) {
@@ -519,6 +513,46 @@ export class AnalysisController extends GameController {
         this.doSendMove(move);
     }
 
+    shapeFromMove (pv_move: string, turnColor: cg.Color): DrawShape[] {
+        let shapes0: DrawShape[] = [];
+        const atPos = pv_move.indexOf('@');
+        // drop
+        if (atPos > -1) {
+            const d = pv_move.slice(atPos + 1, atPos + 3) as cg.Key;
+            const dropPieceRole = util.roleOf(pv_move.slice(0, atPos) as cg.Letter);
+
+            shapes0 = [{
+                orig: d,
+                brush: 'paleGreen',
+                piece: {
+                    color: turnColor,
+                    role: dropPieceRole
+                }},
+                { orig: d, brush: 'paleGreen' }
+            ];
+        } else {
+            // arrow
+            const o = pv_move.slice(0, 2) as cg.Key;
+            const d = pv_move.slice(2, 4) as cg.Key;
+            shapes0 = [{ orig: o, dest: d, brush: 'paleGreen', piece: undefined },];
+
+            // duck
+            if (this.variant.rules.duck) {
+                shapes0.push({
+                    orig: pv_move.slice(-2) as cg.Key,
+                    brush: 'paleGreen',
+                    piece: {
+                        color: turnColor,
+                        role: '_-piece'
+                    }
+                })
+            }
+
+            // TODO: gating, promotion
+        }
+        return shapes0
+    }
+
     // Updates PV, score, gauge and the best move arrow
     drawEval = (ceval: Ceval | undefined, scoreStr: string | undefined, turnColor: cg.Color) => {
 
@@ -556,7 +590,7 @@ export class AnalysisController extends GameController {
             if (blackEl && ceval !== undefined) {
                 const score = ceval['s'];
                 // TODO set gauge colour according to the variant's piece colour
-                const color = (this.variant.firstColor === "Black") ? turnColor === 'black' ? 'white' : 'black' : turnColor;
+                const color = (this.variant.colors.first === "Black") ? turnColor === 'black' ? 'white' : 'black' : turnColor;
                 if (score !== undefined) {
                     const ev = povChances(color, score);
                     blackEl.style.height = String(100 - (ev + 1) * 50) + '%';
@@ -568,29 +602,10 @@ export class AnalysisController extends GameController {
         }
 
         if (ceval?.p !== undefined) {
-            const pv_move = uci2cg(ceval.p.split(" ")[0]);
             // console.log("ARROW", this.arrow);
             if (this.arrow && pvlineIdx === 0) {
-                const atPos = pv_move.indexOf('@');
-                if (atPos > -1) {
-                    const d = pv_move.slice(atPos + 1, atPos + 3) as cg.Key;
-                    let color = turnColor;
-                    const dropPieceRole = util.roleOf(pv_move.slice(0, atPos) as cg.Letter);
-
-                    shapes0 = [{
-                        orig: d,
-                        brush: 'paleGreen',
-                        piece: {
-                            color: color,
-                            role: dropPieceRole
-                        }},
-                        { orig: d, brush: 'paleGreen' }
-                    ];
-                } else {
-                    const o = pv_move.slice(0, 2) as cg.Key;
-                    const d = pv_move.slice(2, 4) as cg.Key;
-                    shapes0 = [{ orig: o, dest: d, brush: 'paleGreen', piece: undefined },];
-                }
+                const pv_move = uci2cg(ceval.p.split(" ")[0]);
+                shapes0 = this.shapeFromMove(pv_move, turnColor);
             }
 
             this.vscore = patch(this.vscore, h('score#score', scoreStr));
@@ -790,7 +805,7 @@ export class AnalysisController extends GameController {
         return `${event}\n${site}\n${date}\n${white}\n${black}\n${result}\n${variant}\n${fen}\n${setup}\n\n${moveText} *\n`;
     }
 
-    doSendMove = (move: string) => {
+    doSendMove(move: string) {
         const san = this.ffishBoard.sanMove(move, this.notationAsObject);
         const sanSAN = this.ffishBoard.sanMove(move);
         const vv = this.steps[this.plyVari]['vari'];
@@ -803,7 +818,7 @@ export class AnalysisController extends GameController {
 
         const msg : MsgAnalysisBoard = {
             gameId: this.gameId,
-            fen: this.ffishBoard.fen(this.variant.showPromoted, 0),
+            fen: this.ffishBoard.fen(this.variant.ui.showPromoted, 0),
             ply: newPly,
             lastMove: move,
             bikjang: this.ffishBoard.isBikjang(),

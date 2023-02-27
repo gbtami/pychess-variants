@@ -2,23 +2,23 @@ import { h, VNode } from "snabbdom";
 
 import * as cg from 'chessgroundx/types';
 
+import { patch } from '@/document';
+import { promotedRole } from "@/chess";
 import { EditorController } from './editorCtrl';
-import { patch } from './document';
-import { promotedRole } from "./chess";
 
 type Position = 'top' | 'bottom';
 
 const eventNames = ['mousedown', 'touchstart'];
 
-export function piecesView(ctrl: EditorController, color: cg.Color, position: Position) {
-    const width = ctrl.variant.boardWidth;
-    const height = ctrl.variant.boardHeight;
-    const roles: (cg.Role | '')[] = [...ctrl.variant.pieceRoles[color]];
-    if (['shogi', 'kyoto'].includes(ctrl.variant.promotion)) {
+export function pieceRowView(ctrl: EditorController, color: cg.Color, position: Position) {
+    const width = ctrl.variant.board.dimensions.width;
+    const height = ctrl.variant.board.dimensions.height;
+    const roles: (cg.Role | '')[] = [...ctrl.variant.pieceRow[color]];
+    if (ctrl.variant.promotion.type === 'shogi') {
         const len = roles.length;
-        const width = ctrl.variant.boardWidth;
         const extraRoles = roles.
-            filter(r => ctrl.variant.promoteableRoles.includes(r as cg.Role)).
+            filter(_ => !ctrl.variant.promotion.strict).
+            filter(r => ctrl.variant.promotion.roles.includes(r as cg.Role)).
             map(r => promotedRole(ctrl.variant, { role: r as cg.Role, color: color }));
         if (len <= width && len + extraRoles.length > width) {
             for (let i = len; i < width; i++)
@@ -85,7 +85,7 @@ function drag(ctrl: EditorController, e: cg.MouchEvent): void {
     }
 }
 
-export function iniPieces(ctrl: EditorController, vpieces0: VNode | HTMLElement, vpieces1: VNode | HTMLElement): void {
-    ctrl.vpieces0 = patch(vpieces0, piecesView(ctrl, ctrl.flipped() ? ctrl.mycolor : ctrl.oppcolor, "top"));
-    ctrl.vpieces1 = patch(vpieces1, piecesView(ctrl, ctrl.flipped() ? ctrl.oppcolor : ctrl.mycolor, "bottom"));
+export function initPieceRow(ctrl: EditorController, vpieces0: VNode | HTMLElement, vpieces1: VNode | HTMLElement): void {
+    ctrl.vpieces0 = patch(vpieces0, pieceRowView(ctrl, ctrl.flipped() ? ctrl.mycolor : ctrl.oppcolor, "top"));
+    ctrl.vpieces1 = patch(vpieces1, pieceRowView(ctrl, ctrl.flipped() ? ctrl.oppcolor : ctrl.mycolor, "bottom"));
 }

@@ -7,9 +7,9 @@ import { newWebsocket } from './socket';
 import { JSONObject, PyChessModel } from './types';
 import { _ } from './i18n';
 import { patch } from './document';
-import { chatMessage, chatView, IChatController } from './chat';
-//import { sound } from './sound';
-import { colorIcon, VARIANTS, uci2LastMove, Variant } from './chess';
+import { chatMessage, chatView, ChatController } from './chat';
+import { colorIcon, uci2LastMove } from './chess';
+import { VARIANTS, Variant } from './variants';
 import { timeControlStr } from "./view";
 import { initializeClock, localeOptions } from './tournamentClock';
 import { gameType } from './result';
@@ -32,7 +32,7 @@ const SCORE_SHIFT = 100000;
 const SHIELD = 's';
 
 
-export class TournamentController implements IChatController {
+export class TournamentController implements ChatController {
     sock;
     tournamentId: string;
     readyState: number; // seems unused
@@ -189,8 +189,8 @@ export class TournamentController implements IChatController {
                 h('tr', [h('th', _('Players')), h('td', msg.nbPlayers)]),
                 h('tr', [h('th', _('Average rating')), h('td', Math.round(msg.sumRating / msg.nbPlayers))]),
                 h('tr', [h('th', _('Games played')), h('td', msg.nbGames)]),
-                h('tr', [h('th', _('%1 wins', _(this.variant.firstColor))), h('td', this.calcRate(msg.nbGames, msg.wWin))]),
-                h('tr', [h('th', _('%1 wins', _(this.variant.secondColor))), h('td', this.calcRate(msg.nbGames, msg.bWin))]),
+                h('tr', [h('th', _('%1 wins', _(this.variant.colors.first))), h('td', this.calcRate(msg.nbGames, msg.wWin))]),
+                h('tr', [h('th', _('%1 wins', _(this.variant.colors.second))), h('td', this.calcRate(msg.nbGames, msg.bWin))]),
                 h('tr', [h('th', _('Draws')), h('td', this.calcRate(msg.nbGames, msg.draw))]),
                 h('tr', [h('div', _('Berserk rate')), h('td', this.calcRate(msg.nbGames * 2, msg.berserk))]),
             ]),
@@ -315,7 +315,7 @@ export class TournamentController implements IChatController {
                 h('td.result', '-')
             ]);
         } else {
-            const color = (game.color === 'w') ? this.variant.firstColor : this.variant.secondColor;
+            const color = (game.color === 'w') ? this.variant.colors.first : this.variant.colors.second;
             return h('tr', { on: { click: () => { window.open('/' + game.gameId, '_blank', 'noopener'); }}}, [
                 h('th', index),
                 h('td.player', [
@@ -383,21 +383,21 @@ export class TournamentController implements IChatController {
         const variant = VARIANTS[game.variant];
         const elements = [
         h('div.player', [h('user', [h('rank', '#' + game.br), game.b]), h('div#bresult')]),
-        h(`div#mainboard.${variant.board}.${variant.piece}.${variant.boardMark}`, {
-            class: { "with-pockets": variant.pocket },
+        h(`div#mainboard.${variant.boardFamily}.${variant.pieceFamily}.${variant.ui.boardMark}`, {
+            class: { "with-pockets": !!variant.pocket },
             on: { click: () => window.location.assign('/' + game.gameId) }
             }, [
-                h(`div.cg-wrap.${variant.cg}.mini`, {
+                h(`div.cg-wrap.${variant.board.cg}.mini`, {
                     hook: {
                         insert: vnode => {
                             const cg = Chessground(vnode.elm as HTMLElement,  {
                                 fen: game.fen,
                                 lastMove: game.lastMove,
-                                dimensions: variant.boardDimensions,
+                                dimensions: variant.board.dimensions,
                                 coordinates: false,
                                 viewOnly: true,
                                 addDimensionsCssVarsTo: document.body,
-                                pocketRoles: variant.pocketRoles,
+                                pocketRoles: variant.pocket?.roles,
                             });
                             this.topGameChessground = cg;
                             this.topGameId = game.gameId;
@@ -720,7 +720,7 @@ export function tournamentView(model: PyChessModel): VNode[] {
     const variant = VARIANTS[model.variant];
     const chess960 = model.chess960 === 'True';
     const dataIcon = variant.icon(chess960);
-    document.body.setAttribute('style', `--ranks: ${variant.boardHeight}; --files: ${variant.boardWidth};`);
+    document.body.setAttribute('style', `--ranks: ${variant.board.dimensions.height}; --files: ${variant.board.dimensions.width};`);
     return [
         h('aside.sidebar-first', [
             h('div.game-info', [
