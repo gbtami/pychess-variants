@@ -280,6 +280,9 @@ export class RoundController extends GameController {
         const container = document.getElementById('game-controls') as HTMLElement;
         if (!this.spectator) {
             let buttons = [];
+            if (this.variant.rules.duck) {
+                buttons.push(h('div#undo'));
+            }
             if (!this.tournamentGame) {
                 buttons.push(h('button#abort', { on: { click: () => this.abort() }, props: {title: _('Abort')} }, [h('i', {class: {"icon": true, "icon-abort": true} } ), ]));
             }
@@ -368,6 +371,11 @@ export class RoundController extends GameController {
 
         const container = document.getElementById(`berserk${clockIdx}`) as HTMLElement;
         patch(container, h(`div#berserk${clockIdx}.berserked`, [h('button.icon.icon-berserk')]));
+    }
+
+    private undo = () => {
+        // console.log("Undo");
+        this.goPly(this.ply);
     }
 
     private abort = () => {
