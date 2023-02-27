@@ -25,6 +25,7 @@ Currently supported games are:
 - [Placement chess](https://www.pychess.org/variants/placement)
 - [Crazyhouse](https://www.pychess.org/variants/crazyhouse)
 - [Atomic](https://www.pychess.org/variants/atomic)
+- [Duck chess](https://www.pychess.org/variants/duck)
 - [S-chess](https://www.pychess.org/variants/seirawan)
 - [Capablanca](https://www.pychess.org/variants/capablanca)
 - [Gothic](https://www.pychess.org/variants/gothic)
@@ -60,7 +61,7 @@ On client side it is based on
 
 As you know, pychess-variants is a free server and it will remain free forever. However, maintaining and improving the server costs time and money.
 
-If you like our work and find our server useful, please donate through [patreon](https://www.patreon.com/pychess) or directly through [paypal](https://www.paypal.me/gbtami)!!
+If you like our work and find our server useful, please donate through [patreon](https://www.patreon.com/pychess) or directly through [paypal](https://www.paypal.com/paypalme/gbtami)!!
 Your contribution will be greatly appreciated and help me continue to develop this awesome server.
 
 ## Installation

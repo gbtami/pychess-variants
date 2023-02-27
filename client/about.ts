@@ -54,6 +54,8 @@ export function aboutView(model: PyChessModel): VNode[] {
                 ", ",
                 h('a', { attrs: { href: 'https://www.pychess.org/variants/atomic' } }, 'Atomic'),
                 ", ",
+                h('a', { attrs: { href: 'https://www.pychess.org/variants/duck' } }, 'Duck chess'),
+                ", ",
                 h('a', { attrs: { href: 'https://www.pychess.org/variants/seirawan' } }, 'S-chess'),
                 ", ",
                 h('a', { attrs: { href: 'https://www.pychess.org/variants/capablanca' } }, 'Capablanca'),

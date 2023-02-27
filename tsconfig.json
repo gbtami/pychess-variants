@@ -1,19 +1,22 @@
 {
-  "include": [
-    "client/*.ts"
-  ],
-   "compilerOptions": {
-    "noImplicitAny": true,
-    "strictNullChecks": true,
-    "noUnusedLocals": true,
-    "noEmitOnError": false,
-    "alwaysStrict": true,
-    "noImplicitReturns": true,
-    "noUnusedParameters": true,
-    "esModuleInterop": true,
-    "module": "esnext",
-    "moduleResolution": "node",
-    "lib": ["DOM", "ES2017"],
-    "target": "ES2017"
-  }
+    "include": [
+        "client/*.ts"
+    ],
+    "compilerOptions": {
+        "paths": {
+            "@/*": [ "./client/*" ]
+        },
+        "noImplicitAny": true,
+        "strictNullChecks": true,
+        "noUnusedLocals": true,
+        "noEmitOnError": false,
+        "alwaysStrict": true,
+        "noImplicitReturns": true,
+        "noUnusedParameters": true,
+        "esModuleInterop": true,
+        "module": "esnext",
+        "moduleResolution": "node",
+        "lib": ["DOM", "ES2017"],
+        "target": "ES2017"
+    }
 }

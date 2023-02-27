@@ -561,7 +561,7 @@ under-lobby {
 }
 div.news {
   margin: 0;
-  padding: 0;
+  padding: 5vh;
 }
 a.news {
   margin-right: 0.4em;
@@ -589,6 +589,7 @@ a.post img {
   height: auto;
   max-height: 125px;
   border-radius: 3px;
+  object-fit: cover;
 }
 a.post span.text {
   display: flex;

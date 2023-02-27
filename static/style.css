@@ -39,13 +39,15 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+.icon-duck:before {
+  content: "\1f986";
+}
 .icon-Chennis:before {
   content: "\1f3be";
 }
 .icon-Chak:before {
   content: "\1f42c";
 }
-
 .icon-berserk:before {
   content: "\2963";
 }

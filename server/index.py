@@ -134,9 +134,10 @@ async def index(request):
         users[user.username] = user
         session["user_name"] = user.username
 
-    lang = session.get("lang", "en")
-    if lang not in LANGUAGES:
-        lang = "en"
+    lang = session.get("lang")
+    if lang is None:
+        lang = detect_locale(request)
+
     get_template = request.app["jinja"][lang].get_template
 
     lang_translation = request.app["gettext"][lang]
@@ -149,7 +150,7 @@ async def index(request):
         return lang_translation.gettext(TRANSLATED_PAIRING_SYSTEM_NAMES[system])
 
     def video_tag(tag):
-        return lang_translation.gettext(VIDEO_TAGS[tag])
+        return lang_translation.gettext(VIDEO_TAGS.get(tag, tag))
 
     def video_target(target):
         return lang_translation.gettext(VIDEO_TARGETS[target])
@@ -203,7 +204,7 @@ async def index(request):
             view = "winners"
         else:
             view = "tournaments"
-            if user.username in ADMINS:
+            if user.username in TOURNAMENT_DIRECTORS:
                 if request.path.endswith("/new"):
                     view = "arena-new"
                 elif request.path.endswith("/edit"):
@@ -221,7 +222,7 @@ async def index(request):
         if tournament is None:
             return web.HTTPFound("/")
 
-        if user.username in ADMINS and tournament.status == T_CREATED:
+        if user.username in TOURNAMENT_DIRECTORS and tournament.status == T_CREATED:
             if request.path.endswith("/edit"):
                 data = await request.post()
                 await create_or_update_tournament(
@@ -400,10 +401,11 @@ async def index(request):
                     render["trophies"][i] = (v, "top1")
             render["trophies"] = sorted(render["trophies"], key=lambda x: x[1])
 
-            shield_owners = request.app["shield_owners"]
-            render["trophies"] += [
-                (v, "shield") for v in shield_owners if shield_owners[v] == profileId
-            ]
+            if not users[profileId].bot:
+                shield_owners = request.app["shield_owners"]
+                render["trophies"] += [
+                    (v, "shield") for v in shield_owners if shield_owners[v] == profileId
+                ]
 
             if profileId in CUSTOM_TROPHY_OWNERS:
                 trophies = CUSTOM_TROPHY_OWNERS[profileId]
@@ -472,8 +474,8 @@ async def index(request):
         render["icons"] = VARIANT_ICONS
         render["pairing_system_name"] = pairing_system_name
         render["time_control_str"] = time_control_str
-        render["tables"] = await get_latest_tournaments(request.app, lang_translation)
-        render["admin"] = user.username in ADMINS
+        render["tables"] = await get_latest_tournaments(request.app, lang)
+        render["td"] = user.username in TOURNAMENT_DIRECTORS
 
     if (gameId is not None) and gameId != "variants":
         if view == "invite":
@@ -601,6 +603,7 @@ async def index(request):
 
     elif view == "arena-new":
         render["edit"] = tournamentId is not None
+        render["admin"] = user.username in ADMINS
         if tournamentId is None:
             render["rated"] = True
 
@@ -647,3 +650,34 @@ async def select_lang(request):
         return web.HTTPFound(referer)
     else:
         raise web.HTTPNotFound()
+
+
+def parse_accept_language(accept_language):
+    languages = accept_language.split(",")
+    locale_q_pairs = []
+
+    for language in languages:
+        parts = language.split(";")
+        if parts[0] == language:
+            # no q => q = 1
+            locale_q_pairs.append((language.strip(), "1"))
+        else:
+            locale_q_pairs.append((parts[0].strip(), parts[1].split("=")[1]))
+
+    return locale_q_pairs
+
+
+def detect_locale(request):
+    default_locale = "en"
+    accept_language = request.headers.get("Accept-Language")
+
+    if accept_language is not None:
+        locale_q_pairs = parse_accept_language(accept_language)
+
+        for pair in locale_q_pairs:
+            for locale in LANGUAGES:
+                # pair[0] is locale, pair[1] is q value
+                if pair[0].replace("-", "_").lower().startswith(locale.lower()):
+                    return locale
+
+    return default_locale

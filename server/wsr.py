@@ -32,8 +32,16 @@ MORE_TIME = 15 * 1000
 
 
 async def round_socket_handler(request):
-
     users = request.app["users"]
+
+    session = await aiohttp_session.get_session(request)
+    session_user = session.get("user_name")
+    user = users[session_user] if session_user is not None and session_user in users else None
+
+    if user is not None and not user.enabled:
+        session.invalidate()
+        return web.HTTPFound("/")
+
     sockets = request.app["lobbysockets"]
     seeks = request.app["seeks"]
     db = request.app["db"]
@@ -46,14 +54,10 @@ async def round_socket_handler(request):
 
     await ws.prepare(request)
 
-    session = await aiohttp_session.get_session(request)
-    session_user = session.get("user_name")
-    user = users[session_user] if session_user is not None and session_user in users else None
-
     game = None
     opp_ws = None
 
-    log.debug("-------------------------- NEW round WEBSOCKET by %s", user)
+    log.info("--- NEW round WEBSOCKET by %s from %s", session_user, request.remote)
 
     try:
         async for msg in ws:
@@ -62,7 +66,10 @@ async def round_socket_handler(request):
                     log.debug("Got 'close' msg.")
                     break
                 elif msg.data == "/n":
-                    await ws.send_str("/n")
+                    try:
+                        await ws.send_str("/n")
+                    except ConnectionResetError:
+                        break
                 else:
                     data = json.loads(msg.data)
                     # log.debug("Websocket (%s) message: %s" % (id(ws), msg))
@@ -98,7 +105,6 @@ async def round_socket_handler(request):
                         await round_broadcast(game, response, full=True)
 
                     elif data["type"] == "analysis_move":
-
                         await analysis_move(
                             request.app,
                             user,
@@ -109,7 +115,6 @@ async def round_socket_handler(request):
                         )
 
                     elif data["type"] == "ready":
-
                         opp_name = (
                             game.wplayer.username
                             if user.username == game.bplayer.username
@@ -134,7 +139,6 @@ async def round_socket_handler(request):
                             await round_broadcast(game, game.spectator_list, full=True)
 
                     elif data["type"] == "board":
-
                         if game.variant == "janggi":
                             if (game.bsetup or game.wsetup) and game.status <= STARTED:
                                 if game.bsetup:
@@ -212,7 +216,6 @@ async def round_socket_handler(request):
                         game.stopwatch.restart(game.stopwatch.time_for_first_move)
 
                     elif data["type"] == "analysis":
-
                         # If there is any fishnet client, use it.
                         if len(request.app["workers"]) > 0:
                             work_id = "".join(
@@ -258,7 +261,6 @@ async def round_socket_handler(request):
                         await ws.send_json(response)
 
                     elif data["type"] == "rematch":
-
                         rematch_id = None
 
                         opp_name = (
@@ -353,7 +355,6 @@ async def round_socket_handler(request):
                             )
 
                     elif data["type"] == "reject_rematch":
-
                         opp_name = (
                             game.wplayer.username
                             if user.username == game.bplayer.username
@@ -371,7 +372,6 @@ async def round_socket_handler(request):
                             )
 
                     elif data["type"] == "draw":
-
                         color = WHITE if user.username == game.wplayer.username else BLACK
                         opp_name = (
                             game.wplayer.username if color == BLACK else game.bplayer.username
@@ -399,7 +399,6 @@ async def round_socket_handler(request):
                         await round_broadcast(game, response)
 
                     elif data["type"] == "reject_draw":
-
                         color = WHITE if user.username == game.wplayer.username else BLACK
                         opp_name = (
                             game.wplayer.username if color == BLACK else game.bplayer.username
@@ -413,13 +412,11 @@ async def round_socket_handler(request):
                         await ws.close()
 
                     elif data["type"] == "byoyomi":
-
                         game.byo_correction += game.inc * 1000
                         game.byoyomi_periods[data["color"]] = data["period"]
                         # print("BYOYOMI:", data)
 
                     elif data["type"] in ("abort", "resign", "abandone", "flag"):
-
                         if data["type"] == "abort" and (game is not None) and game.board.ply > 2:
                             continue
 
@@ -450,12 +447,10 @@ async def round_socket_handler(request):
                         await round_broadcast(game, response)
 
                     elif data["type"] == "embed_user_connected":
-
                         response = {"type": "embed_user_connected"}
                         await ws.send_json(response)
 
                     elif data["type"] == "game_user_connected":
-
                         if session_user is not None:
                             if data["username"] and data["username"] != session_user:
                                 log.info(
@@ -579,10 +574,14 @@ async def round_socket_handler(request):
                         opp_player = users[opp_name]
 
                         if not opp_player.bot:
-                            opp_ws = users[opp_name].game_sockets[data["gameId"]]
-                            response = {"type": "moretime", "username": opp_name}
-                            await opp_ws.send_json(response)
-                            await round_broadcast(game, response)
+                            try:
+                                opp_ws = users[opp_name].game_sockets[data["gameId"]]
+                                response = {"type": "moretime", "username": opp_name}
+                                await opp_ws.send_json(response)
+                                await round_broadcast(game, response)
+                            except KeyError:
+                                # opp disconnected
+                                pass
 
                     elif data["type"] == "roundchat":
                         if user.username.startswith("Anon-"):
@@ -664,7 +663,6 @@ async def round_socket_handler(request):
                             await ws.send_json(response)
 
                     elif data["type"] == "count":
-
                         cur_player = game.bplayer if game.board.color == BLACK else game.wplayer
                         opp_name = (
                             game.wplayer.username

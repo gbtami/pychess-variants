@@ -1,7 +1,7 @@
 from settings import static_url
 
 SCHEDULE_MAX_DAYS = 7
-TOURNAMENT_SPOTLIGHTS_MAX = 4
+TOURNAMENT_SPOTLIGHTS_MAX = 3
 
 # Max number of lobby chat lines (deque limit)
 MAX_CHAT_LINES = 100
@@ -87,6 +87,7 @@ VARIANTS = (
     "placement",
     "atomic",
     "atomic960",
+    "duck",
     "makruk",
     "makpong",
     "cambodian",
@@ -150,6 +151,7 @@ VARIANT_ICONS = {
     "gothic": "P",
     "gothhouse": "&",
     "embassy": "P",
+    "embassyhouse": "&",
     "minishogi": "6",
     "dobutsu": "8",
     "gorogoro": "🐱",
@@ -176,6 +178,7 @@ VARIANT_ICONS = {
     "asean": "♻",
     "chak": "🐬",
     "chennis": "🎾",
+    "duck": "🦆",
 }
 
 VARIANT_960_TO_PGN = {
@@ -202,6 +205,7 @@ CATEGORIES = {
         "placement",
         "atomic",
         "atomic960",
+        "duck",
     ),
     "fairy": (
         "capablanca",
@@ -264,6 +268,8 @@ def variant_display_name(variant):
         return "KYOTO SHOGI"
     elif variant == "torishogi":
         return "TORI SHOGI"
+    elif variant == "duck":
+        return "DUCK CHESS"
     else:
         return variant.upper()
 
@@ -300,6 +306,7 @@ TRANSLATED_VARIANT_NAMES = {
     "placement": _("Placement"),
     "atomic": _("Atomic"),
     "atomic960": _("Atomic960"),
+    "duck": _("Duck Chess"),
     "makruk": _("Makruk"),
     "makpong": _("Makpong"),
     "cambodian": _("Ouk Chaktrang"),

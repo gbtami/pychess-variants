@@ -1,5 +1,6 @@
 # TODO: make videos page paginated
 
+
 #  Deferred translations!
 def _(message):
     return message
@@ -19,10 +20,13 @@ VIDEO_TAGS = {
     "Makruk": _("Makruk"),
     "Shogi": _("Shogi"),
     "S-Chess": _("S-Chess"),
+    "Capablanca": _("Capablanca"),
     "Placement": _("Placement"),
+    "Duck": _("Duck"),
     "Match": _("Match"),
     "Tournament": _("Tournament"),
     "Hu Ronghua": _("Hu Ronghua"),
+    "Yoshiharu Habu": _("Yoshiharu Habu"),
 }
 
 VIDEO_TARGETS = {
@@ -34,6 +38,38 @@ VIDEO_TARGETS = {
 del _
 
 VIDEOS = [
+    {
+        "_id": "BqvYsPAufB8",
+        "title": "DUCK CHESS",
+        "author": "Eric Rosen",
+        "tags": ["Duck", "Howto"],
+        "target": "beginner",
+        "duration": "19:01",
+    },
+    {
+        "_id": "k20Civy_a3E",
+        "title": "First duck chess arena on pychess [HIGHLIGHTS]",
+        "author": "PyChess",
+        "tags": ["Duck", "Tournament"],
+        "target": "intermediate",
+        "duration": "23:47",
+    },
+    {
+        "_id": "Xeil4C9rU34",
+        "title": "Speedrun vs NEW Duck Chess A.I.",
+        "author": "Eric Rosen",
+        "tags": ["Duck", "Tactics"],
+        "target": "beginner",
+        "duration": "33:00",
+    },
+    {
+        "_id": "Qddn3o6yX_M",
+        "title": "Chak (Mayan Chess) - How to play",
+        "author": "PyChess",
+        "tags": ["Howto"],
+        "target": "beginner",
+        "duration": "14:27",
+    },
     {
         "_id": "Vyc4Llxgke8",
         "title": "Introduction to the PyChess Website",
@@ -65,6 +101,14 @@ VIDEOS = [
         "tags": ["Placement", "Opening", "Puzzle"],
         "target": "intermediate",
         "duration": "14:20",
+    },
+    {
+        "_id": "hLv7kJQWukg",
+        "title": "King vs king endgame (in Synochess and Empire)",
+        "author": "PyChess",
+        "tags": ["Endgame", "Puzzle"],
+        "target": "intermediate",
+        "duration": "9:58",
     },
     {
         "_id": "uyNsTgo8ylI",
@@ -155,10 +199,18 @@ VIDEOS = [
         "duration": "2:06",
     },
     {
+        "_id": "c8nZQiq6VgY",
+        "title": "CAPABLANCA CHESS",
+        "author": "ChessNetwork",
+        "tags": ["Howto", "Capablanca"],
+        "target": "intermediate",
+        "duration": "16:23",
+    },
+    {
         "_id": "HNYWioiltH0",
         "title": "Capablanca Chess - How to Play",
         "author": "PyChess",
-        "tags": ["Howto"],
+        "tags": ["Howto", "Capablanca"],
         "target": "beginner",
         "duration": "6:18",
     },
@@ -337,5 +389,93 @@ VIDEOS = [
         "tags": ["Janggi", "Puzzle"],
         "target": "beginner",
         "duration": "10:01",
+    },
+    {
+        "_id": "btgiwpo9c4s",
+        "title": "Opening 1 Be mindful of piece advantage and activity",
+        "author": "JapanShogiAssociation",
+        "tags": ["Shogi", "Opening"],
+        "target": "beginner",
+        "duration": "13:56",
+    },
+    {
+        "_id": "qmeUX4_2oKo",
+        "title": "Opening 2 4th File Rook Basics",
+        "author": "JapanShogiAssociation",
+        "tags": ["Shogi", "Opening"],
+        "target": "beginner",
+        "duration": "10:05",
+    },
+    {
+        "_id": "KYTlNhk2KSk",
+        "title": "Middlegame 1 Piece values and basic tactics",
+        "author": "JapanShogiAssociation",
+        "tags": ["Shogi", "Middlegame"],
+        "target": "beginner",
+        "duration": "13:08",
+    },
+    {
+        "_id": "-ooJdh8orE0",
+        "title": "Middlegame 2 Let's fight using material advantage. How to gain and not lose pieces.",
+        "author": "JapanShogiAssociation",
+        "tags": ["Shogi", "Middlegame"],
+        "target": "beginner",
+        "duration": "12:53",
+    },
+    {
+        "_id": "7ngWaevzYxw",
+        "title": "Endgame 1 Let's learn checkmate patterns",
+        "author": "JapanShogiAssociation",
+        "tags": ["Shogi", "Endgame"],
+        "target": "beginner",
+        "duration": "13:20",
+    },
+    {
+        "_id": "0HFxYYAXVXY",
+        "title": "Endgame 2 How to defend against a check",
+        "author": "JapanShogiAssociation",
+        "tags": ["Shogi", "Endgame"],
+        "target": "beginner",
+        "duration": "13:55",
+    },
+    {
+        "_id": "mrUZ3Slwf9Y",
+        "title": "Endgame 3 Mutual attack - fight for each move",
+        "author": "JapanShogiAssociation",
+        "tags": ["Shogi", "Endgame"],
+        "target": "beginner",
+        "duration": "17:59",
+    },
+    {
+        "_id": "950nyyjOirU",
+        "title": "25 Xiangqi Checkmate Strategies (Part 1) | Chinese Chess game tips for beginners",
+        "author": "Xiangqi Chinese Chess",
+        "tags": ["Xiangqi", "Tactics"],
+        "target": "beginner",
+        "duration": "10:50",
+    },
+    {
+        "_id": "MyLXgkL4C5A",
+        "title": "The Most Popular Openings in Xiangqi | An Intro to the Chinese Chess Opening",
+        "author": "Xiangqi Chinese Chess",
+        "tags": ["Xiangqi", "Opening"],
+        "target": "beginner",
+        "duration": "11:27",
+    },
+    {
+        "_id": "yi6qNq5Uaww",
+        "title": "1st Capablanca Chess Arena",
+        "author": "ChessNetwork",
+        "tags": ["Capablanca", "Tournament"],
+        "target": "beginner",
+        "duration": "57:52",
+    },
+    {
+        "_id": "82U8LR6MSV0",
+        "title": "Aesthetics of game : shogi, Japanese traditional culture",
+        "author": "ANA Global Channel",
+        "tags": ["Shogi", "Yoshiharu Habu"],
+        "target": "beginner",
+        "duration": "9:46",
     },
 ]

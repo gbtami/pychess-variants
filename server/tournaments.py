@@ -4,7 +4,6 @@ from datetime import datetime, timezone
 
 import aiohttp_session
 
-from broadcast import discord_message
 from compress import C2V, V2C, C2R
 from const import (
     CASUAL,
@@ -46,7 +45,7 @@ async def create_or_update_tournament(app, username, form, tournament=None):
     base = float(form["clockTime"])
     inc = int(form["clockIncrement"])
     bp = int(form["byoyomiPeriod"])
-    frequency = SHIELD if form["shield"] == "true" else ""
+    frequency = SHIELD if form.get("shield", "") == "true" else ""
 
     if form["startDate"]:
         start_date = datetime.fromisoformat(form["startDate"].rstrip("Z")).replace(
@@ -94,7 +93,7 @@ async def create_or_update_tournament(app, username, form, tournament=None):
 
 async def broadcast_tournament_creation(app, tournament):
     await tournament.broadcast_spotlight()
-    await discord_message(app, "create_tournament", tournament.create_discord_msg)
+    await app["discord"].send_to_discord("create_tournament", tournament.create_discord_msg)
 
 
 async def new_tournament(app, data):
@@ -239,7 +238,7 @@ async def get_scheduled_tournaments(app, nb_max=30):
     return tournaments
 
 
-async def get_latest_tournaments(app, lang_translation):
+async def get_latest_tournaments(app, lang):
     tournaments = app["tournaments"]
     started, scheduled, completed = [], [], []
 
@@ -286,13 +285,13 @@ async def get_latest_tournaments(app, lang_translation):
             tournament.nb_players = doc["nbPlayers"]
 
         if tournament.frequency:
-            tournament.name = translated_tournament_name(
-                tournament.variant,
-                tournament.chess960,
-                tournament.frequency,
-                tournament.system,
-                lang_translation,
-            )
+            tournament.name = app["tourneynames"][lang][
+                (
+                    tournament.variant + ("960" if tournament.chess960 else ""),
+                    tournament.frequency,
+                    tournament.system,
+                )
+            ]
 
         if doc["status"] == T_STARTED:
             started.append(tournament)
@@ -324,19 +323,16 @@ async def get_tournament_name(request, tournament_id):
     tournaments = request.app["tournaments"]
     name = ""
 
-    lang_translation = request.app["gettext"][lang]
-    lang_translation.install()
-
     if tournament_id in tournaments:
         tournament = tournaments[tournament_id]
         if tournament.frequency:
-            name = translated_tournament_name(
-                tournament.variant,
-                tournament.chess960,
-                tournament.frequency,
-                tournament.system,
-                lang_translation,
-            )
+            name = request.app["tourneynames"][lang][
+                (
+                    tournament.variant + ("960" if tournament.chess960 else ""),
+                    tournament.frequency,
+                    tournament.system,
+                )
+            ]
         else:
             name = tournament.name
     else:
@@ -345,17 +341,18 @@ async def get_tournament_name(request, tournament_id):
         if doc is not None:
             frequency = doc.get("fr", "")
             if frequency:
-                name = translated_tournament_name(
-                    C2V[doc["v"]],
-                    bool(doc.get("z")),
-                    frequency,
-                    doc["system"],
-                    lang_translation,
-                )
+                chess960 = bool(doc.get("z"))
+                name = request.app["tourneynames"][lang][
+                    (
+                        C2V[doc["v"]] + ("960" if chess960 else ""),
+                        frequency,
+                        doc["system"],
+                    )
+                ]
             else:
                 name = doc["name"]
+        request.app["tourneynames"][lang][tournament_id] = name
 
-    request.app["tourneynames"][lang][tournament_id] = name
     return name
 
 
@@ -508,19 +505,18 @@ async def load_tournament(app, tournament_id, tournament_klass=None):
     return tournament
 
 
-def translated_tournament_name(variant, chess960, frequency, system, lang_translation):
+def translated_tournament_name(variant, frequency, system, lang_translation):
     # Weekly makruk category == SEAturday
-    frequency = "S" if variant in CATEGORIES["makruk"] and frequency == "w" else frequency
-    variant_name = variant + ("960" if chess960 else "")
+    frequency = "S" if variant in CATEGORIES["makruk"] and frequency == "m" else frequency
     if frequency == "s":
         return "%s %s %s" % (
-            lang_translation.gettext(TRANSLATED_VARIANT_NAMES[variant_name]),
+            lang_translation.gettext(TRANSLATED_VARIANT_NAMES[variant]),
             lang_translation.gettext(TRANSLATED_FREQUENCY_NAMES[frequency]),
             lang_translation.gettext(TRANSLATED_PAIRING_SYSTEM_NAMES[system]),
         )
     else:
         return "%s %s %s" % (
             lang_translation.gettext(TRANSLATED_FREQUENCY_NAMES[frequency]),
-            lang_translation.gettext(TRANSLATED_VARIANT_NAMES[variant_name]),
+            lang_translation.gettext(TRANSLATED_VARIANT_NAMES[variant]),
             lang_translation.gettext(TRANSLATED_PAIRING_SYSTEM_NAMES[system]),
         )

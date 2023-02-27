@@ -1,0 +1,9 @@
+.standard .cg-wrap piece.white {
+    background-image: url('../../images/pieces/disguised/w.svg');
+}
+.standard .cg-wrap piece.black {
+    background-image: url('../../images/pieces/disguised/b.svg');
+}
+.standard .cg-wrap piece._-piece {
+    background-image: url('../../images/pieces/disguised/duck.svg');
+}

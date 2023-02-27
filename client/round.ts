@@ -1,9 +1,9 @@
 import { h, VNode } from "snabbdom";
 
-import { VARIANTS } from './chess';
 import { RoundController } from './roundCtrl';
 import { gameInfo } from './gameInfo';
 import { renderTimeago } from './datetime';
+import { VARIANTS } from './variants';
 import { PyChessModel } from "./types";
 
 function runGround(vnode: VNode, model: PyChessModel) {
@@ -24,16 +24,16 @@ export function roundView(model: PyChessModel): VNode[] {
             h('div#roundchat'),
         ]),
         h('div.round-app', [
-            h(`selection#mainboard.${variant.board}.${variant.piece}.${variant.boardMark}`, [
-                h('div.cg-wrap.' + variant.cg, {
+            h(`selection#mainboard.${variant.boardFamily}.${variant.pieceFamily}.${variant.ui.boardMark}`, [
+                h('div.cg-wrap.' + variant.board.cg, {
                     hook: {
                         insert: (vnode) => runGround(vnode, model)
                     },
                 }),
             ]),
-            h('div.material.material-top.' + variant.piece + '.disabled'),
+            h('div.material.material-top.' + variant.pieceFamily + '.disabled'),
             h('div.pocket-top', [
-                h('div.' + variant.piece + '.' + model["variant"], [
+                h('div.' + variant.pieceFamily + '.' + model["variant"], [
                     h('div.cg-wrap.pocket', [
                         h('div#pocket0'),
                     ]),
@@ -65,13 +65,13 @@ export function roundView(model: PyChessModel): VNode[] {
                 h('div#misc-info1'),
             ]),
             h('div.pocket-bot', [
-                h('div.' + variant.piece + '.' + model["variant"], [
+                h('div.' + variant.pieceFamily + '.' + model["variant"], [
                     h('div.cg-wrap.pocket', [
                         h('div#pocket1'),
                     ]),
                 ]),
             ]),
-            h('div.material.material-bottom.' + variant.piece + '.disabled'),
+            h('div.material.material-bottom.' + variant.pieceFamily + '.disabled'),
         ]),
         h('under-left#spectators'),
         h('under-board', [

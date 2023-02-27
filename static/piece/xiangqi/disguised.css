@@ -1,0 +1,6 @@
+.xiangqi .cg-wrap piece.white {
+    background-image: url('../../images/pieces/disguised/xiangqi-r.svg');
+}
+.xiangqi .cg-wrap piece.black {
+    background-image: url('../../images/pieces/disguised/xiangqi-b.svg');
+}

@@ -3,7 +3,7 @@ import { h, VNode } from 'snabbdom';
 import { Howl } from 'howler';
 
 import { _ } from './i18n';
-import { Variant } from './chess';
+import { Variant } from './variants';
 import { StringSettings, NumberSettings } from './settings';
 import { radioList, slider } from './view';
 
@@ -94,7 +94,7 @@ class Sounds {
     };
 
     moveSound(variant: Variant, capture: boolean) {
-        const soundSet = variant.pieceSound in this.moveSoundSet? this.moveSoundSet[variant.pieceSound] : this.moveSoundSet.regular ;
+        const soundSet = variant.ui.pieceSound in this.moveSoundSet? this.moveSoundSet[variant.ui.pieceSound] : this.moveSoundSet.regular;
         if (capture)
             soundSet.capture();
         else
@@ -141,15 +141,17 @@ class VolumeSettings extends NumberSettings {
 const soundThemes = {
     silent: "Silent",
     standard: "Standard",
-    robot: "Robot",
+    piano: "Piano",
     nes: "NES",
     sfx: "SFX",
-    piano: "Piano",
+    futuristic: "Futuristic",
+    lisp: "Lisp",
+    robot: "Robot",
 };
 
 class SoundThemeSettings extends StringSettings {
     assetURL: string;
-    
+
     constructor() {
         super('soundtheme', 'standard');
     }

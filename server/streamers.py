@@ -17,6 +17,7 @@ TWITCH_STREAMERS = {
     "okeizh": "okei",
     "krazy8_chess": "FM Crazy_Eight",
     "gbtami": "gbtami",
+    "e_pluszak": "e-pluszak",
 }
 
 # TODO
@@ -24,4 +25,5 @@ YOUTUBE_STREAMERS = {
     "UCksfz2MkgxAKNJDvzemO3iA": "Janggi-France",
     "UCCeCZHAoTr4TGDt3hr_AQig": "kalavas",
     "UCr6RfQga70yMM9-nuzAYTsA": "lichess",
+    "UC0YCMuQORX4mnj81TaN0ubg": "Shuvalov",
 }

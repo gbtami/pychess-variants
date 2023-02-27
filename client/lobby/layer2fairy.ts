@@ -1,7 +1,7 @@
 import { h } from 'snabbdom';
 
 import { _ } from '../i18n';
-import { VARIANTS } from '../chess';
+import { VARIANTS } from '../variants';
 import { patch } from '../document';
 import { LobbyController } from '../lobby';
 import { goBackToLayer1 } from './util';

@@ -276,7 +276,7 @@ msgstr "Стрелка лучшего хода на доске анализа"
 
 #: ../client/boardSettings.ts:352
 msgid "MultiPV"
-msgstr "МультиPV"
+msgstr "Увеличить число вариантов"
 
 #: ../client/boardSettings.ts:403
 msgid "Invisible pieces"
@@ -1443,7 +1443,7 @@ msgstr "Красный (Хань)"
 #: ../client/roundCtrl.ts:466
 msgid ""
 "Waiting for %1 to choose starting positions of the horses and elephants..."
-msgstr "Ждем, пока %1 выберет исходные позиции коней и слонов..."
+msgstr "Ждем, пока %1 выберут исходные позиции коней и слонов..."
 
 #: ../client/roundCtrl.ts:506 ../client/roundCtrl.ts:508
 msgid "Switch pieces"

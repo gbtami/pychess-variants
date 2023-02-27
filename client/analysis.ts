@@ -3,9 +3,9 @@ import { h, VNode } from "snabbdom";
 import { _ } from './i18n';
 import { AnalysisController } from './analysisCtrl';
 import { gameInfo } from './gameInfo';
-import { selectVariant, VARIANTS } from './chess';
+import { selectVariant, VARIANTS } from './variants';
 import { renderTimeago } from './datetime';
-import { spinner } from './spinner';
+import { spinner } from './view';
 import { PyChessModel } from "./types";
 
 function runGround(vnode: VNode, model: PyChessModel) {
@@ -48,12 +48,12 @@ export function embedView(model: PyChessModel): VNode[] {
 
     return [
         h('div.embed-app', [
-            h(`selection#mainboard.${variant.board}.${variant.piece}.${variant.boardMark}`, [
-                h('div.cg-wrap.' + variant.cg, { hook: { insert: (vnode) => runGround(vnode, model) } }),
+            h(`selection#mainboard.${variant.boardFamily}.${variant.pieceFamily}.${variant.ui.boardMark}`, [
+                h('div.cg-wrap.' + variant.board.cg, { hook: { insert: (vnode) => runGround(vnode, model) } }),
             ]),
 
             h('div.pocket-top', [
-                h('div.' + variant.piece + '.' + model["variant"], [
+                h('div.' + variant.pieceFamily + '.' + model["variant"], [
                     h('div.cg-wrap.pocket', [
                         h('div#pocket0'),
                     ]),
@@ -74,7 +74,7 @@ export function embedView(model: PyChessModel): VNode[] {
             h('div#move-controls'),
 
             h('div.pocket-bot', [
-                h('div.' + variant.piece + '.' + model["variant"], [
+                h('div.' + variant.pieceFamily + '.' + model["variant"], [
                     h('div.cg-wrap.pocket', [
                         h('div#pocket1'),
                     ]),
@@ -106,9 +106,9 @@ export function analysisView(model: PyChessModel): VNode[] {
     return [
         h('div.analysis-app', [
             h('aside.sidebar-first', leftSide(model)),
-            h(`selection#mainboard.${variant.board}.${variant.piece}.${variant.boardMark}`, [
+            h(`selection#mainboard.${variant.boardFamily}.${variant.pieceFamily}.${variant.ui.boardMark}`, [
                 h('div#anal-clock-top'),
-                h('div.cg-wrap.' + variant.cg, { hook: { insert: (vnode) => runGround(vnode, model) } }),
+                h('div.cg-wrap.' + variant.board.cg, { hook: { insert: (vnode) => runGround(vnode, model) } }),
                 h('div#anal-clock-bottom'),
             ]),
             h('div#gauge', [
@@ -123,7 +123,7 @@ export function analysisView(model: PyChessModel): VNode[] {
             ]),
 
             h('div.pocket-top', [
-                h('div.' + variant.piece + '.' + model["variant"], [
+                h('div.' + variant.pieceFamily + '.' + model["variant"], [
                     h('div.cg-wrap.pocket', [
                         h('div#pocket0'),
                     ]),
@@ -170,7 +170,7 @@ export function analysisView(model: PyChessModel): VNode[] {
             h('div#move-controls'),
 
             h('div.pocket-bot', [
-                h('div.' + variant.piece + '.' + model["variant"], [
+                h('div.' + variant.pieceFamily + '.' + model["variant"], [
                     h('div.cg-wrap.pocket', [
                         h('div#pocket1'),
                     ]),
