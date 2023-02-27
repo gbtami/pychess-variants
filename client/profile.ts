@@ -4,7 +4,8 @@ import { Chessground } from 'chessgroundx';
 import * as cg from "chessgroundx/types";
 
 import { _, ngettext, pgettext, languageSettings } from './i18n';
-import { uci2LastMove, VARIANTS } from './chess';
+import { uci2LastMove } from './chess';
+import { VARIANTS } from './variants';
 import { patch } from './document';
 import { renderTimeago } from './datetime';
 import { boardSettings } from './boardSettings';
@@ -65,43 +66,47 @@ function renderGameBoards(game: Game): VNode[] {
     const variant = VARIANTS[game.v];
     var boards: VNode[];
     if (variant == VARIANTS['bughouse']){
-        boards = [h(`selection.${variant.board}.${variant.piece}`, { style:{"padding-right":"10px"} }, h(`div.cg-wrap.${variant.cg}.mini`, {
+        boards = [h(`selection.${variant.boardFamily}.${variant.pieceFamily}`, { style:{"padding-right":"10px"} },
+            h(`div.cg-wrap.${variant.board.cg}.mini`, {
             hook: {
                 insert: vnode => Chessground(vnode.elm as HTMLElement, {
                     coordinates: false,
                     viewOnly: true,
                     fen: game["f"],
                     lastMove: uci2LastMove(game.lm),
-                    dimensions: variant.boardDimensions,
-                    pocketRoles: variant.pocketRoles,
+                    dimensions: variant.board.dimensions,
+                    pocketRoles: variant.pocket?.roles,
                 })
             }
         })),
-        h(`selection.${variant.board}.${variant.piece}`,h(`div.cg-wrap.${variant.cg}.mini`, {
+        h(`selection.${variant.boardFamily}.${variant.pieceFamily}`,h(`div.cg-wrap.${variant.board.cg}.mini`, {
             hook: {
                 insert: vnode => Chessground(vnode.elm as HTMLElement, {
                     coordinates: false,
                     viewOnly: true,
                     fen: game["fp"],
                     lastMove: uci2LastMove(game.lm),
-                    dimensions: variant.boardDimensions,
-                    pocketRoles: variant.pocketRoles,
+                    dimensions: variant.board.dimensions,
+                    pocketRoles: variant.pocket?.roles,
                 })
             }
         }))];
     } else {
-        boards = [h(`selection.${variant.board}.${variant.piece}`,h(`div.cg-wrap.${variant.cg}.mini`, {
-            hook: {
-                insert: vnode => Chessground(vnode.elm as HTMLElement, {
-                    coordinates: false,
-                    viewOnly: true,
-                    fen: game["f"],
-                    lastMove: uci2LastMove(game.lm),
-                    dimensions: variant.boardDimensions,
-                    pocketRoles: variant.pocketRoles,
-                })
-            }
-        }))];
+        boards = [h(`selection.${variant.boardFamily}.${variant.pieceFamily}`, [
+                    h(`div.cg-wrap.${variant.board.cg}.mini`, {
+                    hook: {
+                        insert: vnode => Chessground(vnode.elm as HTMLElement, {
+                            coordinates: false,
+                            viewOnly: true,
+                            fen: game["f"],
+                            lastMove: uci2LastMove(game.lm),
+                            dimensions: variant.board.dimensions,
+                            pocketRoles: variant.pocket?.roles,
+                        })
+                    }
+                }),
+            ])
+        ];
     }
     return  boards;// h(`selection.${variant.board}.${variant.piece}.${variant.name}`, boards);
 }
@@ -112,10 +117,10 @@ function renderGames(model: PyChessModel, games: Game[]) {
         const chess960 = game.z === 1;
 
         return h('tr', [h('a', { attrs: { href : '/' + game["_id"] } }, [
-            h('div.board', { class: { "with-pockets": variant.pocket }, style:{"display":"flex"} }, //todo:niki: after changing td to div and display to flex the 2 board align horizontally, but i think some other styles degraded. also this needs to go to some css file
+            h('td.board', { class: { "with-pockets": variant.pocket }, style:{"display":"flex"} },  //todo:niki: after changing td to div and display to flex the 2 board align horizontally, but i think some other styles degraded. also this needs to go to some css file
                renderGameBoards(game)
              ),
-            h('div.games-info', [
+            h('td.games-info', [
                 h('div.info0.games.icon', { attrs: { "data-icon": variant.icon(chess960) } }, [
                     // h('div.info1.icon', { attrs: { "data-icon": (game["z"] === 1) ? "V" : "" } }),
                     h('div.info2', [

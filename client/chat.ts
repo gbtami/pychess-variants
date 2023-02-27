@@ -4,7 +4,7 @@ import { _ } from './i18n';
 import { patch } from './document';
 import {RoundController} from "./bug/roundCtrl";
 
-export interface IChatController {
+export interface ChatController {
     anon: boolean;
     doSend: any;
     spectator?: boolean;
@@ -12,7 +12,7 @@ export interface IChatController {
     tournamentId?: string;
 }
 
-export function chatView(ctrl: IChatController, chatType: string) {
+export function chatView(ctrl: ChatController, chatType: string) {
     const spectator = ("spectator" in ctrl && ctrl.spectator);
     const bughouse = ctrl instanceof RoundController;
     function blur (e: Event) {

@@ -1,34 +1,47 @@
-# ![capablanca](https://github.com/gbtami/pychess-variants/blob/master/static/icons/capablanca.svg) Capablanca Chess
+# ![capablanca](https://github.com/gbtami/pychess-variants/blob/master/static/icons/capablanca.svg) 卡帕布兰卡象棋 | Capablanca Chess
 
 ![Capablanca setup](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Capablanca.png)
 
-Capablanca(卡帕布兰卡)象棋是国际象棋棋王Capablanca在其棋王任（~1920）内推出。这变体使用10*8格的棋盘而添加了两种棋子：大主教（马和象）和首相（马和车）。
+卡帕布兰卡象棋（Capablanca Chess）是国际象棋世界冠军何塞·卡帕布兰卡在20世纪20年代内推出。这变体使用10×8格的棋盘，添加了两种棋子：大主教和首相。
 
 ## 规则
-使用10*8格棋盘，因为需要加上两条直线为了大主教和首相，开始位置在象和马之间。大主教立于后那边（白方左侧）。王车易位也行，王会移动三格。兵可以升变如一样，加上升变为大主教或首相也可以。这变体本身还有一些变体关于布置，例如Gothic。
+
+使用10*8格棋盘，每方增加了大主教和首相各一枚，均加入在象和马之间。大主教位于后翼（白方左侧）。因此在王车易位时，王移动三格而不是两格。兵也可以升变成大主教或首相。
+
+该游戏也有一些修改布置的衍生变体，例如Gothic Chess。
 
 ## 新棋子
 
-### 大主教 | 公主 | Archbishop
+### 大主教 | Archbishop
 
 ![Archbishop](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Princesses.png)
 
-大主教用的各种符号（老鹰为S-chess所用）
+以上为本站大主教可能出现的各种棋子造型。其中老鹰为S-chess所用。
 
 ![Archbishop moves](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Archbishop.png)
 
-大主教是一个复合棋子，组合动作方法从马和象。它的样子常常就是一匹马和一枚象，不过你可选择其他的图象。只有它能单人匹马把王将死。大主教的价值不如首相或者后，但还是差不多。
+大主教是一个复合棋子，它可以看成是马+象。在其他棋类里，也有称为“公主”(Princess)的。
+
+它棋子的造型一般如图，把象的下半部分拼在马下面。本站有其他的造型可以选择，不同的棋也有不同的造型。
+
+在走法上，它是本棋中唯一一个（理论上）能单独将杀的（虽然理论成立，但是实战很困难）。大主教的价值略低于首相和后。
 
 ### 首相 | Chancellor
 
 ![Chancellor](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Empresses.png)
 
-首相用的各种符号（大象为S-chess所用）
+以上是本站中首相可能会用的几种棋子造型。大象为S-chess所用。
 
 ![Chancellor moves](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Chancellor.png)
 
-首相是一个复合棋子，组合动作方法从马和车。它的样子常常就是一匹马和一辆车，不过你可以选择其他的图像。首相的价值被认为是比大主教高一些，跟后一样或者差一点
+首相是一个复合棋子，它可以看成车+马。如同大主教，它的棋子造型就是马头拼上车的下半部分。其他的棋有不同的造型，本站也可以切换棋子造型。
+
+首相的价值一般认为比大主教略高一些，但和后相等或略小。
 
 ### 战略
 
-关于这里的变体知之甚少。创造力和对细节的关注都重要。所以一下建议是暂定的。王的安全比较重要，因为强大棋子的存在，而且王车易位比提交难。开发棋子的质量可比速度比较重要。如果你能发现新的战略，建议，你可以禀报！
+关于本游戏的资料略少。创造力和对细节的关注都比较重要。下面的建议是一时的。
+
+在卡帕布兰卡象棋里一般不要按固定思维去走开局定式。有的时候您可能需要花时间调整棋子的最佳位置，而不是过快的出动子力。事实上，很多优秀的国际象棋变种棋都具有这种和国际象棋不同的体验。
+
+王的安全比较重要，因为强大棋子的存在，而且王车易位比提交难。开发棋子的质量可比速度比较重要。如果你能发现新的战略，建议，欢迎交流！

@@ -26,7 +26,7 @@ import { GameController } from './gameCtrl';
 let rang = false;
 
 export class RoundController extends GameController {
-    berserked: {wberserk: boolean, bberserk: boolean};
+    berserked: { wberserk: boolean, bberserk: boolean };
     byoyomi: boolean;
     byoyomiPeriod: number;
     clocks: [Clock, Clock];
@@ -51,7 +51,6 @@ export class RoundController extends GameController {
     blindfold: boolean;
     handicap: boolean;
     setupFen: string;
-    prevPieces: cg.Pieces;
     focus: boolean;
     finishedGame: boolean;
 
@@ -74,6 +73,11 @@ export class RoundController extends GameController {
         };
 
         const onReconnect = () => {
+            if (this.finishedGame) {
+                // Prevent endless reconnections from finished games
+                this.sock.close();
+                return
+            }
             this.clocks[0].connecting = true;
             this.clocks[1].connecting = true;
             console.log('Reconnecting in round...');
@@ -93,7 +97,7 @@ export class RoundController extends GameController {
         this.sock.onmessage = (e: MessageEvent) => this.onMessage(e);
 
         this.byoyomiPeriod = Number(model["byo"]);
-        this.byoyomi = this.variant.timeControl === 'byoyomi';
+        this.byoyomi = this.variant.rules.defaultTimeControl === 'byoyomi';
         this.finishedGame = this.status >= 0;
         this.tv = model["tv"];
         this.profileid = model["profileid"];
@@ -135,7 +139,7 @@ export class RoundController extends GameController {
             this.chessground.set({
                 movable: {
                     free: false,
-                    color: (this.variant.setup && this.status === -2) ? undefined : this.mycolor,
+                    color: (this.variant.rules.setup && this.status === -2) ? undefined : this.mycolor,
                     events: {
                         after: (orig, dest, meta) => this.onUserMove(orig, dest, meta),
                         afterNewPiece: (piece, dest, meta) => this.onUserDrop(piece, dest, meta),
@@ -143,8 +147,8 @@ export class RoundController extends GameController {
                 },
                 premovable: {
                     enabled: true,
-                    premoveFunc: premove(this.variant.name, this.chess960, this.variant.boardDimensions),
-                    predropFunc: predrop(this.variant.name, this.variant.boardDimensions),
+                    premoveFunc: premove(this.variant.name, this.chess960, this.variant.board.dimensions),
+                    predropFunc: predrop(this.variant.name, this.variant.board.dimensions),
                     events: {
                         set: this.setPremove,
                         unset: this.unsetPremove,
@@ -164,7 +168,7 @@ export class RoundController extends GameController {
         this.vplayer0 = patch(player0, player('round-player0', 'player0', this.titles[0], this.players[0], this.ratings[0], this.level));
         this.vplayer1 = patch(player1, player('round-player1', 'player1', this.titles[1], this.players[1], this.ratings[1], this.level));
 
-        if (this.variant.showMaterialDiff) {
+        if (this.variant.material.showDiff) {
             const materialTop = document.querySelector('.material-top') as HTMLElement;
             const materialBottom = document.querySelector('.material-bottom') as HTMLElement;
             this.vmaterial0 = this.mycolor === 'white' ? materialBottom : materialTop;
@@ -244,7 +248,7 @@ export class RoundController extends GameController {
         const misc1 = document.getElementById('misc-info1') as HTMLElement;
 
         // initialize material point and counting indicator
-        if (this.variant.materialPoint || this.variant.counting) {
+        if (this.variant.ui.materialPoint || this.variant.ui.counting) {
             this.vmiscInfoW = this.mycolor === 'white' ? patch(misc1, h('div#misc-infow')) : patch(misc0, h('div#misc-infow'));
             this.vmiscInfoB = this.mycolor === 'black' ? patch(misc1, h('div#misc-infob')) : patch(misc0, h('div#misc-infob'));
         }
@@ -276,11 +280,14 @@ export class RoundController extends GameController {
         const container = document.getElementById('game-controls') as HTMLElement;
         if (!this.spectator) {
             let buttons = [];
+            if (this.variant.rules.duck) {
+                buttons.push(h('div#undo'));
+            }
             if (!this.tournamentGame) {
                 buttons.push(h('button#abort', { on: { click: () => this.abort() }, props: {title: _('Abort')} }, [h('i', {class: {"icon": true, "icon-abort": true} } ), ]));
             }
             buttons.push(h('button#count', _('Count')));
-            if (this.variant.pass)
+            if (this.variant.rules.pass)
                 buttons.push(h('button#draw', { on: { click: () => this.pass() }, props: { title: _('Pass') } }, _('Pass')));
             else
                 buttons.push(h('button#draw', { on: { click: () => this.draw() }, props: { title: _('Draw') } }, h('i', '½')));
@@ -288,7 +295,7 @@ export class RoundController extends GameController {
             
             this.gameControls = patch(container, h('div.btn-controls', buttons));
 
-            const manualCount = this.variant.counting === 'makruk' && !(this.wtitle === 'BOT' || this.btitle === 'BOT');
+            const manualCount = this.variant.ui.counting === 'makruk' && !(this.wtitle === 'BOT' || this.btitle === 'BOT');
             if (!manualCount)
                 patch(document.getElementById('count') as HTMLElement, h('div'));
 
@@ -315,7 +322,7 @@ export class RoundController extends GameController {
         boardSettings.updateDropSuggestion();
 
         // console.log("FLIP");
-        if (this.variant.showMaterialDiff) {
+        if (this.variant.material.showDiff) {
             this.updateMaterial();
         }
 
@@ -333,10 +340,10 @@ export class RoundController extends GameController {
         this.vplayer0 = patch(this.vplayer0, player('round-player0', 'player0', this.titles[this.flipped() ? 1 : 0], this.players[this.flipped() ? 1 : 0], this.ratings[this.flipped() ? 1 : 0], this.level));
         this.vplayer1 = patch(this.vplayer1, player('round-player1', 'player1', this.titles[this.flipped() ? 0 : 1], this.players[this.flipped() ? 0 : 1], this.ratings[this.flipped() ? 0 : 1], this.level));
 
-        if (this.variant.counting)
+        if (this.variant.ui.counting)
             [this.vmiscInfoW, this.vmiscInfoB] = updateCount(this.fullfen, this.vmiscInfoB, this.vmiscInfoW);
 
-        if (this.variant.materialPoint)
+        if (this.variant.ui.materialPoint)
             [this.vmiscInfoW, this.vmiscInfoB] = updatePoint(this.fullfen, this.vmiscInfoB, this.vmiscInfoW);
 
         this.updateMaterial();
@@ -364,6 +371,11 @@ export class RoundController extends GameController {
 
         const container = document.getElementById(`berserk${clockIdx}`) as HTMLElement;
         patch(container, h(`div#berserk${clockIdx}.berserked`, [h('button.icon.icon-berserk')]));
+    }
+
+    private undo = () => {
+        // console.log("Undo");
+        this.goPly(this.ply);
     }
 
     private abort = () => {
@@ -571,7 +583,6 @@ export class RoundController extends GameController {
             this.result = msg.result;
             this.clocks[0].pause(false);
             this.clocks[1].pause(false);
-            this.dests = new Map();
 
             if (this.result !== "*" && !this.spectator && !this.finishedGame)
                 sound.gameEndSound(msg.result, this.mycolor);
@@ -627,7 +638,7 @@ export class RoundController extends GameController {
         if (latestPly) this.ply = msg.ply;
 
         if (this.ply === 0) {
-            if (this.variant.setup) {
+            if (this.variant.rules.setup) {
                 // force to set new dests after setup phase!
                 latestPly = true;
             } else {
@@ -704,7 +715,7 @@ export class RoundController extends GameController {
 
         const lastMove = uci2LastMove(msg.lastMove);
         const step = this.steps[this.steps.length - 1];
-        const capture = !!lastMove && ((this.chessground.state.boardState.pieces.get(lastMove[1]) && step.san?.slice(0, 2) !== 'O-') || (step.san?.slice(1, 2) === 'x'));
+        const capture = !!lastMove && ((this.chessground.state.boardState.pieces.get(lastMove[1] as cg.Key) && step.san?.slice(0, 2) !== 'O-') || (step.san?.slice(1, 2) === 'x'));
 
         if (lastMove && (this.turnColor === this.mycolor || this.spectator)) {
             if (!this.finishedGame) sound.moveSound(this.variant, capture);
@@ -714,11 +725,11 @@ export class RoundController extends GameController {
             sound.check();
         }
 
-        if (this.variant.counting) {
+        if (this.variant.ui.counting) {
             this.updateCount(msg.fen);
         }
 
-        if (this.variant.materialPoint) {
+        if (this.variant.ui.materialPoint) {
             this.updatePoint(msg.fen);
         }
 
@@ -776,7 +787,7 @@ export class RoundController extends GameController {
                         turnColor: this.turnColor,
                         movable: {
                             free: false,
-                            color: (this.variant.setup && this.status === -2) ? undefined : this.mycolor,
+                            color: (this.variant.rules.setup && this.status === -2) ? undefined : this.mycolor,
                         },
                         check: msg.check,
                         lastMove: lastMove,
@@ -818,7 +829,7 @@ export class RoundController extends GameController {
         this.updateMaterial();
     }
 
-    doSendMove = (move: string) => {
+    doSendMove(move: string) {
         this.clearDialog();
 
         // pause() will add increment!
@@ -883,7 +894,7 @@ export class RoundController extends GameController {
     }
 
     private updateMaterial(): void {
-        if (this.variant.showMaterialDiff && this.materialDifference)
+        if (this.variant.material.showDiff && this.materialDifference)
             [this.vmaterial0, this.vmaterial1] = updateMaterial(this.variant, this.fullfen, this.vmaterial0, this.vmaterial1, this.flipped());
         else
             [this.vmaterial0, this.vmaterial1] = emptyMaterial(this.variant);

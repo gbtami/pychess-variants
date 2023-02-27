@@ -1,5 +1,3 @@
-from datetime import datetime
-
 from const import (
     LANGUAGES,
     T_STARTED,
@@ -10,12 +8,9 @@ from const import (
 
 def tournament_spotlights(app):
     tournaments = app["tournaments"]
-    to_date = datetime.now().date()
     items = []
     for tid, tournament in sorted(tournaments.items(), key=lambda item: item[1].starts_at):
-        if tournament.status == T_STARTED or (
-            tournament.status == T_CREATED and tournament.starts_at.date() <= to_date
-        ):
+        if tournament.status == T_STARTED or tournament.status == T_CREATED:
             if tournament.frequency:
                 names = {
                     lang: app["tourneynames"][lang][

@@ -1,7 +1,8 @@
 import { h, VNode } from "snabbdom";
 
 import { _ } from '../i18n';
-import { colorIcon, VARIANTS } from '../chess';
+import { colorIcon } from '../chess';
+import { VARIANTS } from "../variants"
 import { aiLevel, gameType, renderRdiff } from '../result';
 import { timeago, } from '../datetime';
 import { timeControlStr } from "../view";

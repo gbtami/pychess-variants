@@ -3,17 +3,18 @@ import { h, VNode } from 'snabbdom';
 import * as cg from 'chessgroundx/types';
 import * as util from 'chessgroundx/util';
 
-import { _ } from './i18n';
-import { validFen, hasCastling, unpromotedRole, promotedRole, notation } from './chess'
-import { diff, calculatePieceNumber } from './material';
-import { iniPieces } from './pieces';
-import { copyBoardToPNG } from './png';
-import { patch } from './document';
-import { PyChessModel } from "./types";
-import { ChessgroundController } from './cgCtrl';
+import { _ } from '@/i18n';
+import { validFen, hasCastling, unpromotedRole, promotedRole } from '@/chess'
+import { diff, calculatePieceNumber } from '@/material';
+import { copyBoardToPNG } from '@/png';
+import { patch } from '@/document';
+import { PyChessModel } from "@/types";
+import { ChessgroundController } from '@/cgCtrl';
+import { notation } from '@/variants';
+import { initPieceRow } from './pieceRow';
 
 export class EditorController extends ChessgroundController {
-    model;
+    model: PyChessModel;
     startfen: string;
     parts: string[];
     castling: string;
@@ -64,7 +65,7 @@ export class EditorController extends ChessgroundController {
         // initialize pieces
         const pieces0 = document.getElementById('pieces0') as HTMLElement;
         const pieces1 = document.getElementById('pieces1') as HTMLElement;
-        iniPieces(this, pieces0, pieces1);
+        initPieceRow(this, pieces0, pieces1);
         this.vpieces0.elm?.addEventListener('touchend', this.dropOnPocket);
         this.vpieces1.elm?.addEventListener('touchend', this.dropOnPocket);
 
@@ -79,8 +80,8 @@ export class EditorController extends ChessgroundController {
         //const dataIcon = VARIANTS[this.variant].icon(false);
         const dataIcon = 'icon-' + this.variant.name;
         const container = document.getElementById('editor-button-container') as HTMLElement;
-        const firstColor = _(this.variant.firstColor);
-        const secondColor = _(this.variant.secondColor);
+        const firstColor = _(this.variant.colors.first);
+        const secondColor = _(this.variant.colors.second);
         if (container !== null) {
             const buttons = [
                 h('div#turn-block', [
@@ -131,8 +132,8 @@ export class EditorController extends ChessgroundController {
                 h('a#clear.i-pgn', { on: { click: () => this.setEmptyFen() } }, [
                     h('div.icon.icon-trash-o', _('CLEAR BOARD'))
                 ]),
-                this.variant.captureToHand ? h('a#fill.i-pgn', { on: { click: () => this.fillHand() } }, [
-                    h('div.icon.icon-sign-in', _("FILL %1'S HAND", _(this.variant.secondColor).toUpperCase()))
+                this.variant.pocket?.captureToHand ? h('a#fill.i-pgn', { on: { click: () => this.fillHand() } }, [
+                    h('div.icon.icon-sign-in', _("FILL %1'S HAND", secondColor.toUpperCase()))
                 ]) : '',
                 h('a#start.i-pgn', { on: { click: () => this.setStartFen() } }, [
                     h('div.icon.' + dataIcon, _('STARTING POSITION'))
@@ -155,7 +156,7 @@ export class EditorController extends ChessgroundController {
         super.toggleOrientation()
 
         if (this.vpieces0 !== undefined && this.vpieces1 !== undefined) {
-            iniPieces(this, this.vpieces0, this.vpieces1);
+            initPieceRow(this, this.vpieces0, this.vpieces1);
         }
     }
 
@@ -202,7 +203,7 @@ export class EditorController extends ChessgroundController {
         const fen = (document.getElementById('fen') as HTMLInputElement).value;
         const valid = validFen(this.variant, fen);
         const ff = this.ffish.validateFen(fen, this.variant.name);
-        const ffValid = (ff === 1) || (this.variant.gate && ff === -5) || (this.variant.duck && ff === -10);
+        const ffValid = (ff === 1) || (this.variant.rules.gate && ff === -5) || (this.variant.rules.duck && ff === -10);
         return valid && ffValid;
     }
 
@@ -224,8 +225,8 @@ export class EditorController extends ChessgroundController {
     }
 
     private setEmptyFen = () => {
-        const w = this.variant.boardWidth;
-        const h = this.variant.boardHeight;
+        const w = this.variant.board.dimensions.width;
+        const h = this.variant.board.dimensions.height;
         const emptyFen = Array(h).fill(String(w)).join('/');
 
         const pocketsPart = this.hasPockets ? '[]' : '';
@@ -288,6 +289,20 @@ export class EditorController extends ChessgroundController {
     }
 
     private onChangeBoard = () => {
+        if (this.variant.promotion.strict) {
+            // Convert each piece to its correct promotion state
+            for (const [key, piece] of this.chessground.state.boardState.pieces) {
+                if (this.variant.promotion.strict.isPromoted(piece, util.key2pos(key))) {
+                    piece.role = promotedRole(this.variant, piece);
+                    piece.promoted = true;
+                } else {
+                    piece.role = unpromotedRole(this.variant, piece);
+                    piece.promoted = false;
+                }
+            }
+            this.chessground.redrawAll();
+        }
+
         // onChange() will get then set and validate FEN from chessground pieces
         this.parts[0] = this.chessground.getFen();
         this.fullfen = this.parts.join(' ');
@@ -304,7 +319,7 @@ export class EditorController extends ChessgroundController {
             if (lastKey === key && curTime - lastTime < 500) {
                 const piece = this.chessground.state.boardState.pieces.get(key);
                 if (piece) {
-                    const newColor = this.variant.captureToHand ? util.opposite(piece.color) : piece.color;
+                    const newColor = this.variant.pocket?.captureToHand ? util.opposite(piece.color) : piece.color;
                     let newPiece: cg.Piece;
                     if (piece.promoted) {
                         newPiece = {

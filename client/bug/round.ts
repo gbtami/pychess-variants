@@ -1,6 +1,6 @@
 import { h, VNode } from "snabbdom";
 
-import { VARIANTS } from '../chess';
+import { VARIANTS } from "../variants"
 // import { RoundController } from './roundCtrl';
 import { gameInfo } from './gameInfo';
 import { renderTimeago } from '../datetime';

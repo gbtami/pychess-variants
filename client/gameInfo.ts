@@ -1,11 +1,12 @@
 import { h, VNode } from "snabbdom";
 
 import { _ } from './i18n';
-import { colorIcon, VARIANTS } from './chess';
+import { colorIcon } from './chess';
 import { aiLevel, gameType, renderRdiff } from './result';
 import { timeago, } from './datetime';
 import { timeControlStr } from "./view";
 import { PyChessModel } from "./types";
+import { VARIANTS } from "./variants";
 
 
 export function gameInfo(model: PyChessModel): VNode {
@@ -32,11 +33,11 @@ export function gameInfo(model: PyChessModel): VNode {
             ]),
         ]),
         h('div.player-data', [
-            h('i-side.icon', {class: {[colorIcon(model.variant, variant.firstColor)]: true}}),
+            h('i-side.icon', {class: {[colorIcon(model.variant, variant.colors.first)]: true}}),
             h('player', playerInfo(model, 'w')),
         ]),
         h('div.player-data', [
-            h('i-side.icon', {class: {[colorIcon(model.variant, variant.secondColor)]: true}}),
+            h('i-side.icon', {class: {[colorIcon(model.variant, variant.colors.second)]: true}}),
             h('player', playerInfo(model, 'b')),
         ]),
         ]),

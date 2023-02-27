@@ -2,9 +2,10 @@ import {h, VNode} from "snabbdom";
 
 import {_} from '../i18n';
 import {gameInfo} from '../gameInfo';
-import {selectVariant, VARIANTS} from '../chess';
+import {VARIANTS, selectVariant} from "../variants"
+
 import {renderTimeago} from '../datetime';
-import {spinner} from '../spinner';
+import {spinner} from '../view';
 import {PyChessModel} from "../types";
 import AnalysisController from "./analysisCtrl";
 

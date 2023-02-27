@@ -4,13 +4,13 @@ import * as cg from 'chessgroundx/types';
 import { Api } from 'chessgroundx/api';
 
 import { _ } from './i18n';
-import { Variant, VARIANTS, BOARD_FAMILIES, PIECE_FAMILIES } from './chess';
 import { changeBoardCSS, changePieceCSS } from './document';
-import { ISettings, NumberSettings, BooleanSettings, StringSettings } from './settings';
+import { Settings, NumberSettings, BooleanSettings, StringSettings } from './settings';
 import { slider, checkbox, nnueFile } from './view';
 import { PyChessModel } from "./types";
+import { BOARD_FAMILIES, PIECE_FAMILIES, Variant, VARIANTS } from './variants';
 
-export interface IBoardController {
+export interface BoardController {
     readonly chessground: Api;
 
     readonly variant: Variant;
@@ -39,8 +39,8 @@ export interface IBoardController {
 }
 
 class BoardSettings {
-    ctrl: IBoardController;
-    settings: { [ key: string]: ISettings<number | boolean | string> };
+    ctrl: BoardController;
+    settings: { [ key: string]: Settings<number | boolean | string> };
     assetURL: string;
 
     constructor() {
@@ -109,7 +109,7 @@ class BoardSettings {
 
     updateZoom(family: keyof typeof BOARD_FAMILIES) {
         const variant = this.ctrl?.variant;
-        if (variant && variant.board === family) {
+        if (variant && variant.boardFamily === family) {
             const zoomSettings = this.getSettings("Zoom", family as string) as ZoomSettings;
             const zoom = zoomSettings.value;
             const el = document.querySelector('.cg-wrap:not(.pocket)') as HTMLElement;
@@ -137,14 +137,14 @@ class BoardSettings {
 
         const settingsList : VNode[] = [];
 
-        const boardFamily = VARIANTS[variantName].board;
-        const pieceFamily = VARIANTS[variantName].piece;
+        const boardFamily = VARIANTS[variantName].boardFamily;
+        const pieceFamily = VARIANTS[variantName].pieceFamily;
 
         settingsList.push(this.settings["animation"].view());
 
         settingsList.push(this.settings["showDests"].view());
 
-        if (variant.autoPromoteable)
+        if (variant.promotion.autoPromoteable)
             settingsList.push(this.settings["autoPromote"].view());
 
         settingsList.push(this.settings["arrow"].view());

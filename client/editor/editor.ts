@@ -1,9 +1,9 @@
 import { h, VNode } from 'snabbdom';
 
-import { _ } from './i18n';
-import { selectVariant, VARIANTS } from './chess';
+import { _ } from '@/i18n';
+import { PyChessModel } from "@/types";
+import { selectVariant, VARIANTS } from '@/variants';
 import { EditorController } from './editorCtrl';
-import { PyChessModel } from "./types";
 
 function runEditor(vnode: VNode, model: PyChessModel) {
     const el = vnode.elm as HTMLElement;
@@ -34,19 +34,19 @@ export function editorView(model: PyChessModel): VNode[] {
             ]),
 
             h('div.pocket-wrapper.top', [
-                h('div.' + variant.piece + '.' + model["variant"], [
+                h('div.' + variant.pieceFamily + '.' + model["variant"], [
                     h('div.cg-wrap.pocket', [
                         h('div#pieces0'),
                     ]),
                 ]),
             ]),
-            h(`selection#mainboard.${variant.board}.${variant.piece}.${variant.boardMark}`, [
-                h('div.cg-wrap.' + variant.cg,
+            h(`selection#mainboard.${variant.boardFamily}.${variant.pieceFamily}.${variant.ui.boardMark}`, [
+                h('div.cg-wrap.' + variant.board.cg,
                     { hook: { insert: (vnode) => runEditor(vnode, model)},
                 }),
             ]),
             h('div.pocket-wrapper.bot', [
-                h('div.' + variant.piece + '.' + model["variant"], [
+                h('div.' + variant.pieceFamily + '.' + model["variant"], [
                     h('div.cg-wrap.pocket', [
                         h('div#pieces1'),
                     ]),
@@ -54,7 +54,7 @@ export function editorView(model: PyChessModel): VNode[] {
             ]),
 
             h('div.pocket-top', [
-                h('div.' + variant.piece + '.' + model["variant"], [
+                h('div.' + variant.pieceFamily + '.' + model["variant"], [
                     h('div.cg-wrap.pocket', [
                         h('div#pocket0'),
                     ]),
@@ -62,7 +62,7 @@ export function editorView(model: PyChessModel): VNode[] {
             ]),
             h('div#editor-button-container'),
             h('div.pocket-bot', [
-                h('div.' + variant.piece + '.' + model["variant"], [
+                h('div.' + variant.pieceFamily + '.' + model["variant"], [
                     h('div.cg-wrap.pocket', [
                         h('div#pocket1'),
                     ]),
