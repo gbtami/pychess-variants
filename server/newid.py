@@ -1,8 +1,8 @@
 import random
 import string
 
-ID_CHARS = string.ascii_lowercase + string.digits
-
+#ID_CHARS = string.ascii_lowercase + string.digits
+ID_CHARS = string.digits
 
 def id8():
     return "".join(random.choice(ID_CHARS) for x in range(8))
