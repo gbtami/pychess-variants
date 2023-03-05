@@ -1,7 +1,7 @@
 import random
 import string
 
-ID_CHARS = string.ascii_letters + string.digits
+ID_CHARS = string.ascii_lowercase + string.digits
 
 
 def id8():
