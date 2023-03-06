@@ -2,7 +2,7 @@ aiohttp-session==2.12.0
 aiohttp-sse==2.1.0
 aiohttp==3.8.4
 brotli==1.0.9
-cryptography==39.0.1
+cryptography==39.0.2
 discord.py==2.1.1
 dnspython==2.3.0
 htmlmin==0.1.12
