@@ -1275,10 +1275,14 @@ rating {
   font-size: 16px;
 }
 
-round-player0.bug rating,
-round-player1.bug rating {
+main.bug.analysis round-player0.bug rating,
+main.bug.analysis round-player1.bug rating {
   float: left;
   font-size: 16px;
+}
+main.bug.round rating,
+main.bug.round rating {
+  font-size: 0.7vw;
 }
 
 rating span {
@@ -1690,6 +1694,14 @@ round-player1 {
   align-self: center;
   background: var(--bg-color0);
 }
+main.bug round-player0,
+main.bug round-player1 {
+  font-size: 0.7vw;
+  width: 100%;
+  line-height: unset;
+  height: 48px;
+  align-items: center;
+}
 @media (max-width: 799px) and (orientation: portrait) {
   round-player0,
   round-player1 {
@@ -1706,11 +1718,11 @@ round-player1 {
 }
 round-player0.bug {
   grid-area: userB-top;
-  justify-content: right;
+  /*justify-content: right;*/
 }
 round-player1.bug {
   grid-area: userB-bot;
-  justify-content: right;
+/*  justify-content: right;*/
 }
 .clock-wrap {
   display: flex;

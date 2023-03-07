@@ -3,16 +3,16 @@ import { h, VNode } from 'snabbdom';
 
 
 import { _ } from '../i18n';
-import { VARIANTS, BOARD_FAMILIES, PIECE_FAMILIES } from '../chess';
+import { VARIANTS, BOARD_FAMILIES, PIECE_FAMILIES } from '../variants';
 import { changeBoardCSS, changePieceCSS } from '../document';
 import AnalysisController from './analysisCtrl';
-import {NumberSettings, BooleanSettings, ISettings} from '../settings';
+import {NumberSettings, BooleanSettings, Settings} from '../settings';
 import { slider, checkbox } from '../view';
 
 
 class BoardSettings {
     ctrl: AnalysisController; // BoardController | undefined
-    settings: { [ key: string]: ISettings<number | boolean> };
+    settings: { [ key: string]: Settings<number | boolean> };
     assetURL: string;
 
     constructor() {
@@ -105,14 +105,14 @@ class BoardSettings {
 
         const settingsList : VNode[] = [];
 
-        const boardFamily = VARIANTS[variantName].board;
-        const pieceFamily = VARIANTS[variantName].piece;
+        const boardFamily = VARIANTS[variantName].boardFamily;
+        const pieceFamily = VARIANTS[variantName].pieceFamily;
 
         settingsList.push(this.settings["animation"].view());
 
         settingsList.push(this.settings["showDests"].view());
 
-        if (variant.autoPromoteable)
+        if (variant.promotion.autoPromoteable)
             settingsList.push(this.settings["autoPromote"].view());
 
         settingsList.push(this.settings["arrow"].view());

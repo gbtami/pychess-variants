@@ -42,8 +42,18 @@
                                calc(var(--pocketLength) * (var(--cg-width) / var(--files))); /*minmax(240px, 400px)*/ /*calc(var(--pocketLength) * (var(--cg-width) / var(--files)))*/
 ;
 
-        grid-template-rows: min-content min-content 1fr 1fr 1fr 1fr min-content min-content min-content;
-        grid-template-areas: 'board pocket-top boardPartner pocket-top-partner' 'board clock-top boardPartner clockB-top' 'board tools boardPartner toolsB' 'board tools boardPartner toolsB' 'board tools boardPartner toolsB' 'board tools boardPartner toolsB' 'board clock-bot boardPartner clockB-bot' 'board pocket-bot boardPartner pocket-bot-partner' '. move-controls move-controls .' 'uboard uboard uboard uboard'
+        /*grid-template-rows: min-content min-content 1fr 1fr 1fr 1fr min-content min-content min-content;*/
+        grid-template-rows: min-content min-content min-content min-content min-content min-content min-content min-content min-content;
+        grid-template-areas: 'board pocket-top boardPartner pocket-top-partner'
+                             'board clock-top boardPartner clockB-top'
+                             'board tools boardPartner toolsB'
+                             'board tools boardPartner toolsB'
+                             'board tools boardPartner toolsB'
+                             'board tools boardPartner toolsB'
+                             'board clock-bot boardPartner clockB-bot'
+                             'board pocket-bot boardPartner pocket-bot-partner'
+                             '. move-controls move-controls .'
+                             'uboard uboard uboard uboard'
         /*'board . boardPartner' 'board mat-top boardPartner' 'board clock-top boardPartner' 'board expi-top boardPartner' 'board user-top boardPartner' 'board move-controls boardPartner' 'board moves boardPartner' 'board game-controls boardPartner' 'board user-bot boardPartner' 'board expi-bot boardPartner' 'board clock-bot boardPartner' 'board mat-bot boardPartner' 'board . boardPartner';*/
     }
 

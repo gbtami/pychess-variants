@@ -6,6 +6,7 @@ import { gameInfo } from './gameInfo';
 import { renderTimeago } from '../datetime';
 import { PyChessModel } from "../types";
 import {RoundController} from "./roundCtrl";
+import {_} from "@/i18n";
 
 // function runGround(vnode: VNode, model: PyChessModel) {
 //     const el = vnode.elm as HTMLElement;
@@ -39,22 +40,22 @@ export function roundView(model: PyChessModel): VNode[] {
             gameInfo(model),
         ]),
         h('div.round-app.bug', { hook: {insert: ()=>{createBoards(mainboardVNode, bugboardVNode, mainboardPocket0, mainboardPocket1, bugboardPocket0, bugboardPocket1, model)}}},[
-            h(`selection#mainboard.${variant.board}.${variant.piece}.${variant.boardMark}`, [
-                h('div.cg-wrap.' + variant.cg, { hook: { insert: (vnode) => mainboardVNode = vnode/*runGround(vnode, model)*/ } }),
+            h(`selection#mainboard.${variant.boardFamily}.${variant.pieceFamily}.${variant.ui.boardMark}`, [
+                h('div.cg-wrap.' + variant.board.cg, { hook: { insert: (vnode) => mainboardVNode = vnode/*runGround(vnode, model)*/ } }),
             ]),
-            h(`selection#bugboard.${variant.board}.${variant.piece}.${variant.boardMark}`, [
-                h('div.cg-wrap.' + variant.cg, { hook: { insert: (vnode) => bugboardVNode = vnode/*runGround(vnode, model)*/ } }),
+            h(`selection#bugboard.${variant.boardFamily}.${variant.pieceFamily}.${variant.ui.boardMark}`, [
+                h('div.cg-wrap.' + variant.board.cg, { hook: { insert: (vnode) => bugboardVNode = vnode/*runGround(vnode, model)*/ } }),
             ]),
             // h('div.material.material-top.' + variant.piece + '.disabled'),
             h('div.pocket-top', [
-                h('div.' + variant.piece + '.' + model["variant"], [
+                h('div.' + variant.pieceFamily + '.' + model["variant"], [
                     h('div.cg-wrap.pocket', [
                         h('div#pocket00', { hook: { insert: (vnode)=>{mainboardPocket0=vnode}}}),
                     ]),
                 ]),
             ]),
             h('div.pocket-top-partner', [
-                h('div.' + variant.piece + '.' + model["variant"], [
+                h('div.' + variant.pieceFamily + '.' + model["variant"], [
                     h('div.cg-wrap.pocket', [
                         h('div#pocket10', { hook: { insert: (vnode)=>{bugboardPocket0=vnode}}}),
                     ]),
@@ -90,6 +91,7 @@ export function roundView(model: PyChessModel): VNode[] {
             ]),
             h('div.bug-round-tools', [
                 h('div#roundchat'),
+
                 // h('div#expiration-top'),
                 // h('div#expiration-bottom'),
             ]),
@@ -110,20 +112,20 @@ export function roundView(model: PyChessModel): VNode[] {
                 h('div#misc-info1b'),
             ]),
             h('div.pocket-bot', [
-                h('div.' + variant.piece + '.' + model["variant"], [
+                h('div.' + variant.pieceFamily + '.' + model["variant"], [
                     h('div.cg-wrap.pocket', [
                         h('div#pocket01', { hook: { insert: (vnode)=>{mainboardPocket1=vnode}}}),
                     ]),
                 ]),
             ]),
             h('div.pocket-bot-partner', [
-                h('div.' + variant.piece + '.' + model["variant"], [
+                h('div.' + variant.pieceFamily + '.' + model["variant"], [
                     h('div.cg-wrap.pocket', [
                         h('div#pocket11', { hook: { insert: (vnode)=>{bugboardPocket1=vnode}}}),
                     ]),
                 ]),
             ]),
-            h('div.material.material-bottom.' + variant.piece + '.disabled'),
+            // h('div.material.material-bottom.' + variant.pieceFamily + '.disabled'),
         ]),
         h('under-left#spectators'),
         h('under-board', [

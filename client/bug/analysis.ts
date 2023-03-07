@@ -71,14 +71,14 @@ export function analysisView(model: PyChessModel): VNode[] {
     return [
         h('div.analysis-app.bug', { hook: {insert: ()=>{createBoards(mainboardVNode, bugboardVNode, mainboardPocket0, mainboardPocket1, bugboardPocket0, bugboardPocket1, model)}}}, [
             h('div.bug-game-info', leftSide(model)),
-            h(`selection#mainboard.${variant.board}.${variant.piece}.${variant.boardMark}`, [
+            h(`selection#mainboard.${variant.boardFamily}.${variant.pieceFamily}.${variant.ui.boardMark}`, [
                 h('div#anal-clock-top'),
-                h('div.cg-wrap.' + variant.cg, { hook: { insert: (vnode) => mainboardVNode = vnode/*runGround(vnode, model)*/ } }),
+                h('div.cg-wrap.' + variant.board.cg, { hook: { insert: (vnode) => mainboardVNode = vnode/*runGround(vnode, model)*/ } }),
                 h('div#anal-clock-bottom'),
             ]),
-            h(`selection#bugboard.${variant.board}.${variant.piece}.${variant.boardMark}`, [
+            h(`selection#bugboard.${variant.boardFamily}.${variant.pieceFamily}.${variant.ui.boardMark}`, [
                 h('div#anal-clock-top-bug'),
-                h('div.cg-wrap.' + variant.cg, { hook: { insert: (vnode) => bugboardVNode = vnode/*runGround(vnode, model)*/ } }),
+                h('div.cg-wrap.' + variant.board.cg, { hook: { insert: (vnode) => bugboardVNode = vnode/*runGround(vnode, model)*/ } }),
                 h('div#anal-clock-bottom-bug'),
             ]),
             h('div#gauge', [

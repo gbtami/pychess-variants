@@ -3,8 +3,7 @@ import {GatingInput} from "../input/gating";
 import {PromotionInput} from "../input/promotion";
 import * as cg from "chessgroundx/types";
 import {Chessground} from "chessgroundx";
-import {Variant} from "../chess";
-import {VARIANTS, BOARD_FAMILIES} from "../variants"
+import {VARIANTS, BOARD_FAMILIES, Variant} from "../variants"
 import * as util from "chessgroundx/util";
 import AnalysisController from "./analysisCtrl";
 import {Step} from "../messages";
@@ -66,8 +65,8 @@ export class ChessgroundController extends GameController {
 
         this.chessground = this.createGround(el, elPocket1, elPocket2, this.fullfen);//todo:fullfen is not passed in default logic inherited
 
-        this.gating = new Gating(this);
-        this.promotion = new Promotion(this);
+        this.gating = new GatingInput(this);
+        this.promotion = new PromotionInput(this);
 
 
         // this.plyVari = 0;
@@ -214,7 +213,7 @@ export class ChessgroundController extends GameController {
         // Fix king to rook 960 castling case
         if (moved === undefined) moved = {role: 'k-piece', color: ctrl.mycolor} as cg.Piece;
         //en - passant logic todo:niki:maybe move to common place. chess.ts?
-        if (meta.captured === undefined && moved !== undefined && moved.role === "p-piece" && orig[0] !== dest[0] && ctrl.variant.enPassant) {
+        if (meta.captured === undefined && moved !== undefined && moved.role === "p-piece" && orig[0] !== dest[0] && ctrl.variant.rules.enPassant) {
             const pos = util.key2pos(dest),
             pawnPos: cg.Pos = [pos[0], pos[1] + (ctrl.mycolor === 'white' ? -1 : 1)];
             const diff: cg.PiecesDiff = new Map();
@@ -252,7 +251,7 @@ export class ChessgroundController extends GameController {
         // if (ctrl.variant.gate) {
         //     if (!ctrl.promotion.start(moved.role, orig, dest, meta.ctrlKey) && !ctrl.gating.start(ctrl.fullfen, orig, dest)) ctrl.sendMove(orig, dest, '');
         // } else {
-            if (!ctrl.promotion.start(moved.role, orig, dest, meta.ctrlKey)) ctrl.sendMove(orig, dest, '');
+            this.processInput(moved, orig, dest, meta);; //if (!ctrl.promotion.start(moved.role, orig, dest, meta.ctrlKey)) ctrl.sendMove(orig, dest, '');
             ctrl.preaction = false;
         // }
 
@@ -381,7 +380,7 @@ export class ChessgroundController extends GameController {
              turnColor: 'white',//todo:niki
              animation: { enabled: false },//todo:niki
              addDimensionsCssVarsTo: this.boardName === 'a'? document.body: undefined, // todo:niki, i was hoping this check will result in only setting those variables once by first board, this avoiding that loop of resizing that happens but i guess not enough
-             pocketRoles: VARIANTS.crazyhouse.pocketRoles,
+             pocketRoles: VARIANTS.crazyhouse.pocket?.roles,
         }, pocket0, pocket1);
 
         chessground.set({
@@ -397,8 +396,8 @@ export class ChessgroundController extends GameController {
             },
             premovable: {
                 enabled: true,
-                premoveFunc: premove(this.variant.name, this.chess960, this.variant.boardDimensions),
-                predropFunc: predrop(this.variant.name, this.variant.boardDimensions),
+                premoveFunc: premove(this.variant.name, this.chess960, this.variant.board.dimensions),
+                predropFunc: predrop(this.variant.name, this.variant.board.dimensions),
                 events: {
                     set: this.setPremove,
                     unset: this.unsetPremove,

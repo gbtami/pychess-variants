@@ -295,8 +295,8 @@ export const VARIANTS: Record<string, Variant> = {
             'No castle': 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w - - 0 1'
         },
     }),
-    bughouse: new Variant({
-        name: "bughouse", tooltip: () => _("bughousebughousebughousebughouse."),
+    bughouse: variant({
+        name: "bughouse", tooltip: "bughousebughousebughousebughouse.",
         startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[] w KQkq - 0 1",
         chess960: true, icon: "+", icon960: "%",
         boardFamily: "standard8x8", pieceFamily: "standard",

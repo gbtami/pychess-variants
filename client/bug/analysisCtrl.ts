@@ -828,7 +828,7 @@ export default class AnalysisController {
             if (blackEl && ceval !== undefined) {
                 const score = ceval['s'];
                 // TODO set gauge colour according to the variant's piece colour
-                const color = (this.variant.firstColor === "Black") ? turnColor === 'black' ? 'white' : 'black' : turnColor;
+                const color = (this.variant.colors.first === "Black") ? turnColor === 'black' ? 'white' : 'black' : turnColor;
                 if (score !== undefined) {
                     const ev = povChances(color, score);
                     blackEl.style.height = String(100 - (ev + 1) * 50) + '%';
@@ -1119,8 +1119,6 @@ export default class AnalysisController {
             fen: b.ffishBoard.fen(this.b1.variant.showPromoted, 0),
             ply: newPly,
             lastMove: move,
-            dests: b.dests,
-            promo: b.promotions,
             bikjang: b.ffishBoard.isBikjang(),
             check: b.ffishBoard.isCheck(),
         }

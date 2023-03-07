@@ -24,14 +24,17 @@ export function chatView(ctrl: ChatController, chatType: string) {
             return;
         const message = (e.target as HTMLInputElement).value.trim();
         if ((e.keyCode === 13 || e.which === 13) && message.length > 0) {
-            const m: any = {type: chatType, message: message, room: spectator ? "spectator" : "player"};
-            if ("gameId" in ctrl)
-                m["gameId"] = ctrl.gameId;
-            if ("tournamentId" in ctrl)
-                m["tournamentId"] = ctrl.tournamentId
-            ctrl.doSend(m);
+            sendMessage(message);
             (e.target as HTMLInputElement).value = "";
         }
+    }
+    function sendMessage(message: string) {
+        const m: any = {type: chatType, message: message, room: spectator ? "spectator" : "player"};
+        if ("gameId" in ctrl)
+            m["gameId"] = ctrl.gameId;
+        if ("tournamentId" in ctrl)
+            m["tournamentId"] = ctrl.tournamentId
+        ctrl.doSend(m);
     }
     function onClick () {
         const activated = (<HTMLInputElement>document.getElementById('checkbox')).checked;
@@ -48,6 +51,32 @@ export function chatView(ctrl: ChatController, chatType: string) {
         ]),
         // TODO: lock/unlock chat to spectators
         h(`ol#${chatType}-messages`, [ h('div#messages') ]),
+        h('div#chatpresets', [
+                    h('button.bugchat.p', { on: { click: () => sendMessage("!bug!p") } }, []),
+                    h('button.bugchat.n', { on: { click: () => sendMessage("!bug!n") } }, []),
+                    h('button.bugchat.b', { on: { click: () => sendMessage("!bug!b") } }, []),
+                    h('button.bugchat.r', { on: { click: () => sendMessage("!bug!r") } }, []),
+                    h('button.bugchat.q', { on: { click: () => sendMessage("!bug!q") } }, []),
+
+                    h('button.bugchat.nop', { on: { click: () => sendMessage("!bug!nop") } }, []),
+                    h('button.bugchat.non', { on: { click: () => sendMessage("!bug!non") } }, []),
+                    h('button.bugchat.nob', { on: { click: () => sendMessage("!bug!nob") } }, []),
+                    h('button.bugchat.nor', { on: { click: () => sendMessage("!bug!nor") } }, []),
+                    h('button.bugchat.noq', { on: { click: () => sendMessage("!bug!noq") } }, []),
+
+                    h('button.bugchat.txt', { on: { click: () => sendMessage("!bug!txt.SIT") } }, _("SIT")),
+                    h('button.bugchat.txt', { on: { click: () => sendMessage("!bug!txt.GO") } }, _("GO")),
+                    h('button.bugchat.txt', { on: { click: () => sendMessage("!bug!txt.TR") } }, _("TR")),
+                    h('button.bugchat.txt', { on: { click: () => sendMessage("!bug!txt.NT") } }, _("NT")),
+                    h('button.bugchat.txt', { on: { click: () => sendMessage("!bug!txt.M0") } }, _("#")),
+
+                    h('button.bugchat.txt', { on: { click: () => sendMessage("!bug!txt.OK") } }, _("OK")),
+                    h('button.bugchat.txt', { on: { click: () => sendMessage("!bug!txt.NO") } }, _("NO")),
+                    h('button.bugchat.txt', { on: { click: () => sendMessage("!bug!txt.MB") } }, _("MB")),
+                    h('button.bugchat.txt', { on: { click: () => sendMessage("!bug!txt.NVM") } }, _("NVM")),
+                    h('button.bugchat.txt', { on: { click: () => sendMessage("!bug!txt.FIX") } }, _("FIX")),
+
+                ]),
         h('input#chat-entry', {
             props: {
                 type: "text",
@@ -83,6 +112,13 @@ export function chatMessage (user: string, message: string, chatType: string, ti
         const discordUser = message.substring(0, colonIndex);
         const discordMessage = message.substring(colonIndex + 2);
         patch(container, h('div#messages', [ h("li.message", [h("div.time", localTime), h("div.discord-icon-container", h("img.icon-discord-icon", { attrs: { src: '/static/icons/discord.svg' } })), h("user", discordUser), h("t", discordMessage)]) ]));
+    } else if (message.startsWith("!bug!")) {
+        const m = message.replace('!bug!','');
+        patch(container, h('div#messages', [ h("li.message",
+            [h("div.time", localTime), h("user", h("a", { attrs: {href: "/@/" + user} }, user)),
+                /*h("div.discord-icon-container", h("img.icon-discord-icon", { attrs: { src: '/static/icons/discord.svg' } }))*/
+                h('button.bugchat.'+m,m)
+            ]) ]));
     } else {
         patch(container, h('div#messages', [ h("li.message", [h("div.time", localTime), h("user", h("a", { attrs: {href: "/@/" + user} }, user)), h("t", message)]) ]));
     }

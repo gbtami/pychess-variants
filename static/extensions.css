@@ -118,6 +118,10 @@
 .pocket.top {
   margin-bottom: var(--pocketMargin);
 }
+main.round.bug .pocket.top {
+  margin-bottom: unset;
+}
+
 .pocket.top.editor {
   margin-bottom: 18px;
   flex-wrap: wrap-reverse;
@@ -125,6 +129,10 @@
 .pocket.bottom {
   margin-top: var(--pocketMargin);
 }
+main.round.bug .pocket.bottom {
+  margin-top: unset;
+}
+
 .pocket.bottom.editor {
   margin-top: 18px;
 }
@@ -228,4 +236,79 @@
   z-index: 1;
   position: absolute;
   pointer-events: none;
+}
+
+div#chatpresets{
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  order: 3;
+}
+
+button.bugchat{
+  /*width: 10vw;*/
+  width: 10%;
+  /*height: 100vw;*/
+  padding-top: 10%;
+  color: var(--font-color);
+  background-color: var(--bg-color0);
+  cursor: pointer;
+  border: none;
+}
+
+button.bugchat:hover {
+  color: #fff;
+  background-color: var(--green-hover);
+}
+
+button.bugchat:focus {
+  outline: none;
+}
+button.bugchat::-moz-focus-inner {
+  border: 0;
+}
+/*button.bugchat:hover {*/
+/*  background-color: var(--vpanel-button-hover);*/
+/*  color: rgb(160, 160, 160);*/
+/*}*/
+button.bugchat.p {
+  background-image: url('../../static/images/pieces/merida/wP.svg');
+  background-size: cover;
+}
+button.bugchat.n{
+  background-image: url('../../static/images/pieces/merida/wN.svg');
+  background-size: cover;
+}
+button.bugchat.b{
+  background-image: url('../../static/images/pieces/merida/wB.svg');
+  background-size: cover;
+}
+button.bugchat.r{
+  background-image: url('../../static/images/pieces/merida/wR.svg');
+  background-size: cover;
+}
+button.bugchat.q{
+  background-image: url('../../static/images/pieces/merida/wQ.svg');
+  background-size: cover;
+}
+
+button.bugchat.nop{
+  background-image: url('../../static/images/pieces/merida/bP.svg');
+  background-size: cover;
+}
+button.bugchat.non{
+  background-image: url('../../static/images/pieces/merida/bN.svg');
+  background-size: cover;
+}
+button.bugchat.nob{
+  background-image: url('../../static/images/pieces/merida/bB.svg');
+  background-size: cover;
+}
+button.bugchat.nor{
+  background-image: url('../../static/images/pieces/merida/bR.svg');
+  background-size: cover;
+}
+button.bugchat.noq{
+  background-image: url('../../static/images/pieces/merida/bQ.svg');
+  background-size: cover;
 }

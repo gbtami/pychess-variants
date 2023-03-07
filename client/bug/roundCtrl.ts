@@ -938,7 +938,7 @@ export class RoundController implements IChatController/*extends GameController 
         if (move) {
             // 960 king takes rook castling is not capture
             // TODO defer this logic to ffish.js
-            capture = (board.chessground.state.boardState.pieces.get(move[1]) !== undefined && step.san?.slice(0, 2) !== 'O-') || (step.san?.slice(1, 2) === 'x');
+            capture = (board.chessground.state.boardState.pieces.get(move[1] as cg.Key) !== undefined && step.san?.slice(0, 2) !== 'O-') || (step.san?.slice(1, 2) === 'x');
         }
 
         board.chessground.set({
