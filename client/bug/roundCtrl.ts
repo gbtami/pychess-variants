@@ -359,7 +359,7 @@ export class RoundController implements IChatController/*extends GameController 
 
         this.vdialog = patch(document.getElementById('offer-dialog')!, h('div#offer-dialog', ""));
 
-        patch(document.getElementById('roundchat') as HTMLElement, chatView(this, "roundchat"));
+        patch(document.getElementById('bugroundchat') as HTMLElement, chatView(this, "bugroundchat"));
 
         this.onMsgBoard(model["board"] as MsgBoard);
     }
@@ -1101,7 +1101,7 @@ export class RoundController implements IChatController/*extends GameController 
 
     private onMsgChat = (msg: MsgChat) => {
         if ((this.spectator && msg.room === 'spectator') || (!this.spectator && msg.room !== 'spectator') || msg.user.length === 0) {
-            chatMessage(msg.user, msg.message, "roundchat", msg.time);
+            chatMessage(msg.user, msg.message, "bugroundchat", msg.time);
         }
     }
 
@@ -1115,7 +1115,7 @@ export class RoundController implements IChatController/*extends GameController 
             case "spectators":
                 // this.onMsgSpectators(msg);
                 break;
-            case "roundchat":
+            case "bugroundchat":
                 this.onMsgChat(msg);
                 break;
             case "fullchat":

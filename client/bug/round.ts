@@ -90,7 +90,7 @@ export function roundView(model: PyChessModel): VNode[] {
                 h('div#game-controls'),
             ]),
             h('div.bug-round-tools', [
-                h('div#roundchat'),
+                h('div#bugroundchat'),
 
                 // h('div#expiration-top'),
                 // h('div#expiration-bottom'),

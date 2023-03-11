@@ -584,9 +584,35 @@ async def round_socket_handler(request):
                             except KeyError:
                                 # opp disconnected
                                 pass
+                    elif data["type"] == "bugroundchat":
+                        gameId = data["gameId"]
+                        message = data["message"]
+
+                        response = chat_response(
+                            "bugroundchat",
+                            user.username,
+                            message,
+                            room=data["room"],
+                        )
+                        game.handle_chat_message(user, message)
+                        if game.ply < 4 or game.status > STARTED:
+                            # Let all 4 players communicate in the beginning of the game and when it is over
+                            recipients = [game.wplayerA.username, game.bplayerA.username, game.wplayerB.username, game.bplayerB.username]
+                        elif user.username in [game.wplayerA.username, game.bplayerB.username]:
+                            recipients = [game.wplayerA.username, game.bplayerB.username]
+                        else:
+                            recipients = [game.bplayerA.username, game.wplayerB.username]
+                        recipients = list(dict.fromkeys(recipients)) # remove duplicates - can have if simuling (not that it makes sense to have this chat in simul mode but anyway)
+                        for name in recipients:
+                            player = users[name]
+                            if gameId in player.game_sockets:
+                                player_ws = player.game_sockets[gameId]
+                                await player_ws.send_json(response)
+
+                        await round_broadcast(game, response)
 
                     elif data["type"] == "roundchat":
-                        if user.username.startswith("Anon-") and game.variant != "bughouse":
+                        if user.username.startswith("Anon-"):
                             continue
 
                         gameId = data["gameId"]

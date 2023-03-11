@@ -103,14 +103,14 @@ export function analysisView(model: PyChessModel): VNode[] {
             ]),
 
             h('div.pocket-top', [
-                h('div.' + variant.piece + '.' + model["variant"], [
+                h('div.' + variant.pieceFamily + '.' + model["variant"], [
                     h('div.cg-wrap.pocket', [
                         h('div#pocket00', { hook: { insert: (vnode)=>{mainboardPocket0=vnode}}}),
                     ]),
                 ]),
             ]),
             h('div.pocket-top-partner', [
-                h('div.' + variant.piece + '.' + model["variant"], [
+                h('div.' + variant.pieceFamily + '.' + model["variant"], [
                     h('div.cg-wrap.pocket', [
                         h('div#pocket10', { hook: { insert: (vnode)=>{bugboardPocket0=vnode}}}),
                     ]),
@@ -162,14 +162,14 @@ export function analysisView(model: PyChessModel): VNode[] {
             h('div#move-controls'),
 
             h('div.pocket-bot', [
-                h('div.' + variant.piece + '.' + model["variant"], [
+                h('div.' + variant.pieceFamily + '.' + model["variant"], [
                     h('div.cg-wrap.pocket', [
                         h('div#pocket01', { hook: { insert: (vnode)=>{mainboardPocket1=vnode}}}),
                     ]),
                 ]),
             ]),
             h('div.pocket-bot-partner', [
-                h('div.' + variant.piece + '.' + model["variant"], [
+                h('div.' + variant.pieceFamily + '.' + model["variant"], [
                     h('div.cg-wrap.pocket', [
                         h('div#pocket11', { hook: { insert: (vnode)=>{bugboardPocket1=vnode}}}),
                     ]),

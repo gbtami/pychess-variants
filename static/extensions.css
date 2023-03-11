@@ -245,11 +245,21 @@ div#chatpresets{
   order: 3;
 }
 
-button.bugchat{
+div#chatpresets button.bugchat{
   /*width: 10vw;*/
   width: 10%;
   /*height: 100vw;*/
   padding-top: 10%;
+  color: var(--font-color);
+  background-color: var(--bg-color0);
+  cursor: pointer;
+  border: none;
+}
+
+li.message .bugchat{
+  width: 2em;
+  height: 2em;
+  display: inline-flex;
   color: var(--font-color);
   background-color: var(--bg-color0);
   cursor: pointer;
@@ -271,44 +281,89 @@ button.bugchat::-moz-focus-inner {
 /*  background-color: var(--vpanel-button-hover);*/
 /*  color: rgb(160, 160, 160);*/
 /*}*/
-button.bugchat.p {
-  background-image: url('../../static/images/pieces/merida/wP.svg');
+.bugchat.p {
+  background-image: url('../../static/images/bugroundchat/P.svg');
   background-size: cover;
 }
-button.bugchat.n{
-  background-image: url('../../static/images/pieces/merida/wN.svg');
+.bugchat.n{
+  background-image: url('../../static/images/bugroundchat/N.svg');
   background-size: cover;
 }
-button.bugchat.b{
-  background-image: url('../../static/images/pieces/merida/wB.svg');
+.bugchat.b{
+  background-image: url('../../static/images/bugroundchat/B.svg');
   background-size: cover;
 }
-button.bugchat.r{
-  background-image: url('../../static/images/pieces/merida/wR.svg');
+.bugchat.r{
+  background-image: url('../../static/images/bugroundchat/R.svg');
   background-size: cover;
 }
-button.bugchat.q{
-  background-image: url('../../static/images/pieces/merida/wQ.svg');
+.bugchat.q{
+  background-image: url('../../static/images/bugroundchat/Q.svg');
   background-size: cover;
 }
 
-button.bugchat.nop{
-  background-image: url('../../static/images/pieces/merida/bP.svg');
+
+.bugchat.nop{
+  background-image: url('../../static/images/bugroundchat/noP.svg');
   background-size: cover;
 }
-button.bugchat.non{
-  background-image: url('../../static/images/pieces/merida/bN.svg');
+.bugchat.non{
+  background-image: url('../../static/images/bugroundchat/noN.svg');
   background-size: cover;
 }
-button.bugchat.nob{
-  background-image: url('../../static/images/pieces/merida/bB.svg');
+.bugchat.nob{
+  background-image: url('../../static/images/bugroundchat/noB.svg');
   background-size: cover;
 }
-button.bugchat.nor{
-  background-image: url('../../static/images/pieces/merida/bR.svg');
+.bugchat.nor{
+  background-image: url('../../static/images/bugroundchat/noR.svg');
   background-size: cover;
 }
-button.bugchat.noq{
-  background-image: url('../../static/images/pieces/merida/bQ.svg');
+.bugchat.noq{
+  background-image: url('../../static/images/bugroundchat/noQ.svg');
+  background-size: cover;
+}
+
+
+.bugchat.sit{
+  background-image: url('../../static/images/bugroundchat/SIT.svg');
+  background-size: cover;
+}
+.bugchat.go{
+  background-image: url('../../static/images/bugroundchat/GO.svg');
+  background-size: cover;
+}
+.bugchat.trade{
+  background-image: url('../../static/images/bugroundchat/TRADE.svg');
+  background-size: cover;
+}
+.bugchat.notrade{
+  background-image: url('../../static/images/bugroundchat/NOTRADE.svg');
+  background-size: cover;
+}
+.bugchat.mate{
+  background-image: url('../../static/images/bugroundchat/MATE.svg');
+  background-size: cover;
+}
+
+
+.bugchat.ok{
+  background-image: url('../../static/images/bugroundchat/OK.svg');
+  background-size: cover;
+}
+.bugchat.no{
+  background-image: url('../../static/images/bugroundchat/NO.svg');
+  background-size: cover;
+}
+.bugchat.mb{
+  background-image: url('../../static/images/bugroundchat/MB.svg');
+  background-size: cover;
+}
+.bugchat.nvm{
+  background-image: url('../../static/images/bugroundchat/NVM.svg');
+  background-size: cover;
+}
+.bugchat.fix{
+  background-image: url('../../static/images/bugroundchat/FIX.svg');
   background-size: cover;
 }

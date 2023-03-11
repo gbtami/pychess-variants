@@ -1967,6 +1967,7 @@ div.chatroom {
 }
 
 ol#lobbychat-messages,
+ol#bugroundchat-messages,
 ol#roundchat-messages {
   display: flex;
   flex: 2 1 0;
@@ -1976,7 +1977,9 @@ ol#roundchat-messages {
   margin: 0;
   padding: 0;
 }
-
+#messages {
+  width: 100%;
+}
 li.message {
   overflow-wrap: word-break;
   word-break: break-word;
@@ -2086,7 +2089,7 @@ bugchat img{
 
 .bugchatpopup {
   visibility: hidden;
-  background-color: #3c3934;
+  /*background-color: #3c3934;*/
   position: fixed;
   /*left: 0;
   top: 50px;*/
@@ -2095,6 +2098,7 @@ bugchat img{
   border-radius: 0 3px 3px 3px;
   text-align: left;
   box-shadow: var(--base-shadow);
+  z-index: 1000;
 }
 
 bugchat:hover .bugchatpopup {

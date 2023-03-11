@@ -299,7 +299,7 @@ export class LobbyController implements ChatController {
         const vMin = localStorage.seek_min ?? "9";
         const vInc = localStorage.seek_inc ?? "3";
         const vByoIdx = (localStorage.seek_byo ?? 1) - 1;
-        const vRated = localStorage.seek_rated ?? "0";
+        const vRated = vVariant === "bughouse"? "0": localStorage.seek_rated ?? "0";
         const vLevel = Number(localStorage.seek_level ?? "1");
         const vChess960 = localStorage.seek_chess960 ?? "false";
         const vRMplay = localStorage.seek_rmplay ?? "false";
@@ -378,7 +378,7 @@ export class LobbyController implements ChatController {
                                 h('label', { attrs: { for: "casual"} }, _("Casual")),
                                 h('input#rated', {
                                     props: { type: "radio", name: "mode", value: "1" },
-                                    attrs: { checked: vRated === "1" },
+                                    attrs: { checked: vRated === "1", disabled: vVariant === "bughouse" /*dont support rated bughouse atm*/ },
                                     on: { input: e => this.setRated((e.target as HTMLInputElement).value) },
                                     hook: { insert: vnode => this.setRated((vnode.elm as HTMLInputElement).value) },
                                 }),
@@ -517,6 +517,20 @@ export class LobbyController implements ChatController {
                     )
                 ),
             ]));
+        }
+        if (variant === VARIANTS["bughouse"]){
+            const rated = document.getElementById('rated')! as HTMLInputElement;
+            const casual = document.getElementById('casual')! as HTMLInputElement;
+            rated.disabled = true;
+            rated.checked = false;
+            casual.checked = true;
+        } else {
+            const vRated = localStorage.seek_rated ?? "0";
+            const rated = document.getElementById('rated')! as HTMLInputElement;
+            const casual = document.getElementById('casual')! as HTMLInputElement;
+            rated.disabled = false;
+            rated.checked = vRated === "1";
+            casual.checked = vRated === "0";
         }
         this.setStartButtons();
     }

@@ -966,7 +966,7 @@ export default class AnalysisController {
         if (move) {
             // 960 king takes rook castling is not capture
             // TODO defer this logic to ffish.js
-            capture = (board.chessground.state.boardState.pieces.get(move[1]) !== undefined && step.san?.slice(0, 2) !== 'O-') || (step.san?.slice(1, 2) === 'x');
+            capture = (board.chessground.state.boardState.pieces.get(move[1] as cg.Key) !== undefined && step.san?.slice(0, 2) !== 'O-') || (step.san?.slice(1, 2) === 'x');
         }
 
         board.chessground.set({
@@ -1116,7 +1116,7 @@ export default class AnalysisController {
 
         const msg : MsgAnalysisBoard = {
             gameId: this.gameId,
-            fen: b.ffishBoard.fen(this.b1.variant.showPromoted, 0),
+            fen: b.ffishBoard.fen(this.b1.variant.ui.showPromoted, 0),
             ply: newPly,
             lastMove: move,
             bikjang: b.ffishBoard.isBikjang(),
@@ -1126,8 +1126,8 @@ export default class AnalysisController {
         this.onMsgAnalysisBoard(b, msg);
 
         const step = {  //no matter on which board the ply is happening i always need both fens and moves for both boards. this way when jumping to a ply in the middle of the list i can setup both boards and highlight both last moves
-            fen: b.boardName==='a'? b.ffishBoard.fen(b.variant.showPromoted, 0): b.partnerCC.ffishBoard.fen(b.partnerCC.variant.showPromoted, 0),
-            fenB: b.boardName==='b'? b.ffishBoard.fen(b.variant.showPromoted, 0): b.partnerCC.ffishBoard.fen(b.partnerCC.variant.showPromoted, 0),
+            fen: b.boardName==='a'? b.ffishBoard.fen(b.variant.ui.showPromoted, 0): b.partnerCC.ffishBoard.fen(b.partnerCC.variant.ui.showPromoted, 0),
+            fenB: b.boardName==='b'? b.ffishBoard.fen(b.variant.ui.showPromoted, 0): b.partnerCC.ffishBoard.fen(b.partnerCC.variant.ui.showPromoted, 0),
             'move': b.boardName==='a'? msg.lastMove: this.steps[this.steps.length-1].move,
             'moveB': b.boardName==='b'? msg.lastMove: this.steps[this.steps.length-1].moveB,
             'check': msg.check,

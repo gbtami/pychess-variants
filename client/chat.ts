@@ -1,4 +1,4 @@
-import { h } from "snabbdom";
+import {h, VNode} from "snabbdom";
 
 import { _ } from './i18n';
 import { patch } from './document';
@@ -51,32 +51,7 @@ export function chatView(ctrl: ChatController, chatType: string) {
         ]),
         // TODO: lock/unlock chat to spectators
         h(`ol#${chatType}-messages`, [ h('div#messages') ]),
-        h('div#chatpresets', [
-                    h('button.bugchat.p', { on: { click: () => sendMessage("!bug!p") } }, []),
-                    h('button.bugchat.n', { on: { click: () => sendMessage("!bug!n") } }, []),
-                    h('button.bugchat.b', { on: { click: () => sendMessage("!bug!b") } }, []),
-                    h('button.bugchat.r', { on: { click: () => sendMessage("!bug!r") } }, []),
-                    h('button.bugchat.q', { on: { click: () => sendMessage("!bug!q") } }, []),
-
-                    h('button.bugchat.nop', { on: { click: () => sendMessage("!bug!nop") } }, []),
-                    h('button.bugchat.non', { on: { click: () => sendMessage("!bug!non") } }, []),
-                    h('button.bugchat.nob', { on: { click: () => sendMessage("!bug!nob") } }, []),
-                    h('button.bugchat.nor', { on: { click: () => sendMessage("!bug!nor") } }, []),
-                    h('button.bugchat.noq', { on: { click: () => sendMessage("!bug!noq") } }, []),
-
-                    h('button.bugchat.txt', { on: { click: () => sendMessage("!bug!txt.SIT") } }, _("SIT")),
-                    h('button.bugchat.txt', { on: { click: () => sendMessage("!bug!txt.GO") } }, _("GO")),
-                    h('button.bugchat.txt', { on: { click: () => sendMessage("!bug!txt.TR") } }, _("TR")),
-                    h('button.bugchat.txt', { on: { click: () => sendMessage("!bug!txt.NT") } }, _("NT")),
-                    h('button.bugchat.txt', { on: { click: () => sendMessage("!bug!txt.M0") } }, _("#")),
-
-                    h('button.bugchat.txt', { on: { click: () => sendMessage("!bug!txt.OK") } }, _("OK")),
-                    h('button.bugchat.txt', { on: { click: () => sendMessage("!bug!txt.NO") } }, _("NO")),
-                    h('button.bugchat.txt', { on: { click: () => sendMessage("!bug!txt.MB") } }, _("MB")),
-                    h('button.bugchat.txt', { on: { click: () => sendMessage("!bug!txt.NVM") } }, _("NVM")),
-                    h('button.bugchat.txt', { on: { click: () => sendMessage("!bug!txt.FIX") } }, _("FIX")),
-
-                ]),
+        chatType === "bugroundchat"? renderBugChatPresets(sendMessage): [],
         h('input#chat-entry', {
             props: {
                 type: "text",
@@ -93,6 +68,35 @@ export function chatView(ctrl: ChatController, chatType: string) {
 
         })
     ]);
+}
+
+function renderBugChatPresets(sendMessage: (s:string)=>void): VNode{
+    return h('div#chatpresets', [
+                    h('button.bugchat.p', { on: { click: () => sendMessage("!bug!p") } }, []),
+                    h('button.bugchat.n', { on: { click: () => sendMessage("!bug!n") } }, []),
+                    h('button.bugchat.b', { on: { click: () => sendMessage("!bug!b") } }, []),
+                    h('button.bugchat.r', { on: { click: () => sendMessage("!bug!r") } }, []),
+                    h('button.bugchat.q', { on: { click: () => sendMessage("!bug!q") } }, []),
+
+                    h('button.bugchat.nop', { on: { click: () => sendMessage("!bug!nop") } }, []),
+                    h('button.bugchat.non', { on: { click: () => sendMessage("!bug!non") } }, []),
+                    h('button.bugchat.nob', { on: { click: () => sendMessage("!bug!nob") } }, []),
+                    h('button.bugchat.nor', { on: { click: () => sendMessage("!bug!nor") } }, []),
+                    h('button.bugchat.noq', { on: { click: () => sendMessage("!bug!noq") } }, []),
+
+                    h('button.bugchat.sit', { on: { click: () => sendMessage("!bug!sit") } }, []),
+                    h('button.bugchat.go', { on: { click: () => sendMessage("!bug!go") } }, []),
+                    h('button.bugchat.trade', { on: { click: () => sendMessage("!bug!trade") } }, []),
+                    h('button.bugchat.notrade', { on: { click: () => sendMessage("!bug!notrade") } }, []),
+                    h('button.bugchat.mate', { on: { click: () => sendMessage("!bug!mate") } },[]),
+
+                    h('button.bugchat.ok', { on: { click: () => sendMessage("!bug!ok") } }, []),
+                    h('button.bugchat.no', { on: { click: () => sendMessage("!bug!no") } }, []),
+                    h('button.bugchat.mb', { on: { click: () => sendMessage("!bug!mb") } }, []),
+                    h('button.bugchat.nvm', { on: { click: () => sendMessage("!bug!nvm") } }, []),
+                    h('button.bugchat.fix', { on: { click: () => sendMessage("!bug!fix") } }, []),
+
+                ]);
 }
 
 export function chatMessage (user: string, message: string, chatType: string, time?: number) {
@@ -117,7 +121,7 @@ export function chatMessage (user: string, message: string, chatType: string, ti
         patch(container, h('div#messages', [ h("li.message",
             [h("div.time", localTime), h("user", h("a", { attrs: {href: "/@/" + user} }, user)),
                 /*h("div.discord-icon-container", h("img.icon-discord-icon", { attrs: { src: '/static/icons/discord.svg' } }))*/
-                h('button.bugchat.'+m,m)
+                h('div.bugchat.'+m,[])
             ]) ]));
     } else {
         patch(container, h('div#messages', [ h("li.message", [h("div.time", localTime), h("user", h("a", { attrs: {href: "/@/" + user} }, user)), h("t", message)]) ]));

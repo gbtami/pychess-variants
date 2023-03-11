@@ -125,10 +125,18 @@ export function updateMovelist (ctrl: AnalysisController | RoundController, full
                 const min = Math.floor(x.time/60000);
                 const sec = Math.floor((x.time - min*60000)/1000);
                 const millis = x.time - sec*1000;
-                chatMessages.push(h("div", min+":"+sec+"."+millis+" "+x.username+": "+x.message))
+                const time = min+":"+sec+"."+millis;
+                const m = x.message.replace('!bug!','');
+                const v = h("li.message",
+                    [h("div.time", time), h("user", h("a", { attrs: {href: "/@/" + x.username} }, x.username)),
+                        /*h("div.discord-icon-container", h("img.icon-discord-icon", { attrs: { src: '/static/icons/discord.svg' } }))*/
+                        h('div.bugchat.'+m,[])
+                    ]);
+
+                chatMessages.push(v/*h("div", +" "+x.username+": "+x.message)*/);
             }
-            moveEl.push(h('bugchat#ply' + ply, [ h("img", { attrs: { src: '/static/icons/discord.svg' } }),
-            h("div.bugchatpopup",chatMessages)]));
+            moveEl.push(h('bugchat#ply' + ply, [ h("img", { attrs: { src: '/static/icons/bugchatmove.svg' } }),
+            h("ol.bugchatpopup.chat",chatMessages)]));
         }
 
         moves.push(h('move-bug.counter',  Math.floor(ctrl.steps[ply].boardName === 'a'? (plyA + 1) / 2 : (plyB + 1) / 2 ) ) );
