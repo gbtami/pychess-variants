@@ -238,7 +238,7 @@ class GameBug:
         self.steps[cur_ply-1].setdefault("chat", []).append({
             "message": message,
             "username": user.username,
-            "time": cur_time
+            "time": time
         })
 
         # todo:niki:get rid of this structure:
@@ -316,8 +316,6 @@ class GameBug:
                 self.set_dests()
                 self.update_status()
 
-                if self.status > STARTED:
-                    await self.save_game()
                 moveA = move if board == "a" else ""
                 moveB = move if board == "b" else ""
                 self.steps.append(
@@ -333,6 +331,10 @@ class GameBug:
                         "clocks": clocks,
                     }
                 )
+
+                if self.status > STARTED:
+                    await self.save_game()
+
                 self.stopwatches[board].restart()
 
             except Exception:

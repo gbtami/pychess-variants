@@ -2069,11 +2069,20 @@ move-bug {
     line-height: 1.9em;
     float: left;
     flex: 0 0 calc(25% - 3ch);
+    max-width: calc(25% - 3ch);
     padding-left: 6px;
     box-sizing: border-box;
     justify-content: center;
+    white-space: nowrap;
 }
 
+move-bug.haschat {
+    background-image: url('/static/icons/bugchatmove.svg');
+  background-size: 1em 1em;
+   background-repeat: no-repeat;
+  background-position: right;
+
+}
 eval {
   font-size: 0.8em;
   padding-right: 8px;
@@ -2088,9 +2097,11 @@ bugchat img{
 }
 
 .bugchatpopup {
-  visibility: hidden;
+  list-style-type: none;
+  /*visibility: hidden;*/
+  display: none;
   /*background-color: #3c3934;*/
-  position: fixed;
+  /*position: fixed;*/
   /*left: 0;
   top: 50px;*/
   min-width: 12rem;
@@ -2099,10 +2110,17 @@ bugchat img{
   text-align: left;
   box-shadow: var(--base-shadow);
   z-index: 1000;
+  min-height: unset;
+  flex: 0 0 100%;
+  /*background-color: var(--bg-color2);
+  border-top: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color);*/
+  max-width: 100%;
 }
 
-bugchat:hover .bugchatpopup {
-  visibility: visible;
+/*move-bug:hover + .bugchatpopup,*/
+move-bug.active + .bugchatpopup {
+  display: block;
 }
 
 /*.bugchat .discord-icon-container {

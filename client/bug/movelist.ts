@@ -119,13 +119,14 @@ export function updateMovelist (ctrl: AnalysisController | RoundController, full
         const moveEl = [ h('san', move) ];
         const scoreStr = ctrl.steps[ply]['scoreStr'] ?? '';
         moveEl.push(h('eval#ply' + ply, scoreStr));
+        var chats: VNode| undefined = undefined;
         if (ctrl.steps[ply].chat) {
             const chatMessages: VNode[] = [];
             for (let x of ctrl.steps[ply].chat!) {
                 const min = Math.floor(x.time/60000);
                 const sec = Math.floor((x.time - min*60000)/1000);
-                const millis = x.time - sec*1000;
-                const time = min+":"+sec+"."+millis;
+                const millis = x.time - min*60000 - sec*1000;
+                const time = min+":"+(sec.toString().padStart(2, '0'))+"."+(millis.toString().padStart(3, '0'));
                 const m = x.message.replace('!bug!','');
                 const v = h("li.message",
                     [h("div.time", time), h("user", h("a", { attrs: {href: "/@/" + x.username} }, x.username)),
@@ -135,19 +136,20 @@ export function updateMovelist (ctrl: AnalysisController | RoundController, full
 
                 chatMessages.push(v/*h("div", +" "+x.username+": "+x.message)*/);
             }
-            moveEl.push(h('bugchat#ply' + ply, [ h("img", { attrs: { src: '/static/icons/bugchatmove.svg' } }),
-            h("ol.bugchatpopup.chat",chatMessages)]));
+            /*moveEl.push(h('bugchat#ply' + ply, [ h("img", { attrs: { src: '/static/icons/bugchatmove.svg' } })]));*/
+            chats = h("ol.bugchatpopup.chat",chatMessages);
         }
 
         moves.push(h('move-bug.counter',  Math.floor(ctrl.steps[ply].boardName === 'a'? (plyA + 1) / 2 : (plyB + 1) / 2 ) ) );
 
         const el = h('move-bug', {
-            class: { active: ((ply === plyTo - 1) && activate) },
+            class: { active: ((ply === plyTo - 1) && activate), haschat: !!ctrl.steps[ply].chat },
             attrs: { ply: ply },
             on: { click: () => selectMove(ctrl, ply) },
         }, moveEl);
 
         moves.push(el);
+        if (chats) moves.push(chats);
 
         if (ctrl.steps[ply]['vari'] !== undefined && "plyVari" in ctrl) {
             const variMoves = ctrl.steps[ply]['vari'];
