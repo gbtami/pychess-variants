@@ -52,7 +52,7 @@ For move generation, validation, analysis and engine play it uses
 - [Fairy-Stockfish](https://github.com/ianfab/Fairy-Stockfish)
 - [fairy-stockfish.wasm](https://github.com/ianfab/fairy-stockfish.wasm)
 - [fairyfishnet](https://github.com/gbtami/fairyfishnet) fork of [fishnet](https://github.com/lichess-org/fishnet)
-- [lichess-bot-variants](https://github.com/gbtami/lichess-bot-variants) fork of [lichess-bot](https://github.com/ShailChoksi/lichess-bot)
+- [lichess-bot-variants](https://github.com/gbtami/lichess-bot-variants) fork of [lichess-bot](https://github.com/lichess-bot-devs/lichess-bot)
 
 On client side it is based on
 [chessgroundx](https://github.com/gbtami/chessgroundx) fork of [chessground](https://github.com/lichess-org/chessground)
