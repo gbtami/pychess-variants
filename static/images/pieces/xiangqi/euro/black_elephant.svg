@@ -6,7 +6,7 @@
    id="Ebene_1"
    x="0px"
    y="0px"
-   viewBox="0 0 151.06153 151.06154"
+   viewBox="-8.392 -8.392 167.847 167.847"
    enable-background="new 0 0 590 595"
    xml:space="preserve"
    inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
@@ -23,7 +23,13 @@
      id="metadata223"><rdf:RDF><cc:Work
          rdf:about=""><dc:format>image/svg+xml</dc:format><dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" /><dc:date>2015-05-20, 2023-03-16</dc:date><dc:creator><cc:Agent><dc:title>Jasmin Scharrer (original artwork, http://jasminscharrer.com/), Sebastian Pipping (post-processing, https://blog.hartwork.org/)</dc:title></cc:Agent></dc:creator><dc:subject><rdf:Bag><rdf:li>Chinese chess</rdf:li><rdf:li>Xiangqi</rdf:li><rdf:li>chess</rdf:li><rdf:li>board game</rdf:li><rdf:li>game</rdf:li></rdf:Bag></dc:subject><cc:license
-           rdf:resource="http://creativecommons.org/licenses/by/4.0/" /><dc:title /></cc:Work></rdf:RDF></metadata><defs
+           rdf:resource="http://creativecommons.org/licenses/by/4.0/" /></cc:Work><cc:License
+         rdf:about="http://creativecommons.org/licenses/by/4.0/"><cc:permits
+           rdf:resource="http://creativecommons.org/ns#Reproduction" /><cc:permits
+           rdf:resource="http://creativecommons.org/ns#Distribution" /><cc:requires
+           rdf:resource="http://creativecommons.org/ns#Notice" /><cc:requires
+           rdf:resource="http://creativecommons.org/ns#Attribution" /><cc:permits
+           rdf:resource="http://creativecommons.org/ns#DerivativeWorks" /></cc:License></rdf:RDF></metadata><defs
      id="defs221" /><sodipodi:namedview
      pagecolor="#ffffff"
      bordercolor="#666666"
@@ -38,8 +44,8 @@
      id="namedview219"
      showgrid="false"
      inkscape:zoom="5.1262218"
-     inkscape:cx="80.46862"
-     inkscape:cy="80.566158"
+     inkscape:cx="80.468621"
+     inkscape:cy="80.566159"
      inkscape:window-x="0"
      inkscape:window-y="0"
      inkscape:window-maximized="1"
@@ -57,7 +63,7 @@
      inkscape:document-units="cm" /><g
      id="black_elephant"
      transform="translate(-14.218329,-151.57136)"><circle
-       style="color:#000000;display:inline;overflow:visible;visibility:visible;opacity:1;fill:#b3b3b3;fill-opacity:1;fill-rule:nonzero;stroke:#1a1a1a;stroke-width:3.45000005;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:10;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;marker:none;enable-background:accumulate"
+       style="color:#000000;display:inline;overflow:visible;visibility:visible;opacity:1;fill:#b3b3b3;fill-opacity:1;fill-rule:nonzero;stroke:#1a1a1a;stroke-width:3.45;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:10;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;marker:none;enable-background:accumulate"
        id="circle4374"
        cx="89.749069"
        cy="227.10213"
@@ -71,7 +77,7 @@
          style="fill:#f2f2f2;fill-opacity:1;stroke:#1a1a1a;stroke-width:2;stroke-miterlimit:10;stroke-opacity:1" /><path
          sodipodi:nodetypes="ccccsccsccsccscscccccccccccccccccscc"
          stroke-miterlimit="10"
-         d="m -35.864451,233.21117 c -3.2,-7.2 -9,-16.9 -9,-16.9 l -5.6,12.1 c 0.4,0.8 1.3,2.5 2.9,5.6 7.1,13.7 -0.2,19.5 -3.8,19.5 -8.7,0 -10.2,-11.6 -10.6,-12.7 -0.1,-0.8 -0.6,-4.3 -1.1,-8.7 0,0 -1.2,-7.9 -1.2,-13.1 0,-7.1 -2,-15.3 -2,-15.7 l -0.1,-0.3 c -6.3,-14.9 -16.1,-18 -23.2,-18 -9.6,0 -18.199999,5.6 -20.799999,8.4 l -0.1,0.1 c -0.9,-0.4 -2.2,-0.8 -3.4,-0.8 -7.3,0 -13.1,2.4 -17.5,7 -8.5,9 -8,23.2 -8,23.7 l 0,31 45.899999,17.1 0,-20.2 0,-1.1 0,0 c 0,0 -0.3,-3.6 1.1,-5.7 0.1,-0.1 0.1,-0.2 0.1,-0.2 l 0,0 c 0.1,-0.2 0.3,-0.4 0.5,-0.5 1.9,-1.7 10.1,-5 14.1,-1.4 l 0,0 0,0 c 0.4,0.4 0.81881,0.7396 1,1.2 l -0.1,0 0.1,0.1 c 0,0 1.5,3.7 2.6,5.6 2.9,5.5 4.2,8.2 7.3,11.2 3.2,3 8.7,5.3 14.9,5.3 6,0 12.1,-4.4 15.4,-10.4 3.5,-6.3 4.1,-14.2 0.6,-22.2 z"
+         d="m -35.864451,233.21117 c -3.2,-7.2 -9,-16.9 -9,-16.9 l -5.6,12.1 c 0.4,0.8 1.3,2.5 2.9,5.6 7.1,13.7 -0.2,19.5 -3.8,19.5 -8.7,0 -10.2,-11.6 -10.6,-12.7 -0.1,-0.8 -0.6,-4.3 -1.1,-8.7 0,0 -1.2,-7.9 -1.2,-13.1 0,-7.1 -2,-15.3 -2,-15.7 l -0.1,-0.3 c -6.3,-14.9 -16.1,-18 -23.2,-18 -9.6,0 -18.199999,5.6 -20.799999,8.4 l -0.1,0.1 c -0.9,-0.4 -2.2,-0.8 -3.4,-0.8 -7.3,0 -13.1,2.4 -17.5,7 -8.5,9 -8,23.2 -8,23.7 v 31 l 45.899999,17.1 v -20.2 -1.1 0 c 0,0 -0.3,-3.6 1.1,-5.7 0.1,-0.1 0.1,-0.2 0.1,-0.2 v 0 c 0.1,-0.2 0.3,-0.4 0.5,-0.5 1.9,-1.7 10.1,-5 14.1,-1.4 v 0 0 c 0.4,0.4 0.81881,0.7396 1,1.2 h -0.1 l 0.1,0.1 c 0,0 1.5,3.7 2.6,5.6 2.9,5.5 4.2,8.2 7.3,11.2 3.2,3 8.7,5.3 14.9,5.3 6,0 12.1,-4.4 15.4,-10.4 3.5,-6.3 4.1,-14.2 0.6,-22.2 z"
          id="path4493"
          inkscape:connector-curvature="0"
          style="fill:#1a1a1a;fill-opacity:1;stroke:#1a1a1a;stroke-width:3;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1" /><circle
