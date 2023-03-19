@@ -72,6 +72,15 @@
 .icon-adjust:before {
   content: "\61";
 }
+.icon-adjust-rev:before {
+  content: "\61";
+}
+.icon-adjust-rev {
+  -webkit-transform: scaleX(-1);
+  transform: scaleX(-1);
+  width: fit-content;
+}
+
 .icon-black:before {
   content: "\62";
 }

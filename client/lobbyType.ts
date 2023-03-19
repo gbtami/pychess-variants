@@ -84,9 +84,9 @@ export interface Seek {
     target: string;
     title: string;
 
-    bugUserPartner: string;
-    bugOpp: string;
-    bugOppPartner: string;
+    bugPlayer1: string;
+    player2: string;
+    bugPlayer2: string;
 }
 
 export type CreateMode = 'createGame' | 'playFriend' | 'playAI' | 'createHost';

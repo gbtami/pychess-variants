@@ -179,15 +179,15 @@ async def lobby_socket_handler(request):
 
                         # print("accept_seek", seek.as_json)
                         if seek.variant == 'bughouse':
-                            response = await join_seek(request.app, user, data["seekID"])
+                            response = await join_seek(request.app, user, data["seekID"], None, data["joinAs"])
                             await ws.send_json(response)
 
-                            if seek.ws is None:
+                            if seek.ws is None: # todo:niki: i dont really understand this if? I guess it is when whoever created the seek disappeared. I should test what happens on refresh maybe, in any case makes sense to leave it as is
                                 remove_seek(seeks, seek)
                                 await lobby_broadcast(sockets, get_seeks(seeks))
                             else:
                                 await seek.ws.send_json(response)
-
+                                await lobby_broadcast(sockets, get_seeks(seeks))
                         else:
                             response = await join_seek(request.app, user, data["seekID"])
                             await ws.send_json(response)

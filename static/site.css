@@ -75,6 +75,7 @@
   --slider-border: #a9a9a9;
   --anal-clock: #bbd7f1;
   --pv-hover: #e0ebd3;
+  --bug-waiting: #787878
 }
 [data-theme='dark'] {
   --dark-mode: 1;
@@ -136,6 +137,7 @@
   --slider-border: #7a7a7a;
   --anal-clock: #2b455d;
   --pv-hover: #323c22;
+  --bug-waiting: #404040
 }
 [data-theme='dark'] .icon-black:before {
   content: '\63';
@@ -419,6 +421,72 @@ iframe {
 .seeks [class*=' icon-']:before {
   font-size: 18px;
 }
+
+.bugseek{
+  display: grid;
+  grid-template-columns: auto/*team board color name;*/;
+  grid-template-rows: auto auto 1em auto auto;
+  /*grid-template-areas: 'team1 board color name' 'team1 board color name' 'team2 board color name' 'team2 board color name';*/
+}
+td.bugseek1{
+  display: grid;
+  grid-template-columns: auto auto auto/*team board color name;*/;
+  grid-template-rows: auto auto 1em auto auto;
+  /*grid-template-areas: 'team1 board color name' 'team1 board color name' 'team2 board color name' 'team2 board color name';*/
+}
+
+.bugseekteam1{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  grid-row: 1/3;
+}
+.bugseekteam2{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  grid-row: 4/6;
+}
+.bugseekvs{
+  grid-column: 1/4;
+}
+.bugseekteam1 div,
+.bugseekteam2 div{
+  /*  font-size: 13px;*/
+  font-color: #878787;
+  /*position: absolute;*/
+  /*top: 50%;
+  left: 50%;*/
+  /*background: #DDD;*/
+/*
+  -moz-transform: translateX(-50%) translateY(-50%) rotate(-90deg);
+  -webkit-transform: translateX(-50%) translateY(-50%) rotate(-90deg);
+  transform:  translateX(-50%) translateY(-50%) rotate(-90deg);*/
+}
+
+.bug-join-button{
+  /*background-color: transparent;*/
+  background-color: var(--bg-color2);
+  border: none;
+  color: var(--font-color);
+  /*padding: 15px 2px;*/
+  text-align: center;
+  text-decoration: none;
+  font-size: 18px;
+  /*margin: 4px 2px;*/
+
+  cursor: pointer;
+  box-shadow: var(--base-shadow);
+  border-radius: 3px;
+}
+.bug-join-button:hover {
+  background-color: var(--bg-color1);
+}
+
+.bugwaiting {
+  color: var(--bug-waiting);
+}
+
 .page-menu {
   grid-area: main;
   display: grid;

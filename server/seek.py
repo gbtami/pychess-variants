@@ -64,6 +64,8 @@ class Seek:
             "target": self.target,
             "player1": self.player1.username if self.player1 is not None else "",
             "player2": self.player2.username if self.player2 is not None else "",
+            "bugPlayer1": self.bugPlayer1.username if self.bugPlayer1 is not None else "",
+            "bugPlayer2": self.bugPlayer2.username if self.bugPlayer2 is not None else "",
             "fen": self.fen,
             "color": self.color,
             "rated": self.rated,

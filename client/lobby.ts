@@ -262,6 +262,10 @@ export class LobbyController implements ChatController {
         const chess960 = (variant.chess960 && alternateStart === "") ? e.checked : false;
         localStorage.seek_chess960 = e.checked;
 
+        // e = document.getElementById('bugSimul') as HTMLInputElement;
+        // const bugSimul = e.checked;
+        // localStorage.seek_bug_simul = bugSimul;
+
         // console.log("CREATE SEEK variant, color, fen, minutes, increment, hide, chess960", variant, color, fen, minutes, increment, chess960, rated);
 
         switch (this.createMode) {
@@ -600,17 +604,57 @@ export class LobbyController implements ChatController {
         return [ seekHeader(), h('tbody', rows) ];
     }
 
-    private seekView(seek: Seek) {
+    private seekViewRegular(seek:Seek) {
         const variant = VARIANTS[seek.variant];
         const chess960 = seek.chess960;
 
-        return this.hide(seek) ? "" : h('tr', { on: { click: () => this.onClickSeek(seek) } }, [
+        return h('tr', { on: { click: () => this.onClickSeek(seek) } }, [
             h('td', [ this.colorIcon(seek.color) ]),
-            h('td', variant == VARIANTS['bughouse']?[ h('div', [ this.challengeIcon(seek), this.seekTitle(seek), seek.user ]),
-                                    h('div', [ this.challengeIcon(seek), this.seekTitle(seek), seek.bugUserPartner ]),
-                                    h('div', [ this.challengeIcon(seek), this.seekTitle(seek), seek.bugOpp ]),
-                                    h('div', [ this.challengeIcon(seek), this.seekTitle(seek), seek.bugOppPartner ]) ]
-                :[ this.challengeIcon(seek), this.seekTitle(seek), this.user(seek) ]),
+            h('td', [ this.challengeIcon(seek), this.seekTitle(seek), this.user(seek) ]),
+            h('td', seek.rating),
+            h('td', timeControlStr(seek.base, seek.inc, seek.byoyomi)),
+            h('td.icon', { attrs: { "data-icon": variant.icon(chess960) } }, [h('variant-name', " " + variant.displayName(chess960))]),
+            h('td', { class: { tooltip: seek.fen !== '' } }, [
+                this.tooltip(seek, variant),
+                this.mode(seek),
+            ]),
+        ])
+    }
+
+    private bugJoinSeek(e: Event, seek: Seek, joinAs: string) {
+        e.stopPropagation();
+        // seek[player] = this.username;
+        this.doSend({ type: "accept_seek", seekID: seek["seekID"], player: this.username, joinAs: joinAs });
+    }
+
+    private seekViewBughouse(seek:Seek) {
+        const variant = VARIANTS[seek.variant];
+        const chess960 = seek.chess960;
+
+        return h('tr', { on: { click: () => this.onClickSeekBughouse(seek) } }, [
+            h('td.bugseek1', [
+                h('div.bugseekteam1', h("div", "+")),
+                h('div', "A"), this.colorIconBug(seek.color, "player1"),
+                h('div', "B"), this.colorIconBug(seek.color, "bugPlayer1"),
+                h('div.bugseekvs',"vs."),
+                h('div.bugseekteam2', h("div", "+")),
+                h('div', "A"), this.colorIconBug(seek.color, "player2"),
+                h('div', "B"), this.colorIconBug(seek.color, "bugPlayer2"),
+            ]),
+            h('td', h("div.bugseek", [
+
+                                h('div', [ this.seekTitle(seek), seek.user ]),
+                                h('div', [ this.challengeIcon(seek), this.seekTitle(seek), seek.bugPlayer1 === ""?
+                                                                                                                                [seek.player2, seek.bugPlayer2].includes(this.username)? h("div.bugwaiting", "Waiting..."):
+                                                                                                                                h('button.bug-join-button', { on: { click: (e:Event) => this.bugJoinSeek(e, seek, "bugPlayer1") } }, _("Join")): seek.bugPlayer1 ]),
+h('div.bugseekvs1',""),
+                                h('div', [ this.challengeIcon(seek), this.seekTitle(seek), seek.player2 === ""?
+                                                                                                                                [seek.user, seek.bugPlayer1].includes(this.username)? h("div.bugwaiting", "Waiting..."):
+                                                                                                                                h('button.bug-join-button', { on: { click: (e:Event) => this.bugJoinSeek(e, seek, "player2") } }, _("Join")): seek.player2 ]),
+                                h('div', [ this.challengeIcon(seek), this.seekTitle(seek), seek.bugPlayer2 === ""?
+                                                                                                                                [seek.user, seek.bugPlayer1].includes(this.username)? h("div.bugwaiting", "Waiting..."):
+                                                                                                                                h('button.bug-join-button', { on: { click: (e:Event) => this.bugJoinSeek(e, seek, "bugPlayer2") } }, _("Join")): seek.bugPlayer2 ]) ]
+             ) ),
             h('td', seek.rating),
             h('td', timeControlStr(seek.base, seek.inc, seek.byoyomi)),
             h('td.icon', { attrs: { "data-icon": variant.icon(chess960) } }, [h('variant-name', " " + variant.displayName(chess960))]),
@@ -621,13 +665,25 @@ export class LobbyController implements ChatController {
         ]);
     }
 
+    private seekView(seek: Seek) {
+        const variant = VARIANTS[seek.variant];
+        return this.hide(seek) ? "" : variant === VARIANTS['bughouse']? this.seekViewBughouse(seek): this.seekViewRegular(seek);
+    }
+
     private onClickSeek(seek: Seek) {
-        if (seek["user"] === this.username && seek.variant !== 'bughouse') {
+        if (seek["user"] === this.username) {
             this.doSend({ type: "delete_seek", seekID: seek["seekID"], player: this.username });
         } else {
             this.doSend({ type: "accept_seek", seekID: seek["seekID"], player: this.username });
         }
     }
+
+    private onClickSeekBughouse(seek: Seek) {
+        if (seek["user"] === this.username) {
+            this.doSend({ type: "delete_seek", seekID: seek["seekID"], player: this.username });
+        }
+    }
+
     private colorIcon(color: string) {
         return h('i-side.icon', {
             class: {
@@ -637,6 +693,17 @@ export class LobbyController implements ChatController {
             }
         });
     }
+    private colorIconBug(color: string, slot:string) {
+        return h('i-side.icon', {
+            class: {
+                "icon-adjust": color === "r" && ["player1", "bugPlayer2"].includes(slot),
+                "icon-adjust-rev": color === "r" && ["player2", "bugPlayer1"].includes(slot),
+                "icon-white":  (color === "w" && ["player1", "bugPlayer2"].includes(slot)) || (color === "b" && ["player2", "bugPlayer1"].includes(slot)),
+                "icon-black":  (color === "b" && ["player1", "bugPlayer2"].includes(slot)) || (color === "w" && ["player2", "bugPlayer1"].includes(slot)),
+            }
+        });
+    }
+
     private challengeIcon(seek: Seek) {
         const swords = (seek["user"] === this.username) ? 'vs-swords.lobby.icon' : 'vs-swords.lobby.opp.icon';
         return (seek['target'] === '') ? null : h(swords, { attrs: {"data-icon": '"'} });
