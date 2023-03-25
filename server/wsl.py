@@ -187,6 +187,10 @@ async def lobby_socket_handler(request):
                                 await lobby_broadcast(sockets, get_seeks(seeks))
                             else:
                                 await seek.ws.send_json(response)
+                                bugUsers = set(filter(lambda item: item is not None, [seek.player2, seek.bugPlayer1, seek.bugPlayer2]))
+                                for u in bugUsers:
+                                    s = next(iter(u.lobby_sockets)) # todo:niki:could be more than one if multiple browsers - could potentially record the one they joined from i guess
+                                    await s.send_json(response)
                                 await lobby_broadcast(sockets, get_seeks(seeks))
                         else:
                             response = await join_seek(request.app, user, data["seekID"])

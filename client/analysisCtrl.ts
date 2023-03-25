@@ -384,7 +384,7 @@ export class AnalysisController extends GameController {
                 movetimeChart(this);
             }
 
-        } else {
+        } else {//todo:niki:not relevant to bughouse but curious how is this case even possible to receive a single move in analaysis mode?
             if (msg.ply === this.steps.length) {
                 const step: Step = {
                     'fen': msg.fen,

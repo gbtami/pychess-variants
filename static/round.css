@@ -69,9 +69,14 @@
     grid-area: toolsB;
     display: flex;
     flex-flow: column;
+
 }
 
+.bug-round-tools-part .movelist-block{
+    max-height: calc(var(--cg-height)*(6/8) - 48px - 48px);
+    min-height: calc(var(--cg-height)*(6/8) - 48px - 48px);
 
+}
 .cg-wrap svg {
     position: absolute;
 }

@@ -158,7 +158,8 @@ class GameBug:
         self.promotions_a = []
         self.promotions_b = []
         self.lastmove = None
-        self.check = False
+        self.checkA = False
+        self.checkB = False
         self.status = CREATED
         self.result = "*"
         self.last_server_clock = monotonic()  # the last time a move was made
@@ -190,16 +191,18 @@ class GameBug:
         self.random_move_b = ""
 
         self.set_dests()
-        if self.boards["a"].move_stack or self.boards["b"].move_stack:
-            self.check = self.boards["a"].is_checked() or self.boards["b"].is_checked()  # todo not sure whats the point - except maybe for game-end/checkmate logic
+        if self.boards["a"].move_stack:
+            self.checkA = self.boards["a"].is_checked()
+        if self.boards["b"].move_stack:
+            self.checkB = self.boards["b"].is_checked()  # todo not sure whats the point - except maybe for game-end/checkmate logic
 
         self.steps = [
             {
                 "fen": self.boards["a"].initial_fen,
                 "fenB": self.boards["b"].initial_fen,
                 "san": None,
-                "turnColor": "white",  # todo: doesn't make sense in this initial step now - maybe have 2 fields for both boards for this reason when we don't have "active" board for last move and this.
-                "check": self.check,
+                "turnColor": "white",  # todo:niki: doesn't make sense in this initial step now - maybe have 2 fields for both boards for this reason when we don't have "active" board for last move and this.
+#                "check": self.check,  # todo:niki: i don't know if it makes sense for initial step. Maybe in case of custom fen - custom fen is complicated, it might require 2 properties for this, but also for turn color as well. Or 2 initial steps for each board i don't know
                 "clocks": self._ply_clocks["a"][0], # todo:niki: i dont know if it is needed at all, if yes probably should have it for both boards
             }
         ]
@@ -318,6 +321,7 @@ class GameBug:
 
                 moveA = move if board == "a" else ""
                 moveB = move if board == "b" else ""
+                check = self.checkB if board == "b" else self.checkA
                 self.steps.append(
                     {
                         "fen": self.boards["a"].fen,
@@ -327,7 +331,7 @@ class GameBug:
                         "boardName": board,
                         "san": san,
                         "turnColor": "black" if self.boards[board].color == BLACK else "white",
-                        "check": self.check,
+                        "check": check,
                         "clocks": clocks,
                     }
                 )
@@ -654,9 +658,9 @@ class GameBug:
             return
 
         if self.boards["a"].move_stack:
-            self.check = self.boards["a"].is_checked()
+            self.checkA = self.boards["a"].is_checked()
         if self.boards["b"].move_stack:
-            self.check = self.check or self.boards["b"].is_checked()  # todo niki no idea what self.check is needed for, but lets fix it here instead of coment it out
+            self.checkB = self.boards["b"].is_checked()  # todo niki no idea what self.check is needed for, but lets fix it here instead of coment it out
 
         # w, b = self.board.insufficient_material()  todo niki have to think again, but i feel insufficient is not applicable for bughouse
         # if w and b:
@@ -935,7 +939,8 @@ class GameBug:
             "destsB": self.dests_b,
             "promoA": self.promotions_a,
             "promoB": self.promotions_b,
-            "check": self.check,
+            "check": self.checkA, # todo:niki:why does this exist? isnt same in steps/last step enough?
+            "checkB": self.checkB,
             "ply": self.boards["a"].ply + self.boards["b"].ply,  # todo niki - just use global ply counter and moves list eventually. just putting this here so it is correct but not best
             "clocks": {"black": clocks["black"], "white": clocks["white"]}, # todo niki
             # "byo": byoyomi_periods,

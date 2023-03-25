@@ -27,6 +27,7 @@ import {variantsIni} from "../variantsIni";
 import * as idb from "idb-keyval";
 import {MsgAnalysis} from "../analysisType";
 import ffishModule from "ffish-es6";
+import {Key, Orig} from "chessgroundx/types";
 
 // const EVAL_REGEX = new RegExp(''
 //   + /^info depth (\d+) seldepth \d+ multipv (\d+) /.source
@@ -974,7 +975,6 @@ export default class AnalysisController {
             turnColor: step.turnColor,
             movable: {
                 color: step.turnColor,
-                dests: board.dests,//todo:niki:probably has to re-init this for variations or disable moves until variations are supported - current value probably wrong either way
                 },
             check: step.check,
             lastMove: move,
@@ -1119,6 +1119,8 @@ export default class AnalysisController {
             fen: b.ffishBoard.fen(this.b1.variant.ui.showPromoted, 0),
             ply: newPly,
             lastMove: move,
+            dests: new Map<Orig, Key[]>(), // todo:niki: why do i even use this msg object? putting empty dests just so it compiles, i dont think it is used
+            promo: [promo],// todo:niki: i think this is used, but was missing until now and put this so it doesnt complain. i wonder how it worked before. anyway, all code here needs review
             bikjang: b.ffishBoard.isBikjang(),
             check: b.ffishBoard.isCheck(),
         }

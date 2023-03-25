@@ -4,7 +4,7 @@ import * as cg from 'chessgroundx/types';
 import { _ } from '../i18n';
 import { patch } from '../document';
 import { Clock } from '../clock';
-import {chatMessage, chatView, IChatController} from '../chat';
+import {ChatController, chatMessage, chatView} from '../chat';
 import {createMovelistButtons, updateMovelist} from './movelist';
 import {Clocks, MsgBoard, MsgChat, MsgFullChat, MsgGameEnd, MsgMove, MsgUserConnected, RDiffs, Step} from "../messages";
 import {
@@ -26,8 +26,9 @@ import {player} from "../player";
 import {newWebsocket} from "../socket";
 import WebsocketHeartbeatJs from "websocket-heartbeat-js";
 import {notify} from "../notification";
+import {boardSettings} from "@/boardSettings";
 
-export class RoundController implements IChatController/*extends GameController todo:does it make sense for these guys - also AnalysisControl which is older before this refactring that introduced this stuff*/ {
+export class RoundController implements ChatController/*extends GameController todo:does it make sense for these guys - also AnalysisControl which is older before this refactring that introduced this stuff*/ {
     sock: WebsocketHeartbeatJs;
 
     b1: ChessgroundController;
@@ -96,12 +97,8 @@ export class RoundController implements IChatController/*extends GameController 
     vplayerB1: VNode;
 
     players: string[];
-    titles: string[];
-    ratings: string[];
 
     playersB: string[];
-    titlesB: string[];
-    ratingsB: string[];
 
     wplayer: string;
     bplayer: string;
@@ -119,7 +116,8 @@ export class RoundController implements IChatController/*extends GameController 
     wratingB: string;
     bratingB: string;
 
-    mycolor: Map<'a'|'b', Set<cg.Color>> = new Map<'a'|'b', Set<cg.Color>>([['a', new Set()],['b', new Set()]]);
+    myColor: Map<'a'|'b', cg.Color|undefined> = new Map<'a'|'b', cg.Color|undefined>([['a', undefined],['b', undefined]]);
+    partnerColor: Map<'a'|'b', cg.Color|undefined> = new Map<'a'|'b', cg.Color|undefined>([['a', undefined],['b', undefined]]);
 
     constructor(el1: HTMLElement,el1Pocket1: HTMLElement,el1Pocket2: HTMLElement,el2: HTMLElement,el2Pocket1: HTMLElement,el2Pocket2: HTMLElement, model: PyChessModel) {
 
@@ -214,50 +212,39 @@ export class RoundController implements IChatController/*extends GameController 
         this.wratingB = model.wratingB;
         this.bratingB = model.bratingB;
 //
-        if (this.wplayer === this.username) this.mycolor.get('a')!.add('white');
-        if (this.bplayer === this.username) this.mycolor.get('a')!.add('black');
-        if (this.wplayerB === this.username) this.mycolor.get('b')!.add('white');
-        if (this.bplayerB === this.username) this.mycolor.get('b')!.add('black');
+        if (this.wplayer === this.username) this.myColor.set('a', 'white');
+        if (this.bplayer === this.username) this.myColor.set('a', 'black');
+        if (this.wplayerB === this.username) this.myColor.set('b', 'white');
+        if (this.bplayerB === this.username) this.myColor.set('b', 'black');
 //
-
+        if (this.wplayer === this.username) this.partnerColor.set('b', 'black');
+        if (this.bplayer === this.username) this.partnerColor.set('b', 'white');
+        if (this.wplayerB === this.username) this.partnerColor.set('a', 'black');
+        if (this.bplayerB === this.username) this.partnerColor.set('a', 'white');
+//
         this.spectator = this.username !== this.wplayer && this.username !== this.bplayer && this.username !== this.wplayerB && this.username !== this.bplayerB;
-        //todo:niki:rethink eventually maybe this: below it is overly compicated because i want to support same player playing on all 4 boards or other arbitrary combinations for now
 // board A - 0 means top, 1 means bottom
         this.players = [
-            this.mycolor.get('a')!.size === 0 || this.mycolor.get('a')!.has("white") ? this.bplayer : this.wplayer,
-            this.mycolor.get('a')!.size === 0 || this.mycolor.get('a')!.has("white") ? this.wplayer : this.bplayer
-        ];
-        this.titles = [
-            this.mycolor.get('a')!.size === 0 || this.mycolor.get('a')!.has("white") ? this.btitle : this.wtitle,
-            this.mycolor.get('a')!.size === 0 || this.mycolor.get('a')!.has("white") ? this.wtitle : this.btitle
-        ];
-        this.ratings = [
-            this.mycolor.get('a')!.size === 0 || this.mycolor.get('a')!.has("white") ? this.brating : this.wrating,
-            this.mycolor.get('a')!.size === 0 || this.mycolor.get('a')!.has("white") ? this.wrating : this.brating
+            this.myColor.get('a') === 'black' || this.partnerColor.get('a') === 'black' ? this.wplayer : this.bplayer,
+            this.myColor.get('a') === 'white' || this.partnerColor.get('a') === 'white' ? this.wplayer : this.bplayer
         ];
 // board B - 0 means top, 1 means bottom
         this.playersB = [
-            !this.mycolor.get('a')!.has("white") && this.mycolor.get('b')!.has("white") ? this.bplayerB : this.wplayerB,
-            !this.mycolor.get('a')!.has("white") && this.mycolor.get('b')!.has("white") ? this.wplayerB : this.bplayerB
+            this.myColor.get('b') === 'black' || this.partnerColor.get('b') === 'black' ? this.wplayerB : this.bplayerB,
+            this.myColor.get('b') === 'white' || this.partnerColor.get('b') === 'white' ? this.wplayerB : this.bplayerB
         ];
-        this.titlesB = [
-            !this.mycolor.get('a')!.has("white") && this.mycolor.get('b')!.has("white") ? this.btitleB : this.wtitleB,
-            !this.mycolor.get('a')!.has("white") && this.mycolor.get('b')!.has("white") ? this.wtitleB : this.btitleB
-        ];
-        this.ratingsB = [
-            !this.mycolor.get('a')!.has("white") && this.mycolor.get('b')!.has("white") ? this.bratingB : this.wratingB,
-            !this.mycolor.get('a')!.has("white") && this.mycolor.get('b')!.has("white") ? this.wratingB : this.bratingB
-        ];
-
+//
+        const ratings = new Map<string, string>([[this.wplayer, this.wrating], [this.bplayer, this.brating], [this.wplayerB, this.wratingB], [this.bplayerB, this.bratingB]]);
+        const titles = new Map<string, string>([[this.wplayer, this.wtitle], [this.bplayer, this.btitle], [this.wplayerB, this.wtitleB], [this.bplayerB, this.btitleB]]);
         const player0a = document.getElementById('rplayer0a') as HTMLElement;
         const player1a = document.getElementById('rplayer1a') as HTMLElement;
-        this.vplayerA0 = patch(player0a, player('round-player0','player0a', this.titles[0], this.players[0], this.ratings[0], this.level));
-        this.vplayerA1 = patch(player1a, player('round-player1', 'player1a', this.titles[1], this.players[1], this.ratings[1], this.level));
+        this.vplayerA0 = patch(player0a, player('round-player0', 'player0a', titles.get(this.players[0])!, this.players[0], ratings.get(this.players[0])!, this.level));
+        this.vplayerA1 = patch(player1a, player('round-player1', 'player1a', titles.get(this.players[1])!, this.players[1], ratings.get(this.players[1])!, this.level));
 
         const player0b = document.getElementById('rplayer0b') as HTMLElement;
         const player1b = document.getElementById('rplayer1b') as HTMLElement;
-        this.vplayerB0 = patch(player0b, player('round-player0.bug', 'player0b', this.titlesB[0], this.playersB[0], this.ratingsB[0], this.level));
-        this.vplayerB1 = patch(player1b, player('round-player1.bug', 'player1b', this.titlesB[1], this.playersB[1], this.ratingsB[1], this.level));
+        this.vplayerB0 = patch(player0b, player('round-player0.bug', 'player0b', titles.get(this.playersB[0])!, this.playersB[0], ratings.get(this.playersB[0])!, this.level));
+        this.vplayerB1 = patch(player1b, player('round-player1.bug', 'player1b', titles.get(this.playersB[1])!, this.playersB[1], ratings.get(this.playersB[1])!, this.level));
 
         this.clocktimes = {'white': this.base * 1000 * 60, 'black': this.base * 1000 * 60}
         this.clocktimesB = {'white': this.base * 1000 * 60, 'black': this.base * 1000 * 60}
@@ -277,16 +264,16 @@ export class RoundController implements IChatController/*extends GameController 
         this.clocksB[0].onTick(this.clocksB[0].renderTime);
         this.clocksB[1].onTick(this.clocksB[1].renderTime);
 
-        const flagCallback0 = () => {
-            if ( this.mycolor.get('a')!.has(this.b1.turnColor) ) {
+        const flagCallbackA = () => {
+            if ( this.myColor.get('a') === this.b1.turnColor ) {
                 this.b1.chessground.stop();
                 this.b2.chessground.stop();
                 // console.log("Flag");
                 this.doSend({ type: "flag", gameId: this.gameId });
             }
         }
-        const flagCallback1 = () => {
-            if ( this.mycolor.get('b')!.has(this.b2.turnColor) ) {
+        const flagCallbackB = () => {
+            if ( this.myColor.get('b') === this.b2.turnColor ) {
                 this.b1.chessground.stop();
                 this.b2.chessground.stop();
                 // console.log("Flag");
@@ -295,38 +282,31 @@ export class RoundController implements IChatController/*extends GameController 
         }
 
         if (!this.spectator) {
-            this.clocks[0].onFlag(flagCallback0);
-            this.clocks[1].onFlag(flagCallback1);
-            this.clocksB[0].onFlag(flagCallback0);
-            this.clocksB[1].onFlag(flagCallback1);
+            this.clocks[0].onFlag(flagCallbackA);
+            this.clocks[1].onFlag(flagCallbackA);
+            this.clocksB[0].onFlag(flagCallbackB);
+            this.clocksB[1].onFlag(flagCallbackB);
         }
 
         const container = document.getElementById('game-controls') as HTMLElement;
-        // if (!this.spectator) {
-        //     const pass = this.variant.pass;
-        //     let buttons = [];
-        //     if (!this.tournamentGame) {
-        //         buttons.push(h('button#abort', { on: { click: () => this.abort() }, props: {title: _('Abort')} }, [h('i', {class: {"icon": true, "icon-abort": true} } ), ]));
-        //     }
-        //     buttons.push(h('button#count', _('Count')));
-        //     buttons.push(h('button#draw', { on: { click: () => (pass) ? this.pass() : this.draw() }, props: {title: (pass) ? _('Pass') : _("Draw")} }, [(pass) ? _('Pass') : h('i', '½')]));
-        //     buttons.push(h('button#resign', { on: { click: () => this.resign() }, props: {title: _("Resign")} }, [h('i', {class: {"icon": true, "icon-flag-o": true} } ), ]));
-        //
-        //     this.gameControls = patch(container, h('div.btn-controls', buttons));
-        //
-        //     const manualCount = this.variant.counting === 'makruk' && !(this.wtitle === 'BOT' || this.btitle === 'BOT');
-        //     if (!manualCount)
-        //         patch(document.getElementById('count') as HTMLElement, h('div'));
-        //
-        // } else {
+        if (!this.spectator) {
+            let buttons = [];
+            buttons.push(h('button#count', _('Count')));
+            buttons.push(h('button#draw', { on: { click: () => this.draw() }, props: {title: _("Draw")} }, [h('i', '½')]));
+            buttons.push(h('button#resign', { on: { click: () => this.resign() }, props: {title: _("Resign")} }, [h('i', {class: {"icon": true, "icon-flag-o": true} } ), ]));
+
+            this.gameControls = patch(container, h('div.btn-controls', buttons));
+
+            patch(document.getElementById('count') as HTMLElement, h('div'));
+
+        } else {
             this.gameControls = patch(container, h('div.btn-controls'));
-        // }
+        }
 
         //////////////
 
         this.b1 = new ChessgroundController(el1, el1Pocket1, el1Pocket2, 'a', model); //todo:niki:fen maybe should be parsed from bfen. what situation do we start from custom fen?
         this.b2 = new ChessgroundController(el2, el2Pocket1, el2Pocket2, 'b', model);
-        this.b2.chessground.set({orientation:"black"});
         this.b1.partnerCC = this.b2;
         this.b2.partnerCC = this.b1;
         this.b1.parent = this;
@@ -335,20 +315,20 @@ export class RoundController implements IChatController/*extends GameController 
         ///////
 
         this.b1.chessground.set({
-            orientation: this.mycolor.get('a')!.has('white')? 'white': 'black',
+            orientation: this.myColor.get('a') === 'white' || this.partnerColor.get('a') === 'white'? 'white': 'black',
             turnColor: 'white',
             movable: {
                 free: false,
-                color: this.mycolor.get('a')!.has('white')? 'white': 'black'
+                color: this.myColor.get('a') === 'white'? 'white': this.myColor.get('a') === 'black'? 'black': undefined
             },
             autoCastle: true, // TODO:niki:what is this?
         });
         this.b2.chessground.set({
-            orientation: this.mycolor.get('b')!.has('white')? 'white': 'black',
+            orientation: this.myColor.get('b') === 'white' || this.partnerColor.get('b') === 'white'? 'white': 'black',
             turnColor: 'white',
             movable: {
                 free: false,
-                color: this.mycolor.get('b')!.has('white')? 'white': 'black'
+                color: this.myColor.get('b') === 'white'? 'white': this.myColor.get('b') === 'black'? 'black': undefined
             },
             autoCastle: true, // TODO:niki:what is this?
         });
@@ -362,25 +342,40 @@ export class RoundController implements IChatController/*extends GameController 
         patch(document.getElementById('bugroundchat') as HTMLElement, chatView(this, "bugroundchat"));
 
         this.onMsgBoard(model["board"] as MsgBoard);
+
+        /////////////////
+        // const amISimuling = this.mycolor.get('a') !== undefined && this.mycolor.get('b') !== undefined;
+        // const distinctOpps = new Set([this.wplayer, this.bplayer, this.wplayerB, this.bplayerB].filter((e) => e !== this.username));
+        // const isOppSimuling = distinctOpps.size === 1;
+        if (this.myColor.get('a') === undefined) {
+            // I am not playing on board A at all. Switch:
+            this.switchBoards();
+        }
     }
 
+
     flipBoards = (): void => {
+
+        // boardSettings.updateDropSuggestion(); todo:niki:dont understand this at the moment
+
+        let infoWrap0 = document.getElementsByClassName('info-wrap0')[0] as HTMLElement;
+        let infoWrap0bug = document.getElementsByClassName('info-wrap0 bug')[0] as HTMLElement;
+        let infoWrap1 = document.getElementsByClassName('info-wrap1')[0] as HTMLElement;
+        let infoWrap1bug = document.getElementsByClassName('info-wrap1 bug')[0] as HTMLElement;
+
+        let a = infoWrap0!.style.gridArea || "clock-top"; //todo;niki:dont remember why we need this || but i see i needed it for boards switch. Maybe not initialized in the beninning somehow i dont know. Check and document maybe if at all this approach for swapping remains like this
+        infoWrap0!.style.gridArea = infoWrap1!.style.gridArea || "clock-bot";
+        infoWrap1!.style.gridArea = a;
+        a = infoWrap0bug!.style.gridArea || "clockB-top"; //todo;niki:dont remember why we need this || but i see i needed it for boards switch. Maybe not initialized in the beninning somehow i dont know. Check and document maybe if at all this approach for swapping remains like this
+        infoWrap0bug!.style.gridArea = infoWrap1bug!.style.gridArea || "clockB-bot";
+        infoWrap1bug!.style.gridArea = a;
+
         this.b1.toggleOrientation();
         this.b2.toggleOrientation();
     }
 
     switchBoards = (): void => {
-
-        const swap = function (nodeA: HTMLElement, nodeB: HTMLElement) {
-            const parentA = nodeA.parentNode;
-            const siblingA = nodeA.nextSibling === nodeB ? nodeA : nodeA.nextSibling;
-
-            // Move `nodeA` to before the `nodeB`
-            nodeB.parentNode!.insertBefore(nodeA, nodeB);
-
-            // Move `nodeB` to before the sibling of `nodeA`
-            parentA!.insertBefore(nodeB, siblingA);
-        };
+        //todo:niki:not sure if best implementation possible below
         let mainboardVNode = document.getElementById('mainboard');
         let mainboardPocket0 = document.getElementById('pocket00');
         let mainboardPocket1 = document.getElementById('pocket01');
@@ -389,18 +384,37 @@ export class RoundController implements IChatController/*extends GameController 
         let bugboardPocket0 = document.getElementById('pocket10');
         let bugboardPocket1 = document.getElementById('pocket11');
 
-        swap(mainboardVNode!, bugboardVNode!);
+        let infoWrap0 = document.getElementsByClassName('info-wrap0')[0] as HTMLElement;
+        let infoWrap0bug = document.getElementsByClassName('info-wrap0 bug')[0] as HTMLElement;
+        let infoWrap1 = document.getElementsByClassName('info-wrap1')[0] as HTMLElement;
+        let infoWrap1bug = document.getElementsByClassName('info-wrap1 bug')[0] as HTMLElement;
+
+        let a = mainboardVNode!.style.gridArea || "board";
+        mainboardVNode!.style.gridArea = bugboardVNode!.style.gridArea || "boardPartner";
+        bugboardVNode!.style.gridArea = a;
+
+        a = infoWrap0!.style.gridArea || "clock-top"; //todo;niki:dont remember why we need this || but i see i needed it for boards switch. Maybe not initialized in the beninning somehow i dont know. Check and document maybe if at all this approach for swapping remains like this
+        infoWrap0!.style.gridArea = infoWrap0bug!.style.gridArea || "clockB-top";
+        infoWrap0bug!.style.gridArea = a;
+        a = infoWrap1!.style.gridArea || "clock-bot"; //todo;niki:dont remember why we need this || but i see i needed it for boards switch. Maybe not initialized in the beninning somehow i dont know. Check and document maybe if at all this approach for swapping remains like this
+        infoWrap1!.style.gridArea = infoWrap1bug!.style.gridArea || "clockB-bot";
+        infoWrap1bug!.style.gridArea = a;
+
         swap(mainboardPocket0!, bugboardPocket0!);
         swap(mainboardPocket1!, bugboardPocket1!);
-    }
 
+
+
+        this.b1.chessground.redrawAll();
+        this.b2.chessground.redrawAll();
+    }
 
     sendMove = (b: ChessgroundController, orig: cg.Orig, dest: cg.Key, promo: string) => {
         console.log(b,orig,dest,promo);
         this.clearDialog();
 
         //moveColor is "my color" on that board
-        const moveColor = this.mycolor.get(b.boardName)!.has("black")? "black" : "white";
+        const moveColor = this.myColor.get(b.boardName) === "black"? "black" : "white";
 
         const oppclock = b.chessground.state.orientation === moveColor? 0: 1; // only makes sense when board is flipped which not supported in gameplay yet and itself only makes sense in spectators mode todo: also switching boards to be implemented
         const myclock = 1 - oppclock;
@@ -419,15 +433,15 @@ export class RoundController implements IChatController/*extends GameController 
         // console.log("sendMove(move)", move);
         let bclock, msgClocks;
         if (!b.flipped()) {
-            bclock = this.mycolor.get(b.boardName)!.has("black") ? 1 : 0;
+            bclock = this.myColor.get(b.boardName) === "black" ? 1 : 0;
         } else {
-            bclock = this.mycolor.get(b.boardName)!.has("black") ? 0 : 1;
+            bclock = this.myColor.get(b.boardName) === "black" ? 0 : 1;
         }
         const wclock = 1 - bclock
 
         const increment = (this.inc > 0 /*&& this.ply >= 2*/) ? this.inc * 1000 : 0;
-        const bclocktime = (this.mycolor.get(b.boardName)!.has("black") && b.preaction) ? clocktimes.black + increment: clocks[bclock].duration;
-        const wclocktime = (this.mycolor.get(b.boardName)!.has("white") && b.preaction) ? clocktimes.white + increment: clocks[wclock].duration;
+        const bclocktime = (this.myColor.get(b.boardName) === "black" && b.preaction) ? clocktimes.black + increment: clocks[bclock].duration;
+        const wclocktime = (this.myColor.get(b.boardName) === "white" && b.preaction) ? clocktimes.white + increment: clocks[wclock].duration;
 
         msgClocks = {movetime: (b.preaction) ? 0 : movetime, black: bclocktime, white: wclocktime};
 
@@ -446,46 +460,46 @@ export class RoundController implements IChatController/*extends GameController 
     //     this.doSend({ type: "abort", gameId: this.gameId });
     // }
     //
-    // private draw = () => {
-    //     // console.log("Draw");
-    //     if (confirm(_('Are you sure you want to draw?'))) {
-    //         this.doSend({ type: "draw", gameId: this.gameId });
-    //         this.setDialog(_("Draw offer sent"));
-    //     }
-    // }
+    private draw = () => {
+        // console.log("Draw");
+        if (confirm(_('Are you sure you want to draw?'))) {
+            this.doSend({ type: "draw", gameId: this.gameId });
+            this.setDialog(_("Draw offer sent"));
+        }
+    }
     //
-    // private rejectDrawOffer = () => {
-    //     this.doSend({ type: "reject_draw", gameId: this.gameId });
-    //     this.clearDialog();
-    // }
+    private rejectDrawOffer = () => {
+        this.doSend({ type: "reject_draw", gameId: this.gameId });
+        this.clearDialog();
+    }
     //
-    // private renderDrawOffer = () => {
-    //     this.vdialog = patch(this.vdialog, h('div#offer-dialog', [
-    //         h('div', { class: { reject: true }, on: { click: () => this.rejectDrawOffer() } }, h('i.icon.icon-abort.reject')),
-    //         h('div.text', _("Your opponent offers a draw")),
-    //         h('div', { class: { accept: true }, on: { click: () => this.draw() } }, h('i.icon.icon-check')),
-    //     ]));
-    // }
+    private renderDrawOffer = () => {
+        this.vdialog = patch(this.vdialog, h('div#offer-dialog', [
+            h('div', { class: { reject: true }, on: { click: () => this.rejectDrawOffer() } }, h('i.icon.icon-abort.reject')),
+            h('div.text', _("Your opponent offers a draw")),
+            h('div', { class: { accept: true }, on: { click: () => this.draw() } }, h('i.icon.icon-check')),
+        ]));
+    }
     //
-    // private setDialog = (message: string) => {
-    //     this.vdialog = patch(this.vdialog, h('div#offer-dialog', [
-    //         h('div', { class: { reject: false } }),
-    //         h('div.text', message),
-    //         h('div', { class: { accept: false } }),
-    //     ]));
-    // }
+    private setDialog = (message: string) => {
+        this.vdialog = patch(this.vdialog, h('div#offer-dialog', [
+            h('div', { class: { reject: false } }),
+            h('div.text', message),
+            h('div', { class: { accept: false } }),
+        ]));
+    }
     //
     private clearDialog = () => {
         this.vdialog = patch(this.vdialog, h('div#offer-dialog', []));
     }
 
     //
-    // private resign = () => {
-    //     // console.log("Resign");
-    //     if (confirm(_('Are you sure you want to resign?'))) {
-    //         this.doSend({ type: "resign", gameId: this.gameId });
-    //     }
-    // }
+    private resign = () => {
+        // console.log("Resign");
+        if (confirm(_('Are you sure you want to resign?'))) {
+            this.doSend({ type: "resign", gameId: this.gameId });
+        }
+    }
 
     // Janggi second player (Red) setup
     // private onMsgSetup = (msg: MsgSetup) => {
@@ -766,27 +780,27 @@ export class RoundController implements IChatController/*extends GameController 
                     this.b1.chessground.set({
                         fen: fenA,
                         turnColor: 'white',
-                        movable: {
-                            free: false,
-                            color: this.mycolor.get('a')!.has("white")? "white": "black",
-                            // dests: boardName='a'?msg.dests:msg.dests,
-                        },
+                        // movable: {
+                        //     free: false,
+                        //     color: this.myColor.get('a') === "white"? "white": "black",
+                        //     // dests: boardName='a'?msg.dests:msg.dests,
+                        // },
                       //  check: msg.check,//todo:niki:which board is this about?
                         //lastMove: lastMove,
                     });
                     this.b2.chessground.set({
                         fen: fenB,
                         turnColor: 'white',
-                        movable: {
-                            free: false,
-                            color: this.mycolor.get('b')!.has("white")? "white": "black",
-                            // dests: boardName='a'?msg.dests:msg.dests,
-                        },
+                        // movable: {
+                        //     free: false,
+                        //     color: this.myColor.get('b') === "white"? "white": "black",
+                        //     // dests: boardName='a'?msg.dests:msg.dests,
+                        // },
                        // check: msg.check,//todo:niki:which board is this about?
                         //lastMove: lastMove,
                     });
-                    const whiteClockA = this.mycolor.get('a')!.has("white")? 1: 0;
-                    const whiteClockB = this.mycolor.get('b')!.has("white")? 1: 0;
+                    const whiteClockA = this.myColor.get('a') === "white"? 1: 0;
+                    const whiteClockB = this.myColor.get('b') === "white"? 1: 0;
                     this.clocks[whiteClockA].start();
                     this.clocksB[whiteClockB].start();
             } else {
@@ -795,6 +809,7 @@ export class RoundController implements IChatController/*extends GameController 
                 const board = boardName === 'a'? this.b1: this.b2;
                 const fen = boardName == 'a'? fenA : fenB;
                 const fenPartner = boardName == 'a'? fenB : fenA;
+                const check = boardName == 'a'? msg.check : msg.checkB;
 
                 board.turnColor = board.turnColor === 'white' ? 'black' : 'white';
 
@@ -825,7 +840,7 @@ export class RoundController implements IChatController/*extends GameController 
 
                 const msgTurnColor = msg.steps[0].turnColor;
                 const msgMoveColor = msgTurnColor === 'white'? 'black': 'white';
-                const myMove = !this.mycolor.get(boardName)!.has(msgTurnColor); // the received move was made by me
+                const myMove = this.myColor.get(boardName) !== msgTurnColor; // the received move was made by me
                 if (!myMove) {
                     // resetting clocks on the client that has just sent them seems like a bad idea
                     const myColor = myMove ? msgMoveColor: msgTurnColor;
@@ -883,7 +898,7 @@ export class RoundController implements IChatController/*extends GameController 
                         board.chessground.set({
                             fen: fen,
                             turnColor: board.turnColor,
-                            check: msg.check,//todo:niki:which board is this about?
+                            check: check,//todo:niki:which board is this about?
                             lastMove: lastMove,
                         });
                         //todo:niki: updating model probably should be regardless of whetehre it is latestPly:
@@ -902,7 +917,7 @@ export class RoundController implements IChatController/*extends GameController 
                         // giving fen here will place castling rooks to their destination in chess960 variants
                         fen: fen,
                         turnColor: board.turnColor,
-                        check: msg.check,
+                        check: check,
                     });
                     board.fullfen = fen;
                     board.partnerCC.fullfen = fenPartner;
@@ -946,7 +961,6 @@ export class RoundController implements IChatController/*extends GameController 
             turnColor: step.turnColor,
             movable: {
                 color: step.turnColor,
-                dests: board.dests,//todo:niki:probably has to re-init this for variations or disable moves until variations are supported - current value probably wrong either way
                 },
             check: step.check,
             lastMove: move,
@@ -1069,7 +1083,7 @@ export class RoundController implements IChatController/*extends GameController 
 
     private onMsgDrawOffer = (msg: MsgDrawOffer) => {
         chatMessage("", msg.message, "roundchat");
-        // if (!this.spectator && msg.username !== this.username) this.renderDrawOffer();
+        if (!this.spectator && msg.username !== this.username) this.renderDrawOffer();
     }
 
     private onMsgDrawRejected = (msg: MsgDrawRejected) => {
@@ -1179,3 +1193,13 @@ export class RoundController implements IChatController/*extends GameController 
         }
     }
 }
+    function swap(nodeA: HTMLElement, nodeB: HTMLElement) {
+            const parentA = nodeA.parentNode;
+            const siblingA = nodeA.nextSibling === nodeB ? nodeA : nodeA.nextSibling;
+
+            // Move `nodeA` to before the `nodeB`
+            nodeB.parentNode!.insertBefore(nodeA, nodeB);
+
+            // Move `nodeB` to before the sibling of `nodeA`
+            parentA!.insertBefore(nodeB, siblingA);
+        };

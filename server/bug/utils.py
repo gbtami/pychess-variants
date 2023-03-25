@@ -144,7 +144,12 @@ async def load_game_bug(app, game_id):
 
             san = game.boards[board_name].get_san(move)
             game.boards[board_name].push(move)
-            game.check = game.boards[board_name].is_checked()
+
+            # todo:niki: not sure why this check stuff is being set here on each iteration. Only makes sense for last move.
+            if board_name == "a":
+                game.checkA = game.boards[board_name].is_checked()
+            if board_name == "b":
+                game.checkB = game.boards[board_name].is_checked()
 
             # turnColor = "black" if game.board.color == BLACK else "white" todo: should i use board at all here? i mean adding a second one - maybe for fen ahd and check - but still can happen on client as well
             turn_color = "white" if (board_ply[board_name]+1) % 2 == 0 else "black"
@@ -159,7 +164,7 @@ async def load_game_bug(app, game_id):
                 "boardName": board_name,
                 "san": san,
                 "turnColor": turn_color,
-                "check": game.check,
+                "check": game.checkA if board_name == "a" else game.checkB,
             }
             if "cw" in doc and board_name == 'a':
                 move_number = 1 + ((board_ply[board_name] + 1) // 2) + (1 if board_ply[board_name] % 2 == 0 else 0)

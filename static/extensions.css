@@ -363,7 +363,7 @@ button.bugchat::-moz-focus-inner {
   background-image: url('../../static/images/bugroundchat/NVM.svg');
   background-size: cover;
 }
-.bugchat.fix{
-  background-image: url('../../static/images/bugroundchat/FIX.svg');
+.bugchat.nice{
+  background-image: url('../../static/images/bugroundchat/NICE.svg');
   background-size: cover;
 }

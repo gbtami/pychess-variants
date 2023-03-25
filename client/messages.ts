@@ -74,10 +74,11 @@ export interface MsgBoard {
     ply: number;
     lastMove: string;
     dests: { [orig: string]: cg.Key[] };
-    destsB: { [orig: string]: cg.Key[] };
+    destsB?: { [orig: string]: cg.Key[] };
     promo: string[];
     bikjang: boolean;
     check: boolean;
+    checkB?: boolean;
     by: string;
     status: number;
     pgn: string;

@@ -91,14 +91,24 @@ function fillWithEmpty(moves: VNode[], countOfEmptyCellsToAdd: number) {
 }
 
 export function updateMovelist (ctrl: AnalysisController | RoundController, full = true, activate = true, needResult = true) {
-    const plyFrom = (full) ? 1 : ctrl.steps.length -1
+    const plyFrom = (full) ? 1 : ctrl.steps.length -1;
+    if (plyFrom === 0) return; // that is the very initial message with single dummy step. No moves yet
+
     const plyTo = ctrl.steps.length;
 
     const moves: VNode[] = [];
-    let lastColIdx = 0;
+    const prevPly = ctrl.steps[plyFrom-1];
+    let lastColIdx = plyFrom ===1? 0: prevPly.boardName === 'a'? prevPly.turnColor === 'white'/*black made the move*/? 2: 1: prevPly.turnColor === 'white'/*black made the move*/? 4: 3;
     let plyA: number = 0;//maybe make it part of Steps - maybe have some function to calculate these - i feel i will need this logic again somewhere
     let plyB: number = 0;
     let didWeRenderVariSectionAfterLastMove = false;
+
+    // in round mode we only call this for last move, so we need to reconstruct actual per-board ply from history
+    // todo:niki:this is stupid but will live with it for now, otherwise have to think where to stored this state
+    for (let ply = 1; ply < plyFrom; ply++) {
+        ctrl.steps[ply].boardName === 'a'? plyA++ : plyB++;
+    }
+
     for (let ply = plyFrom; ply < plyTo; ply++) {
         const move = ctrl.steps[ply].san;
         if (move === null) continue;
