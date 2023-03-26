@@ -695,6 +695,7 @@ export class RoundController implements ChatController/*extends GameController t
     private onMsgBoard = (msg: MsgBoard) => {
         console.log(msg);
         if (msg.gameId !== this.gameId) return;
+        if (msg.ply <= this.ply) return;// ideally not needed but putting it for now to handle a serverside bug that sends board messages twice sometimes
 
         // console.log("got board msg:", msg);
         let latestPly;

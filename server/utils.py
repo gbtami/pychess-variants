@@ -825,6 +825,12 @@ async def play_move(app, user, game, move, clocks=None, ply=None, board=None, pa
     if not invalid_move:
         await round_broadcast(game, board_response, channels=app["game_channels"])
 
+        if hasattr(game,'wplayerA'): # todo:niki:before adding this, what I was observing is, when making a move with white on B, i would receive the board message twice on that browser, but abother board(i tihnk partner) would not receive board message at all. Receiving of message twice is problematic, but for no i can filter it out in javascript, because not sure which one of the 3 places we send board messages here in this code  is the reason it is sent twice. Below code aslo makes sure all sockets receive message, so hopefully that brwoser that was missing it will receive it now. However now all/the other 3/who knows will receive probably at least twice so overall ugly situation, but dont have time to debug at the moment
+            bugUsers = set([game.wplayerA, game.wplayerB, game.bplayerA, game.bplayerB])
+            for u in bugUsers:
+                s = u.game_sockets[gameId]  # todo:niki:could be more than one if multiple browsers - could potentially record the one they joined from i guess
+                await s.send_json(board_response)
+
         if game.tournamentId is not None:
             tournament = app["tournaments"][game.tournamentId]
             if (
