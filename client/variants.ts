@@ -60,6 +60,7 @@ export const PIECE_FAMILIES: Record<string, PieceFamily> = {
     ordamirror: { pieceCSS: ["ordamirror0", "ordamirror1", "disguised"] },
     chak: { pieceCSS: ["chak0", "disguised"] },
     chennis: { pieceCSS: ["chennis0", "chennis1", "chennis2", "disguised"] },
+    spartan: { pieceCSS: ["spartan0", "disguised"] },
 };
 
 export interface Variant {
@@ -768,6 +769,14 @@ export const VARIANTS: Record<string, Variant> = {
         promotion: { type: "shogi", roles: ["p", "m", "s", "f"] },
     }),
 
+    spartan: variant({
+        name: "spartan", tooltip: _("Asymmetric Spartans vs. Persians variant."),
+        startFen: "lgkcckwl/hhhhhhhh/8/8/8/8/PPPPPPPP/RNBQKBNR w KQ - 0 1",
+        icon: "σ",
+        boardFamily: "standard8x8", pieceFamily: "spartan",
+        pieceRow: { white: ["k", "q", "r", "b", "n", "p"], black: ["k", "g", "w", "l", "c", "h"] },
+    }),
+
     // We support the functionality to import/store/analyze some variants
     // but don't want to add them to leaderboard page
     embassy: variant({
@@ -819,7 +828,7 @@ export const variantGroups: { [ key: string ]: { variants: string[] } } = {
     shogi:    { variants: [ "shogi", "minishogi", "kyotoshogi", "dobutsu", "gorogoroplus", "torishogi" ] },
     xiangqi:  { variants: [ "xiangqi", "manchu", "janggi", "minixiangqi" ] },
     fairy:    { variants: [ "capablanca", "capahouse", "seirawan", "shouse", "grand", "grandhouse", "shako", "shogun", "hoppelpoppel" ] },
-    army:     { variants: [ "orda", "synochess", "shinobi", "empire", "ordamirror", "chak", "chennis" ] },
+    army:     { variants: [ "orda", "synochess", "shinobi", "empire", "ordamirror", "chak", "chennis", "spartan" ] },
 };
 
 function variantGroupLabel(group: string): string {
