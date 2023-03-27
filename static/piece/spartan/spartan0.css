@@ -17,20 +17,20 @@
     background-image: url('../../images/pieces/merida/wK.svg');
 }
 .spartan .cg-wrap piece.h-piece.black {
-    background-image: url('../../images/pieces/merida/syno/bS.svg');
+    background-image: url('../../images/pieces/spartan/bP.svg');
 }
 .spartan .cg-wrap piece.l-piece.black {
-    background-image: url('../../images/pieces/merida/bAr.svg');
+    background-image: url('../../images/pieces/spartan/bLieutenant.svg');
 }
 .spartan .cg-wrap piece.w-piece.black {
-    background-image: url('../../images/pieces/merida/bA.svg');
+    background-image: url('../../images/pieces/spartan/bWarlord.svg');
 }
 .spartan .cg-wrap piece.g-piece.black {
-    background-image: url('../../images/pieces/shogun/merida/mono/bM.svg');
+    background-image: url('../../images/pieces/spartan/bGeneral.svg');
 }
 .spartan .cg-wrap piece.c-piece.black {
-    background-image: url('../../images/pieces/shogun/merida/mono/bC.svg');
+    background-image: url('../../images/pieces/spartan/bCaptain.svg');
 }
 .spartan .cg-wrap piece.k-piece.black {
-    background-image: url('../../images/pieces/merida/bK.svg');
+    background-image: url('../../images/pieces/spartan/bK.svg');
 }
