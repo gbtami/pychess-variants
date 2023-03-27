@@ -180,7 +180,7 @@ VARIANT_ICONS = {
     "chak": "🐬",
     "chennis": "🎾",
     "duck": "🦆",
-    "spartan": "σ",
+    "spartan": "⍺",
 }
 
 VARIANT_960_TO_PGN = {

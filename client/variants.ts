@@ -772,7 +772,7 @@ export const VARIANTS: Record<string, Variant> = {
     spartan: variant({
         name: "spartan", tooltip: _("Asymmetric Spartans vs. Persians variant."),
         startFen: "lgkcckwl/hhhhhhhh/8/8/8/8/PPPPPPPP/RNBQKBNR w KQ - 0 1",
-        icon: "σ",
+        icon: "⍺",
         boardFamily: "standard8x8", pieceFamily: "spartan",
         pieceRow: { white: ["k", "q", "r", "b", "n", "p"], black: ["k", "g", "w", "l", "c", "h"] },
     }),
