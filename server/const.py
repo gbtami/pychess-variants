@@ -130,6 +130,7 @@ VARIANTS = (
     "ordamirror",
     "chak",
     "chennis",
+    "spartan",
 )
 
 VARIANT_ICONS = {
@@ -181,6 +182,7 @@ VARIANT_ICONS = {
     "chak": "🐬",
     "chennis": "🎾",
     "duck": "🦆",
+    "spartan": "⍺",
 }
 
 VARIANT_960_TO_PGN = {
@@ -232,6 +234,7 @@ CATEGORIES = {
         "chak",
         "chennis",
         "shinobiplus",
+        "spartan",
     ),
     "makruk": ("makruk", "makpong", "cambodian", "sittuyin", "asean"),
     "shogi": (
@@ -360,6 +363,7 @@ TRANSLATED_VARIANT_NAMES = {
     "ordamirror": _("Orda Mirror"),
     "chak": _("Chak"),
     "chennis": _("Chennis"),
+    "spartan": _("Spartan"),
 }
 
 del _

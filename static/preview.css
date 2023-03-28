@@ -431,3 +431,10 @@ label.piece.piece2.chennis {
 label.piece.piece3.chennis {
     background-image: url('images/pieces/disguised/w.svg');
 }
+
+label.piece.piece0.spartan {
+    background-image: url('images/pieces/spartan/bK.svg');
+}
+label.piece.piece1.spartan {
+    background-image: url('images/pieces/disguised/b.svg');
+}

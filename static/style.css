@@ -39,6 +39,9 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+.icon-spartan:before {
+  content: "\237a";
+}
 .icon-duck:before {
   content: "\1f986";
 }
