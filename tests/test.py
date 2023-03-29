@@ -135,9 +135,6 @@ class GameResultTestCase(AioHTTPTestCase):
 class SanitizeFenTestCase(unittest.TestCase):
     def test_fen_default(self):
         for variant in VARIANTS:
-            # TODO: remove this after pyffish updated
-            if variant == "spartan":
-                continue
             chess960 = variant.endswith("960")
             variant_name = variant[:-3] if chess960 else variant
             board = FairyBoard(variant_name, chess960=chess960)

@@ -828,7 +828,7 @@ export const variantGroups: { [ key: string ]: { variants: string[] } } = {
     shogi:    { variants: [ "shogi", "minishogi", "kyotoshogi", "dobutsu", "gorogoroplus", "torishogi" ] },
     xiangqi:  { variants: [ "xiangqi", "manchu", "janggi", "minixiangqi" ] },
     fairy:    { variants: [ "capablanca", "capahouse", "seirawan", "shouse", "grand", "grandhouse", "shako", "shogun", "hoppelpoppel" ] },
-    army:     { variants: [ "orda", "synochess", "shinobi", "empire", "ordamirror", "chak", "chennis" ] },
+    army:     { variants: [ "orda", "synochess", "shinobi", "empire", "ordamirror", "chak", "chennis", "spartan" ] },
 };
 
 function variantGroupLabel(group: string): string {

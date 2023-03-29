@@ -81,10 +81,6 @@ class FairyBoard:
             self.notation = sf.NOTATION_SAN
 
     def start_fen(self, variant, chess960=False, disabled_fen=""):
-        # TODO: remove this after pyffish updated
-        if variant == "spartan":
-            return "lgkcckwl/hhhhhhhh/8/8/8/8/PPPPPPPP/RNBQKBNR w KQ - 0 1"
-
         if chess960:
             new_fen = self.shuffle_start()
             while new_fen == disabled_fen:

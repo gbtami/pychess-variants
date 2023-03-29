@@ -845,7 +845,10 @@ def sanitize_fen(variant, initial_fen, chess960):
     # Number of kings
     bking = "l" if variant == "dobutsu" else "k"
     wking = "L" if variant == "dobutsu" else "K"
-    invalid5 = init[0].count(bking) != 1 or init[0].count(wking) != 1
+    if variant == "spartan":
+        invalid5 = init[0].count(bking) != 2 or init[0].count(wking) != 1
+    else:
+        invalid5 = init[0].count(bking) != 1 or init[0].count(wking) != 1
 
     # Opp king already in check
     invalid6 = False
