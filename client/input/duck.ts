@@ -46,7 +46,7 @@ export class DuckInput extends ExtraInput {
         }
 
         const undo = document.getElementById('undo') as HTMLElement;
-        if (undo.tagName === 'DIV') {
+        if (undo && undo.tagName === 'DIV') {
             patch(undo,
                 h('button#undo', { on: { click: () => this.ctrl.undo() }, props: {title: _('Undo')} }, [h('i', {class: {"icon": true, "icon-reply": true } } ), ])
             );
