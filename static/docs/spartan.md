@@ -67,7 +67,19 @@ The Lieutenant (*Tagmatarchos*) moves one or two squares in any direction diagon
  
 ## Piece valuation
 
-Not available at  this time.
+The following Spaartan piece values are proposed by the game creator:
+
+Warlord = 8
+
+General = 7
+
+Extra King = 5
+
+Lieutenant = 3
+
+Captain = 3
+
+Hoplite = 1
 
 ## Strategy
 With different armies different strategies are effective for Persian and Spartan.
