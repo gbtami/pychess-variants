@@ -150,7 +150,7 @@ async def init_state(app):
         "Fairy-Stockfish": User(app, bot=True, username="Fairy-Stockfish"),
         "Discord-Relay": User(app, anon=True, username="Discord-Relay"),
     }
-    app["users"]["Random-Mover"].online = True
+    app["users"]["Fairy-Stockfish"].online = True
     app["lobbysockets"] = {}  # one dict only! {user.username: user.tournament_sockets, ...}
     app["lobbychat"] = collections.deque([], MAX_CHAT_LINES)
 
