@@ -986,7 +986,7 @@ export function lobbyView(model: PyChessModel): VNode[] {
                         h('strong', _("This is not joke!")),
                         h('span', _('Spartan chess has arrived')),
                     ]),
-                    h('time', '2022.12.26'),
+                    h('time', '2023.04.01'),
                 ]),
                 h('a.post', { attrs: {href: '/news/Duck_Chess'} }, [
                     h('img', { attrs: {src: model.assetURL + '/images/Duck.jpg'} }),
