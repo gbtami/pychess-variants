@@ -74,7 +74,7 @@ export function layer2army (lobbyCtrl: LobbyController, containerId: string): vo
                     h('div.icon', { attrs: { 'data-icon': VARIANTS['spartan'].icon(false) } }),
                     h('h3', VARIANTS['spartan'].displayName()),
                 ]),
-                h('p.variant-extra-info', _('Spartan chess')),
+                h('p.variant-extra-info', _('Spartans: Army with two kings')),
             ]),
         ]),
     ]);
