@@ -876,7 +876,7 @@ export function lobbyView(model: PyChessModel): VNode[] {
         h('under-lobby', [
             h('posts', [
                 h('a.post', { attrs: {href: '/news/Spartan_Chess'} }, [
-                    h('img', { attrs: {src: model.assetURL + '/images/Spartan.jpg'} }),
+                    h('img', { attrs: {src: model.assetURL + '/images/spartan-kick.jpg'} }),
                     h('span.text', [
                         h('strong', _("This is not joke!")),
                         h('span', _('Spartan chess has arrived')),
