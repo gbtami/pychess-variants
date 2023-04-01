@@ -13,8 +13,8 @@ export function layer2chess (lobbyCtrl: LobbyController, containerId: string): v
     const crazyhouse = VARIANTS['crazyhouse'];
     const atomic = VARIANTS['atomic'];
     const duck = VARIANTS['duck'];
-    const layer2cont = h('div#layer2chesscont.layer-2-container', [
-        h('button.layer-2-category generic-variant-info.generic', [
+    const layer2cont = h('div#layer2chesscont.layer-2-container.fairy-grid', [
+        h('button.layer-2-category generic-variant-info.generic-fairy', [
             h('div.layer-two-category-info', [
                 h('h4', _('Chess Variants')),
                 variantBoard(chess, chess.startFen),
@@ -22,52 +22,54 @@ export function layer2chess (lobbyCtrl: LobbyController, containerId: string): v
                 h('h5#chessl2back', { class: {"icon": true, "icon-reply": true}, on: { click: () => goBackToLayer1(lobbyCtrl, 'layer2chesscont') } }, _('Go Back')),
             ]),
         ]),
-        h('button.layer-2-category.chess-l2', { on: { click: () => layer3variant('layer2chesscont', lobbyCtrl, 'chess', false) } }, [
-            h('div.variant-title-l2', [
-                h('div.icon', { attrs: { 'data-icon': chess.icon(false) } }),
-                h('h3', VARIANTS['chess'].displayName())
+        h('div.button-grid', [
+            h('button.layer-2-category', { on: { click: () => layer3variant('layer2chesscont', lobbyCtrl, 'chess', false) } }, [
+                h('div.variant-title-l2', [
+                    h('div.icon', { attrs: { 'data-icon': chess.icon(false) } }),
+                    h('h3', VARIANTS['chess'].displayName())
+                ]),
             ]),
-        ]),
-        h('button.layer-2-category.chess960', { on: { click: () => layer3variant('layer2chesscont', lobbyCtrl, 'chess', true) } }, [
-            h('div.variant-title-l2', [
-                h('div.icon', { attrs: { 'data-icon': chess.icon(true) } }),
-                h('h3', VARIANTS['chess'].displayName(true))
+            h('button.layer-2-category', { on: { click: () => layer3variant('layer2chesscont', lobbyCtrl, 'chess', true) } }, [
+                h('div.variant-title-l2', [
+                    h('div.icon', { attrs: { 'data-icon': chess.icon(true) } }),
+                    h('h3', VARIANTS['chess'].displayName(true))
+                ]),
             ]),
-        ]),
-        h('button.layer-2-category.placement', { on: { click: () => layer3variant('layer2chesscont', lobbyCtrl, 'placement', false) } }, [
-            h('div.variant-title-l2', [
-                h('div.icon', { attrs: { 'data-icon': placement.icon(false) } }),
-                h('h3', VARIANTS['placement'].displayName())
+            h('button.layer-2-category', { on: { click: () => layer3variant('layer2chesscont', lobbyCtrl, 'placement', false) } }, [
+                h('div.variant-title-l2', [
+                    h('div.icon', { attrs: { 'data-icon': placement.icon(false) } }),
+                    h('h3', VARIANTS['placement'].displayName())
+                ]),
             ]),
-        ]),
-        h('button.layer-2-category.crazyhouse', { on: { click: () => layer3variant('layer2chesscont', lobbyCtrl, 'crazyhouse', false) } }, [
-            h('div.variant-title-l2', [
-                h('div.icon', { attrs: { 'data-icon': crazyhouse.icon(false) } }),
-                h('h3', VARIANTS['crazyhouse'].displayName())
+            h('button.layer-2-category', { on: { click: () => layer3variant('layer2chesscont', lobbyCtrl, 'crazyhouse', false) } }, [
+                h('div.variant-title-l2', [
+                    h('div.icon', { attrs: { 'data-icon': crazyhouse.icon(false) } }),
+                    h('h3', VARIANTS['crazyhouse'].displayName())
+                ]),
             ]),
-        ]),
-        h('button.layer-2-category.crazyhouse960', { on: { click: () => layer3variant('layer2chesscont', lobbyCtrl, 'crazyhouse', true) } }, [
-            h('div.variant-title-l2', [
-                h('div.icon', { attrs: { 'data-icon': crazyhouse.icon(true) } }),
-                h('h3', VARIANTS['crazyhouse'].displayName(true))
+            h('button.layer-2-category', { on: { click: () => layer3variant('layer2chesscont', lobbyCtrl, 'crazyhouse', true) } }, [
+                h('div.variant-title-l2', [
+                    h('div.icon', { attrs: { 'data-icon': crazyhouse.icon(true) } }),
+                    h('h3', VARIANTS['crazyhouse'].displayName(true))
+                ]),
             ]),
-        ]),
-        h('button.layer-2-category.atomic', { on: { click: () => layer3variant('layer2chesscont', lobbyCtrl, 'atomic', false) } }, [
-            h('div.variant-title-l2', [
-                h('div.icon', { attrs: { 'data-icon': atomic.icon(false) } }),
-                h('h3', VARIANTS['atomic'].displayName())
+            h('button.layer-2-category', { on: { click: () => layer3variant('layer2chesscont', lobbyCtrl, 'atomic', false) } }, [
+                h('div.variant-title-l2', [
+                    h('div.icon', { attrs: { 'data-icon': atomic.icon(false) } }),
+                    h('h3', VARIANTS['atomic'].displayName())
+                ]),
             ]),
-        ]),
-        h('button.layer-2-category.atomic960', { on: { click: () => layer3variant('layer2chesscont', lobbyCtrl, 'atomic', true) } }, [
-            h('div.variant-title-l2', [
-                h('div.icon', { attrs: { 'data-icon': atomic.icon(true) } }),
-                h('h3', VARIANTS['atomic'].displayName(true))
+            h('button.layer-2-category', { on: { click: () => layer3variant('layer2chesscont', lobbyCtrl, 'atomic', true) } }, [
+                h('div.variant-title-l2', [
+                    h('div.icon', { attrs: { 'data-icon': atomic.icon(true) } }),
+                    h('h3', VARIANTS['atomic'].displayName(true))
+                ]),
             ]),
-        ]),
-        h('button.layer-2-category.duck', { on: { click: () => layer3variant('layer2chesscont', lobbyCtrl, 'duck', false) } }, [
-            h('div.variant-title-l2', [
-                h('div.icon', { attrs: { 'data-icon': duck.icon(false) } }),
-                h('h3', VARIANTS['duck'].displayName())
+            h('button.layer-2-category', { on: { click: () => layer3variant('layer2chesscont', lobbyCtrl, 'duck', false) } }, [
+                h('div.variant-title-l2', [
+                    h('div.icon', { attrs: { 'data-icon': duck.icon(false) } }),
+                    h('h3', VARIANTS['duck'].displayName())
+                ]),
             ]),
         ]),
     ]);
