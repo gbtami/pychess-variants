@@ -783,7 +783,7 @@ export const VARIANTS: Record<string, Variant> = {
 
     chennis: variant({
         name: "chennis", tooltip: "Pieces alternate between two forms with each move.",
-        startFen: "p1m1s1f/1k5/7/7/7/5K1/F1S1M1P[] w - 0 1",
+        startFen: "1fkm3/1p1s3/7/7/7/3S1P1/3MKF1[] w - 0 1",
         icon: "🎾",
         boardFamily: "chennis7x7", pieceFamily: "chennis",
         pieceRow: ["k", "p", "m", "s", "f"],
