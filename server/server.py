@@ -1,5 +1,5 @@
 import asyncio
-
+import ssl
 import argparse
 import gettext
 import collections
@@ -422,5 +422,7 @@ if __name__ == "__main__":
     )
 
     app = make_app()
-
+    ssl_context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
+    ssl_context.load_cert_chain('cert.crt', 'cert.key')
+    #web.run_app(app, port=int(os.environ.get("PORT", 8443)),ssl_context=ssl_context)
     web.run_app(app, port=int(os.environ.get("PORT", 8080)))
