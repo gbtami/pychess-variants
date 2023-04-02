@@ -1,4 +1,4 @@
-<h1 align="center">The most famous asymmetric variant!</h1>
+<h1 align="center">Madness? This. Is. SPARTAN CHESS!</h1>
 <div class="meta-headline">
     <div class= "meta">
         <span class="text">2022.12.26</span>
