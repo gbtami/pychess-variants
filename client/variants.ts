@@ -42,8 +42,8 @@ export const PIECE_FAMILIES: Record<string, PieceFamily> = {
     capa: { pieceCSS: ["capa0", "capa1", "capa2", "capa3", "capa4", "capa5", "disguised"] },
     seirawan: { pieceCSS: ["seir1", "seir0", "seir2", "seir3", "seir4", "seir5", "disguised"] },
     makruk: { pieceCSS: ["makrukwb", "makrukwr", "makruk", "makruks", "makruki", "makrukc", "disguised"] },
-    sittuyin: { pieceCSS: ["sittuyins", "sittuyinkagr", "sittuyinkabr", "sittuyinm", "sittuyini", "sittuyincb", "disguised"] },
-    asean: { pieceCSS: ["aseani", "aseanm", "aseanc", "aseans", "aseancb", "disguised"] },
+    sittuyin: { pieceCSS: ["sittuyins", "sittuyinkagr", "sittuyinkabr", "sittuyinm", "sittuyini", "sittuying", "disguised"] },
+    asean: { pieceCSS: ["aseani", "aseanm", "aseanc", "aseans", "aseang", "disguised"] },
     shogi: { pieceCSS: ["shogik", "shogi", "shogiw", "shogip", "shogim", "shogip3d", "shogikw3d", "shogid", "shogiim", "shogibw", "portk", "porti", "disguised"] },
     kyoto: { pieceCSS: ["kyoto", "kyotok", "kyotoks", "kyotoi", "kyotod", "disguised"] },
     dobutsu: { pieceCSS: ["dobutsu", "disguised"] },
@@ -60,7 +60,7 @@ export const PIECE_FAMILIES: Record<string, PieceFamily> = {
     ordamirror: { pieceCSS: ["ordamirror0", "ordamirror1", "disguised"] },
     chak: { pieceCSS: ["chak0", "disguised"] },
     chennis: { pieceCSS: ["chennis0", "chennis1", "chennis2", "disguised"] },
-    spartan: { pieceCSS: ["spartan0", "disguised"] },
+    spartan: { pieceCSS: ["spartan0", "spartan1", "disguised"] },
 };
 
 export interface Variant {
