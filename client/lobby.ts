@@ -875,6 +875,14 @@ export function lobbyView(model: PyChessModel): VNode[] {
         ]),
         h('under-lobby', [
             h('posts', [
+                h('a.post', { attrs: {href: '/news/Spartan_Chess'} }, [
+                    h('img', { attrs: {src: model.assetURL + '/images/spartan-kick.jpg'} }),
+                    h('span.text', [
+                        h('strong', _("Madness? This. Is. SPARTAN CHESS!")),
+                        h('span', _('Spartan chess has arrived')),
+                    ]),
+                    h('time', '2023.04.01'),
+                ]),
                 h('a.post', { attrs: {href: '/news/Duck_Chess'} }, [
                     h('img', { attrs: {src: model.assetURL + '/images/Duck.jpg'} }),
                     h('span.text', [
@@ -891,6 +899,7 @@ export function lobbyView(model: PyChessModel): VNode[] {
                     ]),
                     h('time', '2022.12.01'),
                 ]),
+                /*
                 h('a.post', { attrs: {href: '/news/Crazyhouse960_Tournament_Spring_Invitational_2022'} }, [
                     h('img', { attrs: {src: model.assetURL + '/images/one-flew-over-the-cuckoos-nest.jpg '} }),
                     h('span.text', [
@@ -899,7 +908,6 @@ export function lobbyView(model: PyChessModel): VNode[] {
                     ]),
                     h('time', '2022.10.02'),
                 ]),
-                /*
                 h('a.post', { attrs: {href: '/news/NNUE_Everywhere'} }, [
                     h('img', { attrs: {src: model.assetURL + '/images/Weights-nn-62ef826d1a6d.png'} }),
                     h('span.text', [

@@ -26,59 +26,61 @@ export function layer2fairy (lobbyCtrl: LobbyController, containerId: string): v
                 h('h5#fairyl2back', { class: {"icon": true, "icon-reply": true}, on: { click: () => goBackToLayer1(lobbyCtrl, 'layer2fairycont') } }, _('Go Back')),
             ]),
         ]),
-        h('button.layer-2-category.capablanca', { on: { click: () => layer3variant('layer2fairycont', lobbyCtrl, 'capablanca', false) } }, [
-            h('div.variant-title-l2', [
-                h('div.icon', { attrs: { 'data-icon': VARIANTS['capablanca'].icon(false) } }),
-                h('h3', VARIANTS['capablanca'].displayName()),
+        h('div.button-grid', [
+            h('button.layer-2-category', { on: { click: () => layer3variant('layer2fairycont', lobbyCtrl, 'capablanca', false) } }, [
+                h('div.variant-title-l2', [
+                    h('div.icon', { attrs: { 'data-icon': VARIANTS['capablanca'].icon(false) } }),
+                    h('h3', VARIANTS['capablanca'].displayName()),
+                ]),
+                h('div.option-icon-container', [
+                    h('img', { attrs: { src: assetUrl + '/icons/Crazyhouse.svg' } }),
+                    h('img', { attrs: { src: assetUrl + '/icons/960.svg' } }),
+                    h('img', { attrs: { src: assetUrl + '/icons/Crazyhouse960.svg' } }),
+                ]),
+                h('p.variant-extra-info', _('Knight hybrid pieces')),
             ]),
-            h('div.option-icon-container', [
-                h('img', { attrs: { src: assetUrl + '/icons/Crazyhouse.svg' } }),
-                h('img', { attrs: { src: assetUrl + '/icons/960.svg' } }),
-                h('img', { attrs: { src: assetUrl + '/icons/Crazyhouse960.svg' } }),
+            h('button.layer-2-category', { on: { click: () => layer3variant('layer2fairycont', lobbyCtrl, 'seirawan', false) } }, [
+                h('div.variant-title-l2', [
+                    h('div.icon', { attrs: { 'data-icon': VARIANTS['seirawan'].icon(false) } }),
+                    h('h3', VARIANTS['seirawan'].displayName()),
+                ]),
+                h('div.option-icon-container', [
+                    h('img', { attrs: { src: assetUrl + '/icons/Crazyhouse.svg' } }),
+                    h('img', { attrs: { src: assetUrl + '/icons/960.svg' } }),
+                ]),
+                h('p.variant-extra-info', _('8x8 with new pieces')),
             ]),
-            h('p.variant-extra-info', _('Knight hybrid pieces')),
-        ]),
-        h('button.layer-2-category.schess', { on: { click: () => layer3variant('layer2fairycont', lobbyCtrl, 'seirawan', false) } }, [
-            h('div.variant-title-l2', [
-                h('div.icon', { attrs: { 'data-icon': VARIANTS['seirawan'].icon(false) } }),
-                h('h3', VARIANTS['seirawan'].displayName()),
+            h('button.layer-2-category', { on: { click: () => layer3variant('layer2fairycont', lobbyCtrl, 'shako', false) } }, [
+                h('div.variant-title-l2', [
+                    h('div.icon', { attrs: { 'data-icon': VARIANTS['shako'].icon(false) } }),
+                    h('h3', VARIANTS['shako'].displayName()),
+                ]),
+                h('p.variant-extra-info', _('Cannon and Elephant from Xiangqi')),
             ]),
-            h('div.option-icon-container', [
-                h('img', { attrs: { src: assetUrl + '/icons/Crazyhouse.svg' } }),
-                h('img', { attrs: { src: assetUrl + '/icons/960.svg' } }),
+            h('button.layer-2-category', { on: { click: () => layer3variant('layer2fairycont', lobbyCtrl, 'grand', false) } }, [
+                h('div.variant-title-l2', [
+                    h('div.icon', { attrs: { 'data-icon': VARIANTS['grand'].icon(false) } }),
+                    h('h3', VARIANTS['grand'].displayName()),
+                ]),
+                h('div.option-icon-container', [
+                    h('img', { attrs: { src: assetUrl + '/icons/Crazyhouse.svg' } }),
+                ]),
+                h('p.variant-extra-info', _('10x10 with new pieces')),
             ]),
-            h('p.variant-extra-info', _('8x8 with new pieces')),
-        ]),
-        h('button.layer-2-category.shako', { on: { click: () => layer3variant('layer2fairycont', lobbyCtrl, 'shako', false) } }, [
-            h('div.variant-title-l2', [
-                h('div.icon', { attrs: { 'data-icon': VARIANTS['shako'].icon(false) } }),
-                h('h3', VARIANTS['shako'].displayName()),
+            h('button.layer-2-category', { on: { click: () => layer3variant('layer2fairycont', lobbyCtrl, 'shogun', false) } }, [
+                h('div.variant-title-l2', [
+                    h('div.icon', { attrs: { 'data-icon': VARIANTS['shogun'].icon(false) } }),
+                    h('h3', VARIANTS['shogun'].displayName()),
+                ]),
+                h('p.variant-extra-info', _('Crazyhouse with promotions')),
             ]),
-            h('p.variant-extra-info', _('Cannon and Elephant from Xiangqi')),
-        ]),
-        h('button.layer-2-category.grand', { on: { click: () => layer3variant('layer2fairycont', lobbyCtrl, 'grand', false) } }, [
-            h('div.variant-title-l2', [
-                h('div.icon', { attrs: { 'data-icon': VARIANTS['grand'].icon(false) } }),
-                h('h3', VARIANTS['grand'].displayName()),
+            h('button.layer-2-category', { on: { click: () => layer3variant('layer2fairycont', lobbyCtrl, 'hoppelpoppel', false) } }, [
+                h('div.variant-title-l2', [
+                    h('div.icon', { attrs: { 'data-icon': VARIANTS['hoppelpoppel'].icon(false) } }),
+                    h('h3', VARIANTS['hoppelpoppel'].displayName()),
+                ]),
+                h('p.variant-extra-info', _('Bishops and Knights swap their capture moves')),
             ]),
-            h('div.option-icon-container', [
-                h('img', { attrs: { src: assetUrl + '/icons/Crazyhouse.svg' } }),
-            ]),
-            h('p.variant-extra-info', _('10x10 with new pieces')),
-        ]),
-        h('button.layer-2-category.shogun', { on: { click: () => layer3variant('layer2fairycont', lobbyCtrl, 'shogun', false) } }, [
-            h('div.variant-title-l2', [
-                h('div.icon', { attrs: { 'data-icon': VARIANTS['shogun'].icon(false) } }),
-                h('h3', VARIANTS['shogun'].displayName()),
-            ]),
-            h('p.variant-extra-info', _('Crazyhouse with promotions')),
-        ]),
-        h('button.layer-2-category.hoppelpoppel', { on: { click: () => layer3variant('layer2fairycont', lobbyCtrl, 'hoppelpoppel', false) } }, [
-            h('div.variant-title-l2', [
-                h('div.icon', { attrs: { 'data-icon': VARIANTS['hoppelpoppel'].icon(false) } }),
-                h('h3', VARIANTS['hoppelpoppel'].displayName()),
-            ]),
-            h('p.variant-extra-info', _('Bishops and Knights swap their capture moves')),
         ]),
     ]);
 
