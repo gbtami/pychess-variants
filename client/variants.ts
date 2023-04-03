@@ -844,6 +844,34 @@ export const variants = Object.keys(VARIANTS);
 const disabledVariants = [ "gothic", "gothhouse", "embassy", "embassyhouse", "gorogoro" ];
 export const enabledVariants = variants.filter(v => !disabledVariants.includes(v));
 
+// TODO: get this list from the server
+export const puzzleVariants = [
+    "xiangqi",
+    "atomic",
+    "makruk",
+    "chess",
+    "janggi",
+    "shogi",
+    "crazyhouse",
+    "chak",
+    "empire",
+    "orda",
+    "capablanca",
+    "hoppelpoppel",
+    "ordamirror",
+    "dobutsu",
+    "cambodian",
+    "makpong",
+    "grand",
+    "synochess",
+    "seirawan",
+    "torishogi",
+    "shinobi",
+    "duck",
+    "shako",
+]
+
+
 export const variantGroups: { [ key: string ]: { variants: string[] } } = {
     standard: { variants: [ "chess", "crazyhouse", "placement", "atomic", "duck" ] },
     sea:      { variants: [ "makruk", "makpong", "cambodian", "sittuyin", "asean" ] },
@@ -865,7 +893,7 @@ function variantGroupLabel(group: string): string {
     return groups[group];
 }
 
-export function selectVariant(id: string, selected: string, onChange: EventListener, hookInsert: InsertHook): VNode {
+export function selectVariant(id: string, selected: string, onChange: EventListener, hookInsert: InsertHook, disableds: string[] = []): VNode {
     return h('select#' + id, {
         props: { name: id },
         on: { change: onChange },
@@ -877,7 +905,7 @@ export function selectVariant(id: string, selected: string, onChange: EventListe
                 const variant = VARIANTS[v];
                 return h('option', {
                     props: { value: v, title: variant.tooltip },
-                    attrs: { selected: v === selected },
+                    attrs: { selected: v === selected, disabled: disableds.includes(variant.name) },
                 }, variant.displayName(false));
             }));
         }),

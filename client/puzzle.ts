@@ -2,7 +2,7 @@ import { h, VNode } from "snabbdom";
 
 import { _ } from './i18n';
 import { PuzzleController } from './puzzleCtrl';
-import { selectVariant, VARIANTS } from './variants';
+import { selectVariant, variants, VARIANTS, puzzleVariants } from './variants';
 import { PyChessModel } from "./types";
 
 function runPuzzle(vnode: VNode, model: PyChessModel) {
@@ -18,14 +18,14 @@ function leftSide(model: PyChessModel) {
         const variant = e.options[e.selectedIndex].value;
         if (isInput) window.location.assign('/puzzle/' + variant);
     }
-
+    const disableds = variants.filter(v => !puzzleVariants.includes(v));
     return h('div', [
         h('div.puzzle-meta', [
             h('div.infos'),
         ]),
         h('div.puzzle-info', [
             h('label', { attrs: { for: "variant" } }, _("Variant")),
-            selectVariant("variant", model.variant, () => setVariant(true), () => setVariant(false)),
+            selectVariant("variant", model.variant, () => setVariant(true), () => setVariant(false), disableds),
         ]),
     ]);
 }

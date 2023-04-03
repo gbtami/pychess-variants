@@ -190,8 +190,6 @@ async def init_state(app):
     # last game played
     app["tv"] = None
 
-    app["daily-puzzles"] = {}  # {date: puzzle, ...}
-
     app["twitch"] = Twitch(app)
     if not DEV:
         asyncio.create_task(app["twitch"].init_subscriptions())
@@ -332,6 +330,20 @@ async def init_state(app):
         cursor = app["db"].crosstable.find()
         async for doc in cursor:
             app["crosstable"][doc["_id"]] = doc
+
+        app["daily_puzzle_ids"] = {}  # {date: puzzle._id, ...}
+        if "dailypuzzle" not in db_collections:
+            await app["db"].create_collection(
+                "dailypuzzle",
+                capped=True,
+                size=50000,
+                max=365
+            )
+        else:
+            cursor = app["db"].dailypuzzle.find()
+            docs = await cursor.to_list(length=365)
+            app["daily_puzzle_ids"] = {doc["_id"]: doc["puzzleId"] for doc in docs}
+        print(app["daily_puzzle_ids"])
 
         await app["db"].game.create_index("us")
         await app["db"].game.create_index("v")

@@ -8,6 +8,33 @@ import pyffish as sf
 
 from glicko2.glicko2 import DEFAULT_PERF, gl2, Rating
 
+# TODO: query the database for variants having puzzles
+PUZZLE_VARIANTS = (
+    "xiangqi",
+    "atomic",
+    "makruk",
+    "chess",
+    "janggi",
+    "shogi",
+    "crazyhouse",
+    "chak",
+    "empire",
+    "orda",
+    "capablanca",
+    "hoppelpoppel",
+    "ordamirror",
+    "dobutsu",
+    "cambodian",
+    "makpong",
+    "grand",
+    "synochess",
+    "seirawan",
+    "torishogi",
+    "shinobi",
+    "duck",
+    "shako",
+)
+
 
 async def get_puzzle(request, puzzleId):
     puzzle = await request.app["db"].puzzle.find_one({"_id": puzzleId})
@@ -15,16 +42,30 @@ async def get_puzzle(request, puzzleId):
 
 
 async def get_daily_puzzle(request):
-    today = datetime.now(timezone.utc).date()
-    daily_puzzles = request.app["daily-puzzles"]
-    if today not in daily_puzzles:
+    today = datetime.now(timezone.utc).date().isoformat()
+    daily_puzzle_ids = request.app["daily_puzzle_ids"]
+    if today in daily_puzzle_ids:
+        puzzle = await get_puzzle(request, daily_puzzle_ids[today])
+    else:
         user = request.app["users"]["PyChess"]
-        # skip previous daily puzzles TODO: save/restore from mongodb
-        user.puzzles = [puzzle["_id"] for puzzle in daily_puzzles.values()]
-        # TODO: random
-        user.puzzle_variant = random.choice(("xiangqi", "shogi", "chess", "crazyhouse"))
-        request.app["daily-puzzles"][today] = await next_puzzle(request, user)
-    return request.app["daily-puzzles"][today]
+
+        # skip previous daily puzzles
+        user.puzzles = list(daily_puzzle_ids.values())
+
+        puzzleId = "0"
+        while puzzleId == "0":
+            # randomize daily puzzle variant
+            user.puzzle_variant = random.choice(PUZZLE_VARIANTS)
+            puzzle = await next_puzzle(request, user)
+            puzzleId = puzzle["_id"]
+
+        await request.app["db"].dailypuzzle.insert_one({
+            "_id": today,
+            "puzzleId": puzzleId
+            }
+        )
+        request.app["daily_puzzle_ids"][today] = puzzle["_id"]
+    return puzzle
 
 
 async def next_puzzle(request, user):
