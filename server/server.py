@@ -333,12 +333,7 @@ async def init_state(app):
 
         app["daily_puzzle_ids"] = {}  # {date: puzzle._id, ...}
         if "dailypuzzle" not in db_collections:
-            await app["db"].create_collection(
-                "dailypuzzle",
-                capped=True,
-                size=50000,
-                max=365
-            )
+            await app["db"].create_collection("dailypuzzle", capped=True, size=50000, max=365)
         else:
             cursor = app["db"].dailypuzzle.find()
             docs = await cursor.to_list(length=365)

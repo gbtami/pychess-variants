@@ -59,11 +59,7 @@ async def get_daily_puzzle(request):
             puzzle = await next_puzzle(request, user)
             puzzleId = puzzle["_id"]
 
-        await request.app["db"].dailypuzzle.insert_one({
-            "_id": today,
-            "puzzleId": puzzleId
-            }
-        )
+        await request.app["db"].dailypuzzle.insert_one({"_id": today, "puzzleId": puzzleId})
         request.app["daily_puzzle_ids"][today] = puzzle["_id"]
     return puzzle
 
