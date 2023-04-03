@@ -192,7 +192,6 @@ class GamePlayTestCase(AioHTTPTestCase):
         await self.client.close()
 
     async def test_tournament_disaster(self):
-
         await self.tournament.clock_task
 
         self.assertEqual(self.tournament.players[self.test_wplayer].nb_berserk, 1)
