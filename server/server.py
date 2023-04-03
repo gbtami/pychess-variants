@@ -179,6 +179,7 @@ async def init_state(app):
     app["crosstable"] = {}
     app["shield"] = {}
     app["shield_owners"] = {}  # {variant: username, ...}
+    app["daily_puzzle_ids"] = {}  # {date: puzzle._id, ...}
 
     # TODO: save/restore monthly stats from db when current month is over
     app["stats"] = {}
@@ -331,7 +332,6 @@ async def init_state(app):
         async for doc in cursor:
             app["crosstable"][doc["_id"]] = doc
 
-        app["daily_puzzle_ids"] = {}  # {date: puzzle._id, ...}
         if "dailypuzzle" not in db_collections:
             await app["db"].create_collection("dailypuzzle", capped=True, size=50000, max=365)
         else:

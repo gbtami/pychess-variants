@@ -58,8 +58,11 @@ async def get_daily_puzzle(request):
             user.puzzle_variant = random.choice(PUZZLE_VARIANTS)
             puzzle = await next_puzzle(request, user)
             puzzleId = puzzle["_id"]
+            if request.app["db"] is None:
+                break
 
-        await request.app["db"].dailypuzzle.insert_one({"_id": today, "puzzleId": puzzleId})
+        if request.app["db"] is not None:
+            await request.app["db"].dailypuzzle.insert_one({"_id": today, "puzzleId": puzzleId})
         request.app["daily_puzzle_ids"][today] = puzzle["_id"]
     return puzzle
 
