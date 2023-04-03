@@ -50,6 +50,7 @@ MONTHLY_VARIANTS = (
     "capablanca",
     "xiangqi",
     "shinobi",
+    "spartan",
 )
 
 # Old MONTHLY tournaments, needed to create translated tourney names
