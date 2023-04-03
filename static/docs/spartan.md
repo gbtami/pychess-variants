@@ -16,7 +16,7 @@ Spartan Chess reflects the asymmetric war between the ancient Spartans and Persi
 7.	There is no en passant.
 
 ## Spartan Pieces
-There are four new units unique to the Horde: 8 Hoplites, 1 Warlord, 1 General, 2 Lieutenants, and 2 Captains.
+There are four new units unique to the Spartans: 8 Hoplites, 1 Warlord, 1 General, 2 Lieutenants, and 2 Captains.
 
 For the images below, the following convention is used:
 * Circles are where the piece can move unimpeded. This includes jumping.
@@ -37,7 +37,7 @@ The King moves exactly like the orthodox chess King, one square in any direction
  
 The Hoplite is the Spartan pawn, and for those familiar with fairy pieces, it is essentially a Berolina pawn. A Berolina pawn is the functional opposite of an orthodox pawn. While an orthodox pawn moves (but cannot capture) one step forward and captures one step diagonally forwards. The Hoplite moves (but cannot capture) one step diagonally forwards and captures forwards.
 
-Additionally, the Hoplite can move one OR two squares diagonally on its first move, much like how the Persian pawn can move two squares orthogonally forwards on its first move.
+Additionally, the Hoplite can move one OR two squares diagonally on its first move, much like how the Persian pawn can move two squares orthogonally forwards on its first move. **The two square movement is also a jumping movement, which means it can *hop* over intervening pieces.**
 
 As stated above, upon reaching the 8th rank, the Hoplite can promote to any Spartan piece. This includes a king if there is only one king remaining.
 
@@ -67,7 +67,7 @@ The Lieutenant (*Tagmatarchos*) moves one or two squares in any direction diagon
  
 ## Piece valuation
 
-The following Spaartan piece values are proposed by the game creator:
+The following Spartan piece values are proposed by the game creator:
 
 Warlord = 8
 
@@ -87,7 +87,7 @@ With different armies different strategies are effective for Persian and Spartan
 **Spartan Strategy**
 * Closed Game - With so many pieces that can jump a closed game favors the Spartan. It is often best to avoid exchanges when possible.
 * Hoplite Mobility - Use the superior mobility of the hoplite over pawns to dominate a section of the board.
-* Phalanxes - When two are more hoplites are in a column one behind the other this is a phalanx. One or more phalanxes can be powerful and the bulwark of a Spartan position.
+* Phalanges - When two are more hoplites are in a column one behind the other this is a phalanx. One or more phalanges can be powerful and the bulwark of a Spartan position.
 * Patience - With more Spartan pieces on foot, the Spartan has more short range pieces. Be patient, develop and advance all your pieces.
 * Kings Attack - When you have 2 Kings in play, advance and attack with them too. Kings can be a powerful addition to an offensive.
 * Check Immunity - Keep both Spartan Kings in play as long as you can to preserve the Spartan advantage of check immunity.
