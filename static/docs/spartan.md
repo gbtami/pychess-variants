@@ -51,7 +51,7 @@ The General (*Strategos*) moves as a rook combined with a king. That is, it can 
 
 ![Warlord](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/SpartanWarlord.png)
  
-The Warlord (*Polemarchos*) moves as a bishop combined with a knight (i.e. archbishop). That is, it can move any number of squares orthogonally, or leap in a 2x1 rectangle.
+The Warlord (*Polemarchos*) moves as a bishop combined with a knight (i.e. archbishop). That is, it can move any number of squares diagonally, or leap in a 2x1 rectangle.
 
 ### Captain (C)
 
