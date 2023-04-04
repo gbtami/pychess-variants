@@ -39,7 +39,7 @@ MONGO_HOST = os.getenv("MONGO_HOST", "mongodb://127.0.0.1:27017")
 MONGO_DB_NAME = "pychess-variants"
 
 BOT_TOKENS = json.loads(os.getenv("BOT_TOKENS", "{}"))
-FISHNET_KEYS = json.loads(os.getenv("FISHNET_KEYS", "{}"))
+FISHNET_KEYS={"akey": "gbtami", "aaaaaa":"NoPlayers"}
 
 ADMINS = os.getenv("ADMINS", "").split(",")
 TOURNAMENT_DIRECTORS = os.getenv("TOURNAMENT_DIRECTORS", "").split(",")
