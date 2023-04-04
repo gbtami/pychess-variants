@@ -2,7 +2,7 @@
 
 ![Spartan](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Spartan.png)
 
-Spartan Chess is an chess variant created by Steven Streetman (rules recordewd in 2010) and is one of the most popular variants to use asymmetric armies. This was also balanced before the time of modern engines such as Fairy Stockfish. 
+Spartan Chess is a chess variant created by Steven Streetman (rules recorded in 2010) and is one of the most popular variants to use asymmetric armies. This was also balanced before the time of modern engines such as Fairy Stockfish. 
 
 Spartan Chess reflects the asymmetric war between the ancient Spartans and Persians. The Black side represents the Spartans and the White the Persians. The Persians have pawns, pieces, an initial placement and move in accord with the rules of orthodox chess. The Spartans have two Kings and with the exception of their Kings, every Spartan playing piece moves differently from any piece found in orthodox chess.
  
@@ -12,7 +12,7 @@ Spartan Chess reflects the asymmetric war between the ancient Spartans and Persi
 3.	The Persians (AKA White) *always moves first*.
 4.	The Spartans (AKA Black) cannot castle.
 5.	Spartans have two kings. Therefore, the win condition for the Persians (White) is different: Capture one of the Spartan kings and checkmate the other... OR place both under simultaneous attack ("duple-check") such that neither king can be removed from attack on the next move.
-6.	Persian pawns and Spartan hoplites can promote to their own respeective pieces upon reachign the 8th rank. For the Spartans, this also includes the king but only if there is only one remaining king in play.
+6.	Persian pawns and Spartan hoplites can promote to their own respective pieces upon reaching the 8th rank. For the Spartans, this also includes the king but only if there is only one remaining king in play.
 7.	There is no en passant.
 
 ## Spartan Pieces
@@ -51,7 +51,7 @@ The General (*Strategos*) moves as a rook combined with a king. That is, it can 
 
 ![Warlord](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/SpartanWarlord.png)
  
-The Warlord (*Polemarchos*) moves as a bishop combined with a knight (i.e. archbishop). That is, it can move any number of squres orthogonally, or leap in a 2x1 rectangle.
+The Warlord (*Polemarchos*) moves as a bishop combined with a knight (i.e. archbishop). That is, it can move any number of squares orthogonally, or leap in a 2x1 rectangle.
 
 ### Captain (C)
 
