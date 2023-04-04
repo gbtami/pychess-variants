@@ -457,7 +457,7 @@ export class LobbyController implements ChatController {
             if (check) check.checked = chess960;
         }
     }
-    
+
     createGame(variantName: string = '', chess960: boolean = false) {
         //random opponent call
         document.querySelector('.invite-title')!.innerHTML = "Play a random opponent";
@@ -528,7 +528,7 @@ export class LobbyController implements ChatController {
         e = document.getElementById('fen') as HTMLInputElement;
         e.value = "";
         e = document.getElementById('incrementlabel') as HTMLSelectElement;
-        patch(e, h('label#incrementlabel', { attrs: { for: "inc"} }, (byoyomi ? _('Byoyomi in seconds:') : _('Increment in seconds:'))));
+        patch(e, h('label#incrementlabel', { attrs: { for: "inc"} }, (byoyomi ? _('Byoyomi in seconds:') : _('Additional seconds per turn:'))));
         e = document.getElementById('alternate-start-block') as HTMLElement;
         e.innerHTML = "";
         if (variant.alternateStart) {
@@ -621,7 +621,7 @@ export class LobbyController implements ChatController {
             // h('td', [ this.challengeIcon(seek), this.seekTitle(seek), this.user(seek) ]),
             // h('td', seek.rating),
             h('td', timeControlStr(seek.base, seek.inc, seek.byoyomi)),
-            h('td.icon', { attrs: { "data-icon": variant.icon(chess960) } }, [h('variant-name', " " + variant.displayName(chess960))]),
+
             h('td', { class: { tooltip: seek.fen !== '' } }, [
                 this.tooltip(seek, variant),
                 this.mode(seek),
@@ -826,12 +826,12 @@ export class LobbyController implements ChatController {
     private onMsgGameCounter(msg: MsgGameCounter) {
         // console.log("Gcnt=", msg.cnt);
         const gameCount = document.getElementById('g_cnt') as HTMLElement;
-        patch(gameCount, h('counter#g_cnt', ngettext('%1 Game in play', '%1 Games in play', msg.cnt)));
+        patch(gameCount, h('counter#g_cnt', ngettext('%1 Active Game', '%1 Active Games', msg.cnt)));
     }
     private onMsgUserCounter(msg: MsgUserCounter) {
         // console.log("Ucnt=", msg.cnt);
         const userCount = document.getElementById('u_cnt') as HTMLElement;
-        patch(userCount as HTMLElement, h('counter#u_cnt', ngettext('%1 Player', '%1 Players', msg.cnt)));
+        patch(userCount as HTMLElement, h('counter#u_cnt', ngettext('%1 Player online', '%1 Players online', msg.cnt)));
     }
 
     private onMsgStreams(msg: MsgStreams) {
@@ -852,9 +852,8 @@ function seekHeader() {
             // h('th', _('Player')),
             // h('th', _('Rating')),
             h('th', _('Time')),
-            h('th', _('Variant')),
             h('th', _('Mode')),
-            h('th', [h('div#santa')])
+            h('th', _('Color'))
         ])
     ]);
 }

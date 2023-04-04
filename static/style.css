@@ -69,15 +69,7 @@
 .icon-shinobi:before {
   content: "\1f422";
 }
-.icon-adjust:before {
-  content: "\61";
-}
-.icon-black:before {
-  content: "\62";
-}
-.icon-white:before {
-  content: "\63";
-}
+
 .icon-flag-o:before {
   content: "\64";
 }
