@@ -1505,10 +1505,10 @@ input {
   cursor: pointer;
   color: #000;
 }
-#color-button-group > button.active {
+/* #color-button-group > button.active {
   background: var(--button-new-game);
   opacity: 0.5;
-}
+} */
 #create-button {
   margin-top: 1.2em;
 }
@@ -1792,6 +1792,30 @@ button.icon.icon-adjust {
   font-size: 24px;
   height: 40px;
   width: 38px;
+}
+#color-button-group button.icon{
+  outline: none;
+  border: none;
+  background-color: rgb(245, 245, 245);
+  background-size: 90%;
+  background-repeat: no-repeat;
+  background-position: center;
+  position: relative;
+}
+#color-button-group button.icon-adjust{
+  background-size: 75%;
+}
+#color-button-group button.icon::after{
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  border: 1px solid #D1D1D1
+}
+#color-button-group button.active:after{
+  border: 2px solid #a2d3f1
 }
 @media (max-width: 799px) and (orientation: portrait) {
   button.icon.icon-black,
