@@ -6,16 +6,10 @@
 
 ## 规则
 
-使用10×10的棋盘。
-
-棋子布置如上图。
-
+使用10×10的棋盘。棋子布置如上图。
 十枚兵摆满在第三行。
-
 第二行的棋子，白方左右两侧a2和j2空白，中间八枚棋子依次为：马、象、后、王、元帅、大主教、象、马。黑方与白方每一列相对摆放，如同国际象棋。
-
 两枚车分别位于第一行的左右两角格。
-
 除了新增棋子和初始配置不同外，还有以下规则:
 
 * 没有王车易位。
@@ -37,9 +31,7 @@
 ![Archbishop moves](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Archbishop.png)
 
 尽管在很多资料中这个棋子的称呼各有不同（有Princess，有Cardinal），但是在本站还是叫它大主教。大主教是一个复合棋子，它可以看成是马+象。
-
 它棋子的造型一般如图，把象的下半部分拼在马下面。本站有其他的造型可以选择，不同的棋也有不同的造型。
-
 在走法上，它是本棋中唯一一个（理论上）能单独将杀的（虽然理论成立，但是实战很困难）。大主教的价值略低于首相和后。
 
 ### 首相 | Chancellor
@@ -51,13 +43,11 @@
 ![Chancellor moves](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Chancellor.png)
 
 首相是一个复合棋子，它可以看成车+马。如同大主教，它的棋子造型就是马头拼上车的下半部分。其他的棋有不同的造型，本站也可以切换棋子造型。
-
 首相的价值一般认为比大主教略高一些，但和后相等或略小。
 
 ## 策略
 
 请不要以国际象棋的固有思维，一开始就急于出动子力，在大型国际象棋中，有时花几步将一个棋子运动到好的位置。反而会给对方造成更多威胁。
-
 如果你有发现什么新的战术，欢迎交流!
 
 <iframe width="560" height="315" src="https://www.youtube.com/embed/CRrncO-w524" frameborder="0" allowfullscreen></iframe>
