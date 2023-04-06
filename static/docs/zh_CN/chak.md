@@ -21,29 +21,20 @@ Chak 这个词来自玛雅神话中雨神恰克( Chaac，一说Chac)，它是雨
 ![Chak](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChakGuide/ChakBoard.png)
 
 其中有三个特殊的区域:
-
 -**河界(River)**, 是两方的边界，王和兵过河后可升变，然而，**升变的棋子不能再退回己方阵地**，只能在对方一侧行动。
-
 -**神殿(Temple)**, 棋盘上划出的一个3x3区域，其中心为**祭坛**。神殿本身并无特殊的作用。然而从游戏战略上讲，神殿非常重要，因为有许多攻防的战术都在神殿区域进行。
-
 -**祭坛(Altar)**, 神殿的中心。将己方国王安全移动至对方祭坛即获胜。
 
 ### 胜负条件
 
 有三种胜利条件:
-
 **将死(Checkmate)** - 攻击对方王，且对方无法解除将军。
-
 **困毙(Stalemate)** - 让对方无子可动，即使王没有被将军。与国际象棋的逼和不同。
-
 **登坛(Altar mate)** - 将己方王移动到对方祭坛，且在祭坛不能被攻击。
 
 以下情形为和棋:
-
 **重复动子** - 同一个局面连续重复三次。
-
 **50步无吃子** - 如果五十步都没有棋子被吃则和棋。
-
 *（译者注：此处并未包含认输、提和等比赛规则，尽管原文中列举了）*
 
 
@@ -54,7 +45,6 @@ Chak 这个词来自玛雅神话中雨神恰克( Chaac，一说Chac)，它是雨
 ![King](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChakGuide/ChakKing.png)
 
 王 (*Ajaw*, 读作 「Dachau」) 走法就如就如国际象棋的国王，朝八方走一格。
-
 王过河后立即升变为「神王」
 
 ### 神王 |Divine King(D)
@@ -62,17 +52,14 @@ Chak 这个词来自玛雅神话中雨神恰克( Chaac，一说Chac)，它是雨
 ![Divine King](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChakGuide/DivineKing.png)
 
 神王可向任何方向移动最多*两个*方格，也可以通过被对方棋子威胁的方格（换句话说，它不像国际象棋的王车易位，王的路径上不能有棋子攻击）。请注意，国王一旦升变，便不能退回己方阵地！由于其攻击范围，神王可以将对方未升变的国王将死。
-
-神王的符号为「D」，是为了与国王「K」区别。神王的棋子造型与王的区别仅仅是一个装饰的不同，但在对局中的王是否升变只需看王是否过了河界即可。这样设计也方便于在编辑器中摆放棋子。
+神王的符号为「D」，是为了与国王「K」区别。神王的棋子造型与王的区别仅仅是一个装饰的不同，但在对局中的王是否升变只需看王是否过了河界即可。这样设计是为了方便在编辑器中摆放棋子。
 
 ### 美洲虎 | Jaguar(J)
 
 ![Jaguar](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChakGuide/Jaguar.png)
 
-
 美洲虎的走法是国际象棋马和王的融合，它可以跳马步，或者八方行动一格。
 这种走法在其他变体中常被称为半人马(Centuar)，与幕府将棋中的将军和可汗西征棋中的禁卫相同。
-
 美洲虎是玛雅象棋中最强的棋子，它的走法能够轻易实现捉双，对敌人是个很大的威胁。
 
 ### 绿咬鹃 | Quetzal(Q)
@@ -80,13 +67,11 @@ Chak 这个词来自玛雅神话中雨神恰克( Chaac，一说Chac)，它是雨
 ![Quetzal range](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChakGuide/QuetzalRange.png)
 
 绿咬鹃，中文简称鹃或者鸟。它的走法很特别，它可以沿八个方向（横、竖或斜）移动任意格，但是它**必须**跳过一个棋子进行移动或吃子。对于熟悉韩国将棋的人来说，这是八方版本的「包」，但没有「不能跳过对方的鸟」的限制。
-
 绿咬鹃是第二强的棋子，但就如象棋的炮，在残局会因为没有炮架而失去价值。
 
 ![Quetzal example](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChakGuide/QuetzalLegal.png)
 
 *范例*: 上图中，绿咬鹃可以移动到标圈的格子，且能吃掉红圈位置的棋子。
-
 *绿咬鹃(Quetzal)是南美洲的一种漂亮的绿色鸟类，在玛雅文明和阿兹特克文明中是羽蛇神的化身，具有神圣的地位。它也是危地马拉的国鸟。*
 
 ### 萨满 | Shaman(S)
@@ -94,9 +79,7 @@ Chak 这个词来自玛雅神话中雨神恰克( Chaac，一说Chac)，它是雨
 ![Shaman](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChakGuide/Shaman.png)
 
 萨满可以斜走一格，或者朝前后移动一格。与中将棋的猛豹相同。
-
 由于步伐小，它是最弱的子之一，通常用来防守。
-
 该棋子的造型可以反映它的走法。
 
 ### 秃鹫 | Vulture(V)
@@ -110,7 +93,6 @@ Chak 这个词来自玛雅神话中雨神恰克( Chaac，一说Chac)，它是雨
 ![Serpent](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChakGuide/Serpent.png)
 
 毒蛇就如中国象棋的车，可朝一个方向任意直行。
-
 它是第三强的子，仅次于美洲虎和绿咬鹃。
 
 ### 兵 | Pawn(P)
@@ -118,7 +100,6 @@ Chak 这个词来自玛雅神话中雨神恰克( Chaac，一说Chac)，它是雨
 ![Pawn](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChakGuide/ChakPawn.png)
 
 兵的走子与吃子是不同的。走法可以向前、左、右移动一格，如同中国象棋的过河卒。吃子的方式则为斜前一格吃子，如国际象棋的兵。
-
 兵过河后升变为勇士。
 
 ### 勇士 |Warrior(W)
@@ -133,7 +114,6 @@ Chak 这个词来自玛雅神话中雨神恰克( Chaac，一说Chac)，它是雨
 
 祭品不能移动,也不能吃子。它一直待在在祭坛中心。它的作用不只是为了展现主题的装饰，它可以作为绿咬鹃的炮架。并且，在登坛的攻防战中，它还可以协助己方的王，防御神王的攻击。如果此时没有其他棋子，一般会是和棋。如果祭品在先前己被吃了，神王就有办法驱离对方的王，从而登坛。
 
-
 ## 子力价值
 
 详细价值尚未知，但以下大小关系是己知的: 美洲虎 > 绿咬鹃 > 毒蛇 > 秃鹫 > 祭司 > 士 > 兵
@@ -141,11 +121,8 @@ Chak 这个词来自玛雅神话中雨神恰克( Chaac，一说Chac)，它是雨
 ## 策略 - 棋子用法
 
 **绿咬鹃**: 始终注意绿咬鹃的路线。在游戏开始时，任何移动到绿咬鹃前面的棋子都会作为炮架攻击对方的美洲虎，这是一个稍微有利的交换。
-
 **美洲虎**: 建立防御并防止美洲虎过河。如果美洲虎在你的棋子生根之前就发起攻击，将可以轻松地捉双。
-
 **兵**: 兵非常灵活和强大，并且很早就可升变。正因如此，它不像其他棋种的兵那样可任意弃子；如果您决定弃兵，请确保获得更好局势，因为在游戏结束时一个兵的差距可能会左右胜败。
-
 **神殿**: 神殿非常重要，因为对方的神王只要到达神殿就赢棋。
 
 ## 策略 - 残局
@@ -158,8 +135,6 @@ Chak 这个词来自玛雅神话中雨神恰克( Chaac，一说Chac)，它是雨
 
 ![KvsKzugzwang](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChakGuide/KvsKzugzwang.png)
 
-
-
 当祭品还在的时候，攻击者仍然可以获胜，但更加棘手。攻击者应该做的不是登坛，而是以下这种困毙：
 
 ![KvsKStalemate](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChakGuide/KvsKStalemate.png)
@@ -169,13 +144,9 @@ Chak 这个词来自玛雅神话中雨神恰克( Chaac，一说Chac)，它是雨
 ![KvsKO](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChakGuide/KvsKO.png)
 
 1. Dd6+ 
-
 2. Kf7 Dd7+ 
-
 3. Kf2 De8
-
 4. Kf9 Df7+
-
 5. Ke9 De7!
 
 如此形成以下局面:
@@ -189,7 +160,6 @@ Chak 这个词来自玛雅神话中雨神恰克( Chaac，一说Chac)，它是雨
 ![KvsKdraw](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChakGuide/KvsKdraw.png)
 
 不管祭品是否还在，神王都没有办法将死守方的王。唯一需要担心的是下错棋，让自己多出来的一子被神王吃掉。因此建议将其保留在最后4列内，因为神王永远无法到达那里，如此双方便和棋。
-
 
 ### 堡垒
 
@@ -210,8 +180,6 @@ Chak 这个词来自玛雅神话中雨神恰克( Chaac，一说Chac)，它是雨
 ...除非对方可以直接弃美洲虎登坛。
 
 ![JaguarPerpetual2](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChakGuide/JaguarPerpetual2.png)
-
-
 
 然而当祭品还在时，又是两码子事:
 

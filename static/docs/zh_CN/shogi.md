@@ -349,9 +349,8 @@ P = 步兵
 | 6~7   | 二枚落    | 除去飞车与角行           |
 | 8~9   | 四枚落    | 除去飞车、角行与两枚香车      |
 | ≥10   | 六枚落    | 除去飞车、角行、两枚香车与两枚桂马 |
-
-<iframe width="560" height="315" src="https://www.youtube.com/embed/YH63AlxpXkg" frameborder="0" allowfullscreen></iframe>
-
 上表“摇驹猜先”通常做法为取5枚步兵掷出，若“步”朝上的较多则摇驹者先手，反之后手
 
 其余的让子、如**八枚落**（六枚落的基础上再除去两枚银将）、**十枚落**（在六枚落的基础上再除去金银）、**步三兵**（仅王在场上，驹台保留三枚步兵，除去其余所有棋子）、**裸玉**（除去王以外所有棋子），一般用于教学指导棋时使用。
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/YH63AlxpXkg" frameborder="0" allowfullscreen></iframe>
