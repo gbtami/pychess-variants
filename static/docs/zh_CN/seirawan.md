@@ -5,13 +5,9 @@ S-Chess，全称为Seirawan Chess，是美国国际象棋特级大师亚瑟·塞
 ## 规则
 
 棋盘和布局与国际象棋完全相同。开局双方各有大象和鹰各一枚，但它们不是像双狂象棋那样通过打入进场。
-
 它们可以自己底线的棋子行动时，进入到那个棋子原先的底线位置。
-
 可以暂时放弃进场，但是如果所有第一线棋子均已经行动过，则它们就再也不能进场了。
-
 王车易位时，大象和鹰可以选择置于原本王的位置或是车的位置之一。
-
 兵也可以升变为大象和鹰。
 
 ## 新棋子
@@ -32,9 +28,7 @@ S-Chess，全称为Seirawan Chess，是美国国际象棋特级大师亚瑟·塞
 ## 策略
 
 请保护好王，因为有了大象和鹰后，王变得很容易被长距离棋子将死。
-
 推荐阅读：[https://www.chess.com/blog/catask/s-chess-ramblings-1](https://www.chess.com/blog/catask/s-chess-ramblings-1)。
-
 您也可以看看亚瑟·塞拉万（本棋作者）玩棋的视频。
 
 <iframe width="560" height="315" src="https://www.youtube.com/embed/ujWzsxm18aQ" frameborder="0" allowfullscreen></iframe>
