@@ -178,6 +178,8 @@ async def index(request):
     elif request.path.startswith("/video"):
         videoId = request.match_info.get("videoId")
         view = "videos" if videoId is None else "video"
+    elif request.path.startswith("/memory"):
+        view = "memory"
     elif request.path.startswith("/players"):
         view = "players"
     elif request.path == "/allplayers":
@@ -352,6 +354,8 @@ async def index(request):
         template = get_template("news.html")
     elif view == "variants":
         template = get_template("variants.html")
+    elif view == "memory":
+        template = get_template("memory.html")
     elif view == "videos":
         template = get_template("videos.html")
     elif view == "video":

@@ -484,6 +484,7 @@ div.closed,
 div.paste,
 div.invite,
 div.news,
+div.memory,
 div.not-found {
   grid-area: main;
   margin: 0 auto;
