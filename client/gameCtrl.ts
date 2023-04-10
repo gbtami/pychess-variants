@@ -382,8 +382,8 @@ export abstract class GameController extends ChessgroundController implements Ch
     }
 
     private onMsgSpectators = (msg: MsgSpectators) => {
-        const container = document.getElementById('spectators') as HTMLElement;
-        patch(container, h('under-left#spectators', _('Spectators: ') + msg.spectators));
+        //const container = document.getElementById('spectators') as HTMLElement;
+        //patch(container, h('under-left#spectators', _('Spectators: ') + msg.spectators));
     }
 
     private onMsgChat = (msg: MsgChat) => {

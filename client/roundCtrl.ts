@@ -167,7 +167,7 @@ export class RoundController extends GameController {
         const player1 = document.getElementById('rplayer1') as HTMLElement;
         // this.vplayer0 = patch(player0, player('player0', this.titles[0], this.players[0], this.ratings[0], this.level));
         // this.vplayer1 = patch(player1, player('player1', this.titles[1], this.players[1], this.ratings[1], this.level));
-        this.vplayer0 = patch(player0, player('player0', this.titles[0], "Computer", this.ratings[0], this.level));
+        this.vplayer0 = patch(player0, player('player0', this.titles[0], "Opponent", this.ratings[0], this.level));
         this.vplayer1 = patch(player1, player('player1', this.titles[1], "You", this.ratings[1], this.level));
 
         if (this.variant.material.showDiff) {
@@ -258,7 +258,7 @@ export class RoundController extends GameController {
         const flagCallback = () => {
             if (this.turnColor === this.mycolor) {
                 this.chessground.stop();
-                // console.log("Flag");
+                console.log("Flag");
                 this.doSend({ type: "flag", gameId: this.gameId });
             }
         }
@@ -286,10 +286,6 @@ export class RoundController extends GameController {
                 buttons.push(h('button#abort', { on: { click: () => this.abort() }, props: {title: _('Abort')} }, [h('i', {class: {"icon": true, "icon-abort": true} } ), ]));
             }
             buttons.push(h('button#count', _('Count')));
-            if (this.variant.rules.pass)
-                buttons.push(h('button#draw', { on: { click: () => this.pass() }, props: { title: _('Pass') } }, _('Pass')));
-            else
-                buttons.push(h('button#draw', { on: { click: () => this.draw() }, props: { title: _('Draw') } }, h('i', '½')));
             buttons.push(h('button#resign', { on: { click: () => this.resign() }, props: {title: _("Resign")} }, [h('i', {class: {"icon": true, "icon-flag-o": true} } ), ]));
 
             this.gameControls = patch(container, h('div.btn-controls', buttons));
@@ -483,12 +479,14 @@ export class RoundController extends GameController {
     }
 
     private onMsgGameStart = (msg: MsgGameStart) => {
-        // console.log("got gameStart msg:", msg);
+        console.log("got gameStart msg:", msg);
         if (msg.gameId !== this.gameId) return;
         if (!this.spectator) {
             sound.genericNotify();
             if (!this.focus) this.notifyMsg('joined the game.');
+            console.log("onMsgGameStart" + this.status);
         }
+
     }
 
     private onMsgNewGame = (msg: MsgNewGame) => {
@@ -617,7 +615,7 @@ export class RoundController extends GameController {
     private onMsgBoard = (msg: MsgBoard) => {
         if (msg.gameId !== this.gameId) return;
 
-        // console.log("got board msg:", msg);
+        console.log("got board msg:", msg);
         let latestPly;
         if (this.spectator) {
             // Fix https://github.com/gbtami/pychess-variants/issues/687
@@ -786,7 +784,10 @@ export class RoundController extends GameController {
                         lastMove: lastMove,
                     });
 
-                    if (!this.focus) this.notifyMsg(`Played ${step.san}\nYour turn.`);
+                    if (!this.focus) {
+                      this.notifyMsg(`Played ${step.san}\nYour turn.`);
+                      console.log("mesage sent");
+                    }
 
                     // prevent sending premove/predrop when (auto)reconnecting websocked asks server to (re)sends the same board to us
                     // console.log("trying to play premove....");
@@ -794,7 +795,7 @@ export class RoundController extends GameController {
                 }
                 if (this.clockOn && msg.status < 0) {
                     this.clocks[myclock].start();
-                    // console.log('MY CLOCK STARTED');
+                    console.log('MY CLOCK STARTED');
                 }
             } else {
                 this.chessground.set({
@@ -805,7 +806,7 @@ export class RoundController extends GameController {
                 });
                 if (this.clockOn && msg.status < 0) {
                     this.clocks[oppclock].start();
-                    // console.log('OPP CLOCK  STARTED');
+                    console.log('OPP CLOCK  STARTED');
                 }
             }
         }
@@ -1045,7 +1046,7 @@ export class RoundController extends GameController {
     }
 
     protected onMessage(evt: MessageEvent) {
-        // console.log("<+++ onMessage():", evt.data);
+         console.log("<+++ onMessage():", evt.data);
         super.onMessage(evt);
 
         if (evt.data === '/n') return;
