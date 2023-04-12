@@ -1199,6 +1199,12 @@ i-side.icon.icon-adjust {
   height: 40px;
   width: 38px;
 }
+#seeks td i-side{
+  display: inline-block;
+  width:32px;
+  height:32px;
+  background-size: contain;
+}
 .icon.icon-white {
   background-image: url("icons/wK.svg");
 }
@@ -1378,7 +1384,7 @@ table#seeks {
 #seeks tbody tr {
   cursor: pointer;
   border-bottom: 1px solid #4c2424;
-  background: rgba(255,255,255,0.8);
+  background: rgba(255,255,255,1);
   z-index: 1;
 }
 #seeks tbody tr:hover {

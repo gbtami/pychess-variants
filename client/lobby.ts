@@ -428,6 +428,7 @@ export class LobbyController implements ChatController {
                             ),
                         ]),
                         h('div#color-button-group', [
+                            h('h4',{props:{title:("Choose you color:")}}),
                             h('button.icon.icon-black', { props: { type: "button", title: _("Black") }, on: { click: (e) => {buttonClicked = 'b';addClass(e);} } }),
                             h('button.icon.icon-adjust.active', { props: { type: "button", title: _("Random") }, on: { click: (e) => {buttonClicked = 'r';addClass(e);} } }),
                             h('button.icon.icon-white', { props: { type: "button", title: _("White") }, on: { click: (e) => {buttonClicked = 'w';addClass(e);} } }),
@@ -623,10 +624,10 @@ export class LobbyController implements ChatController {
 
             h('td', timeControlStr(seek.base, seek.inc, seek.byoyomi)),
 
-            h('td', { class: { tooltip: seek.fen !== '' } }, [
+            /*h('td', { class: { tooltip: seek.fen !== '' } }, [
                 this.tooltip(seek, variant),
                 this.mode(seek),
-            ]),
+            ]),*/
             h('td', [ this.colorIcon(seek.color) ]),
         ]);
     }
@@ -853,8 +854,8 @@ function seekHeader() {
             // h('th', _('Player')),
             // h('th', _('Rating')),
             h('th', _('Time')),
-            h('th', _('Mode')),
-            h('th', _('Color'))
+            //h('th', _('Speed')),
+            h('th', _('Opponent Color'))
         ])
     ]);
 }
