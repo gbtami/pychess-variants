@@ -561,7 +561,7 @@ export class RoundController extends GameController {
                 }
             } else {
                 buttons.push(h('button.rematch', { on: { click: () => this.rematch() } }, _("REMATCH")));
-                buttons.push(h('button.newopp', { on: { click: () => this.newOpponent(this.home) } }, _("NEW OPPONENT")));
+                buttons.push(h('button.newopp', { on: { click: () => this.newOpponent(this.home) } }, _("Back to Chess Home")));
             }
         }
         patch(this.gameControls, h('div.btn-controls.after', buttons));

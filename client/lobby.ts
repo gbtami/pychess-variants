@@ -461,7 +461,7 @@ export class LobbyController implements ChatController {
     createGame(variantName: string = '', chess960: boolean = false) {
         //random opponent call
         document.querySelector('.invite-title')!.innerHTML = "Play a random opponent";
-        document.querySelector('#create-button button')!.innerHTML = 'Create a game';
+        document.querySelector('#create-button button')!.innerHTML = 'Create game';
         this.preSelectVariant(variantName, chess960);
         this.createMode = 'createGame';
         document.getElementById('game-mode')!.style.display = this.anon ? 'none' : 'inline-flex';
@@ -476,7 +476,7 @@ export class LobbyController implements ChatController {
     playFriend(variantName: string = '', chess960: boolean = false) {
         //playFriend  call
         document.querySelector('.invite-title')!.innerHTML = "Play a friend";
-        document.querySelector('#create-button button')!.innerHTML = 'Create a game';
+        document.querySelector('#create-button button')!.innerHTML = 'Create game';
         document.querySelector('.invite-model')!.classList.add('two-col');
         this.preSelectVariant(variantName, chess960);
         this.createMode = 'playFriend';
@@ -616,10 +616,11 @@ export class LobbyController implements ChatController {
     private seekView(seek: Seek) {
         const variant = VARIANTS[seek.variant];
         const chess960 = seek.chess960;
-
+        console.log("color:" + seek.color);
         return this.hide(seek) ? "" : h('tr', { on: { click: () => this.onClickSeek(seek) } }, [
             // h('td', [ this.challengeIcon(seek), this.seekTitle(seek), this.user(seek) ]),
             // h('td', seek.rating),
+
             h('td', timeControlStr(seek.base, seek.inc, seek.byoyomi)),
 
             h('td', { class: { tooltip: seek.fen !== '' } }, [

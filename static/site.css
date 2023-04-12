@@ -1192,6 +1192,22 @@ i-side,
 .icon-cloud-upload:before {
   margin-right: 0px;
 }
+i-side.icon.icon-black,
+i-side.icon.icon-white,
+i-side.icon.icon-adjust {
+  font-size: 24px;
+  height: 40px;
+  width: 38px;
+}
+.icon.icon-white {
+  background-image: url("icons/wK.svg");
+}
+.icon.icon-black {
+  background-image: url("icons/bK.svg");
+}
+.icon.icon-adjust {
+  background-image: url("icons/wbK.svg");
+}
 .icon-blue:before {
   content: '\62';
   color: var(--blue-text);
