@@ -796,6 +796,9 @@ export class RoundController extends GameController {
                 if (this.clockOn && msg.status < 0) {
                     this.clocks[myclock].start();
                     console.log('MY CLOCK STARTED');
+                    document.querySelector('#misc-info'+ myclock)!.innerHTML = "Your Turn";
+                    document.querySelector('#misc-info'+ oppclock)!.innerHTML = "";
+
                 }
             } else {
                 this.chessground.set({
@@ -807,6 +810,8 @@ export class RoundController extends GameController {
                 if (this.clockOn && msg.status < 0) {
                     this.clocks[oppclock].start();
                     console.log('OPP CLOCK  STARTED');
+                    document.querySelector('#misc-info'+ oppclock)!.innerHTML = "Opponent's Turn";
+                    document.querySelector('#misc-info'+ myclock)!.innerHTML = "";
                 }
             }
         }

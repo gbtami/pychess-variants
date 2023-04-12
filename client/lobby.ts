@@ -297,7 +297,7 @@ export class LobbyController implements ChatController {
         const vVariant = this.variant || localStorage.seek_variant || "chess";
         // 5+3 default TC needs vMin 9 because of the partial numbers at the beginning of minutesValues
         const vMin = localStorage.seek_min ?? "9";
-        const vInc = localStorage.seek_inc ?? "3";
+        const vInc = localStorage.seek_inc ?? "8";
         const vByoIdx = (localStorage.seek_byo ?? 1) - 1;
         const vRated = localStorage.seek_rated ?? "0";
         const vLevel = Number(localStorage.seek_level ?? "1");
