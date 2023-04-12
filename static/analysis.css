@@ -383,16 +383,24 @@ div#pgntext {
 }
 
 /* PUZZLE */
-.puzzle-info {
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
+.puzzle-info, .puzzle-user {
   background: var(--bg-color0);
   box-shadow: var(--base-shadow);
   margin-bottom: 16px;
   padding: 12px;
   font-size: 14px;
   border-radius: 3px;
+}
+div.config-toggle {
+  display: flex;
+  align-items: center;
+}
+.puzzle-user .rating strong {
+  justify-content: center;
+  font-size: 3.5em;
+  display: flex;
+  flex-flow: row wrap;
+  align-items: center;
 }
 .feedback {
     display: flex;
@@ -432,7 +440,7 @@ div#pgntext {
 .instruction san {
     font-size: 1.5em;
 }
-piece.standard.w, piece.capa.w, piece.seirawn.w, piece.hoppel.w, piece.shako.w, piece.asean.w, piece.shogun.w, piece.synochess.w, piece.orda.w, piece.empire.w {
+piece.standard.w, piece.capa.w, piece.seirawn.w, piece.hoppel.w, piece.shako.w, piece.asean.w, piece.shogun.w, piece.synochess.w, piece.orda.w, piece.empire.w, piece.spartan.w {
     background-image: url('images/pieces/merida/wK.svg');
 }
 piece.standard.b, piece.capa.b, piece.seirawn.b, piece.hoppel.b, piece.shako.b, piece.asean.b, piece.shogun.b, piece.shinobi.b, piece.empire.b {
@@ -497,6 +505,9 @@ piece.chennis.b {
 }
 piece.synochess.b {
     background-image: url('images/pieces/synochess/intl-red/bK.svg');
+}
+piece.spartan.b {
+    background-image: url('images/pieces/spartan/bK.svg');
 }
 
 .feedback .instruction strong {

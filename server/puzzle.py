@@ -125,7 +125,8 @@ async def puzzle_complete(request):
     await puzzle.set_played()
 
     if not rated:
-        return
+        print("NOT RATED!")
+        return web.json_response({})
 
     users = request.app["users"]
     session = await aiohttp_session.get_session(request)
@@ -147,18 +148,14 @@ async def puzzle_complete(request):
         black_rating = user.get_rating(variant, chess960)
         result = "0-1" if win else "1-0"
 
-    perfs = await update_ratings(
+    ratings = await update_puzzle_ratings(
         wplayer, bplayer, white_rating, black_rating, variant, chess960, result
     )
-    print(perfs)
-    response = {
-        "rdiff": 0,
-        "bdiff": 1,
-    }
-    return web.json_response(response)
+    print(ratings)
+    return web.json_response(ratings)
 
 
-async def update_ratings(wplayer, bplayer, white_rating, black_rating, variant, chess960, result):
+async def update_puzzle_ratings(wplayer, bplayer, white_rating, black_rating, variant, chess960, result):
     if result == "1-0":
         (white_score, black_score) = (1.0, 0.0)
     elif result == "0-1":
@@ -169,16 +166,16 @@ async def update_ratings(wplayer, bplayer, white_rating, black_rating, variant, 
     wr = gl2.rate(white_rating, [(white_score, black_rating)])
     br = gl2.rate(black_rating, [(black_score, white_rating)])
 
-    await wplayer.set_prating(variant, chess960, wr)
-    await bplayer.set_prating(variant, chess960, br)
+    await wplayer.set_puzzle_rating(variant, chess960, wr)
+    await bplayer.set_puzzle_rating(variant, chess960, br)
 
     wrdiff = int(round(wr.mu - white_rating.mu, 0))
-    p0 = {"e": white_rating, "d": wrdiff}
+    wr = {"e": int(round(white_rating.mu, 0)), "d": wrdiff}
 
     brdiff = int(round(br.mu - black_rating.mu, 0))
-    p1 = {"e": black_rating, "d": brdiff}
+    br = {"e": int(round(black_rating.mu, 0)), "d": brdiff}
 
-    return (p0, p1)
+    return (wr, br)
 
 
 class Puzzle:
@@ -193,7 +190,7 @@ class Puzzle:
         la = self.perf["la"]
         return gl2.create_rating(gl["r"], gl["d"], gl["v"], la)
 
-    async def set_prating(self, _variant: str, _chess960: bool, rating: Rating):
+    async def set_puzzle_rating(self, _variant: str, _chess960: bool, rating: Rating):
         gl = {"r": rating.mu, "d": rating.phi, "v": rating.sigma}
         la = datetime.now(timezone.utc)
         nb = self.perf.get("nb", 0)

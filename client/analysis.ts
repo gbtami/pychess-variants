@@ -146,7 +146,7 @@ export function analysisView(model: PyChessModel): VNode[] {
                                     type: "checkbox",
                                 },
                             }),
-                            h('span#slider.sw-slider'),
+                            h('span.sw-slider'),
                         ]),
                     ]),
                 ]),

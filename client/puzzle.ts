@@ -19,9 +19,28 @@ function leftSide(model: PyChessModel) {
         if (isInput) window.location.assign('/puzzle/' + variant);
     }
     const disableds = variants.filter(v => !puzzleVariants.includes(v));
+    const color = model["fen"].split(" ")[1];
     return h('div', [
         h('div.puzzle-meta', [
             h('div.infos'),
+        ]),
+        h('div.puzzle-user', [
+            h('div.config-toggle', [
+                h('label.switch', [
+                    h('input#puzzle-rated', {
+                        props: {
+                            name: "puzzle-rated",
+                            type: "checkbox",
+                        },
+                        attrs: {checked: true}
+                    }),
+                    h('span.sw-slider'),
+                ]),
+                h('label', { attrs: { for: "puzzle-rated"} }, _("Rated")),
+            ]),
+            h('div.rating', [
+                h('strong', (color==="w") ? model.wrating : model.brating)
+            ]),
         ]),
         h('div.puzzle-info', [
             h('label', { attrs: { for: "variant" } }, _("Variant")),
@@ -73,7 +92,7 @@ export function puzzleView(model: PyChessModel): VNode[] {
                                     type: "checkbox",
                                 },
                             }),
-                            h('span#slider.sw-slider'),
+                            h('span.sw-slider'),
                         ]),
                     ]),
                 ]),

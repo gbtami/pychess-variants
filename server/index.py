@@ -511,9 +511,22 @@ async def index(request):
             else:
                 puzzle = await get_puzzle(request, puzzleId)
 
+        color = puzzle["fen"].split()[1]
+        chess960 = False
+        puzzle_rating = puzzle.get("perf", DEFAULT_PERF)["gl"]["r"]
+        variant = puzzle["variant"]
+        if color == "w":
+            wrating = int(round(user.get_puzzle_rating(variant, chess960).mu, 0))
+            brating = puzzle_rating
+        else:
+            brating = int(round(user.get_puzzle_rating(variant, chess960).mu, 0))
+            wrating = puzzle_rating
+
         render["view_css"] = "analysis.css"
-        render["variant"] = puzzle["variant"]
+        render["variant"] = variant
         render["fen"] = puzzle["fen"]
+        render["wrating"] = wrating
+        render["brating"] = brating
         render["puzzle"] = json.dumps(puzzle, default=datetime.isoformat)
 
     if (gameId is not None) and gameId != "variants":

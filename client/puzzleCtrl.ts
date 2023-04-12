@@ -23,6 +23,7 @@ export class PuzzleController extends AnalysisController {
     failed: boolean;
     completed: boolean;
     posted: boolean;
+    rated: boolean;
     gaugeNeeded: boolean;
 
     constructor(el: HTMLElement, model: PyChessModel) {
@@ -42,6 +43,7 @@ export class PuzzleController extends AnalysisController {
         this.failed = false;
         this.completed = false;
         this.posted = false;
+        this.rated = true;
 
         this.chessground.set({
             orientation: this.turnColor,
@@ -60,6 +62,8 @@ export class PuzzleController extends AnalysisController {
                 select: this.onSelect(),
             },
         });
+
+        patch(document.getElementById('puzzle-rated') as HTMLElement, h('input#puzzle-rated', this.setRated()));
 
         this.playerEl = document.querySelector('.player') as HTMLElement;
         this.yourTurn();
@@ -105,6 +109,15 @@ export class PuzzleController extends AnalysisController {
         setTimeout(showHintAndSolution, 4000);
     }
 
+    setRated() {
+        return {
+            on: {change: () => {
+                this.rated = !this.rated;
+                console.log('RATED:', this.rated);
+            }}
+        };
+    }
+
     renderInfos() {
         const source = (!this.site || this.site.includes('fairy-stockfish')) ? 'https://fairy-stockfish.github.io' : this.site;
         const infosEl = document.querySelector('.infos') as HTMLElement;
@@ -113,7 +126,7 @@ export class PuzzleController extends AnalysisController {
                 h('div.info0.icon.icon-puzzle', [
                     h('div.info2', [
                         h('div', [_('Puzzle '), h('a', { attrs: { href: `/puzzle/${this._id}` } }, `#${this._id}`) ]),
-                        h('div', [_('Rating: '), '1500?']),
+                        h('div', [_('Rating: '), 'hidden']),
                         h('div', [_('Played '), this.played])
                     ])
                 ]),
@@ -310,21 +323,22 @@ export class PuzzleController extends AnalysisController {
     postSuccess(success: boolean) {
         if (this.posted) return;
         this.posted = true;
-        // TODO
-        const rated = true;
 
         const XHR = new XMLHttpRequest();
         const FD  = new FormData();
         FD.append('win', `${success}`);
         FD.append('variant', `${this.variant.name}`);
         FD.append('color', this.color);
-        FD.append('rated', `${rated}`);
+        FD.append('rated', `${this.rated}`);
 
         XHR.onreadystatechange = function() {
             if (this.readyState === 4 && this.status === 200) {
                 const response = JSON.parse(this.responseText);
                 if (response['error'] !== undefined) {
                     console.log(response['error']);
+                } else {
+                    // TODO: show puzzle rating and user rating diff
+                    console.log(response);
                 }
             }
         }

@@ -114,7 +114,7 @@ class User:
         self.perfs[variant + ("960" if chess960 else "")] = DEFAULT_PERF
         return rating
 
-    def get_prating(self, variant: str, chess960: bool) -> Rating:
+    def get_puzzle_rating(self, variant: str, chess960: bool) -> Rating:
         if variant in self.pperfs:
             gl = self.pperfs[variant + ("960" if chess960 else "")]["gl"]
             la = self.pperfs[variant + ("960" if chess960 else "")]["la"]
@@ -149,7 +149,7 @@ class User:
                 {"_id": self.username}, {"$set": {"perfs": self.perfs}}
             )
 
-    async def set_prating(self, variant, chess960, rating):
+    async def set_puzzle_rating(self, variant, chess960, rating):
         if self.anon:
             return
         gl = {"r": rating.mu, "d": rating.phi, "v": rating.sigma}
