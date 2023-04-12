@@ -101,3 +101,5 @@ With different armies, different strategies are effective for the Persians and t
 * Neutralize hoplites - Hoplites' mobility can often be neutralized by placing a piece on each of the diagonals in front of them.
 * Regicide - Look to exchange a minor piece for a Spartan king as early as possible, thus ending Spartan check immunity.
 * Counter-Punch - Wherever the Spartans advance, look to counterattack and force favorable exchanges. Then look for an open flank and rush your rooks and queen there.
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/tiIEvtG4ND4" frameborder="0" allowfullscreen></iframe>
