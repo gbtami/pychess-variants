@@ -214,7 +214,7 @@ export class RoundController extends GameController {
             const container = document.getElementById('more-time') as HTMLElement;
             patch(container, h('div#more-time', [
                 h('button.icon.icon-plus-square', {
-                    props: {type: "button", title: _("Give 15 seconds")},
+                    props: {type: "button", title: _("Add 15 seconds")},
                     on: { click: () => onMoreTime() }
                 })
             ]));
@@ -560,7 +560,7 @@ export class RoundController extends GameController {
                         [h('div', {class: {"icon": true, 'icon-pause2': true} }, _("PAUSE"))]));
                 }
             } else {
-                buttons.push(h('button.rematch', { on: { click: () => this.rematch() } }, _("REMATCH")));
+                buttons.push(h('button.rematch', { on: { click: () => this.rematch() } }, _("Rematch")));
                 buttons.push(h('button.newopp', { on: { click: () => this.newOpponent(this.home) } }, _("Back to Chess Home")));
             }
         }

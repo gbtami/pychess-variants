@@ -361,7 +361,7 @@ export class LobbyController implements ChatController {
                                 style: {"display":"none"},
                             }),
                         ]),
-                        h('label', { attrs: { for: "min" } }, _("Minutes per side:")),
+                        h('label#minute_label', { attrs: { for: "min" } }, _("Minutes per side:")),
                         h('span#minutes'),
                         h('input#min.slider', {
                             props: { name: "min", type: "range", min: 0, max: this.minutesValues.length - 1, value: vMin },
@@ -419,7 +419,7 @@ export class LobbyController implements ChatController {
                         ]),
                         // A.I.Level (1-8 buttons)
                         h('form#ailevel', [
-                            h('h4', _("Computer Level")),
+                            h('h4', _("Difficulty Level")),
                             h('div.radio-group',
                                 [ 0, 1, 2, 3, 4, 5, 6, 7, 8 ].map(level => [
                                     h('input#ai' + level, { props: { type: "radio", name: "level", value: level }, attrs: { checked: vLevel === level } }),
@@ -428,7 +428,7 @@ export class LobbyController implements ChatController {
                             ),
                         ]),
                         h('div#color-button-group', [
-                            h('h4',{props:{title:("Choose you color:")}}),
+                            h('h4',{props:{title:("Choose you color:")}},_("Choose you color:")),
                             h('button.icon.icon-black', { props: { type: "button", title: _("Black") }, on: { click: (e) => {buttonClicked = 'b';addClass(e);} } }),
                             h('button.icon.icon-adjust.active', { props: { type: "button", title: _("Random") }, on: { click: (e) => {buttonClicked = 'r';addClass(e);} } }),
                             h('button.icon.icon-white', { props: { type: "button", title: _("White") }, on: { click: (e) => {buttonClicked = 'w';addClass(e);} } }),
@@ -878,17 +878,40 @@ export function lobbyView(model: PyChessModel): VNode[] {
             modal.style.display = "none";
     });
     */
+   const cmgHOST = 'https://www.coolmath-games.com';
 
     return [
         // h('aside.sidebar-first', [
         // ]),
         h('div.seeks', [
             h('div#seeks-table', [
-                h('div#seeks-wrapper', h('table#seeks', { hook: { insert: vnode => runSeeks(vnode, model) } })),
+                h('div#seeks-wrapper',[
+                    h('h3.seek-header',{},_("Join a Game")),
+                    h('table#seeks', { hook: { insert: vnode => runSeeks(vnode, model) } })
+                ]),
             ]),
         ]),
         // h('div#variants-catalog'),
         h('aside.sidebar-second',[h('div.active-player',[h('counter#u_cnt'), h('counter#g_cnt')]),
-        h('div#seekbuttons') ])
+        h('div#seekbuttons'), h('div#chess_videos',[
+            h('h3.chess_v_head',_("Chess Videos")),
+            h('div.chess-v-body',[
+                h('div.videos-sidebar-item',[
+                    h('a',{attrs:{href:cmgHOST+'/chess-videos/start-the-game-strong-knights-and-bishops'}},[
+                        h('img',{attrs:{src:cmgHOST+'/sites/cmatgame/files/video-play-icons/start_the_game_strong_play.png'}}),
+                        h('h4',{},_('Start The Game Strong: Knights and Bishops'))
+                    ])
+                ]),
+                h('div.videos-sidebar-item',[
+                    h('a',{attrs:{href:cmgHOST+'/chess-videos/why-you-should-castle'}},[
+                        h('img',{attrs:{src:cmgHOST+'/sites/cmatgame/files/video-play-icons/why_you_should_castle_play.png'}}),
+                        h('h4',{},_('Why You Should Castle'))
+                    ])
+                ])
+            ]),
+            h('div.chess-v-footer',[
+                h('a',{attrs:{href:'https://www.coolmath-games.com/chess-videos',target:"_blank"}},_("All Chess Videos >"))
+            ])
+        ]) ])
     ];
 }

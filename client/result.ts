@@ -123,24 +123,24 @@ export function result(variant: Variant, status: number, result: string) {
     }
 
     if(status == 2 && result === '1-0') {
-      text = text + " - " + "White Wins!";
+      text = text.toUpperCase() + " - " + "White Wins!";
     } else if(status == 2 && result === '0-1'){
-      text = text + " - " + "Black Wins!";
+      text = text.toUpperCase() + " - " + "Black Wins!";
     }
     if(status == 1 && result === '1-0') {
-      text = text + " - " + "White Wins!";
+      text = text.toUpperCase() + " - " + "White Wins!";
     } else if(status == 1 && result === '0-1'){
-      text = text + " - " + "Black Wins!";
+      text = text.toUpperCase() + " - " + "Black Wins!";
     }
     if((status == 4 || status == 6) && result === '1-0') {
-      text = text + " - " + "White Wins!";
+      text = text.toUpperCase() + " - " + "White Wins!";
     } else if((status == 4 || status == 6) && result === '0-1'){
-      text = text + " - " + "Black Wins!";
+      text = text.toUpperCase() + " - " + "Black Wins!";
     }
     if(status <= 0 || status == 1 || status == 2 || status == 4 || status == 6) {
       return text;
     } else {
-      return text + ', ' + result;
+      return text.toUpperCase() + ', ' + result;
     }
     //return (status <= 0) ? text : text + ', ' + result;
 }

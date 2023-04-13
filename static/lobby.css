@@ -103,6 +103,10 @@
 .join-form{
     flex: 0 0 100%;
 }
+.join-form .container {
+	max-width: 330px;
+	margin: 0 auto;
+}
 .invite-frnd{
     padding: 0 26px 0 0;
     position: relative;
@@ -151,6 +155,7 @@
     font-size: 1.5em;
     font-weight: bold;
     top: 20px;
+    left:0;
     text-transform: uppercase;
 }
 
@@ -193,6 +198,10 @@
 .two-col .join-form {
     flex: 0 0 50%;
     padding: 0 0 0 26px;
+}
+
+form#ailevel > h4{
+    margin-top:12px;
 }
 @media (max-width: 799px) and (orientation: portrait){
     .join-form #create-button button,
