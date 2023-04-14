@@ -878,7 +878,7 @@ export function lobbyView(model: PyChessModel): VNode[] {
             modal.style.display = "none";
     });
     */
-   const cmgHOST = 'https://www.coolmath-games.com';
+   const cmgHOST = 'https://www.coolmathgames.com';
 
     return [
         // h('aside.sidebar-first', [
@@ -910,7 +910,7 @@ export function lobbyView(model: PyChessModel): VNode[] {
                 ])
             ]),
             h('div.chess-v-footer',[
-                h('a',{attrs:{href:'https://www.coolmath-games.com/chess-videos',target:"_blank"}},_("All Chess Videos >"))
+                h('a',{attrs:{href:'https://www.coolmathgames.com/chess-videos',target:"_blank"}},_("All Chess Videos >"))
             ])
         ]) ])
     ];
