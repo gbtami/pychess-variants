@@ -799,6 +799,10 @@ export class RoundController extends GameController {
                     console.log('MY CLOCK STARTED');
                     document.querySelector('#misc-info'+ myclock)!.innerHTML = "Your Turn";
                     document.querySelector('#misc-info'+ oppclock)!.innerHTML = "";
+                    var a = document.querySelector(".info-wrap" + myclock).classList;
+                    a.add("active");
+                    var b = document.querySelector(".info-wrap" + oppclock).classList;
+                    b.remove("active");
 
                 }
             } else {
@@ -813,6 +817,10 @@ export class RoundController extends GameController {
                     console.log('OPP CLOCK  STARTED');
                     document.querySelector('#misc-info'+ oppclock)!.innerHTML = "Opponent's Turn";
                     document.querySelector('#misc-info'+ myclock)!.innerHTML = "";
+                    var a = document.querySelector(".info-wrap" + oppclock).classList;
+                    a.add("active");
+                    var b = document.querySelector(".info-wrap" + myclock).classList;
+                    b.remove("active");
                 }
             }
         }
