@@ -483,6 +483,24 @@ export class RoundController extends GameController {
         console.log("got gameStart msg:", msg);
         if (msg.gameId !== this.gameId) return;
         if (!this.spectator) {
+            const oppclock = !this.flipped() ? 0 : 1;
+            const myclock = 1 - oppclock;
+            console.log("inside gameStart: " + "turnColor:" + this.turnColor + "mycolor:" + this.mycolor + "status:" + msg.status);
+            if (this.turnColor === this.mycolor) { //if mycolor is white then it is my turn to start
+                document.querySelector('#misc-info'+ myclock)!.innerHTML = "Your Turn";
+                document.querySelector('#misc-info'+ oppclock)!.innerHTML = "";
+                var a = document.querySelector(".info-wrap" + myclock).classList;
+                a.add("active");
+                var b = document.querySelector(".info-wrap" + oppclock).classList;
+                b.remove("active");
+            } else {  //if my color is black then it is opponent's turn
+                document.querySelector('#misc-info'+ oppclock)!.innerHTML = "Opponent's Turn";
+                document.querySelector('#misc-info'+ myclock)!.innerHTML = "";
+                var a = document.querySelector(".info-wrap" + oppclock).classList;
+                a.add("active");
+                var b = document.querySelector(".info-wrap" + myclock).classList;
+                b.remove("active");
+            }
             sound.genericNotify();
             if (!this.focus) this.notifyMsg('joined the game.');
             console.log("onMsgGameStart" + this.status);
