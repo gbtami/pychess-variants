@@ -1,5 +1,6 @@
 .standard8x8 cg-board {
-    background-image: url('images/board/8x8brown.svg');
+    /* background-image: url('images/board/8x8brown.svg'); */
+    background-image: url('images/board/8x8maple.jpg');
 }
 .standard10x8 cg-board {
     background-image: url('images/board/10x8brown.svg');
