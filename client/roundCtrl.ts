@@ -201,7 +201,7 @@ export class RoundController extends GameController {
         this.clocks[0].onTick(this.clocks[0].renderTime);
         this.clocks[1].onTick(this.clocks[1].renderTime);
 
-        const onMoreTime = () => {
+        /*const onMoreTime = () => {
             if (this.wtitle === 'BOT' || this.btitle === 'BOT' || this.spectator || this.status >= 0 || this.flipped()) return;
             const clockIdx = (this.flipped()) ? 1 : 0;
             this.clocks[clockIdx].setTime(this.clocks[clockIdx].duration + 15 * 1000);
@@ -219,6 +219,7 @@ export class RoundController extends GameController {
                 })
             ]));
         }
+        */
 
         const onBerserk = () => {
             if (this.berserkable) {
