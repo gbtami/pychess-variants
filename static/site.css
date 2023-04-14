@@ -981,7 +981,6 @@ div#result {
   font-weight: 700;
   padding: 8px 12px;
   margin-top: 10px;
-  border-radius: 10px;
 }
 
 .lobby-button,
@@ -1763,7 +1762,19 @@ button:disabled {
   align-items: center;
 }
 .info-wrap0 {
-  grid-area: clock-top;
+	grid-area: clock-top;
+}
+.info-wrap0, .info-wrap1{
+  padding: 6px;
+}
+.info-wrap0.active, .info-wrap1.active{
+  background: #2a8ae3;
+	box-shadow: 0 0 15px inset rgba(255,255,255,0.5);
+}
+#misc-info0, #misc-info1 {
+	font-weight: bold;
+  margin-left:4px;
+  flex-grow:4;
 }
 .info-wrap1 {
   grid-area: clock-bot;
@@ -1835,27 +1846,31 @@ button.icon::-moz-focus-inner {
 .clock {
   display: inline-flex;
   text-align: center;
-  font-family: 'Roboto Mono', 'Roboto';
-  font-size: 2em;
+  font-family: inherit;
+  font-size: 1.5em;
   font-weight: bold;
-  background-color: var(--bg-color0);
+  border: 1px solid #fff;
+  background-color: #1f6bb0;
+  padding: 2px 6px;
 }
 
 @media (max-width: 799px) and (orientation: portrait) {
   .clock {
-    font-size: 2em;
+    font-size: 1.5em;
   }
 }
 .clock.running {
   color: var(--clock-running-color);
   background-color: #eee;
-  border-radius: 5px;
-  padding: 6px 10px;
+  /* border-radius: 5px; */
+  padding: 2px 4px;
   font-size: 1.5em;
 }
 
 .clock.hurry {
-  background-color: var(--clock-hurry-bg) !important;
+	background-color: var(--clock-hurry-bg) !important;
+	color: var(--fc-neutral-text-color);
+	border-color: #fff;
 }
 
 .clock.connecting {
