@@ -493,6 +493,13 @@ export class RoundController extends GameController {
                 a.add("active");
                 var b = document.querySelector(".info-wrap" + oppclock).classList;
                 b.remove("active");
+                /* TODO to start the clock automatically when the game starts
+                this.clocks[0].pause(false);
+                this.clocks[1].pause(false);
+                this.clocks[myclock].running = false;
+                this.clocks[myclock].start();
+                console.log("myclock started" +  this.clocks[myclock]);
+                */
             } else {  //if my color is black then it is opponent's turn
                 document.querySelector('#misc-info'+ oppclock)!.innerHTML = "Opponent's Turn";
                 document.querySelector('#misc-info'+ myclock)!.innerHTML = "";
