@@ -4,7 +4,7 @@ import { h, VNode } from 'snabbdom';
 
 import { _ } from '../i18n';
 import { variantsIni } from '../variantsIni';
-import { VARIANTS } from '../chess';
+import { VARIANTS } from '../variants';
 import { PyChessModel } from "../types";
 
 const BRAINKING_SITE = '[Site "BrainKing.com (Prague, Czech Republic)"]';

@@ -19,64 +19,12 @@
 
 @media (min-width: 800px) {
     .round-app {
-        grid-template-columns: minmax(calc(70vmin * var(--board-scale)), calc(100vh * var(--board-scale) - calc(var(--site-header-height) + var(--site-header-margin)) - 3rem))
-                               minmax(240px, 400px);
+        grid-template-columns: minmax(calc(70vmin * var(--board-scale)), calc(100vh * var(--board-scale) - calc(var(--site-header-height) + var(--site-header-margin)) - 3rem)) minmax(240px, 400px);
         grid-template-rows: min-content auto auto min-content auto auto auto auto auto auto auto min-content auto auto min-content;
         grid-template-areas: 'board .' 'board mat-top' 'board pocket-top' 'board clock-top' 'board expi-top' 'board user-top' 'board move-controls' 'board moves' 'board offer' 'board game-controls' 'board user-bot' 'board expi-bot' 'board clock-bot' 'board pocket-bot' 'board mat-bot' 'board .';
     }
-    .round-app.bug {
-/*        grid-template-columns: minmax(230px, 20vw) 2vmin minmax(calc(70vmin * var(--board-scale)), calc(100vh * var(--board-scale) - calc(var(--site-header-height) + var(--site-header-margin)) - 3rem)) var(--gauge-gap) minmax(240px, 400px);*/
-/*        grid-template-columns: 2vmin minmax(calc(70vmin * var(--board-scale)), calc(100vh * var(--board-scale) - calc(var(--site-header-height) + var(--site-header-margin)) - 3rem)) var(--gauge-gap) minmax(240px, 400px) minmax(calc(70vmin * var(--board-scale)), calc(100vh * var(--board-scale) - calc(var(--site-header-height) + var(--site-header-margin)) - 3rem));*/
-        /*todo:niki:move list probably some max from this new expression and old one*/
-        /*grid-template-columns: minmax(calc(70vmin * var(--board-scale)), calc(100vh * var(--board-scale) - calc(var(--site-header-height) + var(--site-header-margin)) - 3rem))*/
-        /*                       auto !*minmax(240px, 400px)*! !*calc(var(--pocketLength) * (var(--cg-width) / var(--files)))*!*/
-        /*                       auto !*minmax(240px, 400px)*! !*calc(var(--pocketLength) * (var(--cg-width) / var(--files)))*!*/
-        /*                       minmax(calc(70vmin * var(--board-scale)), calc(100vh * var(--board-scale) - calc(var(--site-header-height) + var(--site-header-margin)) - 3rem));*/
-        /*grid-template-columns: minmax(calc(70vmin * var(--board-scale)), calc(100vh * var(--board-scale) - calc(var(--site-header-height) + var(--site-header-margin)) - 3rem))*/
-        /*                       auto !*minmax(240px, 400px)*! !*calc(var(--pocketLength) * (var(--cg-width) / var(--files)))*!*/
-        /*                       auto !*minmax(240px, 400px)*! !*calc(var(--pocketLength) * (var(--cg-width) / var(--files)))*!*/
-        /*                       minmax(calc(70vmin * var(--board-scale)), calc(100vh * var(--board-scale) - calc(var(--site-header-height) + var(--site-header-margin)) - 3rem));*/
-        grid-template-columns: calc(30vw * var(--board-scale))
-                               calc(var(--pocketLength) * (var(--cg-width) / var(--files))) /*minmax(240px, 400px)*/ /*calc(var(--pocketLength) * (var(--cg-width) / var(--files)))*/
-                               calc(30vw * var(--board-scale))
-                               calc(var(--pocketLength) * (var(--cg-width) / var(--files))); /*minmax(240px, 400px)*/ /*calc(var(--pocketLength) * (var(--cg-width) / var(--files)))*/
-;
-
-        /*grid-template-rows: min-content min-content 1fr 1fr 1fr 1fr min-content min-content min-content;*/
-        grid-template-rows: min-content min-content min-content min-content min-content min-content min-content min-content min-content;
-        grid-template-areas: 'board pocket-top boardPartner pocket-top-partner'
-                             'board clock-top boardPartner clockB-top'
-                             'board tools boardPartner toolsB'
-                             'board tools boardPartner toolsB'
-                             'board tools boardPartner toolsB'
-                             'board tools boardPartner toolsB'
-                             'board clock-bot boardPartner clockB-bot'
-                             'board pocket-bot boardPartner pocket-bot-partner'
-                             '. move-controls move-controls .'
-                             'uboard uboard uboard uboard'
-        /*'board . boardPartner' 'board mat-top boardPartner' 'board clock-top boardPartner' 'board expi-top boardPartner' 'board user-top boardPartner' 'board move-controls boardPartner' 'board moves boardPartner' 'board game-controls boardPartner' 'board user-bot boardPartner' 'board expi-bot boardPartner' 'board clock-bot boardPartner' 'board mat-bot boardPartner' 'board . boardPartner';*/
-    }
-
 }
 
-.bug-round-tools {
-    grid-area: tools;
-    display: flex;
-    flex-flow: column;
-}
-
-.bug-round-tools-part {
-    grid-area: toolsB;
-    display: flex;
-    flex-flow: column;
-
-}
-
-.bug-round-tools-part .movelist-block{
-    max-height: calc(var(--cg-height)*(6/8) - 48px - 48px);
-    min-height: calc(var(--cg-height)*(6/8) - 48px - 48px);
-
-}
 .cg-wrap svg {
     position: absolute;
 }

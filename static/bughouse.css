@@ -1,0 +1,460 @@
+/*analysis.css*/
+@media (min-width: 800px) {
+        .analysis-app.bug {
+/*        grid-template-columns: minmax(230px, 20vw) 2vmin minmax(calc(70vmin * var(--board-scale)), calc(100vh * var(--board-scale) - calc(var(--site-header-height) + var(--site-header-margin)) - 3rem)) var(--gauge-gap) minmax(240px, 400px);*/
+/*        grid-template-columns: 2vmin minmax(calc(70vmin * var(--board-scale)), calc(100vh * var(--board-scale) - calc(var(--site-header-height) + var(--site-header-margin)) - 3rem)) var(--gauge-gap) minmax(240px, 400px) minmax(calc(70vmin * var(--board-scale)), calc(100vh * var(--board-scale) - calc(var(--site-header-height) + var(--site-header-margin)) - 3rem));*/
+        /*todo:niki:move list probably some max from this new expression and old one*/
+        /*grid-template-columns: minmax(calc(70vmin * var(--board-scale)), calc(100vh * var(--board-scale) - calc(var(--site-header-height) + var(--site-header-margin)) - 3rem))
+                               var(--gauge-gap)
+                               calc(var(--pocketLength) * (var(--cg-width) / var(--files)))
+                               calc(var(--pocketLength) * (var(--cg-width) / var(--files)))
+                               var(--gauge-gap)
+                               minmax(calc(70vmin * var(--board-scale)), calc(100vh * var(--board-scale) - calc(var(--site-header-height) + var(--site-header-margin)) - 3rem));*/
+        grid-template-columns: 500px
+                               var(--gauge-gap)
+                               calc(var(--pocketLength) * (var(--cg-width) / var(--files)))
+                               calc(var(--pocketLength) * (var(--cg-width) / var(--files)))
+                               var(--gauge-gap)
+                               500px;
+        grid-template-rows: min-content 1fr;
+        grid-template-areas: 'board gauge pocket-top pocket-top-partner gaugePartner boardPartner' 'board gauge tools tools gaugePartner boardPartner' 'board gauge tools tools gaugePartner boardPartner' 'board gauge pocket-bot pocket-bot-partner gaugePartner boardPartner' '. . move-controls move-controls . .' 'uboard uboard uboard uboard uboard uboard' 'gameinfo gameinfo gameinfo gameinfo gameinfo gameinfo'
+        /*'board . boardPartner' 'board mat-top boardPartner' 'board clock-top boardPartner' 'board expi-top boardPartner' 'board user-top boardPartner' 'board move-controls boardPartner' 'board moves boardPartner' 'board game-controls boardPartner' 'board user-bot boardPartner' 'board expi-bot boardPartner' 'board clock-bot boardPartner' 'board mat-bot boardPartner' 'board . boardPartner';*/
+    }
+}
+.anal-clock.bug {
+    left:0;
+    right:initial;
+}
+#gaugePartner {
+    grid-area: gaugePartner;
+}
+
+/* extensions.css*/
+main.round.bug .pocket.top {
+  margin-bottom: unset;
+}
+
+div#chatpresets{
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  order: 3;
+}
+
+div#chatpresets button.bugchat{
+  /*width: 10vw;*/
+  width: 10%;
+  /*height: 100vw;*/
+  padding-top: 10%;
+  color: var(--font-color);
+  background-color: var(--bg-color0);
+  cursor: pointer;
+  border: none;
+}
+
+li.message .bugchat{
+  width: 2em;
+  height: 2em;
+  display: inline-flex;
+  color: var(--font-color);
+  background-color: var(--bg-color0);
+  cursor: pointer;
+  border: none;
+}
+
+button.bugchat:hover {
+  color: #fff;
+  background-color: var(--green-hover);
+}
+
+button.bugchat:focus {
+  outline: none;
+}
+button.bugchat::-moz-focus-inner {
+  border: 0;
+}
+/*button.bugchat:hover {*/
+/*  background-color: var(--vpanel-button-hover);*/
+/*  color: rgb(160, 160, 160);*/
+/*}*/
+.bugchat.p {
+  background-image: url('../../static/images/bugroundchat/P.svg');
+  background-size: cover;
+}
+.bugchat.n{
+  background-image: url('../../static/images/bugroundchat/N.svg');
+  background-size: cover;
+}
+.bugchat.b{
+  background-image: url('../../static/images/bugroundchat/B.svg');
+  background-size: cover;
+}
+.bugchat.r{
+  background-image: url('../../static/images/bugroundchat/R.svg');
+  background-size: cover;
+}
+.bugchat.q{
+  background-image: url('../../static/images/bugroundchat/Q.svg');
+  background-size: cover;
+}
+
+
+.bugchat.nop{
+  background-image: url('../../static/images/bugroundchat/noP.svg');
+  background-size: cover;
+}
+.bugchat.non{
+  background-image: url('../../static/images/bugroundchat/noN.svg');
+  background-size: cover;
+}
+.bugchat.nob{
+  background-image: url('../../static/images/bugroundchat/noB.svg');
+  background-size: cover;
+}
+.bugchat.nor{
+  background-image: url('../../static/images/bugroundchat/noR.svg');
+  background-size: cover;
+}
+.bugchat.noq{
+  background-image: url('../../static/images/bugroundchat/noQ.svg');
+  background-size: cover;
+}
+
+
+.bugchat.sit{
+  background-image: url('../../static/images/bugroundchat/SIT.svg');
+  background-size: cover;
+}
+.bugchat.go{
+  background-image: url('../../static/images/bugroundchat/GO.svg');
+  background-size: cover;
+}
+.bugchat.trade{
+  background-image: url('../../static/images/bugroundchat/TRADE.svg');
+  background-size: cover;
+}
+.bugchat.notrade{
+  background-image: url('../../static/images/bugroundchat/NOTRADE.svg');
+  background-size: cover;
+}
+.bugchat.mate{
+  background-image: url('../../static/images/bugroundchat/MATE.svg');
+  background-size: cover;
+}
+
+
+.bugchat.ok{
+  background-image: url('../../static/images/bugroundchat/OK.svg');
+  background-size: cover;
+}
+.bugchat.no{
+  background-image: url('../../static/images/bugroundchat/NO.svg');
+  background-size: cover;
+}
+.bugchat.mb{
+  background-image: url('../../static/images/bugroundchat/MB.svg');
+  background-size: cover;
+}
+.bugchat.nvm{
+  background-image: url('../../static/images/bugroundchat/NVM.svg');
+  background-size: cover;
+}
+.bugchat.nice{
+  background-image: url('../../static/images/bugroundchat/NICE.svg');
+  background-size: cover;
+}
+
+/*round.css*/
+
+@media (min-width: 800px) {
+
+    .round-app.bug {
+/*        grid-template-columns: minmax(230px, 20vw) 2vmin minmax(calc(70vmin * var(--board-scale)), calc(100vh * var(--board-scale) - calc(var(--site-header-height) + var(--site-header-margin)) - 3rem)) var(--gauge-gap) minmax(240px, 400px);*/
+/*        grid-template-columns: 2vmin minmax(calc(70vmin * var(--board-scale)), calc(100vh * var(--board-scale) - calc(var(--site-header-height) + var(--site-header-margin)) - 3rem)) var(--gauge-gap) minmax(240px, 400px) minmax(calc(70vmin * var(--board-scale)), calc(100vh * var(--board-scale) - calc(var(--site-header-height) + var(--site-header-margin)) - 3rem));*/
+        /*todo:niki:move list probably some max from this new expression and old one*/
+        /*grid-template-columns: minmax(calc(70vmin * var(--board-scale)), calc(100vh * var(--board-scale) - calc(var(--site-header-height) + var(--site-header-margin)) - 3rem))*/
+        /*                       auto !*minmax(240px, 400px)*! !*calc(var(--pocketLength) * (var(--cg-width) / var(--files)))*!*/
+        /*                       auto !*minmax(240px, 400px)*! !*calc(var(--pocketLength) * (var(--cg-width) / var(--files)))*!*/
+        /*                       minmax(calc(70vmin * var(--board-scale)), calc(100vh * var(--board-scale) - calc(var(--site-header-height) + var(--site-header-margin)) - 3rem));*/
+        /*grid-template-columns: minmax(calc(70vmin * var(--board-scale)), calc(100vh * var(--board-scale) - calc(var(--site-header-height) + var(--site-header-margin)) - 3rem))*/
+        /*                       auto !*minmax(240px, 400px)*! !*calc(var(--pocketLength) * (var(--cg-width) / var(--files)))*!*/
+        /*                       auto !*minmax(240px, 400px)*! !*calc(var(--pocketLength) * (var(--cg-width) / var(--files)))*!*/
+        /*                       minmax(calc(70vmin * var(--board-scale)), calc(100vh * var(--board-scale) - calc(var(--site-header-height) + var(--site-header-margin)) - 3rem));*/
+        grid-template-columns: calc(30vw * var(--board-scale))
+                               calc(var(--pocketLength) * (var(--cg-width) / var(--files))) /*minmax(240px, 400px)*/ /*calc(var(--pocketLength) * (var(--cg-width) / var(--files)))*/
+                               calc(30vw * var(--board-scale))
+                               calc(var(--pocketLength) * (var(--cg-width) / var(--files))); /*minmax(240px, 400px)*/ /*calc(var(--pocketLength) * (var(--cg-width) / var(--files)))*/
+;
+
+        /*grid-template-rows: min-content min-content 1fr 1fr 1fr 1fr min-content min-content min-content;*/
+        grid-template-rows: min-content min-content min-content min-content min-content min-content min-content min-content min-content;
+        grid-template-areas: 'board pocket-top boardPartner pocket-top-partner'
+                             'board clock-top boardPartner clockB-top'
+                             'board tools boardPartner toolsB'
+                             'board tools boardPartner toolsB'
+                             'board tools boardPartner toolsB'
+                             'board tools boardPartner toolsB'
+                             'board clock-bot boardPartner clockB-bot'
+                             'board pocket-bot boardPartner pocket-bot-partner'
+                             '. move-controls move-controls .'
+                             'uboard uboard uboard uboard'
+        /*'board . boardPartner' 'board mat-top boardPartner' 'board clock-top boardPartner' 'board expi-top boardPartner' 'board user-top boardPartner' 'board move-controls boardPartner' 'board moves boardPartner' 'board game-controls boardPartner' 'board user-bot boardPartner' 'board expi-bot boardPartner' 'board clock-bot boardPartner' 'board mat-bot boardPartner' 'board . boardPartner';*/
+    }
+}
+
+.bug-round-tools {
+    grid-area: tools;
+    display: flex;
+    flex-flow: column;
+}
+
+.bug-round-tools-part {
+    grid-area: toolsB;
+    display: flex;
+    flex-flow: column;
+
+}
+
+.bug-round-tools-part .movelist-block{
+    max-height: calc(var(--cg-height)*(6/8) - 48px - 48px);
+    min-height: calc(var(--cg-height)*(6/8) - 48px - 48px);
+
+}
+
+/*site.css*/
+
+#main-wrap.bug {
+  display: grid;
+  grid-template-columns: minmax(auto, auto);/*todo:niki:no idea what im doing*/
+  grid-template-areas: 'main';
+  margin-top: var(--site-header-margin);
+}
+
+@media (min-width: 800px) {
+  .bug {
+    grid-template-columns:
+      2*minmax(calc(70vmin * var(--board-scale)), calc(100vh * var(--board-scale) - calc(var(--site-header-height) + var(--site-header-margin)) - 3rem))
+      minmax(240px, 400px);
+    grid-template-rows: fit-content(0) fit-content(0) 743px;
+    grid-template-areas: 'app app' 'uleft uboard' 'side side';
+    /*grid-gap: 2vmin; i am not sure what is the point f this whole selector in min-width:800px, why i have it and in what cases it makes sense*/
+  }
+}
+
+#bugboard {
+  grid-area: boardPartner;
+  position: relative;
+}
+
+
+.bugseek{
+  display: grid;
+  grid-template-columns: auto/*team board color name;*/;
+  grid-template-rows: auto auto 1em auto auto;
+  /*grid-template-areas: 'team1 board color name' 'team1 board color name' 'team2 board color name' 'team2 board color name';*/
+}
+td.bugseek1{
+  display: grid;
+  grid-template-columns: auto auto auto/*team board color name;*/;
+  grid-template-rows: auto auto 1em auto auto;
+  /*grid-template-areas: 'team1 board color name' 'team1 board color name' 'team2 board color name' 'team2 board color name';*/
+}
+
+.bugseekteam1{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  grid-row: 1/3;
+}
+.bugseekteam2{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  grid-row: 4/6;
+}
+.bugseekvs{
+  grid-column: 1/4;
+}
+.bugseekteam1 div,
+.bugseekteam2 div{
+  /*  font-size: 13px;*/
+  font-color: #878787;
+  /*position: absolute;*/
+  /*top: 50%;
+  left: 50%;*/
+  /*background: #DDD;*/
+/*
+  -moz-transform: translateX(-50%) translateY(-50%) rotate(-90deg);
+  -webkit-transform: translateX(-50%) translateY(-50%) rotate(-90deg);
+  transform:  translateX(-50%) translateY(-50%) rotate(-90deg);*/
+}
+
+.bug-join-button{
+  /*background-color: transparent;*/
+  background-color: var(--bg-color2);
+  border: none;
+  color: var(--font-color);
+  /*padding: 15px 2px;*/
+  text-align: center;
+  text-decoration: none;
+  font-size: 18px;
+  /*margin: 4px 2px;*/
+
+  cursor: pointer;
+  box-shadow: var(--base-shadow);
+  border-radius: 3px;
+}
+.bug-join-button:hover {
+  background-color: var(--bg-color1);
+}
+
+.bugwaiting {
+  color: var(--bug-waiting);
+}
+
+
+.bug-game-info {
+  grid-area: gameinfo;
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: right;
+  overflow: hidden;
+}
+
+main.round.bug .movelist-block {
+  flex:1
+}
+
+main.bug.analysis round-player0.bug rating,
+main.bug.analysis round-player1.bug rating {
+  float: left;
+  font-size: 16px;
+}
+main.bug.round rating,
+main.bug.round rating {
+  font-size: 0.7vw;
+}
+
+.info-wrap0.bug {
+  grid-area: clockB-top;
+}
+.info-wrap1.bug {
+  grid-area: clockB-bot;
+}
+main.bug round-player0,
+main.bug round-player1 {
+  font-size: 0.7vw;
+  width: 100%;
+  line-height: unset;
+  height: 48px;
+  align-items: center;
+}
+round-player0.bug {
+  grid-area: userB-top;
+  /*justify-content: right;*/
+}
+round-player1.bug {
+  grid-area: userB-bot;
+/*  justify-content: right;*/
+}
+.clock-wrap.bug {
+  flex-direction: row-reverse;
+}
+#messages {
+  width: 100%;
+}
+main.round.bug #movelist {
+  display: flex;
+  height: 100%;
+  max-height: unset;
+  overflow-y: auto;
+  flex-flow: row wrap;
+  position: relative;
+  line-height: 1.7;
+  font-size: 1.1em;
+  align-items: center;
+  align-content: flex-start;
+  background: var(--bg-color0);
+}
+move-bug.active {
+  font-weight: bold;
+}
+move-bug {
+    line-height: 1.9em;
+    float: left;
+    flex: 0 0 calc(25% - 3ch);
+    max-width: calc(25% - 3ch);
+    padding-left: 6px;
+    box-sizing: border-box;
+    justify-content: center;
+    white-space: nowrap;
+}
+
+move-bug.haschat {
+    background-image: url('/static/icons/bugchatmove.svg');
+  background-size: 1em 1em;
+   background-repeat: no-repeat;
+  background-position: right;
+
+}
+bugchat img{
+  margin-left: 1em;
+  width: 1.1em;
+  height: 1.1em;
+}
+
+.bugchatpopup {
+  list-style-type: none;
+  /*visibility: hidden;*/
+  display: none;
+  /*background-color: #3c3934;*/
+  /*position: fixed;*/
+  /*left: 0;
+  top: 50px;*/
+  min-width: 12rem;
+  border-left: 2px solid #3692e7;
+  border-radius: 0 3px 3px 3px;
+  text-align: left;
+  box-shadow: var(--base-shadow);
+  z-index: 1000;
+  min-height: unset;
+  flex: 0 0 100%;
+  /*background-color: var(--bg-color2);
+  border-top: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color);*/
+  max-width: 100%;
+}
+
+/*move-bug:hover + .bugchatpopup,*/
+move-bug.active + .bugchatpopup {
+  display: block;
+}
+
+/*.bugchat .discord-icon-container {
+  display: inline-flex;
+  align-items: center;
+  margin-right: 3px;
+  width: 0.8em;
+  height: 0.55em;
+  background: white;
+  background-position: center;
+  transform: translateY(2px);
+}
+.bugchat .discord-icon {
+  fill: #5865f2;
+}*/
+
+move-bug.counter {
+    color: Gray;
+    flex: 0 0 3ch;
+    padding-left: 0px;
+    background-color: var(--bg-color2);
+    text-align: center;
+}
+
+.pocket-top-partner {
+    grid-area: pocket-top-partner;
+}
+.pocket-bot-partner {
+    grid-area: pocket-bot-partner;
+}

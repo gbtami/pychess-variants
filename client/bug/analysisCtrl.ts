@@ -14,9 +14,7 @@ import {uci2LastMove, uci2cg, cg2uci} from '../chess';
 import {VARIANTS, notation, moddedVariant} from "../variants"
 import { createMovelistButtons, updateMovelist, selectMove, activatePlyVari } from './movelist';
 import { povChances } from '../winningChances';
-// import { boardSettings } from './boardSettings';
 import { patch } from '../document';
-// import { variantsIni } from '../variantsIni';
 import { Chart } from "highcharts";
 import { PyChessModel } from "../types";
 import {Ceval, MsgBoard, Step} from "../messages";
@@ -29,12 +27,6 @@ import {MsgAnalysis} from "../analysisType";
 import ffishModule from "ffish-es6";
 import {Key, Orig} from "chessgroundx/types";
 
-// const EVAL_REGEX = new RegExp(''
-//   + /^info depth (\d+) seldepth \d+ multipv (\d+) /.source
-//   + /score (cp|mate) ([-\d]+) /.source
-//   + /(?:(upper|lower)bound )?nodes (\d+) nps \S+ /.source
-//   + /(?:hashfull \d+ )?(?:tbhits \d+ )?time (\S+) /.source
-//   + /pv (.+)/.source);
 const EVAL_REGEX = new RegExp(''
   + /^info depth (\d+) seldepth \d+ multipv (\d+) /.source
   + /score (cp|mate) ([-\d]+) /.source
@@ -47,8 +39,6 @@ const maxThreads = Math.max((navigator.hardwareConcurrency || 1) - 1, 1);
 
 const emptySan = '\xa0';
 
-// function titleCase (words: string) {return words.split(' ').map(w =>  w.substring(0,1).toUpperCase() + w.substring(1).toLowerCase()).join(' ');}
-
 interface MsgAnalysisBoard {
     gameId: string;
     fen: string;
@@ -60,13 +50,6 @@ interface MsgAnalysisBoard {
     bikjang: boolean;
     check: boolean;
 }
-
-// interface MsgAnalysis {
-//     type: string;
-//     ply: number;
-//     ceval: Ceval;
-//     color: string;
-// }
 
 export default class AnalysisController {
     model;
@@ -321,23 +304,6 @@ export default class AnalysisController {
         // }
 
         this.onMsgBoard(model["board"] as MsgBoard);
-
-
-        // if (this.variant.materialPoint) {todo:niki:not relevant now, probably ever
-        //     const miscW = document.getElementById('misc-infow') as HTMLElement;
-        //     const miscB = document.getElementById('misc-infob') as HTMLElement;
-        //     miscW.style.textAlign = 'right';
-        //     miscB.style.textAlign = 'left';
-        //     miscW.style.width = '100px';
-        //     miscB.style.width = '100px';
-        //     patch(document.getElementById('misc-info-center') as HTMLElement, h('div#misc-info-center', '-'));
-        //     (document.getElementById('misc-info') as HTMLElement).style.justifyContent = 'space-around';
-        // }
-
-        // if (this.variant.counting) {todo:niki:not relevant now, probably not gonna be relevant ever - unless makpongbug?
-        //     (document.getElementById('misc-infow') as HTMLElement).style.textAlign = 'center';
-        //     (document.getElementById('misc-infob') as HTMLElement).style.textAlign = 'center';
-        // }
 
         // boardSettings.ctrl = this;
         // const boardFamily = this.b1.variant.board;//either b1 or b2
@@ -917,34 +883,6 @@ export default class AnalysisController {
     //     }
     }
 
-    // getDests = (b: ChessgroundController) => {
-    //     if (b.ffishBoard === undefined) {
-    //         // At very first time we may have to wait for ffish module to initialize
-    //         setTimeout(this.setDests, 100);
-    //     } else {
-    //         const legalMoves = b.ffishBoard.legalMoves().split(" ");
-    //         // console.log(legalMoves);
-    //         const dests: cg.Dests = moveDests(legalMoves);
-    //         b.promotions = [];
-    //         legalMoves.forEach((move: string) => {
-    //             const moveStr = uci2cg(move);
-    //
-    //             const tail = moveStr.slice(-1);
-    //             if (tail > '9' || tail === '+' || tail === '-') {
-    //                 if (!(b.variant.gate && (moveStr.slice(1, 2) === '1' || moveStr.slice(1, 2) === '8'))) {
-    //                     b.promotions.push(moveStr);
-    //                 }
-    //             }
-    //             if (b.variant.promotion === 'kyoto' && moveStr.slice(0, 1) === '+') {
-    //                 b.promotions.push(moveStr);
-    //             }
-    //         });
-    //         b.chessground.set({movable: {dests: dests}});
-    //
-    //         return dests;
-    //     }
-    // }
-
     // When we are moving inside a variation move list
     // then plyVari > 0 and ply is the index inside vari movelist
     goPly = (ply: number, plyVari = 0) => {//todo:niki:temp comment out
@@ -1048,54 +986,6 @@ export default class AnalysisController {
         // console.log("---> doSend():", message);
         this.sock.send(JSON.stringify(message));
     }
-
-    // private onMove = () => {
-    //     return (orig: cg.Key, dest: cg.Key, capturedPiece: cg.Piece) => {
-    //         console.log("   ground.onMove()", orig, dest, capturedPiece);
-    //         sound.moveSound(this.variant, !!capturedPiece);
-    //     }
-    // }
-    //
-    // private onDrop = () => {
-    //     return (piece: cg.Piece, dest: cg.Key) => {
-    //         // console.log("ground.onDrop()", piece, dest);
-    //         if (dest !== 'a0' && piece.role) {
-    //             sound.moveSound(this.variant, false);
-    //         }
-    //     }
-    // }
-
-    // private getPgn = (idxInVari  = 0) => {
-    //     const moves : string[] = [];
-    //     for (let ply = 1; ply <= this.ply; ply++) {
-    //         const moveCounter = (ply % 2 !== 0) ? (ply + 1) / 2 + '.' : '';
-    //         if (this.steps[ply].vari !== undefined && this.plyVari > 0) {
-    //             const variMoves = this.steps[ply].vari;
-    //             if (variMoves) {
-    //                 for (let idx = 0; idx <= idxInVari; idx++) {
-    //                     moves.push(moveCounter + variMoves[idx].sanSAN);
-    //                 }
-    //             }
-    //             break;
-    //         }
-    //         moves.push(moveCounter + this.steps[ply]['sanSAN']);
-    //     }
-    //     const moveText = moves.join(' ');
-    //
-    //     const today = new Date().toISOString().substring(0, 10).replace(/-/g, '.');
-    //
-    //     const event = '[Event "?"]';
-    //     const site = `[Site "${this.model['home']}/analysis/${this.b1.variant.name}"]`;
-    //     const date = `[Date "${today}"]`;
-    //     const white = '[White "?"]';
-    //     const black = '[Black "?"]';
-    //     const result = '[Result "*"]';
-    //     const variant = `[Variant "${titleCase(this.b1.variant.name)}"]`;
-    //     const fen = `[FEN "${this.steps[0].fen}"]`;
-    //     const setup = '[SetUp "1"]';
-    //
-    //     return `${event}\n${site}\n${date}\n${white}\n${black}\n${result}\n${variant}\n${fen}\n${setup}\n\n${moveText} *\n`;
-    // }
 
     sendMove = (b: ChessgroundController, orig: cg.Orig, dest: cg.Key, promo: string) => {
         const move = cg2uci(orig + dest + promo);

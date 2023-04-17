@@ -9,15 +9,6 @@ import {spinner} from '../view';
 import {PyChessModel} from "../types";
 import AnalysisController from "./analysisCtrl";
 
-// function runGround(vnode: VNode, model: PyChessModel) {
-//     const el = vnode.elm as HTMLElement;
-//     const ctrl = new AnalysisController(el, model);
-//     window['onFSFline'] = ctrl.onFSFline;
-// }
-
-
-
-
 function leftSide(model: PyChessModel) {
 
     if (model["gameId"] !== "") {
@@ -59,8 +50,6 @@ function createBoards(mainboardVNode: VNode, bugboardVNode: VNode, mainboardPock
 }
 
 export function analysisView(model: PyChessModel): VNode[] {
-
-    // window['onFSFline'] = (line: string) => {console.log(line)};//todo:niki: temporary here so it doesnt crash
 
     const variant = VARIANTS[model.variant];
 

@@ -315,12 +315,6 @@ iframe {
   grid-template-areas: '. . main . .';
   margin-top: var(--site-header-margin);
 }
-#main-wrap.bug {
-  display: grid;
-  grid-template-columns: minmax(auto, auto);/*todo:niki:no idea what im doing*/
-  grid-template-areas: 'main';
-  margin-top: var(--site-header-margin);
-}
 
 @media (max-width: 799px) and (orientation: portrait) {
   #main-wrap {
@@ -360,15 +354,6 @@ iframe {
     grid-template-areas: 'side app app' 'uleft uboard .';
     grid-gap: 2vmin;
   }
-  .bug {
-    grid-template-columns:
-      2*minmax(calc(70vmin * var(--board-scale)), calc(100vh * var(--board-scale) - calc(var(--site-header-height) + var(--site-header-margin)) - 3rem))
-      minmax(240px, 400px);
-    grid-template-rows: fit-content(0) fit-content(0) 743px;
-    grid-template-areas: 'app app' 'uleft uboard' 'side side';
-    /*grid-gap: 2vmin; i am not sure what is the point f this whole selector in min-width:800px, why i have it and in what cases it makes sense*/
-  }
-
 }
 
 .embed {
@@ -385,11 +370,6 @@ iframe {
 
 #mainboard {
   grid-area: board;
-  position: relative;
-}
-
-#bugboard {
-  grid-area: boardPartner;
   position: relative;
 }
 
@@ -421,72 +401,6 @@ iframe {
 .seeks [class*=' icon-']:before {
   font-size: 18px;
 }
-
-.bugseek{
-  display: grid;
-  grid-template-columns: auto/*team board color name;*/;
-  grid-template-rows: auto auto 1em auto auto;
-  /*grid-template-areas: 'team1 board color name' 'team1 board color name' 'team2 board color name' 'team2 board color name';*/
-}
-td.bugseek1{
-  display: grid;
-  grid-template-columns: auto auto auto/*team board color name;*/;
-  grid-template-rows: auto auto 1em auto auto;
-  /*grid-template-areas: 'team1 board color name' 'team1 board color name' 'team2 board color name' 'team2 board color name';*/
-}
-
-.bugseekteam1{
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  grid-row: 1/3;
-}
-.bugseekteam2{
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  grid-row: 4/6;
-}
-.bugseekvs{
-  grid-column: 1/4;
-}
-.bugseekteam1 div,
-.bugseekteam2 div{
-  /*  font-size: 13px;*/
-  font-color: #878787;
-  /*position: absolute;*/
-  /*top: 50%;
-  left: 50%;*/
-  /*background: #DDD;*/
-/*
-  -moz-transform: translateX(-50%) translateY(-50%) rotate(-90deg);
-  -webkit-transform: translateX(-50%) translateY(-50%) rotate(-90deg);
-  transform:  translateX(-50%) translateY(-50%) rotate(-90deg);*/
-}
-
-.bug-join-button{
-  /*background-color: transparent;*/
-  background-color: var(--bg-color2);
-  border: none;
-  color: var(--font-color);
-  /*padding: 15px 2px;*/
-  text-align: center;
-  text-decoration: none;
-  font-size: 18px;
-  /*margin: 4px 2px;*/
-
-  cursor: pointer;
-  box-shadow: var(--base-shadow);
-  border-radius: 3px;
-}
-.bug-join-button:hover {
-  background-color: var(--bg-color1);
-}
-
-.bugwaiting {
-  color: var(--bug-waiting);
-}
-
 .page-menu {
   grid-area: main;
   display: grid;
@@ -524,15 +438,6 @@ under-left {
   align-content: flex-start;
   flex-flow: row wrap;
 }
-
-.bug-game-info {
-  grid-area: gameinfo;
-  display: flex;
-  flex-flow: column nowrap;
-  justify-content: right;
-  overflow: hidden;
-}
-
 under-board {
   grid-area: uboard;
   margin-top: 23px;
@@ -1073,9 +978,6 @@ div a {
   box-shadow: var(--base-shadow);
   border-bottom: 1px solid var(--border-color);
 }
-main.round.bug .movelist-block {
-  flex:1
-}
 
 div#result {
   width: 100%;
@@ -1342,17 +1244,6 @@ rating {
   float: right;
   font-size: 16px;
 }
-
-main.bug.analysis round-player0.bug rating,
-main.bug.analysis round-player1.bug rating {
-  float: left;
-  font-size: 16px;
-}
-main.bug.round rating,
-main.bug.round rating {
-  font-size: 0.7vw;
-}
-
 rating span {
   font-size: 12px;
 }
@@ -1733,14 +1624,8 @@ button:disabled {
 .info-wrap0 {
   grid-area: clock-top;
 }
-.info-wrap0.bug {
-  grid-area: clockB-top;
-}
 .info-wrap1 {
   grid-area: clock-bot;
-}
-.info-wrap1.bug {
-  grid-area: clockB-bot;
 }
 @media (max-width: 799px) and (orientation: portrait) {
   .info-wrap0 {
@@ -1762,14 +1647,6 @@ round-player1 {
   align-self: center;
   background: var(--bg-color0);
 }
-main.bug round-player0,
-main.bug round-player1 {
-  font-size: 0.7vw;
-  width: 100%;
-  line-height: unset;
-  height: 48px;
-  align-items: center;
-}
 @media (max-width: 799px) and (orientation: portrait) {
   round-player0,
   round-player1 {
@@ -1784,21 +1661,10 @@ round-player0 {
 round-player1 {
   grid-area: user-bot;
 }
-round-player0.bug {
-  grid-area: userB-top;
-  /*justify-content: right;*/
-}
-round-player1.bug {
-  grid-area: userB-bot;
-/*  justify-content: right;*/
-}
 .clock-wrap {
   display: flex;
   flex-direction: row;
   flex-grow: 1;
-}
-.clock-wrap.bug {
-  flex-direction: row-reverse;
 }
 #more-time {
   float: right;
@@ -2045,9 +1911,7 @@ ol#roundchat-messages {
   margin: 0;
   padding: 0;
 }
-#messages {
-  width: 100%;
-}
+
 li.message {
   overflow-wrap: word-break;
   word-break: break-word;
@@ -2100,19 +1964,6 @@ li.message.server {
   align-content: flex-start;
   background: var(--bg-color0);
 }
-main.round.bug #movelist {
-  display: flex;
-  height: 100%;
-  max-height: unset;
-  overflow-y: auto;
-  flex-flow: row wrap;
-  position: relative;
-  line-height: 1.7;
-  font-size: 1.1em;
-  align-items: center;
-  align-content: flex-start;
-  background: var(--bg-color0);
-}
 move {
   line-height: 1.9em;
   float: left;
@@ -2120,9 +1971,6 @@ move {
   padding-left: 6px;
   box-sizing: border-box;
   justify-content: center;
-}
-move.active, move-bug.active {
-  font-weight: bold;
 }
 move.active {
   font-weight: bold;
@@ -2133,77 +1981,12 @@ movetime {
   color: Gray;
   float: right;
 }
-move-bug {
-    line-height: 1.9em;
-    float: left;
-    flex: 0 0 calc(25% - 3ch);
-    max-width: calc(25% - 3ch);
-    padding-left: 6px;
-    box-sizing: border-box;
-    justify-content: center;
-    white-space: nowrap;
-}
-
-move-bug.haschat {
-    background-image: url('/static/icons/bugchatmove.svg');
-  background-size: 1em 1em;
-   background-repeat: no-repeat;
-  background-position: right;
-
-}
 eval {
   font-size: 0.8em;
   padding-right: 8px;
   color: Gray;
   float: right;
 }
-
-bugchat img{
-  margin-left: 1em;
-  width: 1.1em;
-  height: 1.1em;
-}
-
-.bugchatpopup {
-  list-style-type: none;
-  /*visibility: hidden;*/
-  display: none;
-  /*background-color: #3c3934;*/
-  /*position: fixed;*/
-  /*left: 0;
-  top: 50px;*/
-  min-width: 12rem;
-  border-left: 2px solid #3692e7;
-  border-radius: 0 3px 3px 3px;
-  text-align: left;
-  box-shadow: var(--base-shadow);
-  z-index: 1000;
-  min-height: unset;
-  flex: 0 0 100%;
-  /*background-color: var(--bg-color2);
-  border-top: 1px solid var(--border-color);
-  border-bottom: 1px solid var(--border-color);*/
-  max-width: 100%;
-}
-
-/*move-bug:hover + .bugchatpopup,*/
-move-bug.active + .bugchatpopup {
-  display: block;
-}
-
-/*.bugchat .discord-icon-container {
-  display: inline-flex;
-  align-items: center;
-  margin-right: 3px;
-  width: 0.8em;
-  height: 0.55em;
-  background: white;
-  background-position: center;
-  transform: translateY(2px);
-}
-.bugchat .discord-icon {
-  fill: #5865f2;
-}*/
 
 move.counter {
   color: Gray;
@@ -2212,13 +1995,6 @@ move.counter {
   text-align: center;
 }
 
-move-bug.counter {
-    color: Gray;
-    flex: 0 0 3ch;
-    padding-left: 0px;
-    background-color: var(--bg-color2);
-    text-align: center;
-}
 vari-move:hover,
 move:hover,
 move-bug:hover {
@@ -2369,12 +2145,6 @@ div.ctable-container {
 }
 .pocket-bot {
   grid-area: pocket-bot;
-}
-.pocket-top-partner {
-    grid-area: pocket-top-partner;
-}
-.pocket-bot-partner {
-    grid-area: pocket-bot-partner;
 }
 @media (max-width: 799px) and (orientation: portrait) {
   .pocket.top {

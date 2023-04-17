@@ -26,7 +26,6 @@ import {player} from "../player";
 import {newWebsocket} from "../socket";
 import WebsocketHeartbeatJs from "websocket-heartbeat-js";
 import {notify} from "../notification";
-import {boardSettings} from "@/boardSettings";
 
 export class RoundController implements ChatController/*extends GameController todo:does it make sense for these guys - also AnalysisControl which is older before this refactring that introduced this stuff*/ {
     sock: WebsocketHeartbeatJs;
@@ -96,8 +95,10 @@ export class RoundController implements ChatController/*extends GameController t
     vplayerB0: VNode;
     vplayerB1: VNode;
 
-    players: string[];
+    colors: cg.Color[];
+    colorsB: cg.Color[];
 
+    players: string[];
     playersB: string[];
 
     wplayer: string;
@@ -223,17 +224,31 @@ export class RoundController implements ChatController/*extends GameController t
         if (this.bplayerB === this.username) this.partnerColor.set('a', 'white');
 //
         this.spectator = this.username !== this.wplayer && this.username !== this.bplayer && this.username !== this.wplayerB && this.username !== this.bplayerB;
+// this represents only the initial positioning of players on the screen. Flip/switch will not change those values
+// but only work on html elements, so these remain constant as initialized here throughout the whole game:
+// board A - 0 means top, 1 means bottom
+        this.colors = [
+            this.myColor.get('a') === 'black' || this.partnerColor.get('a') === 'black' ? 'white' : 'black',
+            this.myColor.get('a') === 'white' || this.partnerColor.get('a') === 'white' ? 'white' : 'black'
+        ];
+// board B - 0 means top, 1 means bottom
+        this.colorsB = [
+            this.myColor.get('b') === 'black' || this.partnerColor.get('b') === 'black' ? 'white' : 'black',
+            this.myColor.get('b') === 'white' || this.partnerColor.get('b') === 'white' ? 'white' : 'black'
+        ];
+//
 // board A - 0 means top, 1 means bottom
         this.players = [
-            this.myColor.get('a') === 'black' || this.partnerColor.get('a') === 'black' ? this.wplayer : this.bplayer,
-            this.myColor.get('a') === 'white' || this.partnerColor.get('a') === 'white' ? this.wplayer : this.bplayer
+            this.colors[0] === 'white' ? this.wplayer : this.bplayer,
+            this.colors[1] === 'white' ? this.wplayer : this.bplayer
         ];
 // board B - 0 means top, 1 means bottom
         this.playersB = [
-            this.myColor.get('b') === 'black' || this.partnerColor.get('b') === 'black' ? this.wplayerB : this.bplayerB,
-            this.myColor.get('b') === 'white' || this.partnerColor.get('b') === 'white' ? this.wplayerB : this.bplayerB
+            this.colorsB[0] === 'white' ? this.wplayerB : this.bplayerB,
+            this.colorsB[1] === 'white' ? this.wplayerB : this.bplayerB
         ];
 //
+
         const ratings = new Map<string, string>([[this.wplayer, this.wrating], [this.bplayer, this.brating], [this.wplayerB, this.wratingB], [this.bplayerB, this.bratingB]]);
         const titles = new Map<string, string>([[this.wplayer, this.wtitle], [this.bplayer, this.btitle], [this.wplayerB, this.wtitleB], [this.bplayerB, this.btitleB]]);
         const player0a = document.getElementById('rplayer0a') as HTMLElement;
@@ -501,58 +516,6 @@ export class RoundController implements ChatController/*extends GameController t
         }
     }
 
-    // Janggi second player (Red) setup
-    // private onMsgSetup = (msg: MsgSetup) => {
-    //     this.setupFen = msg.fen;
-    //     this.chessground.set({fen: this.setupFen});
-    //
-    //     const side = (msg.color === 'white') ? _('Blue (Cho)') : _('Red (Han)');
-    //     const message = _('Waiting for %1 to choose starting positions of the horses and elephants...', side);
-    //
-    //     this.expiStart = 0;
-    //     this.renderExpiration();
-    //     this.turnColor = msg.color;
-    //     this.expiStart = Date.now();
-    //     setTimeout(this.showExpiration, 350);
-    //
-    //     if (this.spectator || msg.color !== this.mycolor) {
-    //         chatMessage('', message, "roundchat");
-    //         return;
-    //     }
-    //
-    //     chatMessage('', message, "roundchat");
-    //
-    //     const switchLetters = (side: number) => {
-    //         const white = this.mycolor === 'white';
-    //         const rank = (white) ? 9 : 0;
-    //         const horse = (white) ? 'N' : 'n';
-    //         const elephant = (white) ? 'B' : 'b';
-    //         const parts = this.setupFen.split(' ')[0].split('/');
-    //         let [left, right] = parts[rank].split('1')
-    //         if (side === -1) {
-    //             left = left.replace(horse, '*').replace(elephant, horse).replace('*', elephant);
-    //         } else {
-    //             right = right.replace(horse, '*').replace(elephant, horse).replace('*', elephant);
-    //         }
-    //         parts[rank] = left + '1' + right;
-    //         this.setupFen = parts.join('/') + ' w - - 0 1' ;
-    //         this.chessground.set({fen: this.setupFen});
-    //     }
-    //
-    //     const sendSetup = () => {
-    //         patch(document.getElementById('janggi-setup-buttons') as HTMLElement, h('div#empty'));
-    //         this.doSend({ type: "setup", gameId: this.gameId, color: this.mycolor, fen: this.setupFen });
-    //     }
-    //
-    //     const leftSide = (this.mycolor === 'white') ? -1 : 1;
-    //     const rightSide = leftSide * -1;
-    //     patch(document.getElementById('janggi-setup-buttons') as HTMLElement, h('div#janggi-setup-buttons', [
-    //         h('button#flipLeft', { on: { click: () => switchLetters(leftSide) } }, [h('i', {props: {title: _('Switch pieces')}, class: {"icon": true, "icon-exchange": true} } ), ]),
-    //         h('button', { on: { click: () => sendSetup() } }, [h('i', {props: {title: _('Ready')}, class: {"icon": true, "icon-check": true} } ), ]),
-    //         h('button#flipRight', { on: { click: () => switchLetters(rightSide) } }, [h('i', {props: {title: _('Switch pieces')}, class: {"icon": true, "icon-exchange": true} } ), ]),
-    //     ]));
-    // }
-
     private notifyMsg = (msg: string) => {
         if (this.status >= 0) return;
 
@@ -561,11 +524,6 @@ export class RoundController implements ChatController/*extends GameController t
         notify('pychess.org', {body: `${opp_name}\n${msg}`, icon: logoUrl});
     }
 
-    // private onMsgBerserk = (msg: MsgBerserk) => {
-    //     if (!this.spectator && msg['color'] === this.mycolor) return;
-    //     this.berserk(msg['color'])
-    // }
-    //
     private onMsgGameStart = (msg: MsgGameStart) => {
         // console.log("got gameStart msg:", msg);
         if (msg.gameId !== this.gameId) return;
@@ -614,14 +572,6 @@ export class RoundController implements ChatController/*extends GameController t
     private analysis = (home: string) => {
         window.location.assign(home + '/' + this.gameId + '?ply=' + this.ply.toString());
     }
-    //
-    // private joinTournament = () => {
-    //     window.location.assign(this.home + '/tournament/' + this.tournamentId);
-    // }
-    //
-    // private pauseTournament = () => {
-    //     window.location.assign(this.home + '/tournament/' + this.tournamentId + '/pause');
-    // }
 
     private gameOver = (rdiffs: RDiffs) => {
         let container;
@@ -800,24 +750,24 @@ export class RoundController implements ChatController/*extends GameController t
                        // check: msg.check,//todo:niki:which board is this about?
                         //lastMove: lastMove,
                     });
-                    const whiteClockA = this.myColor.get('a') === "white"? 1: 0;
-                    const whiteClockB = this.myColor.get('b') === "white"? 1: 0;
-                    this.clocks[whiteClockA].start();
-                    this.clocksB[whiteClockB].start();
+                    const whiteClockAidx = this.colors[0] === 'white'? 0: 1;
+                    const whiteClockBidx = this.colorsB[0] === 'white'? 0: 1;
+                    this.clocks[whiteClockAidx].start();
+                    this.clocksB[whiteClockBidx].start();
             } else {
                 const boardName = msg.steps[msg.steps.length-1].boardName as 'a'|'b';//todo:niki:change this to step[0] if/when that board message is fixed to have just one element in steps and stop always sending that redundnat initial dummy step (if it is indeed redundant)
                 //todo:niki:update to above's todo, actually it sometimes sends it with 2 elements, sometimes just with one - gotta check what is wrong with python code and how it works in other variants. for now always getting the last element should be robust in all cases
                 const board = boardName === 'a'? this.b1: this.b2;
+                const colors = boardName === 'a'? this.colors: this.colorsB;
                 const fen = boardName == 'a'? fenA : fenB;
                 const fenPartner = boardName == 'a'? fenB : fenA;
                 const check = boardName == 'a'? msg.check : msg.checkB;
 
                 board.turnColor = board.turnColor === 'white' ? 'black' : 'white';
 
-                if (boardName == 'a') {
-                    this.clocktimes = msg.clocks || this.clocktimes; //todo:niki:have the feeling this or is redundant. probably only initial board message doesnt have clocktimes. maybe even it has. not sure
-                } else {
-                    this.clocktimesB = msg.clocks || this.clocktimes;
+                if (board.ffishBoard) {
+                    board.ffishBoard.setFen(fen);
+                    board.setDests();
                 }
 
                 //hiding abort button - todo:niki:we dont realy have abort button (for now)
@@ -839,63 +789,39 @@ export class RoundController implements ChatController/*extends GameController t
                 //     sound.check();
                 // }
 
-                const msgTurnColor = msg.steps[0].turnColor;
-                const msgMoveColor = msgTurnColor === 'white'? 'black': 'white';
-                const myMove = this.myColor.get(boardName) !== msgTurnColor; // the received move was made by me
+                const msgTurnColor = msg.steps[0].turnColor; // whose turn it is after this move
+                const msgMoveColor = msgTurnColor === 'white'? 'black': 'white'; // which color made the move
+                const myMove = this.myColor.get(boardName) === msgMoveColor; // the received move was made by me
+                if (boardName == 'a') {
+                    this.clocktimes = msg.clocks || this.clocktimes; //todo:niki:have the feeling this or is redundant. probably only initial board message doesnt have clocktimes. maybe even it has. not sure
+                } else {
+                    this.clocktimesB = msg.clocks || this.clocktimes;
+                }
+
                 if (!myMove) {
                     // resetting clocks on the client that has just sent them seems like a bad idea
-                    const myColor = myMove ? msgMoveColor: msgTurnColor;
-                    const oppColor = myColor === 'white'? 'black': 'white';
-                    //todo:niki:when server sends board message, should it always send clocks for both board or only for the one we are updating?
+                    const startClockAtIdx = colors[0] === msgTurnColor? 0: 1;
+                    const stopClockAtIdx = 1 - startClockAtIdx;
+
+                    const whiteClockAtIdx = colors[0] === 'white'? 0: 1;
+                    const blackClockAtIdx = 1 -whiteClockAtIdx;
 
                     const clocks = boardName === 'a'? this.clocks: this.clocksB;
                     const clocktimes = boardName === 'a'? this.clocktimes: this.clocktimesB;
 
-                    const oppclock = board.chessground.state.orientation === myColor? 0: 1; // only makes sense when board is flipped which not supported in gameplay yet and itself only makes sense in spectators mode todo: also switching boards to be implemented
-                    const myclock = 1 - oppclock;
-                    // const turnClock = myMove? oppclock: myclock; // the clock of whoever's turn it is
 
-                    clocks[0].pause(false);// one of these is supposed to be paused already
-                    clocks[1].pause(false);
+                    clocks[stopClockAtIdx].pause(false);
 
-                    clocks[oppclock].setTime(clocktimes[oppColor]);
-                    // clocks[myclock].setTime(clocktimes[myColor]);
+                    clocks[whiteClockAtIdx].setTime(clocktimes['white']);
+                    clocks[blackClockAtIdx].setTime(clocktimes['black']);
 
-                    if (this.clockOn && msg.status < 0) {
-                        clocks[myclock].start(); //todo: consider using map as with mycolor., other places as well
-                        // console.log('MY CLOCK STARTED');
+                    if (this.clockOn && msg.status < 0) { // todo:niki:not sure why this if is needed
+                        clocks[startClockAtIdx].start();
                     }
-                }
-                if (board.ffishBoard) {
-                    board.ffishBoard.setFen(fen);
-                    board.setDests();
                 }
                 if (!myMove) {
                     //when message is for opp's move, meaning turnColor is my color - it is now my turn after this message
                     if (latestPly) {
-                        //todo:niki: i need to update both board only on initial board message and tbh only if 960 but for now lets always do it
-                        // this.b1.chessground.set({
-                        //     fen: fens[0],
-                        //     turnColor: this.b1.turnColor,
-                        //     movable: {
-                        //         free: false,
-                        //         color: this.mycolor.get('a')!.size > 1? 'both': this.b1.turnColor,
-                        //         // dests: msg.dests,
-                        //     },
-                        //     check: msg.check,//todo:niki:which board is this about?
-                        //     lastMove: lastMove,
-                        // });
-                        // this.b2.chessground.set({
-                        //     fen: fens[1],
-                        //     turnColor: this.b2.turnColor,
-                        //     movable: {
-                        //         free: false,
-                        //         color: this.mycolor.get('b')!.size > 1? 'both': this.b2.turnColor,
-                        //         // dests: msg.dests,
-                        //     },
-                        //     check: msg.check,//todo:niki:which board is this about?
-                        //     lastMove: lastMove,
-                        // });
                         board.chessground.set({
                             fen: fen,
                             turnColor: board.turnColor,
@@ -1194,13 +1120,14 @@ export class RoundController implements ChatController/*extends GameController t
         }
     }
 }
-    function swap(nodeA: HTMLElement, nodeB: HTMLElement) {
-            const parentA = nodeA.parentNode;
-            const siblingA = nodeA.nextSibling === nodeB ? nodeA : nodeA.nextSibling;
 
-            // Move `nodeA` to before the `nodeB`
-            nodeB.parentNode!.insertBefore(nodeA, nodeB);
+function swap(nodeA: HTMLElement, nodeB: HTMLElement) {
+        const parentA = nodeA.parentNode;
+        const siblingA = nodeA.nextSibling === nodeB ? nodeA : nodeA.nextSibling;
 
-            // Move `nodeB` to before the sibling of `nodeA`
-            parentA!.insertBefore(nodeB, siblingA);
-        };
+        // Move `nodeA` to before the `nodeB`
+        nodeB.parentNode!.insertBefore(nodeA, nodeB);
+
+        // Move `nodeB` to before the sibling of `nodeA`
+        parentA!.insertBefore(nodeB, siblingA);
+};

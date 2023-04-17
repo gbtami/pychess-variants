@@ -32,27 +32,6 @@
         grid-template-rows: min-content 1fr;
         grid-template-areas: 'side . board gauge pocket-top' 'side . board gauge tools' 'side . board gauge tools' 'side . board gauge pocket-bot' 'uleft . uboard . move-controls';
     }
-    .analysis-app.bug {
-/*        grid-template-columns: minmax(230px, 20vw) 2vmin minmax(calc(70vmin * var(--board-scale)), calc(100vh * var(--board-scale) - calc(var(--site-header-height) + var(--site-header-margin)) - 3rem)) var(--gauge-gap) minmax(240px, 400px);*/
-/*        grid-template-columns: 2vmin minmax(calc(70vmin * var(--board-scale)), calc(100vh * var(--board-scale) - calc(var(--site-header-height) + var(--site-header-margin)) - 3rem)) var(--gauge-gap) minmax(240px, 400px) minmax(calc(70vmin * var(--board-scale)), calc(100vh * var(--board-scale) - calc(var(--site-header-height) + var(--site-header-margin)) - 3rem));*/
-        /*todo:niki:move list probably some max from this new expression and old one*/
-        /*grid-template-columns: minmax(calc(70vmin * var(--board-scale)), calc(100vh * var(--board-scale) - calc(var(--site-header-height) + var(--site-header-margin)) - 3rem))
-                               var(--gauge-gap)
-                               calc(var(--pocketLength) * (var(--cg-width) / var(--files)))
-                               calc(var(--pocketLength) * (var(--cg-width) / var(--files)))
-                               var(--gauge-gap)
-                               minmax(calc(70vmin * var(--board-scale)), calc(100vh * var(--board-scale) - calc(var(--site-header-height) + var(--site-header-margin)) - 3rem));*/
-        grid-template-columns: 500px
-                               var(--gauge-gap)
-                               calc(var(--pocketLength) * (var(--cg-width) / var(--files)))
-                               calc(var(--pocketLength) * (var(--cg-width) / var(--files)))
-                               var(--gauge-gap)
-                               500px;
-        grid-template-rows: min-content 1fr;
-        grid-template-areas: 'board gauge pocket-top pocket-top-partner gaugePartner boardPartner' 'board gauge tools tools gaugePartner boardPartner' 'board gauge tools tools gaugePartner boardPartner' 'board gauge pocket-bot pocket-bot-partner gaugePartner boardPartner' '. . move-controls move-controls . .' 'uboard uboard uboard uboard uboard uboard' 'gameinfo gameinfo gameinfo gameinfo gameinfo gameinfo'
-        /*'board . boardPartner' 'board mat-top boardPartner' 'board clock-top boardPartner' 'board expi-top boardPartner' 'board user-top boardPartner' 'board move-controls boardPartner' 'board moves boardPartner' 'board game-controls boardPartner' 'board user-bot boardPartner' 'board expi-bot boardPartner' 'board clock-bot boardPartner' 'board mat-bot boardPartner' 'board . boardPartner';*/
-    }
-
     /* move rank numbers to the left side of the board */
     .cg-wrap coords.side {
         right: auto;
@@ -74,10 +53,6 @@
     box-shadow: var(--base-shadow);
     z-index: 1;
 }
-.anal-clock.bug {
-    left:0;
-    right:initial;
-}
 .anal-clock.active {
     background: var(--anal-clock);
 }
@@ -98,9 +73,6 @@ div.ctable-container {
 }
 #gauge {
     grid-area: gauge;
-}
-#gaugePartner {
-    grid-area: gaugePartner;
 }
 #gauge, #gaugePartner {
     display: block;

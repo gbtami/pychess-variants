@@ -1,19 +1,10 @@
 import { h, VNode } from "snabbdom";
 
 import { VARIANTS } from "../variants"
-// import { RoundController } from './roundCtrl';
 import { gameInfo } from './gameInfo';
 import { renderTimeago } from '../datetime';
 import { PyChessModel } from "../types";
 import {RoundController} from "./roundCtrl";
-import {_} from "@/i18n";
-
-// function runGround(vnode: VNode, model: PyChessModel) {
-//     const el = vnode.elm as HTMLElement;
-//     /*const ctrl =*/ new RoundController(el, model);
-//     // const cg = ctrl.chessground;
-//     // window['cg'] = cg;
-// }
 
 function createBoards(mainboardVNode: VNode, bugboardVNode: VNode, mainboardPocket0: VNode, mainboardPocket1: VNode, bugboardPocket0: VNode, bugboardPocket1: VNode, model: PyChessModel) {
     /*this.ctrl = *//*const ctrl = */new RoundController(mainboardVNode.elm as HTMLElement,

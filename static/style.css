@@ -75,7 +75,7 @@
 .icon-adjust-rev:before {
   content: "\61";
 }
-.icon-adjust-rev {
+.icon-adjust-rev { /*TODO:maybe make a separate flipped icon instead*/
   -webkit-transform: scaleX(-1);
   transform: scaleX(-1);
   width: fit-content;

@@ -17,8 +17,6 @@ export class ChessgroundController extends GameController {
 
     partnerCC: ChessgroundController;
 
-    // chessground: Api;
-
     gating: GatingInput;
     promotion: PromotionInput;
 
@@ -39,14 +37,8 @@ export class ChessgroundController extends GameController {
 
     ply: number = 0;//todo:niki; only needed for cancel() of promotion.ts and gating.ts. so it can call goPly(which is currently not implemented either) to reset last move
                     //todo:niki: gonna start using it also instead of this.ffishBoard.getPly(), because ply is messed up after calling setFen because of update of pockets after capture
-    // plyVari: number;
-
-    // dests: cg.Dests;
 
     promotions: string[];//on each turn, it is populated from possible moves that are promotions - todo;niki; should implement the population of this array - currently commented out probably
-
-    // ffish: any;
-    // ffishBoard: any;
 
     boardName: 'a' | 'b';
 
@@ -68,34 +60,8 @@ export class ChessgroundController extends GameController {
         this.gating = new GatingInput(this);
         this.promotion = new PromotionInput(this);
 
-
-        // this.plyVari = 0;
-
-        //
-        // this.spectator = this.model["username"] !== this.wplayer && this.model["username"] !== this.bplayer;
-
-        // orientation = this.mycolor
-        // if (this.spectator) {
-            this.mycolor = 'white';
-            this.oppcolor = 'black';
-        // } else {
-        //     this.mycolor = this.model["username"] === this.wplayer ? 'white' : 'black';
-        //     this.oppcolor = this.model["username"] === this.wplayer ? 'black' : 'white';
-        // }
-
-        // players[0] is top player, players[1] is bottom player
-        // this.players = [
-        //     this.mycolor === "white" ? this.bplayer : this.wplayer,
-        //     this.mycolor === "white" ? this.wplayer : this.bplayer
-        // ];
-        // this.titles = [
-        //     this.mycolor === "white" ? this.model['btitle'] : this.model['wtitle'],
-        //     this.mycolor === "white" ? this.model['wtitle'] : this.model['btitle']
-        // ];
-        // this.ratings = [
-        //     this.mycolor === "white" ? this.model['brating'] : this.model['wrating'],
-        //     this.mycolor === "white" ? this.model['wrating'] : this.model['brating']
-        // ];
+        this.mycolor = 'white';
+        this.oppcolor = 'black';
 
         // this.result = "*";
         const parts = this.fullfen.split(" ");
@@ -247,110 +213,10 @@ export class ChessgroundController extends GameController {
             }
         }
 
-        //  gating elephant/hawk
-        // if (ctrl.variant.gate) {
-        //     if (!ctrl.promotion.start(moved.role, orig, dest, meta.ctrlKey) && !ctrl.gating.start(ctrl.fullfen, orig, dest)) ctrl.sendMove(orig, dest, '');
-        // } else {
-            this.processInput(moved, orig, dest, meta);; //if (!ctrl.promotion.start(moved.role, orig, dest, meta.ctrlKey)) ctrl.sendMove(orig, dest, '');
-            ctrl.preaction = false;
-        // }
-
+        this.processInput(moved, orig, dest, meta);; //if (!ctrl.promotion.start(moved.role, orig, dest, meta.ctrlKey)) ctrl.sendMove(orig, dest, '');
+        ctrl.preaction = false;
 
     }
-
-
-    // goPly = (ply: number, plyVari = 0) => {
-    //     console.log("asdfasdf", ply, plyVari);
-    //     //todo;niki: need so gating can compile - i wonder what is best design here now with 2 board - i guess used to reset board on cancel of promotion
-    //     // if (this.localAnalysis) {todo:niki
-    //     //     this.engineStop();todo:niki
-    //         // Go back to the main line
-    //         if (plyVari === 0) {
-    //             const container = document.getElementById('vari') as HTMLElement;
-    //             patch(container, h('div#vari', ''));
-    //         }
-    //     // }todo:niki
-    //
-    //     // const vv = this.steps[plyVari]?.vari;
-    //     const step = /*(plyVari > 0 && vv ) ? vv[ply] :*/ this.steps[ply];
-    //     console.log(step);
-    //     const move = uci2LastMove(step.move);
-    //     let capture = false;
-    //     if (move) {
-    //         // 960 king takes rook castling is not capture
-    //         // TODO defer this logic to ffish.js
-    //         capture = (this.chessground.state.boardState.pieces.get(move[1]) !== undefined && step.san?.slice(0, 2) !== 'O-') || (step.san?.slice(1, 2) === 'x');
-    //     }
-    //
-    //     const fen=this.boardName==='a'?step.fen: step.fenB;
-    //     const fenPartner=this.boardName==='b'?step.fen: step.fenB;
-    //
-    //     this.chessground.set({
-    //         fen: fen,
-    //         turnColor: step.turnColor,
-    //         movable: {
-    //             color: step.turnColor,
-    //             dests: this.dests,
-    //             },
-    //         check: step.check,
-    //         lastMove: move,
-    //     });
-    //
-    //     this.partnerCC.chessground.set({fen: fenPartner});
-    //
-    //     this.fullfen = step.fen;
-    //     this.partnerCC.fullfen = fenPartner!;
-    //
-    //     // if (this.variant.counting) {
-    //     //     updateCount(step.fen, document.getElementById('misc-infow') as HTMLElement, document.getElementById('misc-infob') as HTMLElement);
-    //     // }
-    //
-    //     // if (this.b1.variant.materialPoint) {
-    //     //     updatePoint(step.fen, document.getElementById('misc-infow') as HTMLElement, document.getElementById('misc-infob') as HTMLElement);
-    //     // }
-    //
-    //     if (ply === this.ply + 1) {
-    //         sound.moveSound(this.variant, capture);
-    //     }
-    //
-    //     // Go back to the main line
-    //     if (plyVari === 0) {
-    //         this.ply = ply
-    //     }
-    //     this.turnColor = step.turnColor;
-    //
-    //     // if (this.plyVari > 0 && plyVari === 0) {todo:niki:for now variations not supported - just browse games
-    //     //     this.steps[this.plyVari]['vari'] = undefined;
-    //     //     this.plyVari = 0;
-    //     //     updateMovelist(this);
-    //     // }
-    //
-    //     // if (this.model["embed"]) return;todo:niki:not sure what that is
-    //
-    //     if (this.ffishBoard !== null) {
-    //         this.ffishBoard.setFen(this.fullfen);
-    //         // this.dests = this.parent.getDests(this);
-    //         this.setDests();
-    //     }
-    //
-    //     // this.drawEval(step.ceval, step.scoreStr, step.turnColor);
-    //     // this.drawServerEval(ply, step.scoreStr);
-    //
-    //     // TODO: multi PV
-    //     // this.maxDepth = maxDepth;todo:niki:for now engine not in focus
-    //     // if (this.localAnalysis) this.engineGo(this.b1);
-    //
-    //     // const e = document.getElementById('fullfen') as HTMLInputElement;
-    //     // e.value = this.b1.fullfen;
-    //
-    //     // if (this.isAnalysisBoard) {todo:niki:not sure what this is
-    //     //     const idxInVari = (plyVari > 0) ? ply : 0;
-    //     //     this.vpgn = patch(this.vpgn, h('textarea#pgntext', { attrs: { rows: 13, readonly: true, spellcheck: false} }, this.getPgn(idxInVari)));
-    //     // } else {
-    //     //     const hist = this.model["home"] + '/' + this.gameId + '?ply=' + ply.toString();
-    //     //     window.history.replaceState({}, this.model['title'], hist);
-    //     // }
-    // }
 
     private setPremove = (orig: cg.Orig, dest: cg.Key, metadata?: cg.SetPremoveMetadata) => {
         this.premove = { orig, dest, metadata };
@@ -363,10 +229,7 @@ export class ChessgroundController extends GameController {
     }
 
     createGround = (el: HTMLElement, pocket0:HTMLElement|undefined, pocket1:HTMLElement|undefined, fullfen: string): Api => {
-        // const pocket0 = this.hasPockets? document.getElementById('pocket0') as HTMLElement: undefined;
-        // const pocket1 = this.hasPockets? document.getElementById('pocket1') as HTMLElement: undefined;
 
-        // const fullfen = model["fen"] as string;
         const parts = fullfen.split(" ");
         const fen_placement: cg.FEN = parts[0];
 
@@ -411,8 +274,6 @@ export class ChessgroundController extends GameController {
         });
         return chessground;
     }
-
-
 
 }
 

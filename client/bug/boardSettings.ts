@@ -77,7 +77,7 @@ class BoardSettings {
 
     updateZoom(family: keyof typeof BOARD_FAMILIES) {
         const variant = this.ctrl?.b1.variant;//todo:niki:temp use b1
-        if (variant && variant.board === family) {
+        if (variant && variant.boardFamily === family) {
             const zoomSettings = this.getSettings("Zoom", family as string) as ZoomSettings;
             const zoom = zoomSettings.value;
             const el = document.querySelector('.cg-wrap:not(.pocket)') as HTMLElement;
@@ -137,47 +137,6 @@ class BoardSettings {
 
     // TODO This should be in the theoretical "ChessgroundController" class,
     // which is the common class between EditorController, RoundController, and AnalysisController
-    toggleOrientation() {
-        // if (this.ctrl) {todo:niki:comment out for now - this gonna be much different i feel
-        //     // TODO: handle berserk
-        //     if (this.ctrl instanceof RoundController && this.ctrl.tournamentGame && this.ctrl.ply < 2 && !this.ctrl.spectator) return;
-        //
-        //     this.ctrl.flip = !this.ctrl.flip;
-        //     this.ctrl.chessground.toggleOrientation();
-        //     this.updateDropSuggestion();
-        //
-        //     // console.log("FLIP");
-        //     if (this.ctrl instanceof RoundController && this.ctrl.variant.materialDifference) {
-        //         updateMaterial(this.ctrl);
-        //     }
-        //
-        //     // TODO: moretime button
-        //     if (this.ctrl instanceof RoundController) {
-        //         const new_running_clck = (this.ctrl.clocks[0].running) ? this.ctrl.clocks[1] : this.ctrl.clocks[0];
-        //         this.ctrl.clocks[0].pause(false);
-        //         this.ctrl.clocks[1].pause(false);
-        //
-        //         const tmp_clock = this.ctrl.clocks[0];
-        //         const tmp_clock_time = tmp_clock.duration;
-        //         this.ctrl.clocks[0].setTime(this.ctrl.clocks[1].duration);
-        //         this.ctrl.clocks[1].setTime(tmp_clock_time);
-        //         if (this.ctrl.status < 0) new_running_clck.start();
-        //
-        //         this.ctrl.vplayer0 = patch(this.ctrl.vplayer0, player('player0', this.ctrl.titles[this.ctrl.flip ? 1 : 0], this.ctrl.players[this.ctrl.flip ? 1 : 0], this.ctrl.ratings[this.ctrl.flip ? 1 : 0], this.ctrl.model["level"]));
-        //         this.ctrl.vplayer1 = patch(this.ctrl.vplayer1, player('player1', this.ctrl.titles[this.ctrl.flip ? 0 : 1], this.ctrl.players[this.ctrl.flip ? 0 : 1], this.ctrl.ratings[this.ctrl.flip ? 0 : 1], this.ctrl.model["level"]));
-        //
-        //         if (this.ctrl.variant.counting)
-        //             [this.ctrl.vmiscInfoW, this.ctrl.vmiscInfoB] = updateCount(this.ctrl.fullfen, this.ctrl.vmiscInfoB, this.ctrl.vmiscInfoW);
-        //
-        //         if (this.ctrl.variant.materialPoint)
-        //             [this.ctrl.vmiscInfoW, this.ctrl.vmiscInfoB] = updatePoint(this.ctrl.fullfen, this.ctrl.vmiscInfoB, this.ctrl.vmiscInfoW);
-        //     }
-        //
-        //     if (this.ctrl instanceof EditorController) {
-        //         iniPieces(this.ctrl, this.ctrl.vpieces0, this.ctrl.vpieces1);
-        //     }
-        // }
-    }
 }
 
 class AnimationSettings extends BooleanSettings {
