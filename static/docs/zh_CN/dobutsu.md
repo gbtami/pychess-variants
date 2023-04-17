@@ -27,4 +27,5 @@
 动物将棋是已经有解的游戏(后手必胜)，然而，大多数玩家是走不出来的。
 
 延伸阅读: visualdennis 的 [https://variantslove.netlify.app/](https://variantslove.netlify.app/)推荐给大家。
-Bottom line: 享受这疗愈的游戏吧 :)
+
+PS: 闲下来的时候不妨享受一盘治愈的动物将棋 ^_^

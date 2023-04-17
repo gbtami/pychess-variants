@@ -75,7 +75,6 @@ class TestUser:
     async def go_to_lobby(self):
         async with aiohttp.ClientSession() as session:
             async with session.ws_connect(LOBBY_URL) as wsl:
-
                 await wsl.send_json({"type": "lobby_user_connected", "username": self.username})
                 await self.send_lobby_chat(wsl, "Hi all!")
                 await wsl.send_json({"type": "get_seeks"})
@@ -132,7 +131,6 @@ class TestUser:
     async def go_to_round(self, session, wsl, game_id, wplayer, bplayer):
         print("---------ROUND baby")
         async with session.ws_connect(ROUND_URL, timeout=20.0) as wsr:
-
             # TODO: am I player or am I spectator ???
             await wsr.send_json(
                 {

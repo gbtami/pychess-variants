@@ -19,47 +19,63 @@ export function layer2army (lobbyCtrl: LobbyController, containerId: string): vo
                 h('h5#armyl2back', { class: {"icon": true, "icon-reply": true}, on: { click: () => goBackToLayer1(lobbyCtrl, 'layer2armycont') } }, _('Go Back')),
             ]),
         ]),
-        h('button.layer-2-category.capablanca', { on: { click: () => layer3variant('layer2armycont', lobbyCtrl, 'orda', false) } }, [
-            h('div.variant-title-l2', [
-                h('div.icon', { attrs: { 'data-icon': VARIANTS['orda'].icon(false) } }),
-                h('h3', VARIANTS['orda'].displayName()),
+        h('div.button-grid', [
+            h('button.layer-2-category', { on: { click: () => layer3variant('layer2armycont', lobbyCtrl, 'orda', false) } }, [
+                h('div.variant-title-l2', [
+                    h('div.icon', { attrs: { 'data-icon': VARIANTS['orda'].icon(false) } }),
+                    h('h3', VARIANTS['orda'].displayName()),
+                ]),
+                h('p.variant-extra-info', _('Horde: Horse-based army')),
             ]),
-            h('p.variant-extra-info', _('Horde: Horse-based army')),
-        ]),
-        h('button.layer-2-category.schess', { on: { click: () => layer3variant('layer2armycont', lobbyCtrl, 'empire', false) } }, [
-            h('div.variant-title-l2', [
-                h('div.icon', { attrs: { 'data-icon': VARIANTS['empire'].icon(false) } }),
-                h('h3', VARIANTS['empire'].displayName()),
+            h('button.layer-2-category', { on: { click: () => layer3variant('layer2armycont', lobbyCtrl, 'empire', false) } }, [
+                h('div.variant-title-l2', [
+                    h('div.icon', { attrs: { 'data-icon': VARIANTS['empire'].icon(false) } }),
+                    h('h3', VARIANTS['empire'].displayName()),
+                ]),
+                h('p.variant-extra-info', _('Empire: Queen-based army')),
             ]),
-            h('p.variant-extra-info', _('Empire: Queen-based army')),
-        ]),
-        h('button.layer-2-category.shako', { on: { click: () => layer3variant('layer2armycont', lobbyCtrl, 'ordamirror', false) } }, [
-            h('div.variant-title-l2', [
-                h('div.icon', { attrs: { 'data-icon': VARIANTS['ordamirror'].icon(false) } }),
-                h('h3', VARIANTS['ordamirror'].displayName()),
+            h('button.layer-2-category', { on: { click: () => layer3variant('layer2armycont', lobbyCtrl, 'ordamirror', false) } }, [
+                h('div.variant-title-l2', [
+                    h('div.icon', { attrs: { 'data-icon': VARIANTS['ordamirror'].icon(false) } }),
+                    h('h3', VARIANTS['ordamirror'].displayName()),
+                ]),
+                h('p.variant-extra-info', _('Horde vs Horde')),
             ]),
-            h('p.variant-extra-info', _('Horde vs Horde')),
-        ]),
-        h('button.layer-2-category.grand', { on: { click: () => layer3variant('layer2armycont', lobbyCtrl, 'shinobi', false) } }, [
-            h('div.variant-title-l2', [
-                h('div.icon', { attrs: { 'data-icon': VARIANTS['shinobi'].icon(false) } }),
-                h('h3', VARIANTS['shinobi'].displayName()),
+            h('button.layer-2-category', { on: { click: () => layer3variant('layer2armycont', lobbyCtrl, 'shinobi', false) } }, [
+                h('div.variant-title-l2', [
+                    h('div.icon', { attrs: { 'data-icon': VARIANTS['shinobi'].icon(false) } }),
+                    h('h3', VARIANTS['shinobi'].displayName()),
+                ]),
+                h('p.variant-extra-info', _('Clan: Drop-based army')),
             ]),
-            h('p.variant-extra-info', _('Clan: Drop-based army')),
-        ]),
-        h('button.layer-2-category.shogun', { on: { click: () => layer3variant('layer2armycont', lobbyCtrl, 'synochess', false) } }, [
-            h('div.variant-title-l2', [
-                h('div.icon', { attrs: { 'data-icon': VARIANTS['synochess'].icon(false) } }),
-                h('h3', VARIANTS['synochess'].displayName()),
+            h('button.layer-2-category', { on: { click: () => layer3variant('layer2armycont', lobbyCtrl, 'synochess', false) } }, [
+                h('div.variant-title-l2', [
+                    h('div.icon', { attrs: { 'data-icon': VARIANTS['synochess'].icon(false) } }),
+                    h('h3', VARIANTS['synochess'].displayName()),
+                ]),
+                h('p.variant-extra-info', _('Dynasty: Xiangqi-based army')),
             ]),
-            h('p.variant-extra-info', _('Dynasty: Xiangqi-based army')),
-        ]),
-        h('button.layer-2-category.hoppelpoppel', { on: { click: () => layer3variant('layer2armycont', lobbyCtrl, 'chak', false) } }, [
-            h('div.variant-title-l2', [
-                h('div.icon', { attrs: { 'data-icon': VARIANTS['chak'].icon(false) } }),
-                h('h3', VARIANTS['chak'].displayName()),
+            h('button.layer-2-category', { on: { click: () => layer3variant('layer2armycont', lobbyCtrl, 'chak', false) } }, [
+                h('div.variant-title-l2', [
+                    h('div.icon', { attrs: { 'data-icon': VARIANTS['chak'].icon(false) } }),
+                    h('h3', VARIANTS['chak'].displayName()),
+                ]),
+                h('p.variant-extra-info', _('Mayan chess')),
             ]),
-            h('p.variant-extra-info', _('Mayan chess')),
+            h('button.layer-2-category', { on: { click: () => layer3variant('layer2armycont', lobbyCtrl, 'chennis', false) } }, [
+                h('div.variant-title-l2', [
+                    h('div.icon', { attrs: { 'data-icon': VARIANTS['chennis'].icon(false) } }),
+                    h('h3', VARIANTS['chennis'].displayName()),
+                ]),
+                h('p.variant-extra-info', _('Alternating pieces')),
+            ]),
+            h('button.layer-2-category', { on: { click: () => layer3variant('layer2armycont', lobbyCtrl, 'spartan', false) } }, [
+                h('div.variant-title-l2', [
+                    h('div.icon', { attrs: { 'data-icon': VARIANTS['spartan'].icon(false) } }),
+                    h('h3', VARIANTS['spartan'].displayName()),
+                ]),
+                h('p.variant-extra-info', _('Spartans: Army with two kings')),
+            ]),
         ]),
     ]);
 

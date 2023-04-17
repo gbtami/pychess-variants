@@ -271,6 +271,9 @@ label.piece.piece11.xiangqi {
 label.piece.piece12.xiangqi {
     background-image: url('images/pieces/disguised/xiangqi-r.svg');
 }
+label.piece.piece13.xiangqi {
+    background-image: url('images/pieces/xiangqi/euro/red_king.svg');
+}
 
 label.piece.piece0.janggi {
     background-image: url('images/pieces/janggi/hanjablue/blue_king.svg');
@@ -427,4 +430,11 @@ label.piece.piece2.chennis {
 }
 label.piece.piece3.chennis {
     background-image: url('images/pieces/disguised/w.svg');
+}
+
+label.piece.piece0.spartan {
+    background-image: url('images/pieces/spartan/bK.svg');
+}
+label.piece.piece1.spartan {
+    background-image: url('images/pieces/disguised/b.svg');
 }
