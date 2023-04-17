@@ -3,7 +3,8 @@ import { h, VNode } from "snabbdom";
 import { _ } from './i18n';
 import { PuzzleController } from './puzzleCtrl';
 import { selectVariant, variants, VARIANTS, puzzleVariants } from './variants';
-import { PyChessModel } from "./types";
+import { PyChessModel } from './types';
+import { analysisTools, gauge } from './analysis'
 
 function runPuzzle(vnode: VNode, model: PyChessModel) {
     const el = vnode.elm as HTMLElement;
@@ -19,28 +20,13 @@ function leftSide(model: PyChessModel) {
         if (isInput) window.location.assign('/puzzle/' + variant);
     }
     const disableds = variants.filter(v => !puzzleVariants.includes(v));
-    const color = model["fen"].split(" ")[1];
     return h('div', [
         h('div.puzzle-meta', [
             h('div.infos'),
         ]),
         h('div.puzzle-user', [
-            h('div.config-toggle', [
-                h('label.switch', [
-                    h('input#puzzle-rated', {
-                        props: {
-                            name: "puzzle-rated",
-                            type: "checkbox",
-                        },
-                        attrs: {checked: true}
-                    }),
-                    h('span.sw-slider'),
-                ]),
-                h('label', { attrs: { for: "puzzle-rated"} }, _("Rated")),
-            ]),
-            h('div.rating', [
-                h('strong', (color==="w") ? model.wrating : model.brating)
-            ]),
+            h('div.rated-toggle'),
+            h('div.rating'),
         ]),
         h('div.puzzle-info', [
             h('label', { attrs: { for: "variant" } }, _("Variant")),
@@ -57,16 +43,7 @@ export function puzzleView(model: PyChessModel): VNode[] {
             h(`selection#mainboard.${variant.boardFamily}.${variant.pieceFamily}.${variant.ui.boardMark}`, [
                 h('div.cg-wrap.' + variant.board.cg, { hook: { insert: (vnode) => runPuzzle(vnode, model) } }),
             ]),
-            h('div#gauge', [
-                h('div.black',     { props: { style: "height: 50%;" } }),
-                h('div.tick',      { props: { style: "height: 12.5%;" } }),
-                h('div.tick',      { props: { style: "height: 25%;" } }),
-                h('div.tick',      { props: { style: "height: 37.5%;" } }),
-                h('div.tick.zero', { props: { style: "height: 50%;" } }),
-                h('div.tick',      { props: { style: "height: 62.5%;" } }),
-                h('div.tick',      { props: { style: "height: 75%;" } }),
-                h('div.tick',      { props: { style: "height: 87.5%;" } }),
-            ]),
+            gauge(),
             h('div.pocket-top', [
                 h('div.' + variant.piece + '.' + model["variant"], [
                     h('div.cg-wrap.pocket', [
@@ -74,57 +51,8 @@ export function puzzleView(model: PyChessModel): VNode[] {
                     ]),
                 ]),
             ]),
-
-            h('div.analysis-tools', [
-                h('div#ceval', [
-                    h('div.engine', [
-                        h('score#score', ''),
-                        h('div.info', [
-                            'Fairy-Stockfish 14+ ',
-                            h('span.nnue', { props: { title: _('Multi-threaded WebAssembly (classical evaluation)') } } , 'HCE'),
-                            h('br'),
-                            h('info#info', _('in local browser'))
-                        ]),
-                        h('label.switch', [
-                            h('input#input', {
-                                props: {
-                                    name: "engine",
-                                    type: "checkbox",
-                                },
-                            }),
-                            h('span.sw-slider'),
-                        ]),
-                    ]),
-                ]),
-                h('div.pvbox', [
-                    h('div#pv1'),
-                    h('div#pv2'),
-                    h('div#pv3'),
-                    h('div#pv4'),
-                    h('div#pv5'),
-                ]),
-                h('div.movelist-block', [
-                    h('div#movelist'),
-                ]),
-                h('div#vari'),
-                h('div#misc-info', [
-                    h('div#misc-infow'),
-                    h('div#misc-info-center'),
-                    h('div#misc-infob'),
-                ]),
-                h('div.feedback', [
-                    h('div.player'),
-                    h('div.view-hint', [
-                        h('a.button.hint'),
-                    ]),
-                    h('div.view-solution', [
-                        h('a.button.solution'),
-                    ]),
-                ]),
-            ]),
-
+            analysisTools(),
             h('div#move-controls'),
-
             h('div.pocket-bot', [
                 h('div.' + variant.piece + '.' + model["variant"], [
                     h('div.cg-wrap.pocket', [

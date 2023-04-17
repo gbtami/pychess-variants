@@ -401,7 +401,9 @@ async def index(request):
 
     if view == "lobby":
         puzzle = await get_daily_puzzle(request)
-        render["puzzle"] = json.dumps(puzzle)
+        print("---DAILY PUZZLE---")
+        print(puzzle)
+        render["puzzle"] = json.dumps(puzzle, default=datetime.isoformat)
 
     elif view in ("profile", "level8win"):
         if view == "level8win":
@@ -513,7 +515,7 @@ async def index(request):
 
         color = puzzle["fen"].split()[1]
         chess960 = False
-        puzzle_rating = puzzle.get("perf", DEFAULT_PERF)["gl"]["r"]
+        puzzle_rating = int(round(puzzle.get("perf", DEFAULT_PERF)["gl"]["r"], 0))
         variant = puzzle["variant"]
         if color == "w":
             wrating = int(round(user.get_puzzle_rating(variant, chess960).mu, 0))

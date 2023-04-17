@@ -27,6 +27,7 @@ import { PyChessModel } from "./types";
 import { Ceval, MsgBoard, MsgUserConnected, Step, CrossTable } from "./messages";
 import { MsgAnalysis, MsgAnalysisBoard } from './analysisType';
 import { GameController } from './gameCtrl';
+import { toggleSwitch } from './view';
 
 const EVAL_REGEX = new RegExp(''
   + /^info depth (\d+) seldepth \d+ multipv (\d+) /.source
@@ -95,7 +96,7 @@ export class AnalysisController extends GameController {
         this.sock.onopen = () => onOpen();
         this.sock.onmessage = (e: MessageEvent) => this.onMessage(e);
 
-        // is local stockfish.wasm engine supports current variant?
+        // is local stockfish.wasm engine supported at all
         this.localEngine = false;
 
         // is local engine analysis enabled? (the switch)
@@ -155,7 +156,8 @@ export class AnalysisController extends GameController {
         }
 
         if (!this.embed) {
-            patch(document.getElementById('input') as HTMLElement, h('input#input', this.renderInput()));
+            const et = document.querySelector('.engine-toggle') as HTMLElement;
+            patch(et, h('div.engine-toggle', toggleSwitch('engine-enabled', '', false, !this.localEngine || !this.isEngineReady, (evt) => this.setLocalAnalysis(evt))));
 
             this.vscore = document.getElementById('score') as HTMLElement;
             this.vinfo = document.getElementById('info') as HTMLElement;
@@ -251,22 +253,14 @@ export class AnalysisController extends GameController {
         //TODO: clocks !!!
     }
 
-    private renderInput = () => {
-        return {
-            attrs: {
-                disabled: !this.localEngine || !this.isEngineReady,
-            },
-            on: {change: () => {
-                this.localAnalysis = !this.localAnalysis;
-                if (this.localAnalysis) {
-                    this.vinfo = patch(this.vinfo, h('info#info', '-'));
-                    this.pvboxIni();
-                } else {
-                    this.engineStop();
-                    this.pvboxIni();
-                }
-            }}
-        };
+    setLocalAnalysis(evt: Event) {
+        this.localAnalysis = (evt.target as HTMLInputElement).checked;
+        if (this.localAnalysis) {
+            this.vinfo = patch(this.vinfo, h('info#info', '-'));
+        } else {
+            this.engineStop();
+        }
+        this.pvboxIni();
     }
 
     private drawAnalysisChart = (withRequest: boolean) => {
@@ -446,7 +440,7 @@ export class AnalysisController extends GameController {
 
         if (!this.localEngine) {
             this.localEngine = true;
-            patch(document.getElementById('input') as HTMLElement, h('input#input', {attrs: {disabled: false}}));
+            patch(document.getElementById('engine-enabled') as HTMLElement, h('input#engine-enabled', {attrs: {disabled: false}}));
             this.fsfEngineBoard = new this.ffish.Board(this.variant.name, this.fullfen, this.chess960);
 
             if (this.evalFile) {

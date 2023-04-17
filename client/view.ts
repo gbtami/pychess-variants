@@ -42,6 +42,21 @@ export function checkbox(settings: Settings<boolean>, name: string, text: string
     ];
 }
 
+export function toggleSwitch(name: string, text: string, checked: boolean, disabled: boolean, onchange: (evt: Event) => void): VNode[] {
+    const id = name;
+    return [
+        h('label.switch', [
+            h(`input#${id}`, {
+                props: { name: name, type: "checkbox" },
+                attrs: { checked: checked, disabled: disabled },
+                on: { change: evt => onchange(evt) },
+            }),
+            h('span.sw-slider'),
+        ]),
+        h('label', { attrs: { for: id } }, text),
+    ];
+}
+
 export function nnueFile(settings: Settings<string>, name: string, text: string, variant: string) {
     const id = name;
     return [

@@ -8,7 +8,7 @@ import { patch } from './document';
 import { uci2LastMove, UCIMove, uci2cg } from './chess';
 import { updateMovelist } from './movelist';
 import { variants } from './variants';
-
+import { toggleSwitch } from './view';
 
 export class PuzzleController extends AnalysisController {
     username: string;
@@ -25,6 +25,8 @@ export class PuzzleController extends AnalysisController {
     posted: boolean;
     rated: boolean;
     gaugeNeeded: boolean;
+    wrating: string;
+    brating: string;
 
     constructor(el: HTMLElement, model: PyChessModel) {
         super(el, model);
@@ -44,6 +46,8 @@ export class PuzzleController extends AnalysisController {
         this.completed = false;
         this.posted = false;
         this.rated = true;
+        this.wrating = model.wrating;
+        this.brating = model.brating;
 
         this.chessground.set({
             orientation: this.turnColor,
@@ -63,7 +67,10 @@ export class PuzzleController extends AnalysisController {
             },
         });
 
-        patch(document.getElementById('puzzle-rated') as HTMLElement, h('input#puzzle-rated', this.setRated()));
+        const ct = document.querySelector('.rated-toggle') as HTMLElement;
+        patch(ct, h('div.rated-toggle', toggleSwitch('puzzle-rated', _("Rated"), true, false, (evt) => this.setRated(evt))));
+
+        this.renderRating(this.rated, this.color, this.wrating, this.brating);
 
         this.playerEl = document.querySelector('.player') as HTMLElement;
         this.yourTurn();
@@ -109,13 +116,37 @@ export class PuzzleController extends AnalysisController {
         setTimeout(showHintAndSolution, 4000);
     }
 
-    setRated() {
-        return {
-            on: {change: () => {
-                this.rated = !this.rated;
-                console.log('RATED:', this.rated);
-            }}
-        };
+    setRated(evt: Event) {
+        this.rated = (evt.target as HTMLInputElement).checked;
+        console.log("setRated(evt)", this.rated);
+        this.renderRating(this.rated, this.color, this.wrating, this.brating);
+    }
+
+    renderRating(rated, color, wrating, brating, success=undefined, diff=undefined) {
+        console.log('renderRating()', rated, color, wrating, brating, success, diff);
+        if (rated) {
+            var diffEl = '';
+            if (diff) {
+                if (success) {
+                    diffEl = h('good.rp', [h('span', { attrs: { "data-icon": '⬈' } }, ' '), '+' + diff]);
+                } else {
+                    diffEl = h('bad.rp', [h('span', { attrs: { "data-icon": '⬊' } }, ' '), diff]);
+                }
+            }
+            const ratingEl = document.querySelector('.rating') as HTMLElement;
+            patch(ratingEl, h(`div.rating.${(diff)?'final':'rated'}`, [
+                h('strong', [
+                    (color==="white") ? wrating : brating,
+                    diffEl
+                ]),
+            ]));
+        } else {
+            const ratingEl = document.querySelector('.rating') as HTMLElement;
+            patch(ratingEl, h('div.rating.casual', 
+                _('Your puzzle rating will not change. Note that puzzles are not a competition. Ratings help select the best puzzles for your current skill.')
+                )
+            );
+        }
     }
 
     renderInfos() {
@@ -126,8 +157,8 @@ export class PuzzleController extends AnalysisController {
                 h('div.info0.icon.icon-puzzle', [
                     h('div.info2', [
                         h('div', [_('Puzzle '), h('a', { attrs: { href: `/puzzle/${this._id}` } }, `#${this._id}`) ]),
-                        h('div', [_('Rating: '), 'hidden']),
-                        h('div', [_('Played '), this.played])
+                        h('div', [_('Rating: '), h('span.hidden', _('hidden'))]),
+                        h('div', [_('Played: '), this.played])
                     ])
                 ]),
             ]),
@@ -327,23 +358,37 @@ export class PuzzleController extends AnalysisController {
         const XHR = new XMLHttpRequest();
         const FD  = new FormData();
         FD.append('win', `${success}`);
-        FD.append('variant', `${this.variant.name}`);
+        FD.append('variant', this.variant.name);
         FD.append('color', this.color);
         FD.append('rated', `${this.rated}`);
+
+        const rated = this.rated;
+        const color = this.color;
+        const wrating = this.wrating;
+        const brating = this.brating;
+        const renderRating = this.renderRating;
 
         XHR.onreadystatechange = function() {
             if (this.readyState === 4 && this.status === 200) {
                 const response = JSON.parse(this.responseText);
+                console.log("RESPONSE:", response);
                 if (response['error'] !== undefined) {
                     console.log(response['error']);
                 } else {
-                    // TODO: show puzzle rating and user rating diff
-                    console.log(response);
+                    patch(document.getElementById('puzzle-rated') as HTMLElement, h('input#puzzle-rated', {attrs: {disabled: true}}));
+                    if (rated) {
+                        console.log("patch()", success, color, wrating, brating);
+                        const hiddenEl = document.querySelector('.hidden') as HTMLElement;
+                        patch(hiddenEl, h('span.hidden', (color==="white") ? brating : wrating));
+
+                        const diff = response[(color==="white" ? 0 : 1)]
+                        renderRating(rated, color, wrating, brating, success, diff);
+                    }
                 }
             }
         }
         XHR.open("POST", `/puzzle/complete/${this._id}`, true);
         XHR.send(FD);
-        console.log(FD);
+        console.log("XHR.send()", FD);
     }
 }

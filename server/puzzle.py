@@ -170,12 +170,9 @@ async def update_puzzle_ratings(wplayer, bplayer, white_rating, black_rating, va
     await bplayer.set_puzzle_rating(variant, chess960, br)
 
     wrdiff = int(round(wr.mu - white_rating.mu, 0))
-    wr = {"e": int(round(white_rating.mu, 0)), "d": wrdiff}
-
     brdiff = int(round(br.mu - black_rating.mu, 0))
-    br = {"e": int(round(black_rating.mu, 0)), "d": brdiff}
 
-    return (wr, br)
+    return (wrdiff, brdiff)
 
 
 class Puzzle:
