@@ -375,3 +375,9 @@
 .icon-pause:before {
   content: "\ea1d";
 }
+.icon-arrow-up-right:before {
+  content: "\2b08";
+}
+.icon-arrow-down-right:before {
+  content: "\2b0a";
+}
