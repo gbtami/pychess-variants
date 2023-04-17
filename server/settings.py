@@ -35,7 +35,11 @@ FERNET_KEY = os.getenv("FERNET_KEY", string.ascii_letters[:42] + "_=")
 SECRET_KEY = base64.urlsafe_b64decode(FERNET_KEY)
 MAX_AGE = 3600 * 24 * 365
 
+#TODO need to add the mongo_host in environment variables -  mongodb is localhost
 MONGO_HOST = os.getenv("MONGO_HOST", "mongodb://127.0.0.1:27017")
+if "chess1-backend.coolmathgames.com" in URI:
+    MONGO_HOST = "mongodb://cooladmin:L282kq70q4ej@50.19.119.196:27017"
+MONGO_HOST = "mongodb://cooladmin:L282kq70q4ej@50.19.119.196:27017"
 MONGO_DB_NAME = "pychess-variants"
 
 BOT_TOKENS = json.loads(os.getenv("BOT_TOKENS", "{}"))
