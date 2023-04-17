@@ -155,7 +155,9 @@ async def puzzle_complete(request):
     return web.json_response(ratings)
 
 
-async def update_puzzle_ratings(wplayer, bplayer, white_rating, black_rating, variant, chess960, result):
+async def update_puzzle_ratings(
+    wplayer, bplayer, white_rating, black_rating, variant, chess960, result
+):
     if result == "1-0":
         (white_score, black_score) = (1.0, 0.0)
     elif result == "0-1":
