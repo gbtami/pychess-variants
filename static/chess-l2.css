@@ -1,3 +1,12 @@
+.button-grid {
+    grid-column: 2 / span 2;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    width: 100%;
+    height: 100%;
+    gap: 10px;
+}
+
 .layer-2-container {
     grid-area: vpanel;
     background-color: var(--bg-color1);
@@ -14,7 +23,6 @@
 
 .generic-variant-info {
     grid-column: 1/2;
-    grid-row: 1/5;
 }
 
 /* Preventing first column from hover changes  */
@@ -86,62 +94,6 @@
     cursor: pointer;
 }
 
-/* Assigning Elements (Variant Category Buttons) Grid Area  */
-
-.chess-l2 {
-    grid-column: 2/3;
-    grid-row: 1/2;
-}
-
-.chess960 {
-   grid-column: 2/3;
-   grid-row: 2/3;
-}
-
-.placement {
-    grid-column: 2/3;
-    grid-row: 3/4;
-}
-
-.crazyhouse {
-    grid-column: 2/3;
-    grid-row: 4/5;
-}
-
-.crazyhouse960 {
-    grid-column: 3/4;
-    grid-row: 1/2;
-}
-
-.atomic {
-   grid-column: 3/4;
-   grid-row: 2/3;
-}
-
-.atomic960 {
- grid-column: 3/4;
- grid-row: 3/4;
-}
-
-.duck {
-    grid-column: 3/3;
-    grid-row: 4/5;
-}
-
-/* Variant Category Button Content  */
-
-.duck .variant-title-l2, .chess960 .variant-title-l2, .chess-l2 .variant-title-l2,.placement .variant-title-l2, .crazyhouse .variant-title-l2, .crazyhouse960 .variant-title-l2,.atomic .variant-title-l2,.atomic960 .variant-title-l2
-{
-    /* border: 1px solid red; */
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: flex-start;
-    font-size: 0.8rem;
-    font-weight: 300;
-    width: 80%;
-}
-
 /* Icons next to Variant Category Title  */
 
 .icon-container {
@@ -150,14 +102,6 @@
     height: 25px;
     width: 25px;
     margin-right: 5px;
-}
-
-.duck img, .chess960 img, .chess-l2 img, .placement img, .crazyhouse img, .crazyhouse960 img, .atomic img, .atomic960 img, .capablanca img, .shako img, .shogun img, .hoppelpoppel img, .grand img, .schess img {
-    /* border: 1px solid blue; */
-    /* height: 100%;
-    width: 100%; */
-    filter: saturate(1);
-    opacity: 1;
 }
 
 /* Desktop  */
@@ -174,6 +118,10 @@
 /* Tablet and makes the Chess Layer 2 Grid change to two columns */
 
 @media only screen and (max-width:1100px) {
+    .button-grid {
+        grid-column: 1/3;
+        grid-row: 1/1;
+    }
     .layer-2-container {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
@@ -183,121 +131,52 @@
 
     .generic-variant-info {
         grid-column: 1/2;
-        grid-row: 1/5;
-    }
-    
-    .crazyhouse960 {
-        grid-column: 1/3;
-        grid-row: 5/6;
-    }
-    
-    .atomic {
-       grid-column:1/2;
-       grid-row: 6/7;
-    }
-    
-    .atomic960 {
-     grid-column: 2/3;
-     grid-row: 6/7;
-    }
-
-    .duck {
-       grid-column:2/3;
-       grid-row: 5/6;
     }
 }
 
 /* Mobile and makes it one column  */
 
 @media only screen and (max-width:799px) {
+    .button-grid {
+        grid-column: 1/3;
+        grid-row: 1/1;
+    }
+
     .layer-2-container {
         display: grid;
-
-    }
-
-    .chess-l2 {
-
-        grid-column: 1/2;
-        grid-row: 1/2;
-    }
-
-    .crazyhouse {
-        grid-column: 2/3;
-        grid-row: 1/2;
-    }
-
-    .crazyhouse960 {
-        grid-column: 1/2;
-        grid-row: 2/3;
-    }
-
-    .atomic {
-       grid-column:1/2;
-       grid-row: 3/4;
-    }
-
-    .atomic960 {
-     grid-column: 1/2;
-     grid-row: 4/5;
-    }
-
-    .duck {
-     grid-column: 2/2;
-     grid-row: 4/5;
     }
 
     .generic-variant-info {
         grid-column: 1/3;
-        grid-row: 5/5;
     }
 
-
     #layer2chesscont #mainboard {
-
         display: none; 
     }
 
     .variant-title-l2 {
         padding: 15px 50px;
         margin: 0 auto;
+        justify-content: center;
     }
 
     layer-two-category-info {
-    padding-top: 0px; 
-
+        padding-top: 0px; 
     }
 
     .generic h4, .fairy-grid h4 {
-
-    display: none; 
-   
+        display: none; 
     }
 
     .variant-category-description {
-
-    display: none; 
-
+        display: none; 
     }
 
     .generic h5, .fairy-grid h5 {
-
-    font-size: 1rem;
-
+        font-size: 1rem;
     }
-
 
     #layer2chesscont .generic-variant-info {
-
-    background: none;
-
+        background: none;
     }
-
-    
-
-.duck .variant-title-l2, .chess960 .variant-title-l2, .chess-l2 .variant-title-l2,.placement .variant-title-l2, .crazyhouse .variant-title-l2, .crazyhouse960 .variant-title-l2,.atomic .variant-title-l2,.atomic960 .variant-title-l2 {
-
-    justify-content: center;
-
-}
-
 }

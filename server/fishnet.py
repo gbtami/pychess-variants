@@ -13,6 +13,7 @@ from settings import FISHNET_KEYS
 
 log = logging.getLogger(__name__)
 
+REQUIRED_FISHNET_VERSION = "1.16.23"
 MOVE_WORK_TIME_OUT = 5.0
 
 
@@ -112,7 +113,7 @@ async def fishnet_acquire(request):
     en = data["stockfish"]["name"]
     nnue = data["stockfish"].get("nnue", "")
 
-    if key not in FISHNET_KEYS:
+    if (key not in FISHNET_KEYS) or version < REQUIRED_FISHNET_VERSION:
         return web.Response(status=404)
 
     worker = FISHNET_KEYS[key]

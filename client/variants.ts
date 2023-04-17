@@ -48,7 +48,7 @@ export const PIECE_FAMILIES: Record<string, PieceFamily> = {
     kyoto: { pieceCSS: ["kyoto", "kyotok", "kyotoks", "kyotoi", "kyotod", "disguised"] },
     dobutsu: { pieceCSS: ["dobutsu", "disguised"] },
     tori: { pieceCSS: ["torii", "torik", "torim", "porti", "disguised"] },
-    xiangqi: { pieceCSS: ["xiangqi2d", "xiangqi2di", "xiangqi", "xiangqict3", "xiangqihnz", "xiangqict2", "xiangqihnzw", "xiangqict2w", "xiangqiwikim", "xiangqiKa", "xiangqittxqhnz", "xiangqittxqintl", "disguised"] },
+    xiangqi: { pieceCSS: ["xiangqi2d", "xiangqi2di", "xiangqi", "xiangqict3", "xiangqihnz", "xiangqict2", "xiangqihnzw", "xiangqict2w", "xiangqiwikim", "xiangqiKa", "xiangqittxqhnz", "xiangqittxqintl", "disguised", "euro"] },
     janggi: { pieceCSS: ["janggihb", "janggihg", "janggiikak", "janggiikaw", "janggikak", "janggikaw", "janggiib", "janggiig", "disguised"] },
     shako: { pieceCSS: ["shako0", "shako1", "shako2", "disguised"] },
     shogun: { pieceCSS: ["shogun0", "shogun1", "shogun2", "shogun3", "shogun4", "shogun5", "disguised"] },
@@ -60,6 +60,7 @@ export const PIECE_FAMILIES: Record<string, PieceFamily> = {
     ordamirror: { pieceCSS: ["ordamirror0", "ordamirror1", "disguised"] },
     chak: { pieceCSS: ["chak0", "disguised"] },
     chennis: { pieceCSS: ["chennis0", "chennis1", "chennis2", "disguised"] },
+    spartan: { pieceCSS: ["spartan0", "disguised"] },
 };
 
 export interface Variant {
@@ -779,12 +780,20 @@ export const VARIANTS: Record<string, Variant> = {
 
     chennis: variant({
         name: "chennis", tooltip: "Pieces alternate between two forms with each move.",
-        startFen: "p1m1s1f/1k5/7/7/7/5K1/F1S1M1P[] w - 0 1",
+        startFen: "1fkm3/1p1s3/7/7/7/3S1P1/3MKF1[] w - 0 1",
         icon: "🎾",
         boardFamily: "chennis7x7", pieceFamily: "chennis",
         pieceRow: ["k", "p", "m", "s", "f"],
         pocket: { roles: ["p", "m", "s", "f"], captureToHand: true },
         promotion: { type: "shogi", roles: ["p", "m", "s", "f"] },
+    }),
+
+    spartan: variant({
+        name: "spartan", tooltip: _("Asymmetric Spartans vs. Persians variant."),
+        startFen: "lgkcckwl/hhhhhhhh/8/8/8/8/PPPPPPPP/RNBQKBNR w KQ - 0 1",
+        icon: "⍺",
+        boardFamily: "standard8x8", pieceFamily: "spartan",
+        pieceRow: { white: ["k", "q", "r", "b", "n", "p"], black: ["k", "g", "w", "l", "c", "h"] },
     }),
 
     // We support the functionality to import/store/analyze some variants
@@ -838,7 +847,7 @@ export const variantGroups: { [ key: string ]: { variants: string[] } } = {
     shogi:    { variants: [ "shogi", "minishogi", "kyotoshogi", "dobutsu", "gorogoroplus", "torishogi" ] },
     xiangqi:  { variants: [ "xiangqi", "manchu", "janggi", "minixiangqi" ] },
     fairy:    { variants: [ "capablanca", "capahouse", "seirawan", "shouse", "grand", "grandhouse", "shako", "shogun", "hoppelpoppel" ] },
-    army:     { variants: [ "orda", "synochess", "shinobi", "empire", "ordamirror", "chak", "chennis" ] },
+    army:     { variants: [ "orda", "synochess", "shinobi", "empire", "ordamirror", "chak", "chennis", "spartan" ] },
 };
 
 function variantGroupLabel(group: string): string {

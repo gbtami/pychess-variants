@@ -478,4 +478,20 @@ VIDEOS = [
         "target": "beginner",
         "duration": "9:46",
     },
+    {
+        "_id": "WujZgsAWoFM",
+        "title": "Sittuyin (Burmese Chess) - How to play",
+        "author": "PyChess",
+        "tags": ["Howto"],
+        "target": "beginner",
+        "duration": "10:22",
+    },
+    {
+        "_id": "tiIEvtG4ND4",
+        "title": "Spartan Chess - How to play",
+        "author": "PyChess",
+        "tags": ["Howto"],
+        "target": "beginner",
+        "duration": "8:19",
+    },
 ]
