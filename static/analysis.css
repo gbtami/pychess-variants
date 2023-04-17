@@ -219,7 +219,9 @@ height: 24px;
   width: 0;
   height: 0;
 }
-
+.switch input:disabled + span {
+  cursor: not-allowed;
+}
 .sw-slider {
 position: absolute;
 cursor: pointer;
@@ -395,12 +397,26 @@ div.config-toggle {
   display: flex;
   align-items: center;
 }
-.puzzle-user .rating strong {
-  justify-content: center;
+.puzzle-user .rating {
   font-size: 3.5em;
+}
+.puzzle-user strong {
+  justify-content: center;
   display: flex;
   flex-flow: row wrap;
   align-items: center;
+}
+.puzzle-user .rating.casual {
+  font-size: .9em;
+  margin-top: 1em;
+}
+.rp {
+  font-size: 1.6rem;
+  margin-left: 1ch;
+}
+.rp span::before {
+  margin-right: .2em;
+  opacity: 0.9;
 }
 .feedback {
     display: flex;

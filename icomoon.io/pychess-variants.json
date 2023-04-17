@@ -4938,8 +4938,11 @@
         {
           "ligatures": "arrow-up-right, up-right",
           "name": "arrow-up-right",
-          "order": 0,
-          "id": 308
+          "order": 454,
+          "id": 308,
+          "prevSize": 32,
+          "code": 11016,
+          "tempChar": ""
         },
         {
           "ligatures": "arrow-right, right3",
@@ -4950,8 +4953,11 @@
         {
           "ligatures": "arrow-down-right, down-right",
           "name": "arrow-down-right",
-          "order": 0,
-          "id": 310
+          "order": 455,
+          "id": 310,
+          "prevSize": 32,
+          "code": 11018,
+          "tempChar": ""
         },
         {
           "ligatures": "arrow-down, down",
