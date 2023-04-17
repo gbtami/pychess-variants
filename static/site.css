@@ -414,6 +414,7 @@ iframe {
   display: flex;
   flex-flow: column nowrap;
   margin:0;
+  padding: 10px 10px 0 0;
 }
 .sidebar-second.analysis {
   justify-content: none;
@@ -1005,7 +1006,7 @@ button.paste-url {
 }
 .lobby-button {
   width: 100%;
-  margin: 8px 0;
+  margin: 5px 0;
 }
 @media (max-width: 799px) and (orientation: portrait) {
   .lobby-button {
