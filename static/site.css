@@ -14,6 +14,7 @@
   --link-hover: #1b78d0;
   --text-shadow: #fff;
   --bg-body: #16202c;
+  --bg-body2: #060d19;
   --bg-color0: #294d6d;
   --bg-color1: White;
   --bg-color2: WhiteSmoke;
@@ -34,8 +35,9 @@
   --ct-current: #e2834d;
   --clock-hurry-bg: MistyRose;
   --clock-overtime-bg: #fffbad;
-  --clock-running-bg: rgb(208, 224, 189);
-  --clock-running-color: Black;
+  /* --clock-running-bg: rgb(208, 224, 189); */
+  --clock-running-bg: #fff077;
+  --clock-running-color: #444;
   --white-text: #d0d0d0;
   --black-text: #606060;
   --blue-text: RoyalBlue;
@@ -100,8 +102,9 @@
   --ct-current: #a1420a;
   --clock-hurry-bg: #502826;
   --clock-overtime-bg: #474722;
-  --clock-running-bg: #384722;
-  --clock-running-color: #e3e3e3;
+  --clock-running-bg: #fff077;
+  /* --clock-running-color: #e3e3e3; */
+  --clock-running-color: #444444;
   --modal-bg: rgb(38, 36, 33);
   --box-header: linear-gradient(to bottom, #3c3934, #33312e 100%);
   --button-new-game: linear-gradient(to bottom, #3c3934, #33312e 100%);
@@ -197,9 +200,9 @@ html {
 body {
   margin: 0;
   color: var(--font-color);
-  background: var(--bg-body);
+  background: var(--bg-body2);
   cursor: default;
-  margin-bottom: 2vmin;
+  /* margin-bottom: 2vmin; */
 }
 body.no-select {
   user-select: none;
@@ -1452,10 +1455,16 @@ table#seeks {
 	padding: 10px 6px 0px 6px;
 }
 @media screen and (min-width:800px){
+  #chess_videos{
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
   .chess-v-body{
     display: block;
-    height:186px;
-    padding: 10px 12px 0px 12px;
+    /* height:186px; */
+    padding: 16px 16px 0px 16px;
+    flex-grow: 2;
   }
 }
 .videos-sidebar-item {
@@ -1472,8 +1481,7 @@ table#seeks {
 } */
 @media screen and (min-width:800px){
   .videos-sidebar-item{
-    flex: 0 0 auto;
-    max-width: 140px;
+    max-width: 100%;
     margin:0 auto;
   }
   .videos-sidebar-item + .videos-sidebar-item {
@@ -1515,6 +1523,11 @@ table#seeks {
 .chess-v-footer {
 	text-align: center;
 	padding: 8px 12px;
+}
+@media (min-width:800px){
+  .chess-v-footer {
+    padding:16px;
+  }
 }
 .chess-v-footer a {
 	color: var(--bg-color1);
@@ -1861,7 +1874,7 @@ button.icon::-moz-focus-inner {
 }
 .clock.running {
   color: var(--clock-running-color);
-  background-color: #eee;
+  background-color: var(--clock-running-bg);
   /* border-radius: 5px; */
   padding: 2px 4px;
   font-size: 1.5em;

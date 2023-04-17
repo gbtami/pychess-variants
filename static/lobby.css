@@ -23,7 +23,7 @@
     .lobby {
         grid-template-columns: 3fr 1fr;
         grid-template-areas: 'app table';
-        min-height: 540px;
+        min-height: 593px;
         grid-gap: 18px;
     }
 }
