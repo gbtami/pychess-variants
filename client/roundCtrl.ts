@@ -819,15 +819,16 @@ export class RoundController extends GameController {
                     // console.log("trying to play premove....");
                     if (this.premove) this.performPremove();
                 }
+                document.querySelector('#misc-info'+ myclock)!.innerHTML = "Your Turn";
+                document.querySelector('#misc-info'+ oppclock)!.innerHTML = "";
+                var a = document.querySelector(".info-wrap" + myclock).classList;
+                a.add("active");
+                var b = document.querySelector(".info-wrap" + oppclock).classList;
+                b.remove("active");
+
                 if (this.clockOn && msg.status < 0) {
                     this.clocks[myclock].start();
                     console.log('MY CLOCK STARTED');
-                    document.querySelector('#misc-info'+ myclock)!.innerHTML = "Your Turn";
-                    document.querySelector('#misc-info'+ oppclock)!.innerHTML = "";
-                    var a = document.querySelector(".info-wrap" + myclock).classList;
-                    a.add("active");
-                    var b = document.querySelector(".info-wrap" + oppclock).classList;
-                    b.remove("active");
 
                 }
             } else {
@@ -837,15 +838,15 @@ export class RoundController extends GameController {
                     turnColor: this.turnColor,
                     check: msg.check,
                 });
+                document.querySelector('#misc-info'+ oppclock)!.innerHTML = "Opponent's Turn";
+                document.querySelector('#misc-info'+ myclock)!.innerHTML = "";
+                var a = document.querySelector(".info-wrap" + oppclock).classList;
+                a.add("active");
+                var b = document.querySelector(".info-wrap" + myclock).classList;
+                b.remove("active");
                 if (this.clockOn && msg.status < 0) {
                     this.clocks[oppclock].start();
                     console.log('OPP CLOCK  STARTED');
-                    document.querySelector('#misc-info'+ oppclock)!.innerHTML = "Opponent's Turn";
-                    document.querySelector('#misc-info'+ myclock)!.innerHTML = "";
-                    var a = document.querySelector(".info-wrap" + oppclock).classList;
-                    a.add("active");
-                    var b = document.querySelector(".info-wrap" + myclock).classList;
-                    b.remove("active");
                 }
             }
         }
