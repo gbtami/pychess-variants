@@ -54,6 +54,7 @@
   },
   "scripts": {
     "postinstall": "./cp2static.sh",
+    "typecheck": "./node_modules/typescript/bin/tsc --noEmit",
     "dev": "node esbuild.mjs dev",
     "prod": "node esbuild.mjs prod",
     "md": "./md2html.sh",
