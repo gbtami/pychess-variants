@@ -508,7 +508,6 @@ async def index(request):
                 user.puzzle_variant = None
 
             if puzzleId is None:
-                # TODO: select random variant for daily puzzles
                 puzzle = await next_puzzle(request, user)
             else:
                 puzzle = await get_puzzle(request, puzzleId)

@@ -116,7 +116,6 @@ async def next_puzzle(request, user):
 async def puzzle_complete(request):
     puzzleId = request.match_info.get("puzzleId")
     post_data = await request.post()
-    print(puzzleId, post_data)
     rated = post_data["rated"] == "true"
 
     puzzle_data = await get_puzzle(request, puzzleId)
@@ -139,13 +138,13 @@ async def puzzle_complete(request):
 
     if color[0] == "w":
         wplayer, bplayer = user, puzzle
-        white_rating = user.get_rating(variant, chess960)
+        white_rating = user.get_puzzle_rating(variant, chess960)
         black_rating = puzzle.get_rating(variant, chess960)
         result = "1-0" if win else "0-1"
     else:
         wplayer, bplayer = puzzle, user
         white_rating = puzzle.get_rating(variant, chess960)
-        black_rating = user.get_rating(variant, chess960)
+        black_rating = user.get_puzzle_rating(variant, chess960)
         result = "0-1" if win else "1-0"
 
     ratings = await update_puzzle_ratings(
