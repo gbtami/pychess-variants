@@ -414,7 +414,11 @@ iframe {
   display: flex;
   flex-flow: column nowrap;
   margin:0;
-  padding: 10px 10px 0 0;
+}
+@media (min-width:800px){
+  .sidebar-second{
+    padding: 10px 0 0 10px;
+  }
 }
 .sidebar-second.analysis {
   justify-content: none;

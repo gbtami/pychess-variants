@@ -428,7 +428,7 @@ export class LobbyController implements ChatController {
                             ),
                         ]),
                         h('div#color-button-group', [
-                            h('h4',{props:{title:("Choose you color:")}},_("Choose you color:")),
+                            h('h4',{props:{title:("Choose your color:")}},_("Choose your color:")),
                             h('button.icon.icon-black', { props: { type: "button", title: _("Black") }, on: { click: (e) => {buttonClicked = 'b';addClass(e);} } }),
                             h('button.icon.icon-adjust.active', { props: { type: "button", title: _("Random") }, on: { click: (e) => {buttonClicked = 'r';addClass(e);} } }),
                             h('button.icon.icon-white', { props: { type: "button", title: _("White") }, on: { click: (e) => {buttonClicked = 'w';addClass(e);} } }),
@@ -828,7 +828,7 @@ export class LobbyController implements ChatController {
     private onMsgGameCounter(msg: MsgGameCounter) {
         // console.log("Gcnt=", msg.cnt);
         const gameCount = document.getElementById('g_cnt') as HTMLElement;
-        patch(gameCount, h('counter#g_cnt', ngettext('%1 Active Game', '%1 Active Games', msg.cnt)));
+        patch(gameCount, h('counter#g_cnt', ngettext('%1 Active Game', '%1 Active games', msg.cnt)));
     }
     private onMsgUserCounter(msg: MsgUserCounter) {
         // console.log("Ucnt=", msg.cnt);
