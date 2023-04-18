@@ -439,7 +439,7 @@ export class LobbyController implements ChatController {
                     ]),
                 ]),
             ])),
-            h('button.lobby-button', { on: { click: () => this.createGame() } }, _("Random Opponent")),
+            h('button.lobby-button', { on: { click: () => this.createGame() } }, _("Create Game")),
             h('button.lobby-button', { on: { click: () => this.playFriend() } }, _("Play a friend")),
             h('button.lobby-button', { on: { click: () => this.playAI() } }, _("Play vs. Computer")),
             h('button.lobby-button', { on: { click: () => this.createHost() }, style: { display: this.tournamentDirector ? "block" : "none" } }, _("Host a game for others")),
@@ -622,12 +622,11 @@ export class LobbyController implements ChatController {
             // h('td', [ this.challengeIcon(seek), this.seekTitle(seek), this.user(seek) ]),
             // h('td', seek.rating),
 
+            h('td', [
+                this.mode(seek)
+            ]),
             h('td', timeControlStr(seek.base, seek.inc, seek.byoyomi)),
 
-            /*h('td', { class: { tooltip: seek.fen !== '' } }, [
-                this.tooltip(seek, variant),
-                this.mode(seek),
-            ]),*/
             h('td', [ this.colorIcon(seek.color) ]),
         ]);
     }
@@ -853,8 +852,8 @@ function seekHeader() {
         h('tr', [
             // h('th', _('Player')),
             // h('th', _('Rating')),
+            h('th', _('Mode')),
             h('th', _('Time')),
-            //h('th', _('Speed')),
             h('th', _('Opponent Color'))
         ])
     ]);
