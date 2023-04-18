@@ -23,7 +23,7 @@ export class PuzzleController extends AnalysisController {
     failed: boolean;
     completed: boolean;
     posted: boolean;
-    rated: boolean;
+    isRated: boolean;
     gaugeNeeded: boolean;
     wrating: string;
     brating: string;
@@ -45,7 +45,7 @@ export class PuzzleController extends AnalysisController {
         this.failed = false;
         this.completed = false;
         this.posted = false;
-        this.rated = true;
+        this.isRated = true;
         this.wrating = model.wrating;
         this.brating = model.brating;
 
@@ -70,7 +70,7 @@ export class PuzzleController extends AnalysisController {
         const ct = document.querySelector('.rated-toggle') as HTMLElement;
         patch(ct, h('div.rated-toggle', toggleSwitch('puzzle-rated', _("Rated"), true, false, (evt) => this.setRated(evt))));
 
-        this.renderRating(this.rated, this.color, this.wrating, this.brating);
+        this.renderRating(this.isRated, this.color, this.wrating, this.brating);
 
         this.playerEl = document.querySelector('.player') as HTMLElement;
         this.yourTurn();
@@ -117,15 +117,15 @@ export class PuzzleController extends AnalysisController {
     }
 
     setRated(evt: Event) {
-        this.rated = (evt.target as HTMLInputElement).checked;
-        console.log("setRated(evt)", this.rated);
-        this.renderRating(this.rated, this.color, this.wrating, this.brating);
+        this.isRated = (evt.target as HTMLInputElement).checked;
+        console.log("setRated(evt)", this.isRated);
+        this.renderRating(this.isRated, this.color, this.wrating, this.brating);
     }
 
-    renderRating(rated, color, wrating, brating, success=undefined, diff=undefined) {
+    renderRating(rated:boolean, color: string, wrating: string, brating: string, success: boolean | undefined=undefined, diff=undefined) {
         console.log('renderRating()', rated, color, wrating, brating, success, diff);
         if (rated) {
-            var diffEl = '';
+            var diffEl: VNode | string = '';
             if (diff) {
                 if (success) {
                     diffEl = h('good.rp', [h('span', { attrs: { "data-icon": '⬈' } }, ' '), '+' + diff]);
@@ -360,9 +360,9 @@ export class PuzzleController extends AnalysisController {
         FD.append('win', `${success}`);
         FD.append('variant', this.variant.name);
         FD.append('color', this.color);
-        FD.append('rated', `${this.rated}`);
+        FD.append('rated', `${this.isRated}`);
 
-        const rated = this.rated;
+        const rated = this.isRated;
         const color = this.color;
         const wrating = this.wrating;
         const brating = this.brating;
