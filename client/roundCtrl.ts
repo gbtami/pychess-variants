@@ -373,7 +373,7 @@ export class RoundController extends GameController {
         patch(container, h(`div#berserk${clockIdx}.berserked`, [h('button.icon.icon-berserk')]));
     }
 
-    private undo = () => {
+    undo = () => {
         // console.log("Undo");
         this.goPly(this.ply);
     }
