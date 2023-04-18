@@ -118,12 +118,10 @@ export class PuzzleController extends AnalysisController {
 
     setRated(evt: Event) {
         this.isRated = (evt.target as HTMLInputElement).checked;
-        console.log("setRated(evt)", this.isRated);
         this.renderRating(this.isRated, this.color, this.wrating, this.brating);
     }
 
     renderRating(rated:boolean, color: string, wrating: string, brating: string, success: boolean | undefined=undefined, diff=undefined) {
-        console.log('renderRating()', rated, color, wrating, brating, success, diff);
         if (rated) {
             var diffEl: VNode | string = '';
             if (diff) {
@@ -310,18 +308,25 @@ export class PuzzleController extends AnalysisController {
     }
 
     puzzleComplete(success: boolean) {
+        var text: string;
         if (!this.failed && success) {
             // completed without any failed move
+            text = _('Success!');
             this.postSuccess(true);
-        } else if (!success && this._id !== '0') {
-            // failed by viewing the solution
-            this.postSuccess(false);
+        } else if (!success) {
+            if (this._id !== '0') {
+                // failed by viewing the solution
+                text = _('Puzzle complete!');
+                this.postSuccess(false);
+            } else {
+                text = _('We have no more puzzle for this variant.');
+            }
         }
         this.completed = true;
         const feedbackEl = document.querySelector('.feedback') as HTMLInputElement;
         patch(feedbackEl, 
             h('div.feedback.after', [
-                h('div.complete', (success) ? _('Success!') : _('Puzzle complete!')),
+                h('div.complete', text),
                 h('div.more', [
                     h('a',
                         { on: { click: () => this.continueTraining() } },
@@ -371,13 +376,12 @@ export class PuzzleController extends AnalysisController {
         XHR.onreadystatechange = function() {
             if (this.readyState === 4 && this.status === 200) {
                 const response = JSON.parse(this.responseText);
-                console.log("RESPONSE:", response);
+                // console.log("RESPONSE:", response);
                 if (response['error'] !== undefined) {
                     console.log(response['error']);
                 } else {
                     patch(document.getElementById('puzzle-rated') as HTMLElement, h('input#puzzle-rated', {attrs: {disabled: true}}));
                     if (rated) {
-                        console.log("patch()", success, color, wrating, brating);
                         const hiddenEl = document.querySelector('.hidden') as HTMLElement;
                         patch(hiddenEl, h('span.hidden', (color==="white") ? brating : wrating));
 
@@ -389,6 +393,6 @@ export class PuzzleController extends AnalysisController {
         }
         XHR.open("POST", `/puzzle/complete/${this._id}`, true);
         XHR.send(FD);
-        console.log("XHR.send()", FD);
+        // console.log("XHR.send()", FD);
     }
 }
