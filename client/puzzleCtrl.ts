@@ -262,7 +262,7 @@ export class PuzzleController extends AnalysisController {
         const second = _(this.variant.colors.second);
         this.playerEl = patch(this.playerEl,
             h('div.player', [
-                h(`piece.${this.variant.piece}.${turnColor}.no-square`),
+                h(`piece.${this.variant.pieceFamily}.${turnColor}.no-square`),
                 h('div.instruction', [
                     h('strong', _('Your turn')),
                     h('em', _('Find the best move for %1.', (turnColor === 'w') ? first : second)),
@@ -308,7 +308,7 @@ export class PuzzleController extends AnalysisController {
     }
 
     puzzleComplete(success: boolean) {
-        var text: string;
+        var text: string = '';
         if (!this.failed && success) {
             // completed without any failed move
             text = _('Success!');
