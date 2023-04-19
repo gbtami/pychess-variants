@@ -231,18 +231,25 @@ export class LobbyController implements ChatController {
             alternateStart = e.options[e.selectedIndex].value;
         }
 
-        let minutes = 90;
         e = document.getElementById('min') as HTMLInputElement;
-        if(e != null) {
-          minutes = this.minutesValues[Number(e.value)];
+        const minutes = this.minutesValues[Number(e.value)];
+        if(this.createMode == 'playAI') {
+          localStorage.seek_min_ai = e.value;
+        } else if(this.createMode == 'playFriend') {
+          localStorage.seek_min_fr = e.value;
+        } else if(this.createMode == 'createGame') {
+          localStorage.seek_min_op = e.value;
         }
-        localStorage.seek_min = minutes;
-        let increment = 0;
+
         e = document.getElementById('inc') as HTMLInputElement;
-        if(e != null) {
-          increment = this.incrementValues[Number(e.value)];
+        const increment = this.incrementValues[Number(e.value)];
+        if(this.createMode == 'playAI') {
+          localStorage.seek_inc_ai = e.value;
+        } else if(this.createMode == 'playFriend') {
+          localStorage.seek_inc_fr = e.value;
+        } else if(this.createMode == 'createGame') {
+          localStorage.seek_inc_op = e.value;
         }
-        localStorage.seek_inc = increment;
 
         e = document.getElementById('byo') as HTMLInputElement;
         const byoyomi = variant.rules.defaultTimeControl === "byoyomi";
@@ -278,9 +285,6 @@ export class LobbyController implements ChatController {
                 e = document.getElementById('rmplay') as HTMLInputElement;
                 localStorage.seek_rmplay = e.checked;
                 const rm = e.checked;
-                //set default minutes to play against computer as 90 minutes and increment as 0
-                minutes = 90;
-                increment = 0;
                 this.createBotChallengeMsg(variant.name, seekColor, fen, minutes, increment, byoyomiPeriod, level, rm, chess960, rated, alternateStart);
                 break;
             case 'playFriend':
@@ -304,8 +308,18 @@ export class LobbyController implements ChatController {
     renderSeekButtons() {
         const vVariant = this.variant || localStorage.seek_variant || "chess";
         // 5+3 default TC needs vMin 9 because of the partial numbers at the beginning of minutesValues
-        const vMin = localStorage.seek_min ?? "9";
-        const vInc = localStorage.seek_inc ?? "8";
+        let vMin =  "9";
+        let vInc =  "8";
+        if(this.createMode == 'playAI') {
+          vMin = localStorage.seek_min_ai ?? "90";
+          vInc = localStorage.seek_inc_ai ?? "0";
+        } else if(this.createMode == 'playFriend') {
+          vMin = localStorage.seek_min_fr ?? "9";
+          vInc = localStorage.seek_inc_fr ?? "8";
+        } else if(this.createMode == 'createGame') {
+          vMin = localStorage.seek_min_op ?? "9";
+          vInc = localStorage.seek_inc_op ?? "8";
+        }
         const vByoIdx = (localStorage.seek_byo ?? 1) - 1;
         const vRated = localStorage.seek_rated ?? "0";
         const vLevel = Number(localStorage.seek_level ?? "1");
@@ -338,6 +352,17 @@ export class LobbyController implements ChatController {
                                     this.profileid = '';
                                     window.history.replaceState({}, this.title, '/');
                                     document.querySelector('.invite-model')!.classList.remove('two-col');
+                                    if(this.createMode == 'playAI') {
+                                      document.getElementById("minutes")!.innerHTML =  localStorage.seek_min_ai ?? "90";
+                                      document.getElementById("increment")!.innerHTML = localStorage.seek_inc_ai ?? "0";
+                                    } else if(this.createMode == 'playFriend') {
+                                      document.getElementById("minutes")!.innerHTML =  localStorage.seek_min_fr ?? "5";
+                                      document.getElementById("increment")!.innerHTML = localStorage.seek_inc_fr ?? "8";
+                                    } else if(this.createMode == 'createGame') {
+                                      document.getElementById("minutes")!.innerHTML =  localStorage.seek_min_op ?? "5";
+                                      document.getElementById("increment")!.innerHTML = localStorage.seek_inc_op ?? "8";
+                                    }
+
                                 }
                             },
                             attrs: { 'data-icon': 'j' }, props: { title: _("Cancel") }
@@ -369,8 +394,6 @@ export class LobbyController implements ChatController {
                                 style: {"display":"none"},
                             }),
                         ]),
-
-                        h('label#'),
                         h('label#minute_label', { attrs: { for: "min" } }, _("Minutes per side:")),
                         h('span#minutes'),
                         h('input#min.slider', {
@@ -482,6 +505,9 @@ export class LobbyController implements ChatController {
         document.getElementById('id01')!.style.display = 'block';
         document.getElementById('color-button-group')!.style.display = 'block';
         document.getElementById('create-button')!.style.display = 'block';
+        document.getElementById("minutes")!.innerHTML =  localStorage.seek_min_op ?? "5";
+        document.getElementById("increment")!.innerHTML = localStorage.seek_inc_op ?? "8";
+
     }
 
     playFriend(variantName: string = '', chess960: boolean = false) {
@@ -498,6 +524,8 @@ export class LobbyController implements ChatController {
         document.getElementById('id01')!.style.display = 'block';
         document.getElementById('color-button-group')!.style.display = 'block';
         document.getElementById('create-button')!.style.display = 'block';
+        document.getElementById("minutes")!.innerHTML =  localStorage.seek_min_fr ?? "5";
+        document.getElementById("increment")!.innerHTML = localStorage.seek_inc_fr ?? "8";
     }
 
     playAI(variantName: string = '', chess960: boolean = false) {
@@ -506,21 +534,16 @@ export class LobbyController implements ChatController {
         document.querySelector('#create-button button')!.innerHTML = 'Start';
         this.preSelectVariant(variantName, chess960);
         this.createMode = 'playAI';
-        //hide minutes per side and additional seconds per turn on Play vs Computer
-        document.getElementById('minute_label').outerHTML = "";
-        document.getElementById('min').outerHTML = "";
-        document.getElementById('incrementlabel').outerHTML = "";
-        document.getElementById('inc').outerHTML = "";
         document.getElementById('game-mode')!.style.display = 'none';
         document.getElementById('challenge-block')!.style.display = 'none';
         const e = document.getElementById('rmplay') as HTMLInputElement;
         document.getElementById('ailevel')!.style.display = e.checked ? 'none' : 'inline-block';
         document.getElementById('rmplay-block')!.style.display = 'block';
         document.getElementById('id01')!.style.display = 'block';
-        document.getElementById('minutes').outerHTML = "";
-        document.getElementById('increment').outerHTML = "";
         document.getElementById('color-button-group')!.style.display = 'block';
         document.getElementById('create-button')!.style.display = 'block';
+        document.getElementById("minutes")!.innerHTML =  localStorage.seek_min_ai ?? "90";
+        document.getElementById("increment")!.innerHTML = localStorage.seek_inc_ai ?? "0";
     }
 
     createHost(variantName: string = '', chess960: boolean = false) {
@@ -577,10 +600,24 @@ export class LobbyController implements ChatController {
     private setMinutes(val: number) {
         const minutes = val < this.minutesStrings.length ? this.minutesStrings[val] : String(this.minutesValues[val]);
         document.getElementById("minutes")!.innerHTML = minutes;
+        if(this.createMode == 'playAI') {
+          localStorage.seek_min_ai = minutes;
+        } else if(this.createMode == 'playFriend') {
+          localStorage.seek_min_fr = minutes;
+        } else if(this.createMode == 'createGame') {
+          localStorage.seek_min_op = minutes;
+        }
         this.setStartButtons();
     }
     private setIncrement(increment: number) {
         document.getElementById("increment")!.innerHTML = ""+increment;
+        if(this.createMode == 'playAI') {
+          localStorage.seek_inc_ai = increment;
+        } else if(this.createMode == 'playFriend') {
+          localStorage.seek_inc_fr = increment;
+        } else if(this.createMode == 'createGame') {
+          localStorage.seek_inc_op = increment;
+        }
         this.setStartButtons();
     }
     private setFen() {
@@ -640,7 +677,7 @@ export class LobbyController implements ChatController {
             // h('td', seek.rating),
 
             h('td', [
-                this.mode(seek)
+                this.mode(seek),
             ]),
             h('td', timeControlStr(seek.base, seek.inc, seek.byoyomi)),
 
