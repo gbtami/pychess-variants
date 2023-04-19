@@ -232,11 +232,11 @@ export class LobbyController implements ChatController {
         }
 
         e = document.getElementById('min') as HTMLInputElement;
-        const minutes = this.minutesValues[Number(e.value)];
+        let minutes = this.minutesValues[Number(e.value)];
         localStorage.seek_min = e.value;
 
         e = document.getElementById('inc') as HTMLInputElement;
-        const increment = this.incrementValues[Number(e.value)];
+        let increment = this.incrementValues[Number(e.value)];
         localStorage.seek_inc = e.value;
 
         e = document.getElementById('byo') as HTMLInputElement;
@@ -273,6 +273,9 @@ export class LobbyController implements ChatController {
                 e = document.getElementById('rmplay') as HTMLInputElement;
                 localStorage.seek_rmplay = e.checked;
                 const rm = e.checked;
+                //set default minutes to play against computer as 90 minutes and increment as 0
+                minutes = 90;
+                increment = 0;
                 this.createBotChallengeMsg(variant.name, seekColor, fen, minutes, increment, byoyomiPeriod, level, rm, chess960, rated, alternateStart);
                 break;
             case 'playFriend':
@@ -361,6 +364,8 @@ export class LobbyController implements ChatController {
                                 style: {"display":"none"},
                             }),
                         ]),
+
+                        h('label#'),
                         h('label#minute_label', { attrs: { for: "min" } }, _("Minutes per side:")),
                         h('span#minutes'),
                         h('input#min.slider', {
@@ -496,12 +501,19 @@ export class LobbyController implements ChatController {
         document.querySelector('#create-button button')!.innerHTML = 'Start';
         this.preSelectVariant(variantName, chess960);
         this.createMode = 'playAI';
+        //hide minutes per side and additional seconds per turn on Play vs Computer
+        document.getElementById('minute_label').outerHTML = "";
+        document.getElementById('min').outerHTML = "";
+        document.getElementById('incrementlabel').outerHTML = "";
+        document.getElementById('inc').outerHTML = "";
         document.getElementById('game-mode')!.style.display = 'none';
         document.getElementById('challenge-block')!.style.display = 'none';
         const e = document.getElementById('rmplay') as HTMLInputElement;
         document.getElementById('ailevel')!.style.display = e.checked ? 'none' : 'inline-block';
         document.getElementById('rmplay-block')!.style.display = 'block';
         document.getElementById('id01')!.style.display = 'block';
+        document.getElementById('minutes').outerHTML = "";
+        document.getElementById('increment').outerHTML = "";
         document.getElementById('color-button-group')!.style.display = 'block';
         document.getElementById('create-button')!.style.display = 'block';
     }
