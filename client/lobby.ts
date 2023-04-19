@@ -231,13 +231,18 @@ export class LobbyController implements ChatController {
             alternateStart = e.options[e.selectedIndex].value;
         }
 
+        let minutes = 90;
         e = document.getElementById('min') as HTMLInputElement;
-        let minutes = this.minutesValues[Number(e.value)];
-        localStorage.seek_min = e.value;
-
+        if(e != null) {
+          minutes = this.minutesValues[Number(e.value)];
+        }
+        localStorage.seek_min = minutes;
+        let increment = 0;
         e = document.getElementById('inc') as HTMLInputElement;
-        let increment = this.incrementValues[Number(e.value)];
-        localStorage.seek_inc = e.value;
+        if(e != null) {
+          increment = this.incrementValues[Number(e.value)];
+        }
+        localStorage.seek_inc = increment;
 
         e = document.getElementById('byo') as HTMLInputElement;
         const byoyomi = variant.rules.defaultTimeControl === "byoyomi";
