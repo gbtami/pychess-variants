@@ -1053,7 +1053,7 @@ div.import {
 
 button.rematch {
   border: none;
-  text-transform: none !important;
+  /*text-transform: none !important; */
   color: var(--font-color);
   background: var(--bg-body);
   padding: 12px 0;
@@ -1067,7 +1067,7 @@ button.rematch:hover {
 button.newopp,
 button.analysis {
   border: none;
-  text-transform: none !important;
+  /*text-transform: none !important;*/
   color: var(--font-color);
   background-color: var(--bg-color0);
   padding: 12px 0;
