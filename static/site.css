@@ -48,8 +48,8 @@
   --gray-text: #808080;
   --modal-bg: #fff;
   --box-header: #f5f5f5;
-  --button-new-game: #00c2fe;
-  --button-new-game-hover: #02a1e3;
+  --button-new-game: #5ebcf7;
+  --button-new-game-hover: #4da9e2;
   --button-text: #000;
   --button-text-hover: #000;
   --scrollbar-thumb: #dbdbdb;
@@ -987,6 +987,7 @@ div#result {
   box-shadow: 0 0 14px inset rgba(255,255,255,0.75);
   text-shadow: 1px 1px 4px rgba(0,0,0,0.4);
   font-weight: 700;
+  line-height: 1.25;
   padding: 8px 12px;
   margin-top: 10px;
 }
@@ -1010,7 +1011,7 @@ button.paste-url {
 }
 .lobby-button {
   width: 100%;
-  margin: 5px 0;
+  margin: 8px 0;
 }
 @media (max-width: 799px) and (orientation: portrait) {
   .lobby-button {
@@ -1344,14 +1345,14 @@ li.header {
 }
 
 .seek-header {
+	font: bold 16px/24px 'Noto Sans', Sans-Serif;
 	text-align: center;
 	text-transform: uppercase;
-	font-weight: bold;
-	background: #15334f;
-	padding: 0.6rem 0.8rem;
 	color: var(--bg-color1);
-	font-size: 1.25rem;
-	font-family: inherit;
+	background: #070d18;
+  margin: 10px;
+	padding: 10px 16px;
+  border-radius: 8px;
 }
 
 table#seeks-header,
@@ -1372,14 +1373,29 @@ table#seeks {
   background-size: 100% 107%;
   width: 100%;
   height: 100%;
+  position: relative;
+}
+#seeks-table::before{
+  content:"";
+  display: block;
+  position: absolute;
+  left:0;
+  top:0;
+  width: 100%;
+  height: 100%;
+  background-color:rgba(0,0,0,0.65);
 }
 #seeks-wrapper {
   height: 320px;
+  position:relative;
+  z-index: 6;
   /* overflow-y: scroll;
   -ms-overflow-style: scrollbar; */
 }
-#seeks thead {
-  background: var(--bg-color0);
+
+table#seeks{
+  width:calc(100% - 20px);
+  margin:12px 10px 10px;
 }
 /*
 #santa {
@@ -1407,17 +1423,39 @@ table#seeks {
   position: sticky;
   top: 0;
   z-index: 2;
-  color: #fff;
-  padding: 0.7em;
+  padding:0;
+}
+#seeks thead th span{
+  color:#27292c;
+  background-color:#c6d0db;
+  display: block;
+  padding: 8px 16px;
+  margin-bottom:4px;
+}
+#seeks thead th:first-child span,
+#seeks tbody td:first-child span{
+  border-radius: 8px 0 0 8px;
+}
+#seeks thead th:last-child span,
+#seeks tbody td:last-child span{
+  border-radius: 0 8px 8px 0;
 }
 #seeks tbody tr {
   cursor: pointer;
-  border-bottom: 1px solid #4c2424;
-  background: rgba(255,255,255,1);
   z-index: 1;
 }
-#seeks tbody tr:hover {
-  background: rgba(255,255,255,1);
+#seeks tbody tr td{
+  padding:0;
+}
+#seeks tbody tr td span{
+  background-color:#ffffff;
+  color:#000000;
+  min-height: 50px;
+  display: flex;
+  align-items: center;
+  width:100%;
+  padding:8px 20px;
+  margin-bottom:4px;
 }
 #seekbuttons {
   display: flex;
@@ -1439,21 +1477,20 @@ table#seeks {
 
 /* Chess Videos block Style */
 #chess_videos {
-	margin-top: 10px;
-	background: var(--bg-color0);
+	margin-top: 24px;
+	background: #1e2839;
 	border-radius: 10px;
 	color: var(--bg-color1);
 }
 .chess_v_head {
-	background: #016066;
-	text-align: center;
-	color: #a5d1c2;
-	font-family: inherit;
+  font-family: inherit;
 	font-weight: bold;
-	padding: 10px 16px;
 	font-size: 14px;
-	border-radius: 10px 10px 0 0;
+	text-align: center;
 	text-transform: uppercase;
+  color:#fff;
+  padding:12px 16px 0 16px;
+  margin-bottom:10px;
 }
 .chess-v-body {
 	display: flex;
@@ -1462,15 +1499,10 @@ table#seeks {
 	padding: 10px 6px 0px 6px;
 }
 @media screen and (min-width:800px){
-  #chess_videos{
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-  }
   .chess-v-body{
     display: block;
     /* height:186px; */
-    padding: 16px 16px 0px 16px;
+    padding: 0px 16px;
     flex-grow: 2;
   }
 }
@@ -1492,12 +1524,12 @@ table#seeks {
     margin:0 auto;
   }
   .videos-sidebar-item + .videos-sidebar-item {
-    margin-top: 10px;
+    margin-top: 8px;
   }
 }
 .videos-sidebar-item:hover {
 	transform: translate(-4px,-4px);
-	box-shadow: 4px 4px 0 var(--good);
+	box-shadow: 4px 4px 0 var(--button-new-game);
 }
 .videos-sidebar-item::before {
 	position: absolute;
@@ -1533,15 +1565,18 @@ table#seeks {
 }
 @media (min-width:800px){
   .chess-v-footer {
-    padding:16px;
+    padding:12px 16px;
+    margin-bottom: 6px;
   }
 }
 .chess-v-footer a {
 	color: var(--bg-color1);
 	text-transform: uppercase;
+  font-size: 11px;
+  font-weight: bold;
 }
 .chess-v-footer a:hover {
-  color:var(--good);
+  color:var(--button-new-game);
 }
 /* The Modal (background) */
 .modal {
@@ -1623,7 +1658,7 @@ input {
 /* Modal Content/Box */
 .modal-content {
   background-color: var(--modal-bg);
-  margin: 10 auto 15% 4%; /* 5% from the top, 15% from the bottom and centered */
+  margin: 10 4% 15% auto; /* 5% from the top, 15% from the bottom and centered */
   border-radius: 3px;
   width: 65.5%; /* Could be more or less, depending on screen size */
   border: 1px solid var(--bg-color2);
@@ -1723,7 +1758,6 @@ div.btn-controls.after button{
 .btn-controls.after button {
 	background: var(--button-new-game);
 	color: var(--button-text);
-	text-transform: uppercase;
 	font-weight: bold;
 	font-size: 1rem;
 	outline: none;

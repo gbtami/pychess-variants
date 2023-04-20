@@ -676,12 +676,16 @@ export class LobbyController implements ChatController {
             // h('td', [ this.challengeIcon(seek), this.seekTitle(seek), this.user(seek) ]),
             // h('td', seek.rating),
 
-            h('td', [
-                this.mode(seek),
+            h('td',[
+                h('span',this.mode(seek))
             ]),
-            h('td', timeControlStr(seek.base, seek.inc, seek.byoyomi)),
+            h('td',[
+                h('span',timeControlStr(seek.base, seek.inc, seek.byoyomi))
+            ]),
 
-            h('td', [ this.colorIcon(seek.color) ]),
+            h('td',[
+                h('span',this.colorIcon(seek.color))
+            ]),
         ]);
     }
 
@@ -906,9 +910,15 @@ function seekHeader() {
         h('tr', [
             // h('th', _('Player')),
             // h('th', _('Rating')),
-            h('th', _('Mode')),
-            h('th', _('Time')),
-            h('th', _('Opponent Color'))
+            h('th', [
+                h('span', _('Mode'))
+            ]),
+            h('th', [
+                h('span', _('Time'))
+            ]),
+            h('th', [
+                h('span', _('Opponent Color'))
+            ])
         ])
     ]);
 }

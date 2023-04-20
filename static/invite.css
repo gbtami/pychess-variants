@@ -4,6 +4,7 @@ div.invitegame {
     border-radius: 99px;
     background-color: var(--invite-game);
     padding: .5em 1.1em;
+    margin:0 20px;
 }
 div.invitegame div.info0 {
     padding: 14px;
