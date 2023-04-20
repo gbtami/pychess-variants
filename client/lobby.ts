@@ -234,6 +234,7 @@ export class LobbyController implements ChatController {
 
         e = document.getElementById('min') as HTMLInputElement;
         const minutes = this.minutesValues[Number(e.value)];
+        /*
         if(this.createMode == 'playAI') {
           localStorage.seek_min_ai = e.value;
         } else if(this.createMode == 'playFriend') {
@@ -241,9 +242,11 @@ export class LobbyController implements ChatController {
         } else if(this.createMode == 'createGame') {
           localStorage.seek_min_op = e.value;
         }
+        */
 
         e = document.getElementById('inc') as HTMLInputElement;
         const increment = this.incrementValues[Number(e.value)];
+        /*
         if(this.createMode == 'playAI') {
           localStorage.seek_inc_ai = e.value;
         } else if(this.createMode == 'playFriend') {
@@ -251,6 +254,7 @@ export class LobbyController implements ChatController {
         } else if(this.createMode == 'createGame') {
           localStorage.seek_inc_op = e.value;
         }
+        */
 
         e = document.getElementById('byo') as HTMLInputElement;
         const byoyomi = variant.rules.defaultTimeControl === "byoyomi";
@@ -360,9 +364,9 @@ export class LobbyController implements ChatController {
                                         document.getElementById("min").value = this.minutesStrings.indexOf(localMinutes);
                                       }
                                       document.getElementById("increment")!.innerHTML = localStorage.seek_inc_ai ?? "0";
-                                      const localInc = localStorage.seek_inc_ai ?? "8";
-                                      if(this.minutesStrings.indexOf(localInc)>-1) {
-                                        document.getElementById("inc").value = this.minutesStrings.indexOf(localInc);
+                                      const localInc = parseInt(localStorage.seek_inc_ai ?? "8");
+                                      if(this.incrementValues.indexOf(localInc)>-1) {
+                                        document.getElementById("inc").value = this.incrementValues.indexOf(localInc);
                                       }
 
                                     } else if(this.createMode == 'playFriend') {
@@ -372,9 +376,9 @@ export class LobbyController implements ChatController {
                                         document.getElementById("min").value = this.minutesStrings.indexOf(localMinutes);
                                       }
                                       document.getElementById("increment")!.innerHTML = localStorage.seek_inc_fr ?? "8";
-                                      const localInc = localStorage.seek_inc_fr ?? "8";
-                                      if(this.minutesStrings.indexOf(localInc)>-1) {
-                                        document.getElementById("inc").value = this.minutesStrings.indexOf(localInc);
+                                      const localInc = parseInt(localStorage.seek_inc_fr ?? "8");
+                                      if(this.incrementValues.indexOf(localInc)>-1) {
+                                        document.getElementById("inc").value = this.incrementValues.indexOf(localInc);
                                       }
 
                                     } else if(this.createMode == 'createGame') {
@@ -384,12 +388,10 @@ export class LobbyController implements ChatController {
                                         document.getElementById("min").value = this.minutesStrings.indexOf(localMinutes);
                                       }
                                       document.getElementById("increment")!.innerHTML = localStorage.seek_inc_op ?? "8";
-                                      const localInc = localStorage.seek_inc_op ?? "8";
-                                      if(this.minutesStrings.indexOf(localInc)>-1) {
-                                        document.getElementById("inc").value = this.minutesStrings.indexOf(localInc);
+                                      const localInc = parseInt(localStorage.seek_inc_op ?? "8");
+                                      if(this.incrementValues.indexOf(localInc)>-1) {
+                                        document.getElementById("inc").value = this.incrementValues.indexOf(localInc);
                                       }
-
-
                                     }
 
                                 }
@@ -540,9 +542,9 @@ export class LobbyController implements ChatController {
         if(this.minutesStrings.indexOf(localMinutes)>-1) {
           document.getElementById("min").value = this.minutesStrings.indexOf(localMinutes);
         }
-        const localInc = localStorage.seek_inc_op ?? "8";
-        if(this.minutesStrings.indexOf(localInc)>-1) {
-          document.getElementById("inc").value = this.minutesStrings.indexOf(localInc);
+        const localInc = parseInt(localStorage.seek_inc_op ?? "8");
+        if(this.incrementValues.indexOf(localInc)>-1) {
+          document.getElementById("inc").value = this.incrementValues.indexOf(localInc);
         }
 
 
@@ -568,9 +570,9 @@ export class LobbyController implements ChatController {
         if(this.minutesStrings.indexOf(localMinutes)>-1) {
           document.getElementById("min").value = this.minutesStrings.indexOf(localMinutes);
         }
-        const localInc = localStorage.seek_inc_fr ?? "8";
-        if(this.minutesStrings.indexOf(localInc)>-1) {
-          document.getElementById("inc").value = this.minutesStrings.indexOf(localInc);
+        const localInc = parseInt(localStorage.seek_inc_fr ?? "8");
+        if(this.incrementValues.indexOf(localInc)>-1) {
+          document.getElementById("inc").value = this.incrementValues.indexOf(localInc);
         }
 
     }
@@ -595,9 +597,9 @@ export class LobbyController implements ChatController {
         if(this.minutesStrings.indexOf(localMinutes)>-1) {
           document.getElementById("min").value = this.minutesStrings.indexOf(localMinutes);
         }
-        const localInc = localStorage.seek_inc_ai ?? "0";
-        if(this.minutesStrings.indexOf(localInc)>-1) {
-          document.getElementById("inc").value = this.minutesStrings.indexOf(localInc);
+        const localInc = parseInt(localStorage.seek_inc_ai ?? "0");
+        if(this.incrementValues.indexOf(localInc)>-1) {
+          document.getElementById("inc").value = this.incrementValues.indexOf(localInc);
         }
 
     }
