@@ -38,14 +38,15 @@ export class LobbyController implements ChatController {
     streams: VNode | HTMLElement;
     spotlights: VNode | HTMLElement;
     minutesValues = [
-        0, 1 / 4, 1 / 2, 3 / 4, 1, 3 / 2, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
+        0, 1 / 4, 1 / 2, 3 / 4, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
         17, 18, 19, 20, 25, 30, 35, 40, 45, 60, 75, 90
     ];
     incrementValues = [
         0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
         25, 30, 35, 40, 45, 60, 90
     ];
-    minutesStrings = ["0", "¼", "½", "¾"];
+    minutesStrings = ["0", "¼", "½", "¾","1", "2", "3", "4","5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16",
+    "17", "18", "19", "20", "25", "30", "35", "40", "45", "60", "75", "90"];
 
     constructor(el: HTMLElement, model: PyChessModel) {
         console.log("LobbyController constructor", el, model);
@@ -307,17 +308,17 @@ export class LobbyController implements ChatController {
 
     renderSeekButtons() {
         const vVariant = this.variant || localStorage.seek_variant || "chess";
-        // 5+3 default TC needs vMin 9 because of the partial numbers at the beginning of minutesValues
-        let vMin =  "9";
+        // 5+3 default TC needs vMin 8 because of the partial numbers at the beginning of minutesValues
+        let vMin =  "8";
         let vInc =  "8";
         if(this.createMode == 'playAI') {
           vMin = localStorage.seek_min_ai ?? "90";
           vInc = localStorage.seek_inc_ai ?? "0";
         } else if(this.createMode == 'playFriend') {
-          vMin = localStorage.seek_min_fr ?? "9";
+          vMin = localStorage.seek_min_fr ?? "8";
           vInc = localStorage.seek_inc_fr ?? "8";
         } else if(this.createMode == 'createGame') {
-          vMin = localStorage.seek_min_op ?? "9";
+          vMin = localStorage.seek_min_op ?? "8";
           vInc = localStorage.seek_inc_op ?? "8";
         }
         const vByoIdx = (localStorage.seek_byo ?? 1) - 1;
@@ -353,14 +354,42 @@ export class LobbyController implements ChatController {
                                     window.history.replaceState({}, this.title, '/');
                                     document.querySelector('.invite-model')!.classList.remove('two-col');
                                     if(this.createMode == 'playAI') {
-                                      document.getElementById("minutes")!.innerHTML =  localStorage.seek_min_ai ?? "90";
+                                      document.getElementById("minutes")!.innerHTML =  localStorage.seek_min_fr ?? "5";
+                                      const localMinutes = localStorage.seek_min_ai ?? "5";
+                                      if(this.minutesStrings.indexOf(localMinutes)>-1) {
+                                        document.getElementById("min").value = this.minutesStrings.indexOf(localMinutes);
+                                      }
                                       document.getElementById("increment")!.innerHTML = localStorage.seek_inc_ai ?? "0";
+                                      const localInc = localStorage.seek_inc_ai ?? "8";
+                                      if(this.minutesStrings.indexOf(localInc)>-1) {
+                                        document.getElementById("inc").value = this.minutesStrings.indexOf(localInc);
+                                      }
+
                                     } else if(this.createMode == 'playFriend') {
                                       document.getElementById("minutes")!.innerHTML =  localStorage.seek_min_fr ?? "5";
+                                      const localMinutes = localStorage.seek_min_fr ?? "5";
+                                      if(this.minutesStrings.indexOf(localMinutes)>-1) {
+                                        document.getElementById("min").value = this.minutesStrings.indexOf(localMinutes);
+                                      }
                                       document.getElementById("increment")!.innerHTML = localStorage.seek_inc_fr ?? "8";
+                                      const localInc = localStorage.seek_inc_fr ?? "8";
+                                      if(this.minutesStrings.indexOf(localInc)>-1) {
+                                        document.getElementById("inc").value = this.minutesStrings.indexOf(localInc);
+                                      }
+
                                     } else if(this.createMode == 'createGame') {
                                       document.getElementById("minutes")!.innerHTML =  localStorage.seek_min_op ?? "5";
+                                      const localMinutes = localStorage.seek_min_op ?? "5";
+                                      if(this.minutesStrings.indexOf(localMinutes)>-1) {
+                                        document.getElementById("min").value = this.minutesStrings.indexOf(localMinutes);
+                                      }
                                       document.getElementById("increment")!.innerHTML = localStorage.seek_inc_op ?? "8";
+                                      const localInc = localStorage.seek_inc_op ?? "8";
+                                      if(this.minutesStrings.indexOf(localInc)>-1) {
+                                        document.getElementById("inc").value = this.minutesStrings.indexOf(localInc);
+                                      }
+
+
                                     }
 
                                 }
@@ -507,6 +536,15 @@ export class LobbyController implements ChatController {
         document.getElementById('create-button')!.style.display = 'block';
         document.getElementById("minutes")!.innerHTML =  localStorage.seek_min_op ?? "5";
         document.getElementById("increment")!.innerHTML = localStorage.seek_inc_op ?? "8";
+        const localMinutes = localStorage.seek_min_op ?? "5";
+        if(this.minutesStrings.indexOf(localMinutes)>-1) {
+          document.getElementById("min").value = this.minutesStrings.indexOf(localMinutes);
+        }
+        const localInc = localStorage.seek_inc_op ?? "8";
+        if(this.minutesStrings.indexOf(localInc)>-1) {
+          document.getElementById("inc").value = this.minutesStrings.indexOf(localInc);
+        }
+
 
     }
 
@@ -526,6 +564,15 @@ export class LobbyController implements ChatController {
         document.getElementById('create-button')!.style.display = 'block';
         document.getElementById("minutes")!.innerHTML =  localStorage.seek_min_fr ?? "5";
         document.getElementById("increment")!.innerHTML = localStorage.seek_inc_fr ?? "8";
+        const localMinutes = localStorage.seek_min_fr ?? "5";
+        if(this.minutesStrings.indexOf(localMinutes)>-1) {
+          document.getElementById("min").value = this.minutesStrings.indexOf(localMinutes);
+        }
+        const localInc = localStorage.seek_inc_fr ?? "8";
+        if(this.minutesStrings.indexOf(localInc)>-1) {
+          document.getElementById("inc").value = this.minutesStrings.indexOf(localInc);
+        }
+
     }
 
     playAI(variantName: string = '', chess960: boolean = false) {
@@ -544,6 +591,15 @@ export class LobbyController implements ChatController {
         document.getElementById('create-button')!.style.display = 'block';
         document.getElementById("minutes")!.innerHTML =  localStorage.seek_min_ai ?? "90";
         document.getElementById("increment")!.innerHTML = localStorage.seek_inc_ai ?? "0";
+        const localMinutes = localStorage.seek_min_ai ?? "90";
+        if(this.minutesStrings.indexOf(localMinutes)>-1) {
+          document.getElementById("min").value = this.minutesStrings.indexOf(localMinutes);
+        }
+        const localInc = localStorage.seek_inc_ai ?? "0";
+        if(this.minutesStrings.indexOf(localInc)>-1) {
+          document.getElementById("inc").value = this.minutesStrings.indexOf(localInc);
+        }
+
     }
 
     createHost(variantName: string = '', chess960: boolean = false) {
