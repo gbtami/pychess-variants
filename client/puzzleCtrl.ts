@@ -350,7 +350,7 @@ export class PuzzleController extends AnalysisController {
             const tail = parts[parts.length - 1];
             // individual puzzle pages (id at the URL end) and daily have to continue on /puzzle page
             if (!variants.includes(tail)) {
-                loc = '/puzzle'
+                loc = '/puzzle/' + this.variant.name;
             }
         }
         window.location.assign(loc);
