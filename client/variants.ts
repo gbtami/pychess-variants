@@ -788,6 +788,7 @@ export const VARIANTS: Record<string, Variant> = {
         pocket: { roles: ["p", "n", "b", "r", "a", "q", "c", "m"], captureToHand: true },
         promotion: { type: "shogi", roles: ["n", "b", "r", "c", "m", "p"] },
         ui: { boardMark: 'campmate' },
+    }),
 
     // We support the functionality to import/store/analyze some variants
     // but don't want to add them to leaderboard page
