@@ -30,7 +30,7 @@ not-found .memory-game {
     display: block;
 }
 
-#replay {
+/* #replay {
   margin: auto;
   text-transform: uppercase;
   padding: 15px 2px;
@@ -51,7 +51,7 @@ not-found .memory-game {
 
 #replay:active {
   transform: scale(0.97);
-}
+} */
 
 .memory-game {
   width: 350px;
@@ -95,4 +95,32 @@ not-found .memory-game {
 
 .front-face {
   transform: rotateY(180deg);
+}
+
+
+#main-wrap.page-404 {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	height: 100%;
+}
+.page-404-wrap {
+	max-width: 430px;
+	text-align: center;
+	margin: 0 auto;
+  padding:16px;
+}
+.page-404-wrap .header {
+	font: 700 16px/1.25 "Proxima Soft",sans-serif;
+	color: #ffffff;
+	margin-bottom: 24px;
+}
+@media (min-width:800px){
+  .page-404-wrap .header{
+    font-size:22px;
+  }
+}
+.page-404-wrap .btn-controls.after {
+	max-width: 240px;
+	margin: 0 auto;
 }

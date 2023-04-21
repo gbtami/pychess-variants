@@ -1,14 +1,12 @@
 {% extends "template.html" %}
 {% block content %}
-<div id="main-wrap">
-    <div class="header">
-        <div>
+<div id="main-wrap" class="page-404">
+    <div class="page-404-wrap">
+        <div class="header">
             <strong>The game you were trying to join is invalid. Please ensure you entered the code correctly, and that your friend is still waiting for you to join their game.</strong>
-
         </div>
+        <div class="btn-controls after"><button class="newopp" id="replay">Back to Chess Home</button></div>
     </div>
-    </div>
-    <div class="btn-controls after"><button class="newopp">Back to Chess Home</button></div>
 </div>
 {% endblock %}
 {% block js %}
