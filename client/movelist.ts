@@ -135,7 +135,9 @@ export function updateMovelist (ctrl: GameController, full = true, activate = tr
 
     if (ctrl.status >= 0 && needResult) {
         console.log("updateMovelist" + result(ctrl.variant, ctrl.status, ctrl.result));
-        moves.push(h('div#result', result(ctrl.variant, ctrl.status, ctrl.result)));
+        //moves.push(h('div#result', result(ctrl.variant, ctrl.status, ctrl.result)));
+        // const resultContainer = document.getElementById("result-top") as HTMLElement;
+        // patch(resultContainer, h('div#result-top.visible',result(ctrl.variant, ctrl.status, ctrl.result)));
     }
 
     const container = document.getElementById('movelist') as HTMLElement;
@@ -161,6 +163,9 @@ export function updateResult (ctrl: GameController) {
 
     const container = document.getElementById('movelist') as HTMLElement;
     console.log("updateResult" + result(ctrl.variant, ctrl.status, ctrl.result));
-    ctrl.vmovelist = patch(container, h('div#movelist', [h('div#result', result(ctrl.variant, ctrl.status, ctrl.result))]));
+    //ctrl.vmovelist = patch(container, h('div#movelist', [h('div#result', result(ctrl.variant, ctrl.status, ctrl.result))]));
     container.scrollTop = 99999;
+
+    const resultContainer = document.getElementById("result-top") as HTMLElement;
+    ctrl.vmovelist = patch(resultContainer, h('div#result-top.visible',result(ctrl.variant, ctrl.status, ctrl.result)));
 }

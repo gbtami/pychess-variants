@@ -27,6 +27,7 @@ export function roundView(model: PyChessModel): VNode[] {
                     },
                 }),
             ]),
+            h('div#result-top'),
             h('div.material.material-top.' + variant.pieceFamily + '.disabled'),
             h('div.pocket-top', [
                 h('div.' + variant.pieceFamily + '.' + model["variant"], [

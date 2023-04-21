@@ -22,7 +22,7 @@
         padding-right: 15px;
         grid-template-columns: 3.07fr 0.93fr;
         grid-template-rows: min-content auto auto min-content auto auto auto auto auto auto auto min-content auto auto min-content;
-        grid-template-areas: 'board .' 'board mat-top' 'board pocket-top' 'board clock-top' 'board expi-top' 'board user-top' 'board move-controls' 'board moves' 'board offer' 'board game-controls' 'board user-bot' 'board expi-bot' 'board clock-bot' 'board pocket-bot' 'board mat-bot' 'board .';
+        grid-template-areas: 'board .' 'board result-top' 'board mat-top' 'board pocket-top' 'board clock-top' 'board expi-top' 'board user-top' 'board move-controls' 'board moves' 'board offer' 'board game-controls' 'board user-bot' 'board expi-bot' 'board clock-bot' 'board pocket-bot' 'board mat-bot' 'board .';
     }
 }
 

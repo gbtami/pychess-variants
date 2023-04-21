@@ -409,9 +409,18 @@ export class RoundController extends GameController {
 
     private resign = () => {
         // console.log("Resign");
-        if (confirm(_('Are you sure you want to resign?'))) {
-            this.doSend({ type: "resign", gameId: this.gameId });
-        }
+        // if (confirm(_('Are you sure you want to resign?'))) {
+        //     this.doSend({ type: "resign", gameId: this.gameId });
+        // }
+
+        var offerDialog = document.getElementById("offer-dialog") as HTMLDivElement;
+        patch(offerDialog,h("div#offer-dialog",{},h("div.resign-prompt",{},[
+            h("p.prompt-msg",{},_("Are you sure you want to resign?")),
+            h("div.prompt-controls",{},[
+                h("button#confirm_resign",{attrs:{title:"Leave Game"},on:{click: () => {this.doSend({ type: "resign", gameId: this.gameId });this.clearDialog();offerDialog.innerHTML = ""}}},_("Leave Game")),
+                h("button#cancel_resign",{attrs:{title:"Keep Playing"},on:{click: ()=> offerDialog.innerHTML = ""}},_("Keep Playing"))
+            ])
+        ])));
     }
 
     // Janggi second player (Red) setup

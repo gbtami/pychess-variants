@@ -1,4 +1,6 @@
 @import 'hamburger.css';
+@import 'fonts.css';
+
 :root {
   --main-margin: 0;
   --main-max-width: 1300px;
@@ -187,7 +189,7 @@ img {
 html {
   font-size: 12px;
   min-height: 100%;
-  font-family: 'Noto Sans', Sans-Serif;
+  font-family: 'Proxima Soft', 'Noto Sans', Sans-Serif;
   box-sizing: border-box;
 }
 *,
@@ -231,8 +233,8 @@ div#preload {
 h1,
 h2,
 h3 {
-  font-weight: normal;
-  font-family: 'Roboto', Sans-Serif;
+  font-weight: 700;
+  font-family: 'Proxima Soft', Sans-Serif;
 }
 h1 {
   padding: 4vh 2vh;
@@ -337,6 +339,7 @@ iframe {
     grid-template-rows: fit-content(0);
     grid-template-areas: 'app';
     grid-gap: 2vmin;
+    overflow: hidden;
   }
 }
 
@@ -975,21 +978,37 @@ div a {
   background: var(--bg-color0);
 }
 
-div#result {
+div#result{
   width: 100%;
   display: block;
   padding: 12px 0;
   font-size: 14px;
   text-align: center;
 }
-#movelist div#result {
+#movelist div#result{
   background: #ed811f;
   box-shadow: 0 0 14px inset rgba(255,255,255,0.75);
   text-shadow: 1px 1px 4px rgba(0,0,0,0.4);
   font-weight: 700;
   line-height: 1.25;
-  padding: 8px 12px;
+  padding: 16px 12px;
   margin-top: 10px;
+  border-radius: 10px;
+}
+
+#result-top {
+  padding:12px;
+  margin-bottom:10px;
+  border-radius: 10px;
+  background: #ed811f;
+  box-shadow: 0 0 14px inset rgba(255,255,255,0.75);
+  text-shadow: 1px 1px 4px rgba(0,0,0,0.4);
+  font:700 14px/1.29 "Proxima Soft",sans-serif;
+  text-align: center;
+  display: none;
+}
+#result-top.visible{
+  display: block;
 }
 
 .lobby-button,
@@ -1345,7 +1364,7 @@ li.header {
 }
 
 .seek-header {
-	font: bold 16px/24px 'Noto Sans', Sans-Serif;
+	font: bold 16px/24px 'Proxima Soft', Sans-Serif;
 	text-align: center;
 	text-transform: uppercase;
 	color: var(--bg-color1);
@@ -1465,9 +1484,9 @@ table#seeks{
 #seekbuttons > button {
   color: var(--button-text);
   background: var(--button-new-game);
-  font-size: 1rem;
   text-transform: uppercase;
   font-weight: bold;
+  font: 700 1rem/1.25 "Proxima Soft",sans-serif;
   outline: none;
 }
 #seekbuttons > button:hover {
@@ -1550,6 +1569,7 @@ table#seeks{
 	margin: 0;
 	font-size: 12px;
 	font-weight: 700;
+  line-height: 1.29;
 	-webkit-box-orient: vertical;
 	-webkit-line-clamp: 2;
 	display: -webkit-box;
@@ -1807,6 +1827,47 @@ button:disabled {
   transform: scaleY(-1) rotate(-90deg);
 }
 
+/* Resign Prompt */
+.resign-prompt {
+  grid-area: offer;
+  text-align: center;
+  padding: 12px 2px;
+  background: rgb(84 135 165);
+  margin: 6px 0px;
+  border-radius: 4px;
+}
+
+.resign-prompt p {
+  color: #fff;
+  margin: 0 0 10px 0;
+  padding: 0;
+  line-height: 1.29;
+}
+
+.resign-prompt .prompt-controls button {
+  background: transparent;
+  border-radius: 2px;
+  border: 1px solid #fff;
+  padding: 4px 4px;
+  margin: 0 2px;
+  text-transform: capitalize;
+  color: #fff;
+  font-size: 12px;
+  display: inline-block;
+  font-weight: bold;
+  font-family: inherit;
+  line-height: 1.29;
+}
+.resign-prompt .prompt-controls button:hover {
+  background: white;
+  color: #294d6d;
+}
+
+
+#result-top{
+  grid-area: result-top;
+}
+
 /* Clock */
 .info-wrap0,
 .info-wrap1 {
@@ -1819,7 +1880,8 @@ button:disabled {
 	grid-area: clock-top;
 }
 .info-wrap0, .info-wrap1{
-  padding: 6px;
+  padding: 8px 6px;
+  border-radius: 10px;
 }
 .info-wrap0.active, .info-wrap1.active{
   background: #2a8ae3;
@@ -1827,8 +1889,10 @@ button:disabled {
 }
 #misc-info0, #misc-info1 {
 	font-weight: bold;
+  font-size:13px;
   margin-left:4px;
   flex-grow:4;
+  line-height: 1.29;
 }
 .info-wrap1 {
   grid-area: clock-bot;
@@ -1849,7 +1913,7 @@ round-player1 {
   justify-content: left;
   font-size: 1em;
   padding: 0;
-  line-height: 50px;
+  line-height: 32px;
   align-self: center;
   background: var(--bg-color0);
 }
@@ -1901,16 +1965,17 @@ button.icon::-moz-focus-inner {
   display: inline-flex;
   text-align: center;
   font-family: inherit;
-  font-size: 1.5em;
+  font-size: 18px;
   font-weight: bold;
   border: 1px solid #fff;
   background-color: #1f6bb0;
   padding: 2px 6px;
+  border-radius: 6px;
 }
 
 @media (max-width: 799px) and (orientation: portrait) {
   .clock {
-    font-size: 1.5em;
+    font-size: 18px;
   }
 }
 .clock.running {
