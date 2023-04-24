@@ -919,14 +919,14 @@ function runSeeks(vnode: VNode, model: PyChessModel) {
 export function lobbyView(model: PyChessModel): VNode[] {
     const puzzle = JSON.parse(model.puzzle);
     const variant = VARIANTS[puzzle.variant];
-    const turnColor = puzzle.fen.split(" ")[1];
+    const turnColor = puzzle.fen.split(" ")[1] === "w" ? "white" : "black";
     const first = _(variant.colors.first);
     const second = _(variant.colors.second);
 
     const dailyPuzzle = [
         h('span.vstext', [
             h('span.text', _('Puzzle of the day')),
-            h('span.text', _('%1 to play', (turnColor === 'w') ? first : second)),
+            h('span.text', _('%1 to play', (turnColor === 'white') ? first : second)),
         ]),
         h(`div#mainboard.${variant.boardFamily}.${variant.pieceFamily}.${variant.ui.boardMark}`, {
             class: { "with-pockets": !!variant.pocket },
@@ -936,6 +936,7 @@ export function lobbyView(model: PyChessModel): VNode[] {
                     hook: {
                         insert: vnode => {
                             Chessground(vnode.elm as HTMLElement,  {
+                                orientation: turnColor,
                                 fen: puzzle.fen,
                                 dimensions: variant.board.dimensions,
                                 coordinates: false,
