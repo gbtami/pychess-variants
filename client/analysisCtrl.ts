@@ -508,7 +508,7 @@ export class AnalysisController extends GameController {
     }
 
     makePvMove (pv_line: string) {
-        const move = uci2cg(pv_line.split(" ")[0]);
+        const move = pv_line.split(" ")[0];
         this.doSendMove(move);
     }
 
