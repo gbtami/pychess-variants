@@ -343,8 +343,26 @@ export class LobbyController implements ChatController {
                 h('h3.invite-title'),
                 h('div.invite-frnd',[h('h2.section-title','JOIN A GAME'),h('p', _('If your friend gave you a game code, enter it here:')),
                 h('form#invite-join', {props: {method: "post", action: ""}}, [
-                  h('input#invite-code', {attrs: { spellcheck: false, value: ""}}),
-                  h('button#join-player2.lobby-button.join-submit', { attrs:{value:"Join"},  on: { click: () => {var inviteCode = document.getElementById('invite-code').value; if(inviteCode != '') {document.getElementById("invite-join").action = "/invite/accept/" + inviteCode;} } } }, "Join Game")
+                  h('input#invite-code', {attrs:{spellcheck:false, value: ""}, on: {focus: ()=> {
+										const inputEl = document.getElementById("invite-code") as HTMLInputElement;
+										const spanEl = document.getElementById("error-msg") as HTMLInputElement;
+										inputEl.classList.remove("error");
+										spanEl.innerHTML = "";
+									}}}),
+                  h('span#error-msg', ""),
+                  h('button#join-player2.lobby-button.join-submit', { attrs:{value:"Join"},  on: { click: (e) => {
+										e.preventDefault();
+										const formEl = document.getElementById("invite-join") as HTMLFormElement;
+										const inputEl = document.getElementById('invite-code') as HTMLInputElement;
+										const errorEl = document.getElementById("error-msg") as HTMLSpanElement;
+										if(inputEl.value != ''){
+											formEl.action = "/invite/accept/" + inputEl.value;
+											formEl.submit();
+										} else {											
+											inputEl.classList.add("error");
+											errorEl.innerHTML = "Please enter a code";
+										}
+									}}}, "Join Game")
                 ])]),
                 h('form.join-form', [
                     h('h3.section-title','CREATE A NEW GAME'),

@@ -169,9 +169,19 @@
 }
 .invite-frnd input{
     width: 100%;
-    margin: 0 0 15px;
+    margin: 0 0 4px;
     height: 45px;
     outline: none;
+}
+.invite-frnd input.error{
+    border-color:var(--bad);
+}
+.invite-frnd #error-msg {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 14px;
+    color: var(--bad);
+    display: block;
 }
 .invite-frnd .lobby-button{
     background: var(--button-new-game);
