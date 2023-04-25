@@ -1040,6 +1040,7 @@ export function lobbyView(model: PyChessModel): VNode[] {
                         h('img',{attrs:{src:cmgHOST+'/sites/cmatgame/files/video-play-icons/start_the_game_strong_play.png'}}),
                         h('h4',{},_('Start The Game Strong: Knights and Bishops'))
                     ])
+
                 ]),
                 h('div.videos-sidebar-item',[
                     h('a',{attrs:{href:cmgHOST+'/chess-videos/why-you-should-castle'}},[

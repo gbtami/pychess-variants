@@ -15,17 +15,20 @@
 
 ## 西洋大象棋规则
 
-以下全都来自西洋大象棋的规则:
+以下简述大型国际象棋的规则:
 
-使用10\*10格的棋盘。
+使用10×10的棋盘。棋子布置如上图。
+十枚兵摆满在第三行。
+第二行的棋子，白方左右两侧a2和j2空白，中间八枚棋子依次为：马、象、后、王、元帅、大主教、象、马。黑方与白方每一列相对摆放，如同国际象棋。
+两枚车分别位于第一行的左右两角格。
 
-棋子布置为第三横行皆为兵卒。第二横行布置从白方左侧、黑方右侧开始，皆为空格、骑士、主教、皇后、国王、首相、大主教、主教、骑士、空格。底横行的左右角各有一城堡。
+除了新增棋子和初始配置不同外，还有以下规则:
 
-除了新增棋子和初始配置不同外，另有以下三个新增规则:
-
-* 兵在到达第八列及第九列时升变，到第十列时则**必需**升变，若无法升变(见下点)，则该兵不可至进到第十行。
-* 兵只能升变成与它同色的棋子，且该棋子已经失去。
 * 没有王车易位。
+* 兵只能升变成己方被吃的棋子。
+* 兵在到达第8、第9行时即可升变，到第10行时则**必须**升变。
+  若无法升变（没有被吃的棋子或者被吃的棋子已经用于其他兵升变），则该兵不可前进到第10行。 
+  但在这种情况下，兵仍然可以将军。
 
 其余规则与正统象棋同。
 
@@ -33,31 +36,30 @@
 
 ### 大主教
 
-![Cardinal](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Princesses.png)
+### 大主教 | Archbishop
 
-大主教，Archbishop ：走法同西洋棋的主教 + 骑士(看棋子的样子就知道了吧!)。记法简称为A。
+![Archbishop](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Princesses.png)
 
-![Cardinal moves](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Archbishop.png)
+以上为本站大主教可能出现的各种棋子造型。其中老鹰为S-chess所用。
 
+![Archbishop moves](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Archbishop.png)
 
-大主教是唯一可以单独将死对方王的棋子。
+尽管在很多资料中这个棋子的称呼各有不同（有Princess，有Cardinal），但是在本站还是叫它大主教。大主教是一个复合棋子，它可以看成是马+象。
+它棋子的造型一般如图，把象的下半部分拼在马下面。本站有其他的造型可以选择，不同的棋也有不同的造型。
+在走法上，它是（理论上）能单独将杀的（虽然理论成立，但是实战很困难）。大主教的价值略低于首相和后。
 
-通常认为大主教的价值大于城堡，但逊于大象和王后。
+### 首相 | Chancellor
 
-### 首相
+![Chancellor](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Empresses.png)
 
-![Marshal](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Empresses.png)
+以上是本站中首相可能会用的几种棋子造型。大象为S-chess所用。
 
-首相，Chancellor ：走法同西洋棋的城堡 + 骑士，记法简称为C。 (还有另一个名称为大象，只会在S-Chess中使用)
+![Chancellor moves](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Chancellor.png)
 
-![Marshal moves](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Chancellor.png)
-
-
-棋子价值比大主教高，但逊于或等于王后。
+首相是一个复合棋子，它可以看成车+马。如同大主教，它的棋子造型就是马头拼上车的下半部分。其他的棋有不同的造型，本站也可以切换棋子造型。
+首相的价值一般认为比大主教略高一些，但和后相等或略小。
 
 ## 策略
 
-
-请不要以「象棋」的观念，一开始就急于出动子力，在西洋大象棋中，有时重复的动同一子反而会给对方造成更多威胁。
-
-子力价值与传统西洋棋同，由于打入的规则你可以不断地换子、弃子打入，并擅用骑士和兵的捉双。你也可以打入子在国王旁边加强防守。
+请不要以国际象棋的固有思维，一开始就急于出动子力，在大型国际象棋中，有时重复的动同一子反而会给对方造成更多威胁。
+子力价值与传统国际象棋基本相同，由于打入的规则你可以不断地换子、弃子打入，并擅用骑士和兵的捉双。你也可以打入子在国王旁边加强防守。

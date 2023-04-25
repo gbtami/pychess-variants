@@ -147,7 +147,13 @@ export function validFen(variant: Variant, fen: string): boolean {
 
     // Number of kings
     const king = util.letterOf(variant.kingRoles[0]);
-    if (lc(placement, king, false) !== 1 || lc(placement, king, true) !== 1) return false;
+    const bK = lc(placement, king, false);
+    const wK = lc(placement, king, true);
+    if (variantName === 'spartan') {
+        if (bK === 0 || bK > 2 || wK !== 1) return false;
+    } else {
+        if (bK !== 1 || wK !== 1) return false;
+    }
 
     return true;
 }
