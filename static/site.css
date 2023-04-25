@@ -1778,8 +1778,7 @@ div.btn-controls.after button{
 .btn-controls.after button {
 	background: var(--button-new-game);
 	color: var(--button-text);
-	font-weight: bold;
-	font-size: 1rem;
+  font:bold 1rem/1.29 "Proxima Soft",sans-serif;
 	outline: none;
 	border: none;
 	border-radius: 10px;
