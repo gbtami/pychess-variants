@@ -2311,3 +2311,9 @@ input:invalid {
   width: 100%;
 }
 /* Search Bar End  */
+
+/* Add pseudo-element only if data attribute is set */
+input[data-file]::after {
+  content: attr(data-file);
+  margin-left: 0.375em;
+}
