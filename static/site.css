@@ -2327,3 +2327,9 @@ div.tv cg-container, div.puzzle cg-container {
   color: var(--font-color);
   width: var(--cg-width);
 }
+
+/* Add pseudo-element only if data attribute is set */
+input[data-file]::after {
+  content: attr(data-file);
+  margin-left: 0.375em;
+}
