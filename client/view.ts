@@ -160,11 +160,10 @@ function possibleNnueFile(fileName: string, variant: string) {
 
 // Code borrowed from https://pqina.nl/blog/set-value-to-file-input/
 function setInputFileName(vnode: VNode, name: string) {
-    const fileInput = vnode.elm as HTMLElement;
+    const fileInput = vnode.elm as HTMLInputElement;
     // Create a new File object
     const myFile = new File(['nnue file'], name, {
         type: 'text/plain',
-        lastModified: new Date(),
     });
 
     // Now let's create a FileList
