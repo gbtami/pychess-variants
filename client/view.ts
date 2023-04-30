@@ -47,6 +47,7 @@ export function nnueFile(settings: Settings<string>, name: string, text: string,
     return [
         h(`input#${id}`, {
             props: { name: name, type: "file", accept: '*.nnue', title: _('Page reload required after change') },
+            hook: { insert: (vnode) => setInputFileName(vnode, settings.value) },
             on: { change: evt => {
                 const files = (evt.target as HTMLInputElement).files;
                 if (files && files.length > 0) {
@@ -155,4 +156,23 @@ function possibleNnueFile(fileName: string, variant: string) {
         alert(`.nnue file name required to start with ${prefix}-`);
     }
     return possible;
+}
+
+// Code borrowed from https://pqina.nl/blog/set-value-to-file-input/
+function setInputFileName(vnode: VNode, name: string) {
+    const fileInput = vnode.elm as HTMLInputElement;
+    // Create a new File object
+    const myFile = new File(['nnue file'], name, {
+        type: 'text/plain',
+    });
+
+    // Now let's create a FileList
+    const dataTransfer = new DataTransfer();
+    dataTransfer.items.add(myFile);
+    fileInput.files = dataTransfer.files;
+
+    // Help Safari out
+    if (fileInput.webkitEntries && fileInput.webkitEntries.length) {
+        fileInput.dataset.file = `${dataTransfer.files[0].name}`;
+    }
 }
