@@ -33,6 +33,9 @@
 main.round.bug .pocket.top {
   margin-bottom: unset;
 }
+main.round.bug .pocket.bottom {
+  margin-top: unset;
+}
 
 div#chatpresets{
   display: flex;

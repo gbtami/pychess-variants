@@ -1,4 +1,3 @@
-// import ffishModule from 'ffish-es6';
 
 import { newWebsocket } from '../socket';
 

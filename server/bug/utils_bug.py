@@ -1,4 +1,5 @@
 import logging
+import random
 import re
 from datetime import datetime, timezone
 from user import User
@@ -19,6 +20,8 @@ from const import (
 )
 from convert import mirror5, mirror9, usi2uci, grand2zero, zero2grand
 from glicko2.glicko2 import gl2
+from utils import remove_seek, sanitize_fen
+from newid import new_id
 
 log = logging.getLogger(__name__)
 
@@ -278,3 +281,154 @@ async def load_game_bug(app, game_id):
                 })
     return game
 
+async def new_game_bughouse(app, seek_id, game_id=None):
+    db = app["db"]
+    games = app["games"]
+    seeks = app["seeks"]
+    seek = seeks[seek_id]
+
+    if seek.fen:
+        fen_valid, sanitized_fen = sanitize_fen(seek.variant, seek.fen, seek.chess960)
+        if not fen_valid:
+            message = "Failed to create game. Invalid FEN %s" % seek.fen
+            log.debug(message)
+            remove_seek(seeks, seek)
+            return {"type": "error", "message": message}
+    else:
+        sanitized_fen = ""  # "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[] w KQkq - 0 1 | rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[] w KQkq - 0 1"
+
+    color = random.choice(("w", "b")) if seek.color == "r" else seek.color
+    wplayer, bug_bplayer = (seek.player1, seek.bugPlayer1) if color == "w" else (seek.player2, seek.bugPlayer2)
+    bplayer, bug_wplayer = (seek.player1, seek.bugPlayer1) if color == "b" else (seek.player2, seek.bugPlayer2)
+
+    if game_id is not None:
+        # game invitation
+        del app["invites"][game_id]
+    else:
+        game_id = await new_id(None if db is None else db.game)
+
+    # print("new_game", game_id, seek.variant, seek.fen, wplayer, bplayer, seek.base, seek.inc, seek.level, seek.rated, seek.chess960)
+    try:
+        game = GameBug(
+            app,
+            game_id,
+            seek.variant,
+            sanitized_fen,
+            wplayer,
+            bplayer,
+            bug_wplayer,
+            bug_bplayer,
+            base=seek.base,
+            inc=seek.inc,
+            level=seek.level,
+            rated=RATED if (seek.rated and (not wplayer.anon) and (not bplayer.anon)) else CASUAL,
+            chess960=seek.chess960,
+            create=True,
+        )
+    except Exception:
+        log.exception(
+            "Creating new BugHouse game %s failed! %s 960:%s FEN:%s %s+%s vs %s+%s",
+            game_id,
+            seek.variant,
+            seek.chess960,
+            seek.fen,
+            wplayer,
+            bug_bplayer,
+            bug_wplayer,
+            bplayer,
+        )
+        remove_seek(seeks, seek)
+        return {"type": "error", "message": "Failed to create game"}
+    games[game_id] = game
+
+    remove_seek(seeks, seek)
+
+    await insert_game_to_db_bughouse(game, app)
+
+    return {
+        "type": "new_game",
+        "gameId": game_id,
+        "wplayer": wplayer.username,
+        "bplayer": bplayer.username,
+        "bug_wplayer": bug_wplayer.username,
+        "bug_bplayer": bug_bplayer.username,
+    }
+
+async def insert_game_to_db_bughouse(game: GameBug, app):
+    # unit test app may have no db
+    if app["db"] is None:
+        return
+
+    document = {
+        "_id": game.id,
+        "us": [game.wplayerA.username, game.bplayerA.username, game.wplayerB.username, game.bplayerB.username],
+        "p0": {"e": game.wrating_a},
+        "p1": {"e": game.brating_a},
+        "p2": {"e": game.wrating_b},
+        "p3": {"e": game.brating_b},
+        "v": V2C[game.variant],
+        "b": game.base,
+        "i": game.inc,
+        # "bp": game.byoyomi_period,
+        "m": [],
+        "d": game.date,
+        "f": game.initial_fen,
+        "s": game.status,
+        "r": R2C["*"],
+        "x": game.level,
+        "y": int(game.rated),
+        "z": int(game.chess960),
+    }
+
+    if game.tournamentId is not None:
+        document["tid"] = game.tournamentId
+
+    if game.initial_fen or game.chess960:
+        document["if"] = game.initial_fen
+
+    # if game.variant.endswith("shogi") or game.variant in (
+    #     "dobutsu",
+    #     "gorogoro",
+    #     "gorogoroplus",
+    # ):
+    #     document["uci"] = 1
+
+    result = await app["db"].game.insert_one(document)
+    if not result:
+        log.error("db insert game result %s failed !!!", game.id)
+
+    app["tv"] = game.id
+    game.wplayerA.tv = game.id
+    game.bplayerA.tv = game.id
+    game.wplayerB.tv = game.id
+    game.bplayerB.tv = game.id
+
+async def join_seek_bughouse(app, user, seek_id, game_id=None, join_as="any"):
+    seeks = app["seeks"]
+    seek = seeks[seek_id]
+
+    if join_as == "player1": # todo:niki:not really possible to happen - maybe delete eventually unless change of mind
+        if seek.player1 is None:
+            seek.player1 = user
+        else:
+            return {"type": "seek_occupied", "seekID": seek_id}
+    elif join_as == "player2":
+        if seek.player2 is None:
+            seek.player2 = user
+        else:
+            return {"type": "seek_occupied", "seekID": seek_id}
+    elif join_as == "bugPlayer1":
+        if seek.bugPlayer1 is None:
+            seek.bugPlayer1 = user
+        else:
+            return {"type": "seek_occupied", "seekID": seek_id}
+    elif join_as == "bugPlayer2":
+        if seek.bugPlayer2 is None:
+            seek.bugPlayer2 = user
+        else:
+            return {"type": "seek_occupied", "seekID": seek_id}
+
+    if seek.player1 is not None and seek.player2 is not None and seek.bugPlayer1 is not None and seek.bugPlayer2 is not None:
+        return await new_game_bughouse(app, seek_id, game_id)
+    else:
+        return {"type": "seek_joined", "seekID": seek_id}

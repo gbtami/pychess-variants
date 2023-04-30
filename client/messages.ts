@@ -9,10 +9,10 @@ export interface Step {
     fenB?: cg.FEN;
 
     move: string | undefined;
-    moveB?: string | undefined;//todo:niki:would be nice not to have to duplicate this and fenB and instead derive it from previous moves when needed. also not store in db
+    moveB?: string | undefined;//todo:niki:I think only reason I need both moves and fens is when scrolling to a arbitrary ply in the move list to be set pieces on both boards. Think if possible to optimize and reconstruct this and avoid
 
     check: boolean;
-    turnColor: cg.Color;//todo:niki:why do we need this at all - we have it in the fen
+    turnColor: cg.Color;
 
     san?: string;
     analysis?: Ceval;
@@ -24,9 +24,7 @@ export interface Step {
     sanSAN?: string;
 
     boardName?: 'a' | 'b';
-    plyA?: number;//todo:niki:feel not needed. also next one
-    plyB?: number;
-    // turnColorB?: cg.Color;//for second board of bughouse - todo:niki:i wonder if this is needed at all for either boards and variant
+
     clocks?: {
         // TODO white and black should actually be mandatory but I'll leave
         // the feature that use them, namely, reflecting time on the clocks
@@ -139,7 +137,7 @@ export type MsgMove = { // cannot be interface because canot be converted to an 
      move: string;
      clocks: { movetime: number; white: number; black: number; }; // looks a lot like Clocks interface, but maybe overkil to reuse it - i dont know
      ply: number;
-     board?: 'a' | 'b';  // todo:really only needed if simuling, because otherwise on server we should get which board it is based on who the user. TODO: add check that the move message comes from the correct user though - i dont see such check even for regular variants so what heppns if opp forges a message from our name
+     board?: 'a' | 'b';
      partnerFen?: cg.FEN;  // todo:niki:more like temporary shortcut solution for passing piece to partner pocket - ideally should calculate that on server (as well) and not rely on client.
 }
 

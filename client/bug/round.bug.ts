@@ -1,7 +1,7 @@
 import { h, VNode } from "snabbdom";
 
 import { VARIANTS } from "../variants"
-import { gameInfo } from './gameInfo';
+import { gameInfoBug } from './gameInfo';
 import { renderTimeago } from '../datetime';
 import { PyChessModel } from "../types";
 import {RoundController} from "./roundCtrl";
@@ -28,7 +28,7 @@ export function roundView(model: PyChessModel): VNode[] {
 
     return [
         h('aside.sidebar-first', [
-            gameInfo(model),
+            gameInfoBug(model),
         ]),
         h('div.round-app.bug', { hook: {insert: ()=>{createBoards(mainboardVNode, bugboardVNode, mainboardPocket0, mainboardPocket1, bugboardPocket0, bugboardPocket1, model)}}},[
             h(`selection#mainboard.${variant.boardFamily}.${variant.pieceFamily}.${variant.ui.boardMark}`, [

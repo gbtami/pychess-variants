@@ -20,6 +20,8 @@ import { backgroundSettings } from './background';
 import { renderTimeago } from './datetime';
 import { zenButtonView, zenModeSettings } from './zen';
 import { PyChessModel } from './types';
+import {roundView as bugRoundView} from "@/bug/round";
+import {analysisView as bugAnalysisView} from "@/bug/analysis";
 
 // redirect to correct URL except Heroku preview apps
 if (window.location.href.includes('heroku') && !window.location.href.includes('-pr-')) {
@@ -98,13 +100,16 @@ export function view(el: HTMLElement, model: PyChessModel): VNode {
     case 'tv':
     case 'round':
         switch (model.variant) {
-            case 'bughouse': return h('div#main-wrap.bug', [h('main.round.bug', roundView(model))]);
+            case 'bughouse': return h('div#main-wrap.bug', [h('main.round.bug', bugRoundView(model))]);
             default: return h('div#main-wrap', [h('main.round', roundView(model))]);
         }
     case 'embed':
         return h('div', embedView(model));
     case 'analysis':
-        return h('div#main-wrap', analysisView(model));
+        switch (model.variant) {
+            case 'bughouse': return h('div#main-wrap', bugAnalysisView(model));
+            default: return h('div#main-wrap', analysisView(model));;
+        }
     case 'invite':
         return h('div#main-wrap', inviteView(model));
     case 'editor':
@@ -220,10 +225,10 @@ if (el instanceof Element) {
         // console.log('Loaded translations for lang', lang);
         start();
       })
-      /*.catch((error) => {
+      .catch((error) => {
         console.error('Could not load translations for lang', lang);
         console.error(error);
         i18n.setLocale('');
         start();
-      })*/;
+      });
 }

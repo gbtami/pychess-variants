@@ -13,8 +13,9 @@ import { timeControlStr } from './view';
 import { PyChessModel } from "./types";
 import { Ceval } from "./messages";
 import { aiLevel, gameType, result, renderRdiff } from './result';
+import {renderBugTeamInfo, renderGameBoardsBug} from "@/bug/profile.bug";
 
-interface Game {
+export interface Game {
     _id: string; // mongodb document id
     z: number; // chess960 (0/1)
     v: string; // variant name
@@ -36,9 +37,13 @@ interface Game {
     wb?: boolean; // white berserk
     bb?: boolean; // black berserk
 
-    us: string[]; // users (wplayer name, bplayer name) or in case of bughouse (A board wplayer name, A board bplayer name, B board wplayer name, B board bplayer name)
+    us: string[]; // users (wplayer name, bplayer name) or in case of bughouse: board A wplayer name, board A bplayer name, board B wplayer name, board B bplayer name
     wt: string; // white title
     bt: string; // black title
+
+    wtB: string; // white title board B in case of bughouse
+    btB: string; // black title board B in case of bughouse
+
     x: number; // Fairy level
     p0: Player; // white performance rating (rating, diff)
     p1: Player; // black performance rating (rating, diff)
@@ -62,37 +67,14 @@ function tournamentInfo(game: Game) {
     return elements;
 }
 
-function renderGameBoards(game: Game): VNode[] {
-    const variant = VARIANTS[game.v];
-    var boards: VNode[];
-    if (variant == VARIANTS['bughouse']){
-        boards = [h(`selection.${variant.boardFamily}.${variant.pieceFamily}`, { style:{"padding-right":"10px"} },
-            h(`div.cg-wrap.${variant.board.cg}.mini`, {
-            hook: {
-                insert: vnode => Chessground(vnode.elm as HTMLElement, {
-                    coordinates: false,
-                    viewOnly: true,
-                    fen: game["f"],
-                    lastMove: uci2LastMove(game.lm),
-                    dimensions: variant.board.dimensions,
-                    pocketRoles: variant.pocket?.roles,
-                })
-            }
-        })),
-        h(`selection.${variant.boardFamily}.${variant.pieceFamily}`,h(`div.cg-wrap.${variant.board.cg}.mini`, {
-            hook: {
-                insert: vnode => Chessground(vnode.elm as HTMLElement, {
-                    coordinates: false,
-                    viewOnly: true,
-                    fen: game["fp"],
-                    lastMove: uci2LastMove(game.lm),
-                    dimensions: variant.board.dimensions,
-                    pocketRoles: variant.pocket?.roles,
-                })
-            }
-        }))];
-    } else {
-        boards = [h(`selection.${variant.boardFamily}.${variant.pieceFamily}`, [
+function renderGames(model: PyChessModel, games: Game[]) {
+    const rows = games.map(game => {
+        const variant = VARIANTS[game.v];
+        const chess960 = game.z === 1;
+
+        return h('tr', [h('a', { attrs: { href : '/' + game["_id"] } }, [
+            h('td.board', { class: { "with-pockets": !!variant.pocket }, style:{"display":"flex"} },  //todo:niki: after changing td to div and display to flex the 2 board align horizontally, but i think some other styles degraded. also this needs to go to some css file
+               variant === VARIANTS['bughouse']? renderGameBoardsBug(game): [
                     h(`div.cg-wrap.${variant.board.cg}.mini`, {
                     hook: {
                         insert: vnode => Chessground(vnode.elm as HTMLElement, {
@@ -105,21 +87,7 @@ function renderGameBoards(game: Game): VNode[] {
                         })
                     }
                 }),
-            ])
-        ];
-    }
-    return  boards;// h(`selection.${variant.board}.${variant.piece}.${variant.name}`, boards);
-}
-
-function renderGames(model: PyChessModel, games: Game[]) {
-    const rows = games.map(game => {
-        const variant = VARIANTS[game.v];
-        const chess960 = game.z === 1;
-
-        return h('tr', [h('a', { attrs: { href : '/' + game["_id"] } }, [
-            h('td.board', { class: { "with-pockets": !!variant.pocket }, style:{"display":"flex"} },  //todo:niki: after changing td to div and display to flex the 2 board align horizontally, but i think some other styles degraded. also this needs to go to some css file
-               renderGameBoards(game)
-             ),
+            ]),
             h('td.games-info', [
                 h('div.info0.games.icon', { attrs: { "data-icon": variant.icon(chess960) } }, [
                     // h('div.info1.icon', { attrs: { "data-icon": (game["z"] === 1) ? "V" : "" } }),
@@ -130,10 +98,10 @@ function renderGames(model: PyChessModel, games: Game[]) {
                 ]),
                 h('div.info-middle', [
                     h('div.versus', [
-                        h('player', [
+                        h('player', variant === VARIANTS['bughouse']? renderBugTeamInfo(game, 0): [
                             h('a.user-link', { attrs: { href: '/@/' + game["us"][0] } }, [
                                 h('player-title', " " + game["wt"] + " "),
-                                (variant === VARIANTS['bughouse']? game["us"][0]+"+"+ game["us"][3]: game["us"][0]) + aiLevel(game["wt"], game['x']), //todo:niki: quick and dirty - refactor to have links to all 4 players and also rating
+                                game["us"][0] + aiLevel(game["wt"], game['x']),
                             ]),
                             h('br'),
                             (game["wb"] === true) ? h('icon.icon-berserk') : '',
@@ -144,7 +112,7 @@ function renderGames(model: PyChessModel, games: Game[]) {
                         h('player', [
                             h('a.user-link', { attrs: { href: '/@/' + game["us"][1] } }, [
                                 h('player-title', " " + game["bt"] + " "),
-                                (variant === VARIANTS['bughouse']? game["us"][2]+"+"+ game["us"][1]: game["us"][1]) + aiLevel(game["bt"], game['x']),
+                                game["us"][1] + aiLevel(game["bt"], game['x']),
                             ]),
                             h('br'),
                             (game["bb"] === true) ? h('icon.icon-berserk') : '',

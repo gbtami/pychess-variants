@@ -225,6 +225,11 @@ async def get_user_games(request):
             doc["r"] = C2R[doc["r"]]
             doc["wt"] = users[doc["us"][0]].title if doc["us"][0] in users else ""
             doc["bt"] = users[doc["us"][1]].title if doc["us"][1] in users else ""
+
+            if len(doc["us"]) > 2:
+                doc["wtB"] = users[doc["us"][2]].title if doc["us"][2] in users else ""
+                doc["btB"] = users[doc["us"][3]].title if doc["us"][3] in users else ""
+
             doc["lm"] = decode_moves((doc["m"][-1],), doc["v"])[-1] if len(doc["m"]) > 0 else ""
             if doc["v"] in GRANDS and doc["lm"] != "":
                 doc["lm"] = zero2grand(doc["lm"])

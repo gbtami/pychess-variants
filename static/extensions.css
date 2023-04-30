@@ -125,10 +125,6 @@
 .pocket.bottom {
   margin-top: var(--pocketMargin);
 }
-main.round.bug .pocket.bottom {
-  margin-top: unset;
-}
-
 .pocket.bottom.editor {
   margin-top: 18px;
 }

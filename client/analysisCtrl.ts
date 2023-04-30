@@ -72,7 +72,7 @@ export class AnalysisController extends GameController {
     fsfEngineBoard: any;  // used to convert pv UCI move list to SAN
 
     constructor(el: HTMLElement, model: PyChessModel) {
-        super(el, model, document.getElementById('pocket0') as HTMLElement, document.getElementById('pocket1') as HTMLElement);//todo:niki:those elements best be passed as args
+        super(el, model, document.getElementById('pocket0') as HTMLElement, document.getElementById('pocket1') as HTMLElement); // todo: those pocket elements best be passed as args as well
         this.fsfDebug = true;
         this.fsfError = [];
         this.embed = this.gameId === undefined;
@@ -384,7 +384,7 @@ export class AnalysisController extends GameController {
                 movetimeChart(this);
             }
 
-        } else {//todo:niki:not relevant to bughouse but curious how is this case even possible to receive a single move in analaysis mode?
+        } else {
             if (msg.ply === this.steps.length) {
                 const step: Step = {
                     'fen': msg.fen,

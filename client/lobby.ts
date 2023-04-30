@@ -17,6 +17,7 @@ import { MsgChat, MsgFullChat } from "./messages";
 import { variantPanels } from './lobby/layer1';
 import { Stream, Spotlight, MsgInviteCreated, MsgHostCreated, MsgGetSeeks, MsgNewGame, MsgGameInProgress, MsgUserConnected, MsgPing, MsgError, MsgShutdown, MsgGameCounter, MsgUserCounter, MsgStreams, MsgSpotlights, Seek, CreateMode } from './lobbyType';
 import { validFen } from './chess';
+import {switchEnablingLobbyControls} from "@/bug/lobbyBug";
 
 export class LobbyController implements ChatController {
     sock: WebsocketHeartbeatJs;
@@ -261,10 +262,6 @@ export class LobbyController implements ChatController {
         e = document.getElementById('chess960') as HTMLInputElement;
         const chess960 = (variant.chess960 && alternateStart === "") ? e.checked : false;
         localStorage.seek_chess960 = e.checked;
-
-        // e = document.getElementById('bugSimul') as HTMLInputElement;
-        // const bugSimul = e.checked;
-        // localStorage.seek_bug_simul = bugSimul;
 
         // console.log("CREATE SEEK variant, color, fen, minutes, increment, hide, chess960", variant, color, fen, minutes, increment, chess960, rated);
 
@@ -522,20 +519,7 @@ export class LobbyController implements ChatController {
                 ),
             ]));
         }
-        if (variant === VARIANTS["bughouse"]){
-            const rated = document.getElementById('rated')! as HTMLInputElement;
-            const casual = document.getElementById('casual')! as HTMLInputElement;
-            rated.disabled = true;
-            rated.checked = false;
-            casual.checked = true;
-        } else {
-            const vRated = localStorage.seek_rated ?? "0";
-            const rated = document.getElementById('rated')! as HTMLInputElement;
-            const casual = document.getElementById('casual')! as HTMLInputElement;
-            rated.disabled = false;
-            rated.checked = vRated === "1";
-            casual.checked = vRated === "0";
-        }
+        switchEnablingLobbyControls(variant);
         this.setStartButtons();
     }
     private setAlternateStart(variant: Variant) {
@@ -621,50 +605,6 @@ export class LobbyController implements ChatController {
         ])
     }
 
-    private bugJoinSeek(e: Event, seek: Seek, joinAs: string) {
-        e.stopPropagation();
-        // seek[player] = this.username;
-        this.doSend({ type: "accept_seek", seekID: seek["seekID"], player: this.username, joinAs: joinAs });
-    }
-
-    private seekViewBughouse(seek:Seek) {
-        const variant = VARIANTS[seek.variant];
-        const chess960 = seek.chess960;
-
-        return h('tr', { on: { click: () => this.onClickSeekBughouse(seek) } }, [
-            h('td.bugseek1', [
-                h('div.bugseekteam1', h("div", "+")),
-                h('div', "A"), this.colorIconBug(seek.color, "player1"),
-                h('div', "B"), this.colorIconBug(seek.color, "bugPlayer1"),
-                h('div.bugseekvs',"vs."),
-                h('div.bugseekteam2', h("div", "+")),
-                h('div', "A"), this.colorIconBug(seek.color, "player2"),
-                h('div', "B"), this.colorIconBug(seek.color, "bugPlayer2"),
-            ]),
-            h('td', h("div.bugseek", [
-
-                                h('div', [ this.seekTitle(seek), seek.user ]),
-                                h('div', [ this.challengeIcon(seek), this.seekTitle(seek), seek.bugPlayer1 === ""?
-                                                                                                                                [seek.player2, seek.bugPlayer2].includes(this.username)? h("div.bugwaiting", "Waiting..."):
-                                                                                                                                h('button.bug-join-button', { on: { click: (e:Event) => this.bugJoinSeek(e, seek, "bugPlayer1") } }, _("Join")): seek.bugPlayer1 ]),
-h('div.bugseekvs1',""),
-                                h('div', [ this.challengeIcon(seek), this.seekTitle(seek), seek.player2 === ""?
-                                                                                                                                [seek.user, seek.bugPlayer1].includes(this.username)? h("div.bugwaiting", "Waiting..."):
-                                                                                                                                h('button.bug-join-button', { on: { click: (e:Event) => this.bugJoinSeek(e, seek, "player2") } }, _("Join")): seek.player2 ]),
-                                h('div', [ this.challengeIcon(seek), this.seekTitle(seek), seek.bugPlayer2 === ""?
-                                                                                                                                [seek.user, seek.bugPlayer1].includes(this.username)? h("div.bugwaiting", "Waiting..."):
-                                                                                                                                h('button.bug-join-button', { on: { click: (e:Event) => this.bugJoinSeek(e, seek, "bugPlayer2") } }, _("Join")): seek.bugPlayer2 ]) ]
-             ) ),
-            h('td', seek.rating),
-            h('td', timeControlStr(seek.base, seek.inc, seek.byoyomi)),
-            h('td.icon', { attrs: { "data-icon": variant.icon(chess960) } }, [h('variant-name', " " + variant.displayName(chess960))]),
-            h('td', { class: { tooltip: seek.fen !== '' } }, [
-                this.tooltip(seek, variant),
-                this.mode(seek),
-            ]),
-        ]);
-    }
-
     private seekView(seek: Seek) {
         const variant = VARIANTS[seek.variant];
         return this.hide(seek) ? "" : variant === VARIANTS['bughouse']? this.seekViewBughouse(seek): this.seekViewRegular(seek);
@@ -678,12 +618,6 @@ h('div.bugseekvs1',""),
         }
     }
 
-    private onClickSeekBughouse(seek: Seek) {
-        if (seek["user"] === this.username) {
-            this.doSend({ type: "delete_seek", seekID: seek["seekID"], player: this.username });
-        }
-    }
-
     private colorIcon(color: string) {
         return h('i-side.icon', {
             class: {
@@ -693,22 +627,12 @@ h('div.bugseekvs1',""),
             }
         });
     }
-    private colorIconBug(color: string, slot:string) {
-        return h('i-side.icon', {
-            class: {
-                "icon-adjust": color === "r" && ["player1", "bugPlayer2"].includes(slot),
-                "icon-adjust-rev": color === "r" && ["player2", "bugPlayer1"].includes(slot),
-                "icon-white":  (color === "w" && ["player1", "bugPlayer2"].includes(slot)) || (color === "b" && ["player2", "bugPlayer1"].includes(slot)),
-                "icon-black":  (color === "b" && ["player1", "bugPlayer2"].includes(slot)) || (color === "w" && ["player2", "bugPlayer1"].includes(slot)),
-            }
-        });
-    }
 
-    private challengeIcon(seek: Seek) {
+    public challengeIcon(seek: Seek) {
         const swords = (seek["user"] === this.username) ? 'vs-swords.lobby.icon' : 'vs-swords.lobby.opp.icon';
         return (seek['target'] === '') ? null : h(swords, { attrs: {"data-icon": '"'} });
     }
-    private seekTitle(seek: Seek) {
+    public seekTitle(seek: Seek) {
         return (seek['target'] === '') ? h('player-title', " " + seek["title"] + " ") : null;
     }
     private user(seek: Seek) {
@@ -721,7 +645,7 @@ h('div.bugseekvs1',""),
         return ((this.anon || this.title === 'BOT') && seek["rated"]) ||
             (seek['target'] !== '' && this.username !== seek['user'] && this.username !== seek['target']);
     }
-    private tooltip(seek: Seek, variant: Variant) {
+    public tooltip(seek: Seek, variant: Variant) {
         let tooltipImage;
         if (seek.fen) {
             tooltipImage = h('minigame.' + variant.boardFamily + '.' + variant.pieceFamily, [
@@ -738,7 +662,7 @@ h('div.bugseekvs1',""),
         }
         return h('span.tooltiptext', [ tooltipImage ]);
     }
-    private mode(seek: Seek) {
+    public mode(seek: Seek) {
         if (seek.alternateStart)
             return _(seek.alternateStart);
         else if (seek.fen)

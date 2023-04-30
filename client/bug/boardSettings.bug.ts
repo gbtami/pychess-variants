@@ -10,7 +10,7 @@ import {NumberSettings, BooleanSettings, Settings} from '../settings';
 import { slider, checkbox } from '../view';
 
 
-class BoardSettings {
+class BoardSettingsBug {
     ctrl: AnalysisController; // BoardController | undefined
     settings: { [ key: string]: Settings<number | boolean> };
     assetURL: string;
@@ -140,9 +140,9 @@ class BoardSettings {
 }
 
 class AnimationSettings extends BooleanSettings {
-    readonly boardSettings: BoardSettings;
+    readonly boardSettings: BoardSettingsBug;
 
-    constructor(boardSettings: BoardSettings) {
+    constructor(boardSettings: BoardSettingsBug) {
         super('animation', true);
         this.boardSettings = boardSettings;
     }
@@ -157,10 +157,10 @@ class AnimationSettings extends BooleanSettings {
 }
 
 class BoardStyleSettings extends NumberSettings {
-    readonly boardSettings: BoardSettings;
+    readonly boardSettings: BoardSettingsBug;
     readonly boardFamily: string;
 
-    constructor(boardSettings: BoardSettings, boardFamily: string) {
+    constructor(boardSettings: BoardSettingsBug, boardFamily: string) {
         super(boardFamily + '-board', 0);
         this.boardSettings = boardSettings;
         this.boardFamily = boardFamily;
@@ -191,10 +191,10 @@ class BoardStyleSettings extends NumberSettings {
 }
 
 class PieceStyleSettings extends NumberSettings {
-    readonly boardSettings: BoardSettings;
+    readonly boardSettings: BoardSettingsBug;
     readonly pieceFamily: string;
 
-    constructor(boardSettings: BoardSettings, pieceFamily: string) {
+    constructor(boardSettings: BoardSettingsBug, pieceFamily: string) {
         super(pieceFamily + '-piece', 0);
         this.boardSettings = boardSettings;
         this.pieceFamily = pieceFamily;
@@ -222,10 +222,10 @@ class PieceStyleSettings extends NumberSettings {
 }
 
 class ZoomSettings extends NumberSettings {
-    readonly boardSettings: BoardSettings;
+    readonly boardSettings: BoardSettingsBug;
     readonly boardFamily: string;
 
-    constructor(boardSettings: BoardSettings, boardFamily: string) {
+    constructor(boardSettings: BoardSettingsBug, boardFamily: string) {
         super(boardFamily + '-zoom', 80);
         this.boardSettings = boardSettings;
         this.boardFamily = boardFamily;
@@ -241,9 +241,9 @@ class ZoomSettings extends NumberSettings {
 }
 
 class ShowDestsSettings extends BooleanSettings {
-    readonly boardSettings: BoardSettings;
+    readonly boardSettings: BoardSettingsBug;
 
-    constructor(boardSettings: BoardSettings) {
+    constructor(boardSettings: BoardSettingsBug) {
         super('showDests', true);
         this.boardSettings = boardSettings;
     }
@@ -258,9 +258,9 @@ class ShowDestsSettings extends BooleanSettings {
 }
 
 class AutoPromoteSettings extends BooleanSettings {
-    readonly boardSettings: BoardSettings;
+    readonly boardSettings: BoardSettingsBug;
 
-    constructor(boardSettings: BoardSettings) {
+    constructor(boardSettings: BoardSettingsBug) {
         super('autoPromote', false);
         this.boardSettings = boardSettings;
     }
@@ -277,9 +277,9 @@ class AutoPromoteSettings extends BooleanSettings {
 }
 
 class ArrowSettings extends BooleanSettings {
-    readonly boardSettings: BoardSettings;
+    readonly boardSettings: BoardSettingsBug;
 
-    constructor(boardSettings: BoardSettings) {
+    constructor(boardSettings: BoardSettingsBug) {
         super('arrow', true);
         this.boardSettings = boardSettings;
     }
@@ -296,9 +296,9 @@ class ArrowSettings extends BooleanSettings {
 }
 
 class BlindfoldSettings extends BooleanSettings {
-    readonly boardSettings: BoardSettings;
+    readonly boardSettings: BoardSettingsBug;
 
-    constructor(boardSettings: BoardSettings) {
+    constructor(boardSettings: BoardSettingsBug) {
         super('blindfold', false);
         this.boardSettings = boardSettings;
     }
@@ -325,9 +325,9 @@ class BlindfoldSettings extends BooleanSettings {
 }
 
 class MaterialDifferenceSettings extends BooleanSettings {
-    readonly boardSettings: BoardSettings;
+    readonly boardSettings: BoardSettingsBug;
 
-    constructor(boardSettings: BoardSettings) {
+    constructor(boardSettings: BoardSettingsBug) {
         super('materialDifference', false);
         this.boardSettings = boardSettings;
     }
@@ -346,4 +346,4 @@ class MaterialDifferenceSettings extends BooleanSettings {
         return h('div', checkbox(this, 'captured', _("Show material difference")));
     }
 }
-export const boardSettings = new BoardSettings();
+export const boardSettings = new BoardSettingsBug();

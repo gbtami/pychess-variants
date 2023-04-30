@@ -93,10 +93,6 @@ export function embedView(model: PyChessModel): VNode[] {
 export function analysisView(model: PyChessModel): VNode[] {
     const variant = VARIANTS[model.variant];
 
-    if (variant === VARIANTS.bughouse){
-        return bugAnalysisView(model);
-    }
-
     const isAnalysisBoard = model["gameId"] === "";
     const tabindexCt = (isAnalysisBoard) ? '-1' : '0';
     const tabindexPgn = (isAnalysisBoard) ? '0' : '-1';

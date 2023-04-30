@@ -9,7 +9,7 @@ import { timeControlStr } from "../view";
 import { PyChessModel } from "../types";
 
 
-export function gameInfo(model: PyChessModel): VNode {
+export function gameInfoBug(model: PyChessModel): VNode {
     console.log("roundView model=", model);
     const variant = VARIANTS[model.variant];
     const chess960 = model.chess960 === 'True';

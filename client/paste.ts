@@ -7,6 +7,7 @@ import { variantsIni } from './variantsIni';
 import { VARIANTS } from './variants';
 import { parseKif, resultString } from '../client/kif';
 import { PyChessModel } from "./types";
+import {importGameBugH} from "@/bug/pasteBug";
 
 const BRAINKING_SITE = '[Site "BrainKing.com (Prague, Czech Republic)"]';
 const EMBASSY_FEN = '[FEN "rnbqkmcbnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBQKMCBNR w KQkq - 0 1"]';
@@ -19,33 +20,13 @@ export function pasteView(model: PyChessModel): VNode[] {
         ffish = loadedModule;
     });
 
-    const importGameBugH = (pgn: string) => {
-        const XHR = new XMLHttpRequest();
-        const FD  = new FormData();
-        FD.append("pgn", pgn)
-        XHR.onreadystatechange = function() {
-            if (this.readyState === 4 && this.status === 200) {
-                const response = JSON.parse(this.responseText);
-                if (response['gameId'] !== undefined) {
-                    // window.location.assign(model["home"] + '/analysis/' + response['gameId']);
-                    window.location.assign(model["home"] + '/' + response['gameId']);
-                } else if (response['error'] !== undefined) {
-                    alert(response['error']);
-                }
-            }
-        };
-
-        XHR.open("POST", "/import_bpgn", true);
-        XHR.send(FD);
-    }
-
     const importGame = (model: PyChessModel, ffish: any) => {
         const e = document.getElementById("pgnpaste") as HTMLInputElement;
         //console.log('PGN:', e.value);
         let pgn = e.value;
 
         if (pgn.indexOf(BUGHOUSE_VARIANT) !== -1 ) {
-            importGameBugH(pgn);
+            importGameBugH(pgn, model["home"]);
             return;
         }
 
