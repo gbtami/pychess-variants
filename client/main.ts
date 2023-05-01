@@ -20,8 +20,8 @@ import { backgroundSettings } from './background';
 import { renderTimeago } from './datetime';
 import { zenButtonView, zenModeSettings } from './zen';
 import { PyChessModel } from './types';
-import {roundView as bugRoundView} from "@/bug/round";
-import {analysisView as bugAnalysisView} from "@/bug/analysis";
+import {roundView as bugRoundView} from "./bug/round.bug";
+import {analysisView as bugAnalysisView} from "./bug/analysis.bug";
 
 // redirect to correct URL except Heroku preview apps
 if (window.location.href.includes('heroku') && !window.location.href.includes('-pr-')) {

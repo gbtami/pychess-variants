@@ -109,7 +109,7 @@ function renderGames(model: PyChessModel, games: Game[]) {
                             (game["p0"] === undefined) ? "": renderRdiff(game["p0"]["d"]),
                         ]),
                         h('vs-swords.icon', { attrs: { "data-icon": '"' } }),
-                        h('player', [
+                        h('player', variant === VARIANTS['bughouse']? renderBugTeamInfo(game, 1): [
                             h('a.user-link', { attrs: { href: '/@/' + game["us"][1] } }, [
                                 h('player-title', " " + game["bt"] + " "),
                                 game["us"][1] + aiLevel(game["bt"], game['x']),

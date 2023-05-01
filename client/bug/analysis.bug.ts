@@ -7,7 +7,7 @@ import {VARIANTS, selectVariant} from "../variants"
 import {renderTimeago} from '../datetime';
 import {spinner} from '../view';
 import {PyChessModel} from "../types";
-import AnalysisController from "./analysisCtrl";
+import AnalysisController from "./analysisCtrl.bug";
 
 function leftSide(model: PyChessModel) {
 

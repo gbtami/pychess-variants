@@ -5,7 +5,7 @@ import { _ } from '../i18n';
 import { patch } from '../document';
 import { Clock } from '../clock';
 import {ChatController, chatMessage, chatView} from '../chat';
-import {createMovelistButtons, updateMovelist} from './movelist';
+import {createMovelistButtons, updateMovelist} from './movelist.bug';
 import {Clocks, MsgBoard, MsgChat, MsgFullChat, MsgGameEnd, MsgMove, MsgUserConnected, RDiffs, Step} from "../messages";
 import {
     MsgUserDisconnected,
@@ -645,7 +645,7 @@ export class RoundController implements ChatController/*extends GameController t
     private onMsgBoard = (msg: MsgBoard) => {
         console.log(msg);
         if (msg.gameId !== this.gameId) return;
-        if (msg.ply <= this.ply) return;// ideally not needed but putting it for now to handle a serverside bug that sends board messages twice sometimes
+        // if (msg.ply <= this.ply) return;// ideally not needed but putting it for now to handle a serverside bug that sends board messages twice sometimes
 
         // console.log("got board msg:", msg);
         let latestPly;
@@ -915,40 +915,6 @@ export class RoundController implements ChatController/*extends GameController t
         }
     }
 
-    //
-    // private setPremove = (orig: cg.Key, dest: cg.Key, metadata?: cg.SetPremoveMetadata) => {
-    //     this.premove = { orig, dest, metadata };
-    //     // console.log("setPremove() to:", orig, dest, meta);
-    // }
-    //
-    // private unsetPremove = () => {
-    //     this.premove = undefined;
-    //     this.preaction = false;
-    // }
-    //
-    // private setPredrop = (role: cg.Role, key: cg.Key) => {
-    //     this.predrop = { role, key };
-    //     // console.log("setPredrop() to:", role, key);
-    // }
-    //
-    // private unsetPredrop = () => {
-    //     this.predrop = undefined;
-    //     this.preaction = false;
-    // }
-    //
-    // private performPremove = () => {
-    //     // const { orig, dest, meta } = this.premove;
-    //     // TODO: promotion?
-    //     // console.log("performPremove()", orig, dest, meta);
-    //     this.chessground.playPremove();
-    // }
-    //
-    // private performPredrop = () => {
-    //     // const { role, key } = this.predrop;
-    //     // console.log("performPredrop()", role, key);
-    //     this.chessground.playPredrop();
-    // }
-
     private onMsgUserConnected = (msg: MsgUserConnected) => {
         console.log(msg);
         this.username = msg["username"];
@@ -999,13 +965,20 @@ export class RoundController implements ChatController/*extends GameController t
 
     private onMsgUserDisconnected = (msg: MsgUserDisconnected) => {
         console.log(msg);
-        // if (msg.username === this.players[0]) {
-        //     const container = document.getElementById('player0') as HTMLElement;
-        //     patch(container, h('i-side.online#player0', {class: {"icon": true, "icon-online": false, "icon-offline": true}}));
-        // } else {
-        //     const container = document.getElementById('player1') as HTMLElement;
-        //     patch(container, h('i-side.online#player1', {class: {"icon": true, "icon-online": false, "icon-offline": true}}));
-        // }
+        if (msg.username === this.players[0]) {
+            const container = document.getElementById('player0a') as HTMLElement;
+            patch(container, h('i-side.online#player0a', {class: {"icon": true, "icon-online": false, "icon-offline": true}}));
+        } else if (msg.username === this.players[1]) {
+            const container = document.getElementById('player1a') as HTMLElement;
+            patch(container, h('i-side.online#player1a', {class: {"icon": true, "icon-online": false, "icon-offline": true}}));
+        }
+        if (msg.username === this.playersB[0]) {
+            const container = document.getElementById('player0b') as HTMLElement;
+            patch(container, h('i-side.online#player0b', {class: {"icon": true, "icon-online": false, "icon-offline": true}}));
+        } else if (msg.username === this.playersB[1]) {
+            const container = document.getElementById('player1b') as HTMLElement;
+            patch(container, h('i-side.online#player1b', {class: {"icon": true, "icon-online": false, "icon-offline": true}}));
+        }
     }
 
     private onMsgDrawOffer = (msg: MsgDrawOffer) => {

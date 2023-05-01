@@ -5,11 +5,11 @@ import * as cg from "chessgroundx/types";
 import {Chessground} from "chessgroundx";
 import {VARIANTS, BOARD_FAMILIES, Variant} from "../variants"
 import * as util from "chessgroundx/util";
-import AnalysisController from "./analysisCtrl";
+import AnalysisController from "./analysisCtrl.bug";
 import {Step} from "../messages";
 import {GameController} from "../gameCtrl";
 import {PyChessModel} from "../types";
-import {RoundController} from "./roundCtrl";
+import {RoundController} from "./roundCtrl.bug";
 import {premove} from "chessgroundx/premove";
 import {predrop} from "chessgroundx/predrop";
 
@@ -25,7 +25,6 @@ export class ChessgroundController extends GameController {
     turnColor: cg.Color;// todo: don't think this is ever used as other then temp variable before setting turncolor to CG
 
     chess960: boolean;
-    prevPieces: cg.Pieces;
 
     variant: Variant;
 
@@ -119,11 +118,7 @@ export class ChessgroundController extends GameController {
         // //                               Maybe consider decrease count on start of drag (like in editor mode)?
         // (this.chessground.state.boardState.pockets![this.chessground.state.turnColor] as Pocket).set(piece.role]! --;
         // this.chessground.state.dom.redraw();
-        // if (this.variant.promotion === 'kyoto') {
-        //     if (!this.promotion.start(piece.role, 'a0', dest)) this.sendMove(util.dropOrigOf(piece.role), dest, '');
-        // } else {
-            this.sendMove(util.dropOrigOf(piece.role), dest, '')
-        // }
+        this.sendMove(util.dropOrigOf(piece.role), dest, '')
         this.preaction = false;
     }
 

@@ -80,7 +80,7 @@ async def round_socket_handler(request):
                             continue
 
                     if data["type"] == "move":
-                        # log.info("Got USER move %s %s %s" % (user.username, data["gameId"], data["move"]))
+                        log.info("Got USER move %s %s %s" % (user.username, data["gameId"], data["move"]))
 
                         async with game.move_lock:
                             try:
@@ -472,10 +472,8 @@ async def round_socket_handler(request):
                                     users[user.username] = user
 
                                 # Update logged in users as spactators
-                                if (
-                                    user.username != game.wplayer.username
-                                    and user.username != game.bplayer.username
-                                    and game is not None
+                                if (game is not None
+                                    and not game.is_player(user)
                                 ):
                                     game.spectators.add(user)
                             else:
@@ -518,10 +516,7 @@ async def round_socket_handler(request):
                             await game.wplayer.clear_seeks(force=True)
                             await game.bplayer.clear_seeks(force=True)
 
-                        if user.username not in (
-                            game.wplayer.username,
-                            game.bplayer.username,
-                        ):
+                        if not game.is_player(user):
                             game.spectators.add(user)
                             await round_broadcast(game, game.spectator_list, full=True)
 

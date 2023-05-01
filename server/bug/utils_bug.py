@@ -20,7 +20,6 @@ from const import (
 )
 from convert import mirror5, mirror9, usi2uci, grand2zero, zero2grand
 from glicko2.glicko2 import gl2
-from utils import remove_seek, sanitize_fen
 from newid import new_id
 
 log = logging.getLogger(__name__)
@@ -288,10 +287,12 @@ async def new_game_bughouse(app, seek_id, game_id=None):
     seek = seeks[seek_id]
 
     if seek.fen:
+        from utils import sanitize_fen
         fen_valid, sanitized_fen = sanitize_fen(seek.variant, seek.fen, seek.chess960)
         if not fen_valid:
             message = "Failed to create game. Invalid FEN %s" % seek.fen
             log.debug(message)
+            from utils import remove_seek
             remove_seek(seeks, seek)
             return {"type": "error", "message": message}
     else:
@@ -337,10 +338,12 @@ async def new_game_bughouse(app, seek_id, game_id=None):
             bug_wplayer,
             bplayer,
         )
+        from utils import remove_seek
         remove_seek(seeks, seek)
         return {"type": "error", "message": "Failed to create game"}
     games[game_id] = game
 
+    from utils import remove_seek
     remove_seek(seeks, seek)
 
     await insert_game_to_db_bughouse(game, app)

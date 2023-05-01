@@ -17,7 +17,7 @@ import { MsgChat, MsgFullChat } from "./messages";
 import { variantPanels } from './lobby/layer1';
 import { Stream, Spotlight, MsgInviteCreated, MsgHostCreated, MsgGetSeeks, MsgNewGame, MsgGameInProgress, MsgUserConnected, MsgPing, MsgError, MsgShutdown, MsgGameCounter, MsgUserCounter, MsgStreams, MsgSpotlights, Seek, CreateMode } from './lobbyType';
 import { validFen } from './chess';
-import {switchEnablingLobbyControls} from "@/bug/lobbyBug";
+import {seekViewBughouse, switchEnablingLobbyControls} from "./bug/lobby.bug";
 
 export class LobbyController implements ChatController {
     sock: WebsocketHeartbeatJs;
@@ -607,7 +607,7 @@ export class LobbyController implements ChatController {
 
     private seekView(seek: Seek) {
         const variant = VARIANTS[seek.variant];
-        return this.hide(seek) ? "" : variant === VARIANTS['bughouse']? this.seekViewBughouse(seek): this.seekViewRegular(seek);
+        return this.hide(seek) ? "" : variant === VARIANTS['bughouse']? seekViewBughouse(this, seek): this.seekViewRegular(seek);
     }
 
     private onClickSeek(seek: Seek) {

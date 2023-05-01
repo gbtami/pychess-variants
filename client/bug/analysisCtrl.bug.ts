@@ -11,7 +11,7 @@ import { JSONObject } from '../types';
 import { _ } from '../i18n';
 import {uci2LastMove, uci2cg, cg2uci} from '../chess';
 import {VARIANTS, notation, moddedVariant} from "../variants"
-import { createMovelistButtons, updateMovelist, selectMove, activatePlyVari } from './movelist';
+import { createMovelistButtons, updateMovelist, selectMove, activatePlyVari } from './movelist.bug';
 import { povChances } from '../winningChances';
 import { patch } from '../document';
 import { Chart } from "highcharts";
@@ -19,7 +19,7 @@ import { PyChessModel } from "../types";
 import {Ceval, MsgBoard, Step} from "../messages";
 import {ChessgroundController} from "./ChessgroundCtrl";
 import {sound} from "../sound";
-import {renderClocks} from "./analysisClock";
+import {renderClocks} from "./analysisClock.bug";
 import {variantsIni} from "../variantsIni";
 import * as idb from "idb-keyval";
 import {MsgAnalysis} from "../analysisType";

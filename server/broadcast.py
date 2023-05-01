@@ -24,6 +24,8 @@ async def lobby_broadcast(sockets, response):
 
 #todo:niki: what about when 4 players like bug
 async def round_broadcast(game, response, full=False, channels=None):
+    log.info("round_broadcast %s %s", response, full )
+    log.info(game.spectators)
     if game.spectators:
         for spectator in game.spectators:
             try:
@@ -37,6 +39,7 @@ async def round_broadcast(game, response, full=False, channels=None):
         if not game.wplayer.bot:
             try:
                 wplayer_ws = game.wplayer.game_sockets[game.id]
+                log.info("3 wplayer_ws %s", wplayer_ws)
                 await wplayer_ws.send_json(response)
             except (KeyError, AttributeError, ConnectionResetError):
                 pass
@@ -44,6 +47,7 @@ async def round_broadcast(game, response, full=False, channels=None):
         if not game.bplayer.bot:
             try:
                 bplayer_ws = game.bplayer.game_sockets[game.id]
+                log.info("4 bplayer_ws %s", bplayer_ws)
                 await bplayer_ws.send_json(response)
             except (KeyError, AttributeError, ConnectionResetError):
                 pass

@@ -637,6 +637,7 @@ async def play_move(app, user, game, move, clocks=None, ply=None, board=None, pa
         if not user.bot:
             try:
                 ws = user.game_sockets[gameId]
+                log.info("1 ws %s", ws)
                 await ws.send_json(board_response)
             except (KeyError, ConnectionResetError):
                 pass
@@ -655,6 +656,7 @@ async def play_move(app, user, game, move, clocks=None, ply=None, board=None, pa
     else:
         try:
             opp_ws = users[opp_name].game_sockets[gameId]
+            log.info("2 opp_ws %s", opp_ws)
             if not invalid_move:
                 await opp_ws.send_json(board_response)
             if game.status > STARTED:
@@ -675,8 +677,11 @@ async def play_move(app, user, game, move, clocks=None, ply=None, board=None, pa
         if hasattr(game,'wplayerA'): # todo:niki:before adding this, what I was observing is, when making a move with white on B, i would receive the board message twice on that browser, but abother board(i tihnk partner) would not receive board message at all. Receiving of message twice is problematic, but for no i can filter it out in javascript, because not sure which one of the 3 places we send board messages here in this code  is the reason it is sent twice. Below code aslo makes sure all sockets receive message, so hopefully that brwoser that was missing it will receive it now. However now all/the other 3/who knows will receive probably at least twice so overall ugly situation, but dont have time to debug at the moment
             bugUsers = set([game.wplayerA, game.wplayerB, game.bplayerA, game.bplayerB])
             for u in bugUsers:
+                log.info("5 %s %s", u.username, u.game_sockets[gameId])
                 s = u.game_sockets[gameId]  # todo:niki:could be more than one if multiple browsers - could potentially record the one they joined from i guess
-                await s.send_json(board_response)
+                if u.username != opp_name and u.username != user.username: # because we sent to those 2 already in above code
+                    log.info("6 sending %s", board_response)
+                    await s.send_json(board_response)
 
         if game.tournamentId is not None:
             tournament = app["tournaments"][game.tournamentId]
