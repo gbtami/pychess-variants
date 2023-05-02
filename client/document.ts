@@ -56,11 +56,12 @@ function changeCSS(cssLinkIndex: number, cssFile: string) {
 }
 
 // css file index in templates/base.html
-const BOARD_CSS_IDX = 1;
+//const BOARD_CSS_IDX = 1;
 const PIECE_CSS_IDX = 2;
 
 export function changeBoardCSS(assetUrl: string, family: string, cssFile: string) {
-    const sheet = document.styleSheets[BOARD_CSS_IDX];
+    //const sheet = document.styleSheets[BOARD_CSS_IDX];
+    const sheet = document.querySelector('link[href*=board]').sheet;
     const cssRules = sheet.cssRules;
     for (let i = 0; i < cssRules.length; i++) {
         const rule = cssRules[i];
