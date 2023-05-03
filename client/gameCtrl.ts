@@ -85,6 +85,8 @@ export abstract class GameController extends ChessgroundController implements Ch
     // Main line ply where analysis variation starts
     plyVari: number;
 
+    undo?: any;
+
     constructor(el: HTMLElement, model: PyChessModel) {
         super (el, model);
 

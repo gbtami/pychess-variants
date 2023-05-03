@@ -56,13 +56,12 @@ function changeCSS(cssLinkIndex: number, cssFile: string) {
 }
 
 // css file index in templates/base.html
-//const BOARD_CSS_IDX = 1;
 const PIECE_CSS_IDX = 2;
 
 export function changeBoardCSS(assetUrl: string, family: string, cssFile: string) {
-    //const sheet = document.styleSheets[BOARD_CSS_IDX];
-    const sheet = document.querySelector('link[href*=board]').sheet;
-    const cssRules = sheet.cssRules;
+    const link = document.querySelector('link[href*=board]') as HTMLLinkElement;
+    const sheet = link!.sheet;
+    const cssRules = sheet!.cssRules;
     for (let i = 0; i < cssRules.length; i++) {
         const rule = cssRules[i];
         if (!( rule instanceof CSSStyleRule)) {
@@ -70,10 +69,10 @@ export function changeBoardCSS(assetUrl: string, family: string, cssFile: string
         }
         if (rule.selectorText === `.${family} cg-board`) {
             // console.log("changeBoardCSS", family, cssFile, i)
-            sheet.deleteRule(i)
+            sheet!.deleteRule(i)
             const newRule = `.${family} cg-board {background-image: url(${assetUrl}/images/board/${cssFile})}`;
             // console.log(newRule);
-            sheet.insertRule(newRule, i);
+            sheet!.insertRule(newRule, i);
             break;
         }
     }
