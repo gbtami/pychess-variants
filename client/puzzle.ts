@@ -31,6 +31,7 @@ function leftSide(model: PyChessModel) {
         h('div.puzzle-info', [
             h('label', { attrs: { for: "variant" } }, _("Variant")),
             selectVariant("variant", model.variant, () => setVariant(true), () => setVariant(false), disableds),
+            h('div.auto-next-toggle'),
         ]),
     ]);
 }

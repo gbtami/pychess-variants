@@ -8,7 +8,8 @@ import { patch } from './document';
 import { uci2LastMove, UCIMove, uci2cg } from './chess';
 import { updateMovelist } from './movelist';
 import { variants } from './variants';
-import { toggleSwitch } from './view';
+import { RatedSettings, AutoNextSettings } from './puzzleSettings';
+
 
 export class PuzzleController extends AnalysisController {
     username: string;
@@ -23,7 +24,8 @@ export class PuzzleController extends AnalysisController {
     failed: boolean;
     completed: boolean;
     posted: boolean;
-    isRated: boolean;
+    rated: boolean;
+    autoNext: boolean;
     gaugeNeeded: boolean;
     wrating: string;
     brating: string;
@@ -45,9 +47,10 @@ export class PuzzleController extends AnalysisController {
         this.failed = false;
         this.completed = false;
         this.posted = false;
-        this.isRated = true;
         this.wrating = model.wrating;
         this.brating = model.brating;
+        this.rated = localStorage.puzzle_rated === undefined ? true : localStorage.puzzle_rated === "true";
+        this.autoNext = localStorage.puzzle_autoNext === undefined ? false : localStorage.puzzle_autoNext === "true";
 
         this.chessground.set({
             orientation: this.turnColor,
@@ -67,10 +70,15 @@ export class PuzzleController extends AnalysisController {
             },
         });
 
-        const ct = document.querySelector('.rated-toggle') as HTMLElement;
-        patch(ct, h('div.rated-toggle', toggleSwitch('puzzle-rated', _("Rated"), true, false, (evt) => this.setRated(evt))));
+        const ratedSettings = new RatedSettings(this);
+        const rt = document.querySelector('.rated-toggle') as HTMLElement;
+        patch(rt, ratedSettings.view());
 
-        this.renderRating(this.isRated, this.color, this.wrating, this.brating);
+        this.renderRating(this.rated, this.color, this.wrating, this.brating);
+
+        const autoNextSettings = new AutoNextSettings(this);
+        const ant = document.querySelector('.auto-next-toggle') as HTMLElement;
+        patch(ant, autoNextSettings.view());
 
         this.playerEl = document.querySelector('.player') as HTMLElement;
         this.yourTurn();
@@ -114,11 +122,6 @@ export class PuzzleController extends AnalysisController {
             patch(viewSolutionEl, h('div.view-solution', { class: { show: true } }));
         }
         setTimeout(showHintAndSolution, 4000);
-    }
-
-    setRated(evt: Event) {
-        this.isRated = (evt.target as HTMLInputElement).checked;
-        this.renderRating(this.isRated, this.color, this.wrating, this.brating);
     }
 
     renderRating(rated:boolean, color: string, wrating: string, brating: string, success: boolean | undefined=undefined, diff=undefined) {
@@ -341,6 +344,8 @@ export class PuzzleController extends AnalysisController {
         }
         const engineEl = document.querySelector('.engine') as HTMLElement;
         engineEl.style.display = 'flex';
+
+        if (this.autoNext && success) this.continueTraining();
     }
 
     continueTraining() {
@@ -365,9 +370,9 @@ export class PuzzleController extends AnalysisController {
         FD.append('win', `${success}`);
         FD.append('variant', this.variant.name);
         FD.append('color', this.color);
-        FD.append('rated', `${this.isRated}`);
+        FD.append('rated', `${this.rated}`);
 
-        const rated = this.isRated;
+        const rated = this.rated;
         const color = this.color;
         const wrating = this.wrating;
         const brating = this.brating;
