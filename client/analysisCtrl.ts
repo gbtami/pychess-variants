@@ -27,7 +27,7 @@ import { PyChessModel } from "./types";
 import { Ceval, MsgBoard, MsgUserConnected, Step, CrossTable } from "./messages";
 import { MsgAnalysis, MsgAnalysisBoard } from './analysisType';
 import { GameController } from './gameCtrl';
-import { toggleSwitch } from './view';
+import { EngineSettings } from './analysisSettings';
 
 const EVAL_REGEX = new RegExp(''
   + /^info depth (\d+) seldepth \d+ multipv (\d+) /.source
@@ -100,7 +100,7 @@ export class AnalysisController extends GameController {
         this.localEngine = false;
 
         // is local engine analysis enabled? (the switch)
-        this.localAnalysis = false;
+        this.localAnalysis = localStorage.localAnalysis === undefined ? false : localStorage.localAnalysis === "true";
 
         // UCI isready/readyok
         this.isEngineReady = false;
@@ -156,8 +156,9 @@ export class AnalysisController extends GameController {
         }
 
         if (!this.embed) {
+            const engineSettings = new EngineSettings(this);
             const et = document.querySelector('.engine-toggle') as HTMLElement;
-            patch(et, h('div.engine-toggle', toggleSwitch('engine-enabled', '', false, !this.localEngine || !this.isEngineReady, (evt) => this.setLocalAnalysis(evt))));
+            patch(et, engineSettings.view());
 
             this.vscore = document.getElementById('score') as HTMLElement;
             this.vinfo = document.getElementById('info') as HTMLElement;
@@ -251,16 +252,6 @@ export class AnalysisController extends GameController {
         super.toggleOrientation()
         boardSettings.updateDropSuggestion();
         //TODO: clocks !!!
-    }
-
-    setLocalAnalysis(evt: Event) {
-        this.localAnalysis = (evt.target as HTMLInputElement).checked;
-        if (this.localAnalysis) {
-            this.vinfo = patch(this.vinfo, h('info#info', '-'));
-        } else {
-            this.engineStop();
-        }
-        this.pvboxIni();
     }
 
     private drawAnalysisChart = (withRequest: boolean) => {
@@ -461,6 +452,8 @@ export class AnalysisController extends GameController {
             }
 
             window.addEventListener('beforeunload', () => this.fsfEngineBoard.delete());
+
+            if (this.localAnalysis) this.pvboxIni();
         }
 
         if (!this.localAnalysis || !this.isEngineReady) return;

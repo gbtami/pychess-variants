@@ -3,6 +3,7 @@ import { h, VNode } from 'snabbdom';
 import { _ } from './i18n';
 import { BooleanSettings } from './settings';
 import { toggleSwitch } from './view';
+import { PuzzleController } from './puzzleCtrl';
 
 
 export class RatedSettings extends BooleanSettings {
@@ -14,8 +15,8 @@ export class RatedSettings extends BooleanSettings {
     }
 
     update(): void {
-        this.ctrl.rated = this.value;
-        this.ctrl.renderRating(this.ctrl.rated, this.ctrl.color, this.ctrl.wrating, this.ctrl.brating);
+        this.ctrl.isRated = this.value;
+        this.ctrl.renderRating(this.ctrl.isRated, this.ctrl.color, this.ctrl.wrating, this.ctrl.brating);
     }
 
     view(): VNode {

@@ -24,7 +24,7 @@ export class PuzzleController extends AnalysisController {
     failed: boolean;
     completed: boolean;
     posted: boolean;
-    rated: boolean;
+    isRated: boolean;
     autoNext: boolean;
     gaugeNeeded: boolean;
     wrating: string;
@@ -49,7 +49,7 @@ export class PuzzleController extends AnalysisController {
         this.posted = false;
         this.wrating = model.wrating;
         this.brating = model.brating;
-        this.rated = localStorage.puzzle_rated === undefined ? true : localStorage.puzzle_rated === "true";
+        this.isRated = localStorage.puzzle_rated === undefined ? true : localStorage.puzzle_rated === "true";
         this.autoNext = localStorage.puzzle_autoNext === undefined ? false : localStorage.puzzle_autoNext === "true";
 
         this.chessground.set({
@@ -74,7 +74,7 @@ export class PuzzleController extends AnalysisController {
         const rt = document.querySelector('.rated-toggle') as HTMLElement;
         patch(rt, ratedSettings.view());
 
-        this.renderRating(this.rated, this.color, this.wrating, this.brating);
+        this.renderRating(this.isRated, this.color, this.wrating, this.brating);
 
         const autoNextSettings = new AutoNextSettings(this);
         const ant = document.querySelector('.auto-next-toggle') as HTMLElement;
@@ -124,8 +124,8 @@ export class PuzzleController extends AnalysisController {
         setTimeout(showHintAndSolution, 4000);
     }
 
-    renderRating(rated:boolean, color: string, wrating: string, brating: string, success: boolean | undefined=undefined, diff=undefined) {
-        if (rated) {
+    renderRating(isRated:boolean, color: string, wrating: string, brating: string, success: boolean | undefined=undefined, diff=undefined) {
+        if (isRated) {
             var diffEl: VNode | string = '';
             if (diff) {
                 if (success) {
@@ -370,9 +370,9 @@ export class PuzzleController extends AnalysisController {
         FD.append('win', `${success}`);
         FD.append('variant', this.variant.name);
         FD.append('color', this.color);
-        FD.append('rated', `${this.rated}`);
+        FD.append('rated', `${this.isRated}`);
 
-        const rated = this.rated;
+        const isRated = this.isRated;
         const color = this.color;
         const wrating = this.wrating;
         const brating = this.brating;
@@ -386,12 +386,12 @@ export class PuzzleController extends AnalysisController {
                     console.log(response['error']);
                 } else {
                     patch(document.getElementById('puzzle-rated') as HTMLElement, h('input#puzzle-rated', {attrs: {disabled: true}}));
-                    if (rated) {
+                    if (isRated) {
                         const hiddenEl = document.querySelector('.hidden') as HTMLElement;
                         patch(hiddenEl, h('span.hidden', (color==="white") ? brating : wrating));
 
                         const diff = response[(color==="white" ? 0 : 1)]
-                        renderRating(rated, color, wrating, brating, success, diff);
+                        renderRating(isRated, color, wrating, brating, success, diff);
                     }
                 }
             }

@@ -48,7 +48,7 @@ export function toggleSwitch(settings: Settings<boolean>, name: string, text: st
         h('label.switch', [
             h(`input#${id}`, {
                 props: { name: name, type: "checkbox" },
-                attrs: { checked: settings.value },
+                attrs: { checked: settings.value, disabled: disabled },
                 on: { change: evt => settings.value = (evt.target as HTMLInputElement).checked },
             }),
             h('span.sw-slider'),
