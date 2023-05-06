@@ -453,7 +453,7 @@ export class AnalysisController extends GameController {
 
             window.addEventListener('beforeunload', () => this.fsfEngineBoard.delete());
 
-            if (this.localAnalysis) this.pvboxIni();
+            if (this.localAnalysis && !this.puzzle) this.pvboxIni();
         }
 
         if (!this.localAnalysis || !this.isEngineReady) return;
