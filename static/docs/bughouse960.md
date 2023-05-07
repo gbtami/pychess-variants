@@ -1,20 +1,20 @@
-# ![Bughouse](https://github.com/gbtami/pychess-variants/blob/master/static/icons/Bughouse.svg) Bughouse
+# ![Bughouse960](https://github.com/gbtami/pychess-variants/blob/master/static/icons/Bughouse960.svg) Bughouse960
 
-Bughouse is a popular chess variant where yada yada yada
+Bughouse960 is a popular chess variant where yada yada yada
 ## Rules
 
-Bughouse Bughouse Bughouse Bughouse
-Bughouse Bughouse Bughouse Bughouse
-Bughouse Bughouse Bughouse Bughouse
+Bughouse960 Bughouse960 Bughouse960 Bughouse960
+Bughouse960 Bughouse960 Bughouse960 Bughouse960
+Bughouse960 Bughouse960 Bughouse960 Bughouse960
 
 ## Strategy
 
 Strategy [as on Lichess](https://lichess.org/variant/crazyhouse)
 
-* Bughouse
-* Bughouse
-* Bughouse
-* Bughouse
+* Bughouse960
+* Bughouse960
+* Bughouse960
+* Bughouse960
 
 ## Further Resources 
 

@@ -183,6 +183,8 @@ VARIANT_ICONS = {
     "chennis": "🎾",
     "duck": "🦆",
     "spartan": "⍺",
+    "bughouse": "¢",
+    "bughouse960": "¡",
 }
 
 VARIANT_960_TO_PGN = {
