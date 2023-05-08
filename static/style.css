@@ -39,6 +39,12 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+.icon-Bughouse960:before {
+  content: "\2300";
+}
+.icon-Bughouse:before {
+  content: "\a2";
+}
 .icon-spartan:before {
   content: "\237a";
 }
