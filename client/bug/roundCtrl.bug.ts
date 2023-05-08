@@ -26,6 +26,7 @@ import {player} from "../player";
 import {newWebsocket} from "../socket";
 import WebsocketHeartbeatJs from "websocket-heartbeat-js";
 import {notify} from "../notification";
+import {FEN} from "chessgroundx/types";
 
 export class RoundController implements ChatController/*extends GameController todo:does it make sense for these guys - also AnalysisControl which is older before this refactring that introduced this stuff*/ {
     sock: WebsocketHeartbeatJs;
@@ -642,42 +643,18 @@ export class RoundController implements ChatController/*extends GameController t
         // }
     }
 
-    private onMsgBoard = (msg: MsgBoard) => {
-        console.log(msg);
-        if (msg.gameId !== this.gameId) return;
-        // if (msg.ply <= this.ply) return;// ideally not needed but putting it for now to handle a serverside bug that sends board messages twice sometimes
-
-        // console.log("got board msg:", msg);
-        let latestPly;
-        if (this.spectator) {
-            // Fix https://github.com/gbtami/pychess-variants/issues/687
-            latestPly = (this.ply === -1 || msg.ply === this.ply + 1);
-        } else {
-            latestPly = (this.ply === -1 || msg.ply >= this.ply + 1); // when receiving a board msg with full list of moves (aka steps) after reconnecting
-                                                                        // its ply might be ahead with 2 ply - our move that failed to get confirmed
-                                                                        // because of disconnect and then also opp's reply to it, that we didn't
-                                                                        // receive while offline. Not sure if it could be ahead with more than 2 ply
-        }
-        if (latestPly) this.ply = msg.ply;
-
-
-        this.result = msg.result;
-        this.status = msg.status;
-
-        if (msg.steps.length > 1) { // all steps in one message
+    private updateSteps = (full: boolean, steps: Step[], ply: number, latestPly: boolean) => {
+        if (full) { // all steps in one message
             this.steps = [];
             const container = document.getElementById('movelist') as HTMLElement;
             patch(container, h('div#movelist'));
 
-            msg.steps.forEach((step) => {
+            steps.forEach((step) => {
                 this.steps.push(step);
                 });
-            const full = true;
-            const activate = true;
-            const result = false;
-            updateMovelist(this, full, activate, result);
+            updateMovelist(this, true, true, false);
         } else { // single step message
-            if (msg.ply === this.steps.length) {
+            if (ply === this.steps.length) { //todo:niki:where does this if come from? is it possible the incomuing message not to be for last ply - there are similar checks above aslso - which one is redundant maybe?
                 // const step = {
                 //     'fen': msg.fen,
                 //     'move': msg.lastMove,
@@ -685,174 +662,241 @@ export class RoundController implements ChatController/*extends GameController t
                 //     'turnColor': this.turnColor,
                 //     'san': msg.steps[0].san,
                 //     }; todo:niki:why not use step[0] and do this above? temporary doing it like this will see what will go wrong when testing
-                this.steps.push(msg.steps[0]);
+                this.steps.push(steps[0]);
                 const full = false;
                 const activate = !this.spectator || latestPly;
                 const result = false;
                 updateMovelist(this, full, activate, result);
             }
         }
+    }
+
+    private updateBoardsAndClocksSpectors = (latestPly: boolean) => {
+
+        //todo:niki:spectator mode not implemented for now
+        if (latestPly) {
+            // this.chessground.set({
+            //     fen: this.fullfen,
+            //     turnColor: this.turnColor,
+            //     check: msg.check,
+            //     lastMove: lastMove,
+            // });
+        }
+        // if (this.clockOn && msg.status < 0) {
+        //     if (this.b1.turnColor === 'white') {
+        //         this.clocks[1].start();
+        //     } else {
+        //         this.clocks[0].start();
+        //     }
+        //     if (this.b2.turnColor === 'white') {
+        //         this.clocks[0].start();
+        //     } else {
+        //         this.clocks[1].start();
+        //     }
+        // }
+
+    }
+
+    private updateBothBoardsAndClocksInitial = (fenA: cg.FEN, fenB: cg.FEN) => {
+
+            const partsA = fenA.split(" ");
+            const partsB = fenB.split(" ");
+
+            this.b1.turnColor = partsA[1] === "w" ? "white" : "black";
+            this.b2.turnColor = partsB[1] === "w" ? "white" : "black";
+
+            this.b1.chessground.set({
+                fen: fenA,
+                turnColor: 'white',
+                //  check: msg.check,
+                //lastMove: lastMove,
+            });
+            this.b2.chessground.set({
+                fen: fenB,
+                turnColor: 'white',
+                // check: msg.check,
+                //lastMove: lastMove,
+            });
+
+            // normally white clocks should start, except when custom fen (todo:not fully implemented yet):
+            const whiteClockAidx = this.colors[0] === this.b1.turnColor? 0: 1;
+            const whiteClockBidx = this.colorsB[0] === this.b2.turnColor? 0: 1;
+            this.clocks[whiteClockAidx].start();
+            this.clocksB[whiteClockBidx].start();
+    }
+
+    private updateBothBoardsAndClocksOnFullBoardMsg = (lastStepA: Step, lastStepB: Step) => {
+            const partsA = lastStepA.fen.split(" ");
+            const partsB = lastStepB.fenB.split(" ");
+
+            this.b1.turnColor = partsA[1] === "w" ? "white" : "black";
+            this.b2.turnColor = partsB[1] === "w" ? "white" : "black";
+
+            const lastMoveA = uci2LastMove(lastStepA.move);
+            const lastMoveB = uci2LastMove(lastStepB.moveB);
+
+            this.b1.chessground.set({
+                fen: lastStepA.fen,
+                turnColor: this.b1.turnColor,
+                check: lastStepA.check,
+                lastMove: lastMoveA,
+            });
+            this.b2.chessground.set({
+                fen: lastStepB.fenB,
+                turnColor: this.b2.turnColor,
+                check: lastStepB.check,
+                lastMove: lastMoveB,
+            });
+
+            const clockOnTurnAidx = this.colors[0] === this.b1.turnColor? 0: 1;
+            const clockOnTurnBidx = this.colorsB[0] === this.b2.turnColor? 0: 1;
+            this.clocks[clockOnTurnAidx].start();
+            this.clocksB[clockOnTurnBidx].start();
+    }
+
+    private updateSingleBoardAndClocks = (board: ChessgroundController, fen: cg.FEN, fenPartner: cg.FEN, lastMove: cg.Orig[] | undefined, step: Step,
+                                     clocks: Clocks, latestPly: boolean, colors: cg.Color[], status: number, check: boolean) => {
+        board.turnColor = board.turnColor === 'white' ? 'black' : 'white';
+
+        if (board.ffishBoard) {
+            board.ffishBoard.setFen(fen);
+            board.setDests();
+        }
+
+        //hiding abort button - todo:niki:we dont realy have abort button (for now)
+        this.clockOn = true;// Number(msg.ply) >= 2;
+        if ( !this.spectator && this.clockOn ) {
+            const container = document.getElementById('abort') as HTMLElement;
+            if (container) patch(container, h('div'));
+        }
+
+        //todo:niki:sound not implemented for now
+        // const step = this.steps[this.steps.length - 1];
+        // const capture = (lastMove.length > 0) && ((this.chessground.state.pieces.get(lastMove[1]) && step.san?.slice(0, 2) !== 'O-') || (step.san?.slice(1, 2) === 'x'));
+        //
+        // if (lastMove.length > 0 && (this.turnColor === this.mycolor || this.spectator)) {
+        //     if (!this.finishedGame) sound.moveSound(this.variant, capture);
+        // }
+        // if (!this.spectator && msg.check && !this.finishedGame) {
+        //     sound.check();
+        // }
+
+        const msgTurnColor = step.turnColor; // whose turn it is after this move
+        const msgMoveColor = msgTurnColor === 'white'? 'black': 'white'; // which color made the move
+        const myMove = this.myColor.get(board.boardName) === msgMoveColor; // the received move was made by me
+        if (board.boardName == 'a') {
+            this.clocktimes = clocks || this.clocktimes; //todo:niki:have the feeling this or is redundant. probably only initial board message doesnt have clocktimes. maybe even it has. not sure
+        } else {
+            this.clocktimesB = clocks || this.clocktimes;
+        }
+
+        if (!myMove) {
+            // resetting clocks on the client that has just sent them seems like a bad idea
+            const startClockAtIdx = colors[0] === msgTurnColor? 0: 1;
+            const stopClockAtIdx = 1 - startClockAtIdx;
+
+            const whiteClockAtIdx = colors[0] === 'white'? 0: 1;
+            const blackClockAtIdx = 1 -whiteClockAtIdx;
+
+            const clocks = board.boardName === 'a'? this.clocks: this.clocksB;
+            const clocktimes = board.boardName === 'a'? this.clocktimes: this.clocktimesB;
+
+
+            clocks[stopClockAtIdx].pause(false);
+
+            clocks[whiteClockAtIdx].setTime(clocktimes['white']);
+            clocks[blackClockAtIdx].setTime(clocktimes['black']);
+
+            if (this.clockOn && status < 0) { // todo:niki:not sure why this if is needed
+                clocks[startClockAtIdx].start();
+            }
+
+            //when message is for opp's move, meaning turnColor is my color - it is now my turn after this message
+            if (latestPly) {
+                board.chessground.set({
+                    fen: fen,
+                    turnColor: board.turnColor,
+                    check: check,
+                    lastMove: lastMove,
+                });
+                //todo:niki: updating model probably should be regardless of whetehre it is latestPly:
+                board.fullfen = fen;
+                board.partnerCC.fullfen = fenPartner;//todo:niki:setter or something maybe
+                board.partnerCC.chessground.set({ fen: fenPartner});
+                if (!this.focus) this.notifyMsg(`Played ${step.san}\nYour turn.`);
+
+                // prevent sending premove/predrop when (auto)reconnecting websocked asks server to (re)sends the same board to us
+                // console.log("trying to play premove....");
+                if (board.premove) board.performPremove();
+            }
+        } else {
+            //when message is about the move i just made
+            board.chessground.set({
+                // giving fen here will place castling rooks to their destination in chess960 variants
+                fen: fen,
+                turnColor: board.turnColor,
+                check: check,
+            });
+            board.fullfen = fen;
+            board.partnerCC.fullfen = fenPartner;
+            board.partnerCC.chessground.set({ fen: fenPartner});
+        }
+
+    }
+
+    private onMsgBoard = (msg: MsgBoard) => {
+        console.log(msg);
+        if (msg.gameId !== this.gameId) return;
+        // if (msg.ply <= this.ply) return;// ideally not needed but putting it for now to handle a serverside bug that sends board messages twice sometimes
+
+        // console.log("got board msg:", msg);
+        let latestPly;
+        const full = msg.steps.length > 1;
+        const isInitialBoardMessage = !(msg.steps[msg.steps.length-1].boardName);//todo:niki:not sure why step[0] is still being sent with every move, but when initial board message, that is always the only element (respectively also the last)
+        if (this.spectator) {
+            // Fix https://github.com/gbtami/pychess-variants/issues/687
+            latestPly = (this.ply === -1 || msg.ply === this.ply + 1);
+        } else {
+            latestPly = (this.ply === -1 || msg.ply === this.ply + 1 || (full && msg.ply > this.ply + 1)); // when receiving a board msg with full list of moves (aka steps) after reconnecting
+                                                                                // its ply might be ahead with 2 ply - our move that failed to get confirmed
+                                                                                // because of disconnect and then also opp's reply to it, that we didn't
+                                                                                // receive while offline. Not sure if it could be ahead with more than 2 ply todo:this if for spectators probably not needed if that check for full is added - fix that in other controller as well
+        }
+        if (latestPly) this.ply = msg.ply;
+
+        this.result = msg.result;
+        this.status = msg.status;
+
+        this.updateSteps(full, msg.steps, msg.ply, latestPly);
 
         this.checkStatus(msg);
 
-        const isInitialBoardMessage = !(msg.steps[msg.steps.length-1].boardName);//todo:niki:not sure why step[0] is still being sent with every move, but when initial board message, that is always the only element (respectively also the last)
 
         if (this.spectator) {
-            //todo:niki:spectator mode not implemented for now
-            if (latestPly) {
-                // this.chessground.set({
-                //     fen: this.fullfen,
-                //     turnColor: this.turnColor,
-                //     check: msg.check,
-                //     lastMove: lastMove,
-                // });
-            }
-            // if (this.clockOn && msg.status < 0) {
-            //     if (this.b1.turnColor === 'white') {
-            //         this.clocks[1].start();
-            //     } else {
-            //         this.clocks[0].start();
-            //     }
-            //     if (this.b2.turnColor === 'white') {
-            //         this.clocks[0].start();
-            //     } else {
-            //         this.clocks[1].start();
-            //     }
-            // }
+            this.updateBoardsAndClocksSpectors(latestPly);//todo:niki unclear what is different that when playing, but should have full mode as well
         } else {
             const fens = msg.fen.split(" | ");
             const fenA = fens[0];
             const fenB = fens[1];
 
-            if (isInitialBoardMessage) {
-                    this.b1.turnColor = "white"; //todo:niki:probably dont need this initialization, but do need the if-else so not to switch turn color on first message. Alternatively could get the turn color from the server though - as in other variants i think
-                    this.b2.turnColor = "white";
-
-                    this.b1.chessground.set({
-                        fen: fenA,
-                        turnColor: 'white',
-                        // movable: {
-                        //     free: false,
-                        //     color: this.myColor.get('a') === "white"? "white": "black",
-                        //     // dests: boardName='a'?msg.dests:msg.dests,
-                        // },
-                      //  check: msg.check,//todo:niki:which board is this about?
-                        //lastMove: lastMove,
-                    });
-                    this.b2.chessground.set({
-                        fen: fenB,
-                        turnColor: 'white',
-                        // movable: {
-                        //     free: false,
-                        //     color: this.myColor.get('b') === "white"? "white": "black",
-                        //     // dests: boardName='a'?msg.dests:msg.dests,
-                        // },
-                       // check: msg.check,//todo:niki:which board is this about?
-                        //lastMove: lastMove,
-                    });
-                    const whiteClockAidx = this.colors[0] === 'white'? 0: 1;
-                    const whiteClockBidx = this.colorsB[0] === 'white'? 0: 1;
-                    this.clocks[whiteClockAidx].start();
-                    this.clocksB[whiteClockBidx].start();
-            } else {
-                const boardName = msg.steps[msg.steps.length-1].boardName as 'a'|'b';//todo:niki:change this to step[0] if/when that board message is fixed to have just one element in steps and stop always sending that redundnat initial dummy step (if it is indeed redundant)
+            if (isInitialBoardMessage) { // from constructor
+                this.updateBothBoardsAndClocksInitial(fenA, fenB);
+            } else if (full) { // manual refresh or reconnect after lost ws connection
+                const lastStepA = msg.steps[msg.steps.findLastIndex(s => s.boardName === "a")];
+                const lastStepB = msg.steps[msg.steps.findLastIndex(s => s.boardName === "b")];
+                this.updateBothBoardsAndClocksOnFullBoardMsg(lastStepA, lastStepB);
+            } else { // usual single ply board messages sent on each move
+                const boardName = msg.steps[msg.steps.length - 1].boardName as 'a' | 'b';//todo:niki:change this to step[0] if/when that board message is fixed to have just one element in steps and stop always sending that redundnat initial dummy step (if it is indeed redundant)
                 //todo:niki:update to above's todo, actually it sometimes sends it with 2 elements, sometimes just with one - gotta check what is wrong with python code and how it works in other variants. for now always getting the last element should be robust in all cases
-                const board = boardName === 'a'? this.b1: this.b2;
-                const colors = boardName === 'a'? this.colors: this.colorsB;
-                const fen = boardName == 'a'? fenA : fenB;
-                const fenPartner = boardName == 'a'? fenB : fenA;
-                const check = boardName == 'a'? msg.check : msg.checkB;
-
-                board.turnColor = board.turnColor === 'white' ? 'black' : 'white';
-
-                if (board.ffishBoard) {
-                    board.ffishBoard.setFen(fen);
-                    board.setDests();
-                }
-
-                //hiding abort button - todo:niki:we dont realy have abort button (for now)
-                this.clockOn = true;// Number(msg.ply) >= 2;
-                if ( !this.spectator && this.clockOn ) {
-                    const container = document.getElementById('abort') as HTMLElement;
-                    if (container) patch(container, h('div'));
-                }
-
-                //todo:niki:sound not implemented for now
+                const board = boardName === 'a' ? this.b1 : this.b2;
+                const colors = boardName === 'a' ? this.colors : this.colorsB;
+                const fen = boardName == 'a' ? fenA : fenB;
+                const fenPartner = boardName == 'a' ? fenB : fenA;
+                const check = boardName == 'a' ? msg.check : msg.checkB!;
                 const lastMove = uci2LastMove(msg.lastMove);
-                // const step = this.steps[this.steps.length - 1];
-                // const capture = (lastMove.length > 0) && ((this.chessground.state.pieces.get(lastMove[1]) && step.san?.slice(0, 2) !== 'O-') || (step.san?.slice(1, 2) === 'x'));
-                //
-                // if (lastMove.length > 0 && (this.turnColor === this.mycolor || this.spectator)) {
-                //     if (!this.finishedGame) sound.moveSound(this.variant, capture);
-                // }
-                // if (!this.spectator && msg.check && !this.finishedGame) {
-                //     sound.check();
-                // }
-
-                const msgTurnColor = msg.steps[0].turnColor; // whose turn it is after this move
-                const msgMoveColor = msgTurnColor === 'white'? 'black': 'white'; // which color made the move
-                const myMove = this.myColor.get(boardName) === msgMoveColor; // the received move was made by me
-                if (boardName == 'a') {
-                    this.clocktimes = msg.clocks || this.clocktimes; //todo:niki:have the feeling this or is redundant. probably only initial board message doesnt have clocktimes. maybe even it has. not sure
-                } else {
-                    this.clocktimesB = msg.clocks || this.clocktimes;
-                }
-
-                if (!myMove) {
-                    // resetting clocks on the client that has just sent them seems like a bad idea
-                    const startClockAtIdx = colors[0] === msgTurnColor? 0: 1;
-                    const stopClockAtIdx = 1 - startClockAtIdx;
-
-                    const whiteClockAtIdx = colors[0] === 'white'? 0: 1;
-                    const blackClockAtIdx = 1 -whiteClockAtIdx;
-
-                    const clocks = boardName === 'a'? this.clocks: this.clocksB;
-                    const clocktimes = boardName === 'a'? this.clocktimes: this.clocktimesB;
-
-
-                    clocks[stopClockAtIdx].pause(false);
-
-                    clocks[whiteClockAtIdx].setTime(clocktimes['white']);
-                    clocks[blackClockAtIdx].setTime(clocktimes['black']);
-
-                    if (this.clockOn && msg.status < 0) { // todo:niki:not sure why this if is needed
-                        clocks[startClockAtIdx].start();
-                    }
-                }
-                if (!myMove) {
-                    //when message is for opp's move, meaning turnColor is my color - it is now my turn after this message
-                    if (latestPly) {
-                        board.chessground.set({
-                            fen: fen,
-                            turnColor: board.turnColor,
-                            check: check,//todo:niki:which board is this about?
-                            lastMove: lastMove,
-                        });
-                        //todo:niki: updating model probably should be regardless of whetehre it is latestPly:
-                        board.fullfen = fen;
-                        board.partnerCC.fullfen = fenPartner;//todo:niki:setter or something maybe
-                        board.partnerCC.chessground.set({ fen: fenPartner});
-                        if (!this.focus) this.notifyMsg(`Played ${msg.steps[0].san}\nYour turn.`);
-
-                        // prevent sending premove/predrop when (auto)reconnecting websocked asks server to (re)sends the same board to us
-                        // console.log("trying to play premove....");
-                        if (board.premove) board.performPremove();
-                    }
-                } else {
-                    //when message is about the move i just made
-                    board.chessground.set({
-                        // giving fen here will place castling rooks to their destination in chess960 variants
-                        fen: fen,
-                        turnColor: board.turnColor,
-                        check: check,
-                    });
-                    board.fullfen = fen;
-                    board.partnerCC.fullfen = fenPartner;
-                    board.partnerCC.chessground.set({ fen: fenPartner});
-                }
+                this.updateSingleBoardAndClocks(board, fen, fenPartner, lastMove, msg.steps[0], msg.clocks!, latestPly, colors, msg.status, check);
             }
         }
-        // this.updateMaterial();
     }
 
     doSend = (message: JSONObject) => {
@@ -886,9 +930,6 @@ export class RoundController implements ChatController/*extends GameController t
         board.chessground.set({
             fen: fen,
             turnColor: step.turnColor,
-            movable: {
-                color: step.turnColor,
-                },
             check: step.check,
             lastMove: move,
         });

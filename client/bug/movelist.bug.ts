@@ -1,9 +1,9 @@
 import { h, VNode } from 'snabbdom';
 
-import AnalysisController from './analysisCtrl';
+import AnalysisController from './analysisCtrl.bug';
 import { result } from '../result'
 import { patch } from '../document';
-import {RoundController} from "./roundCtrl";
+import {RoundController} from "./roundCtrl.bug";
 import {Step} from "../messages";
 
 export function selectMove (ctrl: AnalysisController | RoundController, ply: number, plyVari = 0): void {
