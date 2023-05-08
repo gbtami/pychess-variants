@@ -494,4 +494,12 @@ VIDEOS = [
         "target": "beginner",
         "duration": "8:19",
     },
+    {
+        "_id": "_Mis4iWRHws",
+        "title": "Chennis - How to play",
+        "author": "PyChess",
+        "tags": ["Howto"],
+        "target": "beginner",
+        "duration": "10:15",
+    },
 ]

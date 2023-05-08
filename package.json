@@ -24,7 +24,7 @@
     "fairy-stockfish-nnue.wasm": "^1.1.2",
     "ffish-es6": "^0.7.4",
     "gettext.js": "^1.2.0",
-    "highcharts": "^10.1.0",
+    "highcharts": "^11.0.0",
     "howler": "^2.2.3",
     "html-to-image": "^1.10.8",
     "idb-keyval": "^6.2.0",
@@ -54,6 +54,7 @@
   },
   "scripts": {
     "postinstall": "./cp2static.sh",
+    "typecheck": "./node_modules/typescript/bin/tsc --noEmit",
     "dev": "node esbuild.mjs dev",
     "prod": "node esbuild.mjs prod",
     "md": "./md2html.sh",
