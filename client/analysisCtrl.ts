@@ -680,8 +680,13 @@ export class AnalysisController extends GameController {
     }
 
     fsfPostMessage(msg: string) {
-        if (this.fsfDebug) console.debug('<---', msg);
-        window.fsf.postMessage(msg);
+        if (window.fsf === undefined) {
+            // At very first time we may have to wait for fsf module to initialize
+            setTimeout(this.fsfPostMessage, 100, msg);
+        } else {
+            if (this.fsfDebug) console.debug('<---', msg);
+            window.fsf.postMessage(msg);
+        }
     }
     
     // When we are moving inside a variation move list
