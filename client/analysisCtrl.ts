@@ -78,7 +78,7 @@ export class AnalysisController extends GameController {
         this.fsfDebug = false;
         this.fsfError = [];
         this.embed = this.gameId === undefined;
-        this.puzzle = model["puzzle"] !== undefined;
+        this.puzzle = model["puzzle"] !== "";
         this.isAnalysisBoard = this.gameId === "" && !this.puzzle;
         if (!this.embed) {
             this.chartFunctions = [analysisChart, movetimeChart];
@@ -165,6 +165,7 @@ export class AnalysisController extends GameController {
             this.vpvlines = [...Array(5).fill(null).map((_, i) => document.querySelector(`.pvbox :nth-child(${i + 1})`) as HTMLElement)];
 
             if (!this.puzzle) {
+                (document.querySelector('div.feedback') as HTMLElement).style.display = 'none';
                 const pgn = (this.isAnalysisBoard) ? this.getPgn() : this.pgn;
                 this.renderFENAndPGN(pgn);
             }
