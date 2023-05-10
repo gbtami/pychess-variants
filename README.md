@@ -40,6 +40,7 @@ Currently supported games are:
 - [Orda Mirror](https://www.pychess.org/variants/ordamirror)
 - [Chak](https://www.pychess.org/variants/chak)
 - [Chennis](https://www.pychess.org/variants/chennis)
+- [Spartan chess](https://www.pychess.org/variants/spartan)
 - [S-house (S-chess+Crazyhouse)](https://www.pychess.org/variants/shouse)
 - [Capahouse (Capablanca+Crazyhouse)](https://www.pychess.org/variants/capahouse)
 - [Grandhouse (Grand chess+Crazyhouse)](https://www.pychess.org/variants/grandhouse)
