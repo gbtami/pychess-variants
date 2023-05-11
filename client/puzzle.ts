@@ -5,6 +5,7 @@ import { PuzzleController } from './puzzleCtrl';
 import { selectVariant, variants, VARIANTS, puzzleVariants } from './variants';
 import { PyChessModel } from './types';
 import { analysisTools, gauge } from './analysis'
+import { analysisSettings } from './analysisSettings';
 
 function runPuzzle(vnode: VNode, model: PyChessModel) {
     const el = vnode.elm as HTMLElement;
@@ -53,6 +54,7 @@ export function puzzleView(model: PyChessModel): VNode[] {
                 ]),
             ]),
             analysisTools(),
+            analysisSettings.view(variant.name),
             h('div#move-controls'),
             h('div.pocket-bot', [
                 h('div.' + variant.pieceFamily + '.' + model["variant"], [

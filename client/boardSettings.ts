@@ -5,8 +5,8 @@ import { Api } from 'chessgroundx/api';
 
 import { _ } from './i18n';
 import { changeBoardCSS, changePieceCSS } from './document';
-import { Settings, NumberSettings, BooleanSettings, StringSettings } from './settings';
-import { slider, checkbox, nnueFile } from './view';
+import { Settings, NumberSettings, BooleanSettings } from './settings';
+import { slider, checkbox } from './view';
 import { PyChessModel } from "./types";
 import { BOARD_FAMILIES, PIECE_FAMILIES, Variant, VARIANTS } from './variants';
 
@@ -48,8 +48,6 @@ class BoardSettings {
         this.settings["animation"] = new AnimationSettings(this);
         this.settings["showDests"] = new ShowDestsSettings(this);
         this.settings["autoPromote"] = new AutoPromoteSettings(this);
-        this.settings["arrow"] = new ArrowSettings(this);
-        this.settings["multipv"] = new MultiPVSettings(this);
         this.settings["blindfold"] = new BlindfoldSettings(this);
         this.settings["materialDifference"] = new MaterialDifferenceSettings(this);
     }
@@ -66,9 +64,6 @@ class BoardSettings {
                     break;
                 case "Zoom":
                     this.settings[fullName] = new ZoomSettings(this, family);
-                    break;
-                case "Nnue":
-                    this.settings[fullName] = new NnueSettings(this, family);
                     break;
                 default:
                     throw "Unknown settings type " + settingsType;
@@ -146,13 +141,6 @@ class BoardSettings {
 
         if (variant.promotion.autoPromoteable)
             settingsList.push(this.settings["autoPromote"].view());
-
-        settingsList.push(this.settings["arrow"].view());
-
-        settingsList.push(this.settings["multipv"].view());
-
-        if (variantName === this.ctrl?.variant.name)
-            settingsList.push(this.getSettings("Nnue", variantName as string).view());
 
         settingsList.push(this.settings["blindfold"].view());
 
@@ -311,67 +299,6 @@ class AutoPromoteSettings extends BooleanSettings {
 
     view(): VNode {
         return h('div', checkbox(this, 'autoPromote', _("Promote to the top choice automatically")));
-    }
-}
-
-class ArrowSettings extends BooleanSettings {
-    readonly boardSettings: BoardSettings;
-
-    constructor(boardSettings: BoardSettings) {
-        super('arrow', true);
-        this.boardSettings = boardSettings;
-    }
-
-    update(): void {
-        const ctrl = this.boardSettings.ctrl;
-        if ('arrow' in ctrl)
-            ctrl.arrow = this.value;
-    }
-
-    view(): VNode {
-        return h('div', checkbox(this, 'arrow', _("Best move arrow in analysis board")));
-    }
-}
-
-class MultiPVSettings extends NumberSettings {
-    readonly boardSettings: BoardSettings;
-
-    constructor(boardSettings: BoardSettings) {
-        super('multipv', 1);
-        this.boardSettings = boardSettings;
-    }
-
-    update(): void {
-        const ctrl = this.boardSettings.ctrl;
-        if ('multipv' in ctrl)
-            ctrl.multipv = this.value;
-            ctrl.pvboxIni();
-    }
-
-    view(): VNode {
-        return h('div', slider(this, 'multipv', 1, 5, 1, _('MultiPV')));
-    }
-}
-
-class NnueSettings extends StringSettings {
-    readonly boardSettings: BoardSettings;
-    readonly variant: string;
-
-    constructor(boardSettings: BoardSettings, variant: string) {
-        super(variant + '-nnue', '');
-        this.boardSettings = boardSettings;
-        this.variant = variant;
-    }
-
-    update(): void {
-        const ctrl = this.boardSettings.ctrl;
-        if ('evalFile' in ctrl)
-            ctrl.evalFile = this.value;
-            ctrl.nnueIni();
-    }
-
-    view(): VNode {
-        return h('div', nnueFile(this, 'evalFile', 'NNUE', this.variant));
     }
 }
 

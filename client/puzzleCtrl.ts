@@ -345,6 +345,9 @@ export class PuzzleController extends AnalysisController {
         const engineEl = document.querySelector('.engine') as HTMLElement;
         engineEl.style.display = 'flex';
 
+        const settingsEl = document.getElementById('bars') as HTMLElement;
+        settingsEl.style.display = 'block';
+
         if (this.autoNext && success) this.continueTraining();
     }
 

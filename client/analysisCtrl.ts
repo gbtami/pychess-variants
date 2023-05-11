@@ -27,7 +27,7 @@ import { PyChessModel } from "./types";
 import { Ceval, MsgBoard, MsgUserConnected, Step, CrossTable } from "./messages";
 import { MsgAnalysis, MsgAnalysisBoard } from './analysisType';
 import { GameController } from './gameCtrl';
-import { EngineSettings } from './analysisSettings';
+import { analysisSettings, EngineSettings } from './analysisSettings';
 
 const EVAL_REGEX = new RegExp(''
   + /^info depth (\d+) seldepth \d+ multipv (\d+) /.source
@@ -119,6 +119,7 @@ export class AnalysisController extends GameController {
         this.arrow = localStorage.arrow === undefined ? true : localStorage.arrow === "true";
         this.multipv = localStorage.multipv === undefined ? 1 : Math.max(1, Math.min(5, parseInt(localStorage.multipv)));
         this.evalFile = localStorage[`${this.variant.name}-nnue`] === undefined ? '' : localStorage[`${this.variant.name}-nnue`];
+
         this.nnueOk = false;
         this.importedBy = '';
 
@@ -216,9 +217,29 @@ export class AnalysisController extends GameController {
         }
         if (!this.puzzle) {
             (document.querySelector('[tabindex="0"]') as HTMLElement).style.display = 'flex';
+
+            const menuEl = document.getElementById('bars') as HTMLElement;
+            menuEl.style.display = 'block';
         }
 
         this.onMsgBoard(model["board"] as MsgBoard);
+        analysisSettings.ctrl = this;
+    }
+
+    toggleSettings() {
+        const menuEl = document.getElementById('bars') as HTMLElement;
+        const settingsEl = document.querySelector('div.analysis-settings') as HTMLElement;
+        console.log(settingsEl.style.display);
+        const toolsEl = document.querySelector('div.analysis-tools') as HTMLElement;
+        if (settingsEl.style.display === 'flex') {
+            toolsEl.style.display = 'flex';
+            settingsEl.style.display = 'none';
+            menuEl.classList.toggle('active', false);
+        } else {
+            toolsEl.style.display = 'none';
+            settingsEl.style.display = 'flex';
+            menuEl.classList.toggle('active', true);
+        }
     }
 
     nnueIni() {
