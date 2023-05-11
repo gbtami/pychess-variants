@@ -258,7 +258,7 @@ class ZoomSettings extends NumberSettings {
     }
 
     view(): VNode {
-        return h('div', slider(this, 'zoom', 0, 100, this.boardFamily.includes("shogi") ? 1 : 1.15625, _('Zoom')));
+        return h('div.labelled', slider(this, 'zoom', 0, 100, this.boardFamily.includes("shogi") ? 1 : 1.15625, _('Zoom')));
     }
 }
 

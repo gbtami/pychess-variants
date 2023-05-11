@@ -849,7 +849,14 @@ ul.guide li {
   flex-direction: column;
   margin: 5px;
 }
-
+#settings div.labelled, div.labelled {
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+}
+.labelled label {
+  padding-left: 0;
+}
 #settings-buttons button {
   text-align: left;
   padding-left: 1rem;

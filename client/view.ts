@@ -22,11 +22,11 @@ export function radioList(settings: Settings<string>, name: string, options: { [
 export function slider(settings: Settings<number>, name: string, min = 0, max = 100, step = 1, text: string) {
     const id = name;
     return [
+        h('label', { attrs: { for: id } }, text),
         h(`input#${id}.slider`, {
             props: { name: name, type: "range", min: min, max: max, step: step, value: settings.value },
             on: { input: e => settings.value = Number((e.target as HTMLInputElement).value) },
         }),
-        h('label', { attrs: { for: id } }, text),
     ];
 }
 
@@ -60,6 +60,7 @@ export function toggleSwitch(settings: Settings<boolean>, name: string, text: st
 export function nnueFile(settings: Settings<string>, name: string, text: string, variant: string) {
     const id = name;
     return [
+        h('label', { attrs: { for: id } }, text),
         h(`input#${id}`, {
             props: { name: name, type: "file", accept: '*.nnue', title: _('Page reload required after change') },
             hook: { insert: (vnode) => setInputFileName(vnode, settings.value) },
@@ -90,7 +91,6 @@ export function nnueFile(settings: Settings<string>, name: string, text: string,
                 }
             }},
         }),
-        h('label', { attrs: { for: id } }, text),
     ];
 }
 

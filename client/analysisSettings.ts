@@ -78,7 +78,7 @@ class MultiPVSettings extends NumberSettings {
     }
 
     view(): VNode {
-        return h('div', slider(this, 'multipv', 1, 5, 1, _('MultiPV')));
+        return h('div.labelled', slider(this, 'multipv', 1, 5, 1, _('MultiPV')));
     }
 }
 
@@ -100,7 +100,7 @@ class NnueSettings extends StringSettings {
     }
 
     view(): VNode {
-        return h('div', nnueFile(this, 'evalFile', 'NNUE', this.variant));
+        return h('div.labelled', nnueFile(this, 'evalFile', 'NNUE', this.variant));
     }
 }
 
