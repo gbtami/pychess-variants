@@ -2,7 +2,7 @@ import { h, VNode } from 'snabbdom';
 
 import { _ } from './i18n';
 import { Settings, BooleanSettings, NumberSettings, StringSettings } from './settings';
-import { checkbox, nnueFile, slider, toggleSwitch } from './view';
+import { nnueFile, slider, toggleSwitch } from './view';
 import { AnalysisController } from './analysisCtrl';
 import { patch } from './document';
 
@@ -15,7 +15,10 @@ class AnalysisSettings {
     constructor() {
         this.settings = {};
         this.settings["arrow"] = new ArrowSettings(this);
+        this.settings["infiniteAnalysis"] = new InfiniteAnalysisSettings(this);
         this.settings["multipv"] = new MultiPVSettings(this);
+        this.settings["threads"] = new ThreadsSettings(this);
+        this.settings["hash"] = new HashSettings(this);
     }
 
     getSettings(family: string) {
@@ -33,7 +36,13 @@ class AnalysisSettings {
 
         settingsList.push(this.settings["arrow"].view());
 
+        settingsList.push(this.settings["infiniteAnalysis"].view());
+
         settingsList.push(this.settings["multipv"].view());
+
+        settingsList.push(this.settings["threads"].view());
+
+        settingsList.push(this.settings["hash"].view());
 
         settingsList.push(this.getSettings(variantName as string).view());
 
@@ -53,12 +62,48 @@ class ArrowSettings extends BooleanSettings {
 
     update(): void {
         const ctrl = this.analysisSettings.ctrl;
-        if ('arrow' in ctrl)
-            ctrl.arrow = this.value;
+        if ('arrow' in ctrl) ctrl.arrow = this.value;
     }
 
     view(): VNode {
-        return h('div', checkbox(this, 'arrow', _("Best move arrow in analysis board")));
+        return h(
+            'div.arrow-toggle',
+            toggleSwitch(
+                this,
+                'arrow-enabled',
+                _("Best move arrow"),
+                false,
+            )
+        );
+    }
+}
+
+class InfiniteAnalysisSettings extends BooleanSettings {
+    readonly analysisSettings: AnalysisSettings;
+
+    constructor(analysisSettings: AnalysisSettings) {
+        super('infiniteAnalysis', false);
+        this.analysisSettings = analysisSettings;
+    }
+
+    update(): void {
+        const ctrl = this.analysisSettings.ctrl;
+        if ('maxDepth' in ctrl) {
+            ctrl.maxDepth = (this.value) ? 99 : 18;
+            ctrl.pvboxIni();
+        }
+    }
+
+    view(): VNode {
+        return h(
+            'div.infiniteAnalysis-toggle',
+            toggleSwitch(
+                this,
+                'infiniteAnalysis-enabled',
+                _("Infinite analysis"),
+                false,
+            )
+        );
     }
 }
 
@@ -72,16 +117,93 @@ class MultiPVSettings extends NumberSettings {
 
     update(): void {
         const ctrl = this.analysisSettings.ctrl;
-        if ('multipv' in ctrl)
+        if ('multipv' in ctrl) {
             ctrl.multipv = this.value;
             ctrl.pvboxIni();
+            const settingsEl = document.querySelector('div.multipv_range_value') as HTMLElement;
+            patch(settingsEl, h('div.multipv_range_value', `${this.value} / 5`));
+        }
     }
 
     view(): VNode {
-        return h('div.labelled', slider(this, 'multipv', 1, 5, 1, _('MultiPV')));
+        const els = slider(this, 'multipv', 1, 5, 1, _('Multiple lines')); 
+        els.push(h('div.multipv_range_value', `${this.value} / 5`));
+        return h('div.labelled', els);
     }
 }
 
+class ThreadsSettings extends NumberSettings {
+    readonly analysisSettings: AnalysisSettings;
+    readonly maxThreads: number;
+
+    constructor(analysisSettings: AnalysisSettings) {
+        super('threads', 1);
+        this.analysisSettings = analysisSettings;
+        this.maxThreads = Math.min(Math.max((navigator.hardwareConcurrency || 1) - 1, 1), 32);
+    }
+
+    update(): void {
+        const ctrl = this.analysisSettings.ctrl;
+        if ('threads' in ctrl) {
+            ctrl.threads = this.value;
+            ctrl.pvboxIni();
+            const settingsEl = document.querySelector('div.threads_range_value') as HTMLElement;
+            patch(settingsEl, h('div.threads_range_value', `${this.value} / ${this.maxThreads}`));
+        }
+    }
+
+    view(): VNode {
+        const els = slider(this, 'threads', 1, this.maxThreads, 1, _('CPUs')); 
+        els.push(h('div.threads_range_value', `${this.value} / ${this.maxThreads}`));
+        return h('div.labelled', els);
+    }
+}
+
+// Some utility functions are borrowed from lila ui code
+const isAndroid = (): boolean => /Android/.test(navigator.userAgent);
+
+const isIOS = (): boolean => /iPhone|iPod/.test(navigator.userAgent) || isIPad();
+
+// some newer iPads pretend to be Macs, hence checking for "Macintosh"
+const isIPad = (): boolean => navigator?.maxTouchPoints > 2 && /iPad|Macintosh/.test(navigator.userAgent);
+
+// the numbers returned by maxHashMB seem small, but who knows if wasm stockfish performance even
+// scales like native stockfish with increasing hash. prefer smaller, non-crashing values
+// steer the high performance crowd towards external engine as it gets better
+const maxHashMB = (): number => {
+    let maxHash = 256; // this is conservative but safe, mostly desktop firefox / mac safari users here
+    if (isAndroid()) maxHash = 64; // budget androids are easy to crash @ 128
+    else if (isIPad()) maxHash = 64; // iPadOS safari pretends to be desktop but acts more like iphone
+    else if (isIOS()) maxHash = 32;
+    return maxHash;
+};
+
+class HashSettings extends NumberSettings {
+    readonly analysisSettings: AnalysisSettings;
+    readonly maxHash: number;
+
+    constructor(analysisSettings: AnalysisSettings) {
+        super('hash', 16);
+        this.analysisSettings = analysisSettings;
+        this.maxHash = maxHashMB();
+    }
+
+    update(): void {
+        const ctrl = this.analysisSettings.ctrl;
+        if ('threads' in ctrl) {
+            ctrl.hash = this.value;
+            ctrl.pvboxIni();
+            const settingsEl = document.querySelector('div.hash_range_value') as HTMLElement;
+            patch(settingsEl, h('div.hash_range_value', `${this.value}MB`));
+        }
+    }
+
+    view(): VNode {
+        const els = slider(this, 'hash', 16, this.maxHash, 16, _('Memory')); 
+        els.push(h('div.hash_range_value', `${this.value}MB`));
+        return h('div.labelled', els);
+    }
+}
 class NnueSettings extends StringSettings {
     readonly analysisSettings: AnalysisSettings;
     readonly variant: string;
@@ -94,9 +216,10 @@ class NnueSettings extends StringSettings {
 
     update(): void {
         const ctrl = this.analysisSettings.ctrl;
-        if ('evalFile' in ctrl)
+        if ('evalFile' in ctrl) {
             ctrl.evalFile = this.value;
             ctrl.nnueIni();
+        }
     }
 
     view(): VNode {

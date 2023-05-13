@@ -37,7 +37,6 @@ const EVAL_REGEX = new RegExp(''
   + /pv (.+)/.source);
 
 const maxDepth = 18;
-const maxThreads = Math.max((navigator.hardwareConcurrency || 1) - 1, 1);
 
 const emptySan = '\xa0';
 
@@ -64,6 +63,8 @@ export class AnalysisController extends GameController {
     notationAsObject: any;
     arrow: boolean;
     multipv: number;
+    threads: number;
+    hash: number;
     evalFile: string;
     nnueOk: boolean;
     importedBy: string;
@@ -105,9 +106,6 @@ export class AnalysisController extends GameController {
         // UCI isready/readyok
         this.isEngineReady = false;
 
-        // loaded Fairy-Stockfish ffish.js wasm module
-        this.maxDepth = maxDepth;
-
         // ply where current interactive analysis variation line starts in the main line
         this.plyVari = 0;
 
@@ -116,9 +114,14 @@ export class AnalysisController extends GameController {
 
         this.settings = true;
         this.dblClickPass = true;
+
         this.arrow = localStorage.arrow === undefined ? true : localStorage.arrow === "true";
-        this.multipv = localStorage.multipv === undefined ? 1 : Math.max(1, Math.min(5, parseInt(localStorage.multipv)));
+        const infiniteAnalysis = localStorage.infiniteAnalysis === undefined ? false : localStorage.infiniteAnalysis === "true";
+        this.maxDepth = (infiniteAnalysis) ? 99 : maxDepth;
+        this.multipv = localStorage.multipv === undefined ? 1 : parseInt(localStorage.multipv);
         this.evalFile = localStorage[`${this.variant.name}-nnue`] === undefined ? '' : localStorage[`${this.variant.name}-nnue`];
+        this.threads = localStorage.threads === undefined ? 1 : parseInt(localStorage.threads);
+        this.hash = localStorage.hash === undefined ? 16 : parseInt(localStorage.hash);
 
         this.nnueOk = false;
         this.importedBy = '';
@@ -229,7 +232,6 @@ export class AnalysisController extends GameController {
     toggleSettings() {
         const menuEl = document.getElementById('bars') as HTMLElement;
         const settingsEl = document.querySelector('div.analysis-settings') as HTMLElement;
-        console.log(settingsEl.style.display);
         const toolsEl = document.querySelector('div.analysis-tools') as HTMLElement;
         if (settingsEl.style.display === 'flex') {
             toolsEl.style.display = 'flex';
@@ -636,6 +638,7 @@ export class AnalysisController extends GameController {
                     info.push(h('span', ', ' + Math.round(ceval.k) + ' knodes/s'));
                 }
             }
+            this.vinfo = patch(this.vinfo, h('info#info', ''));
             this.vinfo = patch(this.vinfo, h('info#info', info));
         } else {
             this.vscore = patch(this.vscore, h('score#score', ''));
@@ -685,12 +688,12 @@ export class AnalysisController extends GameController {
             this.fsfPostMessage('setoption name EvalFile value ' + this.evalFile);
         }
 
-        //console.log('setoption name Threads value ' + maxThreads);
-        this.fsfPostMessage('setoption name Threads value ' + maxThreads);
+        this.fsfPostMessage('setoption name Hash value ' + this.hash);
+
+        this.fsfPostMessage('setoption name Threads value ' + this.threads);
 
         this.fsfPostMessage('setoption name MultiPV value ' + this.multipv);
 
-        //console.log('position fen ', this.fullfen);
         this.fsfPostMessage('position fen ' + this.fullfen);
 
         if (this.maxDepth >= 99) {
@@ -759,7 +762,6 @@ export class AnalysisController extends GameController {
         this.drawEval(step.ceval, step.scoreStr, step.turnColor);
         if (plyVari === 0) this.drawServerEval(ply, step.scoreStr);
 
-        this.maxDepth = maxDepth;
         if (this.localAnalysis) this.engineGo();
 
         if (!this.puzzle) {

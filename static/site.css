@@ -849,13 +849,22 @@ ul.guide li {
   flex-direction: column;
   margin: 5px;
 }
-#settings div.labelled, div.labelled {
+#settings div.labelled, div.labelled, div.arrow-toggle {
   display: flex;
   align-items: center;
   flex-direction: row;
 }
 .labelled label {
   padding-left: 0;
+}
+div.labelled input[type="range"] {
+  margin-right: 1ch;
+}
+div.labelled > div {
+  direction: ltr;
+  flex: 0 0 auto;
+  display: block;
+  text-align: right;
 }
 #settings-buttons button {
   text-align: left;
