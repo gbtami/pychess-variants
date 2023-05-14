@@ -593,6 +593,9 @@ class GameBug:
         #         self.chess960,
         #         {self.bplayer.username: int(round(br.mu, 0))},
         #     )
+    @property
+    def all_players(self):
+        return [self.wplayerA, self.bplayerA, self.wplayerB, self.bplayerB]
 
     @property
     def ply_clocks(self):
@@ -909,9 +912,10 @@ class GameBug:
             steps = self.steps
 
             # To not touch self._ply_clocks we are creating deep copy from clocks
-            clocks = {"black": self.clocks["black"], "white": self.clocks["white"]}
+            clocksA = {"black": self._ply_clocks["a"][-1]["black"], "white": self._ply_clocks["a"][-1]["white"]}
+            clocksB = {"black": self._ply_clocks["b"][-1]["black"], "white": self._ply_clocks["b"][-1]["white"]}
 
-            if self.status == STARTED and self.boards["a"].ply >= 2: # todo niki temporary hardocding board "a" - no idea what this is
+            if self.status == STARTED:
                 # We have to adjust current player latest saved clock time
                 # otherwise he will get free extra time on browser page refresh
                 # (also needed for spectators entering to see correct clock times)
@@ -919,11 +923,14 @@ class GameBug:
                 cur_time = monotonic()
                 elapsed = int(round((cur_time - self.last_server_clock) * 1000))
 
-                cur_color = "black" if self.boards["a"].color == BLACK else "white" # todo niki temporary hardocding board "a" - no idea what this is
-                clocks[cur_color] = max(0, clocks[cur_color] + self.byo_correction - elapsed)
+                cur_colorA = "black" if self.boards["a"].color == BLACK else "white"
+                cur_colorB = "black" if self.boards["b"].color == BLACK else "white"
+                clocksA[cur_colorA] = max(0, clocksA[cur_colorA] + self.byo_correction - elapsed)
+                clocksB[cur_colorA] = max(0, clocksB[cur_colorB] + self.byo_correction - elapsed)
             # crosstable = self.crosstable
         else:
-            clocks = self.clocks
+            clocksA = self._ply_clocks["a"][-1]
+            clocksB = self._ply_clocks["b"][-1]
             steps = (self.steps[-1],)
             # crosstable = self.crosstable if self.status > STARTED else ""
 
@@ -942,7 +949,8 @@ class GameBug:
             "check": self.checkA, # todo:niki:why does this exist? isnt same in steps/last step enough?
             "checkB": self.checkB,
             "ply": self.boards["a"].ply + self.boards["b"].ply,  # todo niki - just use global ply counter and moves list eventually. just putting this here so it is correct but not best
-            "clocks": {"black": clocks["black"], "white": clocks["white"]}, # todo niki
+            "clocks": {"black": clocksA["black"], "white": clocksA["white"]},
+            "clocksB": {"black": clocksB["black"], "white": clocksB["white"]},
             # "byo": byoyomi_periods,
             "pgn": self.pgn if self.status > STARTED else "",
             "rdiffs": {"brdiff": self.brdiff, "wrdiff": self.wrdiff} # todo niki

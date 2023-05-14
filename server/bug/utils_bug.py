@@ -288,13 +288,18 @@ async def new_game_bughouse(app, seek_id, game_id=None):
 
     if seek.fen:
         from utils import sanitize_fen
-        fen_valid, sanitized_fen = sanitize_fen(seek.variant, seek.fen, seek.chess960)
-        if not fen_valid:
+        fens = seek.fen.split(" | ")
+        fenA = fens[0]
+        fenB = fens[0]
+        fen_validA, sanitized_fenA = sanitize_fen(seek.variant, fenA, seek.chess960)
+        fen_validB, sanitized_fenB = sanitize_fen(seek.variant, fenB, seek.chess960)
+        if not fen_validA or not fen_validB:
             message = "Failed to create game. Invalid FEN %s" % seek.fen
             log.debug(message)
             from utils import remove_seek
             remove_seek(seeks, seek)
             return {"type": "error", "message": message}
+        sanitized_fen = sanitized_fenA + " | " + sanitized_fenB
     else:
         sanitized_fen = ""  # "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[] w KQkq - 0 1 | rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[] w KQkq - 0 1"
 

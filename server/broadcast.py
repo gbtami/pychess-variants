@@ -36,6 +36,7 @@ async def round_broadcast(game, response, full=False, channels=None):
                 pass
 
     if full:
+        # todo:niki: bughouse other 2 players missing. seems trivial but that bot check in some logic might be the reason why they split this, otherwise i see no point to not always use this instead of obtaining opp and user ws separately and then call this with full=false as it mostly happens
         if not game.wplayer.bot:
             try:
                 wplayer_ws = game.wplayer.game_sockets[game.id]

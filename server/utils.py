@@ -414,7 +414,7 @@ async def join_seek(app, user, seek_id, game_id=None, join_as="any"):
     log.info(
         "+++ Seek %s joined by %s FEN:%s 960:%s",
         seek_id,
-        user.username,
+        user.username if user else None,
         seek.fen,
         seek.chess960,
     )

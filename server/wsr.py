@@ -9,6 +9,7 @@ from aiohttp import web
 import aiohttp_session
 
 from broadcast import lobby_broadcast, round_broadcast
+from bug.wsr_bug import handle_resign_bughouse, handle_rematch_bughouse
 from chat import chat_response
 from const import ANALYSIS, STARTED
 from fairy import WHITE, BLACK
@@ -263,6 +264,10 @@ async def round_socket_handler(request):
                         await ws.send_json(response)
 
                     elif data["type"] == "rematch":
+                        if game.variant == "bughouse":
+                            await handle_rematch_bughouse(data, game, user, users, ws, request, seeks)
+                            continue
+
                         rematch_id = None
 
                         opp_name = (
@@ -356,6 +361,7 @@ async def round_socket_handler(request):
                                 game, {"type": "view_rematch", "gameId": rematch_id}
                             )
 
+
                     elif data["type"] == "reject_rematch":
                         opp_name = (
                             game.wplayer.username
@@ -419,6 +425,10 @@ async def round_socket_handler(request):
                         # print("BYOYOMI:", data)
 
                     elif data["type"] in ("abort", "resign", "abandone", "flag"):
+                        if game.variant == "bughouse": # todo:niki: add new method in both places
+                            await handle_resign_bughouse(data, game, user)
+                            continue
+
                         if data["type"] == "abort" and (game is not None) and game.board.ply > 2:
                             continue
 
@@ -660,21 +670,18 @@ async def round_socket_handler(request):
                         )
                         game.messages.append(response)
 
-                        opp_name = (
-                            game.wplayer.username
-                            if user.username == game.bplayer.username
-                            else game.bplayer.username
-                        )
-                        opp_player = users[opp_name]
-                        if not opp_player.bot and gameId in opp_player.game_sockets:
-                            opp_player_ws = opp_player.game_sockets[gameId]
-                            await opp_player_ws.send_json(response)
+                        other_players = filter(lambda p: p.username != user.username, game.all_players)
+                        for p in other_players:
 
-                            response = {
-                                "type": "user_disconnected",
-                                "username": user.username,
-                            }
-                            await opp_player_ws.send_json(response)
+                            if not p.bot and gameId in p.game_sockets:
+                                p_ws = p.game_sockets[gameId]
+                                await p_ws.send_json(response)
+
+                                response = {
+                                    "type": "user_disconnected",
+                                    "username": user.username,
+                                }
+                                await p_ws.send_json(response)
 
                         await round_broadcast(game, response)
 

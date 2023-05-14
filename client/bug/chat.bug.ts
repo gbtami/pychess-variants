@@ -25,7 +25,7 @@ export function renderBugChatPresets(sendMessage: (s:string)=>void): VNode{
                     h('button.bugchat.no', { on: { click: () => sendMessage("!bug!no") } }, []),
                     h('button.bugchat.mb', { on: { click: () => sendMessage("!bug!mb") } }, []),
                     h('button.bugchat.nvm', { on: { click: () => sendMessage("!bug!nvm") } }, []),
-                    h('button.bugchat.nice', { on: { click: () => sendMessage("!bug!fix") } }, []),
+                    h('button.bugchat.nice', { on: { click: () => sendMessage("!bug!nice") } }, []),
 
                 ]);
 }

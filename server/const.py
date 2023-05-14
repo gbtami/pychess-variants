@@ -184,7 +184,7 @@ VARIANT_ICONS = {
     "duck": "🦆",
     "spartan": "⍺",
     "bughouse": "¢",
-    "bughouse960": "¡",
+    "bughouse960": "⌀",
 }
 
 VARIANT_960_TO_PGN = {

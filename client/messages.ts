@@ -86,7 +86,8 @@ export interface MsgBoard {
     berserk: { w: boolean, b: boolean };
 
     byo?: number[];
-    clocks?: Clocks;
+    clocks?: Clocks; // different than last stp clock - includes correction for the color whose turn it is with elapsed time on server since last move
+    clocksB?: Clocks; // different than last stp clock - includes correction for the color whose turn it is with elapsed time on server since last move
 }
 
 export interface Ceval {

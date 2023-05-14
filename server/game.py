@@ -768,6 +768,10 @@ class Game:
         )
 
     @property
+    def all_players(self):
+        return [self.wplayerA, self.bplayerA, self.wplayerB, self.bplayerB]
+
+    @property
     def clocks(self):
         return self.ply_clocks[-1]
 

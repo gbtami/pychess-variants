@@ -6,7 +6,18 @@ import { patch } from '../document';
 import { Clock } from '../clock';
 import {ChatController, chatMessage, chatView} from '../chat';
 import {createMovelistButtons, updateMovelist} from './movelist.bug';
-import {Clocks, MsgBoard, MsgChat, MsgFullChat, MsgGameEnd, MsgMove, MsgUserConnected, RDiffs, Step} from "../messages";
+import {
+    Clocks,
+    MsgBoard,
+    MsgChat,
+    MsgFullChat,
+    MsgGameEnd,
+    MsgMove,
+    MsgNewGame,
+    MsgUserConnected,
+    RDiffs,
+    Step
+} from "../messages";
 import {
     MsgUserDisconnected,
     MsgUserPresent,
@@ -15,7 +26,7 @@ import {
     MsgRematchOffer,
     MsgRematchRejected,
     MsgUpdateTV,
-    MsgGameStart
+    MsgGameStart, MsgViewRematch
 } from '../roundType';
 import {JSONObject, PyChessModel} from "../types";
 import {ChessgroundController} from "./ChessgroundCtrl";
@@ -70,7 +81,7 @@ export class RoundController implements ChatController/*extends GameController t
     animation: boolean;
     showDests: boolean;
     blindfold: boolean;
-    handicap: boolean;
+    handicap: boolean = false;
     setupFen: string;
     prevPieces: cg.Pieces;
     focus: boolean;
@@ -534,40 +545,38 @@ export class RoundController implements ChatController/*extends GameController t
         }
     }
     //
-    // private onMsgNewGame = (msg: MsgNewGame) => {
-    //     window.location.assign(this.home + '/' + msg["gameId"]);
-    // }
-    //
-    // private onMsgViewRematch = (msg: MsgViewRematch) => {
-    //     const btns_after = document.querySelector('.btn-controls.after') as HTMLElement;
-    //     let rematch_button = h('button.newopp', { on: { click: () => window.location.assign(this.home + '/' + msg["gameId"]) } }, _("VIEW REMATCH"));
-    //     let rematch_button_location = btns_after!.insertBefore(document.createElement('div'), btns_after!.firstChild);
-    //     patch(rematch_button_location, rematch_button);
-    // }
-    //
-    private rematch = () => {
-        console.log("rematch not implemented")
-        // this.doSend({ type: "rematch", gameId: this.gameId, handicap: this.handicap });
-        // this.setDialog(_("Rematch offer sent"));
+    private onMsgNewGame = (msg: MsgNewGame) => {
+        window.location.assign(this.home + '/' + msg["gameId"]);
+    }
+
+    private onMsgViewRematch = (msg: MsgViewRematch) => {
+        const btns_after = document.querySelector('.btn-controls.after') as HTMLElement;
+        let rematch_button = h('button.newopp', { on: { click: () => window.location.assign(this.home + '/' + msg["gameId"]) } }, _("VIEW REMATCH"));
+        let rematch_button_location = btns_after!.insertBefore(document.createElement('div'), btns_after!.firstChild);
+        patch(rematch_button_location, rematch_button);
     }
     //
-    // private rejectRematchOffer = () => {
-    //     this.doSend({ type: "reject_rematch", gameId: this.gameId });
-    //     this.clearDialog();
-    // }
+    private rematch = () => {
+        this.doSend({ type: "rematch", gameId: this.gameId, handicap: this.handicap });
+        this.setDialog(_("Rematch offer sent"));
+    }
     //
-    // private renderRematchOffer = () => {
-    //     this.vdialog = patch(this.vdialog, h('div#offer-dialog', [
-    //         h('div', { class: { reject: true }, on: { click: () => this.rejectRematchOffer() } }, h('i.icon.icon-abort.reject')),
-    //         h('div.text', _("Your opponent offers a rematch")),
-    //         h('div', { class: { accept: true }, on: { click: () => this.rematch() } }, h('i.icon.icon-check')),
-    //     ]));
-    // }
+    private rejectRematchOffer = () => {
+        this.doSend({ type: "reject_rematch", gameId: this.gameId });
+        this.clearDialog();
+    }
+    //
+    private renderRematchOffer = () => {
+        this.vdialog = patch(this.vdialog, h('div#offer-dialog', [
+            h('div', { class: { reject: true }, on: { click: () => this.rejectRematchOffer() } }, h('i.icon.icon-abort.reject')),
+            h('div.text', _("Your opponent offers a rematch")),
+            h('div', { class: { accept: true }, on: { click: () => this.rematch() } }, h('i.icon.icon-check')),
+        ]));
+    }
     //
     private newOpponent = (home: string) => {
-        console.log("newOpponent not implemented ", home);
-        // this.doSend({"type": "leave", "gameId": this.gameId});
-        // window.location.assign(home);
+        this.doSend({"type": "leave", "gameId": this.gameId});
+        window.location.assign(home);
     }
     //
     private analysis = (home: string) => {
@@ -725,33 +734,49 @@ export class RoundController implements ChatController/*extends GameController t
             this.clocksB[whiteClockBidx].start();
     }
 
-    private updateBothBoardsAndClocksOnFullBoardMsg = (lastStepA: Step, lastStepB: Step) => {
-            const partsA = lastStepA.fen.split(" ");
-            const partsB = lastStepB.fenB.split(" ");
+    private updateBothBoardsAndClocksOnFullBoardMsg = (lastStepA: Step, lastStepB: Step, clocksA: Clocks, clocksB: Clocks) => {
+        const partsA = lastStepA !== undefined? lastStepA.fen.split(" "): undefined;
+        const partsB = lastStepB !== undefined? lastStepB.fenB.split(" "): undefined;
 
-            this.b1.turnColor = partsA[1] === "w" ? "white" : "black";
-            this.b2.turnColor = partsB[1] === "w" ? "white" : "black";
+        // todo:niki: if undedefined it will get white, which is ok-ish, but ideally should use initial fen in case of custom start position
+        this.b1.turnColor = partsA[1] === "b" ? "black" : "white";
+        this.b2.turnColor = partsB[1] === "b" ? "black" : "white";
 
-            const lastMoveA = uci2LastMove(lastStepA.move);
-            const lastMoveB = uci2LastMove(lastStepB.moveB);
+        const lastMoveA = uci2LastMove(lastStepA.move);
+        const lastMoveB = uci2LastMove(lastStepB.moveB);
 
-            this.b1.chessground.set({
-                fen: lastStepA.fen,
-                turnColor: this.b1.turnColor,
-                check: lastStepA.check,
-                lastMove: lastMoveA,
-            });
-            this.b2.chessground.set({
-                fen: lastStepB.fenB,
-                turnColor: this.b2.turnColor,
-                check: lastStepB.check,
-                lastMove: lastMoveB,
-            });
+        this.b1.chessground.set({
+            fen: lastStepA.fen,
+            turnColor: this.b1.turnColor,
+            check: lastStepA.check,
+            lastMove: lastMoveA,
+        });
+        this.b2.chessground.set({
+            fen: lastStepB.fenB,
+            turnColor: this.b2.turnColor,
+            check: lastStepB.check,
+            lastMove: lastMoveB,
+        });
 
-            const clockOnTurnAidx = this.colors[0] === this.b1.turnColor? 0: 1;
-            const clockOnTurnBidx = this.colorsB[0] === this.b2.turnColor? 0: 1;
+        this.clocktimes = clocksA;
+        this.clocktimesB = clocksB;
+
+        const whiteAClockAtIdx = this.colors[0] === 'white'? 0: 1;
+        const blackAClockAtIdx = 1 -whiteAClockAtIdx;
+        const whiteBClockAtIdx = this.colorsB[0] === 'white'? 0: 1;
+        const blackBClockAtIdx = 1 -whiteBClockAtIdx;
+
+        this.clocks[whiteAClockAtIdx].setTime(this.clocktimes['white']);
+        this.clocks[blackAClockAtIdx].setTime(this.clocktimes['black']);
+        this.clocksB[whiteBClockAtIdx].setTime(this.clocktimesB['white']);
+        this.clocksB[blackBClockAtIdx].setTime(this.clocktimesB['black']);
+
+        if (this.status < 0) {
+            const clockOnTurnAidx = this.colors[0] === this.b1.turnColor ? 0 : 1;
+            const clockOnTurnBidx = this.colorsB[0] === this.b2.turnColor ? 0 : 1;
             this.clocks[clockOnTurnAidx].start();
             this.clocksB[clockOnTurnBidx].start();
+        }
     }
 
     private updateSingleBoardAndClocks = (board: ChessgroundController, fen: cg.FEN, fenPartner: cg.FEN, lastMove: cg.Orig[] | undefined, step: Step,
@@ -884,7 +909,7 @@ export class RoundController implements ChatController/*extends GameController t
             } else if (full) { // manual refresh or reconnect after lost ws connection
                 const lastStepA = msg.steps[msg.steps.findLastIndex(s => s.boardName === "a")];
                 const lastStepB = msg.steps[msg.steps.findLastIndex(s => s.boardName === "b")];
-                this.updateBothBoardsAndClocksOnFullBoardMsg(lastStepA, lastStepB);
+                this.updateBothBoardsAndClocksOnFullBoardMsg(lastStepA, lastStepB, msg.clocks!, msg.clocksB!);
             } else { // usual single ply board messages sent on each move
                 const boardName = msg.steps[msg.steps.length - 1].boardName as 'a' | 'b';//todo:niki:change this to step[0] if/when that board message is fixed to have just one element in steps and stop always sending that redundnat initial dummy step (if it is indeed redundant)
                 //todo:niki:update to above's todo, actually it sometimes sends it with 2 elements, sometimes just with one - gotta check what is wrong with python code and how it works in other variants. for now always getting the last element should be robust in all cases
@@ -1023,22 +1048,22 @@ export class RoundController implements ChatController/*extends GameController t
     }
 
     private onMsgDrawOffer = (msg: MsgDrawOffer) => {
-        chatMessage("", msg.message, "roundchat");
+        chatMessage("", msg.message, "bugroundchat");
         if (!this.spectator && msg.username !== this.username) this.renderDrawOffer();
     }
 
     private onMsgDrawRejected = (msg: MsgDrawRejected) => {
-        chatMessage("", msg.message, "roundchat");
+        chatMessage("", msg.message, "bugroundchat");
         // this.clearDialog();
     }
 
     private onMsgRematchOffer = (msg: MsgRematchOffer) => {
-        chatMessage("", msg.message, "roundchat");
-        // if (!this.spectator && msg.username !== this.username) this.renderRematchOffer();
+        chatMessage("", msg.message, "bugroundchat");
+        if (!this.spectator && msg.username !== this.username) this.renderRematchOffer();
     }
 
     private onMsgRematchRejected = (msg: MsgRematchRejected) => {
-        chatMessage("", msg.message, "roundchat");
+        chatMessage("", msg.message, "bugroundchat");
         // this.clearDialog();
     }
 
@@ -1049,7 +1074,7 @@ export class RoundController implements ChatController/*extends GameController t
         patch(document.getElementById('messages-clear') as HTMLElement, h('div#messages'));
         msg.lines.forEach((line) => {
             if ((this.spectator && line.room === 'spectator') || (!this.spectator && line.room !== 'spectator') || line.user.length === 0) {
-                chatMessage(line.user, line.message, "roundchat", line.time);
+                chatMessage(line.user, line.message, "bugroundchat", line.time);
             }
         });
     }
@@ -1105,10 +1130,10 @@ export class RoundController implements ChatController/*extends GameController t
                 this.onMsgUserDisconnected(msg);
                 break;
             case "new_game":
-                // this.onMsgNewGame(msg);
+                this.onMsgNewGame(msg);
                 break;
             case "view_rematch":
-                // this.onMsgViewRematch(msg);
+                this.onMsgViewRematch(msg);
                 break;
             case "draw_offer":
                 this.onMsgDrawOffer(msg);
