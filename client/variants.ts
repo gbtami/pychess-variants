@@ -844,33 +844,26 @@ export const variants = Object.keys(VARIANTS);
 const disabledVariants = [ "gothic", "gothhouse", "embassy", "embassyhouse", "gorogoro" ];
 export const enabledVariants = variants.filter(v => !disabledVariants.includes(v));
 
-// TODO: get this list from the server
-export const puzzleVariants = [
-    "xiangqi",
-    "atomic",
-    "makruk",
-    "chess",
-    "janggi",
-    "shogi",
-    "crazyhouse",
-    "chak",
-    "empire",
-    "orda",
-    "capablanca",
-    "hoppelpoppel",
-    "ordamirror",
-    "dobutsu",
-    "cambodian",
-    "makpong",
-    "grand",
-    "synochess",
-    "seirawan",
+// variants having 0 puzzle so far
+export const noPuzzleVariants = [
+    "placement",
+    "asean",
+    "sittuyin",
+    "minishogi",
+    "kyotoshogi",
+    "gorogoroplus",
     "torishogi",
+    "manchu",
+    "minixiangqi",
+    "capahouse",
+    "grandhouse",
+    "shouse",
+    "shogun",
     "shinobi",
-    "duck",
-    "shako",
+    "shinobiplus",
+    "chennis",
+    "spartan",
 ]
-
 
 export const variantGroups: { [ key: string ]: { variants: string[] } } = {
     standard: { variants: [ "chess", "crazyhouse", "placement", "atomic", "duck" ] },

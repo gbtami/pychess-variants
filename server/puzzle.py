@@ -6,34 +6,31 @@ import aiohttp_session
 
 import pyffish as sf
 
+from const import VARIANTS
 from glicko2.glicko2 import DEFAULT_PERF, gl2, Rating
 
-# TODO: query the database for variants having puzzles
-PUZZLE_VARIANTS = (
-    "xiangqi",
-    "atomic",
-    "makruk",
-    "chess",
-    "janggi",
-    "shogi",
-    "crazyhouse",
-    "chak",
-    "empire",
-    "orda",
-    "capablanca",
-    "hoppelpoppel",
-    "ordamirror",
-    "dobutsu",
-    "cambodian",
-    "makpong",
-    "grand",
-    "synochess",
-    "seirawan",
+# variants having 0 puzzle so far
+NO_PUZZLE_VARIANTS = (
+    "placement",
+    "asean",
+    "sittuyin",
+    "minishogi",
+    "kyotoshogi",
+    "gorogoroplus",
     "torishogi",
+    "manchu",
+    "minixiangqi",
+    "capahouse",
+    "grandhouse",
+    "shouse",
+    "shogun",
     "shinobi",
-    "duck",
-    "shako",
+    "shinobiplus",
+    "chennis",
+    "spartan",
 )
+
+PUZZLE_VARIANTS = [v for v in VARIANTS if (not v.endswith("960") and (v not in NO_PUZZLE_VARIANTS))]
 
 
 async def get_puzzle(request, puzzleId):

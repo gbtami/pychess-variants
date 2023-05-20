@@ -2,7 +2,7 @@ import { h, VNode } from "snabbdom";
 
 import { _ } from './i18n';
 import { PuzzleController } from './puzzleCtrl';
-import { selectVariant, variants, VARIANTS, puzzleVariants } from './variants';
+import { selectVariant, variants, VARIANTS, noPuzzleVariants } from './variants';
 import { PyChessModel } from './types';
 import { analysisTools, gauge } from './analysis'
 import { analysisSettings } from './analysisSettings';
@@ -20,7 +20,6 @@ function leftSide(model: PyChessModel) {
         const variant = e.options[e.selectedIndex].value;
         if (isInput) window.location.assign('/puzzle/' + variant);
     }
-    const disableds = variants.filter(v => !puzzleVariants.includes(v));
     return h('div', [
         h('div.puzzle-meta', [
             h('div.infos'),
@@ -31,7 +30,7 @@ function leftSide(model: PyChessModel) {
         ]),
         h('div.puzzle-info', [
             h('label', { attrs: { for: "variant" } }, _("Variant")),
-            selectVariant("variant", model.variant, () => setVariant(true), () => setVariant(false), disableds),
+            selectVariant("variant", model.variant, () => setVariant(true), () => setVariant(false), noPuzzleVariants),
             h('div.auto-next-toggle'),
         ]),
     ]);
