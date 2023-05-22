@@ -120,8 +120,8 @@ async def round_socket_handler(request):
                             if user.username == game.bplayer.username
                             else game.bplayer.username
                         )
-                        opp_player = users[opp_name]
-                        if opp_player.bot:
+                        opp_player = users.get(opp_name)
+                        if opp_player is not None and opp_player.bot:
                             # Janggi game start have to wait for human player setup!
                             if game.variant != "janggi" or not (game.bsetup or game.wsetup):
                                 await opp_player.event_queue.put(game.game_start)
