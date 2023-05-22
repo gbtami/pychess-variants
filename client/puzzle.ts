@@ -2,7 +2,7 @@ import { h, VNode } from "snabbdom";
 
 import { _ } from './i18n';
 import { PuzzleController } from './puzzleCtrl';
-import { selectVariant, variants, VARIANTS, noPuzzleVariants } from './variants';
+import { selectVariant, VARIANTS, noPuzzleVariants } from './variants';
 import { PyChessModel } from './types';
 import { analysisTools, gauge } from './analysis'
 import { analysisSettings } from './analysisSettings';
