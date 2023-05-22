@@ -70,11 +70,20 @@ export class PuzzleController extends AnalysisController {
             },
         });
 
-        const ratedSettings = new RatedSettings(this);
         const rt = document.querySelector('.rated-toggle') as HTMLElement;
-        patch(rt, ratedSettings.view());
-
-        this.renderRating(this.isRated, this.color, this.wrating, this.brating);
+        if (this.anon) {
+            patch(rt, h('div', [
+                h('div', 'To solve the puzzles rated'),
+                h('button.join',
+                    { on: { click: () => window.location.assign('/login') } },
+                    _('LOGIN')
+                )
+            ]));
+        } else {
+            const ratedSettings = new RatedSettings(this);
+            patch(rt, ratedSettings.view());
+            this.renderRating(this.isRated, this.color, this.wrating, this.brating);
+        }
 
         const autoNextSettings = new AutoNextSettings(this);
         const ant = document.querySelector('.auto-next-toggle') as HTMLElement;

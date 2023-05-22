@@ -121,12 +121,14 @@ async def puzzle_complete(request):
     await puzzle.set_played()
 
     if not rated:
-        print("NOT RATED!")
         return web.json_response({})
 
     users = request.app["users"]
     session = await aiohttp_session.get_session(request)
     user = users[session.get("user_name")]
+
+    if user.anon:
+        return web.json_response({})
 
     variant = post_data["variant"]
     chess960 = False  # TODO: add chess960 to xxx960 variant puzzles
@@ -147,7 +149,6 @@ async def puzzle_complete(request):
     ratings = await update_puzzle_ratings(
         wplayer, bplayer, white_rating, black_rating, variant, chess960, result
     )
-    print(ratings)
     return web.json_response(ratings)
 
 
