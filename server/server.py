@@ -146,6 +146,7 @@ async def init_state(app):
         app["db"] = None
 
     app["users"] = {
+        "PyChess": User(app, bot=True, username="PyChess"),
         "Random-Mover": User(app, bot=True, username="Random-Mover"),
         "Fairy-Stockfish": User(app, bot=True, username="Fairy-Stockfish"),
         "Discord-Relay": User(app, anon=True, username="Discord-Relay"),
@@ -163,6 +164,7 @@ async def init_state(app):
     app["tournaments"] = {}
 
     # lichess allows 7 team message per week, so we will send one (comulative) per day only
+    # TODO: save/restore from db
     app["sent_lichess_team_msg"] = []
 
     # one deque per tournament! {tournamentId: collections.deque([], MAX_CHAT_LINES), ...}
@@ -177,7 +179,9 @@ async def init_state(app):
     app["crosstable"] = {}
     app["shield"] = {}
     app["shield_owners"] = {}  # {variant: username, ...}
+    app["daily_puzzle_ids"] = {}  # {date: puzzle._id, ...}
 
+    # TODO: save/restore monthly stats from db when current month is over
     app["stats"] = {}
     app["stats_humans"] = {}
 
@@ -282,9 +286,8 @@ async def init_state(app):
         cursor = app["db"].user.find()
         async for doc in cursor:
             if doc["_id"] not in app["users"]:
-                perfs = doc.get("perfs")
-                if perfs is None:
-                    perfs = {variant: DEFAULT_PERF for variant in VARIANTS}
+                perfs = doc.get("perfs", {variant: DEFAULT_PERF for variant in VARIANTS})
+                pperfs = doc.get("pperfs", {variant: DEFAULT_PERF for variant in VARIANTS})
 
                 app["users"][doc["_id"]] = User(
                     app,
@@ -292,6 +295,7 @@ async def init_state(app):
                     title=doc.get("title"),
                     bot=doc.get("title") == "BOT",
                     perfs=perfs,
+                    pperfs=pperfs,
                     enabled=doc.get("enabled", True),
                     lang=doc.get("lang", "en"),
                 )
@@ -327,6 +331,14 @@ async def init_state(app):
         cursor = app["db"].crosstable.find()
         async for doc in cursor:
             app["crosstable"][doc["_id"]] = doc
+
+        if "dailypuzzle" not in db_collections:
+            await app["db"].create_collection("dailypuzzle", capped=True, size=50000, max=365)
+        else:
+            cursor = app["db"].dailypuzzle.find()
+            docs = await cursor.to_list(length=365)
+            app["daily_puzzle_ids"] = {doc["_id"]: doc["puzzleId"] for doc in docs}
+        print(app["daily_puzzle_ids"])
 
         await app["db"].game.create_index("us")
         await app["db"].game.create_index("v")

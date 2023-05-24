@@ -9,6 +9,7 @@ import { inviteView } from './invite';
 import { renderGames } from './games';
 import { editorView } from '@/editor/editor';
 import { analysisView, embedView } from './analysis';
+import { puzzleView } from './puzzle';
 import { profileView } from './profile';
 import { tournamentView } from './tournament';
 import { calendarView } from './calendar';
@@ -86,6 +87,7 @@ function initModel(el: HTMLElement) {
         seekEmpty : el.getAttribute("data-seekempty") === "True",
         tournamentDirector: el.getAttribute("data-tournamentdirector") === "True",
         assetURL: el.getAttribute("data-asset-url") ?? "",
+        puzzle: el.getAttribute("data-puzzle") ?? "",
     };
 }
 
@@ -110,6 +112,8 @@ export function view(el: HTMLElement, model: PyChessModel): VNode {
             case 'bughouse': return h('div#main-wrap', bugAnalysisView(model));
             default: return h('div#main-wrap', analysisView(model));;
         }
+    case 'puzzle':
+        return h('div#main-wrap', puzzleView(model));
     case 'invite':
         return h('div#main-wrap', inviteView(model));
     case 'editor':

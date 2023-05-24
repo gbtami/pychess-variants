@@ -41,6 +41,7 @@ from wsr import round_socket_handler
 from wst import tournament_socket_handler
 from tournament_calendar import tournament_calendar
 from twitch import twitch_request_handler
+from puzzle import puzzle_complete
 
 
 get_routes = (
@@ -57,6 +58,10 @@ get_routes = (
     ("/calendar", index),
     ("/games", index),
     ("/tv", index),
+    ("/puzzle", index),
+    ("/puzzle/daily", index),
+    (r"/puzzle/{puzzleId:\w{5}}", index),
+    ("/puzzle/{variant}", index),
     ("/analysis/{variant}", index),
     ("/analysis/{variant}/{fen}", index),
     ("/editor/{variant}", index),
@@ -89,6 +94,7 @@ get_routes = (
     ("/news/{news_item}", index),
     ("/variants", index),
     ("/variants/{variant}", index),
+    ("/memory", index),
     ("/video", index),
     ("/video/{videoId}", index),
     ("/wsl", lobby_socket_handler),
@@ -147,4 +153,5 @@ post_routes = (
     ("/tournaments/arena", index),
     (r"/tournament/{tournamentId:\w{8}}/edit", index),
     ("/twitch", twitch_request_handler),
+    (r"/puzzle/complete/{puzzleId:\w{5}}", puzzle_complete),
 )
