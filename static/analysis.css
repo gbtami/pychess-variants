@@ -134,12 +134,26 @@ div.ctable-container {
         max-height: var(--movelist-max-height);
     }
 }
-.analysis-tools {
-    grid-area: tools;
-    display: flex;
-    flex-flow: column;
+.analysis-tools, .analysis-settings {
+  grid-area: tools;
+  display: flex;
+  flex-flow: column;
+}
+div.analysis-settings {
+  display: none;
+  padding: 2vmin;
+  background: var(--bg-color0);
+  box-shadow: var(--base-shadow);
+  border-bottom: 3px solid var(--green-switch);
 }
 
+button#bars {
+  display: none;
+}
+button#bars.active {
+  background: var(--green-switch) !important;
+  color: var(--bg-color0);
+}
 /* Engine info */
 .nnue {
     color: var(--good);
@@ -152,10 +166,11 @@ div#ceval {
 }
 .engine {
     display: flex;
+    align-items: stretch;
     padding: 6px;
 }
 div.info {
-    flex: 1 0 auto;
+    flex: 1 1 auto;
     align-self: center;
     line-height: 18px;
 }
@@ -206,6 +221,7 @@ score {
 
 /* Local Fairy toggle */
 label.switch {
+flex: 0 0 40px;
 position: relative;
 display: inline-block;
 width: 42px;
@@ -497,7 +513,7 @@ piece.janggi.b {
     background-image: url('images/pieces/janggi/hanjablue/red_king.svg');
 }
 piece.shinobi.w {
-    background-image: url('images/pieces/shinobi/merida/bK.svg');
+    background-image: url('images/pieces/shinobi/merida/wK.svg');
 }
 piece.orda.b, piece.ordamirror.b {
     background-image: url('images/pieces/orda/merida/bK.svg');

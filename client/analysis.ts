@@ -7,6 +7,7 @@ import { selectVariant, VARIANTS } from './variants';
 import { renderTimeago } from './datetime';
 import { spinner } from './view';
 import { PyChessModel } from "./types";
+import { analysisSettings } from './analysisSettings';
 
 function runGround(vnode: VNode, model: PyChessModel) {
     const el = vnode.elm as HTMLElement;
@@ -120,6 +121,7 @@ export function analysisView(model: PyChessModel): VNode[] {
                 ]),
             ]),
             analysisTools(),
+            analysisSettings.view(variant.name),
             h('div#move-controls'),
 
             h('div.pocket-bot', [

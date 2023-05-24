@@ -388,6 +388,9 @@ class Game:
             # not to mention that BOT players want to abort games after 20 sec inactivity
             await asyncio.sleep(keep_time)
 
+            if self.id == self.app["tv"]:
+                self.app["tv"] = None
+
             try:
                 del self.games[self.id]
             except KeyError:
@@ -946,4 +949,24 @@ class Game:
             "prov": prov,
             "color": color,
             "result": self.result,
+        }
+
+    @property
+    def tv_game_json(self):
+        return {
+            "type": "tv_game",
+            "gameId": self.id,
+            "variant": self.variant,
+            "fen": self.board.fen,
+            "wt": self.wplayer.title,
+            "bt": self.bplayer.title,
+            "w": self.wplayer.username,
+            "b": self.bplayer.username,
+            "wr": self.wrating,
+            "br": self.brating,
+            "chess960": self.chess960,
+            "base": self.base,
+            "inc": self.inc,
+            "byoyomi": self.byoyomi_period,
+            "lastMove": self.lastmove,
         }
