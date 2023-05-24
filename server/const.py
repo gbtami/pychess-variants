@@ -125,7 +125,7 @@ VARIANTS = (
     "orda",
     "synochess",
     "shinobi",
-    "shinobiplus",
+    # "shinobiplus",
     "empire",
     "ordamirror",
     "chak",
