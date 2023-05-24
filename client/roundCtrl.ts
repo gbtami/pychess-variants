@@ -313,6 +313,9 @@ export class RoundController extends GameController {
         this.onMsgBoard(model["board"] as MsgBoard);
     }
 
+    toggleSettings() {
+    }
+
     toggleOrientation() {
         // TODO: handle berserk
         if (this.tournamentGame && this.ply < 2 && !this.spectator) return;

@@ -126,7 +126,7 @@ function boardSettingsView() {
     return h('div#settings-board', [
         backButton(_("Board Settings")),
         h('div', [
-            h('div', [
+            h('div.labelled', [
                 h('label', { props: { for: "settings-variant" } }, _("Variant")),
                 selectVariant(
                     "settings-variant",

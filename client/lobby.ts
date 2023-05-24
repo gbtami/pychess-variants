@@ -2,21 +2,23 @@ import WebsocketHeartbeatJs from 'websocket-heartbeat-js';
 
 import { h, VNode } from 'snabbdom';
 
+import { Api } from "chessgroundx/api";
 import { Chessground } from 'chessgroundx';
 
 import { newWebsocket } from './socket';
 import { JSONObject } from './types';
 import { _, ngettext, languageSettings } from './i18n';
 import { patch } from './document';
+import { boardSettings } from './boardSettings';
 import { chatMessage, chatView, ChatController } from './chat';
 import { VARIANTS, selectVariant, Variant } from './variants';
 import { timeControlStr } from './view';
 import { notify } from './notification';
 import { PyChessModel } from "./types";
-import { MsgChat, MsgFullChat } from "./messages";
+import { MsgBoard, MsgChat, MsgFullChat } from "./messages";
 import { variantPanels } from './lobby/layer1';
-import { Stream, Spotlight, MsgInviteCreated, MsgHostCreated, MsgGetSeeks, MsgNewGame, MsgGameInProgress, MsgUserConnected, MsgPing, MsgError, MsgShutdown, MsgGameCounter, MsgUserCounter, MsgStreams, MsgSpotlights, Seek, CreateMode } from './lobbyType';
-import { validFen } from './chess';
+import { Stream, Spotlight, MsgInviteCreated, MsgHostCreated, MsgGetSeeks, MsgNewGame, MsgGameInProgress, MsgUserConnected, MsgPing, MsgError, MsgShutdown, MsgGameCounter, MsgUserCounter, MsgStreams, MsgSpotlights, Seek, CreateMode, TvGame } from './lobbyType';
+import { validFen, uci2LastMove } from './chess';
 import {seekViewBughouse, switchEnablingLobbyControls} from "./bug/lobby.bug";
 
 export class LobbyController implements ChatController {
@@ -38,6 +40,9 @@ export class LobbyController implements ChatController {
     seeks: Seek[];
     streams: VNode | HTMLElement;
     spotlights: VNode | HTMLElement;
+    tvGame: TvGame;
+    tvGameId: string;
+    tvGameChessground: Api;
     minutesValues = [
         0, 1 / 4, 1 / 2, 3 / 4, 1, 3 / 2, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
         17, 18, 19, 20, 25, 30, 35, 40, 45, 60, 75, 90
@@ -113,6 +118,9 @@ export class LobbyController implements ChatController {
         const e = document.getElementById("fen") as HTMLInputElement;
         if (this.fen !== "")
             e.value = this.fen;
+
+        boardSettings.assetURL = model.assetURL;
+        boardSettings.updateBoardAndPieceStyles();
     }
 
     doSend(message: JSONObject) {
@@ -703,6 +711,51 @@ export class LobbyController implements ChatController {
         ]);
     }
 
+    renderEmptyTvGame() {
+        patch(document.getElementById('tv-game') as HTMLElement, h('a#tv-game.empty'));
+    }
+
+    renderTvGame() {
+        if (this.tvGame === undefined) return;
+
+        const game = this.tvGame;
+        const variant = VARIANTS[game.variant];
+        const elements = [
+        h(`div#mainboard.${variant.boardFamily}.${variant.pieceFamily}.${variant.ui.boardMark}`, {
+            class: { "with-pockets": !!variant.pocket },
+            style: { "--ranks": (variant.pocket) ? String(variant.board.dimensions.height) : "undefined" },
+            on: { click: () => window.location.assign('/' + game.gameId) }
+            }, [
+                h(`div.cg-wrap.${variant.board.cg}.mini`, {
+                    hook: {
+                        insert: vnode => {
+                            const cg = Chessground(vnode.elm as HTMLElement,  {
+                                fen: game.fen,
+                                lastMove: uci2LastMove(game.lastMove),
+                                dimensions: variant.board.dimensions,
+                                coordinates: false,
+                                viewOnly: true,
+                                addDimensionsCssVarsTo: document.body,
+                                pocketRoles: variant.pocket?.roles,
+                            });
+                            this.tvGameChessground = cg;
+                            this.tvGameId = game.gameId;
+                        }
+                    }
+                }),
+        ]),
+        h('span.vstext', [
+            h('div.player', [h('tv-user', [h('player-title', game.bt), ' ' + game.b + ' ', h('rating', game.br)])]),
+            h('div.player', [h('tv-user', [h('player-title', game.wt), ' ' + game.w + ' ', h('rating', game.wr)])]),
+        ]),
+        ];
+
+        patch(document.getElementById('tv-game') as HTMLElement, h('a#tv-game', elements));
+
+        boardSettings.assetURL = this.assetURL;
+        boardSettings.updateBoardAndPieceStyles();
+    }
+
     onMessage(evt: MessageEvent) {
         // console.log("<+++ lobby onMessage():", evt.data);
         if (evt.data === '/n') return;
@@ -728,6 +781,12 @@ export class LobbyController implements ChatController {
                 break;
             case "ping":
                 this.onMsgPing(msg);
+                break;
+            case "tv_game":
+                this.onMsgTvGame(msg);
+                break;
+            case "board":
+                this.onMsgBoard(msg);
                 break;
             case "g_cnt":
                 this.onMsgGameCounter(msg);
@@ -826,6 +885,25 @@ export class LobbyController implements ChatController {
             h('a.cont-link', { attrs: { href: '/calendar' } }, _('Tournament calendar') + ' »'),
         ]));
     }
+
+    private onMsgTvGame(msg: TvGame) {
+        this.tvGame = msg;
+        this.renderEmptyTvGame();
+        this.renderTvGame();
+    }
+
+    private onMsgBoard = (msg: MsgBoard) => {
+        if (this.tvGameChessground === undefined || this.tvGameId !== msg.gameId) {
+            return;
+        };
+
+        this.tvGameChessground.set({
+            fen: msg.fen,
+            turnColor: msg.fen.split(" ")[1] === "w" ? "white" : "black",
+            check: msg.check,
+            lastMove: uci2LastMove(msg.lastMove),
+        });
+    }
 }
 
 function seekHeader() {
@@ -848,17 +926,38 @@ function runSeeks(vnode: VNode, model: PyChessModel) {
 }
 
 export function lobbyView(model: PyChessModel): VNode[] {
+    const puzzle = JSON.parse(model.puzzle);
+    const variant = VARIANTS[puzzle.variant];
+    const turnColor = puzzle.fen.split(" ")[1] === "w" ? "white" : "black";
+    const first = _(variant.colors.first);
+    const second = _(variant.colors.second);
 
-    /* TODO move this to appropriate place
-    // Get the modal
-    const modal = document.getElementById('id01')!;
-
-    // When the user clicks anywhere outside of the modal, close it
-    document.addEventListener("click", function(event) {
-        if (!modal.contains(event.target as Node))
-            modal.style.display = "none";
-    });
-    */
+    const dailyPuzzle = [
+        h('span.vstext', [
+            h('span.text', _('Puzzle of the day')),
+            h('span.text', _('%1 to play', (turnColor === 'white') ? first : second)),
+        ]),
+        h(`div#mainboard.${variant.boardFamily}.${variant.pieceFamily}.${variant.ui.boardMark}`, {
+            class: { "with-pockets": !!variant.pocket },
+            style: { "--ranks": (variant.pocket) ? String(variant.board.dimensions.height) : "undefined" },
+            }, [
+                h(`div.cg-wrap.${variant.board.cg}.mini`, {
+                    hook: {
+                        insert: vnode => {
+                            Chessground(vnode.elm as HTMLElement,  {
+                                orientation: turnColor,
+                                fen: puzzle.fen,
+                                dimensions: variant.board.dimensions,
+                                coordinates: false,
+                                viewOnly: true,
+                                addDimensionsCssVarsTo: document.body,
+                                pocketRoles: variant.pocket?.roles,
+                            });
+                        }
+                    }
+                }),
+        ]),
+    ];
 
     return [
         h('aside.sidebar-first', [
@@ -872,7 +971,13 @@ export function lobbyView(model: PyChessModel): VNode[] {
             ]),
         ]),
         h('div#variants-catalog'),
-        h('aside.sidebar-second', [ h('div#seekbuttons') ]),
+        h('aside.sidebar-second', [
+            h('div#seekbuttons'),
+            h('div.lobby-count', [
+                h('a', { attrs: { href: '/players' } }, [ h('counter#u_cnt') ]),
+                h('a', { attrs: { href: '/games' } }, [ h('counter#g_cnt') ]),
+            ]),
+        ]),
         h('under-left', [
             h('a.reflist', { attrs: { href: 'https://discord.gg/aPs8RKr', rel: "noopener", target: "_blank" } }, 'Discord'),
             h('a.reflist', { attrs: { href: 'https://github.com/gbtami/pychess-variants', rel: "noopener", target: "_blank" } }, 'Github'),
@@ -882,6 +987,7 @@ export function lobbyView(model: PyChessModel): VNode[] {
             h('a.reflist', { attrs: { href: '/stats' } }, _("Stats")),
             h('a.reflist', { attrs: { href: '/about' } }, _("About")),
         ]),
+        h('div.tv', [h('a#tv-game', { attrs: {href: '/tv'} })]),
         h('under-lobby', [
             h('posts', [
                 h('a.post', { attrs: {href: '/news/Spartan_Chess'} }, [
@@ -1010,9 +1116,6 @@ export function lobbyView(model: PyChessModel): VNode[] {
                 */ 
             ]),
         ]),
-        h('under-right', [
-            h('a', { attrs: { href: '/players' } }, [ h('counter#u_cnt') ]),
-            h('a', { attrs: { href: '/games' } }, [ h('counter#g_cnt') ]),
-        ]),
+        h('div.puzzle', [h('a#daily-puzzle', { attrs: {href: '/puzzle/daily'} }, dailyPuzzle)]),
     ];
 }

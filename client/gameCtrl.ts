@@ -179,6 +179,8 @@ export abstract class GameController extends ChessgroundController implements Ch
         }
     }
 
+    abstract toggleSettings(): void;
+
     abstract doSendMove(move: string): void;
 
     processInput(piece: cg.Piece, orig: cg.Orig, dest: cg.Key, meta: cg.MoveMetadata, lastSuffix?: string, lastInputType?: InputType): void {

@@ -9,22 +9,42 @@
 }
 @media (max-width: 799px) and (orientation: portrait) {
     .lobby {
-        grid-template-areas: 'table' 'app' 'vpanel' 'side' 'uleft' 'utable' 'blog';
+        grid-template-areas: 'table' 'app' 'vpanel' 'side' 'blog' 'tv' 'puzzle' 'utable' 'uleft';
     }
-
     .sidebar-second {
-
     margin: 1em 0 1em 0;
-
     }
-
 }
 @media (min-width: 800px) {
     .lobby {
         grid-template-columns: repeat(4, 1fr);
-        grid-template-rows: fit-content(0) minmax(375px, max-content) fit-content(0);
-        grid-template-areas: 'side app app table' 'side vpanel vpanel table' 'uleft blog blog utable';
+        grid-template-rows: fit-content(0) 380px fit-content(0);
+        grid-auto-rows: 1fr;
+        grid-template-areas: 'side app app table' 'side vpanel vpanel table' 'tv blog blog puzzle' 'uleft blog blog utable';
     }
+}
+.lobby-count {
+  flex: 1;
+  display: flex;
+  flex-flow: column nowrap;
+  position: absolute;
+  bottom: 0;
+}
+.tv {
+    grid-area: tv;
+    display: block;
+}
+.tv #mainboard {
+    padding-bottom: calc((var(--cg-height) / (var(--ranks)) * 2));
+}
+.puzzle {
+    grid-area: puzzle;
+    display: block;
+}
+.puzzle .text {
+    display: block;
+    text-align: right;
+    margin-right: 1ch;
 }
 .seeks {
     display: grid;
@@ -59,4 +79,28 @@
     height: 15px;
     width: auto;
     filter: saturate(0.1);
+}
+
+.mini .pocket.top {
+    border-radius: 3px 3px 0px 0px;
+    position: absolute;
+    height: calc(100% / var(--ranks));
+    top: unset;
+}
+.mini cg-board {
+  top: calc(100% / var(--ranks));
+}
+.cg-wrap.cg-512.mini, .cg-wrap.cg-640.mini, .cg-wrap.cg-576.mini, .cg-wrap.cg-448-516.mini, .cg-wrap.cg-260-360.mini, .cg-wrap.cg-260.mini, .cg-wrap.cg-156.mini, .cg-wrap.cg-448.mini, .cg-wrap.cg-576-640.mini, .cg-wrap.cg-640-640.mini, .cg-wrap.cg-540.mini {
+  width: unset;
+}
+
+.mini .pocket.bottom {
+    border-radius: 3px 3px 0px 0px;
+    position: absolute;
+    top: calc((100% / var(--ranks)) * (var(--ranks) + 1));
+    margin: 0;
+}
+rating {
+    font-size: 0.9em;
+    float: none;
 }

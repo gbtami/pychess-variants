@@ -726,6 +726,28 @@ export const VARIANTS: Record<string, Variant> = {
 
     }),
 
+    shinobiplus: variant({
+        name: "shinobiplus", displayName: "shinobi+", tooltip: "Asymmetric variant which pits the western Chess army against a drop-based, Shogi-styled army.",
+        startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/4K3[JDSCLHM] w kq - 0 1",
+        icon: "🐢",
+        boardFamily: "standard8x8", pieceFamily: "shinobi",
+        colors: { first: "Pink", second: "Black" },
+        pieceRow: { white: ["k", "s", "d", "j", "l", "h", "m", "p"], black: ["k", "q", "r", "b", "n", "p"] },
+        pocket: { roles: { white: ["l", "h", "m", "d", "j", "s", "c"], black: [] }, captureToHand: false },
+        promotion: { type: "shogi", roles: ["p", "l", "h", "m"] },
+        rules: { enPassant: true },
+        ui: { boardMark: 'campmate' },
+        material: {
+            equivalences: {
+                'pl-piece': 'r-piece',
+                'ph-piece': 'n-piece',
+                'pm-piece': 'b-piece',
+                'pp-piece': 'c-piece',
+            },
+        },
+
+    }),
+
     empire: variant({
         name: "empire", tooltip: _("Asymmetric variant where one army has pieces that move like queens but capture as usual."),
         startFen: "rnbqkbnr/pppppppp/8/8/8/PPPSSPPP/8/TECDKCET w kq - 0 1",
@@ -841,13 +863,34 @@ export const variants = Object.keys(VARIANTS);
 const disabledVariants = [ "gothic", "gothhouse", "embassy", "embassyhouse", "gorogoro" ];
 export const enabledVariants = variants.filter(v => !disabledVariants.includes(v));
 
+// variants having 0 puzzle so far
+export const noPuzzleVariants = [
+    "placement",
+    "asean",
+    "sittuyin",
+    "minishogi",
+    "kyotoshogi",
+    "gorogoroplus",
+    "torishogi",
+    "manchu",
+    "minixiangqi",
+    "capahouse",
+    "grandhouse",
+    "shouse",
+    "shogun",
+    "shinobi",
+    "shinobiplus",
+    "chennis",
+    "spartan",
+]
+
 export const variantGroups: { [ key: string ]: { variants: string[] } } = {
     standard: { variants: [ "chess", "bughouse", "crazyhouse", "placement", "atomic", "duck" ] },
     sea:      { variants: [ "makruk", "makpong", "cambodian", "sittuyin", "asean" ] },
     shogi:    { variants: [ "shogi", "minishogi", "kyotoshogi", "dobutsu", "gorogoroplus", "torishogi" ] },
     xiangqi:  { variants: [ "xiangqi", "manchu", "janggi", "minixiangqi" ] },
     fairy:    { variants: [ "capablanca", "capahouse", "seirawan", "shouse", "grand", "grandhouse", "shako", "shogun", "hoppelpoppel" ] },
-    army:     { variants: [ "orda", "synochess", "shinobi", "empire", "ordamirror", "chak", "chennis", "spartan" ] },
+    army:     { variants: [ "orda", "synochess", "shinobi", "empire", "ordamirror", "chak", "chennis", "shinobiplus", "spartan" ] },
 };
 
 function variantGroupLabel(group: string): string {
@@ -862,7 +905,7 @@ function variantGroupLabel(group: string): string {
     return groups[group];
 }
 
-export function selectVariant(id: string, selected: string, onChange: EventListener, hookInsert: InsertHook): VNode {
+export function selectVariant(id: string, selected: string, onChange: EventListener, hookInsert: InsertHook, disableds: string[] = []): VNode {
     return h('select#' + id, {
         props: { name: id },
         on: { change: onChange },
@@ -874,7 +917,7 @@ export function selectVariant(id: string, selected: string, onChange: EventListe
                 const variant = VARIANTS[v];
                 return h('option', {
                     props: { value: v, title: variant.tooltip },
-                    attrs: { selected: v === selected },
+                    attrs: { selected: v === selected, disabled: disableds.includes(variant.name) },
                 }, variant.displayName(false));
             }));
         }),

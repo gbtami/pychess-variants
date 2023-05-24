@@ -15,7 +15,7 @@ except ImportError:
     print("No pyffish module installed!")
 
 from glicko2.glicko2 import gl2
-from broadcast import round_broadcast
+from broadcast import lobby_broadcast, round_broadcast
 from const import (
     STARTED,
     VARIANT_960_TO_PGN,
@@ -560,6 +560,8 @@ async def insert_game_to_db(game, app):
         log.error("db insert game result %s failed !!!", game.id)
 
     app["tv"] = game.id
+    await lobby_broadcast(app["lobbysockets"], game.tv_game_json)
+
     game.wplayer.tv = game.id
     game.bplayer.tv = game.id
 
@@ -664,7 +666,7 @@ async def play_move(app, user, game, move, clocks=None, ply=None, board=None, pa
                     "type": "gameEnd",
                     "status": game.status,
                     "result": game.result,
-                    "gameId": game.id,
+                    "gameId": gameId,
                     "pgn": game.pgn,
                 }
                 await opp_ws.send_json(response)
@@ -690,12 +692,10 @@ async def play_move(app, user, game, move, clocks=None, ply=None, board=None, pa
                 and tournament.status == T_STARTED
                 and tournament.top_game.id == gameId
             ):
-                # no need to send lots of data to tournament top game
-                del board_response["pgn"]
-                del board_response["uci_usi"]
-                del board_response["ct"]
-
                 await tournament.broadcast(board_response)
+
+        if app["tv"] == gameId:
+            await lobby_broadcast(app["lobbysockets"], board_response)
 
 
 def pgn(doc):

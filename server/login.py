@@ -161,6 +161,7 @@ async def login(request):
                     "_id": username,
                     "title": session.get("title"),
                     "perfs": {},
+                    "pperfs": {},
                 }
             )
             print("db insert user result %s" % repr(result.inserted_id))
