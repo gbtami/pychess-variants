@@ -1159,6 +1159,12 @@ div.versus {
   display: flex;
   justify-content: center;
 }
+player.left {
+  text-align: right;
+}
+player.right {
+  text-align: left;
+}
 vs {
   padding: 0 6px 0 6px;
 }

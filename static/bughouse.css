@@ -461,3 +461,11 @@ move-bug.counter {
 .pocket-bot-partner {
     grid-area: pocket-bot-partner;
 }
+
+/* */
+player.bug {
+    text-align: center;
+}
+.versus.bug {
+    line-height: 100%;
+}

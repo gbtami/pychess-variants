@@ -160,7 +160,7 @@ class GameBug:
         self.lastmove = None
         self.checkA = False
         self.checkB = False
-        self.status = CREATED
+        self.status = STARTED # CREATED
         self.result = "*"
         self.last_server_clock = monotonic()  # the last time a move was made
 
@@ -172,9 +172,18 @@ class GameBug:
         #         disabled_fen = self.initial_fen
         #         self.initial_fen = ""
 
-        fen = initial_fen if initial_fen else FairyBoard.shuffle_start(self.variant) if chess960 else FairyBoard.start_fen(self.variant)
-        self.boards = {"a": FairyBoard(self.variant, fen, self.chess960, 0, disabled_fen), # self.initial_fen.split("|")[0].strip()
-                       "b": FairyBoard(self.variant, fen, self.chess960, 0, disabled_fen)} # self.initial_fen.split("|")[1].strip()
+        if initial_fen:
+            fenA = initial_fen.split("|")[0].strip()
+            fenB = initial_fen.split("|")[1].strip()
+        elif chess960:
+            fenA = FairyBoard.shuffle_start(self.variant)
+            fenB = fenA
+        else:
+            fenA = FairyBoard.start_fen(self.variant)
+            fenB = fenA
+
+        self.boards = {"a": FairyBoard(self.variant, fenA, self.chess960, 0, disabled_fen), # self.initial_fen.split("|")[0].strip()
+                       "b": FairyBoard(self.variant, fenB, self.chess960, 0, disabled_fen)} # self.initial_fen.split("|")[1].strip()
 
         self.overtime = False
 
@@ -250,7 +259,6 @@ class GameBug:
 
     async def play_move(self, move, clocks=None, ply=None, board="a", partnerFen=None):
         self.stopwatches[board].stop()
-        self.byo_correction = 0
 
         if self.status > STARTED:
             return
@@ -915,7 +923,7 @@ class GameBug:
             clocksA = {"black": self._ply_clocks["a"][-1]["black"], "white": self._ply_clocks["a"][-1]["white"]}
             clocksB = {"black": self._ply_clocks["b"][-1]["black"], "white": self._ply_clocks["b"][-1]["white"]}
 
-            if self.status == STARTED:
+            if self.status >= STARTED:
                 # We have to adjust current player latest saved clock time
                 # otherwise he will get free extra time on browser page refresh
                 # (also needed for spectators entering to see correct clock times)
@@ -925,8 +933,8 @@ class GameBug:
 
                 cur_colorA = "black" if self.boards["a"].color == BLACK else "white"
                 cur_colorB = "black" if self.boards["b"].color == BLACK else "white"
-                clocksA[cur_colorA] = max(0, clocksA[cur_colorA] + self.byo_correction - elapsed)
-                clocksB[cur_colorA] = max(0, clocksB[cur_colorB] + self.byo_correction - elapsed)
+                clocksA[cur_colorA] = max(0, clocksA[cur_colorA] - elapsed)
+                clocksB[cur_colorA] = max(0, clocksB[cur_colorB] - elapsed)
             # crosstable = self.crosstable
         else:
             clocksA = self._ply_clocks["a"][-1]

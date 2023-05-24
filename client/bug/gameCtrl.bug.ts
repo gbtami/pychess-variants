@@ -12,19 +12,20 @@ import {PyChessModel} from "../types";
 import {RoundController} from "./roundCtrl.bug";
 import {premove} from "chessgroundx/premove";
 import {predrop} from "chessgroundx/predrop";
+import {boardSettings} from "@/boardSettings";
 
-export class ChessgroundController extends GameController {
+export class BugHouseGameController extends GameController {
 
-    partnerCC: ChessgroundController;
+    partnerCC: BugHouseGameController;
 
     gating: GatingInput;
     promotion: PromotionInput;
 
     mycolor: cg.Color;
-    oppcolor: cg.Color;
     turnColor: cg.Color;// todo: don't think this is ever used as other then temp variable before setting turncolor to CG
 
     chess960: boolean;
+    assetURL: string;
 
     variant: Variant;
 
@@ -53,14 +54,13 @@ export class ChessgroundController extends GameController {
 
         this.variant = VARIANTS[model.variant];
         this.chess960 = model.chess960==='True';//todo:niki:i am having second thought if i need this here really 960 should be true/false for both boards, but logically feel the right place here
-
+        this.assetURL = model.assetURL;
         this.chessground = this.createGround(el, elPocket1, elPocket2, this.fullfen);//todo:fullfen is not passed in default logic inherited
 
         this.gating = new GatingInput(this);
         this.promotion = new PromotionInput(this);
 
         this.mycolor = 'white';
-        this.oppcolor = 'black';
 
         // this.result = "*";
         const parts = this.fullfen.split(" ");
@@ -80,12 +80,9 @@ export class ChessgroundController extends GameController {
 
     }
 
-    doSendMove = (move: string) => {
-        //todo: no idea what the purpose of this is - lets get it compilable first
-        console.log(move);
+    doSendMove(move: string) {
+        // todo;niki; somehting about promotions and stuff. maybe test to see if needs implemenation
     }
-
-    getGround = () => this.chessground;
 
     sendMove = (orig: cg.Orig, dest: cg.Key, promo: string) => {
         this.ply++;
@@ -103,10 +100,6 @@ export class ChessgroundController extends GameController {
         return (piece: cg.Piece, dest: cg.Key) => {
             console.log("ground.onDrop()", piece, dest);
         }
-    }
-
-    flipped(): boolean {
-        return false;
     }
 
     onUserDrop = (piece: cg.Piece, dest: cg.Key, meta: cg.MoveMetadata) => {
@@ -267,6 +260,21 @@ export class ChessgroundController extends GameController {
                 select: this.onSelect(),
             },
         });
+
+        if (this.boardName === 'a') { // todo:niki:maytbe less ugly would be to move this in the parent cotroller. also not sure if good idea to call below stuff twice really
+            boardSettings.ctrl = this;
+        } else {
+            boardSettings.ctrl2 = this;
+        }
+        boardSettings.assetURL = this.assetURL;
+        const boardFamily = this.variant.boardFamily;
+        const pieceFamily = this.variant.pieceFamily;
+        boardSettings.updateBoardStyle(boardFamily);
+        boardSettings.updatePieceStyle(pieceFamily);
+        boardSettings.updateZoom(boardFamily);
+        boardSettings.updateBlindfold();
+
+
         return chessground;
     }
 

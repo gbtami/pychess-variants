@@ -23,6 +23,7 @@ export interface Game {
     fp: cg.FEN; // FEN partner/second board B in case of bughouse
 
     lm: string; // last move
+    lmB: string; // last move
 
     b: number; // TC base
     i: number; // TC increment
@@ -75,18 +76,19 @@ function renderGames(model: PyChessModel, games: Game[]) {
         return h('tr', [h('a', { attrs: { href : '/' + game["_id"] } }, [
             h('td.board', { class: { "with-pockets": !!variant.pocket }, style:{"display":"flex"} },  //todo:niki: after changing td to div and display to flex the 2 board align horizontally, but i think some other styles degraded. also this needs to go to some css file
                variant === VARIANTS['bughouse']? renderGameBoardsBug(game): [
-                    h(`div.cg-wrap.${variant.board.cg}.mini`, {
-                    hook: {
-                        insert: vnode => Chessground(vnode.elm as HTMLElement, {
-                            coordinates: false,
-                            viewOnly: true,
-                            fen: game["f"],
-                            lastMove: uci2LastMove(game.lm),
-                            dimensions: variant.board.dimensions,
-                            pocketRoles: variant.pocket?.roles,
-                        })
-                    }
-                }),
+                    h(`selection.${variant.boardFamily}.${variant.pieceFamily}`, { style:{"padding-right":"10px"} },
+                        h(`div.cg-wrap.${variant.board.cg}.mini`, {
+                        hook: {
+                            insert: vnode => Chessground(vnode.elm as HTMLElement, {
+                                coordinates: false,
+                                viewOnly: true,
+                                fen: game["f"],
+                                lastMove: uci2LastMove(game.lm),
+                                dimensions: variant.board.dimensions,
+                                pocketRoles: variant.pocket?.roles,
+                            })
+                        }
+                })),
             ]),
             h('td.games-info', [
                 h('div.info0.games.icon', { attrs: { "data-icon": variant.icon(chess960) } }, [
@@ -97,10 +99,10 @@ function renderGames(model: PyChessModel, games: Game[]) {
                     ]),
                 ]),
                 h('div.info-middle', [
-                    h('div.versus', [
-                        h('player', variant === VARIANTS['bughouse']? renderBugTeamInfo(game, 0): [
+                    h('div.versus' + (variant === VARIANTS['bughouse']?".bug":""), [ // todo:niki: there was a more civilized way to add this class conditionally
+                        h('player.left' + (variant === VARIANTS['bughouse']?".bug":""), variant === VARIANTS['bughouse']? renderBugTeamInfo(game, 0): [
                             h('a.user-link', { attrs: { href: '/@/' + game["us"][0] } }, [
-                                h('player-title', " " + game["wt"] + " "),
+                                h('player-title', game["wt"]? " " + game["wt"] + " ": ""),
                                 game["us"][0] + aiLevel(game["wt"], game['x']),
                             ]),
                             h('br'),
@@ -109,9 +111,9 @@ function renderGames(model: PyChessModel, games: Game[]) {
                             (game["p0"] === undefined) ? "": renderRdiff(game["p0"]["d"]),
                         ]),
                         h('vs-swords.icon', { attrs: { "data-icon": '"' } }),
-                        h('player', variant === VARIANTS['bughouse']? renderBugTeamInfo(game, 1): [
+                        h('player.right' + (variant === VARIANTS['bughouse']?".bug":""), variant === VARIANTS['bughouse']? renderBugTeamInfo(game, 1): [
                             h('a.user-link', { attrs: { href: '/@/' + game["us"][1] } }, [
-                                h('player-title', " " + game["bt"] + " "),
+                                h('player-title', game["bt"]? " " + game["bt"] + " ": ""),
                                 game["us"][1] + aiLevel(game["bt"], game['x']),
                             ]),
                             h('br'),

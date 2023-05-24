@@ -9,6 +9,7 @@ import { Settings, NumberSettings, BooleanSettings, StringSettings } from './set
 import { slider, checkbox, nnueFile } from './view';
 import { PyChessModel } from "./types";
 import { BOARD_FAMILIES, PIECE_FAMILIES, Variant, VARIANTS } from './variants';
+import {update} from "idb-keyval";
 
 export interface BoardController {
     readonly chessground: Api;
@@ -40,6 +41,7 @@ export interface BoardController {
 
 class BoardSettings {
     ctrl: BoardController;
+    ctrl2: BoardController;
     settings: { [ key: string]: Settings<number | boolean | string> };
     assetURL: string;
 
@@ -96,6 +98,11 @@ class BoardSettings {
     }
 
     updateDropSuggestion() {
+        this.updateDropSuggestion(this.ctrl);
+        this.updateDropSuggestion(this.ctrl2);
+    }
+
+    updateDropSuggestion(ctrl: BoardController) {
         // Redraw the piece being suggested for dropping in the new piece style
         if (this.ctrl && this.ctrl.hasPockets) {
             const chessground = this.ctrl.chessground;
@@ -183,6 +190,7 @@ class AnimationSettings extends BooleanSettings {
 
     update(): void {
         this.boardSettings.ctrl?.chessground.set({ animation: { enabled: this.value } });
+        this.boardSettings.ctrl2?.chessground.set({ animation: { enabled: this.value } });
     }
 
     view(): VNode {
@@ -283,7 +291,12 @@ class ShowDestsSettings extends BooleanSettings {
     }
 
     update(): void {
-        this.boardSettings.ctrl?.chessground.set({
+        this.updateCtrl(this.boardSettings.ctrl);
+        if (this.boardSettings.ctrl2) this.updateCtrl(this.boardSettings.ctrl2);
+    }
+
+    updateCtrl(ctrl: BoardController): void {
+        ctrl?.chessground.set({
             movable: {
                 showDests: this.value,
             },
@@ -304,7 +317,11 @@ class AutoPromoteSettings extends BooleanSettings {
     }
 
     update(): void {
-        const ctrl = this.boardSettings.ctrl;
+        this.updateCtrl(this.boardSettings.ctrl);
+        if (this.boardSettings.ctrl2) this.updateCtrl(this.boardSettings.ctrl2);
+    }
+
+    updateCtrl(ctrl: BoardController): void {
         if ('autoPromote' in ctrl)
             ctrl.autoPromote = this.value;
     }
@@ -322,8 +339,13 @@ class ArrowSettings extends BooleanSettings {
         this.boardSettings = boardSettings;
     }
 
+
     update(): void {
-        const ctrl = this.boardSettings.ctrl;
+        this.updateCtrl(this.boardSettings.ctrl);
+        if (this.boardSettings.ctrl2) this.updateCtrl(this.boardSettings.ctrl2);
+    }
+
+    updateCtrl(ctrl: BoardController): void {
         if ('arrow' in ctrl)
             ctrl.arrow = this.value;
     }
@@ -342,7 +364,11 @@ class MultiPVSettings extends NumberSettings {
     }
 
     update(): void {
-        const ctrl = this.boardSettings.ctrl;
+        this.updateCtrl(this.boardSettings.ctrl);
+        if (this.boardSettings.ctrl2) this.updateCtrl(this.boardSettings.ctrl2);
+    }
+
+    updateCtrl(ctrl: BoardController): void {
         if ('multipv' in ctrl)
             ctrl.multipv = this.value;
             ctrl.pvboxIni();
@@ -364,7 +390,11 @@ class NnueSettings extends StringSettings {
     }
 
     update(): void {
-        const ctrl = this.boardSettings.ctrl;
+        this.updateCtrl(this.boardSettings.ctrl);
+        if (this.boardSettings.ctrl2) this.updateCtrl(this.boardSettings.ctrl2);
+    }
+
+    updateCtrl(ctrl: BoardController): void {
         if ('evalFile' in ctrl)
             ctrl.evalFile = this.value;
             ctrl.nnueIni();
@@ -384,7 +414,11 @@ class BlindfoldSettings extends BooleanSettings {
     }
 
     update(): void {
-        const ctrl = this.boardSettings.ctrl;
+        this.updateCtrl(this.boardSettings.ctrl);
+        if (this.boardSettings.ctrl2) this.updateCtrl(this.boardSettings.ctrl2);
+    }
+
+    updateCtrl(ctrl: BoardController): void {
         if ('blindfold' in ctrl)
             ctrl.blindfold = this.value;
 
@@ -413,7 +447,11 @@ class MaterialDifferenceSettings extends BooleanSettings {
     }
 
     update(): void {
-        const ctrl = this.boardSettings.ctrl;
+        this.updateCtrl(this.boardSettings.ctrl);
+        if (this.boardSettings.ctrl2) this.updateCtrl(this.boardSettings.ctrl2);
+    }
+
+    updateCtrl(ctrl: BoardController): void {
         if ('materialDifference' in ctrl) {
             ctrl.materialDifference = this.value;
             if ('updateMaterial' in ctrl) {

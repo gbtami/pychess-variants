@@ -7,26 +7,29 @@ import {aiLevel, renderRdiff} from "@/result";
 
 export function renderGameBoardsBug(game: Game): VNode[] {
     const variant = VARIANTS['bughouse'];
-    return [h(`selection.${variant.boardFamily}.${variant.pieceFamily}`, { style:{"padding-right":"10px"} },
+    const [fenA, fenB] = game["f"].split(" | ");
+    return [
+    h(`selection.${variant.boardFamily}.${variant.pieceFamily}`, { style:{"padding-right":"10px"} },
         h(`div.cg-wrap.${variant.board.cg}.mini`, {
         hook: {
             insert: vnode => Chessground(vnode.elm as HTMLElement, {
                 coordinates: false,
                 viewOnly: true,
-                fen: game["f"],
+                fen: fenA,
                 lastMove: uci2LastMove(game.lm),
                 dimensions: variant.board.dimensions,
                 pocketRoles: variant.pocket?.roles,
             })
         }
     })),
-    h(`selection.${variant.boardFamily}.${variant.pieceFamily}`,h(`div.cg-wrap.${variant.board.cg}.mini`, {
+    h(`selection.${variant.boardFamily}.${variant.pieceFamily}`,
+        h(`div.cg-wrap.${variant.board.cg}.mini`, {
         hook: {
             insert: vnode => Chessground(vnode.elm as HTMLElement, {
                 coordinates: false,
                 viewOnly: true,
-                fen: game["fp"],
-                lastMove: uci2LastMove(game.lm),
+                fen: fenB,
+                lastMove: uci2LastMove(game.lmB),
                 dimensions: variant.board.dimensions,
                 pocketRoles: variant.pocket?.roles,
             })
@@ -41,7 +44,7 @@ export function renderBugTeamInfo(game: Game, team: number) {
                 h('player-title', " " + title1 + " "),
                 player1 /*+ aiLevel(game["wt"], game['x'])*/,
             ]),
-            "+",
+            h("div", "+"),
             h('a.user-link', { attrs: { href: '/@/' + player2 } }, [
                 h('player-title', " " + title2 + " "),
                 player2 /*+ aiLevel(game["wt"], game['x'])*/,

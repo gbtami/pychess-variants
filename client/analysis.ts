@@ -7,7 +7,6 @@ import { selectVariant, VARIANTS } from './variants';
 import { renderTimeago } from './datetime';
 import { spinner } from './view';
 import { PyChessModel } from "./types";
-import { analysisView as bugAnalysisView} from "./bug/analysis";
 
 function runGround(vnode: VNode, model: PyChessModel) {
     const el = vnode.elm as HTMLElement;

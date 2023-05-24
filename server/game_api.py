@@ -230,7 +230,13 @@ async def get_user_games(request):
                 doc["wtB"] = users[doc["us"][2]].title if doc["us"][2] in users else ""
                 doc["btB"] = users[doc["us"][3]].title if doc["us"][3] in users else ""
 
-            doc["lm"] = decode_moves((doc["m"][-1],), doc["v"])[-1] if len(doc["m"]) > 0 else ""
+            if doc["v"] in ("bughouse", "bughouse960"):
+                mA = [m for idx, m in enumerate(doc["m"]) if doc["o"][idx] == 0]
+                mB = [m for idx, m in enumerate(doc["m"]) if doc["o"][idx] == 1]
+                doc["lm"] = decode_moves((mA[-1],), doc["v"])[-1] if len(mA) > 0 else ""
+                doc["lmB"] = decode_moves((mB[-1],), doc["v"])[-1] if len(mB) > 0 else ""
+            else:
+                doc["lm"] = decode_moves((doc["m"][-1],), doc["v"])[-1] if len(doc["m"]) > 0 else ""
             if doc["v"] in GRANDS and doc["lm"] != "":
                 doc["lm"] = zero2grand(doc["lm"])
 

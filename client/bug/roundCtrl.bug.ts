@@ -29,7 +29,7 @@ import {
     MsgGameStart, MsgViewRematch
 } from '../roundType';
 import {JSONObject, PyChessModel} from "../types";
-import {ChessgroundController} from "./ChessgroundCtrl";
+import {BugHouseGameController} from "./gameCtrl.bug";
 import {cg2uci, uci2LastMove} from "../chess";
 import {sound} from "../sound";
 import {renderRdiff} from "../result";
@@ -42,8 +42,8 @@ import {FEN} from "chessgroundx/types";
 export class RoundController implements ChatController/*extends GameController todo:does it make sense for these guys - also AnalysisControl which is older before this refactring that introduced this stuff*/ {
     sock: WebsocketHeartbeatJs;
 
-    b1: ChessgroundController;
-    b2: ChessgroundController;
+    b1: BugHouseGameController;
+    b2: BugHouseGameController;
 
     username: string;
     gameId: string;
@@ -332,8 +332,8 @@ export class RoundController implements ChatController/*extends GameController t
 
         //////////////
 
-        this.b1 = new ChessgroundController(el1, el1Pocket1, el1Pocket2, 'a', model); //todo:niki:fen maybe should be parsed from bfen. what situation do we start from custom fen?
-        this.b2 = new ChessgroundController(el2, el2Pocket1, el2Pocket2, 'b', model);
+        this.b1 = new BugHouseGameController(el1, el1Pocket1, el1Pocket2, 'a', model); //todo:niki:fen maybe should be parsed from bfen. what situation do we start from custom fen?
+        this.b2 = new BugHouseGameController(el2, el2Pocket1, el2Pocket2, 'b', model);
         this.b1.partnerCC = this.b2;
         this.b2.partnerCC = this.b1;
         this.b1.parent = this;
@@ -436,7 +436,7 @@ export class RoundController implements ChatController/*extends GameController t
         this.b2.chessground.redrawAll();
     }
 
-    sendMove = (b: ChessgroundController, orig: cg.Orig, dest: cg.Key, promo: string) => {
+    sendMove = (b: BugHouseGameController, orig: cg.Orig, dest: cg.Key, promo: string) => {
         console.log(b,orig,dest,promo);
         this.clearDialog();
 
@@ -706,32 +706,53 @@ export class RoundController implements ChatController/*extends GameController t
 
     }
 
-    private updateBothBoardsAndClocksInitial = (fenA: cg.FEN, fenB: cg.FEN) => {
+    private updateBothBoardsAndClocksInitial = (fenA: cg.FEN, fenB: cg.FEN, clocksA: Clocks, clocksB: Clocks) => {
 
-            const partsA = fenA.split(" ");
-            const partsB = fenB.split(" ");
+        const partsA = fenA.split(" ");
+        const partsB = fenB.split(" ");
 
-            this.b1.turnColor = partsA[1] === "w" ? "white" : "black";
-            this.b2.turnColor = partsB[1] === "w" ? "white" : "black";
+        this.b1.turnColor = partsA[1] === "w" ? "white" : "black";
+        this.b2.turnColor = partsB[1] === "w" ? "white" : "black";
 
-            this.b1.chessground.set({
-                fen: fenA,
-                turnColor: 'white',
-                //  check: msg.check,
-                //lastMove: lastMove,
-            });
-            this.b2.chessground.set({
-                fen: fenB,
-                turnColor: 'white',
-                // check: msg.check,
-                //lastMove: lastMove,
-            });
+        this.b1.chessground.set({
+            fen: fenA,
+            turnColor: 'white',
+            //  check: msg.check,
+            //lastMove: lastMove,
+        });
+        this.b2.chessground.set({
+            fen: fenB,
+            turnColor: 'white',
+            // check: msg.check,
+            //lastMove: lastMove,
+        });
 
-            // normally white clocks should start, except when custom fen (todo:not fully implemented yet):
-            const whiteClockAidx = this.colors[0] === this.b1.turnColor? 0: 1;
-            const whiteClockBidx = this.colorsB[0] === this.b2.turnColor? 0: 1;
-            this.clocks[whiteClockAidx].start();
-            this.clocksB[whiteClockBidx].start();
+        // // normally white clocks should start, except when custom fen (todo:not fully implemented yet):
+        // const whiteClockAidx = this.colors[0] === this.b1.turnColor? 0: 1;
+        // const whiteClockBidx = this.colorsB[0] === this.b2.turnColor? 0: 1;
+        // this.clocks[whiteClockAidx].start();
+        // this.clocksB[whiteClockBidx].start();
+
+        this.clocktimes = clocksA;
+        this.clocktimesB = clocksB;
+
+        const whiteAClockAtIdx = this.colors[0] === 'white'? 0: 1;
+        const blackAClockAtIdx = 1 -whiteAClockAtIdx;
+        const whiteBClockAtIdx = this.colorsB[0] === 'white'? 0: 1;
+        const blackBClockAtIdx = 1 -whiteBClockAtIdx;
+
+        this.clocks[whiteAClockAtIdx].setTime(this.clocktimes['white']);
+        this.clocks[blackAClockAtIdx].setTime(this.clocktimes['black']);
+        this.clocksB[whiteBClockAtIdx].setTime(this.clocktimesB['white']);
+        this.clocksB[blackBClockAtIdx].setTime(this.clocktimesB['black']);
+
+        if (this.status < 0) {
+            const clockOnTurnAidx = this.colors[0] === this.b1.turnColor ? 0 : 1;
+            const clockOnTurnBidx = this.colorsB[0] === this.b2.turnColor ? 0 : 1;
+            this.clocks[clockOnTurnAidx].start();
+            this.clocksB[clockOnTurnBidx].start();
+        }
+
     }
 
     private updateBothBoardsAndClocksOnFullBoardMsg = (lastStepA: Step, lastStepB: Step, clocksA: Clocks, clocksB: Clocks) => {
@@ -779,7 +800,7 @@ export class RoundController implements ChatController/*extends GameController t
         }
     }
 
-    private updateSingleBoardAndClocks = (board: ChessgroundController, fen: cg.FEN, fenPartner: cg.FEN, lastMove: cg.Orig[] | undefined, step: Step,
+    private updateSingleBoardAndClocks = (board: BugHouseGameController, fen: cg.FEN, fenPartner: cg.FEN, lastMove: cg.Orig[] | undefined, step: Step,
                                      clocks: Clocks, latestPly: boolean, colors: cg.Color[], status: number, check: boolean) => {
         board.turnColor = board.turnColor === 'white' ? 'black' : 'white';
 
@@ -905,7 +926,7 @@ export class RoundController implements ChatController/*extends GameController t
             const fenB = fens[1];
 
             if (isInitialBoardMessage) { // from constructor
-                this.updateBothBoardsAndClocksInitial(fenA, fenB);
+                this.updateBothBoardsAndClocksInitial(fenA, fenB, msg.clocks!, msg.clocksB!);// todo:niki: when no moves were made and we refresh, logic here doesnt differentiate it is not initial anymore, but full, and clocks have started so sending clock times again and inside duplicating the logic for clock from full mode as well - maybe think about reusing that logic or differentiating better this case as full
             } else if (full) { // manual refresh or reconnect after lost ws connection
                 const lastStepA = msg.steps[msg.steps.findLastIndex(s => s.boardName === "a")];
                 const lastStepB = msg.steps[msg.steps.findLastIndex(s => s.boardName === "b")];
