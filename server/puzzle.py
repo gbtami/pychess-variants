@@ -39,6 +39,16 @@ async def get_puzzle(request, puzzleId):
 
 
 async def get_daily_puzzle(request):
+    db_collections = await request.app["db"].list_collection_names()
+    if "puzzle" not in db_collections:
+        puzzle = {
+            "_id": "0",
+            "variant": "chess",
+            "fen": sf.start_fen("chess"),
+            "moves": "",
+        }
+        return puzzle
+
     today = datetime.now(timezone.utc).date().isoformat()
     daily_puzzle_ids = request.app["daily_puzzle_ids"]
     if today in daily_puzzle_ids:
@@ -61,6 +71,7 @@ async def get_daily_puzzle(request):
         if request.app["db"] is not None:
             await request.app["db"].dailypuzzle.insert_one({"_id": today, "puzzleId": puzzleId})
         request.app["daily_puzzle_ids"][today] = puzzle["_id"]
+
     return puzzle
 
 
@@ -84,7 +95,6 @@ async def next_puzzle(request, user):
             {"$match": {"$and": filters}},
             {"$sample": {"size": 1}},
         ]
-
         cursor = request.app["db"].puzzle.aggregate(pipeline)
 
         async for doc in cursor:
