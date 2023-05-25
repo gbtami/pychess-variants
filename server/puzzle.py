@@ -33,21 +33,28 @@ NO_PUZZLE_VARIANTS = (
 PUZZLE_VARIANTS = [v for v in VARIANTS if (not v.endswith("960") and (v not in NO_PUZZLE_VARIANTS))]
 
 
+def empty_puzzle(variant):
+    puzzle = {
+        "_id": "0",
+        "variant": variant,
+        "fen": sf.start_fen(variant),
+        "moves": "",
+    }
+    return puzzle
+
+
 async def get_puzzle(request, puzzleId):
     puzzle = await request.app["db"].puzzle.find_one({"_id": puzzleId})
     return puzzle
 
 
 async def get_daily_puzzle(request):
+    if request.app["db"] is None:
+        return empty_puzzle("chess")
+
     db_collections = await request.app["db"].list_collection_names()
     if "puzzle" not in db_collections:
-        puzzle = {
-            "_id": "0",
-            "variant": "chess",
-            "fen": sf.start_fen("chess"),
-            "moves": "",
-        }
-        return puzzle
+        return empty_puzzle("chess")
 
     today = datetime.now(timezone.utc).date().isoformat()
     daily_puzzle_ids = request.app["daily_puzzle_ids"]
@@ -109,12 +116,7 @@ async def next_puzzle(request, user):
             break
 
     if puzzle is None:
-        puzzle = {
-            "_id": "0",
-            "variant": variant,
-            "fen": sf.start_fen(variant),
-            "moves": "",
-        }
+        puzzle = empty_puzzle(variant)
 
     user.puzzles.append(puzzle["_id"])
     return puzzle
