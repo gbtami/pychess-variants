@@ -51,6 +51,7 @@ export class PuzzleController extends AnalysisController {
         this.brating = model.brating;
         this.isRated = localStorage.puzzle_rated === undefined ? true : localStorage.puzzle_rated === "true";
         this.autoNext = localStorage.puzzle_autoNext === undefined ? false : localStorage.puzzle_autoNext === "true";
+        this.localAnalysis = false;
 
         this.chessground.set({
             orientation: this.turnColor,
@@ -357,7 +358,11 @@ export class PuzzleController extends AnalysisController {
         const settingsEl = document.getElementById('bars') as HTMLElement;
         settingsEl.style.display = 'block';
 
-        if (this.autoNext && success) this.continueTraining();
+        if (this.autoNext && success) {
+            this.continueTraining();
+        } else {
+            this.localAnalysis = localStorage.localAnalysis === undefined ? false : localStorage.localAnalysis === "true";
+        }
     }
 
     continueTraining() {

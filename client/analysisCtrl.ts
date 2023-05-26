@@ -258,8 +258,10 @@ export class AnalysisController extends GameController {
     }
 
     pvView(i: number, pv: VNode | undefined) {
-        if (this.vpvlines === undefined) this.pvboxIni();
-        this.vpvlines[i] = patch(this.vpvlines[i], h(`div#pv${i + 1}.pv`, pv));
+        if (i >= 0) {
+            if (this.vpvlines === undefined) this.pvboxIni();
+            this.vpvlines[i] = patch(this.vpvlines[i], h(`div#pv${i + 1}.pv`, pv));
+        }
     }
 
     clearPvlines() {
@@ -571,7 +573,7 @@ export class AnalysisController extends GameController {
 
     // Updates PV, score, gauge and the best move arrow
     drawEval = (ceval: Ceval | undefined, scoreStr: string | undefined, turnColor: cg.Color) => {
-        const pvlineIdx = (ceval && ceval.multipv) ? ceval.multipv - 1 : 0;
+        const pvlineIdx = (ceval && ceval.multipv) ? ceval.multipv - 1 : -1;
 
         // Render PV line
         if (ceval?.p !== undefined) {
