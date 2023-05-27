@@ -25,6 +25,8 @@ import * as idb from "idb-keyval";
 import {MsgAnalysis} from "../analysisType";
 import ffishModule from "ffish-es6";
 import {Key, Orig} from "chessgroundx/types";
+import {titleCase} from "@/analysisCtrl";
+import {movetimeChart} from "./movetimeChart.bug";
 
 const EVAL_REGEX = new RegExp(''
   + /^info depth (\d+) seldepth \d+ multipv (\d+) /.source
@@ -50,7 +52,7 @@ interface MsgAnalysisBoard {
     check: boolean;
 }
 
-export default class AnalysisController {
+export default class AnalysisControllerBug {
     model;
     sock;
 
@@ -120,6 +122,9 @@ export default class AnalysisController {
     ffishBoard: any;
     notationAsObject: any;
 
+    movetimeChart: Chart;
+    chartFunctions: any[];
+
     arrow: boolean;
 
     multipv: number;
@@ -181,6 +186,7 @@ export default class AnalysisController {
         // }
 
         this.isAnalysisBoard = model["gameId"] === "";
+        this.chartFunctions = [movetimeChart];// todo:niki:needed for zoom
 
         const onOpen = () => {
             if (this.embed) {
@@ -261,10 +267,10 @@ export default class AnalysisController {
         }
 
         // Hide #chart div (embed view has no #chart)
-        if (!this.model["embed"]) {
-            const element = document.getElementById('chart') as HTMLElement;
-            element.style.display = 'none';
-        }
+        // if (!this.model["embed"]) {
+        //     const element = document.getElementById('chart') as HTMLElement;
+        //     element.style.display = 'none';
+        // }
 
 
         createMovelistButtons(this);
@@ -284,13 +290,13 @@ export default class AnalysisController {
             this.vinfo = document.getElementById('info') as HTMLElement;
             this.vpvlines = [...Array(5).fill(null).map((_, i) => document.querySelector(`.pvbox :nth-child(${i + 1})`) as HTMLElement)];
 
-            // const pgn = (this.isAnalysisBoard) ? this.getPgn() : this.pgn;
-            // this.renderFENAndPGN(pgn);
+            const pgn = (this.isAnalysisBoard) ? this.getPgn() : this.pgn;
+            this.renderFENAndPGN(pgn);
 
-            // if (this.isAnalysisBoard) {
-            //     (document.querySelector('[role="tablist"]') as HTMLElement).style.display = 'none';
-            //     (document.querySelector('[tabindex="0"]') as HTMLElement).style.display = 'flex';
-            // }
+            if (this.isAnalysisBoard) {
+                (document.querySelector('[role="tablist"]') as HTMLElement).style.display = 'none';
+                (document.querySelector('[tabindex="0"]') as HTMLElement).style.display = 'flex';
+            }
         }
 
         // if (!this.model["embed"]) {
@@ -301,7 +307,33 @@ export default class AnalysisController {
         //     this.vinfo = document.getElementById('info') as HTMLElement;
         //     this.vpv = document.getElementById('pv') as HTMLElement;
         // }
+        // Add a click event handler to each tab
+        const tabs = document.querySelectorAll('[role="tab"]');
+        tabs!.forEach(tab => {
+            tab.addEventListener('click', changeTabs);
+        });
+        function changeTabs(e: Event) {
+            const target = e.target as Element;
+            const parent = target!.parentNode;
+            const grandparent = parent!.parentNode;
 
+            // Remove all current selected tabs
+            parent!.querySelectorAll('[aria-selected="true"]').forEach(t => t.setAttribute('aria-selected', 'false'));
+
+            // Set this tab as selected
+            target.setAttribute('aria-selected', 'true');
+
+            // Hide all tab panels
+            grandparent!.querySelectorAll('[role="tabpanel"]').forEach(p => (p as HTMLElement).style.display = 'none');
+
+            // Show the selected panel
+            (grandparent!.parentNode!.querySelector(`#${target.getAttribute('aria-controls')}`)! as HTMLElement).style.display = 'flex';
+        }
+        (document.querySelector('[tabindex="0"]') as HTMLElement).style.display = 'flex';
+        // const menuEl = document.getElementById('bars') as HTMLElement;
+        // menuEl.style.display = 'block';
+``
+        //
         this.onMsgBoard(model["board"] as MsgBoard);
 
         // boardSettings.ctrl = this;
@@ -455,45 +487,33 @@ export default class AnalysisController {
 
         // but on analysis page we always present pgn move list leading to current shown position!
         // const pgn = (this.isAnalysisBoard) ? this.getPgn() : this.pgn;
-        // this.renderFENAndPGN( pgn );todo:niki:good to have eventually
+        const pgn =/* (this.isAnalysisBoard) ?*/ this.getPgn() /*: this.pgn*/;
+        this.renderFENAndPGN( pgn );
 
         if (!this.isAnalysisBoard) selectMove(this, this.ply);
     }
 
-    // private renderFENAndPGN(pgn: string) {
-    //     let container = document.getElementById('copyfen') as HTMLElement;
-    //     if (container !== null) {
-    //         const buttons = [
-    //             h('a.i-pgn', { on: { click: () => downloadPgnText("pychess-variants_" + this.gameId) } }, [
-    //                 h('i', {props: {title: _('Download game to PGN file')}, class: {"icon": true, "icon-download": true} }, _('Download PGN'))]),
-    //             h('a.i-pgn', { on: { click: () => copyTextToClipboard(this.uci_usi) } }, [
-    //                 h('i', {props: {title: _('Copy USI/UCI to clipboard')}, class: {"icon": true, "icon-clipboard": true} }, _('Copy UCI/USI'))]),
-    //             h('a.i-pgn', { on: { click: () => copyBoardToPNG(this.fullfen) } }, [
-    //                 h('i', {props: {title: _('Download position to PNG image file')}, class: {"icon": true, "icon-download": true} }, _('PNG image'))]),
-    //             ]
-    //
-    //         // Enable to delete imported games
-    //         if (this.model["rated"] === '2' && this.importedBy === this.model["username"]) {
-    //             buttons.push(
-    //                 h('a.i-pgn', { on: { click: () => this.deleteGame() } }, [
-    //                     h('i', {props: {title: _('Delete game')}, class: {"icon": true, "icon-trash-o": true} }, _('Delete game'))])
-    //             );
-    //         }
-    //
-    //         if (this.steps[0].analysis === undefined && !this.isAnalysisBoard) {
-    //             buttons.push(h('button#request-analysis', { on: { click: () => this.drawAnalysisChart(true) } }, [
-    //                 h('i', {props: {title: _('Request Computer Analysis')}, class: {"icon": true, "icon-bar-chart": true} }, _('Request Analysis'))])
-    //             );
-    //         }
-    //         patch(container, h('div', buttons));
-    //     }
-    //
-    //     const e = document.getElementById('fullfen') as HTMLInputElement;
-    //     e.value = this.fullfen;
-    //
-    //     container = document.getElementById('pgntext') as HTMLElement;
-    //     this.vpgn = patch(container, h('textarea#pgntext', { attrs: { rows: 13, readonly: true, spellcheck: false} }, pgn));
-    // }
+    private renderFENAndPGN(pgn: string) {
+        let container = document.getElementById('copyfen') as HTMLElement;
+        if (container !== null) {
+            const buttons = [
+                h('a.i-pgn', { on: { click: () => console.log("downloadPgnText(\"pychess-variants_\" + this.gameId) not implemented") } }, [
+                    h('i', {props: {title: _('Download game to PGN file')}, class: {"icon": true, "icon-download": true} }, _('Download PGN'))]),
+                h('a.i-pgn', { on: { click: () => console.log("copyTextToClipboard(this.uci_usi) not implemented") } }, [
+                    h('i', {props: {title: _('Copy USI/UCI to clipboard')}, class: {"icon": true, "icon-clipboard": true} }, _('Copy UCI/USI'))]),
+                h('a.i-pgn', { on: { click: () => console.log("copyBoardToPNG not implemented") } }, [
+                    h('i', {props: {title: _('Download position to PNG image file')}, class: {"icon": true, "icon-download": true} }, _('PNG image'))]),
+                ]
+
+            patch(container, h('div', buttons));
+        }
+
+        const e = document.getElementById('fullfen') as HTMLInputElement;
+        e.value = this.b1.fullfen + " | " + this.b2.fullfen;
+
+        container = document.getElementById('pgntext') as HTMLElement;
+        this.vpgn = patch(container, h('div#pgntext', pgn));
+    }
 
     // private deleteGame() {
     //     if (confirm(_('Are you sure you want to delete this game?'))) {
@@ -546,7 +566,7 @@ export default class AnalysisController {
 
                 const cmt = document.getElementById('chart-movetime') as HTMLElement;
                 if (cmt) cmt.style.display = 'block';
-                // movetimeChart(this);
+                movetimeChart(this);
             }
 
         } else {/*
@@ -981,6 +1001,64 @@ export default class AnalysisController {
 
     }
 
+    private getPgn = (idxInVari  = 0) => {
+        const moves : string[] = [];
+        let moveCounter: string = '';
+        let whiteMove: boolean = true;
+        let blackStarts: boolean = this.steps[0].turnColor === 'black';
+
+        let plyA: number = 0;//maybe make it part of Steps - maybe have some function to calculate these - i feel i will need this logic again somewhere (todo:niki:yup, i did need it here, copied from movelist.bug.ts)
+        let plyB: number = 0;
+
+        for (let ply = 1; ply <= this.ply; ply++) {
+            this.steps[ply].boardName === 'a'? plyA++ : plyB++;
+            // we are in a variation line of the game
+            if (this.steps[ply] && this.steps[ply].vari && this.plyVari > 0) {
+                const variMoves = this.steps[ply].vari;
+                if (variMoves) {
+                    blackStarts = variMoves[0].turnColor === 'white';
+                    for (let idx = 0; idx <= idxInVari; idx++) {
+                        if (blackStarts && ply ===1 && idx === 0) {
+                            moveCounter = '1...';
+                        } else {
+                            whiteMove = variMoves[idx].turnColor === 'black';
+                            moveCounter = (whiteMove) ? Math.ceil((ply + idx + 1) / 2) + '.' : '';
+                        }
+                        moves.push(moveCounter + variMoves[idx].sanSAN);
+                    };
+                    break;
+                }
+            // we are in the main line
+            } else {
+                if (blackStarts && ply === 1) {
+                    moveCounter = '1...';
+                } else {
+                    whiteMove = this.steps[ply].turnColor === 'black';
+                    moveCounter = Math.floor(this.steps[ply].boardName === 'a'? (plyA + 1) / 2 : (plyB + 1) / 2 ) + this.steps[ply].boardName.toUpperCase() + ".";
+                }
+                moves.push(moveCounter + this.steps[ply].san);
+            }
+        }
+        const moveText = moves.join(' ');
+
+        const today = new Date().toISOString().substring(0, 10).replace(/-/g, '.');
+
+        const event = '[Event "?"]';
+        const site = `[Site "${this.b1.home}/analysis/${this.variant.name}"]`;
+        const date = `[Date "${today}"]`;
+        const whiteA = '[WhiteA "'+this.model['wplayer']+'"]';
+        const blackA = '[BlackA "'+this.model['bplayer']+'"]';
+        const whiteB = '[WhiteB "'+this.model['wplayerB']+'"]';
+        const blackB = '[BlackB "'+this.model['bplayerB']+'"]';
+        const result = '[Result "*"]';
+        const variant = `[Variant "${titleCase(this.variant.name)}"]`;
+        const fen = `[FEN "${this.steps[0].fen}"]`;
+        const setup = '[SetUp "1"]';
+
+        return `${event}\n${site}\n${date}\n${whiteA}\n${blackA}\n${whiteB}\n${blackB}\n${result}\n${variant}\n${fen}\n${setup}\n\n${moveText} *\n`;
+    }
+
+
     doSend = (message: JSONObject) => {
         // console.log("---> doSend():", message);
         this.sock.send(JSON.stringify(message));
@@ -1077,6 +1155,7 @@ export default class AnalysisController {
             } else if (vv === undefined && this.plyVari > 0) {
                 activatePlyVari(this.plyVari);
             }
+            this.checkStatus(msg);
         }
 
         const e = document.getElementById('fullfen') as HTMLInputElement;

@@ -288,7 +288,7 @@ async def lobby_socket_handler(request):
                         if len(streams) > 0:
                             await ws.send_json({"type": "streams", "items": streams})
 
-                        if request.app["tv"] is not None:
+                        if request.app["tv"] is not None and request.app["tv"] in games and hasattr(games[request.app["tv"]], "tv_game_json"):
                             await ws.send_json(games[request.app["tv"]].tv_game_json)
 
                     elif data["type"] == "lobbychat":

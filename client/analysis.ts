@@ -205,8 +205,8 @@ export function analysisTools () {
         ])
 }
 
-export function gauge () {
-    return h('div#gauge', [
+export function gauge (id: string = "gauge") {
+    return h('div#'+id, [
         h('div.black',     { props: { style: "height: 50%;" } }),
         h('div.tick',      { props: { style: "height: 12.5%;" } }),
         h('div.tick',      { props: { style: "height: 25%;" } }),

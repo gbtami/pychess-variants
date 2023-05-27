@@ -40,7 +40,7 @@ const maxDepth = 18;
 
 const emptySan = '\xa0';
 
-function titleCase (words: string) {return words.split(' ').map(w =>  w.substring(0,1).toUpperCase() + w.substring(1).toLowerCase()).join(' ');}
+export function titleCase (words: string) {return words.split(' ').map(w =>  w.substring(0,1).toUpperCase() + w.substring(1).toLowerCase()).join(' ');}
 
 
 export class AnalysisController extends GameController {

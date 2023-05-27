@@ -1,12 +1,12 @@
 import { h, VNode } from 'snabbdom';
 
-import AnalysisController from './analysisCtrl.bug';
+import AnalysisControllerBug from './analysisCtrl.bug';
 import { result } from '../result'
 import { patch } from '../document';
 import {RoundController} from "./roundCtrl.bug";
 import {Step} from "../messages";
 
-export function selectMove (ctrl: AnalysisController | RoundController, ply: number, plyVari = 0): void {
+export function selectMove (ctrl: AnalysisControllerBug | RoundController, ply: number, plyVari = 0): void {
     let plyMax = ctrl.steps.length - 1;
     const vari = "plyVari" in ctrl ? ctrl.steps[ctrl.plyVari]['vari']: undefined;
     if (vari && ctrl.plyVari > 0) plyMax = ctrl.plyVari + vari.length - 1;
@@ -30,7 +30,7 @@ export function selectMove (ctrl: AnalysisController | RoundController, ply: num
 
 }
 
-function activatePly (ctrl: AnalysisController | RoundController ) {
+function activatePly (ctrl: AnalysisControllerBug | RoundController ) {
     const active = document.querySelector('move-bug.active');
     if (active) active.classList.remove('active');
 
@@ -38,7 +38,7 @@ function activatePly (ctrl: AnalysisController | RoundController ) {
     if (elPly) elPly.classList.add('active');
 }
 
-function scrollToPly (ctrl: AnalysisController | RoundController) {
+function scrollToPly (ctrl: AnalysisControllerBug | RoundController) {
     if (ctrl.steps.length < 9) return;
     const movelistEl = document.getElementById('movelist') as HTMLElement;
     const plyEl = movelistEl.querySelector('move-bug.active') as HTMLElement | null;
@@ -62,7 +62,7 @@ export function activatePlyVari (ply: number) {
     if (elPly) elPly.classList.add('active');
 }
 
-export function createMovelistButtons (ctrl: AnalysisController | RoundController ) {
+export function createMovelistButtons (ctrl: AnalysisControllerBug | RoundController ) {
     const container = document.getElementById('move-controls') as HTMLElement;
     const vari = /*todo;niki;comentout for now "plyVari" in ctrl*/ 1 > 2? ctrl.steps[ctrl.plyVari]['vari']: undefined;
     ctrl.moveControls = patch(container, h('div#btn-controls-top.btn-controls', [
@@ -90,7 +90,7 @@ function fillWithEmpty(moves: VNode[], countOfEmptyCellsToAdd: number) {
     }
 }
 
-export function updateMovelist (ctrl: AnalysisController | RoundController, full = true, activate = true, needResult = true) {
+export function updateMovelist (ctrl: AnalysisControllerBug | RoundController, full = true, activate = true, needResult = true) {
     const plyFrom = (full) ? 1 : ctrl.steps.length -1;
     if (plyFrom === 0) return; // that is the very initial message with single dummy step. No moves yet
 
@@ -210,7 +210,7 @@ export function updateMovelist (ctrl: AnalysisController | RoundController, full
     }
 }
 
-export function updateResult (ctrl: AnalysisController | RoundController) {
+export function updateResult (ctrl: AnalysisControllerBug | RoundController) {
     if (ctrl.status < 0) return;
 
     // Prevent to render it twice

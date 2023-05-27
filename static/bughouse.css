@@ -15,10 +15,15 @@
                                calc(var(--pocketLength) * (var(--cg-width) / var(--files)))
                                calc(var(--pocketLength) * (var(--cg-width) / var(--files)))
                                var(--gauge-gap)
+                               0.8em
                                500px;
         grid-template-rows: min-content 1fr;
-        grid-template-areas: 'board gauge pocket-top pocket-top-partner gaugePartner boardPartner' 'board gauge tools tools gaugePartner boardPartner' 'board gauge tools tools gaugePartner boardPartner' 'board gauge pocket-bot pocket-bot-partner gaugePartner boardPartner' '. . move-controls move-controls . .' 'uboard uboard uboard uboard uboard uboard' 'gameinfo gameinfo gameinfo gameinfo gameinfo gameinfo'
-        /*'board . boardPartner' 'board mat-top boardPartner' 'board clock-top boardPartner' 'board expi-top boardPartner' 'board user-top boardPartner' 'board move-controls boardPartner' 'board moves boardPartner' 'board game-controls boardPartner' 'board user-bot boardPartner' 'board expi-bot boardPartner' 'board clock-bot boardPartner' 'board mat-bot boardPartner' 'board . boardPartner';*/
+        grid-template-areas: 'board gauge pocket-top pocket-top-partner gaugePartner d boardPartner'
+                             'board gauge tools tools gaugePartner d boardPartner'
+                             'board gauge tools tools gaugePartner d boardPartner'
+                             'board gauge pocket-bot pocket-bot-partner gaugePartner d boardPartner'
+                             '. . move-controls move-controls . . .'
+                             'gameinfo gameinfo uboard uboard uboard uboard uboard'
     }
 }
 .anal-clock.bug {

@@ -5,7 +5,7 @@ import * as cg from "chessgroundx/types";
 import {Chessground} from "chessgroundx";
 import {VARIANTS, BOARD_FAMILIES, Variant} from "../variants"
 import * as util from "chessgroundx/util";
-import AnalysisController from "./analysisCtrl.bug";
+import AnalysisControllerBug from "./analysisCtrl.bug";
 import {Step} from "../messages";
 import {GameController} from "../gameCtrl";
 import {PyChessModel} from "../types";
@@ -29,7 +29,7 @@ export class BugHouseGameController extends GameController {
 
     variant: Variant;
 
-    parent: AnalysisController | RoundController;
+    parent: AnalysisControllerBug | RoundController;
 
     fullfen: cg.FEN;
 
