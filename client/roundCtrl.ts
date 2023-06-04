@@ -421,7 +421,8 @@ export class RoundController extends GameController {
 
     private resign = () => {
         // console.log("Resign");
-        if (confirm(_('Are you sure you want to resign?'))) {
+        const doResign = ( localStorage.getItem("confirmresign") === "false" ) || confirm(_('Are you sure you want to resign?')) 
+        if (doResign) {    
             this.doSend({ type: "resign", gameId: this.gameId });
         }
     }

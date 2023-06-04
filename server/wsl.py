@@ -129,9 +129,10 @@ async def lobby_socket_handler(request):
                         print("create_seek", data)
                         seek = await create_seek(db, invites, seeks, user, data, ws)
                         await lobby_broadcast(sockets, get_seeks(seeks))
-                        await request.app["discord"].send_to_discord(
-                            "create_seek", seek.discord_msg
-                        )
+                        if seek.target == "":
+                            await request.app["discord"].send_to_discord(
+                                "create_seek", seek.discord_msg
+                            )
 
                     elif data["type"] == "create_invite":
                         no = await is_playing(request, user, ws)
