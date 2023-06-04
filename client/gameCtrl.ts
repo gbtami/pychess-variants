@@ -176,7 +176,7 @@ export abstract class GameController extends ChessgroundController implements Ch
     setDests() {
         if (this.ffishBoard === undefined) {
             // At very first time we may have to wait for ffish module to initialize
-            setTimeout(this.setDests, 100);
+            setTimeout(this.setDests.bind(this), 100);
         } else {
             const legalMoves = this.ffishBoard.legalMoves().split(" ");
             const dests = moveDests(legalMoves as UCIMove[]);

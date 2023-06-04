@@ -708,7 +708,7 @@ export class AnalysisController extends GameController {
     fsfPostMessage(msg: string) {
         if (window.fsf === undefined) {
             // At very first time we may have to wait for fsf module to initialize
-            setTimeout(this.fsfPostMessage, 100, msg);
+            setTimeout(this.fsfPostMessage.bind(this), 100, msg);
         } else {
             if (this.fsfDebug) console.debug('<---', msg);
             window.fsf.postMessage(msg);
