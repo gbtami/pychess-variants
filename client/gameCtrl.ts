@@ -165,13 +165,28 @@ export abstract class GameController extends ChessgroundController implements Ch
         return this.chessground.state.orientation !== this.mycolor;
     }
 
-    setDests = () => {
+    setDests() {
         if (this.ffishBoard === undefined) {
             // At very first time we may have to wait for ffish module to initialize
             setTimeout(this.setDests, 100);
         } else {
             const legalMoves = this.ffishBoard.legalMoves().split(" ");
             const dests = moveDests(legalMoves as UCIMove[]);
+            if (this.variant.rules.gate) {
+                // Remove rook takes king from the legal destinations
+                const pieces = this.chessground.state.boardState.pieces;
+                for (const [orig, destArray] of dests) {
+                    if (util.isKey(orig)) {
+                        const origPiece = pieces.get(orig);
+                        if (origPiece?.role === 'r-piece') {
+                            dests.set(orig, destArray.filter(dest => {
+                                const destPiece = pieces.get(dest);
+                                return !(destPiece && destPiece.role === 'k-piece' && origPiece.color === destPiece.color);
+                            }));
+                        }
+                    }
+                }
+            }
             this.chessground.set({ movable: { dests: dests }});
             if (this.steps.length === 1) {
                 this.chessground.set({ check: (this.ffishBoard.isCheck()) ? this.turnColor : false});
