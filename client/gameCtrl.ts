@@ -1,6 +1,7 @@
 import WebsocketHeartbeatJs from 'websocket-heartbeat-js';
 
 import { h, VNode } from 'snabbdom';
+import * as Mousetrap  from 'mousetrap';
 import * as cg from 'chessgroundx/types';
 import * as util from 'chessgroundx/util';
 
@@ -17,6 +18,7 @@ import { JSONObject, PyChessModel } from './types';
 import { updateCount, updatePoint } from './info';
 import { sound } from './sound';
 import { chatMessage, ChatController } from './chat';
+import { selectMove } from './movelist';
 
 export abstract class GameController extends ChessgroundController implements ChatController {
     sock: WebsocketHeartbeatJs;
@@ -159,6 +161,12 @@ export abstract class GameController extends ChessgroundController implements Ch
             });
 
         this.setDests();
+
+        Mousetrap.bind('left', () => selectMove(this, this.ply - 1, this.plyVari));
+        Mousetrap.bind('right', () => selectMove(this, this.ply + 1, this.plyVari));
+        Mousetrap.bind('up', () => selectMove(this, 0));
+        Mousetrap.bind('down', () => selectMove(this, this.steps.length - 1));
+        Mousetrap.bind('f', () => this.toggleOrientation());
     }
 
     flipped() {
