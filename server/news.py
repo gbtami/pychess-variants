@@ -1,4 +1,5 @@
 NEWS = {
+    "Summer_Update": "2023-06-06",
     "Spartan_Chess": "2023-04-01",
     "Duck_Chess": "2022-12-26",
     "Ouk_Chaktrang_Friendship_Between_Four_Countries_Tournament": "2022-12-01",
