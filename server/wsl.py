@@ -305,6 +305,12 @@ async def lobby_socket_handler(request):
                                         youtube.remove(parts[2])
                                     await broadcast_streams(request.app)
 
+                            elif message.startswith("/delete"):
+                                admin_command = True
+                                parts = message.split()
+                                if len(parts) == 2 and len(parts[1]) == 5:
+                                    await db.puzzle.delete_one({"_id": parts[1]})
+
                             elif message == "/state":
                                 admin_command = True
                                 server_state(request.app)
