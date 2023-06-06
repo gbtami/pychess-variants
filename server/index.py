@@ -401,8 +401,6 @@ async def index(request):
 
     if view == "lobby":
         puzzle = await get_daily_puzzle(request)
-        print("---DAILY PUZZLE---")
-        print(puzzle)
         render["puzzle"] = json.dumps(puzzle, default=datetime.isoformat)
 
     elif view in ("profile", "level8win"):

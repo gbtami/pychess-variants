@@ -17,6 +17,7 @@ else:
 
 import jinja2
 from aiohttp import web
+from aiohttp.log import access_logger
 from aiohttp.web_app import Application
 from aiohttp_session.cookie_storage import EncryptedCookieStorage
 from aiohttp_session import setup
@@ -435,4 +436,6 @@ if __name__ == "__main__":
 
     app = make_app()
 
-    web.run_app(app, port=int(os.environ.get("PORT", 8080)))
+    web.run_app(
+        app, access_log=None if args.w else access_logger, port=int(os.environ.get("PORT", 8080))
+    )
