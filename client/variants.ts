@@ -674,6 +674,19 @@ export const VARIANTS: Record<string, Variant> = {
         ui: { boardMark: 'campmate' },
     }),
 
+    khans: variant({
+        name: "khans", tooltip: "Asymmetric variant where one army has pieces that move like knights but capture differently.",
+        //startFen: "lhaykahl/8/pppppppp/8/8/8/PPPPPPPP/RNBQKBNR w KQ - 0 1",
+        startFen: "lhatkahl/ssssssss/8/8/8/8/PPPPPPPP/RNBQKBNR w KQ - 0 1",
+        icon: "R",
+        boardFamily: "standard8x8", pieceFamily: "orda",
+        colors: { first: "White", second: "Gold" },
+        pieceRow: { white: ["k", "q", "r", "b", "n", "p"], black: ["k", "t", "l", "a", "h", "s", "q", "n"] },
+        promotion: { type: "regular" },
+        rules: { enPassant: true },
+        ui: { boardMark: 'campmate' },
+    }),
+
     synochess: variant({
         name: "synochess", tooltip: _("Asymmetric East vs. West variant which pits the western Chess army against a Xiangqi and Janggi-styled army."),
         startFen: "rneakenr/8/1c4c1/1ss2ss1/8/8/PPPPPPPP/RNBQKBNR[ss] w KQ - 0 1",
@@ -871,7 +884,7 @@ export const variantGroups: { [ key: string ]: { variants: string[] } } = {
     shogi:    { variants: [ "shogi", "minishogi", "kyotoshogi", "dobutsu", "gorogoroplus", "torishogi" ] },
     xiangqi:  { variants: [ "xiangqi", "manchu", "janggi", "minixiangqi" ] },
     fairy:    { variants: [ "capablanca", "capahouse", "seirawan", "shouse", "grand", "grandhouse", "shako", "shogun", "hoppelpoppel" ] },
-    army:     { variants: [ "orda", "synochess", "shinobi", "empire", "ordamirror", "chak", "chennis", "shinobiplus", "spartan" ] },
+    army:     { variants: [ "orda", "synochess", "shinobi", "empire", "ordamirror", "chak", "chennis", "shinobiplus", "khans", "spartan" ] },
 };
 
 function variantGroupLabel(group: string): string {

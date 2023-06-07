@@ -40,3 +40,12 @@
 .orda .cg-wrap piece.q-piece.black {
     background-image: url('../../images/pieces/orda/merida/bQ.svg');
 }
+.orda .cg-wrap piece.t-piece.black {
+    background-image: url('../../images/pieces/orda/merida/bT.svg');
+}
+.orda .cg-wrap piece.s-piece.black {
+    background-image: url('../../images/pieces/orda/merida/bS.svg');
+}
+.orda .cg-wrap piece.ps-piece.black {
+    background-image: url('../../images/pieces/merida/bN.svg');
+}
