@@ -93,9 +93,11 @@ export class AnalysisController extends GameController {
             }
         };
 
-        this.sock = newWebsocket('wsr');
-        this.sock.onopen = () => onOpen();
-        this.sock.onmessage = (e: MessageEvent) => this.onMessage(e);
+        if (!this.puzzle) {
+            this.sock = newWebsocket('wsr');
+            this.sock.onopen = () => onOpen();
+            this.sock.onmessage = (e: MessageEvent) => this.onMessage(e);
+        }
 
         // is local stockfish.wasm engine supported at all
         this.localEngine = false;

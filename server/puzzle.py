@@ -38,6 +38,7 @@ def empty_puzzle(variant):
         "_id": "0",
         "variant": variant,
         "fen": sf.start_fen(variant),
+        "type": "",
         "moves": "",
     }
     return puzzle
@@ -107,7 +108,10 @@ async def next_puzzle(request, user):
                 "variant": doc["variant"],
                 "fen": doc["fen"],
                 "moves": doc["moves"],
+                "type": doc["type"],
+                "eval": doc["eval"],
                 "site": doc.get("site", ""),
+                "gameId": doc.get("gameId", ""),
                 "played": doc.get("played", 0),
             }
             break
