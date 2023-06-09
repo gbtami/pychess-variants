@@ -379,6 +379,16 @@ export class PuzzleController extends AnalysisController {
         patch(feedbackEl, 
             h('div.feedback.after', [
                 h('div.complete', text),
+                h('div.puzzle_vote', [
+                    h('div.puzzle_vote_help', [
+                        h('p', _('Did you like this puzzle?')),
+                        h('p', _('Vote to load the next one!'))
+                    ]),
+                    h('div.puzzle_vote_buttons.enabled', [
+                        h('div.vote.vote-up.icon.icon-thumbs-o-up'),
+                        h('div.vote.vote-down.icon.icon-thumbs-o-up')
+                    ])
+                ]),
                 h('div.more', [
                     h('a',
                         { on: { click: () => this.continueTraining() } },

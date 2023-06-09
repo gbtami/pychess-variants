@@ -993,7 +993,6 @@ div a {
   justify-content: center;
   background: var(--bg-color0);
   box-shadow: var(--base-shadow);
-  border-bottom: 1px solid var(--border-color);
 }
 
 div#result {
@@ -2350,8 +2349,4 @@ div.tv cg-container, div.puzzle cg-container {
 input[data-file]::after {
   content: attr(data-file);
   margin-left: 0.375em;
-}
-
-.puzzle-meta .info2 span {
-  padding-right: 1ch;
 }
