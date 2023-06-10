@@ -29,7 +29,7 @@
     "html-to-image": "^1.10.8",
     "idb-keyval": "^6.2.0",
     "mousetrap": "^1.6.5",
-    "snabbdom": "^3.1.0",
+    "snabbdom": "^3.5.1",
     "websocket-heartbeat-js": "^1.1.0"
   },
   "devDependencies": {
