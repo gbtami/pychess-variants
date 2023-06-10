@@ -681,7 +681,7 @@ export const VARIANTS: Record<string, Variant> = {
         icon: "R",
         boardFamily: "standard8x8", pieceFamily: "orda",
         colors: { first: "Gold", second: "White" },
-        pieceRow: { white: ["k", "t", "l", "a", "h", "s", "n"], black: ["k", "q", "r", "b", "n", "p"] },
+        pieceRow: { white: ["k", "t", "l", "a", "h", "s"], black: ["k", "q", "r", "b", "n", "p"] },
         promotion: { type: "regular" },
         rules: { enPassant: true },
         ui: { boardMark: 'campmate' },
