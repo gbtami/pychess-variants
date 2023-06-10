@@ -40,7 +40,7 @@ from wsr import round_socket_handler
 from wst import tournament_socket_handler
 from tournament_calendar import tournament_calendar
 from twitch import twitch_request_handler
-from puzzle import puzzle_complete
+from puzzle import puzzle_complete, puzzle_vote
 
 
 get_routes = (
@@ -152,4 +152,5 @@ post_routes = (
     (r"/tournament/{tournamentId:\w{8}}/edit", index),
     ("/twitch", twitch_request_handler),
     (r"/puzzle/complete/{puzzleId:\w{5}}", puzzle_complete),
+    (r"/puzzle/vote/{puzzleId:\w{5}}", puzzle_vote),
 )
