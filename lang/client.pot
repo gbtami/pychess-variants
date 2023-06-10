@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2023-06-07 11:23+0200\n"
+"POT-Creation-Date: 2023-06-09 01:06+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -109,7 +109,7 @@ msgstr ""
 
 #: ../client/analysis.ts:39 ../client/editor/editor.ts:30
 #: ../client/lobby.ts:352 ../client/lobby.ts:934 ../client/puzzle.ts:32
-#: ../client/settingsView.ts:130
+#: ../client/puzzleCtrl.ts:202 ../client/settingsView.ts:130
 msgid "Variant"
 msgstr ""
 
@@ -133,7 +133,7 @@ msgstr ""
 msgid "Multi-threaded WebAssembly (classical evaluation)"
 msgstr ""
 
-#: ../client/analysis.ts:174 ../client/analysisCtrl.ts:678
+#: ../client/analysis.ts:174 ../client/analysisCtrl.ts:680
 msgid "in local browser"
 msgstr ""
 
@@ -145,63 +145,63 @@ msgstr ""
 msgid "Advantage"
 msgstr ""
 
-#: ../client/analysisCtrl.ts:298
+#: ../client/analysisCtrl.ts:300
 msgid "You need an account to do that."
 msgstr ""
 
-#: ../client/analysisCtrl.ts:337
+#: ../client/analysisCtrl.ts:339
 msgid "Download game to PGN file"
 msgstr ""
 
-#: ../client/analysisCtrl.ts:337
+#: ../client/analysisCtrl.ts:339
 msgid "Download PGN"
 msgstr ""
 
-#: ../client/analysisCtrl.ts:339
+#: ../client/analysisCtrl.ts:341
 msgid "Copy USI/UCI to clipboard"
 msgstr ""
 
-#: ../client/analysisCtrl.ts:339
+#: ../client/analysisCtrl.ts:341
 msgid "Copy UCI/USI"
 msgstr ""
 
-#: ../client/analysisCtrl.ts:341
+#: ../client/analysisCtrl.ts:343
 msgid "Download position to PNG image file"
 msgstr ""
 
-#: ../client/analysisCtrl.ts:341
+#: ../client/analysisCtrl.ts:343
 msgid "PNG image"
 msgstr ""
 
-#: ../client/analysisCtrl.ts:355
+#: ../client/analysisCtrl.ts:357
 msgid "Are you sure you want to delete this game?"
 msgstr ""
 
-#: ../client/analysisCtrl.ts:370
+#: ../client/analysisCtrl.ts:372
 msgid "Delete game"
 msgstr ""
 
-#: ../client/analysisCtrl.ts:401
+#: ../client/analysisCtrl.ts:403
 msgid "Request Computer Analysis"
 msgstr ""
 
-#: ../client/analysisCtrl.ts:401
+#: ../client/analysisCtrl.ts:403
 msgid "Request Analysis"
 msgstr ""
 
-#: ../client/analysisCtrl.ts:455
+#: ../client/analysisCtrl.ts:457
 msgid "Try browser page reload."
 msgstr ""
 
-#: ../client/analysisCtrl.ts:489
+#: ../client/analysisCtrl.ts:491
 msgid "Multi-threaded WebAssembly (with NNUE evaluation)"
 msgstr ""
 
-#: ../client/analysisCtrl.ts:661
+#: ../client/analysisCtrl.ts:663
 msgid "Depth"
 msgstr ""
 
-#: ../client/analysisCtrl.ts:666
+#: ../client/analysisCtrl.ts:668
 msgid "Go deeper"
 msgstr ""
 
@@ -1112,81 +1112,85 @@ msgstr ""
 msgid "Imported"
 msgstr ""
 
-#: ../client/puzzleCtrl.ts:80
+#: ../client/puzzleCtrl.ts:86
 msgid "LOGIN"
 msgstr ""
 
-#: ../client/puzzleCtrl.ts:108
+#: ../client/puzzleCtrl.ts:114
 msgid "Hint"
 msgstr ""
 
-#: ../client/puzzleCtrl.ts:116
+#: ../client/puzzleCtrl.ts:122
 msgid "View the solution"
 msgstr ""
 
-#: ../client/puzzleCtrl.ts:157
+#: ../client/puzzleCtrl.ts:163
 msgid ""
 "Your puzzle rating will not change. Note that puzzles are not a "
 "competition. Ratings help select the best puzzles for your current skill."
 msgstr ""
 
-#: ../client/puzzleCtrl.ts:170
-msgid "Puzzle "
+#: ../client/puzzleCtrl.ts:193
+msgid "Puzzle"
 msgstr ""
 
-#: ../client/puzzleCtrl.ts:171
-msgid "Rating: "
+#: ../client/puzzleCtrl.ts:194
+msgid "Rating:"
 msgstr ""
 
-#: ../client/puzzleCtrl.ts:171
+#: ../client/puzzleCtrl.ts:194
 msgid "hidden"
 msgstr ""
 
-#: ../client/puzzleCtrl.ts:172
-msgid "Played: "
+#: ../client/puzzleCtrl.ts:195
+msgid "Played:"
 msgstr ""
 
-#: ../client/puzzleCtrl.ts:178
-msgid "Source: "
+#: ../client/puzzleCtrl.ts:212
+msgid "Source:"
 msgstr ""
 
-#: ../client/puzzleCtrl.ts:280
+#: ../client/puzzleCtrl.ts:216
+msgid "Type:"
+msgstr ""
+
+#: ../client/puzzleCtrl.ts:319
 msgid "Your turn"
 msgstr ""
 
-#: ../client/puzzleCtrl.ts:281
+#: ../client/puzzleCtrl.ts:320
 msgid "Find the best move for %1."
 msgstr ""
 
-#: ../client/puzzleCtrl.ts:298
+#: ../client/puzzleCtrl.ts:337
 msgid "That's not the move!"
 msgstr ""
 
-#: ../client/puzzleCtrl.ts:299
+#: ../client/puzzleCtrl.ts:338
 msgid "Try something else."
 msgstr ""
 
-#: ../client/puzzleCtrl.ts:313
+#: ../client/puzzleCtrl.ts:352
 msgid "Best move!"
 msgstr ""
 
-#: ../client/puzzleCtrl.ts:314
+#: ../client/puzzleCtrl.ts:353
 msgid "Keep going..."
 msgstr ""
 
-#: ../client/puzzleCtrl.ts:327
+#: ../client/puzzleCtrl.ts:366
 msgid "Success!"
 msgstr ""
 
-#: ../client/puzzleCtrl.ts:332
+#: ../client/puzzleCtrl.ts:371
 msgid "Puzzle complete!"
 msgstr ""
 
-#: ../client/puzzleCtrl.ts:335
+#: ../client/puzzleCtrl.ts:374
 msgid "We have no more puzzle for this variant."
 msgstr ""
 
-#: ../client/puzzleCtrl.ts:346
+#: ../client/puzzleCtrl.ts:385
 msgid "Continue training"
 msgstr ""
 

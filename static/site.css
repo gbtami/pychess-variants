@@ -993,7 +993,6 @@ div a {
   justify-content: center;
   background: var(--bg-color0);
   box-shadow: var(--base-shadow);
-  border-bottom: 1px solid var(--border-color);
 }
 
 div#result {
@@ -1350,8 +1349,7 @@ table#seeks {
   box-shadow: var(--base-shadow);
   background-position: center;
   background-image: url('images/seek-bg.svg');
-  background-color: var(--bg-seek);
-  background-blend-mode: overlay;
+  background-color: var(--bg-color0);
   background-size: 100% 100%;
   width: 100%;
   height: 100%;
@@ -2351,8 +2349,4 @@ div.tv cg-container, div.puzzle cg-container {
 input[data-file]::after {
   content: attr(data-file);
   margin-left: 0.375em;
-}
-
-.puzzle-meta .info2 span {
-  padding-right: 1ch;
 }
