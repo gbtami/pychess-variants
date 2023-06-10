@@ -32,6 +32,10 @@ NO_PUZZLE_VARIANTS = (
 
 PUZZLE_VARIANTS = [v for v in VARIANTS if (not v.endswith("960") and (v not in NO_PUZZLE_VARIANTS))]
 
+NOT_VOTED = 0
+UP = 1
+DOWN = -1
+
 
 def empty_puzzle(variant):
     puzzle = {
@@ -65,7 +69,8 @@ async def get_daily_puzzle(request):
         user = request.app["users"]["PyChess"]
 
         # skip previous daily puzzles
-        user.puzzles = list(daily_puzzle_ids.values())
+        user.puzzles = {puzzle_id: NOT_VOTED for puzzle_id in daily_puzzle_ids.values()}
+        print(user.puzzles)
 
         puzzleId = "0"
         while puzzleId == "0":
@@ -81,7 +86,7 @@ async def get_daily_puzzle(request):
 
 
 async def next_puzzle(request, user):
-    skipped = user.puzzles
+    skipped = list(user.puzzles.keys())
     filters = [
         {"_id": {"$nin": skipped}},
         {"cooked": {"$ne": True}},
@@ -119,7 +124,6 @@ async def next_puzzle(request, user):
     if puzzle is None:
         puzzle = empty_puzzle(variant)
 
-    user.puzzles.append(puzzle["_id"])
     return puzzle
 
 
@@ -133,14 +137,16 @@ async def puzzle_complete(request):
 
     await puzzle.set_played()
 
-    if not rated:
-        return web.json_response({})
-
     users = request.app["users"]
     session = await aiohttp_session.get_session(request)
     user = users[session.get("user_name")]
 
-    if user.anon:
+    if puzzleId in user.puzzles:
+        return web.json_response({})
+    else:
+        user.puzzles[puzzleId] = NOT_VOTED
+
+    if user.anon or (not rated):
         return web.json_response({})
 
     variant = post_data["variant"]
@@ -163,6 +169,28 @@ async def puzzle_complete(request):
         wplayer, bplayer, white_rating, black_rating, variant, chess960, result
     )
     return web.json_response(ratings)
+
+
+async def puzzle_vote(request):
+    puzzleId = request.match_info.get("puzzleId")
+    post_data = await request.post()
+    good = post_data["vote"] == "true"
+    up_or_down = "up" if good else "down"
+
+    users = request.app["users"]
+    session = await aiohttp_session.get_session(request)
+    user = users[session.get("user_name")]
+
+    if user.puzzles.get("puzzleId"):
+        return web.json_response({})
+    else:
+        user.puzzles["puzzleId"] = UP if good else DOWN
+
+    db = request.app["db"]
+    if db is not None:
+        await db.puzzle.find_one_and_update({"_id": puzzleId}, {"$inc": {up_or_down: 1}})
+
+    return web.json_response({})
 
 
 async def update_puzzle_ratings(

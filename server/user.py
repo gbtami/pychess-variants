@@ -42,7 +42,7 @@ class User:
         self.lobby_sockets = set()
         self.tournament_sockets = {}  # {tournamentId: set()}
 
-        self.puzzles = []
+        self.puzzles = {}  # {pizzleId: vote} where vote 0 = not voted, 1 = up, -1 = down
         self.puzzle_variant = None
 
         self.game_sockets = {}

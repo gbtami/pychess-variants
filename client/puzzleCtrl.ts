@@ -385,13 +385,17 @@ export class PuzzleController extends AnalysisController {
                         h('p', _('Vote to load the next one!'))
                     ]),
                     h('div.puzzle_vote_buttons.enabled', [
-                        h('div.vote.vote-up.icon.icon-thumbs-o-up'),
-                        h('div.vote.vote-down.icon.icon-thumbs-o-up')
+                        h('div.vote.vote-up.icon.icon-thumbs-o-up',
+                            { on: { click: () => this.postVote(true) } }
+                        ),
+                        h('div.vote.vote-down.icon.icon-thumbs-o-up',
+                            { on: { click: () => this.postVote(false) } }
+                        )
                     ])
                 ]),
                 h('div.more', [
                     h('a',
-                        { on: { click: () => this.continueTraining() } },
+                        { on: { click: () => this.continueTraining(this.variant.name) } },
                         _('Continue training')
                     ),
                 ]),
@@ -408,23 +412,46 @@ export class PuzzleController extends AnalysisController {
         settingsEl.style.display = 'block';
 
         if (this.autoNext && success) {
-            this.continueTraining();
+            this.continueTraining(this.variant.name);
         } else {
             this.localAnalysis = localStorage.localAnalysis === undefined ? false : localStorage.localAnalysis === "true";
         }
     }
 
-    continueTraining() {
+    continueTraining(variant: string) {
         let loc = location.href;
         if (!loc.endsWith('/puzzle')) {
             const parts = loc.split('/');
             const tail = parts[parts.length - 1];
             // individual puzzle pages (id at the URL end) and daily have to continue on /puzzle page
             if (!variants.includes(tail)) {
-                loc = '/puzzle/' + this.variant.name;
+                loc = '/puzzle/' + variant;
             }
         }
         window.location.assign(loc);
+    }
+
+    postVote(vote: boolean) {
+        const XHR = new XMLHttpRequest();
+        const FD  = new FormData();
+        FD.append('vote', `${vote}`);
+        const continueTraining = this.continueTraining;
+        const variant = this.variant.name;
+
+        XHR.onreadystatechange = function() {
+            if (this.readyState === 4 && this.status === 200) {
+                const response = JSON.parse(this.responseText);
+                // console.log("RESPONSE:", response);
+                if (response['error'] !== undefined) {
+                    console.log(response['error']);
+                } else {
+                    continueTraining(variant);
+                }
+            }
+        }
+        XHR.open("POST", `/puzzle/vote/${this._id}`, true);
+        XHR.send(FD);
+        // console.log("XHR.send()", FD);
     }
 
     postSuccess(success: boolean) {
