@@ -262,8 +262,7 @@ class GameBug:
 
         if self.status > STARTED:
             return
-        if self.status == CREATED:
-            self.status = STARTED
+        if self.ply == 0: #todo:niki:this means game will count to be "in play" after first move. we ont have abort mechanics for bug exactly defined yet though so not clear what " in play" should mean. will become more important when rated mode is introduced. still there was at least one more place where same comcept needed to be respected  not sure where - on timer running out maybe wheterh to mark abort or timeout not sure - gotta define and sync this everywhere to mean the same
             self.app["g_cnt"][0] += 1
             response = {"type": "g_cnt", "cnt": self.app["g_cnt"][0]}
             await lobby_broadcast(self.app["lobbysockets"], response)
@@ -771,6 +770,10 @@ class GameBug:
         print(self.pgn)
         print(self.boards["a"].print_pos())
         print(self.boards["b"].print_pos())
+
+    @property
+    def board(self):
+        return self.boards["a"] # todo:niki: fix code that depends on this to work with 2 boards as wwell - had exception in game_api.py
 
     @property
     def pgn(self):

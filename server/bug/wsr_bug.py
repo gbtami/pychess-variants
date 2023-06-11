@@ -19,7 +19,8 @@ async def handle_resign_bughouse(data, game, user):
     async with game.move_lock:
         response = await game.game_ended(user, data["type"])
 
-    all_players_ws = map(lambda p: p.game_sockets[data["gameId"]], game.all_players)
+    # todo:niki: I have put filter below, because of error in server log when some user doesnt have game_socket for that game BUT... see thought in below similar todo comment
+    all_players_ws = map(lambda p: p.game_sockets[data["gameId"]], filter(lambda u: data["gameId"] in u.game_sockets, game.all_players))
     for ws in all_players_ws:
         await ws.send_json(response)
 
@@ -38,7 +39,10 @@ async def handle_rematch_bughouse(data, game, user, users, ws, request, seeks):
     # opp_player = users[opp_name]
 
     try:
-        others_ws = map(lambda u: users[u.username].game_sockets[data["gameId"]], other_players)
+        # todo:niki: I have put filter below, because of error in server log when some user doesnt have game_socket for that game BUT...:
+        #            - first figure out in what cases does a user lose this socket (relevant to other places where similar error happens)
+        #            - think what rematch logic should look like in such cases, because it doesnt make much sense the way it is now... what if he reconnects, will he receive the rematch requests in bulk on reconnect, maybe he shuld
+        others_ws = map(lambda u: users[u.username].game_sockets[data["gameId"]], filter(lambda u: data["gameId"] in users[u.username].game_sockets, other_players))
         # opp_ws = users[opp_name].game_sockets[data["gameId"]]
     except KeyError:
         # opp disconnected

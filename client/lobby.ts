@@ -450,9 +450,17 @@ export class LobbyController implements ChatController {
         }
     }
 
+    renderVariantsDropDown(disabled: string[]) {
+        const vVariant = this.variant || localStorage.seek_variant || "chess";
+        const e = document.getElementById('variant');
+        e.replaceChildren();
+        patch(e, selectVariant("variant", disabled.includes(vVariant)? null: vVariant, () => this.setVariant(), () => this.setVariant(), disabled));
+    }
+
     createGame(variantName: string = '', chess960: boolean = false) {
         this.preSelectVariant(variantName, chess960);
         this.createMode = 'createGame';
+        this.renderVariantsDropDown([]);
         document.getElementById('game-mode')!.style.display = this.anon ? 'none' : 'inline-flex';
         document.getElementById('challenge-block')!.style.display = 'none';
         document.getElementById('ailevel')!.style.display = 'none';
@@ -465,6 +473,7 @@ export class LobbyController implements ChatController {
     playFriend(variantName: string = '', chess960: boolean = false) {
         this.preSelectVariant(variantName, chess960);
         this.createMode = 'playFriend';
+        this.renderVariantsDropDown([]);
         document.getElementById('game-mode')!.style.display = this.anon ? 'none' : 'inline-flex';
         document.getElementById('challenge-block')!.style.display = 'none';
         document.getElementById('ailevel')!.style.display = 'none';
@@ -477,6 +486,7 @@ export class LobbyController implements ChatController {
     playAI(variantName: string = '', chess960: boolean = false) {
         this.preSelectVariant(variantName, chess960);
         this.createMode = 'playAI';
+        this.renderVariantsDropDown(["bughouse"]);
         document.getElementById('game-mode')!.style.display = 'none';
         document.getElementById('challenge-block')!.style.display = 'none';
         const e = document.getElementById('rmplay') as HTMLInputElement;
@@ -490,6 +500,7 @@ export class LobbyController implements ChatController {
     createHost(variantName: string = '', chess960: boolean = false) {
         this.preSelectVariant(variantName, chess960);
         this.createMode = 'createHost';
+        this.enableBughouseVariant(true);
         document.getElementById('game-mode')!.style.display = this.anon ? 'none' : 'inline-flex';
         document.getElementById('challenge-block')!.style.display = 'none';
         document.getElementById('ailevel')!.style.display = 'none';
