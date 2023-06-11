@@ -14,8 +14,11 @@ import { RatedSettings, AutoNextSettings } from './puzzleSettings';
 export class PuzzleController extends AnalysisController {
     username: string;
     _id: string;
+    gameId: string;
     site: string;
     played: number;
+    puzzleType: string;
+    puzzleEval: string;
     playerEl: VNode | HTMLElement;
     solution: UCIMove[];
     solutionSan: string[];
@@ -34,8 +37,11 @@ export class PuzzleController extends AnalysisController {
         super(el, model);
         const data = JSON.parse(model.puzzle);
         this._id = data._id;
+        this.gameId = data.gameId;
         this.site = data.site;
         this.played = data.played ?? "0";
+        this.puzzleType = data.type;
+        this.puzzleEval = data.eval;
         // We have to split the duck move list on every second comma!
         this.solution = (model.variant==='duck') ? data.moves.match(/[^,]+,[^,]+/g) : data.moves.split(',');
         this.username = model.username;
@@ -51,6 +57,7 @@ export class PuzzleController extends AnalysisController {
         this.brating = model.brating;
         this.isRated = localStorage.puzzle_rated === undefined ? true : localStorage.puzzle_rated === "true";
         this.autoNext = localStorage.puzzle_autoNext === undefined ? false : localStorage.puzzle_autoNext === "true";
+        this.localAnalysis = false;
 
         this.chessground.set({
             orientation: this.turnColor,
@@ -160,22 +167,55 @@ export class PuzzleController extends AnalysisController {
     }
 
     renderInfos() {
-        const source = (!this.site || this.site.includes('fairy-stockfish')) ? 'https://fairy-stockfish.github.io' : this.site;
+        var sourceLink: string = this.home + '/' + this.gameId;
+        var sourceText: string = this.gameId;
+        if (!this.gameId) {
+            sourceLink = (!this.site || this.site.includes('fairy-stockfish')) ? 'https://fairy-stockfish.github.io' : this.site;
+            sourceText = sourceLink.slice(sourceLink.indexOf('://') + 3);
+        }
+
+        var mateIn: string = '';
+        if (this.puzzleType === 'mate') {
+            const parts =  this.puzzleEval.split('#');
+            if (parseInt(parts[1]) * 2 - 1 === this.solution.length) {
+                mateIn = ' #' + parts[1];
+            }
+        }
+        if (sourceLink === 'https://syougi.qinoa.com/ja/') {
+            this.puzzleType = 'tsume';
+        }
+
         const infosEl = document.querySelector('.infos') as HTMLElement;
         patch(infosEl, h('div.game-info', [
             h('section', [
                 h('div.info0.icon.icon-puzzle', [
                     h('div.info2', [
-                        h('div', [_('Puzzle '), h('a', { attrs: { href: `/puzzle/${this._id}` } }, `#${this._id}`) ]),
-                        h('div', [_('Rating: '), h('span.hidden', _('hidden'))]),
-                        h('div', [_('Played: '), this.played])
+                        h('div', [h('span', _('Puzzle')), h('a', { attrs: { href: `/puzzle/${this._id}` } }, `#${this._id}`) ]),
+                        h('div', [h('span', _('Rating:')), h('span.hidden', _('hidden'))]),
+                        h('div', [h('span', _('Played:')), this.played])
                     ])
                 ]),
             ]),
             h('div.info0.icon', { attrs: { "data-icon": this.variant.icon() } }, [
                 h('div.info2', [
-                    _('Source: '),
-                    h('a', { attrs: { href: source } }, source.slice(source.indexOf('://') + 3))
+                    h('div', [
+                        h('span', _('Variant')),
+                        h('a.user-link', {
+                            attrs: {
+                                target: '_blank',
+                                href: '/variants/' + this.variant.name,
+                            }
+                        },
+                        this.variant.displayName())
+                    ]),
+                    h('div', [
+                        h('span', _('Source:')),
+                        h('a', { attrs: { href: sourceLink } }, sourceText),
+                    ]),
+                    h('div', [
+                        h('span', _('Type:')),
+                        this.puzzleType + mateIn
+                    ])
                 ]),
             ])
         ]));
@@ -339,9 +379,23 @@ export class PuzzleController extends AnalysisController {
         patch(feedbackEl, 
             h('div.feedback.after', [
                 h('div.complete', text),
+                h('div.puzzle_vote', [
+                    h('div.puzzle_vote_help', [
+                        h('p', _('Did you like this puzzle?')),
+                        h('p', _('Vote to load the next one!'))
+                    ]),
+                    h('div.puzzle_vote_buttons.enabled', [
+                        h('div.vote.vote-up.icon.icon-thumbs-o-up',
+                            { on: { click: () => this.postVote(true) } }
+                        ),
+                        h('div.vote.vote-down.icon.icon-thumbs-o-up',
+                            { on: { click: () => this.postVote(false) } }
+                        )
+                    ])
+                ]),
                 h('div.more', [
                     h('a',
-                        { on: { click: () => this.continueTraining() } },
+                        { on: { click: () => this.continueTraining(this.variant.name) } },
                         _('Continue training')
                     ),
                 ]),
@@ -357,20 +411,47 @@ export class PuzzleController extends AnalysisController {
         const settingsEl = document.getElementById('bars') as HTMLElement;
         settingsEl.style.display = 'block';
 
-        if (this.autoNext && success) this.continueTraining();
+        if (this.autoNext && success) {
+            this.continueTraining(this.variant.name);
+        } else {
+            this.localAnalysis = localStorage.localAnalysis === undefined ? false : localStorage.localAnalysis === "true";
+        }
     }
 
-    continueTraining() {
+    continueTraining(variant: string) {
         let loc = location.href;
         if (!loc.endsWith('/puzzle')) {
             const parts = loc.split('/');
             const tail = parts[parts.length - 1];
             // individual puzzle pages (id at the URL end) and daily have to continue on /puzzle page
             if (!variants.includes(tail)) {
-                loc = '/puzzle/' + this.variant.name;
+                loc = '/puzzle/' + variant;
             }
         }
         window.location.assign(loc);
+    }
+
+    postVote(vote: boolean) {
+        const XHR = new XMLHttpRequest();
+        const FD  = new FormData();
+        FD.append('vote', `${vote}`);
+        const continueTraining = this.continueTraining;
+        const variant = this.variant.name;
+
+        XHR.onreadystatechange = function() {
+            if (this.readyState === 4 && this.status === 200) {
+                const response = JSON.parse(this.responseText);
+                // console.log("RESPONSE:", response);
+                if (response['error'] !== undefined) {
+                    console.log(response['error']);
+                } else {
+                    continueTraining(variant);
+                }
+            }
+        }
+        XHR.open("POST", `/puzzle/vote/${this._id}`, true);
+        XHR.send(FD);
+        // console.log("XHR.send()", FD);
     }
 
     postSuccess(success: boolean) {

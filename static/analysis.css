@@ -120,7 +120,6 @@ div.ctable-container {
     overflow-y: auto;
     overflow-x: hide;
     justify-content: initial;
-    border-bottom: 1px solid var(--border-color);
 }
 #movelist {
     display: flex;
@@ -139,12 +138,12 @@ div.ctable-container {
   grid-area: tools;
   display: flex;
   flex-flow: column;
+  box-shadow: var(--base-shadow);
 }
 div.analysis-settings {
   display: none;
   padding: 2vmin;
   background: var(--bg-color0);
-  box-shadow: var(--base-shadow);
   border-bottom: 3px solid var(--green-switch);
 }
 
@@ -457,8 +456,7 @@ div.config-toggle {
     margin-right: 10px;
     background-size: cover;
 }
-.feedback .icon {
-    display: block;
+.feedback .player .icon {
     width: 64px;
     height: 64px;
     font-size: 50px;
@@ -570,7 +568,7 @@ piece.spartan.b {
     justify-content: center;
     font-size: 1.3em;
     white-space: nowrap;
-    padding: 1em 2em;
+    flex: 1 1 50%;
 }
 div.more {
     border-top: 1px solid var(--border-color);
@@ -591,4 +589,63 @@ div.more {
 }
 .button.button-empty:not(.disabled):hover {
     box-shadow:0 2px 5px 0 rgba(0,0,0,0.225);
+}
+#btn-controls-top button {
+  background: inherit;
+}
+
+.puzzle-meta .info2 span {
+  padding-right: 1ch;
+}
+.puzzle_vote {
+  display: flex;
+  flex-flow: column;
+  flex: 1 1 70%;
+}
+.puzzle_vote_help {
+  display: block;
+  margin: 0 1em;
+}
+.puzzle_vote_help p {
+  display: inline;
+}
+.puzzle_vote_buttons {
+  display: flex;
+  flex-flow: row nowrap;
+  opacity: .1;
+  flex: 1 1 100%;
+  align-items: stretch;
+  text-align: center;
+}
+.puzzle_vote_buttons.enabled {
+  opacity: 1;
+  transition: opacity .5s;
+}
+.puzzle_vote .vote {
+  display: flex;
+  flex-flow: row wrap;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 50%;
+  cursor: pointer;
+  color: #629924;
+}
+.feedback .icon.icon-thumbs-o-up {
+  font-size: 4.5em;
+}
+.puzzle_vote .vote.vote-down {
+  color: #c33;
+}
+.puzzle_vote .vote.vote-down::before {
+  opacity: inherit;
+  transform:rotate(0.5turn);
+}
+.puzzle_vote .vote:hover,
+.puzzle_vote .vote.active {
+  background:#629924;
+  color:#fff
+}
+.puzzle_vote .vote.vote-down:hover,
+.puzzle_vote .vote.vote-down.active {
+  background:#c33
 }

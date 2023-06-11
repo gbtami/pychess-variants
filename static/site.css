@@ -995,7 +995,6 @@ div a {
   justify-content: center;
   background: var(--bg-color0);
   box-shadow: var(--base-shadow);
-  border-bottom: 1px solid var(--border-color);
 }
 
 div#result {
@@ -1143,8 +1142,11 @@ div.info2 {
   padding-left: 10px;
   padding-bottom: 6px;
 }
-div.info2 a {
+div.info2 a, div.info2 .user-link {
   color: var(--link-color-blue);
+}
+div.info2 a, div.info2 .user-link:hover {
+  color: var(--blue-hover);
 }
 div.info2.games {
   padding-top: 26px;

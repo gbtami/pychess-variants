@@ -502,4 +502,20 @@ VIDEOS = [
         "target": "beginner",
         "duration": "10:15",
     },
+    {
+        "_id": "ZFy-Elwscbo",
+        "title": "Advanced Xiangqi Checkmate Strategies | Chinese Chess game tips for beginners",
+        "author": "Xiangqi Chinese Chess",
+        "tags": ["Xiangqi", "Tactics"],
+        "target": "beginner",
+        "duration": "10:24",
+    },
+    {
+        "_id": "WJaQegTviow",
+        "title": "Things Chess Players Do Wrong in Xiangqi - And How to Fix Them",
+        "author": "Xiangqi Chinese Chess",
+        "tags": ["Xiangqi", "Tactics"],
+        "target": "beginner",
+        "duration": "1:27:15",
+    },
 ]

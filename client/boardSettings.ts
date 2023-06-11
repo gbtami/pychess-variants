@@ -48,6 +48,7 @@ class BoardSettings {
     constructor() {
         this.settings = {};
         this.settings["animation"] = new AnimationSettings(this);
+        this.settings["confirmresign"] = new ConfirmResignSettings(this);        
         this.settings["showDests"] = new ShowDestsSettings(this);
         this.settings["autoPromote"] = new AutoPromoteSettings(this);
         this.settings["blindfold"] = new BlindfoldSettings(this);
@@ -144,6 +145,8 @@ class BoardSettings {
 
         settingsList.push(this.settings["animation"].view());
 
+        settingsList.push(this.settings["confirmresign"].view());        
+
         settingsList.push(this.settings["showDests"].view());
 
         if (variant.promotion.autoPromoteable)
@@ -183,6 +186,23 @@ class AnimationSettings extends BooleanSettings {
 
     view(): VNode {
         return h('div', checkbox(this, 'animation', _("Piece animation")));
+    }
+}
+
+class ConfirmResignSettings extends BooleanSettings {
+    readonly boardSettings: BoardSettings;
+
+    constructor(boardSettings: BoardSettings) {
+        super('confirmresign', true);
+        this.boardSettings = boardSettings;
+    }
+
+    update(): void {
+
+    }
+
+    view(): VNode {
+        return h('div', checkbox(this, 'confirmresign', _("Confirm resigning")));
     }
 }
 

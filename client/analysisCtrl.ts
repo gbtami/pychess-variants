@@ -93,9 +93,11 @@ export class AnalysisController extends GameController {
             }
         };
 
-        this.sock = newWebsocket('wsr');
-        this.sock.onopen = () => onOpen();
-        this.sock.onmessage = (e: MessageEvent) => this.onMessage(e);
+        if (!this.puzzle) {
+            this.sock = newWebsocket('wsr');
+            this.sock.onopen = () => onOpen();
+            this.sock.onmessage = (e: MessageEvent) => this.onMessage(e);
+        }
 
         // is local stockfish.wasm engine supported at all
         this.localEngine = false;
@@ -258,8 +260,10 @@ export class AnalysisController extends GameController {
     }
 
     pvView(i: number, pv: VNode | undefined) {
-        if (this.vpvlines === undefined) this.pvboxIni();
-        this.vpvlines[i] = patch(this.vpvlines[i], h(`div#pv${i + 1}.pv`, pv));
+        if (i >= 0) {
+            if (this.vpvlines === undefined) this.pvboxIni();
+            this.vpvlines[i] = patch(this.vpvlines[i], h(`div#pv${i + 1}.pv`, pv));
+        }
     }
 
     clearPvlines() {
@@ -571,7 +575,7 @@ export class AnalysisController extends GameController {
 
     // Updates PV, score, gauge and the best move arrow
     drawEval = (ceval: Ceval | undefined, scoreStr: string | undefined, turnColor: cg.Color) => {
-        const pvlineIdx = (ceval && ceval.multipv) ? ceval.multipv - 1 : 0;
+        const pvlineIdx = (ceval && ceval.multipv) ? ceval.multipv - 1 : -1;
 
         // Render PV line
         if (ceval?.p !== undefined) {
@@ -706,7 +710,7 @@ export class AnalysisController extends GameController {
     fsfPostMessage(msg: string) {
         if (window.fsf === undefined) {
             // At very first time we may have to wait for fsf module to initialize
-            setTimeout(this.fsfPostMessage, 100, msg);
+            setTimeout(this.fsfPostMessage.bind(this), 100, msg);
         } else {
             if (this.fsfDebug) console.debug('<---', msg);
             window.fsf.postMessage(msg);
