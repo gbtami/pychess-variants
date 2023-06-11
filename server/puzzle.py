@@ -12,7 +12,6 @@ from glicko2.glicko2 import DEFAULT_PERF, gl2, Rating
 # variants having 0 puzzle so far
 NO_PUZZLE_VARIANTS = (
     "placement",
-    "asean",
     "sittuyin",
     "minishogi",
     "kyotoshogi",
@@ -20,14 +19,10 @@ NO_PUZZLE_VARIANTS = (
     "torishogi",
     "manchu",
     "minixiangqi",
-    "capahouse",
     "grandhouse",
     "shouse",
-    "shogun",
     "shinobi",
     "shinobiplus",
-    "chennis",
-    "spartan",
 )
 
 PUZZLE_VARIANTS = [v for v in VARIANTS if (not v.endswith("960") and (v not in NO_PUZZLE_VARIANTS))]
