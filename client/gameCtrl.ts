@@ -184,7 +184,7 @@ export abstract class GameController extends ChessgroundController implements Ch
                 // Remove rook takes king from the legal destinations
                 const pieces = this.chessground.state.boardState.pieces;
                 for (const [orig, destArray] of dests) {
-                    if (util.isKey(orig)) {
+                    if (orig && util.isKey(orig)) {
                         const origPiece = pieces.get(orig);
                         if (origPiece?.role === 'r-piece') {
                             dests.set(orig, destArray.filter(dest => {
