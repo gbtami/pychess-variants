@@ -12,7 +12,6 @@ from glicko2.glicko2 import DEFAULT_PERF, gl2, Rating
 # variants having 0 puzzle so far
 NO_PUZZLE_VARIANTS = (
     "placement",
-    "asean",
     "sittuyin",
     "minishogi",
     "kyotoshogi",
@@ -20,14 +19,10 @@ NO_PUZZLE_VARIANTS = (
     "torishogi",
     "manchu",
     "minixiangqi",
-    "capahouse",
     "grandhouse",
     "shouse",
-    "shogun",
     "shinobi",
     "shinobiplus",
-    "chennis",
-    "spartan",
 )
 
 PUZZLE_VARIANTS = [v for v in VARIANTS if (not v.endswith("960") and (v not in NO_PUZZLE_VARIANTS))]
@@ -77,7 +72,8 @@ async def get_daily_puzzle(request):
             # randomize daily puzzle variant
             user.puzzle_variant = random.choice(PUZZLE_VARIANTS)
             puzzle = await next_puzzle(request, user)
-            puzzleId = puzzle["_id"]
+            if puzzle.get("eval") != "#1":
+                puzzleId = puzzle["_id"]
 
         await request.app["db"].dailypuzzle.insert_one({"_id": today, "puzzleId": puzzleId})
         request.app["daily_puzzle_ids"][today] = puzzle["_id"]

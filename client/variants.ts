@@ -860,7 +860,6 @@ export const enabledVariants = variants.filter(v => !disabledVariants.includes(v
 // variants having 0 puzzle so far
 export const noPuzzleVariants = [
     "placement",
-    "asean",
     "sittuyin",
     "minishogi",
     "kyotoshogi",
@@ -868,14 +867,10 @@ export const noPuzzleVariants = [
     "torishogi",
     "manchu",
     "minixiangqi",
-    "capahouse",
     "grandhouse",
     "shouse",
-    "shogun",
     "shinobi",
     "shinobiplus",
-    "chennis",
-    "spartan",
 ]
 
 export const variantGroups: { [ key: string ]: { variants: string[] } } = {

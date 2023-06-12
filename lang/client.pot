@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2023-06-09 01:06+0200\n"
+"POT-Creation-Date: 2023-06-12 14:37+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1190,7 +1190,15 @@ msgstr ""
 msgid "We have no more puzzle for this variant."
 msgstr ""
 
+#: ../client/puzzleCtrl.ts:384
+msgid "Did you like this puzzle?"
+msgstr ""
+
 #: ../client/puzzleCtrl.ts:385
+msgid "Vote to load the next one!"
+msgstr ""
+
+#: ../client/puzzleCtrl.ts:399
 msgid "Continue training"
 msgstr ""
 
@@ -1546,32 +1554,32 @@ msgid "Asymmetric Spartans vs. Persians variant."
 msgstr ""
 
 #: ../client/lobby/layer1.ts:51 ../client/lobby/layer2chess.ts:19
-#: ../client/variants.ts:879
+#: ../client/variants.ts:874
 msgid "Chess Variants"
 msgstr ""
 
 #: ../client/lobby/layer1.ts:75 ../client/lobby/layer2makruk.ts:16
-#: ../client/variants.ts:880
+#: ../client/variants.ts:875
 msgid "Makruk Variants"
 msgstr ""
 
 #: ../client/lobby/layer1.ts:83 ../client/lobby/layer2shogi.ts:17
-#: ../client/variants.ts:881
+#: ../client/variants.ts:876
 msgid "Shogi Variants"
 msgstr ""
 
 #: ../client/lobby/layer1.ts:91 ../client/lobby/layer2xiangqi.ts:16
-#: ../client/variants.ts:882
+#: ../client/variants.ts:877
 msgid "Xiangqi Variants"
 msgstr ""
 
 #: ../client/lobby/layer1.ts:59 ../client/lobby/layer2fairy.ts:16
-#: ../client/variants.ts:883
+#: ../client/variants.ts:878
 msgid "Fairy Piece Variants"
 msgstr ""
 
 #: ../client/lobby/layer1.ts:67 ../client/lobby/layer2army.ts:16
-#: ../client/variants.ts:884
+#: ../client/variants.ts:879
 msgid "New Army Variants"
 msgstr ""
 
