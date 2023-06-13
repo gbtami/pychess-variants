@@ -11,7 +11,7 @@
 # Bodhi Baum <lotusblume.h2@googlemail.com>, 2021
 # FS Schach, 2021
 # gbtami <gbtami@gmail.com>, 2022
-# Jonathan Kubik <j.kubik97@gmail.com>, 2022
+# Jonathan Kubik <j.kubik97@gmail.com>, 2023
 # 
 #, fuzzy
 msgid ""
@@ -20,7 +20,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2023-06-12 14:37+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
-"Last-Translator: Jonathan Kubik <j.kubik97@gmail.com>, 2022\n"
+"Last-Translator: Jonathan Kubik <j.kubik97@gmail.com>, 2023\n"
 "Language-Team: German (https://app.transifex.com/gbtami/teams/14790/de/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -254,23 +254,23 @@ msgstr "Tiefe erhöhen"
 
 #: ../client/analysisSettings.ts:74
 msgid "Best move arrow"
-msgstr ""
+msgstr "Pfeil für besten Zug"
 
 #: ../client/analysisSettings.ts:103
 msgid "Infinite analysis"
-msgstr ""
+msgstr "Endlose Analyse"
 
 #: ../client/analysisSettings.ts:129
 msgid "Multiple lines"
-msgstr ""
+msgstr "Mehrere Varianten"
 
 #: ../client/analysisSettings.ts:156
 msgid "CPUs"
-msgstr ""
+msgstr "CPUs"
 
 #: ../client/analysisSettings.ts:202
 msgid "Memory"
-msgstr ""
+msgstr "Memory"
 
 #: ../client/background.ts:9
 msgid "Light"
@@ -286,7 +286,7 @@ msgstr "Figuren Animation"
 
 #: ../client/boardSettings.ts:197
 msgid "Confirm resigning"
-msgstr ""
+msgstr "Bestätige Resignation"
 
 #: ../client/boardSettings.ts:281
 msgid "Zoom"
@@ -729,7 +729,7 @@ msgstr "Figuren explodieren beim Abtausch."
 
 #: ../client/i18n.ts:98
 msgid "The duck must be moved to a new square after every turn."
-msgstr ""
+msgstr "Die Ente muss nach jedem Zug auf ein neues Feld bewegt werden."
 
 #: ../client/i18n.ts:99
 msgid ""
@@ -936,7 +936,7 @@ msgstr "Wie Capablanca aber mit der Grand Startposition."
 
 #: ../client/i18n.ts:131
 msgid "Embassy with Crazyhouse drop rules."
-msgstr ""
+msgstr "Embassy mit Crazhouse-Einsatzregeln"
 
 #: ../client/i18n.ts:132
 msgid "Like Capablanca Chess but with a different starting setup."
@@ -1115,7 +1115,7 @@ msgstr "Modus"
 
 #: ../client/lobby.ts:956
 msgid "Puzzle of the day"
-msgstr ""
+msgstr "Puzzle des Tages"
 
 #: ../client/editor/editorCtrl.ts:92 ../client/editor/editorCtrl.ts:93
 #: ../client/lobby.ts:957
@@ -1140,27 +1140,27 @@ msgstr "Über"
 
 #: ../client/lobby.ts:1015
 msgid "Summer Update"
-msgstr ""
+msgstr "Sommer Update"
 
 #: ../client/lobby.ts:1016
 msgid "New features and bug fixes"
-msgstr ""
+msgstr "Neue Features und Bugfixes"
 
 #: ../client/lobby.ts:1023
 msgid "Madness? This. Is. SPARTAN CHESS!"
-msgstr ""
+msgstr "Wahnsinn? Das. Ist. SPARTA SCHACH!"
 
 #: ../client/lobby.ts:1024
 msgid "Spartan chess has arrived"
-msgstr ""
+msgstr "Spartan Chess ist da"
 
 #: ../client/lobby.ts:1031
 msgid "A Christmas Present From Pychess"
-msgstr ""
+msgstr "Ein Weihnachtsgeschenk von Pychess"
 
 #: ../client/lobby.ts:1032
 msgid "Duck chess has arrived"
-msgstr ""
+msgstr "Duck Chess ist da"
 
 #: ../client/main.ts:112
 msgid "Thank you for your support!"
@@ -1207,11 +1207,11 @@ msgstr "Importiert"
 
 #: ../client/puzzleCtrl.ts:86
 msgid "LOGIN"
-msgstr ""
+msgstr "LOGIN"
 
 #: ../client/puzzleCtrl.ts:114
 msgid "Hint"
-msgstr ""
+msgstr "Hinweis"
 
 #: ../client/puzzleCtrl.ts:122
 msgid "View the solution"
@@ -1222,30 +1222,33 @@ msgid ""
 "Your puzzle rating will not change. Note that puzzles are not a competition."
 " Ratings help select the best puzzles for your current skill."
 msgstr ""
+"Deine Aufgabenwertung wird sich nicht ändern. Beachte, dass Aufgaben kein "
+"Wettbewerb sind. Deine Wertung hilft, die geeignetsten Aufgaben für deine "
+"aktuelle Spielstärke auszuwählen."
 
 #: ../client/puzzleCtrl.ts:193
 msgid "Puzzle"
-msgstr ""
+msgstr "Puzzle"
 
 #: ../client/puzzleCtrl.ts:194
 msgid "Rating:"
-msgstr ""
+msgstr "Wertungszahl:"
 
 #: ../client/puzzleCtrl.ts:194
 msgid "hidden"
-msgstr ""
+msgstr "verborgen"
 
 #: ../client/puzzleCtrl.ts:195
 msgid "Played:"
-msgstr ""
+msgstr "Gespielt:"
 
 #: ../client/puzzleCtrl.ts:212
 msgid "Source:"
-msgstr ""
+msgstr "Von:"
 
 #: ../client/puzzleCtrl.ts:216
 msgid "Type:"
-msgstr ""
+msgstr "Typ:"
 
 #: ../client/puzzleCtrl.ts:319
 msgid "Your turn"
@@ -1273,7 +1276,7 @@ msgstr "Mach weiter..."
 
 #: ../client/puzzleCtrl.ts:366
 msgid "Success!"
-msgstr ""
+msgstr "Korrekt!"
 
 #: ../client/puzzleCtrl.ts:371
 msgid "Puzzle complete!"
@@ -1281,15 +1284,15 @@ msgstr "Puzzle geschafft!"
 
 #: ../client/puzzleCtrl.ts:374
 msgid "We have no more puzzle for this variant."
-msgstr ""
+msgstr "Es gibt keine weiteren Puzzles für diese Variante."
 
 #: ../client/puzzleCtrl.ts:384
 msgid "Did you like this puzzle?"
-msgstr ""
+msgstr "Gefällt dir dieses Puzzle?"
 
 #: ../client/puzzleCtrl.ts:385
 msgid "Vote to load the next one!"
-msgstr ""
+msgstr "Abstimmen um zur nächsten Aufgabe zu gelangen"
 
 #: ../client/puzzleCtrl.ts:399
 msgid "Continue training"
@@ -1297,7 +1300,7 @@ msgstr "Training fortsetzen"
 
 #: ../client/puzzleSettings.ts:53
 msgid "Jump to next puzzle immediately"
-msgstr ""
+msgstr "Sofort zur nächsten Aufgabe springen"
 
 #: ../client/result.ts:14
 msgid "IMPORT"
@@ -1365,7 +1368,7 @@ msgstr "Explosion des Königs"
 
 #: ../client/result.ts:102
 msgid "King captured"
-msgstr ""
+msgstr "König geschlagen"
 
 #: ../client/result.ts:105 ../client/result.ts:112
 msgid "Point counting"
@@ -1649,7 +1652,7 @@ msgstr "STARTET IN"
 
 #: ../client/variants.ts:795
 msgid "Asymmetric Spartans vs. Persians variant."
-msgstr ""
+msgstr "Asymmetrische Spartaner vs. Persianer Variante."
 
 #: ../client/lobby/layer1.ts:51 ../client/lobby/layer2chess.ts:19
 #: ../client/variants.ts:874
@@ -1727,11 +1730,11 @@ msgstr "NACH PNG EXPORTIEREN"
 
 #: ../client/input/duck.ts:52
 msgid "Undo"
-msgstr ""
+msgstr "Rückgängig"
 
 #: ../client/input/duck.ts:58
 msgid "Place the duck on an empty square."
-msgstr ""
+msgstr "Platziere die Ente auf ein leeres Feld."
 
 #: ../client/lobby/layer2army.ts:18
 msgid ""
@@ -1775,11 +1778,11 @@ msgstr "Maya-Schach"
 
 #: ../client/lobby/layer2army.ts:70
 msgid "Alternating pieces"
-msgstr ""
+msgstr "Alternierende Figuren"
 
 #: ../client/lobby/layer2army.ts:77
 msgid "Spartans: Army with two kings"
-msgstr ""
+msgstr "Spartaner: Armee mit zwei Königen"
 
 #: ../client/lobby/layer2chess.ts:21
 msgid "Variants using a basic chess set but with different rules."
@@ -1944,7 +1947,7 @@ msgstr ""
 
 #: ../client/lobby/layer3.ts:88
 msgid "Quack."
-msgstr ""
+msgstr "Quack."
 
 #: ../client/lobby/layer3.ts:91
 msgid ""
@@ -1991,11 +1994,11 @@ msgstr "Es kann gefährlich sein, den König vorzeitig zu befördern"
 
 #: ../client/lobby/layer3.ts:112
 msgid "Make sure to consider both forms of each piece."
-msgstr ""
+msgstr "Gib jederzeit auf beide Formen einer Figur Acht."
 
 #: ../client/lobby/layer3.ts:114
 msgid "Spartan kings can be a powerful addition to an offensive."
-msgstr ""
+msgstr "Spartanische Könige können viel zu einem Angriff beitragen."
 
 #: ../client/lobby/layer3.ts:117
 msgid "Maximizing khon and met's effectiveness is the key."
