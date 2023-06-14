@@ -6,8 +6,8 @@
 # Translators:
 # Стримы с шахами и матами, 2021
 # gbtami <gbtami@gmail.com>, 2022
-# Артем Артем, 2023
 # Aleksey Matvienko, 2023
+# Артем Артем, 2023
 # 
 #, fuzzy
 msgid ""
@@ -16,7 +16,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2023-06-12 14:37+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
-"Last-Translator: Aleksey Matvienko, 2023\n"
+"Last-Translator: Артем Артем, 2023\n"
 "Language-Team: Russian (https://app.transifex.com/gbtami/teams/14790/ru/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -249,23 +249,23 @@ msgstr "Анализировать глубже"
 
 #: ../client/analysisSettings.ts:74
 msgid "Best move arrow"
-msgstr ""
+msgstr "Показывать лучшие ходы стрелками"
 
 #: ../client/analysisSettings.ts:103
 msgid "Infinite analysis"
-msgstr ""
+msgstr "Бесконечный анализ"
 
 #: ../client/analysisSettings.ts:129
 msgid "Multiple lines"
-msgstr ""
+msgstr "Множество вариантов"
 
 #: ../client/analysisSettings.ts:156
 msgid "CPUs"
-msgstr ""
+msgstr "Потоки"
 
 #: ../client/analysisSettings.ts:202
 msgid "Memory"
-msgstr ""
+msgstr "Память"
 
 #: ../client/background.ts:9
 msgid "Light"
@@ -281,7 +281,7 @@ msgstr "Анимация фигур"
 
 #: ../client/boardSettings.ts:197
 msgid "Confirm resigning"
-msgstr ""
+msgstr "Подтверждать признание поражения"
 
 #: ../client/boardSettings.ts:281
 msgid "Zoom"
@@ -753,7 +753,7 @@ msgstr "Фигуры взрываются после взятия."
 
 #: ../client/i18n.ts:98
 msgid "The duck must be moved to a new square after every turn."
-msgstr ""
+msgstr "Утка должна быть перемещена на новую клетку после каждого хода."
 
 #: ../client/i18n.ts:99
 msgid ""
@@ -957,7 +957,7 @@ msgstr ""
 
 #: ../client/i18n.ts:131
 msgid "Embassy with Crazyhouse drop rules."
-msgstr ""
+msgstr "Посольские шахматы с правилами выставления из Крейзихаус."
 
 #: ../client/i18n.ts:132
 msgid "Like Capablanca Chess but with a different starting setup."
@@ -1142,7 +1142,7 @@ msgstr "Режим"
 
 #: ../client/lobby.ts:956
 msgid "Puzzle of the day"
-msgstr ""
+msgstr "Задача дня"
 
 #: ../client/editor/editorCtrl.ts:92 ../client/editor/editorCtrl.ts:93
 #: ../client/lobby.ts:957
@@ -1167,27 +1167,27 @@ msgstr "О pychess"
 
 #: ../client/lobby.ts:1015
 msgid "Summer Update"
-msgstr ""
+msgstr "Летнее Обновление"
 
 #: ../client/lobby.ts:1016
 msgid "New features and bug fixes"
-msgstr ""
+msgstr "Новые функции и исправления ошибок"
 
 #: ../client/lobby.ts:1023
 msgid "Madness? This. Is. SPARTAN CHESS!"
-msgstr ""
+msgstr "Безумие? Это СПАРТАНСКИЕ ШАХМАТЫ!"
 
 #: ../client/lobby.ts:1024
 msgid "Spartan chess has arrived"
-msgstr ""
+msgstr "Появились спартанские шахматы"
 
 #: ../client/lobby.ts:1031
 msgid "A Christmas Present From Pychess"
-msgstr ""
+msgstr "Рождественский подарок от Pychess"
 
 #: ../client/lobby.ts:1032
 msgid "Duck chess has arrived"
-msgstr ""
+msgstr "Появились утиные шахматы"
 
 #: ../client/main.ts:112
 msgid "Thank you for your support!"
@@ -1236,11 +1236,11 @@ msgstr "Импортированные"
 
 #: ../client/puzzleCtrl.ts:86
 msgid "LOGIN"
-msgstr ""
+msgstr "ЛОГИН"
 
 #: ../client/puzzleCtrl.ts:114
 msgid "Hint"
-msgstr ""
+msgstr "Подсказка"
 
 #: ../client/puzzleCtrl.ts:122
 msgid "View the solution"
@@ -1251,30 +1251,33 @@ msgid ""
 "Your puzzle rating will not change. Note that puzzles are not a competition."
 " Ratings help select the best puzzles for your current skill."
 msgstr ""
+"Ваш рейтинг решения задач не изменится. Обратите внимание, что решение задач"
+" — это не соревнование. Рейтинги помогают выбрать лучшие задачи для вашего "
+"текущего навыка."
 
 #: ../client/puzzleCtrl.ts:193
 msgid "Puzzle"
-msgstr ""
+msgstr "Задача"
 
 #: ../client/puzzleCtrl.ts:194
 msgid "Rating:"
-msgstr ""
+msgstr "Рейтинг:"
 
 #: ../client/puzzleCtrl.ts:194
 msgid "hidden"
-msgstr ""
+msgstr "скрыт"
 
 #: ../client/puzzleCtrl.ts:195
 msgid "Played:"
-msgstr ""
+msgstr "Решена:"
 
 #: ../client/puzzleCtrl.ts:212
 msgid "Source:"
-msgstr ""
+msgstr "Источник:"
 
 #: ../client/puzzleCtrl.ts:216
 msgid "Type:"
-msgstr ""
+msgstr "Тип:"
 
 #: ../client/puzzleCtrl.ts:319
 msgid "Your turn"
@@ -1302,7 +1305,7 @@ msgstr "Продолжайте..."
 
 #: ../client/puzzleCtrl.ts:366
 msgid "Success!"
-msgstr ""
+msgstr "Задача решена!"
 
 #: ../client/puzzleCtrl.ts:371
 msgid "Puzzle complete!"
@@ -1310,15 +1313,15 @@ msgstr "Задача решена!"
 
 #: ../client/puzzleCtrl.ts:374
 msgid "We have no more puzzle for this variant."
-msgstr ""
+msgstr "У нас больше нет задач для этого варианта."
 
 #: ../client/puzzleCtrl.ts:384
 msgid "Did you like this puzzle?"
-msgstr ""
+msgstr "Вам понравилась эта задача?"
 
 #: ../client/puzzleCtrl.ts:385
 msgid "Vote to load the next one!"
-msgstr ""
+msgstr "Голосуйте, чтобы загрузить следующую!"
 
 #: ../client/puzzleCtrl.ts:399
 msgid "Continue training"
@@ -1326,7 +1329,7 @@ msgstr "Продолжить тренировку"
 
 #: ../client/puzzleSettings.ts:53
 msgid "Jump to next puzzle immediately"
-msgstr ""
+msgstr "Сразу переходить к следующей задаче"
 
 #: ../client/result.ts:14
 msgid "IMPORT"
@@ -1394,7 +1397,7 @@ msgstr "Взрыв короля"
 
 #: ../client/result.ts:102
 msgid "King captured"
-msgstr ""
+msgstr "Король захвачен"
 
 #: ../client/result.ts:105 ../client/result.ts:112
 msgid "Point counting"
@@ -1678,7 +1681,7 @@ msgstr "НАЧАЛО"
 
 #: ../client/variants.ts:795
 msgid "Asymmetric Spartans vs. Persians variant."
-msgstr ""
+msgstr "Асимметричный вариант \"Спартанцы против Персов\"."
 
 #: ../client/lobby/layer1.ts:51 ../client/lobby/layer2chess.ts:19
 #: ../client/variants.ts:874
@@ -1756,11 +1759,11 @@ msgstr "ЭКСПОРТ В PNG"
 
 #: ../client/input/duck.ts:52
 msgid "Undo"
-msgstr ""
+msgstr "Отменить"
 
 #: ../client/input/duck.ts:58
 msgid "Place the duck on an empty square."
-msgstr ""
+msgstr "Поместите утку на пустой квадрат."
 
 #: ../client/lobby/layer2army.ts:18
 msgid ""
@@ -1803,11 +1806,11 @@ msgstr "Шахматы майя"
 
 #: ../client/lobby/layer2army.ts:70
 msgid "Alternating pieces"
-msgstr ""
+msgstr "Чередующиеся фигуры"
 
 #: ../client/lobby/layer2army.ts:77
 msgid "Spartans: Army with two kings"
-msgstr ""
+msgstr "Спартанцы: Армия с двумя царями"
 
 #: ../client/lobby/layer2chess.ts:21
 msgid "Variants using a basic chess set but with different rules."
@@ -1970,7 +1973,7 @@ msgstr ""
 
 #: ../client/lobby/layer3.ts:88
 msgid "Quack."
-msgstr ""
+msgstr "Крякать."
 
 #: ../client/lobby/layer3.ts:91
 msgid ""
@@ -2013,11 +2016,11 @@ msgstr "Преждевременное продвижение короля мо�
 
 #: ../client/lobby/layer3.ts:112
 msgid "Make sure to consider both forms of each piece."
-msgstr ""
+msgstr "Не забудьте рассмотреть обе формы каждой фигуры."
 
 #: ../client/lobby/layer3.ts:114
 msgid "Spartan kings can be a powerful addition to an offensive."
-msgstr ""
+msgstr "Спартанские цари могут стать мощным дополнением к наступлению."
 
 #: ../client/lobby/layer3.ts:117
 msgid "Maximizing khon and met's effectiveness is the key."
