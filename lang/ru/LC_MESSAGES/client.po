@@ -7,6 +7,7 @@
 # Стримы с шахами и матами, 2021
 # gbtami <gbtami@gmail.com>, 2022
 # Артем Артем, 2023
+# Aleksey Matvienko, 2023
 # 
 #, fuzzy
 msgid ""
@@ -15,7 +16,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2023-06-12 14:37+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
-"Last-Translator: Артем Артем, 2023\n"
+"Last-Translator: Aleksey Matvienko, 2023\n"
 "Language-Team: Russian (https://app.transifex.com/gbtami/teams/14790/ru/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -1281,7 +1282,7 @@ msgstr "Ваш ход"
 
 #: ../client/puzzleCtrl.ts:320
 msgid "Find the best move for %1."
-msgstr "Ходят и выигрывают %1."
+msgstr "Найдите лучший ход, ходят %1."
 
 #: ../client/puzzleCtrl.ts:337
 msgid "That's not the move!"
