@@ -250,11 +250,11 @@ msgstr "Strzałka najlepszego ruchu"
 
 #: ../client/analysisSettings.ts:103
 msgid "Infinite analysis"
-msgstr ""
+msgstr "Nieograniczona analiza"
 
 #: ../client/analysisSettings.ts:129
 msgid "Multiple lines"
-msgstr ""
+msgstr "Podawane warianty"
 
 #: ../client/analysisSettings.ts:156
 msgid "CPUs"
@@ -748,7 +748,7 @@ msgstr "Figury wybuchają podczas bicia."
 
 #: ../client/i18n.ts:98
 msgid "The duck must be moved to a new square after every turn."
-msgstr ""
+msgstr "Kaczkę należy przestawić na inne pole po każdym ruchu."
 
 #: ../client/i18n.ts:99
 msgid ""
@@ -1173,7 +1173,7 @@ msgstr "Szaleństwo? To są Spartańskie Szachy!"
 
 #: ../client/lobby.ts:1024
 msgid "Spartan chess has arrived"
-msgstr ""
+msgstr "Przedstawiamy wam: Szachy Spartańskie!"
 
 #: ../client/lobby.ts:1031
 msgid "A Christmas Present From Pychess"
@@ -1181,7 +1181,7 @@ msgstr "Świąteczny prezent od Pychessa"
 
 #: ../client/lobby.ts:1032
 msgid "Duck chess has arrived"
-msgstr ""
+msgstr "Przedstawiamy wam: Kaczkoszachy!"
 
 #: ../client/main.ts:112
 msgid "Thank you for your support!"
@@ -1245,16 +1245,17 @@ msgid ""
 "Your puzzle rating will not change. Note that puzzles are not a competition."
 " Ratings help select the best puzzles for your current skill."
 msgstr ""
-"Twój ranking w rozwiązywaniu zadań nie ulegnie zmianie. Pamiętaj, że ranking"
-" jest używany jedynie do wybierania zadań odpowiednich dla Twojego poziomu."
+"Twój ranking w rozwiązywaniu zadań nie ulegnie zmianie. Pamiętaj, że zadania"
+" nie są rywalizacją. Twój ranking pomaga wybrać najlepsze zadania dla Twoich"
+" aktualnych umiejętności."
 
 #: ../client/puzzleCtrl.ts:193
 msgid "Puzzle"
-msgstr ""
+msgstr "Zadanie"
 
 #: ../client/puzzleCtrl.ts:194
 msgid "Rating:"
-msgstr ""
+msgstr "Ranking"
 
 #: ../client/puzzleCtrl.ts:194
 msgid "hidden"
@@ -1262,15 +1263,15 @@ msgstr "ukryty"
 
 #: ../client/puzzleCtrl.ts:195
 msgid "Played:"
-msgstr ""
+msgstr "Rozwiązywane: "
 
 #: ../client/puzzleCtrl.ts:212
 msgid "Source:"
-msgstr ""
+msgstr "Źródło: "
 
 #: ../client/puzzleCtrl.ts:216
 msgid "Type:"
-msgstr ""
+msgstr "Rodzaj"
 
 #: ../client/puzzleCtrl.ts:319
 msgid "Your turn"
@@ -1306,15 +1307,15 @@ msgstr "Sukces!"
 
 #: ../client/puzzleCtrl.ts:374
 msgid "We have no more puzzle for this variant."
-msgstr ""
+msgstr "To wszystkie zadania jakie mamy w tej odmianie."
 
 #: ../client/puzzleCtrl.ts:384
 msgid "Did you like this puzzle?"
-msgstr ""
+msgstr "Podoba Ci się to zadanie?"
 
 #: ../client/puzzleCtrl.ts:385
 msgid "Vote to load the next one!"
-msgstr ""
+msgstr "Zagłosuj a dostaniesz następne"
 
 #: ../client/puzzleCtrl.ts:399
 msgid "Continue training"
@@ -1799,7 +1800,7 @@ msgstr "Szachy majańskie"
 
 #: ../client/lobby/layer2army.ts:70
 msgid "Alternating pieces"
-msgstr ""
+msgstr "Przemieniające się figury"
 
 #: ../client/lobby/layer2army.ts:77
 msgid "Spartans: Army with two kings"
@@ -2009,11 +2010,11 @@ msgstr "Przedwczesna promocja króla może być ryzykowna."
 
 #: ../client/lobby/layer3.ts:112
 msgid "Make sure to consider both forms of each piece."
-msgstr ""
+msgstr "Miej w pamięci obie wersje każdej figury."
 
 #: ../client/lobby/layer3.ts:114
 msgid "Spartan kings can be a powerful addition to an offensive."
-msgstr ""
+msgstr "Spartański król może być istotną pomocą w ataku."
 
 #: ../client/lobby/layer3.ts:117
 msgid "Maximizing khon and met's effectiveness is the key."
