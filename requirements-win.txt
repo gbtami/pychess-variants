@@ -13,7 +13,7 @@ pyopenssl==23.2.0
 pyffish==0.0.78
 sortedcollections==2.1.0
 python-gettext==5.0
-objgraph==3.5.0
+objgraph==3.6.0
 black==23.3.0
 flake8==6.0.0
 mypy
