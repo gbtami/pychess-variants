@@ -582,7 +582,7 @@ a.post {
 a.post:hover {
   color: var(--font-color);
   background: var(--post-hover);
-  box-shadow: none;
+  box-shadow: 0 0 20px 5px royalblue;
 }
 a.post img {
   max-width: none;
