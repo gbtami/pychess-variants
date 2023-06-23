@@ -2088,6 +2088,7 @@ vari-move {
 input#fen {
   width: 100%;
   margin: 0;
+  background: var(--bg-color2);
 }
 
 /* crosstable */
