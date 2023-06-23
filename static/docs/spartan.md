@@ -12,7 +12,7 @@ Spartan Chess reflects the asymmetric war between the ancient Spartans and Persi
 3.	The Persians (aka White) *always move first*.
 4.	The Spartans (aka Black) cannot castle.
 5.	The Spartans have two kings. Therefore, the win condition for the Persians (White) is different: Capture one of the Spartan kings and checkmate the other... OR place both under simultaneous attack ("duple-check") such that neither king can be removed from attack on the next move.
-6.	Persian pawns and Spartan hoplites can promote to their own respective pieces upon reaching the 8th rank. For the Spartans, this also includes the king, but only if there is only one remaining king in play.
+6.	Persian pawns and Spartan hoplites can be promoted to their respective pieces upon reaching the 8th rank. For the Spartans, this also includes the king, but only if there is only one remaining king in play.
 7.	There is no en passant.
 8.	Rules are otherwise as in orthodox chess, including stalemate and repetition.
 
@@ -40,7 +40,7 @@ The hoplite is the Spartan pawn, and for those familiar with fairy pieces, it is
 
 Additionally, a hoplite can move one OR two squares diagonally on its first move, much like how a Persian pawn can move two squares orthogonally forwards on its first move. **The two square movement is also a jumping movement, which means it can *hop* over intervening pieces.**
 
-As stated above, upon reaching the 8th rank, a hoplite can promote to any Spartan piece. This includes a king if there is only one king remaining.
+As stated above, upon reaching the 8th rank, a hoplite can be promoted to any Spartan piece. This includes a king if there is only one king remaining.
 
 ### General (G)
 
