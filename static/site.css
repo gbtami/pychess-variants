@@ -1438,17 +1438,33 @@ table#seeks {
 }
 
 /* Input fields */
-select,
 input {
   padding: 0.6em 1em;
   border-radius: 3px;
-  margin: 0px;
+  margin: 5px;
   display: inline;
   border: 1px solid var(--input-border);
   box-sizing: border-box;
   color: var(--font-color);
   background: var(--bg-color0);
 }
+select {
+  padding: 0.6em 1em;
+  padding-right: 30px;
+  border-radius: 3px;
+  margin: 0px;
+  display: inline;
+  border: none;
+  border-radius: 7px;
+  box-sizing: border-box;
+  color: var(--font-color);
+  background: linear-gradient(to bottom, hsl(0, 0%, 96%) 0%, hsl(0, 0%, 93%) 100%);
+  box-shadow: 0 2px 2px 0 rgba(0,0,0,.14), 0 3px 1px -2px rgba(0,0,0,.2), 0 1px 5px 0 rgba(0,0,0,.12);
+  font-weight: bold;
+}
+  select:hover {
+    filter: brightness(1.05);
+  }
 
 /* Center the image and position the close button */
 #closecontainer {
