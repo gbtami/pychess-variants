@@ -2088,7 +2088,7 @@ vari-move {
 
 input#fen {
   width: 100%;
-  margin: 0;
+  margin: 6px;
   background: var(--bg-color2);
 }
 
