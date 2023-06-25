@@ -106,7 +106,8 @@ export function changePieceCSS(assetUrl: string, family: string, cssFile: string
         case "spartan": cssLinkIndex += 22; break;
         default: throw "Unknown piece family " + family;
     }
-    const newUrl = `${assetUrl}/piece/${family}/${cssFile}.css`;
+    let newUrl = `${assetUrl}/piece/${family}/${cssFile}.css`;
+    if (cssFile === 'letters') newUrl = `${assetUrl}/piece/letters.css`;
     // console.log("changePieceCSS", family, cssFile, newUrl)
     changeCSS(cssLinkIndex, newUrl);
 }
