@@ -1461,6 +1461,7 @@ select {
   color: var(--font-color);
   background: var(--bg-color2);
   box-shadow: none;
+  font-weight: bold;
 }
   select:hover {
     filter: brightness(1.05);
