@@ -424,6 +424,19 @@ export const VARIANTS: Record<string, Variant> = {
         },
     }),
 
+    cannonshogi: variant({
+        name: "cannonshogi", tooltip: _("Shogi with Chinese and Korean cannons"),
+        startFen: "lnsgkgsnl/1rci1uab1/p1p1p1p1p/9/9/9/P1P1P1P1P/1BAU1ICR1/LNSGKGSNL[-] w 0 1",
+        icon: "C",
+        boardFamily: "shogi9x9", pieceFamily: "shogi",
+        colors: { first: "Black", second: "White" },
+        pieceRow: ["k", "g", "r", "b", "s", "n", "l", "p", "u", "a", "c", "i"],
+        pocket: { roles: ["p", "l", "n", "s", "g", "b", "r", "u", "a", "c", "i"], captureToHand: true },
+        promotion: { type: "shogi", roles: ["p", "l", "n", "s", "r", "b", "u", "a", "c", "i"] },
+        rules: { defaultTimeControl: "byoyomi" },
+        ui: { pieceSound: "shogi" },
+    }),
+
     minishogi: variant({
         name: "minishogi", tooltip: "5x5 Shogi for more compact and faster games. There are no knights or lances.",
         startFen: "rbsgk/4p/5/P4/KGSBR[-] w 0 1",
@@ -852,6 +865,7 @@ export const noPuzzleVariants = [
     "kyotoshogi",
     "gorogoroplus",
     "torishogi",
+    "cannonshogi",
     "manchu",
     "minixiangqi",
     "grandhouse",
@@ -863,7 +877,7 @@ export const noPuzzleVariants = [
 export const variantGroups: { [ key: string ]: { variants: string[] } } = {
     standard: { variants: [ "chess", "crazyhouse", "placement", "atomic", "duck" ] },
     sea:      { variants: [ "makruk", "makpong", "cambodian", "sittuyin", "asean" ] },
-    shogi:    { variants: [ "shogi", "minishogi", "kyotoshogi", "dobutsu", "gorogoroplus", "torishogi" ] },
+    shogi:    { variants: [ "shogi", "minishogi", "kyotoshogi", "dobutsu", "gorogoroplus", "torishogi", "cannonshogi" ] },
     xiangqi:  { variants: [ "xiangqi", "manchu", "janggi", "minixiangqi" ] },
     fairy:    { variants: [ "capablanca", "capahouse", "seirawan", "shouse", "grand", "grandhouse", "shako", "shogun", "hoppelpoppel" ] },
     army:     { variants: [ "orda", "synochess", "shinobi", "empire", "ordamirror", "chak", "chennis", "spartan" ] },

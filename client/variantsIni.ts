@@ -23,6 +23,19 @@ lance = l
 shogiKnight = n
 promotedPieceType = l:g n:g
 
+[cannonshogi:shogi]
+shogiPawn = -
+soldier = p
+dropNoDoubled = -
+cannon = u
+janggiCannon = a
+customPiece1 = c:mBcpB
+customPiece2 = i:pB
+customPiece3 = w:mRpRFAcpR
+customPiece4 = f:mBpBWDcpB
+promotedPieceType = u:w a:w c:f i:f
+startFen = lnsgkgsnl/1rci1uab1/p1p1p1p1p/9/9/9/P1P1P1P1P/1BAU1ICR1/LNSGKGSNL[-] w 0 1
+
 [shogun:crazyhouse]
 startFen = rnb+fkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNB+FKBNR[] w KQkq - 0 1
 commoner = c

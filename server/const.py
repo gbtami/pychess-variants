@@ -101,6 +101,7 @@ VARIANTS = (
     # "gorogoro",
     "gorogoroplus",
     "torishogi",
+    "cannonshogi",
     "xiangqi",
     "manchu",
     "janggi",
@@ -159,6 +160,7 @@ VARIANT_ICONS = {
     "gorogoro": "🐱",
     "gorogoroplus": "🐱",
     "torishogi": "🐦",
+    "cannonshogi": "C",
     "cambodian": "!",
     "shako": "9",
     "minixiangqi": "7",
@@ -244,6 +246,7 @@ CATEGORIES = {
         "dobutsu",
         "gorogoroplus",
         "torishogi",
+        "cannonshogi",
     ),
     "xiangqi": ("xiangqi", "manchu", "janggi", "minixiangqi"),
 }
@@ -282,6 +285,8 @@ def variant_display_name(variant):
         return "KYOTO SHOGI"
     elif variant == "torishogi":
         return "TORI SHOGI"
+    elif variant == "cannonshogi":
+        return "CANNON SHOGI"
     elif variant == "duck":
         return "DUCK CHESS"
     else:
@@ -334,6 +339,7 @@ TRANSLATED_VARIANT_NAMES = {
     # "gorogoro",
     "gorogoroplus": _("Gorogoro+"),
     "torishogi": _("Tori Shogi"),
+    "cannonshogi": _("Cannon Shogi"),
     "xiangqi": _("Xiangqi"),
     "manchu": _("Manchu"),
     "janggi": _("Janggi"),
