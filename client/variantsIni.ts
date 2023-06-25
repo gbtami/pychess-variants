@@ -24,9 +24,9 @@ shogiKnight = n
 promotedPieceType = l:g n:g
 
 [cannonshogi:shogi]
-shogiPawn = -
 soldier = p
 dropNoDoubled = -
+shogiPawnDropMateIllegal = false
 cannon = u
 janggiCannon = a
 customPiece1 = c:mBcpB
