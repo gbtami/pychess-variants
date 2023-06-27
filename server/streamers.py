@@ -19,6 +19,7 @@ TWITCH_STREAMERS = {
     "gbtami": "gbtami",
     "e_pluszak": "e-pluszak",
     "littlemage7": "LittleMage",
+    "oruro_": "oruro",
 }
 
 # TODO
