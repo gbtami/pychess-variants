@@ -99,4 +99,5 @@ div.patron {
 .patronbutton:hover, .patronbutton1:hover {
     box-shadow: 0 4px 10px 0px rgba(0,0,0,.225);
     filter: brightness(1.15);
+    color: white;
 }
