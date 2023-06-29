@@ -1,8 +1,8 @@
 div.patron {
     margin-left: 10%;
     position: absolute;
-    width: 80%;
-    height: 80%;
+    width: 70%;
+    height: 110%;
     padding: 0px;
 }
 @media (max-width: 700px) {
@@ -14,7 +14,7 @@ div.patron {
 }
 .patron-txt {
     position: relative;
-    width: 50%;
+    width: 45%;
     height: 200px;
     margin-left: 20px;
 }
@@ -25,15 +25,14 @@ div.patron {
     }
 }
 .btm-txt {
-    position: absolute;
-    margin-left: 20%;
-    text-align: center;
-    bottom: 20px;}
-    @media (max-width: 700px) {
-    .btm-txt { 
- margin-left: 10%;
+   margin-left: 20%;
+}
+@media (max-width: 700px) {
+.btm-txt { 
+    margin-top: 25%;
+    margin-left: 10%;
     }
-    }
+}
     
 .banner {
     margin-bottom: 2.5em;
@@ -47,16 +46,17 @@ div.patron {
 }
 .patronbutton {
     position: absolute;
-    top: 50%;
-    left: 70%;
-    max-width: 40%;
+    top: 40%;
+    left: 50%;
+    height: 60px;
+    min-width: 20%;
     text-align: center;
     background: #1b78d0;
     text-transform: uppercase;
-    padding: .8em 1em;
     border: none;
     cursor: pointer;
-    padding: 10px;
+    padding: 13px;
+    margin: 10px;
     font-weight: normal;
     color: white;
     border-radius: 8px;
@@ -65,24 +65,26 @@ div.patron {
 }
 
 @media (max-width: 700px) {
-    .patronbutton{
-    max-width: 100%;
-        top: 65%;
-   left: 20px;
+.patronbutton{
+    height: 10%;
+    width: 40%;
+    top: 65%;
+    left: 5%;
     }
 }
 .patronbutton1 {
     position: absolute;
-    top: 70%;
-    left: 70%;
-    max-width: 40%;
+    top: 40%;
+    left: 73%;
+    min-height: 60px;
+    min-width: 20%;
     text-align: center;
     background: #1b78d0;
     text-transform: uppercase;
-    padding: .8em 1em;
     border: none;
     cursor: pointer;
     padding: 10px;
+    margin: 10px;
     font-weight: normal;
     color: white;
     border-radius: 8px;
@@ -90,10 +92,11 @@ div.patron {
     white-space: nowrap;
 }
 @media (max-width: 700px) {
-    .patronbutton1{
-    max-width: 100px;
-        top: 75%;
-        left: 20px;
+.patronbutton1{
+    height: 10%;
+    width: 40%;
+    top: 65%;
+    left: 50%;
     }
 }
 .patronbutton:hover, .patronbutton1:hover {
@@ -101,3 +104,4 @@ div.patron {
     filter: brightness(1.15);
     color: white;
 }
+
