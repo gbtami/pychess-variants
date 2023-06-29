@@ -184,7 +184,6 @@ function start() {
 
 window.addEventListener('resize', () => document.body.dispatchEvent(new Event('chessground.resize')));
 
-backgroundSettings.update();
 zenModeSettings.update();
 
 const el = document.getElementById('pychess-variants');
