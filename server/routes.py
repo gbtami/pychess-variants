@@ -87,6 +87,7 @@ get_routes = (
     ("/@/{profileId}/rated", index),
     ("/@/{profileId}/me", index),
     ("/@/{profileId}/import", index),
+    ("/@/{profileId}/puzzle", index),
     ("/level8win", index),
     ("/patron", index),
     ("/patron/thanks", index),

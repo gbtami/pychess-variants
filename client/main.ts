@@ -81,6 +81,7 @@ export function view(el: HTMLElement, model: PyChessModel): VNode {
     case 'about':
         return h('div#main-wrap', aboutView(model));
     case 'level8win':
+    case 'puzzle_profile':
     case 'profile':
         return h('div#profile', profileView(model));
     case 'tv':

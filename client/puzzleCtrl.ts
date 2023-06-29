@@ -142,21 +142,23 @@ export class PuzzleController extends AnalysisController {
 
     renderRating(isRated:boolean, color: string, wrating: string, brating: string, success: boolean | undefined=undefined, diff=undefined) {
         if (isRated) {
-            var diffEl: VNode | string = '';
-            if (diff) {
-                if (success) {
-                    diffEl = h('good.rp', [h('span', { attrs: { "data-icon": '⬈' } }, ' '), '+' + diff]);
-                } else {
-                    diffEl = h('bad.rp', [h('span', { attrs: { "data-icon": '⬊' } }, ' '), diff]);
+            if (diff === undefined || diff != 0) {
+                var diffEl: VNode | string = '';
+                if (diff) {
+                    if (success) {
+                        diffEl = h('good.rp', [h('span', { attrs: { "data-icon": '⬈' } }, ' '), '+' + diff]);
+                    } else {
+                        diffEl = h('bad.rp', [h('span', { attrs: { "data-icon": '⬊' } }, ' '), diff]);
+                    }
                 }
+                const ratingEl = document.querySelector('.rating') as HTMLElement;
+                patch(ratingEl, h(`div.rating.${(diff)?'final':'rated'}`, [
+                    h('strong', [
+                        (color==="white") ? wrating : brating,
+                        diffEl
+                    ]),
+                ]));
             }
-            const ratingEl = document.querySelector('.rating') as HTMLElement;
-            patch(ratingEl, h(`div.rating.${(diff)?'final':'rated'}`, [
-                h('strong', [
-                    (color==="white") ? wrating : brating,
-                    diffEl
-                ]),
-            ]));
         } else {
             const ratingEl = document.querySelector('.rating') as HTMLElement;
             patch(ratingEl, h('div.rating.casual', 

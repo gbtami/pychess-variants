@@ -1,13 +1,17 @@
+import logging
 import random
 from datetime import datetime, timezone
 
 from aiohttp import web
 import aiohttp_session
+import pymongo
 
 import pyffish as sf
 
 from const import VARIANTS
 from glicko2.glicko2 import DEFAULT_PERF, gl2, Rating
+
+log = logging.getLogger(__name__)
 
 # variants having 0 puzzle so far
 NO_PUZZLE_VARIANTS = (
@@ -30,6 +34,8 @@ PUZZLE_VARIANTS = [v for v in VARIANTS if (not v.endswith("960") and (v not in N
 NOT_VOTED = 0
 UP = 1
 DOWN = -1
+
+ID_SEPARATOR = ":"
 
 
 def empty_puzzle(variant):
@@ -124,12 +130,11 @@ async def next_puzzle(request, user):
 
 
 async def puzzle_complete(request):
+    db = request.app["db"]
     puzzleId = request.match_info.get("puzzleId")
-    post_data = await request.post()
-    rated = post_data["rated"] == "true"
 
     puzzle_data = await get_puzzle(request, puzzleId)
-    puzzle = Puzzle(request.app["db"], puzzle_data)
+    puzzle = Puzzle(db, puzzle_data)
 
     await puzzle.set_played()
 
@@ -137,18 +142,33 @@ async def puzzle_complete(request):
     session = await aiohttp_session.get_session(request)
     user = users[session.get("user_name")]
 
-    if puzzleId in user.puzzles:
+    if user.anon:
         return web.json_response({})
-    else:
-        user.puzzles[puzzleId] = NOT_VOTED
 
-    if user.anon or (not rated):
+    post_data = await request.post()
+
+    roundId = "%s%s%s" % (user.username, ID_SEPARATOR, puzzleId)
+    date = datetime.now(timezone.utc).date().strftime("%y%m%d")
+    win = post_data["win"] == "true"
+
+    already_played = False
+    try:
+        await db.puzzle_round.insert_one({"_id": roundId, "win": win, "date": date})
+        user.puzzles[puzzleId] = NOT_VOTED
+    except pymongo.errors.DuplicateKeyError:
+        already_played = True
+        await db.puzzle_round.find_one_and_update({"_id": roundId}, {"$set": {"win": win}})
+
+    if already_played:
+        return web.json_response({})
+
+    rated = post_data["rated"] == "true"
+    if not rated:
         return web.json_response({})
 
     variant = post_data["variant"]
     chess960 = False  # TODO: add chess960 to xxx960 variant puzzles
     color = post_data["color"]
-    win = post_data["win"] == "true"
 
     if color[0] == "w":
         wplayer, bplayer = user, puzzle

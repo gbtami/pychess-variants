@@ -269,6 +269,8 @@ async def index(request):
             view = "tv"
             # TODO: tv for variants
             gameId = await tv_game_user(db, users, profileId)
+        elif request.path[-7:] == "/puzzle":
+            view = "puzzle_profile"
         elif request.path[-7:] == "/import":
             rated = IMPORTED
         elif request.path[-6:] == "/rated":
@@ -330,11 +332,14 @@ async def index(request):
             if user.username not in (game.wplayer.username, game.bplayer.username):
                 game.spectators.add(user)
 
-    if view in ("profile", "level8win"):
+    if view in ("profile", "puzzle_profile", "level8win"):
         if (profileId in users) and not users[profileId].enabled:
             template = get_template("closed.html")
         else:
-            template = get_template("profile.html")
+            if view == "puzzle_profile":
+                template = get_template("puzzle_profile.html")
+            else:
+                template = get_template("profile.html")
     elif view == "players":
         if variant is None:
             template = get_template("players.html")
@@ -454,6 +459,28 @@ async def index(request):
         render["profile_title"] = users[profileId].title if profileId in users else ""
         render["rated"] = rated
 
+    elif view == "puzzle_profile":
+        render["title"] = "Profile • " + profileId
+        render["icons"] = VARIANT_ICONS
+        if profileId not in users or users[profileId].pperfs is None:
+            render["ratings"] = {}
+        else:
+            render["ratings"] = {
+                k: (
+                    "%s%s"
+                    % (
+                        int(round(v["gl"]["r"], 0)),
+                        "?" if v["gl"]["d"] > PROVISIONAL_PHI else "",
+                    ),
+                    v["nb"],
+                )
+                for (k, v) in sorted(
+                    users[profileId].pperfs.items(),
+                    key=lambda x: x[1]["nb"],
+                    reverse=True,
+                )
+            }
+
     elif view == "players":
         online_users = [
             u for u in users.values() if u.username == user.username or (u.online and not u.anon)
@@ -510,6 +537,8 @@ async def index(request):
                 puzzle = await next_puzzle(request, user)
             else:
                 puzzle = await get_puzzle(request, puzzleId)
+                if puzzle is None:
+                    return web.HTTPFound("/")
 
         color = puzzle["fen"].split()[1]
         chess960 = False
@@ -658,7 +687,7 @@ async def index(request):
         render["admin"] = user.username in ADMINS
         if tournamentId is None:
             render["rated"] = True
-
+    print(render)
     try:
         text = await template.render_async(render)
     except Exception:
