@@ -206,10 +206,9 @@ async def logout(request, user=None):
     # TODO: this can't end game if logout came from an ongoing game
     # because its ws was already closed and removed from game_sockets
     for gameId in user.game_sockets:
-        if gameId in request.app["games"]:
-            game = request.app["games"][gameId]
+        if gameId in user.app["games"]:
+            game = user.app["games"][gameId]
             if game.status <= STARTED:
-                print("****************************-- send abandone to game")
                 response = await game.game_ended(user, "abandone")
                 await round_broadcast(game, response, full=True)
 
