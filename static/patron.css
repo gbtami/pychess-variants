@@ -12,9 +12,19 @@ div.patron {
         height: 120%;
     }
 }
+.tablepatron1 {
+    width: 100%;
+}
+.th1 {width: 60%;}
+@media (max-width: 700px) {.th1 {width: 70%;}}
+.th2 {width: 20%;}
+@media (max-width: 700px) {.th2 {width: 15%;}}
+.th3 {width: 20%;}
+@media (max-width: 700px) {.th3 {width: 15%;}}
 .patron-txt {
     position: relative;
     height: 200px;
+    margin: 10px;
     margin-left: 20px;
 }
 @media (max-width: 700px) {
@@ -27,7 +37,12 @@ div.patron {
 }
 @media (max-width: 700px) {
 .btm-txt { 
-    margin-top: 25%;
+    margin-left: 10%;
+    }
+}
+@media (max-width: 399px) {
+.btm-txt { 
+    margin-top: 35%;
     margin-left: 10%;
     }
 }
@@ -48,18 +63,18 @@ div.patron {
     text-transform: uppercase;
     border: none;
     cursor: pointer;
-    padding: 20px;
+    padding: 15px;
     margin: 10px;
     font-weight: normal;
     color: white;
     border-radius: 8px;
-    font-size: 1.5em;
+    font-size: 1.4em;
     white-space: nowrap;
 }
 
 @media (max-width: 700px) {
 .patronbutton{
-    height: 10%;
+   font-size: 1em;
     }
 }
 .patronbutton:hover {
@@ -67,4 +82,3 @@ div.patron {
     filter: brightness(1.15);
     color: white;
 }
-
