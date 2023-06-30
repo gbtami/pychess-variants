@@ -14,13 +14,11 @@ div.patron {
 }
 .patron-txt {
     position: relative;
-    width: 45%;
     height: 200px;
     margin-left: 20px;
 }
 @media (max-width: 700px) {
     .patron-txt{
-        width: 95%;
         height: 150px;
     }
 }
@@ -45,9 +43,6 @@ div.patron {
     justify-content: space-between
 }
 .patronbutton {
-    position: absolute;
-    top: 35%;
-    left: 50%;
     height: 60px;
     width: 20%;
     text-align: center;
@@ -68,14 +63,9 @@ div.patron {
 .patronbutton{
     height: 10%;
     width: 40%;
-    top: 50%;
-    left: 5%;
     }
 }
 .patronbutton1 {
-    position: absolute;
-    top: 35%;
-    left: 75%;
     height: 60px;
     width: 20%;
     text-align: center;
@@ -95,8 +85,6 @@ div.patron {
 .patronbutton1{
     height: 10%;
     width: 40%;
-    top: 50%;
-    left: 50%;
     }
 }
 .patronbutton:hover, .patronbutton1:hover {
