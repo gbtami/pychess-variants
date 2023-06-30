@@ -19,7 +19,7 @@ div.patron {
 }
 @media (max-width: 700px) {
     .patron-txt{
-        height: 150px;
+        height: 250px;
     }
 }
 .btm-txt {
@@ -43,14 +43,12 @@ div.patron {
     justify-content: space-between
 }
 .patronbutton {
-    height: 60px;
-    width: 20%;
     text-align: center;
     background: #1b78d0;
     text-transform: uppercase;
     border: none;
     cursor: pointer;
-    padding: 13px;
+    padding: 20px;
     margin: 10px;
     font-weight: normal;
     color: white;
@@ -62,32 +60,9 @@ div.patron {
 @media (max-width: 700px) {
 .patronbutton{
     height: 10%;
-    width: 40%;
     }
 }
-.patronbutton1 {
-    height: 60px;
-    width: 20%;
-    text-align: center;
-    background: #1b78d0;
-    text-transform: uppercase;
-    border: none;
-    cursor: pointer;
-    padding: 10px;
-    margin: 10px;
-    font-weight: normal;
-    color: white;
-    border-radius: 8px;
-    font-size: 1.5em;
-    white-space: nowrap;
-}
-@media (max-width: 700px) {
-.patronbutton1{
-    height: 10%;
-    width: 40%;
-    }
-}
-.patronbutton:hover, .patronbutton1:hover {
+.patronbutton:hover {
     box-shadow: 0 4px 10px 0px rgba(0,0,0,.225);
     filter: brightness(1.15);
     color: white;
