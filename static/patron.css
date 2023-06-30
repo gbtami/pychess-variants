@@ -9,18 +9,18 @@ div.patron {
     div.patron{
         margin-left: 2%;
         width: 96%;
-        height: 120%;
+        height: 130%;
     }
 }
 .tablepatron1 {
     width: 100%;
 }
-.pth1 {width: 60%;}
-@media (max-width: 700px) {.pth1 {width: 70%;}}
-.pth2 {width: 20%;}
-@media (max-width: 700px) {.pth2 {width: 15%;}}
-.pth3 {width: 20%;}
-@media (max-width: 700px) {.pth3 {width: 15%;}}
+.th1 {width: 60%;}
+@media (max-width: 700px) {.th1 {width: 70%;}}
+.th2 {width: 20%;}
+@media (max-width: 700px) {.th2 {width: 15%;}}
+.th3 {width: 20%;}
+@media (max-width: 700px) {.th3 {width: 15%;}}
 .patron-txt {
     position: relative;
     height: 200px;
@@ -37,6 +37,7 @@ div.patron {
 }
 @media (max-width: 700px) {
 .btm-txt { 
+    margin-top: 10%;
     margin-left: 10%;
     }
 }
@@ -82,3 +83,4 @@ div.patron {
     filter: brightness(1.15);
     color: white;
 }
+
