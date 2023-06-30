@@ -315,7 +315,7 @@ async def lobby_socket_handler(request):
                             elif message.startswith("/ban"):
                                 admin_command = True
                                 parts = message.split()
-                                if len(parts) == 2 and parts[1] in users:
+                                if len(parts) == 2 and parts[1] in users and parts[1] not in ADMINS:
                                     users[parts[1]].enabled = False
                                     await db.user.find_one_and_update(
                                         {"_id": parts[1]}, {"$set": {"enabled": False}}
