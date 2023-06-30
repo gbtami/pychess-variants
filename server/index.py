@@ -382,6 +382,7 @@ async def index(request):
         "app_name": "PyChess",
         "languages": LANGUAGES,
         "lang": lang,
+        "theme": user.theme,
         "title": page_title,
         "view": view,
         "asseturl": STATIC_ROOT,

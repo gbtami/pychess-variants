@@ -16,6 +16,7 @@ from user import User
 from utils import join_seek, load_game, online_count, MyWebSocketResponse, remove_seek
 from misc import server_state
 from tournament_spotlights import tournament_spotlights
+from login import logout
 
 log = logging.getLogger(__name__)
 
@@ -310,6 +311,16 @@ async def lobby_socket_handler(request):
                                 parts = message.split()
                                 if len(parts) == 2 and len(parts[1]) == 5:
                                     await db.puzzle.delete_one({"_id": parts[1]})
+
+                            elif message.startswith("/ban"):
+                                admin_command = True
+                                parts = message.split()
+                                if len(parts) == 2 and parts[1] in users and parts[1] not in ADMINS:
+                                    users[parts[1]].enabled = False
+                                    await db.user.find_one_and_update(
+                                        {"_id": parts[1]}, {"$set": {"enabled": False}}
+                                    )
+                                    await logout(None, users[parts[1]])
 
                             elif message == "/state":
                                 admin_command = True

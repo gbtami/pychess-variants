@@ -174,17 +174,28 @@ async def login(request):
     return web.HTTPFound("/")
 
 
-async def logout(request):
-    users = request.app["users"]
+async def logout(request, user=None):
+    if request is not None:
+        users = request.app["users"]
 
-    session = await aiohttp_session.get_session(request)
-    session_user = session.get("user_name")
-    user = users.get(session_user)
+        session = await aiohttp_session.get_session(request)
+        session_user = session.get("user_name")
+        user = users.get(session_user)
+
+    if user is None:
+        return
+    response = {"type": "logout"}
 
     # close lobby socket
-    if session_user in request.app["lobbysockets"]:
-        ws_set = request.app["lobbysockets"][session_user]
-        response = {"type": "logout"}
+    ws_set = user.lobby_sockets
+    for ws in ws_set:
+        try:
+            await ws.send_json(response)
+        except ConnectionResetError:
+            pass
+
+    # close tournament sockets
+    for ws_set in user.tournament_sockets.values():
         for ws in ws_set:
             try:
                 await ws.send_json(response)
@@ -194,15 +205,15 @@ async def logout(request):
     # lose and close game sockets
     # TODO: this can't end game if logout came from an ongoing game
     # because its ws was already closed and removed from game_sockets
-    if user is not None:
-        for gameId in user.game_sockets:
-            if gameId in request.app["games"]:
-                game = request.app["games"][gameId]
-                if game.status <= STARTED:
-                    response = await game.game_ended(user, "abandone")
-                    await round_broadcast(game, response, full=True)
+    for gameId in user.game_sockets:
+        if gameId in user.app["games"]:
+            game = user.app["games"][gameId]
+            if game.status <= STARTED:
+                response = await game.game_ended(user, "abandone")
+                await round_broadcast(game, response, full=True)
 
-    session.invalidate()
+    if request is not None:
+        session.invalidate()
 
     return web.HTTPFound("/")
 
