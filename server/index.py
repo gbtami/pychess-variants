@@ -139,7 +139,7 @@ async def index(request):
         users[user.username] = user
         session["user_name"] = user.username
 
-    lang = session.get("lang")
+    lang = session.get("lang") if user.lang is None else user.lang
     if lang is None:
         lang = detect_locale(request)
 
