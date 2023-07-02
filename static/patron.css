@@ -34,20 +34,19 @@ div.patron {
     }
 }
 .btm-txt {
-   margin-left: 25%;
+   margin-left: 90px;
 }
 @media (max-width: 700px) {
 .btm-txt { 
-    margin-top: 15%;
-    margin-left: 10%;
+    margin-top: 70px;
+    margin-left: 40px;;
     }
 }
 @media (max-width: 399px) {
 .btm-txt { 
-    margin-top: 35%;
-    margin-left: 10%;
+    margin-top: 200px;
     }
-}
+}}
     
 .banner {
     margin-bottom: 2.5em;
