@@ -315,6 +315,7 @@ export const VARIANTS: Record<string, Variant> = {
             'Theban': "1p6/2p3kn/3p2pp/4pppp/5ppp/8/PPPPPPPP/PPPPPPKN w - - 0 1",
             'No castle': 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w - - 0 1'
         },
+        ui: { showPromoted: true },
     }),
     crazyhouse: variant({
         name: "crazyhouse", tooltip: "Take captured pieces and drop them back on to the board as your own.",

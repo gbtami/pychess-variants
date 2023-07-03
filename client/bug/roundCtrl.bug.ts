@@ -238,16 +238,23 @@ export class RoundController implements ChatController/*extends GameController t
         this.spectator = this.username !== this.wplayer && this.username !== this.bplayer && this.username !== this.wplayerB && this.username !== this.bplayerB;
 // this represents only the initial positioning of players on the screen. Flip/switch will not change those values
 // but only work on html elements, so these remain constant as initialized here throughout the whole game:
+        if (this.spectator) {
 // board A - 0 means top, 1 means bottom
-        this.colors = [
-            this.myColor.get('a') === 'black' || this.partnerColor.get('a') === 'black' ? 'white' : 'black',
-            this.myColor.get('a') === 'white' || this.partnerColor.get('a') === 'white' ? 'white' : 'black'
-        ];
+            this.colors = [ 'black', 'white' ];
 // board B - 0 means top, 1 means bottom
-        this.colorsB = [
-            this.myColor.get('b') === 'black' || this.partnerColor.get('b') === 'black' ? 'white' : 'black',
-            this.myColor.get('b') === 'white' || this.partnerColor.get('b') === 'white' ? 'white' : 'black'
-        ];
+            this.colorsB = [ 'white', 'black' ];
+        } else {
+// board A - 0 means top, 1 means bottom
+            this.colors = [
+                this.myColor.get('a') === 'black' || this.partnerColor.get('a') === 'black' ? 'white' : 'black',
+                this.myColor.get('a') === 'white' || this.partnerColor.get('a') === 'white' ? 'white' : 'black'
+            ];
+// board B - 0 means top, 1 means bottom
+            this.colorsB = [
+                this.myColor.get('b') === 'black' || this.partnerColor.get('b') === 'black' ? 'white' : 'black',
+                this.myColor.get('b') === 'white' || this.partnerColor.get('b') === 'white' ? 'white' : 'black'
+            ];
+        }
 //
 // board A - 0 means top, 1 means bottom
         this.players = [
@@ -342,7 +349,7 @@ export class RoundController implements ChatController/*extends GameController t
         ///////
 
         this.b1.chessground.set({
-            orientation: this.myColor.get('a') === 'white' || this.partnerColor.get('a') === 'white'? 'white': 'black',
+            orientation: this.myColor.get('a') === 'white' || this.partnerColor.get('a') === 'white' || this.spectator? 'white': 'black',
             turnColor: 'white',
             movable: {
                 free: false,
@@ -374,7 +381,7 @@ export class RoundController implements ChatController/*extends GameController t
         // const amISimuling = this.mycolor.get('a') !== undefined && this.mycolor.get('b') !== undefined;
         // const distinctOpps = new Set([this.wplayer, this.bplayer, this.wplayerB, this.bplayerB].filter((e) => e !== this.username));
         // const isOppSimuling = distinctOpps.size === 1;
-        if (this.myColor.get('a') === undefined) {
+        if (this.myColor.get('a') === undefined && !this.spectator) {
             // I am not playing on board A at all. Switch:
             this.switchBoards();
         }
@@ -680,29 +687,60 @@ export class RoundController implements ChatController/*extends GameController t
         }
     }
 
-    private updateBoardsAndClocksSpectors = (latestPly: boolean) => {
+    private updateBoardsAndClocksSpectors = (board: BugHouseGameController, fen: cg.FEN, fenPartner: cg.FEN, lastMove: cg.Orig[] | undefined, step: Step, clocks: Clocks, latestPly: boolean, colors: cg.Color[], status: number, check: boolean) => {
 
-        //todo:niki:spectator mode not implemented for now
-        if (latestPly) {
-            // this.chessground.set({
-            //     fen: this.fullfen,
-            //     turnColor: this.turnColor,
-            //     check: msg.check,
-            //     lastMove: lastMove,
-            // });
+        this.clockOn = true;// Number(msg.ply) >= 2;
+        if ( !this.spectator && this.clockOn ) {
+            const container = document.getElementById('abort') as HTMLElement;
+            if (container) patch(container, h('div'));
         }
-        // if (this.clockOn && msg.status < 0) {
-        //     if (this.b1.turnColor === 'white') {
-        //         this.clocks[1].start();
-        //     } else {
-        //         this.clocks[0].start();
-        //     }
-        //     if (this.b2.turnColor === 'white') {
-        //         this.clocks[0].start();
-        //     } else {
-        //         this.clocks[1].start();
-        //     }
-        // }
+
+        const msgTurnColor = step.turnColor; // whose turn it is after this move
+
+        if (board.boardName == 'a') {
+            this.clocktimes = clocks || this.clocktimes; //todo:niki:have the feeling this or is redundant. probably only initial board message doesnt have clocktimes. maybe even it has. not sure
+        } else {
+            this.clocktimesB = clocks || this.clocktimes;
+        }
+
+        // resetting clocks on the client that has just sent them seems like a bad idea
+        const startClockAtIdx = colors[0] === msgTurnColor? 0: 1;
+        const stopClockAtIdx = 1 - startClockAtIdx;
+
+        const whiteClockAtIdx = colors[0] === 'white'? 0: 1;
+        const blackClockAtIdx = 1 -whiteClockAtIdx;
+
+        const clocks1 = board.boardName === 'a'? this.clocks: this.clocksB;
+        const clocktimes = board.boardName === 'a'? this.clocktimes: this.clocktimesB;
+
+
+        clocks1[stopClockAtIdx].pause(false);
+
+        clocks1[whiteClockAtIdx].setTime(clocktimes['white']);
+        clocks1[blackClockAtIdx].setTime(clocktimes['black']);
+
+        if (this.clockOn && status < 0) { // todo:niki:not sure why this if is needed
+            clocks1[startClockAtIdx].start();
+        }
+
+        //when message is for opp's move, meaning turnColor is my color - it is now my turn after this message
+        if (latestPly) {
+            board.chessground.set({
+                fen: fen,
+                turnColor: board.turnColor,
+                check: check,
+                lastMove: lastMove,
+            });
+            //todo:niki: updating model probably should be regardless of whetehre it is latestPly:
+            board.fullfen = fen;
+            board.partnerCC.fullfen = fenPartner;//todo:niki:setter or something maybe
+            board.partnerCC.chessground.set({ fen: fenPartner});
+            if (!this.focus) this.notifyMsg(`Played ${step.san}\nYour turn.`);
+
+            // prevent sending premove/predrop when (auto)reconnecting websocked asks server to (re)sends the same board to us
+            // console.log("trying to play premove....");
+            if (board.premove) board.performPremove();
+        }
 
     }
 
@@ -869,6 +907,8 @@ export class RoundController implements ChatController/*extends GameController t
                 board.fullfen = fen;
                 board.partnerCC.fullfen = fenPartner;//todo:niki:setter or something maybe
                 board.partnerCC.chessground.set({ fen: fenPartner});
+                board.partnerCC.ffishBoard.setFen(board.partnerCC.fullfen);
+                board.partnerCC.setDests();
                 if (!this.focus) this.notifyMsg(`Played ${step.san}\nYour turn.`);
 
                 // prevent sending premove/predrop when (auto)reconnecting websocked asks server to (re)sends the same board to us
@@ -917,14 +957,24 @@ export class RoundController implements ChatController/*extends GameController t
 
         this.checkStatus(msg);
 
+        //
+        const fens = msg.fen.split(" | ");
+        const fenA = fens[0];
+        const fenB = fens[1];
+
+        const boardName = msg.steps[msg.steps.length - 1].boardName as 'a' | 'b';//todo:niki:change this to step[0] if/when that board message is fixed to have just one element in steps and stop always sending that redundnat initial dummy step (if it is indeed redundant)
+        //todo:niki:update to above's todo, actually it sometimes sends it with 2 elements, sometimes just with one - gotta check what is wrong with python code and how it works in other variants. for now always getting the last element should be robust in all cases
+        const board = boardName === 'a' ? this.b1 : this.b2;
+        const colors = boardName === 'a' ? this.colors : this.colorsB;
+        const fen = boardName == 'a' ? fenA : fenB;
+        const fenPartner = boardName == 'a' ? fenB : fenA;
+        const check = boardName == 'a' ? msg.check : msg.checkB!;
+        const lastMove = uci2LastMove(msg.lastMove);
 
         if (this.spectator) {
-            this.updateBoardsAndClocksSpectors(latestPly);//todo:niki unclear what is different that when playing, but should have full mode as well
-        } else {
-            const fens = msg.fen.split(" | ");
-            const fenA = fens[0];
-            const fenB = fens[1];
+            this.updateBoardsAndClocksSpectors(board, fen, fenPartner, lastMove, msg.steps[0], msg.clocks!, latestPly, colors, msg.status, check);//todo:niki unclear what is different that when playing, but should have full mode as well
 
+        } else {
             if (isInitialBoardMessage) { // from constructor
                 this.updateBothBoardsAndClocksInitial(fenA, fenB, msg.clocks!, msg.clocksB!);// todo:niki: when no moves were made and we refresh, logic here doesnt differentiate it is not initial anymore, but full, and clocks have started so sending clock times again and inside duplicating the logic for clock from full mode as well - maybe think about reusing that logic or differentiating better this case as full
             } else if (full) { // manual refresh or reconnect after lost ws connection
@@ -932,14 +982,6 @@ export class RoundController implements ChatController/*extends GameController t
                 const lastStepB = msg.steps[msg.steps.findLastIndex(s => s.boardName === "b")];
                 this.updateBothBoardsAndClocksOnFullBoardMsg(lastStepA, lastStepB, msg.clocks!, msg.clocksB!);
             } else { // usual single ply board messages sent on each move
-                const boardName = msg.steps[msg.steps.length - 1].boardName as 'a' | 'b';//todo:niki:change this to step[0] if/when that board message is fixed to have just one element in steps and stop always sending that redundnat initial dummy step (if it is indeed redundant)
-                //todo:niki:update to above's todo, actually it sometimes sends it with 2 elements, sometimes just with one - gotta check what is wrong with python code and how it works in other variants. for now always getting the last element should be robust in all cases
-                const board = boardName === 'a' ? this.b1 : this.b2;
-                const colors = boardName === 'a' ? this.colors : this.colorsB;
-                const fen = boardName == 'a' ? fenA : fenB;
-                const fenPartner = boardName == 'a' ? fenB : fenA;
-                const check = boardName == 'a' ? msg.check : msg.checkB!;
-                const lastMove = uci2LastMove(msg.lastMove);
                 this.updateSingleBoardAndClocks(board, fen, fenPartner, lastMove, msg.steps[0], msg.clocks!, latestPly, colors, msg.status, check);
             }
         }
@@ -1101,7 +1143,7 @@ export class RoundController implements ChatController/*extends GameController t
     }
 
     private onMsgChat = (msg: MsgChat) => {
-        if ((this.spectator && msg.room === 'spectator') || (!this.spectator && msg.room !== 'spectator') || msg.user.length === 0) {
+        if (this.spectator /*spectators always see everything*/ || (!this.spectator && msg.room !== 'spectator') || msg.user.length === 0) {
             chatMessage(msg.user, msg.message, "bugroundchat", msg.time);
         }
     }

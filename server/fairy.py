@@ -56,7 +56,7 @@ class FairyBoard:
         self.variant = modded_variant(variant, chess960, initial_fen)
         self.chess960 = chess960
         self.sfen = False
-        self.show_promoted = variant in ("makruk", "makpong", "cambodian")
+        self.show_promoted = variant in ("makruk", "makpong", "cambodian", "bughouse")
         self.nnue = initial_fen == ""
         self.initial_fen = (
             initial_fen if initial_fen else FairyBoard.start_fen(variant, chess960, disabled_fen)
@@ -107,6 +107,7 @@ class FairyBoard:
                 self.show_promoted,
                 self.count_started,
             )
+            log.info("move= %s, fen= %s", move, self.fen)
         except Exception:
             self.move_stack.pop()
             self.ply -= 1

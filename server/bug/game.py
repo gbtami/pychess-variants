@@ -679,6 +679,7 @@ class GameBug:
 
         if not self.dests_a or not self.dests_b:
             board_which_ended = "a" if not self.dests_a else "b"
+            #todo:niki did it really ended - maybe chaek here by putting a fen with full pockets and then switch back
             game_result_value = self.boards[board_which_ended].game_result_no_history()
             self.result = result_string_from_value(self.boards[board_which_ended].color, game_result_value)
 

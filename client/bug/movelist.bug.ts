@@ -141,7 +141,7 @@ export function updateMovelist (ctrl: AnalysisControllerBug | RoundController, f
                 const v = h("li.message",
                     [h("div.time", time), h("user", h("a", { attrs: {href: "/@/" + x.username} }, x.username)),
                         /*h("div.discord-icon-container", h("img.icon-discord-icon", { attrs: { src: '/static/icons/discord.svg' } }))*/
-                        h('div.bugchat.'+m,[])
+                        x.message.indexOf('!bug')>-1? h('div.bugchat.'+m,[]):h('div'+m,[x.message])
                     ]);
 
                 chatMessages.push(v/*h("div", +" "+x.username+": "+x.message)*/);
