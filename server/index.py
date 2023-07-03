@@ -510,6 +510,8 @@ async def index(request):
                 puzzle = await next_puzzle(request, user)
             else:
                 puzzle = await get_puzzle(request, puzzleId)
+                if puzzle is None:
+                    raise web.HTTPNotFound()
 
         color = puzzle["fen"].split()[1]
         chess960 = False
