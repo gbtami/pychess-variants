@@ -29,7 +29,7 @@ class User:
         perfs=None,
         pperfs=None,
         enabled=True,
-        lang="en",
+        lang=None,
         theme="dark",
     ):
         self.app = app

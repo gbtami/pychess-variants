@@ -318,6 +318,8 @@ async def get_tournament_name(request, tournament_id):
             lang = users[session_user].lang
         except KeyError:
             lang = "en"
+        if lang is None:
+            lang = "en"
 
     if tournament_id in request.app["tourneynames"][lang]:
         return request.app["tourneynames"][lang][tournament_id]
