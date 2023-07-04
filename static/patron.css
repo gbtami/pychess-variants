@@ -18,20 +18,16 @@ div.patron {
     height: 200px;
     padding: 10px;
 }
+#patr-board > div {
+    padding: 5px;
+}
 
 #patr-board div:nth-of-type(2) {align-self: center;}
 
 
 .patron-txt {
-    position: relative;
-    height: 200px;
     margin: 10px;
     margin-left: 20px;
-}
-@media (max-width: 700px) {
-    .patron-txt{
-        height: 250px;
-    }
 }
 .btm-txt {
    margin-left: 150px;
@@ -39,7 +35,7 @@ div.patron {
 @media (max-width: 700px) {
 .btm-txt { 
     margin-top: 50px;
-    margin-left: 50px;;
+    margin-left: 50px;
     }
 }
 @media (max-width: 399px) {
@@ -55,8 +51,8 @@ div.patron {
     text-align: center;
     font-size: 1.3em;
     min-height: 200px;
-    padding: 1em 0;
-    justify-content: space-between
+    padding: 1em;
+    justify-content: space-between;
 }
 .patronbutton {
     width: 100px;
