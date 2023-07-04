@@ -18,13 +18,9 @@ div.patron {
     height: 200px;
     padding: 10px;
 }
-#patr-board div {
-    height: 200px;
-    padding: 10px;
-}
-#patr-board div:nth-of-type(1) {flex-grow: 3;}
-#patr-board div:nth-of-type(2) {flex-grow: 1; align-self: center;}
-#patr-board div:nth-of-type(3) {flex-grow: 1; align-self: center;}
+
+#patr-board div:nth-of-type(2) {align-self: center;}
+
 
 .patron-txt {
     position: relative;
@@ -38,17 +34,17 @@ div.patron {
     }
 }
 .btm-txt {
-   margin-left: 90px;
+   margin-left: 150px;
 }
 @media (max-width: 700px) {
 .btm-txt { 
-    margin-top: 70px;
-    margin-left: 40px;;
+    margin-top: 50px;
+    margin-left: 50px;;
     }
 }
 @media (max-width: 399px) {
 .btm-txt { 
-    margin-top: 200px;
+    margin-top: 150px;
     }
 }
     
@@ -63,28 +59,22 @@ div.patron {
     justify-content: space-between
 }
 .patronbutton {
+    width: 100px;
     text-align: center;
     background: #1b78d0;
     text-transform: uppercase;
     border: none;
     cursor: pointer;
     padding: 15px;
-    margin: 10px;
+    margin: 20px;
     font-weight: normal;
     color: white;
     border-radius: 8px;
-    font-size: 1.4em;
+    font-size: 1em;
     white-space: nowrap;
-}
-
-@media (max-width: 700px) {
-.patronbutton{
-   font-size: 1em;
-    }
 }
 .patronbutton:hover {
     box-shadow: 0 4px 10px 0px rgba(0,0,0,.225);
     filter: brightness(1.15);
     color: white;
 }
-
