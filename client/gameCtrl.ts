@@ -1,6 +1,7 @@
 import WebsocketHeartbeatJs from 'websocket-heartbeat-js';
 
 import { h, VNode } from 'snabbdom';
+import * as Mousetrap  from 'mousetrap';
 import * as cg from 'chessgroundx/types';
 import * as util from 'chessgroundx/util';
 
@@ -17,6 +18,7 @@ import { JSONObject, PyChessModel } from './types';
 import { updateCount, updatePoint } from './info';
 import { sound } from './sound';
 import { chatMessage, ChatController } from './chat';
+import { selectMove } from './movelist';
 
 export abstract class GameController extends ChessgroundController implements ChatController {
     sock: WebsocketHeartbeatJs;
@@ -84,6 +86,8 @@ export abstract class GameController extends ChessgroundController implements Ch
 
     // Main line ply where analysis variation starts
     plyVari: number;
+
+    undo?: any;
 
     constructor(el: HTMLElement, model: PyChessModel) {
         super (el, model);
@@ -157,25 +161,48 @@ export abstract class GameController extends ChessgroundController implements Ch
             });
 
         this.setDests();
+
+        Mousetrap.bind('left', () => selectMove(this, this.ply - 1, this.plyVari));
+        Mousetrap.bind('right', () => selectMove(this, this.ply + 1, this.plyVari));
+        Mousetrap.bind('up', () => selectMove(this, 0));
+        Mousetrap.bind('down', () => selectMove(this, this.steps.length - 1));
+        Mousetrap.bind('f', () => this.toggleOrientation());
     }
 
     flipped() {
         return this.chessground.state.orientation !== this.mycolor;
     }
 
-    setDests = () => {
+    setDests() {
         if (this.ffishBoard === undefined) {
             // At very first time we may have to wait for ffish module to initialize
-            setTimeout(this.setDests, 100);
+            setTimeout(this.setDests.bind(this), 100);
         } else {
             const legalMoves = this.ffishBoard.legalMoves().split(" ");
             const dests = moveDests(legalMoves as UCIMove[]);
+            if (this.variant.rules.gate) {
+                // Remove rook takes king from the legal destinations
+                const pieces = this.chessground.state.boardState.pieces;
+                for (const [orig, destArray] of dests) {
+                    if (orig && util.isKey(orig)) {
+                        const origPiece = pieces.get(orig);
+                        if (origPiece?.role === 'r-piece') {
+                            dests.set(orig, destArray.filter(dest => {
+                                const destPiece = pieces.get(dest);
+                                return !(destPiece && destPiece.role === 'k-piece' && origPiece.color === destPiece.color);
+                            }));
+                        }
+                    }
+                }
+            }
             this.chessground.set({ movable: { dests: dests }});
             if (this.steps.length === 1) {
                 this.chessground.set({ check: (this.ffishBoard.isCheck()) ? this.turnColor : false});
             }
         }
     }
+
+    abstract toggleSettings(): void;
 
     abstract doSendMove(move: string): void;
 

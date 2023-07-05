@@ -143,6 +143,7 @@ class Game:
 
         self.id = gameId
 
+        self.has_counting = self.variant in ("makruk", "makpong", "cambodian", "sittuyin", "asean")
         # Makruk manual counting
         use_manual_counting = self.variant in ("makruk", "makpong", "cambodian")
         self.manual_count = use_manual_counting and not self.bot_game
@@ -387,6 +388,9 @@ class Game:
             # Keep it in our games dict a little to let players get the last board
             # not to mention that BOT players want to abort games after 20 sec inactivity
             await asyncio.sleep(keep_time)
+
+            if self.id == self.app["tv"]:
+                self.app["tv"] = None
 
             try:
                 del self.games[self.id]
@@ -672,7 +676,7 @@ class Game:
                 self.result = result_string_from_value(self.board.color, game_result_value)
                 self.status = CLAIM if game_result_value != 0 else DRAW
 
-        if self.variant in ("makruk", "makpong", "cambodian", "sittuyin", "asean"):
+        if self.has_counting:
             parts = self.board.fen.split()
             if parts[3].isdigit():
                 counting_limit = int(parts[3])
@@ -946,4 +950,24 @@ class Game:
             "prov": prov,
             "color": color,
             "result": self.result,
+        }
+
+    @property
+    def tv_game_json(self):
+        return {
+            "type": "tv_game",
+            "gameId": self.id,
+            "variant": self.variant,
+            "fen": self.board.fen,
+            "wt": self.wplayer.title,
+            "bt": self.bplayer.title,
+            "w": self.wplayer.username,
+            "b": self.bplayer.username,
+            "wr": self.wrating,
+            "br": self.brating,
+            "chess960": self.chess960,
+            "base": self.base,
+            "inc": self.inc,
+            "byoyomi": self.byoyomi_period,
+            "lastMove": self.lastmove,
         }

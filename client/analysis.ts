@@ -7,6 +7,7 @@ import { selectVariant, VARIANTS } from './variants';
 import { renderTimeago } from './datetime';
 import { spinner } from './view';
 import { PyChessModel } from "./types";
+import { analysisSettings } from './analysisSettings';
 
 function runGround(vnode: VNode, model: PyChessModel) {
     const el = vnode.elm as HTMLElement;
@@ -111,17 +112,7 @@ export function analysisView(model: PyChessModel): VNode[] {
                 h('div.cg-wrap.' + variant.board.cg, { hook: { insert: (vnode) => runGround(vnode, model) } }),
                 h('div#anal-clock-bottom'),
             ]),
-            h('div#gauge', [
-                h('div.black',     { props: { style: "height: 50%;" } }),
-                h('div.tick',      { props: { style: "height: 12.5%;" } }),
-                h('div.tick',      { props: { style: "height: 25%;" } }),
-                h('div.tick',      { props: { style: "height: 37.5%;" } }),
-                h('div.tick.zero', { props: { style: "height: 50%;" } }),
-                h('div.tick',      { props: { style: "height: 62.5%;" } }),
-                h('div.tick',      { props: { style: "height: 75%;" } }),
-                h('div.tick',      { props: { style: "height: 87.5%;" } }),
-            ]),
-
+            gauge(),
             h('div.pocket-top', [
                 h('div.' + variant.pieceFamily + '.' + model["variant"], [
                     h('div.cg-wrap.pocket', [
@@ -129,44 +120,8 @@ export function analysisView(model: PyChessModel): VNode[] {
                     ]),
                 ]),
             ]),
-            h('div.analysis-tools', [
-                h('div#ceval', [
-                    h('div.engine', [
-                        h('score#score', ''),
-                        h('div.info', [
-                            'Fairy-Stockfish 14+ ',
-                            h('span.nnue', { props: { title: _('Multi-threaded WebAssembly (classical evaluation)') } } , 'HCE'),
-                            h('br'),
-                            h('info#info', _('in local browser'))
-                        ]),
-                        h('label.switch', [
-                            h('input#input', {
-                                props: {
-                                    name: "engine",
-                                    type: "checkbox",
-                                },
-                            }),
-                            h('span#slider.sw-slider'),
-                        ]),
-                    ]),
-                ]),
-                h('div.pvbox', [
-                    h('div#pv1'),
-                    h('div#pv2'),
-                    h('div#pv3'),
-                    h('div#pv4'),
-                    h('div#pv5'),
-                ]),
-                h('div.movelist-block', [
-                    h('div#movelist'),
-                ]),
-                h('div#vari'),
-                h('div#misc-info', [
-                    h('div#misc-infow'),
-                    h('div#misc-info-center'),
-                    h('div#misc-infob'),
-                ]),
-            ]),
+            analysisTools(),
+            analysisSettings.view(variant.name),
             h('div#move-controls'),
 
             h('div.pocket-bot', [
@@ -204,4 +159,60 @@ export function analysisView(model: PyChessModel): VNode[] {
             ]),
         ]),
     ];
+}
+
+
+export function analysisTools () {
+    return h('div.analysis-tools', [
+            h('div#ceval', [
+                h('div.engine', [
+                    h('score#score', ''),
+                    h('div.info', [
+                        'Fairy-Stockfish 14+ ',
+                        h('span.nnue', { props: { title: _('Multi-threaded WebAssembly (classical evaluation)') } } , 'HCE'),
+                        h('br'),
+                        h('info#info', _('in local browser'))
+                    ]),
+                    h('div.engine-toggle'),
+                ]),
+            ]),
+            h('div.pvbox', [
+                h('div#pv1'),
+                h('div#pv2'),
+                h('div#pv3'),
+                h('div#pv4'),
+                h('div#pv5'),
+            ]),
+            h('div.movelist-block', [
+                h('div#movelist'),
+            ]),
+            h('div#vari'),
+            h('div#misc-info', [
+                h('div#misc-infow'),
+                h('div#misc-info-center'),
+                h('div#misc-infob'),
+            ]),
+            h('div.feedback', [
+                h('div.player'),
+                h('div.view-hint', [
+                    h('a.button.hint'),
+                ]),
+                h('div.view-solution', [
+                    h('a.button.solution'),
+                ]),
+            ]),
+        ])
+}
+
+export function gauge () {
+    return h('div#gauge', [
+        h('div.black',     { props: { style: "height: 50%;" } }),
+        h('div.tick',      { props: { style: "height: 12.5%;" } }),
+        h('div.tick',      { props: { style: "height: 25%;" } }),
+        h('div.tick',      { props: { style: "height: 37.5%;" } }),
+        h('div.tick.zero', { props: { style: "height: 50%;" } }),
+        h('div.tick',      { props: { style: "height: 62.5%;" } }),
+        h('div.tick',      { props: { style: "height: 75%;" } }),
+        h('div.tick',      { props: { style: "height: 87.5%;" } }),
+    ])
 }

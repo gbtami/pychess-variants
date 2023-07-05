@@ -153,6 +153,10 @@
   vertical-align: middle;
   opacity: 0.6;
 }
+.icon-puzzle:before {
+  content: '🎯';
+  color: var(--font-color);
+}
 .icon-sente:before {
   content: '☗';
   vertical-align: unset;
@@ -426,6 +430,7 @@ iframe {
   flex-flow: column nowrap;
   justify-content: center;
   margin: 2em 0 0 0;
+  position: relative;
 }
 .sidebar-second.analysis {
   justify-content: none;
@@ -471,12 +476,6 @@ div.pgn {
   background-color: var(--bg-color2);
   border: 1px solid var(--input-border);
 }
-under-right {
-  grid-area: utable;
-  flex: 1;
-  display: flex;
-  flex-flow: column nowrap;
-}
 
 div.about,
 div.guide,
@@ -485,6 +484,7 @@ div.closed,
 div.paste,
 div.invite,
 div.news,
+div.memory,
 div.not-found {
   grid-area: main;
   margin: 0 auto;
@@ -557,7 +557,6 @@ div.closed {
 }
 under-lobby {
   grid-area: blog;
-  box-shadow: var(--base-shadow);
 }
 div.news {
   margin: 0;
@@ -569,7 +568,7 @@ a.news {
 posts {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
-  grid-gap: 0 2%;
+  grid-gap: 1em;
   grid-template-rows: auto;
   font-size: 0.9em;
   line-height: 1.5;
@@ -578,10 +577,12 @@ a.post {
   background-color: var(--bg-color0);
   align-items: center;
   position: relative;
+  box-shadow: var(--base-shadow);
 }
 a.post:hover {
   color: var(--font-color);
   background: var(--post-hover);
+  box-shadow: none;
 }
 a.post img {
   max-width: none;
@@ -848,7 +849,23 @@ ul.guide li {
   flex-direction: column;
   margin: 5px;
 }
-
+#settings div.labelled, div.labelled, div.arrow-toggle {
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+}
+.labelled label {
+  padding-left: 0;
+}
+div.labelled input[type="range"] {
+  margin-right: 1ch;
+}
+div.labelled > div {
+  direction: ltr;
+  flex: 0 0 auto;
+  display: block;
+  text-align: right;
+}
 #settings-buttons button {
   text-align: left;
   padding-left: 1rem;
@@ -877,7 +894,7 @@ button#btn-zen:hover {
   opacity: 0.7;
 }
 
-#settings-lang > form {
+#settings-lang > form, #settings-background > form {
   display: flex;
   flex-direction: column;
 }
@@ -965,7 +982,9 @@ div a {
 }
 .reflist {
   margin-right: 1.2em;
+  font-weight: bold;
   text-decoration: none;
+  font-size: 0.85em;
 }
 .movelist-block {
   grid-area: moves;
@@ -974,7 +993,6 @@ div a {
   justify-content: center;
   background: var(--bg-color0);
   box-shadow: var(--base-shadow);
-  border-bottom: 1px solid var(--border-color);
 }
 
 div#result {
@@ -1004,7 +1022,6 @@ button.paste-url {
   margin: 4px 2px;
   cursor: pointer;
   box-shadow: var(--base-shadow);
-  border-radius: 3px;
 }
 .lobby-button {
   width: 100%;
@@ -1123,8 +1140,11 @@ div.info2 {
   padding-left: 10px;
   padding-bottom: 6px;
 }
-div.info2 a {
+div.info2 a, div.info2 .user-link {
   color: var(--link-color-blue);
+}
+div.info2 a, div.info2 .user-link:hover {
+  color: var(--blue-hover);
 }
 div.info2.games {
   padding-top: 26px;
@@ -1382,7 +1402,8 @@ table#seeks {
 #seekbuttons {
   display: flex;
   flex-flow: column;
-  margin: 0 1em 0 1em;
+  flex: 1 1 auto;
+  justify-content: center;
 }
 #seekbuttons > button {
   color: var(--button-text);
@@ -2311,3 +2332,22 @@ input:invalid {
   width: 100%;
 }
 /* Search Bar End  */
+
+div.tv cg-container, div.puzzle cg-container {
+  right: unset;
+}
+
+.vstext {
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--font-color);
+  width: var(--cg-width);
+}
+
+/* Add pseudo-element only if data attribute is set */
+input[data-file]::after {
+  content: attr(data-file);
+  margin-left: 0.375em;
+}

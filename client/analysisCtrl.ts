@@ -1,6 +1,7 @@
 import { h, VNode } from 'snabbdom';
 
 import * as idb from 'idb-keyval';
+import * as Mousetrap  from 'mousetrap';
 
 import * as cg from 'chessgroundx/types';
 import * as util from 'chessgroundx/util';
@@ -27,6 +28,7 @@ import { PyChessModel } from "./types";
 import { Ceval, MsgBoard, MsgUserConnected, Step, CrossTable } from "./messages";
 import { MsgAnalysis, MsgAnalysisBoard } from './analysisType';
 import { GameController } from './gameCtrl';
+import { analysisSettings, EngineSettings } from './analysisSettings';
 
 const EVAL_REGEX = new RegExp(''
   + /^info depth (\d+) seldepth \d+ multipv (\d+) /.source
@@ -36,7 +38,6 @@ const EVAL_REGEX = new RegExp(''
   + /pv (.+)/.source);
 
 const maxDepth = 18;
-const maxThreads = Math.max((navigator.hardwareConcurrency || 1) - 1, 1);
 
 const emptySan = '\xa0';
 
@@ -63,10 +64,13 @@ export class AnalysisController extends GameController {
     notationAsObject: any;
     arrow: boolean;
     multipv: number;
+    threads: number;
+    hash: number;
     evalFile: string;
     nnueOk: boolean;
     importedBy: string;
     embed: boolean;
+    puzzle: boolean;
     fsfDebug: boolean;
     fsfError: string[];
     fsfEngineBoard: any;  // used to convert pv UCI move list to SAN
@@ -76,7 +80,8 @@ export class AnalysisController extends GameController {
         this.fsfDebug = false;
         this.fsfError = [];
         this.embed = this.gameId === undefined;
-        this.isAnalysisBoard = this.gameId === "";
+        this.puzzle = model["puzzle"] !== "";
+        this.isAnalysisBoard = this.gameId === "" && !this.puzzle;
         if (!this.embed) {
             this.chartFunctions = [analysisChart, movetimeChart];
         }
@@ -89,21 +94,20 @@ export class AnalysisController extends GameController {
             }
         };
 
-        this.sock = newWebsocket('wsr');
-        this.sock.onopen = () => onOpen();
-        this.sock.onmessage = (e: MessageEvent) => this.onMessage(e);
+        if (!this.puzzle) {
+            this.sock = newWebsocket('wsr');
+            this.sock.onopen = () => onOpen();
+            this.sock.onmessage = (e: MessageEvent) => this.onMessage(e);
+        }
 
-        // is local stockfish.wasm engine supports current variant?
+        // is local stockfish.wasm engine supported at all
         this.localEngine = false;
 
         // is local engine analysis enabled? (the switch)
-        this.localAnalysis = false;
+        this.localAnalysis = localStorage.localAnalysis === undefined ? false : localStorage.localAnalysis === "true";
 
         // UCI isready/readyok
         this.isEngineReady = false;
-
-        // loaded Fairy-Stockfish ffish.js wasm module
-        this.maxDepth = maxDepth;
 
         // ply where current interactive analysis variation line starts in the main line
         this.plyVari = 0;
@@ -113,9 +117,15 @@ export class AnalysisController extends GameController {
 
         this.settings = true;
         this.dblClickPass = true;
+
         this.arrow = localStorage.arrow === undefined ? true : localStorage.arrow === "true";
-        this.multipv = localStorage.multipv === undefined ? 1 : Math.max(1, Math.min(5, parseInt(localStorage.multipv)));
+        const infiniteAnalysis = localStorage.infiniteAnalysis === undefined ? false : localStorage.infiniteAnalysis === "true";
+        this.maxDepth = (infiniteAnalysis) ? 99 : maxDepth;
+        this.multipv = localStorage.multipv === undefined ? 1 : parseInt(localStorage.multipv);
         this.evalFile = localStorage[`${this.variant.name}-nnue`] === undefined ? '' : localStorage[`${this.variant.name}-nnue`];
+        this.threads = localStorage.threads === undefined ? 1 : parseInt(localStorage.threads);
+        this.hash = localStorage.hash === undefined ? 16 : parseInt(localStorage.hash);
+
         this.nnueOk = false;
         this.importedBy = '';
 
@@ -148,20 +158,24 @@ export class AnalysisController extends GameController {
         createMovelistButtons(this);
         this.vmovelist = document.getElementById('movelist') as HTMLElement;
 
-        if (!this.isAnalysisBoard && !this.embed) {
+        if (!this.isAnalysisBoard && !this.embed && !this.puzzle) {
             patch(document.getElementById('roundchat') as HTMLElement, chatView(this, "roundchat"));
         }
 
         if (!this.embed) {
-            patch(document.getElementById('input') as HTMLElement, h('input#input', this.renderInput()));
+            const engineSettings = new EngineSettings(this);
+            const et = document.querySelector('.engine-toggle') as HTMLElement;
+            patch(et, engineSettings.view());
 
             this.vscore = document.getElementById('score') as HTMLElement;
             this.vinfo = document.getElementById('info') as HTMLElement;
             this.vpvlines = [...Array(5).fill(null).map((_, i) => document.querySelector(`.pvbox :nth-child(${i + 1})`) as HTMLElement)];
 
-            const pgn = (this.isAnalysisBoard) ? this.getPgn() : this.pgn;
-            this.renderFENAndPGN(pgn);
-
+            if (!this.puzzle) {
+                (document.querySelector('div.feedback') as HTMLElement).style.display = 'none';
+                const pgn = (this.isAnalysisBoard) ? this.getPgn() : this.pgn;
+                this.renderFENAndPGN(pgn);
+            }
             if (this.isAnalysisBoard) {
                 (document.querySelector('[role="tablist"]') as HTMLElement).style.display = 'none';
                 (document.querySelector('[tabindex="0"]') as HTMLElement).style.display = 'flex';
@@ -207,9 +221,32 @@ export class AnalysisController extends GameController {
             // Show the selected panel
             (grandparent!.parentNode!.querySelector(`#${target.getAttribute('aria-controls')}`)! as HTMLElement).style.display = 'flex';
         }
-        (document.querySelector('[tabindex="0"]') as HTMLElement).style.display = 'flex';
+        if (!this.puzzle) {
+            (document.querySelector('[tabindex="0"]') as HTMLElement).style.display = 'flex';
+
+            const menuEl = document.getElementById('bars') as HTMLElement;
+            menuEl.style.display = 'block';
+        }
 
         this.onMsgBoard(model["board"] as MsgBoard);
+        analysisSettings.ctrl = this;
+
+        Mousetrap.bind('p', () => copyTextToClipboard(`${this.fullfen};variant ${this.variant.name};site https://www.pychess.org/${this.gameId}\n`));
+    }
+
+    toggleSettings() {
+        const menuEl = document.getElementById('bars') as HTMLElement;
+        const settingsEl = document.querySelector('div.analysis-settings') as HTMLElement;
+        const toolsEl = document.querySelector('div.analysis-tools') as HTMLElement;
+        if (settingsEl.style.display === 'flex') {
+            toolsEl.style.display = 'flex';
+            settingsEl.style.display = 'none';
+            menuEl.classList.toggle('active', false);
+        } else {
+            toolsEl.style.display = 'none';
+            settingsEl.style.display = 'flex';
+            menuEl.classList.toggle('active', true);
+        }
     }
 
     nnueIni() {
@@ -226,8 +263,10 @@ export class AnalysisController extends GameController {
     }
 
     pvView(i: number, pv: VNode | undefined) {
-        if (this.vpvlines === undefined) this.pvboxIni();
-        this.vpvlines[i] = patch(this.vpvlines[i], h(`div#pv${i + 1}.pv`, pv));
+        if (i >= 0) {
+            if (this.vpvlines === undefined) this.pvboxIni();
+            this.vpvlines[i] = patch(this.vpvlines[i], h(`div#pv${i + 1}.pv`, pv));
+        }
     }
 
     clearPvlines() {
@@ -244,24 +283,6 @@ export class AnalysisController extends GameController {
         super.toggleOrientation()
         boardSettings.updateDropSuggestion();
         //TODO: clocks !!!
-    }
-
-    private renderInput = () => {
-        return {
-            attrs: {
-                disabled: !this.localEngine || !this.isEngineReady,
-            },
-            on: {change: () => {
-                this.localAnalysis = !this.localAnalysis;
-                if (this.localAnalysis) {
-                    this.vinfo = patch(this.vinfo, h('info#info', '-'));
-                    this.pvboxIni();
-                } else {
-                    this.engineStop();
-                    this.pvboxIni();
-                }
-            }}
-        };
     }
 
     private drawAnalysisChart = (withRequest: boolean) => {
@@ -441,7 +462,7 @@ export class AnalysisController extends GameController {
 
         if (!this.localEngine) {
             this.localEngine = true;
-            patch(document.getElementById('input') as HTMLElement, h('input#input', {attrs: {disabled: false}}));
+            patch(document.getElementById('engine-enabled') as HTMLElement, h('input#engine-enabled', {attrs: {disabled: false}}));
             this.fsfEngineBoard = new this.ffish.Board(this.variant.name, this.fullfen, this.chess960);
 
             if (this.evalFile) {
@@ -462,6 +483,8 @@ export class AnalysisController extends GameController {
             }
 
             window.addEventListener('beforeunload', () => this.fsfEngineBoard.delete());
+
+            if (this.localAnalysis && !this.puzzle) this.pvboxIni();
         }
 
         if (!this.localAnalysis || !this.isEngineReady) return;
@@ -509,7 +532,7 @@ export class AnalysisController extends GameController {
     }
 
     makePvMove (pv_line: string) {
-        const move = uci2cg(pv_line.split(" ")[0]);
+        const move = pv_line.split(" ")[0];
         this.doSendMove(move);
     }
 
@@ -555,8 +578,7 @@ export class AnalysisController extends GameController {
 
     // Updates PV, score, gauge and the best move arrow
     drawEval = (ceval: Ceval | undefined, scoreStr: string | undefined, turnColor: cg.Color) => {
-
-        const pvlineIdx = (ceval && ceval.multipv) ? ceval.multipv - 1 : 0;
+        const pvlineIdx = (ceval && ceval.multipv) ? ceval.multipv - 1 : -1;
 
         // Render PV line
         if (ceval?.p !== undefined) {
@@ -574,7 +596,7 @@ export class AnalysisController extends GameController {
                 pvSan = h('pv-san', { on: { click: () => this.makePvMove(ceval.p as string) } } , pvSan)
                 this.pvView(pvlineIdx, h('pvline', [(this.multipv > 1 && this.localAnalysis) ? h('strong', scoreStr) : '', pvSan]));
             }
-        } else {
+        } else if (ceval === undefined) {
             this.pvView(pvlineIdx, h('pvline', (this.localAnalysis) ? h('pvline', '-') : ''));
         }
 
@@ -623,6 +645,7 @@ export class AnalysisController extends GameController {
                     info.push(h('span', ', ' + Math.round(ceval.k) + ' knodes/s'));
                 }
             }
+            this.vinfo = patch(this.vinfo, h('info#info', ''));
             this.vinfo = patch(this.vinfo, h('info#info', info));
         } else {
             this.vscore = patch(this.vscore, h('score#score', ''));
@@ -642,11 +665,13 @@ export class AnalysisController extends GameController {
             patch(evalEl, h('eval#ply' + String(ply), scoreStr));
         }
 
-        analysisChart(this);
-        const hc = this.analysisChart;
-        if (hc !== undefined) {
-            const hcPt = hc.series[0].data[ply];
-            if (hcPt !== undefined) hcPt.select();
+        if (!this.puzzle) {
+            analysisChart(this);
+            const hc = this.analysisChart;
+            if (hc !== undefined) {
+                const hcPt = hc.series[0].data[ply];
+                if (hcPt !== undefined) hcPt.select();
+            }
         }
     }
 
@@ -670,12 +695,12 @@ export class AnalysisController extends GameController {
             this.fsfPostMessage('setoption name EvalFile value ' + this.evalFile);
         }
 
-        //console.log('setoption name Threads value ' + maxThreads);
-        this.fsfPostMessage('setoption name Threads value ' + maxThreads);
+        this.fsfPostMessage('setoption name Hash value ' + this.hash);
+
+        this.fsfPostMessage('setoption name Threads value ' + this.threads);
 
         this.fsfPostMessage('setoption name MultiPV value ' + this.multipv);
 
-        //console.log('position fen ', this.fullfen);
         this.fsfPostMessage('position fen ' + this.fullfen);
 
         if (this.maxDepth >= 99) {
@@ -686,8 +711,13 @@ export class AnalysisController extends GameController {
     }
 
     fsfPostMessage(msg: string) {
-        if (this.fsfDebug) console.debug('<---', msg);
-        window.fsf.postMessage(msg);
+        if (window.fsf === undefined) {
+            // At very first time we may have to wait for fsf module to initialize
+            setTimeout(this.fsfPostMessage.bind(this), 100, msg);
+        } else {
+            if (this.fsfDebug) console.debug('<---', msg);
+            window.fsf.postMessage(msg);
+        }
     }
     
     // When we are moving inside a variation move list
@@ -739,18 +769,19 @@ export class AnalysisController extends GameController {
         this.drawEval(step.ceval, step.scoreStr, step.turnColor);
         if (plyVari === 0) this.drawServerEval(ply, step.scoreStr);
 
-        this.maxDepth = maxDepth;
         if (this.localAnalysis) this.engineGo();
 
-        const e = document.getElementById('fullfen') as HTMLInputElement;
-        e.value = this.fullfen;
-
-        if (this.isAnalysisBoard) {
-            const idxInVari = (plyVari > 0) ? ply - plyVari : 0;
-            this.vpgn = patch(this.vpgn, h('div#pgntext', this.getPgn(idxInVari)));
-        } else {
-            const hist = this.home + '/' + this.gameId + '?ply=' + ply.toString();
-            window.history.replaceState({}, '', hist);
+        if (!this.puzzle) {
+            const e = document.getElementById('fullfen') as HTMLInputElement;
+            e.value = this.fullfen;
+        
+            if (this.isAnalysisBoard) {
+                const idxInVari = (plyVari > 0) ? ply - plyVari : 0;
+                this.vpgn = patch(this.vpgn, h('div#pgntext', this.getPgn(idxInVari)));
+            } else {
+                const hist = this.home + '/' + this.gameId + '?ply=' + ply.toString();
+                window.history.replaceState({}, '', hist);
+            }
         }
     }
 
@@ -808,7 +839,7 @@ export class AnalysisController extends GameController {
     doSendMove(move: string) {
         const san = this.ffishBoard.sanMove(move, this.notationAsObject);
         const sanSAN = this.ffishBoard.sanMove(move);
-        const vv = this.steps[this.plyVari]['vari'];
+        const vv = this.steps[this.plyVari]?.vari;
 
         // Instead of sending moves to the server we can get new FEN and dests from ffishjs
         this.ffishBoard.push(move);
@@ -880,12 +911,14 @@ export class AnalysisController extends GameController {
             }
         }
 
-        const e = document.getElementById('fullfen') as HTMLInputElement;
-        e.value = this.fullfen;
+        if (!this.puzzle) {
+            const e = document.getElementById('fullfen') as HTMLInputElement;
+            e.value = this.fullfen;
 
-        if (this.isAnalysisBoard) {
-            const idxInVari = (this.plyVari > 0) && vv ? vv.length - 1 : 0;
-            this.vpgn = patch(this.vpgn, h('div#pgntext', this.getPgn(idxInVari)));
+            if (this.isAnalysisBoard) {
+                const idxInVari = (this.plyVari > 0) && vv ? vv.length - 1 : 0;
+                this.vpgn = patch(this.vpgn, h('div#pgntext', this.getPgn(idxInVari)));
+            }
         }
         // TODO: But sending moves to the server will be useful to implement shared live analysis!
         // this.doSend({ type: "analysis_move", gameId: this.gameId, move: move, fen: this.fullfen, ply: this.ply + 1 });

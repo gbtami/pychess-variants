@@ -313,6 +313,9 @@ export class RoundController extends GameController {
         this.onMsgBoard(model["board"] as MsgBoard);
     }
 
+    toggleSettings() {
+    }
+
     toggleOrientation() {
         // TODO: handle berserk
         if (this.tournamentGame && this.ply < 2 && !this.spectator) return;
@@ -373,7 +376,7 @@ export class RoundController extends GameController {
         patch(container, h(`div#berserk${clockIdx}.berserked`, [h('button.icon.icon-berserk')]));
     }
 
-    private undo = () => {
+    undo = () => {
         // console.log("Undo");
         this.goPly(this.ply);
     }
@@ -418,7 +421,8 @@ export class RoundController extends GameController {
 
     private resign = () => {
         // console.log("Resign");
-        if (confirm(_('Are you sure you want to resign?'))) {
+        const doResign = ( localStorage.getItem("confirmresign") === "false" ) || confirm(_('Are you sure you want to resign?')) 
+        if (doResign) {    
             this.doSend({ type: "resign", gameId: this.gameId });
         }
     }

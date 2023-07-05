@@ -16,6 +16,7 @@ from user import User
 from utils import join_seek, load_game, online_count, MyWebSocketResponse, remove_seek
 from misc import server_state
 from tournament_spotlights import tournament_spotlights
+from login import logout
 
 log = logging.getLogger(__name__)
 
@@ -49,6 +50,7 @@ async def lobby_socket_handler(request):
         return web.HTTPFound("/")
 
     sockets = request.app["lobbysockets"]
+    games = request.app["games"]
     seeks = request.app["seeks"]
     db = request.app["db"]
     invites = request.app["invites"]
@@ -128,9 +130,10 @@ async def lobby_socket_handler(request):
                         print("create_seek", data)
                         seek = await create_seek(db, invites, seeks, user, data, ws)
                         await lobby_broadcast(sockets, get_seeks(seeks))
-                        await request.app["discord"].send_to_discord(
-                            "create_seek", seek.discord_msg
-                        )
+                        if seek.target == "":
+                            await request.app["discord"].send_to_discord(
+                                "create_seek", seek.discord_msg
+                            )
 
                     elif data["type"] == "create_invite":
                         no = await is_playing(request, user, ws)
@@ -271,6 +274,9 @@ async def lobby_socket_handler(request):
                         if len(streams) > 0:
                             await ws.send_json({"type": "streams", "items": streams})
 
+                        if request.app["tv"] is not None:
+                            await ws.send_json(games[request.app["tv"]].tv_game_json)
+
                     elif data["type"] == "lobbychat":
                         if user.username.startswith("Anon-"):
                             continue
@@ -299,6 +305,22 @@ async def lobby_socket_handler(request):
                                     elif parts[1] == "remove":
                                         youtube.remove(parts[2])
                                     await broadcast_streams(request.app)
+
+                            elif message.startswith("/delete"):
+                                admin_command = True
+                                parts = message.split()
+                                if len(parts) == 2 and len(parts[1]) == 5:
+                                    await db.puzzle.delete_one({"_id": parts[1]})
+
+                            elif message.startswith("/ban"):
+                                admin_command = True
+                                parts = message.split()
+                                if len(parts) == 2 and parts[1] in users and parts[1] not in ADMINS:
+                                    users[parts[1]].enabled = False
+                                    await db.user.find_one_and_update(
+                                        {"_id": parts[1]}, {"$set": {"enabled": False}}
+                                    )
+                                    await logout(None, users[parts[1]])
 
                             elif message == "/state":
                                 admin_command = True

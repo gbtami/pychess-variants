@@ -119,7 +119,6 @@ div.ctable-container {
     overflow-y: auto;
     overflow-x: hide;
     justify-content: initial;
-    border-bottom: 1px solid var(--border-color);
 }
 #movelist {
     display: flex;
@@ -134,12 +133,26 @@ div.ctable-container {
         max-height: var(--movelist-max-height);
     }
 }
-.analysis-tools {
-    grid-area: tools;
-    display: flex;
-    flex-flow: column;
+.analysis-tools, .analysis-settings {
+  grid-area: tools;
+  display: flex;
+  flex-flow: column;
+  box-shadow: var(--base-shadow);
+}
+div.analysis-settings {
+  display: none;
+  padding: 2vmin;
+  background: var(--bg-color0);
+  border-bottom: 3px solid var(--green-switch);
 }
 
+button#bars {
+  display: none;
+}
+button#bars.active {
+  background: var(--green-switch) !important;
+  color: var(--bg-color0);
+}
 /* Engine info */
 .nnue {
     color: var(--good);
@@ -152,10 +165,11 @@ div#ceval {
 }
 .engine {
     display: flex;
+    align-items: stretch;
     padding: 6px;
 }
 div.info {
-    flex: 1 0 auto;
+    flex: 1 1 auto;
     align-self: center;
     line-height: 18px;
 }
@@ -206,6 +220,7 @@ score {
 
 /* Local Fairy toggle */
 label.switch {
+flex: 0 0 40px;
 position: relative;
 display: inline-block;
 width: 42px;
@@ -217,7 +232,9 @@ height: 24px;
   width: 0;
   height: 0;
 }
-
+.switch input:disabled + span {
+  cursor: not-allowed;
+}
 .sw-slider {
 position: absolute;
 cursor: pointer;
@@ -378,4 +395,253 @@ div#pgntext {
     user-select: all;
     -moz-user-select: all
     -webkit-user-select: all;
+}
+
+/* PUZZLE */
+.puzzle-info, .puzzle-user {
+  background: var(--bg-color0);
+  box-shadow: var(--base-shadow);
+  margin-bottom: 16px;
+  padding: 12px;
+  font-size: 14px;
+  border-radius: 3px;
+}
+div.config-toggle {
+  display: flex;
+  align-items: center;
+}
+.puzzle-user .rating {
+  font-size: 3.5em;
+}
+.puzzle-user strong {
+  justify-content: center;
+  display: flex;
+  flex-flow: row wrap;
+  align-items: center;
+}
+.puzzle-user .rating.casual {
+  font-size: .9em;
+  margin-top: 1em;
+}
+.rp {
+  font-size: 1.6rem;
+  margin-left: 1ch;
+}
+.rp span::before {
+  margin-right: .2em;
+  opacity: 0.9;
+}
+.feedback {
+    display: flex;
+    flex-flow: column;
+    flex: 1 0 9rem;
+    background: var(--bg-meta);
+    justify-content: center;
+}
+.feedback:not(.after) {
+    padding: 2em;
+}
+.feedback .player {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.feedback .no-square {
+    flex: 0 0 64px;
+    height: 64px;
+    margin-right: 10px;
+    background-size: cover;
+}
+.feedback .player .icon {
+    width: 64px;
+    height: 64px;
+    font-size: 50px;
+    line-height: 64px;
+    text-align: center;
+}
+.feedback.fail .icon, san span.fail {
+    color: var(--bad);
+}
+.feedback.good .icon {
+    color: var(--good);
+}
+.instruction san {
+    font-size: 1.5em;
+}
+piece.standard.w, piece.capa.w, piece.seirawn.w, piece.hoppel.w, piece.shako.w, piece.asean.w, piece.shogun.w, piece.synochess.w, piece.orda.w, piece.empire.w, piece.spartan.w {
+    background-image: url('images/pieces/merida/wK.svg');
+}
+piece.standard.b, piece.capa.b, piece.seirawn.b, piece.hoppel.b, piece.shako.b, piece.asean.b, piece.shogun.b, piece.shinobi.b, piece.empire.b {
+    background-image: url('images/pieces/merida/bK.svg');
+}
+piece.makruk.w {
+    background-image: url('images/pieces/makruk/ada/wK.svg');
+}
+piece.makruk.b {
+    background-image: url('images/pieces/makruk/ada/bK.svg');
+}
+piece.sittuyin.w {
+    background-image: url('images/pieces/sittuyin/original/wK.svg');
+}
+piece.sittuyin.b {
+    background-image: url('images/pieces/sittuyin/original/bK.svg');
+}
+piece.shogi, piece.kyoto {
+    background-image: url('images/pieces/shogi/ctk/0GY.svg');
+}
+piece.dobutsu {
+    background-image: url('images/pieces/shogi/Ka/0GY.svg');
+}
+piece.tori.w {
+    background-image: url('images/pieces/tori/intl/0PhoenixWhite.svg');
+}
+piece.tori.b {
+    background-image: url('images/pieces/tori/intl/0PhoenixBlack.svg');
+}
+piece.xiangqi.w {
+    background-image: url('images/pieces/xiangqi/2dhanzi/RK.svg');
+}
+piece.xiangqi.b {
+    background-image: url('images/pieces/xiangqi/2dhanzi/BK.svg');
+}
+piece.janggi.w {
+    background-image: url('images/pieces/janggi/hanjablue/blue_king.svg');
+}
+piece.janggi.b {
+    background-image: url('images/pieces/janggi/hanjablue/red_king.svg');
+}
+piece.shinobi.w {
+    background-image: url('images/pieces/shinobi/merida/wK.svg');
+}
+piece.orda.b, piece.ordamirror.b {
+    background-image: url('images/pieces/orda/merida/bK.svg');
+}
+piece.ordamirror.w {
+    background-image: url('images/pieces/orda/merida/wK.svg');
+}
+piece.chak.w {
+    background-image: url('images/pieces/chak/WK.svg');
+}
+piece.chak.b {
+    background-image: url('images/pieces/chak/GK.svg');
+}
+piece.chennis.w {
+    background-image: url('images/pieces/chennis/wMN.svg');
+}
+piece.chennis.b {
+    background-image: url('images/pieces/chennis/bMN.svg');
+}
+piece.synochess.b {
+    background-image: url('images/pieces/synochess/intl-red/bK.svg');
+}
+piece.spartan.b {
+    background-image: url('images/pieces/spartan/bK.svg');
+}
+
+.feedback .instruction strong {
+    font-size: 1.5em;
+}
+.feedback .instruction > * {
+    display: block;
+}
+.feedback .view-solution, .feedback .view-hint {
+    margin-top: 1.5em;
+    text-align: center;
+    visibility: hidden;
+    opacity: 0;
+}
+.feedback .view-solution.show, .feedback .view-hint.show {
+    visibility: visible;
+    opacity: 0.8;
+    transition: opacity 1.5s;
+}
+.feedback.after {
+    flex-flow: column;
+    max-height: 50%;
+}
+.feedback .complete {
+    display: flex;
+    justify-content: center;
+    font-size: 1.3em;
+    white-space: nowrap;
+    flex: 1 1 50%;
+}
+div.more {
+    border-top: 1px solid var(--border-color);
+    padding: 1em 2em;
+    flex-flow: row wrap;
+    text-align: center;
+    justify-content: space-between;
+}
+.button.button-empty, .button.button-empty:hover {
+    color: var(--link-hover);
+}
+.button.button-empty {
+    text-transform: uppercase;
+    transition: none;
+    background: none;
+    box-shadow: none;
+    padding: 0.8em 1em;
+}
+.button.button-empty:not(.disabled):hover {
+    box-shadow:0 2px 5px 0 rgba(0,0,0,0.225);
+}
+#btn-controls-top button {
+  background: inherit;
+}
+
+.puzzle-meta .info2 span {
+  padding-right: 1ch;
+}
+.puzzle_vote {
+  display: flex;
+  flex-flow: column;
+  flex: 1 1 70%;
+}
+.puzzle_vote_help {
+  display: block;
+  margin: 0 1em;
+}
+.puzzle_vote_help p {
+  display: inline;
+}
+.puzzle_vote_buttons {
+  display: flex;
+  flex-flow: row nowrap;
+  opacity: .1;
+  flex: 1 1 100%;
+  align-items: stretch;
+  text-align: center;
+}
+.puzzle_vote_buttons.enabled {
+  opacity: 1;
+  transition: opacity .5s;
+}
+.puzzle_vote .vote {
+  display: flex;
+  flex-flow: row wrap;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 50%;
+  cursor: pointer;
+  color: #629924;
+}
+.feedback .icon.icon-thumbs-o-up {
+  font-size: 4.5em;
+}
+.puzzle_vote .vote.vote-down {
+  color: #c33;
+}
+.puzzle_vote .vote.vote-down::before {
+  opacity: inherit;
+  transform:rotate(0.5turn);
+}
+.puzzle_vote .vote:hover,
+.puzzle_vote .vote.active {
+  background:#629924;
+  color:#fff
+}
+.puzzle_vote .vote.vote-down:hover,
+.puzzle_vote .vote.vote-down.active {
+  background:#c33
 }

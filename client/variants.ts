@@ -568,7 +568,7 @@ export const VARIANTS: Record<string, Variant> = {
         alternateStart: {
             '': '',
             'Bird': 'rnbcqkabnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBCQKABNR w KQkq - 0 1',
-            'Carrera': 'rcnbqkbnar/pppppppppp/10/10/10/10/PPPPPPPPPP/RCNBQKBNAR w KQkq - 0 1',
+            'Carrera': 'ranbqkbncr/pppppppppp/10/10/10/10/PPPPPPPPPP/RANBQKBNCR w KQkq - 0 1',
             'Conservative': 'arnbqkbnrc/pppppppppp/10/10/10/10/PPPPPPPPPP/ARNBQKBNRC w KQkq - 0 1',
             'Embassy': 'rnbqkcabnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBQKCABNR w KQkq - 0 1',
             'Gothic': 'rnbqckabnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBQCKABNR w KQkq - 0 1',
@@ -587,7 +587,7 @@ export const VARIANTS: Record<string, Variant> = {
         alternateStart: {
             '': '',
             'Bird': 'rnbcqkabnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBCQKABNR[] w KQkq - 0 1',
-            'Carrera': 'rcnbqkbnar/pppppppppp/10/10/10/10/PPPPPPPPPP/RCNBQKBNAR[] w KQkq - 0 1',
+            'Carrera': 'ranbqkbncr/pppppppppp/10/10/10/10/PPPPPPPPPP/RANBQKBNCR[] w KQkq - 0 1',
             'Conservative': 'arnbqkbnrc/pppppppppp/10/10/10/10/PPPPPPPPPP/ARNBQKBNRC[] w KQkq - 0 1',
             'Embassy': 'rnbqkcabnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBQKCABNR[] w KQkq - 0 1',
             'Gothic': 'rnbqckabnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBQCKABNR[] w KQkq - 0 1',
@@ -695,6 +695,28 @@ export const VARIANTS: Record<string, Variant> = {
         colors: { first: "Pink", second: "Black" },
         pieceRow: { white: ["k", "d", "j", "c", "l", "h", "m", "p"], black: ["k", "q", "r", "b", "n", "p"] },
         pocket: { roles: { white: ["l", "h", "m", "d", "j"], black: [] }, captureToHand: false },
+        promotion: { type: "shogi", roles: ["p", "l", "h", "m"] },
+        rules: { enPassant: true },
+        ui: { boardMark: 'campmate' },
+        material: {
+            equivalences: {
+                'pl-piece': 'r-piece',
+                'ph-piece': 'n-piece',
+                'pm-piece': 'b-piece',
+                'pp-piece': 'c-piece',
+            },
+        },
+
+    }),
+
+    shinobiplus: variant({
+        name: "shinobiplus", displayName: "shinobi+", tooltip: "Asymmetric variant which pits the western Chess army against a drop-based, Shogi-styled army.",
+        startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/4K3[JDSCLHM] w kq - 0 1",
+        icon: "🐢",
+        boardFamily: "standard8x8", pieceFamily: "shinobi",
+        colors: { first: "Pink", second: "Black" },
+        pieceRow: { white: ["k", "s", "d", "j", "l", "h", "m", "p"], black: ["k", "q", "r", "b", "n", "p"] },
+        pocket: { roles: { white: ["l", "h", "m", "d", "j", "s", "c"], black: [] }, captureToHand: false },
         promotion: { type: "shogi", roles: ["p", "l", "h", "m"] },
         rules: { enPassant: true },
         ui: { boardMark: 'campmate' },
@@ -835,6 +857,22 @@ export const variants = Object.keys(VARIANTS);
 const disabledVariants = [ "gothic", "gothhouse", "embassy", "embassyhouse", "gorogoro" ];
 export const enabledVariants = variants.filter(v => !disabledVariants.includes(v));
 
+// variants having 0 puzzle so far
+export const noPuzzleVariants = [
+    "placement",
+    "sittuyin",
+    "minishogi",
+    "kyotoshogi",
+    "gorogoroplus",
+    "torishogi",
+    "manchu",
+    "minixiangqi",
+    "grandhouse",
+    "shouse",
+    "shinobi",
+    "shinobiplus",
+]
+
 export const variantGroups: { [ key: string ]: { variants: string[] } } = {
     standard: { variants: [ "chess", "crazyhouse", "placement", "atomic", "duck" ] },
     sea:      { variants: [ "makruk", "makpong", "cambodian", "sittuyin", "asean" ] },
@@ -856,7 +894,7 @@ function variantGroupLabel(group: string): string {
     return groups[group];
 }
 
-export function selectVariant(id: string, selected: string, onChange: EventListener, hookInsert: InsertHook): VNode {
+export function selectVariant(id: string, selected: string, onChange: EventListener, hookInsert: InsertHook, disableds: string[] = []): VNode {
     return h('select#' + id, {
         props: { name: id },
         on: { change: onChange },
@@ -868,7 +906,7 @@ export function selectVariant(id: string, selected: string, onChange: EventListe
                 const variant = VARIANTS[v];
                 return h('option', {
                     props: { value: v, title: variant.tooltip },
-                    attrs: { selected: v === selected },
+                    attrs: { selected: v === selected, disabled: disableds.includes(variant.name) },
                 }, variant.displayName(false));
             }));
         }),
