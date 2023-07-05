@@ -86,7 +86,7 @@ class BoardSettings {
 
     updatePieceStyle(family: keyof typeof PIECE_FAMILIES) {
         const idx = this.getSettings("PieceStyle", family as string).value as number;
-        let css = PIECE_FAMILIES[family].pieceCSS[idx];
+        let css = PIECE_FAMILIES[family].pieceCSS[idx] ?? 'letters';
         changePieceCSS(this.assetURL, family as string, css);
         this.updateDropSuggestion();
     }
@@ -259,6 +259,14 @@ class PieceStyleSettings extends NumberSettings {
             }));
             pieces.push(h('label.piece.piece' + i + '.' + this.pieceFamily, { attrs: { for: "piece" + i } }, ""));
         }
+        // Finally add letter piece
+        const i=99;
+        pieces.push(h('input#piece' + i, {
+            on: { change: e => this.value = Number((e.target as HTMLInputElement).value) },
+            props: { type: "radio", name: "piece", value: i },
+            attrs: { checked: vpiece === i },
+        }));
+        pieces.push(h('label.piece.piece99', { attrs: { for: "piece" + i } }, ""));
         return h('settings-pieces', pieces);
     }
 }

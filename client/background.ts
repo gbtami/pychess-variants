@@ -14,15 +14,25 @@ function backgrounds() {
 class BackgroundSettings extends StringSettings {
 
     constructor() {
-        super('theme', 'light');
+        super('theme', 'dark');
     }
 
     update(): void {
-        document.documentElement.setAttribute('data-theme', this.value);
     }
 
     view(): VNode {
-        return h('div#settings-background', radioList(this, 'background', backgrounds(), (_, key) => this.value = key));
+        const themeList = radioList(
+            this,
+            'theme',
+            backgrounds(),
+            (evt, key) => {
+                this.value = key;
+                (evt.target as HTMLInputElement).form!.submit();
+            }
+        )
+        return h('div#settings-background', [
+            h('form.radio-list', { props: { method: "post", action: "/pref/theme" } }, themeList),
+        ]);
     }
 
 }

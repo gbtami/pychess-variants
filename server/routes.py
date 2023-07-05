@@ -41,6 +41,7 @@ from wst import tournament_socket_handler
 from tournament_calendar import tournament_calendar
 from twitch import twitch_request_handler
 from puzzle import puzzle_complete, puzzle_vote
+from user import set_theme
 
 
 get_routes = (
@@ -142,6 +143,7 @@ post_routes = (
     ("/api/challenge/{challengeId}/decline", challenge_decline),
     ("/api/seek", create_bot_seek),
     ("/api/pong", bot_pong),
+    ("/pref/theme", set_theme),
     ("/fishnet/acquire", fishnet_acquire),
     ("/fishnet/analysis/{workId}", fishnet_analysis),
     ("/fishnet/move/{workId}", fishnet_move),

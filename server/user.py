@@ -2,6 +2,9 @@ import asyncio
 import logging
 from datetime import datetime, timezone
 
+from aiohttp import web
+import aiohttp_session
+
 from const import VARIANTS
 from broadcast import lobby_broadcast
 from glicko2.glicko2 import gl2, DEFAULT_PERF, Rating
@@ -26,13 +29,15 @@ class User:
         perfs=None,
         pperfs=None,
         enabled=True,
-        lang="en",
+        lang=None,
+        theme="dark",
     ):
         self.app = app
         self.db = app["db"] if "db" in app else None
         self.bot = False if username == "PyChessBot" else bot
         self.anon = anon
         self.lang = lang
+        self.theme = theme
         if username is None:
             self.anon = True
             self.username = "Anon-" + id8()
@@ -189,3 +194,25 @@ class User:
 
     def __str__(self):
         return "%s %s bot=%s" % (self.title, self.username, self.bot)
+
+
+async def set_theme(request):
+    post_data = await request.post()
+    theme = post_data.get("theme")
+
+    if theme is not None:
+        referer = request.headers.get("REFERER")
+        session = await aiohttp_session.get_session(request)
+        session_user = session.get("user_name")
+        users = request.app["users"]
+        if session_user in users:
+            user = users[session_user]
+            user.theme = theme
+            if user.db is not None:
+                await user.db.user.find_one_and_update(
+                    {"_id": user.username}, {"$set": {"theme": theme}}
+                )
+        session["theme"] = theme
+        return web.HTTPFound(referer)
+    else:
+        raise web.HTTPNotFound()

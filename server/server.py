@@ -299,6 +299,7 @@ async def init_state(app):
                     pperfs=pperfs,
                     enabled=doc.get("enabled", True),
                     lang=doc.get("lang", "en"),
+                    theme=doc.get("theme", "dark"),
                 )
 
         await app["db"].tournament.create_index("startsAt")
