@@ -139,7 +139,7 @@ async def index(request):
         users[user.username] = user
         session["user_name"] = user.username
 
-    lang = session.get("lang")
+    lang = session.get("lang") if user.lang is None else user.lang
     if lang is None:
         lang = detect_locale(request)
 
@@ -538,7 +538,7 @@ async def index(request):
             else:
                 puzzle = await get_puzzle(request, puzzleId)
                 if puzzle is None:
-                    return web.HTTPFound("/")
+                    raise web.HTTPNotFound()
 
         color = puzzle["fen"].split()[1]
         chess960 = False
