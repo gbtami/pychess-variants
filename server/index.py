@@ -139,7 +139,7 @@ async def index(request):
         users[user.username] = user
         session["user_name"] = user.username
 
-    lang = session.get("lang")
+    lang = session.get("lang") if user.lang is None else user.lang
     if lang is None:
         lang = detect_locale(request)
 
@@ -382,6 +382,7 @@ async def index(request):
         "app_name": "PyChess",
         "languages": LANGUAGES,
         "lang": lang,
+        "theme": user.theme,
         "title": page_title,
         "view": view,
         "asseturl": STATIC_ROOT,
@@ -509,6 +510,8 @@ async def index(request):
                 puzzle = await next_puzzle(request, user)
             else:
                 puzzle = await get_puzzle(request, puzzleId)
+                if puzzle is None:
+                    raise web.HTTPNotFound()
 
         color = puzzle["fen"].split()[1]
         chess960 = False

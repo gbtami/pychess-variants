@@ -17,7 +17,6 @@ import { pasteView } from './paste';
 import { statsView } from './stats';
 import { volumeSettings, soundThemeSettings } from './sound';
 import { patch, getCookie } from './document';
-import { backgroundSettings } from './background';
 import { renderTimeago } from './datetime';
 import { zenButtonView, zenModeSettings } from './zen';
 import { PyChessModel } from './types';
@@ -184,7 +183,6 @@ function start() {
 
 window.addEventListener('resize', () => document.body.dispatchEvent(new Event('chessground.resize')));
 
-backgroundSettings.update();
 zenModeSettings.update();
 
 const el = document.getElementById('pychess-variants');
