@@ -73,3 +73,10 @@ div.patron {
     filter: brightness(1.15);
     color: white;
 }
+.flex-main-box3 {
+    display: flex;
+    flex-wrap: nowrap;
+}
+.flex-main-box3 > div {
+    flex-basis: 33%;
+}
