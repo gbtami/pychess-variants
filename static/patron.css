@@ -1,21 +1,17 @@
 div.patron {
     margin-left: 10%;
-    position: absolute;
     width: 80%;
-    height: 110%;
     padding: 0px;
 }
 @media (max-width: 700px) {
     div.patron{
         margin-left: 2%;
         width: 96%;
-        height: 130%;
     }
 }
 #patr-board {
     width: 100%;
     display: flex;
-    height: 200px;
     padding: 10px;
 }
 #patr-board > div {
@@ -76,7 +72,22 @@ div.patron {
 .flex-main-box3 {
     display: flex;
     flex-wrap: nowrap;
+    margin: 30px;
 }
 .flex-main-box3 > div {
     flex-basis: 33%;
+}
+.flex-main-box3 div h3 {
+    padding: 0 2em 1em 0;
+}
+.flex-main-box3 div p {
+    padding: 1em 2em 2em 0;
+}
+@media (max-width: 799px) and (orientation: portrait) {
+  .flex-main-box3  { 
+    flex-flow: column;
+  }
+  .flex-main-box3 div h3 {
+    padding: 0 2em 0 0;
+  }
 }
