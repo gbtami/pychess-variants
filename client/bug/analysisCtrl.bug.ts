@@ -17,7 +17,7 @@ import { patch } from '../document';
 import { Chart } from "highcharts";
 import { PyChessModel } from "../types";
 import {Ceval, MsgBoard, Step} from "../messages";
-import {BugHouseGameController} from "./gameCtrl.bug";
+import {GameControllerBughouse} from "./gameCtrl.bug";
 import {sound} from "../sound";
 import {renderClocks} from "./analysisClock.bug";
 import {variantsIni} from "../variantsIni";
@@ -52,12 +52,12 @@ interface MsgAnalysisBoard {
     check: boolean;
 }
 
-export default class AnalysisControllerBug {
+export default class AnalysisControllerBughouse {
     model;
     sock;
 
-    b1: BugHouseGameController;
-    b2: BugHouseGameController;
+    b1: GameControllerBughouse;
+    b2: GameControllerBughouse;
 
     fullBFEN: string;//todo:niki - i dont know if needed
     wplayer: string;
@@ -158,8 +158,8 @@ export default class AnalysisControllerBug {
         this.embed = this.gameId === undefined;
         this.username = model["username"];
 
-        this.b1 = new BugHouseGameController(el1, el1Pocket1, el1Pocket2, 'a', model); //todo:niki:fen maybe should be parsed from bfen. what situation do we start from custom fen?
-        this.b2 = new BugHouseGameController(el2, el2Pocket1, el2Pocket2, 'b', model);
+        this.b1 = new GameControllerBughouse(el1, el1Pocket1, el1Pocket2, 'a', model); //todo:niki:fen maybe should be parsed from bfen. what situation do we start from custom fen?
+        this.b2 = new GameControllerBughouse(el2, el2Pocket1, el2Pocket2, 'b', model);
         this.b2.chessground.set({orientation:"black"});
         this.b1.partnerCC = this.b2;
         this.b2.partnerCC = this.b1;
@@ -441,7 +441,7 @@ export default class AnalysisControllerBug {
     //     }
     // }
 
-    private renderInput = (cc: BugHouseGameController) => {
+    private renderInput = (cc: GameControllerBughouse) => {
         return {
             attrs: {
                 disabled: !this.localEngine,
@@ -737,7 +737,7 @@ export default class AnalysisControllerBug {
         this.fsfPostMessage('isready');
     }
 
-    engineGo = (cc: BugHouseGameController) => {
+    engineGo = (cc: GameControllerBughouse) => {
         if (false/*this.chess960*/) {
             this.fsfPostMessage('setoption name UCI_Chess960 value true');
         }
@@ -772,13 +772,13 @@ export default class AnalysisControllerBug {
         this.engineGo(this.b1);//todo:niki:i guess we really need 2 engines. does this reset analysis from start? or re-uses what is so far evalueated and digs deeper from current depth?
     }
 
-    makePvMove (pv_line: string, cc: BugHouseGameController) {
+    makePvMove (pv_line: string, cc: GameControllerBughouse) {
         const move = uci2cg(pv_line.split(" ")[0]);
         this.sendMove(cc, move.slice(0, 2) as cg.Orig, move.slice(2, 4) as cg.Key, move.slice(4, 5));
     }
 
     // Updates PV, score, gauge and the best move arrow
-    drawEval = (ceval: Ceval | undefined, scoreStr: string | undefined, turnColor: cg.Color, boardInAnalysis: BugHouseGameController) => {
+    drawEval = (ceval: Ceval | undefined, scoreStr: string | undefined, turnColor: cg.Color, boardInAnalysis: GameControllerBughouse) => {
 
         const pvlineIdx = (ceval && ceval.multipv) ? ceval.multipv - 1 : 0;
 
@@ -1064,7 +1064,7 @@ export default class AnalysisControllerBug {
         this.sock.send(JSON.stringify(message));
     }
 
-    sendMove = (b: BugHouseGameController, orig: cg.Orig, dest: cg.Key, promo: string) => {
+    sendMove = (b: GameControllerBughouse, orig: cg.Orig, dest: cg.Key, promo: string) => {
         const move = cg2uci(orig + dest + promo);
         const san = b.ffishBoard.sanMove(move, b.notationAsObject);
         const sanSAN = b.ffishBoard.sanMove(move);// todo niki what is this?
@@ -1169,7 +1169,7 @@ export default class AnalysisControllerBug {
         // this.doSend({ type: "analysis_move", gameId: this.gameId, move: move, fen: this.fullfen, ply: this.ply + 1 });
     }
 
-    private onMsgAnalysisBoard = (b: BugHouseGameController, msg: MsgAnalysisBoard) => {
+    private onMsgAnalysisBoard = (b: GameControllerBughouse, msg: MsgAnalysisBoard) => {
         // console.log("got analysis_board msg:", msg);
         if (msg.gameId !== this.gameId) return;
         if (b.localAnalysis) this.engineStop();
@@ -1253,7 +1253,7 @@ export default class AnalysisControllerBug {
         return scoreStr;
     }
 
-    private onMsgAnalysis = (msg: MsgAnalysis, boardInAnalysis: BugHouseGameController) => {
+    private onMsgAnalysis = (msg: MsgAnalysis, boardInAnalysis: GameControllerBughouse) => {
         // console.log(msg);
         if (msg['ceval']['s'] === undefined) return;
 

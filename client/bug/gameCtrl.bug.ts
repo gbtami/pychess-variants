@@ -5,18 +5,18 @@ import * as cg from "chessgroundx/types";
 import {Chessground} from "chessgroundx";
 import {VARIANTS, BOARD_FAMILIES, Variant} from "../variants"
 import * as util from "chessgroundx/util";
-import AnalysisControllerBug from "./analysisCtrl.bug";
+import AnalysisControllerBughouse from "./analysisCtrl.bug";
 import {Step} from "../messages";
 import {GameController} from "../gameCtrl";
 import {PyChessModel} from "../types";
-import {RoundController} from "./roundCtrl.bug";
+import {RoundControllerBughouse} from "./roundCtrl.bug";
 import {premove} from "chessgroundx/premove";
 import {predrop} from "chessgroundx/predrop";
 import {boardSettings} from "@/boardSettings";
 
-export class BugHouseGameController extends GameController {
+export class GameControllerBughouse extends GameController {
 
-    partnerCC: BugHouseGameController;
+    partnerCC: GameControllerBughouse;
 
     gating: GatingInput;
     promotion: PromotionInput;
@@ -29,7 +29,7 @@ export class BugHouseGameController extends GameController {
 
     variant: Variant;
 
-    parent: AnalysisControllerBug | RoundController;
+    parent: AnalysisControllerBughouse | RoundControllerBughouse;
 
     fullfen: cg.FEN;
 
@@ -276,6 +276,10 @@ export class BugHouseGameController extends GameController {
 
 
         return chessground;
+    }
+
+    toggleSettings(): void {
+        console.log("toggleSettings not implemented"); //todo:niki
     }
 
 }

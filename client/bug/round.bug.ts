@@ -4,10 +4,10 @@ import { VARIANTS } from "../variants"
 import { gameInfoBug } from './gameInfo.bug';
 import { renderTimeago } from '../datetime';
 import { PyChessModel } from "../types";
-import {RoundController} from "./roundCtrl.bug";
+import {RoundControllerBughouse} from "./roundCtrl.bug";
 
 function createBoards(mainboardVNode: VNode, bugboardVNode: VNode, mainboardPocket0: VNode, mainboardPocket1: VNode, bugboardPocket0: VNode, bugboardPocket1: VNode, model: PyChessModel) {
-    /*this.ctrl = *//*const ctrl = */new RoundController(mainboardVNode.elm as HTMLElement,
+    /*this.ctrl = *//*const ctrl = */new RoundControllerBughouse(mainboardVNode.elm as HTMLElement,
         mainboardPocket0.elm as HTMLElement,
         mainboardPocket1.elm as HTMLElement,
         bugboardVNode.elm as HTMLElement,

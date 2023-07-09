@@ -29,7 +29,7 @@ import {
     MsgGameStart, MsgViewRematch
 } from '../roundType';
 import {JSONObject, PyChessModel} from "../types";
-import {BugHouseGameController} from "./gameCtrl.bug";
+import {GameControllerBughouse} from "./gameCtrl.bug";
 import {cg2uci, uci2LastMove} from "../chess";
 import {sound} from "../sound";
 import {renderRdiff} from "../result";
@@ -39,11 +39,11 @@ import WebsocketHeartbeatJs from "websocket-heartbeat-js";
 import {notify} from "../notification";
 import {FEN} from "chessgroundx/types";
 
-export class RoundController implements ChatController/*extends GameController todo:does it make sense for these guys - also AnalysisControl which is older before this refactring that introduced this stuff*/ {
+export class RoundControllerBughouse implements ChatController/*extends GameController todo:does it make sense for these guys - also AnalysisControl which is older before this refactring that introduced this stuff*/ {
     sock: WebsocketHeartbeatJs;
 
-    b1: BugHouseGameController;
-    b2: BugHouseGameController;
+    b1: GameControllerBughouse;
+    b2: GameControllerBughouse;
 
     username: string;
     gameId: string;
@@ -150,6 +150,8 @@ export class RoundController implements ChatController/*extends GameController t
         window.addEventListener('focus', () => {this.focus = true});
 //
         const onOpen = () => {
+            console.log('onOpen');
+
             if ( this.lastMaybeSentMsgMove  && this.lastMaybeSentMsgMove.ply === this.ply + 1 ) {
                 // if this.ply === this.lastMaybeSentMsgMove.ply it would mean the move message was received by server and it has replied with "board" message, confirming and updating the state, including this.ply
                 // since they are not equal, but also one ply behind, means we should try to re-send it
@@ -174,24 +176,29 @@ export class RoundController implements ChatController/*extends GameController t
         };
 
         const onReconnect = () => {
-            this.clocks[0].connecting = true;
-            this.clocks[1].connecting = true;
-            this.clocksB[0].connecting = true;
-            this.clocksB[1].connecting = true;
-            console.log('Reconnecting in round...');
-
-            // relevant to the "reconnecting" message in lower left corner
-            document.body.classList.add('offline');
-            document.body.classList.remove('online');
+            console.log('onReconnect');
             document.body.classList.add('reconnected'); // this will trigger the animation once we get "online" class added back on reconnect
 
             const container = document.getElementById('player1a') as HTMLElement;
             patch(container, h('i-side.online#player1a', {class: {"icon": true, "icon-online": false, "icon-offline": true}}));
         };
 
+        const onClose = () => {
+            console.log('onClose');
+            this.clocks[0].connecting = true;
+            this.clocks[1].connecting = true;
+            this.clocksB[0].connecting = true;
+            this.clocksB[1].connecting = true;
+            // relevant to the "reconnecting" message in lower left corner
+            document.body.classList.add('offline');
+            document.body.classList.remove('online');
+        };
+
+
         this.sock = newWebsocket('wsr');
         this.sock.onopen = () => onOpen();
         this.sock.onreconnect = () => onReconnect();
+        this.sock.onclose = () => onClose();
         this.sock.onmessage = (e: MessageEvent) => this.onMessage(e);
 //
         this.finishedGame = this.status >= 0;
@@ -339,8 +346,8 @@ export class RoundController implements ChatController/*extends GameController t
 
         //////////////
 
-        this.b1 = new BugHouseGameController(el1, el1Pocket1, el1Pocket2, 'a', model); //todo:niki:fen maybe should be parsed from bfen. what situation do we start from custom fen?
-        this.b2 = new BugHouseGameController(el2, el2Pocket1, el2Pocket2, 'b', model);
+        this.b1 = new GameControllerBughouse(el1, el1Pocket1, el1Pocket2, 'a', model); //todo:niki:fen maybe should be parsed from bfen. what situation do we start from custom fen?
+        this.b2 = new GameControllerBughouse(el2, el2Pocket1, el2Pocket2, 'b', model);
         this.b1.partnerCC = this.b2;
         this.b2.partnerCC = this.b1;
         this.b1.parent = this;
@@ -443,7 +450,7 @@ export class RoundController implements ChatController/*extends GameController t
         this.b2.chessground.redrawAll();
     }
 
-    sendMove = (b: BugHouseGameController, orig: cg.Orig, dest: cg.Key, promo: string) => {
+    sendMove = (b: GameControllerBughouse, orig: cg.Orig, dest: cg.Key, promo: string) => {
         console.log(b,orig,dest,promo);
         this.clearDialog();
 
@@ -465,19 +472,16 @@ export class RoundController implements ChatController/*extends GameController t
 
         const move = cg2uci(orig + dest + promo);
         // console.log("sendMove(move)", move);
-        let bclock, msgClocks;
-        if (!b.flipped()) {
-            bclock = this.myColor.get(b.boardName) === "black" ? 1 : 0;
-        } else {
-            bclock = this.myColor.get(b.boardName) === "black" ? 0 : 1;
-        }
+
+        const colors = b.boardName === 'a'? this.colors: this.colorsB;
+        const bclock = colors[0] === "black"? 0: 1;
         const wclock = 1 - bclock
 
         const increment = (this.inc > 0 /*&& this.ply >= 2*/) ? this.inc * 1000 : 0;
-        const bclocktime = (this.myColor.get(b.boardName) === "black" && b.preaction) ? clocktimes.black + increment: clocks[bclock].duration;
-        const wclocktime = (this.myColor.get(b.boardName) === "white" && b.preaction) ? clocktimes.white + increment: clocks[wclock].duration;
+        const bclocktime = (moveColor === "black" && b.preaction) ? clocktimes.black + increment: clocks[bclock].duration;
+        const wclocktime = (moveColor === "white" && b.preaction) ? clocktimes.white + increment: clocks[wclock].duration;
 
-        msgClocks = {movetime: (b.preaction) ? 0 : movetime, black: bclocktime, white: wclocktime};
+        const msgClocks = {movetime: (b.preaction) ? 0 : movetime, black: bclocktime, white: wclocktime};
 
         this.lastMaybeSentMsgMove = { type: "move", gameId: this.gameId, move: move, clocks: msgClocks, ply: this.ply + 1, board: b.boardName, partnerFen: b.partnerCC.fullfen };
         this.doSend(this.lastMaybeSentMsgMove as JSONObject);
@@ -687,7 +691,7 @@ export class RoundController implements ChatController/*extends GameController t
         }
     }
 
-    private updateBoardsAndClocksSpectors = (board: BugHouseGameController, fen: cg.FEN, fenPartner: cg.FEN, lastMove: cg.Orig[] | undefined, step: Step, clocks: Clocks, latestPly: boolean, colors: cg.Color[], status: number, check: boolean) => {
+    private updateBoardsAndClocksSpectors = (board: GameControllerBughouse, fen: cg.FEN, fenPartner: cg.FEN, lastMove: cg.Orig[] | undefined, step: Step, clocks: Clocks, latestPly: boolean, colors: cg.Color[], status: number, check: boolean) => {
 
         this.clockOn = true;// Number(msg.ply) >= 2;
         if ( !this.spectator && this.clockOn ) {
@@ -794,28 +798,33 @@ export class RoundController implements ChatController/*extends GameController t
     }
 
     private updateBothBoardsAndClocksOnFullBoardMsg = (lastStepA: Step, lastStepB: Step, clocksA: Clocks, clocksB: Clocks) => {
-        const partsA = lastStepA !== undefined? lastStepA.fen.split(" "): undefined;
-        const partsB = lastStepB !== undefined? lastStepB.fenB.split(" "): undefined;
+
 
         // todo:niki: if undedefined it will get white, which is ok-ish, but ideally should use initial fen in case of custom start position
-        this.b1.turnColor = partsA[1] === "b" ? "black" : "white";
-        this.b2.turnColor = partsB[1] === "b" ? "black" : "white";
 
-        const lastMoveA = uci2LastMove(lastStepA.move);
-        const lastMoveB = uci2LastMove(lastStepB.moveB);
 
-        this.b1.chessground.set({
-            fen: lastStepA.fen,
-            turnColor: this.b1.turnColor,
-            check: lastStepA.check,
-            lastMove: lastMoveA,
-        });
-        this.b2.chessground.set({
-            fen: lastStepB.fenB,
-            turnColor: this.b2.turnColor,
-            check: lastStepB.check,
-            lastMove: lastMoveB,
-        });
+        if (lastStepA) {
+            const partsA = lastStepA.fen.split(" ");
+            this.b1.turnColor = partsA[1] === "b" ? "black" : "white";
+            const lastMoveA = uci2LastMove(lastStepA.move);
+            this.b1.chessground.set({
+                fen: lastStepA.fen,
+                turnColor: this.b1.turnColor,
+                check: lastStepA.check,
+                lastMove: lastMoveA,
+            });
+        }
+        if (lastStepB) {
+            const partsB = lastStepB.fenB!.split(" ");
+            this.b2.turnColor = partsB[1] === "b" ? "black" : "white";
+            const lastMoveB = uci2LastMove(lastStepB.moveB);
+            this.b2.chessground.set({
+                fen: lastStepB.fenB,
+                turnColor: this.b2.turnColor,
+                check: lastStepB.check,
+                lastMove: lastMoveB,
+            });
+        }
 
         this.clocktimes = clocksA;
         this.clocktimesB = clocksB;
@@ -838,8 +847,8 @@ export class RoundController implements ChatController/*extends GameController t
         }
     }
 
-    private updateSingleBoardAndClocks = (board: BugHouseGameController, fen: cg.FEN, fenPartner: cg.FEN, lastMove: cg.Orig[] | undefined, step: Step,
-                                     clocks: Clocks, latestPly: boolean, colors: cg.Color[], status: number, check: boolean) => {
+    private updateSingleBoardAndClocks = (board: GameControllerBughouse, fen: cg.FEN, fenPartner: cg.FEN, lastMove: cg.Orig[] | undefined, step: Step,
+                                          msgClocks: Clocks, latestPly: boolean, colors: cg.Color[], status: number, check: boolean) => {
         board.turnColor = board.turnColor === 'white' ? 'black' : 'white';
 
         if (board.ffishBoard) {
@@ -869,9 +878,9 @@ export class RoundController implements ChatController/*extends GameController t
         const msgMoveColor = msgTurnColor === 'white'? 'black': 'white'; // which color made the move
         const myMove = this.myColor.get(board.boardName) === msgMoveColor; // the received move was made by me
         if (board.boardName == 'a') {
-            this.clocktimes = clocks || this.clocktimes; //todo:niki:have the feeling this or is redundant. probably only initial board message doesnt have clocktimes. maybe even it has. not sure
+            this.clocktimes = msgClocks || this.clocktimes; //todo:niki:have the feeling this or is redundant. probably only initial board message doesnt have clocktimes. maybe even it has. not sure
         } else {
-            this.clocktimesB = clocks || this.clocktimes;
+            this.clocktimesB = msgClocks || this.clocktimesB;
         }
 
         if (!myMove) {
@@ -966,9 +975,12 @@ export class RoundController implements ChatController/*extends GameController t
         //todo:niki:update to above's todo, actually it sometimes sends it with 2 elements, sometimes just with one - gotta check what is wrong with python code and how it works in other variants. for now always getting the last element should be robust in all cases
         const board = boardName === 'a' ? this.b1 : this.b2;
         const colors = boardName === 'a' ? this.colors : this.colorsB;
+
         const fen = boardName == 'a' ? fenA : fenB;
         const fenPartner = boardName == 'a' ? fenB : fenA;
+
         const check = boardName == 'a' ? msg.check : msg.checkB!;
+        const clocks = boardName == 'a' ? msg.clocks : msg.clocksB!;
         const lastMove = uci2LastMove(msg.lastMove);
 
         if (this.spectator) {
@@ -982,7 +994,7 @@ export class RoundController implements ChatController/*extends GameController t
                 const lastStepB = msg.steps[msg.steps.findLastIndex(s => s.boardName === "b")];
                 this.updateBothBoardsAndClocksOnFullBoardMsg(lastStepA, lastStepB, msg.clocks!, msg.clocksB!);
             } else { // usual single ply board messages sent on each move
-                this.updateSingleBoardAndClocks(board, fen, fenPartner, lastMove, msg.steps[0], msg.clocks!, latestPly, colors, msg.status, check);
+                this.updateSingleBoardAndClocks(board, fen, fenPartner, lastMove, msg.steps[0], clocks!, latestPly, colors, msg.status, check);
             }
         }
     }

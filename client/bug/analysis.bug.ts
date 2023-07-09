@@ -7,7 +7,7 @@ import {VARIANTS, selectVariant} from "../variants"
 import {renderTimeago} from '../datetime';
 import {spinner} from '../view';
 import {PyChessModel} from "../types";
-import AnalysisControllerBug from "./analysisCtrl.bug";
+import AnalysisControllerBughouse from "./analysisCtrl.bug";
 import {gauge} from "@/analysis";
 
 function leftSide(model: PyChessModel) {
@@ -41,7 +41,7 @@ function leftSide(model: PyChessModel) {
 }
 
 function createBoards(mainboardVNode: VNode, bugboardVNode: VNode, mainboardPocket0: VNode, mainboardPocket1: VNode, bugboardPocket0: VNode, bugboardPocket1: VNode, model: PyChessModel) {
-    /*this.ctrl = */ const ctrl = new AnalysisControllerBug(mainboardVNode.elm as HTMLElement,
+    /*this.ctrl = */ const ctrl = new AnalysisControllerBughouse(mainboardVNode.elm as HTMLElement,
         mainboardPocket0.elm as HTMLElement,
         mainboardPocket1.elm as HTMLElement,
         bugboardVNode.elm as HTMLElement,

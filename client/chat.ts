@@ -2,7 +2,7 @@ import {h, VNode} from "snabbdom";
 
 import { _ } from './i18n';
 import { patch } from './document';
-import {RoundController} from "./bug/roundCtrl.bug";
+import {RoundControllerBughouse} from "./bug/roundCtrl.bug";
 import {chatMessageBug, renderBugChatPresets} from "@/bug/chat.bug";
 
 export interface ChatController {
@@ -15,7 +15,7 @@ export interface ChatController {
 
 export function chatView(ctrl: ChatController, chatType: string) {
     const spectator = ("spectator" in ctrl && ctrl.spectator);
-    const bughouse = ctrl instanceof RoundController;
+    const bughouse = ctrl instanceof RoundControllerBughouse;
     function blur (e: Event) {
         (e.target as HTMLInputElement).focus(); // always keep focus on chat text input for faster chatting
     }

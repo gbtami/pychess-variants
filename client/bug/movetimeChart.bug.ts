@@ -4,7 +4,7 @@ import { _ } from '../i18n';
 import { selectMove } from './movelist.bug';
 import { AnalysisController } from '../analysisCtrl';
 import { Step } from "../messages";
-import AnalysisControllerBug from "@/bug/analysisCtrl.bug";
+import AnalysisControllerBughouse from "@/bug/analysisCtrl.bug";
 
 export interface MovePoint {
   y: number;
@@ -13,7 +13,7 @@ export interface MovePoint {
   marker?: any;
 }
 
-export function movetimeChart(ctrl: AnalysisControllerBug) {
+export function movetimeChart(ctrl: AnalysisControllerBughouse) {
     let maxMove = 0, maxTotal = 0;
 
     const highlightColor = '#3893E8';
