@@ -36,6 +36,7 @@ from const import (
 )
 from fairy import FairyBoard, BLACK
 from spectators import spectators
+from re import sub
 
 log = logging.getLogger(__name__)
 
@@ -162,8 +163,8 @@ class GameBug:
         self.checkB = False
         self.status = STARTED # CREATED
         self.result = "*"
-        self.last_server_clock = monotonic()  # the last time a move was made
-
+        self.last_server_clock = monotonic()  # the last time a move was made on board A - we reconstruct current time on client refresh/reconnect from this
+        self.last_server_clockB = self.last_server_clock # the last time a move was made on board A - we reconstruct current time on client refresh/reconnect from this
         self.id = gameId
 
         disabled_fen = ""
@@ -243,11 +244,12 @@ class GameBug:
         #     self._ply_clocks[0]["black"] = self.berserk_time
 
     def handle_chat_message(self, user, message):
-        cur_ply = len(self.steps)
+        cur_ply = len(self.steps) - 1
         cur_time = monotonic()
-        time = int(round((cur_time - self.last_server_clock) * 1000))
+        last_move_clock = max(self.last_server_clock, self.last_server_clockB)
+        time = int(round((cur_time - last_move_clock) * 1000))
 
-        self.steps[cur_ply-1].setdefault("chat", []).append({
+        self.steps[cur_ply].setdefault("chat", []).append({
             "message": message,
             "username": user.username,
             "time": time
@@ -311,7 +313,10 @@ class GameBug:
         #             print(self.result, "flag")
         #             await self.save_game()
 
-        self.last_server_clock = cur_time
+        if board == "a":
+            self.last_server_clock = cur_time
+        else:
+            self.last_server_clockB = cur_time
 
         if self.status <= STARTED:
             try:
@@ -678,33 +683,41 @@ class GameBug:
         #     self.result = "1/2-1/2"
 
         if not self.dests_a or not self.dests_b:
-            board_which_ended = "a" if not self.dests_a else "b"
+            board_which_ended = "a" if not self.dests_a else "b"  # todo:niki: can pass board param - we know which board made the move we are processing
+
             #todo:niki did it really ended - maybe chaek here by putting a fen with full pockets and then switch back
-            game_result_value = self.boards[board_which_ended].game_result_no_history()
-            self.result = result_string_from_value(self.boards[board_which_ended].color, game_result_value)
+            fen_before = self.boards[board_which_ended].fen
+            fen_fullpockets = sub('\[.*\]', '[qrbnpQRBNP]', fen_before)
+            self.boards[board_which_ended].fen = fen_fullpockets
+            count_valid_moves_with_full_pockets = len(self.boards[board_which_ended].legal_moves_no_history())
+            self.boards[board_which_ended].fen = fen_before
 
-            # todo: commenting this because i feel it should always be MATE. Also is_immediate_game_end doesn't work because it relies on history - if we actually need it should create _no_history version of it as well
-            # if self.boards[board_which_ended].is_immediate_game_end()[0]:
-            #     self.status = VARIANTEND
-            # elif self.check:
-            self.status = MATE
+            if count_valid_moves_with_full_pockets == 0:
+                game_result_value = self.boards[board_which_ended].game_result_no_history()
+                self.result = result_string_from_value(self.boards[board_which_ended].color, game_result_value)
 
-            # Pawn drop mate
-            # TODO: remove this when https://github.com/ianfab/Fairy-Stockfish/issues/48 resolves
-            # if self.boards[board_which_ended].move_stack[-1][1] == "@":
-            #     if (
-            #         self.boards[board_which_ended].move_stack[-1][0] == "P"
-            #         and self.variant
-            #         in (
-            #             "shogi",
-            #             "minishogi",
-            #             "gorogoro",
-            #             "gorogoroplus",
-            #         )
-            #     ) or (self.boards[board_which_ended].move_stack[-1][0] == "S" and self.variant == "torishogi"):
-            #         self.status = INVALIDMOVE
-            # else:
-            #     self.status = STALEMATE
+                # todo: commenting this because i feel it should always be MATE. Also is_immediate_game_end doesn't work because it relies on history - if we actually need it should create _no_history version of it as well
+                # if self.boards[board_which_ended].is_immediate_game_end()[0]:
+                #     self.status = VARIANTEND
+                # elif self.check:
+                self.status = MATE
+
+                # Pawn drop mate
+                # TODO: remove this when https://github.com/ianfab/Fairy-Stockfish/issues/48 resolves
+                # if self.boards[board_which_ended].move_stack[-1][1] == "@":
+                #     if (
+                #         self.boards[board_which_ended].move_stack[-1][0] == "P"
+                #         and self.variant
+                #         in (
+                #             "shogi",
+                #             "minishogi",
+                #             "gorogoro",
+                #             "gorogoroplus",
+                #         )
+                #     ) or (self.boards[board_which_ended].move_stack[-1][0] == "S" and self.variant == "torishogi"):
+                #         self.status = INVALIDMOVE
+                # else:
+                #     self.status = STALEMATE
 
         else:
             pass # todo niki dont think this applies to bughouse but should check/discuss at some point
@@ -933,12 +946,13 @@ class GameBug:
                 # (also needed for spectators entering to see correct clock times)
 
                 cur_time = monotonic()
-                elapsed = int(round((cur_time - self.last_server_clock) * 1000))
+                elapsedA = int(round((cur_time - self.last_server_clock) * 1000))
+                elapsedB = int(round((cur_time - self.last_server_clockB) * 1000))
 
                 cur_colorA = "black" if self.boards["a"].color == BLACK else "white"
                 cur_colorB = "black" if self.boards["b"].color == BLACK else "white"
-                clocksA[cur_colorA] = max(0, clocksA[cur_colorA] - elapsed)
-                clocksB[cur_colorA] = max(0, clocksB[cur_colorB] - elapsed)
+                clocksA[cur_colorA] = max(0, clocksA[cur_colorA] - elapsedA)
+                clocksB[cur_colorB] = max(0, clocksB[cur_colorB] - elapsedB)
             # crosstable = self.crosstable
         else:
             clocksA = self._ply_clocks["a"][-1]

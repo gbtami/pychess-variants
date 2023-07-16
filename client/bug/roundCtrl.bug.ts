@@ -194,12 +194,22 @@ export class RoundControllerBughouse implements ChatController/*extends GameCont
             document.body.classList.remove('online');
         };
 
+        const onError = () => {
+            console.log("onError");
+        }
 
         this.sock = newWebsocket('wsr');
+        const f = this.sock.ws.onclose;
+        this.sock.ws.onclose = (e) => { console.log("onclose1"); f(e); console.log("onclose2");}
+        const f1 = this.sock.ws.close.bind(this.sock.ws); //todo:niki:mainly for debug purposes to understand howit works for now. could put logic for the red popup here eventually, because at least when browser trottle is set to offline it never triggers onclose until actually disable trottle back - not sure if same in normal disconnect
+        this.sock.ws.close = () => { console.log("close() 1"); f1(); console.log("close() 2");}
+
+        this.sock.forbidReconnect = false;
         this.sock.onopen = () => onOpen();
         this.sock.onreconnect = () => onReconnect();
         this.sock.onclose = () => onClose();
         this.sock.onmessage = (e: MessageEvent) => this.onMessage(e);
+        this.sock.onerror = () => onError(e);
 //
         this.finishedGame = this.status >= 0;
         this.tv = model["tv"];
@@ -692,6 +702,7 @@ export class RoundControllerBughouse implements ChatController/*extends GameCont
     }
 
     private updateBoardsAndClocksSpectors = (board: GameControllerBughouse, fen: cg.FEN, fenPartner: cg.FEN, lastMove: cg.Orig[] | undefined, step: Step, clocks: Clocks, latestPly: boolean, colors: cg.Color[], status: number, check: boolean) => {
+        console.log("updateBoardsAndClocksSpectors", board, fen, fenPartner, lastMove, step, clocks, latestPly, colors, status, check);
 
         this.clockOn = true;// Number(msg.ply) >= 2;
         if ( !this.spectator && this.clockOn ) {
@@ -749,6 +760,7 @@ export class RoundControllerBughouse implements ChatController/*extends GameCont
     }
 
     private updateBothBoardsAndClocksInitial = (fenA: cg.FEN, fenB: cg.FEN, clocksA: Clocks, clocksB: Clocks) => {
+        console.log("updateBothBoardsAndClocksInitial", fenA, fenB, clocksA, clocksB);
 
         const partsA = fenA.split(" ");
         const partsB = fenB.split(" ");
@@ -775,6 +787,11 @@ export class RoundControllerBughouse implements ChatController/*extends GameCont
         // this.clocks[whiteClockAidx].start();
         // this.clocksB[whiteClockBidx].start();
 
+        this.clocks[0].pause(false);
+        this.clocks[1].pause(false);
+        this.clocksB[0].pause(false);
+        this.clocksB[1].pause(false);
+
         this.clocktimes = clocksA;
         this.clocktimesB = clocksB;
 
@@ -791,14 +808,14 @@ export class RoundControllerBughouse implements ChatController/*extends GameCont
         if (this.status < 0) {
             const clockOnTurnAidx = this.colors[0] === this.b1.turnColor ? 0 : 1;
             const clockOnTurnBidx = this.colorsB[0] === this.b2.turnColor ? 0 : 1;
-            this.clocks[clockOnTurnAidx].start();
-            this.clocksB[clockOnTurnBidx].start();
+            this.clocks[clockOnTurnAidx].start(this.clocktimes[this.b1.turnColor]); //todo:niki:not perfect. this is server time and initial message means no moves were made so client clock doesnt really need update. will leave it for now though, like this. but probably doesnt matter much because its first move
+            this.clocksB[clockOnTurnBidx].start(this.clocktimesB[this.b2.turnColor]);
         }
 
     }
 
     private updateBothBoardsAndClocksOnFullBoardMsg = (lastStepA: Step, lastStepB: Step, clocksA: Clocks, clocksB: Clocks) => {
-
+        console.log("updateBothBoardsAndClocksOnFullBoardMsg", lastStepA, lastStepB, clocksA, clocksB);
 
         // todo:niki: if undedefined it will get white, which is ok-ish, but ideally should use initial fen in case of custom start position
 
@@ -826,13 +843,18 @@ export class RoundControllerBughouse implements ChatController/*extends GameCont
             });
         }
 
+        this.clocks[0].pause(false);
+        this.clocks[1].pause(false);
+        this.clocksB[0].pause(false);
+        this.clocksB[1].pause(false);
+
         this.clocktimes = clocksA;
         this.clocktimesB = clocksB;
 
         const whiteAClockAtIdx = this.colors[0] === 'white'? 0: 1;
-        const blackAClockAtIdx = 1 -whiteAClockAtIdx;
+        const blackAClockAtIdx = 1 - whiteAClockAtIdx;
         const whiteBClockAtIdx = this.colorsB[0] === 'white'? 0: 1;
-        const blackBClockAtIdx = 1 -whiteBClockAtIdx;
+        const blackBClockAtIdx = 1 - whiteBClockAtIdx;
 
         this.clocks[whiteAClockAtIdx].setTime(this.clocktimes['white']);
         this.clocks[blackAClockAtIdx].setTime(this.clocktimes['black']);
@@ -842,13 +864,15 @@ export class RoundControllerBughouse implements ChatController/*extends GameCont
         if (this.status < 0) {
             const clockOnTurnAidx = this.colors[0] === this.b1.turnColor ? 0 : 1;
             const clockOnTurnBidx = this.colorsB[0] === this.b2.turnColor ? 0 : 1;
-            this.clocks[clockOnTurnAidx].start();
-            this.clocksB[clockOnTurnBidx].start();
+            this.clocks[clockOnTurnAidx].start(this.clocktimes[this.b1.turnColor]);
+            this.clocksB[clockOnTurnBidx].start(this.clocktimesB[this.b2.turnColor]);
         }
     }
 
     private updateSingleBoardAndClocks = (board: GameControllerBughouse, fen: cg.FEN, fenPartner: cg.FEN, lastMove: cg.Orig[] | undefined, step: Step,
                                           msgClocks: Clocks, latestPly: boolean, colors: cg.Color[], status: number, check: boolean) => {
+        console.log("updateSingleBoardAndClocks", board, fen, fenPartner, lastMove, step, msgClocks, latestPly, colors, status, check);
+
         board.turnColor = board.turnColor === 'white' ? 'black' : 'white';
 
         if (board.ffishBoard) {

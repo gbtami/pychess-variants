@@ -271,9 +271,10 @@ async def load_game_bug(app, game_id):
     if doc.get("c") is not None:
         game.chat = doc.get("c") # todo:niki: probably get rid of this dict in game and only store in steps or some other idea with less duplication
         for key in game.chat:
-            game.steps[int(key)]["chat"] = []
+            idx = int(key)
+            game.steps[idx]["chat"] = []
             for c in game.chat[key]:
-                game.steps[int(key)]["chat"].append({
+                game.steps[idx]["chat"].append({
                     "message": c["m"],
                     "username": c["u"],
                     "time": c["t"]
