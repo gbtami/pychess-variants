@@ -1,6 +1,7 @@
 import { h, VNode } from 'snabbdom';
 
 import * as idb from 'idb-keyval';
+import * as Mousetrap  from 'mousetrap';
 
 import * as cg from 'chessgroundx/types';
 import * as util from 'chessgroundx/util';
@@ -229,6 +230,8 @@ export class AnalysisController extends GameController {
 
         this.onMsgBoard(model["board"] as MsgBoard);
         analysisSettings.ctrl = this;
+
+        Mousetrap.bind('p', () => copyTextToClipboard(`${this.fullfen};variant ${this.variant.name};site https://www.pychess.org/${this.gameId}\n`));
     }
 
     toggleSettings() {

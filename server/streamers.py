@@ -18,6 +18,8 @@ TWITCH_STREAMERS = {
     "krazy8_chess": "FM Crazy_Eight",
     "gbtami": "gbtami",
     "e_pluszak": "e-pluszak",
+    "littlemage7": "LittleMage",
+    "oruro_": "oruro",
 }
 
 # TODO

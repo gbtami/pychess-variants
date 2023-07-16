@@ -11,16 +11,16 @@
 # Bodhi Baum <lotusblume.h2@googlemail.com>, 2021
 # FS Schach, 2021
 # gbtami <gbtami@gmail.com>, 2022
-# Jonathan Kubik <j.kubik97@gmail.com>, 2022
+# Jonathan Kubik <j.kubik97@gmail.com>, 2023
 # 
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2023-06-07 11:23+0200\n"
+"POT-Creation-Date: 2023-06-12 14:37+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
-"Last-Translator: Jonathan Kubik <j.kubik97@gmail.com>, 2022\n"
+"Last-Translator: Jonathan Kubik <j.kubik97@gmail.com>, 2023\n"
 "Language-Team: German (https://app.transifex.com/gbtami/teams/14790/de/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -156,7 +156,7 @@ msgstr ""
 
 #: ../client/analysis.ts:39 ../client/editor/editor.ts:30
 #: ../client/lobby.ts:352 ../client/lobby.ts:934 ../client/puzzle.ts:32
-#: ../client/settingsView.ts:130
+#: ../client/puzzleCtrl.ts:202 ../client/settingsView.ts:130
 msgid "Variant"
 msgstr "Variante"
 
@@ -180,7 +180,7 @@ msgstr "FEN & PGN"
 msgid "Multi-threaded WebAssembly (classical evaluation)"
 msgstr "Multi-threaded WebAssembly (klassische Evaluierung)"
 
-#: ../client/analysis.ts:174 ../client/analysisCtrl.ts:678
+#: ../client/analysis.ts:174 ../client/analysisCtrl.ts:680
 msgid "in local browser"
 msgstr "im lokalen Browser"
 
@@ -192,85 +192,85 @@ msgstr "Anfangsposition"
 msgid "Advantage"
 msgstr "Vorteil"
 
-#: ../client/analysisCtrl.ts:298
+#: ../client/analysisCtrl.ts:300
 msgid "You need an account to do that."
 msgstr "Du brauchst einen Account um das zu tun."
 
-#: ../client/analysisCtrl.ts:337
+#: ../client/analysisCtrl.ts:339
 msgid "Download game to PGN file"
 msgstr "Partie als PGN Datei herunterladen"
 
-#: ../client/analysisCtrl.ts:337
+#: ../client/analysisCtrl.ts:339
 msgid "Download PGN"
 msgstr "PGN herunterladen"
 
-#: ../client/analysisCtrl.ts:339
+#: ../client/analysisCtrl.ts:341
 msgid "Copy USI/UCI to clipboard"
 msgstr "USI/UCI in die Zwischenablage kopieren"
 
-#: ../client/analysisCtrl.ts:339
+#: ../client/analysisCtrl.ts:341
 msgid "Copy UCI/USI"
 msgstr "UCI/USI kopieren"
 
-#: ../client/analysisCtrl.ts:341
+#: ../client/analysisCtrl.ts:343
 msgid "Download position to PNG image file"
 msgstr "Stellung als PNG Bild Datei herunterladen"
 
-#: ../client/analysisCtrl.ts:341
+#: ../client/analysisCtrl.ts:343
 msgid "PNG image"
 msgstr "PNG Bild"
 
-#: ../client/analysisCtrl.ts:355
+#: ../client/analysisCtrl.ts:357
 msgid "Are you sure you want to delete this game?"
 msgstr "Bist du sicher, dass du diese Partie löschen möchtest?"
 
-#: ../client/analysisCtrl.ts:370
+#: ../client/analysisCtrl.ts:372
 msgid "Delete game"
 msgstr "Partie löschen"
 
-#: ../client/analysisCtrl.ts:401
+#: ../client/analysisCtrl.ts:403
 msgid "Request Computer Analysis"
 msgstr "Computer-Analyse anfordern"
 
-#: ../client/analysisCtrl.ts:401
+#: ../client/analysisCtrl.ts:403
 msgid "Request Analysis"
 msgstr "Analyse anfordern"
 
-#: ../client/analysisCtrl.ts:455
+#: ../client/analysisCtrl.ts:457
 msgid "Try browser page reload."
 msgstr "Versuche die Seite neu zu laden."
 
-#: ../client/analysisCtrl.ts:489
+#: ../client/analysisCtrl.ts:491
 msgid "Multi-threaded WebAssembly (with NNUE evaluation)"
 msgstr "Multi-threaded WebAssembly (mit NNUE Evaluierung)"
 
-#: ../client/analysisCtrl.ts:661
+#: ../client/analysisCtrl.ts:663
 msgid "Depth"
 msgstr "Tiefe"
 
-#: ../client/analysisCtrl.ts:666
+#: ../client/analysisCtrl.ts:668
 msgid "Go deeper"
 msgstr "Tiefe erhöhen"
 
 #: ../client/analysisSettings.ts:74
 msgid "Best move arrow"
-msgstr ""
+msgstr "Pfeil für besten Zug"
 
 #: ../client/analysisSettings.ts:103
 msgid "Infinite analysis"
-msgstr ""
+msgstr "Endlose Analyse"
 
 #: ../client/analysisSettings.ts:129
 msgid "Multiple lines"
-msgstr ""
+msgstr "Mehrere Varianten"
 
 #: ../client/analysisSettings.ts:156
 msgid "CPUs"
-msgstr ""
+msgstr "CPUs"
 
 #: ../client/analysisSettings.ts:202
 msgid "Memory"
-msgstr ""
+msgstr "Memory"
 
 #: ../client/background.ts:9
 msgid "Light"
@@ -286,7 +286,7 @@ msgstr "Figuren Animation"
 
 #: ../client/boardSettings.ts:197
 msgid "Confirm resigning"
-msgstr ""
+msgstr "Bestätige Resignation"
 
 #: ../client/boardSettings.ts:281
 msgid "Zoom"
@@ -729,7 +729,7 @@ msgstr "Figuren explodieren beim Abtausch."
 
 #: ../client/i18n.ts:98
 msgid "The duck must be moved to a new square after every turn."
-msgstr ""
+msgstr "Die Ente muss nach jedem Zug auf ein neues Feld bewegt werden."
 
 #: ../client/i18n.ts:99
 msgid ""
@@ -936,7 +936,7 @@ msgstr "Wie Capablanca aber mit der Grand Startposition."
 
 #: ../client/i18n.ts:131
 msgid "Embassy with Crazyhouse drop rules."
-msgstr ""
+msgstr "Embassy mit Crazhouse-Einsatzregeln"
 
 #: ../client/i18n.ts:132
 msgid "Like Capablanca Chess but with a different starting setup."
@@ -1115,7 +1115,7 @@ msgstr "Modus"
 
 #: ../client/lobby.ts:956
 msgid "Puzzle of the day"
-msgstr ""
+msgstr "Puzzle des Tages"
 
 #: ../client/editor/editorCtrl.ts:92 ../client/editor/editorCtrl.ts:93
 #: ../client/lobby.ts:957
@@ -1140,27 +1140,27 @@ msgstr "Über"
 
 #: ../client/lobby.ts:1015
 msgid "Summer Update"
-msgstr ""
+msgstr "Sommer Update"
 
 #: ../client/lobby.ts:1016
 msgid "New features and bug fixes"
-msgstr ""
+msgstr "Neue Features und Bugfixes"
 
 #: ../client/lobby.ts:1023
 msgid "Madness? This. Is. SPARTAN CHESS!"
-msgstr ""
+msgstr "Wahnsinn? Das. Ist. SPARTA SCHACH!"
 
 #: ../client/lobby.ts:1024
 msgid "Spartan chess has arrived"
-msgstr ""
+msgstr "Spartan Chess ist da"
 
 #: ../client/lobby.ts:1031
 msgid "A Christmas Present From Pychess"
-msgstr ""
+msgstr "Ein Weihnachtsgeschenk von Pychess"
 
 #: ../client/lobby.ts:1032
 msgid "Duck chess has arrived"
-msgstr ""
+msgstr "Duck Chess ist da"
 
 #: ../client/main.ts:112
 msgid "Thank you for your support!"
@@ -1205,87 +1205,102 @@ msgstr "Gewertet"
 msgid "Imported"
 msgstr "Importiert"
 
-#: ../client/puzzleCtrl.ts:80
+#: ../client/puzzleCtrl.ts:86
 msgid "LOGIN"
-msgstr ""
+msgstr "LOGIN"
 
-#: ../client/puzzleCtrl.ts:108
+#: ../client/puzzleCtrl.ts:114
 msgid "Hint"
-msgstr ""
+msgstr "Hinweis"
 
-#: ../client/puzzleCtrl.ts:116
+#: ../client/puzzleCtrl.ts:122
 msgid "View the solution"
 msgstr "Lösung ansehen"
 
-#: ../client/puzzleCtrl.ts:157
+#: ../client/puzzleCtrl.ts:163
 msgid ""
 "Your puzzle rating will not change. Note that puzzles are not a competition."
 " Ratings help select the best puzzles for your current skill."
 msgstr ""
+"Deine Aufgabenwertung wird sich nicht ändern. Beachte, dass Aufgaben kein "
+"Wettbewerb sind. Deine Wertung hilft, die geeignetsten Aufgaben für deine "
+"aktuelle Spielstärke auszuwählen."
 
-#: ../client/puzzleCtrl.ts:170
-msgid "Puzzle "
-msgstr "Puzzle "
+#: ../client/puzzleCtrl.ts:193
+msgid "Puzzle"
+msgstr "Puzzle"
 
-#: ../client/puzzleCtrl.ts:171
-msgid "Rating: "
+#: ../client/puzzleCtrl.ts:194
+msgid "Rating:"
 msgstr "Wertungszahl:"
 
-#: ../client/puzzleCtrl.ts:171
+#: ../client/puzzleCtrl.ts:194
 msgid "hidden"
-msgstr ""
+msgstr "verborgen"
 
-#: ../client/puzzleCtrl.ts:172
-msgid "Played: "
-msgstr ""
+#: ../client/puzzleCtrl.ts:195
+msgid "Played:"
+msgstr "Gespielt:"
 
-#: ../client/puzzleCtrl.ts:178
-msgid "Source: "
-msgstr "Herkunft:"
+#: ../client/puzzleCtrl.ts:212
+msgid "Source:"
+msgstr "Von:"
 
-#: ../client/puzzleCtrl.ts:280
+#: ../client/puzzleCtrl.ts:216
+msgid "Type:"
+msgstr "Typ:"
+
+#: ../client/puzzleCtrl.ts:319
 msgid "Your turn"
 msgstr "Du bist am Zug"
 
-#: ../client/puzzleCtrl.ts:281
+#: ../client/puzzleCtrl.ts:320
 msgid "Find the best move for %1."
 msgstr "Finde den besten Zug für %1."
 
-#: ../client/puzzleCtrl.ts:298
+#: ../client/puzzleCtrl.ts:337
 msgid "That's not the move!"
 msgstr "Das ist nicht der Zug!"
 
-#: ../client/puzzleCtrl.ts:299
+#: ../client/puzzleCtrl.ts:338
 msgid "Try something else."
 msgstr "Versuche etwas anderes."
 
-#: ../client/puzzleCtrl.ts:313
+#: ../client/puzzleCtrl.ts:352
 msgid "Best move!"
 msgstr "Bester Zug!"
 
-#: ../client/puzzleCtrl.ts:314
+#: ../client/puzzleCtrl.ts:353
 msgid "Keep going..."
 msgstr "Mach weiter..."
 
-#: ../client/puzzleCtrl.ts:327
+#: ../client/puzzleCtrl.ts:366
 msgid "Success!"
-msgstr ""
+msgstr "Korrekt!"
 
-#: ../client/puzzleCtrl.ts:332
+#: ../client/puzzleCtrl.ts:371
 msgid "Puzzle complete!"
 msgstr "Puzzle geschafft!"
 
-#: ../client/puzzleCtrl.ts:335
+#: ../client/puzzleCtrl.ts:374
 msgid "We have no more puzzle for this variant."
-msgstr ""
+msgstr "Es gibt keine weiteren Puzzles für diese Variante."
 
-#: ../client/puzzleCtrl.ts:346
+#: ../client/puzzleCtrl.ts:384
+msgid "Did you like this puzzle?"
+msgstr "Gefällt dir dieses Puzzle?"
+
+#: ../client/puzzleCtrl.ts:385
+msgid "Vote to load the next one!"
+msgstr "Abstimmen um zur nächsten Aufgabe zu gelangen"
+
+#: ../client/puzzleCtrl.ts:399
 msgid "Continue training"
 msgstr "Training fortsetzen"
 
 #: ../client/puzzleSettings.ts:53
 msgid "Jump to next puzzle immediately"
-msgstr ""
+msgstr "Sofort zur nächsten Aufgabe springen"
 
 #: ../client/result.ts:14
 msgid "IMPORT"
@@ -1353,7 +1368,7 @@ msgstr "Explosion des Königs"
 
 #: ../client/result.ts:102
 msgid "King captured"
-msgstr ""
+msgstr "König geschlagen"
 
 #: ../client/result.ts:105 ../client/result.ts:112
 msgid "Point counting"
@@ -1637,35 +1652,35 @@ msgstr "STARTET IN"
 
 #: ../client/variants.ts:795
 msgid "Asymmetric Spartans vs. Persians variant."
-msgstr ""
+msgstr "Asymmetrische Spartaner vs. Persianer Variante."
 
 #: ../client/lobby/layer1.ts:51 ../client/lobby/layer2chess.ts:19
-#: ../client/variants.ts:879
+#: ../client/variants.ts:874
 msgid "Chess Variants"
 msgstr "Schach Varianten"
 
 #: ../client/lobby/layer1.ts:75 ../client/lobby/layer2makruk.ts:16
-#: ../client/variants.ts:880
+#: ../client/variants.ts:875
 msgid "Makruk Variants"
 msgstr "Makruk Varianten"
 
 #: ../client/lobby/layer1.ts:83 ../client/lobby/layer2shogi.ts:17
-#: ../client/variants.ts:881
+#: ../client/variants.ts:876
 msgid "Shogi Variants"
 msgstr "Shogi Varianten"
 
 #: ../client/lobby/layer1.ts:91 ../client/lobby/layer2xiangqi.ts:16
-#: ../client/variants.ts:882
+#: ../client/variants.ts:877
 msgid "Xiangqi Variants"
 msgstr "Xiangqi Varianten"
 
 #: ../client/lobby/layer1.ts:59 ../client/lobby/layer2fairy.ts:16
-#: ../client/variants.ts:883
+#: ../client/variants.ts:878
 msgid "Fairy Piece Variants"
 msgstr "Fairy Figuren Varianten"
 
 #: ../client/lobby/layer1.ts:67 ../client/lobby/layer2army.ts:16
-#: ../client/variants.ts:884
+#: ../client/variants.ts:879
 msgid "New Army Variants"
 msgstr "Varianten mit neuer Armee"
 
@@ -1715,11 +1730,11 @@ msgstr "NACH PNG EXPORTIEREN"
 
 #: ../client/input/duck.ts:52
 msgid "Undo"
-msgstr ""
+msgstr "Rückgängig"
 
 #: ../client/input/duck.ts:58
 msgid "Place the duck on an empty square."
-msgstr ""
+msgstr "Platziere die Ente auf ein leeres Feld."
 
 #: ../client/lobby/layer2army.ts:18
 msgid ""
@@ -1763,11 +1778,11 @@ msgstr "Maya-Schach"
 
 #: ../client/lobby/layer2army.ts:70
 msgid "Alternating pieces"
-msgstr ""
+msgstr "Alternierende Figuren"
 
 #: ../client/lobby/layer2army.ts:77
 msgid "Spartans: Army with two kings"
-msgstr ""
+msgstr "Spartaner: Armee mit zwei Königen"
 
 #: ../client/lobby/layer2chess.ts:21
 msgid "Variants using a basic chess set but with different rules."
@@ -1932,7 +1947,7 @@ msgstr ""
 
 #: ../client/lobby/layer3.ts:88
 msgid "Quack."
-msgstr ""
+msgstr "Quack."
 
 #: ../client/lobby/layer3.ts:91
 msgid ""
@@ -1979,11 +1994,11 @@ msgstr "Es kann gefährlich sein, den König vorzeitig zu befördern"
 
 #: ../client/lobby/layer3.ts:112
 msgid "Make sure to consider both forms of each piece."
-msgstr ""
+msgstr "Gib jederzeit auf beide Formen einer Figur Acht."
 
 #: ../client/lobby/layer3.ts:114
 msgid "Spartan kings can be a powerful addition to an offensive."
-msgstr ""
+msgstr "Spartanische Könige können viel zu einem Angriff beitragen."
 
 #: ../client/lobby/layer3.ts:117
 msgid "Maximizing khon and met's effectiveness is the key."

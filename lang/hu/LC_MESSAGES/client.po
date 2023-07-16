@@ -12,7 +12,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2023-06-07 11:23+0200\n"
+"POT-Creation-Date: 2023-06-12 14:37+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Last-Translator: gbtami <gbtami@gmail.com>, 2023\n"
 "Language-Team: Hungarian (https://app.transifex.com/gbtami/teams/14790/hu/)\n"
@@ -144,7 +144,7 @@ msgstr ""
 
 #: ../client/analysis.ts:39 ../client/editor/editor.ts:30
 #: ../client/lobby.ts:352 ../client/lobby.ts:934 ../client/puzzle.ts:32
-#: ../client/settingsView.ts:130
+#: ../client/puzzleCtrl.ts:202 ../client/settingsView.ts:130
 msgid "Variant"
 msgstr "Variáns"
 
@@ -168,7 +168,7 @@ msgstr "FEN & PGN"
 msgid "Multi-threaded WebAssembly (classical evaluation)"
 msgstr "Többszálú WebAssembly (hagyományos értékelés)"
 
-#: ../client/analysis.ts:174 ../client/analysisCtrl.ts:678
+#: ../client/analysis.ts:174 ../client/analysisCtrl.ts:680
 msgid "in local browser"
 msgstr "a böngészőben"
 
@@ -180,63 +180,63 @@ msgstr "Kezdőállás"
 msgid "Advantage"
 msgstr "Előny"
 
-#: ../client/analysisCtrl.ts:298
+#: ../client/analysisCtrl.ts:300
 msgid "You need an account to do that."
 msgstr "Csak regisztrált felhasználók számára elérhető."
 
-#: ../client/analysisCtrl.ts:337
+#: ../client/analysisCtrl.ts:339
 msgid "Download game to PGN file"
 msgstr "Játszma leöltése PGN fájlba."
 
-#: ../client/analysisCtrl.ts:337
+#: ../client/analysisCtrl.ts:339
 msgid "Download PGN"
 msgstr "PGN letöltése"
 
-#: ../client/analysisCtrl.ts:339
+#: ../client/analysisCtrl.ts:341
 msgid "Copy USI/UCI to clipboard"
 msgstr "UCI/USI másolása a vágólapra."
 
-#: ../client/analysisCtrl.ts:339
+#: ../client/analysisCtrl.ts:341
 msgid "Copy UCI/USI"
 msgstr "UCI/USI másolása"
 
-#: ../client/analysisCtrl.ts:341
+#: ../client/analysisCtrl.ts:343
 msgid "Download position to PNG image file"
 msgstr "Állás másolása PNG kép fájlba."
 
-#: ../client/analysisCtrl.ts:341
+#: ../client/analysisCtrl.ts:343
 msgid "PNG image"
 msgstr "PNG kép"
 
-#: ../client/analysisCtrl.ts:355
+#: ../client/analysisCtrl.ts:357
 msgid "Are you sure you want to delete this game?"
 msgstr "Biztosan törölni akarod ezt a játszmát?"
 
-#: ../client/analysisCtrl.ts:370
+#: ../client/analysisCtrl.ts:372
 msgid "Delete game"
 msgstr "Játszma törlése"
 
-#: ../client/analysisCtrl.ts:401
+#: ../client/analysisCtrl.ts:403
 msgid "Request Computer Analysis"
 msgstr "Számítógépes elemzés kérése"
 
-#: ../client/analysisCtrl.ts:401
+#: ../client/analysisCtrl.ts:403
 msgid "Request Analysis"
 msgstr "Elemzés kérése"
 
-#: ../client/analysisCtrl.ts:455
+#: ../client/analysisCtrl.ts:457
 msgid "Try browser page reload."
 msgstr "Próbáld meg újratölteni az oldalt. "
 
-#: ../client/analysisCtrl.ts:489
+#: ../client/analysisCtrl.ts:491
 msgid "Multi-threaded WebAssembly (with NNUE evaluation)"
 msgstr "Többszálú WebAssembly (NNUE értékelés)"
 
-#: ../client/analysisCtrl.ts:661
+#: ../client/analysisCtrl.ts:663
 msgid "Depth"
 msgstr "mélység"
 
-#: ../client/analysisCtrl.ts:666
+#: ../client/analysisCtrl.ts:668
 msgid "Go deeper"
 msgstr "Mélyebben"
 
@@ -1187,19 +1187,19 @@ msgstr "Értékelt"
 msgid "Imported"
 msgstr "Importált"
 
-#: ../client/puzzleCtrl.ts:80
+#: ../client/puzzleCtrl.ts:86
 msgid "LOGIN"
 msgstr "BEJELENTKEZÉS"
 
-#: ../client/puzzleCtrl.ts:108
+#: ../client/puzzleCtrl.ts:114
 msgid "Hint"
 msgstr "Javaslat"
 
-#: ../client/puzzleCtrl.ts:116
+#: ../client/puzzleCtrl.ts:122
 msgid "View the solution"
 msgstr "Megoldás megtekintése"
 
-#: ../client/puzzleCtrl.ts:157
+#: ../client/puzzleCtrl.ts:163
 msgid ""
 "Your puzzle rating will not change. Note that puzzles are not a competition."
 " Ratings help select the best puzzles for your current skill."
@@ -1208,63 +1208,75 @@ msgstr ""
 "tétje. Az értékelésed csupán segít kiválasztani az aktuális szintednek "
 "legjobban megfelelőket."
 
-#: ../client/puzzleCtrl.ts:170
-msgid "Puzzle "
+#: ../client/puzzleCtrl.ts:193
+msgid "Puzzle"
 msgstr "Feladvány"
 
-#: ../client/puzzleCtrl.ts:171
-msgid "Rating: "
+#: ../client/puzzleCtrl.ts:194
+msgid "Rating:"
 msgstr "Értékszám:"
 
-#: ../client/puzzleCtrl.ts:171
+#: ../client/puzzleCtrl.ts:194
 msgid "hidden"
 msgstr "rejtett"
 
-#: ../client/puzzleCtrl.ts:172
-msgid "Played: "
+#: ../client/puzzleCtrl.ts:195
+msgid "Played:"
 msgstr "Beküldve:"
 
-#: ../client/puzzleCtrl.ts:178
-msgid "Source: "
+#: ../client/puzzleCtrl.ts:212
+msgid "Source:"
 msgstr "Forrás:"
 
-#: ../client/puzzleCtrl.ts:280
+#: ../client/puzzleCtrl.ts:216
+msgid "Type:"
+msgstr "Típus:"
+
+#: ../client/puzzleCtrl.ts:319
 msgid "Your turn"
 msgstr "Te következel"
 
-#: ../client/puzzleCtrl.ts:281
+#: ../client/puzzleCtrl.ts:320
 msgid "Find the best move for %1."
 msgstr "Találd meg %1 legjobb lépését."
 
-#: ../client/puzzleCtrl.ts:298
+#: ../client/puzzleCtrl.ts:337
 msgid "That's not the move!"
 msgstr "Nem a legjobb lépés!"
 
-#: ../client/puzzleCtrl.ts:299
+#: ../client/puzzleCtrl.ts:338
 msgid "Try something else."
 msgstr "Próbálkozz mással."
 
-#: ../client/puzzleCtrl.ts:313
+#: ../client/puzzleCtrl.ts:352
 msgid "Best move!"
 msgstr "A legjobb lépés!"
 
-#: ../client/puzzleCtrl.ts:314
+#: ../client/puzzleCtrl.ts:353
 msgid "Keep going..."
 msgstr "Folytasd..."
 
-#: ../client/puzzleCtrl.ts:327
+#: ../client/puzzleCtrl.ts:366
 msgid "Success!"
 msgstr "Siker!"
 
-#: ../client/puzzleCtrl.ts:332
+#: ../client/puzzleCtrl.ts:371
 msgid "Puzzle complete!"
 msgstr "A feladvány befejezve!"
 
-#: ../client/puzzleCtrl.ts:335
+#: ../client/puzzleCtrl.ts:374
 msgid "We have no more puzzle for this variant."
 msgstr "Ehhez a variánshoz nincs több feladvány."
 
-#: ../client/puzzleCtrl.ts:346
+#: ../client/puzzleCtrl.ts:384
+msgid "Did you like this puzzle?"
+msgstr "Tetszett ez a feladvány?"
+
+#: ../client/puzzleCtrl.ts:385
+msgid "Vote to load the next one!"
+msgstr "Szavazz egy újért cserébe!"
+
+#: ../client/puzzleCtrl.ts:399
 msgid "Continue training"
 msgstr "Gyakorlás folytatása"
 
@@ -1623,32 +1635,32 @@ msgid "Asymmetric Spartans vs. Persians variant."
 msgstr "A spártaiak a perzsák ellen."
 
 #: ../client/lobby/layer1.ts:51 ../client/lobby/layer2chess.ts:19
-#: ../client/variants.ts:879
+#: ../client/variants.ts:874
 msgid "Chess Variants"
 msgstr "Sakk variánsok"
 
 #: ../client/lobby/layer1.ts:75 ../client/lobby/layer2makruk.ts:16
-#: ../client/variants.ts:880
+#: ../client/variants.ts:875
 msgid "Makruk Variants"
 msgstr "Makruk variánsok"
 
 #: ../client/lobby/layer1.ts:83 ../client/lobby/layer2shogi.ts:17
-#: ../client/variants.ts:881
+#: ../client/variants.ts:876
 msgid "Shogi Variants"
 msgstr "Sógi variánsok"
 
 #: ../client/lobby/layer1.ts:91 ../client/lobby/layer2xiangqi.ts:16
-#: ../client/variants.ts:882
+#: ../client/variants.ts:877
 msgid "Xiangqi Variants"
 msgstr "Xiangqi variánsok"
 
 #: ../client/lobby/layer1.ts:59 ../client/lobby/layer2fairy.ts:16
-#: ../client/variants.ts:883
+#: ../client/variants.ts:878
 msgid "Fairy Piece Variants"
 msgstr "Tündér sakkfigura variánsok"
 
 #: ../client/lobby/layer1.ts:67 ../client/lobby/layer2army.ts:16
-#: ../client/variants.ts:884
+#: ../client/variants.ts:879
 msgid "New Army Variants"
 msgstr "Új sereg variánsok"
 

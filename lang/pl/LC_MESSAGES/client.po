@@ -12,7 +12,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2023-06-07 11:23+0200\n"
+"POT-Creation-Date: 2023-06-12 14:37+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Last-Translator: a b <kezsulap@gmail.com>, 2023\n"
 "Language-Team: Polish (https://app.transifex.com/gbtami/teams/14790/pl/)\n"
@@ -148,7 +148,7 @@ msgstr ""
 
 #: ../client/analysis.ts:39 ../client/editor/editor.ts:30
 #: ../client/lobby.ts:352 ../client/lobby.ts:934 ../client/puzzle.ts:32
-#: ../client/settingsView.ts:130
+#: ../client/puzzleCtrl.ts:202 ../client/settingsView.ts:130
 msgid "Variant"
 msgstr "Odmiana"
 
@@ -172,7 +172,7 @@ msgstr "FEN & PGN"
 msgid "Multi-threaded WebAssembly (classical evaluation)"
 msgstr "Wielowątkowy WebAssembly z klasyczną oceną pozycji"
 
-#: ../client/analysis.ts:174 ../client/analysisCtrl.ts:678
+#: ../client/analysis.ts:174 ../client/analysisCtrl.ts:680
 msgid "in local browser"
 msgstr "lokalnie w przeglądarce"
 
@@ -184,63 +184,63 @@ msgstr "Pozycja wyjściowa"
 msgid "Advantage"
 msgstr "Przewaga"
 
-#: ../client/analysisCtrl.ts:298
+#: ../client/analysisCtrl.ts:300
 msgid "You need an account to do that."
 msgstr "Aby to zrobić zaloguj się."
 
-#: ../client/analysisCtrl.ts:337
+#: ../client/analysisCtrl.ts:339
 msgid "Download game to PGN file"
 msgstr "Pobierz partię w formacie PGN"
 
-#: ../client/analysisCtrl.ts:337
+#: ../client/analysisCtrl.ts:339
 msgid "Download PGN"
 msgstr "Pobierz PGN"
 
-#: ../client/analysisCtrl.ts:339
+#: ../client/analysisCtrl.ts:341
 msgid "Copy USI/UCI to clipboard"
 msgstr "Skopiuj UCI/USI do schowka"
 
-#: ../client/analysisCtrl.ts:339
+#: ../client/analysisCtrl.ts:341
 msgid "Copy UCI/USI"
 msgstr "Skopiuj UCI/USI"
 
-#: ../client/analysisCtrl.ts:341
+#: ../client/analysisCtrl.ts:343
 msgid "Download position to PNG image file"
 msgstr "Pobierz pozycję jako grafikę PNG"
 
-#: ../client/analysisCtrl.ts:341
+#: ../client/analysisCtrl.ts:343
 msgid "PNG image"
 msgstr "Grafika PNG"
 
-#: ../client/analysisCtrl.ts:355
+#: ../client/analysisCtrl.ts:357
 msgid "Are you sure you want to delete this game?"
 msgstr "Na pewno chcesz usunąć tę partię?"
 
-#: ../client/analysisCtrl.ts:370
+#: ../client/analysisCtrl.ts:372
 msgid "Delete game"
 msgstr "Usuń partię"
 
-#: ../client/analysisCtrl.ts:401
+#: ../client/analysisCtrl.ts:403
 msgid "Request Computer Analysis"
 msgstr "Poproś o analizę komputerową"
 
-#: ../client/analysisCtrl.ts:401
+#: ../client/analysisCtrl.ts:403
 msgid "Request Analysis"
 msgstr "Poproś o analizę"
 
-#: ../client/analysisCtrl.ts:455
+#: ../client/analysisCtrl.ts:457
 msgid "Try browser page reload."
 msgstr "Spróbuj odświeżyć stronę."
 
-#: ../client/analysisCtrl.ts:489
+#: ../client/analysisCtrl.ts:491
 msgid "Multi-threaded WebAssembly (with NNUE evaluation)"
 msgstr "Wielowątkowy WebAssembly z oceną pozycji NNUE"
 
-#: ../client/analysisCtrl.ts:661
+#: ../client/analysisCtrl.ts:663
 msgid "Depth"
 msgstr "Głębokość"
 
-#: ../client/analysisCtrl.ts:666
+#: ../client/analysisCtrl.ts:668
 msgid "Go deeper"
 msgstr "Głębsza analiza"
 
@@ -250,19 +250,19 @@ msgstr "Strzałka najlepszego ruchu"
 
 #: ../client/analysisSettings.ts:103
 msgid "Infinite analysis"
-msgstr ""
+msgstr "Nieograniczona analiza"
 
 #: ../client/analysisSettings.ts:129
 msgid "Multiple lines"
-msgstr ""
+msgstr "Podawane warianty"
 
 #: ../client/analysisSettings.ts:156
 msgid "CPUs"
-msgstr ""
+msgstr "Rdzenie"
 
 #: ../client/analysisSettings.ts:202
 msgid "Memory"
-msgstr ""
+msgstr "Użycie pamięci"
 
 #: ../client/background.ts:9
 msgid "Light"
@@ -748,7 +748,7 @@ msgstr "Figury wybuchają podczas bicia."
 
 #: ../client/i18n.ts:98
 msgid "The duck must be moved to a new square after every turn."
-msgstr ""
+msgstr "Kaczkę należy przestawić na inne pole po każdym ruchu."
 
 #: ../client/i18n.ts:99
 msgid ""
@@ -953,7 +953,7 @@ msgstr "Podobne do szachów Capablanki, ale z innym ustawieniem początkowym."
 
 #: ../client/i18n.ts:131
 msgid "Embassy with Crazyhouse drop rules."
-msgstr ""
+msgstr "Embassy z zasadami dostawiania jak w crazyhouse'ie"
 
 #: ../client/i18n.ts:132
 msgid "Like Capablanca Chess but with a different starting setup."
@@ -1141,7 +1141,7 @@ msgstr "Zadanie dnia"
 #: ../client/editor/editorCtrl.ts:92 ../client/editor/editorCtrl.ts:93
 #: ../client/lobby.ts:957
 msgid "%1 to play"
-msgstr "%1 na ruchu"
+msgstr "%1 na posunięciu"
 
 #: ../client/lobby.ts:1004
 msgid "Donate"
@@ -1161,27 +1161,27 @@ msgstr "O nas"
 
 #: ../client/lobby.ts:1015
 msgid "Summer Update"
-msgstr ""
+msgstr "Letnie nowości"
 
 #: ../client/lobby.ts:1016
 msgid "New features and bug fixes"
-msgstr ""
+msgstr "Nowe funkcjonalności i bugfixy"
 
 #: ../client/lobby.ts:1023
 msgid "Madness? This. Is. SPARTAN CHESS!"
-msgstr ""
+msgstr "Szaleństwo? To są Spartańskie Szachy!"
 
 #: ../client/lobby.ts:1024
 msgid "Spartan chess has arrived"
-msgstr ""
+msgstr "Przedstawiamy wam: Szachy Spartańskie!"
 
 #: ../client/lobby.ts:1031
 msgid "A Christmas Present From Pychess"
-msgstr ""
+msgstr "Świąteczny prezent od Pychessa"
 
 #: ../client/lobby.ts:1032
 msgid "Duck chess has arrived"
-msgstr ""
+msgstr "Przedstawiamy wam: Kaczkoszachy!"
 
 #: ../client/main.ts:112
 msgid "Thank you for your support!"
@@ -1228,83 +1228,96 @@ msgstr "Rankingowe"
 msgid "Imported"
 msgstr "Wgrane"
 
-#: ../client/puzzleCtrl.ts:80
+#: ../client/puzzleCtrl.ts:86
 msgid "LOGIN"
-msgstr ""
+msgstr "ZALOGUJ SIĘ"
 
-#: ../client/puzzleCtrl.ts:108
+#: ../client/puzzleCtrl.ts:114
 msgid "Hint"
-msgstr ""
+msgstr "Wskazówka"
 
-#: ../client/puzzleCtrl.ts:116
+#: ../client/puzzleCtrl.ts:122
 msgid "View the solution"
 msgstr "Zobacz rozwiązanie "
 
-#: ../client/puzzleCtrl.ts:157
+#: ../client/puzzleCtrl.ts:163
 msgid ""
 "Your puzzle rating will not change. Note that puzzles are not a competition."
 " Ratings help select the best puzzles for your current skill."
 msgstr ""
-"Twój ranking w rozwiązywaniu zadań nie ulegnie zmianie. Pamiętaj, że ranking"
-" jest używany jedynie do wybierania zadań odpowiednich dla Twojego poziomu."
+"Twój ranking w rozwiązywaniu zadań nie ulegnie zmianie. Pamiętaj, że zadania"
+" nie są rywalizacją. Twój ranking pomaga wybrać najlepsze zadania dla Twoich"
+" aktualnych umiejętności."
 
-#: ../client/puzzleCtrl.ts:170
-msgid "Puzzle "
+#: ../client/puzzleCtrl.ts:193
+msgid "Puzzle"
 msgstr "Zadanie"
 
-#: ../client/puzzleCtrl.ts:171
-msgid "Rating: "
-msgstr "Poziom: "
+#: ../client/puzzleCtrl.ts:194
+msgid "Rating:"
+msgstr "Ranking"
 
-#: ../client/puzzleCtrl.ts:171
+#: ../client/puzzleCtrl.ts:194
 msgid "hidden"
 msgstr "ukryty"
 
-#: ../client/puzzleCtrl.ts:172
-msgid "Played: "
+#: ../client/puzzleCtrl.ts:195
+msgid "Played:"
 msgstr "Rozwiązywane: "
 
-#: ../client/puzzleCtrl.ts:178
-msgid "Source: "
-msgstr "Źrôdło"
+#: ../client/puzzleCtrl.ts:212
+msgid "Source:"
+msgstr "Źródło: "
 
-#: ../client/puzzleCtrl.ts:280
+#: ../client/puzzleCtrl.ts:216
+msgid "Type:"
+msgstr "Rodzaj"
+
+#: ../client/puzzleCtrl.ts:319
 msgid "Your turn"
 msgstr "Twój ruch"
 
-#: ../client/puzzleCtrl.ts:281
+#: ../client/puzzleCtrl.ts:320
 msgid "Find the best move for %1."
 msgstr "Znajdź najlepszy ruch."
 
-#: ../client/puzzleCtrl.ts:298
+#: ../client/puzzleCtrl.ts:337
 msgid "That's not the move!"
 msgstr "To nie jest właściwy ruch!"
 
-#: ../client/puzzleCtrl.ts:299
+#: ../client/puzzleCtrl.ts:338
 msgid "Try something else."
 msgstr "Spróbuj czegoś innego."
 
-#: ../client/puzzleCtrl.ts:313
+#: ../client/puzzleCtrl.ts:352
 msgid "Best move!"
 msgstr "Najlepszy ruch!"
 
-#: ../client/puzzleCtrl.ts:314
+#: ../client/puzzleCtrl.ts:353
 msgid "Keep going..."
 msgstr "Kontynuuj…"
 
-#: ../client/puzzleCtrl.ts:327
+#: ../client/puzzleCtrl.ts:366
 msgid "Success!"
 msgstr "Sukces!"
 
-#: ../client/puzzleCtrl.ts:332
+#: ../client/puzzleCtrl.ts:371
 msgid "Puzzle complete!"
 msgstr "Sukces!"
 
-#: ../client/puzzleCtrl.ts:335
+#: ../client/puzzleCtrl.ts:374
 msgid "We have no more puzzle for this variant."
-msgstr ""
+msgstr "To wszystkie zadania jakie mamy w tej odmianie."
 
-#: ../client/puzzleCtrl.ts:346
+#: ../client/puzzleCtrl.ts:384
+msgid "Did you like this puzzle?"
+msgstr "Podoba Ci się to zadanie?"
+
+#: ../client/puzzleCtrl.ts:385
+msgid "Vote to load the next one!"
+msgstr "Zagłosuj a dostaniesz następne"
+
+#: ../client/puzzleCtrl.ts:399
 msgid "Continue training"
 msgstr "Kontynuuj trening"
 
@@ -1662,35 +1675,35 @@ msgstr "START ZA"
 
 #: ../client/variants.ts:795
 msgid "Asymmetric Spartans vs. Persians variant."
-msgstr ""
+msgstr "Asymetryczna odmiana Spartanie vs Persowie"
 
 #: ../client/lobby/layer1.ts:51 ../client/lobby/layer2chess.ts:19
-#: ../client/variants.ts:879
+#: ../client/variants.ts:874
 msgid "Chess Variants"
 msgstr "Odmiany szachów"
 
 #: ../client/lobby/layer1.ts:75 ../client/lobby/layer2makruk.ts:16
-#: ../client/variants.ts:880
+#: ../client/variants.ts:875
 msgid "Makruk Variants"
 msgstr "Odmiany Makruka"
 
 #: ../client/lobby/layer1.ts:83 ../client/lobby/layer2shogi.ts:17
-#: ../client/variants.ts:881
+#: ../client/variants.ts:876
 msgid "Shogi Variants"
 msgstr "Odmiany Shogi"
 
 #: ../client/lobby/layer1.ts:91 ../client/lobby/layer2xiangqi.ts:16
-#: ../client/variants.ts:882
+#: ../client/variants.ts:877
 msgid "Xiangqi Variants"
 msgstr "Odmiany Xiangqi"
 
 #: ../client/lobby/layer1.ts:59 ../client/lobby/layer2fairy.ts:16
-#: ../client/variants.ts:883
+#: ../client/variants.ts:878
 msgid "Fairy Piece Variants"
 msgstr "Odmiany z niestandardowymi figurami"
 
 #: ../client/lobby/layer1.ts:67 ../client/lobby/layer2army.ts:16
-#: ../client/variants.ts:884
+#: ../client/variants.ts:879
 msgid "New Army Variants"
 msgstr "Odmiany z niestandardowymi armiami"
 
@@ -1740,11 +1753,11 @@ msgstr "Zapisz jako PNG"
 
 #: ../client/input/duck.ts:52
 msgid "Undo"
-msgstr ""
+msgstr "Cofnij"
 
 #: ../client/input/duck.ts:58
 msgid "Place the duck on an empty square."
-msgstr ""
+msgstr "Umieść kaczkę na wolnym polu"
 
 #: ../client/lobby/layer2army.ts:18
 msgid ""
@@ -1787,11 +1800,11 @@ msgstr "Szachy majańskie"
 
 #: ../client/lobby/layer2army.ts:70
 msgid "Alternating pieces"
-msgstr ""
+msgstr "Przemieniające się figury"
 
 #: ../client/lobby/layer2army.ts:77
 msgid "Spartans: Army with two kings"
-msgstr ""
+msgstr "Spartanie: armia z dwoma królami"
 
 #: ../client/lobby/layer2chess.ts:21
 msgid "Variants using a basic chess set but with different rules."
@@ -1997,11 +2010,11 @@ msgstr "Przedwczesna promocja króla może być ryzykowna."
 
 #: ../client/lobby/layer3.ts:112
 msgid "Make sure to consider both forms of each piece."
-msgstr ""
+msgstr "Miej w pamięci obie wersje każdej figury."
 
 #: ../client/lobby/layer3.ts:114
 msgid "Spartan kings can be a powerful addition to an offensive."
-msgstr ""
+msgstr "Spartański król może być istotną pomocą w ataku."
 
 #: ../client/lobby/layer3.ts:117
 msgid "Maximizing khon and met's effectiveness is the key."

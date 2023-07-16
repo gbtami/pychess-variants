@@ -896,7 +896,7 @@ button#btn-zen:hover {
   opacity: 0.7;
 }
 
-#settings-lang > form {
+#settings-lang > form, #settings-background > form {
   display: flex;
   flex-direction: column;
 }
