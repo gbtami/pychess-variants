@@ -30,6 +30,20 @@
   position: absolute;
   bottom: 0;
 }
+.lobby-count > a {
+  margin: 5px;
+}
+@media only screen and (max-width: 799px) {
+  .lobby-count {
+    width: 100%;
+    flex-flow: row;
+    position: relative;
+  }
+  .lobby-count > a {
+  width: 50%;
+  text-align: center;
+}
+}
 .tv {
     grid-area: tv;
     display: block;
