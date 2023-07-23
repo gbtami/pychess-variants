@@ -30,9 +30,6 @@
   position: absolute;
   bottom: 0;
 }
-.lobby-count > a {
-  margin: 5px;
-}
 @media only screen and (max-width: 799px) {
   .lobby-count {
     width: 100%;
@@ -40,6 +37,7 @@
     position: relative;
   }
   .lobby-count > a {
+  margin: 5px;
   width: 50%;
   text-align: center;
 }
