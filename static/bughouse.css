@@ -174,6 +174,17 @@ button.bugchat::-moz-focus-inner {
 
 /*round.css*/
 
+@media (max-width: 799px) and (orientation: portrait) {
+    .round-app.bug {
+        grid-template-columns: auto;
+        grid-template-rows:    auto         36px       auto        min-content 36px   auto        auto         auto    auto                 auto         min-content    auto         auto                 auto            auto    auto            auto     auto     auto;
+        grid-template-areas:  'pocket-top' 'user-top' 'clock-top' 'board' 'user-bot' 'clock-bot' 'pocket-bot' 'tools' 'pocket-top-partner' 'clockB-top' 'boardPartner' 'clockB-bot' 'pocket-bot-partner' 'game-controls' 'offer' 'move-controls' 'toolsB' 'uboard' 'uleft';
+    }
+    under-left {
+        display: none;
+    }
+}
+
 @media (min-width: 800px) {
 
     .round-app.bug {
@@ -246,6 +257,17 @@ button.bugchat::-moz-focus-inner {
     grid-template-rows: fit-content(0) fit-content(0) 743px;
     grid-template-areas: 'app app' 'uleft uboard' 'side side';
     /*grid-gap: 2vmin; i am not sure what is the point f this whole selector in min-width:800px, why i have it and in what cases it makes sense*/
+  }
+}
+
+@media (max-width: 799px) and (orientation: portrait) {
+  .bug .info-wrap0 {
+    grid-area: clock-top;
+    justify-self: flex-end;
+  }
+  .bug .info-wrap1 {
+    grid-area: clock-bot;
+    justify-self: flex-end;
   }
 }
 
@@ -371,6 +393,17 @@ round-player1.bug {
 #messages {
   width: 100%;
 }
+
+@media (max-width: 799px) and (orientation: portrait) {
+  main.round.bug #movelist {
+    font-size: 1.1em;
+  }
+}
+@media (min-width: 800px) {
+  main.round.bug #movelist {
+    font-size: 0.68vw; // magic number that looks good and resizes itself with container
+  }
+}
 main.round.bug #movelist {
   display: flex;
   height: 100%;
@@ -379,7 +412,6 @@ main.round.bug #movelist {
   flex-flow: row wrap;
   position: relative;
   line-height: 1.7;
-  font-size: 1.1em;
   align-items: center;
   align-content: flex-start;
   background: var(--bg-color0);

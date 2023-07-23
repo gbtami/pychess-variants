@@ -94,11 +94,11 @@ class BoardSettings {
     }
 
     updateDropSuggestion() {
-        this.updateDropSuggestion(this.ctrl);
-        this.updateDropSuggestion(this.ctrl2);
+        this.updateDropSuggestionCtrl(this.ctrl);
+        this.updateDropSuggestionCtrl(this.ctrl2);
     }
 
-    updateDropSuggestion(ctrl: BoardController) {
+    updateDropSuggestionCtrl(ctrl: BoardController) {
         // Redraw the piece being suggested for dropping in the new piece style
         if (this.ctrl && this.ctrl.hasPockets) {
             const chessground = this.ctrl.chessground;
