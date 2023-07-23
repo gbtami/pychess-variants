@@ -1,6 +1,8 @@
+import json
 import logging
 import random
 from datetime import datetime, timezone
+from functools import partial
 
 from aiohttp import web
 import aiohttp_session
@@ -12,6 +14,8 @@ from const import VARIANTS
 from glicko2.glicko2 import DEFAULT_PERF, MU, gl2, Rating
 
 log = logging.getLogger(__name__)
+
+PUZZLE_PAGE_SIZE = 12
 
 # variants having 0 puzzle so far
 NO_PUZZLE_VARIANTS = (
@@ -268,3 +272,39 @@ class Puzzle:
             await self.db.puzzle.find_one_and_update(
                 {"_id": self.puzzleId}, {"$set": {"played": self.puzzle_data.get("played", 0) + 1}}
             )
+
+
+async def get_user_puzzles(request):
+    db = request.app["db"]
+    profileId = request.match_info.get("profileId")
+
+    # Who made the request?
+    session = await aiohttp_session.get_session(request)
+    session_user = session.get("user_name")
+
+    if profileId != session_user:
+        return web.json_response({})
+
+    filter_cond = {}
+    # print("URL", request.rel_url)
+    filter_cond = {"_id": {"$gt": "%s%s" % (profileId, ID_SEPARATOR)}}
+
+    page_num = request.rel_url.query.get("p", 0)
+
+    puzzle_round_docs = {}
+
+    cursor = db.puzzle_round.find(filter_cond)
+    cursor.sort("date", -1).skip(int(page_num) * PUZZLE_PAGE_SIZE).limit(PUZZLE_PAGE_SIZE)
+
+    async for doc in cursor:
+        puzzle_id = doc["_id"].split(ID_SEPARATOR)[1]
+        puzzle_round_docs[puzzle_id] = doc
+
+    cursor = db.puzzle.find({"_id": {"$in": list(puzzle_round_docs.keys())}})
+    async for doc in cursor:
+        puzzle_round_docs[doc["_id"]]["variant"] = doc["variant"]
+        puzzle_round_docs[doc["_id"]]["fen"] = doc["fen"]
+
+    return web.json_response(
+        list(puzzle_round_docs.values()), dumps=partial(json.dumps, default=datetime.isoformat)
+    )

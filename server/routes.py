@@ -40,7 +40,7 @@ from wsr import round_socket_handler
 from wst import tournament_socket_handler
 from tournament_calendar import tournament_calendar
 from twitch import twitch_request_handler
-from puzzle import puzzle_complete, puzzle_vote
+from puzzle import get_user_puzzles, puzzle_complete, puzzle_vote
 from user import set_theme
 
 
@@ -112,6 +112,7 @@ get_routes = (
     ("/api/{profileId}/import", get_user_games),
     ("/api/{profileId}/me", get_user_games),
     ("/api/{profileId}/perf/{variant}", get_user_games),
+    ("/api/{profileId}/puzzle", get_user_puzzles),
     ("/api/calendar", tournament_calendar),
     ("/api/stats", get_variant_stats),
     ("/api/stats/humans", get_variant_stats),

@@ -10,6 +10,7 @@ import { renderGames } from './games';
 import { editorView } from '@/editor/editor';
 import { analysisView, embedView } from './analysis';
 import { puzzleView } from './puzzle';
+import { puzzleProfileView } from './puzzleProfile';
 import { profileView } from './profile';
 import { tournamentView } from './tournament';
 import { calendarView } from './calendar';
@@ -82,6 +83,7 @@ export function view(el: HTMLElement, model: PyChessModel): VNode {
         return h('div#main-wrap', aboutView(model));
     case 'level8win':
     case 'puzzle_profile':
+        return h('div#profile', puzzleProfileView(model));
     case 'profile':
         return h('div#profile', profileView(model));
     case 'tv':
