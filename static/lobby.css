@@ -9,7 +9,7 @@
 }
 @media (max-width: 799px) and (orientation: portrait) {
     .lobby {
-        grid-template-areas: 'table' 'app' 'vpanel' 'side' 'blog' 'tv' 'puzzle' 'utable' 'uleft';
+        grid-template-areas: 'table' 'app' 'vpanel' 'side' 'blog' 'utable' 'uleft' 'tv' 'puzzle';
     }
     .sidebar-second {
     margin: 1em 0 1em 0;
