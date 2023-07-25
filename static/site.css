@@ -326,7 +326,11 @@ iframe {
     );
   }
 }
-
+@media (max-width: 599px) and (orientation: portrait) {
+  #main-wrap {
+    --main-max-width: 100%;
+  }
+}
 .round {
   grid-area: main;
   display: grid;
