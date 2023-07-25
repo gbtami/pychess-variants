@@ -176,10 +176,6 @@ export class AnalysisController extends GameController {
                 const pgn = (this.isAnalysisBoard) ? this.getPgn() : this.pgn;
                 this.renderFENAndPGN(pgn);
             }
-            if (this.isAnalysisBoard) {
-                (document.querySelector('[role="tablist"]') as HTMLElement).style.display = 'none';
-                (document.querySelector('[tabindex="0"]') as HTMLElement).style.display = 'flex';
-            }
         }
 
         if (this.variant.ui.materialPoint) {
@@ -219,13 +215,19 @@ export class AnalysisController extends GameController {
             grandparent!.querySelectorAll('[role="tabpanel"]').forEach(p => (p as HTMLElement).style.display = 'none');
 
             // Show the selected panel
-            (grandparent!.parentNode!.querySelector(`#${target.getAttribute('aria-controls')}`)! as HTMLElement).style.display = 'flex';
+            (grandparent!.parentNode!.querySelector(`#${target.getAttribute('aria-controls')}`)! as HTMLElement).style.display = 'block';
         }
         if (!this.puzzle) {
-            (document.querySelector('[tabindex="0"]') as HTMLElement).style.display = 'flex';
+            const initialEl = document.querySelector('[tabindex="0"]') as HTMLElement;
+            initialEl.setAttribute('aria-selected', 'true');
+            (initialEl!.parentNode!.parentNode!.querySelector(`#${initialEl.getAttribute('aria-controls')}`)! as HTMLElement).style.display = 'block';
 
             const menuEl = document.getElementById('bars') as HTMLElement;
             menuEl.style.display = 'block';
+        }
+        if (this.isAnalysisBoard) {
+            (document.querySelector('[role="tablist"]') as HTMLElement).style.display = 'none';
+            (document.querySelector('.pgn-container') as HTMLElement).style.display = 'block';
         }
 
         this.onMsgBoard(model["board"] as MsgBoard);
@@ -286,13 +288,14 @@ export class AnalysisController extends GameController {
     }
 
     private drawAnalysisChart = (withRequest: boolean) => {
+        const element = document.getElementById('request-analysis') as HTMLElement;
+        if (element !== null) element.style.display = 'none';
+
         if (withRequest) {
             if (this.anon) {
                 alert(_('You need an account to do that.'));
                 return;
             }
-            const element = document.getElementById('request-analysis') as HTMLElement;
-            if (element !== null) element.style.display = 'none';
 
             this.doSend({ type: "analysis", username: this.username, gameId: this.gameId });
             const loaderEl = document.getElementById('loader') as HTMLElement;
@@ -386,8 +389,9 @@ export class AnalysisController extends GameController {
                 if (!this.isAnalysisBoard && !this.embed) {
                     const el = document.getElementById('request-analysis') as HTMLElement;
                     el.style.display = 'block';
-                    patch(el, h('button#request-analysis', { on: { click: () => this.drawAnalysisChart(true) } }, [
+                    patch(el, h('div.request-analysis', [h('button#request-analysis', { on: { click: () => this.drawAnalysisChart(true) } }, [
                         h('i', {props: {title: _('Request Computer Analysis')}, class: {"icon": true, "icon-bar-chart": true} }, _('Request Analysis'))])
+                        ])
                     );
                 }
             } else {

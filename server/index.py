@@ -60,6 +60,7 @@ from puzzle import (
     get_puzzle,
     next_puzzle,
     get_daily_puzzle,
+    default_puzzle_perf,
 )
 from custom_trophy_owners import CUSTOM_TROPHY_OWNERS
 
@@ -515,7 +516,8 @@ async def index(request):
 
         color = puzzle["fen"].split()[1]
         chess960 = False
-        puzzle_rating = int(round(puzzle.get("perf", DEFAULT_PERF)["gl"]["r"], 0))
+        dafault_perf = default_puzzle_perf(puzzle["eval"])
+        puzzle_rating = int(round(puzzle.get("perf", dafault_perf)["gl"]["r"], 0))
         variant = puzzle["variant"]
         if color == "w":
             wrating = int(round(user.get_puzzle_rating(variant, chess960).mu, 0))
