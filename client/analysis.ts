@@ -94,7 +94,7 @@ export function analysisView(model: PyChessModel): VNode[] {
     const variant = VARIANTS[model.variant];
     const isAnalysisBoard = model["gameId"] === "";
     const tabindexCt = (isAnalysisBoard) ? '-1' : '0';
-    const tabindexPgn = (isAnalysisBoard) ? '0' : '-1';
+    var tabindexPgn = (isAnalysisBoard) ? '0' : '-1';
 
     renderTimeago();
 
@@ -111,6 +111,8 @@ export function analysisView(model: PyChessModel): VNode[] {
     }
     if (model.ct) {
         tabs.push(h('span', {attrs: {role: 'tab', 'aria-selected': false, 'aria-controls': 'panel-3', id: 'tab-3', tabindex: tabindexCt}}, _('Crosstable')))
+    } else {
+        tabindexPgn = "0";
     }
     tabs.push(h('span', {attrs: {role: 'tab', 'aria-selected': false, 'aria-controls': 'panel-4', id: 'tab-4', tabindex: tabindexPgn}}, _('FEN & PGN')));
 

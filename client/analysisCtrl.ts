@@ -219,8 +219,8 @@ export class AnalysisController extends GameController {
         }
         if (!this.puzzle) {
             const initialEl = document.querySelector('[tabindex="0"]') as HTMLElement;
-            (initialEl).style.display = 'block';
             initialEl.setAttribute('aria-selected', 'true');
+            (initialEl!.parentNode!.parentNode!.querySelector(`#${initialEl.getAttribute('aria-controls')}`)! as HTMLElement).style.display = 'block';
 
             const menuEl = document.getElementById('bars') as HTMLElement;
             menuEl.style.display = 'block';
