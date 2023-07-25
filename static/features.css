@@ -3,7 +3,7 @@ div.main-feature-board {
     width: 90%;
     padding: 0px;
 }
-@media (max-width: 700px) {
+@media (max-width: 799px) and (orientation: portrait) {
     div.main-feature-board {
         margin: 0;
         width: 100%;
