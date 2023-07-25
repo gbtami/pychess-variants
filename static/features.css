@@ -1,0 +1,11 @@
+div.main-feature-board {
+    margin-left: 5%;
+    width: 90%;
+    padding: 0px;
+}
+@media (max-width: 700px) {
+    div.main-feature-board {
+        margin: 0;
+        width: 100%;
+    }
+}
