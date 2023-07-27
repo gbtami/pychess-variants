@@ -18,10 +18,13 @@
 table {
   margin: 1em;      
 }
-tr{box-}
+tr{box-shadow: 0 1px 0 var(--border-color);}
+td, th{padding: 1em;}
     </style>
-
-<table><thead><tr><th>Website</th><th>Registered account</th></tr>
+h1, h3 {color: darkgoldenrod;}
+b {color: green; font-size: 1.3em;}
+<table><thead><tr><th><h1>Website</h1></th><th><h3>Registered account</h3></th></tr></thead>
+<tbody><tr><td></td><td><b class="icon icon-check"></b></td></tr>
      <tr><td></td><td><b class="icon icon-check"></b></td></tr>
      <tr><td></td><td><b class="icon icon-check"></b></td></tr>
      <tr><td></td><td><b class="icon icon-check"></b></td></tr>
@@ -29,8 +32,7 @@ tr{box-}
      <tr><td></td><td><b class="icon icon-check"></b></td></tr>
      <tr><td></td><td><b class="icon icon-check"></b></td></tr>
      <tr><td></td><td><b class="icon icon-check"></b></td></tr>
-     <tr><td></td><td><b class="icon icon-check"></b></td></tr>
-</thead></table>
+</tbody></table>
   
 <aside class="sidebar-second"></aside>
 {% endblock %}
