@@ -7,7 +7,7 @@ import aiohttp_session
 import pyffish as sf
 
 from const import VARIANTS
-from glicko2.glicko2 import DEFAULT_PERF, MU, gl2, Rating
+from glicko2.glicko2 import MU, gl2, Rating, rating
 
 # variants having 0 puzzle so far
 NO_PUZZLE_VARIANTS = (
@@ -212,7 +212,11 @@ async def update_puzzle_ratings(
 
 
 def default_puzzle_perf(puzzle_eval):
-    perf = DEFAULT_PERF
+    perf = {
+        "gl": {"r": rating.mu, "d": rating.phi, "v": rating.sigma},
+        "la": datetime.now(timezone.utc),
+        "nb": 0,
+    }
     if puzzle_eval[0] == "#":
         perf["gl"]["r"] = MU + 200 * (int(puzzle_eval[1:]) - 2)
     return perf

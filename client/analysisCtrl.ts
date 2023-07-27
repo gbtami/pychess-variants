@@ -335,7 +335,7 @@ export class AnalysisController extends GameController {
                     h('i', {props: {title: _('Download position to PNG image file')}, class: {"icon": true, "icon-download": true} }, _('PNG image'))]),
                 h('div#imported'),
                 ]
-            patch(container, h('div', buttons));
+            patch(container, h('div.pgnbuttons', buttons));
         }
 
         const e = document.getElementById('fullfen') as HTMLInputElement;
