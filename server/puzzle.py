@@ -16,11 +16,9 @@ NO_PUZZLE_VARIANTS = (
     "minishogi",
     "kyotoshogi",
     "gorogoroplus",
-    "torishogi",
     "manchu",
     "minixiangqi",
     "grandhouse",
-    "shouse",
     "shinobi",
     "shinobiplus",
 )
