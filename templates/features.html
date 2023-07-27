@@ -8,11 +8,12 @@
     box-shadow: var(--base-shadow);
     margin-left: 5%;
     width: 90%;
-    padding: 0px;
+    padding: 0;
+    padding-bottom: 2em;
 }
 @media (max-width: 799px) and (orientation: portrait) {
     div.main-feature-board {
-        margin: 0;
+        margin-left: 0;
         width: 100%;
     }
 }
@@ -34,6 +35,7 @@ span.green-text-right {
     }
 }
 p.explanation {
+    box-shadow: var(--base-shadow);
     margin: 3em 10% 1em 10%;
     padding: 2em 3em 3em 3em;
     background: var(--feature-btn);
@@ -50,8 +52,8 @@ p.explanation {
     <div class="main-feature-board">
 <table style="width: 100%;"><thead><tr><th style="width: 70%;"><h1>Website</h1></th><th style="width: 30%;"><h3>Registered account</h3></th></tr></thead>
 <tbody>
-     <tr><td>Zero ads</td><td><b class="icon icon-check"><span class="green-text-right">Yes</span></b></td></tr>
-     <tr><td>No tracking</td><td><b class="icon icon-check"><span class="green-text-right">Yes</span></b></td></tr>
+     <tr><td><div style="font-weight: bold;">Zero ads</div></td><td><b class="icon icon-check"><span class="green-text-right">Yes</span></b></td></tr>
+     <tr><td><div style="font-weight: bold;">No tracking</div></td><td><b class="icon icon-check"><span class="green-text-right">Yes</span></b></td></tr>
      <tr><td>Play <a href="https://www.pychess.org/tournaments">tournaments</a></td><td><b class="icon icon-check"><span class="green-text-right">Unlimited</span></b></td></tr>
      <tr><td><a href="https://www.pychess.org/variants">40+ chess variants</a></td><td><b class="icon icon-check"><span class="green-text-right">Yes</span></b></td></tr>
      <tr><td>Deep Fairy-Stockfish 16 NNUE server analysis</td><td><b class="icon icon-check"><span class="green-text-right">Unlimited</span></b></td></tr>
@@ -60,10 +62,10 @@ p.explanation {
      <tr><td>Download/Upload any game as PGN</td><td><b class="icon icon-check"><span class="green-text-right">Yes</span></b></td></tr>
      <tr><td><a href="https://www.pychess.org/video">Video library</a></td><td><b class="icon icon-check"><span class="green-text-right">Unlimited</span></b></td></tr>
      <tr><td>Available in 15+ languages</td><td><b class="icon icon-check"><span class="green-text-right">Yes</span></b></td></tr>
-     <tr><td>Light/dark theme, custom boards, pieces and background</td><td><b class="icon icon-check"><span class="green-text-right"></span></b></td></tr>
-     <tr><td><div style="font-weight: bold;">All features to come, forever</div></td><td><b class="icon icon-check"></b></td></tr>
+     <tr><td>Light/dark theme, various board themes and pieces.</td><td><b class="icon icon-check"><span class="green-text-right">Yes</span></b></td></tr>
+     <tr><td><div style="font-weight: bold;">All features to come, forever</div></td><td><b class="icon icon-check"><span class="green-text-right">Yes</span></b></td></tr>
 </tbody></table>
-        <p class="explanation"><strong>Yes, all features on PyChess are for free, for everybody and forever!</strong><br>Like Lichess, we believe every player deserves the best.<br>If you love PyChess,<br><a style="padding: 0.7em; text-align: center; border-radius: 6px; color: white;  margin-top: 1em; display: block; background: #629924" href="/patron">Support us by becoming a patron!!</a></p>
+        <p class="explanation"><strong>Yes, all features on PyChess are for free, for everybody and forever!</strong><br>Like Lichess, we believe every player deserves the best.<br>If you love PyChess,<br><a style="padding: 0.7em; text-align: center; border-radius: 6px; box-shadow: var(--base-shadow); color: white; font-weight: bold; margin-top: 1em; display: block; background: #629924" href="/patron">Support us by becoming a patron!!</a></p>
 </div>
 <aside class="sidebar-second"></aside>
 {% endblock %}
