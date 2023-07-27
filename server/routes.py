@@ -90,6 +90,7 @@ get_routes = (
     ("/level8win", index),
     ("/patron", index),
     ("/patron/thanks", index),
+    ("/features", index),
     ("/news", index),
     ("/news/{news_item}", index),
     ("/variants", index),
