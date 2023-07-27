@@ -391,6 +391,9 @@ div#panel-4 {
     font-size: 0.9em;
     flex-flow: column;
 }
+div.pgnbuttons {
+    display: flex;
+}
 div#pgntext {
     white-space: pre-wrap;
     font-family: monospace;
