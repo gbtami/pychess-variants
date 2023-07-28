@@ -137,6 +137,39 @@ async def init_db(app):
     app["db"] = app["client"][MONGO_DB_NAME]
 
 
+class Users(dict):
+    def __init__(self, app):
+        super().__init__()
+        self.app = app
+
+    async def get(self, username):
+        if username in self:
+            return self[username]
+
+        db = self.app["db"]
+        doc = await db.user.find_one({"_id": username})
+        if doc is None:
+            print("--- users.get() %s NOT IN db ---" % username)
+            return None
+        else:
+            perfs = doc.get("perfs", {variant: DEFAULT_PERF for variant in VARIANTS})
+            pperfs = doc.get("pperfs", {variant: DEFAULT_PERF for variant in VARIANTS})
+
+            user = User(
+                app,
+                username=doc["_id"],
+                title=doc.get("title"),
+                bot=doc.get("title") == "BOT",
+                perfs=perfs,
+                pperfs=pperfs,
+                enabled=doc.get("enabled", True),
+                lang=doc.get("lang", "en"),
+                theme=doc.get("theme", "dark"),
+            )
+            self.app["users"][doc["_id"]] = user
+            return user
+
+
 async def init_state(app):
     # We have to put "kill" into a dict to prevent getting:
     # DeprecationWarning: Changing state of started or joined application is deprecated
@@ -146,12 +179,12 @@ async def init_state(app):
     if "db" not in app:
         app["db"] = None
 
-    app["users"] = {
-        "PyChess": User(app, bot=True, username="PyChess"),
-        "Random-Mover": User(app, bot=True, username="Random-Mover"),
-        "Fairy-Stockfish": User(app, bot=True, username="Fairy-Stockfish"),
-        "Discord-Relay": User(app, anon=True, username="Discord-Relay"),
-    }
+    app["users"] = Users(app)
+    app["users"]["PyChess"] = User(app, bot=True, username="PyChess")
+    app["users"]["Random-Mover"] = User(app, bot=True, username="Random-Mover")
+    app["users"]["Fairy-Stockfish"] = User(app, bot=True, username="Fairy-Stockfish")
+    app["users"]["Discord-Relay"] = User(app, anon=True, username="Discord-Relay")
+
     app["users"]["Random-Mover"].online = True
     app["lobbysockets"] = {}  # one dict only! {user.username: user.tournament_sockets, ...}
     app["lobbychat"] = collections.deque([], MAX_CHAT_LINES)
@@ -284,6 +317,7 @@ async def init_state(app):
 
     # Read tournaments, users and highscore from db
     try:
+        """
         cursor = app["db"].user.find()
         async for doc in cursor:
             if doc["_id"] not in app["users"]:
@@ -301,7 +335,8 @@ async def init_state(app):
                     lang=doc.get("lang", "en"),
                     theme=doc.get("theme", "dark"),
                 )
-
+        """
+        print(len(app["users"]))
         await app["db"].tournament.create_index("startsAt")
         await app["db"].tournament.create_index("status")
 
@@ -327,6 +362,9 @@ async def init_state(app):
         hs = await generate_highscore(app["db"])
         for doc in hs:
             app["highscore"][doc["_id"]] = ValueSortedDict(neg, doc["scores"])
+
+            for username in app["highscore"][doc["_id"]]:
+                await app["users"].get(username)
 
         if "crosstable" not in db_collections:
             await generate_crosstable(app["db"])
