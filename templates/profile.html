@@ -10,7 +10,7 @@
         <div class="info2">
             <span><h3>{{ variant_display_name(key) }}</h3>
                 <rating>
-                    <strong>{{ ratings[key][0] }}</strong>
+                    <strong class="user-rating-strong">{{ ratings[key][0] }}</strong>
                     <span>{% trans count=ratings[key][1] %}{{ count }} game{% pluralize %}{{ count }} games{% endtrans %}</span>
                 </rating></span>
         </div>
