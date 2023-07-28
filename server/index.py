@@ -123,19 +123,6 @@ async def index(request):
                 session.invalidate()
                 return web.HTTPFound(request.rel_url)
             user = await users.get(session_user)
-            """
-            log.debug("New lichess user %s joined.", session_user)
-            title = session["title"] if "title" in session else ""
-            perfs = {variant: DEFAULT_PERF for variant in VARIANTS}
-            user = User(
-                request.app,
-                username=session_user,
-                anon=session["guest"],
-                title=title,
-                perfs=perfs,
-            )
-            users[user.username] = user
-            """
     else:
         user = User(request.app, anon=True)
         log.info("+++ New guest user %s connected.", user.username)
