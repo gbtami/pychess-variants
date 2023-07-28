@@ -183,7 +183,7 @@ async def logout(request, user=None):
         user = await users.get(session_user)
 
     if user is None:
-        return
+        return web.HTTPFound("/")
     response = {"type": "logout"}
 
     # close lobby socket
