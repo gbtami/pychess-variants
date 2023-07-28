@@ -31,7 +31,7 @@ from const import (
     TRANSLATED_PAIRING_SYSTEM_NAMES,
 )
 from fairy import FairyBoard
-from glicko2.glicko2 import DEFAULT_PERF, PROVISIONAL_PHI
+from glicko2.glicko2 import PROVISIONAL_PHI
 from robots import ROBOTS_TXT
 from settings import (
     ADMINS,
@@ -98,7 +98,7 @@ async def index(request):
     # Who made the request?
     session = await aiohttp_session.get_session(request)
     session_user = session.get("user_name")
-    print("INDEX", session)
+
     session["last_visit"] = datetime.now().isoformat()
     session["guest"] = True
     if session_user is not None:
@@ -252,9 +252,11 @@ async def index(request):
         view = "puzzle"
 
     profileId = request.match_info.get("profileId")
-    if profileId is not None and profileId not in users:
-        await asyncio.sleep(3)
-        raise web.HTTPNotFound()
+    if profileId is not None:
+        profileId_user = await users.get(profileId)
+        if profileId_user is None:
+            await asyncio.sleep(3)
+            raise web.HTTPNotFound()
 
     variant = request.match_info.get("variant")
     if (variant is not None) and ((variant not in VARIANTS) and variant != "terminology"):
