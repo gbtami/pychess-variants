@@ -94,7 +94,7 @@ export function analysisView(model: PyChessModel): VNode[] {
     const variant = VARIANTS[model.variant];
     const isAnalysisBoard = model["gameId"] === "";
     const tabindexCt = (isAnalysisBoard) ? '-1' : '0';
-    const tabindexPgn = (isAnalysisBoard) ? '0' : '-1';
+    var tabindexPgn = (isAnalysisBoard) ? '0' : '-1';
 
     renderTimeago();
 
@@ -103,6 +103,18 @@ export function analysisView(model: PyChessModel): VNode[] {
         el.focus();
         el.select();
     }
+
+    let tabs = [];
+    tabs.push(h('span', {attrs: {role: 'tab', 'aria-selected': false, 'aria-controls': 'panel-1', id: 'tab-1', tabindex: '-1'}}, _('Computer analysis')));
+    if (model.rated === "1") {
+        tabs.push(h('span', {attrs: {role: 'tab', 'aria-selected': true, 'aria-controls': 'panel-2', id: 'tab-1', tabindex: '-1'}}, _('Move times')))
+    }
+    if (model.ct) {
+        tabs.push(h('span', {attrs: {role: 'tab', 'aria-selected': false, 'aria-controls': 'panel-3', id: 'tab-3', tabindex: tabindexCt}}, _('Crosstable')))
+    } else {
+        tabindexPgn = "0";
+    }
+    tabs.push(h('span', {attrs: {role: 'tab', 'aria-selected': false, 'aria-controls': 'panel-4', id: 'tab-4', tabindex: tabindexPgn}}, _('FEN & PGN')));
 
     return [
         h('div.analysis-app', [
@@ -133,6 +145,7 @@ export function analysisView(model: PyChessModel): VNode[] {
             ]),
             h('under-left#spectators'),
             h('under-board', [
+                h('div', {attrs: {role: 'tablist', 'aria-label': 'Analysis Tabs'}}, tabs),
                 h('div.chart-container', {attrs: {id: 'panel-1', role: 'tabpanel', tabindex: '-1', 'aria-labelledby': 'tab-1'}}, [
                     h('button#request-analysis'),
                     h('div#chart-analysis'),
@@ -142,19 +155,13 @@ export function analysisView(model: PyChessModel): VNode[] {
                     h('div#chart-movetime'),
                 ]),
                 h('div.ctable-container', {attrs: {id: 'panel-3', role: 'tabpanel', tabindex: tabindexCt, 'aria-labelledby': 'tab-3'}}),
-                h('div', {attrs: {id: 'panel-4', role: 'tabpanel', tabindex: tabindexPgn, 'aria-labelledby': 'tab-4'}}, [
+                h('div.pgn-container', {attrs: {id: 'panel-4', role: 'tabpanel', tabindex: tabindexPgn, 'aria-labelledby': 'tab-4'}}, [
                     h('div#fentext', [
                         h('strong', 'FEN'),
                         h('input#fullfen', {attrs: {readonly: true, spellcheck: false}, on: { click: onClickFullfen } })
                     ]),
                     h('div#copyfen'),
                     h('div#pgntext'),
-                ]),
-                h('div', {attrs: {role: 'tablist', 'aria-label': 'Analysis Tabs'}}, [
-                    h('span', {attrs: {role: 'tab', 'aria-selected': false, 'aria-controls': 'panel-1', id: 'tab-1', tabindex: '-1'}}, _('Computer analysis')),
-                    h('span', {attrs: {role: 'tab', 'aria-selected': true, 'aria-controls': 'panel-2', id: 'tab-1', tabindex: '-1'}}, _('Move times')),
-                    h('span', {attrs: {role: 'tab', 'aria-selected': false, 'aria-controls': 'panel-3', id: 'tab-3', tabindex: tabindexCt}}, _('Crosstable')),
-                    h('span', {attrs: {role: 'tab', 'aria-selected': false, 'aria-controls': 'panel-4', id: 'tab-4', tabindex: tabindexPgn}}, _('FEN & PGN')),
                 ]),
             ]),
         ]),

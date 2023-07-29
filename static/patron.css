@@ -1,27 +1,93 @@
 div.patron {
-    display: grid;
-    grid-gap: 1rem;
-    grid-template-areas: 'txt txt' 'btn btn';
+    margin-left: 10%;
+    width: 80%;
+    padding: 0px;
 }
-@media (max-width: 799px) and (orientation: portrait) {
-    div.patron {
-        grid-template-areas: 'txt' 'btn' 'btn';
+@media (max-width: 700px) {
+    div.patron{
+        margin-left: 2%;
+        width: 96%;
     }
 }
+#patr-board {
+    width: 100%;
+    display: flex;
+    padding: 10px;
+}
+#patr-board > div {
+    padding: 5px;
+}
+
+#patr-board div:nth-of-type(2) {align-self: center;}
+
+
 .patron-txt {
-    grid-area: txt;
+    margin: 10px;
+    margin-left: 20px;
 }
-.patron-btn {
-    height: 8rem;
+.btm-txt {
+    margin-top: 10px;
 }
-.patron-btn img {
-    width: 100%;
-    height: 100%;
+@media (max-width: 700px) {
+.btm-txt { 
+    margin-top: 50px;
+    }
 }
-.patron-btn input {
-    padding: 0;
-    margin: 0;
+@media (max-width: 399px) {
+.btm-txt { 
+    margin-top: 150px;
+    }
+}
+    
+.banner {
+    margin-bottom: 2.5em;
+    background: #629924;
+    color: #fff;
+    text-align: center;
+    font-size: 1.3em;
+    min-height: 200px;
+    padding: 1em;
+    justify-content: space-between;
+}
+.patronbutton {
+    width: 100px;
+    text-align: center;
+    background: #1b78d0;
+    text-transform: uppercase;
     border: none;
-    width: 100%;
-    height: 100%;
+    cursor: pointer;
+    padding: 15px;
+    margin: 10px;
+    font-weight: normal;
+    color: white;
+    border-radius: 8px;
+    font-size: 1em;
+    white-space: nowrap;
+}
+.patronbutton:hover {
+    box-shadow: 0 4px 10px 0px rgba(0,0,0,.225);
+    filter: brightness(1.15);
+    color: white;
+}
+.flex-main-box3 {
+    display: flex;
+    flex-wrap: nowrap;
+    margin: 30px;
+}
+.flex-main-box3 > div {
+    flex-basis: 33%;
+}
+.flex-main-box3 div h3 {
+    padding: 0 2em 1em 0;
+}
+.flex-main-box3 div p {
+    padding: 1em 2em 2em 0;
+}
+@media (max-width: 799px) and (orientation: portrait) {
+  .flex-main-box3  { 
+    flex-flow: column;
+  }
+  .flex-main-box3 div h3 {
+    padding: 0 2em 0 0;
+  }
 }
