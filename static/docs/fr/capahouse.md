@@ -1,6 +1,6 @@
 # ![Capahouse](https://github.com/gbtami/pychess-variants/blob/master/static/icons/CHouse.svg) Capahouse
 
-Le Capahouse est une variante des échecs Capablanca en ajoutant le parachutage façon Crazyhouse. Comme le Capahouse est considérée comme dérivé des échecs Capablanca, veuillez consulter le guide des échecs Capablanca pour leurs règles. Les règles pertinentes du Crazyhouse sont reproduites ci-dessous.
+Le Capahouse est une variante des échecs Capablanca où l'on ajoute le parachutage façon Crazyhouse. Comme le Capahouse est considéré comme dérivé des échecs Capablanca, veuillez consulter le guide des échecs Capablanca pour ses règles. Les règles particulières du Crazyhouse sont reproduites ci-dessous.
 
 ## Règles du Crazyhouse
 
