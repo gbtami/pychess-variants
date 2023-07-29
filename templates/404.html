@@ -5,8 +5,195 @@
     <div class="header">
         <h1>404</h1>
         <div>
-            <strong>Page not found!</strong><p>Return to <a href="/">the homepage</a></p>
+            <strong>Page not found!</strong><p>Return to <a href="/">the homepage or play this mini-game</a></p>
         </div>
+      <style>
+    div.main-game-body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #board {
+      border: none;
+    }
+
+    #message {
+      background: var(--bg-color2);
+      box-shadow: var(--base-shadow);
+      margin-top: 10px;
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    #counter {
+      margin-top: 10px;
+      font-size: 16px;
+    }
+
+    #rules {
+      padding: 2em;
+      background: var(--bg-color2);
+      box-shadow: var(--base-shadow);
+      text-align: center;
+      font-size: 16px;
+      margin-bottom: 20px;
+    }
+
+    #reset-button {
+      margin: 2em;
+      padding: 1em;
+      background: var(green-text);
+      border: none;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      border-radius: 6px;
+    }
+    .light-square {
+      background-color: #f0d9b5;
+    }
+
+    .dark-square {
+      background-color: #b58863;
+    }
+  </style>
+<div class="main-game-body">
+  <h1><a href="https://en.wikipedia.org/wiki/Eight_queens_puzzle">Eight Queens Puzzle</a></h1>
+  <div id="rules">
+    <p>Rules:</p>
+    <p>Place eight queens on the board so that no two queens attack each other.</p>
+    <p>Click on empty squares to place queens. Click on placed queens to remove them.</p>
+  </div>
+  <canvas id="board" width="400" height="400"></canvas>
+  <div id="message"></div>
+  <div id="counter">Solutions found: 0</div>
+  <button id="reset-button">Reset</button>
+</div>
+
+  <script>
+    const canvas = document.getElementById('board');
+    const ctx = canvas.getContext('2d');
+    const messageElement = document.getElementById('message');
+    const counterElement = document.getElementById('counter');
+    const resetButton = document.getElementById('reset-button');
+
+    const boardSize = 8;
+    const cellSize = canvas.width / boardSize;
+
+    const board = Array.from({ length: boardSize }, () => Array(boardSize).fill(0));
+
+    let solutionsFound = 0;
+    let uniqueSolutions = new Set();
+
+    const queenImage = new Image();
+    queenImage.onload = () => {
+      drawBoard(); // Call drawBoard() after the image is loaded
+    };
+    queenImage.src = 'https://raw.githubusercontent.com/lichess-org/lila/5877877bee185a778bf8629424dd699022beba2d/public/piece/maestro/bQ.svg';
+
+    function isSafe(row, col) {
+      for (let i = 0; i < boardSize; i++) {
+        if (board[row][i] || board[i][col]) {
+          return false;
+        }
+        if (row + i < boardSize && col + i < boardSize && board[row + i][col + i]) {
+          return false;
+        }
+        if (row - i >= 0 && col + i < boardSize && board[row - i][col + i]) {
+          return false;
+        }
+        if (row + i < boardSize && col - i >= 0 && board[row + i][col - i]) {
+          return false;
+        }
+        if (row - i >= 0 && col - i >= 0 && board[row - i][col - i]) {
+          return false;
+        }
+      }
+      return true;
+    }
+
+    function getBoardIdentifier() {
+      return board.flat().join('');
+    }
+
+    function drawBoard() {
+      for (let row = 0; row < boardSize; row++) {
+        for (let col = 0; col < boardSize; col++) {
+          const isLightSquare = (row + col) % 2 === 0;
+          ctx.fillStyle = isLightSquare ? '#f0d9b5' : '#b58863';
+          ctx.fillRect(col * cellSize, row * cellSize, cellSize, cellSize);
+
+          if (board[row][col]) {
+            // Draw the queen image instead of the black dot
+            ctx.drawImage(queenImage, col * cellSize, row * cellSize, cellSize, cellSize);
+          }
+        }
+      }
+    }
+
+    function showMessage(message) {
+      messageElement.textContent = message;
+    }
+
+    function isGameOver() {
+      return board.flat().filter(val => val === 1).length === boardSize;
+    }
+
+    function placeQueen(row, col) {
+      board[row][col] = 1;
+    }
+
+    function removeQueen(row, col) {
+      board[row][col] = 0;
+    }
+
+    function resetBoard() {
+      board.forEach(row => row.fill(0));
+      drawBoard();
+    }
+
+    function placeOrRemoveQueen(event) {
+      const rect = canvas.getBoundingClientRect();
+      const x = event.clientX - rect.left;
+      const y = event.clientY - rect.top;
+      const row = Math.floor(y / cellSize);
+      const col = Math.floor(x / cellSize);
+
+      if (board[row][col]) {
+        removeQueen(row, col);
+      } else {
+        if (isSafe(row, col)) {
+          placeQueen(row, col);
+        } else {
+          showMessage("Invalid position! Queens cannot attack each other.");
+        }
+      }
+
+      drawBoard();
+
+      if (isGameOver()) {
+        const boardIdentifier = getBoardIdentifier();
+        if (!uniqueSolutions.has(boardIdentifier)) {
+          uniqueSolutions.add(boardIdentifier);
+          solutionsFound++;
+          showMessage(`Congratulations! You found one solution. There are ${92 - solutionsFound} left. Can you find others?`);
+          counterElement.textContent = `Solutions found: ${solutionsFound}`;
+        }
+
+        resetBoard();
+        if (solutionsFound === 92) {
+          showMessage("Congratulations! You are now a grandmaster of 8 Queens!");
+        }
+      }
+    }
+
+    canvas.addEventListener('click', placeOrRemoveQueen);
+    resetButton.addEventListener('click', resetBoard);
+    drawBoard();
+
+  </script>
     </div>
   </div>
 </div>
