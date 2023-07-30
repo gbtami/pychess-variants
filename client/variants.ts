@@ -351,7 +351,7 @@ export const VARIANTS: Record<string, Variant> = {
     '3check': variant({
         name: "3check", displayName: "three-check", tooltip: "",
         startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 3+3 0 1",
-        chess960: true, icon: "s", icon960: "s",
+        chess960: true, icon: "☰", icon960: "☷",
         boardFamily: "standard8x8", pieceFamily: "standard",
         pieceRow: ["k", "q", "r", "b", "n", "p"],
         rules: { enPassant: true },
