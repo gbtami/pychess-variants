@@ -16,7 +16,7 @@
     queenImage.onload = () => {
       drawBoard(); // Call drawBoard() after the image is loaded
     };
-    queenImage.src = 'https://raw.githubusercontent.com/lichess-org/lila/5877877bee185a778bf8629424dd699022beba2d/public/piece/maestro/bQ.svg';
+    queenImage.src = '/static/images/pieces/maestro/bQ.svg';
 
     function isSafe(row, col) {
       for (let i = 0; i < boardSize; i++) {

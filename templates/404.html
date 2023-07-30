@@ -8,7 +8,7 @@
             <strong>Page not found!</strong><p>Return to <a href="/">the homepage or play this mini-game</a></p>
         </div>
 <div class="main-game-body">
-  <h1><a href="https://en.wikipedia.org/wiki/Eight_queens_puzzle">Eight Queens Puzzle</a></h1>
+  <h2><a href="https://en.wikipedia.org/wiki/Eight_queens_puzzle">Eight Queens Puzzle</a></h2>
   <div id="rules">
     <p>Rules:</p>
     <p>Place eight queens on the board so that no two queens attack each other.</p>
@@ -23,6 +23,6 @@
 </div>
 {% endblock %}
 {% block js %}
-    <script src"https://raw.githubusercontent.com/gbtami/pychess-variants/master/client/8queens.js"></script>
+    <script src={{ static("8queens.js") }}></script>
     <script src="{{ js }}"></script>
 {% endblock %}
