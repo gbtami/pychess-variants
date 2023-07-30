@@ -14,6 +14,7 @@ export function layer2chess (lobbyCtrl: LobbyController, containerId: string): v
     const atomic = VARIANTS['atomic'];
     const kingofthehill = VARIANTS['kingofthehill'];
     const duck = VARIANTS['duck'];
+    const threecheck = VARIANTS['3check'];
     const layer2cont = h('div#layer2chesscont.layer-2-container.fairy-grid', [
         h('button.layer-2-category generic-variant-info.generic-fairy', [
             h('div.layer-two-category-info', [
@@ -70,6 +71,18 @@ export function layer2chess (lobbyCtrl: LobbyController, containerId: string): v
                 h('div.variant-title-l2', [
                     h('div.icon', { attrs: { 'data-icon': kingofthehill.icon(true) } }),
                     h('h3', VARIANTS['kingofthehill'].displayName(true))
+                ]),
+            ]),
+            h('button.layer-2-category', { on: { click: () => layer3variant('layer2chesscont', lobbyCtrl, '3check', false) } }, [
+                h('div.variant-title-l2', [
+                    h('div.icon', { attrs: { 'data-icon': threecheck.icon(false) } }),
+                    h('h3', VARIANTS['3check'].displayName())
+                ]),
+            ]),
+            h('button.layer-2-category', { on: { click: () => layer3variant('layer2chesscont', lobbyCtrl, '3check', true) } }, [
+                h('div.variant-title-l2', [
+                    h('div.icon', { attrs: { 'data-icon': threecheck.icon(true) } }),
+                    h('h3', VARIANTS['3check'].displayName(true))
                 ]),
             ]),
             h('button.layer-2-category', { on: { click: () => layer3variant('layer2chesscont', lobbyCtrl, 'placement', false) } }, [

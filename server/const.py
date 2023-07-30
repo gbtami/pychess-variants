@@ -191,8 +191,8 @@ VARIANT_ICONS = {
     "spartan": "⍺",
     "kingofthehill": "🏴",
     "kingofthehill960": "🏁",
-    "3check": "s",
-    "3check960": "s",
+    "3check": "☰",
+    "3check960": "☷",
 }
 
 VARIANT_960_TO_PGN = {
