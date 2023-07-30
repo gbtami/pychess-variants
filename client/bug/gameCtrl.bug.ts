@@ -13,6 +13,7 @@ import {RoundControllerBughouse} from "./roundCtrl.bug";
 import {premove} from "chessgroundx/premove";
 import {predrop} from "chessgroundx/predrop";
 import {boardSettings} from "@/boardSettings";
+import {sound} from "@/sound";
 
 export class GameControllerBughouse extends GameController {
 
@@ -92,13 +93,14 @@ export class GameControllerBughouse extends GameController {
 
     onMove = () => {
         return (orig: cg.Key, dest: cg.Key, capturedPiece: cg.Piece) => {
-            console.log("   ground.onMove()", orig, dest, capturedPiece);
+            sound.moveSound(this.variant, !!capturedPiece);
         }
     }
 
     onDrop = () => {
         return (piece: cg.Piece, dest: cg.Key) => {
-            console.log("ground.onDrop()", piece, dest);
+            if (piece.role)
+                sound.moveSound(this.variant, false);
         }
     }
 

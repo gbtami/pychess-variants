@@ -3,31 +3,47 @@ import { h, VNode } from 'snabbdom';
 import { patch } from '../document';
 import AnalysisController from "./analysisCtrl";
 import {ChessgroundController} from "./ChessgroundCtrl";
-import {Step} from "../messages";
+import {Clocks, Step} from "../messages";
 
 export function renderClocks(ctrl: AnalysisController) {
-    const step = ctrl.steps[ctrl.ply];
-    if (step && step.boardName == 'a') {
-        renderClocksCC(step, ctrl.b1, "");
+    //todo:niki:should record on each move both clocks so we know what the time on the other board was when the move was made maybe. or could i reconstruct it actually. hmm... (see same comment in roundctrl.bug.ts)
+
+    const lastStepA = ctrl.steps[ctrl.steps.findLastIndex((s, i) => s.boardName === "a" && i <= ctrl.ply)];
+    const lastStepB = ctrl.steps[ctrl.steps.findLastIndex((s, i) => s.boardName === "b" && i <= ctrl.ply)];
+
+    if (lastStepA) {
+        renderClocksCC({white: lastStepA.clocks['white'], black: lastStepA.clocks['black']}, ctrl.b1, "");
     } else {
-        renderClocksCC(step, ctrl.b2, ".bug");
+        renderClocksCC({white: ctrl.base * 60 * 1000, black: ctrl.base * 60 * 1000}, ctrl.b1, "");
     }
+    if (lastStepB) {
+        renderClocksCC({white:lastStepB.clocks['white'], black: lastStepB.clocks['black']}, ctrl.b2, ".bug");
+    } else {
+        renderClocksCC({white: ctrl.base * 60 * 1000, black: ctrl.base * 60 * 1000}, ctrl.b2, ".bug");
+    }
+
+    // const step = ctrl.steps[ctrl.ply];
+    // if (step && step.boardName == 'a') {
+    //     renderClocksCC(step, ctrl.b1, "");
+    // } else {
+    //     renderClocksCC(step, ctrl.b2, ".bug");
+    // }
 }
 
-export function renderClocksCC(step: Step, ctrl: ChessgroundController, suffix: string) {
+export function renderClocksCC(clocks: Clocks, ctrl: ChessgroundController, suffix: string) {
     const isWhiteTurn = ctrl.turnColor === "white";
     const whitePov = !ctrl.flipped();
 
     const wclass = whitePov ? 'bottom' : 'top';
 
-    const wtime = step?.clocks?.white;
+    const wtime = clocks.white;
     let wel: VNode | HTMLElement = document.querySelector(`div.anal-clock.${wclass}${suffix}`) as HTMLElement;
     if (wel) {
         wel = patch(wel, h(`div.anal-clock.${wclass}${suffix}`, ''));
         patch(wel, renderClock(wtime!, isWhiteTurn, wclass+suffix));
     }
     const bclass = whitePov ? 'top' : 'bottom';
-    const btime = step?.clocks?.black;
+    const btime = clocks.black;
     let bel: VNode | HTMLElement = document.querySelector(`div.anal-clock.${bclass}${suffix}`) as HTMLElement;
     if (bel) {
         bel = patch(bel, h(`div.anal-clock.${bclass}${suffix}`, ''));

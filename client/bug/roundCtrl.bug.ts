@@ -38,6 +38,7 @@ import {newWebsocket} from "../socket";
 import WebsocketHeartbeatJs from "websocket-heartbeat-js";
 import {notify} from "../notification";
 import {FEN} from "chessgroundx/types";
+import {VARIANTS} from "../variants";
 
 export class RoundControllerBughouse implements ChatController/*extends GameController todo:does it make sense for these guys - also AnalysisControl which is older before this refactring that introduced this stuff*/ {
     sock: WebsocketHeartbeatJs;
@@ -138,6 +139,8 @@ export class RoundControllerBughouse implements ChatController/*extends GameCont
 
         this.base = Number(model["base"]);
         this.inc = Number(model["inc"]);
+        this.status = Number(model["status"]);
+
         this.gameId = model["gameId"] as string;
         this.username = model["username"];
         this.anon = model.anon === 'True';
@@ -635,8 +638,8 @@ export class RoundControllerBughouse implements ChatController/*extends GameCont
             this.clocksB[1].pause(false);
             // this.dests = new Map();
 
-            // if (this.result !== "*" && !this.spectator && !this.finishedGame) todo:niki: i dont understand why !finishedGame and we issue a gameEndSound
-            //     sound.gameEndSound(msg.result, this.mycolor); todo:niki: i dont understand why it matters whose color it is?
+            if (this.result !== "*" && !this.spectator && !this.finishedGame)
+                sound.gameEndSound(msg.result, this.mycolor); //todo:niki: debug here to see how to trick this into playing correct vicory/defeat/draw soound - i dont remember how i denote end games - 1:0 means first team wins maybe?
 
             if ("rdiffs" in msg) this.gameOver(msg.rdiffs); //todo:niki: am i still using rdiffs - probably i should for boardA
             // selectMove(this, this.ply);TODO:NIKI
@@ -856,16 +859,27 @@ export class RoundControllerBughouse implements ChatController/*extends GameCont
         const whiteBClockAtIdx = this.colorsB[0] === 'white'? 0: 1;
         const blackBClockAtIdx = 1 - whiteBClockAtIdx;
 
-        this.clocks[whiteAClockAtIdx].setTime(this.clocktimes['white']);
-        this.clocks[blackAClockAtIdx].setTime(this.clocktimes['black']);
-        this.clocksB[whiteBClockAtIdx].setTime(this.clocktimesB['white']);
-        this.clocksB[blackBClockAtIdx].setTime(this.clocktimesB['black']);
 
         if (this.status < 0) {
+            this.clocks[whiteAClockAtIdx].setTime(this.clocktimes['white']);
+            this.clocks[blackAClockAtIdx].setTime(this.clocktimes['black']);
+            this.clocksB[whiteBClockAtIdx].setTime(this.clocktimesB['white']);
+            this.clocksB[blackBClockAtIdx].setTime(this.clocktimesB['black']);
+
             const clockOnTurnAidx = this.colors[0] === this.b1.turnColor ? 0 : 1;
             const clockOnTurnBidx = this.colorsB[0] === this.b2.turnColor ? 0 : 1;
             this.clocks[clockOnTurnAidx].start(this.clocktimes[this.b1.turnColor]);
             this.clocksB[clockOnTurnBidx].start(this.clocktimesB[this.b2.turnColor]);
+        } else {
+            //todo:niki:not great if there were no moves on one of the boards because then it will show initial clock times but anyway
+            if (lastStepA) {
+                this.clocks[whiteAClockAtIdx].setTime(lastStepA.clocks['white']);
+                this.clocks[blackAClockAtIdx].setTime(lastStepA.clocks['black']);
+            }
+            if (lastStepB) {
+                this.clocksB[whiteBClockAtIdx].setTime(lastStepB.clocks['white']);
+                this.clocksB[blackBClockAtIdx].setTime(lastStepB.clocks['black']);
+            }
         }
     }
 
@@ -905,6 +919,14 @@ export class RoundControllerBughouse implements ChatController/*extends GameCont
             this.clocktimes = msgClocks || this.clocktimes; //todo:niki:have the feeling this or is redundant. probably only initial board message doesnt have clocktimes. maybe even it has. not sure
         } else {
             this.clocktimesB = msgClocks || this.clocktimesB;
+        }
+
+        const capture = !!lastMove && ((board.chessground.state.boardState.pieces.get(lastMove[1] as cg.Key) && step.san?.slice(0, 2) !== 'O-') || (step.san?.slice(1, 2) === 'x'));
+        if (lastMove && (!myMove || this.spectator)) {
+            if (!this.finishedGame) sound.moveSound(VARIANTS['bughouse'], capture);
+        }
+        if (!this.spectator && check && !this.finishedGame) {
+            sound.check();
         }
 
         if (!myMove) {
@@ -1031,7 +1053,6 @@ export class RoundControllerBughouse implements ChatController/*extends GameCont
 
     goPly = (ply: number, plyVari = 0) => {
         console.log(ply, plyVari);
-        this.ply = ply;
 
         const step = this.steps[ply];
         console.log(step);
@@ -1058,14 +1079,42 @@ export class RoundControllerBughouse implements ChatController/*extends GameCont
             lastMove: move,
         });
 
+        if (this.status >= 0) {
+            //if it is a game that ended, then when scrolling it makes sense to show clocks when the move was made
+            //todo:niki:maybe i should record the clocks on both boards on every move otherwise a bit misleading
+
+            const whiteAClockAtIdx = this.colors[0] === 'white'? 0: 1;
+            const blackAClockAtIdx = 1 -whiteAClockAtIdx;
+            const whiteBClockAtIdx = this.colorsB[0] === 'white'? 0: 1;
+            const blackBClockAtIdx = 1 -whiteBClockAtIdx;
+
+            const lastStepA = this.steps[this.steps.findLastIndex((s, i) => s.boardName === "a" && i <= ply)];
+            const lastStepB = this.steps[this.steps.findLastIndex((s, i) => s.boardName === "b" && i <= ply)];
+            if (lastStepA) {
+                this.clocks[whiteAClockAtIdx].setTime(lastStepA.clocks['white']);
+                this.clocks[blackAClockAtIdx].setTime(lastStepA.clocks['black']);
+            } else {
+                this.clocks[whiteAClockAtIdx].setTime(this.base * 60 * 1000);
+                this.clocks[blackAClockAtIdx].setTime(this.base * 60 * 1000);
+            }
+            if (lastStepB) {
+                this.clocksB[whiteBClockAtIdx].setTime(lastStepB.clocks['white']);
+                this.clocksB[blackBClockAtIdx].setTime(lastStepB.clocks['black']);
+            } else {
+                this.clocksB[whiteBClockAtIdx].setTime(this.base * 60 * 1000);
+                this.clocksB[blackBClockAtIdx].setTime(this.base * 60 * 1000);
+            }
+        }
+
         board.partnerCC.chessground.set({fen: fenPartner, lastMove: movePartner});
 
         board.fullfen = step.fen;
         board.partnerCC.fullfen = fenPartner!;
 
-        if (ply === this.ply + 1) {//todo:niki:pretty sure this is noop as it is
+        if (ply === this.ply + 1) { // no sound if we are scrolling backwards
             sound.moveSound(board.variant, capture);
         }
+        this.ply = ply;
 
         // Go back to the main line
         if (plyVari === 0) {

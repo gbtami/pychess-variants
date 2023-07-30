@@ -943,10 +943,9 @@ export default class AnalysisControllerBughouse {
         board.fullfen = fen;
         board.partnerCC.fullfen = fenPartner;
 
-        if (ply === this.ply + 1) {
+        if (ply === this.ply + 1) { // no sound if we are scrolling backwards
             sound.moveSound(board.variant, capture);
         }
-
         this.ply = ply;
 
         ////////////// above is more or less copy/pasted from gameCtrl.ts->goPLy. other places just call super.goPly
