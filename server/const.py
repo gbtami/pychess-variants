@@ -185,8 +185,8 @@ VARIANT_ICONS = {
     "chennis": "🎾",
     "duck": "🦆",
     "spartan": "⍺",
-    "kingofthehill": "d",
-    "kingofthehill960": "d",
+    "kingofthehill": "🏴",
+    "kingofthehill960": "🏁",
 }
 
 VARIANT_960_TO_PGN = {
