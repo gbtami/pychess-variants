@@ -27,6 +27,8 @@ div.not-found {
     display: block;
 }
     div.main-game-body {
+      margin: 2em;
+      margin-left: 3.5em;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -38,8 +40,10 @@ div.not-found {
     }
 
     #message {
-      background: var(--bg-color2);
+      background: var(--invalid-queen);
       box-shadow: var(--base-shadow);
+      padding: 1.5em;
+      margin: 1em;
       margin-top: 10px;
       font-size: 18px;
       font-weight: bold;
@@ -69,6 +73,10 @@ div.not-found {
       cursor: pointer;
       border-radius: 6px;
     }
+    #reset-button:hover {
+        transform: scale(1.1);
+        box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+    }
     .light-square {
       background-color: #f0d9b5;
     }
@@ -76,4 +84,3 @@ div.not-found {
     .dark-square {
       background-color: #b58863;
     }
-
