@@ -6,7 +6,7 @@ Les échecs Capablanca (*Capablanca chess* en anglais) furent inventés par l'an
 
 ## Règles
 
-Les échecs Capablanca se jouent sur un échiquier de taille 10 x 8 avec deux nouvelles pièces hybrides, la princesse (fou + cavalier) et l'impératrice (tour + cavalier). La princesse commence entre le cavalier et le fou de l'aile dame, et l'impératrice commence entre le cavalier et le fou de l'aile roi. Quant au roque, le roi se déplace trois cases au lieu de deux. Les pions peuvent se promouvoir en princesse et en impératrice en plus des options habituelles.
+Les échecs Capablanca se jouent sur un échiquier de taille 10 x 8 avec deux nouvelles pièces hybrides, la princesse (fou + cavalier) et l'impératrice (tour + cavalier). La princesse commence entre le cavalier et le fou de l'aile dame, et l'impératrice commence entre le cavalier et le fou de l'aile roi. Quant au roque, le roi se déplace de trois cases au lieu de deux. Les pions peuvent se promouvoir en princesse et en impératrice en plus des options habituelles.
 
 Quelques autres variantes existent avec les mêmes pièces mais partant d'une position initiale différente. Voir par exemple les échecs gothiques (*Gothic Chess* en anglais) sur ce site.
 
