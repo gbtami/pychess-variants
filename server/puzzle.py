@@ -11,6 +11,7 @@ from glicko2.glicko2 import MU, gl2, Rating, rating
 
 # variants having 0 puzzle so far
 NO_PUZZLE_VARIANTS = (
+    "kingofthehill",
     "placement",
     "sittuyin",
     "minishogi",
