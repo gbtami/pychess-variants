@@ -348,6 +348,19 @@ export const VARIANTS: Record<string, Variant> = {
         ui: { boardMark: 'kingofthehill' },
     }),
 
+    '3check': variant({
+        name: "3check", displayName: "three-check", tooltip: "",
+        startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 3+3 0 1",
+        chess960: true, icon: "s", icon960: "s",
+        boardFamily: "standard8x8", pieceFamily: "standard",
+        pieceRow: ["k", "q", "r", "b", "n", "p"],
+        rules: { enPassant: true },
+        alternateStart: {
+            '': "",
+            '5check': "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 5+5 0 1",
+        },
+    }),
+
     duck: variant({
         name: "duck", tooltip: "The duck must be moved to a new square after every turn.",
         startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
@@ -870,6 +883,7 @@ export const enabledVariants = variants.filter(v => !disabledVariants.includes(v
 // variants having 0 puzzle so far
 export const noPuzzleVariants = [
     "kingofthehill",
+    "3check",
     "placement",
     "sittuyin",
     "minishogi",
@@ -883,7 +897,7 @@ export const noPuzzleVariants = [
 ]
 
 export const variantGroups: { [ key: string ]: { variants: string[] } } = {
-    standard: { variants: [ "chess", "crazyhouse", "atomic", "kingofthehill", "placement", "duck" ] },
+    standard: { variants: [ "chess", "crazyhouse", "atomic", "kingofthehill", "3check", "placement", "duck" ] },
     sea:      { variants: [ "makruk", "makpong", "cambodian", "sittuyin", "asean" ] },
     shogi:    { variants: [ "shogi", "minishogi", "kyotoshogi", "dobutsu", "gorogoroplus", "torishogi" ] },
     xiangqi:  { variants: [ "xiangqi", "manchu", "janggi", "minixiangqi" ] },
