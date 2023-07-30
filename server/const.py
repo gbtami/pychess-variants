@@ -88,6 +88,8 @@ VARIANTS = (
     "atomic960",
     "kingofthehill",
     "kingofthehill960",
+    "3check",
+    "3check960",
     "placement",
     "duck",
     "makruk",
@@ -187,6 +189,8 @@ VARIANT_ICONS = {
     "spartan": "⍺",
     "kingofthehill": "🏴",
     "kingofthehill960": "🏁",
+    "3check": "s",
+    "3check960": "s",
 }
 
 VARIANT_960_TO_PGN = {
@@ -195,7 +199,8 @@ VARIANT_960_TO_PGN = {
     "capahouse": "Capahouse960",
     "crazyhouse": "Crazyhouse",  # to let lichess import work
     "atomic": "Atomic",  # to let lichess import work
-    "kingofthehill": "King of the Hill",
+    "kingofthehill": "King of the Hill",  # to let lichess import work
+    "3check": "Three-check",  # to let lichess import work
     "seirawan": "Seirawan960",
     # some early game is accidentally saved as 960 in mongodb
     "shogi": "Shogi",
@@ -216,6 +221,8 @@ CATEGORIES = {
         "atomic960",
         "kingofthehill",
         "kingofthehill960",
+        "3check",
+        "3check960",
         "duck",
     ),
     "fairy": (
@@ -293,6 +300,8 @@ def variant_display_name(variant):
         return "DUCK CHESS"
     elif variant == "kingofthehill":
         return "KING OF THE HILL"
+    elif variant == "3check":
+        return " THREE-CHECK"
     else:
         return variant.upper()
 
@@ -375,6 +384,8 @@ TRANSLATED_VARIANT_NAMES = {
     "spartan": _("Spartan"),
     "kingofthehill": _("King of the Hill"),
     "kingofthehill960": _("King of the Hill 960"),
+    "3check": _("Three check"),
+    "3check960": _("Three check 960"),
 }
 
 del _
