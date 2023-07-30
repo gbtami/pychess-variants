@@ -61,8 +61,8 @@ div.not-found {
 
     #reset-button {
       margin: 2em;
-      padding: 1em;
-      background: var(green-text);
+      padding: 1.2em;
+      background: #1b78d0;
       border: none;
       color: white;
       font-weight: bold;
