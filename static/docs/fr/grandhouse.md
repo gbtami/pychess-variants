@@ -1,20 +1,20 @@
 # ![Grandhouse](https://github.com/gbtami/pychess-variants/blob/master/static/icons/Grandhouse.svg) Grandhouse
 
-Grandhouse is a custom variant combining the rules of Grand chess with the drop rules of Crazyhouse. The same rules apply to both games. As this is considered a derivative of Grand chess, please check the Grand chess rules in its separate guide. Crazyhouse rules are as below for a reminder.
+Le Grandhouse est une variante combinant les règles du Grand avec le parachutage du Crazyhouse. les mêmes règles s'appliquent aux deux jeux. Comme le Grandhouse est considéré comme un dérivé du Grand, voir la page du Grand pour les règles. Les règles du Crazyhouse sont écrites ci-dessous.
 
-Given the larger board size, the rules are slightly different for the last three ranks. Pawns cannot be dropped in the last three ranks.
+A cause de la largeur du plateau, les règles sont quelques peux différentes pour les trois dernières rangées. Les pions ne peuvent pas être parachutés sur les trois dernières rangées.
 
-## Crazyhouse Rules
+## Règles du Crazyhouse
 
-Drops can be performed with captured pieces, which would be done in lieu of moving a piece on the board. Drops are annotated with @. So for example,R@e4 means rook drop at e4. The rules for dropping pieces are as follows:
+Les parachutages sont fait avec les pièces capturées, ce que l'on peut faire au lieu de jouer un coup. Les parachutages sont annotés avec le signe @. Par exemple, R@e4 veut dire que la tour a été parachutée sur la case e4. Les règles pour parachuter une pièces sont les suivantes:
 
-* Drops resulting in immediate checkmate are permitted. Unlike in shogi, this includes pawn drops.
-* Pawns may not be dropped on the players' 1st or **8th - 10th ranks**.
-* Pawns that have been promoted and later captured are dropped as pawns.
-* Dropped white and black pawns on the 3rd and 8th ranks, respectively, are permitted to make a two-square move as their first move after the drop.
+* Il est permis de donner échec et mat avec un parachutage, même avec un pion (contrairement au shogi).
+* Il est illégal de parachuter un pion sur la 1ère ou **entre la 8ème et le 10ème rangée**.
+* Un pion promu puis capturé se parachutera en tant que pion.
+* Un pion blanc (resp. noir) parachuté sur la 3ème rangée (resp. 8ème rangée) peut avancer de deux cases lors de son premier coup après être parachuté.
 
-All other rules are as in Grand chess.
+Toutes les autres règles sont celles du Grand.
 
-## Strategy
+## Strategie
 
-As in standard crazyhouse, the piece values don't align with the chess piece values, and as in standard crazyhouse, sacrificing material for fast development, attacks on the enemy King, or just for defence, are often wise. Sometimes it is better to reinforce defenders around one's King rather than try to save them. Here we may refer you to sources in standard crazyhouse strategy...
+Comme au Crazyhouse standard, la valeur des pièces n'est pas équivalente à celle des échecs standards, sacrifier du matériel pour un développement rapide, attaquer le roi ennemi, ou juste défendre, sont souvent privilégiés. Parfois il est préférable de parachuter des pièces autour du roi plutôt qu'essayer de le défendre.. Ici, nous vous recommendons d'aller regarder quelques ressources sur le crazyhouse.

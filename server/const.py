@@ -84,9 +84,11 @@ VARIANTS = (
     "chess960",
     "crazyhouse",
     "crazyhouse960",
-    "placement",
     "atomic",
     "atomic960",
+    "kingofthehill",
+    "kingofthehill960",
+    "placement",
     "duck",
     "makruk",
     "makpong",
@@ -185,6 +187,8 @@ VARIANT_ICONS = {
     "chennis": "🎾",
     "duck": "🦆",
     "spartan": "⍺",
+    "kingofthehill": "🏴",
+    "kingofthehill960": "🏁",
 }
 
 VARIANT_960_TO_PGN = {
@@ -193,6 +197,7 @@ VARIANT_960_TO_PGN = {
     "capahouse": "Capahouse960",
     "crazyhouse": "Crazyhouse",  # to let lichess import work
     "atomic": "Atomic",  # to let lichess import work
+    "kingofthehill": "King of the Hill",
     "seirawan": "Seirawan960",
     # some early game is accidentally saved as 960 in mongodb
     "shogi": "Shogi",
@@ -211,6 +216,8 @@ CATEGORIES = {
         "placement",
         "atomic",
         "atomic960",
+        "kingofthehill",
+        "kingofthehill960",
         "duck",
     ),
     "fairy": (
@@ -287,6 +294,8 @@ def variant_display_name(variant):
         return "TORI SHOGI"
     elif variant == "duck":
         return "DUCK CHESS"
+    elif variant == "kingofthehill":
+        return "KING OF THE HILL"
     else:
         return variant.upper()
 
@@ -368,6 +377,8 @@ TRANSLATED_VARIANT_NAMES = {
     "chak": _("Chak"),
     "chennis": _("Chennis"),
     "spartan": _("Spartan"),
+    "kingofthehill": _("King of the Hill"),
+    "kingofthehill960": _("King of the Hill 960"),
 }
 
 del _

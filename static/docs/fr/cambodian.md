@@ -12,4 +12,4 @@ Les seules différences entre les échecs cambodgiens et le Makruk sont les suiv
 
 Si aucune pièce n'est encore capturée, deux coups spéciaux sont possibles :
 * Au premier coup du roi, s'il n'est pas en échec, celui-ci peut se déplacer comme un cavalier (mais pas jusqu'à la rangée initiale des pions).
-* Au premier coup de la dame (*met*), ecelle-ci peut se déplacer de deux cases vers l'avant.
+* Au premier coup de la dame (*met*), celle-ci peut se déplacer de deux cases vers l'avant.
