@@ -26,3 +26,54 @@ div.not-found {
     margin: 10px 0;
     display: block;
 }
+    div.main-game-body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #board {
+      border: none;
+    }
+
+    #message {
+      background: var(--bg-color2);
+      box-shadow: var(--base-shadow);
+      margin-top: 10px;
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    #counter {
+      margin-top: 10px;
+      font-size: 16px;
+    }
+
+    #rules {
+      padding: 2em;
+      background: var(--bg-color2);
+      box-shadow: var(--base-shadow);
+      text-align: center;
+      font-size: 16px;
+      margin-bottom: 20px;
+    }
+
+    #reset-button {
+      margin: 2em;
+      padding: 1em;
+      background: var(green-text);
+      border: none;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      border-radius: 6px;
+    }
+    .light-square {
+      background-color: #f0d9b5;
+    }
+
+    .dark-square {
+      background-color: #b58863;
+    }
+

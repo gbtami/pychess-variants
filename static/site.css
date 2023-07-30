@@ -2,6 +2,7 @@
 :root {
   --main-margin: 0;
   --main-max-width: 1300px;
+  --feature-btn: #d0e0bd;
   --gauge-gap: 17px;
   --site-header-height: 60px;
   --site-header-margin: 0px;
@@ -79,6 +80,7 @@
 }
 [data-theme='dark'] {
   --dark-mode: 1;
+  --feature-btn: #384722;
   --font-color: #bababa;
   --link-color: #999;
   --link-hover: #3692e7;
@@ -328,7 +330,11 @@ iframe {
     );
   }
 }
-
+@media (max-width: 599px) and (orientation: portrait) {
+  #main-wrap {
+    --main-max-width: 100%;
+  }
+}
 .round {
   grid-area: main;
   display: grid;
