@@ -3,6 +3,7 @@
   --main-margin: 0;
   --main-max-width: 1300px;
   --feature-btn: #d0e0bd;
+  --invalid-queen: #ffa07a;
   --gauge-gap: 17px;
   --site-header-height: 60px;
   --site-header-margin: 0px;
@@ -80,6 +81,7 @@
 [data-theme='dark'] {
   --dark-mode: 1;
   --feature-btn: #384722;
+  --invalid-queen: #b22222;
   --font-color: #bababa;
   --link-color: #999;
   --link-hover: #3692e7;
