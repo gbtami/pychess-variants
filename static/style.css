@@ -39,6 +39,12 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+.icon-koth960:before {
+  content: "\1f3c1";
+}
+.icon-koth:before {
+  content: "\1f3f4";
+}
 .icon-Bughouse960:before {
   content: "\2300";
 }

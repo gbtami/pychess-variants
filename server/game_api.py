@@ -221,7 +221,11 @@ async def get_user_games(request):
             ):
                 continue
 
-            doc["v"] = C2V[doc["v"]]
+            try:
+                doc["v"] = C2V[doc["v"]]
+            except KeyError:
+                continue
+
             doc["r"] = C2R[doc["r"]]
             doc["wt"] = users[doc["us"][0]].title if doc["us"][0] in users else ""
             doc["bt"] = users[doc["us"][1]].title if doc["us"][1] in users else ""
