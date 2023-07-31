@@ -1,4 +1,4 @@
-# ![KingOfTheHill960](https://github.com/gbtami/pychess-variants/blob/master/static/icons/koth.svg) King of the Hill 960
+# ![KingOfTheHill960](https://github.com/gbtami/pychess-variants/blob/master/static/icons/koth960.svg) King of the Hill 960
 
 King of the Hill 960 is a custom variant combining the rules of King of the Hill with the random placement of Chess 960. The same rules apply to both games. As this is considered a derivative of Crazyhouse, please check the Crazyhouse rules in its separate guide. 960 rules are as below for a reminder.
 
