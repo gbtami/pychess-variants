@@ -16,7 +16,7 @@
   queenImage.onload = () => {
     drawBoard(); // Call drawBoard() after the image is loaded
   };
-  queenImage.src = 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/15/Chess_qlt45.svg/22px-Chess_qlt45.svg.png';
+  queenImage.src = '/static/images/pieces/maestro/bQ.svg';
 
   function isSafe(row, col) {
     for (let i = 0; i < boardSize; i++) {
