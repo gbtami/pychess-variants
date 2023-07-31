@@ -302,7 +302,7 @@ class FairyBoard:
         else:
             holdings = ""
 
-        checks = " 3+3 " if self.variant == "3check" else ""
+        checks = "3+3 " if self.variant == "3check" else ""
 
         fen = (
             fen
