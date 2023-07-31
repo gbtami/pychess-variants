@@ -47,9 +47,9 @@ div.not-found {
     #message {
       opacity: 0;
       background: var(--invalid-queen);
-      border: 2px solid #800000;
+      border: 1px solid #800000;
       border-radius: 20px;
-      padding: 3em;
+      padding: 2.2em;
       margin: 1em;
       margin-top: 10px;
       font-size: 18px;
@@ -71,6 +71,7 @@ div.not-found {
     }
 
     #reset-button {
+      text-transform: uppercase;
       margin: 2em;
       padding: 1.2em;
       background: #1b78d0;
