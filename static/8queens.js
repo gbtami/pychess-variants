@@ -58,8 +58,9 @@
       }
     }
 
-    function showMessage(message) {
+    function showMessage(message, isVisible = true) {
       messageElement.textContent = message;
+      messageElement.style.opacity = isVisible ? 1 : 0;
     }
 
     function isGameOver() {
@@ -77,6 +78,7 @@
     function resetBoard() {
       board.forEach(row => row.fill(0));
       drawBoard();
+      showMessage("A new board has been opened. Good luck finding the solution!"); 
     }
 
     function placeOrRemoveQueen(event) {
@@ -91,8 +93,9 @@
       } else {
         if (isSafe(row, col)) {
           placeQueen(row, col);
+          showMessage("", false); // Hide the message when a valid move is made
         } else {
-          showMessage("Invalid position! Queens cannot attack each other.");
+          showMessage("Invalid move! Queens cannot attack each other.");
         }
       }
 
@@ -103,11 +106,10 @@
         if (!uniqueSolutions.has(boardIdentifier)) {
           uniqueSolutions.add(boardIdentifier);
           solutionsFound++;
-          showMessage(`Congratulations! You found one solution. There are ${92 - solutionsFound} left. Can you find others?`);
+          showMessage(`Congratulations! You found one solution. There are ${92 - solutionsFound} left. Click "RESET" to continue solving. Can you find others?`);
           counterElement.textContent = `Solutions found: ${solutionsFound}`;
         }
 
-        resetBoard();
         if (solutionsFound === 92) {
           showMessage("Congratulations! You are now a grandmaster of 8 Queens!");
         }
@@ -115,5 +117,8 @@
     }
 
     canvas.addEventListener('click', placeOrRemoveQueen);
+
+    // Add event listener for the "Reset" button
     resetButton.addEventListener('click', resetBoard);
+
     drawBoard();
