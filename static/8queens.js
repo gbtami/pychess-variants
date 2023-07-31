@@ -16,7 +16,7 @@
   queenImage.onload = () => {
     drawBoard(); // Call drawBoard() after the image is loaded
   };
-  queenImage.src = '/static/images/pieces/maestro/bQ.svg';
+  queenImage.src = 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/15/Chess_qlt45.svg/22px-Chess_qlt45.svg.png';
 
   function isSafe(row, col) {
     for (let i = 0; i < boardSize; i++) {
@@ -58,8 +58,9 @@
     }
   }
 
-  function showMessage(message) {
+  function showMessage(message, isVisible = true) {
     messageElement.textContent = message;
+    messageElement.style.opacity = isVisible ? 1 : 0;
   }
 
   function isGameOver() {
@@ -91,8 +92,7 @@
     } else {
       if (isSafe(row, col)) {
         placeQueen(row, col);
-        // Clear the message element when a valid move is made
-        showMessage("");
+        showMessage("", false); // Hide the message when a valid move is made
       } else {
         showMessage("Invalid position! Queens cannot attack each other.");
       }
