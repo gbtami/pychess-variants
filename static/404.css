@@ -28,21 +28,28 @@ div.not-found {
 }
     div.main-game-body {
       margin: 2em;
-      margin-left: 3.5em;
+      margin-left: 10em;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
     }
+@media (max-width: 799px) and (orientation: portrait) {
+     div.main-game-body {
+         display: none;
+     }
+}
 
     #board {
       border: none;
     }
 
     #message {
+      opacity: 0;
       background: var(--invalid-queen);
-      box-shadow: var(--base-shadow);
-      padding: 1.5em;
+      border: #800000;
+      border-radius: 15px;
+      padding: 3em;
       margin: 1em;
       margin-top: 10px;
       font-size: 18px;
@@ -75,7 +82,7 @@ div.not-found {
     }
     #reset-button:hover {
         transform: scale(1.1);
-        box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+        box-shadow: rgba(14, 30, 37, 0.12) 0px 2px 4px 0px, rgba(14, 30, 37, 0.32) 0px 2px 16px 0px;
     }
     .light-square {
       background-color: #f0d9b5;
