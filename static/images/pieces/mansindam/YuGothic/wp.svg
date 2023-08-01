@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="180"
+   height="180"
+   viewBox="0 0 180 180"
+   version="1.1"
+   id="svg1"
+   inkscape:version="1.3 (0e150ed6c4, 2023-07-21)"
+   sodipodi:docname="wp.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#ffffff"
+     bordercolor="#999999"
+     borderopacity="1"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="px"
+     inkscape:zoom="2.8284271"
+     inkscape:cx="38.360543"
+     inkscape:cy="141.24458"
+     inkscape:window-width="1920"
+     inkscape:window-height="1009"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs1" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <g
+       id="g1">
+      <g
+         id="g2-3"
+         transform="matrix(0.26249549,0,0,0.265625,22.801155,36)">
+        <polygon
+           class="st0"
+           points="256.01,0 85.337,121.903 42.663,512 469.337,512 426.663,121.903 "
+           id="polygon1"
+           style="fill:#000000" />
+      </g>
+      <text
+         xml:space="preserve"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:90.3127px;font-family:'Yu Gothic UI';-inkscape-font-specification:'Yu Gothic UI';fill:#ffffcc;fill-opacity:1;stroke-width:7.52605"
+         x="44.631817"
+         y="150.02698"
+         id="text2"
+         transform="scale(1.0043323,0.99568638)"><tspan
+           sodipodi:role="line"
+           id="tspan2"
+           x="44.631817"
+           y="150.02698"
+           style="stroke-width:7.52605;fill:#ffffcc;fill-opacity:1">步</tspan></text>
+    </g>
+  </g>
+</svg>
