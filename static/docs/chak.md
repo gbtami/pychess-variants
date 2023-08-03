@@ -210,3 +210,5 @@ However, moving away from the highlighted squares to harass the Serpent can be c
 ![SerpentFortressTrap2](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChakGuide/SerpentFortressTrap2.png)
 
 White has abandoned the altar, allowing green to go Re8 and skewering both Shamans. If white moves the King back, e.g. to d7, green takes on e2, and as the Serpent still defends the altar, green is winning. If white tries something different, green can take one of the Shamans and still win.
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/Qddn3o6yX_M" frameborder="0" allowfullscreen></iframe>
