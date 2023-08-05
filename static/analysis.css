@@ -473,7 +473,7 @@ div.config-toggle {
 .instruction san {
     font-size: 1.5em;
 }
-piece.standard.w, piece.capa.w, piece.seirawn.w, piece.hoppel.w, piece.shako.w, piece.asean.w, piece.shogun.w, piece.synochess.w, piece.orda.w, piece.empire.w, piece.spartan.w {
+piece.standard.w, piece.capa.w, piece.seirawn.w, piece.hoppel.w, piece.shako.w, piece.asean.w, piece.shogun.w, piece.synochess.w, piece.orda.w, piece.spartan.w {
     background-image: url('images/pieces/merida/wK.svg');
 }
 piece.standard.b, piece.capa.b, piece.seirawn.b, piece.hoppel.b, piece.shako.b, piece.asean.b, piece.shogun.b, piece.shinobi.b, piece.empire.b {
@@ -523,6 +523,9 @@ piece.orda.b, piece.ordamirror.b {
 }
 piece.ordamirror.w {
     background-image: url('images/pieces/orda/merida/wK.svg');
+}
+piece.empire.w {
+    background-image: url('images/pieces/empire/merida/wK.svg');
 }
 piece.chak.w {
     background-image: url('images/pieces/chak/WK.svg');
