@@ -6,9 +6,9 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab  # v3.5.2
-      - uses: psf/black@bf7a16254ec96b084a6caf3d435ec18f0f245cc7  # 23.3.0
+      - uses: actions/checkout@v3
+      - uses: psf/black@stable
         with:
           options: "--check --verbose --line-length=100"
           src: "./server"
-          version: "23.3.0"
+          version: "23.7.0"

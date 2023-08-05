@@ -5,12 +5,24 @@
     <div class="header">
         <h1>404</h1>
         <div>
-            <strong>Page not found!</strong><p>Return to <a href="/">the homepage</a></p>
+            <strong>Page not found!</strong><p>Return to <a href="/">the homepage</a> or play this mini-game</p>
         </div>
-    </div>
+<div class="main-game-body">
+  <h2><a href="https://en.wikipedia.org/wiki/Eight_queens_puzzle">Eight Queens Puzzle</a></h2>
+  <div id="rules">
+    <p>Rules:</p>
+    <p>Place eight queens on the board so that no two queens attack each other.</p>
+    <p>Click on empty squares to place queens. Click on placed queens to remove them.</p>
+  </div>
+  <canvas id="board" width="400" height="400"></canvas>
+  <div id="message"></div>
+  <div id="counter">Solutions found: 0</div>
+  <button id="reset-button">Reset</button>
+</div></div>
   </div>
 </div>
 {% endblock %}
 {% block js %}
+    <script src={{ static("8queens.js") }}></script>
     <script src="{{ js }}"></script>
 {% endblock %}
