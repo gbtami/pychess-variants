@@ -11,7 +11,7 @@ import pymongo
 import pyffish as sf
 
 from const import VARIANTS
-from glicko2.glicko2 import DEFAULT_PERF, MU, gl2, Rating
+from glicko2.glicko2 import MU, gl2, Rating, rating
 
 log = logging.getLogger(__name__)
 
@@ -19,16 +19,15 @@ PUZZLE_PAGE_SIZE = 12
 
 # variants having 0 puzzle so far
 NO_PUZZLE_VARIANTS = (
+    "3check",
     "placement",
     "sittuyin",
     "minishogi",
     "kyotoshogi",
     "gorogoroplus",
-    "torishogi",
     "manchu",
     "minixiangqi",
     "grandhouse",
-    "shouse",
     "shinobi",
     "shinobiplus",
 )
@@ -49,6 +48,7 @@ def empty_puzzle(variant):
         "fen": sf.start_fen(variant),
         "type": "",
         "moves": "",
+        "eval": "",
     }
     return puzzle
 
@@ -231,8 +231,18 @@ async def update_puzzle_ratings(
 
     wrdiff = int(round(wr.mu - white_rating.mu, 0))
     brdiff = int(round(br.mu - black_rating.mu, 0))
-
     return (wrdiff, brdiff)
+
+
+def default_puzzle_perf(puzzle_eval):
+    perf = {
+        "gl": {"r": rating.mu, "d": rating.phi, "v": rating.sigma},
+        "la": datetime.now(timezone.utc),
+        "nb": 0,
+    }
+    if len(puzzle_eval) > 0 and puzzle_eval[0] == "#":
+        perf["gl"]["r"] = MU + 200 * (int(puzzle_eval[1:]) - 2)
+    return perf
 
 
 class Puzzle:
@@ -240,12 +250,7 @@ class Puzzle:
         self.db = db
         self.puzzle_data = puzzle_data
         self.puzzleId = puzzle_data["_id"]
-        self.perf = puzzle_data.get("perf")
-        if self.perf is None:
-            self.perf = DEFAULT_PERF
-            puzzle_eval = puzzle_data["eval"]
-            if puzzle_eval[0] == "#":
-                self.perf["gl"]["r"] = MU + 200 * (int(puzzle_eval[1:]) - 2)
+        self.perf = puzzle_data.get("perf", default_puzzle_perf(puzzle_data["eval"]))
 
     def get_rating(self, variant: str, chess960: bool) -> Rating:
         gl = self.perf["gl"]

@@ -302,7 +302,20 @@ class FairyBoard:
         else:
             holdings = ""
 
-        fen = fen + body + fen.upper() + holdings + " w " + castl.upper() + castl + " - 0 1"
+        checks = "3+3 " if self.variant == "3check" else ""
+
+        fen = (
+            fen
+            + body
+            + fen.upper()
+            + holdings
+            + " w "
+            + castl.upper()
+            + castl
+            + " - "
+            + checks
+            + "0 1"
+        )
         return fen
 
 

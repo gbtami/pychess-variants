@@ -202,6 +202,7 @@ async def get_winners(app, shield, variant=None):
         cursor = app["db"].tournament.find(filter_cond, sort=[("startsAt", -1)], limit=limit)
         async for doc in cursor:
             winners.append((doc["winner"], doc["startsAt"].strftime("%Y.%m.%d"), doc["_id"]))
+            await app["users"].get(doc["winner"])
 
         wi[variant] = winners
 

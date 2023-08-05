@@ -3,6 +3,7 @@
     --ranks-top: 0px;
     --files-left: 0px;
     --pocketMargin: 0px;
+    --panel-height: 240px;
 }
 .analysis-app {
     grid-area: main;
@@ -318,9 +319,6 @@ input[type="checkbox"] {
 }
 
 /* analysis chart */
-button#request-analysis {
-    display: none;
-}
 .chart-container {
     position: relative;
     justify-content: center;
@@ -337,7 +335,7 @@ button#request-analysis {
 }
 
 div[role=tabpanel] {
-    height: 240px;
+    height: var(--panel-height);
     display: none;
     text-align: left;
     overflow-y: auto;
@@ -354,7 +352,6 @@ div[role=tablist] {
     flex-flow: row nowrap;
     justify-content: center;
     align-items: flex-start;
-    border-top: 2px solid #d9d9d9;
 }
 span[role=tab] {
     flex: 1 1 0;
@@ -363,6 +360,7 @@ span[role=tab] {
     padding: 0.4em 0.1em;
     cursor: pointer;
     position: relative;
+    border-bottom: 1px solid #d9d9d9;
 }
 span[aria-selected=true], span:hover::after {
     color: #d64f00;
@@ -375,12 +373,16 @@ div > span::after {
     position:absolute;
     width:96%;
     left:2%;
-    top:-2px;
+    bottom:-2px;
     transition:all .25s;
     transform:scale(0)
 }
 /* Request analysis button (analysis chart) */
-div#panel-1 {
+div.request-analysis {
+  display: flex;
+  padding-top: 3vmin;
+}
+div.request-analysis, div#panel-1 {
     align-items: center;
     justify-content: center;
 }
@@ -388,6 +390,9 @@ div#panel-1 {
 div#panel-4 {
     font-size: 0.9em;
     flex-flow: column;
+}
+div.pgnbuttons {
+    display: flex;
 }
 div#pgntext {
     white-space: pre-wrap;
@@ -468,7 +473,7 @@ div.config-toggle {
 .instruction san {
     font-size: 1.5em;
 }
-piece.standard.w, piece.capa.w, piece.seirawn.w, piece.hoppel.w, piece.shako.w, piece.asean.w, piece.shogun.w, piece.synochess.w, piece.orda.w, piece.empire.w, piece.spartan.w {
+piece.standard.w, piece.capa.w, piece.seirawn.w, piece.hoppel.w, piece.shako.w, piece.asean.w, piece.shogun.w, piece.synochess.w, piece.orda.w, piece.spartan.w {
     background-image: url('images/pieces/merida/wK.svg');
 }
 piece.standard.b, piece.capa.b, piece.seirawn.b, piece.hoppel.b, piece.shako.b, piece.asean.b, piece.shogun.b, piece.shinobi.b, piece.empire.b {
@@ -518,6 +523,9 @@ piece.orda.b, piece.ordamirror.b {
 }
 piece.ordamirror.w {
     background-image: url('images/pieces/orda/merida/wK.svg');
+}
+piece.empire.w {
+    background-image: url('images/pieces/empire/merida/wK.svg');
 }
 piece.chak.w {
     background-image: url('images/pieces/chak/WK.svg');

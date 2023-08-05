@@ -143,7 +143,7 @@ async def login(request):
     users = request.app["users"]
 
     prev_session_user = session.get("user_name")
-    prev_user = users.get(prev_session_user)
+    prev_user = await users.get(prev_session_user)
     if prev_user is not None:
         prev_user.lobby_sockets = set()  # make it offline
         prev_user.game_sockets = {}
@@ -180,10 +180,10 @@ async def logout(request, user=None):
 
         session = await aiohttp_session.get_session(request)
         session_user = session.get("user_name")
-        user = users.get(session_user)
+        user = await users.get(session_user)
 
     if user is None:
-        return
+        return web.HTTPFound("/")
     response = {"type": "logout"}
 
     # close lobby socket

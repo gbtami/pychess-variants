@@ -56,6 +56,7 @@ get_routes = (
     ("/players/{variant}", index),
     ("/allplayers", index),
     ("/calendar", index),
+    ("/features", index),
     ("/games", index),
     ("/tv", index),
     ("/puzzle", index),

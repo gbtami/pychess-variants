@@ -31,7 +31,7 @@ from const import (
     TRANSLATED_PAIRING_SYSTEM_NAMES,
 )
 from fairy import FairyBoard
-from glicko2.glicko2 import DEFAULT_PERF, PROVISIONAL_PHI
+from glicko2.glicko2 import PROVISIONAL_PHI
 from robots import ROBOTS_TXT
 from settings import (
     ADMINS,
@@ -60,6 +60,7 @@ from puzzle import (
     get_puzzle,
     next_puzzle,
     get_daily_puzzle,
+    default_puzzle_perf,
 )
 from custom_trophy_owners import CUSTOM_TROPHY_OWNERS
 
@@ -121,18 +122,7 @@ async def index(request):
             if session_user.startswith("Anon-"):
                 session.invalidate()
                 return web.HTTPFound(request.rel_url)
-
-            log.debug("New lichess user %s joined.", session_user)
-            title = session["title"] if "title" in session else ""
-            perfs = {variant: DEFAULT_PERF for variant in VARIANTS}
-            user = User(
-                request.app,
-                username=session_user,
-                anon=session["guest"],
-                title=title,
-                perfs=perfs,
-            )
-            users[user.username] = user
+            user = await users.get(session_user)
     else:
         user = User(request.app, anon=True)
         log.info("+++ New guest user %s connected.", user.username)
@@ -190,6 +180,8 @@ async def index(request):
         view = "patron"
     elif request.path == "/patron/thanks":
         view = "thanks"
+    elif request.path == "/features":
+        view = "features"
     elif request.path == "/level8win":
         view = "level8win"
     elif request.path == "/tv":
@@ -247,9 +239,11 @@ async def index(request):
         view = "puzzle"
 
     profileId = request.match_info.get("profileId")
-    if profileId is not None and profileId not in users:
-        await asyncio.sleep(3)
-        raise web.HTTPNotFound()
+    if profileId is not None:
+        profileId_user = await users.get(profileId)
+        if profileId_user is None:
+            await asyncio.sleep(3)
+            raise web.HTTPNotFound()
 
     variant = request.match_info.get("variant")
     if (variant is not None) and ((variant not in VARIANTS) and variant != "terminology"):
@@ -367,6 +361,8 @@ async def index(request):
         template = get_template("video.html")
     elif view == "patron":
         template = get_template("patron.html")
+    elif view == "features":
+        template = get_template("features.html")
     elif view == "faq":
         template = get_template("FAQ.html")
     elif view in ("analysis", "puzzle"):
@@ -542,7 +538,8 @@ async def index(request):
 
         color = puzzle["fen"].split()[1]
         chess960 = False
-        puzzle_rating = int(round(puzzle.get("perf", DEFAULT_PERF)["gl"]["r"], 0))
+        dafault_perf = default_puzzle_perf(puzzle["eval"])
+        puzzle_rating = int(round(puzzle.get("perf", dafault_perf)["gl"]["r"], 0))
         variant = puzzle["variant"]
         if color == "w":
             wrating = int(round(user.get_puzzle_rating(variant, chess960).mu, 0))
