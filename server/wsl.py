@@ -43,7 +43,7 @@ async def lobby_socket_handler(request):
 
     session = await aiohttp_session.get_session(request)
     session_user = session.get("user_name")
-    user = await users.get(session_user)
+    user = users[session_user] if session_user is not None and session_user in users else None
 
     if (user is not None) and (not user.enabled):
         session.invalidate()
@@ -91,11 +91,11 @@ async def lobby_socket_handler(request):
                             continue
 
                         variant = data["variant"]
-                        engine = users["Fairy-Stockfish"]
+                        engine = users.get("Fairy-Stockfish")
 
                         if data["rm"] or (engine is None) or (not engine.online):
                             # TODO: message that engine is offline, but Random-Mover BOT will play instead
-                            engine = users["Random-Mover"]
+                            engine = users.get("Random-Mover")
 
                         seek = Seek(
                             user,
