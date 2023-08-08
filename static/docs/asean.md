@@ -46,3 +46,4 @@ Bishops can sometimes prove slow/awkward to maneuver or retreat. It is therefore
 - If the opponent has at least one **rook**: 16 moves
 - If the opponent has at least one **bishop**: 44 moves
 - If the opponent has at least one **knight**: 64 moves
+<iframe width="560" height="315" src="https://www.youtube.com/embed/WmMw97hp8C0" frameborder="0" allowfullscreen></iframe>
