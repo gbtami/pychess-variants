@@ -48,7 +48,7 @@ Currently supported games are:
 - [Grandhouse (Grand chess+Crazyhouse)](https://www.pychess.org/variants/grandhouse)
 - [Chess](https://www.pychess.org/variants/chess)
 
-Additionally you can check Chess960 option in for Chess, Crazyhouse, Atomic, S-chess, Capablanca and Capahouse to start games from random positions with 
+Additionally you can check Chess960 option in for Chess, Crazyhouse, Atomic, Three check, King of the Hill, S-chess, Capablanca and Capahouse to start games from random positions with 
 [Chess960 castling rules](https://en.wikipedia.org/wiki/Fischer_random_chess#Castling_rules)
 
 For move generation, validation, analysis and engine play it uses
