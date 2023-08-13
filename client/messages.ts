@@ -74,6 +74,7 @@ export interface MsgBoard {
 
     byo?: number[];
     clocks?: Clocks;
+    takeback?: boolean;
 }
 
 export interface Ceval {

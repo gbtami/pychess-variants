@@ -971,3 +971,19 @@ class Game:
             "byoyomi": self.byoyomi_period,
             "lastMove": self.lastmove,
         }
+
+    def takeback(self):
+        if self.bot_game and self.board.ply >= 2:
+            cur_player = self.bplayer if self.board.color == BLACK else self.wplayer
+
+            self.board.pop()
+            self.ply_clocks.pop()
+            self.steps.pop()
+
+            if not cur_player.bot:
+                self.board.pop()
+                self.ply_clocks.pop()
+                self.steps.pop()
+
+            self.legal_moves = self.board.legal_moves()
+            self.lastmove = self.board.move_stack[-1] if self.board.move_stack else None
