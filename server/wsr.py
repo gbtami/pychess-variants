@@ -36,7 +36,7 @@ async def round_socket_handler(request):
 
     session = await aiohttp_session.get_session(request)
     session_user = session.get("user_name")
-    user = await users.get(session_user)
+    user = users[session_user] if session_user is not None and session_user in users else None
 
     if user is not None and not user.enabled:
         session.invalidate()
@@ -120,7 +120,7 @@ async def round_socket_handler(request):
                             if user.username == game.bplayer.username
                             else game.bplayer.username
                         )
-                        opp_player = await users.get(opp_name)
+                        opp_player = users.get(opp_name)
                         if opp_player is not None and opp_player.bot:
                             # Janggi game start have to wait for human player setup!
                             if game.variant != "janggi" or not (game.bsetup or game.wsetup):
@@ -246,7 +246,7 @@ async def round_socket_handler(request):
                             request.app["works"][work_id] = work
                             request.app["fishnet"].put_nowait((ANALYSIS, work_id))
                         else:
-                            engine = users["Fairy-Stockfish"]
+                            engine = users.get("Fairy-Stockfish")
 
                             if (engine is not None) and engine.online:
                                 engine.game_queues[data["gameId"]] = asyncio.Queue()
@@ -274,13 +274,13 @@ async def round_socket_handler(request):
 
                         if opp_player.bot:
                             if opp_player.username == "Random-Mover":
-                                engine = users["Random-Mover"]
+                                engine = users.get("Random-Mover")
                             else:
-                                engine = users["Fairy-Stockfish"]
+                                engine = users.get("Fairy-Stockfish")
 
                             if engine is None or not engine.online:
                                 # TODO: message that engine is offline, but capture BOT will play instead
-                                engine = users["Random-Mover"]
+                                engine = users.get("Random-Mover")
 
                             color = "w" if game.wplayer.username == opp_name else "b"
                             if handicap:
@@ -416,6 +416,12 @@ async def round_socket_handler(request):
                         game.byoyomi_periods[data["color"]] = data["period"]
                         # print("BYOYOMI:", data)
 
+                    elif data["type"] == "takeback":
+                        game.takeback()
+                        board_response = game.get_board(full=True)
+                        board_response["takeback"] = True
+                        await ws.send_json(board_response)
+
                     elif data["type"] in ("abort", "resign", "abandone", "flag"):
                         if data["type"] == "abort" and (game is not None) and game.board.ply > 2:
                             continue
@@ -545,7 +551,7 @@ async def round_socket_handler(request):
 
                     elif data["type"] == "is_user_present":
                         player_name = data["username"]
-                        player = await users.get(player_name)
+                        player = users.get(player_name)
                         await asyncio.sleep(1)
                         if player is not None and data["gameId"] in (
                             player.game_queues if player.bot else player.game_sockets

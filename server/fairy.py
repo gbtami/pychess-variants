@@ -107,9 +107,7 @@ class FairyBoard:
                 self.count_started,
             )
         except Exception:
-            self.move_stack.pop()
-            self.ply -= 1
-            self.color = not self.color
+            self.pop()
             log.error(
                 "ERROR: sf.get_fen() failed on %s %s %s",
                 self.initial_fen,
@@ -117,6 +115,20 @@ class FairyBoard:
                 self.chess960,
             )
             raise
+
+    def pop(self):
+        self.move_stack.pop()
+        self.ply -= 1
+        self.color = not self.color
+        self.fen = sf.get_fen(
+            self.variant,
+            self.initial_fen,
+            self.move_stack,
+            self.chess960,
+            self.sfen,
+            self.show_promoted,
+            self.count_started,
+        )
 
     def get_san(self, move):
         return sf.get_san(self.variant, self.fen, move, self.chess960, self.notation)

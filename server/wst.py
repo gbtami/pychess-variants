@@ -25,7 +25,7 @@ async def tournament_socket_handler(request):
 
     session = await aiohttp_session.get_session(request)
     session_user = session.get("user_name")
-    user = await users.get(session_user)
+    user = users[session_user] if session_user is not None and session_user in users else None
 
     if (user is not None) and (not user.enabled):
         session.invalidate()
@@ -79,7 +79,7 @@ async def tournament_socket_handler(request):
                     elif data["type"] == "get_games":
                         tournament = await load_tournament(request.app, data["tournamentId"])
                         if tournament is not None:
-                            response = await tournament.games_json(data["player"])
+                            response = tournament.games_json(data["player"])
                             await ws.send_json(response)
 
                     elif data["type"] == "join":
