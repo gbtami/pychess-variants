@@ -726,7 +726,8 @@ export class RoundController extends GameController {
         if ((!this.spectator && this.clockOn) || this.tournamentGame) {
             const container = document.getElementById('abort') as HTMLElement;
             if (container) {
-                if (this.wtitle === 'BOT' || this.btitle === 'BOT') {
+                // No takeback for Duck chess, because it already has undo for first leg of moves
+                if ((this.wtitle === 'BOT' || this.btitle === 'BOT') && !this.variant.rules.duck) {
                     patch(container, h('button#takeback', { on: { click: () => this.takeback() }, props: {title: _('Propose takeback')} }, [h('i', {class: {"icon": true, "icon-reply": true} } ), ]));
                 } else {
                     patch(container, h('div'));
@@ -735,7 +736,6 @@ export class RoundController extends GameController {
         } else if (!this.spectator && !this.clockOn) {
             const container = document.getElementById('takeback') as HTMLElement;
             if (container) {
-                console.log("CONTAINER for #takeback", container);
                 patch(container, this.buttonAbort());
             }
         }
