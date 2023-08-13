@@ -284,7 +284,7 @@ export class RoundController extends GameController {
                 buttons.push(h('div#undo'));
             }
             if (!this.tournamentGame) {
-                buttons.push(h('button#abort', { on: { click: () => this.abort() }, props: {title: _('Abort')} }, [h('i', {class: {"icon": true, "icon-abort": true} } ), ]));
+                buttons.push(this.buttonAbort());
             }
             buttons.push(h('button#count', _('Count')));
             if (this.variant.rules.pass)
@@ -314,6 +314,10 @@ export class RoundController extends GameController {
     }
 
     toggleSettings() {
+    }
+
+    buttonAbort() {
+        return h('button#abort', { on: { click: () => this.abort() }, props: {title: _('Abort')} }, [h('i', {class: {"icon": true, "icon-abort": true} } ), ]);
     }
 
     toggleOrientation() {
@@ -384,6 +388,10 @@ export class RoundController extends GameController {
     private abort = () => {
         // console.log("Abort");
         this.doSend({ type: "abort", gameId: this.gameId });
+    }
+
+    private takeback = () => {
+        this.doSend({ type: "takeback", gameId: this.gameId });
     }
 
     private draw = () => {
@@ -639,6 +647,9 @@ export class RoundController extends GameController {
                                                                         // because of disconnect and then also opp's reply to it, that we didn't
                                                                         // receive while offline. Not sure if it could be ahead with more than 2 ply
         }
+
+        if (msg.takeback) latestPly = true;
+
         if (latestPly) this.ply = msg.ply;
 
         if (this.ply === 0) {
@@ -714,7 +725,19 @@ export class RoundController extends GameController {
         this.clockOn = Number(msg.ply) >= 2;
         if ((!this.spectator && this.clockOn) || this.tournamentGame) {
             const container = document.getElementById('abort') as HTMLElement;
-            if (container) patch(container, h('div'));
+            if (container) {
+                // No takeback for Duck chess, because it already has undo for first leg of moves
+                if ((this.wtitle === 'BOT' || this.btitle === 'BOT') && !this.variant.rules.duck) {
+                    patch(container, h('button#takeback', { on: { click: () => this.takeback() }, props: {title: _('Propose takeback')} }, [h('i', {class: {"icon": true, "icon-reply": true} } ), ]));
+                } else {
+                    patch(container, h('div'));
+                }
+            }
+        } else if (!this.spectator && !this.clockOn) {
+            const container = document.getElementById('takeback') as HTMLElement;
+            if (container) {
+                patch(container, this.buttonAbort());
+            }
         }
 
         const lastMove = uci2LastMove(msg.lastMove);
@@ -765,7 +788,6 @@ export class RoundController extends GameController {
             this.clocks[bclock].increment = 0;
             if (msg.ply <= 2) this.clocks[bclock].setTime(this.base * 1000 * 30);
         }
-
         if (this.spectator) {
             if (latestPly) {
                 this.chessground.set({
