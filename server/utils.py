@@ -610,9 +610,7 @@ async def play_move(app, user, game, move, clocks=None, ply=None):
 
         cur_player = game.bplayer if game.board.color == BLACK else game.wplayer
         if user.bot and not cur_player.bot:
-            log.info(
-                "BOT move %s arrived probably while human player takeback happened" % move
-            )
+            log.info("BOT move %s arrived probably while human player takeback happened" % move)
             return
 
         try:
