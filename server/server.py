@@ -45,7 +45,6 @@ from discord_bot import DiscordBot, FakeDiscordBot
 from generate_crosstable import generate_crosstable
 from generate_highscore import generate_highscore
 from generate_shield import generate_shield
-from glicko2.glicko2 import DEFAULT_PERF
 from index import handle_404
 from routes import get_routes, post_routes
 from settings import (
@@ -60,6 +59,7 @@ from settings import (
     static_url,
 )
 from user import User
+from users import Users
 from tournaments import load_tournament, get_scheduled_tournaments, translated_tournament_name
 from twitch import Twitch
 from youtube import Youtube
@@ -135,39 +135,6 @@ async def init_db(app):
         tz_aware=True,
     )
     app["db"] = app["client"][MONGO_DB_NAME]
-
-
-class Users(dict):
-    def __init__(self, app):
-        super().__init__()
-        self.app = app
-
-    async def get(self, username):
-        if username in self:
-            return self[username]
-
-        db = self.app["db"]
-        doc = await db.user.find_one({"_id": username})
-        if doc is None:
-            print("--- users.get() %s NOT IN db ---" % username)
-            return None
-        else:
-            perfs = doc.get("perfs", {variant: DEFAULT_PERF for variant in VARIANTS})
-            pperfs = doc.get("pperfs", {variant: DEFAULT_PERF for variant in VARIANTS})
-
-            user = User(
-                app,
-                username=doc["_id"],
-                title=doc.get("title"),
-                bot=doc.get("title") == "BOT",
-                perfs=perfs,
-                pperfs=pperfs,
-                enabled=doc.get("enabled", True),
-                lang=doc.get("lang", "en"),
-                theme=doc.get("theme", "dark"),
-            )
-            self.app["users"][doc["_id"]] = user
-            return user
 
 
 async def init_state(app):
