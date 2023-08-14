@@ -126,6 +126,7 @@ VARIANTS = (
     "shogun",
     "shako",
     "hoppelpoppel",
+    "mansindam",
     "orda",
     "synochess",
     "shinobi",
@@ -135,7 +136,6 @@ VARIANTS = (
     "chak",
     "chennis",
     "spartan",
-    "mansindam",
 )
 
 VARIANT_ICONS = {
@@ -389,7 +389,7 @@ TRANSLATED_VARIANT_NAMES = {
     "kingofthehill960": _("King of the Hill 960"),
     "3check": _("Three check"),
     "3check960": _("Three check 960"),
-    "mansindam": _("mansindam"),
+    "mansindam": _("Mansindam"),
 }
 
 del _
