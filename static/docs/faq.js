@@ -5,7 +5,11 @@
       detailsElements.forEach(function(detailsElement, index) {
         if (index + 1 === parseInt(hash)) {
           detailsElement.open = true;
-          detailsElement.scrollIntoView();
+          
+          window.scrollTo({
+            top: detailsElement.offsetTop,
+            behavior: 'smooth'
+          });
         }
       });
     });
