@@ -387,6 +387,19 @@ label.piece.piece3.hoppel {
     background-image: url('images/pieces/disguised/b.svg');
 }
 
+label.piece.piece0.mansindam {
+    background-image: url('images/pieces/mansindam/intl/wn.svg');
+}
+label.piece.piece1.mansindam {
+    background-image: url('images/pieces/mansindam/YuGothic/wn.svg');
+}
+label.piece.piece2.mansindam {
+    background-image: url('images/pieces/mansindam/Epson/wn.svg');
+}
+label.piece.piece3.mansindam {
+    background-image: url('images/pieces/disguised/w.svg');
+}
+
 label.piece.piece0.shinobi {
     background-image: url('images/pieces/shinobi/merida/wJ.svg');
 }

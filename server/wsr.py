@@ -416,6 +416,12 @@ async def round_socket_handler(request):
                         game.byoyomi_periods[data["color"]] = data["period"]
                         # print("BYOYOMI:", data)
 
+                    elif data["type"] == "takeback":
+                        game.takeback()
+                        board_response = game.get_board(full=True)
+                        board_response["takeback"] = True
+                        await ws.send_json(board_response)
+
                     elif data["type"] in ("abort", "resign", "abandone", "flag"):
                         if data["type"] == "abort" and (game is not None) and game.board.ply > 2:
                             continue

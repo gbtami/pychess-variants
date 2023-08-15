@@ -35,6 +35,7 @@ export const BOARD_FAMILIES: Record<string, BoardFamily> = {
     shogun8x8: { dimensions: { width: 8, height: 8 }, cg: "cg-512", boardCSS: ["ShogunPlain.svg", "ShogunMaple.png", "ShogunMaple2.png", "ShogunBlue.svg", "8x8brown.svg", "8x8maple.jpg"] },
     chak9x9:{ dimensions: { width: 9, height: 9 }, cg: "cg-540", boardCSS: ["StandardChakBoard.svg", "ColoredChakBoard.svg", "ChakArt.jpg"] },
     chennis7x7:{ dimensions: { width: 7, height: 7 }, cg: "cg-448", boardCSS: ["WimbledonBoard.svg", "FrenchOpenBoard.svg", "USOpenBoard.svg"] },
+    mansindam9x9: { dimensions: { width: 9, height: 9 }, cg: "cg-540", boardCSS: ["9x9mansindam.svg", "mansindam.svg"] },
 };
 
 export const PIECE_FAMILIES: Record<string, PieceFamily> = {
@@ -61,6 +62,7 @@ export const PIECE_FAMILIES: Record<string, PieceFamily> = {
     chak: { pieceCSS: ["chak0", "disguised"] },
     chennis: { pieceCSS: ["chennis0", "chennis1", "chennis2", "disguised"] },
     spartan: { pieceCSS: ["spartan0", "disguised"] },
+    mansindam: { pieceCSS: ["mansindam2", "mansindam1", "mansindam3", "disguised"] },
 };
 
 export interface Variant {
@@ -822,6 +824,17 @@ export const VARIANTS: Record<string, Variant> = {
         pieceRow: { white: ["k", "q", "r", "b", "n", "p"], black: ["k", "g", "w", "l", "c", "h"] },
     }),
 
+    mansindam: variant({
+        name: "mansindam", tooltip: "Pantheon tale",
+        startFen: "rnbakqcnm/9/ppppppppp/9/9/9/PPPPPPPPP/9/MNCQKABNR[] w - - 0 1",
+        icon: "℘",
+        boardFamily: "mansindam9x9", pieceFamily: "mansindam",
+        pieceRow: ["k", "r", "n", "b", "a", "q", "c", "m", "p"],
+        pocket: { roles: ["p", "n", "b", "r", "a", "q", "c", "m"], captureToHand: true },
+        promotion: { type: "shogi", roles: ["n", "b", "r", "c", "m", "p"] },
+        ui: { boardMark: 'campmate' },
+    }),
+
     // We support the functionality to import/store/analyze some variants
     // but don't want to add them to leaderboard page
     embassy: variant({
@@ -887,7 +900,7 @@ export const variantGroups: { [ key: string ]: { variants: string[] } } = {
     sea:      { variants: [ "makruk", "makpong", "cambodian", "sittuyin", "asean" ] },
     shogi:    { variants: [ "shogi", "minishogi", "kyotoshogi", "dobutsu", "gorogoroplus", "torishogi" ] },
     xiangqi:  { variants: [ "xiangqi", "manchu", "janggi", "minixiangqi" ] },
-    fairy:    { variants: [ "capablanca", "capahouse", "seirawan", "shouse", "grand", "grandhouse", "shako", "shogun", "hoppelpoppel" ] },
+    fairy:    { variants: [ "capablanca", "capahouse", "seirawan", "shouse", "grand", "grandhouse", "shako", "shogun", "hoppelpoppel", "mansindam" ] },
     army:     { variants: [ "orda", "synochess", "shinobi", "empire", "ordamirror", "chak", "chennis", "spartan" ] },
 };
 
