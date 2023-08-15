@@ -126,6 +126,7 @@ VARIANTS = (
     "shogun",
     "shako",
     "hoppelpoppel",
+    "mansindam",
     "orda",
     "khans",
     "synochess",
@@ -187,6 +188,7 @@ VARIANT_ICONS = {
     "asean": "♻",
     "chak": "🐬",
     "chennis": "🎾",
+    "mansindam": "℘",
     "duck": "🦆",
     "spartan": "⍺",
     "kingofthehill": "🏴",
@@ -240,6 +242,7 @@ CATEGORIES = {
         "shako",
         "shogun",
         "hoppelpoppel",
+        "mansindam",
     ),
     "army": (
         "orda",
@@ -390,6 +393,7 @@ TRANSLATED_VARIANT_NAMES = {
     "kingofthehill960": _("King of the Hill 960"),
     "3check": _("Three check"),
     "3check960": _("Three check 960"),
+    "mansindam": _("Mansindam"),
 }
 
 del _

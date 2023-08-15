@@ -206,4 +206,44 @@ pieceDemotion = true
 mandatoryPiecePromotion = true
 dropPromoted = true
 castling = false
-stalemateValue = loss`
+stalemateValue = loss
+
+# Mansindam (Pantheon tale)
+# A variant that combines drop rule and powerful pieces, and there is no draw
+[mansindam]
+variantTemplate = shogi
+pieceToCharTable = PNBR.Q.CMA.++++...++Kpnbr.q.cma.++++...++k
+maxFile = 9
+maxRank = 9
+pocketSize = 8
+startFen = rnbakqcnm/9/ppppppppp/9/9/9/PPPPPPPPP/9/MNCQKABNR[] w - - 0 1
+pieceDrops = true
+capturesToHand = true
+shogiPawn = p
+knight = n
+bishop = b
+rook = r
+queen = q
+archbishop = c
+chancellor = m
+amazon = a
+king = k
+commoner = g
+centaur = e
+dragonHorse = h
+bers = t
+customPiece1 = i:BNW
+customPiece2 = s:RNF
+promotionRank = 7
+mandatoryPiecePromotion = true
+doubleStep = false
+castling = false
+promotedPieceType = p:g n:e b:h r:t c:i m:s
+dropNoDoubled = p
+stalemateValue = loss
+nMoveRule = 0
+nFoldValue = loss
+flagPiece = k
+whiteFlag = *9
+blackFlag = *1
+immobilityIllegal = true`
