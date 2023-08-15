@@ -48,6 +48,7 @@ V2C = {
     "asean": "S",
     "chak": "C",
     "chennis": "H",
+    "mansindam": "I",
     "duck": "U",
     "spartan": "N",
     "kingofthehill": "B",
