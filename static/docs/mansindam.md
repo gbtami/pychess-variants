@@ -4,11 +4,84 @@ _A variant that combines the Shogi's drop rule with strong pieces, and has no dr
 
 ![Mansindam](https://github.com/gbtami/pychess-variants/blob/master/static/images/MansindamGuide/board.png)
 
+
+## Pieces
+### Bo(步)/Pawn(P) 
+![Pawn](https://github.com/gbtami/pychess-variants/blob/master/static/images/MansindamGuide/pawn.png)
+
+Moves one square orthogonally forward. Promotes to Guard.
+
+### Cho(哨)/Guard(G)
+![Guard](https://github.com/gbtami/pychess-variants/blob/master/static/images/MansindamGuide/guard.png)
+
+Moves one square orthogonally or diagonally.
+
+### Gi(騎)/Knight(N)
+![Knight](https://github.com/gbtami/pychess-variants/blob/master/static/images/MansindamGuide/knight.png)
+
+Moves like a standard Chess Knight, moving to the nearest squares that do not correspond to the same file, rank, or diagonal from its current position. Promotes to Centaur. It can pass pieces on the path as it moves.
+
+### Wi(衛)/Centaur(E)
+![Centaur](https://github.com/gbtami/pychess-variants/blob/master/static/images/MansindamGuide/centaur.png)
+
+Moves like a Knight or Guard.
+
+### Gak(角)/Bishop(B)
+![Bishop](https://github.com/gbtami/pychess-variants/blob/master/static/images/MansindamGuide/bishop.png)
+
+Moves any number of squares diagonally. Promotes to Archer.
+
+### Ma(馬)/Archer(H)
+![Archer](https://github.com/gbtami/pychess-variants/blob/master/static/images/MansindamGuide/archer.png)
+
+Moves like a Bishop or Guard.
+
+### Bang(方)/Rook(R)
+![Rook](https://github.com/gbtami/pychess-variants/blob/master/static/images/MansindamGuide/rook.png)
+
+Moves any number of squares orthogonally. Promotes to Tiger.
+
+### Yong(龍)/Tiger(T) 
+![Tiger](https://github.com/gbtami/pychess-variants/blob/master/static/images/MansindamGuide/tiger.png)
+
+Moves like a Rook or Guard.
+
+### Ye(猊)/Cardinal(C)
+![Cardinal](https://github.com/gbtami/pychess-variants/blob/master/static/images/MansindamGuide/cardinal.png)
+
+Moves like a Bishop or Knight. Promotes to Rhino.
+
+### Seong(聖)/Rhino(I)
+![Rhino](https://github.com/gbtami/pychess-variants/blob/master/static/images/MansindamGuide/rhino.png)
+
+Moves like a Bishop, Knight, or Guard.
+
+### Su(首)/Marshal(M)
+![Marshal](https://github.com/gbtami/pychess-variants/blob/master/static/images/MansindamGuide/marshal.png)
+
+Moves like a Rook or Knight. Promotes to Ship.
+
+### Myeong(名)/Ship(S)
+![Ship](https://github.com/gbtami/pychess-variants/blob/master/static/images/MansindamGuide/ship.png)
+
+Moves like a Rook, Knight, or Guard.
+
+### Bun(奔)/Queen(Q)
+![Queen](https://github.com/gbtami/pychess-variants/blob/master/static/images/MansindamGuide/queen.png)
+
+Moves like a Bishop or Rook. Does not promote.
+
+### Cheon(天)/Angel(A)
+![Angel](https://github.com/gbtami/pychess-variants/blob/master/static/images/MansindamGuide/angel.png)
+
+Moves like a Bishop, Rook, or Knight. Does not promote.
+
+### Yang(陽)=Eum(陰)
+![King](https://github.com/gbtami/pychess-variants/blob/master/static/images/MansindamGuide/king.png)
+
+Moves one square orthogonally or diagonally. Does not promote. When called without distinction between Yang and Eum, it is simply called Ok(玉)/King(K). (therefore, in notation, Yang and Eum are written as 玉/K.)
+
 ## Rules
-
-**Pieces**
-TODO
-
 **About King**
 * The state in which your King is attacked by opponent's piece is called Check. if your King has no way to get out of the opponent's check on that turn, call it Checkmate and you are defeated.
 * At any time, the King cannot move to a square attacked by the opponent's piece.
