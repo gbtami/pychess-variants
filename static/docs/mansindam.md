@@ -4,8 +4,10 @@ _A variant that combines the Shogi's drop rule with strong pieces, and has no dr
 
 ![Mansindam](https://github.com/gbtami/pychess-variants/blob/master/static/images/MansindamGuide/board.png)
 
+![Mansindam](https://github.com/gbtami/pychess-variants/blob/master/static/images/MansindamGuide/promotions.png)
 
 ## Pieces
+Every piece gains the additional ability to move as a non-royal King when promoted.
 ### Bo(步)/Pawn(P) 
 ![Pawn](https://github.com/gbtami/pychess-variants/blob/master/static/images/MansindamGuide/pawn.png)
 
@@ -95,8 +97,6 @@ Moves one square orthogonally or diagonally. Does not promote. When called witho
 * There is no 50-move rule.
 
 **About Promotion**
-Every piece gains the additional ability to move as a non-royal King when promoted.
-![Mansindam](https://github.com/gbtami/pychess-variants/blob/master/static/images/MansindamGuide/promotions.png)
 * The 7th, 8th, and 9th ranks are called the Enemy camp.
 * A piece is promoted when it moves to, from, or within the enemy camp.
 * Promotion is manditory. Therefore, a piece that can be promoted must be promoted.
