@@ -53,6 +53,7 @@ MONTHLY_VARIANTS = (
     "spartan",
     "kingofthehill960",
     "3check960",
+    "mansindam",
 )
 
 # Old MONTHLY tournaments, needed to create translated tourney names
