@@ -20,6 +20,7 @@ NO_PUZZLE_VARIANTS = (
     "manchu",
     "minixiangqi",
     "grandhouse",
+    "mansindam",
     "shinobi",
     "shinobiplus",
 )
