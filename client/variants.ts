@@ -840,7 +840,7 @@ export const VARIANTS: Record<string, Variant> = {
     mansindam: variant({
         name: "mansindam", tooltip: "Pantheon tale",
         startFen: "rnbakqcnm/9/ppppppppp/9/9/9/PPPPPPPPP/9/MNCQKABNR[] w - - 0 1",
-        icon: "℘",
+        icon: "⛵",
         boardFamily: "mansindam9x9", pieceFamily: "mansindam",
         pieceRow: ["k", "r", "n", "b", "a", "q", "c", "m", "p"],
         pocket: { roles: ["p", "n", "b", "r", "a", "q", "c", "m"], captureToHand: true },
