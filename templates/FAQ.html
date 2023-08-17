@@ -10,6 +10,22 @@
 {% block js %}
 <script src="{{ js }}"></script>
 <script>
+document.addEventListener('DOMContentLoaded', function() {
+  var hash = window.location.hash.substring(1);
+  var detailsElements = document.querySelectorAll('details');
+  
+  detailsElements.forEach(function(detailsElement, index) {
+    if (index + 1 === parseInt(hash)) {
+      detailsElement.open = true;
+      
+      window.scrollTo({
+        top: detailsElement.offsetTop,
+        behavior: 'smooth'
+      });
+    }
+  });
+});
+
 // Fetch all the details element.
 const details = document.querySelectorAll("details");
 

@@ -186,7 +186,7 @@ VARIANT_ICONS = {
     "asean": "♻",
     "chak": "🐬",
     "chennis": "🎾",
-    "mansindam": "℘",
+    "mansindam": "⛵",
     "duck": "🦆",
     "spartan": "⍺",
     "kingofthehill": "🏴",
