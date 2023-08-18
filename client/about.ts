@@ -68,6 +68,8 @@ export function aboutView(model: PyChessModel): VNode[] {
                 ", ",
                 h('a', { attrs: { href: 'https://www.pychess.org/variants/shogun' } }, 'Shogun'),
                 ", ",
+                h('a', { attrs: { href: 'https://www.pychess.org/variants/mansindam' } }, 'Mansindam'),
+                ", ",
                 h('a', { attrs: { href: 'https://www.pychess.org/variants/orda' } }, 'Orda'),
                 ", ",
                 h('a', { attrs: { href: 'https://www.pychess.org/variants/synochess' } }, 'Synochess'),
