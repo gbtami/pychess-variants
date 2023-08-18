@@ -443,9 +443,15 @@ label.piece.piece1.chennis {
     background-image: url('images/pieces/shogun/cburnett/mono/wC.svg');
 }
 label.piece.piece2.chennis {
-    background-image: url('images/pieces/shogun/merida/mono/wC.svg');
+    background-image: url('images/pieces/chennis/wMN_r.svg');
 }
 label.piece.piece3.chennis {
+    background-image: url('images/pieces/chennis/bMN_r.svg');
+}
+label.piece.piece4.chennis {
+    background-image: url('images/pieces/shogun/merida/mono/wC.svg');
+}
+label.piece.piece5.chennis {
     background-image: url('images/pieces/disguised/w.svg');
 }
 
