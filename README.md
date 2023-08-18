@@ -34,6 +34,7 @@ Currently supported games are:
 - [Grand](https://www.pychess.org/variants/grand)
 - [Shako](https://www.pychess.org/variants/shako)
 - [Shogun](https://www.pychess.org/variants/shogun)
+- [Mansindam](https://www.pychess.org/variants/mansindam)
 - [Orda](https://www.pychess.org/variants/orda)
 - [Synochess](https://www.pychess.org/variants/synochess)
 - [Hoppel-Poppel](https://www.pychess.org/variants/hoppelpoppel)
