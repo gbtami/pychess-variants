@@ -891,7 +891,6 @@ export const noPuzzleVariants = [
     "manchu",
     "minixiangqi",
     "grandhouse",
-    "mansindam",
     "shinobi",
     "shinobiplus",
 ]
