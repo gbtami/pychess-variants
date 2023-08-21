@@ -539,6 +539,12 @@ piece.chennis.w {
 piece.chennis.b {
     background-image: url('images/pieces/chennis/bMN.svg');
 }
+piece.mansindam.w {
+    background-image: url('images/pieces/mansindam/intl/wk.svg');
+}
+piece.mansindam.b {
+    background-image: url('images/pieces/mansindam/intl/bk.svg');
+}
 piece.synochess.b {
     background-image: url('images/pieces/synochess/intl-red/bK.svg');
 }
