@@ -473,10 +473,10 @@ div.config-toggle {
 .instruction san {
     font-size: 1.5em;
 }
-piece.standard.w, piece.capa.w, piece.seirawn.w, piece.hoppel.w, piece.shako.w, piece.asean.w, piece.shogun.w, piece.synochess.w, piece.orda.w, piece.spartan.w {
+piece.standard.w, piece.capa.w, piece.seirawan.w, piece.hoppel.w, piece.shako.w, piece.asean.w, piece.shogun.w, piece.synochess.w, piece.orda.w, piece.spartan.w {
     background-image: url('images/pieces/merida/wK.svg');
 }
-piece.standard.b, piece.capa.b, piece.seirawn.b, piece.hoppel.b, piece.shako.b, piece.asean.b, piece.shogun.b, piece.shinobi.b, piece.empire.b {
+piece.standard.b, piece.capa.b, piece.seirawan.b, piece.hoppel.b, piece.shako.b, piece.asean.b, piece.shogun.b, piece.shinobi.b, piece.empire.b {
     background-image: url('images/pieces/merida/bK.svg');
 }
 piece.makruk.w {
@@ -538,6 +538,12 @@ piece.chennis.w {
 }
 piece.chennis.b {
     background-image: url('images/pieces/chennis/bMN.svg');
+}
+piece.mansindam.w {
+    background-image: url('images/pieces/mansindam/intl/wk.svg');
+}
+piece.mansindam.b {
+    background-image: url('images/pieces/mansindam/intl/bk.svg');
 }
 piece.synochess.b {
     background-image: url('images/pieces/synochess/intl-red/bK.svg');

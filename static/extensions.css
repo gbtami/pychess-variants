@@ -234,6 +234,32 @@
   pointer-events: none;
 }
 
+.campmate .cg-540 cg-board::before {
+  width: 100%;
+  height: 11%;
+  top: 0%;
+  left: 0%;
+  background: rgba(230, 230, 230, 0.2);
+  box-shadow: 0 0 10px rgb(0 0 0 / 70%);
+  content: '';
+  z-index: 1;
+  position: absolute;
+  pointer-events: none;
+}
+
+.campmate .cg-540 cg-board::after {
+  width: 100%;
+  height: 11%;
+  top: 89%;
+  left: 0%;
+  background: rgba(230, 230, 230, 0.2);
+  box-shadow: 0 0 10px rgb(0 0 0 / 70%);
+  content: '';
+  z-index: 1;
+  position: absolute;
+  pointer-events: none;
+}
+
 .kingofthehill .cg-512 cg-board::before {
   width: 25%;
   height: 25%;
