@@ -5,7 +5,7 @@ import { _ } from './i18n';
 import { AnalysisController } from './analysisCtrl';
 import { PyChessModel } from "./types";
 import { patch } from './document';
-import { uci2LastMove, UCIMove, uci2cg } from './chess';
+import { lmBeforeEp, uci2LastMove, UCIMove, uci2cg } from './chess';
 import { updateMovelist } from './movelist';
 import { variants } from './variants';
 import { RatedSettings, AutoNextSettings } from './puzzleSettings';
@@ -42,6 +42,7 @@ export class PuzzleController extends AnalysisController {
         this.played = data.played ?? "0";
         this.puzzleType = data.type;
         this.puzzleEval = data.eval;
+        this.lastMove = data.lm;
         // We have to split the duck move list on every second comma!
         this.solution = (model.variant==='duck') ? data.moves.match(/[^,]+,[^,]+/g) : data.moves.split(',');
         this.username = model.username;
@@ -58,10 +59,14 @@ export class PuzzleController extends AnalysisController {
         this.isRated = localStorage.puzzle_rated === undefined ? true : localStorage.puzzle_rated === "true";
         this.autoNext = localStorage.puzzle_autoNext === undefined ? false : localStorage.puzzle_autoNext === "true";
         this.localAnalysis = false;
+        if (!this.lastMove) {
+            this.lastMove = lmBeforeEp(this.variant, this.fullfen);
+        }
 
         this.chessground.set({
             orientation: this.turnColor,
             turnColor: this.turnColor,
+            lastMove: uci2LastMove(this.lastMove),
             movable: {
                 free: false,
                 color: this.turnColor,
