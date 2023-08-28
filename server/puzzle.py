@@ -114,6 +114,7 @@ async def next_puzzle(request, user):
                 "site": doc.get("site", ""),
                 "gameId": doc.get("gameId", ""),
                 "played": doc.get("played", 0),
+                "lm": doc.get("lm", ""),
             }
             break
 
