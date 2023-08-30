@@ -194,9 +194,11 @@ class Game:
 
         # Janggi setup needed when player is not BOT
         if self.variant == "janggi":
+            # Janggi custom start position -> no setup phase
             if self.initial_fen:
                 self.bsetup = False
                 self.wsetup = False
+                self.status = STARTED
             else:
                 # Red (the second player) have to choose the starting positions of the horses and elephants
                 self.bsetup = not self.bplayer.bot
