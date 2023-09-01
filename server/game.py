@@ -196,9 +196,11 @@ class Game:
 
         # Janggi setup needed when player is not BOT
         if self.variant == "janggi":
+            # Janggi custom start position -> no setup phase
             if self.initial_fen:
                 self.bsetup = False
                 self.wsetup = False
+                self.status = STARTED
             else:
                 # Red (the second player) have to choose the starting positions of the horses and elephants
                 self.bsetup = not self.bplayer.bot
@@ -988,3 +990,19 @@ class Game:
             "byoyomi": self.byoyomi_period,
             "lastMove": self.lastmove,
         }
+
+    def takeback(self):
+        if self.bot_game and self.board.ply >= 2:
+            cur_player = self.bplayer if self.board.color == BLACK else self.wplayer
+
+            self.board.pop()
+            self.ply_clocks.pop()
+            self.steps.pop()
+
+            if not cur_player.bot:
+                self.board.pop()
+                self.ply_clocks.pop()
+                self.steps.pop()
+
+            self.legal_moves = self.board.legal_moves()
+            self.lastmove = self.board.move_stack[-1] if self.board.move_stack else None

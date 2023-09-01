@@ -19,6 +19,7 @@ export interface PieceFamily {
 
 export const BOARD_FAMILIES: Record<string, BoardFamily> = {
     standard8x8: { dimensions: { width: 8, height: 8 }, cg: "cg-512", boardCSS: ["8x8brown.svg", "8x8blue.svg", "8x8green.svg", "8x8maple.jpg", "8x8olive.jpg", "8x8santa.png", "8x8wood2.jpg", "8x8wood4.jpg", "8x8ic.svg", "8x8purple.svg"] },
+    standard9x9: { dimensions: { width: 9, height: 9 }, cg: "cg-540", boardCSS: ["9x9mansindam.svg", "9x9brown.svg", "9x9blue.svg", "9x9green.svg", "9x9maple.jpg", "9x9olive.jpg"] },
     standard10x8: { dimensions: { width: 10, height: 8 }, cg: "cg-640", boardCSS: ["10x8brown.svg", "10x8blue.svg", "10x8green.svg", "10x8maple.jpg", "10x8olive.jpg"] },
     standard10x10: { dimensions: { width: 10, height: 10 }, cg: "cg-640-640", boardCSS: ["10x10brown.svg", "10x10blue.svg", "10x10green.svg", "10x10maple.jpg", "10x10olive.jpg"] },
     grand10x10: { dimensions: { width: 10, height: 10}, cg: "cg-640-640", boardCSS: ["Grandboard.svg", "10x10brown.svg", "10x10blue.svg", "10x10green.svg", "10x10maple.jpg", "10x10mapleGrand.png"] },
@@ -59,8 +60,9 @@ export const PIECE_FAMILIES: Record<string, PieceFamily> = {
     empire: { pieceCSS: ["empire0", "empire1", "disguised"] },
     ordamirror: { pieceCSS: ["ordamirror0", "ordamirror1", "disguised"] },
     chak: { pieceCSS: ["chak0", "disguised"] },
-    chennis: { pieceCSS: ["chennis0", "chennis1", "chennis2", "disguised"] },
+    chennis: { pieceCSS: ["chennis0", "chennis1", "chennis2", "chennis3", "chennis4", "disguised"] },
     spartan: { pieceCSS: ["spartan0", "disguised"] },
+    mansindam: { pieceCSS: ["mansindam2", "mansindam1", "mansindam3", "disguised"] },
 };
 
 export interface Variant {
@@ -366,6 +368,19 @@ export const VARIANTS: Record<string, Variant> = {
         pieceRow: ["k", "q", "r", "b", "n", "p"],
         rules: { enPassant: true },
         ui: { boardMark: 'kingofthehill' },
+    }),
+
+    '3check': variant({
+        name: "3check", displayName: "three-check", tooltip: "",
+        startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 3+3 0 1",
+        chess960: true, icon: "☰", icon960: "☷",
+        boardFamily: "standard8x8", pieceFamily: "standard",
+        pieceRow: ["k", "q", "r", "b", "n", "p"],
+        rules: { enPassant: true },
+        alternateStart: {
+            '': "",
+            '5check': "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 5+5 0 1",
+        },
     }),
 
     duck: variant({
@@ -829,6 +844,17 @@ export const VARIANTS: Record<string, Variant> = {
         pieceRow: { white: ["k", "q", "r", "b", "n", "p"], black: ["k", "g", "w", "l", "c", "h"] },
     }),
 
+    mansindam: variant({
+        name: "mansindam", tooltip: "Pantheon tale",
+        startFen: "rnbakqcnm/9/ppppppppp/9/9/9/PPPPPPPPP/9/MNCQKABNR[] w - - 0 1",
+        icon: "⛵",
+        boardFamily: "standard9x9", pieceFamily: "mansindam",
+        pieceRow: ["k", "r", "n", "b", "a", "q", "c", "m", "p"],
+        pocket: { roles: ["p", "n", "b", "r", "a", "q", "c", "m"], captureToHand: true },
+        promotion: { type: "shogi", roles: ["n", "b", "r", "c", "m", "p"] },
+        ui: { boardMark: 'campmate' },
+    }),
+
     // We support the functionality to import/store/analyze some variants
     // but don't want to add them to leaderboard page
     embassy: variant({
@@ -876,7 +902,7 @@ export const enabledVariants = variants.filter(v => !disabledVariants.includes(v
 
 // variants having 0 puzzle so far
 export const noPuzzleVariants = [
-    "kingofthehill",
+    "3check",
     "placement",
     "sittuyin",
     "minishogi",
@@ -890,11 +916,11 @@ export const noPuzzleVariants = [
 ]
 
 export const variantGroups: { [ key: string ]: { variants: string[] } } = {
-    standard: { variants: [ "chess", "bughouse", "crazyhouse", "atomic", "kingofthehill", "placement", "duck" ] },
+    standard: { variants: [ "chess", "bughouse", "crazyhouse", "atomic", "kingofthehill", "3check", "placement", "duck" ] },
     sea:      { variants: [ "makruk", "makpong", "cambodian", "sittuyin", "asean" ] },
     shogi:    { variants: [ "shogi", "minishogi", "kyotoshogi", "dobutsu", "gorogoroplus", "torishogi" ] },
     xiangqi:  { variants: [ "xiangqi", "manchu", "janggi", "minixiangqi" ] },
-    fairy:    { variants: [ "capablanca", "capahouse", "seirawan", "shouse", "grand", "grandhouse", "shako", "shogun", "hoppelpoppel" ] },
+    fairy:    { variants: [ "capablanca", "capahouse", "seirawan", "shouse", "grand", "grandhouse", "shako", "shogun", "hoppelpoppel", "mansindam" ] },
     army:     { variants: [ "orda", "synochess", "shinobi", "empire", "ordamirror", "chak", "chennis", "spartan" ] },
 };
 

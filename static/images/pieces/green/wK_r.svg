@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="45"
+   height="45"
+   version="1.1"
+   id="svg12"
+   sodipodi:docname="wK.svg">
+  <metadata
+     id="metadata18">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs16" />
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="640"
+     inkscape:window-height="480"
+     id="namedview14" />
+  <g
+     fill="none"
+     fill-rule="evenodd"
+     stroke="#000"
+     stroke-width="1.5"
+     stroke-linecap="round"
+     stroke-linejoin="round"
+     id="g10">
+    <path
+       d="m 22.437186,33.995 v 5.63 m 2.5,-2 h -5"
+       stroke-linejoin="miter"
+       id="path2" />
+    <path
+       d="m 22.437186,20.625 c 0,0 -4.5,7.5 -3,10.5 0,0 1,2.5 3,2.5 2,0 3,-2.5 3,-2.5 1.5,-3 -3,-10.5 -3,-10.5"
+       fill="#ffffff"
+       stroke-linecap="butt"
+       stroke-linejoin="miter"
+       id="path4" />
+    <path
+       d="m 33.437186,8.625 c -5.5,-3.5 -15.5,-3.5 -21,0 v 7 c 0,0 -8.9999997,4.5 -5.9999997,10.5 3.9999997,6.5 13.4999997,3.5 15.9999997,-4 v -3.5 3.5 c 3.5,7.5 13,10.5 16,4 3,-6 -5,-10 -5,-10 z"
+       fill="#ffffff"
+       id="path6" />
+    <path
+       d="m 33.437186,15.625 c -5.5,3 -15.5,3 -21,0 m 21,-3.5 c -5.5,3 -15.5,3 -21,0 m 21,-3.5 c -5.5,3 -15.5,3 -21,0"
+       id="path8" />
+  </g>
+</svg>

@@ -614,6 +614,12 @@ async def play_move(app, user, game, move, clocks=None, ply=None, board=None, pa
                 "invalid ply received - probably a re-sent move that has already been processed"
             )
             return
+
+        cur_player = game.bplayer if game.board.color == BLACK else game.wplayer
+        if user.bot and not cur_player.bot:
+            log.info("BOT move %s arrived probably while human player takeback happened" % move)
+            return
+
         try:
             if board is not None:
                 await game.play_move(move, clocks, ply, board, partnerFen)

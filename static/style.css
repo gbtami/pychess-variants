@@ -39,6 +39,15 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+.icon-mansindam:before {
+  content: "\26f5";
+}
+.icon-check960:before {
+  content: "\2637";
+}
+.icon-check1:before {
+  content: "\2630";
+}
 .icon-koth960:before {
   content: "\1f3c1";
 }

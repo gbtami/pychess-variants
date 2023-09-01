@@ -21,3 +21,4 @@ To clarify, there are generally three ways to answer a check:
 This means the first option, moving the king away, is *not* allowed. You can only block the check or capture the attacker.
 * The king is still allowed to capture an unprotected attacker. In this case, the king isn't moving *away* from the check, so it doesn't break the rule.
 * Checking the king with multiple pieces is an immediate checkmate. Moving the king to capture either of them is illegal since it involves moving *away* from the other attacker.
+<iframe width="560" height="315" src="https://www.youtube.com/embed/WmMw97hp8C0" frameborder="0" allowfullscreen></iframe>

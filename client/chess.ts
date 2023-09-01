@@ -56,6 +56,25 @@ export function cg2uci(move: string): string {
     return move.replace(/:/g, "10");
 }
 
+// Get the latest move from FEN if ep sqare is given
+export function lmBeforeEp(variant: Variant, fen: string): string {
+    let lastMove = '';
+    if (variant.rules.enPassant) {
+        const parts = fen.split(' ');
+        const epSquare = parts[3];
+        if (epSquare !== "-") {
+            const file = epSquare.slice(0, 1);
+            const rank = Number(epSquare.slice(1));
+            if (rank < 4) {
+                lastMove = `${file}${rank - 1}${file}${rank + 1}`;
+            } else {
+                lastMove = `${file}${rank + 1}${file}${rank - 1}`;
+            }
+        }
+    }
+    return lastMove;
+}
+
 // TODO Will be deprecated after WASM Fairy integration
 export function validFen(variant: Variant, fen: string): boolean {
     const as = variant.alternateStart;

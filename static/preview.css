@@ -387,6 +387,19 @@ label.piece.piece3.hoppel {
     background-image: url('images/pieces/disguised/b.svg');
 }
 
+label.piece.piece0.mansindam {
+    background-image: url('images/pieces/mansindam/intl/wn.svg');
+}
+label.piece.piece1.mansindam {
+    background-image: url('images/pieces/mansindam/YuGothic/wn.svg');
+}
+label.piece.piece2.mansindam {
+    background-image: url('images/pieces/mansindam/Epson/wn.svg');
+}
+label.piece.piece3.mansindam {
+    background-image: url('images/pieces/disguised/w.svg');
+}
+
 label.piece.piece0.shinobi {
     background-image: url('images/pieces/shinobi/merida/wJ.svg');
 }
@@ -430,9 +443,15 @@ label.piece.piece1.chennis {
     background-image: url('images/pieces/shogun/cburnett/mono/wC.svg');
 }
 label.piece.piece2.chennis {
-    background-image: url('images/pieces/shogun/merida/mono/wC.svg');
+    background-image: url('images/pieces/chennis/wMN_r.svg');
 }
 label.piece.piece3.chennis {
+    background-image: url('images/pieces/chennis/bMN_r.svg');
+}
+label.piece.piece4.chennis {
+    background-image: url('images/pieces/shogun/merida/mono/wC.svg');
+}
+label.piece.piece5.chennis {
     background-image: url('images/pieces/disguised/w.svg');
 }
 

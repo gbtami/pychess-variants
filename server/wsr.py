@@ -424,6 +424,12 @@ async def round_socket_handler(request):
                         game.byoyomi_periods[data["color"]] = data["period"]
                         # print("BYOYOMI:", data)
 
+                    elif data["type"] == "takeback":
+                        game.takeback()
+                        board_response = game.get_board(full=True)
+                        board_response["takeback"] = True
+                        await ws.send_json(board_response)
+
                     elif data["type"] in ("abort", "resign", "abandone", "flag"):
                         if game.variant == "bughouse": # todo:niki: add new method in both places
                             await handle_resign_bughouse(data, game, user)
@@ -523,8 +529,8 @@ async def round_socket_handler(request):
                             game.status <= STARTED
                             and user.username in (game.wplayer.username, game.bplayer.username)
                         ):
-                            await game.wplayer.clear_seeks(force=True)
-                            await game.bplayer.clear_seeks(force=True)
+                            await game.wplayer.clear_seeks()
+                            await game.bplayer.clear_seeks()
 
                         if not game.is_player(user):
                             game.spectators.add(user)

@@ -11,7 +11,7 @@ from glicko2.glicko2 import MU, gl2, Rating, rating
 
 # variants having 0 puzzle so far
 NO_PUZZLE_VARIANTS = (
-    "kingofthehill",
+    "3check",
     "placement",
     "sittuyin",
     "minishogi",
@@ -114,6 +114,7 @@ async def next_puzzle(request, user):
                 "site": doc.get("site", ""),
                 "gameId": doc.get("gameId", ""),
                 "played": doc.get("played", 0),
+                "lm": doc.get("lm", ""),
             }
             break
 
@@ -216,7 +217,7 @@ def default_puzzle_perf(puzzle_eval):
         "la": datetime.now(timezone.utc),
         "nb": 0,
     }
-    if puzzle_eval[0] == "#":
+    if len(puzzle_eval) > 0 and puzzle_eval[0] == "#":
         perf["gl"]["r"] = MU + 200 * (int(puzzle_eval[1:]) - 2)
     return perf
 

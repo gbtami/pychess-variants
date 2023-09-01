@@ -25,6 +25,8 @@ Currently supported games are:
 - [Placement chess](https://www.pychess.org/variants/placement)
 - [Crazyhouse](https://www.pychess.org/variants/crazyhouse)
 - [Atomic](https://www.pychess.org/variants/atomic)
+- [Three check](https://www.pychess.org/variants/3check)
+- [King of the Hill](https://www.pychess.org/variants/kingofthehill)
 - [Duck chess](https://www.pychess.org/variants/duck)
 - [S-chess](https://www.pychess.org/variants/seirawan)
 - [Capablanca](https://www.pychess.org/variants/capablanca)
@@ -32,6 +34,7 @@ Currently supported games are:
 - [Grand](https://www.pychess.org/variants/grand)
 - [Shako](https://www.pychess.org/variants/shako)
 - [Shogun](https://www.pychess.org/variants/shogun)
+- [Mansindam](https://www.pychess.org/variants/mansindam)
 - [Orda](https://www.pychess.org/variants/orda)
 - [Synochess](https://www.pychess.org/variants/synochess)
 - [Hoppel-Poppel](https://www.pychess.org/variants/hoppelpoppel)
@@ -46,7 +49,7 @@ Currently supported games are:
 - [Grandhouse (Grand chess+Crazyhouse)](https://www.pychess.org/variants/grandhouse)
 - [Chess](https://www.pychess.org/variants/chess)
 
-Additionally you can check Chess960 option in for Chess, Crazyhouse, Atomic, S-chess, Capablanca and Capahouse to start games from random positions with 
+Additionally you can check Chess960 option in for Chess, Crazyhouse, Atomic, Three check, King of the Hill, S-chess, Capablanca and Capahouse to start games from random positions with 
 [Chess960 castling rules](https://en.wikipedia.org/wiki/Fischer_random_chess#Castling_rules)
 
 For move generation, validation, analysis and engine play it uses
