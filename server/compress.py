@@ -13,7 +13,7 @@ V2C = {
     "capablanca": "c",
     "capahouse": "i",
     "crazyhouse": "h",
-    "bughouse": "B",
+    "bughouse": "F",
     "atomic": "A",
     "makruk": "m",
     "placement": "p",

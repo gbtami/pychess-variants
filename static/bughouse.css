@@ -43,17 +43,25 @@ main.round.bug .pocket.bottom {
 }
 
 div#chatpresets{
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
+  /*display: flex;*/
+  display: grid;
+  grid-template-columns: auto auto auto auto auto;
+  padding-top: 5px;
+  /*grid-template-columns: 15fr 15fr 15fr 15fr 15fr;*/
+  /*grid-template-rows: 15px 15px 15px 15px;*/
+  /*grid-template-rows: 15fr 15fr 15fr 15fr;*/
+  grid-template-rows: auto auto auto auto;
+  /*flex-direction: row;
+  flex-wrap: wrap;*/
   order: 3;
 }
 
-div#chatpresets button.bugchat{
-  /*width: 10vw;*/
-  width: 10%;
-  /*height: 100vw;*/
-  padding-top: 10%;
+div#chatpresets button.bugchat {
+  width: 60%;
+  /*width: 15%;*/
+  /*height: 15fr;*/
+  justify-self: center;
+  padding-top: 60%;
   color: var(--font-color);
   background-color: var(--bg-color0);
   cursor: pointer;
