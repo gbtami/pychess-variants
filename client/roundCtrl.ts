@@ -287,10 +287,11 @@ export class RoundController extends GameController {
                 buttons.push(this.buttonAbort());
             }
             buttons.push(h('button#count', _('Count')));
-            if (this.variant.rules.pass)
+            if (this.variant.rules.pass) {
                 buttons.push(h('button#draw', { on: { click: () => this.pass() }, props: { title: _('Pass') } }, _('Pass')));
-            else
+            } else if (!this.variant.rules.noDrawOffer) {
                 buttons.push(h('button#draw', { on: { click: () => this.draw() }, props: { title: _('Draw') } }, h('i', '½')));
+            }
             buttons.push(h('button#resign', { on: { click: () => this.resign() }, props: {title: _("Resign")} }, [h('i', {class: {"icon": true, "icon-flag-o": true} } ), ]));
             
             this.gameControls = patch(container, h('div.btn-controls', buttons));
