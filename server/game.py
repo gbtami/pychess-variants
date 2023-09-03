@@ -155,7 +155,6 @@ class Game:
             "makruk",
             "makpong",
             "cambodian",
-            "sittuyin",
             "shogi",
             "dobutsu",
             "gorogoro",
