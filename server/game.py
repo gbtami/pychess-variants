@@ -48,6 +48,14 @@ MAX_HIGH_SCORE = 10
 MAX_PLY = 600
 KEEP_TIME = 1800  # keep game in app["games"] for KEEP_TIME secs
 
+INVALID_PAWN_DROP_MATE = (
+    ("P@", "shogi"),
+    ("P@", "minishogi"),
+    ("P@", "gorogoro"),
+    ("P@", "gorogoroplus"),
+    ("S@", "torishogi"),
+)
+
 
 class Game:
     def __init__(
@@ -143,6 +151,16 @@ class Game:
 
         self.id = gameId
 
+        self.n_fold_is_draw = self.variant in (
+            "makruk",
+            "makpong",
+            "cambodian",
+            "shogi",
+            "dobutsu",
+            "gorogoro",
+            "gorogoroplus",
+            "kyotoshogi",
+        )
         self.has_counting = self.variant in ("makruk", "makpong", "cambodian", "sittuyin", "asean")
         # Makruk manual counting
         use_manual_counting = self.variant in ("makruk", "makpong", "cambodian")
@@ -655,26 +673,19 @@ class Game:
 
                 # Pawn drop mate
                 # TODO: remove this when https://github.com/ianfab/Fairy-Stockfish/issues/48 resolves
-                if self.board.move_stack[-1][1] == "@":
-                    if (
-                        self.board.move_stack[-1][0] == "P"
-                        and self.variant
-                        in (
-                            "shogi",
-                            "minishogi",
-                            "gorogoro",
-                            "gorogoroplus",
-                        )
-                    ) or (self.board.move_stack[-1][0] == "S" and self.variant == "torishogi"):
-                        self.status = INVALIDMOVE
+                if (self.board.move_stack[-1][0:2], self.variant) in INVALID_PAWN_DROP_MATE:
+                    self.status = INVALIDMOVE
             else:
                 self.status = STALEMATE
 
         else:
             # end the game by 50 move rule and repetition automatically
-            # for non-draw results and bot games
             is_game_end, game_result_value = self.board.is_optional_game_end()
-            if is_game_end and (game_result_value != 0 or (self.wplayer.bot or self.bplayer.bot)):
+            if is_game_end and (
+                game_result_value != 0
+                or (game_result_value == 0 and self.n_fold_is_draw)
+                or (self.wplayer.bot or self.bplayer.bot)
+            ):
                 self.result = result_string_from_value(self.board.color, game_result_value)
                 self.status = CLAIM if game_result_value != 0 else DRAW
 

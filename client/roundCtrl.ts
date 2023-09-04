@@ -287,10 +287,11 @@ export class RoundController extends GameController {
                 buttons.push(this.buttonAbort());
             }
             buttons.push(h('button#count', _('Count')));
-            if (this.variant.rules.pass)
+            if (this.variant.rules.pass) {
                 buttons.push(h('button#draw', { on: { click: () => this.pass() }, props: { title: _('Pass') } }, _('Pass')));
-            else
+            } else if (!this.variant.rules.noDrawOffer) {
                 buttons.push(h('button#draw', { on: { click: () => this.draw() }, props: { title: _('Draw') } }, h('i', '½')));
+            }
             buttons.push(h('button#resign', { on: { click: () => this.resign() }, props: {title: _("Resign")} }, [h('i', {class: {"icon": true, "icon-flag-o": true} } ), ]));
             
             this.gameControls = patch(container, h('div.btn-controls', buttons));
@@ -744,11 +745,11 @@ export class RoundController extends GameController {
         const step = this.steps[this.steps.length - 1];
         const capture = !!lastMove && ((this.chessground.state.boardState.pieces.get(lastMove[1] as cg.Key) && step.san?.slice(0, 2) !== 'O-') || (step.san?.slice(1, 2) === 'x'));
 
-        if (lastMove && (this.turnColor === this.mycolor || this.spectator)) {
+        if (msg.steps.length === 1 && lastMove && (this.turnColor === this.mycolor || this.spectator)) {
             if (!this.finishedGame) sound.moveSound(this.variant, capture);
         }
         this.checkStatus(msg);
-        if (!this.spectator && msg.check && !this.finishedGame) {
+        if (msg.steps.length === 1 && !this.spectator && msg.check && !this.finishedGame) {
             sound.check();
         }
 
