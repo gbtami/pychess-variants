@@ -890,7 +890,6 @@ export const noPuzzleVariants = [
     "placement",
     "sittuyin",
     "minishogi",
-    "kyotoshogi",
     "gorogoroplus",
     "manchu",
     "minixiangqi",
