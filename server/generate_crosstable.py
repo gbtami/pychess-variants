@@ -2,7 +2,7 @@ async def generate_crosstable(db):
     ct = {}
     cursor = db.game.find().sort("d")
     async for doc in cursor:
-        if doc["v"] == "B":
+        if doc["v"] == "F":
             continue # todo:niki: we gotta decide how a crosstable looks like
 
         game_id = doc["_id"]
