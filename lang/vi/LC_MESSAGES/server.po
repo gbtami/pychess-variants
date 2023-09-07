@@ -1,0 +1,515 @@
+# Translations template for PROJECT.
+# Copyright (C) 2023 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2023.
+# 
+# Translators:
+# Việt Đinh Hoàng, 2023
+# 
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2023-08-05 22:06+0200\n"
+"PO-Revision-Date: 2020-05-04 12:19+0000\n"
+"Last-Translator: Việt Đinh Hoàng, 2023\n"
+"Language-Team: Vietnamese (https://app.transifex.com/gbtami/teams/14790/vi/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.12.1\n"
+"Language: vi\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#: ../server/const.py:317
+msgid "Arena"
+msgstr "Đấu trường"
+
+#: ../server/const.py:318
+msgid "Round-Robin"
+msgstr "Thi đấu theo vòng"
+
+#: ../server/const.py:319
+msgid "Swiss"
+msgstr "Thụy Sĩ"
+
+#: ../server/const.py:323
+msgid "Hourly"
+msgstr "Hàng giờ"
+
+#: ../server/const.py:324
+msgid "Daily"
+msgstr "Hàng ngày"
+
+#: ../server/const.py:325
+msgid "Weekly"
+msgstr "Hàng tuần"
+
+#: ../server/const.py:326
+msgid "Monthly"
+msgstr "Hàng tháng"
+
+#: ../server/const.py:327
+msgid "Yearly"
+msgstr "Hàng năm"
+
+#: ../server/const.py:328
+msgid "Marathon"
+msgstr "Marathon"
+
+#: ../server/const.py:329
+msgid "Shield"
+msgstr "Khiên"
+
+#: ../server/const.py:330
+msgid "SEAturday"
+msgstr "SEAturday"
+
+#: ../server/const.py:334
+msgid "Chess"
+msgstr "Chess"
+
+#: ../server/const.py:335
+msgid "Chess960"
+msgstr "Chess960"
+
+#: ../server/const.py:336
+msgid "Crazyhouse"
+msgstr "Crazyhouse"
+
+#: ../server/const.py:337
+msgid "Crazyhouse960"
+msgstr "Crazyhouse960"
+
+#: ../server/const.py:338 ../server/videos.py:24
+msgid "Placement"
+msgstr "Placement"
+
+#: ../server/const.py:339
+msgid "Atomic"
+msgstr "Atomic"
+
+#: ../server/const.py:340
+msgid "Atomic960"
+msgstr "Atomic960"
+
+#: ../server/const.py:341
+msgid "Duck Chess"
+msgstr "Duck Chess"
+
+#: ../server/const.py:342 ../server/videos.py:20
+msgid "Makruk"
+msgstr "Makruk"
+
+#: ../server/const.py:343
+msgid "Makpong"
+msgstr "Makpong"
+
+#: ../server/const.py:344
+msgid "Ouk Chaktrang"
+msgstr "Ouk Chaktrang"
+
+#: ../server/const.py:345
+msgid "Sittuyin"
+msgstr "Sittuyin"
+
+#: ../server/const.py:346
+msgid "ASEAN"
+msgstr "ASEAN"
+
+#: ../server/const.py:347 ../server/videos.py:21
+msgid "Shogi"
+msgstr "Shogi"
+
+#: ../server/const.py:348
+msgid "Minishogi"
+msgstr "Minishogi"
+
+#: ../server/const.py:349
+msgid "Kyoto Shogi"
+msgstr "Kyoto Shogi"
+
+#: ../server/const.py:350
+msgid "Dobutsu"
+msgstr "Dobutsu"
+
+#: ../server/const.py:353
+msgid "Gorogoro+"
+msgstr "Gorogoro+"
+
+#: ../server/const.py:354
+msgid "Tori Shogi"
+msgstr "Tori Shogi"
+
+#: ../server/const.py:355 ../server/videos.py:19
+msgid "Xiangqi"
+msgstr "Xiangqi"
+
+#: ../server/const.py:356
+msgid "Manchu"
+msgstr "Manchu"
+
+#: ../server/const.py:357 ../server/videos.py:18
+msgid "Janggi"
+msgstr "Janggi"
+
+#: ../server/const.py:358
+msgid "Minixiangqi"
+msgstr "Minixiangqi"
+
+#: ../server/const.py:359 ../server/videos.py:23
+msgid "Capablanca"
+msgstr "Capablanca"
+
+#: ../server/const.py:360
+msgid "Capablanca960"
+msgstr "Capablanca960"
+
+#: ../server/const.py:361
+msgid "Capahouse"
+msgstr "Capahouse"
+
+#: ../server/const.py:362
+msgid "Capahouse960"
+msgstr "Capahouse960"
+
+#: ../server/const.py:368 ../server/videos.py:22
+msgid "S-Chess"
+msgstr "S-Chess"
+
+#: ../server/const.py:369
+msgid "S-Chess960"
+msgstr "S-Chess960"
+
+#: ../server/const.py:370
+msgid "S-House"
+msgstr "S-House"
+
+#: ../server/const.py:371
+msgid "Grand"
+msgstr "Grand"
+
+#: ../server/const.py:372
+msgid "Grandhouse"
+msgstr "Grandhouse"
+
+#: ../server/const.py:373
+msgid "Shogun"
+msgstr "Shogun"
+
+#: ../server/const.py:374
+msgid "Shako"
+msgstr "Shako"
+
+#: ../server/const.py:375
+msgid "Hoppel-Poppel"
+msgstr "Hoppel-Poppel"
+
+#: ../server/const.py:376
+msgid "Orda Chess"
+msgstr "Orda Chess"
+
+#: ../server/const.py:377
+msgid "Synochess"
+msgstr "Synochess"
+
+#: ../server/const.py:378
+msgid "Shinobi"
+msgstr "Shinobi"
+
+#: ../server/const.py:379
+msgid "Shinobi+"
+msgstr "Shinobi+"
+
+#: ../server/const.py:380
+msgid "Empire"
+msgstr "Empire"
+
+#: ../server/const.py:381
+msgid "Orda Mirror"
+msgstr "Orda Mirror"
+
+#: ../server/const.py:382
+msgid "Chak"
+msgstr "Chak"
+
+#: ../server/const.py:383
+msgid "Chennis"
+msgstr "Chennis"
+
+#: ../server/const.py:384
+msgid "Spartan"
+msgstr "Spartan"
+
+#: ../server/const.py:385
+msgid "King of the Hill"
+msgstr "Khing of the Hill"
+
+#: ../server/const.py:386
+msgid "King of the Hill 960"
+msgstr "King of the Hill 960"
+
+#: ../server/const.py:387
+msgid "Three check"
+msgstr "3 Check"
+
+#: ../server/const.py:388
+msgid "Three check 960"
+msgstr "3 Check960"
+
+#: ../server/videos.py:10
+msgid "Howto"
+msgstr "Làm thế nào"
+
+#: ../server/videos.py:11
+msgid "Introduction"
+msgstr "Giới thiệu"
+
+#: ../server/videos.py:12
+msgid "Opening"
+msgstr "Khai cuộc"
+
+#: ../server/videos.py:13
+msgid "Middlegame"
+msgstr "Trung cuộc"
+
+#: ../server/videos.py:14
+msgid "Endgame"
+msgstr "Tàn cuộc"
+
+#: ../server/videos.py:15
+msgid "Fundamentals"
+msgstr "Nguyên tắc cơ bản"
+
+#: ../server/videos.py:16
+msgid "Tactics"
+msgstr "Chiến thuật"
+
+#: ../server/videos.py:17
+msgid "Puzzle"
+msgstr "Câu đó"
+
+#: ../server/videos.py:25
+msgid "Duck"
+msgstr "Vịt"
+
+#: ../server/videos.py:26
+msgid "Match"
+msgstr "Trận đấu"
+
+#: ../server/videos.py:27
+msgid "Tournament"
+msgstr "Giải đấu"
+
+#: ../server/videos.py:28
+msgid "Hu Ronghua"
+msgstr "Hu Ronghua"
+
+#: ../server/videos.py:29
+msgid "Yoshiharu Habu"
+msgstr "Yoshiharu Habu"
+
+#: ../server/videos.py:33
+msgid "beginner"
+msgstr "người bắt đầu"
+
+#: ../server/videos.py:34
+msgid "intermediate"
+msgstr "trung cấp"
+
+#: ../server/videos.py:35
+msgid "advanced"
+msgstr "nâng cao"
+
+#: ../templates/closed.html:8
+msgid "This account is closed."
+msgstr "Tài khoản này đã đóng"
+
+#: ../templates/patron.html:11
+msgid ""
+"As you know, pychess-variants is a free server and it will remain free forever. However, maintaining and improving the server costs time and money.\n"
+"If you like our work and find our server useful, please donate through patreon or paypal."
+msgstr ""
+"Như bạn đã biết, pychess-variants là một máy chủ miễn phí và nó sẽ miễn phí "
+"mãi mãi. Tuy nhiên, việc duy trì và cải thiện máy chủ tốn kém thời gian và "
+"tiền bạc. Nếu bạn thích công việc của chúng tôi và thấy máy chủ của chúng "
+"tôi hữu ích, vui lòng quyên góp thông qua patreon hoặc paypal."
+
+#: ../templates/players.html:7
+msgid "All players"
+msgstr "Tất cả người chơi"
+
+#: ../templates/players.html:9 ../templates/winners.html:6
+msgid "Tournament winners"
+msgstr "Người chiến tháng giải đấu"
+
+#: ../templates/players.html:10 ../templates/shields.html:6
+msgid "Tournament shields"
+msgstr "Các giải đấu khiên"
+
+#: ../templates/players.html:14
+msgid "Online"
+msgstr "Trực tuyến"
+
+#: ../templates/players.html:33
+msgid "Anonymous"
+msgstr "Ẩn danh"
+
+#: ../templates/players50.html:6
+msgid "Top 50"
+msgstr "Top 50"
+
+#: ../templates/profile.html:14
+#, python-format
+msgid "%(count)s game"
+msgid_plural "%(count)s games"
+msgstr[0] "%(count)s ván"
+
+#: ../templates/profile.html:42
+msgid "Watch games"
+msgstr "Xem ván đấu"
+
+#: ../templates/profile.html:44
+msgid "Challenge to a game"
+msgstr "Thách đấu 1 ván cờ"
+
+#: ../templates/profile.html:47
+msgid "Import game"
+msgstr "Nhập trò chơi"
+
+#: ../templates/profile.html:50
+msgid "Export games"
+msgstr "Xuất trò chơi"
+
+#: ../templates/profile.html:54
+msgid "Lichess profile"
+msgstr "Hồ sơ Lichess"
+
+#: ../templates/puzzle_profile.html:14
+#, python-format
+msgid "%(count)s puzzle"
+msgid_plural "%(count)s puzzles"
+msgstr[0] "%(count)s câu đố"
+
+#: ../templates/puzzle_profile.html:23
+msgid "Puzzle history"
+msgstr "Lịch sử câu đố"
+
+#: ../templates/template.html:18
+msgid "Play"
+msgstr "Chơi"
+
+#: ../templates/template.html:20
+msgid "Create a game"
+msgstr "Tạo 1 ván cờ"
+
+#: ../templates/template.html:21 ../templates/tournaments.html:6
+msgid "Tournaments"
+msgstr "Các giải đấu"
+
+#: ../templates/template.html:25 ../templates/template.html:27
+msgid "Puzzles"
+msgstr "Các câu dố"
+
+#: ../templates/template.html:31
+msgid "Learn"
+msgstr "Học"
+
+#: ../templates/template.html:33
+msgid "Variants"
+msgstr "Biến thể"
+
+#: ../templates/template.html:34
+msgid "Memory"
+msgstr "Ký ức"
+
+#: ../templates/template.html:38
+msgid "Watch"
+msgstr "Xem"
+
+#: ../templates/template.html:40
+msgid "Tv"
+msgstr "TV"
+
+#: ../templates/template.html:41
+msgid "Current games"
+msgstr "Trò chơi hiện tại"
+
+#: ../templates/template.html:42
+msgid "Video library"
+msgstr "Thư viện video"
+
+#: ../templates/template.html:46
+msgid "Community"
+msgstr "Cộng đồng"
+
+#: ../templates/template.html:48
+msgid "Players"
+msgstr "Người chơi"
+
+#: ../templates/template.html:49
+msgid "Blog"
+msgstr "Blog"
+
+#: ../templates/template.html:50
+msgid "Donate"
+msgstr "Ủng hộ"
+
+#: ../templates/template.html:54
+msgid "Tools"
+msgstr "Công cụ"
+
+#: ../templates/template.html:56
+msgid "Editor"
+msgstr "Biên tập"
+
+#: ../templates/template.html:57
+msgid "Analysis"
+msgstr "Phân tích"
+
+#: ../templates/template.html:72
+msgid "Login with Lichess"
+msgstr "Đăng nhập với Lichess"
+
+#: ../templates/template.html:72
+msgid "Log in"
+msgstr "Đăng nhập"
+
+#: ../templates/tournaments.html:8
+msgid "Tournament calendar"
+msgstr "Lịch thi đấu"
+
+#: ../templates/tournaments.html:10
+msgid "CREATE A NEW TOURNAMENT"
+msgstr "TẠO GIẢI ĐẤU MỚI"
+
+#: ../templates/tournaments.html:19
+msgid "Now playing"
+msgstr "Chơi bây giờ"
+
+#: ../templates/tournaments.html:21
+msgid "Starting soon"
+msgstr "Bắt đầu sớm"
+
+#: ../templates/tournaments.html:23
+msgid "Finished"
+msgstr "Hoàn thành"
+
+#: ../templates/tournaments.html:44
+msgid "Rated"
+msgstr "Tính Elo"
+
+#: ../templates/tournaments.html:44
+msgid "Casual"
+msgstr "Không tính Elo"
+
+#: ../templates/tournaments.html:51
+#, python-format
+msgid "%(count)s player"
+msgid_plural "%(count)s players"
+msgstr[0] "%(count)s người chơi"
+
+#: ../templates/videos.html:15
+msgid "Chess variant videos"
+msgstr "Video biến thể cờ vua"
