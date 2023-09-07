@@ -38,6 +38,7 @@ LANGUAGES = [
     "ru",
     "th",
     "tr",
+    "vi",
     "zh_CN",
     "zh_TW",
 ]

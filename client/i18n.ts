@@ -26,6 +26,7 @@ export const LANGUAGES = {
     ru: "Pусский",
     th: "ไทย",
     tr: "Türkçe",
+    vi: "Tiếng Việt",
     zh_CN: "简体中文",
     zh_TW: "繁體中文",
 };
@@ -46,6 +47,7 @@ const LANGUAGETEXT: {[key:string]: string} = {
     ru: "Язык",
     th: "ภาษา",
     tr: "Dil",
+    vi: "Ngôn ngữ",
     zh_CN: "语言",
     zh_TW: "語言",
 };
