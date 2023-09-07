@@ -772,12 +772,13 @@ def sanitize_fen(variant, initial_fen, chess960):
     sanitized_fen = initial_fen
 
     start_fen = sf.start_fen(variant)  # self.board.start_fen(self.variant)
+    start_fen_length = len(start_fen)
     start = start_fen.split()
     init = initial_fen.split()
 
     # Cut off tail
-    if len(init) > 6:
-        init = init[:6]
+    if len(init) > start_fen_length:
+        init = init[:start_fen_length]
         sanitized_fen = " ".join(init)
 
     # We need starting color

@@ -15,7 +15,6 @@ NO_PUZZLE_VARIANTS = (
     "placement",
     "sittuyin",
     "minishogi",
-    "kyotoshogi",
     "gorogoroplus",
     "manchu",
     "minixiangqi",
