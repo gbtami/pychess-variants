@@ -397,6 +397,9 @@ label.piece.piece2.mansindam {
     background-image: url('images/pieces/mansindam/Epson/wn.svg');
 }
 label.piece.piece3.mansindam {
+    background-image: url('images/pieces/mansindam/tomato/wn.svg');
+}
+label.piece.piece4.mansindam {
     background-image: url('images/pieces/disguised/w.svg');
 }
 
