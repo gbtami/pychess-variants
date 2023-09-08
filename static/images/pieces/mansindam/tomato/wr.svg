@@ -4,7 +4,7 @@
    height="52.157"
    version="1.1"
    id="svg10503"
-   sodipodi:docname="Rook UP.svg"
+   sodipodi:docname="wr.svg"
    inkscape:version="1.3 (0e150ed6c4, 2023-07-21)"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
@@ -39,10 +39,10 @@
      inkscape:window-height="2036"
      id="namedview10505"
      showgrid="false"
-     inkscape:zoom="1.7082165"
-     inkscape:cx="278.36049"
-     inkscape:cy="-208.69719"
-     inkscape:window-x="-12"
+     inkscape:zoom="13.665732"
+     inkscape:cx="50.893725"
+     inkscape:cy="-3.4026717"
+     inkscape:window-x="3828"
      inkscape:window-y="-12"
      inkscape:window-maximized="1"
      inkscape:current-layer="svg10503"
@@ -57,7 +57,7 @@
      stroke="#000000"
      stroke-width="1.04769"
      id="path10471"
-     style="fill:#e2d9ba;fill-opacity:1;stroke:#393830;stroke-opacity:0.992157" />
+     style="fill:#d6c99d;fill-opacity:1;stroke:#393830;stroke-opacity:0.992157" />
   <g
      fill-rule="evenodd"
      stroke="#000000"
@@ -90,6 +90,6 @@
        stroke-width="1"
        stroke-linejoin="miter"
        id="path4-1"
-       style="fill:#3d3c33;fill-opacity:1;stroke:#e2d9ba;stroke-opacity:0.980392" />
+       style="fill:#3d3c33;fill-opacity:1;stroke:#d6c99d;stroke-opacity:1" />
   </g>
 </svg>
