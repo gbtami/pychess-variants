@@ -30,7 +30,7 @@ msgid ""
 "create such a powerful engine for FREE. That's a lot of great minds and "
 "computing power they've managed to harness."
 msgstr ""
-"“Bana göre, bugün ulaştığımız noktayı BÜYÜK ölçüde Stockfishe borçluyuz. "
+"“Bana göre, bugün ulaştığımız noktayı BÜYÜK ölçüde Stockfish'e borçluyuz. "
 "Dünyanın dört bir yanından gönüllülerin bir araya gelerek açık kaynak kodu "
 "ruhuna uygun, böylesine güçlü bir makineyi yaratmaları ve ÜCRETSİZ olarak "
 "sunmaları için harekete geçirdiler. Bu bir çok harika beyinin ve işlem "
@@ -109,7 +109,9 @@ msgid ""
 "Additionally, you can check the Chess960 option for Chess, Crazyhouse, "
 "Atomic, S-chess, Capablanca, and Capahouse to start games from random "
 "positions with "
-msgstr ""
+msgstr "Ek olarak, Satranç960 seçeneğini Satranç, ÇılgınEv Satrancı, Atomik,"
+"S-Satranç, Capablanca ve Capahouse gibi oyunlarda rastgele posizyon ile"
+"başlayabilirsiniz" 
 
 #: ../client/about.ts:99
 msgid "Chess960 castling rules."
@@ -121,7 +123,7 @@ msgstr ""
 "Hamle oluşturma, onaylama, hamle analizi ve analiz motoru olarak "
 "kullanılanlar: "
 
-#: ../client/about.ts:112
+11#: ../client/about.ts:112
 msgid "On client side, the user interface of the game board is based on "
 msgstr ""
 "İstemci tarafında, kullanıcı arayüzünde kullanılan oyun tahtasını burada "
@@ -135,7 +137,8 @@ msgstr "Sunucunun kaynak kodunu burada bulabilirsiniz: "
 msgid ""
 "To play on PyChess, you need to have an open and unmarked account on "
 "Lichess. "
-msgstr ""
+msgstr "PyChess'de oynayabilmek için, açık ve uyarısız bir Lichess hesabına"
+"ihtiyacınız vardır."
 
 #: ../client/about.ts:122
 msgid ""
@@ -152,11 +155,11 @@ msgstr "Varyant"
 
 #: ../client/analysis.ts:108
 msgid "Computer analysis"
-msgstr ""
+msgstr "Bilgisayar analizi"
 
 #: ../client/analysis.ts:110
 msgid "Move times"
-msgstr ""
+msgstr "Hareket zamanları"
 
 #: ../client/analysis.ts:113
 msgid "Crosstable"
@@ -164,11 +167,11 @@ msgstr ""
 
 #: ../client/analysis.ts:117
 msgid "FEN & PGN"
-msgstr ""
+msgstr "FEN & PGN"
 
 #: ../client/analysis.ts:179
 msgid "Multi-threaded WebAssembly (classical evaluation)"
-msgstr ""
+msgstr "Çok-işlemcili Webassembly (klasik evalüasyon)"
 
 #: ../client/analysis.ts:181 ../client/analysisCtrl.ts:687
 msgid "in local browser"
@@ -212,11 +215,11 @@ msgstr "PGN görseli"
 
 #: ../client/analysisCtrl.ts:363
 msgid "Are you sure you want to delete this game?"
-msgstr ""
+msgstr "Bu oyunu silmek istediğinize emin misiniz?"
 
 #: ../client/analysisCtrl.ts:378
 msgid "Delete game"
-msgstr ""
+msgstr "Oyunu sil"
 
 #: ../client/analysisCtrl.ts:409
 msgid "Request Computer Analysis"
@@ -228,11 +231,11 @@ msgstr "Analiz isteği gönder"
 
 #: ../client/analysisCtrl.ts:464
 msgid "Try browser page reload."
-msgstr ""
+msgstr "Web tarayıcınızı tekrar yenilemeyi deneyin"
 
 #: ../client/analysisCtrl.ts:498
 msgid "Multi-threaded WebAssembly (with NNUE evaluation)"
-msgstr ""
+msgstr "Çok-işlemcili WebAssembly (NNUE evalüasyonu ile)"
 
 #: ../client/analysisCtrl.ts:670
 msgid "Depth"
@@ -244,23 +247,23 @@ msgstr "Derinleştir"
 
 #: ../client/analysisSettings.ts:74
 msgid "Best move arrow"
-msgstr ""
+msgstr "En iyi hareket oku"
 
 #: ../client/analysisSettings.ts:103
 msgid "Infinite analysis"
-msgstr ""
+msgstr "Sonsuz analiz"
 
 #: ../client/analysisSettings.ts:129
 msgid "Multiple lines"
-msgstr ""
+msgstr "Çoklu oklar"
 
 #: ../client/analysisSettings.ts:156
 msgid "CPUs"
-msgstr ""
+msgstr "İşlemciler"
 
 #: ../client/analysisSettings.ts:202
 msgid "Memory"
-msgstr ""
+msgstr "Hafıza"
 
 #: ../client/background.ts:9
 msgid "Light"
@@ -276,11 +279,11 @@ msgstr "Taş animasyonu"
 
 #: ../client/boardSettings.ts:197
 msgid "Confirm resigning"
-msgstr ""
+msgstr "Geri çekilmeyi kabul et"
 
 #: ../client/boardSettings.ts:289
 msgid "Zoom"
-msgstr ""
+msgstr "Yakınlaştır"
 
 #: ../client/boardSettings.ts:310
 msgid "Show piece destinations"
@@ -288,7 +291,7 @@ msgstr "Taşların gidebilecekleri kareleri göster"
 
 #: ../client/boardSettings.ts:329
 msgid "Promote to the top choice automatically"
-msgstr ""
+msgstr "Otomatik olarak en iyi taşa yükselt"
 
 #: ../client/boardSettings.ts:358
 msgid "Invisible pieces"
@@ -296,11 +299,11 @@ msgstr "Görünmez taşlar"
 
 #: ../client/boardSettings.ts:381
 msgid "Show material difference"
-msgstr ""
+msgstr "Materyal farkını göster"
 
 #: ../client/chat.ts:36 ../client/chat.ts:51
 msgid "Sign in to chat"
-msgstr "Sohbet için oturum aç"
+msgstr "Sohbet etmek için oturum aç"
 
 #: ../client/chat.ts:36 ../client/chat.ts:51
 msgid "Please be nice in the chat!"
@@ -329,8 +332,8 @@ msgstr "Sunucu"
 #: ../client/datetime.ts:20
 msgid "in %1 year"
 msgid_plural "in %1 years"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 yıl sonra"
+msgstr[1] "%1 yıl sonra"
 
 #: ../client/datetime.ts:20
 msgid "%1 year ago"
@@ -341,8 +344,8 @@ msgstr[1] "%1 yıl önce"
 #: ../client/datetime.ts:22
 msgid "in %1 month"
 msgid_plural "in %1 months"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 ay sonra"
+msgstr[1] "%1 ay sonra"
 
 #: ../client/datetime.ts:22
 msgid "%1 month ago"
@@ -353,8 +356,8 @@ msgstr[1] "%1 ay önce"
 #: ../client/datetime.ts:24
 msgid "in %1 week"
 msgid_plural "in %1 weeks"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 hafta sonra"
+msgstr[1] "%1 hafta sonra"
 
 #: ../client/datetime.ts:24
 msgid "%1 week ago"
@@ -365,8 +368,8 @@ msgstr[1] "%1 hafta önce"
 #: ../client/datetime.ts:26
 msgid "in %1 day"
 msgid_plural "in %1 days"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 gün sonra"
+msgstr[1] "%1 gün sonra"
 
 #: ../client/datetime.ts:26
 msgid "%1 day ago"
@@ -377,8 +380,8 @@ msgstr[1] "%1 gün önce"
 #: ../client/datetime.ts:28
 msgid "in %1 hour"
 msgid_plural "in %1 hours"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 saat sonra"
+msgstr[1] "%1 saat sonra"
 
 #: ../client/datetime.ts:28
 msgid "%1 hour ago"
@@ -389,8 +392,8 @@ msgstr[1] "%1 saat önce"
 #: ../client/datetime.ts:30
 msgid "in %1 minute"
 msgid_plural "in %1 minutes"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 dakika sonra"
+msgstr[1] "%1 dakika sonra"
 
 #: ../client/datetime.ts:30
 msgid "%1 minute ago"
@@ -401,8 +404,8 @@ msgstr[1] "%1 dakika önce"
 #: ../client/datetime.ts:32
 msgid "in %1 second"
 msgid_plural "in %1 seconds"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 saniye sonra"
+msgstr[1] "%1 saniye sonra"
 
 #: ../client/datetime.ts:32
 msgid "%1 second ago"
@@ -446,155 +449,155 @@ msgstr "Altın"
 
 #: ../client/i18n.ts:61
 msgid "Pink"
-msgstr ""
+msgstr "Pembe"
 
 #: ../client/i18n.ts:62
 msgid "Green"
-msgstr ""
+msgstr "Yeşil"
 
 #: ../client/i18n.ts:66
 msgid "chess"
-msgstr ""
+msgstr "satranç"
 
 #: ../client/i18n.ts:66
 msgid "crazyhouse"
-msgstr ""
+msgstr "çılgınev satrancı"
 
 #: ../client/i18n.ts:66
 msgid "placement"
-msgstr ""
+msgstr "koyma"
 
 #: ../client/i18n.ts:66
 msgid "atomic"
-msgstr ""
+msgstr "atomik"
 
 #: ../client/i18n.ts:68
 msgid "makruk"
-msgstr ""
+msgstr "makruk"
 
 #: ../client/i18n.ts:68
 msgid "makpong"
-msgstr ""
+msgstr "makpong"
 
 #: ../client/i18n.ts:68
 msgid "ouk chaktrang"
-msgstr ""
+msgstr "ouk chaktrang"
 
 #: ../client/i18n.ts:68
 msgid "sittuyin"
-msgstr ""
+msgstr "sittuyin"
 
 #: ../client/i18n.ts:68
 msgid "asean"
-msgstr ""
+msgstr "asean"
 
 #: ../client/i18n.ts:70
 msgid "shogi"
-msgstr ""
+msgstr "şogi"
 
 #: ../client/i18n.ts:70
 msgid "minishogi"
-msgstr ""
+msgstr "minişogi"
 
 #: ../client/i18n.ts:70
 msgid "kyoto shogi"
-msgstr ""
+msgstr "kyoto şogi"
 
 #: ../client/i18n.ts:71
 msgid "dobutsu"
-msgstr ""
+msgstr "dobutsu"
 
 #: ../client/i18n.ts:71
 msgid "gorogoro"
-msgstr ""
+msgstr "gorogoro"
 
 #: ../client/i18n.ts:71
 msgid "gorogoro+"
-msgstr ""
+msgstr "gorogoro+"
 
 #: ../client/i18n.ts:71
 msgid "tori shogi"
-msgstr ""
+msgstr "tori şogi"
 
 #: ../client/i18n.ts:73
 msgid "xiangqi"
-msgstr ""
+msgstr "xiangqi"
 
 #: ../client/i18n.ts:73
 msgid "manchu"
-msgstr ""
+msgstr "manchu"
 
 #: ../client/i18n.ts:73
 msgid "janggi"
-msgstr ""
+msgstr "janggi"
 
 #: ../client/i18n.ts:73
 msgid "minixiangqi"
-msgstr ""
+msgstr "minixiangqi"
 
 #: ../client/i18n.ts:75
 msgid "capablanca"
-msgstr ""
+msgstr "capablanca"
 
 #: ../client/i18n.ts:75
 msgid "capahouse"
-msgstr ""
+msgstr "capaevi"
 
 #: ../client/i18n.ts:75
 msgid "s-chess"
-msgstr ""
+msgstr "s-satranç"
 
 #: ../client/i18n.ts:75
 msgid "s-house"
-msgstr ""
+msgstr "s-ev"
 
 #: ../client/i18n.ts:76
 msgid "grand"
-msgstr ""
+msgstr "büyük"
 
 #: ../client/i18n.ts:76
 msgid "grandhouse"
-msgstr ""
+msgstr "büyükev"
 
 #: ../client/i18n.ts:76
 msgid "shako"
-msgstr ""
+msgstr "shako"
 
 #: ../client/i18n.ts:76
 msgid "shogun"
-msgstr ""
+msgstr "shogun"
 
 #: ../client/i18n.ts:76
 msgid "hoppel-poppel"
-msgstr ""
+msgstr "hoppel-poppel"
 
 #: ../client/i18n.ts:78
 msgid "orda"
-msgstr ""
+msgstr "ordu"
 
 #: ../client/i18n.ts:78
 msgid "synochess"
-msgstr ""
+msgstr "sinosatranç"
 
 #: ../client/i18n.ts:78
 msgid "shinobi"
-msgstr ""
+msgstr "şinobi"
 
 #: ../client/i18n.ts:78
 msgid "empire"
-msgstr ""
+msgstr "imparator"
 
 #: ../client/i18n.ts:78
 msgid "orda mirror"
-msgstr ""
+msgstr "ordu ayna"
 
 #: ../client/i18n.ts:78
 msgid "chak"
-msgstr ""
+msgstr "çak"
 
 #: ../client/i18n.ts:78
 msgid "chennis"
-msgstr ""
+msgstr "satrannis"
 
 #: ../client/i18n.ts:82
 msgid "PawnsPushed"
@@ -702,7 +705,7 @@ msgstr ""
 
 #: ../client/i18n.ts:94
 msgid "Chess, unmodified, as it's played by FIDE standards."
-msgstr ""
+msgstr "Satranç, dokunulmamış, FIDE standartları ile."
 
 #: ../client/i18n.ts:95
 msgid "Take captured pieces and drop them back on to the board as your own."
