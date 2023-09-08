@@ -55,6 +55,7 @@ class User:
         self.game_sockets = {}
         self.title = title
         self.game_in_progress = None
+        self.abandone_game_task = None
 
         if self.bot:
             self.event_queue = asyncio.Queue()
@@ -108,7 +109,11 @@ class User:
     async def abandone_game(self, game):
         await asyncio.sleep(ABANDONE_TIMEOUT)
         if game.status <= STARTED and game.id not in self.game_sockets:
-            await game.game_ended(self, "abandone")
+            if game.bot_game or self.anon:
+                await game.game_ended(self, "abandone")
+            else:
+                # TODO: message opp to let him claim win
+                pass
 
     def update_online(self):
         self.online = (
