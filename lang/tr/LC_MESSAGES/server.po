@@ -25,7 +25,7 @@ msgstr ""
 
 #: ../server/const.py:317
 msgid "Arena"
-msgstr ""
+msgstr "Arena"
 
 #: ../server/const.py:318
 msgid "Round-Robin"
@@ -37,231 +37,231 @@ msgstr ""
 
 #: ../server/const.py:323
 msgid "Hourly"
-msgstr ""
+msgstr "Saatlik"
 
 #: ../server/const.py:324
 msgid "Daily"
-msgstr ""
+msgstr "Günlük"
 
 #: ../server/const.py:325
 msgid "Weekly"
-msgstr ""
+msgstr "Haftalık"
 
 #: ../server/const.py:326
 msgid "Monthly"
-msgstr ""
+msgstr "Aylık"
 
 #: ../server/const.py:327
 msgid "Yearly"
-msgstr ""
+msgstr "Yıllık"
 
 #: ../server/const.py:328
 msgid "Marathon"
-msgstr ""
+msgstr "Maraton"
 
 #: ../server/const.py:329
 msgid "Shield"
-msgstr ""
+msgstr "Kalkan"
 
 #: ../server/const.py:330
 msgid "SEAturday"
-msgstr ""
+msgstr "SUmartesi"
 
 #: ../server/const.py:334
 msgid "Chess"
-msgstr ""
+msgstr "Satranç"
 
 #: ../server/const.py:335
 msgid "Chess960"
-msgstr ""
+msgstr "Satranç960"
 
 #: ../server/const.py:336
 msgid "Crazyhouse"
-msgstr ""
+msgstr "ÇılgınEv Satranç"
 
 #: ../server/const.py:337
 msgid "Crazyhouse960"
-msgstr ""
+msgstr "ÇılgınEv Satranç960"
 
 #: ../server/const.py:338 ../server/videos.py:24
 msgid "Placement"
-msgstr ""
+msgstr "Koyarak"
 
 #: ../server/const.py:339
 msgid "Atomic"
-msgstr ""
+msgstr "Atomik"
 
 #: ../server/const.py:340
 msgid "Atomic960"
-msgstr ""
+msgstr "Atomik960"
 
 #: ../server/const.py:341
 msgid "Duck Chess"
-msgstr ""
+msgstr "Ördek Satrancı"
 
 #: ../server/const.py:342 ../server/videos.py:20
 msgid "Makruk"
-msgstr ""
+msgstr "Makruk"
 
 #: ../server/const.py:343
 msgid "Makpong"
-msgstr ""
+msgstr "Makpong"
 
 #: ../server/const.py:344
 msgid "Ouk Chaktrang"
-msgstr ""
+msgstr "Ouk Chatrang"
 
 #: ../server/const.py:345
 msgid "Sittuyin"
-msgstr ""
+msgstr "Sittuyin"
 
 #: ../server/const.py:346
 msgid "ASEAN"
-msgstr ""
+msgstr "ASEAN"
 
 #: ../server/const.py:347 ../server/videos.py:21
 msgid "Shogi"
-msgstr ""
+msgstr "Şogi"
 
 #: ../server/const.py:348
 msgid "Minishogi"
-msgstr ""
+msgstr "Minişogi"
 
 #: ../server/const.py:349
 msgid "Kyoto Shogi"
-msgstr ""
+msgstr "Kyoto Şogi"
 
 #: ../server/const.py:350
 msgid "Dobutsu"
-msgstr ""
+msgstr "Dobutsu"
 
 #: ../server/const.py:353
 msgid "Gorogoro+"
-msgstr ""
+msgstr "Gorogoro+"
 
 #: ../server/const.py:354
 msgid "Tori Shogi"
-msgstr ""
+msgstr "Tori Şogi"
 
 #: ../server/const.py:355 ../server/videos.py:19
 msgid "Xiangqi"
-msgstr ""
+msgstr "Xiang Qi"
 
 #: ../server/const.py:356
 msgid "Manchu"
-msgstr ""
+msgstr "Mançu"
 
 #: ../server/const.py:357 ../server/videos.py:18
 msgid "Janggi"
-msgstr ""
+msgstr "Janggi"
 
 #: ../server/const.py:358
 msgid "Minixiangqi"
-msgstr ""
+msgstr "Minixiang Qi"
 
 #: ../server/const.py:359 ../server/videos.py:23
 msgid "Capablanca"
-msgstr ""
+msgstr "Capablanca"
 
 #: ../server/const.py:360
 msgid "Capablanca960"
-msgstr ""
+msgstr "Capablanca960"
 
 #: ../server/const.py:361
 msgid "Capahouse"
-msgstr ""
+msgstr "CapaEvi"
 
 #: ../server/const.py:362
 msgid "Capahouse960"
-msgstr ""
+msgstr "CapaEvi960"
 
 #: ../server/const.py:368 ../server/videos.py:22
 msgid "S-Chess"
-msgstr ""
+msgstr "S-Satranç"
 
 #: ../server/const.py:369
 msgid "S-Chess960"
-msgstr ""
+msgstr "S-Satranç960"
 
 #: ../server/const.py:370
 msgid "S-House"
-msgstr ""
+msgstr "S-Ev"
 
 #: ../server/const.py:371
 msgid "Grand"
-msgstr ""
+msgstr "Büyük"
 
 #: ../server/const.py:372
 msgid "Grandhouse"
-msgstr ""
+msgstr "Büyükev"
 
 #: ../server/const.py:373
 msgid "Shogun"
-msgstr ""
+msgstr "Şhogun"
 
 #: ../server/const.py:374
 msgid "Shako"
-msgstr ""
+msgstr "Shako"
 
 #: ../server/const.py:375
 msgid "Hoppel-Poppel"
-msgstr ""
+msgstr "Hoppel-Poppel"
 
 #: ../server/const.py:376
 msgid "Orda Chess"
-msgstr ""
+msgstr "Ordu Satrancı"
 
 #: ../server/const.py:377
 msgid "Synochess"
-msgstr ""
+msgstr "Sinosatranç"
 
 #: ../server/const.py:378
 msgid "Shinobi"
-msgstr ""
+msgstr "Şinobi"
 
 #: ../server/const.py:379
 msgid "Shinobi+"
-msgstr ""
+msgstr "Şinobi+"
 
 #: ../server/const.py:380
 msgid "Empire"
-msgstr ""
+msgstr "İmparator"
 
 #: ../server/const.py:381
 msgid "Orda Mirror"
-msgstr ""
+msgstr "Ordu Ayna"
 
 #: ../server/const.py:382
 msgid "Chak"
-msgstr ""
+msgstr "Çak"
 
 #: ../server/const.py:383
 msgid "Chennis"
-msgstr ""
+msgstr "Satrannis"
 
 #: ../server/const.py:384
 msgid "Spartan"
-msgstr ""
+msgstr "Spartalı"
 
 #: ../server/const.py:385
 msgid "King of the Hill"
-msgstr ""
+msgstr "Tepenin Hakimi"
 
 #: ../server/const.py:386
 msgid "King of the Hill 960"
-msgstr ""
+msgstr "Tepenin Hakimi 960"
 
 #: ../server/const.py:387
 msgid "Three check"
-msgstr ""
+msgstr "Üç Şah"
 
 #: ../server/const.py:388
 msgid "Three check 960"
-msgstr ""
+msgstr "Üç Şah 960"
 
 #: ../server/videos.py:10
 msgid "Howto"
-msgstr ""
+msgstr "Nasıl"
 
 #: ../server/videos.py:11
 msgid "Introduction"
@@ -269,39 +269,39 @@ msgstr ""
 
 #: ../server/videos.py:12
 msgid "Opening"
-msgstr ""
+msgstr "Açılış"
 
 #: ../server/videos.py:13
 msgid "Middlegame"
-msgstr ""
+msgstr "Ortaoyun"
 
 #: ../server/videos.py:14
 msgid "Endgame"
-msgstr ""
+msgstr "Oyunsonu"
 
 #: ../server/videos.py:15
 msgid "Fundamentals"
-msgstr ""
+msgstr "Gerekli Bilgiler"
 
 #: ../server/videos.py:16
 msgid "Tactics"
-msgstr ""
+msgstr "Taktikler"
 
 #: ../server/videos.py:17
 msgid "Puzzle"
-msgstr ""
+msgstr "Bulmaca"
 
 #: ../server/videos.py:25
 msgid "Duck"
-msgstr ""
+msgstr "Ördek"
 
 #: ../server/videos.py:26
 msgid "Match"
-msgstr ""
+msgstr "Eşleşme"
 
 #: ../server/videos.py:27
 msgid "Tournament"
-msgstr ""
+msgstr "Turnuva"
 
 #: ../server/videos.py:28
 msgid "Hu Ronghua"
@@ -313,19 +313,19 @@ msgstr ""
 
 #: ../server/videos.py:33
 msgid "beginner"
-msgstr ""
+msgstr "Acemi"
 
 #: ../server/videos.py:34
 msgid "intermediate"
-msgstr ""
+msgstr "Orta Derece"
 
 #: ../server/videos.py:35
 msgid "advanced"
-msgstr ""
+msgstr "Zor"
 
 #: ../templates/closed.html:8
 msgid "This account is closed."
-msgstr "Hesap kapatılmıştır"
+msgstr "Bu hesap kapatılmıştır."
 
 #: ../templates/patron.html:11
 msgid ""
@@ -333,7 +333,7 @@ msgid ""
 "If you like our work and find our server useful, please donate through patreon or paypal."
 msgstr ""
 "Bildiğiniz gibi, pychess-varyantları sitesi ücretsiz bir sunucudur ve her zaman ücretsiz olarak kalıcaktır. Ancak sunucunun bakımı, sürdürülmesi ve geliştirilmesi zaman ve maddi açıdan masraf teşkil etmektedir. \n"
-"Eğer sunduğumuz hizmeti beğeniyor ve faydalı buluyorsanız, lütfen patreon veya paypal üzerinden bağışta bulunun. "
+"Eğer sunduğumuz hizmeti beğeniyor ve faydalı buluyorsanız, lütfen Patreon veya Paypal üzerinden bağışta bulunun. "
 
 #: ../templates/players.html:7
 msgid "All players"
@@ -341,11 +341,11 @@ msgstr "Tüm oyuncular"
 
 #: ../templates/players.html:9 ../templates/winners.html:6
 msgid "Tournament winners"
-msgstr ""
+msgstr "Turnuva kazananları"
 
 #: ../templates/players.html:10 ../templates/shields.html:6
 msgid "Tournament shields"
-msgstr ""
+msgstr "Turnuva kalkanları"
 
 #: ../templates/players.html:14
 msgid "Online"
@@ -357,7 +357,7 @@ msgstr "Anonim"
 
 #: ../templates/players50.html:6
 msgid "Top 50"
-msgstr ""
+msgstr "İlk 50"
 
 #: ../templates/profile.html:14
 #, python-format
@@ -368,66 +368,66 @@ msgstr[1] "%(count)s oyunlar"
 
 #: ../templates/profile.html:42
 msgid "Watch games"
-msgstr ""
+msgstr "Oyun izle"
 
 #: ../templates/profile.html:44
 msgid "Challenge to a game"
-msgstr ""
+msgstr "Oyuna davet et"
 
 #: ../templates/profile.html:47
 msgid "Import game"
-msgstr ""
+msgstr "Oyun yükle"
 
 #: ../templates/profile.html:50
 msgid "Export games"
-msgstr ""
+msgstr "Oyunları çıkar"
 
 #: ../templates/profile.html:54
 msgid "Lichess profile"
-msgstr ""
+msgstr "Lichess profili"
 
 #: ../templates/puzzle_profile.html:14
 #, python-format
 msgid "%(count)s puzzle"
 msgid_plural "%(count)s puzzles"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%(count)'ın bulmacası"
+msgstr[1] "%(count)'ın bulmacaları"
 
 #: ../templates/puzzle_profile.html:23
 msgid "Puzzle history"
-msgstr ""
+msgstr "Bulmaca tarihi"
 
 #: ../templates/template.html:18
 msgid "Play"
-msgstr ""
+msgstr "Oyna"
 
 #: ../templates/template.html:20
 msgid "Create a game"
-msgstr ""
+msgstr "Oyun başlat"
 
 #: ../templates/template.html:21 ../templates/tournaments.html:6
 msgid "Tournaments"
-msgstr ""
+msgstr "Turnuvalar"
 
 #: ../templates/template.html:25 ../templates/template.html:27
 msgid "Puzzles"
-msgstr ""
+msgstr "Bulmacalar"
 
 #: ../templates/template.html:31
 msgid "Learn"
-msgstr ""
+msgstr "Öğren"
 
 #: ../templates/template.html:33
 msgid "Variants"
-msgstr ""
+msgstr "Varyantlar"
 
 #: ../templates/template.html:34
 msgid "Memory"
-msgstr ""
+msgstr "Hafıza"
 
 #: ../templates/template.html:38
 msgid "Watch"
-msgstr ""
+msgstr "İzle"
 
 #: ../templates/template.html:40
 msgid "Tv"
@@ -439,11 +439,11 @@ msgstr "Şu anda oynanan oyunlar"
 
 #: ../templates/template.html:42
 msgid "Video library"
-msgstr ""
+msgstr "Vidyo kütüphanesi"
 
 #: ../templates/template.html:46
 msgid "Community"
-msgstr ""
+msgstr "Topluluk"
 
 #: ../templates/template.html:48
 msgid "Players"
@@ -451,15 +451,15 @@ msgstr "Oyuncular"
 
 #: ../templates/template.html:49
 msgid "Blog"
-msgstr ""
+msgstr "Blog"
 
 #: ../templates/template.html:50
 msgid "Donate"
-msgstr ""
+msgstr "Bağış yap"
 
 #: ../templates/template.html:54
 msgid "Tools"
-msgstr ""
+msgstr "Araçlar"
 
 #: ../templates/template.html:56
 msgid "Editor"
@@ -467,7 +467,7 @@ msgstr "Editör"
 
 #: ../templates/template.html:57
 msgid "Analysis"
-msgstr "Analiz"
+msgstr "Analiz yap"
 
 #: ../templates/template.html:72
 msgid "Login with Lichess"
@@ -479,23 +479,23 @@ msgstr "Oturum aç"
 
 #: ../templates/tournaments.html:8
 msgid "Tournament calendar"
-msgstr ""
+msgstr "Turnuva takvimi"
 
 #: ../templates/tournaments.html:10
 msgid "CREATE A NEW TOURNAMENT"
-msgstr ""
+msgstr "YENİ BİR TURNUVA YAP"
 
 #: ../templates/tournaments.html:19
 msgid "Now playing"
-msgstr ""
+msgstr "Şimdi oynanıyor"
 
 #: ../templates/tournaments.html:21
 msgid "Starting soon"
-msgstr ""
+msgstr "Birazdan başlayacak"
 
 #: ../templates/tournaments.html:23
 msgid "Finished"
-msgstr ""
+msgstr "Bitti"
 
 #: ../templates/tournaments.html:44
 msgid "Rated"
@@ -514,4 +514,4 @@ msgstr[1] "%(count)s oyuncu"
 
 #: ../templates/videos.html:15
 msgid "Chess variant videos"
-msgstr ""
+msgstr "Satranç varyant videoları"
