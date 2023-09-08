@@ -1,0 +1,55 @@
+.schism .cg-wrap piece.p-piece.black {
+    background-image: url('../../images/pieces/merida/bP.svg');
+}
+.schism .cg-wrap piece.b-piece.black {
+    background-image: url('../../images/pieces/merida/bB.svg');
+}
+.schism .cg-wrap piece.n-piece.black {
+    background-image: url('../../images/pieces/merida/bN.svg');
+}
+.schism .cg-wrap piece.r-piece.black {
+    background-image: url('../../images/pieces/merida/bR.svg');
+}
+.schism .cg-wrap piece.q-piece.black {
+    background-image: url('../../images/pieces/merida/bQ.svg');
+}
+.schism .cg-wrap piece.k-piece.black {
+    background-image: url('../../images/pieces/merida/bK.svg');
+}
+
+.schism .cg-wrap piece.a-piece.white {
+    background-image: url('../../images/pieces/schism/wA.svg');
+}
+.schism .cg-wrap piece.c-piece.white {
+    background-image: url('../../images/pieces/schism/wC.svg');
+}
+.schism .cg-wrap piece.e-piece.white {
+    background-image: url('../../images/pieces/schism/wE.svg');
+}
+.schism .cg-wrap piece.pm-piece.white {
+    background-image: url('../../images/pieces/schism/wF.svg');
+}
+.schism .cg-wrap piece.pt-piece.white {
+    background-image: url('../../images/pieces/schism/wG.svg');
+}
+.schism .cg-wrap piece.k-piece.white {
+    background-image: url('../../images/pieces/schism/wK.svg');
+}
+.schism .cg-wrap piece.m-piece.white {
+    background-image: url('../../images/pieces/schism/wM.svg');
+}
+.schism .cg-wrap piece.t-piece.white {
+    background-image: url('../../images/pieces/schism/wT.svg');
+}
+.schism .cg-wrap piece.v-piece.white {
+    background-image: url('../../images/pieces/schism/wV.svg');
+}
+.schism .cg-wrap piece.pv-piece.white {
+    background-image: url('../../images/pieces/schism/wW.svg');
+}
+.schism .cg-wrap piece.pa-piece.white {
+    background-image: url('../../images/pieces/schism/wY.svg');
+}
+.schism .cg-wrap piece.z-piece.white {
+    background-image: url('../../images/pieces/schism/wZ.svg');
+}

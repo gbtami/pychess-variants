@@ -62,6 +62,7 @@ export const PIECE_FAMILIES: Record<string, PieceFamily> = {
     chak: { pieceCSS: ["chak0", "disguised"] },
     chennis: { pieceCSS: ["chennis0", "chennis1", "chennis2", "chennis3", "chennis4", "disguised"] },
     spartan: { pieceCSS: ["spartan0", "disguised"] },
+    schism: { pieceCSS: ["schism0", "disguised"] },
     mansindam: { pieceCSS: ["mansindam2", "mansindam1", "mansindam3", "mansindam4", "disguised"] },
 };
 
@@ -828,6 +829,14 @@ export const VARIANTS: Record<string, Variant> = {
         pieceRow: { white: ["k", "q", "r", "b", "n", "p"], black: ["k", "g", "w", "l", "c", "h"] },
     }),
 
+    schism: variant({
+        name: "schism", tooltip: _("Asymmetric variant with Byzantine/Eastern Army."),
+        startFen: "rnbqkbnr/pppppppp/8/8/8/8/MMMVVAAA/TCZEKZCT w kq - 0 1",
+        icon: "B",
+        boardFamily: "standard8x8", pieceFamily: "schism",
+        pieceRow: { white: ["t", "v", "a", "m", "c", "e", "k", "z", "+t", "+v", "+a", "+m"], black: ["k", "q", "r", "b", "n", "p"] },
+    }),
+
     mansindam: variant({
         name: "mansindam", tooltip: "Pantheon tale",
         startFen: "rnbakqcnm/9/ppppppppp/9/9/9/PPPPPPPPP/9/MNCQKABNR[] w - - 0 1",
@@ -904,7 +913,7 @@ export const variantGroups: { [ key: string ]: { variants: string[] } } = {
     shogi:    { variants: [ "shogi", "minishogi", "kyotoshogi", "dobutsu", "gorogoroplus", "torishogi" ] },
     xiangqi:  { variants: [ "xiangqi", "manchu", "janggi", "minixiangqi" ] },
     fairy:    { variants: [ "capablanca", "capahouse", "seirawan", "shouse", "grand", "grandhouse", "shako", "shogun", "hoppelpoppel", "mansindam" ] },
-    army:     { variants: [ "orda", "synochess", "shinobi", "empire", "ordamirror", "chak", "chennis", "spartan" ] },
+    army:     { variants: [ "orda", "synochess", "shinobi", "empire", "ordamirror", "chak", "chennis", "spartan", "schism" ] },
 };
 
 function variantGroupLabel(group: string): string {
