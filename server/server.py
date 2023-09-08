@@ -389,9 +389,9 @@ async def shutdown(app):
 
     # abort games
     for game in list(app["games"].values()):
-        for player in (game.wplayer, game.bplayer):
-            if game.status <= STARTED:
-                response = await game.abort()
+        if game.status <= STARTED:
+            response = await game.abort()
+            for player in (game.wplayer, game.bplayer):
                 if not player.bot and game.id in player.game_sockets:
                     ws = player.game_sockets[game.id]
                     try:

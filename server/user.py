@@ -5,7 +5,7 @@ from datetime import datetime, timezone
 from aiohttp import web
 import aiohttp_session
 
-from const import VARIANTS
+from const import STARTED, VARIANTS
 from broadcast import lobby_broadcast
 from glicko2.glicko2 import gl2, DEFAULT_PERF, Rating
 from login import RESERVED_USERS
@@ -17,6 +17,7 @@ log = logging.getLogger(__name__)
 SILENCE = 10 * 60
 ANON_TIMEOUT = 10 * 60
 PENDING_SEEK_TIMEOUT = 10
+ABANDONE_TIMEOUT = 90
 
 
 class User:
@@ -103,6 +104,11 @@ class User:
                     except KeyError:
                         log.info("Failed to del %s from users", self.username)
                     break
+
+    async def abandone_game(self, game):
+        await asyncio.sleep(ABANDONE_TIMEOUT)
+        if game.status <= STARTED and game.id not in self.game_sockets:
+            await game.game_ended(self, "abandone")
 
     def update_online(self):
         self.online = (

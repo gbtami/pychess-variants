@@ -743,6 +743,7 @@ async def round_socket_handler(request):
         if game is not None and user is not None and not user.bot:
             if game.id in user.game_sockets:
                 del user.game_sockets[game.id]
+                asyncio.create_task(user.abandone_game(game))
                 user.update_online()
 
             if user.username not in (game.wplayer.username, game.bplayer.username):

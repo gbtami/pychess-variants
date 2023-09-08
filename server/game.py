@@ -866,6 +866,7 @@ class Game:
                     result = "0-1" if user.username == self.wplayer.username else "1-0"
 
             self.update_status(LOSERS[reason], result)
+            log.debug("%s game_ended(%s, %s) %s", (self.id, user.username, reason, result))
             await self.save_game()
 
         return {
