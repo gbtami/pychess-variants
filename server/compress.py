@@ -52,6 +52,7 @@ V2C = {
     "mansindam": "I",
     "duck": "U",
     "spartan": "N",
+    "schism": "F",
     "kingofthehill": "B",
     "3check": "X",
 }

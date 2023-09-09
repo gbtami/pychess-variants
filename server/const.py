@@ -138,6 +138,7 @@ VARIANTS = (
     "chak",
     "chennis",
     "spartan",
+    "schism",
 )
 
 VARIANT_ICONS = {
@@ -192,6 +193,7 @@ VARIANT_ICONS = {
     "mansindam": "⛵",
     "duck": "🦆",
     "spartan": "⍺",
+    "schism": "B",
     "kingofthehill": "🏴",
     "kingofthehill960": "🏁",
     "3check": "☰",
@@ -256,6 +258,7 @@ CATEGORIES = {
         "shinobiplus",
         "khans",
         "spartan",
+        "schism",
     ),
     "makruk": ("makruk", "makpong", "cambodian", "sittuyin", "asean"),
     "shogi": (
@@ -390,6 +393,7 @@ TRANSLATED_VARIANT_NAMES = {
     "chak": _("Chak"),
     "chennis": _("Chennis"),
     "spartan": _("Spartan"),
+    "schism": _("Schism"),
     "kingofthehill": _("King of the Hill"),
     "kingofthehill960": _("King of the Hill 960"),
     "3check": _("Three check"),
