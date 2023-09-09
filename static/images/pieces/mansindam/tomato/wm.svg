@@ -4,7 +4,7 @@
    height="52.157"
    version="1.1"
    id="svg10503"
-   sodipodi:docname="Marshal UP.svg"
+   sodipodi:docname="wm.svg"
    inkscape:version="1.3 (0e150ed6c4, 2023-07-21)"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
@@ -39,10 +39,10 @@
      inkscape:window-height="2036"
      id="namedview10505"
      showgrid="false"
-     inkscape:zoom="4.831566"
-     inkscape:cx="0.93137504"
-     inkscape:cy="6.5196253"
-     inkscape:window-x="-12"
+     inkscape:zoom="19.326264"
+     inkscape:cx="21.757956"
+     inkscape:cy="40.618301"
+     inkscape:window-x="3828"
      inkscape:window-y="-12"
      inkscape:window-maximized="1"
      inkscape:current-layer="svg10503"
@@ -57,7 +57,7 @@
      stroke="#000000"
      stroke-width="1.04769"
      id="path10471"
-     style="fill:#e2d9ba;fill-opacity:1;stroke:#393830;stroke-opacity:0.992157" />
+     style="fill:#d6c99d;fill-opacity:1;stroke:#393830;stroke-opacity:0.992157" />
   <g
      id="g1"
      transform="translate(0.93137504,8.0719171)">
@@ -85,7 +85,7 @@
            id="path4482"
            sodipodi:nodetypes="ccssc" />
         <path
-           style="fill:none;stroke:#e2d9ba;stroke-width:1px;stroke-linecap:round;stroke-linejoin:miter;stroke-opacity:0.980392"
+           style="fill:none;stroke:#d6c99d;stroke-width:1px;stroke-linecap:round;stroke-linejoin:miter;stroke-opacity:1"
            d="m 19.143661,19.233877 c 0.116768,-1.012153 0.717294,-2.330408 1.944347,-3.363759 1.071063,-0.901986 2.479975,-1.396487 4.135206,-1.427032 1.656649,-0.03057 3.307942,0.772853 4.415568,1.918734 1.280716,1.324949 1.300528,2.472035 1.655861,3.414965"
            id="path5165"
            sodipodi:nodetypes="csssc" />
@@ -103,13 +103,13 @@
          stroke-linejoin="miter"
          id="path1537"
          sodipodi:nodetypes="cc"
-         style="stroke:#e2d9ba;stroke-opacity:0.980392" />
+         style="stroke:#d6c99d;stroke-opacity:1" />
       <g
          id="g4488"
          transform="rotate(-15,-12.686471,25.230387)" />
     </g>
     <path
-       style="fill:none;stroke:#e2d9ba;stroke-width:1px;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:0.980392"
+       style="fill:none;stroke:#d6c99d;stroke-width:1px;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1"
        d="m 18.276502,29.517684 h 4 v 2 h 5 v -2 h 5 v 2 h 5 v -2 h 4.000002"
        id="path5173" />
   </g>
