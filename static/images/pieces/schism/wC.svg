@@ -26,8 +26,8 @@
      inkscape:pagecheckerboard="0"
      inkscape:deskcolor="#d1d1d1"
      inkscape:zoom="1.2622058"
-     inkscape:cx="-605.68569"
-     inkscape:cy="514.57535"
+     inkscape:cx="-592.61334"
+     inkscape:cy="34.463477"
      inkscape:window-width="3840"
      inkscape:window-height="2036"
      inkscape:window-x="-12"
@@ -36,6 +36,18 @@
      inkscape:current-layer="svg3" />
   <defs
      id="defs2">
+    <linearGradient
+       id="linearGradient6"
+       inkscape:collect="always">
+      <stop
+         style="stop-color:#fdf9eb;stop-opacity:1"
+         offset="0"
+         id="stop6" />
+      <stop
+         style="stop-color:#fadf88;stop-opacity:1"
+         offset="1"
+         id="stop7" />
+    </linearGradient>
     <linearGradient
        id="0"
        x1="21.405001"
@@ -73,11 +85,11 @@
     </linearGradient>
     <linearGradient
        inkscape:collect="always"
-       xlink:href="#0-2"
+       xlink:href="#linearGradient6"
        id="linearGradient7"
-       x1="23.854956"
+       x1="22.032658"
        y1="26.0175"
-       x2="44.615974"
+       x2="48.482185"
        y2="26.0175"
        gradientUnits="userSpaceOnUse" />
   </defs>
