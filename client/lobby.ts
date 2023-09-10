@@ -72,13 +72,13 @@ export class LobbyController implements ChatController {
             console.log('onOpen()');
             // console.log("---CONNECTED", evt);
             // prevent losing my seeks in case of websocket reconnections
-            if (this.seeks !== undefined) {
-                this.seeks.forEach( (s: Seek) => {
-                    if (s.user === this.username) {
-                        this.createSeekMsg(s.variant, s.color, s.fen, s.base, s.inc, s.byoyomi, s.chess960, s.rated, s.alternateStart);
-                    }
-                });
-            }
+            //if (this.seeks !== undefined) {
+            //    this.seeks.forEach( (s: Seek) => {
+            //        if (s.user === this.username) {
+            //            this.createSeekMsg(s.variant, s.color, s.fen, s.base, s.inc, s.byoyomi, s.chess960, s.rated, s.alternateStart);
+            //        }
+            //    });
+            //}
             this.doSend({ type: "lobby_user_connected", username: this.username});
             this.doSend({ type: "get_seeks" });
         }

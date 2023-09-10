@@ -5,7 +5,7 @@ from datetime import datetime, timezone
 from aiohttp import web
 import aiohttp_session
 
-from const import VARIANTS
+from const import STARTED, VARIANTS
 from broadcast import lobby_broadcast
 from glicko2.glicko2 import gl2, DEFAULT_PERF, Rating
 from login import RESERVED_USERS
@@ -16,6 +16,8 @@ log = logging.getLogger(__name__)
 
 SILENCE = 10 * 60
 ANON_TIMEOUT = 10 * 60
+PENDING_SEEK_TIMEOUT = 10
+ABANDONE_TIMEOUT = 90
 
 
 class User:
@@ -53,6 +55,7 @@ class User:
         self.game_sockets = {}
         self.title = title
         self.game_in_progress = None
+        self.abandone_game_task = None
 
         if self.bot:
             self.event_queue = asyncio.Queue()
@@ -102,6 +105,15 @@ class User:
                     except KeyError:
                         log.info("Failed to del %s from users", self.username)
                     break
+
+    async def abandone_game(self, game):
+        await asyncio.sleep(ABANDONE_TIMEOUT)
+        if game.status <= STARTED and game.id not in self.game_sockets:
+            if game.bot_game or self.anon:
+                await game.game_ended(self, "abandone")
+            else:
+                # TODO: message opp to let him claim win
+                pass
 
     def update_online(self):
         self.online = (
@@ -178,17 +190,44 @@ class User:
             "online": True if self.username == requester else self.online,
         }
 
-    async def clear_seeks(self, force=False):
-        has_seek = len(self.seeks) > 0
-        if has_seek and (len(self.lobby_sockets) == 0 or force):
+    async def clear_seeks(self):
+        if len(self.seeks) > 0:
             seeks = self.app["seeks"]
             sockets = self.app["lobbysockets"]
+
             for seek in self.seeks:
                 game_id = self.seeks[seek].game_id
                 # preserve invites (seek with game_id)!
                 if game_id is None:
                     del seeks[seek]
             self.seeks.clear()
+
+            await lobby_broadcast(sockets, get_seeks(seeks))
+
+    def delete_pending_seek(self, seek):
+        async def delete_seek(seek):
+            await asyncio.sleep(PENDING_SEEK_TIMEOUT)
+
+            if seek.pending:
+                try:
+                    del self.seeks[seek.id]
+                    del self.app["seeks"][seek.id]
+                except KeyError:
+                    log.info("Failed to del %s from seeks", seek.id)
+
+        asyncio.create_task(delete_seek(seek))
+
+    async def update_seeks(self, pending=True):
+        if len(self.seeks) > 0:
+            seeks = self.app["seeks"]
+            sockets = self.app["lobbysockets"]
+
+            for seek_id in self.seeks:
+                # preserve invites (seek with game_id)!
+                if self.seeks[seek_id].game_id is None:
+                    seeks[seek_id].pending = pending
+                    if pending:
+                        self.delete_pending_seek(seeks[seek_id])
 
             await lobby_broadcast(sockets, get_seeks(seeks))
 

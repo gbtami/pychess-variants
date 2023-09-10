@@ -130,7 +130,7 @@ async def lobby_socket_handler(request):
                         print("create_seek", data)
                         seek = await create_seek(db, invites, seeks, user, data, ws)
                         await lobby_broadcast(sockets, get_seeks(seeks))
-                        if seek.target == "":
+                        if (seek is not None) and seek.target == "":
                             await request.app["discord"].send_to_discord(
                                 "create_seek", seek.discord_msg
                             )
@@ -277,6 +277,8 @@ async def lobby_socket_handler(request):
                         if request.app["tv"] is not None:
                             await ws.send_json(games[request.app["tv"]].tv_game_json)
 
+                        await user.update_seeks(pending=False)
+
                     elif data["type"] == "lobbychat":
                         if user.username.startswith("Anon-"):
                             continue
@@ -400,6 +402,6 @@ async def lobby_socket_handler(request):
                 # response = {"type": "lobbychat", "user": "", "message": "%s left the lobby" % user.username}
                 # await lobby_broadcast(sockets, response)
 
-                await user.clear_seeks()
+            await user.update_seeks(pending=True)
 
     return ws

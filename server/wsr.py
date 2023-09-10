@@ -519,8 +519,8 @@ async def round_socket_handler(request):
                             game.status <= STARTED
                             and user.username in (game.wplayer.username, game.bplayer.username)
                         ):
-                            await game.wplayer.clear_seeks(force=True)
-                            await game.bplayer.clear_seeks(force=True)
+                            await game.wplayer.clear_seeks()
+                            await game.bplayer.clear_seeks()
 
                         if user.username not in (
                             game.wplayer.username,
@@ -537,6 +537,9 @@ async def round_socket_handler(request):
                             "firstmovetime": game.stopwatch.secs,
                         }
                         await ws.send_json(response)
+
+                        if user.abandone_game_task is not None:
+                            user.abandone_game_task.cancel()
 
                         response = {"type": "fullchat", "lines": list(game.messages)}
                         await ws.send_json(response)
@@ -743,6 +746,7 @@ async def round_socket_handler(request):
         if game is not None and user is not None and not user.bot:
             if game.id in user.game_sockets:
                 del user.game_sockets[game.id]
+                user.abandone_game_task = asyncio.create_task(user.abandone_game(game))
                 user.update_online()
 
             if user.username not in (game.wplayer.username, game.bplayer.username):
