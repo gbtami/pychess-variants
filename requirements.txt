@@ -15,7 +15,7 @@ sortedcollections==2.1.0
 python-gettext==5.0
 uvloop==0.17.0
 objgraph==3.6.0
-black==23.7.0
+black==23.9.1
 flake8==6.1.0
 mypy
 pre-commit
