@@ -11,7 +11,7 @@ ESTIMATE_MOVES = 40
 
 
 class Clock:
-    """Check game start and abandoned games time out"""
+    """Check game start and time out abandoned games"""
 
     def __init__(self, game):
         self.game = game
