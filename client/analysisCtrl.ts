@@ -125,6 +125,7 @@ export class AnalysisController extends GameController {
         this.evalFile = localStorage[`${this.variant.name}-nnue`] === undefined ? '' : localStorage[`${this.variant.name}-nnue`];
         this.threads = localStorage.threads === undefined ? 1 : parseInt(localStorage.threads);
         this.hash = localStorage.hash === undefined ? 16 : parseInt(localStorage.hash);
+        this.nnue = localStorage.nnue === undefined ? true : localStorage.nnue === "true";
 
         this.nnueOk = false;
         this.importedBy = '';
@@ -692,7 +693,7 @@ export class AnalysisController extends GameController {
         if (this.variant.name !== 'chess') {
             this.fsfPostMessage('setoption name UCI_Variant value ' + this.variant.name);
         }
-        if (this.evalFile === '' || !this.nnueOk) {
+        if (this.evalFile === '' || !this.nnueOk || !this.nnue) {
             this.fsfPostMessage('setoption name Use NNUE value false');
         } else {
             this.fsfPostMessage('setoption name Use NNUE value true');
