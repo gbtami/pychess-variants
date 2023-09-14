@@ -840,7 +840,7 @@ class Game:
         }
 
     async def game_ended(self, user, reason):
-        """Abort, resign, flag, abandone"""
+        """Abort, resign, flag, abandon"""
         if self.result == "*":
             if reason == "abort":
                 result = "*"

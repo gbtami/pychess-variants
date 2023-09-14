@@ -422,7 +422,7 @@ async def round_socket_handler(request):
                         board_response["takeback"] = True
                         await ws.send_json(board_response)
 
-                    elif data["type"] in ("abort", "resign", "abandone", "flag"):
+                    elif data["type"] in ("abort", "resign", "abandon", "flag"):
                         if data["type"] == "abort" and (game is not None) and game.board.ply > 2:
                             continue
 
@@ -538,8 +538,8 @@ async def round_socket_handler(request):
                         }
                         await ws.send_json(response)
 
-                        if user.abandone_game_task is not None:
-                            user.abandone_game_task.cancel()
+                        if user.abandon_game_task is not None:
+                            user.abandon_game_task.cancel()
 
                         response = {"type": "fullchat", "lines": list(game.messages)}
                         await ws.send_json(response)
@@ -746,10 +746,11 @@ async def round_socket_handler(request):
         if game is not None and user is not None and not user.bot:
             if game.id in user.game_sockets:
                 del user.game_sockets[game.id]
-                user.abandone_game_task = asyncio.create_task(user.abandone_game(game))
                 user.update_online()
 
-            if user.username not in (game.wplayer.username, game.bplayer.username):
+            if user in (game.wplayer, game.bplayer):
+                user.abandon_game_task = asyncio.create_task(user.abandon_game(game))
+            else:
                 game.spectators.discard(user)
                 await round_broadcast(game, game.spectator_list, full=True)
 
