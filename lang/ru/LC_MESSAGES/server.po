@@ -246,19 +246,19 @@ msgstr "Спартанские"
 
 #: ../server/const.py:385
 msgid "King of the Hill"
-msgstr ""
+msgstr "Царь горы"
 
 #: ../server/const.py:386
 msgid "King of the Hill 960"
-msgstr ""
+msgstr "Царь горы 960"
 
 #: ../server/const.py:387
 msgid "Three check"
-msgstr ""
+msgstr "Три шаха"
 
 #: ../server/const.py:388
 msgid "Three check 960"
-msgstr ""
+msgstr "Три шаха 960"
 
 #: ../server/videos.py:10
 msgid "Howto"
@@ -393,14 +393,14 @@ msgstr "Lichess профиль"
 #, python-format
 msgid "%(count)s puzzle"
 msgid_plural "%(count)s puzzles"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-msgstr[3] ""
+msgstr[0] "%(count)sзадача"
+msgstr[1] "%(count)sзадачи"
+msgstr[2] "%(count)sзадач"
+msgstr[3] "%(count)sзадач"
 
 #: ../templates/puzzle_profile.html:23
 msgid "Puzzle history"
-msgstr ""
+msgstr "История задачи"
 
 #: ../templates/template.html:18
 msgid "Play"

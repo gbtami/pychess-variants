@@ -261,7 +261,7 @@ msgstr "CPU"
 
 #: ../client/analysisSettings.ts:202
 msgid "Memory"
-msgstr "Ký ức"
+msgstr "Bộ nhớ"
 
 #: ../client/background.ts:9
 msgid "Light"
@@ -1724,7 +1724,7 @@ msgstr ""
 
 #: ../client/lobby/layer2army.ts:63
 msgid "Mayan chess"
-msgstr ""
+msgstr "Mayan chess"
 
 #: ../client/lobby/layer2army.ts:70
 msgid "Alternating pieces"
@@ -1810,7 +1810,7 @@ msgstr ""
 
 #: ../client/lobby/layer2shogi.ts:36
 msgid "5x5 Shogi"
-msgstr ""
+msgstr "Shogi 5x5"
 
 #: ../client/lobby/layer2shogi.ts:43
 msgid "5x5, pieces flip each turn"
@@ -1858,7 +1858,7 @@ msgstr "Luật"
 
 #: ../client/lobby/layer3.ts:53
 msgid "Tip: "
-msgstr ""
+msgstr "Gợi ý:"
 
 #: ../client/lobby/layer3.ts:64
 msgid "Fischer's random chess where the back row are randomized."
@@ -1878,7 +1878,7 @@ msgstr ""
 
 #: ../client/lobby/layer3.ts:83
 msgid "You can play more at lichess.org."
-msgstr ""
+msgstr "Bạn có thể chơi thêm trên lichess.org."
 
 #: ../client/lobby/layer3.ts:86
 msgid ""
@@ -1888,7 +1888,7 @@ msgstr ""
 
 #: ../client/lobby/layer3.ts:88
 msgid "Quack."
-msgstr ""
+msgstr "Quack."
 
 #: ../client/lobby/layer3.ts:91
 msgid ""

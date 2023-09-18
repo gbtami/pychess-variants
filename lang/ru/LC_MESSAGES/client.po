@@ -1397,11 +1397,11 @@ msgstr "Взрыв короля"
 
 #: ../client/result.ts:102
 msgid "King in the center"
-msgstr ""
+msgstr "Король в центре"
 
 #: ../client/result.ts:105
 msgid "Three checks"
-msgstr ""
+msgstr "Три шаха"
 
 #: ../client/result.ts:108
 msgid "King captured"
