@@ -10,7 +10,7 @@ jinja2==3.1.2
 motor==3.3.1
 pymongo==4.5.0
 pyopenssl==23.2.0
-pyffish==0.0.78
+pyffish==0.0.79
 sortedcollections==2.1.0
 python-gettext==5.0
 objgraph==3.6.0
