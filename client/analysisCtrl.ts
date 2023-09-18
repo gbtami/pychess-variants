@@ -66,6 +66,7 @@ export class AnalysisController extends GameController {
     multipv: number;
     threads: number;
     hash: number;
+    nnue: boolean;
     evalFile: string;
     nnueOk: boolean;
     importedBy: string;
