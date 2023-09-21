@@ -21,6 +21,7 @@ from aiohttp.log import access_logger
 from aiohttp.web_app import Application
 from aiohttp_session.cookie_storage import EncryptedCookieStorage
 from aiohttp_session import setup
+from aiohttp_remotes import Secure, setup as _setup
 from motor import motor_asyncio as ma
 from sortedcollections import ValueSortedDict
 from pythongettext.msgfmt import Msgfmt
@@ -103,8 +104,10 @@ async def on_prepare(request, response):
             response.headers["Expires"] = "0"
 
 
-def make_app(with_db=True) -> Application:
+async def make_app(with_db=True) -> Application:
     app = web.Application()
+    if URI.startswith("https"):
+        await _setup(app, Secure())  # force https
     parts = urlparse(URI)
     setup(
         app,
