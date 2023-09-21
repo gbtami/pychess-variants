@@ -67,27 +67,6 @@ from custom_trophy_owners import CUSTOM_TROPHY_OWNERS
 log = logging.getLogger(__name__)
 
 
-@web.middleware
-async def handle_404(request, handler):
-    try:
-        return await handler(request)
-    except web.HTTPException as ex:
-        if ex.status == 404:
-            template = request.app["jinja"]["en"].get_template("404.html")
-            text = await template.render_async(
-                {
-                    "dev": DEV,
-                    "home": URI,
-                    "view_css": "404.css",
-                    "asseturl": STATIC_ROOT,
-                    "js": "/static/pychess-variants.js%s%s" % (BR_EXTENSION, SOURCE_VERSION),
-                }
-            )
-            return web.Response(text=html_minify(text), content_type="text/html")
-        else:
-            raise
-
-
 async def index(request):
     """Create home html."""
 
