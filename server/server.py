@@ -130,7 +130,7 @@ async def on_prepare(request, response):
 def make_app(with_db=True) -> Application:
     app = web.Application()
     if URI.startswith("https"):
-        secure = Secure()
+        secure = Secure(redirect_url=URI)
         app.on_response_prepare.append(secure.on_response_prepare)
         app.middlewares.append(secure.middleware)
 
