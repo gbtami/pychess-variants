@@ -17,8 +17,15 @@ import { notify } from './notification';
 import { PyChessModel } from "./types";
 import { MsgBoard, MsgChat, MsgFullChat } from "./messages";
 import { variantPanels } from './lobby/layer1';
-import { Stream, Spotlight, MsgInviteCreated, MsgHostCreated, MsgGetSeeks, MsgNewGame, MsgGameInProgress, MsgUserConnected, MsgPing, MsgError, MsgShutdown, MsgGameCounter, MsgUserCounter, MsgStreams, MsgSpotlights, Seek, CreateMode, TvGame } from './lobbyType';
+import { Stream, Spotlight, MsgInviteCreated, MsgHostCreated, MsgGetSeeks, MsgNewGame, MsgGameInProgress, MsgUserConnected, MsgPing, MsgError, MsgShutdown, MsgGameCounter, MsgUserCounter, MsgStreams, MsgSpotlights, Seek, CreateMode, TvGame, TcMode } from './lobbyType';
 import { validFen, uci2LastMove } from './chess';
+
+const CREATE_MODES = {
+    playAI: _("Play with AI"),
+    playFriend: _("Play with a friend"),
+    createHost: _("Host a game for others"),
+    createGame: _("Create a game"),
+}
 
 export class LobbyController implements ChatController {
     sock: WebsocketHeartbeatJs;
@@ -34,11 +41,13 @@ export class LobbyController implements ChatController {
     fen: string;
     variant: string;
     createMode: CreateMode;
+    tcMode: TcMode;
     validGameData: boolean;
     readyState: number;
     seeks: Seek[];
     streams: VNode | HTMLElement;
     spotlights: VNode | HTMLElement;
+    dialogHeaderEl: VNode | HTMLElement;
     tvGame: TvGame;
     tvGameId: string;
     tvGameChessground: Api;
@@ -51,6 +60,7 @@ export class LobbyController implements ChatController {
         25, 30, 35, 40, 45, 60, 90
     ];
     minutesStrings = ["0", "¼", "½", "¾"];
+    daysValues = [1, 2, 3, 5, 7, 10, 14];
 
     constructor(el: HTMLElement, model: PyChessModel) {
         console.log("LobbyController constructor", el, model);
@@ -65,20 +75,12 @@ export class LobbyController implements ChatController {
         this.variant = model["variant"];
         this.profileid = model["profileid"]
         this.createMode = 'createGame';
+        this.tcMode = 'real';
         this.validGameData = false;
         this.seeks = [];
 
         const onOpen = () => {
             console.log('onOpen()');
-            // console.log("---CONNECTED", evt);
-            // prevent losing my seeks in case of websocket reconnections
-            //if (this.seeks !== undefined) {
-            //    this.seeks.forEach( (s: Seek) => {
-            //        if (s.user === this.username) {
-            //            this.createSeekMsg(s.variant, s.color, s.fen, s.base, s.inc, s.byoyomi, s.chess960, s.rated, s.alternateStart);
-            //        }
-            //    });
-            //}
             this.doSend({ type: "lobby_user_connected", username: this.username});
             this.doSend({ type: "get_seeks" });
         }
@@ -95,13 +97,15 @@ export class LobbyController implements ChatController {
         this.streams = document.getElementById('streams') as HTMLElement;
 
         this.spotlights = document.getElementById('spotlights') as HTMLElement;
+        
+        this.dialogHeaderEl = document.getElementById('header-block') as HTMLElement;
 
         // challenge!
         if (this.profileid !== "") {
             if (this.profileid === 'Fairy-Stockfish') this.createMode = 'playAI';
             else if (this.profileid === 'Invite-friend') this.createMode = 'playFriend';
             document.getElementById('game-mode')!.style.display = (this.anon || this.createMode === 'playAI') ? 'none' : 'inline-flex';
-            document.getElementById('challenge-block')!.style.display = 'inline-flex';
+            this.renderDialogHeader(_('Challenge %1 to a game', this.profileid));
             document.getElementById('ailevel')!.style.display = this.createMode === 'playAI' ? 'block' : 'none';
             document.getElementById('rmplay-block')!.style.display = this.createMode === 'playAI' ? 'block' : 'none';
             document.getElementById('id01')!.style.display = 'block';
@@ -252,6 +256,10 @@ export class LobbyController implements ChatController {
         const byoyomiPeriod = (byoyomi && increment > 0) ? Number(e.value) : 0;
         localStorage.seek_byo = e.value;
 
+        e = document.getElementById('day') as HTMLInputElement;
+        const days = this.daysValues[Number(e.value)];
+        localStorage.seek_day = e.value;
+
         e = document.querySelector('input[name="mode"]:checked') as HTMLInputElement;
         let rated: boolean;
         if (this.createMode === 'playAI' ||
@@ -301,12 +309,25 @@ export class LobbyController implements ChatController {
         notify(null, undefined);
     }
 
+    setTcMode(tcMode: TcMode) {
+        if (tcMode !== this.tcMode) {
+            this.tcMode = tcMode;
+            document.getElementById('real')!.style.display = this.tcMode === 'real' ? 'block' : 'none';
+            document.getElementById('corr')!.style.display = this.tcMode === 'corr' ? 'block' : 'none';
+        }
+    }
+
+    renderDialogHeader(header: string) {
+        this.dialogHeaderEl = patch(this.dialogHeaderEl, h('div#header-block', [h('h2', header)]));
+    }
+
     renderSeekButtons() {
         const vVariant = this.variant || localStorage.seek_variant || "chess";
         // 5+3 default TC needs vMin 9 because of the partial numbers at the beginning of minutesValues
         const vMin = localStorage.seek_min ?? "9";
         const vInc = localStorage.seek_inc ?? "3";
         const vByoIdx = (localStorage.seek_byo ?? 1) - 1;
+        const vDay = localStorage.seek_day ?? "1";
         const vRated = localStorage.seek_rated ?? "0";
         const vLevel = Number(localStorage.seek_level ?? "1");
         const vChess960 = localStorage.seek_chess960 ?? "false";
@@ -329,9 +350,7 @@ export class LobbyController implements ChatController {
                         }),
                     ]),
                     h('div.container', [
-                        h('div#challenge-block', [
-                            h('h3', _('Challenge %1 to a game', this.profileid)),
-                        ]),
+                        h('div#header-block'),
                         h('div', [
                             h('label', { attrs: { for: "variant" } }, _("Variant")),
                             selectVariant("variant", vVariant, () => this.setVariant(), () => this.setVariant()),
@@ -353,27 +372,53 @@ export class LobbyController implements ChatController {
                                 },
                             }),
                         ]),
-                        h('label', { attrs: { for: "min" } }, _("Minutes per side:")),
-                        h('span#minutes'),
-                        h('input#min.slider', {
-                            props: { name: "min", type: "range", min: 0, max: this.minutesValues.length - 1, value: vMin },
-                            on: { input: e => this.setMinutes(parseInt((e.target as HTMLInputElement).value)) },
-                            hook: { insert: vnode => this.setMinutes(parseInt((vnode.elm as HTMLInputElement).value)) },
-                        }),
-                        h('label#incrementlabel', { attrs: { for: "inc" } }, ''),
-                        h('span#increment'),
-                        h('input#inc.slider', {
-                            props: { name: "inc", type: "range", min: 0, max: this.incrementValues.length - 1, value: vInc },
-                            on: { input: e => this.setIncrement(this.incrementValues[parseInt((e.target as HTMLInputElement).value)]) },
-                            hook: { insert: vnode => this.setIncrement(this.incrementValues[parseInt((vnode.elm as HTMLInputElement).value)]) },
-                        }),
-                        h('div#byoyomi-period', [
-                            h('label#byoyomiLabel', { attrs: { for: "byo" } }, _('Periods')),
-                            h('select#byo', {
-                                props: { name: "byo" },
-                            },
-                                [ 1, 2, 3 ].map((n, idx) => h('option', { props: { value: n }, attrs: { selected: (idx === vByoIdx) } }, n))
-                            ),
+                        h('div.tc-block',[
+                            h('div', [
+                                h('label', { attrs: { for: "tc" } }, _("Time control")),
+                                h('select#tc', {
+                                    props: { name: 'tc' },
+                                    on: { change: (e: Event) => this.setTcMode((e.target as HTMLSelectElement).value) },
+                                    }, [
+                                        h('option', { attrs: { value: 'real' }}, _('Real time')),
+                                        h('option', { attrs: { value: 'corr', disabled: this.anon }}, _('Correspondence')),
+                                    ]
+                                ),
+                            ]),
+                            h('div#tc_settings', [
+                                h('div#real', [
+                                    h('label', { attrs: { for: "min" } }, _("Minutes per side:")),
+                                    h('span#minutes'),
+                                    h('input#min.slider', {
+                                        props: { name: "min", type: "range", min: 0, max: this.minutesValues.length - 1, value: vMin },
+                                        on: { input: e => this.setMinutes(parseInt((e.target as HTMLInputElement).value)) },
+                                        hook: { insert: vnode => this.setMinutes(parseInt((vnode.elm as HTMLInputElement).value)) },
+                                    }),
+                                    h('label#incrementlabel', { attrs: { for: "inc" } }, ''),
+                                    h('span#increment'),
+                                    h('input#inc.slider', {
+                                        props: { name: "inc", type: "range", min: 0, max: this.incrementValues.length - 1, value: vInc },
+                                        on: { input: e => this.setIncrement(this.incrementValues[parseInt((e.target as HTMLInputElement).value)]) },
+                                        hook: { insert: vnode => this.setIncrement(this.incrementValues[parseInt((vnode.elm as HTMLInputElement).value)]) },
+                                    }),
+                                    h('div#byoyomi-period', [
+                                        h('label#byoyomiLabel', { attrs: { for: "byo" } }, _('Periods')),
+                                        h('select#byo', {
+                                            props: { name: "byo" },
+                                        },
+                                            [ 1, 2, 3 ].map((n, idx) => h('option', { props: { value: n }, attrs: { selected: (idx === vByoIdx) } }, n))
+                                        ),
+                                    ]),
+                                ]),
+                                h('div#corr',[
+                                    h('label', { attrs: { for: "day" } }, _("Days per turn:")),
+                                    h('span#days'),
+                                    h('input#day.slider', {
+                                        props: { name: "day", type: "range", min: 0, max: this.daysValues.length - 1, value: vDay },
+                                        on: { input: e => this.setDays(parseInt((e.target as HTMLInputElement).value)) },
+                                        hook: { insert: vnode => this.setDays(parseInt((vnode.elm as HTMLInputElement).value)) },
+                                    }),
+                                ]),
+                            ]),
                         ]),
                         h('form#game-mode', [
                             h('div.radio-group', [
@@ -429,10 +474,10 @@ export class LobbyController implements ChatController {
                     ]),
                 ]),
             ]),
-            h('button.lobby-button', { on: { click: () => this.createGame() } }, _("Create a game")),
-            h('button.lobby-button', { on: { click: () => this.playFriend() } }, _("Play with a friend")),
-            h('button.lobby-button', { on: { click: () => this.playAI() } }, _("Play with AI")),
-            h('button.lobby-button', { on: { click: () => this.createHost() }, style: { display: this.tournamentDirector ? "block" : "none" } }, _("Host a game for others")),
+            h('button.lobby-button', { on: { click: () => this.createGame() } }, CREATE_MODES.createGame),
+            h('button.lobby-button', { on: { click: () => this.playFriend() } }, CREATE_MODES.playFriend),
+            h('button.lobby-button', { on: { click: () => this.playAI() } }, CREATE_MODES.playAI),
+            h('button.lobby-button', { on: { click: () => this.createHost() }, style: { display: this.tournamentDirector ? "block" : "none" } }, CREATE_MODES.createHost),
         ];
     }
 
@@ -452,8 +497,8 @@ export class LobbyController implements ChatController {
     createGame(variantName: string = '', chess960: boolean = false) {
         this.preSelectVariant(variantName, chess960);
         this.createMode = 'createGame';
+        this.renderDialogHeader(CREATE_MODES[this.createMode]);
         document.getElementById('game-mode')!.style.display = this.anon ? 'none' : 'inline-flex';
-        document.getElementById('challenge-block')!.style.display = 'none';
         document.getElementById('ailevel')!.style.display = 'none';
         document.getElementById('rmplay-block')!.style.display = 'none';
         document.getElementById('id01')!.style.display = 'block';
@@ -464,8 +509,8 @@ export class LobbyController implements ChatController {
     playFriend(variantName: string = '', chess960: boolean = false) {
         this.preSelectVariant(variantName, chess960);
         this.createMode = 'playFriend';
+        this.renderDialogHeader(CREATE_MODES[this.createMode])
         document.getElementById('game-mode')!.style.display = this.anon ? 'none' : 'inline-flex';
-        document.getElementById('challenge-block')!.style.display = 'none';
         document.getElementById('ailevel')!.style.display = 'none';
         document.getElementById('rmplay-block')!.style.display = 'none';
         document.getElementById('id01')!.style.display = 'block';
@@ -476,8 +521,8 @@ export class LobbyController implements ChatController {
     playAI(variantName: string = '', chess960: boolean = false) {
         this.preSelectVariant(variantName, chess960);
         this.createMode = 'playAI';
+        this.renderDialogHeader(CREATE_MODES[this.createMode])
         document.getElementById('game-mode')!.style.display = 'none';
-        document.getElementById('challenge-block')!.style.display = 'none';
         const e = document.getElementById('rmplay') as HTMLInputElement;
         document.getElementById('ailevel')!.style.display = e.checked ? 'none' : 'inline-block';
         document.getElementById('rmplay-block')!.style.display = 'block';
@@ -489,8 +534,8 @@ export class LobbyController implements ChatController {
     createHost(variantName: string = '', chess960: boolean = false) {
         this.preSelectVariant(variantName, chess960);
         this.createMode = 'createHost';
+        this.renderDialogHeader(CREATE_MODES[this.createMode])
         document.getElementById('game-mode')!.style.display = this.anon ? 'none' : 'inline-flex';
-        document.getElementById('challenge-block')!.style.display = 'none';
         document.getElementById('ailevel')!.style.display = 'none';
         document.getElementById('rmplay-block')!.style.display = 'none';
         document.getElementById('id01')!.style.display = 'block';
@@ -506,6 +551,7 @@ export class LobbyController implements ChatController {
         // TODO use toggle class instead of setting style directly
         document.getElementById('chess960-block')!.style.display = variant.chess960 ? 'block' : 'none';
         document.getElementById('byoyomi-period')!.style.display = byoyomi ? 'block' : 'none';
+        document.getElementById('corr')!.style.display = this.tcMode === 'corr' ? 'block' : 'none';
         e = document.getElementById('fen') as HTMLInputElement;
         e.value = "";
         e = document.getElementById('incrementlabel') as HTMLSelectElement;
@@ -544,6 +590,11 @@ export class LobbyController implements ChatController {
     }
     private setIncrement(increment: number) {
         document.getElementById("increment")!.innerHTML = ""+increment;
+        this.setStartButtons();
+    }
+    private setDays(val: number) {
+        const days = this.daysValues[val];
+        document.getElementById("days")!.innerHTML = days;
         this.setStartButtons();
     }
     private setFen() {

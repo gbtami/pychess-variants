@@ -116,3 +116,17 @@ rating {
     font-size: 0.9em;
     float: none;
 }
+
+#header-block {
+    display: 'inline-flex';
+    margin-bottom: 1.5rem;
+}
+.container input#fen {
+  margin: 0.6em 0 0.6em;
+}
+div.tc-block {
+    padding: 1em;
+    background: var(--bg-color2);
+    border-top: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border-color);
+}

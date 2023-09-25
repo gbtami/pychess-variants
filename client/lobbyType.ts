@@ -105,3 +105,5 @@ export interface TvGame {
 }
 
 export type CreateMode = 'createGame' | 'playFriend' | 'playAI' | 'createHost';
+
+export type TcMode = 'real' | 'corr';
