@@ -107,7 +107,8 @@ class User:
                     break
 
     async def abandon_game(self, game):
-        await asyncio.sleep(ABANDON_TIMEOUT)
+        abandon_timeout = ABANDON_TIMEOUT * (2 if game.base >= 3 else 1)
+        await asyncio.sleep(abandon_timeout)
         if game.status <= STARTED and game.id not in self.game_sockets:
             if game.bot_game or self.anon:
                 response = await game.game_ended(self, "abandon")
