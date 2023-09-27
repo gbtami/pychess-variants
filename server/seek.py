@@ -16,6 +16,7 @@ class Seek:
         base=5,
         inc=3,
         byoyomi_period=0,
+        day=0,
         level=6,
         rated=False,
         chess960=False,
@@ -35,6 +36,7 @@ class Seek:
         self.base = base
         self.inc = inc
         self.byoyomi_period = byoyomi_period
+        self.day = day
         self.level = 0 if creator.username == "Random-Mover" else level
         self.chess960 = chess960
         self.alternate_start = alternate_start
@@ -68,12 +70,13 @@ class Seek:
             "base": self.base,
             "inc": self.inc,
             "byoyomi": self.byoyomi_period,
+            "day": self.day,
             "gameId": self.game_id if self.game_id is not None else "",
         }
 
     @property
     def discord_msg(self):
-        tc = time_control_str(self.base, self.inc, self.byoyomi_period)
+        tc = time_control_str(self.base, self.inc, self.byoyomi_period, self.day)
         tail960 = "960" if self.chess960 else ""
         return "%s: **%s%s** %s" % (self.creator.username, self.variant, tail960, tc)
 
@@ -105,6 +108,7 @@ async def create_seek(db, invites, seeks, user, data, ws, empty=False):
         base=data["minutes"],
         inc=data["increment"],
         byoyomi_period=data["byoyomiPeriod"],
+        day=data["day"],
         rated=data.get("rated"),
         chess960=data.get("chess960"),
         alternate_start=data.get("alternateStart"),

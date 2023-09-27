@@ -23,6 +23,7 @@ from const import (
     CASUAL,
     RATED,
     IMPORTED,
+    CORRESPONDENCE,
     CONSERVATIVE_CAPA_FEN,
     T_STARTED,
 )
@@ -469,6 +470,11 @@ async def new_game(app, seek_id, game_id=None):
 
     # print("new_game", game_id, seek.variant, seek.fen, wplayer, bplayer, seek.base, seek.inc, seek.level, seek.rated, seek.chess960)
     try:
+        if seek.day == 0:
+            rated = RATED if (seek.rated and (not wplayer.anon) and (not bplayer.anon)) else CASUAL
+        else:
+            rated = CORRESPONDENCE
+
         game = Game(
             app,
             game_id,
@@ -476,11 +482,11 @@ async def new_game(app, seek_id, game_id=None):
             sanitized_fen,
             wplayer,
             bplayer,
-            base=seek.base,
+            base=seek.base if seek.day == 0 else seek.day,
             inc=seek.inc,
             byoyomi_period=seek.byoyomi_period,
             level=seek.level,
-            rated=RATED if (seek.rated and (not wplayer.anon) and (not bplayer.anon)) else CASUAL,
+            rated=rated,
             chess960=seek.chess960,
             create=True,
         )

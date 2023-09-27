@@ -3,7 +3,7 @@ import { h, VNode } from 'snabbdom';
 import * as idb from 'idb-keyval';
 
 import { Settings } from "./settings";
-import { _ } from './i18n';
+import { _, ngettext } from './i18n';
 
 export function radioList(settings: Settings<string>, name: string, options: { [key: string]: string }, onchange: (evt: Event, key: string) => void): VNode[] {
     const result: VNode[] = [];
@@ -116,7 +116,9 @@ function saveNnueFileToIdb (settings: Settings<string>, variant: string, file: F
     fileReader.readAsArrayBuffer(file);
 }
 
-export function timeControlStr(minutes: number | string, increment = 0, byoyomiPeriod = 0): string {
+export function timeControlStr(minutes: number | string, increment = 0, byoyomiPeriod = 0,day = 0): string {
+    if (day > 0) return ngettext('%1 day', '%1 days', day);
+
     minutes = Number(minutes);
     byoyomiPeriod = Number(byoyomiPeriod)
     switch (minutes) {

@@ -131,7 +131,7 @@ export class LobbyController implements ChatController {
         this.sock.send(JSON.stringify(message));
     }
 
-    createSeekMsg(variant: string, color: string, fen: string, minutes: number, increment: number, byoyomiPeriod: number, chess960: boolean, rated: boolean, alternateStart: string) {
+    createSeekMsg(variant: string, color: string, fen: string, minutes: number, increment: number, byoyomiPeriod: number, day: number, chess960: boolean, rated: boolean, alternateStart: string) {
         this.doSend({
             type: "create_seek",
             user: this.username,
@@ -141,6 +141,7 @@ export class LobbyController implements ChatController {
             minutes: minutes,
             increment: increment,
             byoyomiPeriod: byoyomiPeriod,
+            day: day,
             rated: rated,
             alternateStart: alternateStart,
             chess960: chess960,
@@ -148,7 +149,7 @@ export class LobbyController implements ChatController {
         });
     }
 
-    createInviteFriendMsg(variant: string, color: string, fen: string, minutes: number, increment: number, byoyomiPeriod: number, chess960: boolean, rated: boolean, alternateStart: string) {
+    createInviteFriendMsg(variant: string, color: string, fen: string, minutes: number, increment: number, byoyomiPeriod: number, day: number, chess960: boolean, rated: boolean, alternateStart: string) {
         this.doSend({
             type: "create_invite",
             user: this.username,
@@ -158,6 +159,7 @@ export class LobbyController implements ChatController {
             minutes: minutes,
             increment: increment,
             byoyomiPeriod: byoyomiPeriod,
+            day: day,
             rated: rated,
             alternateStart: alternateStart,
             chess960: chess960,
@@ -200,7 +202,7 @@ export class LobbyController implements ChatController {
         });
     }
 
-    isNewSeek(variant: string, color: string, fen: string, minutes: number, increment: number, byoyomiPeriod: number, chess960: boolean, rated: boolean) {
+    isNewSeek(variant: string, color: string, fen: string, minutes: number, increment: number, byoyomiPeriod: number, day: number, chess960: boolean, rated: boolean) {
         // console.log("isNewSeek()?", variant, color, fen, minutes, increment, byoyomiPeriod, chess960, rated);
         // console.log(this.seeks);
         return !this.seeks.some(seek =>
@@ -211,6 +213,7 @@ export class LobbyController implements ChatController {
             seek.base === minutes &&
             seek.inc === increment &&
             seek.byoyomi === byoyomiPeriod &&
+            seek.day === day &&
             seek.chess960 === chess960 &&
             seek.rated === rated
         );
@@ -256,10 +259,13 @@ export class LobbyController implements ChatController {
         const byoyomiPeriod = (byoyomi && increment > 0) ? Number(e.value) : 0;
         localStorage.seek_byo = e.value;
 
-        e = document.getElementById('day') as HTMLInputElement;
-        const days = this.daysValues[Number(e.value)];
-        localStorage.seek_day = e.value;
-
+        let day = 0;
+        if (this.tcMode === 'corr') {
+            e = document.getElementById('day') as HTMLInputElement;
+            day = this.daysValues[Number(e.value)];
+            localStorage.seek_day = e.value;
+        }
+        console.log('createSeek() day', day);
         e = document.querySelector('input[name="mode"]:checked') as HTMLInputElement;
         let rated: boolean;
         if (this.createMode === 'playAI' ||
@@ -292,14 +298,14 @@ export class LobbyController implements ChatController {
                 this.createBotChallengeMsg(variant.name, seekColor, fen, minutes, increment, byoyomiPeriod, level, rm, chess960, rated, alternateStart);
                 break;
             case 'playFriend':
-                this.createInviteFriendMsg(variant.name, seekColor, fen, minutes, increment, byoyomiPeriod, chess960, rated, alternateStart);
+                this.createInviteFriendMsg(variant.name, seekColor, fen, minutes, increment, byoyomiPeriod, day, chess960, rated, alternateStart);
                 break;
             case 'createHost':
                 this.createHostMsg(variant.name, seekColor, fen, minutes, increment, byoyomiPeriod, chess960, rated, alternateStart);
                 break;
             default:
-                if (this.isNewSeek(variant.name, seekColor, fen, minutes, increment, byoyomiPeriod, chess960, rated))
-                    this.createSeekMsg(variant.name, seekColor, fen, minutes, increment, byoyomiPeriod, chess960, rated, alternateStart);
+                if (this.isNewSeek(variant.name, seekColor, fen, minutes, increment, byoyomiPeriod, day, chess960, rated))
+                    this.createSeekMsg(variant.name, seekColor, fen, minutes, increment, byoyomiPeriod, day, chess960, rated, alternateStart);
         }
         // prevent to create challenges continuously
         this.profileid = '';
@@ -314,6 +320,14 @@ export class LobbyController implements ChatController {
             this.tcMode = tcMode;
             document.getElementById('real')!.style.display = this.tcMode === 'real' ? 'block' : 'none';
             document.getElementById('corr')!.style.display = this.tcMode === 'corr' ? 'block' : 'none';
+            const ratedEl = document.getElementById('rated') as HTMLElement;
+            if (this.tcMode === 'corr') {
+                ratedEl.disabled = true;
+                const casualEl = document.getElementById('casual') as HTMLElement;
+                casualEl.checked = true;
+            } else {
+                ratedEl.disabled = this.anon;
+            }
         }
     }
 
@@ -431,7 +445,7 @@ export class LobbyController implements ChatController {
                                 h('label', { attrs: { for: "casual"} }, _("Casual")),
                                 h('input#rated', {
                                     props: { type: "radio", name: "mode", value: "1" },
-                                    attrs: { checked: vRated === "1" },
+                                    attrs: { checked: vRated === "1", disabled: this.anon },
                                     on: { input: e => this.setRated((e.target as HTMLInputElement).value) },
                                     hook: { insert: vnode => this.setRated((vnode.elm as HTMLInputElement).value) },
                                 }),
@@ -653,7 +667,7 @@ export class LobbyController implements ChatController {
             h('td', [ this.colorIcon(seek.color) ]),
             h('td', [ this.challengeIcon(seek), this.seekTitle(seek), this.user(seek) ]),
             h('td', seek.rating),
-            h('td', timeControlStr(seek.base, seek.inc, seek.byoyomi)),
+            h('td', timeControlStr(seek.base, seek.inc, seek.byoyomi, seek.day)),
             h('td.icon', { attrs: { "data-icon": variant.icon(chess960) } }, [h('variant-name', " " + variant.displayName(chess960))]),
             h('td', { class: { tooltip: seek.fen !== '' } }, [
                 this.tooltip(seek, variant),

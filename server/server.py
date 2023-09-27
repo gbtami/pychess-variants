@@ -30,6 +30,7 @@ from pythongettext.msgfmt import PoSyntaxError
 from ai import BOT_task
 from broadcast import lobby_broadcast, round_broadcast
 from const import (
+    CORRESPONDENCE,
     VARIANTS,
     STARTED,
     LANGUAGES,
@@ -418,7 +419,7 @@ async def shutdown(app):
 
     # abort games
     for game in list(app["games"].values()):
-        if game.status <= STARTED:
+        if game.status <= STARTED and game.rated != CORRESPONDENCE:
             response = await game.abort()
             for player in (game.wplayer, game.bplayer):
                 if not player.bot and game.id in player.game_sockets:

@@ -31,6 +31,7 @@ from const import (
     CASUAL,
     RATED,
     IMPORTED,
+    CORRESPONDENCE,
     HIGHSCORE_MIN_GAMES,
     variant_display_name,
     MAX_CHAT_LINES,
@@ -258,7 +259,8 @@ class Game:
             }
         ]
 
-        self.stopwatch = Clock(self)
+        if self.rated != CORRESPONDENCE:
+            self.stopwatch = Clock(self)
 
         if not self.bplayer.bot:
             self.bplayer.game_in_progress = self.id
@@ -279,7 +281,9 @@ class Game:
             self.ply_clocks[0]["black"] = self.berserk_time
 
     async def play_move(self, move, clocks=None, ply=None):
-        self.stopwatch.stop()
+        if self.rated != CORRESPONDENCE:
+            self.stopwatch.stop()
+
         self.byo_correction = 0
 
         if self.status > STARTED:
@@ -365,6 +369,8 @@ class Game:
 
                 if self.status > STARTED:
                     await self.save_game()
+                elif self.rated == CORRESPONDENCE:
+                    await self.save_moves()
 
                 self.steps.append(
                     {
@@ -376,13 +382,26 @@ class Game:
                         "clocks": clocks,
                     }
                 )
-                self.stopwatch.restart()
+                if self.rated != CORRESPONDENCE:
+                    self.stopwatch.restart()
 
             except Exception:
                 log.exception("ERROR: Exception in game %s play_move() %s", self.id, move)
                 result = "1-0" if self.board.color == BLACK else "0-1"
                 self.update_status(INVALIDMOVE, result)
                 await self.save_game()
+
+    async def save_moves(self):
+        new_data = {
+            "m": encode_moves(
+                map(grand2zero, self.board.move_stack)
+                if self.variant in GRANDS
+                else self.board.move_stack,
+                self.variant,
+            ),
+        }
+        if self.db is not None:
+            await self.db.game.find_one_and_update({"_id": self.id}, {"$set": new_data})
 
     async def save_game(self):
         if self.saved:
@@ -393,11 +412,12 @@ class Game:
             log.exception("Save IMPORTED game %s ???", self.id)
             return
 
-        self.stopwatch.clock_task.cancel()
-        try:
-            await self.stopwatch.clock_task
-        except asyncio.CancelledError:
-            pass
+        if self.rated != CORRESPONDENCE:
+            self.stopwatch.clock_task.cancel()
+            try:
+                await self.stopwatch.clock_task
+            except asyncio.CancelledError:
+                pass
 
         if self.board.ply > 0:
             self.app["g_cnt"][0] -= 1
