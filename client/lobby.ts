@@ -12,7 +12,7 @@ import { patch } from './document';
 import { boardSettings } from './boardSettings';
 import { chatMessage, chatView, ChatController } from './chat';
 import { VARIANTS, selectVariant, Variant } from './variants';
-import { timeControlStr } from './view';
+import { timeControlStr,setAriaTabClick } from './view';
 import { notify } from './notification';
 import { PyChessModel } from "./types";
 import { MsgBoard, MsgChat, MsgFullChat } from "./messages";
@@ -89,7 +89,7 @@ export class LobbyController implements ChatController {
         this.sock.onopen = () => onOpen();
         this.sock.onmessage = (e: MessageEvent) => this.onMessage(e);
 
-        patch(document.getElementById('seekbuttons') as HTMLElement, h('div#seekbuttons', this.renderSeekButtons()));
+        patch(document.querySelector('.seekbuttons') as HTMLElement, h('div.seekbuttons', this.renderSeekButtons()));
         patch(document.getElementById('lobbychat') as HTMLElement, chatView(this, "lobbychat"));
 
         patch(document.getElementById('variants-catalog') as HTMLElement, variantPanels(this));
@@ -117,6 +117,13 @@ export class LobbyController implements ChatController {
                 this.createGame();
             }
         }
+
+        setAriaTabClick();
+
+        const initialEl = document.querySelector('[tabindex="0"]') as HTMLElement;
+        initialEl.setAttribute('aria-selected', 'true');
+        (document.querySelector('.seek-container') as HTMLElement).style.display = 'block';
+        //(initialEl!.parentNode!.parentNode!.querySelector(`#${initialEl.getAttribute('aria-controls')}`)! as HTMLElement).style.display = 'block';
 
         const e = document.getElementById("fen") as HTMLInputElement;
         if (this.fen !== "")
@@ -886,9 +893,13 @@ export class LobbyController implements ChatController {
         this.seeks = msg.seeks;
         // console.log("!!!! got get_seeks msg:", msg);
 
-        const oldSeeks = document.getElementById('seeks') as Element;
+        const oldSeeks = document.querySelector('.seek-container table.seeks') as Element;
         oldSeeks.innerHTML = "";
-        patch(oldSeeks, h('table#seeks', this.renderSeeks(msg.seeks)));
+        patch(oldSeeks, h('table.seeks', this.renderSeeks(msg.seeks.filter(seek => seek.day === 0))));
+
+        const oldCorrs = document.querySelector('.corr-container table.seeks') as Element;
+        oldCorrs.innerHTML = "";
+        patch(oldCorrs, h('table.seeks', this.renderSeeks(msg.seeks.filter(seek => seek.day !== 0))));
     }
     private onMsgNewGame(msg: MsgNewGame) {
         window.location.assign('/' + msg.gameId);
@@ -1015,6 +1026,10 @@ export function lobbyView(model: PyChessModel): VNode[] {
         ]),
     ];
 
+    let tabs = [];
+    tabs.push(h('span', {attrs: {role: 'tab', 'aria-selected': false, 'aria-controls': 'panel-1', id: 'tab-1', tabindex: '0'}}, _('Lobby')));
+    tabs.push(h('span', {attrs: {role: 'tab', 'aria-selected': true, 'aria-controls': 'panel-2', id: 'tab-2', tabindex: '-1'}}, _('Correspondence')))
+
     return [
         h('aside.sidebar-first', [
             h('div#streams'),
@@ -1022,13 +1037,21 @@ export function lobbyView(model: PyChessModel): VNode[] {
             h('div#lobbychat')
         ]),
         h('div.seeks', [
-            h('div#seeks-table', [
-                h('div#seeks-wrapper', h('table#seeks', { hook: { insert: vnode => runSeeks(vnode, model) } })),
+            h('div', {attrs: {role: 'tablist', 'aria-label': 'Seek Tabs'}}, tabs),
+            h('div.seek-container', {attrs: {id: 'panel-1', role: 'tabpanel', tabindex: '0', 'aria-labelledby': 'tab-1'}}, [
+                h('div.seeks-table', [
+                    h('div.seeks-wrapper', h('table.seeks', { hook: { insert: vnode => runSeeks(vnode, model) } })),
+                ]),
+            ]),
+            h('div.corr-container', {attrs: {id: 'panel-2', role: 'tabpanel', tabindex: '-1', 'aria-labelledby': 'tab-2'}}, [
+                h('div.seeks-table', [
+                    h('div.seeks-wrapper', h('table.seeks')),
+                ]),
             ]),
         ]),
         h('div#variants-catalog'),
         h('aside.sidebar-second', [
-            h('div#seekbuttons'),
+            h('div.seekbuttons'),
             h('div.lobby-count', [
                 h('a', { attrs: { href: '/players' } }, [ h('counter#u_cnt') ]),
                 h('a', { attrs: { href: '/games' } }, [ h('counter#g_cnt') ]),

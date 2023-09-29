@@ -193,3 +193,29 @@ function setInputFileName(vnode: VNode, name: string) {
         fileInput.dataset.file = `${dataTransfer.files[0].name}`;
     }
 }
+
+export function setAriaTabClick() {
+    // Add a click event handler to each tab
+    const tabs = document.querySelectorAll('[role="tab"]');
+    tabs!.forEach(tab => {
+        tab.addEventListener('click', changeTabs);
+    });
+
+    function changeTabs(e: Event) {
+        const target = e.target as Element;
+        const parent = target!.parentNode;
+        const grandparent = parent!.parentNode;
+
+        // Remove all current selected tabs
+        parent!.querySelectorAll('[aria-selected="true"]').forEach(t => t.setAttribute('aria-selected', 'false'));
+
+        // Set this tab as selected
+        target.setAttribute('aria-selected', 'true');
+
+        // Hide all tab panels
+        grandparent!.querySelectorAll('[role="tabpanel"]').forEach(p => (p as HTMLElement).style.display = 'none');
+
+        // Show the selected panel
+        (grandparent!.parentNode!.querySelector(`#${target.getAttribute('aria-controls')}`)! as HTMLElement).style.display = 'block';
+    }
+}

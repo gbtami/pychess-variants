@@ -393,6 +393,7 @@ class Game:
 
     async def save_moves(self):
         new_data = {
+            "l": datetime.now(timezone.utc),
             "m": encode_moves(
                 map(grand2zero, self.board.move_stack)
                 if self.variant in GRANDS
@@ -469,7 +470,6 @@ class Game:
                     log.exception("Exception in tournament game_update()")
 
             new_data = {
-                "d": self.date,
                 "f": self.board.fen,
                 "s": self.status,
                 "r": R2C[self.result],
