@@ -437,6 +437,9 @@ label.piece.piece0.chak {
     background-image: url('images/pieces/chak/WK.svg');
 }
 label.piece.piece1.chak {
+    background-image: url('images/pieces/chak/maya/WK.svg');
+}
+label.piece.piece2.chak {
     background-image: url('images/pieces/disguised/chak-w.svg');
 }
 label.piece.piece0.chennis {
