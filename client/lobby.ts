@@ -327,10 +327,10 @@ export class LobbyController implements ChatController {
             this.tcMode = tcMode;
             document.getElementById('real')!.style.display = this.tcMode === 'real' ? 'block' : 'none';
             document.getElementById('corr')!.style.display = this.tcMode === 'corr' ? 'block' : 'none';
-            const ratedEl = document.getElementById('rated') as HTMLElement;
+            const ratedEl = document.getElementById('rated') as HTMLInputElement;
             if (this.tcMode === 'corr') {
                 ratedEl.disabled = true;
-                const casualEl = document.getElementById('casual') as HTMLElement;
+                const casualEl = document.getElementById('casual') as HTMLInputElement;
                 casualEl.checked = true;
             } else {
                 ratedEl.disabled = this.anon;
@@ -398,7 +398,7 @@ export class LobbyController implements ChatController {
                                 h('label', { attrs: { for: "tc" } }, _("Time control")),
                                 h('select#tc', {
                                     props: { name: 'tc' },
-                                    on: { change: (e: Event) => this.setTcMode((e.target as HTMLSelectElement).value) },
+                                    on: { change: (e: Event) => this.setTcMode((e.target as HTMLSelectElement).value as TcMode) },
                                     }, [
                                         h('option', { attrs: { value: 'real' }}, _('Real time')),
                                         h('option', { attrs: { value: 'corr', disabled: this.anon }}, _('Correspondence')),
@@ -615,7 +615,7 @@ export class LobbyController implements ChatController {
     }
     private setDays(val: number) {
         const days = this.daysValues[val];
-        document.getElementById("days")!.innerHTML = days;
+        document.getElementById("days")!.innerHTML = String(days);
         this.setStartButtons();
     }
     private setFen() {
