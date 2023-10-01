@@ -5,8 +5,6 @@ from datetime import datetime, timezone
 from aiohttp import web
 from aiohttp.web import WebSocketResponse
 
-from bug.utils_bug import load_game_bug, join_seek_bughouse
-
 try:
     import pyffish as sf
 
@@ -86,6 +84,8 @@ async def load_game(app, game_id):
     variant = C2V[doc["v"]]
 
     if variant == "bughouse":
+        from bug.utils_bug import load_game_bug
+
         return await load_game_bug(app, game_id)
 
     wp, bp = doc["us"]
@@ -418,9 +418,6 @@ async def join_seek(app, user, seek_id, game_id=None, join_as="any"):
         seek.fen,
         seek.chess960,
     )
-
-    if seek.variant == "bughouse": # todo:niki:move this out and to the caller of this method - there already is such if there.
-        return await join_seek_bughouse(app, user, seek_id, game_id, join_as)
 
     if user is seek.player1 or user is seek.player2:
         return {"type": "seek_yourself", "seekID": seek_id}

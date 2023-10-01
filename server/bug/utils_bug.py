@@ -1,24 +1,16 @@
 import logging
 import random
 import re
-from datetime import datetime, timezone
+from datetime import timezone
 from user import User
-from compress import decode_moves, encode_moves, R2C, C2R, V2C, C2V
+from compress import decode_moves, R2C, C2R, V2C, C2V
 from bug.game import GameBug, MAX_PLY
-from fairy import BLACK, STANDARD_FEN, FairyBoard
 from const import (
     STARTED,
-    VARIANT_960_TO_PGN,
     INVALIDMOVE,
-    GRANDS,
-    UNKNOWNFINISH,
     CASUAL,
     RATED,
-    IMPORTED,
-    CONSERVATIVE_CAPA_FEN,
-    T_STARTED,
 )
-from convert import mirror5, mirror9, usi2uci, grand2zero, zero2grand
 from glicko2.glicko2 import gl2
 from newid import new_id
 from utils import round_broadcast, lobby_broadcast
@@ -414,8 +406,17 @@ async def insert_game_to_db_bughouse(game: GameBug, app):
     game.bplayerB.tv = game.id
 
 async def join_seek_bughouse(app, user, seek_id, game_id=None, join_as="any"):
+
     seeks = app["seeks"]
     seek = seeks[seek_id]
+
+    log.info(
+        "+++ BUGHOUSE Seek %s joined by %s FEN:%s 960:%s",
+        seek_id,
+        user.username if user else None,
+        seek.fen,
+        seek.chess960,
+    )
 
     if join_as == "player1": # todo:niki:not really possible to happen - maybe delete eventually unless change of mind
         if seek.player1 is None:
@@ -451,7 +452,7 @@ async def play_move(app, user, game, move, clocks=None, board=None, partnerFen=N
 
     if game.status <= STARTED:
         try:
-            if not game.lastmovePerBoardAndUser[board][user.username] == move: # in case of resending after reconnect we can have same move sent multiple times from client
+            if not game.lastmovePerBoardAndUser[board].get(user.username) == move: # in case of resending after reconnect we can have same move sent multiple times from client
                 await game.play_move(move, clocks, board, partnerFen)
             else:
                 return # this move has already been processed. todo:niki:i wonder if this is enough check. is it possible to resend some old move, but before that do a new one and send it before the resend of the old one or something like this?

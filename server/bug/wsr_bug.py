@@ -3,49 +3,50 @@ import logging
 from broadcast import round_broadcast
 from const import STARTED
 from seek import Seek
-from utils import join_seek
-from utils_bug import play_move
+from bug.utils_bug import play_move, join_seek_bughouse
 
 log = logging.getLogger(__name__)
 
 async def handle_reconnect_bughouse(data, game, user, request, session_user):
-    log.info("Got USER move %s %s %s" % (user.username, data["gameId"], data["move"]))
-    dataA = data["lastMaybeSentMsgMoveA"]
-    dataB = data["lastMaybeSentMsgMoveB"]
+    log.info("Got RECONNECT message %s %r" % (user.username, data))
+    dataA = data.get("lastMaybeSentMsgMoveA")
+    dataB = data.get("lastMaybeSentMsgMoveB")
     async with game.move_lock:
-        try:
-            await play_move(
-                request.app,
-                user,
-                game,
-                dataA["move"],
-                dataA["clocks"],
-                dataA["board"],
-                dataA["partnerFen"],
-            )
-        except Exception:
-            log.exception(
-                "ERROR: Exception in play_move() in %s by %s ",
-                dataA["gameId"],
-                session_user,
-            )
+        if dataA != None:
+            try:
+                await play_move(
+                    request.app,
+                    user,
+                    game,
+                    dataA["move"],
+                    dataA["clocks"],
+                    dataA["board"],
+                    dataA["partnerFen"],
+                )
+            except Exception:
+                log.exception(
+                    "ERROR: Exception in play_move() in %s by %s ",
+                    dataA["gameId"],
+                    session_user,
+                )
         ####
-        try:
-            await play_move(
-                request.app,
-                user,
-                game,
-                dataB["move"],
-                dataB["clocks"],
-                dataB["board"],
-                dataB["partnerFen"],
-            )
-        except Exception:
-            log.exception(
-                "ERROR: Exception in play_move() in %s by %s ",
-                dataB["gameId"],
-                session_user,
-            )
+        if dataB != None:
+            try:
+                await play_move(
+                    request.app,
+                    user,
+                    game,
+                    dataB["move"],
+                    dataB["clocks"],
+                    dataB["board"],
+                    dataB["partnerFen"],
+                )
+            except Exception:
+                log.exception(
+                    "ERROR: Exception in play_move() in %s by %s ",
+                    dataB["gameId"],
+                    session_user,
+                )
 
 async def handle_resign_bughouse(data, game, user):
     if data["type"] == "abort" and (game is not None) and game.board.ply > 2:
@@ -110,7 +111,7 @@ async def handle_rematch_bughouse(data, game, user, users, ws, request, seeks):
         )
         seeks[seek.id] = seek
 
-        response = await join_seek(request.app, None, seek.id, None, "all-joined-players-set-generate-response")
+        response = await join_seek_bughouse(request.app, None, seek.id, None, "all-joined-players-set-generate-response")
         rematch_id = response["gameId"]
         for ws1 in others_ws:
             await ws1.send_json(response)

@@ -17,6 +17,7 @@ from utils import join_seek, load_game, online_count, MyWebSocketResponse, remov
 from misc import server_state
 from tournament_spotlights import tournament_spotlights
 from login import logout
+from bug.utils_bug import join_seek_bughouse
 
 log = logging.getLogger(__name__)
 
@@ -182,7 +183,7 @@ async def lobby_socket_handler(request):
 
                         # print("accept_seek", seek.as_json)
                         if seek.variant == 'bughouse':
-                            response = await join_seek(request.app, user, data["seekID"], None, data["joinAs"])
+                            response = await join_seek_bughouse(request.app, user, data["seekID"], None, data["joinAs"])
                             await ws.send_json(response)
 
                             if seek.ws is None: # todo:niki: i dont really understand this if? I guess it is when whoever created the seek disappeared. I should test what happens on refresh maybe, in any case makes sense to leave it as is

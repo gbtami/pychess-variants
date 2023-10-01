@@ -122,7 +122,7 @@ async def round_socket_handler(request):
                                         session_user,
                                     )
                     elif data["type"] == "reconnect":
-                        handle_reconnect_bughouse(data, game, user, request, session_user)
+                        await handle_reconnect_bughouse(data, game, user, request, session_user)
                     elif data["type"] == "berserk":
                         game.berserk(data["color"])
                         response = {"type": "berserk", "color": data["color"]}

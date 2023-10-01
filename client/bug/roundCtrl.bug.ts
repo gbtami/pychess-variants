@@ -404,7 +404,8 @@ export class RoundControllerBughouse implements ChatController/*extends GameCont
         }
 
         this.msgMovesAfterReconnect = {
-            type: "reconnect"
+            type: "reconnect",
+            gameId: this.gameId
         }
     }
 
@@ -839,6 +840,12 @@ export class RoundControllerBughouse implements ChatController/*extends GameCont
                 check: lastStepA.check,
                 lastMove: lastMoveA,
             });
+
+            if (this.b1.ffishBoard) {
+                this.b1.ffishBoard.setFen(lastStepA.fen);
+                this.b1.setDests();
+            }
+
         }
         if (lastStepB) {
             const partsB = lastStepB.fenB!.split(" ");
@@ -850,6 +857,12 @@ export class RoundControllerBughouse implements ChatController/*extends GameCont
                 check: lastStepB.check,
                 lastMove: lastMoveB,
             });
+
+            if (this.b2.ffishBoard) {
+                this.b2.ffishBoard.setFen(lastStepB.fen);
+                this.b2.setDests();
+            }
+
         }
 
         this.clocks[0].pause(false);
