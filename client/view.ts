@@ -116,7 +116,7 @@ function saveNnueFileToIdb (settings: Settings<string>, variant: string, file: F
     fileReader.readAsArrayBuffer(file);
 }
 
-export function timeControlStr(minutes: number | string, increment = 0, byoyomiPeriod = 0,day = 0): string {
+export function timeControlStr(minutes: number | string, increment = 0, byoyomiPeriod = 0, day = 0): string {
     if (day > 0) return ngettext('%1 day', '%1 days', day);
 
     minutes = Number(minutes);

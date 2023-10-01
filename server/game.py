@@ -262,9 +262,9 @@ class Game:
         if self.rated != CORRESPONDENCE:
             self.stopwatch = Clock(self)
 
-        if not self.bplayer.bot:
+        if self.rated != CORRESPONDENCE and not self.bplayer.bot:
             self.bplayer.game_in_progress = self.id
-        if not self.wplayer.bot:
+        if self.rated != CORRESPONDENCE and not self.wplayer.bot:
             self.wplayer.game_in_progress = self.id
 
         self.wberserk = False
@@ -925,7 +925,7 @@ class Game:
             # To not touch self.ply_clocks we are creating deep copy from clocks
             clocks = {"black": self.clocks["black"], "white": self.clocks["white"]}
 
-            if self.status == STARTED and self.board.ply >= 2:
+            if self.status == STARTED and self.board.ply >= 2 and self.rated != CORRESPONDENCE:
                 # We have to adjust current player latest saved clock time
                 # otherwise he will get free extra time on browser page refresh
                 # (also needed for spectators entering to see correct clock times)

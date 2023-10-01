@@ -64,6 +64,7 @@ from settings import (
     SOURCE_VERSION,
 )
 from user import User
+from utils import load_game
 from tournaments import load_tournament, get_scheduled_tournaments, translated_tournament_name
 from twitch import Twitch
 from youtube import Youtube
@@ -373,9 +374,18 @@ async def init_state(app):
         print(app["daily_puzzle_ids"])
 
         await app["db"].game.create_index("us")
+        await app["db"].game.create_index("r")
         await app["db"].game.create_index("v")
         await app["db"].game.create_index("y")
         await app["db"].game.create_index("by")
+
+        # Read correspondence games in play and start their clocks
+        cursor = app["db"].game.find({"r": "d", "y": CORRESPONDENCE})
+        print("---CORRESPONDENCE GAMES ---")
+        async for doc in cursor:
+            game = await load_game(app, doc["_id"])
+            app["games"][doc["_id"]] = game
+            print(game)
 
         if "video" not in db_collections:
             if DEV:

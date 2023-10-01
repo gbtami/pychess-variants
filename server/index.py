@@ -26,6 +26,7 @@ from const import (
     VARIANT_GROUPS,
     RATED,
     IMPORTED,
+    CORRESPONDENCE,
     T_CREATED,
     TRANSLATED_VARIANT_NAMES,
     TRANSLATED_PAIRING_SYSTEM_NAMES,
@@ -255,6 +256,8 @@ async def index(request):
             rated = IMPORTED
         elif request.path[-6:] == "/rated":
             rated = RATED
+        elif request.path[-8:] == "/playing":
+            rated = CORRESPONDENCE
         elif request.path[-3:] == "/me":
             rated = -1
         elif "/challenge" in request.path:

@@ -24,6 +24,8 @@ import { PyChessModel } from "./types";
 import { GameController } from './gameCtrl';
 
 let rang = false;
+const CASUAL = '0';
+const CORRESPONDENCE = '3';
 
 export class RoundController extends GameController {
     berserked: { wberserk: boolean, bberserk: boolean };
@@ -62,9 +64,10 @@ export class RoundController extends GameController {
         window.addEventListener('focus', () => {this.focus = true});
 
         const onOpen = () => {
-            this.clocks[0].connecting = false;
-            this.clocks[1].connecting = false;
-
+            if (this.rated !== CORRESPONDENCE) {
+                this.clocks[0].connecting = false;
+                this.clocks[1].connecting = false;
+            }
             const cl = document.body.classList; // removing the "reconnecting" message in lower left corner
             cl.remove('offline');
             cl.add('online');
@@ -78,8 +81,10 @@ export class RoundController extends GameController {
                 this.sock.close();
                 return
             }
-            this.clocks[0].connecting = true;
-            this.clocks[1].connecting = true;
+            if (this.rated !== CORRESPONDENCE) {
+                this.clocks[0].connecting = true;
+                this.clocks[1].connecting = true;
+            }
             console.log('Reconnecting in round...');
 
             // relevant to the "reconnecting" message in lower left corner
@@ -115,7 +120,7 @@ export class RoundController extends GameController {
 
         this.tournamentGame = this.tournamentId !== '';
         const parts = this.fullfen.split(" ");
-        this.clockOn = (Number(parts[parts.length - 1]) >= 2);
+        this.clockOn = (Number(parts[parts.length - 1]) >= 2) && this.rated !== CORRESPONDENCE;
 
         const berserkId = (this.mycolor === "white") ? "wberserk" : "bberserk";
         // Not berserked yet, but allowed to do it
@@ -184,56 +189,59 @@ export class RoundController extends GameController {
 
         this.clocktimes = {'white': this.base * 1000 * 60, 'black': this.base * 1000 * 60}
 
-        // initialize clocks
-        // this.clocktimes = {};
-        const c0 = new Clock(this.base, this.inc, this.byoyomiPeriod, document.getElementById('clock0') as HTMLElement, 'clock0');
-        const c1 = new Clock(this.base, this.inc, this.byoyomiPeriod, document.getElementById('clock1') as HTMLElement, 'clock1');
-        this.clocks = [c0, c1];
+        // clocks needed for NOT correspondence games only!
+        if (this.rated !== CORRESPONDENCE) {
+            // initialize clocks
+            // this.clocktimes = {};
+            const c0 = new Clock(this.base, this.inc, this.byoyomiPeriod, document.getElementById('clock0') as HTMLElement, 'clock0');
+            const c1 = new Clock(this.base, this.inc, this.byoyomiPeriod, document.getElementById('clock1') as HTMLElement, 'clock1');
+            this.clocks = [c0, c1];
 
-        // If player berserked, set increment to 0. Actual clock duration value will be set by onMsgBoard()
-        const bclock = this.mycolor === "black" ? 1 : 0;
-        const wclock = 1 - bclock;
-        if (this.berserked['wberserk']) this.clocks[wclock].increment = 0;
-        if (this.berserked['bberserk']) this.clocks[bclock].increment = 0;
+            // If player berserked, set increment to 0. Actual clock duration value will be set by onMsgBoard()
+            const bclock = this.mycolor === "black" ? 1 : 0;
+            const wclock = 1 - bclock;
+            if (this.berserked['wberserk']) this.clocks[wclock].increment = 0;
+            if (this.berserked['bberserk']) this.clocks[bclock].increment = 0;
 
-        this.clocks[0].onTick(this.clocks[0].renderTime);
-        this.clocks[1].onTick(this.clocks[1].renderTime);
+            this.clocks[0].onTick(this.clocks[0].renderTime);
+            this.clocks[1].onTick(this.clocks[1].renderTime);
 
-        const onMoreTime = () => {
-            if (this.wtitle === 'BOT' || this.btitle === 'BOT' || this.spectator || this.status >= 0 || this.flipped()) return;
-            const clockIdx = (this.flipped()) ? 1 : 0;
-            this.clocks[clockIdx].setTime(this.clocks[clockIdx].duration + 15 * 1000);
-            this.doSend({ type: "moretime", gameId: this.gameId });
-            const oppName = (this.username === this.wplayer) ? this.bplayer : this.wplayer;
-            chatMessage('', oppName + _(' +15 seconds'), "roundchat");
-        }
-
-        if (!this.spectator && this.rated !== '1' && this.wtitle !== 'BOT' && this.btitle !== 'BOT') {
-            const container = document.getElementById('more-time') as HTMLElement;
-            patch(container, h('div#more-time', [
-                h('button.icon.icon-plus-square', {
-                    props: {type: "button", title: _("Give 15 seconds")},
-                    on: { click: () => onMoreTime() }
-                })
-            ]));
-        }
-
-        const onBerserk = () => {
-            if (this.berserkable) {
-                this.berserkable = false;
-                this.berserk(this.mycolor);
-                this.doSend({ type: "berserk", gameId: this.gameId, color: this.mycolor });
+            const onMoreTime = () => {
+                if (this.wtitle === 'BOT' || this.btitle === 'BOT' || this.spectator || this.status >= 0 || this.flipped()) return;
+                const clockIdx = (this.flipped()) ? 1 : 0;
+                this.clocks[clockIdx].setTime(this.clocks[clockIdx].duration + 15 * 1000);
+                this.doSend({ type: "moretime", gameId: this.gameId });
+                const oppName = (this.username === this.wplayer) ? this.bplayer : this.wplayer;
+                chatMessage('', oppName + _(' +15 seconds'), "roundchat");
             }
-        }
 
-        if (this.berserkable && this.status < 0 && this.ply < 2) {
-            const container = document.getElementById('berserk1') as HTMLElement;
-            patch(container, h('div#berserk1', [
-                h('button.icon.icon-berserk', {
-                    props: {type: "button", title: _("Berserk")},
-                    on: { click: () => onBerserk() }
-                })
-            ]));
+            if (!this.spectator && this.rated === CASUAL && this.wtitle !== 'BOT' && this.btitle !== 'BOT') {
+                const container = document.getElementById('more-time') as HTMLElement;
+                patch(container, h('div#more-time', [
+                    h('button.icon.icon-plus-square', {
+                        props: {type: "button", title: _("Give 15 seconds")},
+                        on: { click: () => onMoreTime() }
+                    })
+                ]));
+            }
+
+            const onBerserk = () => {
+                if (this.berserkable) {
+                    this.berserkable = false;
+                    this.berserk(this.mycolor);
+                    this.doSend({ type: "berserk", gameId: this.gameId, color: this.mycolor });
+                }
+            }
+
+            if (this.berserkable && this.status < 0 && this.ply < 2) {
+                const container = document.getElementById('berserk1') as HTMLElement;
+                patch(container, h('div#berserk1', [
+                    h('button.icon.icon-berserk', {
+                        props: {type: "button", title: _("Berserk")},
+                        on: { click: () => onBerserk() }
+                    })
+                ]));
+            }
         }
 
         // initialize crosstable
@@ -270,7 +278,7 @@ export class RoundController extends GameController {
             }
         }
 
-        if (!this.spectator) {
+        if (!this.spectator && this.rated !== CORRESPONDENCE) {
             if (this.byoyomiPeriod > 0) {
                 this.clocks[1].onByoyomi(byoyomiCallback);
             }
@@ -335,15 +343,17 @@ export class RoundController extends GameController {
         }
 
         // TODO: moretime button
-        const new_running_clck = (this.clocks[0].running) ? this.clocks[1] : this.clocks[0];
-        this.clocks[0].pause(false);
-        this.clocks[1].pause(false);
+        if (this.rated !== CORRESPONDENCE) {
+            const new_running_clck = (this.clocks[0].running) ? this.clocks[1] : this.clocks[0];
+            this.clocks[0].pause(false);
+            this.clocks[1].pause(false);
 
-        const tmp_clock = this.clocks[0];
-        const tmp_clock_time = tmp_clock.duration;
-        this.clocks[0].setTime(this.clocks[1].duration);
-        this.clocks[1].setTime(tmp_clock_time);
-        if (this.status < 0) new_running_clck.start();
+            const tmp_clock = this.clocks[0];
+            const tmp_clock_time = tmp_clock.duration;
+            this.clocks[0].setTime(this.clocks[1].duration);
+            this.clocks[1].setTime(tmp_clock_time);
+            if (this.status < 0) new_running_clck.start();
+        }
 
         this.vplayer0 = patch(this.vplayer0, player('player0', this.titles[this.flipped() ? 1 : 0], this.players[this.flipped() ? 1 : 0], this.ratings[this.flipped() ? 1 : 0], this.level));
         this.vplayer1 = patch(this.vplayer1, player('player1', this.titles[this.flipped() ? 0 : 1], this.players[this.flipped() ? 0 : 1], this.ratings[this.flipped() ? 0 : 1], this.level));
@@ -594,9 +604,10 @@ export class RoundController extends GameController {
         if (msg.status >= 0) {
             this.status = msg.status;
             this.result = msg.result;
-            this.clocks[0].pause(false);
-            this.clocks[1].pause(false);
-
+            if (this.rated !== CORRESPONDENCE) {
+                this.clocks[0].pause(false);
+                this.clocks[1].pause(false);
+            }
             if (this.result !== "*" && !this.spectator && !this.finishedGame)
                 sound.gameEndSound(msg.result, this.mycolor);
 
@@ -723,7 +734,7 @@ export class RoundController extends GameController {
             }
         }
 
-        this.clockOn = Number(msg.ply) >= 2;
+        this.clockOn = (Number(msg.ply) >= 2) && this.rated !== CORRESPONDENCE;
         if ((!this.spectator && this.clockOn) || this.tournamentGame) {
             const container = document.getElementById('abort') as HTMLElement;
             if (container) {
@@ -764,31 +775,34 @@ export class RoundController extends GameController {
         const oppclock = !this.flipped() ? 0 : 1;
         const myclock = 1 - oppclock;
 
-        this.clocks[0].pause(false);
-        this.clocks[1].pause(false);
-        if (this.byoyomi && msg.byo) {
-            this.clocks[oppclock].byoyomiPeriod = msg.byo[(this.oppcolor === 'white') ? 0 : 1];
-            this.clocks[myclock].byoyomiPeriod = msg.byo[(this.mycolor === 'white') ? 0 : 1];
+        if (this.rated !== CORRESPONDENCE) {
+            this.clocks[0].pause(false);
+            this.clocks[1].pause(false);
+            if (this.byoyomi && msg.byo) {
+                this.clocks[oppclock].byoyomiPeriod = msg.byo[(this.oppcolor === 'white') ? 0 : 1];
+                this.clocks[myclock].byoyomiPeriod = msg.byo[(this.mycolor === 'white') ? 0 : 1];
+            }
+
+            this.clocks[oppclock].setTime(this.clocktimes[this.oppcolor]);
+            this.clocks[myclock].setTime(this.clocktimes[this.mycolor]);
+
+            let bclock;
+            if (!this.flipped()) {
+                bclock = this.mycolor === "black" ? 1 : 0;
+            } else {
+                bclock = this.mycolor === "black" ? 0 : 1;
+            }
+            const wclock = 1 - bclock
+            if (this.berserked['wberserk'] || msg.berserk.w) {
+                this.clocks[wclock].increment = 0;
+                if (msg.ply <= 2) this.clocks[wclock].setTime(this.base * 1000 * 30);
+            }
+            if (this.berserked['bberserk'] || msg.berserk.b) {
+                this.clocks[bclock].increment = 0;
+                if (msg.ply <= 2) this.clocks[bclock].setTime(this.base * 1000 * 30);
+            }
         }
 
-        this.clocks[oppclock].setTime(this.clocktimes[this.oppcolor]);
-        this.clocks[myclock].setTime(this.clocktimes[this.mycolor]);
-
-        let bclock;
-        if (!this.flipped()) {
-            bclock = this.mycolor === "black" ? 1 : 0;
-        } else {
-            bclock = this.mycolor === "black" ? 0 : 1;
-        }
-        const wclock = 1 - bclock
-        if (this.berserked['wberserk'] || msg.berserk.w) {
-            this.clocks[wclock].increment = 0;
-            if (msg.ply <= 2) this.clocks[wclock].setTime(this.base * 1000 * 30);
-        }
-        if (this.berserked['bberserk'] || msg.berserk.b) {
-            this.clocks[bclock].increment = 0;
-            if (msg.ply <= 2) this.clocks[bclock].setTime(this.base * 1000 * 30);
-        }
         if (this.spectator) {
             if (latestPly) {
                 this.chessground.set({
@@ -859,31 +873,36 @@ export class RoundController extends GameController {
     doSendMove(move: string) {
         this.clearDialog();
 
-        // pause() will add increment!
-        const oppclock = !this.flipped() ? 0 : 1
-        const myclock = 1 - oppclock;
-        const movetime = (this.clocks[myclock].running) ? Date.now() - this.clocks[myclock].startTime : 0;
-        this.clocks[myclock].pause((this.base === 0 && this.ply < 2) ? false : true);
+        let clock_times;
+        if (this.rated !== CORRESPONDENCE) {
+            // pause() will add increment!
+            const oppclock = !this.flipped() ? 0 : 1
+            const myclock = 1 - oppclock;
+            const movetime = (this.clocks[myclock].running) ? Date.now() - this.clocks[myclock].startTime : 0;
+            this.clocks[myclock].pause((this.base === 0 && this.ply < 2) ? false : true);
 
-        let bclock, clocks;
-        if (!this.flipped()) {
-            bclock = this.mycolor === "black" ? 1 : 0;
-        } else {
-            bclock = this.mycolor === "black" ? 0 : 1;
+            let bclock, clocks;
+            if (!this.flipped()) {
+                bclock = this.mycolor === "black" ? 1 : 0;
+            } else {
+                bclock = this.mycolor === "black" ? 0 : 1;
+            }
+            const wclock = 1 - bclock
+
+            let increment = 0;
+            if (!this.berserked[(this.mycolor === "white") ? "wberserk" : "bberserk"]) {
+                increment = (this.inc > 0 && this.ply >= 2 && !this.byoyomi) ? this.inc * 1000 : 0;
+            }
+
+            const bclocktime = (this.mycolor === "black" && this.preaction) ? this.clocktimes.black + increment: this.clocks[bclock].duration;
+            const wclocktime = (this.mycolor === "white" && this.preaction) ? this.clocktimes.white + increment: this.clocks[wclock].duration;
+
+            clock_times = {movetime: (this.preaction) ? 0 : movetime, black: bclocktime, white: wclocktime};
+        } else  {
+            clock_times = { movetime: 0, black:  0, white: 0 };
         }
-        const wclock = 1 - bclock
 
-        let increment = 0;
-        if (!this.berserked[(this.mycolor === "white") ? "wberserk" : "bberserk"]) {
-            increment = (this.inc > 0 && this.ply >= 2 && !this.byoyomi) ? this.inc * 1000 : 0;
-        }
-
-        const bclocktime = (this.mycolor === "black" && this.preaction) ? this.clocktimes.black + increment: this.clocks[bclock].duration;
-        const wclocktime = (this.mycolor === "white" && this.preaction) ? this.clocktimes.white + increment: this.clocks[wclock].duration;
-
-        clocks = {movetime: (this.preaction) ? 0 : movetime, black: bclocktime, white: wclocktime};
-
-        const message = { type: "move", gameId: this.gameId, move: move, clocks: clocks, ply: this.ply + 1 };
+        const message = { type: "move", gameId: this.gameId, move: move, clocks: clock_times, ply: this.ply + 1 };
         this.doSend(message);
 
         if (this.preaction) {
