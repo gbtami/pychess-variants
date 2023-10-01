@@ -25,7 +25,7 @@ interface Game {
     i: number; // TC increment
     bp: number; // TC byoyomi period
 
-    y: string; // casual/rated/imported (0/1/2)
+    y: number; // casual/rated/imported/correspondence (0/1/2/3)
     d: string; // datetime
 
     tid?: string; // tournament id

@@ -873,15 +873,16 @@ export class RoundController extends GameController {
     doSendMove(move: string) {
         this.clearDialog();
 
-        let clock_times;
+        let clock_times, increment;
+        const oppclock = !this.flipped() ? 0 : 1
+        const myclock = 1 - oppclock;
+
         if (this.rated !== CORRESPONDENCE) {
             // pause() will add increment!
-            const oppclock = !this.flipped() ? 0 : 1
-            const myclock = 1 - oppclock;
             const movetime = (this.clocks[myclock].running) ? Date.now() - this.clocks[myclock].startTime : 0;
             this.clocks[myclock].pause((this.base === 0 && this.ply < 2) ? false : true);
 
-            let bclock, clocks;
+            let bclock;
             if (!this.flipped()) {
                 bclock = this.mycolor === "black" ? 1 : 0;
             } else {
@@ -889,9 +890,10 @@ export class RoundController extends GameController {
             }
             const wclock = 1 - bclock
 
-            let increment = 0;
             if (!this.berserked[(this.mycolor === "white") ? "wberserk" : "bberserk"]) {
                 increment = (this.inc > 0 && this.ply >= 2 && !this.byoyomi) ? this.inc * 1000 : 0;
+            } else {
+                increment = 0;
             }
 
             const bclocktime = (this.mycolor === "black" && this.preaction) ? this.clocktimes.black + increment: this.clocks[bclock].duration;
@@ -900,6 +902,7 @@ export class RoundController extends GameController {
             clock_times = {movetime: (this.preaction) ? 0 : movetime, black: bclocktime, white: wclocktime};
         } else  {
             clock_times = { movetime: 0, black:  0, white: 0 };
+            increment = 0;
         }
 
         const message = { type: "move", gameId: this.gameId, move: move, clocks: clock_times, ply: this.ply + 1 };
