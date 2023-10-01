@@ -209,7 +209,7 @@ async def get_user_games(request):
     if profileId is not None:
         # print("FILTER:", filter_cond)
         cursor = db.game.find(filter_cond)
-        if uci_moves:
+        if uci_moves or "/playing" in request.path:
             cursor.sort("d", -1)
         else:
             cursor.sort("d", -1).skip(int(page_num) * GAME_PAGE_SIZE).limit(GAME_PAGE_SIZE)
