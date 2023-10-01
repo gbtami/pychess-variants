@@ -326,7 +326,7 @@ async def round_socket_handler(request):
                                     base=game.base,
                                     inc=game.inc,
                                     byoyomi_period=game.byoyomi_period,
-                                    day=game.day,
+                                    day=game.base if game.rated == CORRESPONDENCE else 0,
                                     level=game.level,
                                     rated=game.rated,
                                     player1=user,
