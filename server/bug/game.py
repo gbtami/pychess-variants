@@ -159,6 +159,7 @@ class GameBug:
         self.promotions_a = []
         self.promotions_b = []
         self.lastmove = None
+        self.lastmovePerBoardAndUser = {"a": {}, "b": {}}
         self.checkA = False
         self.checkB = False
         self.status = STARTED # CREATED
@@ -259,10 +260,10 @@ class GameBug:
         self.chat.setdefault(str(cur_ply), []).append({"t": time, "u": user.username, "m": message})
         # self.chat[cur_ply]
 
-    async def play_move(self, move, clocks=None, ply=None, board="a", partnerFen=None):
+    async def play_move(self, move, clocks=None, board="a", partnerFen=None):
         self.stopwatches[board].stop()
 
-        if self.status > STARTED:
+        if self.status > STARTED:#todo:niki:not needed we have check in callers code
             return
         if self.ply == 0: #todo:niki:this means game will count to be "in play" after first move. we ont have abort mechanics for bug exactly defined yet though so not clear what " in play" should mean. will become more important when rated mode is introduced. still there was at least one more place where same comcept needed to be respected  not sure where - on timer running out maybe wheterh to mark abort or timeout not sure - gotta define and sync this everywhere to mean the same
             self.app["g_cnt"][0] += 1
@@ -282,37 +283,6 @@ class GameBug:
 
         cur_time = monotonic()
 
-        # BOT players doesn't send times (i.e. clocks parameter) used for moves todo:niki:for now we dont support bughouse bots
-        # if self.bot_game:
-        #     movetime = (
-        #         int(round((cur_time - self.last_server_clock) * 1000))  # if self.boards[board].ply >= 2 else 0
-        #     )  # basically meaning how much time has past since last time this method was called in millis
-        #     if clocks is None:  # meaning a bot is making the move, meaning next if is also making same test just differently
-        #         clocks = {
-        #             "white": self._ply_clocks[-1]["white"],
-        #             "black": self._ply_clocks[-1]["black"],
-        #         }
-        #
-        #     if cur_player.bot:  # and self.boards[board].ply >= 2:
-        #         cur_color = "black" if self.boards[board].color == BLACK else "white"
-        #         clocks[cur_color] = max(
-        #             0, self.clocks[cur_color] - movetime + (self.inc * 1000)
-        #         )
-        #
-        #         if clocks[cur_color] == 0:
-        #             w, b = self.boards[board].insufficient_material()
-        #             if (
-        #                 (w and b)
-        #                 or (cur_color == "black" and w)
-        #                 or (cur_color == "white" and b)
-        #             ):
-        #                 result = "1/2-1/2"
-        #             else:
-        #                 result = "1-0" if self.boards[board].color == BLACK else "0-1"
-        #             self.update_status(FLAG, result)
-        #             print(self.result, "flag")
-        #             await self.save_game()
-
         if board == "a":
             self.last_server_clock = cur_time
         else:
@@ -325,6 +295,7 @@ class GameBug:
 
                 san = self.boards[board].get_san(move)
                 self.lastmove = move
+                self.lastmovePerBoardAndUser[board][cur_player.username] = move
                 self.boards[board].push(move)
                 self._ply_clocks[board].append(clocks)
                 self._ply_clocks["merged"].append(clocks)
@@ -358,16 +329,6 @@ class GameBug:
                 result = "1-0" if self.boards[board].color == BLACK else "0-1"
                 self.update_status(INVALIDMOVE, result)
                 await self.save_game()
-
-            # # TODO: this causes random game abort... todo niki no ide what is this - is it relevant ot bugh
-            # if False:  # not self.bot_game:
-            #     opp_color = self.steps[-1]["turnColor"]
-            #     if (
-            #         clocks[opp_color] < self._ply_clocks[ply - 1][opp_color]
-            #         and self.status <= STARTED
-            #     ):
-            #         self.update_status(ABORTED)
-            #         await self.save_game()
 
     async def save_game(self):
         if self.saved:

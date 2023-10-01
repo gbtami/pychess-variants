@@ -13,6 +13,7 @@ import {
     MsgFullChat,
     MsgGameEnd,
     MsgMove,
+    MsgMovesAfterReconnect,
     MsgNewGame,
     MsgUserConnected,
     RDiffs,
@@ -87,7 +88,7 @@ export class RoundControllerBughouse implements ChatController/*extends GameCont
     prevPieces: cg.Pieces;
     focus: boolean;
     finishedGame: boolean;
-    lastMaybeSentMsgMove: MsgMove; // Always store the last "move" message that was passed for sending via websocket.
+    msgMovesAfterReconnect: MsgMovesAfterReconnect; // Always store the last "move" message that was passed for sending via websocket.
                           // In case of bad connection, we are never sure if it was sent (thus the name)
                           // until a "board" message from server is received from server that confirms it.
                           // So if at any moment connection drops, after reconnect we always resend it.
@@ -155,15 +156,11 @@ export class RoundControllerBughouse implements ChatController/*extends GameCont
         const onOpen = () => {
             console.log('onOpen');
 
-            if ( this.lastMaybeSentMsgMove  && this.lastMaybeSentMsgMove.ply === this.ply + 1 ) {
-                // if this.ply === this.lastMaybeSentMsgMove.ply it would mean the move message was received by server and it has replied with "board" message, confirming and updating the state, including this.ply
-                // since they are not equal, but also one ply behind, means we should try to re-send it
-                try {
-                    console.log("resending unsent message ", this.lastMaybeSentMsgMove);
-                    this.doSend(this.lastMaybeSentMsgMove);
-                } catch (e) {
-                    console.log("could not even REsend unsent message ", this.lastMaybeSentMsgMove)
-                }
+            try {
+                console.log("resending unsent move messages ", this.msgMovesAfterReconnect);
+                this.doSend(this.msgMovesAfterReconnect);
+            } catch (e) {
+                console.log("could not even REsend unsent messages ", this.msgMovesAfterReconnect)
             }
 
             this.clocks[0].connecting = false;
@@ -405,6 +402,10 @@ export class RoundControllerBughouse implements ChatController/*extends GameCont
             // I am not playing on board A at all. Switch:
             this.switchBoards();
         }
+
+        this.msgMovesAfterReconnect = {
+            type: "reconnect"
+        }
     }
 
 
@@ -496,8 +497,13 @@ export class RoundControllerBughouse implements ChatController/*extends GameCont
 
         const msgClocks = {movetime: (b.preaction) ? 0 : movetime, black: bclocktime, white: wclocktime};
 
-        this.lastMaybeSentMsgMove = { type: "move", gameId: this.gameId, move: move, clocks: msgClocks, ply: this.ply + 1, board: b.boardName, partnerFen: b.partnerCC.fullfen };
-        this.doSend(this.lastMaybeSentMsgMove as JSONObject);
+        const moveMsg = { type: "move", gameId: this.gameId, move: move, clocks: msgClocks, ply: this.ply + 1, board: b.boardName, partnerFen: b.partnerCC.fullfen };
+        if (b.boardName === "a") {
+            this.msgMovesAfterReconnect.lastMaybeSentMsgMoveA = moveMsg;
+        } else {
+            this.msgMovesAfterReconnect.lastMaybeSentMsgMoveB = moveMsg;
+        }
+        this.doSend(moveMsg as JSONObject);
 
         if (b.preaction) {
             clocks[myclock].setTime(clocktimes[moveColor] + increment);
@@ -998,10 +1004,13 @@ export class RoundControllerBughouse implements ChatController/*extends GameCont
             // Fix https://github.com/gbtami/pychess-variants/issues/687
             latestPly = (this.ply === -1 || msg.ply === this.ply + 1);
         } else {
-            latestPly = (this.ply === -1 || msg.ply === this.ply + 1 || (full && msg.ply > this.ply + 1)); // when receiving a board msg with full list of moves (aka steps) after reconnecting
-                                                                                // its ply might be ahead with 2 ply - our move that failed to get confirmed
-                                                                                // because of disconnect and then also opp's reply to it, that we didn't
-                                                                                // receive while offline. Not sure if it could be ahead with more than 2 ply todo:this if for spectators probably not needed if that check for full is added - fix that in other controller as well
+            latestPly = (this.ply === -1 || msg.ply === this.ply + 1 || (full && msg.ply > this.ply + 1));
+            // when receiving a board msg with full list of moves (aka steps) after reconnecting
+            // its ply might be ahead with 2 ply - our move that failed to get confirmed
+            // because of disconnect and then also opp's reply to it, that we didn't
+            // receive while offline. Not sure if it could be ahead with more than 2 ply
+            // todo:this if for spectators probably not needed if that check for full is added -
+            //  fix that in other controller as well
         }
         if (latestPly) this.ply = msg.ply;
 
@@ -1051,8 +1060,8 @@ export class RoundControllerBughouse implements ChatController/*extends GameCont
     }
 
 
-    goPly = (ply: number, plyVari = 0) => {
-        console.log(ply, plyVari);
+    goPly = (ply: number) => {
+        console.log(ply);
 
         const step = this.steps[ply];
         console.log(step);
@@ -1116,10 +1125,6 @@ export class RoundControllerBughouse implements ChatController/*extends GameCont
         }
         this.ply = ply;
 
-        // Go back to the main line
-        if (plyVari === 0) {
-            this.ply = ply;//todo:niki:this has to be local ply - cant remember why i need it though
-        }
         board.turnColor = step.turnColor;
 
         if (board.ffishBoard !== null) {

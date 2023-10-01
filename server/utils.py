@@ -602,7 +602,7 @@ async def analysis_move(app, user, game, move, fen, ply):
     await ws.send_json(analysis_board_response)
 
 
-async def play_move(app, user, game, move, clocks=None, ply=None, board=None, partnerFen=None):
+async def play_move(app, user, game, move, clocks=None, ply=None):
     gameId = game.id
     users = app["users"]
     invalid_move = False
@@ -613,7 +613,7 @@ async def play_move(app, user, game, move, clocks=None, ply=None, board=None, pa
             log.info(
                 "invalid ply received - probably a re-sent move that has already been processed"
             )
-            return
+            return # todo:niki:probably good to have a dedicated reconnect message for single board games as well and do this in its own logic separate from the movesimilarlytohow bughouse is
 
         cur_player = game.bplayer if game.board.color == BLACK else game.wplayer
         if user.bot and not cur_player.bot:
@@ -621,10 +621,7 @@ async def play_move(app, user, game, move, clocks=None, ply=None, board=None, pa
             return
 
         try:
-            if board is not None:
-                await game.play_move(move, clocks, ply, board, partnerFen)
-            else:
-                await game.play_move(move, clocks, ply)
+            await game.play_move(move, clocks, ply)
         except SystemError:
             invalid_move = True
             log.exception(
@@ -682,7 +679,15 @@ async def play_move(app, user, game, move, clocks=None, ply=None, board=None, pa
     if not invalid_move:
         await round_broadcast(game, board_response, channels=app["game_channels"])
 
-        if hasattr(game,'wplayerA'): # todo:niki:before adding this, what I was observing is, when making a move with white on B, i would receive the board message twice on that browser, but abother board(i tihnk partner) would not receive board message at all. Receiving of message twice is problematic, but for no i can filter it out in javascript, because not sure which one of the 3 places we send board messages here in this code  is the reason it is sent twice. Below code aslo makes sure all sockets receive message, so hopefully that brwoser that was missing it will receive it now. However now all/the other 3/who knows will receive probably at least twice so overall ugly situation, but dont have time to debug at the moment
+        if hasattr(game,'wplayerA'): # todo:niki:before adding this, what I was
+                                     #      observing is, when making a move with white on B, i would
+                                     #      receive the board message twice on that browser, but abother board(i tihnk partner)
+                                     #      would not receive board message at all. Receiving of message twice is problematic,
+                                     #      but for no i can filter it out in javascript, because not sure which one of the 3 places
+                                     #      we send board messages here in this code  is the reason it is sent twice.
+                                     #      Below code aslo makes sure all sockets receive message, so hopefully that brwoser
+                                     #      that was missing it will receive it now. However now all/the other 3/who knows will
+                                     #      receive probably at least twice so overall ugly situation, but dont have time to debug at the moment
             bugUsers = set([game.wplayerA, game.wplayerB, game.bplayerA, game.bplayerB])
             for u in bugUsers:
                 if gameId in u.game_sockets: # have seen such errors - maybe when some opp/partner has disconnected when move was made

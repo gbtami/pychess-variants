@@ -144,3 +144,8 @@ export type MsgMove = { // cannot be interface because canot be converted to an 
      partnerFen?: cg.FEN;  // todo:niki:more like temporary shortcut solution for passing piece to partner pocket - ideally should calculate that on server (as well) and not rely on client.
 }
 
+export type MsgMovesAfterReconnect = {
+    type: string;//"reconnect"
+    lastMaybeSentMsgMoveA?: MsgMove;
+    lastMaybeSentMsgMoveB?: MsgMove;
+}

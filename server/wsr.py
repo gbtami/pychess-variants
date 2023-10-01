@@ -8,8 +8,9 @@ import aiohttp
 from aiohttp import web
 import aiohttp_session
 
+import bug.utils_bug
 from broadcast import lobby_broadcast, round_broadcast
-from bug.wsr_bug import handle_resign_bughouse, handle_rematch_bughouse
+from bug.wsr_bug import handle_resign_bughouse, handle_rematch_bughouse, handle_reconnect_bughouse
 from chat import chat_response
 from const import ANALYSIS, STARTED
 from fairy import WHITE, BLACK
@@ -26,6 +27,7 @@ from utils import (
     online_count,
     MyWebSocketResponse,
 )
+from bug.utils_bug import play_move as play_move_bug
 
 log = logging.getLogger(__name__)
 
@@ -84,24 +86,43 @@ async def round_socket_handler(request):
                         log.info("Got USER move %s %s %s" % (user.username, data["gameId"], data["move"]))
 
                         async with game.move_lock:
-                            try:
-                                await play_move(
-                                    request.app,
-                                    user,
-                                    game,
-                                    data["move"],
-                                    data["clocks"],
-                                    data["ply"],
-                                    data["board"] if "board" in data else None,
-                                    data["partnerFen"] if "partnerFen" in data else None,
-                                )
-                            except Exception:
-                                log.exception(
-                                    "ERROR: Exception in play_move() in %s by %s ",
-                                    data["gameId"],
-                                    session_user,
-                                )
-
+                            if game.variant == "bughouse":
+                                try:
+                                    await play_move_bug(
+                                        request.app,
+                                        user,
+                                        game,
+                                        data["move"],
+                                        data["clocks"],
+                                        # data["ply"],todo:dont even send it maybe
+                                        data["board"],
+                                        data["partnerFen"],
+                                    )
+                                except Exception:
+                                    log.exception(
+                                        "ERROR: Exception in play_move() in %s by %s. data %r ",
+                                        data["gameId"],
+                                        session_user,
+                                        data
+                                    )
+                            else:
+                                try:
+                                    await play_move(
+                                        request.app,
+                                        user,
+                                        game,
+                                        data["move"],
+                                        data["clocks"],
+                                        data["ply"]
+                                    )
+                                except Exception:
+                                    log.exception(
+                                        "ERROR: Exception in play_move() in %s by %s ",
+                                        data["gameId"],
+                                        session_user,
+                                    )
+                    elif data["type"] == "reconnect":
+                        handle_reconnect_bughouse(data, game, user, request, session_user)
                     elif data["type"] == "berserk":
                         game.berserk(data["color"])
                         response = {"type": "berserk", "color": data["color"]}
