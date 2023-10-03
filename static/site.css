@@ -2351,7 +2351,6 @@ div.tv cg-container, div.puzzle cg-container {
   align-items: center;
   justify-content: space-between;
   color: var(--font-color);
-  width: var(--cg-width);
 }
 
 /* Add pseudo-element only if data attribute is set */

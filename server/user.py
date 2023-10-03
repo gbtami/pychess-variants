@@ -56,6 +56,7 @@ class User:
         self.title = title
         self.game_in_progress = None
         self.abandon_game_task = None
+        self.correspondence_games = []
 
         if self.bot:
             self.event_queue = asyncio.Queue()

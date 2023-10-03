@@ -508,6 +508,10 @@ async def new_game(app, seek_id, game_id=None):
 
     await insert_game_to_db(game, app)
 
+    if game.rated == CORRESPONDENCE:
+        game.wplayer.correspondence_games.append(game)
+        game.bplayer.correspondence_games.append(game)
+
     return {
         "type": "new_game",
         "gameId": game_id,

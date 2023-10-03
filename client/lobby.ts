@@ -119,6 +119,7 @@ export class LobbyController implements ChatController {
         }
 
         setAriaTabClick();
+        renderGamesPlaying(model);
 
         const initialEl = document.querySelector('[tabindex="0"]') as HTMLElement;
         initialEl.setAttribute('aria-selected', 'true');
@@ -986,6 +987,55 @@ function seekHeader() {
     ]);
 }
 
+function gameViewPlaying(game: Game, fen: cg.FEN, lastMove: cg.Move) {
+    const variant = VARIANTS[game.variant];
+    return h(`div.${variant.boardFamily}.${variant.pieceFamily}`, {
+        on: { click: () => window.location.assign('/' + game.gameId) }
+    }, [
+        h(`div.cg-wrap.${variant.board.cg}`, {
+            hook: {
+                insert: vnode => {
+                    const cg = Chessground(vnode.elm as HTMLElement, {
+                        fen: fen,
+                        lastMove: uci2LastMove(lastMove),
+                        dimensions: variant.board.dimensions,
+                        coordinates: false,
+                        viewOnly: true,
+                        pocketRoles: variant.pocket?.roles,
+                    });
+                }
+            }
+        }),
+        h('span.vstext', [
+            h('div.player', [h('tv-user', [h('player-title', game.bTitle), ' ' + game.b])]),
+            h('div.player', [h('tv-user', [h('player-title', game.wTitle), ' ' + game.w])]),
+        ]),
+    ]);
+}
+
+export function renderGamesPlaying(model: PyChessModel): VNode[] {
+    boardSettings.assetURL = model.assetURL;
+    boardSettings.updateBoardAndPieceStyles();
+
+    const xmlhttp = new XMLHttpRequest();
+    const url = "/api/" + model["username"] + "/games";
+
+    xmlhttp.onreadystatechange = function() {
+        if (this.readyState === 4 && this.status === 200) {
+            console.log(this.responseText);
+            const response = JSON.parse(this.responseText);
+            const oldVNode = document.getElementById('games');
+            if (oldVNode instanceof Element) {
+                patch(oldVNode as HTMLElement, h('games-grid#games', response.map((game: Game) => gameViewPlaying(game, game.fen, game.lastMove))));
+            }
+        }
+    };
+    xmlhttp.open("GET", url, true);
+    xmlhttp.send();
+
+    return [h('grid-container#games')]
+}
+
 function runSeeks(vnode: VNode, model: PyChessModel) {
     const el = vnode.elm as HTMLElement;
     new LobbyController(el, model);
@@ -1029,6 +1079,7 @@ export function lobbyView(model: PyChessModel): VNode[] {
     let tabs = [];
     tabs.push(h('span', {attrs: {role: 'tab', 'aria-selected': false, 'aria-controls': 'panel-1', id: 'tab-1', tabindex: '0'}}, _('Lobby')));
     tabs.push(h('span', {attrs: {role: 'tab', 'aria-selected': true, 'aria-controls': 'panel-2', id: 'tab-2', tabindex: '-1'}}, _('Correspondence')))
+    tabs.push(h('span', {attrs: {role: 'tab', 'aria-selected': true, 'aria-controls': 'panel-3', id: 'tab-3', tabindex: '-1'}}, _('game in play')))
 
     return [
         h('aside.sidebar-first', [
@@ -1046,6 +1097,11 @@ export function lobbyView(model: PyChessModel): VNode[] {
             h('div.corr-container', {attrs: {id: 'panel-2', role: 'tabpanel', tabindex: '-1', 'aria-labelledby': 'tab-2'}}, [
                 h('div.seeks-table', [
                     h('div.seeks-wrapper', h('table.seeks')),
+                ]),
+            ]),
+            h('div.games-container', {attrs: {id: 'panel-3', role: 'tabpanel', tabindex: '-1', 'aria-labelledby': 'tab-3'}}, [
+                h('div.seeks-table', [
+                    h('div.seeks-wrapper', [h('div#games')]),
                 ]),
             ]),
         ]),

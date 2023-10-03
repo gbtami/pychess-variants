@@ -393,7 +393,9 @@ class Game:
 
     async def save_moves(self):
         new_data = {
+            "f": self.board.fen,
             "l": datetime.now(timezone.utc),
+            "s": self.status,
             "m": encode_moves(
                 map(grand2zero, self.board.move_stack)
                 if self.variant in GRANDS
@@ -729,6 +731,10 @@ class Game:
                 self.bplayer.game_in_progress = None
             if not self.wplayer.bot:
                 self.wplayer.game_in_progress = None
+
+            if self.rated == CORRESPONDENCE:
+                self.wplayer.correspondence_games.remove(self)
+                self.bplayer.correspondence_games.remove(self)
 
     def print_game(self):
         print(self.pgn)

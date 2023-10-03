@@ -385,6 +385,8 @@ async def init_state(app):
         async for doc in cursor:
             game = await load_game(app, doc["_id"])
             app["games"][doc["_id"]] = game
+            game.wplayer.correspondence_games.append(game)
+            game.bplayer.correspondence_games.append(game)
             print(game)
 
         if "video" not in db_collections:

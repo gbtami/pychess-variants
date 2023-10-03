@@ -122,3 +122,12 @@ div.tc-block {
     border-top: 1px solid var(--border-color);
     border-bottom: 1px solid var(--border-color);
 }
+games-grid {
+    display: grid;
+    row-gap: 4px;
+    --auto-grid-min-size: 12rem;
+    justify-content: center;
+    overflow-x:hidden;
+    height: 100%;
+    grid-template-columns: repeat(auto-fill, minmax(var(--auto-grid-min-size), 1fr));
+}
