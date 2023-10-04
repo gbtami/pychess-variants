@@ -3,6 +3,7 @@ import WebsocketHeartbeatJs from 'websocket-heartbeat-js';
 import { h, VNode } from 'snabbdom';
 
 import { Api } from "chessgroundx/api";
+import * as cg from "chessgroundx/types";
 import { Chessground } from 'chessgroundx';
 
 import { newWebsocket } from './socket';
@@ -25,6 +26,22 @@ const CREATE_MODES = {
     playFriend: _("Play with a friend"),
     createHost: _("Host a game for others"),
     createGame: _("Create a game"),
+}
+
+interface Game {
+    gameId: string;
+    variant: string;
+    chess960: boolean;
+    base: number;
+    inc: number;
+    byoyomi: number;
+    b: string;
+    bTitle: string;
+    w: string;
+    wTitle: string;
+    level: number;
+    fen: cg.FEN;
+    lastMove: string;
 }
 
 export class LobbyController implements ChatController {
@@ -987,7 +1004,7 @@ function seekHeader() {
     ]);
 }
 
-function gameViewPlaying(game: Game, fen: cg.FEN, lastMove: cg.Move) {
+function gameViewPlaying(game: Game, fen: cg.FEN, lastMove: string) {
     const variant = VARIANTS[game.variant];
     return h(`div.${variant.boardFamily}.${variant.pieceFamily}`, {
         on: { click: () => window.location.assign('/' + game.gameId) }
@@ -995,7 +1012,7 @@ function gameViewPlaying(game: Game, fen: cg.FEN, lastMove: cg.Move) {
         h(`div.cg-wrap.${variant.board.cg}`, {
             hook: {
                 insert: vnode => {
-                    const cg = Chessground(vnode.elm as HTMLElement, {
+                    Chessground(vnode.elm as HTMLElement, {
                         fen: fen,
                         lastMove: uci2LastMove(lastMove),
                         dimensions: variant.board.dimensions,
