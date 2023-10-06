@@ -270,7 +270,9 @@ class Game:
         self.wberserk = False
         self.bberserk = False
 
-        self.turn_player = self.wplayer.username if self.board.color == WHITE else self.bplayer.username
+        self.turn_player = (
+            self.wplayer.username if self.board.color == WHITE else self.bplayer.username
+        )
 
         self.move_lock = asyncio.Lock()
 
@@ -365,7 +367,9 @@ class Game:
                 san = self.board.get_san(move)
                 self.lastmove = move
                 self.board.push(move)
-                self.turn_player = self.wplayer.username if self.board.color == WHITE else self.bplayer.username
+                self.turn_player = (
+                    self.wplayer.username if self.board.color == WHITE else self.bplayer.username
+                )
                 self.ply_clocks.append(clocks)
                 self.legal_moves = self.board.legal_moves()
                 self.update_status()
