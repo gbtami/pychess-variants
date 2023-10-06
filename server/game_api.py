@@ -8,7 +8,7 @@ from aiohttp import web
 import aiohttp_session
 from aiohttp_sse import sse_response
 
-from const import GRANDS, STARTED, MATE, VARIANTS, INVALIDMOVE, VARIANTEND, CLAIM
+from const import CORRESPONDENCE, GRANDS, STARTED, MATE, VARIANTS, INVALIDMOVE, VARIANTEND, CLAIM
 from compress import decode_moves, C2V, V2C, C2R
 from convert import zero2grand
 from utils import pgn
@@ -337,8 +337,9 @@ async def get_games(request):
                 "level": game.level,
             }
             for game in games
-            if game.status == STARTED or profileId is not None
-        ][-20:]
+            if (game.status == STARTED and game.rated != CORRESPONDENCE and profileId is None)
+            or (game.status == STARTED and game.rated == CORRESPONDENCE and profileId is not None)
+        ][-20 if profileId is None else 100:]
     )
 
 
