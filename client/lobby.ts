@@ -137,7 +137,7 @@ export class LobbyController implements ChatController {
         }
 
         setAriaTabClick();
-        renderGamesPlaying(model);
+        renderGamesPlaying(this.username, this.assetURL);
 
         const initialEl = document.querySelector('[tabindex="0"]') as HTMLElement;
         initialEl.setAttribute('aria-selected', 'true');
@@ -148,7 +148,7 @@ export class LobbyController implements ChatController {
         if (this.fen !== "")
             e.value = this.fen;
 
-        boardSettings.assetURL = model.assetURL;
+        boardSettings.assetURL = this.assetURL;
         boardSettings.updateBoardAndPieceStyles();
     }
 
@@ -1005,8 +1005,10 @@ function seekHeader() {
     ]);
 }
 
-function gameViewPlaying(game: Game, fen: cg.FEN, lastMove: string) {
+function gameViewPlaying(game: Game, username: string) {
     const variant = VARIANTS[game.variant];
+    const wnoread = (game.tp === username && game.tp === game.w) ? '.noread' : '';
+    const bnoread = (game.tp === username && game.tp === game.b) ? '.noread' : '';
     return h(`div.${variant.boardFamily}.${variant.pieceFamily}`, {
         on: { click: () => window.location.assign('/' + game.gameId) }
     }, [
@@ -1014,8 +1016,8 @@ function gameViewPlaying(game: Game, fen: cg.FEN, lastMove: string) {
             hook: {
                 insert: vnode => {
                     Chessground(vnode.elm as HTMLElement, {
-                        fen: fen,
-                        lastMove: uci2LastMove(lastMove),
+                        fen: game.fen,
+                        lastMove: uci2LastMove(game.lastMove),
                         dimensions: variant.board.dimensions,
                         coordinates: false,
                         viewOnly: true,
@@ -1025,18 +1027,18 @@ function gameViewPlaying(game: Game, fen: cg.FEN, lastMove: string) {
             }
         }),
         h('span.vstext', [
-            h('div.player', [h('tv-user', [h('player-title', game.wTitle), ' ' + game.w])]),
-            h('div.player', [h('tv-user', [h('player-title', game.bTitle), ' ' + game.b])]),
+            h(`div.player${wnoread}`, [h('tv-user', [h('player-title', game.wTitle), ' ' + game.w])]),
+            h(`div.player${bnoread}`, [h('tv-user', [h('player-title', game.bTitle), ' ' + game.b])]),
         ]),
     ]);
 }
 
-export function renderGamesPlaying(model: PyChessModel): VNode[] {
-    boardSettings.assetURL = model.assetURL;
+export function renderGamesPlaying(username: string, assetURL: string): VNode[] {
+    boardSettings.assetURL = assetURL;
     boardSettings.updateBoardAndPieceStyles();
 
     const xmlhttp = new XMLHttpRequest();
-    const url = "/api/" + model["username"] + "/games";
+    const url = "/api/" + username + "/games";
 
     xmlhttp.onreadystatechange = function() {
         if (this.readyState === 4 && this.status === 200) {
@@ -1047,14 +1049,14 @@ export function renderGamesPlaying(model: PyChessModel): VNode[] {
                 const gpCounter = response.length;
                 const gameCount = document.getElementById('gp_cnt') as HTMLElement;
 
-                const r = (sum: number, obj: Game) => sum + ((obj.tp === model.username) ? 1 : 0);
+                const r = (sum: number, obj: Game) => sum + ((obj.tp === username) ? 1 : 0);
                 const count = response.reduce(r, 0);
 
                 patch(gameCount, h('counter#gp_cnt', [
                     ngettext('%1 game in play', '%1 games in play', gpCounter),
                     h('i.noread', count)
                 ]));
-                patch(oldVNode as HTMLElement, h('games-grid#games', response.map((game: Game) => gameViewPlaying(game, game.fen, game.lastMove))));
+                patch(oldVNode as HTMLElement, h('games-grid#games', response.map((game: Game) => gameViewPlaying(game, username))));
             }
         }
     };
