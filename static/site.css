@@ -2381,7 +2381,6 @@ div[role=tablist] {
 span[role=tab] {
     flex: 1 1 0;
     text-align: center;
-    font-size: 0.9em;
     padding: 0.4em 0.1em;
     cursor: pointer;
     position: relative;

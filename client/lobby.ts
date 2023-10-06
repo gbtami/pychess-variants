@@ -42,6 +42,7 @@ interface Game {
     level: number;
     fen: cg.FEN;
     lastMove: string;
+    tp: string;
 }
 
 export class LobbyController implements ChatController {
@@ -1024,8 +1025,8 @@ function gameViewPlaying(game: Game, fen: cg.FEN, lastMove: string) {
             }
         }),
         h('span.vstext', [
-            h('div.player', [h('tv-user', [h('player-title', game.bTitle), ' ' + game.b])]),
             h('div.player', [h('tv-user', [h('player-title', game.wTitle), ' ' + game.w])]),
+            h('div.player', [h('tv-user', [h('player-title', game.bTitle), ' ' + game.b])]),
         ]),
     ]);
 }
@@ -1043,6 +1044,16 @@ export function renderGamesPlaying(model: PyChessModel): VNode[] {
             const response = JSON.parse(this.responseText);
             const oldVNode = document.getElementById('games');
             if (oldVNode instanceof Element) {
+                const gpCounter = response.length;
+                const gameCount = document.getElementById('gp_cnt') as HTMLElement;
+
+                const r = (sum: number, obj: Game) => sum + ((obj.tp === model.username) ? 1 : 0);
+                const count = response.reduce(r, 0);
+
+                patch(gameCount, h('counter#gp_cnt', [
+                    ngettext('%1 game in play', '%1 games in play', gpCounter),
+                    h('i.noread', count)
+                ]));
                 patch(oldVNode as HTMLElement, h('games-grid#games', response.map((game: Game) => gameViewPlaying(game, game.fen, game.lastMove))));
             }
         }
@@ -1096,7 +1107,7 @@ export function lobbyView(model: PyChessModel): VNode[] {
     let tabs = [];
     tabs.push(h('span', {attrs: {role: 'tab', 'aria-selected': false, 'aria-controls': 'panel-1', id: 'tab-1', tabindex: '0'}}, _('Lobby')));
     tabs.push(h('span', {attrs: {role: 'tab', 'aria-selected': true, 'aria-controls': 'panel-2', id: 'tab-2', tabindex: '-1'}}, _('Correspondence')))
-    tabs.push(h('span', {attrs: {role: 'tab', 'aria-selected': true, 'aria-controls': 'panel-3', id: 'tab-3', tabindex: '-1'}}, _('game in play')))
+    tabs.push(h('span', {attrs: {role: 'tab', 'aria-selected': true, 'aria-controls': 'panel-3', id: 'tab-3', tabindex: '-1'}}, [ h('counter#gp_cnt') ]))
 
     return [
         h('aside.sidebar-first', [

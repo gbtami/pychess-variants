@@ -325,6 +325,7 @@ async def get_games(request):
                 "variant": game.variant,
                 "fen": game.board.fen,
                 "lastMove": game.lastmove,
+                "tp": game.turn_player,
                 "w": game.wplayer.username,
                 "wTitle": game.wplayer.title,
                 "b": game.bplayer.username,
