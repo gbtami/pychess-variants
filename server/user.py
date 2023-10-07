@@ -5,8 +5,8 @@ from datetime import datetime, timezone
 from aiohttp import web
 import aiohttp_session
 
-from const import VARIANTS
-from broadcast import lobby_broadcast
+from const import STARTED, VARIANTS
+from broadcast import lobby_broadcast, round_broadcast
 from glicko2.glicko2 import gl2, DEFAULT_PERF, Rating
 from login import RESERVED_USERS
 from newid import id8
@@ -17,6 +17,7 @@ log = logging.getLogger(__name__)
 SILENCE = 10 * 60
 ANON_TIMEOUT = 10 * 60
 PENDING_SEEK_TIMEOUT = 10
+ABANDON_TIMEOUT = 90
 
 
 class User:
@@ -54,6 +55,7 @@ class User:
         self.game_sockets = {}
         self.title = title
         self.game_in_progress = None
+        self.abandon_game_task = None
 
         if self.bot:
             self.event_queue = asyncio.Queue()
@@ -103,6 +105,17 @@ class User:
                     except KeyError:
                         log.info("Failed to del %s from users", self.username)
                     break
+
+    async def abandon_game(self, game):
+        abandon_timeout = ABANDON_TIMEOUT * (2 if game.base >= 3 else 1)
+        await asyncio.sleep(abandon_timeout)
+        if game.status <= STARTED and game.id not in self.game_sockets:
+            if game.bot_game or self.anon:
+                response = await game.game_ended(self, "abandon")
+                await round_broadcast(game, response)
+            else:
+                # TODO: message opp to let him claim win
+                pass
 
     def update_online(self):
         self.online = (

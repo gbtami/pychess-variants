@@ -21,6 +21,7 @@ from aiohttp.log import access_logger
 from aiohttp.web_app import Application
 from aiohttp_session.cookie_storage import EncryptedCookieStorage
 from aiohttp_session import setup
+from aiohttp_remotes import Secure
 from motor import motor_asyncio as ma
 from sortedcollections import ValueSortedDict
 from pythongettext.msgfmt import Msgfmt
@@ -46,7 +47,6 @@ from generate_crosstable import generate_crosstable
 from generate_highscore import generate_highscore
 from generate_shield import generate_shield
 from glicko2.glicko2 import DEFAULT_PERF
-from index import handle_404
 from routes import get_routes, post_routes
 from settings import (
     DEV,
@@ -58,6 +58,9 @@ from settings import (
     FISHNET_KEYS,
     URI,
     static_url,
+    STATIC_ROOT,
+    BR_EXTENSION,
+    SOURCE_VERSION,
 )
 from user import User
 from tournaments import load_tournament, get_scheduled_tournaments, translated_tournament_name
@@ -78,6 +81,27 @@ log = logging.getLogger(__name__)
 
 if platform not in ("win32", "darwin"):
     asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
+
+
+@web.middleware
+async def handle_404(request, handler):
+    try:
+        return await handler(request)
+    except web.HTTPException as ex:
+        if ex.status == 404:
+            template = request.app["jinja"]["en"].get_template("404.html")
+            text = await template.render_async(
+                {
+                    "dev": DEV,
+                    "home": URI,
+                    "view_css": "404.css",
+                    "asseturl": STATIC_ROOT,
+                    "js": "/static/pychess-variants.js%s%s" % (BR_EXTENSION, SOURCE_VERSION),
+                }
+            )
+            return web.Response(text=text, content_type="text/html")
+        else:
+            raise
 
 
 async def on_prepare(request, response):
@@ -105,6 +129,11 @@ async def on_prepare(request, response):
 
 def make_app(with_db=True) -> Application:
     app = web.Application()
+    if False:  # URI.startswith("https"):
+        secure = Secure()  # redirect_url=URI)
+        app.on_response_prepare.append(secure.on_response_prepare)
+        app.middlewares.append(secure.middleware)
+
     parts = urlparse(URI)
     setup(
         app,
@@ -389,9 +418,9 @@ async def shutdown(app):
 
     # abort games
     for game in list(app["games"].values()):
-        for player in (game.wplayer, game.bplayer):
-            if game.status <= STARTED:
-                response = await game.abort()
+        if game.status <= STARTED:
+            response = await game.abort()
+            for player in (game.wplayer, game.bplayer):
                 if not player.bot and game.id in player.game_sockets:
                     ws = player.game_sockets[game.id]
                     try:

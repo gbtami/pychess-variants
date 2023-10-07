@@ -66,6 +66,7 @@ export class AnalysisController extends GameController {
     multipv: number;
     threads: number;
     hash: number;
+    nnue: boolean;
     evalFile: string;
     nnueOk: boolean;
     importedBy: string;
@@ -125,6 +126,7 @@ export class AnalysisController extends GameController {
         this.evalFile = localStorage[`${this.variant.name}-nnue`] === undefined ? '' : localStorage[`${this.variant.name}-nnue`];
         this.threads = localStorage.threads === undefined ? 1 : parseInt(localStorage.threads);
         this.hash = localStorage.hash === undefined ? 16 : parseInt(localStorage.hash);
+        this.nnue = localStorage.nnue === undefined ? true : localStorage.nnue === "true";
 
         this.nnueOk = false;
         this.importedBy = '';
@@ -427,7 +429,7 @@ export class AnalysisController extends GameController {
         const step = this.steps[this.steps.length - 1];
         const capture = !!lastMove && ((this.chessground.state.boardState.pieces.get(lastMove[1] as cg.Key) && step.san?.slice(0, 2) !== 'O-') || (step.san?.slice(1, 2) === 'x'));
 
-        if (lastMove && (this.turnColor === this.mycolor || this.spectator)) {
+        if (msg.steps.length === 1 && lastMove && (this.turnColor === this.mycolor || this.spectator)) {
             sound.moveSound(this.variant, capture);
         }
         this.checkStatus(msg);
@@ -692,7 +694,7 @@ export class AnalysisController extends GameController {
         if (this.variant.name !== 'chess') {
             this.fsfPostMessage('setoption name UCI_Variant value ' + this.variant.name);
         }
-        if (this.evalFile === '' || !this.nnueOk) {
+        if (this.evalFile === '' || !this.nnueOk || !this.nnue) {
             this.fsfPostMessage('setoption name Use NNUE value false');
         } else {
             this.fsfPostMessage('setoption name Use NNUE value true');

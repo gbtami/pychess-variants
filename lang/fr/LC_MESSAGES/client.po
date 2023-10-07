@@ -17,7 +17,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2023-06-12 14:37+0200\n"
+"POT-Creation-Date: 2023-08-05 22:06+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Last-Translator: Max Allan Jonathan Fotchin, 2023\n"
 "Language-Team: French (https://app.transifex.com/gbtami/teams/14790/fr/)\n"
@@ -157,27 +157,27 @@ msgstr ""
 msgid "Variant"
 msgstr "Variante"
 
-#: ../client/analysis.ts:154
+#: ../client/analysis.ts:108
 msgid "Computer analysis"
 msgstr "Analyse de l'ordinateur"
 
-#: ../client/analysis.ts:155
+#: ../client/analysis.ts:110
 msgid "Move times"
 msgstr ""
 
-#: ../client/analysis.ts:156
+#: ../client/analysis.ts:113
 msgid "Crosstable"
 msgstr ""
 
-#: ../client/analysis.ts:157
+#: ../client/analysis.ts:117
 msgid "FEN & PGN"
 msgstr ""
 
-#: ../client/analysis.ts:172
+#: ../client/analysis.ts:179
 msgid "Multi-threaded WebAssembly (classical evaluation)"
 msgstr "WebAssembly multithread (évaluation classique)"
 
-#: ../client/analysis.ts:174 ../client/analysisCtrl.ts:680
+#: ../client/analysis.ts:181 ../client/analysisCtrl.ts:687
 msgid "in local browser"
 msgstr "dans le navigateur local"
 
@@ -189,63 +189,63 @@ msgstr "Position de départ"
 msgid "Advantage"
 msgstr "Avantage"
 
-#: ../client/analysisCtrl.ts:300
+#: ../client/analysisCtrl.ts:308
 msgid "You need an account to do that."
 msgstr "Compte utilisateur requis."
 
-#: ../client/analysisCtrl.ts:339
+#: ../client/analysisCtrl.ts:345
 msgid "Download game to PGN file"
 msgstr "Télécharger la partie au format PGN"
 
-#: ../client/analysisCtrl.ts:339
+#: ../client/analysisCtrl.ts:345
 msgid "Download PGN"
 msgstr "Télécharger la PGN"
 
-#: ../client/analysisCtrl.ts:341
+#: ../client/analysisCtrl.ts:347
 msgid "Copy USI/UCI to clipboard"
 msgstr "Copier l'USI/UCI vers le presse-papier"
 
-#: ../client/analysisCtrl.ts:341
+#: ../client/analysisCtrl.ts:347
 msgid "Copy UCI/USI"
 msgstr "Copier l'UCI/USI"
 
-#: ../client/analysisCtrl.ts:343
+#: ../client/analysisCtrl.ts:349
 msgid "Download position to PNG image file"
 msgstr "Télécharger la position au format PNG"
 
-#: ../client/analysisCtrl.ts:343
+#: ../client/analysisCtrl.ts:349
 msgid "PNG image"
 msgstr "Image PNG"
 
-#: ../client/analysisCtrl.ts:357
+#: ../client/analysisCtrl.ts:363
 msgid "Are you sure you want to delete this game?"
 msgstr "Êtes-vous sûr de vouloir supprimer la partie ?"
 
-#: ../client/analysisCtrl.ts:372
+#: ../client/analysisCtrl.ts:378
 msgid "Delete game"
 msgstr "Supprimer la partie"
 
-#: ../client/analysisCtrl.ts:403
+#: ../client/analysisCtrl.ts:409
 msgid "Request Computer Analysis"
 msgstr "Demander l'analyse de l'ordinateur"
 
-#: ../client/analysisCtrl.ts:403
+#: ../client/analysisCtrl.ts:409
 msgid "Request Analysis"
 msgstr "Demander l'analyse"
 
-#: ../client/analysisCtrl.ts:457
+#: ../client/analysisCtrl.ts:464
 msgid "Try browser page reload."
 msgstr "Essayez de recharger la page du navigateur."
 
-#: ../client/analysisCtrl.ts:491
+#: ../client/analysisCtrl.ts:498
 msgid "Multi-threaded WebAssembly (with NNUE evaluation)"
 msgstr ""
 
-#: ../client/analysisCtrl.ts:663
+#: ../client/analysisCtrl.ts:670
 msgid "Depth"
 msgstr "Profondeur"
 
-#: ../client/analysisCtrl.ts:668
+#: ../client/analysisCtrl.ts:675
 msgid "Go deeper"
 msgstr "Approfondir l'analyse"
 
@@ -285,23 +285,23 @@ msgstr "Animation des pièces"
 msgid "Confirm resigning"
 msgstr ""
 
-#: ../client/boardSettings.ts:281
+#: ../client/boardSettings.ts:289
 msgid "Zoom"
 msgstr "Zoom"
 
-#: ../client/boardSettings.ts:302
+#: ../client/boardSettings.ts:310
 msgid "Show piece destinations"
 msgstr "Mettre en évidence les cases de destination"
 
-#: ../client/boardSettings.ts:321
+#: ../client/boardSettings.ts:329
 msgid "Promote to the top choice automatically"
 msgstr "Promouvoir au premier choix automatiquement"
 
-#: ../client/boardSettings.ts:350
+#: ../client/boardSettings.ts:358
 msgid "Invisible pieces"
 msgstr "Pièces invisibles"
 
-#: ../client/boardSettings.ts:373
+#: ../client/boardSettings.ts:381
 msgid "Show material difference"
 msgstr "Afficher la différence de matériel"
 
@@ -753,7 +753,7 @@ msgstr ""
 "Échecs thaïlandais. Un jeu qui ressemble au Chaturanga. Comme les échecs "
 "occidentaux mais la dame et le fou sont différents."
 
-#: ../client/i18n.ts:100 ../client/variants.ts:361
+#: ../client/i18n.ts:100 ../client/variants.ts:384
 msgid "Makruk variant where kings cannot move to escape out of check."
 msgstr ""
 "Une variante de Makruk où les rois ne peuvent se déplacer lors d'un échec "
@@ -781,7 +781,7 @@ msgstr ""
 "Makruk mais utilisant l'échiquier et les pièces physiques des échecs "
 "occidentaux, ainsi que ses règles de promotion."
 
-#: ../client/i18n.ts:104 ../client/variants.ts:402
+#: ../client/i18n.ts:104 ../client/variants.ts:425
 msgid ""
 "Japanese Chess, and the standard 9x9 version played today with drops and "
 "promotions. "
@@ -804,7 +804,7 @@ msgstr ""
 "Une variante folle de Shogi sur un échiquier 5x5 où les pièces sont "
 "retournées après chaque coup"
 
-#: ../client/i18n.ts:107 ../client/variants.ts:454
+#: ../client/i18n.ts:107 ../client/variants.ts:477
 msgid ""
 "3x4 game with cute animals, designed to teach children how to play Shogi."
 msgstr ""
@@ -857,7 +857,7 @@ msgstr ""
 "Jouez avec des pièce hybrides, la princesse (fou + cavalier) et "
 "l'impératrice (tour + cavalier), sur un échiquier 10x8."
 
-#: ../client/i18n.ts:115 ../client/variants.ts:578
+#: ../client/i18n.ts:115 ../client/variants.ts:601
 msgid "Capablanca with Crazyhouse drop rules."
 msgstr "Les échecs Capablanca avec la règle de parachutage de Crazyhouse."
 
@@ -874,7 +874,7 @@ msgstr ""
 msgid "S-Chess with Crazyhouse drop rules."
 msgstr "Le S-Chess avec la règle de parachutage de Crazyhouse."
 
-#: ../client/i18n.ts:118 ../client/variants.ts:617
+#: ../client/i18n.ts:118 ../client/variants.ts:640
 msgid ""
 "Play with the hybrid pieces, archbishop (B+N) and chancellor (R+N), on a "
 "grand 10x10 board."
@@ -911,7 +911,7 @@ msgstr ""
 "Une variante asymétrique où un camp dirige des pièces qui se déplacent comme"
 " des cavaliers mais capturent différemment."
 
-#: ../client/i18n.ts:124 ../client/variants.ts:678
+#: ../client/i18n.ts:124 ../client/variants.ts:701
 msgid ""
 "Asymmetric East vs. West variant which pits the western Chess army against a"
 " Xiangqi and Janggi-styled army."
@@ -927,7 +927,7 @@ msgstr ""
 "Une variante asymétrique où l'armée des échecs occidentaux se bat contre une"
 " armée avec le parachutage et dérivée du shogi."
 
-#: ../client/i18n.ts:126 ../client/variants.ts:733
+#: ../client/i18n.ts:126 ../client/variants.ts:756
 msgid ""
 "Asymmetric variant where one army has pieces that move like queens but "
 "capture as usual."
@@ -935,7 +935,7 @@ msgstr ""
 "Une variante asymétrique où un camp dirige des pièces qui se déplacent comme"
 " des dames mais capturent normalement."
 
-#: ../client/i18n.ts:127 ../client/variants.ts:744
+#: ../client/i18n.ts:127 ../client/variants.ts:767
 msgid ""
 "Orda Chess variant with two Horde armies. The Falcon replaces the Yurt."
 msgstr ""
@@ -964,7 +964,7 @@ msgid "Like Capablanca Chess but with a different starting setup."
 msgstr ""
 "Comme les échecs Capablanca mais avec une position de départ différente."
 
-#: ../client/i18n.ts:133 ../client/variants.ts:833
+#: ../client/i18n.ts:133 ../client/variants.ts:856
 msgid "Gothic with Crazyhouse drop rules."
 msgstr "Les échecs Gothiques avec la règle de parachutage de Crazyhouse."
 
@@ -1188,7 +1188,7 @@ msgstr ""
 msgid "Duck chess has arrived"
 msgstr ""
 
-#: ../client/main.ts:112
+#: ../client/main.ts:111
 msgid "Thank you for your support!"
 msgstr "Merci pour votre soutien !"
 
@@ -1391,14 +1391,22 @@ msgid "Explosion of king"
 msgstr "Explosion du roi"
 
 #: ../client/result.ts:102
+msgid "King in the center"
+msgstr ""
+
+#: ../client/result.ts:105
+msgid "Three checks"
+msgstr ""
+
+#: ../client/result.ts:108
 msgid "King captured"
 msgstr ""
 
-#: ../client/result.ts:105 ../client/result.ts:112
+#: ../client/result.ts:111 ../client/result.ts:118
 msgid "Point counting"
 msgstr "Comptage de points"
 
-#: ../client/result.ts:115
+#: ../client/result.ts:121
 msgid "Repetition"
 msgstr "Répétition"
 
@@ -1673,37 +1681,37 @@ msgstr ""
 msgid "STARTING IN"
 msgstr "COMMENCE DANS"
 
-#: ../client/variants.ts:795
+#: ../client/variants.ts:818
 msgid "Asymmetric Spartans vs. Persians variant."
 msgstr ""
 
-#: ../client/lobby/layer1.ts:51 ../client/lobby/layer2chess.ts:19
-#: ../client/variants.ts:874
+#: ../client/lobby/layer1.ts:51 ../client/lobby/layer2chess.ts:21
+#: ../client/variants.ts:896
 msgid "Chess Variants"
 msgstr "Variantes des échecs"
 
 #: ../client/lobby/layer1.ts:75 ../client/lobby/layer2makruk.ts:16
-#: ../client/variants.ts:875
+#: ../client/variants.ts:897
 msgid "Makruk Variants"
 msgstr "Variantes du Makruk"
 
 #: ../client/lobby/layer1.ts:83 ../client/lobby/layer2shogi.ts:17
-#: ../client/variants.ts:876
+#: ../client/variants.ts:898
 msgid "Shogi Variants"
 msgstr "Variantes du Shogi"
 
 #: ../client/lobby/layer1.ts:91 ../client/lobby/layer2xiangqi.ts:16
-#: ../client/variants.ts:877
+#: ../client/variants.ts:899
 msgid "Xiangqi Variants"
 msgstr "Variantes du Xiangqi"
 
 #: ../client/lobby/layer1.ts:59 ../client/lobby/layer2fairy.ts:16
-#: ../client/variants.ts:878
+#: ../client/variants.ts:900
 msgid "Fairy Piece Variants"
 msgstr "Variantes aux pièces féeriques"
 
 #: ../client/lobby/layer1.ts:67 ../client/lobby/layer2army.ts:16
-#: ../client/variants.ts:879
+#: ../client/variants.ts:901
 msgid "New Army Variants"
 msgstr "Variantes aux nouvelles armées"
 
@@ -1768,7 +1776,7 @@ msgstr ""
 "plupart d'eux mettent l'armée nouvelle contre l'armée standarde des échecs "
 "occidentaux."
 
-#: ../client/lobby/layer2army.ts:19 ../client/lobby/layer2chess.ts:22
+#: ../client/lobby/layer2army.ts:19 ../client/lobby/layer2chess.ts:24
 #: ../client/lobby/layer2fairy.ts:26 ../client/lobby/layer2makruk.ts:19
 #: ../client/lobby/layer2shogi.ts:20 ../client/lobby/layer2xiangqi.ts:19
 #: ../client/lobby/layer3.ts:45
@@ -1807,7 +1815,7 @@ msgstr ""
 msgid "Spartans: Army with two kings"
 msgstr ""
 
-#: ../client/lobby/layer2chess.ts:21
+#: ../client/lobby/layer2chess.ts:23
 msgid "Variants using a basic chess set but with different rules."
 msgstr ""
 "Des variantes qui se jouent avec un échiquier et des pièces standards mais "
