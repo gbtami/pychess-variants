@@ -137,7 +137,6 @@ export class LobbyController implements ChatController {
         }
 
         setAriaTabClick();
-        renderGamesPlaying(this.username, this.assetURL);
 
         const initialEl = document.querySelector('[tabindex="0"]') as HTMLElement;
         initialEl.setAttribute('aria-selected', 'true');
@@ -1033,38 +1032,6 @@ function gameViewPlaying(game: Game, username: string) {
     ]);
 }
 
-function renderGamesPlaying(username: string, assetURL: string): VNode[] {
-    boardSettings.assetURL = assetURL;
-    boardSettings.updateBoardAndPieceStyles();
-
-    const xmlhttp = new XMLHttpRequest();
-    const url = "/api/" + username + "/games";
-
-    xmlhttp.onreadystatechange = function() {
-        if (this.readyState === 4 && this.status === 200) {
-            const response = JSON.parse(this.responseText);
-            const oldVNode = document.getElementById('games');
-            if (oldVNode instanceof Element) {
-                const gpCounter = response.length;
-                const gameCount = document.getElementById('gp_cnt') as HTMLElement;
-
-                const r = (sum: number, obj: Game) => sum + ((obj.tp === username) ? 1 : 0);
-                const count = response.reduce(r, 0);
-
-                patch(gameCount, h('counter#gp_cnt', [
-                    ngettext('%1 game in play', '%1 games in play', gpCounter),
-                    h('i.noread', count)
-                ]));
-                patch(oldVNode as HTMLElement, h('games-grid#games', response.map((game: Game) => gameViewPlaying(game, username))));
-            }
-        }
-    };
-    xmlhttp.open("GET", url, true);
-    xmlhttp.send();
-
-    return [h('grid-container#games')]
-}
-
 function runSeeks(vnode: VNode, model: PyChessModel) {
     const el = vnode.elm as HTMLElement;
     new LobbyController(el, model);
@@ -1073,6 +1040,14 @@ function runSeeks(vnode: VNode, model: PyChessModel) {
 
 export function lobbyView(model: PyChessModel): VNode[] {
     const puzzle = JSON.parse(model.puzzle);
+    console.log(model.corr);
+    const username = model.username;
+    const corr = JSON.parse(model.corr);
+    const gpCounter = corr.length;
+
+    const r = (sum: number, obj: Game) => sum + ((obj.tp === username) ? 1 : 0);
+    const count = corr.reduce(r, 0);
+
     const variant = VARIANTS[puzzle.variant];
     const turnColor = puzzle.fen.split(" ")[1] === "w" ? "white" : "black";
     const first = _(variant.colors.first);
@@ -1108,7 +1083,40 @@ export function lobbyView(model: PyChessModel): VNode[] {
     let tabs = [];
     tabs.push(h('span', {attrs: {role: 'tab', 'aria-selected': false, 'aria-controls': 'panel-1', id: 'tab-1', tabindex: '0'}}, _('Lobby')));
     tabs.push(h('span', {attrs: {role: 'tab', 'aria-selected': true, 'aria-controls': 'panel-2', id: 'tab-2', tabindex: '-1'}}, _('Correspondence')))
-    tabs.push(h('span', {attrs: {role: 'tab', 'aria-selected': true, 'aria-controls': 'panel-3', id: 'tab-3', tabindex: '-1'}}, [ h('counter#gp_cnt') ]))
+    if (corr.length > 0) {
+        tabs.push(h('span', {attrs: {role: 'tab', 'aria-selected': true, 'aria-controls': 'panel-3', id: 'tab-3', tabindex: '-1'}}, [
+            ngettext('%1 game in play', '%1 games in play', gpCounter),
+            h('i.noread', count)
+        ]))
+    }
+
+    let containers = [];
+    containers.push(h('div', {attrs: {role: 'tablist', 'aria-label': 'Seek Tabs'}}, tabs));
+    containers.push(
+        h('div.seek-container', {attrs: {id: 'panel-1', role: 'tabpanel', tabindex: '0', 'aria-labelledby': 'tab-1'}}, [
+            h('div.seeks-table', [
+                h('div.seeks-wrapper', h('table.seeks', { hook: { insert: vnode => runSeeks(vnode, model) } })),
+            ])
+        ])
+    );
+    containers.push(
+        h('div.corr-container', {attrs: {id: 'panel-2', role: 'tabpanel', tabindex: '-1', 'aria-labelledby': 'tab-2'}}, [
+            h('div.seeks-table', [
+                h('div.seeks-wrapper', h('table.seeks')),
+            ])
+        ])
+    );
+    if (corr.length > 0) {
+        containers.push(
+            h('div.games-container', {attrs: {id: 'panel-3', role: 'tabpanel', tabindex: '-1', 'aria-labelledby': 'tab-3'}}, [
+                h('div.seeks-table', [
+                    h('div.seeks-wrapper', [
+                        h('games-grid#games', corr.map((game: Game) => gameViewPlaying(game, username)))
+                    ])
+                ])
+            ])
+        )
+    }
 
     return [
         h('aside.sidebar-first', [
@@ -1116,24 +1124,7 @@ export function lobbyView(model: PyChessModel): VNode[] {
             h('div#spotlights'),
             h('div#lobbychat')
         ]),
-        h('div.seeks', [
-            h('div', {attrs: {role: 'tablist', 'aria-label': 'Seek Tabs'}}, tabs),
-            h('div.seek-container', {attrs: {id: 'panel-1', role: 'tabpanel', tabindex: '0', 'aria-labelledby': 'tab-1'}}, [
-                h('div.seeks-table', [
-                    h('div.seeks-wrapper', h('table.seeks', { hook: { insert: vnode => runSeeks(vnode, model) } })),
-                ]),
-            ]),
-            h('div.corr-container', {attrs: {id: 'panel-2', role: 'tabpanel', tabindex: '-1', 'aria-labelledby': 'tab-2'}}, [
-                h('div.seeks-table', [
-                    h('div.seeks-wrapper', h('table.seeks')),
-                ]),
-            ]),
-            h('div.games-container', {attrs: {id: 'panel-3', role: 'tabpanel', tabindex: '-1', 'aria-labelledby': 'tab-3'}}, [
-                h('div.seeks-table', [
-                    h('div.seeks-wrapper', [h('div#games')]),
-                ]),
-            ]),
-        ]),
+        h('div.seeks', containers),
         h('div#variants-catalog'),
         h('aside.sidebar-second', [
             h('div.seekbuttons'),

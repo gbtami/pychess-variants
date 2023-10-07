@@ -901,3 +901,25 @@ async def get_names(request):
     async for doc in cursor:
         names.append((doc["_id"], doc["title"]))
     return web.json_response(names)
+
+
+def corr_games(games):
+    return [
+        {
+            "gameId": game.id,
+            "variant": game.variant,
+            "fen": game.board.fen,
+            "lastMove": game.lastmove,
+            "tp": game.turn_player,
+            "w": game.wplayer.username,
+            "wTitle": game.wplayer.title,
+            "b": game.bplayer.username,
+            "bTitle": game.bplayer.title,
+            "chess960": game.chess960,
+            "base": game.base,
+            "inc": game.inc,
+            "byoyomi": game.byoyomi_period,
+            "level": game.level,
+        }
+        for game in games
+    ]

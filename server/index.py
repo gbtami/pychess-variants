@@ -49,7 +49,7 @@ from misc import time_control_str
 from news import NEWS
 from videos import VIDEO_TAGS, VIDEO_TARGETS
 from user import User
-from utils import load_game, join_seek, tv_game, tv_game_user
+from utils import corr_games, load_game, join_seek, tv_game, tv_game_user
 from tournaments import (
     get_winners,
     get_latest_tournaments,
@@ -390,6 +390,8 @@ async def index(request):
     if view == "lobby":
         puzzle = await get_daily_puzzle(request)
         render["puzzle"] = json.dumps(puzzle, default=datetime.isoformat)
+        corr = corr_games(user.correspondence_games)
+        render["corr"] = json.dumps(corr, default=datetime.isoformat)
 
     elif view in ("profile", "level8win"):
         if view == "level8win":

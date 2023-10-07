@@ -315,11 +315,7 @@ async def subscribe_games(request):
 
 
 def get_games(request):
-    profileId = request.match_info.get("profileId")
-    if profileId is None:
-        games = request.app["games"].values()
-    else:
-        games = request.app["users"][profileId].correspondence_games
+    games = request.app["games"].values()
     # TODO: filter last 10 by variant
     return web.json_response(
         [
@@ -340,8 +336,8 @@ def get_games(request):
                 "level": game.level,
             }
             for game in games
-            if (game.status == STARTED and game.rated != CORRESPONDENCE) or profileId is not None
-        ][-20 if profileId is None else -100 :]
+            if game.status == STARTED and game.rated != CORRESPONDENCE
+        ][-20:]
     )
 
 

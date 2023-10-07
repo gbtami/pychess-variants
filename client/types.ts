@@ -45,4 +45,5 @@ export type PyChessModel = {
     tournamentDirector: boolean;
     assetURL: string;
     puzzle: string;
+    corr: string;
 };
