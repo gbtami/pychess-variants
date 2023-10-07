@@ -169,7 +169,10 @@ async def get_user_games(request):
     elif "/rated" in request.path:
         filter_cond["$or"] = [{"y": 1, "us.1": profileId}, {"y": 1, "us.0": profileId}]
     elif "/playing" in request.path:
-        filter_cond["$or"] = [{"y": 3, "us.1": profileId}, {"y": 3, "us.0": profileId}]
+        filter_cond["$and"] = [
+            {"$or": [{"y": 3, "us.1": profileId}, {"y": 3, "us.0": profileId}]},
+            {"s": STARTED},
+        ]
     elif "/import" in request.path:
         filter_cond["by"] = profileId
         filter_cond["y"] = 2
@@ -209,7 +212,7 @@ async def get_user_games(request):
     if profileId is not None:
         # print("FILTER:", filter_cond)
         cursor = db.game.find(filter_cond)
-        if uci_moves or "/playing" in request.path:
+        if uci_moves:
             cursor.sort("d", -1)
         else:
             cursor.sort("d", -1).skip(int(page_num) * GAME_PAGE_SIZE).limit(GAME_PAGE_SIZE)
@@ -311,7 +314,7 @@ async def subscribe_games(request):
     return response
 
 
-async def get_games(request):
+def get_games(request):
     profileId = request.match_info.get("profileId")
     if profileId is None:
         games = request.app["games"].values()
@@ -337,9 +340,8 @@ async def get_games(request):
                 "level": game.level,
             }
             for game in games
-            if (game.status == STARTED and game.rated != CORRESPONDENCE and profileId is None)
-            or (game.status == STARTED and game.rated == CORRESPONDENCE and profileId is not None)
-        ][-20 if profileId is None else 100:]
+            if (game.status == STARTED and game.rated != CORRESPONDENCE) or profileId is not None
+        ][-20 if profileId is None else -100 :]
     )
 
 

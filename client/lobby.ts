@@ -1033,7 +1033,7 @@ function gameViewPlaying(game: Game, username: string) {
     ]);
 }
 
-export function renderGamesPlaying(username: string, assetURL: string): VNode[] {
+function renderGamesPlaying(username: string, assetURL: string): VNode[] {
     boardSettings.assetURL = assetURL;
     boardSettings.updateBoardAndPieceStyles();
 
@@ -1042,7 +1042,6 @@ export function renderGamesPlaying(username: string, assetURL: string): VNode[] 
 
     xmlhttp.onreadystatechange = function() {
         if (this.readyState === 4 && this.status === 200) {
-            console.log(this.responseText);
             const response = JSON.parse(this.responseText);
             const oldVNode = document.getElementById('games');
             if (oldVNode instanceof Element) {
