@@ -1,7 +1,7 @@
 @import 'hamburger.css';
 :root {
   --main-margin: 0;
-  --main-max-width: 1300px;
+  --main-max-width: 1400px;
   --feature-btn: #d0e0bd;
   --invalid-queen: #ffa07a;
   --gauge-gap: 17px;
@@ -2384,10 +2384,11 @@ span[role=tab] {
     padding: 0.4em 0.1em;
     cursor: pointer;
     position: relative;
-    border-bottom: 2px solid #d9d9d9;
+    transition: color .25s,border-color .25s;
 }
 span[aria-selected=true], span:hover::after {
     color: #d64f00;
+    border-color: #d64f00;
     border-bottom: 2px solid #d64f00;
     transform: scale(1);
 }
