@@ -451,7 +451,7 @@ async def round_socket_handler(request):
                         board_response["takeback"] = True
                         await ws.send_json(board_response)
 
-                    elif data["type"] in ("abort", "resign", "abandone", "flag"):
+                    elif data["type"] in ("abort", "resign", "abandon", "flag"):
                         if game.variant == "bughouse": # todo:niki: add new method in both places
                             await handle_resign_bughouse(data, game, user)
                             continue
@@ -565,6 +565,9 @@ async def round_socket_handler(request):
                             "firstmovetime": game.stopwatch.secs if hasattr(game, "stopwatch") else 0,
                         }
                         await ws.send_json(response)
+
+                        if user.abandon_game_task is not None:
+                            user.abandon_game_task.cancel()
 
                         response = {"type": "fullchat", "lines": list(game.messages)}
                         await ws.send_json(response)
@@ -799,7 +802,9 @@ async def round_socket_handler(request):
                 del user.game_sockets[game.id]
                 user.update_online()
 
-            if user.username not in (game.wplayer.username, game.bplayer.username):
+            if user in (game.wplayer, game.bplayer):
+                user.abandon_game_task = asyncio.create_task(user.abandon_game(game))
+            else:
                 game.spectators.discard(user)
                 await round_broadcast(game, game.spectator_list, full=True)
 

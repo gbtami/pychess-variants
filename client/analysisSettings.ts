@@ -19,12 +19,13 @@ class AnalysisSettings {
         this.settings["multipv"] = new MultiPVSettings(this);
         this.settings["threads"] = new ThreadsSettings(this);
         this.settings["hash"] = new HashSettings(this);
+        this.settings["nnue"] = new NnueSettings(this);
     }
 
     getSettings(family: string) {
         const fullName = family + "Nnue";
         if (!this.settings[fullName]) {
-            this.settings[fullName] = new NnueSettings(this, family);
+            this.settings[fullName] = new NnueFileSettings(this, family);
         }
         return this.settings[fullName];
     }
@@ -43,6 +44,8 @@ class AnalysisSettings {
         settingsList.push(this.settings["threads"].view());
 
         settingsList.push(this.settings["hash"].view());
+
+        settingsList.push(this.settings["nnue"].view());
 
         settingsList.push(this.getSettings(variantName as string).view());
 
@@ -204,7 +207,37 @@ class HashSettings extends NumberSettings {
         return h('div.labelled', els);
     }
 }
-class NnueSettings extends StringSettings {
+
+class NnueSettings extends BooleanSettings {
+    readonly analysisSettings: AnalysisSettings;
+
+    constructor(analysisSettings: AnalysisSettings) {
+        super('nnue', true);
+        this.analysisSettings = analysisSettings;
+    }
+
+    update(): void {
+        const ctrl = this.analysisSettings.ctrl;
+        if ('nnue' in ctrl) {
+            ctrl.nnue = this.value;
+            ctrl.pvboxIni();
+        }
+    }
+
+    view(): VNode {
+        return h(
+            'div.nnue-toggle',
+            toggleSwitch(
+                this,
+                'nnue-enabled',
+                _("Use NNUE"),
+                false,
+            )
+        );
+    }
+}
+
+class NnueFileSettings extends StringSettings {
     readonly analysisSettings: AnalysisSettings;
     readonly variant: string;
 

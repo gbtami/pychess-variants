@@ -1,7 +1,7 @@
 # Translations template for PROJECT.
-# Copyright (C) 2022 ORGANIZATION
+# Copyright (C) 2023 ORGANIZATION
 # This file is distributed under the same license as the PROJECT project.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2023.
 # 
 # Translators:
 # Leo Ha <yeoha123@gmail.com>, 2020
@@ -14,278 +14,314 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-09-15 22:54+0200\n"
+"POT-Creation-Date: 2023-08-05 22:06+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Last-Translator: 설월신서향雪月申瑞香（설월）, 2023\n"
-"Language-Team: Korean (https://www.transifex.com/gbtami/teams/14790/ko/)\n"
+"Language-Team: Korean (https://app.transifex.com/gbtami/teams/14790/ko/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.9.1\n"
+"Generated-By: Babel 2.12.1\n"
 "Language: ko\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-#: ../server/const.py:279
+#: ../server/const.py:317
 msgid "Arena"
 msgstr "아레나"
 
-#: ../server/const.py:280
+#: ../server/const.py:318
 msgid "Round-Robin"
 msgstr "리그전"
 
-#: ../server/const.py:281
+#: ../server/const.py:319
 msgid "Swiss"
 msgstr "스위스"
 
-#: ../server/const.py:285
+#: ../server/const.py:323
 msgid "Hourly"
-msgstr ""
+msgstr "시간"
 
-#: ../server/const.py:286
+#: ../server/const.py:324
 msgid "Daily"
-msgstr ""
+msgstr "일간"
 
-#: ../server/const.py:287
+#: ../server/const.py:325
 msgid "Weekly"
-msgstr ""
+msgstr "주간"
 
-#: ../server/const.py:288
+#: ../server/const.py:326
 msgid "Monthly"
-msgstr ""
+msgstr "월간"
 
-#: ../server/const.py:289
+#: ../server/const.py:327
 msgid "Yearly"
-msgstr ""
+msgstr "연간"
 
-#: ../server/const.py:290
+#: ../server/const.py:328
 msgid "Marathon"
 msgstr "마라톤"
 
-#: ../server/const.py:291
+#: ../server/const.py:329
 msgid "Shield"
 msgstr "방패"
 
-#: ../server/const.py:292
+#: ../server/const.py:330
 msgid "SEAturday"
 msgstr ""
 
-#: ../server/const.py:296
+#: ../server/const.py:334
 msgid "Chess"
 msgstr "체스"
 
-#: ../server/const.py:297
+#: ../server/const.py:335
 msgid "Chess960"
 msgstr "체스960"
 
-#: ../server/const.py:298
+#: ../server/const.py:336
 msgid "Crazyhouse"
 msgstr "크레이지하우스"
 
-#: ../server/const.py:299
+#: ../server/const.py:337
 msgid "Crazyhouse960"
 msgstr "크레이지하우스960"
 
-#: ../server/const.py:300
+#: ../server/const.py:338 ../server/videos.py:24
 msgid "Placement"
-msgstr ""
+msgstr "배치"
 
-#: ../server/const.py:301
+#: ../server/const.py:339
 msgid "Atomic"
 msgstr "아토믹"
 
-#: ../server/const.py:302
+#: ../server/const.py:340
 msgid "Atomic960"
 msgstr "아토믹960"
 
-#: ../server/const.py:303 ../server/videos.py:19
+#: ../server/const.py:341
+msgid "Duck Chess"
+msgstr ""
+
+#: ../server/const.py:342 ../server/videos.py:20
 msgid "Makruk"
 msgstr "막룩"
 
-#: ../server/const.py:304
+#: ../server/const.py:343
 msgid "Makpong"
 msgstr "막퐁"
 
-#: ../server/const.py:305
+#: ../server/const.py:344
 msgid "Ouk Chaktrang"
 msgstr "욱 차트랑"
 
-#: ../server/const.py:306
+#: ../server/const.py:345
 msgid "Sittuyin"
 msgstr "시투인"
 
-#: ../server/const.py:307
+#: ../server/const.py:346
 msgid "ASEAN"
 msgstr "아세안"
 
-#: ../server/const.py:308 ../server/videos.py:20
+#: ../server/const.py:347 ../server/videos.py:21
 msgid "Shogi"
 msgstr "쇼기"
 
-#: ../server/const.py:309
+#: ../server/const.py:348
 msgid "Minishogi"
 msgstr "미니쇼기"
 
-#: ../server/const.py:310
+#: ../server/const.py:349
 msgid "Kyoto Shogi"
 msgstr "교토 쇼기"
 
-#: ../server/const.py:311
+#: ../server/const.py:350
 msgid "Dobutsu"
 msgstr "도부츠"
 
-#: ../server/const.py:314
+#: ../server/const.py:353
 msgid "Gorogoro+"
 msgstr "고로고로+"
 
-#: ../server/const.py:315
+#: ../server/const.py:354
 msgid "Tori Shogi"
 msgstr "토리 쇼기"
 
-#: ../server/const.py:316 ../server/videos.py:18
+#: ../server/const.py:355 ../server/videos.py:19
 msgid "Xiangqi"
 msgstr "샹치"
 
-#: ../server/const.py:317
+#: ../server/const.py:356
 msgid "Manchu"
 msgstr "만추"
 
-#: ../server/const.py:318 ../server/videos.py:17
+#: ../server/const.py:357 ../server/videos.py:18
 msgid "Janggi"
 msgstr "장기"
 
-#: ../server/const.py:319
+#: ../server/const.py:358
 msgid "Minixiangqi"
 msgstr "미니샹치"
 
-#: ../server/const.py:320
+#: ../server/const.py:359 ../server/videos.py:23
 msgid "Capablanca"
 msgstr "카파블랑카"
 
-#: ../server/const.py:321
+#: ../server/const.py:360
 msgid "Capablanca960"
 msgstr "카파블랑카960"
 
-#: ../server/const.py:322
+#: ../server/const.py:361
 msgid "Capahouse"
 msgstr "카파하우스"
 
-#: ../server/const.py:323
+#: ../server/const.py:362
 msgid "Capahouse960"
 msgstr "카파하우스960"
 
-#: ../server/const.py:329 ../server/videos.py:21
+#: ../server/const.py:368 ../server/videos.py:22
 msgid "S-Chess"
 msgstr "S체스"
 
-#: ../server/const.py:330
+#: ../server/const.py:369
 msgid "S-Chess960"
 msgstr "S체스960"
 
-#: ../server/const.py:331
+#: ../server/const.py:370
 msgid "S-House"
 msgstr "S하우스"
 
-#: ../server/const.py:332
+#: ../server/const.py:371
 msgid "Grand"
 msgstr "그랜드"
 
-#: ../server/const.py:333
+#: ../server/const.py:372
 msgid "Grandhouse"
 msgstr "그랜드하우스"
 
-#: ../server/const.py:334
+#: ../server/const.py:373
 msgid "Shogun"
 msgstr "쇼군"
 
-#: ../server/const.py:335
+#: ../server/const.py:374
 msgid "Shako"
 msgstr "샤코"
 
-#: ../server/const.py:336
+#: ../server/const.py:375
 msgid "Hoppel-Poppel"
 msgstr "호플호플"
 
-#: ../server/const.py:337
+#: ../server/const.py:376
 msgid "Orda Chess"
 msgstr "오르다 체스"
 
-#: ../server/const.py:338
+#: ../server/const.py:377
 msgid "Synochess"
 msgstr "시노체스"
 
-#: ../server/const.py:339
+#: ../server/const.py:378
 msgid "Shinobi"
 msgstr "시노비"
 
-#: ../server/const.py:340
+#: ../server/const.py:379
+msgid "Shinobi+"
+msgstr ""
+
+#: ../server/const.py:380
 msgid "Empire"
 msgstr "엠파이어"
 
-#: ../server/const.py:341
+#: ../server/const.py:381
 msgid "Orda Mirror"
 msgstr "오르다 거울"
 
-#: ../server/const.py:342
+#: ../server/const.py:382
 msgid "Chak"
 msgstr "착"
 
-#: ../server/const.py:343
+#: ../server/const.py:383
 msgid "Chennis"
 msgstr "첸니스"
 
-#: ../server/videos.py:9
-msgid "Howto"
+#: ../server/const.py:384
+msgid "Spartan"
+msgstr ""
+
+#: ../server/const.py:385
+msgid "King of the Hill"
+msgstr ""
+
+#: ../server/const.py:386
+msgid "King of the Hill 960"
+msgstr ""
+
+#: ../server/const.py:387
+msgid "Three check"
+msgstr ""
+
+#: ../server/const.py:388
+msgid "Three check 960"
 msgstr ""
 
 #: ../server/videos.py:10
+msgid "Howto"
+msgstr ""
+
+#: ../server/videos.py:11
 msgid "Introduction"
 msgstr "소개"
 
-#: ../server/videos.py:11
+#: ../server/videos.py:12
 msgid "Opening"
 msgstr "오프닝"
 
-#: ../server/videos.py:12
+#: ../server/videos.py:13
 msgid "Middlegame"
 msgstr "미들게임"
 
-#: ../server/videos.py:13
+#: ../server/videos.py:14
 msgid "Endgame"
 msgstr "엔드게임"
 
-#: ../server/videos.py:14
+#: ../server/videos.py:15
 msgid "Fundamentals"
 msgstr ""
 
-#: ../server/videos.py:15
+#: ../server/videos.py:16
 msgid "Tactics"
 msgstr "전술"
 
-#: ../server/videos.py:16
+#: ../server/videos.py:17
 msgid "Puzzle"
 msgstr "퍼즐"
 
-#: ../server/videos.py:22
+#: ../server/videos.py:25
+msgid "Duck"
+msgstr ""
+
+#: ../server/videos.py:26
 msgid "Match"
 msgstr "경기"
 
-#: ../server/videos.py:23
+#: ../server/videos.py:27
 msgid "Tournament"
 msgstr "토너먼트"
 
-#: ../server/videos.py:24
+#: ../server/videos.py:28
 msgid "Hu Ronghua"
 msgstr "후 롱화"
 
-#: ../server/videos.py:28
+#: ../server/videos.py:29
+msgid "Yoshiharu Habu"
+msgstr ""
+
+#: ../server/videos.py:33
 msgid "beginner"
 msgstr "초보"
 
-#: ../server/videos.py:29
+#: ../server/videos.py:34
 msgid "intermediate"
 msgstr "중수"
 
-#: ../server/videos.py:30
+#: ../server/videos.py:35
 msgid "advanced"
 msgstr "고수"
 
@@ -293,13 +329,13 @@ msgstr "고수"
 msgid "This account is closed."
 msgstr "이 계정은 정지되었습니다"
 
-#: ../templates/patron.html:8
+#: ../templates/patron.html:11
 msgid ""
 "As you know, pychess-variants is a free server and it will remain free forever. However, maintaining and improving the server costs time and money.\n"
 "If you like our work and find our server useful, please donate through patreon or paypal."
 msgstr ""
-"pychess-variants 는 무료 서버이며 앞으로도 계속 무료로 운영됩니다. 하지만 서버 관리 및 향상을 위해서는 돈과 시간이 들어갑니다. \n"
-"만약 저희가 하는 일이 만족스럽고 서버가 상당히 유용하셨다면, patreon 또는 paypal 을 통해 기부 해주셨으면 합니다."
+"pychess-variants 는 무료 서버이며 앞으로도 영원히 무료로 운영될 예정입니다. 하지만 서버 관리 및 향상을 위해서는 돈과 시간이 들어갑니다. \n"
+"만약 저희가 하는 일이 만족스럽고 서버가 상당히 유용하다면, patreon이나 paypal을 통해 기부 해 주신다면 감사드립니다."
 
 #: ../templates/players.html:7
 msgid "All players"
@@ -351,6 +387,16 @@ msgstr "게임 내보내기"
 msgid "Lichess profile"
 msgstr "Lichess 프로필"
 
+#: ../templates/puzzle_profile.html:14
+#, python-format
+msgid "%(count)s puzzle"
+msgid_plural "%(count)s puzzles"
+msgstr[0] ""
+
+#: ../templates/puzzle_profile.html:23
+msgid "Puzzle history"
+msgstr ""
+
 #: ../templates/template.html:18
 msgid "Play"
 msgstr "플레이"
@@ -363,63 +409,71 @@ msgstr "게임 만들기"
 msgid "Tournaments"
 msgstr "토너먼트"
 
-#: ../templates/template.html:25
+#: ../templates/template.html:25 ../templates/template.html:27
 msgid "Puzzles"
 msgstr "퍼즐"
 
-#: ../templates/template.html:28
+#: ../templates/template.html:31
+msgid "Learn"
+msgstr "배우기"
+
+#: ../templates/template.html:33
+msgid "Variants"
+msgstr "변형 소개"
+
+#: ../templates/template.html:34
+msgid "Memory"
+msgstr "메모리 게임"
+
+#: ../templates/template.html:38
 msgid "Watch"
 msgstr "보기"
 
-#: ../templates/template.html:30
+#: ../templates/template.html:40
 msgid "Tv"
 msgstr "생중계"
 
-#: ../templates/template.html:31
+#: ../templates/template.html:41
 msgid "Current games"
 msgstr "현재 진행 중인 게임"
 
-#: ../templates/template.html:32
+#: ../templates/template.html:42
 msgid "Video library"
 msgstr "영상 도서관"
 
-#: ../templates/template.html:36
+#: ../templates/template.html:46
 msgid "Community"
 msgstr "커뮤니티"
 
-#: ../templates/template.html:38
+#: ../templates/template.html:48
 msgid "Players"
 msgstr "대국자"
 
-#: ../templates/template.html:39
+#: ../templates/template.html:49
 msgid "Blog"
 msgstr "블로그"
 
-#: ../templates/template.html:40
+#: ../templates/template.html:50
 msgid "Donate"
 msgstr "기부하기"
 
-#: ../templates/template.html:44
+#: ../templates/template.html:54
 msgid "Tools"
 msgstr "도구"
 
-#: ../templates/template.html:46
+#: ../templates/template.html:56
 msgid "Editor"
 msgstr "편집하기"
 
-#: ../templates/template.html:47
+#: ../templates/template.html:57
 msgid "Analysis"
 msgstr "분석하기"
 
-#: ../templates/template.html:51
-msgid "Variants"
-msgstr "변형"
-
-#: ../templates/template.html:65
+#: ../templates/template.html:72
 msgid "Login with Lichess"
 msgstr "Lichess로 로그인"
 
-#: ../templates/template.html:65
+#: ../templates/template.html:72
 msgid "Log in"
 msgstr "로그 인"
 

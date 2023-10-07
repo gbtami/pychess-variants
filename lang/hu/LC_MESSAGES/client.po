@@ -12,7 +12,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2023-06-12 14:37+0200\n"
+"POT-Creation-Date: 2023-08-05 22:06+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Last-Translator: gbtami <gbtami@gmail.com>, 2023\n"
 "Language-Team: Hungarian (https://app.transifex.com/gbtami/teams/14790/hu/)\n"
@@ -148,27 +148,27 @@ msgstr ""
 msgid "Variant"
 msgstr "Variáns"
 
-#: ../client/analysis.ts:154
+#: ../client/analysis.ts:108
 msgid "Computer analysis"
 msgstr "Számítógépes elemzés"
 
-#: ../client/analysis.ts:155
+#: ../client/analysis.ts:110
 msgid "Move times"
 msgstr "Lépésidők"
 
-#: ../client/analysis.ts:156
+#: ../client/analysis.ts:113
 msgid "Crosstable"
 msgstr "Eredménytábla"
 
-#: ../client/analysis.ts:157
+#: ../client/analysis.ts:117
 msgid "FEN & PGN"
 msgstr "FEN & PGN"
 
-#: ../client/analysis.ts:172
+#: ../client/analysis.ts:179
 msgid "Multi-threaded WebAssembly (classical evaluation)"
 msgstr "Többszálú WebAssembly (hagyományos értékelés)"
 
-#: ../client/analysis.ts:174 ../client/analysisCtrl.ts:680
+#: ../client/analysis.ts:181 ../client/analysisCtrl.ts:687
 msgid "in local browser"
 msgstr "a böngészőben"
 
@@ -180,63 +180,63 @@ msgstr "Kezdőállás"
 msgid "Advantage"
 msgstr "Előny"
 
-#: ../client/analysisCtrl.ts:300
+#: ../client/analysisCtrl.ts:308
 msgid "You need an account to do that."
 msgstr "Csak regisztrált felhasználók számára elérhető."
 
-#: ../client/analysisCtrl.ts:339
+#: ../client/analysisCtrl.ts:345
 msgid "Download game to PGN file"
 msgstr "Játszma leöltése PGN fájlba."
 
-#: ../client/analysisCtrl.ts:339
+#: ../client/analysisCtrl.ts:345
 msgid "Download PGN"
 msgstr "PGN letöltése"
 
-#: ../client/analysisCtrl.ts:341
+#: ../client/analysisCtrl.ts:347
 msgid "Copy USI/UCI to clipboard"
 msgstr "UCI/USI másolása a vágólapra."
 
-#: ../client/analysisCtrl.ts:341
+#: ../client/analysisCtrl.ts:347
 msgid "Copy UCI/USI"
 msgstr "UCI/USI másolása"
 
-#: ../client/analysisCtrl.ts:343
+#: ../client/analysisCtrl.ts:349
 msgid "Download position to PNG image file"
 msgstr "Állás másolása PNG kép fájlba."
 
-#: ../client/analysisCtrl.ts:343
+#: ../client/analysisCtrl.ts:349
 msgid "PNG image"
 msgstr "PNG kép"
 
-#: ../client/analysisCtrl.ts:357
+#: ../client/analysisCtrl.ts:363
 msgid "Are you sure you want to delete this game?"
 msgstr "Biztosan törölni akarod ezt a játszmát?"
 
-#: ../client/analysisCtrl.ts:372
+#: ../client/analysisCtrl.ts:378
 msgid "Delete game"
 msgstr "Játszma törlése"
 
-#: ../client/analysisCtrl.ts:403
+#: ../client/analysisCtrl.ts:409
 msgid "Request Computer Analysis"
 msgstr "Számítógépes elemzés kérése"
 
-#: ../client/analysisCtrl.ts:403
+#: ../client/analysisCtrl.ts:409
 msgid "Request Analysis"
 msgstr "Elemzés kérése"
 
-#: ../client/analysisCtrl.ts:457
+#: ../client/analysisCtrl.ts:464
 msgid "Try browser page reload."
 msgstr "Próbáld meg újratölteni az oldalt. "
 
-#: ../client/analysisCtrl.ts:491
+#: ../client/analysisCtrl.ts:498
 msgid "Multi-threaded WebAssembly (with NNUE evaluation)"
 msgstr "Többszálú WebAssembly (NNUE értékelés)"
 
-#: ../client/analysisCtrl.ts:663
+#: ../client/analysisCtrl.ts:670
 msgid "Depth"
 msgstr "mélység"
 
-#: ../client/analysisCtrl.ts:668
+#: ../client/analysisCtrl.ts:675
 msgid "Go deeper"
 msgstr "Mélyebben"
 
@@ -276,23 +276,23 @@ msgstr "Bábuk animációja"
 msgid "Confirm resigning"
 msgstr "Feladás megerősítése"
 
-#: ../client/boardSettings.ts:281
+#: ../client/boardSettings.ts:289
 msgid "Zoom"
 msgstr "Zoomolás"
 
-#: ../client/boardSettings.ts:302
+#: ../client/boardSettings.ts:310
 msgid "Show piece destinations"
 msgstr "Lehetséges lépések mutatása"
 
-#: ../client/boardSettings.ts:321
+#: ../client/boardSettings.ts:329
 msgid "Promote to the top choice automatically"
 msgstr "Automatikus figura átváltoztatás"
 
-#: ../client/boardSettings.ts:350
+#: ../client/boardSettings.ts:358
 msgid "Invisible pieces"
 msgstr "Láthatatlan bábuk"
 
-#: ../client/boardSettings.ts:373
+#: ../client/boardSettings.ts:381
 msgid "Show material difference"
 msgstr "Bábuk közötti különbség"
 
@@ -726,7 +726,7 @@ msgstr ""
 "Thai sakk. Az eredeti Csaturangához közel álló sakk variáns. Hasonló a "
 "sakkhoz, de a vezér és a futó másként lép."
 
-#: ../client/i18n.ts:100 ../client/variants.ts:361
+#: ../client/i18n.ts:100 ../client/variants.ts:384
 msgid "Makruk variant where kings cannot move to escape out of check."
 msgstr "Makruk variáns, ahol a király nem léphet ki a sakkból."
 
@@ -750,7 +750,7 @@ msgstr ""
 "Makruk hagyományos sakktáblán és figurákkal, a sakk átváltozási "
 "szabályaival."
 
-#: ../client/i18n.ts:104 ../client/variants.ts:402
+#: ../client/i18n.ts:104 ../client/variants.ts:425
 msgid ""
 "Japanese Chess, and the standard 9x9 version played today with drops and "
 "promotions. "
@@ -771,7 +771,7 @@ msgid ""
 msgstr ""
 "5x5-ös Sógi variáns, ahol a figurák minden lépésben oda-vissza átváltoznak."
 
-#: ../client/i18n.ts:107 ../client/variants.ts:454
+#: ../client/i18n.ts:107 ../client/variants.ts:477
 msgid ""
 "3x4 game with cute animals, designed to teach children how to play Shogi."
 msgstr ""
@@ -823,7 +823,7 @@ msgstr ""
 "10x8-as sakk két új figurával. Az archbishop = futó + ló, a chancellor = "
 "bástya + ló."
 
-#: ../client/i18n.ts:115 ../client/variants.ts:578
+#: ../client/i18n.ts:115 ../client/variants.ts:601
 msgid "Capablanca with Crazyhouse drop rules."
 msgstr "Capablanca variáns Crazyhouse szabályokkal."
 
@@ -839,7 +839,7 @@ msgstr ""
 msgid "S-Chess with Crazyhouse drop rules."
 msgstr "S-Chess Crazyhouse szabályokkal."
 
-#: ../client/i18n.ts:118 ../client/variants.ts:617
+#: ../client/i18n.ts:118 ../client/variants.ts:640
 msgid ""
 "Play with the hybrid pieces, archbishop (B+N) and chancellor (R+N), on a "
 "grand 10x10 board."
@@ -874,7 +874,7 @@ msgstr ""
 "Aszimmetrikus variáns, ahol az arany horda tisztjei lóként lépnek, de "
 "másként ütnek."
 
-#: ../client/i18n.ts:124 ../client/variants.ts:678
+#: ../client/i18n.ts:124 ../client/variants.ts:701
 msgid ""
 "Asymmetric East vs. West variant which pits the western Chess army against a"
 " Xiangqi and Janggi-styled army."
@@ -889,7 +889,7 @@ msgstr ""
 "Aszimmetrikus variáns, a nyugati sakk figurák a visszarakható, Sógi-hoz "
 "hasonló figurák ellen."
 
-#: ../client/i18n.ts:126 ../client/variants.ts:733
+#: ../client/i18n.ts:126 ../client/variants.ts:756
 msgid ""
 "Asymmetric variant where one army has pieces that move like queens but "
 "capture as usual."
@@ -897,7 +897,7 @@ msgstr ""
 "Aszimmetrikus variáns, ahol a világos tisztek a szokásos módon ütnek, de "
 "vezérként lépnek."
 
-#: ../client/i18n.ts:127 ../client/variants.ts:744
+#: ../client/i18n.ts:127 ../client/variants.ts:767
 msgid ""
 "Orda Chess variant with two Horde armies. The Falcon replaces the Yurt."
 msgstr "Orda sakk variáns két Orda sereggel, a jurta helyett sólyommal."
@@ -923,7 +923,7 @@ msgstr "Embassy Crazyhouse visszarakásokkal."
 msgid "Like Capablanca Chess but with a different starting setup."
 msgstr "Capablanca sakk más kezdőállással."
 
-#: ../client/i18n.ts:133 ../client/variants.ts:833
+#: ../client/i18n.ts:133 ../client/variants.ts:856
 msgid "Gothic with Crazyhouse drop rules."
 msgstr "Capablanca variáns Crazyhouse szabályokkal."
 
@@ -1144,7 +1144,7 @@ msgstr "A Pychess karácsonyi ajándéka."
 msgid "Duck chess has arrived"
 msgstr "A Duck Chess megérkezett."
 
-#: ../client/main.ts:112
+#: ../client/main.ts:111
 msgid "Thank you for your support!"
 msgstr "Köszönet a támogatásért!"
 
@@ -1349,14 +1349,22 @@ msgid "Explosion of king"
 msgstr "A király felrobbantva"
 
 #: ../client/result.ts:102
+msgid "King in the center"
+msgstr "King in the center"
+
+#: ../client/result.ts:105
+msgid "Three checks"
+msgstr "3 sakk"
+
+#: ../client/result.ts:108
 msgid "King captured"
 msgstr "Király leütve."
 
-#: ../client/result.ts:105 ../client/result.ts:112
+#: ../client/result.ts:111 ../client/result.ts:118
 msgid "Point counting"
 msgstr "Pontszámítás"
 
-#: ../client/result.ts:115
+#: ../client/result.ts:121
 msgid "Repetition"
 msgstr "Lépésismétlés"
 
@@ -1630,37 +1638,37 @@ msgstr ""
 msgid "STARTING IN"
 msgstr "A KEZDÉSIG VAN MÉG"
 
-#: ../client/variants.ts:795
+#: ../client/variants.ts:818
 msgid "Asymmetric Spartans vs. Persians variant."
 msgstr "A spártaiak a perzsák ellen."
 
-#: ../client/lobby/layer1.ts:51 ../client/lobby/layer2chess.ts:19
-#: ../client/variants.ts:874
+#: ../client/lobby/layer1.ts:51 ../client/lobby/layer2chess.ts:21
+#: ../client/variants.ts:896
 msgid "Chess Variants"
 msgstr "Sakk variánsok"
 
 #: ../client/lobby/layer1.ts:75 ../client/lobby/layer2makruk.ts:16
-#: ../client/variants.ts:875
+#: ../client/variants.ts:897
 msgid "Makruk Variants"
 msgstr "Makruk variánsok"
 
 #: ../client/lobby/layer1.ts:83 ../client/lobby/layer2shogi.ts:17
-#: ../client/variants.ts:876
+#: ../client/variants.ts:898
 msgid "Shogi Variants"
 msgstr "Sógi variánsok"
 
 #: ../client/lobby/layer1.ts:91 ../client/lobby/layer2xiangqi.ts:16
-#: ../client/variants.ts:877
+#: ../client/variants.ts:899
 msgid "Xiangqi Variants"
 msgstr "Xiangqi variánsok"
 
 #: ../client/lobby/layer1.ts:59 ../client/lobby/layer2fairy.ts:16
-#: ../client/variants.ts:878
+#: ../client/variants.ts:900
 msgid "Fairy Piece Variants"
 msgstr "Tündér sakkfigura variánsok"
 
 #: ../client/lobby/layer1.ts:67 ../client/lobby/layer2army.ts:16
-#: ../client/variants.ts:879
+#: ../client/variants.ts:901
 msgid "New Army Variants"
 msgstr "Új sereg variánsok"
 
@@ -1724,7 +1732,7 @@ msgstr ""
 "Ezek a variánsok teljesen új seregeket, új figurákat használnak. Többségük a"
 " hagyományos sötét sakk figurák ellen."
 
-#: ../client/lobby/layer2army.ts:19 ../client/lobby/layer2chess.ts:22
+#: ../client/lobby/layer2army.ts:19 ../client/lobby/layer2chess.ts:24
 #: ../client/lobby/layer2fairy.ts:26 ../client/lobby/layer2makruk.ts:19
 #: ../client/lobby/layer2shogi.ts:20 ../client/lobby/layer2xiangqi.ts:19
 #: ../client/lobby/layer3.ts:45
@@ -1763,7 +1771,7 @@ msgstr "Váltakozó figurák"
 msgid "Spartans: Army with two kings"
 msgstr "Spártaiak: hadsereg két királlyal"
 
-#: ../client/lobby/layer2chess.ts:21
+#: ../client/lobby/layer2chess.ts:23
 msgid "Variants using a basic chess set but with different rules."
 msgstr "Hagyományos sakk figurák új szabályokkal."
 

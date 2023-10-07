@@ -13,7 +13,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2023-06-12 14:37+0200\n"
+"POT-Creation-Date: 2023-08-05 22:06+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Last-Translator: Артем Артем, 2023\n"
 "Language-Team: Russian (https://app.transifex.com/gbtami/teams/14790/ru/)\n"
@@ -24,225 +24,241 @@ msgstr ""
 "Language: ru\n"
 "Plural-Forms: nplurals=4; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || (n%100>=11 && n%100<=14)? 2 : 3);\n"
 
-#: ../server/const.py:299
+#: ../server/const.py:317
 msgid "Arena"
 msgstr "Арена"
 
-#: ../server/const.py:300
+#: ../server/const.py:318
 msgid "Round-Robin"
 msgstr "По круговой системе"
 
-#: ../server/const.py:301
+#: ../server/const.py:319
 msgid "Swiss"
 msgstr "По швейцарской системе"
 
-#: ../server/const.py:305
+#: ../server/const.py:323
 msgid "Hourly"
 msgstr "Ежечасная"
 
-#: ../server/const.py:306
+#: ../server/const.py:324
 msgid "Daily"
 msgstr "Ежедневная"
 
-#: ../server/const.py:307
+#: ../server/const.py:325
 msgid "Weekly"
 msgstr "Еженедельная"
 
-#: ../server/const.py:308
+#: ../server/const.py:326
 msgid "Monthly"
 msgstr "Ежемесячная"
 
-#: ../server/const.py:309
+#: ../server/const.py:327
 msgid "Yearly"
 msgstr "Ежегодная"
 
-#: ../server/const.py:310
+#: ../server/const.py:328
 msgid "Marathon"
 msgstr "Марафон"
 
-#: ../server/const.py:311
+#: ../server/const.py:329
 msgid "Shield"
 msgstr "Щит"
 
-#: ../server/const.py:312
+#: ../server/const.py:330
 msgid "SEAturday"
 msgstr "Субботняя"
 
-#: ../server/const.py:316
+#: ../server/const.py:334
 msgid "Chess"
 msgstr "Шахматы"
 
-#: ../server/const.py:317
+#: ../server/const.py:335
 msgid "Chess960"
 msgstr "Шахматы960"
 
-#: ../server/const.py:318
+#: ../server/const.py:336
 msgid "Crazyhouse"
 msgstr "Крейзихаус"
 
-#: ../server/const.py:319
+#: ../server/const.py:337
 msgid "Crazyhouse960"
 msgstr "Крейзихаус960"
 
-#: ../server/const.py:320 ../server/videos.py:24
+#: ../server/const.py:338 ../server/videos.py:24
 msgid "Placement"
 msgstr "Расстановка"
 
-#: ../server/const.py:321
+#: ../server/const.py:339
 msgid "Atomic"
 msgstr "Атомные"
 
-#: ../server/const.py:322
+#: ../server/const.py:340
 msgid "Atomic960"
 msgstr "Атомные960"
 
-#: ../server/const.py:323
+#: ../server/const.py:341
 msgid "Duck Chess"
 msgstr "Утиные Шахматы"
 
-#: ../server/const.py:324 ../server/videos.py:20
+#: ../server/const.py:342 ../server/videos.py:20
 msgid "Makruk"
 msgstr "Макрук"
 
-#: ../server/const.py:325
+#: ../server/const.py:343
 msgid "Makpong"
 msgstr "Макпонг"
 
-#: ../server/const.py:326
+#: ../server/const.py:344
 msgid "Ouk Chaktrang"
 msgstr "Ок Чактранг"
 
-#: ../server/const.py:327
+#: ../server/const.py:345
 msgid "Sittuyin"
 msgstr "Ситтуйин"
 
-#: ../server/const.py:328
+#: ../server/const.py:346
 msgid "ASEAN"
 msgstr "АСЕАН"
 
-#: ../server/const.py:329 ../server/videos.py:21
+#: ../server/const.py:347 ../server/videos.py:21
 msgid "Shogi"
 msgstr "Сёги"
 
-#: ../server/const.py:330
+#: ../server/const.py:348
 msgid "Minishogi"
 msgstr "Минисёги"
 
-#: ../server/const.py:331
+#: ../server/const.py:349
 msgid "Kyoto Shogi"
 msgstr "Киото Сёги"
 
-#: ../server/const.py:332
+#: ../server/const.py:350
 msgid "Dobutsu"
 msgstr "Добуцу"
 
-#: ../server/const.py:335
+#: ../server/const.py:353
 msgid "Gorogoro+"
 msgstr "Горогоро+"
 
-#: ../server/const.py:336
+#: ../server/const.py:354
 msgid "Tori Shogi"
 msgstr "Тори Сёги"
 
-#: ../server/const.py:337 ../server/videos.py:19
+#: ../server/const.py:355 ../server/videos.py:19
 msgid "Xiangqi"
 msgstr "Сянци"
 
-#: ../server/const.py:338
+#: ../server/const.py:356
 msgid "Manchu"
 msgstr "Маньчжурские"
 
-#: ../server/const.py:339 ../server/videos.py:18
+#: ../server/const.py:357 ../server/videos.py:18
 msgid "Janggi"
 msgstr "Чанги"
 
-#: ../server/const.py:340
+#: ../server/const.py:358
 msgid "Minixiangqi"
 msgstr "Минисянци"
 
-#: ../server/const.py:341 ../server/videos.py:23
+#: ../server/const.py:359 ../server/videos.py:23
 msgid "Capablanca"
 msgstr "Капабланка"
 
-#: ../server/const.py:342
+#: ../server/const.py:360
 msgid "Capablanca960"
 msgstr "Капабланка960"
 
-#: ../server/const.py:343
+#: ../server/const.py:361
 msgid "Capahouse"
 msgstr "Капахаус"
 
-#: ../server/const.py:344
+#: ../server/const.py:362
 msgid "Capahouse960"
 msgstr "Капахаус960"
 
-#: ../server/const.py:350 ../server/videos.py:22
+#: ../server/const.py:368 ../server/videos.py:22
 msgid "S-Chess"
 msgstr "S-Шахматы"
 
-#: ../server/const.py:351
+#: ../server/const.py:369
 msgid "S-Chess960"
 msgstr "S-Шахматы960"
 
-#: ../server/const.py:352
+#: ../server/const.py:370
 msgid "S-House"
 msgstr "S-Хаус"
 
-#: ../server/const.py:353
+#: ../server/const.py:371
 msgid "Grand"
 msgstr "Гранд"
 
-#: ../server/const.py:354
+#: ../server/const.py:372
 msgid "Grandhouse"
 msgstr "Грандхаус"
 
-#: ../server/const.py:355
+#: ../server/const.py:373
 msgid "Shogun"
 msgstr "Сёгун"
 
-#: ../server/const.py:356
+#: ../server/const.py:374
 msgid "Shako"
 msgstr "Шако"
 
-#: ../server/const.py:357
+#: ../server/const.py:375
 msgid "Hoppel-Poppel"
 msgstr "Хоппель-Поппель"
 
-#: ../server/const.py:358
+#: ../server/const.py:376
 msgid "Orda Chess"
 msgstr "Орда"
 
-#: ../server/const.py:359
+#: ../server/const.py:377
 msgid "Synochess"
 msgstr "Синочесс"
 
-#: ../server/const.py:360
+#: ../server/const.py:378
 msgid "Shinobi"
 msgstr "Синоби"
 
-#: ../server/const.py:361
+#: ../server/const.py:379
 msgid "Shinobi+"
 msgstr "Синоби+"
 
-#: ../server/const.py:362
+#: ../server/const.py:380
 msgid "Empire"
 msgstr "Империя"
 
-#: ../server/const.py:363
+#: ../server/const.py:381
 msgid "Orda Mirror"
 msgstr "Зеркальная Орда"
 
-#: ../server/const.py:364
+#: ../server/const.py:382
 msgid "Chak"
 msgstr "Чак"
 
-#: ../server/const.py:365
+#: ../server/const.py:383
 msgid "Chennis"
 msgstr "Ченнис"
 
-#: ../server/const.py:366
+#: ../server/const.py:384
 msgid "Spartan"
 msgstr "Спартанские"
+
+#: ../server/const.py:385
+msgid "King of the Hill"
+msgstr "Царь горы"
+
+#: ../server/const.py:386
+msgid "King of the Hill 960"
+msgstr "Царь горы 960"
+
+#: ../server/const.py:387
+msgid "Three check"
+msgstr "Три шаха"
+
+#: ../server/const.py:388
+msgid "Three check 960"
+msgstr "Три шаха 960"
 
 #: ../server/videos.py:10
 msgid "Howto"
@@ -312,7 +328,7 @@ msgstr "продвинутый"
 msgid "This account is closed."
 msgstr "Этот аккаунт закрыт."
 
-#: ../templates/patron.html:8
+#: ../templates/patron.html:11
 msgid ""
 "As you know, pychess-variants is a free server and it will remain free forever. However, maintaining and improving the server costs time and money.\n"
 "If you like our work and find our server useful, please donate through patreon or paypal."
@@ -372,6 +388,19 @@ msgstr "Экспорт игр"
 #: ../templates/profile.html:54
 msgid "Lichess profile"
 msgstr "Lichess профиль"
+
+#: ../templates/puzzle_profile.html:14
+#, python-format
+msgid "%(count)s puzzle"
+msgid_plural "%(count)s puzzles"
+msgstr[0] "%(count)sзадача"
+msgstr[1] "%(count)sзадачи"
+msgstr[2] "%(count)sзадач"
+msgstr[3] "%(count)sзадач"
+
+#: ../templates/puzzle_profile.html:23
+msgid "Puzzle history"
+msgstr "История задачи"
 
 #: ../templates/template.html:18
 msgid "Play"

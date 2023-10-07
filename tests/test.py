@@ -217,7 +217,7 @@ class GamePlayTestCase(AioHTTPTestCase):
             move = random.choice(game.legal_moves)
             await game.play_move(move, clocks={"white": 60, "black": 60})
 
-    async def xxxtest_game_play(self):
+    async def test_game_play(self):
         """Playtest test_player vs Random-Mover"""
         for i, variant in enumerate(VARIANTS):
             print(i, variant)

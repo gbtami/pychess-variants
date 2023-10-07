@@ -1,0 +1,96 @@
+.mansindam .cg-wrap piece.a-piece.ally {
+    background-image: url('../../images/pieces/mansindam/tomato/wa.svg');
+}
+.mansindam .cg-wrap piece.c-piece.ally {
+    background-image: url('../../images/pieces/mansindam/tomato/wc.svg');
+}
+.mansindam .cg-wrap piece.m-piece.ally {
+    background-image: url('../../images/pieces/mansindam/tomato/wm.svg');
+}
+.mansindam .cg-wrap piece.pc-piece.ally {
+    background-image: url('../../images/pieces/mansindam/tomato/w+c.svg');
+}
+.mansindam .cg-wrap piece.pm-piece.ally {
+    background-image: url('../../images/pieces/mansindam/tomato/w+m.svg');
+}
+.mansindam .cg-wrap piece.p-piece.ally {
+    background-image: url('../../images/pieces/mansindam/tomato/wp.svg');
+}
+.mansindam .cg-wrap piece.b-piece.ally {
+    background-image: url('../../images/pieces/mansindam/tomato/wb.svg');
+}
+.mansindam .cg-wrap piece.n-piece.ally {
+    background-image: url('../../images/pieces/mansindam/tomato/wn.svg');
+}
+.mansindam .cg-wrap piece.r-piece.ally {
+    background-image: url('../../images/pieces/mansindam/tomato/wr.svg');
+}
+.mansindam .cg-wrap piece.pp-piece.ally {
+    background-image: url('../../images/pieces/mansindam/tomato/w+p.svg');
+}
+.mansindam .cg-wrap piece.pb-piece.ally {
+    background-image: url('../../images/pieces/mansindam/tomato/w+b.svg');
+}
+.mansindam .cg-wrap piece.pn-piece.ally {
+    background-image: url('../../images/pieces/mansindam/tomato/w+n.svg');
+}
+.mansindam .cg-wrap piece.pr-piece.ally {
+    background-image: url('../../images/pieces/mansindam/tomato/w+r.svg');
+}
+.mansindam .cg-wrap piece.q-piece.ally {
+    background-image: url('../../images/pieces/mansindam/tomato/wq.svg');
+}
+.mansindam .cg-wrap piece.k-piece.white.ally {
+    background-image: url('../../images/pieces/mansindam/tomato/wk.svg');
+}
+.mansindam .cg-wrap piece.k-piece.white.enemy {
+    background-image: url('../../images/pieces/mansindam/tomato/wk_reversed.svg');
+}
+.mansindam .cg-wrap piece.a-piece.enemy {
+    background-image: url('../../images/pieces/mansindam/tomato/ba.svg');
+}
+.mansindam .cg-wrap piece.c-piece.enemy {
+    background-image: url('../../images/pieces/mansindam/tomato/bc.svg');
+}
+.mansindam .cg-wrap piece.m-piece.enemy {
+    background-image: url('../../images/pieces/mansindam/tomato/bm.svg');
+}
+.mansindam .cg-wrap piece.pc-piece.enemy {
+    background-image: url('../../images/pieces/mansindam/tomato/b+c.svg');
+}
+.mansindam .cg-wrap piece.pm-piece.enemy {
+    background-image: url('../../images/pieces/mansindam/tomato/b+m.svg');
+}
+.mansindam .cg-wrap piece.p-piece.enemy {
+    background-image: url('../../images/pieces/mansindam/tomato/bp.svg');
+}
+.mansindam .cg-wrap piece.b-piece.enemy {
+    background-image: url('../../images/pieces/mansindam/tomato/bb.svg');
+}
+.mansindam .cg-wrap piece.n-piece.enemy {
+    background-image: url('../../images/pieces/mansindam/tomato/bn.svg');
+}
+.mansindam .cg-wrap piece.r-piece.enemy {
+    background-image: url('../../images/pieces/mansindam/tomato/br.svg');
+}
+.mansindam .cg-wrap piece.pp-piece.enemy {
+    background-image: url('../../images/pieces/mansindam/tomato/b+p.svg');
+}
+.mansindam .cg-wrap piece.pb-piece.enemy {
+    background-image: url('../../images/pieces/mansindam/tomato/b+b.svg');
+}
+.mansindam .cg-wrap piece.pn-piece.enemy {
+    background-image: url('../../images/pieces/mansindam/tomato/b+n.svg');
+}
+.mansindam .cg-wrap piece.pr-piece.enemy {
+    background-image: url('../../images/pieces/mansindam/tomato/b+r.svg');
+}
+.mansindam .cg-wrap piece.q-piece.enemy {
+    background-image: url('../../images/pieces/mansindam/tomato/bq.svg');
+}
+.mansindam .cg-wrap piece.k-piece.black.enemy {
+    background-image: url('../../images/pieces/mansindam/tomato/bk.svg');
+}
+.mansindam .cg-wrap piece.k-piece.black.ally {
+    background-image: url('../../images/pieces/mansindam/tomato/bk_reversed.svg');
+}

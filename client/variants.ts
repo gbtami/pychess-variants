@@ -59,10 +59,10 @@ export const PIECE_FAMILIES: Record<string, PieceFamily> = {
     shinobi: { pieceCSS: ["shinobi0", "shinobi1", "disguised"] },
     empire: { pieceCSS: ["empire0", "empire1", "disguised"] },
     ordamirror: { pieceCSS: ["ordamirror0", "ordamirror1", "disguised"] },
-    chak: { pieceCSS: ["chak0", "disguised"] },
+    chak: { pieceCSS: ["chak0", "chak1", "disguised"] },
     chennis: { pieceCSS: ["chennis0", "chennis1", "chennis2", "chennis3", "chennis4", "disguised"] },
     spartan: { pieceCSS: ["spartan0", "disguised"] },
-    mansindam: { pieceCSS: ["mansindam2", "mansindam1", "mansindam3", "disguised"] },
+    mansindam: { pieceCSS: ["mansindam2", "mansindam1", "mansindam3", "mansindam4", "disguised"] },
 };
 
 export interface Variant {
@@ -106,6 +106,7 @@ export interface Variant {
         readonly duck: boolean;
         readonly pass: boolean;
         readonly setup: boolean;
+        readonly noDrawOffer: boolean;
     };
     readonly material: {
         readonly showDiff: boolean;
@@ -171,6 +172,7 @@ function variant(config: VariantConfig): Variant {
             duck: !!config.rules?.duck,
             pass: !!config.rules?.pass,
             setup: !!config.rules?.setup,
+            noDrawOffer: !!config.rules?.noDrawOffer,
         },
         material: {
             showDiff: !config.pocket?.captureToHand,
@@ -258,6 +260,8 @@ interface VariantConfig {
         pass?: boolean;
         // Setup phase
         setup?: boolean;
+        // Draw offer not allowed
+        noDrawOffer?: boolean;
     };
     // Material equivalences for material diff calculation
     // ex. { 'pl-piece': 'r-piece' } means the "+L" piece is treated as the "R" piece for material diff
@@ -452,7 +456,7 @@ export const VARIANTS: Record<string, Variant> = {
         pieceRow: ["k", "g", "r", "b", "s", "n", "l", "p"],
         pocket: { roles: ["p", "l", "n", "s", "g", "b", "r"], captureToHand: true },
         promotion: { type: "shogi", roles: ["p", "l", "n", "s", "r", "b"] },
-        rules: { defaultTimeControl: "byoyomi" },
+        rules: { defaultTimeControl: "byoyomi", noDrawOffer: true },
         ui: { pieceSound: "shogi" },
         alternateStart: {
             '': '',
@@ -478,7 +482,7 @@ export const VARIANTS: Record<string, Variant> = {
         pieceRow: ["k", "g", "r", "b", "s", "p"],
         pocket: { roles: ["p", "s", "g", "b", "r"], captureToHand: true },
         promotion: { type: "shogi", roles: ["p", "s", "r", "b"] },
-        rules: { defaultTimeControl: "byoyomi" },
+        rules: { defaultTimeControl: "byoyomi", noDrawOffer: true },
         ui: { pieceSound: "shogi" },
     }),
 
@@ -491,7 +495,7 @@ export const VARIANTS: Record<string, Variant> = {
         pieceRow: ["k", "l", "s", "n", "p"],
         pocket: { roles: ["p", "l", "n", "s"], captureToHand: true },
         promotion: { type: "shogi", roles: ["p", "l", "n", "s"] },
-        rules: { defaultTimeControl: "byoyomi" },
+        rules: { defaultTimeControl: "byoyomi", noDrawOffer: true },
         ui: { pieceSound: "shogi" },
     }),
 
@@ -505,7 +509,7 @@ export const VARIANTS: Record<string, Variant> = {
         kingRoles: ["l"],
         pocket: { roles: ["e", "g", "c"], captureToHand: true },
         promotion: { type: "shogi", roles: ["c"] },
-        rules: { defaultTimeControl: "byoyomi" },
+        rules: { defaultTimeControl: "byoyomi", noDrawOffer: true },
         ui: { pieceSound: "shogi" },
     }),
 
@@ -518,7 +522,7 @@ export const VARIANTS: Record<string, Variant> = {
         pieceRow: ["k", "g", "s", "p"],
         pocket: { roles: ["p", "s", "g"], captureToHand: true },
         promotion: { type: "shogi", roles: ["p", "s"] },
-        rules: { defaultTimeControl: "byoyomi" },
+        rules: { defaultTimeControl: "byoyomi", noDrawOffer: true },
         ui: { pieceSound: "shogi" },
     }),
 
@@ -531,7 +535,7 @@ export const VARIANTS: Record<string, Variant> = {
         pieceRow: ["k", "g", "s", "n", "l", "p"],
         pocket: { roles: ["p", "l", "n", "s", "g"], captureToHand: true },
         promotion: { type: "shogi", roles: ["p", "s", "n", "l"] },
-        rules: { defaultTimeControl: "byoyomi" },
+        rules: { defaultTimeControl: "byoyomi", noDrawOffer: true },
         ui: { pieceSound: "shogi" },
         alternateStart: {
             'Gorogoro Plus N+L': '',
@@ -548,7 +552,7 @@ export const VARIANTS: Record<string, Variant> = {
         pieceRow: ["k", "c", "p", "l", "r", "f", "s"],
         pocket: { roles: ["s", "p", "l", "r", "c", "f"], captureToHand: true },
         promotion: { type: "shogi", roles: ["s", "f"] },
-        rules: { defaultTimeControl: "byoyomi" },
+        rules: { defaultTimeControl: "byoyomi", noDrawOffer: true },
         ui: { pieceSound: "shogi" },
         alternateStart: {
             '': '',
@@ -906,7 +910,6 @@ export const noPuzzleVariants = [
     "placement",
     "sittuyin",
     "minishogi",
-    "kyotoshogi",
     "gorogoroplus",
     "manchu",
     "minixiangqi",

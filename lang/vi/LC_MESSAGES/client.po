@@ -1,0 +1,1974 @@
+# Translations template for PROJECT.
+# Copyright (C) 2023 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2023.
+# 
+# Translators:
+# Khoa Tan, 2023
+# Việt Đinh Hoàng, 2023
+# 
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2023-08-05 22:06+0200\n"
+"PO-Revision-Date: 2020-05-04 12:19+0000\n"
+"Last-Translator: Việt Đinh Hoàng, 2023\n"
+"Language-Team: Vietnamese (https://app.transifex.com/gbtami/teams/14790/vi/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.12.1\n"
+"Language: vi\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#: ../client/about.ts:9
+msgid ""
+"\"To me, how we've got here today is owing to Stockfish in a BIG way. They "
+"rallied global volunteers to come together in the open-source spirit and "
+"create such a powerful engine for FREE. That's a lot of great minds and "
+"computing power they've managed to harness."
+msgstr ""
+"Đối với tôi, cách mà chúng ta có được ngày hôm nay là nhờ phần LỚN vào "
+"Stockfish. Họ đã tập hợp các tình nguyện viên toàn cầu lại với nhau trên "
+"tinh thần nguồn mở và tạo ra một công cụ mạnh mẽ và MIỄN PHÍ. Đó là rất "
+"nhiều bộ óc tuyệt vời và sức mạnh tính toán mà họ đã thành công để khai thác"
+" được."
+
+#: ../client/about.ts:10
+msgid ""
+"Then we've got Lichess to thank. Lichess was also born out of the same open-"
+"source spirit, and it too drew in great people as well. Once Lichess "
+"incorporated Stockfish as its brains, the rest is history."
+msgstr ""
+"Vậy thì chúng ta phải cảm ơn Lichess. Lichess cũng được ra đời từ tinh thần "
+"nguồn mở tương tự và nó cũng thu hút những người tuyệt vời. Sau khi Lichess "
+"kết hợp Stockfish làm bộ não của mình, phần còn lại là lịch sử."
+
+#: ../client/about.ts:11
+msgid ""
+"Lichess enables the online, real-time, and competitive aspects of game-play."
+" They also bring the enormous power of Stockfish to the masses, who can now "
+"benefit from it without configuring a local GUI. I believe this development "
+"turns out to be of great consequence and significance."
+msgstr ""
+"Lichess hỗ trợ các khía cạnh trực tuyến, thời gian thực và cạnh tranh của "
+"trò chơi. Họ cũng mang sức mạnh to lớn của Stockfish đến với đại chúng, "
+"những người giờ đây có thể hưởng lợi từ nó mà không cần định cấu hình GUI "
+"cục bộ. Tôi tin rằng sự phát triển này hóa ra có hệ quả và ý nghĩa to lớn."
+
+#: ../client/about.ts:12
+msgid ""
+"Later on, developers close to the Lichess project eventually extended "
+"Stockfish into Multivariant-Stockfish, in order to support Crazyhouse et al."
+" The father of Fairy-Stockfish, Fabian, is also one of those devs (still) "
+"working on that fork, and he later took several steps further in terms of "
+"variant support and extensibility. Thus Fairy-Stockfish was born, so "
+"powerful because it builds on the Stockfish project."
+msgstr ""
+"Sau đó, các nhà phát triển gần gũi với dự án Lichess cuối cùng đã mở rộng "
+"Stockfish thành Multivariant-Stockfish, để hỗ trợ Crazyhouse et al. Cha đẻ "
+"của Fairy-Stockfish, Fabian, cũng là một trong những nhà phát triển (vẫn) "
+"đang làm việc trên nhánh đó và sau đó ông đã tiến thêm một số bước nữa về "
+"khả năng mở rộng và hỗ trợ biến thể. Thế là Fairy-Stockfish ra đời, mạnh mẽ "
+"đến vậy vì nó được xây dựng dựa trên dự án Stockfish."
+
+#: ../client/about.ts:13
+msgid ""
+"Then comes our beloved pychess-variants, which again very smartly harnesses "
+"the underlying superpowers of the big projects. Same online, real-time, and "
+"competitive aspects. Same clean and familiar Lichess look and feel. Plus the"
+" power of Stockfish!\""
+msgstr ""
+"Sau đó là các biến thể pychess yêu quý của chúng ta, một lần nữa khai thác "
+"rất thông minh các siêu năng lực cơ bản của các dự án lớn. Các khía cạnh "
+"trực tuyến, thời gian thực và cạnh tranh giống nhau. Giao diện Lichess sạch "
+"sẽ và quen thuộc tương tự. Cộng với sức mạnh của Stockfish!\""
+
+#: ../client/about.ts:18
+msgid "About pychess"
+msgstr "Giới thiệu về PyChess"
+
+#: ../client/about.ts:19
+msgid ""
+"Pychess is a free, open-source chess server designed to play several chess "
+"variants."
+msgstr ""
+"Pychess là một máy chủ cờ vua mã nguồn mở miễn phí được thiết kế để chơi một"
+" số biến thể cờ vua."
+
+#: ../client/about.ts:22
+msgid "Currently supported games are "
+msgstr "Các biến thể được hỗ trợ hiện nay là "
+
+#: ../client/about.ts:98
+msgid ""
+"Additionally, you can check the Chess960 option for Chess, Crazyhouse, "
+"Atomic, S-chess, Capablanca, and Capahouse to start games from random "
+"positions with "
+msgstr ""
+"Ngoài ra, bạn có thể chọn tùy chọn Chess960 cho Cờ vua, Crazyhouse, Atomic, "
+"S-Ches, Capablanca và Capahouse để bắt đầu ván cờ từ các thế trận ngẫu nhiên"
+" với"
+
+#: ../client/about.ts:99
+msgid "Chess960 castling rules."
+msgstr "Quy tắc nhập thành của Chess960."
+
+#: ../client/about.ts:102
+msgid "For move generation, validation, analysis, and engine play, we use "
+msgstr ""
+"Để tạo nước đi, xác thực, phân tích và chơi động cơ, chúng tôi sử dụng"
+
+#: ../client/about.ts:112
+msgid "On client side, the user interface of the game board is based on "
+msgstr "Về phía khách hàng, giao diện người dùng của bàn cờ dựa trên "
+
+#: ../client/about.ts:116
+msgid "The source code of the server is available on "
+msgstr "Mã nguồn của máy chủ có sẵn trên "
+
+#: ../client/about.ts:121
+msgid ""
+"To play on PyChess, you need to have an open and unmarked account on "
+"Lichess. "
+msgstr ""
+"Để chơi trên PyChess, bạn cần có tài khoản mở và chưa bị đánh dấu trên "
+"Lichess. "
+
+#: ../client/about.ts:122
+msgid ""
+"Regarding Privacy and Terms of Service, the rules of lichess.org are also "
+"applied here. "
+msgstr ""
+"Về Quyền riêng tư và Điều khoản dịch vụ, các quy tắc của lichess.org cũng "
+"được áp dụng tại đây. "
+
+#: ../client/analysis.ts:39 ../client/editor/editor.ts:30
+#: ../client/lobby.ts:352 ../client/lobby.ts:934 ../client/puzzle.ts:32
+#: ../client/puzzleCtrl.ts:202 ../client/settingsView.ts:130
+msgid "Variant"
+msgstr "Biến thể"
+
+#: ../client/analysis.ts:108
+msgid "Computer analysis"
+msgstr "Máy tính phân tích"
+
+#: ../client/analysis.ts:110
+msgid "Move times"
+msgstr "Số nước đi"
+
+#: ../client/analysis.ts:113
+msgid "Crosstable"
+msgstr "Crosstable"
+
+#: ../client/analysis.ts:117
+msgid "FEN & PGN"
+msgstr "FEN & PGN"
+
+#: ../client/analysis.ts:179
+msgid "Multi-threaded WebAssembly (classical evaluation)"
+msgstr "WebAssugging đa luồng (đánh giá cổ điển)"
+
+#: ../client/analysis.ts:181 ../client/analysisCtrl.ts:687
+msgid "in local browser"
+msgstr "trong trình duyệt địa phương"
+
+#: ../client/analysisChart.ts:22
+msgid "Initial position"
+msgstr "Thế trận ban đầu"
+
+#: ../client/analysisChart.ts:85
+msgid "Advantage"
+msgstr "Lợi thế"
+
+#: ../client/analysisCtrl.ts:308
+msgid "You need an account to do that."
+msgstr "Bạn cần có 1 tài khoản để làm điều đó."
+
+#: ../client/analysisCtrl.ts:345
+msgid "Download game to PGN file"
+msgstr "Tải ván cờ về tệp PGN"
+
+#: ../client/analysisCtrl.ts:345
+msgid "Download PGN"
+msgstr "Tải xuống PGN"
+
+#: ../client/analysisCtrl.ts:347
+msgid "Copy USI/UCI to clipboard"
+msgstr "Sao chép UCI/USI vào bảng nhớ tạm"
+
+#: ../client/analysisCtrl.ts:347
+msgid "Copy UCI/USI"
+msgstr "Sao chép UCI/USI"
+
+#: ../client/analysisCtrl.ts:349
+msgid "Download position to PNG image file"
+msgstr "Tài xuống thế trận dưới dạng ảnh PNG"
+
+#: ../client/analysisCtrl.ts:349
+msgid "PNG image"
+msgstr "Ảnh PNG"
+
+#: ../client/analysisCtrl.ts:363
+msgid "Are you sure you want to delete this game?"
+msgstr "Bạn có chắc chắn muốn xóa ván cờ này?"
+
+#: ../client/analysisCtrl.ts:378
+msgid "Delete game"
+msgstr "Xóa ván cờ"
+
+#: ../client/analysisCtrl.ts:409
+msgid "Request Computer Analysis"
+msgstr "Yêu Cầu Máy Tính Phân Tích "
+
+#: ../client/analysisCtrl.ts:409
+msgid "Request Analysis"
+msgstr "Yêu Cầu Phân Tích"
+
+#: ../client/analysisCtrl.ts:464
+msgid "Try browser page reload."
+msgstr "Hãy thử tải lại trang trình duyệt."
+
+#: ../client/analysisCtrl.ts:498
+msgid "Multi-threaded WebAssembly (with NNUE evaluation)"
+msgstr "WebAssugging đa luồng (có đánh giá NNUE)"
+
+#: ../client/analysisCtrl.ts:670
+msgid "Depth"
+msgstr "Độ sâu"
+
+#: ../client/analysisCtrl.ts:675
+msgid "Go deeper"
+msgstr "Đi sâu hơn"
+
+#: ../client/analysisSettings.ts:74
+msgid "Best move arrow"
+msgstr "Mũi tên nước đi tốt nhất"
+
+#: ../client/analysisSettings.ts:103
+msgid "Infinite analysis"
+msgstr "Phân tích vô hạn"
+
+#: ../client/analysisSettings.ts:129
+msgid "Multiple lines"
+msgstr "Nhiều hàng"
+
+#: ../client/analysisSettings.ts:156
+msgid "CPUs"
+msgstr "CPU"
+
+#: ../client/analysisSettings.ts:202
+msgid "Memory"
+msgstr "Bộ nhớ"
+
+#: ../client/background.ts:9
+msgid "Light"
+msgstr "Sáng"
+
+#: ../client/background.ts:10
+msgid "Dark"
+msgstr "Tối"
+
+#: ../client/boardSettings.ts:180
+msgid "Piece animation"
+msgstr "Bộ quân cờ"
+
+#: ../client/boardSettings.ts:197
+msgid "Confirm resigning"
+msgstr "Xác nhận đầu hàng"
+
+#: ../client/boardSettings.ts:289
+msgid "Zoom"
+msgstr "Phóng"
+
+#: ../client/boardSettings.ts:310
+msgid "Show piece destinations"
+msgstr "Show piece destinations"
+
+#: ../client/boardSettings.ts:329
+msgid "Promote to the top choice automatically"
+msgstr "Promote to the top choice automatically"
+
+#: ../client/boardSettings.ts:358
+msgid "Invisible pieces"
+msgstr "Quân cờ tàng hình"
+
+#: ../client/boardSettings.ts:381
+msgid "Show material difference"
+msgstr "Show material difference"
+
+#: ../client/chat.ts:36 ../client/chat.ts:51
+msgid "Sign in to chat"
+msgstr "Đăng nhập để trò chuyện"
+
+#: ../client/chat.ts:36 ../client/chat.ts:51
+msgid "Please be nice in the chat!"
+msgstr "Hãy cư xử thân thiện trong trò chuyện"
+
+#: ../client/chat.ts:36
+msgid "Chat is disabled"
+msgstr "Trò chuyện bị tắt"
+
+#: ../client/chat.ts:41
+msgid "Spectator room"
+msgstr "Phòng khán giả"
+
+#: ../client/chat.ts:41
+msgid "Chat room"
+msgstr "Phòng trò chuyện"
+
+#: ../client/chat.ts:42
+msgid "Toggle the chat"
+msgstr "Bật/Tắt trò chuyện"
+
+#: ../client/chat.ts:73
+msgid "Server"
+msgstr "Máy chủ"
+
+#: ../client/datetime.ts:20
+msgid "in %1 year"
+msgid_plural "in %1 years"
+msgstr[0] "trong %1 năm"
+
+#: ../client/datetime.ts:20
+msgid "%1 year ago"
+msgid_plural "%1 years ago"
+msgstr[0] "%1 năm trước"
+
+#: ../client/datetime.ts:22
+msgid "in %1 month"
+msgid_plural "in %1 months"
+msgstr[0] "trong %1 tháng"
+
+#: ../client/datetime.ts:22
+msgid "%1 month ago"
+msgid_plural "%1 months ago"
+msgstr[0] "%1 tháng trước"
+
+#: ../client/datetime.ts:24
+msgid "in %1 week"
+msgid_plural "in %1 weeks"
+msgstr[0] "trong %1 tuần"
+
+#: ../client/datetime.ts:24
+msgid "%1 week ago"
+msgid_plural "%1 weeks ago"
+msgstr[0] "%1 tuần trước"
+
+#: ../client/datetime.ts:26
+msgid "in %1 day"
+msgid_plural "in %1 days"
+msgstr[0] "trong %1 ngày"
+
+#: ../client/datetime.ts:26
+msgid "%1 day ago"
+msgid_plural "%1 days ago"
+msgstr[0] "%1 ngày trước"
+
+#: ../client/datetime.ts:28
+msgid "in %1 hour"
+msgid_plural "in %1 hours"
+msgstr[0] "trong %1 giờ"
+
+#: ../client/datetime.ts:28
+msgid "%1 hour ago"
+msgid_plural "%1 hours ago"
+msgstr[0] "%1 giờ trước"
+
+#: ../client/datetime.ts:30
+msgid "in %1 minute"
+msgid_plural "in %1 minutes"
+msgstr[0] "trong %1 phút"
+
+#: ../client/datetime.ts:30
+msgid "%1 minute ago"
+msgid_plural "%1 minutes ago"
+msgstr[0] "%1 phút trước"
+
+#: ../client/datetime.ts:32
+msgid "in %1 second"
+msgid_plural "in %1 seconds"
+msgstr[0] "trong %1 giây"
+
+#: ../client/datetime.ts:32
+msgid "%1 second ago"
+msgid_plural "%1 seconds ago"
+msgstr[0] "%1 giây trước"
+
+#: ../client/gameCtrl.ts:413 ../client/tournament.ts:587
+msgid "Spectators: "
+msgstr "Người xem: "
+
+#: ../client/gameCtrl.ts:435
+msgid "Requested game %1 not found!"
+msgstr "Không tìm thấy %1 ván cờ được yêu cầu!"
+
+#: ../client/gameInfo.ts:32 ../client/result.ts:47
+msgid "Playing right now"
+msgstr "Đang chơi ngay bây giờ"
+
+#: ../client/editor/editorCtrl.ts:99 ../client/i18n.ts:60
+#: ../client/lobby.ts:443
+msgid "White"
+msgstr "Trắng"
+
+#: ../client/editor/editorCtrl.ts:114 ../client/i18n.ts:60
+#: ../client/lobby.ts:441
+msgid "Black"
+msgstr "Đen"
+
+#: ../client/i18n.ts:60
+msgid "Red"
+msgstr "Đỏ"
+
+#: ../client/i18n.ts:61
+msgid "Blue"
+msgstr "Xanh dương"
+
+#: ../client/i18n.ts:61
+msgid "Gold"
+msgstr "Vàng"
+
+#: ../client/i18n.ts:61
+msgid "Pink"
+msgstr "Hồng"
+
+#: ../client/i18n.ts:62
+msgid "Green"
+msgstr "Xanh lá"
+
+#: ../client/i18n.ts:66
+msgid "chess"
+msgstr "cờ vua"
+
+#: ../client/i18n.ts:66
+msgid "crazyhouse"
+msgstr "crazyhouse"
+
+#: ../client/i18n.ts:66
+msgid "placement"
+msgstr "placement"
+
+#: ../client/i18n.ts:66
+msgid "atomic"
+msgstr "atomic"
+
+#: ../client/i18n.ts:68
+msgid "makruk"
+msgstr "makruk"
+
+#: ../client/i18n.ts:68
+msgid "makpong"
+msgstr "makpong"
+
+#: ../client/i18n.ts:68
+msgid "ouk chaktrang"
+msgstr "ouk chaktrang"
+
+#: ../client/i18n.ts:68
+msgid "sittuyin"
+msgstr "sittuyin"
+
+#: ../client/i18n.ts:68
+msgid "asean"
+msgstr "asean"
+
+#: ../client/i18n.ts:70
+msgid "shogi"
+msgstr "shogi"
+
+#: ../client/i18n.ts:70
+msgid "minishogi"
+msgstr "minishogi"
+
+#: ../client/i18n.ts:70
+msgid "kyoto shogi"
+msgstr "kyoto shogi"
+
+#: ../client/i18n.ts:71
+msgid "dobutsu"
+msgstr "dobutsu"
+
+#: ../client/i18n.ts:71
+msgid "gorogoro"
+msgstr "gorogoro"
+
+#: ../client/i18n.ts:71
+msgid "gorogoro+"
+msgstr "gorogoro+"
+
+#: ../client/i18n.ts:71
+msgid "tori shogi"
+msgstr "tori shogi"
+
+#: ../client/i18n.ts:73
+msgid "xiangqi"
+msgstr "cờ tướng"
+
+#: ../client/i18n.ts:73
+msgid "manchu"
+msgstr "manchu"
+
+#: ../client/i18n.ts:73
+msgid "janggi"
+msgstr "janggi"
+
+#: ../client/i18n.ts:73
+msgid "minixiangqi"
+msgstr "minixiangqi"
+
+#: ../client/i18n.ts:75
+msgid "capablanca"
+msgstr "capablanca"
+
+#: ../client/i18n.ts:75
+msgid "capahouse"
+msgstr "capahouse"
+
+#: ../client/i18n.ts:75
+msgid "s-chess"
+msgstr "s-chess"
+
+#: ../client/i18n.ts:75
+msgid "s-house"
+msgstr "s-house"
+
+#: ../client/i18n.ts:76
+msgid "grand"
+msgstr "grand"
+
+#: ../client/i18n.ts:76
+msgid "grandhouse"
+msgstr "grandhouse"
+
+#: ../client/i18n.ts:76
+msgid "shako"
+msgstr "shako"
+
+#: ../client/i18n.ts:76
+msgid "shogun"
+msgstr "shogun"
+
+#: ../client/i18n.ts:76
+msgid "hoppel-poppel"
+msgstr "hoppel-poppel"
+
+#: ../client/i18n.ts:78
+msgid "orda"
+msgstr "orda"
+
+#: ../client/i18n.ts:78
+msgid "synochess"
+msgstr "synochess"
+
+#: ../client/i18n.ts:78
+msgid "shinobi"
+msgstr "shinobi"
+
+#: ../client/i18n.ts:78
+msgid "empire"
+msgstr "empire"
+
+#: ../client/i18n.ts:78
+msgid "orda mirror"
+msgstr "orda mirror"
+
+#: ../client/i18n.ts:78
+msgid "chak"
+msgstr "chak"
+
+#: ../client/i18n.ts:78
+msgid "chennis"
+msgstr "chennis"
+
+#: ../client/i18n.ts:82
+msgid "PawnsPushed"
+msgstr "PawnsPushed"
+
+#: ../client/i18n.ts:82
+msgid "PawnsPassed"
+msgstr "PawnsPassed"
+
+#: ../client/i18n.ts:82
+msgid "UpsideDown"
+msgstr "Lộn ngược"
+
+#: ../client/i18n.ts:82
+msgid "Theban"
+msgstr "Theban"
+
+#: ../client/i18n.ts:82
+msgid "No castle"
+msgstr "Không nhập thành"
+
+#: ../client/i18n.ts:84
+msgid "Lance HC"
+msgstr "Lance HC"
+
+#: ../client/i18n.ts:84
+msgid "Bishop HC"
+msgstr "Tượng HC"
+
+#: ../client/i18n.ts:84
+msgid "Rook HC"
+msgstr "Xe HC"
+
+#: ../client/i18n.ts:84
+msgid "Rook+Lance HC"
+msgstr "Xe+Lance HC"
+
+#: ../client/i18n.ts:84
+msgid "2-Piece HC"
+msgstr "2 quân HC"
+
+#: ../client/i18n.ts:84
+msgid "4-Piece HC"
+msgstr "4 quân HC"
+
+#: ../client/i18n.ts:84
+msgid "6-Piece HC"
+msgstr "6 quân HC"
+
+#: ../client/i18n.ts:84
+msgid "8-Piece HC"
+msgstr "8 quân HC"
+
+#: ../client/i18n.ts:84
+msgid "9-Piece HC"
+msgstr "9 quân HC"
+
+#: ../client/i18n.ts:84
+msgid "10-Piece HC"
+msgstr "10 quân HC"
+
+#: ../client/i18n.ts:86
+msgid "Gorogoro Plus N+L"
+msgstr "Gorogoro Plus N+L"
+
+#: ../client/i18n.ts:86
+msgid "Original (No N+L)"
+msgstr "Bản gốc (Không có N+L)"
+
+#: ../client/i18n.ts:88
+msgid "Left Quail HC"
+msgstr "Quail Trái HC"
+
+#: ../client/i18n.ts:88
+msgid "Falcon HC"
+msgstr "Falcon HC"
+
+#: ../client/i18n.ts:88
+msgid "Falcon + Left Quail HC"
+msgstr "Falcon + Left Quail HC"
+
+#: ../client/i18n.ts:88
+msgid "Falcon + Both Quails HC"
+msgstr "Falcon + Both Quails HC"
+
+#: ../client/i18n.ts:90
+msgid "Bird"
+msgstr "Chim"
+
+#: ../client/i18n.ts:90
+msgid "Carrera"
+msgstr "Carrera"
+
+#: ../client/i18n.ts:90
+msgid "Gothic"
+msgstr "Gothic"
+
+#: ../client/i18n.ts:90
+msgid "Embassy"
+msgstr "Embassy"
+
+#: ../client/i18n.ts:90
+msgid "Conservative"
+msgstr "Thận trọng"
+
+#: ../client/i18n.ts:94
+msgid "Chess, unmodified, as it's played by FIDE standards."
+msgstr "Cờ vua, chưa được sửa đổi, được chơi theo tiêu chuẩn FIDE."
+
+#: ../client/i18n.ts:95
+msgid "Take captured pieces and drop them back on to the board as your own."
+msgstr ""
+"Lấy các quân cờ đã ăn được và thả chúng trở lại bàn cờ như của riêng bạn."
+
+#: ../client/i18n.ts:96
+msgid "Choose where your pieces start."
+msgstr "Chọn nơi quân của bạn bắt đầu."
+
+#: ../client/i18n.ts:97
+msgid "Pieces explode upon capture."
+msgstr "Các quân phát nổ khi bị ăn."
+
+#: ../client/i18n.ts:98
+msgid "The duck must be moved to a new square after every turn."
+msgstr "Con vịt phải được di chuyển đến một ô vuông mới sau mỗi lượt đi."
+
+#: ../client/i18n.ts:99
+msgid ""
+"Thai Chess. A game closely resembling the original Chaturanga. Similar to "
+"Chess but with a different queen and bishop."
+msgstr ""
+"Cờ Thái . Một trò chơi gần giống với Chaturanga gốc. Tương tự như Cờ vua "
+"nhưng có quân hậu và quân tượng khác."
+
+#: ../client/i18n.ts:100 ../client/variants.ts:384
+msgid "Makruk variant where kings cannot move to escape out of check."
+msgstr ""
+"Biến thể Makruk nơi quân vua không thể di chuyển để thoát khỏi nước chiếu."
+
+#: ../client/i18n.ts:101
+msgid "Cambodian Chess. Makruk with a few additional opening abilities."
+msgstr "Cờ Campuchia. Makruk với một vài khả năng khai cuộc bổ sung."
+
+#: ../client/i18n.ts:102
+msgid ""
+"Burmese Chess. Similar to Makruk, but pieces are placed at the start of the "
+"match."
+msgstr ""
+"Cờ Myanmar. Tương tự như Makruk nhưng quân cờ được đặt ở đầu trận đấu."
+
+#: ../client/i18n.ts:103
+msgid ""
+"Makruk using the board/pieces from International Chess as well as pawn "
+"promotion rules."
+msgstr ""
+"Makruk sử dụng bàn cờ/quân cờ từ Cờ vua Quốc tế cũng như các quy tắc phong "
+"cấp."
+
+#: ../client/i18n.ts:104 ../client/variants.ts:425
+msgid ""
+"Japanese Chess, and the standard 9x9 version played today with drops and "
+"promotions. "
+msgstr ""
+"Cờ Nhật Bản và phiên bản 9x9 tiêu chuẩn được chơi ngày nay với các phần "
+"thưởng và phong cấp."
+
+#: ../client/i18n.ts:105
+msgid ""
+"5x5 Shogi for more compact and faster games. There are no knights or lances."
+msgstr ""
+"5x5 Shogi cho các trò chơi nhỏ gọn hơn và nhanh hơn. Không có mã hay thương."
+
+#: ../client/i18n.ts:106
+msgid ""
+"A wild Shogi variant on a 5x5 board where pieces flip into a different piece"
+" after each move."
+msgstr ""
+"Một biến thể Shogi hoang dã trên bàn cờ 5x5 trong đó các quân cờ sẽ chuyển "
+"thành một quân cờ khác sau mỗi nước đi chuyển."
+
+#: ../client/i18n.ts:107 ../client/variants.ts:477
+msgid ""
+"3x4 game with cute animals, designed to teach children how to play Shogi."
+msgstr ""
+
+#: ../client/i18n.ts:108
+msgid "5x6 Shogi designed to introduce tactics with the generals."
+msgstr ""
+
+#: ../client/i18n.ts:109
+msgid ""
+"A confrontational 7x7 variant with unique pieces each named after different "
+"birds."
+msgstr ""
+
+#: ../client/i18n.ts:110
+msgid ""
+"Chinese Chess, one of the oldest and most played board games in the world."
+msgstr ""
+
+#: ../client/i18n.ts:111
+msgid ""
+"Xiangqi variant where one side has a chariot that can also move as a cannon "
+"or horse."
+msgstr ""
+
+#: ../client/i18n.ts:112
+msgid ""
+"Korean Chess, similar to Xiangqi but plays much differently. Tournament "
+"rules are used."
+msgstr ""
+
+#: ../client/i18n.ts:113
+msgid "Compact version of Xiangqi played on a 7x7 board without a river."
+msgstr ""
+
+#: ../client/i18n.ts:114
+msgid ""
+"Play with the hybrid pieces, archbishop (B+N) and chancellor (R+N), on a "
+"10x8 board."
+msgstr ""
+
+#: ../client/i18n.ts:115 ../client/variants.ts:601
+msgid "Capablanca with Crazyhouse drop rules."
+msgstr ""
+
+#: ../client/i18n.ts:116
+msgid ""
+"Hybrid pieces, the hawk (B+N) and elephant (R+N), can enter the board after "
+"moving a back rank piece."
+msgstr ""
+
+#: ../client/i18n.ts:117
+msgid "S-Chess with Crazyhouse drop rules."
+msgstr ""
+
+#: ../client/i18n.ts:118 ../client/variants.ts:640
+msgid ""
+"Play with the hybrid pieces, archbishop (B+N) and chancellor (R+N), on a "
+"grand 10x10 board."
+msgstr ""
+
+#: ../client/i18n.ts:119
+msgid "Grand Chess with Crazyhouse drop rules."
+msgstr ""
+
+#: ../client/i18n.ts:120
+msgid ""
+"Introduces the cannon and elephant from Xiangqi into a 10x10 chess board."
+msgstr ""
+
+#: ../client/i18n.ts:121
+msgid "Pieces promote and can be dropped, similar to Shogi."
+msgstr ""
+
+#: ../client/i18n.ts:122
+msgid "Knights capture as bishops; bishops  capture as knights."
+msgstr ""
+
+#: ../client/i18n.ts:123
+msgid ""
+"Asymmetric variant where one army has pieces that move like knights but "
+"capture differently."
+msgstr ""
+
+#: ../client/i18n.ts:124 ../client/variants.ts:701
+msgid ""
+"Asymmetric East vs. West variant which pits the western Chess army against a"
+" Xiangqi and Janggi-styled army."
+msgstr ""
+
+#: ../client/i18n.ts:125
+msgid ""
+"Asymmetric variant which pits the western Chess army against a drop-based, "
+"Shogi-styled army."
+msgstr ""
+
+#: ../client/i18n.ts:126 ../client/variants.ts:756
+msgid ""
+"Asymmetric variant where one army has pieces that move like queens but "
+"capture as usual."
+msgstr ""
+
+#: ../client/i18n.ts:127 ../client/variants.ts:767
+msgid ""
+"Orda Chess variant with two Horde armies. The Falcon replaces the Yurt."
+msgstr ""
+
+#: ../client/i18n.ts:128
+msgid "Mayan chess. Inspired by cultural elements of Mesoamerica."
+msgstr ""
+
+#: ../client/i18n.ts:129
+msgid "Pieces alternate between two forms with each move."
+msgstr ""
+
+#: ../client/i18n.ts:130
+msgid "Like Capablanca Chess but with Grand starting setup."
+msgstr ""
+
+#: ../client/i18n.ts:131
+msgid "Embassy with Crazyhouse drop rules."
+msgstr ""
+
+#: ../client/i18n.ts:132
+msgid "Like Capablanca Chess but with a different starting setup."
+msgstr ""
+
+#: ../client/i18n.ts:133 ../client/variants.ts:856
+msgid "Gothic with Crazyhouse drop rules."
+msgstr ""
+
+#: ../client/invite.ts:34 ../client/lobby.ts:454
+msgid "Host a game for others"
+msgstr "Tổ chức trò chơi cho người khác"
+
+#: ../client/invite.ts:34
+msgid "Challenge to a game"
+msgstr "Thách đấu một ván cờ"
+
+#: ../client/invite.ts:37 ../client/invite.ts:43 ../client/invite.ts:49
+#: ../client/invite.ts:55
+msgid "CANCEL"
+msgstr "HỦY BỎ"
+
+#: ../client/invite.ts:40
+msgid "Waiting for the other player"
+msgstr "Đang chờ người chơi khác"
+
+#: ../client/invite.ts:46
+msgid "Sorry, this seat is already occupied"
+msgstr "Xin lỗi, đã có người rồi"
+
+#: ../client/invite.ts:52
+msgid "Sorry, you cannot play with yourself"
+msgstr "Xin lỗi, bạn không thể chơi với chính mình"
+
+#: ../client/invite.ts:61
+msgid "JOIN THE GAME"
+msgstr "THAM GIA VÁN CỜ"
+
+#: ../client/invite.ts:85 ../client/invite.ts:109
+msgid "To invite someone to play, give them this URL:"
+msgstr "Để mời ai đó chơi, hãy gửi cho họ URL này:"
+
+#: ../client/invite.ts:92 ../client/invite.ts:94 ../client/invite.ts:102
+#: ../client/invite.ts:104 ../client/invite.ts:114 ../client/invite.ts:116
+msgid "Copy URL"
+msgstr "Sao chép URL"
+
+#: ../client/invite.ts:106
+msgid "The first two people to come to this URL will play with each other."
+msgstr "Hai người đầu tiên vào URL này sẽ chơi với nhau."
+
+#: ../client/invite.ts:117
+msgid "The first person to come to this URL will play with you."
+msgstr "Người đầu tiên truy cập URL này sẽ chơi với bạn."
+
+#: ../client/lobby.ts:344
+msgid "Cancel"
+msgstr "Hủy bỏ"
+
+#: ../client/lobby.ts:349
+msgid "Challenge %1 to a game"
+msgstr "Thách đấu %1 với một ván cờ"
+
+#: ../client/lobby.ts:356
+msgid "Paste the FEN text here"
+msgstr "Dán FEN vào đây"
+
+#: ../client/lobby.ts:356
+msgid " (must be signed in)"
+msgstr " (phải đăng nhập)"
+
+#: ../client/lobby.ts:372
+msgid "Minutes per side:"
+msgstr "Số phút mỗi bên:"
+
+#: ../client/lobby.ts:387
+msgid "Periods"
+msgstr "Chu kỳ"
+
+#: ../client/lobby.ts:402 ../client/lobby.ts:692 ../client/result.ts:16
+msgid "Casual"
+msgstr "Không tính Elo"
+
+#: ../client/lobby.ts:409 ../client/lobby.ts:690
+#: ../client/puzzleSettings.ts:28 ../client/result.ts:11
+msgid "Rated"
+msgstr "Tính Elo"
+
+#: ../client/lobby.ts:420
+msgid "Practice with Random-Mover"
+msgstr "Thực hành với Random-Mover"
+
+#: ../client/lobby.ts:431
+msgid "A.I. Level"
+msgstr "Cấp độ AI"
+
+#: ../client/lobby.ts:442
+msgid "Random"
+msgstr "Ngẫu nhiên"
+
+#: ../client/lobby.ts:446
+msgid "Create"
+msgstr "Tạo"
+
+#: ../client/lobby.ts:451 ../client/lobby/layer3.ts:40
+msgid "Create a game"
+msgstr "Tạo một ván cờ"
+
+#: ../client/lobby.ts:452
+msgid "Play with a friend"
+msgstr "Chơi với bạn bè"
+
+#: ../client/lobby.ts:453 ../client/lobby/layer3.ts:42
+msgid "Play with AI"
+msgstr "Chơi với AI"
+
+#: ../client/lobby.ts:532
+msgid "Byoyomi in seconds:"
+msgstr "Byoyomi theo giây:"
+
+#: ../client/lobby.ts:532
+msgid "Increment in seconds:"
+msgstr "Thời gian gia tăng theo giây:"
+
+#: ../client/lobby.ts:537
+msgid "Alternate Start"
+msgstr ""
+
+#: ../client/editor/editorCtrl.ts:218 ../client/lobby.ts:571
+msgid "Invalid FEN"
+msgstr "FEN không hợp lệ"
+
+#: ../client/lobby.ts:688
+msgid "Custom"
+msgstr "Tùy chọn"
+
+#: ../client/lobby.ts:718 ../client/lobby.ts:893
+msgid "%1 player"
+msgid_plural "%1 players"
+msgstr[0] "%1 người chơi"
+
+#: ../client/lobby.ts:854
+msgid ""
+"You have an unfinished game!\n"
+"Press OK to continue."
+msgstr ""
+"Bạn có một ván cờ chưa hoàn thành!\n"
+"Nhấn OK để tiếp tục."
+
+#: ../client/lobby.ts:887
+msgid "%1 game in play"
+msgid_plural "%1 games in play"
+msgstr[0] "%1 trận đang diễn ra"
+
+#: ../client/lobby.ts:903
+msgid "Tournament calendar"
+msgstr "Lịch giải đấu"
+
+#: ../client/lobby.ts:931
+msgid "Player"
+msgstr "Kì thủ"
+
+#: ../client/lobby.ts:932
+msgid "Rating"
+msgstr "Hệ số"
+
+#: ../client/lobby.ts:933
+msgid "Time"
+msgstr "Thời gian"
+
+#: ../client/lobby.ts:935
+msgid "Mode"
+msgstr "Chế độ"
+
+#: ../client/lobby.ts:956
+msgid "Puzzle of the day"
+msgstr "Câu đố của ngày"
+
+#: ../client/editor/editorCtrl.ts:92 ../client/editor/editorCtrl.ts:93
+#: ../client/lobby.ts:957
+msgid "%1 to play"
+msgstr "%1 để chơi"
+
+#: ../client/lobby.ts:1004
+msgid "Donate"
+msgstr "Ủng hộ"
+
+#: ../client/lobby.ts:1005
+msgid "FAQ"
+msgstr "Các câu hỏi thường gặp"
+
+#: ../client/lobby.ts:1006
+msgid "Stats"
+msgstr "Thống kê"
+
+#: ../client/lobby.ts:1007
+msgid "About"
+msgstr "Về"
+
+#: ../client/lobby.ts:1015
+msgid "Summer Update"
+msgstr "Cập nhật mùa hè"
+
+#: ../client/lobby.ts:1016
+msgid "New features and bug fixes"
+msgstr "Các tính năng mới và sửa lỗi"
+
+#: ../client/lobby.ts:1023
+msgid "Madness? This. Is. SPARTAN CHESS!"
+msgstr "Điên cuồng? Cái này. Là. CỜ SPARTAN!"
+
+#: ../client/lobby.ts:1024
+msgid "Spartan chess has arrived"
+msgstr "Cờ Spartan đã đến"
+
+#: ../client/lobby.ts:1031
+msgid "A Christmas Present From Pychess"
+msgstr ""
+
+#: ../client/lobby.ts:1032
+msgid "Duck chess has arrived"
+msgstr ""
+
+#: ../client/main.ts:111
+msgid "Thank you for your support!"
+msgstr "Cảm ơn sự ủng hộ của bạn!"
+
+#: ../client/paste.ts:139
+msgid "Invalid PGN"
+msgstr "PGN không hợp lệ"
+
+#: ../client/paste.ts:162
+msgid "Paste the PGN text here"
+msgstr "Dán PGN vào đây"
+
+#: ../client/paste.ts:166
+msgid "IMPORT GAME"
+msgstr "NHẬP VÁN CỜ"
+
+#: ../client/profile.ts:151
+msgid "%1 move"
+msgid_plural "%1 moves"
+msgstr[0] "%1 nước"
+
+#: ../client/profile.ts:152
+msgid "Computer analysis available"
+msgstr " Máy tính phân tích có sẵn"
+
+#: ../client/profile.ts:218
+msgid "Games"
+msgstr "Ván"
+
+#: ../client/profile.ts:220
+msgid "Games with you"
+msgstr "Ván cờ với bạn"
+
+#: ../client/profile.ts:222
+msgctxt "UsePluralFormIfNeeded"
+msgid "Rated"
+msgstr "Tính ELo"
+
+#: ../client/profile.ts:223
+msgid "Imported"
+msgstr "Đã nhập"
+
+#: ../client/puzzleCtrl.ts:86
+msgid "LOGIN"
+msgstr "ĐĂNG NHẬP"
+
+#: ../client/puzzleCtrl.ts:114
+msgid "Hint"
+msgstr "Gợi ý"
+
+#: ../client/puzzleCtrl.ts:122
+msgid "View the solution"
+msgstr "Xem lời giải"
+
+#: ../client/puzzleCtrl.ts:163
+msgid ""
+"Your puzzle rating will not change. Note that puzzles are not a competition."
+" Ratings help select the best puzzles for your current skill."
+msgstr ""
+"Xếp hạng câu đố của bạn sẽ không thay đổi. Lưu ý rằng câu đố không phải là "
+"một cuộc thi. Xếp hạng giúp chọn ra những câu đố hay nhất cho kỹ năng hiện "
+"tại của bạn."
+
+#: ../client/puzzleCtrl.ts:193
+msgid "Puzzle"
+msgstr "Câu đố"
+
+#: ../client/puzzleCtrl.ts:194
+msgid "Rating:"
+msgstr "Hệ số:"
+
+#: ../client/puzzleCtrl.ts:194
+msgid "hidden"
+msgstr "ẩn"
+
+#: ../client/puzzleCtrl.ts:195
+msgid "Played:"
+msgstr "Đã được giải:"
+
+#: ../client/puzzleCtrl.ts:212
+msgid "Source:"
+msgstr "Nguồn:"
+
+#: ../client/puzzleCtrl.ts:216
+msgid "Type:"
+msgstr "Kiểu:"
+
+#: ../client/puzzleCtrl.ts:319
+msgid "Your turn"
+msgstr "Đến lượt bạn"
+
+#: ../client/puzzleCtrl.ts:320
+msgid "Find the best move for %1."
+msgstr "Tìm nước đi tối ưu cho %1"
+
+#: ../client/puzzleCtrl.ts:337
+msgid "That's not the move!"
+msgstr "Đó không phải là nước đi"
+
+#: ../client/puzzleCtrl.ts:338
+msgid "Try something else."
+msgstr "Hãy thử cái gì khác."
+
+#: ../client/puzzleCtrl.ts:352
+msgid "Best move!"
+msgstr "Nước tối ưu!"
+
+#: ../client/puzzleCtrl.ts:353
+msgid "Keep going..."
+msgstr "Tiếp tục..."
+
+#: ../client/puzzleCtrl.ts:366
+msgid "Success!"
+msgstr "Thành công!"
+
+#: ../client/puzzleCtrl.ts:371
+msgid "Puzzle complete!"
+msgstr "Hoàn thành câu đố!"
+
+#: ../client/puzzleCtrl.ts:374
+msgid "We have no more puzzle for this variant."
+msgstr "Chúng tôi không còn câu đố nào cho biến thể này."
+
+#: ../client/puzzleCtrl.ts:384
+msgid "Did you like this puzzle?"
+msgstr "Bạn có thích câu đố này ?"
+
+#: ../client/puzzleCtrl.ts:385
+msgid "Vote to load the next one!"
+msgstr "Bỏ phiếu để tải câu đố tiếp theo!"
+
+#: ../client/puzzleCtrl.ts:399
+msgid "Continue training"
+msgstr "Tiếp tục luyện tập"
+
+#: ../client/puzzleSettings.ts:53
+msgid "Jump to next puzzle immediately"
+msgstr "Chuyển sang câu đố tiếp theo ngay lập tức"
+
+#: ../client/result.ts:14
+msgid "IMPORT"
+msgstr "NHẬP"
+
+#: ../client/result.ts:21
+msgid "level %1"
+msgstr "cấp độ %1"
+
+#: ../client/result.ts:50
+msgid "Game aborted"
+msgstr "Ván cờ bị hủy"
+
+#: ../client/result.ts:53
+msgid "Checkmate"
+msgstr "Chiếu hết"
+
+#: ../client/result.ts:56
+msgid "%1 resigned"
+msgstr "%1 đã chịu thua"
+
+#: ../client/result.ts:59
+msgid "Stalemate"
+msgstr "Bế tắc"
+
+#: ../client/result.ts:62 ../client/result.ts:68
+msgid "Time out"
+msgstr "Hết giờ"
+
+#: ../client/result.ts:65 ../client/roundCtrl.ts:309
+msgid "Draw"
+msgstr "Hòa"
+
+#: ../client/result.ts:71
+msgid "%1 abandoned the game"
+msgstr "%1 đã bỏ ván cờ"
+
+#: ../client/result.ts:74
+msgid "Cheat detected"
+msgstr "Phát hiện gian lận"
+
+#: ../client/result.ts:77
+msgid "Not started"
+msgstr "Chưa bắt đầu"
+
+#: ../client/result.ts:80
+msgid "Invalid move"
+msgstr "Nước đi không hợp lệ"
+
+#: ../client/result.ts:83
+msgid "Unknown reason"
+msgstr "Lý do không rõ"
+
+#: ../client/result.ts:93
+msgid "Campmate"
+msgstr "Campmate"
+
+#: ../client/result.ts:96
+msgid "Altar mate"
+msgstr "Altarmate"
+
+#: ../client/result.ts:99
+msgid "Explosion of king"
+msgstr "Vua bị nổ"
+
+#: ../client/result.ts:102
+msgid "King in the center"
+msgstr "Vua ở trung tâm"
+
+#: ../client/result.ts:105
+msgid "Three checks"
+msgstr "3 lần chiếu"
+
+#: ../client/result.ts:108
+msgid "King captured"
+msgstr "Vua bị ăn"
+
+#: ../client/result.ts:111 ../client/result.ts:118
+msgid "Point counting"
+msgstr ""
+
+#: ../client/result.ts:121
+msgid "Repetition"
+msgstr "Lặp cờ"
+
+#: ../client/roundCtrl.ts:220 ../client/roundCtrl.ts:1068
+msgid " +15 seconds"
+msgstr "+15 giây"
+
+#: ../client/roundCtrl.ts:227
+msgid "Give 15 seconds"
+msgstr "Cho 15 giây"
+
+#: ../client/roundCtrl.ts:245
+msgid "Berserk"
+msgstr "Berserk"
+
+#: ../client/roundCtrl.ts:303
+msgid "Abort"
+msgstr "Hủy"
+
+#: ../client/roundCtrl.ts:305 ../client/roundCtrl.ts:933
+#: ../client/roundCtrl.ts:935
+msgid "Count"
+msgstr "Đếm"
+
+#: ../client/roundCtrl.ts:307
+msgid "Pass"
+msgstr "Vượt qua"
+
+#: ../client/roundCtrl.ts:310
+msgid "Resign"
+msgstr "Chịu thua"
+
+#: ../client/roundCtrl.ts:413
+msgid "Are you sure you want to draw?"
+msgstr "Bạn có chắc muốn hòa?"
+
+#: ../client/roundCtrl.ts:415
+msgid "Draw offer sent"
+msgstr "Đã gửi đề nghị hòa"
+
+#: ../client/roundCtrl.ts:427
+msgid "Your opponent offers a draw"
+msgstr "Đối thủ của bạn đề nghị hòa"
+
+#: ../client/roundCtrl.ts:447
+msgid "Are you sure you want to resign?"
+msgstr "Bán có chắc muốn chịu thua?"
+
+#: ../client/roundCtrl.ts:459
+msgid "Blue (Cho)"
+msgstr "Xanh dương (Cho)"
+
+#: ../client/roundCtrl.ts:459
+msgid "Red (Han)"
+msgstr "Đỏ (Han)"
+
+#: ../client/roundCtrl.ts:460
+msgid ""
+"Waiting for %1 to choose starting positions of the horses and elephants..."
+msgstr "Đang đợi %1 chọn vị trí xuất phát của ngựa và voi..."
+
+#: ../client/roundCtrl.ts:500 ../client/roundCtrl.ts:502
+msgid "Switch pieces"
+msgstr "Đổi quân"
+
+#: ../client/roundCtrl.ts:501
+msgid "Ready"
+msgstr "Sẵn sàng"
+
+#: ../client/roundCtrl.ts:535
+msgid "VIEW REMATCH"
+msgstr "XEM ĐẤU LẠI"
+
+#: ../client/roundCtrl.ts:542
+msgid "Rematch offer sent"
+msgstr "Yêu cầu tái đấu đã được gửi"
+
+#: ../client/roundCtrl.ts:553
+msgid "Your opponent offers a rematch"
+msgstr "Đối thủ của bạn đề nghị tái đấu"
+
+#: ../client/roundCtrl.ts:594
+msgid "VIEW TOURNAMENT"
+msgstr "XEM GIẢI ĐẤU"
+
+#: ../client/roundCtrl.ts:597
+msgid "BACK TO TOURNAMENT"
+msgstr "TRỞ LẠI GIẢI ĐẤU"
+
+#: ../client/roundCtrl.ts:599 ../client/tournament.ts:175
+msgid "PAUSE"
+msgstr "TẠM RÚT"
+
+#: ../client/roundCtrl.ts:602
+msgid "REMATCH"
+msgstr "TÁI ĐẤU"
+
+#: ../client/roundCtrl.ts:603
+msgid "NEW OPPONENT"
+msgstr "ĐỐI THỦ MỚI"
+
+#: ../client/editor/editorCtrl.ts:142 ../client/roundCtrl.ts:606
+msgid "ANALYSIS BOARD"
+msgstr "BÀN CỜ PHÂN TÍCH"
+
+#: ../client/roundCtrl.ts:931
+msgid "Stop counting"
+msgstr "Dừng đếm"
+
+#: ../client/roundCtrl.ts:931
+msgid "Stop"
+msgstr "Dừng"
+
+#: ../client/roundCtrl.ts:933 ../client/roundCtrl.ts:935
+msgid "Start counting"
+msgstr "Bắt đầu đếm"
+
+#: ../client/roundCtrl.ts:997
+msgid "%1 second to play the first move"
+msgid_plural "%1 seconds to play the first move"
+msgstr[0] "Còn %1 giây để chơi nước đi đầu tiên"
+
+#: ../client/settingsView.ts:54
+msgid "Log out"
+msgstr "Đăng xuất"
+
+#: ../client/settingsView.ts:59
+msgid "Are you sure you want to log out?"
+msgstr "Bạn có chắc muốn đăng xuất?"
+
+#: ../client/settingsView.ts:66 ../client/settingsView.ts:102
+msgid "Sound"
+msgstr "Âm thanh"
+
+#: ../client/settingsView.ts:67 ../client/settingsView.ts:112
+msgid "Background"
+msgstr "Nền"
+
+#: ../client/settingsView.ts:68 ../client/settingsView.ts:127
+msgid "Board Settings"
+msgstr "Cài Đặt Bàn Cờ"
+
+#: ../client/settingsView.ts:69 ../client/settingsView.ts:119
+msgid "Zen Mode"
+msgstr "Chế độ tập trung"
+
+#: ../client/sound.ts:137
+msgid "Volume"
+msgstr "Âm lượng"
+
+#: ../client/tournament.ts:148
+msgid "First"
+msgstr "Đầu"
+
+#: ../client/tournament.ts:149
+msgid "Prev"
+msgstr "Trước"
+
+#: ../client/tournament.ts:153
+msgid "Next"
+msgstr "Tiếp"
+
+#: ../client/tournament.ts:154
+msgid "Last"
+msgstr "Cuối"
+
+#: ../client/tournament.ts:155
+msgid "Scroll to your player"
+msgstr ""
+
+#: ../client/tournament.ts:166
+msgid "WITHDRAW"
+msgstr "RÚT"
+
+#: ../client/tournament.ts:168 ../client/tournament.ts:173
+msgid "JOIN"
+msgstr "THAM GIA"
+
+#: ../client/tournament.ts:180
+msgid "LOG IN"
+msgstr "ĐĂNG NHẬP"
+
+#: ../client/tournament.ts:193
+msgid "Tournament complete"
+msgstr "Giải đấu tiếp theo"
+
+#: ../client/tournament.ts:195
+msgid "Players"
+msgstr "Kì thủ"
+
+#: ../client/tournament.ts:196
+msgid "Average rating"
+msgstr "Hệ số trung bình"
+
+#: ../client/tournament.ts:197 ../client/tournament.ts:375
+#: ../client/tournament.ts:433 ../client/tournament.ts:443
+#: ../client/tournament.ts:453
+msgid "Games played"
+msgstr "Ván đã chơi"
+
+#: ../client/tournament.ts:198 ../client/tournament.ts:199
+msgid "%1 wins"
+msgstr "%1 thắng"
+
+#: ../client/tournament.ts:200
+msgid "Draws"
+msgstr "Hòa"
+
+#: ../client/tournament.ts:201 ../client/tournament.ts:378
+#: ../client/tournament.ts:435 ../client/tournament.ts:445
+#: ../client/tournament.ts:455
+msgid "Berserk rate"
+msgstr "Tỉ lệ Berserk"
+
+#: ../client/tournament.ts:209
+msgid "Download all games"
+msgstr "Tải xuống tất cả ván cờ"
+
+#: ../client/tournament.ts:217
+msgid "Download all games in JSON"
+msgstr "Tải xuống tất cả ván cờ ở dạng JSON"
+
+#: ../client/tournament.ts:345
+msgid "Arena"
+msgstr "Đấu trường"
+
+#: ../client/tournament.ts:347
+msgid "Round-Robin"
+msgstr ""
+
+#: ../client/tournament.ts:349
+msgid "Swiss"
+msgstr "Hệ Thụy Sĩ"
+
+#: ../client/tournament.ts:374 ../client/tournament.ts:432
+#: ../client/tournament.ts:442 ../client/tournament.ts:452
+msgid "Performance"
+msgstr "Hiệu suất"
+
+#: ../client/tournament.ts:376 ../client/tournament.ts:434
+#: ../client/tournament.ts:444 ../client/tournament.ts:454
+msgid "Win rate"
+msgstr "Tỉ lệ thắng"
+
+#: ../client/tournament.ts:377
+msgid "Average opponent"
+msgstr "Đối thủ trung bình"
+
+#: ../client/tournament.ts:529
+msgid "Defender:"
+msgstr "Phòng thủ:"
+
+#: ../client/tournament.ts:555
+msgid "Custom position"
+msgstr "Thế trận tùy chỉnh"
+
+#: ../client/tournament.ts:556
+msgid "Analysis board"
+msgstr "Bàn cờ phân tích"
+
+#: ../client/tournament.ts:563
+msgid ""
+"This Shield trophy is unique. The winner keeps it for one month, then must "
+"defend it during the next %1 Shield tournament!"
+msgstr ""
+"Chiếc cúp Shield này là duy nhất. Người chiến thắng giữ nó trong một tháng, "
+"sau đó phải bảo vệ nó trong giải đấu Khiên %1 tiếp theo!"
+
+#: ../client/tournamentClock.ts:42
+msgid "STARTING IN"
+msgstr "BẮT ĐẦU TRONG"
+
+#: ../client/variants.ts:818
+msgid "Asymmetric Spartans vs. Persians variant."
+msgstr "Biến thể Asymmetric Spartans và Persians."
+
+#: ../client/lobby/layer1.ts:51 ../client/lobby/layer2chess.ts:21
+#: ../client/variants.ts:896
+msgid "Chess Variants"
+msgstr "Biến thể Cờ Vua"
+
+#: ../client/lobby/layer1.ts:75 ../client/lobby/layer2makruk.ts:16
+#: ../client/variants.ts:897
+msgid "Makruk Variants"
+msgstr "Biến thể cờ Makruk"
+
+#: ../client/lobby/layer1.ts:83 ../client/lobby/layer2shogi.ts:17
+#: ../client/variants.ts:898
+msgid "Shogi Variants"
+msgstr "Biến thể cờ Shogi"
+
+#: ../client/lobby/layer1.ts:91 ../client/lobby/layer2xiangqi.ts:16
+#: ../client/variants.ts:899
+msgid "Xiangqi Variants"
+msgstr "Biến thể Cờ Tướng"
+
+#: ../client/lobby/layer1.ts:59 ../client/lobby/layer2fairy.ts:16
+#: ../client/variants.ts:900
+msgid "Fairy Piece Variants"
+msgstr "Biến thể có Quân cờ Kết hợp"
+
+#: ../client/lobby/layer1.ts:67 ../client/lobby/layer2army.ts:16
+#: ../client/variants.ts:901
+msgid "New Army Variants"
+msgstr "Biến thể Quân đội mới"
+
+#: ../client/view.ts:65
+msgid "Page reload required after change"
+msgstr "Yêu cầu tải lại trang sau khi thay đổi"
+
+#: ../client/zen.ts:9
+msgid "Off"
+msgstr "Tắt"
+
+#: ../client/zen.ts:10
+msgid "On"
+msgstr "Mở"
+
+#: ../client/zen.ts:42
+msgid "ZEN MODE"
+msgstr "CHẾ ĐỘ TẬP TRUNG"
+
+#: ../client/editor/editorCtrl.ts:96
+msgid "Castling"
+msgstr "Nhập thành"
+
+#: ../client/editor/editorCtrl.ts:130
+msgid "FLIP BOARD"
+msgstr "QUAY BÀN CỜ"
+
+#: ../client/editor/editorCtrl.ts:133
+msgid "CLEAR BOARD"
+msgstr "XÓA BÀN CỜ"
+
+#: ../client/editor/editorCtrl.ts:136
+msgid "FILL %1'S HAND"
+msgstr "FILL %1'S HAND"
+
+#: ../client/editor/editorCtrl.ts:139
+msgid "STARTING POSITION"
+msgstr "THẾ TRẬN BẮT ĐẦU"
+
+#: ../client/editor/editorCtrl.ts:145
+msgid "PLAY WITH MACHINE"
+msgstr "CHƠI VỚI MÁY"
+
+#: ../client/editor/editorCtrl.ts:148
+msgid "EXPORT TO PNG"
+msgstr "XUẤT SANG PNG"
+
+#: ../client/input/duck.ts:52
+msgid "Undo"
+msgstr "Hoàn tác"
+
+#: ../client/input/duck.ts:58
+msgid "Place the duck on an empty square."
+msgstr "Đặt con vịt vào một ô cờ trống."
+
+#: ../client/lobby/layer2army.ts:18
+msgid ""
+"These variants have new armies with completely new pieces! Most of these "
+"variants pit these armies against the standard Chess army."
+msgstr ""
+"Những biến thể này có đội quân mới với những quân cờ hoàn toàn mới! Hầu hết "
+"các biến thể này đều khiến những đội quân này chống lại đội quân Cờ vua tiêu"
+" chuẩn."
+
+#: ../client/lobby/layer2army.ts:19 ../client/lobby/layer2chess.ts:24
+#: ../client/lobby/layer2fairy.ts:26 ../client/lobby/layer2makruk.ts:19
+#: ../client/lobby/layer2shogi.ts:20 ../client/lobby/layer2xiangqi.ts:19
+#: ../client/lobby/layer3.ts:45
+msgid "Go Back"
+msgstr "Quay Lại"
+
+#: ../client/lobby/layer2army.ts:28
+msgid "Horde: Horse-based army"
+msgstr "Horde: Quân đội dựa trên ngựa"
+
+#: ../client/lobby/layer2army.ts:35
+msgid "Empire: Queen-based army"
+msgstr "Empire: Quân đội dựa trên hậu"
+
+#: ../client/lobby/layer2army.ts:42
+msgid "Horde vs Horde"
+msgstr "Horde vs Horde"
+
+#: ../client/lobby/layer2army.ts:49
+msgid "Clan: Drop-based army"
+msgstr ""
+
+#: ../client/lobby/layer2army.ts:56
+msgid "Dynasty: Xiangqi-based army"
+msgstr ""
+
+#: ../client/lobby/layer2army.ts:63
+msgid "Mayan chess"
+msgstr "Mayan chess"
+
+#: ../client/lobby/layer2army.ts:70
+msgid "Alternating pieces"
+msgstr "Quân cờ xen kẽ"
+
+#: ../client/lobby/layer2army.ts:77
+msgid "Spartans: Army with two kings"
+msgstr "Spartans: Quân đội có hai vua"
+
+#: ../client/lobby/layer2chess.ts:23
+msgid "Variants using a basic chess set but with different rules."
+msgstr ""
+
+#: ../client/lobby/layer2fairy.ts:18
+msgid ""
+"These variants have new pieces to try! Many of them have larger boards, and "
+"some also have new rules."
+msgstr ""
+
+#: ../client/lobby/layer2fairy.ts:21
+msgid " = Random (960) variant available. "
+msgstr ""
+
+#: ../client/lobby/layer2fairy.ts:24
+msgid " = Drop variant available."
+msgstr ""
+
+#: ../client/lobby/layer2fairy.ts:40
+msgid "Knight hybrid pieces"
+msgstr ""
+
+#: ../client/lobby/layer2fairy.ts:51
+msgid "8x8 with new pieces"
+msgstr ""
+
+#: ../client/lobby/layer2fairy.ts:58
+msgid "Cannon and Elephant from Xiangqi"
+msgstr ""
+
+#: ../client/lobby/layer2fairy.ts:68
+msgid "10x10 with new pieces"
+msgstr ""
+
+#: ../client/lobby/layer2fairy.ts:75
+msgid "Crazyhouse with promotions"
+msgstr ""
+
+#: ../client/lobby/layer2fairy.ts:82
+msgid "Bishops and Knights swap their capture moves"
+msgstr ""
+
+#: ../client/lobby/layer2makruk.ts:18
+msgid "Southeast Asian variants, closely related to Western Chess."
+msgstr ""
+
+#: ../client/lobby/layer2makruk.ts:28
+msgid "Thai Chess. Similar to Chess but with a different queen and bishop."
+msgstr ""
+
+#: ../client/lobby/layer2makruk.ts:35
+msgid "Makruk variant. Kings cannot move when checked."
+msgstr ""
+
+#: ../client/lobby/layer2makruk.ts:42
+msgid "Cambodian Chess. Makruk with extra starting moves."
+msgstr ""
+
+#: ../client/lobby/layer2makruk.ts:49
+msgid "Burmese Chess. You may place your starting pieces."
+msgstr ""
+
+#: ../client/lobby/layer2makruk.ts:56
+msgid "Makruk with International Chess influence."
+msgstr ""
+
+#: ../client/lobby/layer2shogi.ts:19
+msgid "The Japanese version of chess, which involves drops and promotions."
+msgstr ""
+
+#: ../client/lobby/layer2shogi.ts:29
+msgid "Original Shogi"
+msgstr ""
+
+#: ../client/lobby/layer2shogi.ts:36
+msgid "5x5 Shogi"
+msgstr "Shogi 5x5"
+
+#: ../client/lobby/layer2shogi.ts:43
+msgid "5x5, pieces flip each turn"
+msgstr ""
+
+#: ../client/lobby/layer2shogi.ts:50
+msgid "3x4 game to teach Shogi"
+msgstr ""
+
+#: ../client/lobby/layer2shogi.ts:57
+msgid "5x6 with Generals"
+msgstr ""
+
+#: ../client/lobby/layer2shogi.ts:64
+msgid "7x7, Bird Shogi"
+msgstr ""
+
+#: ../client/lobby/layer2xiangqi.ts:18
+msgid "The ancient game of Chinese Chess and its variants."
+msgstr ""
+
+#: ../client/lobby/layer2xiangqi.ts:28
+msgid "Chinese Chess, one of the most played games in the world"
+msgstr ""
+
+#: ../client/lobby/layer2xiangqi.ts:35
+msgid "Korean Chess, based on Xiangqi but very different"
+msgstr ""
+
+#: ../client/lobby/layer2xiangqi.ts:42
+msgid "Compact Xiangqi on a 7x7 board"
+msgstr ""
+
+#: ../client/lobby/layer2xiangqi.ts:49
+msgid "Asymmetric variant with one side having a super piece"
+msgstr ""
+
+#: ../client/lobby/layer3.ts:41
+msgid "Challenge a friend"
+msgstr "Thách đấu bạn bè"
+
+#: ../client/lobby/layer3.ts:52
+msgid "Rules"
+msgstr "Luật"
+
+#: ../client/lobby/layer3.ts:53
+msgid "Tip: "
+msgstr "Gợi ý:"
+
+#: ../client/lobby/layer3.ts:64
+msgid "Fischer's random chess where the back row are randomized."
+msgstr ""
+
+#: ../client/lobby/layer3.ts:66
+msgid "Crazyhouse with random back row."
+msgstr ""
+
+#: ../client/lobby/layer3.ts:68
+msgid "Atomic Chess with random back row."
+msgstr ""
+
+#: ../client/lobby/layer3.ts:81
+msgid "Move the king on top of the rook to castle."
+msgstr ""
+
+#: ../client/lobby/layer3.ts:83
+msgid "You can play more at lichess.org."
+msgstr "Bạn có thể chơi thêm trên lichess.org."
+
+#: ../client/lobby/layer3.ts:86
+msgid ""
+"Castling is only possible if the king and rook are dropped to their usual "
+"places like in standard Chess."
+msgstr ""
+
+#: ../client/lobby/layer3.ts:88
+msgid "Quack."
+msgstr "Quack."
+
+#: ../client/lobby/layer3.ts:91
+msgid ""
+"You can choose different starting setups including Embassy Chess and Gothic "
+"Chess."
+msgstr ""
+
+#: ../client/lobby/layer3.ts:93
+msgid "For a drop version, choose GRANDHOUSE from the dropdown menu."
+msgstr ""
+
+#: ../client/lobby/layer3.ts:95
+msgid "For a drop version, choose S-HOUSE from the dropdown menu."
+msgstr ""
+
+#: ../client/lobby/layer3.ts:97
+msgid "The queen actually demotes upon capture, so it is not worth as much."
+msgstr ""
+
+#: ../client/lobby/layer3.ts:99
+msgid "The cannon is a tricky piece that needs to be closely followed."
+msgstr ""
+
+#: ../client/lobby/layer3.ts:101
+msgid "Other piece sets are available, which may help avoid confusion."
+msgstr ""
+
+#: ../client/lobby/layer3.ts:108
+msgid "Be aware of campmate - victory by moving your king into the 8th rank."
+msgstr ""
+
+#: ../client/lobby/layer3.ts:110
+msgid "Promoting the king prematurely can be dangerous."
+msgstr ""
+
+#: ../client/lobby/layer3.ts:112
+msgid "Make sure to consider both forms of each piece."
+msgstr ""
+
+#: ../client/lobby/layer3.ts:114
+msgid "Spartan kings can be a powerful addition to an offensive."
+msgstr ""
+
+#: ../client/lobby/layer3.ts:117
+msgid "Maximizing khon and met's effectiveness is the key."
+msgstr ""
+
+#: ../client/lobby/layer3.ts:119
+msgid "Watch out for knight checks, since they cannot be blocked."
+msgstr ""
+
+#: ../client/lobby/layer3.ts:121
+msgid "You can use placement to utilize your stronger pieces from the start."
+msgstr ""
+
+#: ../client/lobby/layer3.ts:123
+msgid "King safety is important. Use the king leap move to save time."
+msgstr ""
+
+#: ../client/lobby/layer3.ts:125
+msgid "The ability to promote to rook makes for a dynamic endgame."
+msgstr ""
+
+#: ../client/lobby/layer3.ts:130 ../client/lobby/layer3.ts:142
+msgid "Internationalized sets are available by going to settings."
+msgstr ""
+
+#: ../client/lobby/layer3.ts:132
+msgid ""
+"Despite the simple appearance, there is still quite a bit of depth "
+"underlying this game."
+msgstr ""
+
+#: ../client/lobby/layer3.ts:134
+msgid "Sets that show both sides are available by going to settings."
+msgstr ""
+
+#: ../client/lobby/layer3.ts:136
+msgid ""
+"Reading the rules are a necessity to understand the movements before "
+"playing."
+msgstr ""
+"Đọc luật chơi là điều cần thiết để hiểu rõ các nước cờ trước khi chơi."
