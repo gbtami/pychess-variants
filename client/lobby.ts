@@ -136,12 +136,12 @@ export class LobbyController implements ChatController {
             }
         }
 
-        setAriaTabClick();
+        setAriaTabClick("lobby_tab");
 
-        const initialEl = document.querySelector('[tabindex="0"]') as HTMLElement;
+        const tabId = localStorage.lobby_tab ?? "tab-1";
+        const initialEl = document.getElementById(tabId) as HTMLElement;
         initialEl.setAttribute('aria-selected', 'true');
-        (document.querySelector('.seek-container') as HTMLElement).style.display = 'block';
-        //(initialEl!.parentNode!.parentNode!.querySelector(`#${initialEl.getAttribute('aria-controls')}`)! as HTMLElement).style.display = 'block';
+        (initialEl!.parentNode!.parentNode!.querySelector(`#${initialEl.getAttribute('aria-controls')}`)! as HTMLElement).style.display = 'block';
 
         const e = document.getElementById("fen") as HTMLInputElement;
         if (this.fen !== "")
@@ -1085,10 +1085,10 @@ export function lobbyView(model: PyChessModel): VNode[] {
     ];
 
     let tabs = [];
-    tabs.push(h('span', {attrs: {role: 'tab', 'aria-selected': false, 'aria-controls': 'panel-1', id: 'tab-1', tabindex: '0'}}, _('Lobby')));
-    tabs.push(h('span', {attrs: {role: 'tab', 'aria-selected': true, 'aria-controls': 'panel-2', id: 'tab-2', tabindex: '-1'}}, _('Correspondence')))
+    tabs.push(h('span', {attrs: {role: 'tab', 'aria-selected': false, 'aria-controls': 'panel-1', id: 'tab-1', tabindex: '-1'}}, _('Lobby')));
+    tabs.push(h('span', {attrs: {role: 'tab', 'aria-selected': false, 'aria-controls': 'panel-2', id: 'tab-2', tabindex: '-1'}}, _('Correspondence')))
     if (corr.length > 0) {
-        tabs.push(h('span', {attrs: {role: 'tab', 'aria-selected': true, 'aria-controls': 'panel-3', id: 'tab-3', tabindex: '-1'}}, [
+        tabs.push(h('span', {attrs: {role: 'tab', 'aria-selected': false, 'aria-controls': 'panel-3', id: 'tab-3', tabindex: '-1'}}, [
             ngettext('%1 game in play', '%1 games in play', gpCounter),
             h('i.noread', count)
         ]))
@@ -1097,7 +1097,7 @@ export function lobbyView(model: PyChessModel): VNode[] {
     let containers = [];
     containers.push(h('div', {attrs: {role: 'tablist', 'aria-label': 'Seek Tabs'}}, tabs));
     containers.push(
-        h('div.seek-container', {attrs: {id: 'panel-1', role: 'tabpanel', tabindex: '0', 'aria-labelledby': 'tab-1'}}, [
+        h('div.seek-container', {attrs: {id: 'panel-1', role: 'tabpanel', tabindex: '-1', 'aria-labelledby': 'tab-1'}}, [
             h('div.seeks-table', [
                 h('div.seeks-wrapper', h('table.seeks', { hook: { insert: vnode => runSeeks(vnode, model) } })),
             ])

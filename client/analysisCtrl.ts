@@ -197,7 +197,7 @@ export class AnalysisController extends GameController {
             (document.getElementById('misc-infob') as HTMLElement).style.textAlign = 'center';
         }
 
-        setAriaTabClick();
+        setAriaTabClick("analysis_tab");
 
         if (!this.puzzle) {
             const initialEl = document.querySelector('[tabindex="0"]') as HTMLElement;

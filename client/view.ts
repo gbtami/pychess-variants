@@ -194,14 +194,14 @@ function setInputFileName(vnode: VNode, name: string) {
     }
 }
 
-export function setAriaTabClick() {
+export function setAriaTabClick(setting: string) {
     // Add a click event handler to each tab
     const tabs = document.querySelectorAll('[role="tab"]');
     tabs!.forEach(tab => {
-        tab.addEventListener('click', () => changeTabs(tab));
+        tab.addEventListener('click', () => changeTabs(setting, tab));
     });
 
-    function changeTabs(tab: Element) {
+    function changeTabs(setting: string, tab: Element) {
         const parent = tab!.parentNode;
         const grandparent = parent!.parentNode;
 
@@ -216,5 +216,8 @@ export function setAriaTabClick() {
 
         // Show the selected panel
         (grandparent!.parentNode!.querySelector(`#${tab.getAttribute('aria-controls')}`)! as HTMLElement).style.display = 'block';
+
+        const tabId = tab.getAttribute('id');
+        localStorage[setting] = tabId;
     }
 }
