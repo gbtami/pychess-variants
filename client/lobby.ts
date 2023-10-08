@@ -705,6 +705,10 @@ export class LobbyController implements ChatController {
         if (seek["user"] === this.username) {
             this.doSend({ type: "delete_seek", seekID: seek["seekID"], player: this.username });
         } else {
+            if (this.anon && seek.day !== 0) {
+                alert(_('You need an account to do that.'));
+                return;
+            }
             this.doSend({ type: "accept_seek", seekID: seek["seekID"], player: this.username });
         }
     }
