@@ -33,6 +33,7 @@ from const import (
     CORRESPONDENCE,
     VARIANTS,
     STARTED,
+    ABORTED,
     LANGUAGES,
     T_CREATED,
     T_STARTED,
@@ -383,11 +384,14 @@ async def init_state(app):
         cursor = app["db"].game.find({"r": "d", "y": CORRESPONDENCE})
         print("---CORRESPONDENCE GAMES ---")
         async for doc in cursor:
-            game = await load_game(app, doc["_id"])
-            app["games"][doc["_id"]] = game
-            game.wplayer.correspondence_games.append(game)
-            game.bplayer.correspondence_games.append(game)
-            print(game)
+            if doc["s"] < ABORTED:
+                game = await load_game(app, doc["_id"])
+                app["games"][doc["_id"]] = game
+                game.wplayer.correspondence_games.append(game)
+                game.bplayer.correspondence_games.append(game)
+                game.stopwatch.restart(from_db=True)
+                print(game)
+        print("---END OF CORRESPONDENCE GAMES ---")
 
         if "video" not in db_collections:
             if DEV:

@@ -12,7 +12,7 @@ except ImportError:
     print("No pyffish module installed!")
 
 from broadcast import lobby_broadcast, round_broadcast
-from clock import Clock
+from clock import Clock, CorrClock
 from compress import encode_moves, R2C
 from const import (
     CREATED,
@@ -259,7 +259,9 @@ class Game:
             }
         ]
 
-        if self.rated != CORRESPONDENCE:
+        if self.rated == CORRESPONDENCE:
+            self.stopwatch = CorrClock(self)
+        else:
             self.stopwatch = Clock(self)
 
         if self.rated != CORRESPONDENCE and not self.bplayer.bot:
@@ -285,8 +287,7 @@ class Game:
             self.ply_clocks[0]["black"] = self.berserk_time
 
     async def play_move(self, move, clocks=None, ply=None):
-        if self.rated != CORRESPONDENCE:
-            self.stopwatch.stop()
+        self.stopwatch.stop()
 
         self.byo_correction = 0
 
@@ -389,8 +390,7 @@ class Game:
                         "clocks": clocks,
                     }
                 )
-                if self.rated != CORRESPONDENCE:
-                    self.stopwatch.restart()
+                self.stopwatch.restart()
 
             except Exception:
                 log.exception("ERROR: Exception in game %s play_move() %s", self.id, move)
@@ -422,12 +422,11 @@ class Game:
             log.exception("Save IMPORTED game %s ???", self.id)
             return
 
-        if self.rated != CORRESPONDENCE:
-            self.stopwatch.clock_task.cancel()
-            try:
-                await self.stopwatch.clock_task
-            except asyncio.CancelledError:
-                pass
+        self.stopwatch.clock_task.cancel()
+        try:
+            await self.stopwatch.clock_task
+        except asyncio.CancelledError:
+            pass
 
         if self.board.ply > 0:
             self.app["g_cnt"][0] -= 1
@@ -664,11 +663,7 @@ class Game:
                 self.result = result
 
             self.set_crosstable()
-
-            if not self.bplayer.bot:
-                self.bplayer.game_in_progress = None
-            if not self.wplayer.bot:
-                self.wplayer.game_in_progress = None
+            self.update_in_plays()
 
             return
 
@@ -733,15 +728,17 @@ class Game:
 
         if self.status > STARTED:
             self.set_crosstable()
+            self.update_in_plays()
 
-            if not self.bplayer.bot:
-                self.bplayer.game_in_progress = None
-            if not self.wplayer.bot:
-                self.wplayer.game_in_progress = None
+    def update_in_plays(self):
+        if not self.bplayer.bot:
+            self.bplayer.game_in_progress = None
+        if not self.wplayer.bot:
+            self.wplayer.game_in_progress = None
 
-            if self.rated == CORRESPONDENCE:
-                self.wplayer.correspondence_games.remove(self)
-                self.bplayer.correspondence_games.remove(self)
+        if self.rated == CORRESPONDENCE:
+            self.wplayer.correspondence_games.remove(self)
+            self.bplayer.correspondence_games.remove(self)
 
     def print_game(self):
         print(self.pgn)

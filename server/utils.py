@@ -135,7 +135,7 @@ async def load_game(app, game_id):
 
     mlist = decode_moves(doc["m"], variant)
 
-    if mlist or (game.tournamentId is not None and doc["s"] > STARTED):
+    if (mlist or game.tournamentId is not None) and doc["s"] > STARTED:
         game.saved = True
 
     if usi_format and variant == "shogi":
@@ -241,6 +241,7 @@ async def load_game(app, game_id):
 
     level = doc.get("x")
     game.date = doc["d"]
+    game.last_move_date = doc.get("l")
     if game.date.tzinfo is None:
         game.date = game.date.replace(tzinfo=timezone.utc)
     game.status = doc["s"]
