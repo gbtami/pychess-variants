@@ -143,7 +143,16 @@ class CorrClock:
     async def countdown(self):
         while True:
             while self.running and self.mins > 0:
-                print("---", "%s minutes left in game %s - %s %s" % (self.mins, self.game.wplayer.username, self.game.wplayer.username, self.game.base))
+                print(
+                    "---",
+                    "%s minutes left in game %s - %s %s"
+                    % (
+                        self.mins,
+                        self.game.wplayer.username,
+                        self.game.wplayer.username,
+                        self.game.base,
+                    ),
+                )
                 await asyncio.sleep(60)
                 self.mins -= 1
 
