@@ -1,7 +1,7 @@
 @import 'hamburger.css';
 :root {
   --main-margin: 0;
-  --main-max-width: 1300px;
+  --main-max-width: 1400px;
   --feature-btn: #d0e0bd;
   --invalid-queen: #ffa07a;
   --gauge-gap: 17px;
@@ -400,7 +400,7 @@ iframe {
     grid-template-areas: 'side app app table' 'uleft blog blog utable';
   }
 }
-.seeks {
+div.seeks {
   display: grid;
   grid-area: app;
   border-radius: 3px;
@@ -1346,15 +1346,14 @@ li.header {
   float: right;
 }
 
-table#seeks-header,
-table#seeks {
+table.seeks {
   border-collapse: collapse;
   border-spacing: 0;
   border-radius: 3px;
   font-size: 14px;
   width: 100%;
 }
-#seeks-table {
+.seeks-table {
   box-shadow: var(--base-shadow);
   background-position: center;
   background-image: url('images/seek-bg.svg');
@@ -1364,12 +1363,12 @@ table#seeks {
   width: 100%;
   height: 100%;
 }
-#seeks-wrapper {
+.seeks-wrapper {
   height: 320px;
   overflow-y: scroll;
   -ms-overflow-style: scrollbar;
 }
-#seeks thead {
+.seeks thead {
   background: var(--bg-color2);
 }
 /*
@@ -1382,39 +1381,39 @@ table#seeks {
     background-image: url('images/Santa_hat.svg');
 }
 */
-#seeks th,
-#seeks td {
+.seeks th,
+.seeks td {
   white-space: nowrap;
   font-weight: inherit;
   padding: 0.5em 0.7em 0.5em 0.7em;
 }
 @media (max-width: 799px) and (orientation: portrait) {
-  #seeks th,
-  #seeks td {
+  .seeks th,
+  .seeks td {
     font-weight: 300;
   }
 }
-#seeks thead th {
+.seeks thead th {
   position: sticky;
   top: 0;
   z-index: 2;
   color: var(--button-text);
 }
-#seeks tbody tr {
+.seeks tbody tr {
   cursor: pointer;
   border-bottom: 1px solid var(--bg-color2);
   z-index: 1;
 }
-#seeks tbody tr:hover {
+.seeks tbody tr:hover {
   background-color: var(--rusty);
 }
-#seekbuttons {
+.seekbuttons {
   display: flex;
   flex-flow: column;
   flex: 1 1 auto;
   justify-content: center;
 }
-#seekbuttons > button {
+.seekbuttons > button {
   color: var(--button-text);
   background: var(--button-new-game);
   font-size: 1.1rem;
@@ -1422,11 +1421,11 @@ table#seeks {
   font-weight: 300;
   text-shadow: 0 1px 0 var(--text-shadow);
 }
-#seekbuttons > button:hover {
+.seekbuttons > button:hover {
   color: var(--button-text-hover);
   background: var(--button-new-game-hover);
 }
-#seekbuttons > button:focus {
+.seekbuttons > button:focus {
   background: #ff4f00;
   color: #fff;
   text-shadow: 0 1px 1px #000000;
@@ -1470,7 +1469,7 @@ input {
 
 .container {
   text-align: center;
-  padding: 24px;
+  padding: 24px 0 24px;
 }
 
 #misc-infow,
@@ -2352,11 +2351,55 @@ div.tv cg-container, div.puzzle cg-container {
   align-items: center;
   justify-content: space-between;
   color: var(--font-color);
-  width: var(--cg-width);
 }
 
 /* Add pseudo-element only if data attribute is set */
 input[data-file]::after {
   content: attr(data-file);
   margin-left: 0.375em;
+}
+
+div[role=tabpanel] {
+    height: var(--panel-height);
+    display: none;
+    text-align: left;
+    overflow-y: auto;
+}
+div[role=tabpanel] textarea {
+    overflow-y: hidden;
+    background-color: var(--bg-color);
+    border: none;
+    resize: none;
+    outline: none;
+}
+div[role=tablist] {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: center;
+    align-items: flex-start;
+}
+span[role=tab] {
+    flex: 1 1 0;
+    text-align: center;
+    padding: 0.4em 0.1em;
+    cursor: pointer;
+    position: relative;
+    transition: color .25s,border-color .25s;
+}
+span[aria-selected=true], span:hover::after {
+    color: #d64f00;
+    border-color: #d64f00;
+    border-bottom: 2px solid #d64f00;
+    transform: scale(1);
+}
+div > span::after {
+    content:'';
+    background:rgba(214,79,0,0.6);
+    height:2px;
+    position:absolute;
+    width:96%;
+    left:2%;
+    bottom:-2px;
+    transition:all .25s;
+    transform:scale(0)
 }

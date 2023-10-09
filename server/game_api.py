@@ -8,7 +8,7 @@ from aiohttp import web
 import aiohttp_session
 from aiohttp_sse import sse_response
 
-from const import GRANDS, STARTED, MATE, VARIANTS, INVALIDMOVE, VARIANTEND, CLAIM
+from const import CORRESPONDENCE, GRANDS, STARTED, MATE, VARIANTS, INVALIDMOVE, VARIANTEND, CLAIM
 from compress import decode_moves, C2V, V2C, C2R
 from convert import zero2grand
 from utils import pgn
@@ -168,6 +168,11 @@ async def get_user_games(request):
             ]
     elif "/rated" in request.path:
         filter_cond["$or"] = [{"y": 1, "us.1": profileId}, {"y": 1, "us.0": profileId}]
+    elif "/playing" in request.path:
+        filter_cond["$and"] = [
+            {"$or": [{"y": 3, "us.1": profileId}, {"y": 3, "us.0": profileId}]},
+            {"s": STARTED},
+        ]
     elif "/import" in request.path:
         filter_cond["by"] = profileId
         filter_cond["y"] = 2
@@ -245,7 +250,7 @@ async def get_user_games(request):
                         "is960": doc.get("z", 0),
                         "users": doc["us"],
                         "result": doc["r"],
-                        "fen": doc.get("if"),
+                        "fen": doc.get("f"),
                         "moves": decode_moves(doc["m"], doc["v"]),
                     }
                 )
@@ -309,8 +314,8 @@ async def subscribe_games(request):
     return response
 
 
-async def get_games(request):
-    games = request.app["games"]
+def get_games(request):
+    games = request.app["games"].values()
     # TODO: filter last 10 by variant
     return web.json_response(
         [
@@ -318,6 +323,8 @@ async def get_games(request):
                 "gameId": game.id,
                 "variant": game.variant,
                 "fen": game.board.fen,
+                "lastMove": game.lastmove,
+                "tp": game.turn_player,
                 "w": game.wplayer.username,
                 "wTitle": game.wplayer.title,
                 "b": game.bplayer.username,
@@ -328,8 +335,8 @@ async def get_games(request):
                 "byoyomi": game.byoyomi_period,
                 "level": game.level,
             }
-            for game in games.values()
-            if game.status == STARTED
+            for game in games
+            if game.status == STARTED and game.rated != CORRESPONDENCE
         ][-20:]
     )
 

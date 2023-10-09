@@ -72,6 +72,7 @@ function initModel(el: HTMLElement) {
         tournamentDirector: el.getAttribute("data-tournamentdirector") === "True",
         assetURL: el.getAttribute("data-asset-url") ?? "",
         puzzle: el.getAttribute("data-puzzle") ?? "",
+        corr: el.getAttribute("data-corr") ?? "",
     };
 }
 

@@ -69,7 +69,10 @@ class Timer:
         print("---- elapsed time: %f ms - %s" % (self.elapsed, self.text))
 
 
-def time_control_str(base, inc, byo):
+def time_control_str(base, inc, byo, day=0):
+    if day > 0:
+        return f"{day} day" if day == 1 else f"{day} days"
+
     if base == 1 / 4:
         base = "¼"
     elif base == 1 / 2:

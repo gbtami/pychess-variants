@@ -30,8 +30,10 @@ from pythongettext.msgfmt import PoSyntaxError
 from ai import BOT_task
 from broadcast import lobby_broadcast, round_broadcast
 from const import (
+    CORRESPONDENCE,
     VARIANTS,
     STARTED,
+    ABORTED,
     LANGUAGES,
     T_CREATED,
     T_STARTED,
@@ -63,6 +65,7 @@ from settings import (
     SOURCE_VERSION,
 )
 from user import User
+from utils import load_game
 from tournaments import load_tournament, get_scheduled_tournaments, translated_tournament_name
 from twitch import Twitch
 from youtube import Youtube
@@ -372,9 +375,23 @@ async def init_state(app):
         print(app["daily_puzzle_ids"])
 
         await app["db"].game.create_index("us")
+        await app["db"].game.create_index("r")
         await app["db"].game.create_index("v")
         await app["db"].game.create_index("y")
         await app["db"].game.create_index("by")
+
+        # Read correspondence games in play and start their clocks
+        cursor = app["db"].game.find({"r": "d", "y": CORRESPONDENCE})
+        print("---CORRESPONDENCE GAMES ---")
+        async for doc in cursor:
+            if doc["s"] < ABORTED:
+                game = await load_game(app, doc["_id"])
+                app["games"][doc["_id"]] = game
+                game.wplayer.correspondence_games.append(game)
+                game.bplayer.correspondence_games.append(game)
+                game.stopwatch.restart(from_db=True)
+                print(game)
+        print("---END OF CORRESPONDENCE GAMES ---")
 
         if "video" not in db_collections:
             if DEV:
@@ -418,7 +435,7 @@ async def shutdown(app):
 
     # abort games
     for game in list(app["games"].values()):
-        if game.status <= STARTED:
+        if game.status <= STARTED and game.rated != CORRESPONDENCE:
             response = await game.abort()
             for player in (game.wplayer, game.bplayer):
                 if not player.bot and game.id in player.game_sockets:

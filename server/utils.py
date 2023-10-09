@@ -23,6 +23,7 @@ from const import (
     CASUAL,
     RATED,
     IMPORTED,
+    CORRESPONDENCE,
     CONSERVATIVE_CAPA_FEN,
     T_STARTED,
 )
@@ -134,7 +135,7 @@ async def load_game(app, game_id):
 
     mlist = decode_moves(doc["m"], variant)
 
-    if mlist or (game.tournamentId is not None and doc["s"] > STARTED):
+    if (mlist or game.tournamentId is not None) and doc["s"] > STARTED:
         game.saved = True
 
     if usi_format and variant == "shogi":
@@ -240,6 +241,7 @@ async def load_game(app, game_id):
 
     level = doc.get("x")
     game.date = doc["d"]
+    game.last_move_date = doc.get("l")
     if game.date.tzinfo is None:
         game.date = game.date.replace(tzinfo=timezone.utc)
     game.status = doc["s"]
@@ -469,6 +471,11 @@ async def new_game(app, seek_id, game_id=None):
 
     # print("new_game", game_id, seek.variant, seek.fen, wplayer, bplayer, seek.base, seek.inc, seek.level, seek.rated, seek.chess960)
     try:
+        if seek.day > 0:
+            rated = CORRESPONDENCE
+        else:
+            rated = RATED if (seek.rated and (not wplayer.anon) and (not bplayer.anon)) else CASUAL
+
         game = Game(
             app,
             game_id,
@@ -476,11 +483,11 @@ async def new_game(app, seek_id, game_id=None):
             sanitized_fen,
             wplayer,
             bplayer,
-            base=seek.base,
+            base=seek.base if seek.day == 0 else seek.day,
             inc=seek.inc,
             byoyomi_period=seek.byoyomi_period,
             level=seek.level,
-            rated=RATED if (seek.rated and (not wplayer.anon) and (not bplayer.anon)) else CASUAL,
+            rated=rated,
             chess960=seek.chess960,
             create=True,
         )
@@ -501,6 +508,10 @@ async def new_game(app, seek_id, game_id=None):
     remove_seek(seeks, seek)
 
     await insert_game_to_db(game, app)
+
+    if game.rated == CORRESPONDENCE:
+        game.wplayer.correspondence_games.append(game)
+        game.bplayer.correspondence_games.append(game)
 
     return {
         "type": "new_game",
@@ -891,3 +902,25 @@ async def get_names(request):
     async for doc in cursor:
         names.append((doc["_id"], doc["title"]))
     return web.json_response(names)
+
+
+def corr_games(games):
+    return [
+        {
+            "gameId": game.id,
+            "variant": game.variant,
+            "fen": game.board.fen,
+            "lastMove": game.lastmove,
+            "tp": game.turn_player,
+            "w": game.wplayer.username,
+            "wTitle": game.wplayer.title,
+            "b": game.bplayer.username,
+            "bTitle": game.bplayer.title,
+            "chess960": game.chess960,
+            "base": game.base,
+            "inc": game.inc,
+            "byoyomi": game.byoyomi_period,
+            "level": game.level,
+        }
+        for game in games
+    ]

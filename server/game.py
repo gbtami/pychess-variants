@@ -12,7 +12,7 @@ except ImportError:
     print("No pyffish module installed!")
 
 from broadcast import lobby_broadcast, round_broadcast
-from clock import Clock
+from clock import Clock, CorrClock
 from compress import encode_moves, R2C
 from const import (
     CREATED,
@@ -31,6 +31,7 @@ from const import (
     CASUAL,
     RATED,
     IMPORTED,
+    CORRESPONDENCE,
     HIGHSCORE_MIN_GAMES,
     variant_display_name,
     MAX_CHAT_LINES,
@@ -258,15 +259,22 @@ class Game:
             }
         ]
 
-        self.stopwatch = Clock(self)
+        if self.rated == CORRESPONDENCE:
+            self.stopwatch = CorrClock(self)
+        else:
+            self.stopwatch = Clock(self)
 
-        if not self.bplayer.bot:
+        if self.rated != CORRESPONDENCE and not self.bplayer.bot:
             self.bplayer.game_in_progress = self.id
-        if not self.wplayer.bot:
+        if self.rated != CORRESPONDENCE and not self.wplayer.bot:
             self.wplayer.game_in_progress = self.id
 
         self.wberserk = False
         self.bberserk = False
+
+        self.turn_player = (
+            self.wplayer.username if self.board.color == WHITE else self.bplayer.username
+        )
 
         self.move_lock = asyncio.Lock()
 
@@ -280,6 +288,7 @@ class Game:
 
     async def play_move(self, move, clocks=None, ply=None):
         self.stopwatch.stop()
+
         self.byo_correction = 0
 
         if self.status > STARTED:
@@ -359,12 +368,17 @@ class Game:
                 san = self.board.get_san(move)
                 self.lastmove = move
                 self.board.push(move)
+                self.turn_player = (
+                    self.wplayer.username if self.board.color == WHITE else self.bplayer.username
+                )
                 self.ply_clocks.append(clocks)
                 self.legal_moves = self.board.legal_moves()
                 self.update_status()
 
                 if self.status > STARTED:
                     await self.save_game()
+                elif self.rated == CORRESPONDENCE:
+                    await self.save_moves()
 
                 self.steps.append(
                     {
@@ -383,6 +397,21 @@ class Game:
                 result = "1-0" if self.board.color == BLACK else "0-1"
                 self.update_status(INVALIDMOVE, result)
                 await self.save_game()
+
+    async def save_moves(self):
+        new_data = {
+            "f": self.board.fen,
+            "l": datetime.now(timezone.utc),
+            "s": self.status,
+            "m": encode_moves(
+                map(grand2zero, self.board.move_stack)
+                if self.variant in GRANDS
+                else self.board.move_stack,
+                self.variant,
+            ),
+        }
+        if self.db is not None:
+            await self.db.game.find_one_and_update({"_id": self.id}, {"$set": new_data})
 
     async def save_game(self):
         if self.saved:
@@ -449,7 +478,6 @@ class Game:
                     log.exception("Exception in tournament game_update()")
 
             new_data = {
-                "d": self.date,
                 "f": self.board.fen,
                 "s": self.status,
                 "r": R2C[self.result],
@@ -635,11 +663,7 @@ class Game:
                 self.result = result
 
             self.set_crosstable()
-
-            if not self.bplayer.bot:
-                self.bplayer.game_in_progress = None
-            if not self.wplayer.bot:
-                self.wplayer.game_in_progress = None
+            self.update_in_plays()
 
             return
 
@@ -704,11 +728,17 @@ class Game:
 
         if self.status > STARTED:
             self.set_crosstable()
+            self.update_in_plays()
 
-            if not self.bplayer.bot:
-                self.bplayer.game_in_progress = None
-            if not self.wplayer.bot:
-                self.wplayer.game_in_progress = None
+    def update_in_plays(self):
+        if not self.bplayer.bot:
+            self.bplayer.game_in_progress = None
+        if not self.wplayer.bot:
+            self.wplayer.game_in_progress = None
+
+        if self.rated == CORRESPONDENCE:
+            self.wplayer.correspondence_games.remove(self)
+            self.bplayer.correspondence_games.remove(self)
 
     def print_game(self):
         print(self.pgn)
@@ -905,7 +935,7 @@ class Game:
             # To not touch self.ply_clocks we are creating deep copy from clocks
             clocks = {"black": self.clocks["black"], "white": self.clocks["white"]}
 
-            if self.status == STARTED and self.board.ply >= 2:
+            if self.status == STARTED and self.board.ply >= 2 and self.rated != CORRESPONDENCE:
                 # We have to adjust current player latest saved clock time
                 # otherwise he will get free extra time on browser page refresh
                 # (also needed for spectators entering to see correct clock times)

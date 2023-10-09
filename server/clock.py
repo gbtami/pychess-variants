@@ -1,5 +1,6 @@
 import asyncio
 import logging
+from datetime import datetime, timezone
 
 from const import ABORTED
 from fairy import WHITE, BLACK
@@ -114,3 +115,55 @@ class Clock:
                 base = 35
 
         return base * 1000
+
+
+class CorrClock:
+    """Correspondence games use 0 + x byoyomi time control, where x is a day"""
+
+    def __init__(self, game):
+        self.game = game
+        self.running = False
+        self.restart()
+        self.time_for_first_move = self.mins
+        self.clock_task = asyncio.create_task(self.countdown())
+
+    def stop(self):
+        self.running = False
+        return self.mins
+
+    def restart(self, from_db=False):
+        self.ply = self.game.board.ply
+        self.color = self.game.board.color
+        self.mins = self.game.base * 24 * 60
+        if from_db and self.game.last_move_date is not None:
+            delta = datetime.now(timezone.utc) - self.game.last_move_date
+            self.mins -= delta.total_seconds() / 60
+        self.running = True
+
+    async def countdown(self):
+        while True:
+            while self.running and self.mins > 0:
+                print(
+                    "---",
+                    "%s minutes left in game %s - %s %s"
+                    % (
+                        self.mins,
+                        self.game.wplayer.username,
+                        self.game.wplayer.username,
+                        self.game.base,
+                    ),
+                )
+                await asyncio.sleep(60)
+                self.mins -= 1
+
+            if self.game.status < ABORTED and self.mins <= 0 and self.running:
+                user = self.game.bplayer if self.color == BLACK else self.game.wplayer
+                reason = "abort" if self.ply < 2 else "flag"
+
+                async with self.game.move_lock:
+                    response = await self.game.game_ended(user, reason)
+                    await round_broadcast(self.game, response, full=True)
+                return
+
+            # After stop() we are just waiting for next restart
+            await asyncio.sleep(60)
