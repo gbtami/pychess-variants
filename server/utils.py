@@ -562,11 +562,12 @@ async def insert_game_to_db(game, app):
     if not result:
         log.error("db insert game result %s failed !!!", game.id)
 
-    app["tv"] = game.id
-    await lobby_broadcast(app["lobbysockets"], game.tv_game_json)
+    if game.rated != CORRESPONDENCE:
+        app["tv"] = game.id
+        await lobby_broadcast(app["lobbysockets"], game.tv_game_json)
 
-    game.wplayer.tv = game.id
-    game.bplayer.tv = game.id
+        game.wplayer.tv = game.id
+        game.bplayer.tv = game.id
 
 
 def remove_seek(seeks, seek):
