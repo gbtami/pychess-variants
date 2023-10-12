@@ -91,7 +91,7 @@ async def create_seek(db, invites, seeks, user, data, ws, empty=False):
     Currently there is no limit for them since they're used for tournament organisation purposes
     They can only be created by trusted users
     """
-    if len(user.seeks) >= MAX_USER_SEEKS and not empty:
+    if len([seek for seek in user.seeks.values() if seek.day == 0]) >= MAX_USER_SEEKS and not empty:
         return
 
     target = data.get("target")

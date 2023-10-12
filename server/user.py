@@ -198,18 +198,19 @@ class User:
             seeks = self.app["seeks"]
             sockets = self.app["lobbysockets"]
 
-            for seek in self.seeks:
-                game_id = self.seeks[seek].game_id
-                # preserve invites (seek with game_id)!
-                if game_id is None:
-                    del seeks[seek]
-            self.seeks.clear()
+            for seek_id in self.seeks:
+                game_id = self.seeks[seek_id].game_id
+                # preserve invites (seek with game_id) and corr seeks!
+                if game_id is None and self.seeks[seek_id].day == 0:
+                    del seeks[seek_id]
+                    del self.seeks[seek_id]
 
             await lobby_broadcast(sockets, get_seeks(seeks))
 
     def delete_pending_seek(self, seek):
         async def delete_seek(seek):
-            await asyncio.sleep(PENDING_SEEK_TIMEOUT)
+            timeout_secs = PENDING_SEEK_TIMEOUT if seek.day == 0 else seek.day * 24 * 60 * 60
+            await asyncio.sleep(timeout_secs)
 
             if seek.pending:
                 try:

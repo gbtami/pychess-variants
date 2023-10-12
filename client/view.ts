@@ -200,24 +200,24 @@ export function setAriaTabClick(setting: string) {
     tabs!.forEach(tab => {
         tab.addEventListener('click', () => changeTabs(setting, tab));
     });
+}
 
-    function changeTabs(setting: string, tab: Element) {
-        const parent = tab!.parentNode;
-        const grandparent = parent!.parentNode;
+export function changeTabs(setting: string, tab: Element) {
+    const parent = tab!.parentNode;
+    const grandparent = parent!.parentNode;
 
-        // Remove all current selected tabs
-        parent!.querySelectorAll('[aria-selected="true"]').forEach(t => t.setAttribute('aria-selected', 'false'));
+    // Remove all current selected tabs
+    parent!.querySelectorAll('[aria-selected="true"]').forEach(t => t.setAttribute('aria-selected', 'false'));
 
-        // Set this tab as selected
-        tab.setAttribute('aria-selected', 'true');
+    // Set this tab as selected
+    tab.setAttribute('aria-selected', 'true');
 
-        // Hide all tab panels
-        grandparent!.querySelectorAll('[role="tabpanel"]').forEach(p => (p as HTMLElement).style.display = 'none');
+    // Hide all tab panels
+    grandparent!.querySelectorAll('[role="tabpanel"]').forEach(p => (p as HTMLElement).style.display = 'none');
 
-        // Show the selected panel
-        (grandparent!.parentNode!.querySelector(`#${tab.getAttribute('aria-controls')}`)! as HTMLElement).style.display = 'block';
+    // Show the selected panel
+    (grandparent!.parentNode!.querySelector(`#${tab.getAttribute('aria-controls')}`)! as HTMLElement).style.display = 'block';
 
-        const tabId = tab.getAttribute('id');
-        localStorage[setting] = tabId;
-    }
+    const tabId = tab.getAttribute('id');
+    localStorage[setting] = tabId;
 }

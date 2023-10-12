@@ -13,7 +13,7 @@ import { patch } from './document';
 import { boardSettings } from './boardSettings';
 import { chatMessage, chatView, ChatController } from './chat';
 import { VARIANTS, selectVariant, Variant } from './variants';
-import { timeControlStr,setAriaTabClick } from './view';
+import { timeControlStr, changeTabs, setAriaTabClick } from './view';
 import { notify } from './notification';
 import { PyChessModel } from "./types";
 import { MsgBoard, MsgChat, MsgFullChat } from "./messages";
@@ -227,7 +227,7 @@ export class LobbyController implements ChatController {
         });
     }
 
-    isNewSeek(variant: string, color: string, fen: string, minutes: number, increment: number, byoyomiPeriod: number, day: number, chess960: boolean, rated: boolean) {
+    isNewSeek(variant: string, color: string, fen: string, minutes: number, increment: number, byoyomiPeriod: number, chess960: boolean, rated: boolean) {
         // console.log("isNewSeek()?", variant, color, fen, minutes, increment, byoyomiPeriod, chess960, rated);
         // console.log(this.seeks);
         return !this.seeks.some(seek =>
@@ -238,7 +238,6 @@ export class LobbyController implements ChatController {
             seek.base === minutes &&
             seek.inc === increment &&
             seek.byoyomi === byoyomiPeriod &&
-            seek.day === day &&
             seek.chess960 === chess960 &&
             seek.rated === rated
         );
@@ -289,6 +288,9 @@ export class LobbyController implements ChatController {
             e = document.getElementById('day') as HTMLInputElement;
             day = this.daysValues[Number(e.value)];
             localStorage.seek_day = e.value;
+            const corrTab = document.getElementById('tab-2') as HTMLInputElement;
+            changeTabs('lobby_tab', corrTab)
+            // TODO: use meaningful names!!!
         }
         console.log('createSeek() day', day);
         e = document.querySelector('input[name="mode"]:checked') as HTMLInputElement;
@@ -329,7 +331,7 @@ export class LobbyController implements ChatController {
                 this.createHostMsg(variant.name, seekColor, fen, minutes, increment, byoyomiPeriod, chess960, rated, alternateStart);
                 break;
             default:
-                if (this.isNewSeek(variant.name, seekColor, fen, minutes, increment, byoyomiPeriod, day, chess960, rated))
+                if (this.isNewSeek(variant.name, seekColor, fen, minutes, increment, byoyomiPeriod, chess960, rated))
                     this.createSeekMsg(variant.name, seekColor, fen, minutes, increment, byoyomiPeriod, day, chess960, rated, alternateStart);
         }
         // prevent to create challenges continuously
