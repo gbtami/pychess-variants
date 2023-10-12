@@ -198,12 +198,12 @@ class User:
             seeks = self.app["seeks"]
             sockets = self.app["lobbysockets"]
 
-            for seek in self.seeks:
-                game_id = self.seeks[seek].game_id
-                # preserve invites (seek with game_id)!
-                if game_id is None:
-                    del seeks[seek]
-            self.seeks.clear()
+            for seek_id in self.seeks:
+                game_id = self.seeks[seek_id].game_id
+                # preserve invites (seek with game_id) and corr seeks!
+                if game_id is None and self.seeks[seek_id].day == 0:
+                    del seeks[seek_id]
+                    del self.seeks[seek_id]
 
             await lobby_broadcast(sockets, get_seeks(seeks))
 
