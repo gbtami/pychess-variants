@@ -209,7 +209,8 @@ class User:
 
     def delete_pending_seek(self, seek):
         async def delete_seek(seek):
-            await asyncio.sleep(PENDING_SEEK_TIMEOUT)
+            timeout_secs = PENDING_SEEK_TIMEOUT if seek.day == 0 else seek.day * 24 * 60 * 60
+            await asyncio.sleep(timeout_secs)
 
             if seek.pending:
                 try:
