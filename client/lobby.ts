@@ -227,7 +227,7 @@ export class LobbyController implements ChatController {
         });
     }
 
-    isNewSeek(variant: string, color: string, fen: string, minutes: number, increment: number, byoyomiPeriod: number, day: number, chess960: boolean, rated: boolean) {
+    isNewSeek(variant: string, color: string, fen: string, minutes: number, increment: number, byoyomiPeriod: number, chess960: boolean, rated: boolean) {
         // console.log("isNewSeek()?", variant, color, fen, minutes, increment, byoyomiPeriod, chess960, rated);
         // console.log(this.seeks);
         return !this.seeks.some(seek =>
@@ -238,7 +238,6 @@ export class LobbyController implements ChatController {
             seek.base === minutes &&
             seek.inc === increment &&
             seek.byoyomi === byoyomiPeriod &&
-            seek.day === day &&
             seek.chess960 === chess960 &&
             seek.rated === rated
         );
