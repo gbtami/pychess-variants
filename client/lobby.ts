@@ -20,6 +20,7 @@ import { MsgBoard, MsgChat, MsgFullChat } from "./messages";
 import { variantPanels } from './lobby/layer1';
 import { Stream, Spotlight, MsgInviteCreated, MsgHostCreated, MsgGetSeeks, MsgNewGame, MsgGameInProgress, MsgUserConnected, MsgPing, MsgError, MsgShutdown, MsgGameCounter, MsgUserCounter, MsgStreams, MsgSpotlights, Seek, CreateMode, TvGame, TcMode } from './lobbyType';
 import { validFen, uci2LastMove } from './chess';
+import { timeago } from './datetime';
 
 const CREATE_MODES = {
     playAI: _("Play with AI"),
@@ -43,6 +44,7 @@ interface Game {
     fen: cg.FEN;
     lastMove: string;
     tp: string;
+    mins:number;
 }
 
 export class LobbyController implements ChatController {
@@ -1010,10 +1012,24 @@ function seekHeader() {
     ]);
 }
 
+function timer(date: string) {
+  return h(
+    'time.timeago',
+    {
+      hook: {
+        insert(vnode) {
+          (vnode.elm as HTMLElement).setAttribute('datetime', '' + date);
+        },
+      },
+    },
+    timeago(date),
+  );
+}
+
 function gameViewPlaying(game: Game, username: string) {
     const variant = VARIANTS[game.variant];
-    const wnoread = (game.tp === username && game.tp === game.w) ? '.noread' : '';
-    const bnoread = (game.tp === username && game.tp === game.b) ? '.noread' : '';
+    const isMyTurn = game.tp === username;
+    const opp = (username === game.w) ? game.b : game.w;
     return h(`div.${variant.boardFamily}.${variant.pieceFamily}`, {
         on: { click: () => window.location.assign('/' + game.gameId) }
     }, [
@@ -1032,8 +1048,16 @@ function gameViewPlaying(game: Game, username: string) {
             }
         }),
         h('span.vstext', [
-            h(`div.player${wnoread}`, [h('tv-user', [h('player-title', game.wTitle), ' ' + game.w])]),
-            h(`div.player${bnoread}`, [h('tv-user', [h('player-title', game.bTitle), ' ' + game.b])]),
+            h('span', opp),
+            h(
+              'span.indicator',
+              isMyTurn
+                ? true //game.date && game.lastmove
+                  ? timer(game.date)
+                  : ['yourTurn']
+                : h('span', '\xa0'),
+            ), // &nbsp;
+
         ]),
     ]);
 }
