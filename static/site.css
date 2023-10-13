@@ -33,7 +33,7 @@
   --good: #629924;
   --bad: #c33;
   --gold: #d59020;
-  --rusty: rgba(214, 79, 0, 0.5);
+  --rusty: #d64f00;
   --ct-current: #e2834d;
   --clock-hurry-bg: MistyRose;
   --clock-overtime-bg: #fffbad;
@@ -101,7 +101,7 @@
   --blue-hover: #3692e7;
   --invite-game: #2c3021;
   --gold: #bf811d;
-  --rusty: rgba(126, 57, 16, 0.9);
+  --rusty: #d64f00;
   --ct-current: #a1420a;
   --clock-hurry-bg: #502826;
   --clock-overtime-bg: #474722;
@@ -2353,6 +2353,13 @@ div.tv cg-container, div.puzzle cg-container {
   color: var(--font-color);
 }
 
+span.vstext {
+  display: flex;
+  flex-flow: column;
+  align-items: center;
+  color: var(--font-color);
+}
+
 /* Add pseudo-element only if data attribute is set */
 input[data-file]::after {
   content: attr(data-file);
@@ -2387,9 +2394,9 @@ span[role=tab] {
     transition: color .25s,border-color .25s;
 }
 span[aria-selected=true], span:hover::after {
-    color: #d64f00;
-    border-color: #d64f00;
-    border-bottom: 2px solid #d64f00;
+    color: var(--rusty);
+    border-color: var(--rusty);
+    border-bottom: 2px solid var(--rusty);
     transform: scale(1);
 }
 div > span::after {

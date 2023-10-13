@@ -137,8 +137,11 @@ games-grid {
     font-weight: bold;
     font-size: 13px;
     border-radius: 3px;
-    background: #d64f00;
+    background: var(--rusty);
     color: #fff;
     text-shadow: 0 1px 1px #000 !important;
     box-shadow: 0 3px 4px rgba(0,0,0,.15) inset;
+}
+span.indicator {
+    color: var(--rusty);
 }

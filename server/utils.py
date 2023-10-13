@@ -1,6 +1,6 @@
 import logging
 import random
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 
 from aiohttp import web
 from aiohttp.web import WebSocketResponse
@@ -922,6 +922,7 @@ def corr_games(games):
             "inc": game.inc,
             "byoyomi": game.byoyomi_period,
             "level": game.level,
+            "date": datetime.now(timezone.utc) + timedelta(minutes=game.stopwatch.mins),
         }
         for game in games
     ]
