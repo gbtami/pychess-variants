@@ -282,9 +282,9 @@ async def tournament_socket_handler(request):
             else:
                 log.debug("--- Tournament ws other msg.type %s %s", msg.type, msg)
 
-    except OSError:
+    except OSError as e:
         # disconnected
-        pass
+        log.error(e, stack_info=True, exc_info=True)
 
     except Exception:
         log.exception("ERROR: Exception in tournament_socket_handler() owned by %s ", session_user)

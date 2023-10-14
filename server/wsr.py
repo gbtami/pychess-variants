@@ -71,8 +71,8 @@ async def round_socket_handler(request):
                 elif msg.data == "/n":
                     try:
                         await ws.send_str("/n")
-                    except ConnectionResetError:
-                        break
+                    except ConnectionResetError as e:
+                        log.error(e, stack_info=True, exc_info=True)
                 else:
                     data = json.loads(msg.data)
                     # log.debug("Websocket (%s) message: %s" % (id(ws), msg))
@@ -340,6 +340,7 @@ async def round_socket_handler(request):
                                 opp_ws = users[opp_name].game_sockets[data["gameId"]]
                             except KeyError:
                                 # opp disconnected
+                                log.error("Opp disconnected", stack_info=True, exc_info=True)
                                 continue
 
                             if opp_name in game.rematch_offers:
@@ -419,6 +420,7 @@ async def round_socket_handler(request):
                                 opp_ws = users[opp_name].game_sockets[data["gameId"]]
                                 await opp_ws.send_json(response)
                             except KeyError:
+                                log.error("Opp disconnected", stack_info=True, exc_info=True)
                                 # opp disconnected
                                 pass
 
@@ -617,6 +619,7 @@ async def round_socket_handler(request):
                                 await opp_ws.send_json(response)
                                 await round_broadcast(game, response)
                             except KeyError:
+                                log.error("Opp disconnected", stack_info=True, exc_info=True)
                                 # opp disconnected
                                 pass
                     elif data["type"] == "bugroundchat":

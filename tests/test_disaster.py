@@ -187,7 +187,7 @@ class GamePlayTestCase(AioHTTPTestCase):
                 try:
                     await game.remove_task
                 except asyncio.CancelledError:
-                    pass
+                    log.error(e, stack_info=True, exc_info=True)
 
         await self.client.close()
 

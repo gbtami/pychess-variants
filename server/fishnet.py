@@ -31,7 +31,7 @@ async def get_work(request, data):
             fishnet_work_queue.task_done()
         except ValueError:
             log.error(
-                "task_done() called more times than there were items placed in the queue in fishnet.py get_work()"
+                "task_done() called more times than there were items placed in the queue in fishnet.py get_work()", stack_info=True, exc_info=True
             )
 
         work = request.app["works"][work_id]
@@ -155,7 +155,7 @@ async def fishnet_analysis(request):
         log.error(
             "Can't send analysis to %s. Game %s was removed from game_sockets !!!",
             username,
-            gameId,
+            gameId, stack_info=True, exc_info=True
         )
         return web.Response(status=204)
 
@@ -191,8 +191,8 @@ async def fishnet_analysis(request):
             }
             try:
                 await user_ws.send_json(response)
-            except ConnectionResetError:
-                pass
+            except ConnectionResetError as e:
+                log.error( e, stack_info=True, exc_info=True )
 
     # remove completed work
     if all(data["analysis"]):

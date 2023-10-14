@@ -10,11 +10,14 @@ import sys
 from aiohttp import web
 import aiohttp_session
 
+log = logging.getLogger(__name__)
+
 try:
     import htmlmin
 
     html_minify = functools.partial(htmlmin.minify, remove_optional_attribute_quotes=False)
-except ImportError:
+except ImportError as e:
+    log.error(e, stack_info=True, exc_info=True)
     warnings.warn("Not using HTML minification, htmlmin not imported.")
     sys.exit(0)
 
@@ -64,7 +67,6 @@ from puzzle import (
 )
 from custom_trophy_owners import CUSTOM_TROPHY_OWNERS
 
-log = logging.getLogger(__name__)
 
 
 async def index(request):
@@ -86,7 +88,7 @@ async def index(request):
         try:
             doc = await db.user.find_one({"_id": session_user})
         except Exception:
-            log.error("Failed to get user %s from mongodb!", session_user)
+            log.error("Failed to get user %s from mongodb!", session_user, stack_info=True, exc_info=True)
         if doc is not None:
             session["guest"] = False
 
@@ -294,8 +296,8 @@ async def index(request):
                         for queue in channels:
                             await queue.put(json.dumps({"gameId": gameId}))
                         # return games[game_id]
-                    except ConnectionResetError:
-                        pass
+                    except ConnectionResetError as e:
+                        log.error(e, session_user, stack_info=True, exc_info=True)
 
             else:
                 view = "invite"
@@ -662,7 +664,7 @@ async def index(request):
     try:
         text = await template.render_async(render)
     except Exception:
-        log.exception("ERROR: template.render_async() failed.")
+        log.error("ERROR: template.render_async() failed.", stack_info=True, exc_info=True)
         return web.HTTPFound("/")
 
     response = web.Response(text=html_minify(text), content_type="text/html")

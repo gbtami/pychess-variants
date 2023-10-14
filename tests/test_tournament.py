@@ -33,6 +33,9 @@ from rr import RRTournament
 from swiss import SwissTournament
 from utils import play_move
 
+import logging
+log = logging.getLogger(__name__)
+
 # from misc import timeit
 
 PERFS = {variant: DEFAULT_PERF for variant in VARIANTS}
@@ -189,8 +192,8 @@ class TournamentTestCase(AioHTTPTestCase):
                 game.remove_task.cancel()
                 try:
                     await game.remove_task
-                except asyncio.CancelledError:
-                    pass
+                except asyncio.CancelledError as e:
+                    log.error(e, stack_info=True, exc_info=True)
 
         if has_games:
             for task in self.tournament.game_tasks:
@@ -198,7 +201,7 @@ class TournamentTestCase(AioHTTPTestCase):
                 try:
                     await task
                 except asyncio.CancelledError:
-                    pass
+                    log.error(e, stack_info=True, exc_info=True)
 
         await self.client.close()
 

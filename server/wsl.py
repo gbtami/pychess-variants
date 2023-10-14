@@ -168,7 +168,7 @@ async def lobby_socket_handler(request):
                             del user.seeks[data["seekID"]]
                         except KeyError:
                             # Seek was already deleted
-                            pass
+                            log.error("Seek was already deleted", stack_info=True, exc_info=True)
                         await lobby_broadcast(sockets, get_seeks(seeks))
 
                     elif data["type"] == "accept_seek":
@@ -390,8 +390,9 @@ async def lobby_socket_handler(request):
             else:
                 log.debug("--- Lobby ws other msg.type %s %s", msg.type, msg)
 
-    except OSError:
+    except OSError as e:
         # disconnected
+        log.error(e, stack_info=True, exc_info=True)
         pass
 
     except Exception:

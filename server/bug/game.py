@@ -202,7 +202,7 @@ class GameBug:
         self.random_move_b = ""
 
         self.set_dests()
-        if self.boards["a"].move_stack:
+        if self.boards["a"].move_stack: #todo:niki:how can it possibly have a move_stack on init - it is empty?
             self.checkA = self.boards["a"].is_checked()
         if self.boards["b"].move_stack:
             self.checkB = self.boards["b"].is_checked()  # todo not sure whats the point - except maybe for game-end/checkmate logic
@@ -435,78 +435,6 @@ class GameBug:
             if self.db is not None:
                 await self.db.game.find_one_and_update({"_id": self.id}, {"$set": new_data})
 
-    # def set_crosstable(self):
-    #     if (
-    #         self.bot_game
-    #         or self.wplayer.anon
-    #         or self.bplayer.anon
-    #         or self.board.ply < 3
-    #         or self.result == "*"
-    #     ):
-    #         return
-    #
-    #     if len(self.crosstable["r"]) > 0 and self.crosstable["r"][-1].startswith(self.id):
-    #         log.info("Crosstable was already updated with %s result", self.id)
-    #         return
-    #
-    #     if self.result == "1/2-1/2":
-    #         s1 = s2 = 5
-    #         tail = "="
-    #     elif (self.result == "1-0" and self.s1player == self.wplayer.username) or (
-    #         self.result == "0-1" and self.s1player == self.bplayer.username
-    #     ):
-    #         s1 = 10
-    #         s2 = 0
-    #         tail = "+"
-    #     else:
-    #         s1 = 0
-    #         s2 = 10
-    #         tail = "-"
-    #
-    #     self.crosstable["s1"] += s1
-    #     self.crosstable["s2"] += s2
-    #     self.crosstable["r"].append("%s%s" % (self.id, tail))
-    #     self.crosstable["r"] = self.crosstable["r"][-20:]
-    #
-    #     new_data = {
-    #         "_id": self.ct_id,
-    #         "s1": self.crosstable["s1"],
-    #         "s2": self.crosstable["s2"],
-    #         "r": self.crosstable["r"],
-    #     }
-    #     self.db_crosstable[self.ct_id] = new_data
-    #
-    #     self.need_crosstable_save = True
-
-    # async def save_crosstable(self):
-    #     if not self.need_crosstable_save:
-    #         log.info("Crosstable update for %s was already saved to mongodb", self.id)
-    #         return
-    #
-    #     new_data = {
-    #         "s1": self.crosstable["s1"],
-    #         "s2": self.crosstable["s2"],
-    #         "r": self.crosstable["r"],
-    #     }
-    #     try:
-    #         await self.db.crosstable.find_one_and_update(
-    #             {"_id": self.ct_id}, {"$set": new_data}, upsert=True
-    #         )
-    #     except Exception:
-    #         if self.db is not None:
-    #             log.error("Failed to save new crosstable to mongodb!")
-    #
-    #     self.need_crosstable_save = False
-
-    # def get_highscore(self, variant, chess960): todo niki what is this highscore stuff ??
-    #     len_hs = len(self.highscore[variant + ("960" if chess960 else "")])
-    #     if len_hs > 0:
-    #         return (
-    #             self.highscore[variant + ("960" if chess960 else "")].peekitem()[1],
-    #             len_hs,
-    #         )
-    #     return (0, 0)
-
     async def set_highscore(self, variant, chess960, value):
         self.highscore[variant + ("960" if chess960 else "")].update(value)
         # We have to preserve previous top 10!
@@ -530,42 +458,7 @@ class GameBug:
     async def update_ratings(self):
         pass
         # todo niki this requires discussion how to do rating in bughouse
-        # if self.result == "1-0":
-        #     (white_score, black_score) = (1.0, 0.0)
-        # elif self.result == "1/2-1/2":
-        #     (white_score, black_score) = (0.5, 0.5)
-        # elif self.result == "0-1":
-        #     (white_score, black_score) = (0.0, 1.0)
-        # else:
-        #     raise RuntimeError("game.result: unexpected result code")
-        #
-        # wr = gl2.rate(self.white_rating, [(white_score, self.black_rating)])
-        # br = gl2.rate(self.black_rating, [(black_score, self.white_rating)])
-        #
-        # await self.wplayer.set_rating(self.variant, self.chess960, wr)
-        # await self.bplayer.set_rating(self.variant, self.chess960, br)
-        #
-        # self.wrdiff = int(round(wr.mu - self.white_rating.mu, 0))
-        # self.p0 = {"e": self.wrating, "d": self.wrdiff}
-        #
-        # self.brdiff = int(round(br.mu - self.black_rating.mu, 0))
-        # self.p1 = {"e": self.brating, "d": self.brdiff}
-        #
-        # w_nb = self.wplayer.perfs[self.variant + ("960" if self.chess960 else "")]["nb"]
-        # if w_nb >= HIGHSCORE_MIN_GAMES:
-        #     await self.set_highscore(
-        #         self.variant,
-        #         self.chess960,
-        #         {self.wplayer.username: int(round(wr.mu, 0))},
-        #     )
-        #
-        # b_nb = self.bplayer.perfs[self.variant + ("960" if self.chess960 else "")]["nb"]
-        # if b_nb >= HIGHSCORE_MIN_GAMES:
-        #     await self.set_highscore(
-        #         self.variant,
-        #         self.chess960,
-        #         {self.bplayer.username: int(round(br.mu, 0))},
-        #     )
+
     @property
     def all_players(self):
         return [self.wplayerA, self.bplayerA, self.wplayerB, self.bplayerB]

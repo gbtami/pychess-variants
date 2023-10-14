@@ -1,4 +1,6 @@
 import logging
+log = logging.getLogger(__name__)
+
 import random
 from datetime import datetime, timezone
 
@@ -10,7 +12,7 @@ try:
 
     sf.set_option("VariantPath", "variants.ini")
 except ImportError:
-    print("No pyffish module installed!")
+    log.error("No pyffish module installed!", stack_info=True, exc_info=True)
 
 from glicko2.glicko2 import gl2
 from broadcast import lobby_broadcast, round_broadcast
@@ -33,8 +35,6 @@ from game import Game, MAX_PLY
 from newid import new_id
 from user import User
 from settings import URI
-
-log = logging.getLogger(__name__)
 
 
 # See https://github.com/aio-libs/aiohttp/issues/3122 why this is needed
@@ -227,7 +227,7 @@ async def load_game(app, game_id):
                 try:
                     game.steps[-1]["analysis"] = doc["a"][ply + 1]
                 except IndexError:
-                    print("IndexError", ply, move, san)
+                    log.error("IndexError %d %s %s", ply, move, san, stack_info=True, exc_info=True)
 
         except Exception:
             log.exception(
@@ -631,6 +631,7 @@ async def play_move(app, user, game, move, clocks=None, ply=None):
             game.result = "0-1" if user.username == game.wplayer.username else "1-0"
     else:
         # never play moves in finished games!
+        log.error("Move received for finished game", stack_info=True)
         return
 
     if not invalid_move:
@@ -641,8 +642,8 @@ async def play_move(app, user, game, move, clocks=None, ply=None):
                 ws = user.game_sockets[gameId]
                 log.info("1 ws %s", ws)
                 await ws.send_json(board_response)
-            except (KeyError, ConnectionResetError):
-                pass
+            except (KeyError, ConnectionResetError) as e:
+                log.error(e, stack_info=True, exc_info=True)
 
     if user.bot and game.status > STARTED:
         await user.game_queues[gameId].put(game.game_end)
@@ -670,8 +671,8 @@ async def play_move(app, user, game, move, clocks=None, ply=None):
                     "pgn": game.pgn,
                 }
                 await opp_ws.send_json(response)
-        except (KeyError, ConnectionResetError):
-            pass
+        except (KeyError, ConnectionResetError) as e:
+            log.error(e, stack_info=True, exc_info=True)
 
     if not invalid_move:
         await round_broadcast(game, board_response, channels=app["game_channels"])
@@ -749,7 +750,8 @@ def pgn(doc):
     # print(variant, fen, mlist)
     try:
         mlist = sf.get_san_moves(variant, fen, mlist, chess960, sf.NOTATION_SAN)
-    except Exception:
+    except Exception as e:
+        log.error(e, stack_info=True, exc_info=True)
         try:
             mlist = sf.get_san_moves(variant, fen, mlist[:-1], chess960, sf.NOTATION_SAN)
         except Exception:

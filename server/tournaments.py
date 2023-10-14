@@ -172,7 +172,8 @@ async def upsert_tournament_to_db(tournament, app):
         await app["db"].tournament.find_one_and_update(
             {"_id": tournament.id}, {"$set": new_data}, upsert=True
         )
-    except Exception:
+    except Exception as e:
+        log.error(e, stack_info=True, exc_info=True)
         if app["db"] is not None:
             log.error("Failed to save tournament data to mongodb!")
 

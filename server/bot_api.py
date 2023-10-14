@@ -185,7 +185,7 @@ async def event_stream(request):
             bot_player.event_queue.task_done()
         except ValueError:
             log.error(
-                "task_done() called more times than there were items placed in the queue in bot_api.py event_stream()"
+                "task_done() called more times than there were items placed in the queue in bot_api.py event_stream()", stack_info=True, exc_info=True
             )
         try:
             if request.protocol.transport.is_closing():
@@ -198,7 +198,7 @@ async def event_stream(request):
                 await resp.write(answer.encode("utf-8"))
                 await resp.drain()
         except Exception:
-            log.error("BOT %s event_stream is broken...", username)
+            log.error("BOT %s event_stream is broken...", username, stack_info=True, exc_info=True)
             break
 
     pinger_task.cancel()
@@ -245,19 +245,19 @@ async def game_stream(request):
             bot_player.game_queues[gameId].task_done()
         except ValueError:
             log.error(
-                "task_done() called more times than there were items placed in the queue in bot_api.py game_stream()"
+                "task_done() called more times than there were items placed in the queue in bot_api.py game_stream()", stack_info=True, exc_info=True
             )
         try:
             await resp.write(answer.encode("utf-8"))
             await resp.drain()
         except Exception:
-            log.error("Writing %s to BOT game_stream failed!", answer)
+            log.error("Writing %s to BOT game_stream failed!", answer, stack_info=True, exc_info=True)
             break
 
     try:
         await resp.write_eof()
     except Exception:
-        log.error("Writing EOF to BOT game_stream failed!")
+        log.error("Writing EOF to BOT game_stream failed!", stack_info=True, exc_info=True)
     pinger_task.cancel()
 
     return resp

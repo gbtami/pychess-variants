@@ -19,7 +19,6 @@
     position: fixed;
     background: #cc3333;
     color: #fff;
-    position: fixed;
     bottom: 0;
     left: 0;
     height: 2.5rem;
@@ -36,7 +35,9 @@
     margin-right: 0.4em;
 }
 
-.offline #reconnecting {
+.offline #reconnecting,
+.offline-close #reconnecting,
+.offline-ping-timeout #reconnecting {
     transform: translateY(0);
     opacity: 1;
 }

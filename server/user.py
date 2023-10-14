@@ -103,7 +103,7 @@ class User:
                     try:
                         del self.app["users"][self.username]
                     except KeyError:
-                        log.info("Failed to del %s from users", self.username)
+                        log.error("Failed to del %s from users", self.username, stack_info=True, exc_info=True)
                     break
 
     async def abandon_game(self, game):
@@ -215,7 +215,7 @@ class User:
                     del self.seeks[seek.id]
                     del self.app["seeks"][seek.id]
                 except KeyError:
-                    log.info("Failed to del %s from seeks", seek.id)
+                    log.error("Failed to del %s from seeks", seek.id, stack_info=True, exc_info=True)
 
         asyncio.create_task(delete_seek(seek))
 

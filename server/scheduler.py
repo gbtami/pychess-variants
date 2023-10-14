@@ -15,6 +15,9 @@ from const import (
 )
 
 from tournaments import new_tournament
+import logging
+
+log = logging.getLogger(__name__)
 
 MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY = range(7)
 Plan = namedtuple("Plan", "freq, date, hour, variant, is960, base, inc, byo, duration")
@@ -144,7 +147,8 @@ class Scheduler:
             base, inc, byo = TC_MONTHLY_VARIANTS[v]
             try:
                 date = dt.datetime(self.now.year, self.now.month, i + 1, tzinfo=dt.timezone.utc)
-            except ValueError:
+            except ValueError as e:
+                log.error(e, stack_info=True, exc_info=True)
                 break
             plans.append(Plan(MONTHLY, date, 16, v.rstrip("960"), is_960, base, inc, byo, 90))
 

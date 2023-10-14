@@ -6,11 +6,14 @@ from time import monotonic
 
 from user import User
 
+log = logging.getLogger(__name__)
+
 try:
     import pyffish as sf
 
     sf.set_option("VariantPath", "variants.ini")
-except ImportError:
+except ImportError as e:
+    log.error(e, stack_info=True, exc_info=True)
     print("No pyffish module installed!")
 
 from broadcast import lobby_broadcast, round_broadcast
@@ -398,8 +401,8 @@ class Game:
         self.stopwatch.clock_task.cancel()
         try:
             await self.stopwatch.clock_task
-        except asyncio.CancelledError:
-            pass
+        except asyncio.CancelledError as e:
+            log.error(e, stack_info=True, exc_info=True)
 
         if self.board.ply > 0:
             self.app["g_cnt"][0] -= 1
@@ -417,7 +420,7 @@ class Game:
             try:
                 del self.games[self.id]
             except KeyError:
-                log.info("Failed to del %s from games", self.id)
+                log.error("Failed to del %s from games", self.id, stack_info=True, exc_info=True)
 
             if self.bot_game:
                 try:
@@ -426,7 +429,7 @@ class Game:
                     if self.bplayer.bot:
                         del self.bplayer.game_queues[self.id]
                 except KeyError:
-                    log.info("Failed to del %s from game_queues", self.id)
+                    log.error("Failed to del %s from game_queues", self.id, stack_info=True, exc_info=True)
 
         self.remove_task = asyncio.create_task(remove(KEEP_TIME))
 
@@ -548,8 +551,8 @@ class Game:
                 {"_id": self.ct_id}, {"$set": new_data}, upsert=True
             )
         except Exception:
-            if self.db is not None:
-                log.error("Failed to save new crosstable to mongodb!")
+            # if self.db is not None:
+            log.error("Failed to save new crosstable to mongodb!", stack_info=True, exc_info=True)
 
         self.need_crosstable_save = False
 
@@ -579,8 +582,8 @@ class Game:
                 upsert=True,
             )
         except Exception:
-            if self.db is not None:
-                log.error("Failed to save new highscore to mongodb!")
+            # if self.db is not None:
+            log.error("Failed to save new highscore to mongodb!", stack_info=True, exc_info=True)
 
     async def update_ratings(self):
         if self.result == "1-0":
@@ -738,7 +741,7 @@ class Game:
                 sf.NOTATION_SAN,
             )
         except Exception:
-            log.exception("ERROR: Exception in game %s pgn()", self.id)
+            log.error("ERROR: Exception in game %s pgn()", self.id, stack_info=True, exc_info=True)
             mlist = self.board.move_stack
         moves = " ".join(
             (

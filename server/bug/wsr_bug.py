@@ -85,8 +85,9 @@ async def handle_rematch_bughouse(data, game, user, users, ws, request, seeks):
         #            - think what rematch logic should look like in such cases, because it doesnt make much sense the way it is now... what if he reconnects, will he receive the rematch requests in bulk on reconnect, maybe he shuld
         others_ws = map(lambda u: users[u.username].game_sockets[data["gameId"]], filter(lambda u: data["gameId"] in users[u.username].game_sockets, other_players))
         # opp_ws = users[opp_name].game_sockets[data["gameId"]]
-    except KeyError:
+    except KeyError as e:
         # opp disconnected
+        log.error(e, stack_info=True, exc_info=True)
         return
 
     log.info("other_plauers %s.", other_players)

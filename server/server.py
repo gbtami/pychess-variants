@@ -88,6 +88,7 @@ async def handle_404(request, handler):
     try:
         return await handler(request)
     except web.HTTPException as ex:
+        log.debug(ex, stack_info=True, exc_info=True)
         if ex.status == 404:
             template = request.app["jinja"]["en"].get_template("404.html")
             text = await template.render_async(
@@ -261,7 +262,7 @@ async def init_state(app):
                 with open(moname, "wb") as mo_file:
                     mo_file.write(mo)
         except PoSyntaxError:
-            log.error("PoSyntaxError in %s", poname)
+            log.error("PoSyntaxError in %s", poname, stack_info=True, exc_info=True)
 
         # Create translation class
         try:
@@ -426,7 +427,7 @@ async def shutdown(app):
                     try:
                         await ws.send_json(response)
                     except Exception:
-                        print("Failed to send game %s abort to %s" % (game.id, player.username))
+                        log.error("Failed to send game %s abort to %s" % (game.id, player.username), stack_info=True, exc_info=True)
 
     # close lobbysockets
     for user in list(app["users"].values()):
@@ -434,8 +435,8 @@ async def shutdown(app):
             for ws in list(user.game_sockets.values()):
                 try:
                     await ws.close()
-                except Exception:
-                    pass
+                except Exception as e:
+                    log.error(e, stack_info=True, exc_info=True)
 
     for ws_set in list(app["lobbysockets"].values()):
         for ws in list(ws_set):

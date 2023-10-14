@@ -191,16 +191,16 @@ async def logout(request, user=None):
     for ws in ws_set:
         try:
             await ws.send_json(response)
-        except ConnectionResetError:
-            pass
+        except ConnectionResetError as e:
+            log.error(e, stack_info=True, exc_info=True)
 
     # close tournament sockets
     for ws_set in user.tournament_sockets.values():
         for ws in ws_set:
             try:
                 await ws.send_json(response)
-            except ConnectionResetError:
-                pass
+            except ConnectionResetError as e:
+                log.error(e, stack_info=True, exc_info=True)
 
     # lose and close game sockets
     # TODO: this can't end game if logout came from an ongoing game

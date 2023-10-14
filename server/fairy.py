@@ -3,9 +3,12 @@ import logging
 import re
 import random
 
+log = logging.getLogger(__name__)
+
 try:
     import pyffish as sf
-except ImportError:
+except ImportError as e:
+    log.error(e, stack_info=True, exc_info=True)
     print("No pyffish module installed!")
 
 from const import CATEGORIES
@@ -118,7 +121,7 @@ class FairyBoard:
                 self.chess960,
                 self.sfen,
                 self.show_promoted,
-                self.count_started
+                self.count_started, stack_info=True, exc_info=True
             )
             raise
 

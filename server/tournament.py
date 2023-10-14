@@ -761,7 +761,8 @@ class Tournament(ABC):
                 ws = next(iter(wp.tournament_sockets[self.id]))
                 if ws is not None:
                     await ws.send_json(response)
-            except Exception:
+            except Exception as e:
+                log.error(e, stack_info=True, exc_info=True)
                 self.pause(wp)
                 log.debug("White player %s left the tournament", wp.username)
 
@@ -769,7 +770,8 @@ class Tournament(ABC):
                 ws = next(iter(bp.tournament_sockets[self.id]))
                 if ws is not None:
                     await ws.send_json(response)
-            except Exception:
+            except Exception as e:
+                log.error(e, stack_info=True, exc_info=True)
                 self.pause(bp)
                 log.debug("Black player %s left the tournament", bp.username)
 
@@ -1041,11 +1043,11 @@ class Tournament(ABC):
                 for ws in spectator.tournament_sockets[self.id]:
                     try:
                         await ws.send_json(response)
-                    except ConnectionResetError:
-                        pass
-            except KeyError:
+                    except ConnectionResetError as e:
+                        log.error(e, stack_info=True, exc_info=True)
+            except KeyError as e:
                 # spectator was removed
-                pass
+                log.error(e, stack_info=True, exc_info=True)
             except Exception:
                 log.exception("Exception in tournament broadcast()")
 
@@ -1094,7 +1096,8 @@ class Tournament(ABC):
                     return_document=ReturnDocument.AFTER,
                 )
             )
-        except Exception:
+        except Exception as e:
+            log.error(e, stack_info=True, exc_info=True)
             if self.app["db"] is not None:
                 log.error(
                     "db find_one_and_update pairing_table %s into %s failed !!!",
@@ -1145,7 +1148,8 @@ class Tournament(ABC):
                     return_document=ReturnDocument.AFTER,
                 )
             )
-        except Exception:
+        except Exception as e:
+            log.error(e, stack_info=True, exc_info=True)
             if self.app["db"] is not None:
                 log.error(
                     "db find_one_and_update tournament_player %s into %s failed !!!",
