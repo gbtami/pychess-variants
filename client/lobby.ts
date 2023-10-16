@@ -44,7 +44,8 @@ interface Game {
     fen: cg.FEN;
     lastMove: string;
     tp: string;
-    mins:number;
+    mins: number;
+    date: string;
 }
 
 export class LobbyController implements ChatController {
@@ -1116,7 +1117,7 @@ export function lobbyView(model: PyChessModel): VNode[] {
     if (corr.length > 0) {
         tabs.push(h('span', {attrs: {role: 'tab', 'aria-selected': false, 'aria-controls': 'panel-3', id: 'tab-3', tabindex: '-1'}}, [
             ngettext('%1 game in play', '%1 games in play', gpCounter),
-            h('i.noread', count)
+            h('span.noread', count)
         ]))
     }
 
