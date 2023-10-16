@@ -563,6 +563,9 @@ async def index(request):
                 render["tournamentname"] = tournament_name
                 render["wberserk"] = game.wberserk
                 render["bberserk"] = game.bberserk
+            if game.rated == CORRESPONDENCE:
+                corr = corr_games(user.correspondence_games)
+                render["corr"] = json.dumps(corr, default=datetime.isoformat)
 
     if tournamentId is not None:
         tournament_name = await get_tournament_name(request, tournamentId)
