@@ -250,6 +250,8 @@ export class RoundController extends GameController {
         if (model["ct"]) {
             this.ctableContainer = patch(this.ctableContainer, h('div.ctable-container'));
             this.ctableContainer = patch(this.ctableContainer, crosstableView(model["ct"] as CrossTable, this.gameId));
+            const panel3 = document.querySelector('.ctable-container') as HTMLElement;
+            panel3.style.display = 'block';
         }
 
         const misc0 = document.getElementById('misc-info0') as HTMLElement;
