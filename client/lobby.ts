@@ -3,7 +3,6 @@ import WebsocketHeartbeatJs from 'websocket-heartbeat-js';
 import { h, VNode } from 'snabbdom';
 
 import { Api } from "chessgroundx/api";
-import * as cg from "chessgroundx/types";
 import { Chessground } from 'chessgroundx';
 
 import { newWebsocket } from './socket';
@@ -20,7 +19,7 @@ import { MsgBoard, MsgChat, MsgFullChat } from "./messages";
 import { variantPanels } from './lobby/layer1';
 import { Stream, Spotlight, MsgInviteCreated, MsgHostCreated, MsgGetSeeks, MsgNewGame, MsgGameInProgress, MsgUserConnected, MsgPing, MsgError, MsgShutdown, MsgGameCounter, MsgUserCounter, MsgStreams, MsgSpotlights, Seek, CreateMode, TvGame, TcMode } from './lobbyType';
 import { validFen, uci2LastMove } from './chess';
-import { gameViewPlaying } from './nowPlaying';
+import { Game, gameViewPlaying } from './nowPlaying';
 
 const CREATE_MODES = {
     playAI: _("Play with AI"),

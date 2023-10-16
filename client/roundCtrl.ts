@@ -22,7 +22,7 @@ import { Clocks, MsgBoard, MsgGameEnd, MsgNewGame, MsgUserConnected, RDiffs, Cro
 import { MsgUserDisconnected, MsgUserPresent, MsgMoreTime, MsgDrawOffer, MsgDrawRejected, MsgRematchOffer, MsgRematchRejected, MsgCount, MsgSetup, MsgGameStart, MsgViewRematch, MsgUpdateTV, MsgBerserk } from './roundType';
 import { PyChessModel } from "./types";
 import { GameController } from './gameCtrl';
-import { gameViewPlaying } from './nowPlaying';
+import { Game, gameViewPlaying } from './nowPlaying';
 
 let rang = false;
 const CASUAL = '0';
