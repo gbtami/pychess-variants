@@ -2366,6 +2366,16 @@ input[data-file]::after {
   margin-left: 0.375em;
 }
 
+games-grid {
+    display: grid;
+    --auto-grid-min-size: 12rem;
+    justify-content: center;
+    overflow-x:hidden;
+    grid-template-columns: repeat(auto-fill, minmax(var(--auto-grid-min-size), 1fr));
+}
+games-grid div {
+    padding: 0.3em;
+}
 div[role=tabpanel] {
     height: var(--panel-height);
     display: none;
@@ -2393,7 +2403,7 @@ span[role=tab] {
     position: relative;
     transition: color .25s,border-color .25s;
 }
-span[aria-selected=true], span:hover::after {
+span[aria-selected=true], div[role=tablist] span:hover::after {
     color: var(--rusty);
     border-color: var(--rusty);
     border-bottom: 2px solid var(--rusty);
@@ -2401,7 +2411,7 @@ span[aria-selected=true], span:hover::after {
 }
 div > span::after {
     content:'';
-    background:rgba(214,79,0,0.6);
+    background:var(--rusty);
     height:2px;
     position:absolute;
     width:96%;
@@ -2409,4 +2419,7 @@ div > span::after {
     bottom:-2px;
     transition:all .25s;
     transform:scale(0)
+}
+.indicator {
+    color: var(--rusty);
 }

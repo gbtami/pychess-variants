@@ -122,15 +122,6 @@ div.tc-block {
     border-top: 1px solid var(--border-color);
     border-bottom: 1px solid var(--border-color);
 }
-games-grid {
-    display: grid;
-    row-gap: 4px;
-    --auto-grid-min-size: 12rem;
-    justify-content: center;
-    overflow-x:hidden;
-    height: 100%;
-    grid-template-columns: repeat(auto-fill, minmax(var(--auto-grid-min-size), 1fr));
-}
 .noread {
     margin-left: .3em;
     padding: 1px 5px 1px 4px;
@@ -141,7 +132,4 @@ games-grid {
     color: #fff;
     text-shadow: 0 1px 1px #000 !important;
     box-shadow: 0 3px 4px rgba(0,0,0,.15) inset;
-}
-span.indicator {
-    color: var(--rusty);
 }

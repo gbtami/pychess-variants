@@ -20,32 +20,13 @@ import { MsgBoard, MsgChat, MsgFullChat } from "./messages";
 import { variantPanels } from './lobby/layer1';
 import { Stream, Spotlight, MsgInviteCreated, MsgHostCreated, MsgGetSeeks, MsgNewGame, MsgGameInProgress, MsgUserConnected, MsgPing, MsgError, MsgShutdown, MsgGameCounter, MsgUserCounter, MsgStreams, MsgSpotlights, Seek, CreateMode, TvGame, TcMode } from './lobbyType';
 import { validFen, uci2LastMove } from './chess';
-import { timeago } from './datetime';
+import { gameViewPlaying } from './nowPlaying';
 
 const CREATE_MODES = {
     playAI: _("Play with AI"),
     playFriend: _("Play with a friend"),
     createHost: _("Host a game for others"),
     createGame: _("Create a game"),
-}
-
-interface Game {
-    gameId: string;
-    variant: string;
-    chess960: boolean;
-    base: number;
-    inc: number;
-    byoyomi: number;
-    b: string;
-    bTitle: string;
-    w: string;
-    wTitle: string;
-    level: number;
-    fen: cg.FEN;
-    lastMove: string;
-    tp: string;
-    mins: number;
-    date: string;
 }
 
 export class LobbyController implements ChatController {
@@ -1010,56 +991,6 @@ function seekHeader() {
             h('th', _('Variant')),
             h('th', _('Mode'))
         ])
-    ]);
-}
-
-function timer(date: string) {
-  return h(
-    'time.timeago',
-    {
-      hook: {
-        insert(vnode) {
-          (vnode.elm as HTMLElement).setAttribute('datetime', '' + date);
-        },
-      },
-    },
-    timeago(date),
-  );
-}
-
-function gameViewPlaying(game: Game, username: string) {
-    const variant = VARIANTS[game.variant];
-    const isMyTurn = game.tp === username;
-    const opp = (username === game.w) ? game.b : game.w;
-    return h(`div.${variant.boardFamily}.${variant.pieceFamily}`, {
-        on: { click: () => window.location.assign('/' + game.gameId) }
-    }, [
-        h(`div.cg-wrap.${variant.board.cg}`, {
-            hook: {
-                insert: vnode => {
-                    Chessground(vnode.elm as HTMLElement, {
-                        fen: game.fen,
-                        lastMove: uci2LastMove(game.lastMove),
-                        dimensions: variant.board.dimensions,
-                        coordinates: false,
-                        viewOnly: true,
-                        pocketRoles: variant.pocket?.roles,
-                    });
-                }
-            }
-        }),
-        h('span.vstext', [
-            h('span', opp),
-            h(
-              'span.indicator',
-              isMyTurn
-                ? true //game.date && game.lastmove
-                  ? timer(game.date)
-                  : ['yourTurn']
-                : h('span', '\xa0'),
-            ), // &nbsp;
-
-        ]),
     ]);
 }
 

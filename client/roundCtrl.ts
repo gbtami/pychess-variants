@@ -22,12 +22,14 @@ import { Clocks, MsgBoard, MsgGameEnd, MsgNewGame, MsgUserConnected, RDiffs, Cro
 import { MsgUserDisconnected, MsgUserPresent, MsgMoreTime, MsgDrawOffer, MsgDrawRejected, MsgRematchOffer, MsgRematchRejected, MsgCount, MsgSetup, MsgGameStart, MsgViewRematch, MsgUpdateTV, MsgBerserk } from './roundType';
 import { PyChessModel } from "./types";
 import { GameController } from './gameCtrl';
+import { gameViewPlaying } from './nowPlaying';
 
 let rang = false;
 const CASUAL = '0';
 const CORRESPONDENCE = '3';
 
 export class RoundController extends GameController {
+    assetURL: string;
     berserked: { wberserk: boolean, bberserk: boolean };
     byoyomi: boolean;
     byoyomiPeriod: number;
@@ -101,6 +103,7 @@ export class RoundController extends GameController {
         this.sock.onreconnect = () => onReconnect();
         this.sock.onmessage = (e: MessageEvent) => this.onMessage(e);
 
+        this.assetURL = model["assetURL"];
         this.byoyomiPeriod = Number(model["byo"]);
         this.byoyomi = this.variant.rules.defaultTimeControl === 'byoyomi';
         this.finishedGame = this.status >= 0;
@@ -320,6 +323,23 @@ export class RoundController extends GameController {
         this.vdialog = patch(document.getElementById('offer-dialog')!, h('div#offer-dialog', ""));
 
         patch(document.getElementById('roundchat') as HTMLElement, chatView(this, "roundchat"));
+
+        boardSettings.assetURL = this.assetURL;
+        boardSettings.updateBoardAndPieceStyles();
+
+        const corr = JSON.parse(model.corr);
+        if (corr.length > 0) {
+            patch(document.querySelector('.games-container') as HTMLElement, 
+                h('games-grid#games', corr.flatMap((game: Game) => {
+                    console.log(game.gameId, this.gameId);
+                    if (game.gameId === this.gameId) {
+                        return [];
+                    } else {
+                        return [gameViewPlaying(game, this.username)];
+                    }
+                }))
+            )
+        }
 
         this.onMsgBoard(model["board"] as MsgBoard);
     }
