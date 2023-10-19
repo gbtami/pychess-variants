@@ -1106,6 +1106,14 @@ export function lobbyView(model: PyChessModel): VNode[] {
         h('div.tv', [h('a#tv-game', { attrs: {href: '/tv'} })]),
         h('under-lobby', [
             h('posts', [
+                h('a.post', { attrs: {href: '/news/More_variants'} }, [
+                    h('img', { attrs: {src: model.assetURL + '/images/Mansindam.jpg'} }),
+                    h('span.text', [
+                        h('strong', _("Autumn Update")),
+                        h('span', _('A slew of new variants!')),
+                    ]),
+                    h('time', '2023.10.19'),
+                ]),
                 h('a.post', { attrs: {href: '/news/Summer_Update'} }, [
                     h('img', { attrs: {src: model.assetURL + '/images/puzzles.jpg'} }),
                     h('span.text', [
@@ -1122,6 +1130,7 @@ export function lobbyView(model: PyChessModel): VNode[] {
                     ]),
                     h('time', '2023.04.01'),
                 ]),
+                /*
                 h('a.post', { attrs: {href: '/news/Duck_Chess'} }, [
                     h('img', { attrs: {src: model.assetURL + '/images/Duck.jpg'} }),
                     h('span.text', [
@@ -1130,7 +1139,6 @@ export function lobbyView(model: PyChessModel): VNode[] {
                     ]),
                     h('time', '2022.12.26'),
                 ]),
-                /*
                 h('a.post', { attrs: {href: '/news/Ouk_Chaktrang_Friendship_Between_Four_Countries_Tournament'} }, [
                     h('img', { attrs: {src: model.assetURL + '/images/four-countries.jpg'} }),
                     h('span.text', [
