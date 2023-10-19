@@ -938,7 +938,6 @@ class Game:
 
                 cur_color = "black" if self.board.color == BLACK else "white"
                 clocks[cur_color] = max(0, clocks[cur_color] + self.byo_correction - elapsed)
-                print(clocks)
             crosstable = self.crosstable
         else:
             clocks = self.clocks
