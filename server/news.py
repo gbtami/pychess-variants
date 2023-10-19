@@ -1,4 +1,5 @@
 NEWS = {
+    "More_variants": "2023-10-19",
     "Summer_Update": "2023-06-06",
     "Spartan_Chess": "2023-04-01",
     "Duck_Chess": "2022-12-26",

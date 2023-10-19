@@ -597,7 +597,6 @@ a.post img {
   max-width: none;
   width: 100%;
   height: auto;
-  max-height: 125px;
   border-radius: 3px;
   object-fit: cover;
 }
