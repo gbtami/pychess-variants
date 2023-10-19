@@ -1,12 +1,13 @@
 import { h } from 'snabbdom';
 
 import { Chessground } from 'chessgroundx';
+import * as cg from "chessgroundx/types";
 
 import { uci2LastMove } from './chess';
 import { timeago } from './datetime';
 import { VARIANTS } from './variants';
 
-interface Game {
+export interface Game {
     gameId: string;
     variant: string;
     chess960: boolean;
