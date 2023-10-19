@@ -44,6 +44,7 @@ export function gameViewPlaying(game: Game, username: string) {
     const variant = VARIANTS[game.variant];
     const isMyTurn = game.tp === username;
     const opp = (username === game.w) ? game.b : game.w;
+    const mycolor = (username === game.w) ? 'white' : 'black';
     return h(`div.${variant.boardFamily}.${variant.pieceFamily}`, {
         on: { click: () => window.location.assign('/' + game.gameId) }
     }, [
@@ -51,6 +52,7 @@ export function gameViewPlaying(game: Game, username: string) {
             hook: {
                 insert: vnode => {
                     Chessground(vnode.elm as HTMLElement, {
+                        orientation: mycolor,
                         fen: game.fen,
                         lastMove: uci2LastMove(game.lastMove),
                         dimensions: variant.board.dimensions,
