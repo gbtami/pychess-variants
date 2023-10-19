@@ -372,7 +372,6 @@ async def init_state(app):
             cursor = app["db"].dailypuzzle.find()
             docs = await cursor.to_list(length=365)
             app["daily_puzzle_ids"] = {doc["_id"]: doc["puzzleId"] for doc in docs}
-        print(app["daily_puzzle_ids"])
 
         await app["db"].game.create_index("us")
         await app["db"].game.create_index("r")
@@ -382,7 +381,6 @@ async def init_state(app):
 
         # Read correspondence games in play and start their clocks
         cursor = app["db"].game.find({"r": "d", "y": CORRESPONDENCE})
-        print("---CORRESPONDENCE GAMES ---")
         async for doc in cursor:
             if doc["s"] < ABORTED:
                 game = await load_game(app, doc["_id"])
@@ -390,8 +388,6 @@ async def init_state(app):
                 game.wplayer.correspondence_games.append(game)
                 game.bplayer.correspondence_games.append(game)
                 game.stopwatch.restart(from_db=True)
-                print(game)
-        print("---END OF CORRESPONDENCE GAMES ---")
 
         if "video" not in db_collections:
             if DEV:

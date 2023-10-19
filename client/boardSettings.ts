@@ -49,6 +49,7 @@ class BoardSettings {
         this.settings["confirmresign"] = new ConfirmResignSettings(this);        
         this.settings["showDests"] = new ShowDestsSettings(this);
         this.settings["autoPromote"] = new AutoPromoteSettings(this);
+        this.settings["confirmCorrMove"] = new ConfirmCorrMoveSettings(this);        
         this.settings["blindfold"] = new BlindfoldSettings(this);
         this.settings["materialDifference"] = new MaterialDifferenceSettings(this);
     }
@@ -145,6 +146,8 @@ class BoardSettings {
         if (variant.promotion.autoPromoteable)
             settingsList.push(this.settings["autoPromote"].view());
 
+        settingsList.push(this.settings["confirmCorrMove"].view());        
+
         settingsList.push(this.settings["blindfold"].view());
 
         settingsList.push(this.settings["materialDifference"].view());
@@ -195,6 +198,23 @@ class ConfirmResignSettings extends BooleanSettings {
 
     view(): VNode {
         return h('div', checkbox(this, 'confirmresign', _("Confirm resigning")));
+    }
+}
+
+class ConfirmCorrMoveSettings extends BooleanSettings {
+    readonly boardSettings: BoardSettings;
+
+    constructor(boardSettings: BoardSettings) {
+        super('confirmCorrMove', true);
+        this.boardSettings = boardSettings;
+    }
+
+    update(): void {
+
+    }
+
+    view(): VNode {
+        return h('div', checkbox(this, 'confirmCorrMove', _("Confirm correspondence move")));
     }
 }
 
