@@ -307,7 +307,7 @@ async def subscribe_games(request):
                 payload = await queue.get()
                 await response.send(payload)
                 queue.task_done()
-        except ConnectionResetError:
+        except (ConnectionResetError, asyncio.CancelledError):
             pass
         finally:
             app["game_channels"].remove(queue)

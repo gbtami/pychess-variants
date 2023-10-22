@@ -2,6 +2,7 @@ import { h, VNode } from 'snabbdom';
 import { premove } from 'chessgroundx/premove';
 import { predrop } from 'chessgroundx/predrop';
 import * as cg from 'chessgroundx/types';
+import { Api } from "chessgroundx/api";
 
 import { newWebsocket } from './socket';
 import { _, ngettext } from './i18n';
@@ -22,7 +23,7 @@ import { Clocks, MsgBoard, MsgGameEnd, MsgNewGame, MsgUserConnected, RDiffs, Cro
 import { MsgUserDisconnected, MsgUserPresent, MsgMoreTime, MsgDrawOffer, MsgDrawRejected, MsgRematchOffer, MsgRematchRejected, MsgCount, MsgSetup, MsgGameStart, MsgViewRematch, MsgUpdateTV, MsgBerserk } from './roundType';
 import { PyChessModel } from "./types";
 import { GameController } from './gameCtrl';
-import { Game, gameViewPlaying } from './nowPlaying';
+import { handleOngoingGameEvents, Game, gameViewPlaying } from './nowPlaying';
 
 let rang = false;
 const CASUAL = '0';
@@ -327,15 +328,17 @@ export class RoundController extends GameController {
         boardSettings.assetURL = this.assetURL;
         boardSettings.updateBoardAndPieceStyles();
 
-        const corr = JSON.parse(model.corr);
-        if (corr.length > 0) {
+        const corrGames = JSON.parse(model.corr);
+        if (corrGames.length > 0) {
+            const cgMap: {[gameId: string]: Api} = {};
+            handleOngoingGameEvents(this.username, cgMap);
+
             patch(document.querySelector('.games-container') as HTMLElement, 
-                h('games-grid#games', corr.flatMap((game: Game) => {
-                    console.log(game.gameId, this.gameId);
+                h('games-grid#games', corrGames.flatMap((game: Game) => {
                     if (game.gameId === this.gameId) {
                         return [];
                     } else {
-                        return [gameViewPlaying(game, this.username)];
+                        return [gameViewPlaying(cgMap, game, this.username)];
                     }
                 }))
             )
@@ -1154,7 +1157,7 @@ export class RoundController extends GameController {
     }
 
     protected onMessage(evt: MessageEvent) {
-        console.log("<+++ onMessage():", evt.data);
+        // console.log("<+++ onMessage():", evt.data);
         super.onMessage(evt);
 
         if (evt.data === '/n') return;

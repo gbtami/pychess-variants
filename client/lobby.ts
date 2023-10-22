@@ -19,7 +19,7 @@ import { MsgBoard, MsgChat, MsgFullChat } from "./messages";
 import { variantPanels } from './lobby/layer1';
 import { Stream, Spotlight, MsgInviteCreated, MsgHostCreated, MsgGetSeeks, MsgNewGame, MsgGameInProgress, MsgUserConnected, MsgPing, MsgError, MsgShutdown, MsgGameCounter, MsgUserCounter, MsgStreams, MsgSpotlights, Seek, CreateMode, TvGame, TcMode } from './lobbyType';
 import { validFen, uci2LastMove } from './chess';
-import { Game, gameViewPlaying } from './nowPlaying';
+import { handleOngoingGameEvents, Game, gameViewPlaying } from './nowPlaying';
 
 const CREATE_MODES = {
     playAI: _("Play with AI"),
@@ -1001,13 +1001,12 @@ function runSeeks(vnode: VNode, model: PyChessModel) {
 
 export function lobbyView(model: PyChessModel): VNode[] {
     const puzzle = JSON.parse(model.puzzle);
-    console.log(model.corr);
     const username = model.username;
-    const corr = JSON.parse(model.corr);
-    const gpCounter = corr.length;
+    const corrGames = JSON.parse(model.corr);
+    const gpCounter = corrGames.length;
 
-    const r = (sum: number, obj: Game) => sum + ((obj.tp === username) ? 1 : 0);
-    const count = corr.reduce(r, 0);
+    const myTurnGameCounter = (sum: number, game: Game) => sum + ((game.tp === username) ? 1 : 0);
+    const count = corrGames.reduce(myTurnGameCounter, 0);
 
     const variant = VARIANTS[puzzle.variant];
     const turnColor = puzzle.fen.split(" ")[1] === "w" ? "white" : "black";
@@ -1044,7 +1043,7 @@ export function lobbyView(model: PyChessModel): VNode[] {
     let tabs = [];
     tabs.push(h('span', {attrs: {role: 'tab', 'aria-selected': false, 'aria-controls': 'panel-1', id: 'tab-1', tabindex: '-1'}}, _('Lobby')));
     tabs.push(h('span', {attrs: {role: 'tab', 'aria-selected': false, 'aria-controls': 'panel-2', id: 'tab-2', tabindex: '-1'}}, _('Correspondence')))
-    if (corr.length > 0) {
+    if (corrGames.length > 0) {
         tabs.push(h('span', {attrs: {role: 'tab', 'aria-selected': false, 'aria-controls': 'panel-3', id: 'tab-3', tabindex: '-1'}}, [
             ngettext('%1 game in play', '%1 games in play', gpCounter),
             h('span.noread', count)
@@ -1067,12 +1066,15 @@ export function lobbyView(model: PyChessModel): VNode[] {
             ])
         ])
     );
-    if (corr.length > 0) {
+    if (corrGames.length > 0) {
+        const cgMap: {[gameId: string]: Api} = {};
+        handleOngoingGameEvents(username, cgMap);
+
         containers.push(
             h('div.games-container', {attrs: {id: 'panel-3', role: 'tabpanel', tabindex: '-1', 'aria-labelledby': 'tab-3'}}, [
                 h('div.seeks-table', [
                     h('div.seeks-wrapper', [
-                        h('games-grid#games', corr.map((game: Game) => gameViewPlaying(game, username)))
+                        h('games-grid#games', corrGames.map((game: Game) => gameViewPlaying(cgMap, game, username)))
                     ])
                 ])
             ])
