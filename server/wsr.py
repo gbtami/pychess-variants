@@ -139,6 +139,7 @@ async def round_socket_handler(request):
 
                     elif data["type"] == "board":
                         if game.variant == "janggi":
+                            print("JANGGI", game.bsetup, game.wsetup, game.status)
                             if (game.bsetup or game.wsetup) and game.status <= STARTED:
                                 if game.bsetup:
                                     await ws.send_json(

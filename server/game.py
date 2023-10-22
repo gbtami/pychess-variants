@@ -1,7 +1,7 @@
 import asyncio
 import collections
 import logging
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from time import monotonic
 
 try:
@@ -237,8 +237,9 @@ class Game:
         # We adjust this in "byoyomi" messages in wsr.py
         self.byo_correction = 0
 
-        self.initial_fen = self.board.initial_fen
-        self.wplayer.fen960_as_white = self.initial_fen
+        if self.chess960:
+            self.initial_fen = self.board.initial_fen
+            self.wplayer.fen960_as_white = self.initial_fen
 
         self.random_mover = "Random-Mover" in (
             self.wplayer.username,
@@ -959,6 +960,12 @@ class Game:
             "result": self.result,
             "fen": self.board.fen,
             "lastMove": self.lastmove,
+            "tp": self.turn_player,
+            "date": (
+                datetime.now(timezone.utc) + timedelta(minutes=self.stopwatch.mins)
+            ).isoformat()
+            if self.rated == CORRESPONDENCE
+            else "",
             "steps": steps,
             "check": self.check,
             "ply": self.board.ply,

@@ -1,8 +1,10 @@
 import { h } from 'snabbdom';
 
 import { Chessground } from 'chessgroundx';
+import { Api } from "chessgroundx/api";
 import * as cg from "chessgroundx/types";
 
+import { patch } from './document';
 import { uci2LastMove } from './chess';
 import { timeago } from './datetime';
 import { VARIANTS } from './variants';
@@ -26,6 +28,28 @@ export interface Game {
     date: string;
 }
 
+export function handleOngoingGameEvents(username: string, cgMap: {[gameId: string]: Api}) {
+    const evtSource = new EventSource("/api/ongoing");
+    evtSource.onmessage = function(event) {
+        const message = JSON.parse(event.data);
+        const cg = cgMap[message.gameId];
+        cg.set({
+            fen: message.fen,
+            lastMove: uci2LastMove(message.lastMove),
+        });
+        const isMyTurn = message.tp === username;
+        patch(document.querySelector(`a[href='${message.gameId}'] .indicator`) as HTMLElement,
+            h('span.indicator', ''),
+        );
+        patch(document.querySelector(`a[href='${message.gameId}'] .indicator`) as HTMLElement,
+            corrClockIndicator(isMyTurn, message.date),
+        );
+        const noreadEl = document.querySelector('span.noread') as HTMLElement;
+        const diff = isMyTurn ? 1 : -1;
+        patch(noreadEl, h('span.noread', parseInt(noreadEl.textContent || '0') + diff));
+    }
+}
+
 function timer(date: string) {
   return h(
     'time.timeago',
@@ -40,18 +64,20 @@ function timer(date: string) {
   );
 }
 
-export function gameViewPlaying(game: Game, username: string) {
+function corrClockIndicator(isMyTurn:boolean, date: string) {
+    return h('span.indicator', isMyTurn ? timer(date) : h('span', '\xa0')) // &nbsp;
+}
+
+export function gameViewPlaying(cgMap: {[gameId: string]: Api}, game: Game, username: string) {
     const variant = VARIANTS[game.variant];
     const isMyTurn = game.tp === username;
     const opp = (username === game.w) ? game.b : game.w;
     const mycolor = (username === game.w) ? 'white' : 'black';
-    return h(`div.${variant.boardFamily}.${variant.pieceFamily}`, {
-        on: { click: () => window.location.assign('/' + game.gameId) }
-    }, [
+    return h(`a.${variant.boardFamily}.${variant.pieceFamily}`, { attrs: { href: game.gameId } }, [
         h(`div.cg-wrap.${variant.board.cg}`, {
             hook: {
                 insert: vnode => {
-                    Chessground(vnode.elm as HTMLElement, {
+                    const cg = Chessground(vnode.elm as HTMLElement, {
                         orientation: mycolor,
                         fen: game.fen,
                         lastMove: uci2LastMove(game.lastMove),
@@ -60,20 +86,13 @@ export function gameViewPlaying(game: Game, username: string) {
                         viewOnly: true,
                         pocketRoles: variant.pocket?.roles,
                     });
+                    cgMap[game.gameId] = cg;
                 }
             }
         }),
         h('span.vstext', [
             h('span', opp),
-            h(
-              'span.indicator',
-              isMyTurn
-                ? true //game.date && game.lastmove
-                  ? timer(game.date)
-                  : ['yourTurn']
-                : h('span', '\xa0'),
-            ), // &nbsp;
-
+            corrClockIndicator(isMyTurn, game.date),
         ]),
     ]);
 }

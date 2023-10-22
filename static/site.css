@@ -2367,7 +2367,7 @@ input[data-file]::after {
 
 games-grid {
     display: grid;
-    --auto-grid-min-size: 12rem;
+    --auto-grid-min-size: 200px;
     justify-content: center;
     overflow-x:hidden;
     grid-template-columns: repeat(auto-fill, minmax(var(--auto-grid-min-size), 1fr));
