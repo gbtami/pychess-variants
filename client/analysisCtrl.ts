@@ -53,6 +53,7 @@ export class AnalysisController extends GameController {
     uci_usi: string;
     plyVari: number;
     plyInsideVari: number;
+    UCImovelist: string[];
     analysisChart: Chart;
     movetimeChart: Chart;
     chartFunctions: any[];
@@ -115,6 +116,9 @@ export class AnalysisController extends GameController {
 
         // current move index inside the variation line
         this.plyInsideVari = -1
+
+        // used for interactive analysis go command
+        this.UCImovelist = [];
 
         this.settings = true;
         this.dblClickPass = true;
@@ -707,7 +711,11 @@ export class AnalysisController extends GameController {
 
         this.fsfPostMessage('setoption name MultiPV value ' + this.multipv);
 
-        this.fsfPostMessage('position fen ' + this.fullfen);
+        let position: string = 'position fen ' + this.fullfen;
+        if (this.UCImovelist.length > 0) {
+            position = 'position fen ' + this.steps[0].fen + ' moves ' + this.UCImovelist.join(' ');
+        }
+        this.fsfPostMessage(position);
 
         if (this.maxDepth >= 99) {
             this.fsfPostMessage('go depth 99');
@@ -775,6 +783,8 @@ export class AnalysisController extends GameController {
         this.drawEval(step.ceval, step.scoreStr, step.turnColor);
         if (plyVari === 0) this.drawServerEval(ply, step.scoreStr);
 
+        const idxInVari = (plyVari > 0) ? ply - plyVari : 0;
+        this.updateUCImoves(idxInVari);
         if (this.localAnalysis) this.engineGo();
 
         if (!this.puzzle) {
@@ -782,7 +792,6 @@ export class AnalysisController extends GameController {
             e.value = this.fullfen;
         
             if (this.isAnalysisBoard) {
-                const idxInVari = (plyVari > 0) ? ply - plyVari : 0;
                 this.vpgn = patch(this.vpgn, h('div#pgntext', this.getPgn(idxInVari)));
             } else {
                 const hist = this.home + '/' + this.gameId + '?ply=' + ply.toString();
@@ -791,7 +800,27 @@ export class AnalysisController extends GameController {
         }
     }
 
-    private getPgn = (idxInVari  = 0) => {
+    updateUCImoves(idxInVari: number) {
+        this.UCImovelist = [];
+
+        for (let ply = 1; ply <= this.ply; ply++) {
+            // we are in a variation line of the game
+            if (this.steps[ply] && this.steps[ply].vari && this.plyVari > 0) {
+                const variMoves = this.steps[ply].vari;
+                if (variMoves) {
+                    for (let idx = 0; idx <= idxInVari; idx++) {
+                        this.UCImovelist.push(variMoves[idx].move);
+                    };
+                    break;
+                }
+            // we are in the main line
+            } else {
+                this.UCImovelist.push(this.steps[ply].move);
+            }
+        }
+    }
+
+    private getPgn = (idxInVari = 0) => {
         const moves : string[] = [];
         let moveCounter: string = '';
         let whiteMove: boolean = true;
@@ -917,15 +946,19 @@ export class AnalysisController extends GameController {
             }
         }
 
+        const idxInVari = (this.plyVari > 0) && vv ? vv.length - 1 : 0;
+        this.updateUCImoves(idxInVari);
+        if (this.localAnalysis) this.engineGo();
+
         if (!this.puzzle) {
             const e = document.getElementById('fullfen') as HTMLInputElement;
             e.value = this.fullfen;
 
             if (this.isAnalysisBoard) {
-                const idxInVari = (this.plyVari > 0) && vv ? vv.length - 1 : 0;
                 this.vpgn = patch(this.vpgn, h('div#pgntext', this.getPgn(idxInVari)));
             }
         }
+
         // TODO: But sending moves to the server will be useful to implement shared live analysis!
         // this.doSend({ type: "analysis_move", gameId: this.gameId, move: move, fen: this.fullfen, ply: this.ply + 1 });
     }
@@ -951,8 +984,6 @@ export class AnalysisController extends GameController {
                 color: this.turnColor,
             },
         });
-
-        if (this.localAnalysis) this.engineGo();
     }
 
     private buildScoreStr = (color: string, analysis: Ceval) => {
