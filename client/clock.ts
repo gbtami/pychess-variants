@@ -5,7 +5,37 @@ import { h, VNode } from 'snabbdom';
 import { sound } from './sound';
 import { patch } from './document';
 
+import { ngettext } from './i18n';
+
 const HURRY = 10000;
+
+const prefixInteger = (num: number, length: number): string =>
+  (num / Math.pow(10, length)).toFixed(length).substr(2);
+
+const bold = (x: string) => `<b>${x}</b>`;
+
+function formatClockTime(time: Millis) {
+  const date = new Date(time),
+    minutes = prefixInteger(date.getUTCMinutes(), 2),
+    seconds = prefixInteger(date.getSeconds(), 2);
+  let hours: number,
+    str = '';
+  if (time >= 86400 * 1000) {
+    // days : hours
+    const days = date.getUTCDate() - 1;
+    hours = date.getUTCHours();
+    str += ngettext('%1 day', '%1 days', days) + ' ';
+    if (hours !== 0) str += ngettext('%1 hour', '%1 hours', hours);
+  } else if (time >= 3600 * 1000) {
+    // hours : minutes
+    hours = date.getUTCHours();
+    str += bold(prefixInteger(hours, 2)) + ':' + bold(minutes);
+  } else {
+    // minutes : seconds
+    str += bold(minutes) + ':' + bold(seconds);
+  }
+  return str;
+}
 
 export class Clock {
     duration: number;
@@ -25,9 +55,10 @@ export class Clock {
     byoyomiPeriod: number;
     hurry: boolean;
     ticks: boolean[];
+    corr: boolean;
 
     // game baseTime (min) and increment (sec)
-    constructor(baseTime: number, increment: number, byoyomiPeriod: number, el: HTMLElement | VNode, id: string) {
+    constructor(baseTime: number, increment: number, byoyomiPeriod: number, el: HTMLElement | VNode, id: string, corr: boolean) {
         this.duration = baseTime * 1000 * 60;
         this.increment = increment * 1000;
         this.granularity = 500;
@@ -45,6 +76,8 @@ export class Clock {
         this.byoyomiPeriod = byoyomiPeriod;
         this.hurry = false;
         this.ticks = [false, false, false, false, false, false, false, false, false, false];
+        this.corr = corr;
+        if (this.corr) this.duration = this.duration * 24 * 60;
 
         this.renderTime(this.duration);
     }
@@ -52,7 +85,6 @@ export class Clock {
     start(duration = 0) {
         if (this.running) return;
         if (duration !== 0) this.duration = duration;
-
         this.running = true;
         this.startTime = Date.now();
 
@@ -172,6 +204,17 @@ export class Clock {
     }
 
     view(time: number) {
+        if (this.corr) {
+            return h('div#' + this.id, [h('div.clock.corr-clock', {
+                class: {
+                    running: this.running,
+                    hurry: time < HURRY && this.byoyomiPeriod === 0,
+                    connecting: this.connecting,
+                    overtime: this.overtime,
+                } }, formatClockTime(time)
+            )]);
+        }
+
         const printed = this.printTime(time);
         const millis = new Date(time).getUTCMilliseconds();
         return h('div#' + this.id, [
@@ -198,5 +241,4 @@ export class Clock {
             this.el = patch(this.el, this.view(time));
         }
     }
-
 }
