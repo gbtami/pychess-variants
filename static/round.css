@@ -229,3 +229,10 @@ button.icon.icon-berserk {
 }
 .berserked button.icon.icon-berserk {
     color: var(--bad);
+}
+
+.clock.corr-clock {
+    font-size: 1.9em;
+    line-height: 1.5em;
+    padding: 0 2vmin;
+}

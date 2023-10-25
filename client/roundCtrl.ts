@@ -67,10 +67,8 @@ export class RoundController extends GameController {
         window.addEventListener('focus', () => {this.focus = true});
 
         const onOpen = () => {
-            if (this.rated !== CORRESPONDENCE) {
-                this.clocks[0].connecting = false;
-                this.clocks[1].connecting = false;
-            }
+            this.clocks[0].connecting = false;
+            this.clocks[1].connecting = false;
             const cl = document.body.classList; // removing the "reconnecting" message in lower left corner
             cl.remove('offline');
             cl.add('online');
@@ -84,10 +82,8 @@ export class RoundController extends GameController {
                 this.sock.close();
                 return
             }
-            if (this.rated !== CORRESPONDENCE) {
-                this.clocks[0].connecting = true;
-                this.clocks[1].connecting = true;
-            }
+            this.clocks[0].connecting = true;
+            this.clocks[1].connecting = true;
             console.log('Reconnecting in round...');
 
             // relevant to the "reconnecting" message in lower left corner
@@ -193,12 +189,20 @@ export class RoundController extends GameController {
 
         this.clocktimes = {'white': this.base * 1000 * 60, 'black': this.base * 1000 * 60}
 
-        // clocks needed for NOT correspondence games only!
-        if (this.rated !== CORRESPONDENCE) {
-            // initialize clocks
-            // this.clocktimes = {};
-            const c0 = new Clock(this.base, this.inc, this.byoyomiPeriod, document.getElementById('clock0') as HTMLElement, 'clock0');
-            const c1 = new Clock(this.base, this.inc, this.byoyomiPeriod, document.getElementById('clock1') as HTMLElement, 'clock1');
+        // initialize clocks
+        // this.clocktimes = {};
+        if (this.rated === CORRESPONDENCE) {
+            const c0 = new Clock(this.base, 0, 0, document.getElementById('clock0') as HTMLElement, 'clock0', true);
+            const c1 = new Clock(this.base, 0, 0, document.getElementById('clock1') as HTMLElement, 'clock1', true);
+            this.clocks = [c0, c1];
+
+            this.clocks[0].onTick(this.clocks[0].renderTime);
+            this.clocks[1].onTick(this.clocks[1].renderTime);
+
+        } else {
+
+            const c0 = new Clock(this.base, this.inc, this.byoyomiPeriod, document.getElementById('clock0') as HTMLElement, 'clock0', false);
+            const c1 = new Clock(this.base, this.inc, this.byoyomiPeriod, document.getElementById('clock1') as HTMLElement, 'clock1', false);
             this.clocks = [c0, c1];
 
             // If player berserked, set increment to 0. Actual clock duration value will be set by onMsgBoard()
@@ -650,10 +654,8 @@ export class RoundController extends GameController {
         if (msg.status >= 0) {
             this.status = msg.status;
             this.result = msg.result;
-            if (this.rated !== CORRESPONDENCE) {
-                this.clocks[0].pause(false);
-                this.clocks[1].pause(false);
-            }
+            this.clocks[0].pause(false);
+            this.clocks[1].pause(false);
             if (this.result !== "*" && !this.spectator && !this.finishedGame)
                 sound.gameEndSound(msg.result, this.mycolor);
 
@@ -780,7 +782,7 @@ export class RoundController extends GameController {
             }
         }
 
-        this.clockOn = (Number(msg.ply) >= 2) && this.rated !== CORRESPONDENCE;
+        this.clockOn = (Number(msg.ply) >= 2);
         if ((!this.spectator && this.clockOn) || this.tournamentGame) {
             const container = document.getElementById('abort') as HTMLElement;
             if (container) {
@@ -821,34 +823,32 @@ export class RoundController extends GameController {
         const oppclock = !this.flipped() ? 0 : 1;
         const myclock = 1 - oppclock;
 
-        if (this.rated !== CORRESPONDENCE) {
-            this.clocks[0].pause(false);
-            this.clocks[1].pause(false);
-            if (this.byoyomi && msg.byo) {
-                this.clocks[oppclock].byoyomiPeriod = msg.byo[(this.oppcolor === 'white') ? 0 : 1];
-                this.clocks[myclock].byoyomiPeriod = msg.byo[(this.mycolor === 'white') ? 0 : 1];
-            }
-
-            this.clocks[oppclock].setTime(this.clocktimes[this.oppcolor]);
-            this.clocks[myclock].setTime(this.clocktimes[this.mycolor]);
-
-            let bclock;
-            if (!this.flipped()) {
-                bclock = this.mycolor === "black" ? 1 : 0;
-            } else {
-                bclock = this.mycolor === "black" ? 0 : 1;
-            }
-            const wclock = 1 - bclock
-            if (this.berserked['wberserk'] || msg.berserk.w) {
-                this.clocks[wclock].increment = 0;
-                if (msg.ply <= 2) this.clocks[wclock].setTime(this.base * 1000 * 30);
-            }
-            if (this.berserked['bberserk'] || msg.berserk.b) {
-                this.clocks[bclock].increment = 0;
-                if (msg.ply <= 2) this.clocks[bclock].setTime(this.base * 1000 * 30);
-            }
+        this.clocks[0].pause(false);
+        this.clocks[1].pause(false);
+        if (this.byoyomi && msg.byo) {
+            this.clocks[oppclock].byoyomiPeriod = msg.byo[(this.oppcolor === 'white') ? 0 : 1];
+            this.clocks[myclock].byoyomiPeriod = msg.byo[(this.mycolor === 'white') ? 0 : 1];
         }
 
+        this.clocks[oppclock].setTime(this.clocktimes[this.oppcolor]);
+        this.clocks[myclock].setTime(this.clocktimes[this.mycolor]);
+
+        let bclock;
+        if (!this.flipped()) {
+            bclock = this.mycolor === "black" ? 1 : 0;
+        } else {
+            bclock = this.mycolor === "black" ? 0 : 1;
+        }
+        const wclock = 1 - bclock
+        if (this.berserked['wberserk'] || msg.berserk.w) {
+            this.clocks[wclock].increment = 0;
+            if (msg.ply <= 2) this.clocks[wclock].setTime(this.base * 1000 * 30);
+        }
+        if (this.berserked['bberserk'] || msg.berserk.b) {
+            this.clocks[bclock].increment = 0;
+            if (msg.ply <= 2) this.clocks[bclock].setTime(this.base * 1000 * 30);
+        }
+        console.log("onMsgBoard() this.clockOn && msg.status", this.clockOn, msg.status);
         if (this.spectator) {
             if (latestPly) {
                 this.chessground.set({

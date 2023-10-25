@@ -1,7 +1,7 @@
 import asyncio
 import collections
 import logging
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timezone
 from time import monotonic
 
 try:
@@ -953,6 +953,14 @@ class Game:
         else:
             byoyomi_periods = ""
 
+        if self.rated == CORRESPONDENCE:
+            clock_mins = self.stopwatch.mins * 60 * 1000
+            base_mins = self.base * 24 * 60 * 60 * 1000
+            clocks = {
+                "black": base_mins if self.board.color == WHITE else clock_mins,
+                "white": base_mins if self.board.color == BLACK else clock_mins,
+            }
+
         return {
             "type": "board",
             "gameId": self.id,
@@ -961,11 +969,6 @@ class Game:
             "fen": self.board.fen,
             "lastMove": self.lastmove,
             "tp": self.turn_player,
-            "date": (
-                datetime.now(timezone.utc) + timedelta(minutes=self.stopwatch.mins)
-            ).isoformat()
-            if self.rated == CORRESPONDENCE
-            else "",
             "steps": steps,
             "check": self.check,
             "ply": self.board.ply,

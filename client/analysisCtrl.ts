@@ -789,13 +789,13 @@ export class AnalysisController extends GameController {
                 const variMoves = this.steps[ply].vari;
                 if (variMoves) {
                     for (let idx = 0; idx <= idxInVari; idx++) {
-                        this.UCImovelist.push(variMoves[idx].move);
+                        this.UCImovelist.push(variMoves[idx].move!);
                     };
                     break;
                 }
             // we are in the main line
             } else {
-                this.UCImovelist.push(this.steps[ply].move);
+                this.UCImovelist.push(this.steps[ply].move!);
             }
         }
     }
