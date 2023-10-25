@@ -7,6 +7,10 @@ import { patch } from './document';
 
 import { ngettext } from './i18n';
 
+export type Minutes = number;
+export type Seconds = number;
+export type Millis = number;
+
 const HURRY = 10000;
 
 const prefixInteger = (num: number, length: number): string =>
@@ -15,31 +19,31 @@ const prefixInteger = (num: number, length: number): string =>
 const bold = (x: string) => `<b>${x}</b>`;
 
 function formatClockTime(time: Millis) {
-  const date = new Date(time),
-    minutes = prefixInteger(date.getUTCMinutes(), 2),
-    seconds = prefixInteger(date.getSeconds(), 2);
-  let hours: number,
-    str = '';
-  if (time >= 86400 * 1000) {
-    // days : hours
-    const days = date.getUTCDate() - 1;
-    hours = date.getUTCHours();
-    str += ngettext('%1 day', '%1 days', days) + ' ';
-    if (hours !== 0) str += ngettext('%1 hour', '%1 hours', hours);
-  } else if (time >= 3600 * 1000) {
-    // hours : minutes
-    hours = date.getUTCHours();
-    str += bold(prefixInteger(hours, 2)) + ':' + bold(minutes);
-  } else {
-    // minutes : seconds
-    str += bold(minutes) + ':' + bold(seconds);
-  }
-  return str;
+    const date = new Date(time),
+        minutes = prefixInteger(date.getUTCMinutes(), 2),
+        seconds = prefixInteger(date.getSeconds(), 2);
+    let hours: number,
+        str = '';
+    if (time >= 86400 * 1000) {
+        // days : hours
+        const days = date.getUTCDate() - 1;
+        hours = date.getUTCHours();
+        str += ngettext('%1 day', '%1 days', days) + ' ';
+        if (hours !== 0) str += ngettext('%1 hour', '%1 hours', hours);
+    } else if (time >= 3600 * 1000) {
+        // hours : minutes
+        hours = date.getUTCHours();
+        str += bold(prefixInteger(hours, 2)) + ':' + bold(minutes);
+    } else {
+        // minutes : seconds
+        str += bold(minutes) + ':' + bold(seconds);
+    }
+    return str;
 }
 
 export class Clock {
-    duration: number;
-    increment: number;
+    duration: Millis;
+    increment: Millis;
     granularity: number;
     running: boolean;
     connecting: boolean;
@@ -58,7 +62,7 @@ export class Clock {
     corr: boolean;
 
     // game baseTime (min) and increment (sec)
-    constructor(baseTime: number, increment: number, byoyomiPeriod: number, el: HTMLElement | VNode, id: string, corr: boolean) {
+    constructor(baseTime: Minutes, increment: Seconds, byoyomiPeriod: number, el: HTMLElement | VNode, id: string, corr: boolean) {
         this.duration = baseTime * 1000 * 60;
         this.increment = increment * 1000;
         this.granularity = 500;
