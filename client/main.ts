@@ -9,6 +9,7 @@ import { inviteView } from './invite';
 import { renderGames } from './games';
 import { editorView } from '@/editor/editor';
 import { analysisView, embedView } from './analysis';
+import { puzzleView } from './puzzle';
 import { profileView } from './profile';
 import { tournamentView } from './tournament';
 import { calendarView } from './calendar';
@@ -16,7 +17,6 @@ import { pasteView } from './paste';
 import { statsView } from './stats';
 import { volumeSettings, soundThemeSettings } from './sound';
 import { patch, getCookie } from './document';
-import { backgroundSettings } from './background';
 import { renderTimeago } from './datetime';
 import { zenButtonView, zenModeSettings } from './zen';
 import { PyChessModel } from './types';
@@ -71,6 +71,7 @@ function initModel(el: HTMLElement) {
         seekEmpty : el.getAttribute("data-seekempty") === "True",
         tournamentDirector: el.getAttribute("data-tournamentdirector") === "True",
         assetURL: el.getAttribute("data-asset-url") ?? "",
+        puzzle: el.getAttribute("data-puzzle") ?? "",
     };
 }
 
@@ -89,6 +90,8 @@ export function view(el: HTMLElement, model: PyChessModel): VNode {
         return h('div', embedView(model));
     case 'analysis':
         return h('div#main-wrap', analysisView(model));
+    case 'puzzle':
+        return h('div#main-wrap', puzzleView(model));
     case 'invite':
         return h('div#main-wrap', inviteView(model));
     case 'editor':
@@ -180,7 +183,6 @@ function start() {
 
 window.addEventListener('resize', () => document.body.dispatchEvent(new Event('chessground.resize')));
 
-backgroundSettings.update();
 zenModeSettings.update();
 
 const el = document.getElementById('pychess-variants');

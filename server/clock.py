@@ -1,7 +1,7 @@
 import asyncio
 import logging
 
-from const import ABORTED, CASUAL
+from const import ABORTED
 from fairy import WHITE, BLACK
 from broadcast import round_broadcast
 
@@ -11,7 +11,7 @@ ESTIMATE_MOVES = 40
 
 
 class Clock:
-    """Check game start and abandoned games time out"""
+    """Check game start and time out abandoned games"""
 
     def __init__(self, game):
         self.game = game
@@ -32,8 +32,8 @@ class Clock:
         else:
             # give some time to make first move
             if self.ply < 2:
-                if self.game.rated == CASUAL:
-                    # Casual games are not timed for the first moves of either
+                if self.game.tournamentId is None:
+                    # Non tournament games are not timed for the first moves of either
                     # player. We stop the clock to prevent unnecessary clock
                     # updates and to give players unlimited time.
                     self.running = False

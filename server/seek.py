@@ -46,6 +46,7 @@ class Seek:
         Seek.gen_id += 1
         self.id = self.gen_id
         self.game_id = game_id
+        self.pending = False
 
     @property
     def as_json(self):
@@ -77,7 +78,7 @@ class Seek:
         return "%s: **%s%s** %s" % (self.creator.username, self.variant, tail960, tc)
 
 
-async def create_seek(db, invites, seeks, user, data, ws=None, empty=False):
+async def create_seek(db, invites, seeks, user, data, ws, empty=False):
     """Seek can be
     - invite (has reserved new game id strored in app['invites'], and target is 'Invite-friend')
     - challenge (has another username as target)
@@ -124,7 +125,11 @@ async def create_seek(db, invites, seeks, user, data, ws=None, empty=False):
 
 
 def get_seeks(seeks):
-    return {"type": "get_seeks", "seeks": [seek.as_json for seek in seeks.values()]}
+    active_seeks = [seek.as_json for seek in seeks.values() if not seek.pending]
+    return {
+        "type": "get_seeks",
+        "seeks": active_seeks,
+    }
 
 
 def challenge(seek, gameId):

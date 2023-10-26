@@ -19,6 +19,7 @@ export interface PieceFamily {
 
 export const BOARD_FAMILIES: Record<string, BoardFamily> = {
     standard8x8: { dimensions: { width: 8, height: 8 }, cg: "cg-512", boardCSS: ["8x8brown.svg", "8x8blue.svg", "8x8green.svg", "8x8maple.jpg", "8x8olive.jpg", "8x8santa.png", "8x8wood2.jpg", "8x8wood4.jpg", "8x8ic.svg", "8x8purple.svg"] },
+    standard9x9: { dimensions: { width: 9, height: 9 }, cg: "cg-540", boardCSS: ["9x9mansindam.svg", "9x9brown.svg", "9x9blue.svg", "9x9green.svg", "9x9maple.jpg", "9x9olive.jpg"] },
     standard10x8: { dimensions: { width: 10, height: 8 }, cg: "cg-640", boardCSS: ["10x8brown.svg", "10x8blue.svg", "10x8green.svg", "10x8maple.jpg", "10x8olive.jpg"] },
     standard10x10: { dimensions: { width: 10, height: 10 }, cg: "cg-640-640", boardCSS: ["10x10brown.svg", "10x10blue.svg", "10x10green.svg", "10x10maple.jpg", "10x10olive.jpg"] },
     grand10x10: { dimensions: { width: 10, height: 10}, cg: "cg-640-640", boardCSS: ["Grandboard.svg", "10x10brown.svg", "10x10blue.svg", "10x10green.svg", "10x10maple.jpg", "10x10mapleGrand.png"] },
@@ -58,9 +59,10 @@ export const PIECE_FAMILIES: Record<string, PieceFamily> = {
     shinobi: { pieceCSS: ["shinobi0", "shinobi1", "disguised"] },
     empire: { pieceCSS: ["empire0", "empire1", "disguised"] },
     ordamirror: { pieceCSS: ["ordamirror0", "ordamirror1", "disguised"] },
-    chak: { pieceCSS: ["chak0", "disguised"] },
-    chennis: { pieceCSS: ["chennis0", "chennis1", "chennis2", "disguised"] },
+    chak: { pieceCSS: ["chak0", "chak1", "disguised"] },
+    chennis: { pieceCSS: ["chennis0", "chennis1", "chennis2", "chennis3", "chennis4", "disguised"] },
     spartan: { pieceCSS: ["spartan0", "disguised"] },
+    mansindam: { pieceCSS: ["mansindam2", "mansindam1", "mansindam3", "mansindam4", "disguised"] },
 };
 
 export interface Variant {
@@ -104,6 +106,7 @@ export interface Variant {
         readonly duck: boolean;
         readonly pass: boolean;
         readonly setup: boolean;
+        readonly noDrawOffer: boolean;
     };
     readonly material: {
         readonly showDiff: boolean;
@@ -169,6 +172,7 @@ function variant(config: VariantConfig): Variant {
             duck: !!config.rules?.duck,
             pass: !!config.rules?.pass,
             setup: !!config.rules?.setup,
+            noDrawOffer: !!config.rules?.noDrawOffer,
         },
         material: {
             showDiff: !config.pocket?.captureToHand,
@@ -256,6 +260,8 @@ interface VariantConfig {
         pass?: boolean;
         // Setup phase
         setup?: boolean;
+        // Draw offer not allowed
+        noDrawOffer?: boolean;
     };
     // Material equivalences for material diff calculation
     // ex. { 'pl-piece': 'r-piece' } means the "+L" piece is treated as the "R" piece for material diff
@@ -338,6 +344,29 @@ export const VARIANTS: Record<string, Variant> = {
         ui: { pieceSound: "atomic" },
     }),
 
+    kingofthehill: variant({
+        name: "kingofthehill", displayName: "king of the hill", tooltip: "",
+        startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+        chess960: true, icon: "🏴", icon960: "🏁",
+        boardFamily: "standard8x8", pieceFamily: "standard",
+        pieceRow: ["k", "q", "r", "b", "n", "p"],
+        rules: { enPassant: true },
+        ui: { boardMark: 'kingofthehill' },
+    }),
+
+    '3check': variant({
+        name: "3check", displayName: "three-check", tooltip: "",
+        startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 3+3 0 1",
+        chess960: true, icon: "☰", icon960: "☷",
+        boardFamily: "standard8x8", pieceFamily: "standard",
+        pieceRow: ["k", "q", "r", "b", "n", "p"],
+        rules: { enPassant: true },
+        alternateStart: {
+            '': "",
+            '5check': "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 5+5 0 1",
+        },
+    }),
+
     duck: variant({
         name: "duck", tooltip: "The duck must be moved to a new square after every turn.",
         startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
@@ -407,7 +436,7 @@ export const VARIANTS: Record<string, Variant> = {
         pieceRow: ["k", "g", "r", "b", "s", "n", "l", "p"],
         pocket: { roles: ["p", "l", "n", "s", "g", "b", "r"], captureToHand: true },
         promotion: { type: "shogi", roles: ["p", "l", "n", "s", "r", "b"] },
-        rules: { defaultTimeControl: "byoyomi" },
+        rules: { defaultTimeControl: "byoyomi", noDrawOffer: true },
         ui: { pieceSound: "shogi" },
         alternateStart: {
             '': '',
@@ -433,7 +462,7 @@ export const VARIANTS: Record<string, Variant> = {
         pieceRow: ["k", "g", "r", "b", "s", "p"],
         pocket: { roles: ["p", "s", "g", "b", "r"], captureToHand: true },
         promotion: { type: "shogi", roles: ["p", "s", "r", "b"] },
-        rules: { defaultTimeControl: "byoyomi" },
+        rules: { defaultTimeControl: "byoyomi", noDrawOffer: true },
         ui: { pieceSound: "shogi" },
     }),
 
@@ -446,7 +475,7 @@ export const VARIANTS: Record<string, Variant> = {
         pieceRow: ["k", "l", "s", "n", "p"],
         pocket: { roles: ["p", "l", "n", "s"], captureToHand: true },
         promotion: { type: "shogi", roles: ["p", "l", "n", "s"] },
-        rules: { defaultTimeControl: "byoyomi" },
+        rules: { defaultTimeControl: "byoyomi", noDrawOffer: true },
         ui: { pieceSound: "shogi" },
     }),
 
@@ -460,7 +489,7 @@ export const VARIANTS: Record<string, Variant> = {
         kingRoles: ["l"],
         pocket: { roles: ["e", "g", "c"], captureToHand: true },
         promotion: { type: "shogi", roles: ["c"] },
-        rules: { defaultTimeControl: "byoyomi" },
+        rules: { defaultTimeControl: "byoyomi", noDrawOffer: true },
         ui: { pieceSound: "shogi" },
     }),
 
@@ -473,7 +502,7 @@ export const VARIANTS: Record<string, Variant> = {
         pieceRow: ["k", "g", "s", "p"],
         pocket: { roles: ["p", "s", "g"], captureToHand: true },
         promotion: { type: "shogi", roles: ["p", "s"] },
-        rules: { defaultTimeControl: "byoyomi" },
+        rules: { defaultTimeControl: "byoyomi", noDrawOffer: true },
         ui: { pieceSound: "shogi" },
     }),
 
@@ -486,7 +515,7 @@ export const VARIANTS: Record<string, Variant> = {
         pieceRow: ["k", "g", "s", "n", "l", "p"],
         pocket: { roles: ["p", "l", "n", "s", "g"], captureToHand: true },
         promotion: { type: "shogi", roles: ["p", "s", "n", "l"] },
-        rules: { defaultTimeControl: "byoyomi" },
+        rules: { defaultTimeControl: "byoyomi", noDrawOffer: true },
         ui: { pieceSound: "shogi" },
         alternateStart: {
             'Gorogoro Plus N+L': '',
@@ -503,7 +532,7 @@ export const VARIANTS: Record<string, Variant> = {
         pieceRow: ["k", "c", "p", "l", "r", "f", "s"],
         pocket: { roles: ["s", "p", "l", "r", "c", "f"], captureToHand: true },
         promotion: { type: "shogi", roles: ["s", "f"] },
-        rules: { defaultTimeControl: "byoyomi" },
+        rules: { defaultTimeControl: "byoyomi", noDrawOffer: true },
         ui: { pieceSound: "shogi" },
         alternateStart: {
             '': '',
@@ -566,7 +595,7 @@ export const VARIANTS: Record<string, Variant> = {
         alternateStart: {
             '': '',
             'Bird': 'rnbcqkabnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBCQKABNR w KQkq - 0 1',
-            'Carrera': 'rcnbqkbnar/pppppppppp/10/10/10/10/PPPPPPPPPP/RCNBQKBNAR w KQkq - 0 1',
+            'Carrera': 'ranbqkbncr/pppppppppp/10/10/10/10/PPPPPPPPPP/RANBQKBNCR w KQkq - 0 1',
             'Conservative': 'arnbqkbnrc/pppppppppp/10/10/10/10/PPPPPPPPPP/ARNBQKBNRC w KQkq - 0 1',
             'Embassy': 'rnbqkcabnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBQKCABNR w KQkq - 0 1',
             'Gothic': 'rnbqckabnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBQCKABNR w KQkq - 0 1',
@@ -585,7 +614,7 @@ export const VARIANTS: Record<string, Variant> = {
         alternateStart: {
             '': '',
             'Bird': 'rnbcqkabnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBCQKABNR[] w KQkq - 0 1',
-            'Carrera': 'rcnbqkbnar/pppppppppp/10/10/10/10/PPPPPPPPPP/RCNBQKBNAR[] w KQkq - 0 1',
+            'Carrera': 'ranbqkbncr/pppppppppp/10/10/10/10/PPPPPPPPPP/RANBQKBNCR[] w KQkq - 0 1',
             'Conservative': 'arnbqkbnrc/pppppppppp/10/10/10/10/PPPPPPPPPP/ARNBQKBNRC[] w KQkq - 0 1',
             'Embassy': 'rnbqkcabnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBQKCABNR[] w KQkq - 0 1',
             'Gothic': 'rnbqckabnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBQCKABNR[] w KQkq - 0 1',
@@ -707,6 +736,28 @@ export const VARIANTS: Record<string, Variant> = {
 
     }),
 
+    shinobiplus: variant({
+        name: "shinobiplus", displayName: "shinobi+", tooltip: "Asymmetric variant which pits the western Chess army against a drop-based, Shogi-styled army.",
+        startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/4K3[JDSCLHM] w kq - 0 1",
+        icon: "🐢",
+        boardFamily: "standard8x8", pieceFamily: "shinobi",
+        colors: { first: "Pink", second: "Black" },
+        pieceRow: { white: ["k", "s", "d", "j", "l", "h", "m", "p"], black: ["k", "q", "r", "b", "n", "p"] },
+        pocket: { roles: { white: ["l", "h", "m", "d", "j", "s", "c"], black: [] }, captureToHand: false },
+        promotion: { type: "shogi", roles: ["p", "l", "h", "m"] },
+        rules: { enPassant: true },
+        ui: { boardMark: 'campmate' },
+        material: {
+            equivalences: {
+                'pl-piece': 'r-piece',
+                'ph-piece': 'n-piece',
+                'pm-piece': 'b-piece',
+                'pp-piece': 'c-piece',
+            },
+        },
+
+    }),
+
     empire: variant({
         name: "empire", tooltip: _("Asymmetric variant where one army has pieces that move like queens but capture as usual."),
         startFen: "rnbqkbnr/pppppppp/8/8/8/PPPSSPPP/8/TECDKCET w kq - 0 1",
@@ -777,6 +828,17 @@ export const VARIANTS: Record<string, Variant> = {
         pieceRow: { white: ["k", "q", "r", "b", "n", "p"], black: ["k", "g", "w", "l", "c", "h"] },
     }),
 
+    mansindam: variant({
+        name: "mansindam", tooltip: "Pantheon tale",
+        startFen: "rnbakqcnm/9/ppppppppp/9/9/9/PPPPPPPPP/9/MNCQKABNR[] w - - 0 1",
+        icon: "⛵",
+        boardFamily: "standard9x9", pieceFamily: "mansindam",
+        pieceRow: ["k", "r", "n", "b", "a", "q", "c", "m", "p"],
+        pocket: { roles: ["p", "n", "b", "r", "a", "q", "c", "m"], captureToHand: true },
+        promotion: { type: "shogi", roles: ["n", "b", "r", "c", "m", "p"] },
+        ui: { boardMark: 'campmate' },
+    }),
+
     // We support the functionality to import/store/analyze some variants
     // but don't want to add them to leaderboard page
     embassy: variant({
@@ -822,12 +884,26 @@ export const variants = Object.keys(VARIANTS);
 const disabledVariants = [ "gothic", "gothhouse", "embassy", "embassyhouse", "gorogoro" ];
 export const enabledVariants = variants.filter(v => !disabledVariants.includes(v));
 
+// variants having 0 puzzle so far
+export const noPuzzleVariants = [
+    "3check",
+    "placement",
+    "sittuyin",
+    "minishogi",
+    "gorogoroplus",
+    "manchu",
+    "minixiangqi",
+    "grandhouse",
+    "shinobi",
+    "shinobiplus",
+]
+
 export const variantGroups: { [ key: string ]: { variants: string[] } } = {
-    standard: { variants: [ "chess", "crazyhouse", "placement", "atomic", "duck" ] },
+    standard: { variants: [ "chess", "crazyhouse", "atomic", "kingofthehill", "3check", "placement", "duck" ] },
     sea:      { variants: [ "makruk", "makpong", "cambodian", "sittuyin", "asean" ] },
     shogi:    { variants: [ "shogi", "minishogi", "kyotoshogi", "dobutsu", "gorogoroplus", "torishogi" ] },
     xiangqi:  { variants: [ "xiangqi", "manchu", "janggi", "minixiangqi" ] },
-    fairy:    { variants: [ "capablanca", "capahouse", "seirawan", "shouse", "grand", "grandhouse", "shako", "shogun", "hoppelpoppel" ] },
+    fairy:    { variants: [ "capablanca", "capahouse", "seirawan", "shouse", "grand", "grandhouse", "shako", "shogun", "hoppelpoppel", "mansindam" ] },
     army:     { variants: [ "orda", "synochess", "shinobi", "empire", "ordamirror", "chak", "chennis", "spartan" ] },
 };
 
@@ -843,7 +919,7 @@ function variantGroupLabel(group: string): string {
     return groups[group];
 }
 
-export function selectVariant(id: string, selected: string, onChange: EventListener, hookInsert: InsertHook): VNode {
+export function selectVariant(id: string, selected: string, onChange: EventListener, hookInsert: InsertHook, disableds: string[] = []): VNode {
     return h('select#' + id, {
         props: { name: id },
         on: { change: onChange },
@@ -855,7 +931,7 @@ export function selectVariant(id: string, selected: string, onChange: EventListe
                 const variant = VARIANTS[v];
                 return h('option', {
                     props: { value: v, title: variant.tooltip },
-                    attrs: { selected: v === selected },
+                    attrs: { selected: v === selected, disabled: disableds.includes(variant.name) },
                 }, variant.displayName(false));
             }));
         }),

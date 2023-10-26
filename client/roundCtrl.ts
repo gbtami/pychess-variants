@@ -284,13 +284,14 @@ export class RoundController extends GameController {
                 buttons.push(h('div#undo'));
             }
             if (!this.tournamentGame) {
-                buttons.push(h('button#abort', { on: { click: () => this.abort() }, props: {title: _('Abort')} }, [h('i', {class: {"icon": true, "icon-abort": true} } ), ]));
+                buttons.push(this.buttonAbort());
             }
             buttons.push(h('button#count', _('Count')));
-            if (this.variant.rules.pass)
+            if (this.variant.rules.pass) {
                 buttons.push(h('button#draw', { on: { click: () => this.pass() }, props: { title: _('Pass') } }, _('Pass')));
-            else
+            } else if (!this.variant.rules.noDrawOffer) {
                 buttons.push(h('button#draw', { on: { click: () => this.draw() }, props: { title: _('Draw') } }, h('i', '½')));
+            }
             buttons.push(h('button#resign', { on: { click: () => this.resign() }, props: {title: _("Resign")} }, [h('i', {class: {"icon": true, "icon-flag-o": true} } ), ]));
             
             this.gameControls = patch(container, h('div.btn-controls', buttons));
@@ -311,6 +312,13 @@ export class RoundController extends GameController {
         patch(document.getElementById('roundchat') as HTMLElement, chatView(this, "roundchat"));
 
         this.onMsgBoard(model["board"] as MsgBoard);
+    }
+
+    toggleSettings() {
+    }
+
+    buttonAbort() {
+        return h('button#abort', { on: { click: () => this.abort() }, props: {title: _('Abort')} }, [h('i', {class: {"icon": true, "icon-abort": true} } ), ]);
     }
 
     toggleOrientation() {
@@ -373,7 +381,7 @@ export class RoundController extends GameController {
         patch(container, h(`div#berserk${clockIdx}.berserked`, [h('button.icon.icon-berserk')]));
     }
 
-    private undo = () => {
+    undo = () => {
         // console.log("Undo");
         this.goPly(this.ply);
     }
@@ -381,6 +389,10 @@ export class RoundController extends GameController {
     private abort = () => {
         // console.log("Abort");
         this.doSend({ type: "abort", gameId: this.gameId });
+    }
+
+    private takeback = () => {
+        this.doSend({ type: "takeback", gameId: this.gameId });
     }
 
     private draw = () => {
@@ -418,7 +430,8 @@ export class RoundController extends GameController {
 
     private resign = () => {
         // console.log("Resign");
-        if (confirm(_('Are you sure you want to resign?'))) {
+        const doResign = ( localStorage.getItem("confirmresign") === "false" ) || confirm(_('Are you sure you want to resign?')) 
+        if (doResign) {    
             this.doSend({ type: "resign", gameId: this.gameId });
         }
     }
@@ -635,6 +648,9 @@ export class RoundController extends GameController {
                                                                         // because of disconnect and then also opp's reply to it, that we didn't
                                                                         // receive while offline. Not sure if it could be ahead with more than 2 ply
         }
+
+        if (msg.takeback) latestPly = true;
+
         if (latestPly) this.ply = msg.ply;
 
         if (this.ply === 0) {
@@ -710,18 +726,30 @@ export class RoundController extends GameController {
         this.clockOn = Number(msg.ply) >= 2;
         if ((!this.spectator && this.clockOn) || this.tournamentGame) {
             const container = document.getElementById('abort') as HTMLElement;
-            if (container) patch(container, h('div'));
+            if (container) {
+                // No takeback for Duck chess, because it already has undo for first leg of moves
+                if ((this.wtitle === 'BOT' || this.btitle === 'BOT') && !this.variant.rules.duck) {
+                    patch(container, h('button#takeback', { on: { click: () => this.takeback() }, props: {title: _('Propose takeback')} }, [h('i', {class: {"icon": true, "icon-reply": true} } ), ]));
+                } else {
+                    patch(container, h('div'));
+                }
+            }
+        } else if (!this.spectator && !this.clockOn) {
+            const container = document.getElementById('takeback') as HTMLElement;
+            if (container) {
+                patch(container, this.buttonAbort());
+            }
         }
 
         const lastMove = uci2LastMove(msg.lastMove);
         const step = this.steps[this.steps.length - 1];
         const capture = !!lastMove && ((this.chessground.state.boardState.pieces.get(lastMove[1] as cg.Key) && step.san?.slice(0, 2) !== 'O-') || (step.san?.slice(1, 2) === 'x'));
 
-        if (lastMove && (this.turnColor === this.mycolor || this.spectator)) {
+        if (msg.steps.length === 1 && lastMove && (this.turnColor === this.mycolor || this.spectator)) {
             if (!this.finishedGame) sound.moveSound(this.variant, capture);
         }
         this.checkStatus(msg);
-        if (!this.spectator && msg.check && !this.finishedGame) {
+        if (msg.steps.length === 1 && !this.spectator && msg.check && !this.finishedGame) {
             sound.check();
         }
 
@@ -761,7 +789,6 @@ export class RoundController extends GameController {
             this.clocks[bclock].increment = 0;
             if (msg.ply <= 2) this.clocks[bclock].setTime(this.base * 1000 * 30);
         }
-
         if (this.spectator) {
             if (latestPly) {
                 this.chessground.set({
@@ -919,8 +946,8 @@ export class RoundController extends GameController {
 
     private renderExpiration = () => {
         // We return sooner in case the client belongs to a spectator or the 
-        // game is casual as casual games can't expire.
-        if (this.spectator || this.rated === "0") return;
+        // game is non tournament game.
+        if (this.spectator || !this.tournamentGame) return;
         let position = (this.turnColor === this.mycolor) ? "bottom": "top";
         if (this.flipped()) position = (position === "top") ? "bottom" : "top";
         let expi = (position === 'top') ? 0 : 1;

@@ -1,0 +1,62 @@
+.chak .cg-wrap piece.s-piece.white {
+    background-image: url('../../images/pieces/chak/maya/WS.svg');
+}
+.chak .cg-wrap piece.pk-piece.white {
+    background-image: url('../../images/pieces/chak/maya/WD.svg');
+}
+.chak .cg-wrap piece.j-piece.white {
+    background-image: url('../../images/pieces/chak/maya/WJ.svg');
+}
+.chak .cg-wrap piece.k-piece.white {
+    background-image: url('../../images/pieces/chak/maya/WK.svg');
+}
+.chak .cg-wrap piece.o-piece.white {
+    background-image: url('../../images/pieces/chak/maya/WO.svg');
+}
+.chak .cg-wrap piece.p-piece.white {
+    background-image: url('../../images/pieces/chak/maya/WP.svg');
+}
+
+.chak .cg-wrap piece.q-piece.white {
+    background-image: url('../../images/pieces/chak/maya/WQ.svg');
+}
+.chak .cg-wrap piece.r-piece.white {
+    background-image: url('../../images/pieces/chak/maya/WR.svg');
+}
+.chak .cg-wrap piece.v-piece.white {
+    background-image: url('../../images/pieces/chak/maya/WV.svg');
+}
+.chak .cg-wrap piece.pp-piece.white {
+    background-image: url('../../images/pieces/chak/maya/WW.svg');
+}
+
+.chak .cg-wrap piece.s-piece.black {
+    background-image: url('../../images/pieces/chak/maya/GS.svg');
+}
+.chak .cg-wrap piece.pk-piece.black {
+    background-image: url('../../images/pieces/chak/maya/GD.svg');
+}
+.chak .cg-wrap piece.j-piece.black {
+    background-image: url('../../images/pieces/chak/maya/GJ.svg');
+}
+.chak .cg-wrap piece.k-piece.black {
+    background-image: url('../../images/pieces/chak/maya/GK.svg');
+}
+.chak .cg-wrap piece.o-piece.black {
+    background-image: url('../../images/pieces/chak/maya/GO.svg');
+}
+.chak .cg-wrap piece.p-piece.black {
+    background-image: url('../../images/pieces/chak/maya/GP.svg');
+}
+.chak .cg-wrap piece.q-piece.black {
+    background-image: url('../../images/pieces/chak/maya/GQ.svg');
+}
+.chak .cg-wrap piece.r-piece.black {
+    background-image: url('../../images/pieces/chak/maya/GR.svg');
+}
+.chak .cg-wrap piece.v-piece.black {
+    background-image: url('../../images/pieces/chak/maya/GV.svg');
+}
+.chak .cg-wrap piece.pp-piece.black {
+    background-image: url('../../images/pieces/chak/maya/GW.svg');
+}

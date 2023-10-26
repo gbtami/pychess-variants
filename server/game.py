@@ -48,6 +48,14 @@ MAX_HIGH_SCORE = 10
 MAX_PLY = 600
 KEEP_TIME = 1800  # keep game in app["games"] for KEEP_TIME secs
 
+INVALID_PAWN_DROP_MATE = (
+    ("P@", "shogi"),
+    ("P@", "minishogi"),
+    ("P@", "gorogoro"),
+    ("P@", "gorogoroplus"),
+    ("S@", "torishogi"),
+)
+
 
 class Game:
     def __init__(
@@ -143,6 +151,17 @@ class Game:
 
         self.id = gameId
 
+        self.n_fold_is_draw = self.variant in (
+            "makruk",
+            "makpong",
+            "cambodian",
+            "shogi",
+            "dobutsu",
+            "gorogoro",
+            "gorogoroplus",
+            "kyotoshogi",
+        )
+        self.has_counting = self.variant in ("makruk", "makpong", "cambodian", "sittuyin", "asean")
         # Makruk manual counting
         use_manual_counting = self.variant in ("makruk", "makpong", "cambodian")
         self.manual_count = use_manual_counting and not self.bot_game
@@ -193,9 +212,11 @@ class Game:
 
         # Janggi setup needed when player is not BOT
         if self.variant == "janggi":
+            # Janggi custom start position -> no setup phase
             if self.initial_fen:
                 self.bsetup = False
                 self.wsetup = False
+                self.status = STARTED
             else:
                 # Red (the second player) have to choose the starting positions of the horses and elephants
                 self.bsetup = not self.bplayer.bot
@@ -387,6 +408,9 @@ class Game:
             # Keep it in our games dict a little to let players get the last board
             # not to mention that BOT players want to abort games after 20 sec inactivity
             await asyncio.sleep(keep_time)
+
+            if self.id == self.app["tv"]:
+                self.app["tv"] = None
 
             try:
                 del self.games[self.id]
@@ -649,30 +673,23 @@ class Game:
 
                 # Pawn drop mate
                 # TODO: remove this when https://github.com/ianfab/Fairy-Stockfish/issues/48 resolves
-                if self.board.move_stack[-1][1] == "@":
-                    if (
-                        self.board.move_stack[-1][0] == "P"
-                        and self.variant
-                        in (
-                            "shogi",
-                            "minishogi",
-                            "gorogoro",
-                            "gorogoroplus",
-                        )
-                    ) or (self.board.move_stack[-1][0] == "S" and self.variant == "torishogi"):
-                        self.status = INVALIDMOVE
+                if (self.board.move_stack[-1][0:2], self.variant) in INVALID_PAWN_DROP_MATE:
+                    self.status = INVALIDMOVE
             else:
                 self.status = STALEMATE
 
         else:
             # end the game by 50 move rule and repetition automatically
-            # for non-draw results and bot games
             is_game_end, game_result_value = self.board.is_optional_game_end()
-            if is_game_end and (game_result_value != 0 or (self.wplayer.bot or self.bplayer.bot)):
+            if is_game_end and (
+                game_result_value != 0
+                or (game_result_value == 0 and self.n_fold_is_draw)
+                or (self.wplayer.bot or self.bplayer.bot)
+            ):
                 self.result = result_string_from_value(self.board.color, game_result_value)
                 self.status = CLAIM if game_result_value != 0 else DRAW
 
-        if self.variant in ("makruk", "makpong", "cambodian", "sittuyin", "asean"):
+        if self.has_counting:
             parts = self.board.fen.split()
             if parts[3].isdigit():
                 counting_limit = int(parts[3])
@@ -823,7 +840,7 @@ class Game:
         }
 
     async def game_ended(self, user, reason):
-        """Abort, resign, flag, abandone"""
+        """Abort, resign, flag, abandon"""
         if self.result == "*":
             if reason == "abort":
                 result = "*"
@@ -849,6 +866,7 @@ class Game:
                     result = "0-1" if user.username == self.wplayer.username else "1-0"
 
             self.update_status(LOSERS[reason], result)
+            log.debug("%s game_ended(%s, %s) %s", self.id, user.username, reason, result)
             await self.save_game()
 
         return {
@@ -947,3 +965,39 @@ class Game:
             "color": color,
             "result": self.result,
         }
+
+    @property
+    def tv_game_json(self):
+        return {
+            "type": "tv_game",
+            "gameId": self.id,
+            "variant": self.variant,
+            "fen": self.board.fen,
+            "wt": self.wplayer.title,
+            "bt": self.bplayer.title,
+            "w": self.wplayer.username,
+            "b": self.bplayer.username,
+            "wr": self.wrating,
+            "br": self.brating,
+            "chess960": self.chess960,
+            "base": self.base,
+            "inc": self.inc,
+            "byoyomi": self.byoyomi_period,
+            "lastMove": self.lastmove,
+        }
+
+    def takeback(self):
+        if self.bot_game and self.board.ply >= 2:
+            cur_player = self.bplayer if self.board.color == BLACK else self.wplayer
+
+            self.board.pop()
+            self.ply_clocks.pop()
+            self.steps.pop()
+
+            if not cur_player.bot:
+                self.board.pop()
+                self.ply_clocks.pop()
+                self.steps.pop()
+
+            self.legal_moves = self.board.legal_moves()
+            self.lastmove = self.board.move_stack[-1] if self.board.move_stack else None

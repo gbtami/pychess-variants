@@ -38,6 +38,7 @@ LANGUAGES = [
     "ru",
     "th",
     "tr",
+    "vi",
     "zh_CN",
     "zh_TW",
 ]
@@ -59,7 +60,7 @@ CASUAL, RATED, IMPORTED = 0, 1, 2
     TIMEOUT,
     DRAW,
     FLAG,
-    ABANDONE,
+    ABANDON,
     CHEAT,
     BYEGAME,
     INVALIDMOVE,
@@ -69,7 +70,7 @@ CASUAL, RATED, IMPORTED = 0, 1, 2
 ) = range(-2, 14)
 
 LOSERS = {
-    "abandone": ABANDONE,
+    "abandon": ABANDON,
     "abort": ABORTED,
     "resign": RESIGN,
     "flag": FLAG,
@@ -84,9 +85,13 @@ VARIANTS = (
     "chess960",
     "crazyhouse",
     "crazyhouse960",
-    "placement",
     "atomic",
     "atomic960",
+    "kingofthehill",
+    "kingofthehill960",
+    "3check",
+    "3check960",
+    "placement",
     "duck",
     "makruk",
     "makpong",
@@ -122,9 +127,11 @@ VARIANTS = (
     "shogun",
     "shako",
     "hoppelpoppel",
+    "mansindam",
     "orda",
     "synochess",
     "shinobi",
+    # "shinobiplus",
     "empire",
     "ordamirror",
     "chak",
@@ -174,13 +181,19 @@ VARIANT_ICONS = {
     "atomic": "~",
     "atomic960": "\\",
     "shinobi": "🐢",
+    "shinobiplus": "🐢",
     "empire": "♚",
     "ordamirror": "◩",
     "asean": "♻",
     "chak": "🐬",
     "chennis": "🎾",
+    "mansindam": "⛵",
     "duck": "🦆",
     "spartan": "⍺",
+    "kingofthehill": "🏴",
+    "kingofthehill960": "🏁",
+    "3check": "☰",
+    "3check960": "☷",
 }
 
 VARIANT_960_TO_PGN = {
@@ -189,6 +202,8 @@ VARIANT_960_TO_PGN = {
     "capahouse": "Capahouse960",
     "crazyhouse": "Crazyhouse",  # to let lichess import work
     "atomic": "Atomic",  # to let lichess import work
+    "kingofthehill": "King of the Hill",  # to let lichess import work
+    "3check": "Three-check",  # to let lichess import work
     "seirawan": "Seirawan960",
     # some early game is accidentally saved as 960 in mongodb
     "shogi": "Shogi",
@@ -207,6 +222,10 @@ CATEGORIES = {
         "placement",
         "atomic",
         "atomic960",
+        "kingofthehill",
+        "kingofthehill960",
+        "3check",
+        "3check960",
         "duck",
     ),
     "fairy": (
@@ -222,8 +241,19 @@ CATEGORIES = {
         "shako",
         "shogun",
         "hoppelpoppel",
+        "mansindam",
     ),
-    "army": ("orda", "synochess", "shinobi", "empire", "ordamirror", "chak", "chennis", "spartan"),
+    "army": (
+        "orda",
+        "synochess",
+        "shinobi",
+        "empire",
+        "ordamirror",
+        "chak",
+        "chennis",
+        "shinobiplus",
+        "spartan",
+    ),
     "makruk": ("makruk", "makpong", "cambodian", "sittuyin", "asean"),
     "shogi": (
         "shogi",
@@ -272,6 +302,10 @@ def variant_display_name(variant):
         return "TORI SHOGI"
     elif variant == "duck":
         return "DUCK CHESS"
+    elif variant == "kingofthehill":
+        return "KING OF THE HILL"
+    elif variant == "3check":
+        return " THREE-CHECK"
     else:
         return variant.upper()
 
@@ -346,11 +380,17 @@ TRANSLATED_VARIANT_NAMES = {
     "orda": _("Orda Chess"),
     "synochess": _("Synochess"),
     "shinobi": _("Shinobi"),
+    "shinobiplus": _("Shinobi+"),
     "empire": _("Empire"),
     "ordamirror": _("Orda Mirror"),
     "chak": _("Chak"),
     "chennis": _("Chennis"),
     "spartan": _("Spartan"),
+    "kingofthehill": _("King of the Hill"),
+    "kingofthehill960": _("King of the Hill 960"),
+    "3check": _("Three check"),
+    "3check960": _("Three check 960"),
+    "mansindam": _("Mansindam"),
 }
 
 del _

@@ -120,8 +120,8 @@ async def round_socket_handler(request):
                             if user.username == game.bplayer.username
                             else game.bplayer.username
                         )
-                        opp_player = users[opp_name]
-                        if opp_player.bot:
+                        opp_player = users.get(opp_name)
+                        if opp_player is not None and opp_player.bot:
                             # Janggi game start have to wait for human player setup!
                             if game.variant != "janggi" or not (game.bsetup or game.wsetup):
                                 await opp_player.event_queue.put(game.game_start)
@@ -416,7 +416,13 @@ async def round_socket_handler(request):
                         game.byoyomi_periods[data["color"]] = data["period"]
                         # print("BYOYOMI:", data)
 
-                    elif data["type"] in ("abort", "resign", "abandone", "flag"):
+                    elif data["type"] == "takeback":
+                        game.takeback()
+                        board_response = game.get_board(full=True)
+                        board_response["takeback"] = True
+                        await ws.send_json(board_response)
+
+                    elif data["type"] in ("abort", "resign", "abandon", "flag"):
                         if data["type"] == "abort" and (game is not None) and game.board.ply > 2:
                             continue
 
@@ -513,8 +519,8 @@ async def round_socket_handler(request):
                             game.status <= STARTED
                             and user.username in (game.wplayer.username, game.bplayer.username)
                         ):
-                            await game.wplayer.clear_seeks(force=True)
-                            await game.bplayer.clear_seeks(force=True)
+                            await game.wplayer.clear_seeks()
+                            await game.bplayer.clear_seeks()
 
                         if user.username not in (
                             game.wplayer.username,
@@ -531,6 +537,9 @@ async def round_socket_handler(request):
                             "firstmovetime": game.stopwatch.secs,
                         }
                         await ws.send_json(response)
+
+                        if user.abandon_game_task is not None:
+                            user.abandon_game_task.cancel()
 
                         response = {"type": "fullchat", "lines": list(game.messages)}
                         await ws.send_json(response)
@@ -739,7 +748,9 @@ async def round_socket_handler(request):
                 del user.game_sockets[game.id]
                 user.update_online()
 
-            if user.username not in (game.wplayer.username, game.bplayer.username):
+            if user in (game.wplayer, game.bplayer):
+                user.abandon_game_task = asyncio.create_task(user.abandon_game(game))
+            else:
                 game.spectators.discard(user)
                 await round_broadcast(game, game.spectator_list, full=True)
 

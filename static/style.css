@@ -39,6 +39,27 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+.icon-mansindam:before {
+  content: "\26f5";
+}
+.icon-check960:before {
+  content: "\2637";
+}
+.icon-check1:before {
+  content: "\2630";
+}
+.icon-koth960:before {
+  content: "\1f3c1";
+}
+.icon-koth:before {
+  content: "\1f3f4";
+}
+.icon-Bughouse960:before {
+  content: "\2300";
+}
+.icon-Bughouse:before {
+  content: "\a2";
+}
 .icon-spartan:before {
   content: "\237a";
 }
@@ -374,4 +395,10 @@
 }
 .icon-pause:before {
   content: "\ea1d";
+}
+.icon-arrow-up-right:before {
+  content: "\2b08";
+}
+.icon-arrow-down-right:before {
+  content: "\2b0a";
 }

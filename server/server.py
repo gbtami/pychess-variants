@@ -17,9 +17,11 @@ else:
 
 import jinja2
 from aiohttp import web
+from aiohttp.log import access_logger
 from aiohttp.web_app import Application
 from aiohttp_session.cookie_storage import EncryptedCookieStorage
 from aiohttp_session import setup
+from aiohttp_remotes import Secure
 from motor import motor_asyncio as ma
 from sortedcollections import ValueSortedDict
 from pythongettext.msgfmt import Msgfmt
@@ -45,7 +47,6 @@ from generate_crosstable import generate_crosstable
 from generate_highscore import generate_highscore
 from generate_shield import generate_shield
 from glicko2.glicko2 import DEFAULT_PERF
-from index import handle_404
 from routes import get_routes, post_routes
 from settings import (
     DEV,
@@ -57,6 +58,9 @@ from settings import (
     FISHNET_KEYS,
     URI,
     static_url,
+    STATIC_ROOT,
+    BR_EXTENSION,
+    SOURCE_VERSION,
 )
 from user import User
 from tournaments import load_tournament, get_scheduled_tournaments, translated_tournament_name
@@ -77,6 +81,27 @@ log = logging.getLogger(__name__)
 
 if platform not in ("win32", "darwin"):
     asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
+
+
+@web.middleware
+async def handle_404(request, handler):
+    try:
+        return await handler(request)
+    except web.HTTPException as ex:
+        if ex.status == 404:
+            template = request.app["jinja"]["en"].get_template("404.html")
+            text = await template.render_async(
+                {
+                    "dev": DEV,
+                    "home": URI,
+                    "view_css": "404.css",
+                    "asseturl": STATIC_ROOT,
+                    "js": "/static/pychess-variants.js%s%s" % (BR_EXTENSION, SOURCE_VERSION),
+                }
+            )
+            return web.Response(text=text, content_type="text/html")
+        else:
+            raise
 
 
 async def on_prepare(request, response):
@@ -104,6 +129,11 @@ async def on_prepare(request, response):
 
 def make_app(with_db=True) -> Application:
     app = web.Application()
+    if False:  # URI.startswith("https"):
+        secure = Secure()  # redirect_url=URI)
+        app.on_response_prepare.append(secure.on_response_prepare)
+        app.middlewares.append(secure.middleware)
+
     parts = urlparse(URI)
     setup(
         app,
@@ -146,6 +176,7 @@ async def init_state(app):
         app["db"] = None
 
     app["users"] = {
+        "PyChess": User(app, bot=True, username="PyChess"),
         "Random-Mover": User(app, bot=True, username="Random-Mover"),
         "Fairy-Stockfish": User(app, bot=True, username="Fairy-Stockfish"),
         "Discord-Relay": User(app, anon=True, username="Discord-Relay"),
@@ -163,6 +194,7 @@ async def init_state(app):
     app["tournaments"] = {}
 
     # lichess allows 7 team message per week, so we will send one (comulative) per day only
+    # TODO: save/restore from db
     app["sent_lichess_team_msg"] = []
 
     # one deque per tournament! {tournamentId: collections.deque([], MAX_CHAT_LINES), ...}
@@ -177,7 +209,9 @@ async def init_state(app):
     app["crosstable"] = {}
     app["shield"] = {}
     app["shield_owners"] = {}  # {variant: username, ...}
+    app["daily_puzzle_ids"] = {}  # {date: puzzle._id, ...}
 
+    # TODO: save/restore monthly stats from db when current month is over
     app["stats"] = {}
     app["stats_humans"] = {}
 
@@ -282,9 +316,8 @@ async def init_state(app):
         cursor = app["db"].user.find()
         async for doc in cursor:
             if doc["_id"] not in app["users"]:
-                perfs = doc.get("perfs")
-                if perfs is None:
-                    perfs = {variant: DEFAULT_PERF for variant in VARIANTS}
+                perfs = doc.get("perfs", {variant: DEFAULT_PERF for variant in VARIANTS})
+                pperfs = doc.get("pperfs", {variant: DEFAULT_PERF for variant in VARIANTS})
 
                 app["users"][doc["_id"]] = User(
                     app,
@@ -292,8 +325,10 @@ async def init_state(app):
                     title=doc.get("title"),
                     bot=doc.get("title") == "BOT",
                     perfs=perfs,
+                    pperfs=pperfs,
                     enabled=doc.get("enabled", True),
                     lang=doc.get("lang", "en"),
+                    theme=doc.get("theme", "dark"),
                 )
 
         await app["db"].tournament.create_index("startsAt")
@@ -327,6 +362,14 @@ async def init_state(app):
         cursor = app["db"].crosstable.find()
         async for doc in cursor:
             app["crosstable"][doc["_id"]] = doc
+
+        if "dailypuzzle" not in db_collections:
+            await app["db"].create_collection("dailypuzzle", capped=True, size=50000, max=365)
+        else:
+            cursor = app["db"].dailypuzzle.find()
+            docs = await cursor.to_list(length=365)
+            app["daily_puzzle_ids"] = {doc["_id"]: doc["puzzleId"] for doc in docs}
+        print(app["daily_puzzle_ids"])
 
         await app["db"].game.create_index("us")
         await app["db"].game.create_index("v")
@@ -375,9 +418,9 @@ async def shutdown(app):
 
     # abort games
     for game in list(app["games"].values()):
-        for player in (game.wplayer, game.bplayer):
-            if game.status <= STARTED:
-                response = await game.abort()
+        if game.status <= STARTED:
+            response = await game.abort()
+            for player in (game.wplayer, game.bplayer):
                 if not player.bot and game.id in player.game_sockets:
                     ws = player.game_sockets[game.id]
                     try:
@@ -423,4 +466,6 @@ if __name__ == "__main__":
 
     app = make_app()
 
-    web.run_app(app, port=int(os.environ.get("PORT", 8080)))
+    web.run_app(
+        app, access_log=None if args.w else access_logger, port=int(os.environ.get("PORT", 8080))
+    )
