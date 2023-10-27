@@ -14,6 +14,5 @@ Disallow: /level8win/
 Disallow: /tournament/
 Disallow: /tournaments/
 Disallow: /calendar/
-User-agent: bingbot
-Disallow: /
+Crawl-delay: 30
 """
