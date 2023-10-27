@@ -149,6 +149,10 @@ async def load_game(app, game_id):
     elif variant in GRANDS:
         mlist = map(zero2grand, mlist)
 
+        if variant == "janggi":
+            game.wsetup = doc.get("ws", False)
+            game.bsetup = doc.get("bs", False)
+
     if "a" in doc:
         if usi_format and "m" in doc["a"][0]:
             doc["a"][0]["m"] = mirror(usi2uci(doc["a"][0]["m"]))
@@ -557,6 +561,10 @@ async def insert_game_to_db(game, app):
         "gorogoroplus",
     ):
         document["uci"] = 1
+
+    if game.variant == "janggi":
+        document["ws"] = game.wsetup
+        document["bs"] = game.bsetup
 
     result = await app["db"].game.insert_one(document)
     if not result:

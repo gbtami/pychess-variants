@@ -260,6 +260,7 @@ class Game:
             }
         ]
 
+        self.last_move_date = None
         if self.rated == CORRESPONDENCE:
             self.stopwatch = CorrClock(self)
         else:
@@ -403,6 +404,19 @@ class Game:
                 else self.board.move_stack,
                 self.variant,
             ),
+        }
+        if self.db is not None:
+            await self.db.game.find_one_and_update({"_id": self.id}, {"$set": new_data})
+
+    async def save_setup(self):
+        """ Used by Janggi prelude phase """
+        new_data = {
+            "f": self.board.fen,
+            "l": datetime.now(timezone.utc),
+            "s": self.status,
+            "if": self.board.fen,
+            "ws": self.wsetup,
+            "bs": self.bsetup,
         }
         if self.db is not None:
             await self.db.game.find_one_and_update({"_id": self.id}, {"$set": new_data})
