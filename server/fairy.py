@@ -98,6 +98,7 @@ class FairyBoard:
 
     def push(self, move):
         try:
+            log.info("1. move= %s, fen= %s", move, self.fen, stack_info=True)
             self.move_stack.append(move)
             self.ply += 1
             self.color = not self.color
@@ -110,7 +111,7 @@ class FairyBoard:
                 self.show_promoted,
                 self.count_started,
             )
-            log.info("move= %s, fen= %s", move, self.fen)
+            log.info("2. move= %s, fen= %s", move, self.fen)
         except Exception:
             self.pop()
             log.error(

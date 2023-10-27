@@ -9,42 +9,43 @@ log = logging.getLogger(__name__)
 
 async def handle_reconnect_bughouse(data, game, user, request, session_user):
     log.info("Got RECONNECT message %s %r" % (user.username, data))
-    dataA = data.get("lastMaybeSentMsgMoveA")
-    dataB = data.get("lastMaybeSentMsgMoveB")
+    movesQueued = data.get("movesQueued")
+    # dataA = data.get("lastMaybeSentMsgMoveA")
+    # dataB = data.get("lastMaybeSentMsgMoveB")
     async with game.move_lock:
-        if dataA != None:
+        if movesQueued is not None and len(movesQueued) > 0:
             try:
                 await play_move(
                     request.app,
                     user,
                     game,
-                    dataA["move"],
-                    dataA["clocks"],
-                    dataA["board"],
-                    dataA["partnerFen"],
+                    movesQueued[0]["move"],
+                    movesQueued[0]["clocks"],
+                    movesQueued[0]["board"],
+                    movesQueued[0]["partnerFen"],
                 )
             except Exception:
                 log.exception(
                     "ERROR: Exception in play_move() in %s by %s ",
-                    dataA["gameId"],
+                    movesQueued[0]["gameId"],
                     session_user,
                 )
         ####
-        if dataB != None:
+        if movesQueued is not None and len(movesQueued) > 1:
             try:
                 await play_move(
                     request.app,
                     user,
                     game,
-                    dataB["move"],
-                    dataB["clocks"],
-                    dataB["board"],
-                    dataB["partnerFen"],
+                    movesQueued[1]["move"],
+                    movesQueued[1]["clocks"],
+                    movesQueued[1]["board"],
+                    movesQueued[1]["partnerFen"],
                 )
             except Exception:
                 log.exception(
                     "ERROR: Exception in play_move() in %s by %s ",
-                    dataB["gameId"],
+                    movesQueued[1]["gameId"],
                     session_user,
                 )
 

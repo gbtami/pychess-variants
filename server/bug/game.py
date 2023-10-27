@@ -291,6 +291,8 @@ class GameBug:
         if self.status <= STARTED:
             try:
                 partnerBoard = "a" if board == "b" else "b"
+                log.info("partnerFen: %s", partnerFen)
+                log.info("self.boards[partnerBoard].fen: %s", self.boards[partnerBoard].fen)
                 self.boards[partnerBoard].fen = partnerFen # todo:niki: temporary shortcut that i feel is not secure - ideally this should be generated on server primarily (and only?)
 
                 san = self.boards[board].get_san(move)

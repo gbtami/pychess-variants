@@ -153,6 +153,8 @@ export class RoundControllerBughouse implements ChatController/*extends GameCont
         window.addEventListener('blur', () => {this.focus = false});
         window.addEventListener('focus', () => {this.focus = true});
 //
+        this.sock = newWebsocket('wsr');
+
         const onOpen = () => {
             console.log('onOpen');
 
@@ -169,7 +171,8 @@ export class RoundControllerBughouse implements ChatController/*extends GameCont
             this.clocksB[1].connecting = false;
 
             const cl = document.body.classList; // removing the "reconnecting" message in lower left corner
-            cl.remove('offline');
+            cl.remove('offline-close');
+            cl.remove('offline-ping-timeout');
             cl.add('online');
 
             this.doSend({ type: "game_user_connected", username: this.username, gameId: this.gameId });
@@ -190,26 +193,59 @@ export class RoundControllerBughouse implements ChatController/*extends GameCont
             this.clocksB[0].connecting = true;
             this.clocksB[1].connecting = true;
             // relevant to the "reconnecting" message in lower left corner
-            document.body.classList.add('offline');
+            document.body.classList.add('offline-close');
             document.body.classList.remove('online');
         };
 
-        const onError = () => {
-            console.log("onError");
+        const onError = (e) => {
+            console.error("onError", e);
+            document.body.classList.remove('offline-creating-socket');
+            document.body.classList.remove('online');
+            document.body.classList.add('offline-socket-error');
+            document.getElementById("reconnecting-ts").setAttribute("timestamp", new Date(new Date().getTime() + this.sock.opts.reconnectTimeout).toISOString());
         }
 
-        this.sock = newWebsocket('wsr');
+        //
         const f = this.sock.ws.onclose;
         this.sock.ws.onclose = (e) => { console.log("onclose1"); f(e); console.log("onclose2");}
+        //
         const f1 = this.sock.ws.close.bind(this.sock.ws); //todo:niki:mainly for debug purposes to understand howit works for now. could put logic for the red popup here eventually, because at least when browser trottle is set to offline it never triggers onclose until actually disable trottle back - not sure if same in normal disconnect
-        this.sock.ws.close = () => { console.log("close() 1"); f1(); console.log("close() 2");}
-
-        this.sock.forbidReconnect = false;
+        this.sock.ws.close = () => {
+            console.log("close() 1");
+            document.body.classList.add('offline-ping-timeout');
+            document.body.classList.remove('online');
+            f1();
+            console.log("close() 2");
+        };
+        //
+        const f2 = this.sock.reconnect.bind(this.sock);
+        this.sock.reconnect = () => {
+            document.body.classList.add('offline-reconnecting-in');
+            document.body.classList.remove('offline-ping-timeout');
+            document.body.classList.remove('online');
+            document.body.classList.remove('offline-socket-error');
+            document.body.classList.remove('offline-creating-socket');
+            document.body.classList.remove('offline-close');
+            f2();
+        };
+        //
+        const f3 = this.sock.createWebSocket.bind(this.sock);
+        this.sock.createWebSocket = () => {
+            document.getElementById("reconnecting-ts").setAttribute("timestamp", "");
+            document.body.classList.add('offline-creating-socket');
+            document.body.classList.remove('offline-reconnecting-in');
+            document.body.classList.remove('online');
+            document.body.classList.remove('offline-ping-timeout');
+            document.body.classList.remove('offline-socket-error');
+            document.body.classList.remove('offline-close');
+            f3();
+        };
+        //this.sock.forbidReconnect = false;
         this.sock.onopen = () => onOpen();
         this.sock.onreconnect = () => onReconnect();
         this.sock.onclose = () => onClose();
         this.sock.onmessage = (e: MessageEvent) => this.onMessage(e);
-        this.sock.onerror = () => onError(e);
+        this.sock.onerror = (e) => onError(e);
 //
         this.finishedGame = this.status >= 0;
         this.tv = model["tv"];
@@ -405,7 +441,8 @@ export class RoundControllerBughouse implements ChatController/*extends GameCont
 
         this.msgMovesAfterReconnect = {
             type: "reconnect",
-            gameId: this.gameId
+            gameId: this.gameId,
+            movesQueued: [],
         }
     }
 
@@ -498,11 +535,17 @@ export class RoundControllerBughouse implements ChatController/*extends GameCont
 
         const msgClocks = {movetime: (b.preaction) ? 0 : movetime, black: bclocktime, white: wclocktime};
 
-        const moveMsg = { type: "move", gameId: this.gameId, move: move, clocks: msgClocks, ply: this.ply + 1, board: b.boardName, partnerFen: b.partnerCC.fullfen };
+        const moveMsg = { type: "move",
+                          gameId: this.gameId,
+                          move: move,
+                          clocks: msgClocks,
+                          ply: this.ply + 1,
+                          board: b.boardName,
+                          partnerFen: b.partnerCC.fullfen/*b.partnerCC.chessground.getFen()*//*b.partnerCC.fullfen this might not be up-to-date in simul mode if disconnect happened and move was made but not sent+received+model_updated so we use chessground*/ };
         if (b.boardName === "a") {
-            this.msgMovesAfterReconnect.lastMaybeSentMsgMoveA = moveMsg;
+            this.msgMovesAfterReconnect.movesQueued[0] = this.msgMovesAfterReconnect.movesQueued[1];
         } else {
-            this.msgMovesAfterReconnect.lastMaybeSentMsgMoveB = moveMsg;
+            this.msgMovesAfterReconnect.movesQueued[1] = moveMsg;
         }
         this.doSend(moveMsg as JSONObject);
 

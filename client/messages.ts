@@ -147,7 +147,6 @@ export type MsgMove = { // cannot be interface because canot be converted to an 
 export type MsgMovesAfterReconnect = {
     type: string;//"reconnect"
     gameId: string;
-
-    lastMaybeSentMsgMoveA?: MsgMove;
-    lastMaybeSentMsgMoveB?: MsgMove;
+    movesQueued: MsgMove[]; // in case of simul we might have 2 moves queued
+    // lastMaybeSentMsgMoveB?: MsgMove;
 }
