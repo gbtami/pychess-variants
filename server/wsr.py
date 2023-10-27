@@ -209,6 +209,8 @@ async def round_socket_handler(request):
                                 opp_ws = users[opp_name].game_sockets[data["gameId"]]
                                 await opp_ws.send_json(response)
 
+                        await game.save_setup()
+
                         if opp_player.bot:
                             await opp_player.event_queue.put(game.game_start)
 

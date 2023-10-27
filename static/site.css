@@ -2373,7 +2373,8 @@ games-grid {
     grid-template-columns: repeat(auto-fill, minmax(var(--auto-grid-min-size), 1fr));
 }
 games-grid div {
-    padding: 0.3em;
+    padding-left: 0.3em;
+    padding-right: 0.3em;
 }
 div[role=tabpanel] {
     height: var(--panel-height);
