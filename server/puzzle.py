@@ -135,7 +135,10 @@ async def puzzle_complete(request):
 
     users = request.app["users"]
     session = await aiohttp_session.get_session(request)
-    user = users[session.get("user_name")]
+    try:
+        user = users[session.get("user_name")]
+    except KeyError:
+        return web.json_response({})
 
     if puzzleId in user.puzzles:
         return web.json_response({})
@@ -175,7 +178,10 @@ async def puzzle_vote(request):
 
     users = request.app["users"]
     session = await aiohttp_session.get_session(request)
-    user = users[session.get("user_name")]
+    try:
+        user = users[session.get("user_name")]
+    except KeyError:
+        return web.json_response({})
 
     if user.puzzles.get("puzzleId"):
         return web.json_response({})
