@@ -1,4 +1,6 @@
-ROBOTS_TXT = """User-agent: *
+ROBOTS_TXT = """User-agent: PetalBot
+Disallow: /
+User-agent: *
 Disallow: /@/
 Disallow: /tv/
 Disallow: /api/
