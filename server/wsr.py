@@ -164,6 +164,19 @@ async def round_socket_handler(request):
                             board_response = game.get_board(full=True)
                             await ws.send_json(board_response)
 
+                        if (
+                            game.rated == CORRESPONDENCE
+                            and game.status <= STARTED
+                            and len(game.draw_offers) > 0
+                        ):
+                            offerer = (
+                                game.wplayer.username
+                                if game.wplayer.username in game.draw_offers
+                                else game.bplayer.username
+                            )
+                            response = await draw(game, offerer)
+                            await ws.send_json(response)
+
                     elif data["type"] == "setup":
                         # Janggi game starts with a prelude phase to set up horses and elephants
                         # First the second player (Red) choses his setup! Then the first player (Blue)
@@ -403,12 +416,7 @@ async def round_socket_handler(request):
                         await round_broadcast(game, response)
 
                     elif data["type"] == "reject_draw":
-                        color = WHITE if user.username == game.wplayer.username else BLACK
-                        opp_name = (
-                            game.wplayer.username if color == BLACK else game.bplayer.username
-                        )
-
-                        response = reject_draw(game, opp_name)
+                        response = await reject_draw(game)
                         if response is not None:
                             await round_broadcast(game, response, full=True)
 

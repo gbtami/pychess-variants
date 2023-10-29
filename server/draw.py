@@ -1,4 +1,4 @@
-from const import DRAW, RATED, STARTED
+from const import DRAW, RATED, STARTED, CORRESPONDENCE
 
 
 async def draw(game, username, agreement=False):
@@ -26,17 +26,34 @@ async def draw(game, username, agreement=False):
             "room": "player",
             "user": "",
         }
+
         game.messages.append(response)
+
+        await save_draw_offer(game)
 
     return response
 
 
-def reject_draw(game, opp_name):
+async def reject_draw(game):
     response = None
 
     if game.board.count_started <= 0:  # Don't send reject_draw message for Makruk BHC
-        if opp_name in game.draw_offers:
-            game.draw_offers.discard(opp_name)
-            response = {"type": "draw_rejected", "message": "Draw offer rejected"}
+        game.draw_offers.clear()
+        response = {"type": "draw_rejected", "message": "Draw offer rejected"}
+
+        await save_draw_offer(game)
 
     return response
+
+
+async def save_draw_offer(game):
+    if game.rated == CORRESPONDENCE and game.db is not None:
+        await game.db.game.find_one_and_update(
+            {"_id": game.id},
+            {
+                "$set": {
+                    "wd": game.wplayer.username in game.draw_offers,
+                    "bd": game.bplayer.username in game.draw_offers,
+                }
+            },
+        )

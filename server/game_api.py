@@ -281,36 +281,36 @@ async def cancel_invite(request):
 
 
 async def subscribe_invites(request):
-    async with sse_response(request) as response:
-        app = request.app
-        queue = asyncio.Queue()
-        app["invite_channels"].add(queue)
-        try:
+    try:
+        async with sse_response(request) as response:
+            app = request.app
+            queue = asyncio.Queue()
+            app["invite_channels"].add(queue)
             while not response.task.done():
                 payload = await queue.get()
                 await response.send(payload)
                 queue.task_done()
-        except ConnectionResetError:
-            pass
-        finally:
-            app["invite_channels"].remove(queue)
+    except ConnectionResetError:
+        pass
+    finally:
+        app["invite_channels"].remove(queue)
     return response
 
 
 async def subscribe_games(request):
-    async with sse_response(request) as response:
-        app = request.app
-        queue = asyncio.Queue()
-        app["game_channels"].add(queue)
-        try:
+    try:
+        async with sse_response(request) as response:
+            app = request.app
+            queue = asyncio.Queue()
+            app["game_channels"].add(queue)
             while not response.task.done():
                 payload = await queue.get()
                 await response.send(payload)
                 queue.task_done()
-        except (ConnectionResetError, asyncio.CancelledError):
-            pass
-        finally:
-            app["game_channels"].remove(queue)
+    except (ConnectionResetError, asyncio.CancelledError):
+        pass
+    finally:
+        app["game_channels"].remove(queue)
     return response
 
 
