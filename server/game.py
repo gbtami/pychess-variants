@@ -301,10 +301,9 @@ class Game:
             await lobby_broadcast(self.app["lobbysockets"], response)
 
         cur_player = self.bplayer if self.board.color == BLACK else self.wplayer
-        opp_player = self.wplayer if self.board.color == BLACK else self.bplayer
 
         # Move cancels draw offer
-        response = reject_draw(self, opp_player.username)
+        response = await reject_draw(self)
         if response is not None:
             await round_broadcast(self, response, full=True)
 
@@ -757,7 +756,7 @@ class Game:
         try:
             mlist = sf.get_san_moves(
                 self.variant,
-                self.initial_fen,
+                self.initial_fen if self.initial_fen else self.board.initial_fen,
                 self.board.move_stack,
                 self.chess960,
                 sf.NOTATION_SAN,

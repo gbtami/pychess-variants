@@ -278,6 +278,12 @@ async def load_game(app, game_id):
     if doc.get("by") is not None:
         game.imported_by = doc.get("by")
 
+    if game.rated == CORRESPONDENCE:
+        if doc.get("wd", False):
+            game.draw_offers.add(game.wplayer.username)
+        if doc.get("bd", False):
+            game.draw_offers.add(game.bplayer.username)
+
     return game
 
 
