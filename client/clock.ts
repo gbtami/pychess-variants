@@ -16,8 +16,6 @@ const HURRY = 10000;
 const prefixInteger = (num: number, length: number): string =>
   (num / Math.pow(10, length)).toFixed(length).substr(2);
 
-const bold = (x: string) => `<b>${x}</b>`;
-
 function formatClockTime(time: Millis) {
     const date = new Date(time),
         minutes = prefixInteger(date.getUTCMinutes(), 2),
@@ -33,10 +31,10 @@ function formatClockTime(time: Millis) {
     } else if (time >= 3600 * 1000) {
         // hours : minutes
         hours = date.getUTCHours();
-        str += bold(prefixInteger(hours, 2)) + ':' + bold(minutes);
+        str += prefixInteger(hours, 2) + ':' + minutes;
     } else {
         // minutes : seconds
-        str += bold(minutes) + ':' + bold(seconds);
+        str += minutes + ':' + seconds;
     }
     return str;
 }

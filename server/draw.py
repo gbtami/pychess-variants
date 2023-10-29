@@ -34,14 +34,15 @@ async def draw(game, username, agreement=False):
     return response
 
 
-async def reject_draw(game):
+async def reject_draw(game, opp_name):
     response = None
 
     if game.board.count_started <= 0:  # Don't send reject_draw message for Makruk BHC
-        game.draw_offers.clear()
-        response = {"type": "draw_rejected", "message": "Draw offer rejected"}
+        if opp_name in game.draw_offers:
+            game.draw_offers.clear()
+            response = {"type": "draw_rejected", "message": "Draw offer rejected"}
 
-        await save_draw_offer(game)
+            await save_draw_offer(game)
 
     return response
 

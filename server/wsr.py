@@ -416,7 +416,12 @@ async def round_socket_handler(request):
                         await round_broadcast(game, response)
 
                     elif data["type"] == "reject_draw":
-                        response = await reject_draw(game)
+                        color = WHITE if user.username == game.wplayer.username else BLACK
+                        opp_name = (
+                            game.wplayer.username if color == BLACK else game.bplayer.username
+                        )
+
+                        response = reject_draw(game, opp_name)
                         if response is not None:
                             await round_broadcast(game, response, full=True)
 
