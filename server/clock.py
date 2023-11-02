@@ -1,4 +1,5 @@
 import asyncio
+import json
 import logging
 from datetime import datetime, timezone
 
@@ -9,6 +10,7 @@ from broadcast import round_broadcast
 log = logging.getLogger(__name__)
 
 ESTIMATE_MOVES = 40
+CORR_TICK = 60
 
 
 class Clock:
@@ -126,6 +128,8 @@ class CorrClock:
         self.restart()
         self.time_for_first_move = self.mins
         self.clock_task = asyncio.create_task(self.countdown())
+        self.alarm_mins = int((self.game.base * 24 * 60) / 5)
+        self.alarms = set()
 
     def stop(self):
         self.running = False
@@ -143,17 +147,46 @@ class CorrClock:
     async def countdown(self):
         while True:
             while self.running and self.mins > 0:
-                await asyncio.sleep(60)
+                await asyncio.sleep(CORR_TICK)
                 self.mins -= 1
 
-            if self.game.status < ABORTED and self.mins <= 0 and self.running:
+            if self.game.status < ABORTED and self.running:
                 user = self.game.bplayer if self.color == BLACK else self.game.wplayer
-                reason = "abort" if self.ply < 2 else "flag"
+                if self.mins <= 0:
+                    reason = "abort" if self.ply < 2 else "flag"
 
-                async with self.game.move_lock:
-                    response = await self.game.game_ended(user, reason)
-                    await round_broadcast(self.game, response, full=True)
-                return
+                    async with self.game.move_lock:
+                        response = await self.game.game_ended(user, reason)
+                        await round_broadcast(self.game, response, full=True)
+                    return
+                elif (
+                    self.game.board.ply not in self.alarms
+                    and self.mins <= self.alarm_mins
+                    and self.mins > self.alarm_mins - CORR_TICK - 10
+                ):
+                    await self.notify_hurry(user)
 
             # After stop() we are just waiting for next restart
-            await asyncio.sleep(60)
+            await asyncio.sleep(CORR_TICK)
+
+    async def notify_hurry(self, user):
+        msg = {
+            "type": "corrAlarm",
+            "read": False,
+            "date": datetime.now(timezone.utc),
+            "content": {
+                "id": self.game.id,
+                "opp": user.username,
+            },
+        }
+        user.notifications.append(msg)
+
+        for queue in user.notify_channels:
+            await queue.put(json.dumps(user.notifications, default=datetime.isoformat))
+
+        if self.game.db is not None:
+            await self.game.db.user.find_one_and_update(
+                {"_id": user.username}, {"$set": {"notifs": user.notifications}}
+            )
+
+        self.alarms.add(self.game.board.ply)

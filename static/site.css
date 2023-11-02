@@ -30,6 +30,7 @@
   --blue-passive: #c5d8e9;
   --blue-hover: #1b78d0;
   --invite-game: #eff5e9;
+  --notify-new: #d5e3c4;
   --good: #629924;
   --bad: #c33;
   --gold: #d59020;
@@ -100,6 +101,7 @@
   --blue-passive: #33312e;
   --blue-hover: #3692e7;
   --invite-game: #2c3021;
+  --notify-new: #465330;
   --gold: #bf811d;
   --rusty: #d64f00;
   --ct-current: #a1420a;
@@ -147,15 +149,13 @@
 [data-theme='dark'] .icon-white:before {
   content: '\62';
 }
-[data-icon]:before {
+[data-icon]:before, [class*=' icon-']:before {
   font-size: 1.2em;
   vertical-align: middle;
   opacity: 0.6;
 }
-[class*=' icon-']:before {
-  font-size: 1.2em;
-  vertical-align: middle;
-  opacity: 0.6;
+header [data-icon]:before, header , [class*=' icon-']:before {
+  opacity: 0.9;
 }
 .icon-puzzle:before {
   content: '🎯';
@@ -835,23 +835,96 @@ ul.guide li {
   padding: 0;
 }
 
-#btn-settings {
-  padding-right: 8px;
+#btn-settings, #btn-notify {
+  padding: 8px;
   height: var(--site-header-height);
   line-height: var(--site-header-height);
 }
-
-#settings {
+#btn-settings.shown, #btn-notify.shown {
+  background-color: var(--bg-color1);
+}
+#settings, #notify-app {
   display: none;
   flex-direction: column;
   color: var(--font-color);
-  background-color: var(--bg-color0);
+  background-color: var(--bg-color1);
   box-shadow: var(--base-shadow);
   position: absolute;
   top: var(--site-header-height);
   right: 0;
 }
+#notify-app {
+  overflow: hidden;
+  width: 25rem;
+  max-width: 100vw;
+  right: 0;
+}
+.data-count {
+  position: relative;
+}
+.data-count::after {
+  content: attr(data-count);
+  top: -5px;
+  right: 0;
+  position: absolute;
+  padding: 0 3px;
+  height: 15px;
+  line-height: 15px;
+  font-weight: bold;
+  font-size: 13px;
+  border-radius: 3px;
+  background: #d64f00;
+  color: #fff;
+}
+.data-count[data-count="0"]::after {
+    display: none
+}
 
+.notification {
+  display: flex;
+  padding: .6rem .6rem .6rem 1rem;
+  border-bottom: 1px solid #d9d9d9;
+  position: relative;
+}
+.notification.new {
+    background: var(--notify-new);
+}
+.notification:hover {
+ color: var(--font-color);
+ background: var(--bg-color2);
+}
+.notification:hover .icon {
+ color: var(--blue-hover);
+ opacity:.9
+}
+.notification .icon {
+  font-size: 2em;
+  opacity: .5;
+  margin-right: 1rem;
+}
+.notification.new .icon {
+    color: var(--good);
+    opacity: .7;
+}
+
+.notification .content {
+  flex: 0 1 100%;
+  overflow: hidden;
+}
+span.notification.empty span.text {
+  align-self: center;
+}
+#notify-app .content span:first-child {
+  display: flex;
+  flex-flow: row wrap;
+  align-items: center;
+  justify-content: space-between;
+}
+#notify-app .content span:last-child {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 #settings div {
   display: flex;
   flex-direction: column;
@@ -1844,7 +1917,7 @@ label {
 .radio-group input[type='radio']:checked + label {
   box-shadow: inset 0 2px 5px #537c23;
   color: White;
-  background: #629924;
+  background: var(--good);
   text-shadow: 0 1px 1px #003d00;
 }
 

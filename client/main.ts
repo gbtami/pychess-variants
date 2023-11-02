@@ -2,7 +2,8 @@ import { h, VNode } from 'snabbdom';
 
 import { _, i18n } from './i18n';
 import { aboutView } from './about';
-import { settingsView } from './settingsView';
+import { settingsView, hideSettings } from './settingsView';
+import { notifyView, hideNotify } from './notifyView';
 import { lobbyView } from './lobby';
 import { roundView } from './round';
 import { inviteView } from './invite';
@@ -173,10 +174,13 @@ function start() {
 
     // Clicking outside settings panel closes it
     const settingsPanel = patch(document.getElementById('settings-panel') as HTMLElement, settingsView()).elm as HTMLElement;
-    const settings = document.getElementById('settings') as HTMLElement;
+    const notifyPanel = patch(document.getElementById('notify-panel') as HTMLElement, notifyView()).elm as HTMLElement;
+
     document.addEventListener("click", function(event) {
         if (!settingsPanel.contains(event.target as Node))
-            settings.style.display = 'none';
+            hideSettings();
+        if (!notifyPanel.contains(event.target as Node))
+            hideNotify();
     });
 
     patch(document.getElementById('zen-button') as HTMLElement, zenButtonView()).elm as HTMLElement;

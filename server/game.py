@@ -372,6 +372,9 @@ class Game:
 
                 if self.status > STARTED:
                     await self.save_game()
+                    if self.rated == CORRESPONDENCE:
+                        await opp_player.notify_game_end(self)
+
                 elif self.rated == CORRESPONDENCE:
                     await self.save_moves()
 
@@ -392,6 +395,8 @@ class Game:
                 result = "1-0" if self.board.color == BLACK else "0-1"
                 self.update_status(INVALIDMOVE, result)
                 await self.save_game()
+                if self.rated == CORRESPONDENCE:
+                    await opp_player.notify_game_end(self)
 
     async def save_moves(self):
         new_data = {
@@ -866,7 +871,7 @@ class Game:
             )
         )
 
-    async def abort(self):
+    async def abort_by_server(self):
         self.update_status(ABORTED)
         await self.save_game()
         return {
@@ -906,6 +911,19 @@ class Game:
             self.update_status(LOSERS[reason], result)
             log.debug("%s game_ended(%s, %s) %s", self.id, user.username, reason, result)
             await self.save_game()
+
+            if self.rated == CORRESPONDENCE:
+                cur_player = (
+                    self.wplayer if user.username == self.wplayer.username else self.bplayer
+                )
+                opp_player = (
+                    self.wplayer if user.username == self.bplayer.username else self.bplayer
+                )
+                if reason == "resign":
+                    await opp_player.notify_game_end(self)
+                else:
+                    await cur_player.notify_game_end(self)
+                    await opp_player.notify_game_end(self)
 
         return {
             "type": "gameEnd",

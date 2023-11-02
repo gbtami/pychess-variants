@@ -32,7 +32,7 @@ from game_api import (
     get_variant_stats,
     cancel_invite,
 )
-from utils import import_game, get_names
+from utils import import_game, get_names, get_notifications, subscribe_notify, notified
 from login import login, logout, oauth
 from index import index, robots, select_lang
 from wsl import lobby_socket_handler
@@ -67,6 +67,9 @@ get_routes = (
     ("/analysis/{variant}/{fen}", index),
     ("/editor/{variant}", index),
     ("/editor/{variant}/{fen}", index),
+    ("/notifications", get_notifications),
+    ("/notify", subscribe_notify),
+    ("/notified", notified),
     (r"/{gameId:\w{8}}", index),
     (r"/{gameId:\w{8}}/{player:player[1-2]}", index),
     (r"/embed/{gameId:\w{8}}", index),
