@@ -332,6 +332,7 @@ async def init_state(app):
                     enabled=doc.get("enabled", True),
                     lang=doc.get("lang", "en"),
                     theme=doc.get("theme", "dark"),
+                    notifications=doc.get("notifs"),
                 )
 
         await app["db"].tournament.create_index("startsAt")
@@ -432,7 +433,7 @@ async def shutdown(app):
     # abort games
     for game in list(app["games"].values()):
         if game.status <= STARTED and game.rated != CORRESPONDENCE:
-            response = await game.abort()
+            response = await game.abort_by_server()
             for player in (game.wplayer, game.bplayer):
                 if not player.bot and game.id in player.game_sockets:
                     ws = player.game_sockets[game.id]

@@ -32,6 +32,9 @@ export function handleOngoingGameEvents(username: string, cgMap: {[gameId: strin
     const evtSource = new EventSource("/api/ongoing");
     evtSource.onmessage = function(event) {
         const message = JSON.parse(event.data);
+
+        if (!(message.gameId in cgMap)) return;
+
         const cg = cgMap[message.gameId];
         cg.set({
             fen: message.fen,

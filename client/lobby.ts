@@ -122,7 +122,8 @@ export class LobbyController implements ChatController {
         setAriaTabClick("lobby_tab");
 
         const tabId = localStorage.lobby_tab ?? "tab-1";
-        const initialEl = document.getElementById(tabId) as HTMLElement;
+        let initialEl = document.getElementById(tabId) as HTMLElement;
+        if (initialEl === null) initialEl = document.getElementById('tab-1') as HTMLElement;
         initialEl.setAttribute('aria-selected', 'true');
         (initialEl!.parentNode!.parentNode!.querySelector(`#${initialEl.getAttribute('aria-controls')}`)! as HTMLElement).style.display = 'block';
 

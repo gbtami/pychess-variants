@@ -1,9 +1,14 @@
+import asyncio
+import json
 import logging
 import random
 from datetime import datetime, timezone, timedelta
+from functools import partial
 
 from aiohttp import web
+import aiohttp_session
 from aiohttp.web import WebSocketResponse
+from aiohttp_sse import sse_response
 
 try:
     import pyffish as sf
@@ -917,6 +922,48 @@ async def get_names(request):
     async for doc in cursor:
         names.append((doc["_id"], doc["title"]))
     return web.json_response(names)
+
+
+async def get_notifications(request):
+    users = request.app["users"]
+    # Who made the request?
+    session = await aiohttp_session.get_session(request)
+    session_user = session.get("user_name")
+    user = users[session_user]
+    return web.json_response(
+        user.notifications, dumps=partial(json.dumps, default=datetime.isoformat)
+    )
+
+
+async def notified(request):
+    users = request.app["users"]
+    # Who made the request?
+    session = await aiohttp_session.get_session(request)
+    session_user = session.get("user_name")
+    user = users[session_user]
+    await user.notified()
+    return web.json_response({})
+
+
+async def subscribe_notify(request):
+    users = request.app["users"]
+    # Who made the request?
+    session = await aiohttp_session.get_session(request)
+    session_user = session.get("user_name")
+    user = users[session_user]
+    try:
+        async with sse_response(request) as response:
+            queue = asyncio.Queue()
+            user.notify_channels.add(queue)
+            while not response.task.done():
+                payload = await queue.get()
+                await response.send(payload)
+                queue.task_done()
+    except (ConnectionResetError, asyncio.CancelledError):
+        pass
+    finally:
+        user.notify_channels.remove(queue)
+    return response
 
 
 def corr_games(games):

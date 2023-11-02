@@ -170,9 +170,9 @@ async def round_socket_handler(request):
                             and len(game.draw_offers) > 0
                         ):
                             offerer = (
-                                game.wplayer.username
+                                game.wplayer
                                 if game.wplayer.username in game.draw_offers
-                                else game.bplayer.username
+                                else game.bplayer
                             )
                             response = await draw(game, offerer)
                             await ws.send_json(response)
@@ -395,9 +395,7 @@ async def round_socket_handler(request):
                         )
                         opp_player = users[opp_name]
 
-                        response = await draw(
-                            game, user.username, agreement=opp_name in game.draw_offers
-                        )
+                        response = await draw(game, user, agreement=opp_name in game.draw_offers)
                         await ws.send_json(response)
                         if opp_player.bot:
                             if game.status > STARTED and data["gameId"] in opp_player.game_queues:
@@ -417,11 +415,9 @@ async def round_socket_handler(request):
 
                     elif data["type"] == "reject_draw":
                         color = WHITE if user.username == game.wplayer.username else BLACK
-                        opp_name = (
-                            game.wplayer.username if color == BLACK else game.bplayer.username
-                        )
+                        opp_user = game.wplayer if color == BLACK else game.bplayer
 
-                        response = reject_draw(game, opp_name)
+                        response = reject_draw(game, opp_user)
                         if response is not None:
                             await round_broadcast(game, response, full=True)
 

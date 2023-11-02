@@ -33,17 +33,20 @@ function settingsButton() {
 }
 
 function toggleSettings() {
-    if ((document.getElementById('settings') as HTMLElement).style.display === 'flex')
+    if ((document.getElementById('settings') as HTMLElement).style.display === 'flex') {
         hideSettings();
-    else
+    } else {
         showMainSettings();
+    }
 }
 
-function hideSettings() {
+export function hideSettings() {
+    (document.getElementById('btn-settings') as HTMLElement).classList.remove('shown');
     (document.getElementById('settings') as HTMLElement).style.display = 'none';
 }
 
 function showMainSettings() {
+    (document.getElementById('btn-settings') as HTMLElement).classList.add('shown');
     (document.getElementById('settings') as HTMLElement).style.display = 'flex';
     (document.getElementById('settings-main') as HTMLElement).style.display = 'flex';
     (document.getElementById('settings-sub') as HTMLElement).style.display = 'none';

@@ -485,7 +485,8 @@ export class RoundController extends GameController {
 
     private clearDialog = () => {
         this.vdialog = patch(this.vdialog, h('div#offer-dialog', []));
-        (document.querySelector('.btn-controls.game') as HTMLElement).style.display= "flex";
+        const el = document.querySelector('.btn-controls.game') as HTMLElement;
+        if (el) el.style.display= "flex";
     }
 
     private resign = () => {
