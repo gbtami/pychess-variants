@@ -1,4 +1,5 @@
 NEWS = {
+    "S-chess_ramblings": "2023-11-03",
     "More_variants": "2023-10-19",
     "Summer_Update": "2023-06-06",
     "Spartan_Chess": "2023-04-01",

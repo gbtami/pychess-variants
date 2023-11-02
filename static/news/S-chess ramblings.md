@@ -1,7 +1,7 @@
 <h1 align="center">S-chess ramblings</h1>
 <div class="meta-headline">
     <div class= "meta">
-        <span class="text">2023.11.02</span>
+        <span class="text">2023.11.03</span>
         <span class="text"><a href="/@/catask">@catask</a></span>
         <span class="text">Blog</span>
     </div>
