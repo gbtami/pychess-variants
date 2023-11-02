@@ -1,3 +1,18 @@
+<h1 align="center">S-chess ramblings</h1>
+<div class="meta-headline">
+    <div class= "meta">
+        <span class="text">2023.11.02</span>
+        <span class="text"><a href="/@/catask">@catask</a></span>
+        <span class="text">Blog</span>
+    </div>
+    <div class= "headline">S-chess ramblings</div>
+</div>
+</br>
+
+<p align="center">
+  <img src="https://github.com/gbtami/pychess-variants/blob/master/static/images/Hawk-Elephant.jpeg">
+</p>
+
 Rules of the game
 =================
 
