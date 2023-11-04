@@ -6,11 +6,11 @@ from datetime import datetime, timezone
 from aiohttp import web
 import aiohttp_session
 
-from const import STARTED, VARIANTS
+from const import NOTIFY_PAGE_SIZE, STARTED, VARIANTS
 from broadcast import lobby_broadcast, round_broadcast
 from glicko2.glicko2 import gl2, DEFAULT_PERF, Rating
 from login import RESERVED_USERS
-from newid import id8
+from newid import id8, new_id
 from seek import get_seeks
 
 log = logging.getLogger(__name__)
@@ -34,7 +34,6 @@ class User:
         enabled=True,
         lang=None,
         theme="dark",
-        notifications=None,
     ):
         self.app = app
         self.db = app["db"] if "db" in app else None
@@ -42,7 +41,7 @@ class User:
         self.anon = anon
         self.lang = lang
         self.theme = theme
-        self.notifications = [] if notifications is None else notifications
+        self.notifications = None
 
         if username is None:
             self.anon = True
@@ -210,33 +209,34 @@ class User:
             else:
                 win = False
 
-        msg = {
+        _id = await new_id(None if self.db is None else self.db.notify)
+        document = {
+            "_id": _id,
+            "notifies": self.username,
             "type": "gameEnd",
             "read": False,
-            "date": datetime.now(timezone.utc),
+            "createdAt": datetime.now(timezone.utc),
             "content": {
                 "id": game.id,
                 "opp": opp_name,
                 "win": win,
             },
         }
-        self.notifications.append(msg)
+        self.notifications.append(document)
 
         for queue in self.notify_channels:
-            await queue.put(json.dumps(self.notifications, default=datetime.isoformat))
+            await queue.put(
+                json.dumps(self.notifications[-NOTIFY_PAGE_SIZE:], default=datetime.isoformat)
+            )
 
         if self.db is not None:
-            await self.db.user.find_one_and_update(
-                {"_id": self.username}, {"$set": {"notifs": self.notifications}}
-            )
+            await self.db.notify.insert_one(document)
 
     async def notified(self):
         self.notifications = [{**notif, "read": True} for notif in self.notifications]
 
         if self.db is not None:
-            await self.db.user.find_one_and_update(
-                {"_id": self.username}, {"$set": {"notifs": self.notifications}}
-            )
+            await self.db.notify.update_many({"notifies": self.username}, {"$set": {"read": True}})
 
     def as_json(self, requester):
         return {

@@ -30,6 +30,7 @@ from pythongettext.msgfmt import PoSyntaxError
 from ai import BOT_task
 from broadcast import lobby_broadcast, round_broadcast
 from const import (
+    NOTIFY_EXPIRE_SECS,
     CORRESPONDENCE,
     VARIANTS,
     STARTED,
@@ -332,7 +333,6 @@ async def init_state(app):
                     enabled=doc.get("enabled", True),
                     lang=doc.get("lang", "en"),
                     theme=doc.get("theme", "dark"),
-                    notifications=doc.get("notifs"),
                 )
 
         await app["db"].tournament.create_index("startsAt")
@@ -379,6 +379,11 @@ async def init_state(app):
         await app["db"].game.create_index("v")
         await app["db"].game.create_index("y")
         await app["db"].game.create_index("by")
+
+        if "notify" not in db_collections:
+            await app["db"].create_collection("notify")
+        await app["db"].notify.create_index("notifies")
+        await app["db"].notify.create_index("createdAt", expireAfterSeconds=NOTIFY_EXPIRE_SECS)
 
         # Read correspondence games in play and start their clocks
         cursor = app["db"].game.find({"r": "d", "y": CORRESPONDENCE})
