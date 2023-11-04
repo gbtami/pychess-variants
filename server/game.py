@@ -1,7 +1,7 @@
 import asyncio
 import collections
 import logging
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from time import monotonic
 
 try:
@@ -1009,6 +1009,11 @@ class Game:
             "pgn": self.pgn if self.status > STARTED else "",
             "rdiffs": {"brdiff": self.brdiff, "wrdiff": self.wrdiff}
             if self.status > STARTED and self.rated == RATED
+            else "",
+            "date": (
+                datetime.now(timezone.utc) + timedelta(minutes=self.stopwatch.mins)
+            ).isoformat()
+            if self.rated == CORRESPONDENCE
             else "",
             "uci_usi": self.uci_usi if self.status > STARTED else "",
             "ct": crosstable,

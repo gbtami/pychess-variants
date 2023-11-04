@@ -3,9 +3,10 @@ import json
 import logging
 from datetime import datetime, timezone
 
-from const import ABORTED
+from const import ABORTED, NOTIFY_PAGE_SIZE
 from fairy import WHITE, BLACK
 from broadcast import round_broadcast
+from newid import new_id
 
 log = logging.getLogger(__name__)
 
@@ -150,6 +151,14 @@ class CorrClock:
                 await asyncio.sleep(CORR_TICK)
                 self.mins -= 1
 
+                if (
+                    self.game.board.ply not in self.alarms
+                    and self.mins <= self.alarm_mins
+                    and self.mins > self.alarm_mins - 2
+                ):
+                    user = self.game.bplayer if self.color == BLACK else self.game.wplayer
+                    await self.notify_hurry(user)
+
             if self.game.status < ABORTED and self.running:
                 user = self.game.bplayer if self.color == BLACK else self.game.wplayer
                 if self.mins <= 0:
@@ -159,34 +168,37 @@ class CorrClock:
                         response = await self.game.game_ended(user, reason)
                         await round_broadcast(self.game, response, full=True)
                     return
-                elif (
-                    self.game.board.ply not in self.alarms
-                    and self.mins <= self.alarm_mins
-                    and self.mins > self.alarm_mins - CORR_TICK - 10
-                ):
-                    await self.notify_hurry(user)
 
             # After stop() we are just waiting for next restart
             await asyncio.sleep(CORR_TICK)
 
     async def notify_hurry(self, user):
-        msg = {
+        opp_name = (
+            self.game.wplayer.username
+            if self.game.bplayer.username == user.username
+            else self.game.bplayer.username
+        )
+        _id = await new_id(None if self.game.db is None else self.game.db.notify)
+        document = {
+            "_id": _id,
+            "notifies": user.username,
             "type": "corrAlarm",
             "read": False,
-            "date": datetime.now(timezone.utc),
+            "createdAt": datetime.now(timezone.utc),
             "content": {
                 "id": self.game.id,
-                "opp": user.username,
+                "opp": opp_name,
             },
         }
-        user.notifications.append(msg)
+        user.notifications.append(document)
 
         for queue in user.notify_channels:
-            await queue.put(json.dumps(user.notifications, default=datetime.isoformat))
-
-        if self.game.db is not None:
-            await self.game.db.user.find_one_and_update(
-                {"_id": user.username}, {"$set": {"notifs": user.notifications}}
+            await queue.put(
+                json.dumps(user.notifications[-NOTIFY_PAGE_SIZE:], default=datetime.isoformat)
             )
 
+        if self.game.db is not None:
+            await self.game.db.notify.insert_one(document)
+
+        # to prevent creating more then one notification for the same ply
         self.alarms.add(self.game.board.ply)

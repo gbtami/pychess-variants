@@ -74,11 +74,12 @@ function renderMessages(messages: Message[]) {
 }
 
 export function notifyView() {
+    var page: number = 0;
     var unread: number = 0;
     var messages: Message[] = [];
 
     const xmlhttp = new XMLHttpRequest();
-    const url = "/notifications";
+    const url = "/notifications?p=";
     var notifyAppEl: HTMLElement | VNode;
 
     const newNotifyCounter = (sum: number, message: Message) => sum + ((message.read) ? 0 : 1);
@@ -99,11 +100,12 @@ export function notifyView() {
             evtSource.onmessage = function(event) {
                 messages = JSON.parse(event.data);
                 unread = messages.reduce(newNotifyCounter, 0);
+                page = 0;
                 redraw();
             }
         }
     };
-    xmlhttp.open("GET", url, true);
+    xmlhttp.open("GET", `${url}${page}`, true);
     xmlhttp.send();
 
     function sendNotified() {

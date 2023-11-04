@@ -20,6 +20,7 @@ except ImportError:
 from glicko2.glicko2 import gl2
 from broadcast import lobby_broadcast, round_broadcast
 from const import (
+    NOTIFY_PAGE_SIZE,
     STARTED,
     VARIANT_960_TO_PGN,
     INVALIDMOVE,
@@ -925,14 +926,25 @@ async def get_names(request):
 
 
 async def get_notifications(request):
+    page_num = int(request.rel_url.query.get("p", 0))
+
     users = request.app["users"]
     # Who made the request?
     session = await aiohttp_session.get_session(request)
     session_user = session.get("user_name")
     user = users[session_user]
-    return web.json_response(
-        user.notifications, dumps=partial(json.dumps, default=datetime.isoformat)
-    )
+
+    if user.notifications is None:
+        cursor = request.app["db"].notify.find({"notifies": session_user})
+        user.notifications = await cursor.to_list(length=100)
+    if page_num == 0:
+        notifications = user.notifications[-NOTIFY_PAGE_SIZE:]
+    else:
+        notifications = user.notifications[
+            -(page_num + 1) * NOTIFY_PAGE_SIZE : -page_num * NOTIFY_PAGE_SIZE
+        ]
+
+    return web.json_response(notifications, dumps=partial(json.dumps, default=datetime.isoformat))
 
 
 async def notified(request):
@@ -967,6 +979,7 @@ async def subscribe_notify(request):
 
 
 def corr_games(games):
+    now = datetime.now(timezone.utc)
     return [
         {
             "gameId": game.id,
@@ -983,7 +996,7 @@ def corr_games(games):
             "inc": game.inc,
             "byoyomi": game.byoyomi_period,
             "level": game.level,
-            "date": datetime.now(timezone.utc) + timedelta(minutes=game.stopwatch.mins),
+            "date": (now + timedelta(minutes=game.stopwatch.mins)).isoformat(),
         }
         for game in games
     ]
