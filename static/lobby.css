@@ -23,6 +23,9 @@
         grid-template-areas: 'side app app table' 'side vpanel vpanel table' 'tv blog blog puzzle' 'uleft blog blog utable';
     }
 }
+.lobby aside {
+  margin-top: 2em;
+}
 .lobby-count {
   flex: 1;
   display: flex;
@@ -58,17 +61,6 @@
     text-align: right;
     margin-right: 1ch;
 }
-.seeks {
-    display: grid;
-    grid-area: app;
-}
-.seeks  [data-icon]:before {
-    font-size: 20px;
-}
-.seeks [class*=" icon-"]:before {
-    font-size: 18px;
-}
-
 .stream {
     display: block;
     line-height: 0.9;
@@ -115,4 +107,29 @@
 rating {
     font-size: 0.9em;
     float: none;
+}
+
+#header-block {
+    display: 'inline-flex';
+    margin-bottom: 1.5rem;
+}
+.container input#fen {
+  margin: 0.6em 0 0.6em;
+}
+div.tc-block {
+    padding: 1em;
+    background: var(--bg-color2);
+    border-top: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border-color);
+}
+.noread {
+    margin-left: .3em;
+    padding: 1px 5px 1px 4px;
+    font-weight: bold;
+    font-size: 13px;
+    border-radius: 3px;
+    background: var(--rusty);
+    color: #fff;
+    text-shadow: 0 1px 1px #000 !important;
+    box-shadow: 0 3px 4px rgba(0,0,0,.15) inset;
 }

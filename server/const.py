@@ -3,6 +3,10 @@ from settings import static_url
 SCHEDULE_MAX_DAYS = 7
 TOURNAMENT_SPOTLIGHTS_MAX = 3
 
+# Max notify documents TTL (time to live)
+NOTIFY_EXPIRE_SECS = 60 * 60 * 24 * 7 * 4
+NOTIFY_PAGE_SIZE = 7
+
 # Max number of lobby chat lines (deque limit)
 MAX_CHAT_LINES = 100
 
@@ -47,7 +51,7 @@ LANGUAGES = [
 MOVE, ANALYSIS = 0, 1
 
 # game types
-CASUAL, RATED, IMPORTED = 0, 1, 2
+CASUAL, RATED, IMPORTED, CORRESPONDENCE = 0, 1, 2, 3
 
 # game status
 (

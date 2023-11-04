@@ -447,7 +447,7 @@ async def load_tournament(app, tournament_id, tournament_klass=None):
 
     tournament.nb_players = nb_players
 
-    tournament.print_leaderboard()
+    # tournament.print_leaderboard()
 
     pairing_table = app["db"].tournament_pairing
     cursor = pairing_table.find({"tid": tournament_id})

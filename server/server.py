@@ -30,8 +30,11 @@ from pythongettext.msgfmt import PoSyntaxError
 from ai import BOT_task
 from broadcast import lobby_broadcast, round_broadcast
 from const import (
+    NOTIFY_EXPIRE_SECS,
+    CORRESPONDENCE,
     VARIANTS,
     STARTED,
+    ABORTED,
     LANGUAGES,
     T_CREATED,
     T_STARTED,
@@ -63,6 +66,7 @@ from settings import (
     SOURCE_VERSION,
 )
 from user import User
+from utils import load_game
 from tournaments import load_tournament, get_scheduled_tournaments, translated_tournament_name
 from twitch import Twitch
 from youtube import Youtube
@@ -369,12 +373,27 @@ async def init_state(app):
             cursor = app["db"].dailypuzzle.find()
             docs = await cursor.to_list(length=365)
             app["daily_puzzle_ids"] = {doc["_id"]: doc["puzzleId"] for doc in docs}
-        print(app["daily_puzzle_ids"])
 
         await app["db"].game.create_index("us")
+        await app["db"].game.create_index("r")
         await app["db"].game.create_index("v")
         await app["db"].game.create_index("y")
         await app["db"].game.create_index("by")
+
+        if "notify" not in db_collections:
+            await app["db"].create_collection("notify")
+        await app["db"].notify.create_index("notifies")
+        await app["db"].notify.create_index("createdAt", expireAfterSeconds=NOTIFY_EXPIRE_SECS)
+
+        # Read correspondence games in play and start their clocks
+        cursor = app["db"].game.find({"r": "d", "y": CORRESPONDENCE})
+        async for doc in cursor:
+            if doc["s"] < ABORTED:
+                game = await load_game(app, doc["_id"])
+                app["games"][doc["_id"]] = game
+                game.wplayer.correspondence_games.append(game)
+                game.bplayer.correspondence_games.append(game)
+                game.stopwatch.restart(from_db=True)
 
         if "video" not in db_collections:
             if DEV:
@@ -418,8 +437,8 @@ async def shutdown(app):
 
     # abort games
     for game in list(app["games"].values()):
-        if game.status <= STARTED:
-            response = await game.abort()
+        if game.status <= STARTED and game.rated != CORRESPONDENCE:
+            response = await game.abort_by_server()
             for player in (game.wplayer, game.bplayer):
                 if not player.bot and game.id in player.game_sockets:
                     ws = player.game_sockets[game.id]

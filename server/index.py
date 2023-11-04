@@ -26,6 +26,7 @@ from const import (
     VARIANT_GROUPS,
     RATED,
     IMPORTED,
+    CORRESPONDENCE,
     T_CREATED,
     TRANSLATED_VARIANT_NAMES,
     TRANSLATED_PAIRING_SYSTEM_NAMES,
@@ -48,7 +49,7 @@ from misc import time_control_str
 from news import NEWS
 from videos import VIDEO_TAGS, VIDEO_TARGETS
 from user import User
-from utils import load_game, join_seek, tv_game, tv_game_user
+from utils import corr_games, load_game, join_seek, tv_game, tv_game_user
 from tournaments import (
     get_winners,
     get_latest_tournaments,
@@ -255,6 +256,8 @@ async def index(request):
             rated = IMPORTED
         elif request.path[-6:] == "/rated":
             rated = RATED
+        elif request.path[-8:] == "/playing":
+            rated = CORRESPONDENCE
         elif request.path[-3:] == "/me":
             rated = -1
         elif "/challenge" in request.path:
@@ -387,6 +390,8 @@ async def index(request):
     if view == "lobby":
         puzzle = await get_daily_puzzle(request)
         render["puzzle"] = json.dumps(puzzle, default=datetime.isoformat)
+        corr = corr_games(user.correspondence_games)
+        render["corr"] = json.dumps(corr, default=datetime.isoformat)
 
     elif view in ("profile", "level8win"):
         if view == "level8win":
@@ -558,6 +563,9 @@ async def index(request):
                 render["tournamentname"] = tournament_name
                 render["wberserk"] = game.wberserk
                 render["bberserk"] = game.bberserk
+            if game.rated == CORRESPONDENCE:
+                corr = corr_games(user.correspondence_games)
+                render["corr"] = json.dumps(corr, default=datetime.isoformat)
 
     if tournamentId is not None:
         tournament_name = await get_tournament_name(request, tournamentId)
