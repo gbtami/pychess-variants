@@ -876,6 +876,11 @@ ul.guide li {
   background: #d64f00;
   color: #fff;
 }
+.noread.data-count::after {
+  position: relative;
+  top: 0;
+  margin-left: 3px;
+}
 .data-count[data-count="0"]::after {
     display: none
 }
@@ -2483,7 +2488,7 @@ span[aria-selected=true], div[role=tablist] span:hover::after {
     border-bottom: 2px solid var(--rusty);
     transform: scale(1);
 }
-div > span::after {
+div > span[role=tab]::after {
     content:'';
     background:var(--rusty);
     height:2px;

@@ -48,7 +48,8 @@ export function handleOngoingGameEvents(username: string, cgMap: {[gameId: strin
         );
         const noreadEl = document.querySelector('span.noread') as HTMLElement;
         const diff = isMyTurn ? 1 : -1;
-        patch(noreadEl, h('span.noread', parseInt(noreadEl.textContent || '0') + diff));
+        const count = parseInt(noreadEl.textContent || '0') + diff;
+        patch(noreadEl, h('span.noread.data-count', {attrs: { 'data-count': count }}));
     }
 }
 
