@@ -876,6 +876,11 @@ ul.guide li {
   background: #d64f00;
   color: #fff;
 }
+.noread.data-count::after {
+  position: relative;
+  top: 0;
+  margin-left: 3px;
+}
 .data-count[data-count="0"]::after {
     display: none
 }
@@ -2444,6 +2449,7 @@ games-grid {
     justify-content: center;
     overflow-x:hidden;
     grid-template-columns: repeat(auto-fill, minmax(var(--auto-grid-min-size), 1fr));
+    grid-column-gap: 0.3em;
 }
 games-grid div {
     padding-left: 0.3em;
@@ -2482,7 +2488,7 @@ span[aria-selected=true], div[role=tablist] span:hover::after {
     border-bottom: 2px solid var(--rusty);
     transform: scale(1);
 }
-div > span::after {
+div > span[role=tab]::after {
     content:'';
     background:var(--rusty);
     height:2px;

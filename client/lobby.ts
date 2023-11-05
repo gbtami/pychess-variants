@@ -1047,7 +1047,7 @@ export function lobbyView(model: PyChessModel): VNode[] {
     if (corrGames.length > 0) {
         tabs.push(h('span', {attrs: {role: 'tab', 'aria-selected': false, 'aria-controls': 'panel-3', id: 'tab-3', tabindex: '-1'}}, [
             ngettext('%1 game in play', '%1 games in play', gpCounter),
-            h('span.noread', count)
+            h('span.noread.data-count', {attrs: { 'data-count': count }})
         ]))
     }
 

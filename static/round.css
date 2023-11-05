@@ -64,7 +64,7 @@ div.dcontrols {
     align-content: center;
     background: var(--bg-color2);
     border-bottom: 1px solid var(--border-color);
-    height: 40px;
+    line-height: 4em;
 }
 div.dcontrols .reject {
     color: var(--bad);
@@ -74,6 +74,7 @@ div.dcontrols .reject {
     justify-content: center;
     align-items: center;
     background: var(--bg-color0);
+    cursor: pointer;
 }
 @keyframes flash-once {
  from {
@@ -104,6 +105,7 @@ div.dcontrols .accept {
     justify-content: center;
     align-items: center;
     background: var(--bg-color0);
+    cursor: pointer;
 }
 
 /* game start expiration */

@@ -84,7 +84,7 @@ async def BOT_task(bot, app):
             await game.abort_by_server()
             continue
 
-        starting_color = game.initial_fen.split()[1]
+        starting_color = game.board.initial_fen.split()[1]
         if starting_color == "b":
             starting_player = game.bplayer.username
         else:
