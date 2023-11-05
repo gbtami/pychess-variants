@@ -250,7 +250,7 @@ class User:
             seeks = self.app["seeks"]
             sockets = self.app["lobbysockets"]
 
-            for seek_id in self.seeks:
+            for seek_id in list(self.seeks):
                 game_id = self.seeks[seek_id].game_id
                 # preserve invites (seek with game_id) and corr seeks!
                 if game_id is None and self.seeks[seek_id].day == 0:
