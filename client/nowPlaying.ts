@@ -71,6 +71,18 @@ function corrClockIndicator(isMyTurn:boolean, date: string) {
     return h('span.indicator', isMyTurn ? timer(date) : h('span', '\xa0')) // &nbsp;
 }
 
+export function compareGames(username: string) {
+    return function(a: Game, b: Game) {
+        const aIsUserTurn = (a.tp === username);
+        const bIsUserTurn = (b.tp === username);
+        if (aIsUserTurn && !bIsUserTurn) return -1;
+        if (!aIsUserTurn && bIsUserTurn) return 1;
+        if (a.mins > b.mins) return -1;
+        if (a.mins < b.mins) return 1;
+        return 0;
+    };
+}
+
 export function gameViewPlaying(cgMap: {[gameId: string]: Api}, game: Game, username: string) {
     const variant = VARIANTS[game.variant];
     const isMyTurn = game.tp === username;

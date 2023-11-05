@@ -19,7 +19,7 @@ import { MsgBoard, MsgChat, MsgFullChat } from "./messages";
 import { variantPanels } from './lobby/layer1';
 import { Stream, Spotlight, MsgInviteCreated, MsgHostCreated, MsgGetSeeks, MsgNewGame, MsgGameInProgress, MsgUserConnected, MsgPing, MsgError, MsgShutdown, MsgGameCounter, MsgUserCounter, MsgStreams, MsgSpotlights, Seek, CreateMode, TvGame, TcMode } from './lobbyType';
 import { validFen, uci2LastMove } from './chess';
-import { handleOngoingGameEvents, Game, gameViewPlaying } from './nowPlaying';
+import { handleOngoingGameEvents, Game, gameViewPlaying, compareGames } from './nowPlaying';
 
 const CREATE_MODES = {
     playAI: _("Play with AI"),
@@ -1003,7 +1003,7 @@ function runSeeks(vnode: VNode, model: PyChessModel) {
 export function lobbyView(model: PyChessModel): VNode[] {
     const puzzle = JSON.parse(model.puzzle);
     const username = model.username;
-    const corrGames = JSON.parse(model.corr);
+    const corrGames = JSON.parse(model.corr).sort(compareGames(username));
     const gpCounter = corrGames.length;
 
     const myTurnGameCounter = (sum: number, game: Game) => sum + ((game.tp === username) ? 1 : 0);
