@@ -23,7 +23,7 @@ import { Clocks, MsgBoard, MsgGameEnd, MsgNewGame, MsgUserConnected, RDiffs, Cro
 import { MsgUserDisconnected, MsgUserPresent, MsgMoreTime, MsgDrawOffer, MsgDrawRejected, MsgRematchOffer, MsgRematchRejected, MsgCount, MsgSetup, MsgGameStart, MsgViewRematch, MsgUpdateTV, MsgBerserk } from './roundType';
 import { PyChessModel } from "./types";
 import { GameController } from './gameCtrl';
-import { handleOngoingGameEvents, Game, gameViewPlaying } from './nowPlaying';
+import { handleOngoingGameEvents, Game, gameViewPlaying, compareGames } from './nowPlaying';
 
 let rang = false;
 const CASUAL = '0';
@@ -332,7 +332,7 @@ export class RoundController extends GameController {
         boardSettings.assetURL = this.assetURL;
         boardSettings.updateBoardAndPieceStyles();
 
-        const corrGames = JSON.parse(model.corr);
+        const corrGames = JSON.parse(model.corr).sort(compareGames(this.username));
         if (corrGames.length > 0) {
             const cgMap: {[gameId: string]: Api} = {};
             handleOngoingGameEvents(this.username, cgMap);
