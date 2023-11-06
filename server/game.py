@@ -31,7 +31,6 @@ from const import (
     CASUAL,
     RATED,
     IMPORTED,
-    CORRESPONDENCE,
     HIGHSCORE_MIN_GAMES,
     variant_display_name,
     MAX_CHAT_LINES,
@@ -73,6 +72,7 @@ class Game:
         level=0,
         rated=CASUAL,
         chess960=False,
+        corr=False,
         create=True,
         tournamentId=None,
     ):
@@ -96,6 +96,7 @@ class Game:
         self.level = level if level is not None else 0
         self.tournamentId = tournamentId
         self.chess960 = chess960
+        self.corr = corr
         self.create = create
         self.imported_by = ""
 
@@ -261,14 +262,14 @@ class Game:
         ]
 
         self.last_move_date = None
-        if self.rated == CORRESPONDENCE:
+        if self.corr:
             self.stopwatch = CorrClock(self)
         else:
             self.stopwatch = Clock(self)
 
-        if self.rated != CORRESPONDENCE and not self.bplayer.bot:
+        if (not self.corr) and (not self.bplayer.bot):
             self.bplayer.game_in_progress = self.id
-        if self.rated != CORRESPONDENCE and not self.wplayer.bot:
+        if (not self.corr) and (not self.wplayer.bot):
             self.wplayer.game_in_progress = self.id
 
         self.wberserk = False
@@ -372,10 +373,10 @@ class Game:
 
                 if self.status > STARTED:
                     await self.save_game()
-                    if self.rated == CORRESPONDENCE:
+                    if self.corr:
                         await opp_player.notify_game_end(self)
 
-                elif self.rated == CORRESPONDENCE:
+                elif self.corr:
                     await self.save_moves()
 
                 self.steps.append(
@@ -395,7 +396,7 @@ class Game:
                 result = "1-0" if self.board.color == BLACK else "0-1"
                 self.update_status(INVALIDMOVE, result)
                 await self.save_game()
-                if self.rated == CORRESPONDENCE:
+                if self.corr:
                     await opp_player.notify_game_end(self)
 
     async def save_moves(self):
@@ -749,7 +750,7 @@ class Game:
         if not self.wplayer.bot:
             self.wplayer.game_in_progress = None
 
-        if self.rated == CORRESPONDENCE:
+        if self.corr:
             self.wplayer.correspondence_games.remove(self)
             self.bplayer.correspondence_games.remove(self)
 
@@ -912,7 +913,7 @@ class Game:
             log.debug("%s game_ended(%s, %s) %s", self.id, user.username, reason, result)
             await self.save_game()
 
-            if self.rated == CORRESPONDENCE:
+            if self.corr:
                 cur_player = (
                     self.wplayer if user.username == self.wplayer.username else self.bplayer
                 )
@@ -961,7 +962,7 @@ class Game:
             # To not touch self.ply_clocks we are creating deep copy from clocks
             clocks = {"black": self.clocks["black"], "white": self.clocks["white"]}
 
-            if self.status == STARTED and self.board.ply >= 2 and self.rated != CORRESPONDENCE:
+            if self.status == STARTED and self.board.ply >= 2 and (not self.corr):
                 # We have to adjust current player latest saved clock time
                 # otherwise he will get free extra time on browser page refresh
                 # (also needed for spectators entering to see correct clock times)
@@ -985,7 +986,7 @@ class Game:
         else:
             byoyomi_periods = ""
 
-        if self.rated == CORRESPONDENCE:
+        if self.corr:
             clock_mins = self.stopwatch.mins * 60 * 1000
             base_mins = self.base * 24 * 60 * 60 * 1000
             clocks = {
@@ -1013,7 +1014,7 @@ class Game:
             "date": (
                 datetime.now(timezone.utc) + timedelta(minutes=self.stopwatch.mins)
             ).isoformat()
-            if self.rated == CORRESPONDENCE
+            if self.corr
             else "",
             "uci_usi": self.uci_usi if self.status > STARTED else "",
             "ct": crosstable,

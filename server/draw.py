@@ -1,4 +1,4 @@
-from const import DRAW, RATED, STARTED, CORRESPONDENCE
+from const import DRAW, RATED, STARTED
 
 
 async def draw(game, user, agreement=False):
@@ -8,7 +8,7 @@ async def draw(game, user, agreement=False):
         game.update_status(DRAW, result)
         await game.save_game()
 
-        if game.rated == CORRESPONDENCE:
+        if game.corr:
             opp_player = game.wplayer if user.username == game.bplayer.username else game.bplayer
             await opp_player.notify_game_end(game)
 
@@ -53,7 +53,7 @@ async def reject_draw(game, opp_user):
 
 
 async def save_draw_offer(game):
-    if game.rated == CORRESPONDENCE and game.db is not None:
+    if game.corr and game.db is not None:
         await game.db.game.find_one_and_update(
             {"_id": game.id},
             {

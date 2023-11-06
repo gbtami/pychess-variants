@@ -29,7 +29,6 @@ from const import (
     CASUAL,
     RATED,
     IMPORTED,
-    CORRESPONDENCE,
     CONSERVATIVE_CAPA_FEN,
     T_STARTED,
 )
@@ -135,6 +134,7 @@ async def load_game(app, game_id):
         level=doc.get("x"),
         rated=doc.get("y"),
         chess960=bool(doc.get("z")),
+        corr=doc.get("c", False),
         create=False,
         tournamentId=doc.get("tid"),
     )
@@ -284,7 +284,7 @@ async def load_game(app, game_id):
     if doc.get("by") is not None:
         game.imported_by = doc.get("by")
 
-    if game.rated == CORRESPONDENCE:
+    if game.corr:
         if doc.get("wd", False):
             game.draw_offers.add(game.wplayer.username)
         if doc.get("bd", False):
@@ -487,10 +487,7 @@ async def new_game(app, seek_id, game_id=None):
 
     # print("new_game", game_id, seek.variant, seek.fen, wplayer, bplayer, seek.base, seek.inc, seek.level, seek.rated, seek.chess960)
     try:
-        if seek.day > 0:
-            rated = CORRESPONDENCE
-        else:
-            rated = RATED if (seek.rated and (not wplayer.anon) and (not bplayer.anon)) else CASUAL
+        rated = RATED if (seek.rated and (not wplayer.anon) and (not bplayer.anon)) else CASUAL
 
         game = Game(
             app,
@@ -505,6 +502,7 @@ async def new_game(app, seek_id, game_id=None):
             level=seek.level,
             rated=rated,
             chess960=seek.chess960,
+            corr=seek.day > 0,
             create=True,
         )
     except Exception:
@@ -525,7 +523,7 @@ async def new_game(app, seek_id, game_id=None):
 
     await insert_game_to_db(game, app)
 
-    if game.rated == CORRESPONDENCE:
+    if game.corr:
         game.wplayer.correspondence_games.append(game)
         game.bplayer.correspondence_games.append(game)
 
@@ -553,19 +551,17 @@ async def insert_game_to_db(game, app):
         "bp": game.byoyomi_period,
         "m": [],
         "d": game.date,
-        "f": game.initial_fen,
+        "f": game.board.initial_fen,
         "s": game.status,
         "r": R2C["*"],
         "x": game.level,
         "y": int(game.rated),
         "z": int(game.chess960),
+        "c": game.corr,
     }
 
     if game.tournamentId is not None:
         document["tid"] = game.tournamentId
-
-    if game.initial_fen or game.chess960:
-        document["if"] = game.initial_fen
 
     if game.variant.endswith("shogi") or game.variant in (
         "dobutsu",
@@ -577,12 +573,16 @@ async def insert_game_to_db(game, app):
     if game.variant == "janggi":
         document["ws"] = game.wsetup
         document["bs"] = game.bsetup
+        document["if"] = game.board.initial_fen
+
+    if game.initial_fen or game.chess960:
+        document["if"] = game.initial_fen
 
     result = await app["db"].game.insert_one(document)
     if not result:
         log.error("db insert game result %s failed !!!", game.id)
 
-    if game.rated != CORRESPONDENCE:
+    if not game.corr:
         app["tv"] = game.id
         await lobby_broadcast(app["lobbysockets"], game.tv_game_json)
 

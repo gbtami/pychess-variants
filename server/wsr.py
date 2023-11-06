@@ -10,7 +10,7 @@ import aiohttp_session
 
 from broadcast import lobby_broadcast, round_broadcast
 from chat import chat_response
-from const import ANALYSIS, CORRESPONDENCE, STARTED
+from const import ANALYSIS, STARTED
 from fairy import WHITE, BLACK
 from seek import challenge, Seek
 from user import User
@@ -165,7 +165,7 @@ async def round_socket_handler(request):
                             await ws.send_json(board_response)
 
                         if (
-                            game.rated == CORRESPONDENCE
+                            game.corr
                             and game.status <= STARTED
                             and len(game.draw_offers) > 0
                         ):
@@ -308,7 +308,7 @@ async def round_socket_handler(request):
                                 base=game.base,
                                 inc=game.inc,
                                 byoyomi_period=game.byoyomi_period,
-                                day=game.base if game.rated == CORRESPONDENCE else 0,
+                                day=game.base if game.corr else 0,
                                 level=game.level,
                                 rated=game.rated,
                                 player1=user,
@@ -342,7 +342,7 @@ async def round_socket_handler(request):
                                     base=game.base,
                                     inc=game.inc,
                                     byoyomi_period=game.byoyomi_period,
-                                    day=game.base if game.rated == CORRESPONDENCE else 0,
+                                    day=game.base if game.corr else 0,
                                     level=game.level,
                                     rated=game.rated,
                                     player1=user,
@@ -542,7 +542,7 @@ async def round_socket_handler(request):
                             game.spectators.add(user)
                             await round_broadcast(game, game.spectator_list, full=True)
 
-                        stopwatch_secs = game.stopwatch.secs if game.rated != CORRESPONDENCE else 0
+                        stopwatch_secs = game.stopwatch.secs if (not game.corr) else 0
                         response = {
                             "type": "game_user_connected",
                             "username": user.username,
@@ -583,7 +583,7 @@ async def round_socket_handler(request):
 
                     elif data["type"] == "moretime":
                         opp_color = WHITE if user.username == game.bplayer.username else BLACK
-                        if game.rated != CORRESPONDENCE and opp_color == game.stopwatch.color:
+                        if (not game.corr) and opp_color == game.stopwatch.color:
                             opp_time = game.stopwatch.stop()
                             game.stopwatch.restart(opp_time + MORE_TIME)
 
@@ -760,7 +760,7 @@ async def round_socket_handler(request):
                 del user.game_sockets[game.id]
                 user.update_online()
 
-            if user in (game.wplayer, game.bplayer) and game.rated != CORRESPONDENCE:
+            if user in (game.wplayer, game.bplayer) and (not game.corr):
                 user.abandon_game_task = asyncio.create_task(user.abandon_game(game))
             else:
                 game.spectators.discard(user)

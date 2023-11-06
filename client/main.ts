@@ -41,6 +41,7 @@ function initModel(el: HTMLElement) {
         variant : el.getAttribute("data-variant") ?? "",
         chess960 : el.getAttribute("data-chess960") ?? "",
         rated : el.getAttribute("data-rated") ?? "",
+        corr: el.getAttribute("data-corr") ?? "",
         level : parseInt(""+el.getAttribute("data-level")),
         username : user !== "" ? user : el.getAttribute("data-user") ?? "",
         gameId : el.getAttribute("data-gameid") ?? "",
@@ -73,7 +74,7 @@ function initModel(el: HTMLElement) {
         tournamentDirector: el.getAttribute("data-tournamentdirector") === "True",
         assetURL: el.getAttribute("data-asset-url") ?? "",
         puzzle: el.getAttribute("data-puzzle") ?? "",
-        corr: el.getAttribute("data-corr") ?? "",
+        corrGames: el.getAttribute("data-corrgames") ?? "",
     };
 }
 

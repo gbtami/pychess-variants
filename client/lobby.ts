@@ -331,14 +331,6 @@ export class LobbyController implements ChatController {
             this.tcMode = tcMode;
             document.getElementById('real')!.style.display = this.tcMode === 'real' ? 'block' : 'none';
             document.getElementById('corr')!.style.display = this.tcMode === 'corr' ? 'block' : 'none';
-            const ratedEl = document.getElementById('rated') as HTMLInputElement;
-            if (this.tcMode === 'corr') {
-                ratedEl.disabled = true;
-                const casualEl = document.getElementById('casual') as HTMLInputElement;
-                casualEl.checked = true;
-            } else {
-                ratedEl.disabled = this.anon;
-            }
         }
     }
 
@@ -1003,7 +995,7 @@ function runSeeks(vnode: VNode, model: PyChessModel) {
 export function lobbyView(model: PyChessModel): VNode[] {
     const puzzle = JSON.parse(model.puzzle);
     const username = model.username;
-    const corrGames = JSON.parse(model.corr).sort(compareGames(username));
+    const corrGames = JSON.parse(model.corrGames).sort(compareGames(username));
     const gpCounter = corrGames.length;
 
     const myTurnGameCounter = (sum: number, game: Game) => sum + ((game.tp === username) ? 1 : 0);

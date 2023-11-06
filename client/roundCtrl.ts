@@ -27,7 +27,6 @@ import { handleOngoingGameEvents, Game, gameViewPlaying, compareGames } from './
 
 let rang = false;
 const CASUAL = '0';
-const CORRESPONDENCE = '3';
 
 export class RoundController extends GameController {
     assetURL: string;
@@ -120,7 +119,7 @@ export class RoundController extends GameController {
 
         this.tournamentGame = this.tournamentId !== '';
         const parts = this.fullfen.split(" ");
-        this.clockOn = (Number(parts[parts.length - 1]) >= 2) && this.rated !== CORRESPONDENCE;
+        this.clockOn = (Number(parts[parts.length - 1]) >= 2) && !this.corr;
 
         const berserkId = (this.mycolor === "white") ? "wberserk" : "bberserk";
         // Not berserked yet, but allowed to do it
@@ -191,7 +190,7 @@ export class RoundController extends GameController {
 
         // initialize clocks
         // this.clocktimes = {};
-        if (this.rated === CORRESPONDENCE) {
+        if (this.corr) {
             const c0 = new Clock(this.base, 0, 0, document.getElementById('clock0') as HTMLElement, 'clock0', true);
             const c1 = new Clock(this.base, 0, 0, document.getElementById('clock1') as HTMLElement, 'clock1', true);
             this.clocks = [c0, c1];
@@ -288,7 +287,7 @@ export class RoundController extends GameController {
             }
         }
 
-        if (!this.spectator && this.rated !== CORRESPONDENCE) {
+        if (!this.spectator && !this.corr) {
             if (this.byoyomiPeriod > 0) {
                 this.clocks[1].onByoyomi(byoyomiCallback);
             }
@@ -332,7 +331,7 @@ export class RoundController extends GameController {
         boardSettings.assetURL = this.assetURL;
         boardSettings.updateBoardAndPieceStyles();
 
-        const corrGames = JSON.parse(model.corr).sort(compareGames(this.username));
+        const corrGames = JSON.parse(model.corrGames).sort(compareGames(this.username));
         if (corrGames.length > 0) {
             const cgMap: {[gameId: string]: Api} = {};
             handleOngoingGameEvents(this.username, cgMap);
@@ -372,7 +371,7 @@ export class RoundController extends GameController {
         }
 
         // TODO: moretime button
-        if (this.rated !== CORRESPONDENCE) {
+        if (!this.corr) {
             const new_running_clck = (this.clocks[0].running) ? this.clocks[1] : this.clocks[0];
             this.clocks[0].pause(false);
             this.clocks[1].pause(false);
@@ -926,7 +925,7 @@ export class RoundController extends GameController {
             const oppclock = !this.flipped() ? 0 : 1
             const myclock = 1 - oppclock;
 
-            if (this.rated !== CORRESPONDENCE) {
+            if (!this.corr) {
                 // pause() will add increment!
                 const movetime = (this.clocks[myclock].running) ? Date.now() - this.clocks[myclock].startTime : 0;
                 this.clocks[myclock].pause((this.base === 0 && this.ply < 2) ? false : true);
@@ -964,7 +963,7 @@ export class RoundController extends GameController {
         }
 
         const confirmCorrMove = localStorage.confirmCorrMove === undefined ? true : localStorage.getItem("confirmCorrMove") === "true";
-        if (confirmCorrMove && this.rated === CORRESPONDENCE) {
+        if (confirmCorrMove && this.corr) {
             this.renderConfirmCorrMove(send, move);
         } else {
             send(move);

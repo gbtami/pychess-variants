@@ -14,7 +14,7 @@ export function gameInfo(model: PyChessModel): VNode {
     const variant = VARIANTS[model.variant];
     const chess960 = model.chess960 === 'True';
     const dataIcon = variant.icon(chess960);
-    const tc = timeControlStr(model["base"], model["inc"], model["byo"], model["rated"] === "3" ? model["base"] : 0)
+    const tc = timeControlStr(model["base"], model["inc"], model["byo"], model["corr"] === "True" ? model["base"] : 0)
 
     return h('div.game-info', [
         h('section', [
