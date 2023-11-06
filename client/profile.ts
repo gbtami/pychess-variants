@@ -26,6 +26,7 @@ interface Game {
     bp: number; // TC byoyomi period
 
     y: number; // casual/rated/imported/correspondence (0/1/2/3)
+    c: boolean; // correspondence game
     d: string; // datetime
 
     tid?: string; // tournament id
