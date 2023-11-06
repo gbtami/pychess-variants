@@ -32,6 +32,7 @@ export abstract class GameController extends ChessgroundController implements Ch
     bplayer: string;
     aiLevel: number;
     rated: string;
+    corr : boolean;
 
     base: number;
     inc: number;
@@ -108,6 +109,7 @@ export abstract class GameController extends ChessgroundController implements Ch
         this.wrating = model["wrating"];
         this.brating = model["brating"];
         this.rated = model["rated"];
+        this.corr = model["corr"] === 'True';
 
         this.spectator = this.username !== this.wplayer && this.username !== this.bplayer;
 

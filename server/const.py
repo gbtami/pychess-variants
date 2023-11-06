@@ -51,7 +51,7 @@ LANGUAGES = [
 MOVE, ANALYSIS = 0, 1
 
 # game types
-CASUAL, RATED, IMPORTED, CORRESPONDENCE = 0, 1, 2, 3
+CASUAL, RATED, IMPORTED = 0, 1, 2
 
 # game status
 (

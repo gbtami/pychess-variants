@@ -31,7 +31,6 @@ from ai import BOT_task
 from broadcast import lobby_broadcast, round_broadcast
 from const import (
     NOTIFY_EXPIRE_SECS,
-    CORRESPONDENCE,
     VARIANTS,
     STARTED,
     ABORTED,
@@ -379,14 +378,20 @@ async def init_state(app):
         await app["db"].game.create_index("v")
         await app["db"].game.create_index("y")
         await app["db"].game.create_index("by")
+        await app["db"].game.create_index("c")
 
         if "notify" not in db_collections:
             await app["db"].create_collection("notify")
         await app["db"].notify.create_index("notifies")
         await app["db"].notify.create_index("createdAt", expireAfterSeconds=NOTIFY_EXPIRE_SECS)
 
+        # Fix corr games: rated="3" -> corr=True
+        print("CORR FIX START:", datetime.now().isoformat())
+        await app["db"].game.update_many({"y": 3}, {"$set": {"c": True}})
+        print("CORR FIX END  :", datetime.now().isoformat())
+
         # Read correspondence games in play and start their clocks
-        cursor = app["db"].game.find({"r": "d", "y": CORRESPONDENCE})
+        cursor = app["db"].game.find({"r": "d", "c": True})
         async for doc in cursor:
             if doc["s"] < ABORTED:
                 game = await load_game(app, doc["_id"])
@@ -437,7 +442,7 @@ async def shutdown(app):
 
     # abort games
     for game in list(app["games"].values()):
-        if game.status <= STARTED and game.rated != CORRESPONDENCE:
+        if game.status <= STARTED and (not game.corr):
             response = await game.abort_by_server()
             for player in (game.wplayer, game.bplayer):
                 if not player.bot and game.id in player.game_sockets:
