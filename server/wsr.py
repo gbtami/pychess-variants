@@ -164,11 +164,7 @@ async def round_socket_handler(request):
                             board_response = game.get_board(full=True)
                             await ws.send_json(board_response)
 
-                        if (
-                            game.corr
-                            and game.status <= STARTED
-                            and len(game.draw_offers) > 0
-                        ):
+                        if game.corr and game.status <= STARTED and len(game.draw_offers) > 0:
                             offerer = (
                                 game.wplayer
                                 if game.wplayer.username in game.draw_offers
