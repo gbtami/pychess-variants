@@ -175,13 +175,17 @@ function start() {
 
     // Clicking outside settings panel closes it
     const settingsPanel = patch(document.getElementById('settings-panel') as HTMLElement, settingsView()).elm as HTMLElement;
-    const notifyPanel = patch(document.getElementById('notify-panel') as HTMLElement, notifyView()).elm as HTMLElement;
+    if (model["anon"] !== 'True') {
+        const notifyPanel = patch(document.getElementById('notify-panel') as HTMLElement, notifyView()).elm as HTMLElement;
+    }
 
     document.addEventListener("click", function(event) {
         if (!settingsPanel.contains(event.target as Node))
             hideSettings();
-        if (!notifyPanel.contains(event.target as Node))
-            hideNotify();
+        if (model["anon"] !== 'True') {
+            if (!notifyPanel.contains(event.target as Node))
+                hideNotify();
+        }
     });
 
     patch(document.getElementById('zen-button') as HTMLElement, zenButtonView()).elm as HTMLElement;
