@@ -1,4 +1,4 @@
-<h1 align="center">S-chess Endings 1</h1>
+<h1 align="center">S-Chess Endings 1</h1>
 <div class="meta-headline">
     <div class= "meta">
         <span class="text">2023.xx.xx</span>
