@@ -1,4 +1,4 @@
-<h1 align="center">Seirawan Chess Endings 1</h1>
+<h1 align="center">S-chess Endings 1</h1>
 <div class="meta-headline">
     <div class= "meta">
         <span class="text">2023.xx.xx</span>
@@ -7,6 +7,7 @@
     </div>
     <div class= "headline">The Elephant</div>
 </div>
+</br>
 
 In my book, "Winning Chess Endgames," I quoted a dear late friend of mine, Michael Franett, three-time Washington State Champion, "Studying the Ending is like cheating." His point being that if you play chess you are going to get to an endgame. You might as well learn the endings in advance so that you will be prepared when they inevitably arise. Additionally, a primary benefit of learning endings is that it helps you better understand the values of the pieces on an open board. To many beginning players, a bishop may seem as strong as a rook. Take a look at a few Bishop versus Rook endings and suddenly it becomes crystal clear why a Rook is stronger in the endgame. Endgame study also helps you learn how the pieces coordinate with one another and how to best oppose a superior force. Being a pawn down in a Rook ending is no fun but if you know how to draw such positions, you will become a fearless defender.
 
