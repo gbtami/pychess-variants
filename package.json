@@ -26,7 +26,7 @@
     "gettext.js": "^2.0.0",
     "highcharts": "^11.0.0",
     "howler": "^2.2.3",
-    "html-to-image": "^1.10.8",
+    "html-to-image": "^1.11.11",
     "idb-keyval": "^6.2.0",
     "mousetrap": "^1.6.5",
     "snabbdom": "^3.5.1",

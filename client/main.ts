@@ -175,8 +175,9 @@ function start() {
 
     // Clicking outside settings panel closes it
     const settingsPanel = patch(document.getElementById('settings-panel') as HTMLElement, settingsView()).elm as HTMLElement;
+    var notifyPanel = document.getElementById('notify-panel') as HTMLElement;
     if (model["anon"] !== 'True') {
-        const notifyPanel = patch(document.getElementById('notify-panel') as HTMLElement, notifyView()).elm as HTMLElement;
+        notifyPanel = patch(notifyPanel, notifyView()).elm as HTMLElement;
     }
 
     document.addEventListener("click", function(event) {
