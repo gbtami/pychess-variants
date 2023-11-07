@@ -836,7 +836,6 @@ export const VARIANTS: Record<string, Variant> = {
         pieceRow: ["k", "r", "n", "b", "a", "q", "c", "m", "p"],
         pocket: { roles: ["p", "n", "b", "r", "a", "q", "c", "m"], captureToHand: true },
         promotion: { type: "shogi", roles: ["n", "b", "r", "c", "m", "p"] },
-        ui: { boardMark: 'campmate' },
     }),
 
     // We support the functionality to import/store/analyze some variants
