@@ -385,11 +385,6 @@ async def init_state(app):
         await app["db"].notify.create_index("notifies")
         await app["db"].notify.create_index("createdAt", expireAfterSeconds=NOTIFY_EXPIRE_SECS)
 
-        # Fix corr games: rated="3" -> corr=True
-        print("CORR FIX START:", datetime.now().isoformat())
-        await app["db"].game.update_many({"y": 3}, {"$set": {"c": True}})
-        print("CORR FIX END  :", datetime.now().isoformat())
-
         # Read correspondence games in play and start their clocks
         cursor = app["db"].game.find({"r": "d", "c": True})
         async for doc in cursor:
