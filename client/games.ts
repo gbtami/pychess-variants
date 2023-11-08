@@ -25,7 +25,7 @@ export interface Game {
     wTitle: string;
     level: number;
     fen: cg.FEN;
-    lastMove: cg.Move;
+    lastMove: string;
 }
 
 function gameView(games: {[gameId: string]: Api}, game: Game) {
@@ -52,7 +52,7 @@ function gameView(games: {[gameId: string]: Api}, game: Game) {
                 insert: vnode => {
                     const cg = Chessground(vnode.elm as HTMLElement, {
                         fen: game.fen,
-                        lastMove: game.lastMove,
+                        lastMove: uci2LastMove(game.lastMove),
                         dimensions: variant.board.dimensions,
                         coordinates: false,
                         viewOnly: true,
