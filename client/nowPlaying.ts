@@ -48,7 +48,7 @@ export function handleOngoingGameEvents(username: string, cgMap: {[gameId: strin
         );
         const noreadEl = document.querySelector('span.noread') as HTMLElement;
         const diff = isMyTurn ? 1 : -1;
-        const count = parseInt(noreadEl.textContent || '0') + diff;
+        const count = parseInt(noreadEl.dataset.count || '0') + diff;
         patch(noreadEl, h('span.noread.data-count', {attrs: { 'data-count': count }}));
     }
 }
@@ -77,8 +77,8 @@ export function compareGames(username: string) {
         const bIsUserTurn = (b.tp === username);
         if (aIsUserTurn && !bIsUserTurn) return -1;
         if (!aIsUserTurn && bIsUserTurn) return 1;
-        if (a.mins > b.mins) return -1;
-        if (a.mins < b.mins) return 1;
+        if (a.mins < b.mins) return -1;
+        if (a.mins > b.mins) return 1;
         return 0;
     };
 }
