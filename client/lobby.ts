@@ -1101,6 +1101,14 @@ export function lobbyView(model: PyChessModel): VNode[] {
         h('div.tv', [h('a#tv-game', { attrs: {href: '/tv'} })]),
         h('under-lobby', [
             h('posts', [
+                h('a.post', { attrs: {href: '/news/Correspondence_Chess'} }, [
+                    h('img', { attrs: {src: model.assetURL + '/images/Postcard-for-correspondence-chess.png'} }),
+                    h('span.text', [
+                        h('strong', _("Correspondence Chess")),
+                        h('span', _('You have time now')),
+                    ]),
+                    h('time', '2023.11.10'),
+                ]),
                 h('a.post', { attrs: {href: '/news/S-chess_ramblings'} }, [
                     h('img', { attrs: {src: model.assetURL + '/images/Hawk-Elephant.jpeg'} }),
                     h('span.text', [
@@ -1117,6 +1125,7 @@ export function lobbyView(model: PyChessModel): VNode[] {
                     ]),
                     h('time', '2023.10.19'),
                 ]),
+                /*
                 h('a.post', { attrs: {href: '/news/Summer_Update'} }, [
                     h('img', { attrs: {src: model.assetURL + '/images/puzzles.jpg'} }),
                     h('span.text', [
@@ -1125,7 +1134,6 @@ export function lobbyView(model: PyChessModel): VNode[] {
                     ]),
                     h('time', '2023.06.06'),
                 ]),
-                /*
                 h('a.post', { attrs: {href: '/news/Spartan_Chess'} }, [
                     h('img', { attrs: {src: model.assetURL + '/images/spartan-kick.jpg'} }),
                     h('span.text', [
