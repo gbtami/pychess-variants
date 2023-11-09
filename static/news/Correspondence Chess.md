@@ -17,4 +17,4 @@ As you may noticed already, correspondence chess is available now on pychess sit
 
 The rules are the same as on lichess/lishogi. Using everything is alloved except the engines!
 
-Implementing thie feature affected almost all of the code base, so possibe it will bring new bugs and some regressions, so feel free to report bugs on [GitHub](https://github.com/gbtami/pychess-variants/issues) or [Discord](https://discord.gg/aPs8RKr)
+Implementing this feature affected almost all of the code base, so possibe it will bring new bugs and some regressions, so feel free to report bugs on [GitHub](https://github.com/gbtami/pychess-variants/issues) or [Discord](https://discord.gg/aPs8RKr)
