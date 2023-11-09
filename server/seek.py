@@ -48,6 +48,7 @@ class Seek:
         Seek.gen_id += 1
         self.id = self.gen_id
         self.game_id = game_id
+        # Seek is pending when it is not corr, and user has no live lobby websocket
         self.pending = False
 
     @property
@@ -91,7 +92,7 @@ async def create_seek(db, invites, seeks, user, data, ws, empty=False):
     Currently there is no limit for them since they're used for tournament organisation purposes
     They can only be created by trusted users
     """
-    if len([seek for seek in user.seeks.values() if seek.day == 0]) >= MAX_USER_SEEKS and not empty:
+    if len([seek for seek in user.seeks.values()]) >= MAX_USER_SEEKS and not empty:
         return
 
     target = data.get("target")
