@@ -10,7 +10,7 @@
 </br>
 
 <p align="center">
-  <img src="https://github.com/gbtami/pychess-variants/blob/master/static/images/Postcard-for-correspondence-chess.png" width="300" height="150">
+  <img src="https://github.com/gbtami/pychess-variants/blob/master/static/images/Postcard-for-correspondence-chess.png" width="345" height="245">
 </p>
 
 As you may noticed already, correspondence chess is available now on pychess site. First I thought it will be casual only, but after [@CouchTomato87]() and [@SteveatKurihara] noticed rated correspondence games are available on lishogi and on all correspondence chess sites. So I changed my mind and implemented rated play also. I know lichess doesn't allow it, because there was lots of complaint about how it has effects on the leaderboards. We will see. The ratings are not separated from real time variant ratings, similar to lishogi.
