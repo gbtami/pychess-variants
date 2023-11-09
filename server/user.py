@@ -222,6 +222,11 @@ class User:
                 "win": win,
             },
         }
+
+        if self.notifications is None:
+            cursor = self.db.notify.find({"notifies": self.username})
+            self.notifications = await cursor.to_list(length=100)
+
         self.notifications.append(document)
 
         for queue in self.notify_channels:

@@ -190,6 +190,11 @@ class CorrClock:
                 "opp": opp_name,
             },
         }
+
+        if user.notifications is None:
+            cursor = self.game.db.notify.find({"notifies": user.username})
+            user.notifications = await cursor.to_list(length=100)
+
         user.notifications.append(document)
 
         for queue in user.notify_channels:
