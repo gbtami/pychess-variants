@@ -3,9 +3,9 @@
     <div class= "meta">
         <span class="text">2023.11.10</span>
         <span class="text"><a href="/@/gbtami">@gbtami</a></span>
-        <span class="text">You have time now</span>
+        <span class="text">Announcements</span>
     </div>
-    <div class= "headline"></div>
+    <div class= "headline">You have time now</div>
 </div>
 </br>
 
