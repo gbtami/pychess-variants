@@ -887,7 +887,7 @@ export class AnalysisController extends GameController {
         // New main line move
         if (moveIdx === this.steps.length && this.plyVari === 0) {
             this.steps.push(step);
-            this.ply = ffishBoardPly
+            this.ply = this.steps.length -1;
             updateMovelist(this);
 
             this.checkStatus(msg);
