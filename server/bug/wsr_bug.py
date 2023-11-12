@@ -31,7 +31,7 @@ async def handle_reconnect_bughouse(data, game, user, request, session_user):
                     session_user,
                 )
         ####
-        if movesQueued is not None and len(movesQueued) > 1:
+        if movesQueued is not None and len(movesQueued) > 1 and movesQueued[1] is not None:
             try:
                 await play_move(
                     request.app,
