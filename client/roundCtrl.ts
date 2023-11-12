@@ -317,8 +317,8 @@ export class RoundController extends GameController {
             if (!manualCount)
                 patch(document.getElementById('count') as HTMLElement, h('div'));
             if (this.corr) {
-                document.getElementById("draw").disabled = true;
-                document.getElementById("resign").disabled = true;
+                (document.getElementById("draw") as HTMLInputElement).disabled = true;
+                (document.getElementById("resign") as HTMLInputElement).disabled = true;
             }
         } else {
             this.gameControls = patch(container, h('div.btn-controls.game'));
@@ -733,8 +733,8 @@ export class RoundController extends GameController {
             if (container1) patch(container1, h('div#berserk1', ''));
 
             if (!this.spectator && this.corr) {
-                document.getElementById("draw").disabled = false;
-                document.getElementById("resign").disabled = false;
+                (document.getElementById("draw") as HTMLInputElement).disabled = false;
+                (document.getElementById("resign") as HTMLInputElement).disabled = false;
             }
         }
 
