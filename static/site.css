@@ -1687,8 +1687,11 @@ button {
 button:disabled {
   color: var(--bg-color1);
 }
-
-.btn-controls button:hover {
+button[disabled] i {
+  opacity: 0.5;
+  color: var(--font-color);
+}
+.btn-controls button:not([disabled]):hover {
   color: #fff;
   background-color: var(--green-hover);
 }

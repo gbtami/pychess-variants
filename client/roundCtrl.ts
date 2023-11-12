@@ -316,7 +316,10 @@ export class RoundController extends GameController {
             const manualCount = this.variant.ui.counting === 'makruk' && !(this.wtitle === 'BOT' || this.btitle === 'BOT');
             if (!manualCount)
                 patch(document.getElementById('count') as HTMLElement, h('div'));
-
+            if (this.corr) {
+                document.getElementById("draw").disabled = true;
+                document.getElementById("resign").disabled = true;
+            }
         } else {
             this.gameControls = patch(container, h('div.btn-controls.game'));
         }
@@ -728,6 +731,11 @@ export class RoundController extends GameController {
 
             const container1 = document.getElementById('berserk1') as HTMLElement;
             if (container1) patch(container1, h('div#berserk1', ''));
+
+            if (!this.spectator && this.corr) {
+                document.getElementById("draw").disabled = false;
+                document.getElementById("resign").disabled = false;
+            }
         }
 
         if (this.ply === 1 || this.ply === 2) {
