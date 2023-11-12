@@ -31,6 +31,17 @@ function messageView(message: Message) {
     const content = message.content;
 
     switch (message.type) {
+    case 'gameAborted':
+        return h(`div.notification.corr${read}`, [
+            h('div.icon.icon-paper-plane'),
+            h('span.content',[
+                h('span', [
+                    h('strong', "Game vs " + content.opp),
+                    h('info.date', { attrs: { timestamp: message.date} }, timeago(message.date)),
+                ]),
+                h('span', 'Game aborted'),
+            ]),
+        ]);
     case 'gameEnd':
         return h(`a.notification.corr${read}`, { attrs: { href: content.id} }, [
             h('div.icon.icon-paper-plane'),

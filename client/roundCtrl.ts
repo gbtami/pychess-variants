@@ -640,7 +640,7 @@ export class RoundController extends GameController {
                     buttons.push(h('button.newopp', { on: { click: () => this.pauseTournament() } },
                         [h('div', {class: {"icon": true, 'icon-pause2': true} }, _("PAUSE"))]));
                 }
-            } else {
+            } else if (!this.corr) {
                 buttons.push(h('button.rematch', { on: { click: () => this.rematch() } }, _("REMATCH")));
                 buttons.push(h('button.newopp', { on: { click: () => this.newOpponent(this.home) } }, _("NEW OPPONENT")));
             }

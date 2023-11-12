@@ -199,7 +199,7 @@ class User:
             else game.bplayer.username
         )
 
-        if game.result == "1/2-1/2":
+        if game.result in ("1/2-1/2", "*"):
             win = None
         else:
             if (game.result == "1-0" and game.wplayer.username == self.username) or (
@@ -213,7 +213,7 @@ class User:
         document = {
             "_id": _id,
             "notifies": self.username,
-            "type": "gameEnd",
+            "type": "gameAborted" if game.result == "*" else "gameEnd",
             "read": False,
             "createdAt": datetime.now(timezone.utc),
             "content": {
