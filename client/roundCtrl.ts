@@ -474,7 +474,9 @@ export class RoundController extends GameController {
     }
 
     private setDialog = (message: string) => {
-        (document.querySelector('.btn-controls.game') as HTMLElement).style.display= "none";
+        const gameControlsEl = document.querySelector('.btn-controls.game') as HTMLElement;
+        if (gameControlsEl) gameControlsEl.style.display= "none";
+
         this.vdialog = patch(this.vdialog, h('div#offer-dialog', [
             h('div.dcontrols', [
                 h('div', { class: { reject: false } }),
