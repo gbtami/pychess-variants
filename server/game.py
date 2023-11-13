@@ -777,10 +777,12 @@ class Game:
                 for ind, move in enumerate(mlist)
             )
         )
-        no_setup = self.initial_fen == self.board.start_fen("chess") and not self.chess960
+        no_setup = self.board.initial_fen == self.board.start_fen("chess") and not self.chess960
         # Use lichess format for crazyhouse games to support easy import
         setup_fen = (
-            self.initial_fen if self.variant != "crazyhouse" else self.initial_fen.replace("[]", "")
+            self.board.initial_fen
+            if self.variant != "crazyhouse"
+            else self.board.initial_fen.replace("[]", "")
         )
         tc = "-" if self.base + self.inc == 0 else "%s+%s" % (int(self.base * 60), self.inc)
         return '[Event "{}"]\n[Site "{}"]\n[Date "{}"]\n[Round "-"]\n[White "{}"]\n[Black "{}"]\n[Result "{}"]\n[TimeControl "{}"]\n[WhiteElo "{}"]\n[BlackElo "{}"]\n[Variant "{}"]\n{fen}{setup}\n{} {}\n'.format(

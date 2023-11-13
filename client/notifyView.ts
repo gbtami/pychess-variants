@@ -7,7 +7,7 @@ import { timeago } from './datetime';
 interface Message {
     type: string;
     read: boolean;
-    date: string;
+    createdAt: string;
     content: {
         id: string;
         opp: string;
@@ -29,15 +29,25 @@ function result(win: boolean | null) {
 function messageView(message: Message) {
     const read = (message.read) ? '' : '.new';
     const content = message.content;
-
     switch (message.type) {
+    case 'gameAborted':
+        return h(`div.notification.corr${read}`, [
+            h('div.icon.icon-paper-plane'),
+            h('span.content',[
+                h('span', [
+                    h('strong', "Game vs " + content.opp),
+                    h('info.date', { attrs: { timestamp: message.createdAt} }, timeago(message.createdAt)),
+                ]),
+                h('span', 'Game aborted'),
+            ]),
+        ]);
     case 'gameEnd':
         return h(`a.notification.corr${read}`, { attrs: { href: content.id} }, [
             h('div.icon.icon-paper-plane'),
             h('span.content',[
                 h('span', [
                     h('strong', "Game vs " + content.opp),
-                    h('info.date', { attrs: { timestamp: message.date} }, timeago(message.date)),
+                    h('info.date', { attrs: { timestamp: message.createdAt} }, timeago(message.createdAt)),
                 ]),
                 h('span', result(content.win)),
             ]),
@@ -48,7 +58,7 @@ function messageView(message: Message) {
             h('span.content',[
                 h('span', [
                     h('strong', "Time is almost up!"),
-                    h('info.date', { attrs: { timestamp: message.date} }, timeago(message.date)),
+                    h('info.date', { attrs: { timestamp: message.createdAt} }, timeago(message.createdAt)),
                 ]),
                 h('span', "Game vs " + content.opp),
             ]),
@@ -56,6 +66,12 @@ function messageView(message: Message) {
     default:
         return '';
     }
+}
+
+function compareMessages(a: Message, b: Message) {
+    if (a.createdAt < b.createdAt) return 1;
+    if (a.createdAt > b.createdAt) return -1;
+    return 0;
 }
 
 function renderMessages(messages: Message[]) {
@@ -68,7 +84,7 @@ function renderMessages(messages: Message[]) {
             ]),
         );
     } else {
-        messages.forEach((message: Message) => renderedMessages.push(messageView(message)));
+        messages.sort(compareMessages).forEach((message: Message) => renderedMessages.push(messageView(message)));
     }
     return renderedMessages;
 }

@@ -316,7 +316,12 @@ export class RoundController extends GameController {
             const manualCount = this.variant.ui.counting === 'makruk' && !(this.wtitle === 'BOT' || this.btitle === 'BOT');
             if (!manualCount)
                 patch(document.getElementById('count') as HTMLElement, h('div'));
-
+            if (this.corr) {
+                const drawEl = document.getElementById("draw") as HTMLInputElement;
+                if (drawEl) drawEl.disabled = true;
+                const resignEl = document.getElementById("resign") as HTMLInputElement;
+                if (resignEl) resignEl.disabled = true;
+            }
         } else {
             this.gameControls = patch(container, h('div.btn-controls.game'));
         }
@@ -471,7 +476,9 @@ export class RoundController extends GameController {
     }
 
     private setDialog = (message: string) => {
-        (document.querySelector('.btn-controls.game') as HTMLElement).style.display= "none";
+        const gameControlsEl = document.querySelector('.btn-controls.game') as HTMLElement;
+        if (gameControlsEl) gameControlsEl.style.display= "none";
+
         this.vdialog = patch(this.vdialog, h('div#offer-dialog', [
             h('div.dcontrols', [
                 h('div', { class: { reject: false } }),
@@ -640,7 +647,7 @@ export class RoundController extends GameController {
                     buttons.push(h('button.newopp', { on: { click: () => this.pauseTournament() } },
                         [h('div', {class: {"icon": true, 'icon-pause2': true} }, _("PAUSE"))]));
                 }
-            } else {
+            } else if (!this.corr) {
                 buttons.push(h('button.rematch', { on: { click: () => this.rematch() } }, _("REMATCH")));
                 buttons.push(h('button.newopp', { on: { click: () => this.newOpponent(this.home) } }, _("NEW OPPONENT")));
             }
@@ -728,6 +735,13 @@ export class RoundController extends GameController {
 
             const container1 = document.getElementById('berserk1') as HTMLElement;
             if (container1) patch(container1, h('div#berserk1', ''));
+
+            if (!this.spectator && this.corr) {
+                const drawEl = document.getElementById("draw") as HTMLInputElement;
+                if (drawEl) drawEl.disabled = false;
+                const resignEl = document.getElementById("resign") as HTMLInputElement;
+                if (resignEl) resignEl.disabled = false;
+            }
         }
 
         if (this.ply === 1 || this.ply === 2) {
