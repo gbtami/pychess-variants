@@ -152,7 +152,8 @@ class CorrClock:
                 self.mins -= 1
 
                 if (
-                    self.game.board.ply not in self.alarms
+                    self.game.status < ABORTED
+                    and self.game.board.ply not in self.alarms
                     and self.mins <= self.alarm_mins
                     and self.mins > self.alarm_mins - 2
                 ):
