@@ -205,7 +205,7 @@ async def load_game(app, game_id):
                 "turnColor": turnColor,
                 "check": game.check,
             }
-            if "cw" in doc:
+            if "cw" in doc and len(doc["cw"]) > 0:
                 move_number = ((ply + 1) // 2) + (1 if ply % 2 == 0 else 0)
                 if ply >= 2:
                     if ply % 2 == 0:
