@@ -147,7 +147,7 @@ export function analysisView(model: PyChessModel): VNode[] {
             h('under-board', [
                 h('div', {attrs: {role: 'tablist', 'aria-label': 'Analysis Tabs'}}, tabs),
                 h('div.chart-container', {attrs: {id: 'panel-1', role: 'tabpanel', tabindex: '-1', 'aria-labelledby': 'tab-1'}}, [
-                    h('button#request-analysis'),
+                    h('div#request-analysis'),
                     h('div#chart-analysis'),
                     h('div#loader-wrapper', [spinner()])
                 ]),
