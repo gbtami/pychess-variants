@@ -14,7 +14,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2023-08-05 22:06+0200\n"
+"POT-Creation-Date: 2023-11-17 14:15+0100\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Last-Translator: 설월신서향雪月申瑞香（설월）, 2023\n"
 "Language-Team: Korean (https://app.transifex.com/gbtami/teams/14790/ko/)\n"
@@ -25,245 +25,249 @@ msgstr ""
 "Language: ko\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-#: ../server/const.py:317
+#: ../server/const.py:325
 msgid "Arena"
 msgstr "아레나"
 
-#: ../server/const.py:318
+#: ../server/const.py:326
 msgid "Round-Robin"
 msgstr "리그전"
 
-#: ../server/const.py:319
+#: ../server/const.py:327
 msgid "Swiss"
 msgstr "스위스"
 
-#: ../server/const.py:323
+#: ../server/const.py:331
 msgid "Hourly"
 msgstr "시간"
 
-#: ../server/const.py:324
+#: ../server/const.py:332
 msgid "Daily"
 msgstr "일간"
 
-#: ../server/const.py:325
+#: ../server/const.py:333
 msgid "Weekly"
 msgstr "주간"
 
-#: ../server/const.py:326
+#: ../server/const.py:334
 msgid "Monthly"
 msgstr "월간"
 
-#: ../server/const.py:327
+#: ../server/const.py:335
 msgid "Yearly"
 msgstr "연간"
 
-#: ../server/const.py:328
+#: ../server/const.py:336
 msgid "Marathon"
 msgstr "마라톤"
 
-#: ../server/const.py:329
+#: ../server/const.py:337
 msgid "Shield"
 msgstr "방패"
 
-#: ../server/const.py:330
+#: ../server/const.py:338
 msgid "SEAturday"
 msgstr ""
 
-#: ../server/const.py:334
+#: ../server/const.py:342
 msgid "Chess"
 msgstr "체스"
 
-#: ../server/const.py:335
+#: ../server/const.py:343
 msgid "Chess960"
 msgstr "체스960"
 
-#: ../server/const.py:336
+#: ../server/const.py:344
 msgid "Crazyhouse"
 msgstr "크레이지하우스"
 
-#: ../server/const.py:337
+#: ../server/const.py:345
 msgid "Crazyhouse960"
 msgstr "크레이지하우스960"
 
-#: ../server/const.py:338 ../server/videos.py:24
+#: ../server/const.py:346 ../server/videos.py:24
 msgid "Placement"
 msgstr "배치"
 
-#: ../server/const.py:339
+#: ../server/const.py:347
 msgid "Atomic"
 msgstr "아토믹"
 
-#: ../server/const.py:340
+#: ../server/const.py:348
 msgid "Atomic960"
 msgstr "아토믹960"
 
-#: ../server/const.py:341
+#: ../server/const.py:349
 msgid "Duck Chess"
-msgstr ""
+msgstr "오리 체스"
 
-#: ../server/const.py:342 ../server/videos.py:20
+#: ../server/const.py:350 ../server/videos.py:20
 msgid "Makruk"
 msgstr "막룩"
 
-#: ../server/const.py:343
+#: ../server/const.py:351
 msgid "Makpong"
 msgstr "막퐁"
 
-#: ../server/const.py:344
+#: ../server/const.py:352
 msgid "Ouk Chaktrang"
 msgstr "욱 차트랑"
 
-#: ../server/const.py:345
+#: ../server/const.py:353
 msgid "Sittuyin"
 msgstr "시투인"
 
-#: ../server/const.py:346
+#: ../server/const.py:354
 msgid "ASEAN"
 msgstr "아세안"
 
-#: ../server/const.py:347 ../server/videos.py:21
+#: ../server/const.py:355 ../server/videos.py:21
 msgid "Shogi"
 msgstr "쇼기"
 
-#: ../server/const.py:348
+#: ../server/const.py:356
 msgid "Minishogi"
 msgstr "미니쇼기"
 
-#: ../server/const.py:349
+#: ../server/const.py:357
 msgid "Kyoto Shogi"
 msgstr "교토 쇼기"
 
-#: ../server/const.py:350
+#: ../server/const.py:358
 msgid "Dobutsu"
 msgstr "도부츠"
 
-#: ../server/const.py:353
+#: ../server/const.py:361
 msgid "Gorogoro+"
 msgstr "고로고로+"
 
-#: ../server/const.py:354
+#: ../server/const.py:362
 msgid "Tori Shogi"
 msgstr "토리 쇼기"
 
-#: ../server/const.py:355 ../server/videos.py:19
+#: ../server/const.py:363 ../server/videos.py:19
 msgid "Xiangqi"
 msgstr "샹치"
 
-#: ../server/const.py:356
+#: ../server/const.py:364
 msgid "Manchu"
 msgstr "만추"
 
-#: ../server/const.py:357 ../server/videos.py:18
+#: ../server/const.py:365 ../server/videos.py:18
 msgid "Janggi"
 msgstr "장기"
 
-#: ../server/const.py:358
+#: ../server/const.py:366
 msgid "Minixiangqi"
 msgstr "미니샹치"
 
-#: ../server/const.py:359 ../server/videos.py:23
+#: ../server/const.py:367 ../server/videos.py:23
 msgid "Capablanca"
 msgstr "카파블랑카"
 
-#: ../server/const.py:360
+#: ../server/const.py:368
 msgid "Capablanca960"
 msgstr "카파블랑카960"
 
-#: ../server/const.py:361
+#: ../server/const.py:369
 msgid "Capahouse"
 msgstr "카파하우스"
 
-#: ../server/const.py:362
+#: ../server/const.py:370
 msgid "Capahouse960"
 msgstr "카파하우스960"
 
-#: ../server/const.py:368 ../server/videos.py:22
+#: ../server/const.py:376 ../server/videos.py:22
 msgid "S-Chess"
 msgstr "S체스"
 
-#: ../server/const.py:369
+#: ../server/const.py:377
 msgid "S-Chess960"
 msgstr "S체스960"
 
-#: ../server/const.py:370
+#: ../server/const.py:378
 msgid "S-House"
 msgstr "S하우스"
 
-#: ../server/const.py:371
+#: ../server/const.py:379
 msgid "Grand"
 msgstr "그랜드"
 
-#: ../server/const.py:372
+#: ../server/const.py:380
 msgid "Grandhouse"
 msgstr "그랜드하우스"
 
-#: ../server/const.py:373
+#: ../server/const.py:381
 msgid "Shogun"
 msgstr "쇼군"
 
-#: ../server/const.py:374
+#: ../server/const.py:382
 msgid "Shako"
 msgstr "샤코"
 
-#: ../server/const.py:375
+#: ../server/const.py:383
 msgid "Hoppel-Poppel"
 msgstr "호플호플"
 
-#: ../server/const.py:376
+#: ../server/const.py:384
 msgid "Orda Chess"
 msgstr "오르다 체스"
 
-#: ../server/const.py:377
+#: ../server/const.py:385
 msgid "Synochess"
 msgstr "시노체스"
 
-#: ../server/const.py:378
+#: ../server/const.py:386
 msgid "Shinobi"
 msgstr "시노비"
 
-#: ../server/const.py:379
+#: ../server/const.py:387
 msgid "Shinobi+"
 msgstr ""
 
-#: ../server/const.py:380
+#: ../server/const.py:388
 msgid "Empire"
 msgstr "엠파이어"
 
-#: ../server/const.py:381
+#: ../server/const.py:389
 msgid "Orda Mirror"
 msgstr "오르다 거울"
 
-#: ../server/const.py:382
+#: ../server/const.py:390
 msgid "Chak"
 msgstr "착"
 
-#: ../server/const.py:383
+#: ../server/const.py:391
 msgid "Chennis"
 msgstr "첸니스"
 
-#: ../server/const.py:384
+#: ../server/const.py:392
 msgid "Spartan"
-msgstr ""
+msgstr "스파르탄"
 
-#: ../server/const.py:385
+#: ../server/const.py:393
 msgid "King of the Hill"
 msgstr ""
 
-#: ../server/const.py:386
+#: ../server/const.py:394
 msgid "King of the Hill 960"
 msgstr ""
 
-#: ../server/const.py:387
+#: ../server/const.py:395
 msgid "Three check"
 msgstr ""
 
-#: ../server/const.py:388
+#: ../server/const.py:396
 msgid "Three check 960"
+msgstr ""
+
+#: ../server/const.py:397
+msgid "Mansindam"
 msgstr ""
 
 #: ../server/videos.py:10
 msgid "Howto"
-msgstr ""
+msgstr "규칙"
 
 #: ../server/videos.py:11
 msgid "Introduction"
@@ -283,7 +287,7 @@ msgstr "엔드게임"
 
 #: ../server/videos.py:15
 msgid "Fundamentals"
-msgstr ""
+msgstr "핵심"
 
 #: ../server/videos.py:16
 msgid "Tactics"
@@ -295,7 +299,7 @@ msgstr "퍼즐"
 
 #: ../server/videos.py:25
 msgid "Duck"
-msgstr ""
+msgstr "오리"
 
 #: ../server/videos.py:26
 msgid "Match"
@@ -311,7 +315,7 @@ msgstr "후 롱화"
 
 #: ../server/videos.py:29
 msgid "Yoshiharu Habu"
-msgstr ""
+msgstr "하부 요시하루"
 
 #: ../server/videos.py:33
 msgid "beginner"
@@ -339,7 +343,7 @@ msgstr ""
 
 #: ../templates/players.html:7
 msgid "All players"
-msgstr "모든 대국자"
+msgstr "모든 플레이어"
 
 #: ../templates/players.html:9 ../templates/winners.html:6
 msgid "Tournament winners"
@@ -447,7 +451,7 @@ msgstr "커뮤니티"
 
 #: ../templates/template.html:48
 msgid "Players"
-msgstr "대국자"
+msgstr "플레이어들"
 
 #: ../templates/template.html:49
 msgid "Blog"
@@ -463,7 +467,7 @@ msgstr "도구"
 
 #: ../templates/template.html:56
 msgid "Editor"
-msgstr "편집하기"
+msgstr "편집기"
 
 #: ../templates/template.html:57
 msgid "Analysis"
@@ -487,7 +491,7 @@ msgstr "새로운 토너먼트 생성"
 
 #: ../templates/tournaments.html:19
 msgid "Now playing"
-msgstr "지금 대국 중"
+msgstr "지금 플레이 중"
 
 #: ../templates/tournaments.html:21
 msgid "Starting soon"

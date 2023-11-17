@@ -53,6 +53,12 @@
     "Chat room": "ห้องแชต",
     "Toggle the chat": "เปิด/ปิดแชต",
     "Server": "เซิร์ฟเวอร์",
+    "%1 day": [
+        ""
+    ],
+    "%1 hour": [
+        ""
+    ],
     "in %1 year": [
         "ในอีก %1 ปี"
     ],
@@ -216,8 +222,11 @@
     "Copy URL": "คัดลอก URL",
     "The first two people to come to this URL will play with each other.": "ผู้เล่นสองคนแรกที่เข้ามาที่ URL นี้จะได้เล่นกัน",
     "The first person to come to this URL will play with you.": "คนแรกที่เข้ามาที่ URL นี้จะได้เล่นกับคุณ",
-    "Cancel": "ยกเลิก",
+    "Play with AI": "เล่นกับ AI",
+    "Play with a friend": "เล่นกับเพื่อน",
+    "Create a game": "สร้างห้อง",
     "Challenge %1 to a game": "ท้า %1 เล่นเกม",
+    "Cancel": "ยกเลิก",
     "Paste the FEN text here": "ใส่ FEN ตำแหน่งเริ่มต้นที่นี่",
     " (must be signed in)": "(ต้องเข้าสู่ระบบก่อน)",
     "Minutes per side:": "เวลาทั้งหมด (นาที):",
@@ -228,9 +237,6 @@
     "A.I. Level": "ระดับ AI",
     "Random": "สุ่ม",
     "Create": "สร้าง",
-    "Create a game": "สร้างห้อง",
-    "Play with a friend": "เล่นกับเพื่อน",
-    "Play with AI": "เล่นกับ AI",
     "Byoyomi in seconds:": "เบียวโยมิ (วินาที):",
     "Increment in seconds:": "ทดเวลาต่อตาเดิน (วินาที):",
     "Alternate Start": "ตำแหน่งเริ่มต้นอื่น",
@@ -288,10 +294,10 @@
     " +15 seconds": "+15 วินาที",
     "Give 15 seconds": "เพิ่มให้ 15 วินาที",
     "Berserk": "เบอร์เซิร์ก",
-    "Abort": "ยกเลิก",
     "Count": "นับ",
     "Pass": "ผ่าน",
     "Resign": "ยอมแพ้",
+    "Abort": "ยกเลิก",
     "Are you sure you want to draw?": "ต้องการเสมอจริงหรือไม่?",
     "Draw offer sent": "ส่งคำขอเสมอแล้ว",
     "Your opponent offers a draw": "ฝ่ายตรงข้ามขอเสมอกับคุณ",
@@ -404,7 +410,6 @@
     "Korean Chess, based on Xiangqi but very different": "หมากรุกเกาหลี พัฒนาจากหมากรุกจีนแต่เล่นต่างกันมาก",
     "Compact Xiangqi on a 7x7 board": "หมากรุกจีนขนาดเล็ก บนกระดาน 7x7",
     "Asymmetric variant with one side having a super piece": "เกมอสมมาตรที่ฝั่งหนึ่งมีแค่หมากระดับเทพตัวเดียวเท่านั้น",
-    "Challenge a friend": "เล่นกับเพื่อน",
     "Rules": "กติกา",
     "Tip: ": "เคล็ดลับ: ",
     "Fischer's random chess where the back row are randomized.": "หมากรุกสุ่มของฟิชเชอร์ ตำแหน่งเริ่มต้นแถวหลังมีได้ 960 แบบ",

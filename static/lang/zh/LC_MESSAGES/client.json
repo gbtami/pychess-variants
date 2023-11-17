@@ -49,6 +49,12 @@
     "Chat room": "聊天室",
     "Toggle the chat": "聊天开关",
     "Server": "伺服器",
+    "%1 day": [
+        ""
+    ],
+    "%1 hour": [
+        ""
+    ],
     "in %1 year": [
         "%1 年后"
     ],
@@ -204,8 +210,11 @@
     "Copy URL": "复制URL",
     "The first two people to come to this URL will play with each other.": "首先浏览此URL的两个人将互相对弈。",
     "The first person to come to this URL will play with you.": "您将和首先浏览此URL的人对弈。",
-    "Cancel": "取消",
+    "Play with AI": "和电脑下棋",
+    "Play with a friend": "和朋友下棋",
+    "Create a game": "创建对局",
     "Challenge %1 to a game": "挑战 %1 下棋",
+    "Cancel": "取消",
     "Paste the FEN text here": "在此处粘贴FEN字串",
     " (must be signed in)": "（必须登录）",
     "Minutes per side:": "各方时限（分钟）：",
@@ -216,9 +225,6 @@
     "A.I. Level": "A.I.级别",
     "Random": "随机",
     "Create": "创建",
-    "Create a game": "创建对局",
-    "Play with a friend": "和朋友下棋",
-    "Play with AI": "和电脑下棋",
     "Byoyomi in seconds:": "读秒：",
     "Increment in seconds:": "每步加时（秒）：",
     "Invalid FEN": "无法识别FEN",
@@ -272,10 +278,10 @@
     " +15 seconds": "+15秒",
     "Give 15 seconds": "添加15秒",
     "Berserk": "狂暴模式",
-    "Abort": "中止本局",
     "Count": "数",
     "Pass": "虚着",
     "Resign": "认输",
+    "Abort": "中止本局",
     "Are you sure you want to draw?": "您确定要提和吗？",
     "Draw offer sent": "提和要求已发送",
     "Your opponent offers a draw": "对方提和",
@@ -379,7 +385,6 @@
     "Korean Chess, based on Xiangqi but very different": "韩国象棋，类似中国象棋却大致不同",
     "Compact Xiangqi on a 7x7 board": "7x7棋盘上的迷你中国象棋",
     "Asymmetric variant with one side having a super piece": "一方有一粒伟强棋子的不对称中国象棋变体",
-    "Challenge a friend": "和朋友下棋",
     "Rules": "游戏规则",
     "Tip: ": "提示：",
     "Fischer's random chess where the back row are randomized.": "費舍爾任意制象棋的底線棋子為隨機排列",
