@@ -13,7 +13,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2023-08-05 22:06+0200\n"
+"POT-Creation-Date: 2023-11-17 14:15+0100\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Last-Translator: Артем Артем, 2023\n"
 "Language-Team: Russian (https://app.transifex.com/gbtami/teams/14790/ru/)\n"
@@ -24,241 +24,245 @@ msgstr ""
 "Language: ru\n"
 "Plural-Forms: nplurals=4; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || (n%100>=11 && n%100<=14)? 2 : 3);\n"
 
-#: ../server/const.py:317
+#: ../server/const.py:325
 msgid "Arena"
 msgstr "Арена"
 
-#: ../server/const.py:318
+#: ../server/const.py:326
 msgid "Round-Robin"
 msgstr "По круговой системе"
 
-#: ../server/const.py:319
+#: ../server/const.py:327
 msgid "Swiss"
 msgstr "По швейцарской системе"
 
-#: ../server/const.py:323
+#: ../server/const.py:331
 msgid "Hourly"
 msgstr "Ежечасная"
 
-#: ../server/const.py:324
+#: ../server/const.py:332
 msgid "Daily"
 msgstr "Ежедневная"
 
-#: ../server/const.py:325
+#: ../server/const.py:333
 msgid "Weekly"
 msgstr "Еженедельная"
 
-#: ../server/const.py:326
+#: ../server/const.py:334
 msgid "Monthly"
 msgstr "Ежемесячная"
 
-#: ../server/const.py:327
+#: ../server/const.py:335
 msgid "Yearly"
 msgstr "Ежегодная"
 
-#: ../server/const.py:328
+#: ../server/const.py:336
 msgid "Marathon"
 msgstr "Марафон"
 
-#: ../server/const.py:329
+#: ../server/const.py:337
 msgid "Shield"
 msgstr "Щит"
 
-#: ../server/const.py:330
+#: ../server/const.py:338
 msgid "SEAturday"
 msgstr "Субботняя"
 
-#: ../server/const.py:334
+#: ../server/const.py:342
 msgid "Chess"
 msgstr "Шахматы"
 
-#: ../server/const.py:335
+#: ../server/const.py:343
 msgid "Chess960"
-msgstr "Шахматы960"
+msgstr "Шахматы 960"
 
-#: ../server/const.py:336
+#: ../server/const.py:344
 msgid "Crazyhouse"
 msgstr "Крейзихаус"
 
-#: ../server/const.py:337
+#: ../server/const.py:345
 msgid "Crazyhouse960"
-msgstr "Крейзихаус960"
+msgstr "Крейзихаус 960"
 
-#: ../server/const.py:338 ../server/videos.py:24
+#: ../server/const.py:346 ../server/videos.py:24
 msgid "Placement"
 msgstr "Расстановка"
 
-#: ../server/const.py:339
+#: ../server/const.py:347
 msgid "Atomic"
 msgstr "Атомные"
 
-#: ../server/const.py:340
+#: ../server/const.py:348
 msgid "Atomic960"
-msgstr "Атомные960"
+msgstr "Атомные 960"
 
-#: ../server/const.py:341
+#: ../server/const.py:349
 msgid "Duck Chess"
-msgstr "Утиные Шахматы"
+msgstr "Утиные"
 
-#: ../server/const.py:342 ../server/videos.py:20
+#: ../server/const.py:350 ../server/videos.py:20
 msgid "Makruk"
 msgstr "Макрук"
 
-#: ../server/const.py:343
+#: ../server/const.py:351
 msgid "Makpong"
 msgstr "Макпонг"
 
-#: ../server/const.py:344
+#: ../server/const.py:352
 msgid "Ouk Chaktrang"
 msgstr "Ок Чактранг"
 
-#: ../server/const.py:345
+#: ../server/const.py:353
 msgid "Sittuyin"
 msgstr "Ситтуйин"
 
-#: ../server/const.py:346
+#: ../server/const.py:354
 msgid "ASEAN"
 msgstr "АСЕАН"
 
-#: ../server/const.py:347 ../server/videos.py:21
+#: ../server/const.py:355 ../server/videos.py:21
 msgid "Shogi"
 msgstr "Сёги"
 
-#: ../server/const.py:348
+#: ../server/const.py:356
 msgid "Minishogi"
 msgstr "Минисёги"
 
-#: ../server/const.py:349
+#: ../server/const.py:357
 msgid "Kyoto Shogi"
 msgstr "Киото Сёги"
 
-#: ../server/const.py:350
+#: ../server/const.py:358
 msgid "Dobutsu"
 msgstr "Добуцу"
 
-#: ../server/const.py:353
+#: ../server/const.py:361
 msgid "Gorogoro+"
 msgstr "Горогоро+"
 
-#: ../server/const.py:354
+#: ../server/const.py:362
 msgid "Tori Shogi"
 msgstr "Тори Сёги"
 
-#: ../server/const.py:355 ../server/videos.py:19
+#: ../server/const.py:363 ../server/videos.py:19
 msgid "Xiangqi"
 msgstr "Сянци"
 
-#: ../server/const.py:356
+#: ../server/const.py:364
 msgid "Manchu"
 msgstr "Маньчжурские"
 
-#: ../server/const.py:357 ../server/videos.py:18
+#: ../server/const.py:365 ../server/videos.py:18
 msgid "Janggi"
 msgstr "Чанги"
 
-#: ../server/const.py:358
+#: ../server/const.py:366
 msgid "Minixiangqi"
 msgstr "Минисянци"
 
-#: ../server/const.py:359 ../server/videos.py:23
+#: ../server/const.py:367 ../server/videos.py:23
 msgid "Capablanca"
 msgstr "Капабланка"
 
-#: ../server/const.py:360
+#: ../server/const.py:368
 msgid "Capablanca960"
-msgstr "Капабланка960"
+msgstr "Капабланка 960"
 
-#: ../server/const.py:361
+#: ../server/const.py:369
 msgid "Capahouse"
 msgstr "Капахаус"
 
-#: ../server/const.py:362
-msgid "Capahouse960"
-msgstr "Капахаус960"
-
-#: ../server/const.py:368 ../server/videos.py:22
-msgid "S-Chess"
-msgstr "S-Шахматы"
-
-#: ../server/const.py:369
-msgid "S-Chess960"
-msgstr "S-Шахматы960"
-
 #: ../server/const.py:370
-msgid "S-House"
-msgstr "S-Хаус"
+msgid "Capahouse960"
+msgstr "Капахаус 960"
 
-#: ../server/const.py:371
+#: ../server/const.py:376 ../server/videos.py:22
+msgid "S-Chess"
+msgstr "С-Шахматы"
+
+#: ../server/const.py:377
+msgid "S-Chess960"
+msgstr "С-Шахматы 960"
+
+#: ../server/const.py:378
+msgid "S-House"
+msgstr "С-Хаус"
+
+#: ../server/const.py:379
 msgid "Grand"
 msgstr "Гранд"
 
-#: ../server/const.py:372
+#: ../server/const.py:380
 msgid "Grandhouse"
 msgstr "Грандхаус"
 
-#: ../server/const.py:373
+#: ../server/const.py:381
 msgid "Shogun"
 msgstr "Сёгун"
 
-#: ../server/const.py:374
+#: ../server/const.py:382
 msgid "Shako"
 msgstr "Шако"
 
-#: ../server/const.py:375
+#: ../server/const.py:383
 msgid "Hoppel-Poppel"
 msgstr "Хоппель-Поппель"
 
-#: ../server/const.py:376
+#: ../server/const.py:384
 msgid "Orda Chess"
 msgstr "Орда"
 
-#: ../server/const.py:377
+#: ../server/const.py:385
 msgid "Synochess"
 msgstr "Синочесс"
 
-#: ../server/const.py:378
+#: ../server/const.py:386
 msgid "Shinobi"
 msgstr "Синоби"
 
-#: ../server/const.py:379
+#: ../server/const.py:387
 msgid "Shinobi+"
 msgstr "Синоби+"
 
-#: ../server/const.py:380
+#: ../server/const.py:388
 msgid "Empire"
 msgstr "Империя"
 
-#: ../server/const.py:381
+#: ../server/const.py:389
 msgid "Orda Mirror"
 msgstr "Зеркальная Орда"
 
-#: ../server/const.py:382
+#: ../server/const.py:390
 msgid "Chak"
 msgstr "Чак"
 
-#: ../server/const.py:383
+#: ../server/const.py:391
 msgid "Chennis"
 msgstr "Ченнис"
 
-#: ../server/const.py:384
+#: ../server/const.py:392
 msgid "Spartan"
 msgstr "Спартанские"
 
-#: ../server/const.py:385
+#: ../server/const.py:393
 msgid "King of the Hill"
 msgstr "Царь горы"
 
-#: ../server/const.py:386
+#: ../server/const.py:394
 msgid "King of the Hill 960"
 msgstr "Царь горы 960"
 
-#: ../server/const.py:387
+#: ../server/const.py:395
 msgid "Three check"
 msgstr "Три шаха"
 
-#: ../server/const.py:388
+#: ../server/const.py:396
 msgid "Three check 960"
 msgstr "Три шаха 960"
+
+#: ../server/const.py:397
+msgid "Mansindam"
+msgstr ""
 
 #: ../server/videos.py:10
 msgid "Howto"

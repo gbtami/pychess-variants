@@ -1,7 +1,7 @@
 import { h } from 'snabbdom';
 
 import { _ } from '../i18n';
-import { LobbyController } from '../lobby';
+import { createModeStr, LobbyController } from '../lobby';
 import { patch } from '../document';
 import { Variant, VARIANTS } from '../variants';
 import { variantBoard } from './util';
@@ -37,10 +37,9 @@ export function layer3variant (container2Id: string, lobbyCtrl: LobbyController,
                 h('div.icon', { attrs: { 'data-icon': variant.icon(chess960) } }, variant.displayName(chess960)),
             ]),
             h('ul.l3links-cont', [
-                h('li.l3links', { class: {"icon": true, "icon-crossedswords": true}, on: { click: () => lobbyCtrl.createGame(variantName, chess960) } }, _('Create a game')),
-                h('li.l3links', { class: {"icon": true, "icon-crossedswords": true}, on: { click: () => lobbyCtrl.playFriend(variantName, chess960) } }, _('Challenge a friend')),
-                h('li.l3links', { class: {"icon": true, "icon-bot": true}, on: { click: () => lobbyCtrl.playAI(variantName, chess960) } }, _('Play with AI')),
-//                h('li.l3links', { class: {"icon": true, "icon-droid": true}, on: { click: () => lobbyCtrl.playRM(variantName, chess960) } }, _('Practice with Random-Mover')),
+                h('li.l3links', { class: {"icon": true, "icon-crossedswords": true}, on: { click: () => lobbyCtrl.createGame(variantName, chess960) } }, createModeStr('createGame')),
+                h('li.l3links', { class: {"icon": true, "icon-crossedswords": true}, on: { click: () => lobbyCtrl.playFriend(variantName, chess960) } }, createModeStr('playFriend')),
+                h('li.l3links', { class: {"icon": true, "icon-bot": true}, on: { click: () => lobbyCtrl.playAI(variantName, chess960) } }, createModeStr('playAI')),
             ]),
             h('h5#chessl3back', { class: {"icon": true, "icon-reply": true}, on: { click: () => leve2func(lobbyCtrl, container3Id) } }, _('Go Back')),
         ]),

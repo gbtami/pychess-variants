@@ -334,12 +334,12 @@ input[type="checkbox"] {
     padding-right: 4px;
 }
 
-/* Request analysis button (analysis chart) */
-div.request-analysis {
+/* Request analysis (analysis chart) */
+div#request-analysis {
   display: flex;
   padding-top: 3vmin;
 }
-div.request-analysis, div#panel-1 {
+div#request-analysis, div#panel-1 {
     align-items: center;
     justify-content: center;
 }
