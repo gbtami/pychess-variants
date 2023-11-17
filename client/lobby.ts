@@ -21,11 +21,15 @@ import { Stream, Spotlight, MsgInviteCreated, MsgHostCreated, MsgGetSeeks, MsgNe
 import { validFen, uci2LastMove } from './chess';
 import { handleOngoingGameEvents, Game, gameViewPlaying, compareGames } from './nowPlaying';
 
-const CREATE_MODES = {
-    playAI: _("Play with AI"),
-    playFriend: _("Play with a friend"),
-    createHost: _("Host a game for others"),
-    createGame: _("Create a game"),
+export function createModeStr(mode: CreateMode) {
+    switch (mode) {
+    case 'playAI': return _("Play with AI");
+    case 'playFriend': return _("Play with a friend");
+    case 'createHost': return _("Host a game for others");
+    case 'createGame': return _("Create a game");
+    default:
+        return '';
+    }
 }
 
 export class LobbyController implements ChatController {
@@ -491,10 +495,10 @@ export class LobbyController implements ChatController {
                     ]),
                 ]),
             ]),
-            h('button.lobby-button', { on: { click: () => this.createGame() } }, CREATE_MODES.createGame),
-            h('button.lobby-button', { on: { click: () => this.playFriend() } }, CREATE_MODES.playFriend),
-            h('button.lobby-button', { on: { click: () => this.playAI() } }, CREATE_MODES.playAI),
-            h('button.lobby-button', { on: { click: () => this.createHost() }, style: { display: this.tournamentDirector ? "block" : "none" } }, CREATE_MODES.createHost),
+            h('button.lobby-button', { on: { click: () => this.createGame() } }, createModeStr('createGame')),
+            h('button.lobby-button', { on: { click: () => this.playFriend() } }, createModeStr('playFriend')),
+            h('button.lobby-button', { on: { click: () => this.playAI() } }, createModeStr('playAI')),
+            h('button.lobby-button', { on: { click: () => this.createHost() }, style: { display: this.tournamentDirector ? "block" : "none" } }, createModeStr('createHost')),
         ];
     }
 
@@ -514,7 +518,7 @@ export class LobbyController implements ChatController {
     createGame(variantName: string = '', chess960: boolean = false) {
         this.preSelectVariant(variantName, chess960);
         this.createMode = 'createGame';
-        this.renderDialogHeader(CREATE_MODES[this.createMode]);
+        this.renderDialogHeader(createModeStr(this.createMode));
         document.getElementById('game-mode')!.style.display = this.anon ? 'none' : 'inline-flex';
         document.getElementById('ailevel')!.style.display = 'none';
         document.getElementById('rmplay-block')!.style.display = 'none';
@@ -526,7 +530,7 @@ export class LobbyController implements ChatController {
     playFriend(variantName: string = '', chess960: boolean = false) {
         this.preSelectVariant(variantName, chess960);
         this.createMode = 'playFriend';
-        this.renderDialogHeader(CREATE_MODES[this.createMode])
+        this.renderDialogHeader(createModeStr(this.createMode))
         document.getElementById('game-mode')!.style.display = this.anon ? 'none' : 'inline-flex';
         document.getElementById('ailevel')!.style.display = 'none';
         document.getElementById('rmplay-block')!.style.display = 'none';
@@ -538,7 +542,7 @@ export class LobbyController implements ChatController {
     playAI(variantName: string = '', chess960: boolean = false) {
         this.preSelectVariant(variantName, chess960);
         this.createMode = 'playAI';
-        this.renderDialogHeader(CREATE_MODES[this.createMode])
+        this.renderDialogHeader(createModeStr(this.createMode))
         document.getElementById('game-mode')!.style.display = 'none';
         const e = document.getElementById('rmplay') as HTMLInputElement;
         document.getElementById('ailevel')!.style.display = e.checked ? 'none' : 'inline-block';
@@ -551,7 +555,7 @@ export class LobbyController implements ChatController {
     createHost(variantName: string = '', chess960: boolean = false) {
         this.preSelectVariant(variantName, chess960);
         this.createMode = 'createHost';
-        this.renderDialogHeader(CREATE_MODES[this.createMode])
+        this.renderDialogHeader(createModeStr(this.createMode))
         document.getElementById('game-mode')!.style.display = this.anon ? 'none' : 'inline-flex';
         document.getElementById('ailevel')!.style.display = 'none';
         document.getElementById('rmplay-block')!.style.display = 'none';
