@@ -13,7 +13,7 @@ async def handle_reconnect_bughouse(data, game, user, request, session_user):
     # dataA = data.get("lastMaybeSentMsgMoveA")
     # dataB = data.get("lastMaybeSentMsgMoveB")
     async with game.move_lock:
-        if movesQueued is not None and len(movesQueued) > 0:
+        if movesQueued is not None and len(movesQueued) > 0 and movesQueued[0] is not None:
             try:
                 await play_move(
                     request.app,
