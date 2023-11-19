@@ -96,7 +96,7 @@ async def round_socket_handler(request):
                                         data["clocks"],
                                         # data["ply"],todo:dont even send it maybe
                                         data["board"],
-                                        data["lastMoveCapturedRole"],
+                                        data.get("lastMoveCapturedRole"),
                                     )
                                 except Exception:
                                     log.exception(
