@@ -542,11 +542,20 @@ export class RoundControllerBughouse implements ChatController/*extends GameCont
                           ply: this.ply + 1,
                           board: b.boardName,
                           partnerFen: b.partnerCC.fullfen/*b.partnerCC.chessground.getFen()*//*b.partnerCC.fullfen this might not be up-to-date in simul mode if disconnect happened and move was made but not sent+received+model_updated so we use chessground*/ };
-        if (b.boardName === "a") {
+
+        // todo: overly explicit and redundant in case of not simuling. even when simuling if 2 conseq moves are
+        //       on same board it will send both even tho obviously it only needs
+        //       to send the last, because the fact we made 2 moves on same board means we received reply with opps move
+        //       meaning first move was processed and no point to resend
+        if (this.msgMovesAfterReconnect.movesQueued.length == 2) {
             this.msgMovesAfterReconnect.movesQueued[0] = this.msgMovesAfterReconnect.movesQueued[1];
-        } else {
             this.msgMovesAfterReconnect.movesQueued[1] = moveMsg;
+        } else if (this.msgMovesAfterReconnect.movesQueued.length == 1) {
+            this.msgMovesAfterReconnect.movesQueued[1] = moveMsg;
+        } else { //length == 0
+            this.msgMovesAfterReconnect.movesQueued[0] = moveMsg;
         }
+
         this.doSend(moveMsg as JSONObject);
 
         if (b.preaction) {
