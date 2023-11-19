@@ -445,6 +445,7 @@ async def join_seek_bughouse(app, user, seek_id, game_id=None, join_as="any"):
         return {"type": "seek_joined", "seekID": seek_id}
 
 async def play_move(app, user, game, move, clocks=None, board=None, partnerFen=None):
+    log.debug("play_move %r %r %r %r %r %r", user, game, move, clocks, board, partnerFen)
     gameId = game.id
     invalid_move = False
     # log.info("%s move %s %s %s - %s" % (user.username, move, gameId, game.wplayer.username, game.bplayer.username))
@@ -455,6 +456,7 @@ async def play_move(app, user, game, move, clocks=None, board=None, partnerFen=N
             if not game.lastmovePerBoardAndUser[board].get(user.username) == move: # in case of resending after reconnect we can have same move sent multiple times from client
                 await game.play_move(move, clocks, board, partnerFen)
             else:
+                log.debug("move already played - probably resent twice after multiple reconnects")
                 return # this move has already been processed. todo:niki:i wonder if this is enough check. is it possible to resend some old move, but before that do a new one and send it before the resend of the old one or something like this?
         except SystemError: #todo:niki:why do we abort? one option is to just ignore invalid which would make the reconnect/retry lgoic simpler, although still small chance for bugs remains. on the other hand aborting makes bug more visible
             invalid_move = True

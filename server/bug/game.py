@@ -261,6 +261,7 @@ class GameBug:
         # self.chat[cur_ply]
 
     async def play_move(self, move, clocks=None, board="a", partnerFen=None):
+        log.debug("play_move %r %r %r %r", move, clocks, board, partnerFen)
         self.stopwatches[board].stop()
 
         if self.status > STARTED:#todo:niki:not needed we have check in callers code

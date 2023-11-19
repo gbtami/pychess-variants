@@ -233,6 +233,12 @@ class User:
 
             await lobby_broadcast(sockets, get_seeks(seeks))
 
+    async def send_game_message(self, game_id, message):
+        ws = self.game_sockets.get(game_id)
+        if ws is not None:
+            await ws.send_json(message)
+
+
     def __str__(self):
         return "%s %s bot=%s" % (self.title, self.username, self.bot)
 
