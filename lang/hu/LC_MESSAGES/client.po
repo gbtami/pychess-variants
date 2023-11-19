@@ -1004,7 +1004,7 @@ msgstr "Játék egy ismerőssel"
 
 #: ../client/lobby.ts:29
 msgid "Create a game"
-msgstr "Játék létrehozása"
+msgstr "Játszma létrehozása"
 
 #: ../client/lobby.ts:116
 msgid "Challenge %1 to a game"

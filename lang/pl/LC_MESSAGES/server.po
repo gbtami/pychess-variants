@@ -261,7 +261,7 @@ msgstr "Trzy szachy 960"
 
 #: ../server/const.py:397
 msgid "Mansindam"
-msgstr ""
+msgstr "Mansindam"
 
 #: ../server/videos.py:10
 msgid "Howto"
