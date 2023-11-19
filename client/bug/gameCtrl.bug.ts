@@ -46,7 +46,7 @@ export class GameControllerBughouse extends GameController {
     steps: Step[];
     localAnalysis: boolean = false;
 
-    lastMoveCapturedRole: cg.Role | undefined;
+    lastMoveCapturedPiece: cg.Piece | undefined;
 
     constructor(el: HTMLElement,elPocket1: HTMLElement,elPocket2: HTMLElement, boardName: 'a' | 'b', model: PyChessModel) {
         super(el, model,elPocket1,elPocket2);
@@ -175,9 +175,9 @@ export class GameControllerBughouse extends GameController {
 
                 this.partnerCC.chessground.state.dom.redraw(); // TODO: see todo comment also at same line in onUserDrop.
             }
-            this.lastMoveCapturedRole = role; // TODO:niki: this should happen serverside, but dont see how for now.
+            this.lastMoveCapturedPiece = meta.captured; // TODO:niki: this should happen serverside, but dont see how for now.
         } else {
-            this.lastMoveCapturedRole = undefined;
+            this.lastMoveCapturedPiece = undefined;
         }
         this.processInput(moved, orig, dest, meta);; //if (!ctrl.promotion.start(moved.role, orig, dest, meta.ctrlKey)) ctrl.sendMove(orig, dest, '');
         ctrl.preaction = false;

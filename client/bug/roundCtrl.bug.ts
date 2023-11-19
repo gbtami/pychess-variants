@@ -542,7 +542,7 @@ export class RoundControllerBughouse implements ChatController/*extends GameCont
                           ply: this.ply + 1,
                           board: b.boardName,
                           partnerFen: b.partnerCC.fullfen/*b.partnerCC.chessground.getFen()*//*b.partnerCC.fullfen this might not be up-to-date in simul mode if disconnect happened and move was made but not sent+received+model_updated so we use chessground*/,
-                          lastMoveCapturedRole: b.lastMoveCapturedRole
+                          lastMoveCapturedRole: b.lastMoveCapturedPiece? b.lastMoveCapturedPiece?.color === 'white'? b.lastMoveCapturedPiece?.role.split("-")[0].toUpperCase(): b.lastMoveCapturedPiece?.role.split("-")[0].toLowerCase(): undefined,
         };
 
         // todo: overly explicit and redundant in case of not simuling. even when simuling if 2 conseq moves are
