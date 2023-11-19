@@ -262,7 +262,7 @@ msgstr "Три шаха 960"
 
 #: ../server/const.py:397
 msgid "Mansindam"
-msgstr ""
+msgstr "Мансиндам"
 
 #: ../server/videos.py:10
 msgid "Howto"
