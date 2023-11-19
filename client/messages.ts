@@ -141,7 +141,8 @@ export type MsgMove = { // cannot be interface because canot be converted to an 
      clocks: { movetime: number; white: number; black: number; }; // looks a lot like Clocks interface, but maybe overkil to reuse it - i dont know
      ply: number;
      board?: 'a' | 'b';
-     partnerFen?: cg.FEN;  // todo:niki:more like temporary shortcut solution for passing piece to partner pocket - ideally should calculate that on server (as well) and not rely on client.
+     partnerFen?: cg.FEN;  // todo:niki:not needed anymore. replaced by sending only captured role, which is still bad.
+     lastMoveCapturedRole?: cg.Role; // todo:niki:calculate this on server somehow
 }
 
 export type MsgMovesAfterReconnect = {

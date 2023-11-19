@@ -22,7 +22,7 @@ async def handle_reconnect_bughouse(data, game, user, request, session_user):
                     movesQueued[0]["move"],
                     movesQueued[0]["clocks"],
                     movesQueued[0]["board"],
-                    movesQueued[0]["partnerFen"],
+                    movesQueued[0]["lastMoveCapturedRole"],
                 )
             except Exception:
                 log.exception(
@@ -40,7 +40,7 @@ async def handle_reconnect_bughouse(data, game, user, request, session_user):
                     movesQueued[1]["move"],
                     movesQueued[1]["clocks"],
                     movesQueued[1]["board"],
-                    movesQueued[1]["partnerFen"],
+                    movesQueued[1]["lastMoveCapturedRole"],
                 )
             except Exception:
                 log.exception(

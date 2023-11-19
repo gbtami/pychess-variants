@@ -46,6 +46,8 @@ export class GameControllerBughouse extends GameController {
     steps: Step[];
     localAnalysis: boolean = false;
 
+    lastMoveCapturedRole: cg.Role | undefined;
+
     constructor(el: HTMLElement,elPocket1: HTMLElement,elPocket2: HTMLElement, boardName: 'a' | 'b', model: PyChessModel) {
         super(el, model,elPocket1,elPocket2);
 
@@ -120,34 +122,6 @@ export class GameControllerBughouse extends GameController {
     onSelect = () => {
         return (key: cg.Key) => {
             console.log(key);
-
-            if (this.chessground.state.movable.dests === undefined) return;
-
-            // Save state.pieces to help recognise 960 castling (king takes rook) moves
-            // Shouldn't this be implemented in chessground instead?
-            // if (this.chess960 && this.variant.gate) {
-            //     this.prevPieces = new Map(this.chessground.state.pieces);
-            // }todo:niki
-
-            // Janggi pass and Sittuyin in place promotion on Ctrl+click
-            if (this.chessground.state.stats.ctrlKey &&
-                (this.chessground.state.movable.dests.get(key)?.includes(key))
-                ) {
-                const piece = this.chessground.state.boardState.pieces.get(key);
-                if (this.variant.name === 'sittuyin') { // TODO make this more generic
-                    // console.log("Ctrl in place promotion", key);
-                    const pieces: cg.PiecesDiff = new Map();
-                    pieces.set(key, {
-                        color: piece!.color,
-                        role: 'f-piece',
-                        promoted: true
-                    });
-                    this.chessground.setPieces(pieces);
-                    this.sendMove(key, key, 'f');
-                } /*else if (this.variant.pass && piece!.role === 'k-piece') {niki:todo:commenting out because not relevant now - what about long term?
-                    this.pass();
-                }*/
-            }
         }
     }
 
@@ -178,9 +152,9 @@ export class GameControllerBughouse extends GameController {
             meta.captured = {role: "p-piece", color: moved.color === "white"? "black": "white"/*or could get it from pieces[pawnPos] probably*/};
         }
 
-        // increase pocket count todo:niki: but now partners pocket
+        // increase partner's pocket count
         // important only during gap before we receive board message from server and reset whole FEN (see also onUserDrop)
-        if (/*ctrl.variant.drop && todo:not relevant for bughouse - if/when this class becomes generic bring this back maybe*/ meta.captured) {
+        if (meta.captured) {
             const role = meta.captured.promoted? "p-piece": meta.captured.role;
 
             if (this.partnerCC.chessground.state.boardState.pockets) {
@@ -201,8 +175,10 @@ export class GameControllerBughouse extends GameController {
 
                 this.partnerCC.chessground.state.dom.redraw(); // TODO: see todo comment also at same line in onUserDrop.
             }
+            this.lastMoveCapturedRole = role; // TODO:niki: this should happen serverside, but dont see how for now.
+        } else {
+            this.lastMoveCapturedRole = undefined;
         }
-
         this.processInput(moved, orig, dest, meta);; //if (!ctrl.promotion.start(moved.role, orig, dest, meta.ctrlKey)) ctrl.sendMove(orig, dest, '');
         ctrl.preaction = false;
 

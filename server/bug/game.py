@@ -36,7 +36,7 @@ from const import (
 )
 from fairy import FairyBoard, BLACK
 from spectators import spectators
-from re import sub
+from re import sub, split
 
 log = logging.getLogger(__name__)
 
@@ -260,8 +260,8 @@ class GameBug:
         self.chat.setdefault(str(cur_ply), []).append({"t": time, "u": user.username, "m": message})
         # self.chat[cur_ply]
 
-    async def play_move(self, move, clocks=None, board="a", partnerFen=None):
-        log.debug("play_move %r %r %r %r", move, clocks, board, partnerFen)
+    async def play_move(self, move, clocks=None, board="a", lastMoveCapturedRole=None):
+        log.debug("play_move %r %r %r %r", move, clocks, board, lastMoveCapturedRole)
         self.stopwatches[board].stop()
 
         if self.status > STARTED:#todo:niki:not needed we have check in callers code
@@ -292,9 +292,14 @@ class GameBug:
         if self.status <= STARTED:
             try:
                 partnerBoard = "a" if board == "b" else "b"
-                log.info("partnerFen: %s", partnerFen)
-                log.info("self.boards[partnerBoard].fen: %s", self.boards[partnerBoard].fen)
-                self.boards[partnerBoard].fen = partnerFen # todo:niki: temporary shortcut that i feel is not secure - ideally this should be generated on server primarily (and only?)
+                log.debug("lastMoveCapturedRole: %s", lastMoveCapturedRole)
+                log.debug("self.boards[partnerBoard].fen: %s", self.boards[partnerBoard].fen)
+
+                # self.boards[partnerBoard].fen = partnerFen #
+                if lastMoveCapturedRole is not None:
+                    #todo:niki: consider this solution for determining captured piece serverside unless something cleaner cannot be figured out: https://github.com/nnickoloff1234/pychess-variants/blob/60b06cd475c195ec58199187c762b86424807285/server/fairy.py#L58-L65
+                    board_fen_split = split('[\[\]]', self.boards[partnerBoard].fen)
+                    self.boards[partnerBoard].fen = board_fen_split[0] + '[' + board_fen_split[1] + lastMoveCapturedRole + ']' + board_fen_split[2]
 
                 san = self.boards[board].get_san(move)
                 self.lastmove = move
