@@ -266,7 +266,7 @@ msgstr "Użycie pamięci"
 
 #: ../client/analysisSettings.ts:233
 msgid "Use NNUE"
-msgstr ""
+msgstr "NNUE"
 
 #: ../client/background.ts:9
 msgid "Light"
@@ -286,7 +286,7 @@ msgstr "Potwierdzaj poddanie się"
 
 #: ../client/boardSettings.ts:217
 msgid "Confirm correspondence move"
-msgstr ""
+msgstr "Potwierdzanie ruchów w partiach korespondencyjnych"
 
 #: ../client/boardSettings.ts:309
 msgid "Zoom"
@@ -1063,15 +1063,15 @@ msgstr "(musisz się zalogować)"
 
 #: ../client/lobby.ts:413
 msgid "Time control"
-msgstr ""
+msgstr "Tempo"
 
 #: ../client/lobby.ts:418
 msgid "Real time"
-msgstr ""
+msgstr "Na żywo "
 
 #: ../client/lobby.ts:419 ../client/lobby.ts:1069
 msgid "Correspondence"
-msgstr ""
+msgstr "Korespondencyjne "
 
 #: ../client/lobby.ts:425
 msgid "Minutes per side:"
@@ -1229,7 +1229,7 @@ msgstr "Dziękujemy za wsparcie!"
 
 #: ../client/notifyView.ts:83
 msgid "No notifications."
-msgstr ""
+msgstr "Nie masz żadnych powiadomień "
 
 #: ../client/paste.ts:139
 msgid "Invalid PGN"
@@ -1501,7 +1501,7 @@ msgstr "Przeciwnik proponuje remis"
 
 #: ../client/roundCtrl.ts:491
 msgid "Confirm move"
-msgstr ""
+msgstr "Potwierdzasz?"
 
 #: ../client/roundCtrl.ts:518
 msgid "Are you sure you want to resign?"
@@ -1566,7 +1566,7 @@ msgstr "ANALIZA"
 
 #: ../client/roundCtrl.ts:839
 msgid "Propose takeback"
-msgstr ""
+msgstr "Cofnij"
 
 #: ../client/roundCtrl.ts:1043
 msgid "Stop counting"
