@@ -204,8 +204,12 @@ async def round_socket_handler(request):
                                 game.board.janggi_setup("w")
                                 game.steps[0]["fen"] = game.board.initial_fen
                             else:
-                                opp_ws = users[opp_name].game_sockets[data["gameId"]]
-                                await opp_ws.send_json(response)
+                                try:
+                                    opp_ws = users[opp_name].game_sockets[data["gameId"]]
+                                    await opp_ws.send_json(response)
+                                except KeyError:
+                                    # opp disconnected
+                                    pass
                         else:
                             game.wsetup = False
                             game.status = STARTED
@@ -215,8 +219,12 @@ async def round_socket_handler(request):
                             await ws.send_json(response)
 
                             if not opp_player.bot:
-                                opp_ws = users[opp_name].game_sockets[data["gameId"]]
-                                await opp_ws.send_json(response)
+                                try:
+                                    opp_ws = users[opp_name].game_sockets[data["gameId"]]
+                                    await opp_ws.send_json(response)
+                                except KeyError:
+                                    # opp disconnected
+                                    pass
 
                         await game.save_setup()
 
@@ -455,9 +463,12 @@ async def round_socket_handler(request):
                             if data["gameId"] in opp_player.game_queues:
                                 await opp_player.game_queues[data["gameId"]].put(game.game_end)
                         else:
-                            if data["gameId"] in users[opp_name].game_sockets:
+                            try:
                                 opp_ws = users[opp_name].game_sockets[data["gameId"]]
                                 await opp_ws.send_json(response)
+                            except KeyError:
+                                # opp disconnected
+                                pass
 
                         await round_broadcast(game, response)
 
@@ -681,13 +692,6 @@ async def round_socket_handler(request):
 
                     elif data["type"] == "count":
                         cur_player = game.bplayer if game.board.color == BLACK else game.wplayer
-                        opp_name = (
-                            game.wplayer.username
-                            if user.username == game.bplayer.username
-                            else game.bplayer.username
-                        )
-                        opp_player = users[opp_name]
-                        opp_ws = users[opp_name].game_sockets[data["gameId"]]
 
                         if user.username == cur_player.username:
                             if data["mode"] == "start":
@@ -698,9 +702,6 @@ async def round_socket_handler(request):
                                     "room": "player",
                                     "user": "",
                                 }
-                                await ws.send_json(response)
-                                await opp_ws.send_json(response)
-                                await round_broadcast(game, response)
                             elif data["mode"] == "stop":
                                 game.stop_manual_count()
                                 response = {
@@ -709,9 +710,7 @@ async def round_socket_handler(request):
                                     "room": "player",
                                     "user": "",
                                 }
-                                await ws.send_json(response)
-                                await opp_ws.send_json(response)
-                                await round_broadcast(game, response)
+                            await round_broadcast(game, response, full=True)
                         else:
                             response = {
                                 "type": "count",
