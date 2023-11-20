@@ -913,7 +913,7 @@ export class RoundControllerBughouse implements ChatController/*extends GameCont
             });
 
             if (this.b2.ffishBoard) {
-                this.b2.ffishBoard.setFen(lastStepB.fen);
+                this.b2.ffishBoard.setFen(lastStepB.fenB!);
                 this.b2.setDests();
             }
 

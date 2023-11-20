@@ -171,11 +171,11 @@ export class GameControllerBughouse extends GameController {
                 const fenPocket = f1.match(/\[.*\]/)![0]; // how the pocket should look like
                 this.partnerCC.fullfen=ff.replace(/\[.*\]/,fenPocket);
                 this.partnerCC.ffishBoard.setFen(this.partnerCC.fullfen);//todo:niki:hope it doesnt break anything this way. ply number i think is not correct now?
-                this.partnerCC.setDests();//dests = this.parent.getDests(this.partnerCC);
+                this.partnerCC.setDests();//dests = this.parent.getDests(this.partnerCC);//todo:niki:only needed for analysis and simul mode i guess
 
                 this.partnerCC.chessground.state.dom.redraw(); // TODO: see todo comment also at same line in onUserDrop.
             }
-            this.lastMoveCapturedPiece = meta.captured; // TODO:niki: this should happen serverside, but dont see how for now.
+            this.lastMoveCapturedPiece = {role: meta.captured?.promoted? "p-piece": meta.captured.role, color: meta.captured.color}; // TODO:niki: this should happen serverside, but dont see how for now.
         } else {
             this.lastMoveCapturedPiece = undefined;
         }
