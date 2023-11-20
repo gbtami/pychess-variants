@@ -270,7 +270,7 @@ msgstr "정말 기권하시겠습니까?"
 
 #: ../client/boardSettings.ts:217
 msgid "Confirm correspondence move"
-msgstr ""
+msgstr "서신 이동 확인"
 
 #: ../client/boardSettings.ts:309
 msgid "Zoom"
@@ -969,7 +969,7 @@ msgstr ""
 
 #: ../client/lobby.ts:419 ../client/lobby.ts:1069
 msgid "Correspondence"
-msgstr ""
+msgstr "서신"
 
 #: ../client/lobby.ts:425
 msgid "Minutes per side:"
@@ -1097,7 +1097,7 @@ msgstr "더 알아보기"
 
 #: ../client/lobby.ts:1138
 msgid "Correspondence Chess"
-msgstr ""
+msgstr "서신 체스"
 
 #: ../client/lobby.ts:1139
 msgid "You have time now"

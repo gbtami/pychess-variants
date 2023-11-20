@@ -263,7 +263,7 @@ msgstr ""
 
 #: ../server/const.py:397
 msgid "Mansindam"
-msgstr ""
+msgstr "만신담"
 
 #: ../server/videos.py:10
 msgid "Howto"

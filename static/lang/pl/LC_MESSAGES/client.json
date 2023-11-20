@@ -61,6 +61,18 @@
     "Chat room": "Czat",
     "Toggle the chat": "Włącz/wyłącz czat",
     "Server": "Serwer",
+    "%1 day": [
+        "%1 doba",
+        "%1 dni",
+        "%1 dni",
+        "%1 dni"
+    ],
+    "%1 hour": [
+        "%1 godzina",
+        "%1 godziny",
+        "%1 godzin",
+        "%1 godzin"
+    ],
     "in %1 year": [
         "za rok",
         "za %1 lata",
@@ -280,6 +292,7 @@
     "Correspondence": "Korespondencyjne ",
     "Minutes per side:": "Minut na gracza:",
     "Periods": "Okresy",
+    "Days per turn:": "Dni na ruch",
     "Casual": "Towarzyska",
     "Rated": "Rankingowa",
     "Practice with Random-Mover": "Poćwicz z Random-Moverem",
@@ -311,10 +324,16 @@
     "Mode": "Rodzaj",
     "Puzzle of the day": "Zadanie dnia",
     "%1 to play": "%1 na posunięciu",
+    "Lobby": "Lobby",
     "Donate": "Wesprzyj",
     "FAQ": "FAQ",
     "Stats": "Statystyki",
     "About": "O nas",
+    "Correspondence Chess": "Szachy korespondencyjne",
+    "You have time now": "Teraz mamy czas",
+    "S-chess ramblings": "S-szachowe wywody",
+    "Autumn Update": "Nowości na jesień",
+    "A slew of new variants!": "Kolejna porcja nowych wariantów!",
     "Thank you for your support!": "Dziękujemy za wsparcie!",
     "No notifications.": "Nie masz żadnych powiadomień ",
     "Invalid PGN": "Nieprawidłowy PGN",
@@ -532,6 +551,7 @@
     "Sets that show both sides are available by going to settings.": "Zestawy figur pokazujące obie figury są dostępne w ustawieniach.",
     "Reading the rules are a necessity to understand the movements before playing.": "Przeczytanie zasad jest niezbędne, aby zrozumieć jak figury się ruszają.",
     "UsePluralFormIfNeeded\u0004Rated": "Rankingowe",
+    "UsePluralFormIfNeeded\u0004Playing": "W trakcie",
     "": {
         "language": "pl",
         "plural-forms": "nplurals=4; plural=(n==1 ? 0 : (n%10>=2 && n%10<=4) && (n%100<12 || n%100>14) ? 1 : n!=1 && (n%10>=0 && n%10<=1) || (n%10>=5 && n%10<=9) || (n%100>=12 && n%100<=14) ? 2 : 3);"
