@@ -130,7 +130,7 @@ async def on_prepare(request, response):
             response.headers["Expires"] = "0"
 
 
-def make_app(with_db=True) -> Application:
+def make_app(db_client=None) -> Application:
     app = web.Application()
     if False:  # URI.startswith("https"):
         secure = Secure()  # redirect_url=URI)
@@ -143,8 +143,9 @@ def make_app(with_db=True) -> Application:
         EncryptedCookieStorage(SECRET_KEY, max_age=MAX_AGE, secure=parts.scheme == "https"),
     )
 
-    if with_db:
-        app.on_startup.append(init_db)
+    if db_client is not None:
+        app["client"] = db_client
+        app["db"] = app["client"][MONGO_DB_NAME]
 
     app.on_startup.append(init_state)
     app.on_shutdown.append(shutdown)
@@ -159,14 +160,6 @@ def make_app(with_db=True) -> Application:
     app.middlewares.append(handle_404)
 
     return app
-
-
-async def init_db(app):
-    app["client"] = ma.AsyncIOMotorClient(
-        MONGO_HOST,
-        tz_aware=True,
-    )
-    app["db"] = app["client"][MONGO_DB_NAME]
 
 
 async def init_state(app):
@@ -367,7 +360,10 @@ async def init_state(app):
             app["crosstable"][doc["_id"]] = doc
 
         if "dailypuzzle" not in db_collections:
-            await app["db"].create_collection("dailypuzzle", capped=True, size=50000, max=365)
+            try:
+                await app["db"].create_collection("dailypuzzle", capped=True, size=50000, max=365)
+            except NotImplementedError:
+                await app["db"].create_collection("dailypuzzle")
         else:
             cursor = app["db"].dailypuzzle.find()
             docs = await cursor.to_list(length=365)
@@ -483,7 +479,8 @@ if __name__ == "__main__":
         level=logging.DEBUG if args.v else logging.WARNING if args.w else logging.INFO
     )
 
-    app = make_app()
+    mongodb_client = ma.AsyncIOMotorClient(MONGO_HOST, tz_aware=True)
+    app = make_app(db_client=mongodb_client)
 
     web.run_app(
         app, access_log=None if args.w else access_logger, port=int(os.environ.get("PORT", 8080))

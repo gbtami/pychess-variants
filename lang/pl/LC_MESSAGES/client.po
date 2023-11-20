@@ -339,18 +339,18 @@ msgstr "Serwer"
 #: ../client/clock.ts:29 ../client/view.ts:120
 msgid "%1 day"
 msgid_plural "%1 days"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-msgstr[3] ""
+msgstr[0] "%1 doba"
+msgstr[1] "%1 dni"
+msgstr[2] "%1 dni"
+msgstr[3] "%1 dni"
 
 #: ../client/clock.ts:30
 msgid "%1 hour"
 msgid_plural "%1 hours"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-msgstr[3] ""
+msgstr[0] "%1 godzina"
+msgstr[1] "%1 godziny"
+msgstr[2] "%1 godzin"
+msgstr[3] "%1 godzin"
 
 #: ../client/datetime.ts:20
 msgid "in %1 year"
@@ -1083,7 +1083,7 @@ msgstr "Okresy"
 
 #: ../client/lobby.ts:449
 msgid "Days per turn:"
-msgstr ""
+msgstr "Dni na ruch"
 
 #: ../client/lobby.ts:467 ../client/lobby.ts:767 ../client/result.ts:16
 msgid "Casual"
@@ -1185,7 +1185,7 @@ msgstr "%1 na posunięciu"
 
 #: ../client/lobby.ts:1068
 msgid "Lobby"
-msgstr ""
+msgstr "Lobby"
 
 #: ../client/lobby.ts:1127
 msgid "Donate"
@@ -1205,23 +1205,23 @@ msgstr "O nas"
 
 #: ../client/lobby.ts:1138
 msgid "Correspondence Chess"
-msgstr ""
+msgstr "Szachy korespondencyjne"
 
 #: ../client/lobby.ts:1139
 msgid "You have time now"
-msgstr ""
+msgstr "Teraz mamy czas"
 
 #: ../client/lobby.ts:1146 ../client/lobby.ts:1147
 msgid "S-chess ramblings"
-msgstr ""
+msgstr "S-szachowe wywody"
 
 #: ../client/lobby.ts:1154
 msgid "Autumn Update"
-msgstr ""
+msgstr "Nowości na jesień"
 
 #: ../client/lobby.ts:1155
 msgid "A slew of new variants!"
-msgstr ""
+msgstr "Kolejna porcja nowych wariantów!"
 
 #: ../client/main.ts:114
 msgid "Thank you for your support!"
@@ -1271,7 +1271,7 @@ msgstr "Rankingowe"
 #: ../client/profile.ts:228
 msgctxt "UsePluralFormIfNeeded"
 msgid "Playing"
-msgstr ""
+msgstr "W trakcie"
 
 #: ../client/profile.ts:229
 msgid "Imported"
