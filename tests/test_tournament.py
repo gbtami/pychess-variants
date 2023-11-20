@@ -203,7 +203,7 @@ class TournamentTestCase(AioHTTPTestCase):
         await self.client.close()
 
     async def get_application(self):
-        app = make_app(with_db=False)
+        app = make_app()
         return app
 
     @unittest.skipIf(ONE_TEST_ONLY, "1 test only")

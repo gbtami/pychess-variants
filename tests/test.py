@@ -78,7 +78,7 @@ class GameResultTestCase(AioHTTPTestCase):
         self.wplayer = User(self.app, username="wplayer", perfs=PERFS["newplayer"])
 
     async def get_application(self):
-        app = make_app(with_db=False)
+        app = make_app()
         app.on_startup.append(self.startup)
         return app
 
@@ -189,7 +189,7 @@ class RequestLobbyTestCase(AioHTTPTestCase):
         await self.client.close()
 
     async def get_application(self):
-        app = make_app(with_db=False)
+        app = make_app()
         return app
 
     async def test_example(self):
@@ -205,7 +205,7 @@ class GamePlayTestCase(AioHTTPTestCase):
         self.random_mover = self.app["users"]["Random-Mover"]
 
     async def get_application(self):
-        app = make_app(with_db=False)
+        app = make_app()
         app.on_startup.append(self.startup)
         return app
 
@@ -258,7 +258,7 @@ class HighscoreTestCase(AioHTTPTestCase):
         self.weak_player = User(self.app, username="weakplayer", perfs=PERFS["weakplayer"])
 
     async def get_application(self):
-        app = make_app(with_db=False)
+        app = make_app()
         app.on_startup.append(self.startup)
         return app
 
@@ -409,7 +409,7 @@ class RatingTestCase(AioHTTPTestCase):
         self.gl2 = Glicko2(tau=0.5)
 
     async def get_application(self):
-        app = make_app(with_db=False)
+        app = make_app()
         app.on_startup.append(self.startup)
         return app
 
@@ -512,7 +512,7 @@ class FirstRatedGameTestCase(AioHTTPTestCase):
         self.wplayer2 = User(self.app, username="wplayer", perfs=PERFS["newplayer"])
 
     async def get_application(self):
-        app = make_app(with_db=False)
+        app = make_app()
         app.on_startup.append(self.startup)
         return app
 
