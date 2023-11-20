@@ -22,7 +22,7 @@ from aiohttp.web_app import Application
 from aiohttp_session.cookie_storage import EncryptedCookieStorage
 from aiohttp_session import setup
 from aiohttp_remotes import Secure
-from motor import motor_asyncio as ma
+from motor.motor_asyncio import AsyncIOMotorClient
 from sortedcollections import ValueSortedDict
 from pythongettext.msgfmt import Msgfmt
 from pythongettext.msgfmt import PoSyntaxError
@@ -479,8 +479,7 @@ if __name__ == "__main__":
         level=logging.DEBUG if args.v else logging.WARNING if args.w else logging.INFO
     )
 
-    mongodb_client = ma.AsyncIOMotorClient(MONGO_HOST, tz_aware=True)
-    app = make_app(db_client=mongodb_client)
+    app = make_app(db_client=AsyncIOMotorClient(MONGO_HOST, tz_aware=True))
 
     web.run_app(
         app, access_log=None if args.w else access_logger, port=int(os.environ.get("PORT", 8080))
