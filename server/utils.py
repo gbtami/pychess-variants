@@ -932,6 +932,9 @@ async def get_notifications(request):
     # Who made the request?
     session = await aiohttp_session.get_session(request)
     session_user = session.get("user_name")
+    if session_user is None:
+        return web.json_response({})
+
     user = users[session_user]
 
     if user.notifications is None:
@@ -952,6 +955,9 @@ async def notified(request):
     # Who made the request?
     session = await aiohttp_session.get_session(request)
     session_user = session.get("user_name")
+    if session_user is None:
+        return web.json_response({})
+
     user = users[session_user]
     await user.notified()
     return web.json_response({})
@@ -962,6 +968,9 @@ async def subscribe_notify(request):
     # Who made the request?
     session = await aiohttp_session.get_session(request)
     session_user = session.get("user_name")
+    if session_user is None:
+        return web.json_response({})
+
     user = users[session_user]
     try:
         async with sse_response(request) as response:
