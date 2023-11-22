@@ -48,7 +48,7 @@ from misc import time_control_str
 from news import NEWS
 from videos import VIDEO_TAGS, VIDEO_TARGETS
 from user import User
-from utils import load_game, join_seek, tv_game, tv_game_user
+from utils import corr_games, load_game, join_seek, tv_game, tv_game_user
 from tournaments import (
     get_winners,
     get_latest_tournaments,
@@ -65,27 +65,6 @@ from puzzle import (
 from custom_trophy_owners import CUSTOM_TROPHY_OWNERS
 
 log = logging.getLogger(__name__)
-
-
-@web.middleware
-async def handle_404(request, handler):
-    try:
-        return await handler(request)
-    except web.HTTPException as ex:
-        if ex.status == 404:
-            template = request.app["jinja"]["en"].get_template("404.html")
-            text = await template.render_async(
-                {
-                    "dev": DEV,
-                    "home": URI,
-                    "view_css": "404.css",
-                    "asseturl": STATIC_ROOT,
-                    "js": "/static/pychess-variants.js%s%s" % (BR_EXTENSION, SOURCE_VERSION),
-                }
-            )
-            return web.Response(text=html_minify(text), content_type="text/html")
-        else:
-            raise
 
 
 async def index(request):
@@ -267,6 +246,8 @@ async def index(request):
             rated = IMPORTED
         elif request.path[-6:] == "/rated":
             rated = RATED
+        elif request.path[-8:] == "/playing":
+            rated = -2
         elif request.path[-3:] == "/me":
             rated = -1
         elif "/challenge" in request.path:
@@ -399,6 +380,8 @@ async def index(request):
     if view == "lobby":
         puzzle = await get_daily_puzzle(request)
         render["puzzle"] = json.dumps(puzzle, default=datetime.isoformat)
+        c_games = corr_games(user.correspondence_games)
+        render["corr_games"] = json.dumps(c_games, default=datetime.isoformat)
 
     elif view in ("profile", "level8win"):
         if view == "level8win":
@@ -534,6 +517,7 @@ async def index(request):
             render["variant"] = seek.variant
             render["chess960"] = seek.chess960
             render["rated"] = seek.rated
+            render["corr"] = seek.day > 0
             render["base"] = seek.base
             render["inc"] = seek.inc
             render["byo"] = seek.byoyomi_period
@@ -548,6 +532,7 @@ async def index(request):
             render["wrdiff"] = game.wrdiff
             render["chess960"] = game.chess960
             render["rated"] = game.rated
+            render["corr"] = game.corr
             render["level"] = game.level
             render["bplayer"] = game.bplayer.username
             render["btitle"] = game.bplayer.title
@@ -570,6 +555,9 @@ async def index(request):
                 render["tournamentname"] = tournament_name
                 render["wberserk"] = game.wberserk
                 render["bberserk"] = game.bberserk
+            if game.corr and user.username in (game.wplayer.username, game.bplayer.username):
+                c_games = corr_games(user.correspondence_games)
+                render["corr_games"] = json.dumps(c_games, default=datetime.isoformat)
 
     if tournamentId is not None:
         tournament_name = await get_tournament_name(request, tournamentId)

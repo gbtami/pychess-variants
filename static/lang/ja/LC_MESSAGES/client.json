@@ -22,6 +22,12 @@
     "Spectator room": "観戦席",
     "Chat room": "チャットルーム",
     "Server": "サーバ",
+    "%1 day": [
+        ""
+    ],
+    "%1 hour": [
+        ""
+    ],
     "in %1 year": [
         "%1年以内"
     ],
@@ -96,8 +102,11 @@
     "Challenge to a game": "対戦を申し込む",
     "CANCEL": "キャンセル",
     "JOIN THE GAME": "対局に参加する",
-    "Cancel": "キャンセル",
+    "Play with AI": "AIと対局する",
+    "Play with a friend": "友達と対局する",
+    "Create a game": "対局を作成する",
     "Challenge %1 to a game": "%1 を対戦に申し込む",
+    "Cancel": "キャンセル",
     "Paste the FEN text here": "ここにFEN形式の局面をペースト",
     " (must be signed in)": "（ログインが必要）",
     "Minutes per side:": "持ち時間（分）",
@@ -107,9 +116,6 @@
     "Practice with Random-Mover": "ランダムボットと対局する",
     "A.I. Level": "A.I. レベル",
     "Random": "ランダムカラー",
-    "Create a game": "対局を作成する",
-    "Play with a friend": "友達と対局する",
-    "Play with AI": "AIと対局する",
     "Byoyomi in seconds:": "秒読み：",
     "Increment in seconds:": "１手ごとに増える秒数：",
     "Invalid FEN": "無効な FEN",
@@ -158,9 +164,9 @@
     "Repetition": "千日手",
     " +15 seconds": "+15 秒",
     "Give 15 seconds": "15秒を与える",
-    "Abort": "中止",
     "Pass": "パス",
     "Resign": "投了",
+    "Abort": "中止",
     "Are you sure you want to draw?": "本当にドロー（引き分け）を提案したいですか？",
     "Draw offer sent": "ドローの提案を送信しました",
     "Your opponent offers a draw": "相手がドローを提案しました",

@@ -183,7 +183,7 @@ class TournamentTestCase(AioHTTPTestCase):
             if game.status == BYEGAME:  # ByeGame
                 continue
             if game.status <= STARTED:
-                await game.abort()
+                await game.abort_by_server()
 
             if game.remove_task is not None:
                 game.remove_task.cancel()
@@ -203,7 +203,7 @@ class TournamentTestCase(AioHTTPTestCase):
         await self.client.close()
 
     async def get_application(self):
-        app = make_app(with_db=False)
+        app = make_app()
         return app
 
     @unittest.skipIf(ONE_TEST_ONLY, "1 test only")

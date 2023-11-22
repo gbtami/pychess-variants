@@ -49,7 +49,7 @@ export const PIECE_FAMILIES: Record<string, PieceFamily> = {
     kyoto: { pieceCSS: ["kyoto", "kyotok", "kyotoks", "kyotoi", "kyotod", "disguised"] },
     dobutsu: { pieceCSS: ["dobutsu", "disguised"] },
     tori: { pieceCSS: ["torii", "torik", "torim", "porti", "disguised"] },
-    xiangqi: { pieceCSS: ["xiangqi2d", "xiangqi2di", "xiangqi", "xiangqict3", "xiangqihnz", "xiangqict2", "xiangqihnzw", "xiangqict2w", "xiangqiwikim", "xiangqiKa", "xiangqittxqhnz", "xiangqittxqintl", "disguised", "euro"] },
+    xiangqi: { pieceCSS: ["lishu", "xiangqi2di", "xiangqi", "xiangqict3", "xiangqihnz", "xiangqict2", "lishuw", "xiangqict2w", "xiangqiwikim", "xiangqiKa", "xiangqittxqhnz", "xiangqittxqintl", "xiangqi2d", "xiangqihnzw", "disguised", "euro"] },
     janggi: { pieceCSS: ["janggihb", "janggihg", "janggiikak", "janggiikaw", "janggikak", "janggikaw", "janggiib", "janggiig", "disguised"] },
     shako: { pieceCSS: ["shako0", "shako1", "shako2", "disguised"] },
     shogun: { pieceCSS: ["shogun0", "shogun1", "shogun2", "shogun3", "shogun4", "shogun5", "disguised"] },
@@ -59,7 +59,7 @@ export const PIECE_FAMILIES: Record<string, PieceFamily> = {
     shinobi: { pieceCSS: ["shinobi0", "shinobi1", "disguised"] },
     empire: { pieceCSS: ["empire0", "empire1", "disguised"] },
     ordamirror: { pieceCSS: ["ordamirror0", "ordamirror1", "disguised"] },
-    chak: { pieceCSS: ["chak0", "disguised"] },
+    chak: { pieceCSS: ["chak0", "chak1", "disguised"] },
     chennis: { pieceCSS: ["chennis0", "chennis1", "chennis2", "chennis3", "chennis4", "disguised"] },
     spartan: { pieceCSS: ["spartan0", "disguised"] },
     mansindam: { pieceCSS: ["mansindam2", "mansindam1", "mansindam3", "mansindam4", "disguised"] },
@@ -836,7 +836,6 @@ export const VARIANTS: Record<string, Variant> = {
         pieceRow: ["k", "r", "n", "b", "a", "q", "c", "m", "p"],
         pocket: { roles: ["p", "n", "b", "r", "a", "q", "c", "m"], captureToHand: true },
         promotion: { type: "shogi", roles: ["n", "b", "r", "c", "m", "p"] },
-        ui: { boardMark: 'campmate' },
     }),
 
     // We support the functionality to import/store/analyze some variants

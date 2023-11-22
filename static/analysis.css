@@ -334,55 +334,12 @@ input[type="checkbox"] {
     padding-right: 4px;
 }
 
-div[role=tabpanel] {
-    height: var(--panel-height);
-    display: none;
-    text-align: left;
-    overflow-y: auto;
-}
-div[role=tabpanel] textarea {
-    overflow-y: hidden;
-    background-color: var(--bg-color);
-    border: none;
-    resize: none;
-    outline: none;
-}
-div[role=tablist] {
-    display: flex;
-    flex-flow: row nowrap;
-    justify-content: center;
-    align-items: flex-start;
-}
-span[role=tab] {
-    flex: 1 1 0;
-    text-align: center;
-    font-size: 0.9em;
-    padding: 0.4em 0.1em;
-    cursor: pointer;
-    position: relative;
-    border-bottom: 1px solid #d9d9d9;
-}
-span[aria-selected=true], span:hover::after {
-    color: #d64f00;
-    transform: scale(1);
-}
-div > span::after {
-    content:'';
-    background:rgba(214,79,0,0.6);
-    height:2px;
-    position:absolute;
-    width:96%;
-    left:2%;
-    bottom:-2px;
-    transition:all .25s;
-    transform:scale(0)
-}
-/* Request analysis button (analysis chart) */
-div.request-analysis {
+/* Request analysis (analysis chart) */
+div#request-analysis {
   display: flex;
   padding-top: 3vmin;
 }
-div.request-analysis, div#panel-1 {
+div#request-analysis, div#panel-1 {
     align-items: center;
     justify-content: center;
 }

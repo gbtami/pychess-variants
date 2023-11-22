@@ -32,7 +32,7 @@ class RamatchChess960GameTestCase(AioHTTPTestCase):
         self.Bplayer = User(self.app, username="Bplayer", perfs=PERFS["newplayer"])
 
     async def get_application(self):
-        app = make_app(with_db=False)
+        app = make_app()
         app.on_startup.append(self.startup)
         return app
 

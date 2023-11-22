@@ -209,7 +209,7 @@ async def logout(request, user=None):
         if gameId in user.app["games"]:
             game = user.app["games"][gameId]
             if game.status <= STARTED:
-                response = await game.game_ended(user, "abandone")
+                response = await game.game_ended(user, "abandon")
                 await round_broadcast(game, response, full=True)
 
     if request is not None:

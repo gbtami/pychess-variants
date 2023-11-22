@@ -81,7 +81,6 @@ async def round_socket_handler(request):
 
                     if data["type"] == "move":
                         # log.info("Got USER move %s %s %s" % (user.username, data["gameId"], data["move"]))
-
                         async with game.move_lock:
                             try:
                                 await play_move(
@@ -140,6 +139,7 @@ async def round_socket_handler(request):
 
                     elif data["type"] == "board":
                         if game.variant == "janggi":
+                            print("JANGGI", game.bsetup, game.wsetup, game.status)
                             if (game.bsetup or game.wsetup) and game.status <= STARTED:
                                 if game.bsetup:
                                     await ws.send_json(
@@ -163,6 +163,15 @@ async def round_socket_handler(request):
                         else:
                             board_response = game.get_board(full=True)
                             await ws.send_json(board_response)
+
+                        if game.corr and game.status <= STARTED and len(game.draw_offers) > 0:
+                            offerer = (
+                                game.wplayer
+                                if game.wplayer.username in game.draw_offers
+                                else game.bplayer
+                            )
+                            response = await draw(game, offerer)
+                            await ws.send_json(response)
 
                     elif data["type"] == "setup":
                         # Janggi game starts with a prelude phase to set up horses and elephants
@@ -195,8 +204,12 @@ async def round_socket_handler(request):
                                 game.board.janggi_setup("w")
                                 game.steps[0]["fen"] = game.board.initial_fen
                             else:
-                                opp_ws = users[opp_name].game_sockets[data["gameId"]]
-                                await opp_ws.send_json(response)
+                                try:
+                                    opp_ws = users[opp_name].game_sockets[data["gameId"]]
+                                    await opp_ws.send_json(response)
+                                except KeyError:
+                                    # opp disconnected
+                                    pass
                         else:
                             game.wsetup = False
                             game.status = STARTED
@@ -206,8 +219,14 @@ async def round_socket_handler(request):
                             await ws.send_json(response)
 
                             if not opp_player.bot:
-                                opp_ws = users[opp_name].game_sockets[data["gameId"]]
-                                await opp_ws.send_json(response)
+                                try:
+                                    opp_ws = users[opp_name].game_sockets[data["gameId"]]
+                                    await opp_ws.send_json(response)
+                                except KeyError:
+                                    # opp disconnected
+                                    pass
+
+                        await game.save_setup()
 
                         if opp_player.bot:
                             await opp_player.event_queue.put(game.game_start)
@@ -293,6 +312,7 @@ async def round_socket_handler(request):
                                 base=game.base,
                                 inc=game.inc,
                                 byoyomi_period=game.byoyomi_period,
+                                day=game.base if game.corr else 0,
                                 level=game.level,
                                 rated=game.rated,
                                 player1=user,
@@ -326,6 +346,7 @@ async def round_socket_handler(request):
                                     base=game.base,
                                     inc=game.inc,
                                     byoyomi_period=game.byoyomi_period,
+                                    day=game.base if game.corr else 0,
                                     level=game.level,
                                     rated=game.rated,
                                     player1=user,
@@ -378,9 +399,7 @@ async def round_socket_handler(request):
                         )
                         opp_player = users[opp_name]
 
-                        response = await draw(
-                            game, user.username, agreement=opp_name in game.draw_offers
-                        )
+                        response = await draw(game, user, agreement=opp_name in game.draw_offers)
                         await ws.send_json(response)
                         if opp_player.bot:
                             if game.status > STARTED and data["gameId"] in opp_player.game_queues:
@@ -400,11 +419,9 @@ async def round_socket_handler(request):
 
                     elif data["type"] == "reject_draw":
                         color = WHITE if user.username == game.wplayer.username else BLACK
-                        opp_name = (
-                            game.wplayer.username if color == BLACK else game.bplayer.username
-                        )
+                        opp_user = game.wplayer if color == BLACK else game.bplayer
 
-                        response = reject_draw(game, opp_name)
+                        response = reject_draw(game, opp_user)
                         if response is not None:
                             await round_broadcast(game, response, full=True)
 
@@ -422,7 +439,7 @@ async def round_socket_handler(request):
                         board_response["takeback"] = True
                         await ws.send_json(board_response)
 
-                    elif data["type"] in ("abort", "resign", "abandone", "flag"):
+                    elif data["type"] in ("abort", "resign", "abandon", "flag"):
                         if data["type"] == "abort" and (game is not None) and game.board.ply > 2:
                             continue
 
@@ -446,9 +463,12 @@ async def round_socket_handler(request):
                             if data["gameId"] in opp_player.game_queues:
                                 await opp_player.game_queues[data["gameId"]].put(game.game_end)
                         else:
-                            if data["gameId"] in users[opp_name].game_sockets:
+                            try:
                                 opp_ws = users[opp_name].game_sockets[data["gameId"]]
                                 await opp_ws.send_json(response)
+                            except KeyError:
+                                # opp disconnected
+                                pass
 
                         await round_broadcast(game, response)
 
@@ -529,17 +549,18 @@ async def round_socket_handler(request):
                             game.spectators.add(user)
                             await round_broadcast(game, game.spectator_list, full=True)
 
+                        stopwatch_secs = game.stopwatch.secs if (not game.corr) else 0
                         response = {
                             "type": "game_user_connected",
                             "username": user.username,
                             "gameId": data["gameId"],
                             "ply": game.board.ply,
-                            "firstmovetime": game.stopwatch.secs,
+                            "firstmovetime": stopwatch_secs,
                         }
                         await ws.send_json(response)
 
-                        if user.abandone_game_task is not None:
-                            user.abandone_game_task.cancel()
+                        if user.abandon_game_task is not None:
+                            user.abandon_game_task.cancel()
 
                         response = {"type": "fullchat", "lines": list(game.messages)}
                         await ws.send_json(response)
@@ -568,10 +589,8 @@ async def round_socket_handler(request):
                         await ws.send_json(response)
 
                     elif data["type"] == "moretime":
-                        # TODO: stop and update game stopwatch time with updated secs
-
                         opp_color = WHITE if user.username == game.bplayer.username else BLACK
-                        if opp_color == game.stopwatch.color:
+                        if (not game.corr) and opp_color == game.stopwatch.color:
                             opp_time = game.stopwatch.stop()
                             game.stopwatch.restart(opp_time + MORE_TIME)
 
@@ -673,13 +692,6 @@ async def round_socket_handler(request):
 
                     elif data["type"] == "count":
                         cur_player = game.bplayer if game.board.color == BLACK else game.wplayer
-                        opp_name = (
-                            game.wplayer.username
-                            if user.username == game.bplayer.username
-                            else game.bplayer.username
-                        )
-                        opp_player = users[opp_name]
-                        opp_ws = users[opp_name].game_sockets[data["gameId"]]
 
                         if user.username == cur_player.username:
                             if data["mode"] == "start":
@@ -690,9 +702,6 @@ async def round_socket_handler(request):
                                     "room": "player",
                                     "user": "",
                                 }
-                                await ws.send_json(response)
-                                await opp_ws.send_json(response)
-                                await round_broadcast(game, response)
                             elif data["mode"] == "stop":
                                 game.stop_manual_count()
                                 response = {
@@ -701,9 +710,7 @@ async def round_socket_handler(request):
                                     "room": "player",
                                     "user": "",
                                 }
-                                await ws.send_json(response)
-                                await opp_ws.send_json(response)
-                                await round_broadcast(game, response)
+                            await round_broadcast(game, response, full=True)
                         else:
                             response = {
                                 "type": "count",
@@ -746,10 +753,11 @@ async def round_socket_handler(request):
         if game is not None and user is not None and not user.bot:
             if game.id in user.game_sockets:
                 del user.game_sockets[game.id]
-                user.abandone_game_task = asyncio.create_task(user.abandone_game(game))
                 user.update_online()
 
-            if user.username not in (game.wplayer.username, game.bplayer.username):
+            if user in (game.wplayer, game.bplayer) and (not game.corr):
+                user.abandon_game_task = asyncio.create_task(user.abandon_game(game))
+            else:
                 game.spectators.discard(user)
                 await round_broadcast(game, game.spectator_list, full=True)
 

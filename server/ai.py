@@ -24,7 +24,7 @@ async def BOT_task(bot, app):
             except KeyError:
                 log.error("Break in BOT_task() game_task(). %s not in ai.game_queues", game.id)
                 if game.status <= STARTED:
-                    await game.abort()
+                    await game.abort_by_server()
                 break
 
             event = json.loads(line)
@@ -81,10 +81,10 @@ async def BOT_task(bot, app):
         if len(app["workers"]) == 0 and not random_mover:
             log.error("ERROR: No fairyfisnet worker alive!")
             # TODO: send msg to player
-            await game.abort()
+            await game.abort_by_server()
             continue
 
-        starting_color = game.initial_fen.split()[1]
+        starting_color = game.board.initial_fen.split()[1]
         if starting_color == "b":
             starting_player = game.bplayer.username
         else:

@@ -3,7 +3,7 @@ import { h, VNode } from 'snabbdom';
 import * as idb from 'idb-keyval';
 
 import { Settings } from "./settings";
-import { _ } from './i18n';
+import { _, ngettext } from './i18n';
 
 export function radioList(settings: Settings<string>, name: string, options: { [key: string]: string }, onchange: (evt: Event, key: string) => void): VNode[] {
     const result: VNode[] = [];
@@ -116,7 +116,9 @@ function saveNnueFileToIdb (settings: Settings<string>, variant: string, file: F
     fileReader.readAsArrayBuffer(file);
 }
 
-export function timeControlStr(minutes: number | string, increment = 0, byoyomiPeriod = 0): string {
+export function timeControlStr(minutes: number | string, increment = 0, byoyomiPeriod = 0, day = 0): string {
+    if (day > 0) return ngettext('%1 day', '%1 days', day);
+
     minutes = Number(minutes);
     byoyomiPeriod = Number(byoyomiPeriod)
     switch (minutes) {
@@ -190,4 +192,32 @@ function setInputFileName(vnode: VNode, name: string) {
     if (fileInput.webkitEntries && fileInput.webkitEntries.length) {
         fileInput.dataset.file = `${dataTransfer.files[0].name}`;
     }
+}
+
+export function setAriaTabClick(setting: string) {
+    // Add a click event handler to each tab
+    const tabs = document.querySelectorAll('[role="tab"]');
+    tabs!.forEach(tab => {
+        tab.addEventListener('click', () => changeTabs(setting, tab));
+    });
+}
+
+export function changeTabs(setting: string, tab: Element) {
+    const parent = tab!.parentNode;
+    const grandparent = parent!.parentNode;
+
+    // Remove all current selected tabs
+    parent!.querySelectorAll('[aria-selected="true"]').forEach(t => t.setAttribute('aria-selected', 'false'));
+
+    // Set this tab as selected
+    tab.setAttribute('aria-selected', 'true');
+
+    // Hide all tab panels
+    grandparent!.querySelectorAll('[role="tabpanel"]').forEach(p => (p as HTMLElement).style.display = 'none');
+
+    // Show the selected panel
+    (grandparent!.parentNode!.querySelector(`#${tab.getAttribute('aria-controls')}`)! as HTMLElement).style.display = 'block';
+
+    const tabId = tab.getAttribute('id');
+    localStorage[setting] = tabId;
 }
