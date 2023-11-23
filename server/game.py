@@ -1039,6 +1039,19 @@ class Game:
             "by": self.imported_by,
         }
 
+    def game_json(self, player):
+        color = "w" if self.wplayer == player else "b"
+        opp_player = self.bplayer if color == "w" else self.wplayer
+        opp_rating = self.brating if color == "w" else self.wrating
+        return {
+            "gameId": self.id,
+            "title": opp_player.title,
+            "name": opp_player.username,
+            "rating": opp_rating,
+            "color": color,
+            "result": self.result,
+        }
+
     @property
     def tv_game_json(self):
         return {
