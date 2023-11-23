@@ -17,7 +17,6 @@ try:
 except ImportError:
     print("No pyffish module installed!")
 
-from glicko2.glicko2 import gl2
 from broadcast import lobby_broadcast, round_broadcast
 from const import (
     NOTIFY_PAGE_SIZE,
@@ -264,9 +263,6 @@ async def load_game(app, game_id):
     except KeyError:
         game.wrating = "1500?"
         game.brating = "1500?"
-
-    game.white_rating = gl2.create_rating(int(game.wrating.rstrip("?")))
-    game.black_rating = gl2.create_rating(int(game.brating.rstrip("?")))
 
     try:
         game.wrdiff = doc["p0"]["d"]
