@@ -120,6 +120,8 @@ async def load_game(app, game_id):
                 initial_fen = parts[0] + (" w" if parts[1] == "b" else " b") + " 0"
             # print("   changed to:", initial_fen)
 
+    corr = doc.get("c", False)
+
     game = Game(
         app,
         game_id,
@@ -133,7 +135,7 @@ async def load_game(app, game_id):
         level=doc.get("x"),
         rated=doc.get("y"),
         chess960=bool(doc.get("z")),
-        corr=doc.get("c", False),
+        corr=corr,
         create=False,
         tournamentId=doc.get("tid"),
     )
@@ -204,7 +206,7 @@ async def load_game(app, game_id):
                 "turnColor": turnColor,
                 "check": game.check,
             }
-            if "cw" in doc and len(doc["cw"]) > 0:
+            if "cw" in doc and not corr:
                 move_number = ((ply + 1) // 2) + (1 if ply % 2 == 0 else 0)
                 if ply >= 2:
                     if ply % 2 == 0:
