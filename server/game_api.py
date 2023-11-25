@@ -169,6 +169,11 @@ async def get_user_games(request):
             ]
     elif "/rated" in request.path:
         filter_cond["$or"] = [{"y": 1, "us.1": profileId}, {"y": 1, "us.0": profileId}]
+    elif "/playing" in request.path:
+        filter_cond["$and"] = [
+            {"$or": [{"c": True, "us.1": profileId}, {"c": True, "us.0": profileId}]},
+            {"s": STARTED},
+        ]
     elif "/import" in request.path:
         filter_cond["by"] = profileId
         filter_cond["y"] = 2
@@ -258,7 +263,7 @@ async def get_user_games(request):
                         "is960": doc.get("z", 0),
                         "users": doc["us"],
                         "result": doc["r"],
-                        "fen": doc.get("if"),
+                        "fen": doc.get("f"),
                         "moves": decode_moves(doc["m"], doc["v"]),
                     }
                 )
@@ -290,41 +295,41 @@ async def cancel_invite(request):
 
 
 async def subscribe_invites(request):
-    async with sse_response(request) as response:
-        app = request.app
-        queue = asyncio.Queue()
-        app["invite_channels"].add(queue)
-        try:
+    try:
+        async with sse_response(request) as response:
+            app = request.app
+            queue = asyncio.Queue()
+            app["invite_channels"].add(queue)
             while not response.task.done():
                 payload = await queue.get()
                 await response.send(payload)
                 queue.task_done()
-        except ConnectionResetError as e:
-            log.error(e, stack_info=True, exc_info=True)
-        finally:
-            app["invite_channels"].remove(queue)
+    except ConnectionResetError as e:
+        log.error(e, stack_info=True, exc_info=True)
+    finally:
+        app["invite_channels"].remove(queue)
     return response
 
 
 async def subscribe_games(request):
-    async with sse_response(request) as response:
-        app = request.app
-        queue = asyncio.Queue()
-        app["game_channels"].add(queue)
-        try:
+    try:
+        async with sse_response(request) as response:
+            app = request.app
+            queue = asyncio.Queue()
+            app["game_channels"].add(queue)
             while not response.task.done():
                 payload = await queue.get()
                 await response.send(payload)
                 queue.task_done()
-        except ConnectionResetError as e:
-            log.error(e, stack_info=True, exc_info=True)
-        finally:
-            app["game_channels"].remove(queue)
+    except (ConnectionResetError, asyncio.CancelledError) as e:
+        log.error(e, stack_info=True, exc_info=True)
+    finally:
+        app["game_channels"].remove(queue)
     return response
 
 
-async def get_games(request):
-    games = request.app["games"]
+def get_games(request):
+    games = request.app["games"].values()
     # TODO: filter last 10 by variant
     return web.json_response(
         [
@@ -332,6 +337,8 @@ async def get_games(request):
                 "gameId": game.id,
                 "variant": game.variant,
                 "fen": game.board.fen,
+                "lastMove": game.lastmove,
+                "tp": game.turn_player,
                 "w": game.wplayer.username,
                 "wTitle": game.wplayer.title,
                 "b": game.bplayer.username,
@@ -342,8 +349,8 @@ async def get_games(request):
                 "byoyomi": game.byoyomi_period,
                 "level": game.level,
             }
-            for game in games.values()
-            if game.status == STARTED
+            for game in games
+            if game.status == STARTED and not game.corr
         ][-20:]
     )
 

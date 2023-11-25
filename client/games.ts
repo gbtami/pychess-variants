@@ -25,10 +25,10 @@ export interface Game {
     wTitle: string;
     level: number;
     fen: cg.FEN;
-    lastMove: cg.Move;
+    lastMove: string;
 }
 
-function gameView(games: {[gameId: string]: Api}, game: Game, fen: cg.FEN, lastMove: cg.Move) {
+function gameView(games: {[gameId: string]: Api}, game: Game) {
     const variant = VARIANTS[game.variant];
     return h(`minigame#${game.gameId}.${variant.boardFamily}.${variant.pieceFamily}`, {
         class: {
@@ -51,8 +51,8 @@ function gameView(games: {[gameId: string]: Api}, game: Game, fen: cg.FEN, lastM
             hook: {
                 insert: vnode => {
                     const cg = Chessground(vnode.elm as HTMLElement, {
-                        fen: fen,
-                        lastMove: lastMove,
+                        fen: game.fen,
+                        lastMove: uci2LastMove(game.lastMove),
                         dimensions: variant.board.dimensions,
                         coordinates: false,
                         viewOnly: true,
@@ -82,7 +82,7 @@ export function renderGames(model: PyChessModel): VNode[] {
             const oldVNode = document.getElementById('games');
             const games: {[gameId: string]: Api} = {};
             if (oldVNode instanceof Element) {
-                patch(oldVNode as HTMLElement, h('grid-container#games', response.map((game: Game) => gameView(games, game, game.fen, game.lastMove))));
+                patch(oldVNode as HTMLElement, h('grid-container#games', response.map((game: Game) => gameView(games, game))));
 
                 const evtSource = new EventSource("/api/ongoing");
                 evtSource.onmessage = function(event) {

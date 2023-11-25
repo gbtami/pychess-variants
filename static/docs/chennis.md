@@ -46,12 +46,9 @@ The King (K) is the same as in any form of chess and can move on square in any d
 
 There are four piece pairs:
 
-Rook-Pawn
-
-Bishop-Soldier
-
-Knight-Mayor
-
+Rook-Pawn  
+Bishop-Soldier  
+Knight-Mayor  
 Cannon-Ferz
 
 The rook, pawn, knight, and bishop move exactly as in chess. If you are not familiar with these pieces, please check out of a chess guide. The only exception is that the pawn does not have the two step move as in chess.

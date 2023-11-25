@@ -1,7 +1,7 @@
 import asyncio
 import collections
 import logging
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from time import monotonic
 
 from user import User
@@ -17,7 +17,7 @@ except ImportError as e:
     print("No pyffish module installed!")
 
 from broadcast import lobby_broadcast, round_broadcast
-from clock import Clock
+from clock import Clock, CorrClock
 from compress import encode_moves, R2C
 from const import (
     CREATED,
@@ -77,6 +77,7 @@ class Game:
         level=0,
         rated=CASUAL,
         chess960=False,
+        corr=False,
         create=True,
         tournamentId=None,
     ):
@@ -100,6 +101,7 @@ class Game:
         self.level = level if level is not None else 0
         self.tournamentId = tournamentId
         self.chess960 = chess960
+        self.corr = corr
         self.create = create
         self.imported_by = ""
 
@@ -112,11 +114,11 @@ class Game:
         )
 
         # rating info
-        self.white_rating = wplayer.get_rating(variant, chess960)
-        self.wrating = "%s%s" % self.white_rating.rating_prov
+        white_rating = wplayer.get_rating(variant, chess960)
+        self.wrating = "%s%s" % white_rating.rating_prov
         self.wrdiff = 0
-        self.black_rating = bplayer.get_rating(variant, chess960)
-        self.brating = "%s%s" % self.black_rating.rating_prov
+        black_rating = bplayer.get_rating(variant, chess960)
+        self.brating = "%s%s" % black_rating.rating_prov
         self.brdiff = 0
 
         # crosstable info
@@ -241,8 +243,9 @@ class Game:
         # We adjust this in "byoyomi" messages in wsr.py
         self.byo_correction = 0
 
-        self.initial_fen = self.board.initial_fen
-        self.wplayer.fen960_as_white = self.initial_fen
+        if self.chess960:
+            self.initial_fen = self.board.initial_fen
+            self.wplayer.fen960_as_white = self.initial_fen
 
         self.random_mover = "Random-Mover" in (
             self.wplayer.username,
@@ -263,11 +266,15 @@ class Game:
             }
         ]
 
-        self.stopwatch = Clock(self)
+        self.last_move_date = None
+        if self.corr:
+            self.stopwatch = CorrClock(self)
+        else:
+            self.stopwatch = Clock(self)
 
-        if not self.bplayer.bot:
+        if (not self.corr) and (not self.bplayer.bot):
             self.bplayer.game_in_progress = self.id
-        if not self.wplayer.bot:
+        if (not self.corr) and (not self.wplayer.bot):
             self.wplayer.game_in_progress = self.id
 
         self.wberserk = False
@@ -285,6 +292,7 @@ class Game:
 
     async def play_move(self, move, clocks=None, ply=None):
         self.stopwatch.stop()
+
         self.byo_correction = 0
 
         if self.status > STARTED:
@@ -302,7 +310,7 @@ class Game:
         opp_player = self.wplayer if self.board.color == BLACK else self.bplayer
 
         # Move cancels draw offer
-        response = reject_draw(self, opp_player.username)
+        response = await reject_draw(self, opp_player)
         if response is not None:
             await round_broadcast(self, response, full=True)
 
@@ -370,6 +378,11 @@ class Game:
 
                 if self.status > STARTED:
                     await self.save_game()
+                    if self.corr:
+                        await opp_player.notify_game_end(self)
+
+                elif self.corr:
+                    await self.save_moves()
 
                 self.steps.append(
                     {
@@ -388,6 +401,36 @@ class Game:
                 result = "1-0" if self.board.color == BLACK else "0-1"
                 self.update_status(INVALIDMOVE, result)
                 await self.save_game()
+                if self.corr:
+                    await opp_player.notify_game_end(self)
+
+    async def save_moves(self):
+        new_data = {
+            "f": self.board.fen,
+            "l": datetime.now(timezone.utc),
+            "s": self.status,
+            "m": encode_moves(
+                map(grand2zero, self.board.move_stack)
+                if self.variant in GRANDS
+                else self.board.move_stack,
+                self.variant,
+            ),
+        }
+        if self.db is not None:
+            await self.db.game.find_one_and_update({"_id": self.id}, {"$set": new_data})
+
+    async def save_setup(self):
+        """Used by Janggi prelude phase"""
+        new_data = {
+            "f": self.board.fen,
+            "l": datetime.now(timezone.utc),
+            "s": self.status,
+            "if": self.board.fen,
+            "ws": self.wsetup,
+            "bs": self.bsetup,
+        }
+        if self.db is not None:
+            await self.db.game.find_one_and_update({"_id": self.id}, {"$set": new_data})
 
     async def save_game(self):
         if self.saved:
@@ -398,6 +441,7 @@ class Game:
             log.exception("Save IMPORTED game %s ???", self.id)
             return
 
+        self.stopwatch.stop()
         self.stopwatch.clock_task.cancel()
         try:
             await self.stopwatch.clock_task
@@ -454,7 +498,6 @@ class Game:
                     log.exception("Exception in tournament game_update()")
 
             new_data = {
-                "d": self.date,
                 "f": self.board.fen,
                 "s": self.status,
                 "r": R2C[self.result],
@@ -595,17 +638,31 @@ class Game:
         else:
             raise RuntimeError("game.result: unexpected result code")
 
-        wr = gl2.rate(self.white_rating, [(white_score, self.black_rating)])
-        br = gl2.rate(self.black_rating, [(black_score, self.white_rating)])
+        wr_old = int(self.wrating.rstrip("?"))
+        br_old = int(self.brating.rstrip("?"))
 
-        await self.wplayer.set_rating(self.variant, self.chess960, wr)
-        await self.bplayer.set_rating(self.variant, self.chess960, br)
+        wcurr = self.wplayer.get_rating(self.variant, self.chess960)
+        bcurr = self.bplayer.get_rating(self.variant, self.chess960)
 
-        self.wrdiff = int(round(wr.mu - self.white_rating.mu, 0))
+        white_rating = gl2.create_rating(wr_old, wcurr.phi, wcurr.sigma, wcurr.ltime)
+        black_rating = gl2.create_rating(br_old, bcurr.phi, bcurr.sigma, bcurr.ltime)
+
+        wr = gl2.rate(white_rating, [(white_score, black_rating)])
+        br = gl2.rate(black_rating, [(black_score, white_rating)])
+
+        wrdiff = wr.mu - white_rating.mu
+        self.wrdiff = int(round(wrdiff, 0))
         self.p0 = {"e": self.wrating, "d": self.wrdiff}
 
-        self.brdiff = int(round(br.mu - self.black_rating.mu, 0))
+        brdiff = br.mu - black_rating.mu
+        self.brdiff = int(round(brdiff, 0))
         self.p1 = {"e": self.brating, "d": self.brdiff}
+
+        new_white_rating = gl2.create_rating(wr_old + wrdiff, wr.phi, wr.sigma, wr.ltime)
+        new_black_rating = gl2.create_rating(br_old + brdiff, br.phi, br.sigma, br.ltime)
+
+        await self.wplayer.set_rating(self.variant, self.chess960, new_white_rating)
+        await self.bplayer.set_rating(self.variant, self.chess960, new_black_rating)
 
         w_nb = self.wplayer.perfs[self.variant + ("960" if self.chess960 else "")]["nb"]
         if w_nb >= HIGHSCORE_MIN_GAMES:
@@ -651,11 +708,7 @@ class Game:
                 self.result = result
 
             self.set_crosstable()
-
-            if not self.bplayer.bot:
-                self.bplayer.game_in_progress = None
-            if not self.wplayer.bot:
-                self.wplayer.game_in_progress = None
+            self.update_in_plays()
 
             return
 
@@ -720,11 +773,17 @@ class Game:
 
         if self.status > STARTED:
             self.set_crosstable()
+            self.update_in_plays()
 
-            if not self.bplayer.bot:
-                self.bplayer.game_in_progress = None
-            if not self.wplayer.bot:
-                self.wplayer.game_in_progress = None
+    def update_in_plays(self):
+        if not self.bplayer.bot:
+            self.bplayer.game_in_progress = None
+        if not self.wplayer.bot:
+            self.wplayer.game_in_progress = None
+
+        if self.corr:
+            self.wplayer.correspondence_games.remove(self)
+            self.bplayer.correspondence_games.remove(self)
 
     def print_game(self):
         print(self.pgn)
@@ -735,7 +794,7 @@ class Game:
         try:
             mlist = sf.get_san_moves(
                 self.variant,
-                self.initial_fen,
+                self.initial_fen if self.initial_fen else self.board.initial_fen,
                 self.board.move_stack,
                 self.chess960,
                 sf.NOTATION_SAN,
@@ -749,10 +808,12 @@ class Game:
                 for ind, move in enumerate(mlist)
             )
         )
-        no_setup = self.initial_fen == FairyBoard.start_fen("chess") and not self.chess960
+        no_setup = self.board.initial_fen == FairyBoard.start_fen("chess") and not self.chess960
         # Use lichess format for crazyhouse games to support easy import
         setup_fen = (
-            self.initial_fen if self.variant != "crazyhouse" else self.initial_fen.replace("[]", "")
+            self.board.initial_fen
+            if self.variant != "crazyhouse"
+            else self.board.initial_fen.replace("[]", "")
         )
         tc = "-" if self.base + self.inc == 0 else "%s+%s" % (int(self.base * 60), self.inc)
         return '[Event "{}"]\n[Site "{}"]\n[Date "{}"]\n[Round "-"]\n[White "{}"]\n[Black "{}"]\n[Result "{}"]\n[TimeControl "{}"]\n[WhiteElo "{}"]\n[BlackElo "{}"]\n[Variant "{}"]\n{fen}{setup}\n{} {}\n'.format(
@@ -848,7 +909,7 @@ class Game:
             )
         )
 
-    async def abort(self):
+    async def abort_by_server(self):
         self.update_status(ABORTED)
         await self.save_game()
         return {
@@ -889,6 +950,19 @@ class Game:
             log.debug("%s game_ended(%s, %s) %s", self.id, user.username, reason, result)
             await self.save_game()
 
+            if self.corr:
+                cur_player = (
+                    self.wplayer if user.username == self.wplayer.username else self.bplayer
+                )
+                opp_player = (
+                    self.wplayer if user.username == self.bplayer.username else self.bplayer
+                )
+                if reason == "resign":
+                    await opp_player.notify_game_end(self)
+                else:
+                    await cur_player.notify_game_end(self)
+                    await opp_player.notify_game_end(self)
+
         return {
             "type": "gameEnd",
             "status": self.status,
@@ -925,7 +999,7 @@ class Game:
             # To not touch self.ply_clocks we are creating deep copy from clocks
             clocks = {"black": self.clocks["black"], "white": self.clocks["white"]}
 
-            if self.status == STARTED and self.board.ply >= 2:
+            if self.status == STARTED and self.board.ply >= 2 and (not self.corr):
                 # We have to adjust current player latest saved clock time
                 # otherwise he will get free extra time on browser page refresh
                 # (also needed for spectators entering to see correct clock times)
@@ -949,6 +1023,14 @@ class Game:
         else:
             byoyomi_periods = ""
 
+        if self.corr:
+            clock_mins = self.stopwatch.mins * 60 * 1000
+            base_mins = self.base * 24 * 60 * 60 * 1000
+            clocks = {
+                "black": base_mins if self.board.color == WHITE else clock_mins,
+                "white": base_mins if self.board.color == BLACK else clock_mins,
+            }
+
         return {
             "type": "board",
             "gameId": self.id,
@@ -956,6 +1038,7 @@ class Game:
             "result": self.result,
             "fen": self.board.fen,
             "lastMove": self.lastmove,
+            "tp": self.turn_player,
             "steps": steps,
             "check": self.check,
             "ply": self.board.ply,
@@ -964,6 +1047,11 @@ class Game:
             "pgn": self.pgn if self.status > STARTED else "",
             "rdiffs": {"brdiff": self.brdiff, "wrdiff": self.wrdiff}
             if self.status > STARTED and self.rated == RATED
+            else "",
+            "date": (
+                datetime.now(timezone.utc) + timedelta(minutes=self.stopwatch.mins)
+            ).isoformat()
+            if self.corr
             else "",
             "uci_usi": self.uci_usi if self.status > STARTED else "",
             "ct": crosstable,
@@ -974,14 +1062,12 @@ class Game:
     def game_json(self, player):
         color = "w" if self.wplayer == player else "b"
         opp_player = self.bplayer if color == "w" else self.wplayer
-        opp_rating = self.black_rating if color == "w" else self.white_rating
-        opp_rating, prov = opp_rating.rating_prov
+        opp_rating = self.brating if color == "w" else self.wrating
         return {
             "gameId": self.id,
             "title": opp_player.title,
             "name": opp_player.username,
             "rating": opp_rating,
-            "prov": prov,
             "color": color,
             "result": self.result,
         }
@@ -1005,6 +1091,10 @@ class Game:
             "byoyomi": self.byoyomi_period,
             "lastMove": self.lastmove,
         }
+
+    @property
+    def turn_player(self):
+        return self.wplayer.username if self.board.color == WHITE else self.bplayer.username
 
     def takeback(self):
         if self.bot_game and self.board.ply >= 2:

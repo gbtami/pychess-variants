@@ -70,16 +70,11 @@ The lieutenant (*tagmatarchos*) moves one or two squares in any direction diagon
 
 The following Spartan piece values are proposed by the game creator:
 
-Warlord = 8
-
-General = 7
-
-Extra King = 5
-
-Lieutenant = 3
-
-Captain = 3
-
+Warlord = 8  
+General = 7  
+Extra King = 5  
+Lieutenant = 3  
+Captain = 3  
 Hoplite = 1
 
 ## Strategy
