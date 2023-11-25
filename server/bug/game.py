@@ -468,6 +468,10 @@ class GameBug:
         # todo niki this requires discussion how to do rating in bughouse
 
     @property
+    def corr(self):
+        return False
+
+    @property
     def all_players(self):
         return [self.wplayerA, self.bplayerA, self.wplayerB, self.bplayerB]
 
