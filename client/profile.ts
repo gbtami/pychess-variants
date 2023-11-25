@@ -29,7 +29,8 @@ export interface Game {
     i: number; // TC increment
     bp: number; // TC byoyomi period
 
-    y: string; // casual/rated/imported (0/1/2)
+    y: number; // casual/rated/imported/correspondence (0/1/2/3)
+    c: boolean; // correspondence game
     d: string; // datetime
 
     tid?: string; // tournament id
@@ -72,6 +73,7 @@ function renderGames(model: PyChessModel, games: Game[]) {
     const rows = games.map(game => {
         const variant = VARIANTS[game.v];
         const chess960 = game.z === 1;
+        const tc = timeControlStr(game["b"], game["i"], game["bp"], game["c"] === true ? game["b"] : 0);
 
         return h('tr', [h('a', { attrs: { href : '/' + game["_id"] } }, [
             h('td.board', { class: { "with-pockets": !!variant.pocket }, style:{"display":"flex"} },  //todo:niki: after changing td to div and display to flex the 2 board align horizontally, but i think some other styles degraded. also this needs to go to some css file
@@ -94,7 +96,7 @@ function renderGames(model: PyChessModel, games: Game[]) {
                 h('div.info0.games.icon', { attrs: { "data-icon": variant.icon(chess960) } }, [
                     // h('div.info1.icon', { attrs: { "data-icon": (game["z"] === 1) ? "V" : "" } }),
                     h('div.info2', [
-                        h('div.tc', timeControlStr(game["b"], game["i"], game["bp"]) + " • " + gameType(game["y"]) + " • " + variant.displayName(chess960)),
+                        h('div.tc', tc + " • " + gameType(game["y"]) + " • " + variant.displayName(chess960)),
                         h('div', tournamentInfo(game)),
                     ]),
                 ]),
@@ -154,7 +156,9 @@ function loadGames(model: PyChessModel, page: number) {
         url = `${url}/rated?l=${lang}&p=`;
     } else if (model.rated === "2") {
         url = `${url}/import?l=${lang}&p=`;
-    } else if (model["rated"] === "-1") {
+    } else if (model.rated === "-2") {
+        url = `${url}/playing?l=${lang}&p=`;
+    } else if (model.rated === "-1") {
         url = `${url}/me?l=${lang}&p=`;
     } else {
         url = `${url}/all?l=${lang}&p=`;
@@ -202,6 +206,7 @@ export function profileView(model: PyChessModel) {
         tabs.push(h('div.sub-ratings', [h('a', { attrs: { href: '/@/' + model["profileid"] + '/me' }, class: {"active": model["rated"] === "-1" } }, _('Games with you'))]));
     }
     tabs.push(h('div.sub-ratings', [h('a', { attrs: { href: '/@/' + model["profileid"] + '/rated' }, class: {"active": model["rated"] === "1" } }, pgettext('UsePluralFormIfNeeded', 'Rated'))]));
+    tabs.push(h('div.sub-ratings', [h('a', { attrs: { href: '/@/' + model["profileid"] + '/playing' }, class: {"active": model["rated"] === "-2" } }, pgettext('UsePluralFormIfNeeded', 'Playing'))]));
     tabs.push(h('div.sub-ratings', [h('a', { attrs: { href: '/@/' + model["profileid"] + '/import' }, class: {"active": model["rated"] === "2" } }, _('Imported'))]));
 
     return [

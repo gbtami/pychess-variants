@@ -32,7 +32,7 @@ from game_api import (
     get_variant_stats,
     cancel_invite,
 )
-from utils import import_game, get_names
+from utils import import_game, get_names, get_notifications, subscribe_notify, notified
 from bug.import_bugh_game import import_game_bpgn
 from login import login, logout, oauth
 from index import index, robots, select_lang
@@ -68,6 +68,9 @@ get_routes = (
     ("/analysis/{variant}/{fen}", index),
     ("/editor/{variant}", index),
     ("/editor/{variant}/{fen}", index),
+    ("/notifications", get_notifications),
+    ("/notify", subscribe_notify),
+    ("/notified", notified),
     (r"/{gameId:\w{8}}", index),
     (r"/{gameId:\w{8}}/{player:player[1-2]}", index),
     (r"/embed/{gameId:\w{8}}", index),
@@ -87,6 +90,7 @@ get_routes = (
     ("/@/{profileId}/challenge/{variant}", index),
     ("/@/{profileId}/perf/{variant}", index),
     ("/@/{profileId}/rated", index),
+    ("/@/{profileId}/playing", index),
     ("/@/{profileId}/me", index),
     ("/@/{profileId}/import", index),
     ("/level8win", index),
@@ -110,6 +114,7 @@ get_routes = (
     ("/api/{profileId}/win", get_user_games),
     ("/api/{profileId}/loss", get_user_games),
     ("/api/{profileId}/rated", get_user_games),
+    ("/api/{profileId}/playing", get_user_games),
     ("/api/{profileId}/import", get_user_games),
     ("/api/{profileId}/me", get_user_games),
     ("/api/{profileId}/perf/{variant}", get_user_games),

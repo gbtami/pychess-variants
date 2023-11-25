@@ -102,21 +102,13 @@ For example, the left chariot moving three spaces up is denoted by R01-71. "R" r
 
 ### Abbreviations
 
-K = **K**ing
-
-A = **A**dvisor
-
-E = **E**lephant
-
-H = **H**orse
-
-C = **C**annon
-
-R = Cha**R**iot
-
+K = **K**ing  
+A = **A**dvisor  
+E = **E**lephant  
+H = **H**orse  
+C = **C**annon  
+R = Cha**R**iot  
 P = **P**awn
-
-
 
 ## Rules: Gameplay
 

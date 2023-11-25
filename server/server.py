@@ -22,7 +22,7 @@ from aiohttp.web_app import Application
 from aiohttp_session.cookie_storage import EncryptedCookieStorage
 from aiohttp_session import setup
 from aiohttp_remotes import Secure
-from motor import motor_asyncio as ma
+from motor.motor_asyncio import AsyncIOMotorClient
 from sortedcollections import ValueSortedDict
 from pythongettext.msgfmt import Msgfmt
 from pythongettext.msgfmt import PoSyntaxError
@@ -30,8 +30,10 @@ from pythongettext.msgfmt import PoSyntaxError
 from ai import BOT_task
 from broadcast import lobby_broadcast, round_broadcast
 from const import (
+    NOTIFY_EXPIRE_SECS,
     VARIANTS,
     STARTED,
+    ABORTED,
     LANGUAGES,
     T_CREATED,
     T_STARTED,
@@ -63,6 +65,7 @@ from settings import (
     SOURCE_VERSION,
 )
 from user import User
+from utils import load_game
 from tournaments import load_tournament, get_scheduled_tournaments, translated_tournament_name
 from twitch import Twitch
 from youtube import Youtube
@@ -128,7 +131,7 @@ async def on_prepare(request, response):
             response.headers["Expires"] = "0"
 
 
-def make_app(with_db=True) -> Application:
+def make_app(db_client=None) -> Application:
     app = web.Application()
     if False:  # URI.startswith("https"):
         secure = Secure()  # redirect_url=URI)
@@ -141,8 +144,9 @@ def make_app(with_db=True) -> Application:
         EncryptedCookieStorage(SECRET_KEY, max_age=MAX_AGE, secure=parts.scheme == "https"),
     )
 
-    if with_db:
-        app.on_startup.append(init_db)
+    if db_client is not None:
+        app["client"] = db_client
+        app["db"] = app["client"][MONGO_DB_NAME]
 
     app.on_startup.append(init_state)
     app.on_shutdown.append(shutdown)
@@ -157,14 +161,6 @@ def make_app(with_db=True) -> Application:
     app.middlewares.append(handle_404)
 
     return app
-
-
-async def init_db(app):
-    app["client"] = ma.AsyncIOMotorClient(
-        MONGO_HOST,
-        tz_aware=True,
-    )
-    app["db"] = app["client"][MONGO_DB_NAME]
 
 
 async def init_state(app):
@@ -365,17 +361,36 @@ async def init_state(app):
             app["crosstable"][doc["_id"]] = doc
 
         if "dailypuzzle" not in db_collections:
-            await app["db"].create_collection("dailypuzzle", capped=True, size=50000, max=365)
+            try:
+                await app["db"].create_collection("dailypuzzle", capped=True, size=50000, max=365)
+            except NotImplementedError:
+                await app["db"].create_collection("dailypuzzle")
         else:
             cursor = app["db"].dailypuzzle.find()
             docs = await cursor.to_list(length=365)
             app["daily_puzzle_ids"] = {doc["_id"]: doc["puzzleId"] for doc in docs}
-        print(app["daily_puzzle_ids"])
 
         await app["db"].game.create_index("us")
+        await app["db"].game.create_index("r")
         await app["db"].game.create_index("v")
         await app["db"].game.create_index("y")
         await app["db"].game.create_index("by")
+        await app["db"].game.create_index("c")
+
+        if "notify" not in db_collections:
+            await app["db"].create_collection("notify")
+        await app["db"].notify.create_index("notifies")
+        await app["db"].notify.create_index("createdAt", expireAfterSeconds=NOTIFY_EXPIRE_SECS)
+
+        # Read correspondence games in play and start their clocks
+        cursor = app["db"].game.find({"r": "d", "c": True})
+        async for doc in cursor:
+            if doc["s"] < ABORTED:
+                game = await load_game(app, doc["_id"])
+                app["games"][doc["_id"]] = game
+                game.wplayer.correspondence_games.append(game)
+                game.bplayer.correspondence_games.append(game)
+                game.stopwatch.restart(from_db=True)
 
         if "video" not in db_collections:
             if DEV:
@@ -419,8 +434,8 @@ async def shutdown(app):
 
     # abort games
     for game in list(app["games"].values()):
-        if game.status <= STARTED:
-            response = await game.abort()
+        if game.status <= STARTED and (not game.corr):
+            response = await game.abort_by_server()
             for player in (game.wplayer, game.bplayer):
                 if not player.bot and game.id in player.game_sockets:
                     ws = player.game_sockets[game.id]
@@ -465,7 +480,7 @@ if __name__ == "__main__":
         level=logging.DEBUG if args.v else logging.WARNING if args.w else logging.INFO
     )
 
-    app = make_app()
+    app = make_app(db_client=AsyncIOMotorClient(MONGO_HOST, tz_aware=True))
 
     web.run_app(
         app, access_log=None if args.w else access_logger, port=int(os.environ.get("PORT", 8080))

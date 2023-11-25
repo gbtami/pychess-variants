@@ -293,7 +293,7 @@ async def bot_abort(request):
     opp_name = game.wplayer.username if username == game.bplayer.username else game.bplayer.username
     opp_player = users[opp_name]
 
-    response = await game.abort()
+    response = await game.abort_by_server()
     await bot_player.game_queues[gameId].put(game.game_end)
     if opp_player.bot:
         await opp_player.game_queues[gameId].put(game.game_end)

@@ -176,7 +176,7 @@ class GamePlayTestCase(AioHTTPTestCase):
         await self.tournament.join(self.test_bplayer)
 
     async def get_application(self):
-        app = make_app(with_db=False)
+        app = make_app()
         app.on_startup.append(self.startup)
         return app
 
