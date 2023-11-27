@@ -100,8 +100,7 @@ class TestTournament(Tournament):
                     else:
                         response = await game.game_ended(player, "resign")
                     if opp_player.title != "TEST":
-                        opp_ws = opp_player.game_sockets[game.id]
-                        await opp_ws.send_json(response)
+                        await opp_player.send_game_message(game.id, response)
                 else:
                     move = random.choice(game.legal_moves)
                     clocks = {

@@ -436,13 +436,8 @@ async def shutdown(app):
     for game in list(app["games"].values()):
         if game.status <= STARTED and (not game.corr):
             response = await game.abort_by_server()
-            for player in (game.wplayer, game.bplayer):
-                if not player.bot and game.id in player.game_sockets:
-                    ws = player.game_sockets[game.id]
-                    try:
-                        await ws.send_json(response)
-                    except Exception:
-                        log.error("Failed to send game %s abort to %s" % (game.id, player.username), stack_info=True, exc_info=True)
+            for player in set(game.non_bot_players):
+                await player.send_game_message(game.id, response)
 
     # close lobbysockets
     for user in list(app["users"].values()):

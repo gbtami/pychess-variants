@@ -850,7 +850,11 @@ class Game:
 
     @property
     def all_players(self):
-        return [self.wplayerA, self.bplayerA, self.wplayerB, self.bplayerB]
+        return [self.wplayer, self.bplayer]
+
+    @property
+    def non_bot_players(self):
+        return filter(lambda p: not p.bot, self.all_players)
 
     @property
     def clocks(self):

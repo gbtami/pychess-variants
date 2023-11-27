@@ -115,7 +115,7 @@ class User:
 
     async def abandon_game(self, game):
         abandon_timeout = ABANDON_TIMEOUT * (2 if game.base >= 3 else 1)
-        await asyncio.sleep(abandon_timeout)
+        await asyncio.sleep(abandon_timeout) # todo:niki:this is not great, what if he reconnected and disconnected again - this does not get reset
         if game.status <= STARTED and game.id not in self.game_sockets:
             if game.bot_game or self.anon:
                 response = await game.game_ended(self, "abandon")
@@ -124,7 +124,7 @@ class User:
                 # TODO: message opp to let him claim win
                 pass
 
-    def update_online(self):
+    def update_online(self): # todo:niki:why not just always call this instead of storing it to self.online and not being sure if it is still correct eventually when using it?
         self.online = (
             len(self.game_sockets) > 0
             or len(self.lobby_sockets) > 0
@@ -293,9 +293,14 @@ class User:
 
     async def send_game_message(self, game_id, message):
         ws = self.game_sockets.get(game_id)
+        log.debug("Sending message %s to %s. ws = %r", message, self.username, ws);
         if ws is not None:
-            await ws.send_json(message)
-
+            try:
+                await ws.send_json(message)
+            except Exception as e: #ConnectionResetError
+                log.error("dropping message %s for %s", stack_info=True, exc_info=True)
+        else:
+            log.error("No ws for that game. Dropping message %s for %s", message, self.username)
 
     def __str__(self):
         return "%s %s bot=%s" % (self.title, self.username, self.bot)

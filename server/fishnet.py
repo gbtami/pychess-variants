@@ -59,14 +59,13 @@ async def get_work(request, data):
 
             users = request.app["users"]
             if "username" in work:
-                user_ws = users[work["username"]].game_sockets[work["game_id"]]
                 response = {
                     "type": "roundchat",
                     "user": "",
                     "room": "spectator",
                     "message": "Work for fishnet sent...",
                 }
-                await user_ws.send_json(response)
+                await users[work["username"]].send_game_message(work["game_id"], response)
         else:
             fm[worker].append(
                 "%s %s %s %s for level %s"
@@ -149,16 +148,6 @@ async def fishnet_analysis(request):
     users = request.app["users"]
     username = work["username"]
 
-    try:
-        user_ws = users[username].game_sockets[gameId]
-    except KeyError:
-        log.error(
-            "Can't send analysis to %s. Game %s was removed from game_sockets !!!",
-            username,
-            gameId, stack_info=True, exc_info=True
-        )
-        return web.Response(status=204)
-
     length = len(data["analysis"])
     for j, analysis in enumerate(reversed(data["analysis"])):
         i = length - j - 1
@@ -189,10 +178,7 @@ async def fishnet_analysis(request):
                 "color": "w" if i % 2 == 0 else "b",
                 "ceval": game.steps[i]["analysis"],
             }
-            try:
-                await user_ws.send_json(response)
-            except ConnectionResetError as e:
-                log.error( e, stack_info=True, exc_info=True )
+            await users[username].send_game_message(gameId, response)
 
     # remove completed work
     if all(data["analysis"]):

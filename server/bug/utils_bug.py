@@ -449,7 +449,6 @@ async def play_move(app, user, game, move, clocks=None, board=None, lastMoveCapt
     gameId = game.id
     invalid_move = False
     # log.info("%s move %s %s %s - %s" % (user.username, move, gameId, game.wplayer.username, game.bplayer.username))
-    bugUsers = set([game.wplayerA, game.wplayerB, game.bplayerA, game.bplayerB])
 
     if game.status <= STARTED:
         try:
@@ -476,14 +475,8 @@ async def play_move(app, user, game, move, clocks=None, board=None, lastMoveCapt
         board_response = game.get_board()  # (full=game.ply == 1) todo:niki:i dont understand why this was so. why full when 1st ply?
         await round_broadcast(game, board_response, channels=app["game_channels"])
 
-        for u in bugUsers:
-            if gameId in u.game_sockets: # have seen such errors - maybe when some opp/partner has disconnected when move was made
-                log.debug("%s %s", u.username, u.game_sockets[gameId])
-                s = u.game_sockets[gameId]  # todo:niki:could be more than one if multiple browsers - could potentially record the one they joined from i guess. even better update both even better have single ws for all tabs with that web workers thing
-                log.debug("sending %s", board_response)
-                await s.send_json(board_response)
-            else:
-                log.debug("not sending move to %s. they have no game socket for gameid %s", u.username, gameId)
+        for u in set(game.all_players):
+            await u.send_game_message(gameId, board_response) # todo:niki:why am i not just doint full broadcast?
 
     if game.status > STARTED:
         response = {
@@ -493,16 +486,8 @@ async def play_move(app, user, game, move, clocks=None, board=None, lastMoveCapt
             "gameId": gameId,
             "pgn": game.pgn,
         }
-        try:
-            for u in bugUsers:
-                if gameId in u.game_sockets:  # have seen such errors - maybe when some opp/partner has disconnected when move was made
-                    s = u.game_sockets[gameId]
-                    await s.send_json(response)
-                else:
-                    log.debug("not sending end game message to %s. they have no game socket for gameid %s",
-                              u.username, gameId)
-        except (KeyError, ConnectionResetError):
-            log.exception('')
+        for u in set(game.all_players):
+            await u.send_game_message(gameId, response)
 
         if app["tv"] == gameId:
             await lobby_broadcast(app["lobbysockets"], board_response)

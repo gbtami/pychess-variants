@@ -157,6 +157,8 @@ export class RoundControllerBughouse implements ChatController/*extends GameCont
 
         const onOpen = () => {
             console.log('onOpen');
+            // this always first, because it initializes the user-to-ws association on server
+            this.doSend({ type: "game_user_connected", username: this.username, gameId: this.gameId });
 
             try {
                 console.log("resending unsent move messages ", this.msgMovesAfterReconnect);
@@ -175,7 +177,6 @@ export class RoundControllerBughouse implements ChatController/*extends GameCont
             cl.remove('offline-ping-timeout');
             cl.add('online');
 
-            this.doSend({ type: "game_user_connected", username: this.username, gameId: this.gameId });
         };
 
         const onReconnect = () => {
@@ -815,10 +816,6 @@ export class RoundControllerBughouse implements ChatController/*extends GameCont
             board.partnerCC.fullfen = fenPartner;//todo:niki:setter or something maybe
             board.partnerCC.chessground.set({ fen: fenPartner});
             if (!this.focus) this.notifyMsg(`Played ${step.san}\nYour turn.`);
-
-            // prevent sending premove/predrop when (auto)reconnecting websocked asks server to (re)sends the same board to us
-            // console.log("trying to play premove....");
-            if (board.premove) board.performPremove();
         }
 
     }
@@ -954,6 +951,13 @@ export class RoundControllerBughouse implements ChatController/*extends GameCont
                 this.clocksB[blackBClockAtIdx].setTime(lastStepB.clocks['black']);
             }
         }
+
+        // todo:niki: i dont understand below comment which i copied together with the code. Also probably good to check if status < 0 and reset premoes if game ended, instead of performing them
+        // prevent sending premove/predrop when (auto)reconnecting websocked asks server to (re)sends the same board to us
+        // console.log("trying to play premove....");
+        // todo:niki: I am not sure if I should always call this even if there is a premove made. It is not clear when this message is received it is always the correct turn on the board where the premove was made. See if there is a check for that in performPremove() or it just sends it:
+        if (this.b1.premove) this.b1.performPremove();
+        if (this.b2.premove) this.b2.performPremove();
     }
 
     private updateSingleBoardAndClocks = (board: GameControllerBughouse, fen: cg.FEN, fenPartner: cg.FEN, lastMove: cg.Orig[] | undefined, step: Step,
@@ -1205,16 +1209,18 @@ export class RoundControllerBughouse implements ChatController/*extends GameCont
         console.log(msg);
         this.username = msg["username"];
         if (this.spectator) {
-            console.log('todo');
-            // this.doSend({ type: "is_user_present", username: this.wplayer, gameId: this.gameId });
-            // this.doSend({ type: "is_user_present", username: this.bplayer, gameId: this.gameId });
-
+            //todo:niki:this is stupid to make 4 requests - should just have this info in whatever message we get initially on connect
+            this.doSend({ type: "is_user_present", username: this.wplayer, gameId: this.gameId });
+            this.doSend({ type: "is_user_present", username: this.bplayer, gameId: this.gameId });
+            this.doSend({ type: "is_user_present", username: this.wplayerB, gameId: this.gameId });
+            this.doSend({ type: "is_user_present", username: this.wplayerB, gameId: this.gameId });
         } else {
             this.firstmovetime = msg.firstmovetime || this.firstmovetime;
-
-            const opp_name = this.username === this.wplayer ? this.bplayer : this.wplayer;
-            this.doSend({ type: "is_user_present", username: opp_name, gameId: this.gameId });
-            // todo: 2 more is_user_present calls for the other board maybe
+            // todo: i guess no need to call for our user, but also see above todo about this whole idea being bad
+            this.doSend({ type: "is_user_present", username: this.wplayer, gameId: this.gameId });
+            this.doSend({ type: "is_user_present", username: this.bplayer, gameId: this.gameId });
+            this.doSend({ type: "is_user_present", username: this.wplayerB, gameId: this.gameId });
+            this.doSend({ type: "is_user_present", username: this.wplayerB, gameId: this.gameId });
 
             const container = document.getElementById('player1a') as HTMLElement;
             patch(container, h('i-side.online#player1a', {class: {"icon": true, "icon-online": true, "icon-offline": false}}));

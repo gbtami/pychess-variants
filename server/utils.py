@@ -624,9 +624,7 @@ async def analysis_move(app, user, game, move, fen, ply):
             "lastMove": lastmove,
             "check": check,
         }
-
-    ws = user.game_sockets[game.id]
-    await ws.send_json(analysis_board_response)
+    await user.send_game_message(game.id, analysis_board_response)
 
 
 async def play_move(app, user, game, move, clocks=None, ply=None):
@@ -668,12 +666,7 @@ async def play_move(app, user, game, move, clocks=None, ply=None):
         board_response = game.get_board()  # (full=game.ply == 1) todo:niki:i dont understand why this was so. why full when 1st ply?
 
         if not user.bot:
-            try:
-                ws = user.game_sockets[gameId]
-                log.info("1 ws %s", ws)
-                await ws.send_json(board_response)
-            except (KeyError, ConnectionResetError) as e:
-                log.error(e, stack_info=True, exc_info=True)
+            await user.send_game_message(gameId, board_response)
 
     if user.bot and game.status > STARTED:
         await user.game_queues[gameId].put(game.game_end)
@@ -687,45 +680,25 @@ async def play_move(app, user, game, move, clocks=None, ply=None):
         else:
             await users[opp_name].game_queues[gameId].put(game.game_state)
     else:
-        try:
-            opp_ws = users[opp_name].game_sockets[gameId]
-            log.info("2 opp_ws %s", opp_ws)
-            if not invalid_move:
-                await opp_ws.send_json(board_response)
-            if game.status > STARTED:
-                response = {
-                    "type": "gameEnd",
-                    "status": game.status,
-                    "result": game.result,
-                    "gameId": gameId,
-                    "pgn": game.pgn,
-                }
-                await opp_ws.send_json(response)
-        except (KeyError, ConnectionResetError) as e:
-            log.error(e, stack_info=True, exc_info=True)
+        if not invalid_move:
+            await users[opp_name].send_game_message(gameId, board_response)
+        if game.status > STARTED:
+            response = {
+                "type": "gameEnd",
+                "status": game.status,
+                "result": game.result,
+                "gameId": gameId,
+                "pgn": game.pgn,
+            }
+            await users[opp_name].send_game_message(gameId, response)
 
     if not invalid_move:
         await round_broadcast(game, board_response, channels=app["game_channels"])
 
-        if hasattr(game,'wplayerA'): # todo:niki:before adding this, what I was
-                                     #      observing is, when making a move with white on B, i would
-                                     #      receive the board message twice on that browser, but abother board(i tihnk partner)
-                                     #      would not receive board message at all. Receiving of message twice is problematic,
-                                     #      but for no i can filter it out in javascript, because not sure which one of the 3 places
-                                     #      we send board messages here in this code  is the reason it is sent twice.
-                                     #      Below code aslo makes sure all sockets receive message, so hopefully that brwoser
-                                     #      that was missing it will receive it now. However now all/the other 3/who knows will
-                                     #      receive probably at least twice so overall ugly situation, but dont have time to debug at the moment
-            bugUsers = set([game.wplayerA, game.wplayerB, game.bplayerA, game.bplayerB])
-            for u in bugUsers:
-                if gameId in u.game_sockets: # have seen such errors - maybe when some opp/partner has disconnected when move was made
-                    log.debug("%s %s", u.username, u.game_sockets[gameId])
-                    s = u.game_sockets[gameId]  # todo:niki:could be more than one if multiple browsers - could potentially record the one they joined from i guess
-                    if u.username != opp_name and u.username != user.username: # because we sent to those 2 already in above code
-                        log.debug("sending %s", board_response)
-                        await s.send_json(board_response)
-                else:
-                    log.debug("not sending move to %s. they have no game socket for gameid %s", u.username, gameId)
+        # bughouse has 2 more users to notify. If not bug, this will be empty:
+        bugUsers = filter(lambda p: not p.bot and p.username != opp_name and p.username != user.username, game.all_players)
+        for u in bugUsers:
+            await u.send_game_message(gameId, board_response)
 
         if game.tournamentId is not None:
             tournament = app["tournaments"][game.tournamentId]

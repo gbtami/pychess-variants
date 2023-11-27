@@ -61,10 +61,8 @@ async def handle_resign_bughouse(data, game, user):
     async with game.move_lock:
         response = await game.game_ended(user, data["type"])
 
-    # todo:niki: I have put filter below, because of error in server log when some user doesnt have game_socket for that game BUT... see thought in below similar todo comment
-    all_players_ws = map(lambda p: p.game_sockets[data["gameId"]], filter(lambda u: data["gameId"] in u.game_sockets, game.all_players))
-    for ws in all_players_ws:
-        await ws.send_json(response)
+    for u in game.all_players:
+        await u.send_game_message(game.id, response) # todo: just do full broadcast below - dont need this i think
 
     await round_broadcast(game, response)
 
@@ -79,17 +77,6 @@ async def handle_rematch_bughouse(data, game, user, users, ws, request, seeks):
     #     else game.bplayer.username
     # )
     # opp_player = users[opp_name]
-
-    try:
-        # todo:niki: I have put filter below, because of error in server log when some user doesnt have game_socket for that game BUT...:
-        #            - first figure out in what cases does a user lose this socket (relevant to other places where similar error happens)
-        #            - think what rematch logic should look like in such cases, because it doesnt make much sense the way it is now... what if he reconnects, will he receive the rematch requests in bulk on reconnect, maybe he shuld
-        others_ws = map(lambda u: users[u.username].game_sockets[data["gameId"]], filter(lambda u: data["gameId"] in users[u.username].game_sockets, other_players))
-        # opp_ws = users[opp_name].game_sockets[data["gameId"]]
-    except KeyError as e:
-        # opp disconnected
-        log.error(e, stack_info=True, exc_info=True)
-        return
 
     log.info("other_plauers %s.", other_players)
     if all(elem in game.rematch_offers for elem in map(lambda u: users[u.username].username, other_players)):
@@ -115,9 +102,8 @@ async def handle_rematch_bughouse(data, game, user, users, ws, request, seeks):
 
         response = await join_seek_bughouse(request.app, None, seek.id, None, "all-joined-players-set-generate-response")
         rematch_id = response["gameId"]
-        for ws1 in others_ws:
-            await ws1.send_json(response)
-        await ws.send_json(response)
+        for u in set(game.all_players):
+            await u.send_game_message(game.id, response)
     else:
         game.rematch_offers.add(user.username)
         response = {
@@ -128,9 +114,8 @@ async def handle_rematch_bughouse(data, game, user, users, ws, request, seeks):
             "user": "",
         }
         game.messages.append(response)
-        for ws1 in others_ws:
-            await ws1.send_json(response)
-        await ws.send_json(response)
+        for u in set(game.all_players):
+            await u.send_game_message(game.id, response)
     if rematch_id:
         await round_broadcast(
             game, {"type": "view_rematch", "gameId": rematch_id}

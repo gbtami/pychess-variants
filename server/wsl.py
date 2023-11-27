@@ -278,7 +278,7 @@ async def lobby_socket_handler(request):
 
                         # send user count
                         response = {"type": "u_cnt", "cnt": online_count(users)}
-                        if len(user.game_sockets) == 0:
+                        if len(user.game_sockets) == 0: # todo:niki: i dont get this logic?
                             await lobby_broadcast(sockets, response)
                         else:
                             await ws.send_json(response)

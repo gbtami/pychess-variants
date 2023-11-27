@@ -222,18 +222,13 @@ async def round_socket_handler(request):
                                 "color": "white",
                                 "fen": data["fen"],
                             }
-                            await ws.send_json(response)
+                            await ws.send_json(response) # todo:niki: use send_game_message here as well, even tho it is same ws (hopefully)
 
                             if opp_player.bot:
                                 game.board.janggi_setup("w")
                                 game.steps[0]["fen"] = game.board.initial_fen
                             else:
-                                try:
-                                    opp_ws = users[opp_name].game_sockets[data["gameId"]]
-                                    await opp_ws.send_json(response)
-                                except KeyError:
-                                    # opp disconnected
-                                    pass
+                                await users[opp_name].send_game_message(game.id, response)
                         else:
                             game.wsetup = False
                             game.status = STARTED
@@ -356,13 +351,6 @@ async def round_socket_handler(request):
                             rematch_id = gameId
                             engine.game_queues[gameId] = asyncio.Queue()
                         else:
-                            try:
-                                opp_ws = users[opp_name].game_sockets[data["gameId"]]
-                            except KeyError:
-                                # opp disconnected
-                                log.error("Opp disconnected", stack_info=True, exc_info=True)
-                                continue
-
                             if opp_name in game.rematch_offers:
                                 color = "w" if game.wplayer.username == opp_name else "b"
                                 if handicap:
@@ -385,8 +373,8 @@ async def round_socket_handler(request):
 
                                 response = await join_seek(request.app, opp_player, seek.id)
                                 rematch_id = response["gameId"]
-                                await ws.send_json(response)
-                                await opp_ws.send_json(response)
+                                await ws.send_json(response) # todo:niki: use send_game_message here as well, even tho it is same ws (hopefully)
+                                await users[opp_name].send_game_message(data["gameId"], response)
                             else:
                                 game.rematch_offers.add(user.username)
                                 response = {
@@ -398,7 +386,7 @@ async def round_socket_handler(request):
                                 }
                                 game.messages.append(response)
                                 await ws.send_json(response)
-                                await opp_ws.send_json(response)
+                                await users[opp_name].send_game_message(data["gameId"], response)
                         if rematch_id:
                             await round_broadcast(
                                 game, {"type": "view_rematch", "gameId": rematch_id}
@@ -498,12 +486,7 @@ async def round_socket_handler(request):
                             if data["gameId"] in opp_player.game_queues:
                                 await opp_player.game_queues[data["gameId"]].put(game.game_end)
                         else:
-                            try:
-                                opp_ws = users[opp_name].game_sockets[data["gameId"]]
-                                await opp_ws.send_json(response)
-                            except KeyError:
-                                # opp disconnected
-                                pass
+                            users[opp_name].send_game_message(data["gameId"], response)
 
                         await round_broadcast(game, response)
 
@@ -512,6 +495,7 @@ async def round_socket_handler(request):
                         await ws.send_json(response)
 
                     elif data["type"] == "game_user_connected":
+                        # todo:niki: i dont get this. if seesion_user is none (which is perfectly normal if user didnt log in), we allow whoever sent this message to impersonate anyone?
                         if session_user is not None:
                             if data["username"] and data["username"] != session_user:
                                 log.info(
@@ -563,7 +547,7 @@ async def round_socket_handler(request):
 
                         # update websocket
                         if data["gameId"] in user.game_sockets:
-                            await user.game_sockets[data["gameId"]].close()
+                            await user.game_sockets[data["gameId"]].close() # todo:niki: what happens if this thrwos exception? it will fail to initialize below stuff
                         user.game_sockets[data["gameId"]] = ws
                         user.update_online()
 
@@ -598,6 +582,7 @@ async def round_socket_handler(request):
                         response = {"type": "user_present", "username": user.username}
                         await round_broadcast(game, response, full=True)
 
+                        # todo:niki: again logic about online count which i dont understand:
                         # not connected to lobby socket but connected to game socket
                         if len(user.game_sockets) == 1 and user.username not in sockets:
                             response = {"type": "u_cnt", "cnt": online_count(users)}
@@ -632,15 +617,9 @@ async def round_socket_handler(request):
                         opp_player = users[opp_name]
 
                         if not opp_player.bot:
-                            try:
-                                opp_ws = users[opp_name].game_sockets[data["gameId"]]
-                                response = {"type": "moretime", "username": opp_name}
-                                await opp_ws.send_json(response)
-                                await round_broadcast(game, response)
-                            except KeyError:
-                                log.error("Opp disconnected", stack_info=True, exc_info=True)
-                                # opp disconnected
-                                pass
+                            response = {"type": "moretime", "username": opp_name}
+                            users[opp_name].send_game_message(data["gameId"], response)
+                            await round_broadcast(game, response)
                     elif data["type"] == "bugroundchat":
                         gameId = data["gameId"]
                         message = data["message"]
@@ -662,9 +641,7 @@ async def round_socket_handler(request):
                         recipients = list(dict.fromkeys(recipients)) # remove duplicates - can have if simuling (not that it makes sense to have this chat in simul mode but anyway)
                         for name in recipients:
                             player = users[name]
-                            if gameId in player.game_sockets:
-                                player_ws = player.game_sockets[gameId]
-                                await player_ws.send_json(response)
+                            player.send_game_message(gameId, response)
 
                         await round_broadcast(game, response)
 
@@ -705,35 +682,30 @@ async def round_socket_handler(request):
                                         % (user.username, message)
                                     )
                             else:
-                                if gameId in player.game_sockets:
-                                    player_ws = player.game_sockets[gameId]
-                                    await player_ws.send_json(response)
+                                player.send_game_message(gameId, response)
 
                         await round_broadcast(game, response)
 
                     elif data["type"] == "leave":
                         gameId = data["gameId"]
 
-                        response = chat_response(
+                        response_chat = chat_response(
                             "roundchat",
                             "",
                             "%s left the game" % user.username,
                             room="player",
                         )
-                        game.messages.append(response)
+                        game.messages.append(response_chat)
+                        response = {
+                            "type": "user_disconnected",
+                            "username": user.username,
+                        }
 
                         other_players = filter(lambda p: p.username != user.username, game.all_players)
                         for p in other_players:
-
-                            if not p.bot and gameId in p.game_sockets:
-                                p_ws = p.game_sockets[gameId]
-                                await p_ws.send_json(response)
-
-                                response = {
-                                    "type": "user_disconnected",
-                                    "username": user.username,
-                                }
-                                await p_ws.send_json(response)
+                            if not p.bot:
+                                await p.send_game_message(gameId, response_chat)
+                                await p.send_game_message(gameId, response)
 
                         await round_broadcast(game, response)
 
@@ -818,6 +790,7 @@ async def round_socket_handler(request):
                 game.spectators.discard(user)
                 await round_broadcast(game, game.spectator_list, full=True)
 
+            # todo:niki: similar question i had in another place - why this check at all, just always update user's is_online on every ws disconnect and those checks are there already.
             # not connected to lobby socket and not connected to game socket
             if len(user.game_sockets) == 0 and user.username not in sockets:
                 response = {"type": "u_cnt", "cnt": online_count(users)}

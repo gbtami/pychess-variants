@@ -476,6 +476,10 @@ class GameBug:
         return [self.wplayerA, self.bplayerA, self.wplayerB, self.bplayerB]
 
     @property
+    def non_bot_players(self):
+        return filter(lambda p: not p.bot, self.all_players)
+
+    @property
     def ply_clocks(self):
         return self._ply_clocks["merged"]
 
