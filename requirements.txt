@@ -18,6 +18,6 @@ uvloop==0.19.0
 objgraph==3.6.0
 black==23.11.0
 flake8==6.1.0
-mypy==1.7.0
+mypy==1.7.1
 mongomock-motor==0.0.21
 pre-commit
