@@ -144,7 +144,7 @@ export class LobbyController implements ChatController {
         this.sock.send(JSON.stringify(message));
     }
 
-    createSeekMsg(variant: string, color: string, fen: string, minutes: number, increment: number, byoyomiPeriod: number, day: number, chess960: boolean, rated: boolean, alternateStart: string) {
+    createSeekMsg(variant: string, color: string, fen: string, minutes: number, increment: number, byoyomiPeriod: number, day: number, chess960: boolean, rated: boolean) {
         this.doSend({
             type: "create_seek",
             user: this.username,
@@ -156,13 +156,12 @@ export class LobbyController implements ChatController {
             byoyomiPeriod: byoyomiPeriod,
             day: day,
             rated: rated,
-            alternateStart: alternateStart,
             chess960: chess960,
             color: color
         });
     }
 
-    createInviteFriendMsg(variant: string, color: string, fen: string, minutes: number, increment: number, byoyomiPeriod: number, day: number, chess960: boolean, rated: boolean, alternateStart: string) {
+    createInviteFriendMsg(variant: string, color: string, fen: string, minutes: number, increment: number, byoyomiPeriod: number, day: number, chess960: boolean, rated: boolean) {
         this.doSend({
             type: "create_invite",
             user: this.username,
@@ -174,13 +173,12 @@ export class LobbyController implements ChatController {
             byoyomiPeriod: byoyomiPeriod,
             day: day,
             rated: rated,
-            alternateStart: alternateStart,
             chess960: chess960,
             color: color
         });
     }
 
-    createBotChallengeMsg(variant: string, color: string, fen: string, minutes: number, increment: number, byoyomiPeriod: number, level: number, rm: boolean, chess960: boolean, rated: boolean, alternateStart: string) {
+    createBotChallengeMsg(variant: string, color: string, fen: string, minutes: number, increment: number, byoyomiPeriod: number, level: number, rm: boolean, chess960: boolean, rated: boolean) {
         this.doSend({
             type: "create_ai_challenge",
             rm: rm,
@@ -191,14 +189,13 @@ export class LobbyController implements ChatController {
             increment: increment,
             byoyomiPeriod: byoyomiPeriod,
             rated: rated,
-            alternateStart: alternateStart,
             level: level,
             chess960: chess960,
             color: color
         });
     }
 
-    createHostMsg(variant: string, color: string, fen: string, minutes: number, increment: number, byoyomiPeriod: number, chess960: boolean, rated: boolean, alternateStart: string) {
+    createHostMsg(variant: string, color: string, fen: string, minutes: number, increment: number, byoyomiPeriod: number, chess960: boolean, rated: boolean) {
         this.doSend({
             type: "create_host",
             user: this.username,
@@ -209,7 +206,6 @@ export class LobbyController implements ChatController {
             increment: increment,
             byoyomiPeriod: byoyomiPeriod,
             rated: rated,
-            alternateStart: alternateStart,
             chess960: chess960,
             color: color
         });
@@ -252,12 +248,6 @@ export class LobbyController implements ChatController {
         // Prevent to create 'custom' games with standard startFen
         if (fen.trim() === variant.startFen) fen = '';
 
-        let alternateStart = "";
-        if (variant.alternateStart) {
-            e = document.getElementById('alternate-start') as HTMLSelectElement;
-            alternateStart = e.options[e.selectedIndex].value;
-        }
-
         e = document.getElementById('min') as HTMLInputElement;
         const minutes = this.minutesValues[Number(e.value)];
         localStorage.seek_min = e.value;
@@ -296,7 +286,7 @@ export class LobbyController implements ChatController {
         localStorage.seek_rated = e.value;
 
         e = document.getElementById('chess960') as HTMLInputElement;
-        const chess960 = (variant.chess960 && alternateStart === "") ? e.checked : false;
+        const chess960 = (variant.chess960 && fen.trim() === "") ? e.checked : false;
         localStorage.seek_chess960 = e.checked;
 
         // console.log("CREATE SEEK variant, color, fen, minutes, increment, hide, chess960", variant, color, fen, minutes, increment, chess960, rated);
@@ -310,17 +300,17 @@ export class LobbyController implements ChatController {
                 e = document.getElementById('rmplay') as HTMLInputElement;
                 localStorage.seek_rmplay = e.checked;
                 const rm = e.checked;
-                this.createBotChallengeMsg(variant.name, seekColor, fen, minutes, increment, byoyomiPeriod, level, rm, chess960, rated, alternateStart);
+                this.createBotChallengeMsg(variant.name, seekColor, fen, minutes, increment, byoyomiPeriod, level, rm, chess960, rated);
                 break;
             case 'playFriend':
-                this.createInviteFriendMsg(variant.name, seekColor, fen, minutes, increment, byoyomiPeriod, day, chess960, rated, alternateStart);
+                this.createInviteFriendMsg(variant.name, seekColor, fen, minutes, increment, byoyomiPeriod, day, chess960, rated);
                 break;
             case 'createHost':
-                this.createHostMsg(variant.name, seekColor, fen, minutes, increment, byoyomiPeriod, chess960, rated, alternateStart);
+                this.createHostMsg(variant.name, seekColor, fen, minutes, increment, byoyomiPeriod, chess960, rated);
                 break;
             default:
                 if (this.isNewSeek(variant.name, seekColor, fen, minutes, increment, byoyomiPeriod, chess960, rated))
-                    this.createSeekMsg(variant.name, seekColor, fen, minutes, increment, byoyomiPeriod, day, chess960, rated, alternateStart);
+                    this.createSeekMsg(variant.name, seekColor, fen, minutes, increment, byoyomiPeriod, day, chess960, rated);
         }
         // prevent to create challenges continuously
         this.profileid = '';
@@ -738,9 +728,7 @@ export class LobbyController implements ChatController {
         return h('span.tooltiptext', [ tooltipImage ]);
     }
     private mode(seek: Seek) {
-        if (seek.alternateStart)
-            return _(seek.alternateStart);
-        else if (seek.fen)
+        if (seek.fen)
             return _("Custom");
         else if (seek.rated)
             return _("Rated");
