@@ -795,8 +795,8 @@ class Tournament(ABC):
 
         wpoint = (0, SCORE)
         bpoint = (0, SCORE)
-        wperf = game.black_rating.rating_prov[0]
-        bperf = game.white_rating.rating_prov[0]
+        wperf = int(game.brating.rstrip("?"))
+        bperf = int(game.wrating.rstrip("?"))
 
         if game.result == "1/2-1/2":
             if self.system == ARENA:
@@ -855,8 +855,8 @@ class Tournament(ABC):
 
         wpoint = (0, SCORE)
         bpoint = (0, SCORE)
-        wperf = game.black_rating.rating_prov[0]
-        bperf = game.white_rating.rating_prov[0]
+        wperf = int(game.brating.rstrip("?"))
+        bperf = int(game.wrating.rstrip("?"))
 
         if game.status == VARIANTEND:
             wplayer.win_streak = 0
@@ -953,8 +953,8 @@ class Tournament(ABC):
         if bpoint[1] == STREAK and len(bplayer.points) >= 2:
             bplayer.points[-2] = (bplayer.points[-2][0], STREAK)
 
-        wplayer.rating = game.white_rating.rating_prov[0] + (int(game.wrdiff) if game.wrdiff else 0)
-        bplayer.rating = game.black_rating.rating_prov[0] + (int(game.brdiff) if game.brdiff else 0)
+        wplayer.rating = int(game.wrating.rstrip("?")) + (int(game.wrdiff) if game.wrdiff else 0)
+        bplayer.rating = int(game.brating.rstrip("?")) + (int(game.brdiff) if game.brdiff else 0)
 
         # TODO: in Swiss we will need Berger instead of performance to calculate tie breaks
         nb = wplayer.nb_games

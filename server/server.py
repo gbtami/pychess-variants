@@ -30,6 +30,7 @@ from pythongettext.msgfmt import PoSyntaxError
 from ai import BOT_task
 from broadcast import lobby_broadcast, round_broadcast
 from const import (
+    CORR_SEEK_EXPIRE_SECS,
     NOTIFY_EXPIRE_SECS,
     VARIANTS,
     STARTED,
@@ -49,6 +50,7 @@ from generate_crosstable import generate_crosstable
 from generate_highscore import generate_highscore
 from generate_shield import generate_shield
 from routes import get_routes, post_routes
+from seek import Seek
 from settings import (
     DEV,
     DISCORD_TOKEN,
@@ -386,6 +388,28 @@ async def init_state(app):
         await app["db"].notify.create_index("notifies")
         await app["db"].notify.create_index("createdAt", expireAfterSeconds=NOTIFY_EXPIRE_SECS)
 
+        if "seek" not in db_collections:
+            await app["db"].create_collection("seek")
+        await app["db"].seek.create_index("createdAt", expireAfterSeconds=CORR_SEEK_EXPIRE_SECS)
+
+        # Read correspondence seeks
+        async for doc in app["db"].seek.find():
+            user = app["users"].get(doc["user"])
+            if user is not None:
+                seek = Seek(
+                    user,
+                    doc["variant"],
+                    fen=doc["fen"],
+                    color=doc["color"],
+                    day=doc["day"],
+                    rated=doc["rated"],
+                    chess960=doc["chess960"],
+                    player1=user,
+                    created_at=doc["createdAt"],
+                )
+                app["seeks"][seek.id] = seek
+                user.seeks[seek.id] = seek
+
         # Read correspondence games in play and start their clocks
         cursor = app["db"].game.find({"r": "d", "c": True})
         async for doc in cursor:
@@ -429,8 +453,14 @@ async def shutdown(app):
 
     # No need to wait in dev mode and in unit tests
     if not DEV and app["db"] is not None:
-        print("......WAIT 25")
-        await asyncio.sleep(25)
+        print("......WAIT 20")
+        await asyncio.sleep(20)
+
+    # save corr seeks
+    corr_seeks = [seek.corr_json for seek in app["seeks"].values() if seek.day > 0]
+    if len(corr_seeks) > 0:
+        await app["db"].seek.delete_many({})
+        await app["db"].seek.insert_many(corr_seeks)
 
     for user in list(app["users"].values()):
         if user.bot:

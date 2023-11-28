@@ -1,3 +1,5 @@
+from datetime import datetime, timezone
+
 from misc import time_control_str
 from newid import new_id
 
@@ -20,12 +22,12 @@ class Seek:
         level=6,
         rated=False,
         chess960=False,
-        alternate_start="",
         target="",
         player1=None,
         player2=None,
         ws=None,
         game_id=None,
+        created_at=None,
     ):
         self.creator = creator
         self.variant = variant
@@ -39,7 +41,6 @@ class Seek:
         self.day = day
         self.level = 0 if creator.username == "Random-Mover" else level
         self.chess960 = chess960
-        self.alternate_start = alternate_start
         self.target = target
         self.player1 = player1
         self.player2 = player2
@@ -48,6 +49,9 @@ class Seek:
         Seek.gen_id += 1
         self.id = self.gen_id
         self.game_id = game_id
+
+        self.created_at = datetime.now(timezone.utc) if created_at is None else created_at
+
         # Seek is pending when it is not corr, and user has no live lobby websocket
         self.pending = False
 
@@ -60,7 +64,6 @@ class Seek:
             "title": self.creator.title,
             "variant": self.variant,
             "chess960": self.chess960,
-            "alternateStart": self.alternate_start,
             "target": self.target,
             "player1": self.player1.username if self.player1 is not None else "",
             "player2": self.player2.username if self.player2 is not None else "",
@@ -73,6 +76,20 @@ class Seek:
             "byoyomi": self.byoyomi_period,
             "day": self.day,
             "gameId": self.game_id if self.game_id is not None else "",
+        }
+
+    @property
+    def corr_json(self):
+        return {
+            "_id": self.id,
+            "user": self.creator.username,
+            "variant": self.variant,
+            "chess960": self.chess960,
+            "fen": self.fen,
+            "color": self.color,
+            "rated": self.rated,
+            "day": self.day,
+            "createdAt": self.created_at,
         }
 
     @property
@@ -112,7 +129,6 @@ async def create_seek(db, invites, seeks, user, data, ws, empty=False):
         day=data.get("day", 0),
         rated=data.get("rated"),
         chess960=data.get("chess960"),
-        alternate_start=data.get("alternateStart"),
         target=target,
         player1=None if empty else user,
         player2=None,

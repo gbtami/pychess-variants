@@ -109,11 +109,11 @@ class Game:
         )
 
         # rating info
-        self.white_rating = wplayer.get_rating(variant, chess960)
-        self.wrating = "%s%s" % self.white_rating.rating_prov
+        white_rating = wplayer.get_rating(variant, chess960)
+        self.wrating = "%s%s" % white_rating.rating_prov
         self.wrdiff = 0
-        self.black_rating = bplayer.get_rating(variant, chess960)
-        self.brating = "%s%s" % self.black_rating.rating_prov
+        black_rating = bplayer.get_rating(variant, chess960)
+        self.brating = "%s%s" % black_rating.rating_prov
         self.brdiff = 0
 
         # crosstable info
@@ -633,17 +633,31 @@ class Game:
         else:
             raise RuntimeError("game.result: unexpected result code")
 
-        wr = gl2.rate(self.white_rating, [(white_score, self.black_rating)])
-        br = gl2.rate(self.black_rating, [(black_score, self.white_rating)])
+        wr_old = int(self.wrating.rstrip("?"))
+        br_old = int(self.brating.rstrip("?"))
 
-        await self.wplayer.set_rating(self.variant, self.chess960, wr)
-        await self.bplayer.set_rating(self.variant, self.chess960, br)
+        wcurr = self.wplayer.get_rating(self.variant, self.chess960)
+        bcurr = self.bplayer.get_rating(self.variant, self.chess960)
 
-        self.wrdiff = int(round(wr.mu - self.white_rating.mu, 0))
+        white_rating = gl2.create_rating(wr_old, wcurr.phi, wcurr.sigma, wcurr.ltime)
+        black_rating = gl2.create_rating(br_old, bcurr.phi, bcurr.sigma, bcurr.ltime)
+
+        wr = gl2.rate(white_rating, [(white_score, black_rating)])
+        br = gl2.rate(black_rating, [(black_score, white_rating)])
+
+        wrdiff = wr.mu - white_rating.mu
+        self.wrdiff = int(round(wrdiff, 0))
         self.p0 = {"e": self.wrating, "d": self.wrdiff}
 
-        self.brdiff = int(round(br.mu - self.black_rating.mu, 0))
+        brdiff = br.mu - black_rating.mu
+        self.brdiff = int(round(brdiff, 0))
         self.p1 = {"e": self.brating, "d": self.brdiff}
+
+        new_white_rating = gl2.create_rating(wr_old + wrdiff, wr.phi, wr.sigma, wr.ltime)
+        new_black_rating = gl2.create_rating(br_old + brdiff, br.phi, br.sigma, br.ltime)
+
+        await self.wplayer.set_rating(self.variant, self.chess960, new_white_rating)
+        await self.bplayer.set_rating(self.variant, self.chess960, new_black_rating)
 
         w_nb = self.wplayer.perfs[self.variant + ("960" if self.chess960 else "")]["nb"]
         if w_nb >= HIGHSCORE_MIN_GAMES:
@@ -1028,14 +1042,12 @@ class Game:
     def game_json(self, player):
         color = "w" if self.wplayer == player else "b"
         opp_player = self.bplayer if color == "w" else self.wplayer
-        opp_rating = self.black_rating if color == "w" else self.white_rating
-        opp_rating, prov = opp_rating.rating_prov
+        opp_rating = self.brating if color == "w" else self.wrating
         return {
             "gameId": self.id,
             "title": opp_player.title,
             "name": opp_player.username,
             "rating": opp_rating,
-            "prov": prov,
             "color": color,
             "result": self.result,
         }

@@ -17,7 +17,6 @@ try:
 except ImportError:
     print("No pyffish module installed!")
 
-from glicko2.glicko2 import gl2
 from broadcast import lobby_broadcast, round_broadcast
 from const import (
     NOTIFY_PAGE_SIZE,
@@ -121,6 +120,8 @@ async def load_game(app, game_id):
                 initial_fen = parts[0] + (" w" if parts[1] == "b" else " b") + " 0"
             # print("   changed to:", initial_fen)
 
+    corr = doc.get("c", False)
+
     game = Game(
         app,
         game_id,
@@ -134,7 +135,7 @@ async def load_game(app, game_id):
         level=doc.get("x"),
         rated=doc.get("y"),
         chess960=bool(doc.get("z")),
-        corr=doc.get("c", False),
+        corr=corr,
         create=False,
         tournamentId=doc.get("tid"),
     )
@@ -205,7 +206,7 @@ async def load_game(app, game_id):
                 "turnColor": turnColor,
                 "check": game.check,
             }
-            if "cw" in doc and len(doc["cw"]) > 0:
+            if "cw" in doc and not corr:
                 move_number = ((ply + 1) // 2) + (1 if ply % 2 == 0 else 0)
                 if ply >= 2:
                     if ply % 2 == 0:
@@ -264,9 +265,6 @@ async def load_game(app, game_id):
     except KeyError:
         game.wrating = "1500?"
         game.brating = "1500?"
-
-    game.white_rating = gl2.create_rating(int(game.wrating.rstrip("?")))
-    game.black_rating = gl2.create_rating(int(game.brating.rstrip("?")))
 
     try:
         game.wrdiff = doc["p0"]["d"]
