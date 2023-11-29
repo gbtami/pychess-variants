@@ -1,19 +1,27 @@
+from collections import UserDict
+
 from glicko2.glicko2 import DEFAULT_PERF
 from const import VARIANTS
 from user import User
 
 
-class Users(dict):
+class Users(UserDict):
     def __init__(self, app):
         super().__init__()
         self.app = app
 
-    async def get(self, username):
-        if username in self:
-            return self[username]
+    def __getitem__(self, username):
+        if username in self.data:
+            return self.data[username]
+        else:
+            print("%s is not in Users. Use await users.get() instead.")
+            raise Exception
 
-        db = self.app["db"]
-        doc = await db.user.find_one({"_id": username})
+    async def get(self, username):
+        if username in self.data:
+            return self.data[username]
+
+        doc = await self.app["db"].user.find_one({"_id": username})
         if doc is None:
             print("--- users.get() %s NOT IN db ---" % username)
             return None
@@ -23,7 +31,7 @@ class Users(dict):
 
             user = User(
                 self.app,
-                username=doc["_id"],
+                username=username,
                 title=doc.get("title"),
                 bot=doc.get("title") == "BOT",
                 perfs=perfs,
@@ -32,5 +40,5 @@ class Users(dict):
                 lang=doc.get("lang", "en"),
                 theme=doc.get("theme", "dark"),
             )
-            self.app["users"][doc["_id"]] = user
+            self.data[username] = user
             return user
