@@ -451,7 +451,7 @@ msgstr "커뮤니티"
 
 #: ../templates/template.html:48
 msgid "Players"
-msgstr "플레이어들"
+msgstr "플레이어"
 
 #: ../templates/template.html:49
 msgid "Blog"

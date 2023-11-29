@@ -961,11 +961,11 @@ msgstr "(로그인하셔야 합니다)"
 
 #: ../client/lobby.ts:413
 msgid "Time control"
-msgstr ""
+msgstr "시간 선택"
 
 #: ../client/lobby.ts:418
 msgid "Real time"
-msgstr ""
+msgstr "실시간"
 
 #: ../client/lobby.ts:419 ../client/lobby.ts:1069
 msgid "Correspondence"
@@ -973,7 +973,7 @@ msgstr "서신"
 
 #: ../client/lobby.ts:425
 msgid "Minutes per side:"
-msgstr "한 대국자당 분"
+msgstr "한 플레이어당 주어진 분"
 
 #: ../client/lobby.ts:440
 msgid "Periods"
@@ -1014,7 +1014,7 @@ msgstr "초 읽기"
 
 #: ../client/lobby.ts:598
 msgid "Increment in seconds:"
-msgstr "초 증가"
+msgstr "한 수당 증가하는 초"
 
 #: ../client/lobby.ts:603
 msgid "Alternate Start"
@@ -1101,7 +1101,7 @@ msgstr "서신 체스"
 
 #: ../client/lobby.ts:1139
 msgid "You have time now"
-msgstr ""
+msgstr "현재 당신의 남은 시간입니다"
 
 #: ../client/lobby.ts:1146 ../client/lobby.ts:1147
 msgid "S-chess ramblings"

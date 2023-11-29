@@ -247,27 +247,27 @@ msgstr "ลึกกว่านี้"
 
 #: ../client/analysisSettings.ts:77
 msgid "Best move arrow"
-msgstr ""
+msgstr "ลูกศรแนะนำตาเดิน"
 
 #: ../client/analysisSettings.ts:106
 msgid "Infinite analysis"
-msgstr ""
+msgstr "ถอดหมากแบบไม่รู้จบ"
 
 #: ../client/analysisSettings.ts:132
 msgid "Multiple lines"
-msgstr ""
+msgstr "จำนวนเส้นทาง"
 
 #: ../client/analysisSettings.ts:159
 msgid "CPUs"
-msgstr ""
+msgstr "หน่วยประมวลผล"
 
 #: ../client/analysisSettings.ts:205
 msgid "Memory"
-msgstr ""
+msgstr "หน่วยความจำ"
 
 #: ../client/analysisSettings.ts:233
 msgid "Use NNUE"
-msgstr ""
+msgstr "ใช้ NNUE"
 
 #: ../client/background.ts:9
 msgid "Light"
@@ -283,11 +283,11 @@ msgstr "การเคลื่อนไหวตัวหมาก"
 
 #: ../client/boardSettings.ts:200
 msgid "Confirm resigning"
-msgstr ""
+msgstr "ยืนยันก่อนยอมแพ้"
 
 #: ../client/boardSettings.ts:217
 msgid "Confirm correspondence move"
-msgstr ""
+msgstr "ยืนยันก่อนการเดินในเกมจดหมาย"
 
 #: ../client/boardSettings.ts:309
 msgid "Zoom"
@@ -340,12 +340,12 @@ msgstr "เซิร์ฟเวอร์"
 #: ../client/clock.ts:29 ../client/view.ts:120
 msgid "%1 day"
 msgid_plural "%1 days"
-msgstr[0] ""
+msgstr[0] "%1 วัน"
 
 #: ../client/clock.ts:30
 msgid "%1 hour"
 msgid_plural "%1 hours"
-msgstr[0] ""
+msgstr[0] "%1 ชั่วโมง"
 
 #: ../client/datetime.ts:20
 msgid "in %1 year"
@@ -605,11 +605,11 @@ msgstr "chennis"
 
 #: ../client/i18n.ts:84
 msgid "PawnsPushed"
-msgstr "เบี้ยดัน"
+msgstr "เบี้ยประชัน"
 
 #: ../client/i18n.ts:84
 msgid "PawnsPassed"
-msgstr "เบี้ยผ่าน"
+msgstr "เบี้ยเลย"
 
 #: ../client/i18n.ts:84
 msgid "UpsideDown"
@@ -725,7 +725,7 @@ msgstr "ตัวหมากกินกันแล้วระเบิดไ
 
 #: ../client/i18n.ts:100
 msgid "The duck must be moved to a new square after every turn."
-msgstr ""
+msgstr "มีเป็ดให้ย้ายไปวางที่อื่นทุกตา"
 
 #: ../client/i18n.ts:101
 msgid ""
@@ -909,7 +909,7 @@ msgstr "คล้าย Capablanca แต่ใช้ตำแหน่งเร
 
 #: ../client/i18n.ts:133
 msgid "Embassy with Crazyhouse drop rules."
-msgstr ""
+msgstr "Embassy ที่ใช้กฎการวางหมากแบบ Crazyhouse"
 
 #: ../client/i18n.ts:134
 msgid "Like Capablanca Chess but with a different starting setup."
@@ -995,15 +995,15 @@ msgstr "(ต้องเข้าสู่ระบบก่อน)"
 
 #: ../client/lobby.ts:413
 msgid "Time control"
-msgstr ""
+msgstr "ประเภทเวลา"
 
 #: ../client/lobby.ts:418
 msgid "Real time"
-msgstr ""
+msgstr "เวลาจริง"
 
 #: ../client/lobby.ts:419 ../client/lobby.ts:1069
 msgid "Correspondence"
-msgstr ""
+msgstr "เวลาจดหมาย"
 
 #: ../client/lobby.ts:425
 msgid "Minutes per side:"
@@ -1015,7 +1015,7 @@ msgstr "จำนวนรอบ"
 
 #: ../client/lobby.ts:449
 msgid "Days per turn:"
-msgstr ""
+msgstr "เวลาต่อตาเดิน (วัน):"
 
 #: ../client/lobby.ts:467 ../client/lobby.ts:767 ../client/result.ts:16
 msgid "Casual"
@@ -1102,7 +1102,7 @@ msgstr "รูปแบบการเล่น"
 
 #: ../client/lobby.ts:1042
 msgid "Puzzle of the day"
-msgstr ""
+msgstr "หมากกลวันนี้"
 
 #: ../client/editor/editorCtrl.ts:92 ../client/editor/editorCtrl.ts:93
 #: ../client/lobby.ts:1043
@@ -1111,7 +1111,7 @@ msgstr "ตา%1เดิน"
 
 #: ../client/lobby.ts:1068
 msgid "Lobby"
-msgstr ""
+msgstr "ล็อบบี้"
 
 #: ../client/lobby.ts:1127
 msgid "Donate"
@@ -1131,23 +1131,23 @@ msgstr "เกี่ยวกับ"
 
 #: ../client/lobby.ts:1138
 msgid "Correspondence Chess"
-msgstr ""
+msgstr "หมากรุกจดหมาย"
 
 #: ../client/lobby.ts:1139
 msgid "You have time now"
-msgstr ""
+msgstr "คุณมีเวลาแล้ว"
 
 #: ../client/lobby.ts:1146 ../client/lobby.ts:1147
 msgid "S-chess ramblings"
-msgstr ""
+msgstr "บ่นๆ S-Chess"
 
 #: ../client/lobby.ts:1154
 msgid "Autumn Update"
-msgstr ""
+msgstr "อัปเดตรับหน้าหนาว"
 
 #: ../client/lobby.ts:1155
 msgid "A slew of new variants!"
-msgstr ""
+msgstr "มีเกมใหม่ให้ลองเพียบเลยนะ"
 
 #: ../client/main.ts:114
 msgid "Thank you for your support!"
@@ -1155,7 +1155,7 @@ msgstr "ขอบคุณสำหรับการสนับสนุน!"
 
 #: ../client/notifyView.ts:83
 msgid "No notifications."
-msgstr ""
+msgstr "ไม่มีการแจ้งเตือนใหม่"
 
 #: ../client/paste.ts:139
 msgid "Invalid PGN"
@@ -1194,7 +1194,7 @@ msgstr "คิดคะแนน"
 #: ../client/profile.ts:228
 msgctxt "UsePluralFormIfNeeded"
 msgid "Playing"
-msgstr ""
+msgstr "กำลังเล่นอยู่"
 
 #: ../client/profile.ts:229
 msgid "Imported"
@@ -1202,11 +1202,11 @@ msgstr "นำเข้ามา"
 
 #: ../client/puzzleCtrl.ts:88
 msgid "LOGIN"
-msgstr ""
+msgstr "เข้าสู่ระบบ"
 
 #: ../client/puzzleCtrl.ts:116
 msgid "Hint"
-msgstr ""
+msgstr "บอกใบ้"
 
 #: ../client/puzzleCtrl.ts:124
 msgid "View the solution"
@@ -1217,30 +1217,32 @@ msgid ""
 "Your puzzle rating will not change. Note that puzzles are not a competition."
 " Ratings help select the best puzzles for your current skill."
 msgstr ""
+"คะแนนหมากกลของคุณจะไม่เปลี่ยน ทั้งนี้ หมากกลไม่ต้องแข่งกับใคร "
+"แต่มีคะแนนไว้เพื่อช่วยเลือกโจทย์ให้เหมาะสมกับทักษะของคุณเท่านั้น"
 
 #: ../client/puzzleCtrl.ts:195
 msgid "Puzzle"
-msgstr ""
+msgstr "หมากกล"
 
 #: ../client/puzzleCtrl.ts:196
 msgid "Rating:"
-msgstr ""
+msgstr "คะแนน:"
 
 #: ../client/puzzleCtrl.ts:196
 msgid "hidden"
-msgstr ""
+msgstr "ยังไม่เปิดเผย"
 
 #: ../client/puzzleCtrl.ts:197
 msgid "Played:"
-msgstr ""
+msgstr "ถูกเล่นไปแล้ว:"
 
 #: ../client/puzzleCtrl.ts:214
 msgid "Source:"
-msgstr ""
+msgstr "ที่มา:"
 
 #: ../client/puzzleCtrl.ts:218
 msgid "Type:"
-msgstr ""
+msgstr "ประเภท:"
 
 #: ../client/puzzleCtrl.ts:321
 msgid "Your turn"
@@ -1248,51 +1250,51 @@ msgstr "ตาคุณเดิน"
 
 #: ../client/puzzleCtrl.ts:322
 msgid "Find the best move for %1."
-msgstr ""
+msgstr "เล่นฝ่าย%1 หาตาที่ดีที่สุด"
 
 #: ../client/puzzleCtrl.ts:339
 msgid "That's not the move!"
-msgstr "ไม่ใช่แบบนั้น!"
+msgstr "ไม่ใช่แบบนั้น"
 
 #: ../client/puzzleCtrl.ts:340
 msgid "Try something else."
-msgstr ""
+msgstr "ลองอย่างอื่นดู"
 
 #: ../client/puzzleCtrl.ts:354
 msgid "Best move!"
-msgstr ""
+msgstr "ยอดเยี่ยม"
 
 #: ../client/puzzleCtrl.ts:355
 msgid "Keep going..."
-msgstr ""
+msgstr "เดินต่อไป..."
 
 #: ../client/puzzleCtrl.ts:368
 msgid "Success!"
-msgstr ""
+msgstr "สำเร็จ!"
 
 #: ../client/puzzleCtrl.ts:373
 msgid "Puzzle complete!"
-msgstr ""
+msgstr "เสร็จสิ้น"
 
 #: ../client/puzzleCtrl.ts:376
 msgid "We have no more puzzle for this variant."
-msgstr ""
+msgstr "คุณทำโจทย์ของหมากชนิดนี้เท่าที่เรามีหมดแล้ว"
 
 #: ../client/puzzleCtrl.ts:386
 msgid "Did you like this puzzle?"
-msgstr ""
+msgstr "คุณชอบหมากกลนี้หรือไม่?"
 
 #: ../client/puzzleCtrl.ts:387
 msgid "Vote to load the next one!"
-msgstr ""
+msgstr "ให้คะแนนแล้วไปข้อต่อไป"
 
 #: ../client/puzzleCtrl.ts:401
 msgid "Continue training"
-msgstr ""
+msgstr "ดูข้อนี้ต่อ"
 
 #: ../client/puzzleSettings.ts:53
 msgid "Jump to next puzzle immediately"
-msgstr ""
+msgstr "ไปข้อต่อไปอัตโนมัติ"
 
 #: ../client/result.ts:14
 msgid "IMPORT"
@@ -1360,15 +1362,15 @@ msgstr "คิงระเบิด"
 
 #: ../client/result.ts:102
 msgid "King in the center"
-msgstr ""
+msgstr "คิงเข้าถึงกลางกระดาน"
 
 #: ../client/result.ts:105
 msgid "Three checks"
-msgstr ""
+msgstr "รุกครบสามครั้ง"
 
 #: ../client/result.ts:108
 msgid "King captured"
-msgstr ""
+msgstr "คิงถูกกิน"
 
 #: ../client/result.ts:111 ../client/result.ts:118
 msgid "Point counting"
@@ -1421,7 +1423,7 @@ msgstr "ฝ่ายตรงข้ามขอเสมอกับคุณ"
 
 #: ../client/roundCtrl.ts:491
 msgid "Confirm move"
-msgstr ""
+msgstr "ยืนยันการเดิน"
 
 #: ../client/roundCtrl.ts:518
 msgid "Are you sure you want to resign?"
@@ -1486,7 +1488,7 @@ msgstr "วิเคราะห์เกม"
 
 #: ../client/roundCtrl.ts:839
 msgid "Propose takeback"
-msgstr ""
+msgstr "ขอย้อนตาเดิน"
 
 #: ../client/roundCtrl.ts:1043
 msgid "Stop counting"
@@ -1658,7 +1660,7 @@ msgstr "กำลังจะเริ่มในอีก"
 
 #: ../client/variants.ts:824
 msgid "Asymmetric Spartans vs. Persians variant."
-msgstr ""
+msgstr "กองทัพสปาร์ตันปะทะกองทัพเปอร์เซีย"
 
 #: ../client/lobby/layer1.ts:51 ../client/lobby/layer2chess.ts:21
 #: ../client/variants.ts:911
@@ -1736,11 +1738,11 @@ msgstr "บันทึกเป็น PNG"
 
 #: ../client/input/duck.ts:52
 msgid "Undo"
-msgstr ""
+msgstr "ย้อนกลับ"
 
 #: ../client/input/duck.ts:58
 msgid "Place the duck on an empty square."
-msgstr ""
+msgstr "วางเป็ดลงบนตาที่ว่างอยู่"
 
 #: ../client/lobby/layer2army.ts:18
 msgid ""
@@ -1783,11 +1785,11 @@ msgstr "หมากรุกมายัน"
 
 #: ../client/lobby/layer2army.ts:70
 msgid "Alternating pieces"
-msgstr ""
+msgstr "หมากสลับตัวไปมา"
 
 #: ../client/lobby/layer2army.ts:77
 msgid "Spartans: Army with two kings"
-msgstr ""
+msgstr "Spartan: มีคิงสองคน"
 
 #: ../client/lobby/layer2chess.ts:23
 msgid "Variants using a basic chess set but with different rules."
@@ -1943,7 +1945,7 @@ msgstr "เข้าป้อมได้ถ้าวางคิงกับร
 
 #: ../client/lobby/layer3.ts:87
 msgid "Quack."
-msgstr ""
+msgstr "ก้าบ"
 
 #: ../client/lobby/layer3.ts:90
 msgid ""
@@ -1984,11 +1986,11 @@ msgstr "การเลื่อนยศคิงเร็วเกินไป
 
 #: ../client/lobby/layer3.ts:111
 msgid "Make sure to consider both forms of each piece."
-msgstr ""
+msgstr "อย่าลืมพิจารณาตัวหมากแต่ละตัวให้ครบทั้งสองด้าน"
 
 #: ../client/lobby/layer3.ts:113
 msgid "Spartan kings can be a powerful addition to an offensive."
-msgstr ""
+msgstr "สปาร์ตันสามารถใช้คิงเป็นหมากบุกที่ทรงพลังตัวหนึ่ง"
 
 #: ../client/lobby/layer3.ts:116
 msgid "Maximizing khon and met's effectiveness is the key."
