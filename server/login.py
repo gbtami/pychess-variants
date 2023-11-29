@@ -147,6 +147,7 @@ async def login(request):
     if prev_user is not None:
         prev_user.lobby_sockets = set()  # make it offline
         prev_user.game_sockets = {}
+        prev_user.tournament_sockets = {}
         prev_user.update_online()
 
     session["user_name"] = username

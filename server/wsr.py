@@ -10,7 +10,7 @@ import aiohttp_session
 
 from broadcast import lobby_broadcast, round_broadcast
 from chat import chat_response
-from const import ANALYSIS, STARTED
+from const import ANON_PREFIX, ANALYSIS, STARTED
 from fairy import WHITE, BLACK
 from seek import challenge, Seek
 from user import User
@@ -491,7 +491,7 @@ async def round_socket_handler(request):
                                     user = User(
                                         request.app,
                                         username=data["username"],
-                                        anon=data["username"].startswith("Anon-"),
+                                        anon=data["username"].startswith(ANON_PREFIX),
                                     )
                                     users[user.username] = user
 
@@ -509,7 +509,7 @@ async def round_socket_handler(request):
                                     user = User(
                                         request.app,
                                         username=data["username"],
-                                        anon=data["username"].startswith("Anon-"),
+                                        anon=data["username"].startswith(ANON_PREFIX),
                                     )
                                     users[user.username] = user
                         else:
@@ -524,7 +524,7 @@ async def round_socket_handler(request):
                                 user = User(
                                     request.app,
                                     username=data["username"],
-                                    anon=data["username"].startswith("Anon-"),
+                                    anon=data["username"].startswith(ANON_PREFIX),
                                 )
                                 users[user.username] = user
 
@@ -612,7 +612,7 @@ async def round_socket_handler(request):
                                 pass
 
                     elif data["type"] == "roundchat":
-                        if user.username.startswith("Anon-"):
+                        if user.username.startswith(ANON_PREFIX):
                             continue
 
                         gameId = data["gameId"]

@@ -25,8 +25,6 @@ from const import (
     TRANSLATED_VARIANT_NAMES,
 )
 from newid import new_id
-from user import User
-
 from tournament import GameData, PlayerData, SCORE_SHIFT
 from arena import ArenaTournament
 from rr import RRTournament
@@ -423,11 +421,7 @@ async def load_tournament(app, tournament_id, tournament_klass=None):
 
     async for doc in cursor:
         uid = doc["uid"]
-        if uid in users:
-            user = users[uid]
-        else:
-            user = User(app, username=uid, title="TEST" if tournament_id == "12345678" else "")
-            users[uid] = user
+        user = await users.get(uid)
 
         withdrawn = doc.get("wd", False)
 

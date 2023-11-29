@@ -6,7 +6,7 @@ from datetime import datetime, timezone
 from aiohttp import web
 import aiohttp_session
 
-from const import NOTIFY_PAGE_SIZE, STARTED, VARIANTS
+from const import ANON_PREFIX, NOTIFY_PAGE_SIZE, STARTED, VARIANTS
 from broadcast import lobby_broadcast, round_broadcast
 from glicko2.glicko2 import gl2, DEFAULT_PERF, Rating
 from login import RESERVED_USERS
@@ -45,7 +45,7 @@ class User:
 
         if username is None:
             self.anon = True
-            self.username = "Anon-" + id8()
+            self.username = ANON_PREFIX + id8()
         else:
             self.username = username
 
@@ -292,7 +292,13 @@ class User:
             await lobby_broadcast(sockets, get_seeks(seeks))
 
     def __str__(self):
-        return "%s %s bot=%s" % (self.title, self.username, self.bot)
+        return "%s %s bot=%s anon=%s chess=%s" % (
+            self.title,
+            self.username,
+            self.bot,
+            self.anon,
+            self.perfs["chess"]["gl"]["r"],
+        )
 
 
 async def set_theme(request):

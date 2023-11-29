@@ -19,6 +19,7 @@ except ImportError:
 
 from broadcast import lobby_broadcast, round_broadcast
 from const import (
+    ANON_PREFIX,
     NOTIFY_PAGE_SIZE,
     STARTED,
     VARIANT_960_TO_PGN,
@@ -90,14 +91,20 @@ async def load_game(app, game_id):
     if wp in users:
         wplayer = users[wp]
     else:
-        wplayer = User(app, username=wp, anon=True)
-        users[wp] = wplayer
+        if wp.startswith(ANON_PREFIX):
+            wplayer = User(app, username=wp, anon=True)
+            users[wp] = wplayer
+        else:
+            wplayer = await users.get(wp)
 
     if bp in users:
         bplayer = users[bp]
     else:
-        bplayer = User(app, username=bp, anon=True)
-        users[bp] = bplayer
+        if bp.startswith(ANON_PREFIX):
+            bplayer = User(app, username=bp, anon=True)
+            users[bp] = bplayer
+        else:
+            bplayer = await users.get(bp)
 
     variant = C2V[doc["v"]]
 
@@ -956,7 +963,7 @@ async def notified(request):
     if session_user is None:
         return web.json_response({})
 
-    user = users[session_user]
+    user = await users.get(session_user)
     await user.notified()
     return web.json_response({})
 
@@ -969,7 +976,7 @@ async def subscribe_notify(request):
     if session_user is None:
         return web.json_response({})
 
-    user = users[session_user]
+    user = await users.get(session_user)
     try:
         async with sse_response(request) as response:
             queue = asyncio.Queue()

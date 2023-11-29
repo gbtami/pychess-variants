@@ -8,7 +8,7 @@ import aiohttp_session
 
 from admin import silence
 from chat import chat_response
-from const import STARTED, SHIELD
+from const import ANON_PREFIX, STARTED, SHIELD
 from settings import TOURNAMENT_DIRECTORS
 from utils import MyWebSocketResponse, online_count
 from user import User
@@ -135,7 +135,7 @@ async def tournament_socket_handler(request):
                                     user = User(
                                         request.app,
                                         username=data["username"],
-                                        anon=data["username"].startswith("Anon-"),
+                                        anon=data["username"].startswith(ANON_PREFIX),
                                     )
                                     users[user.username] = user
                             else:
@@ -145,7 +145,7 @@ async def tournament_socket_handler(request):
                                     user = User(
                                         request.app,
                                         username=data["username"],
-                                        anon=data["username"].startswith("Anon-"),
+                                        anon=data["username"].startswith(ANON_PREFIX),
                                     )
                                     users[user.username] = user
                         else:
@@ -160,7 +160,7 @@ async def tournament_socket_handler(request):
                                 user = User(
                                     request.app,
                                     username=data["username"],
-                                    anon=data["username"].startswith("Anon-"),
+                                    anon=data["username"].startswith(ANON_PREFIX),
                                 )
                                 users[user.username] = user
 
@@ -226,7 +226,7 @@ async def tournament_socket_handler(request):
                             await lobby_broadcast(lobby_sockets, response)
 
                     elif data["type"] == "lobbychat":
-                        if user.username.startswith("Anon-"):
+                        if user.username.startswith(ANON_PREFIX):
                             continue
 
                         tournamentId = data["tournamentId"]

@@ -9,7 +9,7 @@ import aiohttp_session
 from admin import silence
 from broadcast import lobby_broadcast, broadcast_streams
 from chat import chat_response
-from const import STARTED
+from const import ANON_PREFIX, STARTED
 from settings import ADMINS, TOURNAMENT_DIRECTORS
 from seek import challenge, create_seek, get_seeks, Seek
 from user import User
@@ -211,7 +211,7 @@ async def lobby_socket_handler(request):
                                     user = User(
                                         request.app,
                                         username=data["username"],
-                                        anon=data["username"].startswith("Anon-"),
+                                        anon=data["username"].startswith(ANON_PREFIX),
                                     )
                                     users[user.username] = user
                             else:
@@ -221,7 +221,7 @@ async def lobby_socket_handler(request):
                                     user = User(
                                         request.app,
                                         username=data["username"],
-                                        anon=data["username"].startswith("Anon-"),
+                                        anon=data["username"].startswith(ANON_PREFIX),
                                     )
                                     users[user.username] = user
                         else:
@@ -236,7 +236,7 @@ async def lobby_socket_handler(request):
                                 user = User(
                                     request.app,
                                     username=data["username"],
-                                    anon=data["username"].startswith("Anon-"),
+                                    anon=data["username"].startswith(ANON_PREFIX),
                                 )
                                 users[user.username] = user
 
@@ -279,7 +279,7 @@ async def lobby_socket_handler(request):
                         await user.update_seeks(pending=False)
 
                     elif data["type"] == "lobbychat":
-                        if user.username.startswith("Anon-"):
+                        if user.username.startswith(ANON_PREFIX):
                             continue
 
                         message = data["message"]

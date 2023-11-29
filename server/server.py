@@ -394,7 +394,7 @@ async def init_state(app):
 
         # Read correspondence seeks
         async for doc in app["db"].seek.find():
-            user = app["users"].get(doc["user"])
+            user = await app["users"].get(doc["user"])
             if user is not None:
                 seek = Seek(
                     user,
