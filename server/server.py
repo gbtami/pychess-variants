@@ -311,25 +311,6 @@ async def init_state(app):
 
     # Read tournaments, users and highscore from db
     try:
-        """
-        cursor = app["db"].user.find()
-        async for doc in cursor:
-            if doc["_id"] not in app["users"]:
-                perfs = doc.get("perfs", {variant: DEFAULT_PERF for variant in VARIANTS})
-                pperfs = doc.get("pperfs", {variant: DEFAULT_PERF for variant in VARIANTS})
-
-                app["users"][doc["_id"]] = User(
-                    app,
-                    username=doc["_id"],
-                    title=doc.get("title"),
-                    bot=doc.get("title") == "BOT",
-                    perfs=perfs,
-                    pperfs=pperfs,
-                    enabled=doc.get("enabled", True),
-                    lang=doc.get("lang", "en"),
-                    theme=doc.get("theme", "dark"),
-                )
-        """
         print(len(app["users"]))
         await app["db"].tournament.create_index("startsAt")
         await app["db"].tournament.create_index("status")

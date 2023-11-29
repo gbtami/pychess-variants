@@ -310,15 +310,14 @@ async def import_game(request):
 
     wp = data["White"]
     bp = data["Black"]
-    if wp in users:
-        wplayer = users[wp]
-    else:
+
+    wplayer = await users.get(wp)
+    if wplayer is None:
         wplayer = User(app, username=wp, anon=True)
         users[wp] = wplayer
 
-    if bp in users:
-        bplayer = users[bp]
-    else:
+    bplayer = await users.get(bp)
+    if bplayer is None:
         bplayer = User(app, username=bp, anon=True)
         users[bp] = bplayer
 
