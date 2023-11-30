@@ -1093,6 +1093,14 @@ export function lobbyView(model: PyChessModel): VNode[] {
         h('div.tv', [h('a#tv-game', { attrs: {href: '/tv'} })]),
         h('under-lobby', [
             h('posts', [
+                h('a.post', { attrs: {href: '/news/S-chess_endings_1'} }, [
+                    h('img', { attrs: {src: model.assetURL + '/images/elephant.jpg'} }),
+                    h('span.text', [
+                        h('strong', _("S-chess endings 1")),
+                        h('span', _('The Elephant')),
+                    ]),
+                    h('time', '2023.12.01'),
+                ]),
                 h('a.post', { attrs: {href: '/news/Correspondence_Chess'} }, [
                     h('img', { attrs: {src: model.assetURL + '/images/Postcard-for-correspondence-chess.png'} }),
                     h('span.text', [
@@ -1109,6 +1117,7 @@ export function lobbyView(model: PyChessModel): VNode[] {
                     ]),
                     h('time', '2023.11.03'),
                 ]),
+                /*
                 h('a.post', { attrs: {href: '/news/More_variants'} }, [
                     h('img', { attrs: {src: model.assetURL + '/images/Mansindam.jpg'} }),
                     h('span.text', [
@@ -1117,7 +1126,6 @@ export function lobbyView(model: PyChessModel): VNode[] {
                     ]),
                     h('time', '2023.10.19'),
                 ]),
-                /*
                 h('a.post', { attrs: {href: '/news/Summer_Update'} }, [
                     h('img', { attrs: {src: model.assetURL + '/images/puzzles.jpg'} }),
                     h('span.text', [
