@@ -6,6 +6,7 @@ import random
 
 from aiohttp.test_utils import AioHTTPTestCase
 
+from typedefs import games_key, seeks_key
 from const import VARIANTS
 from glicko2.glicko2 import DEFAULT_PERF
 from game import Game
@@ -60,12 +61,12 @@ class RamatchChess960GameTestCase(AioHTTPTestCase):
             player1=rematch_offfered_by,
             chess960=game_odd.chess960,
         )
-        self.app["seeks"][seek.id] = seek
+        self.app[seeks_key][seek.id] = seek
 
         response = await join_seek(self.app, rematch_accepted_by, seek.id)
         rematch_id = response["gameId"]
 
-        game_even = self.app["games"][rematch_id]
+        game_even = self.app[games_key][rematch_id]
         print("%s - %s %s" % (game_even.wplayer, game_even.bplayer, game_even.initial_fen))
         self.assertEqual(game_odd.initial_fen, game_even.initial_fen)
 
@@ -88,12 +89,12 @@ class RamatchChess960GameTestCase(AioHTTPTestCase):
             player1=rematch_offfered_by,
             chess960=game_even.chess960,
         )
-        self.app["seeks"][seek.id] = seek
+        self.app[seeks_key][seek.id] = seek
 
         response = await join_seek(self.app, rematch_accepted_by, seek.id)
         rematch_id = response["gameId"]
 
-        game_odd = self.app["games"][rematch_id]
+        game_odd = self.app[games_key][rematch_id]
         self.assertNotEqual(game_even.initial_fen, game_odd.initial_fen)
         return game_odd
 

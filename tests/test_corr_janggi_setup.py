@@ -7,6 +7,7 @@ from mongomock_motor import AsyncMongoMockClient
 
 from aiohttp.test_utils import AioHTTPTestCase
 
+from typedefs import db_key, games_key, users_key, seeks_key
 from const import VARIANTS, STARTED
 from glicko2.glicko2 import DEFAULT_PERF
 from user import User
@@ -53,8 +54,8 @@ class CorrJanggiGameTestCase(AioHTTPTestCase):
         blue_player = User(self.app, username="blue", perfs=PERFS)
         red_player = User(self.app, username="red", perfs=PERFS)
 
-        self.app["users"]["blue"] = blue_player
-        self.app["users"]["red"] = red_player
+        self.app[users_key]["blue"] = blue_player
+        self.app[users_key]["red"] = red_player
 
         db = self.app["db"]
         await db.user.delete_many({})
@@ -62,23 +63,23 @@ class CorrJanggiGameTestCase(AioHTTPTestCase):
         await db.user.insert_one({"_id": "red"})
 
     async def server_restart(self):
-        self.app["games"] = {}
-        self.app["users"] = Users(self.app)
+        self.app[games_key] = {}
+        self.app[users_key] = Users(self.app)
 
-        games = self.app["db"].game
+        games = self.app[db_key].game
         doc = await games.find_one({"us": ["blue", "red"]})
 
         game = await load_game(self.app, doc["_id"])
         if game is not None:
-            self.app["games"][doc["_id"]] = game
+            self.app[games_key][doc["_id"]] = game
             game.wplayer.correspondence_games.append(game)
             game.bplayer.correspondence_games.append(game)
 
         return game
 
     async def new_game(self):
-        blue_player = self.app["users"]["blue"]
-        red_player = self.app["users"]["red"]
+        blue_player = self.app[users_key]["blue"]
+        red_player = self.app[users_key]["red"]
 
         seek = Seek(
             blue_player,
@@ -87,11 +88,11 @@ class CorrJanggiGameTestCase(AioHTTPTestCase):
             day=1,
             player1=blue_player,
         )
-        self.app["seeks"][seek.id] = seek
+        self.app[seeks_key][seek.id] = seek
         response = await join_seek(self.app, red_player, seek.id)
         gameId = response["gameId"]
 
-        game = self.app["games"][gameId]
+        game = self.app[games_key][gameId]
         return game
 
     async def test_without_server_restart(self):
@@ -99,7 +100,7 @@ class CorrJanggiGameTestCase(AioHTTPTestCase):
         game = await self.new_game()
 
         # THE NEW GAME
-        games = self.app["db"].game
+        games = self.app[db_key].game
         doc = await games.find_one({"_id": game.id})
 
         self.assertEqual(doc["_id"], game.id)
@@ -149,8 +150,8 @@ class CorrJanggiGameTestCase(AioHTTPTestCase):
         # SERVER RESTART !
         game = await self.server_restart()
 
-        # THE NEW GAME
-        games = self.app["db"].game
+        # NEW GAME
+        games = self.app[db_key].game
         doc = await games.find_one({"_id": game.id})
 
         self.assertEqual(doc["_id"], game.id)
