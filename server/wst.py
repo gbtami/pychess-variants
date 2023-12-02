@@ -6,6 +6,13 @@ import aiohttp
 from aiohttp import web
 import aiohttp_session
 
+from typedefs import (
+    lobbysockets_key,
+    shield_owners_key,
+    users_key,
+    tourneychat_key,
+    tourneysockets_key,
+)
 from admin import silence
 from chat import chat_response
 from const import STARTED, SHIELD
@@ -21,7 +28,7 @@ log = logging.getLogger(__name__)
 
 
 async def tournament_socket_handler(request):
-    users = request.app["users"]
+    users = request.app[users_key]
 
     session = await aiohttp_session.get_session(request)
     session_user = session.get("user_name")
@@ -31,9 +38,9 @@ async def tournament_socket_handler(request):
         session.invalidate()
         return web.HTTPFound("/")
 
-    sockets = request.app["tourneysockets"]
-    lobby_sockets = request.app["lobbysockets"]
-    tourneychat = request.app["tourneychat"]
+    sockets = request.app[tourneysockets_key]
+    lobby_sockets = request.app[lobbysockets_key]
+    tourneychat = request.app[tourneychat_key]
 
     ws = MyWebSocketResponse(heartbeat=3.0, receive_timeout=10.0)
 
@@ -197,7 +204,7 @@ async def tournament_socket_handler(request):
                             variant_name = tournament.variant + (
                                 "960" if tournament.chess960 else ""
                             )
-                            defender = users[request.app["shield_owners"][variant_name]]
+                            defender = users[request.app[shield_owners_key][variant_name]]
                             response["defender_title"] = defender.title
                             response["defender_name"] = defender.username
 

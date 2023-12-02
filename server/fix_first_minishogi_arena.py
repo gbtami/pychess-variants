@@ -1,5 +1,6 @@
 from datetime import datetime, timezone
 
+from typedefs import db_key, games_key, users_key
 from compress import R2C
 from const import MATE
 from tournament import SCORE_SHIFT
@@ -37,8 +38,8 @@ def performance(user, games):
 
 
 async def fix_first_minishogi_arena(app):
-    db = app["db"]
-    users = app["users"]
+    db = app[db_key]
+    users = app[users_key]
     tid = "4RP5KEl8"  # First Minishogi Arena
     t = await load_tournament(app, tid)
     print(t)
@@ -55,7 +56,7 @@ async def fix_first_minishogi_arena(app):
 
     game_id = "sbsG6jXn"
     g = await load_game(app, game_id)
-    app["games"][game_id] = g
+    app[games_key][game_id] = g
 
     g.result = "1-0"
     g.status = MATE
