@@ -17,6 +17,17 @@ try:
 except ImportError:
     print("No pyffish module installed!")
 
+from typedefs import (
+    db_key,
+    game_channels_key,
+    games_key,
+    invites_key,
+    lobbysockets_key,
+    seeks_key,
+    tournaments_key,
+    users_key,
+    tv_key,
+)
 from broadcast import lobby_broadcast, round_broadcast
 from const import (
     ANON_PREFIX,
@@ -52,13 +63,13 @@ class MyWebSocketResponse(WebSocketResponse):
 
 async def tv_game(db, app):
     """Get latest played game id"""
-    if app["tv"] is not None:
-        return app["tv"]
+    if app[tv_key] is not None:
+        return app[tv_key]
     game_id = None
     doc = await db.game.find_one({}, sort=[("$natural", -1)])
     if doc is not None:
         game_id = doc["_id"]
-        app["tv"] = game_id
+        app[tv_key] = game_id
     return game_id
 
 
@@ -76,9 +87,9 @@ async def tv_game_user(db, users, profileId):
 
 async def load_game(app, game_id):
     """Return Game object from app cache or from database"""
-    db = app["db"]
-    games = app["games"]
-    users = app["users"]
+    db = app[db_key]
+    games = app[games_key]
+    users = app[users_key]
     if game_id in games:
         return games[game_id]
 
@@ -301,8 +312,8 @@ async def load_game(app, game_id):
 async def import_game(request):
     data = await request.post()
     app = request.app
-    db = app["db"]
-    users = app["users"]
+    db = app[db_key]
+    users = app[users_key]
 
     # print("---IMPORT GAME---")
     # print(data)
@@ -425,7 +436,7 @@ async def import_game(request):
 
 
 async def join_seek(app, user, seek_id, game_id=None, join_as="any"):
-    seeks = app["seeks"]
+    seeks = app[seeks_key]
     seek = seeks[seek_id]
     log.info(
         "+++ Seek %s joined by %s FEN:%s 960:%s",
@@ -463,9 +474,9 @@ async def join_seek(app, user, seek_id, game_id=None, join_as="any"):
 
 
 async def new_game(app, seek_id, game_id=None):
-    db = app["db"]
-    games = app["games"]
-    seeks = app["seeks"]
+    db = app[db_key]
+    games = app[games_key]
+    seeks = app[seeks_key]
     seek = seeks[seek_id]
 
     fen_valid = True
@@ -485,7 +496,7 @@ async def new_game(app, seek_id, game_id=None):
 
     if game_id is not None:
         # game invitation
-        del app["invites"][game_id]
+        del app[invites_key][game_id]
     else:
         game_id = await new_id(None if db is None else db.game)
 
@@ -541,7 +552,7 @@ async def new_game(app, seek_id, game_id=None):
 
 async def insert_game_to_db(game, app):
     # unit test app may have no db
-    if app["db"] is None:
+    if app[db_key] is None:
         return
 
     document = {
@@ -582,13 +593,13 @@ async def insert_game_to_db(game, app):
     if game.initial_fen or game.chess960:
         document["if"] = game.initial_fen
 
-    result = await app["db"].game.insert_one(document)
+    result = await app[db_key].game.insert_one(document)
     if not result:
         log.error("db insert game result %s failed !!!", game.id)
 
     if not game.corr:
-        app["tv"] = game.id
-        await lobby_broadcast(app["lobbysockets"], game.tv_game_json)
+        app[tv_key] = game.id
+        await lobby_broadcast(app[lobbysockets_key], game.tv_game_json)
 
         game.wplayer.tv = game.id
         game.bplayer.tv = game.id
@@ -633,7 +644,7 @@ async def analysis_move(app, user, game, move, fen, ply):
 
 async def play_move(app, user, game, move, clocks=None, ply=None):
     gameId = game.id
-    users = app["users"]
+    users = app[users_key]
     invalid_move = False
     # log.info("%s move %s %s %s - %s" % (user.username, move, gameId, game.wplayer.username, game.bplayer.username))
 
@@ -704,10 +715,10 @@ async def play_move(app, user, game, move, clocks=None, ply=None):
             pass
 
     if not invalid_move:
-        await round_broadcast(game, board_response, channels=app["game_channels"])
+        await round_broadcast(game, board_response, channels=app[game_channels_key])
 
         if game.tournamentId is not None:
-            tournament = app["tournaments"][game.tournamentId]
+            tournament = app[tournaments_key][game.tournamentId]
             if (
                 (tournament.top_game is not None)
                 and tournament.status == T_STARTED
@@ -715,8 +726,8 @@ async def play_move(app, user, game, move, clocks=None, ply=None):
             ):
                 await tournament.broadcast(board_response)
 
-        if app["tv"] == gameId:
-            await lobby_broadcast(app["lobbysockets"], board_response)
+        if app[tv_key] == gameId:
+            await lobby_broadcast(app[lobbysockets_key], board_response)
 
 
 def pgn(doc):
@@ -921,7 +932,7 @@ async def get_names(request):
         return web.json_response(names)
 
     # case insensitive _id prefix search
-    cursor = request.app["db"].user.find(
+    cursor = request.app[db_key].user.find(
         {"_id": {"$regex": "^%s" % prefix, "$options": "i"}}, limit=12
     )
     async for doc in cursor:
@@ -932,7 +943,7 @@ async def get_names(request):
 async def get_notifications(request):
     page_num = int(request.rel_url.query.get("p", 0))
 
-    users = request.app["users"]
+    users = request.app[users_key]
     # Who made the request?
     session = await aiohttp_session.get_session(request)
     session_user = session.get("user_name")
@@ -942,7 +953,7 @@ async def get_notifications(request):
     user = users[session_user]
 
     if user.notifications is None:
-        cursor = request.app["db"].notify.find({"notifies": session_user})
+        cursor = request.app[db_key].notify.find({"notifies": session_user})
         user.notifications = await cursor.to_list(length=100)
     if page_num == 0:
         notifications = user.notifications[-NOTIFY_PAGE_SIZE:]
@@ -955,7 +966,7 @@ async def get_notifications(request):
 
 
 async def notified(request):
-    users = request.app["users"]
+    users = request.app[users_key]
     # Who made the request?
     session = await aiohttp_session.get_session(request)
     session_user = session.get("user_name")
@@ -968,7 +979,7 @@ async def notified(request):
 
 
 async def subscribe_notify(request):
-    users = request.app["users"]
+    users = request.app[users_key]
     # Who made the request?
     session = await aiohttp_session.get_session(request)
     session_user = session.get("user_name")

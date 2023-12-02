@@ -1,3 +1,5 @@
+from typedefs import tournaments_key, tourneynames_key
+
 from const import (
     LANGUAGES,
     T_STARTED,
@@ -7,13 +9,13 @@ from const import (
 
 
 def tournament_spotlights(app):
-    tournaments = app["tournaments"]
+    tournaments = app[tournaments_key]
     items = []
     for tid, tournament in sorted(tournaments.items(), key=lambda item: item[1].starts_at):
         if tournament.status == T_STARTED or tournament.status == T_CREATED:
             if tournament.frequency:
                 names = {
-                    lang: app["tourneynames"][lang][
+                    lang: app[tourneynames_key][lang][
                         (
                             tournament.variant + ("960" if tournament.chess960 else ""),
                             tournament.frequency,

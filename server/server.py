@@ -27,6 +27,44 @@ from sortedcollections import ValueSortedDict
 from pythongettext.msgfmt import Msgfmt
 from pythongettext.msgfmt import PoSyntaxError
 
+from typedefs import (
+    db_key,
+    client_key,
+    crosstable_key,
+    daily_puzzle_ids_key,
+    date_key,
+    discord_key,
+    fishnet_queue_key,
+    fishnet_monitor_key,
+    fishnet_versions_key,
+    fishnet_works_key,
+    game_channels_key,
+    games_key,
+    g_cnt_key,
+    gettext_key,
+    highscore_key,
+    invites_key,
+    invite_channels_key,
+    jinja_key,
+    kill_key,
+    lobbychat_key,
+    lobbysockets_key,
+    users_key,
+    shield_key,
+    shield_owners_key,
+    seeks_key,
+    sent_lichess_team_msg_key,
+    stats_key,
+    stats_humans_key,
+    tournaments_key,
+    tourneychat_key,
+    tourneynames_key,
+    tourneysockets_key,
+    tv_key,
+    twitch_key,
+    youtube_key,
+    workers_key,
+)
 from ai import BOT_task
 from broadcast import lobby_broadcast, round_broadcast
 from const import (
@@ -94,7 +132,7 @@ async def handle_404(request, handler):
         return await handler(request)
     except web.HTTPException as ex:
         if ex.status == 404:
-            template = request.app["jinja"]["en"].get_template("404.html")
+            template = request.app[jinja_key]["en"].get_template("404.html")
             text = await template.render_async(
                 {
                     "dev": DEV,
@@ -146,8 +184,8 @@ def make_app(db_client=None) -> Application:
     )
 
     if db_client is not None:
-        app["client"] = db_client
-        app["db"] = app["client"][MONGO_DB_NAME]
+        app[client_key] = db_client
+        app[db_key] = app[client_key][MONGO_DB_NAME]
 
     app.on_startup.append(init_state)
     app.on_shutdown.append(shutdown)
@@ -167,85 +205,85 @@ def make_app(db_client=None) -> Application:
 async def init_state(app):
     # We have to put "kill" into a dict to prevent getting:
     # DeprecationWarning: Changing state of started or joined application is deprecated
-    app["data"] = {"kill": False}
-    app["date"] = {"startedAt": datetime.now(timezone.utc)}
+    app[kill_key] = {"kill": False}
+    app[date_key] = {"startedAt": datetime.now(timezone.utc)}
 
-    if "db" not in app:
-        app["db"] = None
+    if db_key not in app:
+        app[db_key] = None
 
-    app["users"] = Users(app)
-    app["users"]["PyChess"] = User(app, bot=True, username="PyChess")
-    app["users"]["Random-Mover"] = User(app, bot=True, username="Random-Mover")
-    app["users"]["Fairy-Stockfish"] = User(app, bot=True, username="Fairy-Stockfish")
-    app["users"]["Discord-Relay"] = User(app, anon=True, username="Discord-Relay")
+    app[users_key] = Users(app)
+    app[users_key]["PyChess"] = User(app, bot=True, username="PyChess")
+    app[users_key]["Random-Mover"] = User(app, bot=True, username="Random-Mover")
+    app[users_key]["Fairy-Stockfish"] = User(app, bot=True, username="Fairy-Stockfish")
+    app[users_key]["Discord-Relay"] = User(app, anon=True, username="Discord-Relay")
 
-    app["users"]["Random-Mover"].online = True
-    app["lobbysockets"] = {}  # one dict only! {user.username: user.tournament_sockets, ...}
-    app["lobbychat"] = collections.deque([], MAX_CHAT_LINES)
+    app[users_key]["Random-Mover"].online = True
+    app[lobbysockets_key] = {}  # one dict only! {user.username: user.tournament_sockets, ...}
+    app[lobbychat_key] = collections.deque([], MAX_CHAT_LINES)
 
     # one dict per tournament! {tournamentId: {user.username: user.tournament_sockets, ...}, ...}
-    app["tourneysockets"] = {}
+    app[tourneysockets_key] = {}
 
     # translated scheduled tournament names {(variant, frequency, t_type): tournament.name, ...}
-    app["tourneynames"] = {lang: {} for lang in LANGUAGES}
+    app[tourneynames_key] = {lang: {} for lang in LANGUAGES}
 
-    app["tournaments"] = {}
+    app[tournaments_key] = {}
 
     # lichess allows 7 team message per week, so we will send one (comulative) per day only
     # TODO: save/restore from db
-    app["sent_lichess_team_msg"] = []
+    app[sent_lichess_team_msg_key] = []
 
     # one deque per tournament! {tournamentId: collections.deque([], MAX_CHAT_LINES), ...}
-    app["tourneychat"] = {}
+    app[tourneychat_key] = {}
 
-    app["seeks"] = {}
-    app["games"] = {}
-    app["invites"] = {}
-    app["game_channels"] = set()
-    app["invite_channels"] = set()
-    app["highscore"] = {variant: ValueSortedDict(neg) for variant in VARIANTS}
-    app["crosstable"] = {}
-    app["shield"] = {}
-    app["shield_owners"] = {}  # {variant: username, ...}
-    app["daily_puzzle_ids"] = {}  # {date: puzzle._id, ...}
+    app[seeks_key] = {}
+    app[games_key] = {}
+    app[invites_key] = {}
+    app[game_channels_key] = set()
+    app[invite_channels_key] = set()
+    app[highscore_key] = {variant: ValueSortedDict(neg) for variant in VARIANTS}
+    app[crosstable_key] = {}
+    app[shield_key] = {}
+    app[shield_owners_key] = {}  # {variant: username, ...}
+    app[daily_puzzle_ids_key] = {}  # {date: puzzle._id, ...}
 
     # TODO: save/restore monthly stats from db when current month is over
-    app["stats"] = {}
-    app["stats_humans"] = {}
+    app[stats_key] = {}
+    app[stats_humans_key] = {}
 
     # counters for games
-    app["g_cnt"] = [0]
+    app[g_cnt_key] = [0]
 
     # last game played
-    app["tv"] = None
+    app[tv_key] = None
 
-    app["twitch"] = Twitch(app)
+    app[twitch_key] = Twitch(app)
     if not DEV:
-        asyncio.create_task(app["twitch"].init_subscriptions())
+        asyncio.create_task(app[twitch_key].init_subscriptions())
 
-    app["youtube"] = Youtube(app)
+    app[youtube_key] = Youtube(app)
 
     # fishnet active workers
-    app["workers"] = set()
+    app[workers_key] = set()
     # fishnet works
-    app["works"] = {}
+    app[fishnet_works_key] = {}
     # fishnet worker tasks
-    app["fishnet"] = asyncio.PriorityQueue()
+    app[fishnet_queue_key] = asyncio.PriorityQueue()
     # fishnet workers monitor
-    app["fishnet_monitor"] = {}
-    app["fishnet_versions"] = {}
+    app[fishnet_monitor_key] = {}
+    app[fishnet_versions_key] = {}
     for key in FISHNET_KEYS:
-        app["fishnet_monitor"][FISHNET_KEYS[key]] = collections.deque([], 50)
+        app[fishnet_monitor_key][FISHNET_KEYS[key]] = collections.deque([], 50)
 
-    rm = app["users"]["Random-Mover"]
-    ai = app["users"]["Fairy-Stockfish"]
+    rm = app[users_key]["Random-Mover"]
+    ai = app[users_key]["Fairy-Stockfish"]
 
     asyncio.create_task(BOT_task(ai, app))
     asyncio.create_task(BOT_task(rm, app))
 
     # Configure translations and templating.
-    app["gettext"] = {}
-    app["jinja"] = {}
+    app[gettext_key] = {}
+    app[jinja_key] = {}
     base = os.path.dirname(__file__)
     for lang in LANGUAGES:
         # Generate compiled mo file
@@ -277,8 +315,8 @@ async def init_state(app):
         env.install_gettext_translations(translation, newstyle=True)
         env.globals["static"] = static_url
 
-        app["jinja"][lang] = env
-        app["gettext"][lang] = translation
+        app[jinja_key][lang] = env
+        app[gettext_key][lang] = translation
 
         translation.install()
 
@@ -289,33 +327,34 @@ async def init_state(app):
                 or variant in PAUSED_MONTHLY_VARIANTS
             ):
                 tname = translated_tournament_name(variant, MONTHLY, ARENA, translation)
-                app["tourneynames"][lang][(variant, MONTHLY, ARENA)] = tname
+                app[tourneynames_key][lang][(variant, MONTHLY, ARENA)] = tname
             if variant in SEATURDAY or variant in WEEKLY_VARIANTS:
                 tname = translated_tournament_name(variant, WEEKLY, ARENA, translation)
-                app["tourneynames"][lang][(variant, WEEKLY, ARENA)] = tname
+                app[tourneynames_key][lang][(variant, WEEKLY, ARENA)] = tname
             if variant in SHIELDS:
                 tname = translated_tournament_name(variant, SHIELD, ARENA, translation)
-                app["tourneynames"][lang][(variant, SHIELD, ARENA)] = tname
+                app[tourneynames_key][lang][(variant, SHIELD, ARENA)] = tname
 
-    if app["db"] is None:
-        app["discord"] = FakeDiscordBot()
+    if app[db_key] is None:
+        app[discord_key] = FakeDiscordBot()
         return
 
     # create Discord bot
     if DEV:
-        app["discord"] = FakeDiscordBot()
+        app[discord_key] = FakeDiscordBot()
     else:
         bot = DiscordBot(app)
-        app["discord"] = bot
+        app[discord_key] = bot
         asyncio.create_task(bot.start(DISCORD_TOKEN))
 
     # Read tournaments, users and highscore from db
     try:
-        print(len(app["users"]))
-        await app["db"].tournament.create_index("startsAt")
-        await app["db"].tournament.create_index("status")
+        await app[db_key].tournament.create_index("startsAt")
+        await app[db_key].tournament.create_index("status")
 
-        cursor = app["db"].tournament.find({"$or": [{"status": T_STARTED}, {"status": T_CREATED}]})
+        cursor = app[db_key].tournament.find(
+            {"$or": [{"status": T_STARTED}, {"status": T_CREATED}]}
+        )
         cursor.sort("startsAt", -1)
         to_date = (datetime.now() + timedelta(days=SCHEDULE_MAX_DAYS)).date()
         async for doc in cursor:
@@ -330,52 +369,52 @@ async def init_state(app):
 
         asyncio.create_task(generate_shield(app))
 
-        db_collections = await app["db"].list_collection_names()
+        db_collections = await app[db_key].list_collection_names()
 
         # if "highscore" not in db_collections:
         # Always create new highscore lists on server start
-        hs = await generate_highscore(app["db"])
+        hs = await generate_highscore(app[db_key])
         for doc in hs:
-            app["highscore"][doc["_id"]] = ValueSortedDict(neg, doc["scores"])
+            app[highscore_key][doc["_id"]] = ValueSortedDict(neg, doc["scores"])
 
-            for username in app["highscore"][doc["_id"]]:
-                await app["users"].get(username)
+            for username in app[highscore_key][doc["_id"]]:
+                await app[users_key].get(username)
 
         if "crosstable" not in db_collections:
-            await generate_crosstable(app["db"])
-        cursor = app["db"].crosstable.find()
+            await generate_crosstable(app[db_key])
+        cursor = app[db_key].crosstable.find()
         async for doc in cursor:
-            app["crosstable"][doc["_id"]] = doc
+            app[crosstable_key][doc["_id"]] = doc
 
         if "dailypuzzle" not in db_collections:
             try:
-                await app["db"].create_collection("dailypuzzle", capped=True, size=50000, max=365)
+                await app[db_key].create_collection("dailypuzzle", capped=True, size=50000, max=365)
             except NotImplementedError:
-                await app["db"].create_collection("dailypuzzle")
+                await app[db_key].create_collection("dailypuzzle")
         else:
-            cursor = app["db"].dailypuzzle.find()
+            cursor = app[db_key].dailypuzzle.find()
             docs = await cursor.to_list(length=365)
-            app["daily_puzzle_ids"] = {doc["_id"]: doc["puzzleId"] for doc in docs}
+            app[daily_puzzle_ids_key] = {doc["_id"]: doc["puzzleId"] for doc in docs}
 
-        await app["db"].game.create_index("us")
-        await app["db"].game.create_index("r")
-        await app["db"].game.create_index("v")
-        await app["db"].game.create_index("y")
-        await app["db"].game.create_index("by")
-        await app["db"].game.create_index("c")
+        await app[db_key].game.create_index("us")
+        await app[db_key].game.create_index("r")
+        await app[db_key].game.create_index("v")
+        await app[db_key].game.create_index("y")
+        await app[db_key].game.create_index("by")
+        await app[db_key].game.create_index("c")
 
         if "notify" not in db_collections:
-            await app["db"].create_collection("notify")
-        await app["db"].notify.create_index("notifies")
-        await app["db"].notify.create_index("createdAt", expireAfterSeconds=NOTIFY_EXPIRE_SECS)
+            await app[db_key].create_collection("notify")
+        await app[db_key].notify.create_index("notifies")
+        await app[db_key].notify.create_index("createdAt", expireAfterSeconds=NOTIFY_EXPIRE_SECS)
 
         if "seek" not in db_collections:
-            await app["db"].create_collection("seek")
-        await app["db"].seek.create_index("createdAt", expireAfterSeconds=CORR_SEEK_EXPIRE_SECS)
+            await app[db_key].create_collection("seek")
+        await app[db_key].seek.create_index("createdAt", expireAfterSeconds=CORR_SEEK_EXPIRE_SECS)
 
         # Read correspondence seeks
-        async for doc in app["db"].seek.find():
-            user = await app["users"].get(doc["user"])
+        async for doc in app[db_key].seek.find():
+            user = await app[users_key].get(doc["user"])
             if user is not None:
                 seek = Seek(
                     user,
@@ -388,23 +427,23 @@ async def init_state(app):
                     player1=user,
                     created_at=doc["createdAt"],
                 )
-                app["seeks"][seek.id] = seek
+                app[seeks_key][seek.id] = seek
                 user.seeks[seek.id] = seek
 
         # Read correspondence games in play and start their clocks
-        cursor = app["db"].game.find({"r": "d", "c": True})
+        cursor = app[db_key].game.find({"r": "d", "c": True})
         async for doc in cursor:
             if doc["s"] < ABORTED:
                 game = await load_game(app, doc["_id"])
-                app["games"][doc["_id"]] = game
+                app[games_key][doc["_id"]] = game
                 game.wplayer.correspondence_games.append(game)
                 game.bplayer.correspondence_games.append(game)
                 game.stopwatch.restart(from_db=True)
 
         if "video" not in db_collections:
             if DEV:
-                await app["db"].video.drop()
-            await app["db"].video.insert_many(VIDEOS)
+                await app[db_key].video.drop()
+            await app[db_key].video.insert_many(VIDEOS)
 
     except Exception:
         print("Maybe mongodb is not running...")
@@ -421,34 +460,34 @@ async def init_state(app):
 
 
 async def shutdown(app):
-    app["data"]["kill"] = True
+    app[kill_key]["kill"] = True
 
     # notify users
     msg = "Server will restart in about 30 seconds. Sorry for the inconvenience!"
     response = {"type": "lobbychat", "user": "", "message": msg}
-    await lobby_broadcast(app["lobbysockets"], response)
+    await lobby_broadcast(app[lobbysockets_key], response)
 
     response = {"type": "roundchat", "user": "", "message": msg, "room": "player"}
-    for game in list(app["games"].values()):
+    for game in list(app[games_key].values()):
         await round_broadcast(game, response, full=True)
 
     # No need to wait in dev mode and in unit tests
-    if not DEV and app["db"] is not None:
+    if not DEV and app[db_key] is not None:
         print("......WAIT 20")
         await asyncio.sleep(20)
 
     # save corr seeks
-    corr_seeks = [seek.corr_json for seek in app["seeks"].values() if seek.day > 0]
+    corr_seeks = [seek.corr_json for seek in app[seeks_key].values() if seek.day > 0]
     if len(corr_seeks) > 0:
-        await app["db"].seek.delete_many({})
-        await app["db"].seek.insert_many(corr_seeks)
+        await app[db_key].seek.delete_many({})
+        await app[db_key].seek.insert_many(corr_seeks)
 
-    for user in list(app["users"].values()):
+    for user in list(app[users_key].values()):
         if user.bot:
             await user.event_queue.put('{"type": "terminated"}')
 
     # abort games
-    for game in list(app["games"].values()):
+    for game in list(app[games_key].values()):
         if game.status <= STARTED and (not game.corr):
             response = await game.abort_by_server()
             for player in (game.wplayer, game.bplayer):
@@ -460,7 +499,7 @@ async def shutdown(app):
                         print("Failed to send game %s abort to %s" % (game.id, player.username))
 
     # close lobbysockets
-    for user in list(app["users"].values()):
+    for user in list(app[users_key].values()):
         if not user.bot:
             for ws in list(user.game_sockets.values()):
                 try:
@@ -468,12 +507,12 @@ async def shutdown(app):
                 except Exception:
                     pass
 
-    for ws_set in list(app["lobbysockets"].values()):
+    for ws_set in list(app[lobbysockets_key].values()):
         for ws in list(ws_set):
             await ws.close()
 
-    if "client" in app:
-        app["client"].close()
+    if client_key in app:
+        app[client_key].close()
 
 
 if __name__ == "__main__":

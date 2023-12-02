@@ -6,6 +6,20 @@ import aiohttp
 from aiohttp import web
 import aiohttp_session
 
+from typedefs import (
+    db_key,
+    discord_key,
+    games_key,
+    g_cnt_key,
+    invites_key,
+    lobbychat_key,
+    lobbysockets_key,
+    seeks_key,
+    twitch_key,
+    users_key,
+    youtube_key,
+    tv_key,
+)
 from admin import silence
 from broadcast import lobby_broadcast, broadcast_streams
 from chat import chat_response
@@ -39,7 +53,7 @@ async def is_playing(request, user, ws):
 
 
 async def lobby_socket_handler(request):
-    users = request.app["users"]
+    users = request.app[users_key]
 
     session = await aiohttp_session.get_session(request)
     session_user = session.get("user_name")
@@ -49,14 +63,14 @@ async def lobby_socket_handler(request):
         session.invalidate()
         return web.HTTPFound("/")
 
-    sockets = request.app["lobbysockets"]
-    games = request.app["games"]
-    seeks = request.app["seeks"]
-    db = request.app["db"]
-    invites = request.app["invites"]
-    twitch = request.app["twitch"]
-    youtube = request.app["youtube"]
-    lobbychat = request.app["lobbychat"]
+    sockets = request.app[lobbysockets_key]
+    games = request.app[games_key]
+    seeks = request.app[seeks_key]
+    db = request.app[db_key]
+    invites = request.app[invites_key]
+    twitch = request.app[twitch_key]
+    youtube = request.app[youtube_key]
+    lobbychat = request.app[lobbychat_key]
 
     ws = MyWebSocketResponse(heartbeat=3.0, receive_timeout=10.0)
 
@@ -130,7 +144,7 @@ async def lobby_socket_handler(request):
                         seek = await create_seek(db, invites, seeks, user, data, ws)
                         await lobby_broadcast(sockets, get_seeks(seeks))
                         if (seek is not None) and seek.target == "":
-                            await request.app["discord"].send_to_discord(
+                            await request.app[discord_key].send_to_discord(
                                 "create_seek", seek.discord_msg
                             )
 
@@ -255,7 +269,7 @@ async def lobby_socket_handler(request):
                         await ws.send_json(response)
 
                         # send game count
-                        response = {"type": "g_cnt", "cnt": request.app["g_cnt"][0]}
+                        response = {"type": "g_cnt", "cnt": request.app[g_cnt_key][0]}
                         await ws.send_json(response)
 
                         # send user count
@@ -273,8 +287,8 @@ async def lobby_socket_handler(request):
                         if len(streams) > 0:
                             await ws.send_json({"type": "streams", "items": streams})
 
-                        if request.app["tv"] is not None and request.app["tv"] in games:
-                            await ws.send_json(games[request.app["tv"]].tv_game_json)
+                        if request.app[tv_key] is not None and request.app[tv_key] in games:
+                            await ws.send_json(games[request.app[tv_key]].tv_game_json)
 
                         await user.update_seeks(pending=False)
 
@@ -347,7 +361,7 @@ async def lobby_socket_handler(request):
                             await lobby_broadcast(sockets, response)
 
                         if user.silence == 0 and not admin_command:
-                            await request.app["discord"].send_to_discord(
+                            await request.app[discord_key].send_to_discord(
                                 "lobbychat", data["message"], user.username
                             )
 
