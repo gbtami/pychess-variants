@@ -16,7 +16,7 @@ from bot_api import (
 )
 from fishnet import (
     fishnet_monitor,
-    fishnet_key,
+    fishnet_validate_key,
     fishnet_acquire,
     fishnet_abort,
     fishnet_analysis,
@@ -131,7 +131,7 @@ get_routes = (
     ("/games/json/{profileId}", get_user_games),
     ("/tournament/json/{tournamentId}", get_tournament_games),
     ("/fishnet/monitor", fishnet_monitor),
-    ("/fishnet/key/{key}", fishnet_key),
+    ("/fishnet/key/{key}", fishnet_validate_key),
     ("/robots.txt", robots),
 )
 

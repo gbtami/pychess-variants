@@ -101,7 +101,7 @@ class Seek:
 
 async def create_seek(db, invites, seeks, user, data, ws, empty=False):
     """Seek can be
-    - invite (has reserved new game id strored in app['invites'], and target is 'Invite-friend')
+    - invite (has reserved new game id strored in app[invites], and target is 'Invite-friend')
     - challenge (has another username as target)
     - normal seek (no target)
 

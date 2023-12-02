@@ -8,6 +8,16 @@ import aiohttp
 from aiohttp import web
 import aiohttp_session
 
+from typedefs import (
+    db_key,
+    fishnet_queue_key,
+    fishnet_versions_key,
+    fishnet_works_key,
+    lobbysockets_key,
+    seeks_key,
+    users_key,
+    workers_key,
+)
 from broadcast import lobby_broadcast, round_broadcast
 from chat import chat_response
 from const import ANALYSIS, STARTED
@@ -32,7 +42,7 @@ MORE_TIME = 15 * 1000
 
 
 async def round_socket_handler(request):
-    users = request.app["users"]
+    users = request.app[users_key]
 
     session = await aiohttp_session.get_session(request)
     session_user = session.get("user_name")
@@ -42,9 +52,9 @@ async def round_socket_handler(request):
         session.invalidate()
         return web.HTTPFound("/")
 
-    sockets = request.app["lobbysockets"]
-    seeks = request.app["seeks"]
-    db = request.app["db"]
+    sockets = request.app[lobbysockets_key]
+    seeks = request.app[seeks_key]
+    db = request.app[db_key]
 
     ws = MyWebSocketResponse(heartbeat=3.0, receive_timeout=15.0)
 
@@ -236,7 +246,7 @@ async def round_socket_handler(request):
 
                     elif data["type"] == "analysis":
                         # If there is any fishnet client, use it.
-                        if len(request.app["workers"]) > 0:
+                        if len(request.app[workers_key]) > 0:
                             work_id = "".join(
                                 random.choice(string.ascii_letters + string.digits)
                                 for x in range(6)
@@ -262,8 +272,8 @@ async def round_socket_handler(request):
                                 "nodes": 500000,  # optional limit
                                 #  "skipPositions": [1, 4, 5]  # 0 is the first position
                             }
-                            request.app["works"][work_id] = work
-                            request.app["fishnet"].put_nowait((ANALYSIS, work_id))
+                            request.app[fishnet_works_key][work_id] = work
+                            request.app[fishnet_queue_key].put_nowait((ANALYSIS, work_id))
                         else:
                             engine = users.get("Fairy-Stockfish")
 
@@ -620,7 +630,7 @@ async def round_socket_handler(request):
                         # Users running a fishnet worker can ask server side analysis with chat message: !analysis
                         if (
                             data["message"] == "!analysis"
-                            and user.username in request.app["fishnet_versions"]
+                            and user.username in request.app[fishnet_versions_key]
                         ):
                             for step in game.steps:
                                 if "analysis" in step:
