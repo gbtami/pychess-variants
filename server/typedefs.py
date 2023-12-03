@@ -6,9 +6,10 @@ import jinja2
 from motor.motor_asyncio import AsyncIOMotorDatabase, AsyncIOMotorClient
 
 
+db_key = AppKey("db", AsyncIOMotorDatabase)
+calendar_key = AppKey("calendar", dict)
 client_key = AppKey("client", AsyncIOMotorClient)
 crosstable_key = AppKey("crosstable", dict)
-db_key = AppKey("db", AsyncIOMotorDatabase)
 kill_key = AppKey("kill", dict)
 daily_puzzle_ids_key = AppKey("daily_puzzle_ids", dict)
 date_key = AppKey("date", dict)
