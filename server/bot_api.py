@@ -4,7 +4,7 @@ import logging
 
 from aiohttp import web
 
-from typedefs import db_key, games_key, lobbysockets_key, users_key
+from typedefs import db_key, games_key, lobbysockets_key, seeks_key, users_key
 from const import STARTED, RESIGN
 from broadcast import round_broadcast, lobby_broadcast
 from user import User
@@ -75,7 +75,7 @@ async def create_bot_seek(request):
     data = await request.post()
 
     users = request.app[users_key]
-    seeks = request.app["seeks"]
+    seeks = request.app[seeks_key]
     sockets = request.app[lobbysockets_key]
 
     bot_player = users[username]
@@ -138,7 +138,7 @@ async def event_stream(request):
     username = user_agent[user_agent.find("user:") + 5 :]
 
     users = request.app[users_key]
-    seeks = request.app["seeks"]
+    seeks = request.app[seeks_key]
     sockets = request.app[lobbysockets_key]
     games = request.app[games_key]
     db = request.app[db_key]

@@ -37,7 +37,7 @@ class User:
         theme="dark",
     ):
         self.app = app
-        self.db = app[db_key] if "db" in app else None
+        self.db = app[db_key] if db_key in app else None
         self.bot = False if username == "PyChessBot" else bot
         self.anon = anon
         self.lang = lang
