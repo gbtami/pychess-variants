@@ -292,6 +292,7 @@ class User:
             await lobby_broadcast(sockets, get_seeks(seeks))
 
     async def send_game_message(self, game_id, message):
+        # todo:niki:for now just logging dropped messages, but at some point should evaluate whether to queue them, or include info about the state they communicate in some more general message that is always sent on reconnect so client doesnt lose state
         ws = self.game_sockets.get(game_id)
         log.debug("Sending message %s to %s. ws = %r", message, self.username, ws);
         if ws is not None:
