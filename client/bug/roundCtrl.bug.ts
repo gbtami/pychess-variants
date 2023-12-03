@@ -544,20 +544,9 @@ export class RoundControllerBughouse implements ChatController/*extends GameCont
                           board: b.boardName,
                           partnerFen: b.partnerCC.fullfen/*b.partnerCC.chessground.getFen()*//*b.partnerCC.fullfen this might not be up-to-date in simul mode if disconnect happened and move was made but not sent+received+model_updated so we use chessground*/,
                           lastMoveCapturedRole: b.lastMoveCapturedPiece? b.lastMoveCapturedPiece?.color === 'white'? b.lastMoveCapturedPiece?.role.split("-")[0].toUpperCase(): b.lastMoveCapturedPiece?.role.split("-")[0].toLowerCase(): undefined,
-        };
+        } as MsgMove;
 
-        // todo: overly explicit and redundant in case of not simuling. even when simuling if 2 conseq moves are
-        //       on same board it will send both even tho obviously it only needs
-        //       to send the last, because the fact we made 2 moves on same board means we received reply with opps move
-        //       meaning first move was processed and no point to resend
-        if (this.msgMovesAfterReconnect.movesQueued.length == 2) {
-            this.msgMovesAfterReconnect.movesQueued[0] = this.msgMovesAfterReconnect.movesQueued[1];
-            this.msgMovesAfterReconnect.movesQueued[1] = moveMsg;
-        } else if (this.msgMovesAfterReconnect.movesQueued.length == 1) {
-            this.msgMovesAfterReconnect.movesQueued[1] = moveMsg;
-        } else { //length == 0
-            this.msgMovesAfterReconnect.movesQueued[0] = moveMsg;
-        }
+        this.updateLastMovesRecorded(moveMsg);
 
         this.doSend(moveMsg as JSONObject);
 
@@ -565,6 +554,52 @@ export class RoundControllerBughouse implements ChatController/*extends GameCont
             clocks[myclock].setTime(clocktimes[moveColor] + increment);
         }
         if (this.clockOn) clocks[oppclock].start();
+    }
+
+    private updateLastMovesRecorded = (moveMsg: MsgMove) => {
+        // todo: overly complicated logic just for the sake of preserving the order of the last 2 moves for each
+        //       board in case of simul mode so when re-sent after disconnect they get processed in the same order.
+        //       probably can be written more elegantly and not sure whats the value in preserving the order except
+        //       maybe to be consistent with recorded time of the move.
+        // todo:niki: But more importantly, the fact we made 2 moves on same board should mean we don't need to re-send
+        //       the move from the other board, thus no need to preserve that move, thus no need to preserve the order,
+        //       but might as well just clean the list and only keep the new move. Keeping both moves for both board is
+        //       needed only if they were made one after the other, because only then we are not sure if they were
+        //       received.
+        // todo:niki: What's more, even then we can be sure if one of them was received as long as we received
+        //       confirmation that it was made so on such even we can remove it from this list. This however will not
+        //       remove the need for server-side check for double processing, because a move can still have been received
+        //       and processed on the server, but connection got broken after that and we never received confirmation
+        if (this.msgMovesAfterReconnect.movesQueued.length == 2) {
+            // only relevant for simul mode
+            if (this.msgMovesAfterReconnect.movesQueued[0].board === moveMsg.board) {
+                // new move is on a board, different than the previous move.
+                // Previous moves to 0 to be processed first in case of resent, the new one to 1, to be processed second
+                this.msgMovesAfterReconnect.movesQueued[0] = this.msgMovesAfterReconnect.movesQueued[1];
+                this.msgMovesAfterReconnect.movesQueued[1] = moveMsg;
+            } else {
+                // new move is on the same board as the previous move.
+                // Still we want to process the older move from the other board first (tbh we really dont need to process
+                // it at all in this particular case probably), so board order remains the same and just this board's move gets replaced
+                this.msgMovesAfterReconnect.movesQueued[1] = moveMsg;
+            }
+        } else if (this.msgMovesAfterReconnect.movesQueued.length == 1) {
+            if (this.msgMovesAfterReconnect.movesQueued[0].board === moveMsg.board) {
+                // in non-simul mode, this is the only case that is relevant after the first move
+                // length always stays 1 after that and board is always the same
+                // in simul mode, this case is only entered after 1st move and until a move is made on the other board
+                // than the one the first move was made on. From then on length is always 2
+                this.msgMovesAfterReconnect.movesQueued[0] = moveMsg;
+            } else {
+                // this case only ever entered once, when in simul mode, the first time the player moves on a
+                // different board than the one on which their first move was made. From then on length is always 2
+                this.msgMovesAfterReconnect.movesQueued[1] = moveMsg;
+            }
+        } else { //length == 0
+            // this case only ever entered once, when first move was made.
+            this.msgMovesAfterReconnect.movesQueued[0] = moveMsg;
+        }
+
     }
 
     //
@@ -955,9 +990,9 @@ export class RoundControllerBughouse implements ChatController/*extends GameCont
         // todo:niki: i dont understand below comment which i copied together with the code. Also probably good to check if status < 0 and reset premoes if game ended, instead of performing them
         // prevent sending premove/predrop when (auto)reconnecting websocked asks server to (re)sends the same board to us
         // console.log("trying to play premove....");
-        // todo:niki: I am not sure if I should always call this even if there is a premove made. It is not clear when this message is received it is always the correct turn on the board where the premove was made. See if there is a check for that in performPremove() or it just sends it:
-        if (this.b1.premove) this.b1.performPremove();
-        if (this.b2.premove) this.b2.performPremove();
+
+        if (this.b1.premove && this.b1.turnColor == this.myColor.get('a')) this.b1.performPremove();
+        if (this.b2.premove && this.b2.turnColor == this.myColor.get('b')) this.b2.performPremove();
     }
 
     private updateSingleBoardAndClocks = (board: GameControllerBughouse, fen: cg.FEN, fenPartner: cg.FEN, lastMove: cg.Orig[] | undefined, step: Step,
@@ -1232,7 +1267,7 @@ export class RoundControllerBughouse implements ChatController/*extends GameCont
         }
         // We always need this to get possible moves made while our websocket connection was established
         // fixes https://github.com/gbtami/pychess-variants/issues/962
-        this.doSend({ type: "board", gameId: this.gameId });
+        this.doSend({ type: "board", gameId: this.gameId }); // todo:niki: i already commented about this in the same line for single board ctrl. this should come with the first roundtrip not do one million requests for everyhitng. also, is this ever get executed - i have memory i send board on ohter event as well, but maybe i remember wrong?
     }
 
     private onMsgUserPresent = (msg: MsgUserPresent) => {

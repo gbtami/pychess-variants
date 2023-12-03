@@ -470,7 +470,11 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
-    logging.basicConfig()
+    # FORMAT = '%(asctime)-15s %(message)s'
+    FORMAT = ('\n[%(levelname)s/%(name)s:%(lineno)d] %(asctime)s ' +
+                  '(%(processName)s/%(threadName)s)\n> %(message)s')
+    DATEFMT = '%Y-%m-%d %H:%M:%S'
+    logging.basicConfig(format=FORMAT, datefmt=DATEFMT) # todo:niki:what is the difference with settings.py same call - why have it in 2 places, who calls the other one?
     logging.getLogger().setLevel(
         level=logging.DEBUG if args.v else logging.WARNING if args.w else logging.INFO
     )

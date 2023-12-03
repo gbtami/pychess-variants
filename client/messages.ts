@@ -142,7 +142,7 @@ export type MsgMove = { // cannot be interface because canot be converted to an 
      ply: number;
      board?: 'a' | 'b';
      partnerFen?: cg.FEN;  // todo:niki:not needed anymore. replaced by sending only captured role, which is still bad.
-     lastMoveCapturedRole?: cg.Role; // todo:niki:calculate this on server somehow
+     lastMoveCapturedRole?: string; // role single letter as in normal notation, without the "-piece" suffix of cg.Role type // todo:niki:calculate this on server somehow
 }
 
 export type MsgMovesAfterReconnect = {

@@ -238,12 +238,7 @@ async def round_socket_handler(request):
                             await ws.send_json(response)
 
                             if not opp_player.bot:
-                                try:
-                                    opp_ws = users[opp_name].game_sockets[data["gameId"]]
-                                    await opp_ws.send_json(response)
-                                except KeyError:
-                                    # opp disconnected
-                                    pass
+                                await opp_player.send_game_message(data["gameId"], response)
 
                         await game.save_setup()
 
@@ -424,8 +419,7 @@ async def round_socket_handler(request):
                                 await opp_player.game_queues[data["gameId"]].put(game.game_end)
                         else:
                             try:
-                                opp_ws = users[opp_name].game_sockets[data["gameId"]]
-                                await opp_ws.send_json(response)
+                                await users[opp_name].send_game_message(data["gameId"], response)
                             except KeyError:
                                 log.error("Opp disconnected", stack_info=True, exc_info=True)
                                 # opp disconnected
@@ -497,7 +491,7 @@ async def round_socket_handler(request):
                     elif data["type"] == "game_user_connected":
                         # todo:niki: i dont get this. if seesion_user is none (which is perfectly normal if user didnt log in), we allow whoever sent this message to impersonate anyone?
                         if session_user is not None:
-                            if data["username"] and data["username"] != session_user:
+                            if data["username"] and data["username"] != session_user: # todo:niki: how is this even possible and what reason to do it other than actually allow hacking
                                 log.info(
                                     "+++ Existing game_user %s socket connected as %s.",
                                     session_user,
@@ -520,6 +514,11 @@ async def round_socket_handler(request):
                                 ):
                                     game.spectators.add(user)
                             else:
+                                log.info(
+                                    "+++ Existing game_user %s socket connected as %s. Same as session user",
+                                    session_user,
+                                    data["username"],
+                                )
                                 if session_user in users:
                                     user = users[session_user]
                                 else:
@@ -529,7 +528,7 @@ async def round_socket_handler(request):
                                         anon=data["username"].startswith("Anon-"),
                                     )
                                     users[user.username] = user
-                        else:
+                        else: # todo:niki: again one more case to be absolutely sure we allow hacking not only when user of the existing session is different than the one that declares themselves now with this message (which case we handle above), but also for the case when current session has no user at all to be absolutely sure hacker can impersonate other players even in such cases
                             log.info(
                                 "+++ Existing game_user %s socket reconnected.",
                                 data["username"],
@@ -547,7 +546,9 @@ async def round_socket_handler(request):
 
                         # update websocket
                         if data["gameId"] in user.game_sockets:
+                            log.debug("Closing existing socket, before replacing it with the new one. Hopefully I dont see printed, otherwise I have no idea how it even happens and how could it work at all")
                             await user.game_sockets[data["gameId"]].close() # todo:niki: what happens if this thrwos exception? it will fail to initialize below stuff
+                        log.debug("Setting user %r game_socket[%s] = %r", user, data["gameId"], ws)
                         user.game_sockets[data["gameId"]] = ws
                         user.update_online()
 

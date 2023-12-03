@@ -301,7 +301,7 @@ class User:
                 log.error("dropping message %s for %s", stack_info=True, exc_info=True)
         else:
             log.error("No ws for that game. Dropping message %s for %s", message, self.username)
-
+            log.debug("Currently user %s has these game_sockets: %r", self.username, self.game_sockets)
     def __str__(self):
         return "%s %s bot=%s" % (self.title, self.username, self.bot)
 
