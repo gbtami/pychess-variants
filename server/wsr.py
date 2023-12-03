@@ -60,7 +60,7 @@ async def round_socket_handler(request):
     game = None
     opp_ws = None
 
-    log.info("--- NEW round WEBSOCKET by %s from %s", session_user, request.remote)
+    log.info("--- NEW round WEBSOCKET %s by %s from %s", id(ws), session_user, request.remote)
 
     try:
         async for msg in ws:
@@ -480,7 +480,7 @@ async def round_socket_handler(request):
                             if data["gameId"] in opp_player.game_queues:
                                 await opp_player.game_queues[data["gameId"]].put(game.game_end)
                         else:
-                            users[opp_name].send_game_message(data["gameId"], response)
+                            await users[opp_name].send_game_message(data["gameId"], response)
 
                         await round_broadcast(game, response)
 
@@ -546,9 +546,9 @@ async def round_socket_handler(request):
 
                         # update websocket
                         if data["gameId"] in user.game_sockets:
-                            log.debug("Closing existing socket, before replacing it with the new one. Hopefully I dont see printed, otherwise I have no idea how it even happens and how could it work at all")
+                            log.debug("Closing existing socket %s, before replacing it with the new one. Maybe we shuldnt close it tho if it is the same?", id(user.game_sockets[data["gameId"]]))
                             await user.game_sockets[data["gameId"]].close() # todo:niki: what happens if this thrwos exception? it will fail to initialize below stuff
-                        log.debug("Setting user %r game_socket[%s] = %r", user, data["gameId"], ws)
+                        log.debug("Setting user %r game_socket[%s] = %r", user, data["gameId"], id(ws))
                         user.game_sockets[data["gameId"]] = ws
                         user.update_online()
 
@@ -619,7 +619,7 @@ async def round_socket_handler(request):
 
                         if not opp_player.bot:
                             response = {"type": "moretime", "username": opp_name}
-                            users[opp_name].send_game_message(data["gameId"], response)
+                            await users[opp_name].send_game_message(data["gameId"], response)
                             await round_broadcast(game, response)
                     elif data["type"] == "bugroundchat":
                         gameId = data["gameId"]
@@ -642,7 +642,7 @@ async def round_socket_handler(request):
                         recipients = list(dict.fromkeys(recipients)) # remove duplicates - can have if simuling (not that it makes sense to have this chat in simul mode but anyway)
                         for name in recipients:
                             player = users[name]
-                            player.send_game_message(gameId, response)
+                            await player.send_game_message(gameId, response)
 
                         await round_broadcast(game, response)
 
@@ -683,7 +683,7 @@ async def round_socket_handler(request):
                                         % (user.username, message)
                                     )
                             else:
-                                player.send_game_message(gameId, response)
+                                await player.send_game_message(gameId, response)
 
                         await round_broadcast(game, response)
 
@@ -768,7 +768,7 @@ async def round_socket_handler(request):
 
             else:
                 log.debug("--- Round ws other msg.type %s %s", msg.type, msg)
-
+        log.info("--- Round websocket %s closed", id(ws))
     except OSError:
         # disconnected?
         log.exception("ERROR: OSError in round_socket_handler() owned by %s ", session_user)
@@ -782,8 +782,10 @@ async def round_socket_handler(request):
 
         if game is not None and user is not None and not user.bot:
             if game.id in user.game_sockets:
-                del user.game_sockets[game.id]
-                user.update_online()
+                log.debug("Socket %s has been closed. Removing it from user's game_sockets, but only if (%r) current game_socket is the same as it might have meanwhile been re-initialized. Current game_socket: %d", id(ws), (user.game_sockets[game.id] == ws), id(user.game_sockets[game.id]))
+                if user.game_sockets[game.id] == ws:
+                    del user.game_sockets[game.id]
+                    user.update_online()
 
             if user in (game.wplayer, game.bplayer) and (not game.corr):
                 user.abandon_game_task = asyncio.create_task(user.abandon_game(game))
