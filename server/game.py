@@ -88,7 +88,7 @@ class Game:
         tournamentId=None,
     ):
         self.app = app
-        self.db = app[db_key] if "db" in app else None
+        self.db = app[db_key] if db_key in app else None
         self.users = app[users_key]
         self.games = app[games_key]
         self.highscore = app[highscore_key]
