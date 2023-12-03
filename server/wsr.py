@@ -23,7 +23,6 @@ from chat import chat_response
 from const import ANON_PREFIX, ANALYSIS, STARTED
 from fairy import WHITE, BLACK
 from seek import challenge, Seek
-from user import User
 from draw import draw, reject_draw
 from utils import (
     analysis_move,
@@ -487,57 +486,6 @@ async def round_socket_handler(request):
                         await ws.send_json(response)
 
                     elif data["type"] == "game_user_connected":
-                        if session_user is not None:
-                            if data["username"] and data["username"] != session_user:
-                                log.info(
-                                    "+++ Existing game_user %s socket connected as %s.",
-                                    session_user,
-                                    data["username"],
-                                )
-                                session_user = data["username"]
-                                if session_user in users:
-                                    user = users[session_user]
-                                else:
-                                    user = User(
-                                        request.app,
-                                        username=data["username"],
-                                        anon=data["username"].startswith(ANON_PREFIX),
-                                    )
-                                    users[user.username] = user
-
-                                # Update logged in users as spactators
-                                if (
-                                    user.username != game.wplayer.username
-                                    and user.username != game.bplayer.username
-                                    and game is not None
-                                ):
-                                    game.spectators.add(user)
-                            else:
-                                if session_user in users:
-                                    user = users[session_user]
-                                else:
-                                    user = User(
-                                        request.app,
-                                        username=data["username"],
-                                        anon=data["username"].startswith(ANON_PREFIX),
-                                    )
-                                    users[user.username] = user
-                        else:
-                            log.info(
-                                "+++ Existing game_user %s socket reconnected.",
-                                data["username"],
-                            )
-                            session_user = data["username"]
-                            if session_user in users:
-                                user = users[session_user]
-                            else:
-                                user = User(
-                                    request.app,
-                                    username=data["username"],
-                                    anon=data["username"].startswith(ANON_PREFIX),
-                                )
-                                users[user.username] = user
-
                         # update websocket
                         if data["gameId"] in user.game_sockets:
                             await user.game_sockets[data["gameId"]].close()

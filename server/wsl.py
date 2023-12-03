@@ -26,7 +26,6 @@ from chat import chat_response
 from const import ANON_PREFIX, STARTED
 from settings import ADMINS, TOURNAMENT_DIRECTORS
 from seek import challenge, create_seek, get_seeks, Seek
-from user import User
 from utils import join_seek, load_game, online_count, MyWebSocketResponse, remove_seek
 from misc import server_state
 from tournament_spotlights import tournament_spotlights
@@ -211,49 +210,6 @@ async def lobby_socket_handler(request):
                         await lobby_broadcast(sockets, get_seeks(seeks))
 
                     elif data["type"] == "lobby_user_connected":
-                        if session_user is not None:
-                            if data["username"] and data["username"] != session_user:
-                                log.info(
-                                    "+++ Existing lobby_user %s socket connected as %s.",
-                                    session_user,
-                                    data["username"],
-                                )
-                                session_user = data["username"]
-                                if session_user in users:
-                                    user = users[session_user]
-                                else:
-                                    user = User(
-                                        request.app,
-                                        username=data["username"],
-                                        anon=data["username"].startswith(ANON_PREFIX),
-                                    )
-                                    users[user.username] = user
-                            else:
-                                if session_user in users:
-                                    user = users[session_user]
-                                else:
-                                    user = User(
-                                        request.app,
-                                        username=data["username"],
-                                        anon=data["username"].startswith(ANON_PREFIX),
-                                    )
-                                    users[user.username] = user
-                        else:
-                            log.info(
-                                "+++ Existing lobby_user %s socket reconnected.",
-                                data["username"],
-                            )
-                            session_user = data["username"]
-                            if session_user in users:
-                                user = users[session_user]
-                            else:
-                                user = User(
-                                    request.app,
-                                    username=data["username"],
-                                    anon=data["username"].startswith(ANON_PREFIX),
-                                )
-                                users[user.username] = user
-
                         # update websocket
                         user.lobby_sockets.add(ws)
                         user.update_online()
@@ -331,11 +287,12 @@ async def lobby_socket_handler(request):
                                 admin_command = True
                                 parts = message.split()
                                 if len(parts) == 2 and parts[1] in users and parts[1] not in ADMINS:
-                                    users[parts[1]].enabled = False
+                                    banned_user = await users.get(parts[1])
+                                    banned_user.enabled = False
                                     await db.user.find_one_and_update(
                                         {"_id": parts[1]}, {"$set": {"enabled": False}}
                                     )
-                                    await logout(None, users[parts[1]])
+                                    await logout(None, banned_user)
 
                             elif message == "/state":
                                 admin_command = True

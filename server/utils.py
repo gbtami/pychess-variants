@@ -30,7 +30,6 @@ from typedefs import (
 )
 from broadcast import lobby_broadcast, round_broadcast
 from const import (
-    ANON_PREFIX,
     NOTIFY_PAGE_SIZE,
     STARTED,
     VARIANT_960_TO_PGN,
@@ -48,7 +47,6 @@ from convert import mirror5, mirror9, usi2uci, grand2zero, zero2grand
 from fairy import BLACK, STANDARD_FEN, FairyBoard
 from game import Game, MAX_PLY
 from newid import new_id
-from user import User
 from settings import URI
 
 log = logging.getLogger(__name__)
@@ -99,23 +97,9 @@ async def load_game(app, game_id):
         return None
 
     wp, bp = doc["us"]
-    if wp in users:
-        wplayer = users[wp]
-    else:
-        if wp.startswith(ANON_PREFIX):
-            wplayer = User(app, username=wp, anon=True)
-            users[wp] = wplayer
-        else:
-            wplayer = await users.get(wp)
 
-    if bp in users:
-        bplayer = users[bp]
-    else:
-        if bp.startswith(ANON_PREFIX):
-            bplayer = User(app, username=bp, anon=True)
-            users[bp] = bplayer
-        else:
-            bplayer = await users.get(bp)
+    wplayer = await users.get(wp)
+    bplayer = await users.get(bp)
 
     variant = C2V[doc["v"]]
 
@@ -323,14 +307,7 @@ async def import_game(request):
     bp = data["Black"]
 
     wplayer = await users.get(wp)
-    if wplayer is None:
-        wplayer = User(app, username=wp, anon=True)
-        users[wp] = wplayer
-
     bplayer = await users.get(bp)
-    if bplayer is None:
-        bplayer = User(app, username=bp, anon=True)
-        users[bp] = bplayer
 
     variant = data.get("Variant", "chess").lower()
     chess960 = variant.endswith("960")

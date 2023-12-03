@@ -1,8 +1,8 @@
 from collections import UserDict
 
-from typedefs import db_key
+from typedefs import db_key, users_key
 from glicko2.glicko2 import DEFAULT_PERF
-from const import VARIANTS
+from const import ANON_PREFIX, VARIANTS
 from user import User
 
 
@@ -21,6 +21,11 @@ class Users(UserDict):
     async def get(self, username):
         if username in self.data:
             return self.data[username]
+
+        if username.startswith(ANON_PREFIX):
+            user = User(self.app, username=username, anon=True)
+            self.app[users_key][username] = user
+            return user
 
         doc = await self.app[db_key].user.find_one({"_id": username})
         if doc is None:
