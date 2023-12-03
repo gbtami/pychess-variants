@@ -57,7 +57,7 @@ class CorrJanggiGameTestCase(AioHTTPTestCase):
         self.app[users_key]["blue"] = blue_player
         self.app[users_key]["red"] = red_player
 
-        db = self.app["db"]
+        db = self.app[db_key]
         await db.user.delete_many({})
         await db.user.insert_one({"_id": "blue"})
         await db.user.insert_one({"_id": "red"})

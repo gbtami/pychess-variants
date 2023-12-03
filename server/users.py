@@ -1,5 +1,6 @@
 from collections import UserDict
 
+from typedefs import db_key
 from glicko2.glicko2 import DEFAULT_PERF
 from const import VARIANTS
 from user import User
@@ -21,7 +22,7 @@ class Users(UserDict):
         if username in self.data:
             return self.data[username]
 
-        doc = await self.app["db"].user.find_one({"_id": username})
+        doc = await self.app[db_key].user.find_one({"_id": username})
         if doc is None:
             print("--- users.get() %s NOT IN db ---" % username)
             return None
