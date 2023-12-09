@@ -44,7 +44,7 @@ from const import (
     TRANSLATED_PAIRING_SYSTEM_NAMES,
 )
 from fairy import FairyBoard
-from glicko2.glicko2 import DEFAULT_PERF, PROVISIONAL_PHI
+from glicko2.glicko2 import PROVISIONAL_PHI
 from robots import ROBOTS_TXT
 from settings import (
     ADMINS,
@@ -115,17 +115,7 @@ async def index(request):
                 session.invalidate()
                 return web.HTTPFound(request.rel_url)
 
-            log.debug("New lichess user %s joined.", session_user)
-            title = session["title"] if "title" in session else ""
-            perfs = {variant: DEFAULT_PERF for variant in VARIANTS}
-            user = User(
-                request.app,
-                username=session_user,
-                anon=session["guest"],
-                title=title,
-                perfs=perfs,
-            )
-            users[user.username] = user
+            user = await users.get(session_user)
     else:
         user = User(request.app, anon=True)
         log.info("+++ New guest user %s connected.", user.username)
