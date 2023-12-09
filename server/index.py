@@ -31,6 +31,7 @@ from typedefs import (
     users_key,
 )
 from const import (
+    ANON_PREFIX,
     LANGUAGES,
     TROPHIES,
     VARIANTS,
@@ -110,7 +111,7 @@ async def index(request):
         if session_user in users:
             user = users[session_user]
         else:
-            if session_user.startswith("Anon-"):
+            if session_user.startswith(ANON_PREFIX):
                 session.invalidate()
                 return web.HTTPFound(request.rel_url)
 

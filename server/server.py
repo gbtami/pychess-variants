@@ -87,7 +87,6 @@ from discord_bot import DiscordBot, FakeDiscordBot
 from generate_crosstable import generate_crosstable
 from generate_highscore import generate_highscore
 from generate_shield import generate_shield
-from glicko2.glicko2 import DEFAULT_PERF
 from routes import get_routes, post_routes
 from seek import Seek
 from settings import (
@@ -105,6 +104,7 @@ from settings import (
     SOURCE_VERSION,
 )
 from user import User
+from users import Users
 from utils import load_game
 from tournaments import load_tournament, get_scheduled_tournaments, translated_tournament_name
 from twitch import Twitch
@@ -211,12 +211,12 @@ async def init_state(app):
     if db_key not in app:
         app[db_key] = None
 
-    app[users_key] = {
-        "PyChess": User(app, bot=True, username="PyChess"),
-        "Random-Mover": User(app, bot=True, username="Random-Mover"),
-        "Fairy-Stockfish": User(app, bot=True, username="Fairy-Stockfish"),
-        "Discord-Relay": User(app, anon=True, username="Discord-Relay"),
-    }
+    app[users_key] = Users(app)
+    app[users_key]["PyChess"] = User(app, bot=True, username="PyChess")
+    app[users_key]["Random-Mover"] = User(app, bot=True, username="Random-Mover")
+    app[users_key]["Fairy-Stockfish"] = User(app, bot=True, username="Fairy-Stockfish")
+    app[users_key]["Discord-Relay"] = User(app, anon=True, username="Discord-Relay")
+
     app[users_key]["Random-Mover"].online = True
     app[lobbysockets_key] = {}  # one dict only! {user.username: user.tournament_sockets, ...}
     app[lobbychat_key] = collections.deque([], MAX_CHAT_LINES)
@@ -349,24 +349,6 @@ async def init_state(app):
 
     # Read tournaments, users and highscore from db
     try:
-        cursor = app[db_key].user.find()
-        async for doc in cursor:
-            if doc["_id"] not in app[users_key]:
-                perfs = doc.get("perfs", {variant: DEFAULT_PERF for variant in VARIANTS})
-                pperfs = doc.get("pperfs", {variant: DEFAULT_PERF for variant in VARIANTS})
-
-                app[users_key][doc["_id"]] = User(
-                    app,
-                    username=doc["_id"],
-                    title=doc.get("title"),
-                    bot=doc.get("title") == "BOT",
-                    perfs=perfs,
-                    pperfs=pperfs,
-                    enabled=doc.get("enabled", True),
-                    lang=doc.get("lang", "en"),
-                    theme=doc.get("theme", "dark"),
-                )
-
         await app[db_key].tournament.create_index("startsAt")
         await app[db_key].tournament.create_index("status")
 
@@ -394,6 +376,9 @@ async def init_state(app):
         hs = await generate_highscore(app[db_key])
         for doc in hs:
             app[highscore_key][doc["_id"]] = ValueSortedDict(neg, doc["scores"])
+
+            for username in app[highscore_key][doc["_id"]]:
+                await app[users_key].get(username)
 
         if "crosstable" not in db_collections:
             await generate_crosstable(app[db_key])
@@ -429,7 +414,7 @@ async def init_state(app):
 
         # Read correspondence seeks
         async for doc in app[db_key].seek.find():
-            user = app[users_key].get(doc["user"])
+            user = await app[users_key].get(doc["user"])
             if user is not None:
                 seek = Seek(
                     user,

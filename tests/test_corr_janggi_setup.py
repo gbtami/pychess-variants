@@ -11,6 +11,7 @@ from typedefs import db_key, games_key, users_key, seeks_key
 from const import VARIANTS, STARTED
 from glicko2.glicko2 import DEFAULT_PERF
 from user import User
+from users import Users
 from utils import join_seek, load_game
 from seek import Seek
 from server import make_app
@@ -49,16 +50,21 @@ class CorrJanggiGameTestCase(AioHTTPTestCase):
     async def tearDownAsync(self):
         await self.client.close()
 
-    def create_users(self):
+    async def create_users(self):
         blue_player = User(self.app, username="blue", perfs=PERFS)
         red_player = User(self.app, username="red", perfs=PERFS)
 
         self.app[users_key]["blue"] = blue_player
         self.app[users_key]["red"] = red_player
 
+        db = self.app[db_key]
+        await db.user.delete_many({})
+        await db.user.insert_one({"_id": "blue"})
+        await db.user.insert_one({"_id": "red"})
+
     async def server_restart(self):
         self.app[games_key] = {}
-        self.app[users_key] = {}
+        self.app[users_key] = Users(self.app)
 
         games = self.app[db_key].game
         doc = await games.find_one({"us": ["blue", "red"]})
@@ -90,7 +96,7 @@ class CorrJanggiGameTestCase(AioHTTPTestCase):
         return game
 
     async def test_without_server_restart(self):
-        self.create_users()
+        await self.create_users()
         game = await self.new_game()
 
         # THE NEW GAME
@@ -138,7 +144,7 @@ class CorrJanggiGameTestCase(AioHTTPTestCase):
         self.assertEqual(doc["f"], C10D8_FEN)  # current FEN
 
     async def test_with_server_restart(self):
-        self.create_users()
+        await self.create_users()
         game = await self.new_game()
 
         # SERVER RESTART !

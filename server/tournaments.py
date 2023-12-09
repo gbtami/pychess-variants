@@ -34,8 +34,6 @@ from const import (
     TRANSLATED_VARIANT_NAMES,
 )
 from newid import new_id
-from user import User
-
 from tournament import GameData, PlayerData, SCORE_SHIFT
 from arena import ArenaTournament
 from rr import RRTournament
@@ -211,6 +209,7 @@ async def get_winners(app, shield, variant=None):
         cursor = app[db_key].tournament.find(filter_cond, sort=[("startsAt", -1)], limit=limit)
         async for doc in cursor:
             winners.append((doc["winner"], doc["startsAt"].strftime("%Y.%m.%d"), doc["_id"]))
+            await app[users_key].get(doc["winner"])
 
         wi[variant] = winners
 
@@ -431,11 +430,7 @@ async def load_tournament(app, tournament_id, tournament_klass=None):
 
     async for doc in cursor:
         uid = doc["uid"]
-        if uid in users:
-            user = users[uid]
-        else:
-            user = User(app, username=uid, title="TEST" if tournament_id == "12345678" else "")
-            users[uid] = user
+        user = await users.get(uid)
 
         withdrawn = doc.get("wd", False)
 

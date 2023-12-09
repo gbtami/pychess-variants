@@ -1,5 +1,8 @@
 from settings import static_url
 
+DASH = "–"
+ANON_PREFIX = "Anon" + DASH
+
 SCHEDULE_MAX_DAYS = 7
 TOURNAMENT_SPOTLIGHTS_MAX = 3
 
