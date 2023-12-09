@@ -32,8 +32,8 @@ msgid ""
 "create such a powerful engine for FREE. That's a lot of great minds and "
 "computing power they've managed to harness."
 msgstr ""
-"\"저에게는, 오늘 우리가 여기까지 올 수 있었던 것은 대규모의 Stockfish 덕분입니다. 그들은 오픈 소스 정신의 글로벌 자원 "
-"봉사자들을 모아 무료로 강력한 엔진을 만들었습니다. 그것은 그들이 활용할 수 있었던 많은 위대한 정신과 컴퓨팅 능력입니다."
+"\"저에게 있어, 오늘 우리가 여기까지 올 수 있었던 것은 대대적으로 Stockfish 덕분입니다. 그들은 오픈 소스 정신으로 모여 "
+"강력한 무료 엔진을 만들기 위해 글로 자원봉사자들을 모았습니다. 그것은 그들이 활용한 많은 뛰어난 사고력과 컴퓨팅 능력입니다."
 
 #: ../client/about.ts:10
 msgid ""
@@ -41,8 +41,8 @@ msgid ""
 "source spirit, and it too drew in great people as well. Once Lichess "
 "incorporated Stockfish as its brains, the rest is history."
 msgstr ""
-"그 후, 우리는 고맙게도 Lichess를 얻게 되었습니다. Lichess도 같은 공개 소스 정신에서 탄생했으며 훌륭한 사람들도 "
-"끌어들였습니다. Lichess가 Stockfish의 전문가들과 통합한다면, 그 다음은 굳이 말할 필요가 없겠죠."
+"우리는 Lichess에게 감사해야 합니다. Lichess 역시 동일한 오픈 소스 정신에서 탄생했으며 훌륭한 사람들을 끌어들였습니다. "
+"Lichess가 Stockfish를 두뇌로 통합하면, 그 나머지는 굳이 말할 필요가 없겠죠."
 
 #: ../client/about.ts:11
 msgid ""
@@ -51,8 +51,8 @@ msgid ""
 "benefit from it without configuring a local GUI. I believe this development "
 "turns out to be of great consequence and significance."
 msgstr ""
-"Lichess는 온라인, 실시간, 경쟁 게임 플레이를 가능하게 했습니다. 그 덕분에 사용자들은 Stockfish의 엄청난 힘을 가질 수 "
-"있으며, 이제 로컬 GUI를 구성하지 않고도 혜택을 누릴 수 있습니다."
+"Lichess는 게임 플레이의 온라인, 실시간 및 경쟁 측면을 지원합니다. 또한 Stockfish의 엄청난 성능을 제공하므로 이제 "
+"사람들은 로컬 GUI를 구성하지 않고도 그 혜택을 누릴 수 있습니다. 저는 이러한 발전이 매우 중요하고 의미 있는 결과라고 믿습니다."
 
 #: ../client/about.ts:12
 msgid ""
@@ -63,10 +63,10 @@ msgid ""
 "variant support and extensibility. Thus Fairy-Stockfish was born, so "
 "powerful because it builds on the Stockfish project."
 msgstr ""
-"나중에, Lichess 프로젝트에 가까운 개발자는 Crazyhouse 등을 지원하기 위해 Stockfish를 Multivariant-"
-"Stockfish로 확장했습니다. Fairy-Stockfish의 아버지인 Fabian은 (여전히) 해당 버전을 작업하는 개발자 중 한 "
-"명이며 나중에 다른 지원 및 확장성 측면에서 그는 몇 단계 더 나아갔습니다. 따라서 Fairy-Stockfish는 Stockfish "
-"프로젝트를 기반으로 구축되었기 때문에 매우 강력하게 탄생할 수 있었습니다."
+"나중에, Lichess 프로젝트에 가까운 개발자들 Crazyhouse 등을 지원하기 위해 결국 Stockfish를 "
+"Multivariant-Stockfish로 확장했습니다. Fairy-Stockfish의 아버지인 Fabian (여전히) 해당 포크를 "
+"작업하는 개발자 중 한 명이며, 그는 이후에 변형 지원 및 확장성의 측면에서 몇 단계 더 발전했습니다. 따라서 Fairy-"
+"Stockfish는 Stockfish 프로젝트를 기반으로 구축되었기 때문에 매우 강력하게 탄생할 수 있었습니다."
 
 #: ../client/about.ts:13
 msgid ""
@@ -75,9 +75,8 @@ msgid ""
 "competitive aspects. Same clean and familiar Lichess look and feel. Plus the"
 " power of Stockfish!\""
 msgstr ""
-"그런 다음 큰 프로젝트의 기본이 되는 매우 강력한 힘을 아주 영리하게 다시 활용하는 우리의 사랑하는 pychess 변형이 나옵니다. "
-"온라인, 실시간, 경쟁적인 특성은 유지하면서. 깔끔하고 친숙한 Lichess의 모습과 동일합니다. 게다가 Stockfish의 "
-"위력까지!\""
+"그런 다음 큰 프로젝트의 근본적인 초능력을 매우 영리하게 활용하는 우리의 사랑받는 pychess-변형이 나옵니다. 동일한 온라인, "
+"실시간, 경쟁 측면. 그리고 리체스와 동일한 모양과 느낌의 깨끗함과 익숙함. 거기에 더해 스톡피쉬의 힘까지!\""
 
 #: ../client/about.ts:18
 msgid "About pychess"
@@ -87,7 +86,7 @@ msgstr "pychess에 관하여"
 msgid ""
 "Pychess is a free, open-source chess server designed to play several chess "
 "variants."
-msgstr "Pychess는 여러 체스 변형을 플레이할 수 있게 만들어진 무료의 공개 소스 체스 서버입니다."
+msgstr "Pychess는 여러 체스 변형을 플레이할 수 있게 고안된 무료 공개 소스 체스 서버입니다."
 
 #: ../client/about.ts:22
 msgid "Currently supported games are "
@@ -99,8 +98,8 @@ msgid ""
 "Atomic, S-chess, Capablanca, and Capahouse to start games from random "
 "positions with "
 msgstr ""
-"또한, 체스, 크레이지하우스, 아토믹, S-체스, 카파블랑카 및 카파하우스에 대한 체스960 옵션을 확인하여 무작위 위치에서 대국을 "
-"시작할 수 있습니다."
+"추가로, 체스, 크레이지하우스, 아토믹, S-체스, 카파블랑카 및 카파하우스에서 체스960 옵션을 확인하여 무작위 위치에서 게임을 시작할"
+" 수 있습니다."
 
 #: ../client/about.ts:101
 msgid "Chess960 castling rules."
@@ -202,7 +201,7 @@ msgstr "정말 이 게임을 삭제하시겠습니까?"
 
 #: ../client/analysisCtrl.ts:360
 msgid "Delete game"
-msgstr "게임 삭제"
+msgstr "게임 삭제하기"
 
 #: ../client/analysisCtrl.ts:391
 msgid "Request Computer Analysis"
@@ -402,7 +401,7 @@ msgstr[0] "%1 초 전"
 
 #: ../client/gameCtrl.ts:415 ../client/tournament.ts:587
 msgid "Spectators: "
-msgstr "관중 :"
+msgstr "관중:"
 
 #: ../client/gameCtrl.ts:437
 msgid "Requested game %1 not found!"
@@ -410,7 +409,7 @@ msgstr "요청하신 %1 게임을 찾을 수 없습니다!"
 
 #: ../client/gameInfo.ts:33 ../client/result.ts:47
 msgid "Playing right now"
-msgstr "지금 플레이하기"
+msgstr "지금 플레이 중"
 
 #: ../client/editor/editorCtrl.ts:99 ../client/i18n.ts:62
 #: ../client/lobby.ts:508
@@ -714,7 +713,7 @@ msgstr "오리는 반드시 매 차례마다 새로운 칸으로 움직여야 �
 msgid ""
 "Thai Chess. A game closely resembling the original Chaturanga. Similar to "
 "Chess but with a different queen and bishop."
-msgstr "태국 체스. 원래의 차투랑가와 매우 유사한 게임. 체스와 비슷하지만 퀸과 비숍이 다릅니다."
+msgstr "태국 체스. 원형 차투랑가와 거의 닮은 게임입니다. 체스와 비슷하지만 퀸과 비숍이 다릅니다."
 
 #: ../client/i18n.ts:102 ../client/variants.ts:390
 msgid "Makruk variant where kings cannot move to escape out of check."
@@ -734,7 +733,7 @@ msgstr "버마 체스. 막룩과 비슷하지만 대국이 시작될 때 기물�
 msgid ""
 "Makruk using the board/pieces from International Chess as well as pawn "
 "promotion rules."
-msgstr "막룩은 폰 진급 규칙과 마찬가지로 국제 체스와 동일한 반상 / 기물을 사용합니다."
+msgstr "막룩은 폰 진급 규칙과 마찬가지로 국제 체스와 동일한 판 / 기물을 사용합니다."
 
 #: ../client/i18n.ts:106 ../client/variants.ts:431
 msgid ""
@@ -751,16 +750,16 @@ msgstr "더 작고 빠른 대국을 위한 5x5의 쇼기. 계나 향은 없습�
 msgid ""
 "A wild Shogi variant on a 5x5 board where pieces flip into a different piece"
 " after each move."
-msgstr "이동할 때마다 기물이 다른 기물로 뒤집히는 5x5의 야생 쇼기 변형."
+msgstr "이동할 때마다 기물이 다른 기물로 뒤집히는 5x5 판의 야생 쇼기 변형."
 
 #: ../client/i18n.ts:109 ../client/variants.ts:483
 msgid ""
 "3x4 game with cute animals, designed to teach children how to play Shogi."
-msgstr "아이들에게 장기를 가르치기 위해 고안된 귀여운 동물들과 함께 하는 3x4 게임."
+msgstr "아이들에게 장기를 가르치고자 고안된, 귀여운 동물들과 함께 하는 3x4 게임."
 
 #: ../client/i18n.ts:110
 msgid "5x6 Shogi designed to introduce tactics with the generals."
-msgstr "장군들에게 전술을 소개하기 위해 고안된 5x6의 쇼기."
+msgstr "5x6 쇼기는 장군들에게 전술을 소개하기 위해 고안되었습니다."
 
 #: ../client/i18n.ts:111
 msgid ""
@@ -777,7 +776,7 @@ msgstr "세계에서 가장 오래되고 가장 많이 플레이되는 보드 �
 msgid ""
 "Xiangqi variant where one side has a chariot that can also move as a cannon "
 "or horse."
-msgstr "한 대국자가 포나 마처럼 움직일 수도 있는 차를 가진 샹치 변형."
+msgstr "한 플레이어가 포나 마처럼 이동할 수도 있는 차를 가진 샹치 변형."
 
 #: ../client/i18n.ts:114
 msgid ""
@@ -787,13 +786,13 @@ msgstr "한국 장기는 샹치와 비슷하지만 플레이 방식이 많이 �
 
 #: ../client/i18n.ts:115
 msgid "Compact version of Xiangqi played on a 7x7 board without a river."
-msgstr "샹치의 소형 버전은 강이 없는 7x7 반상에서 플레이되었습니다."
+msgstr "샹치의 소형 버전은 강이 없는 7x7 판에서 플레이되었습니다."
 
 #: ../client/i18n.ts:116
 msgid ""
 "Play with the hybrid pieces, archbishop (B+N) and chancellor (R+N), on a "
 "10x8 board."
-msgstr "10x8의 반상에서 복합 기물인 아치비숍(비숍+나이트)과 챈슬러(룩+나이트)랑 함께 플레이하세요."
+msgstr "10x8 판에서 혼합 기물인 아치비숍(비숍+나이트)과 챈슬러(룩+나이트)를 가지고 플레이하세요."
 
 #: ../client/i18n.ts:117 ../client/variants.ts:607
 msgid "Capablanca with Crazyhouse drop rules."
@@ -803,17 +802,17 @@ msgstr "크레이지하우스의 투입 규칙을 가진 카파블랑카."
 msgid ""
 "Hybrid pieces, the hawk (B+N) and elephant (R+N), can enter the board after "
 "moving a back rank piece."
-msgstr "복합 기물인 호크(비숍+나이트)와 엘리펀트(룩+나이트)는 첫 번째 행의 기물을 움직인 후 반상에 놓을 수 있습니다."
+msgstr "혼합 기물인 호크(비숍+나이트)와 엘리펀트(룩+나이트)는 백랭크의 기물을 움직인 뒤 판에 놓일 수 있습니다."
 
 #: ../client/i18n.ts:119
 msgid "S-Chess with Crazyhouse drop rules."
-msgstr "크레이지하우스 투입 규칙을 가진 S-체스."
+msgstr "크레이지하우스의 투입 규칙을 가진 S-체스."
 
 #: ../client/i18n.ts:120 ../client/variants.ts:646
 msgid ""
 "Play with the hybrid pieces, archbishop (B+N) and chancellor (R+N), on a "
 "grand 10x10 board."
-msgstr "그랜드 10x10의 반상에서 복합 기물인 아치비숍(비숍+나이트)과 챈슬러(룩+나이트)랑 함께 플레이하세요."
+msgstr "그랜드 10x10의 판에서 혼합 기물인 아치비숍(비숍+나이트)과 챈슬러(룩+나이트)를 가지고 플레이하세요."
 
 #: ../client/i18n.ts:121
 msgid "Grand Chess with Crazyhouse drop rules."
@@ -859,7 +858,7 @@ msgstr "한쪽 군대에 퀸처럼 움직이지만 평소처럼 잡는 기물들
 #: ../client/i18n.ts:129 ../client/variants.ts:773
 msgid ""
 "Orda Chess variant with two Horde armies. The Falcon replaces the Yurt."
-msgstr "두 개의 호드 군대가 있는 오르다 체스 변형. 팔콘은 유르트를 대체합니다."
+msgstr "두 호드 군대가 있는 오르다 체스 변형. 유르트 대신 팔콘이 있습니다."
 
 #: ../client/i18n.ts:130
 msgid "Mayan chess. Inspired by cultural elements of Mesoamerica."
@@ -891,7 +890,7 @@ msgstr "다른 사람들을 위해 게임을 주최하기"
 
 #: ../client/invite.ts:34
 msgid "Challenge to a game"
-msgstr "대국 신청하기"
+msgstr "결투 신청하기"
 
 #: ../client/invite.ts:37 ../client/invite.ts:43 ../client/invite.ts:49
 #: ../client/invite.ts:55
@@ -916,7 +915,7 @@ msgstr "게임 참가하기"
 
 #: ../client/invite.ts:85 ../client/invite.ts:109
 msgid "To invite someone to play, give them this URL:"
-msgstr "게임에 누군가를 초대하려면 이 URL을 보내세요"
+msgstr "게임에 누군가를 초대하려면 이 URL을 보내세요:"
 
 #: ../client/invite.ts:92 ../client/invite.ts:94 ../client/invite.ts:102
 #: ../client/invite.ts:104 ../client/invite.ts:114 ../client/invite.ts:116
@@ -945,7 +944,7 @@ msgstr "게임 만들기"
 
 #: ../client/lobby.ts:116
 msgid "Challenge %1 to a game"
-msgstr "%1 님에게 대국 신청하기"
+msgstr "%1 님에게 결투 신청하기"
 
 #: ../client/lobby.ts:385
 msgid "Cancel"
@@ -973,7 +972,7 @@ msgstr "서신"
 
 #: ../client/lobby.ts:425
 msgid "Minutes per side:"
-msgstr "한 플레이어당 주어진 분"
+msgstr "한 플레이어당 주어진 분:"
 
 #: ../client/lobby.ts:440
 msgid "Periods"
@@ -981,7 +980,7 @@ msgstr "횟수"
 
 #: ../client/lobby.ts:449
 msgid "Days per turn:"
-msgstr ""
+msgstr "한 플레이어당 주어진 일:"
 
 #: ../client/lobby.ts:467 ../client/lobby.ts:767 ../client/result.ts:16
 msgid "Casual"
@@ -1010,11 +1009,11 @@ msgstr "생성"
 
 #: ../client/lobby.ts:598
 msgid "Byoyomi in seconds:"
-msgstr "초 읽기"
+msgstr "초 읽기:"
 
 #: ../client/lobby.ts:598
 msgid "Increment in seconds:"
-msgstr "한 수당 증가하는 초"
+msgstr "한 수당 증가하는 초:"
 
 #: ../client/lobby.ts:603
 msgid "Alternate Start"
@@ -1101,11 +1100,11 @@ msgstr "서신 체스"
 
 #: ../client/lobby.ts:1139
 msgid "You have time now"
-msgstr "현재 당신의 남은 시간입니다"
+msgstr "시간이 있네요"
 
 #: ../client/lobby.ts:1146 ../client/lobby.ts:1147
 msgid "S-chess ramblings"
-msgstr ""
+msgstr "S-체스 이모저모"
 
 #: ../client/lobby.ts:1154
 msgid "Autumn Update"
@@ -1160,7 +1159,7 @@ msgstr "승강전"
 #: ../client/profile.ts:228
 msgctxt "UsePluralFormIfNeeded"
 msgid "Playing"
-msgstr ""
+msgstr "플레이 중"
 
 #: ../client/profile.ts:229
 msgid "Imported"
@@ -1381,7 +1380,7 @@ msgstr "정말 무승부를 원하십니까?"
 
 #: ../client/roundCtrl.ts:461
 msgid "Draw offer sent"
-msgstr "무승부 제안을 전달했습니다"
+msgstr "무승부 제의를 보냈습니다"
 
 #: ../client/roundCtrl.ts:475
 msgid "Your opponent offers a draw"
@@ -1422,7 +1421,7 @@ msgstr "재대국 보기"
 
 #: ../client/roundCtrl.ts:613
 msgid "Rematch offer sent"
-msgstr "재대국 제안을 전달했습니다."
+msgstr "재대국 제의를 보냈습니다."
 
 #: ../client/roundCtrl.ts:625
 msgid "Your opponent offers a rematch"
@@ -1454,7 +1453,7 @@ msgstr "판 분석하기"
 
 #: ../client/roundCtrl.ts:839
 msgid "Propose takeback"
-msgstr ""
+msgstr "무르기 제안"
 
 #: ../client/roundCtrl.ts:1043
 msgid "Stop counting"
@@ -1527,7 +1526,7 @@ msgstr "무르기"
 
 #: ../client/tournament.ts:168 ../client/tournament.ts:173
 msgid "JOIN"
-msgstr "참가"
+msgstr "참가하기"
 
 #: ../client/tournament.ts:180
 msgid "LOG IN"
@@ -1601,7 +1600,7 @@ msgstr "평균 상대"
 
 #: ../client/tournament.ts:529
 msgid "Defender:"
-msgstr ""
+msgstr "방어자:"
 
 #: ../client/tournament.ts:555
 msgid "Custom position"
@@ -1615,7 +1614,9 @@ msgstr "판 분석하기"
 msgid ""
 "This Shield trophy is unique. The winner keeps it for one month, then must "
 "defend it during the next %1 Shield tournament!"
-msgstr "이 방패는 특별합니다. 승자는 한 달 동안 방패를 가지고, 다음 %1 방패 토너먼트 동안 방패를 지켜야 합니다!"
+msgstr ""
+"이 방패 트로피는 각 변형마다 한 개밖에 없습니다. 승자는 한 달 동안 방패를 가지고, 다음 %1 방패 토너먼트 동안 방패를 지켜야 "
+"합니다!"
 
 #: ../client/tournamentClock.ts:42
 msgid "STARTING IN"
@@ -1711,24 +1712,22 @@ msgstr "오리를 빈 칸에 놓으세요"
 msgid ""
 "These variants have new armies with completely new pieces! Most of these "
 "variants pit these armies against the standard Chess army."
-msgstr ""
-"이 변형들은 완전히 새로운 기물들이 포함된 새로운 군대를 가집니다! 이 변형들 중 대부분은 자신들의 기물을 표준 체스 군대와 맞붙게 "
-"합니다."
+msgstr "이 변형들에는 완전히 새로운 기물들이 포함된 새로운 군대가 있습니다! 그중 대부분은 표준 체스 군대와 맞붙습니다."
 
 #: ../client/lobby/layer2army.ts:19 ../client/lobby/layer2chess.ts:24
 #: ../client/lobby/layer2fairy.ts:26 ../client/lobby/layer2makruk.ts:19
 #: ../client/lobby/layer2shogi.ts:20 ../client/lobby/layer2xiangqi.ts:19
 #: ../client/lobby/layer3.ts:44
 msgid "Go Back"
-msgstr "돌아갑니다"
+msgstr "돌아가기"
 
 #: ../client/lobby/layer2army.ts:28
 msgid "Horde: Horse-based army"
-msgstr "호드 : 마馬 기반의 군대"
+msgstr "호드: 마馬 기반의 군대"
 
 #: ../client/lobby/layer2army.ts:35
 msgid "Empire: Queen-based army"
-msgstr "엠파이어 / 제국 : 퀸 기반의 군대"
+msgstr "엠파이어: 퀸 기반의 군대"
 
 #: ../client/lobby/layer2army.ts:42
 msgid "Horde vs Horde"
@@ -1736,11 +1735,11 @@ msgstr "호드 대 호드"
 
 #: ../client/lobby/layer2army.ts:49
 msgid "Clan: Drop-based army"
-msgstr "클랜 / 씨족 : 투입 기반의 군대"
+msgstr "클랜: 투입 기반의 군대"
 
 #: ../client/lobby/layer2army.ts:56
 msgid "Dynasty: Xiangqi-based army"
-msgstr "다이너스티 / 왕조 : 샹치 기반의 군대"
+msgstr "다이너스티: 샹치 기반의 군대"
 
 #: ../client/lobby/layer2army.ts:63
 msgid "Mayan chess"
@@ -1752,7 +1751,7 @@ msgstr "전환 기물"
 
 #: ../client/lobby/layer2army.ts:77
 msgid "Spartans: Army with two kings"
-msgstr "스파르탄: 두 왕이 존재하는 군대"
+msgstr "스파르탄: 두 왕이 있는 군대"
 
 #: ../client/lobby/layer2chess.ts:23
 msgid "Variants using a basic chess set but with different rules."
@@ -1762,11 +1761,11 @@ msgstr "기본 체스 세트를 사용하지만 규칙이 다른 변형."
 msgid ""
 "These variants have new pieces to try! Many of them have larger boards, and "
 "some also have new rules."
-msgstr "이러한 변형들에는 시도할 만한 새로운 기물들이 있습니다! 그중 대부분은 반상이 크며, 일부는 새로운 규칙도 가지고 있습니다."
+msgstr "이러한 변형들에는 새로운 기물들을 사용할 수 있습니다! 그중 대부분은 판이 더 크고, 그중 일부는 새로운 규칙도 있습니다."
 
 #: ../client/lobby/layer2fairy.ts:21
 msgid " = Random (960) variant available. "
-msgstr "= 무작위(960) 변형 사용 가능."
+msgstr "= 무작위 (960) 변형 사용 가능."
 
 #: ../client/lobby/layer2fairy.ts:24
 msgid " = Drop variant available."
@@ -1774,7 +1773,7 @@ msgstr "= 투입 변형 사용 가능"
 
 #: ../client/lobby/layer2fairy.ts:40
 msgid "Knight hybrid pieces"
-msgstr "나이트 복합 기물들"
+msgstr "나이트 혼합 기물들"
 
 #: ../client/lobby/layer2fairy.ts:51
 msgid "8x8 with new pieces"
@@ -1810,7 +1809,7 @@ msgstr "막룩 변형. 왕 기물은 체크된 상태에서 움직일 수 없습
 
 #: ../client/lobby/layer2makruk.ts:42
 msgid "Cambodian Chess. Makruk with extra starting moves."
-msgstr "캄보디아 체스. 추가적인 시작 이동을 가진 막룩."
+msgstr "캄보디아 체스. 추가적인 시작 이동을 가진 막룩입니다."
 
 #: ../client/lobby/layer2makruk.ts:49
 msgid "Burmese Chess. You may place your starting pieces."
@@ -1818,7 +1817,7 @@ msgstr "버마 체스. 시작 기물들을 놓을 수 있습니다."
 
 #: ../client/lobby/layer2makruk.ts:56
 msgid "Makruk with International Chess influence."
-msgstr "국제 체스의 영향을 받은 막룩"
+msgstr "국제 체스의 영향을 받은 막룩."
 
 #: ../client/lobby/layer2shogi.ts:19
 msgid "The Japanese version of chess, which involves drops and promotions."
@@ -1862,11 +1861,11 @@ msgstr "샹치 기반이지만 매우 다른 한국 장기"
 
 #: ../client/lobby/layer2xiangqi.ts:42
 msgid "Compact Xiangqi on a 7x7 board"
-msgstr "7x7 반상의 소형 샹치"
+msgstr "7x7 판의 소형 샹치"
 
 #: ../client/lobby/layer2xiangqi.ts:49
 msgid "Asymmetric variant with one side having a super piece"
-msgstr "한 대국자가 초강력 기물을 가진 비대칭 변형"
+msgstr "한 플레이어가 초강력 기물을 가진 비대칭 변형"
 
 #: ../client/lobby/layer3.ts:51
 msgid "Rules"
@@ -1874,7 +1873,7 @@ msgstr "규칙"
 
 #: ../client/lobby/layer3.ts:52
 msgid "Tip: "
-msgstr "팁 :"
+msgstr "팁:"
 
 #: ../client/lobby/layer3.ts:63
 msgid "Fischer's random chess where the back row are randomized."
@@ -1882,11 +1881,11 @@ msgstr "백랭크가 무작위화된 피셔 랜덤 체스"
 
 #: ../client/lobby/layer3.ts:65
 msgid "Crazyhouse with random back row."
-msgstr "마지막 가로행이 무작위인 크레이지하우스."
+msgstr "백랭크가 무작위인 크레이지하우스."
 
 #: ../client/lobby/layer3.ts:67
 msgid "Atomic Chess with random back row."
-msgstr "마지막 개로행이 무작위인 아토믹 체스."
+msgstr "백랭크가 무작위인 아토믹 체스."
 
 #: ../client/lobby/layer3.ts:80
 msgid "Move the king on top of the rook to castle."
@@ -1894,7 +1893,7 @@ msgstr "룩 위로 킹을 옮겨 캐슬링합니다."
 
 #: ../client/lobby/layer3.ts:82
 msgid "You can play more at lichess.org."
-msgstr "lichess.org 에서 더 많은 게임을 즐길 수 있습니다."
+msgstr "lichess.org 에서 더 많은 게임을 플레이하실 수 있습니다."
 
 #: ../client/lobby/layer3.ts:85
 msgid ""
@@ -1904,7 +1903,7 @@ msgstr "표준 체스에서처럼 킹과 룩이 시작 지점에 투입된 경�
 
 #: ../client/lobby/layer3.ts:87
 msgid "Quack."
-msgstr ""
+msgstr "꽥꽥."
 
 #: ../client/lobby/layer3.ts:90
 msgid ""
@@ -1914,11 +1913,11 @@ msgstr "엠버시 체스와 고딕 체스를 포함한 다른 기물 차림들�
 
 #: ../client/lobby/layer3.ts:92
 msgid "For a drop version, choose GRANDHOUSE from the dropdown menu."
-msgstr "투입 버전의 경우, 드롭다운 메뉴에서 그랜드하우스를 선택합니다."
+msgstr "투입 버전의 경우, 드롭다운 메뉴에서 그랜드하우스를 선택하세요."
 
 #: ../client/lobby/layer3.ts:94
 msgid "For a drop version, choose S-HOUSE from the dropdown menu."
-msgstr "투입 버전의 경우, 드롭다운 메뉴에서 S-체스를 선택합니다."
+msgstr "투입 버전의 경우, 드롭다운 메뉴에서 S-체스를 선택하세요."
 
 #: ../client/lobby/layer3.ts:96
 msgid "The queen actually demotes upon capture, so it is not worth as much."
@@ -1938,7 +1937,7 @@ msgstr "캠프메이트를 알아 두세요 - 당신의 왕이 8번째 행에 �
 
 #: ../client/lobby/layer3.ts:109
 msgid "Promoting the king prematurely can be dangerous."
-msgstr "왕이 성급히 진급하는 것은 위험할 수 있습니다."
+msgstr "왕을 성급히 진급시키면 위험할 수 있습니다."
 
 #: ../client/lobby/layer3.ts:111
 msgid "Make sure to consider both forms of each piece."
@@ -1954,7 +1953,7 @@ msgstr "콘과 멧의 효과를 극대화하는 것이 핵심입니다."
 
 #: ../client/lobby/layer3.ts:118
 msgid "Watch out for knight checks, since they cannot be blocked."
-msgstr "나이트 체크는 차단할 수 없으니 주의하세요."
+msgstr "나이트 체크는 가로막을 수 없으니 주의하세요."
 
 #: ../client/lobby/layer3.ts:120
 msgid "You can use placement to utilize your stronger pieces from the start."
@@ -1976,7 +1975,7 @@ msgstr "국제화된 세트는 설정으로 이동하여 사용할 수 있습니
 msgid ""
 "Despite the simple appearance, there is still quite a bit of depth "
 "underlying this game."
-msgstr "단순한 모양임에도 불구하고 이 게임에는 여전히 상당한 깊이가 있습니다."
+msgstr "단순한 구조임에도 불구하고 이 게임에는 여전히 상당한 깊이가 있습니다."
 
 #: ../client/lobby/layer3.ts:133
 msgid "Sets that show both sides are available by going to settings."

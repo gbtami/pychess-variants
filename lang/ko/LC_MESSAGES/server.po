@@ -31,7 +31,7 @@ msgstr "아레나"
 
 #: ../server/const.py:326
 msgid "Round-Robin"
-msgstr "리그전"
+msgstr "연맹전"
 
 #: ../server/const.py:327
 msgid "Swiss"
@@ -67,7 +67,7 @@ msgstr "방패"
 
 #: ../server/const.py:338
 msgid "SEAturday"
-msgstr ""
+msgstr "SEA요일"
 
 #: ../server/const.py:342
 msgid "Chess"
@@ -223,7 +223,7 @@ msgstr "시노비"
 
 #: ../server/const.py:387
 msgid "Shinobi+"
-msgstr ""
+msgstr "시노비+"
 
 #: ../server/const.py:388
 msgid "Empire"
@@ -247,19 +247,19 @@ msgstr "스파르탄"
 
 #: ../server/const.py:393
 msgid "King of the Hill"
-msgstr ""
+msgstr "언덕의 왕"
 
 #: ../server/const.py:394
 msgid "King of the Hill 960"
-msgstr ""
+msgstr "언덕의 왕 960"
 
 #: ../server/const.py:395
 msgid "Three check"
-msgstr ""
+msgstr "3체크"
 
 #: ../server/const.py:396
 msgid "Three check 960"
-msgstr ""
+msgstr "3체크 960"
 
 #: ../server/const.py:397
 msgid "Mansindam"
@@ -331,15 +331,15 @@ msgstr "고수"
 
 #: ../templates/closed.html:8
 msgid "This account is closed."
-msgstr "이 계정은 정지되었습니다"
+msgstr "이 계정은 닫혔습니다."
 
 #: ../templates/patron.html:11
 msgid ""
 "As you know, pychess-variants is a free server and it will remain free forever. However, maintaining and improving the server costs time and money.\n"
 "If you like our work and find our server useful, please donate through patreon or paypal."
 msgstr ""
-"pychess-variants 는 무료 서버이며 앞으로도 영원히 무료로 운영될 예정입니다. 하지만 서버 관리 및 향상을 위해서는 돈과 시간이 들어갑니다. \n"
-"만약 저희가 하는 일이 만족스럽고 서버가 상당히 유용하다면, patreon이나 paypal을 통해 기부 해 주신다면 감사드립니다."
+"아시다시피, pychess-variants는 무료 서버이며, 앞으로도 영원히 무료로 유지될 예정입니다. 그러나 서버를 유지하고 개선하려면 시간과 비용이 듭니다.\n"
+"저희 작업이 마음에 들고 저희 서버가 유용하다고 생각하시면 Patreon이나 Paypal을 통해 기부해 주세요."
 
 #: ../templates/players.html:7
 msgid "All players"
@@ -351,7 +351,7 @@ msgstr "토너먼트 우승자"
 
 #: ../templates/players.html:10 ../templates/shields.html:6
 msgid "Tournament shields"
-msgstr "토너먼트 쉴드"
+msgstr "토너먼트 방패"
 
 #: ../templates/players.html:14
 msgid "Online"
@@ -373,11 +373,11 @@ msgstr[0] "%(count)s 개의 게임"
 
 #: ../templates/profile.html:42
 msgid "Watch games"
-msgstr "관전"
+msgstr "관전하기"
 
 #: ../templates/profile.html:44
 msgid "Challenge to a game"
-msgstr "대국 신청"
+msgstr "결투 신청하기"
 
 #: ../templates/profile.html:47
 msgid "Import game"
@@ -395,11 +395,11 @@ msgstr "Lichess 프로필"
 #, python-format
 msgid "%(count)s puzzle"
 msgid_plural "%(count)s puzzles"
-msgstr[0] ""
+msgstr[0] "%(count)s 퍼즐"
 
 #: ../templates/puzzle_profile.html:23
 msgid "Puzzle history"
-msgstr ""
+msgstr "퍼즐 역사"
 
 #: ../templates/template.html:18
 msgid "Play"
@@ -499,7 +499,7 @@ msgstr "곧 시작"
 
 #: ../templates/tournaments.html:23
 msgid "Finished"
-msgstr "끝남"
+msgstr "종료"
 
 #: ../templates/tournaments.html:44
 msgid "Rated"
