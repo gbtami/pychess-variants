@@ -191,6 +191,9 @@ label.piece.piece11.shogi {
     background-image: url('images/pieces/shogi/Portella/Intl/0KA.png');
 }
 label.piece.piece12.shogi {
+    background-image: url('images/pieces/shogi/hybrid/0KA.svg');
+}
+label.piece.piece13.shogi {
     background-image: url('images/pieces/disguised/shogi-ally.svg');
 }
 
