@@ -664,8 +664,8 @@ class Game:
         self.brdiff = int(round(brdiff, 0))
         self.p1 = {"e": self.brating, "d": self.brdiff}
 
-        new_white_rating = gl2.create_rating(wr_old + wrdiff, wr.phi, wr.sigma, wr.ltime)
-        new_black_rating = gl2.create_rating(br_old + brdiff, br.phi, br.sigma, br.ltime)
+        new_white_rating = gl2.create_rating(wcurr.mu + wrdiff, wr.phi, wr.sigma, wr.ltime)
+        new_black_rating = gl2.create_rating(bcurr.mu + brdiff, br.phi, br.sigma, br.ltime)
 
         await self.wplayer.set_rating(self.variant, self.chess960, new_white_rating)
         await self.bplayer.set_rating(self.variant, self.chess960, new_black_rating)
