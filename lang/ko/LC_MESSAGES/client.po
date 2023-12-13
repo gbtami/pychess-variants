@@ -1076,7 +1076,7 @@ msgstr "%1 플레이"
 
 #: ../client/lobby.ts:1068
 msgid "Lobby"
-msgstr ""
+msgstr "응접실"
 
 #: ../client/lobby.ts:1127
 msgid "Donate"
@@ -1761,7 +1761,7 @@ msgstr "기본 체스 세트를 사용하지만 규칙이 다른 변형."
 msgid ""
 "These variants have new pieces to try! Many of them have larger boards, and "
 "some also have new rules."
-msgstr "이러한 변형들에는 새로운 기물들을 사용할 수 있습니다! 그중 대부분은 판이 더 크고, 그중 일부는 새로운 규칙도 있습니다."
+msgstr "이 변형들에는 새로운 기물들이 있습니다! 그중 대부분은 판이 더 크고, 그중 일부는 새로운 규칙도 있습니다."
 
 #: ../client/lobby/layer2fairy.ts:21
 msgid " = Random (960) variant available. "
