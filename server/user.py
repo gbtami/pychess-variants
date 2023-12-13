@@ -16,7 +16,7 @@ from seek import get_seeks
 
 log = logging.getLogger(__name__)
 
-SILENCE = 10 * 60
+SILENCE = 15 * 60
 ANON_TIMEOUT = 10 * 60
 PENDING_SEEK_TIMEOUT = 10
 ABANDON_TIMEOUT = 90
