@@ -232,9 +232,11 @@ async def index(request):
         view = "puzzle"
 
     profileId = request.match_info.get("profileId")
-    if profileId is not None and profileId not in users:
-        await asyncio.sleep(3)
-        raise web.HTTPNotFound()
+    if profileId is not None:
+        profileUser = await users.get(profileId)
+        if profileUser is None:
+            await asyncio.sleep(3)
+            raise web.HTTPNotFound()
 
     variant = request.match_info.get("variant")
     if (variant is not None) and ((variant not in VARIANTS) and variant != "terminology"):
