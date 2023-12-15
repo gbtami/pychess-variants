@@ -15,10 +15,9 @@ from typedefs import (
 )
 from admin import silence
 from chat import chat_response
-from const import STARTED, SHIELD
+from const import ANON_PREFIX, STARTED, SHIELD
 from settings import TOURNAMENT_DIRECTORS
 from utils import MyWebSocketResponse, online_count
-from user import User
 from tournaments import load_tournament
 from tournament import T_CREATED, T_STARTED
 from broadcast import lobby_broadcast
@@ -32,7 +31,7 @@ async def tournament_socket_handler(request):
 
     session = await aiohttp_session.get_session(request)
     session_user = session.get("user_name")
-    user = users[session_user] if session_user is not None and session_user in users else None
+    user = await users.get(session_user)
 
     if (user is not None) and (not user.enabled):
         session.invalidate()
@@ -86,7 +85,7 @@ async def tournament_socket_handler(request):
                     elif data["type"] == "get_games":
                         tournament = await load_tournament(request.app, data["tournamentId"])
                         if tournament is not None:
-                            response = tournament.games_json(data["player"])
+                            response = await tournament.games_json(data["player"])
                             await ws.send_json(response)
 
                     elif data["type"] == "join":
@@ -128,49 +127,6 @@ async def tournament_socket_handler(request):
                         if tournament is None:
                             continue
 
-                        if session_user is not None:
-                            if data["username"] and data["username"] != session_user:
-                                log.info(
-                                    "+++ Existing tournament_user %s socket connected as %s.",
-                                    session_user,
-                                    data["username"],
-                                )
-                                session_user = data["username"]
-                                if session_user in users:
-                                    user = users[session_user]
-                                else:
-                                    user = User(
-                                        request.app,
-                                        username=data["username"],
-                                        anon=data["username"].startswith("Anon-"),
-                                    )
-                                    users[user.username] = user
-                            else:
-                                if session_user in users:
-                                    user = users[session_user]
-                                else:
-                                    user = User(
-                                        request.app,
-                                        username=data["username"],
-                                        anon=data["username"].startswith("Anon-"),
-                                    )
-                                    users[user.username] = user
-                        else:
-                            log.info(
-                                "+++ Existing lobby_user %s socket reconnected.",
-                                data["username"],
-                            )
-                            session_user = data["username"]
-                            if session_user in users:
-                                user = users[session_user]
-                            else:
-                                user = User(
-                                    request.app,
-                                    username=data["username"],
-                                    anon=data["username"].startswith("Anon-"),
-                                )
-                                users[user.username] = user
-
                         # update websocket
                         if tournamentId not in user.tournament_sockets:
                             user.tournament_sockets[tournamentId] = set()
@@ -204,7 +160,7 @@ async def tournament_socket_handler(request):
                             variant_name = tournament.variant + (
                                 "960" if tournament.chess960 else ""
                             )
-                            defender = users[request.app[shield_owners_key][variant_name]]
+                            defender = await users.get(request.app[shield_owners_key][variant_name])
                             response["defender_title"] = defender.title
                             response["defender_name"] = defender.username
 
@@ -233,7 +189,7 @@ async def tournament_socket_handler(request):
                             await lobby_broadcast(lobby_sockets, response)
 
                     elif data["type"] == "lobbychat":
-                        if user.username.startswith("Anon-"):
+                        if user.username.startswith(ANON_PREFIX):
                             continue
 
                         tournamentId = data["tournamentId"]

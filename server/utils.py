@@ -47,7 +47,6 @@ from convert import mirror5, mirror9, usi2uci, grand2zero, zero2grand
 from fairy import BLACK, STANDARD_FEN, FairyBoard
 from game import Game, MAX_PLY
 from newid import new_id
-from user import User
 from settings import URI
 
 log = logging.getLogger(__name__)
@@ -98,17 +97,9 @@ async def load_game(app, game_id):
         return None
 
     wp, bp = doc["us"]
-    if wp in users:
-        wplayer = users[wp]
-    else:
-        wplayer = User(app, username=wp, anon=True)
-        users[wp] = wplayer
 
-    if bp in users:
-        bplayer = users[bp]
-    else:
-        bplayer = User(app, username=bp, anon=True)
-        users[bp] = bplayer
+    wplayer = await users.get(wp)
+    bplayer = await users.get(bp)
 
     variant = C2V[doc["v"]]
 
@@ -314,17 +305,9 @@ async def import_game(request):
 
     wp = data["White"]
     bp = data["Black"]
-    if wp in users:
-        wplayer = users[wp]
-    else:
-        wplayer = User(app, username=wp, anon=True)
-        users[wp] = wplayer
 
-    if bp in users:
-        bplayer = users[bp]
-    else:
-        bplayer = User(app, username=bp, anon=True)
-        users[bp] = bplayer
+    wplayer = await users.get(wp)
+    bplayer = await users.get(bp)
 
     variant = data.get("Variant", "chess").lower()
     chess960 = variant.endswith("960")
@@ -967,7 +950,7 @@ async def notified(request):
     if session_user is None:
         return web.json_response({})
 
-    user = users[session_user]
+    user = await users.get(session_user)
     await user.notified()
     return web.json_response({})
 
@@ -980,7 +963,7 @@ async def subscribe_notify(request):
     if session_user is None:
         return web.json_response({})
 
-    user = users[session_user]
+    user = await users.get(session_user)
     try:
         async with sse_response(request) as response:
             queue = asyncio.Queue()

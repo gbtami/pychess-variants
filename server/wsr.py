@@ -20,10 +20,9 @@ from typedefs import (
 )
 from broadcast import lobby_broadcast, round_broadcast
 from chat import chat_response
-from const import ANALYSIS, STARTED
+from const import ANON_PREFIX, ANALYSIS, STARTED
 from fairy import WHITE, BLACK
 from seek import challenge, Seek
-from user import User
 from draw import draw, reject_draw
 from utils import (
     analysis_move,
@@ -46,7 +45,7 @@ async def round_socket_handler(request):
 
     session = await aiohttp_session.get_session(request)
     session_user = session.get("user_name")
-    user = users[session_user] if session_user is not None and session_user in users else None
+    user = await users.get(session_user)
 
     if user is not None and not user.enabled:
         session.invalidate()
@@ -129,7 +128,7 @@ async def round_socket_handler(request):
                             if user.username == game.bplayer.username
                             else game.bplayer.username
                         )
-                        opp_player = users.get(opp_name)
+                        opp_player = await users.get(opp_name)
                         if opp_player is not None and opp_player.bot:
                             # Janggi game start have to wait for human player setup!
                             if game.variant != "janggi" or not (game.bsetup or game.wsetup):
@@ -275,7 +274,7 @@ async def round_socket_handler(request):
                             request.app[fishnet_works_key][work_id] = work
                             request.app[fishnet_queue_key].put_nowait((ANALYSIS, work_id))
                         else:
-                            engine = users.get("Fairy-Stockfish")
+                            engine = users["Fairy-Stockfish"]
 
                             if (engine is not None) and engine.online:
                                 engine.game_queues[data["gameId"]] = asyncio.Queue()
@@ -303,13 +302,13 @@ async def round_socket_handler(request):
 
                         if opp_player.bot:
                             if opp_player.username == "Random-Mover":
-                                engine = users.get("Random-Mover")
+                                engine = users["Random-Mover"]
                             else:
-                                engine = users.get("Fairy-Stockfish")
+                                engine = users["Fairy-Stockfish"]
 
                             if engine is None or not engine.online:
                                 # TODO: message that engine is offline, but capture BOT will play instead
-                                engine = users.get("Random-Mover")
+                                engine = users["Random-Mover"]
 
                             color = "w" if game.wplayer.username == opp_name else "b"
                             if handicap:
@@ -487,57 +486,6 @@ async def round_socket_handler(request):
                         await ws.send_json(response)
 
                     elif data["type"] == "game_user_connected":
-                        if session_user is not None:
-                            if data["username"] and data["username"] != session_user:
-                                log.info(
-                                    "+++ Existing game_user %s socket connected as %s.",
-                                    session_user,
-                                    data["username"],
-                                )
-                                session_user = data["username"]
-                                if session_user in users:
-                                    user = users[session_user]
-                                else:
-                                    user = User(
-                                        request.app,
-                                        username=data["username"],
-                                        anon=data["username"].startswith("Anon-"),
-                                    )
-                                    users[user.username] = user
-
-                                # Update logged in users as spactators
-                                if (
-                                    user.username != game.wplayer.username
-                                    and user.username != game.bplayer.username
-                                    and game is not None
-                                ):
-                                    game.spectators.add(user)
-                            else:
-                                if session_user in users:
-                                    user = users[session_user]
-                                else:
-                                    user = User(
-                                        request.app,
-                                        username=data["username"],
-                                        anon=data["username"].startswith("Anon-"),
-                                    )
-                                    users[user.username] = user
-                        else:
-                            log.info(
-                                "+++ Existing game_user %s socket reconnected.",
-                                data["username"],
-                            )
-                            session_user = data["username"]
-                            if session_user in users:
-                                user = users[session_user]
-                            else:
-                                user = User(
-                                    request.app,
-                                    username=data["username"],
-                                    anon=data["username"].startswith("Anon-"),
-                                )
-                                users[user.username] = user
-
                         # update websocket
                         if data["gameId"] in user.game_sockets:
                             await user.game_sockets[data["gameId"]].close()
@@ -585,7 +533,7 @@ async def round_socket_handler(request):
 
                     elif data["type"] == "is_user_present":
                         player_name = data["username"]
-                        player = users.get(player_name)
+                        player = await users.get(player_name)
                         await asyncio.sleep(1)
                         if player is not None and data["gameId"] in (
                             player.game_queues if player.bot else player.game_sockets
@@ -622,7 +570,7 @@ async def round_socket_handler(request):
                                 pass
 
                     elif data["type"] == "roundchat":
-                        if user.username.startswith("Anon-"):
+                        if user.username.startswith(ANON_PREFIX):
                             continue
 
                         gameId = data["gameId"]

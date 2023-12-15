@@ -31,6 +31,7 @@ from typedefs import (
     users_key,
 )
 from const import (
+    ANON_PREFIX,
     LANGUAGES,
     TROPHIES,
     VARIANTS,
@@ -43,7 +44,7 @@ from const import (
     TRANSLATED_PAIRING_SYSTEM_NAMES,
 )
 from fairy import FairyBoard
-from glicko2.glicko2 import DEFAULT_PERF, PROVISIONAL_PHI
+from glicko2.glicko2 import PROVISIONAL_PHI
 from robots import ROBOTS_TXT
 from settings import (
     ADMINS,
@@ -110,21 +111,10 @@ async def index(request):
         if session_user in users:
             user = users[session_user]
         else:
-            if session_user.startswith("Anon-"):
+            if session_user.startswith(ANON_PREFIX):
                 session.invalidate()
                 return web.HTTPFound(request.rel_url)
-
-            log.debug("New lichess user %s joined.", session_user)
-            title = session["title"] if "title" in session else ""
-            perfs = {variant: DEFAULT_PERF for variant in VARIANTS}
-            user = User(
-                request.app,
-                username=session_user,
-                anon=session["guest"],
-                title=title,
-                perfs=perfs,
-            )
-            users[user.username] = user
+            user = await users.get(session_user)
     else:
         user = User(request.app, anon=True)
         log.info("+++ New guest user %s connected.", user.username)
@@ -241,9 +231,11 @@ async def index(request):
         view = "puzzle"
 
     profileId = request.match_info.get("profileId")
-    if profileId is not None and profileId not in users:
-        await asyncio.sleep(3)
-        raise web.HTTPNotFound()
+    if profileId is not None:
+        profileId_user = await users.get(profileId)
+        if profileId_user is None:
+            await asyncio.sleep(3)
+            raise web.HTTPNotFound()
 
     variant = request.match_info.get("variant")
     if (variant is not None) and ((variant not in VARIANTS) and variant != "terminology"):

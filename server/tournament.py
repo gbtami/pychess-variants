@@ -379,8 +379,8 @@ class Tournament(ABC):
         return page_json
 
     # TODO: cache this
-    def games_json(self, player_name):
-        player = self.app[users_key].get(player_name)
+    async def games_json(self, player_name):
+        player = await self.app[users_key].get(player_name)
         return {
             "type": "get_games",
             "rank": self.leaderboard.index(player) + 1,
