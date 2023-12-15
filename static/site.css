@@ -4,7 +4,6 @@
   --main-max-width: 1400px;
   --feature-btn: #d0e0bd;
   --invalid-queen: #ffa07a;
-  --black-white: black;
   --gauge-gap: 17px;
   --site-header-height: 60px;
   --site-header-margin: 0px;
@@ -84,7 +83,6 @@
   --dark-mode: 1;
   --feature-btn: #384722;
   --invalid-queen: #b22222;
-  --black-white: white;
   --font-color: #bababa;
   --link-color: #999;
   --link-hover: #3692e7;
