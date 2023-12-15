@@ -1034,6 +1034,9 @@ button.back {
 .user-link {
   padding-right: 8px;
 }
+@media only screen and (max-width: 799px) {
+.user-link {font-size: 0.8em;}
+}
 a {
   white-space: break-spaces;
 }
@@ -1226,6 +1229,9 @@ div.info2 {
   padding-left: 10px;
   padding-bottom: 6px;
 }
+@media only screen and (max-width: 799px) {
+  div.info2 { padding-left: 4px;}
+}
 div.info2 a, div.info2 .user-link {
   color: var(--link-color-blue);
 }
@@ -1391,10 +1397,10 @@ vs-swords.lobby.opp {
   flex: 1 1 100%;
   flex-flow: row;
   align-items: center;
-  color: var(--font-color);
+  color: var(--clock-running-color);
   text-decoration: none;
   padding: 0.7em 2vmin 0.7em 0.4em;
-  opacity: 0.7;
+  opacity: 1;
 }
 .sub-ratings a:hover {
   background: var(--game-hover);
