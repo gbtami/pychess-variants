@@ -1396,10 +1396,10 @@ vs-swords.lobby.opp {
   flex: 1 1 100%;
   flex-flow: row;
   align-items: center;
-  color: var(--font-color);
+  color: var(--black-white);
   text-decoration: none;
   padding: 0.7em 2vmin 0.7em 0.4em;
-  opacity: 0.7;
+  opacity: 0.8;
 }
 .sub-ratings a:hover {
   background: var(--game-hover);
