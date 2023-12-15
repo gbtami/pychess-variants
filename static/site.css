@@ -1228,6 +1228,9 @@ div.info2 {
   padding-left: 10px;
   padding-bottom: 6px;
 }
+@media only screen and (max-width: 599px) {
+  div.info2 { padding-left: 4px;}
+}
 div.info2 a, div.info2 .user-link {
   color: var(--link-color-blue);
 }
