@@ -1397,7 +1397,7 @@ vs-swords.lobby.opp {
   flex: 1 1 100%;
   flex-flow: row;
   align-items: center;
-  color: var(--clock-running-color);
+  color: var(--font-color);
   text-decoration: none;
   padding: 0.7em 2vmin 0.7em 0.4em;
   opacity: 1;
