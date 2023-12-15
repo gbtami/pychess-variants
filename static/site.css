@@ -1036,6 +1036,9 @@ button.back {
 .user-link {
   padding-right: 8px;
 }
+@media only screen and (max-width: 550px) {
+.user-link {font-size: 0.8em;}
+}
 a {
   white-space: break-spaces;
 }
