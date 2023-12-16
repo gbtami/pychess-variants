@@ -8,14 +8,24 @@ import aiohttp
 from aiohttp import web
 import aiohttp_session
 
-import bug.utils_bug
+
+from typedefs import (
+    db_key,
+    fishnet_queue_key,
+    fishnet_versions_key,
+    fishnet_works_key,
+    lobbysockets_key,
+    seeks_key,
+    users_key,
+    workers_key,
+)
+
 from broadcast import lobby_broadcast, round_broadcast
 from bug.wsr_bug import handle_resign_bughouse, handle_rematch_bughouse, handle_reconnect_bughouse
 from chat import chat_response
-from const import ANALYSIS, STARTED
+from const import ANON_PREFIX, ANALYSIS, STARTED
 from fairy import WHITE, BLACK
 from seek import challenge, Seek
-from user import User
 from draw import draw, reject_draw
 from utils import (
     analysis_move,
@@ -35,19 +45,19 @@ MORE_TIME = 15 * 1000
 
 
 async def round_socket_handler(request):
-    users = request.app["users"]
+    users = request.app[users_key]
 
     session = await aiohttp_session.get_session(request)
     session_user = session.get("user_name")
-    user = users[session_user] if session_user is not None and session_user in users else None
+    user = await users.get(session_user)
 
     if user is not None and not user.enabled:
         session.invalidate()
         return web.HTTPFound("/")
 
-    sockets = request.app["lobbysockets"]
-    seeks = request.app["seeks"]
-    db = request.app["db"]
+    sockets = request.app[lobbysockets_key]
+    seeks = request.app[seeks_key]
+    db = request.app[db_key]
 
     ws = MyWebSocketResponse(heartbeat=3.0, receive_timeout=15.0)
 
@@ -143,7 +153,7 @@ async def round_socket_handler(request):
                             if user.username == game.bplayer.username
                             else game.bplayer.username
                         )
-                        opp_player = users.get(opp_name)
+                        opp_player = await users.get(opp_name)
                         if opp_player is not None and opp_player.bot:
                             # Janggi game start have to wait for human player setup!
                             if game.variant != "janggi" or not (game.bsetup or game.wsetup):
@@ -250,7 +260,7 @@ async def round_socket_handler(request):
 
                     elif data["type"] == "analysis":
                         # If there is any fishnet client, use it.
-                        if len(request.app["workers"]) > 0:
+                        if len(request.app[workers_key]) > 0:
                             work_id = "".join(
                                 random.choice(string.ascii_letters + string.digits)
                                 for x in range(6)
@@ -276,10 +286,10 @@ async def round_socket_handler(request):
                                 "nodes": 500000,  # optional limit
                                 #  "skipPositions": [1, 4, 5]  # 0 is the first position
                             }
-                            request.app["works"][work_id] = work
-                            request.app["fishnet"].put_nowait((ANALYSIS, work_id))
+                            request.app[fishnet_works_key][work_id] = work
+                            request.app[fishnet_queue_key].put_nowait((ANALYSIS, work_id))
                         else:
-                            engine = users.get("Fairy-Stockfish")
+                            engine = users["Fairy-Stockfish"]
 
                             if (engine is not None) and engine.online:
                                 engine.game_queues[data["gameId"]] = asyncio.Queue()
@@ -311,13 +321,13 @@ async def round_socket_handler(request):
 
                         if opp_player.bot:
                             if opp_player.username == "Random-Mover":
-                                engine = users.get("Random-Mover")
+                                engine = users["Random-Mover"]
                             else:
-                                engine = users.get("Fairy-Stockfish")
+                                engine = users["Fairy-Stockfish"]
 
                             if engine is None or not engine.online:
                                 # TODO: message that engine is offline, but capture BOT will play instead
-                                engine = users.get("Random-Mover")
+                                engine = users["Random-Mover"]
 
                             color = "w" if game.wplayer.username == opp_name else "b"
                             if handicap:
@@ -489,61 +499,6 @@ async def round_socket_handler(request):
                         await ws.send_json(response)
 
                     elif data["type"] == "game_user_connected":
-                        # todo:niki: i dont get this. if seesion_user is none (which is perfectly normal if user didnt log in), we allow whoever sent this message to impersonate anyone?
-                        if session_user is not None:
-                            if data["username"] and data["username"] != session_user: # todo:niki: how is this even possible and what reason to do it other than actually allow hacking
-                                log.info(
-                                    "+++ Existing game_user %s socket connected as %s.",
-                                    session_user,
-                                    data["username"],
-                                )
-                                session_user = data["username"]
-                                if session_user in users:
-                                    user = users[session_user]
-                                else:
-                                    user = User(
-                                        request.app,
-                                        username=data["username"],
-                                        anon=data["username"].startswith("Anon-"),
-                                    )
-                                    users[user.username] = user
-
-                                # Update logged in users as spactators
-                                if (game is not None
-                                    and not game.is_player(user)
-                                ):
-                                    game.spectators.add(user)
-                            else:
-                                log.info(
-                                    "+++ Existing game_user %s socket connected as %s. Same as session user",
-                                    session_user,
-                                    data["username"],
-                                )
-                                if session_user in users:
-                                    user = users[session_user]
-                                else:
-                                    user = User(
-                                        request.app,
-                                        username=data["username"],
-                                        anon=data["username"].startswith("Anon-"),
-                                    )
-                                    users[user.username] = user
-                        else: # todo:niki: again one more case to be absolutely sure we allow hacking not only when user of the existing session is different than the one that declares themselves now with this message (which case we handle above), but also for the case when current session has no user at all to be absolutely sure hacker can impersonate other players even in such cases
-                            log.info(
-                                "+++ Existing game_user %s socket reconnected.",
-                                data["username"],
-                            )
-                            session_user = data["username"]
-                            if session_user in users:
-                                user = users[session_user]
-                            else:
-                                user = User(
-                                    request.app,
-                                    username=data["username"],
-                                    anon=data["username"].startswith("Anon-"),
-                                )
-                                users[user.username] = user
-
                         # update websocket
                         if data["gameId"] in user.game_sockets:
                             log.debug("Closing existing socket %s, before replacing it with the new one. Maybe we shuldnt close it tho if it is the same?", id(user.game_sockets[data["gameId"]]))
@@ -591,7 +546,7 @@ async def round_socket_handler(request):
 
                     elif data["type"] == "is_user_present":
                         player_name = data["username"]
-                        player = users.get(player_name)
+                        player = await users.get(player_name)
                         await asyncio.sleep(1)
                         if player is not None and data["gameId"] in (
                             player.game_queues if player.bot else player.game_sockets
@@ -647,15 +602,15 @@ async def round_socket_handler(request):
                         await round_broadcast(game, response)
 
                     elif data["type"] == "roundchat":
-                        if user.username.startswith("Anon-"):
+                        if user.username.startswith(ANON_PREFIX):
                             continue
 
                         gameId = data["gameId"]
                         message = data["message"]
                         # Users running a fishnet worker can ask server side analysis with chat message: !analysis
                         if (
-                            message == "!analysis"
-                            and user.username in request.app["fishnet_versions"]
+                            data["message"] == "!analysis"
+                            and user.username in request.app[fishnet_versions_key]
                         ):
                             for step in game.steps:
                                 if "analysis" in step:

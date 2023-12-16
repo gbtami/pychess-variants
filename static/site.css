@@ -1036,6 +1036,9 @@ button.back {
 .user-link {
   padding-right: 8px;
 }
+@media only screen and (max-width: 799px) {
+.user-link {font-size: 0.8em;}
+}
 a {
   white-space: break-spaces;
 }
@@ -1228,6 +1231,9 @@ div.info2 {
   padding-left: 10px;
   padding-bottom: 6px;
 }
+@media only screen and (max-width: 799px) {
+  div.info2 { padding-left: 4px;}
+}
 div.info2 a, div.info2 .user-link {
   color: var(--link-color-blue);
 }
@@ -1402,7 +1408,7 @@ vs-swords.lobby.opp {
   color: var(--font-color);
   text-decoration: none;
   padding: 0.7em 2vmin 0.7em 0.4em;
-  opacity: 0.7;
+  opacity: 1;
 }
 .sub-ratings a:hover {
   background: var(--game-hover);
@@ -1456,7 +1462,6 @@ table.seeks {
 .seeks thead {
   background: var(--bg-color2);
 }
-/*
 #santa {
     display: inline-block;
     width: 28px;
@@ -1465,7 +1470,6 @@ table.seeks {
     background-position: center;
     background-image: url('images/Santa_hat.svg');
 }
-*/
 .seeks th,
 .seeks td {
   white-space: nowrap;

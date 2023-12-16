@@ -4,6 +4,7 @@ from functools import partial
 
 from aiohttp import web
 
+from typedefs import calendar_key
 from scheduler import new_scheduled_tournaments
 from tournaments import get_scheduled_tournaments
 
@@ -41,8 +42,8 @@ def event(data, created_tournaments):
 
 
 async def tournament_calendar(request):
-    if "calendar" in request.app:
-        events = request.app["calendar"]
+    if calendar_key in request.app:
+        events = request.app[calendar_key]
         return web.json_response(events, dumps=partial(json.dumps, default=dt.datetime.isoformat))
 
     scheduled_tournaments = await get_scheduled_tournaments(request.app)
@@ -66,6 +67,6 @@ async def tournament_calendar(request):
 
         already_scheduled += next_data
 
-    request.app["calendar"] = events
+    request.app[calendar_key] = events
 
     return web.json_response(events, dumps=partial(json.dumps, default=dt.datetime.isoformat))
