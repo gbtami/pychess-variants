@@ -9,6 +9,7 @@ from datetime import datetime, timedelta, timezone
 import aiohttp
 from aiohttp import web
 
+from typedefs import twitch_key
 from broadcast import broadcast_streams
 from settings import DEV, TWITCH_CLIENT_ID, TWITCH_CLIENT_SECRET
 from streamers import TWITCH_STREAMERS
@@ -231,7 +232,7 @@ async def twitch_request_handler(request):
             return web.Response(text=challenge)
 
     elif header_msg_type == "notification":
-        twitch = request.app["twitch"]
+        twitch = request.app[twitch_key]
         event = json.get("event")
         streamer = event["broadcaster_user_login"]
         log.debug("--- twitch notification --- %s %s", streamer, event)

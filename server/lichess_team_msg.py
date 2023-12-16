@@ -3,6 +3,7 @@ import logging
 
 import aiohttp
 
+from typedefs import tournaments_key, sent_lichess_team_msg_key
 from const import T_CREATED
 from misc import time_control_str
 from settings import (
@@ -23,12 +24,12 @@ async def lichess_team_msg(app):
         return
 
     to_date = datetime.now().date()
-    if to_date in app["sent_lichess_team_msg"]:
+    if to_date in app[sent_lichess_team_msg_key]:
         print("No more lichess team msg for today!")
         return
 
     team_id = "pychess-tournaments"
-    msg = upcoming_tournaments_msgs(app["tournaments"])
+    msg = upcoming_tournaments_msgs(app[tournaments_key])
     print(msg)
 
     async with aiohttp.ClientSession() as session:
@@ -41,7 +42,7 @@ async def lichess_team_msg(app):
             if json.get("error") is not None:
                 log.error(json)
 
-            app["sent_lichess_team_msg"].append(to_date)
+            app[sent_lichess_team_msg_key].append(to_date)
 
 
 def upcoming_tournaments_msgs(tournaments):

@@ -16,6 +16,17 @@ except ImportError as e:
     log.error(e, stack_info=True, exc_info=True)
     print("No pyffish module installed!")
 
+from typedefs import (
+    db_key,
+    crosstable_key,
+    games_key,
+    g_cnt_key,
+    highscore_key,
+    lobbysockets_key,
+    tournaments_key,
+    users_key,
+    tv_key,
+)
 from broadcast import lobby_broadcast, round_broadcast
 from clock import Clock, CorrClock
 from compress import encode_moves, R2C
@@ -51,7 +62,7 @@ log = logging.getLogger(__name__)
 
 MAX_HIGH_SCORE = 10
 MAX_PLY = 600
-KEEP_TIME = 1800  # keep game in app["games"] for KEEP_TIME secs
+KEEP_TIME = 1800  # keep game in app[games_key] for KEEP_TIME secs
 
 INVALID_PAWN_DROP_MATE = (
     ("P@", "shogi"),
@@ -82,11 +93,11 @@ class Game:
         tournamentId=None,
     ):
         self.app = app
-        self.db = app["db"] if "db" in app else None
-        self.users = app["users"]
-        self.games = app["games"]
-        self.highscore = app["highscore"]
-        self.db_crosstable = app["crosstable"]
+        self.db = app[db_key] if db_key in app else None
+        self.users = app[users_key]
+        self.games = app[games_key]
+        self.highscore = app[highscore_key]
+        self.db_crosstable = app[crosstable_key]
 
         self.saved = False
         self.remove_task = None
@@ -302,9 +313,9 @@ class Game:
         # so we have to check board.ply instead here!
         if self.board.ply == 0:
             self.status = STARTED
-            self.app["g_cnt"][0] += 1
-            response = {"type": "g_cnt", "cnt": self.app["g_cnt"][0]}
-            await lobby_broadcast(self.app["lobbysockets"], response)
+            self.app[g_cnt_key][0] += 1
+            response = {"type": "g_cnt", "cnt": self.app[g_cnt_key][0]}
+            await lobby_broadcast(self.app[lobbysockets_key], response)
 
         cur_player = self.bplayer if self.board.color == BLACK else self.wplayer
         opp_player = self.wplayer if self.board.color == BLACK else self.bplayer
@@ -449,17 +460,17 @@ class Game:
             log.error(e, stack_info=True, exc_info=True)
 
         if self.board.ply > 0:
-            self.app["g_cnt"][0] -= 1
-            response = {"type": "g_cnt", "cnt": self.app["g_cnt"][0]}
-            await lobby_broadcast(self.app["lobbysockets"], response)
+            self.app[g_cnt_key][0] -= 1
+            response = {"type": "g_cnt", "cnt": self.app[g_cnt_key][0]}
+            await lobby_broadcast(self.app[lobbysockets_key], response)
 
         async def remove(keep_time):
             # Keep it in our games dict a little to let players get the last board
             # not to mention that BOT players want to abort games after 20 sec inactivity
             await asyncio.sleep(keep_time)
 
-            if self.id == self.app["tv"]:
-                self.app["tv"] = None
+            if self.id == self.app[tv_key]:
+                self.app[tv_key] = None
 
             try:
                 del self.games[self.id]
@@ -493,7 +504,7 @@ class Game:
 
             if self.tournamentId is not None:
                 try:
-                    await self.app["tournaments"][self.tournamentId].game_update(self)
+                    await self.app[tournaments_key][self.tournamentId].game_update(self)
                 except Exception:
                     log.exception("Exception in tournament game_update()")
 
@@ -658,8 +669,8 @@ class Game:
         self.brdiff = int(round(brdiff, 0))
         self.p1 = {"e": self.brating, "d": self.brdiff}
 
-        new_white_rating = gl2.create_rating(wr_old + wrdiff, wr.phi, wr.sigma, wr.ltime)
-        new_black_rating = gl2.create_rating(br_old + brdiff, br.phi, br.sigma, br.ltime)
+        new_white_rating = gl2.create_rating(wcurr.mu + wrdiff, wr.phi, wr.sigma, wr.ltime)
+        new_black_rating = gl2.create_rating(bcurr.mu + brdiff, br.phi, br.sigma, br.ltime)
 
         await self.wplayer.set_rating(self.variant, self.chess960, new_white_rating)
         await self.bplayer.set_rating(self.variant, self.chess960, new_black_rating)

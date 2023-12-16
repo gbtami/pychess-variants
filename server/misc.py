@@ -4,6 +4,8 @@ import cProfile
 import pstats
 from timeit import default_timer
 
+from typedefs import users_key
+
 
 def timeit(func):
     async def process(func, *args, **params):
@@ -106,9 +108,9 @@ def server_state(app, amount=3):
             print(app[akey])
     print("=" * 40)
 
-    q = app["users"]["Random-Mover"].event_queue
+    q = app[users_key]["Random-Mover"].event_queue
     print(" ... Random-Mover ...")
     print(q)
-    q = app["users"]["Fairy-Stockfish"].event_queue
+    q = app[users_key]["Fairy-Stockfish"].event_queue
     print(" ... Fairy-Stockfish ...")
     print(q)

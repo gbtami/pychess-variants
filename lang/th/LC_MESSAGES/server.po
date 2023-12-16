@@ -5,7 +5,7 @@
 # 
 # Translators:
 # gbtami <gbtami@gmail.com>, 2022
-# Ada Joule <ada.fulmina@gmail.com>, 2022
+# Ada Joule <ada.fulmina@gmail.com>, 2023
 # 
 #, fuzzy
 msgid ""
@@ -14,7 +14,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2023-11-17 14:15+0100\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
-"Last-Translator: Ada Joule <ada.fulmina@gmail.com>, 2022\n"
+"Last-Translator: Ada Joule <ada.fulmina@gmail.com>, 2023\n"
 "Language-Team: Thai (https://app.transifex.com/gbtami/teams/14790/th/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -25,43 +25,43 @@ msgstr ""
 
 #: ../server/const.py:325
 msgid "Arena"
-msgstr ""
+msgstr "อารีนา"
 
 #: ../server/const.py:326
 msgid "Round-Robin"
-msgstr ""
+msgstr "พบกันหมด"
 
 #: ../server/const.py:327
 msgid "Swiss"
-msgstr ""
+msgstr "สวิส"
 
 #: ../server/const.py:331
 msgid "Hourly"
-msgstr ""
+msgstr "รายชั่วโมง"
 
 #: ../server/const.py:332
 msgid "Daily"
-msgstr ""
+msgstr "รายวัน"
 
 #: ../server/const.py:333
 msgid "Weekly"
-msgstr ""
+msgstr "รายสัปดาห์"
 
 #: ../server/const.py:334
 msgid "Monthly"
-msgstr ""
+msgstr "รายเดือน"
 
 #: ../server/const.py:335
 msgid "Yearly"
-msgstr ""
+msgstr "รายปี"
 
 #: ../server/const.py:336
 msgid "Marathon"
-msgstr ""
+msgstr "มาราธอน"
 
 #: ../server/const.py:337
 msgid "Shield"
-msgstr ""
+msgstr "ชิงโล่"
 
 #: ../server/const.py:338
 msgid "SEAturday"
@@ -265,67 +265,67 @@ msgstr ""
 
 #: ../server/videos.py:10
 msgid "Howto"
-msgstr ""
+msgstr "วิธีเล่น"
 
 #: ../server/videos.py:11
 msgid "Introduction"
-msgstr ""
+msgstr "เริ่มต้น"
 
 #: ../server/videos.py:12
 msgid "Opening"
-msgstr ""
+msgstr "ต้นกระดาน"
 
 #: ../server/videos.py:13
 msgid "Middlegame"
-msgstr ""
+msgstr "กลางกระดาน"
 
 #: ../server/videos.py:14
 msgid "Endgame"
-msgstr ""
+msgstr "ปลายกระดาน"
 
 #: ../server/videos.py:15
 msgid "Fundamentals"
-msgstr ""
+msgstr "พื้นฐาน"
 
 #: ../server/videos.py:16
 msgid "Tactics"
-msgstr ""
+msgstr "ยุทธวิธี"
 
 #: ../server/videos.py:17
 msgid "Puzzle"
-msgstr ""
+msgstr "หมากกล"
 
 #: ../server/videos.py:25
 msgid "Duck"
-msgstr ""
+msgstr "Duck"
 
 #: ../server/videos.py:26
 msgid "Match"
-msgstr ""
+msgstr "การเล่น"
 
 #: ../server/videos.py:27
 msgid "Tournament"
-msgstr ""
+msgstr "การแข่งขัน"
 
 #: ../server/videos.py:28
 msgid "Hu Ronghua"
-msgstr ""
+msgstr "หูหรงหัว"
 
 #: ../server/videos.py:29
 msgid "Yoshiharu Habu"
-msgstr ""
+msgstr "ฮาบุ โยชิฮารุ"
 
 #: ../server/videos.py:33
 msgid "beginner"
-msgstr ""
+msgstr "ระดับเริ่มต้น"
 
 #: ../server/videos.py:34
 msgid "intermediate"
-msgstr ""
+msgstr "ระดับกลาง"
 
 #: ../server/videos.py:35
 msgid "advanced"
-msgstr ""
+msgstr "ระดับสูง"
 
 #: ../templates/closed.html:8
 msgid "This account is closed."
@@ -413,19 +413,19 @@ msgstr "การแข่งขัน"
 
 #: ../templates/template.html:25 ../templates/template.html:27
 msgid "Puzzles"
-msgstr ""
+msgstr "หมากกล"
 
 #: ../templates/template.html:31
 msgid "Learn"
-msgstr ""
+msgstr "เรียนรู้"
 
 #: ../templates/template.html:33
 msgid "Variants"
-msgstr "ชนิดเกม"
+msgstr "กติกาเกมต่างๆ"
 
 #: ../templates/template.html:34
 msgid "Memory"
-msgstr ""
+msgstr "เกมความจำ"
 
 #: ../templates/template.html:38
 msgid "Watch"
@@ -515,4 +515,4 @@ msgstr[0] "%(count)s คน"
 
 #: ../templates/videos.html:15
 msgid "Chess variant videos"
-msgstr ""
+msgstr "วิดีโอหมากรุก"

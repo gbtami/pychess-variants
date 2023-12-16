@@ -8,6 +8,18 @@ from aiohttp import web
 import aiohttp_session
 from aiohttp_sse import sse_response
 
+from typedefs import (
+    db_key,
+    game_channels_key,
+    games_key,
+    invites_key,
+    invite_channels_key,
+    seeks_key,
+    stats_key,
+    stats_humans_key,
+    tournaments_key,
+    users_key,
+)
 from const import GRANDS, STARTED, MATE, VARIANTS, INVALIDMOVE, VARIANTEND, CLAIM
 from compress import decode_moves, C2V, V2C, C2R
 from convert import zero2grand
@@ -24,14 +36,14 @@ async def get_variant_stats(request):
     cur_period = datetime.now().isoformat()[:7]
 
     if "/humans" in request.path:
-        stats = "stats_humans"
+        stats = stats_humans_key
     else:
-        stats = "stats"
+        stats = stats_key
 
     if cur_period in request.app[stats]:
         series = request.app[stats][cur_period]
     else:
-        db = request.app["db"]
+        db = request.app[db_key]
 
         pipeline = [
             {
@@ -91,8 +103,8 @@ async def get_variant_stats(request):
 
 
 async def get_tournament_games(request):
-    tournaments = request.app["tournaments"]
-    db = request.app["db"]
+    tournaments = request.app[tournaments_key]
+    db = request.app[db_key]
     tournamentId = request.match_info.get("tournamentId")
 
     if tournamentId is not None and tournamentId not in tournaments:
@@ -121,8 +133,8 @@ async def get_tournament_games(request):
 
 
 async def get_user_games(request):
-    users = request.app["users"]
-    db = request.app["db"]
+    users = request.app[users_key]
+    db = request.app[db_key]
     profileId = request.match_info.get("profileId")
 
     if profileId is not None and profileId not in users:
@@ -275,8 +287,8 @@ async def get_user_games(request):
 
 async def cancel_invite(request):
     gameId = request.match_info.get("gameId")
-    seeks = request.app["seeks"]
-    invites = request.app["invites"]
+    seeks = request.app[seeks_key]
+    invites = request.app[invites_key]
 
     if gameId in invites:
         seek_id = invites[gameId].id
@@ -299,7 +311,7 @@ async def subscribe_invites(request):
         async with sse_response(request) as response:
             app = request.app
             queue = asyncio.Queue()
-            app["invite_channels"].add(queue)
+            app[invite_channels_key].add(queue)
             while not response.task.done():
                 payload = await queue.get()
                 await response.send(payload)
@@ -307,7 +319,7 @@ async def subscribe_invites(request):
     except ConnectionResetError as e:
         log.error(e, stack_info=True, exc_info=True)
     finally:
-        app["invite_channels"].remove(queue)
+        app[invite_channels_key].remove(queue)
     return response
 
 
@@ -316,7 +328,7 @@ async def subscribe_games(request):
         async with sse_response(request) as response:
             app = request.app
             queue = asyncio.Queue()
-            app["game_channels"].add(queue)
+            app[game_channels_key].add(queue)
             while not response.task.done():
                 payload = await queue.get()
                 await response.send(payload)
@@ -324,12 +336,12 @@ async def subscribe_games(request):
     except (ConnectionResetError, asyncio.CancelledError) as e:
         log.error(e, stack_info=True, exc_info=True)
     finally:
-        app["game_channels"].remove(queue)
+        app[game_channels_key].remove(queue)
     return response
 
 
 def get_games(request):
-    games = request.app["games"].values()
+    games = request.app[games_key].values()
     # TODO: filter last 10 by variant
     return web.json_response(
         [
@@ -356,8 +368,8 @@ def get_games(request):
 
 
 async def export(request):
-    db = request.app["db"]
-    users = request.app["users"]
+    db = request.app[db_key]
+    users = request.app[users_key]
     profileId = request.match_info.get("profileId")
     if profileId is not None and profileId not in users:
         await asyncio.sleep(3)

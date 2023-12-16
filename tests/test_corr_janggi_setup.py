@@ -7,9 +7,11 @@ from mongomock_motor import AsyncMongoMockClient
 
 from aiohttp.test_utils import AioHTTPTestCase
 
+from typedefs import db_key, games_key, users_key, seeks_key
 from const import VARIANTS, STARTED
 from glicko2.glicko2 import DEFAULT_PERF
 from user import User
+from users import Users
 from utils import join_seek, load_game
 from seek import Seek
 from server import make_app
@@ -48,31 +50,36 @@ class CorrJanggiGameTestCase(AioHTTPTestCase):
     async def tearDownAsync(self):
         await self.client.close()
 
-    def create_users(self):
+    async def create_users(self):
         blue_player = User(self.app, username="blue", perfs=PERFS)
         red_player = User(self.app, username="red", perfs=PERFS)
 
-        self.app["users"]["blue"] = blue_player
-        self.app["users"]["red"] = red_player
+        self.app[users_key]["blue"] = blue_player
+        self.app[users_key]["red"] = red_player
+
+        db = self.app[db_key]
+        await db.user.delete_many({})
+        await db.user.insert_one({"_id": "blue"})
+        await db.user.insert_one({"_id": "red"})
 
     async def server_restart(self):
-        self.app["games"] = {}
-        self.app["users"] = {}
+        self.app[games_key] = {}
+        self.app[users_key] = Users(self.app)
 
-        games = self.app["db"].game
+        games = self.app[db_key].game
         doc = await games.find_one({"us": ["blue", "red"]})
 
         game = await load_game(self.app, doc["_id"])
         if game is not None:
-            self.app["games"][doc["_id"]] = game
+            self.app[games_key][doc["_id"]] = game
             game.wplayer.correspondence_games.append(game)
             game.bplayer.correspondence_games.append(game)
 
         return game
 
     async def new_game(self):
-        blue_player = self.app["users"]["blue"]
-        red_player = self.app["users"]["red"]
+        blue_player = self.app[users_key]["blue"]
+        red_player = self.app[users_key]["red"]
 
         seek = Seek(
             blue_player,
@@ -81,19 +88,19 @@ class CorrJanggiGameTestCase(AioHTTPTestCase):
             day=1,
             player1=blue_player,
         )
-        self.app["seeks"][seek.id] = seek
+        self.app[seeks_key][seek.id] = seek
         response = await join_seek(self.app, red_player, seek.id)
         gameId = response["gameId"]
 
-        game = self.app["games"][gameId]
+        game = self.app[games_key][gameId]
         return game
 
     async def test_without_server_restart(self):
-        self.create_users()
+        await self.create_users()
         game = await self.new_game()
 
         # THE NEW GAME
-        games = self.app["db"].game
+        games = self.app[db_key].game
         doc = await games.find_one({"_id": game.id})
 
         self.assertEqual(doc["_id"], game.id)
@@ -137,14 +144,14 @@ class CorrJanggiGameTestCase(AioHTTPTestCase):
         self.assertEqual(doc["f"], C10D8_FEN)  # current FEN
 
     async def test_with_server_restart(self):
-        self.create_users()
+        await self.create_users()
         game = await self.new_game()
 
         # SERVER RESTART !
         game = await self.server_restart()
 
         # NEW GAME
-        games = self.app["db"].game
+        games = self.app[db_key].game
         doc = await games.find_one({"_id": game.id})
 
         self.assertEqual(doc["_id"], game.id)

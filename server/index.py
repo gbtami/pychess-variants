@@ -21,7 +21,20 @@ except ImportError as e:
     warnings.warn("Not using HTML minification, htmlmin not imported.")
     sys.exit(0)
 
+from typedefs import (
+    db_key,
+    games_key,
+    gettext_key,
+    highscore_key,
+    invites_key,
+    invite_channels_key,
+    jinja_key,
+    shield_owners_key,
+    seeks_key,
+    users_key,
+)
 from const import (
+    ANON_PREFIX,
     LANGUAGES,
     TROPHIES,
     VARIANTS,
@@ -34,7 +47,7 @@ from const import (
     TRANSLATED_PAIRING_SYSTEM_NAMES,
 )
 from fairy import FairyBoard
-from glicko2.glicko2 import DEFAULT_PERF, PROVISIONAL_PHI
+from glicko2.glicko2 import PROVISIONAL_PHI
 from robots import ROBOTS_TXT
 from settings import (
     ADMINS,
@@ -72,9 +85,9 @@ from custom_trophy_owners import CUSTOM_TROPHY_OWNERS
 async def index(request):
     """Create home html."""
 
-    users = request.app["users"]
-    games = request.app["games"]
-    db = request.app["db"]
+    users = request.app[users_key]
+    games = request.app[games_key]
+    db = request.app[db_key]
 
     # Who made the request?
     session = await aiohttp_session.get_session(request)
@@ -100,21 +113,10 @@ async def index(request):
         if session_user in users:
             user = users[session_user]
         else:
-            if session_user.startswith("Anon-"):
+            if session_user.startswith(ANON_PREFIX):
                 session.invalidate()
                 return web.HTTPFound(request.rel_url)
-
-            log.debug("New lichess user %s joined.", session_user)
-            title = session["title"] if "title" in session else ""
-            perfs = {variant: DEFAULT_PERF for variant in VARIANTS}
-            user = User(
-                request.app,
-                username=session_user,
-                anon=session["guest"],
-                title=title,
-                perfs=perfs,
-            )
-            users[user.username] = user
+            user = await users.get(session_user)
     else:
         user = User(request.app, anon=True)
         log.info("+++ New guest user %s connected.", user.username)
@@ -125,9 +127,9 @@ async def index(request):
     if lang is None:
         lang = detect_locale(request)
 
-    get_template = request.app["jinja"][lang].get_template
+    get_template = request.app[jinja_key][lang].get_template
 
-    lang_translation = request.app["gettext"][lang]
+    lang_translation = request.app[gettext_key][lang]
     lang_translation.install()
 
     def variant_display_name(variant):
@@ -231,9 +233,11 @@ async def index(request):
         view = "puzzle"
 
     profileId = request.match_info.get("profileId")
-    if profileId is not None and profileId not in users:
-        await asyncio.sleep(3)
-        raise web.HTTPNotFound()
+    if profileId is not None:
+        profileId_user = await users.get(profileId)
+        if profileId_user is None:
+            await asyncio.sleep(3)
+            raise web.HTTPNotFound()
 
     variant = request.match_info.get("variant")
     if (variant is not None) and ((variant not in VARIANTS) and variant != "terminology"):
@@ -274,10 +278,10 @@ async def index(request):
     if (gameId is not None) and gameId != "variants":
         if view not in ("tv", "analysis", "embed"):
             view = "round"
-        invites = request.app["invites"]
+        invites = request.app[invites_key]
         if (gameId not in games) and (gameId in invites):
             seek_id = invites[gameId].id
-            seek = request.app["seeks"][seek_id]
+            seek = request.app[seeks_key][seek_id]
             if request.path.startswith("/invite/accept/"):
                 player = request.match_info.get("player")
                 seek_status = await join_seek(request.app, user, seek_id, gameId, join_as=player)
@@ -294,7 +298,7 @@ async def index(request):
                 elif seek_status["type"] == "new_game":
                     try:
                         # Put response data to sse subscribers queue
-                        channels = request.app["invite_channels"]
+                        channels = request.app[invite_channels_key]
                         for queue in channels:
                             await queue.put(json.dumps({"gameId": gameId}))
                         # return games[game_id]
@@ -399,7 +403,7 @@ async def index(request):
             profileId = "Fairy-Stockfish"
             render["trophies"] = []
         else:
-            hs = request.app["highscore"]
+            hs = request.app[highscore_key]
             render["trophies"] = [(v, "top10") for v in hs if profileId in hs[v].keys()[:10]]
             for i, (v, kind) in enumerate(render["trophies"]):
                 if hs[v].peekitem(0)[0] == profileId:
@@ -407,7 +411,7 @@ async def index(request):
             render["trophies"] = sorted(render["trophies"], key=lambda x: x[1])
 
             if not users[profileId].bot:
-                shield_owners = request.app["shield_owners"]
+                shield_owners = request.app[shield_owners_key]
                 render["trophies"] += [
                     (v, "shield") for v in shield_owners if shield_owners[v] == profileId
                 ]
@@ -456,10 +460,10 @@ async def index(request):
         render["anon_online"] = anon_online
         render["admin"] = user.username in ADMINS
         if variant is None:
-            hs = request.app["highscore"]
+            hs = request.app[highscore_key]
             render["highscore"] = {variant: dict(hs[variant].items()[:10]) for variant in hs}
         else:
-            hs = await generate_highscore(request.app["db"], variant)
+            hs = await generate_highscore(request.app[db_key], variant)
             print(hs)
             render["highscore"] = hs
             view = "players50"
@@ -701,7 +705,7 @@ async def select_lang(request):
         referer = request.headers.get("REFERER")
         session = await aiohttp_session.get_session(request)
         session_user = session.get("user_name")
-        users = request.app["users"]
+        users = request.app[users_key]
         if session_user in users:
             user = users[session_user]
             user.lang = lang

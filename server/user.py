@@ -6,7 +6,8 @@ from datetime import datetime, timezone
 from aiohttp import web
 import aiohttp_session
 
-from const import NOTIFY_PAGE_SIZE, STARTED, VARIANTS
+from const import ANON_PREFIX, NOTIFY_PAGE_SIZE, STARTED, VARIANTS
+from typedefs import db_key, lobbysockets_key, seeks_key, users_key
 from broadcast import lobby_broadcast, round_broadcast
 from glicko2.glicko2 import gl2, DEFAULT_PERF, Rating
 from login import RESERVED_USERS
@@ -15,7 +16,7 @@ from seek import get_seeks
 
 log = logging.getLogger(__name__)
 
-SILENCE = 10 * 60
+SILENCE = 15 * 60
 ANON_TIMEOUT = 10 * 60
 PENDING_SEEK_TIMEOUT = 10
 ABANDON_TIMEOUT = 90
@@ -36,7 +37,7 @@ class User:
         theme="dark",
     ):
         self.app = app
-        self.db = app["db"] if "db" in app else None
+        self.db = app[db_key] if db_key in app else None
         self.bot = False if username == "PyChessBot" else bot
         self.anon = anon
         self.lang = lang
@@ -45,7 +46,7 @@ class User:
 
         if username is None:
             self.anon = True
-            self.username = "Anon-" + id8()
+            self.username = ANON_PREFIX + id8()
         else:
             self.username = username
 
@@ -108,7 +109,7 @@ class User:
                 await asyncio.sleep(3)
                 if not self.online:
                     try:
-                        del self.app["users"][self.username]
+                        del self.app[users_key][self.username]
                     except KeyError:
                         log.error("Failed to del %s from users", self.username, stack_info=True, exc_info=True)
                     break
@@ -252,8 +253,8 @@ class User:
 
     async def clear_seeks(self):
         if len(self.seeks) > 0:
-            seeks = self.app["seeks"]
-            sockets = self.app["lobbysockets"]
+            seeks = self.app[seeks_key]
+            sockets = self.app[lobbysockets_key]
 
             for seek_id in list(self.seeks):
                 game_id = self.seeks[seek_id].game_id
@@ -271,7 +272,7 @@ class User:
             if seek.pending:
                 try:
                     del self.seeks[seek.id]
-                    del self.app["seeks"][seek.id]
+                    del self.app[seeks_key][seek.id]
                 except KeyError:
                     log.error("Failed to del %s from seeks", seek.id, stack_info=True, exc_info=True)
 
@@ -279,8 +280,8 @@ class User:
 
     async def update_seeks(self, pending=True):
         if len(self.seeks) > 0:
-            seeks = self.app["seeks"]
-            sockets = self.app["lobbysockets"]
+            seeks = self.app[seeks_key]
+            sockets = self.app[lobbysockets_key]
 
             for seek in self.seeks.values():
                 # preserve invites (seek with game_id) and corr seeks
@@ -304,7 +305,13 @@ class User:
             log.error("No ws for that game. Dropping message %s for %s", message, self.username)
             log.debug("Currently user %s has these game_sockets: %r", self.username, self.game_sockets)
     def __str__(self):
-        return "%s %s bot=%s" % (self.title, self.username, self.bot)
+        return "%s %s bot=%s anon=%s chess=%s" % (
+            self.title,
+            self.username,
+            self.bot,
+            self.anon,
+            self.perfs["chess"]["gl"]["r"],
+        )
 
 
 async def set_theme(request):
@@ -315,7 +322,7 @@ async def set_theme(request):
         referer = request.headers.get("REFERER")
         session = await aiohttp_session.get_session(request)
         session_user = session.get("user_name")
-        users = request.app["users"]
+        users = request.app[users_key]
         if session_user in users:
             user = users[session_user]
             user.theme = theme
