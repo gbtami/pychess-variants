@@ -18,6 +18,7 @@ export interface PieceFamily {
 }
 
 export const BOARD_FAMILIES: Record<string, BoardFamily> = {
+    ataxx7x7: { dimensions: { width: 7, height: 7 }, cg: "cg-448", boardCSS: ["ataxx.svg", "ataxx.png"] },
     standard8x8: { dimensions: { width: 8, height: 8 }, cg: "cg-512", boardCSS: ["8x8brown.svg", "8x8blue.svg", "8x8green.svg", "8x8maple.jpg", "8x8olive.jpg", "8x8santa.png", "8x8wood2.jpg", "8x8wood4.jpg", "8x8ic.svg", "8x8purple.svg"] },
     standard9x9: { dimensions: { width: 9, height: 9 }, cg: "cg-540", boardCSS: ["9x9mansindam.svg", "9x9brown.svg", "9x9blue.svg", "9x9green.svg", "9x9maple.jpg", "9x9olive.jpg"] },
     standard10x8: { dimensions: { width: 10, height: 8 }, cg: "cg-640", boardCSS: ["10x8brown.svg", "10x8blue.svg", "10x8green.svg", "10x8maple.jpg", "10x8olive.jpg"] },
@@ -39,6 +40,7 @@ export const BOARD_FAMILIES: Record<string, BoardFamily> = {
 };
 
 export const PIECE_FAMILIES: Record<string, PieceFamily> = {
+    ataxx: { pieceCSS: ["disguised"] },
     standard: { pieceCSS: ["standard", "green", "alpha", "chess_kaneo", "santa", "maestro", "dubrovny", "disguised", "atopdown"] },
     capa: { pieceCSS: ["capa0", "capa1", "capa2", "capa3", "capa4", "capa5", "disguised"] },
     seirawan: { pieceCSS: ["seir1", "seir0", "seir2", "seir3", "seir4", "seir5", "disguised"] },
@@ -286,6 +288,39 @@ interface VariantConfig {
 }
 
 export const VARIANTS: Record<string, Variant> = {
+    ataxx: variant({
+        name: "ataxx", tooltip: "Infection game.",
+        startFen: "P5p/7/7/7/7/7/p5P w 0 1",
+        icon: "😷",
+        boardFamily: "ataxx7x7", pieceFamily: "ataxx",
+        colors: { first: "Red", second: "Blue" },
+        pieceRow: ["p", "*"],
+        rules: { pass: true },
+        // Ataxx All 19 boards won https://www.youtube.com/watch?v=3VcAW6EKuvU
+        alternateStart: {
+            '': "",
+            'Board 1': "P5p/7/3*3/2*1*2/3*3/7/p5P w 0 1",
+            'Board 2': "P5p/7/3*3/2***2/3*3/7/p5P w 0 1",
+            'Board 3': "P5p/7/2*1*2/7/2*1*2/7/p5P w 0 1",
+            'Board 4': "P5p/1*3*1/2*1*2/7/2*1*2/1*3*1/p5P w 0 1",
+            'Board 5': "P5p/7/2*1*2/3*3/2*1*2/7/p5P w 0 1",
+            'Board 6': "P2*2p/7/7/*5*/7/7/p2*2P w 0 1",
+            'Board 7': "P2*2p/3*3/7/**3**/7/3*3/p2*2P w 0 1",
+            'Board 8': "P2*2p/3*3/3*3/***1***/3*3/3*3/p2*2P w 0 1",
+            'Board 9': "P5p/2*1*2/1*3*1/7/1*3*1/2*1*2/p5P w 0 1",
+            "Board 10": "P2*2p/7/1*3*1/*5*/1*3*1/7/p2*2P w 0 1",
+            "Board 11": "P1*1*1p/7/*2*2*/7/*2*2*/7/p1*1*1P w 0 1",
+            "Board 12": "P1*1*1p/7/2*1*2/1*3*1/2*1*2/7/p1*1*1P w 0 1",
+            "Board 13": "P2*2p/2*1*2/1*3*1/*5*/1*3*1/2*1*2/p2*2P w 0 1",
+            "Board 14": "P1*1*1p/1*3*1/*5*/7/*5*/1*3*1/p1*1*1P w 0 1",
+            "Board 15": "P1*1*1p/7/*1*1*1*/7/*1*1*1*/7/p1*1*1P w 0 1",
+            "Board 16": "P2*2p/7/1**1**1/**3**/1**1**1/7/p2*2P w 0 1",
+            "Board 17": "P1*1*1p/2*1*2/*5*/*2*2*/*5*/2*1*2/p1*1*1P w 0 1",
+            "Board 18": "P5p/2*1*2/**1*1**/3*3/**1*1**/2*1*2/p5P w 0 1",
+            "Board 19": "P1***1p/7/**1*1**/*5*/**1*1**/7/p1***1P w 0 1",
+        }
+    }),
+
     chess: variant({
         name: "chess", tooltip: "Chess, unmodified, as it's played by FIDE standards.",
         startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
@@ -885,6 +920,7 @@ export const enabledVariants = variants.filter(v => !disabledVariants.includes(v
 
 // variants having 0 puzzle so far
 export const noPuzzleVariants = [
+    "ataxx",
     "3check",
     "placement",
     "sittuyin",
@@ -904,6 +940,7 @@ export const variantGroups: { [ key: string ]: { variants: string[] } } = {
     xiangqi:  { variants: [ "xiangqi", "manchu", "janggi", "minixiangqi" ] },
     fairy:    { variants: [ "capablanca", "capahouse", "seirawan", "shouse", "grand", "grandhouse", "shako", "shogun", "hoppelpoppel", "mansindam" ] },
     army:     { variants: [ "orda", "synochess", "shinobi", "empire", "ordamirror", "chak", "chennis", "spartan" ] },
+    other:    { variants: [ "ataxx" ] }
 };
 
 function variantGroupLabel(group: string): string {
@@ -914,6 +951,7 @@ function variantGroupLabel(group: string): string {
         xiangqi: _("Xiangqi Variants"),
         fairy: _("Fairy Piece Variants"),
         army: _("New Army Variants"),
+        other: _("Other"),
     }
     return groups[group];
 }

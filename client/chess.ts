@@ -95,7 +95,7 @@ export function validFen(variant: Variant, fen: string): boolean {
     let good = startPlacement + 
         ((variantName === "orda") ? "Hq" : "") +
         ((variantName === "dobutsu") ? "Hh" : "") +
-        ((variantName === "duck") ? "*" : "") +
+        ((variantName === "duck" || variantName === "ataxx") ? "*" : "") +
         "~+0123456789[]-";
     const alien = (element: string) => !good.includes(element);
     if (placement.split('').some(alien)) return false;
@@ -120,11 +120,14 @@ export function validFen(variant: Variant, fen: string): boolean {
             return false;
     }
 
-    // Touching kings
-    if (variantName !== 'atomic' && touchingKings(boardState.pieces)) return false;
-
     // Starting colors
     if (parts[1] !== 'b' && parts[1] !== 'w') return false;
+
+    // ataxx has no kings at all
+    if (variantName === 'ataxx') return true;
+
+    // Touching kings
+    if (variantName !== 'atomic' && touchingKings(boardState.pieces)) return false;
 
     // Castling rights (piece virginity)
     good = (variantName === 'seirawan' || variantName === 'shouse') ? 'KQABCDEFGHkqabcdefgh-' : start[2] + "-";
@@ -181,16 +184,19 @@ function diff(a: number, b:number): number {
     return Math.abs(a - b);
 }
 
+export function adjacent(key1: cg.Key, key2: cg.Key): boolean {
+    return diff(key1.charCodeAt(0), key2.charCodeAt(0)) <= 1 && diff(key1.charCodeAt(1), key2.charCodeAt(1)) <= 1;
+}
+
 function touchingKings(pieces: cg.Pieces): boolean {
-    let wk = 'xx', bk = 'zz';
+    let wk: cg.Key = 'a1', bk: cg.Key = 'h8';
     for (const [k, p] of pieces) {
         if (p.role === "k-piece") {
             if (p.color === 'white') wk = k;
             if (p.color === 'black') bk = k;
         }
     }
-    const touching = diff(wk.charCodeAt(0), bk.charCodeAt(0)) <= 1 && diff(wk.charCodeAt(1), bk.charCodeAt(1)) <= 1;
-    return touching;
+    return adjacent(wk, bk);
 }
 
 // pocket part of the FEN (including brackets)
@@ -273,15 +279,29 @@ export function promotedRole(variant: Variant, piece: cg.Piece): cg.Role {
 }
 
 // Convert a list of moves to chessground destination
-export function moveDests(legalMoves: UCIMove[]): cg.Dests {
+export function moveDests(legalMoves: UCIMove[], fromSquare?: cg.Key): cg.Dests {
     const dests: cg.Dests = new Map();
     legalMoves.map(uci2cg).forEach(move => {
-        const orig = move.slice(0, 2) as cg.Key;
+        const orig = move.slice(0, 2) as cg.Orig;
         const dest = move.slice(2, 4) as cg.Key;
         if (dests.has(orig))
             dests.get(orig)!.push(dest);
-        else
-            dests.set(orig, [ dest ]);
+        else {
+            if (orig === 'P@') {
+                // ataxx has infinite drop but has no pockets in FEN, so
+                // we will enable moving to drop dests as well
+                // and create drop moves in GameController.onUserMove()
+                if (fromSquare && adjacent(fromSquare, dest)) {
+                    if (dests.has(fromSquare))
+                        dests.get(fromSquare)!.push(dest);
+                    else {
+                        dests.set(fromSquare, [ dest ]);
+                    }
+                }
+            } else {
+                dests.set(orig, [ dest ]);
+            }
+        }
     });
     return dests;
 }
