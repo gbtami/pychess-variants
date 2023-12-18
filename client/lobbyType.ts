@@ -1,3 +1,5 @@
+import * as cg from 'chessgroundx/types';
+
 export interface Stream {
     site: string;
     title: string;
@@ -15,53 +17,53 @@ export interface Spotlight {
 }
 
 export interface MsgInviteCreated {
-	gameId: string;
+    gameId: string;
 }
 
 export interface MsgHostCreated {
-	gameId: string;
+    gameId: string;
 }
 
 export interface MsgGetSeeks {
-	seeks: Seek[]
+    seeks: Seek[]
 }
 
 export interface MsgNewGame {
-	gameId: string;
+    gameId: string;
 }
 
 export interface MsgGameInProgress {
-	gameId: string;
+    gameId: string;
 }
 
 export interface MsgUserConnected {
-	username: string;
+    username: string;
 }
 
 export interface MsgPing {
-	timestamp: string;//TODO: not sure string or number or other - can't find anywhere where this is actually read and not just copied to "pong", where again not read anywhere in python or ts
+    timestamp: string;//TODO: not sure string or number or other - can't find anywhere where this is actually read and not just copied to "pong", where again not read anywhere in python or ts
 }
 
 export interface MsgError {
-	message: string;
+    message: string;
 }
 
 export interface MsgShutdown {
-	message: string;
+    message: string;
 }
 
 export interface MsgGameCounter {
-	cnt: number;
+    cnt: number;
 }
 export interface MsgUserCounter {
     cnt: number;
 }
 export interface MsgStreams {
-	items: Stream[];
+    items: Stream[];
 }
 
 export interface MsgSpotlights {
-	items: Spotlight[];
+    items: Spotlight[];
 }
 
 export interface Seek {
@@ -72,9 +74,9 @@ export interface Seek {
     base: number;
     inc: number;
     byoyomi: number;
+    day: number;
     chess960: boolean;
     rated: boolean;
-    alternateStart: string;
 
     bot: boolean;
     rating: number;
@@ -85,4 +87,23 @@ export interface Seek {
     title: string;
 }
 
+export interface TvGame {
+    gameId: string;
+    variant: string;
+    fen: cg.FEN;
+    wt: string;
+    bt: string;
+    w: string;
+    b: string;
+    wr: string;
+    br: string;
+    chess960: boolean;
+    base: number;
+    inc: number;
+    byoyomi: number;
+    lastMove: string;
+}
+
 export type CreateMode = 'createGame' | 'playFriend' | 'playAI' | 'createHost';
+
+export type TcMode = 'real' | 'corr';

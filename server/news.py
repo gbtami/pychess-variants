@@ -1,4 +1,10 @@
 NEWS = {
+    "S-chess_endings_1": "2023-12-01",
+    "Correspondence_Chess": "2023-11-10",
+    "S-chess_ramblings": "2023-11-03",
+    "More_variants": "2023-10-19",
+    "Summer_Update": "2023-06-06",
+    "Spartan_Chess": "2023-04-01",
     "Duck_Chess": "2022-12-26",
     "Ouk_Chaktrang_Friendship_Between_Four_Countries_Tournament": "2022-12-01",
     "Crazyhouse960_Tournament_Spring_Invitational_2022": "2022-10-02",

@@ -4,6 +4,7 @@ from time import time
 import discord
 from discord.ext.commands import Bot
 
+from typedefs import lobbychat_key, lobbysockets_key
 from const import CATEGORIES
 from broadcast import lobby_broadcast
 
@@ -74,8 +75,8 @@ class DiscordBot(Bot):
             "time": int(time()),
         }
 
-        self.app["lobbychat"].append(response)
-        await lobby_broadcast(self.app["lobbysockets"], response)
+        self.app[lobbychat_key].append(response)
+        await lobby_broadcast(self.app[lobbysockets_key], response)
 
     def get_channels(self):
         # Get the pychess-lobby channel

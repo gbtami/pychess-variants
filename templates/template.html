@@ -22,6 +22,19 @@
                     </div>
                 </section>
                 <section>
+                    <a class="nav-link" href="/puzzle/chess">{% trans %}Puzzles{% endtrans %}</a>
+                    <div class="drp" >
+                        <a class="nav-link" href="/puzzle/chess">{% trans %}Puzzles{% endtrans %}</a>
+                    </div>
+                </section>
+                <section>
+                    <a class="nav-link" href="/variants">{% trans %}Learn{% endtrans %}</a>
+                    <div class="drp" >
+                        <a class="nav-link" href="/variants">{% trans %}Variants{% endtrans %}</a>
+                        <a class="nav-link" href="/memory">{% trans %}Memory{% endtrans %}</a>
+                    </div>
+                </section>
+                <section>
                     <a class="nav-link" href="/tv">{% trans %}Watch{% endtrans %}</a>
                     <div class="drp" >
                         <a class="nav-link" href="/tv">{% trans %}Tv{% endtrans %}</a>
@@ -44,9 +57,6 @@
                         <a class="nav-link" href="/analysis/chess">{% trans %}Analysis{% endtrans %}</a>
                     </div>
                 </section>
-                <section>
-                    <a class="nav-link" href="/variants">{% trans %}Variants{% endtrans %}</a>
-                </section>
             </div>
         </div>
         <div class="site-buttons">
@@ -61,7 +71,8 @@
             {% if guest %}
             <a class="login nav-link" href="/login" title="{% trans %}Login with Lichess{% endtrans %}">{% trans %}Log in{% endtrans %}</a>
             {% endif %}
-            <div id="settings-panel"/>
+            <div id="notify-panel"></div>
+            <div id="settings-panel"></div>
         </div>
     </header>
 {% endblock %}

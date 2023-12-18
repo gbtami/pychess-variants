@@ -2,6 +2,7 @@ import { h } from 'snabbdom';
 import * as cg from 'chessgroundx/types';
 
 import { GameController } from '@/gameCtrl';
+import { chatMessage } from '@/chat';
 import { ExtraInput } from './input';
 import { patch } from '@/document';
 import { _ } from '@/i18n';
@@ -46,7 +47,7 @@ export class DuckInput extends ExtraInput {
         }
 
         const undo = document.getElementById('undo') as HTMLElement;
-        if (undo.tagName === 'DIV') {
+        if (undo && undo.tagName === 'DIV') {
             patch(undo,
                 h('button#undo', { on: { click: () => this.ctrl.undo() }, props: {title: _('Undo')} }, [h('i', {class: {"icon": true, "icon-reply": true } } ), ])
             );
@@ -54,6 +55,8 @@ export class DuckInput extends ExtraInput {
 
         if (!duckKey) {
             this.inputState = 'click';
+            const message = _('Place the duck on an empty square.');
+            chatMessage('', message, "roundchat");
         } else {
             // Change the duck's color so that it became movable by the player
             this.ctrl.chessground.state.boardState.pieces.get(duckKey)!.color = piece.color;

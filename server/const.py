@@ -1,7 +1,17 @@
 from settings import static_url
 
+DASH = "–"
+ANON_PREFIX = "Anon" + DASH
+
 SCHEDULE_MAX_DAYS = 7
 TOURNAMENT_SPOTLIGHTS_MAX = 3
+
+# Max notify documents TTL (time to live) 4 weeks
+NOTIFY_EXPIRE_SECS = 60 * 60 * 24 * 7 * 4
+NOTIFY_PAGE_SIZE = 7
+
+# Max corr seek documents TTL (time to live) 1 weeks
+CORR_SEEK_EXPIRE_SECS = 60 * 60 * 24 * 7
 
 # Max number of lobby chat lines (deque limit)
 MAX_CHAT_LINES = 100
@@ -38,6 +48,7 @@ LANGUAGES = [
     "ru",
     "th",
     "tr",
+    "vi",
     "zh_CN",
     "zh_TW",
 ]
@@ -59,7 +70,7 @@ CASUAL, RATED, IMPORTED = 0, 1, 2
     TIMEOUT,
     DRAW,
     FLAG,
-    ABANDONE,
+    ABANDON,
     CHEAT,
     BYEGAME,
     INVALIDMOVE,
@@ -69,7 +80,7 @@ CASUAL, RATED, IMPORTED = 0, 1, 2
 ) = range(-2, 14)
 
 LOSERS = {
-    "abandone": ABANDONE,
+    "abandon": ABANDON,
     "abort": ABORTED,
     "resign": RESIGN,
     "flag": FLAG,
@@ -84,9 +95,13 @@ VARIANTS = (
     "chess960",
     "crazyhouse",
     "crazyhouse960",
-    "placement",
     "atomic",
     "atomic960",
+    "kingofthehill",
+    "kingofthehill960",
+    "3check",
+    "3check960",
+    "placement",
     "duck",
     "makruk",
     "makpong",
@@ -122,6 +137,7 @@ VARIANTS = (
     "shogun",
     "shako",
     "hoppelpoppel",
+    "mansindam",
     "orda",
     "synochess",
     "shinobi",
@@ -130,6 +146,7 @@ VARIANTS = (
     "ordamirror",
     "chak",
     "chennis",
+    "spartan",
 )
 
 VARIANT_ICONS = {
@@ -180,7 +197,13 @@ VARIANT_ICONS = {
     "asean": "♻",
     "chak": "🐬",
     "chennis": "🎾",
+    "mansindam": "⛵",
     "duck": "🦆",
+    "spartan": "⍺",
+    "kingofthehill": "🏴",
+    "kingofthehill960": "🏁",
+    "3check": "☰",
+    "3check960": "☷",
 }
 
 VARIANT_960_TO_PGN = {
@@ -189,6 +212,8 @@ VARIANT_960_TO_PGN = {
     "capahouse": "Capahouse960",
     "crazyhouse": "Crazyhouse",  # to let lichess import work
     "atomic": "Atomic",  # to let lichess import work
+    "kingofthehill": "King of the Hill",  # to let lichess import work
+    "3check": "Three-check",  # to let lichess import work
     "seirawan": "Seirawan960",
     # some early game is accidentally saved as 960 in mongodb
     "shogi": "Shogi",
@@ -207,6 +232,10 @@ CATEGORIES = {
         "placement",
         "atomic",
         "atomic960",
+        "kingofthehill",
+        "kingofthehill960",
+        "3check",
+        "3check960",
         "duck",
     ),
     "fairy": (
@@ -222,6 +251,7 @@ CATEGORIES = {
         "shako",
         "shogun",
         "hoppelpoppel",
+        "mansindam",
     ),
     "army": (
         "orda",
@@ -232,6 +262,7 @@ CATEGORIES = {
         "chak",
         "chennis",
         "shinobiplus",
+        "spartan",
     ),
     "makruk": ("makruk", "makpong", "cambodian", "sittuyin", "asean"),
     "shogi": (
@@ -281,6 +312,10 @@ def variant_display_name(variant):
         return "TORI SHOGI"
     elif variant == "duck":
         return "DUCK CHESS"
+    elif variant == "kingofthehill":
+        return "KING OF THE HILL"
+    elif variant == "3check":
+        return " THREE-CHECK"
     else:
         return variant.upper()
 
@@ -360,6 +395,12 @@ TRANSLATED_VARIANT_NAMES = {
     "ordamirror": _("Orda Mirror"),
     "chak": _("Chak"),
     "chennis": _("Chennis"),
+    "spartan": _("Spartan"),
+    "kingofthehill": _("King of the Hill"),
+    "kingofthehill960": _("King of the Hill 960"),
+    "3check": _("Three check"),
+    "3check960": _("Three check 960"),
+    "mansindam": _("Mansindam"),
 }
 
 del _

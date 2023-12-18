@@ -1,3 +1,5 @@
+from datetime import datetime, timezone
+
 from misc import time_control_str
 from newid import new_id
 
@@ -16,15 +18,16 @@ class Seek:
         base=5,
         inc=3,
         byoyomi_period=0,
+        day=0,
         level=6,
         rated=False,
         chess960=False,
-        alternate_start="",
         target="",
         player1=None,
         player2=None,
         ws=None,
         game_id=None,
+        created_at=None,
     ):
         self.creator = creator
         self.variant = variant
@@ -35,9 +38,9 @@ class Seek:
         self.base = base
         self.inc = inc
         self.byoyomi_period = byoyomi_period
+        self.day = day
         self.level = 0 if creator.username == "Random-Mover" else level
         self.chess960 = chess960
-        self.alternate_start = alternate_start
         self.target = target
         self.player1 = player1
         self.player2 = player2
@@ -46,6 +49,11 @@ class Seek:
         Seek.gen_id += 1
         self.id = self.gen_id
         self.game_id = game_id
+
+        self.created_at = datetime.now(timezone.utc) if created_at is None else created_at
+
+        # Seek is pending when it is not corr, and user has no live lobby websocket
+        self.pending = False
 
     @property
     def as_json(self):
@@ -56,7 +64,6 @@ class Seek:
             "title": self.creator.title,
             "variant": self.variant,
             "chess960": self.chess960,
-            "alternateStart": self.alternate_start,
             "target": self.target,
             "player1": self.player1.username if self.player1 is not None else "",
             "player2": self.player2.username if self.player2 is not None else "",
@@ -67,19 +74,34 @@ class Seek:
             "base": self.base,
             "inc": self.inc,
             "byoyomi": self.byoyomi_period,
+            "day": self.day,
             "gameId": self.game_id if self.game_id is not None else "",
         }
 
     @property
+    def corr_json(self):
+        return {
+            "_id": self.id,
+            "user": self.creator.username,
+            "variant": self.variant,
+            "chess960": self.chess960,
+            "fen": self.fen,
+            "color": self.color,
+            "rated": self.rated,
+            "day": self.day,
+            "createdAt": self.created_at,
+        }
+
+    @property
     def discord_msg(self):
-        tc = time_control_str(self.base, self.inc, self.byoyomi_period)
+        tc = time_control_str(self.base, self.inc, self.byoyomi_period, self.day)
         tail960 = "960" if self.chess960 else ""
         return "%s: **%s%s** %s" % (self.creator.username, self.variant, tail960, tc)
 
 
-async def create_seek(db, invites, seeks, user, data, ws=None, empty=False):
+async def create_seek(db, invites, seeks, user, data, ws, empty=False):
     """Seek can be
-    - invite (has reserved new game id strored in app['invites'], and target is 'Invite-friend')
+    - invite (has reserved new game id strored in app[invites], and target is 'Invite-friend')
     - challenge (has another username as target)
     - normal seek (no target)
 
@@ -87,7 +109,7 @@ async def create_seek(db, invites, seeks, user, data, ws=None, empty=False):
     Currently there is no limit for them since they're used for tournament organisation purposes
     They can only be created by trusted users
     """
-    if len(user.seeks) >= MAX_USER_SEEKS and not empty:
+    if len([seek for seek in user.seeks.values()]) >= MAX_USER_SEEKS and not empty:
         return
 
     target = data.get("target")
@@ -104,9 +126,9 @@ async def create_seek(db, invites, seeks, user, data, ws=None, empty=False):
         base=data["minutes"],
         inc=data["increment"],
         byoyomi_period=data["byoyomiPeriod"],
+        day=data.get("day", 0),
         rated=data.get("rated"),
         chess960=data.get("chess960"),
-        alternate_start=data.get("alternateStart"),
         target=target,
         player1=None if empty else user,
         player2=None,
@@ -124,7 +146,11 @@ async def create_seek(db, invites, seeks, user, data, ws=None, empty=False):
 
 
 def get_seeks(seeks):
-    return {"type": "get_seeks", "seeks": [seek.as_json for seek in seeks.values()]}
+    active_seeks = [seek.as_json for seek in seeks.values() if not seek.pending]
+    return {
+        "type": "get_seeks",
+        "seeks": active_seeks,
+    }
 
 
 def challenge(seek, gameId):

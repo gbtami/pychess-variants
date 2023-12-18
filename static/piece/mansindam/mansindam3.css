@@ -1,0 +1,97 @@
+.mansindam .cg-wrap piece.a-piece.ally {
+    background-image: url('../../images/pieces/mansindam/Epson/wa.svg');
+}
+.mansindam .cg-wrap piece.c-piece.ally {
+    background-image: url('../../images/pieces/mansindam/Epson/wc.svg');
+}
+.mansindam .cg-wrap piece.m-piece.ally {
+    background-image: url('../../images/pieces/mansindam/Epson/wm.svg');
+}
+.mansindam .cg-wrap piece.pc-piece.ally {
+    background-image: url('../../images/pieces/mansindam/Epson/w+c.svg');
+}
+.mansindam .cg-wrap piece.pm-piece.ally {
+    background-image: url('../../images/pieces/mansindam/Epson/w+m.svg');
+}
+.mansindam .cg-wrap piece.a-piece.enemy {
+    background-image: url('../../images/pieces/mansindam/Epson/ba.svg');
+}
+.mansindam .cg-wrap piece.c-piece.enemy {
+    background-image: url('../../images/pieces/mansindam/Epson/bc.svg');
+}
+.mansindam .cg-wrap piece.m-piece.enemy {
+    background-image: url('../../images/pieces/mansindam/Epson/bm.svg');
+}
+.mansindam .cg-wrap piece.pc-piece.enemy {
+    background-image: url('../../images/pieces/mansindam/Epson/b+c.svg');
+}
+.mansindam .cg-wrap piece.pm-piece.enemy {
+    background-image: url('../../images/pieces/mansindam/Epson/b+m.svg');
+}
+
+.mansindam .cg-wrap piece.p-piece.ally {
+    background-image: url('../../images/pieces/mansindam/Epson/wp.svg');
+}
+.mansindam .cg-wrap piece.b-piece.ally {
+    background-image: url('../../images/pieces/mansindam/Epson/wb.svg');
+}
+.mansindam .cg-wrap piece.n-piece.ally {
+    background-image: url('../../images/pieces/mansindam/Epson/wn.svg');
+}
+.mansindam .cg-wrap piece.r-piece.ally {
+    background-image: url('../../images/pieces/mansindam/Epson/wr.svg');
+}
+.mansindam .cg-wrap piece.pp-piece.ally {
+    background-image: url('../../images/pieces/mansindam/Epson/w+p.svg');
+}
+.mansindam .cg-wrap piece.pb-piece.ally {
+    background-image: url('../../images/pieces/mansindam/Epson/w+b.svg');
+}
+.mansindam .cg-wrap piece.pn-piece.ally {
+    background-image: url('../../images/pieces/mansindam/Epson/w+n.svg');
+}
+.mansindam .cg-wrap piece.pr-piece.ally {
+    background-image: url('../../images/pieces/mansindam/Epson/w+r.svg');
+}
+.mansindam .cg-wrap piece.q-piece.ally {
+    background-image: url('../../images/pieces/mansindam/Epson/wq.svg');
+}
+.mansindam .cg-wrap piece.k-piece.white.ally {
+    background-image: url('../../images/pieces/mansindam/Epson/wk.svg');
+}
+.mansindam .cg-wrap piece.k-piece.white.enemy {
+    background-image: url('../../images/pieces/mansindam/Epson/wk_reversed.svg');
+}
+.mansindam .cg-wrap piece.p-piece.enemy {
+    background-image: url('../../images/pieces/mansindam/Epson/bp.svg');
+}
+.mansindam .cg-wrap piece.b-piece.enemy {
+    background-image: url('../../images/pieces/mansindam/Epson/bb.svg');
+}
+.mansindam .cg-wrap piece.n-piece.enemy {
+    background-image: url('../../images/pieces/mansindam/Epson/bn.svg');
+}
+.mansindam .cg-wrap piece.r-piece.enemy {
+    background-image: url('../../images/pieces/mansindam/Epson/br.svg');
+}
+.mansindam .cg-wrap piece.pp-piece.enemy {
+    background-image: url('../../images/pieces/mansindam/Epson/b+p.svg');
+}
+.mansindam .cg-wrap piece.pb-piece.enemy {
+    background-image: url('../../images/pieces/mansindam/Epson/b+b.svg');
+}
+.mansindam .cg-wrap piece.pn-piece.enemy {
+    background-image: url('../../images/pieces/mansindam/Epson/b+n.svg');
+}
+.mansindam .cg-wrap piece.pr-piece.enemy {
+    background-image: url('../../images/pieces/mansindam/Epson/b+r.svg');
+}
+.mansindam .cg-wrap piece.q-piece.enemy {
+    background-image: url('../../images/pieces/mansindam/Epson/bq.svg');
+}
+.mansindam .cg-wrap piece.k-piece.black.enemy {
+    background-image: url('../../images/pieces/mansindam/Epson/bk.svg');
+}
+.mansindam .cg-wrap piece.k-piece.black.ally {
+    background-image: url('../../images/pieces/mansindam/Epson/bk_reversed.svg');
+}

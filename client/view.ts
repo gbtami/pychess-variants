@@ -3,7 +3,7 @@ import { h, VNode } from 'snabbdom';
 import * as idb from 'idb-keyval';
 
 import { Settings } from "./settings";
-import { _ } from './i18n';
+import { _, ngettext } from './i18n';
 
 export function radioList(settings: Settings<string>, name: string, options: { [key: string]: string }, onchange: (evt: Event, key: string) => void): VNode[] {
     const result: VNode[] = [];
@@ -22,11 +22,11 @@ export function radioList(settings: Settings<string>, name: string, options: { [
 export function slider(settings: Settings<number>, name: string, min = 0, max = 100, step = 1, text: string) {
     const id = name;
     return [
+        h('label', { attrs: { for: id } }, text),
         h(`input#${id}.slider`, {
             props: { name: name, type: "range", min: min, max: max, step: step, value: settings.value },
             on: { input: e => settings.value = Number((e.target as HTMLInputElement).value) },
         }),
-        h('label', { attrs: { for: id } }, text),
     ];
 }
 
@@ -42,11 +42,28 @@ export function checkbox(settings: Settings<boolean>, name: string, text: string
     ];
 }
 
+export function toggleSwitch(settings: Settings<boolean>, name: string, text: string, disabled: boolean): VNode[] {
+    const id = name;
+    return [
+        h('label.switch', [
+            h(`input#${id}`, {
+                props: { name: name, type: "checkbox" },
+                attrs: { checked: settings.value, disabled: disabled },
+                on: { change: evt => settings.value = (evt.target as HTMLInputElement).checked },
+            }),
+            h('span.sw-slider'),
+        ]),
+        h('label', { attrs: { for: id } }, text),
+    ];
+}
+
 export function nnueFile(settings: Settings<string>, name: string, text: string, variant: string) {
     const id = name;
     return [
+        h('label', { attrs: { for: id } }, text),
         h(`input#${id}`, {
             props: { name: name, type: "file", accept: '*.nnue', title: _('Page reload required after change') },
+            hook: { insert: (vnode) => setInputFileName(vnode, settings.value) },
             on: { change: evt => {
                 const files = (evt.target as HTMLInputElement).files;
                 if (files && files.length > 0) {
@@ -74,7 +91,6 @@ export function nnueFile(settings: Settings<string>, name: string, text: string,
                 }
             }},
         }),
-        h('label', { attrs: { for: id } }, text),
     ];
 }
 
@@ -100,7 +116,9 @@ function saveNnueFileToIdb (settings: Settings<string>, variant: string, file: F
     fileReader.readAsArrayBuffer(file);
 }
 
-export function timeControlStr(minutes: number | string, increment = 0, byoyomiPeriod = 0): string {
+export function timeControlStr(minutes: number | string, increment = 0, byoyomiPeriod = 0, day = 0): string {
+    if (day > 0) return ngettext('%1 day', '%1 days', day);
+
     minutes = Number(minutes);
     byoyomiPeriod = Number(byoyomiPeriod)
     switch (minutes) {
@@ -155,4 +173,51 @@ function possibleNnueFile(fileName: string, variant: string) {
         alert(`.nnue file name required to start with ${prefix}-`);
     }
     return possible;
+}
+
+// Code borrowed from https://pqina.nl/blog/set-value-to-file-input/
+function setInputFileName(vnode: VNode, name: string) {
+    const fileInput = vnode.elm as HTMLInputElement;
+    // Create a new File object
+    const myFile = new File(['nnue file'], name, {
+        type: 'text/plain',
+    });
+
+    // Now let's create a FileList
+    const dataTransfer = new DataTransfer();
+    dataTransfer.items.add(myFile);
+    fileInput.files = dataTransfer.files;
+
+    // Help Safari out
+    if (fileInput.webkitEntries && fileInput.webkitEntries.length) {
+        fileInput.dataset.file = `${dataTransfer.files[0].name}`;
+    }
+}
+
+export function setAriaTabClick(setting: string) {
+    // Add a click event handler to each tab
+    const tabs = document.querySelectorAll('[role="tab"]');
+    tabs!.forEach(tab => {
+        tab.addEventListener('click', () => changeTabs(setting, tab));
+    });
+}
+
+export function changeTabs(setting: string, tab: Element) {
+    const parent = tab!.parentNode;
+    const grandparent = parent!.parentNode;
+
+    // Remove all current selected tabs
+    parent!.querySelectorAll('[aria-selected="true"]').forEach(t => t.setAttribute('aria-selected', 'false'));
+
+    // Set this tab as selected
+    tab.setAttribute('aria-selected', 'true');
+
+    // Hide all tab panels
+    grandparent!.querySelectorAll('[role="tabpanel"]').forEach(p => (p as HTMLElement).style.display = 'none');
+
+    // Show the selected panel
+    (grandparent!.parentNode!.querySelector(`#${tab.getAttribute('aria-controls')}`)! as HTMLElement).style.display = 'block';
+
+    const tabId = tab.getAttribute('id');
+    localStorage[setting] = tabId;
 }

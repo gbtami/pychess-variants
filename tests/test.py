@@ -11,6 +11,7 @@ from sortedcollections import ValueSortedDict
 
 from aiohttp.test_utils import AioHTTPTestCase
 
+from typedefs import games_key, highscore_key, users_key
 from const import CREATED, STARTED, VARIANTS, STALEMATE, MATE
 from fairy import FairyBoard
 from glicko2.glicko2 import DEFAULT_PERF, Glicko2, WIN, LOSS
@@ -18,10 +19,9 @@ from game import Game
 from login import RESERVED_USERS
 from newid import id8
 from user import User
-from utils import sanitize_fen, join_seek
+from utils import sanitize_fen
 from server import make_app
 import game
-from seek import Seek
 
 game.KEEP_TIME = 0
 game.MAX_PLY = 120
@@ -79,7 +79,7 @@ class GameResultTestCase(AioHTTPTestCase):
         self.wplayer = User(self.app, username="wplayer", perfs=PERFS["newplayer"])
 
     async def get_application(self):
-        app = make_app(with_db=False)
+        app = make_app()
         app.on_startup.append(self.startup)
         return app
 
@@ -179,7 +179,7 @@ class SanitizeFenTestCase(unittest.TestCase):
 
 class RequestLobbyTestCase(AioHTTPTestCase):
     async def tearDownAsync(self):
-        for user in self.app["users"].values():
+        for user in self.app[users_key].values():
             if user.anon and user.username not in RESERVED_USERS:
                 user.remove_task.cancel()
                 try:
@@ -190,7 +190,7 @@ class RequestLobbyTestCase(AioHTTPTestCase):
         await self.client.close()
 
     async def get_application(self):
-        app = make_app(with_db=False)
+        app = make_app()
         return app
 
     async def test_example(self):
@@ -203,10 +203,10 @@ class RequestLobbyTestCase(AioHTTPTestCase):
 class GamePlayTestCase(AioHTTPTestCase):
     async def startup(self, app):
         self.test_player = User(self.app, username="test_player", perfs=PERFS["newplayer"])
-        self.random_mover = self.app["users"]["Random-Mover"]
+        self.random_mover = self.app[users_key]["Random-Mover"]
 
     async def get_application(self):
-        app = make_app(with_db=False)
+        app = make_app()
         app.on_startup.append(self.startup)
         return app
 
@@ -218,7 +218,7 @@ class GamePlayTestCase(AioHTTPTestCase):
             move = random.choice(game.legal_moves)
             await game.play_move(move, clocks={"white": 60, "black": 60})
 
-    async def xxxtest_game_play(self):
+    async def test_game_play(self):
         """Playtest test_player vs Random-Mover"""
         for i, variant in enumerate(VARIANTS):
             print(i, variant)
@@ -236,7 +236,7 @@ class GamePlayTestCase(AioHTTPTestCase):
                 chess960=variant960,
                 create=True,
             )
-            self.app["games"][game.id] = game
+            self.app[games_key][game.id] = game
             self.random_mover.game_queues[game_id] = None
 
             await self.play_random(game)
@@ -250,8 +250,8 @@ class GamePlayTestCase(AioHTTPTestCase):
 
 class HighscoreTestCase(AioHTTPTestCase):
     async def startup(self, app):
-        self.app["highscore"] = {variant: ValueSortedDict(neg) for variant in VARIANTS}
-        self.app["highscore"]["crazyhouse960"] = ValueSortedDict(neg, ZH960)
+        self.app[highscore_key] = {variant: ValueSortedDict(neg) for variant in VARIANTS}
+        self.app[highscore_key]["crazyhouse960"] = ValueSortedDict(neg, ZH960)
 
         self.wplayer = User(self.app, username="user7", perfs=PERFS["user7"])
         self.bplayer = User(self.app, username="newplayer", perfs=PERFS["newplayer"])
@@ -259,7 +259,7 @@ class HighscoreTestCase(AioHTTPTestCase):
         self.weak_player = User(self.app, username="weakplayer", perfs=PERFS["weakplayer"])
 
     async def get_application(self):
-        app = make_app(with_db=False)
+        app = make_app()
         app.on_startup.append(self.startup)
         return app
 
@@ -296,7 +296,7 @@ class HighscoreTestCase(AioHTTPTestCase):
             chess960=True,
             create=True,
         )
-        self.app["games"][game.id] = game
+        self.app[games_key][game.id] = game
         self.assertEqual(game.status, CREATED)
         self.assertEqual(len(game.crosstable["r"]), 0)
 
@@ -326,7 +326,7 @@ class HighscoreTestCase(AioHTTPTestCase):
             chess960=True,
             create=True,
         )
-        self.app["games"][game.id] = game
+        self.app[games_key][game.id] = game
         self.assertEqual(game.status, CREATED)
         self.assertEqual(len(game.crosstable["r"]), 0)
 
@@ -356,7 +356,7 @@ class HighscoreTestCase(AioHTTPTestCase):
             chess960=True,
             create=True,
         )
-        self.app["games"][game.id] = game
+        self.app[games_key][game.id] = game
         self.assertEqual(game.status, CREATED)
         self.assertEqual(len(game.crosstable["r"]), 0)
 
@@ -387,7 +387,7 @@ class HighscoreTestCase(AioHTTPTestCase):
             chess960=True,
             create=True,
         )
-        self.app["games"][game.id] = game
+        self.app[games_key][game.id] = game
         print(game.crosstable)
 
         # strong_player resign 0-1
@@ -410,7 +410,7 @@ class RatingTestCase(AioHTTPTestCase):
         self.gl2 = Glicko2(tau=0.5)
 
     async def get_application(self):
-        app = make_app(with_db=False)
+        app = make_app()
         app.on_startup.append(self.startup)
         return app
 
@@ -513,7 +513,7 @@ class FirstRatedGameTestCase(AioHTTPTestCase):
         self.wplayer2 = User(self.app, username="wplayer", perfs=PERFS["newplayer"])
 
     async def get_application(self):
-        app = make_app(with_db=False)
+        app = make_app()
         app.on_startup.append(self.startup)
         return app
 
@@ -540,86 +540,6 @@ class FirstRatedGameTestCase(AioHTTPTestCase):
 
         self.assertEqual(round(rb.mu, 3), 1662.212)
         self.assertEqual(round(rw.mu, 3), 1337.788)
-
-
-class RamatchChess960GameTestCase(AioHTTPTestCase):
-    async def startup(self, app):
-        self.bplayer = User(self.app, username="Aplayer", perfs=PERFS["newplayer"])
-        self.wplayer = User(self.app, username="Bplayer", perfs=PERFS["newplayer"])
-
-    async def get_application(self):
-        app = make_app(with_db=False)
-        app.on_startup.append(self.startup)
-        return app
-
-    async def tearDownAsync(self):
-        await self.client.close()
-
-    async def play_game_and_rematch_game(self, game_odd):
-        print("%s - %s %s" % (game_odd.wplayer, game_odd.bplayer, game_odd.initial_fen))
-        await game_odd.game_ended(game_odd.wplayer, "flag")
-
-        user = self.bplayer
-        opp_player = self.wplayer
-        color = "w" if game_odd.wplayer.username == opp_player.username else "b"
-        seek = Seek(
-            user,
-            game_odd.variant,
-            fen=game_odd.initial_fen,
-            color=color,
-            base=game_odd.base,
-            inc=game_odd.inc,
-            byoyomi_period=game_odd.byoyomi_period,
-            level=game_odd.level,
-            rated=game_odd.rated,
-            player1=user,
-            chess960=game_odd.chess960,
-        )
-        self.app["seeks"][seek.id] = seek
-
-        response = await join_seek(self.app, opp_player, seek.id)
-        rematch_id = response["gameId"]
-
-        game_even = self.app["games"][rematch_id]
-        print("%s - %s %s" % (game_even.wplayer, game_even.bplayer, game_even.initial_fen))
-        self.assertEqual(game_odd.initial_fen, game_even.initial_fen)
-
-        await game_even.game_ended(game_even.wplayer, "flag")
-
-        user = self.wplayer
-        opp_player = self.bplayer
-        color = "w" if game_even.wplayer.username == opp_player.username else "b"
-        seek = Seek(
-            user,
-            game_even.variant,
-            fen=game_even.initial_fen,
-            color=color,
-            base=game_even.base,
-            inc=game_even.inc,
-            byoyomi_period=game_even.byoyomi_period,
-            level=game_even.level,
-            rated=game_even.rated,
-            player1=user,
-            chess960=game_even.chess960,
-        )
-        self.app["seeks"][seek.id] = seek
-
-        response = await join_seek(self.app, opp_player, seek.id)
-        rematch_id = response["gameId"]
-
-        game_odd = self.app["games"][rematch_id]
-        self.assertNotEqual(game_even.initial_fen, game_odd.initial_fen)
-        return game_odd
-
-    async def test_ramatch(self):
-        game_odd = Game(
-            self.app, "12345678", "chess", "", self.wplayer, self.bplayer, chess960=True
-        )
-        print()
-
-        for i in range(10):
-            print(i)
-            game_odd = await self.play_game_and_rematch_game(game_odd)
 
 
 if __name__ == "__main__":

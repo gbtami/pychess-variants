@@ -2,7 +2,7 @@ import { toPng } from 'html-to-image';
 import * as cg from 'chessgroundx/types';
 
 export function copyBoardToPNG(fen: cg.FEN) {
-    const el = document.getElementById('mainboard') as HTMLElement;
+    const el = document.getElementsByTagName('cg-board')[0] as HTMLElement;
     const style = getComputedStyle(document.body);
     const width = parseInt(style.getPropertyValue('--cg-width'));
     const height = parseInt(style.getPropertyValue('--cg-height'));

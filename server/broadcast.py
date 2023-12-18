@@ -1,13 +1,15 @@
 import json
 import logging
 
+from typedefs import lobbysockets_key, twitch_key, youtube_key
+
 log = logging.getLogger(__name__)
 
 
 async def broadcast_streams(app):
     """Send live_streams to lobby"""
-    lobby_sockets = app["lobbysockets"]
-    live_streams = app["twitch"].live_streams + app["youtube"].live_streams
+    lobby_sockets = app[lobbysockets_key]
+    live_streams = app[twitch_key].live_streams + app[youtube_key].live_streams
     response = {"type": "streams", "items": live_streams}
     print(response)
     await lobby_broadcast(lobby_sockets, response)

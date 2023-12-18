@@ -48,7 +48,11 @@ V2C = {
     "asean": "S",
     "chak": "C",
     "chennis": "H",
+    "mansindam": "I",
     "duck": "U",
+    "spartan": "N",
+    "kingofthehill": "B",
+    "3check": "X",
 }
 C2V = {v: k for k, v in V2C.items()}
 

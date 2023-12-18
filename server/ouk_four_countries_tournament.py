@@ -3,6 +3,7 @@ from typing import Tuple
 from collections import namedtuple
 from datetime import datetime, timezone
 
+from typedefs import db_key, users_key
 from const import RR, T_ARCHIVED
 from tournament import ByeGame
 from tournaments import new_tournament
@@ -98,9 +99,9 @@ pairings["VIE_Tran_Nguyen_Hoan"] = (
 async def add_games(app):
     tid = "00000002"
 
-    await app["db"].tournament.delete_one({"_id": tid})
-    await app["db"].tournament_player.delete_many({"tid": tid})
-    await app["db"].tournament_pairing.delete_many({"tid": tid})
+    await app[db_key].tournament.delete_one({"_id": tid})
+    await app[db_key].tournament_player.delete_many({"tid": tid})
+    await app[db_key].tournament_pairing.delete_many({"tid": tid})
 
     data = {
         "tid": tid,
@@ -123,7 +124,7 @@ async def add_games(app):
 
     t = await new_tournament(app, data)
 
-    users = app["users"]
+    users = app[users_key]
 
     for player in pairings:
         await t.join(users[player])

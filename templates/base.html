@@ -5,7 +5,7 @@
         <meta property="og:image" content={{ static("favicon/ms-icon-310x310.png") }} />
         <meta property="og:image:width" content="310" />
         <meta property="og:image:height" content="310" />
-        <meta name="keywords" content="Chess variants xiangqi janggi shogi dobutsu gorogoro kyoto tori makruk sittuyin asean makpong capablanca seirawan grand shako shogun synochess orda shinobi empire chak chennis">
+        <meta name="keywords" content="Chess variants xiangqi janggi shogi dobutsu gorogoro kyoto tori makruk sittuyin asean makpong capablanca seirawan grand shako shogun synochess orda shinobi empire chak chennis duck spartan">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta name="theme-color" content="#dbd7d1"><title>{{ title }}</title>
         <link rel="stylesheet" href={{ static("chessground.css") }}>
@@ -32,6 +32,8 @@
         <link rel="stylesheet" href={{ static("piece/ordamirror/empty.css") }}>
         <link rel="stylesheet" href={{ static("piece/chak/empty.css") }}>
         <link rel="stylesheet" href={{ static("piece/chennis/empty.css") }}>
+        <link rel="stylesheet" href={{ static("piece/spartan/empty.css") }}>
+        <link rel="stylesheet" href={{ static("piece/mansindam/empty.css") }}>
         <link rel="stylesheet" href={{ static("extensions.css") }}>
         <link rel="stylesheet" href={{ static("style.css") }}>
         <link rel="stylesheet" href={{ static("preview.css") }}>
@@ -48,6 +50,7 @@
                                 data-view="{{ view }}"
                                 data-asset-url="{{ asseturl }}"
                                 data-lang="{{ lang }}"
+                                data-theme="{{ theme }}"
                                 data-home="{{ home }}"
                                 data-user="{{ username }}"
                                 data-anon="{{ anon }}"
@@ -67,6 +70,7 @@
                                 data-variant="{{ variant }}"
                                 data-chess960="{{ chess960 }}"
                                 data-rated="{{ rated }}"
+                                data-corr="{{ corr }}"
                                 data-level="{{ level }}"
                                 data-wplayer="{{ wplayer }}"
                                 data-wtitle="{{ wtitle }}"
@@ -83,6 +87,8 @@
                                 data-inc="{{ inc }}"
                                 data-byo="{{ byo }}"
                                 data-seekempty="{{ seekempty }}"
+                                data-puzzle="{{ puzzle }}"
+                                data-corrgames="{{ corr_games }}"
                                 data-tournamentdirector="{{ tournamentdirector }}">
         {% block header %}{% endblock %}
         {% block content %}{% endblock %}

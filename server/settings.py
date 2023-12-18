@@ -9,8 +9,10 @@ from newid import id8
 logging.basicConfig(level=logging.DEBUG)
 
 URI = os.getenv("URI", "http://127.0.0.1:8080")
-DEV = ("heroku" in URI) or ("dev" in URI) or URI.startswith("http:")
-BR_EXTENSION = ".br" if URI.startswith("https") else ""
+PROD = os.getenv("PROD") == "true"
+# production deploy (yarn prod) uses brotli compressed pychess-variants.js.br
+BR_EXTENSION = ".br" if PROD else ""
+DEV = not PROD
 
 REDIRECT_PATH = "/oauth"  # path of oauth callback in app
 # lichess.org OAuth Apps Callback URL: https://pychess-variants.herokuapp.com/oauth

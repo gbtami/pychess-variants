@@ -16,7 +16,7 @@ from bot_api import (
 )
 from fishnet import (
     fishnet_monitor,
-    fishnet_key,
+    fishnet_validate_key,
     fishnet_acquire,
     fishnet_abort,
     fishnet_analysis,
@@ -32,7 +32,7 @@ from game_api import (
     get_variant_stats,
     cancel_invite,
 )
-from utils import import_game, get_names
+from utils import import_game, get_names, get_notifications, subscribe_notify, notified
 from login import login, logout, oauth
 from index import index, robots, select_lang
 from wsl import lobby_socket_handler
@@ -40,6 +40,8 @@ from wsr import round_socket_handler
 from wst import tournament_socket_handler
 from tournament_calendar import tournament_calendar
 from twitch import twitch_request_handler
+from puzzle import puzzle_complete, puzzle_vote
+from user import set_theme
 
 
 get_routes = (
@@ -54,12 +56,20 @@ get_routes = (
     ("/players/{variant}", index),
     ("/allplayers", index),
     ("/calendar", index),
+    ("/features", index),
     ("/games", index),
     ("/tv", index),
+    ("/puzzle", index),
+    ("/puzzle/daily", index),
+    (r"/puzzle/{puzzleId:\w{5}}", index),
+    ("/puzzle/{variant}", index),
     ("/analysis/{variant}", index),
     ("/analysis/{variant}/{fen}", index),
     ("/editor/{variant}", index),
     ("/editor/{variant}/{fen}", index),
+    ("/notifications", get_notifications),
+    ("/notify", subscribe_notify),
+    ("/notified", notified),
     (r"/{gameId:\w{8}}", index),
     (r"/{gameId:\w{8}}/{player:player[1-2]}", index),
     (r"/embed/{gameId:\w{8}}", index),
@@ -79,6 +89,7 @@ get_routes = (
     ("/@/{profileId}/challenge/{variant}", index),
     ("/@/{profileId}/perf/{variant}", index),
     ("/@/{profileId}/rated", index),
+    ("/@/{profileId}/playing", index),
     ("/@/{profileId}/me", index),
     ("/@/{profileId}/import", index),
     ("/level8win", index),
@@ -88,6 +99,7 @@ get_routes = (
     ("/news/{news_item}", index),
     ("/variants", index),
     ("/variants/{variant}", index),
+    ("/memory", index),
     ("/video", index),
     ("/video/{videoId}", index),
     ("/wsl", lobby_socket_handler),
@@ -101,6 +113,7 @@ get_routes = (
     ("/api/{profileId}/win", get_user_games),
     ("/api/{profileId}/loss", get_user_games),
     ("/api/{profileId}/rated", get_user_games),
+    ("/api/{profileId}/playing", get_user_games),
     ("/api/{profileId}/import", get_user_games),
     ("/api/{profileId}/me", get_user_games),
     ("/api/{profileId}/perf/{variant}", get_user_games),
@@ -118,7 +131,7 @@ get_routes = (
     ("/games/json/{profileId}", get_user_games),
     ("/tournament/json/{tournamentId}", get_tournament_games),
     ("/fishnet/monitor", fishnet_monitor),
-    ("/fishnet/key/{key}", fishnet_key),
+    ("/fishnet/key/{key}", fishnet_validate_key),
     ("/robots.txt", robots),
 )
 
@@ -136,6 +149,7 @@ post_routes = (
     ("/api/challenge/{challengeId}/decline", challenge_decline),
     ("/api/seek", create_bot_seek),
     ("/api/pong", bot_pong),
+    ("/pref/theme", set_theme),
     ("/fishnet/acquire", fishnet_acquire),
     ("/fishnet/analysis/{workId}", fishnet_analysis),
     ("/fishnet/move/{workId}", fishnet_move),
@@ -145,4 +159,6 @@ post_routes = (
     ("/tournaments/arena", index),
     (r"/tournament/{tournamentId:\w{8}}/edit", index),
     ("/twitch", twitch_request_handler),
+    (r"/puzzle/complete/{puzzleId:\w{5}}", puzzle_complete),
+    (r"/puzzle/vote/{puzzleId:\w{5}}", puzzle_vote),
 )

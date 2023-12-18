@@ -1,6 +1,6 @@
 {
     "include": [
-        "client/*.ts"
+        "client/**/*.ts"
     ],
     "compilerOptions": {
         "paths": {

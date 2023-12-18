@@ -16,6 +16,7 @@
 .variants-container {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
+    grid-auto-rows: 1fr;
     padding:0px 10px;
     gap: 10px;
     /* border: 1px solid yellow; */
@@ -38,7 +39,6 @@ position: relative;
 overflow: hidden;
 text-transform: uppercase;
 max-height: 100%;
-border-radius: 3px;
 box-shadow: var(--box-shadow-panel-btn);
 }
 
