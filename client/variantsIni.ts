@@ -100,7 +100,7 @@ fers = m
 shogiKnight = h
 lance = l
 promotionRegionWhite = *7 *8
-promotionRegionBlack = *2 *1
+promotionRegionBlack = *1 *2 *3
 promotionPieceTypes = -
 promotedPieceType = p:c m:b h:n l:r
 mandatoryPiecePromotion = true
@@ -114,29 +114,6 @@ immobilityIllegal = true
 flagPiece = k
 flagRegionWhite = *8
 flagRegionBlack = *1
-
-[shinobiplus:crazyhouse]
-commoner = c
-bers = d
-dragonHorse = s
-archbishop = j
-fers = m
-shogiKnight = h
-lance = l
-promotionRank = 7
-promotionPieceTypes = -
-promotedPieceType = p:c m:b h:n l:r
-mandatoryPiecePromotion = true
-stalemateValue = loss
-nFoldRule = 4
-perpetualCheckIllegal = true
-startFen = rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/4K3[JDSCLHM] w kq - 0 1
-capturesToHand = false
-whiteDropRegion = *1 *2 *3 *4
-immobilityIllegal = true
-flagPiece = k
-whiteFlag = *8
-blackFlag = *1
 
 [ordamirror:chess]
 centaur = h
