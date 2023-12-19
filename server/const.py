@@ -140,8 +140,9 @@ VARIANTS = (
     "mansindam",
     "orda",
     "synochess",
-    "shinobi",
-    # "shinobiplus",
+    # Shinobi is superseded by Shinobiplus Plus
+    # "shinobi",
+    "shinobiplus",
     "empire",
     "ordamirror",
     "chak",
@@ -256,7 +257,6 @@ CATEGORIES = {
     "army": (
         "orda",
         "synochess",
-        "shinobi",
         "empire",
         "ordamirror",
         "chak",
