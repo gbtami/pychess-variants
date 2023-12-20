@@ -154,7 +154,7 @@ VARIANTS = (
 )
 
 VARIANT_ICONS = {
-    "ataxx": "😷",
+    "ataxx": "☣",
     "makruk": "Q",
     "makpong": "O",
     "sittuyin": ":",

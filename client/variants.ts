@@ -291,7 +291,7 @@ export const VARIANTS: Record<string, Variant> = {
     ataxx: variant({
         name: "ataxx", tooltip: "Infection game.",
         startFen: "P5p/7/7/7/7/7/p5P w 0 1",
-        icon: "😷",
+        icon: "☣",
         boardFamily: "ataxx7x7", pieceFamily: "ataxx",
         colors: { first: "Red", second: "Blue" },
         pieceRow: ["p", "*"],
