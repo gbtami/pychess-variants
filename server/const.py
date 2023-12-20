@@ -3,6 +3,8 @@ from settings import static_url
 DASH = "–"
 ANON_PREFIX = "Anon" + DASH
 
+NONE_USER = "None" + DASH + "User"
+
 SCHEDULE_MAX_DAYS = 7
 TOURNAMENT_SPOTLIGHTS_MAX = 3
 
@@ -140,8 +142,9 @@ VARIANTS = (
     "mansindam",
     "orda",
     "synochess",
-    "shinobi",
-    # "shinobiplus",
+    # Shinobi is superseded by Shinobiplus Plus
+    # "shinobi",
+    "shinobiplus",
     "empire",
     "ordamirror",
     "chak",
@@ -258,7 +261,6 @@ CATEGORIES = {
     "army": (
         "orda",
         "synochess",
-        "shinobi",
         "empire",
         "ordamirror",
         "chak",

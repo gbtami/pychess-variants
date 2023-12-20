@@ -84,8 +84,9 @@ export function validFen(variant: Variant, fen: string): boolean {
     const variantName = variant.name;
     const startfen = variant.startFen;
     const start = startfen.split(' ');
+    console.log(start);
     const parts = fen.split(' ');
-
+    console.log(parts);
     // Need starting color
     if (parts.length < 2) return false;
 
