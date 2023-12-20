@@ -773,12 +773,12 @@ export const VARIANTS: Record<string, Variant> = {
 
     shinobiplus: variant({
         name: "shinobiplus", displayName: "shinobi+", tooltip: "Asymmetric variant which pits the western Chess army against a drop-based, Shogi-styled army.",
-        startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/4K3[JDSCLHM] w kq - 0 1",
+        startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/4K3[JDFCLHM] w kq - 0 1",
         icon: "🐢",
         boardFamily: "standard8x8", pieceFamily: "shinobi",
         colors: { first: "Pink", second: "Black" },
-        pieceRow: { white: ["k", "s", "d", "j", "l", "h", "m", "p"], black: ["k", "q", "r", "b", "n", "p"] },
-        pocket: { roles: { white: ["l", "h", "m", "d", "j", "s", "c"], black: [] }, captureToHand: false },
+        pieceRow: { white: ["k", "f", "d", "j", "l", "h", "m", "p"], black: ["k", "q", "r", "b", "n", "p"] },
+        pocket: { roles: { white: ["l", "h", "m", "d", "j", "f", "c"], black: [] }, captureToHand: false },
         promotion: { type: "shogi", roles: ["p", "l", "h", "m"] },
         rules: { enPassant: true },
         ui: { boardMark: 'campmate' },
