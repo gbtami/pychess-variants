@@ -815,6 +815,8 @@ def sanitize_fen(variant, initial_fen, chess960):
         non_piece = "~+0123456789[]qH-"
     elif variant == "duck":
         non_piece = "~+0123456789[]*-"
+    elif variant == "ataxx":
+        non_piece = "0123456789*-"
     else:
         non_piece = "~+0123456789[]-"
     invalid1 = any((c not in start[0] + non_piece for c in init[0]))
@@ -832,6 +834,10 @@ def sanitize_fen(variant, initial_fen, chess960):
 
     # Allowed starting colors
     invalid3 = len(init) > 1 and init[1] not in "bw"
+
+    # ataxx has no kings at all
+    if variant == "ataxx":
+        return True, sanitized_fen
 
     # Castling rights (and piece virginity) check
     invalid4 = False

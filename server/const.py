@@ -150,9 +150,11 @@ VARIANTS = (
     "chak",
     "chennis",
     "spartan",
+    "ataxx",
 )
 
 VARIANT_ICONS = {
+    "ataxx": "☣",
     "makruk": "Q",
     "makpong": "O",
     "sittuyin": ":",
@@ -276,6 +278,7 @@ CATEGORIES = {
         "torishogi",
     ),
     "xiangqi": ("xiangqi", "manchu", "janggi", "minixiangqi"),
+    "other": ("ataxx"),
 }
 
 VARIANT_GROUPS = {}
@@ -347,6 +350,7 @@ TRANSLATED_FREQUENCY_NAMES = {
 }
 
 TRANSLATED_VARIANT_NAMES = {
+    "ataxx": _("Ataxx"),
     "chess": _("Chess"),
     "chess960": _("Chess960"),
     "crazyhouse": _("Crazyhouse"),
