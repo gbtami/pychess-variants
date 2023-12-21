@@ -182,6 +182,7 @@ class Game:
 
         # To prevent require pass moves by both side at the game end
         self.check_full_board = self.variant == "ataxx"
+        self.random_only = self.variant == "ataxx"
 
         # Calculate the start of manual counting
         count_started = 0
@@ -217,7 +218,7 @@ class Game:
                             self.draw_offers.add(counting_player.username)
 
         disabled_fen = ""
-        if self.chess960 and self.initial_fen and self.create:
+        if (self.chess960 or self.random_only) and self.initial_fen and self.create:
             if self.wplayer.fen960_as_white == self.initial_fen:
                 disabled_fen = self.initial_fen
                 self.initial_fen = ""
@@ -252,7 +253,7 @@ class Game:
         # We adjust this in "byoyomi" messages in wsr.py
         self.byo_correction = 0
 
-        if self.chess960:
+        if self.chess960 or self.random_only:
             self.initial_fen = self.board.initial_fen
             self.wplayer.fen960_as_white = self.initial_fen
 
