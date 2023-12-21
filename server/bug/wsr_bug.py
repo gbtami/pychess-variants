@@ -4,10 +4,13 @@ from broadcast import round_broadcast
 from const import STARTED
 from seek import Seek
 from bug.utils_bug import play_move, join_seek_bughouse
+from typedefs import (
+    seeks_key,
+)
 
 log = logging.getLogger(__name__)
 
-async def handle_reconnect_bughouse(data, game, user, request, session_user):
+async def handle_reconnect_bughouse(app, user, data, game):
     log.info("Got RECONNECT message %s %r" % (user.username, data))
     movesQueued = data.get("movesQueued")
     # dataA = data.get("lastMaybeSentMsgMoveA")
@@ -16,7 +19,7 @@ async def handle_reconnect_bughouse(data, game, user, request, session_user):
         if movesQueued is not None and len(movesQueued) > 0 and movesQueued[0] is not None:
             try:
                 await play_move(
-                    request.app,
+                    app,
                     user,
                     game,
                     movesQueued[0]["move"],
@@ -28,13 +31,13 @@ async def handle_reconnect_bughouse(data, game, user, request, session_user):
                 log.exception(
                     "ERROR: Exception in play_move() in %s by %s ",
                     movesQueued[0]["gameId"],
-                    session_user,
+                    user.username,
                 )
         ####
         if movesQueued is not None and len(movesQueued) > 1 and movesQueued[1] is not None:
             try:
                 await play_move(
-                    request.app,
+                    app,
                     user,
                     game,
                     movesQueued[1]["move"],
@@ -46,7 +49,7 @@ async def handle_reconnect_bughouse(data, game, user, request, session_user):
                 log.exception(
                     "ERROR: Exception in play_move() in %s by %s ",
                     movesQueued[1]["gameId"],
-                    session_user,
+                    user.username,
                 )
 
 async def handle_resign_bughouse(data, game, user):
@@ -66,7 +69,8 @@ async def handle_resign_bughouse(data, game, user):
 
     await round_broadcast(game, response)
 
-async def handle_rematch_bughouse(data, game, user, users, ws, request, seeks):
+async def handle_rematch_bughouse(app, game, user, users):
+    seeks = app[seeks_key]
     log.info( "rematch request by %s.", user )
     rematch_id = None
     other_players = filter(lambda p: p.username != user.username, game.all_players)
@@ -100,7 +104,7 @@ async def handle_rematch_bughouse(data, game, user, users, ws, request, seeks):
         )
         seeks[seek.id] = seek
 
-        response = await join_seek_bughouse(request.app, None, seek.id, None, "all-joined-players-set-generate-response")
+        response = await join_seek_bughouse(app, None, seek.id, None, "all-joined-players-set-generate-response")
         rematch_id = response["gameId"]
         for u in set(game.all_players):
             await u.send_game_message(game.id, response)

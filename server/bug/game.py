@@ -37,12 +37,21 @@ from const import (
 from fairy import FairyBoard, BLACK
 from spectators import spectators
 from re import sub, split
+from typedefs import (
+    db_key,
+    games_key,
+    g_cnt_key,
+    lobbysockets_key,
+    users_key,
+    highscore_key,
+    crosstable_key,
+)
 
 log = logging.getLogger(__name__)
 
 MAX_HIGH_SCORE = 10
 MAX_PLY = 2*600
-KEEP_TIME = 1800  # keep game in app["games"] for KEEP_TIME secs
+KEEP_TIME = 1800  # keep game in app[games_key] for KEEP_TIME secs
 
 
 class GameBug:
@@ -65,11 +74,11 @@ class GameBug:
         tournamentId=None,
     ):
         self.app = app
-        self.db = app["db"] if "db" in app else None
-        self.users = app["users"]
-        self.games = app["games"]
-        self.highscore = app["highscore"]
-        self.db_crosstable = app["crosstable"]
+        self.db = app[db_key] if db_key in app else None
+        self.users = app[users_key]
+        self.games = app[games_key]
+        self.highscore = app[highscore_key]
+        self.db_crosstable = app[crosstable_key]
 
         self.saved = False
         self.remove_task = None
@@ -267,9 +276,9 @@ class GameBug:
         if self.status > STARTED:#todo:niki:not needed we have check in callers code
             return
         if self.ply == 0: #todo:niki:this means game will count to be "in play" after first move. we ont have abort mechanics for bug exactly defined yet though so not clear what " in play" should mean. will become more important when rated mode is introduced. still there was at least one more place where same comcept needed to be respected  not sure where - on timer running out maybe wheterh to mark abort or timeout not sure - gotta define and sync this everywhere to mean the same
-            self.app["g_cnt"][0] += 1
-            response = {"type": "g_cnt", "cnt": self.app["g_cnt"][0]}
-            await lobby_broadcast(self.app["lobbysockets"], response)
+            self.app[g_cnt_key][0] += 1
+            response = {"type": "g_cnt", "cnt": self.app[g_cnt_key][0]}
+            await lobby_broadcast(self.app[lobbysockets_key], response)
 
         cur_player_a = self.bplayerA if self.boards["a"].color == BLACK else self.wplayerA
         cur_player_b = self.bplayerB if self.boards["b"].color == BLACK else self.wplayerB
@@ -360,9 +369,9 @@ class GameBug:
             pass
 
         if self.boards["a"].ply > 0 or self.boards["b"].ply > 0:  # todo niki seems like it is updating some stats for current game count in lobby page. wonder why we check for ply count
-            self.app["g_cnt"][0] -= 1
-            response = {"type": "g_cnt", "cnt": self.app["g_cnt"][0]}
-            await lobby_broadcast(self.app["lobbysockets"], response)
+            self.app[g_cnt_key][0] -= 1
+            response = {"type": "g_cnt", "cnt": self.app[g_cnt_key][0]}
+            await lobby_broadcast(self.app[lobbysockets_key], response)
 
         async def remove(keep_time):
             # Keep it in our games dict a little to let players get the last board
@@ -406,7 +415,7 @@ class GameBug:
 
             if self.tournamentId is not None:
                 try:
-                    await self.app["tournaments"][self.tournamentId].game_update(self)
+                    await self.app[tournaments_key][self.tournamentId].game_update(self)
                 except Exception:
                     log.exception("Exception in tournament game_update()")
 

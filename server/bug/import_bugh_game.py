@@ -20,6 +20,11 @@ from newid import new_id
 from game import Game, MAX_PLY
 from aiohttp import web
 from bug.chess.pgn import read_game, Game
+from typedefs import (
+    db_key,
+    users_key,
+)
+
 log = logging.getLogger(__name__)
 
 def get_main_variation(game: Game) -> [list,list]:
@@ -41,8 +46,8 @@ def get_main_variation(game: Game) -> [list,list]:
 async def import_game_bpgn(request):
     data = await request.post()
     app = request.app
-    db = app["db"]
-    users = app["users"]
+    db = app[db_key]
+    users = app[users_key]
 
     # print("---IMPORT GAME---")
     # print(data)

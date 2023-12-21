@@ -14,14 +14,29 @@ from const import (
 from glicko2.glicko2 import gl2
 from newid import new_id
 from utils import round_broadcast, lobby_broadcast
+from typedefs import (
+    db_key,
+    discord_key,
+    games_key,
+    g_cnt_key,
+    invites_key,
+    lobbychat_key,
+    lobbysockets_key,
+    seeks_key,
+    twitch_key,
+    users_key,
+    youtube_key,
+    tv_key,
+    game_channels_key,
+)
 
 log = logging.getLogger(__name__)
 
 async def load_game_bug(app, game_id):
     """Return Game object from app cache or from database"""
-    db = app["db"]
-    # games = app["games"]
-    users = app["users"]
+    db = app[db_key]
+    # games = app[games_key]
+    users = app[users_key]
     # if game_id in games:
     #     return games[game_id]
 
@@ -275,9 +290,9 @@ async def load_game_bug(app, game_id):
     return game
 
 async def new_game_bughouse(app, seek_id, game_id=None):
-    db = app["db"]
-    games = app["games"]
-    seeks = app["seeks"]
+    db = app[db_key]
+    games = app[games_key]
+    seeks = app[seeks_key]
     seek = seeks[seek_id]
 
     if seek.fen:
@@ -303,7 +318,7 @@ async def new_game_bughouse(app, seek_id, game_id=None):
 
     if game_id is not None:
         # game invitation
-        del app["invites"][game_id]
+        del app[invites_key][game_id]
     else:
         game_id = await new_id(None if db is None else db.game)
 
@@ -358,7 +373,7 @@ async def new_game_bughouse(app, seek_id, game_id=None):
 
 async def insert_game_to_db_bughouse(game: GameBug, app):
     # unit test app may have no db
-    if app["db"] is None:
+    if app[db_key] is None:
         return
 
     document = {
@@ -395,11 +410,11 @@ async def insert_game_to_db_bughouse(game: GameBug, app):
     # ):
     #     document["uci"] = 1
 
-    result = await app["db"].game.insert_one(document)
+    result = await app[db_key].game.insert_one(document)
     if not result:
         log.error("db insert game result %s failed !!!", game.id)
 
-    app["tv"] = game.id
+    app[tv_key] = game.id
     game.wplayerA.tv = game.id
     game.bplayerA.tv = game.id
     game.wplayerB.tv = game.id
@@ -407,7 +422,7 @@ async def insert_game_to_db_bughouse(game: GameBug, app):
 
 async def join_seek_bughouse(app, user, seek_id, game_id=None, join_as="any"):
 
-    seeks = app["seeks"]
+    seeks = app[seeks_key]
     seek = seeks[seek_id]
 
     log.info(
@@ -473,7 +488,7 @@ async def play_move(app, user, game, move, clocks=None, board=None, lastMoveCapt
 
     if not invalid_move:
         board_response = game.get_board()  # (full=game.ply == 1) todo:niki:i dont understand why this was so. why full when 1st ply?
-        await round_broadcast(game, board_response, channels=app["game_channels"])
+        await round_broadcast(game, board_response, channels=app[game_channels_key])
 
         for u in set(game.all_players):
             await u.send_game_message(gameId, board_response) # todo:niki:why am i not just doint full broadcast?
@@ -489,5 +504,5 @@ async def play_move(app, user, game, move, clocks=None, board=None, lastMoveCapt
         for u in set(game.all_players):
             await u.send_game_message(gameId, response)
 
-        if app["tv"] == gameId:
-            await lobby_broadcast(app["lobbysockets"], board_response)
+        if app[tv_key] == gameId:
+            await lobby_broadcast(app[lobbysockets_key], board_response)
