@@ -296,29 +296,7 @@ export const VARIANTS: Record<string, Variant> = {
         colors: { first: "Red", second: "Blue" },
         pieceRow: ["p", "*"],
         rules: { pass: true },
-        // Ataxx All 19 boards won https://www.youtube.com/watch?v=3VcAW6EKuvU
-        alternateStart: {
-            '': "",
-            'Board 1': "P5p/7/3*3/2*1*2/3*3/7/p5P w 0 1",
-            'Board 2': "P5p/7/3*3/2***2/3*3/7/p5P w 0 1",
-            'Board 3': "P5p/7/2*1*2/7/2*1*2/7/p5P w 0 1",
-            'Board 4': "P5p/1*3*1/2*1*2/7/2*1*2/1*3*1/p5P w 0 1",
-            'Board 5': "P5p/7/2*1*2/3*3/2*1*2/7/p5P w 0 1",
-            'Board 6': "P2*2p/7/7/*5*/7/7/p2*2P w 0 1",
-            'Board 7': "P2*2p/3*3/7/**3**/7/3*3/p2*2P w 0 1",
-            'Board 8': "P2*2p/3*3/3*3/***1***/3*3/3*3/p2*2P w 0 1",
-            'Board 9': "P5p/2*1*2/1*3*1/7/1*3*1/2*1*2/p5P w 0 1",
-            "Board 10": "P2*2p/7/1*3*1/*5*/1*3*1/7/p2*2P w 0 1",
-            "Board 11": "P1*1*1p/7/*2*2*/7/*2*2*/7/p1*1*1P w 0 1",
-            "Board 12": "P1*1*1p/7/2*1*2/1*3*1/2*1*2/7/p1*1*1P w 0 1",
-            "Board 13": "P2*2p/2*1*2/1*3*1/*5*/1*3*1/2*1*2/p2*2P w 0 1",
-            "Board 14": "P1*1*1p/1*3*1/*5*/7/*5*/1*3*1/p1*1*1P w 0 1",
-            "Board 15": "P1*1*1p/7/*1*1*1*/7/*1*1*1*/7/p1*1*1P w 0 1",
-            "Board 16": "P2*2p/7/1**1**1/**3**/1**1**1/7/p2*2P w 0 1",
-            "Board 17": "P1*1*1p/2*1*2/*5*/*2*2*/*5*/2*1*2/p1*1*1P w 0 1",
-            "Board 18": "P5p/2*1*2/**1*1**/3*3/**1*1**/2*1*2/p5P w 0 1",
-            "Board 19": "P1***1p/7/**1*1**/*5*/**1*1**/7/p1***1P w 0 1",
-        }
+        ui: { materialPoint: "ataxx" },
     }),
 
     chess: variant({

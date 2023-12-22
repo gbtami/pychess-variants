@@ -19,7 +19,7 @@ export type ColorName = "White" | "Black" | "Red" | "Blue" | "Gold" | "Pink" | "
 export type PromotionType = "regular" | "shogi";
 export type TimeControlType = "incremental" | "byoyomi";
 export type CountingType = "makruk" | "asean";
-export type MaterialPointType = "janggi";
+export type MaterialPointType = "janggi" | "ataxx";
 export type BoardMarkType = "campmate" | "kingofthehill";
 export type PieceSoundType = "regular" | "atomic" | "shogi";
 
@@ -255,6 +255,19 @@ export function getJanggiPoints(board: string): number[] {
         }
     }
     return [choPoint, hanPoint];
+}
+
+// Get ataxx material points
+export function getAtaxxPoints(board: string): number[] {
+    let redPoint = 0;
+    let bluePoint = 0;
+    for (const c of board) {
+        switch (c) {
+            case 'P': redPoint += 1; break;
+            case 'p': bluePoint += 1; break;
+        }
+    }
+    return [redPoint, bluePoint];
 }
 
 export function unpromotedRole(variant: Variant, piece: cg.Piece): cg.Role {
