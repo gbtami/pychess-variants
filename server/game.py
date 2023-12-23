@@ -180,8 +180,7 @@ class Game:
         self.manual_count = use_manual_counting and not self.bot_game
         self.manual_count_toggled = []
 
-        # To prevent require pass moves by both side at the game end
-        self.check_full_board = self.variant == "ataxx"
+        # Ataxx is not default or 960, just random
         self.random_only = self.variant == "ataxx"
 
         # Calculate the start of manual counting
@@ -756,25 +755,6 @@ class Game:
             ):
                 self.result = result_string_from_value(self.board.color, game_result_value)
                 self.status = CLAIM if game_result_value != 0 else DRAW
-
-            # TODO: remove this when https://github.com/ianfab/Fairy-Stockfish/issues/749 resolves
-            if self.check_full_board:
-                if (
-                    self.board.fen.count("P")
-                    + self.board.fen.count("p")
-                    + +self.board.fen.count("*")
-                    == 49
-                ):
-                    red_count = self.board.fen.count("P")
-                    blue_count = self.board.fen.count("p")
-
-                    self.status = VARIANTEND
-                    if red_count > blue_count:
-                        self.result = "1-0"
-                    elif red_count < blue_count:
-                        self.result = "0-1"
-                    else:
-                        self.result = "1/2-1/2"
 
         if self.has_counting:
             parts = self.board.fen.split()
