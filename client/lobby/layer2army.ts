@@ -41,6 +41,14 @@ export function layer2army (lobbyCtrl: LobbyController, containerId: string): vo
                 ]),
                 h('p.variant-extra-info', _('Horde vs Horde')),
             ]),
+            h('button.layer-2-category', { on: { click: () => layer3variant('layer2armycont', lobbyCtrl, 'shinobi', false) } }, [
+                h('div.variant-title-l2', [
+                    h('div.icon', { attrs: { 'data-icon': VARIANTS['shinobi'].icon(false) } }),
+                    h('h3', VARIANTS['shinobi'].displayName()),
+                ]),
+                h('p.variant-extra-info', _('Clan: Drop-based army')),
+            ]),
+            /*
             h('button.layer-2-category', { on: { click: () => layer3variant('layer2armycont', lobbyCtrl, 'shinobiplus', false) } }, [
                 h('div.variant-title-l2', [
                     h('div.icon', { attrs: { 'data-icon': VARIANTS['shinobiplus'].icon(false) } }),
@@ -48,6 +56,7 @@ export function layer2army (lobbyCtrl: LobbyController, containerId: string): vo
                 ]),
                 h('p.variant-extra-info', _('Clan: Drop-based army')),
             ]),
+            */
             h('button.layer-2-category', { on: { click: () => layer3variant('layer2armycont', lobbyCtrl, 'synochess', false) } }, [
                 h('div.variant-title-l2', [
                     h('div.icon', { attrs: { 'data-icon': VARIANTS['synochess'].icon(false) } }),

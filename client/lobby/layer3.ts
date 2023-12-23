@@ -100,6 +100,7 @@ function proTip (variant: string, chess960: boolean) {
         return _('Other piece sets are available, which may help avoid confusion.');
 // army
     case 'orda':
+    case 'shinobi':
     case 'shinobiplus':
     case 'empire':
     case 'synochess':
