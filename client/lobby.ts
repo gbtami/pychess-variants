@@ -246,7 +246,7 @@ export class LobbyController implements ChatController {
         e = document.getElementById('fen') as HTMLInputElement;
         let fen = e.value;
         // Prevent to create 'custom' games with standard startFen
-        if (fen.trim() === variant.startFen) fen = '';
+        if (variant.name !== 'ataxx' && fen.trim() === variant.startFen) fen = '';
 
         e = document.getElementById('min') as HTMLInputElement;
         const minutes = this.minutesValues[Number(e.value)];

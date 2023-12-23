@@ -300,6 +300,7 @@ export const VARIANTS: Record<string, Variant> = {
         // Ataxx All 19 boards won https://www.youtube.com/watch?v=3VcAW6EKuvU
         alternateStart: {
             '': "",
+            'Board 0': "P5p/7/7/7/7/7/p5P w 0 1",
             'Board 1': "P5p/7/3*3/2*1*2/3*3/7/p5P w 0 1",
             'Board 2': "P5p/7/3*3/2***2/3*3/7/p5P w 0 1",
             'Board 3': "P5p/7/2*1*2/7/2*1*2/7/p5P w 0 1",
