@@ -296,9 +296,11 @@ export const VARIANTS: Record<string, Variant> = {
         colors: { first: "Red", second: "Blue" },
         pieceRow: ["p", "*"],
         rules: { pass: true },
+        ui: { materialPoint: "ataxx" },
         // Ataxx All 19 boards won https://www.youtube.com/watch?v=3VcAW6EKuvU
         alternateStart: {
             '': "",
+            'Board 0': "P5p/7/7/7/7/7/p5P w 0 1",
             'Board 1': "P5p/7/3*3/2*1*2/3*3/7/p5P w 0 1",
             'Board 2': "P5p/7/3*3/2***2/3*3/7/p5P w 0 1",
             'Board 3': "P5p/7/2*1*2/7/2*1*2/7/p5P w 0 1",
@@ -929,6 +931,7 @@ export const noPuzzleVariants = [
     "manchu",
     "minixiangqi",
     "grandhouse",
+    "shinobi",
     "shinobiplus",
 ]
 
@@ -938,7 +941,8 @@ export const variantGroups: { [ key: string ]: { variants: string[] } } = {
     shogi:    { variants: [ "shogi", "minishogi", "kyotoshogi", "dobutsu", "gorogoroplus", "torishogi" ] },
     xiangqi:  { variants: [ "xiangqi", "manchu", "janggi", "minixiangqi" ] },
     fairy:    { variants: [ "capablanca", "capahouse", "seirawan", "shouse", "grand", "grandhouse", "shako", "shogun", "hoppelpoppel", "mansindam" ] },
-    army:     { variants: [ "orda", "synochess", "shinobiplus", "empire", "ordamirror", "chak", "chennis", "spartan" ] },
+    army:     { variants: [ "orda", "synochess", "shinobi", "empire", "ordamirror", "chak", "chennis", "spartan" ] },
+//    army:     { variants: [ "orda", "synochess", "shinobiplus", "empire", "ordamirror", "chak", "chennis", "spartan" ] },
     other:    { variants: [ "ataxx" ] }
 };
 

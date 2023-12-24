@@ -271,7 +271,7 @@ export abstract class GameController extends ChessgroundController implements Ch
         }
 
         if (this.variant.ui.materialPoint) {
-            updatePoint(step.fen, document.getElementById('misc-infow') as HTMLElement, document.getElementById('misc-infob') as HTMLElement);
+            updatePoint(this.variant, step.fen, document.getElementById('misc-infow') as HTMLElement, document.getElementById('misc-infob') as HTMLElement);
         }
 
         if (ply === this.ply + 1) {

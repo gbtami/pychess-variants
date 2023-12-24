@@ -395,7 +395,7 @@ export class RoundController extends GameController {
             [this.vmiscInfoW, this.vmiscInfoB] = updateCount(this.fullfen, this.vmiscInfoB, this.vmiscInfoW);
 
         if (this.variant.ui.materialPoint)
-            [this.vmiscInfoW, this.vmiscInfoB] = updatePoint(this.fullfen, this.vmiscInfoB, this.vmiscInfoW);
+            [this.vmiscInfoW, this.vmiscInfoB] = updatePoint(this.variant, this.fullfen, this.vmiscInfoB, this.vmiscInfoW);
 
         this.updateMaterial();
     }
@@ -1009,12 +1009,12 @@ export class RoundController extends GameController {
     }
 
     private updatePoint = (fen: cg.FEN) => {
-        [this.vmiscInfoW, this.vmiscInfoB] = updatePoint(fen, this.vmiscInfoW, this.vmiscInfoB);
+        [this.vmiscInfoW, this.vmiscInfoB] = updatePoint(this.variant, fen, this.vmiscInfoW, this.vmiscInfoB);
     }
 
     private updateMaterial(): void {
         if (this.variant.material.showDiff && this.materialDifference)
-            [this.vmaterial0, this.vmaterial1] = updateMaterial(this.variant, this.fullfen, this.vmaterial0, this.vmaterial1, this.flipped());
+            [this.vmaterial0, this.vmaterial1] = updateMaterial(this.variant, this.fullfen, this.vmaterial0, this.vmaterial1, this.flipped(), this.mycolor);
         else
             [this.vmaterial0, this.vmaterial1] = emptyMaterial(this.variant);
     }
