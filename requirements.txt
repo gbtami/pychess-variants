@@ -11,12 +11,12 @@ jinja2==3.1.2
 motor==3.3.2
 pymongo==4.6.1
 pyopenssl==23.3.0
-pyffish==0.0.79
+pyffish==0.0.80
 sortedcollections==2.1.0
 python-gettext==5.0
 uvloop==0.19.0
 objgraph==3.6.0
-black==23.11.0
+black==23.12.0
 flake8==6.1.0
 mypy==1.7.1
 mongomock-motor==0.0.25

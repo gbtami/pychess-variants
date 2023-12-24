@@ -101,6 +101,7 @@ function proTip (variant: string, chess960: boolean) {
 // army
     case 'orda':
     case 'shinobi':
+    case 'shinobiplus':
     case 'empire':
     case 'synochess':
     case 'ordamirror':

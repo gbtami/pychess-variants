@@ -116,7 +116,12 @@ async def index(request):
             if session_user.startswith(ANON_PREFIX):
                 session.invalidate()
                 return web.HTTPFound(request.rel_url)
+
             user = await users.get(session_user)
+
+            if not user.enabled:
+                session.invalidate()
+                return web.HTTPFound("/")
     else:
         user = User(request.app, anon=True)
         log.info("+++ New guest user %s connected.", user.username)
