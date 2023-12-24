@@ -3,6 +3,8 @@ from settings import static_url
 DASH = "–"
 ANON_PREFIX = "Anon" + DASH
 
+NONE_USER = "None" + DASH + "User"
+
 SCHEDULE_MAX_DAYS = 7
 TOURNAMENT_SPOTLIGHTS_MAX = 3
 
@@ -142,6 +144,7 @@ VARIANTS = (
     "mansindam",
     "orda",
     "synochess",
+    # Shinobi is superseded by Shinobiplus Plus
     "shinobi",
     # "shinobiplus",
     "empire",
@@ -149,9 +152,11 @@ VARIANTS = (
     "chak",
     "chennis",
     "spartan",
+    "ataxx",
 )
 
 VARIANT_ICONS = {
+    "ataxx": "☣",
     "makruk": "Q",
     "makpong": "O",
     "sittuyin": ":",
@@ -260,12 +265,12 @@ CATEGORIES = {
     "army": (
         "orda",
         "synochess",
-        "shinobi",
         "empire",
         "ordamirror",
         "chak",
         "chennis",
-        "shinobiplus",
+        "shinobi",
+        # "shinobiplus",
         "spartan",
     ),
     "makruk": ("makruk", "makpong", "cambodian", "sittuyin", "asean"),
@@ -278,6 +283,7 @@ CATEGORIES = {
         "torishogi",
     ),
     "xiangqi": ("xiangqi", "manchu", "janggi", "minixiangqi"),
+    "other": ("ataxx"),
 }
 
 VARIANT_GROUPS = {}
@@ -349,6 +355,7 @@ TRANSLATED_FREQUENCY_NAMES = {
 }
 
 TRANSLATED_VARIANT_NAMES = {
+    "ataxx": _("Ataxx"),
     "chess": _("Chess"),
     "chess960": _("Chess960"),
     "crazyhouse": _("Crazyhouse"),

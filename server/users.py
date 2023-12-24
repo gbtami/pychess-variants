@@ -3,14 +3,18 @@ from collections import UserDict
 
 from typedefs import db_key, users_key
 from glicko2.glicko2 import DEFAULT_PERF
-from const import ANON_PREFIX, VARIANTS
+from const import ANON_PREFIX, NONE_USER, VARIANTS
 from user import User
 
 log = logging.getLogger(__name__)
 
 
-class NotInUsers(Exception):
+class NotInAppUsers(Exception):
     """Raised when dict acces syntax was used, but username not in Users dict"""
+
+
+class NotInDbUsers(Exception):
+    """Raised when await get() syntax was used, but username not in db users"""
 
 
 class Users(UserDict):
@@ -29,11 +33,15 @@ class Users(UserDict):
         if username in self.data:
             return self.data[username]
         else:
-            raise NotInUsers("%s is not in Users. Use await users.get() instead.", username)
+            raise NotInAppUsers("%s is not in Users. Use await users.get() instead.", username)
 
     async def get(self, username):
         if username in self.data:
             return self.data[username]
+
+        if username is None:
+            user = self.data[NONE_USER]
+            return user
 
         if username.startswith(ANON_PREFIX):
             user = User(self.app, username=username, anon=True)
@@ -43,7 +51,7 @@ class Users(UserDict):
         doc = await self.app[db_key].user.find_one({"_id": username})
         if doc is None:
             log.error("--- users.get() %s NOT IN db ---", username)
-            return None
+            raise NotInDbUsers
         else:
             perfs = doc.get("perfs", {variant: DEFAULT_PERF for variant in VARIANTS})
             pperfs = doc.get("pperfs", {variant: DEFAULT_PERF for variant in VARIANTS})

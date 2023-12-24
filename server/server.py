@@ -20,7 +20,7 @@ from aiohttp import web
 from aiohttp.log import access_logger
 from aiohttp.web_app import Application
 from aiohttp_session.cookie_storage import EncryptedCookieStorage
-from aiohttp_session import setup
+from aiohttp_session import setup, get_session
 from aiohttp_remotes import Secure
 from motor.motor_asyncio import AsyncIOMotorClient
 from sortedcollections import ValueSortedDict
@@ -82,6 +82,7 @@ from const import (
     WEEKLY,
     MONTHLY,
     SHIELD,
+    NONE_USER,
 )
 from discord_bot import DiscordBot, FakeDiscordBot
 from generate_crosstable import generate_crosstable
@@ -104,7 +105,7 @@ from settings import (
     SOURCE_VERSION,
 )
 from user import User
-from users import Users
+from users import NotInDbUsers, Users
 from utils import load_game
 from tournaments import load_tournament, get_scheduled_tournaments, translated_tournament_name
 from twitch import Twitch
@@ -146,6 +147,10 @@ async def handle_404(request, handler):
             return web.Response(text=text, content_type="text/html")
         else:
             raise
+    except NotInDbUsers:
+        session = await get_session(request)
+        session.invalidate()
+        return web.HTTPFound("/")
 
 
 async def on_prepare(request, response):
@@ -217,8 +222,13 @@ async def init_state(app):
     app[users_key]["Random-Mover"] = User(app, bot=True, username="Random-Mover")
     app[users_key]["Fairy-Stockfish"] = User(app, bot=True, username="Fairy-Stockfish")
     app[users_key]["Discord-Relay"] = User(app, anon=True, username="Discord-Relay")
-
     app[users_key]["Random-Mover"].online = True
+
+    # To handle old anon user sessions with names prefixed with "Anon-" (hyphen!)
+    # we will use this disabled(!) technical NONE_USER
+    app[users_key][NONE_USER] = User(app, anon=True, username=NONE_USER)
+    app[users_key][NONE_USER].enabled = False
+
     app[lobbysockets_key] = {}  # one dict only! {user.username: user.tournament_sockets, ...}
     app[lobbychat_key] = collections.deque([], MAX_CHAT_LINES)
 
@@ -435,11 +445,14 @@ async def init_state(app):
         cursor = app[db_key].game.find({"r": "d", "c": True})
         async for doc in cursor:
             if doc["s"] < ABORTED:
-                game = await load_game(app, doc["_id"])
-                app[games_key][doc["_id"]] = game
-                game.wplayer.correspondence_games.append(game)
-                game.bplayer.correspondence_games.append(game)
-                game.stopwatch.restart(from_db=True)
+                try:
+                    game = await load_game(app, doc["_id"])
+                    app[games_key][doc["_id"]] = game
+                    game.wplayer.correspondence_games.append(game)
+                    game.bplayer.correspondence_games.append(game)
+                    game.stopwatch.restart(from_db=True)
+                except NotInDbUsers:
+                    log.error("Failed toload game %s", doc["_id"])
 
         if "video" not in db_collections:
             if DEV:
