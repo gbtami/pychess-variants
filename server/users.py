@@ -51,7 +51,7 @@ class Users(UserDict):
         doc = await self.app[db_key].user.find_one({"_id": username})
         if doc is None:
             log.error("--- users.get() %s NOT IN db ---", username)
-            raise NotInDbUsers("%s is not in moongodb users collection.", username)
+            raise NotInDbUsers
         else:
             perfs = doc.get("perfs", {variant: DEFAULT_PERF for variant in VARIANTS})
             pperfs = doc.get("pperfs", {variant: DEFAULT_PERF for variant in VARIANTS})
