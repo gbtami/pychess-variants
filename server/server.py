@@ -444,11 +444,14 @@ async def init_state(app):
         cursor = app[db_key].game.find({"r": "d", "c": True})
         async for doc in cursor:
             if doc["s"] < ABORTED:
-                game = await load_game(app, doc["_id"])
-                app[games_key][doc["_id"]] = game
-                game.wplayer.correspondence_games.append(game)
-                game.bplayer.correspondence_games.append(game)
-                game.stopwatch.restart(from_db=True)
+                try:
+                    game = await load_game(app, doc["_id"])
+                    app[games_key][doc["_id"]] = game
+                    game.wplayer.correspondence_games.append(game)
+                    game.bplayer.correspondence_games.append(game)
+                    game.stopwatch.restart(from_db=True)
+                except NotInDbUsers:
+                    log.error("Failed toload game %s", doc["_id"])
 
         if "video" not in db_collections:
             if DEV:
