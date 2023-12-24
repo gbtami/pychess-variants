@@ -298,20 +298,30 @@ export function moveDests(legalMoves: UCIMove[], fromSquare?: cg.Key): cg.Dests 
     legalMoves.map(uci2cg).forEach(move => {
         const orig = move.slice(0, 2) as cg.Orig;
         const dest = move.slice(2, 4) as cg.Key;
-        if (dests.has(orig))
-            dests.get(orig)!.push(dest);
-        else {
+        // fromSquare parameter is used for ataxx only!
+        if (fromSquare) {
+            // ataxx has infinite drop but has no pockets in FEN, so
+            // we will enable moving to drop dests as well
+            // and create drop moves in GameController.onUserMove()
             if (orig === 'P@') {
-                // ataxx has infinite drop but has no pockets in FEN, so
-                // we will enable moving to drop dests as well
-                // and create drop moves in GameController.onUserMove()
                 if (fromSquare && adjacent(fromSquare, dest)) {
-                    if (dests.has(fromSquare))
+                    if (dests.has(fromSquare)) {
                         dests.get(fromSquare)!.push(dest);
-                    else {
+                    } else {
                         dests.set(fromSquare, [ dest ]);
                     }
                 }
+            } else {
+                if (dests.has(orig)) {
+                    dests.get(orig)!.push(dest);
+                } else {
+                    dests.set(orig, [ dest ]);
+                }
+            }
+
+        } else {
+            if (dests.has(orig)) {
+                dests.get(orig)!.push(dest);
             } else {
                 dests.set(orig, [ dest ]);
             }
