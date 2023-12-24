@@ -1093,6 +1093,14 @@ export function lobbyView(model: PyChessModel): VNode[] {
         h('div.tv', [h('a#tv-game', { attrs: {href: '/tv'} })]),
         h('under-lobby', [
             h('posts', [
+                h('a.post', { attrs: {href: '/news/Merry_Christmas'} }, [
+                    h('img', { attrs: {src: model.assetURL + '/images/board/ataxx.png'} }),
+                    h('span.text', [
+                        h('strong', _("Merry Christmas!")),
+                        h('span', _('Ataxx')),
+                    ]),
+                    h('time', '2023.12.24'),
+                ]),
                 h('a.post', { attrs: {href: '/news/S-chess_endings_1'} }, [
                     h('img', { attrs: {src: model.assetURL + '/images/elephant.jpg'} }),
                     h('span.text', [
@@ -1109,6 +1117,7 @@ export function lobbyView(model: PyChessModel): VNode[] {
                     ]),
                     h('time', '2023.11.10'),
                 ]),
+                /*
                 h('a.post', { attrs: {href: '/news/S-chess_ramblings'} }, [
                     h('img', { attrs: {src: model.assetURL + '/images/Hawk-Elephant.jpeg'} }),
                     h('span.text', [
@@ -1117,7 +1126,6 @@ export function lobbyView(model: PyChessModel): VNode[] {
                     ]),
                     h('time', '2023.11.03'),
                 ]),
-                /*
                 h('a.post', { attrs: {href: '/news/More_variants'} }, [
                     h('img', { attrs: {src: model.assetURL + '/images/Mansindam.jpg'} }),
                     h('span.text', [

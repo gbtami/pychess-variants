@@ -1,4 +1,5 @@
 NEWS = {
+    "Merry_Christmas": "2023-12-24",
     "S-chess_endings_1": "2023-12-01",
     "Correspondence_Chess": "2023-11-10",
     "S-chess_ramblings": "2023-11-03",
