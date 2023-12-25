@@ -199,7 +199,7 @@ async def event_stream(request):
                 await resp.write(answer.encode("utf-8"))
                 await resp.drain()
         except Exception:
-            log.error("BOT %s event_stream is broken...", username)
+            log.error("BOT %s event_stream is broken...", username, exc_info=True)
             break
 
     pinger_task.cancel()
@@ -252,13 +252,13 @@ async def game_stream(request):
             await resp.write(answer.encode("utf-8"))
             await resp.drain()
         except Exception:
-            log.error("Writing %s to BOT game_stream failed!", answer)
+            log.error("Writing %s to BOT game_stream failed!", answer, exc_info=True)
             break
 
     try:
         await resp.write_eof()
     except Exception:
-        log.error("Writing EOF to BOT game_stream failed!")
+        log.error("Writing EOF to BOT game_stream failed!", exc_info=True)
     pinger_task.cancel()
 
     return resp
@@ -299,8 +299,7 @@ async def bot_abort(request):
     if opp_player.bot:
         await opp_player.game_queues[gameId].put(game.game_end)
     else:
-        opp_ws = users[opp_name].game_sockets[gameId]
-        await opp_ws.send_json(response)
+        await users[opp_name].send_game_message(gameId, response)
 
     await round_broadcast(game, response)
 
@@ -342,14 +341,14 @@ async def bot_analysis(request):
         if "score" in ceval:
             game.steps[int(ply)]["eval"] = ceval["score"]
 
-        user_ws = users[username].game_sockets[gameId]
+
         response = {
             "type": "roundchat",
             "user": bot_name,
             "room": "spectator",
             "message": ply + " " + json.dumps(ceval),
         }
-        await user_ws.send_json(response)
+        await users[username].send_game_message(gameId, response)
 
         response = {
             "type": "analysis",
@@ -357,7 +356,7 @@ async def bot_analysis(request):
             "color": data["color"],
             "ceval": ceval,
         }
-        await user_ws.send_json(response)
+        await users[username].send_game_message(gameId, response)
 
     return web.json_response({"ok": True})
 

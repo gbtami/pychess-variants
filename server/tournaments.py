@@ -180,8 +180,7 @@ async def upsert_tournament_to_db(tournament, app):
             {"_id": tournament.id}, {"$set": new_data}, upsert=True
         )
     except Exception:
-        if app[db_key] is not None:
-            log.error("Failed to save tournament data to mongodb!")
+        log.error("Failed to save tournament data to mongodb!", exc_info=True)
 
 
 async def get_winners(app, shield, variant=None):

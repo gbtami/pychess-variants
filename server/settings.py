@@ -6,8 +6,6 @@ import string
 
 from newid import id8
 
-logging.basicConfig(level=logging.DEBUG)
-
 URI = os.getenv("URI", "http://127.0.0.1:8080")
 PROD = os.getenv("PROD") == "true"
 # production deploy (yarn prod) uses brotli compressed pychess-variants.js.br

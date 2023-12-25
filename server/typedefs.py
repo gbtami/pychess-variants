@@ -43,3 +43,5 @@ tv_key = AppKey("tv", str)
 twitch_key = AppKey("twitch", object)
 youtube_key = AppKey("youtube", object)
 workers_key = AppKey("workers", set)
+
+pychess_global_app_state_key = AppKey("pychess_global_app_state", dict)

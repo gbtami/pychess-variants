@@ -10,11 +10,14 @@ import sys
 from aiohttp import web
 import aiohttp_session
 
+log = logging.getLogger(__name__)
+
 try:
     import htmlmin
 
     html_minify = functools.partial(htmlmin.minify, remove_optional_attribute_quotes=False)
-except ImportError:
+except ImportError as e:
+    log.error(e, exc_info=True)
     warnings.warn("Not using HTML minification, htmlmin not imported.")
     sys.exit(0)
 
@@ -77,7 +80,6 @@ from puzzle import (
 )
 from custom_trophy_owners import CUSTOM_TROPHY_OWNERS
 
-log = logging.getLogger(__name__)
 
 
 async def index(request):
@@ -99,7 +101,7 @@ async def index(request):
         try:
             doc = await db.user.find_one({"_id": session_user})
         except Exception:
-            log.error("Failed to get user %s from mongodb!", session_user)
+            log.error("Failed to get user %s from mongodb!", session_user, exc_info=True)
         if doc is not None:
             session["guest"] = False
 
@@ -305,8 +307,8 @@ async def index(request):
                         for queue in channels:
                             await queue.put(json.dumps({"gameId": gameId}))
                         # return games[game_id]
-                    except ConnectionResetError:
-                        pass
+                    except ConnectionResetError as e:
+                        log.error(e, session_user, exc_info=True)
 
             else:
                 view = "invite"
@@ -320,7 +322,7 @@ async def index(request):
             if (ply is not None) and (view != "embed"):
                 view = "analysis"
 
-            if user.username not in (game.wplayer.username, game.bplayer.username):
+            if not game.is_player(user):
                 game.spectators.add(user)
 
     if view in ("profile", "level8win"):
@@ -556,7 +558,7 @@ async def index(request):
             render["btitle"] = game.bplayer.title
             render["brating"] = game.brating
             render["brdiff"] = game.brdiff
-            render["fen"] = game.board.fen
+            render["fen"] = game.fen
             render["base"] = game.base
             render["inc"] = game.inc
             render["byo"] = game.byoyomi_period
@@ -564,7 +566,7 @@ async def index(request):
             render["status"] = game.status
             render["date"] = game.date.isoformat()
             render["title"] = game.browser_title
-            render["ply"] = ply if ply is not None else game.board.ply - 1
+            render["ply"] = ply if ply is not None else game.ply - 1
             render["ct"] = json.dumps(game.crosstable)
             render["board"] = json.dumps(game.get_board(full=True))
             if game.tournamentId is not None:
@@ -652,7 +654,7 @@ async def index(request):
 
     elif view == "editor" or (view == "analysis" and gameId is None):
         if fen is None:
-            fen = FairyBoard(variant).start_fen(variant)
+            fen = FairyBoard.start_fen(variant)
         else:
             fen = fen.replace(".", "+").replace("_", " ")
         render["variant"] = variant
@@ -667,7 +669,7 @@ async def index(request):
     try:
         text = await template.render_async(render)
     except Exception:
-        log.exception("ERROR: template.render_async() failed.")
+        log.error("ERROR: template.render_async() failed.", exc_info=True)
         return web.HTTPFound("/")
 
     response = web.Response(text=html_minify(text), content_type="text/html")

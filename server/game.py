@@ -4,12 +4,16 @@ import logging
 from datetime import datetime, timezone, timedelta
 from time import monotonic
 
+from user import User
+
+log = logging.getLogger(__name__)
+
 try:
     import pyffish as sf
 
     sf.set_option("VariantPath", "variants.ini")
 except ImportError:
-    print("No pyffish module installed!")
+    log.error("No pyffish module installed!", exc_info=True)
 
 from typedefs import (
     db_key,
@@ -89,7 +93,6 @@ class Game:
     ):
         self.app = app
         self.db = app[db_key] if db_key in app else None
-        self.users = app[users_key]
         self.games = app[games_key]
         self.highscore = app[highscore_key]
         self.db_crosstable = app[crosstable_key]
@@ -473,7 +476,7 @@ class Game:
             try:
                 del self.games[self.id]
             except KeyError:
-                log.info("Failed to del %s from games", self.id)
+                log.error("Failed to del %s from games", self.id, exc_info=True)
 
             if self.bot_game:
                 try:
@@ -482,7 +485,7 @@ class Game:
                     if self.bplayer.bot:
                         del self.bplayer.game_queues[self.id]
                 except KeyError:
-                    log.info("Failed to del %s from game_queues", self.id)
+                    log.error("Failed to del %s from game_queues", self.id, exc_info=True)
 
         self.remove_task = asyncio.create_task(remove(KEEP_TIME))
 
@@ -603,8 +606,7 @@ class Game:
                 {"_id": self.ct_id}, {"$set": new_data}, upsert=True
             )
         except Exception:
-            if self.db is not None:
-                log.error("Failed to save new crosstable to mongodb!")
+            log.error("Failed to save new crosstable to mongodb!", exc_info=True)
 
         self.need_crosstable_save = False
 
@@ -634,8 +636,7 @@ class Game:
                 upsert=True,
             )
         except Exception:
-            if self.db is not None:
-                log.error("Failed to save new highscore to mongodb!")
+            log.error("Failed to save new highscore to mongodb!", exc_info=True)
 
     async def update_ratings(self):
         if self.result == "1-0":
@@ -688,6 +689,17 @@ class Game:
                 self.chess960,
                 {self.bplayer.username: int(round(br.mu, 0))},
             )
+
+    def is_player(self, user: User) -> bool:
+        return user.username in (self.wplayer.username, self.bplayer.username)
+
+    @property
+    def fen(self):
+        return self.board.fen
+
+    @property
+    def ply(self):
+        return self.board.ply
 
     def update_status(self, status=None, result=None):
         if self.status > STARTED:
@@ -798,7 +810,7 @@ class Game:
                 sf.NOTATION_SAN,
             )
         except Exception:
-            log.exception("ERROR: Exception in game %s pgn()", self.id)
+            log.error("ERROR: Exception in game %s pgn()", self.id, exc_info=True)
             mlist = self.board.move_stack
         moves = " ".join(
             (
@@ -806,7 +818,7 @@ class Game:
                 for ind, move in enumerate(mlist)
             )
         )
-        no_setup = self.board.initial_fen == self.board.start_fen("chess") and not self.chess960
+        no_setup = self.board.initial_fen == FairyBoard.start_fen("chess") and not self.chess960
         # Use lichess format for crazyhouse games to support easy import
         setup_fen = (
             self.board.initial_fen
@@ -845,6 +857,14 @@ class Game:
             self.board.initial_fen,
             " ".join(self.board.move_stack),
         )
+
+    @property
+    def all_players(self):
+        return [self.wplayer, self.bplayer]
+
+    @property
+    def non_bot_players(self):
+        return filter(lambda p: not p.bot, self.all_players)
 
     @property
     def clocks(self):

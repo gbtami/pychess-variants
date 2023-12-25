@@ -307,7 +307,7 @@ async def init_state(app):
                 with open(moname, "wb") as mo_file:
                     mo_file.write(mo)
         except PoSyntaxError:
-            log.error("PoSyntaxError in %s", poname)
+            log.error("PoSyntaxError in %s", poname, stack_info=True, exc_info=True)
 
         # Create translation class
         try:
@@ -503,13 +503,8 @@ async def shutdown(app):
     for game in list(app[games_key].values()):
         if game.status <= STARTED and (not game.corr):
             response = await game.abort_by_server()
-            for player in (game.wplayer, game.bplayer):
-                if not player.bot and game.id in player.game_sockets:
-                    ws = player.game_sockets[game.id]
-                    try:
-                        await ws.send_json(response)
-                    except Exception:
-                        print("Failed to send game %s abort to %s" % (game.id, player.username))
+            for player in set(game.non_bot_players):
+                await player.send_game_message(game.id, response)
 
     # close lobbysockets
     for user in list(app[users_key].values()):
@@ -517,8 +512,8 @@ async def shutdown(app):
             for ws in list(user.game_sockets.values()):
                 try:
                     await ws.close()
-                except Exception:
-                    pass
+                except Exception as e:
+                    log.error(e, stack_info=True, exc_info=True)
 
     for ws_set in list(app[lobbysockets_key].values()):
         for ws in list(ws_set):
@@ -542,7 +537,9 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
-    logging.basicConfig()
+    FORMAT = ('%(asctime)s.%(msecs)03d [%(levelname)s] %(name)s:%(lineno)d %(message)s')
+    DATEFMT = '%z %Y-%m-%d %H:%M:%S'
+    logging.basicConfig(format=FORMAT, datefmt=DATEFMT)
     logging.getLogger().setLevel(
         level=logging.DEBUG if args.v else logging.WARNING if args.w else logging.INFO
     )

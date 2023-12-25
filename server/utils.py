@@ -1,6 +1,8 @@
 import asyncio
 import json
 import logging
+log = logging.getLogger(__name__)
+
 import random
 from datetime import datetime, timezone, timedelta
 from functools import partial
@@ -15,7 +17,7 @@ try:
 
     sf.set_option("VariantPath", "variants.ini")
 except ImportError:
-    print("No pyffish module installed!")
+    log.error("No pyffish module installed!", exc_info=True)
 
 from typedefs import (
     db_key,
@@ -48,8 +50,6 @@ from fairy import BLACK, STANDARD_FEN, FairyBoard
 from game import Game, MAX_PLY
 from newid import new_id
 from settings import URI
-
-log = logging.getLogger(__name__)
 
 
 # See https://github.com/aio-libs/aiohttp/issues/3122 why this is needed
@@ -235,7 +235,7 @@ async def load_game(app, game_id):
                 try:
                     game.steps[-1]["analysis"] = doc["a"][ply + 1]
                 except IndexError:
-                    print("IndexError", ply, move, san)
+                    log.error("IndexError %d %s %s", ply, move, san, exc_info=True)
 
         except Exception:
             log.exception(
@@ -411,7 +411,6 @@ async def import_game(request):
 
     return web.json_response({"gameId": game_id})
 
-
 async def join_seek(app, user, seek_id, game_id=None, join_as="any"):
     seeks = app[seeks_key]
     seek = seeks[seek_id]
@@ -448,7 +447,6 @@ async def join_seek(app, user, seek_id, game_id=None, join_as="any"):
         return await new_game(app, seek_id, game_id)
     else:
         return {"type": "seek_joined", "seekID": seek_id}
-
 
 async def new_game(app, seek_id, game_id=None):
     db = app[db_key]
@@ -614,9 +612,7 @@ async def analysis_move(app, user, game, move, fen, ply):
             "lastMove": lastmove,
             "check": check,
         }
-
-    ws = user.game_sockets[game.id]
-    await ws.send_json(analysis_board_response)
+    await user.send_game_message(game.id, analysis_board_response)
 
 
 async def play_move(app, user, game, move, clocks=None, ply=None):
@@ -626,7 +622,7 @@ async def play_move(app, user, game, move, clocks=None, ply=None):
     # log.info("%s move %s %s %s - %s" % (user.username, move, gameId, game.wplayer.username, game.bplayer.username))
 
     if game.status <= STARTED:
-        if ply is not None and game.board.ply + 1 != ply:
+        if ply is not None and game.ply + 1 != ply:
             log.info(
                 "invalid ply received - probably a re-sent move that has already been processed"
             )
@@ -651,17 +647,14 @@ async def play_move(app, user, game, move, clocks=None, ply=None):
             game.result = "0-1" if user.username == game.wplayer.username else "1-0"
     else:
         # never play moves in finished games!
+        log.error("Move received for finished game", stack_info=True)
         return
 
     if not invalid_move:
         board_response = game.get_board(full=game.board.ply == 1)
 
         if not user.bot:
-            try:
-                ws = user.game_sockets[gameId]
-                await ws.send_json(board_response)
-            except (KeyError, ConnectionResetError):
-                pass
+            await user.send_game_message(gameId, board_response)
 
     if user.bot and game.status > STARTED:
         await user.game_queues[gameId].put(game.game_end)
@@ -675,21 +668,17 @@ async def play_move(app, user, game, move, clocks=None, ply=None):
         else:
             await users[opp_name].game_queues[gameId].put(game.game_state)
     else:
-        try:
-            opp_ws = users[opp_name].game_sockets[gameId]
-            if not invalid_move:
-                await opp_ws.send_json(board_response)
-            if game.status > STARTED:
-                response = {
-                    "type": "gameEnd",
-                    "status": game.status,
-                    "result": game.result,
-                    "gameId": gameId,
-                    "pgn": game.pgn,
-                }
-                await opp_ws.send_json(response)
-        except (KeyError, ConnectionResetError):
-            pass
+        if not invalid_move:
+            await users[opp_name].send_game_message(gameId, board_response)
+        if game.status > STARTED:
+            response = {
+                "type": "gameEnd",
+                "status": game.status,
+                "result": game.result,
+                "gameId": gameId,
+                "pgn": game.pgn,
+            }
+            await users[opp_name].send_game_message(gameId, response)
 
     if not invalid_move:
         await round_broadcast(game, board_response, channels=app[game_channels_key])
@@ -743,11 +732,12 @@ def pgn(doc):
     elif variant in GRANDS:
         mlist = list(map(zero2grand, mlist))
 
-    fen = initial_fen if initial_fen is not None else sf.start_fen(variant)
+    fen = initial_fen if initial_fen is not None else FairyBoard.start_fen(variant)
     # print(variant, fen, mlist)
     try:
         mlist = sf.get_san_moves(variant, fen, mlist, chess960, sf.NOTATION_SAN)
-    except Exception:
+    except Exception as e:
+        log.error(e, exc_info=True)
         try:
             mlist = sf.get_san_moves(variant, fen, mlist[:-1], chess960, sf.NOTATION_SAN)
         except Exception:
@@ -795,7 +785,7 @@ def sanitize_fen(variant, initial_fen, chess960):
     # Initial_fen needs validation to prevent segfaulting in pyffish
     sanitized_fen = initial_fen
 
-    start_fen = sf.start_fen(variant)  # self.board.start_fen(self.variant)
+    start_fen = FairyBoard.start_fen(variant)  # self.board.start_fen(self.variant)
     start_fen_length = len(start_fen)
     start = start_fen.split()
     init = initial_fen.split()

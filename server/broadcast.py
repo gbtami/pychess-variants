@@ -21,34 +21,17 @@ async def lobby_broadcast(sockets, response):
             try:
                 await ws.send_json(response)
             except ConnectionResetError:
-                pass
+                log.debug("Connection reset ", exc_info=True)
 
 
 async def round_broadcast(game, response, full=False, channels=None):
+    log.debug("round_broadcast %s %s %r", response, full, game.spectators )
     if game.spectators:
         for spectator in game.spectators:
-            try:
-                if game.id in spectator.game_sockets:
-                    await spectator.game_sockets[game.id].send_json(response)
-            except (KeyError, ConnectionResetError):
-                # spectator was removed from users
-                pass
-
+            await spectator.send_game_message(game.id, response)
     if full:
-        if not game.wplayer.bot:
-            try:
-                wplayer_ws = game.wplayer.game_sockets[game.id]
-                await wplayer_ws.send_json(response)
-            except (KeyError, AttributeError, ConnectionResetError):
-                pass
-
-        if not game.bplayer.bot:
-            try:
-                bplayer_ws = game.bplayer.game_sockets[game.id]
-                await bplayer_ws.send_json(response)
-            except (KeyError, AttributeError, ConnectionResetError):
-                pass
-
+        for player in set(game.non_bot_players):
+            await player.send_game_message(game.id, response)
     # Put response data to sse subscribers queue
     if channels is not None:
         for queue in channels:
