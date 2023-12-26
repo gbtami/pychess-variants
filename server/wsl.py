@@ -30,6 +30,7 @@ from utils import join_seek, load_game, online_count, MyWebSocketResponse, remov
 from misc import server_state
 from tournament_spotlights import tournament_spotlights
 from login import logout
+from websocket_utils import get_user, process_ws
 
 log = logging.getLogger(__name__)
 
@@ -52,17 +53,39 @@ async def is_playing(app, user, ws):
 
 
 async def lobby_socket_handler(request):
-    users = request.app[users_key]
-
     session = await aiohttp_session.get_session(request)
-    session_user = session.get("user_name")
-    user = await users.get(session_user)
-
-    if (user is not None) and (not user.enabled):
-        session.invalidate()
+    user = await get_user(session, request)
+    ws = await process_ws(session, request, user, process_message)
+    if ws is None:
         return web.HTTPFound("/")
+    await finally_logic(request.app, ws, user)
+    return ws
 
-    app = request.app
+
+async def finally_logic(app, ws, user):
+    sockets = app[lobbysockets_key]
+    users = app[users_key]
+    if user is not None:
+        if ws in user.lobby_sockets:
+            user.lobby_sockets.remove(ws)
+            user.update_online()
+
+        # online user counter will be updated in quit_lobby also!
+        if len(user.lobby_sockets) == 0:
+            if user.username in sockets:
+                del sockets[user.username]
+
+            # not connected to lobby socket and not connected to game socket
+            if len(user.game_sockets) == 0:
+                response = {"type": "u_cnt", "cnt": online_count(users)}
+                await lobby_broadcast(sockets, response)
+
+            # response = {"type": "lobbychat", "user": "", "message": "%s left the lobby" % user.username}
+            # await lobby_broadcast(sockets, response)
+
+        await user.update_seeks(pending=True)
+
+async def process_message(app, user, ws, data):
     sockets = app[lobbysockets_key]
     games = app[games_key]
     seeks = app[seeks_key]
@@ -71,102 +94,27 @@ async def lobby_socket_handler(request):
     twitch = app[twitch_key]
     youtube = app[youtube_key]
     lobbychat = app[lobbychat_key]
+    users = app[users_key]
 
-    ws = MyWebSocketResponse(heartbeat=3.0, receive_timeout=1000.0)
 
-    ws_ready = ws.can_prepare(request)
-    if not ws_ready.ok:
-        return web.HTTPFound("/")
-
-    await ws.prepare(request)
-
-    log.info("--- NEW lobby WEBSOCKET by %s from %s", session_user, request.remote)
-
-    try:
-        async for msg in ws:
-            if msg.type == aiohttp.WSMsgType.TEXT:
-                if msg.data == "close":
-                    log.debug("Got 'close' msg.")
-                    break
-                elif msg.data == "/n":
-                    await ws.send_str("/n")
-                else:
-                    data = json.loads(msg.data)
-                    if not data["type"] == "pong":
-                        log.debug("Websocket (%s) message: %s", id(ws), msg)
-
-                    if data["type"] == "get_seeks":
-                        await handle_get_seeks(ws, seeks)
-                    elif data["type"] == "create_ai_challenge":
-                        await handle_create_ai_challenge(app, ws, users, user, data, seeks)
-                    elif data["type"] == "create_seek":
-                        await handle_create_seek(app, ws, db, sockets, invites, seeks, user, data)
-                    elif data["type"] == "create_invite":
-                        await handle_create_invite(app, ws, db, invites, seeks, user, data)
-                    elif data["type"] == "create_host":
-                        await handle_create_host(ws, db, invites, seeks, user, data)
-                    elif data["type"] == "delete_seek":
-                        await handle_delete_seek(sockets, invites,seeks, user, data)
-                    elif data["type"] == "accept_seek":
-                        await handle_accept_seek(app, ws, sockets, seeks, user, data)
-                    elif data["type"] == "lobby_user_connected":
-                        await handle_lobby_user_connected(app, ws, sockets, lobbychat, twitch, youtube, games, users, user)
-                    elif data["type"] == "lobbychat":
-                        await handle_lobbychat(app, db, sockets, lobbychat, youtube, users, user, data)
-                    elif data["type"] == "logout":
-                        await ws.close()
-
-                    elif data["type"] == "disconnect":
-                        # Used only to test socket disconnection...
-                        await ws.close(code=1009)
-
-            elif msg.type == aiohttp.WSMsgType.CLOSED:
-                log.debug(
-                    "--- Lobby websocket %s msg.type == aiohttp.WSMsgType.CLOSED",
-                    id(ws),
-                )
-                break
-
-            elif msg.type == aiohttp.WSMsgType.ERROR:
-                log.error("--- Lobby ws %s msg.type == aiohttp.WSMsgType.ERROR", id(ws))
-                break
-
-            else:
-                log.debug("--- Lobby ws other msg.type %s %s", msg.type, msg)
-
-    except OSError as e:
-        # disconnected
-        log.error(e, stack_info=True, exc_info=True)
-        pass
-
-    except Exception:
-        log.exception("ERROR: Exception in lobby_socket_handler() owned by %s ", session_user)
-
-    finally:
-        log.debug("--- wsl.py fianlly: await ws.close() %s", session_user)
-        await ws.close()
-
-        if user is not None:
-            if ws in user.lobby_sockets:
-                user.lobby_sockets.remove(ws)
-                user.update_online()
-
-            # online user counter will be updated in quit_lobby also!
-            if len(user.lobby_sockets) == 0:
-                if user.username in sockets:
-                    del sockets[user.username]
-
-                # not connected to lobby socket and not connected to game socket
-                if len(user.game_sockets) == 0:
-                    response = {"type": "u_cnt", "cnt": online_count(users)}
-                    await lobby_broadcast(sockets, response)
-
-                # response = {"type": "lobbychat", "user": "", "message": "%s left the lobby" % user.username}
-                # await lobby_broadcast(sockets, response)
-
-            await user.update_seeks(pending=True)
-
-    return ws
+    if data["type"] == "get_seeks":
+        await handle_get_seeks(ws, seeks)
+    elif data["type"] == "create_ai_challenge":
+        await handle_create_ai_challenge(app, ws, users, user, data, seeks)
+    elif data["type"] == "create_seek":
+        await handle_create_seek(app, ws, db, sockets, invites, seeks, user, data)
+    elif data["type"] == "create_invite":
+        await handle_create_invite(app, ws, db, invites, seeks, user, data)
+    elif data["type"] == "create_host":
+        await handle_create_host(ws, db, invites, seeks, user, data)
+    elif data["type"] == "delete_seek":
+        await handle_delete_seek(sockets, invites,seeks, user, data)
+    elif data["type"] == "accept_seek":
+        await handle_accept_seek(app, ws, sockets, seeks, user, data)
+    elif data["type"] == "lobby_user_connected":
+        await handle_lobby_user_connected(app, ws, sockets, lobbychat, twitch, youtube, games, users, user)
+    elif data["type"] == "lobbychat":
+        await handle_lobbychat(app, db, sockets, lobbychat, youtube, users, user, data)
 
 async def handle_get_seeks(ws, seeks):
     response = get_seeks(seeks)

@@ -1,10 +1,8 @@
 import asyncio
-import json
 import logging
 import random
 import string
 
-import aiohttp
 from aiohttp import web
 import aiohttp_session
 
@@ -36,6 +34,7 @@ from utils import (
     online_count,
     MyWebSocketResponse,
 )
+from websocket_utils import process_ws, get_user
 
 log = logging.getLogger(__name__)
 
@@ -43,148 +42,96 @@ MORE_TIME = 15 * 1000
 
 
 async def round_socket_handler(request):
-    app = request.app;
+    session = await aiohttp_session.get_session(request)
+    user = await get_user(session, request)
+    ws = await process_ws(session, request, user, process_message)
+    if ws is None:
+        return web.HTTPFound("/")
+    await finally_logic(request.app, ws, user)
+    return ws
+
+
+async def process_message(app, user, ws, data):
+    db = app[db_key]
     users = app[users_key]
 
-    session = await aiohttp_session.get_session(request)
-    session_user = session.get("user_name")
-    user = await users.get(session_user)
+    game = await load_game(app, data["gameId"]) # todo:niki: load just once
+    if game is None:
+        return
 
-    if user is not None and not user.enabled:
-        session.invalidate()
-        return web.HTTPFound("/")
+    if data["type"] == "move":
+        await handle_move(app, user, data, game)
+    elif data["type"] == "berserk":
+        await handle_berserk(data, game)
+    elif data["type"] == "analysis_move":
+        handle_analysis_move(app, user, data, game)
+    elif data["type"] == "ready":
+        await handle_ready(ws, users, user, data, game)
+    elif data["type"] == "board":
+        await hande_board(ws, game)
+    elif data["type"] == "setup":
+        await handle_setup(ws, users, user, data, game)
+    elif data["type"] == "analysis":
+        await handle_analysis(app, ws, users, data, game)
+    elif data["type"] == "rematch":
+        await handle_rematch(app, ws, users, user, data, game)
+    elif data["type"] == "reject_rematch":
+        await handle_reject_rematch(user, game)
+    elif data["type"] == "draw":
+        await handle_draw(ws, users, user, data, game)
+    elif data["type"] == "reject_draw":
+        await handle_reject_draw(user, game)
+    elif data["type"] == "byoyomi":
+        await handle_byoyomi(data, game)
+    elif data["type"] == "takeback":
+        await handle_takeback(ws, game)
+    elif data["type"] in ("abort", "resign", "abandon", "flag"):
+        await handle_abort_resign_abandon_flag(ws, users, user, data, game)
+    elif data["type"] == "embed_user_connected":
+        await handle_embed_user_connected(ws)
+    elif data["type"] == "game_user_connected":
+        await handle_game_user_connected(app, ws, users, user, data, game)
+    elif data["type"] == "is_user_present":
+        await handle_is_user_present(ws, users, data)
+    elif data["type"] == "moretime":
+        await handle_moretime(users, user, data, game)
+    elif data["type"] == "bugroundchat":
+        await handle_bugroundchat(users, user, data, game)
+    elif data["type"] == "roundchat":
+        await handle_roundchat(app, ws, users, user, data, game)
+    elif data["type"] == "leave":
+        await handle_leave(user, data, game)
+    elif data["type"] == "updateTV":
+        await handle_updateTV(app, db, ws, users, data)
+    elif data["type"] == "count":
+        await handle_count(ws, user, data, game)
+    elif data["type"] == "delete":
+        await handle_delete(db, ws, data)
 
-    db = app[db_key]
 
-    ws = MyWebSocketResponse(heartbeat=3.0, receive_timeout=15.0)
+async def finally_logic(app, ws, user):
+    users = app[users_key]
+    if game is not None and user is not None and not user.bot:
+        if game.id in user.game_sockets:
+            log.debug("Socket %s has been closed. Removing it from user's game_sockets, but only if (%r) current game_socket is the same as it might have meanwhile been re-initialized. Current game_socket: %d", id(ws), (user.game_sockets[game.id] == ws), id(user.game_sockets[game.id]))
+            if user.game_sockets[game.id] == ws:
+                del user.game_sockets[game.id]
+                user.update_online()
 
-    ws_ready = ws.can_prepare(request)
-    if not ws_ready.ok:
-        return web.HTTPFound("/")
+        if user in (game.wplayer, game.bplayer) and (not game.corr):
+            user.abandon_game_task = asyncio.create_task(user.abandon_game(game))
+        else:
+            game.spectators.discard(user)
+            await round_broadcast(game, game.spectator_list, full=True)
 
-    await ws.prepare(request)
+        # not connected to any other game socket after we closed this one. maybe we havae a change of online users count
+        if len(user.game_sockets) == 0:
+            await lobby_broadcast_online_users_count(app, users, user)
 
-    game = None
+    if game is not None and user is not None:
+        response = {"type": "user_disconnected", "username": user.username}
+        await round_broadcast(game, response, full=True)
 
-    log.info("--- NEW round WEBSOCKET %s by %s from %s", id(ws), session_user, request.remote)
-
-    try:
-        async for msg in ws:
-            if msg.type == aiohttp.WSMsgType.TEXT:
-                if msg.data == "close":
-                    log.debug("Got 'close' msg.")
-                    break
-                elif msg.data == "/n":
-                    try:
-                        await ws.send_str("/n")
-                    except ConnectionResetError as e:
-                        log.error(e, stack_info=True, exc_info=True)
-                else:
-                    data = json.loads(msg.data)
-                    # log.debug("Websocket (%s) message: %s" % (id(ws), msg))
-
-                    if game is None:
-                        game = await load_game(request.app, data["gameId"])
-                        if game is None:
-                            continue
-
-                    if data["type"] == "move":
-                        await handle_move(app, user, data, game)
-                    elif data["type"] == "berserk":
-                        await handle_berserk(data, game)
-                    elif data["type"] == "analysis_move":
-                        handle_analysis_move(app, user, data, game)
-                    elif data["type"] == "ready":
-                        await handle_ready(ws, users, user, data, game)
-                    elif data["type"] == "board":
-                        await hande_board(ws, game)
-                    elif data["type"] == "setup":
-                        await handle_setup(ws, users, user, data, game)
-                    elif data["type"] == "analysis":
-                        await handle_analysis(app, ws, users, data, game)
-                    elif data["type"] == "rematch":
-                        await handle_rematch(app, ws, users, user, data, game)
-                    elif data["type"] == "reject_rematch":
-                        await handle_reject_rematch(user, game)
-                    elif data["type"] == "draw":
-                        await handle_draw(ws, users, user, data, game)
-                    elif data["type"] == "reject_draw":
-                        await handle_reject_draw(user, game)
-                    elif data["type"] == "logout":
-                        await handle_logout(ws)
-                    elif data["type"] == "byoyomi":
-                        await handle_byoyomi(data, game)
-                    elif data["type"] == "takeback":
-                        await handle_takeback(ws, game)
-                    elif data["type"] in ("abort", "resign", "abandon", "flag"):
-                        await handle_abort_resign_abandon_flag(ws, users, user, data, game)
-                    elif data["type"] == "embed_user_connected":
-                        await handle_embed_user_connected(ws)
-                    elif data["type"] == "game_user_connected":
-                        await handle_game_user_connected(app, ws, users, user, data, game)
-                    elif data["type"] == "is_user_present":
-                        await handle_is_user_present(ws, users, data)
-                    elif data["type"] == "moretime":
-                        await handle_moretime(users, user, data, game)
-                    elif data["type"] == "bugroundchat":
-                        await handle_bugroundchat(users, user, data, game)
-                    elif data["type"] == "roundchat":
-                        await handle_roundchat(app, ws, users, user, data, game)
-                    elif data["type"] == "leave":
-                        await handle_leave(user, data, game)
-                    elif data["type"] == "updateTV":
-                        await handle_updateTV(app, db, ws, users, data)
-                    elif data["type"] == "count":
-                        await handle_count(ws, user, data, game)
-                    elif data["type"] == "delete":
-                        await handle_delete(db, ws, data)
-            elif msg.type == aiohttp.WSMsgType.CLOSED:
-                log.debug(
-                    "--- Round websocket %s msg.type == aiohttp.WSMsgType.CLOSED",
-                    id(ws),
-                )
-                break
-
-            elif msg.type == aiohttp.WSMsgType.ERROR:
-                log.error("--- Round ws %s msg.type == aiohttp.WSMsgType.ERROR. msg = %r", id(ws), msg)
-                break
-
-            else:
-                log.debug("--- Round ws other msg.type %s %s", msg.type, msg)
-        log.info("--- Round websocket %s closed", id(ws))
-    except OSError:
-        # disconnected?
-        log.exception("ERROR: OSError in round_socket_handler() owned by %s ", session_user)
-
-    except Exception:
-        log.exception("ERROR: Exception in round_socket_handler() owned by %s ", session_user)
-
-    finally:
-        log.debug("--- wsr.py fianlly: await ws.close() %s", session_user)
-        await ws.close()
-
-        if game is not None and user is not None and not user.bot:
-            if game.id in user.game_sockets:
-                log.debug("Socket %s has been closed. Removing it from user's game_sockets, but only if (%r) current game_socket is the same as it might have meanwhile been re-initialized. Current game_socket: %d", id(ws), (user.game_sockets[game.id] == ws), id(user.game_sockets[game.id]))
-                if user.game_sockets[game.id] == ws:
-                    del user.game_sockets[game.id]
-                    user.update_online()
-
-            if user in (game.wplayer, game.bplayer) and (not game.corr):
-                user.abandon_game_task = asyncio.create_task(user.abandon_game(game))
-            else:
-                game.spectators.discard(user)
-                await round_broadcast(game, game.spectator_list, full=True)
-
-            # not connected to any other game socket after we closed this one. maybe we havae a change of online users count
-            if len(user.game_sockets) == 0:
-                await lobby_broadcast_online_users_count(app, users, user)
-
-        if game is not None and user is not None:
-            response = {"type": "user_disconnected", "username": user.username}
-            await round_broadcast(game, response, full=True)
-
-    return ws
 
 async def handle_move(app, user, data, game):
     log.debug("Got USER move %s %s %s" % (user.username, data["gameId"], data["move"]))
@@ -205,10 +152,12 @@ async def handle_move(app, user, data, game):
                 user.username,
             )
 
+
 async def handle_berserk(data, game):
     game.berserk(data["color"])
     response = {"type": "berserk", "color": data["color"]}
     await round_broadcast(game, response, full=True)
+
 
 async def handle_analysis_move(app, user, data, game):
     await analysis_move(
@@ -245,6 +194,7 @@ async def handle_ready(ws, users, user, data, game):
         } # todo:niki: this is never user?
         await round_broadcast(game, game.spectator_list, full=True)
 
+
 async def hande_board(ws, game):
     if game.variant == "janggi":
         print("JANGGI", game.bsetup, game.wsetup, game.status)
@@ -280,6 +230,7 @@ async def hande_board(ws, game):
         )
         response = await draw(game, offerer)
         await ws.send_json(response)
+
 
 async def handle_setup(ws, users, user, data, game):
     # Janggi game starts with a prelude phase to set up horses and elephants
@@ -332,6 +283,7 @@ async def handle_setup(ws, users, user, data, game):
     # restart expiration time after setup phase
     game.stopwatch.restart(game.stopwatch.time_for_first_move)
 
+
 async def handle_analysis(app, ws, users, data, game):
     # If there is any fishnet client, use it.
     if len(app[workers_key]) > 0:
@@ -376,6 +328,7 @@ async def handle_analysis(app, ws, users, data, game):
         room="spectator",
     )
     await ws.send_json(response)
+
 
 async def handle_rematch(app, ws, users, user, data, game):
     seeks = app[seeks_key]
@@ -470,6 +423,7 @@ async def handle_rematch(app, ws, users, user, data, game):
             game, {"type": "view_rematch", "gameId": rematch_id}
         )
 
+
 async def handle_reject_rematch(user, game):
     opp_name = (
         game.wplayer.username
@@ -486,6 +440,7 @@ async def handle_reject_rematch(user, game):
             },
             full=True,
         )
+
 
 async def handle_draw(ws, users, user, data, game):
     color = WHITE if user.username == game.wplayer.username else BLACK
@@ -512,6 +467,7 @@ async def handle_draw(ws, users, user, data, game):
 
     await round_broadcast(game, response)
 
+
 async def handle_reject_draw(user, game):
     color = WHITE if user.username == game.wplayer.username else BLACK
     opp_user = game.wplayer if color == BLACK else game.bplayer
@@ -520,19 +476,19 @@ async def handle_reject_draw(user, game):
     if response is not None:
         await round_broadcast(game, response, full=True)
 
-async def handle_logout(ws):
-    await ws.close()
 
 async def handle_byoyomi(data, game):
     game.byo_correction += game.inc * 1000
     game.byoyomi_periods[data["color"]] = data["period"]
     # print("BYOYOMI:", data)
 
+
 async def handle_takeback(ws, game):
     game.takeback()
     board_response = game.get_board(full=True)
     board_response["takeback"] = True
     await ws.send_json(board_response)
+
 
 async def handle_abort_resign_abandon_flag(ws, users, user, data, game):
 
@@ -563,9 +519,11 @@ async def handle_abort_resign_abandon_flag(ws, users, user, data, game):
 
     await round_broadcast(game, response)
 
+
 async def handle_embed_user_connected(ws):
     response = {"type": "embed_user_connected"}
     await ws.send_json(response)
+
 
 async def handle_game_user_connected(app, ws, users, user, data, game: game.Game):
     # update websocket
@@ -613,6 +571,8 @@ async def handle_game_user_connected(app, ws, users, user, data, game: game.Game
     # if this is the first game socket for this user, maybe we have a change in what we considered online user count
     if len(user.game_sockets) == 1:
         await lobby_broadcast_online_users_count(app, users, user)
+
+
 async def lobby_broadcast_online_users_count(app, users, user):
     # the fact this method is called means last game socket for this user was closed or first was opened
     # if also not connected to lobby socket this means we have a change of count of online users.
@@ -622,6 +582,7 @@ async def lobby_broadcast_online_users_count(app, users, user):
     if user.username not in sockets:
         response = {"type": "u_cnt", "cnt": online_count(users)}
         await lobby_broadcast(sockets, response)
+
 
 async def handle_is_user_present(ws, users, data):
     player_name = data["username"]
@@ -637,6 +598,7 @@ async def handle_is_user_present(ws, users, data):
             "username": player_name,
         }
     await ws.send_json(response)
+
 
 async def handle_moretime(users, user, data, game):
     opp_color = WHITE if user.username == game.bplayer.username else BLACK
@@ -655,6 +617,7 @@ async def handle_moretime(users, user, data, game):
         response = {"type": "moretime", "username": opp_name}
         await users[opp_name].send_game_message(data["gameId"], response)
         await round_broadcast(game, response)
+
 
 async def handle_bugroundchat(users, user, data, game):
     gameId = data["gameId"]
@@ -681,6 +644,7 @@ async def handle_bugroundchat(users, user, data, game):
         await player.send_game_message(gameId, response)
 
     await round_broadcast(game, response)
+
 
 async def handle_roundchat(app, ws, users, user, data, game):
     if user.username.startswith(ANON_PREFIX):
@@ -723,6 +687,7 @@ async def handle_roundchat(app, ws, users, user, data, game):
 
     await round_broadcast(game, response)
 
+
 async def  handle_leave(user, data, game):
     gameId = data["gameId"]
 
@@ -746,6 +711,7 @@ async def  handle_leave(user, data, game):
 
     await round_broadcast(game, response)
 
+
 async def handle_updateTV(app, db, ws, users, data):
     if "profileId" in data and data["profileId"] != "":
         gameId = await tv_game_user(db, users, data["profileId"])
@@ -755,6 +721,7 @@ async def handle_updateTV(app, db, ws, users, data):
     if gameId != data["gameId"] and gameId is not None:
         response = {"type": "updateTV", "gameId": gameId}
         await ws.send_json(response)
+
 
 async def handle_count(ws, user, data, game):
     cur_player = game.bplayer if game.board.color == BLACK else game.wplayer
@@ -785,6 +752,7 @@ async def handle_count(ws, user, data, game):
             "user": "",
         }
         await ws.send_json(response)
+
 
 async def handle_delete(db, ws, data):
     await db.game.delete_one({"_id": data["gameId"]})
