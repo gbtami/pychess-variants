@@ -181,10 +181,11 @@ export abstract class GameController extends ChessgroundController implements Ch
             setTimeout(this.setDests.bind(this), 100);
         } else {
             const legalMoves = this.ffishBoard.legalMoves().split(" ");
-            const dests = moveDests(legalMoves as UCIMove[]);
+            const fakeDrops = this.variant.name === 'ataxx';
+            const pieces = this.chessground.state.boardState.pieces;
+            const dests = moveDests(legalMoves as UCIMove[], fakeDrops, pieces, this.turnColor);
             if (this.variant.rules.gate) {
                 // Remove rook takes king from the legal destinations
-                const pieces = this.chessground.state.boardState.pieces;
                 for (const [orig, destArray] of dests) {
                     if (orig && util.isKey(orig)) {
                         const origPiece = pieces.get(orig);
@@ -309,14 +310,6 @@ export abstract class GameController extends ChessgroundController implements Ch
             }
 
             if (this.chessground.state.movable.dests === undefined) return;
-
-            if (this.variant.name === 'ataxx') {
-                const legalMoves = this.ffishBoard.legalMoves().split(" ");
-                // console.log(legalMoves);
-                const dests = moveDests(legalMoves as UCIMove[], key);
-                // console.log(dests);
-                this.chessground.set({ movable: { dests: dests }});
-            }
 
             const curTime = performance.now();
 

@@ -753,14 +753,15 @@ export class RoundController extends GameController {
             }
         }
 
+        // turnColor have to be actualized before setDests() !!!
+        const parts = msg.fen.split(" ");
+        this.turnColor = parts[1] === "w" ? "white" : "black";
+
         this.fullfen = msg.fen;
         if (this.ffishBoard) {
             this.ffishBoard.setFen(this.fullfen);
             this.setDests();
         }
-
-        const parts = msg.fen.split(" ");
-        this.turnColor = parts[1] === "w" ? "white" : "black";
 
         this.clocktimes = msg.clocks || this.clocktimes;
 
