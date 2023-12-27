@@ -10,7 +10,7 @@ import aiohttp_session
 from aiohttp import web
 
 from broadcast import round_broadcast
-from const import STARTED
+from const import NONE_USER, STARTED
 from settings import (
     CLIENT_ID,
     CLIENT_SECRET,
@@ -31,6 +31,7 @@ RESERVED_USERS = (
     "Discord-Relay",
     "Invite-friend",
     "PyChess",
+    NONE_USER,
 )
 
 

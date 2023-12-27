@@ -305,8 +305,9 @@ export class RoundController extends GameController {
             }
             buttons.push(h('button#count', _('Count')));
             if (this.variant.rules.pass) {
-                buttons.push(h('button#draw', { on: { click: () => this.pass() }, props: { title: _('Pass') } }, _('Pass')));
-            } else if (!this.variant.rules.noDrawOffer) {
+                buttons.push(h('button#pass', { on: { click: () => this.pass() }, props: { title: _('Pass') } }, _('Pass')));
+            }
+            if (!this.variant.rules.noDrawOffer) {
                 buttons.push(h('button#draw', { on: { click: () => this.draw() }, props: { title: _('Draw') } }, h('i', '½')));
             }
             buttons.push(h('button#resign', { on: { click: () => this.resign() }, props: {title: _("Resign")} }, [h('i', {class: {"icon": true, "icon-flag-o": true} } ), ]));
@@ -753,14 +754,15 @@ export class RoundController extends GameController {
             }
         }
 
+        // turnColor have to be actualized before setDests() !!!
+        const parts = msg.fen.split(" ");
+        this.turnColor = parts[1] === "w" ? "white" : "black";
+
         this.fullfen = msg.fen;
         if (this.ffishBoard) {
             this.ffishBoard.setFen(this.fullfen);
             this.setDests();
         }
-
-        const parts = msg.fen.split(" ");
-        this.turnColor = parts[1] === "w" ? "white" : "black";
 
         this.clocktimes = msg.clocks || this.clocktimes;
 

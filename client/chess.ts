@@ -292,25 +292,43 @@ export function promotedRole(variant: Variant, piece: cg.Piece): cg.Role {
     }
 }
 
+function neighbours(key: cg.Key) {
+    const pos = util.key2pos(key);
+    return [
+        util.pos2key([pos[0] - 1, pos[1] - 1]),
+        util.pos2key([pos[0] + 0, pos[1] - 1]),
+        util.pos2key([pos[0] + 1, pos[1] - 1]),
+        util.pos2key([pos[0] - 1, pos[1]]),
+        util.pos2key([pos[0] + 1, pos[1]]),
+        util.pos2key([pos[0] - 1, pos[1] + 1]),
+        util.pos2key([pos[0] + 0, pos[1] + 1]),
+        util.pos2key([pos[0] + 1, pos[1] + 1]),
+    ];
+}
+
 // Convert a list of moves to chessground destination
-export function moveDests(legalMoves: UCIMove[], fromSquare?: cg.Key): cg.Dests {
+export function moveDests(legalMoves: UCIMove[], fakeDrops: boolean, pieces: cg.Pieces, color: cg.Color): cg.Dests {
     const dests: cg.Dests = new Map();
     legalMoves.map(uci2cg).forEach(move => {
         const orig = move.slice(0, 2) as cg.Orig;
         const dest = move.slice(2, 4) as cg.Key;
-        // fromSquare parameter is used for ataxx only!
-        if (fromSquare) {
+        // fakeDrops parameter is used for ataxx only!
+        if (fakeDrops) {
             // ataxx has infinite drop but has no pockets in FEN, so
             // we will enable moving to drop dests as well
             // and create drop moves in GameController.onUserMove()
             if (orig === 'P@') {
-                if (fromSquare && adjacent(fromSquare, dest)) {
-                    if (dests.has(fromSquare)) {
-                        dests.get(fromSquare)!.push(dest);
-                    } else {
-                        dests.set(fromSquare, [ dest ]);
+                const candidates = neighbours(dest);
+                candidates.forEach((key) => {
+                    const piece = pieces.get(key);
+                    if (piece && piece.role === 'p-piece' && piece.color === color) {
+                        if (dests.has(key)) {
+                            dests.get(key)!.push(dest);
+                        } else {
+                            dests.set(key, [ dest ]);
+                        }
                     }
-                }
+                })
             } else {
                 if (dests.has(orig)) {
                     dests.get(orig)!.push(dest);
@@ -318,7 +336,6 @@ export function moveDests(legalMoves: UCIMove[], fromSquare?: cg.Key): cg.Dests 
                     dests.set(orig, [ dest ]);
                 }
             }
-
         } else {
             if (dests.has(orig)) {
                 dests.get(orig)!.push(dest);
