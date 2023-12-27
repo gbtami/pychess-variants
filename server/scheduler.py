@@ -1,3 +1,4 @@
+from __future__ import annotations
 import calendar
 from collections import namedtuple
 import datetime as dt

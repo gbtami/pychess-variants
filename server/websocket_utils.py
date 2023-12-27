@@ -1,24 +1,24 @@
+from __future__ import annotations
 import json
-from typing import Tuple
-
-import aiohttp
 import logging
 
+import aiohttp
 import aiohttp_session
 from aiohttp import WSMessage, web
-from aiohttp.web_response import StreamResponse
 
-from typedefs import users_key
-from user import User
+from const import TYPE_CHECKING
+if TYPE_CHECKING:
+    from user import User
+
 from utils import MyWebSocketResponse
+from pychess_global_app_state_utils import get_app_state
 
 log = logging.getLogger(__name__)
 
 
 async def get_user(session: aiohttp_session.Session, request: web.Request) -> User:
     session_user = session.get("user_name")
-    users = request.app[users_key]
-    user = await users.get(session_user)
+    user = await get_app_state(request.app).users.get(session_user)
     return user
 
 
@@ -26,7 +26,7 @@ async def process_ws(session: aiohttp_session.Session, request: web.Request, use
     """
     Process websocket messages until socket closed or errored. Returns the closed MyWebSocketResponse object.
     """
-    app = request.app
+    app_state = get_app_state(request.app)
 
     if (user is not None) and (not user.enabled):
         session.invalidate()
@@ -60,7 +60,7 @@ async def process_ws(session: aiohttp_session.Session, request: web.Request, use
                         # Used only to test socket disconnection...
                         await ws.close(code=1009)
                     else:
-                        await custom_msg_processor(app, user, ws, data)
+                        await custom_msg_processor(app_state, user, ws, data)
             elif msg.type == aiohttp.WSMsgType.CLOSED:
                 log.debug(
                     "--- %s websocket %s msg.type == aiohttp.WSMsgType.CLOSED",

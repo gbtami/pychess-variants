@@ -1,3 +1,4 @@
+from __future__ import annotations
 # Ataxx All 19 boards won https://www.youtube.com/watch?v=3VcAW6EKuvU
 ATAXX_FENS = (
     "P5p/7/7/7/7/7/p5P w 0 1",

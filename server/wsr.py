@@ -1,29 +1,23 @@
+from __future__ import annotations
 import asyncio
 import logging
 import random
 import string
 
-from aiohttp import web
 import aiohttp_session
+from aiohttp import web
 
 import game
-from typedefs import (
-    db_key,
-    fishnet_queue_key,
-    fishnet_versions_key,
-    fishnet_works_key,
-    lobbysockets_key,
-    seeks_key,
-    users_key,
-    workers_key,
-)
-
 from broadcast import lobby_broadcast, round_broadcast
 from chat import chat_response
 from const import ANON_PREFIX, ANALYSIS, STARTED
-from fairy import WHITE, BLACK
-from seek import challenge, Seek
 from draw import draw, reject_draw
+from fairy import WHITE, BLACK
+from const import TYPE_CHECKING
+if TYPE_CHECKING:
+    from pychess_global_app_state import PychessGlobalAppState
+from pychess_global_app_state_utils import get_app_state
+from seek import challenge, Seek
 from utils import (
     analysis_move,
     play_move,
@@ -31,9 +25,7 @@ from utils import (
     load_game,
     tv_game,
     tv_game_user,
-    online_count,
-    MyWebSocketResponse,
-)
+    online_count, )
 from websocket_utils import process_ws, get_user
 
 log = logging.getLogger(__name__)
@@ -42,75 +34,74 @@ MORE_TIME = 15 * 1000
 
 
 async def round_socket_handler(request):
+
+    game: str = None
+    async def process_message(app_state, user, ws, data):
+
+        game = await load_game(app_state, data["gameId"])  # todo:niki: load just once
+        if game is None:
+            return
+
+        if data["type"] == "move":
+            await handle_move(app_state, user, data, game)
+        elif data["type"] == "berserk":
+            await handle_berserk(data, game)
+        elif data["type"] == "analysis_move":
+            await handle_analysis_move(user, data, game)
+        elif data["type"] == "ready":
+            await handle_ready(ws, app_state.users, user, data, game)
+        elif data["type"] == "board":
+            await hande_board(ws, game)
+        elif data["type"] == "setup":
+            await handle_setup(ws, app_state.users, user, data, game)
+        elif data["type"] == "analysis":
+            await handle_analysis(app_state, ws, data, game)
+        elif data["type"] == "rematch":
+            await handle_rematch(app_state, ws, user, data, game)
+        elif data["type"] == "reject_rematch":
+            await handle_reject_rematch(user, game)
+        elif data["type"] == "draw":
+            await handle_draw(ws, app_state.users, user, data, game)
+        elif data["type"] == "reject_draw":
+            await handle_reject_draw(user, game)
+        elif data["type"] == "byoyomi":
+            await handle_byoyomi(data, game)
+        elif data["type"] == "takeback":
+            await handle_takeback(ws, game)
+        elif data["type"] in ("abort", "resign", "abandon", "flag"):
+            await handle_abort_resign_abandon_flag(ws, app_state.users, user, data, game)
+        elif data["type"] == "embed_user_connected":
+            await handle_embed_user_connected(ws)
+        elif data["type"] == "game_user_connected":
+            await handle_game_user_connected(app_state, ws, user, data, game)
+        elif data["type"] == "is_user_present":
+            await handle_is_user_present(ws, app_state.users, data)
+        elif data["type"] == "moretime":
+            await handle_moretime(app_state.users, user, data, game)
+        elif data["type"] == "bugroundchat":
+            await handle_bugroundchat(app_state.users, user, data, game)
+        elif data["type"] == "roundchat":
+            await handle_roundchat(app_state, ws, user, data, game)
+        elif data["type"] == "leave":
+            await handle_leave(user, data, game)
+        elif data["type"] == "updateTV":
+            await handle_updateTV(app_state, ws, data)
+        elif data["type"] == "count":
+            await handle_count(ws, user, data, game)
+        elif data["type"] == "delete":
+            await handle_delete(app_state.db, ws, data)
+
+    app_state = get_app_state(request.app)
     session = await aiohttp_session.get_session(request)
     user = await get_user(session, request)
     ws = await process_ws(session, request, user, process_message)
     if ws is None:
         return web.HTTPFound("/")
-    await finally_logic(request.app, ws, user)
+    await finally_logic(app_state, ws, user, game)
     return ws
 
 
-async def process_message(app, user, ws, data):
-    db = app[db_key]
-    users = app[users_key]
-
-    game = await load_game(app, data["gameId"]) # todo:niki: load just once
-    if game is None:
-        return
-
-    if data["type"] == "move":
-        await handle_move(app, user, data, game)
-    elif data["type"] == "berserk":
-        await handle_berserk(data, game)
-    elif data["type"] == "analysis_move":
-        handle_analysis_move(app, user, data, game)
-    elif data["type"] == "ready":
-        await handle_ready(ws, users, user, data, game)
-    elif data["type"] == "board":
-        await hande_board(ws, game)
-    elif data["type"] == "setup":
-        await handle_setup(ws, users, user, data, game)
-    elif data["type"] == "analysis":
-        await handle_analysis(app, ws, users, data, game)
-    elif data["type"] == "rematch":
-        await handle_rematch(app, ws, users, user, data, game)
-    elif data["type"] == "reject_rematch":
-        await handle_reject_rematch(user, game)
-    elif data["type"] == "draw":
-        await handle_draw(ws, users, user, data, game)
-    elif data["type"] == "reject_draw":
-        await handle_reject_draw(user, game)
-    elif data["type"] == "byoyomi":
-        await handle_byoyomi(data, game)
-    elif data["type"] == "takeback":
-        await handle_takeback(ws, game)
-    elif data["type"] in ("abort", "resign", "abandon", "flag"):
-        await handle_abort_resign_abandon_flag(ws, users, user, data, game)
-    elif data["type"] == "embed_user_connected":
-        await handle_embed_user_connected(ws)
-    elif data["type"] == "game_user_connected":
-        await handle_game_user_connected(app, ws, users, user, data, game)
-    elif data["type"] == "is_user_present":
-        await handle_is_user_present(ws, users, data)
-    elif data["type"] == "moretime":
-        await handle_moretime(users, user, data, game)
-    elif data["type"] == "bugroundchat":
-        await handle_bugroundchat(users, user, data, game)
-    elif data["type"] == "roundchat":
-        await handle_roundchat(app, ws, users, user, data, game)
-    elif data["type"] == "leave":
-        await handle_leave(user, data, game)
-    elif data["type"] == "updateTV":
-        await handle_updateTV(app, db, ws, users, data)
-    elif data["type"] == "count":
-        await handle_count(ws, user, data, game)
-    elif data["type"] == "delete":
-        await handle_delete(db, ws, data)
-
-
-async def finally_logic(app, ws, user):
-    users = app[users_key]
+async def finally_logic(app_state: PychessGlobalAppState, ws, user, game):
     if game is not None and user is not None and not user.bot:
         if game.id in user.game_sockets:
             log.debug("Socket %s has been closed. Removing it from user's game_sockets, but only if (%r) current game_socket is the same as it might have meanwhile been re-initialized. Current game_socket: %d", id(ws), (user.game_sockets[game.id] == ws), id(user.game_sockets[game.id]))
@@ -126,19 +117,19 @@ async def finally_logic(app, ws, user):
 
         # not connected to any other game socket after we closed this one. maybe we havae a change of online users count
         if len(user.game_sockets) == 0:
-            await lobby_broadcast_online_users_count(app, users, user)
+            await lobby_broadcast_online_users_count(app_state, user)
 
     if game is not None and user is not None:
         response = {"type": "user_disconnected", "username": user.username}
         await round_broadcast(game, response, full=True)
 
 
-async def handle_move(app, user, data, game):
+async def handle_move(app_state: PychessGlobalAppState, user, data, game):
     log.debug("Got USER move %s %s %s" % (user.username, data["gameId"], data["move"]))
     async with game.move_lock:
         try:
             await play_move(
-                app,
+                app_state,
                 user,
                 game,
                 data["move"],
@@ -159,9 +150,8 @@ async def handle_berserk(data, game):
     await round_broadcast(game, response, full=True)
 
 
-async def handle_analysis_move(app, user, data, game):
+async def handle_analysis_move(user, data, game):
     await analysis_move(
-        app,
         user,
         game,
         data["move"],
@@ -284,9 +274,9 @@ async def handle_setup(ws, users, user, data, game):
     game.stopwatch.restart(game.stopwatch.time_for_first_move)
 
 
-async def handle_analysis(app, ws, users, data, game):
+async def handle_analysis(app_state: PychessGlobalAppState, ws, data, game):
     # If there is any fishnet client, use it.
-    if len(app[workers_key]) > 0:
+    if len(app_state.workers_key) > 0:
         work_id = "".join(
             random.choice(string.ascii_letters + string.digits)
             for x in range(6)
@@ -312,10 +302,10 @@ async def handle_analysis(app, ws, users, data, game):
             "nodes": 500000,  # optional limit
             #  "skipPositions": [1, 4, 5]  # 0 is the first position
         }
-        app[fishnet_works_key][work_id] = work
-        app[fishnet_queue_key].put_nowait((ANALYSIS, work_id))
+        app_state.fishnet_works[work_id] = work
+        app_state.fishnet_queue.put_nowait((ANALYSIS, work_id))
     else:
-        engine = users["Fairy-Stockfish"]
+        engine = app_state.users["Fairy-Stockfish"]
 
         if (engine is not None) and engine.online:
             engine.game_queues[data["gameId"]] = asyncio.Queue()
@@ -330,9 +320,7 @@ async def handle_analysis(app, ws, users, data, game):
     await ws.send_json(response)
 
 
-async def handle_rematch(app, ws, users, user, data, game):
-    seeks = app[seeks_key]
-
+async def handle_rematch(app_state: PychessGlobalAppState, ws, user, data, game):
     rematch_id = None
 
     opp_name = (
@@ -340,19 +328,19 @@ async def handle_rematch(app, ws, users, user, data, game):
         if user.username == game.bplayer.username
         else game.bplayer.username
     )
-    opp_player = users[opp_name]
+    opp_player = app_state.users[opp_name]
     handicap = data["handicap"]
     fen = "" if game.variant == "janggi" else game.initial_fen
 
     if opp_player.bot:
         if opp_player.username == "Random-Mover":
-            engine = users["Random-Mover"]
+            engine = app_state.users["Random-Mover"]
         else:
-            engine = users["Fairy-Stockfish"]
+            engine = app_state.users["Fairy-Stockfish"]
 
         if engine is None or not engine.online:
             # TODO: message that engine is offline, but capture BOT will play instead
-            engine = users["Random-Mover"]
+            engine = app_state.users["Random-Mover"]
 
         color = "w" if game.wplayer.username == opp_name else "b"
         if handicap:
@@ -371,9 +359,9 @@ async def handle_rematch(app, ws, users, user, data, game):
             player1=user,
             chess960=game.chess960,
         )
-        seeks[seek.id] = seek
+        app_state.seeks[seek.id] = seek
 
-        response = await join_seek(app, engine, seek.id)
+        response = await join_seek(app_state, engine, seek.id)
         await ws.send_json(response)
 
         await engine.event_queue.put(challenge(seek, response))
@@ -399,13 +387,13 @@ async def handle_rematch(app, ws, users, user, data, game):
                 player1=user,
                 chess960=game.chess960,
             )
-            seeks[seek.id] = seek
+            app_state.seeks[seek.id] = seek
 
-            response = await join_seek(app, opp_player, seek.id)
+            response = await join_seek(app_state, opp_player, seek.id)
             rematch_id = response["gameId"]
             await ws.send_json(
                 response)  # todo:niki: use send_game_message here as well, even tho it is same ws (hopefully)
-            await users[opp_name].send_game_message(data["gameId"], response)
+            await app_state.users[opp_name].send_game_message(data["gameId"], response)
         else:
             game.rematch_offers.add(user.username)
             response = {
@@ -417,7 +405,7 @@ async def handle_rematch(app, ws, users, user, data, game):
             }
             game.messages.append(response)
             await ws.send_json(response)
-            await users[opp_name].send_game_message(data["gameId"], response)
+            await app_state.users[opp_name].send_game_message(data["gameId"], response)
     if rematch_id:
         await round_broadcast(
             game, {"type": "view_rematch", "gameId": rematch_id}
@@ -525,7 +513,7 @@ async def handle_embed_user_connected(ws):
     await ws.send_json(response)
 
 
-async def handle_game_user_connected(app, ws, users, user, data, game: game.Game):
+async def handle_game_user_connected(app_state: PychessGlobalAppState, ws, user, data, game: game.Game):
     # update websocket
     if data["gameId"] in user.game_sockets:
         log.debug(
@@ -570,18 +558,17 @@ async def handle_game_user_connected(app, ws, users, user, data, game: game.Game
 
     # if this is the first game socket for this user, maybe we have a change in what we considered online user count
     if len(user.game_sockets) == 1:
-        await lobby_broadcast_online_users_count(app, users, user)
+        await lobby_broadcast_online_users_count(app_state, user)
 
 
-async def lobby_broadcast_online_users_count(app, users, user):
+async def lobby_broadcast_online_users_count(app_state, user):
     # the fact this method is called means last game socket for this user was closed or first was opened
     # if also not connected to lobby socket this means we have a change of count of online users.
     # todo:niki:the combination of conditions is probably wrong when users moves from lobby to a new game
     #           even if correct, the way i have split these conditions one here and one outside is super ugly
-    sockets = app[lobbysockets_key];
-    if user.username not in sockets:
-        response = {"type": "u_cnt", "cnt": online_count(users)}
-        await lobby_broadcast(sockets, response)
+    if user.username not in app_state.lobbysockets:
+        response = {"type": "u_cnt", "cnt": online_count(app_state.users)}
+        await lobby_broadcast(app_state.lobbysockets, response)
 
 
 async def handle_is_user_present(ws, users, data):
@@ -646,7 +633,7 @@ async def handle_bugroundchat(users, user, data, game):
     await round_broadcast(game, response)
 
 
-async def handle_roundchat(app, ws, users, user, data, game):
+async def handle_roundchat(app_state: PychessGlobalAppState, ws, user, data, game):
     if user.username.startswith(ANON_PREFIX):
         return
 
@@ -655,7 +642,7 @@ async def handle_roundchat(app, ws, users, user, data, game):
     # Users running a fishnet worker can ask server side analysis with chat message: !analysis
     if (
             data["message"] == "!analysis"
-            and user.username in app[fishnet_versions_key]
+            and user.username in app_state.fishnet_versions
     ):
         for step in game.steps:
             if "analysis" in step:
@@ -675,7 +662,7 @@ async def handle_roundchat(app, ws, users, user, data, game):
         game.handle_chat_message(user, message)
 
     for name in (game.wplayer.username, game.bplayer.username):
-        player = users[name]
+        player = app_state.users[name]
         if player.bot:
             if gameId in player.game_queues:
                 await player.game_queues[gameId].put(
@@ -712,11 +699,11 @@ async def  handle_leave(user, data, game):
     await round_broadcast(game, response)
 
 
-async def handle_updateTV(app, db, ws, users, data):
+async def handle_updateTV(app_state: PychessGlobalAppState, ws, data):
     if "profileId" in data and data["profileId"] != "":
-        gameId = await tv_game_user(db, users, data["profileId"])
+        gameId = await tv_game_user(app_state.db, app_state.users, data["profileId"])
     else:
-        gameId = await tv_game(db, app)
+        gameId = await tv_game(app_state)
 
     if gameId != data["gameId"] and gameId is not None:
         response = {"type": "updateTV", "gameId": gameId}

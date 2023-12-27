@@ -1,13 +1,13 @@
-from typing import Tuple
-
+from __future__ import annotations
 from collections import namedtuple
 from datetime import datetime, timezone
+from typing import Tuple
 
-from typedefs import db_key, users_key
 from const import RR, T_ARCHIVED
 from tournament import ByeGame
 from tournaments import new_tournament
 from utils import load_game
+from pychess_global_app_state_utils import get_app_state
 
 GameRecord = namedtuple("GameRecord", "color, result, id, oppname")
 
@@ -100,10 +100,10 @@ pairings["Fairy-Stockfish"] = (
 
 async def add_games(app):
     tid = "00000001"
-
-    await app[db_key].tournament.delete_one({"_id": tid})
-    await app[db_key].tournament_player.delete_many({"tid": tid})
-    await app[db_key].tournament_pairing.delete_many({"tid": tid})
+    app_state = get_app_state(app)
+    await app_state.db.tournament.delete_one({"_id": tid})
+    await app_state.db.tournament_player.delete_many({"tid": tid})
+    await app_state.db.tournament_pairing.delete_many({"tid": tid})
 
     data = {
         "tid": tid,
@@ -127,10 +127,8 @@ async def add_games(app):
 
     t = await new_tournament(app, data)
 
-    users = app[users_key]
-
     for player in pairings:
-        await t.join(users[player])
+        await t.join(app_state.users[player])
 
     # Check our data consistency
     for player in pairings:
@@ -156,8 +154,8 @@ async def add_games(app):
     for current_round in range(8):
         for player in pairings:
             if len(pairings[player]) <= current_round:
-                t.players[users[player]].games.append(ByeGame())
-                t.players[users[player]].points.append("-")
+                t.players[app_state.users[player]].games.append(ByeGame())
+                t.players[app_state.users[player]].points.append("-")
                 continue
 
             game_id = pairings[player][current_round].id

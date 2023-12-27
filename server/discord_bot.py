@@ -1,12 +1,16 @@
+from __future__ import annotations
+
 import logging
 from time import time
 
 import discord
 from discord.ext.commands import Bot
 
-from typedefs import lobbychat_key, lobbysockets_key
-from const import CATEGORIES
 from broadcast import lobby_broadcast
+from const import CATEGORIES, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from pychess_global_app_state import PychessGlobalAppState
 
 log = logging.getLogger("discord")
 log.setLevel(logging.WARNING)
@@ -52,10 +56,10 @@ class FakeDiscordBot:
 
 
 class DiscordBot(Bot):
-    def __init__(self, app):
+    def __init__(self, app_state: PychessGlobalAppState):
         Bot.__init__(self, command_prefix="!", intents=intents)
 
-        self.app = app
+        self.app_state = app_state
 
         self.pychess_lobby_channel = None
         self.game_seek_channel = None
@@ -75,8 +79,8 @@ class DiscordBot(Bot):
             "time": int(time()),
         }
 
-        self.app[lobbychat_key].append(response)
-        await lobby_broadcast(self.app[lobbysockets_key], response)
+        self.app_state.lobbychat.append(response)
+        await lobby_broadcast(self.app_state.lobbysockets, response)
 
     def get_channels(self):
         # Get the pychess-lobby channel

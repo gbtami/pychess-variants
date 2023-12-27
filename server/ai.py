@@ -1,3 +1,4 @@
+from __future__ import annotations
 import asyncio
 import json
 import logging
@@ -5,14 +6,18 @@ import random
 import string
 from time import monotonic
 
-from typedefs import fishnet_queue_key, fishnet_works_key, games_key, kill_key, workers_key
 from const import MOVE, STARTED
+from const import TYPE_CHECKING
+from typedefs import kill_key
+
+if TYPE_CHECKING:
+    from pychess_global_app_state import PychessGlobalAppState
 from utils import play_move
 
 log = logging.getLogger(__name__)
 
 
-async def BOT_task(bot, app):
+async def BOT_task(bot, app_state: PychessGlobalAppState):
     async def game_task(bot, game, level, random_mover):
         while game.status <= STARTED:
             try:
@@ -33,8 +38,8 @@ async def BOT_task(bot, app):
                 continue
             # print("   +++ game_queues get()", event)
             if random_mover:
-                await play_move(app, bot, game, random.choice(game.legal_moves))
-            elif len(app[workers_key]) > 0:
+                await play_move(app_state, bot, game, random.choice(game.legal_moves))
+            elif len(app_state.workers) > 0:
                 AI_move(game, level)
 
     def AI_move(game, level):
@@ -53,12 +58,12 @@ async def BOT_task(bot, app):
             "moves": " ".join(game.board.move_stack),  # moves of the game (UCI)
             "nnue": game.board.nnue,
         }
-        app[fishnet_works_key][work_id] = work
-        app[fishnet_queue_key].put_nowait((MOVE, work_id))
+        app_state.fishnet_works[work_id] = work
+        app_state.fishnet_queue.put_nowait((MOVE, work_id))
 
     random_mover = bot.username == "Random-Mover"
 
-    while not app[kill_key]["kill"]:
+    while not app_state.app[kill_key]["kill"]:
         line = await bot.event_queue.get()
         try:
             bot.event_queue.task_done()
@@ -75,11 +80,11 @@ async def BOT_task(bot, app):
 
         gameId = event["game"]["id"]
         level = int(event["game"]["skill_level"])
-        if gameId not in app[games_key]:
+        if gameId not in app_state.games:
             continue
-        game = app[games_key][gameId]
+        game = app_state.games[gameId]
 
-        if len(app[workers_key]) == 0 and not random_mover:
+        if len(app_state.workers) == 0 and not random_mover:
             log.error("ERROR: No fairyfisnet worker alive!")
             # TODO: send msg to player
             await game.abort_by_server()
@@ -93,7 +98,7 @@ async def BOT_task(bot, app):
 
         if starting_player == bot.username:
             if random_mover:
-                await play_move(app, bot, game, random.choice(game.legal_moves))
+                await play_move(app_state, bot, game, random.choice(game.legal_moves))
             else:
                 AI_move(game, level)
 

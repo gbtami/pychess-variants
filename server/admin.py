@@ -1,3 +1,4 @@
+from __future__ import annotations
 def silence(message, lobbychat, users):
     response = None
     spammer = message.split()[-1]

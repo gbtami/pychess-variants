@@ -1,3 +1,4 @@
+from __future__ import annotations
 # TODO: make videos page paginated
 
 

@@ -1,8 +1,11 @@
+from __future__ import annotations
 from datetime import datetime, timezone
 
-from typedefs import db_key, games_key, users_key
 from compress import R2C
 from const import MATE
+from const import TYPE_CHECKING
+if TYPE_CHECKING:
+    from pychess_global_app_state import PychessGlobalAppState
 from tournament import SCORE_SHIFT
 from tournaments import load_tournament
 from utils import load_game
@@ -37,11 +40,10 @@ def performance(user, games):
     return perf
 
 
-async def fix_first_minishogi_arena(app):
-    db = app[db_key]
-    users = app[users_key]
+async def fix_first_minishogi_arena(app_state: PychessGlobalAppState):
+
     tid = "4RP5KEl8"  # First Minishogi Arena
-    t = await load_tournament(app, tid)
+    t = await load_tournament(app_state, tid)
     print(t)
 
     ubdip = users["ubdip"]

@@ -1,47 +1,39 @@
-from datetime import datetime, timezone
-import json
+from __future__ import annotations
 import logging
+from datetime import datetime, timezone
 
-import aiohttp
-from aiohttp import web
 import aiohttp_session
+from aiohttp import web
 
-from typedefs import (
-    lobbysockets_key,
-    shield_owners_key,
-    users_key,
-    tourneychat_key,
-    tourneysockets_key,
-)
 from admin import silence
+from broadcast import lobby_broadcast
 from chat import chat_response
 from const import ANON_PREFIX, STARTED, SHIELD
+from const import TYPE_CHECKING
+if TYPE_CHECKING:
+    from pychess_global_app_state import PychessGlobalAppState
+from pychess_global_app_state_utils import get_app_state
 from settings import TOURNAMENT_DIRECTORS
-from utils import MyWebSocketResponse, online_count
-from tournaments import load_tournament
 from tournament import T_CREATED, T_STARTED
-from broadcast import lobby_broadcast
+from tournaments import load_tournament
+from utils import online_count
 from websocket_utils import process_ws, get_user
 
 log = logging.getLogger(__name__)
 
 
 async def tournament_socket_handler(request):
+    app_state = get_app_state(request.app)
     session = await aiohttp_session.get_session(request)
     user = await get_user(session, request)
     ws = await process_ws(session, request, user, process_message)
     if ws is None:
         return web.HTTPFound("/")
-    await finally_logic(request.app, ws, user)
+    await finally_logic(app_state, ws, user)
     return ws
 
 
-async def finally_logic(app, ws, user):
-    users = app[users_key]
-
-    sockets = app[tourneysockets_key]
-    lobby_sockets = app[lobbysockets_key]
-
+async def finally_logic(app_state: PychessGlobalAppState, ws, user):
     if user is not None:
         for tournamentId in user.tournament_sockets:
             if ws in user.tournament_sockets[tournamentId]:
@@ -51,41 +43,35 @@ async def finally_logic(app, ws, user):
                     del user.tournament_sockets[tournamentId]
                     user.update_online()
 
-                    if tournamentId in sockets and user.username in sockets[tournamentId]:
-                        del sockets[tournamentId][user.username]
-                        tournament = await load_tournament(app, tournamentId)
+                    if tournamentId in app_state.tourneysockets and user.username in app_state.tourneysockets[tournamentId]:
+                        del app_state.tourneysockets[tournamentId][user.username]
+                        tournament = await load_tournament(app_state, tournamentId)
                         tournament.spactator_leave(user)
                         await tournament.broadcast(tournament.spectator_list)
 
                     if not user.online:
-                        response = {"type": "u_cnt", "cnt": online_count(users)}
-                        await lobby_broadcast(lobby_sockets, response)
+                        response = {"type": "u_cnt", "cnt": online_count(app_state.users)}
+                        await lobby_broadcast(app_state.lobbysockets, response)
                 break
 
 
-async def process_message(app, user, ws, data):
-    users = app[users_key]
-
-    sockets = app[tourneysockets_key]
-    lobby_sockets = app[lobbysockets_key]
-    tourneychat = app[tourneychat_key]
-
+async def process_message(app_state: PychessGlobalAppState, user, ws, data):
     if data["type"] == "get_players":
-        await handle_get_players(app, ws, user, data)
+        await handle_get_players(app_state, ws, user, data)
     elif data["type"] == "my_page":
-        await handle_my_page(app, ws, user, data)
+        await handle_my_page(app_state, ws, user, data)
     elif data["type"] == "get_games":
-        await handle_get_games(app, ws, data)
+        await handle_get_games(app_state, ws, data)
     elif data["type"] == "join":
-        await handle_join(app, ws, user, data)
+        await handle_join(app_state, ws, user, data)
     elif data["type"] == "pause":
-        await handle_pause(app, ws, user, data)
+        await handle_pause(app_state, ws, user, data)
     elif data["type"] == "withdraw":
-        await handle_withdraw(app, ws, user, data)
+        await handle_withdraw(app_state, ws, user, data)
     elif data["type"] == "tournament_user_connected":
-        await handle_user_connected(app, ws, lobby_sockets, sockets, users, tourneychat, user, data)
+        await handle_user_connected(app_state, ws, user, data)
     elif data["type"] == "lobbychat":
-        await handle_lobbychat(app, users, tourneychat, user, data)
+        await handle_lobbychat(app_state, user, data)
 
 async def handle_get_players(app, ws, user, data):
     tournament = await load_tournament(app, data["tournamentId"])
@@ -133,6 +119,7 @@ async def handle_pause(app, ws, user, data):
         }
         await ws.send_json(response)
 
+
 async def handle_withdraw(app, ws, user, data):
     tournament = await load_tournament(app, data["tournamentId"])
     if tournament is not None:
@@ -144,9 +131,10 @@ async def handle_withdraw(app, ws, user, data):
         }
         await ws.send_json(response)
 
-async def handle_user_connected(app, ws, lobby_sockets, sockets, users, tourneychat, user, data):
+
+async def handle_user_connected(app_state: PychessGlobalAppState, ws, user, data):
     tournamentId = data["tournamentId"]
-    tournament = await load_tournament(app, tournamentId)
+    tournament = await load_tournament(app_state, tournamentId)
     if tournament is None:
         return
 
@@ -157,7 +145,7 @@ async def handle_user_connected(app, ws, lobby_sockets, sockets, users, tourneyc
 
     user.update_online()
 
-    sockets[tournamentId][user.username] = user.tournament_sockets[tournamentId]
+    app_state.tourneysockets[tournamentId][user.username] = user.tournament_sockets[tournamentId]
 
     now = datetime.now(timezone.utc)
     response = {
@@ -183,7 +171,7 @@ async def handle_user_connected(app, ws, lobby_sockets, sockets, users, tourneyc
         variant_name = tournament.variant + (
             "960" if tournament.chess960 else ""
         )
-        defender = await users.get(app[shield_owners_key][variant_name])
+        defender = await app_state.users.get(app_state.shield_owners[variant_name])
         response["defender_title"] = defender.title
         response["defender_name"] = defender.username
 
@@ -199,7 +187,7 @@ async def handle_user_connected(app, ws, lobby_sockets, sockets, users, tourneyc
 
     response = {
         "type": "fullchat",
-        "lines": list(tourneychat[tournamentId]),
+        "lines": list(app_state.tourneychat[tournamentId]),
     }
     await ws.send_json(response)
 
@@ -208,21 +196,22 @@ async def handle_user_connected(app, ws, lobby_sockets, sockets, users, tourneyc
         await tournament.broadcast(tournament.spectator_list)
 
     if len(user.game_sockets) == 0 and len(user.lobby_sockets) == 0:
-        response = {"type": "u_cnt", "cnt": online_count(users)}
-        await lobby_broadcast(lobby_sockets, response)
+        response = {"type": "u_cnt", "cnt": online_count(app_state.users)}
+        await lobby_broadcast(app_state.lobby_sockets, response)
 
-async def handle_lobbychat(app, users, tourneychat, user, data):
+
+async def handle_lobbychat(app_state: PychessGlobalAppState, user, data):
     if user.username.startswith(ANON_PREFIX):
         return
 
     tournamentId = data["tournamentId"]
-    tournament = await load_tournament(app, tournamentId)
+    tournament = await load_tournament(app_state, tournamentId)
     message = data["message"]
     response = None
 
     if user.username in TOURNAMENT_DIRECTORS:
         if message.startswith("/silence"):
-            response = silence(message, tourneychat[tournamentId], users)
+            response = silence(message, app_state.tourneychat[tournamentId], app_state.users)
             # silence message was already added to lobbychat in silence()
 
         elif message.startswith("/abort"):
@@ -232,7 +221,7 @@ async def handle_lobbychat(app, users, tourneychat, user, data):
             response = chat_response(
                 "lobbychat", user.username, data["message"]
             )
-            tourneychat[tournamentId].append(response)
+            app_state.tourneychat[tournamentId].append(response)
 
     elif user.anon:
         pass
@@ -242,7 +231,7 @@ async def handle_lobbychat(app, users, tourneychat, user, data):
             response = chat_response(
                 "lobbychat", user.username, data["message"]
             )
-            tourneychat[tournamentId].append(response)
+            app_state.tourneychat[tournamentId].append(response)
 
     if response is not None:
         await tournament.broadcast(response)

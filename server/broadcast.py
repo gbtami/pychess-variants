@@ -1,15 +1,14 @@
+from __future__ import annotations
 import json
 import logging
-
-from typedefs import lobbysockets_key, twitch_key, youtube_key
 
 log = logging.getLogger(__name__)
 
 
-async def broadcast_streams(app):
+async def broadcast_streams(app_state):
     """Send live_streams to lobby"""
-    lobby_sockets = app[lobbysockets_key]
-    live_streams = app[twitch_key].live_streams + app[youtube_key].live_streams
+    lobby_sockets = app_state.lobbysockets
+    live_streams = app_state.twitch.live_streams + app_state.youtube.live_streams
     response = {"type": "streams", "items": live_streams}
     print(response)
     await lobby_broadcast(lobby_sockets, response)
@@ -25,7 +24,7 @@ async def lobby_broadcast(sockets, response):
 
 
 async def round_broadcast(game, response, full=False, channels=None):
-    log.debug("round_broadcast %s %s %r", response, full, game.spectators )
+    log.debug("round_broadcast %s %s %r", response, full, game.spectators)
     if game.spectators:
         for spectator in game.spectators:
             await spectator.send_game_message(game.id, response)

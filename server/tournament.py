@@ -1,4 +1,4 @@
-from typing import ClassVar, Tuple
+from __future__ import annotations
 import asyncio
 import collections
 import logging
@@ -6,20 +6,12 @@ import random
 from abc import ABC, abstractmethod
 from datetime import datetime, timedelta, timezone
 from operator import neg
+from typing import ClassVar, Tuple
 
+from pymongo import ReturnDocument
 from sortedcollections import ValueSortedDict
 from sortedcontainers import SortedKeysView
-from pymongo import ReturnDocument
 
-from typedefs import (
-    discord_key,
-    games_key,
-    lobbysockets_key,
-    db_key,
-    shield_key,
-    shield_owners_key,
-    users_key,
-)
 from broadcast import lobby_broadcast
 from compress import R2C
 from const import (
@@ -43,14 +35,20 @@ from const import (
     MAX_CHAT_LINES,
 )
 from game import Game
-from user import User
 from glicko2.glicko2 import gl2
+from lichess_team_msg import lichess_team_msg
 from misc import time_control_str
 from newid import new_id
-from utils import insert_game_to_db
+from const import TYPE_CHECKING
+if TYPE_CHECKING:
+    from pychess_global_app_state import PychessGlobalAppState
 from spectators import spectators
 from tournament_spotlights import tournament_spotlights
-from lichess_team_msg import lichess_team_msg
+from typedefs import (
+    db_key,
+)
+from user import User
+from utils import insert_game_to_db
 
 log = logging.getLogger(__name__)
 
@@ -198,7 +196,7 @@ class Tournament(ABC):
 
     def __init__(
         self,
-        app,
+        app_state: PychessGlobalAppState,
         tournamentId,
         variant="chess",
         chess960=False,
@@ -219,7 +217,7 @@ class Tournament(ABC):
         with_clock=True,
         frequency="",
     ):
-        self.app = app
+        self.app_state = app_state
         self.id = tournamentId
         self.name = name
         self.description = description
@@ -380,7 +378,7 @@ class Tournament(ABC):
 
     # TODO: cache this
     async def games_json(self, player_name):
-        player = await self.app[users_key].get(player_name)
+        player = await self.app_state.users.get(player_name)
         return {
             "type": "get_games",
             "rank": self.leaderboard.index(player) + 1,
@@ -449,7 +447,7 @@ class Tournament(ABC):
                     elif (not self.notify2) and remaining_mins_to_start <= NOTIFY2_MINUTES:
                         self.notify1 = True
                         self.notify2 = True
-                        await self.app[discord_key].send_to_discord(
+                        await self.app_state.discord.send_to_discord(
                             "notify_tournament",
                             self.notify_discord_msg(remaining_mins_to_start),
                         )
@@ -457,11 +455,11 @@ class Tournament(ABC):
 
                     elif (not self.notify1) and remaining_mins_to_start <= NOTIFY1_MINUTES:
                         self.notify1 = True
-                        await self.app[discord_key].send_to_discord(
+                        await self.app_state.discord.send_to_discord(
                             "notify_tournament",
                             self.notify_discord_msg(remaining_mins_to_start),
                         )
-                        asyncio.create_task(lichess_team_msg(self.app))
+                        asyncio.create_task(lichess_team_msg(self.app_state))
                         continue
 
                 elif (self.minutes is not None) and now >= self.ends_at:
@@ -533,9 +531,9 @@ class Tournament(ABC):
         if self.system == ARENA:
             self.prev_pairing = now - self.wave
 
-        if self.app[db_key] is not None:
+        if self.app_state.db is not None:
             print(
-                await self.app[db_key].tournament.find_one_and_update(
+                await self.app_state.db.tournament.find_one_and_update(
                     {"_id": self.id},
                     {"$set": {"status": self.status}},
                     return_document=ReturnDocument.AFTER,
@@ -589,8 +587,8 @@ class Tournament(ABC):
         await self.broadcast_spotlight()
 
     async def broadcast_spotlight(self):
-        spotlights = tournament_spotlights(self.app)
-        lobby_sockets = self.app[lobbysockets_key]
+        spotlights = tournament_spotlights(self.app_state)
+        lobby_sockets = self.app_state.lobbysockets
         response = {"type": "spotlights", "items": spotlights}
         await lobby_broadcast(lobby_sockets, response)
 
@@ -701,11 +699,11 @@ class Tournament(ABC):
         new_top_game = False
 
         games = []
-        game_table = None if self.app[db_key] is None else self.app[db_key].game
+        game_table = None if self.app_state.db is None else self.app_state.db.game
         for wp, bp in pairing:
             game_id = await new_id(game_table)
             game = Game(
-                self.app,
+                self.app_state,
                 game_id,
                 self.variant,
                 self.fen,
@@ -720,8 +718,8 @@ class Tournament(ABC):
             )
 
             games.append(game)
-            self.app[games_key][game_id] = game
-            await insert_game_to_db(game, self.app)
+            self.app_state.games[game_id] = game
+            await insert_game_to_db(game, self.app_state)
 
             # TODO: save new game to db
             if 0:  # self.app[db_key] is not None:
@@ -1060,10 +1058,10 @@ class Tournament(ABC):
                 log.exception("Exception in tournament broadcast()")
 
     async def db_insert_pairing(self, games):
-        if self.app[db_key] is None:
+        if self.app_state.db is None:
             return
         pairing_documents = []
-        pairing_table = self.app[db_key].tournament_pairing
+        pairing_table = self.app_state.db.tournament_pairing
 
         for game in games:
             if game.status == BYEGAME:  # TODO: Save or not save? This is the question.
@@ -1086,9 +1084,9 @@ class Tournament(ABC):
             await pairing_table.insert_many(pairing_documents)
 
     async def db_update_pairing(self, game):
-        if self.app[db_key] is None:
+        if self.app_state.db is None:
             return
-        pairing_table = self.app[db_key].tournament_pairing
+        pairing_table = self.app_state.db.tournament_pairing
 
         try:
             new_data = {
@@ -1106,7 +1104,7 @@ class Tournament(ABC):
             )
         except Exception as e:
             log.error(e, exc_info=True)
-            if self.app[db_key] is not None:
+            if self.app_state.db is not None:
                 log.error(
                     "db find_one_and_update pairing_table %s into %s failed !!!",
                     game.id,
@@ -1114,11 +1112,11 @@ class Tournament(ABC):
                 )
 
     async def db_update_player(self, user, player_data):
-        if self.app[db_key] is None:
+        if self.app_state.db is None:
             return
 
         player_id = player_data.id
-        player_table = self.app[db_key].tournament_player
+        player_table = self.app_state.db.tournament_player
 
         if player_data.id is None:  # new player join
             player_id = await new_id(player_table)
@@ -1158,7 +1156,7 @@ class Tournament(ABC):
             )
         except Exception as e:
             log.error(e, exc_info=True)
-            if self.app[db_key] is not None:
+            if self.app_state.db is not None:
                 log.error(
                     "db find_one_and_update tournament_player %s into %s failed !!!",
                     player_id,
@@ -1167,7 +1165,7 @@ class Tournament(ABC):
 
         new_data = {"nbPlayers": self.nb_players, "nbBerserk": self.nb_berserk}
         print(
-            await self.app[db_key].tournament.find_one_and_update(
+            await self.app_state.db.tournament.find_one_and_update(
                 {"_id": self.id},
                 {"$set": new_data},
                 return_document=ReturnDocument.AFTER,
@@ -1175,11 +1173,11 @@ class Tournament(ABC):
         )
 
     async def save(self):
-        if self.app[db_key] is None:
+        if self.app_state.db is None:
             return
 
         if self.nb_games_finished == 0:
-            print(await self.app[db_key].tournament.delete_many({"_id": self.id}))
+            print(await self.app_state.db.tournament.delete_many({"_id": self.id}))
             print("--- Deleted empty tournament %s" % self.id)
             return
 
@@ -1192,7 +1190,7 @@ class Tournament(ABC):
         }
 
         print(
-            await self.app[db_key].tournament.find_one_and_update(
+            await self.app_state.db.tournament.find_one_and_update(
                 {"_id": self.id},
                 {"$set": new_data},
                 return_document=ReturnDocument.AFTER,
@@ -1204,8 +1202,8 @@ class Tournament(ABC):
 
         if self.frequency == SHIELD:
             variant_name = self.variant + ("960" if self.chess960 else "")
-            self.app[shield_key][variant_name].append((winner, self.starts_at, self.id))
-            self.app[shield_owners_key][variant_name] = winner
+            self.app_state.shield[variant_name].append((winner, self.starts_at, self.id))
+            self.app_state.shield_owners[variant_name] = winner
 
     def print_leaderboard(self):
         print("--- LEADERBOARD ---", self.id)

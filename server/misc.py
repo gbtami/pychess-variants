@@ -1,10 +1,13 @@
+from __future__ import annotations
 import asyncio
-import time
 import cProfile
 import pstats
+import time
 from timeit import default_timer
 
-from typedefs import users_key
+from const import TYPE_CHECKING
+if TYPE_CHECKING:
+    from pychess_global_app_state import PychessGlobalAppState
 
 
 def timeit(func):
@@ -91,26 +94,26 @@ def time_control_str(base, inc, byo, day=0):
         inc_str = f"{byo}x{inc}(b)"
     return base + "+" + inc_str
 
-
-def server_state(app, amount=3):
+# todo:niki: i replaced app with app_state blindly here. dont understand right now whats the purpose of this - is it just debug log or something - if yes, make it a kind of to_string method of app_state
+def server_state(app_state: PychessGlobalAppState, amount=3):
     print("=" * 40)
-    for akey in app:
-        length = len(app[akey]) if hasattr(app[akey], "__len__") else 1
+    for akey in app_state:
+        length = len(app_state[akey]) if hasattr(app_state[akey], "__len__") else 1
         print("--- %s %s ---" % (akey, length))
-        if isinstance(app[akey], dict):
-            items = list(app[akey].items())[: min(length, amount)]
+        if isinstance(app_state[akey], dict):
+            items = list(app_state[akey].items())[: min(length, amount)]
             for key, value in items:
                 print("   %s %s" % (key, value))
-        elif isinstance(app[akey], list):
-            for item in app[akey][: min(length, amount)]:
+        elif isinstance(app_state[akey], list):
+            for item in app_state[akey][: min(length, amount)]:
                 print("   %s" % item)
         else:
-            print(app[akey])
+            print(app_state[akey])
     print("=" * 40)
 
-    q = app[users_key]["Random-Mover"].event_queue
+    q = app_state.users["Random-Mover"].event_queue
     print(" ... Random-Mover ...")
     print(q)
-    q = app[users_key]["Fairy-Stockfish"].event_queue
+    q = app_state.users["Fairy-Stockfish"].event_queue
     print(" ... Fairy-Stockfish ...")
     print(q)

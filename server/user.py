@@ -1,17 +1,21 @@
+from __future__ import annotations
 import asyncio
 import json
 import logging
 from datetime import datetime, timezone
 
-from aiohttp import web
 import aiohttp_session
+from aiohttp import web
 
-from const import ANON_PREFIX, NOTIFY_PAGE_SIZE, STARTED, VARIANTS
-from typedefs import db_key, lobbysockets_key, seeks_key, users_key
 from broadcast import lobby_broadcast, round_broadcast
+from const import ANON_PREFIX, NOTIFY_PAGE_SIZE, STARTED, VARIANTS
 from glicko2.glicko2 import gl2, DEFAULT_PERF, Rating
 from login import RESERVED_USERS
 from newid import id8, new_id
+from const import TYPE_CHECKING
+if TYPE_CHECKING:
+    from pychess_global_app_state import PychessGlobalAppState
+from pychess_global_app_state_utils import get_app_state
 from seek import get_seeks
 
 log = logging.getLogger(__name__)
@@ -25,7 +29,7 @@ ABANDON_TIMEOUT = 90
 class User:
     def __init__(
         self,
-        app,
+        app_state: PychessGlobalAppState,
         bot=False,
         username=None,
         anon=False,
@@ -36,8 +40,7 @@ class User:
         lang=None,
         theme="dark",
     ):
-        self.app = app
-        self.db = app[db_key] if db_key in app else None
+        self.app_state = app_state
         self.bot = False if username == "PyChessBot" else bot
         self.anon = anon
         self.lang = lang
@@ -109,7 +112,7 @@ class User:
                 await asyncio.sleep(3)
                 if not self.online:
                     try:
-                        del self.app[users_key][self.username]
+                        del self.app_state.users[self.username]
                     except KeyError:
                         log.error("Failed to del %s from users", self.username, exc_info=True)
                     break
@@ -171,8 +174,8 @@ class User:
             "nb": nb + 1,
         }
 
-        if self.db is not None:
-            await self.db.user.find_one_and_update(
+        if self.app_state.db is not None:
+            await self.app_state.db.user.find_one_and_update(
                 {"_id": self.username}, {"$set": {"perfs": self.perfs}}
             )
 
@@ -188,8 +191,8 @@ class User:
             "nb": nb + 1,
         }
 
-        if self.db is not None:
-            await self.db.user.find_one_and_update(
+        if self.app_state.db is not None:
+            await self.app_state.db.user.find_one_and_update(
                 {"_id": self.username}, {"$set": {"pperfs": self.pperfs}}
             )
 
@@ -210,7 +213,7 @@ class User:
             else:
                 win = False
 
-        _id = await new_id(None if self.db is None else self.db.notify)
+        _id = await new_id(None if self.app_state.db is None else self.app_state.db.notify)
         document = {
             "_id": _id,
             "notifies": self.username,
@@ -225,7 +228,7 @@ class User:
         }
 
         if self.notifications is None:
-            cursor = self.db.notify.find({"notifies": self.username})
+            cursor = self.app_state.db.notify.find({"notifies": self.username})
             self.notifications = await cursor.to_list(length=100)
 
         self.notifications.append(document)
@@ -235,14 +238,14 @@ class User:
                 json.dumps(self.notifications[-NOTIFY_PAGE_SIZE:], default=datetime.isoformat)
             )
 
-        if self.db is not None:
-            await self.db.notify.insert_one(document)
+        if self.app_state.db is not None:
+            await self.app_state.db.notify.insert_one(document)
 
     async def notified(self):
         self.notifications = [{**notif, "read": True} for notif in self.notifications]
 
-        if self.db is not None:
-            await self.db.notify.update_many({"notifies": self.username}, {"$set": {"read": True}})
+        if self.app_state.db is not None:
+            await self.app_state.db.notify.update_many({"notifies": self.username}, {"$set": {"read": True}})
 
     def as_json(self, requester):
         return {
@@ -253,17 +256,14 @@ class User:
 
     async def clear_seeks(self):
         if len(self.seeks) > 0:
-            seeks = self.app[seeks_key]
-            sockets = self.app[lobbysockets_key]
-
             for seek_id in list(self.seeks):
                 game_id = self.seeks[seek_id].game_id
                 # preserve invites (seek with game_id) and corr seeks!
                 if game_id is None and self.seeks[seek_id].day == 0:
-                    del seeks[seek_id]
+                    del self.app_state.seeks[seek_id]
                     del self.seeks[seek_id]
 
-            await lobby_broadcast(sockets, get_seeks(seeks))
+            await lobby_broadcast(self.app_state.lobbysockets, get_seeks(self.app_state.seeks))
 
     def delete_pending_seek(self, seek):
         async def delete_seek(seek):
@@ -272,7 +272,7 @@ class User:
             if seek.pending:
                 try:
                     del self.seeks[seek.id]
-                    del self.app[seeks_key][seek.id]
+                    del self.app_state.seeks[seek.id]
                 except KeyError:
                     log.error("Failed to del %s from seeks", seek.id, exc_info=True)
 
@@ -280,9 +280,6 @@ class User:
 
     async def update_seeks(self, pending=True):
         if len(self.seeks) > 0:
-            seeks = self.app[seeks_key]
-            sockets = self.app[lobbysockets_key]
-
             for seek in self.seeks.values():
                 # preserve invites (seek with game_id) and corr seeks
                 if seek.game_id is None and seek.day == 0:
@@ -290,14 +287,14 @@ class User:
                     if pending:
                         self.delete_pending_seek(seek)
 
-            await lobby_broadcast(sockets, get_seeks(seeks))
+            await lobby_broadcast(self.app_state.lobbysockets, get_seeks(self.app_state.seeks))
 
     async def send_game_message(self, game_id, message):
         # todo: for now just logging dropped messages, but at some point should evaluate whether to queue them when no socket 
 		#       or include info about the complete round state in some more general message that is always 
 		#       sent on reconnect so client doesnt lose state
         ws = self.game_sockets.get(game_id)
-        log.debug("Sending message %s to %s. ws = %r", message, self.username, ws);
+        log.debug("Sending message %s to %s. ws = %r", message, self.username, ws)
         if ws is not None:
             try:
                 await ws.send_json(message)
@@ -318,6 +315,7 @@ class User:
 
 
 async def set_theme(request):
+    app_state = get_app_state(request.app)
     post_data = await request.post()
     theme = post_data.get("theme")
 
@@ -325,9 +323,8 @@ async def set_theme(request):
         referer = request.headers.get("REFERER")
         session = await aiohttp_session.get_session(request)
         session_user = session.get("user_name")
-        users = request.app[users_key]
-        if session_user in users:
-            user = users[session_user]
+        if session_user in app_state.users:
+            user = app_state.users[session_user]
             user.theme = theme
             if user.db is not None:
                 await user.db.user.find_one_and_update(

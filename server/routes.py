@@ -1,3 +1,4 @@
+from __future__ import annotations
 from bot_api import (
     account,
     playing,

@@ -1,8 +1,13 @@
+from __future__ import annotations
 import asyncio
 import collections
 import logging
 from datetime import datetime, timezone, timedelta
 from time import monotonic
+
+from const import TYPE_CHECKING
+if TYPE_CHECKING:
+    from pychess_global_app_state import PychessGlobalAppState
 
 from user import User
 
@@ -15,17 +20,6 @@ try:
 except ImportError:
     log.error("No pyffish module installed!", exc_info=True)
 
-from typedefs import (
-    db_key,
-    crosstable_key,
-    games_key,
-    g_cnt_key,
-    highscore_key,
-    lobbysockets_key,
-    tournaments_key,
-    users_key,
-    tv_key,
-)
 from broadcast import lobby_broadcast, round_broadcast
 from clock import Clock, CorrClock
 from compress import encode_moves, R2C
@@ -48,7 +42,7 @@ from const import (
     IMPORTED,
     HIGHSCORE_MIN_GAMES,
     variant_display_name,
-    MAX_CHAT_LINES,
+    MAX_CHAT_LINES, TYPE_CHECKING,
 )
 from convert import grand2zero, uci2usi, mirror5, mirror9
 from fairy import FairyBoard, BLACK, WHITE
@@ -75,7 +69,7 @@ INVALID_PAWN_DROP_MATE = (
 class Game:
     def __init__(
         self,
-        app,
+        app_state: PychessGlobalAppState,
         gameId,
         variant,
         initial_fen,
@@ -91,11 +85,11 @@ class Game:
         create=True,
         tournamentId=None,
     ):
-        self.app = app
-        self.db = app[db_key] if db_key in app else None
-        self.games = app[games_key]
-        self.highscore = app[highscore_key]
-        self.db_crosstable = app[crosstable_key]
+        self.app_state = app_state
+        # self.db = app[db_key] if db_key in app else None
+        # self.games = app[games_key]
+        # self.highscore = app[highscore_key]
+        # self.db_crosstable = app[crosstable_key]
 
         self.saved = False
         self.remove_task = None
@@ -143,7 +137,7 @@ class Game:
                 self.s1player = self.bplayer.username
                 self.s2player = self.wplayer.username
             self.ct_id = self.s1player + "/" + self.s2player
-            self.crosstable = self.db_crosstable.get(
+            self.crosstable = app_state.crosstable.get(
                 self.ct_id, {"_id": self.ct_id, "s1": 0, "s2": 0, "r": []}
             )
 
@@ -314,9 +308,9 @@ class Game:
         # so we have to check board.ply instead here!
         if self.board.ply == 0:
             self.status = STARTED
-            self.app[g_cnt_key][0] += 1
-            response = {"type": "g_cnt", "cnt": self.app[g_cnt_key][0]}
-            await lobby_broadcast(self.app[lobbysockets_key], response)
+            self.app_state.g_cnt[0] += 1
+            response = {"type": "g_cnt", "cnt": self.app_state.g_cnt[0]}
+            await lobby_broadcast(self.app_state.lobbysockets, response)
 
         cur_player = self.bplayer if self.board.color == BLACK else self.wplayer
         opp_player = self.wplayer if self.board.color == BLACK else self.bplayer
@@ -428,8 +422,8 @@ class Game:
                 self.variant,
             ),
         }
-        if self.db is not None:
-            await self.db.game.find_one_and_update({"_id": self.id}, {"$set": new_data})
+        if self.app_state.db is not None:
+            await self.app_state.db.game.find_one_and_update({"_id": self.id}, {"$set": new_data})
 
     async def save_setup(self):
         """Used by Janggi prelude phase"""
@@ -441,8 +435,8 @@ class Game:
             "ws": self.wsetup,
             "bs": self.bsetup,
         }
-        if self.db is not None:
-            await self.db.game.find_one_and_update({"_id": self.id}, {"$set": new_data})
+        if self.app_state.db is not None:
+            await self.app_state.db.game.find_one_and_update({"_id": self.id}, {"$set": new_data})
 
     async def save_game(self):
         if self.saved:
@@ -461,20 +455,20 @@ class Game:
             pass
 
         if self.board.ply > 0:
-            self.app[g_cnt_key][0] -= 1
-            response = {"type": "g_cnt", "cnt": self.app[g_cnt_key][0]}
-            await lobby_broadcast(self.app[lobbysockets_key], response)
+            self.app_state.g_cnt[0] -= 1
+            response = {"type": "g_cnt", "cnt": self.app_state.g_cnt[0]}
+            await lobby_broadcast(self.app_state.lobbysockets, response)
 
         async def remove(keep_time):
             # Keep it in our games dict a little to let players get the last board
             # not to mention that BOT players want to abort games after 20 sec inactivity
             await asyncio.sleep(keep_time)
 
-            if self.id == self.app[tv_key]:
-                self.app[tv_key] = None
+            if self.id == self.app_state.tv:
+                self.app_state.tv_key = None
 
             try:
-                del self.games[self.id]
+                del self.app_state.games[self.id]
             except KeyError:
                 log.error("Failed to del %s from games", self.id, exc_info=True)
 
@@ -489,8 +483,8 @@ class Game:
 
         self.remove_task = asyncio.create_task(remove(KEEP_TIME))
 
-        if self.board.ply < 3 and (self.db is not None) and (self.tournamentId is None):
-            result = await self.db.game.delete_one({"_id": self.id})
+        if self.board.ply < 3 and (self.app_state.db is not None) and (self.tournamentId is None):
+            result = await self.app_state.db.game.delete_one({"_id": self.id})
             log.debug(
                 "Removed too short game %s from db. Deleted %s game.",
                 self.id,
@@ -505,7 +499,7 @@ class Game:
 
             if self.tournamentId is not None:
                 try:
-                    await self.app[tournaments_key][self.tournamentId].game_update(self)
+                    await self.app_state.tournaments[self.tournamentId].game_update(self)
                 except Exception:
                     log.exception("Exception in tournament game_update()")
 
@@ -545,8 +539,8 @@ class Game:
                     self.manual_count_toggled.append((self.board.count_started, self.board.ply + 1))
                 new_data["mct"] = self.manual_count_toggled
 
-            if self.db is not None:
-                await self.db.game.find_one_and_update({"_id": self.id}, {"$set": new_data})
+            if self.app_state.db is not None:
+                await self.app_state.db.game.find_one_and_update({"_id": self.id}, {"$set": new_data})
 
     def set_crosstable(self):
         if (
@@ -587,7 +581,7 @@ class Game:
             "s2": self.crosstable["s2"],
             "r": self.crosstable["r"],
         }
-        self.db_crosstable[self.ct_id] = new_data
+        self.app_state.crosstable[self.ct_id] = new_data
 
         self.need_crosstable_save = True
 
@@ -602,7 +596,7 @@ class Game:
             "r": self.crosstable["r"],
         }
         try:
-            await self.db.crosstable.find_one_and_update(
+            await self.app_state.db.crosstable.find_one_and_update(
                 {"_id": self.ct_id}, {"$set": new_data}, upsert=True
             )
         except Exception:
@@ -611,26 +605,26 @@ class Game:
         self.need_crosstable_save = False
 
     def get_highscore(self, variant, chess960):
-        len_hs = len(self.highscore[variant + ("960" if chess960 else "")])
+        len_hs = len(self.app_state.highscore[variant + ("960" if chess960 else "")])
         if len_hs > 0:
             return (
-                self.highscore[variant + ("960" if chess960 else "")].peekitem()[1],
+                self.app_state.highscore[variant + ("960" if chess960 else "")].peekitem()[1],
                 len_hs,
             )
         return (0, 0)
 
     async def set_highscore(self, variant, chess960, value):
-        self.highscore[variant + ("960" if chess960 else "")].update(value)
+        self.app_state.highscore[variant + ("960" if chess960 else "")].update(value)
         # We have to preserve previous top 10!
         # See test_win_and_in_then_lost_and_out() in test.py
         # if len(self.highscore[variant + ("960" if chess960 else "")]) > MAX_HIGH_SCORE:
         #     self.highscore[variant + ("960" if chess960 else "")].popitem()
 
         new_data = {
-            "scores": dict(self.highscore[variant + ("960" if chess960 else "")].items()[:10])
+            "scores": dict(self.app_state.highscore[variant + ("960" if chess960 else "")].items()[:10])
         }
         try:
-            await self.db.highscore.find_one_and_update(
+            await self.app_state.db.highscore.find_one_and_update(
                 {"_id": variant + ("960" if chess960 else "")},
                 {"$set": new_data},
                 upsert=True,

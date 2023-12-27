@@ -1,12 +1,12 @@
+from __future__ import annotations
 import random
 from datetime import datetime, timezone
 
-from aiohttp import web
 import aiohttp_session
-
 import pyffish as sf
+from aiohttp import web
 
-from typedefs import daily_puzzle_ids_key, db_key, users_key
+from typedefs import pychess_global_app_state_key
 from const import VARIANTS
 from glicko2.glicko2 import MU, gl2, Rating, rating
 
@@ -44,24 +44,24 @@ def empty_puzzle(variant):
 
 
 async def get_puzzle(request, puzzleId):
-    puzzle = await request.app[db_key].puzzle.find_one({"_id": puzzleId})
+    puzzle = await request.app[pychess_global_app_state_key].db.puzzle.find_one({"_id": puzzleId})
     return puzzle
 
 
 async def get_daily_puzzle(request):
-    if request.app[db_key] is None:
+    if request.app[pychess_global_app_state_key].db is None:
         return empty_puzzle("chess")
 
-    db_collections = await request.app[db_key].list_collection_names()
+    db_collections = await request.app[pychess_global_app_state_key].db.list_collection_names()
     if "puzzle" not in db_collections:
         return empty_puzzle("chess")
 
     today = datetime.now(timezone.utc).date().isoformat()
-    daily_puzzle_ids = request.app[daily_puzzle_ids_key]
+    daily_puzzle_ids = request.app[pychess_global_app_state_key].daily_puzzle_ids
     if today in daily_puzzle_ids:
         puzzle = await get_puzzle(request, daily_puzzle_ids[today])
     else:
-        user = request.app[users_key]["PyChess"]
+        user = request.app[pychess_global_app_state_key].users["PyChess"]
 
         # skip previous daily puzzles
         user.puzzles = {puzzle_id: NOT_VOTED for puzzle_id in daily_puzzle_ids.values()}
@@ -75,8 +75,8 @@ async def get_daily_puzzle(request):
             if puzzle.get("eval") != "#1":
                 puzzleId = puzzle["_id"]
 
-        await request.app[db_key].dailypuzzle.insert_one({"_id": today, "puzzleId": puzzleId})
-        request.app[daily_puzzle_ids_key][today] = puzzle["_id"]
+        await request.app[pychess_global_app_state_key].db.dailypuzzle.insert_one({"_id": today, "puzzleId": puzzleId})
+        request.app[pychess_global_app_state_key].daily_puzzle_ids[today] = puzzle["_id"]
 
     return puzzle
 
@@ -96,12 +96,12 @@ async def next_puzzle(request, user):
 
     puzzle = None
 
-    if request.app[db_key] is not None:
+    if request.app[pychess_global_app_state_key].db is not None:
         pipeline = [
             {"$match": {"$and": filters}},
             {"$sample": {"size": 1}},
         ]
-        cursor = request.app[db_key].puzzle.aggregate(pipeline)
+        cursor = request.app[pychess_global_app_state_key].db.puzzle.aggregate(pipeline)
 
         async for doc in cursor:
             puzzle = {
@@ -130,11 +130,11 @@ async def puzzle_complete(request):
     rated = post_data["rated"] == "true"
 
     puzzle_data = await get_puzzle(request, puzzleId)
-    puzzle = Puzzle(request.app[db_key], puzzle_data)
+    puzzle = Puzzle(request.app[pychess_global_app_state_key].db, puzzle_data)
 
     await puzzle.set_played()
 
-    users = request.app[users_key]
+    users = request.app[pychess_global_app_state_key].users
     session = await aiohttp_session.get_session(request)
     try:
         user = users[session.get("user_name")]
@@ -177,7 +177,7 @@ async def puzzle_vote(request):
     good = post_data["vote"] == "true"
     up_or_down = "up" if good else "down"
 
-    users = request.app[users_key]
+    users = request.app[pychess_global_app_state_key].users
     session = await aiohttp_session.get_session(request)
     try:
         user = users[session.get("user_name")]
@@ -189,7 +189,7 @@ async def puzzle_vote(request):
     else:
         user.puzzles["puzzleId"] = UP if good else DOWN
 
-    db = request.app[db_key]
+    db = request.app[pychess_global_app_state_key].db
     if db is not None:
         await db.puzzle.find_one_and_update({"_id": puzzleId}, {"$inc": {up_or_down: 1}})
 

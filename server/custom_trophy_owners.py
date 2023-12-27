@@ -1,3 +1,4 @@
+from __future__ import annotations
 CUSTOM_TROPHY_OWNERS = {
     # "username": (("variant", "key in TROPHIES"),...)
     "gbtami": (
