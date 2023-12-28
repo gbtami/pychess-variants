@@ -40,7 +40,7 @@ export const BOARD_FAMILIES: Record<string, BoardFamily> = {
 };
 
 export const PIECE_FAMILIES: Record<string, PieceFamily> = {
-    ataxx: { pieceCSS: ["disguised"] },
+    ataxx: { pieceCSS: ["disguised", "virus", "zombie", "cat-dog"] },
     standard: { pieceCSS: ["standard", "green", "alpha", "chess_kaneo", "santa", "maestro", "dubrovny", "disguised", "atopdown"] },
     capa: { pieceCSS: ["capa0", "capa1", "capa2", "capa3", "capa4", "capa5", "disguised"] },
     seirawan: { pieceCSS: ["seir1", "seir0", "seir2", "seir3", "seir4", "seir5", "disguised"] },
