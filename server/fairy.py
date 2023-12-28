@@ -8,6 +8,7 @@ try:
 except ImportError:
     print("No pyffish module installed!")
 
+from ataxx import ATAXX_FENS
 from const import CATEGORIES
 
 WHITE, BLACK = False, True
@@ -59,7 +60,9 @@ class FairyBoard:
         self.show_promoted = variant in ("makruk", "makpong", "cambodian")
         self.nnue = initial_fen == ""
         self.initial_fen = (
-            initial_fen if initial_fen else self.start_fen(variant, chess960, disabled_fen)
+            initial_fen
+            if initial_fen
+            else self.start_fen(variant, chess960 or variant == "ataxx", disabled_fen)
         )
         self.move_stack: list[str] = []
         self.ply = 0
@@ -160,7 +163,7 @@ class FairyBoard:
 
     def is_claimable_draw(self):
         optional_end, result = self.is_optional_game_end()
-        return optional_end and result == 0
+        return optional_end and (result == 0 or self.variant == "ataxx")
 
     def game_result(self):
         return sf.game_result(self.variant, self.initial_fen, self.move_stack, self.chess960)
@@ -215,6 +218,9 @@ class FairyBoard:
         The king is placed somewhere between the two rooks.
         The bishops are placed on opposite-colored squares.
         Same for queen and archbishop in caparandom."""
+
+        if self.variant == "ataxx":
+            return random.choice(ATAXX_FENS)
 
         castl = ""
         capa = self.variant in ("capablanca", "capahouse")

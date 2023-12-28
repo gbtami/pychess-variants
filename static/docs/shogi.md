@@ -150,26 +150,16 @@ In the Hoskings notation, only numbers are used. Instead of 5e, someone might sa
 
 ### Pieces
 
-K = king
-
-G = gold general
-
-S = silver general
-
-N = knight
-
-L = lance
-
-R = rook
-
-B = bishop
-
-P = pawn
-
-+R or D = dragon king
-
-+B or H = dragon horse
-
+K = king  
+G = gold general  
+S = silver general  
+N = knight  
+L = lance  
+R = rook  
+B = bishop  
+P = pawn  
++R or D = dragon king  
++B or H = dragon horse  
 +S, +N, +L, +P for the other promoted pieces, respectively.
 
 ### Symbols

@@ -14,6 +14,7 @@ export type PyChessModel = {
     variant: string;
     chess960: string;
     rated: string;
+    corr: string;
     level: number;
     gameId: string;
     tournamentId: string;
@@ -45,4 +46,5 @@ export type PyChessModel = {
     tournamentDirector: boolean;
     assetURL: string;
     puzzle: string;
+    corrGames: string;
 };

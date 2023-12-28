@@ -6,13 +6,26 @@ import aiohttp
 from aiohttp import web
 import aiohttp_session
 
+from typedefs import (
+    db_key,
+    discord_key,
+    games_key,
+    g_cnt_key,
+    invites_key,
+    lobbychat_key,
+    lobbysockets_key,
+    seeks_key,
+    twitch_key,
+    users_key,
+    youtube_key,
+    tv_key,
+)
 from admin import silence
 from broadcast import lobby_broadcast, broadcast_streams
 from chat import chat_response
-from const import STARTED
+from const import ANON_PREFIX, STARTED
 from settings import ADMINS, TOURNAMENT_DIRECTORS
 from seek import challenge, create_seek, get_seeks, Seek
-from user import User
 from utils import join_seek, load_game, online_count, MyWebSocketResponse, remove_seek
 from misc import server_state
 from tournament_spotlights import tournament_spotlights
@@ -39,24 +52,24 @@ async def is_playing(request, user, ws):
 
 
 async def lobby_socket_handler(request):
-    users = request.app["users"]
+    users = request.app[users_key]
 
     session = await aiohttp_session.get_session(request)
     session_user = session.get("user_name")
-    user = users[session_user] if session_user is not None and session_user in users else None
+    user = await users.get(session_user)
 
     if (user is not None) and (not user.enabled):
         session.invalidate()
         return web.HTTPFound("/")
 
-    sockets = request.app["lobbysockets"]
-    games = request.app["games"]
-    seeks = request.app["seeks"]
-    db = request.app["db"]
-    invites = request.app["invites"]
-    twitch = request.app["twitch"]
-    youtube = request.app["youtube"]
-    lobbychat = request.app["lobbychat"]
+    sockets = request.app[lobbysockets_key]
+    games = request.app[games_key]
+    seeks = request.app[seeks_key]
+    db = request.app[db_key]
+    invites = request.app[invites_key]
+    twitch = request.app[twitch_key]
+    youtube = request.app[youtube_key]
+    lobbychat = request.app[lobbychat_key]
 
     ws = MyWebSocketResponse(heartbeat=3.0, receive_timeout=10.0)
 
@@ -91,11 +104,11 @@ async def lobby_socket_handler(request):
                             continue
 
                         variant = data["variant"]
-                        engine = users.get("Fairy-Stockfish")
+                        engine = users["Fairy-Stockfish"]
 
                         if data["rm"] or (engine is None) or (not engine.online):
                             # TODO: message that engine is offline, but Random-Mover BOT will play instead
-                            engine = users.get("Random-Mover")
+                            engine = users["Random-Mover"]
 
                         seek = Seek(
                             user,
@@ -109,7 +122,6 @@ async def lobby_socket_handler(request):
                             player1=user,
                             rated=False,
                             chess960=data["chess960"],
-                            alternate_start=data["alternateStart"],
                         )
                         # print("SEEK", user, variant, data["fen"], data["color"], data["minutes"], data["increment"], data["level"], False, data["chess960"])
                         seeks[seek.id] = seek
@@ -131,7 +143,7 @@ async def lobby_socket_handler(request):
                         seek = await create_seek(db, invites, seeks, user, data, ws)
                         await lobby_broadcast(sockets, get_seeks(seeks))
                         if (seek is not None) and seek.target == "":
-                            await request.app["discord"].send_to_discord(
+                            await request.app[discord_key].send_to_discord(
                                 "create_seek", seek.discord_msg
                             )
 
@@ -198,49 +210,6 @@ async def lobby_socket_handler(request):
                         await lobby_broadcast(sockets, get_seeks(seeks))
 
                     elif data["type"] == "lobby_user_connected":
-                        if session_user is not None:
-                            if data["username"] and data["username"] != session_user:
-                                log.info(
-                                    "+++ Existing lobby_user %s socket connected as %s.",
-                                    session_user,
-                                    data["username"],
-                                )
-                                session_user = data["username"]
-                                if session_user in users:
-                                    user = users[session_user]
-                                else:
-                                    user = User(
-                                        request.app,
-                                        username=data["username"],
-                                        anon=data["username"].startswith("Anon-"),
-                                    )
-                                    users[user.username] = user
-                            else:
-                                if session_user in users:
-                                    user = users[session_user]
-                                else:
-                                    user = User(
-                                        request.app,
-                                        username=data["username"],
-                                        anon=data["username"].startswith("Anon-"),
-                                    )
-                                    users[user.username] = user
-                        else:
-                            log.info(
-                                "+++ Existing lobby_user %s socket reconnected.",
-                                data["username"],
-                            )
-                            session_user = data["username"]
-                            if session_user in users:
-                                user = users[session_user]
-                            else:
-                                user = User(
-                                    request.app,
-                                    username=data["username"],
-                                    anon=data["username"].startswith("Anon-"),
-                                )
-                                users[user.username] = user
-
                         # update websocket
                         user.lobby_sockets.add(ws)
                         user.update_online()
@@ -256,7 +225,7 @@ async def lobby_socket_handler(request):
                         await ws.send_json(response)
 
                         # send game count
-                        response = {"type": "g_cnt", "cnt": request.app["g_cnt"][0]}
+                        response = {"type": "g_cnt", "cnt": request.app[g_cnt_key][0]}
                         await ws.send_json(response)
 
                         # send user count
@@ -274,13 +243,13 @@ async def lobby_socket_handler(request):
                         if len(streams) > 0:
                             await ws.send_json({"type": "streams", "items": streams})
 
-                        if request.app["tv"] is not None:
-                            await ws.send_json(games[request.app["tv"]].tv_game_json)
+                        if request.app[tv_key] is not None and request.app[tv_key] in games:
+                            await ws.send_json(games[request.app[tv_key]].tv_game_json)
 
                         await user.update_seeks(pending=False)
 
                     elif data["type"] == "lobbychat":
-                        if user.username.startswith("Anon-"):
+                        if user.username.startswith(ANON_PREFIX):
                             continue
 
                         message = data["message"]
@@ -318,11 +287,12 @@ async def lobby_socket_handler(request):
                                 admin_command = True
                                 parts = message.split()
                                 if len(parts) == 2 and parts[1] in users and parts[1] not in ADMINS:
-                                    users[parts[1]].enabled = False
+                                    banned_user = await users.get(parts[1])
+                                    banned_user.enabled = False
                                     await db.user.find_one_and_update(
                                         {"_id": parts[1]}, {"$set": {"enabled": False}}
                                     )
-                                    await logout(None, users[parts[1]])
+                                    await logout(None, banned_user)
 
                             elif message == "/state":
                                 admin_command = True
@@ -348,7 +318,7 @@ async def lobby_socket_handler(request):
                             await lobby_broadcast(sockets, response)
 
                         if user.silence == 0 and not admin_command:
-                            await request.app["discord"].send_to_discord(
+                            await request.app[discord_key].send_to_discord(
                                 "lobbychat", data["message"], user.username
                             )
 

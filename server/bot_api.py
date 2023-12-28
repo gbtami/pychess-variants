@@ -4,6 +4,7 @@ import logging
 
 from aiohttp import web
 
+from typedefs import db_key, games_key, lobbysockets_key, seeks_key, users_key
 from const import STARTED, RESIGN
 from broadcast import round_broadcast, lobby_broadcast
 from user import User
@@ -73,9 +74,9 @@ async def create_bot_seek(request):
 
     data = await request.post()
 
-    users = request.app["users"]
-    seeks = request.app["seeks"]
-    sockets = request.app["lobbysockets"]
+    users = request.app[users_key]
+    seeks = request.app[seeks_key]
+    sockets = request.app[lobbysockets_key]
 
     bot_player = users[username]
 
@@ -111,7 +112,7 @@ async def create_bot_seek(request):
         # inform others
         await lobby_broadcast(sockets, get_seeks(seeks))
     else:
-        games = request.app["games"]
+        games = request.app[games_key]
         response = await join_seek(request.app, bot_player, matching_seek.id)
 
         gameId = response["gameId"]
@@ -136,11 +137,11 @@ async def event_stream(request):
     user_agent = request.headers.get("User-Agent")
     username = user_agent[user_agent.find("user:") + 5 :]
 
-    users = request.app["users"]
-    seeks = request.app["seeks"]
-    sockets = request.app["lobbysockets"]
-    games = request.app["games"]
-    db = request.app["db"]
+    users = request.app[users_key]
+    seeks = request.app[seeks_key]
+    sockets = request.app[lobbysockets_key]
+    games = request.app[games_key]
+    db = request.app[db_key]
 
     resp = web.StreamResponse()
     resp.content_type = "text/plain"
@@ -213,8 +214,8 @@ async def game_stream(request):
 
     gameId = request.match_info["gameId"]
 
-    users = request.app["users"]
-    games = request.app["games"]
+    users = request.app[users_key]
+    games = request.app[games_key]
 
     game = games[gameId]
 
@@ -270,8 +271,8 @@ async def bot_move(request):
     gameId = request.match_info["gameId"]
     move = request.match_info["move"]
 
-    user = request.app["users"][username]
-    game = request.app["games"][gameId]
+    user = request.app[users_key][username]
+    game = request.app[games_key][gameId]
 
     await play_move(request.app, user, game, move)
 
@@ -283,17 +284,17 @@ async def bot_abort(request):
     user_agent = request.headers.get("User-Agent")
     username = user_agent[user_agent.find("user:") + 5 :]
 
-    games = request.app["games"]
+    games = request.app[games_key]
     gameId = request.match_info["gameId"]
     game = games[gameId]
 
-    users = request.app["users"]
+    users = request.app[users_key]
     bot_player = users[username]
 
     opp_name = game.wplayer.username if username == game.bplayer.username else game.bplayer.username
     opp_player = users[opp_name]
 
-    response = await game.abort()
+    response = await game.abort_by_server()
     await bot_player.game_queues[gameId].put(game.game_end)
     if opp_player.bot:
         await opp_player.game_queues[gameId].put(game.game_end)
@@ -311,7 +312,7 @@ async def bot_resign(request):
     user_agent = request.headers.get("User-Agent")
     username = user_agent[user_agent.find("user:") + 5 :]
 
-    games = request.app["games"]
+    games = request.app[games_key]
     gameId = request.match_info["gameId"]
     game = games[gameId]
     game.status = RESIGN
@@ -328,11 +329,11 @@ async def bot_analysis(request):
 
     gameId = request.match_info["gameId"]
 
-    users = request.app["users"]
+    users = request.app[users_key]
     username = data["username"]
 
     if gameId in users[username].game_sockets:
-        games = request.app["games"]
+        games = request.app[games_key]
         game = games[gameId]
 
         ply = data["ply"]
@@ -370,8 +371,8 @@ async def bot_chat(request):
 
     gameId = request.match_info["gameId"]
 
-    users = request.app["users"]
-    games = request.app["games"]
+    users = request.app[users_key]
+    games = request.app[games_key]
 
     game = games[gameId]
 

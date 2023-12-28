@@ -67,14 +67,18 @@ export function activatePlyVari (ply: number) {
 
 export function createMovelistButtons (ctrl: GameController) {
     const container = document.getElementById('move-controls') as HTMLElement;
-    ctrl.moveControls = patch(container, h('div#btn-controls-top.btn-controls', [
+    let buttons = [
         h('button#flip', { on: { click: () => ctrl.toggleOrientation() } }, [ h('i.icon.icon-refresh') ]),
         h('button', { on: { click: () => selectMove(ctrl, 0) } }, [ h('i.icon.icon-fast-backward') ]),
         h('button', { on: { click: () => selectMove(ctrl, ctrl.ply - 1, ctrl.plyVari) } }, [ h('i.icon.icon-step-backward') ]),
         h('button', { on: { click: () => selectMove(ctrl, ctrl.ply + 1, ctrl.plyVari) } }, [ h('i.icon.icon-step-forward') ]),
         h('button', { on: { click: () => selectMove(ctrl, ctrl.steps.length - 1) } }, [ h('i.icon.icon-fast-forward') ]),
-        h('button#bars', { on: { click: () => ctrl.toggleSettings() } }, [ h('i.icon.icon-bars') ]),
-    ]));
+    ];
+    if ("localEngine" in ctrl) {
+        buttons.push(h('button#bars', { on: { click: () => ctrl.toggleSettings() } }, [ h('i.icon.icon-bars') ]));
+    }
+    
+    ctrl.moveControls = patch(container, h('div#btn-controls-top.btn-controls', buttons));
 }
 
 export function updateMovelist (ctrl: GameController, full = true, activate = true, needResult = true) {

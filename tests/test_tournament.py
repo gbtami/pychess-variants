@@ -8,6 +8,14 @@ from datetime import datetime, timezone
 
 from aiohttp.test_utils import AioHTTPTestCase
 
+from typedefs import (
+    db_key,
+    games_key,
+    tournaments_key,
+    tourneychat_key,
+    tourneysockets_key,
+    users_key,
+)
 from const import (
     BYEGAME,
     STARTED,
@@ -47,7 +55,7 @@ class TestTournament(Tournament):
         for i in range(nb_players):
             name = (id8() + id8())[: random.randint(1, 16)]
             player = User(self.app, username=name, title="TEST", perfs=PERFS)
-            self.app["users"][player.username] = player
+            self.app[users_key][player.username] = player
             player.tournament_sockets[self.id] = set((None,))
             await self.join(player)
 
@@ -65,7 +73,7 @@ class TestTournament(Tournament):
         for game in games:
             if game.status == BYEGAME:  # ByeGame
                 continue
-            self.app["games"][game.id] = game
+            self.app[games_key][game.id] = game
             game.random_mover = True
             self.game_tasks.add(asyncio.create_task(self.play_random(game)))
 
@@ -148,9 +156,9 @@ async def create_dev_arena_tournament(app):
 
 async def create_arena_test(app):
     tid = "12345678"
-    await app["db"].tournament.delete_one({"_id": tid})
-    await app["db"].tournament_player.delete_many({"tid": tid})
-    await app["db"].tournament_pairing.delete_many({"tid": tid})
+    await app[db_key].tournament.delete_one({"_id": tid})
+    await app[db_key].tournament_player.delete_many({"tid": tid})
+    await app[db_key].tournament_pairing.delete_many({"tid": tid})
 
     tournament = ArenaTestTournament(
         app,
@@ -165,9 +173,9 @@ async def create_arena_test(app):
     )
     #    tournament = SwissTestTournament(app, tid, variant="makpong", name="First Makpong Swiss", before_start=0.1, rounds=7, created_by="PyChess")
     #    tournament = RRTestTournament(app, tid, variant="makpong", name="First Makpong RR", before_start=0.1, rounds=7, created_by="PyChess")
-    app["tournaments"][tid] = tournament
-    app["tourneysockets"][tid] = {}
-    app["tourneychat"][tid] = collections.deque([], 100)
+    app[tournaments_key][tid] = tournament
+    app[tourneysockets_key][tid] = {}
+    app[tourneychat_key][tid] = collections.deque([], 100)
 
     await upsert_tournament_to_db(tournament, app)
 
@@ -177,13 +185,13 @@ async def create_arena_test(app):
 
 class TournamentTestCase(AioHTTPTestCase):
     async def tearDownAsync(self):
-        has_games = len(self.app["games"]) > 0
+        has_games = len(self.app[games_key]) > 0
 
-        for game in self.app["games"].values():
+        for game in self.app[games_key].values():
             if game.status == BYEGAME:  # ByeGame
                 continue
             if game.status <= STARTED:
-                await game.abort()
+                await game.abort_by_server()
 
             if game.remove_task is not None:
                 game.remove_task.cancel()
@@ -203,17 +211,17 @@ class TournamentTestCase(AioHTTPTestCase):
         await self.client.close()
 
     async def get_application(self):
-        app = make_app(with_db=False)
+        app = make_app()
         return app
 
     @unittest.skipIf(ONE_TEST_ONLY, "1 test only")
     async def test_tournament_without_players(self):
-        self.app["db"] = None
+        self.app[db_key] = None
         tid = id8()
         self.tournament = ArenaTestTournament(
             self.app, tid, before_start=1.0 / 60.0, minutes=2.0 / 60.0
         )
-        self.app["tournaments"][tid] = self.tournament
+        self.app[tournaments_key][tid] = self.tournament
 
         self.assertEqual(self.tournament.status, T_CREATED)
 
@@ -227,11 +235,11 @@ class TournamentTestCase(AioHTTPTestCase):
 
     @unittest.skipIf(ONE_TEST_ONLY, "1 test only")
     async def test_tournament_players(self):
-        self.app["db"] = None
+        self.app[db_key] = None
         NB_PLAYERS = 15
         tid = id8()
         self.tournament = ArenaTestTournament(self.app, tid, before_start=0, minutes=0)
-        self.app["tournaments"][tid] = self.tournament
+        self.app[tournaments_key][tid] = self.tournament
         await self.tournament.join_players(NB_PLAYERS)
 
         self.assertEqual(len(self.tournament.leaderboard), NB_PLAYERS)
@@ -249,11 +257,11 @@ class TournamentTestCase(AioHTTPTestCase):
 
     @unittest.skipIf(ONE_TEST_ONLY, "1 test only")
     async def test_tournament_with_3_active_players(self):
-        self.app["db"] = None
+        self.app[db_key] = None
         NB_PLAYERS = 15
         tid = id8()
         self.tournament = ArenaTestTournament(self.app, tid, before_start=0.1, minutes=1)
-        self.app["tournaments"][tid] = self.tournament
+        self.app[tournaments_key][tid] = self.tournament
         await self.tournament.join_players(NB_PLAYERS)
 
         # 12 player leave the tournament lobby
@@ -271,12 +279,12 @@ class TournamentTestCase(AioHTTPTestCase):
 
     @unittest.skipIf(ONE_TEST_ONLY, "1 test only")
     async def test_tournament_pairing_5_round_SWISS(self):
-        self.app["db"] = None
+        self.app[db_key] = None
         NB_PLAYERS = 15
         NB_ROUNDS = 5
         tid = id8()
         self.tournament = SwissTestTournament(self.app, tid, before_start=0, rounds=NB_ROUNDS)
-        self.app["tournaments"][tid] = self.tournament
+        self.app[tournaments_key][tid] = self.tournament
         await self.tournament.join_players(NB_PLAYERS)
 
         await self.tournament.clock_task
@@ -289,11 +297,11 @@ class TournamentTestCase(AioHTTPTestCase):
 
     @unittest.skipIf(ONE_TEST_ONLY, "1 test only")
     async def test_tournament_pairing_1_min_ARENA(self):
-        self.app["db"] = None
+        self.app[db_key] = None
         NB_PLAYERS = 15
         tid = id8()
         self.tournament = ArenaTestTournament(self.app, tid, before_start=0.1, minutes=1)
-        self.app["tournaments"][tid] = self.tournament
+        self.app[tournaments_key][tid] = self.tournament
         await self.tournament.join_players(NB_PLAYERS)
 
         # withdraw one player
@@ -311,13 +319,13 @@ class TournamentTestCase(AioHTTPTestCase):
 
     @unittest.skipIf(ONE_TEST_ONLY, "1 test only")
     async def test_tournament_pairing_5_round_RR(self):
-        self.app["db"] = None
+        self.app[db_key] = None
         NB_PLAYERS = 5
         NB_ROUNDS = 5
 
         tid = id8()
         self.tournament = RRTestTournament(self.app, tid, before_start=0, rounds=NB_ROUNDS)
-        self.app["tournaments"][tid] = self.tournament
+        self.app[tournaments_key][tid] = self.tournament
         await self.tournament.join_players(NB_PLAYERS)
 
         await self.tournament.clock_task

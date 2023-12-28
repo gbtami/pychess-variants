@@ -1,7 +1,7 @@
 @import 'hamburger.css';
 :root {
   --main-margin: 0;
-  --main-max-width: 1300px;
+  --main-max-width: 1400px;
   --feature-btn: #d0e0bd;
   --invalid-queen: #ffa07a;
   --gauge-gap: 17px;
@@ -30,10 +30,11 @@
   --blue-passive: #c5d8e9;
   --blue-hover: #1b78d0;
   --invite-game: #eff5e9;
+  --notify-new: #d5e3c4;
   --good: #629924;
   --bad: #c33;
   --gold: #d59020;
-  --rusty: rgba(214, 79, 0, 0.5);
+  --rusty: #d64f00;
   --ct-current: #e2834d;
   --clock-hurry-bg: MistyRose;
   --clock-overtime-bg: #fffbad;
@@ -100,8 +101,9 @@
   --blue-passive: #33312e;
   --blue-hover: #3692e7;
   --invite-game: #2c3021;
+  --notify-new: #465330;
   --gold: #bf811d;
-  --rusty: rgba(126, 57, 16, 0.9);
+  --rusty: #d64f00;
   --ct-current: #a1420a;
   --clock-hurry-bg: #502826;
   --clock-overtime-bg: #474722;
@@ -147,15 +149,13 @@
 [data-theme='dark'] .icon-white:before {
   content: '\62';
 }
-[data-icon]:before {
+[data-icon]:before, [class*=' icon-']:before {
   font-size: 1.2em;
   vertical-align: middle;
   opacity: 0.6;
 }
-[class*=' icon-']:before {
-  font-size: 1.2em;
-  vertical-align: middle;
-  opacity: 0.6;
+header [data-icon]:before, header , [class*=' icon-']:before {
+  opacity: 0.9;
 }
 .icon-puzzle:before {
   content: '🎯';
@@ -400,7 +400,7 @@ iframe {
     grid-template-areas: 'side app app table' 'uleft blog blog utable';
   }
 }
-.seeks {
+div.seeks {
   display: grid;
   grid-area: app;
   border-radius: 3px;
@@ -835,23 +835,101 @@ ul.guide li {
   padding: 0;
 }
 
-#btn-settings {
-  padding-right: 8px;
+#btn-settings, #btn-notify {
+  padding: 8px;
   height: var(--site-header-height);
   line-height: var(--site-header-height);
 }
-
-#settings {
+#btn-settings.shown, #btn-notify.shown {
+  background-color: var(--bg-color1);
+}
+#settings, #notify-app {
   display: none;
   flex-direction: column;
   color: var(--font-color);
-  background-color: var(--bg-color0);
+  background-color: var(--bg-color1);
   box-shadow: var(--base-shadow);
   position: absolute;
   top: var(--site-header-height);
   right: 0;
 }
+#notify-app {
+  overflow: hidden;
+  width: 25rem;
+  max-width: 100vw;
+  right: 0;
+}
+.data-count {
+  position: relative;
+}
+.data-count::after {
+  content: attr(data-count);
+  top: -5px;
+  right: 0;
+  position: absolute;
+  padding: 0 3px;
+  height: 15px;
+  line-height: 15px;
+  font-weight: bold;
+  font-size: 13px;
+  border-radius: 3px;
+  background: #d64f00;
+  color: #fff;
+}
+.noread.data-count::after {
+  position: relative;
+  top: 0;
+  margin-left: 3px;
+}
+.data-count[data-count="0"]::after {
+    display: none
+}
 
+.notification {
+  display: flex;
+  padding: .6rem .6rem .6rem 1rem;
+  border-bottom: 1px solid #d9d9d9;
+  position: relative;
+}
+.notification.new {
+    background: var(--notify-new);
+}
+.notification:hover {
+ color: var(--font-color);
+ background: var(--bg-color2);
+}
+.notification:hover .icon {
+ color: var(--blue-hover);
+ opacity:.9
+}
+.notification .icon {
+  font-size: 2em;
+  opacity: .5;
+  margin-right: 1rem;
+}
+.notification.new .icon {
+    color: var(--good);
+    opacity: .7;
+}
+
+.notification .content {
+  flex: 0 1 100%;
+  overflow: hidden;
+}
+span.notification.empty span.text {
+  align-self: center;
+}
+#notify-app .content span:first-child {
+  display: flex;
+  flex-flow: row wrap;
+  align-items: center;
+  justify-content: space-between;
+}
+#notify-app .content span:last-child {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 #settings div {
   display: flex;
   flex-direction: column;
@@ -956,6 +1034,9 @@ button.back {
 .user-link {
   padding-right: 8px;
 }
+@media only screen and (max-width: 799px) {
+.user-link {font-size: 0.8em;}
+}
 a {
   white-space: break-spaces;
 }
@@ -1017,7 +1098,7 @@ div#result {
 
 .lobby-button,
 .donate-button,
-button#request-analysis,
+button.request-analysis,
 button#import,
 button.paste-url {
   background-color: var(--bg-color2);
@@ -1041,7 +1122,7 @@ button.paste-url {
     margin: 0.2em 0;
   }
 }
-button#request-analysis,
+button.request-analysis,
 button#import,
 button.join,
 button.submit {
@@ -1147,6 +1228,9 @@ div.info0.games {
 div.info2 {
   padding-left: 10px;
   padding-bottom: 6px;
+}
+@media only screen and (max-width: 799px) {
+  div.info2 { padding-left: 4px;}
 }
 div.info2 a, div.info2 .user-link {
   color: var(--link-color-blue);
@@ -1316,7 +1400,7 @@ vs-swords.lobby.opp {
   color: var(--font-color);
   text-decoration: none;
   padding: 0.7em 2vmin 0.7em 0.4em;
-  opacity: 0.7;
+  opacity: 1;
 }
 .sub-ratings a:hover {
   background: var(--game-hover);
@@ -1345,15 +1429,14 @@ li.header {
   float: right;
 }
 
-table#seeks-header,
-table#seeks {
+table.seeks {
   border-collapse: collapse;
   border-spacing: 0;
   border-radius: 3px;
   font-size: 14px;
   width: 100%;
 }
-#seeks-table {
+.seeks-table {
   box-shadow: var(--base-shadow);
   background-position: center;
   background-image: url('images/seek-bg.svg');
@@ -1363,15 +1446,14 @@ table#seeks {
   width: 100%;
   height: 100%;
 }
-#seeks-wrapper {
+.seeks-wrapper {
   height: 320px;
   overflow-y: scroll;
   -ms-overflow-style: scrollbar;
 }
-#seeks thead {
+.seeks thead {
   background: var(--bg-color2);
 }
-/*
 #santa {
     display: inline-block;
     width: 28px;
@@ -1380,40 +1462,39 @@ table#seeks {
     background-position: center;
     background-image: url('images/Santa_hat.svg');
 }
-*/
-#seeks th,
-#seeks td {
+.seeks th,
+.seeks td {
   white-space: nowrap;
   font-weight: inherit;
   padding: 0.5em 0.7em 0.5em 0.7em;
 }
 @media (max-width: 799px) and (orientation: portrait) {
-  #seeks th,
-  #seeks td {
+  .seeks th,
+  .seeks td {
     font-weight: 300;
   }
 }
-#seeks thead th {
+.seeks thead th {
   position: sticky;
   top: 0;
   z-index: 2;
   color: var(--button-text);
 }
-#seeks tbody tr {
+.seeks tbody tr {
   cursor: pointer;
   border-bottom: 1px solid var(--bg-color2);
   z-index: 1;
 }
-#seeks tbody tr:hover {
+.seeks tbody tr:hover {
   background-color: var(--rusty);
 }
-#seekbuttons {
+.seekbuttons {
   display: flex;
   flex-flow: column;
   flex: 1 1 auto;
   justify-content: center;
 }
-#seekbuttons > button {
+.seekbuttons > button {
   color: var(--button-text);
   background: var(--button-new-game);
   font-size: 1.1rem;
@@ -1421,11 +1502,11 @@ table#seeks {
   font-weight: 300;
   text-shadow: 0 1px 0 var(--text-shadow);
 }
-#seekbuttons > button:hover {
+.seekbuttons > button:hover {
   color: var(--button-text-hover);
   background: var(--button-new-game-hover);
 }
-#seekbuttons > button:focus {
+.seekbuttons > button:focus {
   background: #ff4f00;
   color: #fff;
   text-shadow: 0 1px 1px #000000;
@@ -1469,7 +1550,7 @@ input {
 
 .container {
   text-align: center;
-  padding: 24px;
+  padding: 24px 0 24px;
 }
 
 #misc-infow,
@@ -1610,8 +1691,11 @@ button {
 button:disabled {
   color: var(--bg-color1);
 }
-
-.btn-controls button:hover {
+button[disabled] i {
+  opacity: 0.5;
+  color: var(--font-color);
+}
+.btn-controls button:not([disabled]):hover {
   color: #fff;
   background-color: var(--green-hover);
 }
@@ -1845,7 +1929,7 @@ label {
 .radio-group input[type='radio']:checked + label {
   box-shadow: inset 0 2px 5px #537c23;
   color: White;
-  background: #629924;
+  background: var(--good);
   text-shadow: 0 1px 1px #003d00;
 }
 
@@ -2351,11 +2435,77 @@ div.tv cg-container, div.puzzle cg-container {
   align-items: center;
   justify-content: space-between;
   color: var(--font-color);
-  width: var(--cg-width);
+}
+
+span.vstext {
+  display: flex;
+  flex-flow: column;
+  align-items: center;
+  color: var(--font-color);
 }
 
 /* Add pseudo-element only if data attribute is set */
 input[data-file]::after {
   content: attr(data-file);
   margin-left: 0.375em;
+}
+
+games-grid {
+    display: grid;
+    --auto-grid-min-size: 200px;
+    justify-content: center;
+    overflow-x:hidden;
+    grid-template-columns: repeat(auto-fill, minmax(var(--auto-grid-min-size), 1fr));
+    grid-column-gap: 0.3em;
+}
+games-grid div {
+    padding-left: 0.3em;
+    padding-right: 0.3em;
+}
+div[role=tabpanel] {
+    height: var(--panel-height);
+    display: none;
+    text-align: left;
+    overflow-y: auto;
+}
+div[role=tabpanel] textarea {
+    overflow-y: hidden;
+    background-color: var(--bg-color);
+    border: none;
+    resize: none;
+    outline: none;
+}
+div[role=tablist] {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: center;
+    align-items: flex-start;
+}
+span[role=tab] {
+    flex: 1 1 0;
+    text-align: center;
+    padding: 0.4em 0.1em;
+    cursor: pointer;
+    position: relative;
+    transition: color .25s,border-color .25s;
+}
+span[aria-selected=true], div[role=tablist] span:hover::after {
+    color: var(--rusty);
+    border-color: var(--rusty);
+    border-bottom: 2px solid var(--rusty);
+    transform: scale(1);
+}
+div > span[role=tab]::after {
+    content:'';
+    background:var(--rusty);
+    height:2px;
+    position:absolute;
+    width:96%;
+    left:2%;
+    bottom:-2px;
+    transition:all .25s;
+    transform:scale(0)
+}
+.indicator {
+    color: var(--rusty);
 }

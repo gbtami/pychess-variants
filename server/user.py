@@ -1,20 +1,22 @@
 import asyncio
+import json
 import logging
 from datetime import datetime, timezone
 
 from aiohttp import web
 import aiohttp_session
 
-from const import STARTED, VARIANTS
+from const import ANON_PREFIX, NOTIFY_PAGE_SIZE, STARTED, VARIANTS
+from typedefs import db_key, lobbysockets_key, seeks_key, users_key
 from broadcast import lobby_broadcast, round_broadcast
 from glicko2.glicko2 import gl2, DEFAULT_PERF, Rating
 from login import RESERVED_USERS
-from newid import id8
+from newid import id8, new_id
 from seek import get_seeks
 
 log = logging.getLogger(__name__)
 
-SILENCE = 10 * 60
+SILENCE = 15 * 60
 ANON_TIMEOUT = 10 * 60
 PENDING_SEEK_TIMEOUT = 10
 ABANDON_TIMEOUT = 90
@@ -35,19 +37,24 @@ class User:
         theme="dark",
     ):
         self.app = app
-        self.db = app["db"] if "db" in app else None
+        self.db = app[db_key] if db_key in app else None
         self.bot = False if username == "PyChessBot" else bot
         self.anon = anon
         self.lang = lang
         self.theme = theme
+        self.notifications = None
+
         if username is None:
             self.anon = True
-            self.username = "Anon-" + id8()
+            self.username = ANON_PREFIX + id8()
         else:
             self.username = username
+
         self.seeks = {}
         self.lobby_sockets = set()
         self.tournament_sockets = {}  # {tournamentId: set()}
+
+        self.notify_channels = set()
 
         self.puzzles = {}  # {pizzleId: vote} where vote 0 = not voted, 1 = up, -1 = down
         self.puzzle_variant = None
@@ -56,6 +63,7 @@ class User:
         self.title = title
         self.game_in_progress = None
         self.abandon_game_task = None
+        self.correspondence_games = []
 
         if self.bot:
             self.event_queue = asyncio.Queue()
@@ -101,7 +109,7 @@ class User:
                 await asyncio.sleep(3)
                 if not self.online:
                     try:
-                        del self.app["users"][self.username]
+                        del self.app[users_key][self.username]
                     except KeyError:
                         log.info("Failed to del %s from users", self.username)
                     break
@@ -185,6 +193,57 @@ class User:
                 {"_id": self.username}, {"$set": {"pperfs": self.pperfs}}
             )
 
+    async def notify_game_end(self, game):
+        opp_name = (
+            game.wplayer.username
+            if game.bplayer.username == self.username
+            else game.bplayer.username
+        )
+
+        if game.result in ("1/2-1/2", "*"):
+            win = None
+        else:
+            if (game.result == "1-0" and game.wplayer.username == self.username) or (
+                game.result == "0-1" and game.bplayer.username == self.username
+            ):
+                win = True
+            else:
+                win = False
+
+        _id = await new_id(None if self.db is None else self.db.notify)
+        document = {
+            "_id": _id,
+            "notifies": self.username,
+            "type": "gameAborted" if game.result == "*" else "gameEnd",
+            "read": False,
+            "createdAt": datetime.now(timezone.utc),
+            "content": {
+                "id": game.id,
+                "opp": opp_name,
+                "win": win,
+            },
+        }
+
+        if self.notifications is None:
+            cursor = self.db.notify.find({"notifies": self.username})
+            self.notifications = await cursor.to_list(length=100)
+
+        self.notifications.append(document)
+
+        for queue in self.notify_channels:
+            await queue.put(
+                json.dumps(self.notifications[-NOTIFY_PAGE_SIZE:], default=datetime.isoformat)
+            )
+
+        if self.db is not None:
+            await self.db.notify.insert_one(document)
+
+    async def notified(self):
+        self.notifications = [{**notif, "read": True} for notif in self.notifications]
+
+        if self.db is not None:
+            await self.db.notify.update_many({"notifies": self.username}, {"$set": {"read": True}})
+
     def as_json(self, requester):
         return {
             "_id": self.username,
@@ -194,15 +253,15 @@ class User:
 
     async def clear_seeks(self):
         if len(self.seeks) > 0:
-            seeks = self.app["seeks"]
-            sockets = self.app["lobbysockets"]
+            seeks = self.app[seeks_key]
+            sockets = self.app[lobbysockets_key]
 
-            for seek in self.seeks:
-                game_id = self.seeks[seek].game_id
-                # preserve invites (seek with game_id)!
-                if game_id is None:
-                    del seeks[seek]
-            self.seeks.clear()
+            for seek_id in list(self.seeks):
+                game_id = self.seeks[seek_id].game_id
+                # preserve invites (seek with game_id) and corr seeks!
+                if game_id is None and self.seeks[seek_id].day == 0:
+                    del seeks[seek_id]
+                    del self.seeks[seek_id]
 
             await lobby_broadcast(sockets, get_seeks(seeks))
 
@@ -213,7 +272,7 @@ class User:
             if seek.pending:
                 try:
                     del self.seeks[seek.id]
-                    del self.app["seeks"][seek.id]
+                    del self.app[seeks_key][seek.id]
                 except KeyError:
                     log.info("Failed to del %s from seeks", seek.id)
 
@@ -221,20 +280,26 @@ class User:
 
     async def update_seeks(self, pending=True):
         if len(self.seeks) > 0:
-            seeks = self.app["seeks"]
-            sockets = self.app["lobbysockets"]
+            seeks = self.app[seeks_key]
+            sockets = self.app[lobbysockets_key]
 
-            for seek_id in self.seeks:
-                # preserve invites (seek with game_id)!
-                if self.seeks[seek_id].game_id is None:
-                    seeks[seek_id].pending = pending
+            for seek in self.seeks.values():
+                # preserve invites (seek with game_id) and corr seeks
+                if seek.game_id is None and seek.day == 0:
+                    seek.pending = pending
                     if pending:
-                        self.delete_pending_seek(seeks[seek_id])
+                        self.delete_pending_seek(seek)
 
             await lobby_broadcast(sockets, get_seeks(seeks))
 
     def __str__(self):
-        return "%s %s bot=%s" % (self.title, self.username, self.bot)
+        return "%s %s bot=%s anon=%s chess=%s" % (
+            self.title,
+            self.username,
+            self.bot,
+            self.anon,
+            self.perfs["chess"]["gl"]["r"],
+        )
 
 
 async def set_theme(request):
@@ -245,7 +310,7 @@ async def set_theme(request):
         referer = request.headers.get("REFERER")
         session = await aiohttp_session.get_session(request)
         session_user = session.get("user_name")
-        users = request.app["users"]
+        users = request.app[users_key]
         if session_user in users:
             user = users[session_user]
             user.theme = theme

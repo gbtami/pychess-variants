@@ -4,6 +4,8 @@ import cProfile
 import pstats
 from timeit import default_timer
 
+from typedefs import users_key
+
 
 def timeit(func):
     async def process(func, *args, **params):
@@ -69,7 +71,10 @@ class Timer:
         print("---- elapsed time: %f ms - %s" % (self.elapsed, self.text))
 
 
-def time_control_str(base, inc, byo):
+def time_control_str(base, inc, byo, day=0):
+    if day > 0:
+        return f"{day} day" if day == 1 else f"{day} days"
+
     if base == 1 / 4:
         base = "¼"
     elif base == 1 / 2:
@@ -103,9 +108,9 @@ def server_state(app, amount=3):
             print(app[akey])
     print("=" * 40)
 
-    q = app["users"]["Random-Mover"].event_queue
+    q = app[users_key]["Random-Mover"].event_queue
     print(" ... Random-Mover ...")
     print(q)
-    q = app["users"]["Fairy-Stockfish"].event_queue
+    q = app[users_key]["Fairy-Stockfish"].event_queue
     print(" ... Fairy-Stockfish ...")
     print(q)

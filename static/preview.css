@@ -20,6 +20,10 @@ label.piece.piece99 {
     background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' version='1.1' width='80px' height='80px'><text font-size='30' x='50%' y='50%' fill='gray' class='white' text-anchor='middle' dominant-baseline='central'>ABC</text></svg>");
 }
 
+label.piece.piece0.ataxx {
+    background-image: url('images/pieces/disguised/3d-red.svg');
+}
+
 label.piece.piece0.standard {
     background-image: url('images/pieces/merida/wN.svg');
 }
@@ -237,7 +241,7 @@ label.piece.piece4.tori {
 }
 
 label.piece.piece0.xiangqi {
-    background-image: url('images/pieces/xiangqi/2dhanzi/RK.svg');
+    background-image: url('images/pieces/xiangqi/lishu/RK.svg');
 }
 label.piece.piece1.xiangqi {
     background-image: url('images/pieces/xiangqi/2dintl/RK.svg');
@@ -255,7 +259,7 @@ label.piece.piece5.xiangqi {
     background-image: url('images/pieces/xiangqi/ct2/red_king2.svg');
 }
 label.piece.piece6.xiangqi {
-    background-image: url('images/pieces/xiangqi/hnzw/red_king.svg');
+    background-image: url('images/pieces/xiangqi/lishuw/red_king.svg');
 }
 label.piece.piece7.xiangqi {
     background-image: url('images/pieces/xiangqi/ct2w/red_king.svg');
@@ -273,9 +277,15 @@ label.piece.piece11.xiangqi {
     background-image: url('images/pieces/xiangqi/ttxqintl/red_king.svg');
 }
 label.piece.piece12.xiangqi {
-    background-image: url('images/pieces/disguised/xiangqi-r.svg');
+    background-image: url('images/pieces/xiangqi/2dhanzi/RK.svg');
 }
 label.piece.piece13.xiangqi {
+    background-image: url('images/pieces/xiangqi/hnzw/red_king.svg');
+}
+label.piece.piece14.xiangqi {
+    background-image: url('images/pieces/disguised/xiangqi-r.svg');
+}
+label.piece.piece15.xiangqi {
     background-image: url('images/pieces/xiangqi/euro/red_king.svg');
 }
 

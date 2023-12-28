@@ -29,6 +29,7 @@ import { Ceval, MsgBoard, MsgUserConnected, Step, CrossTable } from "./messages"
 import { MsgAnalysis, MsgAnalysisBoard } from './analysisType';
 import { GameController } from './gameCtrl';
 import { analysisSettings, EngineSettings } from './analysisSettings';
+import { setAriaTabClick } from './view';
 
 const EVAL_REGEX = new RegExp(''
   + /^info depth (\d+) seldepth \d+ multipv (\d+) /.source
@@ -200,29 +201,8 @@ export class AnalysisController extends GameController {
             (document.getElementById('misc-infob') as HTMLElement).style.textAlign = 'center';
         }
 
-        // Add a click event handler to each tab
-        const tabs = document.querySelectorAll('[role="tab"]');
-        tabs!.forEach(tab => {
-            tab.addEventListener('click', changeTabs);
-        });
+        setAriaTabClick("analysis_tab");
 
-        function changeTabs(e: Event) {
-            const target = e.target as Element;
-            const parent = target!.parentNode;
-            const grandparent = parent!.parentNode;
-
-            // Remove all current selected tabs
-            parent!.querySelectorAll('[aria-selected="true"]').forEach(t => t.setAttribute('aria-selected', 'false'));
-
-            // Set this tab as selected
-            target.setAttribute('aria-selected', 'true');
-
-            // Hide all tab panels
-            grandparent!.querySelectorAll('[role="tabpanel"]').forEach(p => (p as HTMLElement).style.display = 'none');
-
-            // Show the selected panel
-            (grandparent!.parentNode!.querySelector(`#${target.getAttribute('aria-controls')}`)! as HTMLElement).style.display = 'block';
-        }
         if (!this.puzzle) {
             const initialEl = document.querySelector('[tabindex="0"]') as HTMLElement;
             initialEl.setAttribute('aria-selected', 'true');
@@ -372,9 +352,11 @@ export class AnalysisController extends GameController {
 
         // console.log("got board msg:", msg);
         this.fullfen = msg.fen;
-        this.setDests();
         const parts = msg.fen.split(" ");
+        // turnColor have to be actualized before setDests() !!!
         this.turnColor = parts[1] === "w" ? "white" : "black";
+
+        this.setDests();
 
         this.result = msg.result;
         this.status = msg.status;
@@ -394,8 +376,8 @@ export class AnalysisController extends GameController {
             if (this.steps[0].analysis === undefined) {
                 if (!this.isAnalysisBoard && !this.embed) {
                     const el = document.getElementById('request-analysis') as HTMLElement;
-                    el.style.display = 'block';
-                    patch(el, h('div.request-analysis', [h('button#request-analysis', { on: { click: () => this.drawAnalysisChart(true) } }, [
+                    el.style.display = 'flex';
+                    patch(el, h('div#request-analysis', [h('button.request-analysis', { on: { click: () => this.drawAnalysisChart(true) } }, [
                         h('i', {props: {title: _('Request Computer Analysis')}, class: {"icon": true, "icon-bar-chart": true} }, _('Request Analysis'))])
                         ])
                     );
@@ -878,6 +860,11 @@ export class AnalysisController extends GameController {
 
         // Instead of sending moves to the server we can get new FEN and dests from ffishjs
         this.ffishBoard.push(move);
+        const fen = this.ffishBoard.fen();
+        const parts = fen.split(" ");
+        // turnColor have to be actualized before setDests() !!!
+        this.turnColor = parts[1] === "w" ? "white" : "black";
+
         this.setDests();
 
         const newPly = this.ply + 1;
@@ -907,7 +894,7 @@ export class AnalysisController extends GameController {
         // New main line move
         if (moveIdx === this.steps.length && this.plyVari === 0) {
             this.steps.push(step);
-            this.ply = ffishBoardPly
+            this.ply = this.steps.length -1;
             updateMovelist(this);
 
             this.checkStatus(msg);

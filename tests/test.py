@@ -11,6 +11,7 @@ from sortedcollections import ValueSortedDict
 
 from aiohttp.test_utils import AioHTTPTestCase
 
+from typedefs import games_key, highscore_key, users_key
 from const import CREATED, STARTED, VARIANTS, STALEMATE, MATE
 from fairy import FairyBoard
 from glicko2.glicko2 import DEFAULT_PERF, Glicko2, WIN, LOSS
@@ -78,7 +79,7 @@ class GameResultTestCase(AioHTTPTestCase):
         self.wplayer = User(self.app, username="wplayer", perfs=PERFS["newplayer"])
 
     async def get_application(self):
-        app = make_app(with_db=False)
+        app = make_app()
         app.on_startup.append(self.startup)
         return app
 
@@ -178,7 +179,7 @@ class SanitizeFenTestCase(unittest.TestCase):
 
 class RequestLobbyTestCase(AioHTTPTestCase):
     async def tearDownAsync(self):
-        for user in self.app["users"].values():
+        for user in self.app[users_key].values():
             if user.anon and user.username not in RESERVED_USERS:
                 user.remove_task.cancel()
                 try:
@@ -189,7 +190,7 @@ class RequestLobbyTestCase(AioHTTPTestCase):
         await self.client.close()
 
     async def get_application(self):
-        app = make_app(with_db=False)
+        app = make_app()
         return app
 
     async def test_example(self):
@@ -202,10 +203,10 @@ class RequestLobbyTestCase(AioHTTPTestCase):
 class GamePlayTestCase(AioHTTPTestCase):
     async def startup(self, app):
         self.test_player = User(self.app, username="test_player", perfs=PERFS["newplayer"])
-        self.random_mover = self.app["users"]["Random-Mover"]
+        self.random_mover = self.app[users_key]["Random-Mover"]
 
     async def get_application(self):
-        app = make_app(with_db=False)
+        app = make_app()
         app.on_startup.append(self.startup)
         return app
 
@@ -235,7 +236,7 @@ class GamePlayTestCase(AioHTTPTestCase):
                 chess960=variant960,
                 create=True,
             )
-            self.app["games"][game.id] = game
+            self.app[games_key][game.id] = game
             self.random_mover.game_queues[game_id] = None
 
             await self.play_random(game)
@@ -249,8 +250,8 @@ class GamePlayTestCase(AioHTTPTestCase):
 
 class HighscoreTestCase(AioHTTPTestCase):
     async def startup(self, app):
-        self.app["highscore"] = {variant: ValueSortedDict(neg) for variant in VARIANTS}
-        self.app["highscore"]["crazyhouse960"] = ValueSortedDict(neg, ZH960)
+        self.app[highscore_key] = {variant: ValueSortedDict(neg) for variant in VARIANTS}
+        self.app[highscore_key]["crazyhouse960"] = ValueSortedDict(neg, ZH960)
 
         self.wplayer = User(self.app, username="user7", perfs=PERFS["user7"])
         self.bplayer = User(self.app, username="newplayer", perfs=PERFS["newplayer"])
@@ -258,7 +259,7 @@ class HighscoreTestCase(AioHTTPTestCase):
         self.weak_player = User(self.app, username="weakplayer", perfs=PERFS["weakplayer"])
 
     async def get_application(self):
-        app = make_app(with_db=False)
+        app = make_app()
         app.on_startup.append(self.startup)
         return app
 
@@ -295,7 +296,7 @@ class HighscoreTestCase(AioHTTPTestCase):
             chess960=True,
             create=True,
         )
-        self.app["games"][game.id] = game
+        self.app[games_key][game.id] = game
         self.assertEqual(game.status, CREATED)
         self.assertEqual(len(game.crosstable["r"]), 0)
 
@@ -325,7 +326,7 @@ class HighscoreTestCase(AioHTTPTestCase):
             chess960=True,
             create=True,
         )
-        self.app["games"][game.id] = game
+        self.app[games_key][game.id] = game
         self.assertEqual(game.status, CREATED)
         self.assertEqual(len(game.crosstable["r"]), 0)
 
@@ -355,7 +356,7 @@ class HighscoreTestCase(AioHTTPTestCase):
             chess960=True,
             create=True,
         )
-        self.app["games"][game.id] = game
+        self.app[games_key][game.id] = game
         self.assertEqual(game.status, CREATED)
         self.assertEqual(len(game.crosstable["r"]), 0)
 
@@ -386,7 +387,7 @@ class HighscoreTestCase(AioHTTPTestCase):
             chess960=True,
             create=True,
         )
-        self.app["games"][game.id] = game
+        self.app[games_key][game.id] = game
         print(game.crosstable)
 
         # strong_player resign 0-1
@@ -409,7 +410,7 @@ class RatingTestCase(AioHTTPTestCase):
         self.gl2 = Glicko2(tau=0.5)
 
     async def get_application(self):
-        app = make_app(with_db=False)
+        app = make_app()
         app.on_startup.append(self.startup)
         return app
 
@@ -512,7 +513,7 @@ class FirstRatedGameTestCase(AioHTTPTestCase):
         self.wplayer2 = User(self.app, username="wplayer", perfs=PERFS["newplayer"])
 
     async def get_application(self):
-        app = make_app(with_db=False)
+        app = make_app()
         app.on_startup.append(self.startup)
         return app
 

@@ -7,6 +7,15 @@ from time import monotonic
 
 from aiohttp import web
 
+from typedefs import (
+    db_key,
+    fishnet_queue_key,
+    fishnet_monitor_key,
+    fishnet_versions_key,
+    fishnet_works_key,
+    users_key,
+    workers_key,
+)
 from const import ANALYSIS
 from utils import load_game, play_move
 from settings import FISHNET_KEYS
@@ -18,11 +27,11 @@ MOVE_WORK_TIME_OUT = 5.0
 
 
 async def get_work(request, data):
-    fm = request.app["fishnet_monitor"]
+    fm = request.app[fishnet_monitor_key]
     key = data["fishnet"]["apikey"]
     worker = FISHNET_KEYS[key]
 
-    fishnet_work_queue = request.app["fishnet"]
+    fishnet_work_queue = request.app[fishnet_queue_key]
 
     # priority can be "move" or "analysis"
     try:
@@ -34,7 +43,7 @@ async def get_work(request, data):
                 "task_done() called more times than there were items placed in the queue in fishnet.py get_work()"
             )
 
-        work = request.app["works"][work_id]
+        work = request.app[fishnet_works_key][work_id]
         if priority == ANALYSIS:
             fm[worker].append(
                 "%s %s %s %s of %s moves"
@@ -57,7 +66,7 @@ async def get_work(request, data):
                 if "analysis" in step:
                     del step["analysis"]
 
-            users = request.app["users"]
+            users = request.app[users_key]
             if "username" in work:
                 user_ws = users[work["username"]].game_sockets[work["game_id"]]
                 response = {
@@ -82,9 +91,9 @@ async def get_work(request, data):
         return web.json_response(work, status=202)
     except asyncio.QueueEmpty:
         # There was no new work in the queue. Ok
-        # Now let see are there any long time pending work in app["works"]
+        # Now let see are there any long time pending work in app[fishnet_works_key]
         # (in case when worker grabbed it from queue but not responded after MOVE_WORK_TIME_OUT secs)
-        pending_works = request.app["works"]
+        pending_works = request.app[fishnet_works_key]
         now = monotonic()
         for work_id in pending_works:
             work = pending_works[work_id]
@@ -106,8 +115,8 @@ async def get_work(request, data):
 async def fishnet_acquire(request):
     data = await request.json()
 
-    fm = request.app["fishnet_monitor"]
-    fv = request.app["fishnet_versions"]
+    fm = request.app[fishnet_monitor_key]
+    fv = request.app[fishnet_versions_key]
     key = data["fishnet"]["apikey"]
     version = data["fishnet"]["version"]
     en = data["stockfish"]["name"]
@@ -119,11 +128,11 @@ async def fishnet_acquire(request):
     worker = FISHNET_KEYS[key]
     fv[worker] = "%s %s" % (version, en)
 
-    if key not in request.app["workers"]:
-        request.app["workers"].add(key)
+    if key not in request.app[workers_key]:
+        request.app[workers_key].add(key)
         fm[worker].append("%s %s %s" % (datetime.now(timezone.utc), "-", "joined"))
         fm[worker].append(nnue)
-        request.app["users"]["Fairy-Stockfish"].online = True
+        request.app[users_key]["Fairy-Stockfish"].online = True
 
     response = await get_work(request, data)
     return response
@@ -133,20 +142,20 @@ async def fishnet_analysis(request):
     work_id = request.match_info.get("workId")
     data = await request.json()
 
-    fm = request.app["fishnet_monitor"]
+    fm = request.app[fishnet_monitor_key]
     key = data["fishnet"]["apikey"]
     worker = FISHNET_KEYS[key]
 
     if key not in FISHNET_KEYS:
         return web.Response(status=404)
 
-    work = request.app["works"][work_id]
+    work = request.app[fishnet_works_key][work_id]
     fm[worker].append("%s %s %s" % (datetime.now(timezone.utc), work_id, "analysis"))
 
     gameId = work["game_id"]
     game = await load_game(request.app, gameId)
 
-    users = request.app["users"]
+    users = request.app[users_key]
     username = work["username"]
 
     try:
@@ -196,9 +205,9 @@ async def fishnet_analysis(request):
 
     # remove completed work
     if all(data["analysis"]):
-        del request.app["works"][work_id]
+        del request.app[fishnet_works_key][work_id]
         new_data = {"a": [step["analysis"] for step in game.steps]}
-        await request.app["db"].game.find_one_and_update({"_id": game.id}, {"$set": new_data})
+        await request.app[db_key].game.find_one_and_update({"_id": game.id}, {"$set": new_data})
 
     return web.Response(status=204)
 
@@ -207,7 +216,7 @@ async def fishnet_move(request):
     work_id = request.match_info.get("workId")
     data = await request.json()
 
-    fm = request.app["fishnet_monitor"]
+    fm = request.app[fishnet_monitor_key]
     key = data["fishnet"]["apikey"]
     worker = FISHNET_KEYS[key]
 
@@ -216,21 +225,21 @@ async def fishnet_move(request):
 
     fm[worker].append("%s %s %s" % (datetime.now(timezone.utc), work_id, "move"))
 
-    if work_id not in request.app["works"]:
+    if work_id not in request.app[fishnet_works_key]:
         response = await get_work(request, data)
         return response
 
-    work = request.app["works"][work_id]
+    work = request.app[fishnet_works_key][work_id]
     gameId = work["game_id"]
 
     # remove work from works
-    del request.app["works"][work_id]
+    del request.app[fishnet_works_key][work_id]
 
     game = await load_game(request.app, gameId)
     if game is None:
         return web.Response(status=204)
 
-    user = request.app["users"]["Fairy-Stockfish"]
+    user = request.app[users_key]["Fairy-Stockfish"]
     move = data["move"]["bestmove"]
 
     await play_move(request.app, user, game, move)
@@ -243,7 +252,7 @@ async def fishnet_abort(request):
     work_id = request.match_info.get("workId")
     data = await request.json()
 
-    fm = request.app["fishnet_monitor"]
+    fm = request.app[fishnet_monitor_key]
     key = data["fishnet"]["apikey"]
     worker = FISHNET_KEYS[key]
 
@@ -254,21 +263,21 @@ async def fishnet_abort(request):
 
     # remove fishnet client
     try:
-        request.app["workers"].remove(data["fishnet"]["apikey"])
+        request.app[workers_key].remove(data["fishnet"]["apikey"])
     except KeyError:
         log.debug("Worker %s was was already removed", key)
 
     # re-schedule the job
-    request.app["fishnet"].put_nowait((ANALYSIS, work_id))
+    request.app[fishnet_queue_key].put_nowait((ANALYSIS, work_id))
 
-    if len(request.app["workers"]) == 0:
-        request.app["users"]["Fairy-Stockfish"].online = False
+    if len(request.app[workers_key]) == 0:
+        request.app[users_key]["Fairy-Stockfish"].online = False
         # TODO: msg to work user
 
     return web.Response(status=204)
 
 
-async def fishnet_key(request):
+async def fishnet_validate_key(request):
     key = request.match_info.get("key")
     if key not in FISHNET_KEYS:
         return web.Response(status=404)
@@ -277,7 +286,7 @@ async def fishnet_key(request):
 
 
 async def fishnet_monitor(request):
-    fm = request.app["fishnet_monitor"]
-    fv = request.app["fishnet_versions"]
+    fm = request.app[fishnet_monitor_key]
+    fv = request.app[fishnet_versions_key]
     workers = {worker + " v" + fv[worker]: list(fm[worker]) for worker in fm if fm[worker]}
     return web.json_response(workers, dumps=partial(json.dumps, default=datetime.isoformat))

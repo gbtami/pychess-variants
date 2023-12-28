@@ -5,6 +5,7 @@ import random
 import string
 from time import monotonic
 
+from typedefs import fishnet_queue_key, fishnet_works_key, games_key, kill_key, workers_key
 from const import MOVE, STARTED
 from utils import play_move
 
@@ -24,7 +25,7 @@ async def BOT_task(bot, app):
             except KeyError:
                 log.error("Break in BOT_task() game_task(). %s not in ai.game_queues", game.id)
                 if game.status <= STARTED:
-                    await game.abort()
+                    await game.abort_by_server()
                 break
 
             event = json.loads(line)
@@ -33,7 +34,7 @@ async def BOT_task(bot, app):
             # print("   +++ game_queues get()", event)
             if random_mover:
                 await play_move(app, bot, game, random.choice(game.legal_moves))
-            elif len(app["workers"]) > 0:
+            elif len(app[workers_key]) > 0:
                 AI_move(game, level)
 
     def AI_move(game, level):
@@ -52,12 +53,12 @@ async def BOT_task(bot, app):
             "moves": " ".join(game.board.move_stack),  # moves of the game (UCI)
             "nnue": game.board.nnue,
         }
-        app["works"][work_id] = work
-        app["fishnet"].put_nowait((MOVE, work_id))
+        app[fishnet_works_key][work_id] = work
+        app[fishnet_queue_key].put_nowait((MOVE, work_id))
 
     random_mover = bot.username == "Random-Mover"
 
-    while not app["data"]["kill"]:
+    while not app[kill_key]["kill"]:
         line = await bot.event_queue.get()
         try:
             bot.event_queue.task_done()
@@ -74,17 +75,17 @@ async def BOT_task(bot, app):
 
         gameId = event["game"]["id"]
         level = int(event["game"]["skill_level"])
-        if gameId not in app["games"]:
+        if gameId not in app[games_key]:
             continue
-        game = app["games"][gameId]
+        game = app[games_key][gameId]
 
-        if len(app["workers"]) == 0 and not random_mover:
+        if len(app[workers_key]) == 0 and not random_mover:
             log.error("ERROR: No fairyfisnet worker alive!")
             # TODO: send msg to player
-            await game.abort()
+            await game.abort_by_server()
             continue
 
-        starting_color = game.initial_fen.split()[1]
+        starting_color = game.board.initial_fen.split()[1]
         if starting_color == "b":
             starting_player = game.bplayer.username
         else:

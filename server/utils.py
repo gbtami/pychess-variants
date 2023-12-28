@@ -1,9 +1,14 @@
+import asyncio
+import json
 import logging
 import random
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
+from functools import partial
 
 from aiohttp import web
+import aiohttp_session
 from aiohttp.web import WebSocketResponse
+from aiohttp_sse import sse_response
 
 try:
     import pyffish as sf
@@ -12,9 +17,20 @@ try:
 except ImportError:
     print("No pyffish module installed!")
 
-from glicko2.glicko2 import gl2
+from typedefs import (
+    db_key,
+    game_channels_key,
+    games_key,
+    invites_key,
+    lobbysockets_key,
+    seeks_key,
+    tournaments_key,
+    users_key,
+    tv_key,
+)
 from broadcast import lobby_broadcast, round_broadcast
 from const import (
+    NOTIFY_PAGE_SIZE,
     STARTED,
     VARIANT_960_TO_PGN,
     INVALIDMOVE,
@@ -31,7 +47,6 @@ from convert import mirror5, mirror9, usi2uci, grand2zero, zero2grand
 from fairy import BLACK, STANDARD_FEN, FairyBoard
 from game import Game, MAX_PLY
 from newid import new_id
-from user import User
 from settings import URI
 
 log = logging.getLogger(__name__)
@@ -46,13 +61,13 @@ class MyWebSocketResponse(WebSocketResponse):
 
 async def tv_game(db, app):
     """Get latest played game id"""
-    if app["tv"] is not None:
-        return app["tv"]
+    if app[tv_key] is not None:
+        return app[tv_key]
     game_id = None
     doc = await db.game.find_one({}, sort=[("$natural", -1)])
     if doc is not None:
         game_id = doc["_id"]
-        app["tv"] = game_id
+        app[tv_key] = game_id
     return game_id
 
 
@@ -70,9 +85,9 @@ async def tv_game_user(db, users, profileId):
 
 async def load_game(app, game_id):
     """Return Game object from app cache or from database"""
-    db = app["db"]
-    games = app["games"]
-    users = app["users"]
+    db = app[db_key]
+    games = app[games_key]
+    users = app[users_key]
     if game_id in games:
         return games[game_id]
 
@@ -82,17 +97,9 @@ async def load_game(app, game_id):
         return None
 
     wp, bp = doc["us"]
-    if wp in users:
-        wplayer = users[wp]
-    else:
-        wplayer = User(app, username=wp, anon=True)
-        users[wp] = wplayer
 
-    if bp in users:
-        bplayer = users[bp]
-    else:
-        bplayer = User(app, username=bp, anon=True)
-        users[bp] = bplayer
+    wplayer = await users.get(wp)
+    bplayer = await users.get(bp)
 
     variant = C2V[doc["v"]]
 
@@ -115,6 +122,8 @@ async def load_game(app, game_id):
                 initial_fen = parts[0] + (" w" if parts[1] == "b" else " b") + " 0"
             # print("   changed to:", initial_fen)
 
+    corr = doc.get("c", False)
+
     game = Game(
         app,
         game_id,
@@ -128,13 +137,14 @@ async def load_game(app, game_id):
         level=doc.get("x"),
         rated=doc.get("y"),
         chess960=bool(doc.get("z")),
+        corr=corr,
         create=False,
         tournamentId=doc.get("tid"),
     )
 
     mlist = decode_moves(doc["m"], variant)
 
-    if mlist or (game.tournamentId is not None and doc["s"] > STARTED):
+    if (mlist or game.tournamentId is not None) and doc["s"] > STARTED:
         game.saved = True
 
     if usi_format and variant == "shogi":
@@ -147,6 +157,10 @@ async def load_game(app, game_id):
 
     elif variant in GRANDS:
         mlist = map(zero2grand, mlist)
+
+        if variant == "janggi":
+            game.wsetup = doc.get("ws", False)
+            game.bsetup = doc.get("bs", False)
 
     if "a" in doc:
         if usi_format and "m" in doc["a"][0]:
@@ -194,7 +208,7 @@ async def load_game(app, game_id):
                 "turnColor": turnColor,
                 "check": game.check,
             }
-            if "cw" in doc:
+            if "cw" in doc and not corr:
                 move_number = ((ply + 1) // 2) + (1 if ply % 2 == 0 else 0)
                 if ply >= 2:
                     if ply % 2 == 0:
@@ -240,6 +254,7 @@ async def load_game(app, game_id):
 
     level = doc.get("x")
     game.date = doc["d"]
+    game.last_move_date = doc.get("l")
     if game.date.tzinfo is None:
         game.date = game.date.replace(tzinfo=timezone.utc)
     game.status = doc["s"]
@@ -252,9 +267,6 @@ async def load_game(app, game_id):
     except KeyError:
         game.wrating = "1500?"
         game.brating = "1500?"
-
-    game.white_rating = gl2.create_rating(int(game.wrating.rstrip("?")))
-    game.black_rating = gl2.create_rating(int(game.brating.rstrip("?")))
 
     try:
         game.wrdiff = doc["p0"]["d"]
@@ -272,14 +284,20 @@ async def load_game(app, game_id):
     if doc.get("by") is not None:
         game.imported_by = doc.get("by")
 
+    if game.corr:
+        if doc.get("wd", False):
+            game.draw_offers.add(game.wplayer.username)
+        if doc.get("bd", False):
+            game.draw_offers.add(game.bplayer.username)
+
     return game
 
 
 async def import_game(request):
     data = await request.post()
     app = request.app
-    db = app["db"]
-    users = app["users"]
+    db = app[db_key]
+    users = app[users_key]
 
     # print("---IMPORT GAME---")
     # print(data)
@@ -287,17 +305,9 @@ async def import_game(request):
 
     wp = data["White"]
     bp = data["Black"]
-    if wp in users:
-        wplayer = users[wp]
-    else:
-        wplayer = User(app, username=wp, anon=True)
-        users[wp] = wplayer
 
-    if bp in users:
-        bplayer = users[bp]
-    else:
-        bplayer = User(app, username=bp, anon=True)
-        users[bp] = bplayer
+    wplayer = await users.get(wp)
+    bplayer = await users.get(bp)
 
     variant = data.get("Variant", "chess").lower()
     chess960 = variant.endswith("960")
@@ -403,7 +413,7 @@ async def import_game(request):
 
 
 async def join_seek(app, user, seek_id, game_id=None, join_as="any"):
-    seeks = app["seeks"]
+    seeks = app[seeks_key]
     seek = seeks[seek_id]
     log.info(
         "+++ Seek %s joined by %s FEN:%s 960:%s",
@@ -441,9 +451,9 @@ async def join_seek(app, user, seek_id, game_id=None, join_as="any"):
 
 
 async def new_game(app, seek_id, game_id=None):
-    db = app["db"]
-    games = app["games"]
-    seeks = app["seeks"]
+    db = app[db_key]
+    games = app[games_key]
+    seeks = app[seeks_key]
     seek = seeks[seek_id]
 
     fen_valid = True
@@ -463,12 +473,14 @@ async def new_game(app, seek_id, game_id=None):
 
     if game_id is not None:
         # game invitation
-        del app["invites"][game_id]
+        del app[invites_key][game_id]
     else:
         game_id = await new_id(None if db is None else db.game)
 
     # print("new_game", game_id, seek.variant, seek.fen, wplayer, bplayer, seek.base, seek.inc, seek.level, seek.rated, seek.chess960)
     try:
+        rated = RATED if (seek.rated and (not wplayer.anon) and (not bplayer.anon)) else CASUAL
+
         game = Game(
             app,
             game_id,
@@ -476,12 +488,13 @@ async def new_game(app, seek_id, game_id=None):
             sanitized_fen,
             wplayer,
             bplayer,
-            base=seek.base,
+            base=seek.base if seek.day == 0 else seek.day,
             inc=seek.inc,
             byoyomi_period=seek.byoyomi_period,
             level=seek.level,
-            rated=RATED if (seek.rated and (not wplayer.anon) and (not bplayer.anon)) else CASUAL,
+            rated=rated,
             chess960=seek.chess960,
+            corr=seek.day > 0,
             create=True,
         )
     except Exception:
@@ -502,6 +515,10 @@ async def new_game(app, seek_id, game_id=None):
 
     await insert_game_to_db(game, app)
 
+    if game.corr:
+        game.wplayer.correspondence_games.append(game)
+        game.bplayer.correspondence_games.append(game)
+
     return {
         "type": "new_game",
         "gameId": game_id,
@@ -512,7 +529,7 @@ async def new_game(app, seek_id, game_id=None):
 
 async def insert_game_to_db(game, app):
     # unit test app may have no db
-    if app["db"] is None:
+    if app[db_key] is None:
         return
 
     document = {
@@ -526,19 +543,17 @@ async def insert_game_to_db(game, app):
         "bp": game.byoyomi_period,
         "m": [],
         "d": game.date,
-        "f": game.initial_fen,
+        "f": game.board.initial_fen,
         "s": game.status,
         "r": R2C["*"],
         "x": game.level,
         "y": int(game.rated),
         "z": int(game.chess960),
+        "c": game.corr,
     }
 
     if game.tournamentId is not None:
         document["tid"] = game.tournamentId
-
-    if game.initial_fen or game.chess960:
-        document["if"] = game.initial_fen
 
     if game.variant.endswith("shogi") or game.variant in (
         "dobutsu",
@@ -547,15 +562,24 @@ async def insert_game_to_db(game, app):
     ):
         document["uci"] = 1
 
-    result = await app["db"].game.insert_one(document)
+    if game.variant == "janggi":
+        document["ws"] = game.wsetup
+        document["bs"] = game.bsetup
+        document["if"] = game.board.initial_fen
+
+    if game.initial_fen or game.chess960:
+        document["if"] = game.initial_fen
+
+    result = await app[db_key].game.insert_one(document)
     if not result:
         log.error("db insert game result %s failed !!!", game.id)
 
-    app["tv"] = game.id
-    await lobby_broadcast(app["lobbysockets"], game.tv_game_json)
+    if not game.corr:
+        app[tv_key] = game.id
+        await lobby_broadcast(app[lobbysockets_key], game.tv_game_json)
 
-    game.wplayer.tv = game.id
-    game.bplayer.tv = game.id
+        game.wplayer.tv = game.id
+        game.bplayer.tv = game.id
 
 
 def remove_seek(seeks, seek):
@@ -597,7 +621,7 @@ async def analysis_move(app, user, game, move, fen, ply):
 
 async def play_move(app, user, game, move, clocks=None, ply=None):
     gameId = game.id
-    users = app["users"]
+    users = app[users_key]
     invalid_move = False
     # log.info("%s move %s %s %s - %s" % (user.username, move, gameId, game.wplayer.username, game.bplayer.username))
 
@@ -668,10 +692,10 @@ async def play_move(app, user, game, move, clocks=None, ply=None):
             pass
 
     if not invalid_move:
-        await round_broadcast(game, board_response, channels=app["game_channels"])
+        await round_broadcast(game, board_response, channels=app[game_channels_key])
 
         if game.tournamentId is not None:
-            tournament = app["tournaments"][game.tournamentId]
+            tournament = app[tournaments_key][game.tournamentId]
             if (
                 (tournament.top_game is not None)
                 and tournament.status == T_STARTED
@@ -679,8 +703,8 @@ async def play_move(app, user, game, move, clocks=None, ply=None):
             ):
                 await tournament.broadcast(board_response)
 
-        if app["tv"] == gameId:
-            await lobby_broadcast(app["lobbysockets"], board_response)
+        if app[tv_key] == gameId:
+            await lobby_broadcast(app[lobbysockets_key], board_response)
 
 
 def pgn(doc):
@@ -791,6 +815,8 @@ def sanitize_fen(variant, initial_fen, chess960):
         non_piece = "~+0123456789[]qH-"
     elif variant == "duck":
         non_piece = "~+0123456789[]*-"
+    elif variant == "ataxx":
+        non_piece = "0123456789*-"
     else:
         non_piece = "~+0123456789[]-"
     invalid1 = any((c not in start[0] + non_piece for c in init[0]))
@@ -808,6 +834,10 @@ def sanitize_fen(variant, initial_fen, chess960):
 
     # Allowed starting colors
     invalid3 = len(init) > 1 and init[1] not in "bw"
+
+    # ataxx has no kings at all
+    if variant == "ataxx":
+        return True, sanitized_fen
 
     # Castling rights (and piece virginity) check
     invalid4 = False
@@ -885,9 +915,95 @@ async def get_names(request):
         return web.json_response(names)
 
     # case insensitive _id prefix search
-    cursor = request.app["db"].user.find(
+    cursor = request.app[db_key].user.find(
         {"_id": {"$regex": "^%s" % prefix, "$options": "i"}}, limit=12
     )
     async for doc in cursor:
         names.append((doc["_id"], doc["title"]))
     return web.json_response(names)
+
+
+async def get_notifications(request):
+    page_num = int(request.rel_url.query.get("p", 0))
+
+    users = request.app[users_key]
+    # Who made the request?
+    session = await aiohttp_session.get_session(request)
+    session_user = session.get("user_name")
+    if session_user is None:
+        return web.json_response({})
+
+    user = users[session_user]
+
+    if user.notifications is None:
+        cursor = request.app[db_key].notify.find({"notifies": session_user})
+        user.notifications = await cursor.to_list(length=100)
+    if page_num == 0:
+        notifications = user.notifications[-NOTIFY_PAGE_SIZE:]
+    else:
+        notifications = user.notifications[
+            -(page_num + 1) * NOTIFY_PAGE_SIZE : -page_num * NOTIFY_PAGE_SIZE
+        ]
+
+    return web.json_response(notifications, dumps=partial(json.dumps, default=datetime.isoformat))
+
+
+async def notified(request):
+    users = request.app[users_key]
+    # Who made the request?
+    session = await aiohttp_session.get_session(request)
+    session_user = session.get("user_name")
+    if session_user is None:
+        return web.json_response({})
+
+    user = await users.get(session_user)
+    await user.notified()
+    return web.json_response({})
+
+
+async def subscribe_notify(request):
+    users = request.app[users_key]
+    # Who made the request?
+    session = await aiohttp_session.get_session(request)
+    session_user = session.get("user_name")
+    if session_user is None:
+        return web.json_response({})
+
+    user = await users.get(session_user)
+    try:
+        async with sse_response(request) as response:
+            queue = asyncio.Queue()
+            user.notify_channels.add(queue)
+            while not response.task.done():
+                payload = await queue.get()
+                await response.send(payload)
+                queue.task_done()
+    except (ConnectionResetError, asyncio.CancelledError):
+        pass
+    finally:
+        user.notify_channels.remove(queue)
+    return response
+
+
+def corr_games(games):
+    now = datetime.now(timezone.utc)
+    return [
+        {
+            "gameId": game.id,
+            "variant": game.variant,
+            "fen": game.board.fen,
+            "lastMove": game.lastmove,
+            "tp": game.turn_player,
+            "w": game.wplayer.username,
+            "wTitle": game.wplayer.title,
+            "b": game.bplayer.username,
+            "bTitle": game.bplayer.title,
+            "chess960": game.chess960,
+            "base": game.base,
+            "inc": game.inc,
+            "byoyomi": game.byoyomi_period,
+            "level": game.level,
+            "date": (now + timedelta(minutes=game.stopwatch.mins)).isoformat(),
+        }
+        for game in games
+    ]
