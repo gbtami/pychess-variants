@@ -754,10 +754,7 @@ class Game:
                 or (self.wplayer.bot or self.bplayer.bot)
                 or self.variant == "ataxx"
             ):
-                if self.variant == "ataxx":
-                    self.result = "1/2-1/2"
-                else:
-                    self.result = result_string_from_value(self.board.color, game_result_value)
+                self.result = result_string_from_value(self.board.color, game_result_value)
 
                 self.status = CLAIM if game_result_value != 0 else DRAW
 
