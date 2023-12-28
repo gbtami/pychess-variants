@@ -23,6 +23,15 @@ label.piece.piece99 {
 label.piece.piece0.ataxx {
     background-image: url('images/pieces/disguised/3d-red.svg');
 }
+label.piece.piece1.ataxx {
+    background-image: url('images/pieces/ataxx/virus/red.svg');
+}
+label.piece.piece2.ataxx {
+    background-image: url('images/pieces/ataxx/zombie/zombie.svg');
+}
+label.piece.piece3.ataxx {
+    background-image: url('images/pieces/ataxx/cat-dog/dog.svg');
+}
 
 label.piece.piece0.standard {
     background-image: url('images/pieces/merida/wN.svg');
