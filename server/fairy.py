@@ -163,7 +163,7 @@ class FairyBoard:
 
     def is_claimable_draw(self):
         optional_end, result = self.is_optional_game_end()
-        return optional_end and result == 0
+        return optional_end and (result == 0 or self.variant == "ataxx")
 
     def game_result(self):
         return sf.game_result(self.variant, self.initial_fen, self.move_stack, self.chess960)

@@ -752,8 +752,13 @@ class Game:
                 game_result_value != 0
                 or (game_result_value == 0 and self.n_fold_is_draw)
                 or (self.wplayer.bot or self.bplayer.bot)
+                or self.variant == "ataxx"
             ):
-                self.result = result_string_from_value(self.board.color, game_result_value)
+                if self.variant == "ataxx":
+                    self.result = "1/2-1/2"
+                else:
+                    self.result = result_string_from_value(self.board.color, game_result_value)
+
                 self.status = CLAIM if game_result_value != 0 else DRAW
 
         if self.has_counting:
