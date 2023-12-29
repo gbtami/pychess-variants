@@ -123,7 +123,7 @@ async def add_games(app):
         "with_clock": False,
     }
 
-    t = await new_tournament(app, data)
+    t = await new_tournament(app_state, data)
 
     users = app_state.users
 

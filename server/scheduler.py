@@ -12,8 +12,10 @@ from const import (
     MONTHLY,
     SHIELD,
     variant_display_name,
-    SCHEDULE_MAX_DAYS,
+    SCHEDULE_MAX_DAYS, TYPE_CHECKING,
 )
+if TYPE_CHECKING:
+    from pychess_global_app_state import PychessGlobalAppState
 
 from tournaments import new_tournament
 import logging
@@ -258,6 +260,6 @@ def new_scheduled_tournaments(already_scheduled, now=None):
     return new_tournaments_data
 
 
-async def create_scheduled_tournaments(app, new_tournaments_data):
+async def create_scheduled_tournaments(app_state: PychessGlobalAppState, new_tournaments_data):
     for data in new_tournaments_data:
-        await new_tournament(app, data)
+        await new_tournament(app_state, data)

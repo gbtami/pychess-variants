@@ -6,7 +6,6 @@ import aiohttp_session
 from aiohttp import web
 
 from admin import silence
-from broadcast import lobby_broadcast
 from chat import chat_response
 from const import ANON_PREFIX, STARTED, SHIELD
 from const import TYPE_CHECKING
@@ -16,7 +15,6 @@ from pychess_global_app_state_utils import get_app_state
 from settings import TOURNAMENT_DIRECTORS
 from tournament import T_CREATED, T_STARTED
 from tournaments import load_tournament
-from utils import online_count
 from websocket_utils import process_ws, get_user
 
 log = logging.getLogger(__name__)
@@ -26,7 +24,7 @@ async def tournament_socket_handler(request):
     app_state = get_app_state(request.app)
     session = await aiohttp_session.get_session(request)
     user = await get_user(session, request)
-    ws = await process_ws(session, request, user, process_message)
+    ws = await process_ws(session, request, user, None, process_message)
     if ws is None:
         return web.HTTPFound("/")
     await finally_logic(app_state, ws, user)
@@ -50,8 +48,7 @@ async def finally_logic(app_state: PychessGlobalAppState, ws, user):
                         await tournament.broadcast(tournament.spectator_list)
 
                     if not user.online:
-                        response = {"type": "u_cnt", "cnt": online_count(app_state.users)}
-                        await lobby_broadcast(app_state.lobbysockets, response)
+                        await app_state.lobby.lobby_broadcast_u_cnt()
                 break
 
 
@@ -195,9 +192,8 @@ async def handle_user_connected(app_state: PychessGlobalAppState, ws, user, data
         tournament.spactator_join(user)
         await tournament.broadcast(tournament.spectator_list)
 
-    if len(user.game_sockets) == 0 and len(user.lobby_sockets) == 0:
-        response = {"type": "u_cnt", "cnt": online_count(app_state.users)}
-        await lobby_broadcast(app_state.lobby_sockets, response)
+    if not user.is_user_active_in_game() and len(user.lobby_sockets) == 0:
+        await app_state.lobby.lobby_broadcast_u_cnt()
 
 
 async def handle_lobbychat(app_state: PychessGlobalAppState, user, data):

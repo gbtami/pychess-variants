@@ -6,9 +6,9 @@ import aiohttp_session
 import pyffish as sf
 from aiohttp import web
 
-from typedefs import pychess_global_app_state_key
 from const import VARIANTS
 from glicko2.glicko2 import MU, gl2, Rating, rating
+from pychess_global_app_state_utils import get_app_state
 
 # variants having 0 puzzle so far
 NO_PUZZLE_VARIANTS = (
@@ -44,24 +44,25 @@ def empty_puzzle(variant):
 
 
 async def get_puzzle(request, puzzleId):
-    puzzle = await request.app[pychess_global_app_state_key].db.puzzle.find_one({"_id": puzzleId})
+    puzzle = get_app_state(request.app).db.puzzle.find_one({"_id": puzzleId})
     return puzzle
 
 
 async def get_daily_puzzle(request):
-    if request.app[pychess_global_app_state_key].db is None:
+    app_state = get_app_state(request.app)
+    if app_state.db is None:
         return empty_puzzle("chess")
 
-    db_collections = await request.app[pychess_global_app_state_key].db.list_collection_names()
+    db_collections = await app_state.db.list_collection_names()
     if "puzzle" not in db_collections:
         return empty_puzzle("chess")
 
     today = datetime.now(timezone.utc).date().isoformat()
-    daily_puzzle_ids = request.app[pychess_global_app_state_key].daily_puzzle_ids
+    daily_puzzle_ids = app_state.daily_puzzle_ids
     if today in daily_puzzle_ids:
         puzzle = await get_puzzle(request, daily_puzzle_ids[today])
     else:
-        user = request.app[pychess_global_app_state_key].users["PyChess"]
+        user = app_state.users["PyChess"]
 
         # skip previous daily puzzles
         user.puzzles = {puzzle_id: NOT_VOTED for puzzle_id in daily_puzzle_ids.values()}
@@ -75,13 +76,14 @@ async def get_daily_puzzle(request):
             if puzzle.get("eval") != "#1":
                 puzzleId = puzzle["_id"]
 
-        await request.app[pychess_global_app_state_key].db.dailypuzzle.insert_one({"_id": today, "puzzleId": puzzleId})
-        request.app[pychess_global_app_state_key].daily_puzzle_ids[today] = puzzle["_id"]
+        await app_state.db.dailypuzzle.insert_one({"_id": today, "puzzleId": puzzleId})
+        app_state.daily_puzzle_ids[today] = puzzle["_id"]
 
     return puzzle
 
 
 async def next_puzzle(request, user):
+    app_state = get_app_state(request.app);
     skipped = list(user.puzzles.keys())
     filters = [
         {"_id": {"$nin": skipped}},
@@ -96,12 +98,12 @@ async def next_puzzle(request, user):
 
     puzzle = None
 
-    if request.app[pychess_global_app_state_key].db is not None:
+    if app_state.db is not None:
         pipeline = [
             {"$match": {"$and": filters}},
             {"$sample": {"size": 1}},
         ]
-        cursor = request.app[pychess_global_app_state_key].db.puzzle.aggregate(pipeline)
+        cursor = app_state.db.puzzle.aggregate(pipeline)
 
         async for doc in cursor:
             puzzle = {
@@ -125,16 +127,17 @@ async def next_puzzle(request, user):
 
 
 async def puzzle_complete(request):
+    app_state = get_app_state(request.app);
     puzzleId = request.match_info.get("puzzleId")
     post_data = await request.post()
     rated = post_data["rated"] == "true"
 
     puzzle_data = await get_puzzle(request, puzzleId)
-    puzzle = Puzzle(request.app[pychess_global_app_state_key].db, puzzle_data)
+    puzzle = Puzzle(app_state.db, puzzle_data)
 
     await puzzle.set_played()
 
-    users = request.app[pychess_global_app_state_key].users
+    users = app_state.users
     session = await aiohttp_session.get_session(request)
     try:
         user = users[session.get("user_name")]
@@ -172,12 +175,13 @@ async def puzzle_complete(request):
 
 
 async def puzzle_vote(request):
+    app_state = get_app_state(request.app);
     puzzleId = request.match_info.get("puzzleId")
     post_data = await request.post()
     good = post_data["vote"] == "true"
     up_or_down = "up" if good else "down"
 
-    users = request.app[pychess_global_app_state_key].users
+    users = app_state.users
     session = await aiohttp_session.get_session(request)
     try:
         user = users[session.get("user_name")]
@@ -189,7 +193,7 @@ async def puzzle_vote(request):
     else:
         user.puzzles["puzzleId"] = UP if good else DOWN
 
-    db = request.app[pychess_global_app_state_key].db
+    db = app_state.db
     if db is not None:
         await db.puzzle.find_one_and_update({"_id": puzzleId}, {"$inc": {up_or_down: 1}})
 

@@ -20,7 +20,7 @@ try:
 except ImportError:
     log.error("No pyffish module installed!", exc_info=True)
 
-from broadcast import lobby_broadcast, round_broadcast
+from broadcast import round_broadcast
 from clock import Clock, CorrClock
 from compress import encode_moves, R2C
 from const import (
@@ -310,7 +310,7 @@ class Game:
             self.status = STARTED
             self.app_state.g_cnt[0] += 1
             response = {"type": "g_cnt", "cnt": self.app_state.g_cnt[0]}
-            await lobby_broadcast(self.app_state.lobbysockets, response)
+            await self.app_state.lobby.lobby_broadcast(response)
 
         cur_player = self.bplayer if self.board.color == BLACK else self.wplayer
         opp_player = self.wplayer if self.board.color == BLACK else self.bplayer
@@ -457,7 +457,7 @@ class Game:
         if self.board.ply > 0:
             self.app_state.g_cnt[0] -= 1
             response = {"type": "g_cnt", "cnt": self.app_state.g_cnt[0]}
-            await lobby_broadcast(self.app_state.lobbysockets, response)
+            await self.app_state.lobby.lobby_broadcast(response)
 
         async def remove(keep_time):
             # Keep it in our games dict a little to let players get the last board

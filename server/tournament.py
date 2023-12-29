@@ -12,7 +12,6 @@ from pymongo import ReturnDocument
 from sortedcollections import ValueSortedDict
 from sortedcontainers import SortedKeysView
 
-from broadcast import lobby_broadcast
 from compress import R2C
 from const import (
     ABORTED,
@@ -44,9 +43,6 @@ if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
 from spectators import spectators
 from tournament_spotlights import tournament_spotlights
-from typedefs import (
-    db_key,
-)
 from user import User
 from utils import insert_game_to_db
 
@@ -588,9 +584,8 @@ class Tournament(ABC):
 
     async def broadcast_spotlight(self):
         spotlights = tournament_spotlights(self.app_state)
-        lobby_sockets = self.app_state.lobbysockets
         response = {"type": "spotlights", "items": spotlights}
-        await lobby_broadcast(lobby_sockets, response)
+        await self.app_state.lobby.lobby_broadcast(response)
 
     async def abort(self):
         await self.finalize(T_ABORTED)
@@ -732,7 +727,7 @@ class Tournament(ABC):
                     "wr": game.wrating,
                     "br": game.brating,
                 }
-                await self.app[db_key].tournament_pairing.insert_one(doc)
+                await self.app_state.db.tournament_pairing.insert_one(doc)
 
             self.players[wp].games.append(game)
             self.players[bp].games.append(game)

@@ -22,7 +22,7 @@ async def get_user(session: aiohttp_session.Session, request: web.Request) -> Us
     return user
 
 
-async def process_ws(session: aiohttp_session.Session, request: web.Request, user: User, custom_msg_processor: callable) -> MyWebSocketResponse:
+async def process_ws(session: aiohttp_session.Session, request: web.Request, user: User, init_msg: callable, custom_msg_processor: callable) -> MyWebSocketResponse:
     """
     Process websocket messages until socket closed or errored. Returns the closed MyWebSocketResponse object.
     """
@@ -42,6 +42,8 @@ async def process_ws(session: aiohttp_session.Session, request: web.Request, use
     log.info("--- NEW %s WEBSOCKET by %s from %s", request.rel_url.path, user.username, request.remote)
 
     try:
+        if init_msg is not None:
+            await init_msg(app_state, ws, user)
         msg: WSMessage
         async for msg in ws:
             if msg.type == aiohttp.WSMsgType.TEXT:
@@ -91,6 +93,7 @@ async def ws_send_str(ws, msg) -> bool:
     except ConnectionResetError:
         log.debug("Connection reset ", exc_info=True)
         return False
+
 
 async def ws_send_json(ws, msg) -> bool:
     try:

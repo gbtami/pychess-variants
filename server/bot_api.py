@@ -5,7 +5,7 @@ import logging
 
 from aiohttp import web
 
-from broadcast import round_broadcast, lobby_broadcast
+from broadcast import round_broadcast
 from const import STARTED, RESIGN
 from seek import challenge, get_seeks, Seek
 from settings import BOT_TOKENS
@@ -109,7 +109,7 @@ async def create_bot_seek(request):
         bot_player.seeks[seek.id] = seek
 
         # inform others
-        await lobby_broadcast(app_state.sockets, get_seeks(app_state.seeks))
+        await app_state.lobby.lobby_broadcast_seeks()
     else:
         response = await join_seek(app_state, bot_player, matching_seek.id)
 
@@ -171,7 +171,7 @@ async def event_stream(request):
 
     # inform others
     # TODO: do we need this at all?
-    await lobby_broadcast(app_state.sockets, get_seeks(app_state.seeks))
+    await app_state.lobby.lobby_broadcast_seeks()
 
     # send "challenge" and "gameStart" events from event_queue to the BOT
     while bot_player.online:
@@ -328,7 +328,7 @@ async def bot_analysis(request):
 
     username = data["username"]
 
-    if gameId in app_state.users[username].game_sockets:
+    if app_state.users[username].is_user_active_in_game(gameId):
         game = app_state.games[gameId]
 
         ply = data["ply"]
@@ -373,13 +373,11 @@ async def bot_chat(request):
     opp_name = game.wplayer.username if username == game.bplayer.username else game.bplayer.username
 
     if not app_state.users[opp_name].bot:
-        opp_ws = app_state.users[opp_name].game_sockets[gameId]
-        response = {
-            "type": "roundchat",
-            "user": username,
-            "room": data["room"],
-            "message": data["text"],
-        }
-        await opp_ws.send_json(response)
+        await app_state.users[opp_name].send_game_message(gameId, {
+                "type": "roundchat",
+                "user": username,
+                "room": data["room"],
+                "message": data["text"],
+            })
 
     return web.json_response({"ok": True})

@@ -125,7 +125,7 @@ async def add_games(app):
         "with_clock": False,
     }
 
-    t = await new_tournament(app, data)
+    t = await new_tournament(app_state, data)
 
     for player in pairings:
         await t.join(app_state.users[player])

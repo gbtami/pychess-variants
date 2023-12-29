@@ -25,14 +25,12 @@ from fairy import BLACK
 from game import MAX_PLY
 from glicko2.glicko2 import DEFAULT_PERF
 from newid import id8
-from pychess_global_app_state import PychessGlobalAppState
 from pychess_global_app_state_utils import get_app_state
 from rr import RRTournament
 from server import make_app
 from swiss import SwissTournament
 from tournament import Tournament
 from tournaments import upsert_tournament_to_db, new_tournament
-from typedefs import pychess_global_app_state_key
 from user import User
 from utils import play_move
 
@@ -100,8 +98,7 @@ class TestTournament(Tournament):
                     else:
                         response = await game.game_ended(player, "resign")
                     if opp_player.title != "TEST":
-                        opp_ws = opp_player.game_sockets[game.id]
-                        await opp_ws.send_json(response)
+                        await opp_player.send_game_message(game.id, response)
                 else:
                     move = random.choice(game.legal_moves)
                     clocks = {
@@ -146,11 +143,11 @@ async def create_dev_arena_tournament(app):
         "beforeStart": 15,
         "minutes": 25,
     }
-    await new_tournament(app, data)
+    await new_tournament(get_app_state(app), data)
 
 
 async def create_arena_test(app):
-    app_state: PychessGlobalAppState = app[pychess_global_app_state_key]
+    app_state = get_app_state(app)
     tid = "12345678"
     await app_state.db.tournament.delete_one({"_id": tid})
     await app_state.db.tournament_player.delete_many({"tid": tid})

@@ -6,7 +6,7 @@ import aiohttp_session
 from aiohttp import web
 
 from admin import silence
-from broadcast import lobby_broadcast, broadcast_streams
+from broadcast import broadcast_streams
 from chat import chat_response
 from const import ANON_PREFIX, STARTED
 from login import logout
@@ -18,34 +18,18 @@ from pychess_global_app_state_utils import get_app_state
 from seek import challenge, create_seek, get_seeks, Seek
 from settings import ADMINS, TOURNAMENT_DIRECTORS
 from tournament_spotlights import tournament_spotlights
-from utils import join_seek, load_game, online_count, remove_seek
+from utils import join_seek, load_game, remove_seek
 from websocket_utils import get_user, process_ws
 
 log = logging.getLogger(__name__)
-
-
-async def is_playing(app_state: PychessGlobalAppState, user, ws):
-    # Prevent None user to handle seeks
-    if user is None:
-        return True
-    # Prevent users to start new games if they have an unfinished one
-    if user.game_in_progress is not None:
-        game = await load_game(app_state, user.game_in_progress)
-        if (game is None) or game.status > STARTED:
-            user.game_in_progress = None
-            return False
-        response = {"type": "game_in_progress", "gameId": user.game_in_progress}
-        await ws.send_json(response)
-        return True
-    else:
-        return False
 
 
 async def lobby_socket_handler(request):
     app_state = get_app_state(request.app)
     session = await aiohttp_session.get_session(request)
     user = await get_user(session, request)
-    ws = await process_ws(session, request, user, process_message)
+
+    ws = await process_ws(session, request, user, lambda app_state, ws, user: handle_lobby_user_connected(app_state, ws, user), process_message)
     if ws is None:
         return web.HTTPFound("/")
     await finally_logic(app_state, ws, user)
@@ -58,18 +42,9 @@ async def finally_logic(app_state: PychessGlobalAppState, ws, user):
             user.lobby_sockets.remove(ws)
             user.update_online()
 
-        # online user counter will be updated in quit_lobby also!
-        if len(user.lobby_sockets) == 0:
-            if user.username in app_state.lobbysockets:
-                del app_state.lobbysockets[user.username]
-
-            # not connected to lobby socket and not connected to game socket
-            if len(user.game_sockets) == 0:
-                response = {"type": "u_cnt", "cnt": online_count(app_state.users)}
-                await lobby_broadcast(app_state.lobbysockets, response)
-
-            # response = {"type": "lobbychat", "user": "", "message": "%s left the lobby" % user.username}
-            # await lobby_broadcast(sockets, response)
+        # not connected to lobby socket and not connected to game socket
+        if user.is_user_active_in_game() and len(user.lobby_sockets) == 0:
+            await app_state.lobby.lobby_broadcast_u_cnt()
 
         await user.update_seeks(pending=True)
 
@@ -90,7 +65,10 @@ async def process_message(app_state: PychessGlobalAppState, user, ws, data):
     elif data["type"] == "accept_seek":
         await handle_accept_seek(app_state, ws, user, data)
     elif data["type"] == "lobby_user_connected":
-        await handle_lobby_user_connected(app_state, ws, user)
+        # todo: remove the sending of this msg from ts client as well. we always send it first on ws connect now.
+        #       no need for special message to initiate this
+        pass
+        # await handle_lobby_user_connected(app_state, ws, user)
     elif data["type"] == "lobbychat":
         await handle_lobbychat(app_state, user, data)
 
@@ -142,9 +120,9 @@ async def handle_create_seek(app_state, ws, user, data):
     if no:
         return
 
-    print("create_seek", data)
+    log.debug("create_seek %s", data)
     seek = await create_seek(app_state.db, app_state.invites, app_state.seeks, user, data, ws)
-    await lobby_broadcast(app_state.lobbysockets, get_seeks(app_state.seeks))
+    await app_state.lobby.lobby_broadcast_seeks()
     if (seek is not None) and seek.target == "":
         await app_state.discord.send_to_discord(
             "create_seek", seek.discord_msg
@@ -186,7 +164,7 @@ async def handle_delete_seek(app_state: PychessGlobalAppState, user, data):
     except KeyError:
         # Seek was already deleted
         log.error("Seek was already deleted", stack_info=True, exc_info=True)
-    await lobby_broadcast(app_state.lobbysockets, get_seeks(app_state.seeks))
+    await app_state.lobby.lobby_broadcast_seeks()
 
 
 async def handle_accept_seek(app_state: PychessGlobalAppState, ws, user, data):
@@ -210,19 +188,21 @@ async def handle_accept_seek(app_state: PychessGlobalAppState, ws, user, data):
     else:
         if seek.ws is None:
             remove_seek(app_state.seeks, seek)
-            await lobby_broadcast(app_state.lobbysockets, get_seeks(app_state.seeks))
+            await app_state.lobby.lobby_broadcast_seeks()
         else:
             await seek.ws.send_json(response)
 
     # Inform others, new_game() deleted accepted seek allready.
-    await lobby_broadcast(app_state.lobbysockets, get_seeks(app_state.seeks))
+    await app_state.lobby.lobby_broadcast_seeks()
 
 
 async def handle_lobby_user_connected(app_state, ws, user):
     # update websocket
     user.lobby_sockets.add(ws)
     user.update_online()
-    app_state.lobbysockets[user.username] = user.lobby_sockets
+    app_state.lobby.lobbysockets[user.username] = user.lobby_sockets
+
+    await is_playing(app_state, user, ws)
 
     response = {
         "type": "lobby_user_connected",
@@ -230,7 +210,7 @@ async def handle_lobby_user_connected(app_state, ws, user):
     }
     await ws.send_json(response)
 
-    response = {"type": "fullchat", "lines": list(app_state.lobbychat)}
+    response = {"type": "fullchat", "lines": list(app_state.lobby.lobbychat)}
     await ws.send_json(response)
 
     # send game count
@@ -238,10 +218,10 @@ async def handle_lobby_user_connected(app_state, ws, user):
     await ws.send_json(response)
 
     # send user count
-    response = {"type": "u_cnt", "cnt": online_count(app_state.users)}
-    if len(user.game_sockets) == 0:  # todo:niki: i dont get this logic?
-        await lobby_broadcast(app_state.lobbysockets, response)
+    if user.is_user_active_in_game() == 0:
+        await app_state.lobby.lobby_broadcast_u_cnt()
     else:
+        response = {"type": "u_cnt", "cnt": app_state.online_count()} # todo: duplicated message definition also in lobby_broadcast_u_cnt
         await ws.send_json(response)
 
     spotlights = tournament_spotlights(app_state)
@@ -258,6 +238,7 @@ async def handle_lobby_user_connected(app_state, ws, user):
 
     await user.update_seeks(pending=False)
 
+
 async def handle_lobbychat(app_state, user, data):
     if user.username.startswith(ANON_PREFIX):
         return
@@ -269,7 +250,7 @@ async def handle_lobbychat(app_state, user, data):
     if user.username in ADMINS:
         if message.startswith("/silence"):
             admin_command = True
-            response = silence(message, app_state.lobbychat, app_state.users)
+            response = silence(message, app_state.lobby.lobbychat, app_state.users)
             # silence message was already added to lobbychat in silence()
 
         elif message.startswith("/stream"):
@@ -312,7 +293,7 @@ async def handle_lobbychat(app_state, user, data):
             response = chat_response(
                 "lobbychat", user.username, data["message"]
             )
-            app_state.lobbychat.append(response)
+            app_state.lobby.lobbychat.append(response)
 
     elif user.anon and user.username != "Discord-Relay":
         pass
@@ -322,12 +303,29 @@ async def handle_lobbychat(app_state, user, data):
             response = chat_response(
                 "lobbychat", user.username, data["message"]
             )
-            app_state.lobbychat.append(response)
+            app_state.lobby.lobbychat.append(response)
 
     if response is not None:
-        await lobby_broadcast(app_state.lobbysockets, response)
+        await app_state.lobby.lobby_broadcast(response)
 
     if user.silence == 0 and not admin_command:
         await app_state.discord.send_to_discord(
             "lobbychat", data["message"], user.username
         )
+
+
+async def is_playing(app_state: PychessGlobalAppState, user, ws):
+    # Prevent None user to handle seeks
+    if user is None:
+        return True
+    # Prevent users to start new games if they have an unfinished one
+    if user.game_in_progress is not None:
+        game = await load_game(app_state, user.game_in_progress)
+        if (game is None) or game.status > STARTED:
+            user.game_in_progress = None
+            return False
+        response = {"type": "game_in_progress", "gameId": user.game_in_progress}
+        await ws.send_json(response)
+        return True
+    else:
+        return False

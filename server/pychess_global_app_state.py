@@ -21,9 +21,10 @@ from discord_bot import DiscordBot, FakeDiscordBot
 from generate_crosstable import generate_crosstable
 from generate_highscore import generate_highscore
 from generate_shield import generate_shield
+from lobby import Lobby
 from scheduler import MONTHLY_VARIANTS, SEATURDAY, PAUSED_MONTHLY_VARIANTS, WEEKLY_VARIANTS, SHIELDS, \
     new_scheduled_tournaments, create_scheduled_tournaments
-from seek import Seek
+from seek import Seek, get_seeks
 from settings import DEV, FISHNET_KEYS, static_url, DISCORD_TOKEN
 from tournament import Tournament
 from tournaments import translated_tournament_name, get_scheduled_tournaments, load_tournament
@@ -48,9 +49,7 @@ class PychessGlobalAppState:
         # self.date = # dict)
         self.db = app[db_key]
         self.users = self.__init_users()
-        self.lobbysockets = {} # one dict only! {user.username: user.tournament_sockets, ...}
-        self.lobbychat = collections.deque([], MAX_CHAT_LINES)
-
+        self.lobby = Lobby(self)
         # one dict per tournament! {tournamentId: {user.username: user.tournament_sockets, ...}, ...}
         self.tourneysockets = {}
 
@@ -135,7 +134,7 @@ class PychessGlobalAppState:
 
             already_scheduled = await get_scheduled_tournaments(self)
             new_tournaments_data = new_scheduled_tournaments(already_scheduled)
-            await create_scheduled_tournaments(self.app, new_tournaments_data)
+            await create_scheduled_tournaments(self, new_tournaments_data)
 
             asyncio.create_task(generate_shield(self))
 
@@ -317,4 +316,6 @@ class PychessGlobalAppState:
         result[NONE_USER].enabled = False
         return result
 
+    def online_count(self):
+        return sum((1 for user in self.users.values() if user.online))
 

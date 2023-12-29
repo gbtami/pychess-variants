@@ -7,7 +7,7 @@ from datetime import datetime, timezone
 import aiohttp_session
 from aiohttp import web
 
-from broadcast import lobby_broadcast, round_broadcast
+from broadcast import round_broadcast
 from const import ANON_PREFIX, NOTIFY_PAGE_SIZE, STARTED, VARIANTS
 from glicko2.glicko2 import gl2, DEFAULT_PERF, Rating
 from login import RESERVED_USERS
@@ -120,7 +120,7 @@ class User:
     async def abandon_game(self, game):
         abandon_timeout = ABANDON_TIMEOUT * (2 if game.base >= 3 else 1)
         await asyncio.sleep(abandon_timeout)
-        if game.status <= STARTED and game.id not in self.game_sockets:
+        if game.status <= STARTED and not self.is_user_active_in_game(game.id):
             if game.bot_game or self.anon:
                 response = await game.game_ended(self, "abandon")
                 await round_broadcast(game, response)
@@ -263,7 +263,7 @@ class User:
                     del self.app_state.seeks[seek_id]
                     del self.seeks[seek_id]
 
-            await lobby_broadcast(self.app_state.lobbysockets, get_seeks(self.app_state.seeks))
+            await self.app_state.lobby.lobby_broadcast_seeks()
 
     def delete_pending_seek(self, seek):
         async def delete_seek(seek):
@@ -286,23 +286,58 @@ class User:
                     seek.pending = pending
                     if pending:
                         self.delete_pending_seek(seek)
-
-            await lobby_broadcast(self.app_state.lobbysockets, get_seeks(self.app_state.seeks))
+            await self.app_state.lobby.lobby_broadcast_seeks()
 
     async def send_game_message(self, game_id, message):
         # todo: for now just logging dropped messages, but at some point should evaluate whether to queue them when no socket 
 		#       or include info about the complete round state in some more general message that is always 
 		#       sent on reconnect so client doesnt lose state
-        ws = self.game_sockets.get(game_id)
-        log.debug("Sending message %s to %s. ws = %r", message, self.username, ws)
-        if ws is not None:
+        ws_set = self.game_sockets.get(game_id)
+        if ws_set is None or len(ws_set) == 0:
+            log.error("No ws for that game. Dropping message %s for %s", message, self.username)
+            log.debug("Currently user %s has these game_sockets: %r", self.username, self.game_sockets)
+            return
+        for ws in ws_set:
+            log.debug("Sending message %s to %s. ws = %r", message, self.username, ws)
             try:
                 await ws.send_json(message)
             except Exception as e: #ConnectionResetError
                 log.error("dropping message %s for %s", stack_info=True, exc_info=True)
+
+    async def close_all_game_sockets(self):
+        for ws_set in list(self.game_sockets.values()):  # todo: also clean up this dict after closing?
+            for ws in list(ws_set):
+                try:
+                    await ws.close()
+                except Exception as e:
+                    log.error(e, stack_info=True, exc_info=True)
+
+    def is_user_active_in_game(self, game_id=None):
+        # todo: maybe also check if ws is still open or that the sets corresponding to (each) game_id are not empty?
+        if game_id is None:
+            return len(self.game_sockets) > 0
         else:
-            log.error("No ws for that game. Dropping message %s for %s", message, self.username)
-            log.debug("Currently user %s has these game_sockets: %r", self.username, self.game_sockets)
+            return game_id in self.game_sockets
+
+    def is_user_active_in_lobby(self):
+        return len(self.lobby_sockets) > 0  # todo: check also if open maybe?
+
+    def add_ws_for_game(self, game_id, ws):
+        if game_id not in self.game_sockets:
+            self.game_sockets[game_id] = set()
+        self.game_sockets[game_id].add(ws)
+
+    def remove_ws_for_game(self, game_id, ws) -> bool:
+        if game_id in self.game_sockets:
+            try:
+                self.game_sockets[game_id].remove(ws)
+            except KeyError:
+                return False
+            if len(self.game_sockets[game_id]) == 0:
+                del self.game_sockets[game_id]
+            return True
+        else:
+            return False
 
     def __str__(self):
         return "%s %s bot=%s anon=%s chess=%s" % (

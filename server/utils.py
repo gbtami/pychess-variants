@@ -27,7 +27,7 @@ try:
 except ImportError:
     log.error("No pyffish module installed!", exc_info=True)
 
-from broadcast import lobby_broadcast, round_broadcast
+from broadcast import round_broadcast
 from const import (
     NOTIFY_PAGE_SIZE,
     STARTED,
@@ -562,8 +562,7 @@ async def insert_game_to_db(game, app_state: PychessGlobalAppState):
 
     if not game.corr:
         app_state.tv = game.id
-        await lobby_broadcast(app_state.lobbysockets, game.tv_game_json)
-
+        await app_state.lobby.lobby_broadcast(game.tv_game_json)
         game.wplayer.tv = game.id
         game.bplayer.tv = game.id
 
@@ -681,7 +680,7 @@ async def play_move(app_state: PychessGlobalAppState, user, game, move, clocks=N
                 await tournament.broadcast(board_response)
 
         if app_state.tv == gameId:
-            await lobby_broadcast(app_state.lobbysockets, board_response)
+            await app_state.lobby.lobby_broadcast(board_response)
 
 
 def pgn(doc):
@@ -881,9 +880,6 @@ def sanitize_fen(variant, initial_fen, chess960):
         return False, ""
     return True, sanitized_fen
 
-
-def online_count(users):
-    return sum((1 for user in users.values() if user.online))
 
 
 async def get_names(request):

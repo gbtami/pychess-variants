@@ -23,7 +23,6 @@ except ImportError as e:
     warnings.warn("Not using HTML minification, htmlmin not imported.")
     sys.exit(0)
 
-from typedefs import pychess_global_app_state_key
 from const import (
     ANON_PREFIX,
     LANGUAGES,

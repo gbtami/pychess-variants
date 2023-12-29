@@ -7,8 +7,6 @@ from datetime import datetime, timezone
 from sys import platform
 from urllib.parse import urlparse
 
-from const import TYPE_CHECKING
-# if TYPE_CHECKING:
 from pychess_global_app_state import PychessGlobalAppState
 from pychess_global_app_state_utils import get_app_state
 
@@ -32,7 +30,7 @@ from typedefs import (
     pychess_global_app_state_key,
     db_key,
 )
-from broadcast import lobby_broadcast, round_broadcast
+from broadcast import round_broadcast
 from const import (
     STARTED,
 )
@@ -165,8 +163,7 @@ async def shutdown(app):
 
     # notify users
     msg = "Server will restart in about 30 seconds. Sorry for the inconvenience!"
-    response = {"type": "lobbychat", "user": "", "message": msg}
-    await lobby_broadcast(app_state.lobbysockets, response)
+    await app_state.lobby.lobby_chat("", msg)
 
     response = {"type": "roundchat", "user": "", "message": msg, "room": "player"}
     for game in list(app_state.games.values()):
@@ -194,18 +191,13 @@ async def shutdown(app):
             for player in set(game.non_bot_players):
                 await player.send_game_message(game.id, response)
 
-    # close lobbysockets
+    # close game_sockets
     for user in list(app_state.users.values()):
         if not user.bot:
-            for ws in list(user.game_sockets.values()):
-                try:
-                    await ws.close()
-                except Exception as e:
-                    log.error(e, stack_info=True, exc_info=True)
+            user.close_all_game_sockets()
 
-    for ws_set in list(app_state.lobbysockets.values()):
-        for ws in list(ws_set):
-            await ws.close()
+    # close lobbysockets
+    await app_state.lobby.close_lobby_sockets()
 
     if client_key in app:
         app[client_key].close()

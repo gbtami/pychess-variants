@@ -8,7 +8,7 @@ import aiohttp_session
 from aiohttp import web
 
 import game
-from broadcast import lobby_broadcast, round_broadcast
+from broadcast import round_broadcast
 from chat import chat_response
 from const import ANON_PREFIX, ANALYSIS, STARTED
 from draw import draw, reject_draw
@@ -24,8 +24,7 @@ from utils import (
     join_seek,
     load_game,
     tv_game,
-    tv_game_user,
-    online_count, )
+    tv_game_user, )
 from websocket_utils import process_ws, get_user
 
 log = logging.getLogger(__name__)
@@ -35,79 +34,82 @@ MORE_TIME = 15 * 1000
 
 async def round_socket_handler(request):
 
-    game: str = None
-    async def process_message(app_state, user, ws, data):
-
-        game = await load_game(app_state, data["gameId"])  # todo:niki: load just once
-        if game is None:
-            return
-
-        if data["type"] == "move":
-            await handle_move(app_state, user, data, game)
-        elif data["type"] == "berserk":
-            await handle_berserk(data, game)
-        elif data["type"] == "analysis_move":
-            await handle_analysis_move(user, data, game)
-        elif data["type"] == "ready":
-            await handle_ready(ws, app_state.users, user, data, game)
-        elif data["type"] == "board":
-            await hande_board(ws, game)
-        elif data["type"] == "setup":
-            await handle_setup(ws, app_state.users, user, data, game)
-        elif data["type"] == "analysis":
-            await handle_analysis(app_state, ws, data, game)
-        elif data["type"] == "rematch":
-            await handle_rematch(app_state, ws, user, data, game)
-        elif data["type"] == "reject_rematch":
-            await handle_reject_rematch(user, game)
-        elif data["type"] == "draw":
-            await handle_draw(ws, app_state.users, user, data, game)
-        elif data["type"] == "reject_draw":
-            await handle_reject_draw(user, game)
-        elif data["type"] == "byoyomi":
-            await handle_byoyomi(data, game)
-        elif data["type"] == "takeback":
-            await handle_takeback(ws, game)
-        elif data["type"] in ("abort", "resign", "abandon", "flag"):
-            await handle_abort_resign_abandon_flag(ws, app_state.users, user, data, game)
-        elif data["type"] == "embed_user_connected":
-            await handle_embed_user_connected(ws)
-        elif data["type"] == "game_user_connected":
-            await handle_game_user_connected(app_state, ws, user, data, game)
-        elif data["type"] == "is_user_present":
-            await handle_is_user_present(ws, app_state.users, data)
-        elif data["type"] == "moretime":
-            await handle_moretime(app_state.users, user, data, game)
-        elif data["type"] == "bugroundchat":
-            await handle_bugroundchat(app_state.users, user, data, game)
-        elif data["type"] == "roundchat":
-            await handle_roundchat(app_state, ws, user, data, game)
-        elif data["type"] == "leave":
-            await handle_leave(user, data, game)
-        elif data["type"] == "updateTV":
-            await handle_updateTV(app_state, ws, data)
-        elif data["type"] == "count":
-            await handle_count(ws, user, data, game)
-        elif data["type"] == "delete":
-            await handle_delete(app_state.db, ws, data)
-
     app_state = get_app_state(request.app)
     session = await aiohttp_session.get_session(request)
     user = await get_user(session, request)
-    ws = await process_ws(session, request, user, process_message)
+    rsh = RoundSocketHandler() # we need an object to store game although not sure if load_game-ing it every time is bad
+    ws = await process_ws(session, request, user, None, rsh.process_message)
     if ws is None:
         return web.HTTPFound("/")
-    await finally_logic(app_state, ws, user, game)
+    await finally_logic(app_state, ws, user, rsh.game)
     return ws
+
+class RoundSocketHandler:
+
+    def __init__(self):
+        self.game: game.Game = None
+
+    async def process_message(self, app_state, user, ws, data):
+
+        if self.game is None:
+            self.game = await load_game(app_state, data["gameId"])
+            if self.game is None:
+                return
+
+        if data["type"] == "move":
+            await handle_move(app_state, user, data, self.game)
+        elif data["type"] == "berserk":
+            await handle_berserk(data, self.game)
+        elif data["type"] == "analysis_move":
+            await handle_analysis_move(user, data, self.game)
+        elif data["type"] == "ready":
+            await handle_ready(ws, app_state.users, user, data, self.game)
+        elif data["type"] == "board":
+            await hande_board(ws, self.game)
+        elif data["type"] == "setup":
+            await handle_setup(ws, app_state.users, user, data, self.game)
+        elif data["type"] == "analysis":
+            await handle_analysis(app_state, ws, data, self.game)
+        elif data["type"] == "rematch":
+            await handle_rematch(app_state, ws, user, data, self.game)
+        elif data["type"] == "reject_rematch":
+            await handle_reject_rematch(user, self.game)
+        elif data["type"] == "draw":
+            await handle_draw(ws, app_state.users, user, data, self.game)
+        elif data["type"] == "reject_draw":
+            await handle_reject_draw(user, self.game)
+        elif data["type"] == "byoyomi":
+            await handle_byoyomi(data, self.game)
+        elif data["type"] == "takeback":
+            await handle_takeback(ws, self.game)
+        elif data["type"] in ("abort", "resign", "abandon", "flag"):
+            await handle_abort_resign_abandon_flag(ws, app_state.users, user, data, self.game)
+        elif data["type"] == "embed_user_connected":
+            await handle_embed_user_connected(ws)
+        elif data["type"] == "game_user_connected":
+            await handle_game_user_connected(app_state, ws, user, data, self.game)
+        elif data["type"] == "is_user_present":
+            await handle_is_user_present(ws, app_state.users, data)
+        elif data["type"] == "moretime":
+            await handle_moretime(app_state.users, user, data, self.game)
+        elif data["type"] == "bugroundchat":
+            await handle_bugroundchat(app_state.users, user, data, self.game)
+        elif data["type"] == "roundchat":
+            await handle_roundchat(app_state, ws, user, data, self.game)
+        elif data["type"] == "leave":
+            await handle_leave(user, data, self.game)
+        elif data["type"] == "updateTV":
+            await handle_updateTV(app_state, ws, data)
+        elif data["type"] == "count":
+            await handle_count(ws, user, data, self.game)
+        elif data["type"] == "delete":
+            await handle_delete(app_state.db, ws, data)
 
 
 async def finally_logic(app_state: PychessGlobalAppState, ws, user, game):
     if game is not None and user is not None and not user.bot:
-        if game.id in user.game_sockets:
-            log.debug("Socket %s has been closed. Removing it from user's game_sockets, but only if (%r) current game_socket is the same as it might have meanwhile been re-initialized. Current game_socket: %d", id(ws), (user.game_sockets[game.id] == ws), id(user.game_sockets[game.id]))
-            if user.game_sockets[game.id] == ws:
-                del user.game_sockets[game.id]
-                user.update_online()
+        if user.remove_ws_for_game(game.id, ws):
+            user.update_online()
 
         if user in (game.wplayer, game.bplayer) and (not game.corr):
             user.abandon_game_task = asyncio.create_task(user.abandon_game(game))
@@ -116,8 +118,8 @@ async def finally_logic(app_state: PychessGlobalAppState, ws, user, game):
             await round_broadcast(game, game.spectator_list, full=True)
 
         # not connected to any other game socket after we closed this one. maybe we havae a change of online users count
-        if len(user.game_sockets) == 0:
-            await lobby_broadcast_online_users_count(app_state, user)
+        if not user.is_user_active_in_game() and not user.is_user_active_in_lobby():
+            await app_state.lobby.lobby_broadcast_u_cnt()
 
     if game is not None and user is not None:
         response = {"type": "user_disconnected", "username": user.username}
@@ -515,14 +517,10 @@ async def handle_embed_user_connected(ws):
 
 async def handle_game_user_connected(app_state: PychessGlobalAppState, ws, user, data, game: game.Game):
     # update websocket
-    if data["gameId"] in user.game_sockets:
-        log.debug(
-            "Closing existing socket %s, before replacing it with the new one. Maybe we shuldnt close it tho if it is the same?",
-            id(user.game_sockets[data["gameId"]]))
-        await user.game_sockets[data[
-            "gameId"]].close()  # todo:niki: what happens if this thrwos exception? it will fail to initialize below stuff
-    log.debug("Setting user %r game_socket[%s] = %r", user, data["gameId"], id(ws))
-    user.game_sockets[data["gameId"]] = ws
+    log.debug("Addings ws %r to user %r for game%s", id(ws), user, data["gameId"])
+    # todo: we currently dont support more than one game per user i think but lets have this check here anyway
+    was_user_playing_another_game_before_connect = user.is_user_active_in_game()
+    user.add_ws_for_game(data["gameId"], ws)
     user.update_online()
 
     # remove user seeks
@@ -556,28 +554,17 @@ async def handle_game_user_connected(app_state: PychessGlobalAppState, ws, user,
     response = {"type": "user_present", "username": user.username}
     await round_broadcast(game, response, full=True)
 
-    # if this is the first game socket for this user, maybe we have a change in what we considered online user count
-    if len(user.game_sockets) == 1:
-        await lobby_broadcast_online_users_count(app_state, user)
-
-
-async def lobby_broadcast_online_users_count(app_state, user):
-    # the fact this method is called means last game socket for this user was closed or first was opened
-    # if also not connected to lobby socket this means we have a change of count of online users.
-    # todo:niki:the combination of conditions is probably wrong when users moves from lobby to a new game
-    #           even if correct, the way i have split these conditions one here and one outside is super ugly
-    if user.username not in app_state.lobbysockets:
-        response = {"type": "u_cnt", "cnt": online_count(app_state.users)}
-        await lobby_broadcast(app_state.lobbysockets, response)
+    # if this is the first game socket for this user, and they not in lobby maybe we have a change in what
+    # we considered online user count. todo: also tournament sockets maybe should be checked here
+    if not was_user_playing_another_game_before_connect and not user.is_user_active_in_lobby():
+        await app_state.lobby.lobby_broadcast_u_cnt()
 
 
 async def handle_is_user_present(ws, users, data):
     player_name = data["username"]
     player = await users.get(player_name)
     await asyncio.sleep(1)
-    if player is not None and data["gameId"] in (
-            player.game_queues if player.bot else player.game_sockets
-    ):
+    if player is not None and (data["gameId"] in player.game_queues) if player.bot else player.is_user_active_in_game(data["gameId"]):
         response = {"type": "user_present", "username": player_name}
     else:
         response = {

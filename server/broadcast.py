@@ -2,25 +2,20 @@ from __future__ import annotations
 import json
 import logging
 
+from const import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from pychess_global_app_state import PychessGlobalAppState
+
 log = logging.getLogger(__name__)
 
 
-async def broadcast_streams(app_state):
+async def broadcast_streams(app_state: PychessGlobalAppState):
     """Send live_streams to lobby"""
-    lobby_sockets = app_state.lobbysockets
     live_streams = app_state.twitch.live_streams + app_state.youtube.live_streams
     response = {"type": "streams", "items": live_streams}
-    print(response)
-    await lobby_broadcast(lobby_sockets, response)
-
-
-async def lobby_broadcast(sockets, response):
-    for ws_set in sockets.values():
-        for ws in ws_set:
-            try:
-                await ws.send_json(response)
-            except ConnectionResetError:
-                log.debug("Connection reset ", exc_info=True)
+    log.debug("broadcasting streams to lobby: %s", response)
+    await app_state.lobby.lobby_broadcast(response)
 
 
 async def round_broadcast(game, response, full=False, channels=None):

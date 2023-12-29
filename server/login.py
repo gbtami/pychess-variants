@@ -149,6 +149,8 @@ async def login(request):
     prev_session_user = session.get("user_name")
     prev_user = await users.get(prev_session_user)
     if prev_user is not None:
+        # todo: is consistency with app_state.lobby.lobbysockets lost here?
+        #       also don't we want to close all these sockets - lobby, tournament and game?
         prev_user.lobby_sockets = set()  # make it offline
         prev_user.game_sockets = {}
         prev_user.tournament_sockets = {}
