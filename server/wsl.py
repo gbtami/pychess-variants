@@ -245,7 +245,7 @@ async def handle_lobbychat(app_state, user, data):
     response = None
     admin_command = False
 
-    if user.username in ADMINS or 1==1:
+    if user.username in ADMINS:
         if message.startswith("/silence"):
             admin_command = True
             response = silence(message, app_state.lobby.lobbychat, app_state.users)
