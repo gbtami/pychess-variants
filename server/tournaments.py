@@ -264,7 +264,7 @@ async def get_latest_tournaments(app_state: PychessGlobalAppState, lang):
                 tournament_class = RRTournament
 
             tournament = tournament_class(
-                app,
+                app_state,
                 tid,
                 C2V[doc["v"]],
                 base=doc["b"],
