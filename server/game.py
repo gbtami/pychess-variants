@@ -98,6 +98,10 @@ class Game:
         self.initial_fen = initial_fen
         self.wplayer = wplayer
         self.bplayer = bplayer
+
+        self.all_players = [self.wplayer, self.bplayer]
+        self.non_bot_players = filter(lambda p: not p.bot, self.all_players)
+
         self.rated = rated
         self.base = base
         self.inc = inc
@@ -851,14 +855,6 @@ class Game:
             self.board.initial_fen,
             " ".join(self.board.move_stack),
         )
-
-    @property
-    def all_players(self):
-        return [self.wplayer, self.bplayer]
-
-    @property
-    def non_bot_players(self):
-        return filter(lambda p: not p.bot, self.all_players)
 
     @property
     def clocks(self):
