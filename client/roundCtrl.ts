@@ -72,7 +72,7 @@ export class RoundController extends GameController {
             cl.remove('offline');
             cl.add('online');
 
-            this.doSend({ type: "game_user_connected", username: this.username, gameId: this.gameId });
+            // this.doSend({ type: "game_user_connected", username: this.username, gameId: this.gameId });
         };
 
         const onReconnect = () => {
@@ -94,7 +94,7 @@ export class RoundController extends GameController {
             patch(container, h('i-side.online#player1', {class: {"icon": true, "icon-online": false, "icon-offline": true}}));
         };
 
-        this.sock = newWebsocket('wsr');
+        this.sock = newWebsocket('wsr/'+this.gameId);
         this.sock.onopen = () => onOpen();
         this.sock.onreconnect = () => onReconnect();
         this.sock.onmessage = (e: MessageEvent) => this.onMessage(e);

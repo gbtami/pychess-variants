@@ -104,7 +104,7 @@ get_routes = (
     ("/video", index),
     ("/video/{videoId}", index),
     ("/wsl", lobby_socket_handler),
-    ("/wsr", round_socket_handler),
+    ("/wsr/{gameId}", round_socket_handler),
     ("/wst", tournament_socket_handler),
     ("/api/account", account),
     ("/api/account/playing", playing),

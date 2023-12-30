@@ -1119,3 +1119,6 @@ class Game:
 
             self.legal_moves = self.board.legal_moves()
             self.lastmove = self.board.move_stack[-1] if self.board.move_stack else None
+
+    def handle_chat_message(self, chat_message):
+        self.messages.append(chat_message)

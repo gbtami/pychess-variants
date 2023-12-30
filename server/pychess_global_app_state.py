@@ -3,6 +3,7 @@ from __future__ import annotations
 import asyncio
 import collections
 import gettext
+import inspect
 import logging
 from aiohttp import web
 import os
@@ -319,3 +320,18 @@ class PychessGlobalAppState:
     def online_count(self):
         return sum((1 for user in self.users.values() if user.online))
 
+    def __str__(self):
+        return self.__stringify(str)
+
+    def __repr__(self):
+        return self.__stringify(repr)
+
+    def __stringify(self, strfunc):
+        attribs = vars(self)
+        values = []
+        for attr in attribs:
+            value = getattr(self, attr)
+            values.append(strfunc(value))
+        clsname = type(self).__name__
+        variabs = ', '.join(values)
+        return '{}({})'.format(clsname, variabs)
