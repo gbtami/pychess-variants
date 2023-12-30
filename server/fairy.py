@@ -230,7 +230,7 @@ class FairyBoard:
         The bishops are placed on opposite-colored squares.
         Same for queen and archbishop in caparandom."""
 
-        if self.variant == "ataxx":
+        if variant == "ataxx":
             return random.choice(ATAXX_FENS)
 
         castl = ""
@@ -331,7 +331,7 @@ class FairyBoard:
         else:
             holdings = ""
 
-        checks = "3+3 " if self.variant == "3check" else ""
+        checks = "3+3 " if variant == "3check" else ""
 
         fen = (
             fen
