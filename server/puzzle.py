@@ -44,7 +44,7 @@ def empty_puzzle(variant):
 
 
 async def get_puzzle(request, puzzleId):
-    puzzle = get_app_state(request.app).db.puzzle.find_one({"_id": puzzleId})
+    puzzle = await get_app_state(request.app).db.puzzle.find_one({"_id": puzzleId})
     return puzzle
 
 
