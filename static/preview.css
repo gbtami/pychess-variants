@@ -246,6 +246,9 @@ label.piece.piece3.tori {
     background-image: url('images/pieces/tori/Portella/0PhoenixBlack.png');
 }
 label.piece.piece4.tori {
+    background-image: url('images/pieces/tori/cz/0Phoenix.svg');
+}
+label.piece.piece5.tori {
     background-image: url('images/pieces/disguised/shogi-ally.svg');
 }
 
