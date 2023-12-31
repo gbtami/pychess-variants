@@ -1,6 +1,6 @@
-# ![Shinobi chess](https://github.com/gbtami/pychess-variants/blob/master/static/icons/shinobi.svg) Shinobi Chess
+# ![Shinobi chess+](https://github.com/gbtami/pychess-variants/blob/master/static/icons/shinobi.svg) Shinobi Chess+
 
-![Shinobi](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Shinobi.png)
+![Shinobi+](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Shinobiplus.png)
 
 Shinobi Chess is a chess variant designed in 2021 by Couch Tomato with help from Fables, fourth in the series of asymmetric games. The Western chess army (“the Kingdom,” black) has invaded the land of the Sakura Clan (pink/sakura). While having mostly weak pieces at the start, the Clan is very resourceful and can instantly recruit and summon allies to defend at a minute’s notice. The Clan starts with many pieces in hand and can drop them on its side of the board in lieu of moving a piece. Furthermore, they can promote upon reaching the far end of the board – these abilities are similar to the game of shogi, with the major exception that captured pieces do not go into a player’s hand, so each drop counts! 
 
