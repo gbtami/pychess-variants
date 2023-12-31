@@ -2,39 +2,13 @@
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 
 <svg
-   width="27.116999mm"
+   width="27.116997mm"
    height="31.358999mm"
-   viewBox="0 0 27.116999 31.358999"
+   viewBox="0 0 27.116997 31.358999"
    version="1.1"
    id="svg1"
-   inkscape:version="1.3.1 (91b66b0783, 2023-11-16)"
-   sodipodi:docname="Template.svg"
-   inkscape:export-filename="FAIRY CZECH (Mine)\Regular Shogi\1GY.svg"
-   inkscape:export-xdpi="96"
-   inkscape:export-ydpi="96"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns="http://www.w3.org/2000/svg"
    xmlns:svg="http://www.w3.org/2000/svg">
-  <sodipodi:namedview
-     id="namedview1"
-     pagecolor="#ffffff"
-     bordercolor="#999999"
-     borderopacity="1"
-     inkscape:showpageshadow="2"
-     inkscape:pageopacity="0"
-     inkscape:pagecheckerboard="0"
-     inkscape:deskcolor="#d1d1d1"
-     inkscape:document-units="mm"
-     inkscape:zoom="2.0737236"
-     inkscape:cx="31.103471"
-     inkscape:cy="78.361457"
-     inkscape:window-width="1920"
-     inkscape:window-height="1009"
-     inkscape:window-x="-8"
-     inkscape:window-y="-8"
-     inkscape:window-maximized="1"
-     inkscape:current-layer="layer1" />
   <defs
      id="defs1">
     <clipPath
@@ -47,8 +21,6 @@
     </clipPath>
   </defs>
   <g
-     inkscape:label="Layer 1"
-     inkscape:groupmode="layer"
      id="layer1">
     <g
        id="path1415"
@@ -65,24 +37,24 @@
     </g>
     <path
        style="fill:#000000 icc-color(sRGB-IEC61966-2, 0.1, 0, 0, 0);stroke-width:0.352777"
-       d="m 10.711973,19.469198 0.595313,-0.529167 q 0.727604,0.926042 1.058334,1.223698 l -0.56224,0.463021 q -0.429948,-0.429948 -1.091407,-1.157552 z m 5.9862,4.101043 v 0.727604 h -6.316929 v -0.727604 h 2.844272 v -1.91823 H 10.6789 v -0.727604 h 2.546616 V 18.576229 H 9.9182228 V 17.782478 H 17.22734 v 0.793751 h -3.208074 v 2.348178 h 2.282032 v 0.727604 h -2.282032 v 1.91823 z"
+       d="m 10.711973,19.469199 0.595313,-0.529167 q 0.727604,0.926042 1.058334,1.223698 l -0.56224,0.463021 q -0.429948,-0.429948 -1.091407,-1.157552 z m 5.9862,4.101042 v 0.727604 h -6.316929 v -0.727604 h 2.844272 v -1.91823 H 10.6789 v -0.727603 h 2.546616 V 18.57623 H 9.9182228 V 17.782479 H 17.22734 v 0.793751 h -3.208074 v 2.348178 h 2.282032 v 0.727603 h -2.282032 v 1.91823 z"
        id="text1416"
        aria-label="玉" />
     <path
        style="color:#000000;fill:#000000 icc-color(sRGB-IEC61966-2, 0.1, 0, 0, 0);stroke-width:0.352778;stroke-miterlimit:10;-inkscape-stroke:none"
-       d="M 13.706396,5.1803255 V 14.180293 H 13.405984 V 5.1803255 Z"
+       d="M 13.706396,5.1803255 V 14.180294 H 13.405984 V 5.1803255 Z"
        id="path1417" />
     <path
        style="color:#000000;fill:#000000 icc-color(sRGB-IEC61966-2, 0.1, 0, 0, 0);stroke-width:0.352778;stroke-miterlimit:10;-inkscape-stroke:none"
-       d="M 18.056158,9.5301254 V 9.8305377 H 9.0561908 V 9.5301254 Z"
+       d="m 18.056158,9.5301255 v 0.300412 H 9.0561908 v -0.300412 z"
        id="path1419" />
     <path
        style="color:#000000;fill:#000000 icc-color(sRGB-IEC61966-2, 0.1, 0, 0, 0);stroke-width:0.352778;stroke-miterlimit:10;-inkscape-stroke:none"
-       d="m 10.480314,6.3922376 6.36378,6.3637804 -0.211529,0.212218 -6.364469,-6.3637805 z"
+       d="m 10.480314,6.3922375 6.36378,6.3637815 -0.211529,0.212218 -6.364469,-6.3637815 z"
        id="path1421" />
     <path
        style="color:#000000;fill:#000000 icc-color(sRGB-IEC61966-2, 0.1, 0, 0, 0);stroke-width:0.352778;stroke-miterlimit:10;-inkscape-stroke:none"
-       d="m 16.632565,6.3924015 0.211529,0.212218 -6.36378,6.3637795 -0.212218,-0.212217 z"
+       d="m 16.632565,6.3924015 0.211529,0.212218 -6.36378,6.3637805 -0.212218,-0.212217 z"
        id="path1423" />
   </g>
 </svg>
