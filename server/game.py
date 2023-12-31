@@ -4,6 +4,7 @@ import collections
 import logging
 from datetime import datetime, timezone, timedelta
 from time import monotonic
+from typing import Set, List
 
 from user import User
 
@@ -122,11 +123,11 @@ class Game:
 
         # rating info
         white_rating = wplayer.get_rating(variant, chess960)
-        self.wrating = "%s%s" % white_rating.rating_prov
-        self.wrdiff = 0
+        self.wrating: int | str = "%s%s" % white_rating.rating_prov
+        self.wrdiff: int | str = 0
         black_rating = bplayer.get_rating(variant, chess960)
-        self.brating = "%s%s" % black_rating.rating_prov
-        self.brdiff = 0
+        self.brating: int | str = "%s%s" % black_rating.rating_prov
+        self.brdiff: int | str = 0
 
         # crosstable info
         self.need_crosstable_save = False
@@ -145,10 +146,10 @@ class Game:
                 self.ct_id, {"_id": self.ct_id, "s1": 0, "s2": 0, "r": []}
             )
 
-        self.spectators = set()
-        self.draw_offers = set()
-        self.rematch_offers = set()
-        self.messages = collections.deque([], MAX_CHAT_LINES)
+        self.spectators: Set[User] = set()
+        self.draw_offers: Set[str] = set()
+        self.rematch_offers: Set[str] = set()
+        self.messages: collections.deque = collections.deque([], MAX_CHAT_LINES)
         self.date = datetime.now(timezone.utc)
 
         self.ply_clocks = [
@@ -179,7 +180,7 @@ class Game:
         # Makruk manual counting
         use_manual_counting = self.variant in ("makruk", "makpong", "cambodian")
         self.manual_count = use_manual_counting and not self.bot_game
-        self.manual_count_toggled = []
+        self.manual_count_toggled: List = []
 
         # Ataxx is not default or 960, just random
         self.random_only = self.variant == "ataxx"
@@ -278,9 +279,9 @@ class Game:
 
         self.last_move_date = None
         if self.corr:
-            self.stopwatch = CorrClock(self)
+            self.stopwatch: Clock | CorrClock = CorrClock(self)
         else:
-            self.stopwatch = Clock(self)
+            self.stopwatch: Clock | CorrClock = Clock(self)
 
         if (not self.corr) and (not self.bplayer.bot):
             self.bplayer.game_in_progress = self.id

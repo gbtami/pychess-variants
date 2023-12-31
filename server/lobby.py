@@ -2,9 +2,11 @@ from __future__ import annotations
 
 import collections
 import logging
+from typing import Optional, Deque
 
 from const import TYPE_CHECKING, MAX_CHAT_LINES
 from seek import get_seeks
+from utils import MyWebSocketResponse
 
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
@@ -16,8 +18,8 @@ log = logging.getLogger(__name__)
 class Lobby:
     def __init__(self, app_state: PychessGlobalAppState):
         self.app_state = app_state
-        self.lobbysockets = {}  # one dict only! {user.username: user.tournament_sockets, ...}
-        self.lobbychat = collections.deque([], MAX_CHAT_LINES)
+        self.lobbysockets: dict[str, MyWebSocketResponse] = {}  # one dict only! {user.username: user.tournament_sockets, ...}
+        self.lobbychat: Deque[dict] = collections.deque([], MAX_CHAT_LINES)
 
     # below methods maybe best in separate class eventually
     async def lobby_broadcast(self, response):
@@ -36,10 +38,10 @@ class Lobby:
     async def lobby_broadcast_seeks(self):
         await self.lobby_broadcast(get_seeks(self.app_state.seeks))
 
-    async def lobby_chat(self, username: str, message: str, time: int = None):
+    async def lobby_chat(self, username: str, message: str, time: Optional[int] = None):
         response = {"type": "lobbychat", "user": username, "message": message}
         if time is not None:
-            response["time"] = time
+            response["time"]: int = time
         self.lobbychat.append(response)
         await self.lobby_broadcast(response)
 

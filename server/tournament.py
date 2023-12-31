@@ -6,7 +6,7 @@ import random
 from abc import ABC, abstractmethod
 from datetime import datetime, timedelta, timezone
 from operator import neg
-from typing import ClassVar, Tuple
+from typing import ClassVar, Tuple, Set
 
 from pymongo import ReturnDocument
 from sortedcollections import ValueSortedDict
@@ -117,7 +117,7 @@ class PlayerData:
         self.paused = False
         self.withdrawn = False
         self.win_streak = 0
-        self.games: list[Game] = []
+        self.games: list[Game | GameData] = []
         self.points: list[Point] = []
         self.nb_games = 0
         self.nb_win = 0
@@ -243,8 +243,8 @@ class Tournament(ABC):
         self.current_round = 0
         self.prev_pairing = None
 
-        self.messages = collections.deque([], MAX_CHAT_LINES)
-        self.spectators = set()
+        self.messages: collections.deque = collections.deque([], MAX_CHAT_LINES)
+        self.spectators: Set[User] = set()
         self.players: dict[User, PlayerData] = {}
         self.leaderboard = ValueSortedDict(neg)
         self.leaderboard_keys_view = SortedKeysView(self.leaderboard)
@@ -259,7 +259,7 @@ class Tournament(ABC):
         self.nb_berserk = 0
 
         self.nb_games_cached = -1
-        self.leaderboard_cache = {}
+        self.leaderboard_cache: dict[int, dict] = {}
 
         self.first_pairing = False
         self.top_player = None

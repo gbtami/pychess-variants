@@ -34,7 +34,7 @@ if TYPE_CHECKING:
 from pychess_global_app_state_utils import get_app_state
 from rr import RRTournament
 from swiss import SwissTournament
-from tournament import GameData, PlayerData, SCORE_SHIFT
+from tournament import GameData, PlayerData, SCORE_SHIFT, Tournament
 
 log = logging.getLogger(__name__)
 
@@ -109,11 +109,11 @@ async def new_tournament(app_state: PychessGlobalAppState, data):
         tid = data["tid"]
 
     if data["system"] == ARENA:
-        tournament_class = ArenaTournament
+        tournament_class: type[Tournament] = ArenaTournament
     elif data["system"] == SWISS:
-        tournament_class = SwissTournament
+        tournament_class: type[Tournament] = SwissTournament
     elif data["system"] == RR:
-        tournament_class = RRTournament
+        tournament_class: type[Tournament] = RRTournament
 
     tournament = tournament_class(
         app_state,
@@ -182,7 +182,7 @@ async def upsert_tournament_to_db(tournament, app_state: PychessGlobalAppState):
         log.error("Failed to save tournament data to mongodb!", exc_info=True)
 
 
-async def get_winners(app_state: PychessGlobalAppState, shield, variant=None):
+async def get_winners(app_state: PychessGlobalAppState, shield, variant: str = None):
     wi = {}
     if variant is None:
         variants = VARIANTS
@@ -260,11 +260,11 @@ async def get_latest_tournaments(app_state: PychessGlobalAppState, lang):
             tournament = app_state.tournaments[tid]
         else:
             if doc["system"] == ARENA:
-                tournament_class = ArenaTournament
+                tournament_class: type[Tournament] = ArenaTournament
             elif doc["system"] == SWISS:
-                tournament_class = SwissTournament
+                tournament_class: type[Tournament] = SwissTournament
             elif doc["system"] == RR:
-                tournament_class = RRTournament
+                tournament_class: type[Tournament] = RRTournament
 
             tournament = tournament_class(
                 app_state,

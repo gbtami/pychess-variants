@@ -4,9 +4,12 @@ import asyncio
 import collections
 import gettext
 import logging
+import queue
+from typing import List, Set
+
 from aiohttp import web
 import os
-from datetime import timedelta, datetime
+from datetime import timedelta, datetime, date
 from operator import neg
 
 import jinja2
@@ -30,6 +33,7 @@ from const import (
     ABORTED,
 )
 from discord_bot import DiscordBot, FakeDiscordBot
+from game import Game
 from generate_crosstable import generate_crosstable
 from generate_highscore import generate_highscore
 from generate_shield import generate_shield
@@ -50,7 +54,7 @@ from tournaments import translated_tournament_name, get_scheduled_tournaments, l
 from twitch import Twitch
 from user import User
 from users import Users, NotInDbUsers
-from utils import load_game
+from utils import load_game, MyWebSocketResponse
 from videos import VIDEOS
 from youtube import Youtube
 
@@ -70,27 +74,27 @@ class PychessGlobalAppState:
         self.users = self.__init_users()
         self.lobby = Lobby(self)
         # one dict per tournament! {tournamentId: {user.username: user.tournament_sockets, ...}, ...}
-        self.tourneysockets = {}
+        self.tourneysockets: dict[str, MyWebSocketResponse] = {}
 
         # translated scheduled tournament names {(variant, frequency, t_type): tournament.name, ...}
-        self.tourneynames = {lang: {} for lang in LANGUAGES}
+        self.tourneynames: dict[str, dict] = {lang: {} for lang in LANGUAGES}
 
         self.tournaments: dict[str, Tournament] = {}
 
         # lichess allows 7 team message per week, so we will send one (comulative) per day only
         # TODO: save/restore from db
-        self.sent_lichess_team_msg = []
+        self.sent_lichess_team_msg: List[date] = []
 
         # one deque per tournament! {tournamentId: collections.deque([], MAX_CHAT_LINES), ...}
-        self.tourneychat = {}
+        self.tourneychat: dict[str, collections.deque] = {}
 
-        self.seeks = {}
-        self.games = {}
-        self.invites = {}
-        self.game_channels = set()
-        self.invite_channels = set()
+        self.seeks: dict[int, Seek] = {}
+        self.games: dict[str, Game] = {}
+        self.invites: dict[str, Seek] = {}
+        self.game_channels: Set[queue] = set()
+        self.invite_channels: Set[queue] = set()
         self.highscore = {variant: ValueSortedDict(neg) for variant in VARIANTS}
-        self.crosstable = {}
+        self.crosstable: dict[str, object] = {}
         self.shield = {}
         self.shield_owners = {}  # {variant: username, ...}
         self.daily_puzzle_ids = {}  # {date: puzzle._id, ...}

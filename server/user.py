@@ -2,17 +2,22 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
+from asyncio import Queue
 from datetime import datetime, timezone
+from typing import Set, List
 
 import aiohttp_session
 from aiohttp import web
 
 from broadcast import round_broadcast
 from const import ANON_PREFIX, NOTIFY_PAGE_SIZE, STARTED, VARIANTS
+from game import Game
 from glicko2.glicko2 import gl2, DEFAULT_PERF, Rating
 from login import RESERVED_USERS
 from newid import id8, new_id
 from const import TYPE_CHECKING
+from seek import Seek
+from utils import MyWebSocketResponse
 
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
@@ -53,24 +58,24 @@ class User:
         else:
             self.username = username
 
-        self.seeks = {}
-        self.lobby_sockets = set()
-        self.tournament_sockets = {}  # {tournamentId: set()}
+        self.seeks: dict[int, Seek] = {}
+        self.lobby_sockets: Set[MyWebSocketResponse] = set()
+        self.tournament_sockets: dict[str, MyWebSocketResponse] = {}  # {tournamentId: set()}
 
-        self.notify_channels = set()
+        self.notify_channels: Set[Queue] = set()
 
         self.puzzles = {}  # {pizzleId: vote} where vote 0 = not voted, 1 = up, -1 = down
         self.puzzle_variant = None
 
-        self.game_sockets = {}
+        self.game_sockets: dict[str, MyWebSocketResponse] = {}
         self.title = title
         self.game_in_progress = None
         self.abandon_game_task = None
-        self.correspondence_games = []
+        self.correspondence_games: List[Game] = []
 
         if self.bot:
-            self.event_queue = asyncio.Queue()
-            self.game_queues = {}
+            self.event_queue: Queue = asyncio.Queue()
+            self.game_queues: dict[str, Queue] = {}
             self.title = "BOT"
 
         self.online = False
