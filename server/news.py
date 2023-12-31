@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 NEWS = {
     "Merry_Christmas": "2023-12-24",
     "S-chess_endings_1": "2023-12-01",

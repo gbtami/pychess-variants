@@ -6,6 +6,7 @@ from datetime import datetime, timezone, timedelta
 from time import monotonic
 
 from const import TYPE_CHECKING
+
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
 
@@ -42,7 +43,8 @@ from const import (
     IMPORTED,
     HIGHSCORE_MIN_GAMES,
     variant_display_name,
-    MAX_CHAT_LINES, TYPE_CHECKING,
+    MAX_CHAT_LINES,
+    TYPE_CHECKING,
 )
 from convert import grand2zero, uci2usi, mirror5, mirror9
 from fairy import FairyBoard, BLACK, WHITE
@@ -544,7 +546,9 @@ class Game:
                 new_data["mct"] = self.manual_count_toggled
 
             if self.app_state.db is not None:
-                await self.app_state.db.game.find_one_and_update({"_id": self.id}, {"$set": new_data})
+                await self.app_state.db.game.find_one_and_update(
+                    {"_id": self.id}, {"$set": new_data}
+                )
 
     def set_crosstable(self):
         if (
@@ -625,7 +629,9 @@ class Game:
         #     self.highscore[variant + ("960" if chess960 else "")].popitem()
 
         new_data = {
-            "scores": dict(self.app_state.highscore[variant + ("960" if chess960 else "")].items()[:10])
+            "scores": dict(
+                self.app_state.highscore[variant + ("960" if chess960 else "")].items()[:10]
+            )
         }
         try:
             await self.app_state.db.highscore.find_one_and_update(

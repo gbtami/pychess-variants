@@ -70,7 +70,9 @@ class DiscordBot(Bot):
         if msg.author.id == self.user.id or msg.channel.id != PYCHESS_LOBBY_CHANNEL_ID:
             log.debug("---self.user msg OR other channel.id -> return")
             return
-        await self.app_state.lobby.lobby_chat("Discord-Relay", "%s: %s" % (msg.author.name, msg.content), int(time()))
+        await self.app_state.lobby.lobby_chat(
+            "Discord-Relay", "%s: %s" % (msg.author.name, msg.content), int(time())
+        )
 
     def get_channels(self):
         # Get the pychess-lobby channel

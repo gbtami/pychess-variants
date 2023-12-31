@@ -13,6 +13,7 @@ from glicko2.glicko2 import gl2, DEFAULT_PERF, Rating
 from login import RESERVED_USERS
 from newid import id8, new_id
 from const import TYPE_CHECKING
+
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
 from pychess_global_app_state_utils import get_app_state
@@ -245,7 +246,9 @@ class User:
         self.notifications = [{**notif, "read": True} for notif in self.notifications]
 
         if self.app_state.db is not None:
-            await self.app_state.db.notify.update_many({"notifies": self.username}, {"$set": {"read": True}})
+            await self.app_state.db.notify.update_many(
+                {"notifies": self.username}, {"$set": {"read": True}}
+            )
 
     def as_json(self, requester):
         return {
@@ -289,23 +292,27 @@ class User:
             await self.app_state.lobby.lobby_broadcast_seeks()
 
     async def send_game_message(self, game_id, message):
-        # todo: for now just logging dropped messages, but at some point should evaluate whether to queue them when no socket 
-		#       or include info about the complete round state in some more general message that is always 
-		#       sent on reconnect so client doesnt lose state
+        # todo: for now just logging dropped messages, but at some point should evaluate whether to queue them when no socket
+        #       or include info about the complete round state in some more general message that is always
+        #       sent on reconnect so client doesnt lose state
         ws_set = self.game_sockets.get(game_id)
         if ws_set is None or len(ws_set) == 0:
             log.error("No ws for that game. Dropping message %s for %s", message, self.username)
-            log.debug("Currently user %s has these game_sockets: %r", self.username, self.game_sockets)
+            log.debug(
+                "Currently user %s has these game_sockets: %r", self.username, self.game_sockets
+            )
             return
         for ws in ws_set:
             log.debug("Sending message %s to %s. ws = %r", message, self.username, ws)
             try:
                 await ws.send_json(message)
-            except Exception as e: #ConnectionResetError
+            except Exception as e:  # ConnectionResetError
                 log.error("dropping message %s for %s", stack_info=True, exc_info=True)
 
     async def close_all_game_sockets(self):
-        for ws_set in list(self.game_sockets.values()):  # todo: also clean up this dict after closing?
+        for ws_set in list(
+            self.game_sockets.values()
+        ):  # todo: also clean up this dict after closing?
             for ws in list(ws_set):
                 try:
                     await ws.close()

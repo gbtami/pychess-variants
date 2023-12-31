@@ -403,6 +403,7 @@ async def import_game(request):
 
     return web.json_response({"gameId": game_id})
 
+
 async def join_seek(app_state: PychessGlobalAppState, user, seek_id, game_id=None, join_as="any"):
     seek = app_state.seeks[seek_id]
     log.info(
@@ -438,6 +439,7 @@ async def join_seek(app_state: PychessGlobalAppState, user, seek_id, game_id=Non
         return await new_game(app_state, seek_id, game_id)
     else:
         return {"type": "seek_joined", "seekID": seek_id}
+
 
 async def new_game(app_state: PychessGlobalAppState, seek_id, game_id=None):
     seek = app_state.seeks[seek_id]
@@ -881,7 +883,6 @@ def sanitize_fen(variant, initial_fen, chess960):
     return True, sanitized_fen
 
 
-
 async def get_names(request):
     app_state = get_app_state(request.app)
     names = []
@@ -890,9 +891,7 @@ async def get_names(request):
         return web.json_response(names)
 
     # case insensitive _id prefix search
-    cursor = app_state.db.user.find(
-        {"_id": {"$regex": "^%s" % prefix, "$options": "i"}}, limit=12
-    )
+    cursor = app_state.db.user.find({"_id": {"$regex": "^%s" % prefix, "$options": "i"}}, limit=12)
     async for doc in cursor:
         names.append((doc["_id"], doc["title"]))
     return web.json_response(names)
@@ -983,5 +982,3 @@ def corr_games(games):
         }
         for game in games
     ]
-
-

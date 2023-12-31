@@ -72,7 +72,6 @@ from puzzle import (
 from custom_trophy_owners import CUSTOM_TROPHY_OWNERS
 
 
-
 async def index(request):
     """Create home html."""
     app_state = get_app_state(request.app)
@@ -395,7 +394,11 @@ async def index(request):
             profileId = "Fairy-Stockfish"
             render["trophies"] = []
         else:
-            render["trophies"] = [(v, "top10") for v in app_state.highscore if profileId in app_state.highscore[v].keys()[:10]]
+            render["trophies"] = [
+                (v, "top10")
+                for v in app_state.highscore
+                if profileId in app_state.highscore[v].keys()[:10]
+            ]
             for i, (v, kind) in enumerate(render["trophies"]):
                 if app_state.highscore[v].peekitem(0)[0] == profileId:
                     render["trophies"][i] = (v, "top1")
@@ -436,12 +439,16 @@ async def index(request):
             }
         if variant is not None:
             render["variant"] = variant
-        render["profile_title"] = app_state.users[profileId].title if profileId in app_state.users else ""
+        render["profile_title"] = (
+            app_state.users[profileId].title if profileId in app_state.users else ""
+        )
         render["rated"] = rated
 
     elif view == "players":
         online_users = [
-            u for u in app_state.users.values() if u.username == user.username or (u.online and not u.anon)
+            u
+            for u in app_state.users.values()
+            if u.username == user.username or (u.online and not u.anon)
         ]
         anon_online = sum((1 for u in app_state.users.values() if u.anon and u.online))
 
@@ -451,7 +458,10 @@ async def index(request):
         render["anon_online"] = anon_online
         render["admin"] = user.username in ADMINS
         if variant is None:
-            render["highscore"] = {variant: dict(app_state.highscore[variant].items()[:10]) for variant in app_state.highscore}
+            render["highscore"] = {
+                variant: dict(app_state.highscore[variant].items()[:10])
+                for variant in app_state.highscore
+            }
         else:
             hs = await generate_highscore(app_state.db, variant)
             print(hs)

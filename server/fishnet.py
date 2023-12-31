@@ -10,6 +10,7 @@ from aiohttp import web
 
 from const import ANALYSIS
 from const import TYPE_CHECKING
+
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
 from pychess_global_app_state_utils import get_app_state
@@ -122,7 +123,9 @@ async def fishnet_acquire(request):
 
     if key not in app_state.workers:
         app_state.workers.add(key)
-        app_state.fishnet_monitor[worker].append("%s %s %s" % (datetime.now(timezone.utc), "-", "joined"))
+        app_state.fishnet_monitor[worker].append(
+            "%s %s %s" % (datetime.now(timezone.utc), "-", "joined")
+        )
         app_state.fishnet_monitor[worker].append(nnue)
         app_state.users["Fairy-Stockfish"].online = True
 
@@ -142,7 +145,9 @@ async def fishnet_analysis(request):
         return web.Response(status=404)
 
     work = app_state.fishnet_works[work_id]
-    app_state.fishnet_monitor[worker].append("%s %s %s" % (datetime.now(timezone.utc), work_id, "analysis"))
+    app_state.fishnet_monitor[worker].append(
+        "%s %s %s" % (datetime.now(timezone.utc), work_id, "analysis")
+    )
 
     gameId = work["game_id"]
     game = await load_game(app_state, gameId)
@@ -201,7 +206,9 @@ async def fishnet_move(request):
     if key not in FISHNET_KEYS:
         return web.Response(status=404)
 
-    app_state.fishnet_monitor[worker].append("%s %s %s" % (datetime.now(timezone.utc), work_id, "move"))
+    app_state.fishnet_monitor[worker].append(
+        "%s %s %s" % (datetime.now(timezone.utc), work_id, "move")
+    )
 
     if work_id not in app_state.fishnet_works:
         response = await get_work(request, data)
@@ -237,7 +244,9 @@ async def fishnet_abort(request):
     if key not in FISHNET_KEYS:
         return web.Response(status=404)
 
-    app_state.fishnet_monitor[worker].append("%s %s %s" % (datetime.now(timezone.utc), work_id, "abort"))
+    app_state.fishnet_monitor[worker].append(
+        "%s %s %s" % (datetime.now(timezone.utc), work_id, "abort")
+    )
 
     # remove fishnet client
     try:
@@ -265,5 +274,9 @@ async def fishnet_validate_key(request):
 
 async def fishnet_monitor(request):
     app_state = get_app_state(request.app)
-    workers = {worker + " v" + app_state.fishnet_versions[worker]: list(app_state.fishnet_monitor[worker]) for worker in app_state.fishnet_monitor if app_state.fishnet_monitor[worker]}
+    workers = {
+        worker + " v" + app_state.fishnet_versions[worker]: list(app_state.fishnet_monitor[worker])
+        for worker in app_state.fishnet_monitor
+        if app_state.fishnet_monitor[worker]
+    }
     return web.json_response(workers, dumps=partial(json.dumps, default=datetime.isoformat))

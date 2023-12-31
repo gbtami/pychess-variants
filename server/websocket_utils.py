@@ -7,6 +7,7 @@ import aiohttp_session
 from aiohttp import WSMessage, web
 
 from const import TYPE_CHECKING
+
 if TYPE_CHECKING:
     from user import User
 
@@ -22,7 +23,13 @@ async def get_user(session: aiohttp_session.Session, request: web.Request) -> Us
     return user
 
 
-async def process_ws(session: aiohttp_session.Session, request: web.Request, user: User, init_msg: callable, custom_msg_processor: callable) -> MyWebSocketResponse:
+async def process_ws(
+    session: aiohttp_session.Session,
+    request: web.Request,
+    user: User,
+    init_msg: callable,
+    custom_msg_processor: callable,
+) -> MyWebSocketResponse:
     """
     Process websocket messages until socket closed or errored. Returns the closed MyWebSocketResponse object.
     """
@@ -39,7 +46,9 @@ async def process_ws(session: aiohttp_session.Session, request: web.Request, use
 
     await ws.prepare(request)
 
-    log.info("--- NEW %s WEBSOCKET by %s from %s", request.rel_url.path, user.username, request.remote)
+    log.info(
+        "--- NEW %s WEBSOCKET by %s from %s", request.rel_url.path, user.username, request.remote
+    )
 
     try:
         if init_msg is not None:
@@ -71,7 +80,9 @@ async def process_ws(session: aiohttp_session.Session, request: web.Request, use
                 )
                 break
             elif msg.type == aiohttp.WSMsgType.ERROR:
-                log.error("--- %s ws %s msg.type == aiohttp.WSMsgType.ERROR", request.rel_url.path, id(ws))
+                log.error(
+                    "--- %s ws %s msg.type == aiohttp.WSMsgType.ERROR", request.rel_url.path, id(ws)
+                )
                 break
             else:
                 log.debug("--- %s ws other msg.type %s %s", request.rel_url.path, msg.type, msg)

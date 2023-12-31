@@ -6,6 +6,7 @@ import time
 from timeit import default_timer
 
 from const import TYPE_CHECKING
+
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
 

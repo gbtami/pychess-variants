@@ -9,6 +9,7 @@ from admin import silence
 from chat import chat_response
 from const import ANON_PREFIX, STARTED, SHIELD
 from const import TYPE_CHECKING
+
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
 from pychess_global_app_state_utils import get_app_state
@@ -41,7 +42,10 @@ async def finally_logic(app_state: PychessGlobalAppState, ws, user):
                     del user.tournament_sockets[tournamentId]
                     user.update_online()
 
-                    if tournamentId in app_state.tourneysockets and user.username in app_state.tourneysockets[tournamentId]:
+                    if (
+                        tournamentId in app_state.tourneysockets
+                        and user.username in app_state.tourneysockets[tournamentId]
+                    ):
                         del app_state.tourneysockets[tournamentId][user.username]
                         tournament = await load_tournament(app_state, tournamentId)
                         tournament.spactator_leave(user)
@@ -70,6 +74,7 @@ async def process_message(app_state: PychessGlobalAppState, user, ws, data):
     elif data["type"] == "lobbychat":
         await handle_lobbychat(app_state, user, data)
 
+
 async def handle_get_players(app, ws, user, data):
     tournament = await load_tournament(app, data["tournamentId"])
     if tournament is not None:
@@ -78,6 +83,7 @@ async def handle_get_players(app, ws, user, data):
             tournament.players[user].page = page
         response = tournament.players_json(page=page)
         await ws.send_json(response)
+
 
 async def handle_my_page(app, ws, user, data):
     tournament = await load_tournament(app, data["tournamentId"])
@@ -88,11 +94,13 @@ async def handle_my_page(app, ws, user, data):
         response = tournament.players_json(user=user)
         await ws.send_json(response)
 
+
 async def handle_get_games(app, ws, data):
     tournament = await load_tournament(app, data["tournamentId"])
     if tournament is not None:
         response = await tournament.games_json(data["player"])
         await ws.send_json(response)
+
 
 async def handle_join(app, ws, user, data):
     tournament = await load_tournament(app, data["tournamentId"])
@@ -104,6 +112,7 @@ async def handle_join(app, ws, user, data):
             "ustatus": tournament.user_status(user),
         }
         await ws.send_json(response)
+
 
 async def handle_pause(app, ws, user, data):
     tournament = await load_tournament(app, data["tournamentId"])
@@ -165,18 +174,14 @@ async def handle_user_connected(app_state: PychessGlobalAppState, ws, user, data
         else 0,
     }
     if tournament.frequency == SHIELD:
-        variant_name = tournament.variant + (
-            "960" if tournament.chess960 else ""
-        )
+        variant_name = tournament.variant + ("960" if tournament.chess960 else "")
         defender = await app_state.users.get(app_state.shield_owners[variant_name])
         response["defender_title"] = defender.title
         response["defender_name"] = defender.username
 
     await ws.send_json(response)
 
-    if (tournament.top_game is not None) and (
-            tournament.top_game.status <= STARTED
-    ):
+    if (tournament.top_game is not None) and (tournament.top_game.status <= STARTED):
         await ws.send_json(tournament.top_game_json)
 
     if tournament.status > T_STARTED:
@@ -214,9 +219,7 @@ async def handle_lobbychat(app_state: PychessGlobalAppState, user, data):
             if tournament.status in (T_CREATED, T_STARTED):
                 await tournament.abort()
         else:
-            response = chat_response(
-                "lobbychat", user.username, data["message"]
-            )
+            response = chat_response("lobbychat", user.username, data["message"])
             app_state.tourneychat[tournamentId].append(response)
 
     elif user.anon:
@@ -224,9 +227,7 @@ async def handle_lobbychat(app_state: PychessGlobalAppState, user, data):
 
     else:
         if user.silence == 0:
-            response = chat_response(
-                "lobbychat", user.username, data["message"]
-            )
+            response = chat_response("lobbychat", user.username, data["message"])
             app_state.tourneychat[tournamentId].append(response)
 
     if response is not None:

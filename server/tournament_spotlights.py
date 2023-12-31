@@ -6,13 +6,16 @@ from const import (
     TOURNAMENT_SPOTLIGHTS_MAX,
 )
 from const import TYPE_CHECKING
+
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
 
 
 def tournament_spotlights(app_state: PychessGlobalAppState):
     items = []
-    for tid, tournament in sorted(app_state.tournaments.items(), key=lambda item: item[1].starts_at):
+    for tid, tournament in sorted(
+        app_state.tournaments.items(), key=lambda item: item[1].starts_at
+    ):
         if tournament.status == T_STARTED or tournament.status == T_CREATED:
             if tournament.frequency:
                 names = {

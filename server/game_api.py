@@ -83,7 +83,6 @@ async def get_variant_stats(request):
             except KeyError:
                 log.error("support of variant discontinued!")
 
-
         series = [{"name": variant, "data": variant_counts[variant]} for variant in VARIANTS]
 
         request.app[stats][cur_period] = series
@@ -135,7 +134,7 @@ async def get_user_games(request):
     filter_cond = {}
     # print("URL", request.rel_url)
     level = request.rel_url.query.get("x")
-    variant = request.path[request.path.rfind("/") + 1:]
+    variant = request.path[request.path.rfind("/") + 1 :]
 
     # produce UCI move list for puzzle generator
     uci_moves = "/json" in request.path
@@ -233,8 +232,12 @@ async def get_user_games(request):
                 continue
 
             doc["r"] = C2R[doc["r"]]
-            doc["wt"] = app_state.users[doc["us"][0]].title if doc["us"][0] in app_state.users else ""
-            doc["bt"] = app_state.users[doc["us"][1]].title if doc["us"][1] in app_state.users else ""
+            doc["wt"] = (
+                app_state.users[doc["us"][0]].title if doc["us"][0] in app_state.users else ""
+            )
+            doc["bt"] = (
+                app_state.users[doc["us"][1]].title if doc["us"][1] in app_state.users else ""
+            )
             doc["lm"] = decode_moves((doc["m"][-1],), doc["v"])[-1] if len(doc["m"]) > 0 else ""
             if doc["v"] in GRANDS and doc["lm"] != "":
                 doc["lm"] = zero2grand(doc["lm"])
@@ -275,7 +278,6 @@ async def cancel_invite(request):
             del creator.seeks[seek_id]
         except KeyError:
             log.error("Seek was already deleted!", exc_info=True)
-
 
     return web.HTTPFound("/")
 
@@ -392,7 +394,7 @@ async def export(request):
                     doc["_id"],
                     C2V[doc["v"]],
                     doc["d"].strftime("%Y.%m.%d"),
-                    exc_info=True
+                    exc_info=True,
                 )
                 continue
         print("failed/all:", failed, game_counter)

@@ -15,16 +15,36 @@ from pythongettext.msgfmt import Msgfmt, PoSyntaxError
 from sortedcollections import ValueSortedDict
 
 from ai import BOT_task
-from const import NONE_USER, VARIANTS, MAX_CHAT_LINES, \
-    LANGUAGES, MONTHLY, ARENA, WEEKLY, SHIELD, T_CREATED, T_STARTED, \
-    SCHEDULE_MAX_DAYS, NOTIFY_EXPIRE_SECS, CORR_SEEK_EXPIRE_SECS, ABORTED
+from const import (
+    NONE_USER,
+    VARIANTS,
+    MAX_CHAT_LINES,
+    LANGUAGES,
+    MONTHLY,
+    ARENA,
+    WEEKLY,
+    SHIELD,
+    T_CREATED,
+    T_STARTED,
+    SCHEDULE_MAX_DAYS,
+    NOTIFY_EXPIRE_SECS,
+    CORR_SEEK_EXPIRE_SECS,
+    ABORTED,
+)
 from discord_bot import DiscordBot, FakeDiscordBot
 from generate_crosstable import generate_crosstable
 from generate_highscore import generate_highscore
 from generate_shield import generate_shield
 from lobby import Lobby
-from scheduler import MONTHLY_VARIANTS, SEATURDAY, PAUSED_MONTHLY_VARIANTS, WEEKLY_VARIANTS, SHIELDS, \
-    new_scheduled_tournaments, create_scheduled_tournaments
+from scheduler import (
+    MONTHLY_VARIANTS,
+    SEATURDAY,
+    PAUSED_MONTHLY_VARIANTS,
+    WEEKLY_VARIANTS,
+    SHIELDS,
+    new_scheduled_tournaments,
+    create_scheduled_tournaments,
+)
 from seek import Seek, get_seeks
 from settings import DEV, FISHNET_KEYS, static_url, DISCORD_TOKEN
 from tournament import Tournament
@@ -39,9 +59,9 @@ from youtube import Youtube
 
 log = logging.getLogger(__name__)
 
+
 class PychessGlobalAppState:
     def __init__(self, app: web.Application):
-
         from typedefs import db_key
 
         self.app = app
@@ -112,7 +132,6 @@ class PychessGlobalAppState:
         self.__start_bots()
         self.__init_translations()
 
-
     async def init_from_db(self):
         if self.db is None:
             return
@@ -129,7 +148,7 @@ class PychessGlobalAppState:
             to_date = (datetime.now() + timedelta(days=SCHEDULE_MAX_DAYS)).date()
             async for doc in cursor:
                 if doc["status"] == T_STARTED or (
-                        doc["status"] == T_CREATED and doc["startsAt"].date() <= to_date
+                    doc["status"] == T_CREATED and doc["startsAt"].date() <= to_date
                 ):
                     await load_tournament(self, doc["_id"])
 
@@ -261,9 +280,9 @@ class PychessGlobalAppState:
 
             for variant in VARIANTS:
                 if (
-                        variant in MONTHLY_VARIANTS
-                        or variant in SEATURDAY
-                        or variant in PAUSED_MONTHLY_VARIANTS
+                    variant in MONTHLY_VARIANTS
+                    or variant in SEATURDAY
+                    or variant in PAUSED_MONTHLY_VARIANTS
                 ):
                     tname = translated_tournament_name(variant, MONTHLY, ARENA, translation)
                     self.tourneynames[lang][(variant, MONTHLY, ARENA)] = tname
@@ -333,5 +352,5 @@ class PychessGlobalAppState:
             value = getattr(self, attr)
             values.append(strfunc(value))
         clsname = type(self).__name__
-        variabs = ', '.join(values)
-        return '{}({})'.format(clsname, variabs)
+        variabs = ", ".join(values)
+        return "{}({})".format(clsname, variabs)

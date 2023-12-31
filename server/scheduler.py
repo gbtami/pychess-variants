@@ -12,8 +12,10 @@ from const import (
     MONTHLY,
     SHIELD,
     variant_display_name,
-    SCHEDULE_MAX_DAYS, TYPE_CHECKING,
+    SCHEDULE_MAX_DAYS,
+    TYPE_CHECKING,
 )
+
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
 

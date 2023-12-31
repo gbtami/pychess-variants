@@ -28,6 +28,7 @@ from const import (
 )
 from newid import new_id
 from const import TYPE_CHECKING
+
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
 from pychess_global_app_state_utils import get_app_state
@@ -38,7 +39,9 @@ from tournament import GameData, PlayerData, SCORE_SHIFT
 log = logging.getLogger(__name__)
 
 
-async def create_or_update_tournament(app_state: PychessGlobalAppState, username, form, tournament=None):
+async def create_or_update_tournament(
+    app_state: PychessGlobalAppState, username, form, tournament=None
+):
     """Manual tournament creation from https://www.pychess.org/tournaments/new form input values"""
 
     variant = form["variant"]

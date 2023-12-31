@@ -39,6 +39,7 @@ from lichess_team_msg import lichess_team_msg
 from misc import time_control_str
 from newid import new_id
 from const import TYPE_CHECKING
+
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
 from spectators import spectators

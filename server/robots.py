@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 ROBOTS_TXT = """User-agent: PetalBot
 Disallow: /
 User-agent: *

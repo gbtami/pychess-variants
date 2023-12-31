@@ -167,7 +167,9 @@ async def event_stream(request):
 
     log.info("+++ BOT %s connected", bot_player.username)
 
-    pinger_task = asyncio.create_task(bot_player.pinger(app_state.sockets, app_state.seeks, app_state.users, app_state.games))
+    pinger_task = asyncio.create_task(
+        bot_player.pinger(app_state.sockets, app_state.seeks, app_state.users, app_state.games)
+    )
 
     # inform others
     # TODO: do we need this at all?
@@ -277,7 +279,7 @@ async def bot_move(request):
 @authorized
 async def bot_abort(request):
     user_agent = request.headers.get("User-Agent")
-    username = user_agent[user_agent.find("user:") + 5:]
+    username = user_agent[user_agent.find("user:") + 5 :]
 
     app_state = get_app_state(request.app)
 
@@ -337,7 +339,6 @@ async def bot_analysis(request):
         if "score" in ceval:
             game.steps[int(ply)]["eval"] = ceval["score"]
 
-
         response = {
             "type": "roundchat",
             "user": bot_name,
@@ -373,11 +374,14 @@ async def bot_chat(request):
     opp_name = game.wplayer.username if username == game.bplayer.username else game.bplayer.username
 
     if not app_state.users[opp_name].bot:
-        await app_state.users[opp_name].send_game_message(gameId, {
+        await app_state.users[opp_name].send_game_message(
+            gameId,
+            {
                 "type": "roundchat",
                 "user": username,
                 "room": data["room"],
                 "message": data["text"],
-            })
+            },
+        )
 
     return web.json_response({"ok": True})

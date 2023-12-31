@@ -83,7 +83,7 @@ async def get_daily_puzzle(request):
 
 
 async def next_puzzle(request, user):
-    app_state = get_app_state(request.app);
+    app_state = get_app_state(request.app)
     skipped = list(user.puzzles.keys())
     filters = [
         {"_id": {"$nin": skipped}},
@@ -127,7 +127,7 @@ async def next_puzzle(request, user):
 
 
 async def puzzle_complete(request):
-    app_state = get_app_state(request.app);
+    app_state = get_app_state(request.app)
     puzzleId = request.match_info.get("puzzleId")
     post_data = await request.post()
     rated = post_data["rated"] == "true"
@@ -175,7 +175,7 @@ async def puzzle_complete(request):
 
 
 async def puzzle_vote(request):
-    app_state = get_app_state(request.app);
+    app_state = get_app_state(request.app)
     puzzleId = request.match_info.get("puzzleId")
     post_data = await request.post()
     good = post_data["vote"] == "true"

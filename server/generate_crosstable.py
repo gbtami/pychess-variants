@@ -1,4 +1,6 @@
 from __future__ import annotations
+
+
 async def generate_crosstable(db):
     ct = {}
     cursor = db.game.find().sort("d")

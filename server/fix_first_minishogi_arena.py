@@ -4,6 +4,7 @@ from datetime import datetime, timezone
 from compress import R2C
 from const import MATE
 from const import TYPE_CHECKING
+
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
 from tournament import SCORE_SHIFT
@@ -41,7 +42,6 @@ def performance(user, games):
 
 
 async def fix_first_minishogi_arena(app_state: PychessGlobalAppState):
-
     tid = "4RP5KEl8"  # First Minishogi Arena
     t = await load_tournament(app_state, tid)
     print(t)

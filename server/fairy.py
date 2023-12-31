@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 # -*- coding: utf-8 -*-
 import logging
 import re
@@ -65,7 +66,7 @@ class FairyBoard:
         self.initial_fen = (
             initial_fen
             if initial_fen
-            else FairyBoard.start_fen(variant, chess960 or variant == "ataxx", disabled_fen) 
+            else FairyBoard.start_fen(variant, chess960 or variant == "ataxx", disabled_fen)
         )
         self.move_stack: list[str] = []
         self.ply = 0
@@ -124,8 +125,8 @@ class FairyBoard:
                 self.chess960,
                 self.sfen,
                 self.show_promoted,
-                self.count_started, 
-				exc_info=True
+                self.count_started,
+                exc_info=True,
             )
             raise
 

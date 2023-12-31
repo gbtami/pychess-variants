@@ -12,6 +12,7 @@ from const import ANON_PREFIX, STARTED
 from login import logout
 from misc import server_state
 from const import TYPE_CHECKING
+
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
 from pychess_global_app_state_utils import get_app_state
@@ -40,6 +41,7 @@ async def init_ws(app_state: PychessGlobalAppState, ws, user):
     await send_game_in_progress_if_any(app_state, user, ws)
     await send_lobby_user_connected(app_state, ws, user)
     await send_get_seeks(ws, app_state.seeks)
+
 
 async def finally_logic(app_state: PychessGlobalAppState, ws, user):
     if user is not None:
@@ -122,9 +124,7 @@ async def handle_create_seek(app_state, ws, user, data):
     seek = await create_seek(app_state.db, app_state.invites, app_state.seeks, user, data, ws)
     await app_state.lobby.lobby_broadcast_seeks()
     if (seek is not None) and seek.target == "":
-        await app_state.discord.send_to_discord(
-            "create_seek", seek.discord_msg
-        )
+        await app_state.discord.send_to_discord("create_seek", seek.discord_msg)
 
 
 async def handle_create_invite(app_state: PychessGlobalAppState, ws, user, data):
@@ -200,7 +200,9 @@ async def send_lobby_user_connected(app_state, ws, user):
     user.update_online()
     app_state.lobby.lobbysockets[user.username] = user.lobby_sockets
 
-    await send_game_in_progress_if_any(app_state, user, ws) # if there is an ongoing game, always notify use on connect
+    await send_game_in_progress_if_any(
+        app_state, user, ws
+    )  # if there is an ongoing game, always notify use on connect
 
     response = {
         "type": "lobby_user_connected",
@@ -219,7 +221,10 @@ async def send_lobby_user_connected(app_state, ws, user):
     if user.is_user_active_in_game() == 0:
         await app_state.lobby.lobby_broadcast_u_cnt()
     else:
-        response = {"type": "u_cnt", "cnt": app_state.online_count()} # todo: duplicated message definition also in lobby_broadcast_u_cnt
+        response = {
+            "type": "u_cnt",
+            "cnt": app_state.online_count(),
+        }  # todo: duplicated message definition also in lobby_broadcast_u_cnt
         await ws.send_json(response)
 
     spotlights = tournament_spotlights(app_state)
@@ -230,8 +235,11 @@ async def send_lobby_user_connected(app_state, ws, user):
     if len(streams) > 0:
         await ws.send_json({"type": "streams", "items": streams})
 
-    if app_state.tv is not None and app_state.tv in app_state.games and hasattr(app_state.games[app_state.tv],
-                                                                                    "tv_game_json"):
+    if (
+        app_state.tv is not None
+        and app_state.tv in app_state.games
+        and hasattr(app_state.games[app_state.tv], "tv_game_json")
+    ):
         await ws.send_json(app_state.games[app_state.tv].tv_game_json)
 
     await user.update_seeks(pending=False)
@@ -288,9 +296,7 @@ async def handle_lobbychat(app_state, user, data):
             server_state(app_state)
 
         else:
-            response = chat_response(
-                "lobbychat", user.username, data["message"]
-            )
+            response = chat_response("lobbychat", user.username, data["message"])
             app_state.lobby.lobbychat.append(response)
 
     elif user.anon and user.username != "Discord-Relay":
@@ -298,18 +304,14 @@ async def handle_lobbychat(app_state, user, data):
 
     else:
         if user.silence == 0:
-            response = chat_response(
-                "lobbychat", user.username, data["message"]
-            )
+            response = chat_response("lobbychat", user.username, data["message"])
             app_state.lobby.lobbychat.append(response)
 
     if response is not None:
         await app_state.lobby.lobby_broadcast(response)
 
     if user.silence == 0 and not admin_command:
-        await app_state.discord.send_to_discord(
-            "lobbychat", data["message"], user.username
-        )
+        await app_state.discord.send_to_discord("lobbychat", data["message"], user.username)
 
 
 async def send_game_in_progress_if_any(app_state: PychessGlobalAppState, user, ws):
