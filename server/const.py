@@ -144,7 +144,7 @@ VARIANTS = (
     "synochess",
     # Shinobi is superseded by Shinobiplus Plus
     "shinobi",
-    # "shinobiplus",
+    "shinobiplus",
     "empire",
     "ordamirror",
     "chak",
