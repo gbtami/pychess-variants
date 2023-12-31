@@ -12,17 +12,6 @@ from urllib.parse import urlparse
 import aiohttp_session
 from aiohttp import web
 
-log = logging.getLogger(__name__)
-
-try:
-    import htmlmin
-
-    html_minify = functools.partial(htmlmin.minify, remove_optional_attribute_quotes=False)
-except ImportError as e:
-    log.error(e, exc_info=True)
-    warnings.warn("Not using HTML minification, htmlmin not imported.")
-    sys.exit(0)
-
 from const import (
     ANON_PREFIX,
     LANGUAGES,
@@ -70,6 +59,17 @@ from puzzle import (
     default_puzzle_perf,
 )
 from custom_trophy_owners import CUSTOM_TROPHY_OWNERS
+
+log = logging.getLogger(__name__)
+
+try:
+    import htmlmin
+
+    html_minify = functools.partial(htmlmin.minify, remove_optional_attribute_quotes=False)
+except ImportError as e:
+    log.error(e, exc_info=True)
+    warnings.warn("Not using HTML minification, htmlmin not imported.")
+    sys.exit(0)
 
 
 async def index(request):

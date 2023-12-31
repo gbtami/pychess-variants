@@ -286,7 +286,6 @@ async def subscribe_invites(request):
     app_state = get_app_state(request.app)
     try:
         async with sse_response(request) as response:
-            app = request.app
             queue = asyncio.Queue()
             app_state.invite_channels.add(queue)
             while not response.task.done():

@@ -7,7 +7,7 @@ from aiohttp import web
 
 from broadcast import round_broadcast
 from const import STARTED, RESIGN
-from seek import challenge, get_seeks, Seek
+from seek import challenge, Seek
 from settings import BOT_TOKENS
 from user import User
 from utils import join_seek, play_move

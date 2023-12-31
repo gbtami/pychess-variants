@@ -1,6 +1,9 @@
 from __future__ import annotations
 
 # -*- coding: utf-8 -*-
+from ataxx import ATAXX_FENS
+from const import CATEGORIES
+
 import logging
 import re
 import random
@@ -11,9 +14,6 @@ try:
     import pyffish as sf
 except ImportError:
     log.error("No pyffish module installed!", exc_info=True)
-
-from ataxx import ATAXX_FENS
-from const import CATEGORIES
 
 WHITE, BLACK = False, True
 FILES = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j"]

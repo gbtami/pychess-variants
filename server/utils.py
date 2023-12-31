@@ -5,12 +5,6 @@ import logging
 
 from const import TYPE_CHECKING
 
-if TYPE_CHECKING:
-    from pychess_global_app_state import PychessGlobalAppState
-from pychess_global_app_state_utils import get_app_state
-
-log = logging.getLogger(__name__)
-
 import random
 from datetime import datetime, timezone, timedelta
 from functools import partial
@@ -19,13 +13,6 @@ from aiohttp import web
 import aiohttp_session
 from aiohttp.web import WebSocketResponse
 from aiohttp_sse import sse_response
-
-try:
-    import pyffish as sf
-
-    sf.set_option("VariantPath", "variants.ini")
-except ImportError:
-    log.error("No pyffish module installed!", exc_info=True)
 
 from broadcast import round_broadcast
 from const import (
@@ -47,6 +34,18 @@ from fairy import BLACK, STANDARD_FEN, FairyBoard
 from game import Game, MAX_PLY
 from newid import new_id
 from settings import URI
+if TYPE_CHECKING:
+    from pychess_global_app_state import PychessGlobalAppState
+from pychess_global_app_state_utils import get_app_state
+
+log = logging.getLogger(__name__)
+
+try:
+    import pyffish as sf
+
+    sf.set_option("VariantPath", "variants.ini")
+except ImportError:
+    log.error("No pyffish module installed!", exc_info=True)
 
 
 # See https://github.com/aio-libs/aiohttp/issues/3122 why this is needed

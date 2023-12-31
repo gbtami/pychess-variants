@@ -46,8 +46,8 @@ async def fix_first_minishogi_arena(app_state: PychessGlobalAppState):
     t = await load_tournament(app_state, tid)
     print(t)
 
-    ubdip = users["ubdip"]
-    Diwaditya = users["Diwaditya"]
+    ubdip = app_state.users["ubdip"]
+    Diwaditya = app_state.users["Diwaditya"]
 
     print(t.players[ubdip].points)
     print(t.players[Diwaditya].points)
@@ -57,8 +57,8 @@ async def fix_first_minishogi_arena(app_state: PychessGlobalAppState):
         return
 
     game_id = "sbsG6jXn"
-    g = await load_game(app, game_id)
-    app[games_key][game_id] = g
+    g = await load_game(app_state, game_id)
+    app_state.games[game_id] = g
 
     g.result = "1-0"
     g.status = MATE
@@ -105,7 +105,7 @@ async def fix_first_minishogi_arena(app_state: PychessGlobalAppState):
     await t.db_update_player(Diwaditya, t.players[Diwaditya])
 
     # fix game
-    await db.game.find_one_and_update(
+    await app_state.db.game.find_one_and_update(
         {"_id": game_id},
         {
             "$set": {
@@ -118,22 +118,22 @@ async def fix_first_minishogi_arena(app_state: PychessGlobalAppState):
     )
 
     # fix ubdip
-    doc = await db.user.find_one({"_id": "ubdip"})
+    doc = await app_state.db.user.find_one({"_id": "ubdip"})
     perfs = doc.get("perfs")
 
     la = "2021-07-17T16:07:59.405Z"
     la = datetime.fromisoformat(la[:-1]).replace(tzinfo=timezone.utc)
     minishogi = {"la": la, "nb": 13, "gl": {"r": 1501 + 322, "d": 315, "v": 0.06}}
     perfs["minishogi"] = minishogi
-    users["ubdip"].perfs = perfs
-    await db.user.find_one_and_update({"_id": "ubdip"}, {"$set": {"perfs": perfs}})
+    app_state.users["ubdip"].perfs = perfs
+    await app_state.db.user.find_one_and_update({"_id": "ubdip"}, {"$set": {"perfs": perfs}})
 
     # fix Diwaditya
-    doc = await db.user.find_one({"_id": "Diwaditya"})
+    doc = await app_state.db.user.find_one({"_id": "Diwaditya"})
     perfs = doc.get("perfs")
     la = "2021-07-17T16:10:37.330Z"
     la = datetime.fromisoformat(la[:-1]).replace(tzinfo=timezone.utc)
     minishogi = {"la": la, "nb": 35, "gl": {"r": 1367 - 209, "d": 252, "v": 0.06}}
     perfs["minishogi"] = minishogi
-    users["Diwaditya"].perfs = perfs
-    await db.user.find_one_and_update({"_id": "Diwaditya"}, {"$set": {"perfs": perfs}})
+    app_state.users["Diwaditya"].perfs = perfs
+    await app_state.db.user.find_one_and_update({"_id": "Diwaditya"}, {"$set": {"perfs": perfs}})

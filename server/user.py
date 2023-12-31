@@ -17,7 +17,6 @@ from const import TYPE_CHECKING
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
 from pychess_global_app_state_utils import get_app_state
-from seek import get_seeks
 
 log = logging.getLogger(__name__)
 
@@ -306,7 +305,7 @@ class User:
             log.debug("Sending message %s to %s. ws = %r", message, self.username, ws)
             try:
                 await ws.send_json(message)
-            except Exception as e:  # ConnectionResetError
+            except Exception:  # ConnectionResetError
                 log.error("dropping message %s for %s", stack_info=True, exc_info=True)
 
     async def close_all_game_sockets(self):

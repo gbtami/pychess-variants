@@ -5,21 +5,7 @@ import logging
 from datetime import datetime, timezone, timedelta
 from time import monotonic
 
-from const import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from pychess_global_app_state import PychessGlobalAppState
-
 from user import User
-
-log = logging.getLogger(__name__)
-
-try:
-    import pyffish as sf
-
-    sf.set_option("VariantPath", "variants.ini")
-except ImportError:
-    log.error("No pyffish module installed!", exc_info=True)
 
 from broadcast import round_broadcast
 from clock import Clock, CorrClock
@@ -52,6 +38,18 @@ from glicko2.glicko2 import gl2
 from draw import reject_draw
 from settings import URI
 from spectators import spectators
+
+if TYPE_CHECKING:
+    from pychess_global_app_state import PychessGlobalAppState
+
+log = logging.getLogger(__name__)
+
+try:
+    import pyffish as sf
+
+    sf.set_option("VariantPath", "variants.ini")
+except ImportError:
+    log.error("No pyffish module installed!", exc_info=True)
 
 log = logging.getLogger(__name__)
 

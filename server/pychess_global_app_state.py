@@ -3,7 +3,6 @@ from __future__ import annotations
 import asyncio
 import collections
 import gettext
-import inspect
 import logging
 from aiohttp import web
 import os
@@ -18,7 +17,6 @@ from ai import BOT_task
 from const import (
     NONE_USER,
     VARIANTS,
-    MAX_CHAT_LINES,
     LANGUAGES,
     MONTHLY,
     ARENA,
@@ -45,7 +43,7 @@ from scheduler import (
     new_scheduled_tournaments,
     create_scheduled_tournaments,
 )
-from seek import Seek, get_seeks
+from seek import Seek
 from settings import DEV, FISHNET_KEYS, static_url, DISCORD_TOKEN
 from tournament import Tournament
 from tournaments import translated_tournament_name, get_scheduled_tournaments, load_tournament
