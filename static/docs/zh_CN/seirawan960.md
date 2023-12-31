@@ -31,7 +31,7 @@ S-Chess 960 为 S-Chess 加入菲舍尔任意制的规则的变种，在游玩�
 
 ![Hawk](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Hawk.png)
 
-鹰的走法等于象+马。在走法上，它是本棋中唯一一个（理论上）能单独将杀的（虽然理论成立，但是实战很困难）。
+鹰的走法等于象+马。在走法上，它能单独对角格的王形成威胁。
 鹰的价值一般认为比车高，但比大象和后低。
 
 ### 大象
