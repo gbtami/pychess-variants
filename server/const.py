@@ -143,7 +143,7 @@ VARIANTS = (
     "orda",
     "synochess",
     # Shinobi is superseded by Shinobiplus Plus
-    "shinobi",
+    # "shinobi",
     "shinobiplus",
     "empire",
     "ordamirror",
@@ -265,8 +265,7 @@ CATEGORIES = {
         "ordamirror",
         "chak",
         "chennis",
-        "shinobi",
-        # "shinobiplus",
+        "shinobiplus",
         "spartan",
     ),
     "makruk": ("makruk", "makpong", "cambodian", "sittuyin", "asean"),
