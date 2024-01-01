@@ -19,16 +19,7 @@ from tournaments import new_tournament
 MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY = range(7)
 Plan = namedtuple("Plan", "freq, date, hour, variant, is960, base, inc, byo, duration")
 
-SHIELDS = [
-    "crazyhouse960",
-    "atomic960",
-    "kingofthehill960",
-    "3check960",
-    "makruk",
-    "shinobi"
-    # "shinobiplus"
-]
-
+SHIELDS = ["crazyhouse960", "atomic960", "kingofthehill960", "3check960", "makruk"]
 SEATURDAY = ["makruk", "makpong", "sittuyin", "cambodian", "asean"]
 
 MONTHLY_VARIANTS = (
@@ -58,8 +49,7 @@ MONTHLY_VARIANTS = (
     "chennis",
     "capablanca",
     "xiangqi",
-    "shinobi",
-    # "shinobiplus",
+    "shinobiplus",
     "spartan",
     "kingofthehill960",
     "3check960",
@@ -67,7 +57,7 @@ MONTHLY_VARIANTS = (
 )
 
 # Old MONTHLY tournaments, needed to create translated tourney names
-PAUSED_MONTHLY_VARIANTS = ("manchu", "duck")
+PAUSED_MONTHLY_VARIANTS = ("shinobi", "manchu", "duck")
 
 # Old WEEKLY tournaments, paused atm., but needed to create translated tourney names
 WEEKLY_VARIANTS = (
