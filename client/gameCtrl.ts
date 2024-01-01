@@ -260,9 +260,12 @@ export abstract class GameController extends ChessgroundController implements Ch
             check: step.check,
             lastMove: move,
         });
+
+        // turnColor have to be actualized before setDests() !!!
+        this.turnColor = step.turnColor;
+
         this.setDests();
 
-        this.turnColor = step.turnColor;
         this.fullfen = step.fen;
         this.suffix = '';
         this.duck.inputState = undefined;

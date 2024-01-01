@@ -352,9 +352,11 @@ export class AnalysisController extends GameController {
 
         // console.log("got board msg:", msg);
         this.fullfen = msg.fen;
-        this.setDests();
         const parts = msg.fen.split(" ");
+        // turnColor have to be actualized before setDests() !!!
         this.turnColor = parts[1] === "w" ? "white" : "black";
+
+        this.setDests();
 
         this.result = msg.result;
         this.status = msg.status;
@@ -858,6 +860,11 @@ export class AnalysisController extends GameController {
 
         // Instead of sending moves to the server we can get new FEN and dests from ffishjs
         this.ffishBoard.push(move);
+        const fen = this.ffishBoard.fen();
+        const parts = fen.split(" ");
+        // turnColor have to be actualized before setDests() !!!
+        this.turnColor = parts[1] === "w" ? "white" : "black";
+
         this.setDests();
 
         const newPly = this.ply + 1;
