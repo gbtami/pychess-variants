@@ -25,7 +25,7 @@
 
 ![Archbishop](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/ArchbishopShogun.png)
 
-大主教是一种常见的仙灵棋子，即象+马。在本棋中，它由象升变而来，走法在象的基础上增加马的走法。因此，只有它能单人匹马把王将死。（虽然理论成立，但是实战很困难）
+大主教是一种常见的仙灵棋子，即象+马。在本棋中，它由象升变而来，走法在象的基础上增加马的走法。因此，它能单独对角格的王形成威胁。
 
 ### 首相 | Mortar (M)
 
