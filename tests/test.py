@@ -74,8 +74,8 @@ PERFS["weakplayer"]["crazyhouse960"] = {
 
 class GameResultTestCase(AioHTTPTestCase):
     async def startup(self, app):
-        self.bplayer = User(self.app, username="bplayer", perfs=PERFS["newplayer"])
-        self.wplayer = User(self.app, username="wplayer", perfs=PERFS["newplayer"])
+        self.bplayer = User(get_app_state(self.app), username="bplayer", perfs=PERFS["newplayer"])
+        self.wplayer = User(get_app_state(self.app), username="wplayer", perfs=PERFS["newplayer"])
 
     async def get_application(self):
         app = make_app()
@@ -87,7 +87,7 @@ class GameResultTestCase(AioHTTPTestCase):
 
     async def test_atomic_stalemate(self):
         FEN = "K7/Rk6/2B5/8/8/8/7Q/8 w - - 0 1"
-        game = Game(self.app, "12345678", "atomic", FEN, self.wplayer, self.bplayer, rated=False)
+        game = Game(get_app_state(self.app), "12345678", "atomic", FEN, self.wplayer, self.bplayer, rated=False)
         await game.play_move("h2b8")
 
         self.assertEqual(game.result, "1/2-1/2")
@@ -95,27 +95,27 @@ class GameResultTestCase(AioHTTPTestCase):
 
     async def test_atomic_checkmate(self):
         FEN = "B6Q/Rk6/8/8/8/8/8/4K3 w - - 0 1"
-        game = Game(self.app, "12345678", "atomic", FEN, self.wplayer, self.bplayer, rated=False)
+        game = Game(get_app_state(self.app), "12345678", "atomic", FEN, self.wplayer, self.bplayer, rated=False)
         await game.play_move("h8b8")
 
         self.assertEqual(game.result, "1-0")
         self.assertEqual(game.status, MATE)
 
     async def test_janggi_flag_0(self):
-        game = Game(self.app, "12345678", "janggi", "", self.wplayer, self.bplayer)
+        game = Game(get_app_state(self.app), "12345678", "janggi", "", self.wplayer, self.bplayer)
         await game.game_ended(self.bplayer, "flag")
 
         self.assertEqual(game.result, "1-0")
 
     async def test_janggi_flag_1(self):
-        game = Game(self.app, "12345678", "janggi", "", self.wplayer, self.bplayer)
+        game = Game(get_app_state(self.app), "12345678", "janggi", "", self.wplayer, self.bplayer)
         game.bsetup = False
         await game.game_ended(self.wplayer, "flag")
 
         self.assertEqual(game.result, "0-1")
 
     async def test_janggi_flag_2(self):
-        game = Game(self.app, "12345678", "janggi", "", self.wplayer, self.bplayer)
+        game = Game(get_app_state(self.app), "12345678", "janggi", "", self.wplayer, self.bplayer)
         game.bsetup = False
         game.wsetup = False
         await game.game_ended(self.wplayer, "flag")
@@ -123,7 +123,7 @@ class GameResultTestCase(AioHTTPTestCase):
         self.assertEqual(game.result, "0-1")
 
     async def test_janggi_flag_3(self):
-        game = Game(self.app, "12345678", "janggi", "", self.wplayer, self.bplayer)
+        game = Game(get_app_state(self.app), "12345678", "janggi", "", self.wplayer, self.bplayer)
         game.bsetup = False
         game.wsetup = False
         await game.game_ended(self.bplayer, "flag")
@@ -203,7 +203,7 @@ class RequestLobbyTestCase(AioHTTPTestCase):
 class GamePlayTestCase(AioHTTPTestCase):
     async def startup(self, app):
         app_state = get_app_state(self.app)
-        self.test_player = User(self.app, username="test_player", perfs=PERFS["newplayer"])
+        self.test_player = User(app_state, username="test_player", perfs=PERFS["newplayer"])
         self.random_mover = app_state.users["Random-Mover"]
 
     async def get_application(self):
@@ -227,7 +227,7 @@ class GamePlayTestCase(AioHTTPTestCase):
             variant_name = variant[:-3] if variant960 else variant
             game_id = id8()
             game = Game(
-                self.app,
+                get_app_state(self.app),
                 game_id,
                 variant_name,
                 "",
@@ -256,10 +256,10 @@ class HighscoreTestCase(AioHTTPTestCase):
         app_state.highscore = {variant: ValueSortedDict(neg) for variant in VARIANTS}
         app_state.highscore["crazyhouse960"] = ValueSortedDict(neg, ZH960)
 
-        self.wplayer = User(self.app, username="user7", perfs=PERFS["user7"])
-        self.bplayer = User(self.app, username="newplayer", perfs=PERFS["newplayer"])
-        self.strong_player = User(self.app, username="strongplayer", perfs=PERFS["strongplayer"])
-        self.weak_player = User(self.app, username="weakplayer", perfs=PERFS["weakplayer"])
+        self.wplayer = User(app_state, username="user7", perfs=PERFS["user7"])
+        self.bplayer = User(app_state, username="newplayer", perfs=PERFS["newplayer"])
+        self.strong_player = User(app_state, username="strongplayer", perfs=PERFS["strongplayer"])
+        self.weak_player = User(app_state, username="weakplayer", perfs=PERFS["weakplayer"])
 
     async def get_application(self):
         app = make_app()
@@ -289,7 +289,7 @@ class HighscoreTestCase(AioHTTPTestCase):
     async def test_lost_but_still_there(self):
         game_id = id8()
         game = Game(
-            self.app,
+            get_app_state(self.app),
             game_id,
             "crazyhouse",
             "",
@@ -320,7 +320,7 @@ class HighscoreTestCase(AioHTTPTestCase):
     async def test_lost_and_out(self):
         game_id = id8()
         game = Game(
-            self.app,
+            get_app_state(self.app),
             game_id,
             "crazyhouse",
             "",
@@ -351,7 +351,7 @@ class HighscoreTestCase(AioHTTPTestCase):
     async def test_win_and_in_then_lost_and_out(self):
         game_id = id8()
         game = Game(
-            self.app,
+            get_app_state(self.app),
             game_id,
             "crazyhouse",
             "",
@@ -383,7 +383,7 @@ class HighscoreTestCase(AioHTTPTestCase):
         # now strong player will lose to weak_player and should be out from leaderboard
         game_id = id8()
         game = Game(
-            self.app,
+            get_app_state(self.app),
             game_id,
             "crazyhouse",
             "",
@@ -429,7 +429,7 @@ class RatingTestCase(AioHTTPTestCase):
         default_rating = self.gl2.create_rating()
 
         user = User(
-            self.app,
+            get_app_state(self.app),
             username="testuser",
             perfs={variant: DEFAULT_PERF for variant in VARIANTS},
         )
@@ -441,7 +441,7 @@ class RatingTestCase(AioHTTPTestCase):
         # New Glicko2 rating calculation example from original paper
 
         u1 = User(
-            self.app,
+            get_app_state(self.app),
             username="testuser1",
             perfs={
                 "chess": {
@@ -457,7 +457,7 @@ class RatingTestCase(AioHTTPTestCase):
         self.assertEqual(r1.sigma, 0.06)
 
         u2 = User(
-            self.app,
+            get_app_state(self.app),
             username="testuser2",
             perfs={
                 "chess": {
@@ -470,7 +470,7 @@ class RatingTestCase(AioHTTPTestCase):
         self.assertEqual(r2.mu, 1400)
 
         u3 = User(
-            self.app,
+            get_app_state(self.app),
             username="testuser3",
             perfs={
                 "chess": {
@@ -483,7 +483,7 @@ class RatingTestCase(AioHTTPTestCase):
         self.assertEqual(r3.mu, 1550)
 
         u4 = User(
-            self.app,
+            get_app_state(self.app),
             username="testuser4",
             perfs={
                 "chess": {
@@ -512,11 +512,11 @@ class RatingTestCase(AioHTTPTestCase):
 
 class FirstRatedGameTestCase(AioHTTPTestCase):
     async def startup(self, app):
-        self.bplayer1 = User(self.app, username="bplayer", perfs=PERFS["newplayer"])
-        self.wplayer1 = User(self.app, username="wplayer", perfs=PERFS["newplayer"])
+        self.bplayer1 = User(get_app_state(self.app), username="bplayer", perfs=PERFS["newplayer"])
+        self.wplayer1 = User(get_app_state(self.app), username="wplayer", perfs=PERFS["newplayer"])
 
-        self.bplayer2 = User(self.app, username="bplayer", perfs=PERFS["newplayer"])
-        self.wplayer2 = User(self.app, username="wplayer", perfs=PERFS["newplayer"])
+        self.bplayer2 = User(get_app_state(self.app), username="bplayer", perfs=PERFS["newplayer"])
+        self.wplayer2 = User(get_app_state(self.app), username="wplayer", perfs=PERFS["newplayer"])
 
     async def get_application(self):
         app = make_app()
@@ -527,7 +527,7 @@ class FirstRatedGameTestCase(AioHTTPTestCase):
         await self.client.close()
 
     async def test_ratings(self):
-        game = Game(self.app, "12345678", "chess", "", self.wplayer1, self.bplayer1, rated=True)
+        game = Game(get_app_state(self.app), "12345678", "chess", "", self.wplayer1, self.bplayer1, rated=True)
         game.board.ply = 3
         await game.game_ended(self.bplayer1, "flag")
 
@@ -537,7 +537,7 @@ class FirstRatedGameTestCase(AioHTTPTestCase):
         self.assertEqual(round(rw.mu, 3), 1662.212)
         self.assertEqual(round(rb.mu, 3), 1337.788)
 
-        game = Game(self.app, "12345678", "chess", "", self.wplayer2, self.bplayer2, rated=True)
+        game = Game(get_app_state(self.app), "12345678", "chess", "", self.wplayer2, self.bplayer2, rated=True)
         game.board.ply = 3
         await game.game_ended(self.wplayer2, "flag")
 
