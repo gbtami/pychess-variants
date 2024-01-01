@@ -194,7 +194,7 @@ async def shutdown(app):
     # close game_sockets
     for user in list(app_state.users.values()):
         if not user.bot:
-            user.close_all_game_sockets()
+            await user.close_all_game_sockets()
 
     # close lobbysockets
     await app_state.lobby.close_lobby_sockets()
