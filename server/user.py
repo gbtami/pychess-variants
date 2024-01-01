@@ -11,16 +11,17 @@ from aiohttp import web
 
 from broadcast import round_broadcast
 from const import ANON_PREFIX, NOTIFY_PAGE_SIZE, STARTED, VARIANTS
-from game import Game
 from glicko2.glicko2 import gl2, DEFAULT_PERF, Rating
 from login import RESERVED_USERS
 from newid import id8, new_id
 from const import TYPE_CHECKING
 from seek import Seek
-from utils import MyWebSocketResponse
 
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
+    from game import Game
+    from utils import MyWebSocketResponse
+
 from pychess_global_app_state_utils import get_app_state
 
 log = logging.getLogger(__name__)
