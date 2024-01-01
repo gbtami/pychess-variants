@@ -330,7 +330,7 @@ async def init_state(app):
 
         translation.install()
 
-        for variant in VARIANTS:
+        for variant in VARIANTS + PAUSED_MONTHLY_VARIANTS:
             if (
                 variant in MONTHLY_VARIANTS
                 or variant in SEATURDAY
