@@ -344,7 +344,7 @@ async def import_game(request):
     game_id = await new_id(None if app_state.db is None else app_state.db.game)
     existing = await app_state.db.game.find_one({"_id": {"$eq": game_id}})
     if existing:
-        message = "Failed to create game. Game ID %s allready in mongodb." % game_id
+        message = "Failed to create game. Game ID %s already in mongodb." % game_id
         log.exception(message)
         return web.json_response({"error": message})
 
@@ -588,7 +588,7 @@ async def analysis_move(user, game, move, fen, ply):
         check = board.is_checked()
     except Exception:
         invalid_move = True
-        log.exception("!!! analysis_move() exception occured")
+        log.exception("!!! analysis_move() exception occurred")
 
     if invalid_move:
         analysis_board_response = game.get_board(full=True)

@@ -190,7 +190,7 @@ async def handle_accept_seek(app_state: PychessGlobalAppState, ws, user, data):
         else:
             await seek.ws.send_json(response)
 
-    # Inform others, new_game() deleted accepted seek allready.
+    # Inform others, new_game() deleted accepted seek already.
     await app_state.lobby.lobby_broadcast_seeks()
 
 

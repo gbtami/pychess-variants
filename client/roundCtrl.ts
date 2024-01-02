@@ -1087,7 +1087,7 @@ export class RoundController extends GameController {
             const container = document.getElementById('player1') as HTMLElement;
             patch(container, h('i-side.online#player1', {class: {"icon": true, "icon-online": true, "icon-offline": false}}));
 
-            // prevent sending gameStart message when user just reconecting
+            // prevent sending gameStart message when user just reconnecting
             if (msg.ply === 0) {
                 this.doSend({ type: "ready", gameId: this.gameId });
             //    if (this.variant.setup) {
