@@ -275,7 +275,7 @@ class HighscoreTestCase(AioHTTPTestCase):
         print("----")
         print(game.wplayer.perfs["crazyhouse960"])
         print(game.bplayer.perfs["crazyhouse960"])
-        for row in game.highscore["crazyhouse960"].items():
+        for row in game.app_state.highscore["crazyhouse960"].items():
             print(row)
 
     async def play_and_resign(self, game, player):
@@ -305,17 +305,17 @@ class HighscoreTestCase(AioHTTPTestCase):
         self.assertEqual(len(game.crosstable["r"]), 0)
 
         self.print_game_highscore(game)
-        highscore0 = game.highscore["crazyhouse960"].peekitem(7)
+        highscore0 = game.app_state.highscore["crazyhouse960"].peekitem(7)
 
         # wplayer resign 0-1
         await self.play_and_resign(game, self.wplayer)
 
         self.print_game_highscore(game)
-        highscore1 = game.highscore["crazyhouse960"].peekitem(7)
+        highscore1 = game.app_state.highscore["crazyhouse960"].peekitem(7)
 
         self.assertEqual(len(game.crosstable["r"]), 1)
         self.assertNotEqual(highscore0, highscore1)
-        self.assertTrue(self.wplayer.username in game.highscore["crazyhouse960"])
+        self.assertTrue(self.wplayer.username in game.app_state.highscore["crazyhouse960"])
 
     async def test_lost_and_out(self):
         game_id = id8()
@@ -332,21 +332,22 @@ class HighscoreTestCase(AioHTTPTestCase):
         )
         app_state = get_app_state(self.app)
         app_state.games[game.id] = game
-        self.assertEqual(game.status, CREATED)
-        self.assertEqual(len(game.crosstable["r"]), 0)
+        self.assertEqual(game.status, CREATED, msg="status not equal to CREATED")
+        self.assertEqual(len(game.crosstable["r"]), 0, msg="game.crosstable not empty")
 
         self.print_game_highscore(game)
-        highscore0 = game.highscore["crazyhouse960"].peekitem(7)
+        highscore0 = game.app_state.highscore["crazyhouse960"].peekitem(7)
 
         # wplayer resign 0-1
         await self.play_and_resign(game, self.wplayer)
 
         self.print_game_highscore(game)
-        highscore1 = game.highscore["crazyhouse960"].peekitem(7)
+        highscore1 = game.app_state.highscore["crazyhouse960"].peekitem(7)
 
-        self.assertEqual(len(game.crosstable["r"]), 1)
-        self.assertNotEqual(highscore0, highscore1)
-        self.assertTrue(self.wplayer.username not in game.highscore["crazyhouse960"].keys()[:10])
+        self.assertEqual(len(game.crosstable["r"]), 1, msg="game.crosstable still empty")
+        self.assertNotEqual(highscore0, highscore1, msg="highscore not changed")
+        self.assertTrue(self.wplayer.username not in game.app_state.highscore["crazyhouse960"].keys()[:10], msg="wplayer not in "
+                                                                                                      "highscore")
 
     async def test_win_and_in_then_lost_and_out(self):
         game_id = id8()
@@ -376,9 +377,9 @@ class HighscoreTestCase(AioHTTPTestCase):
         self.assertEqual(len(game.crosstable["r"]), 1)
         print(game.crosstable)
         self.assertTrue(
-            self.weak_player.username not in game.highscore["crazyhouse960"].keys()[:10]
+            self.weak_player.username not in game.app_state.highscore["crazyhouse960"].keys()[:10]
         )
-        self.assertTrue(self.strong_player.username in game.highscore["crazyhouse960"].keys()[:10])
+        self.assertTrue(self.strong_player.username in game.app_state.highscore["crazyhouse960"].keys()[:10])
 
         # now strong player will lose to weak_player and should be out from leaderboard
         game_id = id8()
@@ -404,10 +405,10 @@ class HighscoreTestCase(AioHTTPTestCase):
         print(game.crosstable)
         self.assertEqual(len(game.crosstable["r"]), 2)
         self.assertTrue(
-            self.weak_player.username not in game.highscore["crazyhouse960"].keys()[:10]
+            self.weak_player.username not in game.app_state.highscore["crazyhouse960"].keys()[:10]
         )
         self.assertTrue(
-            self.strong_player.username not in game.highscore["crazyhouse960"].keys()[:10]
+            self.strong_player.username not in game.app_state.highscore["crazyhouse960"].keys()[:10]
         )
 
 
