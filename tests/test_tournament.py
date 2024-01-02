@@ -214,7 +214,7 @@ class TournamentTestCase(AioHTTPTestCase):
         app_state.db = None
         tid = id8()
         self.tournament = ArenaTestTournament(
-            self.app, tid, before_start=1.0 / 60.0, minutes=2.0 / 60.0
+            app_state, tid, before_start=1.0 / 60.0, minutes=2.0 / 60.0
         )
         app_state.tournaments[tid] = self.tournament
 
@@ -234,7 +234,7 @@ class TournamentTestCase(AioHTTPTestCase):
         app_state.db = None
         NB_PLAYERS = 15
         tid = id8()
-        self.tournament = ArenaTestTournament(self.app, tid, before_start=0, minutes=0)
+        self.tournament = ArenaTestTournament(app_state, tid, before_start=0, minutes=0)
         app_state.tournaments[tid] = self.tournament
         await self.tournament.join_players(NB_PLAYERS)
 
@@ -257,7 +257,7 @@ class TournamentTestCase(AioHTTPTestCase):
         app_state.db = None
         NB_PLAYERS = 15
         tid = id8()
-        self.tournament = ArenaTestTournament(self.app, tid, before_start=0.1, minutes=1)
+        self.tournament = ArenaTestTournament(app_state, tid, before_start=0.1, minutes=1)
         app_state.tournaments[tid] = self.tournament
         await self.tournament.join_players(NB_PLAYERS)
 
@@ -281,7 +281,7 @@ class TournamentTestCase(AioHTTPTestCase):
         NB_PLAYERS = 15
         NB_ROUNDS = 5
         tid = id8()
-        self.tournament = SwissTestTournament(self.app, tid, before_start=0, rounds=NB_ROUNDS)
+        self.tournament = SwissTestTournament(app_state, tid, before_start=0, rounds=NB_ROUNDS)
         app_state.tournaments[tid] = self.tournament
         await self.tournament.join_players(NB_PLAYERS)
 
@@ -324,7 +324,7 @@ class TournamentTestCase(AioHTTPTestCase):
         NB_ROUNDS = 5
 
         tid = id8()
-        self.tournament = RRTestTournament(self.app, tid, before_start=0, rounds=NB_ROUNDS)
+        self.tournament = RRTestTournament(app_state, tid, before_start=0, rounds=NB_ROUNDS)
         app_state.tournaments[tid] = self.tournament
         await self.tournament.join_players(NB_PLAYERS)
 
