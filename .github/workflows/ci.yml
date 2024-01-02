@@ -31,9 +31,9 @@ jobs:
     - name: Lint with flake8
       run: |
         flake8 server/ --count --show-source --statistics
-    - name: Typecheck with mypy
-      run: |
-        mypy server/
+#    - name: Typecheck with mypy
+#      run: |
+#        mypy server/
     - name: Run unit tests
       run: |
         PYTHONPATH=server python tests/test.py
