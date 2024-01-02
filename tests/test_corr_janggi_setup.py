@@ -52,8 +52,8 @@ class CorrJanggiGameTestCase(AioHTTPTestCase):
     async def create_users(self):
         app_state = get_app_state(self.app)
 
-        blue_player = User(self.app, username="blue", perfs=PERFS)
-        red_player = User(self.app, username="red", perfs=PERFS)
+        blue_player = User(app_state, username="blue", perfs=PERFS)
+        red_player = User(app_state, username="red", perfs=PERFS)
 
         app_state.users["blue"] = blue_player
         app_state.users["red"] = red_player
@@ -71,7 +71,7 @@ class CorrJanggiGameTestCase(AioHTTPTestCase):
         games = app_state.db.game
         doc = await games.find_one({"us": ["blue", "red"]})
 
-        game = await load_game(self.app, doc["_id"])
+        game = await load_game(app_state, doc["_id"])
         if game is not None:
             app_state.games[doc["_id"]] = game
             game.wplayer.correspondence_games.append(game)
@@ -93,7 +93,7 @@ class CorrJanggiGameTestCase(AioHTTPTestCase):
             player1=blue_player,
         )
         app_state.seeks[seek.id] = seek
-        response = await join_seek(self.app, red_player, seek.id)
+        response = await join_seek(app_state, red_player, seek.id)
         gameId = response["gameId"]
 
         game = app_state.games[gameId]
