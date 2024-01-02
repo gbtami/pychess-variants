@@ -705,7 +705,7 @@ async def round_socket_handler(request):
         log.exception("ERROR: Exception in round_socket_handler() owned by %s ", session_user)
 
     finally:
-        log.debug("--- wsr.py fianlly: await ws.close() %s", session_user)
+        log.debug("--- wsr.py finally: await ws.close() %s", session_user)
         await ws.close()
 
         if game is not None and user is not None and not user.bot:

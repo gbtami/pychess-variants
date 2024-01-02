@@ -51,7 +51,7 @@ async def fix_first_minishogi_arena(app):
     print(t.players[Diwaditya].points)
 
     if t.players[ubdip].points[-1] != "*":
-        print("Nothing to do. Aready fixed.")
+        print("Nothing to do. Already fixed.")
         return
 
     game_id = "sbsG6jXn"

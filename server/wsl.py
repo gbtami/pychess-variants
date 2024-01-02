@@ -206,7 +206,7 @@ async def lobby_socket_handler(request):
                             else:
                                 await seek.ws.send_json(response)
 
-                        # Inform others, new_game() deleted accepted seek allready.
+                        # Inform others, new_game() deleted accepted seek already.
                         await lobby_broadcast(sockets, get_seeks(seeks))
 
                     elif data["type"] == "lobby_user_connected":
@@ -351,7 +351,7 @@ async def lobby_socket_handler(request):
         log.exception("ERROR: Exception in lobby_socket_handler() owned by %s ", session_user)
 
     finally:
-        log.debug("--- wsl.py fianlly: await ws.close() %s", session_user)
+        log.debug("--- wsl.py finally: await ws.close() %s", session_user)
         await ws.close()
 
         if user is not None:

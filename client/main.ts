@@ -29,7 +29,7 @@ if (window.location.href.includes('heroku') && !window.location.href.includes('-
 
 function initModel(el: HTMLElement) {
     // We have to remove leading and trailing double quotes from anon names
-    // because python http.cookies.SimpleCookie() adds it when name containes dash "–"
+    // because python http.cookies.SimpleCookie() adds it when name contains dash "–"
     const user = getCookie("user").replace(/(^"|"$)/g, '');
 
     let ct = el.getAttribute("data-ct") ?? "";

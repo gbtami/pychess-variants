@@ -253,7 +253,7 @@ async def tournament_socket_handler(request):
         log.exception("ERROR: Exception in tournament_socket_handler() owned by %s ", session_user)
 
     finally:
-        log.debug("--- wsl.py fianlly: await ws.close() %s", session_user)
+        log.debug("--- wsl.py finally: await ws.close() %s", session_user)
         await ws.close()
 
         if user is not None:
