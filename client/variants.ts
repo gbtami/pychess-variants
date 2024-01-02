@@ -201,7 +201,7 @@ interface VariantConfig {
     tooltip: string;
     // Start FEN for use in some client-side calculations
     startFen: string;
-    // Whether it is possible to play a randomized starting positon (default: false)
+    // Whether it is possible to play a randomized starting position (default: false)
     chess960?: boolean;
     // Icon letter in the site's font
     icon: string;

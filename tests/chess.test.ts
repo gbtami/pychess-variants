@@ -37,7 +37,7 @@ describe('validFen test',
 
 describe('uci2cg test', 
     () => { 
-        it('should chnage all occurences of "10" to ":" in UCI moves', () => { 
+        it('should change all occurrences of "10" to ":" in UCI moves', () => { 
             const result = uci2cg('a10j10' as UCIMove);
             expect(result).to.be.equal('a:j:'); 
     }); 
@@ -45,7 +45,7 @@ describe('uci2cg test',
 
 describe('cg2uci test', 
     () => { 
-        it('should chnage all occurences of ":" to "10" in UCI moves', () => { 
+        it('should change all occurrences of ":" to "10" in UCI moves', () => { 
             const result = cg2uci('a:j:');
             expect(result).to.be.equal('a10j10'); 
     }); 
