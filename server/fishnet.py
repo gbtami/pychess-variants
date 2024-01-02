@@ -252,7 +252,7 @@ async def fishnet_abort(request):
     try:
         app_state.workers.remove(data["fishnet"]["apikey"])
     except KeyError:
-        log.debug("Worker %s was was already removed", key)
+        log.debug("Worker %s was already removed", key)
 
     # re-schedule the job
     app_state.fishnet_queue.put_nowait((ANALYSIS, work_id))

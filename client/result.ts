@@ -88,6 +88,7 @@ export function result(variant: Variant, status: number, result: string) {
                 case 'synochess':
                 case 'dobutsu':
                 case 'shinobi':
+                case 'shinobiplus':
                 case 'empire':
                 case 'ordamirror':
                     text = _('Campmate');

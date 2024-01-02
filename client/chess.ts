@@ -361,7 +361,7 @@ export function promotionSuffix(move: UCIMove | CGMove): PromotionSuffix {
     }
 }
 
-// Count given letter occurences in a string
+// Count given letter occurrences in a string
 export function lc(str: string, letter: string, uppercase: boolean): number {
     if (uppercase)
         letter = letter.toUpperCase();

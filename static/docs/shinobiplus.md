@@ -21,7 +21,7 @@ The game was initially considered balance by engine selfplay. However, player ex
 
 ## Clan Pieces
 
-There are five new units unique to the Clan: the Ninja, the Dragon, the Fox, Lances, Wooden Horses, and Monks. Captains are a new piece available to both sides. Do not be intimidated; all these pieces have movements that are very similar to the original chess pieces! The Ninja, Dragon, and Fox are special pieces more unique pieces to the Clan, while the other new pieces are essentially weaker version of their Kingdom counterparts. The Ninja, the Dragon, the Fox, and Captains do not promote. 
+There are six new units unique to the Clan: Ninja, Dragon, Fox, Lance, Wooden Horse, and Monk. Captains are a new piece available to both sides. Do not be intimidated; all these pieces have movements that are very similar to the original chess pieces! The Ninja, Dragon, and Fox are special pieces more unique pieces to the Clan, while the other new pieces are essentially weaker version of their Kingdom counterparts. The Ninja, the Dragon, the Fox, and Captains do not promote. 
 The Clan also has access to the Kingdom pieces of the Rook, Bishop, and Knight after promotion.  The Clan’s king is called a Kage (K) and has a different symbol, but the change is purely aesthetic and thematic: it behaves like an orthodox King. Clan Rooks and Bishops look different, but the changes are also aesthetic.
 
 ### Captain (C)
@@ -64,7 +64,7 @@ The Lance is like a Rook but can only move straight forward. This is identical t
 
 ![Wooden Horse](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Horse.png)
 
-The Wooden Horse (or Horse, for short) is like a Knight but can only move to the forward-most two spots. This is identical to the Knight in Shogi. One Horse starts in hand and can be thought of a droppable fork. Because it can't retreat, make sure the drop counts! The Knights that start on the board can exert pressure similarly, but must be moved carefully because they cannot retreat. The **Horse promotes to a Knight** upon reaching the 7th or 8th rank; promotion is mandatory. The Horse is valued less than the typical minor Kingdom piece; however, it has hidden value in its ability to promote to a Knight.
+The Wooden Horse (or Horse, for short) is like a Knight but can only move to the forward-most two spots. This is identical to the Knight in Shogi. One Horse starts in hand and can be thought of a droppable fork. Because it can't retreat, make sure the drop counts! The **Horse promotes to a Knight** upon reaching the 7th or 8th rank; promotion is mandatory. The Horse is valued less than the typical minor Kingdom piece; however, it has hidden value in its ability to promote to a Knight.
 
 ### Monk (M)
 

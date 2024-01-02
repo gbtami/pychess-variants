@@ -70,7 +70,7 @@ export interface TournamentPlayer {
     paused: boolean;
     title: string;
     rating: number;
-    points: any[]; // TODO: I am not sure what elements can be in here. most of the time i see 2-element arrays (i think first is the result, second a streak flag or somthing). But i've seen also string '*' as well and there is that chck about isArray that might mean more cases with numeric scalars exist
+    points: any[]; // TODO: I am not sure what elements can be in here. most of the time i see 2-element arrays (i think first is the result, second a streak flag or something). But i've seen also string '*' as well and there is that check about isArray that might mean more cases with numeric scalars exist
     fire: number;
     perf: number;
     nbGames: number;

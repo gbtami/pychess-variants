@@ -21,7 +21,7 @@ So my goal was to:
 A) Create a game that was relatively balanced
 B) Create a game that was more accessible to non-shogi players.
 
-As Chess pieces had more range, I needed a slightly bigger board to accomodate them, resulting in a 7x7 board. However, to keep the game as fast-paced as Kyoto, I also had to restrict the kings. This resulted in sectioned-off regions of the board that coincidentally resembled a tennis court. Because of the back-and-forth nature of the game, the parallels to tennis were embraced, and the game became "Chennis" (as opposed to "Kyoto Chess")!
+As Chess pieces had more range, I needed a slightly bigger board to accommodate them, resulting in a 7x7 board. However, to keep the game as fast-paced as Kyoto, I also had to restrict the kings. This resulted in sectioned-off regions of the board that coincidentally resembled a tennis court. Because of the back-and-forth nature of the game, the parallels to tennis were embraced, and the game became "Chennis" (as opposed to "Kyoto Chess")!
 
 The pieces in Chennis are all a combination of short-ranged and long-ranged pieces. To allow for more options, I also used the soldier/pawn and cannon from xiangqi. In addition to the restricted king area, you could say this game also features a lot of xiangqi. And in combination, this game is an amalgamation of Chess, Xiangqi, and (Kyoto) Shogi!
 
