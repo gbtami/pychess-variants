@@ -756,12 +756,7 @@ export class RoundController extends GameController {
         // turnColor have to be actualized before setDests() !!!
         const parts = msg.fen.split(" ");
         this.turnColor = parts[1] === "w" ? "white" : "black";
-
         this.fullfen = msg.fen;
-        if (this.ffishBoard) {
-            this.ffishBoard.setFen(this.fullfen);
-            this.setDests();
-        }
 
         this.clocktimes = msg.clocks || this.clocktimes;
 
@@ -863,7 +858,7 @@ export class RoundController extends GameController {
             this.clocks[bclock].increment = 0;
             if (msg.ply <= 2) this.clocks[bclock].setTime(this.base * 1000 * 30);
         }
-        console.log("onMsgBoard() this.clockOn && msg.status", this.clockOn, msg.status);
+        // console.log("onMsgBoard() this.clockOn && msg.status", this.clockOn, msg.status);
         if (this.spectator) {
             if (latestPly) {
                 this.chessground.set({
@@ -919,6 +914,14 @@ export class RoundController extends GameController {
                 }
             }
         }
+        // This have to be here, becuse in case of takeback 
+        // ataxx setDests() needs not just actualized turnColor but
+        // actualized chessground.state.boardState.pieces as well !!!
+        if (this.ffishBoard) {
+            this.ffishBoard.setFen(this.fullfen);
+            this.setDests();
+        }
+
         this.updateMaterial();
     }
 
