@@ -71,8 +71,6 @@ export class RoundController extends GameController {
             const cl = document.body.classList; // removing the "reconnecting" message in lower left corner
             cl.remove('offline');
             cl.add('online');
-
-            // this.doSend({ type: "game_user_connected", username: this.username, gameId: this.gameId });
         };
 
         const onReconnect = () => {

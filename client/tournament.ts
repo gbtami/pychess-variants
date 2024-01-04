@@ -637,9 +637,6 @@ export class TournamentController implements ChatController {
 
     private onMsgChat(msg: MsgChat) {
         chatMessage(msg.user, msg.message, "lobbychat", msg.time);
-        // seems this is annoying for most of the users
-        //if (msg.user.length !== 0 && msg.user !== '_server')
-        //    sound.socialNotify();
     }
     private onMsgFullChat(msg: MsgFullChat) {
         // To prevent multiplication of messages we have to remove old messages div first

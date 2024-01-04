@@ -86,8 +86,6 @@ export class LobbyController implements ChatController {
 
         const onOpen = () => {
             console.log('onOpen()');
-            // this.doSend({ type: "lobby_user_connected", username: this.username});
-            // this.doSend({ type: "get_seeks" });
         }
 
         this.sock = newWebsocket('wsl');
