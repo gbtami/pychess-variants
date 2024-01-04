@@ -233,7 +233,7 @@ async def twitch_request_handler(request):
             return web.Response(text=challenge)
 
     elif header_msg_type == "notification":
-        twitch = app_state.twitch_key
+        twitch = app_state.twitch
         event = json.get("event")
         streamer = event["broadcaster_user_login"]
         log.debug("--- twitch notification --- %s %s", streamer, event)

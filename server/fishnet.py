@@ -129,7 +129,7 @@ async def fishnet_acquire(request):
         app_state.fishnet_monitor[worker].append(nnue)
         app_state.users["Fairy-Stockfish"].online = True
 
-    response = await get_work(request, data)
+    response = await get_work(app_state, data)
     return response
 
 
@@ -211,7 +211,7 @@ async def fishnet_move(request):
     )
 
     if work_id not in app_state.fishnet_works:
-        response = await get_work(request, data)
+        response = await get_work(app_state, data)
         return response
 
     work = app_state.fishnet_works[work_id]
@@ -229,7 +229,7 @@ async def fishnet_move(request):
 
     await play_move(app_state, user, game, move)
 
-    response = await get_work(request, data)
+    response = await get_work(app_state, data)
     return response
 
 

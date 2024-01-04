@@ -470,7 +470,7 @@ class Game:
             await asyncio.sleep(keep_time)
 
             if self.id == self.app_state.tv:
-                self.app_state.tv_key = None
+                self.app_state.tv = None
 
             try:
                 del self.app_state.games[self.id]

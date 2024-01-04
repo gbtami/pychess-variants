@@ -68,8 +68,6 @@ class PychessGlobalAppState:
 
         self.app = app
 
-        # self.kill = # dict)
-        # self.date = # dict)
         self.db = app[db_key]
         self.users = self.__init_users()
         self.lobby = Lobby(self)
@@ -126,7 +124,6 @@ class PychessGlobalAppState:
         self.gettext = {}
         self.jinja = {}
 
-        # self.calendar = # dict)
         # self.discord:
         self.__init_discord()
 
@@ -305,6 +302,7 @@ class PychessGlobalAppState:
         result = {}
         for key in FISHNET_KEYS:
             result[FISHNET_KEYS[key]] = collections.deque([], 50)
+        return result
 
     def __init_discord(self):
         if self.db is None:

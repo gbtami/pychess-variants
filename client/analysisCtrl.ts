@@ -98,7 +98,7 @@ export class AnalysisController extends GameController {
         };
 
         if (!this.puzzle) {
-            this.sock = newWebsocket('wsr');
+            this.sock = newWebsocket('wsr/' + this.gameId);
             this.sock.onopen = () => onOpen();
             this.sock.onmessage = (e: MessageEvent) => this.onMessage(e);
         }

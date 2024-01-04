@@ -267,7 +267,7 @@ async def handle_setup(ws, users, user, data, game):
 
 async def handle_analysis(app_state: PychessGlobalAppState, ws, data, game):
     # If there is any fishnet client, use it.
-    if len(app_state.workers_key) > 0:
+    if len(app_state.workers) > 0:
         work_id = "".join(random.choice(string.ascii_letters + string.digits) for x in range(6))
         work = {
             "work": {
