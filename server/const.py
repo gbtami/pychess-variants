@@ -1,4 +1,8 @@
+from __future__ import annotations
 from settings import static_url
+
+# https://medium.com/quick-code/python-type-hinting-eliminating-importerror-due-to-circular-imports-265dfb0580f8
+TYPE_CHECKING = False
 
 DASH = "–"
 ANON_PREFIX = "Anon" + DASH

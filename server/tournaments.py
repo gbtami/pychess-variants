@@ -1,18 +1,11 @@
+from __future__ import annotations
 import collections
 import logging
 from datetime import datetime, timezone
 
 import aiohttp_session
 
-from typedefs import (
-    db_key,
-    discord_key,
-    users_key,
-    tourneychat_key,
-    tournaments_key,
-    tourneynames_key,
-    tourneysockets_key,
-)
+from arena import ArenaTournament
 from compress import C2V, V2C, C2R
 from const import (
     CASUAL,
@@ -34,15 +27,21 @@ from const import (
     TRANSLATED_VARIANT_NAMES,
 )
 from newid import new_id
-from tournament import GameData, PlayerData, SCORE_SHIFT
-from arena import ArenaTournament
+from const import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from pychess_global_app_state import PychessGlobalAppState
+from pychess_global_app_state_utils import get_app_state
 from rr import RRTournament
 from swiss import SwissTournament
+from tournament import GameData, PlayerData, SCORE_SHIFT, Tournament
 
 log = logging.getLogger(__name__)
 
 
-async def create_or_update_tournament(app, username, form, tournament=None):
+async def create_or_update_tournament(
+    app_state: PychessGlobalAppState, username, form, tournament=None
+):
     """Manual tournament creation from https://www.pychess.org/tournaments/new form input values"""
 
     variant = form["variant"]
@@ -89,35 +88,35 @@ async def create_or_update_tournament(app, username, form, tournament=None):
         "description": description,
     }
     if tournament is None:
-        tournament = await new_tournament(app, data)
+        tournament = await new_tournament(app_state, data)
     else:
         # We want to update some data of the tournament created by new_tournament() before.
         # upsert=True will do this update at the end of upsert_tournament_to_db()
-        await upsert_tournament_to_db(tournament, app)
+        await upsert_tournament_to_db(tournament, app_state)
 
-    await broadcast_tournament_creation(app, tournament)
+    await broadcast_tournament_creation(app_state, tournament)
 
 
-async def broadcast_tournament_creation(app, tournament):
+async def broadcast_tournament_creation(app_state: PychessGlobalAppState, tournament):
     await tournament.broadcast_spotlight()
-    await app[discord_key].send_to_discord("create_tournament", tournament.create_discord_msg)
+    await app_state.discord.send_to_discord("create_tournament", tournament.create_discord_msg)
 
 
-async def new_tournament(app, data):
+async def new_tournament(app_state: PychessGlobalAppState, data):
     if "tid" not in data:
-        tid = await new_id(app[db_key].tournament)
+        tid = await new_id(app_state.db.tournament)
     else:
         tid = data["tid"]
 
     if data["system"] == ARENA:
-        tournament_class = ArenaTournament
+        tournament_class: type[Tournament] = ArenaTournament
     elif data["system"] == SWISS:
-        tournament_class = SwissTournament
+        tournament_class: type[Tournament] = SwissTournament
     elif data["system"] == RR:
-        tournament_class = RRTournament
+        tournament_class: type[Tournament] = RRTournament
 
     tournament = tournament_class(
-        app,
+        app_state,
         tid,
         variant=data["variant"],
         base=data["base"],
@@ -139,18 +138,18 @@ async def new_tournament(app, data):
         with_clock=data.get("with_clock", True),
     )
 
-    app[tournaments_key][tid] = tournament
-    app[tourneysockets_key][tid] = {}
-    app[tourneychat_key][tid] = collections.deque([], MAX_CHAT_LINES)
+    app_state.tournaments[tid] = tournament
+    app_state.tourneysockets[tid] = {}
+    app_state.tourneychat[tid] = collections.deque([], MAX_CHAT_LINES)
 
-    await upsert_tournament_to_db(tournament, app)
+    await upsert_tournament_to_db(tournament, app_state)
 
     return tournament
 
 
-async def upsert_tournament_to_db(tournament, app):
+async def upsert_tournament_to_db(tournament, app_state: PychessGlobalAppState):
     # unit test app may have no db
-    if app[db_key] is None:
+    if app_state.db is None:
         return
 
     new_data = {
@@ -176,15 +175,14 @@ async def upsert_tournament_to_db(tournament, app):
     }
 
     try:
-        await app[db_key].tournament.find_one_and_update(
+        await app_state.db.tournament.find_one_and_update(
             {"_id": tournament.id}, {"$set": new_data}, upsert=True
         )
     except Exception:
-        if app[db_key] is not None:
-            log.error("Failed to save tournament data to mongodb!")
+        log.error("Failed to save tournament data to mongodb!", exc_info=True)
 
 
-async def get_winners(app, shield, variant=None):
+async def get_winners(app_state: PychessGlobalAppState, shield, variant: str = None):
     wi = {}
     if variant is None:
         variants = VARIANTS
@@ -206,19 +204,19 @@ async def get_winners(app, shield, variant=None):
             filter_cond["fr"] = SHIELD
 
         winners = []
-        cursor = app[db_key].tournament.find(filter_cond, sort=[("startsAt", -1)], limit=limit)
+        cursor = app_state.db.tournament.find(filter_cond, sort=[("startsAt", -1)], limit=limit)
         async for doc in cursor:
             winners.append((doc["winner"], doc["startsAt"].strftime("%Y.%m.%d"), doc["_id"]))
-            await app[users_key].get(doc["winner"])
+            await app_state.users.get(doc["winner"])
 
         wi[variant] = winners
 
     return wi
 
 
-async def get_scheduled_tournaments(app, nb_max=30):
+async def get_scheduled_tournaments(app_state: PychessGlobalAppState, nb_max=30):
     """Return max 30 already scheduled tournaments from mongodb"""
-    cursor = app[db_key].tournament.find({"$or": [{"status": T_STARTED}, {"status": T_CREATED}]})
+    cursor = app_state.db.tournament.find({"$or": [{"status": T_STARTED}, {"status": T_CREATED}]})
     cursor.sort("startsAt", -1)
     nb_tournament = 0
     tournaments = []
@@ -246,11 +244,10 @@ async def get_scheduled_tournaments(app, nb_max=30):
     return tournaments
 
 
-async def get_latest_tournaments(app, lang):
-    tournaments = app[tournaments_key]
+async def get_latest_tournaments(app_state: PychessGlobalAppState, lang):
     started, scheduled, completed = [], [], []
 
-    cursor = app[db_key].tournament.find()
+    cursor = app_state.db.tournament.find()
     cursor.sort("startsAt", -1)
     nb_tournament = 0
     async for doc in cursor:
@@ -259,18 +256,18 @@ async def get_latest_tournaments(app, lang):
             break
 
         tid = doc["_id"]
-        if tid in tournaments:
-            tournament = tournaments[tid]
+        if tid in app_state.tournaments:
+            tournament = app_state.tournaments[tid]
         else:
             if doc["system"] == ARENA:
-                tournament_class = ArenaTournament
+                tournament_class: type[Tournament] = ArenaTournament
             elif doc["system"] == SWISS:
-                tournament_class = SwissTournament
+                tournament_class: type[Tournament] = SwissTournament
             elif doc["system"] == RR:
-                tournament_class = RRTournament
+                tournament_class: type[Tournament] = RRTournament
 
             tournament = tournament_class(
-                app,
+                app_state,
                 tid,
                 C2V[doc["v"]],
                 base=doc["b"],
@@ -293,7 +290,7 @@ async def get_latest_tournaments(app, lang):
             tournament.nb_players = doc["nbPlayers"]
 
         if tournament.frequency:
-            tournament.translated_name = app[tourneynames_key][lang][
+            tournament.translated_name = app_state.tourneynames[lang][
                 (
                     tournament.variant + ("960" if tournament.chess960 else ""),
                     tournament.frequency,
@@ -317,28 +314,31 @@ async def get_latest_tournaments(app, lang):
 
 async def get_tournament_name(request, tournament_id):
     """Return Tournament name from app cache or from database"""
+    app_state = get_app_state(request.app)
+    # todo: similar logic for determining lang already exists in index.py, except this "l" param. If it is specific for
+    #       when called via the game_api move that there and re-use the rest about session+user from index.py
+    #       finally change param of this function to get_tournament_name(app_state, tournament_id, lang)
     lang = request.rel_url.query.get("l")
     if lang is None:
         session = await aiohttp_session.get_session(request)
         session_user = session.get("user_name")
-        users = request.app[users_key]
         try:
-            lang = users[session_user].lang
+            lang = app_state.users[session_user].lang
         except KeyError:
             lang = "en"
         if lang is None:
             lang = "en"
 
-    if tournament_id in request.app[tourneynames_key][lang]:
-        return request.app[tourneynames_key][lang][tournament_id]
+    if tournament_id in app_state.tourneynames[lang]:
+        return app_state.tourneynames[lang][tournament_id]
 
-    tournaments = request.app[tournaments_key]
+    tournaments = app_state.tournaments
     name = ""
 
     if tournament_id in tournaments:
         tournament = tournaments[tournament_id]
         if tournament.frequency:
-            name = request.app[tourneynames_key][lang][
+            name = app_state.tourneynames[lang][
                 (
                     tournament.variant + ("960" if tournament.chess960 else ""),
                     tournament.frequency,
@@ -348,13 +348,12 @@ async def get_tournament_name(request, tournament_id):
         else:
             name = tournament.name
     else:
-        db = request.app[db_key]
-        doc = await db.tournament.find_one({"_id": tournament_id})
+        doc = await app_state.db.tournament.find_one({"_id": tournament_id})
         if doc is not None:
             frequency = doc.get("fr", "")
             if frequency:
                 chess960 = bool(doc.get("z"))
-                name = request.app[tourneynames_key][lang][
+                name = app_state.tourneynames[lang][
                     (
                         C2V[doc["v"]] + ("960" if chess960 else ""),
                         frequency,
@@ -363,20 +362,17 @@ async def get_tournament_name(request, tournament_id):
                 ]
             else:
                 name = doc["name"]
-        request.app[tourneynames_key][lang][tournament_id] = name
+        app_state.tourneynames[lang][tournament_id] = name
 
     return name
 
 
-async def load_tournament(app, tournament_id, tournament_klass=None):
+async def load_tournament(app_state: PychessGlobalAppState, tournament_id, tournament_klass=None):
     """Return Tournament object from app cache or from database"""
-    db = app[db_key]
-    users = app[users_key]
-    tournaments = app[tournaments_key]
-    if tournament_id in tournaments:
-        return tournaments[tournament_id]
+    if tournament_id in app_state.tournaments:
+        return app_state.tournaments[tournament_id]
 
-    doc = await db.tournament.find_one({"_id": tournament_id})
+    doc = await app_state.db.tournament.find_one({"_id": tournament_id})
 
     if doc is None:
         return None
@@ -391,7 +387,7 @@ async def load_tournament(app, tournament_id, tournament_klass=None):
         tournament_class = tournament_klass
 
     tournament = tournament_class(
-        app,
+        app_state,
         doc["_id"],
         C2V[doc["v"]],
         base=doc["b"],
@@ -412,13 +408,13 @@ async def load_tournament(app, tournament_id, tournament_klass=None):
         status=doc["status"],
     )
 
-    tournaments[tournament_id] = tournament
-    app[tourneysockets_key][tournament_id] = {}
-    app[tourneychat_key][tournament_id] = collections.deque([], MAX_CHAT_LINES)
+    app_state.tournaments[tournament_id] = tournament
+    app_state.tourneysockets[tournament_id] = {}
+    app_state.tourneychat[tournament_id] = collections.deque([], MAX_CHAT_LINES)
 
     tournament.winner = doc.get("winner", "")
 
-    player_table = app[db_key].tournament_player
+    player_table = app_state.db.tournament_player
     cursor = player_table.find({"tid": tournament_id})
     nb_players = 0
 
@@ -430,7 +426,7 @@ async def load_tournament(app, tournament_id, tournament_klass=None):
 
     async for doc in cursor:
         uid = doc["uid"]
-        user = await users.get(uid)
+        user = await app_state.users.get(uid)
 
         withdrawn = doc.get("wd", False)
 
@@ -453,7 +449,7 @@ async def load_tournament(app, tournament_id, tournament_klass=None):
 
     # tournament.print_leaderboard()
 
-    pairing_table = app[db_key].tournament_pairing
+    pairing_table = app_state.db.tournament_pairing
     cursor = pairing_table.find({"tid": tournament_id})
     try:
         cursor.sort("d", 1)
@@ -478,9 +474,9 @@ async def load_tournament(app, tournament_id, tournament_klass=None):
 
         game_data = GameData(
             _id,
-            users[wp],
+            app_state.users[wp],
             wrating,
-            users[bp],
+            app_state.users[bp],
             brating,
             result,
             date,
@@ -488,8 +484,8 @@ async def load_tournament(app, tournament_id, tournament_klass=None):
             bberserk,
         )
 
-        tournament.players[users[wp]].games.append(game_data)
-        tournament.players[users[bp]].games.append(game_data)
+        tournament.players[app_state.users[wp]].games.append(game_data)
+        tournament.players[app_state.users[bp]].games.append(game_data)
 
         if res == "a":
             w_win += 1

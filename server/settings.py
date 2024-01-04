@@ -1,12 +1,11 @@
+from __future__ import annotations
+
 import base64
 import os
 import json
-import logging
 import string
 
 from newid import id8
-
-logging.basicConfig(level=logging.DEBUG)
 
 URI = os.getenv("URI", "http://127.0.0.1:8080")
 PROD = os.getenv("PROD") == "true"

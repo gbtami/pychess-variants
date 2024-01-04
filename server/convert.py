@@ -1,3 +1,6 @@
+from __future__ import annotations
+
+
 def usi2uci(move):
     """Used to read USI format moves from old db games"""
     if move[1] == "*":

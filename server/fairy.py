@@ -1,15 +1,19 @@
+from __future__ import annotations
+
 # -*- coding: utf-8 -*-
+from ataxx import ATAXX_FENS
+from const import CATEGORIES
+
 import logging
 import re
 import random
 
+log = logging.getLogger(__name__)
+
 try:
     import pyffish as sf
 except ImportError:
-    print("No pyffish module installed!")
-
-from ataxx import ATAXX_FENS
-from const import CATEGORIES
+    log.error("No pyffish module installed!", exc_info=True)
 
 WHITE, BLACK = False, True
 FILES = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j"]
@@ -62,7 +66,7 @@ class FairyBoard:
         self.initial_fen = (
             initial_fen
             if initial_fen
-            else self.start_fen(variant, chess960 or variant == "ataxx", disabled_fen)
+            else FairyBoard.start_fen(variant, chess960 or variant == "ataxx", disabled_fen)
         )
         self.move_stack: list[str] = []
         self.ply = 0
@@ -83,11 +87,12 @@ class FairyBoard:
         else:
             self.notation = sf.NOTATION_SAN
 
-    def start_fen(self, variant, chess960=False, disabled_fen=""):
+    @staticmethod
+    def start_fen(variant, chess960=False, disabled_fen=""):
         if chess960:
-            new_fen = self.shuffle_start()
+            new_fen = FairyBoard.shuffle_start(variant)
             while new_fen == disabled_fen:
-                new_fen = self.shuffle_start()
+                new_fen = FairyBoard.shuffle_start(variant)
             return new_fen
         return sf.start_fen(variant)
 
@@ -97,6 +102,7 @@ class FairyBoard:
 
     def push(self, move):
         try:
+            log.debug("move=%s, fen=%s", move, self.fen)
             self.move_stack.append(move)
             self.ply += 1
             self.color = not self.color
@@ -112,10 +118,15 @@ class FairyBoard:
         except Exception:
             self.pop()
             log.error(
-                "ERROR: sf.get_fen() failed on %s %s %s",
-                self.initial_fen,
-                ",".join(self.move_stack),
+                "ERROR: sf.get_fen() failed on %s %s %s %s %s %s %s",
+                self.variant,
+                self.fen,
+                move,
                 self.chess960,
+                self.sfen,
+                self.show_promoted,
+                self.count_started,
+                exc_info=True,
             )
             raise
 
@@ -213,18 +224,19 @@ class FairyBoard:
         self.initial_fen = fen
         self.fen = self.initial_fen
 
-    def shuffle_start(self):
+    @staticmethod
+    def shuffle_start(variant):
         """Create random initial position.
         The king is placed somewhere between the two rooks.
         The bishops are placed on opposite-colored squares.
         Same for queen and archbishop in caparandom."""
 
-        if self.variant == "ataxx":
+        if variant == "ataxx":
             return random.choice(ATAXX_FENS)
 
         castl = ""
-        capa = self.variant in ("capablanca", "capahouse")
-        seirawan = self.variant in ("seirawan", "shouse")
+        capa = variant in ("capablanca", "capahouse")
+        seirawan = variant in ("seirawan", "shouse")
 
         # https://www.chessvariants.com/contests/10/crc.html
         # we don't skip spositions that have unprotected pawns
@@ -313,14 +325,14 @@ class FairyBoard:
         else:
             body = "/pppppppp/8/8/8/8/PPPPPPPP/"
 
-        if self.variant in ("crazyhouse", "capahouse"):
+        if variant in ("crazyhouse", "capahouse"):
             holdings = "[]"
         elif seirawan:
             holdings = "[HEhe]"
         else:
             holdings = ""
 
-        checks = "3+3 " if self.variant == "3check" else ""
+        checks = "3+3 " if variant == "3check" else ""
 
         fen = (
             fen
@@ -396,7 +408,7 @@ if __name__ == "__main__":
     print(board.legal_moves())
 
     print("--- SHOGUN ---")
-    print(sf.start_fen("shogun"))
+    print(FairyBoard.start_fen("shogun"))
     board = FairyBoard("shogun")
     for move in ("c2c4", "b8c6", "b2b4", "b7b5", "c4b5", "c6b8"):
         print("push move", move, board.get_san(move))

@@ -1,3 +1,4 @@
+from __future__ import annotations
 from streamers import YOUTUBE_STREAMERS
 
 

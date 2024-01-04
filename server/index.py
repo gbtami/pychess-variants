@@ -1,35 +1,17 @@
+from __future__ import annotations
+
 import asyncio
-from datetime import datetime
 import functools
-import logging
-from urllib.parse import urlparse
-import warnings
 import json
+import logging
 import sys
+import warnings
+from datetime import datetime
+from urllib.parse import urlparse
 
-from aiohttp import web
 import aiohttp_session
+from aiohttp import web
 
-try:
-    import htmlmin
-
-    html_minify = functools.partial(htmlmin.minify, remove_optional_attribute_quotes=False)
-except ImportError:
-    warnings.warn("Not using HTML minification, htmlmin not imported.")
-    sys.exit(0)
-
-from typedefs import (
-    db_key,
-    games_key,
-    gettext_key,
-    highscore_key,
-    invites_key,
-    invite_channels_key,
-    jinja_key,
-    shield_owners_key,
-    seeks_key,
-    users_key,
-)
 from const import (
     ANON_PREFIX,
     LANGUAGES,
@@ -62,6 +44,7 @@ from news import NEWS
 from videos import VIDEO_TAGS, VIDEO_TARGETS
 from user import User
 from utils import corr_games, load_game, join_seek, tv_game, tv_game_user
+from pychess_global_app_state_utils import get_app_state
 from tournaments import (
     get_winners,
     get_latest_tournaments,
@@ -79,13 +62,19 @@ from custom_trophy_owners import CUSTOM_TROPHY_OWNERS
 
 log = logging.getLogger(__name__)
 
+try:
+    import htmlmin
+
+    html_minify = functools.partial(htmlmin.minify, remove_optional_attribute_quotes=False)
+except ImportError as e:
+    log.error(e, exc_info=True)
+    warnings.warn("Not using HTML minification, htmlmin not imported.")
+    sys.exit(0)
+
 
 async def index(request):
     """Create home html."""
-
-    users = request.app[users_key]
-    games = request.app[games_key]
-    db = request.app[db_key]
+    app_state = get_app_state(request.app)
 
     # Who made the request?
     session = await aiohttp_session.get_session(request)
@@ -97,9 +86,9 @@ async def index(request):
         log.info("+++ Existing user %s connected.", session_user)
         doc = None
         try:
-            doc = await db.user.find_one({"_id": session_user})
+            doc = await app_state.db.user.find_one({"_id": session_user})
         except Exception:
-            log.error("Failed to get user %s from mongodb!", session_user)
+            log.error("Failed to get user %s from mongodb!", session_user, exc_info=True)
         if doc is not None:
             session["guest"] = False
 
@@ -108,31 +97,31 @@ async def index(request):
                 session.invalidate()
                 return web.HTTPFound("/")
 
-        if session_user in users:
-            user = users[session_user]
+        if session_user in app_state.users:
+            user = app_state.users[session_user]
         else:
             if session_user.startswith(ANON_PREFIX):
                 session.invalidate()
                 return web.HTTPFound(request.rel_url)
 
-            user = await users.get(session_user)
+            user = await app_state.users.get(session_user)
 
             if not user.enabled:
                 session.invalidate()
                 return web.HTTPFound("/")
     else:
-        user = User(request.app, anon=True)
+        user = User(app_state, anon=True)
         log.info("+++ New guest user %s connected.", user.username)
-        users[user.username] = user
+        app_state.users[user.username] = user
         session["user_name"] = user.username
 
     lang = session.get("lang") if user.lang is None else user.lang
     if lang is None:
         lang = detect_locale(request)
 
-    get_template = request.app[jinja_key][lang].get_template
+    get_template = app_state.jinja[lang].get_template
 
-    lang_translation = request.app[gettext_key][lang]
+    lang_translation = app_state.gettext[lang]
     lang_translation.install()
 
     def variant_display_name(variant):
@@ -183,7 +172,7 @@ async def index(request):
         view = "level8win"
     elif request.path == "/tv":
         view = "tv"
-        gameId = await tv_game(db, request.app)
+        gameId = await tv_game(app_state)
     elif request.path.startswith("/editor"):
         view = "editor"
     elif request.path.startswith("/analysis"):
@@ -204,15 +193,15 @@ async def index(request):
                     view = "arena-new"
                 elif request.path.endswith("/edit"):
                     view = "arena-new"
-                    tournament = await load_tournament(request.app, tournamentId)
+                    tournament = await load_tournament(app_state, tournamentId)
                     if tournament is None or tournament.status != T_CREATED:
                         view = "tournaments"
                 elif request.path.endswith("/arena"):
                     data = await request.post()
-                    await create_or_update_tournament(request.app, user.username, data)
+                    await create_or_update_tournament(app_state, user.username, data)
     elif request.path.startswith("/tournament"):
         view = "tournament"
-        tournament = await load_tournament(request.app, tournamentId)
+        tournament = await load_tournament(app_state, tournamentId)
 
         if tournament is None:
             return web.HTTPFound("/")
@@ -221,7 +210,7 @@ async def index(request):
             if request.path.endswith("/edit"):
                 data = await request.post()
                 await create_or_update_tournament(
-                    request.app, user.username, data, tournament=tournament
+                    app_state, user.username, data, tournament=tournament
                 )
 
             elif request.path.endswith("/cancel"):
@@ -237,7 +226,7 @@ async def index(request):
 
     profileId = request.match_info.get("profileId")
     if profileId is not None:
-        profileId_user = await users.get(profileId)
+        profileId_user = await app_state.users.get(profileId)
         if profileId_user is None:
             await asyncio.sleep(3)
             raise web.HTTPNotFound()
@@ -259,7 +248,7 @@ async def index(request):
         if request.path[-3:] == "/tv":
             view = "tv"
             # TODO: tv for variants
-            gameId = await tv_game_user(db, users, profileId)
+            gameId = await tv_game_user(app_state.db, app_state.users, profileId)
         elif request.path[-7:] == "/import":
             rated = IMPORTED
         elif request.path[-6:] == "/rated":
@@ -281,13 +270,12 @@ async def index(request):
     if (gameId is not None) and gameId != "variants":
         if view not in ("tv", "analysis", "embed"):
             view = "round"
-        invites = request.app[invites_key]
-        if (gameId not in games) and (gameId in invites):
-            seek_id = invites[gameId].id
-            seek = request.app[seeks_key][seek_id]
+        if (gameId not in app_state.games) and (gameId in app_state.invites):
+            seek_id = app_state.invites[gameId].id
+            seek = app_state.seeks[seek_id]
             if request.path.startswith("/invite/accept/"):
                 player = request.match_info.get("player")
-                seek_status = await join_seek(request.app, user, seek_id, gameId, join_as=player)
+                seek_status = await join_seek(app_state, user, seek_id, gameId, join_as=player)
 
                 if seek_status["type"] == "seek_joined":
                     view = "invite"
@@ -301,30 +289,30 @@ async def index(request):
                 elif seek_status["type"] == "new_game":
                     try:
                         # Put response data to sse subscribers queue
-                        channels = request.app[invite_channels_key]
+                        channels = app_state.invite_channels
                         for queue in channels:
                             await queue.put(json.dumps({"gameId": gameId}))
                         # return games[game_id]
-                    except ConnectionResetError:
-                        pass
+                    except ConnectionResetError as e:
+                        log.error(e, session_user, exc_info=True)
 
             else:
                 view = "invite"
                 inviter = seek.creator.username if user.username != seek.creator.username else ""
 
         if view != "invite":
-            game = await load_game(request.app, gameId)
+            game = await load_game(app_state, gameId)
             if game is None:
                 raise web.HTTPNotFound()
 
             if (ply is not None) and (view != "embed"):
                 view = "analysis"
 
-            if user.username not in (game.wplayer.username, game.bplayer.username):
+            if not game.is_player(user):
                 game.spectators.add(user)
 
     if view in ("profile", "level8win"):
-        if (profileId in users) and not users[profileId].enabled:
+        if (profileId in app_state.users) and not app_state.users[profileId].enabled:
             template = get_template("closed.html")
         else:
             template = get_template("profile.html")
@@ -406,15 +394,18 @@ async def index(request):
             profileId = "Fairy-Stockfish"
             render["trophies"] = []
         else:
-            hs = request.app[highscore_key]
-            render["trophies"] = [(v, "top10") for v in hs if profileId in hs[v].keys()[:10]]
+            render["trophies"] = [
+                (v, "top10")
+                for v in app_state.highscore
+                if profileId in app_state.highscore[v].keys()[:10]
+            ]
             for i, (v, kind) in enumerate(render["trophies"]):
-                if hs[v].peekitem(0)[0] == profileId:
+                if app_state.highscore[v].peekitem(0)[0] == profileId:
                     render["trophies"][i] = (v, "top1")
             render["trophies"] = sorted(render["trophies"], key=lambda x: x[1])
 
-            if not users[profileId].bot:
-                shield_owners = request.app[shield_owners_key]
+            if not app_state.users[profileId].bot:
+                shield_owners = app_state.shield_owners
                 render["trophies"] += [
                     (v, "shield") for v in shield_owners if shield_owners[v] == profileId
                 ]
@@ -428,7 +419,7 @@ async def index(request):
         render["title"] = "Profile • " + profileId
         render["icons"] = VARIANT_ICONS
         render["cup"] = TROPHIES
-        if profileId not in users or users[profileId].perfs is None:
+        if profileId not in app_state.users or app_state.users[profileId].perfs is None:
             render["ratings"] = {}
         else:
             render["ratings"] = {
@@ -441,52 +432,58 @@ async def index(request):
                     v["nb"],
                 )
                 for (k, v) in sorted(
-                    users[profileId].perfs.items(),
+                    app_state.users[profileId].perfs.items(),
                     key=lambda x: x[1]["nb"],
                     reverse=True,
                 )
             }
         if variant is not None:
             render["variant"] = variant
-        render["profile_title"] = users[profileId].title if profileId in users else ""
+        render["profile_title"] = (
+            app_state.users[profileId].title if profileId in app_state.users else ""
+        )
         render["rated"] = rated
 
     elif view == "players":
         online_users = [
-            u for u in users.values() if u.username == user.username or (u.online and not u.anon)
+            u
+            for u in app_state.users.values()
+            if u.username == user.username or (u.online and not u.anon)
         ]
-        anon_online = sum((1 for u in users.values() if u.anon and u.online))
+        anon_online = sum((1 for u in app_state.users.values() if u.anon and u.online))
 
         render["icons"] = VARIANT_ICONS
-        render["users"] = users
+        render["users"] = app_state.users
         render["online_users"] = online_users
         render["anon_online"] = anon_online
         render["admin"] = user.username in ADMINS
         if variant is None:
-            hs = request.app[highscore_key]
-            render["highscore"] = {variant: dict(hs[variant].items()[:10]) for variant in hs}
+            render["highscore"] = {
+                variant: dict(app_state.highscore[variant].items()[:10])
+                for variant in app_state.highscore
+            }
         else:
-            hs = await generate_highscore(request.app[db_key], variant)
+            hs = await generate_highscore(app_state.db, variant)
             print(hs)
             render["highscore"] = hs
             view = "players50"
 
     elif view in ("shields", "winners"):
-        wi = await get_winners(request.app, shield=(view == "shields"), variant=variant)
+        wi = await get_winners(app_state, shield=(view == "shields"), variant=variant)
         render["view_css"] = "players.css"
-        render["users"] = users
+        render["users"] = app_state.users
         render["icons"] = VARIANT_ICONS
         render["winners"] = wi
 
     elif view == "allplayers":
-        allusers = [u for u in users.values() if not u.anon]
+        allusers = [u for u in app_state.users.values() if not u.anon]
         render["allusers"] = allusers
 
     elif view == "tournaments":
         render["icons"] = VARIANT_ICONS
         render["pairing_system_name"] = pairing_system_name
         render["time_control_str"] = time_control_str
-        render["tables"] = await get_latest_tournaments(request.app, lang)
+        render["tables"] = await get_latest_tournaments(app_state, lang)
         render["td"] = user.username in TOURNAMENT_DIRECTORS
 
     elif view == "puzzle":
@@ -556,7 +553,7 @@ async def index(request):
             render["btitle"] = game.bplayer.title
             render["brating"] = game.brating
             render["brdiff"] = game.brdiff
-            render["fen"] = game.board.fen
+            render["fen"] = game.fen
             render["base"] = game.base
             render["inc"] = game.inc
             render["byo"] = game.byoyomi_period
@@ -564,7 +561,7 @@ async def index(request):
             render["status"] = game.status
             render["date"] = game.date.isoformat()
             render["title"] = game.browser_title
-            render["ply"] = ply if ply is not None else game.board.ply - 1
+            render["ply"] = ply if ply is not None else game.ply - 1
             render["ct"] = json.dumps(game.crosstable)
             render["board"] = json.dumps(game.get_board(full=True))
             if game.tournamentId is not None:
@@ -622,9 +619,9 @@ async def index(request):
         tag = request.rel_url.query.get("tags")
         videos = []
         if tag is None:
-            cursor = db.video.find()
+            cursor = app_state.db.video.find()
         else:
-            cursor = db.video.find({"tags": tag})
+            cursor = app_state.db.video.find({"tags": tag})
 
         async for doc in cursor:
             videos.append(doc)
@@ -652,7 +649,7 @@ async def index(request):
 
     elif view == "editor" or (view == "analysis" and gameId is None):
         if fen is None:
-            fen = FairyBoard(variant).start_fen(variant)
+            fen = FairyBoard.start_fen(variant)
         else:
             fen = fen.replace(".", "+").replace("_", " ")
         render["variant"] = variant
@@ -667,7 +664,7 @@ async def index(request):
     try:
         text = await template.render_async(render)
     except Exception:
-        log.exception("ERROR: template.render_async() failed.")
+        log.error("ERROR: template.render_async() failed.", exc_info=True)
         return web.HTTPFound("/")
 
     response = web.Response(text=html_minify(text), content_type="text/html")
@@ -688,6 +685,7 @@ async def robots(request):
 
 
 async def select_lang(request):
+    app_state = get_app_state(request.app)
     data = await request.post()
     lang = data.get("lang")
 
@@ -695,9 +693,8 @@ async def select_lang(request):
         referer = request.headers.get("REFERER")
         session = await aiohttp_session.get_session(request)
         session_user = session.get("user_name")
-        users = request.app[users_key]
-        if session_user in users:
-            user = users[session_user]
+        if session_user in app_state.users:
+            user = app_state.users[session_user]
             user.lang = lang
             if user.db is not None:
                 await user.db.user.find_one_and_update(

@@ -1,6 +1,10 @@
+from __future__ import annotations
 import asyncio
 import json
 import logging
+
+from const import TYPE_CHECKING
+
 import random
 from datetime import datetime, timezone, timedelta
 from functools import partial
@@ -10,25 +14,7 @@ import aiohttp_session
 from aiohttp.web import WebSocketResponse
 from aiohttp_sse import sse_response
 
-try:
-    import pyffish as sf
-
-    sf.set_option("VariantPath", "variants.ini")
-except ImportError:
-    print("No pyffish module installed!")
-
-from typedefs import (
-    db_key,
-    game_channels_key,
-    games_key,
-    invites_key,
-    lobbysockets_key,
-    seeks_key,
-    tournaments_key,
-    users_key,
-    tv_key,
-)
-from broadcast import lobby_broadcast, round_broadcast
+from broadcast import round_broadcast
 from const import (
     NOTIFY_PAGE_SIZE,
     STARTED,
@@ -49,7 +35,18 @@ from game import Game, MAX_PLY
 from newid import new_id
 from settings import URI
 
+if TYPE_CHECKING:
+    from pychess_global_app_state import PychessGlobalAppState
+from pychess_global_app_state_utils import get_app_state
+
 log = logging.getLogger(__name__)
+
+try:
+    import pyffish as sf
+
+    sf.set_option("VariantPath", "variants.ini")
+except ImportError:
+    log.error("No pyffish module installed!", exc_info=True)
 
 
 # See https://github.com/aio-libs/aiohttp/issues/3122 why this is needed
@@ -59,15 +56,15 @@ class MyWebSocketResponse(WebSocketResponse):
         return self._closed or self._req is None or self._req.transport is None
 
 
-async def tv_game(db, app):
+async def tv_game(app_state: PychessGlobalAppState):
     """Get latest played game id"""
-    if app[tv_key] is not None:
-        return app[tv_key]
+    if app_state.tv is not None:
+        return app_state.tv
     game_id = None
-    doc = await db.game.find_one({}, sort=[("$natural", -1)])
+    doc = await app_state.db.game.find_one({}, sort=[("$natural", -1)])
     if doc is not None:
         game_id = doc["_id"]
-        app[tv_key] = game_id
+        app_state.tv = game_id
     return game_id
 
 
@@ -83,23 +80,20 @@ async def tv_game_user(db, users, profileId):
     return game_id
 
 
-async def load_game(app, game_id):
+async def load_game(app_state: PychessGlobalAppState, game_id):
     """Return Game object from app cache or from database"""
-    db = app[db_key]
-    games = app[games_key]
-    users = app[users_key]
-    if game_id in games:
-        return games[game_id]
+    if game_id in app_state.games:
+        return app_state.games[game_id]
 
-    doc = await db.game.find_one({"_id": game_id})
+    doc = await app_state.db.game.find_one({"_id": game_id})
 
     if doc is None:
         return None
 
     wp, bp = doc["us"]
 
-    wplayer = await users.get(wp)
-    bplayer = await users.get(bp)
+    wplayer = await app_state.users.get(wp)
+    bplayer = await app_state.users.get(bp)
 
     variant = C2V[doc["v"]]
 
@@ -125,7 +119,7 @@ async def load_game(app, game_id):
     corr = doc.get("c", False)
 
     game = Game(
-        app,
+        app_state,
         game_id,
         variant,
         initial_fen,
@@ -235,7 +229,7 @@ async def load_game(app, game_id):
                 try:
                     game.steps[-1]["analysis"] = doc["a"][ply + 1]
                 except IndexError:
-                    print("IndexError", ply, move, san)
+                    log.error("IndexError %d %s %s", ply, move, san, exc_info=True)
 
         except Exception:
             log.exception(
@@ -295,9 +289,7 @@ async def load_game(app, game_id):
 
 async def import_game(request):
     data = await request.post()
-    app = request.app
-    db = app[db_key]
-    users = app[users_key]
+    app_state = get_app_state(request.app)
 
     # print("---IMPORT GAME---")
     # print(data)
@@ -306,8 +298,8 @@ async def import_game(request):
     wp = data["White"]
     bp = data["Black"]
 
-    wplayer = await users.get(wp)
-    bplayer = await users.get(bp)
+    wplayer = await app_state.users.get(wp)
+    bplayer = await app_state.users.get(bp)
 
     variant = data.get("Variant", "chess").lower()
     chess960 = variant.endswith("960")
@@ -349,8 +341,8 @@ async def import_game(request):
     move_stack = data.get("moves", "").split(" ")
     moves = encode_moves(map(grand2zero, move_stack) if variant in GRANDS else move_stack, variant)
 
-    game_id = await new_id(None if db is None else db.game)
-    existing = await db.game.find_one({"_id": {"$eq": game_id}})
+    game_id = await new_id(None if app_state.db is None else app_state.db.game)
+    existing = await app_state.db.game.find_one({"_id": {"$eq": game_id}})
     if existing:
         message = "Failed to create game. Game ID %s already in mongodb." % game_id
         log.exception(message)
@@ -359,7 +351,7 @@ async def import_game(request):
     try:
         print(game_id, variant, initial_fen, wplayer, bplayer)
         new_game = Game(
-            app,
+            app_state,
             game_id,
             variant,
             initial_fen,
@@ -406,15 +398,14 @@ async def import_game(request):
         document["p1"] = {"e": brating}
 
     print(document)
-    result = await db.game.insert_one(document)
+    result = await app_state.db.game.insert_one(document)
     print("db insert IMPORTED game result %s" % repr(result.inserted_id))
 
     return web.json_response({"gameId": game_id})
 
 
-async def join_seek(app, user, seek_id, game_id=None, join_as="any"):
-    seeks = app[seeks_key]
-    seek = seeks[seek_id]
+async def join_seek(app_state: PychessGlobalAppState, user, seek_id, game_id=None, join_as="any"):
+    seek = app_state.seeks[seek_id]
     log.info(
         "+++ Seek %s joined by %s FEN:%s 960:%s",
         seek_id,
@@ -445,16 +436,13 @@ async def join_seek(app, user, seek_id, game_id=None, join_as="any"):
             return {"type": "seek_occupied", "seekID": seek_id}
 
     if seek.player1 is not None and seek.player2 is not None:
-        return await new_game(app, seek_id, game_id)
+        return await new_game(app_state, seek_id, game_id)
     else:
         return {"type": "seek_joined", "seekID": seek_id}
 
 
-async def new_game(app, seek_id, game_id=None):
-    db = app[db_key]
-    games = app[games_key]
-    seeks = app[seeks_key]
-    seek = seeks[seek_id]
+async def new_game(app_state: PychessGlobalAppState, seek_id, game_id=None):
+    seek = app_state.seeks[seek_id]
 
     fen_valid = True
     if seek.fen:
@@ -462,7 +450,7 @@ async def new_game(app, seek_id, game_id=None):
         if not fen_valid:
             message = "Failed to create game. Invalid FEN %s" % seek.fen
             log.debug(message)
-            remove_seek(seeks, seek)
+            remove_seek(app_state.seeks, seek)
             return {"type": "error", "message": message}
     else:
         sanitized_fen = ""
@@ -473,16 +461,16 @@ async def new_game(app, seek_id, game_id=None):
 
     if game_id is not None:
         # game invitation
-        del app[invites_key][game_id]
+        del app_state.invites[game_id]
     else:
-        game_id = await new_id(None if db is None else db.game)
+        game_id = await new_id(None if app_state.db is None else app_state.db.game)
 
     # print("new_game", game_id, seek.variant, seek.fen, wplayer, bplayer, seek.base, seek.inc, seek.level, seek.rated, seek.chess960)
     try:
         rated = RATED if (seek.rated and (not wplayer.anon) and (not bplayer.anon)) else CASUAL
 
         game = Game(
-            app,
+            app_state,
             game_id,
             seek.variant,
             sanitized_fen,
@@ -507,13 +495,13 @@ async def new_game(app, seek_id, game_id=None):
             wplayer,
             bplayer,
         )
-        remove_seek(seeks, seek)
+        remove_seek(app_state.seeks, seek)
         return {"type": "error", "message": "Failed to create game"}
-    games[game_id] = game
+    app_state.games[game_id] = game
 
-    remove_seek(seeks, seek)
+    remove_seek(app_state.seeks, seek)
 
-    await insert_game_to_db(game, app)
+    await insert_game_to_db(game, app_state)
 
     if game.corr:
         game.wplayer.correspondence_games.append(game)
@@ -527,9 +515,9 @@ async def new_game(app, seek_id, game_id=None):
     }
 
 
-async def insert_game_to_db(game, app):
+async def insert_game_to_db(game, app_state: PychessGlobalAppState):
     # unit test app may have no db
-    if app[db_key] is None:
+    if app_state.db is None:
         return
 
     document = {
@@ -570,14 +558,13 @@ async def insert_game_to_db(game, app):
     if game.initial_fen or game.chess960:
         document["if"] = game.initial_fen
 
-    result = await app[db_key].game.insert_one(document)
+    result = await app_state.db.game.insert_one(document)
     if not result:
         log.error("db insert game result %s failed !!!", game.id)
 
     if not game.corr:
-        app[tv_key] = game.id
-        await lobby_broadcast(app[lobbysockets_key], game.tv_game_json)
-
+        app_state.tv = game.id
+        await app_state.lobby.lobby_broadcast(game.tv_game_json)
         game.wplayer.tv = game.id
         game.bplayer.tv = game.id
 
@@ -589,7 +576,7 @@ def remove_seek(seeks, seek):
             del seek.creator.seeks[seek.id]
 
 
-async def analysis_move(app, user, game, move, fen, ply):
+async def analysis_move(user, game, move, fen, ply):
     invalid_move = False
 
     board = FairyBoard(game.variant, fen, game.chess960)
@@ -614,19 +601,17 @@ async def analysis_move(app, user, game, move, fen, ply):
             "lastMove": lastmove,
             "check": check,
         }
-
-    ws = user.game_sockets[game.id]
-    await ws.send_json(analysis_board_response)
+    await user.send_game_message(game.id, analysis_board_response)
 
 
-async def play_move(app, user, game, move, clocks=None, ply=None):
+async def play_move(app_state: PychessGlobalAppState, user, game, move, clocks=None, ply=None):
     gameId = game.id
-    users = app[users_key]
+    users = app_state.users
     invalid_move = False
     # log.info("%s move %s %s %s - %s" % (user.username, move, gameId, game.wplayer.username, game.bplayer.username))
 
     if game.status <= STARTED:
-        if ply is not None and game.board.ply + 1 != ply:
+        if ply is not None and game.ply + 1 != ply:
             log.info(
                 "invalid ply received - probably a re-sent move that has already been processed"
             )
@@ -651,17 +636,14 @@ async def play_move(app, user, game, move, clocks=None, ply=None):
             game.result = "0-1" if user.username == game.wplayer.username else "1-0"
     else:
         # never play moves in finished games!
+        log.error("Move received for finished game", stack_info=True)
         return
 
     if not invalid_move:
         board_response = game.get_board(full=game.board.ply == 1)
 
         if not user.bot:
-            try:
-                ws = user.game_sockets[gameId]
-                await ws.send_json(board_response)
-            except (KeyError, ConnectionResetError):
-                pass
+            await user.send_game_message(gameId, board_response)
 
     if user.bot and game.status > STARTED:
         await user.game_queues[gameId].put(game.game_end)
@@ -675,27 +657,23 @@ async def play_move(app, user, game, move, clocks=None, ply=None):
         else:
             await users[opp_name].game_queues[gameId].put(game.game_state)
     else:
-        try:
-            opp_ws = users[opp_name].game_sockets[gameId]
-            if not invalid_move:
-                await opp_ws.send_json(board_response)
-            if game.status > STARTED:
-                response = {
-                    "type": "gameEnd",
-                    "status": game.status,
-                    "result": game.result,
-                    "gameId": gameId,
-                    "pgn": game.pgn,
-                }
-                await opp_ws.send_json(response)
-        except (KeyError, ConnectionResetError):
-            pass
+        if not invalid_move:
+            await users[opp_name].send_game_message(gameId, board_response)
+        if game.status > STARTED:
+            response = {
+                "type": "gameEnd",
+                "status": game.status,
+                "result": game.result,
+                "gameId": gameId,
+                "pgn": game.pgn,
+            }
+            await users[opp_name].send_game_message(gameId, response)
 
     if not invalid_move:
-        await round_broadcast(game, board_response, channels=app[game_channels_key])
+        await round_broadcast(game, board_response, channels=app_state.game_channels)
 
         if game.tournamentId is not None:
-            tournament = app[tournaments_key][game.tournamentId]
+            tournament = app_state.tournaments[game.tournamentId]
             if (
                 (tournament.top_game is not None)
                 and tournament.status == T_STARTED
@@ -703,8 +681,8 @@ async def play_move(app, user, game, move, clocks=None, ply=None):
             ):
                 await tournament.broadcast(board_response)
 
-        if app[tv_key] == gameId:
-            await lobby_broadcast(app[lobbysockets_key], board_response)
+        if app_state.tv == gameId:
+            await app_state.lobby.lobby_broadcast(board_response)
 
 
 def pgn(doc):
@@ -743,11 +721,12 @@ def pgn(doc):
     elif variant in GRANDS:
         mlist = list(map(zero2grand, mlist))
 
-    fen = initial_fen if initial_fen is not None else sf.start_fen(variant)
+    fen = initial_fen if initial_fen is not None else FairyBoard.start_fen(variant)
     # print(variant, fen, mlist)
     try:
         mlist = sf.get_san_moves(variant, fen, mlist, chess960, sf.NOTATION_SAN)
-    except Exception:
+    except Exception as e:
+        log.error(e, exc_info=True)
         try:
             mlist = sf.get_san_moves(variant, fen, mlist[:-1], chess960, sf.NOTATION_SAN)
         except Exception:
@@ -795,7 +774,7 @@ def sanitize_fen(variant, initial_fen, chess960):
     # Initial_fen needs validation to prevent segfaulting in pyffish
     sanitized_fen = initial_fen
 
-    start_fen = sf.start_fen(variant)  # self.board.start_fen(self.variant)
+    start_fen = FairyBoard.start_fen(variant)  # self.board.start_fen(self.variant)
     start_fen_length = len(start_fen)
     start = start_fen.split()
     init = initial_fen.split()
@@ -904,39 +883,34 @@ def sanitize_fen(variant, initial_fen, chess960):
     return True, sanitized_fen
 
 
-def online_count(users):
-    return sum((1 for user in users.values() if user.online))
-
-
 async def get_names(request):
+    app_state = get_app_state(request.app)
     names = []
     prefix = request.rel_url.query.get("p")
     if prefix is None or len(prefix) < 3:
         return web.json_response(names)
 
     # case insensitive _id prefix search
-    cursor = request.app[db_key].user.find(
-        {"_id": {"$regex": "^%s" % prefix, "$options": "i"}}, limit=12
-    )
+    cursor = app_state.db.user.find({"_id": {"$regex": "^%s" % prefix, "$options": "i"}}, limit=12)
     async for doc in cursor:
         names.append((doc["_id"], doc["title"]))
     return web.json_response(names)
 
 
 async def get_notifications(request):
+    app_state = get_app_state(request.app)
     page_num = int(request.rel_url.query.get("p", 0))
 
-    users = request.app[users_key]
     # Who made the request?
     session = await aiohttp_session.get_session(request)
     session_user = session.get("user_name")
     if session_user is None:
         return web.json_response({})
 
-    user = users[session_user]
+    user = app_state.users[session_user]
 
     if user.notifications is None:
-        cursor = request.app[db_key].notify.find({"notifies": session_user})
+        cursor = app_state.db.notify.find({"notifies": session_user})
         user.notifications = await cursor.to_list(length=100)
     if page_num == 0:
         notifications = user.notifications[-NOTIFY_PAGE_SIZE:]
@@ -949,27 +923,28 @@ async def get_notifications(request):
 
 
 async def notified(request):
-    users = request.app[users_key]
+    app_state = get_app_state(request.app)
+
     # Who made the request?
     session = await aiohttp_session.get_session(request)
     session_user = session.get("user_name")
     if session_user is None:
         return web.json_response({})
 
-    user = await users.get(session_user)
+    user = await app_state.users.get(session_user)
     await user.notified()
     return web.json_response({})
 
 
 async def subscribe_notify(request):
-    users = request.app[users_key]
+    app_state = get_app_state(request.app)
     # Who made the request?
     session = await aiohttp_session.get_session(request)
     session_user = session.get("user_name")
     if session_user is None:
         return web.json_response({})
 
-    user = await users.get(session_user)
+    user = await app_state.users.get(session_user)
     try:
         async with sse_response(request) as response:
             queue = asyncio.Queue()

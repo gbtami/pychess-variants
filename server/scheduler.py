@@ -1,3 +1,4 @@
+from __future__ import annotations
 import calendar
 from collections import namedtuple
 import datetime as dt
@@ -12,9 +13,16 @@ from const import (
     SHIELD,
     variant_display_name,
     SCHEDULE_MAX_DAYS,
+    TYPE_CHECKING,
 )
 
+if TYPE_CHECKING:
+    from pychess_global_app_state import PychessGlobalAppState
+
 from tournaments import new_tournament
+import logging
+
+log = logging.getLogger(__name__)
 
 MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY = range(7)
 Plan = namedtuple("Plan", "freq, date, hour, variant, is960, base, inc, byo, duration")
@@ -144,7 +152,8 @@ class Scheduler:
             base, inc, byo = TC_MONTHLY_VARIANTS[v]
             try:
                 date = dt.datetime(self.now.year, self.now.month, i + 1, tzinfo=dt.timezone.utc)
-            except ValueError:
+            except ValueError as e:
+                log.error(e, exc_info=True)
                 break
             plans.append(Plan(MONTHLY, date, 16, v.rstrip("960"), is_960, base, inc, byo, 90))
 
@@ -243,6 +252,6 @@ def new_scheduled_tournaments(already_scheduled, now=None):
     return new_tournaments_data
 
 
-async def create_scheduled_tournaments(app, new_tournaments_data):
+async def create_scheduled_tournaments(app_state: PychessGlobalAppState, new_tournaments_data):
     for data in new_tournaments_data:
-        await new_tournament(app, data)
+        await new_tournament(app_state, data)

@@ -1,9 +1,11 @@
+from __future__ import annotations
 import json
 import datetime as dt
 from functools import partial
 
 from aiohttp import web
 
+from pychess_global_app_state_utils import get_app_state
 from typedefs import calendar_key
 from scheduler import new_scheduled_tournaments
 from tournaments import get_scheduled_tournaments
@@ -46,7 +48,7 @@ async def tournament_calendar(request):
         events = request.app[calendar_key]
         return web.json_response(events, dumps=partial(json.dumps, default=dt.datetime.isoformat))
 
-    scheduled_tournaments = await get_scheduled_tournaments(request.app)
+    scheduled_tournaments = await get_scheduled_tournaments(get_app_state(request.app))
     created_tournaments = {t[:5]: t[5] for t in scheduled_tournaments}
 
     events = []
