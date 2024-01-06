@@ -182,7 +182,7 @@ async def round_socket_handler(request):
 
             # not connected to any other game socket after we closed this one. maybe we havae a change of online users count
             if len(user.game_sockets) == 0:
-                lobby_broadcast_online_users_count(app, users, user)
+                await lobby_broadcast_online_users_count(app, users, user)
 
         if game is not None and user is not None:
             response = {"type": "user_disconnected", "username": user.username}
@@ -597,7 +597,7 @@ async def handle_embed_user_connected(ws):
     response = {"type": "embed_user_connected"}
     await ws.send_json(response)
 
-async def handle_game_user_connected(app, ws, users, user, data, game):
+async def handle_game_user_connected(app, ws, users, user, data, game: game.Game):
     # update websocket
     if data["gameId"] in user.game_sockets:
         log.debug(
@@ -648,7 +648,8 @@ async def lobby_broadcast_online_users_count(app, users, user):
     # if also not connected to lobby socket this means we have a change of count of online users.
     # todo:niki:the combination of conditions is probably wrong when users moves from lobby to a new game
     #           even if correct, the way i have split these conditions one here and one outside is super ugly
-    if user.username not in app[lobbysockets_key]:
+    sockets = app[lobbysockets_key];
+    if user.username not in sockets:
         response = {"type": "u_cnt", "cnt": online_count(users)}
         await lobby_broadcast(sockets, response)
 
@@ -710,7 +711,6 @@ async def handle_bugroundchat(users, user, data, game):
         await player.send_game_message(gameId, response)
 
     await round_broadcast(game, response)
-
 
 async def handle_roundchat(app, ws, users, user, data, game):
     if user.username.startswith(ANON_PREFIX):

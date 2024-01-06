@@ -68,7 +68,7 @@ class Clock:
 
                     # If FLAG was not received we have to act
                     if self.game.status < ABORTED and self.secs <= 0 and self.running:
-                        if self.game.variant == "bughouse":
+                        if self.game.variant == "bughouse": #todo:niki: cant figure out how to get rid of those if variant=bughouse stuff, but this logic has to somehow be moved in implementing game classes maybe
                             if self.board == self.game.boards['a']:
                                 user = self.game.bplayerA if self.color == BLACK else self.game.wplayerA
                             else:

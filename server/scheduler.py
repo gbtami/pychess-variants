@@ -158,7 +158,7 @@ class Scheduler:
             try:
                 date = dt.datetime(self.now.year, self.now.month, i + 1, tzinfo=dt.timezone.utc)
             except ValueError as e:
-                log.error(e, stack_info=True, exc_info=True)
+                log.error(e, exc_info=True)
                 break
             plans.append(Plan(MONTHLY, date, 16, v.rstrip("960"), is_960, base, inc, byo, 90))
 

@@ -771,7 +771,7 @@ class Tournament(ABC):
                 if ws is not None:
                     await ws.send_json(response)
             except Exception as e:
-                log.error(e, stack_info=True, exc_info=True)
+                log.error(e, exc_info=True)
                 self.pause(wp)
                 log.debug("White player %s left the tournament", wp.username)
 
@@ -780,7 +780,7 @@ class Tournament(ABC):
                 if ws is not None:
                     await ws.send_json(response)
             except Exception as e:
-                log.error(e, stack_info=True, exc_info=True)
+                log.error(e, exc_info=True)
                 self.pause(bp)
                 log.debug("Black player %s left the tournament", bp.username)
 
@@ -1053,10 +1053,9 @@ class Tournament(ABC):
                     try:
                         await ws.send_json(response)
                     except ConnectionResetError as e:
-                        log.error(e, stack_info=True, exc_info=True)
-            except KeyError as e:
-                # spectator was removed
-                log.error(e, stack_info=True, exc_info=True)
+                        log.error(e, exc_info=True)
+            except KeyError:
+                log.error("spectator was removed", exc_info=True)
             except Exception:
                 log.exception("Exception in tournament broadcast()")
 
@@ -1106,7 +1105,7 @@ class Tournament(ABC):
                 )
             )
         except Exception as e:
-            log.error(e, stack_info=True, exc_info=True)
+            log.error(e, exc_info=True)
             if self.app[db_key] is not None:
                 log.error(
                     "db find_one_and_update pairing_table %s into %s failed !!!",
@@ -1158,7 +1157,7 @@ class Tournament(ABC):
                 )
             )
         except Exception as e:
-            log.error(e, stack_info=True, exc_info=True)
+            log.error(e, exc_info=True)
             if self.app[db_key] is not None:
                 log.error(
                     "db find_one_and_update tournament_player %s into %s failed !!!",

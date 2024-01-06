@@ -40,7 +40,7 @@ async def get_work(request, data):
             fishnet_work_queue.task_done()
         except ValueError:
             log.error(
-                "task_done() called more times than there were items placed in the queue in fishnet.py get_work()", stack_info=True, exc_info=True
+                "task_done() called more times than there were items placed in the queue in fishnet.py get_work()"
             )
 
         work = request.app[fishnet_works_key][work_id]

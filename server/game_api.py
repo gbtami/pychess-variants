@@ -91,9 +91,8 @@ async def get_variant_stats(request):
             try:
                 variant_counts[variant][-1] = cnt
             except KeyError:
-                log.error("support of variant discontinued!", stack_info=True, exc_info=True)
-                # support of variant discontinued
-                pass
+                log.error("support of variant discontinued!")
+
 
         series = [{"name": variant, "data": variant_counts[variant]} for variant in VARIANTS]
 
@@ -241,8 +240,8 @@ async def get_user_games(request):
 
             try:
                 doc["v"] = C2V[doc["v"]]
-            except KeyError as e:
-                log.error(e, stack_info=True, exc_info=True)
+            except KeyError:
+                log.error("Unknown variant %r", doc, exc_info=True)
                 continue
 
             doc["r"] = C2R[doc["r"]]
@@ -299,9 +298,8 @@ async def cancel_invite(request):
             del seeks[seek_id]
             del creator.seeks[seek_id]
         except KeyError:
-            log.error("Seek was already deleted!", stack_info=True, exc_info=True)
-            # Seek was already deleted
-            pass
+            log.error("Seek was already deleted!", exc_info=True)
+
 
     return web.HTTPFound("/")
 
@@ -317,7 +315,7 @@ async def subscribe_invites(request):
                 await response.send(payload)
                 queue.task_done()
     except ConnectionResetError as e:
-        log.error(e, stack_info=True, exc_info=True)
+        log.error(e, exc_info=True)
     finally:
         app[invite_channels_key].remove(queue)
     return response
@@ -334,7 +332,7 @@ async def subscribe_games(request):
                 await response.send(payload)
                 queue.task_done()
     except (ConnectionResetError, asyncio.CancelledError) as e:
-        log.error(e, stack_info=True, exc_info=True)
+        log.error(e, exc_info=True)
     finally:
         app[game_channels_key].remove(queue)
     return response
@@ -416,7 +414,7 @@ async def export(request):
                     doc["_id"],
                     C2V[doc["v"]],
                     doc["d"].strftime("%Y.%m.%d"),
-                    stack_info=True, exc_info=True
+                    exc_info=True
                 )
                 continue
         print("failed/all:", failed, game_counter)

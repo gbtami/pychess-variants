@@ -132,7 +132,6 @@ async def handle_404(request, handler):
     try:
         return await handler(request)
     except web.HTTPException as ex:
-        log.debug(ex, stack_info=True, exc_info=True)
         if ex.status == 404:
             template = request.app[jinja_key]["en"].get_template("404.html")
             text = await template.render_async(
@@ -538,11 +537,9 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
-    # FORMAT = '%(asctime)-15s %(message)s'
-    FORMAT = ('\n[%(levelname)s/%(name)s:%(lineno)d] %(asctime)s ' +
-                  '(%(processName)s/%(threadName)s)\n> %(message)s')
-    DATEFMT = '%Y-%m-%d %H:%M:%S'
-    logging.basicConfig(format=FORMAT, datefmt=DATEFMT) # todo:niki:what is the difference with settings.py same call - why have it in 2 places, who calls the other one?
+    FORMAT = ('%(asctime)s.%(msecs)03d [%(levelname)s] %(name)s:%(lineno)d %(message)s')
+    DATEFMT = '%z %Y-%m-%d %H:%M:%S'
+    logging.basicConfig(format=FORMAT, datefmt=DATEFMT)
     logging.getLogger().setLevel(
         level=logging.DEBUG if args.v else logging.WARNING if args.w else logging.INFO
     )

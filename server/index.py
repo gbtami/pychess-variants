@@ -17,7 +17,7 @@ try:
 
     html_minify = functools.partial(htmlmin.minify, remove_optional_attribute_quotes=False)
 except ImportError as e:
-    log.error(e, stack_info=True, exc_info=True)
+    log.error(e, exc_info=True)
     warnings.warn("Not using HTML minification, htmlmin not imported.")
     sys.exit(0)
 
@@ -101,7 +101,7 @@ async def index(request):
         try:
             doc = await db.user.find_one({"_id": session_user})
         except Exception:
-            log.error("Failed to get user %s from mongodb!", session_user, stack_info=True, exc_info=True)
+            log.error("Failed to get user %s from mongodb!", session_user, exc_info=True)
         if doc is not None:
             session["guest"] = False
 
@@ -308,7 +308,7 @@ async def index(request):
                             await queue.put(json.dumps({"gameId": gameId}))
                         # return games[game_id]
                     except ConnectionResetError as e:
-                        log.error(e, session_user, stack_info=True, exc_info=True)
+                        log.error(e, session_user, exc_info=True)
 
             else:
                 view = "invite"
@@ -558,7 +558,7 @@ async def index(request):
             render["btitle"] = game.bplayer.title
             render["brating"] = game.brating
             render["brdiff"] = game.brdiff
-            render["fen"] = game.fen  # game.board.fen
+            render["fen"] = game.fen
             render["base"] = game.base
             render["inc"] = game.inc
             render["byo"] = game.byoyomi_period
@@ -682,7 +682,7 @@ async def index(request):
     try:
         text = await template.render_async(render)
     except Exception:
-        log.error("ERROR: template.render_async() failed.", stack_info=True, exc_info=True)
+        log.error("ERROR: template.render_async() failed.", exc_info=True)
         return web.HTTPFound("/")
 
     response = web.Response(text=html_minify(text), content_type="text/html")

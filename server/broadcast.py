@@ -20,13 +20,12 @@ async def lobby_broadcast(sockets, response):
         for ws in ws_set:
             try:
                 await ws.send_json(response)
-            except ConnectionResetError as e:
-                log.error(e, stack_info=True, exc_info=True)
+            except ConnectionResetError:
+                log.debug("Connection reset ", exc_info=True)
 
 
 async def round_broadcast(game, response, full=False, channels=None):
-    log.info("round_broadcast %s %s", response, full )
-    log.info(game.spectators)
+    log.debug("round_broadcast %s %s %r", response, full, game.spectators )
     if game.spectators:
         for spectator in game.spectators:
             await spectator.send_game_message(game.id, response)

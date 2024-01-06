@@ -20,10 +20,10 @@ async def BOT_task(bot, app):
                 bot.game_queues[game.id].task_done()
             except ValueError:
                 log.error(
-                    "task_done() called more times than there were items placed in the queue in ai.py game_task()", stack_info=True, exc_info=True
+                    "task_done() called more times than there were items placed in the queue in ai.py game_task()"
                 )
             except KeyError:
-                log.error("Break in BOT_task() game_task(). %s not in ai.game_queues", game.id, stack_info=True, exc_info=True)
+                log.error("Break in BOT_task() game_task(). %s not in ai.game_queues", game.id)
                 if game.status <= STARTED:
                     await game.abort_by_server()
                 break
@@ -64,7 +64,7 @@ async def BOT_task(bot, app):
             bot.event_queue.task_done()
         except ValueError:
             log.error(
-                "task_done() called more times than there were items placed in the queue in ai.py AI_move()", stack_info=True, exc_info=True
+                "task_done() called more times than there were items placed in the queue in ai.py AI_move()"
             )
 
         event = json.loads(line)

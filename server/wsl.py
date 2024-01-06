@@ -97,7 +97,7 @@ async def lobby_socket_handler(request):
                         log.debug("Websocket (%s) message: %s", id(ws), msg)
 
                     if data["type"] == "get_seeks":
-                        await get_seeks(ws, seeks)
+                        await handle_get_seeks(ws, seeks)
                     elif data["type"] == "create_ai_challenge":
                         await handle_create_ai_challenge(app, ws, users, user, data, seeks)
                     elif data["type"] == "create_seek":

@@ -17,7 +17,7 @@ try:
 
     sf.set_option("VariantPath", "variants.ini")
 except ImportError:
-    log.error("No pyffish module installed!", stack_info=True, exc_info=True)
+    log.error("No pyffish module installed!", exc_info=True)
 
 from typedefs import (
     db_key,
@@ -241,7 +241,7 @@ async def load_game(app, game_id):
                 try:
                     game.steps[-1]["analysis"] = doc["a"][ply + 1]
                 except IndexError:
-                    log.error("IndexError %d %s %s", ply, move, san, stack_info=True, exc_info=True)
+                    log.error("IndexError %d %s %s", ply, move, san, exc_info=True)
 
         except Exception:
             log.exception(
@@ -423,7 +423,7 @@ async def join_seek(app, user, seek_id, game_id=None, join_as="any"):
     log.info(
         "+++ Seek %s joined by %s FEN:%s 960:%s",
         seek_id,
-        user.username if user else None,
+        user.username,
         seek.fen,
         seek.chess960,
     )
@@ -585,6 +585,7 @@ async def insert_game_to_db(game, app):
         game.wplayer.tv = game.id
         game.bplayer.tv = game.id
 
+
 def remove_seek(seeks, seek):
     if (not seek.creator.bot) and seek.id in seeks:
         del seeks[seek.id]
@@ -656,7 +657,7 @@ async def play_move(app, user, game, move, clocks=None, ply=None):
         return
 
     if not invalid_move:
-        board_response = game.get_board()  # (full=game.ply == 1) todo:niki:i dont understand why this was so. why full when 1st ply?
+        board_response = game.get_board(full=game.board.ply == 1)
 
         if not user.bot:
             await user.send_game_message(gameId, board_response)
@@ -747,7 +748,7 @@ def pgn(doc):
     try:
         mlist = sf.get_san_moves(variant, fen, mlist, chess960, sf.NOTATION_SAN)
     except Exception as e:
-        log.error(e, stack_info=True, exc_info=True)
+        log.error(e, exc_info=True)
         try:
             mlist = sf.get_san_moves(variant, fen, mlist[:-1], chess960, sf.NOTATION_SAN)
         except Exception:

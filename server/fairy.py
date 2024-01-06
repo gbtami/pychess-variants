@@ -7,9 +7,8 @@ log = logging.getLogger(__name__)
 
 try:
     import pyffish as sf
-except ImportError as e:
-    log.error(e, stack_info=True, exc_info=True)
-    print("No pyffish module installed!")
+except ImportError:
+    log.error("No pyffish module installed!", exc_info=True)
 
 from ataxx import ATAXX_FENS
 from const import CATEGORIES
@@ -65,7 +64,7 @@ class FairyBoard:
         self.initial_fen = (
             initial_fen
             if initial_fen
-            else FairyBoard.start_fen(variant, chess960, disabled_fen) or variant == "ataxx", disabled_fen)
+            else FairyBoard.start_fen(variant, chess960 or variant == "ataxx", disabled_fen) 
         )
         self.move_stack: list[str] = []
         self.ply = 0
@@ -101,7 +100,7 @@ class FairyBoard:
 
     def push(self, move):
         try:
-            log.debug("move= %s, fen= %s", move, self.fen)
+            log.debug("move=%s, fen=%s", move, self.fen)
             self.move_stack.append(move)
             self.ply += 1
             self.color = not self.color
@@ -124,7 +123,8 @@ class FairyBoard:
                 self.chess960,
                 self.sfen,
                 self.show_promoted,
-                self.count_started, stack_info=True, exc_info=True
+                self.count_started, 
+				exc_info=True
             )
             raise
 
@@ -150,7 +150,7 @@ class FairyBoard:
         return sf.legal_moves(self.variant, self.initial_fen, self.move_stack, self.chess960)
 
     def legal_moves_no_history(self):
-        # move legality can depend on history, e.g., passing and bikjang
+        # move legality can depend on history, but for bughouse we can't recreate history so we need this version
         return sf.legal_moves(self.variant, self.fen, [], self.chess960)
 
     def is_checked(self):
@@ -236,7 +236,7 @@ class FairyBoard:
         The bishops are placed on opposite-colored squares.
         Same for queen and archbishop in caparandom."""
 
-        if self.variant == "ataxx":
+        if variant == "ataxx":
             return random.choice(ATAXX_FENS)
 
         castl = ""
@@ -337,7 +337,7 @@ class FairyBoard:
         else:
             holdings = ""
 
-        checks = "3+3 " if self.variant == "3check" else ""
+        checks = "3+3 " if variant == "3check" else ""
 
         fen = (
             fen
