@@ -206,8 +206,9 @@ async def get_winners(app_state: PychessGlobalAppState, shield, variant: str = N
         winners = []
         cursor = app_state.db.tournament.find(filter_cond, sort=[("startsAt", -1)], limit=limit)
         async for doc in cursor:
-            winners.append((doc["winner"], doc["startsAt"].strftime("%Y.%m.%d"), doc["_id"]))
-            await app_state.users.get(doc["winner"])
+            if "winner" in doc:
+                winners.append((doc["winner"], doc["startsAt"].strftime("%Y.%m.%d"), doc["_id"]))
+                await app_state.users.get(doc["winner"])
 
         wi[variant] = winners
 
