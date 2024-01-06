@@ -18,9 +18,9 @@ else:
 from aiohttp import web
 from aiohttp.log import access_logger
 from aiohttp.web_app import Application
+from aiohttp_session import SimpleCookieStorage
 from aiohttp_session.cookie_storage import EncryptedCookieStorage
 from aiohttp_session import setup, get_session
-from aiohttp_remotes import Secure
 from motor.motor_asyncio import AsyncIOMotorClient
 
 from typedefs import (
@@ -103,17 +103,16 @@ async def on_prepare(request, response):
             response.headers["Expires"] = "0"
 
 
-def make_app(db_client=None) -> Application:
+def make_app(db_client=None, simple_cookie_storage=False) -> Application:
     app = web.Application()
-    if False:  # URI.startswith("https"):
-        secure = Secure()  # redirect_url=URI)
-        app.on_response_prepare.append(secure.on_response_prepare)
-        app.middlewares.append(secure.middleware)
 
     parts = urlparse(URI)
+
     setup(
         app,
-        EncryptedCookieStorage(SECRET_KEY, max_age=MAX_AGE, secure=parts.scheme == "https"),
+        SimpleCookieStorage()
+        if simple_cookie_storage
+        else EncryptedCookieStorage(SECRET_KEY, max_age=MAX_AGE, secure=parts.scheme == "https")
     )
 
     if db_client is not None:
@@ -215,6 +214,11 @@ if __name__ == "__main__":
         action="store_true",
         help="Less verbose output. Changes log level from INFO to WARNING.",
     )
+    parser.add_argument(
+        "-s",
+        action="store_true",
+        help="Use SimpleCookieStorage. For testing purpose only!",
+    )
     args = parser.parse_args()
 
     FORMAT = "%(asctime)s.%(msecs)03d [%(levelname)s] %(name)s:%(lineno)d %(message)s"
@@ -224,7 +228,10 @@ if __name__ == "__main__":
         level=logging.DEBUG if args.v else logging.WARNING if args.w else logging.INFO
     )
 
-    app = make_app(db_client=AsyncIOMotorClient(MONGO_HOST, tz_aware=True))
+    app = make_app(
+        db_client=AsyncIOMotorClient(MONGO_HOST, tz_aware=True),
+        simple_cookie_storage=args.s,
+    )
 
     web.run_app(
         app, access_log=None if args.w else access_logger, port=int(os.environ.get("PORT", 8080))
