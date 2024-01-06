@@ -373,8 +373,8 @@ async def set_theme(request):
         if session_user in app_state.users:
             user = app_state.users[session_user]
             user.theme = theme
-            if user.db is not None:
-                await user.db.user.find_one_and_update(
+            if app_state.db is not None:
+                await app_state.db.user.find_one_and_update(
                     {"_id": user.username}, {"$set": {"theme": theme}}
                 )
         session["theme"] = theme

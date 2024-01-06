@@ -87,10 +87,6 @@ class Game:
         tournamentId=None,
     ):
         self.app_state = app_state
-        # self.db = app[db_key] if db_key in app else None
-        # self.games = app[games_key]
-        # self.highscore = app[highscore_key]
-        # self.db_crosstable = app[crosstable_key]
 
         self.saved = False
         self.remove_task = None

@@ -180,7 +180,8 @@ class CorrClock:
             if self.game.bplayer.username == user.username
             else self.game.bplayer.username
         )
-        _id = await new_id(None if self.game.db is None else self.game.db.notify)
+        db = self.game.app_state.db
+        _id = await new_id(None if db is None else db.notify)
         document = {
             "_id": _id,
             "notifies": user.username,
@@ -194,7 +195,7 @@ class CorrClock:
         }
 
         if user.notifications is None:
-            cursor = self.game.db.notify.find({"notifies": user.username})
+            cursor = db.notify.find({"notifies": user.username})
             user.notifications = await cursor.to_list(length=100)
 
         user.notifications.append(document)
@@ -204,8 +205,8 @@ class CorrClock:
                 json.dumps(user.notifications[-NOTIFY_PAGE_SIZE:], default=datetime.isoformat)
             )
 
-        if self.game.db is not None:
-            await self.game.db.notify.insert_one(document)
+        if db is not None:
+            await db.notify.insert_one(document)
 
         # to prevent creating more then one notification for the same ply
         self.alarms.add(self.game.board.ply)

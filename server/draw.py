@@ -54,8 +54,9 @@ async def reject_draw(game, opp_user):
 
 
 async def save_draw_offer(game):
-    if game.corr and game.db is not None:
-        await game.db.game.find_one_and_update(
+    db = game.app_state.db
+    if game.corr and db is not None:
+        await db.game.find_one_and_update(
             {"_id": game.id},
             {
                 "$set": {
