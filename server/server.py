@@ -112,7 +112,7 @@ def make_app(db_client=None, simple_cookie_storage=False) -> Application:
         app,
         SimpleCookieStorage()
         if simple_cookie_storage
-        else EncryptedCookieStorage(SECRET_KEY, max_age=MAX_AGE, secure=parts.scheme == "https")
+        else EncryptedCookieStorage(SECRET_KEY, max_age=MAX_AGE, secure=parts.scheme == "https"),
     )
 
     if db_client is not None:
