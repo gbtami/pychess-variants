@@ -66,7 +66,7 @@ async def get_daily_puzzle(request):
 
         # skip previous daily puzzles
         user.puzzles = {puzzle_id: NOT_VOTED for puzzle_id in daily_puzzle_ids.values()}
-        print(user.puzzles)
+        # print(user.puzzles)
 
         puzzleId = "0"
         while puzzleId == "0":

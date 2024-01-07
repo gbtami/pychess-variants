@@ -165,7 +165,7 @@ async def shutdown(app):
     await app_state.lobby.lobby_chat("", msg)
 
     response = {"type": "roundchat", "user": "", "message": msg, "room": "player"}
-    for game in list(app_state.games.values()):
+    for game in [game for game in app_state.games.values() if not game.corr]:
         await round_broadcast(game, response, full=True)
 
     # No need to wait in dev mode and in unit tests
@@ -179,21 +179,21 @@ async def shutdown(app):
         await app_state.db.seek.delete_many({})
         await app_state.db.seek.insert_many(corr_seeks)
 
-    for user in list(app_state.users.values()):
-        if user.bot:
-            await user.event_queue.put('{"type": "terminated"}')
+    # terminate BOT users
+    for user in [user for user in app_state.users.values() if user.bot]:
+        await user.event_queue.put('{"type": "terminated"}')
 
     # abort games
-    for game in list(app_state.games.values()):
-        if game.status <= STARTED and (not game.corr):
-            response = await game.abort_by_server()
-            for player in set(game.non_bot_players):
-                await player.send_game_message(game.id, response)
+    for game in [
+        game for game in app_state.games.values() if game.status <= STARTED and not game.corr
+    ]:
+        response = await game.abort_by_server()
+        for player in set(game.non_bot_players):
+            await player.send_game_message(game.id, response)
 
     # close game_sockets
-    for user in list(app_state.users.values()):
-        if not user.bot:
-            await user.close_all_game_sockets()
+    for user in [user for user in app_state.users.values() if not user.bot]:
+        await user.close_all_game_sockets()
 
     # close lobbysockets
     await app_state.lobby.close_lobby_sockets()
