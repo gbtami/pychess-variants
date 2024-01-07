@@ -188,7 +188,7 @@ async def shutdown(app):
         game for game in app_state.games.values() if game.status <= STARTED and not game.corr
     ]:
         response = await game.abort_by_server()
-        for player in set(game.non_bot_players):
+        for player in game.non_bot_players:
             await player.send_game_message(game.id, response)
 
     # close game_sockets
