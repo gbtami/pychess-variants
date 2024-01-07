@@ -97,7 +97,7 @@ class Game:
         self.bplayer = bplayer
 
         self.all_players = [self.wplayer, self.bplayer]
-        self.non_bot_players = filter(lambda p: not p.bot, self.all_players)
+        self.non_bot_players = [player for player in self.all_players if not player.bot]
 
         self.rated = rated
         self.base = base

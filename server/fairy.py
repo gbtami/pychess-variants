@@ -105,7 +105,7 @@ class FairyBoard:
 
     def push(self, move):
         try:
-            log.debug("move=%s, fen=%s", move, self.fen)
+            # log.debug("move=%s, fen=%s", move, self.fen)
             self.move_stack.append(move)
             self.ply += 1
             self.color = not self.color

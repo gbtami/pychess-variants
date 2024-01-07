@@ -374,17 +374,15 @@ export class RoundController extends GameController {
         }
 
         // TODO: moretime button
-        if (!this.corr) {
-            const new_running_clck = (this.clocks[0].running) ? this.clocks[1] : this.clocks[0];
-            this.clocks[0].pause(false);
-            this.clocks[1].pause(false);
+        const new_running_clck = (this.clocks[0].running) ? this.clocks[1] : this.clocks[0];
+        this.clocks[0].pause(false);
+        this.clocks[1].pause(false);
 
-            const tmp_clock = this.clocks[0];
-            const tmp_clock_time = tmp_clock.duration;
-            this.clocks[0].setTime(this.clocks[1].duration);
-            this.clocks[1].setTime(tmp_clock_time);
-            if (this.status < 0) new_running_clck.start();
-        }
+        const tmp_clock = this.clocks[0];
+        const tmp_clock_time = tmp_clock.duration;
+        this.clocks[0].setTime(this.clocks[1].duration);
+        this.clocks[1].setTime(tmp_clock_time);
+        if (this.status < 0) new_running_clck.start();
 
         this.vplayer0 = patch(this.vplayer0, player('round-player0', 'player0', this.titles[this.flipped() ? 1 : 0], this.players[this.flipped() ? 1 : 0], this.ratings[this.flipped() ? 1 : 0], this.level));
         this.vplayer1 = patch(this.vplayer1, player('round-player1', 'player1', this.titles[this.flipped() ? 0 : 1], this.players[this.flipped() ? 0 : 1], this.ratings[this.flipped() ? 0 : 1], this.level));
@@ -888,6 +886,15 @@ export class RoundController extends GameController {
                         lastMove: lastMove,
                     });
 
+                    // This have to be exactly here (and before this.performPremove as well!!!),
+                    // becuse in case of takeback 
+                    // ataxx setDests() needs not just actualized turnColor but
+                    // actualized chessground.state.boardState.pieces as well !!!
+                    if (this.ffishBoard) {
+                        this.ffishBoard.setFen(this.fullfen);
+                        this.setDests();
+                    }
+
                     if (!this.focus) this.notifyMsg(`Played ${step.san}\nYour turn.`);
 
                     // prevent sending premove/predrop when (auto)reconnecting websocked asks server to (re)sends the same board to us
@@ -906,18 +913,20 @@ export class RoundController extends GameController {
                     check: msg.check,
                     lastMove: lastMove,
                 });
+
+                // This have to be here, becuse in case of takeback 
+                // ataxx setDests() needs not just actualized turnColor but
+                // actualized chessground.state.boardState.pieces as well !!!
+                if (this.ffishBoard) {
+                    this.ffishBoard.setFen(this.fullfen);
+                    this.setDests();
+                }
+
                 if (this.clockOn && msg.status < 0) {
                     this.clocks[oppclock].start();
                     // console.log('OPP CLOCK  STARTED');
                 }
             }
-        }
-        // This have to be here, becuse in case of takeback 
-        // ataxx setDests() needs not just actualized turnColor but
-        // actualized chessground.state.boardState.pieces as well !!!
-        if (this.ffishBoard) {
-            this.ffishBoard.setFen(this.fullfen);
-            this.setDests();
         }
 
         this.updateMaterial();

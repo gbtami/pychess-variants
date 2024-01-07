@@ -355,7 +355,7 @@ async def import_game(request):
         return web.json_response({"error": message})
 
     try:
-        print(game_id, variant, initial_fen, wplayer, bplayer)
+        # print(game_id, variant, initial_fen, wplayer, bplayer)
         new_game = Game(
             app_state,
             game_id,
@@ -403,9 +403,9 @@ async def import_game(request):
     if brating:
         document["p1"] = {"e": brating}
 
-    print(document)
+    # print(document)
     result = await app_state.db.game.insert_one(document)
-    print("db insert IMPORTED game result %s" % repr(result.inserted_id))
+    # print("db insert IMPORTED game result %s" % repr(result.inserted_id))
 
     return web.json_response({"gameId": game_id})
 

@@ -445,6 +445,9 @@ async def handle_draw(ws, users, user, data, game):
     opp_name = game.wplayer.username if color == BLACK else game.bplayer.username
     opp_player = users[opp_name]
 
+    if opp_name not in game.draw_offers:
+        game.draw_offers.add(user.username)
+
     response = await draw(game, user, agreement=opp_name in game.draw_offers)
     await ws.send_json(response)
     if opp_player.bot:
@@ -457,9 +460,6 @@ async def handle_draw(ws, users, user, data, game):
             log.error("Opp disconnected", stack_info=True, exc_info=True)
             # opp disconnected
             pass
-
-    if opp_name not in game.draw_offers:
-        game.draw_offers.add(user.username)
 
     await round_broadcast(game, response)
 
