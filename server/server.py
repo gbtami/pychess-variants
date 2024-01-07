@@ -20,7 +20,7 @@ from aiohttp.log import access_logger
 from aiohttp.web_app import Application
 from aiohttp_session import SimpleCookieStorage
 from aiohttp_session.cookie_storage import EncryptedCookieStorage
-from aiohttp_session import setup, get_session
+from aiohttp_session import setup
 from motor.motor_asyncio import AsyncIOMotorClient
 
 from typedefs import (
@@ -75,7 +75,6 @@ async def handle_404(request, handler):
         else:
             raise
     except NotInDbUsers:
-        session = await get_session(request)
         return web.HTTPFound("/")
 
 
