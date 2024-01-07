@@ -71,8 +71,6 @@ export class RoundController extends GameController {
             const cl = document.body.classList; // removing the "reconnecting" message in lower left corner
             cl.remove('offline');
             cl.add('online');
-
-            this.doSend({ type: "game_user_connected", username: this.username, gameId: this.gameId });
         };
 
         const onReconnect = () => {
@@ -94,7 +92,7 @@ export class RoundController extends GameController {
             patch(container, h('i-side.online#player1', {class: {"icon": true, "icon-online": false, "icon-offline": true}}));
         };
 
-        this.sock = newWebsocket('wsr');
+        this.sock = newWebsocket('wsr/' + this.gameId);
         this.sock.onopen = () => onOpen();
         this.sock.onreconnect = () => onReconnect();
         this.sock.onmessage = (e: MessageEvent) => this.onMessage(e);
@@ -753,14 +751,10 @@ export class RoundController extends GameController {
             }
         }
 
-        this.fullfen = msg.fen;
-        if (this.ffishBoard) {
-            this.ffishBoard.setFen(this.fullfen);
-            this.setDests();
-        }
-
+        // turnColor have to be actualized before setDests() !!!
         const parts = msg.fen.split(" ");
         this.turnColor = parts[1] === "w" ? "white" : "black";
+        this.fullfen = msg.fen;
 
         this.clocktimes = msg.clocks || this.clocktimes;
 
@@ -862,7 +856,7 @@ export class RoundController extends GameController {
             this.clocks[bclock].increment = 0;
             if (msg.ply <= 2) this.clocks[bclock].setTime(this.base * 1000 * 30);
         }
-        console.log("onMsgBoard() this.clockOn && msg.status", this.clockOn, msg.status);
+        // console.log("onMsgBoard() this.clockOn && msg.status", this.clockOn, msg.status);
         if (this.spectator) {
             if (latestPly) {
                 this.chessground.set({
@@ -918,6 +912,14 @@ export class RoundController extends GameController {
                 }
             }
         }
+        // This have to be here, becuse in case of takeback 
+        // ataxx setDests() needs not just actualized turnColor but
+        // actualized chessground.state.boardState.pieces as well !!!
+        if (this.ffishBoard) {
+            this.ffishBoard.setFen(this.fullfen);
+            this.setDests();
+        }
+
         this.updateMaterial();
     }
 
@@ -1086,7 +1088,7 @@ export class RoundController extends GameController {
             const container = document.getElementById('player1') as HTMLElement;
             patch(container, h('i-side.online#player1', {class: {"icon": true, "icon-online": true, "icon-offline": false}}));
 
-            // prevent sending gameStart message when user just reconecting
+            // prevent sending gameStart message when user just reconnecting
             if (msg.ply === 0) {
                 this.doSend({ type: "ready", gameId: this.gameId });
             //    if (this.variant.setup) {

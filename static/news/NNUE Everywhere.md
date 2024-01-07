@@ -20,7 +20,7 @@ It was a huge sensation, but it needed 4 first generation TPUs to run and an eno
 
 Open source developers started to work on similar projects immediately, and in 2018 Yu Nasu introduced a very powerful new approach, NNUE (ƎUИИ, Efficiently Updatable Neural Networks), which was used in Shogi engines later.
 
-After long debates, with the help of Japanese programmer Nodchip, Stockfish deveopers released Stockfish 12 NNUE in 2020.
+After long debates, with the help of Japanese programmer Nodchip, Stockfish developers released Stockfish 12 NNUE in 2020.
 
 As you may know [Fairy-Stockfish](https://github.com/ianfab/Fairy-Stockfish) gradually added NNUE support to all variants starting from version 13 and finally to its [WASM port](https://github.com/fairy-stockfish/fairy-stockfish.wasm) as well.
 This opened up the possibility to add NNUE support to pychess.org engine play and analysis on server side and in browser analysis on client side.
@@ -29,7 +29,7 @@ What does all this mean? We have superhuman level engine play and analysis on py
 How does it work? First go to https://fairy-stockfish.github.io/nnue/ and download .nnue files you need for your favorite variants. Then use the Board settings panel to select it, and reload the pychess browser tab.
 After the reload when you enable local engine analysis it will show: Fairy-Stockfish 14+ NNUE in the panel header.
 
-Huge thaks to [@ubdip](https://www.pychess.org/@/ubdip) to make this possible, Untitled_Entity who trained the Synochess net, and Belzedar who trained almost all the other nets tirelessly!
+Huge thanks to [@ubdip](https://www.pychess.org/@/ubdip) to make this possible, Untitled_Entity who trained the Synochess net, and Belzedar who trained almost all the other nets tirelessly!
 
 
 Enjoy!

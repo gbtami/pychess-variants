@@ -99,7 +99,7 @@ Moves one square orthogonally or diagonally. Does not promote. When called witho
 **About Promotion**
 * The 7th, 8th, and 9th ranks are called the Enemy camp.
 * A piece is promoted when it moves to, from, or within the enemy camp.
-* Promotion is manditory. Therefore, a piece that can be promoted must be promoted.
+* Promotion is mandatory. Therefore, a piece that can be promoted must be promoted.
 * On a physical board, this is typically accomplished by flipping the piece upside down, as in Shogi.
 * When a promoted piece is captured by an opponent, that piece loses the promotion (i.e., it returns to its pre-promotion state). This is the only way a piece is demoted.
 
@@ -130,7 +130,7 @@ When you resign, you declare resignation by placing your King on your piece stan
 
 **About Defeat**
 Defeat is determined by the following cases.
-* When checkamte is delivered to you
+* When checkmate is delivered to you
 * When the opponent's King reaches the last rank
 * When you declared resignation
 * When you break one or more of all the rules above

@@ -1,3 +1,4 @@
+from __future__ import annotations
 import calendar
 from collections import namedtuple
 import datetime as dt
@@ -12,7 +13,11 @@ from const import (
     SHIELD,
     variant_display_name,
     SCHEDULE_MAX_DAYS,
+    TYPE_CHECKING,
 )
+
+if TYPE_CHECKING:
+    from pychess_global_app_state import PychessGlobalAppState
 
 from tournaments import new_tournament
 import logging
@@ -22,16 +27,7 @@ log = logging.getLogger(__name__)
 MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY = range(7)
 Plan = namedtuple("Plan", "freq, date, hour, variant, is960, base, inc, byo, duration")
 
-SHIELDS = [
-    "crazyhouse960",
-    "atomic960",
-    "kingofthehill960",
-    "3check960",
-    "makruk",
-    "shinobi"
-    # "shinobiplus"
-]
-
+SHIELDS = ["crazyhouse960", "atomic960", "kingofthehill960", "3check960", "makruk"]
 SEATURDAY = ["makruk", "makpong", "sittuyin", "cambodian", "asean"]
 
 MONTHLY_VARIANTS = (
@@ -61,8 +57,7 @@ MONTHLY_VARIANTS = (
     "chennis",
     "capablanca",
     "xiangqi",
-    "shinobi",
-    # "shinobiplus",
+    "shinobiplus",
     "spartan",
     "kingofthehill960",
     "3check960",
@@ -70,7 +65,7 @@ MONTHLY_VARIANTS = (
 )
 
 # Old MONTHLY tournaments, needed to create translated tourney names
-PAUSED_MONTHLY_VARIANTS = ("manchu", "duck")
+PAUSED_MONTHLY_VARIANTS = ("shinobi", "manchu", "duck")
 
 # Old WEEKLY tournaments, paused atm., but needed to create translated tourney names
 WEEKLY_VARIANTS = (
@@ -257,6 +252,6 @@ def new_scheduled_tournaments(already_scheduled, now=None):
     return new_tournaments_data
 
 
-async def create_scheduled_tournaments(app, new_tournaments_data):
+async def create_scheduled_tournaments(app_state: PychessGlobalAppState, new_tournaments_data):
     for data in new_tournaments_data:
-        await new_tournament(app, data)
+        await new_tournament(app_state, data)

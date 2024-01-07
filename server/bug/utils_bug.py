@@ -2,6 +2,8 @@ import logging
 import random
 import re
 from datetime import timezone
+
+from pychess_global_app_state import PychessGlobalAppState
 from user import User
 from compress import decode_moves, R2C, C2R, V2C, C2V
 from bug.game import GameBug, MAX_PLY
@@ -420,10 +422,9 @@ async def insert_game_to_db_bughouse(game: GameBug, app):
     game.wplayerB.tv = game.id
     game.bplayerB.tv = game.id
 
-async def join_seek_bughouse(app, user, seek_id, game_id=None, join_as="any"):
+async def join_seek_bughouse(app_state, user, seek_id, game_id=None, join_as="any"):
 
-    seeks = app[seeks_key]
-    seek = seeks[seek_id]
+    seek = app_state.seeks[seek_id]
 
     log.info(
         "+++ BUGHOUSE Seek %s joined by %s FEN:%s 960:%s",
@@ -459,7 +460,7 @@ async def join_seek_bughouse(app, user, seek_id, game_id=None, join_as="any"):
     else:
         return {"type": "seek_joined", "seekID": seek_id}
 
-async def play_move(app, user, game, move, clocks=None, board=None, lastMoveCapturedRole=None):
+async def play_move(app_state: PychessGlobalAppState, user, game, move, clocks=None, board=None, lastMoveCapturedRole=None):
     log.debug("play_move %r %r %r %r %r %r", user, game, move, clocks, board, lastMoveCapturedRole)
     gameId = game.id
     invalid_move = False
@@ -488,7 +489,7 @@ async def play_move(app, user, game, move, clocks=None, board=None, lastMoveCapt
 
     if not invalid_move:
         board_response = game.get_board()  # (full=game.ply == 1) todo:niki:i dont understand why this was so. why full when 1st ply?
-        await round_broadcast(game, board_response, channels=app[game_channels_key])
+        await round_broadcast(game, board_response, channels=app_state.game_channels)
 
         for u in set(game.all_players):
             await u.send_game_message(gameId, board_response) # todo:niki:why am i not just doint full broadcast?
@@ -504,5 +505,5 @@ async def play_move(app, user, game, move, clocks=None, board=None, lastMoveCapt
         for u in set(game.all_players):
             await u.send_game_message(gameId, response)
 
-        if app[tv_key] == gameId:
-            await lobby_broadcast(app[lobbysockets_key], board_response)
+        if app_state.tv == gameId:
+            await app_state.lobby.lobby_broadcast(board_response)

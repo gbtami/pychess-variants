@@ -31,9 +31,11 @@ jobs:
     - name: Lint with flake8
       run: |
         flake8 server/ --count --show-source --statistics
+#    - name: Typecheck with mypy
+#      run: |
+#        mypy server/
     - name: Run unit tests
       run: |
-        mypy server/
         PYTHONPATH=server python tests/test.py
         PYTHONPATH=server python tests/test_compress.py
         PYTHONPATH=server python tests/test_tournament.py

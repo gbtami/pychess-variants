@@ -87,8 +87,6 @@ export class LobbyController implements ChatController {
 
         const onOpen = () => {
             console.log('onOpen()');
-            this.doSend({ type: "lobby_user_connected", username: this.username});
-            this.doSend({ type: "get_seeks" });
         }
 
         this.sock = newWebsocket('wsl');
@@ -1113,6 +1111,14 @@ export function lobbyView(model: PyChessModel): VNode[] {
         h('div.tv', [h('a#tv-game', { attrs: {href: '/tv'} })]),
         h('under-lobby', [
             h('posts', [
+                h('a.post', { attrs: {href: '/news/S-chess_endings_2'} }, [
+                    h('img', { attrs: {src: model.assetURL + '/images/hawk.jpg'} }),
+                    h('span.text', [
+                        h('strong', _("S-chess endings 2")),
+                        h('span', _('The Hawk')),
+                    ]),
+                    h('time', '2024.01.01'),
+                ]),
                 h('a.post', { attrs: {href: '/news/Merry_Christmas'} }, [
                     h('img', { attrs: {src: model.assetURL + '/images/board/ataxx.png'} }),
                     h('span.text', [
@@ -1129,6 +1135,7 @@ export function lobbyView(model: PyChessModel): VNode[] {
                     ]),
                     h('time', '2023.12.01'),
                 ]),
+                /*
                 h('a.post', { attrs: {href: '/news/Correspondence_Chess'} }, [
                     h('img', { attrs: {src: model.assetURL + '/images/Postcard-for-correspondence-chess.png'} }),
                     h('span.text', [
@@ -1137,7 +1144,6 @@ export function lobbyView(model: PyChessModel): VNode[] {
                     ]),
                     h('time', '2023.11.10'),
                 ]),
-                /*
                 h('a.post', { attrs: {href: '/news/S-chess_ramblings'} }, [
                     h('img', { attrs: {src: model.assetURL + '/images/Hawk-Elephant.jpeg'} }),
                     h('span.text', [

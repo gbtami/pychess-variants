@@ -1,3 +1,4 @@
+from __future__ import annotations
 from datetime import datetime, timezone
 
 from misc import time_control_str

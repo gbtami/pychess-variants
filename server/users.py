@@ -1,10 +1,13 @@
+from __future__ import annotations
 import logging
 from collections import UserDict
 
-from typedefs import db_key, users_key
+from const import ANON_PREFIX, NONE_USER, VARIANTS, TYPE_CHECKING
 from glicko2.glicko2 import DEFAULT_PERF
-from const import ANON_PREFIX, NONE_USER, VARIANTS
 from user import User
+
+if TYPE_CHECKING:
+    from pychess_global_app_state import PychessGlobalAppState
 
 log = logging.getLogger(__name__)
 
@@ -25,9 +28,9 @@ class Users(UserDict):
     If not, await get(username) will load user data from mongodb
     """
 
-    def __init__(self, app):
+    def __init__(self, app_state: PychessGlobalAppState):
         super().__init__()
-        self.app = app
+        self.app_state = app_state
 
     def __getitem__(self, username):
         if username in self.data:
@@ -44,11 +47,11 @@ class Users(UserDict):
             return user
 
         if username.startswith(ANON_PREFIX):
-            user = User(self.app, username=username, anon=True)
-            self.app[users_key][username] = user
+            user = User(self.app_state, username=username, anon=True)
+            self.app_state.users[username] = user
             return user
 
-        doc = await self.app[db_key].user.find_one({"_id": username})
+        doc = await self.app_state.db.user.find_one({"_id": username})
         if doc is None:
             log.error("--- users.get() %s NOT IN db ---", username)
             raise NotInDbUsers
@@ -57,7 +60,7 @@ class Users(UserDict):
             pperfs = doc.get("pperfs", {variant: DEFAULT_PERF for variant in VARIANTS})
 
             user = User(
-                self.app,
+                self.app_state,
                 username=username,
                 title=doc.get("title"),
                 bot=doc.get("title") == "BOT",
