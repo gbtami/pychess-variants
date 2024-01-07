@@ -1,21 +1,25 @@
-from typedefs import tournaments_key, tourneynames_key
-
+from __future__ import annotations
 from const import (
     LANGUAGES,
     T_STARTED,
     T_CREATED,
     TOURNAMENT_SPOTLIGHTS_MAX,
 )
+from const import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from pychess_global_app_state import PychessGlobalAppState
 
 
-def tournament_spotlights(app):
-    tournaments = app[tournaments_key]
+def tournament_spotlights(app_state: PychessGlobalAppState):
     items = []
-    for tid, tournament in sorted(tournaments.items(), key=lambda item: item[1].starts_at):
+    for tid, tournament in sorted(
+        app_state.tournaments.items(), key=lambda item: item[1].starts_at
+    ):
         if tournament.status == T_STARTED or tournament.status == T_CREATED:
             if tournament.frequency:
                 names = {
-                    lang: app[tourneynames_key][lang][
+                    lang: app_state.tourneynames[lang][
                         (
                             tournament.variant + ("960" if tournament.chess960 else ""),
                             tournament.frequency,

@@ -1,0 +1,9 @@
+.ataxx .cg-wrap piece.white {
+    background-image: url('../../images/pieces/ataxx/virus/red.svg');
+}
+.ataxx .cg-wrap piece.black {
+    background-image: url('../../images/pieces/ataxx/virus/blue.svg');
+}
+.ataxx .cg-wrap piece._-piece {
+    background-image: url('../../images/pieces/brick.svg');
+}

@@ -1,0 +1,518 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   id="emoji"
+   viewBox="0 0 72 72"
+   version="1.1"
+   sodipodi:docname="red.svg"
+   inkscape:version="1.1.2 (0a00cf5339, 2022-02-04)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs989" />
+  <sodipodi:namedview
+     id="namedview987"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     showgrid="false"
+     inkscape:zoom="12.125"
+     inkscape:cx="36"
+     inkscape:cy="36"
+     inkscape:window-width="2490"
+     inkscape:window-height="1376"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="emoji" />
+  <g
+     id="line-supplement"
+     transform="matrix(1.4225801,0,0,1.4225801,-15.2076,-15.212867)">
+    <line
+       x1="41.839901"
+       x2="39.428398"
+       y1="16.691601"
+       y2="24.209101"
+       fill="none"
+       stroke="#000000"
+       stroke-linecap="round"
+       stroke-miterlimit="10"
+       stroke-width="2"
+       id="line876" />
+    <line
+       x1="28.6898"
+       x2="31.157499"
+       y1="15.8364"
+       y2="23.8356"
+       fill="none"
+       stroke="#000000"
+       stroke-linecap="round"
+       stroke-miterlimit="10"
+       stroke-width="2"
+       id="line878" />
+    <line
+       x1="17.1486"
+       x2="24.540501"
+       y1="23.052299"
+       y2="28.2994"
+       fill="none"
+       stroke="#000000"
+       stroke-linecap="round"
+       stroke-miterlimit="10"
+       stroke-width="2"
+       id="line880" />
+    <line
+       x1="14.7102"
+       x2="22.605"
+       y1="36.2342"
+       y2="36.204601"
+       fill="none"
+       stroke="#000000"
+       stroke-linecap="round"
+       stroke-miterlimit="10"
+       stroke-width="2"
+       id="line882" />
+    <line
+       x1="18.411501"
+       x2="24.781099"
+       y1="48.695999"
+       y2="44.0317"
+       fill="none"
+       stroke="#000000"
+       stroke-linecap="round"
+       stroke-miterlimit="10"
+       stroke-width="2"
+       id="line884" />
+    <line
+       x1="29.1353"
+       x2="32.046799"
+       y1="55.308399"
+       y2="47.290901"
+       fill="none"
+       stroke="#000000"
+       stroke-linecap="round"
+       stroke-miterlimit="10"
+       stroke-width="2"
+       id="line886" />
+    <line
+       x1="42.2854"
+       x2="40.317699"
+       y1="56.163601"
+       y2="49.164398"
+       fill="none"
+       stroke="#000000"
+       stroke-linecap="round"
+       stroke-miterlimit="10"
+       stroke-width="2"
+       id="line888" />
+    <line
+       x1="52.839001"
+       x2="46.9347"
+       y1="48.317101"
+       y2="43.7006"
+       fill="none"
+       stroke="#000000"
+       stroke-linecap="round"
+       stroke-miterlimit="10"
+       stroke-width="2"
+       id="line890" />
+    <line
+       x1="57.764999"
+       x2="48.870201"
+       y1="35.7658"
+       y2="35.795399"
+       fill="none"
+       stroke="#000000"
+       stroke-linecap="round"
+       stroke-miterlimit="10"
+       stroke-width="2"
+       id="line892" />
+    <line
+       x1="53.563702"
+       x2="46.194099"
+       y1="23.304001"
+       y2="28.4683"
+       fill="none"
+       stroke="#000000"
+       stroke-linecap="round"
+       stroke-miterlimit="10"
+       stroke-width="2"
+       id="line894" />
+  </g>
+  <g
+     id="color"
+     transform="matrix(1.4225801,0,0,1.4225801,-15.2076,-15.212867)">
+    <path
+       fill="#ea5a47"
+       d="m 50.4876,36 a 15,15 0 1 1 -15,-15 15,15 0 0 1 15,15 z"
+       id="path897" />
+    <path
+       fill="#d22f27"
+       d="M 45.2977,24.67 A 16.9861,16.9861 0 0 1 30.4876,50 c -0.1382,0 -0.2728,-0.0143 -0.41,-0.0176 A 14.9871,14.9871 0 0 0 45.2977,24.67 Z"
+       id="path899" />
+    <g
+       id="g921">
+      <line
+         x1="41.839901"
+         x2="39.428398"
+         y1="16.691601"
+         y2="24.209101"
+         fill="none"
+         stroke="#d22f27"
+         stroke-linecap="round"
+         stroke-miterlimit="10"
+         stroke-width="2"
+         id="line901" />
+      <line
+         x1="28.6898"
+         x2="31.157499"
+         y1="15.8364"
+         y2="23.8356"
+         fill="none"
+         stroke="#d22f27"
+         stroke-linecap="round"
+         stroke-miterlimit="10"
+         stroke-width="2"
+         id="line903" />
+      <line
+         x1="17.1486"
+         x2="24.540501"
+         y1="23.052299"
+         y2="28.2994"
+         fill="none"
+         stroke="#d22f27"
+         stroke-linecap="round"
+         stroke-miterlimit="10"
+         stroke-width="2"
+         id="line905" />
+      <line
+         x1="14.7102"
+         x2="22.605"
+         y1="36.2342"
+         y2="36.204601"
+         fill="none"
+         stroke="#d22f27"
+         stroke-linecap="round"
+         stroke-miterlimit="10"
+         stroke-width="2"
+         id="line907" />
+      <line
+         x1="18.411501"
+         x2="24.781099"
+         y1="48.695999"
+         y2="44.0317"
+         fill="none"
+         stroke="#d22f27"
+         stroke-linecap="round"
+         stroke-miterlimit="10"
+         stroke-width="2"
+         id="line909" />
+      <line
+         x1="29.1353"
+         x2="32.046799"
+         y1="55.308399"
+         y2="47.290901"
+         fill="none"
+         stroke="#d22f27"
+         stroke-linecap="round"
+         stroke-miterlimit="10"
+         stroke-width="2"
+         id="line911" />
+      <line
+         x1="42.2854"
+         x2="40.317699"
+         y1="56.163601"
+         y2="49.164398"
+         fill="none"
+         stroke="#d22f27"
+         stroke-linecap="round"
+         stroke-miterlimit="10"
+         stroke-width="2"
+         id="line913" />
+      <line
+         x1="52.839001"
+         x2="46.9347"
+         y1="48.317101"
+         y2="43.7006"
+         fill="none"
+         stroke="#d22f27"
+         stroke-linecap="round"
+         stroke-miterlimit="10"
+         stroke-width="2"
+         id="line915" />
+      <line
+         x1="57.764999"
+         x2="48.870201"
+         y1="35.7658"
+         y2="35.795399"
+         fill="none"
+         stroke="#d22f27"
+         stroke-linecap="round"
+         stroke-miterlimit="10"
+         stroke-width="2"
+         id="line917" />
+      <line
+         x1="53.563702"
+         x2="46.194099"
+         y1="23.304001"
+         y2="28.4683"
+         fill="none"
+         stroke="#d22f27"
+         stroke-linecap="round"
+         stroke-miterlimit="10"
+         stroke-width="2"
+         id="line919" />
+    </g>
+  </g>
+  <g
+     id="line"
+     transform="matrix(1.4225801,0,0,1.4225801,-15.2076,-15.212867)">
+    <path
+       fill="none"
+       stroke="#000000"
+       stroke-linecap="round"
+       stroke-linejoin="round"
+       stroke-width="2"
+       d="m 50.4876,36 a 15,15 0 1 1 -15,-15 15,15 0 0 1 15,15 z"
+       id="path924" />
+    <g
+       id="g946">
+      <polygon
+         fill="none"
+         stroke="#000000"
+         stroke-linecap="round"
+         stroke-linejoin="round"
+         stroke-width="1.5"
+         points="44.898,17.42 41.606,17.42 38.983,15.497 "
+         id="polygon926" />
+      <polygon
+         fill="none"
+         stroke="#000000"
+         stroke-linecap="round"
+         stroke-linejoin="round"
+         stroke-width="1.5"
+         points="25.97,15.954 28.804,16.115 30.592,14.628 "
+         id="polygon928" />
+      <polygon
+         fill="none"
+         stroke="#000000"
+         stroke-linecap="round"
+         stroke-linejoin="round"
+         stroke-width="1.5"
+         points="18.484,20.142 17.925,23.596 15.303,25.328 "
+         id="polygon930" />
+      <polygon
+         fill="none"
+         stroke="#000000"
+         stroke-linecap="round"
+         stroke-linejoin="round"
+         stroke-width="1.5"
+         points="13.958,34.101 15.149,36.134 13.933,38.166 "
+         id="polygon932" />
+      <polygon
+         fill="none"
+         stroke="#000000"
+         stroke-linecap="round"
+         stroke-linejoin="round"
+         stroke-width="1.5"
+         points="16.365,47.31 18.929,48.317 19.549,51.064 "
+         id="polygon934" />
+      <polygon
+         fill="none"
+         stroke="#000000"
+         stroke-linecap="round"
+         stroke-linejoin="round"
+         stroke-width="1.5"
+         points="25.697,55.086 29.153,55.319 31.612,57.008 "
+         id="polygon936" />
+      <polygon
+         fill="none"
+         stroke="#000000"
+         stroke-linecap="round"
+         stroke-linejoin="round"
+         stroke-width="1.5"
+         points="39.884,57.372 42.142,55.729 45.005,55.546 "
+         id="polygon938" />
+      <polygon
+         fill="none"
+         stroke="#000000"
+         stroke-linecap="round"
+         stroke-linejoin="round"
+         stroke-width="1.5"
+         points="51.702,50.5 52.529,48.075 54.382,46.814 "
+         id="polygon940" />
+      <polygon
+         fill="none"
+         stroke="#000000"
+         stroke-linecap="round"
+         stroke-linejoin="round"
+         stroke-width="1.5"
+         points="58.042,32.834 57.187,35.766 58.018,38.899 "
+         id="polygon942" />
+      <polygon
+         fill="none"
+         stroke="#000000"
+         stroke-linecap="round"
+         stroke-linejoin="round"
+         stroke-width="1.5"
+         points="55.465,25.415 53.163,23.582 52.016,20.787 "
+         id="polygon944" />
+    </g>
+    <g
+       id="g962">
+      <circle
+         cx="42.654499"
+         cy="32.490299"
+         r="1.25"
+         id="circle948" />
+      <circle
+         cx="28.654499"
+         cy="29.490299"
+         r="1.25"
+         id="circle950" />
+      <circle
+         cx="35.654499"
+         cy="28.490299"
+         r="1.25"
+         id="circle952" />
+      <circle
+         cx="37.654499"
+         cy="44.490299"
+         r="1.25"
+         id="circle954" />
+      <circle
+         cx="31.654499"
+         cy="34.740299"
+         r="2"
+         id="circle956" />
+      <circle
+         cx="31.154499"
+         cy="41.740299"
+         r="2"
+         id="circle958" />
+      <circle
+         cx="39.654499"
+         cy="37.740299"
+         r="3"
+         id="circle960" />
+    </g>
+  </g>
+  <g
+     id="color-foreground"
+     transform="matrix(1.4225801,0,0,1.4225801,-15.2076,-15.212867)">
+    <line
+       x1="40.634201"
+       x2="39.428398"
+       y1="20.450399"
+       y2="24.209101"
+       fill="none"
+       stroke="#d22f27"
+       stroke-linecap="round"
+       stroke-miterlimit="10"
+       stroke-width="2"
+       id="line965" />
+    <line
+       x1="29.598301"
+       x2="31.157499"
+       y1="18.7815"
+       y2="23.8356"
+       fill="none"
+       stroke="#d22f27"
+       stroke-linecap="round"
+       stroke-miterlimit="10"
+       stroke-width="2"
+       id="line967" />
+    <line
+       x1="20.093599"
+       x2="24.540501"
+       y1="25.142799"
+       y2="28.2994"
+       fill="none"
+       stroke="#d22f27"
+       stroke-linecap="round"
+       stroke-miterlimit="10"
+       stroke-width="2"
+       id="line969" />
+    <line
+       x1="17.988899"
+       x2="22.605"
+       y1="36.2342"
+       y2="36.204601"
+       fill="none"
+       stroke="#d22f27"
+       stroke-linecap="round"
+       stroke-miterlimit="10"
+       stroke-width="2"
+       id="line971" />
+    <line
+       x1="21.318199"
+       x2="24.781099"
+       y1="46.567501"
+       y2="44.0317"
+       fill="none"
+       stroke="#d22f27"
+       stroke-linecap="round"
+       stroke-miterlimit="10"
+       stroke-width="2"
+       id="line973" />
+    <line
+       x1="30.2262"
+       x2="31.546801"
+       y1="52.304199"
+       y2="48.290901"
+       fill="none"
+       stroke="#d22f27"
+       stroke-linecap="round"
+       stroke-miterlimit="10"
+       stroke-width="2"
+       id="line975" />
+    <line
+       x1="41.402901"
+       x2="40.317699"
+       y1="53.024601"
+       y2="49.164398"
+       fill="none"
+       stroke="#d22f27"
+       stroke-linecap="round"
+       stroke-miterlimit="10"
+       stroke-width="2"
+       id="line977" />
+    <line
+       x1="50.2062"
+       x2="46.9347"
+       y1="46.258499"
+       y2="43.7006"
+       fill="none"
+       stroke="#d22f27"
+       stroke-linecap="round"
+       stroke-miterlimit="10"
+       stroke-width="2"
+       id="line979" />
+    <line
+       x1="53.931099"
+       x2="48.870201"
+       y1="35.7785"
+       y2="35.795399"
+       fill="none"
+       stroke="#d22f27"
+       stroke-linecap="round"
+       stroke-miterlimit="10"
+       stroke-width="2"
+       id="line981" />
+    <line
+       x1="50.551601"
+       x2="46.194099"
+       y1="25.414801"
+       y2="28.4683"
+       fill="none"
+       stroke="#d22f27"
+       stroke-linecap="round"
+       stroke-miterlimit="10"
+       stroke-width="2"
+       id="line983" />
+  </g>
+</svg>

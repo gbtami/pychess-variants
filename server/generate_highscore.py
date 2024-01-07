@@ -1,3 +1,4 @@
+from __future__ import annotations
 from decimal import Decimal
 
 from const import VARIANTS, HIGHSCORE_MIN_GAMES
