@@ -24,7 +24,7 @@ async def round_broadcast(game, response, full=False, channels=None):
         for spectator in game.spectators:
             await spectator.send_game_message(game.id, response)
     if full:
-        for player in set(game.non_bot_players):
+        for player in game.non_bot_players:
             await player.send_game_message(game.id, response)
     # Put response data to sse subscribers queue
     if channels is not None:
