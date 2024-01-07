@@ -76,7 +76,6 @@ async def handle_404(request, handler):
             raise
     except NotInDbUsers:
         session = await get_session(request)
-        session.invalidate()
         return web.HTTPFound("/")
 
 
