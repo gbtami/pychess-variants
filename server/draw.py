@@ -35,7 +35,8 @@ async def draw(game, user, agreement=False):
 
         game.messages.append(response)
 
-        await save_draw_offer(game)
+        if game.corr:
+            await save_draw_offer(game)
 
     return response
 
@@ -55,7 +56,7 @@ async def reject_draw(game, opp_user):
 
 async def save_draw_offer(game):
     db = game.app_state.db
-    if game.corr and db is not None:
+    if db is not None:
         await db.game.find_one_and_update(
             {"_id": game.id},
             {
