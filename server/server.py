@@ -85,7 +85,7 @@ async def on_prepare(request, response):
         return
     elif (
         request.path.startswith("/variants")
-        or request.path.startswith("/news")
+        or request.path.startswith("/blogs")
         or request.path.startswith("/video")
     ):
         # Learn and News pages may have links to other sites

@@ -40,7 +40,7 @@ from settings import (
 )
 from generate_highscore import generate_highscore
 from misc import time_control_str
-from news import NEWS
+from blogs import BLOGS
 from videos import VIDEO_TAGS, VIDEO_TARGETS
 from user import User
 from utils import corr_games, load_game, join_seek, tv_game, tv_game_user
@@ -147,8 +147,8 @@ async def index(request):
         view = "faq"
     elif request.path == "/stats":
         view = "stats"
-    elif request.path.startswith("/news"):
-        view = "news"
+    elif request.path.startswith("/blogs"):
+        view = "blogs"
     elif request.path.startswith("/variants"):
         view = "variants"
     elif request.path.startswith("/video"):
@@ -331,8 +331,8 @@ async def index(request):
         template = get_template("tournaments.html")
     elif view == "arena-new":
         template = get_template("arena-new.html")
-    elif view == "news":
-        template = get_template("news.html")
+    elif view == "blogs":
+        template = get_template("blogs.html")
     elif view == "variants":
         template = get_template("variants.html")
     elif view == "memory":
@@ -388,6 +388,7 @@ async def index(request):
         render["puzzle"] = json.dumps(puzzle, default=datetime.isoformat)
         c_games = corr_games(user.correspondence_games)
         render["corr_games"] = json.dumps(c_games, default=datetime.isoformat)
+        render["blogs"] = json.dumps(BLOGS[0:3])
 
     elif view in ("profile", "level8win"):
         if view == "level8win":
@@ -635,14 +636,15 @@ async def index(request):
         render["videoId"] = videoId
         render["tags"] = VIDEO_TAGS
 
-    elif view == "news":
-        news_item = request.match_info.get("news_item")
-        if (news_item is None) or (news_item not in NEWS):
-            news_item = list(NEWS.keys())[0]
-        news_item = news_item.replace("_", " ")
+    elif view == "blogs":
+        BLOGS_DICT = {item["_id"]: item["date"] for item in BLOGS}
+        blog_item = request.match_info.get("blog_item")
+        if (blog_item is None) or (blog_item not in BLOGS_DICT):
+            blog_item = list(BLOGS_DICT.keys())[0]
+        blog_item = blog_item.replace("_", " ")
 
-        render["news"] = NEWS
-        render["news_item"] = "news/%s%s.html" % (news_item, locale)
+        render["blogs"] = BLOGS_DICT
+        render["blog_item"] = "blogs/%s%s.html" % (blog_item, locale)
 
     elif view == "faq":
         render["faq"] = "docs/faq%s.html" % locale

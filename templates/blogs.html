@@ -4,14 +4,14 @@
 <main class="page-menu">
 <aside>
     <ul class="guide">
-    {% for key in news %}
+    {% for key in blogs %}
     <li>
-        <a href="{{ home }}/news/{{ key }}">{{ news[key] }}</a>
+        <a href="{{ home }}/blogs/{{ key }}">{{ blogs[key] }}</a>
     </li>
     {% endfor %}
     </ul>
 </aside>
-<div class="news">{% include news_item %}<div>
+<div class="news">{% include blog_item %}<div>
 </main>
 </div>
 {% endblock %}
