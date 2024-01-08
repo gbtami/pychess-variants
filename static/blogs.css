@@ -1,7 +1,7 @@
-.news > p {
+.blogs > p {
     margin: .5em 3em .5em 3em;
 }
-.news > ul {
+.blogs > ul {
     margin: .5em 3em .5em 3em;
 }
 iframe {
@@ -9,13 +9,13 @@ iframe {
     margin: auto;
 }
 @media (max-width: 799px) and (orientation: portrait) {
-    div.news {
+    div.blogs {
         width: 100%;
     }
-    .news > p {
+    .blogs > p {
         margin: .5em ;
     }
-    .news > ul {
+    .blogs > ul {
         margin: .5em;
     }
 }

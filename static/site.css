@@ -491,7 +491,7 @@ div.patron,
 div.closed,
 div.paste,
 div.invite,
-div.news,
+div.blogs,
 div.memory,
 div.not-found {
   grid-area: main;
@@ -508,12 +508,12 @@ div.invite {
 }
 
 div.guide,
-div.news {
+div.blogs {
   grid-area: content;
 }
 
 div.guide,
-div.news,
+div.blogs,
 div.about {
   padding: 20px 40px;
   font-size: 1.2em;
@@ -538,8 +538,8 @@ div.guide h1 img {
 
 div.guide h2,
 div.guide p,
-div.news h2,
-div.news p {
+div.blogs h2,
+div.blogs p {
   line-height: 1.8;
 }
 
@@ -567,11 +567,11 @@ div.closed {
 under-lobby {
   grid-area: blog;
 }
-div.news {
+div.blogs {
   margin: 0;
   padding: 5vh;
 }
-a.news {
+a.blogs {
   margin-right: 0.4em;
 }
 posts {
@@ -1058,7 +1058,7 @@ a:hover,
   color: var(--link-hover);
 }
 p a,
-.news ul li a {
+.blogs ul li a {
   color: var(--link-hover);
 }
 div a {
