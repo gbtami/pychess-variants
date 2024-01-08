@@ -16,7 +16,7 @@ sortedcollections==2.1.0
 python-gettext==5.0
 objgraph==3.6.0
 black==23.12.1
-flake8==6.1.0
+flake8==7.0.0
 mypy1.7.0
 mongomock-motor==0.0.26
 pre-commit
