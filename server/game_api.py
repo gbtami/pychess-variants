@@ -85,7 +85,7 @@ async def get_variant_stats(request):
 
         series = [{"name": variant, "data": variant_counts[variant]} for variant in VARIANTS]
 
-        request.app[stats][cur_period] = series
+        stats[cur_period] = series
 
     return web.json_response(series, dumps=partial(json.dumps, default=datetime.isoformat))
 
