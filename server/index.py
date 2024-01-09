@@ -40,7 +40,7 @@ from settings import (
 )
 from generate_highscore import generate_highscore
 from misc import time_control_str
-from blogs import BLOGS
+from blogs import BLOG_TAGS, BLOGS
 from videos import VIDEO_TAGS, VIDEO_TARGETS
 from user import User
 from utils import corr_games, load_game, join_seek, tv_game, tv_game_user
@@ -133,6 +133,9 @@ async def index(request):
     def video_tag(tag):
         return lang_translation.gettext(VIDEO_TAGS.get(tag, tag))
 
+    def blog_tag(tag):
+        return lang_translation.gettext(BLOG_TAGS.get(tag, tag))
+
     def video_target(target):
         return lang_translation.gettext(VIDEO_TARGETS[target])
 
@@ -148,7 +151,8 @@ async def index(request):
     elif request.path == "/stats":
         view = "stats"
     elif request.path.startswith("/blogs"):
-        view = "blogs"
+        blogId = request.match_info.get("blogId")
+        view = "blogs" if blogId is None else "blog"
     elif request.path.startswith("/variants"):
         view = "variants"
     elif request.path.startswith("/video"):
@@ -333,6 +337,8 @@ async def index(request):
         template = get_template("arena-new.html")
     elif view == "blogs":
         template = get_template("blogs.html")
+    elif view == "blog":
+        template = get_template("blog.html")
     elif view == "variants":
         template = get_template("variants.html")
     elif view == "memory":
@@ -637,14 +643,26 @@ async def index(request):
         render["tags"] = VIDEO_TAGS
 
     elif view == "blogs":
-        BLOGS_DICT = {item["_id"]: item["date"] for item in BLOGS}
-        blog_item = request.match_info.get("blog_item")
-        if (blog_item is None) or (blog_item not in BLOGS_DICT):
-            blog_item = list(BLOGS_DICT.keys())[0]
-        blog_item = blog_item.replace("_", " ")
+        tag = request.rel_url.query.get("tags")
+        blogs = []
+        if tag is None:
+            cursor = app_state.db.blog.find()
+        else:
+            cursor = app_state.db.blog.find({"tags": tag})
 
-        render["blogs"] = BLOGS_DICT
+        cursor.sort("date", -1)
+        async for doc in cursor:
+            blogs.append(doc)
+
+        render["blogs"] = blogs
+        render["tags"] = BLOG_TAGS
+        render["blog_tag"] = blog_tag
+
+    elif view == "blog":
+        blog_item = blogId.replace("_", " ")
         render["blog_item"] = "blogs/%s%s.html" % (blog_item, locale)
+        render["view_css"] = "blogs.css"
+        render["tags"] = BLOG_TAGS
 
     elif view == "faq":
         render["faq"] = "docs/faq%s.html" % locale

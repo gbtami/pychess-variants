@@ -92,7 +92,7 @@
   --bg-color0: #262421;
   --bg-color1: #2e2a24;
   --bg-color2: #302e2c;
-  --bg-seek: #2e2a24;
+  --bg-seek: rgb(46, 42, 36,0.8);
   --bg-meta: #302e2c;
   --bg-input: #24221e;
   --game-hover: #223344;

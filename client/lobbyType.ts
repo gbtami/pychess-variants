@@ -1,5 +1,15 @@
 import * as cg from 'chessgroundx/types';
 
+export interface Post {
+    _id: string;
+    date: string;
+    image:string;
+    title: string;
+    subtitle: string;
+    author: string;
+    tags: string[];
+}
+
 export interface Stream {
     site: string;
     title: string;

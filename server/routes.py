@@ -97,7 +97,7 @@ get_routes = (
     ("/patron", index),
     ("/patron/thanks", index),
     ("/blogs", index),
-    ("/blogs/{blog_item}", index),
+    ("/blogs/{blogId}", index),
     ("/variants", index),
     ("/variants/{variant}", index),
     ("/memory", index),

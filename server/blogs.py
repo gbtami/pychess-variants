@@ -1,5 +1,19 @@
 from __future__ import annotations
 
+
+#  Deferred translations!
+def _(message):
+    return message
+
+
+BLOG_TAGS = {
+    "Announcement": _("Announcement"),
+    "Tournament": _("Tournament"),
+    "Blog": _("Blog"),
+}
+
+del _
+
 BLOGS = [
     {
         "_id": "S-chess_endings_2",
@@ -8,6 +22,7 @@ BLOGS = [
         "title": "S-Chess Endings 2",
         "subtitle": "The Hawk",
         "author": "yasser-seirawan",
+        "tags": ["Blog"],
     },
     {
         "_id": "Merry_Christmas",
@@ -16,6 +31,7 @@ BLOGS = [
         "title": "Merry Christmas!",
         "subtitle": "Ataxx",
         "author": "gbtami",
+        "tags": ["Announcement"],
     },
     {
         "_id": "S-chess_endings_1",
@@ -24,6 +40,7 @@ BLOGS = [
         "title": "S-chess endings 1",
         "subtitle": "The Elephant",
         "author": "yasser-seirawan",
+        "tags": ["Blog"],
     },
     {
         "_id": "Correspondence_Chess",
@@ -32,6 +49,7 @@ BLOGS = [
         "title": "Correspondence Chess",
         "subtitle": "You have time now",
         "author": "gbtami",
+        "tags": ["Announcement"],
     },
     {
         "_id": "S-chess_ramblings",
@@ -40,6 +58,7 @@ BLOGS = [
         "title": "S-chess ramblings",
         "subtitle": "S-chess ramblings",
         "author": "catask",
+        "tags": ["Blog"],
     },
     {
         "_id": "More_variants",
@@ -48,6 +67,7 @@ BLOGS = [
         "title": "Autumn Update",
         "subtitle": "A slew of new variants!",
         "author": "CouchTomato87",
+        "tags": ["Announcement"],
     },
     {
         "_id": "Summer_Update",
@@ -56,6 +76,7 @@ BLOGS = [
         "title": "Summer Update",
         "subtitle": "New features and bug fixes",
         "author": "CouchTomato87",
+        "tags": ["Announcement"],
     },
     {
         "_id": "Spartan_Chess",
@@ -64,6 +85,7 @@ BLOGS = [
         "title": "Madness? This. Is. SPARTAN CHESS!",
         "subtitle": "Spartan chess has arrived",
         "author": "CouchTomato87",
+        "tags": ["Announcement"],
     },
     {
         "_id": "Duck_Chess",
@@ -72,6 +94,7 @@ BLOGS = [
         "title": "A Christmas Present From Pychess",
         "subtitle": "Duck chess has arrived",
         "author": "e-pluszak",
+        "tags": ["Announcement"],
     },
     {
         "_id": "Ouk_Chaktrang_Friendship_Between_Four_Countries_Tournament",
@@ -80,6 +103,7 @@ BLOGS = [
         "title": "Ouk Chaktrang Friendship Between Four Countries Tournament",
         "subtitle": "Promoting Our Southeast Asian Brethren",
         "author": "furumin999",
+        "tags": ["Tournament"],
     },
     {
         "_id": "Crazyhouse960_Tournament_Spring_Invitational_2022",
@@ -88,6 +112,7 @@ BLOGS = [
         "title": "Crazyhouse960 Tournament Spring Invitational 2022",
         "subtitle": "Final Standings",
         "author": "visualdennis",
+        "tags": ["Tournament"],
     },
     {
         "_id": "NNUE_Everywhere",
@@ -96,6 +121,7 @@ BLOGS = [
         "title": "Fairy-Stockfish on PyChess",
         "subtitle": "NNUE Everywhere",
         "author": "gbtami",
+        "tags": ["Announcement"],
     },
     {
         "_id": "Serving_a_New_Variant",
@@ -104,6 +130,7 @@ BLOGS = [
         "title": "Tennis and chess",
         "subtitle": "Serving a New Variant",
         "author": "CouchTomato87",
+        "tags": ["Announcement"],
     },
     {
         "_id": "Merry_Chakmas",
@@ -112,6 +139,7 @@ BLOGS = [
         "title": "Christmas gift from PyChess",
         "subtitle": "Merry Chak-mas!",
         "author": "CouchTomato87",
+        "tags": ["Announcement"],
     },
     {
         "_id": "Cold_Winter",
@@ -120,6 +148,7 @@ BLOGS = [
         "title": "Summary of latest changes",
         "subtitle": "Cold winter",
         "author": "CouchTomato87",
+        "tags": ["Announcement"],
     },
     {
         "_id": "Hot_Summer",
@@ -128,6 +157,7 @@ BLOGS = [
         "title": "New variant, new engine and more",
         "subtitle": "Hot summer",
         "author": "CouchTomato87",
+        "tags": ["Announcement"],
     },
     {
         "_id": "Empire_Chess_and_Orda_Mirror_Have_Arrived",
@@ -136,6 +166,7 @@ BLOGS = [
         "title": "Empire Chess and Orda Mirror Have Arrived!",
         "subtitle": "New variants",
         "author": "CouchTomato87",
+        "tags": ["Announcement"],
     },
     {
         "_id": "Shinobi_Arrives_in_Time_For_the_Sakura_Blossoms",
@@ -144,6 +175,7 @@ BLOGS = [
         "title": "Shinobi Arrives in Time For the Sakura Blossoms",
         "subtitle": "Shinobi Chess has arrived!",
         "author": "CouchTomato87",
+        "tags": ["Announcement"],
     },
     {
         "_id": "The_Winner_Is_Tasshaq",
@@ -152,14 +184,16 @@ BLOGS = [
         "title": "And the winner is Tasshaq",
         "subtitle": "Subjective report on 1st Dōbutsu Tournament",
         "author": "gbtami",
+        "tags": ["Tournament"],
     },
     {
         "_id": "New_Weapons_Arrived",
         "date": "2021-03-03",
-        "image": "/images/images/RS-24.jpg",
+        "image": "/images/RS-24.jpg",
         "title": "Atomic chess and Atomic960 are here",
         "subtitle": "New Weapons Arrived",
         "author": "gbtami",
+        "tags": ["Announcement"],
     },
     {
         "_id": "Short_History_Of_Pychess",
@@ -168,7 +202,8 @@ BLOGS = [
         "title": "And Now for Something Completely Different",
         "subtitle": "Short History Of Pychess",
         "author": "gbtami",
-    },
+        "tags": ["Blog"],
+},
     {
         "_id": "Dobutsu_Tournament",
         "date": "2021-02-04",
@@ -176,5 +211,6 @@ BLOGS = [
         "title": "PyChess tournament announcement",
         "subtitle": "The 1st Dōbutsu Tournament on PyChess",
         "author": "Tasshaq",
+        "tags": ["Tournament"],
     },
 ]

@@ -241,6 +241,7 @@ class PychessGlobalAppState:
                 if DEV:
                     await self.db.blog.drop()
                 await self.db.blog.insert_many(BLOGS)
+                await self.db.blog.create_index("date")
 
         except Exception:
             print("Maybe mongodb is not running...")

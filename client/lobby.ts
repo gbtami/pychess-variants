@@ -17,7 +17,7 @@ import { notify } from './notification';
 import { PyChessModel } from "./types";
 import { MsgBoard, MsgChat, MsgFullChat } from "./messages";
 import { variantPanels } from './lobby/layer1';
-import { Stream, Spotlight, MsgInviteCreated, MsgHostCreated, MsgGetSeeks, MsgNewGame, MsgGameInProgress, MsgUserConnected, MsgPing, MsgError, MsgShutdown, MsgGameCounter, MsgUserCounter, MsgStreams, MsgSpotlights, Seek, CreateMode, TvGame, TcMode } from './lobbyType';
+import { Post, Stream, Spotlight, MsgInviteCreated, MsgHostCreated, MsgGetSeeks, MsgNewGame, MsgGameInProgress, MsgUserConnected, MsgPing, MsgError, MsgShutdown, MsgGameCounter, MsgUserCounter, MsgStreams, MsgSpotlights, Seek, CreateMode, TvGame, TcMode } from './lobbyType';
 import { validFen, uci2LastMove } from './chess';
 import { handleOngoingGameEvents, Game, gameViewPlaying, compareGames } from './nowPlaying';
 
@@ -1091,7 +1091,7 @@ export function lobbyView(model: PyChessModel): VNode[] {
         ]),
         h('div.tv', [h('a#tv-game', { attrs: {href: '/tv'} })]),
         h('under-lobby', [
-            h('posts', blogs.map((post) => 
+            h('posts', blogs.map((post: Post) => 
                 h('a.post', { attrs: {href: `/blogs/${post['_id']}`} }, [
                     h('img', { attrs: {src: model.assetURL + `${post['image']}`} }),
                     h('span.text', [

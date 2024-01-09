@@ -4,14 +4,21 @@
 <main class="page-menu">
 <aside>
     <ul class="guide">
-    {% for key in blogs %}
+    {% for tag in tags %}
     <li>
-        <a href="{{ home }}/blogs/{{ key }}">{{ blogs[key] }}</a>
+    <a href="{{ home }}/blogs?tags={{ tag }}"><span>{{ blog_tag(tag) }}</span></a>
     </li>
     {% endfor %}
     </ul>
 </aside>
-<div class="blogs">{% include blog_item %}<div>
+<div class="blogs">
+    <div class="box-top"><h1>{% trans %}PyChess Blogs{% endtrans %}</h1></div>
+    <div class="blog">
+    {%- for blog in blogs -%}
+    <a class="card" href="{{ home }}/blogs/{{ blog['_id'] }}"><img style="background-image: url('static{{ blog['image'] }}')"></img><span class="date">{{ blog['date'] }}</span><span class="author">{{ blog['author'] }}</span><span class="info"><span class="title">{{ blog['title'] }}</span><span class="sub-title">{{ blog['subtitle'] }}</span></span></a>
+    {%- endfor -%}
+    </div>
+</div>
 </main>
 </div>
 {% endblock %}
