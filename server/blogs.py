@@ -203,7 +203,7 @@ BLOGS = [
         "subtitle": "Short History Of Pychess",
         "author": "gbtami",
         "tags": ["Blog"],
-},
+    },
     {
         "_id": "Dobutsu_Tournament",
         "date": "2021-02-04",
