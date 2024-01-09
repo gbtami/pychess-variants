@@ -1,0 +1,20 @@
+{% extends "template.html" %}
+{% block content %}
+<div id="main-wrap">
+<main class="page-menu">
+  <aside>
+    <ul class="guide">
+    {% for tag in tags %}
+    <li>
+    <a href="{{ home }}/blogs?tags={{ tag }}"><span>{{ tag }}</span></a>
+    </li>
+    {% endfor %}
+    </ul>
+</aside>
+<div class="blogs">{% include blog_item %}<div>
+</main>
+</div>
+{% endblock %}
+{% block js %}
+    <script src="{{ js }}"></script>
+{% endblock %}
