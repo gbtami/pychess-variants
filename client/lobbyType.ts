@@ -7,6 +7,7 @@ export interface Post {
     title: string;
     subtitle: string;
     author: string;
+    atitle: string;
     tags: string[];
 }
 

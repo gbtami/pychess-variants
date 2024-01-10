@@ -899,6 +899,9 @@ async def get_names(request):
 
 async def get_blogs(request, tag=None, limit=0):
     app_state = get_app_state(request.app)
+    if app_state.db is None:
+        return []
+
     blogs = []
     if tag is None:
         cursor = app_state.db.blog.find()
