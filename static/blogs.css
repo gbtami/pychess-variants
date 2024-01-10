@@ -42,6 +42,9 @@ iframe {
   box-shadow: var(--base-shadow);
   font-size: 90%;
 }
+a.card:hover {
+  box-shadow:0 0 5px #1b78d0,0 0 20px #1b78d0;
+}
 .card img {
   display: block;
   position: relative;

@@ -897,6 +897,22 @@ async def get_names(request):
     return web.json_response(names)
 
 
+async def get_blogs(request, tag=None, limit=0):
+    app_state = get_app_state(request.app)
+    blogs = []
+    if tag is None:
+        cursor = app_state.db.blog.find()
+    else:
+        cursor = app_state.db.blog.find({"tags": tag})
+
+    cursor.sort("date", -1).limit(limit)
+    async for doc in cursor:
+        user = await app_state.users.get(doc["author"])
+        doc["atitle"] = user.title
+        blogs.append(doc)
+    return blogs
+
+
 async def get_notifications(request):
     app_state = get_app_state(request.app)
     page_num = int(request.rel_url.query.get("p", 0))

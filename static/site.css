@@ -611,11 +611,24 @@ a.post time {
   opacity: 1;
   position: absolute;
   top: 0;
+  left: 0;
   padding: 0.2em 0.5em 0.3em 0.5em;
   background: rgba(0, 0, 0, 0.65);
   color: #ddd;
   text-shadow: 0 1px 1px 1px black;
 }
+a.post span.author {
+  font-size: 90%;
+  opacity: 1;
+  position: absolute;
+  padding: 0.2em 0.5em 0.3em 0.5em;
+  background: rgba(0, 0, 0, 0.65);
+  color: #ddd;
+  text-shadow: 0 1px 1px 1px black;
+  top: 0;
+  right: 0;
+}
+
 .meta-headline {
   background: var(--bg-meta);
   text-align: center;

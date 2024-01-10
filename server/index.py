@@ -40,10 +40,10 @@ from settings import (
 )
 from generate_highscore import generate_highscore
 from misc import time_control_str
-from blogs import BLOG_TAGS, BLOGS
+from blogs import BLOG_TAGS
 from videos import VIDEO_TAGS, VIDEO_TARGETS
 from user import User
-from utils import corr_games, load_game, join_seek, tv_game, tv_game_user
+from utils import corr_games, get_blogs, load_game, join_seek, tv_game, tv_game_user
 from pychess_global_app_state_utils import get_app_state
 from tournaments import (
     get_winners,
@@ -392,9 +392,12 @@ async def index(request):
     if view == "lobby":
         puzzle = await get_daily_puzzle(request)
         render["puzzle"] = json.dumps(puzzle, default=datetime.isoformat)
+
         c_games = corr_games(user.correspondence_games)
         render["corr_games"] = json.dumps(c_games, default=datetime.isoformat)
-        render["blogs"] = json.dumps(BLOGS[0:3])
+
+        blogs = await get_blogs(request, limit=3)
+        render["blogs"] = json.dumps(blogs)
 
     elif view in ("profile", "level8win"):
         if view == "level8win":
@@ -644,15 +647,7 @@ async def index(request):
 
     elif view == "blogs":
         tag = request.rel_url.query.get("tags")
-        blogs = []
-        if tag is None:
-            cursor = app_state.db.blog.find()
-        else:
-            cursor = app_state.db.blog.find({"tags": tag})
-
-        cursor.sort("date", -1)
-        async for doc in cursor:
-            blogs.append(doc)
+        blogs = await get_blogs(request, tag=tag, limit=0)
 
         render["blogs"] = blogs
         render["tags"] = BLOG_TAGS
