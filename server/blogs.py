@@ -16,6 +16,15 @@ del _
 
 BLOGS = [
     {
+        "_id": "hsl",
+        "date": "2024-01-14",
+        "image": "/images/hsl.png",
+        "title": "Harbour Xiangqi League",
+        "subtitle": "First Xiangqi tournament hosted on Pychess",
+        "author": "CouchTomato87",
+        "tags": ["Tournament"],
+    },
+    {
         "_id": "S-chess_endings_2",
         "date": "2024-01-01",
         "image": "/images/hawk.jpg",
