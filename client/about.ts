@@ -54,6 +54,10 @@ export function aboutView(model: PyChessModel): VNode[] {
                 ", ",
                 h('a', { attrs: { href: 'https://www.pychess.org/variants/atomic' } }, 'Atomic'),
                 ", ",
+                h('a', { attrs: { href: 'https://www.pychess.org/variants/3check' } }, 'Three check'),
+                ", ",
+                h('a', { attrs: { href: 'https://www.pychess.org/variants/kingofthehill' } }, 'King of the Hill'),
+                ", ",
                 h('a', { attrs: { href: 'https://www.pychess.org/variants/duck' } }, 'Duck chess'),
                 ", ",
                 h('a', { attrs: { href: 'https://www.pychess.org/variants/seirawan' } }, 'S-chess'),
@@ -93,11 +97,13 @@ export function aboutView(model: PyChessModel): VNode[] {
                 h('a', { attrs: { href: 'https://www.pychess.org/variants/capahouse' } }, 'Capahouse (Capablanca+Crazyhouse)'),
                 ", ",
                 h('a', { attrs: { href: 'https://www.pychess.org/variants/grandhouse' } }, 'Grandhouse (Grand+Crazyhouse)'),
-                ", and ",
+                ", ",
                 h('a', { attrs: { href: 'https://www.pychess.org/variants/chess' } }, 'Chess.'),
+                ", ",
+                h('a', { attrs: { href: 'https://www.pychess.org/variants/ataxx' } }, 'Ataxx'),
             ]),
             h('p', [
-                _('Additionally, you can check the Chess960 option for Chess, Crazyhouse, Atomic, S-chess, Capablanca, and Capahouse to start games from random positions with '),
+                _('Additionally, you can check the Chess960 option for Chess, Crazyhouse, Atomic, Three check, King of the Hill, S-chess, Capablanca, and Capahouse to start games from random positions with '),
                 h('a', { attrs: { href: 'https://en.wikipedia.org/wiki/Fischer_random_chess#Castling_rules' } }, _('Chess960 castling rules.'))
             ]),
             h('p', [

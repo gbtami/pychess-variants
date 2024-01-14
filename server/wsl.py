@@ -19,29 +19,11 @@ from pychess_global_app_state_utils import get_app_state
 from seek import challenge, create_seek, get_seeks, Seek
 from settings import ADMINS, TOURNAMENT_DIRECTORS
 from tournament_spotlights import tournament_spotlights
-from login import logout
 from bug.utils_bug import join_seek_bughouse
 from utils import join_seek, load_game, remove_seek
 from websocket_utils import get_user, process_ws
 
 log = logging.getLogger(__name__)
-
-
-async def is_playing(app, user, ws):
-    # Prevent None user to handle seeks
-    if user is None:
-        return True
-    # Prevent users to start new games if they have an unfinished one
-    if user.game_in_progress is not None:
-        game = await load_game(app, user.game_in_progress)
-        if (game is None) or game.status > STARTED:
-            user.game_in_progress = None
-            return False
-        response = {"type": "game_in_progress", "gameId": user.game_in_progress}
-        await ws.send_json(response)
-        return True
-    else:
-        return False
 
 
 async def lobby_socket_handler(request):

@@ -2,16 +2,16 @@
 {% block content %}
 <div id="main-wrap">
 <main class="page-menu">
-<aside>
+  <aside>
     <ul class="guide">
-    {% for key in news %}
+    {% for tag in tags %}
     <li>
-        <a href="{{ home }}/news/{{ key }}">{{ news[key] }}</a>
+    <a href="{{ home }}/blogs?tags={{ tag }}"><span>{{ tag }}</span></a>
     </li>
     {% endfor %}
     </ul>
 </aside>
-<div class="news">{% include news_item %}<div>
+<div class="blogs">{% include blog_item %}<div>
 </main>
 </div>
 {% endblock %}

@@ -2,6 +2,7 @@ import logging
 
 from broadcast import round_broadcast
 from const import STARTED
+from pychess_global_app_state import PychessGlobalAppState
 from seek import Seek
 from bug.utils_bug import play_move, join_seek_bughouse
 from typedefs import (
@@ -10,7 +11,11 @@ from typedefs import (
 
 log = logging.getLogger(__name__)
 
+<<<<<<< HEAD
 async def handle_reconnect_bughouse(app_state, user, data, game):
+=======
+async def handle_reconnect_bughouse(app_state: PychessGlobalAppState, user, data, game):
+>>>>>>> gbtami-master
     log.info("Got RECONNECT message %s %r" % (user.username, data))
     movesQueued = data.get("movesQueued")
     # dataA = data.get("lastMaybeSentMsgMoveA")

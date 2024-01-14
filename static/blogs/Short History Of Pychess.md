@@ -4,7 +4,7 @@
     <div class= "meta">
         <span class="text">2021.02.27</span>
         <span class="text"><a href="/@/gbtami">@gbtami</a></span>
-        <span class="text">Announcements</span>
+        <span class="text">Blog</span>
     </div>
     <div class= "headline">Short history of pychess</div>
 </div>

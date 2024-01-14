@@ -1,0 +1,27 @@
+{% extends "template.html" %}
+{% block content %}
+<div id="main-wrap">
+<main class="page-menu">
+<aside>
+    <ul class="guide">
+    {% for tag in tags %}
+    <li>
+    <a href="{{ home }}/blogs?tags={{ tag }}"><span>{{ blog_tag(tag) }}</span></a>
+    </li>
+    {% endfor %}
+    </ul>
+</aside>
+<div class="blogs">
+    <div class="box-top"><h1>{% trans %}PyChess Blogs{% endtrans %}</h1></div>
+    <div class="blog">
+    {%- for blog in blogs -%}
+    <a class="card" href="{{ home }}/blogs/{{ blog['_id'] }}"><img style="background-image: url('static{{ blog['image'] }}')"></img><span class="date">{{ blog['date'] }}</span><span class="author"><player-title>{{ blog['atitle'] }} </player-title>{{ blog['author'] }}</span><span class="info"><span class="title">{{ blog['title'] }}</span><span class="sub-title">{{ blog['subtitle'] }}</span></span></a>
+    {%- endfor -%}
+    </div>
+</div>
+</main>
+</div>
+{% endblock %}
+{% block js %}
+    <script src="{{ js }}"></script>
+{% endblock %}

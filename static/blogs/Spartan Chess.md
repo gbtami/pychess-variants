@@ -1,8 +1,8 @@
 <h1 align="center">Madness? This. Is. SPARTAN CHESS!</h1>
 <div class="meta-headline">
     <div class= "meta">
-        <span class="text">2022.12.26</span>
-        <span class="text"><a href="/@/e-pluszak">@CouchTomato87</a></span>
+        <span class="text">2023.04.01</span>
+        <span class="text"><a href="/@/CouchTomato87">@CouchTomato87</a></span>
         <span class="text">Announcements</span>
     </div>
     <div class= "headline">Spartan chess has arrived</div>

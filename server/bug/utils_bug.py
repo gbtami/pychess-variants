@@ -16,68 +16,53 @@ from const import (
 from glicko2.glicko2 import gl2
 from newid import new_id
 from utils import round_broadcast, lobby_broadcast
-from typedefs import (
-    db_key,
-    discord_key,
-    games_key,
-    g_cnt_key,
-    invites_key,
-    lobbychat_key,
-    lobbysockets_key,
-    seeks_key,
-    twitch_key,
-    users_key,
-    youtube_key,
-    tv_key,
-    game_channels_key,
-)
 
 log = logging.getLogger(__name__)
 
-async def load_game_bug(app, game_id):
+async def load_game_bug(app_state: PychessGlobalAppState, game_id):
     """Return Game object from app cache or from database"""
-    db = app[db_key]
+
     # games = app[games_key]
-    users = app[users_key]
+
     # if game_id in games:
     #     return games[game_id]
 
-    doc = await db.game.find_one({"_id": game_id})
+    doc = await app_state.db.game.find_one({"_id": game_id})
 
     if doc is None:
         return None
 
     wp, bp, wpB, bpB = doc["us"]
-    if wp in users:
-        wplayer = users[wp]
+    if wp in app_state.users:
+        wplayer = app_state.users[wp]
     else:
-        wplayer = User(app, username=wp, anon=True)
-        users[wp] = wplayer
+        wplayer = User(app_state, username=wp, anon=True)
+        app_state.users[wp] = wplayer
 
-    if bp in users:
-        bplayer = users[bp]
+    if bp in app_state.users:
+        bplayer = app_state.users[bp]
     else:
-        bplayer = User(app, username=bp, anon=True)
-        users[bp] = bplayer
+        bplayer = User(app_state, username=bp, anon=True)
+        app_state.users[bp] = bplayer
 
-    if wpB in users:
-        wplayerB = users[wpB]
+    if wpB in app_state.users:
+        wplayerB = app_state.users[wpB]
     else:
-        wplayerB = User(app, username=wpB, anon=True)
-        users[wpB] = wplayerB
+        wplayerB = User(app_state, username=wpB, anon=True)
+        app_state.users[wpB] = wplayerB
 
-    if bpB in users:
-        bplayerB = users[bpB]
+    if bpB in app_state.users:
+        bplayerB = app_state.users[bpB]
     else:
-        bplayerB = User(app, username=bpB, anon=True)
-        users[bpB] = bplayerB
+        bplayerB = User(app_state, username=bpB, anon=True)
+        app_state.users[bpB] = bplayerB
 
     variant = C2V[doc["v"]]
 
     initial_fen = doc.get("if")
 
     game = GameBug(
-        app,
+        app_state,
         game_id,
         variant,
         initial_fen,
@@ -291,11 +276,8 @@ async def load_game_bug(app, game_id):
                 })
     return game
 
-async def new_game_bughouse(app, seek_id, game_id=None):
-    db = app[db_key]
-    games = app[games_key]
-    seeks = app[seeks_key]
-    seek = seeks[seek_id]
+async def new_game_bughouse(app_state: PychessGlobalAppState, seek_id, game_id=None):
+    seek = app_state.seeks
 
     if seek.fen:
         from utils import sanitize_fen
@@ -308,7 +290,7 @@ async def new_game_bughouse(app, seek_id, game_id=None):
             message = "Failed to create game. Invalid FEN %s" % seek.fen
             log.debug(message)
             from utils import remove_seek
-            remove_seek(seeks, seek)
+            remove_seek(app_state.seeks, seek)
             return {"type": "error", "message": message}
         sanitized_fen = sanitized_fenA + " | " + sanitized_fenB
     else:
@@ -320,14 +302,14 @@ async def new_game_bughouse(app, seek_id, game_id=None):
 
     if game_id is not None:
         # game invitation
-        del app[invites_key][game_id]
+        del app_state.invites[game_id]
     else:
-        game_id = await new_id(None if db is None else db.game)
+        game_id = await new_id(None if app_state.db is None else app_state.db.game)
 
     # print("new_game", game_id, seek.variant, seek.fen, wplayer, bplayer, seek.base, seek.inc, seek.level, seek.rated, seek.chess960)
     try:
         game = GameBug(
-            app,
+            app_state,
             game_id,
             seek.variant,
             sanitized_fen,
@@ -355,14 +337,14 @@ async def new_game_bughouse(app, seek_id, game_id=None):
             bplayer,
         )
         from utils import remove_seek
-        remove_seek(seeks, seek)
+        remove_seek(app_state.seeks, seek)
         return {"type": "error", "message": "Failed to create game"}
-    games[game_id] = game
+    app_state.games[game_id] = game
 
     from utils import remove_seek
-    remove_seek(seeks, seek)
+    remove_seek(app_state.seeks, seek)
 
-    await insert_game_to_db_bughouse(game, app)
+    await insert_game_to_db_bughouse(game, app_state)
 
     return {
         "type": "new_game",
@@ -373,9 +355,9 @@ async def new_game_bughouse(app, seek_id, game_id=None):
         "bug_bplayer": bug_bplayer.username,
     }
 
-async def insert_game_to_db_bughouse(game: GameBug, app):
+async def insert_game_to_db_bughouse(game: GameBug, app_state: PychessGlobalAppState):
     # unit test app may have no db
-    if app[db_key] is None:
+    if app_state.db is None:
         return
 
     document = {
@@ -412,17 +394,21 @@ async def insert_game_to_db_bughouse(game: GameBug, app):
     # ):
     #     document["uci"] = 1
 
-    result = await app[db_key].game.insert_one(document)
+    result = await app_state.db.game.insert_one(document)
     if not result:
         log.error("db insert game result %s failed !!!", game.id)
 
-    app[tv_key] = game.id
+    app_state.tv = game.id
     game.wplayerA.tv = game.id
     game.bplayerA.tv = game.id
     game.wplayerB.tv = game.id
     game.bplayerB.tv = game.id
 
+<<<<<<< HEAD
 async def join_seek_bughouse(app_state, user, seek_id, game_id=None, join_as="any"):
+=======
+async def join_seek_bughouse(app_state: PychessGlobalAppState, user, seek_id, game_id=None, join_as="any"):
+>>>>>>> gbtami-master
 
     seek = app_state.seeks[seek_id]
 
@@ -456,7 +442,7 @@ async def join_seek_bughouse(app_state, user, seek_id, game_id=None, join_as="an
             return {"type": "seek_occupied", "seekID": seek_id}
 
     if seek.player1 is not None and seek.player2 is not None and seek.bugPlayer1 is not None and seek.bugPlayer2 is not None:
-        return await new_game_bughouse(app, seek_id, game_id)
+        return await new_game_bughouse(app_state, seek_id, game_id)
     else:
         return {"type": "seek_joined", "seekID": seek_id}
 
@@ -506,4 +492,8 @@ async def play_move(app_state: PychessGlobalAppState, user, game, move, clocks=N
             await u.send_game_message(gameId, response)
 
         if app_state.tv == gameId:
+<<<<<<< HEAD
             await app_state.lobby.lobby_broadcast(board_response)
+=======
+            await lobby_broadcast(app_state.lobbysockets, board_response)
+>>>>>>> gbtami-master

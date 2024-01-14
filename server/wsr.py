@@ -333,7 +333,6 @@ async def handle_analysis(app_state: PychessGlobalAppState, ws, data, game):
 
 
 async def handle_rematch(app_state: PychessGlobalAppState, ws, user, data, game):
-
     if game.variant == "bughouse":
         await handle_rematch_bughouse(app_state, data, game, user, app_state.users, ws)
         return
@@ -462,8 +461,6 @@ async def handle_draw(ws, users, user, data, game):
             pass
 
     await round_broadcast(game, response)
-
-
 async def handle_reject_draw(user, game):
     color = WHITE if user.username == game.wplayer.username else BLACK
     opp_user = game.wplayer if color == BLACK else game.bplayer
@@ -613,7 +610,12 @@ async def handle_bugroundchat(users, user, data, game):
     game.handle_chat_message(user, message)
     if game.ply < 4 or game.status > STARTED:
         # Let all 4 players communicate in the beginning of the game and when it is over
-        recipients = [game.wplayerA.username, game.bplayerA.username, game.wplayerB.username, game.bplayerB.username]
+        recipients = [
+            game.wplayerA.username,
+            game.bplayerA.username,
+            game.wplayerB.username,
+            game.bplayerB.username,
+        ]
     elif user.username in [game.wplayerA.username, game.bplayerB.username]:
         recipients = [game.wplayerA.username, game.bplayerB.username]
     else:
@@ -648,10 +650,6 @@ async def handle_roundchat(app_state: PychessGlobalAppState, ws, user, data, gam
         message,
         room=data["room"],
     )
-    if game.variant != "bughouse":  # todo:niki: add new method in both places
-        game.messages.append(response)
-    else:
-        game.handle_chat_message(user, message)
 
     game.handle_chat_message(response)
 

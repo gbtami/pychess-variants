@@ -125,7 +125,7 @@ class User:
 
     async def abandon_game(self, game):
         abandon_timeout = ABANDON_TIMEOUT * (2 if game.base >= 3 else 1)
-        await asyncio.sleep(abandon_timeout) # todo:niki:this is not great, what if he reconnected and disconnected again - this does not get reset
+        await asyncio.sleep(abandon_timeout)
         if game.status <= STARTED and not self.is_user_active_in_game(game.id):
             if game.bot_game or self.anon:
                 response = await game.game_ended(self, "abandon")

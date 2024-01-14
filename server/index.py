@@ -12,6 +12,7 @@ from urllib.parse import urlparse
 import aiohttp_session
 from aiohttp import web
 
+log = logging.getLogger(__name__)
 from const import (
     ANON_PREFIX,
     LANGUAGES,
@@ -40,10 +41,10 @@ from settings import (
 )
 from generate_highscore import generate_highscore
 from misc import time_control_str
-from news import NEWS
+from blogs import BLOG_TAGS
 from videos import VIDEO_TAGS, VIDEO_TARGETS
 from user import User
-from utils import corr_games, load_game, join_seek, tv_game, tv_game_user
+from utils import corr_games, get_blogs, load_game, join_seek, tv_game, tv_game_user
 from pychess_global_app_state_utils import get_app_state
 from tournaments import (
     get_winners,
@@ -133,6 +134,9 @@ async def index(request):
     def video_tag(tag):
         return lang_translation.gettext(VIDEO_TAGS.get(tag, tag))
 
+    def blog_tag(tag):
+        return lang_translation.gettext(BLOG_TAGS.get(tag, tag))
+
     def video_target(target):
         return lang_translation.gettext(VIDEO_TARGETS[target])
 
@@ -147,8 +151,9 @@ async def index(request):
         view = "faq"
     elif request.path == "/stats":
         view = "stats"
-    elif request.path.startswith("/news"):
-        view = "news"
+    elif request.path.startswith("/blogs"):
+        blogId = request.match_info.get("blogId")
+        view = "blogs" if blogId is None else "blog"
     elif request.path.startswith("/variants"):
         view = "variants"
     elif request.path.startswith("/video"):
@@ -331,8 +336,10 @@ async def index(request):
         template = get_template("tournaments.html")
     elif view == "arena-new":
         template = get_template("arena-new.html")
-    elif view == "news":
-        template = get_template("news.html")
+    elif view == "blogs":
+        template = get_template("blogs.html")
+    elif view == "blog":
+        template = get_template("blog.html")
     elif view == "variants":
         template = get_template("variants.html")
     elif view == "memory":
@@ -386,8 +393,12 @@ async def index(request):
     if view == "lobby":
         puzzle = await get_daily_puzzle(request)
         render["puzzle"] = json.dumps(puzzle, default=datetime.isoformat)
+
         c_games = corr_games(user.correspondence_games)
         render["corr_games"] = json.dumps(c_games, default=datetime.isoformat)
+
+        blogs = await get_blogs(request, limit=3)
+        render["blogs"] = json.dumps(blogs)
 
     elif view in ("profile", "level8win"):
         if view == "level8win":
@@ -644,14 +655,19 @@ async def index(request):
         render["videoId"] = videoId
         render["tags"] = VIDEO_TAGS
 
-    elif view == "news":
-        news_item = request.match_info.get("news_item")
-        if (news_item is None) or (news_item not in NEWS):
-            news_item = list(NEWS.keys())[0]
-        news_item = news_item.replace("_", " ")
+    elif view == "blogs":
+        tag = request.rel_url.query.get("tags")
+        blogs = await get_blogs(request, tag=tag, limit=0)
 
-        render["news"] = NEWS
-        render["news_item"] = "news/%s%s.html" % (news_item, locale)
+        render["blogs"] = blogs
+        render["tags"] = BLOG_TAGS
+        render["blog_tag"] = blog_tag
+
+    elif view == "blog":
+        blog_item = blogId.replace("_", " ")
+        render["blog_item"] = "blogs/%s%s.html" % (blog_item, locale)
+        render["view_css"] = "blogs.css"
+        render["tags"] = BLOG_TAGS
 
     elif view == "faq":
         render["faq"] = "docs/faq%s.html" % locale
