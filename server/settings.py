@@ -1,16 +1,11 @@
+from __future__ import annotations
+
 import base64
 import os
 import json
-import logging
 import string
 
 from newid import id8
-
-#FORMAT = '%(asctime)-15s %(message)s'
-FORMAT = ('\n[%(levelname)s/%(name)s:%(lineno)d] %(asctime)s ' +
-           '(%(processName)s/%(threadName)s)\n> %(message)s')
-DATEFMT = '%Y-%m-%d %H:%M:%S'
-logging.basicConfig(format=FORMAT, datefmt=DATEFMT, level=logging.DEBUG) # todo:niki: this seems to override same line in server.py. i guess just get rid of one of those or something
 
 URI = os.getenv("URI", "http://127.0.0.1:8080")
 PROD = os.getenv("PROD") == "true"

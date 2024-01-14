@@ -2,6 +2,7 @@ import logging
 
 from broadcast import round_broadcast
 from const import STARTED
+from pychess_global_app_state import PychessGlobalAppState
 from seek import Seek
 from bug.utils_bug import play_move, join_seek_bughouse
 from typedefs import (
@@ -10,7 +11,7 @@ from typedefs import (
 
 log = logging.getLogger(__name__)
 
-async def handle_reconnect_bughouse(app, user, data, game):
+async def handle_reconnect_bughouse(app_state: PychessGlobalAppState, user, data, game):
     log.info("Got RECONNECT message %s %r" % (user.username, data))
     movesQueued = data.get("movesQueued")
     # dataA = data.get("lastMaybeSentMsgMoveA")
@@ -19,7 +20,7 @@ async def handle_reconnect_bughouse(app, user, data, game):
         if movesQueued is not None and len(movesQueued) > 0 and movesQueued[0] is not None:
             try:
                 await play_move(
-                    app,
+                    app_state,
                     user,
                     game,
                     movesQueued[0]["move"],
@@ -37,7 +38,7 @@ async def handle_reconnect_bughouse(app, user, data, game):
         if movesQueued is not None and len(movesQueued) > 1 and movesQueued[1] is not None:
             try:
                 await play_move(
-                    app,
+                    app_state,
                     user,
                     game,
                     movesQueued[1]["move"],

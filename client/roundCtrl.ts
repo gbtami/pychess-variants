@@ -71,8 +71,6 @@ export class RoundController extends GameController {
             const cl = document.body.classList; // removing the "reconnecting" message in lower left corner
             cl.remove('offline');
             cl.add('online');
-
-            this.doSend({ type: "game_user_connected", username: this.username, gameId: this.gameId });
         };
 
         const onReconnect = () => {
@@ -94,7 +92,7 @@ export class RoundController extends GameController {
             patch(container, h('i-side.online#player1', {class: {"icon": true, "icon-online": false, "icon-offline": true}}));
         };
 
-        this.sock = newWebsocket('wsr');
+        this.sock = newWebsocket('wsr/' + this.gameId);
         this.sock.onopen = () => onOpen();
         this.sock.onreconnect = () => onReconnect();
         this.sock.onmessage = (e: MessageEvent) => this.onMessage(e);
@@ -376,17 +374,15 @@ export class RoundController extends GameController {
         }
 
         // TODO: moretime button
-        if (!this.corr) {
-            const new_running_clck = (this.clocks[0].running) ? this.clocks[1] : this.clocks[0];
-            this.clocks[0].pause(false);
-            this.clocks[1].pause(false);
+        const new_running_clck = (this.clocks[0].running) ? this.clocks[1] : this.clocks[0];
+        this.clocks[0].pause(false);
+        this.clocks[1].pause(false);
 
-            const tmp_clock = this.clocks[0];
-            const tmp_clock_time = tmp_clock.duration;
-            this.clocks[0].setTime(this.clocks[1].duration);
-            this.clocks[1].setTime(tmp_clock_time);
-            if (this.status < 0) new_running_clck.start();
-        }
+        const tmp_clock = this.clocks[0];
+        const tmp_clock_time = tmp_clock.duration;
+        this.clocks[0].setTime(this.clocks[1].duration);
+        this.clocks[1].setTime(tmp_clock_time);
+        if (this.status < 0) new_running_clck.start();
 
         this.vplayer0 = patch(this.vplayer0, player('round-player0', 'player0', this.titles[this.flipped() ? 1 : 0], this.players[this.flipped() ? 1 : 0], this.ratings[this.flipped() ? 1 : 0], this.level));
         this.vplayer1 = patch(this.vplayer1, player('round-player1', 'player1', this.titles[this.flipped() ? 0 : 1], this.players[this.flipped() ? 0 : 1], this.ratings[this.flipped() ? 0 : 1], this.level));
@@ -395,7 +391,7 @@ export class RoundController extends GameController {
             [this.vmiscInfoW, this.vmiscInfoB] = updateCount(this.fullfen, this.vmiscInfoB, this.vmiscInfoW);
 
         if (this.variant.ui.materialPoint)
-            [this.vmiscInfoW, this.vmiscInfoB] = updatePoint(this.fullfen, this.vmiscInfoB, this.vmiscInfoW);
+            [this.vmiscInfoW, this.vmiscInfoB] = updatePoint(this.variant, this.fullfen, this.vmiscInfoB, this.vmiscInfoW);
 
         this.updateMaterial();
     }
@@ -753,14 +749,10 @@ export class RoundController extends GameController {
             }
         }
 
-        this.fullfen = msg.fen;
-        if (this.ffishBoard) {
-            this.ffishBoard.setFen(this.fullfen);
-            this.setDests();
-        }
-
+        // turnColor have to be actualized before setDests() !!!
         const parts = msg.fen.split(" ");
         this.turnColor = parts[1] === "w" ? "white" : "black";
+        this.fullfen = msg.fen;
 
         this.clocktimes = msg.clocks || this.clocktimes;
 
@@ -862,7 +854,7 @@ export class RoundController extends GameController {
             this.clocks[bclock].increment = 0;
             if (msg.ply <= 2) this.clocks[bclock].setTime(this.base * 1000 * 30);
         }
-        console.log("onMsgBoard() this.clockOn && msg.status", this.clockOn, msg.status);
+        // console.log("onMsgBoard() this.clockOn && msg.status", this.clockOn, msg.status);
         if (this.spectator) {
             if (latestPly) {
                 this.chessground.set({
@@ -894,6 +886,15 @@ export class RoundController extends GameController {
                         lastMove: lastMove,
                     });
 
+                    // This have to be exactly here (and before this.performPremove as well!!!),
+                    // becuse in case of takeback 
+                    // ataxx setDests() needs not just actualized turnColor but
+                    // actualized chessground.state.boardState.pieces as well !!!
+                    if (this.ffishBoard) {
+                        this.ffishBoard.setFen(this.fullfen);
+                        this.setDests();
+                    }
+
                     if (!this.focus) this.notifyMsg(`Played ${step.san}\nYour turn.`);
 
                     // prevent sending premove/predrop when (auto)reconnecting websocked asks server to (re)sends the same board to us
@@ -912,12 +913,22 @@ export class RoundController extends GameController {
                     check: msg.check,
                     lastMove: lastMove,
                 });
+
+                // This have to be here, becuse in case of takeback 
+                // ataxx setDests() needs not just actualized turnColor but
+                // actualized chessground.state.boardState.pieces as well !!!
+                if (this.ffishBoard) {
+                    this.ffishBoard.setFen(this.fullfen);
+                    this.setDests();
+                }
+
                 if (this.clockOn && msg.status < 0) {
                     this.clocks[oppclock].start();
                     // console.log('OPP CLOCK  STARTED');
                 }
             }
         }
+
         this.updateMaterial();
     }
 
@@ -1009,12 +1020,12 @@ export class RoundController extends GameController {
     }
 
     private updatePoint = (fen: cg.FEN) => {
-        [this.vmiscInfoW, this.vmiscInfoB] = updatePoint(fen, this.vmiscInfoW, this.vmiscInfoB);
+        [this.vmiscInfoW, this.vmiscInfoB] = updatePoint(this.variant, fen, this.vmiscInfoW, this.vmiscInfoB);
     }
 
     private updateMaterial(): void {
         if (this.variant.material.showDiff && this.materialDifference)
-            [this.vmaterial0, this.vmaterial1] = updateMaterial(this.variant, this.fullfen, this.vmaterial0, this.vmaterial1, this.flipped());
+            [this.vmaterial0, this.vmaterial1] = updateMaterial(this.variant, this.fullfen, this.vmaterial0, this.vmaterial1, this.flipped(), this.mycolor);
         else
             [this.vmaterial0, this.vmaterial1] = emptyMaterial(this.variant);
     }
@@ -1086,7 +1097,7 @@ export class RoundController extends GameController {
             const container = document.getElementById('player1') as HTMLElement;
             patch(container, h('i-side.online#player1', {class: {"icon": true, "icon-online": true, "icon-offline": false}}));
 
-            // prevent sending gameStart message when user just reconecting
+            // prevent sending gameStart message when user just reconnecting
             if (msg.ply === 0) {
                 this.doSend({ type: "ready", gameId: this.gameId });
             //    if (this.variant.setup) {

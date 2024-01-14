@@ -32,7 +32,10 @@ if (window.location.href.includes('heroku') && !window.location.href.includes('-
 }
 
 function initModel(el: HTMLElement) {
-    const user = getCookie("user");
+    // We have to remove leading and trailing double quotes from anon names
+    // because python http.cookies.SimpleCookie() adds it when name contains dash "–"
+    const user = getCookie("user").replace(/(^"|"$)/g, '');
+
     let ct = el.getAttribute("data-ct") ?? "";
     if (ct) ct = JSON.parse(ct);
     let board = el.getAttribute("data-board") ?? "";
@@ -91,6 +94,7 @@ function initModel(el: HTMLElement) {
         tournamentDirector: el.getAttribute("data-tournamentdirector") === "True",
         assetURL: el.getAttribute("data-asset-url") ?? "",
         puzzle: el.getAttribute("data-puzzle") ?? "",
+        blogs: el.getAttribute("data-blogs") ?? "",
         corrGames: el.getAttribute("data-corrgames") ?? "",
     };
 }

@@ -17,7 +17,7 @@ import { notify } from './notification';
 import { PyChessModel } from "./types";
 import { MsgBoard, MsgChat, MsgFullChat } from "./messages";
 import { variantPanels } from './lobby/layer1';
-import { Stream, Spotlight, MsgInviteCreated, MsgHostCreated, MsgGetSeeks, MsgNewGame, MsgGameInProgress, MsgUserConnected, MsgPing, MsgError, MsgShutdown, MsgGameCounter, MsgUserCounter, MsgStreams, MsgSpotlights, Seek, CreateMode, TvGame, TcMode } from './lobbyType';
+import { Post, Stream, Spotlight, MsgInviteCreated, MsgHostCreated, MsgGetSeeks, MsgNewGame, MsgGameInProgress, MsgUserConnected, MsgPing, MsgError, MsgShutdown, MsgGameCounter, MsgUserCounter, MsgStreams, MsgSpotlights, Seek, CreateMode, TvGame, TcMode } from './lobbyType';
 import { validFen, uci2LastMove } from './chess';
 import {seekViewBughouse, switchEnablingLobbyControls} from "./bug/lobby.bug";
 import { handleOngoingGameEvents, Game, gameViewPlaying, compareGames } from './nowPlaying';
@@ -87,8 +87,6 @@ export class LobbyController implements ChatController {
 
         const onOpen = () => {
             console.log('onOpen()');
-            this.doSend({ type: "lobby_user_connected", username: this.username});
-            this.doSend({ type: "get_seeks" });
         }
 
         this.sock = newWebsocket('wsl');
@@ -247,7 +245,7 @@ export class LobbyController implements ChatController {
         e = document.getElementById('fen') as HTMLInputElement;
         let fen = e.value;
         // Prevent to create 'custom' games with standard startFen
-        if (fen.trim() === variant.startFen) fen = '';
+        if (variant.name !== 'ataxx' && fen.trim() === variant.startFen) fen = '';
 
         e = document.getElementById('min') as HTMLInputElement;
         const minutes = this.minutesValues[Number(e.value)];
@@ -1006,6 +1004,7 @@ function runSeeks(vnode: VNode, model: PyChessModel) {
 
 export function lobbyView(model: PyChessModel): VNode[] {
     const puzzle = JSON.parse(model.puzzle);
+    const blogs = JSON.parse(model.blogs);
     const username = model.username;
     const corrGames = JSON.parse(model.corrGames).sort(compareGames(username));
     const gpCounter = corrGames.length;
@@ -1112,172 +1111,20 @@ export function lobbyView(model: PyChessModel): VNode[] {
         ]),
         h('div.tv', [h('a#tv-game', { attrs: {href: '/tv'} })]),
         h('under-lobby', [
-            h('posts', [
-                h('a.post', { attrs: {href: '/news/S-chess_endings_1'} }, [
-                    h('img', { attrs: {src: model.assetURL + '/images/elephant.jpg'} }),
-                    h('span.text', [
-                        h('strong', _("S-chess endings 1")),
-                        h('span', _('The Elephant')),
+            h('posts', blogs.map((post: Post) => 
+                h('a.post', { attrs: {href: `/blogs/${post['_id']}`} }, [
+                    h('img', { attrs: {src: model.assetURL + `${post['image']}`} }),
+                    h('time', `${post['date']}`),
+                    h('span.author', [
+                        h('player-title', `${post['atitle']} `),
+                        `${post['author']}`,
                     ]),
-                    h('time', '2023.12.01'),
-                ]),
-                h('a.post', { attrs: {href: '/news/Correspondence_Chess'} }, [
-                    h('img', { attrs: {src: model.assetURL + '/images/Postcard-for-correspondence-chess.png'} }),
                     h('span.text', [
-                        h('strong', _("Correspondence Chess")),
-                        h('span', _('You have time now')),
+                        h('strong', `${post['title']}`),
+                        h('span', `${post['subtitle']}`),
                     ]),
-                    h('time', '2023.11.10'),
-                ]),
-                h('a.post', { attrs: {href: '/news/S-chess_ramblings'} }, [
-                    h('img', { attrs: {src: model.assetURL + '/images/Hawk-Elephant.jpeg'} }),
-                    h('span.text', [
-                        h('strong', _("S-chess ramblings")),
-                        h('span', _('S-chess ramblings')),
-                    ]),
-                    h('time', '2023.11.03'),
-                ]),
-                /*
-                h('a.post', { attrs: {href: '/news/More_variants'} }, [
-                    h('img', { attrs: {src: model.assetURL + '/images/Mansindam.jpg'} }),
-                    h('span.text', [
-                        h('strong', _("Autumn Update")),
-                        h('span', _('A slew of new variants!')),
-                    ]),
-                    h('time', '2023.10.19'),
-                ]),
-                h('a.post', { attrs: {href: '/news/Summer_Update'} }, [
-                    h('img', { attrs: {src: model.assetURL + '/images/puzzles.jpg'} }),
-                    h('span.text', [
-                        h('strong', _("Summer Update")),
-                        h('span', _('New features and bug fixes')),
-                    ]),
-                    h('time', '2023.06.06'),
-                ]),
-                h('a.post', { attrs: {href: '/news/Spartan_Chess'} }, [
-                    h('img', { attrs: {src: model.assetURL + '/images/spartan-kick.jpg'} }),
-                    h('span.text', [
-                        h('strong', _("Madness? This. Is. SPARTAN CHESS!")),
-                        h('span', _('Spartan chess has arrived')),
-                    ]),
-                    h('time', '2023.04.01'),
-                ]),
-                h('a.post', { attrs: {href: '/news/Duck_Chess'} }, [
-                    h('img', { attrs: {src: model.assetURL + '/images/Duck.jpg'} }),
-                    h('span.text', [
-                        h('strong', _("A Christmas Present From Pychess")),
-                        h('span', _('Duck chess has arrived')),
-                    ]),
-                    h('time', '2022.12.26'),
-                ]),
-                h('a.post', { attrs: {href: '/news/Ouk_Chaktrang_Friendship_Between_Four_Countries_Tournament'} }, [
-                    h('img', { attrs: {src: model.assetURL + '/images/four-countries.jpg'} }),
-                    h('span.text', [
-                        h('strong', _("Ouk Chaktrang Friendship Between Four Countries Tournament")),
-                        h('span', _('Promoting Our Southeast Asian Brethren')),
-                    ]),
-                    h('time', '2022.12.01'),
-                ]),
-                h('a.post', { attrs: {href: '/news/Crazyhouse960_Tournament_Spring_Invitational_2022'} }, [
-                    h('img', { attrs: {src: model.assetURL + '/images/one-flew-over-the-cuckoos-nest.jpg '} }),
-                    h('span.text', [
-                        h('strong', _("Crazyhouse960 Tournament Spring Invitational 2022")),
-                        h('span', _('Final Standings')),
-                    ]),
-                    h('time', '2022.10.02'),
-                ]),
-                h('a.post', { attrs: {href: '/news/NNUE_Everywhere'} }, [
-                    h('img', { attrs: {src: model.assetURL + '/images/Weights-nn-62ef826d1a6d.png'} }),
-                    h('span.text', [
-                        h('strong', _("Fairy-Stockfish on PyChess")),
-                        h('span', _('NNUE Everywhere')),
-                    ]),
-                    h('time', '2022.08.04'),
-                ]),
-                h('a.post', { attrs: {href: '/news/Serving_a_New_Variant'} }, [
-                    h('img', { attrs: {src: model.assetURL + '/images/ChessTennis.jpg'} }),
-                    h('span.text', [
-                        h('strong', _("Tennis and chess")),
-                        h('span', _('Serving a New Variant')),
-                    ]),
-                    h('time', '2022.02.01'),
-                ]),
-                */
-                /*
-                h('a.post', { attrs: {href: '/news/Merry_Chakmas'} }, [
-                    h('img', { attrs: {src: model.assetURL + '/images/QuetzalinTikal.png'} }),
-                    h('span.text', [
-                        h('strong', _("Christmas gift from PyChess")),
-                        h('span', _('Merry Chak-mas!')),
-                    ]),
-                    h('time', '2021.12.24'),
-                ]),
-                h('a.post', { attrs: {href: '/news/Cold_Winter'} }, [
-                    h('img', { attrs: {src: model.assetURL + '/images/board/ChakArt.jpg'} }),
-                    h('span.text', [
-                        h('strong', "Summary of latest changes"),
-                        h('span', 'Cold winter'),
-                    ]),
-                    h('time', '2021.12.21'),
-                ]),
-                h('a.post', { attrs: {href: '/news/Hot_Summer'} }, [
-                    h('img', { attrs: {src: model.assetURL + '/images/AngryBirds.png'} }),
-                    h('span.text', [
-                        h('strong', "New variant, new engine and more"),
-                        h('span', 'Hot summer'),
-                    ]),
-                    h('time', '2021.09.02'),
-                ]),
-                h('a.post', { attrs: {href: '/news/Empire_Chess_and_Orda_Mirror_Have_Arrived'} }, [
-                    h('img', { attrs: {src: model.assetURL + '/images/Darth-Vader-Comic.jpg'} }),
-                    h('span.text', [
-                        h('strong', "Empire Chess and Orda Mirror Have Arrived!"),
-                        h('span', 'New variants'),
-                    ]),
-                    h('time', '2021.07.30'),
-                ]),
-                h('a.post', { attrs: {href: '/news/Shinobi_Arrives_in_Time_For_the_Sakura_Blossoms'} }, [
-                    h('img', { attrs: {src: model.assetURL + '/icons/shinobi.svg'} }),
-                    h('span.text', [
-                        h('strong', "Shinobi Arrives in Time For the Sakura Blossoms"),
-                        h('span', 'Shinobi Chess has arrived!'),
-                    ]),
-                    h('time', '2021.04.21'),
-                ]),
-                h('a.post', { attrs: {href: '/news/The_Winner_Is_Tasshaq'} }, [
-                    h('img', { attrs: {src: model.assetURL + '/icons/Dobutsu.svg'} }),
-                    h('span.text', [
-                        h('strong', "And the winner is Tasshaq"),
-                        h('span', 'Subjective report on 1st Dōbutsu Tournament'),
-                    ]),
-                    h('time', '2021.03.28'),
-                ]),
-                h('a.post', { attrs: {href: '/news/New_Weapons_Arrived'} }, [
-                    h('img', { attrs: {src: model.assetURL + '/images/RS-24.jpg'} }),
-                    h('span.text', [
-                        h('strong', "Atomic chess and Atomic960 are here"),
-                        h('span', 'New Weapons Arrived'),
-                    ]),
-                    h('time', '2021.03.03'),
-                ]),
-                h('a.post', { attrs: {href: '/news/Short_History_Of_Pychess'} }, [
-                    h('img', { attrs: {src: model.assetURL + '/images/TomatoPlasticSet.svg'} }),
-                    h('span.text', [
-                        h('strong', "And Now for Something Completely Different"),
-                        h('span', 'Short History Of Pychess'),
-                    ]),
-                    h('time', '2021.02.27'),
-                ]),
-                h('a.post', { attrs: {href: '/news/Dobutsu_Tournament'} }, [
-                    h('img', { attrs: {src: model.assetURL + '/icons/Dobutsu.svg'} }),
-                    h('span.text', [
-                        h('strong', "PyChess tournament announcement"),
-                        h('span', 'The 1st Dōbutsu Tournament on PyChess'),
-                    ]),
-                    h('time', '2021.02.04'),
-                ]),
-                */ 
-            ]),
+                ])
+            )),
         ]),
         h('div.puzzle', [h('a#daily-puzzle', { attrs: {href: '/puzzle/daily'} }, dailyPuzzle)]),
     ];

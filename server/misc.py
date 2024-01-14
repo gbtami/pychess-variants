@@ -1,10 +1,14 @@
+from __future__ import annotations
 import asyncio
-import time
 import cProfile
 import pstats
+import time
 from timeit import default_timer
 
-from typedefs import users_key
+from const import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from pychess_global_app_state import PychessGlobalAppState
 
 
 def timeit(func):
@@ -92,8 +96,9 @@ def time_control_str(base, inc, byo, day=0):
     return base + "+" + inc_str
 
 
-def server_state(app, amount=3):
+def server_state(app_state: PychessGlobalAppState, amount=3):
     print("=" * 40)
+    app = app_state.app
     for akey in app:
         length = len(app[akey]) if hasattr(app[akey], "__len__") else 1
         print("--- %s %s ---" % (akey, length))
@@ -108,9 +113,9 @@ def server_state(app, amount=3):
             print(app[akey])
     print("=" * 40)
 
-    q = app[users_key]["Random-Mover"].event_queue
+    q = app_state.users["Random-Mover"].event_queue
     print(" ... Random-Mover ...")
     print(q)
-    q = app[users_key]["Fairy-Stockfish"].event_queue
+    q = app_state.users["Fairy-Stockfish"].event_queue
     print(" ... Fairy-Stockfish ...")
     print(q)

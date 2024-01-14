@@ -20,6 +20,19 @@ label.piece.piece99 {
     background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' version='1.1' width='80px' height='80px'><text font-size='30' x='50%' y='50%' fill='gray' class='white' text-anchor='middle' dominant-baseline='central'>ABC</text></svg>");
 }
 
+label.piece.piece0.ataxx {
+    background-image: url('images/pieces/disguised/3d-red.svg');
+}
+label.piece.piece1.ataxx {
+    background-image: url('images/pieces/ataxx/virus/red.svg');
+}
+label.piece.piece2.ataxx {
+    background-image: url('images/pieces/ataxx/zombie/zombie.svg');
+}
+label.piece.piece3.ataxx {
+    background-image: url('images/pieces/ataxx/cat-dog/dog.svg');
+}
+
 label.piece.piece0.standard {
     background-image: url('images/pieces/merida/wN.svg');
 }
@@ -191,6 +204,9 @@ label.piece.piece11.shogi {
     background-image: url('images/pieces/shogi/Portella/Intl/0KA.png');
 }
 label.piece.piece12.shogi {
+    background-image: url('images/pieces/shogi/cz/0KA.svg');
+}
+label.piece.piece13.shogi {
     background-image: url('images/pieces/disguised/shogi-ally.svg');
 }
 
@@ -233,6 +249,9 @@ label.piece.piece3.tori {
     background-image: url('images/pieces/tori/Portella/0PhoenixBlack.png');
 }
 label.piece.piece4.tori {
+    background-image: url('images/pieces/tori/cz/0Phoenix.svg');
+}
+label.piece.piece5.tori {
     background-image: url('images/pieces/disguised/shogi-ally.svg');
 }
 

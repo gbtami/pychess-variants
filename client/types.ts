@@ -56,5 +56,6 @@ export type PyChessModel = {
     bratingB: string; // string, because can contain "?" suffix for provisional rating
     brdiffB: number;
 
+    blogs: string;
     corrGames: string;
 };

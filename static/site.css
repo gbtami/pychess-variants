@@ -93,7 +93,7 @@
   --bg-color0: #262421;
   --bg-color1: #2e2a24;
   --bg-color2: #302e2c;
-  --bg-seek: #2e2a24;
+  --bg-seek: rgb(46, 42, 36,0.8);
   --bg-meta: #302e2c;
   --bg-input: #24221e;
   --game-hover: #223344;
@@ -493,7 +493,7 @@ div.patron,
 div.closed,
 div.paste,
 div.invite,
-div.news,
+div.blogs,
 div.memory,
 div.not-found {
   grid-area: main;
@@ -510,12 +510,12 @@ div.invite {
 }
 
 div.guide,
-div.news {
+div.blogs {
   grid-area: content;
 }
 
 div.guide,
-div.news,
+div.blogs,
 div.about {
   padding: 20px 40px;
   font-size: 1.2em;
@@ -540,8 +540,8 @@ div.guide h1 img {
 
 div.guide h2,
 div.guide p,
-div.news h2,
-div.news p {
+div.blogs h2,
+div.blogs p {
   line-height: 1.8;
 }
 
@@ -569,11 +569,11 @@ div.closed {
 under-lobby {
   grid-area: blog;
 }
-div.news {
+div.blogs {
   margin: 0;
   padding: 5vh;
 }
-a.news {
+a.blogs {
   margin-right: 0.4em;
 }
 posts {
@@ -613,11 +613,24 @@ a.post time {
   opacity: 1;
   position: absolute;
   top: 0;
+  left: 0;
   padding: 0.2em 0.5em 0.3em 0.5em;
   background: rgba(0, 0, 0, 0.65);
   color: #ddd;
   text-shadow: 0 1px 1px 1px black;
 }
+a.post span.author {
+  font-size: 90%;
+  opacity: 1;
+  position: absolute;
+  padding: 0.2em 0.5em 0.3em 0.5em;
+  background: rgba(0, 0, 0, 0.65);
+  color: #ddd;
+  text-shadow: 0 1px 1px 1px black;
+  top: 0;
+  right: 0;
+}
+
 .meta-headline {
   background: var(--bg-meta);
   text-align: center;
@@ -1060,7 +1073,7 @@ a:hover,
   color: var(--link-hover);
 }
 p a,
-.news ul li a {
+.blogs ul li a {
   color: var(--link-hover);
 }
 div a {
@@ -1462,6 +1475,7 @@ table.seeks {
 .seeks thead {
   background: var(--bg-color2);
 }
+/*
 #santa {
     display: inline-block;
     width: 28px;
@@ -1470,6 +1484,7 @@ table.seeks {
     background-position: center;
     background-image: url('images/Santa_hat.svg');
 }
+*/ 
 .seeks th,
 .seeks td {
   white-space: nowrap;

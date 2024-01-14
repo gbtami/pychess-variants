@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 # TODO: store in mongodb
 TWITCH_STREAMERS = {
     "chessbia": "WIM chessbia",

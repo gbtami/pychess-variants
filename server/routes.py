@@ -1,3 +1,4 @@
+from __future__ import annotations
 from bot_api import (
     account,
     playing,
@@ -96,15 +97,15 @@ get_routes = (
     ("/level8win", index),
     ("/patron", index),
     ("/patron/thanks", index),
-    ("/news", index),
-    ("/news/{news_item}", index),
+    ("/blogs", index),
+    ("/blogs/{blogId}", index),
     ("/variants", index),
     ("/variants/{variant}", index),
     ("/memory", index),
     ("/video", index),
     ("/video/{videoId}", index),
     ("/wsl", lobby_socket_handler),
-    ("/wsr", round_socket_handler),
+    ("/wsr/{gameId}", round_socket_handler),
     ("/wst", tournament_socket_handler),
     ("/api/account", account),
     ("/api/account/playing", playing),

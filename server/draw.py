@@ -1,3 +1,4 @@
+from __future__ import annotations
 from const import DRAW, RATED, STARTED
 
 
@@ -34,7 +35,8 @@ async def draw(game, user, agreement=False):
 
         game.messages.append(response)
 
-        await save_draw_offer(game)
+        if game.corr:
+            await save_draw_offer(game)
 
     return response
 
@@ -53,8 +55,9 @@ async def reject_draw(game, opp_user):
 
 
 async def save_draw_offer(game):
-    if game.corr and game.db is not None:
-        await game.db.game.find_one_and_update(
+    db = game.app_state.db
+    if db is not None:
+        await db.game.find_one_and_update(
             {"_id": game.id},
             {
                 "$set": {

@@ -1,16 +1,23 @@
+from __future__ import annotations
 import logging
 from collections import UserDict
 
-from typedefs import db_key, users_key
+from const import ANON_PREFIX, NONE_USER, VARIANTS, TYPE_CHECKING
 from glicko2.glicko2 import DEFAULT_PERF
-from const import ANON_PREFIX, VARIANTS
 from user import User
+
+if TYPE_CHECKING:
+    from pychess_global_app_state import PychessGlobalAppState
 
 log = logging.getLogger(__name__)
 
 
-class NotInUsers(Exception):
+class NotInAppUsers(Exception):
     """Raised when dict acces syntax was used, but username not in Users dict"""
+
+
+class NotInDbUsers(Exception):
+    """Raised when await get() syntax was used, but username not in db users"""
 
 
 class Users(UserDict):
@@ -21,35 +28,39 @@ class Users(UserDict):
     If not, await get(username) will load user data from mongodb
     """
 
-    def __init__(self, app):
+    def __init__(self, app_state: PychessGlobalAppState):
         super().__init__()
-        self.app = app
+        self.app_state = app_state
 
     def __getitem__(self, username):
         if username in self.data:
             return self.data[username]
         else:
-            raise NotInUsers("%s is not in Users. Use await users.get() instead.", username)
+            raise NotInAppUsers("%s is not in Users. Use await users.get() instead.", username)
 
     async def get(self, username):
         if username in self.data:
             return self.data[username]
 
-        if username.startswith(ANON_PREFIX):
-            user = User(self.app, username=username, anon=True)
-            self.app[users_key][username] = user
+        if username is None:
+            user = self.data[NONE_USER]
             return user
 
-        doc = await self.app[db_key].user.find_one({"_id": username})
+        if username.startswith(ANON_PREFIX):
+            user = User(self.app_state, username=username, anon=True)
+            self.app_state.users[username] = user
+            return user
+
+        doc = await self.app_state.db.user.find_one({"_id": username})
         if doc is None:
             log.error("--- users.get() %s NOT IN db ---", username)
-            return None
+            raise NotInDbUsers
         else:
             perfs = doc.get("perfs", {variant: DEFAULT_PERF for variant in VARIANTS})
             pperfs = doc.get("pperfs", {variant: DEFAULT_PERF for variant in VARIANTS})
 
             user = User(
-                self.app,
+                self.app_state,
                 username=username,
                 title=doc.get("title"),
                 bot=doc.get("title") == "BOT",

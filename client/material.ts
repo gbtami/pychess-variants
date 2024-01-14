@@ -92,11 +92,13 @@ function makeMaterialVNode(variant: Variant, position: 'top'|'bottom', content: 
     return h(`div.material.material-${position}.${variant.pieceFamily}${disabled ? '.disabled' : ''}`, content);
 }
 
-export function updateMaterial(variant: Variant, fen: string, vmaterialTop: VNode | HTMLElement, vmaterialBottom: VNode | HTMLElement, flip: boolean): [VNode, VNode] {
+export function updateMaterial(variant: Variant, fen: string, vmaterialTop: VNode | HTMLElement, vmaterialBottom: VNode | HTMLElement, flip: boolean, color: string): [VNode, VNode] {
     const [whiteContent, blackContent] = generateContent(variant, fen);
+    const topContent = (color === 'white') ? blackContent : whiteContent;
+    const botomContent = (color === 'white') ? whiteContent : blackContent;
     return [
-        patch(vmaterialTop, makeMaterialVNode(variant, 'top', flip ? whiteContent : blackContent)),
-        patch(vmaterialBottom, makeMaterialVNode(variant, 'bottom', flip ? blackContent : whiteContent)),
+        patch(vmaterialTop, makeMaterialVNode(variant, 'top', flip ? botomContent : topContent)),
+        patch(vmaterialBottom, makeMaterialVNode(variant, 'bottom', flip ? topContent : botomContent)),
     ];
 }
 

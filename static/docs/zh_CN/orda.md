@@ -5,7 +5,6 @@
 ![Legend](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/OrdaLegend.png)
 
 可汗西征棋(Orda Chess)是一种国际象棋变体，于2020由Couch Tomato推出。这次创造的是一个非对称的变体——双方使用不同的棋组。最初的灵感来自与Ralph Betza提出的棋组制象棋(Chess with different armies)，在此基础之上融入了鲜明的主题。新棋组具备浓厚的草原游牧民族风格，大部分棋子都具备马步的走法，参考马背上的民族，命名为Horde(下称可汗方)。这里Orda一词来源于突厥语，字面意思是游牧部落首领的帐篷，后来也代指汗国，在英语中演变成Horde即部落。该棋组的敌对方为基本的国际象棋棋组，参考历史上的拔都西征，指代欧洲王室，命名为王国(Kingdom)。经软件分析，游戏本身极其平衡，甚至比国际象棋更平衡，双方的胜率接近五五开。
-*(译者注：Orda Chess 在早期的一些视频中曾根据棋组名称Horde被翻译为部落象棋。我认为可汗西征棋这个名字比较好因此将其保留，同时金方称为可汗方。——B站叁了个肆)*
  
 ## 规则
 1.	棋盘布局如上图所示。

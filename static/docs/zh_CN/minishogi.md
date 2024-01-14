@@ -2,7 +2,7 @@
 
 ![Minishogi](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Minishogi.png)
 
-迷你将棋（或称5五将棋）是缩小版的日本将棋，使用5x5的棋盘，于1970由琉球的楠本重信发明。
+迷你将棋（或称5五将棋）是缩小版的将棋，使用5x5的棋盘，于1970年由琉球的楠本重信发明。
 
 ## 规则
 

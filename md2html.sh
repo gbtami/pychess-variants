@@ -19,14 +19,14 @@ done
 
 SRC='https://github.com/gbtami/pychess-variants/blob/master'; 
 #DST='https://www.pychess.org';
-DST='https://cdn.jsdelivr.net/gh/gbtami/pychess-variants\@1.9.76';
+DST='https://cdn.jsdelivr.net/gh/gbtami/pychess-variants\@1.9.86';
 find . -type f -name "*.html" -exec perl -pi -e s,$SRC,$DST,g '{}' +
 
 mkdir -p ../../templates/docs
 mv *.html ../../templates/docs
 
-# News
-cd ../news
+# Blogs
+cd ../blogs
 
 for f in *.md; do
 	showdown makehtml -i "$f" -o "$(basename -- "$f" .md).html" --flavor github
@@ -41,5 +41,5 @@ done
 
 find . -type f -name "*.html" -exec perl -pi -e s,$SRC,$DST,g '{}' +
 
-mkdir -p ../../templates/news
-mv *.html ../../templates/news
+mkdir -p ../../templates/blogs
+mv *.html ../../templates/blogs

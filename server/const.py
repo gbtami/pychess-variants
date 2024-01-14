@@ -1,7 +1,13 @@
+from __future__ import annotations
 from settings import static_url
+
+# https://medium.com/quick-code/python-type-hinting-eliminating-importerror-due-to-circular-imports-265dfb0580f8
+TYPE_CHECKING = False
 
 DASH = "–"
 ANON_PREFIX = "Anon" + DASH
+
+NONE_USER = "None" + DASH + "User"
 
 SCHEDULE_MAX_DAYS = 7
 TOURNAMENT_SPOTLIGHTS_MAX = 3
@@ -142,16 +148,19 @@ VARIANTS = (
     "mansindam",
     "orda",
     "synochess",
-    "shinobi",
-    # "shinobiplus",
+    # Shinobi is superseded by Shinobiplus Plus
+    # "shinobi",
+    "shinobiplus",
     "empire",
     "ordamirror",
     "chak",
     "chennis",
     "spartan",
+    "ataxx",
 )
 
 VARIANT_ICONS = {
+    "ataxx": "☣",
     "makruk": "Q",
     "makpong": "O",
     "sittuyin": ":",
@@ -260,7 +269,6 @@ CATEGORIES = {
     "army": (
         "orda",
         "synochess",
-        "shinobi",
         "empire",
         "ordamirror",
         "chak",
@@ -278,6 +286,7 @@ CATEGORIES = {
         "torishogi",
     ),
     "xiangqi": ("xiangqi", "manchu", "janggi", "minixiangqi"),
+    "other": ("ataxx"),
 }
 
 VARIANT_GROUPS = {}
@@ -349,6 +358,7 @@ TRANSLATED_FREQUENCY_NAMES = {
 }
 
 TRANSLATED_VARIANT_NAMES = {
+    "ataxx": _("Ataxx"),
     "chess": _("Chess"),
     "chess960": _("Chess960"),
     "crazyhouse": _("Crazyhouse"),

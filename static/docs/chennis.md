@@ -42,7 +42,7 @@ There are three ways to win:
 
 ## Pieces
 
-The King (K) is the same as in any form of chess and can move on square in any direction as long as it's within the the legal area (see above). Keep in mind that a king can mate another king that's at the net.
+The King (K) is the same as in any form of chess and can move on square in any direction as long as it's within the legal area (see above). Keep in mind that a king can mate another king that's at the net.
 
 There are four piece pairs:
 

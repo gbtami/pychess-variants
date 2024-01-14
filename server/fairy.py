@@ -1,4 +1,9 @@
+from __future__ import annotations
+
 # -*- coding: utf-8 -*-
+from ataxx import ATAXX_FENS
+from const import CATEGORIES
+
 import logging
 import re
 import random
@@ -7,11 +12,8 @@ log = logging.getLogger(__name__)
 
 try:
     import pyffish as sf
-except ImportError as e:
-    log.error(e, stack_info=True, exc_info=True)
-    print("No pyffish module installed!")
-
-from const import CATEGORIES
+except ImportError:
+    log.error("No pyffish module installed!", exc_info=True)
 
 WHITE, BLACK = False, True
 FILES = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j"]
@@ -62,7 +64,9 @@ class FairyBoard:
         self.show_promoted = variant in ("makruk", "makpong", "cambodian", "bughouse")
         self.nnue = initial_fen == ""
         self.initial_fen = (
-            initial_fen if initial_fen else FairyBoard.start_fen(variant, chess960, disabled_fen)
+            initial_fen
+            if initial_fen
+            else FairyBoard.start_fen(variant, chess960 or variant == "ataxx", disabled_fen)
         )
         self.move_stack: list[str] = []
         self.ply = 0
@@ -98,7 +102,7 @@ class FairyBoard:
 
     def push(self, move):
         try:
-            log.debug("move= %s, fen= %s", move, self.fen)
+            # log.debug("move=%s, fen=%s", move, self.fen)
             self.move_stack.append(move)
             self.ply += 1
             self.color = not self.color
@@ -121,7 +125,8 @@ class FairyBoard:
                 self.chess960,
                 self.sfen,
                 self.show_promoted,
-                self.count_started, stack_info=True, exc_info=True
+                self.count_started,
+                exc_info=True,
             )
             raise
 
@@ -233,6 +238,9 @@ class FairyBoard:
         The bishops are placed on opposite-colored squares.
         Same for queen and archbishop in caparandom."""
 
+        if variant == "ataxx":
+            return random.choice(ATAXX_FENS)
+
         castl = ""
         capa = variant in ("capablanca", "capahouse")
         seirawan = variant in ("seirawan", "shouse")
@@ -331,7 +339,7 @@ class FairyBoard:
         else:
             holdings = ""
 
-        checks = "3+3 " if self.variant == "3check" else ""
+        checks = "3+3 " if variant == "3check" else ""
 
         fen = (
             fen

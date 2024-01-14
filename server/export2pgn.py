@@ -1,3 +1,4 @@
+from __future__ import annotations
 import asyncio
 import bz2
 import logging
@@ -50,7 +51,7 @@ async def main():
                         doc["_id"],
                         C2V[doc["v"]],
                         doc["d"].strftime("%Y.%m.%d"),
-                        stack_info=True, exc_info=True
+                        exc_info=True,
                     )
                     continue
             print("failed/all:", failed, game_counter)

@@ -1,6 +1,7 @@
+from __future__ import annotations
 import asyncio
-import hmac
 import hashlib
+import hmac
 import logging
 import random
 import string
@@ -9,10 +10,10 @@ from datetime import datetime, timedelta, timezone
 import aiohttp
 from aiohttp import web
 
-from typedefs import twitch_key
 from broadcast import broadcast_streams
 from settings import DEV, TWITCH_CLIENT_ID, TWITCH_CLIENT_SECRET
 from streamers import TWITCH_STREAMERS
+from pychess_global_app_state_utils import get_app_state
 
 TWITCH_OAUTH2_TOKEN_URL = "https://id.twitch.tv/oauth2/token"
 TWITCH_EVENTSUB_API_URL = "https://api.twitch.tv/helix/eventsub/subscriptions"
@@ -158,7 +159,7 @@ class Twitch:
                     log.error(
                         "No 'data' in twitch request_subscription() json response: %s",
                         response_data,
-                        stack_info=True, exc_info=True
+                        exc_info=True,
                     )
 
     async def get_subscriptions(self):
@@ -212,7 +213,7 @@ class Twitch:
 
 async def twitch_request_handler(request):
     """Twitch POST request handler"""
-
+    app_state = get_app_state(request.app)
     json = await request.json()
     data = await request.text()
 
@@ -232,7 +233,7 @@ async def twitch_request_handler(request):
             return web.Response(text=challenge)
 
     elif header_msg_type == "notification":
-        twitch = request.app[twitch_key]
+        twitch = app_state.twitch
         event = json.get("event")
         streamer = event["broadcaster_user_login"]
         log.debug("--- twitch notification --- %s %s", streamer, event)
