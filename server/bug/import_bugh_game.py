@@ -1,5 +1,6 @@
 import logging
 
+from pychess_global_app_state_utils import get_app_state
 from user import User
 from const import (
     STARTED,
@@ -22,7 +23,6 @@ from aiohttp import web
 from bug.chess.pgn import read_game, Game
 from typedefs import (
     db_key,
-    users_key,
 )
 
 log = logging.getLogger(__name__)
@@ -45,9 +45,7 @@ def get_main_variation(game: Game) -> [list,list]:
 
 async def import_game_bpgn(request):
     data = await request.post()
-    app = request.app
-    db = app[db_key]
-    users = app[users_key]
+    app_state = get_app_state(request.app)
 
     # print("---IMPORT GAME---")
     # print(data)
@@ -65,27 +63,27 @@ async def import_game_bpgn(request):
     wpB = first_game.headers.get("WhiteB")
     bpB = first_game.headers.get("BlackB")
 
-    if wpA in users:
-        wplayerA = users[wpA]
+    if wpA in app_state.users:
+        wplayerA = app_state.users[wpA]
     else:
-        wplayerA = User(app, username=wpA, anon=True)
-        users[wpA] = wplayerA
-    if wpB in users:
-        wplayerB = users[wpB]
+        wplayerA = User(app_state, username=wpA, anon=True)
+        app_state.users[wpA] = wplayerA
+    if wpB in app_state.users:
+        wplayerB = app_state.users[wpB]
     else:
-        wplayerB = User(app, username=wpB, anon=True)
-        users[wpB] = wplayerB
+        wplayerB = User(app_state, username=wpB, anon=True)
+        app_state.users[wpB] = wplayerB
 
-    if bpA in users:
-        bplayerA = users[bpA]
+    if bpA in app_state.users:
+        bplayerA = app_state.users[bpA]
     else:
-        bplayerA = User(app, username=bpA, anon=True)
-        users[bpA] = bplayerA
-    if bpB in users:
-        bplayerB = users[bpB]
+        bplayerA = User(app_state, username=bpA, anon=True)
+        app_state.users[bpA] = bplayerA
+    if bpB in app_state.users:
+        bplayerB = app_state.users[bpB]
     else:
-        bplayerB = User(app, username=bpB, anon=True)
-        users[bpB] = bplayerB
+        bplayerB = User(app_state, username=bpB, anon=True)
+        app_state.users[bpB] = bplayerB
 
     variant = "bughouse"
     chess960 = False  # variant.endswith("960")
@@ -124,8 +122,8 @@ async def import_game_bpgn(request):
     [move_stack, move_times, boards] = get_main_variation(first_game)  # data.get("moves", "").split(" ")
     moves = encode_moves(map(grand2zero, move_stack) if variant in GRANDS else move_stack, variant)
 
-    game_id = await new_id(None if db is None else db.game)
-    existing = await db.game.find_one({"_id": {"$eq": game_id}})
+    game_id = await new_id(None if app_state.db is None else app_state.db.game)
+    existing = await app_state.db.game.find_one({"_id": {"$eq": game_id}})
     if existing:
         message = "Failed to create game. Game ID %s allready in mongodb." % game_id
         log.exception(message)
@@ -183,7 +181,7 @@ async def import_game_bpgn(request):
         document["p1"] = {"e": brating}
 
     print(document)
-    result = await db.game.insert_one(document)
+    result = await app_state.db.game.insert_one(document)
     print("db insert IMPORTED game result %s" % repr(result.inserted_id))
 
     return web.json_response({"gameId": game_id})

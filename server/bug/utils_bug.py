@@ -15,7 +15,7 @@ from const import (
 )
 from glicko2.glicko2 import gl2
 from newid import new_id
-from utils import round_broadcast, lobby_broadcast
+from utils import round_broadcast
 
 log = logging.getLogger(__name__)
 
@@ -277,7 +277,7 @@ async def load_game_bug(app_state: PychessGlobalAppState, game_id):
     return game
 
 async def new_game_bughouse(app_state: PychessGlobalAppState, seek_id, game_id=None):
-    seek = app_state.seeks
+    seek = app_state.seeks[seek_id]
 
     if seek.fen:
         from utils import sanitize_fen
@@ -404,11 +404,7 @@ async def insert_game_to_db_bughouse(game: GameBug, app_state: PychessGlobalAppS
     game.wplayerB.tv = game.id
     game.bplayerB.tv = game.id
 
-<<<<<<< HEAD
-async def join_seek_bughouse(app_state, user, seek_id, game_id=None, join_as="any"):
-=======
 async def join_seek_bughouse(app_state: PychessGlobalAppState, user, seek_id, game_id=None, join_as="any"):
->>>>>>> gbtami-master
 
     seek = app_state.seeks[seek_id]
 
@@ -492,8 +488,4 @@ async def play_move(app_state: PychessGlobalAppState, user, game, move, clocks=N
             await u.send_game_message(gameId, response)
 
         if app_state.tv == gameId:
-<<<<<<< HEAD
             await app_state.lobby.lobby_broadcast(board_response)
-=======
-            await lobby_broadcast(app_state.lobbysockets, board_response)
->>>>>>> gbtami-master

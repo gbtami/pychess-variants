@@ -351,21 +351,6 @@ class User:
         else:
             return False
 
-    async def send_game_message(self, game_id, message):
-        # todo: for now just logging dropped messages, but at some point should evaluate whether to queue them when no socket 
-		#       or include info about the complete round state in some more general message that is always 
-		#       sent on reconnect so client doesnt lose state
-        ws = self.game_sockets.get(game_id)
-        log.debug("Sending message %s to %s. ws = %r", message, self.username, ws);
-        if ws is not None:
-            try:
-                await ws.send_json(message)
-            except Exception as e: #ConnectionResetError
-                log.error("dropping message %s for %s", stack_info=True, exc_info=True)
-        else:
-            log.error("No ws for that game. Dropping message %s for %s", message, self.username)
-            log.debug("Currently user %s has these game_sockets: %r", self.username, self.game_sockets)
-
     def __str__(self):
         return "%s %s bot=%s anon=%s chess=%s" % (
             self.title,

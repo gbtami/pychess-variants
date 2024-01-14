@@ -25,6 +25,7 @@ class Lobby:
 
     # below methods maybe best in separate class eventually
     async def lobby_broadcast(self, response):
+        log.debug("lobby_broadcast: %r to %r", response, self.lobbysockets)
         for ws_set in self.lobbysockets.values():
             for ws in ws_set:
                 try:

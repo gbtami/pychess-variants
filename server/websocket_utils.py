@@ -36,12 +36,14 @@ async def process_ws(
     app_state = get_app_state(request.app)
 
     if (user is not None) and (not user.enabled):
+        log.error("User %r is None or not enabled", user.username)
         session.invalidate()
         return None
 
     ws = MyWebSocketResponse(heartbeat=3.0, receive_timeout=10.0)
     ws_ready = ws.can_prepare(request)
     if not ws_ready.ok:
+        log.error("ws_ready not ok: %r", ws_ready)
         return None
 
     await ws.prepare(request)

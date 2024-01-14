@@ -5,6 +5,7 @@ import random
 from datetime import datetime, timezone
 from time import monotonic
 
+from pychess_global_app_state import PychessGlobalAppState
 from user import User
 
 try:
@@ -14,7 +15,6 @@ try:
 except ImportError:
     print("No pyffish module installed!")
 
-from broadcast import lobby_broadcast
 from clock import Clock
 from compress import encode_moves, R2C
 from const import (
@@ -39,12 +39,6 @@ from spectators import spectators
 from re import sub, split
 from typedefs import (
     db_key,
-    games_key,
-    g_cnt_key,
-    lobbysockets_key,
-    users_key,
-    highscore_key,
-    crosstable_key,
 )
 
 log = logging.getLogger(__name__)
@@ -57,7 +51,7 @@ KEEP_TIME = 1800  # keep game in app[games_key] for KEEP_TIME secs
 class GameBug:
     def __init__(
         self,
-        app,
+        app_state: PychessGlobalAppState,
         gameId,
         variant,
         initial_fen,
@@ -73,12 +67,7 @@ class GameBug:
         create=True,
         tournamentId=None,
     ):
-        self.app = app
-        self.db = app[db_key] if db_key in app else None
-        self.users = app[users_key]
-        self.games = app[games_key]
-        self.highscore = app[highscore_key]
-        self.db_crosstable = app[crosstable_key]
+        self.app_state = app_state
 
         self.saved = False
         self.remove_task = None
@@ -276,9 +265,9 @@ class GameBug:
         if self.status > STARTED:#todo:niki:not needed we have check in callers code
             return
         if self.ply == 0: #todo:niki:this means game will count to be "in play" after first move. we ont have abort mechanics for bug exactly defined yet though so not clear what " in play" should mean. will become more important when rated mode is introduced. still there was at least one more place where same comcept needed to be respected  not sure where - on timer running out maybe wheterh to mark abort or timeout not sure - gotta define and sync this everywhere to mean the same
-            self.app[g_cnt_key][0] += 1
-            response = {"type": "g_cnt", "cnt": self.app[g_cnt_key][0]}
-            await lobby_broadcast(self.app[lobbysockets_key], response)
+            self.app_state.g_cnt[0] += 1
+            response = {"type": "g_cnt", "cnt": self.app_state.g_cnt[0]}
+            await self.app_state.lobby.lobby_broadcast(response)
 
         cur_player_a = self.bplayerA if self.boards["a"].color == BLACK else self.wplayerA
         cur_player_b = self.bplayerB if self.boards["b"].color == BLACK else self.wplayerB
@@ -369,9 +358,9 @@ class GameBug:
             pass
 
         if self.boards["a"].ply > 0 or self.boards["b"].ply > 0:  # todo niki seems like it is updating some stats for current game count in lobby page. wonder why we check for ply count
-            self.app[g_cnt_key][0] -= 1
-            response = {"type": "g_cnt", "cnt": self.app[g_cnt_key][0]}
-            await lobby_broadcast(self.app[lobbysockets_key], response)
+            self.app_state.g_cnt[0] -= 1
+            response = {"type": "g_cnt", "cnt": self.app_state.g_cnt[0]}
+            await self.app_state.lobby_broadcast(response)
 
         async def remove(keep_time):
             # Keep it in our games dict a little to let players get the last board
@@ -415,7 +404,7 @@ class GameBug:
 
             if self.tournamentId is not None:
                 try:
-                    await self.app[tournaments_key][self.tournamentId].game_update(self)
+                    await self.app_state.tournaments[self.tournamentId].game_update(self)
                 except Exception:
                     log.exception("Exception in tournament game_update()")
 
@@ -449,27 +438,27 @@ class GameBug:
             #     new_data["wb"] = self.wberserk
             #     new_data["bb"] = self.bberserk
 
-            if self.db is not None:
-                await self.db.game.find_one_and_update({"_id": self.id}, {"$set": new_data})
+            if self.app_state.db is not None:
+                await self.app_state.db.game.find_one_and_update({"_id": self.id}, {"$set": new_data})
 
     async def set_highscore(self, variant, chess960, value):
-        self.highscore[variant + ("960" if chess960 else "")].update(value)
+        self.app_state.highscore[variant + ("960" if chess960 else "")].update(value)
         # We have to preserve previous top 10!
         # See test_win_and_in_then_lost_and_out() in test.py
         # if len(self.highscore[variant + ("960" if chess960 else "")]) > MAX_HIGH_SCORE:
         #     self.highscore[variant + ("960" if chess960 else "")].popitem()
 
         new_data = {
-            "scores": dict(self.highscore[variant + ("960" if chess960 else "")].items()[:10])
+            "scores": dict(self.app_state.highscore[variant + ("960" if chess960 else "")].items()[:10])
         }
         try:
-            await self.db.highscore.find_one_and_update(
+            await self.app_state.db.highscore.find_one_and_update(
                 {"_id": variant + ("960" if chess960 else "")},
                 {"$set": new_data},
                 upsert=True,
             )
         except Exception:
-            if self.db is not None:
+            if self.app_state.db is not None:
                 log.error("Failed to save new highscore to mongodb!")
 
     async def update_ratings(self):

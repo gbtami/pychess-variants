@@ -35,6 +35,7 @@ from fairy import BLACK, STANDARD_FEN, FairyBoard
 from game import Game, MAX_PLY
 from newid import new_id
 from settings import URI
+from users import NotInDbUsers
 
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
@@ -921,8 +922,11 @@ async def get_blogs(request, tag=None, limit=0):
 
     cursor.sort("date", -1).limit(limit)
     async for doc in cursor:
-        user = await app_state.users.get(doc["author"])
-        doc["atitle"] = user.title
+        try:
+            user = await app_state.users.get(doc["author"])
+            doc["atitle"] = user.title
+        except NotInDbUsers:
+            pass
         blogs.append(doc)
     return blogs
 

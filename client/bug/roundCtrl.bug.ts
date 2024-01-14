@@ -153,7 +153,7 @@ export class RoundControllerBughouse implements ChatController/*extends GameCont
         window.addEventListener('blur', () => {this.focus = false});
         window.addEventListener('focus', () => {this.focus = true});
 //
-        this.sock = newWebsocket('wsr');
+        this.sock = newWebsocket('wsr/' + this.gameId);
 
         const onOpen = () => {
             console.log('onOpen');
