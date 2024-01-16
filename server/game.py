@@ -678,7 +678,7 @@ class Game:
             await self.set_highscore(
                 self.variant,
                 self.chess960,
-                {self.wplayer.username: int(round(wr.mu, 0))},
+                {self.wplayer.username: int(round(wcurr.mu + wrdiff, 0))},
             )
 
         b_nb = self.bplayer.perfs[self.variant + ("960" if self.chess960 else "")]["nb"]
@@ -686,7 +686,7 @@ class Game:
             await self.set_highscore(
                 self.variant,
                 self.chess960,
-                {self.bplayer.username: int(round(br.mu, 0))},
+                {self.bplayer.username: int(round(bcurr.mu + brdiff, 0))},
             )
 
     def is_player(self, user: User) -> bool:
