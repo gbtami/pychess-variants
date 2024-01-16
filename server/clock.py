@@ -46,9 +46,9 @@ class Clock:
                 # Rated games have their first move time set
                 self.secs = self.time_for_first_move
             else:
-                self.secs = self.game.ply_clocks[self.ply][
-                    "white" if self.color == WHITE else "black"
-                ]
+                self.secs = (
+                    self.game.clocks_w[-1] if self.color == WHITE else self.game.clocks_b[-1]
+                )
         self.running = True
 
     async def countdown(self):

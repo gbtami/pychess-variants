@@ -148,12 +148,10 @@ class Game:
         self.messages: collections.deque = collections.deque([], MAX_CHAT_LINES)
         self.date = datetime.now(timezone.utc)
 
-        self.ply_clocks = [
-            {
-                "black": (base * 1000 * 60) + 0 if base > 0 else inc * 1000,
-                "white": (base * 1000 * 60) + 0 if base > 0 else inc * 1000,
-            }
-        ]
+        clocks_init = (base * 1000 * 60) + 0 if base > 0 else inc * 1000
+        self.clocks_w = [clocks_init]
+        self.clocks_b = [clocks_init]
+
         self.lastmove = None
         self.check = False
         self.status = CREATED
@@ -269,7 +267,7 @@ class Game:
                 "san": None,
                 "turnColor": "black" if self.board.color == BLACK else "white",
                 "check": self.check,
-                "clocks": self.ply_clocks[0],
+                "clocks": {"white": self.clocks_w[0], "black": self.clocks_b[0]},
             }
         ]
 
@@ -292,10 +290,10 @@ class Game:
     def berserk(self, color):
         if color == "white" and not self.wberserk:
             self.wberserk = True
-            self.ply_clocks[0]["white"] = self.berserk_time
+            self.clocks_w[0] = self.berserk_time
         elif color == "black" and not self.bberserk:
             self.bberserk = True
-            self.ply_clocks[0]["black"] = self.berserk_time
+            self.clocks_b[0] = self.berserk_time
 
     async def play_move(self, move, clocks=None, ply=None):
         self.stopwatch.stop()
@@ -313,6 +311,7 @@ class Game:
             response = {"type": "g_cnt", "cnt": self.app_state.g_cnt[0]}
             await self.app_state.lobby.lobby_broadcast(response)
 
+        cur_color = "black" if self.board.color == BLACK else "white"
         cur_player = self.bplayer if self.board.color == BLACK else self.wplayer
         opp_player = self.wplayer if self.board.color == BLACK else self.bplayer
 
@@ -330,12 +329,11 @@ class Game:
             )
             if clocks is None:
                 clocks = {
-                    "white": self.ply_clocks[-1]["white"],
-                    "black": self.ply_clocks[-1]["black"],
+                    "white": self.clocks_w[-1],
+                    "black": self.clocks_b[-1],
                 }
 
             if cur_player.bot and self.board.ply >= 2:
-                cur_color = "black" if self.board.color == BLACK else "white"
                 if self.byoyomi:
                     if self.overtime:
                         clocks[cur_color] = self.inc * 1000
@@ -378,8 +376,12 @@ class Game:
             try:
                 san = self.board.get_san(move)
                 self.lastmove = move
+                if cur_color == "white":
+                    self.clocks_w.append(clocks["white"])
+                else:
+                    self.clocks_b.append(clocks["black"])
+
                 self.board.push(move)
-                self.ply_clocks.append(clocks)
                 self.legal_moves = self.board.legal_moves()
                 self.update_status()
 
@@ -526,10 +528,8 @@ class Game:
                 new_data["if"] = self.board.initial_fen
 
             if self.rated == RATED:
-                # TODO: self.ply_clocks dict stores clock data redundant
-                # possible it would be better to use self.ply_clocks_w and self.ply_clocks_b arrays instead
-                new_data["cw"] = [p["white"] for p in self.ply_clocks[1:]][0::2]
-                new_data["cb"] = [p["black"] for p in self.ply_clocks[2:]][0::2]
+                new_data["cw"] = self.clocks_w[1:]
+                new_data["cb"] = self.clocks_b[1:]
 
             if self.tournamentId is not None:
                 new_data["wb"] = self.wberserk
@@ -861,7 +861,7 @@ class Game:
 
     @property
     def clocks(self):
-        return self.ply_clocks[-1]
+        return {"white": self.clocks_w[-1], "black": self.clocks_b[-1]}
 
     @property
     def is_claimable_draw(self):
@@ -1003,7 +1003,7 @@ class Game:
         if full:
             steps = self.steps
 
-            # To not touch self.ply_clocks we are creating deep copy from clocks
+            # To not touch self.clocks_w and self.clocks_b we are creating deep copy from clocks
             clocks = {"black": self.clocks["black"], "white": self.clocks["white"]}
 
             if self.status == STARTED and self.board.ply >= 2 and (not self.corr):
@@ -1106,14 +1106,17 @@ class Game:
     def takeback(self):
         if self.bot_game and self.board.ply >= 2:
             cur_player = self.bplayer if self.board.color == BLACK else self.wplayer
+            cur_clock = self.clocks_b if self.board.color == BLACK else self.clocks_w
 
             self.board.pop()
-            self.ply_clocks.pop()
+            cur_clock.pop()
             self.steps.pop()
 
             if not cur_player.bot:
+                cur_clock = self.clocks_b if self.board.color == BLACK else self.clocks_w
+
                 self.board.pop()
-                self.ply_clocks.pop()
+                cur_clock.pop()
                 self.steps.pop()
 
             self.legal_moves = self.board.legal_moves()

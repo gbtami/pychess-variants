@@ -15,7 +15,7 @@ try:
 except ImportError:
     log.error("No pyffish module installed!", exc_info=True)
 
-WHITE, BLACK = False, True
+WHITE, BLACK = 0, 1
 FILES = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j"]
 
 STANDARD_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
