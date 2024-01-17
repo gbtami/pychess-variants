@@ -470,10 +470,8 @@ class Game:
             if self.id == self.app_state.tv:
                 self.app_state.tv = None
 
-            try:
+            if self.id in self.app_state.games:
                 del self.app_state.games[self.id]
-            except KeyError:
-                log.error("Failed to del %s from games", self.id, exc_info=True)
 
             if self.bot_game:
                 try:

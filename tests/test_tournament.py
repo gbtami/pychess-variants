@@ -7,6 +7,7 @@ import unittest
 from datetime import datetime, timezone
 
 from aiohttp.test_utils import AioHTTPTestCase
+from mongomock_motor import AsyncMongoMockClient
 
 from arena import ArenaTournament
 from const import (
@@ -102,8 +103,8 @@ class TestTournament(Tournament):
                 else:
                     move = random.choice(game.legal_moves)
                     clocks = {
-                        "white": game.ply_clocks[-1]["white"],
-                        "black": game.ply_clocks[-1]["black"],
+                        "white": game.clocks_w[-1],
+                        "black": game.clocks_b[-1],
                         "movetime": 0,
                     }
                     await play_move(self.app_state, cur_player, game, move, clocks=clocks)
@@ -205,13 +206,13 @@ class TournamentTestCase(AioHTTPTestCase):
         await self.client.close()
 
     async def get_application(self):
-        app = make_app()
+        app = make_app(db_client=AsyncMongoMockClient())
         return app
 
     @unittest.skipIf(ONE_TEST_ONLY, "1 test only")
     async def test_tournament_without_players(self):
         app_state = get_app_state(self.app)
-        app_state.db = None
+        # app_state.db = None
         tid = id8()
         self.tournament = ArenaTestTournament(
             app_state, tid, before_start=1.0 / 60.0, minutes=2.0 / 60.0
@@ -231,7 +232,7 @@ class TournamentTestCase(AioHTTPTestCase):
     @unittest.skipIf(ONE_TEST_ONLY, "1 test only")
     async def test_tournament_players(self):
         app_state = get_app_state(self.app)
-        app_state.db = None
+        # app_state.db = None
         NB_PLAYERS = 15
         tid = id8()
         self.tournament = ArenaTestTournament(app_state, tid, before_start=0, minutes=0)
@@ -254,7 +255,7 @@ class TournamentTestCase(AioHTTPTestCase):
     @unittest.skipIf(ONE_TEST_ONLY, "1 test only")
     async def test_tournament_with_3_active_players(self):
         app_state = get_app_state(self.app)
-        app_state.db = None
+        # app_state.db = None
         NB_PLAYERS = 15
         tid = id8()
         self.tournament = ArenaTestTournament(app_state, tid, before_start=0.1, minutes=1)
@@ -277,7 +278,7 @@ class TournamentTestCase(AioHTTPTestCase):
     @unittest.skipIf(ONE_TEST_ONLY, "1 test only")
     async def test_tournament_pairing_5_round_SWISS(self):
         app_state = get_app_state(self.app)
-        app_state.db = None
+        # app_state.db = None
         NB_PLAYERS = 15
         NB_ROUNDS = 5
         tid = id8()
@@ -296,7 +297,7 @@ class TournamentTestCase(AioHTTPTestCase):
     @unittest.skipIf(ONE_TEST_ONLY, "1 test only")
     async def test_tournament_pairing_1_min_ARENA(self):
         app_state = get_app_state(self.app)
-        app_state.db = None
+        # app_state.db = None
         NB_PLAYERS = 15
         tid = id8()
         self.tournament = ArenaTestTournament(app_state, tid, before_start=0.1, minutes=1)
@@ -319,7 +320,7 @@ class TournamentTestCase(AioHTTPTestCase):
     @unittest.skipIf(ONE_TEST_ONLY, "1 test only")
     async def test_tournament_pairing_5_round_RR(self):
         app_state = get_app_state(self.app)
-        app_state.db = None
+        # app_state.db = None
         NB_PLAYERS = 5
         NB_ROUNDS = 5
 

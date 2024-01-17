@@ -9,6 +9,7 @@ from operator import neg
 
 from aiohttp.test_utils import AioHTTPTestCase
 from sortedcollections import ValueSortedDict
+from mongomock_motor import AsyncMongoMockClient
 
 import game
 from const import CREATED, STARTED, VARIANTS, STALEMATE, MATE
@@ -78,7 +79,7 @@ class GameResultTestCase(AioHTTPTestCase):
         self.wplayer = User(get_app_state(self.app), username="wplayer", perfs=PERFS["newplayer"])
 
     async def get_application(self):
-        app = make_app()
+        app = make_app(db_client=AsyncMongoMockClient())
         app.on_startup.append(self.startup)
         return app
 
@@ -88,7 +89,7 @@ class GameResultTestCase(AioHTTPTestCase):
     async def test_atomic_stalemate(self):
         FEN = "K7/Rk6/2B5/8/8/8/7Q/8 w - - 0 1"
         game = Game(get_app_state(self.app), "12345678", "atomic", FEN, self.wplayer, self.bplayer, rated=False)
-        await game.play_move("h2b8")
+        await game.play_move("h2b8", clocks={"white": 60, "black": 60})
 
         self.assertEqual(game.result, "1/2-1/2")
         self.assertEqual(game.status, STALEMATE)
@@ -96,7 +97,7 @@ class GameResultTestCase(AioHTTPTestCase):
     async def test_atomic_checkmate(self):
         FEN = "B6Q/Rk6/8/8/8/8/8/4K3 w - - 0 1"
         game = Game(get_app_state(self.app), "12345678", "atomic", FEN, self.wplayer, self.bplayer, rated=False)
-        await game.play_move("h8b8")
+        await game.play_move("h8b8", clocks={"white": 60, "black": 60})
 
         self.assertEqual(game.result, "1-0")
         self.assertEqual(game.status, MATE)
@@ -207,7 +208,7 @@ class GamePlayTestCase(AioHTTPTestCase):
         self.random_mover = app_state.users["Random-Mover"]
 
     async def get_application(self):
-        app = make_app()
+        app = make_app(db_client=AsyncMongoMockClient())
         app.on_startup.append(self.startup)
         return app
 
@@ -262,7 +263,7 @@ class HighscoreTestCase(AioHTTPTestCase):
         self.weak_player = User(app_state, username="weakplayer", perfs=PERFS["weakplayer"])
 
     async def get_application(self):
-        app = make_app()
+        app = make_app(db_client=AsyncMongoMockClient())
         app.on_startup.append(self.startup)
         return app
 
@@ -279,10 +280,11 @@ class HighscoreTestCase(AioHTTPTestCase):
             print(row)
 
     async def play_and_resign(self, game, player):
-        clock = game.ply_clocks[0]["white"]
+        clock_w = game.clocks_w[0]
+        clock_b = game.clocks_b[0]
         for i, move in enumerate(("e2e4", "e7e5", "f2f4"), start=1):
             await game.play_move(
-                move, clocks={"white": clock, "black": clock, "movetime": 0}, ply=i
+                move, clocks={"white": clock_w, "black": clock_b, "movetime": 0}, ply=i
             )
         await game.game_ended(player, "resign")
 
@@ -417,7 +419,7 @@ class RatingTestCase(AioHTTPTestCase):
         self.gl2 = Glicko2(tau=0.5)
 
     async def get_application(self):
-        app = make_app()
+        app = make_app(db_client=AsyncMongoMockClient())
         app.on_startup.append(self.startup)
         return app
 
@@ -520,7 +522,7 @@ class FirstRatedGameTestCase(AioHTTPTestCase):
         self.wplayer2 = User(get_app_state(self.app), username="wplayer", perfs=PERFS["newplayer"])
 
     async def get_application(self):
-        app = make_app()
+        app = make_app(db_client=AsyncMongoMockClient())
         app.on_startup.append(self.startup)
         return app
 
