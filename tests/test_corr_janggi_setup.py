@@ -25,6 +25,8 @@ BLUE_SETUP_FEN = "rbna1abnr/4k4/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/4K4/RBNA1ANB
 C1D3_FEN = "rbna1abnr/4k4/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C1N3C1/4K4/RB1A1ANBR b - - 1 1"
 C10D8_FEN = "rb1a1abnr/4k4/1c1n3c1/p1p1p1p1p/9/9/P1P1P1P1P/1C1N3C1/4K4/RB1A1ANBR w - - 2 2"
 
+CLOCKS = {"white": 60, "black": 60}
+
 
 async def simulate_setup(game, color, fen):
     game.board.initial_fen = fen
@@ -132,7 +134,7 @@ class CorrJanggiGameTestCase(AioHTTPTestCase):
         self.assertEqual(doc["if"], BLUE_SETUP_FEN)
 
         # BLUE MOVE
-        await game.play_move("c1d3")
+        await game.play_move("c1d3", clocks=CLOCKS)
         doc = await games.find_one({"_id": game.id})
 
         self.assertFalse(doc["bs"])
@@ -141,7 +143,7 @@ class CorrJanggiGameTestCase(AioHTTPTestCase):
         self.assertEqual(doc["f"], C1D3_FEN)  # current FEN
 
         # RED MOVE
-        await game.play_move("c10d8")
+        await game.play_move("c10d8", clocks=CLOCKS)
         doc = await games.find_one({"_id": game.id})
 
         self.assertFalse(doc["bs"])
@@ -194,7 +196,7 @@ class CorrJanggiGameTestCase(AioHTTPTestCase):
         game = await self.server_restart()
 
         # BLUE MOVE
-        await game.play_move("c1d3")
+        await game.play_move("c1d3", clocks=CLOCKS)
         doc = await games.find_one({"_id": game.id})
 
         self.assertFalse(doc["bs"])
@@ -206,7 +208,7 @@ class CorrJanggiGameTestCase(AioHTTPTestCase):
         game = await self.server_restart()
 
         # RED MOVE
-        await game.play_move("c10d8")
+        await game.play_move("c10d8", clocks=CLOCKS)
         doc = await games.find_one({"_id": game.id})
 
         self.assertFalse(doc["bs"])
