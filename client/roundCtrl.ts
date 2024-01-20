@@ -184,10 +184,9 @@ export class RoundController extends GameController {
             document.getElementById('expiration-bottom') as HTMLElement
         ];
 
-        this.clocktimes = {'white': this.base * 1000 * 60, 'black': this.base * 1000 * 60}
+        this.clocktimes = [this.base * 1000 * 60, this.base * 1000 * 60]
 
         // initialize clocks
-        // this.clocktimes = {};
         if (this.corr) {
             const c0 = new Clock(this.base, 0, 0, document.getElementById('clock0') as HTMLElement, 'clock0', true);
             const c1 = new Clock(this.base, 0, 0, document.getElementById('clock1') as HTMLElement, 'clock1', true);
@@ -408,7 +407,7 @@ export class RoundController extends GameController {
 
         this.clocks[clockIdx].increment = 0;
         this.clocks[clockIdx].setTime(this.base * 1000 * 30);
-        this.clocktimes[color] = this.base * 1000 * 30;
+        this.clocktimes[(color === 'white') ? 0 : 1] = this.base * 1000 * 30;
         sound.berserk();
 
         const berserkId = (color === "white") ? "wberserk" : "bberserk";
@@ -753,7 +752,6 @@ export class RoundController extends GameController {
         const parts = msg.fen.split(" ");
         this.turnColor = parts[1] === "w" ? "white" : "black";
         this.fullfen = msg.fen;
-
         this.clocktimes = msg.clocks || this.clocktimes;
 
         this.result = msg.result;
@@ -836,8 +834,8 @@ export class RoundController extends GameController {
             this.clocks[myclock].byoyomiPeriod = msg.byo[(this.mycolor === 'white') ? 0 : 1];
         }
 
-        this.clocks[oppclock].setTime(this.clocktimes[this.oppcolor]);
-        this.clocks[myclock].setTime(this.clocktimes[this.mycolor]);
+        this.clocks[oppclock].setTime(this.clocktimes[(this.oppcolor === 'white') ? 1 : 0]);
+        this.clocks[myclock].setTime(this.clocktimes[(this.mycolor === 'white') ? 1 : 0]);
 
         let bclock;
         if (!this.flipped()) {
@@ -945,14 +943,12 @@ export class RoundController extends GameController {
     doSendMove(move: string) {
         const send = (move: string) => {
             this.clearDialog();
-
             let clock_times, increment;
             const oppclock = !this.flipped() ? 0 : 1
             const myclock = 1 - oppclock;
 
             if (!this.corr) {
                 // pause() will add increment!
-                const movetime = (this.clocks[myclock].running) ? Date.now() - this.clocks[myclock].startTime : 0;
                 this.clocks[myclock].pause((this.base === 0 && this.ply < 2) ? false : true);
 
                 let bclock;
@@ -969,12 +965,12 @@ export class RoundController extends GameController {
                     increment = 0;
                 }
 
-                const bclocktime = (this.mycolor === "black" && this.preaction) ? this.clocktimes.black + increment: this.clocks[bclock].duration;
-                const wclocktime = (this.mycolor === "white" && this.preaction) ? this.clocktimes.white + increment: this.clocks[wclock].duration;
+                const bclocktime = (this.mycolor === "black" && this.preaction) ? this.clocktimes[1] + increment: this.clocks[bclock].duration;
+                const wclocktime = (this.mycolor === "white" && this.preaction) ? this.clocktimes[0] + increment: this.clocks[wclock].duration;
 
-                clock_times = {movetime: (this.preaction) ? 0 : movetime, black: bclocktime, white: wclocktime};
+                clock_times = [wclocktime, bclocktime];
             } else  {
-                clock_times = { movetime: 0, black:  0, white: 0 };
+                clock_times = [0, 0];
                 increment = 0;
             }
 
@@ -982,7 +978,7 @@ export class RoundController extends GameController {
             this.doSend(message);
 
             if (this.preaction) {
-                this.clocks[myclock].setTime(this.clocktimes[this.mycolor] + increment);
+                this.clocks[myclock].setTime(this.clocktimes[(this.mycolor === 'white') ? 1 : 0] + increment);
             }
             if (this.clockOn) this.clocks[oppclock].start();
         }

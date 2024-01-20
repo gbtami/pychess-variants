@@ -7,6 +7,7 @@ import time
 import aiohttp
 
 import pyffish as sf
+
 sf.set_option("VariantPath", "variants.ini")
 
 from settings import URI
@@ -80,7 +81,7 @@ class TestUser:
                 text = await resp.text()
                 index = text.find("data-user=")
                 index = index + len("data-user=") + 1
-                self.username = text[index: index + 13]
+                self.username = text[index : index + 13]
                 print(self.username)
 
             session_data = {"session": {"user_name": self.username}, "created": int(time.time())}

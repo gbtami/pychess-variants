@@ -25,7 +25,7 @@ BLUE_SETUP_FEN = "rbna1abnr/4k4/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/4K4/RBNA1ANB
 C1D3_FEN = "rbna1abnr/4k4/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C1N3C1/4K4/RB1A1ANBR b - - 1 1"
 C10D8_FEN = "rb1a1abnr/4k4/1c1n3c1/p1p1p1p1p/9/9/P1P1P1P1P/1C1N3C1/4K4/RB1A1ANBR w - - 2 2"
 
-CLOCKS = {"white": 60, "black": 60}
+CLOCKS = [0, 0]
 
 
 async def simulate_setup(game, color, fen):

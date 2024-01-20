@@ -386,7 +386,7 @@ export class AnalysisController extends GameController {
                 this.vinfo = patch(this.vinfo, h('info#info', '-'));
                 this.drawAnalysisChart(false);
             }
-            const clocktimes = this.steps[1]?.clocks?.white;
+            const clocktimes = this.steps[1]?.clocks;
             if (clocktimes !== undefined && !this.embed) {
                 patch(document.getElementById('anal-clock-top') as HTMLElement, h('div.anal-clock.top'));
                 patch(document.getElementById('anal-clock-bottom') as HTMLElement, h('div.anal-clock.bottom'));
@@ -746,7 +746,7 @@ export class AnalysisController extends GameController {
         const vv = this.steps[plyVari]?.vari;
         const step = (plyVari > 0 && vv) ? vv[ply - plyVari] : this.steps[ply];
 
-        const clocktimes = this.steps[1]?.clocks?.white;
+        const clocktimes = this.steps[1]?.clocks;
         if (clocktimes !== undefined) {
             renderClocks(this);
             const hc = this.movetimeChart;

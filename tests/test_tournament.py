@@ -102,11 +102,7 @@ class TestTournament(Tournament):
                         await opp_player.send_game_message(game.id, response)
                 else:
                     move = random.choice(game.legal_moves)
-                    clocks = {
-                        "white": game.clocks_w[-1],
-                        "black": game.clocks_b[-1],
-                        "movetime": 0,
-                    }
+                    clocks = (game.clocks_w[-1], game.clocks_b[-1])
                     await play_move(self.app_state, cur_player, game, move, clocks=clocks)
             await asyncio.sleep(0.1)
 

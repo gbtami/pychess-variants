@@ -8,14 +8,14 @@ export function renderClocks(ctrl: AnalysisController) {
     const whitePov = !ctrl.flipped();
 
     const wclass = whitePov ? 'bottom' : 'top';
-    const wtime = ctrl.steps[ctrl.ply]?.clocks?.white;
+    const wtime = ctrl.steps[ctrl.ply]?.clocks[0];
     let wel: VNode | HTMLElement = document.querySelector(`div.anal-clock.${wclass}`) as HTMLElement;
     if (wel) {
         wel = patch(wel, h(`div.anal-clock.${wclass}`, ''));
         patch(wel, renderClock(wtime!, isWhiteTurn, wclass));
     }
     const bclass = whitePov ? 'top' : 'bottom';
-    const btime = ctrl.steps[ctrl.ply]?.clocks?.black;
+    const btime = ctrl.steps[ctrl.ply]?.clocks[1];
     let bel: VNode | HTMLElement = document.querySelector(`div.anal-clock.${bclass}`) as HTMLElement;
     if (bel) {
         bel = patch(bel, h(`div.anal-clock.${bclass}`, ''));

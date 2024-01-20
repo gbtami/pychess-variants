@@ -267,7 +267,7 @@ class Game:
                 "san": None,
                 "turnColor": "black" if self.board.color == BLACK else "white",
                 "check": self.check,
-                "clocks": {"white": self.clocks_w[0], "black": self.clocks_b[0]},
+                "clocks": (self.clocks_w[0], self.clocks_b[0]),
             }
         ]
 
@@ -311,9 +311,9 @@ class Game:
             response = {"type": "g_cnt", "cnt": self.app_state.g_cnt[0]}
             await self.app_state.lobby.lobby_broadcast(response)
 
-        cur_color = "black" if self.board.color == BLACK else "white"
-        cur_player = self.bplayer if self.board.color == BLACK else self.wplayer
-        opp_player = self.wplayer if self.board.color == BLACK else self.bplayer
+        cur_color = self.board.color
+        cur_player = self.bplayer if cur_color == BLACK else self.wplayer
+        opp_player = self.wplayer if cur_color == BLACK else self.bplayer
 
         # Move cancels draw offer
         response = await reject_draw(self, opp_player)
@@ -328,10 +328,7 @@ class Game:
                 int(round((cur_time - self.last_server_clock) * 1000)) if self.board.ply >= 2 else 0
             )
             if clocks is None:
-                clocks = {
-                    "white": self.clocks_w[-1],
-                    "black": self.clocks_b[-1],
-                }
+                clocks = [self.clocks_w[-1], self.clocks_b[-1]]
 
             if cur_player.bot and self.board.ply >= 2:
                 if self.byoyomi:
@@ -358,7 +355,7 @@ class Game:
                         ):
                             result = "1/2-1/2"
                         else:
-                            result = "1-0" if self.board.color == BLACK else "0-1"
+                            result = "1-0" if cur_color == BLACK else "0-1"
                         self.update_status(FLAG, result)
                         print(self.result, "flag")
                         await self.save_game()
@@ -366,9 +363,9 @@ class Game:
             if (ply is not None) and ply <= 2 and self.tournamentId is not None:
                 # Just in case for move and berserk messages race
                 if self.wberserk:
-                    clocks["white"] = self.berserk_time
+                    clocks[WHITE] = self.berserk_time
                 if self.bberserk:
-                    clocks["black"] = self.berserk_time
+                    clocks[BLACK] = self.berserk_time
 
         self.last_server_clock = cur_time
 
@@ -376,10 +373,10 @@ class Game:
             try:
                 san = self.board.get_san(move)
                 self.lastmove = move
-                if cur_color == "white":
-                    self.clocks_w.append(clocks["white"])
+                if cur_color == WHITE:
+                    self.clocks_w.append(clocks[WHITE])
                 else:
-                    self.clocks_b.append(clocks["black"])
+                    self.clocks_b.append(clocks[BLACK])
 
                 self.board.push(move)
                 self.legal_moves = self.board.legal_moves()
@@ -859,7 +856,7 @@ class Game:
 
     @property
     def clocks(self):
-        return {"white": self.clocks_w[-1], "black": self.clocks_b[-1]}
+        return (self.clocks_w[-1], self.clocks_b[-1])
 
     @property
     def is_claimable_draw(self):
@@ -907,8 +904,8 @@ class Game:
             '{"type": "gameState", "moves": "%s", "wtime": %s, "btime": %s, "winc": %s, "binc": %s}\n'
             % (
                 " ".join(self.board.move_stack),
-                clocks["white"],
-                clocks["black"],
+                clocks[WHITE],
+                clocks[BLACK],
                 self.inc,
                 self.inc,
             )
@@ -1002,7 +999,7 @@ class Game:
             steps = self.steps
 
             # To not touch self.clocks_w and self.clocks_b we are creating deep copy from clocks
-            clocks = {"black": self.clocks["black"], "white": self.clocks["white"]}
+            clocks = (self.clocks[WHITE], self.clocks[BLACK])
 
             if self.status == STARTED and self.board.ply >= 2 and (not self.corr):
                 # We have to adjust current player latest saved clock time
@@ -1011,9 +1008,9 @@ class Game:
 
                 cur_time = monotonic()
                 elapsed = int(round((cur_time - self.last_server_clock) * 1000))
-
-                cur_color = "black" if self.board.color == BLACK else "white"
-                clocks[cur_color] = max(0, clocks[cur_color] + self.byo_correction - elapsed)
+                clocks[self.board.color] = max(
+                    0, clocks[self.board.color] + self.byo_correction - elapsed
+                )
             crosstable = self.crosstable
         else:
             clocks = self.clocks
@@ -1031,10 +1028,10 @@ class Game:
         if self.corr:
             clock_mins = self.stopwatch.mins * 60 * 1000
             base_mins = self.base * 24 * 60 * 60 * 1000
-            clocks = {
-                "black": base_mins if self.board.color == WHITE else clock_mins,
-                "white": base_mins if self.board.color == BLACK else clock_mins,
-            }
+            clocks = (
+                base_mins if self.board.color == WHITE else clock_mins,
+                base_mins if self.board.color == BLACK else clock_mins,
+            )
 
         return {
             "type": "board",
@@ -1047,7 +1044,7 @@ class Game:
             "steps": steps,
             "check": self.check,
             "ply": self.board.ply,
-            "clocks": {"black": clocks["black"], "white": clocks["white"]},
+            "clocks": (clocks[BLACK], clocks[WHITE]),
             "byo": byoyomi_periods,
             "pgn": self.pgn if self.status > STARTED else "",
             "rdiffs": {"brdiff": self.brdiff, "wrdiff": self.wrdiff}
