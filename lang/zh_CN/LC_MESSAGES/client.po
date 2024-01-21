@@ -550,7 +550,7 @@ msgstr "幕府将棋"
 
 #: ../client/i18n.ts:78
 msgid "hoppel-poppel"
-msgstr "混搭象棋"
+msgstr "跳跳国际象棋"
 
 #: ../client/i18n.ts:80
 msgid "orda"
@@ -1208,23 +1208,23 @@ msgstr ""
 
 #: ../client/puzzleCtrl.ts:322
 msgid "Find the best move for %1."
-msgstr ""
+msgstr "轮到 %1 走棋，请找到最佳着法。"
 
 #: ../client/puzzleCtrl.ts:339
 msgid "That's not the move!"
-msgstr ""
+msgstr "这不是最佳着法！"
 
 #: ../client/puzzleCtrl.ts:340
 msgid "Try something else."
-msgstr ""
+msgstr "请继续思考更好的答案。"
 
 #: ../client/puzzleCtrl.ts:354
 msgid "Best move!"
-msgstr ""
+msgstr "正确的走法！"
 
 #: ../client/puzzleCtrl.ts:355
 msgid "Keep going..."
-msgstr ""
+msgstr "请继续走棋."
 
 #: ../client/puzzleCtrl.ts:368
 msgid "Success!"
