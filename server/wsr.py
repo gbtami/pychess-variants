@@ -336,7 +336,7 @@ async def handle_analysis(app_state: PychessGlobalAppState, ws, data, game):
 
 async def handle_rematch(app_state: PychessGlobalAppState, ws, user, data, game):
     if game.variant == "bughouse":
-        await handle_rematch_bughouse(app_state, data, game, user, app_state.users, ws)
+        await handle_rematch_bughouse(app_state, game, user, app_state.users)
         return
 
     rematch_id = None

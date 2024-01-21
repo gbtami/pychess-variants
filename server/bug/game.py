@@ -360,7 +360,7 @@ class GameBug:
         if self.boards["a"].ply > 0 or self.boards["b"].ply > 0:  # todo niki seems like it is updating some stats for current game count in lobby page. wonder why we check for ply count
             self.app_state.g_cnt[0] -= 1
             response = {"type": "g_cnt", "cnt": self.app_state.g_cnt[0]}
-            await self.app_state.lobby_broadcast(response)
+            await self.app_state.lobby.lobby_broadcast(response)
 
         async def remove(keep_time):
             # Keep it in our games dict a little to let players get the last board
@@ -388,8 +388,8 @@ class GameBug:
         self.remove_task = asyncio.create_task(remove(KEEP_TIME))
 
         # todo niki just adding up both ply instead. think later what actually makes sense in bughouse
-        if self.boards["a"].ply + self.boards["b"].ply < 6 and (self.db is not None) and (self.tournamentId is None):
-            result = await self.db.game.delete_one({"_id": self.id})
+        if self.boards["a"].ply + self.boards["b"].ply < 6 and (self.app_state.db is not None) and (self.tournamentId is None):
+            result = await self.app_state.db.game.delete_one({"_id": self.id})
             log.debug(
                 "Removed too short game %s from db. Deleted %s game.",
                 self.id,
