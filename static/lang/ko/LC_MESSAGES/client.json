@@ -2,21 +2,22 @@
     "\"To me, how we've got here today is owing to Stockfish in a BIG way. They rallied global volunteers to come together in the open-source spirit and create such a powerful engine for FREE. That's a lot of great minds and computing power they've managed to harness.": "\"저에게 있어, 오늘 우리가 여기까지 올 수 있었던 것은 대대적으로 Stockfish 덕분입니다. 그들은 오픈 소스 정신으로 모여 강력한 무료 엔진을 만들기 위해 글로 자원봉사자들을 모았습니다. 그것은 그들이 활용한 많은 뛰어난 사고력과 컴퓨팅 능력입니다.",
     "Then we've got Lichess to thank. Lichess was also born out of the same open-source spirit, and it too drew in great people as well. Once Lichess incorporated Stockfish as its brains, the rest is history.": "우리는 Lichess에게 감사해야 합니다. Lichess 역시 동일한 오픈 소스 정신에서 탄생했으며 훌륭한 사람들을 끌어들였습니다. Lichess가 Stockfish를 두뇌로 통합하면, 그 나머지는 굳이 말할 필요가 없겠죠.",
     "Lichess enables the online, real-time, and competitive aspects of game-play. They also bring the enormous power of Stockfish to the masses, who can now benefit from it without configuring a local GUI. I believe this development turns out to be of great consequence and significance.": "Lichess는 게임 플레이의 온라인, 실시간 및 경쟁 측면을 지원합니다. 또한 Stockfish의 엄청난 성능을 제공하므로 이제 사람들은 로컬 GUI를 구성하지 않고도 그 혜택을 누릴 수 있습니다. 저는 이러한 발전이 매우 중요하고 의미 있는 결과라고 믿습니다.",
-    "Later on, developers close to the Lichess project eventually extended Stockfish into Multivariant-Stockfish, in order to support Crazyhouse et al. The father of Fairy-Stockfish, Fabian, is also one of those devs (still) working on that fork, and he later took several steps further in terms of variant support and extensibility. Thus Fairy-Stockfish was born, so powerful because it builds on the Stockfish project.": "나중에, Lichess 프로젝트에 가까운 개발자들 Crazyhouse 등을 지원하기 위해 결국 Stockfish를 Multivariant-Stockfish로 확장했습니다. Fairy-Stockfish의 아버지인 Fabian (여전히) 해당 포크를 작업하는 개발자 중 한 명이며, 그는 이후에 변형 지원 및 확장성의 측면에서 몇 단계 더 발전했습니다. 따라서 Fairy-Stockfish는 Stockfish 프로젝트를 기반으로 구축되었기 때문에 매우 강력하게 탄생할 수 있었습니다.",
+    "Later on, developers close to the Lichess project eventually extended Stockfish into Multivariant-Stockfish, in order to support Crazyhouse et al. The father of Fairy-Stockfish, Fabian, is also one of those devs (still) working on that fork, and he later took several steps further in terms of variant support and extensibility. Thus Fairy-Stockfish was born, so powerful because it builds on the Stockfish project.": "나중에, Lichess 프로젝트에 가까운 개발자들 Crazyhouse 등을 지원하기 위해 결국 Stockfish를 Multivariant-Stockfish로 확장했습니다. Fairy-Stockfish의 아버지인 Fabian (여전히) 해당 포크를 작업하는 개발자 중 한 명이며, 그는 이후에 변형 지원 및 확장성의 측면에서 몇 단계 더 발전했습니다. 그리하여 Fairy-Stockfish는 Stockfish 프로젝트를 기반으로 했기 때문에 매우 강력하게 탄생할 수 있었습니다.",
     "Then comes our beloved pychess-variants, which again very smartly harnesses the underlying superpowers of the big projects. Same online, real-time, and competitive aspects. Same clean and familiar Lichess look and feel. Plus the power of Stockfish!\"": "그런 다음 큰 프로젝트의 근본적인 초능력을 매우 영리하게 활용하는 우리의 사랑받는 pychess-변형이 나옵니다. 동일한 온라인, 실시간, 경쟁 측면. 그리고 리체스와 동일한 모양과 느낌의 깨끗함과 익숙함. 거기에 더해 스톡피쉬의 힘까지!\"",
     "About pychess": "pychess에 관하여",
     "Pychess is a free, open-source chess server designed to play several chess variants.": "Pychess는 여러 체스 변형을 플레이할 수 있게 고안된 무료 공개 소스 체스 서버입니다.",
-    "Currently supported games are ": "현재 지원되는 게임은",
-    "Additionally, you can check the Chess960 option for Chess, Crazyhouse, Atomic, S-chess, Capablanca, and Capahouse to start games from random positions with ": "추가로, 체스, 크레이지하우스, 아토믹, S-체스, 카파블랑카 및 카파하우스에서 체스960 옵션을 확인하여 무작위 위치에서 게임을 시작할 수 있습니다.",
-    "Chess960 castling rules.": "캐슬링 규칙이 있는 체스960",
+    "Currently supported games are ": "현재 지원되는 게임은 다음과 같습니다. ",
+    "Additionally, you can check the Chess960 option for Chess, Crazyhouse, Atomic, S-chess, Capablanca, and Capahouse to start games from random positions with ": "추가로, 체스960 캐슬링 규칙을 가진 체스, 크레이지하우스, 아토믹, S-체스, 카파블랑카 및 카파하우스에서 체스960 옵션을 확인하여 무작위 위치에서 게임을 시작할 수 있습니다.",
+    "Chess960 castling rules.": "체스960 캐슬링 규칙.",
     "For move generation, validation, analysis, and engine play, we use ": "움직임 생성, 검증, 분석 및 엔진 작동을 위해 우리는 사용합니다",
-    "On client side, the user interface of the game board is based on ": "클라이언트 측에서 게임 판의 사용자 인터페이스는 기반한다",
-    "The source code of the server is available on ": "서버 소스코드 사용가능",
+    "On client side, the user interface of the game board is based on ": "클라이언트 측에서, 게임판의 사용자 인터페이스는 다음에 기반합니다. ",
+    "The source code of the server is available on ": "서버 소스 코드는 뒤의 링크에서 이용 가능합니다. ",
     "To play on PyChess, you need to have an open and unmarked account on Lichess. ": "Pychess를 플레이하려면, 열려 있고 표시되지 않은 당신의 계정이 Lichess에 있어야 합니다.",
-    "Regarding Privacy and Terms of Service, the rules of lichess.org are also applied here. ": "개인 정보 보호 및 서비스 약관과 관련하여 lichess.org의 규칙도 여기에 적용됩니다.",
+    "Regarding Privacy and Terms of Service, the rules of lichess.org are also applied here. ": "개인 정보 보호 및 서비스 약관과 관련하여, lichess.org의 규칙도 여기에 적용됩니다. ",
     "Variant": "변형",
     "Computer analysis": "컴퓨터 분석",
     "Move times": "이동 시간",
+    "Crosstable": "크로스테이블",
     "FEN & PGN": "FEN과 PGN",
     "Multi-threaded WebAssembly (classical evaluation)": "다중 스레드 웹어셈블리 (고전적 평가)",
     "in local browser": "로컬 브라우저에서",
@@ -25,9 +26,9 @@
     "You need an account to do that.": "계정이 필요합니다.",
     "Download game to PGN file": "PGN 파일로 기보 저장하기",
     "Download PGN": "PGN 파일로 저장",
-    "Copy USI/UCI to clipboard": "USI/UCI 클립보드에 복사하기",
+    "Copy USI/UCI to clipboard": "클립보드에 USI/UCI 복사하기",
     "Copy UCI/USI": "UCI/USI 복사하기",
-    "Download position to PNG image file": "판을 PNG파일로 저장하기",
+    "Download position to PNG image file": "PNG 이미지 파일로 위치 저장하기",
     "PNG image": "PNG 이미지",
     "Are you sure you want to delete this game?": "정말 이 게임을 삭제하시겠습니까?",
     "Delete game": "게임 삭제하기",
@@ -40,6 +41,9 @@
     "Best move arrow": "최선수 화살표",
     "Infinite analysis": "무한 분석",
     "Multiple lines": "다중 선",
+    "CPUs": "CPU",
+    "Memory": "메모리 게임",
+    "Use NNUE": "NNUE 사용하기",
     "Light": "밝음",
     "Dark": "어두움",
     "Piece animation": "기물 애니메이션",
@@ -56,47 +60,53 @@
     "Spectator room": "관전방",
     "Chat room": "채팅방",
     "Server": "서버",
+    "%1 day": [
+        "%1일"
+    ],
+    "%1 hour": [
+        "%1시간"
+    ],
     "in %1 year": [
-        "%1 년 이내"
+        "%1년 이내"
     ],
     "%1 year ago": [
-        "%1 년전"
+        "%1년 전"
     ],
     "in %1 month": [
-        "%1 달 이내"
+        "%1달 이내"
     ],
     "%1 month ago": [
-        "%1 개월 전"
+        "%1개월 전"
     ],
     "in %1 week": [
-        "%1 주 이내"
+        "%1주 이내"
     ],
     "%1 week ago": [
-        "%1 주 전"
+        "%1주 전"
     ],
     "in %1 day": [
-        "%1 일 이내"
+        "%1일 이내"
     ],
     "%1 day ago": [
-        "%1 일 전"
+        "%1일 전"
     ],
     "in %1 hour": [
-        "%1 시간 이내"
+        "%1시간 이내"
     ],
     "%1 hour ago": [
-        "%1 시간 전"
+        "%1시간 전"
     ],
     "in %1 minute": [
-        "%1 분 이내"
+        "%1분 이내"
     ],
     "%1 minute ago": [
-        "%1 분 전"
+        "%1분 전"
     ],
     "in %1 second": [
-        "%1 초 이내"
+        "%1초 이내"
     ],
     "%1 second ago": [
-        "%1 초 전"
+        "%1초 전"
     ],
     "Spectators: ": "관중:",
     "Requested game %1 not found!": "요청하신 %1 게임을 찾을 수 없습니다!",
@@ -144,8 +154,10 @@
     "orda mirror": "오르다 거울",
     "chak": "착",
     "chennis": "첸니스",
+    "PawnsPushed": "밀린 폰들",
     "PawnsPassed": "통과한 폰",
     "UpsideDown": "뒤집기",
+    "Theban": "테베인",
     "No castle": "캐슬 없음",
     "Lance HC": "향차 떼기",
     "Bishop HC": "각행 떼기",
@@ -167,7 +179,7 @@
     "Carrera": "카레라",
     "Gothic": "고딕",
     "Embassy": "엠버시",
-    "Chess, unmodified, as it's played by FIDE standards.": "FIDE 표준에 따라 플레이되는 수정되지 않은 체스.",
+    "Chess, unmodified, as it's played by FIDE standards.": "FIDE 표준에 따라 플레이되는, 수정되지 않은 체스.",
     "Take captured pieces and drop them back on to the board as your own.": "잡은 기물을 자신의 것으로 삼아 판 위에 다시 놓습니다.",
     "Choose where your pieces start.": "당신의 기물이 시작할 곳을 고르세요.",
     "Pieces explode upon capture.": "잡힌 기물은 폭발합니다.",
@@ -177,7 +189,7 @@
     "Cambodian Chess. Makruk with a few additional opening abilities.": "캄보디아 체스. 몇 가지의 추가적인 오프닝 능력을 가진 막룩.",
     "Burmese Chess. Similar to Makruk, but pieces are placed at the start of the match.": "버마 체스. 막룩과 비슷하지만 대국이 시작될 때 기물들이 배치됩니다.",
     "Makruk using the board/pieces from International Chess as well as pawn promotion rules.": "막룩은 폰 진급 규칙과 마찬가지로 국제 체스와 동일한 판 / 기물을 사용합니다.",
-    "Japanese Chess, and the standard 9x9 version played today with drops and promotions. ": "일본 체스, 그리고 표준 9x9 버전이 오늘날 투입 및 진급을 가지고 플레이되었습니다.",
+    "Japanese Chess, and the standard 9x9 version played today with drops and promotions. ": "일본 체스와 표준 9x9 버전이 오늘날 투입 및 진급을 가지고 플레이되었습니다.",
     "5x5 Shogi for more compact and faster games. There are no knights or lances.": "더 작고 빠른 대국을 위한 5x5의 쇼기. 계나 향은 없습니다.",
     "A wild Shogi variant on a 5x5 board where pieces flip into a different piece after each move.": "이동할 때마다 기물이 다른 기물로 뒤집히는 5x5 판의 야생 쇼기 변형.",
     "3x4 game with cute animals, designed to teach children how to play Shogi.": "아이들에게 장기를 가르치고자 고안된, 귀여운 동물들과 함께 하는 3x4 게임.",
@@ -243,11 +255,11 @@
     "Invalid FEN": "유효하지 않은 FEN",
     "Custom": "임의 지정",
     "%1 player": [
-        "%1 명의 플레이어"
+        "%1명의 플레이어"
     ],
     "You have an unfinished game!\nPress OK to continue.": "아직 끝나지 않은 게임이 있습니다!\nOK 를 눌러 계속합니다.",
     "%1 game in play": [
-        "%1 개의 게임이 진행 중"
+        "%1개의 게임이 진행 중"
     ],
     "Tournament calendar": "토너먼트 달력",
     "Player": "플레이어",
@@ -255,21 +267,24 @@
     "Time": "시간",
     "Mode": "모드 선택",
     "Puzzle of the day": "오늘의 퍼즐",
-    "%1 to play": "%1 플레이",
+    "%1 to play": "플레이하려면 %1",
     "Lobby": "응접실",
     "Donate": "기부하기",
     "FAQ": "자주 하는 질문",
     "Stats": "통계",
     "About": "더 알아보기",
     "Correspondence Chess": "서신 체스",
-    "You have time now": "시간이 있네요",
+    "You have time now": "시간이 있으시네요",
     "S-chess ramblings": "S-체스 이모저모",
+    "Autumn Update": "가을 업데이트",
+    "A slew of new variants!": "다양하고 많은 새로운 변형들!",
     "Thank you for your support!": "지원해 주셔서 감사합니다!",
+    "No notifications.": "알림 없음.",
     "Invalid PGN": "유효하지 않은 PGN",
     "Paste the PGN text here": "PGN 텍스트를 여기에 복사하세요",
     "IMPORT GAME": "게임 불러오기",
     "%1 move": [
-        "%1 수"
+        "%1수"
     ],
     "Computer analysis available": "컴퓨터 분석 이용 가능",
     "Games": "게임",
@@ -280,11 +295,15 @@
     "Your puzzle rating will not change. Note that puzzles are not a competition. Ratings help select the best puzzles for your current skill.": "퍼즐 레이팅은 변하지 않습니다. 퍼즐은 경쟁이 아니라는 점을 염두에 두시길 바랍니다. 레이팅은 당신의 현재 실력에 가장 적합한 퍼즐을 제공하는 데 도움을 줍니다.",
     "Puzzle": "퍼즐",
     "Rating:": "레이팅:",
+    "Played:": "플레이된 횟수:",
+    "Source:": "출처:",
     "Type:": "유형:",
     "Your turn": "당신 차례",
+    "Find the best move for %1.": "%1 에 가장 적합한 수를 찾으세요.",
     "That's not the move!": "그건 올바른 행마가 아닙니다!",
     "Try something else.": "다른 것을 시도해 보세요",
     "Best move!": "최선수!",
+    "Keep going...": "계속하세요...",
     "Success!": "성공!",
     "Puzzle complete!": "퍼즐 완료!",
     "We have no more puzzle for this variant.": "이 변형의 퍼즐이 더 이상 없습니다",
@@ -295,11 +314,11 @@
     "level %1": "레벨 %1",
     "Game aborted": "게임 중단",
     "Checkmate": "체크메이트",
-    "%1 resigned": "%1 님이 기권 하셨습니다.",
+    "%1 resigned": "%1 기권",
     "Stalemate": "부동",
     "Time out": "시간 초과",
     "Draw": "무승부",
-    "%1 abandoned the game": "%1 님이 게임을 포기 하셨습니다",
+    "%1 abandoned the game": "%1 게임 포기",
     "Cheat detected": "부정 행위가 발견되었음",
     "Not started": "시작 전입니다",
     "Invalid move": "유효하지 않은 수",
@@ -314,6 +333,7 @@
     "Repetition": "반복",
     " +15 seconds": "+15 초",
     "Give 15 seconds": "15 초 부여하기",
+    "Berserk": "광포",
     "Count": "계산하기",
     "Pass": "한 수 쉼",
     "Resign": "기권",
@@ -321,10 +341,11 @@
     "Are you sure you want to draw?": "정말 무승부를 원하십니까?",
     "Draw offer sent": "무승부 제의를 보냈습니다",
     "Your opponent offers a draw": "상대가 무승부를 제안합니다",
+    "Confirm move": "이동 확인",
     "Are you sure you want to resign?": "기권 하시겠습니까?",
     "Blue (Cho)": "청팀(초나라)",
     "Red (Han)": "홍(한)",
-    "Waiting for %1 to choose starting positions of the horses and elephants...": "%1 에서 마와 상의 위치를 선택할 때 까지 기다려 주세요..",
+    "Waiting for %1 to choose starting positions of the horses and elephants...": "%1 님이 마와 상의 위치를 선택할 때까지 기다려 주세요...",
     "Switch pieces": "기물 바꾸기",
     "Ready": "준비",
     "VIEW REMATCH": "재대국 보기",
@@ -360,9 +381,13 @@
     "Tournament complete": "토너먼트 완료",
     "Players": "플레이어들",
     "Average rating": "평균 레이팅",
-    "Games played": "플레이한 게임",
+    "Games played": "플레이된 게임",
+    "%1 wins": "%1 승리",
     "Draws": "무승부",
     "Download all games": "모든 게임 다운로드",
+    "Download all games in JSON": "JSON에서 모든 게임 다운로드",
+    "Arena": "아레나",
+    "Round-Robin": "연맹전",
     "Swiss": "스위스",
     "Win rate": "승률",
     "Average opponent": "평균 상대",
@@ -384,10 +409,12 @@
     "Castling": "캐슬링",
     "FLIP BOARD": "판 뒤집기",
     "CLEAR BOARD": "판 지우기",
+    "FILL %1'S HAND": "%1 님의 손을 채우기",
     "STARTING POSITION": "초기 배치",
     "PLAY WITH MACHINE": "기계와 플레이하기",
-    "EXPORT TO PNG": "PNG 파일로 내보내기",
-    "Place the duck on an empty square.": "오리를 빈 칸에 놓으세요",
+    "EXPORT TO PNG": "PNG로 내보내기",
+    "Undo": "철회하기",
+    "Place the duck on an empty square.": "빈 칸에 오리를 놓으세요.",
     "These variants have new armies with completely new pieces! Most of these variants pit these armies against the standard Chess army.": "이 변형들에는 완전히 새로운 기물들이 포함된 새로운 군대가 있습니다! 그중 대부분은 표준 체스 군대와 맞붙습니다.",
     "Go Back": "돌아가기",
     "Horde: Horse-based army": "호드: 마馬 기반의 군대",
@@ -400,8 +427,8 @@
     "Spartans: Army with two kings": "스파르탄: 두 왕이 있는 군대",
     "Variants using a basic chess set but with different rules.": "기본 체스 세트를 사용하지만 규칙이 다른 변형.",
     "These variants have new pieces to try! Many of them have larger boards, and some also have new rules.": "이 변형들에는 새로운 기물들이 있습니다! 그중 대부분은 판이 더 크고, 그중 일부는 새로운 규칙도 있습니다.",
-    " = Random (960) variant available. ": "= 무작위 (960) 변형 사용 가능.",
-    " = Drop variant available.": "= 투입 변형 사용 가능",
+    " = Random (960) variant available. ": "= 무작위 (960) 변형 이용 가능.",
+    " = Drop variant available.": "= 투입 변형 이용 가능.",
     "Knight hybrid pieces": "나이트 혼합 기물들",
     "8x8 with new pieces": "새로운 기물들을 가진 8x8",
     "Cannon and Elephant from Xiangqi": "샹치의 포와 상",
@@ -440,7 +467,7 @@
     "For a drop version, choose S-HOUSE from the dropdown menu.": "투입 버전의 경우, 드롭다운 메뉴에서 S-체스를 선택하세요.",
     "The queen actually demotes upon capture, so it is not worth as much.": "사실 퀸은 잡힐 때 강등되므로, 그다지 가치가 없습니다.",
     "The cannon is a tricky piece that needs to be closely followed.": "포는 주의해서 따라야 하는 까다로운 기물입니다.",
-    "Other piece sets are available, which may help avoid confusion.": "혼동을 피하는 데 도움이 될 수 있는 다른 기물 세트를 사용할 수 있습니다.",
+    "Other piece sets are available, which may help avoid confusion.": "혼동을 피하는 데 도움이 될 수 있는 다른 기물 세트를 이용할 수 있습니다.",
     "Be aware of campmate - victory by moving your king into the 8th rank.": "캠프메이트를 알아 두세요 - 당신의 왕이 8번째 행에 도달하면 승리합니다.",
     "Promoting the king prematurely can be dangerous.": "왕을 성급히 진급시키면 위험할 수 있습니다.",
     "Make sure to consider both forms of each piece.": "각 기물의 두 가지 형태를 고려해야 합니다.",
@@ -450,9 +477,9 @@
     "You can use placement to utilize your stronger pieces from the start.": "처음부터 배치를 이용하여 더 큰 조각들을 활용할 수 있습니다.",
     "King safety is important. Use the king leap move to save time.": "왕의 안전은 중요합니다. 시간을 절약하기 위해 왕의 도약 이동을 사용합니다.",
     "The ability to promote to rook makes for a dynamic endgame.": "룩으로 진급할 수 있는 능력은 엔드게임을 더욱 역동적으로 만듭니다.",
-    "Internationalized sets are available by going to settings.": "국제화된 세트는 설정으로 이동하여 사용할 수 있습니다.",
+    "Internationalized sets are available by going to settings.": "국제화된 세트는 설정에서 이용할 수 있습니다.",
     "Despite the simple appearance, there is still quite a bit of depth underlying this game.": "단순한 구조임에도 불구하고 이 게임에는 여전히 상당한 깊이가 있습니다.",
-    "Sets that show both sides are available by going to settings.": "양면을 보여 주는 세트는 설정으로 이동하여 사용하실 수 있습니다.",
+    "Sets that show both sides are available by going to settings.": "양면을 보여 주는 세트는 설정에서 이용할 수 있습니다.",
     "Reading the rules are a necessity to understand the movements before playing.": "규칙을 읽는 것은 대국하기 이전에 행마를 이해하는 데 필요합니다.",
     "UsePluralFormIfNeeded\u0004Rated": "승강전",
     "UsePluralFormIfNeeded\u0004Playing": "플레이 중",

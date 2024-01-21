@@ -179,15 +179,15 @@ msgstr "카파하우스960"
 
 #: ../server/const.py:376 ../server/videos.py:22
 msgid "S-Chess"
-msgstr "S체스"
+msgstr "S-체스"
 
 #: ../server/const.py:377
 msgid "S-Chess960"
-msgstr "S체스960"
+msgstr "S-체스960"
 
 #: ../server/const.py:378
 msgid "S-House"
-msgstr "S하우스"
+msgstr "S-하우스"
 
 #: ../server/const.py:379
 msgid "Grand"
@@ -339,7 +339,7 @@ msgid ""
 "If you like our work and find our server useful, please donate through patreon or paypal."
 msgstr ""
 "아시다시피, pychess-variants는 무료 서버이며, 앞으로도 영원히 무료로 유지될 예정입니다. 그러나 서버를 유지하고 개선하려면 시간과 비용이 듭니다.\n"
-"저희 작업이 마음에 들고 저희 서버가 유용하다고 생각하시면 Patreon이나 Paypal을 통해 기부해 주세요."
+"저희 작업이 마음에 들고 저희 서버가 유용하다고 생각하신다면 Patreon이나 Paypal을 통해 기부해 주세요."
 
 #: ../templates/players.html:7
 msgid "All players"
