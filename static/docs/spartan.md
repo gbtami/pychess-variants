@@ -11,10 +11,11 @@ Spartan Chess reflects the asymmetric war between the ancient Spartans and Persi
 2.	Persian pieces (aka White) are unchanged from orthodox chess. Spartan pieces are almost all new and described below.
 3.	The Persians (aka White) *always move first*.
 4.	The Spartans (aka Black) cannot castle.
-5.	The Spartans have two kings. Therefore, the win condition for the Persians (White) is different: Capture one of the Spartan kings and checkmate the other... OR place both under simultaneous attack ("duple-check") such that neither king can be removed from attack on the next move.
-6.	Persian pawns and Spartan hoplites can promote to their own respective pieces upon reaching the 8th rank. For the Spartans, this also includes the king, but only if there is only one remaining king in play.
-7.	There is no en passant.
-8.	Rules are otherwise as in orthodox chess, including stalemate and repetition.
+5.	If both Spartan kings are placed under simultaneous attack this is a form of check called duple-check. It is illegal for the Spartan to make a move that will place both of his kings under attack.
+6.	The Spartans have two kings. Therefore, the win condition for the Persians (White) is different: Capture one of the Spartan kings and checkmate the other... OR place both under simultaneous attack ("duple-check") such that neither king can be removed from attack on the next move.
+7.	Persian pawns and Spartan hoplites can promote to their own respective pieces upon reaching the 8th rank. For the Spartans, this also includes the king, but only if there is only one remaining king in play.
+8.	There is no en passant.
+9.	Rules are otherwise as in orthodox chess, including stalemate and repetition.
 
 ## Spartan Pieces
 There are four new units unique to the Spartans: 8 Hoplites, 1 Warlord, 1 General, 2 Lieutenants, and 2 Captains.
