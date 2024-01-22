@@ -7,7 +7,7 @@
 # Стримы с шахами и матами, 2021
 # gbtami <gbtami@gmail.com>, 2022
 # Aleksey Matvienko, 2023
-# Артем Артем, 2023
+# Артем Артем, 2024
 # 
 #, fuzzy
 msgid ""
@@ -16,7 +16,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2023-11-17 14:15+0100\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
-"Last-Translator: Артем Артем, 2023\n"
+"Last-Translator: Артем Артем, 2024\n"
 "Language-Team: Russian (https://app.transifex.com/gbtami/teams/14790/ru/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -269,7 +269,7 @@ msgstr "Память"
 
 #: ../client/analysisSettings.ts:233
 msgid "Use NNUE"
-msgstr ""
+msgstr "Использовать NNUE"
 
 #: ../client/background.ts:9
 msgid "Light"
@@ -289,7 +289,7 @@ msgstr "Подтверждать признание поражения"
 
 #: ../client/boardSettings.ts:217
 msgid "Confirm correspondence move"
-msgstr ""
+msgstr "Подтверждать ход при игре по переписке"
 
 #: ../client/boardSettings.ts:309
 msgid "Zoom"
@@ -342,18 +342,18 @@ msgstr "Сервер"
 #: ../client/clock.ts:29 ../client/view.ts:120
 msgid "%1 day"
 msgid_plural "%1 days"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-msgstr[3] ""
+msgstr[0] "%1 день"
+msgstr[1] "%1 дня"
+msgstr[2] "%1 дней"
+msgstr[3] "%1 дней"
 
 #: ../client/clock.ts:30
 msgid "%1 hour"
 msgid_plural "%1 hours"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-msgstr[3] ""
+msgstr[0] "%1 час"
+msgstr[1] "%1 часа"
+msgstr[2] "%1 часов"
+msgstr[3] "%1 часов"
 
 #: ../client/datetime.ts:20
 msgid "in %1 year"
@@ -1069,15 +1069,15 @@ msgstr " (необходимо войти)"
 
 #: ../client/lobby.ts:413
 msgid "Time control"
-msgstr ""
+msgstr "Временной контроль"
 
 #: ../client/lobby.ts:418
 msgid "Real time"
-msgstr ""
+msgstr "В реальном времени"
 
 #: ../client/lobby.ts:419 ../client/lobby.ts:1069
 msgid "Correspondence"
-msgstr ""
+msgstr "Игра по переписке"
 
 #: ../client/lobby.ts:425
 msgid "Minutes per side:"
@@ -1089,7 +1089,7 @@ msgstr "Периоды"
 
 #: ../client/lobby.ts:449
 msgid "Days per turn:"
-msgstr ""
+msgstr "Дней за ход:"
 
 #: ../client/lobby.ts:467 ../client/lobby.ts:767 ../client/result.ts:16
 msgid "Casual"
@@ -1191,7 +1191,7 @@ msgstr "%1 ходят"
 
 #: ../client/lobby.ts:1068
 msgid "Lobby"
-msgstr ""
+msgstr "Зал ожидания"
 
 #: ../client/lobby.ts:1127
 msgid "Donate"
@@ -1211,23 +1211,23 @@ msgstr "О pychess"
 
 #: ../client/lobby.ts:1138
 msgid "Correspondence Chess"
-msgstr ""
+msgstr "Шахматы по переписке"
 
 #: ../client/lobby.ts:1139
 msgid "You have time now"
-msgstr ""
+msgstr "Имеющееся время"
 
 #: ../client/lobby.ts:1146 ../client/lobby.ts:1147
 msgid "S-chess ramblings"
-msgstr ""
+msgstr "Бред С-шахмат"
 
 #: ../client/lobby.ts:1154
 msgid "Autumn Update"
-msgstr ""
+msgstr "Осеннее обновление"
 
 #: ../client/lobby.ts:1155
 msgid "A slew of new variants!"
-msgstr ""
+msgstr "Множество новых вариантов!"
 
 #: ../client/main.ts:114
 msgid "Thank you for your support!"
@@ -1235,7 +1235,7 @@ msgstr "Спасибо вам за вашу поддержку!"
 
 #: ../client/notifyView.ts:83
 msgid "No notifications."
-msgstr ""
+msgstr "Никаких уведомлений."
 
 #: ../client/paste.ts:139
 msgid "Invalid PGN"
@@ -1277,7 +1277,7 @@ msgstr "Рейтинговые"
 #: ../client/profile.ts:228
 msgctxt "UsePluralFormIfNeeded"
 msgid "Playing"
-msgstr ""
+msgstr "Играющий"
 
 #: ../client/profile.ts:229
 msgid "Imported"
@@ -1507,7 +1507,7 @@ msgstr "Ваш соперник предлагает ничью"
 
 #: ../client/roundCtrl.ts:491
 msgid "Confirm move"
-msgstr ""
+msgstr "Подтвердить ход"
 
 #: ../client/roundCtrl.ts:518
 msgid "Are you sure you want to resign?"
@@ -1572,7 +1572,7 @@ msgstr "ДОСКА АНАЛИЗА"
 
 #: ../client/roundCtrl.ts:839
 msgid "Propose takeback"
-msgstr ""
+msgstr "Предложить переходить"
 
 #: ../client/roundCtrl.ts:1043
 msgid "Stop counting"
