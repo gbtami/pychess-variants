@@ -80,7 +80,7 @@ class PychessGlobalAppState:
 
         self.tournaments: dict[str, Tournament] = {}
 
-        # lichess allows 7 team message per week, so we will send one (comulative) per day only
+        # lichess allows 7 team message per week, so we will send one (cumulative) per day only
         # TODO: save/restore from db
         self.sent_lichess_team_msg: List[date] = []
 

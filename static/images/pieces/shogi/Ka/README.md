@@ -7,7 +7,7 @@ Repository for shogi pieces I made or modified. By default the filenames are for
 
 Inspired by [this youtube video](https://www.youtube.com/watch?v=LEkh6vnWJ6Y)
 
-Credits: The 2-kanji characters were made by Hari Seldon and lincesed under [Creative Commons Attribution-Share Alike 3.0 Unported](https://creativecommons.org/licenses/by-sa/3.0/deed.en). Source: [Wikimedia Commons](https://commons.wikimedia.org/wiki/Category:SVG_traditional_shogi_pieces)
+Credits: The 2-kanji characters were made by Hari Seldon and licensed under [Creative Commons Attribution-Share Alike 3.0 Unported](https://creativecommons.org/licenses/by-sa/3.0/deed.en). Source: [Wikimedia Commons](https://commons.wikimedia.org/wiki/Category:SVG_traditional_shogi_pieces)
 
 ![kanji red wood screenshot](https://raw.githubusercontent.com/Ka-hu/shogi-pieces/master/_screenshots/scrot_kanji_red_wood.png)
 
@@ -46,6 +46,6 @@ A new, self-made piece set. The moves are not changed of course, it's still "nor
 
 ![military screenshot](https://raw.githubusercontent.com/Ka-hu/shogi-pieces/master/_screenshots/scrot_military.png)
 
-## Lincese
+## License
 
-Where it's not stated otherwise, my work is lincensed under [CC-BY-4.0](https://choosealicense.com/licenses/cc-by-4.0)
+Where it's not stated otherwise, my work is licensed under [CC-BY-4.0](https://choosealicense.com/licenses/cc-by-4.0)

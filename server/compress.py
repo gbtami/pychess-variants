@@ -2,7 +2,7 @@ from __future__ import annotations
 from itertools import product
 
 """
-We use the simplest compression method for moves here: 2 byte sqare to 1 byte ascii.
+We use the simplest compression method for moves here: 2 byte square to 1 byte ascii.
 For better result consider compressing moves using indexes in valid move lists.
 For more sophisticated encoding consider using lichess method described at:
 https://lichess.org/blog/Wqa7GiAAAOIpBLoY/developer-update-275-improved-game-compression
