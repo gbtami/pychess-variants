@@ -51,8 +51,8 @@ export function movetimeChart(ctrl: AnalysisController) {
         if (ply <= 2) {step.movetime = 0;
         } else {
             step.movetime = (ply % 2 === 1) ?
-                (ctrl.steps[ply-2].clocks[0] - (ctrl.steps[ply].clocks[0] - ctrl.inc * 1000)) :
-                (ctrl.steps[ply-2].clocks[1] - (ctrl.steps[ply].clocks[1] - ctrl.inc * 1000));
+                (ctrl.steps[ply-2]?.clocks![0] - (ctrl.steps[ply]?.clocks![0] - ctrl.inc * 1000)) :
+                (ctrl.steps[ply-2]?.clocks![1] - (ctrl.steps[ply]?.clocks![1] - ctrl.inc * 1000));
         }
 
         const y = Math.pow(Math.log(0.005 * Math.min(step.movetime, 12e4) + 3), 2) - logC;
