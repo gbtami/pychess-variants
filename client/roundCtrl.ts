@@ -10,7 +10,7 @@ import { patch } from './document';
 import { boardSettings } from './boardSettings';
 import { Clock } from './clock';
 import { sound } from './sound';
-import { uci2LastMove, getCounting, isHandicap } from './chess';
+import { WHITE, BLACK, uci2LastMove, getCounting, isHandicap } from './chess';
 import { crosstableView } from './crosstable';
 import { chatMessage, chatView } from './chat';
 import { createMovelistButtons, updateMovelist, updateResult, selectMove } from './movelist';
@@ -407,7 +407,7 @@ export class RoundController extends GameController {
 
         this.clocks[clockIdx].increment = 0;
         this.clocks[clockIdx].setTime(this.base * 1000 * 30);
-        this.clocktimes[(color === 'white') ? 0 : 1] = this.base * 1000 * 30;
+        this.clocktimes[(color === 'white') ? WHITE : BLACK] = this.base * 1000 * 30;
         sound.berserk();
 
         const berserkId = (color === "white") ? "wberserk" : "bberserk";
@@ -830,12 +830,12 @@ export class RoundController extends GameController {
         this.clocks[0].pause(false);
         this.clocks[1].pause(false);
         if (this.byoyomi && msg.byo) {
-            this.clocks[oppclock].byoyomiPeriod = msg.byo[(this.oppcolor === 'white') ? 0 : 1];
-            this.clocks[myclock].byoyomiPeriod = msg.byo[(this.mycolor === 'white') ? 0 : 1];
+            this.clocks[oppclock].byoyomiPeriod = msg.byo[(this.oppcolor === 'white') ? WHITE : BLACK];
+            this.clocks[myclock].byoyomiPeriod = msg.byo[(this.mycolor === 'white') ? WHITE : BLACK];
         }
 
-        this.clocks[oppclock].setTime(this.clocktimes[(this.oppcolor === 'white') ? 0 : 1]);
-        this.clocks[myclock].setTime(this.clocktimes[(this.mycolor === 'white') ? 0 : 1]);
+        this.clocks[oppclock].setTime(this.clocktimes[(this.oppcolor === 'white') ? WHITE : BLACK]);
+        this.clocks[myclock].setTime(this.clocktimes[(this.mycolor === 'white') ? WHITE : BLACK]);
 
         let bclock;
         if (!this.flipped()) {
