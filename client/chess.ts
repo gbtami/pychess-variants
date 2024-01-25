@@ -6,6 +6,8 @@ import { _ } from './i18n';
 
 import { Variant, variantGroups } from './variants';
 
+export const WHITE = 0;
+export const BLACK = 1;
 export const ranksUCI = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'] as const;
 export type UCIRank = typeof ranksUCI[number];
 export type UCIKey =  'a0' | `${cg.File}${UCIRank}`;

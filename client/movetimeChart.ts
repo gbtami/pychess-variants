@@ -4,6 +4,7 @@ import { _ } from './i18n';
 import { selectMove } from './movelist';
 import { AnalysisController } from './analysisCtrl';
 import { Step } from "./messages";
+import { WHITE, BLACK } from './chess';
 
 export interface MovePoint {
   y: number;
@@ -48,14 +49,14 @@ export function movetimeChart(ctrl: AnalysisController) {
 
         // const hasClocks = (msg.steps[1].clocks?.white !== undefined);
 
-        if (ply <= 2) {step.clocks!.movetime = 0;
+        if (ply <= 2) {step.movetime = 0;
         } else {
-            step.clocks!.movetime = (ply % 2 === 1) ?
-                (ctrl.steps[ply-2].clocks?.white! - (ctrl.steps[ply].clocks?.white! - ctrl.inc * 1000)) :
-                (ctrl.steps[ply-2].clocks?.black! - (ctrl.steps[ply].clocks?.black! - ctrl.inc * 1000));
+            step.movetime = (ply % 2 === 1) ?
+                (ctrl.steps[ply-2]?.clocks![WHITE] - (ctrl.steps[ply]?.clocks![WHITE] - ctrl.inc * 1000)) :
+                (ctrl.steps[ply-2]?.clocks![BLACK] - (ctrl.steps[ply]?.clocks![BLACK] - ctrl.inc * 1000));
         }
 
-        const y = Math.pow(Math.log(0.005 * Math.min(step.clocks!.movetime, 12e4) + 3), 2) - logC;
+        const y = Math.pow(Math.log(0.005 * Math.min(step.movetime, 12e4) + 3), 2) - logC;
         maxMove = Math.max(y, maxMove);
 
         let label = turn + (color ? '. ' : '... ') + step.san;
@@ -66,7 +67,7 @@ export function movetimeChart(ctrl: AnalysisController) {
         };
         moveSeries[colorName].push(movePoint);
 
-        let clock = step.clocks![colorName];
+        let clock = step.clocks![color];
         if (clock !== undefined) {
             label += '<br />' + formatClock(clock);
             maxTotal = Math.max(clock, maxTotal);
@@ -170,7 +171,7 @@ export function movetimeChart(ctrl: AnalysisController) {
                 format = format.replace('{series.name}', '');
                 const self: Highcharts.Point = this;
                 const step = ctrl.steps[self.x];
-                const movetime = step?.clocks?.movetime;
+                const movetime = step?.movetime;
                 if (movetime === undefined) return '';
                 else return format.replace('{point.y}', (movetime / 1000).toFixed(1) + "s");
             } as Highcharts.FormatterCallbackFunction<Highcharts.Point>

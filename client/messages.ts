@@ -4,6 +4,8 @@
 //       and see if there is any duplication or the ones that are here should be split or any other improvement that might be needed or better organization can be found
 import * as cg from "chessgroundx/types";
 
+export type Clocks = [number, number];
+
 export interface Step {
     fen: cg.FEN;
     move: string | undefined;
@@ -19,14 +21,8 @@ export interface Step {
     vari?: Step[];
     sanSAN?: string;
 
-    clocks?: {
-        // TODO white and black should actually be mandatory but I'll leave
-        // the feature that use them, namely, reflecting time on the clocks
-        // on the round page of a finished game, for a later date -Ada
-        white: number,
-        black: number,
-        movetime: number,
-    },
+    clocks?: Clocks,
+    movetime?: number,
 }
 
 export interface CrossTable {
@@ -110,10 +106,6 @@ export interface MsgNewGame {
 	gameId: string;
 }
 
-export interface Clocks {
-    white: number; black: number;
-}
-
 export interface RDiffs {
     brdiff: number;
     wrdiff: number;
@@ -123,7 +115,7 @@ export type MsgMove = { // cannot be interface because cannot be converted to an
      type: string;//"move"
      gameId: string;
      move: string;
-     clocks: { movetime: number; white: number; black: number; }; // looks a lot like Clocks interface, but maybe overkill to reuse it - i don't know
+     clocks: Clocks;
      ply: number;
 }
 
