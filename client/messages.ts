@@ -19,14 +19,14 @@ export interface Step {
     vari?: Step[];
     sanSAN?: string;
 
-    clocks?: {
+    clocks?: [
         // TODO white and black should actually be mandatory but I'll leave
         // the feature that use them, namely, reflecting time on the clocks
         // on the round page of a finished game, for a later date -Ada
-        white: number,
-        black: number,
-        movetime: number,
-    },
+        number,
+        number,
+    ],
+    movetime?: number,
 }
 
 export interface CrossTable {
