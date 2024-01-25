@@ -242,7 +242,7 @@ class Game:
         self.byoyomi_period = byoyomi_period
 
         # Remaining byoyomi periods by players
-        self.byoyomi_periods = {"white": byoyomi_period, "black": byoyomi_period}
+        self.byoyomi_periods = [byoyomi_period, byoyomi_period]
 
         # On page refresh we have to add extra byoyomi times gained by current player to report correct clock time
         # We adjust this in "byoyomi" messages in wsr.py
@@ -1017,14 +1017,6 @@ class Game:
             steps = (self.steps[-1],)
             crosstable = self.crosstable if self.status > STARTED else ""
 
-        if self.byoyomi:
-            byoyomi_periods = (
-                self.byoyomi_periods["white"],
-                self.byoyomi_periods["black"],
-            )
-        else:
-            byoyomi_periods = ""
-
         if self.corr:
             clock_mins = self.stopwatch.mins * 60 * 1000
             base_mins = self.base * 24 * 60 * 60 * 1000
@@ -1045,7 +1037,7 @@ class Game:
             "check": self.check,
             "ply": self.board.ply,
             "clocks": clocks,
-            "byo": byoyomi_periods,
+            "byo": self.byoyomi_periods if self.byoyomi else "",
             "pgn": self.pgn if self.status > STARTED else "",
             "rdiffs": {"brdiff": self.brdiff, "wrdiff": self.wrdiff}
             if self.status > STARTED and self.rated == RATED
