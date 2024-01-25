@@ -244,7 +244,7 @@ async def index(request):
     rated = None
 
     if (fen is not None) and "//" in fen:
-        log.debug("Invelid FEN %s in request", fen)
+        log.debug("Invalid FEN %s in request", fen)
         raise web.HTTPNotFound()
 
     if profileId is not None:

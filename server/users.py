@@ -13,7 +13,7 @@ log = logging.getLogger(__name__)
 
 
 class NotInAppUsers(Exception):
-    """Raised when dict acces syntax was used, but username not in Users dict"""
+    """Raised when dict access syntax was used, but username not in Users dict"""
 
 
 class NotInDbUsers(Exception):
