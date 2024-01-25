@@ -56,7 +56,7 @@ export function cg2uci(move: string): string {
     return move.replace(/:/g, "10");
 }
 
-// Get the latest move from FEN if ep sqare is given
+// Get the latest move from FEN if ep square is given
 export function lmBeforeEp(variant: Variant, fen: string): string {
     let lastMove = '';
     if (variant.rules.enPassant) {

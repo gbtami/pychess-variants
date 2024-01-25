@@ -42,7 +42,7 @@ function messageView(message: Message) {
             ]),
         ]);
     case 'gameEnd':
-        return h(`a.notification.corr${read}`, { attrs: { href: content.id} }, [
+        return h(`a.notification.corr${read}`, { attrs: { href: '/' + content.id} }, [
             h('div.icon.icon-paper-plane'),
             h('span.content',[
                 h('span', [
@@ -53,7 +53,7 @@ function messageView(message: Message) {
             ]),
         ]);
     case 'corrAlarm':
-        return h(`a.notification.corr${read}`, { attrs: { href: content.id} }, [
+        return h(`a.notification.corr${read}`, { attrs: { href: '/' + content.id} }, [
             h('div.icon.icon-paper-plane'),
             h('span.content',[
                 h('span', [

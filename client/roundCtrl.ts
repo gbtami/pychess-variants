@@ -885,7 +885,7 @@ export class RoundController extends GameController {
                     });
 
                     // This have to be exactly here (and before this.performPremove as well!!!),
-                    // becuse in case of takeback 
+                    // because in case of takeback 
                     // ataxx setDests() needs not just actualized turnColor but
                     // actualized chessground.state.boardState.pieces as well !!!
                     if (this.ffishBoard) {
@@ -912,7 +912,7 @@ export class RoundController extends GameController {
                     lastMove: lastMove,
                 });
 
-                // This have to be here, becuse in case of takeback 
+                // This have to be here, because in case of takeback 
                 // ataxx setDests() needs not just actualized turnColor but
                 // actualized chessground.state.boardState.pieces as well !!!
                 if (this.ffishBoard) {
