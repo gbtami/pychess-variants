@@ -965,8 +965,8 @@ export class RoundController extends GameController {
                     increment = 0;
                 }
 
-                const bclocktime = (this.mycolor === "black" && this.preaction) ? this.clocktimes[1] + increment: this.clocks[bclock].duration;
-                const wclocktime = (this.mycolor === "white" && this.preaction) ? this.clocktimes[0] + increment: this.clocks[wclock].duration;
+                const bclocktime = (this.mycolor === "black" && this.preaction) ? this.clocktimes[BLACK] + increment: this.clocks[bclock].duration;
+                const wclocktime = (this.mycolor === "white" && this.preaction) ? this.clocktimes[WHITE] + increment: this.clocks[wclock].duration;
 
                 clock_times = [wclocktime, bclocktime];
             } else  {
