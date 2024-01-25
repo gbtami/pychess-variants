@@ -978,7 +978,7 @@ export class RoundController extends GameController {
             this.doSend(message);
 
             if (this.preaction) {
-                this.clocks[myclock].setTime(this.clocktimes[(this.mycolor === 'white') ? 1 : 0] + increment);
+                this.clocks[myclock].setTime(this.clocktimes[(this.mycolor === 'white') ? WHITE : BLACK] + increment);
             }
             if (this.clockOn) this.clocks[oppclock].start();
         }
