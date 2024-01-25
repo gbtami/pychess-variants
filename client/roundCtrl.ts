@@ -834,8 +834,8 @@ export class RoundController extends GameController {
             this.clocks[myclock].byoyomiPeriod = msg.byo[(this.mycolor === 'white') ? 0 : 1];
         }
 
-        this.clocks[oppclock].setTime(this.clocktimes[(this.oppcolor === 'white') ? 1 : 0]);
-        this.clocks[myclock].setTime(this.clocktimes[(this.mycolor === 'white') ? 1 : 0]);
+        this.clocks[oppclock].setTime(this.clocktimes[(this.oppcolor === 'white') ? 0 : 1]);
+        this.clocks[myclock].setTime(this.clocktimes[(this.mycolor === 'white') ? 0 : 1]);
 
         let bclock;
         if (!this.flipped()) {

@@ -1044,7 +1044,7 @@ class Game:
             "steps": steps,
             "check": self.check,
             "ply": self.board.ply,
-            "clocks": (clocks[BLACK], clocks[WHITE]),
+            "clocks": clocks,
             "byo": byoyomi_periods,
             "pgn": self.pgn if self.status > STARTED else "",
             "rdiffs": {"brdiff": self.brdiff, "wrdiff": self.wrdiff}
