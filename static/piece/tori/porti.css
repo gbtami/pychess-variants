@@ -1,9 +1,3 @@
-.tori .cg-wrap piece {
-    background-position: center;
-}
-.tori .cg-wrap piece.ally {
-    background-position: center 2;
-}
 .tori .cg-wrap piece.s-piece.ally {
     background-image: url('../../images/pieces/tori/Portella/0Swallow.png');
 }
