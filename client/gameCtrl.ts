@@ -168,7 +168,17 @@ export abstract class GameController extends ChessgroundController implements Ch
         Mousetrap.bind('right', () => selectMove(this, this.ply + 1, this.plyVari));
         Mousetrap.bind('up', () => selectMove(this, 0));
         Mousetrap.bind('down', () => selectMove(this, this.steps.length - 1));
+        Mousetrap.bind('enter', () => this.skipGating());
         Mousetrap.bind('f', () => this.toggleOrientation());
+        Mousetrap.bind('?', () => this.helpDialog());
+    }
+
+    skipGating() {
+        this.gating.skipGating();
+    }
+
+    helpDialog() {
+        console.log('HELP!');
     }
 
     flipped() {
