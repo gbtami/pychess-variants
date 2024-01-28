@@ -24,6 +24,7 @@ import { MsgUserDisconnected, MsgUserPresent, MsgMoreTime, MsgDrawOffer, MsgDraw
 import { PyChessModel } from "./types";
 import { GameController } from './gameCtrl';
 import { handleOngoingGameEvents, Game, gameViewPlaying, compareGames } from './nowPlaying';
+import {createWebsocket} from "@/webSocketUtils";
 
 let rang = false;
 const CASUAL = '0';
@@ -68,9 +69,6 @@ export class RoundController extends GameController {
         const onOpen = () => {
             this.clocks[0].connecting = false;
             this.clocks[1].connecting = false;
-            const cl = document.body.classList; // removing the "reconnecting" message in lower left corner
-            cl.remove('offline');
-            cl.add('online');
         };
 
         const onReconnect = () => {
@@ -83,19 +81,11 @@ export class RoundController extends GameController {
             this.clocks[1].connecting = true;
             console.log('Reconnecting in round...');
 
-            // relevant to the "reconnecting" message in lower left corner
-            document.body.classList.add('offline');
-            document.body.classList.remove('online');
-            document.body.classList.add('reconnected'); // this will trigger the animation once we get "online" class added back on reconnect
-
             const container = document.getElementById('player1') as HTMLElement;
             patch(container, h('i-side.online#player1', {class: {"icon": true, "icon-online": false, "icon-offline": true}}));
         };
 
-        this.sock = newWebsocket('wsr/' + this.gameId);
-        this.sock.onopen = () => onOpen();
-        this.sock.onreconnect = () => onReconnect();
-        this.sock.onmessage = (e: MessageEvent) => this.onMessage(e);
+        this.sock = createWebsocket('wsr/' + this.gameId, onOpen, onReconnect, () => {}, (e: MessageEvent) => this.onMessage(e));
 
         this.assetURL = model["assetURL"];
         this.byoyomiPeriod = Number(model["byo"]);

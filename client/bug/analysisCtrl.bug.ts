@@ -27,6 +27,7 @@ import ffishModule from "ffish-es6";
 import {Key, Orig} from "chessgroundx/types";
 import {titleCase} from "@/analysisCtrl";
 import {movetimeChart} from "./movetimeChart.bug";
+import {createWebsocket} from "@/webSocketUtils";
 
 const EVAL_REGEX = new RegExp(''
   + /^info depth (\d+) seldepth \d+ multipv (\d+) /.source
@@ -189,16 +190,14 @@ export default class AnalysisControllerBughouse {
         this.chartFunctions = [movetimeChart];// todo:niki:needed for zoom
 
         const onOpen = () => {
-            if (this.embed) {
+            if (this.embed) { //TODO:niki:same question as in analysisCtrl - what is the point of this?
                 this.doSend({ type: "embed_user_connected", gameId: this.gameId });
             } else if (!this.isAnalysisBoard) {
                 this.doSend({ type: "game_user_connected", username: this.username, gameId: this.gameId });
             }
         };
 
-        this.sock = newWebsocket('wsr');
-        this.sock.onopen = () => onOpen();
-        this.sock.onmessage = (e: MessageEvent) => this.onMessage(e);
+        this.sock = createWebsocket('wsr/' + this.gameId, onOpen, () => {}, () => {}, (e: MessageEvent) => this.onMessage(e));
 
         // is local stockfish.wasm engine supports current variant?
         this.localEngine = false;

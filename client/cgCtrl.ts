@@ -28,6 +28,8 @@ export abstract class ChessgroundController implements BoardController {
     fullfen: string;
     notation: cg.Notation;
 
+    ffishPromise: Promise<void | FairyStockfish>;
+
     constructor(el: HTMLElement, model: PyChessModel, pocket0: HTMLElement, pocket1: HTMLElement) {
         this.home = model.home;
 
@@ -61,7 +63,7 @@ export abstract class ChessgroundController implements BoardController {
         boardSettings.updateZoom(boardFamily);
         boardSettings.updateBlindfold();
 
-        ffishModule().then((loadedModule: any) => {
+        this.ffishPromise = ffishModule().then((loadedModule: any) => {
             this.ffish = loadedModule;
             this.ffish.loadVariantConfig(variantsIni);
             this.notationAsObject = this.notation2ffishjs(this.notation);
@@ -69,6 +71,7 @@ export abstract class ChessgroundController implements BoardController {
                 moddedVariant(this.variant.name, this.chess960, this.chessground.state.boardState.pieces, parts[2]),
                 this.fullfen,
                 this.chess960);
+
             window.addEventListener('beforeunload', () => this.ffishBoard.delete());
         });
     }

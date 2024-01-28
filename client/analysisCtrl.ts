@@ -30,6 +30,7 @@ import { MsgAnalysis, MsgAnalysisBoard } from './analysisType';
 import { GameController } from './gameCtrl';
 import { analysisSettings, EngineSettings } from './analysisSettings';
 import { setAriaTabClick } from './view';
+import {createWebsocket} from "@/webSocketUtils";
 
 const EVAL_REGEX = new RegExp(''
   + /^info depth (\d+) seldepth \d+ multipv (\d+) /.source
@@ -89,7 +90,7 @@ export class AnalysisController extends GameController {
             this.chartFunctions = [analysisChart, movetimeChart];
         }
 
-        const onOpen = () => {
+        const onOpen = () => { //TODO:niki: what is the point of this?
             if (this.embed) {
                 this.doSend({ type: "embed_user_connected", gameId: this.gameId });
             } else if (!this.isAnalysisBoard) {
@@ -98,9 +99,7 @@ export class AnalysisController extends GameController {
         };
 
         if (!this.puzzle) {
-            this.sock = newWebsocket('wsr/' + this.gameId);
-            this.sock.onopen = () => onOpen();
-            this.sock.onmessage = (e: MessageEvent) => this.onMessage(e);
+            this.sock = createWebsocket('wsr/' + this.gameId, onOpen, () => {}, () => {}, (e: MessageEvent) => this.onMessage(e));
         }
 
         // is local stockfish.wasm engine supported at all

@@ -21,6 +21,7 @@ import { Post, Stream, Spotlight, MsgInviteCreated, MsgHostCreated, MsgGetSeeks,
 import { validFen, uci2LastMove } from './chess';
 import {seekViewBughouse, switchEnablingLobbyControls} from "./bug/lobby.bug";
 import { handleOngoingGameEvents, Game, gameViewPlaying, compareGames } from './nowPlaying';
+import {createWebsocket} from "@/webSocketUtils";
 
 export function createModeStr(mode: CreateMode) {
     switch (mode) {
@@ -89,9 +90,7 @@ export class LobbyController implements ChatController {
             console.log('onOpen()');
         }
 
-        this.sock = newWebsocket('wsl');
-        this.sock.onopen = () => onOpen();
-        this.sock.onmessage = (e: MessageEvent) => this.onMessage(e);
+        this.sock = createWebsocket('wsl', onOpen, () => {}, () => {},(e: MessageEvent) => this.onMessage(e));
 
         patch(document.querySelector('.seekbuttons') as HTMLElement, h('div.seekbuttons', this.renderSeekButtons()));
         patch(document.getElementById('lobbychat') as HTMLElement, chatView(this, "lobbychat"));

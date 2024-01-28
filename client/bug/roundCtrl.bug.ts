@@ -35,11 +35,10 @@ import {cg2uci, uci2LastMove} from "../chess";
 import {sound} from "../sound";
 import {renderRdiff} from "../result";
 import {player} from "../player";
-import {newWebsocket} from "../socket";
 import WebsocketHeartbeatJs from "websocket-heartbeat-js";
 import {notify} from "../notification";
-import {FEN} from "chessgroundx/types";
 import {VARIANTS} from "../variants";
+import {createWebsocket} from "@/webSocketUtils";
 
 export class RoundControllerBughouse implements ChatController/*extends GameController todo:does it make sense for these guys - also AnalysisControl which is older before this refactring that introduced this stuff*/ {
     sock: WebsocketHeartbeatJs;
@@ -153,100 +152,33 @@ export class RoundControllerBughouse implements ChatController/*extends GameCont
         window.addEventListener('blur', () => {this.focus = false});
         window.addEventListener('focus', () => {this.focus = true});
 //
-        this.sock = newWebsocket('wsr/' + this.gameId);
-
         const onOpen = () => {
-            console.log('onOpen');
-            // this always first, because it initializes the user-to-ws association on server
-            this.doSend({ type: "game_user_connected", username: this.username, gameId: this.gameId });
-
             try {
                 console.log("resending unsent move messages ", this.msgMovesAfterReconnect);
                 this.doSend(this.msgMovesAfterReconnect);
             } catch (e) {
                 console.log("could not even REsend unsent messages ", this.msgMovesAfterReconnect)
             }
-
             this.clocks[0].connecting = false;
             this.clocks[1].connecting = false;
             this.clocksB[0].connecting = false;
             this.clocksB[1].connecting = false;
-
-            const cl = document.body.classList; // removing the "reconnecting" message in lower left corner
-            cl.remove('offline-close');
-            cl.remove('offline-ping-timeout');
-            cl.add('online');
-
         };
 
         const onReconnect = () => {
-            console.log('onReconnect');
-            document.body.classList.add('reconnected'); // this will trigger the animation once we get "online" class added back on reconnect
-
             const container = document.getElementById('player1a') as HTMLElement;
             patch(container, h('i-side.online#player1a', {class: {"icon": true, "icon-online": false, "icon-offline": true}}));
         };
 
         const onClose = () => {
-            console.log('onClose');
             this.clocks[0].connecting = true;
             this.clocks[1].connecting = true;
             this.clocksB[0].connecting = true;
             this.clocksB[1].connecting = true;
-            // relevant to the "reconnecting" message in lower left corner
-            document.body.classList.add('offline-close');
-            document.body.classList.remove('online');
         };
 
-        const onError = (e) => {
-            console.error("onError", e);
-            document.body.classList.remove('offline-creating-socket');
-            document.body.classList.remove('online');
-            document.body.classList.add('offline-socket-error');
-            document.getElementById("reconnecting-ts").setAttribute("timestamp", new Date(new Date().getTime() + this.sock.opts.reconnectTimeout).toISOString());
-        }
+        this.sock = createWebsocket('wsr/' + this.gameId, onOpen, onReconnect, onClose, (e: MessageEvent) => this.onMessage(e));
 
-        //
-        const f = this.sock.ws.onclose;
-        this.sock.ws.onclose = (e) => { console.log("onclose1"); f(e); console.log("onclose2");}
-        //
-        const f1 = this.sock.ws.close.bind(this.sock.ws); //todo:niki:mainly for debug purposes to understand howit works for now. could put logic for the red popup here eventually, because at least when browser trottle is set to offline it never triggers onclose until actually disable trottle back - not sure if same in normal disconnect
-        this.sock.ws.close = () => {
-            console.log("close() 1");
-            document.body.classList.add('offline-ping-timeout');
-            document.body.classList.remove('online');
-            f1();
-            console.log("close() 2");
-        };
-        //
-        const f2 = this.sock.reconnect.bind(this.sock);
-        this.sock.reconnect = () => {
-            document.body.classList.add('offline-reconnecting-in');
-            document.body.classList.remove('offline-ping-timeout');
-            document.body.classList.remove('online');
-            document.body.classList.remove('offline-socket-error');
-            document.body.classList.remove('offline-creating-socket');
-            document.body.classList.remove('offline-close');
-            f2();
-        };
-        //
-        const f3 = this.sock.createWebSocket.bind(this.sock);
-        this.sock.createWebSocket = () => {
-            document.getElementById("reconnecting-ts").setAttribute("timestamp", "");
-            document.body.classList.add('offline-creating-socket');
-            document.body.classList.remove('offline-reconnecting-in');
-            document.body.classList.remove('online');
-            document.body.classList.remove('offline-ping-timeout');
-            document.body.classList.remove('offline-socket-error');
-            document.body.classList.remove('offline-close');
-            f3();
-        };
-        //this.sock.forbidReconnect = false;
-        this.sock.onopen = () => onOpen();
-        this.sock.onreconnect = () => onReconnect();
-        this.sock.onclose = () => onClose();
-        this.sock.onmessage = (e: MessageEvent) => this.onMessage(e);
-        this.sock.onerror = (e) => onError(e);
 //
         this.finishedGame = this.status >= 0;
         this.tv = model["tv"];
@@ -339,10 +271,10 @@ export class RoundControllerBughouse implements ChatController/*extends GameCont
 
         // initialize clocks
         // this.clocktimes = {};
-        const c0a = new Clock(this.base, this.inc, 0, document.getElementById('clock0a') as HTMLElement, 'clock0a');
-        const c1a = new Clock(this.base, this.inc, 0, document.getElementById('clock1a') as HTMLElement, 'clock1a');
-        const c0b = new Clock(this.base, this.inc, 0, document.getElementById('clock0b') as HTMLElement, 'clock0b');
-        const c1b = new Clock(this.base, this.inc, 0, document.getElementById('clock1b') as HTMLElement, 'clock1b');
+        const c0a = new Clock(this.base, this.inc, 0, document.getElementById('clock0a') as HTMLElement, 'clock0a', false);
+        const c1a = new Clock(this.base, this.inc, 0, document.getElementById('clock1a') as HTMLElement, 'clock1a', false);
+        const c0b = new Clock(this.base, this.inc, 0, document.getElementById('clock0b') as HTMLElement, 'clock0b', false);
+        const c1b = new Clock(this.base, this.inc, 0, document.getElementById('clock1b') as HTMLElement, 'clock1b', false);
         this.clocks = [c0a, c1a];
         this.clocksB = [c0b, c1b];
 
@@ -1248,14 +1180,14 @@ export class RoundControllerBughouse implements ChatController/*extends GameCont
             this.doSend({ type: "is_user_present", username: this.wplayer, gameId: this.gameId });
             this.doSend({ type: "is_user_present", username: this.bplayer, gameId: this.gameId });
             this.doSend({ type: "is_user_present", username: this.wplayerB, gameId: this.gameId });
-            this.doSend({ type: "is_user_present", username: this.wplayerB, gameId: this.gameId });
+            this.doSend({ type: "is_user_present", username: this.bplayerB, gameId: this.gameId });
         } else {
             this.firstmovetime = msg.firstmovetime || this.firstmovetime;
             // todo: i guess no need to call for our user, but also see above todo about this whole idea being bad
             this.doSend({ type: "is_user_present", username: this.wplayer, gameId: this.gameId });
             this.doSend({ type: "is_user_present", username: this.bplayer, gameId: this.gameId });
             this.doSend({ type: "is_user_present", username: this.wplayerB, gameId: this.gameId });
-            this.doSend({ type: "is_user_present", username: this.wplayerB, gameId: this.gameId });
+            this.doSend({ type: "is_user_present", username: this.bplayerB, gameId: this.gameId });
 
             const container = document.getElementById('player1a') as HTMLElement;
             patch(container, h('i-side.online#player1a', {class: {"icon": true, "icon-online": true, "icon-offline": false}}));

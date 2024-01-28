@@ -4,9 +4,9 @@ export function newWebsocket(target:string) {
     const ws = (location.protocol.indexOf('https') > -1) ? 'wss' : 'ws';
     const options = {
         url: `${ws}://${location.host}/${target}`,
-        pingTimeout: 2500, 
-        pongTimeout: 9000, 
-        reconnectTimeout: 3500,
+        pingTimeout: 2500/*2500*/,
+        pongTimeout: 9000/*9000*/,
+        reconnectTimeout: 4000/*3500*/,
         pingMsg: "/n"
     }
     const socket = new WebsocketHeartbeatJs(options);

@@ -100,8 +100,6 @@ async def process_message(app_state, user, ws, data, game):
         await handle_abort_resign_abandon_flag(ws, app_state.users, user, data, game)
     elif data["type"] == "embed_user_connected":
         await handle_embed_user_connected(ws)
-    elif data["type"] == "game_user_connected":
-        await handle_game_user_connected(app_state, ws, user, game)
     elif data["type"] == "is_user_present":
         await handle_is_user_present(ws, app_state.users, data["username"], game)
     elif data["type"] == "moretime":
