@@ -120,7 +120,7 @@ export class GatingInput extends ExtraInput {
 
     skipGating(): void {
         if (this.data) {
-            this.finish('', this.data.orig);
+            this.finish('', this.data.dest);
         }
     }
 
