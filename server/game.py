@@ -416,9 +416,11 @@ class Game:
             "l": datetime.now(timezone.utc),
             "s": self.status,
             "m": encode_moves(
-                map(grand2zero, self.board.move_stack)
-                if self.variant in GRANDS
-                else self.board.move_stack,
+                (
+                    map(grand2zero, self.board.move_stack)
+                    if self.variant in GRANDS
+                    else self.board.move_stack
+                ),
                 self.variant,
             ),
         }
@@ -506,9 +508,11 @@ class Game:
                 "s": self.status,
                 "r": R2C[self.result],
                 "m": encode_moves(
-                    map(grand2zero, self.board.move_stack)
-                    if self.variant in GRANDS
-                    else self.board.move_stack,
+                    (
+                        map(grand2zero, self.board.move_stack)
+                        if self.variant in GRANDS
+                        else self.board.move_stack
+                    ),
                     self.variant,
                 ),
             }
@@ -972,9 +976,11 @@ class Game:
             "gameId": self.id,
             "pgn": self.pgn,
             "ct": self.crosstable,
-            "rdiffs": {"brdiff": self.brdiff, "wrdiff": self.wrdiff}
-            if self.status > STARTED and self.rated == RATED
-            else "",
+            "rdiffs": (
+                {"brdiff": self.brdiff, "wrdiff": self.wrdiff}
+                if self.status > STARTED and self.rated == RATED
+                else ""
+            ),
         }
 
     def start_manual_count(self):
@@ -1039,14 +1045,16 @@ class Game:
             "clocks": clocks,
             "byo": self.byoyomi_periods if self.byoyomi else "",
             "pgn": self.pgn if self.status > STARTED else "",
-            "rdiffs": {"brdiff": self.brdiff, "wrdiff": self.wrdiff}
-            if self.status > STARTED and self.rated == RATED
-            else "",
+            "rdiffs": (
+                {"brdiff": self.brdiff, "wrdiff": self.wrdiff}
+                if self.status > STARTED and self.rated == RATED
+                else ""
+            ),
             "date": (
-                datetime.now(timezone.utc) + timedelta(minutes=self.stopwatch.mins)
-            ).isoformat()
-            if self.corr
-            else "",
+                (datetime.now(timezone.utc) + timedelta(minutes=self.stopwatch.mins)).isoformat()
+                if self.corr
+                else ""
+            ),
             "uci_usi": self.uci_usi if self.status > STARTED else "",
             "ct": crosstable,
             "berserk": {"w": self.wberserk, "b": self.bberserk},

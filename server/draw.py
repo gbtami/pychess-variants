@@ -20,9 +20,11 @@ async def draw(game, user, agreement=False):
             "gameId": game.id,
             "pgn": game.pgn,
             "ct": game.crosstable,
-            "rdiffs": {"brdiff": game.brdiff, "wrdiff": game.wrdiff}
-            if game.status > STARTED and game.rated == RATED
-            else "",
+            "rdiffs": (
+                {"brdiff": game.brdiff, "wrdiff": game.wrdiff}
+                if game.status > STARTED and game.rated == RATED
+                else ""
+            ),
         }
     else:
         response = {
