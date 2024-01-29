@@ -211,16 +211,16 @@ class TournamentTestCase(AioHTTPTestCase):
         # app_state.db = None
         tid = id8()
         self.tournament = ArenaTestTournament(
-            app_state, tid, before_start=1.0 / 60.0, minutes=2.0 / 60.0
+            app_state, tid, before_start=0, minutes=2.0 / 60.0
         )
         app_state.tournaments[tid] = self.tournament
 
         self.assertEqual(self.tournament.status, T_CREATED)
 
-        await asyncio.sleep((self.tournament.before_start * 60) + 0.1)
+        await asyncio.sleep(0.1)
         self.assertEqual(self.tournament.status, T_STARTED)
 
-        await asyncio.sleep((self.tournament.minutes * 60) + 0.1)
+        await asyncio.sleep(2)
         self.assertEqual(self.tournament.status, T_FINISHED)
 
         await self.tournament.clock_task
