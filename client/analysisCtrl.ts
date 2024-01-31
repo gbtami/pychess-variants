@@ -80,7 +80,6 @@ export class AnalysisController extends GameController {
 
     constructor(el: HTMLElement, model: PyChessModel) {
         super(el, model);
-        this.fsfDebug = false;
         this.fsfError = [];
         this.embed = this.gameId === undefined;
         this.puzzle = model["puzzle"] !== "";
@@ -132,6 +131,7 @@ export class AnalysisController extends GameController {
         this.threads = localStorage.threads === undefined ? 1 : parseInt(localStorage.threads);
         this.hash = localStorage.hash === undefined ? 16 : parseInt(localStorage.hash);
         this.nnue = localStorage.nnue === undefined ? true : localStorage.nnue === "true";
+        this.fsfDebug = localStorage.fsfDebug === undefined ? false : localStorage.fsfDebug === "true";
 
         this.nnueOk = false;
         this.importedBy = '';
@@ -469,6 +469,10 @@ export class AnalysisController extends GameController {
                             const nnueEl = document.querySelector('.nnue') as HTMLElement;
                             const title = _('Multi-threaded WebAssembly (with NNUE evaluation)');
                             patch(nnueEl, h('span.nnue', { props: {title: title } } , 'NNUE'));
+                            if (this.localAnalysis) {
+                                this.engineStop();
+                                this.engineGo();
+                            }
                         });
                     }
                 });
