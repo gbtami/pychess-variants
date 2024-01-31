@@ -10,7 +10,7 @@
 </br>
 
 <p align="center">
-  <img src="https://github.com/gbtami/pychess-variants/blob/master/static/images/hawk.jpg">
+  <img src="https://github.com/gbtami/pychess-variants/blob/master/static/images/hawk3.jpg">
 </p>
 
 In orthodox chess it is well known that a Knight is a terrific blockader against the passed pawn whereas the Queen finds it to be beneath her dignity to perform such a role. A Rook can be clumsy and in the case of connected passed pawns a Bishop might be chased away. All of which raises the question of how a Hawk might perform when blockading passed pawns? The answer, for me, is crystal clear: Very well indeed! Acting as both Knight, a great blockader, as well as a Bishop striking along a diagonal means that the Hawk can blockade and attack with relish. The following diagrammed position is the kind of example that I have in mind:
