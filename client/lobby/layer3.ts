@@ -75,11 +75,11 @@ function proTip (variant: string, chess960: boolean) {
     case 'ataxx':
         return _('Quack.');
 // chess
+    case 'kingofthehill':
+        return _('Immediately moving your king to the centre of the board is a bad idea.');
     case 'chess':
     case 'crazyhouse':
     case 'atomic':
-    case 'kingofthehill':
-        return _('Immediately moving your king to the centre of the board is a bad idea.');
     case '3check':
         if (chess960) {
             return _('Move the king on top of the rook to castle.');
