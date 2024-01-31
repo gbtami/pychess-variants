@@ -74,7 +74,6 @@ White has the superb move: **7.Ee5+!** **Qf5**, Black is forced to make this int
 Leading to our next diagram, my question, dear reader is how would you play after **12...Qf5?**
 
 <img src="https://github.com/gbtami/pychess-variants/blob/master/static/images/SchessEndings3/diagram8.png" width="336" height="336">
-DIAGRAM: WHITE: Kh2, Ed8, Eg5, g2, h4 BLACK: Ke3, Qf5, f7, g6, h5
 
 White to move
 
