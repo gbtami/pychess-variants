@@ -72,10 +72,15 @@ function chess960Tooltip(variant: string) {
 
 function proTip (variant: string, chess960: boolean) {
     switch (variant) {
+    case 'ataxx':
+        return _('Quack.');
 // chess
     case 'chess':
     case 'crazyhouse':
     case 'atomic':
+    case 'kingofthehill':
+        return _('Immediately moving your king to the centre of the board is a bad idea.');
+    case '3check':
         if (chess960) {
             return _('Move the king on top of the rook to castle.');
         } else {
@@ -123,6 +128,7 @@ function proTip (variant: string, chess960: boolean) {
     case 'asean':
         return _('The ability to promote to rook makes for a dynamic endgame.');
 // shogi
+    case 'mansindam':
     case 'shogi':
     case 'minishogi':
     case 'gorogoroplus':
