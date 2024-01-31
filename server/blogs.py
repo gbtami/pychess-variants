@@ -16,6 +16,15 @@ del _
 
 BLOGS = [
     {
+        "_id": "S-chess_endings_3",
+        "date": "2024-02-01",
+        "image": "/images/hawk3.jpg",
+        "title": "S-Chess Endings 3",
+        "subtitle": "The Hawk",
+        "author": "yasser-seirawan",
+        "tags": ["Blog"],
+    },
+    {
         "_id": "hsl",
         "date": "2024-01-14",
         "image": "/images/hsl.png",
