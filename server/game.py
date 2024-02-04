@@ -1027,8 +1027,8 @@ class Game:
             clock_mins = self.stopwatch.mins * 60 * 1000
             base_mins = self.base * 24 * 60 * 60 * 1000
             clocks = (
-                base_mins if self.board.color == WHITE else clock_mins,
                 base_mins if self.board.color == BLACK else clock_mins,
+                base_mins if self.board.color == WHITE else clock_mins,
             )
 
         return {
