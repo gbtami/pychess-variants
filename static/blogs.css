@@ -1,6 +1,9 @@
 .blogs > p {
     margin: .5em 3em .5em 3em;
 }
+.blogs p:has(img) {
+  text-align: center;
+}
 .blogs > ul {
     margin: .5em 3em .5em 3em;
 }
@@ -21,6 +24,7 @@ iframe {
 }
 
 .blogs {
+  max-width: 1000px;
   grid-area: content;
   padding: 2rem;
   border-radius: 3px;
