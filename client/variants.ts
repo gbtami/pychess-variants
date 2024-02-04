@@ -770,7 +770,6 @@ export const VARIANTS: Record<string, Variant> = {
                 'pp-piece': 'c-piece',
             },
         },
-
     }),
 
     shinobiplus: variant({
@@ -792,7 +791,10 @@ export const VARIANTS: Record<string, Variant> = {
                 'pp-piece': 'c-piece',
             },
         },
-
+        alternateStart: {
+            '': '',
+            'Original Shinobi': 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/LH1CK1HL[LHMMDJ] w kq - 0 1'
+        },
     }),
 
     empire: variant({
