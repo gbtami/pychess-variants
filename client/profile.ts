@@ -77,7 +77,7 @@ function renderGames(model: PyChessModel, games: Game[]) {
 
         return h('tr', [h('a', { attrs: { href : '/' + game["_id"] } }, [
             h('td.board', { class: { "with-pockets": !!variant.pocket }, style:{"display":"flex"} },  //todo:niki: after changing td to div and display to flex the 2 board align horizontally, but i think some other styles degraded. also this needs to go to some css file
-               variant === VARIANTS['bughouse']? renderGameBoardsBug(game): [
+               variant === VARIANTS['bughouse']? renderGameBoardsBug(game, model["profileid"]): [
                     h(`selection.${variant.boardFamily}.${variant.pieceFamily}`, { style:{"padding-right":"10px"} },
                         h(`div.cg-wrap.${variant.board.cg}.mini`, {
                         hook: {
@@ -126,8 +126,8 @@ function renderGames(model: PyChessModel, games: Game[]) {
                     ]),
                     h('div.info-result', {
                         class: {
-                            "win": (game["r"] === '1-0' && game["us"][0] === model["profileid"]) || (game["r"] === '0-1' && game["us"][1] === model["profileid"]),
-                            "lose": (game["r"] === '0-1' && game["us"][0] === model["profileid"]) || (game["r"] === '1-0' && game["us"][1] === model["profileid"]),
+                            "win": isWinClass(model, game),
+                            "lose": !isWinClass(model, game),
                         }}, result(variant, game["s"], game["r"])
                     ),
                 ]),
@@ -141,6 +141,16 @@ function renderGames(model: PyChessModel, games: Game[]) {
         ])
     });
     return [h('tbody', rows)];
+}
+
+function isWinClass(model: PyChessModel, game: Game): boolean {
+    const variant = VARIANTS[game.v];
+    if (variant === VARIANTS['bughouse']){
+        const team = game["us"][0] === model["profileid"] || game["us"][3] === model["profileid"]? 0: 1;
+        return (game["r"] === '1-0' && team === 0) || (game["r"] === '0-1' && team === 1);
+    } else {
+        return (game["r"] === '1-0' && game["us"][0] === model["profileid"]) || (game["r"] === '0-1' && game["us"][1] === model["profileid"]);
+    }
 }
 
 function loadGames(model: PyChessModel, page: number) {

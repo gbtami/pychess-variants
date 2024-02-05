@@ -35,7 +35,7 @@ import {cg2uci, uci2LastMove} from "../chess";
 import {sound} from "../sound";
 import {renderRdiff} from "../result";
 import {player} from "../player";
-import WebsocketHeartbeatJs from "websocket-heartbeat-js";
+import { WebsocketHeartbeatJs } from '../socket/socket';
 import {notify} from "../notification";
 import {VARIANTS} from "../variants";
 import {createWebsocket} from "@/webSocketUtils";
@@ -655,6 +655,10 @@ export class RoundControllerBughouse implements ChatController/*extends GameCont
         patch(this.gameControls, h('div.btn-controls.after', buttons));
     }
 
+    private whichTeamAmI = () : '1' | '2' => {
+        return this.myColor.get('a') === 'white' || this.myColor.get('b') === 'black'? '1' : '2';
+    }
+
     private checkStatus = (msg: MsgBoard | MsgGameEnd) => {
         console.log(msg);
         if (msg.gameId !== this.gameId) return;
@@ -668,7 +672,7 @@ export class RoundControllerBughouse implements ChatController/*extends GameCont
             // this.dests = new Map();
 
             if (this.result !== "*" && !this.spectator && !this.finishedGame)
-                sound.gameEndSound(msg.result, this.mycolor); //todo:niki: debug here to see how to trick this into playing correct vicory/defeat/draw soound - i dont remember how i denote end games - 1:0 means first team wins maybe?
+                sound.gameEndSoundBughouse(msg.result, this.whichTeamAmI());
 
             if ("rdiffs" in msg) this.gameOver(msg.rdiffs); //todo:niki: am i still using rdiffs - probably i should for boardA
             // selectMove(this, this.ply);TODO:NIKI

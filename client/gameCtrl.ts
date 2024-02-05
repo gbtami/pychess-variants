@@ -1,4 +1,4 @@
-import WebsocketHeartbeatJs from 'websocket-heartbeat-js';
+import { WebsocketHeartbeatJs } from './socket/socket';
 
 import { h, VNode } from 'snabbdom';
 import * as Mousetrap  from 'mousetrap';

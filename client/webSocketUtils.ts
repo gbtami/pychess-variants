@@ -1,4 +1,4 @@
-import WebsocketHeartbeatJs from "websocket-heartbeat-js";
+import { WebsocketHeartbeatJs } from './socket/socket';
 import {newWebsocket} from "@/socket";
 
 export function createWebsocket(target: string,
@@ -38,7 +38,7 @@ export function createWebsocket(target: string,
     sock.onmessage = onMessage;
 
     //
-    const f = sock.ws.onclose;
+    const f = sock.ws.onclose!.bind(sock.ws);
     sock.ws.onclose = (e: any) => { console.log("onclose1"); f(e); console.log("onclose2");}
     //
     const f1 = sock.ws.close.bind(sock.ws); //todo:niki:mainly for debug purposes to understand howit works for now. could put logic for the red popup here eventually, because at least when browser trottle is set to offline it never triggers onclose until actually disable trottle back - not sure if same in normal disconnect

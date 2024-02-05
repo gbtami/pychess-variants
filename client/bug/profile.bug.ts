@@ -1,13 +1,14 @@
-import {h, VNode} from "snabbdom";
-import {VARIANTS} from "@/variants";
-import {Chessground} from "chessgroundx";
-import {uci2LastMove} from "@/chess";
-import {Game} from "@/profile";
-import {aiLevel, renderRdiff} from "@/result";
+import { h, VNode } from "snabbdom";
+import { VARIANTS } from "@/variants";
+import { Chessground } from "chessgroundx";
+import { uci2LastMove } from "@/chess";
+import { Game } from "@/profile";
+import * as cg from "chessgroundx/types";
 
-export function renderGameBoardsBug(game: Game): VNode[] {
+export function renderGameBoardsBug(game: Game, username: string): VNode[] {
     const variant = VARIANTS['bughouse'];
     const [fenA, fenB] = game["f"].split(" | ");
+    const orientation = determineOrientation(game, username);
     return [
     h(`selection.${variant.boardFamily}.${variant.pieceFamily}`, { style:{"padding-right":"10px"} },
         h(`div.cg-wrap.${variant.board.cg}.mini`, {
@@ -19,6 +20,7 @@ export function renderGameBoardsBug(game: Game): VNode[] {
                 lastMove: uci2LastMove(game.lm),
                 dimensions: variant.board.dimensions,
                 pocketRoles: variant.pocket?.roles,
+                orientation: orientation[0],
             })
         }
     })),
@@ -32,6 +34,7 @@ export function renderGameBoardsBug(game: Game): VNode[] {
                 lastMove: uci2LastMove(game.lmB),
                 dimensions: variant.board.dimensions,
                 pocketRoles: variant.pocket?.roles,
+                orientation: orientation[1],
             })
         }
     }))];
@@ -54,4 +57,12 @@ export function renderBugTeamInfo(game: Game, team: number) {
             (game["p0"] === undefined) ? "": game["p0"]["e"] + " ",
             (game["p0"] === undefined) ? "": renderRdiff(game["p0"]["d"]), */
     ];
+}
+
+function determineOrientation(game: Game, username: string): [cg.Color, cg.Color] {
+    if (game["us"][0] === username || game["us"][3] === username) {
+        return ["white", "black"];
+    } else {
+        return ["black", "white"];
+    }
 }

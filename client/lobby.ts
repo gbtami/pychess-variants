@@ -1,11 +1,10 @@
-import WebsocketHeartbeatJs from 'websocket-heartbeat-js';
+import { WebsocketHeartbeatJs } from './socket/socket';
 
 import { h, VNode } from 'snabbdom';
 
 import { Api } from "chessgroundx/api";
 import { Chessground } from 'chessgroundx';
 
-import { newWebsocket } from './socket';
 import { JSONObject } from './types';
 import { _, ngettext, languageSettings } from './i18n';
 import { patch } from './document';

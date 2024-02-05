@@ -1,4 +1,4 @@
-import WebsocketHeartbeatJs from 'websocket-heartbeat-js';
+import { WebsocketHeartbeatJs } from './socket/socket';
 
 export function newWebsocket(target:string) {
     const ws = (location.protocol.indexOf('https') > -1) ? 'wss' : 'ws';

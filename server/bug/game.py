@@ -515,12 +515,19 @@ class GameBug:
         if self.status > STARTED:
             return
 
-        def result_string_from_value(color, game_result_value):
-            if game_result_value < 0:
-                return "1-0" if color == BLACK else "0-1"
-            if game_result_value > 0:
-                return "0-1" if color == BLACK else "1-0"
-            return "1/2-1/2"
+        def result_string_from_value(game_result_value, board_which_ended):
+            if board_which_ended == "a":
+                if game_result_value < 0:
+                    return "0-1" # black wins on first board => team 2 wins
+                if game_result_value > 0:
+                    return "1-0" # white wins on first board => team 1 wins
+                return "1/2-1/2"
+            if board_which_ended == "b":
+                if game_result_value < 0:
+                    return "1-0" # black wins on second board => team 1 wins
+                if game_result_value > 0:
+                    return "0-1" # white wins on second board => team 2 wins
+                return "1/2-1/2"
 
         if status is not None:
             self.status = status
@@ -562,7 +569,7 @@ class GameBug:
 
             if count_valid_moves_with_full_pockets == 0:
                 game_result_value = self.boards[board_which_ended].game_result_no_history()
-                self.result = result_string_from_value(self.boards[board_which_ended].color, game_result_value)
+                self.result = result_string_from_value(game_result_value, board_which_ended)
 
                 # todo: commenting this because i feel it should always be MATE. Also is_immediate_game_end doesn't work because it relies on history - if we actually need it should create _no_history version of it as well
                 # if self.boards[board_which_ended].is_immediate_game_end()[0]:
@@ -735,7 +742,7 @@ class GameBug:
         )
 
     @property
-    def game_end(self):
+    def game_end(self): # todo:niki - is this really used
         return '{"type": "gameEnd", "game": {"id": "%s"}}\n' % self.id
 
     @property
