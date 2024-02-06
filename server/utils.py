@@ -33,7 +33,6 @@ from convert import mirror5, mirror9, usi2uci, grand2zero, zero2grand
 from fairy import BLACK, STANDARD_FEN, FairyBoard
 from game import Game, MAX_PLY
 from newid import new_id
-from settings import URI
 
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
@@ -745,7 +744,7 @@ def pgn(doc):
 
     return '[Event "{}"]\n[Site "{}"]\n[Date "{}"]\n[Round "-"]\n[White "{}"]\n[Black "{}"]\n[Result "{}"]\n[TimeControl "{}+{}"]\n[WhiteElo "{}"]\n[BlackElo "{}"]\n[Variant "{}"]\n{fen}{setup}\n{} {}\n'.format(
         "PyChess " + ("rated" if "y" in doc and doc["y"] == 1 else "casual") + " game",
-        URI + "/" + doc["_id"],
+        "https://www.pychess.org/" + doc["_id"],
         doc["d"].strftime("%Y.%m.%d"),
         doc["us"][0],
         doc["us"][1],
