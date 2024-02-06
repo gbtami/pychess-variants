@@ -73,6 +73,8 @@ export abstract class GameController extends ChessgroundController implements Ch
     vmovelist: VNode | HTMLElement;
     gameControls: VNode;
     moveControls: VNode;
+    vmiscInfoW: VNode;
+    vmiscInfoB: VNode;
     ctableContainer: VNode | HTMLElement;
     clickDrop: cg.Piece | undefined;
 
@@ -281,11 +283,11 @@ export abstract class GameController extends ChessgroundController implements Ch
         this.duck.inputState = undefined;
 
         if (this.variant.ui.counting) {
-            updateCount(step.fen, document.getElementById('misc-infow') as HTMLElement, document.getElementById('misc-infob') as HTMLElement);
+            [this.vmiscInfoW, this.vmiscInfoB] = updateCount(step.fen, document.getElementById('misc-infow') as HTMLElement, document.getElementById('misc-infob') as HTMLElement);
         }
 
         if (this.variant.ui.materialPoint) {
-            updatePoint(this.variant, step.fen, document.getElementById('misc-infow') as HTMLElement, document.getElementById('misc-infob') as HTMLElement);
+            [this.vmiscInfoW, this.vmiscInfoB] = updatePoint(this.variant, step.fen, document.getElementById('misc-infow') as HTMLElement, document.getElementById('misc-infob') as HTMLElement);
         }
 
         if (ply === this.ply + 1) {

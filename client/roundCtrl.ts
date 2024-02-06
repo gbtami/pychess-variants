@@ -45,8 +45,6 @@ export class RoundController extends GameController {
     materialDifference: boolean;
     vmaterial0: VNode | HTMLElement;
     vmaterial1: VNode | HTMLElement;
-    vmiscInfoW: VNode;
-    vmiscInfoB: VNode;
     vpng: VNode;
     vdialog: VNode;
     berserkable: boolean;
