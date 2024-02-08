@@ -1,10 +1,28 @@
+import os
 import sys
 import base64
 
 
 def main(css_path):
-    with open(css_path, "r") as f:
-        line = f.readline()
+    if os.path.isdir(css_path):
+        for root, dirs, files in os.walk(css_path):
+            for dir_name in dirs:
+                piece_css_dir = os.path.join(root.replace("piece", "piece-css"), dir_name)
+                if not os.path.exists(piece_css_dir):
+                    os.makedirs(piece_css_dir)
+
+            for name in files:
+                print(os.path.join(root, name))
+                image_to_css(os.path.join(root, name))
+    else:
+        image_to_css(css_path)
+
+
+def image_to_css(css_path):
+    piece_css_path = css_path.replace("piece", "piece-css")
+
+    with open(css_path, "r") as f1, open(piece_css_path, "w") as f2:
+        line = f1.readline()
         while line:
             if line.lstrip().startswith("background-image"):
                 start_idx = line.find("url('") + 5
@@ -13,12 +31,12 @@ def main(css_path):
 
                 image64 = encode_image(image_path)
                 url64 = css_url(image64, image_path)
-                sys.stdout.write("  background-image: %s" % url64)
-                sys.stdout.write("\n")
+                f2.write("  background-image: %s" % url64)
+                f2.write("\n")
             else:
-                sys.stdout.write(line)
+                f2.write(line)
 
-            line = f.readline()
+            line = f1.readline()
 
 
 def css_url(base64string, image_path):
