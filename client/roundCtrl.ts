@@ -2,6 +2,7 @@ import { h, VNode } from 'snabbdom';
 import { premove } from 'chessgroundx/premove';
 import { predrop } from 'chessgroundx/predrop';
 import * as cg from 'chessgroundx/types';
+import { Api } from "chessgroundx/api";
 
 import { newWebsocket } from './socket';
 import { _, ngettext } from './i18n';
@@ -9,7 +10,7 @@ import { patch } from './document';
 import { boardSettings } from './boardSettings';
 import { Clock } from './clock';
 import { sound } from './sound';
-import { uci2LastMove, getCounting, isHandicap } from './chess';
+import { WHITE, BLACK, uci2LastMove, getCounting, isHandicap } from './chess';
 import { crosstableView } from './crosstable';
 import { chatMessage, chatView } from './chat';
 import { createMovelistButtons, updateMovelist, updateResult, selectMove } from './movelist';
@@ -22,10 +23,13 @@ import { Clocks, MsgBoard, MsgGameEnd, MsgNewGame, MsgUserConnected, RDiffs, Cro
 import { MsgUserDisconnected, MsgUserPresent, MsgMoreTime, MsgDrawOffer, MsgDrawRejected, MsgRematchOffer, MsgRematchRejected, MsgCount, MsgSetup, MsgGameStart, MsgViewRematch, MsgUpdateTV, MsgBerserk } from './roundType';
 import { PyChessModel } from "./types";
 import { GameController } from './gameCtrl';
+import { handleOngoingGameEvents, Game, gameViewPlaying, compareGames } from './nowPlaying';
 
 let rang = false;
+const CASUAL = '0';
 
 export class RoundController extends GameController {
+    assetURL: string;
     berserked: { wberserk: boolean, bberserk: boolean };
     byoyomi: boolean;
     byoyomiPeriod: number;
@@ -41,8 +45,6 @@ export class RoundController extends GameController {
     materialDifference: boolean;
     vmaterial0: VNode | HTMLElement;
     vmaterial1: VNode | HTMLElement;
-    vmiscInfoW: VNode;
-    vmiscInfoB: VNode;
     vpng: VNode;
     vdialog: VNode;
     berserkable: boolean;
@@ -64,12 +66,9 @@ export class RoundController extends GameController {
         const onOpen = () => {
             this.clocks[0].connecting = false;
             this.clocks[1].connecting = false;
-
             const cl = document.body.classList; // removing the "reconnecting" message in lower left corner
             cl.remove('offline');
             cl.add('online');
-
-            this.doSend({ type: "game_user_connected", username: this.username, gameId: this.gameId });
         };
 
         const onReconnect = () => {
@@ -91,11 +90,12 @@ export class RoundController extends GameController {
             patch(container, h('i-side.online#player1', {class: {"icon": true, "icon-online": false, "icon-offline": true}}));
         };
 
-        this.sock = newWebsocket('wsr');
+        this.sock = newWebsocket('wsr/' + this.gameId);
         this.sock.onopen = () => onOpen();
         this.sock.onreconnect = () => onReconnect();
         this.sock.onmessage = (e: MessageEvent) => this.onMessage(e);
 
+        this.assetURL = model["assetURL"];
         this.byoyomiPeriod = Number(model["byo"]);
         this.byoyomi = this.variant.rules.defaultTimeControl === 'byoyomi';
         this.finishedGame = this.status >= 0;
@@ -115,7 +115,7 @@ export class RoundController extends GameController {
 
         this.tournamentGame = this.tournamentId !== '';
         const parts = this.fullfen.split(" ");
-        this.clockOn = (Number(parts[parts.length - 1]) >= 2);
+        this.clockOn = (Number(parts[parts.length - 1]) >= 2) && !this.corr;
 
         const berserkId = (this.mycolor === "white") ? "wberserk" : "bberserk";
         // Not berserked yet, but allowed to do it
@@ -182,58 +182,68 @@ export class RoundController extends GameController {
             document.getElementById('expiration-bottom') as HTMLElement
         ];
 
-        this.clocktimes = {'white': this.base * 1000 * 60, 'black': this.base * 1000 * 60}
+        this.clocktimes = [this.base * 1000 * 60, this.base * 1000 * 60]
 
         // initialize clocks
-        // this.clocktimes = {};
-        const c0 = new Clock(this.base, this.inc, this.byoyomiPeriod, document.getElementById('clock0') as HTMLElement, 'clock0');
-        const c1 = new Clock(this.base, this.inc, this.byoyomiPeriod, document.getElementById('clock1') as HTMLElement, 'clock1');
-        this.clocks = [c0, c1];
+        if (this.corr) {
+            const c0 = new Clock(this.base, 0, 0, document.getElementById('clock0') as HTMLElement, 'clock0', true);
+            const c1 = new Clock(this.base, 0, 0, document.getElementById('clock1') as HTMLElement, 'clock1', true);
+            this.clocks = [c0, c1];
 
-        // If player berserked, set increment to 0. Actual clock duration value will be set by onMsgBoard()
-        const bclock = this.mycolor === "black" ? 1 : 0;
-        const wclock = 1 - bclock;
-        if (this.berserked['wberserk']) this.clocks[wclock].increment = 0;
-        if (this.berserked['bberserk']) this.clocks[bclock].increment = 0;
+            this.clocks[0].onTick(this.clocks[0].renderTime);
+            this.clocks[1].onTick(this.clocks[1].renderTime);
 
-        this.clocks[0].onTick(this.clocks[0].renderTime);
-        this.clocks[1].onTick(this.clocks[1].renderTime);
+        } else {
 
-        const onMoreTime = () => {
-            if (this.wtitle === 'BOT' || this.btitle === 'BOT' || this.spectator || this.status >= 0 || this.flipped()) return;
-            const clockIdx = (this.flipped()) ? 1 : 0;
-            this.clocks[clockIdx].setTime(this.clocks[clockIdx].duration + 15 * 1000);
-            this.doSend({ type: "moretime", gameId: this.gameId });
-            const oppName = (this.username === this.wplayer) ? this.bplayer : this.wplayer;
-            chatMessage('', oppName + _(' +15 seconds'), "roundchat");
-        }
+            const c0 = new Clock(this.base, this.inc, this.byoyomiPeriod, document.getElementById('clock0') as HTMLElement, 'clock0', false);
+            const c1 = new Clock(this.base, this.inc, this.byoyomiPeriod, document.getElementById('clock1') as HTMLElement, 'clock1', false);
+            this.clocks = [c0, c1];
 
-        if (!this.spectator && this.rated !== '1' && this.wtitle !== 'BOT' && this.btitle !== 'BOT') {
-            const container = document.getElementById('more-time') as HTMLElement;
-            patch(container, h('div#more-time', [
-                h('button.icon.icon-plus-square', {
-                    props: {type: "button", title: _("Give 15 seconds")},
-                    on: { click: () => onMoreTime() }
-                })
-            ]));
-        }
+            // If player berserked, set increment to 0. Actual clock duration value will be set by onMsgBoard()
+            const bclock = this.mycolor === "black" ? 1 : 0;
+            const wclock = 1 - bclock;
+            if (this.berserked['wberserk']) this.clocks[wclock].increment = 0;
+            if (this.berserked['bberserk']) this.clocks[bclock].increment = 0;
 
-        const onBerserk = () => {
-            if (this.berserkable) {
-                this.berserkable = false;
-                this.berserk(this.mycolor);
-                this.doSend({ type: "berserk", gameId: this.gameId, color: this.mycolor });
+            this.clocks[0].onTick(this.clocks[0].renderTime);
+            this.clocks[1].onTick(this.clocks[1].renderTime);
+
+            const onMoreTime = () => {
+                if (this.wtitle === 'BOT' || this.btitle === 'BOT' || this.spectator || this.status >= 0 || this.flipped()) return;
+                const clockIdx = (this.flipped()) ? 1 : 0;
+                this.clocks[clockIdx].setTime(this.clocks[clockIdx].duration + 15 * 1000);
+                this.doSend({ type: "moretime", gameId: this.gameId });
+                const oppName = (this.username === this.wplayer) ? this.bplayer : this.wplayer;
+                chatMessage('', oppName + _(' +15 seconds'), "roundchat");
             }
-        }
 
-        if (this.berserkable && this.status < 0 && this.ply < 2) {
-            const container = document.getElementById('berserk1') as HTMLElement;
-            patch(container, h('div#berserk1', [
-                h('button.icon.icon-berserk', {
-                    props: {type: "button", title: _("Berserk")},
-                    on: { click: () => onBerserk() }
-                })
-            ]));
+            if (!this.spectator && this.rated === CASUAL && this.wtitle !== 'BOT' && this.btitle !== 'BOT') {
+                const container = document.getElementById('more-time') as HTMLElement;
+                patch(container, h('div#more-time', [
+                    h('button.icon.icon-plus-square', {
+                        props: {type: "button", title: _("Give 15 seconds")},
+                        on: { click: () => onMoreTime() }
+                    })
+                ]));
+            }
+
+            const onBerserk = () => {
+                if (this.berserkable) {
+                    this.berserkable = false;
+                    this.berserk(this.mycolor);
+                    this.doSend({ type: "berserk", gameId: this.gameId, color: this.mycolor });
+                }
+            }
+
+            if (this.berserkable && this.status < 0 && this.ply < 2) {
+                const container = document.getElementById('berserk1') as HTMLElement;
+                patch(container, h('div#berserk1', [
+                    h('button.icon.icon-berserk', {
+                        props: {type: "button", title: _("Berserk")},
+                        on: { click: () => onBerserk() }
+                    })
+                ]));
+            }
         }
 
         // initialize crosstable
@@ -242,6 +252,8 @@ export class RoundController extends GameController {
         if (model["ct"]) {
             this.ctableContainer = patch(this.ctableContainer, h('div.ctable-container'));
             this.ctableContainer = patch(this.ctableContainer, crosstableView(model["ct"] as CrossTable, this.gameId));
+            const panel3 = document.querySelector('.ctable-container') as HTMLElement;
+            panel3.style.display = 'block';
         }
 
         const misc0 = document.getElementById('misc-info0') as HTMLElement;
@@ -270,7 +282,7 @@ export class RoundController extends GameController {
             }
         }
 
-        if (!this.spectator) {
+        if (!this.spectator && !this.corr) {
             if (this.byoyomiPeriod > 0) {
                 this.clocks[1].onByoyomi(byoyomiCallback);
             }
@@ -284,23 +296,29 @@ export class RoundController extends GameController {
                 buttons.push(h('div#undo'));
             }
             if (!this.tournamentGame) {
-                buttons.push(h('button#abort', { on: { click: () => this.abort() }, props: {title: _('Abort')} }, [h('i', {class: {"icon": true, "icon-abort": true} } ), ]));
+                buttons.push(this.buttonAbort());
             }
             buttons.push(h('button#count', _('Count')));
-            if (this.variant.rules.pass)
+            if (this.variant.rules.pass) {
                 buttons.push(h('button#draw', { on: { click: () => this.pass() }, props: { title: _('Pass') } }, _('Pass')));
-            else
+            } else if (!this.variant.rules.noDrawOffer) {
                 buttons.push(h('button#draw', { on: { click: () => this.draw() }, props: { title: _('Draw') } }, h('i', '½')));
+            }
             buttons.push(h('button#resign', { on: { click: () => this.resign() }, props: {title: _("Resign")} }, [h('i', {class: {"icon": true, "icon-flag-o": true} } ), ]));
             
-            this.gameControls = patch(container, h('div.btn-controls', buttons));
+            this.gameControls = patch(container, h('div.btn-controls.game', buttons));
 
             const manualCount = this.variant.ui.counting === 'makruk' && !(this.wtitle === 'BOT' || this.btitle === 'BOT');
             if (!manualCount)
                 patch(document.getElementById('count') as HTMLElement, h('div'));
-
+            if (this.corr) {
+                const drawEl = document.getElementById("draw") as HTMLInputElement;
+                if (drawEl) drawEl.disabled = true;
+                const resignEl = document.getElementById("resign") as HTMLInputElement;
+                if (resignEl) resignEl.disabled = true;
+            }
         } else {
-            this.gameControls = patch(container, h('div.btn-controls'));
+            this.gameControls = patch(container, h('div.btn-controls.game'));
         }
 
         createMovelistButtons(this);
@@ -310,10 +328,33 @@ export class RoundController extends GameController {
 
         patch(document.getElementById('roundchat') as HTMLElement, chatView(this, "roundchat"));
 
+        boardSettings.assetURL = this.assetURL;
+        boardSettings.updateBoardAndPieceStyles();
+
+        if (model.corrGames.length > 0) {
+            const corrGames = JSON.parse(model.corrGames).sort(compareGames(this.username));
+            const cgMap: {[gameId: string]: Api} = {};
+            handleOngoingGameEvents(this.username, cgMap);
+
+            patch(document.querySelector('.games-container') as HTMLElement, 
+                h('games-grid#games', corrGames.flatMap((game: Game) => {
+                    if (game.gameId === this.gameId) {
+                        return [];
+                    } else {
+                        return [gameViewPlaying(cgMap, game, this.username)];
+                    }
+                }))
+            )
+        }
+
         this.onMsgBoard(model["board"] as MsgBoard);
     }
 
     toggleSettings() {
+    }
+
+    buttonAbort() {
+        return h('button#abort', { on: { click: () => this.abort() }, props: {title: _('Abort')} }, [h('i', {class: {"icon": true, "icon-abort": true} } ), ]);
     }
 
     toggleOrientation() {
@@ -347,7 +388,7 @@ export class RoundController extends GameController {
             [this.vmiscInfoW, this.vmiscInfoB] = updateCount(this.fullfen, this.vmiscInfoB, this.vmiscInfoW);
 
         if (this.variant.ui.materialPoint)
-            [this.vmiscInfoW, this.vmiscInfoB] = updatePoint(this.fullfen, this.vmiscInfoB, this.vmiscInfoW);
+            [this.vmiscInfoW, this.vmiscInfoB] = updatePoint(this.variant, this.fullfen, this.vmiscInfoB, this.vmiscInfoW);
 
         this.updateMaterial();
     }
@@ -364,7 +405,7 @@ export class RoundController extends GameController {
 
         this.clocks[clockIdx].increment = 0;
         this.clocks[clockIdx].setTime(this.base * 1000 * 30);
-        this.clocktimes[color] = this.base * 1000 * 30;
+        this.clocktimes[(color === 'white') ? WHITE : BLACK] = this.base * 1000 * 30;
         sound.berserk();
 
         const berserkId = (color === "white") ? "wberserk" : "bberserk";
@@ -377,17 +418,18 @@ export class RoundController extends GameController {
     }
 
     undo = () => {
-        // console.log("Undo");
         this.goPly(this.ply);
     }
 
     private abort = () => {
-        // console.log("Abort");
         this.doSend({ type: "abort", gameId: this.gameId });
     }
 
+    private takeback = () => {
+        this.doSend({ type: "takeback", gameId: this.gameId });
+    }
+
     private draw = () => {
-        // console.log("Draw");
         if (confirm(_('Are you sure you want to draw?'))) {
             this.doSend({ type: "draw", gameId: this.gameId });
             this.setDialog(_("Draw offer sent"));
@@ -400,27 +442,53 @@ export class RoundController extends GameController {
     }
 
     private renderDrawOffer = () => {
+        (document.querySelector('.btn-controls.game') as HTMLElement).style.display= "none";
         this.vdialog = patch(this.vdialog, h('div#offer-dialog', [
-            h('div', { class: { reject: true }, on: { click: () => this.rejectDrawOffer() } }, h('i.icon.icon-abort.reject')),
-            h('div.text', _("Your opponent offers a draw")),
-            h('div', { class: { accept: true }, on: { click: () => this.draw() } }, h('i.icon.icon-check')),
+            h('div.dcontrols', [
+                h('div', { class: { reject: true }, on: { click: () => this.rejectDrawOffer() } }, h('i.icon.icon-abort.reject')),
+                h('div.text', _("Your opponent offers a draw")),
+                h('div', { class: { accept: true }, on: { click: () => this.draw() } }, h('i.icon.icon-check')),
+            ])
+        ]));
+    }
+
+    private rejectCorrMove = () => {
+        this.undo();
+        this.clearDialog();
+    }
+
+    private renderConfirmCorrMove = (callback: any, move: string) => {
+        (document.querySelector('.btn-controls.game') as HTMLElement).style.display= "none";
+        this.vdialog = patch(this.vdialog, h('div#offer-dialog', [
+            h('div.dcontrols', [
+                h('div', { class: { reject: true }, on: { click: () => this.rejectCorrMove() } }, h('i.icon.icon-abort.reject')),
+                h('div.text', _("Confirm move")),
+                h('div', { class: { accept: true }, on: { click: () => callback(move) } }, h('i.icon.icon-check')),
+            ])
         ]));
     }
 
     private setDialog = (message: string) => {
+        const gameControlsEl = document.querySelector('.btn-controls.game') as HTMLElement;
+        if (gameControlsEl) gameControlsEl.style.display= "none";
+
         this.vdialog = patch(this.vdialog, h('div#offer-dialog', [
-            h('div', { class: { reject: false } }),
-            h('div.text', message),
-            h('div', { class: { accept: false } }),
+            h('div.dcontrols', [
+                h('div', { class: { reject: false } }),
+                h('div.text', message),
+                h('div', { class: { accept: false } }),
+            ])
         ]));
+        setTimeout(() => this.clearDialog(), 2000);
     }
 
     private clearDialog = () => {
         this.vdialog = patch(this.vdialog, h('div#offer-dialog', []));
+        const el = document.querySelector('.btn-controls.game') as HTMLElement;
+        if (el) el.style.display= "flex";
     }
 
     private resign = () => {
-        // console.log("Resign");
         const doResign = ( localStorage.getItem("confirmresign") === "false" ) || confirm(_('Are you sure you want to resign?')) 
         if (doResign) {    
             this.doSend({ type: "resign", gameId: this.gameId });
@@ -523,6 +591,7 @@ export class RoundController extends GameController {
     }
 
     private renderRematchOffer = () => {
+        (document.querySelector('.btn-controls.game') as HTMLElement).style.display= "none";
         this.vdialog = patch(this.vdialog, h('div#offer-dialog', [
             h('div', { class: { reject: true }, on: { click: () => this.rejectRematchOffer() } }, h('i.icon.icon-abort.reject')),
             h('div.text', _("Your opponent offers a rematch")),
@@ -571,7 +640,7 @@ export class RoundController extends GameController {
                     buttons.push(h('button.newopp', { on: { click: () => this.pauseTournament() } },
                         [h('div', {class: {"icon": true, 'icon-pause2': true} }, _("PAUSE"))]));
                 }
-            } else {
+            } else if (!this.corr) {
                 buttons.push(h('button.rematch', { on: { click: () => this.rematch() } }, _("REMATCH")));
                 buttons.push(h('button.newopp', { on: { click: () => this.newOpponent(this.home) } }, _("NEW OPPONENT")));
             }
@@ -587,7 +656,6 @@ export class RoundController extends GameController {
             this.result = msg.result;
             this.clocks[0].pause(false);
             this.clocks[1].pause(false);
-
             if (this.result !== "*" && !this.spectator && !this.finishedGame)
                 sound.gameEndSound(msg.result, this.mycolor);
 
@@ -639,6 +707,9 @@ export class RoundController extends GameController {
                                                                         // because of disconnect and then also opp's reply to it, that we didn't
                                                                         // receive while offline. Not sure if it could be ahead with more than 2 ply
         }
+
+        if (msg.takeback) latestPly = true;
+
         if (latestPly) this.ply = msg.ply;
 
         if (this.ply === 0) {
@@ -657,6 +728,13 @@ export class RoundController extends GameController {
 
             const container1 = document.getElementById('berserk1') as HTMLElement;
             if (container1) patch(container1, h('div#berserk1', ''));
+
+            if (!this.spectator && this.corr) {
+                const drawEl = document.getElementById("draw") as HTMLInputElement;
+                if (drawEl) drawEl.disabled = false;
+                const resignEl = document.getElementById("resign") as HTMLInputElement;
+                if (resignEl) resignEl.disabled = false;
+            }
         }
 
         if (this.ply === 1 || this.ply === 2) {
@@ -668,15 +746,10 @@ export class RoundController extends GameController {
             }
         }
 
-        this.fullfen = msg.fen;
-        if (this.ffishBoard) {
-            this.ffishBoard.setFen(this.fullfen);
-            this.setDests();
-        }
-
+        // turnColor have to be actualized before setDests() !!!
         const parts = msg.fen.split(" ");
         this.turnColor = parts[1] === "w" ? "white" : "black";
-
+        this.fullfen = msg.fen;
         this.clocktimes = msg.clocks || this.clocktimes;
 
         this.result = msg.result;
@@ -711,21 +784,33 @@ export class RoundController extends GameController {
             }
         }
 
-        this.clockOn = Number(msg.ply) >= 2;
+        this.clockOn = (Number(msg.ply) >= 2);
         if ((!this.spectator && this.clockOn) || this.tournamentGame) {
             const container = document.getElementById('abort') as HTMLElement;
-            if (container) patch(container, h('div'));
+            if (container) {
+                // No takeback for Duck chess, because it already has undo for first leg of moves
+                if ((this.wtitle === 'BOT' || this.btitle === 'BOT') && !this.variant.rules.duck) {
+                    patch(container, h('button#takeback', { on: { click: () => this.takeback() }, props: {title: _('Propose takeback')} }, [h('i', {class: {"icon": true, "icon-reply": true} } ), ]));
+                } else {
+                    patch(container, h('div'));
+                }
+            }
+        } else if (!this.spectator && !this.clockOn) {
+            const container = document.getElementById('takeback') as HTMLElement;
+            if (container) {
+                patch(container, this.buttonAbort());
+            }
         }
 
         const lastMove = uci2LastMove(msg.lastMove);
         const step = this.steps[this.steps.length - 1];
         const capture = !!lastMove && ((this.chessground.state.boardState.pieces.get(lastMove[1] as cg.Key) && step.san?.slice(0, 2) !== 'O-') || (step.san?.slice(1, 2) === 'x'));
 
-        if (lastMove && (this.turnColor === this.mycolor || this.spectator)) {
+        if (msg.steps.length === 1 && lastMove && (this.turnColor === this.mycolor || this.spectator)) {
             if (!this.finishedGame) sound.moveSound(this.variant, capture);
         }
         this.checkStatus(msg);
-        if (!this.spectator && msg.check && !this.finishedGame) {
+        if (msg.steps.length === 1 && !this.spectator && msg.check && !this.finishedGame) {
             sound.check();
         }
 
@@ -743,12 +828,12 @@ export class RoundController extends GameController {
         this.clocks[0].pause(false);
         this.clocks[1].pause(false);
         if (this.byoyomi && msg.byo) {
-            this.clocks[oppclock].byoyomiPeriod = msg.byo[(this.oppcolor === 'white') ? 0 : 1];
-            this.clocks[myclock].byoyomiPeriod = msg.byo[(this.mycolor === 'white') ? 0 : 1];
+            this.clocks[oppclock].byoyomiPeriod = msg.byo[(this.oppcolor === 'white') ? WHITE : BLACK];
+            this.clocks[myclock].byoyomiPeriod = msg.byo[(this.mycolor === 'white') ? WHITE : BLACK];
         }
 
-        this.clocks[oppclock].setTime(this.clocktimes[this.oppcolor]);
-        this.clocks[myclock].setTime(this.clocktimes[this.mycolor]);
+        this.clocks[oppclock].setTime(this.clocktimes[(this.oppcolor === 'white') ? WHITE : BLACK]);
+        this.clocks[myclock].setTime(this.clocktimes[(this.mycolor === 'white') ? WHITE : BLACK]);
 
         let bclock;
         if (!this.flipped()) {
@@ -765,7 +850,7 @@ export class RoundController extends GameController {
             this.clocks[bclock].increment = 0;
             if (msg.ply <= 2) this.clocks[bclock].setTime(this.base * 1000 * 30);
         }
-
+        // console.log("onMsgBoard() this.clockOn && msg.status", this.clockOn, msg.status);
         if (this.spectator) {
             if (latestPly) {
                 this.chessground.set({
@@ -797,6 +882,15 @@ export class RoundController extends GameController {
                         lastMove: lastMove,
                     });
 
+                    // This have to be exactly here (and before this.performPremove as well!!!),
+                    // because in case of takeback 
+                    // ataxx setDests() needs not just actualized turnColor but
+                    // actualized chessground.state.boardState.pieces as well !!!
+                    if (this.ffishBoard) {
+                        this.ffishBoard.setFen(this.fullfen);
+                        this.setDests();
+                    }
+
                     if (!this.focus) this.notifyMsg(`Played ${step.san}\nYour turn.`);
 
                     // prevent sending premove/predrop when (auto)reconnecting websocked asks server to (re)sends the same board to us
@@ -813,13 +907,24 @@ export class RoundController extends GameController {
                     fen: parts[0],
                     turnColor: this.turnColor,
                     check: msg.check,
+                    lastMove: lastMove,
                 });
+
+                // This have to be here, because in case of takeback 
+                // ataxx setDests() needs not just actualized turnColor but
+                // actualized chessground.state.boardState.pieces as well !!!
+                if (this.ffishBoard) {
+                    this.ffishBoard.setFen(this.fullfen);
+                    this.setDests();
+                }
+
                 if (this.clockOn && msg.status < 0) {
                     this.clocks[oppclock].start();
                     // console.log('OPP CLOCK  STARTED');
                 }
             }
         }
+
         this.updateMaterial();
     }
 
@@ -834,39 +939,54 @@ export class RoundController extends GameController {
     }
 
     doSendMove(move: string) {
-        this.clearDialog();
+        const send = (move: string) => {
+            this.clearDialog();
+            let clock_times, increment;
+            const oppclock = !this.flipped() ? 0 : 1
+            const myclock = 1 - oppclock;
 
-        // pause() will add increment!
-        const oppclock = !this.flipped() ? 0 : 1
-        const myclock = 1 - oppclock;
-        const movetime = (this.clocks[myclock].running) ? Date.now() - this.clocks[myclock].startTime : 0;
-        this.clocks[myclock].pause((this.base === 0 && this.ply < 2) ? false : true);
+            if (!this.corr) {
+                // pause() will add increment!
+                this.clocks[myclock].pause((this.base === 0 && this.ply < 2) ? false : true);
 
-        let bclock, clocks;
-        if (!this.flipped()) {
-            bclock = this.mycolor === "black" ? 1 : 0;
+                let bclock;
+                if (!this.flipped()) {
+                    bclock = this.mycolor === "black" ? 1 : 0;
+                } else {
+                    bclock = this.mycolor === "black" ? 0 : 1;
+                }
+                const wclock = 1 - bclock
+
+                if (!this.berserked[(this.mycolor === "white") ? "wberserk" : "bberserk"]) {
+                    increment = (this.inc > 0 && this.ply >= 2 && !this.byoyomi) ? this.inc * 1000 : 0;
+                } else {
+                    increment = 0;
+                }
+
+                const bclocktime = (this.mycolor === "black" && this.preaction) ? this.clocktimes[BLACK] + increment: this.clocks[bclock].duration;
+                const wclocktime = (this.mycolor === "white" && this.preaction) ? this.clocktimes[WHITE] + increment: this.clocks[wclock].duration;
+
+                clock_times = [wclocktime, bclocktime];
+            } else  {
+                clock_times = [0, 0];
+                increment = 0;
+            }
+
+            const message = { type: "move", gameId: this.gameId, move: move, clocks: clock_times, ply: this.ply + 1 };
+            this.doSend(message);
+
+            if (this.preaction) {
+                this.clocks[myclock].setTime(this.clocktimes[(this.mycolor === 'white') ? WHITE : BLACK] + increment);
+            }
+            if (this.clockOn) this.clocks[oppclock].start();
+        }
+
+        const confirmCorrMove = localStorage.confirmCorrMove === undefined ? true : localStorage.getItem("confirmCorrMove") === "true";
+        if (confirmCorrMove && this.corr) {
+            this.renderConfirmCorrMove(send, move);
         } else {
-            bclock = this.mycolor === "black" ? 0 : 1;
+            send(move);
         }
-        const wclock = 1 - bclock
-
-        let increment = 0;
-        if (!this.berserked[(this.mycolor === "white") ? "wberserk" : "bberserk"]) {
-            increment = (this.inc > 0 && this.ply >= 2 && !this.byoyomi) ? this.inc * 1000 : 0;
-        }
-
-        const bclocktime = (this.mycolor === "black" && this.preaction) ? this.clocktimes.black + increment: this.clocks[bclock].duration;
-        const wclocktime = (this.mycolor === "white" && this.preaction) ? this.clocktimes.white + increment: this.clocks[wclock].duration;
-
-        clocks = {movetime: (this.preaction) ? 0 : movetime, black: bclocktime, white: wclocktime};
-
-        const message = { type: "move", gameId: this.gameId, move: move, clocks: clocks, ply: this.ply + 1 };
-        this.doSend(message);
-
-        if (this.preaction) {
-            this.clocks[myclock].setTime(this.clocktimes[this.mycolor] + increment);
-        }
-        if (this.clockOn) this.clocks[oppclock].start();
     }
 
     private startCount = () => {
@@ -894,12 +1014,12 @@ export class RoundController extends GameController {
     }
 
     private updatePoint = (fen: cg.FEN) => {
-        [this.vmiscInfoW, this.vmiscInfoB] = updatePoint(fen, this.vmiscInfoW, this.vmiscInfoB);
+        [this.vmiscInfoW, this.vmiscInfoB] = updatePoint(this.variant, fen, this.vmiscInfoW, this.vmiscInfoB);
     }
 
     private updateMaterial(): void {
         if (this.variant.material.showDiff && this.materialDifference)
-            [this.vmaterial0, this.vmaterial1] = updateMaterial(this.variant, this.fullfen, this.vmaterial0, this.vmaterial1, this.flipped());
+            [this.vmaterial0, this.vmaterial1] = updateMaterial(this.variant, this.fullfen, this.vmaterial0, this.vmaterial1, this.flipped(), this.mycolor);
         else
             [this.vmaterial0, this.vmaterial1] = emptyMaterial(this.variant);
     }
@@ -923,8 +1043,8 @@ export class RoundController extends GameController {
 
     private renderExpiration = () => {
         // We return sooner in case the client belongs to a spectator or the 
-        // game is casual as casual games can't expire.
-        if (this.spectator || this.rated === "0") return;
+        // game is non tournament game.
+        if (this.spectator || !this.tournamentGame) return;
         let position = (this.turnColor === this.mycolor) ? "bottom": "top";
         if (this.flipped()) position = (position === "top") ? "bottom" : "top";
         let expi = (position === 'top') ? 0 : 1;
@@ -971,7 +1091,7 @@ export class RoundController extends GameController {
             const container = document.getElementById('player1') as HTMLElement;
             patch(container, h('i-side.online#player1', {class: {"icon": true, "icon-online": true, "icon-offline": false}}));
 
-            // prevent sending gameStart message when user just reconecting
+            // prevent sending gameStart message when user just reconnecting
             if (msg.ply === 0) {
                 this.doSend({ type: "ready", gameId: this.gameId });
             //    if (this.variant.setup) {

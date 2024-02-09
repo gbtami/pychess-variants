@@ -1,4 +1,8 @@
-ROBOTS_TXT = """User-agent: *
+from __future__ import annotations
+
+ROBOTS_TXT = """User-agent: PetalBot
+Disallow: /
+User-agent: *
 Disallow: /@/
 Disallow: /tv/
 Disallow: /api/
@@ -14,6 +18,5 @@ Disallow: /level8win/
 Disallow: /tournament/
 Disallow: /tournaments/
 Disallow: /calendar/
-User-agent: bingbot
-Disallow: /
+Crawl-delay: 30
 """

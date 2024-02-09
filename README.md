@@ -16,7 +16,7 @@ Currently supported games are:
 - [Minishogi](https://www.pychess.org/variants/minishogi)
 - [Kyoto shogi](https://www.pychess.org/variants/kyotoshogi)
 - [Dobutsu shogi](https://www.pychess.org/variants/dobutsu)
-- [Goro-Goro shogi](https://www.pychess.org/variants/gorogoro)
+- [Goro-Goro shogi](https://www.pychess.org/variants/gorogoroplus)
 - [Tori Shogi](https://www.pychess.org/variants/torishogi)
 - [Xiangqi](https://www.pychess.org/variants/xiangqi)
 - [Manchu](https://www.pychess.org/variants/manchu)
@@ -25,6 +25,8 @@ Currently supported games are:
 - [Placement chess](https://www.pychess.org/variants/placement)
 - [Crazyhouse](https://www.pychess.org/variants/crazyhouse)
 - [Atomic](https://www.pychess.org/variants/atomic)
+- [Three check](https://www.pychess.org/variants/3check)
+- [King of the Hill](https://www.pychess.org/variants/kingofthehill)
 - [Duck chess](https://www.pychess.org/variants/duck)
 - [S-chess](https://www.pychess.org/variants/seirawan)
 - [Capablanca](https://www.pychess.org/variants/capablanca)
@@ -32,10 +34,11 @@ Currently supported games are:
 - [Grand](https://www.pychess.org/variants/grand)
 - [Shako](https://www.pychess.org/variants/shako)
 - [Shogun](https://www.pychess.org/variants/shogun)
+- [Mansindam](https://www.pychess.org/variants/mansindam)
 - [Orda](https://www.pychess.org/variants/orda)
 - [Synochess](https://www.pychess.org/variants/synochess)
 - [Hoppel-Poppel](https://www.pychess.org/variants/hoppelpoppel)
-- [Shinobi](https://www.pychess.org/variants/shinobi)
+- [Shinobi+](https://www.pychess.org/variants/shinobiplus)
 - [Empire Chess](https://www.pychess.org/variants/empire)
 - [Orda Mirror](https://www.pychess.org/variants/ordamirror)
 - [Chak](https://www.pychess.org/variants/chak)
@@ -45,15 +48,15 @@ Currently supported games are:
 - [Capahouse (Capablanca+Crazyhouse)](https://www.pychess.org/variants/capahouse)
 - [Grandhouse (Grand chess+Crazyhouse)](https://www.pychess.org/variants/grandhouse)
 - [Chess](https://www.pychess.org/variants/chess)
+- [Ataxx](https://www.pychess.org/variants/ataxx)
 
-Additionally you can check Chess960 option in for Chess, Crazyhouse, Atomic, S-chess, Capablanca and Capahouse to start games from random positions with 
+Additionally you can check Chess960 option in for Chess, Crazyhouse, Atomic, Three check, King of the Hill, S-chess, Capablanca and Capahouse to start games from random positions with 
 [Chess960 castling rules](https://en.wikipedia.org/wiki/Fischer_random_chess#Castling_rules)
 
 For move generation, validation, analysis and engine play it uses
 - [Fairy-Stockfish](https://github.com/fairy-stockfish/Fairy-Stockfish)
 - [fairy-stockfish.wasm](https://github.com/fairy-stockfish/fairy-stockfish.wasm)
 - [fairyfishnet](https://github.com/gbtami/fairyfishnet) fork of [fishnet](https://github.com/lichess-org/fishnet)
-- [lichess-bot-variants](https://github.com/gbtami/lichess-bot-variants) fork of [lichess-bot](https://github.com/lichess-bot-devs/lichess-bot)
 
 On client side it is based on
 [chessgroundx](https://github.com/gbtami/chessgroundx) fork of [chessground](https://github.com/lichess-org/chessground)

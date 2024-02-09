@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 # TODO: store in mongodb
 TWITCH_STREAMERS = {
     "chessbia": "WIM chessbia",
@@ -28,4 +30,5 @@ YOUTUBE_STREAMERS = {
     "UCCeCZHAoTr4TGDt3hr_AQig": "kalavas",
     "UCr6RfQga70yMM9-nuzAYTsA": "lichess",
     "UC0YCMuQORX4mnj81TaN0ubg": "Shuvalov",
+    "UC3wVu5t5AwbhRZZRWx9TFFA": "Amazon_A",
 }

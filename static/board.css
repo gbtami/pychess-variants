@@ -1,3 +1,6 @@
+.ataxx7x7 cg-board {
+    background-image: url('images/board/ataxx.svg');
+}
 .standard8x8 cg-board {
     background-image: url('images/board/8x8brown.svg');
 }
@@ -48,4 +51,7 @@
 }
 .chennis7x7 cg-board {
     background-image: url('images/board/chennis.png');
+}
+.standard9x9 cg-board {
+    background-image: url('images/board/9x9brown.svg');
 }

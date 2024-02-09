@@ -1,3 +1,4 @@
+from __future__ import annotations
 from bot_api import (
     account,
     playing,
@@ -16,7 +17,7 @@ from bot_api import (
 )
 from fishnet import (
     fishnet_monitor,
-    fishnet_key,
+    fishnet_validate_key,
     fishnet_acquire,
     fishnet_abort,
     fishnet_analysis,
@@ -32,7 +33,7 @@ from game_api import (
     get_variant_stats,
     cancel_invite,
 )
-from utils import import_game, get_names
+from utils import import_game, get_names, get_notifications, subscribe_notify, notified
 from login import login, logout, oauth
 from index import index, robots, select_lang
 from wsl import lobby_socket_handler
@@ -67,6 +68,9 @@ get_routes = (
     ("/analysis/{variant}/{fen}", index),
     ("/editor/{variant}", index),
     ("/editor/{variant}/{fen}", index),
+    ("/notifications", get_notifications),
+    ("/notify", subscribe_notify),
+    ("/notified", notified),
     (r"/{gameId:\w{8}}", index),
     (r"/{gameId:\w{8}}/{player:player[1-2]}", index),
     (r"/embed/{gameId:\w{8}}", index),
@@ -86,20 +90,21 @@ get_routes = (
     ("/@/{profileId}/challenge/{variant}", index),
     ("/@/{profileId}/perf/{variant}", index),
     ("/@/{profileId}/rated", index),
+    ("/@/{profileId}/playing", index),
     ("/@/{profileId}/me", index),
     ("/@/{profileId}/import", index),
     ("/level8win", index),
     ("/patron", index),
     ("/patron/thanks", index),
-    ("/news", index),
-    ("/news/{news_item}", index),
+    ("/blogs", index),
+    ("/blogs/{blogId}", index),
     ("/variants", index),
     ("/variants/{variant}", index),
     ("/memory", index),
     ("/video", index),
     ("/video/{videoId}", index),
     ("/wsl", lobby_socket_handler),
-    ("/wsr", round_socket_handler),
+    ("/wsr/{gameId}", round_socket_handler),
     ("/wst", tournament_socket_handler),
     ("/api/account", account),
     ("/api/account/playing", playing),
@@ -109,6 +114,7 @@ get_routes = (
     ("/api/{profileId}/win", get_user_games),
     ("/api/{profileId}/loss", get_user_games),
     ("/api/{profileId}/rated", get_user_games),
+    ("/api/{profileId}/playing", get_user_games),
     ("/api/{profileId}/import", get_user_games),
     ("/api/{profileId}/me", get_user_games),
     ("/api/{profileId}/perf/{variant}", get_user_games),
@@ -126,7 +132,7 @@ get_routes = (
     ("/games/json/{profileId}", get_user_games),
     ("/tournament/json/{tournamentId}", get_tournament_games),
     ("/fishnet/monitor", fishnet_monitor),
-    ("/fishnet/key/{key}", fishnet_key),
+    ("/fishnet/key/{key}", fishnet_validate_key),
     ("/robots.txt", robots),
 )
 

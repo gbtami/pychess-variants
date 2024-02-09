@@ -1,19 +1,20 @@
 # -*- coding: utf-8 -*-
 
 import logging
-import unittest
 import random
+import unittest
 
 from aiohttp.test_utils import AioHTTPTestCase
 
+import game
 from const import VARIANTS
-from glicko2.glicko2 import DEFAULT_PERF
 from game import Game
+from glicko2.glicko2 import DEFAULT_PERF
+from seek import Seek
+from server import make_app
 from user import User
 from utils import join_seek
-from server import make_app
-import game
-from seek import Seek
+from pychess_global_app_state_utils import get_app_state
 
 game.KEEP_TIME = 0
 game.MAX_PLY = 120
@@ -32,7 +33,7 @@ class RamatchChess960GameTestCase(AioHTTPTestCase):
         self.Bplayer = User(self.app, username="Bplayer", perfs=PERFS["newplayer"])
 
     async def get_application(self):
-        app = make_app(with_db=False)
+        app = make_app()
         app.on_startup.append(self.startup)
         return app
 
@@ -40,6 +41,7 @@ class RamatchChess960GameTestCase(AioHTTPTestCase):
         await self.client.close()
 
     async def play_game_and_rematch_game(self, game_odd):
+        app_state = get_app_state(self.app)
         print("%s - %s %s" % (game_odd.wplayer, game_odd.bplayer, game_odd.initial_fen))
         await game_odd.game_ended(game_odd.wplayer, "flag")
 
@@ -60,12 +62,12 @@ class RamatchChess960GameTestCase(AioHTTPTestCase):
             player1=rematch_offfered_by,
             chess960=game_odd.chess960,
         )
-        self.app["seeks"][seek.id] = seek
+        app_state.seeks[seek.id] = seek
 
         response = await join_seek(self.app, rematch_accepted_by, seek.id)
         rematch_id = response["gameId"]
 
-        game_even = self.app["games"][rematch_id]
+        game_even = app_state.games[rematch_id]
         print("%s - %s %s" % (game_even.wplayer, game_even.bplayer, game_even.initial_fen))
         self.assertEqual(game_odd.initial_fen, game_even.initial_fen)
 
@@ -88,12 +90,12 @@ class RamatchChess960GameTestCase(AioHTTPTestCase):
             player1=rematch_offfered_by,
             chess960=game_even.chess960,
         )
-        self.app["seeks"][seek.id] = seek
+        app_state.seeks[seek.id] = seek
 
-        response = await join_seek(self.app, rematch_accepted_by, seek.id)
+        response = await join_seek(app_state, rematch_accepted_by, seek.id)
         rematch_id = response["gameId"]
 
-        game_odd = self.app["games"][rematch_id]
+        game_odd = app_state.games[rematch_id]
         self.assertNotEqual(game_even.initial_fen, game_odd.initial_fen)
         return game_odd
 

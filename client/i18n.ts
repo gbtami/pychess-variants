@@ -26,6 +26,7 @@ export const LANGUAGES = {
     ru: "Pусский",
     th: "ไทย",
     tr: "Türkçe",
+    vi: "Tiếng Việt",
     zh_CN: "简体中文",
     zh_TW: "繁體中文",
 };
@@ -46,6 +47,7 @@ const LANGUAGETEXT: {[key:string]: string} = {
     ru: "Язык",
     th: "ภาษา",
     tr: "Dil",
+    vi: "Ngôn ngữ",
     zh_CN: "语言",
     zh_TW: "語言",
 };
@@ -75,7 +77,7 @@ export const translatedVariantDisplayNames = [
     _("capablanca"), _("capahouse"), _("s-chess"), _("s-house"),
     _("grand"), _("grandhouse"), _("shako"), _("shogun"), _("hoppel-poppel"),
 
-    _("orda"), _("synochess"), _("shinobi"), _("empire"), _("orda mirror"), _("chak"), _("chennis"),
+    _("orda"), _("synochess"), _("shinobi"), _("shinobi+"), _("empire"), _("orda mirror"), _("chak"), _("chennis"),
 ];
 
 export const translatedCustomStartPositions = [
@@ -91,17 +93,20 @@ export const translatedCustomStartPositions = [
 ];
 
 export const translatedTooltips = [
+    _("Infection game."),
     _("Chess, unmodified, as it's played by FIDE standards."),
     _("Take captured pieces and drop them back on to the board as your own."),
     _("Choose where your pieces start."),
     _("Pieces explode upon capture."),
+    _("Bring your King to the center to win the game."),
+    _("Check your opponent 3 times to win the game."),
     _("The duck must be moved to a new square after every turn."),
     _("Thai Chess. A game closely resembling the original Chaturanga. Similar to Chess but with a different queen and bishop."),
     _("Makruk variant where kings cannot move to escape out of check."),
     _("Cambodian Chess. Makruk with a few additional opening abilities."),
     _("Burmese Chess. Similar to Makruk, but pieces are placed at the start of the match."),
     _("Makruk using the board/pieces from International Chess as well as pawn promotion rules."),
-    _("Japanese Chess, and the standard 9x9 version played today with drops and promotions. "),
+    _("Japanese Chess, the standard 9x9 version played today with drops and promotions."),
     _("5x5 Shogi for more compact and faster games. There are no knights or lances."),
     _("A wild Shogi variant on a 5x5 board where pieces flip into a different piece after each move."),
     _("3x4 game with cute animals, designed to teach children how to play Shogi."),
@@ -127,6 +132,8 @@ export const translatedTooltips = [
     _("Orda Chess variant with two Horde armies. The Falcon replaces the Yurt."),
     _("Mayan chess. Inspired by cultural elements of Mesoamerica."),
     _("Pieces alternate between two forms with each move."),
+    _("Asymmetric Spartans vs. Persians variant."),
+    _("Pantheon tale"),
     _("Like Capablanca Chess but with Grand starting setup."),
     _("Embassy with Crazyhouse drop rules."),
     _("Like Capablanca Chess but with a different starting setup."),

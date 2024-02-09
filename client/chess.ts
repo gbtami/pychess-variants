@@ -6,6 +6,8 @@ import { _ } from './i18n';
 
 import { Variant, variantGroups } from './variants';
 
+export const WHITE = 0;
+export const BLACK = 1;
 export const ranksUCI = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'] as const;
 export type UCIRank = typeof ranksUCI[number];
 export type UCIKey =  'a0' | `${cg.File}${UCIRank}`;
@@ -19,7 +21,7 @@ export type ColorName = "White" | "Black" | "Red" | "Blue" | "Gold" | "Pink" | "
 export type PromotionType = "regular" | "shogi";
 export type TimeControlType = "incremental" | "byoyomi";
 export type CountingType = "makruk" | "asean";
-export type MaterialPointType = "janggi";
+export type MaterialPointType = "janggi" | "ataxx";
 export type BoardMarkType = "campmate" | "kingofthehill";
 export type PieceSoundType = "regular" | "atomic" | "shogi";
 
@@ -56,6 +58,25 @@ export function cg2uci(move: string): string {
     return move.replace(/:/g, "10");
 }
 
+// Get the latest move from FEN if ep square is given
+export function lmBeforeEp(variant: Variant, fen: string): string {
+    let lastMove = '';
+    if (variant.rules.enPassant) {
+        const parts = fen.split(' ');
+        const epSquare = parts[3];
+        if (epSquare !== "-") {
+            const file = epSquare.slice(0, 1);
+            const rank = Number(epSquare.slice(1));
+            if (rank < 4) {
+                lastMove = `${file}${rank - 1}${file}${rank + 1}`;
+            } else {
+                lastMove = `${file}${rank + 1}${file}${rank - 1}`;
+            }
+        }
+    }
+    return lastMove;
+}
+
 // TODO Will be deprecated after WASM Fairy integration
 export function validFen(variant: Variant, fen: string): boolean {
     const as = variant.alternateStart;
@@ -65,8 +86,9 @@ export function validFen(variant: Variant, fen: string): boolean {
     const variantName = variant.name;
     const startfen = variant.startFen;
     const start = startfen.split(' ');
+    console.log(start);
     const parts = fen.split(' ');
-
+    console.log(parts);
     // Need starting color
     if (parts.length < 2) return false;
 
@@ -76,7 +98,7 @@ export function validFen(variant: Variant, fen: string): boolean {
     let good = startPlacement + 
         ((variantName === "orda") ? "Hq" : "") +
         ((variantName === "dobutsu") ? "Hh" : "") +
-        ((variantName === "duck") ? "*" : "") +
+        ((variantName === "duck" || variantName === "ataxx") ? "*" : "") +
         "~+0123456789[]-";
     const alien = (element: string) => !good.includes(element);
     if (placement.split('').some(alien)) return false;
@@ -101,11 +123,14 @@ export function validFen(variant: Variant, fen: string): boolean {
             return false;
     }
 
-    // Touching kings
-    if (variantName !== 'atomic' && touchingKings(boardState.pieces)) return false;
-
     // Starting colors
     if (parts[1] !== 'b' && parts[1] !== 'w') return false;
+
+    // ataxx has no kings at all
+    if (variantName === 'ataxx') return true;
+
+    // Touching kings
+    if (variantName !== 'atomic' && touchingKings(boardState.pieces)) return false;
 
     // Castling rights (piece virginity)
     good = (variantName === 'seirawan' || variantName === 'shouse') ? 'KQABCDEFGHkqabcdefgh-' : start[2] + "-";
@@ -162,16 +187,19 @@ function diff(a: number, b:number): number {
     return Math.abs(a - b);
 }
 
+export function adjacent(key1: cg.Key, key2: cg.Key): boolean {
+    return diff(key1.charCodeAt(0), key2.charCodeAt(0)) <= 1 && diff(key1.charCodeAt(1), key2.charCodeAt(1)) <= 1;
+}
+
 function touchingKings(pieces: cg.Pieces): boolean {
-    let wk = 'xx', bk = 'zz';
+    let wk: cg.Key = 'a1', bk: cg.Key = 'h8';
     for (const [k, p] of pieces) {
         if (p.role === "k-piece") {
             if (p.color === 'white') wk = k;
             if (p.color === 'black') bk = k;
         }
     }
-    const touching = diff(wk.charCodeAt(0), bk.charCodeAt(0)) <= 1 && diff(wk.charCodeAt(1), bk.charCodeAt(1)) <= 1;
-    return touching;
+    return adjacent(wk, bk);
 }
 
 // pocket part of the FEN (including brackets)
@@ -231,6 +259,19 @@ export function getJanggiPoints(board: string): number[] {
     return [choPoint, hanPoint];
 }
 
+// Get ataxx material points
+export function getAtaxxPoints(board: string): number[] {
+    let redPoint = 0;
+    let bluePoint = 0;
+    for (const c of board) {
+        switch (c) {
+            case 'P': redPoint += 1; break;
+            case 'p': bluePoint += 1; break;
+        }
+    }
+    return [redPoint, bluePoint];
+}
+
 export function unpromotedRole(variant: Variant, piece: cg.Piece): cg.Role {
     if (piece.promoted) {
         if (variant.promotion.type === 'shogi')
@@ -253,16 +294,57 @@ export function promotedRole(variant: Variant, piece: cg.Piece): cg.Role {
     }
 }
 
+function neighbours(key: cg.Key) {
+    const pos = util.key2pos(key);
+    return [
+        util.pos2key([pos[0] - 1, pos[1] - 1]),
+        util.pos2key([pos[0] + 0, pos[1] - 1]),
+        util.pos2key([pos[0] + 1, pos[1] - 1]),
+        util.pos2key([pos[0] - 1, pos[1]]),
+        util.pos2key([pos[0] + 1, pos[1]]),
+        util.pos2key([pos[0] - 1, pos[1] + 1]),
+        util.pos2key([pos[0] + 0, pos[1] + 1]),
+        util.pos2key([pos[0] + 1, pos[1] + 1]),
+    ];
+}
+
 // Convert a list of moves to chessground destination
-export function moveDests(legalMoves: UCIMove[]): cg.Dests {
+export function moveDests(legalMoves: UCIMove[], fakeDrops: boolean, pieces: cg.Pieces, color: cg.Color): cg.Dests {
     const dests: cg.Dests = new Map();
     legalMoves.map(uci2cg).forEach(move => {
-        const orig = move.slice(0, 2) as cg.Key;
+        const orig = move.slice(0, 2) as cg.Orig;
         const dest = move.slice(2, 4) as cg.Key;
-        if (dests.has(orig))
-            dests.get(orig)!.push(dest);
-        else
-            dests.set(orig, [ dest ]);
+        // fakeDrops parameter is used for ataxx only!
+        if (fakeDrops) {
+            // ataxx has infinite drop but has no pockets in FEN, so
+            // we will enable moving to drop dests as well
+            // and create drop moves in GameController.onUserMove()
+            if (orig === 'P@') {
+                const candidates = neighbours(dest);
+                candidates.forEach((key) => {
+                    const piece = pieces.get(key);
+                    if (piece && piece.role === 'p-piece' && piece.color === color) {
+                        if (dests.has(key)) {
+                            dests.get(key)!.push(dest);
+                        } else {
+                            dests.set(key, [ dest ]);
+                        }
+                    }
+                })
+            } else {
+                if (dests.has(orig)) {
+                    dests.get(orig)!.push(dest);
+                } else {
+                    dests.set(orig, [ dest ]);
+                }
+            }
+        } else {
+            if (dests.has(orig)) {
+                dests.get(orig)!.push(dest);
+            } else {
+                dests.set(orig, [ dest ]);
+            }
+        }
     });
     return dests;
 }
@@ -281,7 +363,7 @@ export function promotionSuffix(move: UCIMove | CGMove): PromotionSuffix {
     }
 }
 
-// Count given letter occurences in a string
+// Count given letter occurrences in a string
 export function lc(str: string, letter: string, uppercase: boolean): number {
     if (uppercase)
         letter = letter.toUpperCase();

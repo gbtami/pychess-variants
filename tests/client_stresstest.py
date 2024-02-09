@@ -1,18 +1,20 @@
 import asyncio
 import json
 import random
-
 import pstats
 import cProfile
-
+import time
 import aiohttp
 
-from newid import id8
+import pyffish as sf
+
+sf.set_option("VariantPath", "variants.ini")
+
 from settings import URI
 
 
 LOBBY_URL = f"{URI}/wsl"
-ROUND_URL = f"{URI}/wsr"
+ROUND_URL = f"{URI}/wsr/"
 URLS = ("about", "players", "games", "tv", "variants")
 TEST_VARIANTS = (
     "chess",
@@ -50,8 +52,9 @@ vari = get_variant()
 
 class TestUser:
     def __init__(self):
-        self.username = "Anon-" + id8()
+        self.username = ""
         self.seeks = []
+        self.variant = ""
         self.playing = False
 
     async def get(self, url=None):
@@ -74,10 +77,21 @@ class TestUser:
 
     async def go_to_lobby(self):
         async with aiohttp.ClientSession() as session:
+            async with session.get(URI) as resp:
+                text = await resp.text()
+                index = text.find("data-user=")
+                index = index + len("data-user=") + 1
+                self.username = text[index : index + 13]
+                print(self.username)
+
+            session_data = {"session": {"user_name": self.username}, "created": int(time.time())}
+            value = json.dumps(session_data)
+            session.cookie_jar.update_cookies({"AIOHTTP_SESSION": value})
+
             async with session.ws_connect(LOBBY_URL) as wsl:
-                await wsl.send_json({"type": "lobby_user_connected", "username": self.username})
+                # await wsl.send_json({"type": "lobby_user_connected", "username": self.username})
                 await self.send_lobby_chat(wsl, "Hi all!")
-                await wsl.send_json({"type": "get_seeks"})
+                # await wsl.send_json({"type": "get_seeks"})
 
                 async for msg in wsl:
                     # print('Lobby message received from server:', msg)
@@ -104,10 +118,10 @@ class TestUser:
                         elif data["type"] == "lobby_user_connected":
                             print("Connected as %s" % data["username"])
                             # variant = random.choice(VARIANTS).rstrip("960")
-                            variant = next(vari)
+                            self.variant = next(vari)
                             data = {
                                 "type": "create_ai_challenge",
-                                "variant": variant,
+                                "variant": self.variant,
                                 "rm": True,
                                 "fen": "",
                                 "color": "r",
@@ -130,7 +144,7 @@ class TestUser:
     # @profile
     async def go_to_round(self, session, wsl, game_id, wplayer, bplayer):
         print("---------ROUND baby")
-        async with session.ws_connect(ROUND_URL, timeout=20.0) as wsr:
+        async with session.ws_connect(ROUND_URL + game_id, timeout=20.0) as wsr:
             # TODO: am I player or am I spectator ???
             await wsr.send_json(
                 {
@@ -169,12 +183,13 @@ class TestUser:
                             await asyncio.sleep(random.uniform(0, 0.1))
                             parts = data["fen"].split(" ")
                             turn_color = parts[1]
-                            if data["rm"] and turn_color == mycolor:
+                            legal_moves = sf.legal_moves(self.variant, data["fen"], [], False)
+                            if legal_moves and turn_color == mycolor:
                                 await wsr.send_json(
                                     {
                                         "type": "move",
                                         "gameId": game_id,
-                                        "move": data["rm"],
+                                        "move": random.choice(legal_moves),
                                         "clocks": data["clocks"],
                                         "ply": data["ply"] + 1,
                                     }

@@ -14,13 +14,14 @@ export function gameInfo(model: PyChessModel): VNode {
     const variant = VARIANTS[model.variant];
     const chess960 = model.chess960 === 'True';
     const dataIcon = variant.icon(chess960);
+    const tc = timeControlStr(model["base"], model["inc"], model["byo"], model["corr"] === "True" ? model["base"] : 0)
 
     return h('div.game-info', [
         h('section', [
         h('div.info0.icon', { attrs: { "data-icon": dataIcon } }, [
             h('div.info2', [
                 h('div.tc', [
-                    timeControlStr(model["base"], model["inc"], model["byo"]) + " • " + gameType(model["rated"]) + " • ",
+                    tc + " • " + gameType(model["rated"]) + " • ",
                     h('a.user-link', {
                         attrs: {
                             target: '_blank',

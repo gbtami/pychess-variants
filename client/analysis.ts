@@ -107,7 +107,7 @@ export function analysisView(model: PyChessModel): VNode[] {
     let tabs = [];
     tabs.push(h('span', {attrs: {role: 'tab', 'aria-selected': false, 'aria-controls': 'panel-1', id: 'tab-1', tabindex: '-1'}}, _('Computer analysis')));
     if (model.rated === "1") {
-        tabs.push(h('span', {attrs: {role: 'tab', 'aria-selected': true, 'aria-controls': 'panel-2', id: 'tab-1', tabindex: '-1'}}, _('Move times')))
+        tabs.push(h('span', {attrs: {role: 'tab', 'aria-selected': true, 'aria-controls': 'panel-2', id: 'tab-2', tabindex: '-1'}}, _('Move times')))
     }
     if (model.ct) {
         tabs.push(h('span', {attrs: {role: 'tab', 'aria-selected': false, 'aria-controls': 'panel-3', id: 'tab-3', tabindex: tabindexCt}}, _('Crosstable')))
@@ -147,7 +147,7 @@ export function analysisView(model: PyChessModel): VNode[] {
             h('under-board', [
                 h('div', {attrs: {role: 'tablist', 'aria-label': 'Analysis Tabs'}}, tabs),
                 h('div.chart-container', {attrs: {id: 'panel-1', role: 'tabpanel', tabindex: '-1', 'aria-labelledby': 'tab-1'}}, [
-                    h('button#request-analysis'),
+                    h('div#request-analysis'),
                     h('div#chart-analysis'),
                     h('div#loader-wrapper', [spinner()])
                 ]),

@@ -1,11 +1,16 @@
+from __future__ import annotations
+
+
 import logging
 from time import time
 
 import discord
 from discord.ext.commands import Bot
 
-from const import CATEGORIES
-from broadcast import lobby_broadcast
+from const import CATEGORIES, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from pychess_global_app_state import PychessGlobalAppState
 
 log = logging.getLogger("discord")
 log.setLevel(logging.WARNING)
@@ -51,10 +56,10 @@ class FakeDiscordBot:
 
 
 class DiscordBot(Bot):
-    def __init__(self, app):
+    def __init__(self, app_state: PychessGlobalAppState):
         Bot.__init__(self, command_prefix="!", intents=intents)
 
-        self.app = app
+        self.app_state = app_state
 
         self.pychess_lobby_channel = None
         self.game_seek_channel = None
@@ -66,16 +71,9 @@ class DiscordBot(Bot):
         if msg.author.id == self.user.id or msg.channel.id != PYCHESS_LOBBY_CHANNEL_ID:
             log.debug("---self.user msg OR other channel.id -> return")
             return
-
-        response = {
-            "type": "lobbychat",
-            "user": "Discord-Relay",
-            "message": "%s: %s" % (msg.author.name, msg.content),
-            "time": int(time()),
-        }
-
-        self.app["lobbychat"].append(response)
-        await lobby_broadcast(self.app["lobbysockets"], response)
+        await self.app_state.lobby.lobby_chat(
+            "Discord-Relay", "%s: %s" % (msg.author.name, msg.content), int(time())
+        )
 
     def get_channels(self):
         # Get the pychess-lobby channel

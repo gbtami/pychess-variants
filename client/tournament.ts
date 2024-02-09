@@ -164,7 +164,7 @@ export class TournamentController implements ChatController {
             }
             break;
         case 'started':
-            if ('spectator|paused'.includes(this.userStatus)) {
+            if ('spectator|paused|withdrawn'.includes(this.userStatus)) {
                 button = h('button#action', { on: { click: () => this.join() }, class: {"icon": true, "icon-play": true} }, _('JOIN'));
             } else {
                 button = h('button#action', { on: { click: () => this.pause() }, class: {"icon": true, "icon-pause": true} }, _('PAUSE'));
@@ -637,9 +637,6 @@ export class TournamentController implements ChatController {
 
     private onMsgChat(msg: MsgChat) {
         chatMessage(msg.user, msg.message, "lobbychat", msg.time);
-        // seems this is annoying for most of the users
-        //if (msg.user.length !== 0 && msg.user !== '_server')
-        //    sound.socialNotify();
     }
     private onMsgFullChat(msg: MsgFullChat) {
         // To prevent multiplication of messages we have to remove old messages div first

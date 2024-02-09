@@ -11,6 +11,7 @@ import { patch } from '@/document';
 import { PyChessModel } from "@/types";
 import { ChessgroundController } from '@/cgCtrl';
 import { notation } from '@/variants';
+import { copyTextToClipboard } from '@/clipboard';
 import { initPieceRow } from './pieceRow';
 
 export class EditorController extends ChessgroundController {
@@ -146,7 +147,10 @@ export class EditorController extends ChessgroundController {
                 ]),
                 h('a#pgn.i-pgn', { on: { click: () => copyBoardToPNG(this.parts.join(' ')) } }, [
                     h('div.icon.icon-download', _('EXPORT TO PNG'))
-                ])
+                ]),
+                h('a#pgn.i-pgn', { on: { click: () => copyTextToClipboard(this.parts.join(' ')) } }, [
+                    h('div.icon.icon-clipboard', _('COPY FEN TO CLIPBOARD'))
+                ]),
             ];
             patch(container, h('div.editor-button-container', buttons));
         }

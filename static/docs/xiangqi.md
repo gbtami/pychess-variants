@@ -103,18 +103,12 @@ For comparison, the SAN used in chess is:
 
 ### Symbols
 
-K = **K**ing
-
-A = **A**dvisor
-
-E = **E**lephant
-
-H = **H**orse
-
-C = **C**annon
-
-R = Cha**R**iot
-
+K = **K**ing  
+A = **A**dvisor  
+E = **E**lephant  
+H = **H**orse  
+C = **C**annon  
+R = Cha**R**iot  
 P = **P**awn
 
 ## WXF Notation

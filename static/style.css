@@ -39,6 +39,12 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+.icon-ataxx:before {
+  content: "\2623";
+}
+.icon-mansindam:before {
+  content: "\26f5";
+}
 .icon-check960:before {
   content: "\2637";
 }

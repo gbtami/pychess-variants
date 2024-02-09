@@ -1,3 +1,4 @@
+from __future__ import annotations
 from itertools import chain
 
 from const import MAX_NAMED_SPECTATORS

@@ -1,15 +1,17 @@
+from __future__ import annotations
 import asyncio
 import json
 import logging
 
 from aiohttp import web
 
+from broadcast import round_broadcast
 from const import STARTED, RESIGN
-from broadcast import round_broadcast, lobby_broadcast
-from user import User
-from seek import challenge, get_seeks, Seek
-from utils import join_seek, play_move
+from seek import challenge, Seek
 from settings import BOT_TOKENS
+from user import User
+from utils import join_seek, play_move
+from pychess_global_app_state_utils import get_app_state
 
 log = logging.getLogger(__name__)
 
@@ -73,11 +75,9 @@ async def create_bot_seek(request):
 
     data = await request.post()
 
-    users = request.app["users"]
-    seeks = request.app["seeks"]
-    sockets = request.app["lobbysockets"]
+    app_state = get_app_state(request.app)
 
-    bot_player = users[username]
+    bot_player = app_state.users[username]
 
     log.info("+++ %s created %s seek", bot_player.username, data["variant"])
 
@@ -85,7 +85,7 @@ async def create_bot_seek(request):
     test_TV = True
     matching_seek = None
     if test_TV:
-        for seek in seeks.values():
+        for seek in app_state.seeks.values():
             if (
                 seek.variant == data["variant"]
                 and seek.creator.bot
@@ -99,23 +99,22 @@ async def create_bot_seek(request):
 
     if matching_seek is None:
         seek = None
-        for existing_seek in seeks.values():
+        for existing_seek in app_state.seeks.values():
             if existing_seek.creator == bot_player and existing_seek.variant == data["variant"]:
                 seek = existing_seek
                 break
         if seek is None:
             seek = Seek(bot_player, data["variant"], player1=bot_player)
-            seeks[seek.id] = seek
+            app_state.seeks[seek.id] = seek
         bot_player.seeks[seek.id] = seek
 
         # inform others
-        await lobby_broadcast(sockets, get_seeks(seeks))
+        await app_state.lobby.lobby_broadcast_seeks()
     else:
-        games = request.app["games"]
-        response = await join_seek(request.app, bot_player, matching_seek.id)
+        response = await join_seek(app_state, bot_player, matching_seek.id)
 
         gameId = response["gameId"]
-        game = games[gameId]
+        game = app_state.games[gameId]
 
         chall = challenge(seek, gameId)
 
@@ -136,31 +135,27 @@ async def event_stream(request):
     user_agent = request.headers.get("User-Agent")
     username = user_agent[user_agent.find("user:") + 5 :]
 
-    users = request.app["users"]
-    seeks = request.app["seeks"]
-    sockets = request.app["lobbysockets"]
-    games = request.app["games"]
-    db = request.app["db"]
+    app_state = get_app_state(request.app)
 
     resp = web.StreamResponse()
     resp.content_type = "text/plain"
     await resp.prepare(request)
 
-    if username in users:
-        bot_player = users[username]
+    if username in app_state.users:
+        bot_player = app_state.users[username]
         # After BOT lost connection it may have ongoing games
         # We notify BOT and he can ask to create new game_streams
         # to continue those games
         for gameId in bot_player.game_queues:
-            if gameId in games and games[gameId].status == STARTED:
-                await bot_player.event_queue.put(games[gameId].game_start)
+            if gameId in app_state.games and app_state.games[gameId].status == STARTED:
+                await bot_player.event_queue.put(app_state.games[gameId].game_start)
     else:
-        bot_player = User(request.app, bot=True, username=username)
-        users[bot_player.username] = bot_player
+        bot_player = User(app_state, bot=True, username=username)
+        app_state.users[bot_player.username] = bot_player
 
-        doc = await db.user.find_one({"_id": username})
+        doc = await app_state.db.user.find_one({"_id": username})
         if doc is None:
-            result = await db.user.insert_one(
+            result = await app_state.db.user.insert_one(
                 {
                     "_id": username,
                     "title": "BOT",
@@ -172,11 +167,13 @@ async def event_stream(request):
 
     log.info("+++ BOT %s connected", bot_player.username)
 
-    pinger_task = asyncio.create_task(bot_player.pinger(sockets, seeks, users, games))
+    pinger_task = asyncio.create_task(
+        bot_player.pinger(app_state.sockets, app_state.seeks, app_state.users, app_state.games)
+    )
 
     # inform others
     # TODO: do we need this at all?
-    await lobby_broadcast(sockets, get_seeks(seeks))
+    await app_state.lobby.lobby_broadcast_seeks()
 
     # send "challenge" and "gameStart" events from event_queue to the BOT
     while bot_player.online:
@@ -198,7 +195,7 @@ async def event_stream(request):
                 await resp.write(answer.encode("utf-8"))
                 await resp.drain()
         except Exception:
-            log.error("BOT %s event_stream is broken...", username)
+            log.error("BOT %s event_stream is broken...", username, exc_info=True)
             break
 
     pinger_task.cancel()
@@ -213,16 +210,15 @@ async def game_stream(request):
 
     gameId = request.match_info["gameId"]
 
-    users = request.app["users"]
-    games = request.app["games"]
+    app_state = get_app_state(request.app)
 
-    game = games[gameId]
+    game = app_state.games[gameId]
 
     resp = web.StreamResponse()
     resp.content_type = "application/json"
     await resp.prepare(request)
 
-    bot_player = users[username]
+    bot_player = app_state.users[username]
 
     log.info("+++ %s connected to %s game stream", bot_player.username, gameId)
 
@@ -251,13 +247,13 @@ async def game_stream(request):
             await resp.write(answer.encode("utf-8"))
             await resp.drain()
         except Exception:
-            log.error("Writing %s to BOT game_stream failed!", answer)
+            log.error("Writing %s to BOT game_stream failed!", answer, exc_info=True)
             break
 
     try:
         await resp.write_eof()
     except Exception:
-        log.error("Writing EOF to BOT game_stream failed!")
+        log.error("Writing EOF to BOT game_stream failed!", exc_info=True)
     pinger_task.cancel()
 
     return resp
@@ -270,10 +266,12 @@ async def bot_move(request):
     gameId = request.match_info["gameId"]
     move = request.match_info["move"]
 
-    user = request.app["users"][username]
-    game = request.app["games"][gameId]
+    app_state = get_app_state(request.app)
 
-    await play_move(request.app, user, game, move)
+    user = app_state.users[username]
+    game = app_state.games[gameId]
+
+    await play_move(app_state, user, game, move)
 
     return web.json_response({"ok": True})
 
@@ -283,23 +281,22 @@ async def bot_abort(request):
     user_agent = request.headers.get("User-Agent")
     username = user_agent[user_agent.find("user:") + 5 :]
 
-    games = request.app["games"]
-    gameId = request.match_info["gameId"]
-    game = games[gameId]
+    app_state = get_app_state(request.app)
 
-    users = request.app["users"]
-    bot_player = users[username]
+    gameId = request.match_info["gameId"]
+    game = app_state.games[gameId]
+
+    bot_player = app_state.users[username]
 
     opp_name = game.wplayer.username if username == game.bplayer.username else game.bplayer.username
-    opp_player = users[opp_name]
+    opp_player = app_state.users[opp_name]
 
-    response = await game.abort()
+    response = await game.abort_by_server()
     await bot_player.game_queues[gameId].put(game.game_end)
     if opp_player.bot:
         await opp_player.game_queues[gameId].put(game.game_end)
     else:
-        opp_ws = users[opp_name].game_sockets[gameId]
-        await opp_ws.send_json(response)
+        await app_state.users[opp_name].send_game_message(gameId, response)
 
     await round_broadcast(game, response)
 
@@ -311,9 +308,10 @@ async def bot_resign(request):
     user_agent = request.headers.get("User-Agent")
     username = user_agent[user_agent.find("user:") + 5 :]
 
-    games = request.app["games"]
+    app_state = get_app_state(request.app)
+
     gameId = request.match_info["gameId"]
-    game = games[gameId]
+    game = app_state.games[gameId]
     game.status = RESIGN
     game.result = "0-1" if username == game.wplayer.username else "1-0"
     return web.json_response({"ok": True})
@@ -324,16 +322,16 @@ async def bot_analysis(request):
     user_agent = request.headers.get("User-Agent")
     bot_name = user_agent[user_agent.find("user:") + 5 :]
 
+    app_state = get_app_state(request.app)
+
     data = await request.post()
 
     gameId = request.match_info["gameId"]
 
-    users = request.app["users"]
     username = data["username"]
 
-    if gameId in users[username].game_sockets:
-        games = request.app["games"]
-        game = games[gameId]
+    if app_state.users[username].is_user_active_in_game(gameId):
+        game = app_state.games[gameId]
 
         ply = data["ply"]
         ceval = json.loads(data["ceval"])
@@ -341,14 +339,13 @@ async def bot_analysis(request):
         if "score" in ceval:
             game.steps[int(ply)]["eval"] = ceval["score"]
 
-        user_ws = users[username].game_sockets[gameId]
         response = {
             "type": "roundchat",
             "user": bot_name,
             "room": "spectator",
             "message": ply + " " + json.dumps(ceval),
         }
-        await user_ws.send_json(response)
+        await app_state.users[username].send_game_message(gameId, response)
 
         response = {
             "type": "analysis",
@@ -356,7 +353,7 @@ async def bot_analysis(request):
             "color": data["color"],
             "ceval": ceval,
         }
-        await user_ws.send_json(response)
+        await app_state.users[username].send_game_message(gameId, response)
 
     return web.json_response({"ok": True})
 
@@ -366,25 +363,25 @@ async def bot_chat(request):
     user_agent = request.headers.get("User-Agent")
     username = user_agent[user_agent.find("user:") + 5 :]
 
+    app_state = get_app_state(request.app)
+
     data = await request.post()
 
     gameId = request.match_info["gameId"]
 
-    users = request.app["users"]
-    games = request.app["games"]
-
-    game = games[gameId]
+    game = app_state.games[gameId]
 
     opp_name = game.wplayer.username if username == game.bplayer.username else game.bplayer.username
 
-    if not users[opp_name].bot:
-        opp_ws = users[opp_name].game_sockets[gameId]
-        response = {
-            "type": "roundchat",
-            "user": username,
-            "room": data["room"],
-            "message": data["text"],
-        }
-        await opp_ws.send_json(response)
+    if not app_state.users[opp_name].bot:
+        await app_state.users[opp_name].send_game_message(
+            gameId,
+            {
+                "type": "roundchat",
+                "user": username,
+                "room": data["room"],
+                "message": data["text"],
+            },
+        )
 
     return web.json_response({"ok": True})

@@ -20,6 +20,19 @@ label.piece.piece99 {
     background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' version='1.1' width='80px' height='80px'><text font-size='30' x='50%' y='50%' fill='gray' class='white' text-anchor='middle' dominant-baseline='central'>ABC</text></svg>");
 }
 
+label.piece.piece0.ataxx {
+    background-image: url('images/pieces/disguised/3d-red.svg');
+}
+label.piece.piece1.ataxx {
+    background-image: url('images/pieces/ataxx/virus/red.svg');
+}
+label.piece.piece2.ataxx {
+    background-image: url('images/pieces/ataxx/zombie/zombie.svg');
+}
+label.piece.piece3.ataxx {
+    background-image: url('images/pieces/ataxx/cat-dog/dog.svg');
+}
+
 label.piece.piece0.standard {
     background-image: url('images/pieces/merida/wN.svg');
 }
@@ -191,6 +204,9 @@ label.piece.piece11.shogi {
     background-image: url('images/pieces/shogi/Portella/Intl/0KA.png');
 }
 label.piece.piece12.shogi {
+    background-image: url('images/pieces/shogi/cz/0KA.svg');
+}
+label.piece.piece13.shogi {
     background-image: url('images/pieces/disguised/shogi-ally.svg');
 }
 
@@ -233,11 +249,14 @@ label.piece.piece3.tori {
     background-image: url('images/pieces/tori/Portella/0PhoenixBlack.png');
 }
 label.piece.piece4.tori {
+    background-image: url('images/pieces/tori/cz/0Phoenix.svg');
+}
+label.piece.piece5.tori {
     background-image: url('images/pieces/disguised/shogi-ally.svg');
 }
 
 label.piece.piece0.xiangqi {
-    background-image: url('images/pieces/xiangqi/2dhanzi/RK.svg');
+    background-image: url('images/pieces/xiangqi/lishu/RK.svg');
 }
 label.piece.piece1.xiangqi {
     background-image: url('images/pieces/xiangqi/2dintl/RK.svg');
@@ -255,7 +274,7 @@ label.piece.piece5.xiangqi {
     background-image: url('images/pieces/xiangqi/ct2/red_king2.svg');
 }
 label.piece.piece6.xiangqi {
-    background-image: url('images/pieces/xiangqi/hnzw/red_king.svg');
+    background-image: url('images/pieces/xiangqi/lishuw/red_king.svg');
 }
 label.piece.piece7.xiangqi {
     background-image: url('images/pieces/xiangqi/ct2w/red_king.svg');
@@ -273,9 +292,15 @@ label.piece.piece11.xiangqi {
     background-image: url('images/pieces/xiangqi/ttxqintl/red_king.svg');
 }
 label.piece.piece12.xiangqi {
-    background-image: url('images/pieces/disguised/xiangqi-r.svg');
+    background-image: url('images/pieces/xiangqi/2dhanzi/RK.svg');
 }
 label.piece.piece13.xiangqi {
+    background-image: url('images/pieces/xiangqi/hnzw/red_king.svg');
+}
+label.piece.piece14.xiangqi {
+    background-image: url('images/pieces/disguised/xiangqi-r.svg');
+}
+label.piece.piece15.xiangqi {
     background-image: url('images/pieces/xiangqi/euro/red_king.svg');
 }
 
@@ -387,6 +412,22 @@ label.piece.piece3.hoppel {
     background-image: url('images/pieces/disguised/b.svg');
 }
 
+label.piece.piece0.mansindam {
+    background-image: url('images/pieces/mansindam/intl/wn.svg');
+}
+label.piece.piece1.mansindam {
+    background-image: url('images/pieces/mansindam/YuGothic/wn.svg');
+}
+label.piece.piece2.mansindam {
+    background-image: url('images/pieces/mansindam/Epson/wn.svg');
+}
+label.piece.piece3.mansindam {
+    background-image: url('images/pieces/mansindam/tomato/wn.svg');
+}
+label.piece.piece4.mansindam {
+    background-image: url('images/pieces/disguised/w.svg');
+}
+
 label.piece.piece0.shinobi {
     background-image: url('images/pieces/shinobi/merida/wJ.svg');
 }
@@ -421,6 +462,9 @@ label.piece.piece0.chak {
     background-image: url('images/pieces/chak/WK.svg');
 }
 label.piece.piece1.chak {
+    background-image: url('images/pieces/chak/maya/WK.svg');
+}
+label.piece.piece2.chak {
     background-image: url('images/pieces/disguised/chak-w.svg');
 }
 label.piece.piece0.chennis {
@@ -430,9 +474,15 @@ label.piece.piece1.chennis {
     background-image: url('images/pieces/shogun/cburnett/mono/wC.svg');
 }
 label.piece.piece2.chennis {
-    background-image: url('images/pieces/shogun/merida/mono/wC.svg');
+    background-image: url('images/pieces/chennis/wMN_r.svg');
 }
 label.piece.piece3.chennis {
+    background-image: url('images/pieces/chennis/bMN_r.svg');
+}
+label.piece.piece4.chennis {
+    background-image: url('images/pieces/shogun/merida/mono/wC.svg');
+}
+label.piece.piece5.chennis {
     background-image: url('images/pieces/disguised/w.svg');
 }
 

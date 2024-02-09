@@ -7,7 +7,9 @@ import unittest
 from datetime import datetime, timezone
 
 from aiohttp.test_utils import AioHTTPTestCase
+from mongomock_motor import AsyncMongoMockClient
 
+from arena import ArenaTournament
 from const import (
     BYEGAME,
     STARTED,
@@ -19,18 +21,18 @@ from const import (
     T_STARTED,
     T_FINISHED,
 )
+from draw import draw
 from fairy import BLACK
 from game import MAX_PLY
 from glicko2.glicko2 import DEFAULT_PERF
 from newid import id8
+from pychess_global_app_state_utils import get_app_state
+from rr import RRTournament
 from server import make_app
-from user import User
+from swiss import SwissTournament
 from tournament import Tournament
 from tournaments import upsert_tournament_to_db, new_tournament
-from draw import draw
-from arena import ArenaTournament
-from rr import RRTournament
-from swiss import SwissTournament
+from user import User
 from utils import play_move
 
 # from misc import timeit
@@ -46,8 +48,8 @@ class TestTournament(Tournament):
 
         for i in range(nb_players):
             name = (id8() + id8())[: random.randint(1, 16)]
-            player = User(self.app, username=name, title="TEST", perfs=PERFS)
-            self.app["users"][player.username] = player
+            player = User(self.app_state, username=name, title="TEST", perfs=PERFS)
+            self.app_state.users[player.username] = player
             player.tournament_sockets[self.id] = set((None,))
             await self.join(player)
 
@@ -65,7 +67,7 @@ class TestTournament(Tournament):
         for game in games:
             if game.status == BYEGAME:  # ByeGame
                 continue
-            self.app["games"][game.id] = game
+            self.app_state.games[game.id] = game
             game.random_mover = True
             self.game_tasks.add(asyncio.create_task(self.play_random(game)))
 
@@ -97,16 +99,11 @@ class TestTournament(Tournament):
                     else:
                         response = await game.game_ended(player, "resign")
                     if opp_player.title != "TEST":
-                        opp_ws = opp_player.game_sockets[game.id]
-                        await opp_ws.send_json(response)
+                        await opp_player.send_game_message(game.id, response)
                 else:
                     move = random.choice(game.legal_moves)
-                    clocks = {
-                        "white": game.ply_clocks[-1]["white"],
-                        "black": game.ply_clocks[-1]["black"],
-                        "movetime": 0,
-                    }
-                    await play_move(self.app, cur_player, game, move, clocks=clocks)
+                    clocks = (game.clocks_w[-1], game.clocks_b[-1])
+                    await play_move(self.app_state, cur_player, game, move, clocks=clocks)
             await asyncio.sleep(0.1)
 
 
@@ -143,14 +140,15 @@ async def create_dev_arena_tournament(app):
         "beforeStart": 15,
         "minutes": 25,
     }
-    await new_tournament(app, data)
+    await new_tournament(get_app_state(app), data)
 
 
 async def create_arena_test(app):
+    app_state = get_app_state(app)
     tid = "12345678"
-    await app["db"].tournament.delete_one({"_id": tid})
-    await app["db"].tournament_player.delete_many({"tid": tid})
-    await app["db"].tournament_pairing.delete_many({"tid": tid})
+    await app_state.db.tournament.delete_one({"_id": tid})
+    await app_state.db.tournament_player.delete_many({"tid": tid})
+    await app_state.db.tournament_pairing.delete_many({"tid": tid})
 
     tournament = ArenaTestTournament(
         app,
@@ -165,11 +163,11 @@ async def create_arena_test(app):
     )
     #    tournament = SwissTestTournament(app, tid, variant="makpong", name="First Makpong Swiss", before_start=0.1, rounds=7, created_by="PyChess")
     #    tournament = RRTestTournament(app, tid, variant="makpong", name="First Makpong RR", before_start=0.1, rounds=7, created_by="PyChess")
-    app["tournaments"][tid] = tournament
-    app["tourneysockets"][tid] = {}
-    app["tourneychat"][tid] = collections.deque([], 100)
+    app_state.tournaments[tid] = tournament
+    app_state.tourneysockets[tid] = {}
+    app_state.tourneychat[tid] = collections.deque([], 100)
 
-    await upsert_tournament_to_db(tournament, app)
+    await upsert_tournament_to_db(tournament, app_state)
 
     #    await tournament.join_players(6)
     await tournament.join_players(19)
@@ -177,13 +175,14 @@ async def create_arena_test(app):
 
 class TournamentTestCase(AioHTTPTestCase):
     async def tearDownAsync(self):
-        has_games = len(self.app["games"]) > 0
+        app_state = get_app_state(self.app)
+        has_games = len(app_state.games) > 0
 
-        for game in self.app["games"].values():
+        for game in app_state.games.values():
             if game.status == BYEGAME:  # ByeGame
                 continue
             if game.status <= STARTED:
-                await game.abort()
+                await game.abort_by_server()
 
             if game.remove_task is not None:
                 game.remove_task.cancel()
@@ -203,35 +202,37 @@ class TournamentTestCase(AioHTTPTestCase):
         await self.client.close()
 
     async def get_application(self):
-        app = make_app(with_db=False)
+        app = make_app(db_client=AsyncMongoMockClient())
         return app
 
     @unittest.skipIf(ONE_TEST_ONLY, "1 test only")
     async def test_tournament_without_players(self):
-        self.app["db"] = None
+        app_state = get_app_state(self.app)
+        # app_state.db = None
         tid = id8()
         self.tournament = ArenaTestTournament(
-            self.app, tid, before_start=1.0 / 60.0, minutes=2.0 / 60.0
+            app_state, tid, before_start=0, minutes=2.0 / 60.0
         )
-        self.app["tournaments"][tid] = self.tournament
+        app_state.tournaments[tid] = self.tournament
 
         self.assertEqual(self.tournament.status, T_CREATED)
 
-        await asyncio.sleep((self.tournament.before_start * 60) + 0.1)
+        await asyncio.sleep(0.1)
         self.assertEqual(self.tournament.status, T_STARTED)
 
-        await asyncio.sleep((self.tournament.minutes * 60) + 0.1)
+        await asyncio.sleep(2)
         self.assertEqual(self.tournament.status, T_FINISHED)
 
         await self.tournament.clock_task
 
     @unittest.skipIf(ONE_TEST_ONLY, "1 test only")
     async def test_tournament_players(self):
-        self.app["db"] = None
+        app_state = get_app_state(self.app)
+        # app_state.db = None
         NB_PLAYERS = 15
         tid = id8()
-        self.tournament = ArenaTestTournament(self.app, tid, before_start=0, minutes=0)
-        self.app["tournaments"][tid] = self.tournament
+        self.tournament = ArenaTestTournament(app_state, tid, before_start=0, minutes=0)
+        app_state.tournaments[tid] = self.tournament
         await self.tournament.join_players(NB_PLAYERS)
 
         self.assertEqual(len(self.tournament.leaderboard), NB_PLAYERS)
@@ -249,11 +250,12 @@ class TournamentTestCase(AioHTTPTestCase):
 
     @unittest.skipIf(ONE_TEST_ONLY, "1 test only")
     async def test_tournament_with_3_active_players(self):
-        self.app["db"] = None
+        app_state = get_app_state(self.app)
+        # app_state.db = None
         NB_PLAYERS = 15
         tid = id8()
-        self.tournament = ArenaTestTournament(self.app, tid, before_start=0.1, minutes=1)
-        self.app["tournaments"][tid] = self.tournament
+        self.tournament = ArenaTestTournament(app_state, tid, before_start=0.1, minutes=1)
+        app_state.tournaments[tid] = self.tournament
         await self.tournament.join_players(NB_PLAYERS)
 
         # 12 player leave the tournament lobby
@@ -271,12 +273,13 @@ class TournamentTestCase(AioHTTPTestCase):
 
     @unittest.skipIf(ONE_TEST_ONLY, "1 test only")
     async def test_tournament_pairing_5_round_SWISS(self):
-        self.app["db"] = None
+        app_state = get_app_state(self.app)
+        # app_state.db = None
         NB_PLAYERS = 15
         NB_ROUNDS = 5
         tid = id8()
-        self.tournament = SwissTestTournament(self.app, tid, before_start=0, rounds=NB_ROUNDS)
-        self.app["tournaments"][tid] = self.tournament
+        self.tournament = SwissTestTournament(app_state, tid, before_start=0, rounds=NB_ROUNDS)
+        app_state.tournaments[tid] = self.tournament
         await self.tournament.join_players(NB_PLAYERS)
 
         await self.tournament.clock_task
@@ -289,11 +292,12 @@ class TournamentTestCase(AioHTTPTestCase):
 
     @unittest.skipIf(ONE_TEST_ONLY, "1 test only")
     async def test_tournament_pairing_1_min_ARENA(self):
-        self.app["db"] = None
+        app_state = get_app_state(self.app)
+        # app_state.db = None
         NB_PLAYERS = 15
         tid = id8()
-        self.tournament = ArenaTestTournament(self.app, tid, before_start=0.1, minutes=1)
-        self.app["tournaments"][tid] = self.tournament
+        self.tournament = ArenaTestTournament(app_state, tid, before_start=0.1, minutes=1)
+        app_state.tournaments[tid] = self.tournament
         await self.tournament.join_players(NB_PLAYERS)
 
         # withdraw one player
@@ -311,13 +315,14 @@ class TournamentTestCase(AioHTTPTestCase):
 
     @unittest.skipIf(ONE_TEST_ONLY, "1 test only")
     async def test_tournament_pairing_5_round_RR(self):
-        self.app["db"] = None
+        app_state = get_app_state(self.app)
+        # app_state.db = None
         NB_PLAYERS = 5
         NB_ROUNDS = 5
 
         tid = id8()
-        self.tournament = RRTestTournament(self.app, tid, before_start=0, rounds=NB_ROUNDS)
-        self.app["tournaments"][tid] = self.tournament
+        self.tournament = RRTestTournament(app_state, tid, before_start=0, rounds=NB_ROUNDS)
+        app_state.tournaments[tid] = self.tournament
         await self.tournament.join_players(NB_PLAYERS)
 
         await self.tournament.clock_task

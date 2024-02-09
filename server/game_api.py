@@ -1,19 +1,21 @@
+from __future__ import annotations
 import asyncio
 import json
 import logging
 from datetime import datetime
 from functools import partial
 
-from aiohttp import web
 import aiohttp_session
+from aiohttp import web
 from aiohttp_sse import sse_response
 
-from const import GRANDS, STARTED, MATE, VARIANTS, INVALIDMOVE, VARIANTEND, CLAIM
 from compress import decode_moves, C2V, V2C, C2R
+from const import GRANDS, STARTED, MATE, VARIANTS, INVALIDMOVE, VARIANTEND, CLAIM
 from convert import zero2grand
-from utils import pgn
 from settings import ADMINS
 from tournaments import get_tournament_name
+from utils import pgn
+from pychess_global_app_state_utils import get_app_state
 
 log = logging.getLogger(__name__)
 
@@ -21,18 +23,18 @@ GAME_PAGE_SIZE = 12
 
 
 async def get_variant_stats(request):
+    app_state = get_app_state(request.app)
+
     cur_period = datetime.now().isoformat()[:7]
 
     if "/humans" in request.path:
-        stats = "stats_humans"
+        stats = app_state.stats_humans
     else:
-        stats = "stats"
+        stats = app_state.stats
 
-    if cur_period in request.app[stats]:
-        series = request.app[stats][cur_period]
+    if cur_period in stats:
+        series = stats[cur_period]
     else:
-        db = request.app["db"]
-
         pipeline = [
             {
                 "$group": {
@@ -55,7 +57,7 @@ async def get_variant_stats(request):
                     }
                 },
             )
-        cursor = db.game.aggregate(pipeline)
+        cursor = app_state.db.game.aggregate(pipeline)
 
         variant_counts = {variant: [] for variant in VARIANTS}
 
@@ -79,26 +81,24 @@ async def get_variant_stats(request):
             try:
                 variant_counts[variant][-1] = cnt
             except KeyError:
-                # support of variant discontinued
-                pass
+                log.error("support of variant discontinued!")
 
         series = [{"name": variant, "data": variant_counts[variant]} for variant in VARIANTS]
 
-        request.app[stats][cur_period] = series
+        stats[cur_period] = series
 
     return web.json_response(series, dumps=partial(json.dumps, default=datetime.isoformat))
 
 
 async def get_tournament_games(request):
-    tournaments = request.app["tournaments"]
-    db = request.app["db"]
+    app_state = get_app_state(request.app)
     tournamentId = request.match_info.get("tournamentId")
 
-    if tournamentId is not None and tournamentId not in tournaments:
+    if tournamentId is not None and tournamentId not in app_state.tournaments:
         await asyncio.sleep(3)
         return web.json_response({})
 
-    cursor = db.game.find({"tid": tournamentId})
+    cursor = app_state.db.game.find({"tid": tournamentId})
     game_doc_list = []
 
     async for doc in cursor:
@@ -120,11 +120,10 @@ async def get_tournament_games(request):
 
 
 async def get_user_games(request):
-    users = request.app["users"]
-    db = request.app["db"]
+    app_state = get_app_state(request.app)
     profileId = request.match_info.get("profileId")
 
-    if profileId is not None and profileId not in users:
+    if profileId is not None and profileId not in app_state.users:
         await asyncio.sleep(3)
         return web.json_response({})
 
@@ -168,6 +167,11 @@ async def get_user_games(request):
             ]
     elif "/rated" in request.path:
         filter_cond["$or"] = [{"y": 1, "us.1": profileId}, {"y": 1, "us.0": profileId}]
+    elif "/playing" in request.path:
+        filter_cond["$and"] = [
+            {"$or": [{"c": True, "us.1": profileId}, {"c": True, "us.0": profileId}]},
+            {"s": STARTED},
+        ]
     elif "/import" in request.path:
         filter_cond["by"] = profileId
         filter_cond["y"] = 2
@@ -206,7 +210,7 @@ async def get_user_games(request):
     game_doc_list = []
     if profileId is not None:
         # print("FILTER:", filter_cond)
-        cursor = db.game.find(filter_cond)
+        cursor = app_state.db.game.find(filter_cond)
         if uci_moves:
             cursor.sort("d", -1)
         else:
@@ -224,11 +228,16 @@ async def get_user_games(request):
             try:
                 doc["v"] = C2V[doc["v"]]
             except KeyError:
+                log.error("Unknown variant %r", doc, exc_info=True)
                 continue
 
             doc["r"] = C2R[doc["r"]]
-            doc["wt"] = users[doc["us"][0]].title if doc["us"][0] in users else ""
-            doc["bt"] = users[doc["us"][1]].title if doc["us"][1] in users else ""
+            doc["wt"] = (
+                app_state.users[doc["us"][0]].title if doc["us"][0] in app_state.users else ""
+            )
+            doc["bt"] = (
+                app_state.users[doc["us"][1]].title if doc["us"][1] in app_state.users else ""
+            )
             doc["lm"] = decode_moves((doc["m"][-1],), doc["v"])[-1] if len(doc["m"]) > 0 else ""
             if doc["v"] in GRANDS and doc["lm"] != "":
                 doc["lm"] = zero2grand(doc["lm"])
@@ -245,7 +254,7 @@ async def get_user_games(request):
                         "is960": doc.get("z", 0),
                         "users": doc["us"],
                         "result": doc["r"],
-                        "fen": doc.get("if"),
+                        "fen": doc.get("f"),
                         "moves": decode_moves(doc["m"], doc["v"]),
                     }
                 )
@@ -256,61 +265,61 @@ async def get_user_games(request):
 
 
 async def cancel_invite(request):
+    app_state = get_app_state(request.app)
     gameId = request.match_info.get("gameId")
-    seeks = request.app["seeks"]
-    invites = request.app["invites"]
 
-    if gameId in invites:
-        seek_id = invites[gameId].id
-        seek = seeks[seek_id]
+    if gameId in app_state.invites:
+        seek_id = app_state.invites[gameId].id
+        seek = app_state.seeks[seek_id]
         creator = seek.creator
         try:
-            del invites[gameId]
-            del seeks[seek_id]
+            del app_state.invites[gameId]
+            del app_state.seeks[seek_id]
             del creator.seeks[seek_id]
         except KeyError:
-            # Seek was already deleted
-            pass
+            log.error("Seek was already deleted!", exc_info=True)
 
     return web.HTTPFound("/")
 
 
 async def subscribe_invites(request):
-    async with sse_response(request) as response:
-        app = request.app
-        queue = asyncio.Queue()
-        app["invite_channels"].add(queue)
-        try:
+    app_state = get_app_state(request.app)
+    try:
+        async with sse_response(request) as response:
+            queue = asyncio.Queue()
+            app_state.invite_channels.add(queue)
             while not response.task.done():
                 payload = await queue.get()
                 await response.send(payload)
                 queue.task_done()
-        except ConnectionResetError:
-            pass
-        finally:
-            app["invite_channels"].remove(queue)
+    except ConnectionResetError as e:
+        log.error(e, exc_info=True)
+    finally:
+        app_state.invite_channels.remove(queue)
     return response
 
 
 async def subscribe_games(request):
-    async with sse_response(request) as response:
-        app = request.app
-        queue = asyncio.Queue()
-        app["game_channels"].add(queue)
-        try:
+    app_state = get_app_state(request.app)
+    try:
+        async with sse_response(request) as response:
+            app_state = get_app_state(request.app)
+            queue = asyncio.Queue()
+            app_state.game_channels.add(queue)
             while not response.task.done():
                 payload = await queue.get()
                 await response.send(payload)
                 queue.task_done()
-        except ConnectionResetError:
-            pass
-        finally:
-            app["game_channels"].remove(queue)
+    except (ConnectionResetError, asyncio.CancelledError) as e:
+        log.error(e, exc_info=True)
+    finally:
+        app_state.game_channels.remove(queue)
     return response
 
 
-async def get_games(request):
-    games = request.app["games"]
+def get_games(request):
+    app_state = get_app_state(request.app)
+    games = app_state.games.values()
     # TODO: filter last 10 by variant
     return web.json_response(
         [
@@ -318,6 +327,8 @@ async def get_games(request):
                 "gameId": game.id,
                 "variant": game.variant,
                 "fen": game.board.fen,
+                "lastMove": game.lastmove,
+                "tp": game.turn_player,
                 "w": game.wplayer.username,
                 "wTitle": game.wplayer.title,
                 "b": game.bplayer.username,
@@ -328,17 +339,16 @@ async def get_games(request):
                 "byoyomi": game.byoyomi_period,
                 "level": game.level,
             }
-            for game in games.values()
-            if game.status == STARTED
+            for game in games
+            if game.status == STARTED and not game.corr
         ][-20:]
     )
 
 
 async def export(request):
-    db = request.app["db"]
-    users = request.app["users"]
+    app_state = get_app_state(request.app)
     profileId = request.match_info.get("profileId")
-    if profileId is not None and profileId not in users:
+    if profileId is not None and profileId not in app_state.users:
         await asyncio.sleep(3)
         return web.Response(text="")
 
@@ -353,9 +363,9 @@ async def export(request):
     cursor = None
 
     if profileId is not None:
-        cursor = db.game.find({"us": profileId})
+        cursor = app_state.db.game.find({"us": profileId})
     elif tournamentId is not None:
-        cursor = db.game.find({"tid": tournamentId})
+        cursor = app_state.db.game.find({"tid": tournamentId})
     elif session_user in ADMINS:
         yearmonth = request.match_info.get("yearmonth")
         print("---", yearmonth[:4], yearmonth[4:])
@@ -365,7 +375,7 @@ async def export(request):
                 {"$expr": {"$eq": [{"$month": "$d"}, int(yearmonth[4:])]}},
             ]
         }
-        cursor = db.game.find(filter_cond)
+        cursor = app_state.db.game.find(filter_cond)
 
     if cursor is not None:
         async for doc in cursor:
@@ -383,6 +393,7 @@ async def export(request):
                     doc["_id"],
                     C2V[doc["v"]],
                     doc["d"].strftime("%Y.%m.%d"),
+                    exc_info=True,
                 )
                 continue
         print("failed/all:", failed, game_counter)

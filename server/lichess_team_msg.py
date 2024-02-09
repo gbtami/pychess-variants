@@ -1,10 +1,15 @@
-from datetime import datetime
+from __future__ import annotations
 import logging
+from datetime import datetime
 
 import aiohttp
 
 from const import T_CREATED
 from misc import time_control_str
+from const import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from pychess_global_app_state import PychessGlobalAppState
 from settings import (
     DEV,
     LICHESS_API_TOKEN,
@@ -18,17 +23,17 @@ from settings import (
 log = logging.getLogger(__name__)
 
 
-async def lichess_team_msg(app):
+async def lichess_team_msg(app_state: PychessGlobalAppState):
     if DEV or LICHESS_API_TOKEN is None:
         return
 
     to_date = datetime.now().date()
-    if to_date in app["sent_lichess_team_msg"]:
+    if to_date in app_state.sent_lichess_team_msg:
         print("No more lichess team msg for today!")
         return
 
     team_id = "pychess-tournaments"
-    msg = upcoming_tournaments_msgs(app["tournaments"])
+    msg = upcoming_tournaments_msgs(app_state.tournaments)
     print(msg)
 
     async with aiohttp.ClientSession() as session:
@@ -41,7 +46,7 @@ async def lichess_team_msg(app):
             if json.get("error") is not None:
                 log.error(json)
 
-            app["sent_lichess_team_msg"].append(to_date)
+            app_state.sent_lichess_team_msg.append(to_date)
 
 
 def upcoming_tournaments_msgs(tournaments):

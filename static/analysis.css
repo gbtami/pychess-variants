@@ -334,55 +334,12 @@ input[type="checkbox"] {
     padding-right: 4px;
 }
 
-div[role=tabpanel] {
-    height: var(--panel-height);
-    display: none;
-    text-align: left;
-    overflow-y: auto;
-}
-div[role=tabpanel] textarea {
-    overflow-y: hidden;
-    background-color: var(--bg-color);
-    border: none;
-    resize: none;
-    outline: none;
-}
-div[role=tablist] {
-    display: flex;
-    flex-flow: row nowrap;
-    justify-content: center;
-    align-items: flex-start;
-}
-span[role=tab] {
-    flex: 1 1 0;
-    text-align: center;
-    font-size: 0.9em;
-    padding: 0.4em 0.1em;
-    cursor: pointer;
-    position: relative;
-    border-bottom: 1px solid #d9d9d9;
-}
-span[aria-selected=true], span:hover::after {
-    color: #d64f00;
-    transform: scale(1);
-}
-div > span::after {
-    content:'';
-    background:rgba(214,79,0,0.6);
-    height:2px;
-    position:absolute;
-    width:96%;
-    left:2%;
-    bottom:-2px;
-    transition:all .25s;
-    transform:scale(0)
-}
-/* Request analysis button (analysis chart) */
-div.request-analysis {
+/* Request analysis (analysis chart) */
+div#request-analysis {
   display: flex;
   padding-top: 3vmin;
 }
-div.request-analysis, div#panel-1 {
+div#request-analysis, div#panel-1 {
     align-items: center;
     justify-content: center;
 }
@@ -473,10 +430,10 @@ div.config-toggle {
 .instruction san {
     font-size: 1.5em;
 }
-piece.standard.w, piece.capa.w, piece.seirawn.w, piece.hoppel.w, piece.shako.w, piece.asean.w, piece.shogun.w, piece.synochess.w, piece.orda.w, piece.empire.w, piece.spartan.w {
+piece.standard.w, piece.capa.w, piece.seirawan.w, piece.hoppel.w, piece.shako.w, piece.asean.w, piece.shogun.w, piece.synochess.w, piece.orda.w, piece.spartan.w {
     background-image: url('images/pieces/merida/wK.svg');
 }
-piece.standard.b, piece.capa.b, piece.seirawn.b, piece.hoppel.b, piece.shako.b, piece.asean.b, piece.shogun.b, piece.shinobi.b, piece.empire.b {
+piece.standard.b, piece.capa.b, piece.seirawan.b, piece.hoppel.b, piece.shako.b, piece.asean.b, piece.shogun.b, piece.shinobi.b, piece.empire.b {
     background-image: url('images/pieces/merida/bK.svg');
 }
 piece.makruk.w {
@@ -524,6 +481,9 @@ piece.orda.b, piece.ordamirror.b {
 piece.ordamirror.w {
     background-image: url('images/pieces/orda/merida/wK.svg');
 }
+piece.empire.w {
+    background-image: url('images/pieces/empire/merida/wK.svg');
+}
 piece.chak.w {
     background-image: url('images/pieces/chak/WK.svg');
 }
@@ -535,6 +495,12 @@ piece.chennis.w {
 }
 piece.chennis.b {
     background-image: url('images/pieces/chennis/bMN.svg');
+}
+piece.mansindam.w {
+    background-image: url('images/pieces/mansindam/intl/wk.svg');
+}
+piece.mansindam.b {
+    background-image: url('images/pieces/mansindam/intl/bk.svg');
 }
 piece.synochess.b {
     background-image: url('images/pieces/synochess/intl-red/bK.svg');

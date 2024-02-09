@@ -4,4 +4,4 @@ Pal Benko credited the idea of “Pre-Chess” or “Shuffle-Chess” to David B
 
 Different than the “Placement Chess” described on the Chess Variants site, this variant is simply a modification where players take turns placing their back rank pieces. Castling only works when the king and the corresponding rook are in their normal position.
 
-[See here for more about history](http://www.quantumgambitz.com/blog/chess/cga/bronstein-chess-pre-chess-shuffle-chess)
+[See here for more about history](https://lichess.org/forum/lichess-feedback/variant-request-pre-chess-aka-shuffle--placement--meta--bronstein--benko-chess)

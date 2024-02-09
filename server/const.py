@@ -1,7 +1,23 @@
+from __future__ import annotations
 from settings import static_url
+
+# https://medium.com/quick-code/python-type-hinting-eliminating-importerror-due-to-circular-imports-265dfb0580f8
+TYPE_CHECKING = False
+
+DASH = "–"
+ANON_PREFIX = "Anon" + DASH
+
+NONE_USER = "None" + DASH + "User"
 
 SCHEDULE_MAX_DAYS = 7
 TOURNAMENT_SPOTLIGHTS_MAX = 3
+
+# Max notify documents TTL (time to live) 4 weeks
+NOTIFY_EXPIRE_SECS = 60 * 60 * 24 * 7 * 4
+NOTIFY_PAGE_SIZE = 7
+
+# Max corr seek documents TTL (time to live) 1 weeks
+CORR_SEEK_EXPIRE_SECS = 60 * 60 * 24 * 7
 
 # Max number of lobby chat lines (deque limit)
 MAX_CHAT_LINES = 100
@@ -38,6 +54,7 @@ LANGUAGES = [
     "ru",
     "th",
     "tr",
+    "vi",
     "zh_CN",
     "zh_TW",
 ]
@@ -59,7 +76,7 @@ CASUAL, RATED, IMPORTED = 0, 1, 2
     TIMEOUT,
     DRAW,
     FLAG,
-    ABANDONE,
+    ABANDON,
     CHEAT,
     BYEGAME,
     INVALIDMOVE,
@@ -69,7 +86,7 @@ CASUAL, RATED, IMPORTED = 0, 1, 2
 ) = range(-2, 14)
 
 LOSERS = {
-    "abandone": ABANDONE,
+    "abandon": ABANDON,
     "abort": ABORTED,
     "resign": RESIGN,
     "flag": FLAG,
@@ -127,18 +144,22 @@ VARIANTS = (
     "shogun",
     "shako",
     "hoppelpoppel",
+    "mansindam",
     "orda",
     "synochess",
-    "shinobi",
-    # "shinobiplus",
+    # Shinobi is superseded by Shinobiplus Plus
+    # "shinobi",
+    "shinobiplus",
     "empire",
     "ordamirror",
     "chak",
     "chennis",
     "spartan",
+    "ataxx",
 )
 
 VARIANT_ICONS = {
+    "ataxx": "☣",
     "makruk": "Q",
     "makpong": "O",
     "sittuyin": ":",
@@ -187,6 +208,7 @@ VARIANT_ICONS = {
     "asean": "♻",
     "chak": "🐬",
     "chennis": "🎾",
+    "mansindam": "⛵",
     "duck": "🦆",
     "spartan": "⍺",
     "kingofthehill": "🏴",
@@ -240,11 +262,11 @@ CATEGORIES = {
         "shako",
         "shogun",
         "hoppelpoppel",
+        "mansindam",
     ),
     "army": (
         "orda",
         "synochess",
-        "shinobi",
         "empire",
         "ordamirror",
         "chak",
@@ -263,6 +285,7 @@ CATEGORIES = {
         "cannonshogi",
     ),
     "xiangqi": ("xiangqi", "manchu", "janggi", "minixiangqi"),
+    "other": ("ataxx"),
 }
 
 VARIANT_GROUPS = {}
@@ -336,6 +359,7 @@ TRANSLATED_FREQUENCY_NAMES = {
 }
 
 TRANSLATED_VARIANT_NAMES = {
+    "ataxx": _("Ataxx"),
     "chess": _("Chess"),
     "chess960": _("Chess960"),
     "crazyhouse": _("Crazyhouse"),
@@ -392,6 +416,7 @@ TRANSLATED_VARIANT_NAMES = {
     "kingofthehill960": _("King of the Hill 960"),
     "3check": _("Three check"),
     "3check960": _("Three check 960"),
+    "mansindam": _("Mansindam"),
 }
 
 del _

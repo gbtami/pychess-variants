@@ -18,7 +18,9 @@ export interface PieceFamily {
 }
 
 export const BOARD_FAMILIES: Record<string, BoardFamily> = {
+    ataxx7x7: { dimensions: { width: 7, height: 7 }, cg: "cg-448", boardCSS: ["ataxx.svg", "ataxx.png"] },
     standard8x8: { dimensions: { width: 8, height: 8 }, cg: "cg-512", boardCSS: ["8x8brown.svg", "8x8blue.svg", "8x8green.svg", "8x8maple.jpg", "8x8olive.jpg", "8x8santa.png", "8x8wood2.jpg", "8x8wood4.jpg", "8x8ic.svg", "8x8purple.svg"] },
+    standard9x9: { dimensions: { width: 9, height: 9 }, cg: "cg-540", boardCSS: ["9x9mansindam.svg", "9x9brown.svg", "9x9blue.svg", "9x9green.svg", "9x9maple.jpg", "9x9olive.jpg"] },
     standard10x8: { dimensions: { width: 10, height: 8 }, cg: "cg-640", boardCSS: ["10x8brown.svg", "10x8blue.svg", "10x8green.svg", "10x8maple.jpg", "10x8olive.jpg"] },
     standard10x10: { dimensions: { width: 10, height: 10 }, cg: "cg-640-640", boardCSS: ["10x10brown.svg", "10x10blue.svg", "10x10green.svg", "10x10maple.jpg", "10x10olive.jpg"] },
     grand10x10: { dimensions: { width: 10, height: 10}, cg: "cg-640-640", boardCSS: ["Grandboard.svg", "10x10brown.svg", "10x10blue.svg", "10x10green.svg", "10x10maple.jpg", "10x10mapleGrand.png"] },
@@ -38,17 +40,18 @@ export const BOARD_FAMILIES: Record<string, BoardFamily> = {
 };
 
 export const PIECE_FAMILIES: Record<string, PieceFamily> = {
+    ataxx: { pieceCSS: ["disguised", "virus", "zombie", "cat-dog"] },
     standard: { pieceCSS: ["standard", "green", "alpha", "chess_kaneo", "santa", "maestro", "dubrovny", "disguised", "atopdown"] },
     capa: { pieceCSS: ["capa0", "capa1", "capa2", "capa3", "capa4", "capa5", "disguised"] },
     seirawan: { pieceCSS: ["seir1", "seir0", "seir2", "seir3", "seir4", "seir5", "disguised"] },
     makruk: { pieceCSS: ["makrukwb", "makrukwr", "makruk", "makruks", "makruki", "makrukc", "disguised"] },
     sittuyin: { pieceCSS: ["sittuyins", "sittuyinkagr", "sittuyinkabr", "sittuyinm", "sittuyini", "sittuyincb", "disguised"] },
     asean: { pieceCSS: ["aseani", "aseanm", "aseanc", "aseans", "aseancb", "disguised"] },
-    shogi: { pieceCSS: ["shogik", "shogi", "shogiw", "shogip", "shogim", "shogip3d", "shogikw3d", "shogid", "shogiim", "shogibw", "portk", "porti", "disguised"] },
+    shogi: { pieceCSS: ["shogik", "shogi", "shogiw", "shogip", "shogim", "shogip3d", "shogikw3d", "shogid", "shogiim", "shogibw", "portk", "porti", "cz", "disguised"] },
     kyoto: { pieceCSS: ["kyoto", "kyotok", "kyotoks", "kyotoi", "kyotod", "disguised"] },
     dobutsu: { pieceCSS: ["dobutsu", "disguised"] },
-    tori: { pieceCSS: ["torii", "torik", "torim", "porti", "disguised"] },
-    xiangqi: { pieceCSS: ["xiangqi2d", "xiangqi2di", "xiangqi", "xiangqict3", "xiangqihnz", "xiangqict2", "xiangqihnzw", "xiangqict2w", "xiangqiwikim", "xiangqiKa", "xiangqittxqhnz", "xiangqittxqintl", "disguised", "euro"] },
+    tori: { pieceCSS: ["torii", "torik", "torim", "porti", "cz", "disguised"] },
+    xiangqi: { pieceCSS: ["lishu", "xiangqi2di", "xiangqi", "xiangqict3", "xiangqihnz", "xiangqict2", "lishuw", "xiangqict2w", "xiangqiwikim", "xiangqiKa", "xiangqittxqhnz", "xiangqittxqintl", "xiangqi2d", "xiangqihnzw", "disguised", "euro"] },
     janggi: { pieceCSS: ["janggihb", "janggihg", "janggiikak", "janggiikaw", "janggikak", "janggikaw", "janggiib", "janggiig", "disguised"] },
     shako: { pieceCSS: ["shako0", "shako1", "shako2", "disguised"] },
     shogun: { pieceCSS: ["shogun0", "shogun1", "shogun2", "shogun3", "shogun4", "shogun5", "disguised"] },
@@ -58,9 +61,10 @@ export const PIECE_FAMILIES: Record<string, PieceFamily> = {
     shinobi: { pieceCSS: ["shinobi0", "shinobi1", "disguised"] },
     empire: { pieceCSS: ["empire0", "empire1", "disguised"] },
     ordamirror: { pieceCSS: ["ordamirror0", "ordamirror1", "disguised"] },
-    chak: { pieceCSS: ["chak0", "disguised"] },
-    chennis: { pieceCSS: ["chennis0", "chennis1", "chennis2", "disguised"] },
+    chak: { pieceCSS: ["chak0", "chak1", "disguised"] },
+    chennis: { pieceCSS: ["chennis0", "chennis1", "chennis2", "chennis3", "chennis4", "disguised"] },
     spartan: { pieceCSS: ["spartan0", "disguised"] },
+    mansindam: { pieceCSS: ["mansindam2", "mansindam1", "mansindam3", "mansindam4", "disguised"] },
 };
 
 export interface Variant {
@@ -104,6 +108,7 @@ export interface Variant {
         readonly duck: boolean;
         readonly pass: boolean;
         readonly setup: boolean;
+        readonly noDrawOffer: boolean;
     };
     readonly material: {
         readonly showDiff: boolean;
@@ -169,6 +174,7 @@ function variant(config: VariantConfig): Variant {
             duck: !!config.rules?.duck,
             pass: !!config.rules?.pass,
             setup: !!config.rules?.setup,
+            noDrawOffer: !!config.rules?.noDrawOffer,
         },
         material: {
             showDiff: !config.pocket?.captureToHand,
@@ -195,7 +201,7 @@ interface VariantConfig {
     tooltip: string;
     // Start FEN for use in some client-side calculations
     startFen: string;
-    // Whether it is possible to play a randomized starting positon (default: false)
+    // Whether it is possible to play a randomized starting position (default: false)
     chess960?: boolean;
     // Icon letter in the site's font
     icon: string;
@@ -256,6 +262,8 @@ interface VariantConfig {
         pass?: boolean;
         // Setup phase
         setup?: boolean;
+        // Draw offer not allowed
+        noDrawOffer?: boolean;
     };
     // Material equivalences for material diff calculation
     // ex. { 'pl-piece': 'r-piece' } means the "+L" piece is treated as the "R" piece for material diff
@@ -280,6 +288,41 @@ interface VariantConfig {
 }
 
 export const VARIANTS: Record<string, Variant> = {
+    ataxx: variant({
+        name: "ataxx", tooltip: "Infection game.",
+        startFen: "P5p/7/7/7/7/7/p5P w 0 1",
+        icon: "☣",
+        boardFamily: "ataxx7x7", pieceFamily: "ataxx",
+        colors: { first: "Red", second: "Blue" },
+        pieceRow: ["p", "*"],
+        rules: { pass: true },
+        ui: { materialPoint: "ataxx" },
+        // Ataxx All 19 boards won https://www.youtube.com/watch?v=3VcAW6EKuvU
+        alternateStart: {
+            '': "",
+            'Board 0': "P5p/7/7/7/7/7/p5P w 0 1",
+            'Board 1': "P5p/7/3*3/2*1*2/3*3/7/p5P w 0 1",
+            'Board 2': "P5p/7/3*3/2***2/3*3/7/p5P w 0 1",
+            'Board 3': "P5p/7/2*1*2/7/2*1*2/7/p5P w 0 1",
+            'Board 4': "P5p/1*3*1/2*1*2/7/2*1*2/1*3*1/p5P w 0 1",
+            'Board 5': "P5p/7/2*1*2/3*3/2*1*2/7/p5P w 0 1",
+            'Board 6': "P2*2p/7/7/*5*/7/7/p2*2P w 0 1",
+            'Board 7': "P2*2p/3*3/7/**3**/7/3*3/p2*2P w 0 1",
+            'Board 8': "P2*2p/3*3/3*3/***1***/3*3/3*3/p2*2P w 0 1",
+            'Board 9': "P5p/2*1*2/1*3*1/7/1*3*1/2*1*2/p5P w 0 1",
+            "Board 10": "P2*2p/7/1*3*1/*5*/1*3*1/7/p2*2P w 0 1",
+            "Board 11": "P1*1*1p/7/*2*2*/7/*2*2*/7/p1*1*1P w 0 1",
+            "Board 12": "P1*1*1p/7/2*1*2/1*3*1/2*1*2/7/p1*1*1P w 0 1",
+            "Board 13": "P2*2p/2*1*2/1*3*1/*5*/1*3*1/2*1*2/p2*2P w 0 1",
+            "Board 14": "P1*1*1p/1*3*1/*5*/7/*5*/1*3*1/p1*1*1P w 0 1",
+            "Board 15": "P1*1*1p/7/*1*1*1*/7/*1*1*1*/7/p1*1*1P w 0 1",
+            "Board 16": "P2*2p/7/1**1**1/**3**/1**1**1/7/p2*2P w 0 1",
+            "Board 17": "P1*1*1p/2*1*2/*5*/*2*2*/*5*/2*1*2/p1*1*1P w 0 1",
+            "Board 18": "P5p/2*1*2/**1*1**/3*3/**1*1**/2*1*2/p5P w 0 1",
+            "Board 19": "P1***1p/7/**1*1**/*5*/**1*1**/7/p1***1P w 0 1",
+        }
+    }),
+
     chess: variant({
         name: "chess", tooltip: "Chess, unmodified, as it's played by FIDE standards.",
         startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
@@ -339,7 +382,7 @@ export const VARIANTS: Record<string, Variant> = {
     }),
 
     kingofthehill: variant({
-        name: "kingofthehill", displayName: "king of the hill", tooltip: "",
+        name: "kingofthehill", displayName: "king of the hill", tooltip: "Bring your King to the center to win the game.",
         startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
         chess960: true, icon: "🏴", icon960: "🏁",
         boardFamily: "standard8x8", pieceFamily: "standard",
@@ -349,7 +392,7 @@ export const VARIANTS: Record<string, Variant> = {
     }),
 
     '3check': variant({
-        name: "3check", displayName: "three-check", tooltip: "",
+        name: "3check", displayName: "three-check", tooltip: "Check your opponent 3 times to win the game.",
         startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 3+3 0 1",
         chess960: true, icon: "☰", icon960: "☷",
         boardFamily: "standard8x8", pieceFamily: "standard",
@@ -381,7 +424,7 @@ export const VARIANTS: Record<string, Variant> = {
     }),
 
     makpong: variant({
-        name: "makpong", tooltip: _("Makruk variant where kings cannot move to escape out of check."),
+        name: "makpong", tooltip: "Makruk variant where kings cannot move to escape out of check.",
         startFen: "rnsmksnr/8/pppppppp/8/8/PPPPPPPP/8/RNSKMSNR w - - 0 1",
         icon: "O",
         boardFamily: "makruk8x8", pieceFamily: "makruk",
@@ -422,7 +465,7 @@ export const VARIANTS: Record<string, Variant> = {
     }),
 
     shogi: variant({
-        name: "shogi", tooltip: _("Japanese Chess, and the standard 9x9 version played today with drops and promotions. "),
+        name: "shogi", tooltip: _("Japanese Chess, the standard 9x9 version played today with drops and promotions."),
         startFen: "lnsgkgsnl/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL[-] w 0 1",
         icon: "K",
         boardFamily: "shogi9x9", pieceFamily: "shogi",
@@ -430,7 +473,7 @@ export const VARIANTS: Record<string, Variant> = {
         pieceRow: ["k", "g", "r", "b", "s", "n", "l", "p"],
         pocket: { roles: ["p", "l", "n", "s", "g", "b", "r"], captureToHand: true },
         promotion: { type: "shogi", roles: ["p", "l", "n", "s", "r", "b"] },
-        rules: { defaultTimeControl: "byoyomi" },
+        rules: { defaultTimeControl: "byoyomi", noDrawOffer: true },
         ui: { pieceSound: "shogi" },
         alternateStart: {
             '': '',
@@ -469,7 +512,7 @@ export const VARIANTS: Record<string, Variant> = {
         pieceRow: ["k", "g", "r", "b", "s", "p"],
         pocket: { roles: ["p", "s", "g", "b", "r"], captureToHand: true },
         promotion: { type: "shogi", roles: ["p", "s", "r", "b"] },
-        rules: { defaultTimeControl: "byoyomi" },
+        rules: { defaultTimeControl: "byoyomi", noDrawOffer: true },
         ui: { pieceSound: "shogi" },
     }),
 
@@ -482,12 +525,12 @@ export const VARIANTS: Record<string, Variant> = {
         pieceRow: ["k", "l", "s", "n", "p"],
         pocket: { roles: ["p", "l", "n", "s"], captureToHand: true },
         promotion: { type: "shogi", roles: ["p", "l", "n", "s"] },
-        rules: { defaultTimeControl: "byoyomi" },
+        rules: { defaultTimeControl: "byoyomi", noDrawOffer: true },
         ui: { pieceSound: "shogi" },
     }),
 
     dobutsu: variant({
-        name: "dobutsu", tooltip: _("3x4 game with cute animals, designed to teach children how to play Shogi."),
+        name: "dobutsu", tooltip: "3x4 game with cute animals, designed to teach children how to play Shogi.",
         startFen: "gle/1c1/1C1/ELG[-] w 0 1",
         icon: "8",
         boardFamily: "shogi3x4", pieceFamily: "dobutsu",
@@ -496,7 +539,7 @@ export const VARIANTS: Record<string, Variant> = {
         kingRoles: ["l"],
         pocket: { roles: ["e", "g", "c"], captureToHand: true },
         promotion: { type: "shogi", roles: ["c"] },
-        rules: { defaultTimeControl: "byoyomi" },
+        rules: { defaultTimeControl: "byoyomi", noDrawOffer: true },
         ui: { pieceSound: "shogi" },
     }),
 
@@ -509,7 +552,7 @@ export const VARIANTS: Record<string, Variant> = {
         pieceRow: ["k", "g", "s", "p"],
         pocket: { roles: ["p", "s", "g"], captureToHand: true },
         promotion: { type: "shogi", roles: ["p", "s"] },
-        rules: { defaultTimeControl: "byoyomi" },
+        rules: { defaultTimeControl: "byoyomi", noDrawOffer: true },
         ui: { pieceSound: "shogi" },
     }),
 
@@ -522,7 +565,7 @@ export const VARIANTS: Record<string, Variant> = {
         pieceRow: ["k", "g", "s", "n", "l", "p"],
         pocket: { roles: ["p", "l", "n", "s", "g"], captureToHand: true },
         promotion: { type: "shogi", roles: ["p", "s", "n", "l"] },
-        rules: { defaultTimeControl: "byoyomi" },
+        rules: { defaultTimeControl: "byoyomi", noDrawOffer: true },
         ui: { pieceSound: "shogi" },
         alternateStart: {
             'Gorogoro Plus N+L': '',
@@ -539,7 +582,7 @@ export const VARIANTS: Record<string, Variant> = {
         pieceRow: ["k", "c", "p", "l", "r", "f", "s"],
         pocket: { roles: ["s", "p", "l", "r", "c", "f"], captureToHand: true },
         promotion: { type: "shogi", roles: ["s", "f"] },
-        rules: { defaultTimeControl: "byoyomi" },
+        rules: { defaultTimeControl: "byoyomi", noDrawOffer: true },
         ui: { pieceSound: "shogi" },
         alternateStart: {
             '': '',
@@ -611,7 +654,7 @@ export const VARIANTS: Record<string, Variant> = {
     }),
 
     capahouse: variant({
-        name: "capahouse", tooltip: _("Capablanca with Crazyhouse drop rules."),
+        name: "capahouse", tooltip: "Capablanca with Crazyhouse drop rules.",
         startFen: "rnabqkbcnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNABQKBCNR[] w KQkq - 0 1",
         chess960: true, icon: "&", icon960: "'",
         boardFamily: "standard10x8", pieceFamily: "capa",
@@ -711,7 +754,7 @@ export const VARIANTS: Record<string, Variant> = {
     }),
 
     synochess: variant({
-        name: "synochess", tooltip: _("Asymmetric East vs. West variant which pits the western Chess army against a Xiangqi and Janggi-styled army."),
+        name: "synochess", tooltip: "Asymmetric East vs. West variant which pits the western Chess army against a Xiangqi and Janggi-styled army.",
         startFen: "rneakenr/8/1c4c1/1ss2ss1/8/8/PPPPPPPP/RNBQKBNR[ss] w KQ - 0 1",
         icon: "_",
         boardFamily: "standard8x8", pieceFamily: "synochess",
@@ -740,17 +783,16 @@ export const VARIANTS: Record<string, Variant> = {
                 'pp-piece': 'c-piece',
             },
         },
-
     }),
 
     shinobiplus: variant({
         name: "shinobiplus", displayName: "shinobi+", tooltip: "Asymmetric variant which pits the western Chess army against a drop-based, Shogi-styled army.",
-        startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/4K3[JDSCLHM] w kq - 0 1",
+        startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/4K3[JDFCLHM] w kq - 0 1",
         icon: "🐢",
         boardFamily: "standard8x8", pieceFamily: "shinobi",
         colors: { first: "Pink", second: "Black" },
-        pieceRow: { white: ["k", "s", "d", "j", "l", "h", "m", "p"], black: ["k", "q", "r", "b", "n", "p"] },
-        pocket: { roles: { white: ["l", "h", "m", "d", "j", "s", "c"], black: [] }, captureToHand: false },
+        pieceRow: { white: ["k", "f", "d", "j", "l", "h", "m", "p"], black: ["k", "q", "r", "b", "n", "p"] },
+        pocket: { roles: { white: ["l", "h", "m", "d", "j", "f", "c"], black: [] }, captureToHand: false },
         promotion: { type: "shogi", roles: ["p", "l", "h", "m"] },
         rules: { enPassant: true },
         ui: { boardMark: 'campmate' },
@@ -762,11 +804,14 @@ export const VARIANTS: Record<string, Variant> = {
                 'pp-piece': 'c-piece',
             },
         },
-
+        alternateStart: {
+            '': '',
+            'Original Shinobi': 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/LH1CK1HL[LHMMDJ] w kq - 0 1'
+        },
     }),
 
     empire: variant({
-        name: "empire", tooltip: _("Asymmetric variant where one army has pieces that move like queens but capture as usual."),
+        name: "empire", tooltip: "Asymmetric variant where one army has pieces that move like queens but capture as usual.",
         startFen: "rnbqkbnr/pppppppp/8/8/8/PPPSSPPP/8/TECDKCET w kq - 0 1",
         icon: "♚",
         boardFamily: "standard8x8", pieceFamily: "empire",
@@ -777,7 +822,7 @@ export const VARIANTS: Record<string, Variant> = {
     }),
 
     ordamirror: variant({
-        name: "ordamirror", displayName: "orda mirror", tooltip: _("Orda Chess variant with two Horde armies. The Falcon replaces the Yurt."),
+        name: "ordamirror", displayName: "orda mirror", tooltip: "Orda Chess variant with two Horde armies. The Falcon replaces the Yurt.",
         startFen: "lhafkahl/8/pppppppp/8/8/PPPPPPPP/8/LHAFKAHL w - - 0 1",
         icon: "◩",
         boardFamily: "standard8x8", pieceFamily: "ordamirror",
@@ -828,11 +873,21 @@ export const VARIANTS: Record<string, Variant> = {
     }),
 
     spartan: variant({
-        name: "spartan", tooltip: _("Asymmetric Spartans vs. Persians variant."),
+        name: "spartan", tooltip: "Asymmetric Spartans vs. Persians variant.",
         startFen: "lgkcckwl/hhhhhhhh/8/8/8/8/PPPPPPPP/RNBQKBNR w KQ - 0 1",
         icon: "⍺",
         boardFamily: "standard8x8", pieceFamily: "spartan",
         pieceRow: { white: ["k", "q", "r", "b", "n", "p"], black: ["k", "g", "w", "l", "c", "h"] },
+    }),
+
+    mansindam: variant({
+        name: "mansindam", tooltip: "Pantheon tale",
+        startFen: "rnbakqcnm/9/ppppppppp/9/9/9/PPPPPPPPP/9/MNCQKABNR[] w - - 0 1",
+        icon: "⛵",
+        boardFamily: "standard9x9", pieceFamily: "mansindam",
+        pieceRow: ["k", "r", "n", "b", "a", "q", "c", "m", "p"],
+        pocket: { roles: ["p", "n", "b", "r", "a", "q", "c", "m"], captureToHand: true },
+        promotion: { type: "shogi", roles: ["n", "b", "r", "c", "m", "p"] },
     }),
 
     // We support the functionality to import/store/analyze some variants
@@ -866,7 +921,7 @@ export const VARIANTS: Record<string, Variant> = {
     }),
 
     gothhouse: variant({
-        name: "gothhouse", tooltip: _("Gothic with Crazyhouse drop rules."),
+        name: "gothhouse", tooltip: "Gothic with Crazyhouse drop rules.",
         startFen: "rnbqckabnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBQCKABNR[] w KQkq - 0 1",
         icon: "&",
         boardFamily: "standard10x8", pieceFamily: "capa",
@@ -882,17 +937,15 @@ export const enabledVariants = variants.filter(v => !disabledVariants.includes(v
 
 // variants having 0 puzzle so far
 export const noPuzzleVariants = [
-    "kingofthehill",
+    "ataxx",
     "3check",
     "placement",
     "sittuyin",
     "minishogi",
-    "kyotoshogi",
     "gorogoroplus",
     "manchu",
     "minixiangqi",
     "grandhouse",
-    "shinobi",
     "shinobiplus",
 ]
 
@@ -901,8 +954,9 @@ export const variantGroups: { [ key: string ]: { variants: string[] } } = {
     sea:      { variants: [ "makruk", "makpong", "cambodian", "sittuyin", "asean" ] },
     shogi:    { variants: [ "shogi", "minishogi", "kyotoshogi", "dobutsu", "gorogoroplus", "torishogi", "cannonshogi" ] },
     xiangqi:  { variants: [ "xiangqi", "manchu", "janggi", "minixiangqi" ] },
-    fairy:    { variants: [ "capablanca", "capahouse", "seirawan", "shouse", "grand", "grandhouse", "shako", "shogun", "hoppelpoppel" ] },
-    army:     { variants: [ "orda", "synochess", "shinobi", "empire", "ordamirror", "chak", "chennis", "spartan" ] },
+    fairy:    { variants: [ "capablanca", "capahouse", "seirawan", "shouse", "grand", "grandhouse", "shako", "shogun", "hoppelpoppel", "mansindam" ] },
+    army:     { variants: [ "orda", "synochess", "shinobiplus", "empire", "ordamirror", "chak", "chennis", "spartan" ] },
+    other:    { variants: [ "ataxx" ] }
 };
 
 function variantGroupLabel(group: string): string {
@@ -913,6 +967,7 @@ function variantGroupLabel(group: string): string {
         xiangqi: _("Xiangqi Variants"),
         fairy: _("Fairy Piece Variants"),
         army: _("New Army Variants"),
+        other: _("Other"),
     }
     return groups[group];
 }

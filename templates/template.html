@@ -46,7 +46,7 @@
                     <a class="nav-link" href="/players">{% trans %}Community{% endtrans %}</a>
                     <div class="drp" >
                         <a class="nav-link" href="/players">{% trans %}Players{% endtrans %}</a>
-                        <a class="nav-link" href="/news">{% trans %}Blog{% endtrans %}</a>
+                        <a class="nav-link" href="/blogs">{% trans %}Blog{% endtrans %}</a>
                         <a class="nav-link" href="/patron">{% trans %}Donate{% endtrans %}</a>
                     </div>
                 </section>
@@ -71,7 +71,8 @@
             {% if guest %}
             <a class="login nav-link" href="/login" title="{% trans %}Login with Lichess{% endtrans %}">{% trans %}Log in{% endtrans %}</a>
             {% endif %}
-            <div id="settings-panel"/>
+            <div id="notify-panel"></div>
+            <div id="settings-panel"></div>
         </div>
     </header>
 {% endblock %}
