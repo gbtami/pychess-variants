@@ -255,6 +255,13 @@ label.piece.piece5.tori {
     background-image: url('images/pieces/disguised/shogi-ally.svg');
 }
 
+label.piece.piece0.cannonshogi {
+    background-image: url('images/pieces/shogi/cz/0KA.svg');
+}
+label.piece.piece1.cannonshogi {
+    background-image: url('images/pieces/disguised/b.svg');
+}
+
 label.piece.piece0.xiangqi {
     background-image: url('images/pieces/xiangqi/lishu/RK.svg');
 }
