@@ -492,7 +492,7 @@ export const VARIANTS: Record<string, Variant> = {
     }),
 
     cannonshogi: variant({
-        name: "cannonshogi", tooltip: _("Shogi with Chinese and Korean cannons"),
+        name: "cannonshogi", displayName: "cannon shogi", tooltip: _("Shogi with Chinese and Korean cannons"),
         startFen: "lnsgkgsnl/1rci1uab1/p1p1p1p1p/9/9/9/P1P1P1P1P/1BAU1ICR1/LNSGKGSNL[-] w 0 1",
         icon: "C",
         boardFamily: "shogi9x9", pieceFamily: "cannonshogi",
