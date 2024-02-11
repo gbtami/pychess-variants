@@ -1,33 +1,28 @@
-
-import { newWebsocket } from '../socket';
-
 import { h, VNode } from 'snabbdom';
 
 import * as cg from 'chessgroundx/types';
 import * as util from 'chessgroundx/util';
 import { DrawShape } from 'chessgroundx/draw';
 
-import { JSONObject } from '../types';
 import { _ } from '../i18n';
-import {uci2LastMove, uci2cg, cg2uci} from '../chess';
-import {VARIANTS, notation, moddedVariant} from "../variants"
+import { uci2LastMove, uci2cg, cg2uci } from '../chess';
+import { VARIANTS, notation, moddedVariant } from "../variants"
 import { createMovelistButtons, updateMovelist, selectMove, activatePlyVari } from './movelist.bug';
 import { povChances } from '../winningChances';
 import { patch } from '../document';
 import { Chart } from "highcharts";
 import { PyChessModel } from "../types";
-import {Ceval, MsgBoard, Step} from "../messages";
-import {GameControllerBughouse} from "./gameCtrl.bug";
-import {sound} from "../sound";
-import {renderClocks} from "./analysisClock.bug";
-import {variantsIni} from "../variantsIni";
+import { Ceval, MsgBoard, Step } from "../messages";
+import { GameControllerBughouse } from "./gameCtrl.bug";
+import { sound } from "../sound";
+import { renderClocks } from "./analysisClock.bug";
+import { variantsIni } from "../variantsIni";
 import * as idb from "idb-keyval";
-import {MsgAnalysis} from "../analysisType";
+import { MsgAnalysis } from "../analysisType";
 import ffishModule from "ffish-es6";
-import {Key, Orig} from "chessgroundx/types";
-import {titleCase} from "@/analysisCtrl";
-import {movetimeChart} from "./movetimeChart.bug";
-import {createWebsocket} from "@/webSocketUtils";
+import { Key, Orig } from "chessgroundx/types";
+import { titleCase } from "@/analysisCtrl";
+import { movetimeChart } from "./movetimeChart.bug";
 
 const EVAL_REGEX = new RegExp(''
   + /^info depth (\d+) seldepth \d+ multipv (\d+) /.source
@@ -55,69 +50,47 @@ interface MsgAnalysisBoard {
 
 export default class AnalysisControllerBughouse {
     model;
-    sock;
+    // sock;
 
     b1: GameControllerBughouse;
     b2: GameControllerBughouse;
 
-    fullBFEN: string;//todo:niki - i dont know if needed
     wplayer: string;
     bplayer: string;
     base: number;
     inc: number;
     gameId: string;
-    hasPockets: boolean;
-    vplayer0: VNode;
-    vplayer1: VNode;
-    vmaterial0: VNode;
-    vmaterial1: VNode;
     vpgn: VNode;
     vscore: VNode | HTMLElement;
     vscorePartner: VNode | HTMLElement;
     vinfo: VNode | HTMLElement;
     vpvlines: VNode[] | HTMLElement[];
 
-    // vpv: VNode | HTMLElement; // todo.niki.whatis this?
     readonly variant = VARIANTS['bughouse'];
 
     vmovelist: VNode | HTMLElement;
-    gameControls: VNode;
     moveControls: VNode;
-    // promotions: string[];
     lastmove: cg.Key[];
     premove: {orig: cg.Key, dest: cg.Key, metadata?: cg.SetPremoveMetadata} | null;
-    predrop: {role: cg.Role, key: cg.Key} | null;
     result: string;
     flip: boolean;
-    // spectator: boolean;todo:this is analyis - what specatotrs? maybe delete from the other analysisCtrl as well
     settings: boolean;
     status: number;
     steps: Step[];
     pgn: string;
-    uci_usi: string;
     ply: number;
     plyVari: number;
     plyInsideVari: number;
-    // players: string[];
-    // titles: string[];
-    // ratings: string[];
     animation: boolean;
     showDests: boolean;
     analysisChart: Chart;
     ctableContainer: VNode | HTMLElement;
     localEngine: boolean;
-    // localAnalysis: boolean;
-
-    // ffish1: any;
-    // ffish2: any;
-    //
-    // ffishBoard1: any;
-    // ffishBoard2: any;
 
     maxDepth: number;
     isAnalysisBoard: boolean;
     isEngineReady: boolean;
-    notation: cg.Notation;//todo:niki:not sure if i need now long term - short term probably no, what is notation when we talk about bughouse - what if bugshogi?
+    notation: cg.Notation;
 
     ffish: any;
     ffishBoard: any;
@@ -159,7 +132,7 @@ export default class AnalysisControllerBughouse {
         this.embed = this.gameId === undefined;
         this.username = model["username"];
 
-        this.b1 = new GameControllerBughouse(el1, el1Pocket1, el1Pocket2, 'a', model); //todo:niki:fen maybe should be parsed from bfen. what situation do we start from custom fen?
+        this.b1 = new GameControllerBughouse(el1, el1Pocket1, el1Pocket2, 'a', model);
         this.b2 = new GameControllerBughouse(el2, el2Pocket1, el2Pocket2, 'b', model);
         this.b2.chessground.set({orientation:"black"});
         this.b1.partnerCC = this.b2;
@@ -179,41 +152,24 @@ export default class AnalysisControllerBughouse {
             window.addEventListener('beforeunload', () => this.ffishBoard.delete());
         });
 
-        // this.b1.sendMove = (orig: cg.Orig, dest: cg.Key, promo: string) => {
-        //     this.sendMove(this.b1, orig, dest, promo);
-        // }
-        // this.b2.sendMove = (orig: cg.Orig, dest: cg.Key, promo: string) => {
-        //     this.sendMove(this.b2, orig, dest, promo);
-        // }
-
         this.isAnalysisBoard = model["gameId"] === "";
-        this.chartFunctions = [movetimeChart];// todo:niki:needed for zoom
+        this.chartFunctions = [movetimeChart];
 
-        const onOpen = () => {
-            if (this.embed) { //TODO:niki:same question as in analysisCtrl - what is the point of this?
-                this.doSend({ type: "embed_user_connected", gameId: this.gameId });
-            } else if (!this.isAnalysisBoard) {
-                this.doSend({ type: "game_user_connected", username: this.username, gameId: this.gameId });
-            }
-        };
+        // const onOpen = () => {
+        //     if (this.embed) { //TODO:niki:same question as in analysisCtrl - what is the point of this?
+        //         this.doSend({ type: "embed_user_connected", gameId: this.gameId });
+        //     } else if (!this.isAnalysisBoard) {
+        //         this.doSend({ type: "game_user_connected", username: this.username, gameId: this.gameId });
+        //     }
+        // };
 
-        this.sock = createWebsocket('wsr/' + this.gameId, onOpen, () => {}, () => {}, (e: MessageEvent) => this.onMessage(e));
+        // this.sock = createWebsocket('wsr/' + this.gameId, onOpen, () => {}, () => {}, (e: MessageEvent) => this.onMessage(e));
 
         // is local stockfish.wasm engine supports current variant?
         this.localEngine = false;
 
-        // is local engine analysis enabled? (the switch)
-        // this.localAnalysis = false;
-
         // UCI isready/readyok
         this.isEngineReady = false;
-
-        // loaded Fairy-Stockfish ffish.js wasm module
-        // this.ffish1 = null;
-        // this.ffish2 = null;
-        //
-        // this.ffishBoard1 = null;
-        // this.ffishBoard2 = null;
 
         this.maxDepth = maxDepth;
 
@@ -246,13 +202,9 @@ export default class AnalysisControllerBughouse {
 
         this.importedBy = '';
 
-        this.hasPockets = true;//todo:niki:check whats the purpose of this? this.variant.pocket;
-
         this.notation = notation(this.b1.variant);
 
-
-        this.steps.push({//todo:niki:need new format for bug steps - should i extend or make new class or whatever
-            // 'fen': this.fullBFEN,
+        this.steps.push({
             'fen': model.fen,
             'fenB': model.fen,
             'move': undefined,
@@ -265,20 +217,9 @@ export default class AnalysisControllerBughouse {
             this.ctableContainer = document.getElementById('ctable-container') as HTMLElement;
         }
 
-        // Hide #chart div (embed view has no #chart)
-        // if (!this.model["embed"]) {
-        //     const element = document.getElementById('chart') as HTMLElement;
-        //     element.style.display = 'none';
-        // }
-
 
         createMovelistButtons(this);
         this.vmovelist = document.getElementById('movelist') as HTMLElement;
-
-        //todo:niki:lets not worry about chat at the moment
-        // if (!this.isAnalysisBoard && !this.model["embed"]) {
-        //     patch(document.getElementById('roundchat') as HTMLElement, chatView(this, "roundchat"));
-        // }
 
         if (!this.model["embed"]) {
             patch(document.getElementById('input') as HTMLElement, h('input#input', this.renderInput(this.b1)));
@@ -298,14 +239,6 @@ export default class AnalysisControllerBughouse {
             }
         }
 
-        // if (!this.model["embed"]) {
-        //     patch(document.getElementById('input') as HTMLElement, h('input#input', this.renderInput(this.b1)));
-        //     patch(document.getElementById('inputPartner') as HTMLElement, h('input#inputPartner', this.renderInput(this.b2)));
-        //
-        //     this.vscore = document.getElementById('score') as HTMLElement;
-        //     this.vinfo = document.getElementById('info') as HTMLElement;
-        //     this.vpv = document.getElementById('pv') as HTMLElement;
-        // }
         // Add a click event handler to each tab
         const tabs = document.querySelectorAll('[role="tab"]');
         tabs!.forEach(tab => {
@@ -334,13 +267,6 @@ export default class AnalysisControllerBughouse {
 ``
         //
         this.onMsgBoard(model["board"] as MsgBoard);
-
-        // boardSettings.ctrl = this;
-        // const boardFamily = this.b1.variant.board;//either b1 or b2
-        // const pieceFamily = this.b1.variant.piece;
-        // boardSettings.updateBoardStyle(boardFamily);
-        // boardSettings.updatePieceStyle(pieceFamily);
-        // boardSettings.updateZoom(boardFamily);
     }
 
     nnueIni() {
@@ -413,33 +339,6 @@ export default class AnalysisControllerBughouse {
         this.b2.chessground.redrawAll();
     }
 
-    //todo:niki:not correct implementation for now - pockets are not with brackets according to this: https://bughousedb.com/Lieven_BPGN_Standard.txt
-    toBFEN = (fenA: cg.FEN, fenB: cg.FEN): string => {
-        return fenA+" | "+fenB;
-    }
-
-    toFEN = (bfen: string): cg.FEN[] => {
-        return bfen.split(" | ");
-    }
-
-    // private pass = () => {
-    //     let passKey = 'a0';
-    //     const pieces = this.chessground.state.pieces;
-    //     const dests = this.chessground.state.movable.dests!;
-    //     for (const [k, p] of pieces) {
-    //         if (p.role === 'k-piece' && p.color === this.turnColor) {
-    //             if ((dests.get(k)?.includes(k))) passKey = k;
-    //         }
-    //     }
-    //     if (passKey !== 'a0') {
-    //         // prevent calling pass() again by selectSquare() -> onSelect()
-    //         this.chessground.state.movable.dests = undefined;
-    //         this.chessground.selectSquare(passKey as cg.Key);
-    //         sound.moveSound(this.variant, false);
-    //         this.sendMove(passKey as cg.Key, passKey as cg.Key, '');
-    //     }
-    // }
-
     private renderInput = (cc: GameControllerBughouse) => {
         return {
             attrs: {
@@ -464,21 +363,6 @@ export default class AnalysisControllerBughouse {
 
     private drawAnalysisChart = (withRequest: boolean) => {
         console.log("drawAnalysisChart "+withRequest)
-        // if (withRequest) {
-        //     if (this.model["anon"] === 'True') {
-        //         alert(_('You need an account to do that.'));
-        //         return;
-        //     }
-        //     const element = document.getElementById('request-analysis') as HTMLElement;
-        //     if (element !== null) element.style.display = 'none';
-        //
-        //     this.doSend({ type: "analysis", username: this.model["username"], gameId: this.gameId });
-        //     const loaderEl = document.getElementById('loader') as HTMLElement;
-        //     loaderEl.style.display = 'block';
-        // }
-        // const chartEl = document.getElementById('chart') as HTMLElement;
-        // chartEl.style.display = 'block';
-        // analysisChart(this);
     }
 
     private checkStatus = (msg: MsgAnalysisBoard | MsgBoard) => {
@@ -725,7 +609,7 @@ export default class AnalysisControllerBughouse {
             score = {cp: povEv};
         }
         const knps = nodes / elapsedMs;
-        const boardInAnalysis = this.b1.localAnalysis? this.b1: this.b2;// todo:niki: move this somewhere so it can be used in other places where i do 'or' and stuff
+        const boardInAnalysis = this.b1.localAnalysis? this.b1: this.b2;
         const msg: MsgAnalysis = {type: 'local-analysis', ply: this.ply, color: boardInAnalysis.turnColor.slice(0, 1), ceval: {d: depth, multipv: multiPv, p: moves, s: score, k: knps}};
         this.onMsgAnalysis(msg, boardInAnalysis);
     };
@@ -768,7 +652,7 @@ export default class AnalysisControllerBughouse {
     onMoreDepth = () => {
         this.maxDepth = 99;
         this.engineStop();
-        this.engineGo(this.b1);//todo:niki:i guess we really need 2 engines. does this reset analysis from start? or re-uses what is so far evalueated and digs deeper from current depth?
+        this.engineGo(this.b1);
     }
 
     makePvMove (pv_line: string, cc: GameControllerBughouse) {
@@ -903,7 +787,7 @@ export default class AnalysisControllerBughouse {
 
     // When we are moving inside a variation move list
     // then plyVari > 0 and ply is the index inside vari movelist
-    goPly = (ply: number, plyVari = 0) => {//todo:niki:temp comment out
+    goPly = (ply: number, plyVari = 0) => {
         console.log(ply, plyVari);
         const vv = this.steps[plyVari]?.vari;
         const step = (plyVari > 0 && vv) ? vv[ply - plyVari] : this.steps[ply];
@@ -936,7 +820,7 @@ export default class AnalysisControllerBughouse {
             lastMove: move,
         });
 
-        const turnColorPartner = fenPartner.split(' ')[1] === "w"? "white": "black";//todo:niki:why not make util function to get this from fen and drop Step.turnColor - maybe even in chessground
+        const turnColorPartner = fenPartner.split(' ')[1] === "w"? "white": "black";
         board.partnerCC.chessground.set({fen: fenPartner, lastMove: movePartner, turnColor: turnColorPartner, movable: {color: turnColorPartner}});
 
         board.fullfen = fen;
@@ -971,17 +855,7 @@ export default class AnalysisControllerBughouse {
         }
         board.turnColor = step.turnColor;//todo: probably not needed here and other places as well where its set
 
-        // const clocktimes = this.steps[1]?.clocks?.white;
-        // if (clocktimes !== undefined) {
-            renderClocks(this);
-        //     const hc = this.movetimeChart;
-        //     if (hc !== undefined) {
-        //         const idx = (step.turnColor === 'white') ? 1 : 0;
-        //         const turn = (ply + 1) >> 1;
-        //         const hcPt = hc.series[idx].data[turn-1];
-        //         if (hcPt !== undefined) hcPt.select();
-        //     }
-        // }
+        renderClocks(this);
         if (board.ffishBoard) {
             board.ffishBoard.setFen(board.fullfen);
             board.setDests();
@@ -1032,7 +906,7 @@ export default class AnalysisControllerBughouse {
                     moveCounter = '1...';
                 } else {
                     whiteMove = this.steps[ply].turnColor === 'black';
-                    moveCounter = Math.floor(this.steps[ply].boardName === 'a'? (plyA + 1) / 2 : (plyB + 1) / 2 ) + this.steps[ply].boardName.toUpperCase() + ".";
+                    moveCounter = Math.floor(this.steps[ply].boardName === 'a'? (plyA + 1) / 2 : (plyB + 1) / 2 ) + this.steps[ply].boardName!.toUpperCase() + ".";
                 }
                 moves.push(moveCounter + this.steps[ply].san);
             }
@@ -1057,10 +931,10 @@ export default class AnalysisControllerBughouse {
     }
 
 
-    doSend = (message: JSONObject) => {
-        // console.log("---> doSend():", message);
-        this.sock.send(JSON.stringify(message));
-    }
+    // doSend = (message: JSONObject) => {
+    //     // console.log("---> doSend():", message);
+    //     this.sock.send(JSON.stringify(message));
+    // }
 
     sendMove = (b: GameControllerBughouse, orig: cg.Orig, dest: cg.Key, promo: string) => {
         const move = cg2uci(orig + dest + promo);
@@ -1159,12 +1033,6 @@ export default class AnalysisControllerBughouse {
         const e = document.getElementById('fullfen') as HTMLInputElement;
         e.value = this.b1.fullfen+" "+this.b2.fullfen;
 
-        // if (this.isAnalysisBoard) {//todo:niki
-        //     const idxInVari = (b.plyVari > 0) && vv ? vv.length - 1 : 0;
-        //     this.vpgn = patch(this.vpgn, h('textarea#pgntext', { attrs: { rows: 13, readonly: true, spellcheck: false} }, this.getPgn(idxInVari)));
-        // }
-        // TODO: But sending moves to the server will be useful to implement shared live analysis!
-        // this.doSend({ type: "analysis_move", gameId: this.gameId, move: move, fen: this.fullfen, ply: this.ply + 1 });
     }
 
     private onMsgAnalysisBoard = (b: GameControllerBughouse, msg: MsgAnalysisBoard) => {
@@ -1194,45 +1062,6 @@ export default class AnalysisControllerBughouse {
 
         if (b.localAnalysis) this.engineGo(b);
     }
-
-
-    //
-    // private onUserDrop = (role: cg.Role, dest: cg.Key, meta: cg.MoveMetadata) => {
-    //     console.log(role, dest, meta);
-    //     // onUserDrop(this, role, dest, meta); todo:niki
-    // }
-
-    // private onSelect = () => {
-    //     return (key: cg.Key) => {
-    //         if (this.chessground.state.movable.dests === undefined) return;
-    //
-    //         // Save state.pieces to help recognise 960 castling (king takes rook) moves
-    //         // Shouldn't this be implemented in chessground instead?
-    //         if (this.chess960 && this.variant.gate) {
-    //             this.prevPieces = new Map(this.chessground.state.pieces);
-    //         }
-    //
-    //         // Janggi pass and Sittuyin in place promotion on Ctrl+click
-    //         if (this.chessground.state.stats.ctrlKey &&
-    //             (this.chessground.state.movable.dests.get(key)?.includes(key))
-    //             ) {
-    //             const piece = this.chessground.state.pieces.get(key);
-    //             if (this.variant.name === 'sittuyin') { // TODO make this more generic
-    //                 // console.log("Ctrl in place promotion", key);
-    //                 const pieces: cg.PiecesDiff = new Map();
-    //                 pieces.set(key, {
-    //                     color: piece!.color,
-    //                     role: 'f-piece',
-    //                     promoted: true
-    //                 });
-    //                 this.chessground.setPieces(pieces);
-    //                 this.sendMove(key, key, 'f');
-    //             } else if (this.variant.pass && piece!.role === 'k-piece') {
-    //                 this.pass();
-    //             }
-    //         }
-    //     }
-    // }
 
     private buildScoreStr = (color: string, analysis: Ceval) => {
         const score = analysis['s'];
@@ -1273,111 +1102,8 @@ export default class AnalysisControllerBughouse {
         }
     }
 
-    // User running a fishnet worker asked new server side analysis with chat message: !analysis
-    // private onMsgRequestAnalysis = () => {todo:niki:this makes sense to exist at least maybe
-    //     this.steps.forEach((step) => {
-    //         step.analysis = undefined;
-    //         step.ceval = undefined;
-    //         step.scoreStr = undefined;
-    //     });
-    //     this.drawAnalysisChart(true);
+    // private onMessage = (evt: MessageEvent) => {
+    //     console.log("<+++ onMessage():", evt.data);
     // }
-    //
-    // private onMsgUserConnected = (msg: MsgUserConnected) => {
-    //     this.model["username"] = msg["username"];
-    //     // we want to know lastMove and check status
-    //     this.doSend({ type: "board", gameId: this.gameId });
-    // }
-    //
-    // private onMsgSpectators = (msg: MsgSpectators) => {
-    //     const container = document.getElementById('spectators') as HTMLElement;
-    //     patch(container, h('under-left#spectators', _('Spectators: ') + msg.spectators));
-    // }
-    //
-    // private onMsgChat = (msg: MsgChat) => {
-    //     if ((this.spectator && msg.room === 'spectator') || (!this.spectator && msg.room !== 'spectator') || msg.user.length === 0) {
-    //         chatMessage(msg.user, msg.message, "roundchat", msg.time);
-    //     }
-    // }
-    //
-    // private onMsgFullChat = (msg: MsgFullChat) => {
-    //     // To prevent multiplication of messages we have to remove old messages div first
-    //     patch(document.getElementById('messages') as HTMLElement, h('div#messages-clear'));
-    //     // then create a new one
-    //     patch(document.getElementById('messages-clear') as HTMLElement, h('div#messages'));
-    //     msg.lines.forEach((line) => {
-    //         if ((this.spectator && line.room === 'spectator') || (!this.spectator && line.room !== 'spectator') || line.user.length === 0) {
-    //             chatMessage(line.user, line.message, "roundchat", line.time);
-    //         }
-    //     });
-    // }
-    //
-    // private onMsgGameNotFound = (msg: MsgGameNotFound) => {
-    //     alert(_("Requested game %1 not found!", msg['gameId']));
-    //     window.location.assign(this.model["home"]);
-    // }
-    //
-    // private onMsgShutdown = (msg: MsgShutdown) => {
-    //     alert(msg.message);
-    // }
-    //
-    // private onMsgCtable = (msg: MsgCtable, gameId: string) => {
-    //     // imported games has no crosstable
-    //     if (this.model["rated"] !== '2') {
-    //         this.ctableContainer = patch(this.ctableContainer, h('div#ctable-container'));
-    //         this.ctableContainer = patch(this.ctableContainer, crosstableView(msg.ct, gameId));
-    //     }
-    // }
-    //
-    // private onMsgDeleted = () => {
-    //     window.location.assign(this.model["home"] + "/@/" + this.model["username"] + '/import');
-    // }
-
-    private onMessage = (evt: MessageEvent) => {
-        console.log("<+++ onMessage():", evt.data);
-        // const msg = JSON.parse(evt.data);
-        // switch (msg.type) {
-        //     case "board":
-        //         this.onMsgBoard(msg);
-        //         break;
-        //     case "analysis_board":
-        //         this.onMsgAnalysisBoard(msg);
-        //         break
-        //     case "crosstable":
-        //         this.onMsgCtable(msg, this.gameId);
-        //         break
-        //     case "analysis":
-        //         this.onMsgAnalysis(msg);
-        //         break;
-        //     case "embed_user_connected":
-        //     case "game_user_connected":
-        //         this.onMsgUserConnected(msg);
-        //         break;
-        //     case "spectators":
-        //         this.onMsgSpectators(msg);
-        //         break
-        //     case "roundchat":
-        //         this.onMsgChat(msg);
-        //         break;
-        //     case "fullchat":
-        //         this.onMsgFullChat(msg);
-        //         break;
-        //     case "game_not_found":
-        //         this.onMsgGameNotFound(msg);
-        //         break
-        //     case "shutdown":
-        //         this.onMsgShutdown(msg);
-        //         break;
-        //     case "logout":
-        //         this.doSend({type: "logout"});
-        //         break;
-        //     case "request_analysis":
-        //         this.onMsgRequestAnalysis()
-        //         break;
-        //     case "deleted":
-        //         this.onMsgDeleted();
-        //         break;
-        // }
-    }
 
 }

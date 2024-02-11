@@ -92,7 +92,7 @@ async def process_ws(
         # disconnected
         log.error(e, exc_info=True)
     except Exception:
-        log.exception("ERROR: Exception in tournament_socket_handler() owned by %s ", user.username)
+        log.exception("ERROR: Exception in % socket handling owned by %s ", request.rel_url.path, user.username)
     finally:
         log.debug("--- %s finally: await ws.close() %s", request.rel_url.path, user.username)
         await ws.close()

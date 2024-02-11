@@ -9,7 +9,6 @@ import { Settings, NumberSettings, BooleanSettings } from './settings';
 import { slider, checkbox } from './view';
 import { PyChessModel } from "./types";
 import { BOARD_FAMILIES, PIECE_FAMILIES, Variant, VARIANTS } from './variants';
-import {update} from "idb-keyval";
 
 export interface BoardController {
     readonly chessground: Api;
@@ -101,7 +100,7 @@ class BoardSettings {
 
     updateDropSuggestionCtrl(ctrl: BoardController) {
         // Redraw the piece being suggested for dropping in the new piece style
-        if (this.ctrl && this.ctrl.hasPockets) {
+        if (ctrl && ctrl.hasPockets) {
             const chessground = this.ctrl.chessground;
             const el = document.querySelector('svg image') as HTMLElement;
             // if there is any

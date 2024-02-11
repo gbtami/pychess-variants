@@ -141,7 +141,7 @@ export function updateMovelist (ctrl: AnalysisControllerBughouse | RoundControll
                 const v = h("li.message",
                     [h("div.time", time), h("user", h("a", { attrs: {href: "/@/" + x.username} }, x.username)),
                         /*h("div.discord-icon-container", h("img.icon-discord-icon", { attrs: { src: '/static/icons/discord.svg' } }))*/
-                        x.message.indexOf('!bug')>-1? h('div.bugchat.'+m,[]):h('div'+m,[x.message])
+                        x.message.indexOf('!bug')>-1? h('div.bugchat.'+m,[]):h('div',[x.message])
                     ]);
 
                 chatMessages.push(v/*h("div", +" "+x.username+": "+x.message)*/);

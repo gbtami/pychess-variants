@@ -155,7 +155,9 @@ export class RoundControllerBughouse implements ChatController/*extends GameCont
         const onOpen = () => {
             try {
                 console.log("resending unsent move messages ", this.msgMovesAfterReconnect);
-                this.doSend(this.msgMovesAfterReconnect);
+                if (this.msgMovesAfterReconnect) {
+                    this.doSend(this.msgMovesAfterReconnect);
+                }
             } catch (e) {
                 console.log("could not even REsend unsent messages ", this.msgMovesAfterReconnect)
             }
@@ -733,6 +735,9 @@ export class RoundControllerBughouse implements ChatController/*extends GameCont
                 const activate = !this.spectator || latestPly;
                 const result = false;
                 updateMovelist(this, full, activate, result);
+                if (this.steps.length === 4) {
+                    chatMessage("", "Chat visible only to your partner", "bugroundchat");
+                }
             }
         }
     }
@@ -1269,6 +1274,11 @@ export class RoundControllerBughouse implements ChatController/*extends GameCont
         patch(document.getElementById('messages') as HTMLElement, h('div#messages-clear'));
         // then create a new one
         patch(document.getElementById('messages-clear') as HTMLElement, h('div#messages'));
+        if (this.ply > 4) {
+            chatMessage("", "Chat visible only to your partner", "bugroundchat");
+        } else {
+            chatMessage("", "Messages visible to all 4 players for the first 4 moves", "bugroundchat");
+        }
         msg.lines.forEach((line) => {
             if ((this.spectator && line.room === 'spectator') || (!this.spectator && line.room !== 'spectator') || line.user.length === 0) {
                 chatMessage(line.user, line.message, "bugroundchat", line.time);

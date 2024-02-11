@@ -90,7 +90,7 @@ export class AnalysisController extends GameController {
             this.chartFunctions = [analysisChart, movetimeChart];
         }
 
-        const onOpen = () => { //TODO:niki: what is the point of this?
+        const onOpen = () => {
             if (this.embed) {
                 this.doSend({ type: "embed_user_connected", gameId: this.gameId });
             } else if (!this.isAnalysisBoard) {

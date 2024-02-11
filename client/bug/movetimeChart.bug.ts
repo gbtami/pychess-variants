@@ -1,8 +1,6 @@
 import Highcharts from "highcharts";
 
-import { _ } from '../i18n';
 import { selectMove } from './movelist.bug';
-import { AnalysisController } from '../analysisCtrl';
 import { Step } from "../messages";
 import AnalysisControllerBughouse from "@/bug/analysisCtrl.bug";
 

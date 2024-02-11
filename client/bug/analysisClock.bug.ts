@@ -1,36 +1,29 @@
 import { h, VNode } from 'snabbdom';
 
 import { patch } from '../document';
-import AnalysisController from "./analysisCtrl";
-import {ChessgroundController} from "./ChessgroundCtrl";
+import AnalysisController from "./analysisCtrl.bug";
+import {GameControllerBughouse} from "./gameCtrl.bug";
 import {Clocks, Step} from "../messages";
 
 export function renderClocks(ctrl: AnalysisController) {
     //todo:niki:should record on each move both clocks so we know what the time on the other board was when the move was made maybe. or could i reconstruct it actually. hmm... (see same comment in roundctrl.bug.ts)
 
-    const lastStepA = ctrl.steps[ctrl.steps.findLastIndex((s, i) => s.boardName === "a" && i <= ctrl.ply)];
-    const lastStepB = ctrl.steps[ctrl.steps.findLastIndex((s, i) => s.boardName === "b" && i <= ctrl.ply)];
+    const lastStepA = ctrl.steps[ctrl.steps.findLastIndex((s: Step, i: number) => s.boardName === "a" && i <= ctrl.ply)];
+    const lastStepB = ctrl.steps[ctrl.steps.findLastIndex((s: Step, i: number) => s.boardName === "b" && i <= ctrl.ply)];
 
-    if (lastStepA) {
+    if (lastStepA && lastStepA.clocks) {
         renderClocksCC({white: lastStepA.clocks['white'], black: lastStepA.clocks['black']}, ctrl.b1, "");
     } else {
         renderClocksCC({white: ctrl.base * 60 * 1000, black: ctrl.base * 60 * 1000}, ctrl.b1, "");
     }
-    if (lastStepB) {
+    if (lastStepB && lastStepB.clocks) {
         renderClocksCC({white:lastStepB.clocks['white'], black: lastStepB.clocks['black']}, ctrl.b2, ".bug");
     } else {
         renderClocksCC({white: ctrl.base * 60 * 1000, black: ctrl.base * 60 * 1000}, ctrl.b2, ".bug");
     }
-
-    // const step = ctrl.steps[ctrl.ply];
-    // if (step && step.boardName == 'a') {
-    //     renderClocksCC(step, ctrl.b1, "");
-    // } else {
-    //     renderClocksCC(step, ctrl.b2, ".bug");
-    // }
 }
 
-export function renderClocksCC(clocks: Clocks, ctrl: ChessgroundController, suffix: string) {
+export function renderClocksCC(clocks: Clocks, ctrl: GameControllerBughouse, suffix: string) {
     const isWhiteTurn = ctrl.turnColor === "white";
     const whitePov = !ctrl.flipped();
 

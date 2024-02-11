@@ -1,4 +1,4 @@
-import {h, VNode} from "snabbdom";
+import { h } from "snabbdom";
 
 import { _ } from './i18n';
 import { patch } from './document';
