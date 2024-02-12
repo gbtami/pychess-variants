@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="https://github.com/gbtami/pychess-variants/blob/master/static/images/MidAutumnFestival/20210915_134909.jpg">
+</p>
+
 <h1 align="center">Mid Autumn Festival</h1>
 <div class="meta-headline">
     <div class= "meta">
@@ -5,12 +9,14 @@
         <span class="text"><a href="/@/CouchTomato87">@CouchTomato87</a></span>
         <span class="text">Blog</span>
     </div>
-    <div class= "headline">Mid Autumn Festival</div>
+    <div class= "headline">Celebrating the Mid-Autumn Moon Festival with Chess</div>
 </div>
 </br>
 
 Note: this blog originally was posted at 2021.09.15 on lichess.org
 Even though this was from a different holiday, we wish everyone a happy Lunar New Year!
+
+An introduction to some things Chinese - culture, food, and of course, chess.
 
 ## **Intro**
 
