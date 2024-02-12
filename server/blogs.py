@@ -18,7 +18,7 @@ BLOGS = [
     {
         "_id": "Mid_Autumn_Festival",
         "date": "2024-02-13",
-        "image": "/images/MidAutumnFestival/mid-autumn-festival.jpg",
+        "image": "/images/MidAutumnFestival/20210915_134909.jpg",
         "title": "Mid Autumn Festival",
         "subtitle": "The Hawk",
         "author": "CouchTomato87",
