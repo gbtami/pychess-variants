@@ -49,14 +49,17 @@ Here are some examples:
 **Discovery Attacks** \- While not new in Xiangqi\, these are far more prevalent\. A common example:
 
 ![image](https://github.com/gbtami/pychess-variants/blob/master/static/images/MidAutumnFestival/Discovery.png)
+
 *The red chariot can threaten to take the black chariot on the next move by opening up a check on the king via the cannon.*
 
 **Blocking** \- Here are some examples of blocking:
 
 ![image](https://github.com/gbtami/pychess-variants/blob/master/static/images/MidAutumnFestival/HorseSuffocation.png)
+
 *Black's now in a sticky situation because his left horse (right on the image) is stuck and it's hard to develop his chariots.*
 
 ![image](https://github.com/gbtami/pychess-variants/blob/master/static/images/MidAutumnFestival/Blocking.png)
+
 *Red's horse would have mated the king if black's chariot didn't block it.*
 
 ## The Art of War
