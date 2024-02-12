@@ -10,6 +10,7 @@
 </br>
 
 Note: this blog originally was posted at 2021.09.15 on lichess.org
+Even though this was from a different holiday, we wish everyone a happy Lunar New Year!
 
 ## **Intro**
 
