@@ -2,11 +2,11 @@
 
 For those who aren't familiar (and most probably won't be), next week will be the Mid Autumn Festival. What exactly is that? It's the second most important holiday for Chinese culture (but also celebrated by many Asian cultures in some form), basically the halfway point until the next year. Traditionally, it's celebrated in part by hanging many, many red lanterns.
 
-![image](https://i.imgur.com/sY4cZTx.jpg)
+![image](https://github.com/gbtami/pychess-variants/blob/master/static/images/mid-autumn-festival.jpg)
 
 Being raised in the US, that's something I unfortunately don't get to see much at all. But the other big tradition is eating *moon cake*. You can even see myself getting ready to eat some delicious moon cake in the picture above! Moon cakes are amped with sugar, but delicious nonetheless! If you haven't had moon cake, it's worth a try. On top of that, at my parents' home, I always love to be treated by homecooked dumplings, which are one of my favorite foods. For those who haven't had dumplings, they are definitely worth having, as they're basically like good old delicious soul food.
 
-![image](https://i.imgur.com/o1pozQA.jpg)
+![image](https://github.com/gbtami/pychess-variants/blob/master/static/images/dumplings.jpg)
 
 Anyways, that brings me to the next part of this brief cultural tour, which is chess! Specifically, **Chinese chess**. This is also known as Xiangqi (pronounced very similar to the Marvel superhero Shang-Chi. If you haven't already, go watch the movie!). For those who don't know, xiangqi is a sister version of chess. Both ultimately derived from Chaturanga, but with unique spins on the game. It is no historical relic either or simply just a traditional game. It's one of the most widely played board games in the world, with a large number of Chinese and Vietnamese players. Multiple xiangqi federations exist with their own grandmasters as well. So if you haven't played it before... *it's worth a try*.
 
@@ -30,7 +30,7 @@ Ultimately, the point is to try a new experience. Going back to food, Chess is k
 
 ## Xiangqi in a Nutshell
 
-![image](https://i.imgur.com/KFro00Q.png)
+![image](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiBoard.jpg)
 
 At a glance, the board looks quite different. Pieces play on intersections rather than squares, but for all intents and purposes, it's a cosmetic difference. Aside from that, you'll also notice a **river** running through the middle and two **palaces**. The river simply acts as a promotion marker for pawns and also blocks elephants from passing. The palaces prevent the king and his two advisors from leaving. The king is more restricted because it can't move diagonal... These lead to completely different kinds of mate patterns in Xiangqi than in Chess.
 
@@ -38,7 +38,7 @@ With a much weaker king also comes much weaker pieces. For starters, there are n
 
 The minor pieces are where it diverges quite a bit. Rather than the pair of the bishop and knight in Chess, you have the cannon and horse in Xiangqi. Cannons also move like rooks, but to capture they need to jump over an intervening piece. Horses move like knights, but can be blocked. If you think of a horse move as one square orthogonally and then one diagonally (like a Y shape) then it makes sense.
 
-![image](https://i.imgur.com/EL1D7Ee.png)
+![image](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiPieces.jpg)
 
 ## Tactics
 
@@ -48,22 +48,22 @@ Here are some examples:
 
 **Discovery Attacks** \- While not new in Xiangqi\, these are far more prevalent\. A common example:
 
-![image](https://i.imgur.com/Wy3KDK3.png)
+![image](https://github.com/gbtami/pychess-variants/blob/master/static/images/Discovery.jpg)
 *The red chariot can threaten to take the black chariot on the next move by opening up a check on the king via the cannon.*
 
 **Blocking** \- Here are some examples of blocking:
 
-![image](https://i.imgur.com/Be6kekE.png)
-*Black's now in a sticky situation because his horse is stuck and it's hard to develop his chariots.*
+![image](https://github.com/gbtami/pychess-variants/blob/master/static/images/HorseSuffocation.jpg)
+*Black's now in a sticky situation because his left horse (right on the image) is stuck and it's hard to develop his chariots.*
 
-![image](https://i.imgur.com/L21cCaz.png)
+![image](https://github.com/gbtami/pychess-variants/blob/master/static/images/Blocking.jpg)
 *Red's horse would have mated the king if black's chariot didn't block it.*
 
 ## The Art of War
 
 From the start, the board is nicely divided into two halves. These can be divided more as defenders line up along the middle file, which results in two "theaters at war." These can communicate with each other in different ways, for example a cannon locking down the palace's defenders in one side, letting the other side attack with aggression -- similar to how the Americans and Soviets came upon Nazi Germany at the same time from different sides in WWII.
 
-![image](https://i.imgur.com/VcxUi6I.png)
+![image](https://github.com/gbtami/pychess-variants/blob/master/static/images/Lockdown.jpg)
 *Here, red's cannon has black's defenders pinned (both the advisor and elephant are diagonal pieces). Red can deliver checkmate with the chariot if black does not intervene.*
 
 With this in mind, the importance of the concept of **tempo** is also really emphasized in Xiangqi. You could be down material, but as long as you are on the right side of the board with the necessary pieces you need to win, you can pull a win out from under your opponent. If both players recognize this, they may both try to capitalize on their advantages on different sides of the board and try to achieve checkmate first. This can start all the way back to the very early moves where every wasted move could be the difference between a win and a loss.
