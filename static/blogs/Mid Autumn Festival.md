@@ -1,3 +1,16 @@
+<h1 align="center">Mid Autumn Festival</h1>
+<div class="meta-headline">
+    <div class= "meta">
+        <span class="text">2024.02.13</span>
+        <span class="text"><a href="/@/CouchTomato87">@CouchTomato87</a></span>
+        <span class="text">Blog</span>
+    </div>
+    <div class= "headline">Mid Autumn Festival</div>
+</div>
+</br>
+
+Note: this blog originally was posted at 2021.09.15 on lichess.org
+
 ## **Intro**
 
 For those who aren't familiar (and most probably won't be), next week will be the Mid Autumn Festival. What exactly is that? It's the second most important holiday for Chinese culture (but also celebrated by many Asian cultures in some form), basically the halfway point until the next year. Traditionally, it's celebrated in part by hanging many, many red lanterns.
