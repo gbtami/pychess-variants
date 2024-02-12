@@ -38,7 +38,7 @@ With a much weaker king also comes much weaker pieces. For starters, there are n
 
 The minor pieces are where it diverges quite a bit. Rather than the pair of the bishop and knight in Chess, you have the cannon and horse in Xiangqi. Cannons also move like rooks, but to capture they need to jump over an intervening piece. Horses move like knights, but can be blocked. If you think of a horse move as one square orthogonally and then one diagonally (like a Y shape) then it makes sense.
 
-![image](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiPieces.jpg)
+![image](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiPieces.png)
 
 ## Tactics
 
@@ -48,22 +48,22 @@ Here are some examples:
 
 **Discovery Attacks** \- While not new in Xiangqi\, these are far more prevalent\. A common example:
 
-![image](https://github.com/gbtami/pychess-variants/blob/master/static/images/Discovery.jpg)
+![image](https://github.com/gbtami/pychess-variants/blob/master/static/images/Discovery.png)
 *The red chariot can threaten to take the black chariot on the next move by opening up a check on the king via the cannon.*
 
 **Blocking** \- Here are some examples of blocking:
 
-![image](https://github.com/gbtami/pychess-variants/blob/master/static/images/HorseSuffocation.jpg)
+![image](https://github.com/gbtami/pychess-variants/blob/master/static/images/HorseSuffocation.png)
 *Black's now in a sticky situation because his left horse (right on the image) is stuck and it's hard to develop his chariots.*
 
-![image](https://github.com/gbtami/pychess-variants/blob/master/static/images/Blocking.jpg)
+![image](https://github.com/gbtami/pychess-variants/blob/master/static/images/Blocking.png)
 *Red's horse would have mated the king if black's chariot didn't block it.*
 
 ## The Art of War
 
 From the start, the board is nicely divided into two halves. These can be divided more as defenders line up along the middle file, which results in two "theaters at war." These can communicate with each other in different ways, for example a cannon locking down the palace's defenders in one side, letting the other side attack with aggression -- similar to how the Americans and Soviets came upon Nazi Germany at the same time from different sides in WWII.
 
-![image](https://github.com/gbtami/pychess-variants/blob/master/static/images/Lockdown.jpg)
+![image](https://github.com/gbtami/pychess-variants/blob/master/static/images/Lockdown.png)
 *Here, red's cannon has black's defenders pinned (both the advisor and elephant are diagonal pieces). Red can deliver checkmate with the chariot if black does not intervene.*
 
 With this in mind, the importance of the concept of **tempo** is also really emphasized in Xiangqi. You could be down material, but as long as you are on the right side of the board with the necessary pieces you need to win, you can pull a win out from under your opponent. If both players recognize this, they may both try to capitalize on their advantages on different sides of the board and try to achieve checkmate first. This can start all the way back to the very early moves where every wasted move could be the difference between a win and a loss.
