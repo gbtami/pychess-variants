@@ -20,7 +20,7 @@ BLOGS = [
         "date": "2024-02-13",
         "image": "/images/MidAutumnFestival/20210915_134909.jpg",
         "title": "Mid Autumn Festival",
-        "subtitle": "The Hawk",
+        "subtitle": "Celebrating the Mid-Autumn Moon Festival with Chess",
         "author": "CouchTomato87",
         "tags": ["Blog"],
     },
