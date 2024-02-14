@@ -9,7 +9,7 @@ from typing import List, Set
 
 from aiohttp import web
 import os
-from datetime import timedelta, datetime, date
+from datetime import timedelta, timezone, datetime, date
 from operator import neg
 
 import jinja2
@@ -69,6 +69,7 @@ class PychessGlobalAppState:
 
         self.app = app
 
+        self.shutdown = False
         self.db = app[db_key]
         self.users = self.__init_users()
         self.lobby = Lobby(self)
@@ -219,16 +220,26 @@ class PychessGlobalAppState:
                     self.seeks[seek.id] = seek
                     user.seeks[seek.id] = seek
 
-            # Read correspondence games in play and start their clocks
-            cursor = self.db.game.find({"r": "d", "c": True})
+            # Read games in play and start their clocks
+            cursor = self.db.game.find({"r": "d"})
+            cursor.sort("d", -1)
+            today = datetime.now(timezone.utc)
+
             async for doc in cursor:
+                # Don't load old uninished games if they are NOT corr games
+                if doc["d"] < today - timedelta(days=1) and not doc["c"]:
+                    break
+
                 if doc["s"] < ABORTED:
                     try:
                         game = await load_game(self, doc["_id"])
                         self.games[doc["_id"]] = game
-                        game.wplayer.correspondence_games.append(game)
-                        game.bplayer.correspondence_games.append(game)
-                        game.stopwatch.restart(from_db=True)
+                        if doc["c"]:
+                            game.wplayer.correspondence_games.append(game)
+                            game.bplayer.correspondence_games.append(game)
+                            game.stopwatch.restart(from_db=True)
+                        else:
+                            game.stopwatch.restart()
                     except NotInDbUsers:
                         log.error("Failed toload game %s", doc["_id"])
 

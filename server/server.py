@@ -26,14 +26,10 @@ from motor.motor_asyncio import AsyncIOMotorClient
 from typedefs import (
     client_key,
     date_key,
-    kill_key,
     pychess_global_app_state_key,
     db_key,
 )
 from broadcast import round_broadcast
-from const import (
-    STARTED,
-)
 from routes import get_routes, post_routes
 from settings import (
     DEV,
@@ -137,7 +133,6 @@ def make_app(db_client=None, simple_cookie_storage=False) -> Application:
 async def init_state(app):
     # We have to put "kill" into a dict to prevent getting:
     # DeprecationWarning: Changing state of started or joined application is deprecated
-    app[kill_key] = {"kill": False}
     app[date_key] = {"startedAt": datetime.now(timezone.utc)}
 
     if db_key not in app:
@@ -158,20 +153,15 @@ async def init_state(app):
 
 async def shutdown(app):
     app_state = get_app_state(app)
-    app[kill_key]["kill"] = True
+    app_state.shutdown = True
 
     # notify users
-    msg = "Server will restart in about 30 seconds. Sorry for the inconvenience!"
+    msg = "The server is about to restart. Sorry for the inconvenience."
     await app_state.lobby.lobby_chat("", msg)
 
     response = {"type": "roundchat", "user": "", "message": msg, "room": "player"}
     for game in [game for game in app_state.games.values() if not game.corr]:
         await round_broadcast(game, response, full=True)
-
-    # No need to wait in dev mode and in unit tests
-    if not DEV and app_state.db is not None:
-        print("......WAIT 20")
-        await asyncio.sleep(20)
 
     # save corr seeks
     corr_seeks = [seek.corr_json for seek in app_state.seeks.values() if seek.day > 0]
@@ -182,14 +172,6 @@ async def shutdown(app):
     # terminate BOT users
     for user in [user for user in app_state.users.values() if user.bot]:
         await user.event_queue.put('{"type": "terminated"}')
-
-    # abort games
-    for game in [
-        game for game in app_state.games.values() if game.status <= STARTED and not game.corr
-    ]:
-        response = await game.abort_by_server()
-        for player in game.non_bot_players:
-            await player.send_game_message(game.id, response)
 
     # close game_sockets
     for user in [user for user in app_state.users.values() if not user.bot]:

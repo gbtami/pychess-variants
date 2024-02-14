@@ -55,6 +55,9 @@ async def process_ws(
             await init_msg(app_state, ws, user)
         msg: WSMessage
         async for msg in ws:
+            if app_state.shutdown:
+                break
+
             if msg.type == aiohttp.WSMsgType.TEXT:
                 if msg.data == "close":
                     log.debug("Got 'close' msg.")

@@ -386,8 +386,7 @@ class Game:
                     await self.save_game()
                     if self.corr:
                         await opp_player.notify_game_end(self)
-
-                elif self.corr:
+                else:
                     await self.save_moves()
 
                 self.steps.append(
@@ -424,6 +423,12 @@ class Game:
                 self.variant,
             ),
         }
+
+        # TODO: update clock of the player to move on server restart load_game() call
+        if self.rated == RATED:
+            new_data["cw"] = self.clocks_w[1:]
+            new_data["cb"] = self.clocks_b[1:]
+
         if self.app_state.db is not None:
             await self.app_state.db.game.find_one_and_update({"_id": self.id}, {"$set": new_data})
 
