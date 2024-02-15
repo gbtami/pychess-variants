@@ -6,7 +6,7 @@ import { patch } from './document';
 
 export function renderClocks(ctrl: AnalysisController) {
     const isWhiteTurn = ctrl.turnColor === "white";
-    const whitePov = !ctrl.flipped();
+    const whitePov = (ctrl.mycolor === "white" && !ctrl.flipped()) || ( ctrl.mycolor === "black" && ctrl.flipped());
 
     const wclass = whitePov ? 'bottom' : 'top';
     const wtime = ctrl.steps[ctrl.ply]?.clocks![WHITE];

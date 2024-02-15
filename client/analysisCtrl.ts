@@ -270,7 +270,7 @@ export class AnalysisController extends GameController {
     toggleOrientation() {
         super.toggleOrientation()
         boardSettings.updateDropSuggestion();
-        //TODO: clocks !!!
+        renderClocks(this);
     }
 
     private drawAnalysisChart = (withRequest: boolean) => {
