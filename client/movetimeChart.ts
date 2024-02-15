@@ -39,7 +39,7 @@ export function movetimeChart(ctrl: AnalysisController) {
 
     ctrl.steps.forEach((step: Step, ply: number) => {
         const turn = (ply + 1) >> 1;
-        const color = (ply & 1 === 1) ? 0 : 1;
+        const color = ((ply & 1) === 1) ? 0 : 1;
         const colorName = color ? 'black' : 'white';
 
         if (ply === 0) {
