@@ -1,5 +1,5 @@
 .cannonshogi .cg-wrap piece.p-piece.ally {
-    background-image: url('../../images/pieces/shogi/cz/0_Cannon Pawn.svg');
+    background-image: url('../../images/pieces/shogi/cz/alt/0_Cannon Pawn.svg');
 }
 .cannonshogi .cg-wrap piece.pp-piece.ally {
     background-image: url('../../images/pieces/shogi/cz/0TO.svg');
@@ -44,7 +44,7 @@
     background-image: url('../../images/pieces/shogi/cz/0OU.svg');
 }
 .cannonshogi .cg-wrap piece.p-piece.enemy {
-    background-image: url('../../images/pieces/shogi/cz/1_Cannon Pawn.svg');
+    background-image: url('../../images/pieces/shogi/cz/alt/1_Cannon Pawn.svg');
 }
 .cannonshogi .cg-wrap piece.pp-piece.enemy {
     background-image: url('../../images/pieces/shogi/cz/1TO.svg');
@@ -90,53 +90,53 @@
 }
 
 .cannonshogi .cg-wrap piece.a-piece.ally {
-    background-image: url('../../images/pieces/shogi/cz/0_Silver Cannon.svg');
+    background-image: url('../../images/pieces/shogi/cz/alt/0_Silver Cannon.svg');
 }
 .cannonshogi .cg-wrap piece.u-piece.ally {
-    background-image: url('../../images/pieces/shogi/cz/0_Gold Cannon.svg');
+    background-image: url('../../images/pieces/shogi/cz/alt/0_Gold Cannon.svg');
 }
 .cannonshogi .cg-wrap piece.i-piece.ally {
-    background-image: url('../../images/pieces/shogi/cz/0_Iron Cannon.svg');
+    background-image: url('../../images/pieces/shogi/cz/alt/0_Iron Cannon.svg');
 }
 .cannonshogi .cg-wrap piece.c-piece.ally {
-    background-image: url('../../images/pieces/shogi/cz/0_Copper Cannon.svg');
+    background-image: url('../../images/pieces/shogi/cz/alt/0_Copper Cannon.svg');
 }
 
 .cannonshogi .cg-wrap piece.pa-piece.ally {
-    background-image: url('../../images/pieces/shogi/cz/0_Flying Silver.svg');
+    background-image: url('../../images/pieces/shogi/cz/alt/0_Flying Silver.svg');
 }
 .cannonshogi .cg-wrap piece.pu-piece.ally {
-    background-image: url('../../images/pieces/shogi/cz/0_Flying Gold.svg');
+    background-image: url('../../images/pieces/shogi/cz/alt/0_Flying Gold.svg');
 }
 .cannonshogi .cg-wrap piece.pi-piece.ally {
-    background-image: url('../../images/pieces/shogi/cz/0_Flying Iron.svg');
+    background-image: url('../../images/pieces/shogi/cz/alt/0_Flying Iron.svg');
 }
 .cannonshogi .cg-wrap piece.pc-piece.ally {
-    background-image: url('../../images/pieces/shogi/cz/0_Flying Copper.svg');
+    background-image: url('../../images/pieces/shogi/cz/alt/0_Flying Copper.svg');
 }
 
 .cannonshogi .cg-wrap piece.a-piece.enemy {
-    background-image: url('../../images/pieces/shogi/cz/1_Silver Cannon.svg');
+    background-image: url('../../images/pieces/shogi/cz/alt/1_Silver Cannon.svg');
 }
 .cannonshogi .cg-wrap piece.u-piece.enemy {
-    background-image: url('../../images/pieces/shogi/cz/1_Gold Cannon.svg');
+    background-image: url('../../images/pieces/shogi/cz/alt/1_Gold Cannon.svg');
 }
 .cannonshogi .cg-wrap piece.i-piece.enemy {
-    background-image: url('../../images/pieces/shogi/cz/1_Iron Cannon.svg');
+    background-image: url('../../images/pieces/shogi/cz/alt/1_Iron Cannon.svg');
 }
 .cannonshogi .cg-wrap piece.c-piece.enemy {
-    background-image: url('../../images/pieces/shogi/cz/1_Copper Cannon.svg');
+    background-image: url('../../images/pieces/shogi/cz/alt/1_Copper Cannon.svg');
 }
 
 .cannonshogi .cg-wrap piece.pa-piece.enemy {
-    background-image: url('../../images/pieces/shogi/cz/1_Flying Silver.svg');
+    background-image: url('../../images/pieces/shogi/cz/alt/1_Flying Silver.svg');
 }
 .cannonshogi .cg-wrap piece.pu-piece.enemy {
-    background-image: url('../../images/pieces/shogi/cz/1_Flying Gold.svg');
+    background-image: url('../../images/pieces/shogi/cz/alt/1_Flying Gold.svg');
 }
 .cannonshogi .cg-wrap piece.pi-piece.enemy {
-    background-image: url('../../images/pieces/shogi/cz/1_Flying Iron.svg');
+    background-image: url('../../images/pieces/shogi/cz/alt/1_Flying Iron.svg');
 }
 .cannonshogi .cg-wrap piece.pc-piece.enemy {
-    background-image: url('../../images/pieces/shogi/cz/1_Flying Copper.svg');
+    background-image: url('../../images/pieces/shogi/cz/alt/1_Flying Copper.svg');
 }
