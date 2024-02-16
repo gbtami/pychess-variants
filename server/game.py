@@ -146,7 +146,9 @@ class Game:
         self.draw_offers: Set[str] = set()
         self.rematch_offers: Set[str] = set()
         self.messages: collections.deque = collections.deque([], MAX_CHAT_LINES)
+
         self.date = datetime.now(timezone.utc)
+        self.loaded_at = None
 
         clocks_init = (base * 1000 * 60) + 0 if base > 0 else inc * 1000
         self.clocks_w = [clocks_init]
@@ -410,9 +412,10 @@ class Game:
                     await opp_player.notify_game_end(self)
 
     async def save_moves(self):
+        self.last_move_time = datetime.now(timezone.utc)
         new_data = {
             "f": self.board.fen,
-            "l": datetime.now(timezone.utc),
+            "l": self.last_move_time,
             "s": self.status,
             "m": encode_moves(
                 (
@@ -1017,10 +1020,15 @@ class Game:
                 # otherwise he will get free extra time on browser page refresh
                 # (also needed for spectators entering to see correct clock times)
 
+                elapsed0 = 0
+                # Extra adjustment needed when game resumed after server restart
+                if (self.last_move_date is not None) and (self.loaded_at is not None):
+                    elapsed0 = ((self.loaded_at - self.last_move_date).total_seconds()) * 1000
+
                 cur_time = monotonic()
-                elapsed = int(round((cur_time - self.last_server_clock) * 1000))
+                elapsed1 = int(round((cur_time - self.last_server_clock) * 1000))
                 clocks[self.board.color] = max(
-                    0, clocks[self.board.color] + self.byo_correction - elapsed
+                    0, clocks[self.board.color] + self.byo_correction - elapsed0 - elapsed1
                 )
             crosstable = self.crosstable
         else:

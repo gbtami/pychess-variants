@@ -283,6 +283,7 @@ async def load_game(app_state: PychessGlobalAppState, game_id):
         if doc.get("bd", False):
             game.draw_offers.add(game.bplayer.username)
 
+    game.loaded_at = datetime.now(timezone.utc)
     return game
 
 
