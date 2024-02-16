@@ -247,7 +247,7 @@ async def load_game(app_state: PychessGlobalAppState, game_id):
 
     level = doc.get("x")
     game.date = doc["d"]
-    game.last_move_date = doc.get("l")
+    game.last_move_time = doc.get("l")
     if game.date.tzinfo is None:
         game.date = game.date.replace(tzinfo=timezone.utc)
     game.status = doc["s"]

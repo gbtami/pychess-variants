@@ -273,7 +273,7 @@ class Game:
             }
         ]
 
-        self.last_move_date = None
+        self.last_move_time = None
         if self.corr:
             self.stopwatch: Clock | CorrClock = CorrClock(self)
         else:
@@ -1022,8 +1022,8 @@ class Game:
 
                 elapsed0 = 0
                 # Extra adjustment needed when game resumed after server restart
-                if (self.last_move_date is not None) and (self.loaded_at is not None):
-                    elapsed0 = ((self.loaded_at - self.last_move_date).total_seconds()) * 1000
+                if (self.last_move_time is not None) and (self.loaded_at is not None):
+                    elapsed0 = ((self.loaded_at - self.last_move_time).total_seconds()) * 1000
 
                 cur_time = monotonic()
                 elapsed1 = int(round((cur_time - self.last_server_clock) * 1000))
