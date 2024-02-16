@@ -39,8 +39,8 @@ export function movetimeChart(ctrl: AnalysisController) {
 
     ctrl.steps.forEach((step: Step, ply: number) => {
         const turn = (ply + 1) >> 1;
-        const color = ply & 1;
-        const colorName = color ? 'white' : 'black';
+        const color = ((ply & 1) === 1) ? 0 : 1;
+        const colorName = color ? 'black' : 'white';
 
         if (ply === 0) {
             //moveSeries[colorName].push({y: 0});
@@ -63,7 +63,7 @@ export function movetimeChart(ctrl: AnalysisController) {
         const movePoint = {
             name: label,
             x: ply,
-            y: color ? y : -y,
+            y: color ? -y : y,
         };
         moveSeries[colorName].push(movePoint);
 
@@ -74,7 +74,7 @@ export function movetimeChart(ctrl: AnalysisController) {
             totalSeries[colorName].push({
                 name: label,
                 x: ply,
-                y: color ? clock : -clock,
+                y: color ? -clock : clock,
             });
         }
 

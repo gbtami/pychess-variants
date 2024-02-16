@@ -162,8 +162,8 @@ async def load_game(app_state: PychessGlobalAppState, game_id):
 
     if "cw" in doc:
         base_clock_time = (game.base * 1000 * 60) + (0 if game.base > 0 else game.inc * 1000)
-        clocktimes_w = doc["cw"] if len(doc["cw"]) > 0 else [base_clock_time]
-        clocktimes_b = doc["cb"] if len(doc["cb"]) > 0 else [base_clock_time]
+        game.clocks_w = [base_clock_time] + doc["cw"] if len(doc["cw"]) > 0 else [base_clock_time]
+        game.clocks_b = [base_clock_time] + doc["cb"] if len(doc["cb"]) > 0 else [base_clock_time]
 
     if "mct" in doc:
         manual_count_toggled = iter(doc["mct"])
@@ -206,18 +206,18 @@ async def load_game(app_state: PychessGlobalAppState, game_id):
                 if ply >= 2:
                     if ply % 2 == 0:
                         step["clocks"] = (
-                            clocktimes_w[move_number - 1],
-                            clocktimes_b[move_number - 2],
+                            game.clocks_w[move_number],
+                            game.clocks_b[move_number - 1],
                         )
                     else:
                         step["clocks"] = (
-                            clocktimes_w[move_number - 1],
-                            clocktimes_b[move_number - 1],
+                            game.clocks_w[move_number],
+                            game.clocks_b[move_number],
                         )
                 else:
                     step["clocks"] = (
-                        clocktimes_w[move_number - 1],
-                        clocktimes_b[move_number - 1],
+                        game.clocks_w[move_number],
+                        game.clocks_b[move_number],
                     )
 
             game.steps.append(step)
