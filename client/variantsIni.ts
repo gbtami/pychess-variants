@@ -41,9 +41,9 @@ customPiece2 = c:mBcpB
 # Iron Cannon is diagonal Janggi cannon 
 customPiece3 = i:pB
 # Flying Silver/Gold Cannon 
-customPiece4 = w:mRpRFAcpR
+customPiece4 = w:mRpRmFpB2
 # Flying Copper/Iron Cannon 
-customPiece5 = f:mBpBWDcpB
+customPiece5 = f:mBpBmWpR2
 promotedPieceType = u:w a:w c:f i:f
 startFen = lnsgkgsnl/1rci1uab1/p1p1p1p1p/9/9/9/P1P1P1P1P/1BAU1ICR1/LNSGKGSNL[-] w 0 1
 
