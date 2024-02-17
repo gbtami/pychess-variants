@@ -46,8 +46,8 @@ class TestTournament(Tournament):
     async def join_players(self, nb_players):
         self.game_tasks = set()
 
-        for i in range(nb_players):
-            name = (id8() + id8())[: random.randint(1, 16)]
+        for i in range(1, nb_players):
+            name = "Test_User_%s" % i
             player = User(self.app_state, username=name, title="TEST", perfs=PERFS)
             self.app_state.users[player.username] = player
             player.tournament_sockets[self.id] = set((None,))
@@ -151,7 +151,7 @@ async def create_arena_test(app):
     await app_state.db.tournament_pairing.delete_many({"tid": tid})
 
     tournament = ArenaTestTournament(
-        app,
+        app_state,
         tid,
         variant="gorogoroplus",
         name="Test Arena",
