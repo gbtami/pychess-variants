@@ -56,6 +56,7 @@ export const PIECE_FAMILIES: Record<string, PieceFamily> = {
     shako: { pieceCSS: ["shako0", "shako1", "shako2", "disguised"] },
     shogun: { pieceCSS: ["shogun0", "shogun1", "shogun2", "shogun3", "shogun4", "shogun5", "disguised"] },
     orda: { pieceCSS: ["orda0", "orda1", "disguised"] },
+    khans: { pieceCSS: ["khans0", "disguised"] },
     synochess: { pieceCSS: ["synochess0", "synochess1", "synochess2", "synochess3", "synochess4", "synochess5", "disguised"] },
     hoppel: { pieceCSS: ["hoppel0", "hoppel1", "hoppel2", "disguised"] },
     shinobi: { pieceCSS: ["shinobi0", "shinobi1", "disguised"] },
@@ -740,6 +741,17 @@ export const VARIANTS: Record<string, Variant> = {
         ui: { boardMark: 'campmate' },
     }),
 
+    khans: variant({
+        name: "khans", tooltip: "Asymmetric variant where one army has pieces that move like knights but capture differently.",
+        startFen: "rnbqkbnr/pppppppp/8/8/8/8/SSSSSSSS/LHATKAHL w kq - 0 1",
+        icon: "R",
+        boardFamily: "standard8x8", pieceFamily: "khans",
+        colors: { first: "Gold", second: "White" },
+        pieceRow: { white: ["k", "t", "l", "a", "h", "s"], black: ["k", "q", "r", "b", "n", "p"] },
+        promotion: { type: "regular" },
+        rules: { enPassant: true },
+    }),
+
     synochess: variant({
         name: "synochess", tooltip: "Asymmetric East vs. West variant which pits the western Chess army against a Xiangqi and Janggi-styled army.",
         startFen: "rneakenr/8/1c4c1/1ss2ss1/8/8/PPPPPPPP/RNBQKBNR[ss] w KQ - 0 1",
@@ -934,6 +946,7 @@ export const noPuzzleVariants = [
     "minixiangqi",
     "grandhouse",
     "shinobiplus",
+    "khans",
 ]
 
 export const variantGroups: { [ key: string ]: { variants: string[] } } = {
@@ -942,7 +955,7 @@ export const variantGroups: { [ key: string ]: { variants: string[] } } = {
     shogi:    { variants: [ "shogi", "minishogi", "kyotoshogi", "dobutsu", "gorogoroplus", "torishogi" ] },
     xiangqi:  { variants: [ "xiangqi", "manchu", "janggi", "minixiangqi" ] },
     fairy:    { variants: [ "capablanca", "capahouse", "seirawan", "shouse", "grand", "grandhouse", "shako", "shogun", "hoppelpoppel", "mansindam" ] },
-    army:     { variants: [ "orda", "synochess", "shinobiplus", "empire", "ordamirror", "chak", "chennis", "spartan" ] },
+    army:     { variants: [ "orda", "khans", "synochess", "shinobiplus", "empire", "ordamirror", "chak", "chennis", "spartan" ] },
     other:    { variants: [ "ataxx" ] }
 };
 

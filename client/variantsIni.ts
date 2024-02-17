@@ -53,6 +53,17 @@ flagPiece = k
 flagRegionWhite = *8
 flagRegionBlack = *1
 
+[khans:chess]
+centaur = h
+knibis = a
+kniroo = l
+customPiece1 = t:mNcK
+customPiece2 = s:mfhNcfW
+promotedPieceType = s:a
+mandatoryPiecePromotion = true
+stalemateValue = loss
+startFen = rnbqkbnr/pppppppp/8/8/8/8/SSSSSSSS/LHATKAHL w kq - 0 1
+
 [synochess:pocketknight]
 janggiCannon = c
 soldier = s
