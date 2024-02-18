@@ -439,18 +439,16 @@ export default class AnalysisControllerBughouse {
                 this.vinfo = patch(this.vinfo, h('info#info', '-'));
                 this.drawAnalysisChart(false);
             }
-            const clocktimes = this.steps[1]?.clocks?.white;
-            if (true || clocktimes !== undefined && !this.embed) {
-                patch(document.getElementById('anal-clock-top') as HTMLElement, h('div.anal-clock.top'));
-                patch(document.getElementById('anal-clock-bottom') as HTMLElement, h('div.anal-clock.bottom'));
-                patch(document.getElementById('anal-clock-top-bug') as HTMLElement, h('div.anal-clock.top.bug'));
-                patch(document.getElementById('anal-clock-bottom-bug') as HTMLElement, h('div.anal-clock.bottom.bug'));
-                renderClocks(this);
 
-                const cmt = document.getElementById('chart-movetime') as HTMLElement;
-                if (cmt) cmt.style.display = 'block';
-                movetimeChart(this);
-            }
+            patch(document.getElementById('anal-clock-top') as HTMLElement, h('div.anal-clock.top'));
+            patch(document.getElementById('anal-clock-bottom') as HTMLElement, h('div.anal-clock.bottom'));
+            patch(document.getElementById('anal-clock-top-bug') as HTMLElement, h('div.anal-clock.top.bug'));
+            patch(document.getElementById('anal-clock-bottom-bug') as HTMLElement, h('div.anal-clock.bottom.bug'));
+            renderClocks(this);
+
+            const cmt = document.getElementById('chart-movetime') as HTMLElement;
+            if (cmt) cmt.style.display = 'block';
+            movetimeChart(this);
 
         } else {/*
             if (msg.ply === this.steps.length) {

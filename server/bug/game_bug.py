@@ -1,9 +1,8 @@
 import asyncio
 import collections
 import logging
-import random
 from datetime import datetime, timezone
-from time import monotonic
+from time import monotonic, time_ns
 
 from pychess_global_app_state import PychessGlobalAppState
 from user import User
@@ -18,16 +17,12 @@ except ImportError:
 from clock import Clock
 from compress import encode_moves, R2C
 from const import (
-    CREATED,
     STARTED,
     ABORTED,
     MATE,
-    STALEMATE,
     DRAW,
-    FLAG,
     INVALIDMOVE,
     LOSERS,
-    VARIANTEND,
     CASUAL,
     RATED,
     IMPORTED,
@@ -37,9 +32,6 @@ from const import (
 from fairy import FairyBoard, BLACK
 from spectators import spectators
 from re import sub, split
-from typedefs import (
-    db_key,
-)
 
 log = logging.getLogger(__name__)
 
@@ -146,12 +138,17 @@ class GameBug:
                 "black": (base * 1000 * 60) + 0 if base > 0 else inc * 1000,
                 "white": (base * 1000 * 60) + 0 if base > 0 else inc * 1000,
             }
-        ], "merged": [
-            {
+        ]}
+        self.last_move_clocks = {
+            "a": {
+                "black": (base * 1000 * 60) + 0 if base > 0 else inc * 1000,
+                "white": (base * 1000 * 60) + 0 if base > 0 else inc * 1000,
+            },
+            "b": {
                 "black": (base * 1000 * 60) + 0 if base > 0 else inc * 1000,
                 "white": (base * 1000 * 60) + 0 if base > 0 else inc * 1000,
             }
-        ]}
+        }
         self.dests_a = {}
         self.dests_b = {}
         self.promotions_a = []
@@ -188,22 +185,12 @@ class GameBug:
         self.overtime = False
 
         self.initial_fen = self.boards["a"].initial_fen + " | " + self.boards["b"].initial_fen
-        # self.wplayer.fen960_as_white = self.initial_fen
-
-        self.random_mover = "Random-Mover" in (
-            self.wplayerA.username,
-            self.bplayerA.username,
-            self.wplayerB.username,
-            self.bplayerB.username,
-        )
-        self.random_move_a = ""
-        self.random_move_b = ""
 
         self.set_dests()
         if self.boards["a"].move_stack: #todo:niki:how can it possibly have a move_stack on init - it is empty?
             self.checkA = self.boards["a"].is_checked()
         if self.boards["b"].move_stack:
-            self.checkB = self.boards["b"].is_checked()  # todo not sure whats the point - except maybe for game-end/checkmate logic
+            self.checkB = self.boards["b"].is_checked()
 
         self.steps = [
             {
@@ -212,12 +199,14 @@ class GameBug:
                 "san": None,
                 "turnColor": "white",  # todo:niki: doesn't make sense in this initial step now - maybe have 2 fields for both boards for this reason when we don't have "active" board for last move and this.
 #                "check": self.check,  # todo:niki: i don't know if it makes sense for initial step. Maybe in case of custom fen - custom fen is complicated, it might require 2 properties for this, but also for turn color as well. Or 2 initial steps for each board i don't know
-                "clocks": self._ply_clocks["a"][0], # todo:niki: i dont know if it is needed at all, if yes probably should have it for both boards
+                "clocks": self._ply_clocks["a"][0],
+                "clocksB": self._ply_clocks["b"][0],
+                "ts": time_ns()
             }
         ]
 
-        self.stopwatches = {'a': Clock(self, self.boards["a"]),
-                            'b': Clock(self, self.boards["b"])}
+        self.stopwatches = {'a': Clock(self, self.boards["a"], self.last_move_clocks["a"]["white"]),
+                            'b': Clock(self, self.boards["b"], self.last_move_clocks["b"]["white"])}
 
         if not self.bplayerA.bot:
             self.bplayerA.game_in_progress = self.id
@@ -258,8 +247,8 @@ class GameBug:
         self.chat.setdefault(str(cur_ply), []).append({"t": time, "u": user.username, "m": message})
         # self.chat[cur_ply]
 
-    async def play_move(self, move, clocks=None, board="a", lastMoveCapturedRole=None):
-        log.debug("play_move %r %r %r %r", move, clocks, board, lastMoveCapturedRole)
+    async def play_move(self, move, clocks=None, clocksB=None, board="a", lastMoveCapturedRole=None):
+        log.debug("play_move %r %r %r %r %r", move, clocks, clocksB, board, lastMoveCapturedRole)
         self.stopwatches[board].stop()
 
         if self.status > STARTED:#todo:niki:not needed we have check in callers code
@@ -272,6 +261,8 @@ class GameBug:
         cur_player_a = self.bplayerA if self.boards["a"].color == BLACK else self.wplayerA
         cur_player_b = self.bplayerB if self.boards["b"].color == BLACK else self.wplayerB
         cur_player = cur_player_a if board == "a" else cur_player_b
+        cur_color = "black" if self.boards[board].color == BLACK else "white"
+
         # opp_player_a = self.wplayerA if self.boards["a"].color == BLACK else self.bplayerA
         # opp_player_b = self.wplayerB if self.boards["b"].color == BLACK else self.bplayerB
 
@@ -284,8 +275,12 @@ class GameBug:
 
         if board == "a":
             self.last_server_clock = cur_time
+            clocksCurrent = clocks
         else:
             self.last_server_clockB = cur_time
+            clocksCurrent = clocksB
+
+        self.last_move_clocks[board][cur_color] = clocksCurrent[cur_color]
 
         if self.status <= STARTED:
             try:
@@ -303,8 +298,9 @@ class GameBug:
                 self.lastmove = move
                 self.lastmovePerBoardAndUser[board][cur_player.username] = move
                 self.boards[board].push(move)
-                self._ply_clocks[board].append(clocks)
-                self._ply_clocks["merged"].append(clocks)
+                self._ply_clocks["a"].append(clocks)
+                self._ply_clocks["b"].append(clocksB)
+
                 self.set_dests()
                 self.update_status()
 
@@ -322,13 +318,15 @@ class GameBug:
                         "turnColor": "black" if self.boards[board].color == BLACK else "white",
                         "check": check,
                         "clocks": clocks,
+                        "clocksB": clocksB,
+                        "ts": time_ns(), # redundancy, but i am curious and want to record how server time corresponds to sent
                     }
                 )
 
                 if self.status > STARTED:
                     await self.save_game()
-
-                self.stopwatches[board].restart()
+                c = "black" if self.boards[board].color == BLACK else "white"
+                self.stopwatches[board].restart(self.last_move_clocks[board][c])
 
             except Exception:
                 log.exception("ERROR: Exception in game %s play_move() %s", self.id, move)
@@ -399,8 +397,6 @@ class GameBug:
             if self.result != "*":
                 if self.rated == RATED:
                     await self.update_ratings()
-                # if (not self.bot_game) and (not self.wplayer.anon) and (not self.bplayer.anon):  todo:niki: crosstable for bug not supported for now
-                #     await self.save_crosstable()
 
             if self.tournamentId is not None:
                 try:
@@ -415,24 +411,20 @@ class GameBug:
                 "r": R2C[self.result],
                 "m": encode_moves(
                     [x["move"]+x["moveB"] for x in self.steps[1:]],
-                    #self.boards["a"].move_stack, # todo niki probably best to maintain separate list of steps similar to cliend-side structures. for now just lets have something that passes static analysis
                     self.variant
                 ),
                 "o": [0 if x["boardName"] == 'a' else 1 for x in self.steps[1:]],
-                "c": self.chat
+                "c": self.chat,
+                "ts": [x["ts"] for x in self.steps],
             }
-
-            # if self.rated == RATED and self.result != "*": # todo niki fix together with update_rating when decide how to do bughouse ratings
-            #     new_data["p0"] = self.p0
-            #     new_data["p1"] = self.p1
 
             # if self.rated == RATED:
             # TODO: self._ply_clocks dict stores clock data redundant
             # possible it would be better to use self._ply_clocks_w and self._ply_clocks_b arrays instead
-            new_data["cw"] = [p["white"] for p in self._ply_clocks["a"][1:]][0::2]
-            new_data["cb"] = [p["black"] for p in self._ply_clocks["a"][2:]][0::2]
-            new_data["cwB"] = [p["white"] for p in self._ply_clocks["b"][1:]][0::2]
-            new_data["cbB"] = [p["black"] for p in self._ply_clocks["b"][2:]][0::2]
+            new_data["cw"] = [p["white"] for p in self._ply_clocks["a"]]  # [1:]][0::2]
+            new_data["cb"] = [p["black"] for p in self._ply_clocks["a"]]  # [2:]][0::2]
+            new_data["cwB"] = [p["white"] for p in self._ply_clocks["b"]]  # [1:]][0::2]
+            new_data["cbB"] = [p["black"] for p in self._ply_clocks["b"]]  # [2:]][0::2]
 
             # if self.tournamentId is not None:
             #     new_data["wb"] = self.wberserk
@@ -462,8 +454,7 @@ class GameBug:
                 log.error("Failed to save new highscore to mongodb!")
 
     async def update_ratings(self):
-        pass
-        # todo niki this requires discussion how to do rating in bughouse
+        pass # todo no rating in bughouse for now
 
     @property
     def corr(self):
@@ -476,10 +467,6 @@ class GameBug:
     @property
     def non_bot_players(self):
         return filter(lambda p: not p.bot, self.all_players)
-
-    @property
-    def ply_clocks(self):
-        return self._ply_clocks["merged"]
 
     @property
     def wplayer(self):
@@ -507,6 +494,7 @@ class GameBug:
     @property
     def ply(self):
         return self.boards["a"].ply + self.boards["b"].ply
+
 
     def is_player(self, user: User) -> bool:
         return user.username in (self.wplayerA.username, self.bplayerA.username, self.wplayerB.username, self.bplayerB.username)
@@ -552,11 +540,6 @@ class GameBug:
         if self.boards["b"].move_stack:
             self.checkB = self.boards["b"].is_checked()  # todo niki no idea what self.check is needed for, but lets fix it here instead of coment it out
 
-        # w, b = self.board.insufficient_material()  todo niki have to think again, but i feel insufficient is not applicable for bughouse
-        # if w and b:
-        #     self.status = DRAW
-        #     self.result = "1/2-1/2"
-
         if not self.dests_a or not self.dests_b:
             board_which_ended = "a" if not self.dests_a else "b"  # todo:niki: can pass board param - we know which board made the move we are processing
 
@@ -576,34 +559,11 @@ class GameBug:
                 #     self.status = VARIANTEND
                 # elif self.check:
                 self.status = MATE
-
-                # Pawn drop mate
-                # TODO: remove this when https://github.com/ianfab/Fairy-Stockfish/issues/48 resolves
-                # if self.boards[board_which_ended].move_stack[-1][1] == "@":
-                #     if (
-                #         self.boards[board_which_ended].move_stack[-1][0] == "P"
-                #         and self.variant
-                #         in (
-                #             "shogi",
-                #             "minishogi",
-                #             "gorogoro",
-                #             "gorogoroplus",
-                #         )
-                #     ) or (self.boards[board_which_ended].move_stack[-1][0] == "S" and self.variant == "torishogi"):
-                #         self.status = INVALIDMOVE
-                # else:
-                #     self.status = STALEMATE
-
         else:
-            pass # todo niki dont think this applies to bughouse but should check/discuss at some point
-            # # end the game by 50 move rule and repetition automatically
-            # # for non-draw results and bot games
-            # is_game_end, game_result_value = self.board.is_optional_game_end()
-            # if is_game_end and (game_result_value != 0 or (self.wplayer.bot or self.bplayer.bot)):
-            #     self.result = result_string_from_value(self.board.color, game_result_value)
-            #     self.status = CLAIM if game_result_value != 0 else DRAW
+            # in normal chess this happens in 50moves rule, but makes no sense for bughouse
+            log.warning("unexpected end of game in bughouse with both dests_a and dests_b not empty")
 
-        if self.boards["a"].ply + self.boards["b"].ply > MAX_PLY:  # todo niki use global ply counter eventually
+        if self.boards["a"].ply + self.boards["b"].ply > MAX_PLY:
             self.status = DRAW
             self.result = "1/2-1/2"
 
@@ -626,9 +586,6 @@ class GameBug:
         promotions_b = []
         moves_a = self.boards["a"].legal_moves_no_history()
         moves_b = self.boards["b"].legal_moves_no_history()
-        if self.random_mover:  # todo niki i do not understand why this move is generated here at this moment - whose turn is it?
-            self.random_move_a = random.choice(moves_a) if moves_a else ""
-            self.random_move_b = random.choice(moves_b) if moves_b else ""
 
         for move in moves_a:
             source, dest = move[0:2], move[2:4]
@@ -745,34 +702,6 @@ class GameBug:
     def game_end(self): # todo:niki - is this really used
         return '{"type": "gameEnd", "game": {"id": "%s"}}\n' % self.id
 
-    @property
-    def game_full(self):
-        return (
-            '{"type": "gameFull", "id": "%s", "variant": {"name": "%s"}, "white": {"name": "%s"}, "black": {"name": "%s"}, "initialFen": "%s", "state": %s}\n'
-            % (
-                self.id,
-                self.variant,
-                self.wplayerA.username,  # todo niki - i think this is only relevant for some bot games so postponing for now
-                self.bplayerA.username,
-                self.initial_fen,
-                self.game_state[:-1],
-            )
-        )
-
-    @property
-    def game_state(self):
-        clocks = self.clocks
-        return (
-            '{"type": "gameState", "moves": "%s", "wtime": %s, "btime": %s, "winc": %s, "binc": %s}\n'
-            % (
-                " ".join(self.boards["a"].move_stack),  # todo niki - i think this is only relevant for some bot games so postponing for now
-                clocks["white"],
-                clocks["black"],
-                self.inc,
-                self.inc,
-            )
-        )
-
     async def abort(self):
         self.update_status(ABORTED)
         await self.save_game()
@@ -810,10 +739,9 @@ class GameBug:
     def get_board(self, full=False):
         if full:
             steps = self.steps
-
             # To not touch self._ply_clocks we are creating deep copy from clocks
-            clocksA = {"black": self._ply_clocks["a"][-1]["black"], "white": self._ply_clocks["a"][-1]["white"]}
-            clocksB = {"black": self._ply_clocks["b"][-1]["black"], "white": self._ply_clocks["b"][-1]["white"]}
+            clocksA = {"black": self.last_move_clocks["a"]["black"], "white": self.last_move_clocks["a"]["white"]}
+            clocksB = {"black": self.last_move_clocks["b"]["black"], "white": self.last_move_clocks["b"]["white"]}
 
             if self.status >= STARTED:
                 # We have to adjust current player latest saved clock time
@@ -830,8 +758,8 @@ class GameBug:
                 clocksB[cur_colorB] = max(0, clocksB[cur_colorB] - elapsedB)
             # crosstable = self.crosstable
         else:
-            clocksA = self._ply_clocks["a"][-1]
-            clocksB = self._ply_clocks["b"][-1]
+            clocksA = {"black": self.last_move_clocks["a"]["black"], "white": self.last_move_clocks["a"]["white"]}
+            clocksB = {"black": self.last_move_clocks["b"]["black"], "white": self.last_move_clocks["b"]["white"]}
             steps = (self.steps[-1],)
             # crosstable = self.crosstable if self.status > STARTED else ""
 
@@ -858,8 +786,8 @@ class GameBug:
             if self.status > STARTED and self.rated == RATED
             else "",
             "uci_usi": self.uci_usi if self.status > STARTED else "",
-            "rmA": self.random_move_a if self.status <= STARTED else "",
-            "rmB": self.random_move_b if self.status <= STARTED else "",  # todo niki - actually we might need 3 random moves to be generated when human + randommover vs random+random
+            "rmA": "",
+            "rmB": "",
             # "ct": crosstable,
             "berserk": {"w": False, "b": False}, # {"w": self.wberserk, "b": self.bberserk},
             "by": self.imported_by,

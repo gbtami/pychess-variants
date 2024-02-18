@@ -6,21 +6,22 @@ import {GameControllerBughouse} from "./gameCtrl.bug";
 import {Clocks, Step} from "../messages";
 
 export function renderClocks(ctrl: AnalysisController) {
-    //todo:niki:should record on each move both clocks so we know what the time on the other board was when the move was made maybe. or could i reconstruct it actually. hmm... (see same comment in roundctrl.bug.ts)
-
-    const lastStepA = ctrl.steps[ctrl.steps.findLastIndex((s: Step, i: number) => s.boardName === "a" && i <= ctrl.ply)];
-    const lastStepB = ctrl.steps[ctrl.steps.findLastIndex((s: Step, i: number) => s.boardName === "b" && i <= ctrl.ply)];
-
-    if (lastStepA && lastStepA.clocks) {
-        renderClocksCC({white: lastStepA.clocks['white'], black: lastStepA.clocks['black']}, ctrl.b1, "");
-    } else {
-        renderClocksCC({white: ctrl.base * 60 * 1000, black: ctrl.base * 60 * 1000}, ctrl.b1, "");
-    }
-    if (lastStepB && lastStepB.clocks) {
-        renderClocksCC({white:lastStepB.clocks['white'], black: lastStepB.clocks['black']}, ctrl.b2, ".bug");
-    } else {
-        renderClocksCC({white: ctrl.base * 60 * 1000, black: ctrl.base * 60 * 1000}, ctrl.b2, ".bug");
-    }
+    const lastStep = ctrl.steps[ctrl.ply];
+    renderClocksCC({white: lastStep.clocks!['white'], black: lastStep.clocks!['black']}, ctrl.b1, "");
+    renderClocksCC({white: lastStep.clocksB!['white'], black: lastStep.clocksB!['black']}, ctrl.b2, ".bug");
+    // const lastStepA = ctrl.steps[ctrl.steps.findLastIndex((s: Step, i: number) => s.boardName === "a" && i <= ctrl.ply)];
+    // const lastStepB = ctrl.steps[ctrl.steps.findLastIndex((s: Step, i: number) => s.boardName === "b" && i <= ctrl.ply)];
+    //
+    // if (lastStepA && lastStepA.clocks) {
+    //     renderClocksCC({white: lastStepA.clocks['white'], black: lastStepA.clocks['black']}, ctrl.b1, "");
+    // } else {
+    //     renderClocksCC({white: ctrl.base * 60 * 1000, black: ctrl.base * 60 * 1000}, ctrl.b1, "");
+    // }
+    // if (lastStepB && lastStepB.clocks) {
+    //     renderClocksCC({white:lastStepB.clocks['white'], black: lastStepB.clocks['black']}, ctrl.b2, ".bug");
+    // } else {
+    //     renderClocksCC({white: ctrl.base * 60 * 1000, black: ctrl.base * 60 * 1000}, ctrl.b2, ".bug");
+    // }
 }
 
 export function renderClocksCC(clocks: Clocks, ctrl: GameControllerBughouse, suffix: string) {

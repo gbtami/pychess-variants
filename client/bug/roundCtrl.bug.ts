@@ -437,6 +437,15 @@ export class RoundControllerBughouse implements ChatController/*extends GameCont
         this.b2.chessground.redrawAll();
     }
 
+    getClock = (boardName: string, color: cg.Color) => {
+        const colors = boardName === 'a'? this.colors: this.colorsB;
+        const clocks = boardName === 'a'? this.clocks: this.clocksB;
+        const bclock = colors[0] === "black"? 0: 1;
+        const wclock = 1 - bclock
+
+        return clocks[color === "black"? bclock: wclock];
+    }
+
     sendMove = (b: GameControllerBughouse, orig: cg.Orig, dest: cg.Key, promo: string) => {
         console.log(b,orig,dest,promo);
         this.clearDialog();
@@ -447,36 +456,34 @@ export class RoundControllerBughouse implements ChatController/*extends GameCont
         const oppclock = b.chessground.state.orientation === moveColor? 0: 1; // only makes sense when board is flipped which not supported in gameplay yet and itself only makes sense in spectators mode todo: also switching boards to be implemented
         const myclock = 1 - oppclock;
 
-        // const oppclock = !b.flipped() ? 0 : 1
-        // const myclock = 1 - oppclock;
-        const clocks = (b.boardName === 'a'? this.clocks: this.clocksB);
-        const clocktimes = (b.boardName === 'a'? this.clocktimes: this.clocktimesB);
+        const clocksInQuestion = (b.boardName === 'a'? this.clocks: this.clocksB);
+        const clocktimesInQuestion = (b.boardName === 'a'? this.clocktimes: this.clocktimesB);
 
-        const movetime = (clocks[myclock].running) ? Date.now() - clocks[myclock].startTime : 0;
+        const movetime = (clocksInQuestion[myclock].running) ? Date.now() - clocksInQuestion[myclock].startTime : 0;
         // pause() will ALWAYS add increment, even on first move, because (for now) we dont have aborting timeout
-        clocks[myclock].pause(true);
+        clocksInQuestion[myclock].pause(true);
         // console.log("sendMove(orig, dest, prom)", orig, dest, promo);
 
         const move = cg2uci(orig + dest + promo);
         // console.log("sendMove(move)", move);
 
-        const colors = b.boardName === 'a'? this.colors: this.colorsB;
-        const bclock = colors[0] === "black"? 0: 1;
-        const wclock = 1 - bclock
 
         const increment = (this.inc > 0 /*&& this.ply >= 2*/) ? this.inc * 1000 : 0;
-        const bclocktime = (moveColor === "black" && b.preaction) ? clocktimes.black + increment: clocks[bclock].duration;
-        const wclocktime = (moveColor === "white" && b.preaction) ? clocktimes.white + increment: clocks[wclock].duration;
+        const bclocktime = (moveColor === "black" && b.preaction) ? this.clocktimes.black + increment: this.getClock("a", "black").duration;
+        const wclocktime = (moveColor === "white" && b.preaction) ? this.clocktimes.white + increment: this.getClock("a", "white").duration;
+        const bclocktimeB = (moveColor === "black" && b.preaction) ? this.clocktimesB.black + increment: this.getClock("b", "black").duration;
+        const wclocktimeB = (moveColor === "white" && b.preaction) ? this.clocktimesB.white + increment: this.getClock("b", "white").duration;
 
-        const msgClocks = {movetime: (b.preaction) ? 0 : movetime, black: bclocktime, white: wclocktime};
+        const msgClocks = {movetime: b.boardName === "a"? (b.preaction) ? 0 : movetime: -1, black: bclocktime, white: wclocktime};
+        const msgClocksB = {movetime: b.boardName === "b"? (b.preaction) ? 0 : movetime: -1, black: bclocktimeB, white: wclocktimeB};
 
         const moveMsg = { type: "move",
                           gameId: this.gameId,
                           move: move,
                           clocks: msgClocks,
+                          clocksB: msgClocksB,
                           ply: this.ply + 1,
                           board: b.boardName,
-                          partnerFen: b.partnerCC.fullfen/*b.partnerCC.chessground.getFen()*//*b.partnerCC.fullfen this might not be up-to-date in simul mode if disconnect happened and move was made but not sent+received+model_updated so we use chessground*/,
                           lastMoveCapturedRole: b.lastMoveCapturedPiece? b.lastMoveCapturedPiece?.color === 'white'? b.lastMoveCapturedPiece?.role.split("-")[0].toUpperCase(): b.lastMoveCapturedPiece?.role.split("-")[0].toLowerCase(): undefined,
         } as MsgMove;
 
@@ -485,9 +492,9 @@ export class RoundControllerBughouse implements ChatController/*extends GameCont
         this.doSend(moveMsg as JSONObject);
 
         if (b.preaction) {
-            clocks[myclock].setTime(clocktimes[moveColor] + increment);
+            clocksInQuestion[myclock].setTime(clocktimesInQuestion[moveColor] + increment);
         }
-        if (this.clockOn) clocks[oppclock].start();
+        if (this.clockOn) clocksInQuestion[oppclock].start();
     }
 
     private updateLastMovesRecorded = (moveMsg: MsgMove) => {
@@ -919,12 +926,12 @@ export class RoundControllerBughouse implements ChatController/*extends GameCont
         } else {
             //todo:niki:not great if there were no moves on one of the boards because then it will show initial clock times but anyway
             if (lastStepA) {
-                this.clocks[whiteAClockAtIdx].setTime(lastStepA.clocks['white']);
-                this.clocks[blackAClockAtIdx].setTime(lastStepA.clocks['black']);
+                this.clocks[whiteAClockAtIdx].setTime(lastStepA.clocks!['white']);
+                this.clocks[blackAClockAtIdx].setTime(lastStepA.clocks!['black']);
             }
             if (lastStepB) {
-                this.clocksB[whiteBClockAtIdx].setTime(lastStepB.clocks['white']);
-                this.clocksB[blackBClockAtIdx].setTime(lastStepB.clocks['black']);
+                this.clocksB[whiteBClockAtIdx].setTime(lastStepB.clocksB!['white']);
+                this.clocksB[blackBClockAtIdx].setTime(lastStepB.clocksB!['black']);
             }
         }
 
@@ -1108,7 +1115,7 @@ export class RoundControllerBughouse implements ChatController/*extends GameCont
 
 
     goPly = (ply: number) => {
-        console.log(ply);
+        console.log("RoundControllerBughouse.goPly"+ply);
 
         const step = this.steps[ply];
         console.log(step);

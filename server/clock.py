@@ -18,12 +18,12 @@ CORR_TICK = 60
 class Clock:
     """Check game start and time out abandoned games"""
 
-    def __init__(self, game, board=None):
+    def __init__(self, game, board=None, secs=None):
         self.game = game
         self.board = board if board is not None else game.board
         self.running = False
         self.secs = -1
-        self.restart()
+        self.restart(secs)
         self.clock_task = asyncio.create_task(self.countdown())
 
     def stop(self):
@@ -47,6 +47,7 @@ class Clock:
                 # Rated games have their first move time set
                 self.secs = self.time_for_first_move
             else:
+                # now this same clock object starts measuring the time of the other player - set to what it was when he moved last time
                 self.secs = self.game.ply_clocks[self.ply][
                     "white" if self.color == WHITE else "black"
                 ]

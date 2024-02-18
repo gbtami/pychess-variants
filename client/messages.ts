@@ -9,7 +9,9 @@ export interface Step {
     fenB?: cg.FEN;
 
     move: string | undefined;
-    moveB?: string | undefined;//todo:niki:I think only reason I need both moves and fens is when scrolling to a arbitrary ply in the move list to be set pieces on both boards. Think if possible to optimize and reconstruct this and avoid
+    // todo: only reason we need moves+fens for both boards is when scrolling to an arbitrary ply
+    //       Think if possible to optimize and reconstruct this from previous move and avoid having these fields
+    moveB?: string | undefined;
 
     check: boolean;
     turnColor: cg.Color;
@@ -33,6 +35,15 @@ export interface Step {
         black: number,
         movetime: number,
     },
+    clocksB?: {
+        // TODO white and black should actually be mandatory but I'll leave
+        // the feature that use them, namely, reflecting time on the clocks
+        // on the round page of a finished game, for a later date -Ada
+        white: number,
+        black: number,
+        movetime: number,
+    },
+
     chat?: {
         message: string,
         username: string,
@@ -141,8 +152,7 @@ export type MsgMove = { // cannot be interface because cannot be converted to an
      clocks: { movetime: number; white: number; black: number; }; // looks a lot like Clocks interface, but maybe overkill to reuse it - i don't know
      ply: number;
      board?: 'a' | 'b';
-     partnerFen?: cg.FEN;  // todo:niki:not needed anymore. replaced by sending only captured role, which is still bad.
-     lastMoveCapturedRole?: string; // role single letter as in normal notation, without the "-piece" suffix of cg.Role type // todo:niki:calculate this on server somehow
+     lastMoveCapturedRole?: string; // role single letter as in normal notation, without the "-piece" suffix of cg.Role type // todo: calculate this on server somehow
 }
 
 export type MsgMovesAfterReconnect = {

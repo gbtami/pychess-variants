@@ -6,7 +6,7 @@ from datetime import timezone
 from pychess_global_app_state import PychessGlobalAppState
 from user import User
 from compress import decode_moves, R2C, C2R, V2C, C2V
-from bug.game import GameBug, MAX_PLY
+from bug.game_bug import GameBug, MAX_PLY
 from const import (
     STARTED,
     INVALIDMOVE,
@@ -163,42 +163,42 @@ async def load_game_bug(app_state: PychessGlobalAppState, game_id):
                 "turnColor": turn_color,
                 "check": game.checkA if board_name == "a" else game.checkB,
             }
-            if "cw" in doc and board_name == 'a':
-                move_number = 1 + ((board_ply[board_name] + 1) // 2) + (1 if board_ply[board_name] % 2 == 0 else 0)
-                # if board_ply[board_name] >= 2:
-                if board_ply[board_name] % 2 == 0:
-                    step["clocks"] = {
-                        "white": clocktimes_w[move_number - 1],
-                        "black": clocktimes_b[move_number - 2],
-                    }
-                else:
-                    step["clocks"] = {
-                        "white": clocktimes_w[move_number - 1],
-                        "black": clocktimes_b[move_number - 1],
-                    }
-                # else:
-                #     step["clocks"] = {
-                #         "white": clocktimes_w[move_number - 1],
-                #         "black": clocktimes_b[move_number - 1],
-                #     }
-            if "cwB" in doc and board_name == 'b':
-                move_number = 1 + ((board_ply[board_name] + 1) // 2) + (1 if board_ply[board_name] % 2 == 0 else 0)
-                # if board_ply[board_name] >= 2:
-                if board_ply[board_name] % 2 == 0:
-                    step["clocks"] = {
-                        "white": clocktimes_wB[move_number - 1],
-                        "black": clocktimes_bB[move_number - 2],
-                    }
-                else:
-                    step["clocks"] = {
-                        "white": clocktimes_wB[move_number - 1],
-                        "black": clocktimes_bB[move_number - 1],
-                    }
-                # else:
-                #     step["clocks"] = {
-                #         "white": clocktimes_wB[move_number - 1],
-                #         "black": clocktimes_bB[move_number - 1],
-                #     }
+
+            step["clocks"] = {
+                "white": clocktimes_w[ply],
+                "black": clocktimes_b[ply],
+            }
+            step["clocksB"] = {
+                "white": clocktimes_wB[ply],
+                "black": clocktimes_bB[ply],
+            }
+
+            # if "cw" in doc and board_name == 'a':
+            #     move_number = 1 + ((board_ply[board_name] + 1) // 2) + (1 if board_ply[board_name] % 2 == 0 else 0)
+            #     # if board_ply[board_name] >= 2:
+            #     if board_ply[board_name] % 2 == 0:
+            #         step["clocks"] = {
+            #             "white": clocktimes_w[move_number - 1],
+            #             "black": clocktimes_b[move_number - 2],
+            #         }
+            #     else:
+            #         step["clocks"] = {
+            #             "white": clocktimes_w[move_number - 1],
+            #             "black": clocktimes_b[move_number - 1],
+            #         }
+            # if "cwB" in doc and board_name == 'b':
+            #     move_number = 1 + ((board_ply[board_name] + 1) // 2) + (1 if board_ply[board_name] % 2 == 0 else 0)
+            #     # if board_ply[board_name] >= 2:
+            #     if board_ply[board_name] % 2 == 0:
+            #         step["clocks"] = {
+            #             "white": clocktimes_wB[move_number - 1],
+            #             "black": clocktimes_bB[move_number - 2],
+            #         }
+            #     else:
+            #         step["clocks"] = {
+            #             "white": clocktimes_wB[move_number - 1],
+            #             "black": clocktimes_bB[move_number - 1],
+            #         }
 
             board_ply[board_name] += 1
 
@@ -442,8 +442,8 @@ async def join_seek_bughouse(app_state: PychessGlobalAppState, user, seek_id, ga
     else:
         return {"type": "seek_joined", "seekID": seek_id}
 
-async def play_move(app_state: PychessGlobalAppState, user, game, move, clocks=None, board=None, lastMoveCapturedRole=None):
-    log.debug("play_move %r %r %r %r %r %r", user, game, move, clocks, board, lastMoveCapturedRole)
+async def play_move(app_state: PychessGlobalAppState, user, game, move, clocks=None, clocksB=None, board=None, lastMoveCapturedRole=None):
+    log.debug("play_move %r %r %r %r %r %r %r", user, game, move, clocks, clocksB, board, lastMoveCapturedRole)
     gameId = game.id
     invalid_move = False
     # log.info("%s move %s %s %s - %s" % (user.username, move, gameId, game.wplayer.username, game.bplayer.username))
@@ -451,7 +451,7 @@ async def play_move(app_state: PychessGlobalAppState, user, game, move, clocks=N
     if game.status <= STARTED:
         try:
             if not game.lastmovePerBoardAndUser[board].get(user.username) == move: # in case of resending after reconnect we can have same move sent multiple times from client
-                await game.play_move(move, clocks, board, lastMoveCapturedRole)
+                await game.play_move(move, clocks, clocksB, board, lastMoveCapturedRole)
             else:
                 log.debug("move already played - probably resent twice after multiple reconnects")
                 return # this move has already been processed. todo:niki:i wonder if this is enough check. is it possible to resend some old move, but before that do a new one and send it before the resend of the old one or something like this?

@@ -13,7 +13,7 @@ import { timeControlStr } from './view';
 import { PyChessModel } from "./types";
 import { Ceval } from "./messages";
 import { aiLevel, gameType, result, renderRdiff } from './result';
-import {renderBugTeamInfo, renderGameBoardsBug} from "@/bug/profile.bug";
+import { renderBugTeamInfo, renderGameBoardsBug } from "@/bug/profile.bug";
 
 export interface Game {
     _id: string; // mongodb document id
@@ -74,11 +74,11 @@ function renderGames(model: PyChessModel, games: Game[]) {
         const variant = VARIANTS[game.v];
         const chess960 = game.z === 1;
         const tc = timeControlStr(game["b"], game["i"], game["bp"], game["c"] === true ? game["b"] : 0);
-
+        const isBug = variant === VARIANTS['bughouse'];
         return h('tr', [h('a', { attrs: { href : '/' + game["_id"] } }, [
-            h('td.board', { class: { "with-pockets": !!variant.pocket }, style:{"display":"flex"} },  //todo:niki: after changing td to div and display to flex the 2 board align horizontally, but i think some other styles degraded. also this needs to go to some css file
-               variant === VARIANTS['bughouse']? renderGameBoardsBug(game, model["profileid"]): [
-                    h(`selection.${variant.boardFamily}.${variant.pieceFamily}`, { style:{"padding-right":"10px"} },
+            h('td.board', { class: { "with-pockets": !!variant.pocket, "bug": isBug} },
+               isBug? renderGameBoardsBug(game, model["profileid"]): [
+                    h(`selection.${variant.boardFamily}.${variant.pieceFamily}`,[
                         h(`div.cg-wrap.${variant.board.cg}.mini`, {
                         hook: {
                             insert: vnode => Chessground(vnode.elm as HTMLElement, {
@@ -90,7 +90,8 @@ function renderGames(model: PyChessModel, games: Game[]) {
                                 pocketRoles: variant.pocket?.roles,
                             })
                         }
-                })),
+                    })
+                ]),
             ]),
             h('td.games-info', [
                 h('div.info0.games.icon', { attrs: { "data-icon": variant.icon(chess960) } }, [
@@ -101,8 +102,11 @@ function renderGames(model: PyChessModel, games: Game[]) {
                     ]),
                 ]),
                 h('div.info-middle', [
-                    h('div.versus' + (variant === VARIANTS['bughouse']?".bug":""), [ // todo:niki: there was a more civilized way to add this class conditionally
-                        h('player.left' + (variant === VARIANTS['bughouse']?".bug":""), variant === VARIANTS['bughouse']? renderBugTeamInfo(game, 0): [
+                    h('div.versus',
+                        { class: { "bug": isBug } },
+                        [h('player.left',
+                            { class: { "bug": isBug } },
+                            isBug? renderBugTeamInfo(game, 0): [
                             h('a.user-link', { attrs: { href: '/@/' + game["us"][0] } }, [
                                 h('player-title', game["wt"]? " " + game["wt"] + " ": ""),
                                 game["us"][0] + aiLevel(game["wt"], game['x']),
@@ -113,7 +117,9 @@ function renderGames(model: PyChessModel, games: Game[]) {
                             (game["p0"] === undefined) ? "": renderRdiff(game["p0"]["d"]),
                         ]),
                         h('vs-swords.icon', { attrs: { "data-icon": '"' } }),
-                        h('player.right' + (variant === VARIANTS['bughouse']?".bug":""), variant === VARIANTS['bughouse']? renderBugTeamInfo(game, 1): [
+                        h('player.right',
+                            { class: { "bug": isBug } },
+                            isBug? renderBugTeamInfo(game, 1): [
                             h('a.user-link', { attrs: { href: '/@/' + game["us"][1] } }, [
                                 h('player-title', game["bt"]? " " + game["bt"] + " ": ""),
                                 game["us"][1] + aiLevel(game["bt"], game['x']),
@@ -122,8 +128,8 @@ function renderGames(model: PyChessModel, games: Game[]) {
                             (game["bb"] === true) ? h('icon.icon-berserk') : '',
                             (game["p1"] === undefined) ? "": game["p1"]["e"] + " ",
                             (game["p1"] === undefined) ? "": renderRdiff(game["p1"]["d"]),
-                        ]),
-                    ]),
+                        ])]
+                    ),
                     h('div.info-result', {
                         class: {
                             "win": isWinClass(model, game),

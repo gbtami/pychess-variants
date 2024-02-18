@@ -23,6 +23,7 @@ async def handle_reconnect_bughouse(app_state: PychessGlobalAppState, user, data
                     game,
                     movesQueued[0]["move"],
                     movesQueued[0]["clocks"],
+                    movesQueued[0]["clocksB"],
                     movesQueued[0]["board"],
                     movesQueued[0].get("lastMoveCapturedRole"),
                 )
@@ -41,6 +42,7 @@ async def handle_reconnect_bughouse(app_state: PychessGlobalAppState, user, data
                     game,
                     movesQueued[1]["move"],
                     movesQueued[1]["clocks"],
+                    movesQueued[1]["clocksB"],
                     movesQueued[1]["board"],
                     movesQueued[1].get("lastMoveCapturedRole"),
                 )

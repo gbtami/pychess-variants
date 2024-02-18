@@ -149,6 +149,7 @@ async def handle_move(app_state: PychessGlobalAppState, user, data, game):
                     game,
                     data["move"],
                     data["clocks"],
+                    data["clocksB"],
                     # data["ply"],todo:dont even send it maybe
                     data["board"],
                     data.get("lastMoveCapturedRole"),
