@@ -958,7 +958,7 @@ export class RoundController extends GameController {
     doSendMove(move: string) {
         const send = (move: string) => {
             this.clearDialog();
-            let clock_times, increment;
+            let clock_times: Clocks, increment;
             const oppclock = !this.flipped() ? 0 : 1
             const myclock = 1 - oppclock;
 
