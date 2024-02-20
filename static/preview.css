@@ -256,6 +256,9 @@ label.piece.piece5.tori {
 }
 
 label.piece.piece0.habaneshogi {
+    background-image: url('images/pieces/habaneshogi/wK.svg');
+}
+label.piece.piece1.habaneshogi {
     background-image: url('images/pieces/disguised/w.svg');
 }
 

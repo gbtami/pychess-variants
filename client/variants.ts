@@ -65,7 +65,7 @@ export const PIECE_FAMILIES: Record<string, PieceFamily> = {
     chennis: { pieceCSS: ["chennis0", "chennis1", "chennis2", "chennis3", "chennis4", "disguised"] },
     spartan: { pieceCSS: ["spartan0", "disguised"] },
     mansindam: { pieceCSS: ["mansindam2", "mansindam1", "mansindam3", "mansindam4", "disguised"] },
-    habaneshogi: { pieceCSS: ["disguised"] },
+    habaneshogi: { pieceCSS: ["habaneshogi", "disguised"] },
 };
 
 export interface Variant {
@@ -883,7 +883,7 @@ export const VARIANTS: Record<string, Variant> = {
         startFen: "aemckdbf/ighjjhgi/8/8/8/8/IGHJJHGI/AEMCKDBF[-] w 0 1",
         icon: "✳",
         boardFamily: "makruk8x8", pieceFamily: "habaneshogi",
-        pieceRow: ["k", "a", "e", "m", "c", "d", "b", "f", "i", "g", "h", "j", "l"],
+        pieceRow: ["k", "a", "e", "m", "c", "d", "b", "f", "i", "g", "h", "j"],
         pocket: { roles: ["a", "e", "m", "c", "d", "b", "f", "i", "g", "h", "j"], captureToHand: true },
         promotion: { type: "shogi", roles: ["a", "e", "m", "c", "d", "b", "f", "i", "g", "h", "j"] },
     }),
