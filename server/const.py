@@ -185,7 +185,7 @@ VARIANT_ICONS = {
     "gorogoro": "🐱",
     "gorogoroplus": "🐱",
     "torishogi": "🐦",
-    "habaneshogi": "H",
+    "habaneshogi": "✳",
     "cambodian": "!",
     "shako": "9",
     "minixiangqi": "7",
