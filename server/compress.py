@@ -33,6 +33,7 @@ V2C = {
     "shako": "d",
     "minixiangqi": "e",
     "kyotoshogi": "k",
+    "habaneshogi": "Q",
     "shogun": "u",
     "janggi": "j",
     "makpong": "l",
@@ -88,6 +89,12 @@ for piece in PIECES:
 for piece in "FM":
     M2C["+%s" % piece] = m2c_len
     m2c_len += 1
+
+# More droppable pieces
+#   The variant that uses these pieces (habaneshogi) was added after kyotoshogi
+#   so these letters need to be here to be backward compatible
+M2C["I@"] = m2c_len
+m2c_len += 1
 
 C2M = {v: k for k, v in M2C.items()}
 

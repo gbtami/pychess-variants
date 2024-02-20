@@ -65,6 +65,7 @@ export const PIECE_FAMILIES: Record<string, PieceFamily> = {
     chennis: { pieceCSS: ["chennis0", "chennis1", "chennis2", "chennis3", "chennis4", "disguised"] },
     spartan: { pieceCSS: ["spartan0", "disguised"] },
     mansindam: { pieceCSS: ["mansindam2", "mansindam1", "mansindam3", "mansindam4", "disguised"] },
+    habaneshogi: { pieceCSS: ["disguised"] },
 };
 
 export interface Variant {
@@ -877,6 +878,16 @@ export const VARIANTS: Record<string, Variant> = {
         promotion: { type: "shogi", roles: ["n", "b", "r", "c", "m", "p"] },
     }),
 
+    habaneshogi: variant({
+        name: "habaneshogi", displayName: "habane shogi", tooltip: "",
+        startFen: "aemckdbf/ighjjhgi/8/8/8/8/IGHJJHGI/AEMCKDBF[-] w 0 1",
+        icon: "H",
+        boardFamily: "makruk8x8", pieceFamily: "habaneshogi",
+        pieceRow: ["k", "a", "e", "m", "c", "d", "b", "f", "i", "g", "h", "j", "l"],
+        pocket: { roles: ["a", "e", "m", "c", "d", "b", "f", "i", "g", "h", "j"], captureToHand: true },
+        promotion: { type: "shogi", roles: ["a", "e", "m", "c", "d", "b", "f", "i", "g", "h", "j"] },
+    }),
+
     // We support the functionality to import/store/analyze some variants
     // but don't want to add them to leaderboard page
     embassy: variant({
@@ -941,7 +952,7 @@ export const variantGroups: { [ key: string ]: { variants: string[] } } = {
     sea:      { variants: [ "makruk", "makpong", "cambodian", "sittuyin", "asean" ] },
     shogi:    { variants: [ "shogi", "minishogi", "kyotoshogi", "dobutsu", "gorogoroplus", "torishogi" ] },
     xiangqi:  { variants: [ "xiangqi", "manchu", "janggi", "minixiangqi" ] },
-    fairy:    { variants: [ "capablanca", "capahouse", "seirawan", "shouse", "grand", "grandhouse", "shako", "shogun", "hoppelpoppel", "mansindam" ] },
+    fairy:    { variants: [ "capablanca", "capahouse", "seirawan", "shouse", "grand", "grandhouse", "shako", "shogun", "hoppelpoppel", "mansindam", "habaneshogi" ] },
     army:     { variants: [ "orda", "synochess", "shinobiplus", "empire", "ordamirror", "chak", "chennis", "spartan" ] },
     other:    { variants: [ "ataxx" ] }
 };
