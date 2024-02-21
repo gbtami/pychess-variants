@@ -25,6 +25,7 @@ import { MsgUserDisconnected, MsgUserPresent, MsgMoreTime, MsgDrawOffer, MsgDraw
 import { PyChessModel } from "./types";
 import { GameController } from './gameCtrl';
 import { handleOngoingGameEvents, Game, gameViewPlaying, compareGames } from './nowPlaying';
+import { initPocketRow } from './pocketRow';
 
 let rang = false;
 const CASUAL = '0';
@@ -178,6 +179,11 @@ export class RoundController extends GameController {
                 },
             });
         }
+
+        // initialize pockets
+        const pocket0 = document.getElementById('pocket0') as HTMLElement;
+        const pocket1 = document.getElementById('pocket1') as HTMLElement;
+        initPocketRow(this, pocket0, pocket1);
 
         // initialize users
         const player0 = document.getElementById('rplayer0') as HTMLElement;
