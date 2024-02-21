@@ -10,7 +10,7 @@ type Position = 'top' | 'bottom';
 
 const eventNames = ['mousedown', 'touchstart'];
 
-export function pieceRowView(ctrl: EditorController, color: cg.Color, position: Position) {
+function pieceRowView(ctrl: EditorController, color: cg.Color, position: Position) {
     const width = ctrl.variant.board.dimensions.width;
     const height = ctrl.variant.board.dimensions.height;
     const roles: (cg.Role | '')[] = [...ctrl.variant.pieceRow[color]];

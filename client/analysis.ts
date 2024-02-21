@@ -56,7 +56,7 @@ export function embedView(model: PyChessModel): VNode[] {
             h('div.pocket-top', [
                 h('div.' + variant.pieceFamily + '.' + model["variant"], [
                     h('div.cg-wrap.pocket', [
-                        h('div#pocket0'),
+                        h('div#pocket0.pocketrow'),
                     ]),
                 ]),
             ]),
@@ -77,7 +77,7 @@ export function embedView(model: PyChessModel): VNode[] {
             h('div.pocket-bot', [
                 h('div.' + variant.pieceFamily + '.' + model["variant"], [
                     h('div.cg-wrap.pocket', [
-                        h('div#pocket1'),
+                        h('div#pocket1.pocketrow'),
                     ]),
                 ]),
             ]),
@@ -128,7 +128,7 @@ export function analysisView(model: PyChessModel): VNode[] {
             h('div.pocket-top', [
                 h('div.' + variant.pieceFamily + '.' + model["variant"], [
                     h('div.cg-wrap.pocket', [
-                        h('div#pocket0'),
+                        h('div#pocket0.pocketrow'),
                     ]),
                 ]),
             ]),
@@ -139,7 +139,7 @@ export function analysisView(model: PyChessModel): VNode[] {
             h('div.pocket-bot', [
                 h('div.' + variant.pieceFamily + '.' + model["variant"], [
                     h('div.cg-wrap.pocket', [
-                        h('div#pocket1'),
+                        h('div#pocket1.pocketrow'),
                     ]),
                 ]),
             ]),
