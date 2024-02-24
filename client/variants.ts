@@ -710,6 +710,10 @@ export const VARIANTS: Record<string, Variant> = {
         pieceRow: ["k", "q", "e", "c", "r", "b", "n", "p"],
         promotion: { type: "regular", order: ["q", "n", "c", "r", "e", "b"] },
         rules: { enPassant: true },
+        alternateStart: {
+            '': '',
+            'Setup similar to Xiangqi': 'rnbeqkebnr/10/1c6c1/p1p1pp1p1p/10/10/P1P1PP1P1P/1C6C1/10/RNBEQKEBNR w - - 0 1',
+        },
     }),
 
     shogun: variant({
