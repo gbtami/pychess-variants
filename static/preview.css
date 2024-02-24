@@ -256,12 +256,15 @@ label.piece.piece5.tori {
 }
 
 label.piece.piece0.cannonshogi {
-    background-image: url('images/pieces/shogi/cz/0_Silver Cannon.svg');
+    background-image: url('images/pieces/shogi/ctp3d/0GoldCannon.svg');
 }
 label.piece.piece1.cannonshogi {
-    background-image: url('images/pieces/shogi/cz/alt/0_Silver Cannon.svg');
+    background-image: url('images/pieces/shogi/cz/0_Gold Cannon.svg');
 }
 label.piece.piece2.cannonshogi {
+    background-image: url('images/pieces/shogi/cz/alt/0_Gold Cannon.svg');
+}
+label.piece.piece3.cannonshogi {
     background-image: url('images/pieces/disguised/b.svg');
 }
 
