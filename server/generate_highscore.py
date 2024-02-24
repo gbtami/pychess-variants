@@ -30,10 +30,12 @@ async def generate_highscore(db, one_variant=None):
         else:
             hs = scores
 
-    if one_variant is None:
-        await db.highscore.drop()
-        # bulk insert to highscore
-        if len(hs) > 0:
+    # bulk insert/upsert to highscore
+    if len(hs) > 0:
+        if one_variant is None:
+            await db.highscore.drop()
             await db.highscore.insert_many(hs)
-
-    return hs
+        else:
+            await db.highscore.find_one_and_update(
+                {"_id": variant}, {"$set": {"scores": hs}}, upsert=True
+            )

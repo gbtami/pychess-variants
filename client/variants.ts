@@ -624,6 +624,10 @@ export const VARIANTS: Record<string, Variant> = {
         promotion: { type: "regular", roles: [] },
         rules: { defaultTimeControl: "byoyomi", pass: true, setup: true },
         ui: { materialPoint: "janggi" },
+        alternateStart: {
+            '': '',
+            'Central Chariot Setup': 'bnra1arnb/4k4/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/4K4/BNRA1ARNB w - - 0 1',
+        },
     }),
 
     minixiangqi: variant({
@@ -720,6 +724,10 @@ export const VARIANTS: Record<string, Variant> = {
         pieceRow: ["k", "q", "e", "c", "r", "b", "n", "p"],
         promotion: { type: "regular", order: ["q", "n", "c", "r", "e", "b"] },
         rules: { enPassant: true },
+        alternateStart: {
+            '': '',
+            'Setup similar to Xiangqi': 'rnbeqkebnr/10/1c6c1/p1p1pp1p1p/10/10/P1P1PP1P1P/1C6C1/10/RNBEQKEBNR w - - 0 1',
+        },
     }),
 
     shogun: variant({
