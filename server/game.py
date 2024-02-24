@@ -297,6 +297,15 @@ class Game:
             self.bberserk = True
             self.clocks_b[0] = self.berserk_time
 
+        new_data = {
+            "wb": self.wberserk,
+            "bb": self.bberserk,
+            "cw": self.clocks_w[1:],
+            "cb": self.clocks_b[1:],
+        }
+
+        await self.app_state.db.game.find_one_and_update({"_id": self.id}, {"$set": new_data})
+
     async def play_move(self, move, clocks=None, ply=None):
         self.stopwatch.stop()
 
@@ -427,7 +436,6 @@ class Game:
             ),
         }
 
-        # TODO: update clock of the player to move on server restart load_game() call
         if self.rated == RATED:
             new_data["cw"] = self.clocks_w[1:]
             new_data["cb"] = self.clocks_b[1:]
