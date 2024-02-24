@@ -539,7 +539,7 @@ export class RoundController extends GameController {
 
         chatMessage('_server', message, "roundchat");
 
-        const message1 = _('You can use the arrow buttons to switch them, then click on the check mark to finalize your decision.');
+        const message1 = _('You can use the arrow buttons (below the board -- scroll down to display) to switch them, then click on the check mark to finalize your decision.');
         chatMessage('_server', message1, "roundchat");
 
         const message2 = _('To start the game you have to click on the check mark!');
