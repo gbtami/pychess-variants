@@ -537,7 +537,13 @@ export class RoundController extends GameController {
             return;
         }
 
-        chatMessage('', message, "roundchat");
+        chatMessage('_server', message, "roundchat");
+
+        const message1 = _('You can use the arrow buttons (below the board -- scroll down to display) to switch them, then click on the check mark to finalize your decision.');
+        chatMessage('_server', message1, "roundchat");
+
+        const message2 = _('To start the game you have to click on the check mark!');
+        chatMessage('_server', message2, "roundchat");
 
         const switchLetters = (side: number) => {
             const white = this.mycolor === 'white';
