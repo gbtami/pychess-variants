@@ -48,9 +48,9 @@ class Clock:
                 self.secs = self.time_for_first_move
             else:
                 # now this same clock object starts measuring the time of the other player - set to what it was when he moved last time
-                self.secs = self.game.ply_clocks[self.ply][
-                    "white" if self.color == WHITE else "black"
-                ]
+                self.secs = (
+                    self.game.clocks_w[-1] if self.color == WHITE else self.game.clocks_b[-1]
+                )
         self.running = True
 
     async def countdown(self):
@@ -92,7 +92,7 @@ class Clock:
 
     @property
     def time_for_first_move(self):
-        # Fix 45s for janggi becuse it has setup phase
+        # Fix 45s for janggi because it has setup phase
         if self.game.variant == "janggi" or self.game.chess960:
             return 45 * 1000
 
@@ -211,5 +211,5 @@ class CorrClock:
         if db is not None:
             await db.notify.insert_one(document)
 
-        # to prevent creating more then one notification for the same ply
+        # to prevent creating more than one notification for the same ply
         self.alarms.add(self.game.board.ply)

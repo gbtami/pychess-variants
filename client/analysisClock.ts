@@ -1,21 +1,22 @@
 import { h, VNode } from 'snabbdom';
 
+import { WHITE, BLACK } from './chess';
 import { AnalysisController } from './analysisCtrl';
 import { patch } from './document';
 
 export function renderClocks(ctrl: AnalysisController) {
     const isWhiteTurn = ctrl.turnColor === "white";
-    const whitePov = !ctrl.flipped();
+    const whitePov = (ctrl.mycolor === "white" && !ctrl.flipped()) || ( ctrl.mycolor === "black" && ctrl.flipped());
 
     const wclass = whitePov ? 'bottom' : 'top';
-    const wtime = ctrl.steps[ctrl.ply]?.clocks?.white;
+    const wtime = ctrl.steps[ctrl.ply]?.clocks![WHITE];
     let wel: VNode | HTMLElement = document.querySelector(`div.anal-clock.${wclass}`) as HTMLElement;
     if (wel) {
         wel = patch(wel, h(`div.anal-clock.${wclass}`, ''));
         patch(wel, renderClock(wtime!, isWhiteTurn, wclass));
     }
     const bclass = whitePov ? 'top' : 'bottom';
-    const btime = ctrl.steps[ctrl.ply]?.clocks?.black;
+    const btime = ctrl.steps[ctrl.ply]?.clocks![BLACK];
     let bel: VNode | HTMLElement = document.querySelector(`div.anal-clock.${bclass}`) as HTMLElement;
     if (bel) {
         bel = patch(bel, h(`div.anal-clock.${bclass}`, ''));

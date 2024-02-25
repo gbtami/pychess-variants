@@ -80,7 +80,7 @@ class PychessGlobalAppState:
 
         self.tournaments: dict[str, Tournament] = {}
 
-        # lichess allows 7 team message per week, so we will send one (comulative) per day only
+        # lichess allows 7 team message per week, so we will send one (cumulative) per day only
         # TODO: save/restore from db
         self.sent_lichess_team_msg: List[date] = []
 
@@ -93,6 +93,7 @@ class PychessGlobalAppState:
         self.game_channels: Set[queue] = set()
         self.invite_channels: Set[queue] = set()
         self.highscore = {variant: ValueSortedDict(neg) for variant in VARIANTS}
+        self.get_top10_users = True
         self.crosstable: dict[str, object] = {}
         self.shield = {}
         self.shield_owners = {}  # {variant: username, ...}
@@ -160,14 +161,11 @@ class PychessGlobalAppState:
 
             db_collections = await self.db.list_collection_names()
 
-            # if "highscore" not in db_collections:
-            # Always create new highscore lists on server start
-            hs = await generate_highscore(self.db)
-            for doc in hs:
+            if "highscore" not in db_collections:
+                await generate_highscore(self.db)
+            cursor = self.db.highscore.find()
+            async for doc in cursor:
                 self.highscore[doc["_id"]] = ValueSortedDict(neg, doc["scores"])
-
-                for username in self.highscore[doc["_id"]]:
-                    await self.users.get(username)
 
             if "crosstable" not in db_collections:
                 await generate_crosstable(self.db)

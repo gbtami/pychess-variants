@@ -9,6 +9,7 @@ from operator import neg
 
 from aiohttp.test_utils import AioHTTPTestCase
 from sortedcollections import ValueSortedDict
+from mongomock_motor import AsyncMongoMockClient
 
 import game
 from const import CREATED, STARTED, VARIANTS, STALEMATE, MATE
@@ -71,6 +72,8 @@ PERFS["weakplayer"]["crazyhouse960"] = {
     "nb": 100,
 }
 
+CLOCKS = [60, 60]
+
 
 class GameResultTestCase(AioHTTPTestCase):
     async def startup(self, app):
@@ -78,7 +81,7 @@ class GameResultTestCase(AioHTTPTestCase):
         self.wplayer = User(get_app_state(self.app), username="wplayer", perfs=PERFS["newplayer"])
 
     async def get_application(self):
-        app = make_app()
+        app = make_app(db_client=AsyncMongoMockClient())
         app.on_startup.append(self.startup)
         return app
 
@@ -87,16 +90,32 @@ class GameResultTestCase(AioHTTPTestCase):
 
     async def test_atomic_stalemate(self):
         FEN = "K7/Rk6/2B5/8/8/8/7Q/8 w - - 0 1"
-        game = Game(get_app_state(self.app), "12345678", "atomic", FEN, self.wplayer, self.bplayer, rated=False)
-        await game.play_move("h2b8")
+        game = Game(
+            get_app_state(self.app),
+            "12345678",
+            "atomic",
+            FEN,
+            self.wplayer,
+            self.bplayer,
+            rated=False,
+        )
+        await game.play_move("h2b8", clocks=CLOCKS)
 
         self.assertEqual(game.result, "1/2-1/2")
         self.assertEqual(game.status, STALEMATE)
 
     async def test_atomic_checkmate(self):
         FEN = "B6Q/Rk6/8/8/8/8/8/4K3 w - - 0 1"
-        game = Game(get_app_state(self.app), "12345678", "atomic", FEN, self.wplayer, self.bplayer, rated=False)
-        await game.play_move("h8b8")
+        game = Game(
+            get_app_state(self.app),
+            "12345678",
+            "atomic",
+            FEN,
+            self.wplayer,
+            self.bplayer,
+            rated=False,
+        )
+        await game.play_move("h8b8", clocks=CLOCKS)
 
         self.assertEqual(game.result, "1-0")
         self.assertEqual(game.status, MATE)
@@ -207,7 +226,7 @@ class GamePlayTestCase(AioHTTPTestCase):
         self.random_mover = app_state.users["Random-Mover"]
 
     async def get_application(self):
-        app = make_app()
+        app = make_app(db_client=AsyncMongoMockClient())
         app.on_startup.append(self.startup)
         return app
 
@@ -217,7 +236,7 @@ class GamePlayTestCase(AioHTTPTestCase):
     async def play_random(self, game):
         while game.status <= STARTED:
             move = random.choice(game.legal_moves)
-            await game.play_move(move, clocks={"white": 60, "black": 60})
+            await game.play_move(move)
 
     async def test_game_play(self):
         """Playtest test_player vs Random-Mover"""
@@ -262,7 +281,7 @@ class HighscoreTestCase(AioHTTPTestCase):
         self.weak_player = User(app_state, username="weakplayer", perfs=PERFS["weakplayer"])
 
     async def get_application(self):
-        app = make_app()
+        app = make_app(db_client=AsyncMongoMockClient())
         app.on_startup.append(self.startup)
         return app
 
@@ -279,11 +298,9 @@ class HighscoreTestCase(AioHTTPTestCase):
             print(row)
 
     async def play_and_resign(self, game, player):
-        clock = game.ply_clocks[0]["white"]
+        clocks = (game.clocks_w[0], game.clocks_b[0])
         for i, move in enumerate(("e2e4", "e7e5", "f2f4"), start=1):
-            await game.play_move(
-                move, clocks={"white": clock, "black": clock, "movetime": 0}, ply=i
-            )
+            await game.play_move(move, clocks=clocks, ply=i)
         await game.game_ended(player, "resign")
 
     async def test_lost_but_still_there(self):
@@ -346,8 +363,10 @@ class HighscoreTestCase(AioHTTPTestCase):
 
         self.assertEqual(len(game.crosstable["r"]), 1, msg="game.crosstable still empty")
         self.assertNotEqual(highscore0, highscore1, msg="highscore not changed")
-        self.assertTrue(self.wplayer.username not in game.app_state.highscore["crazyhouse960"].keys()[:10], msg="wplayer not in "
-                                                                                                      "highscore")
+        self.assertTrue(
+            self.wplayer.username not in game.app_state.highscore["crazyhouse960"].keys()[:10],
+            msg="wplayer not in highscore",
+        )
 
     async def test_win_and_in_then_lost_and_out(self):
         game_id = id8()
@@ -379,7 +398,9 @@ class HighscoreTestCase(AioHTTPTestCase):
         self.assertTrue(
             self.weak_player.username not in game.app_state.highscore["crazyhouse960"].keys()[:10]
         )
-        self.assertTrue(self.strong_player.username in game.app_state.highscore["crazyhouse960"].keys()[:10])
+        self.assertTrue(
+            self.strong_player.username in game.app_state.highscore["crazyhouse960"].keys()[:10]
+        )
 
         # now strong player will lose to weak_player and should be out from leaderboard
         game_id = id8()
@@ -417,7 +438,7 @@ class RatingTestCase(AioHTTPTestCase):
         self.gl2 = Glicko2(tau=0.5)
 
     async def get_application(self):
-        app = make_app()
+        app = make_app(db_client=AsyncMongoMockClient())
         app.on_startup.append(self.startup)
         return app
 
@@ -520,7 +541,7 @@ class FirstRatedGameTestCase(AioHTTPTestCase):
         self.wplayer2 = User(get_app_state(self.app), username="wplayer", perfs=PERFS["newplayer"])
 
     async def get_application(self):
-        app = make_app()
+        app = make_app(db_client=AsyncMongoMockClient())
         app.on_startup.append(self.startup)
         return app
 
@@ -528,7 +549,15 @@ class FirstRatedGameTestCase(AioHTTPTestCase):
         await self.client.close()
 
     async def test_ratings(self):
-        game = Game(get_app_state(self.app), "12345678", "chess", "", self.wplayer1, self.bplayer1, rated=True)
+        game = Game(
+            get_app_state(self.app),
+            "12345678",
+            "chess",
+            "",
+            self.wplayer1,
+            self.bplayer1,
+            rated=True,
+        )
         game.board.ply = 3
         await game.game_ended(self.bplayer1, "flag")
 
@@ -538,7 +567,15 @@ class FirstRatedGameTestCase(AioHTTPTestCase):
         self.assertEqual(round(rw.mu, 3), 1662.212)
         self.assertEqual(round(rb.mu, 3), 1337.788)
 
-        game = Game(get_app_state(self.app), "12345678", "chess", "", self.wplayer2, self.bplayer2, rated=True)
+        game = Game(
+            get_app_state(self.app),
+            "12345678",
+            "chess",
+            "",
+            self.wplayer2,
+            self.bplayer2,
+            rated=True,
+        )
         game.board.ply = 3
         await game.game_ended(self.wplayer2, "flag")
 

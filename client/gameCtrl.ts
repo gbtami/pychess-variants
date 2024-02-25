@@ -73,6 +73,8 @@ export abstract class GameController extends ChessgroundController implements Ch
     vmovelist: VNode | HTMLElement;
     gameControls: VNode;
     moveControls: VNode;
+    vmiscInfoW: VNode;
+    vmiscInfoB: VNode;
     ctableContainer: VNode | HTMLElement;
     clickDrop: cg.Piece | undefined;
 
@@ -168,7 +170,17 @@ export abstract class GameController extends ChessgroundController implements Ch
         Mousetrap.bind('right', () => selectMove(this, this.ply + 1, this.plyVari));
         Mousetrap.bind('up', () => selectMove(this, 0));
         Mousetrap.bind('down', () => selectMove(this, this.steps.length - 1));
+        Mousetrap.bind('enter', () => this.skipGating());
         Mousetrap.bind('f', () => this.toggleOrientation());
+        Mousetrap.bind('?', () => this.helpDialog());
+    }
+
+    skipGating() {
+        this.gating.skipGating();
+    }
+
+    helpDialog() {
+        console.log('HELP!');
     }
 
     flipped() {
@@ -272,11 +284,11 @@ export abstract class GameController extends ChessgroundController implements Ch
         this.duck.inputState = undefined;
 
         if (this.variant.ui.counting) {
-            updateCount(step.fen, document.getElementById('misc-infow') as HTMLElement, document.getElementById('misc-infob') as HTMLElement);
+            [this.vmiscInfoW, this.vmiscInfoB] = updateCount(step.fen, document.getElementById('misc-infow') as HTMLElement, document.getElementById('misc-infob') as HTMLElement);
         }
 
         if (this.variant.ui.materialPoint) {
-            updatePoint(this.variant, step.fen, document.getElementById('misc-infow') as HTMLElement, document.getElementById('misc-infob') as HTMLElement);
+            [this.vmiscInfoW, this.vmiscInfoB] = updatePoint(this.variant, step.fen, document.getElementById('misc-infow') as HTMLElement, document.getElementById('misc-infob') as HTMLElement);
         }
 
         if (ply === this.ply + 1) {

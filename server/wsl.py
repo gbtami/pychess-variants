@@ -11,7 +11,7 @@ from chat import chat_response
 from const import ANON_PREFIX, STARTED
 from login import logout
 from misc import server_state
-from const import TYPE_CHECKING
+from const import TYPE_CHECKING, VARIANTS
 
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
@@ -22,6 +22,7 @@ from tournament_spotlights import tournament_spotlights
 from bug.utils_bug import join_seek_bughouse
 from utils import join_seek, load_game, remove_seek
 from websocket_utils import get_user, process_ws
+from generate_highscore import generate_highscore
 
 log = logging.getLogger(__name__)
 
@@ -307,6 +308,13 @@ async def handle_lobbychat(app_state, user, data):
                     {"_id": parts[1]}, {"$set": {"enabled": False}}
                 )
                 await logout(None, banned_user)
+
+        elif message.startswith("/highscore"):
+            admin_command = True
+            parts = message.split()
+            if len(parts) == 2 and parts[1] in VARIANTS:
+                variant = parts[1]
+                await generate_highscore(app_state.db, variant)
 
         elif message == "/state":
             admin_command = True

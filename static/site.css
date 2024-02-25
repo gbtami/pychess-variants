@@ -2275,6 +2275,12 @@ div.ctable-container {
   justify-content: center;
   display: flex;
 }
+.pocketrow {
+    width: calc(var(--cg-width)/var(--files) * var(--pocketLength));
+    height: calc(var(--piecerows) * var(--cg-height) / var(--ranks));
+    display: flex;
+    flex-wrap: wrap;
+}
 .pocket-top {
   grid-area: pocket-top;
 }

@@ -20,6 +20,7 @@ class AnalysisSettings {
         this.settings["threads"] = new ThreadsSettings(this);
         this.settings["hash"] = new HashSettings(this);
         this.settings["nnue"] = new NnueSettings(this);
+        this.settings["fsfDebug"] = new FsfDebugSettings(this);
     }
 
     getSettings(family: string) {
@@ -48,6 +49,8 @@ class AnalysisSettings {
         settingsList.push(this.settings["nnue"].view());
 
         settingsList.push(this.getSettings(variantName as string).view());
+
+        settingsList.push(this.settings["fsfDebug"].view());
 
         settingsList.push();
 
@@ -257,6 +260,35 @@ class NnueFileSettings extends StringSettings {
 
     view(): VNode {
         return h('div.labelled', nnueFile(this, 'evalFile', 'NNUE', this.variant));
+    }
+}
+
+class FsfDebugSettings extends BooleanSettings {
+    readonly analysisSettings: AnalysisSettings;
+
+    constructor(analysisSettings: AnalysisSettings) {
+        super('fsfDebug', false);
+        this.analysisSettings = analysisSettings;
+    }
+
+    update(): void {
+        const ctrl = this.analysisSettings.ctrl;
+        if ('fsfDebug' in ctrl) {
+            ctrl.fsfDebug = this.value;
+            ctrl.pvboxIni();
+        }
+    }
+
+    view(): VNode {
+        return h(
+            'div.fsfDebug-toggle',
+            toggleSwitch(
+                this,
+                'fsfDebug-enabled',
+                _("Enable engine debug"),
+                false,
+            )
+        );
     }
 }
 

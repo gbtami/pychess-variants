@@ -16,6 +16,24 @@ del _
 
 BLOGS = [
     {
+        "_id": "Mid_Autumn_Festival",
+        "date": "2024-02-13",
+        "image": "/images/MidAutumnFestival/20210915_134909.jpg",
+        "title": "Mid Autumn Festival",
+        "subtitle": "Celebrating the Mid-Autumn Moon Festival with Chess",
+        "author": "CouchTomato87",
+        "tags": ["Blog"],
+    },
+    {
+        "_id": "S-chess_endings_3",
+        "date": "2024-02-01",
+        "image": "/images/hawk3.jpg",
+        "title": "S-Chess Endings 3",
+        "subtitle": "The Hawk",
+        "author": "yasser-seirawan",
+        "tags": ["Blog"],
+    },
+    {
         "_id": "hsl",
         "date": "2024-01-14",
         "image": "/images/hsl.png",
