@@ -34,6 +34,7 @@ from convert import mirror5, mirror9, usi2uci, grand2zero, zero2grand
 from fairy import BLACK, STANDARD_FEN, FairyBoard
 from game import Game, MAX_PLY
 from newid import new_id
+from user import User
 from users import NotInDbUsers
 
 if TYPE_CHECKING:
@@ -304,8 +305,17 @@ async def import_game(request):
     wp = data["White"]
     bp = data["Black"]
 
-    wplayer = await app_state.users.get(wp)
-    bplayer = await app_state.users.get(bp)
+    try:
+        wplayer = await app_state.users.get(wp)
+    except NotInDbUsers:
+        wplayer = User(app_state, username=wp, anon=True)
+        app_state.users[wp] = wplayer
+
+    try:
+        bplayer = await app_state.users.get(bp)
+    except NotInDbUsers:
+        bplayer = User(app_state, username=bp, anon=True)
+        app_state.users[bp] = bplayer
 
     variant = data.get("Variant", "chess").lower()
     chess960 = variant.endswith("960")
@@ -338,7 +348,7 @@ async def import_game(request):
         if tc[1][-1] == "秒":
             tc[1] = tc[1][:-1]
         tc = list(map(int, tc))
-        base = int((tc[0] / 60) if not minute else tc[0])
+        base = int((tc[0] / 60 if tc[0] > 60 else tc[0]) if not minute else tc[0])
         inc = int(tc[1])
     except Exception:
         log.exception("TimeControl tag parsing failed")
