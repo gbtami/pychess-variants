@@ -61,13 +61,11 @@ function playerInfo(model: PyChessModel, color: string, board: string) {
     const title = model[board == "a"? color === "w"? "wtitle": "btitle": color === "w"? "wtitleB": "btitleB"];
     const level = model.level;
     const rating = model[board == "a"? color === "w"? "wrating": "brating": color === "w"? "wratingB": "bratingB"];
-    const rdiff = model[board == "a"? color === "w"? "wrdiff": "brdiff": color === "w"? "wrdiffB": "brdiffB"];
-    const berserk = model[color === "w"? "wberserk": "bberserk"];
 
     return h('a.user-link', { attrs: { href: '/@/' + username } }, [
         h('player-title', " " + title + " "),
         username + aiLevel(title, level) + (title !== 'BOT' ? (" (" + rating + ") ") : ''),
-        model["status"] < 1 || model["rated"] !== '1' ? h('rdiff#' + color + 'rdiff') : renderRdiff(rdiff),
-        (berserk === "True") ? h('icon.icon-berserk') : h('berserk#' + color + 'berserk'),
+        h('rdiff#' + color + 'rdiff'),
+        h('berserk#' + color + 'berserk'),
     ]);
 }

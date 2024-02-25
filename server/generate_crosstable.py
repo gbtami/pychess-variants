@@ -1,12 +1,14 @@
 from __future__ import annotations
 
+from compress import V2C
+
 
 async def generate_crosstable(db):
     ct = {}
     cursor = db.game.find().sort("d")
     async for doc in cursor:
-        if doc["v"] == "F":
-            continue # todo:niki: we gotta decide how a crosstable looks like
+        if doc["v"] == V2C["bughouse"]:
+            continue  # todo:bughouse has no crosstable implemented at the moment
 
         game_id = doc["_id"]
         wp, bp = doc["us"]

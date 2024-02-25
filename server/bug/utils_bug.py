@@ -142,7 +142,7 @@ async def load_game_bug(app_state: PychessGlobalAppState, game_id):
             san = game.boards[board_name].get_san(move)
             game.boards[board_name].push(move)
 
-            # todo:niki: not sure why this check stuff is being set here on each iteration. Only makes sense for last move.
+            # todo:niki: see where this check stuff is used at all - theoretically can always be calculated on client - if we decide to use it, because important for scrolling moves for example, then consider adding checkB to have it for both boards if we jump at a ply with check on the other board
             if board_name == "a":
                 game.checkA = game.boards[board_name].is_checked()
             if board_name == "b":
@@ -283,7 +283,7 @@ async def new_game_bughouse(app_state: PychessGlobalAppState, seek_id, game_id=N
         from utils import sanitize_fen
         fens = seek.fen.split(" | ")
         fenA = fens[0]
-        fenB = fens[0]
+        fenB = fens[1]
         fen_validA, sanitized_fenA = sanitize_fen(seek.variant, fenA, seek.chess960)
         fen_validB, sanitized_fenB = sanitize_fen(seek.variant, fenB, seek.chess960)
         if not fen_validA or not fen_validB:
@@ -416,7 +416,7 @@ async def join_seek_bughouse(app_state: PychessGlobalAppState, user, seek_id, ga
         seek.chess960,
     )
 
-    if join_as == "player1": # todo:niki:not really possible to happen - maybe delete eventually unless change of mind
+    if join_as == "player1": # todo:niki:not really possible to happen - maybe delete eventually unless change of mind - should implement unseating a slot first and decide if player1 can un-seat their default slot
         if seek.player1 is None:
             seek.player1 = user
         else:

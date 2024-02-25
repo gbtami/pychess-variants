@@ -50,11 +50,9 @@ export type PyChessModel = {
     wplayerB: string;
     wtitleB: string;
     wratingB: string; // string, because can contain "?" suffix for provisional rating
-    wrdiffB: number;
     bplayerB: string;
     btitleB: string;
     bratingB: string; // string, because can contain "?" suffix for provisional rating
-    brdiffB: number;
 
     blogs: string;
     corrGames: string;

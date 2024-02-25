@@ -689,6 +689,9 @@ class Game:
                 {self.bplayer.username: int(round(bcurr.mu + brdiff, 0))},
             )
 
+    def get_player_at(self, color, board):
+        return self.bplayer if color == BLACK else self.wplayer
+
     def is_player(self, user: User) -> bool:
         return user.username in (self.wplayer.username, self.bplayer.username)
 

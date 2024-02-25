@@ -585,11 +585,9 @@ async def index(request):
                 render["wplayerB"] = game.wplayerB.username
                 render["wtitleB"] = game.wplayerB.title
                 render["wratingB"] = game.wrating_b
-                render["wrdiffB"] = game.wrdiff # todo:niki
                 render["bplayerB"] = game.bplayerB.username
                 render["btitleB"] = game.bplayerB.title
                 render["bratingB"] = game.brating_b
-                render["brdiffB"] = game.brdiff # todo:niki
             if game.corr and user.username in (game.wplayer.username, game.bplayer.username):
                 c_games = corr_games(user.correspondence_games)
                 render["corr_games"] = json.dumps(c_games, default=datetime.isoformat)

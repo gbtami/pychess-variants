@@ -17,7 +17,10 @@ export function chatView(ctrl: ChatController, chatType: string) {
     const spectator = ("spectator" in ctrl && ctrl.spectator);
     const bughouse = ctrl instanceof RoundControllerBughouse;
     function blur (e: Event) {
-        (e.target as HTMLInputElement).focus(); // always keep focus on chat text input for faster chatting
+        if (bughouse) {
+            // always keep focus on chat text input for faster chatting when in bughouse round page
+            (e.target as HTMLInputElement).focus();
+        }
     }
     function onKeyPress (e: KeyboardEvent) {
         const cb = (<HTMLInputElement>document.getElementById('checkbox'));

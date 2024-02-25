@@ -814,7 +814,7 @@ export default class AnalysisControllerBughouse {
             movable: {
                 color: step.turnColor,
                 },
-            check: step.check,
+            check: board.ffishBoard.isCheck(),
             lastMove: move,
         });
 

@@ -31,7 +31,7 @@ class Clock:
         return self.secs
 
     def restart(self, secs=None):
-        self.ply = self.game.ply # todo:niki:what would be abort rules for bughouseif one board starts playing but the other desont. then ply still bigger than 2
+        self.ply = self.game.ply
         self.color = self.board.color
         if secs is not None:
             self.secs = secs
@@ -61,7 +61,7 @@ class Clock:
 
             # Time was running out
             if self.running:
-                if self.board.ply == self.ply: # todo:niki: in what situation this could possible not be an equality?
+                if self.board.ply == self.ply:
                     # On lichess rage quit waits 10 seconds
                     # until the other side gets the win claim,
                     # and a disconnection gets 120 seconds.
@@ -70,16 +70,11 @@ class Clock:
 
                     # If FLAG was not received we have to act
                     if self.game.status < ABORTED and self.secs <= 0 and self.running:
-                        if self.game.variant == "bughouse": #todo:niki: cant figure out how to get rid of those if variant=bughouse stuff, but this logic has to somehow be moved in implementing game classes maybe
-                            if self.board == self.game.boards['a']:
-                                user = self.game.bplayerA if self.color == BLACK else self.game.wplayerA
-                            else:
-                                user = self.game.bplayerB if self.color == BLACK else self.game.wplayerB
-                        else:
-                            user = self.game.bplayer if self.color == BLACK else self.game.wplayer
+                        user = self.game.get_player_at(self.color, self.board)
+
                         reason = (
                             "abort"
-                            if (self.ply < 2) and (self.game.tournamentId is None) # todo:niki: how abort should work in bughouse
+                            if (self.ply < 2) and (self.game.tournamentId is None)
                             else "flag"
                         )
                         async with self.game.move_lock:

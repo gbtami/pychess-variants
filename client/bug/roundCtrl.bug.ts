@@ -31,7 +31,7 @@ import {
 } from '../roundType';
 import {JSONObject, PyChessModel} from "../types";
 import {GameControllerBughouse} from "./gameCtrl.bug";
-import {cg2uci, uci2LastMove} from "../chess";
+import {cg2uci, getTurnColor, uci2LastMove} from "../chess";
 import {sound} from "../sound";
 import {renderRdiff} from "../result";
 import {player} from "../player";
@@ -363,7 +363,6 @@ export class RoundControllerBughouse implements ChatController/*extends GameCont
 
         patch(document.getElementById('bugroundchat') as HTMLElement, chatView(this, "bugroundchat"));
 
-        this.onMsgBoard(model["board"] as MsgBoard);
 
         /////////////////
         // const amISimuling = this.mycolor.get('a') !== undefined && this.mycolor.get('b') !== undefined;
@@ -379,6 +378,10 @@ export class RoundControllerBughouse implements ChatController/*extends GameCont
             gameId: this.gameId,
             movesQueued: [],
         }
+
+        Promise.all([this.b1.ffishPromise, this.b2.ffishPromise]).then(() => {
+            this.onMsgBoard(model["board"] as MsgBoard);
+        });
     }
 
 
@@ -814,13 +817,13 @@ export class RoundControllerBughouse implements ChatController/*extends GameCont
 
         this.b1.chessground.set({
             fen: fenA,
-            turnColor: 'white',
+            turnColor: this.b1.turnColor,
             //  check: msg.check,
             //lastMove: lastMove,
         });
         this.b2.chessground.set({
             fen: fenB,
-            turnColor: 'white',
+            turnColor: this.b2.turnColor,
             // check: msg.check,
             //lastMove: lastMove,
         });
@@ -868,35 +871,33 @@ export class RoundControllerBughouse implements ChatController/*extends GameCont
             const partsA = lastStepA.fen.split(" ");
             this.b1.turnColor = partsA[1] === "b" ? "black" : "white";
             const lastMoveA = uci2LastMove(lastStepA.move);
-            this.b1.chessground.set({
-                fen: lastStepA.fen,
-                turnColor: this.b1.turnColor,
-                check: lastStepA.check,
-                lastMove: lastMoveA,
-            });
-
             if (this.b1.ffishBoard) {
                 this.b1.ffishBoard.setFen(lastStepA.fen);
                 this.b1.setDests();
             }
+            this.b1.chessground.set({
+                fen: lastStepA.fen,
+                turnColor: this.b1.turnColor,
+                check: this.b1.ffishBoard.isCheck(),
+                lastMove: lastMoveA,
+            });
+
 
         }
         if (lastStepB) {
             const partsB = lastStepB.fenB!.split(" ");
             this.b2.turnColor = partsB[1] === "b" ? "black" : "white";
             const lastMoveB = uci2LastMove(lastStepB.moveB);
-            this.b2.chessground.set({
-                fen: lastStepB.fenB,
-                turnColor: this.b2.turnColor,
-                check: lastStepB.check,
-                lastMove: lastMoveB,
-            });
-
             if (this.b2.ffishBoard) {
                 this.b2.ffishBoard.setFen(lastStepB.fenB!);
                 this.b2.setDests();
             }
-
+            this.b2.chessground.set({
+                fen: lastStepB.fenB,
+                turnColor: this.b2.turnColor,
+                check: this.b2.ffishBoard.isCheck(),
+                lastMove: lastMoveB,
+            });
         }
 
         this.clocks[0].pause(false);
@@ -1094,7 +1095,6 @@ export class RoundControllerBughouse implements ChatController/*extends GameCont
 
         if (this.spectator) {
             this.updateBoardsAndClocksSpectors(board, fen, fenPartner, lastMove, msg.steps[0], msg.clocks!, latestPly, colors, msg.status, check);//todo:niki unclear what is different that when playing, but should have full mode as well
-
         } else {
             if (isInitialBoardMessage) { // from constructor
                 this.updateBothBoardsAndClocksInitial(fenA, fenB, msg.clocks!, msg.clocksB!);// todo:niki: when no moves were made and we refresh, logic here doesnt differentiate it is not initial anymore, but full, and clocks have started so sending clock times again and inside duplicating the logic for clock from full mode as well - maybe think about reusing that logic or differentiating better this case as full
@@ -1135,10 +1135,26 @@ export class RoundControllerBughouse implements ChatController/*extends GameCont
             capture = (board.chessground.state.boardState.pieces.get(move[1] as cg.Key) !== undefined && step.san?.slice(0, 2) !== 'O-') || (step.san?.slice(1, 2) === 'x');
         }
 
+        board.partnerCC.fullfen = fenPartner!;
+        board.partnerCC.ffishBoard.setFen(board.partnerCC.fullfen);
+        board.partnerCC.chessground.set({
+            fen: fenPartner,
+            lastMove: movePartner,
+            check: board.partnerCC.ffishBoard.isCheck(),
+            turnColor: getTurnColor(board.partnerCC.fullfen),
+        });
+
+        board.fullfen = fen!;
+        board.turnColor = step.turnColor; // todo:niki: this is in the fen too, just use it from there maybe
+        if (board.ffishBoard !== null) {
+            board.ffishBoard.setFen(board.fullfen);
+            board.setDests();
+        }
+
         board.chessground.set({
             fen: fen,
             turnColor: step.turnColor,
-            check: step.check,
+            check: board.ffishBoard.isCheck(),
             lastMove: move,
         });
 
@@ -1147,45 +1163,33 @@ export class RoundControllerBughouse implements ChatController/*extends GameCont
             //todo:niki:maybe i should record the clocks on both boards on every move otherwise a bit misleading
 
             const whiteAClockAtIdx = this.colors[0] === 'white'? 0: 1;
-            const blackAClockAtIdx = 1 -whiteAClockAtIdx;
+            const blackAClockAtIdx = 1 - whiteAClockAtIdx;
             const whiteBClockAtIdx = this.colorsB[0] === 'white'? 0: 1;
-            const blackBClockAtIdx = 1 -whiteBClockAtIdx;
+            const blackBClockAtIdx = 1 - whiteBClockAtIdx;
 
             const lastStepA = this.steps[this.steps.findLastIndex((s, i) => s.boardName === "a" && i <= ply)];
             const lastStepB = this.steps[this.steps.findLastIndex((s, i) => s.boardName === "b" && i <= ply)];
             if (lastStepA) {
-                this.clocks[whiteAClockAtIdx].setTime(lastStepA.clocks['white']);
-                this.clocks[blackAClockAtIdx].setTime(lastStepA.clocks['black']);
+                this.clocks[whiteAClockAtIdx].setTime(lastStepA.clocks!['white']);
+                this.clocks[blackAClockAtIdx].setTime(lastStepA.clocks!['black']);
             } else {
                 this.clocks[whiteAClockAtIdx].setTime(this.base * 60 * 1000);
                 this.clocks[blackAClockAtIdx].setTime(this.base * 60 * 1000);
             }
             if (lastStepB) {
-                this.clocksB[whiteBClockAtIdx].setTime(lastStepB.clocks['white']);
-                this.clocksB[blackBClockAtIdx].setTime(lastStepB.clocks['black']);
+                this.clocksB[whiteBClockAtIdx].setTime(lastStepB.clocks!['white']);
+                this.clocksB[blackBClockAtIdx].setTime(lastStepB.clocks!['black']);
             } else {
                 this.clocksB[whiteBClockAtIdx].setTime(this.base * 60 * 1000);
                 this.clocksB[blackBClockAtIdx].setTime(this.base * 60 * 1000);
             }
         }
 
-        board.partnerCC.chessground.set({fen: fenPartner, lastMove: movePartner});
-
-        board.fullfen = step.fen;
-        board.partnerCC.fullfen = fenPartner!;
-
         if (ply === this.ply + 1) { // no sound if we are scrolling backwards
             sound.moveSound(board.variant, capture);
         }
         this.ply = ply;
 
-        board.turnColor = step.turnColor;
-
-        if (board.ffishBoard !== null) {
-            board.ffishBoard.setFen(board.fullfen);
-            // board.dests = board.parent.setDests(board);//todo:niki:maybe do this before chessground set above.
-            board.setDests();
-        }
     }
 
     private onMsgUserConnected = (msg: MsgUserConnected) => {

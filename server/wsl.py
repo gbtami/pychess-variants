@@ -181,7 +181,7 @@ async def handle_accept_seek(app_state: PychessGlobalAppState, ws, user, data):
         response = await join_seek_bughouse(app_state, user, data["seekID"], None, data["joinAs"])
         await ws.send_json(response)
 
-        if seek.ws is None:  # todo:niki: i dont really understand this if? I guess it is when whoever created the seek disappeared. I should test what happens on refresh maybe, in any case makes sense to leave it as is
+        if seek.ws is None:  # todo:niki: i dont really understand this if? I guess it is when whoever created the seek disappeared. I should test what happens on refresh maybe, in any case makes sense to leave it as is. What happens if 2 browsers in lobby
             remove_seek(app_state.seeks, seek)
             await app_state.lobby.lobby_broadcast_seeks()
         else:

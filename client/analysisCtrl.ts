@@ -10,7 +10,7 @@ import { DrawShape } from 'chessgroundx/draw';
 import { newWebsocket } from './socket';
 import { _ } from './i18n';
 import { sound } from './sound';
-import { uci2LastMove, uci2cg } from './chess';
+import {uci2LastMove, uci2cg, getTurnColor} from './chess';
 import { crosstableView } from './crosstable';
 import { chatView } from './chat';
 import { createMovelistButtons, updateMovelist, selectMove, activatePlyVari } from './movelist';
@@ -351,9 +351,7 @@ export class AnalysisController extends GameController {
 
         // console.log("got board msg:", msg);
         this.fullfen = msg.fen;
-        const parts = msg.fen.split(" ");
-        // turnColor have to be actualized before setDests() !!!
-        this.turnColor = parts[1] === "w" ? "white" : "black";
+        this.turnColor = getTurnColor(msg.fen);// turnColor have to be actualized before setDests() !!!
 
         this.setDests();
 

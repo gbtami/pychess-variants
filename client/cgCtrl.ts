@@ -64,7 +64,7 @@ export abstract class ChessgroundController implements BoardController {
         boardSettings.updateBlindfold();
         console.time('load ffish');
         this.ffishPromise = ffishModule().then((loadedModule: any) => {
-            console.timeEnd('load ffish');
+            console.timeEnd('load ffish ' + loadedModule);
             this.ffish = loadedModule;
             this.ffish.loadVariantConfig(variantsIni);
             this.notationAsObject = this.notation2ffishjs(this.notation);

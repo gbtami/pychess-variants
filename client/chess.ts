@@ -200,6 +200,12 @@ function touchingKings(pieces: cg.Pieces): boolean {
     return adjacent(wk, bk);
 }
 
+// turn color part of the FEN
+export function getTurnColor(fen: string): cg.Color {
+    const c = fen.split(" ")[1];
+    return c === "w" ? "white" : "black";
+}
+
 // pocket part of the FEN (including brackets)
 export function getPockets(fen: string): string {
     const placement = fen.split(" ")[0];

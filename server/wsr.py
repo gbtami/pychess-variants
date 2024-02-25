@@ -97,7 +97,10 @@ async def process_message(app_state, user, ws, data, game):
     elif data["type"] == "takeback":
         await handle_takeback(ws, game)
     elif data["type"] in ("abort", "resign", "abandon", "flag"):
-        await handle_abort_resign_abandon_flag(ws, app_state.users, user, data, game)
+        if game.variant == "bughouse":
+            await handle_resign_bughouse(data, game, user)
+        else:
+            await handle_abort_resign_abandon_flag(ws, app_state.users, user, data, game)
     elif data["type"] == "embed_user_connected":
         await handle_embed_user_connected(ws)
     elif data["type"] == "is_user_present":
@@ -485,9 +488,6 @@ async def handle_takeback(ws, game):
 
 
 async def handle_abort_resign_abandon_flag(ws, users, user, data, game):
-    if game.variant == "bughouse":  # todo:niki: add new method in both places
-        await handle_resign_bughouse(data, game, user)
-        return
 
     if data["type"] == "abort" and (game is not None) and game.board.ply > 2:
         return

@@ -74,12 +74,10 @@ function initModel(el: HTMLElement) {
         wplayerB : el.getAttribute("data-wplayer-b") ?? "",
         wtitleB : el.getAttribute("data-wtitle-b") ?? "",
         wratingB : el.getAttribute("data-wrating-b") ?? "",
-        wrdiffB : parseInt(""+el.getAttribute("data-wrdiff-b")),
 
         bplayerB : el.getAttribute("data-bplayer-b") ?? "",
         btitleB : el.getAttribute("data-btitle-b") ?? "",
         bratingB : el.getAttribute("data-brating-b") ?? "",
-        brdiffB : parseInt(""+el.getAttribute("data-brdiff-b")),
 
         fen : el.getAttribute("data-fen") ?? "",
         base : parseFloat(""+el.getAttribute("data-base")),

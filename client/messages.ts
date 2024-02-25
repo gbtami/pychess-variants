@@ -9,8 +9,6 @@ export interface Step {
     fenB?: cg.FEN;
 
     move: string | undefined;
-    // todo: only reason we need moves+fens for both boards is when scrolling to an arbitrary ply
-    //       Think if possible to optimize and reconstruct this from previous move and avoid having these fields
     moveB?: string | undefined;
 
     check: boolean;

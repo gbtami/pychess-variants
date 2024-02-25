@@ -257,7 +257,7 @@ export abstract class GameController extends ChessgroundController implements Ch
             turnColor: step.turnColor,
             movable: {
                 color: step.turnColor,
-                },
+            },
             check: step.check,
             lastMove: move,
         });

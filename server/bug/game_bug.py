@@ -98,12 +98,12 @@ class GameBug:
         self.white_rating_b = wplayerB.get_rating(variant, chess960)
         self.wrating_a = "%s%s" % self.white_rating_a.rating_prov
         self.wrating_b = "%s%s" % self.white_rating_b.rating_prov
-        self.wrdiff = 0 # todo: what was this - should i duplicate it for 2 boards?
+        self.wrdiff = 0
         self.black_rating_a = bplayerA.get_rating(variant, chess960)
         self.black_rating_b = bplayerB.get_rating(variant, chess960)
         self.brating_a = "%s%s" % self.black_rating_a.rating_prov
         self.brating_b = "%s%s" % self.black_rating_b.rating_prov
-        self.brdiff = 0 # todo: what was this - should i duplicate it for 2 boards?
+        self.brdiff = 0
 
         # crosstable info
         self.need_crosstable_save = False
@@ -157,7 +157,7 @@ class GameBug:
         self.lastmovePerBoardAndUser = {"a": {}, "b": {}}
         self.checkA = False
         self.checkB = False
-        self.status = STARTED # CREATED
+        self.status = STARTED  # CREATED
         self.result = "*"
         self.last_server_clock = monotonic()  # the last time a move was made on board A - we reconstruct current time on client refresh/reconnect from this
         self.last_server_clockB = self.last_server_clock # the last time a move was made on board A - we reconstruct current time on client refresh/reconnect from this
@@ -197,8 +197,6 @@ class GameBug:
                 "fen": self.boards["a"].initial_fen,
                 "fenB": self.boards["b"].initial_fen,
                 "san": None,
-                "turnColor": "white",  # todo:niki: doesn't make sense in this initial step now - maybe have 2 fields for both boards for this reason when we don't have "active" board for last move and this.
-#                "check": self.check,  # todo:niki: i don't know if it makes sense for initial step. Maybe in case of custom fen - custom fen is complicated, it might require 2 properties for this, but also for turn color as well. Or 2 initial steps for each board i don't know
                 "clocks": self._ply_clocks["a"][0],
                 "clocksB": self._ply_clocks["b"][0],
                 "ts": time_ns()
@@ -291,7 +289,7 @@ class GameBug:
                 # self.boards[partnerBoard].fen = partnerFen #
                 if lastMoveCapturedRole is not None:
                     #todo:niki: consider this solution for determining captured piece serverside unless something cleaner cannot be figured out: https://github.com/nnickoloff1234/pychess-variants/blob/60b06cd475c195ec58199187c762b86424807285/server/fairy.py#L58-L65
-                    board_fen_split = split('[\[\]]', self.boards[partnerBoard].fen)
+                    board_fen_split = split('[\[\]]', self.boards[partnerBoard].fen) # todo: this doesnt work after first move when starting a game from custom initial fen that doesnt have square brackets - either add them or dont consider it valid if missing pockets
                     self.boards[partnerBoard].fen = board_fen_split[0] + '[' + board_fen_split[1] + lastMoveCapturedRole + ']' + board_fen_split[2]
 
                 san = self.boards[board].get_san(move)
@@ -315,8 +313,8 @@ class GameBug:
                         "moveB": moveB,
                         "boardName": board,
                         "san": san,
-                        "turnColor": "black" if self.boards[board].color == BLACK else "white",
-                        "check": check,
+                        "turnColor": "black" if self.boards[board].color == BLACK else "white", # todo:niki:can be derived from the fen and that is what i am actually doing for the partner board because i need to set it so when check=true correct king is highlighteded
+                        "check": check, # todo: i am practically ignoring this and derive at the client the check status for each board from the fens
                         "clocks": clocks,
                         "clocksB": clocksB,
                         "ts": time_ns(), # redundancy, but i am curious and want to record how server time corresponds to sent
@@ -355,10 +353,9 @@ class GameBug:
         except asyncio.CancelledError:
             pass
 
-        if self.boards["a"].ply > 0 or self.boards["b"].ply > 0:  # todo niki seems like it is updating some stats for current game count in lobby page. wonder why we check for ply count
-            self.app_state.g_cnt[0] -= 1
-            response = {"type": "g_cnt", "cnt": self.app_state.g_cnt[0]}
-            await self.app_state.lobby.lobby_broadcast(response)
+        self.app_state.g_cnt[0] -= 1
+        response = {"type": "g_cnt", "cnt": self.app_state.g_cnt[0]}
+        await self.app_state.lobby.lobby_broadcast(response)
 
         async def remove(keep_time):
             # Keep it in our games dict a little to let players get the last board
@@ -385,8 +382,9 @@ class GameBug:
 
         self.remove_task = asyncio.create_task(remove(KEEP_TIME))
 
-        # todo niki just adding up both ply instead. think later what actually makes sense in bughouse
-        if self.boards["a"].ply + self.boards["b"].ply < 6 and (self.app_state.db is not None) and (self.tournamentId is None):
+        # always save them, even if no moves - will optimze eventually, just want it simple now
+        # and have trace of all games for later investigation
+        if (self.app_state.db is not None) and (self.tournamentId is None):
             result = await self.app_state.db.game.delete_one({"_id": self.id})
             log.debug(
                 "Removed too short game %s from db. Deleted %s game.",
@@ -495,6 +493,11 @@ class GameBug:
     def ply(self):
         return self.boards["a"].ply + self.boards["b"].ply
 
+    def get_player_at(self, color, board):
+        if board == self.boards['a']:
+            return self.bplayerA if color == BLACK else self.wplayerA
+        else:
+            return self.bplayerB if color == BLACK else self.wplayerB
 
     def is_player(self, user: User) -> bool:
         return user.username in (self.wplayerA.username, self.bplayerA.username, self.wplayerB.username, self.bplayerB.username)
@@ -538,12 +541,15 @@ class GameBug:
         if self.boards["a"].move_stack:
             self.checkA = self.boards["a"].is_checked()
         if self.boards["b"].move_stack:
-            self.checkB = self.boards["b"].is_checked()  # todo niki no idea what self.check is needed for, but lets fix it here instead of coment it out
+            self.checkB = self.boards["b"].is_checked()
 
+        # todo:niki: it is possible both boards to have no dests - if first one gets checkmate that can potentially be blocked so game continues on the other board, but then checkmate is delivered there as well. If that happens, below logic might detect incorrectly again the first board and continue the game not realizing this time it is really over but on the other board
         if not self.dests_a or not self.dests_b:
-            board_which_ended = "a" if not self.dests_a else "b"  # todo:niki: can pass board param - we know which board made the move we are processing
+            board_which_ended = "a" if not self.dests_a else "b"  # whichever board has no dests is the one that ended
 
-            #todo:niki did it really ended - maybe chaek here by putting a fen with full pockets and then switch back
+            # did it really end - chess rules for checkmate do not apply here if it is possible to block the check
+            # with a piece that partner could potentially give. Check same position, but with full pocket
+            # to confirm it is really checkmate even if we wait for partner
             fen_before = self.boards[board_which_ended].fen
             fen_fullpockets = sub('\[.*\]', '[qrbnpQRBNP]', fen_before)
             self.boards[board_which_ended].fen = fen_fullpockets
@@ -553,11 +559,6 @@ class GameBug:
             if count_valid_moves_with_full_pockets == 0:
                 game_result_value = self.boards[board_which_ended].game_result_no_history()
                 self.result = result_string_from_value(game_result_value, board_which_ended)
-
-                # todo: commenting this because i feel it should always be MATE. Also is_immediate_game_end doesn't work because it relies on history - if we actually need it should create _no_history version of it as well
-                # if self.boards[board_which_ended].is_immediate_game_end()[0]:
-                #     self.status = VARIANTEND
-                # elif self.check:
                 self.status = MATE
         else:
             # in normal chess this happens in 50moves rule, but makes no sense for bughouse
@@ -678,8 +679,8 @@ class GameBug:
         return self._ply_clocks["merged"][-1]
 
     @property
-    def is_claimable_draw(self): # todo niki - not sure this makes much sense in bughouse
-        return self.boards["a"].is_claimable_draw() or self.boards["b"].is_claimable_draw()
+    def is_claimable_draw(self): # todo not sure this makes much sense in bughouse
+        return False
 
     @property
     def spectator_list(self):
@@ -699,7 +700,7 @@ class GameBug:
         )
 
     @property
-    def game_end(self): # todo:niki - is this really used
+    def game_end(self): # only used by bot code, so not relevant for now for bughouse but keeping it anyway
         return '{"type": "gameEnd", "game": {"id": "%s"}}\n' % self.id
 
     async def abort(self):
@@ -756,12 +757,10 @@ class GameBug:
                 cur_colorB = "black" if self.boards["b"].color == BLACK else "white"
                 clocksA[cur_colorA] = max(0, clocksA[cur_colorA] - elapsedA)
                 clocksB[cur_colorB] = max(0, clocksB[cur_colorB] - elapsedB)
-            # crosstable = self.crosstable
         else:
             clocksA = {"black": self.last_move_clocks["a"]["black"], "white": self.last_move_clocks["a"]["white"]}
             clocksB = {"black": self.last_move_clocks["b"]["black"], "white": self.last_move_clocks["b"]["white"]}
             steps = (self.steps[-1],)
-            # crosstable = self.crosstable if self.status > STARTED else ""
 
         return {
             "type": "board",
@@ -775,14 +774,14 @@ class GameBug:
             "destsB": self.dests_b,
             "promoA": self.promotions_a,
             "promoB": self.promotions_b,
-            "check": self.checkA, # todo:niki:why does this exist? isnt same in steps/last step enough?
+            "check": self.checkA,
             "checkB": self.checkB,
-            "ply": self.boards["a"].ply + self.boards["b"].ply,  # todo niki - just use global ply counter and moves list eventually. just putting this here so it is correct but not best
+            "ply": self.ply,
             "clocks": {"black": clocksA["black"], "white": clocksA["white"]},
             "clocksB": {"black": clocksB["black"], "white": clocksB["white"]},
             # "byo": byoyomi_periods,
             "pgn": self.pgn if self.status > STARTED else "",
-            "rdiffs": {"brdiff": self.brdiff, "wrdiff": self.wrdiff} # todo niki
+            "rdiffs": {"brdiff": self.brdiff, "wrdiff": self.wrdiff}
             if self.status > STARTED and self.rated == RATED
             else "",
             "uci_usi": self.uci_usi if self.status > STARTED else "",

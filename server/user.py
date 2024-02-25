@@ -134,7 +134,7 @@ class User:
                 # TODO: message opp to let him claim win
                 pass
 
-    def update_online(self): # todo:niki:why not just always call this instead of storing it to self.online and not being sure if it is still correct eventually when using it?
+    def update_online(self):
         self.online = (
             len(self.game_sockets) > 0
             or len(self.lobby_sockets) > 0

@@ -388,7 +388,7 @@ export class LobbyController implements ChatController {
                                     on: { change: (e: Event) => this.setTcMode((e.target as HTMLSelectElement).value as TcMode) },
                                     }, [
                                         h('option', { attrs: { value: 'real' }}, _('Real time')),
-                                        h('option', { attrs: { value: 'corr', disabled: this.anon }}, _('Correspondence')),
+                                        h('option', { attrs: { value: 'corr', disabled: this.anon || vVariant === "bughouse" }}, _('Correspondence')),
                                     ]
                                 ),
                             ]),
@@ -505,8 +505,8 @@ export class LobbyController implements ChatController {
     renderVariantsDropDown(disabled: string[]) {
         const vVariant = this.variant || localStorage.seek_variant || "chess";
         const e = document.getElementById('variant');
-        e.replaceChildren();
-        patch(e, selectVariant("variant", disabled.includes(vVariant)? null: vVariant, () => this.setVariant(), () => this.setVariant(), disabled));
+        e!.replaceChildren();
+        patch(e!, selectVariant("variant", disabled.includes(vVariant)? null: vVariant, () => this.setVariant(), () => this.setVariant(), disabled));
     }
 
     createGame(variantName: string = '', chess960: boolean = false) {

@@ -622,7 +622,7 @@ async def play_move(app_state: PychessGlobalAppState, user, game, move, clocks=N
             log.info(
                 "invalid ply received - probably a re-sent move that has already been processed"
             )
-            return # todo:niki:probably good to have a dedicated reconnect message for single board games as well and do this in its own logic separate from the movesimilarlytohow bughouse is
+            return
 
         cur_player = game.bplayer if game.board.color == BLACK else game.wplayer
         if user.bot and not cur_player.bot:
