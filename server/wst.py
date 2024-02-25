@@ -89,7 +89,7 @@ async def handle_my_page(app, ws, user, data):
     tournament = await load_tournament(app, data["tournamentId"])
     if tournament is not None:
         if user in tournament.players:
-            # force to get users current page by leaderbord status
+            # force to get users current page by leaderboard status
             tournament.players[user].page = -1
         response = tournament.players_json(user=user)
         await ws.send_json(response)
@@ -166,12 +166,12 @@ async def handle_user_connected(app_state: PychessGlobalAppState, ws, user, data
         "startFen": tournament.fen,
         "description": tournament.description,
         "frequency": tournament.frequency,
-        "secondsToStart": (tournament.starts_at - now).total_seconds()
-        if tournament.starts_at > now
-        else 0,
-        "secondsToFinish": (tournament.ends_at - now).total_seconds()
-        if tournament.starts_at < now
-        else 0,
+        "secondsToStart": (
+            (tournament.starts_at - now).total_seconds() if tournament.starts_at > now else 0
+        ),
+        "secondsToFinish": (
+            (tournament.ends_at - now).total_seconds() if tournament.starts_at < now else 0
+        ),
     }
     if tournament.frequency == SHIELD:
         variant_name = tournament.variant + ("960" if tournament.chess960 else "")

@@ -299,13 +299,14 @@ class User:
     async def send_game_message(self, game_id, message):
         # todo: for now just logging dropped messages, but at some point should evaluate whether to queue them when no socket
         #       or include info about the complete round state in some more general message that is always
-        #       sent on reconnect so client doesnt lose state
+        #       sent on reconnect so client doesn't lose state
         ws_set = self.game_sockets.get(game_id)
         if ws_set is None or len(ws_set) == 0:
-            log.error("No ws for that game. Dropping message %s for %s", message, self.username)
-            log.debug(
-                "Currently user %s has these game_sockets: %r", self.username, self.game_sockets
-            )
+            if self.title != "TEST":
+                log.error("No ws for that game. Dropping message %s for %s", message, self.username)
+                log.debug(
+                    "Currently user %s has these game_sockets: %r", self.username, self.game_sockets
+                )
             return
         for ws in ws_set:
             log.debug("Sending message %s to %s. ws = %r", message, self.username, ws)

@@ -13,6 +13,7 @@ import { ChessgroundController } from '@/cgCtrl';
 import { notation } from '@/variants';
 import { copyTextToClipboard } from '@/clipboard';
 import { initPieceRow } from './pieceRow';
+import { initPocketRow } from '@/pocketRow';
 
 export class EditorController extends ChessgroundController {
     model: PyChessModel;
@@ -69,6 +70,11 @@ export class EditorController extends ChessgroundController {
         initPieceRow(this, pieces0, pieces1);
         this.vpieces0.elm?.addEventListener('touchend', this.dropOnPocket);
         this.vpieces1.elm?.addEventListener('touchend', this.dropOnPocket);
+
+        // initialize pockets
+        const pocket0 = document.getElementById('pocket0') as HTMLElement;
+        const pocket1 = document.getElementById('pocket1') as HTMLElement;
+        initPocketRow(this, pocket0, pocket1);
 
         const e = document.getElementById('fen') as HTMLElement;
         this.vfen = patch(e,

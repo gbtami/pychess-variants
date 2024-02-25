@@ -4,13 +4,13 @@ import { predrop } from 'chessgroundx/predrop';
 import * as cg from 'chessgroundx/types';
 import { Api } from "chessgroundx/api";
 
-import { newWebsocket } from './socket';
+import { JSONObject } from './types';
 import { _, ngettext } from './i18n';
 import { patch } from './document';
 import { boardSettings } from './boardSettings';
 import { Clock } from './clock';
 import { sound } from './sound';
-import { uci2LastMove, getCounting, isHandicap } from './chess';
+import { WHITE, BLACK, uci2LastMove, getCounting, isHandicap } from './chess';
 import { crosstableView } from './crosstable';
 import { chatMessage, chatView } from './chat';
 import { createMovelistButtons, updateMovelist, updateResult, selectMove } from './movelist';
@@ -19,12 +19,13 @@ import { player } from './player';
 import { updateCount, updatePoint } from './info';
 import { updateMaterial, emptyMaterial } from './material';
 import { notify } from './notification';
-import { Clocks, MsgBoard, MsgGameEnd, MsgNewGame, MsgUserConnected, RDiffs, CrossTable } from "./messages";
+import { Clocks, MsgBoard, MsgGameEnd, MsgMove, MsgNewGame, MsgUserConnected, RDiffs, CrossTable } from "./messages";
 import { MsgUserDisconnected, MsgUserPresent, MsgMoreTime, MsgDrawOffer, MsgDrawRejected, MsgRematchOffer, MsgRematchRejected, MsgCount, MsgSetup, MsgGameStart, MsgViewRematch, MsgUpdateTV, MsgBerserk } from './roundType';
 import { PyChessModel } from "./types";
 import { GameController } from './gameCtrl';
 import { handleOngoingGameEvents, Game, gameViewPlaying, compareGames } from './nowPlaying';
 import {createWebsocket} from "@/webSocketUtils";
+import { initPocketRow } from './pocketRow';
 
 let rang = false;
 const CASUAL = '0';
@@ -46,8 +47,6 @@ export class RoundController extends GameController {
     materialDifference: boolean;
     vmaterial0: VNode | HTMLElement;
     vmaterial1: VNode | HTMLElement;
-    vmiscInfoW: VNode;
-    vmiscInfoB: VNode;
     vpng: VNode;
     vdialog: VNode;
     berserkable: boolean;
@@ -58,6 +57,11 @@ export class RoundController extends GameController {
     setupFen: string;
     focus: boolean;
     finishedGame: boolean;
+    lastMaybeSentMsgMove: MsgMove; // Always store the last "move" message that was passed for sending via websocket.
+                          // In case of bad connection, we are never sure if it was sent (thus the name)
+                          // until a "board" message from server is received from server that confirms it.
+                          // So if at any moment connection drops, after reconnect we always resend it.
+                          // If server received and processed it the first time, it will just ignore it
 
     constructor(el: HTMLElement, model: PyChessModel) {
         super(el, model, document.getElementById('pocket0') as HTMLElement, document.getElementById('pocket1') as HTMLElement);
@@ -67,6 +71,17 @@ export class RoundController extends GameController {
         window.addEventListener('focus', () => {this.focus = true});
 
         const onOpen = () => {
+            if ( this.lastMaybeSentMsgMove  && this.lastMaybeSentMsgMove.ply === this.ply + 1 ) {
+                // if this.ply === this.lastMaybeSentMsgMove.ply it would mean the move message was received by server and it has replied with "board" message, confirming and updating the state, including this.ply
+                // since they are not equal, but also one ply behind, means we should try to re-send it
+                try {
+                    console.log("resending unsent message ", this.lastMaybeSentMsgMove);
+                    this.doSend(this.lastMaybeSentMsgMove);
+                } catch (e) {
+                    console.log("could not even REsend unsent message ", this.lastMaybeSentMsgMove)
+                }
+            }
+
             this.clocks[0].connecting = false;
             this.clocks[1].connecting = false;
         };
@@ -154,6 +169,11 @@ export class RoundController extends GameController {
             });
         }
 
+        // initialize pockets
+        const pocket0 = document.getElementById('pocket0') as HTMLElement;
+        const pocket1 = document.getElementById('pocket1') as HTMLElement;
+        initPocketRow(this, pocket0, pocket1);
+
         // initialize users
         const player0 = document.getElementById('rplayer0') as HTMLElement;
         const player1 = document.getElementById('rplayer1') as HTMLElement;
@@ -174,10 +194,9 @@ export class RoundController extends GameController {
             document.getElementById('expiration-bottom') as HTMLElement
         ];
 
-        this.clocktimes = {'white': this.base * 1000 * 60, 'black': this.base * 1000 * 60}
+        this.clocktimes = [this.base * 1000 * 60, this.base * 1000 * 60]
 
         // initialize clocks
-        // this.clocktimes = {};
         if (this.corr) {
             const c0 = new Clock(this.base, 0, 0, document.getElementById('clock0') as HTMLElement, 'clock0', true);
             const c1 = new Clock(this.base, 0, 0, document.getElementById('clock1') as HTMLElement, 'clock1', true);
@@ -398,7 +417,7 @@ export class RoundController extends GameController {
 
         this.clocks[clockIdx].increment = 0;
         this.clocks[clockIdx].setTime(this.base * 1000 * 30);
-        this.clocktimes[color] = this.base * 1000 * 30;
+        this.clocktimes[(color === 'white') ? WHITE : BLACK] = this.base * 1000 * 30;
         sound.berserk();
 
         const berserkId = (color === "white") ? "wberserk" : "bberserk";
@@ -507,7 +526,13 @@ export class RoundController extends GameController {
             return;
         }
 
-        chatMessage('', message, "roundchat");
+        chatMessage('_server', message, "roundchat");
+
+        const message1 = _('You can use the arrow buttons (below the board -- scroll down to display) to switch them, then click on the check mark to finalize your decision.');
+        chatMessage('_server', message1, "roundchat");
+
+        const message2 = _('To start the game you have to click on the check mark!');
+        chatMessage('_server', message2, "roundchat");
 
         const switchLetters = (side: number) => {
             const white = this.mycolor === 'white';
@@ -743,7 +768,6 @@ export class RoundController extends GameController {
         const parts = msg.fen.split(" ");
         this.turnColor = parts[1] === "w" ? "white" : "black";
         this.fullfen = msg.fen;
-
         this.clocktimes = msg.clocks || this.clocktimes;
 
         this.result = msg.result;
@@ -822,12 +846,12 @@ export class RoundController extends GameController {
         this.clocks[0].pause(false);
         this.clocks[1].pause(false);
         if (this.byoyomi && msg.byo) {
-            this.clocks[oppclock].byoyomiPeriod = msg.byo[(this.oppcolor === 'white') ? 0 : 1];
-            this.clocks[myclock].byoyomiPeriod = msg.byo[(this.mycolor === 'white') ? 0 : 1];
+            this.clocks[oppclock].byoyomiPeriod = msg.byo[(this.oppcolor === 'white') ? WHITE : BLACK];
+            this.clocks[myclock].byoyomiPeriod = msg.byo[(this.mycolor === 'white') ? WHITE : BLACK];
         }
 
-        this.clocks[oppclock].setTime(this.clocktimes[this.oppcolor]);
-        this.clocks[myclock].setTime(this.clocktimes[this.mycolor]);
+        this.clocks[oppclock].setTime(this.clocktimes[(this.oppcolor === 'white') ? WHITE : BLACK]);
+        this.clocks[myclock].setTime(this.clocktimes[(this.mycolor === 'white') ? WHITE : BLACK]);
 
         let bclock;
         if (!this.flipped()) {
@@ -877,7 +901,7 @@ export class RoundController extends GameController {
                     });
 
                     // This have to be exactly here (and before this.performPremove as well!!!),
-                    // becuse in case of takeback 
+                    // because in case of takeback 
                     // ataxx setDests() needs not just actualized turnColor but
                     // actualized chessground.state.boardState.pieces as well !!!
                     if (this.ffishBoard) {
@@ -904,7 +928,7 @@ export class RoundController extends GameController {
                     lastMove: lastMove,
                 });
 
-                // This have to be here, becuse in case of takeback 
+                // This have to be here, because in case of takeback 
                 // ataxx setDests() needs not just actualized turnColor but
                 // actualized chessground.state.boardState.pieces as well !!!
                 if (this.ffishBoard) {
@@ -935,14 +959,12 @@ export class RoundController extends GameController {
     doSendMove(move: string) {
         const send = (move: string) => {
             this.clearDialog();
-
-            let clock_times, increment;
+            let clock_times: Clocks, increment;
             const oppclock = !this.flipped() ? 0 : 1
             const myclock = 1 - oppclock;
 
             if (!this.corr) {
                 // pause() will add increment!
-                const movetime = (this.clocks[myclock].running) ? Date.now() - this.clocks[myclock].startTime : 0;
                 this.clocks[myclock].pause((this.base === 0 && this.ply < 2) ? false : true);
 
                 let bclock;
@@ -959,20 +981,20 @@ export class RoundController extends GameController {
                     increment = 0;
                 }
 
-                const bclocktime = (this.mycolor === "black" && this.preaction) ? this.clocktimes.black + increment: this.clocks[bclock].duration;
-                const wclocktime = (this.mycolor === "white" && this.preaction) ? this.clocktimes.white + increment: this.clocks[wclock].duration;
+                const bclocktime = (this.mycolor === "black" && this.preaction) ? this.clocktimes[BLACK] + increment: this.clocks[bclock].duration;
+                const wclocktime = (this.mycolor === "white" && this.preaction) ? this.clocktimes[WHITE] + increment: this.clocks[wclock].duration;
 
-                clock_times = {movetime: (this.preaction) ? 0 : movetime, black: bclocktime, white: wclocktime};
+                clock_times = [wclocktime, bclocktime];
             } else  {
-                clock_times = { movetime: 0, black:  0, white: 0 };
+                clock_times = [0, 0];
                 increment = 0;
             }
 
-            const message = { type: "move", gameId: this.gameId, move: move, clocks: clock_times, ply: this.ply + 1 };
-            this.doSend(message);
+            this.lastMaybeSentMsgMove = { type: "move", gameId: this.gameId, move: move, clocks: clock_times, ply: this.ply + 1 };
+            this.doSend(this.lastMaybeSentMsgMove as JSONObject);
 
             if (this.preaction) {
-                this.clocks[myclock].setTime(this.clocktimes[this.mycolor] + increment);
+                this.clocks[myclock].setTime(this.clocktimes[(this.mycolor === 'white') ? WHITE : BLACK] + increment);
             }
             if (this.clockOn) this.clocks[oppclock].start();
         }

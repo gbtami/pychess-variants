@@ -118,6 +118,12 @@ export class GatingInput extends ExtraInput {
         }
     }
 
+    skipGating(): void {
+        if (this.data) {
+            this.finish('', this.data.dest);
+        }
+    }
+
     private castlingNext(suffix: string, key: cg.Key): void {
         // Handle gating on the rook's square in castling
         if (this.data)

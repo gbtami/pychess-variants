@@ -31,6 +31,7 @@ import { GameController } from './gameCtrl';
 import { analysisSettings, EngineSettings } from './analysisSettings';
 import { setAriaTabClick } from './view';
 import {createWebsocket} from "@/webSocketUtils";
+import { initPocketRow } from './pocketRow';
 
 const EVAL_REGEX = new RegExp(''
   + /^info depth (\d+) seldepth \d+ multipv (\d+) /.source
@@ -80,8 +81,7 @@ export class AnalysisController extends GameController {
     fsfEngineBoard: any;  // used to convert pv UCI move list to SAN
 
     constructor(el: HTMLElement, model: PyChessModel) {
-        super(el, model, document.getElementById('pocket0') as HTMLElement, document.getElementById('pocket1') as HTMLElement); // todo: those pocket elements best be passed as args as well
-        this.fsfDebug = true;
+        super(el, model);
         this.fsfError = [];
         this.embed = this.gameId === undefined;
         this.puzzle = model["puzzle"] !== "";
@@ -131,6 +131,7 @@ export class AnalysisController extends GameController {
         this.threads = localStorage.threads === undefined ? 1 : parseInt(localStorage.threads);
         this.hash = localStorage.hash === undefined ? 16 : parseInt(localStorage.hash);
         this.nnue = localStorage.nnue === undefined ? true : localStorage.nnue === "true";
+        this.fsfDebug = localStorage.fsfDebug === undefined ? false : localStorage.fsfDebug === "true";
 
         this.nnueOk = false;
         this.importedBy = '';
@@ -152,6 +153,11 @@ export class AnalysisController extends GameController {
                 select: this.onSelect(),
             },
         });
+
+        // initialize pockets
+        const pocket0 = document.getElementById('pocket0') as HTMLElement;
+        const pocket1 = document.getElementById('pocket1') as HTMLElement;
+        initPocketRow(this, pocket0, pocket1);
 
         if (!this.isAnalysisBoard && !this.embed) {
             this.ctableContainer = document.getElementById('panel-3') as HTMLElement;
@@ -269,7 +275,7 @@ export class AnalysisController extends GameController {
     toggleOrientation() {
         super.toggleOrientation()
         boardSettings.updateDropSuggestion();
-        //TODO: clocks !!!
+        renderClocks(this);
     }
 
     private drawAnalysisChart = (withRequest: boolean) => {
@@ -383,7 +389,7 @@ export class AnalysisController extends GameController {
                 this.vinfo = patch(this.vinfo, h('info#info', '-'));
                 this.drawAnalysisChart(false);
             }
-            const clocktimes = this.steps[1]?.clocks?.white;
+            const clocktimes = this.steps[1]?.clocks;
             if (clocktimes !== undefined && !this.embed) {
                 patch(document.getElementById('anal-clock-top') as HTMLElement, h('div.anal-clock.top'));
                 patch(document.getElementById('anal-clock-bottom') as HTMLElement, h('div.anal-clock.bottom'));
@@ -466,6 +472,10 @@ export class AnalysisController extends GameController {
                             const nnueEl = document.querySelector('.nnue') as HTMLElement;
                             const title = _('Multi-threaded WebAssembly (with NNUE evaluation)');
                             patch(nnueEl, h('span.nnue', { props: {title: title } } , 'NNUE'));
+                            if (this.localAnalysis) {
+                                this.engineStop();
+                                this.engineGo();
+                            }
                         });
                     }
                 });
@@ -743,7 +753,7 @@ export class AnalysisController extends GameController {
         const vv = this.steps[plyVari]?.vari;
         const step = (plyVari > 0 && vv) ? vv[ply - plyVari] : this.steps[ply];
 
-        const clocktimes = this.steps[1]?.clocks?.white;
+        const clocktimes = this.steps[1]?.clocks;
         if (clocktimes !== undefined) {
             renderClocks(this);
             const hc = this.movetimeChart;

@@ -402,7 +402,7 @@ export const VARIANTS: Record<string, Variant> = {
     }),
 
     kingofthehill: variant({
-        name: "kingofthehill", displayName: "king of the hill", tooltip: "",
+        name: "kingofthehill", displayName: "king of the hill", tooltip: "Bring your King to the center to win the game.",
         startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
         chess960: true, icon: "🏴", icon960: "🏁",
         boardFamily: "standard8x8", pieceFamily: "standard",
@@ -412,7 +412,7 @@ export const VARIANTS: Record<string, Variant> = {
     }),
 
     '3check': variant({
-        name: "3check", displayName: "three-check", tooltip: "",
+        name: "3check", displayName: "three-check", tooltip: "Check your opponent 3 times to win the game.",
         startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 3+3 0 1",
         chess960: true, icon: "☰", icon960: "☷",
         boardFamily: "standard8x8", pieceFamily: "standard",
@@ -444,7 +444,7 @@ export const VARIANTS: Record<string, Variant> = {
     }),
 
     makpong: variant({
-        name: "makpong", tooltip: _("Makruk variant where kings cannot move to escape out of check."),
+        name: "makpong", tooltip: "Makruk variant where kings cannot move to escape out of check.",
         startFen: "rnsmksnr/8/pppppppp/8/8/PPPPPPPP/8/RNSKMSNR w - - 0 1",
         icon: "O",
         boardFamily: "makruk8x8", pieceFamily: "makruk",
@@ -485,7 +485,7 @@ export const VARIANTS: Record<string, Variant> = {
     }),
 
     shogi: variant({
-        name: "shogi", tooltip: _("Japanese Chess, and the standard 9x9 version played today with drops and promotions. "),
+        name: "shogi", tooltip: _("Japanese Chess, the standard 9x9 version played today with drops and promotions."),
         startFen: "lnsgkgsnl/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL[-] w 0 1",
         icon: "K",
         boardFamily: "shogi9x9", pieceFamily: "shogi",
@@ -537,7 +537,7 @@ export const VARIANTS: Record<string, Variant> = {
     }),
 
     dobutsu: variant({
-        name: "dobutsu", tooltip: _("3x4 game with cute animals, designed to teach children how to play Shogi."),
+        name: "dobutsu", tooltip: "3x4 game with cute animals, designed to teach children how to play Shogi.",
         startFen: "gle/1c1/1C1/ELG[-] w 0 1",
         icon: "8",
         boardFamily: "shogi3x4", pieceFamily: "dobutsu",
@@ -630,6 +630,10 @@ export const VARIANTS: Record<string, Variant> = {
         promotion: { type: "regular", roles: [] },
         rules: { defaultTimeControl: "byoyomi", pass: true, setup: true },
         ui: { materialPoint: "janggi" },
+        alternateStart: {
+            '': '',
+            'Central Chariot Setup': 'bnra1arnb/4k4/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/4K4/BNRA1ARNB w - - 0 1',
+        },
     }),
 
     minixiangqi: variant({
@@ -661,7 +665,7 @@ export const VARIANTS: Record<string, Variant> = {
     }),
 
     capahouse: variant({
-        name: "capahouse", tooltip: _("Capablanca with Crazyhouse drop rules."),
+        name: "capahouse", tooltip: "Capablanca with Crazyhouse drop rules.",
         startFen: "rnabqkbcnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNABQKBCNR[] w KQkq - 0 1",
         chess960: true, icon: "&", icon960: "'",
         boardFamily: "standard10x8", pieceFamily: "capa",
@@ -726,6 +730,10 @@ export const VARIANTS: Record<string, Variant> = {
         pieceRow: ["k", "q", "e", "c", "r", "b", "n", "p"],
         promotion: { type: "regular", order: ["q", "n", "c", "r", "e", "b"] },
         rules: { enPassant: true },
+        alternateStart: {
+            '': '',
+            'Setup similar to Xiangqi': 'rnbeqkebnr/10/1c6c1/p1p1pp1p1p/10/10/P1P1PP1P1P/1C6C1/10/RNBEQKEBNR w - - 0 1',
+        },
     }),
 
     shogun: variant({
@@ -761,7 +769,7 @@ export const VARIANTS: Record<string, Variant> = {
     }),
 
     synochess: variant({
-        name: "synochess", tooltip: _("Asymmetric East vs. West variant which pits the western Chess army against a Xiangqi and Janggi-styled army."),
+        name: "synochess", tooltip: "Asymmetric East vs. West variant which pits the western Chess army against a Xiangqi and Janggi-styled army.",
         startFen: "rneakenr/8/1c4c1/1ss2ss1/8/8/PPPPPPPP/RNBQKBNR[ss] w KQ - 0 1",
         icon: "_",
         boardFamily: "standard8x8", pieceFamily: "synochess",
@@ -790,7 +798,6 @@ export const VARIANTS: Record<string, Variant> = {
                 'pp-piece': 'c-piece',
             },
         },
-
     }),
 
     shinobiplus: variant({
@@ -812,11 +819,14 @@ export const VARIANTS: Record<string, Variant> = {
                 'pp-piece': 'c-piece',
             },
         },
-
+        alternateStart: {
+            '': '',
+            'Original Shinobi': 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/LH1CK1HL[LHMMDJ] w kq - 0 1'
+        },
     }),
 
     empire: variant({
-        name: "empire", tooltip: _("Asymmetric variant where one army has pieces that move like queens but capture as usual."),
+        name: "empire", tooltip: "Asymmetric variant where one army has pieces that move like queens but capture as usual.",
         startFen: "rnbqkbnr/pppppppp/8/8/8/PPPSSPPP/8/TECDKCET w kq - 0 1",
         icon: "♚",
         boardFamily: "standard8x8", pieceFamily: "empire",
@@ -827,7 +837,7 @@ export const VARIANTS: Record<string, Variant> = {
     }),
 
     ordamirror: variant({
-        name: "ordamirror", displayName: "orda mirror", tooltip: _("Orda Chess variant with two Horde armies. The Falcon replaces the Yurt."),
+        name: "ordamirror", displayName: "orda mirror", tooltip: "Orda Chess variant with two Horde armies. The Falcon replaces the Yurt.",
         startFen: "lhafkahl/8/pppppppp/8/8/PPPPPPPP/8/LHAFKAHL w - - 0 1",
         icon: "◩",
         boardFamily: "standard8x8", pieceFamily: "ordamirror",
@@ -878,7 +888,7 @@ export const VARIANTS: Record<string, Variant> = {
     }),
 
     spartan: variant({
-        name: "spartan", tooltip: _("Asymmetric Spartans vs. Persians variant."),
+        name: "spartan", tooltip: "Asymmetric Spartans vs. Persians variant.",
         startFen: "lgkcckwl/hhhhhhhh/8/8/8/8/PPPPPPPP/RNBQKBNR w KQ - 0 1",
         icon: "⍺",
         boardFamily: "standard8x8", pieceFamily: "spartan",
@@ -926,7 +936,7 @@ export const VARIANTS: Record<string, Variant> = {
     }),
 
     gothhouse: variant({
-        name: "gothhouse", tooltip: _("Gothic with Crazyhouse drop rules."),
+        name: "gothhouse", tooltip: "Gothic with Crazyhouse drop rules.",
         startFen: "rnbqckabnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBQCKABNR[] w KQkq - 0 1",
         icon: "&",
         boardFamily: "standard10x8", pieceFamily: "capa",

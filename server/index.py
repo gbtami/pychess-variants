@@ -7,6 +7,7 @@ import logging
 import sys
 import warnings
 from datetime import datetime
+from itertools import islice
 from urllib.parse import urlparse
 
 import aiohttp_session
@@ -39,7 +40,6 @@ from settings import (
     SOURCE_VERSION,
     DEV,
 )
-from generate_highscore import generate_highscore
 from misc import time_control_str
 from blogs import BLOG_TAGS
 from videos import VIDEO_TAGS, VIDEO_TARGETS
@@ -245,7 +245,7 @@ async def index(request):
     rated = None
 
     if (fen is not None) and "//" in fen:
-        log.debug("Invelid FEN %s in request", fen)
+        log.debug("Invalid FEN %s in request", fen)
         raise web.HTTPNotFound()
 
     if profileId is not None:
@@ -469,13 +469,22 @@ async def index(request):
         render["anon_online"] = anon_online
         render["admin"] = user.username in ADMINS
         if variant is None:
+            # read top10 users data
+            if app_state.get_top10_users:
+                for variant in VARIANTS:
+                    for username in islice(app_state.highscore[variant], 10):
+                        await app_state.users.get(username)
+                app_state.get_top10_users = False
             render["highscore"] = {
                 variant: dict(app_state.highscore[variant].items()[:10])
                 for variant in app_state.highscore
             }
         else:
-            hs = await generate_highscore(app_state.db, variant)
-            print(hs)
+            hs = app_state.highscore[variant]
+            # read top50 users data
+            for username in hs:
+                await app_state.users.get(username)
+
             render["highscore"] = hs
             view = "players50"
 

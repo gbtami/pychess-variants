@@ -15,10 +15,7 @@ try:
 except ImportError:
     log.error("No pyffish module installed!", exc_info=True)
 
-from ataxx import ATAXX_FENS
-from const import CATEGORIES
-
-WHITE, BLACK = False, True
+WHITE, BLACK = 0, 1
 FILES = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j"]
 
 STANDARD_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
@@ -108,7 +105,7 @@ class FairyBoard:
             # log.debug("move=%s, fen=%s", move, self.fen)
             self.move_stack.append(move)
             self.ply += 1
-            self.color = not self.color
+            self.color = WHITE if self.color == BLACK else BLACK
             self.fen = sf.get_fen(
                 self.variant,
                 self.fen,

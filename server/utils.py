@@ -34,7 +34,6 @@ from convert import mirror5, mirror9, usi2uci, grand2zero, zero2grand
 from fairy import BLACK, STANDARD_FEN, FairyBoard
 from game import Game, MAX_PLY
 from newid import new_id
-from settings import URI
 from users import NotInDbUsers
 
 if TYPE_CHECKING:
@@ -170,8 +169,8 @@ async def load_game(app_state: PychessGlobalAppState, game_id):
 
     if "cw" in doc:
         base_clock_time = (game.base * 1000 * 60) + (0 if game.base > 0 else game.inc * 1000)
-        clocktimes_w = doc["cw"] if len(doc["cw"]) > 0 else [base_clock_time]
-        clocktimes_b = doc["cb"] if len(doc["cb"]) > 0 else [base_clock_time]
+        game.clocks_w = [base_clock_time] + doc["cw"] if len(doc["cw"]) > 0 else [base_clock_time]
+        game.clocks_b = [base_clock_time] + doc["cb"] if len(doc["cb"]) > 0 else [base_clock_time]
 
     if "mct" in doc:
         manual_count_toggled = iter(doc["mct"])
@@ -213,20 +212,20 @@ async def load_game(app_state: PychessGlobalAppState, game_id):
                 move_number = ((ply + 1) // 2) + (1 if ply % 2 == 0 else 0)
                 if ply >= 2:
                     if ply % 2 == 0:
-                        step["clocks"] = {
-                            "white": clocktimes_w[move_number - 1],
-                            "black": clocktimes_b[move_number - 2],
-                        }
+                        step["clocks"] = (
+                            game.clocks_w[move_number],
+                            game.clocks_b[move_number - 1],
+                        )
                     else:
-                        step["clocks"] = {
-                            "white": clocktimes_w[move_number - 1],
-                            "black": clocktimes_b[move_number - 1],
-                        }
+                        step["clocks"] = (
+                            game.clocks_w[move_number],
+                            game.clocks_b[move_number],
+                        )
                 else:
-                    step["clocks"] = {
-                        "white": clocktimes_w[move_number - 1],
-                        "black": clocktimes_b[move_number - 1],
-                    }
+                    step["clocks"] = (
+                        game.clocks_w[move_number],
+                        game.clocks_b[move_number],
+                    )
 
             game.steps.append(step)
 
@@ -757,7 +756,7 @@ def pgn(doc):
 
     return '[Event "{}"]\n[Site "{}"]\n[Date "{}"]\n[Round "-"]\n[White "{}"]\n[Black "{}"]\n[Result "{}"]\n[TimeControl "{}+{}"]\n[WhiteElo "{}"]\n[BlackElo "{}"]\n[Variant "{}"]\n{fen}{setup}\n{} {}\n'.format(
         "PyChess " + ("rated" if "y" in doc and doc["y"] == 1 else "casual") + " game",
-        URI + "/" + doc["_id"],
+        "https://www.pychess.org/" + doc["_id"],
         doc["d"].strftime("%Y.%m.%d"),
         doc["us"][0],
         doc["us"][1],

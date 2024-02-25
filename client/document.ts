@@ -108,8 +108,8 @@ export function changePieceCSS(assetUrl: string, family: string, cssFile: string
         case "ataxx": cssLinkIndex += 24; break;
         default: throw "Unknown piece family " + family;
     }
-    let newUrl = `${assetUrl}/piece/${family}/${cssFile}.css`;
-    if (cssFile === 'letters') newUrl = `${assetUrl}/piece/letters.css`;
+    let newUrl = `${assetUrl}/piece-css/${family}/${cssFile}.css`;
+    if (cssFile === 'letters') newUrl = `${assetUrl}/piece-css/letters.css`;
     // console.log("changePieceCSS", family, cssFile, newUrl)
     changeCSS(cssLinkIndex, newUrl);
 }
