@@ -289,7 +289,7 @@ class Game:
 
         self.move_lock = asyncio.Lock()
 
-    def berserk(self, color):
+    async def berserk(self, color):
         if color == "white" and not self.wberserk:
             self.wberserk = True
             self.clocks_w[0] = self.berserk_time
