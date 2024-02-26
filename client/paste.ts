@@ -194,13 +194,13 @@ export function pasteView(model: PyChessModel): VNode[] {
     CLAIM,
 */
 function getStatus(termination: string) {
-    if (termination.includes('checkmate')) return 1;
-    if (termination.includes('resign')) return 2;
-    if (termination.includes('stalemate')) return 3;
-    if (termination.includes('draw')) return 5;
-    if (termination.includes('repetition')) return 5;
-    if (termination.includes('insufficient')) return 5;
-    if (termination.includes('time')) return 6;
-    if (termination.includes('abandon')) return 7;
-    return 11;  // unknown
+    if (termination.includes('checkmate')) return '1';
+    if (termination.includes('resign')) return '2';
+    if (termination.includes('stalemate')) return '3';
+    if (termination.includes('draw')) return '5';
+    if (termination.includes('repetition')) return '5';
+    if (termination.includes('insufficient')) return '5';
+    if (termination.includes('time')) return '6';
+    if (termination.includes('abandon')) return '7';
+    return '11';  // unknown
 }
