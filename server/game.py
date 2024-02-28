@@ -29,6 +29,7 @@ from const import (
     RATED,
     IMPORTED,
     HIGHSCORE_MIN_GAMES,
+    MAX_HIGHSCORE_ITEM_LIMIT,
     variant_display_name,
     MAX_CHAT_LINES,
     TYPE_CHECKING,
@@ -54,7 +55,6 @@ except ImportError:
 
 log = logging.getLogger(__name__)
 
-MAX_HIGH_SCORE = 10
 MAX_PLY = 600
 KEEP_TIME = 1800  # keep game in app[games_key] for KEEP_TIME secs
 
@@ -617,14 +617,11 @@ class Game:
 
     async def set_highscore(self, variant, chess960, value):
         self.app_state.highscore[variant + ("960" if chess960 else "")].update(value)
-        # We have to preserve previous top 10!
-        # See test_win_and_in_then_lost_and_out() in test.py
-        # if len(self.highscore[variant + ("960" if chess960 else "")]) > MAX_HIGH_SCORE:
-        #     self.highscore[variant + ("960" if chess960 else "")].popitem()
-
         new_data = {
             "scores": dict(
-                self.app_state.highscore[variant + ("960" if chess960 else "")].items()[:10]
+                self.app_state.highscore[variant + ("960" if chess960 else "")].items()[
+                    :MAX_HIGHSCORE_ITEM_LIMIT
+                ]
             )
         }
         try:

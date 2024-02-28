@@ -4,6 +4,7 @@ from datetime import datetime, timezone
 
 import aiohttp_session
 import pyffish as sf
+from pymongo.errors import DuplicateKeyError
 from aiohttp import web
 
 from const import VARIANTS
@@ -76,9 +77,19 @@ async def get_daily_puzzle(request):
             if puzzle.get("eval") != "#1":
                 puzzleId = puzzle["_id"]
 
-        await app_state.db.dailypuzzle.insert_one({"_id": today, "puzzleId": puzzleId})
-        app_state.daily_puzzle_ids[today] = puzzle["_id"]
-
+        try:
+            await app_state.db.dailypuzzle.insert_one({"_id": today, "puzzleId": puzzleId})
+            app_state.daily_puzzle_ids[today] = puzzle["_id"]
+        except DuplicateKeyError:
+            # I have no idea how this can happen though...
+            daily_puzzle_doc = await app_state.db.dailypuzzle.find_one({"_id": today})
+            puzzleId = daily_puzzle_doc["puzzleId"]
+            try:
+                await app_state.db.dailypuzzle.insert_one({"_id": today, "puzzleId": puzzleId})
+                app_state.daily_puzzle_ids[today] = puzzleId
+                puzzle = await get_puzzle(request, puzzleId)
+            except Exception:
+                return empty_puzzle("chess")
     return puzzle
 
 
