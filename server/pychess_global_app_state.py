@@ -163,7 +163,7 @@ class PychessGlobalAppState:
             db_collections = await self.db.list_collection_names()
 
             if "highscore" not in db_collections:
-                await generate_highscore(self.db)
+                await generate_highscore(self)
             cursor = self.db.highscore.find()
             async for doc in cursor:
                 self.highscore[doc["_id"]] = ValueSortedDict(neg, doc["scores"])
