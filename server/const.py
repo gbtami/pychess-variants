@@ -124,7 +124,7 @@ VARIANTS = (
     # "gorogoro",
     "gorogoroplus",
     "torishogi",
-    "habaneshogi",
+    "haganeshogi",
     "xiangqi",
     "manchu",
     "janggi",
@@ -187,7 +187,7 @@ VARIANT_ICONS = {
     "gorogoro": "🐱",
     "gorogoroplus": "🐱",
     "torishogi": "🐦",
-    "habaneshogi": "✳",
+    "haganeshogi": "✳",
     "cambodian": "!",
     "shako": "9",
     "minixiangqi": "7",
@@ -265,7 +265,7 @@ CATEGORIES = {
         "shogun",
         "hoppelpoppel",
         "mansindam",
-        "habaneshogi",
+        "haganeshogi",
     ),
     "army": (
         "orda",
@@ -324,8 +324,8 @@ def variant_display_name(variant):
         return "KYOTO SHOGI"
     elif variant == "torishogi":
         return "TORI SHOGI"
-    elif variant == "habaneshogi":
-        return "HABANE SHOGI"
+    elif variant == "haganeshogi":
+        return "HAGANE SHOGI"
     elif variant == "duck":
         return "DUCK CHESS"
     elif variant == "kingofthehill":
@@ -383,7 +383,7 @@ TRANSLATED_VARIANT_NAMES = {
     # "gorogoro",
     "gorogoroplus": _("Gorogoro+"),
     "torishogi": _("Tori Shogi"),
-    "habaneshogi": _("Habane Shogi"),
+    "haganeshogi": _("Hagane Shogi"),
     "xiangqi": _("Xiangqi"),
     "manchu": _("Manchu"),
     "janggi": _("Janggi"),

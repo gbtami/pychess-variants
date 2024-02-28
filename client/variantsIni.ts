@@ -243,7 +243,7 @@ flagRegionWhite = *9
 flagRegionBlack = *1
 immobilityIllegal = true
 
-[habaneshogi]
+[haganeshogi]
 maxRank = 8
 maxFile = 8
 king = k

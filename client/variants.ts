@@ -65,7 +65,7 @@ export const PIECE_FAMILIES: Record<string, PieceFamily> = {
     chennis: { pieceCSS: ["chennis0", "chennis1", "chennis2", "chennis3", "chennis4", "disguised"] },
     spartan: { pieceCSS: ["spartan0", "disguised"] },
     mansindam: { pieceCSS: ["mansindam2", "mansindam1", "mansindam3", "mansindam4", "disguised"] },
-    habaneshogi: { pieceCSS: ["habaneshogi", "disguised"] },
+    haganeshogi: { pieceCSS: ["haganeshogi", "disguised"] },
 };
 
 export interface Variant {
@@ -886,11 +886,11 @@ export const VARIANTS: Record<string, Variant> = {
         promotion: { type: "shogi", roles: ["n", "b", "r", "c", "m", "p"] },
     }),
 
-    habaneshogi: variant({
-        name: "habaneshogi", displayName: "habane shogi", tooltip: "",
+    haganeshogi: variant({
+        name: "haganeshogi", displayName: "hagane shogi", tooltip: "",
         startFen: "aemckdbf/ighjjhgi/8/8/8/8/IGHJJHGI/AEMCKDBF[-] w 0 1",
         icon: "✳",
-        boardFamily: "makruk8x8", pieceFamily: "habaneshogi",
+        boardFamily: "makruk8x8", pieceFamily: "haganeshogi",
         pieceRow: ["k", "a", "e", "m", "c", "d", "b", "f", "i", "g", "h", "j"],
         pocket: { roles: ["a", "e", "m", "c", "d", "b", "f", "i", "g", "h", "j"], captureToHand: true },
         promotion: { type: "shogi", roles: ["a", "e", "m", "c", "d", "b", "f", "i", "g", "h", "j"] },
@@ -960,7 +960,7 @@ export const variantGroups: { [ key: string ]: { variants: string[] } } = {
     sea:      { variants: [ "makruk", "makpong", "cambodian", "sittuyin", "asean" ] },
     shogi:    { variants: [ "shogi", "minishogi", "kyotoshogi", "dobutsu", "gorogoroplus", "torishogi" ] },
     xiangqi:  { variants: [ "xiangqi", "manchu", "janggi", "minixiangqi" ] },
-    fairy:    { variants: [ "capablanca", "capahouse", "seirawan", "shouse", "grand", "grandhouse", "shako", "shogun", "hoppelpoppel", "mansindam", "habaneshogi" ] },
+    fairy:    { variants: [ "capablanca", "capahouse", "seirawan", "shouse", "grand", "grandhouse", "shako", "shogun", "hoppelpoppel", "mansindam", "haganeshogi" ] },
     army:     { variants: [ "orda", "synochess", "shinobiplus", "empire", "ordamirror", "chak", "chennis", "spartan" ] },
     other:    { variants: [ "ataxx" ] }
 };

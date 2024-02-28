@@ -255,10 +255,10 @@ label.piece.piece5.tori {
     background-image: url('images/pieces/disguised/shogi-ally.svg');
 }
 
-label.piece.piece0.habaneshogi {
-    background-image: url('images/pieces/habaneshogi/wK.svg');
+label.piece.piece0.haganeshogi {
+    background-image: url('images/pieces/haganeshogi/wK.svg');
 }
-label.piece.piece1.habaneshogi {
+label.piece.piece1.haganeshogi {
     background-image: url('images/pieces/disguised/w.svg');
 }
 
