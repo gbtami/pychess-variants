@@ -25,6 +25,8 @@ MAX_CHAT_LINES = 100
 # Minimum number of rated games needed
 HIGHSCORE_MIN_GAMES = 10
 
+MAX_HIGHSCORE_ITEM_LIMIT = 50
+
 # Show the number of spectators only after this limit
 MAX_NAMED_SPECTATORS = 20
 
