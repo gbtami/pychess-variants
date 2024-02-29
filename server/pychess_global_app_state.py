@@ -165,7 +165,8 @@ class PychessGlobalAppState:
                 await generate_highscore(self)
             cursor = self.db.highscore.find()
             async for doc in cursor:
-                self.highscore[doc["_id"]] = ValueSortedDict(neg, doc["scores"])
+                if doc["_id"] in VARIANTS:
+                    self.highscore[doc["_id"]] = ValueSortedDict(neg, doc["scores"])
 
             if "crosstable" not in db_collections:
                 await generate_crosstable(self.db)
