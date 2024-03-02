@@ -222,7 +222,9 @@ class PychessGlobalAppState:
             cursor = self.db.game.find({"r": "d", "c": True})
             async for doc in cursor:
                 if doc["s"] < ABORTED:
-                    asyncio.create_task(self.create_corr_game(doc), name="create_corr_game %s" % doc["_id"])
+                    asyncio.create_task(
+                        self.create_corr_game(doc), name="create_corr_game %s" % doc["_id"]
+                    )
             if "video" not in db_collections:
                 if DEV:
                     await self.db.video.drop()
