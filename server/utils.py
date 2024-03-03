@@ -982,10 +982,9 @@ async def subscribe_notify(request):
                 payload = await queue.get()
                 await response.send(payload)
                 queue.task_done()
+            user.notify_channels.remove(queue)
     except (ConnectionResetError, asyncio.CancelledError):
         pass
-    finally:
-        user.notify_channels.remove(queue)
     return response
 
 
