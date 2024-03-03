@@ -166,7 +166,8 @@ class PychessGlobalAppState:
                 await generate_highscore(self)
             cursor = self.db.highscore.find()
             async for doc in cursor:
-                self.highscore[doc["_id"]] = ValueSortedDict(neg, doc["scores"])
+                if doc["_id"] in VARIANTS:
+                    self.highscore[doc["_id"]] = ValueSortedDict(neg, doc["scores"])
 
             if "crosstable" not in db_collections:
                 await generate_crosstable(self.db)
@@ -229,17 +230,9 @@ class PychessGlobalAppState:
                     break
 
                 if doc["s"] < ABORTED:
-                    try:
-                        game = await load_game(self, doc["_id"])
-                        self.games[doc["_id"]] = game
-                        if doc["c"]:
-                            game.wplayer.correspondence_games.append(game)
-                            game.bplayer.correspondence_games.append(game)
-                            game.stopwatch.restart(from_db=True)
-                        else:
-                            game.stopwatch.restart()
-                    except NotInDbUsers:
-                        log.error("Failed toload game %s", doc["_id"])
+                    asyncio.create_task(
+                        self.create_corr_game(doc), name="create_corr_game %s" % doc["_id"]
+                    )
 
             if "video" not in db_collections:
                 if DEV:
@@ -370,3 +363,16 @@ class PychessGlobalAppState:
         clsname = type(self).__name__
         variabs = ", ".join(values)
         return "{}({})".format(clsname, variabs)
+
+    async def create_corr_game(self, doc):
+        try:
+            game = await load_game(self, doc["_id"])
+            self.games[doc["_id"]] = game
+            if doc["c"]:
+                game.wplayer.correspondence_games.append(game)
+                game.bplayer.correspondence_games.append(game)
+                game.stopwatch.restart(from_db=True)
+            else:
+                game.stopwatch.restart()
+        except NotInDbUsers:
+            log.error("Failed toload game %s", doc["_id"])
