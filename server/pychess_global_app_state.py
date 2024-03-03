@@ -359,8 +359,11 @@ class PychessGlobalAppState:
         try:
             game = await load_game(self, doc["_id"])
             self.games[doc["_id"]] = game
-            game.wplayer.correspondence_games.append(game)
-            game.bplayer.correspondence_games.append(game)
-            game.stopwatch.restart(from_db=True)
+            if doc["c"]:
+                game.wplayer.correspondence_games.append(game)
+                game.bplayer.correspondence_games.append(game)
+                game.stopwatch.restart(from_db=True)
+            else:
+                game.stopwatch.restart()
         except NotInDbUsers:
             log.error("Failed toload game %s", doc["_id"])
