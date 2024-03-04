@@ -148,9 +148,10 @@ async def handle_move(app_state: PychessGlobalAppState, user, data, game):
 
 
 async def handle_berserk(data, game):
-    await game.berserk(data["color"])
+    game.berserk(data["color"])
     response = {"type": "berserk", "color": data["color"]}
     await round_broadcast(game, response, full=True)
+    await game.save_berserk()
 
 
 async def handle_analysis_move(user, data, game):
