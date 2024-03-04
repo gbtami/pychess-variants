@@ -314,7 +314,7 @@ async def handle_lobbychat(app_state, user, data):
             parts = message.split()
             if len(parts) == 2 and parts[1] in VARIANTS:
                 variant = parts[1]
-                await generate_highscore(app_state.db, variant)
+                await generate_highscore(app_state, variant)
 
         elif message == "/state":
             admin_command = True
