@@ -5,7 +5,7 @@ import * as util from 'chessgroundx/util';
 import { DrawShape } from 'chessgroundx/draw';
 
 import { _ } from '../i18n';
-import { uci2LastMove, uci2cg, cg2uci } from '../chess';
+import { uci2LastMove, uci2cg } from '../chess';
 import { VARIANTS, notation, moddedVariant } from "../variants"
 import { createMovelistButtons, updateMovelist, selectMove, activatePlyVari } from './movelist.bug';
 import { povChances } from '../winningChances';
@@ -18,9 +18,8 @@ import { sound } from "../sound";
 import { renderClocks } from "./analysisClock.bug";
 import { variantsIni } from "../variantsIni";
 import * as idb from "idb-keyval";
-import { MsgAnalysis } from "../analysisType";
+import { MsgAnalysis, MsgAnalysisBoard } from "../analysisType";
 import ffishModule from "ffish-es6";
-import { Key, Orig } from "chessgroundx/types";
 import { titleCase } from "@/analysisCtrl";
 import { movetimeChart } from "./movetimeChart.bug";
 
@@ -35,18 +34,6 @@ const maxDepth = 18;
 const maxThreads = Math.max((navigator.hardwareConcurrency || 1) - 1, 1);
 
 const emptySan = '\xa0';
-
-interface MsgAnalysisBoard {
-    gameId: string;
-    fen: string;
-    fenB?: string;
-    ply: number;
-    lastMove: string;
-    dests: cg.Dests;
-    promo: string[];
-    bikjang: boolean;
-    check: boolean;
-}
 
 export default class AnalysisControllerBughouse {
     model;
@@ -155,16 +142,6 @@ export default class AnalysisControllerBughouse {
         this.isAnalysisBoard = model["gameId"] === "";
         this.chartFunctions = [movetimeChart];
 
-        // const onOpen = () => {
-        //     if (this.embed) { //TODO:niki:same question as in analysisCtrl - what is the point of this?
-        //         this.doSend({ type: "embed_user_connected", gameId: this.gameId });
-        //     } else if (!this.isAnalysisBoard) {
-        //         this.doSend({ type: "game_user_connected", username: this.username, gameId: this.gameId });
-        //     }
-        // };
-
-        // this.sock = createWebsocket('wsr/' + this.gameId, onOpen, () => {}, () => {}, (e: MessageEvent) => this.onMessage(e));
-
         // is local stockfish.wasm engine supports current variant?
         this.localEngine = false;
 
@@ -204,13 +181,14 @@ export default class AnalysisControllerBughouse {
 
         this.notation = notation(this.b1.variant);
 
+        const fens = model.fen.split(" | ");
+
         this.steps.push({
-            'fen': model.fen,
-            'fenB': model.fen,
+            'fen': fens[0],
+            'fenB': fens[1],
             'move': undefined,
-            'check': false,
-            'turnColor': this.b1.turnColor,//todo:niki:not relevant/meaningful
-            // 'turnColorB': this.b2.turnColor,
+            'check': false,//not relevant/meaningful - we use the fens for that
+            'turnColor': this.b1.turnColor,//not relevant/meaningful - we use the fens for that
             });
 
         if (!this.isAnalysisBoard && !this.model["embed"]) {
@@ -310,7 +288,11 @@ export default class AnalysisControllerBughouse {
     }
 
     switchBoards = (): void => {
-        //todo:niki:not sure if best implementation possible below
+        // todo: not sure if best implementation below
+        //       it manipulates the DOM directly switching places of elements identified by whether they are
+        //       main/second board, instead of keeping info about the switch and rendering boards on elements
+        //       called left/right
+
         const swap = function (nodeA: HTMLElement, nodeB: HTMLElement) {
             const parentA = nodeA.parentNode;
             const siblingA = nodeA.nextSibling === nodeB ? nodeA : nodeA.nextSibling;
@@ -397,12 +379,6 @@ export default class AnalysisControllerBughouse {
         container = document.getElementById('pgntext') as HTMLElement;
         this.vpgn = patch(container, h('div#pgntext', pgn));
     }
-
-    // private deleteGame() {
-    //     if (confirm(_('Are you sure you want to delete this game?'))) {
-    //         this.doSend({ type: "delete", gameId: this.gameId });
-    //     }
-    // }
 
     private onMsgBoard = (msg: MsgBoard) => {
         if (msg.gameId !== this.gameId) return;
@@ -491,29 +467,6 @@ export default class AnalysisControllerBughouse {
       return Math.floor((ply - 1) / 2) + 1 + (ply % 2 === 1 ? '.' : '...');
     }
 
-    // loadFFishModule = (b: BugHouseGameController  ) : any => {
-    //     ffishModule().then((loadedModule: any) => {
-    //
-    //         if (loadedModule) {
-    //             b.ffish=loadedModule;
-    //             b.ffish.loadVariantConfig(variantsIni);
-    //
-    //             const availableVariants = b.ffish.variants();
-    //
-    //             if (this.model.variant === 'chess' || availableVariants.includes(this.model.variant)) {
-    //                 b.ffishBoard = new b.ffish.Board(b.variant.name, b.fullfen, b.chess960);
-    //
-    //                 // b.dests = this.getDests(b);
-    //                 b.setDests();
-    //                 b.chessground.set({ movable: { color: b.turnColor, dests: b.dests } });
-    //             } else {
-    //                 console.log("Selected variant is not supported by ffish.js");
-    //             }
-    //             if (!this.notationAsObject) this.notationAsObject = this.notation2ffishjs(this.notation, b.ffish);
-    //         }
-    //
-    //     });
-    // }
     fsfPostMessage(msg: string) {
         if (this.fsfDebug) console.debug('<---', msg);
         window.fsf.postMessage(msg);
@@ -655,7 +608,7 @@ export default class AnalysisControllerBughouse {
 
     makePvMove (pv_line: string, cc: GameControllerBughouse) {
         const move = uci2cg(pv_line.split(" ")[0]);
-        this.sendMove(cc, move.slice(0, 2) as cg.Orig, move.slice(2, 4) as cg.Key, move.slice(4, 5));
+        this.sendMove(cc, move /*move.slice(0, 2) as cg.Orig, move.slice(2, 4) as cg.Key, move.slice(4, 5)*/);
     }
 
     // Updates PV, score, gauge and the best move arrow
@@ -854,7 +807,7 @@ export default class AnalysisControllerBughouse {
         board.turnColor = step.turnColor;//todo: probably not needed here and other places as well where its set
 
         renderClocks(this);
-        if (board.ffishBoard) {
+        if (board.ffishBoard) { //TODO:NIKI: if this ffishboard object is one and the same, maybe move it to some global place instead of associating it to board
             board.ffishBoard.setFen(board.fullfen);
             board.setDests();
         }
@@ -868,7 +821,6 @@ export default class AnalysisControllerBughouse {
             board.partnerCC.ffishBoard.setFen(board.partnerCC.fullfen);
             board.partnerCC.setDests();
         }
-
     }
 
     private getPgn = (idxInVari  = 0) => {
@@ -877,7 +829,7 @@ export default class AnalysisControllerBughouse {
         let whiteMove: boolean = true;
         let blackStarts: boolean = this.steps[0].turnColor === 'black';
 
-        let plyA: number = 0;//maybe make it part of Steps - maybe have some function to calculate these - i feel i will need this logic again somewhere (todo:niki:yup, i did need it here, copied from movelist.bug.ts)
+        let plyA: number = 0;
         let plyB: number = 0;
 
         for (let ply = 1; ply <= this.ply; ply++) {
@@ -928,16 +880,9 @@ export default class AnalysisControllerBughouse {
         return `${event}\n${site}\n${date}\n${whiteA}\n${blackA}\n${whiteB}\n${blackB}\n${result}\n${variant}\n${fen}\n${setup}\n\n${moveText} *\n`;
     }
 
-
-    // doSend = (message: JSONObject) => {
-    //     // console.log("---> doSend():", message);
-    //     this.sock.send(JSON.stringify(message));
-    // }
-
-    sendMove = (b: GameControllerBughouse, orig: cg.Orig, dest: cg.Key, promo: string) => {
-        const move = cg2uci(orig + dest + promo);
+    sendMove = (b: GameControllerBughouse, move: string) => {
         const san = b.ffishBoard.sanMove(move, b.notationAsObject);
-        const sanSAN = b.ffishBoard.sanMove(move);// todo niki what is this?
+        const sanSAN = b.ffishBoard.sanMove(move);
         const vv = this.steps[this.plyVari]['vari'];
 
         // console.log('sendMove()', move, san);
@@ -956,8 +901,6 @@ export default class AnalysisControllerBughouse {
             fen: b.ffishBoard.fen(this.b1.variant.ui.showPromoted, 0),
             ply: newPly,
             lastMove: move,
-            dests: new Map<Orig, Key[]>(), // todo:niki: why do i even use this msg object? putting empty dests just so it compiles, i dont think it is used
-            promo: [promo],// todo:niki: i think this is used, but was missing until now and put this so it doesnt complain. i wonder how it worked before. anyway, all code here needs review
             bikjang: b.ffishBoard.isBikjang(),
             check: b.ffishBoard.isCheck(),
         }
@@ -1039,9 +982,6 @@ export default class AnalysisControllerBughouse {
         if (b.localAnalysis) this.engineStop();
 
         b.fullfen = msg.fen;
-        // b.dests = msg.dests;
-        // list of legal promotion moves
-        b.promotions = msg.promo;
         this.ply = msg.ply
 
         const parts = msg.fen.split(" ");
@@ -1099,9 +1039,5 @@ export default class AnalysisControllerBughouse {
             this.drawEval(msg.ceval, scoreStr, turnColor, boardInAnalysis);
         }
     }
-
-    // private onMessage = (evt: MessageEvent) => {
-    //     console.log("<+++ onMessage():", evt.data);
-    // }
 
 }

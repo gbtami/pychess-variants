@@ -134,6 +134,7 @@ export type MsgMove = { // cannot be interface because cannot be converted to an
      gameId: string;
      move: string;
      clocks: Clocks;
+     clocksB?: Clocks;
      ply: number;
      board?: 'a' | 'b';
      lastMoveCapturedRole?: string; // role single letter as in normal notation, without the "-piece" suffix of cg.Role type // todo: calculate this on server somehow

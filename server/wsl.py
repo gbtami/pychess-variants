@@ -182,7 +182,7 @@ async def handle_accept_seek(app_state: PychessGlobalAppState, ws, user, data):
         response = await join_seek_bughouse(app_state, user, data["seekID"], None, data["joinAs"])
         await ws.send_json(response)
 
-        if seek.ws is None:  # todo:niki: i dont really understand this if? I guess it is when whoever created the seek disappeared. I should test what happens on refresh maybe, in any case makes sense to leave it as is. What happens if 2 browsers in lobby
+        if seek.ws is None:  # TODO:NIKI: refactor so that no ws objects are referenced from multiple places, but are always accessed by user as key to avoid such checks. Also all ws usages should be wrapeed in util functions where if really needed null checks as well as other error handling is made
             remove_seek(app_state.seeks, seek)
             await app_state.lobby.lobby_broadcast_seeks()
         else:
@@ -190,7 +190,7 @@ async def handle_accept_seek(app_state: PychessGlobalAppState, ws, user, data):
             bugUsers = set(filter(lambda item: item is not None, [seek.player2, seek.bugPlayer1, seek.bugPlayer2]))
             for u in bugUsers:
                 s = next(iter(
-                    u.lobby_sockets))  # todo:niki:could be more than one if multiple browsers - could potentially record the one they joined from i guess
+                    u.lobby_sockets))  # TODO:NIKI:could be more than one if multiple browsers - see above todo comment
                 await s.send_json(response)
             await app_state.lobby.lobby_broadcast_seeks()
     else:

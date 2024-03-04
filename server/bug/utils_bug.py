@@ -19,6 +19,32 @@ from utils import round_broadcast
 
 log = logging.getLogger(__name__)
 
+
+def init_players(app_state: PychessGlobalAppState, wp_a, bp_a, wp_b, bp_b):
+    if wp_a in app_state.users:
+        wplayer_a = app_state.users[wp_a]
+    else:
+        wplayer_a = User(app_state, username=wp_a, anon=True)
+        app_state.users[wp_a] = wplayer_a
+    if wp_b in app_state.users:
+        wplayer_b = app_state.users[wp_b]
+    else:
+        wplayer_b = User(app_state, username=wp_b, anon=True)
+        app_state.users[wp_b] = wplayer_b
+
+    if bp_a in app_state.users:
+        bplayer_a = app_state.users[bp_a]
+    else:
+        bplayer_a = User(app_state, username=bp_a, anon=True)
+        app_state.users[bp_a] = bplayer_a
+    if bp_b in app_state.users:
+        bplayer_b = app_state.users[bp_b]
+    else:
+        bplayer_b = User(app_state, username=bp_b, anon=True)
+        app_state.users[bp_b] = bplayer_b
+    return [wplayer_a, bplayer_a, wplayer_b, bplayer_b]
+
+
 async def load_game_bug(app_state: PychessGlobalAppState, game_id):
     """Return Game object from app cache or from database"""
 
@@ -32,30 +58,8 @@ async def load_game_bug(app_state: PychessGlobalAppState, game_id):
     if doc is None:
         return None
 
-    wp, bp, wpB, bpB = doc["us"]
-    if wp in app_state.users:
-        wplayer = app_state.users[wp]
-    else:
-        wplayer = User(app_state, username=wp, anon=True)
-        app_state.users[wp] = wplayer
-
-    if bp in app_state.users:
-        bplayer = app_state.users[bp]
-    else:
-        bplayer = User(app_state, username=bp, anon=True)
-        app_state.users[bp] = bplayer
-
-    if wpB in app_state.users:
-        wplayerB = app_state.users[wpB]
-    else:
-        wplayerB = User(app_state, username=wpB, anon=True)
-        app_state.users[wpB] = wplayerB
-
-    if bpB in app_state.users:
-        bplayerB = app_state.users[bpB]
-    else:
-        bplayerB = User(app_state, username=bpB, anon=True)
-        app_state.users[bpB] = bplayerB
+    wp, bp, wp_b, bp_b = doc["us"]
+    wplayer, bplayer, wplayer_b, bplayer_b = init_players(app_state, wp, bp, wp_b, bp_b)
 
     variant = C2V[doc["v"]]
 
@@ -68,8 +72,8 @@ async def load_game_bug(app_state: PychessGlobalAppState, game_id):
         initial_fen,
         wplayer,
         bplayer,
-        wplayerB,
-        bplayerB,
+        wplayer_b,
+        bplayer_b,
         base=doc["b"],
         inc=doc["i"],
         level=doc.get("x"),
@@ -142,7 +146,9 @@ async def load_game_bug(app_state: PychessGlobalAppState, game_id):
             san = game.boards[board_name].get_san(move)
             game.boards[board_name].push(move)
 
-            # todo:niki: see where this check stuff is used at all - theoretically can always be calculated on client - if we decide to use it, because important for scrolling moves for example, then consider adding checkB to have it for both boards if we jump at a ply with check on the other board
+            # todo:niki: see where this check stuff is used at all - theoretically can always be calculated on client
+            #  - if we decide to use it, because important for scrolling moves for example, then consider adding
+            #  checkB to have it for both boards if we jump at a ply with check on the other board
             if board_name == "a":
                 game.checkA = game.boards[board_name].is_checked()
             if board_name == "b":
@@ -172,33 +178,6 @@ async def load_game_bug(app_state: PychessGlobalAppState, game_id):
                 "white": clocktimes_wB[ply],
                 "black": clocktimes_bB[ply],
             }
-
-            # if "cw" in doc and board_name == 'a':
-            #     move_number = 1 + ((board_ply[board_name] + 1) // 2) + (1 if board_ply[board_name] % 2 == 0 else 0)
-            #     # if board_ply[board_name] >= 2:
-            #     if board_ply[board_name] % 2 == 0:
-            #         step["clocks"] = {
-            #             "white": clocktimes_w[move_number - 1],
-            #             "black": clocktimes_b[move_number - 2],
-            #         }
-            #     else:
-            #         step["clocks"] = {
-            #             "white": clocktimes_w[move_number - 1],
-            #             "black": clocktimes_b[move_number - 1],
-            #         }
-            # if "cwB" in doc and board_name == 'b':
-            #     move_number = 1 + ((board_ply[board_name] + 1) // 2) + (1 if board_ply[board_name] % 2 == 0 else 0)
-            #     # if board_ply[board_name] >= 2:
-            #     if board_ply[board_name] % 2 == 0:
-            #         step["clocks"] = {
-            #             "white": clocktimes_wB[move_number - 1],
-            #             "black": clocktimes_bB[move_number - 2],
-            #         }
-            #     else:
-            #         step["clocks"] = {
-            #             "white": clocktimes_wB[move_number - 1],
-            #             "black": clocktimes_bB[move_number - 1],
-            #         }
 
             board_ply[board_name] += 1
 
@@ -264,11 +243,11 @@ async def load_game_bug(app_state: PychessGlobalAppState, game_id):
         game.imported_by = doc.get("by")
 
     if doc.get("c") is not None:
-        game.chat = doc.get("c") # todo:niki: probably get rid of this dict in game and only store in steps or some other idea with less duplication
-        for key in game.chat:
+        chat = doc.get("c")
+        for key in chat:
             idx = int(key)
             game.steps[idx]["chat"] = []
-            for c in game.chat[key]:
+            for c in chat[key]:
                 game.steps[idx]["chat"].append({
                     "message": c["m"],
                     "username": c["u"],
@@ -276,25 +255,26 @@ async def load_game_bug(app_state: PychessGlobalAppState, game_id):
                 })
     return game
 
+
 async def new_game_bughouse(app_state: PychessGlobalAppState, seek_id, game_id=None):
     seek = app_state.seeks[seek_id]
 
     if seek.fen:
         from utils import sanitize_fen
         fens = seek.fen.split(" | ")
-        fenA = fens[0]
-        fenB = fens[1]
-        fen_validA, sanitized_fenA = sanitize_fen(seek.variant, fenA, seek.chess960)
-        fen_validB, sanitized_fenB = sanitize_fen(seek.variant, fenB, seek.chess960)
-        if not fen_validA or not fen_validB:
+        fen_a = fens[0]
+        fen_b = fens[1]
+        fen_valid_a, sanitized_fen_a = sanitize_fen(seek.variant, fen_a, seek.chess960)
+        fen_valid_b, sanitized_fen_b = sanitize_fen(seek.variant, fen_b, seek.chess960)
+        if not fen_valid_a or not fen_valid_b:
             message = "Failed to create game. Invalid FEN %s" % seek.fen
             log.debug(message)
             from utils import remove_seek
             remove_seek(app_state.seeks, seek)
             return {"type": "error", "message": message}
-        sanitized_fen = sanitized_fenA + " | " + sanitized_fenB
+        sanitized_fen = sanitized_fen_a + " | " + sanitized_fen_b
     else:
-        sanitized_fen = ""  # "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[] w KQkq - 0 1 | rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[] w KQkq - 0 1"
+        sanitized_fen = ""
 
     color = random.choice(("w", "b")) if seek.color == "r" else seek.color
     wplayer, bug_bplayer = (seek.player1, seek.bugPlayer1) if color == "w" else (seek.player2, seek.bugPlayer2)
@@ -355,6 +335,7 @@ async def new_game_bughouse(app_state: PychessGlobalAppState, seek_id, game_id=N
         "bug_bplayer": bug_bplayer.username,
     }
 
+
 async def insert_game_to_db_bughouse(game: GameBug, app_state: PychessGlobalAppState):
     # unit test app may have no db
     if app_state.db is None:
@@ -404,6 +385,7 @@ async def insert_game_to_db_bughouse(game: GameBug, app_state: PychessGlobalAppS
     game.wplayerB.tv = game.id
     game.bplayerB.tv = game.id
 
+
 async def join_seek_bughouse(app_state: PychessGlobalAppState, user, seek_id, game_id=None, join_as="any"):
 
     seek = app_state.seeks[seek_id]
@@ -442,8 +424,9 @@ async def join_seek_bughouse(app_state: PychessGlobalAppState, user, seek_id, ga
     else:
         return {"type": "seek_joined", "seekID": seek_id}
 
-async def play_move(app_state: PychessGlobalAppState, user, game, move, clocks=None, clocksB=None, board=None, lastMoveCapturedRole=None):
-    log.debug("play_move %r %r %r %r %r %r %r", user, game, move, clocks, clocksB, board, lastMoveCapturedRole)
+
+async def play_move(app_state: PychessGlobalAppState, user, game, move, clocks=None, clocks_b=None, board=None, last_move_captured_role=None):
+    log.debug("play_move %r %r %r %r %r %r %r", user, game, move, clocks, clocks_b, board, last_move_captured_role)
     gameId = game.id
     invalid_move = False
     # log.info("%s move %s %s %s - %s" % (user.username, move, gameId, game.wplayer.username, game.bplayer.username))
@@ -451,11 +434,18 @@ async def play_move(app_state: PychessGlobalAppState, user, game, move, clocks=N
     if game.status <= STARTED:
         try:
             if not game.lastmovePerBoardAndUser[board].get(user.username) == move: # in case of resending after reconnect we can have same move sent multiple times from client
-                await game.play_move(move, clocks, clocksB, board, lastMoveCapturedRole)
+                await game.play_move(move, clocks, clocks_b, board, last_move_captured_role)
             else:
                 log.debug("move already played - probably resent twice after multiple reconnects")
-                return # this move has already been processed. todo:niki:i wonder if this is enough check. is it possible to resend some old move, but before that do a new one and send it before the resend of the old one or something like this?
-        except SystemError: #todo:niki:why do we abort? one option is to just ignore invalid which would make the reconnect/retry lgoic simpler, although still small chance for bugs remains. on the other hand aborting makes bug more visible
+                return
+                # this move has already been processed.
+                # todo:niki:i wonder if this is enough check.
+                #      is it possible to resend some old move, but before that do a new one and send it before the
+                #      resend of the old one or something like this?
+                #      - If we disconnect, make a move, refresh/close browser/whatever/open game
+                #        again and make a different move. If first one came through somehow but we refreshed before
+                #        it was processed so got old position and made another move - that doesnt seem possible
+        except SystemError:
             invalid_move = True
             log.exception(
                 "Game %s aborted because invalid move %s by %s !!!",
@@ -470,7 +460,7 @@ async def play_move(app_state: PychessGlobalAppState, user, game, move, clocks=N
         return
 
     if not invalid_move:
-        board_response = game.get_board()  # (full=game.ply == 1) todo:niki:i dont understand why this was so. why full when 1st ply?
+        board_response = game.get_board()
         await round_broadcast(game, board_response, channels=app_state.game_channels)
 
         for u in set(game.all_players):

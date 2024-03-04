@@ -91,8 +91,6 @@ class GameBug:
             self.bplayerA.username,
         )
 
-        self.chat = {}
-
         # rating info
         self.white_rating_a = wplayerA.get_rating(variant, chess960)
         self.white_rating_b = wplayerB.get_rating(variant, chess960)
@@ -107,20 +105,7 @@ class GameBug:
 
         # crosstable info
         self.need_crosstable_save = False
-        self.bot_game = self.bplayerA.bot or self.bplayerB.bot or self.wplayerA.bot or self.wplayerB.bot  # todo: whats the purpose of bot_game property?
-        # if self.bot_game or self.wplayer.anon or self.bplayer.anon: todo:cross table support not sure how to design it even
-        #     self.crosstable = ""
-        # else:
-        #     if self.wplayer.username < self.bplayer.username:
-        #         self.s1player = self.wplayer.username
-        #         self.s2player = self.bplayer.username
-        #     else:
-        #         self.s1player = self.bplayer.username
-        #         self.s2player = self.wplayer.username
-        #     self.ct_id = self.s1player + "/" + self.s2player
-        #     self.crosstable = self.db_crosstable.get(
-        #         self.ct_id, {"_id": self.ct_id, "s1": 0, "s2": 0, "r": []}
-        #     )
+        self.bot_game = False
 
         self.spectators = set()
         self.draw_offers = set()
@@ -155,8 +140,6 @@ class GameBug:
         self.promotions_b = []
         self.lastmove = None
         self.lastmovePerBoardAndUser = {"a": {}, "b": {}}
-        self.checkA = False
-        self.checkB = False
         self.status = STARTED  # CREATED
         self.result = "*"
         self.last_server_clock = monotonic()  # the last time a move was made on board A - we reconstruct current time on client refresh/reconnect from this
@@ -164,10 +147,6 @@ class GameBug:
         self.id = gameId
 
         disabled_fen = ""
-        # if self.chess960 and self.initial_fen and self.create: todo: i dont even undrstand this code block so commenting it before deleting it just to read one last time before deleting - obv for now not needed before we at least support 960
-        #     if self.wplayer.fen960_as_white == self.initial_fen:
-        #         disabled_fen = self.initial_fen
-        #         self.initial_fen = ""
 
         if initial_fen:
             fenA = initial_fen.split("|")[0].strip()
@@ -187,10 +166,8 @@ class GameBug:
         self.initial_fen = self.boards["a"].initial_fen + " | " + self.boards["b"].initial_fen
 
         self.set_dests()
-        if self.boards["a"].move_stack: #todo:niki:how can it possibly have a move_stack on init - it is empty?
-            self.checkA = self.boards["a"].is_checked()
-        if self.boards["b"].move_stack:
-            self.checkB = self.boards["b"].is_checked()
+        self.checkA = self.boards["a"].is_checked()
+        self.checkB = self.boards["b"].is_checked()
 
         self.steps = [
             {
@@ -215,19 +192,10 @@ class GameBug:
         if not self.wplayerB.bot:
             self.wplayerB.game_in_progress = self.id
 
-        # self.wberserk = False todo: thinking about berserk for bughouse is not on the horizon
-        # self.bberserk = False
-
         self.move_lock = asyncio.Lock()
 
     def berserk(self, color):
         pass
-        # if color == "white" and not self.wberserk:
-        #     self.wberserk = True
-        #     self._ply_clocks[0]["white"] = self.berserk_time
-        # elif color == "black" and not self.bberserk:
-        #     self.bberserk = True
-        #     self._ply_clocks[0]["black"] = self.berserk_time
 
     def handle_chat_message(self, user, message):
         cur_ply = len(self.steps) - 1
@@ -241,17 +209,23 @@ class GameBug:
             "time": time
         })
 
-        # todo:niki:get rid of this structure:
-        self.chat.setdefault(str(cur_ply), []).append({"t": time, "u": user.username, "m": message})
-        # self.chat[cur_ply]
+    def construct_chat_list(self):
+        chat = {}
+        for ply, step in self.steps:
+            if step.chat:
+                chat[ply] = []
+                for msg in step.chat:
+                    chat[ply].append({"t": msg["time"], "u": msg["username"], "m": msg["message"]})
+        return chat
 
-    async def play_move(self, move, clocks=None, clocksB=None, board="a", lastMoveCapturedRole=None):
-        log.debug("play_move %r %r %r %r %r", move, clocks, clocksB, board, lastMoveCapturedRole)
+    async def play_move(self, move, clocks=None, clocks_b=None, board="a", last_move_captured_role=None):
+        log.debug("play_move %r %r %r %r %r", move, clocks, clocks_b, board, last_move_captured_role)
         self.stopwatches[board].stop()
 
-        if self.status > STARTED:#todo:niki:not needed we have check in callers code
+        if self.status > STARTED:
+            log.warning("play_move: game %s already ended", self.id)
             return
-        if self.ply == 0: #todo:niki:this means game will count to be "in play" after first move. we ont have abort mechanics for bug exactly defined yet though so not clear what " in play" should mean. will become more important when rated mode is introduced. still there was at least one more place where same comcept needed to be respected  not sure where - on timer running out maybe wheterh to mark abort or timeout not sure - gotta define and sync this everywhere to mean the same
+        if self.ply == 0:  # game is considered started right off the bat - notify lobbies
             self.app_state.g_cnt[0] += 1
             response = {"type": "g_cnt", "cnt": self.app_state.g_cnt[0]}
             await self.app_state.lobby.lobby_broadcast(response)
@@ -259,65 +233,58 @@ class GameBug:
         cur_player_a = self.bplayerA if self.boards["a"].color == BLACK else self.wplayerA
         cur_player_b = self.bplayerB if self.boards["b"].color == BLACK else self.wplayerB
         cur_player = cur_player_a if board == "a" else cur_player_b
-        cur_color = "black" if self.boards[board].color == BLACK else "white"
-
-        # opp_player_a = self.wplayerA if self.boards["a"].color == BLACK else self.bplayerA
-        # opp_player_b = self.wplayerB if self.boards["b"].color == BLACK else self.bplayerB
-
-        # Move cancels draw offer todo: cant decide how draw mechanics should work exactly in bug
-        # response = reject_draw(self, opp_player.username)
-        # if response is not None:
-        #     await round_broadcast(self, response, full=True)
+        cur_color = self.boards[board].color
 
         cur_time = monotonic()
 
         if board == "a":
             self.last_server_clock = cur_time
-            clocksCurrent = clocks
+            clocks_current = clocks
         else:
             self.last_server_clockB = cur_time
-            clocksCurrent = clocksB
+            clocks_current = clocks_b
 
-        self.last_move_clocks[board][cur_color] = clocksCurrent[cur_color]
+        self.last_move_clocks[board][cur_color] = clocks_current[cur_color]
 
         if self.status <= STARTED:
             try:
-                partnerBoard = "a" if board == "b" else "b"
-                log.debug("lastMoveCapturedRole: %s", lastMoveCapturedRole)
-                log.debug("self.boards[partnerBoard].fen: %s", self.boards[partnerBoard].fen)
+                partner_board = "a" if board == "b" else "b"
+                log.debug("lastMoveCapturedRole: %s", last_move_captured_role)
+                log.debug("self.boards[partner_board].fen: %s", self.boards[partner_board].fen)
 
-                # self.boards[partnerBoard].fen = partnerFen #
-                if lastMoveCapturedRole is not None:
-                    #todo:niki: consider this solution for determining captured piece serverside unless something cleaner cannot be figured out: https://github.com/nnickoloff1234/pychess-variants/blob/60b06cd475c195ec58199187c762b86424807285/server/fairy.py#L58-L65
-                    board_fen_split = split('[\[\]]', self.boards[partnerBoard].fen) # todo: this doesnt work after first move when starting a game from custom initial fen that doesnt have square brackets - either add them or dont consider it valid if missing pockets
-                    self.boards[partnerBoard].fen = board_fen_split[0] + '[' + board_fen_split[1] + lastMoveCapturedRole + ']' + board_fen_split[2]
+                # self.boards[partner_board].fen = partnerFen #
+                if last_move_captured_role is not None:
+                    #TODO:NIKI: consider this solution for determining captured piece serverside unless something cleaner cannot be figured out: https://github.com/nnickoloff1234/pychess-variants/blob/60b06cd475c195ec58199187c762b86424807285/server/fairy.py#L58-L65
+                    board_fen_split = split('[\[\]]', self.boards[partner_board].fen) # todo: this doesnt work after first move when starting a game from custom initial fen that doesnt have square brackets - either add them or dont consider it valid if missing pockets
+                    self.boards[partner_board].fen = board_fen_split[0] + '[' + board_fen_split[1] + last_move_captured_role + ']' + board_fen_split[2]
 
                 san = self.boards[board].get_san(move)
                 self.lastmove = move
                 self.lastmovePerBoardAndUser[board][cur_player.username] = move
                 self.boards[board].push(move)
                 self._ply_clocks["a"].append(clocks)
-                self._ply_clocks["b"].append(clocksB)
+                self._ply_clocks["b"].append(clocks_b)
 
                 self.set_dests()
                 self.update_status()
 
-                moveA = move if board == "a" else ""
-                moveB = move if board == "b" else ""
+                move_a = move if board == "a" else ""
+                move_b = move if board == "b" else ""
                 check = self.checkB if board == "b" else self.checkA
                 self.steps.append(
                     {
                         "fen": self.boards["a"].fen,
                         "fenB": self.boards["b"].fen,
-                        "move": moveA,
-                        "moveB": moveB,
+                        "move": move_a,
+                        "moveB": move_b,
                         "boardName": board,
                         "san": san,
-                        "turnColor": "black" if self.boards[board].color == BLACK else "white", # todo:niki:can be derived from the fen and that is what i am actually doing for the partner board because i need to set it so when check=true correct king is highlighteded
-                        "check": check, # todo: i am practically ignoring this and derive at the client the check status for each board from the fens
+                        "turnColor": "black" if self.boards[board].color == BLACK else "white",  # can be derived from
+                        # the fen and that is what i am actually doing - consider stop sending this value
+                        "check": check,  # ignored. deriving  at the client the check status for each board from fens
                         "clocks": clocks,
-                        "clocksB": clocksB,
-                        "ts": time_ns(), # redundancy, but i am curious and want to record how server time corresponds to sent
+                        "clocksB": clocks_b,
+                        "ts": time_ns(),  # redundancy, but i am want to record how server time corresponds to sent
                     }
                 )
 
@@ -412,7 +379,7 @@ class GameBug:
                     self.variant
                 ),
                 "o": [0 if x["boardName"] == 'a' else 1 for x in self.steps[1:]],
-                "c": self.chat,
+                "c": self.construct_chat_list(),
                 "ts": [x["ts"] for x in self.steps],
             }
 
@@ -506,79 +473,74 @@ class GameBug:
         if self.status > STARTED:
             return
 
-        def result_string_from_value(game_result_value, board_which_ended):
-            if board_which_ended == "a":
-                if game_result_value < 0:
-                    return "0-1" # black wins on first board => team 2 wins
-                if game_result_value > 0:
-                    return "1-0" # white wins on first board => team 1 wins
-                return "1/2-1/2"
-            if board_which_ended == "b":
-                if game_result_value < 0:
-                    return "1-0" # black wins on second board => team 1 wins
-                if game_result_value > 0:
-                    return "0-1" # white wins on second board => team 2 wins
-                return "1/2-1/2"
-
         if status is not None:
             self.status = status
             if result is not None:
                 self.result = result
-
-            # self.set_crosstable()
-
-            if not self.bplayerA.bot:
-                self.bplayerA.game_in_progress = None
-            if not self.wplayerA.bot:
-                self.wplayerA.game_in_progress = None
-            if not self.bplayerB.bot:
-                self.bplayerB.game_in_progress = None
-            if not self.wplayerB.bot:
-                self.wplayerB.game_in_progress = None
-
+            self.remove_players_game_in_progress()
             return
 
-        if self.boards["a"].move_stack:
-            self.checkA = self.boards["a"].is_checked()
-        if self.boards["b"].move_stack:
-            self.checkB = self.boards["b"].is_checked()
+        self.checkA = self.boards["a"].is_checked()
+        self.checkB = self.boards["b"].is_checked()
 
-        # todo:niki: it is possible both boards to have no dests - if first one gets checkmate that can potentially be blocked so game continues on the other board, but then checkmate is delivered there as well. If that happens, below logic might detect incorrectly again the first board and continue the game not realizing this time it is really over but on the other board
-        if not self.dests_a or not self.dests_b:
-            board_which_ended = "a" if not self.dests_a else "b"  # whichever board has no dests is the one that ended
-
-            # did it really end - chess rules for checkmate do not apply here if it is possible to block the check
-            # with a piece that partner could potentially give. Check same position, but with full pocket
-            # to confirm it is really checkmate even if we wait for partner
-            fen_before = self.boards[board_which_ended].fen
-            fen_fullpockets = sub('\[.*\]', '[qrbnpQRBNP]', fen_before)
-            self.boards[board_which_ended].fen = fen_fullpockets
-            count_valid_moves_with_full_pockets = len(self.boards[board_which_ended].legal_moves_no_history())
-            self.boards[board_which_ended].fen = fen_before
-
-            if count_valid_moves_with_full_pockets == 0:
-                game_result_value = self.boards[board_which_ended].game_result_no_history()
-                self.result = result_string_from_value(game_result_value, board_which_ended)
-                self.status = MATE
-        else:
-            # in normal chess this happens in 50moves rule, but makes no sense for bughouse
-            log.warning("unexpected end of game in bughouse with both dests_a and dests_b not empty")
+        self.check_checkmate_on_board_and_update_status("a")
+        self.check_checkmate_on_board_and_update_status("b")
 
         if self.boards["a"].ply + self.boards["b"].ply > MAX_PLY:
             self.status = DRAW
             self.result = "1/2-1/2"
 
         if self.status > STARTED:
-            # self.set_crosstable()
+            self.remove_players_game_in_progress()
 
-            if not self.bplayerA.bot:
-                self.bplayerA.game_in_progress = None
-            if not self.wplayerA.bot:
-                self.wplayerA.game_in_progress = None
-            if not self.bplayerB.bot:
-                self.bplayerB.game_in_progress = None
-            if not self.wplayerB.bot:
-                self.wplayerB.game_in_progress = None
+    def remove_players_game_in_progress(self):
+        if not self.bplayerA.bot:
+            self.bplayerA.game_in_progress = None
+        if not self.wplayerA.bot:
+            self.wplayerA.game_in_progress = None
+        if not self.bplayerB.bot:
+            self.bplayerB.game_in_progress = None
+        if not self.wplayerB.bot:
+            self.wplayerB.game_in_progress = None
+
+    @staticmethod
+    def result_string_from_value(game_result_value, board_which_ended):
+        if board_which_ended == "a":
+            if game_result_value < 0:
+                return "0-1"  # black wins on first board => team 2 wins
+            if game_result_value > 0:
+                return "1-0"  # white wins on first board => team 1 wins
+            return "1/2-1/2"
+        if board_which_ended == "b":
+            if game_result_value < 0:
+                return "1-0"  # black wins on second board => team 1 wins
+            if game_result_value > 0:
+                return "0-1"  # white wins on second board => team 2 wins
+            return "1/2-1/2"
+
+    def check_checkmate_on_board_and_update_status(self, board: str):
+
+        # it is not mate if there are possible move dests on the given board
+        if board == "a" and self.dests_a:
+            return False
+        elif board == "b" and self.dests_b:
+            return False
+
+        # did it really end - chess rules for checkmate do not apply here if it is possible to block the check
+        # with a piece that partner could potentially give. Check same position, but with full pocket
+        # to confirm it is really checkmate even if we wait for partner
+        fen_before = self.boards[board].fen
+        fen_fullpockets = sub('\[.*\]', '[qrbnpQRBNP]', fen_before)
+        self.boards[board].fen = fen_fullpockets
+        count_valid_moves_with_full_pockets = len(self.boards[board].legal_moves_no_history())
+        self.boards[board].fen = fen_before
+
+        if count_valid_moves_with_full_pockets == 0:
+            game_result_value = self.boards[board].game_result_no_history()
+            self.result = GameBug.result_string_from_value(game_result_value, board)
+            self.status = MATE
+            return True
+        return False
 
     def set_dests(self):
         dests_a = {}
@@ -620,52 +582,12 @@ class GameBug:
 
     @property
     def board(self):
-        return self.boards["a"] # todo:niki: fix code that depends on this to work with 2 boards as wwell - had exception in game_api.py
+        return self.boards["a"] # TODO:NIKI: fix code that depends on this to work with 2 boards as wwell - had exception in game_api.py
 
     @property
     def pgn(self):
-        return "bpgn export not implemented"  # todo niki - first need to store global move list somewhere
-        # try:
-        #     mlist = sf.get_san_moves(
-        #         self.variant,
-        #         self.initial_fen,
-        #         self.board.move_stack,
-        #         self.chess960,
-        #         sf.NOTATION_SAN,
-        #     )
-        # except Exception:
-        #     log.exception("ERROR: Exception in game %s pgn()", self.id)
-        #     mlist = self.board.move_stack
-        # moves = " ".join(
-        #     (
-        #         move if ind % 2 == 1 else "%s. %s" % (((ind + 1) // 2) + 1, move)
-        #         for ind, move in enumerate(mlist)
-        #     )
-        # )
-        # no_setup = self.initial_fen == self.board.start_fen("bughouse") and not self.chess960
-        # # Use lichess format for crazyhouse games to support easy import
-        # setup_fen = (
-        #     self.initial_fen if self.variant != "crazyhouse" else self.initial_fen.replace("[]", "")
-        # )
-        # tc = "-" if self.base + self.inc == 0 else "%s+%s" % (int(self.base * 60), self.inc)
-        # return '[Event "{}"]\n[Site "{}"]\n[Date "{}"]\n[Round "-"]\n[White "{}"]\n[Black "{}"]\n[Result "{}"]\n[TimeControl "{}"]\n[WhiteElo "{}"]\n[BlackElo "{}"]\n[Variant "{}"]\n{fen}{setup}\n{} {}\n'.format(
-        #     "PyChess "
-        #     + ("rated" if self.rated == RATED else "casual" if self.rated == CASUAL else "imported")
-        #     + " game",
-        #     URI + "/" + self.id,
-        #     self.date.strftime("%Y.%m.%d"),
-        #     self.wplayer.username,
-        #     self.bplayer.username,
-        #     self.result,
-        #     tc,
-        #     self.wrating,
-        #     self.brating,
-        #     self.variant.capitalize() if not self.chess960 else VARIANT_960_TO_PGN[self.variant],
-        #     moves,
-        #     self.result,
-        #     fen="" if no_setup else '[FEN "%s"]\n' % setup_fen,
-        #     setup="" if no_setup else '[SetUp "1"]\n',
-        # )
+        return "serverside bpgn export not implemented"  # as far as I can tell this is never used - its only sent on
+        # gameEnd message, but never read on client
 
     @property
     def uci_usi(self):
@@ -741,8 +663,8 @@ class GameBug:
         if full:
             steps = self.steps
             # To not touch self._ply_clocks we are creating deep copy from clocks
-            clocksA = {"black": self.last_move_clocks["a"]["black"], "white": self.last_move_clocks["a"]["white"]}
-            clocksB = {"black": self.last_move_clocks["b"]["black"], "white": self.last_move_clocks["b"]["white"]}
+            clocks_a = {"black": self.last_move_clocks["a"]["black"], "white": self.last_move_clocks["a"]["white"]}
+            clocks_b = {"black": self.last_move_clocks["b"]["black"], "white": self.last_move_clocks["b"]["white"]}
 
             if self.status >= STARTED:
                 # We have to adjust current player latest saved clock time
@@ -750,16 +672,16 @@ class GameBug:
                 # (also needed for spectators entering to see correct clock times)
 
                 cur_time = monotonic()
-                elapsedA = int(round((cur_time - self.last_server_clock) * 1000))
-                elapsedB = int(round((cur_time - self.last_server_clockB) * 1000))
+                elapsed_a = int(round((cur_time - self.last_server_clock) * 1000))
+                elapsed_b = int(round((cur_time - self.last_server_clockB) * 1000))
 
-                cur_colorA = "black" if self.boards["a"].color == BLACK else "white"
-                cur_colorB = "black" if self.boards["b"].color == BLACK else "white"
-                clocksA[cur_colorA] = max(0, clocksA[cur_colorA] - elapsedA)
-                clocksB[cur_colorB] = max(0, clocksB[cur_colorB] - elapsedB)
+                cur_color_a = "black" if self.boards["a"].color == BLACK else "white"
+                cur_color_b = "black" if self.boards["b"].color == BLACK else "white"
+                clocks_a[cur_color_a] = max(0, clocks_a[cur_color_a] - elapsed_a)
+                clocks_b[cur_color_b] = max(0, clocks_b[cur_color_b] - elapsed_b)
         else:
-            clocksA = {"black": self.last_move_clocks["a"]["black"], "white": self.last_move_clocks["a"]["white"]}
-            clocksB = {"black": self.last_move_clocks["b"]["black"], "white": self.last_move_clocks["b"]["white"]}
+            clocks_a = {"black": self.last_move_clocks["a"]["black"], "white": self.last_move_clocks["a"]["white"]}
+            clocks_b = {"black": self.last_move_clocks["b"]["black"], "white": self.last_move_clocks["b"]["white"]}
             steps = (self.steps[-1],)
 
         return {
@@ -777,9 +699,8 @@ class GameBug:
             "check": self.checkA,
             "checkB": self.checkB,
             "ply": self.ply,
-            "clocks": {"black": clocksA["black"], "white": clocksA["white"]},
-            "clocksB": {"black": clocksB["black"], "white": clocksB["white"]},
-            # "byo": byoyomi_periods,
+            "clocks": {"black": clocks_a["black"], "white": clocks_a["white"]},
+            "clocksB": {"black": clocks_b["black"], "white": clocks_b["white"]},
             "pgn": self.pgn if self.status > STARTED else "",
             "rdiffs": {"brdiff": self.brdiff, "wrdiff": self.wrdiff}
             if self.status > STARTED and self.rated == RATED
@@ -787,8 +708,7 @@ class GameBug:
             "uci_usi": self.uci_usi if self.status > STARTED else "",
             "rmA": "",
             "rmB": "",
-            # "ct": crosstable,
-            "berserk": {"w": False, "b": False}, # {"w": self.wberserk, "b": self.bberserk},
+            "berserk": {"w": False, "b": False},
             "by": self.imported_by,
         }
 

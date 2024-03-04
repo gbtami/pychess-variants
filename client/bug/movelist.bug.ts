@@ -99,12 +99,11 @@ export function updateMovelist (ctrl: AnalysisControllerBughouse | RoundControll
     const moves: VNode[] = [];
     const prevPly = ctrl.steps[plyFrom-1];
     let lastColIdx = plyFrom ===1? 0: prevPly.boardName === 'a'? prevPly.turnColor === 'white'/*black made the move*/? 2: 1: prevPly.turnColor === 'white'/*black made the move*/? 4: 3;
-    let plyA: number = 0;//maybe make it part of Steps - maybe have some function to calculate these - i feel i will need this logic again somewhere
+    let plyA: number = 0;
     let plyB: number = 0;
     let didWeRenderVariSectionAfterLastMove = false;
 
     // in round mode we only call this for last move, so we need to reconstruct actual per-board ply from history
-    // todo:niki:this is stupid but will live with it for now, otherwise have to think where to stored this state
     for (let ply = 1; ply < plyFrom; ply++) {
         ctrl.steps[ply].boardName === 'a'? plyA++ : plyB++;
     }

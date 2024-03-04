@@ -1,5 +1,6 @@
 import logging
 
+from bug.utils_bug import init_players
 from pychess_global_app_state_utils import get_app_state
 from user import User
 from const import (
@@ -43,6 +44,7 @@ def get_main_variation(game: Game) -> [list,list]:
         variations = variations[0].variations
     return [moves, move_times, boards]
 
+
 async def import_game_bpgn(request):
     data = await request.post()
     app_state = get_app_state(request.app)
@@ -58,32 +60,12 @@ async def import_game_bpgn(request):
 
     first_game = read_game(pgn)
 
-    wpA = first_game.headers.get("WhiteA")
-    bpA = first_game.headers.get("BlackA")
-    wpB = first_game.headers.get("WhiteB")
-    bpB = first_game.headers.get("BlackB")
+    wp_a = first_game.headers.get("WhiteA")
+    bp_a = first_game.headers.get("BlackA")
+    wp_b = first_game.headers.get("WhiteB")
+    bp_b = first_game.headers.get("BlackB")
+    wplayer_a, bplayer_a, wplayer_b, bplayer_b = init_players(app_state, wp_a, bp_a, wp_b, bp_b)
 
-    if wpA in app_state.users:
-        wplayerA = app_state.users[wpA]
-    else:
-        wplayerA = User(app_state, username=wpA, anon=True)
-        app_state.users[wpA] = wplayerA
-    if wpB in app_state.users:
-        wplayerB = app_state.users[wpB]
-    else:
-        wplayerB = User(app_state, username=wpB, anon=True)
-        app_state.users[wpB] = wplayerB
-
-    if bpA in app_state.users:
-        bplayerA = app_state.users[bpA]
-    else:
-        bplayerA = User(app_state, username=bpA, anon=True)
-        app_state.users[bpA] = bplayerA
-    if bpB in app_state.users:
-        bplayerB = app_state.users[bpB]
-    else:
-        bplayerB = User(app_state, username=bpB, anon=True)
-        app_state.users[bpB] = bplayerB
 
     variant = "bughouse"
     chess960 = False  # variant.endswith("960")
@@ -130,7 +112,7 @@ async def import_game_bpgn(request):
         return web.json_response({"error": message})
 
     try:
-        print(game_id, variant, initial_fen, wplayerA, bplayerA, wplayerB, bplayerB)
+        print(game_id, variant, initial_fen, wplayer_a, bplayer_a, wplayer_b, bplayer_b)
         # new_game = Game( todo: not sure why needed to create object at all at this point
         #     app,
         #     game_id,
@@ -149,7 +131,7 @@ async def import_game_bpgn(request):
 
     document = {
         "_id": game_id,
-        "us": [wplayerA.username, bplayerA.username, wplayerB.username, bplayerB.username],
+        "us": [wplayer_a.username, bplayer_a.username, wplayer_b.username, bplayer_b.username],
         "v": V2C[variant],
         "b": base,
         "i": inc,

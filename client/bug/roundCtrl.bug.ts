@@ -4,8 +4,8 @@ import * as cg from 'chessgroundx/types';
 import { _ } from '../i18n';
 import { patch } from '../document';
 import { Clock } from '../clock';
-import {ChatController, chatMessage, chatView} from '../chat';
-import {createMovelistButtons, updateMovelist} from './movelist.bug';
+import { ChatController, chatMessage, chatView } from '../chat';
+import { createMovelistButtons, updateMovelist } from './movelist.bug';
 import {
     Clocks,
     MsgBoard,
@@ -29,18 +29,18 @@ import {
     MsgUpdateTV,
     MsgGameStart, MsgViewRematch
 } from '../roundType';
-import {JSONObject, PyChessModel} from "../types";
-import {GameControllerBughouse} from "./gameCtrl.bug";
-import {cg2uci, getTurnColor, uci2LastMove} from "../chess";
-import {sound} from "../sound";
-import {renderRdiff} from "../result";
-import {player} from "../player";
+import {JSONObject, PyChessModel } from "../types";
+import {GameControllerBughouse } from "./gameCtrl.bug";
+import {BLACK, getTurnColor, uci2LastMove, WHITE} from "../chess";
+import { sound } from "../sound";
+import { renderRdiff } from "../result";
+import { player } from "../player";
 import { WebsocketHeartbeatJs } from '../socket/socket';
-import {notify} from "../notification";
-import {VARIANTS} from "../variants";
-import {createWebsocket} from "@/webSocketUtils";
+import { notify } from "../notification";
+import { VARIANTS } from "../variants";
+import { createWebsocket } from "@/webSocketUtils";
 
-export class RoundControllerBughouse implements ChatController/*extends GameController todo:does it make sense for these guys - also AnalysisControl which is older before this refactring that introduced this stuff*/ {
+export class RoundControllerBughouse implements ChatController {
     sock: WebsocketHeartbeatJs;
 
     b1: GameControllerBughouse;
@@ -145,8 +145,6 @@ export class RoundControllerBughouse implements ChatController/*extends GameCont
         this.username = model["username"];
         this.anon = model.anon === 'True';
 
-
-        // super(el, model, document.getElementById('pocket0') as HTMLElement, document.getElementById('pocket1') as HTMLElement);//todo:niki:those elements best be passed as args
         this.focus = !document.hidden;
         document.addEventListener("visibilitychange", () => {this.focus = !document.hidden});
         window.addEventListener('blur', () => {this.focus = false});
@@ -268,8 +266,8 @@ export class RoundControllerBughouse implements ChatController/*extends GameCont
         this.vplayerB0 = patch(player0b, player('round-player0.bug', 'player0b', titles.get(this.playersB[0])!, this.playersB[0], ratings.get(this.playersB[0])!, this.level));
         this.vplayerB1 = patch(player1b, player('round-player1.bug', 'player1b', titles.get(this.playersB[1])!, this.playersB[1], ratings.get(this.playersB[1])!, this.level));
 
-        this.clocktimes = {'white': this.base * 1000 * 60, 'black': this.base * 1000 * 60}
-        this.clocktimesB = {'white': this.base * 1000 * 60, 'black': this.base * 1000 * 60}
+        this.clocktimes = [ this.base * 1000 * 60, this.base * 1000 * 60 ]
+        this.clocktimesB = [ this.base * 1000 * 60, this.base * 1000 * 60 ]
 
         // initialize clocks
         // this.clocktimes = {};
@@ -327,7 +325,7 @@ export class RoundControllerBughouse implements ChatController/*extends GameCont
 
         //////////////
 
-        this.b1 = new GameControllerBughouse(el1, el1Pocket1, el1Pocket2, 'a', model); //todo:niki:fen maybe should be parsed from bfen. what situation do we start from custom fen?
+        this.b1 = new GameControllerBughouse(el1, el1Pocket1, el1Pocket2, 'a', model);
         this.b2 = new GameControllerBughouse(el2, el2Pocket1, el2Pocket2, 'b', model);
         this.b1.partnerCC = this.b2;
         this.b2.partnerCC = this.b1;
@@ -343,7 +341,7 @@ export class RoundControllerBughouse implements ChatController/*extends GameCont
                 free: false,
                 color: this.myColor.get('a') === 'white'? 'white': this.myColor.get('a') === 'black'? 'black': undefined
             },
-            autoCastle: true, // TODO:niki:what is this?
+            autoCastle: true,
         });
         this.b2.chessground.set({
             orientation: this.myColor.get('b') === 'white' || this.partnerColor.get('b') === 'white'? 'white': 'black',
@@ -352,7 +350,7 @@ export class RoundControllerBughouse implements ChatController/*extends GameCont
                 free: false,
                 color: this.myColor.get('b') === 'white'? 'white': this.myColor.get('b') === 'black'? 'black': undefined
             },
-            autoCastle: true, // TODO:niki:what is this?
+            autoCastle: true,
         });
 
         ////////////
@@ -386,18 +384,15 @@ export class RoundControllerBughouse implements ChatController/*extends GameCont
 
 
     flipBoards = (): void => {
-
-        // boardSettings.updateDropSuggestion(); todo:niki:dont understand this at the moment
-
         let infoWrap0 = document.getElementsByClassName('info-wrap0')[0] as HTMLElement;
         let infoWrap0bug = document.getElementsByClassName('info-wrap0 bug')[0] as HTMLElement;
         let infoWrap1 = document.getElementsByClassName('info-wrap1')[0] as HTMLElement;
         let infoWrap1bug = document.getElementsByClassName('info-wrap1 bug')[0] as HTMLElement;
 
-        let a = infoWrap0!.style.gridArea || "clock-top"; //todo;niki:dont remember why we need this || but i see i needed it for boards switch. Maybe not initialized in the beninning somehow i dont know. Check and document maybe if at all this approach for swapping remains like this
+        let a = infoWrap0!.style.gridArea || "clock-top";
         infoWrap0!.style.gridArea = infoWrap1!.style.gridArea || "clock-bot";
         infoWrap1!.style.gridArea = a;
-        a = infoWrap0bug!.style.gridArea || "clockB-top"; //todo;niki:dont remember why we need this || but i see i needed it for boards switch. Maybe not initialized in the beninning somehow i dont know. Check and document maybe if at all this approach for swapping remains like this
+        a = infoWrap0bug!.style.gridArea || "clockB-top";
         infoWrap0bug!.style.gridArea = infoWrap1bug!.style.gridArea || "clockB-bot";
         infoWrap1bug!.style.gridArea = a;
 
@@ -406,7 +401,7 @@ export class RoundControllerBughouse implements ChatController/*extends GameCont
     }
 
     switchBoards = (): void => {
-        //todo:niki:not sure if best implementation possible below
+        //TODO:NIKI:compare with implementation of same method in analysisCtrl.bug.ts - why are they different apart from the info stuff - DRY-it?
         let mainboardVNode = document.getElementById('mainboard');
         let mainboardPocket0 = document.getElementById('pocket00');
         let mainboardPocket1 = document.getElementById('pocket01');
@@ -424,17 +419,15 @@ export class RoundControllerBughouse implements ChatController/*extends GameCont
         mainboardVNode!.style.gridArea = bugboardVNode!.style.gridArea || "boardPartner";
         bugboardVNode!.style.gridArea = a;
 
-        a = infoWrap0!.style.gridArea || "clock-top"; //todo;niki:dont remember why we need this || but i see i needed it for boards switch. Maybe not initialized in the beninning somehow i dont know. Check and document maybe if at all this approach for swapping remains like this
+        a = infoWrap0!.style.gridArea || "clock-top";
         infoWrap0!.style.gridArea = infoWrap0bug!.style.gridArea || "clockB-top";
         infoWrap0bug!.style.gridArea = a;
-        a = infoWrap1!.style.gridArea || "clock-bot"; //todo;niki:dont remember why we need this || but i see i needed it for boards switch. Maybe not initialized in the beninning somehow i dont know. Check and document maybe if at all this approach for swapping remains like this
+        a = infoWrap1!.style.gridArea || "clock-bot";
         infoWrap1!.style.gridArea = infoWrap1bug!.style.gridArea || "clockB-bot";
         infoWrap1bug!.style.gridArea = a;
 
         swap(mainboardPocket0!, bugboardPocket0!);
         swap(mainboardPocket1!, bugboardPocket1!);
-
-
 
         this.b1.chessground.redrawAll();
         this.b2.chessground.redrawAll();
@@ -449,8 +442,8 @@ export class RoundControllerBughouse implements ChatController/*extends GameCont
         return clocks[color === "black"? bclock: wclock];
     }
 
-    sendMove = (b: GameControllerBughouse, orig: cg.Orig, dest: cg.Key, promo: string) => {
-        console.log(b,orig,dest,promo);
+    sendMove = (b: GameControllerBughouse, move: string) => {
+        console.log(b, move);
         this.clearDialog();
 
         //moveColor is "my color" on that board
@@ -462,23 +455,25 @@ export class RoundControllerBughouse implements ChatController/*extends GameCont
         const clocksInQuestion = (b.boardName === 'a'? this.clocks: this.clocksB);
         const clocktimesInQuestion = (b.boardName === 'a'? this.clocktimes: this.clocktimesB);
 
-        const movetime = (clocksInQuestion[myclock].running) ? Date.now() - clocksInQuestion[myclock].startTime : 0;
+        // const movetime = (clocksInQuestion[myclock].running) ? Date.now() - clocksInQuestion[myclock].startTime : 0;
         // pause() will ALWAYS add increment, even on first move, because (for now) we dont have aborting timeout
         clocksInQuestion[myclock].pause(true);
         // console.log("sendMove(orig, dest, prom)", orig, dest, promo);
 
-        const move = cg2uci(orig + dest + promo);
         // console.log("sendMove(move)", move);
 
 
         const increment = (this.inc > 0 /*&& this.ply >= 2*/) ? this.inc * 1000 : 0;
-        const bclocktime = (moveColor === "black" && b.preaction) ? this.clocktimes.black + increment: this.getClock("a", "black").duration;
-        const wclocktime = (moveColor === "white" && b.preaction) ? this.clocktimes.white + increment: this.getClock("a", "white").duration;
-        const bclocktimeB = (moveColor === "black" && b.preaction) ? this.clocktimesB.black + increment: this.getClock("b", "black").duration;
-        const wclocktimeB = (moveColor === "white" && b.preaction) ? this.clocktimesB.white + increment: this.getClock("b", "white").duration;
+        const bclocktime = (moveColor === "black" && b.preaction) ? this.clocktimes[BLACK] + increment: this.getClock("a", "black").duration;
+        const wclocktime = (moveColor === "white" && b.preaction) ? this.clocktimes[WHITE] + increment: this.getClock("a", "white").duration;
+        const bclocktimeB = (moveColor === "black" && b.preaction) ? this.clocktimesB[BLACK] + increment: this.getClock("b", "black").duration;
+        const wclocktimeB = (moveColor === "white" && b.preaction) ? this.clocktimesB[WHITE] + increment: this.getClock("b", "white").duration;
 
-        const msgClocks = {movetime: b.boardName === "a"? (b.preaction) ? 0 : movetime: -1, black: bclocktime, white: wclocktime};
-        const msgClocksB = {movetime: b.boardName === "b"? (b.preaction) ? 0 : movetime: -1, black: bclocktimeB, white: wclocktimeB};
+        // const movetime = b.boardName === "a"? (b.preaction) ? 0 : movetime: -1;
+        // const movetimeB = b.boardName === "b"? (b.preaction) ? 0 : movetime: -1;
+
+        const msgClocks = [ wclocktime, bclocktime ];
+        const msgClocksB = [ wclocktimeB, bclocktimeB  ];
 
         const moveMsg = { type: "move",
                           gameId: this.gameId,
@@ -495,7 +490,7 @@ export class RoundControllerBughouse implements ChatController/*extends GameCont
         this.doSend(moveMsg as JSONObject);
 
         if (b.preaction) {
-            clocksInQuestion[myclock].setTime(clocktimesInQuestion[moveColor] + increment);
+            clocksInQuestion[myclock].setTime(clocktimesInQuestion[moveColor === 'white'? WHITE: BLACK] + increment);
         }
         if (this.clockOn) clocksInQuestion[oppclock].start();
     }
@@ -782,8 +777,8 @@ export class RoundControllerBughouse implements ChatController/*extends GameCont
 
         clocks1[stopClockAtIdx].pause(false);
 
-        clocks1[whiteClockAtIdx].setTime(clocktimes['white']);
-        clocks1[blackClockAtIdx].setTime(clocktimes['black']);
+        clocks1[whiteClockAtIdx].setTime(clocktimes[WHITE]);
+        clocks1[blackClockAtIdx].setTime(clocktimes[BLACK]);
 
         if (this.clockOn && status < 0) { // todo:niki:not sure why this if is needed
             clocks1[startClockAtIdx].start();
@@ -847,16 +842,16 @@ export class RoundControllerBughouse implements ChatController/*extends GameCont
         const whiteBClockAtIdx = this.colorsB[0] === 'white'? 0: 1;
         const blackBClockAtIdx = 1 -whiteBClockAtIdx;
 
-        this.clocks[whiteAClockAtIdx].setTime(this.clocktimes['white']);
-        this.clocks[blackAClockAtIdx].setTime(this.clocktimes['black']);
-        this.clocksB[whiteBClockAtIdx].setTime(this.clocktimesB['white']);
-        this.clocksB[blackBClockAtIdx].setTime(this.clocktimesB['black']);
+        this.clocks[whiteAClockAtIdx].setTime(this.clocktimes[WHITE]);
+        this.clocks[blackAClockAtIdx].setTime(this.clocktimes[BLACK]);
+        this.clocksB[whiteBClockAtIdx].setTime(this.clocktimesB[WHITE]);
+        this.clocksB[blackBClockAtIdx].setTime(this.clocktimesB[BLACK]);
 
         if (this.status < 0) {
             const clockOnTurnAidx = this.colors[0] === this.b1.turnColor ? 0 : 1;
             const clockOnTurnBidx = this.colorsB[0] === this.b2.turnColor ? 0 : 1;
-            this.clocks[clockOnTurnAidx].start(this.clocktimes[this.b1.turnColor]); //todo:niki:not perfect. this is server time and initial message means no moves were made so client clock doesnt really need update. will leave it for now though, like this. but probably doesnt matter much because its first move
-            this.clocksB[clockOnTurnBidx].start(this.clocktimesB[this.b2.turnColor]);
+            this.clocks[clockOnTurnAidx].start(this.clocktimes[this.b1.turnColor === 'white'? WHITE: BLACK]); //todo:niki:not perfect. this is server time and initial message means no moves were made so client clock doesnt really need update. will leave it for now though, like this. but probably doesnt matter much because its first move
+            this.clocksB[clockOnTurnBidx].start(this.clocktimesB[this.b2.turnColor === 'white'? WHITE: BLACK]);
         }
 
     }
@@ -915,24 +910,24 @@ export class RoundControllerBughouse implements ChatController/*extends GameCont
 
 
         if (this.status < 0) {
-            this.clocks[whiteAClockAtIdx].setTime(this.clocktimes['white']);
-            this.clocks[blackAClockAtIdx].setTime(this.clocktimes['black']);
-            this.clocksB[whiteBClockAtIdx].setTime(this.clocktimesB['white']);
-            this.clocksB[blackBClockAtIdx].setTime(this.clocktimesB['black']);
+            this.clocks[whiteAClockAtIdx].setTime(this.clocktimes[WHITE]);
+            this.clocks[blackAClockAtIdx].setTime(this.clocktimes[BLACK]);
+            this.clocksB[whiteBClockAtIdx].setTime(this.clocktimesB[WHITE]);
+            this.clocksB[blackBClockAtIdx].setTime(this.clocktimesB[BLACK]);
 
             const clockOnTurnAidx = this.colors[0] === this.b1.turnColor ? 0 : 1;
             const clockOnTurnBidx = this.colorsB[0] === this.b2.turnColor ? 0 : 1;
-            this.clocks[clockOnTurnAidx].start(this.clocktimes[this.b1.turnColor]);
-            this.clocksB[clockOnTurnBidx].start(this.clocktimesB[this.b2.turnColor]);
+            this.clocks[clockOnTurnAidx].start(this.clocktimes[this.b1.turnColor === 'white'? WHITE: BLACK]);
+            this.clocksB[clockOnTurnBidx].start(this.clocktimesB[this.b2.turnColor === 'white'? WHITE: BLACK]);
         } else {
             //todo:niki:not great if there were no moves on one of the boards because then it will show initial clock times but anyway
             if (lastStepA) {
-                this.clocks[whiteAClockAtIdx].setTime(lastStepA.clocks!['white']);
-                this.clocks[blackAClockAtIdx].setTime(lastStepA.clocks!['black']);
+                this.clocks[whiteAClockAtIdx].setTime(lastStepA.clocks![WHITE]);
+                this.clocks[blackAClockAtIdx].setTime(lastStepA.clocks![BLACK]);
             }
             if (lastStepB) {
-                this.clocksB[whiteBClockAtIdx].setTime(lastStepB.clocksB!['white']);
-                this.clocksB[blackBClockAtIdx].setTime(lastStepB.clocksB!['black']);
+                this.clocksB[whiteBClockAtIdx].setTime(lastStepB.clocksB![WHITE]);
+                this.clocksB[blackBClockAtIdx].setTime(lastStepB.clocksB![BLACK]);
             }
         }
 
@@ -955,12 +950,7 @@ export class RoundControllerBughouse implements ChatController/*extends GameCont
             board.setDests();
         }
 
-        //hiding abort button - todo:niki:we dont realy have abort button (for now)
         this.clockOn = true;// Number(msg.ply) >= 2;
-        if ( !this.spectator && this.clockOn ) {
-            const container = document.getElementById('abort') as HTMLElement;
-            if (container) patch(container, h('div'));
-        }
 
         //todo:niki:sound not implemented for now
         // const step = this.steps[this.steps.length - 1];
@@ -1004,10 +994,10 @@ export class RoundControllerBughouse implements ChatController/*extends GameCont
 
             clocks[stopClockAtIdx].pause(false);
 
-            clocks[whiteClockAtIdx].setTime(clocktimes['white']);
-            clocks[blackClockAtIdx].setTime(clocktimes['black']);
+            clocks[whiteClockAtIdx].setTime(clocktimes[WHITE]);
+            clocks[blackClockAtIdx].setTime(clocktimes[BLACK]);
 
-            if (this.clockOn && status < 0) { // todo:niki:not sure why this if is needed
+            if (this.clockOn && status < 0) {
                 clocks[startClockAtIdx].start();
             }
 
@@ -1145,7 +1135,7 @@ export class RoundControllerBughouse implements ChatController/*extends GameCont
         });
 
         board.fullfen = fen!;
-        board.turnColor = step.turnColor; // todo:niki: this is in the fen too, just use it from there maybe
+        board.turnColor = getTurnColor(board.fullfen);
         if (board.ffishBoard !== null) {
             board.ffishBoard.setFen(board.fullfen);
             board.setDests();
@@ -1160,7 +1150,6 @@ export class RoundControllerBughouse implements ChatController/*extends GameCont
 
         if (this.status >= 0) {
             //if it is a game that ended, then when scrolling it makes sense to show clocks when the move was made
-            //todo:niki:maybe i should record the clocks on both boards on every move otherwise a bit misleading
 
             const whiteAClockAtIdx = this.colors[0] === 'white'? 0: 1;
             const blackAClockAtIdx = 1 - whiteAClockAtIdx;
@@ -1170,15 +1159,15 @@ export class RoundControllerBughouse implements ChatController/*extends GameCont
             const lastStepA = this.steps[this.steps.findLastIndex((s, i) => s.boardName === "a" && i <= ply)];
             const lastStepB = this.steps[this.steps.findLastIndex((s, i) => s.boardName === "b" && i <= ply)];
             if (lastStepA) {
-                this.clocks[whiteAClockAtIdx].setTime(lastStepA.clocks!['white']);
-                this.clocks[blackAClockAtIdx].setTime(lastStepA.clocks!['black']);
+                this.clocks[whiteAClockAtIdx].setTime(lastStepA.clocks![WHITE]);
+                this.clocks[blackAClockAtIdx].setTime(lastStepA.clocks![BLACK]);
             } else {
                 this.clocks[whiteAClockAtIdx].setTime(this.base * 60 * 1000);
                 this.clocks[blackAClockAtIdx].setTime(this.base * 60 * 1000);
             }
             if (lastStepB) {
-                this.clocksB[whiteBClockAtIdx].setTime(lastStepB.clocks!['white']);
-                this.clocksB[blackBClockAtIdx].setTime(lastStepB.clocks!['black']);
+                this.clocksB[whiteBClockAtIdx].setTime(lastStepB.clocks![WHITE]);
+                this.clocksB[blackBClockAtIdx].setTime(lastStepB.clocks![BLACK]);
             } else {
                 this.clocksB[whiteBClockAtIdx].setTime(this.base * 60 * 1000);
                 this.clocksB[blackBClockAtIdx].setTime(this.base * 60 * 1000);
@@ -1306,7 +1295,7 @@ export class RoundControllerBughouse implements ChatController/*extends GameCont
     protected onMessage(evt: MessageEvent) {
         console.log("<+++ onMessage():", evt.data);
         // super.onMessage(evt);
-        if (evt.data === '/n') return; // todo:niki: not sure where this comes from, temporary working around it like this
+        if (evt.data === '/n') return;
         const msg = JSON.parse(evt.data);
         switch (msg.type) {
             // copy pated from gameCtl.ts->onMessage, which is otherwise inherited in normal roundCtrl

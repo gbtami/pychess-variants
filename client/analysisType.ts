@@ -3,6 +3,7 @@ import { Ceval } from "./messages";
 export interface MsgAnalysisBoard {
     gameId: string;
     fen: string;
+    fenB?: string;
     ply: number;
     lastMove: string;
     bikjang: boolean;
