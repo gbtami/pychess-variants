@@ -19,9 +19,9 @@ log = logging.getLogger(__name__)
 class Lobby:
     def __init__(self, app_state: PychessGlobalAppState):
         self.app_state = app_state
-        self.lobbysockets: dict[
-            str, MyWebSocketResponse
-        ] = {}  # one dict only! {user.username: user.tournament_sockets, ...}
+        self.lobbysockets: dict[str, MyWebSocketResponse] = (
+            {}
+        )  # one dict only! {user.username: user.tournament_sockets, ...}
         self.lobbychat: Deque[dict] = collections.deque([], MAX_CHAT_LINES)
 
     # below methods maybe best in separate class eventually

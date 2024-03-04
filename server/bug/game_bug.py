@@ -303,9 +303,9 @@ class GameBug:
                         "moveB": move_b,
                         "boardName": board,
                         "san": san,
-                        "turnColor": "black"
-                        if self.boards[board].color == BLACK
-                        else "white",  # can be derived from
+                        "turnColor": (
+                            "black" if self.boards[board].color == BLACK else "white"
+                        ),  # can be derived from
                         # the fen and that is what i am actually doing - consider stop sending this value
                         "check": check,  # ignored. deriving  at the client the check status for each board from fens
                         "clocks": clocks,
@@ -694,9 +694,11 @@ class GameBug:
             "gameId": self.id,
             "pgn": self.pgn,
             # "ct": self.crosstable,
-            "rdiffs": {"brdiff": self.brdiff, "wrdiff": self.wrdiff}
-            if self.status > STARTED and self.rated == RATED
-            else "",
+            "rdiffs": (
+                {"brdiff": self.brdiff, "wrdiff": self.wrdiff}
+                if self.status > STARTED and self.rated == RATED
+                else ""
+            ),
         }
 
     def get_board(self, full=False):
@@ -754,9 +756,11 @@ class GameBug:
             "clocks": {"black": clocks_a["black"], "white": clocks_a["white"]},
             "clocksB": {"black": clocks_b["black"], "white": clocks_b["white"]},
             "pgn": self.pgn if self.status > STARTED else "",
-            "rdiffs": {"brdiff": self.brdiff, "wrdiff": self.wrdiff}
-            if self.status > STARTED and self.rated == RATED
-            else "",
+            "rdiffs": (
+                {"brdiff": self.brdiff, "wrdiff": self.wrdiff}
+                if self.status > STARTED and self.rated == RATED
+                else ""
+            ),
             "uci_usi": self.uci_usi if self.status > STARTED else "",
             "rmA": "",
             "rmB": "",
@@ -769,11 +773,15 @@ class GameBug:
         opp_rating, opp_player = (
             (self.bplayerA, self.black_rating_a)
             if self.wplayerA == player
-            else (self.wplayerA, self.white_rating_a)
-            if self.bplayerA == player
-            else (self.wplayerB, self.white_rating_b)
-            if self.bplayerB == player
-            else (self.bplayerB, self.black_rating_b)
+            else (
+                (self.wplayerA, self.white_rating_a)
+                if self.bplayerA == player
+                else (
+                    (self.wplayerB, self.white_rating_b)
+                    if self.bplayerB == player
+                    else (self.bplayerB, self.black_rating_b)
+                )
+            )
         )
         opp_rating, prov = opp_rating.rating_prov
         return {

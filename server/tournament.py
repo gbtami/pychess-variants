@@ -294,9 +294,7 @@ class Tournament(ABC):
             return (
                 "paused"
                 if self.players[user].paused
-                else "withdrawn"
-                if self.players[user].withdrawn
-                else "joined"
+                else "withdrawn" if self.players[user].withdrawn else "joined"
             )
         else:
             return "spectator"

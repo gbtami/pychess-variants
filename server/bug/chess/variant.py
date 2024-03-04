@@ -1271,12 +1271,16 @@ class BughouseBoards:
             size=800,
             lastmoveL=self.boards[LEFT].peek() if self.boards[LEFT].move_stack else None,
             lastmoveR=self.boards[RIGHT].peek() if self.boards[RIGHT].move_stack else None,
-            checkL=self.boards[LEFT].king(self.boards[LEFT].turn)
-            if self.boards[LEFT].is_check()
-            else None,
-            checkR=self.boards[RIGHT].king(self.boards[RIGHT].turn)
-            if self.boards[RIGHT].is_check()
-            else None,
+            checkL=(
+                self.boards[LEFT].king(self.boards[LEFT].turn)
+                if self.boards[LEFT].is_check()
+                else None
+            ),
+            checkR=(
+                self.boards[RIGHT].king(self.boards[RIGHT].turn)
+                if self.boards[RIGHT].is_check()
+                else None
+            ),
         )
 
     def is_checkmate(self) -> bool:
