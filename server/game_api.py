@@ -233,12 +233,20 @@ async def get_user_games(request):
                 continue
 
             doc["r"] = C2R[doc["r"]]
-            doc["wt"] = app_state.users[doc["us"][0]].title if doc["us"][0] in app_state.users else ""
-            doc["bt"] = app_state.users[doc["us"][1]].title if doc["us"][1] in app_state.users else ""
+            doc["wt"] = (
+                app_state.users[doc["us"][0]].title if doc["us"][0] in app_state.users else ""
+            )
+            doc["bt"] = (
+                app_state.users[doc["us"][1]].title if doc["us"][1] in app_state.users else ""
+            )
 
             if len(doc["us"]) > 2:
-                doc["wtB"] = app_state.users[doc["us"][2]].title if doc["us"][2] in app_state.users else ""
-                doc["btB"] = app_state.users[doc["us"][3]].title if doc["us"][3] in app_state.users else ""
+                doc["wtB"] = (
+                    app_state.users[doc["us"][2]].title if doc["us"][2] in app_state.users else ""
+                )
+                doc["btB"] = (
+                    app_state.users[doc["us"][3]].title if doc["us"][3] in app_state.users else ""
+                )
 
             if doc["v"] in ("bughouse", "bughouse960"):
                 mA = [m for idx, m in enumerate(doc["m"]) if doc["o"][idx] == 0]

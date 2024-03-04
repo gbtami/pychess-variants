@@ -36,7 +36,7 @@ from re import sub, split
 log = logging.getLogger(__name__)
 
 MAX_HIGH_SCORE = 10
-MAX_PLY = 2*600
+MAX_PLY = 2 * 600
 KEEP_TIME = 1800  # keep game in app[games_key] for KEEP_TIME secs
 
 
@@ -113,17 +113,20 @@ class GameBug:
         self.messages = collections.deque([], MAX_CHAT_LINES)
         self.date = datetime.now(timezone.utc)
 
-        self._ply_clocks = {"a": [
-            {
-                "black": (base * 1000 * 60) + 0 if base > 0 else inc * 1000,
-                "white": (base * 1000 * 60) + 0 if base > 0 else inc * 1000,
-            }
-        ], "b": [
-            {
-                "black": (base * 1000 * 60) + 0 if base > 0 else inc * 1000,
-                "white": (base * 1000 * 60) + 0 if base > 0 else inc * 1000,
-            }
-        ]}
+        self._ply_clocks = {
+            "a": [
+                {
+                    "black": (base * 1000 * 60) + 0 if base > 0 else inc * 1000,
+                    "white": (base * 1000 * 60) + 0 if base > 0 else inc * 1000,
+                }
+            ],
+            "b": [
+                {
+                    "black": (base * 1000 * 60) + 0 if base > 0 else inc * 1000,
+                    "white": (base * 1000 * 60) + 0 if base > 0 else inc * 1000,
+                }
+            ],
+        }
         self.last_move_clocks = {
             "a": {
                 "black": (base * 1000 * 60) + 0 if base > 0 else inc * 1000,
@@ -132,7 +135,7 @@ class GameBug:
             "b": {
                 "black": (base * 1000 * 60) + 0 if base > 0 else inc * 1000,
                 "white": (base * 1000 * 60) + 0 if base > 0 else inc * 1000,
-            }
+            },
         }
         self.dests_a = {}
         self.dests_b = {}
@@ -142,8 +145,12 @@ class GameBug:
         self.lastmovePerBoardAndUser = {"a": {}, "b": {}}
         self.status = STARTED  # CREATED
         self.result = "*"
-        self.last_server_clock = monotonic()  # the last time a move was made on board A - we reconstruct current time on client refresh/reconnect from this
-        self.last_server_clockB = self.last_server_clock # the last time a move was made on board A - we reconstruct current time on client refresh/reconnect from this
+        self.last_server_clock = (
+            monotonic()
+        )  # the last time a move was made on board A - we reconstruct current time on client refresh/reconnect from this
+        self.last_server_clockB = (
+            self.last_server_clock
+        )  # the last time a move was made on board A - we reconstruct current time on client refresh/reconnect from this
         self.id = gameId
 
         disabled_fen = ""
@@ -158,8 +165,12 @@ class GameBug:
             fenA = FairyBoard.start_fen(self.variant)
             fenB = fenA
 
-        self.boards = {"a": FairyBoard(self.variant, fenA, self.chess960, 0, disabled_fen), # self.initial_fen.split("|")[0].strip()
-                       "b": FairyBoard(self.variant, fenB, self.chess960, 0, disabled_fen)} # self.initial_fen.split("|")[1].strip()
+        self.boards = {
+            "a": FairyBoard(
+                self.variant, fenA, self.chess960, 0, disabled_fen
+            ),  # self.initial_fen.split("|")[0].strip()
+            "b": FairyBoard(self.variant, fenB, self.chess960, 0, disabled_fen),
+        }  # self.initial_fen.split("|")[1].strip()
 
         self.overtime = False
 
@@ -176,12 +187,14 @@ class GameBug:
                 "san": None,
                 "clocks": self._ply_clocks["a"][0],
                 "clocksB": self._ply_clocks["b"][0],
-                "ts": time_ns()
+                "ts": time_ns(),
             }
         ]
 
-        self.stopwatches = {'a': Clock(self, self.boards["a"], self.last_move_clocks["a"]["white"]),
-                            'b': Clock(self, self.boards["b"], self.last_move_clocks["b"]["white"])}
+        self.stopwatches = {
+            "a": Clock(self, self.boards["a"], self.last_move_clocks["a"]["white"]),
+            "b": Clock(self, self.boards["b"], self.last_move_clocks["b"]["white"]),
+        }
 
         if not self.bplayerA.bot:
             self.bplayerA.game_in_progress = self.id
@@ -203,11 +216,9 @@ class GameBug:
         last_move_clock = max(self.last_server_clock, self.last_server_clockB)
         time = int(round((cur_time - last_move_clock) * 1000))
 
-        self.steps[cur_ply].setdefault("chat", []).append({
-            "message": message,
-            "username": user.username,
-            "time": time
-        })
+        self.steps[cur_ply].setdefault("chat", []).append(
+            {"message": message, "username": user.username, "time": time}
+        )
 
     def construct_chat_list(self):
         chat = {}
@@ -218,8 +229,12 @@ class GameBug:
                     chat[ply].append({"t": msg["time"], "u": msg["username"], "m": msg["message"]})
         return chat
 
-    async def play_move(self, move, clocks=None, clocks_b=None, board="a", last_move_captured_role=None):
-        log.debug("play_move %r %r %r %r %r", move, clocks, clocks_b, board, last_move_captured_role)
+    async def play_move(
+        self, move, clocks=None, clocks_b=None, board="a", last_move_captured_role=None
+    ):
+        log.debug(
+            "play_move %r %r %r %r %r", move, clocks, clocks_b, board, last_move_captured_role
+        )
         self.stopwatches[board].stop()
 
         if self.status > STARTED:
@@ -254,9 +269,18 @@ class GameBug:
 
                 # self.boards[partner_board].fen = partnerFen #
                 if last_move_captured_role is not None:
-                    #TODO:NIKI: consider this solution for determining captured piece serverside unless something cleaner cannot be figured out: https://github.com/nnickoloff1234/pychess-variants/blob/60b06cd475c195ec58199187c762b86424807285/server/fairy.py#L58-L65
-                    board_fen_split = split('[\[\]]', self.boards[partner_board].fen) # todo: this doesnt work after first move when starting a game from custom initial fen that doesnt have square brackets - either add them or dont consider it valid if missing pockets
-                    self.boards[partner_board].fen = board_fen_split[0] + '[' + board_fen_split[1] + last_move_captured_role + ']' + board_fen_split[2]
+                    # TODO:NIKI: consider this solution for determining captured piece serverside unless something cleaner cannot be figured out: https://github.com/nnickoloff1234/pychess-variants/blob/60b06cd475c195ec58199187c762b86424807285/server/fairy.py#L58-L65
+                    board_fen_split = split(
+                        "[\[\]]", self.boards[partner_board].fen
+                    )  # todo: this doesnt work after first move when starting a game from custom initial fen that doesnt have square brackets - either add them or dont consider it valid if missing pockets
+                    self.boards[partner_board].fen = (
+                        board_fen_split[0]
+                        + "["
+                        + board_fen_split[1]
+                        + last_move_captured_role
+                        + "]"
+                        + board_fen_split[2]
+                    )
 
                 san = self.boards[board].get_san(move)
                 self.lastmove = move
@@ -279,7 +303,9 @@ class GameBug:
                         "moveB": move_b,
                         "boardName": board,
                         "san": san,
-                        "turnColor": "black" if self.boards[board].color == BLACK else "white",  # can be derived from
+                        "turnColor": "black"
+                        if self.boards[board].color == BLACK
+                        else "white",  # can be derived from
                         # the fen and that is what i am actually doing - consider stop sending this value
                         "check": check,  # ignored. deriving  at the client the check status for each board from fens
                         "clocks": clocks,
@@ -308,15 +334,15 @@ class GameBug:
             log.exception("Save IMPORTED game %s ???", self.id)
             return
 
-        self.stopwatches['a'].clock_task.cancel()
+        self.stopwatches["a"].clock_task.cancel()
         try:
-            await self.stopwatches['a'].clock_task
+            await self.stopwatches["a"].clock_task
         except asyncio.CancelledError:
             pass
 
-        self.stopwatches['b'].clock_task.cancel()
+        self.stopwatches["b"].clock_task.cancel()
         try:
-            await self.stopwatches['b'].clock_task
+            await self.stopwatches["b"].clock_task
         except asyncio.CancelledError:
             pass
 
@@ -374,11 +400,8 @@ class GameBug:
                 "f": self.boards["a"].fen + " | " + self.boards["b"].fen,
                 "s": self.status,
                 "r": R2C[self.result],
-                "m": encode_moves(
-                    [x["move"]+x["moveB"] for x in self.steps[1:]],
-                    self.variant
-                ),
-                "o": [0 if x["boardName"] == 'a' else 1 for x in self.steps[1:]],
+                "m": encode_moves([x["move"] + x["moveB"] for x in self.steps[1:]], self.variant),
+                "o": [0 if x["boardName"] == "a" else 1 for x in self.steps[1:]],
                 "c": self.construct_chat_list(),
                 "ts": [x["ts"] for x in self.steps],
             }
@@ -396,7 +419,9 @@ class GameBug:
             #     new_data["bb"] = self.bberserk
 
             if self.app_state.db is not None:
-                await self.app_state.db.game.find_one_and_update({"_id": self.id}, {"$set": new_data})
+                await self.app_state.db.game.find_one_and_update(
+                    {"_id": self.id}, {"$set": new_data}
+                )
 
     async def set_highscore(self, variant, chess960, value):
         self.app_state.highscore[variant + ("960" if chess960 else "")].update(value)
@@ -406,7 +431,9 @@ class GameBug:
         #     self.highscore[variant + ("960" if chess960 else "")].popitem()
 
         new_data = {
-            "scores": dict(self.app_state.highscore[variant + ("960" if chess960 else "")].items()[:10])
+            "scores": dict(
+                self.app_state.highscore[variant + ("960" if chess960 else "")].items()[:10]
+            )
         }
         try:
             await self.app_state.db.highscore.find_one_and_update(
@@ -419,7 +446,7 @@ class GameBug:
                 log.error("Failed to save new highscore to mongodb!")
 
     async def update_ratings(self):
-        pass # todo no rating in bughouse for now
+        pass  # todo no rating in bughouse for now
 
     @property
     def corr(self):
@@ -436,12 +463,15 @@ class GameBug:
     @property
     def wplayer(self):
         return self.wplayerA  # temporary for compatibitly everywhere this stuff is accessed now
+
     @property
     def bplayer(self):
         return self.bplayerA  # temporary for compatibitly everywhere this stuff is accessed now
+
     @property
     def byoyomi_period(self):
         return 0
+
     @property
     def crosstable(self):
         return ""
@@ -449,6 +479,7 @@ class GameBug:
     @property
     def wrating(self):
         return self.wrating_a  # temporary for compatibitly everywhere this stuff is accessed now
+
     @property
     def brating(self):
         return self.brating_a  # temporary for compatibitly everywhere this stuff is accessed now
@@ -456,18 +487,24 @@ class GameBug:
     @property
     def fen(self):
         return self.boards["a"].fen + " | " + self.boards["b"].fen
+
     @property
     def ply(self):
         return self.boards["a"].ply + self.boards["b"].ply
 
     def get_player_at(self, color, board):
-        if board == self.boards['a']:
+        if board == self.boards["a"]:
             return self.bplayerA if color == BLACK else self.wplayerA
         else:
             return self.bplayerB if color == BLACK else self.wplayerB
 
     def is_player(self, user: User) -> bool:
-        return user.username in (self.wplayerA.username, self.bplayerA.username, self.wplayerB.username, self.bplayerB.username)
+        return user.username in (
+            self.wplayerA.username,
+            self.bplayerA.username,
+            self.wplayerB.username,
+            self.bplayerB.username,
+        )
 
     def update_status(self, status=None, result=None):
         if self.status > STARTED:
@@ -519,7 +556,6 @@ class GameBug:
             return "1/2-1/2"
 
     def check_checkmate_on_board_and_update_status(self, board: str):
-
         # it is not mate if there are possible move dests on the given board
         if board == "a" and self.dests_a:
             return False
@@ -530,7 +566,7 @@ class GameBug:
         # with a piece that partner could potentially give. Check same position, but with full pocket
         # to confirm it is really checkmate even if we wait for partner
         fen_before = self.boards[board].fen
-        fen_fullpockets = sub('\[.*\]', '[qrbnpQRBNP]', fen_before)
+        fen_fullpockets = sub("\[.*\]", "[qrbnpQRBNP]", fen_before)
         self.boards[board].fen = fen_fullpockets
         count_valid_moves_with_full_pockets = len(self.boards[board].legal_moves_no_history())
         self.boards[board].fen = fen_before
@@ -582,7 +618,9 @@ class GameBug:
 
     @property
     def board(self):
-        return self.boards["a"] # TODO:NIKI: fix code that depends on this to work with 2 boards as wwell - had exception in game_api.py
+        return self.boards[
+            "a"
+        ]  # TODO:NIKI: fix code that depends on this to work with 2 boards as wwell - had exception in game_api.py
 
     @property
     def pgn(self):
@@ -601,7 +639,7 @@ class GameBug:
         return self._ply_clocks["merged"][-1]
 
     @property
-    def is_claimable_draw(self): # todo not sure this makes much sense in bughouse
+    def is_claimable_draw(self):  # todo not sure this makes much sense in bughouse
         return False
 
     @property
@@ -622,7 +660,9 @@ class GameBug:
         )
 
     @property
-    def game_end(self): # only used by bot code, so not relevant for now for bughouse but keeping it anyway
+    def game_end(
+        self,
+    ):  # only used by bot code, so not relevant for now for bughouse but keeping it anyway
         return '{"type": "gameEnd", "game": {"id": "%s"}}\n' % self.id
 
     async def abort(self):
@@ -663,8 +703,14 @@ class GameBug:
         if full:
             steps = self.steps
             # To not touch self._ply_clocks we are creating deep copy from clocks
-            clocks_a = {"black": self.last_move_clocks["a"]["black"], "white": self.last_move_clocks["a"]["white"]}
-            clocks_b = {"black": self.last_move_clocks["b"]["black"], "white": self.last_move_clocks["b"]["white"]}
+            clocks_a = {
+                "black": self.last_move_clocks["a"]["black"],
+                "white": self.last_move_clocks["a"]["white"],
+            }
+            clocks_b = {
+                "black": self.last_move_clocks["b"]["black"],
+                "white": self.last_move_clocks["b"]["white"],
+            }
 
             if self.status >= STARTED:
                 # We have to adjust current player latest saved clock time
@@ -680,8 +726,14 @@ class GameBug:
                 clocks_a[cur_color_a] = max(0, clocks_a[cur_color_a] - elapsed_a)
                 clocks_b[cur_color_b] = max(0, clocks_b[cur_color_b] - elapsed_b)
         else:
-            clocks_a = {"black": self.last_move_clocks["a"]["black"], "white": self.last_move_clocks["a"]["white"]}
-            clocks_b = {"black": self.last_move_clocks["b"]["black"], "white": self.last_move_clocks["b"]["white"]}
+            clocks_a = {
+                "black": self.last_move_clocks["a"]["black"],
+                "white": self.last_move_clocks["a"]["white"],
+            }
+            clocks_b = {
+                "black": self.last_move_clocks["b"]["black"],
+                "white": self.last_move_clocks["b"]["white"],
+            }
             steps = (self.steps[-1],)
 
         return {
@@ -714,11 +766,15 @@ class GameBug:
 
     def game_json(self, player):
         color = "w" if self.wplayerA == player or self.wplayerB == player else "b"
-        opp_rating, opp_player = \
-                 (self.bplayerA, self.black_rating_a) if self.wplayerA == player \
-            else (self.wplayerA, self.white_rating_a) if self.bplayerA == player \
-            else (self.wplayerB, self.white_rating_b) if self.bplayerB == player \
+        opp_rating, opp_player = (
+            (self.bplayerA, self.black_rating_a)
+            if self.wplayerA == player
+            else (self.wplayerA, self.white_rating_a)
+            if self.bplayerA == player
+            else (self.wplayerB, self.white_rating_b)
+            if self.bplayerB == player
             else (self.bplayerB, self.black_rating_b)
+        )
         opp_rating, prov = opp_rating.rating_prov
         return {
             "gameId": self.id,

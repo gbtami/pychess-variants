@@ -6,6 +6,7 @@ from typing import Optional, Union
 
 SKIP = SkipType.SKIP
 
+
 class StringExporter(BaseVisitor[str]):
     """
     Allows exporting a game as a string.
@@ -24,8 +25,14 @@ class StringExporter(BaseVisitor[str]):
     There will be no newline characters at the end of the string.
     """
 
-    def __init__(self, *, columns: Optional[int] = 80, headers: bool = True, comments: bool = True,
-                 variations: bool = True):
+    def __init__(
+        self,
+        *,
+        columns: Optional[int] = 80,
+        headers: bool = True,
+        comments: bool = True,
+        variations: bool = True
+    ):
         self.columns = columns
         self.headers = headers
         self.comments = comments
@@ -62,7 +69,7 @@ class StringExporter(BaseVisitor[str]):
     def visit_header(self, tagname: str, tagvalue: str) -> None:
         if self.headers:
             self.found_headers = True
-            self.write_line("[{} \"{}\"]".format(tagname, tagvalue))
+            self.write_line('[{} "{}"]'.format(tagname, tagvalue))
 
     def end_headers(self) -> None:
         if self.found_headers:
@@ -94,22 +101,32 @@ class StringExporter(BaseVisitor[str]):
         if self.comments and (self.variations or not self.variation_depth):
             self.write_token("$" + str(nag) + " ")
 
-    def visit_move(self, board: Union[chess.Board, chess.variant.BughouseBoards], move: chess.Move) -> None:
+    def visit_move(
+        self, board: Union[chess.Board, chess.variant.BughouseBoards], move: chess.Move
+    ) -> None:
         if self.variations or not self.variation_depth:
             # Write the move number.
             if isinstance(board, chess.variant.BughouseBoards):
                 board = board.boards[move.board_id]
                 if board.board_id == chess.variant.BOARD_A:
                     if board.turn == 0:
-                        player = 'a'
+                        player = "a"
                     else:
-                        player = 'A'
+                        player = "A"
                 else:
                     if board.turn == 0:
-                        player = 'b'
+                        player = "b"
                     else:
-                        player = 'B'
-                self.write_token(str(board.fullmove_number) + player + ". " + board.san(move) + "{" + str(move.move_time) + "} ")
+                        player = "B"
+                self.write_token(
+                    str(board.fullmove_number)
+                    + player
+                    + ". "
+                    + board.san(move)
+                    + "{"
+                    + str(move.move_time)
+                    + "} "
+                )
 
             else:
                 if board.turn == chess.WHITE:

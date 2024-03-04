@@ -21,8 +21,23 @@ import itertools
 import logging
 import re
 import weakref
-from typing import Callable, Dict, Generic, Iterable, Iterator, List, Mapping, MutableMapping, Set, TextIO, Tuple, Type, \
-    TypeVar, Optional, Union
+from typing import (
+    Callable,
+    Dict,
+    Generic,
+    Iterable,
+    Iterator,
+    List,
+    Mapping,
+    MutableMapping,
+    Set,
+    TextIO,
+    Tuple,
+    Type,
+    TypeVar,
+    Optional,
+    Union,
+)
 
 from bug import chess
 from bug.chess.variant import BughouseBoards
@@ -86,7 +101,8 @@ TAG_NAME_REGEX = re.compile(r"^[A-Za-z0-9_]+\Z")
 
 CARRIED_OVER_MOVE_REGEX = re.compile(r"([ABab]\.\s)$")
 
-MOVETEXT_REGEX = re.compile(r"""
+MOVETEXT_REGEX = re.compile(
+    r"""
         (([ABab]\.\s)?[NBKRQ]?[a-h]?[1-8]?[\-x]?[a-h][1-8](?:=?[nbrqkNBRQK])?
         |([ABab]\.\s)?[PNBRQK]?@[a-h][1-8]
         |([ABab]\.\s)?--
@@ -102,7 +118,9 @@ MOVETEXT_REGEX = re.compile(r"""
     |(\))
     |(\*|1-0|0-1|1/2-1/2)
     |([\?!]{1,2})
-    """, re.DOTALL | re.VERBOSE)
+    """,
+    re.DOTALL | re.VERBOSE,
+)
 
 SKIP_MOVETEXT_REGEX = re.compile(r""";|\{|\}""")
 
@@ -276,8 +294,14 @@ class GameNode:
         """Removes a variation."""
         self.variations.remove(self.variation(move))
 
-    def add_variation(self, move: chess.Move, *, comment: str = "", starting_comment: str = "",
-                      nags: Iterable[int] = ()) -> "GameNode":
+    def add_variation(
+        self,
+        move: chess.Move,
+        *,
+        comment: str = "",
+        starting_comment: str = "",
+        nags: Iterable[int] = ()
+    ) -> "GameNode":
         """Creates a child node with the given attributes."""
         node = type(self).dangling_node()
         node.move = move
@@ -307,8 +331,14 @@ class GameNode:
         """Returns an iterator over the main moves after this node."""
         return Mainline(self, lambda node: node.move)
 
-    def add_line(self, moves: Iterable[chess.Move], *, comment: str = "", starting_comment: str = "",
-                 nags: Iterable[int] = ()) -> "GameNode":
+    def add_line(
+        self,
+        moves: Iterable[chess.Move],
+        *,
+        comment: str = "",
+        starting_comment: str = "",
+        nags: Iterable[int] = ()
+    ) -> "GameNode":
         """
         Creates a sequence of child nodes for the given list of moves.
         Adds *comment* and *nags* to the last node of the line and returns it.
@@ -346,7 +376,9 @@ class GameNode:
         if self.comment:
             visitor.visit_comment(self.comment)
 
-    def accept(self, visitor: "BaseVisitor[ResultT]", *, _parent_board: Optional[chess.Board] = None) -> ResultT:
+    def accept(
+        self, visitor: "BaseVisitor[ResultT]", *, _parent_board: Optional[chess.Board] = None
+    ) -> ResultT:
         """
         Traverses game nodes in PGN order using the given *visitor*. Starts with
         the move leading to this node. Returns the *visitor* result.
@@ -412,7 +444,8 @@ class GameNode:
             id(self),
             self.parent.board().fullmove_number,
             "." if self.parent.board().turn == chess.WHITE else "...",
-            self.san())
+            self.san(),
+        )
 
 
 GameT = TypeVar("GameT", bound="Game")
@@ -425,7 +458,9 @@ class Game(GameNode):
     :class:`~chess.pgn.GameNode`.
     """
 
-    def __init__(self, headers: Optional[Union[Mapping[str, str], Iterable[Tuple[str, str]]]] = None) -> None:
+    def __init__(
+        self, headers: Optional[Union[Mapping[str, str], Iterable[Tuple[str, str]]]] = None
+    ) -> None:
         super().__init__()
         self.headers = Headers(headers)
         self.errors = []  # type: List[Exception]
@@ -535,15 +570,19 @@ class Game(GameNode):
             id(self),
             self.headers.get("White", "?"),
             self.headers.get("Black", "?"),
-            self.headers.get("Date", "????.??.??"))
+            self.headers.get("Date", "????.??.??"),
+        )
 
 
 HeadersT = TypeVar("HeadersT", bound="Headers")
 
 
 class Headers(MutableMapping[str, str]):
-    def __init__(self, data: Optional[Union[Mapping[str, str], Iterable[Tuple[str, str]]]] = None,
-                 **kwargs: str) -> None:
+    def __init__(
+        self,
+        data: Optional[Union[Mapping[str, str], Iterable[Tuple[str, str]]]] = None,
+        **kwargs: str
+    ) -> None:
         self._tag_roster = {}  # type: Dict[str, str]
         self._others = {}  # type: Dict[str, str]
 
@@ -555,7 +594,7 @@ class Headers(MutableMapping[str, str]):
                 "Round": "?",
                 "White": "?",
                 "Black": "?",
-                "Result": "*"
+                "Result": "*",
             }
 
         self.update(data, **kwargs)
@@ -572,14 +611,24 @@ class Headers(MutableMapping[str, str]):
     def is_wild(self) -> bool:
         # http://www.freechess.org/Help/HelpFiles/wild.html
         return self.get("Variant", "").lower() in [
-            "wild/0", "wild/1", "wild/2", "wild/3", "wild/4", "wild/5",
-            "wild/6", "wild/7", "wild/8", "wild/8a"]
+            "wild/0",
+            "wild/1",
+            "wild/2",
+            "wild/3",
+            "wild/4",
+            "wild/5",
+            "wild/6",
+            "wild/7",
+            "wild/8",
+            "wild/8a",
+        ]
 
     def variant(self) -> Type[Union[chess.Board, BughouseBoards]]:
         if "Variant" not in self or self.is_chess960() or self.is_wild():
             return chess.Board
         else:
             from bug.chess.variant import find_variant
+
             return find_variant(self["Variant"])
 
     def board(self) -> Union[chess.Board, BughouseBoards]:
@@ -630,7 +679,8 @@ class Headers(MutableMapping[str, str]):
     def __repr__(self) -> str:
         return "{}({})".format(
             type(self).__name__,
-            ", ".join("{}={!r}".format(key, value) for key, value in self.items()))
+            ", ".join("{}={!r}".format(key, value) for key, value in self.items()),
+        )
 
     @classmethod
     def builder(cls) -> "HeadersBuilder":
@@ -670,7 +720,9 @@ class Mainline(Generic[MainlineMapT]):
         return self.accept(StringExporter(columns=None))
 
     def __repr__(self) -> str:
-        return "<Mainline at {:#x} ({})>".format(id(self), self.accept(StringExporter(columns=None, comments=False)))
+        return "<Mainline at {:#x} ({})>".format(
+            id(self), self.accept(StringExporter(columns=None, comments=False))
+        )
 
 
 class ReverseMainline(Generic[MainlineMapT]):
@@ -698,8 +750,9 @@ class ReverseMainline(Generic[MainlineMapT]):
         return Mainline(self.stop, self.f)
 
     def __repr__(self) -> str:
-        return "<ReverseMainline at {:#x} ({})>".format(id(self), " ".join(
-            ReverseMainline(self.stop, lambda node: node.move.uci())))
+        return "<ReverseMainline at {:#x} ({})>".format(
+            id(self), " ".join(ReverseMainline(self.stop, lambda node: node.move.uci()))
+        )
 
 
 class BaseVisitor(Generic[ResultT]):
@@ -835,7 +888,7 @@ class GameBuilder(BaseVisitor[Game]):
 
     @staticmethod
     def hms_to_seconds_only(st: str) -> float:
-        p = st.split(':')
+        p = st.split(":")
         s = 0
         m = 1
         while len(p) > 0:
@@ -848,30 +901,40 @@ class GameBuilder(BaseVisitor[Game]):
         ls_body = fs_bpgn_game
         li1 = 0
         try:
-            li1 = ls_body.index('[%clk', li1)
+            li1 = ls_body.index("[%clk", li1)
         except ValueError as ve:
             return ls_body
         while 1:
-            li2 = (ls_body + '}').index('}', li1)
-            numb_tmp1 = GameBuilder.hms_to_seconds_only(ls_body[li1 + 6: li2 - 1])
-            ls_body = ls_body[1: li1 + 1] + str(numb_tmp1) + ls_body[li2:]
+            li2 = (ls_body + "}").index("}", li1)
+            numb_tmp1 = GameBuilder.hms_to_seconds_only(ls_body[li1 + 6 : li2 - 1])
+            ls_body = ls_body[1 : li1 + 1] + str(numb_tmp1) + ls_body[li2:]
             try:
-                li1 = ls_body.index('[%clk', li1 + 1)
+                li1 = ls_body.index("[%clk", li1 + 1)
             except ValueError as ve:
                 return ls_body
         return ls_body
 
     def visit_comment(self, comment: str) -> None:
-        if self.in_variation or (self.variation_stack[-1].parent is None and self.variation_stack[-1].is_end()):
+        if self.in_variation or (
+            self.variation_stack[-1].parent is None and self.variation_stack[-1].is_end()
+        ):
             # Add as a comment for the current node if in the middle of
             # a variation. Add as a comment for the game if the comment
             # starts before any move.
             new_comment = [self.variation_stack[-1].comment, comment]
             self.variation_stack[-1].comment = "\n".join(new_comment).strip()
 
-            if self.game.headers.variant() == BughouseBoards and self.variation_stack[-1].move is not None:
+            if (
+                self.game.headers.variant() == BughouseBoards
+                and self.variation_stack[-1].move is not None
+            ):
                 self.variation_stack[-1].move.move_time = float(
-                    GameBuilder.time_format_to_bpgn_replace_clk_by_secs([c for c in new_comment if len(c) > 0][0]).strip().split()[0])
+                    GameBuilder.time_format_to_bpgn_replace_clk_by_secs(
+                        [c for c in new_comment if len(c) > 0][0]
+                    )
+                    .strip()
+                    .split()[0]
+                )
         else:
             # Otherwise, it is a starting comment.
             new_comment = [self.starting_comment, comment]
@@ -973,8 +1036,14 @@ class StringExporter(BaseVisitor[str]):
     There will be no newline characters at the end of the string.
     """
 
-    def __init__(self, *, columns: Optional[int] = 80, headers: bool = True, comments: bool = True,
-                 variations: bool = True):
+    def __init__(
+        self,
+        *,
+        columns: Optional[int] = 80,
+        headers: bool = True,
+        comments: bool = True,
+        variations: bool = True
+    ):
         self.columns = columns
         self.headers = headers
         self.comments = comments
@@ -1011,7 +1080,7 @@ class StringExporter(BaseVisitor[str]):
     def visit_header(self, tagname: str, tagvalue: str) -> None:
         if self.headers:
             self.found_headers = True
-            self.write_line("[{} \"{}\"]".format(tagname, tagvalue))
+            self.write_line('[{} "{}"]'.format(tagname, tagvalue))
 
     def end_headers(self) -> None:
         if self.found_headers:
@@ -1043,22 +1112,32 @@ class StringExporter(BaseVisitor[str]):
         if self.comments and (self.variations or not self.variation_depth):
             self.write_token("$" + str(nag) + " ")
 
-    def visit_move(self, board: Union[chess.Board, chess.variant.BughouseBoards], move: chess.Move) -> None:
+    def visit_move(
+        self, board: Union[chess.Board, chess.variant.BughouseBoards], move: chess.Move
+    ) -> None:
         if self.variations or not self.variation_depth:
             # Write the move number.
             if isinstance(board, bug.chess.variant.BughouseBoards):
                 board = board.boards[move.board_id]
                 if board.board_id == bug.chess.variant.BOARD_A:
                     if board.turn == 0:
-                        player = 'a'
+                        player = "a"
                     else:
-                        player = 'A'
+                        player = "A"
                 else:
                     if board.turn == 0:
-                        player = 'b'
+                        player = "b"
                     else:
-                        player = 'B'
-                self.write_token(str(board.fullmove_number) + player + ". " + board.san(move) + "{" + str(move.move_time) + "} ")
+                        player = "B"
+                self.write_token(
+                    str(board.fullmove_number)
+                    + player
+                    + ". "
+                    + board.san(move)
+                    + "{"
+                    + str(move.move_time)
+                    + "} "
+                )
 
             else:
                 if board.turn == chess.WHITE:
@@ -1100,8 +1179,15 @@ class FileExporter(StringExporter):
     >>> game.accept(exporter)
     """
 
-    def __init__(self, handle: TextIO, *, columns: Optional[int] = 80, headers: bool = True, comments: bool = True,
-                 variations: bool = True):
+    def __init__(
+        self,
+        handle: TextIO,
+        *,
+        columns: Optional[int] = 80,
+        headers: bool = True,
+        comments: bool = True,
+        variations: bool = True
+    ):
         super().__init__(columns=columns, headers=headers, comments=comments, variations=variations)
         self.handle = handle
 
@@ -1126,7 +1212,9 @@ class FileExporter(StringExporter):
         return self.__repr__()
 
 
-def read_game(pgn: str, *, Visitor: Callable[[], BaseVisitor[ResultT]] = GameBuilder) -> Optional[ResultT]:
+def read_game(
+    pgn: str, *, Visitor: Callable[[], BaseVisitor[ResultT]] = GameBuilder
+) -> Optional[ResultT]:
     """
     Reads a game from a file opened in text mode.
 
@@ -1236,7 +1324,7 @@ def read_game(pgn: str, *, Visitor: Callable[[], BaseVisitor[ResultT]] = GameBui
         headers = managed_headers if headers is None else headers
 
         if is_bughouse:
-            headers['Variant'] = 'Bughouse'
+            headers["Variant"] = "Bughouse"
         try:
             VariantBoard = headers.variant()
         except ValueError as error:
@@ -1377,10 +1465,12 @@ def read_game(pgn: str, *, Visitor: Callable[[], BaseVisitor[ResultT]] = GameBui
     visitor.end_game()
     return visitor.result()
 
+
 def readLine(lines) -> str:
     if lines:
         return lines.pop(0)
-    return ''
+    return ""
+
 
 def read_headers(handle: TextIO) -> Optional[Headers]:
     """
@@ -1438,6 +1528,7 @@ BoardCreator = BoardBuilder
 
 if __name__ == "__main__":
     import bug.chess.pgn
+
     pgn = """[Event "Live Chess - Bughouse"]
 [Site "Chess.com"]
 [Date "2022.02.22"]

@@ -85,15 +85,20 @@ class SvgWrapper(str):
         return self
 
 
-def _svg(viewbox: Optional[Union[int, Tuple[int, int]]], size: Optional[Union[int, Tuple[int, int]]]) -> ET.Element:
+def _svg(
+    viewbox: Optional[Union[int, Tuple[int, int]]], size: Optional[Union[int, Tuple[int, int]]]
+) -> ET.Element:
     if isinstance(viewbox, int):
         viewbox = (viewbox, viewbox)
-    svg = ET.Element("svg", {
-        "xmlns": "http://www.w3.org/2000/svg",
-        "version": "1.1",
-        "xmlns:xlink": "http://www.w3.org/1999/xlink",
-        "viewBox": "0 0 {0:d} {1:d}".format(*viewbox),
-    })
+    svg = ET.Element(
+        "svg",
+        {
+            "xmlns": "http://www.w3.org/2000/svg",
+            "version": "1.1",
+            "xmlns:xlink": "http://www.w3.org/1999/xlink",
+            "viewBox": "0 0 {0:d} {1:d}".format(*viewbox),
+        },
+    )
 
     if size is not None:
         if isinstance(size, int):
@@ -107,13 +112,16 @@ def _svg(viewbox: Optional[Union[int, Tuple[int, int]]], size: Optional[Union[in
 
 
 def _text(content: str, x: int, y: int, width: int, height: int) -> ET.Element:
-    t = ET.Element("text", {
-        "x": str(x + width // 2),
-        "y": str(y + height // 2),
-        "font-size": str(max(1, int(min(width, height) * 0.7))),
-        "text-anchor": "middle",
-        "alignment-baseline": "middle",
-    })
+    t = ET.Element(
+        "text",
+        {
+            "x": str(x + width // 2),
+            "y": str(y + height // 2),
+            "font-size": str(max(1, int(min(width, height) * 0.7))),
+            "text-anchor": "middle",
+            "alignment-baseline": "middle",
+        },
+    )
     t.text = content
     return t
 
@@ -134,26 +142,31 @@ def piece(piece: chess.Piece, size: Optional[int] = None) -> str:
     return SvgWrapper(ET.tostring(svg).decode("utf-8"))
 
 
-def bughouse_boards(boards: variant.BughouseBoards,
-                    squaresL: Optional[chess.IntoSquareSet] = None,
-                    squaresR: Optional[chess.IntoSquareSet] = None,
-                    flipped: bool = False,
-                    coordinates: bool = True,
-                    lastmoveL: Optional[chess.Move] = None,
-                    lastmoveR: Optional[chess.Move] = None,
-                    checkL: Optional[chess.Square] = None,
-                    checkR: Optional[chess.Square] = None,
-                    arrowsL: Iterable[Union[Arrow, Tuple[chess.Square, chess.Square]]] = (),
-                    arrowsR: Iterable[Union[Arrow, Tuple[chess.Square, chess.Square]]] = (),
-                    size: Optional[int] = None,
-                    style: Optional[str] = None,
-                    player_text: Optional[Sequence[Sequence[str]]] = None,
-                    player_text_font_size: int = 30):
+def bughouse_boards(
+    boards: variant.BughouseBoards,
+    squaresL: Optional[chess.IntoSquareSet] = None,
+    squaresR: Optional[chess.IntoSquareSet] = None,
+    flipped: bool = False,
+    coordinates: bool = True,
+    lastmoveL: Optional[chess.Move] = None,
+    lastmoveR: Optional[chess.Move] = None,
+    checkL: Optional[chess.Square] = None,
+    checkR: Optional[chess.Square] = None,
+    arrowsL: Iterable[Union[Arrow, Tuple[chess.Square, chess.Square]]] = (),
+    arrowsR: Iterable[Union[Arrow, Tuple[chess.Square, chess.Square]]] = (),
+    size: Optional[int] = None,
+    style: Optional[str] = None,
+    player_text: Optional[Sequence[Sequence[str]]] = None,
+    player_text_font_size: int = 30,
+):
     player_text_spacing = 10
     single_board_size = size / 2 if size is not None else None
     margin = MARGIN if coordinates else 0
-    single_board_height = 12 * SQUARE_SIZE + 2 * margin + 2 * (
-        0 if player_text is None else player_text_font_size + player_text_spacing)
+    single_board_height = (
+        12 * SQUARE_SIZE
+        + 2 * margin
+        + 2 * (0 if player_text is None else player_text_font_size + player_text_spacing)
+    )
     single_board_width = 8 * SQUARE_SIZE + 2 * margin
     ratio = (single_board_height) / (single_board_width * 2)
     size_tuple = (size, int(size * ratio)) if size is not None else None
@@ -174,23 +187,38 @@ def bughouse_boards(boards: variant.BughouseBoards,
     if style:
         ET.SubElement(svg, "style").text = style
 
-    svg_boards = [ET.SubElement(svg, "g"),
-                  ET.SubElement(svg, "g", {"transform": "translate({}, 0)".format(single_board_width)})]
+    svg_boards = [
+        ET.SubElement(svg, "g"),
+        ET.SubElement(svg, "g", {"transform": "translate({}, 0)".format(single_board_width)}),
+    ]
 
     if player_text is not None:
         for i, s in enumerate(svg_boards):
-            ET.SubElement(s, "text", {
-                "font-size": str(player_text_font_size),
-                "text-anchor": "left",
-                "y": str(player_text_font_size),
-                "alignment-baseline": "middle"
-            }).text = player_text[i][int(flipped) != i]
-            ET.SubElement(s, "text", {
-                "font-size": str(player_text_font_size),
-                "text-anchor": "left",
-                "y": str(player_text_font_size + 12 * SQUARE_SIZE + 2 * margin + 2 * player_text_spacing),
-                "alignment-baseline": "middle"
-            }).text = player_text[i][int(not flipped) != i]
+            ET.SubElement(
+                s,
+                "text",
+                {
+                    "font-size": str(player_text_font_size),
+                    "text-anchor": "left",
+                    "y": str(player_text_font_size),
+                    "alignment-baseline": "middle",
+                },
+            ).text = player_text[i][int(flipped) != i]
+            ET.SubElement(
+                s,
+                "text",
+                {
+                    "font-size": str(player_text_font_size),
+                    "text-anchor": "left",
+                    "y": str(
+                        player_text_font_size
+                        + 12 * SQUARE_SIZE
+                        + 2 * margin
+                        + 2 * player_text_spacing
+                    ),
+                    "alignment-baseline": "middle",
+                },
+            ).text = player_text[i][int(not flipped) != i]
         height_offset = player_text_font_size + player_text_spacing
     else:
         height_offset = 0
@@ -200,9 +228,7 @@ def bughouse_boards(boards: variant.BughouseBoards,
     arrows = [arrowsL, arrowsR]
 
     for i, s in enumerate(svg_boards):
-        svg_content = ET.SubElement(s, "g", {
-            "transform": "translate(0, {})".format(height_offset)
-        })
+        svg_content = ET.SubElement(s, "g", {"transform": "translate(0, {})".format(height_offset)})
 
         # Board left
         board(
@@ -216,23 +242,26 @@ def bughouse_boards(boards: variant.BughouseBoards,
             size=single_board_size,
             style=None,
             base_svg=svg_content,
-            add_definitions=False
+            add_definitions=False,
         )
 
     return SvgWrapper(ET.tostring(svg).decode("utf-8"))
 
 
-def board(board: Optional[chess.BaseBoard] = None, *,
-          squares: Optional[chess.IntoSquareSet] = None,
-          flipped: bool = False,
-          coordinates: bool = True,
-          lastmove: Optional[chess.Move] = None,
-          check: Optional[chess.Square] = None,
-          arrows: Iterable[Union[Arrow, Tuple[chess.Square, chess.Square]]] = (),
-          size: Optional[int] = None,
-          style: Optional[str] = None,
-          base_svg: Optional[ET.Element] = None,
-          add_definitions: bool = True) -> str:
+def board(
+    board: Optional[chess.BaseBoard] = None,
+    *,
+    squares: Optional[chess.IntoSquareSet] = None,
+    flipped: bool = False,
+    coordinates: bool = True,
+    lastmove: Optional[chess.Move] = None,
+    check: Optional[chess.Square] = None,
+    arrows: Iterable[Union[Arrow, Tuple[chess.Square, chess.Square]]] = (),
+    size: Optional[int] = None,
+    style: Optional[str] = None,
+    base_svg: Optional[ET.Element] = None,
+    add_definitions: bool = True
+) -> str:
     """
     Renders a board with pieces and/or selected squares as an SVG image.
 
@@ -281,7 +310,9 @@ def board(board: Optional[chess.BaseBoard] = None, *,
         if board:
             for piece_color in chess.COLORS:
                 for piece_type in chess.PIECE_TYPES:
-                    defs.append(ET.fromstring(PIECES[chess.Piece(piece_type, piece_color).symbol()]))
+                    defs.append(
+                        ET.fromstring(PIECES[chess.Piece(piece_type, piece_color).symbol()])
+                    )
 
         squares = chess.SquareSet(squares) if squares else chess.SquareSet()
         if squares:
@@ -291,27 +322,44 @@ def board(board: Optional[chess.BaseBoard] = None, *,
             defs.append(ET.fromstring(CHECK_GRADIENT))
 
     if isinstance(board, bug.chess.variant.CrazyhouseBoard):
-        svg_board = ET.SubElement(svg, "g", {
-            "transform": "translate(0, {})".format(2 * SQUARE_SIZE)
-        })
-        svg_pocket_top = ET.SubElement(svg, "g", {
-            "transform": "translate({}, 0)".format(margin)
-        })
-        svg_pocket_bottom = ET.SubElement(svg, "g", {
-            "transform": "translate({}, {})".format(margin, 10 * SQUARE_SIZE + 2 * margin)
-        })
+        svg_board = ET.SubElement(
+            svg, "g", {"transform": "translate(0, {})".format(2 * SQUARE_SIZE)}
+        )
+        svg_pocket_top = ET.SubElement(svg, "g", {"transform": "translate({}, 0)".format(margin)})
+        svg_pocket_bottom = ET.SubElement(
+            svg,
+            "g",
+            {"transform": "translate({}, {})".format(margin, 10 * SQUARE_SIZE + 2 * margin)},
+        )
 
-        for s, p in zip([svg_pocket_top, svg_pocket_bottom],
-                        [board.pockets[chess.WHITE if flipped else chess.BLACK],
-                         board.pockets[chess.BLACK if flipped else chess.WHITE]]):
+        for s, p in zip(
+            [svg_pocket_top, svg_pocket_bottom],
+            [
+                board.pockets[chess.WHITE if flipped else chess.BLACK],
+                board.pockets[chess.BLACK if flipped else chess.WHITE],
+            ],
+        ):
             for i, piece_type in enumerate(chess.PIECE_TYPES[:-1]):
                 # Render pieces.
-                ET.SubElement(s, "use", {
-                    "xlink:href": "#{}-{}".format(chess.COLOR_NAMES[p.color], chess.PIECE_NAMES[piece_type]),
-                    "transform": "translate({:d}, {:d})".format(i * SQUARE_SIZE, 0),
-                })
+                ET.SubElement(
+                    s,
+                    "use",
+                    {
+                        "xlink:href": "#{}-{}".format(
+                            chess.COLOR_NAMES[p.color], chess.PIECE_NAMES[piece_type]
+                        ),
+                        "transform": "translate({:d}, {:d})".format(i * SQUARE_SIZE, 0),
+                    },
+                )
                 s.append(
-                    _text(str(p.count(piece_type)), i * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))
+                    _text(
+                        str(p.count(piece_type)),
+                        i * SQUARE_SIZE,
+                        SQUARE_SIZE,
+                        SQUARE_SIZE,
+                        SQUARE_SIZE,
+                    )
+                )
     else:
         svg_board = svg
 
@@ -329,42 +377,60 @@ def board(board: Optional[chess.BaseBoard] = None, *,
 
         cls.append(chess.SQUARE_NAMES[square])
 
-        ET.SubElement(svg_board, "rect", {
-            "x": str(x),
-            "y": str(y),
-            "width": str(SQUARE_SIZE),
-            "height": str(SQUARE_SIZE),
-            "class": " ".join(cls),
-            "stroke": "none",
-            "fill": fill_color,
-        })
-
-        if square == check:
-            ET.SubElement(svg_board, "rect", {
+        ET.SubElement(
+            svg_board,
+            "rect",
+            {
                 "x": str(x),
                 "y": str(y),
                 "width": str(SQUARE_SIZE),
                 "height": str(SQUARE_SIZE),
-                "class": "check",
-                "fill": "url(#check_gradient)",
-            })
+                "class": " ".join(cls),
+                "stroke": "none",
+                "fill": fill_color,
+            },
+        )
+
+        if square == check:
+            ET.SubElement(
+                svg_board,
+                "rect",
+                {
+                    "x": str(x),
+                    "y": str(y),
+                    "width": str(SQUARE_SIZE),
+                    "height": str(SQUARE_SIZE),
+                    "class": "check",
+                    "fill": "url(#check_gradient)",
+                },
+            )
 
         # Render pieces.
         if board is not None:
             piece = board.piece_at(square)
             if piece:
-                ET.SubElement(svg_board, "use", {
-                    "xlink:href": "#{}-{}".format(chess.COLOR_NAMES[piece.color], chess.PIECE_NAMES[piece.piece_type]),
-                    "transform": "translate({:d}, {:d})".format(x, y),
-                })
+                ET.SubElement(
+                    svg_board,
+                    "use",
+                    {
+                        "xlink:href": "#{}-{}".format(
+                            chess.COLOR_NAMES[piece.color], chess.PIECE_NAMES[piece.piece_type]
+                        ),
+                        "transform": "translate({:d}, {:d})".format(x, y),
+                    },
+                )
 
         # Render selected squares.
         if squares is not None and square in squares:
-            ET.SubElement(svg_board, "use", {
-                "xlink:href": "#xx",
-                "x": str(x),
-                "y": str(y),
-            })
+            ET.SubElement(
+                svg_board,
+                "use",
+                {
+                    "xlink:href": "#xx",
+                    "x": str(x),
+                    "y": str(y),
+                },
+            )
 
     if coordinates:
         for file_index, file_name in enumerate(chess.FILE_NAMES):
@@ -394,15 +460,19 @@ def board(board: Optional[chess.BaseBoard] = None, *,
         yhead = margin + (7.5 - head_rank if not flipped else head_rank + 0.5) * SQUARE_SIZE
 
         if (head_file, head_rank) == (tail_file, tail_rank):
-            ET.SubElement(svg_board, "circle", {
-                "cx": str(xhead),
-                "cy": str(yhead),
-                "r": str(SQUARE_SIZE * 0.9 / 2),
-                "stroke-width": str(SQUARE_SIZE * 0.1),
-                "stroke": color,
-                "fill": "none",
-                "opacity": "0.5",
-            })
+            ET.SubElement(
+                svg_board,
+                "circle",
+                {
+                    "cx": str(xhead),
+                    "cy": str(yhead),
+                    "r": str(SQUARE_SIZE * 0.9 / 2),
+                    "stroke-width": str(SQUARE_SIZE * 0.1),
+                    "stroke": color,
+                    "fill": "none",
+                    "opacity": "0.5",
+                },
+            )
         else:
             marker_size = 0.75 * SQUARE_SIZE
             marker_margin = 0.1 * SQUARE_SIZE
@@ -416,37 +486,51 @@ def board(board: Optional[chess.BaseBoard] = None, *,
             xtip = xhead - dx * marker_margin / hypot
             ytip = yhead - dy * marker_margin / hypot
 
-            ET.SubElement(svg_board, "line", {
-                "x1": str(xtail),
-                "y1": str(ytail),
-                "x2": str(shaft_x),
-                "y2": str(shaft_y),
-                "stroke": color,
-                "stroke-width": str(SQUARE_SIZE * 0.2),
-                "opacity": "0.5",
-                "stroke-linecap": "butt",
-                "class": "arrow",
-            })
+            ET.SubElement(
+                svg_board,
+                "line",
+                {
+                    "x1": str(xtail),
+                    "y1": str(ytail),
+                    "x2": str(shaft_x),
+                    "y2": str(shaft_y),
+                    "stroke": color,
+                    "stroke-width": str(SQUARE_SIZE * 0.2),
+                    "opacity": "0.5",
+                    "stroke-linecap": "butt",
+                    "class": "arrow",
+                },
+            )
 
-            marker = [(xtip, ytip),
-                      (shaft_x + dy * 0.5 * marker_size / hypot,
-                       shaft_y - dx * 0.5 * marker_size / hypot),
-                      (shaft_x - dy * 0.5 * marker_size / hypot,
-                       shaft_y + dx * 0.5 * marker_size / hypot)]
+            marker = [
+                (xtip, ytip),
+                (
+                    shaft_x + dy * 0.5 * marker_size / hypot,
+                    shaft_y - dx * 0.5 * marker_size / hypot,
+                ),
+                (
+                    shaft_x - dy * 0.5 * marker_size / hypot,
+                    shaft_y + dx * 0.5 * marker_size / hypot,
+                ),
+            ]
 
-            ET.SubElement(svg_board, "polygon", {
-                "points": " ".join(str(x) + "," + str(y) for x, y in marker),
-                "fill": color,
-                "opacity": "0.5",
-                "class": "arrow",
-            })
+            ET.SubElement(
+                svg_board,
+                "polygon",
+                {
+                    "points": " ".join(str(x) + "," + str(y) for x, y in marker),
+                    "fill": color,
+                    "opacity": "0.5",
+                    "class": "arrow",
+                },
+            )
 
     return SvgWrapper(ET.tostring(svg).decode("utf-8"))
 
 
-def pocket(pocket: variant.CrazyhousePocket,
-           numbers_top: bool = False,
-           width: Optional[int] = None) -> str:
+def pocket(
+    pocket: variant.CrazyhousePocket, numbers_top: bool = False, width: Optional[int] = None
+) -> str:
     """
     Renders a Crazyhouse pocket as an SVG image.
 
@@ -465,10 +549,24 @@ def pocket(pocket: variant.CrazyhousePocket,
     for i, piece_type in enumerate(chess.PIECE_TYPES[:-1]):
         defs.append(ET.fromstring(PIECES[chess.Piece(piece_type, pocket.color).symbol()]))
         # Render pieces.
-        ET.SubElement(svg, "use", {
-            "xlink:href": "#{}-{}".format(chess.COLOR_NAMES[pocket.color], chess.PIECE_NAMES[piece_type]),
-            "transform": "translate({:d}, {:d})".format(i * SQUARE_SIZE, pieces_y_pos),
-        })
-        svg.append(_text(str(pocket.count(piece_type)), i * SQUARE_SIZE, numbers_y_pos, SQUARE_SIZE, SQUARE_SIZE))
+        ET.SubElement(
+            svg,
+            "use",
+            {
+                "xlink:href": "#{}-{}".format(
+                    chess.COLOR_NAMES[pocket.color], chess.PIECE_NAMES[piece_type]
+                ),
+                "transform": "translate({:d}, {:d})".format(i * SQUARE_SIZE, pieces_y_pos),
+            },
+        )
+        svg.append(
+            _text(
+                str(pocket.count(piece_type)),
+                i * SQUARE_SIZE,
+                numbers_y_pos,
+                SQUARE_SIZE,
+                SQUARE_SIZE,
+            )
+        )
 
     return SvgWrapper(ET.tostring(svg).decode("utf-8"))

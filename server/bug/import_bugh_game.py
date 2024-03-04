@@ -28,18 +28,23 @@ from typedefs import (
 
 log = logging.getLogger(__name__)
 
-def get_main_variation(game: Game) -> [list,list]:
+
+def get_main_variation(game: Game) -> [list, list]:
     variations = game.variations
-    turns = {0: 'w', 1: 'w'}
+    turns = {0: "w", 1: "w"}
     moves = []
     boards = []
-    move_times = {0: {'w': [], 'b': []}, 1: {'w': [], 'b': []}}
+    move_times = {0: {"w": [], "b": []}, 1: {"w": [], "b": []}}
     while variations:
         board = variations[0].move.board_id
         turn = turns[board]
-        turns[board] = 'b' if turn == 'w' else 'w'
+        turns[board] = "b" if turn == "w" else "w"
         moves.append(variations[0].move.uci())
-        move_times[board][turn].append(int(variations[0].move.move_time * 1000) if variations[0].move.move_time is not None else None)
+        move_times[board][turn].append(
+            int(variations[0].move.move_time * 1000)
+            if variations[0].move.move_time is not None
+            else None
+        )
         boards.append(board)
         variations = variations[0].variations
     return [moves, move_times, boards]
@@ -66,10 +71,9 @@ async def import_game_bpgn(request):
     bp_b = first_game.headers.get("BlackB")
     wplayer_a, bplayer_a, wplayer_b, bplayer_b = init_players(app_state, wp_a, bp_a, wp_b, bp_b)
 
-
     variant = "bughouse"
     chess960 = False  # variant.endswith("960")
-    #variant = variant.removesuffix("960")
+    # variant = variant.removesuffix("960")
 
     # todo: replace with valid intial fen for now - maybe fix the problematic fen that ends with / instead of [] eventually - that is how chess.com fen looks like and doesnt parse well here
     initial_fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[] w KQkq - 0 1 | rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[] w KQkq - 0 1"  # first_game.headers.get("FEN", "")
@@ -101,7 +105,9 @@ async def import_game_bpgn(request):
         log.exception("TimeControl tag parsing failed")
         base, inc = 0, 0
 
-    [move_stack, move_times, boards] = get_main_variation(first_game)  # data.get("moves", "").split(" ")
+    [move_stack, move_times, boards] = get_main_variation(
+        first_game
+    )  # data.get("moves", "").split(" ")
     moves = encode_moves(map(grand2zero, move_stack) if variant in GRANDS else move_stack, variant)
 
     game_id = await new_id(None if app_state.db is None else app_state.db.game)
@@ -138,10 +144,10 @@ async def import_game_bpgn(request):
         "bp": 0,
         "m": moves,
         "o": boards,
-        "cw": move_times[0]['w'],
-        "cb": move_times[0]['b'],
-        "cwB": move_times[1]['w'],
-        "cbB": move_times[1]['b'],
+        "cw": move_times[0]["w"],
+        "cb": move_times[0]["b"],
+        "cwB": move_times[1]["w"],
+        "cbB": move_times[1]["b"],
         "d": date,
         "f": final_fen,
         "s": status,
@@ -167,4 +173,3 @@ async def import_game_bpgn(request):
     print("db insert IMPORTED game result %s" % repr(result.inserted_id))
 
     return web.json_response({"gameId": game_id})
-

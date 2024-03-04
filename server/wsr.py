@@ -29,7 +29,7 @@ from utils import (
     tv_game_user,
 )
 from bug.utils_bug import play_move as play_move_bug
-from websocket_utils import process_ws, get_user
+from websocket_utils import process_ws, get_user, ws_send_json
 
 log = logging.getLogger(__name__)
 
@@ -162,7 +162,7 @@ async def handle_move(app_state: PychessGlobalAppState, user, data, game):
                     "ERROR: Exception in play_move() in %s by %s. data %r ",
                     data["gameId"],
                     user.username,
-                    data
+                    data,
                 )
         else:
             try:
@@ -202,10 +202,10 @@ async def handle_ready(ws, users, user, data, game):
             await opp_player.event_queue.put(game.game_start)
 
         response = {"type": "gameStart", "gameId": data["gameId"]}
-        await ws.send_json(response)
+        await ws_send_json(ws, response)
     else:
         response = {"type": "gameStart", "gameId": data["gameId"]}
-        await ws.send_json(response)
+        await ws_send_json(ws, response)
 
         await round_broadcast(game, game.spectator_list, full=True)
 
@@ -215,32 +215,34 @@ async def hande_board(ws, game):
         print("JANGGI", game.bsetup, game.wsetup, game.status)
         if (game.bsetup or game.wsetup) and game.status <= STARTED:
             if game.bsetup:
-                await ws.send_json(
+                await ws_send_json(
+                    ws,
                     {
                         "type": "setup",
                         "color": "black",
                         "fen": game.board.initial_fen,
-                    }
+                    },
                 )
             elif game.wsetup:
-                await ws.send_json(
+                await ws_send_json(
+                    ws,
                     {
                         "type": "setup",
                         "color": "white",
                         "fen": game.board.initial_fen,
-                    }
+                    },
                 )
         else:
             board_response = game.get_board(full=True)
-            await ws.send_json(board_response)
+            await ws_send_json(ws, board_response)
     else:
         board_response = game.get_board(full=True)
-        await ws.send_json(board_response)
+        await ws_send_json(ws, board_response)
 
     if game.corr and game.status <= STARTED and len(game.draw_offers) > 0:
         offerer = game.wplayer if game.wplayer.username in game.draw_offers else game.bplayer
         response = await draw(game, offerer)
-        await ws.send_json(response)
+        await ws_send_json(ws, response)
 
 
 async def handle_setup(ws, users, user, data, game):
@@ -266,7 +268,7 @@ async def handle_setup(ws, users, user, data, game):
             "color": "white",
             "fen": data["fen"],
         }
-        await ws.send_json(response)
+        await ws_send_json(ws, response)
 
         if opp_player.bot:
             game.board.janggi_setup("w")
@@ -279,7 +281,7 @@ async def handle_setup(ws, users, user, data, game):
 
         response = game.get_board(full=True)
         # log.info("User %s asked board. Server sent: %s" % (user.username, board_response["fen"]))
-        await ws.send_json(response)
+        await ws_send_json(ws, response)
 
         if not opp_player.bot:
             await opp_player.send_game_message(data["gameId"], response)
@@ -333,7 +335,7 @@ async def handle_analysis(app_state: PychessGlobalAppState, ws, data, game):
         "Analysis request sent...",
         room="spectator",
     )
-    await ws.send_json(response)
+    await ws_send_json(ws, response)
 
 
 async def handle_rematch(app_state: PychessGlobalAppState, ws, user, data, game):
@@ -380,7 +382,7 @@ async def handle_rematch(app_state: PychessGlobalAppState, ws, user, data, game)
         app_state.seeks[seek.id] = seek
 
         response = await join_seek(app_state, engine, seek.id)
-        await ws.send_json(response)
+        await ws_send_json(ws, response)
 
         await engine.event_queue.put(challenge(seek, response))
         gameId = response["gameId"]
@@ -409,7 +411,7 @@ async def handle_rematch(app_state: PychessGlobalAppState, ws, user, data, game)
 
             response = await join_seek(app_state, opp_player, seek.id)
             rematch_id = response["gameId"]
-            await ws.send_json(response)
+            await ws_send_json(ws, response)
             await app_state.users[opp_name].send_game_message(data["gameId"], response)
         else:
             game.rematch_offers.add(user.username)
@@ -421,7 +423,7 @@ async def handle_rematch(app_state: PychessGlobalAppState, ws, user, data, game)
                 "user": "",
             }
             game.messages.append(response)
-            await ws.send_json(response)
+            await ws_send_json(ws, response)
             await app_state.users[opp_name].send_game_message(data["gameId"], response)
     if rematch_id:
         await round_broadcast(game, {"type": "view_rematch", "gameId": rematch_id})
@@ -452,7 +454,7 @@ async def handle_draw(ws, users, user, data, game):
         game.draw_offers.add(user.username)
 
     response = await draw(game, user, agreement=opp_name in game.draw_offers)
-    await ws.send_json(response)
+    await ws_send_json(ws, response)
     if opp_player.bot:
         if game.status > STARTED and data["gameId"] in opp_player.game_queues:
             await opp_player.game_queues[data["gameId"]].put(game.game_end)
@@ -465,6 +467,8 @@ async def handle_draw(ws, users, user, data, game):
             pass
 
     await round_broadcast(game, response)
+
+
 async def handle_reject_draw(user, game):
     color = WHITE if user.username == game.wplayer.username else BLACK
     opp_user = game.wplayer if color == BLACK else game.bplayer
@@ -484,11 +488,10 @@ async def handle_takeback(ws, game):
     game.takeback()
     board_response = game.get_board(full=True)
     board_response["takeback"] = True
-    await ws.send_json(board_response)
+    await ws_send_json(ws, board_response)
 
 
 async def handle_abort_resign_abandon_flag(ws, users, user, data, game):
-
     if data["type"] == "abort" and (game is not None) and game.board.ply > 2:
         return
 
@@ -500,7 +503,7 @@ async def handle_abort_resign_abandon_flag(ws, users, user, data, game):
     async with game.move_lock:
         response = await game.game_ended(user, data["type"])
 
-    await ws.send_json(response)
+    await ws_send_json(ws, response)
 
     opp_name = (
         game.wplayer.username if user.username == game.bplayer.username else game.bplayer.username
@@ -517,7 +520,7 @@ async def handle_abort_resign_abandon_flag(ws, users, user, data, game):
 
 async def handle_embed_user_connected(ws):
     response = {"type": "embed_user_connected"}
-    await ws.send_json(response)
+    await ws_send_json(ws, response)
 
 
 async def handle_game_user_connected(app_state: PychessGlobalAppState, ws, user, game: game.Game):
@@ -547,13 +550,13 @@ async def handle_game_user_connected(app_state: PychessGlobalAppState, ws, user,
         "ply": game.ply,
         "firstmovetime": stopwatch_secs,
     }
-    await ws.send_json(response)
+    await ws_send_json(ws, response)
 
     if user.abandon_game_task is not None:
         user.abandon_game_task.cancel()
 
     response = {"type": "fullchat", "lines": list(game.messages)}
-    await ws.send_json(response)
+    await ws_send_json(ws, response)
 
     response = {"type": "user_present", "username": user.username}
     await round_broadcast(game, response, full=True)
@@ -578,7 +581,7 @@ async def handle_is_user_present(ws, users, player_name, game):
             "type": "user_disconnected",
             "username": player_name,
         }
-    await ws.send_json(response)
+    await ws_send_json(ws, response)
 
 
 async def handle_moretime(users, user, data, game):
@@ -642,7 +645,7 @@ async def handle_roundchat(app_state: PychessGlobalAppState, ws, user, data, gam
         for step in game.steps:
             if "analysis" in step:
                 del step["analysis"]
-        await ws.send_json({"type": "request_analysis"})
+        await ws_send_json(ws, {"type": "request_analysis"})
         return
 
     response = chat_response(
@@ -700,7 +703,7 @@ async def handle_updateTV(app_state: PychessGlobalAppState, ws, data):
 
     if gameId != data["gameId"] and gameId is not None:
         response = {"type": "updateTV", "gameId": gameId}
-        await ws.send_json(response)
+        await ws_send_json(ws, response)
 
 
 async def handle_count(ws, user, data, game):
@@ -731,10 +734,10 @@ async def handle_count(ws, user, data, game):
             "room": "player",
             "user": "",
         }
-        await ws.send_json(response)
+        await ws_send_json(ws, response)
 
 
 async def handle_delete(db, ws, data):
     await db.game.delete_one({"_id": data["gameId"]})
     response = {"type": "deleted"}
-    await ws.send_json(response)
+    await ws_send_json(ws, response)

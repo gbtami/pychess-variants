@@ -21,7 +21,7 @@ from settings import ADMINS, TOURNAMENT_DIRECTORS
 from tournament_spotlights import tournament_spotlights
 from bug.utils_bug import join_seek_bughouse
 from utils import join_seek, load_game, remove_seek
-from websocket_utils import get_user, process_ws
+from websocket_utils import get_user, process_ws, ws_send_json
 from generate_highscore import generate_highscore
 
 log = logging.getLogger(__name__)
@@ -77,7 +77,7 @@ async def process_message(app_state: PychessGlobalAppState, user, ws, data):
 
 async def send_get_seeks(ws, seeks):
     response = get_seeks(seeks)
-    await ws.send_json(response)
+    await ws_send_json(ws, response)
 
 
 async def handle_create_ai_challenge(app_state: PychessGlobalAppState, ws, user, data):
@@ -109,7 +109,7 @@ async def handle_create_ai_challenge(app_state: PychessGlobalAppState, ws, user,
     app_state.seeks[seek.id] = seek
 
     response = await join_seek(app_state, engine, seek.id)
-    await ws.send_json(response)
+    await ws_send_json(ws, response)
 
     if response["type"] != "error":
         gameId = response["gameId"]
@@ -138,7 +138,7 @@ async def handle_create_invite(app_state: PychessGlobalAppState, ws, user, data)
     seek = await create_seek(app_state.db, app_state.invites, app_state.seeks, user, data, ws)
 
     response = {"type": "invite_created", "gameId": seek.game_id}
-    await ws.send_json(response)
+    await ws_send_json(ws, response)
 
 
 async def handle_create_host(app_state: PychessGlobalAppState, ws, user, data):
@@ -150,7 +150,7 @@ async def handle_create_host(app_state: PychessGlobalAppState, ws, user, data):
     seek = await create_seek(app_state.db, app_state.invites, app_state.seeks, user, data, ws, True)
 
     response = {"type": "host_created", "gameId": seek.game_id}
-    await ws.send_json(response)
+    await ws_send_json(ws, response)
 
 
 async def handle_delete_seek(app_state: PychessGlobalAppState, user, data):
@@ -178,24 +178,31 @@ async def handle_accept_seek(app_state: PychessGlobalAppState, ws, user, data):
         return
 
     # print("accept_seek", seek.as_json)
-    if seek.variant == 'bughouse':
+    if seek.variant == "bughouse":
         response = await join_seek_bughouse(app_state, user, data["seekID"], None, data["joinAs"])
-        await ws.send_json(response)
+        await ws_send_json(ws, response)
 
-        if seek.ws is None:  # TODO:NIKI: refactor so that no ws objects are referenced from multiple places, but are always accessed by user as key to avoid such checks. Also all ws usages should be wrapeed in util functions where if really needed null checks as well as other error handling is made
+        if (
+            seek.ws is None
+        ):  # TODO:NIKI: refactor so that no ws objects are referenced from multiple places, but are always accessed by user as key to avoid such checks. Also all ws usages should be wrapeed in util functions where if really needed null checks as well as other error handling is made
             remove_seek(app_state.seeks, seek)
             await app_state.lobby.lobby_broadcast_seeks()
         else:
-            await seek.ws.send_json(response)
-            bugUsers = set(filter(lambda item: item is not None, [seek.player2, seek.bugPlayer1, seek.bugPlayer2]))
+            await ws_send_json(seek.ws, response)
+            bugUsers = set(
+                filter(
+                    lambda item: item is not None, [seek.player2, seek.bugPlayer1, seek.bugPlayer2]
+                )
+            )
             for u in bugUsers:
-                s = next(iter(
-                    u.lobby_sockets))  # TODO:NIKI:could be more than one if multiple browsers - see above todo comment
-                await s.send_json(response)
+                s = next(
+                    iter(u.lobby_sockets)
+                )  # TODO:NIKI:could be more than one if multiple browsers - see above todo comment
+                await ws_send_json(s, response)
             await app_state.lobby.lobby_broadcast_seeks()
     else:
         response = await join_seek(app_state, user, data["seekID"])
-        await ws.send_json(response)
+        await ws_send_json(ws, response)
 
         if seek.creator.bot:
             gameId = response["gameId"]
@@ -206,7 +213,7 @@ async def handle_accept_seek(app_state: PychessGlobalAppState, ws, user, data):
                 remove_seek(app_state.seeks, seek)
                 await app_state.lobby.lobby_broadcast_seeks()
             else:
-                await seek.ws.send_json(response)
+                await ws_send_json(seek.ws, response)
 
         # Inform others, new_game() deleted accepted seek already.
         await app_state.lobby.lobby_broadcast_seeks()
@@ -226,14 +233,14 @@ async def send_lobby_user_connected(app_state, ws, user):
         "type": "lobby_user_connected",
         "username": user.username,
     }
-    await ws.send_json(response)
+    await ws_send_json(ws, response)
 
     response = {"type": "fullchat", "lines": list(app_state.lobby.lobbychat)}
-    await ws.send_json(response)
+    await ws_send_json(ws, response)
 
     # send game count
     response = {"type": "g_cnt", "cnt": app_state.g_cnt[0]}
-    await ws.send_json(response)
+    await ws_send_json(ws, response)
 
     # send user count
     if user.is_user_active_in_game() == 0:
@@ -243,22 +250,22 @@ async def send_lobby_user_connected(app_state, ws, user):
             "type": "u_cnt",
             "cnt": app_state.online_count(),
         }  # todo: duplicated message definition also in lobby_broadcast_u_cnt
-        await ws.send_json(response)
+        await ws_send_json(ws, response)
 
     spotlights = tournament_spotlights(app_state)
     if len(spotlights) > 0:
-        await ws.send_json({"type": "spotlights", "items": spotlights})
+        await ws_send_json(ws, {"type": "spotlights", "items": spotlights})
 
     streams = app_state.twitch.live_streams + app_state.youtube.live_streams
     if len(streams) > 0:
-        await ws.send_json({"type": "streams", "items": streams})
+        await ws_send_json(ws, {"type": "streams", "items": streams})
 
     if (
         app_state.tv is not None
         and app_state.tv in app_state.games
         and hasattr(app_state.games[app_state.tv], "tv_game_json")
     ):
-        await ws.send_json(app_state.games[app_state.tv].tv_game_json)
+        await ws_send_json(ws, app_state.games[app_state.tv].tv_game_json)
 
     await user.update_seeks(pending=False)
 
@@ -350,7 +357,7 @@ async def send_game_in_progress_if_any(app_state: PychessGlobalAppState, user, w
             user.game_in_progress = None
             return False
         response = {"type": "game_in_progress", "gameId": user.game_in_progress}
-        await ws.send_json(response)
+        await ws_send_json(ws, response)
         return True
     else:
         return False

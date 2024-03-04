@@ -130,16 +130,29 @@ async def load_game_bug(app_state: PychessGlobalAppState, game_id):
                     # print("Count started", count_started)
                     game.board.count_started = ply
 
-            board_name = "a" if doc["o"][ply] == 0 else "b"  # todo why am i not storing a/b instead of 0/1. either that or compress to bits maybe
-            last_move, last_move_b = move if board_name == "a" else last_move, move if board_name == "b" else last_move_b
+            board_name = (
+                "a" if doc["o"][ply] == 0 else "b"
+            )  # todo why am i not storing a/b instead of 0/1. either that or compress to bits maybe
+            last_move, last_move_b = (
+                move if board_name == "a" else last_move,
+                move if board_name == "b" else last_move_b,
+            )
 
             if move[1:2] != "@":
-                piece = re.sub(r"\d", (lambda m: "." * int(m.group(0))), game.boards[board_name].fen.split("[")[0]).split("/")[8-int(move[1:2])][ord(move[0:1]) - ord('a')]
-                piece_captured = re.sub(r"\d", (lambda m: "." * int(m.group(0))), game.boards[board_name].fen.split("[")[0]).split("/")[8-int(move[3:4])][ord(move[2:3]) - ord('a')]
-                if piece == 'p' and piece_captured == '.' and move[0:1] != move[2:3]:
-                    piece_captured = 'p'  # en passant
+                piece = re.sub(
+                    r"\d",
+                    (lambda m: "." * int(m.group(0))),
+                    game.boards[board_name].fen.split("[")[0],
+                ).split("/")[8 - int(move[1:2])][ord(move[0:1]) - ord("a")]
+                piece_captured = re.sub(
+                    r"\d",
+                    (lambda m: "." * int(m.group(0))),
+                    game.boards[board_name].fen.split("[")[0],
+                ).split("/")[8 - int(move[3:4])][ord(move[2:3]) - ord("a")]
+                if piece == "p" and piece_captured == "." and move[0:1] != move[2:3]:
+                    piece_captured = "p"  # en passant
                 if piece_captured != ".":
-                    f = game.boards["b" if board_name=="a" else "a"].fen
+                    f = game.boards["b" if board_name == "a" else "a"].fen
                     f = re.sub("\[(.*)\]", r"[\1{}]".format(piece_captured), f)
                     game.boards["b" if board_name == "a" else "a"].fen = f
 
@@ -155,7 +168,7 @@ async def load_game_bug(app_state: PychessGlobalAppState, game_id):
                 game.checkB = game.boards[board_name].is_checked()
 
             # turnColor = "black" if game.board.color == BLACK else "white" todo: should i use board at all here? i mean adding a second one - maybe for fen ahd and check - but still can happen on client as well
-            turn_color = "white" if (board_ply[board_name]+1) % 2 == 0 else "black"
+            turn_color = "white" if (board_ply[board_name] + 1) % 2 == 0 else "black"
 
             # No matter on which board the ply is happening i always need both fens and moves for both boards.
             # This way when jumping to a ply in the middle of the list i can setup both boards and highlight both last moves
@@ -248,11 +261,9 @@ async def load_game_bug(app_state: PychessGlobalAppState, game_id):
             idx = int(key)
             game.steps[idx]["chat"] = []
             for c in chat[key]:
-                game.steps[idx]["chat"].append({
-                    "message": c["m"],
-                    "username": c["u"],
-                    "time": c["t"]
-                })
+                game.steps[idx]["chat"].append(
+                    {"message": c["m"], "username": c["u"], "time": c["t"]}
+                )
     return game
 
 
@@ -261,6 +272,7 @@ async def new_game_bughouse(app_state: PychessGlobalAppState, seek_id, game_id=N
 
     if seek.fen:
         from utils import sanitize_fen
+
         fens = seek.fen.split(" | ")
         fen_a = fens[0]
         fen_b = fens[1]
@@ -270,6 +282,7 @@ async def new_game_bughouse(app_state: PychessGlobalAppState, seek_id, game_id=N
             message = "Failed to create game. Invalid FEN %s" % seek.fen
             log.debug(message)
             from utils import remove_seek
+
             remove_seek(app_state.seeks, seek)
             return {"type": "error", "message": message}
         sanitized_fen = sanitized_fen_a + " | " + sanitized_fen_b
@@ -277,8 +290,12 @@ async def new_game_bughouse(app_state: PychessGlobalAppState, seek_id, game_id=N
         sanitized_fen = ""
 
     color = random.choice(("w", "b")) if seek.color == "r" else seek.color
-    wplayer, bug_bplayer = (seek.player1, seek.bugPlayer1) if color == "w" else (seek.player2, seek.bugPlayer2)
-    bplayer, bug_wplayer = (seek.player1, seek.bugPlayer1) if color == "b" else (seek.player2, seek.bugPlayer2)
+    wplayer, bug_bplayer = (
+        (seek.player1, seek.bugPlayer1) if color == "w" else (seek.player2, seek.bugPlayer2)
+    )
+    bplayer, bug_wplayer = (
+        (seek.player1, seek.bugPlayer1) if color == "b" else (seek.player2, seek.bugPlayer2)
+    )
 
     if game_id is not None:
         # game invitation
@@ -317,11 +334,13 @@ async def new_game_bughouse(app_state: PychessGlobalAppState, seek_id, game_id=N
             bplayer,
         )
         from utils import remove_seek
+
         remove_seek(app_state.seeks, seek)
         return {"type": "error", "message": "Failed to create game"}
     app_state.games[game_id] = game
 
     from utils import remove_seek
+
     remove_seek(app_state.seeks, seek)
 
     await insert_game_to_db_bughouse(game, app_state)
@@ -343,7 +362,12 @@ async def insert_game_to_db_bughouse(game: GameBug, app_state: PychessGlobalAppS
 
     document = {
         "_id": game.id,
-        "us": [game.wplayerA.username, game.bplayerA.username, game.wplayerB.username, game.bplayerB.username],
+        "us": [
+            game.wplayerA.username,
+            game.bplayerA.username,
+            game.wplayerB.username,
+            game.bplayerB.username,
+        ],
         "p0": {"e": game.wrating_a},
         "p1": {"e": game.brating_a},
         "p2": {"e": game.wrating_b},
@@ -386,8 +410,9 @@ async def insert_game_to_db_bughouse(game: GameBug, app_state: PychessGlobalAppS
     game.bplayerB.tv = game.id
 
 
-async def join_seek_bughouse(app_state: PychessGlobalAppState, user, seek_id, game_id=None, join_as="any"):
-
+async def join_seek_bughouse(
+    app_state: PychessGlobalAppState, user, seek_id, game_id=None, join_as="any"
+):
     seek = app_state.seeks[seek_id]
 
     log.info(
@@ -398,7 +423,9 @@ async def join_seek_bughouse(app_state: PychessGlobalAppState, user, seek_id, ga
         seek.chess960,
     )
 
-    if join_as == "player1": # todo:niki:not really possible to happen - maybe delete eventually unless change of mind - should implement unseating a slot first and decide if player1 can un-seat their default slot
+    if (
+        join_as == "player1"
+    ):  # todo:niki:not really possible to happen - maybe delete eventually unless change of mind - should implement unseating a slot first and decide if player1 can un-seat their default slot
         if seek.player1 is None:
             seek.player1 = user
         else:
@@ -419,21 +446,46 @@ async def join_seek_bughouse(app_state: PychessGlobalAppState, user, seek_id, ga
         else:
             return {"type": "seek_occupied", "seekID": seek_id}
 
-    if seek.player1 is not None and seek.player2 is not None and seek.bugPlayer1 is not None and seek.bugPlayer2 is not None:
+    if (
+        seek.player1 is not None
+        and seek.player2 is not None
+        and seek.bugPlayer1 is not None
+        and seek.bugPlayer2 is not None
+    ):
         return await new_game_bughouse(app_state, seek_id, game_id)
     else:
         return {"type": "seek_joined", "seekID": seek_id}
 
 
-async def play_move(app_state: PychessGlobalAppState, user, game, move, clocks=None, clocks_b=None, board=None, last_move_captured_role=None):
-    log.debug("play_move %r %r %r %r %r %r %r", user, game, move, clocks, clocks_b, board, last_move_captured_role)
+async def play_move(
+    app_state: PychessGlobalAppState,
+    user,
+    game,
+    move,
+    clocks=None,
+    clocks_b=None,
+    board=None,
+    last_move_captured_role=None,
+):
+    log.debug(
+        "play_move %r %r %r %r %r %r %r",
+        user,
+        game,
+        move,
+        clocks,
+        clocks_b,
+        board,
+        last_move_captured_role,
+    )
     gameId = game.id
     invalid_move = False
     # log.info("%s move %s %s %s - %s" % (user.username, move, gameId, game.wplayer.username, game.bplayer.username))
 
     if game.status <= STARTED:
         try:
-            if not game.lastmovePerBoardAndUser[board].get(user.username) == move: # in case of resending after reconnect we can have same move sent multiple times from client
+            if (
+                not game.lastmovePerBoardAndUser[board].get(user.username) == move
+            ):  # in case of resending after reconnect we can have same move sent multiple times from client
                 await game.play_move(move, clocks, clocks_b, board, last_move_captured_role)
             else:
                 log.debug("move already played - probably resent twice after multiple reconnects")
@@ -454,7 +506,11 @@ async def play_move(app_state: PychessGlobalAppState, user, game, move, clocks=N
                 user.username,
             )
             game.status = INVALIDMOVE
-            game.result = "0-1" if user.username == game.wplayer.username or user.username == game.bplayerB.username else "1-0" #if team1 sent the invalid move 0-1 team2 wins
+            game.result = (
+                "0-1"
+                if user.username == game.wplayer.username or user.username == game.bplayerB.username
+                else "1-0"
+            )  # if team1 sent the invalid move 0-1 team2 wins
     else:
         # never play moves in finished games!
         return
@@ -464,7 +520,9 @@ async def play_move(app_state: PychessGlobalAppState, user, game, move, clocks=N
         await round_broadcast(game, board_response, channels=app_state.game_channels)
 
         for u in set(game.all_players):
-            await u.send_game_message(gameId, board_response) # todo:niki:why am i not just doint full broadcast?
+            await u.send_game_message(
+                gameId, board_response
+            )  # todo:niki:why am i not just doint full broadcast?
 
     if game.status > STARTED:
         response = {

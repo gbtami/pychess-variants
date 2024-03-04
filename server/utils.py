@@ -96,13 +96,13 @@ async def load_game(app_state: PychessGlobalAppState, game_id):
 
     if variant == "bughouse":
         from bug.utils_bug import load_game_bug
+
         return await load_game_bug(app_state, game_id)
 
     wp, bp = doc["us"]
 
     wplayer = await app_state.users.get(wp)
     bplayer = await app_state.users.get(bp)
-
 
     initial_fen = doc.get("if")
 
@@ -689,7 +689,10 @@ async def play_move(app_state: PychessGlobalAppState, user, game, move, clocks=N
         await round_broadcast(game, board_response, channels=app_state.game_channels)
 
         # bughouse has 2 more users to notify. If not bug, this will be empty:
-        bugUsers = filter(lambda p: not p.bot and p.username != opp_name and p.username != user.username, game.all_players)
+        bugUsers = filter(
+            lambda p: not p.bot and p.username != opp_name and p.username != user.username,
+            game.all_players,
+        )
         for u in bugUsers:
             await u.send_game_message(gameId, board_response)
 
