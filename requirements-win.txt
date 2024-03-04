@@ -1,6 +1,6 @@
 aiohttp-session==2.12.0
 aiohttp-remotes==1.2.0
-aiohttp-sse==2.1.0
+aiohttp-sse==2.2.0
 aiohttp==3.9.3
 brotli==1.1.0
 cryptography==42.0.5
