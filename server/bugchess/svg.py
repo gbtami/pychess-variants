@@ -20,14 +20,16 @@
 # <https://en.wikipedia.org/wiki/User:Cburnett> and also licensed under the
 # GNU General Public License.
 
-from bug import chess
+import bugchess
 import math
 
 import xml.etree.ElementTree as ET
 
 from typing import Iterable, Optional, Tuple, Union, Sequence
 
-from bug.chess import variant
+from const import TYPE_CHECKING
+if TYPE_CHECKING:
+    from bugchess import variant
 
 SQUARE_SIZE = 45
 MARGIN = 20
@@ -74,7 +76,7 @@ DEFAULT_COLORS = {
 class Arrow:
     """Details of an arrow to be drawn."""
 
-    def __init__(self, tail: chess.Square, head: chess.Square, *, color: str = "#888") -> None:
+    def __init__(self, tail: bugchess.Square, head: bugchess.Square, *, color: str = "#888") -> None:
         self.tail = tail
         self.head = head
         self.color = color
@@ -126,14 +128,14 @@ def _text(content: str, x: int, y: int, width: int, height: int) -> ET.Element:
     return t
 
 
-def piece(piece: chess.Piece, size: Optional[int] = None) -> str:
+def piece(piece: bugchess.Piece, size: Optional[int] = None) -> str:
     """
-    Renders the given :class:`chess.Piece` as an SVG image.
+    Renders the given :class:`bugchess.Piece` as an SVG image.
 
     >>> from bug import chess
-    >>> import bug.chess.svg
+    >>> import bugchess.svg
     >>>
-    >>> chess.svg.piece(chess.Piece.from_symbol("R"))  # doctest: +SKIP
+    >>> bugchess.svg.piece(bugchess.Piece.from_symbol("R"))  # doctest: +SKIP
 
     .. image:: ../docs/wR.svg
     """
@@ -144,16 +146,16 @@ def piece(piece: chess.Piece, size: Optional[int] = None) -> str:
 
 def bughouse_boards(
     boards: variant.BughouseBoards,
-    squaresL: Optional[chess.IntoSquareSet] = None,
-    squaresR: Optional[chess.IntoSquareSet] = None,
+    squaresL: Optional[bugchess.IntoSquareSet] = None,
+    squaresR: Optional[bugchess.IntoSquareSet] = None,
     flipped: bool = False,
     coordinates: bool = True,
-    lastmoveL: Optional[chess.Move] = None,
-    lastmoveR: Optional[chess.Move] = None,
-    checkL: Optional[chess.Square] = None,
-    checkR: Optional[chess.Square] = None,
-    arrowsL: Iterable[Union[Arrow, Tuple[chess.Square, chess.Square]]] = (),
-    arrowsR: Iterable[Union[Arrow, Tuple[chess.Square, chess.Square]]] = (),
+    lastmoveL: Optional[bugchess.Move] = None,
+    lastmoveR: Optional[bugchess.Move] = None,
+    checkL: Optional[bugchess.Square] = None,
+    checkR: Optional[bugchess.Square] = None,
+    arrowsL: Iterable[Union[Arrow, Tuple[bugchess.Square, bugchess.Square]]] = (),
+    arrowsR: Iterable[Union[Arrow, Tuple[bugchess.Square, bugchess.Square]]] = (),
     size: Optional[int] = None,
     style: Optional[str] = None,
     player_text: Optional[Sequence[Sequence[str]]] = None,
@@ -174,9 +176,9 @@ def bughouse_boards(
 
     defs = ET.SubElement(svg, "defs")
     if board:
-        for piece_color in chess.COLORS:
-            for piece_type in chess.PIECE_TYPES:
-                defs.append(ET.fromstring(PIECES[chess.Piece(piece_type, piece_color).symbol()]))
+        for piece_color in bugchess.COLORS:
+            for piece_type in bugchess.PIECE_TYPES:
+                defs.append(ET.fromstring(PIECES[bugchess.Piece(piece_type, piece_color).symbol()]))
 
     if squaresL or squaresR:
         defs.append(ET.fromstring(XX))
@@ -249,14 +251,14 @@ def bughouse_boards(
 
 
 def board(
-    board: Optional[chess.BaseBoard] = None,
+    board: Optional[bugchess.BaseBoard] = None,
     *,
-    squares: Optional[chess.IntoSquareSet] = None,
+    squares: Optional[bugchess.IntoSquareSet] = None,
     flipped: bool = False,
     coordinates: bool = True,
-    lastmove: Optional[chess.Move] = None,
-    check: Optional[chess.Square] = None,
-    arrows: Iterable[Union[Arrow, Tuple[chess.Square, chess.Square]]] = (),
+    lastmove: Optional[bugchess.Move] = None,
+    check: Optional[bugchess.Square] = None,
+    arrows: Iterable[Union[Arrow, Tuple[bugchess.Square, bugchess.Square]]] = (),
     size: Optional[int] = None,
     style: Optional[str] = None,
     base_svg: Optional[ET.Element] = None,
@@ -265,17 +267,17 @@ def board(
     """
     Renders a board with pieces and/or selected squares as an SVG image.
 
-    :param board: A :class:`chess.BaseBoard` for a chessboard with pieces or
+    :param board: A :class:`bugchess.BaseBoard` for a chessboard with pieces or
         ``None`` (the default) for a chessboard without pieces.
-    :param squares: A :class:`chess.SquareSet` with selected squares.
+    :param squares: A :class:`bugchess.SquareSet` with selected squares.
     :param flipped: Pass ``True`` to flip the board.
     :param coordinates: Pass ``False`` to disable coordinates in the margin.
-    :param lastmove: A :class:`chess.Move` to be highlighted.
+    :param lastmove: A :class:`bugchess.Move` to be highlighted.
     :param check: A square to be marked as check.
-    :param arrows: A list of :class:`~chess.svg.Arrow` objects like
-        ``[chess.svg.Arrow(chess.E2, chess.E4)]`` or a list of tuples like
-        ``[(chess.E2, chess.E4)]``. An arrow from a square pointing to the same
-        square is drawn as a circle, like ``[(chess.E2, chess.E2)]``.
+    :param arrows: A list of :class:`~bugchess.svg.Arrow` objects like
+        ``[bugchess.svg.Arrow(bugchess.E2, bugchess.E4)]`` or a list of tuples like
+        ``[(bugchess.E2, bugchess.E4)]``. An arrow from a square pointing to the same
+        square is drawn as a circle, like ``[(bugchess.E2, bugchess.E2)]``.
     :param size: The size of the image in pixels (e.g., ``400`` for a 400 by
         400 board) or ``None`` (the default) for no size limit.
     :param style: A CSS stylesheet to include in the SVG image.
@@ -284,18 +286,18 @@ def board(
                             not None.
 
     >>> from bug import chess
-    >>> import bug.chess.svg
+    >>> import bugchess.svg
     >>>
-    >>> board = chess.Board("8/8/8/8/4N3/8/8/8 w - - 0 1")
-    >>> squares = board.attacks(chess.E4)
-    >>> chess.svg.board(board=board, squares=squares)  # doctest: +SKIP
+    >>> board = bugchess.Board("8/8/8/8/4N3/8/8/8 w - - 0 1")
+    >>> squares = board.attacks(bugchess.E4)
+    >>> bugchess.svg.board(board=board, squares=squares)  # doctest: +SKIP
 
     .. image:: ../docs/Ne4.svg
     """
     margin = MARGIN if coordinates else 0
     if base_svg is not None:
         svg = base_svg
-    elif isinstance(board, chess.variant.CrazyhouseBoard):
+    elif isinstance(board, bugchess.variant.CrazyhouseBoard):
         ratio = (12 * SQUARE_SIZE + 2 * margin) / (8 * SQUARE_SIZE + 2 * margin)
         size_tuple = (size, int(size * ratio)) if size is not None else None
         svg = _svg((8 * SQUARE_SIZE + 2 * margin, 12 * SQUARE_SIZE + 2 * margin), size_tuple)
@@ -308,20 +310,20 @@ def board(
     if add_definitions or base_svg is None:
         defs = ET.SubElement(svg, "defs")
         if board:
-            for piece_color in chess.COLORS:
-                for piece_type in chess.PIECE_TYPES:
+            for piece_color in bugchess.COLORS:
+                for piece_type in bugchess.PIECE_TYPES:
                     defs.append(
-                        ET.fromstring(PIECES[chess.Piece(piece_type, piece_color).symbol()])
+                        ET.fromstring(PIECES[bugchess.Piece(piece_type, piece_color).symbol()])
                     )
 
-        squares = chess.SquareSet(squares) if squares else chess.SquareSet()
+        squares = bugchess.SquareSet(squares) if squares else bugchess.SquareSet()
         if squares:
             defs.append(ET.fromstring(XX))
 
         if check is not None:
             defs.append(ET.fromstring(CHECK_GRADIENT))
 
-    if isinstance(board, chess.variant.CrazyhouseBoard):
+    if isinstance(board, bugchess.variant.CrazyhouseBoard):
         svg_board = ET.SubElement(
             svg, "g", {"transform": "translate(0, {})".format(2 * SQUARE_SIZE)}
         )
@@ -335,18 +337,18 @@ def board(
         for s, p in zip(
             [svg_pocket_top, svg_pocket_bottom],
             [
-                board.pockets[chess.WHITE if flipped else chess.BLACK],
-                board.pockets[chess.BLACK if flipped else chess.WHITE],
+                board.pockets[bugchess.WHITE if flipped else bugchess.BLACK],
+                board.pockets[bugchess.BLACK if flipped else bugchess.WHITE],
             ],
         ):
-            for i, piece_type in enumerate(chess.PIECE_TYPES[:-1]):
+            for i, piece_type in enumerate(bugchess.PIECE_TYPES[:-1]):
                 # Render pieces.
                 ET.SubElement(
                     s,
                     "use",
                     {
                         "xlink:href": "#{}-{}".format(
-                            chess.COLOR_NAMES[p.color], chess.PIECE_NAMES[piece_type]
+                            bugchess.COLOR_NAMES[p.color], bugchess.PIECE_NAMES[piece_type]
                         ),
                         "transform": "translate({:d}, {:d})".format(i * SQUARE_SIZE, 0),
                     },
@@ -363,19 +365,19 @@ def board(
     else:
         svg_board = svg
 
-    for square, bb in enumerate(chess.BB_SQUARES):
-        file_index = chess.square_file(square)
-        rank_index = chess.square_rank(square)
+    for square, bb in enumerate(bugchess.BB_SQUARES):
+        file_index = bugchess.square_file(square)
+        rank_index = bugchess.square_rank(square)
 
         x = (file_index if not flipped else 7 - file_index) * SQUARE_SIZE + margin
         y = (7 - rank_index if not flipped else rank_index) * SQUARE_SIZE + margin
 
-        cls = ["square", "light" if chess.BB_LIGHT_SQUARES & bb else "dark"]
+        cls = ["square", "light" if bugchess.BB_LIGHT_SQUARES & bb else "dark"]
         if lastmove and square in [lastmove.from_square, lastmove.to_square]:
             cls.append("lastmove")
         fill_color = DEFAULT_COLORS[" ".join(cls)]
 
-        cls.append(chess.SQUARE_NAMES[square])
+        cls.append(bugchess.SQUARE_NAMES[square])
 
         ET.SubElement(
             svg_board,
@@ -414,7 +416,7 @@ def board(
                     "use",
                     {
                         "xlink:href": "#{}-{}".format(
-                            chess.COLOR_NAMES[piece.color], chess.PIECE_NAMES[piece.piece_type]
+                            bugchess.COLOR_NAMES[piece.color], bugchess.PIECE_NAMES[piece.piece_type]
                         ),
                         "transform": "translate({:d}, {:d})".format(x, y),
                     },
@@ -433,11 +435,11 @@ def board(
             )
 
     if coordinates:
-        for file_index, file_name in enumerate(chess.FILE_NAMES):
+        for file_index, file_name in enumerate(bugchess.FILE_NAMES):
             x = (file_index if not flipped else 7 - file_index) * SQUARE_SIZE + margin
             svg_board.append(_text(file_name, x, 0, SQUARE_SIZE, margin))
             svg_board.append(_text(file_name, x, margin + 8 * SQUARE_SIZE, SQUARE_SIZE, margin))
-        for rank_index, rank_name in enumerate(chess.RANK_NAMES):
+        for rank_index, rank_name in enumerate(bugchess.RANK_NAMES):
             y = (7 - rank_index if not flipped else rank_index) * SQUARE_SIZE + margin
             svg_board.append(_text(rank_name, 0, y, margin, SQUARE_SIZE))
             svg_board.append(_text(rank_name, margin + 8 * SQUARE_SIZE, y, margin, SQUARE_SIZE))
@@ -449,10 +451,10 @@ def board(
             tail, head = arrow  # type: ignore
             color = "#888"
 
-        tail_file = chess.square_file(tail)
-        tail_rank = chess.square_rank(tail)
-        head_file = chess.square_file(head)
-        head_rank = chess.square_rank(head)
+        tail_file = bugchess.square_file(tail)
+        tail_rank = bugchess.square_rank(tail)
+        head_file = bugchess.square_file(head)
+        head_rank = bugchess.square_rank(head)
 
         xtail = margin + (tail_file + 0.5 if not flipped else 7.5 - tail_file) * SQUARE_SIZE
         ytail = margin + (7.5 - tail_rank if not flipped else tail_rank + 0.5) * SQUARE_SIZE
@@ -546,15 +548,15 @@ def pocket(
     numbers_y_pos = 0 if numbers_top else SQUARE_SIZE
 
     defs = ET.SubElement(svg, "defs")
-    for i, piece_type in enumerate(chess.PIECE_TYPES[:-1]):
-        defs.append(ET.fromstring(PIECES[chess.Piece(piece_type, pocket.color).symbol()]))
+    for i, piece_type in enumerate(bugchess.PIECE_TYPES[:-1]):
+        defs.append(ET.fromstring(PIECES[bugchess.Piece(piece_type, pocket.color).symbol()]))
         # Render pieces.
         ET.SubElement(
             svg,
             "use",
             {
                 "xlink:href": "#{}-{}".format(
-                    chess.COLOR_NAMES[pocket.color], chess.PIECE_NAMES[piece_type]
+                    bugchess.COLOR_NAMES[pocket.color], bugchess.PIECE_NAMES[piece_type]
                 ),
                 "transform": "translate({:d}, {:d})".format(i * SQUARE_SIZE, pieces_y_pos),
             },

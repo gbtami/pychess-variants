@@ -5,13 +5,13 @@ import logging
 import aiohttp
 import aiohttp_session
 from aiohttp import WSMessage, web
+from aiohttp.web_ws import WebSocketResponse
 
 from const import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from user import User
 
-from utils import MyWebSocketResponse
 from pychess_global_app_state_utils import get_app_state
 
 log = logging.getLogger(__name__)
@@ -21,6 +21,13 @@ async def get_user(session: aiohttp_session.Session, request: web.Request) -> Us
     session_user = session.get("user_name")
     user = await get_app_state(request.app).users.get(session_user)
     return user
+
+
+# See https://github.com/aio-libs/aiohttp/issues/3122 why this is needed
+class MyWebSocketResponse(WebSocketResponse):
+    @property
+    def closed(self):
+        return self._closed or self._req is None or self._req.transport is None
 
 
 async def process_ws(

@@ -39,8 +39,8 @@ from typing import (
     Union,
 )
 
-from bug import chess
-from bug.chess.variant import BughouseBoards
+import bugchess
+from bugchess.variant import BughouseBoards
 
 LOGGER = logging.getLogger(__name__)
 
@@ -142,17 +142,17 @@ class GameNode:
         self.parent = None  # type: Optional[GameNode]
         self.variations = []  # type: List[GameNode]
 
-        self.move = None  # type: Optional[chess.Move]
+        self.move = None  # type: Optional[bugchess.Move]
         self.nags = set()  # type: Set[int]
         self.starting_comment = ""
         self.comment = ""
-        self.board_cached = None  # type: Optional[weakref.ref[chess.Board]]
+        self.board_cached = None  # type: Optional[weakref.ref[bugchess.Board]]
 
     @classmethod
     def dangling_node(cls) -> "GameNode":
         return GameNode()
 
-    def board(self, *, _cache: bool = True) -> chess.Board:
+    def board(self, *, _cache: bool = True) -> bugchess.Board:
         """
         Gets a board with the position of the node.
 
@@ -175,7 +175,7 @@ class GameNode:
     def san(self) -> str:
         """
         Gets the standard algebraic notation of the move leading to this node.
-        See :func:`chess.Board.san()`.
+        See :func:`bugchess.Board.san()`.
 
         Do not call this on the root node.
         """
@@ -184,7 +184,7 @@ class GameNode:
     def uci(self, *, chess960: Optional[bool] = None) -> str:
         """
         Gets the UCI notation of the move leading to this node.
-        See :func:`chess.Board.uci()`.
+        See :func:`bugchess.Board.uci()`.
 
         Do not call this on the root node.
         """
@@ -250,7 +250,7 @@ class GameNode:
 
         return not self.parent.variations or self.parent.variations[0] == self
 
-    def __getitem__(self, move: Union[int, chess.Move]) -> "GameNode":
+    def __getitem__(self, move: Union[int, bugchess.Move]) -> "GameNode":
         try:
             return self.variations[move]
         except TypeError:
@@ -260,43 +260,43 @@ class GameNode:
 
         raise KeyError(move)
 
-    def variation(self, move: Union[int, chess.Move]) -> "GameNode":
+    def variation(self, move: Union[int, bugchess.Move]) -> "GameNode":
         """
         Gets a child node by either the move or the variation index.
         """
         return self[move]
 
-    def has_variation(self, move: chess.Move) -> bool:
+    def has_variation(self, move: bugchess.Move) -> bool:
         """Checks if the given *move* appears as a variation."""
         return move in (variation.move for variation in self.variations)
 
-    def promote_to_main(self, move: chess.Move) -> None:
+    def promote_to_main(self, move: bugchess.Move) -> None:
         """Promotes the given *move* to the main variation."""
         variation = self[move]
         self.variations.remove(variation)
         self.variations.insert(0, variation)
 
-    def promote(self, move: chess.Move) -> None:
+    def promote(self, move: bugchess.Move) -> None:
         """Moves a variation one up in the list of variations."""
         variation = self[move]
         i = self.variations.index(variation)
         if i > 0:
             self.variations[i - 1], self.variations[i] = self.variations[i], self.variations[i - 1]
 
-    def demote(self, move: chess.Move) -> None:
+    def demote(self, move: bugchess.Move) -> None:
         """Moves a variation one down in the list of variations."""
         variation = self[move]
         i = self.variations.index(variation)
         if i < len(self.variations) - 1:
             self.variations[i + 1], self.variations[i] = self.variations[i], self.variations[i + 1]
 
-    def remove_variation(self, move: chess.Move) -> None:
+    def remove_variation(self, move: bugchess.Move) -> None:
         """Removes a variation."""
         self.variations.remove(self.variation(move))
 
     def add_variation(
         self,
-        move: chess.Move,
+        move: bugchess.Move,
         *,
         comment: str = "",
         starting_comment: str = "",
@@ -313,7 +313,7 @@ class GameNode:
         self.variations.append(node)
         return node
 
-    def add_main_variation(self, move: chess.Move, *, comment: str = "") -> "GameNode":
+    def add_main_variation(self, move: bugchess.Move, *, comment: str = "") -> "GameNode":
         """
         Creates a child node with the given attributes and promotes it to the
         main variation.
@@ -327,13 +327,13 @@ class GameNode:
         """Returns an iterator over the mainline starting after this node."""
         return Mainline(self, lambda node: node)
 
-    def mainline_moves(self) -> "Mainline[chess.Move]":
+    def mainline_moves(self) -> "Mainline[bugchess.Move]":
         """Returns an iterator over the main moves after this node."""
         return Mainline(self, lambda node: node.move)
 
     def add_line(
         self,
-        moves: Iterable[chess.Move],
+        moves: Iterable[bugchess.Move],
         *,
         comment: str = "",
         starting_comment: str = "",
@@ -360,7 +360,7 @@ class GameNode:
 
         return node
 
-    def _accept_node(self, parent_board: chess.Board, visitor: "BaseVisitor[ResultT]") -> None:
+    def _accept_node(self, parent_board: bugchess.Board, visitor: "BaseVisitor[ResultT]") -> None:
         if self.starting_comment:
             visitor.visit_comment(self.starting_comment)
 
@@ -377,7 +377,7 @@ class GameNode:
             visitor.visit_comment(self.comment)
 
     def accept(
-        self, visitor: "BaseVisitor[ResultT]", *, _parent_board: Optional[chess.Board] = None
+        self, visitor: "BaseVisitor[ResultT]", *, _parent_board: Optional[bugchess.Board] = None
     ) -> ResultT:
         """
         Traverses game nodes in PGN order using the given *visitor*. Starts with
@@ -443,7 +443,7 @@ class GameNode:
             type(self).__name__,
             id(self),
             self.parent.board().fullmove_number,
-            "." if self.parent.board().turn == chess.WHITE else "...",
+            "." if self.parent.board().turn == bugchess.WHITE else "...",
             self.san(),
         )
 
@@ -455,7 +455,7 @@ class Game(GameNode):
     """
     The root node of a game with extra information such as headers and the
     starting position. Also has all the other properties and methods of
-    :class:`~chess.pgn.GameNode`.
+    :class:`~bugchess.pgn.GameNode`.
     """
 
     def __init__(
@@ -465,7 +465,7 @@ class Game(GameNode):
         self.headers = Headers(headers)
         self.errors = []  # type: List[Exception]
 
-    def board(self, *, _cache: bool = False) -> chess.Board:
+    def board(self, *, _cache: bool = False) -> bugchess.Board:
         """
         Gets the starting position of the game.
 
@@ -474,7 +474,7 @@ class Game(GameNode):
         """
         return self.headers.board()
 
-    def setup(self, board: Union[chess.Board, chess.variant.BughouseBoards, str]) -> None:
+    def setup(self, board: Union[bugchess.Board, bugchess.variant.BughouseBoards, str]) -> None:
         """
         Sets up a specific starting position. This sets (or resets) the
         ``FEN``, ``SetUp``, and ``Variant`` header tags.
@@ -482,7 +482,7 @@ class Game(GameNode):
         try:
             fen = board.fen()
         except AttributeError:
-            board = chess.Board(board)
+            board = bugchess.Board(board)
             board.chess960 = board.has_chess960_castling_rights()
             fen = board.fen()
 
@@ -525,7 +525,7 @@ class Game(GameNode):
         return visitor.result()
 
     @classmethod
-    def from_bughouse_boards(cls, boards: chess.variant.BughouseBoards) -> GameT:
+    def from_bughouse_boards(cls, boards: bugchess.variant.BughouseBoards) -> GameT:
         game = cls()
         del game.headers["Black"]
         del game.headers["White"]
@@ -541,8 +541,8 @@ class Game(GameNode):
         return game
 
     @classmethod
-    def from_board(cls: Type[GameT], board: chess.Board) -> GameT:
-        """Creates a game from the move stack of a :class:`~chess.Board()`."""
+    def from_board(cls: Type[GameT], board: bugchess.Board) -> GameT:
+        """Creates a game from the move stack of a :class:`~bugchess.Board()`."""
         # Setup the initial position.
         game = cls()
         game.setup(board.root())
@@ -623,15 +623,15 @@ class Headers(MutableMapping[str, str]):
             "wild/8a",
         ]
 
-    def variant(self) -> Type[Union[chess.Board, BughouseBoards]]:
+    def variant(self) -> Type[Union[bugchess.Board, BughouseBoards]]:
         if "Variant" not in self or self.is_chess960() or self.is_wild():
-            return chess.Board
+            return bugchess.Board
         else:
-            from bug.chess.variant import find_variant
+            from bugchess.variant import find_variant
 
             return find_variant(self["Variant"])
 
-    def board(self) -> Union[chess.Board, BughouseBoards]:
+    def board(self) -> Union[bugchess.Board, BughouseBoards]:
         VariantBoard = self.variant()
         fen = self.get("FEN", VariantBoard.starting_fen)
         board = VariantBoard(fen, chess960=self.is_chess960())
@@ -759,8 +759,8 @@ class BaseVisitor(Generic[ResultT]):
     """
     Base class for visitors.
 
-    Use with :func:`chess.pgn.Game.accept()` or
-    :func:`chess.pgn.GameNode.accept()` or :func:`chess.pgn.read_game()`.
+    Use with :func:`bugchess.pgn.Game.accept()` or
+    :func:`bugchess.pgn.GameNode.accept()` or :func:`bugchess.pgn.read_game()`.
 
     The methods are called in PGN order.
     """
@@ -781,7 +781,7 @@ class BaseVisitor(Generic[ResultT]):
         """Called after visiting game headers."""
         pass
 
-    def parse_san(self, board: Union[chess.Board, BughouseBoards], san: str) -> chess.Move:
+    def parse_san(self, board: Union[bugchess.Board, BughouseBoards], san: str) -> bugchess.Move:
         """
         When the visitor is used by a parser, this is called to parse a move
         in standard algebraic notation.
@@ -796,7 +796,7 @@ class BaseVisitor(Generic[ResultT]):
             san = "O-O-O"
         return board.parse_san(san)
 
-    def visit_move(self, board: chess.Board, move: chess.Move) -> None:
+    def visit_move(self, board: bugchess.Board, move: bugchess.Move) -> None:
         """
         Called for each move.
 
@@ -805,7 +805,7 @@ class BaseVisitor(Generic[ResultT]):
         """
         pass
 
-    def visit_board(self, board: chess.Board) -> None:
+    def visit_board(self, board: bugchess.Board) -> None:
         """
         Called for the starting position of the game and after each move.
 
@@ -853,7 +853,7 @@ class BaseVisitor(Generic[ResultT]):
 
 class GameBuilder(BaseVisitor[Game]):
     """
-    Creates a game model. Default visitor for :func:`~chess.pgn.read_game()`.
+    Creates a game model. Default visitor for :func:`~bugchess.pgn.read_game()`.
     """
 
     def __init__(self, *, Game: Callable[[], Game] = Game) -> None:
@@ -940,7 +940,7 @@ class GameBuilder(BaseVisitor[Game]):
             new_comment = [self.starting_comment, comment]
             self.starting_comment = "\n".join(new_comment).strip()
 
-    def visit_move(self, board: chess.Board, move: chess.Move) -> None:
+    def visit_move(self, board: bugchess.Board, move: bugchess.Move) -> None:
         self.variation_stack[-1] = self.variation_stack[-1].add_variation(move)
         self.variation_stack[-1].starting_comment = self.starting_comment
         self.starting_comment = ""
@@ -948,7 +948,7 @@ class GameBuilder(BaseVisitor[Game]):
 
     def handle_error(self, error: Exception) -> None:
         """
-        Populates :data:`chess.pgn.Game.errors` with encountered errors and
+        Populates :data:`bugchess.pgn.Game.errors` with encountered errors and
         logs them.
         """
         LOGGER.exception("error during pgn parsing")
@@ -956,7 +956,7 @@ class GameBuilder(BaseVisitor[Game]):
 
     def result(self) -> Game:
         """
-        Returns the visited :class:`~chess.pgn.Game()`.
+        Returns the visited :class:`~bugchess.pgn.Game()`.
         """
         return self.game
 
@@ -981,7 +981,7 @@ class HeadersBuilder(BaseVisitor[Headers]):
         return self.headers
 
 
-class BoardBuilder(BaseVisitor[chess.Board]):
+class BoardBuilder(BaseVisitor[bugchess.Board]):
     """
     Returns the final position of the game. The mainline of the game is
     on the move stack.
@@ -997,11 +997,11 @@ class BoardBuilder(BaseVisitor[chess.Board]):
     def end_variation(self) -> None:
         self.skip_variation_depth = max(self.skip_variation_depth - 1, 0)
 
-    def visit_board(self, board: chess.Board) -> None:
+    def visit_board(self, board: bugchess.Board) -> None:
         if not self.skip_variation_depth:
             self.board = board
 
-    def result(self) -> chess.Board:
+    def result(self) -> bugchess.Board:
         return self.board
 
 
@@ -1024,9 +1024,9 @@ class StringExporter(BaseVisitor[str]):
 
     >>> from bug import chess
     >>>
-    >>> game = chess.pgn.Game()
+    >>> game = bugchess.pgn.Game()
     >>>
-    >>> exporter = chess.pgn.StringExporter(headers=True, variations=True, comments=True)
+    >>> exporter = bugchess.pgn.StringExporter(headers=True, variations=True, comments=True)
     >>> pgn_string = game.accept(exporter)
 
     Only *columns* characters are written per line. If *columns* is ``None``,
@@ -1113,13 +1113,13 @@ class StringExporter(BaseVisitor[str]):
             self.write_token("$" + str(nag) + " ")
 
     def visit_move(
-        self, board: Union[chess.Board, chess.variant.BughouseBoards], move: chess.Move
+        self, board: Union[bugchess.Board, bugchess.variant.BughouseBoards], move: bugchess.Move
     ) -> None:
         if self.variations or not self.variation_depth:
             # Write the move number.
-            if isinstance(board, bug.chess.variant.BughouseBoards):
+            if isinstance(board, bugchess.variant.BughouseBoards):
                 board = board.boards[move.board_id]
-                if board.board_id == bug.chess.variant.BOARD_A:
+                if board.board_id == bugchess.variant.BOARD_A:
                     if board.turn == 0:
                         player = "a"
                     else:
@@ -1140,7 +1140,7 @@ class StringExporter(BaseVisitor[str]):
                 )
 
             else:
-                if board.turn == chess.WHITE:
+                if board.turn == bugchess.WHITE:
                     self.write_token(str(board.fullmove_number) + ". ")
                 elif self.force_movenumber:
                     self.write_token(str(board.fullmove_number) + "... ")
@@ -1164,7 +1164,7 @@ class StringExporter(BaseVisitor[str]):
 
 class FileExporter(StringExporter):
     """
-    Acts like a :class:`~chess.pgn.StringExporter`, but games are written
+    Acts like a :class:`~bugchess.pgn.StringExporter`, but games are written
     directly into a text file.
 
     There will always be a blank line after each game. Handling encodings is up
@@ -1172,10 +1172,10 @@ class FileExporter(StringExporter):
 
     >>> from bug import chess
     >>>
-    >>> game = chess.pgn.Game()
+    >>> game = bugchess.pgn.Game()
     >>>
     >>> new_pgn = open("/dev/null", "w", encoding="utf-8")
-    >>> exporter = chess.pgn.FileExporter(new_pgn)
+    >>> exporter = bugchess.pgn.FileExporter(new_pgn)
     >>> game.accept(exporter)
     """
 
@@ -1222,8 +1222,8 @@ def read_game(
     >>>
     >>> pgn = open("data/pgn/kasparov-deep-blue-1997.pgn")
     >>>
-    >>> first_game = chess.pgn.read_game(pgn)
-    >>> second_game = chess.pgn.read_game(pgn)
+    >>> first_game = bugchess.pgn.read_game(pgn)
+    >>> second_game = bugchess.pgn.read_game(pgn)
     >>>
     >>> first_game.headers["Event"]
     'IBM Man-Machine, New York USA'
@@ -1248,7 +1248,7 @@ def read_game(
     >>> import io
     >>>
     >>> pgn = io.StringIO("1. e4 e5 2. Nf3 *")
-    >>> game = chess.pgn.read_game(pgn)
+    >>> game = bugchess.pgn.read_game(pgn)
 
     The end of a game is determined by a completely blank line or the end of
     the file. (Of course, blank lines in comments are possible).
@@ -1259,8 +1259,8 @@ def read_game(
 
     The parser is relatively forgiving when it comes to errors. It skips over
     tokens it can not parse. Any exceptions are logged and collected in
-    :data:`Game.errors <chess.pgn.Game.errors>`. This behavior can be
-    :func:`overriden <chess.pgn.GameBuilder.handle_error>`.
+    :data:`Game.errors <bugchess.pgn.Game.errors>`. This behavior can be
+    :func:`overriden <bugchess.pgn.GameBuilder.handle_error>`.
 
     Returns the parsed game or ``None`` if the end of file is reached.
     """
@@ -1329,7 +1329,7 @@ def read_game(
             VariantBoard = headers.variant()
         except ValueError as error:
             visitor.handle_error(error)
-            VariantBoard = chess.Board
+            VariantBoard = bugchess.Board
 
         # Initial position.
         fen = headers.get("FEN", VariantBoard.starting_fen)
@@ -1491,7 +1491,7 @@ def read_headers(handle: TextIO) -> Optional[Headers]:
     >>> while True:
     ...     offset = pgn.tell()
     ...
-    ...     headers = chess.pgn.read_headers(pgn)
+    ...     headers = bugchess.pgn.read_headers(pgn)
     ...     if headers is None:
     ...         break
     ...
@@ -1502,7 +1502,7 @@ def read_headers(handle: TextIO) -> Optional[Headers]:
 
     >>> for offset in kasparov_offsets:
     ...     pgn.seek(offset)
-    ...     chess.pgn.read_game(pgn)  # doctest: +ELLIPSIS
+    ...     bugchess.pgn.read_game(pgn)  # doctest: +ELLIPSIS
     0
     <Game at ... ('Garry Kasparov' vs. 'Deep Blue (Computer)', 1997.??.??)>
     1436
@@ -1527,7 +1527,7 @@ BoardCreator = BoardBuilder
 
 
 if __name__ == "__main__":
-    import bug.chess.pgn
+    import bugchess.pgn
 
     pgn = """[Event "Live Chess - Bughouse"]
 [Site "Chess.com"]
@@ -1569,5 +1569,5 @@ Kxf2 1B. e4 {[%clk 0:00:01.3]} 1b. e6 {[%clk 0:00:00.1]} 2B. d4 {[%clk
 17a. Nxf4+ 18A. Bxf4 18a. Q@f2+ 19A. Kh1 20b. Nxe4+ {[%clk 0:00:00.9]} 21B. Ke1
 {[%clk 0:00:01.8]} 19a. Qxg1# 0-1
     """
-    first_game = bug.chess.pgn.read_game(pgn)
+    first_game = bugchess.pgn.read_game(pgn)
     print(first_game)

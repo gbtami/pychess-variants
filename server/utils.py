@@ -12,7 +12,6 @@ from functools import partial
 
 from aiohttp import web
 import aiohttp_session
-from aiohttp.web import WebSocketResponse
 from aiohttp_sse import sse_response
 
 from broadcast import round_broadcast
@@ -49,13 +48,6 @@ try:
     sf.set_option("VariantPath", "variants.ini")
 except ImportError:
     log.error("No pyffish module installed!", exc_info=True)
-
-
-# See https://github.com/aio-libs/aiohttp/issues/3122 why this is needed
-class MyWebSocketResponse(WebSocketResponse):
-    @property
-    def closed(self):
-        return self._closed or self._req is None or self._req.transport is None
 
 
 async def tv_game(app_state: PychessGlobalAppState):

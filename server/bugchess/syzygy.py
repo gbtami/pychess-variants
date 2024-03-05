@@ -26,7 +26,7 @@ import threading
 
 # import typing
 
-from bug import chess
+import bugchess
 
 from types import TracebackType
 from typing import Iterator, List, MutableMapping, Optional, Tuple, Type, Union
@@ -112,11 +112,11 @@ TRIANGLE = [
 INVTRIANGLE = [1, 2, 3, 10, 11, 19, 0, 9, 18, 27]
 
 
-def offdiag(square: chess.Square) -> int:
-    return chess.square_rank(square) - chess.square_file(square)
+def offdiag(square: bugchess.Square) -> int:
+    return bugchess.square_rank(square) - bugchess.square_file(square)
 
 
-def flipdiag(square: chess.Square) -> chess.Square:
+def flipdiag(square: bugchess.Square) -> bugchess.Square:
     return ((square >> 3) | (square << 3)) & 63
 
 
@@ -1744,10 +1744,10 @@ PP_IDX = [
 ]
 
 
-def test45(sq: chess.Square) -> bool:
+def test45(sq: bugchess.Square) -> bool:
     return bool(
-        chess.BB_SQUARES[sq]
-        & (chess.BB_A5 | chess.BB_A6 | chess.BB_A7 | chess.BB_B5 | chess.BB_B6 | chess.BB_C5)
+        bugchess.BB_SQUARES[sq]
+        & (bugchess.BB_A5 | bugchess.BB_A6 | bugchess.BB_A7 | bugchess.BB_B5 | bugchess.BB_B6 | bugchess.BB_C5)
     )
 
 
@@ -1965,30 +1965,30 @@ def all_dependencies(targets: str, *, one_king: bool = True) -> Iterator[str]:
         open_list.extend(_dependencies(name, one_king=one_king))
 
 
-def calc_key(board: chess.BaseBoard, *, mirror: bool = False) -> str:
-    w = board.occupied_co[chess.WHITE ^ mirror]
-    b = board.occupied_co[chess.BLACK ^ mirror]
+def calc_key(board: bugchess.BaseBoard, *, mirror: bool = False) -> str:
+    w = board.occupied_co[bugchess.WHITE ^ mirror]
+    b = board.occupied_co[bugchess.BLACK ^ mirror]
 
     return "".join(
         [
-            "K" * chess.popcount(board.kings & w),
-            "Q" * chess.popcount(board.queens & w),
-            "R" * chess.popcount(board.rooks & w),
-            "B" * chess.popcount(board.bishops & w),
-            "N" * chess.popcount(board.knights & w),
-            "P" * chess.popcount(board.pawns & w),
+            "K" * bugchess.popcount(board.kings & w),
+            "Q" * bugchess.popcount(board.queens & w),
+            "R" * bugchess.popcount(board.rooks & w),
+            "B" * bugchess.popcount(board.bishops & w),
+            "N" * bugchess.popcount(board.knights & w),
+            "P" * bugchess.popcount(board.pawns & w),
             "v",
-            "K" * chess.popcount(board.kings & b),
-            "Q" * chess.popcount(board.queens & b),
-            "R" * chess.popcount(board.rooks & b),
-            "B" * chess.popcount(board.bishops & b),
-            "N" * chess.popcount(board.knights & b),
-            "P" * chess.popcount(board.pawns & b),
+            "K" * bugchess.popcount(board.kings & b),
+            "Q" * bugchess.popcount(board.queens & b),
+            "R" * bugchess.popcount(board.rooks & b),
+            "B" * bugchess.popcount(board.bishops & b),
+            "N" * bugchess.popcount(board.knights & b),
+            "P" * bugchess.popcount(board.pawns & b),
         ]
     )
 
 
-def recalc_key(pieces: List[chess.PieceType], *, mirror: bool = False) -> str:
+def recalc_key(pieces: List[bugchess.PieceType], *, mirror: bool = False) -> str:
     # Some endgames are stored with a different key than their filename
     # indicates: http://talkchess.com/forum/viewtopic.php?p=695509#695509
 
@@ -2066,7 +2066,7 @@ class PawnFileDataDtz:
 
 
 class Table:
-    def __init__(self, path: PathLike, *, variant: Type[chess.Board] = chess.Board) -> None:
+    def __init__(self, path: PathLike, *, variant: Type[bugchess.Board] = bugchess.Board) -> None:
         self.path = path
         self.variant = variant
 
@@ -2290,14 +2290,14 @@ class Table:
             d.symlen[s] = d.symlen[s1] + d.symlen[s2] + 1
         tmp[s] = 1
 
-    def pawn_file(self, pos: chess.Square) -> int:
+    def pawn_file(self, pos: bugchess.Square) -> int:
         for i in range(1, self.pawns[0]):
             if FLAP[pos[0]] > FLAP[pos[i]]:
                 pos[0], pos[i] = pos[i], pos[0]
 
         return FILE_TO_FILE[pos[0] & 0x07]
 
-    def encode_piece(self, norm: List[int], pos: List[chess.Square], factor: int) -> int:
+    def encode_piece(self, norm: List[int], pos: List[bugchess.Square], factor: int) -> int:
         n = self.num
 
         if self.enc_type < 3:
@@ -2423,7 +2423,7 @@ class Table:
 
         return idx
 
-    def encode_pawn(self, norm: List[int], pos: chess.Square, factor: int) -> int:
+    def encode_pawn(self, norm: List[int], pos: bugchess.Square, factor: int) -> int:
         n = self.num
 
         if pos[0] & 0x04:
@@ -2727,7 +2727,7 @@ class WdlTable(Table):
         self.set_norm_piece(self.norm[1], self.pieces[1])
         self.tb_size[1] = self.calc_factors_piece(self.factor[1], order, self.norm[1])
 
-    def probe_wdl_table(self, board: chess.Board) -> int:
+    def probe_wdl_table(self, board: bugchess.Board) -> int:
         try:
             with self.read_condition:
                 self.read_count += 1
@@ -2737,7 +2737,7 @@ class WdlTable(Table):
                 self.read_count -= 1
                 self.read_condition.notify()
 
-    def _probe_wdl_table(self, board: chess.Board) -> int:
+    def _probe_wdl_table(self, board: bugchess.Board) -> int:
         self.init_table_wdl()
 
         key = calc_key(board)
@@ -2746,13 +2746,13 @@ class WdlTable(Table):
             if key != self.key:
                 cmirror = 8
                 mirror = 0x38
-                bside = int(board.turn == chess.WHITE)
+                bside = int(board.turn == bugchess.WHITE)
             else:
                 cmirror = mirror = 0
-                bside = int(board.turn != chess.WHITE)
+                bside = int(board.turn != bugchess.WHITE)
         else:
-            cmirror = 0 if board.turn == chess.WHITE else 8
-            mirror = 0 if board.turn == chess.WHITE else 0x38
+            cmirror = 0 if board.turn == bugchess.WHITE else 8
+            mirror = 0 if board.turn == bugchess.WHITE else 0x38
             bside = 0
 
         if not self.has_pawns:
@@ -2761,9 +2761,9 @@ class WdlTable(Table):
             while i < self.num:
                 piece_type = self.pieces[bside][i] & 0x07
                 color = (self.pieces[bside][i] ^ cmirror) >> 3
-                bb = board.pieces_mask(piece_type, chess.WHITE if color == 0 else chess.BLACK)
+                bb = board.pieces_mask(piece_type, bugchess.WHITE if color == 0 else bugchess.BLACK)
 
-                for square in chess.scan_forward(bb):
+                for square in bugchess.scan_forward(bb):
                     p[i] = square
                     i += 1
 
@@ -2775,9 +2775,9 @@ class WdlTable(Table):
             k = self.files[0].pieces[0][0] ^ cmirror
             color = k >> 3
             piece_type = k & 0x07
-            bb = board.pieces_mask(piece_type, chess.WHITE if color == 0 else chess.BLACK)
+            bb = board.pieces_mask(piece_type, bugchess.WHITE if color == 0 else bugchess.BLACK)
 
-            for square in chess.scan_forward(bb):
+            for square in bugchess.scan_forward(bb):
                 p[i] = square ^ mirror
                 i += 1
 
@@ -2786,9 +2786,9 @@ class WdlTable(Table):
             while i < self.num:
                 color = (pc[i] ^ cmirror) >> 3
                 piece_type = pc[i] & 0x07
-                bb = board.pieces_mask(piece_type, chess.WHITE if color == 0 else chess.BLACK)
+                bb = board.pieces_mask(piece_type, bugchess.WHITE if color == 0 else bugchess.BLACK)
 
-                for square in chess.scan_forward(bb):
+                for square in bugchess.scan_forward(bb):
                     p[i] = square ^ mirror
                     i += 1
 
@@ -2896,7 +2896,7 @@ class DtzTable(Table):
 
             self.initialized = True
 
-    def probe_dtz_table(self, board: chess.Board, wdl: int) -> Tuple[int, int]:
+    def probe_dtz_table(self, board: bugchess.Board, wdl: int) -> Tuple[int, int]:
         try:
             with self.read_condition:
                 self.read_count += 1
@@ -2906,7 +2906,7 @@ class DtzTable(Table):
                 self.read_count -= 1
                 self.read_condition.notify()
 
-    def _probe_dtz_table(self, board: chess.Board, wdl: int) -> Tuple[int, int]:
+    def _probe_dtz_table(self, board: bugchess.Board, wdl: int) -> Tuple[int, int]:
         self.init_table_dtz()
 
         key = calc_key(board)
@@ -2915,13 +2915,13 @@ class DtzTable(Table):
             if key != self.key:
                 cmirror = 8
                 mirror = 0x38
-                bside = int(board.turn == chess.WHITE)
+                bside = int(board.turn == bugchess.WHITE)
             else:
                 cmirror = mirror = 0
-                bside = int(board.turn != chess.WHITE)
+                bside = int(board.turn != bugchess.WHITE)
         else:
-            cmirror = 0 if board.turn == chess.WHITE else 8
-            mirror = 0 if board.turn == chess.WHITE else 0x38
+            cmirror = 0 if board.turn == bugchess.WHITE else 8
+            mirror = 0 if board.turn == bugchess.WHITE else 0x38
             bside = 0
 
         if not self.has_pawns:
@@ -2934,9 +2934,9 @@ class DtzTable(Table):
             while i < self.num:
                 piece_type = pc[i] & 0x07
                 color = (pc[i] ^ cmirror) >> 3
-                bb = board.pieces_mask(piece_type, chess.WHITE if color == 0 else chess.BLACK)
+                bb = board.pieces_mask(piece_type, bugchess.WHITE if color == 0 else bugchess.BLACK)
 
-                for square in chess.scan_forward(bb):
+                for square in bugchess.scan_forward(bb):
                     p[i] = square
                     i += 1
 
@@ -2957,11 +2957,11 @@ class DtzTable(Table):
             k = self.files[0].pieces[0] ^ cmirror
             piece_type = k & 0x07
             color = k >> 3
-            bb = board.pieces_mask(piece_type, chess.WHITE if color == 0 else chess.BLACK)
+            bb = board.pieces_mask(piece_type, bugchess.WHITE if color == 0 else bugchess.BLACK)
 
             i = 0
             p = [0 for _ in range(TBPIECES)]
-            for square in chess.scan_forward(bb):
+            for square in bugchess.scan_forward(bb):
                 p[i] = square ^ mirror
                 i += 1
             f = self.pawn_file(p)
@@ -2972,9 +2972,9 @@ class DtzTable(Table):
             while i < self.num:
                 piece_type = pc[i] & 0x07
                 color = (pc[i] ^ cmirror) >> 3
-                bb = board.pieces_mask(piece_type, chess.WHITE if color == 0 else chess.BLACK)
+                bb = board.pieces_mask(piece_type, bugchess.WHITE if color == 0 else bugchess.BLACK)
 
-                for square in chess.scan_forward(bb):
+                for square in bugchess.scan_forward(bb):
                     p[i] = square ^ mirror
                     i += 1
 
@@ -3025,7 +3025,7 @@ class Tablebase:
     """
 
     def __init__(
-        self, *, max_fds: Optional[int] = 128, VariantBoard: Type[chess.Board] = chess.Board
+        self, *, max_fds: Optional[int] = 128, VariantBoard: Type[bugchess.Board] = bugchess.Board
     ) -> None:
         self.variant = VariantBoard
 
@@ -3099,7 +3099,7 @@ class Tablebase:
 
         return num
 
-    def probe_wdl_table(self, board: chess.Board) -> int:
+    def probe_wdl_table(self, board: bugchess.Board) -> int:
         # Test for variant end.
         if board.is_variant_win():
             return 2
@@ -3123,7 +3123,7 @@ class Tablebase:
         return table.probe_wdl_table(board)
 
     def probe_ab(
-        self, board: chess.Board, alpha: int, beta: int, threats: bool = False
+        self, board: bugchess.Board, alpha: int, beta: int, threats: bool = False
     ) -> Tuple[int, int]:
         if self.variant.captures_compulsory:
             if board.is_variant_win():
@@ -3157,9 +3157,9 @@ class Tablebase:
             return v, 1
 
     def sprobe_ab(
-        self, board: chess.Board, alpha: int, beta: int, threats: bool = False
+        self, board: bugchess.Board, alpha: int, beta: int, threats: bool = False
     ) -> Tuple[int, int]:
-        if chess.popcount(board.occupied_co[not board.turn]) > 1:
+        if bugchess.popcount(board.occupied_co[not board.turn]) > 1:
             v, captures_found = self.sprobe_capts(board, alpha, beta)
             if captures_found:
                 return v, 2
@@ -3169,7 +3169,7 @@ class Tablebase:
 
         threats_found = False
 
-        if threats or chess.popcount(board.occupied) >= 6:
+        if threats or bugchess.popcount(board.occupied) >= 6:
             for threat in board.generate_legal_moves(~board.pawns):
                 board.push(threat)
                 try:
@@ -3190,7 +3190,7 @@ class Tablebase:
         else:
             return alpha, 3 if threats_found else 1
 
-    def sprobe_capts(self, board: chess.Board, alpha: int, beta: int) -> Tuple[int, int]:
+    def sprobe_capts(self, board: bugchess.Board, alpha: int, beta: int) -> Tuple[int, int]:
         captures_found = False
 
         for move in board.generate_legal_captures():
@@ -3210,7 +3210,7 @@ class Tablebase:
 
         return alpha, captures_found
 
-    def probe_wdl(self, board: chess.Board) -> int:
+    def probe_wdl(self, board: bugchess.Board) -> int:
         """
         Probes WDL tables for win/draw/loss-information.
 
@@ -3224,11 +3224,12 @@ class Tablebase:
         loss. Mate can be forced but the position can be drawn due to the
         fifty-move rule.
 
-        >>> from bug import chess
+
+import chess
         >>> import bug.chess.syzygy
         >>>
-        >>> with chess.syzygy.open_tablebase("data/syzygy/regular") as tablebase:
-        ...     board = chess.Board("8/2K5/4B3/3N4/8/8/4k3/8 b - - 0 1")
+        >>> with bugchess.syzygy.open_tablebase("data/syzygy/regular") as tablebase:
+        ...     board = bugchess.Board("8/2K5/4B3/3N4/8/8/4k3/8 b - - 0 1")
         ...     print(tablebase.probe_wdl(board))
         ...
         -2
@@ -3250,10 +3251,10 @@ class Tablebase:
             )
 
         # Validate piece count.
-        if chess.popcount(board.occupied) > 7:
+        if bugchess.popcount(board.occupied) > 7:
             raise KeyError(
                 "syzygy tables support up to 6 (and experimentally 7) pieces, not {}: {}".format(
-                    chess.popcount(board.occupied), board.fen()
+                    bugchess.popcount(board.occupied), board.fen()
                 )
             )
 
@@ -3290,13 +3291,13 @@ class Tablebase:
 
         return v
 
-    def get_wdl(self, board: chess.Board, default: Optional[int] = None) -> Optional[int]:
+    def get_wdl(self, board: bugchess.Board, default: Optional[int] = None) -> Optional[int]:
         try:
             return self.probe_wdl(board)
         except KeyError:
             return default
 
-    def probe_dtz_table(self, board: chess.Board, wdl: int) -> Tuple[int, int]:
+    def probe_dtz_table(self, board: bugchess.Board, wdl: int) -> Tuple[int, int]:
         key = calc_key(board)
         try:
             table = self.dtz[key]
@@ -3307,7 +3308,7 @@ class Tablebase:
 
         return table.probe_dtz_table(board, wdl)
 
-    def probe_dtz_no_ep(self, board: chess.Board) -> int:
+    def probe_dtz_no_ep(self, board: bugchess.Board) -> int:
         wdl, success = self.probe_ab(board, -2, 2, threats=True)
 
         if wdl == 0:
@@ -3379,7 +3380,7 @@ class Tablebase:
 
             return best
 
-    def probe_dtz(self, board: chess.Board) -> int:
+    def probe_dtz(self, board: bugchess.Board) -> int:
         """
         Probes DTZ tables for distance to zero information.
 
@@ -3487,7 +3488,7 @@ class Tablebase:
 
         return v
 
-    def get_dtz(self, board: chess.Board, default: Optional[int] = None) -> Optional[int]:
+    def get_dtz(self, board: bugchess.Board, default: Optional[int] = None) -> Optional[int]:
         try:
             return self.probe_dtz(board)
         except KeyError:
@@ -3523,7 +3524,7 @@ def open_tablebase(
     load_wdl: bool = True,
     load_dtz: bool = True,
     max_fds: Optional[int] = 128,
-    VariantBoard: Type[chess.Board] = chess.Board
+    VariantBoard: Type[bugchess.Board] = bugchess.Board
 ) -> Tablebase:
     """
     Opens a collection of tables for probing. See

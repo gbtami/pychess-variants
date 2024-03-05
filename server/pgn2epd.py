@@ -6,8 +6,8 @@ import os
 import sys
 
 from tqdm import tqdm
-import bug.chess.pgn
-from bug.chess.variant import find_variant
+import bugchess
+from bugchess import find_variant
 
 
 def game_count(filename):
@@ -16,7 +16,7 @@ def game_count(filename):
     return sum(buf.count(b"[Event") for buf in bufgen)
 
 
-class PrintAllFensVisitor(bug.chess.pgn.BaseVisitor):
+class PrintAllFensVisitor(bugchess.pgn.BaseVisitor):
     def __init__(self, variant=None):
         super(PrintAllFensVisitor, self).__init__()
         self.variant = variant
@@ -39,7 +39,7 @@ class PrintAllFensVisitor(bug.chess.pgn.BaseVisitor):
     def end_headers(self):
         if not self.relevant:
             # Optimization hint: Do not even bother parsing the moves.
-            return bug.chess.pgn.SKIP
+            return bugchess.pgn.SKIP
 
     def visit_board(self, board):
         if self.relevant:
@@ -60,7 +60,7 @@ def write_fens(pgn_file, stream, variant, count):
         with tqdm(total=game_count(pgn_file)) as pbar:
             cnt = 0
             while True:
-                fens = bug.chess.pgn.read_game(pgn, Visitor=visitor)
+                fens = bugchess.pgn.read_game(pgn, Visitor=visitor)
                 pbar.update(1)
                 if fens is None:
                     break

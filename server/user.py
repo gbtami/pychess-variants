@@ -16,12 +16,11 @@ from login import RESERVED_USERS
 from newid import id8, new_id
 from const import TYPE_CHECKING
 from seek import Seek
-from websocket_utils import ws_send_json
+from websocket_utils import ws_send_json, MyWebSocketResponse
 
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
     from game import Game
-    from utils import MyWebSocketResponse
 
 from pychess_global_app_state_utils import get_app_state
 

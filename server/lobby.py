@@ -6,8 +6,7 @@ from typing import Optional, Deque
 
 from const import TYPE_CHECKING, MAX_CHAT_LINES
 from seek import get_seeks
-from utils import MyWebSocketResponse
-from websocket_utils import ws_send_json
+from websocket_utils import ws_send_json, MyWebSocketResponse
 
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState

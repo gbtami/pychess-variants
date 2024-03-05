@@ -222,6 +222,7 @@ VARIANT_ICONS = {
 }
 
 VARIANT_960_TO_PGN = {
+    "bughouse": "Bughouse960",
     "chess": "Chess960",
     "capablanca": "Caparandom",
     "capahouse": "Capahouse960",

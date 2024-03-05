@@ -12,7 +12,7 @@ from compress import encode_moves, R2C, V2C
 from convert import grand2zero
 from newid import new_id
 from aiohttp import web
-from bug.chess.pgn import read_game, Game
+from bugchess.pgn import read_game, Game
 
 log = logging.getLogger(__name__)
 

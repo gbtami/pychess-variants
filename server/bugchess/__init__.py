@@ -51,9 +51,6 @@ from typing import (
     Union,
 )
 
-from bug import chess
-from bug.chess import svg
-
 Color = bool
 COLORS = [WHITE, BLACK] = [True, False]
 COLOR_NAMES = ["black", "white"]
@@ -1405,7 +1402,7 @@ class BaseBoard:
         return "".join(builder)
 
     def _repr_svg_(self) -> str:
-        return chess.svg.board(board=self, size=400)
+        return bugchess.svg.board(board=self, size=400)
 
     def __eq__(self, board: object) -> bool:
         if isinstance(board, BaseBoard):
@@ -3700,7 +3697,7 @@ class Board(BaseBoard):
             return "{}({!r}, chess960=True)".format(type(self).__name__, self.fen())
 
     def _repr_svg_(self) -> str:
-        return chess.svg.board(
+        return bugchess.svg.board(
             board=self,
             size=400,
             lastmove=self.peek() if self.move_stack else None,
@@ -4130,7 +4127,7 @@ class SquareSet:
         return "".join(builder)
 
     def _repr_svg_(self) -> str:
-        return chess.svg.board(squares=self, size=400)
+        return bugchess.svg.board(squares=self, size=400)
 
     @classmethod
     def from_square(cls, square: Square) -> "SquareSet":

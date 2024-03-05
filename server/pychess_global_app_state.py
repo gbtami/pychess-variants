@@ -54,7 +54,8 @@ from tournaments import translated_tournament_name, get_scheduled_tournaments, l
 from twitch import Twitch
 from user import User
 from users import Users, NotInDbUsers
-from utils import load_game, MyWebSocketResponse
+from utils import load_game
+from websocket_utils import MyWebSocketResponse
 from blogs import BLOGS
 from videos import VIDEOS
 from youtube import Youtube

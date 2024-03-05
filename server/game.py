@@ -6,8 +6,6 @@ from datetime import datetime, timezone, timedelta
 from time import monotonic
 from typing import Set, List
 
-from user import User
-
 from broadcast import round_broadcast
 from clock import Clock, CorrClock
 from compress import encode_moves, R2C
@@ -43,6 +41,7 @@ from spectators import spectators
 
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
+    from user import User
 
 log = logging.getLogger(__name__)
 
