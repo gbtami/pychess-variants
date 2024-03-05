@@ -1242,7 +1242,7 @@ class BughouseBoards:
         board2_str = str(self._boards[RIGHT])
         # Flip board for convenience
         board2_lines = board2_str.splitlines(keepends=False)
-        board2_lines_reversed = reversed(["".join(reversed(l)) for l in board2_lines])
+        board2_lines_reversed = reversed(["".join(reversed(lv)) for lv in board2_lines])
 
         board_lines_joint = map(join, board1_lines, board2_lines_reversed)
         header = join("Board 1:", "Board 2:")

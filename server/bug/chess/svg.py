@@ -295,7 +295,7 @@ def board(
     margin = MARGIN if coordinates else 0
     if base_svg is not None:
         svg = base_svg
-    elif isinstance(board, bug.chess.variant.CrazyhouseBoard):
+    elif isinstance(board, chess.variant.CrazyhouseBoard):
         ratio = (12 * SQUARE_SIZE + 2 * margin) / (8 * SQUARE_SIZE + 2 * margin)
         size_tuple = (size, int(size * ratio)) if size is not None else None
         svg = _svg((8 * SQUARE_SIZE + 2 * margin, 12 * SQUARE_SIZE + 2 * margin), size_tuple)
@@ -321,7 +321,7 @@ def board(
         if check is not None:
             defs.append(ET.fromstring(CHECK_GRADIENT))
 
-    if isinstance(board, bug.chess.variant.CrazyhouseBoard):
+    if isinstance(board, chess.variant.CrazyhouseBoard):
         svg_board = ET.SubElement(
             svg, "g", {"transform": "translate(0, {})".format(2 * SQUARE_SIZE)}
         )

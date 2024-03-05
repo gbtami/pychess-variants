@@ -153,7 +153,7 @@ async def load_game_bug(app_state: PychessGlobalAppState, game_id):
                     piece_captured = "p"  # en passant
                 if piece_captured != ".":
                     f = game.boards["b" if board_name == "a" else "a"].fen
-                    f = re.sub("\[(.*)\]", r"[\1{}]".format(piece_captured), f)
+                    f = re.sub("\\[(.*)\\]", r"[\1{}]".format(piece_captured), f)
                     game.boards["b" if board_name == "a" else "a"].fen = f
 
             san = game.boards[board_name].get_san(move)

@@ -23,14 +23,14 @@ import re
 import weakref
 from typing import (
     Callable,
-    Dict,
+    # Dict,
     Generic,
     Iterable,
     Iterator,
-    List,
+    # List,
     Mapping,
     MutableMapping,
-    Set,
+    # Set,
     TextIO,
     Tuple,
     Type,
@@ -902,7 +902,7 @@ class GameBuilder(BaseVisitor[Game]):
         li1 = 0
         try:
             li1 = ls_body.index("[%clk", li1)
-        except ValueError as ve:
+        except ValueError:
             return ls_body
         while 1:
             li2 = (ls_body + "}").index("}", li1)
@@ -910,7 +910,7 @@ class GameBuilder(BaseVisitor[Game]):
             ls_body = ls_body[1 : li1 + 1] + str(numb_tmp1) + ls_body[li2:]
             try:
                 li1 = ls_body.index("[%clk", li1 + 1)
-            except ValueError as ve:
+            except ValueError:
                 return ls_body
         return ls_body
 

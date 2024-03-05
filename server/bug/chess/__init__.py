@@ -21,8 +21,6 @@ A pure Python chess library with move generation and validation, Polyglot
 opening book probing, PGN reading and writing, Gaviota tablebase probing,
 Syzygy tablebase probing and XBoard/UCI engine communication.
 """
-from typing import Counter
-
 __author__ = "Niklas Fiekas"
 
 __email__ = "niklas.fiekas@backscattering.de"
@@ -37,7 +35,6 @@ import itertools
 import typing
 
 from typing import (
-    ClassVar,
     Callable,
     Dict,
     Generic,
@@ -54,6 +51,8 @@ from typing import (
     Union,
 )
 
+from bug import chess
+from bug.chess import svg
 
 Color = bool
 COLORS = [WHITE, BLACK] = [True, False]
@@ -598,7 +597,7 @@ class Piece:
         return self.symbol()
 
     def _repr_svg_(self) -> str:
-        return bug.chess.svg.piece(self, size=45)
+        return svg.piece(self, size=45)
 
     def __eq__(self, other: object) -> bool:
         if isinstance(other, Piece):
@@ -1406,7 +1405,7 @@ class BaseBoard:
         return "".join(builder)
 
     def _repr_svg_(self) -> str:
-        return bug.chess.svg.board(board=self, size=400)
+        return chess.svg.board(board=self, size=400)
 
     def __eq__(self, board: object) -> bool:
         if isinstance(board, BaseBoard):
@@ -2091,7 +2090,7 @@ class Board(BaseBoard):
         scenario every legal move has to be tested and the entire game has to
         be replayed because there is no incremental transposition table.
         """
-        transposition_key = self._transposition_key()
+        self._transposition_key()
 
         # Threefold repetition occured.
         if self.is_repetition(3):
@@ -3701,7 +3700,7 @@ class Board(BaseBoard):
             return "{}({!r}, chess960=True)".format(type(self).__name__, self.fen())
 
     def _repr_svg_(self) -> str:
-        return bug.chess.svg.board(
+        return chess.svg.board(
             board=self,
             size=400,
             lastmove=self.peek() if self.move_stack else None,
@@ -4131,7 +4130,7 @@ class SquareSet:
         return "".join(builder)
 
     def _repr_svg_(self) -> str:
-        return bug.chess.svg.board(squares=self, size=400)
+        return chess.svg.board(squares=self, size=400)
 
     @classmethod
     def from_square(cls, square: Square) -> "SquareSet":

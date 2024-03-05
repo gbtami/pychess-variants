@@ -23,7 +23,7 @@ import os
 import re
 import struct
 import threading
-import typing
+# import typing
 
 from bug import chess
 
@@ -2015,13 +2015,13 @@ def recalc_key(pieces: List[chess.PieceType], *, mirror: bool = False) -> str:
 
 def subfactor(k: int, n: int) -> int:
     f = n
-    l = 1
+    lv = 1
 
     for i in range(1, k):
         f *= n - i
-        l *= i + 1
+        lv *= i + 1
 
-    return f // l
+    return f // lv
 
 
 def dtz_before_zeroing(wdl: int) -> int:
@@ -2413,8 +2413,8 @@ class Table:
             for m in range(i, i + t):
                 p = pos[m]
                 j = 0
-                for l in range(i):
-                    j += int(p > pos[l])
+                for lv in range(i):
+                    j += int(p > pos[lv])
                 s += binom(p - j, m - i + 1)
 
             idx += s * factor[i]
@@ -2509,16 +2509,16 @@ class Table:
         ptr += 2 * 4
         bitcnt = 0  # Number of empty bits in code
         while True:
-            l = m
-            while code < d.base[base_idx + l]:
-                l += 1
-            sym = self.read_uint16(d.offset + l * 2)
-            sym += (code - d.base[base_idx + l]) >> (64 - l)
+            lv = m
+            while code < d.base[base_idx + lv]:
+                lv += 1
+            sym = self.read_uint16(d.offset + lv * 2)
+            sym += (code - d.base[base_idx + lv]) >> (64 - lv)
             if litidx < d.symlen[symlen_idx + sym] + 1:
                 break
             litidx -= d.symlen[symlen_idx + sym] + 1
-            code <<= l
-            bitcnt += l
+            code <<= lv
+            bitcnt += lv
             if bitcnt >= 32:
                 bitcnt -= 32
                 code |= self.read_uint32_be(ptr) << bitcnt

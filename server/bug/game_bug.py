@@ -271,7 +271,7 @@ class GameBug:
                 if last_move_captured_role is not None:
                     # TODO:NIKI: consider this solution for determining captured piece serverside unless something cleaner cannot be figured out: https://github.com/nnickoloff1234/pychess-variants/blob/60b06cd475c195ec58199187c762b86424807285/server/fairy.py#L58-L65
                     board_fen_split = split(
-                        "[\[\]]", self.boards[partner_board].fen
+                        "[\\[\\]]", self.boards[partner_board].fen
                     )  # todo: this doesnt work after first move when starting a game from custom initial fen that doesnt have square brackets - either add them or dont consider it valid if missing pockets
                     self.boards[partner_board].fen = (
                         board_fen_split[0]
@@ -566,7 +566,7 @@ class GameBug:
         # with a piece that partner could potentially give. Check same position, but with full pocket
         # to confirm it is really checkmate even if we wait for partner
         fen_before = self.boards[board].fen
-        fen_fullpockets = sub("\[.*\]", "[qrbnpQRBNP]", fen_before)
+        fen_fullpockets = sub("\\[.*\\]", "[qrbnpQRBNP]", fen_before)
         self.boards[board].fen = fen_fullpockets
         count_valid_moves_with_full_pockets = len(self.boards[board].legal_moves_no_history())
         self.boards[board].fen = fen_before

@@ -13,7 +13,6 @@ from urllib.parse import urlparse
 import aiohttp_session
 from aiohttp import web
 
-log = logging.getLogger(__name__)
 from const import (
     ANON_PREFIX,
     LANGUAGES,

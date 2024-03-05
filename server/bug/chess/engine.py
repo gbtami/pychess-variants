@@ -157,7 +157,7 @@ class EventLoopPolicy(asyncio.DefaultEventLoopPolicy):  # type: ignore
 
 
 def run_in_background(
-    coroutine: "Callable[[concurrent.futures.Future[T], Coroutine[Any, Any, None]]",
+    coroutine: "Callable[[concurrent.futures.Future[T]], Coroutine[Any, Any, None]]",
     *,
     debug: bool = False,
     _policy_lock: threading.Lock = threading.Lock()
@@ -2474,7 +2474,7 @@ async def popen_uci(
     transport, protocol = await UciProtocol.popen(command, setpgrp=setpgrp, loop=loop, **popen_args)
     try:
         await protocol.initialize()
-    except:
+    except Exception:
         transport.close()
         raise
     return transport, protocol
@@ -2501,7 +2501,7 @@ async def popen_xboard(
     transport, protocol = await XBoardProtocol.popen(command, setpgrp=setpgrp, **popen_args)
     try:
         await protocol.initialize()
-    except:
+    except Exception:
         transport.close()
         raise
     return transport, protocol

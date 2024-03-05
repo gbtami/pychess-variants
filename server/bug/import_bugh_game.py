@@ -2,29 +2,17 @@ import logging
 
 from bug.utils_bug import init_players
 from pychess_global_app_state_utils import get_app_state
-from user import User
 from const import (
-    STARTED,
-    VARIANT_960_TO_PGN,
-    INVALIDMOVE,
     GRANDS,
     UNKNOWNFINISH,
-    CASUAL,
-    RATED,
     IMPORTED,
-    CONSERVATIVE_CAPA_FEN,
-    T_STARTED,
 )
 from datetime import datetime, timezone
-from compress import decode_moves, encode_moves, R2C, C2R, V2C, C2V
-from convert import mirror5, mirror9, usi2uci, grand2zero, zero2grand
+from compress import encode_moves, R2C, V2C
+from convert import grand2zero
 from newid import new_id
-from game import Game, MAX_PLY
 from aiohttp import web
 from bug.chess.pgn import read_game, Game
-from typedefs import (
-    db_key,
-)
 
 log = logging.getLogger(__name__)
 

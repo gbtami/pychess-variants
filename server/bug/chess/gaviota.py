@@ -30,7 +30,7 @@ import typing
 from bug import chess
 
 from types import TracebackType
-from typing import Any, BinaryIO, Callable, Dict, List, Optional, Tuple, Type, Union
+from typing import Any, BinaryIO, Callable, List, Optional, Tuple, Type, Union
 
 
 PathLike = Union[str, bytes]
