@@ -1747,7 +1747,14 @@ PP_IDX = [
 def test45(sq: bugchess.Square) -> bool:
     return bool(
         bugchess.BB_SQUARES[sq]
-        & (bugchess.BB_A5 | bugchess.BB_A6 | bugchess.BB_A7 | bugchess.BB_B5 | bugchess.BB_B6 | bugchess.BB_C5)
+        & (
+            bugchess.BB_A5
+            | bugchess.BB_A6
+            | bugchess.BB_A7
+            | bugchess.BB_B5
+            | bugchess.BB_B6
+            | bugchess.BB_C5
+        )
     )
 
 
@@ -3212,35 +3219,35 @@ class Tablebase:
 
     def probe_wdl(self, board: bugchess.Board) -> int:
         """
-        Probes WDL tables for win/draw/loss-information.
+                Probes WDL tables for win/draw/loss-information.
 
-        Probing is thread-safe when done with different *board* objects and
-        if *board* objects are not modified during probing.
+                Probing is thread-safe when done with different *board* objects and
+                if *board* objects are not modified during probing.
 
-        Returns ``2`` if the side to move is winning, ``0`` if the position is
-        a draw and ``-2`` if the side to move is losing.
+                Returns ``2`` if the side to move is winning, ``0`` if the position is
+                a draw and ``-2`` if the side to move is losing.
 
-        Returns ``1`` in case of a cursed win and ``-1`` in case of a blessed
-        loss. Mate can be forced but the position can be drawn due to the
-        fifty-move rule.
+                Returns ``1`` in case of a cursed win and ``-1`` in case of a blessed
+                loss. Mate can be forced but the position can be drawn due to the
+                fifty-move rule.
 
 
-import chess
-        >>> import bug.chess.syzygy
-        >>>
-        >>> with bugchess.syzygy.open_tablebase("data/syzygy/regular") as tablebase:
-        ...     board = bugchess.Board("8/2K5/4B3/3N4/8/8/4k3/8 b - - 0 1")
-        ...     print(tablebase.probe_wdl(board))
-        ...
-        -2
+        import chess
+                >>> import bug.chess.syzygy
+                >>>
+                >>> with bugchess.syzygy.open_tablebase("data/syzygy/regular") as tablebase:
+                ...     board = bugchess.Board("8/2K5/4B3/3N4/8/8/4k3/8 b - - 0 1")
+                ...     print(tablebase.probe_wdl(board))
+                ...
+                -2
 
-        :raises: :exc:`KeyError` (or specifically
-            :exc:`chess.syzygy.MissingTableError`) if the position could not
-            be found in the tablebase. Use
-            :func:`~chess.syzygy.Tablebase.get_wdl()` if you prefer to get
-            ``None`` instead of an exception.
+                :raises: :exc:`KeyError` (or specifically
+                    :exc:`chess.syzygy.MissingTableError`) if the position could not
+                    be found in the tablebase. Use
+                    :func:`~chess.syzygy.Tablebase.get_wdl()` if you prefer to get
+                    ``None`` instead of an exception.
 
-            Note that probing corrupted table files is undefined behavior.
+                    Note that probing corrupted table files is undefined behavior.
         """
         # Positions with castling rights are not in the tablebase.
         if board.castling_rights:

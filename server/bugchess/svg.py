@@ -28,6 +28,7 @@ import xml.etree.ElementTree as ET
 from typing import Iterable, Optional, Tuple, Union, Sequence
 
 from const import TYPE_CHECKING
+
 if TYPE_CHECKING:
     from bugchess import variant
 
@@ -76,7 +77,9 @@ DEFAULT_COLORS = {
 class Arrow:
     """Details of an arrow to be drawn."""
 
-    def __init__(self, tail: bugchess.Square, head: bugchess.Square, *, color: str = "#888") -> None:
+    def __init__(
+        self, tail: bugchess.Square, head: bugchess.Square, *, color: str = "#888"
+    ) -> None:
         self.tail = tail
         self.head = head
         self.color = color
@@ -416,7 +419,8 @@ def board(
                     "use",
                     {
                         "xlink:href": "#{}-{}".format(
-                            bugchess.COLOR_NAMES[piece.color], bugchess.PIECE_NAMES[piece.piece_type]
+                            bugchess.COLOR_NAMES[piece.color],
+                            bugchess.PIECE_NAMES[piece.piece_type],
                         ),
                         "transform": "translate({:d}, {:d})".format(x, y),
                     },

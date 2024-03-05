@@ -111,7 +111,9 @@ class SuicideBoard(bugchess.Board):
         return (we_some_on_light and they_all_on_dark) or (we_some_on_dark and they_all_on_light)
 
     def generate_pseudo_legal_moves(
-        self, from_mask: bugchess.Bitboard = bugchess.BB_ALL, to_mask: bugchess.Bitboard = bugchess.BB_ALL
+        self,
+        from_mask: bugchess.Bitboard = bugchess.BB_ALL,
+        to_mask: bugchess.Bitboard = bugchess.BB_ALL,
     ) -> Iterator[bugchess.Move]:
         for move in super().generate_pseudo_legal_moves(from_mask, to_mask):
             # Add king promotions.
@@ -123,7 +125,9 @@ class SuicideBoard(bugchess.Board):
             yield move
 
     def generate_legal_moves(
-        self, from_mask: bugchess.Bitboard = bugchess.BB_ALL, to_mask: bugchess.Bitboard = bugchess.BB_ALL
+        self,
+        from_mask: bugchess.Bitboard = bugchess.BB_ALL,
+        to_mask: bugchess.Bitboard = bugchess.BB_ALL,
     ) -> Iterator[bugchess.Move]:
         if self.is_variant_end():
             return
@@ -246,7 +250,9 @@ class AtomicBoard(bugchess.Board):
                     return not (
                         self.bishops & self.occupied_co[bugchess.BLACK] & bugchess.BB_LIGHT_SQUARES
                     )
-                if not (self.bishops & self.occupied_co[bugchess.WHITE] & bugchess.BB_LIGHT_SQUARES):
+                if not (
+                    self.bishops & self.occupied_co[bugchess.WHITE] & bugchess.BB_LIGHT_SQUARES
+                ):
                     return not (
                         self.bishops & self.occupied_co[bugchess.BLACK] & bugchess.BB_DARK_SQUARES
                     )
@@ -340,7 +346,9 @@ class AtomicBoard(bugchess.Board):
         return not self.is_variant_loss() and super().is_stalemate()
 
     def generate_legal_moves(
-        self, from_mask: bugchess.Bitboard = bugchess.BB_ALL, to_mask: bugchess.Bitboard = bugchess.BB_ALL
+        self,
+        from_mask: bugchess.Bitboard = bugchess.BB_ALL,
+        to_mask: bugchess.Bitboard = bugchess.BB_ALL,
     ) -> Iterator[bugchess.Move]:
         for move in self.generate_pseudo_legal_moves(from_mask, to_mask):
             if self.is_legal(move):
@@ -406,7 +414,9 @@ class RacingKingsBoard(bugchess.Board):
         return super().is_legal(move) and not self._gives_check(move)
 
     def generate_legal_moves(
-        self, from_mask: bugchess.Bitboard = bugchess.BB_ALL, to_mask: bugchess.Bitboard = bugchess.BB_ALL
+        self,
+        from_mask: bugchess.Bitboard = bugchess.BB_ALL,
+        to_mask: bugchess.Bitboard = bugchess.BB_ALL,
     ) -> Iterator[bugchess.Move]:
         for move in super().generate_legal_moves(from_mask, to_mask):
             if not self._gives_check(move):
@@ -416,7 +426,10 @@ class RacingKingsBoard(bugchess.Board):
         if not self.kings & bugchess.BB_RANK_8:
             return False
 
-        if self.turn == bugchess.WHITE or self.kings & self.occupied_co[bugchess.BLACK] & bugchess.BB_RANK_8:
+        if (
+            self.turn == bugchess.WHITE
+            or self.kings & self.occupied_co[bugchess.BLACK] & bugchess.BB_RANK_8
+        ):
             return True
 
         black_kings = self.kings & self.occupied_co[bugchess.BLACK]
@@ -439,7 +452,8 @@ class RacingKingsBoard(bugchess.Board):
 
     def is_variant_loss(self) -> bool:
         return (
-            self.is_variant_end() and not self.kings & self.occupied_co[self.turn] & bugchess.BB_RANK_8
+            self.is_variant_end()
+            and not self.kings & self.occupied_co[self.turn] & bugchess.BB_RANK_8
         )
 
     def is_variant_win(self) -> bool:
@@ -647,7 +661,10 @@ class ThreeCheckBoard(bugchess.Board):
         return any(remaining_checks <= 0 for remaining_checks in self.remaining_checks)
 
     def is_variant_draw(self) -> bool:
-        return self.remaining_checks[bugchess.WHITE] <= 0 and self.remaining_checks[bugchess.BLACK] <= 0
+        return (
+            self.remaining_checks[bugchess.WHITE] <= 0
+            and self.remaining_checks[bugchess.BLACK] <= 0
+        )
 
     def is_variant_loss(self) -> bool:
         return self.remaining_checks[not self.turn] <= 0 < self.remaining_checks[self.turn]
@@ -866,15 +883,20 @@ class CrazyhouseBoard(bugchess.Board):
         for to_square in bugchess.scan_forward(to_mask & ~self.occupied):
             for pt, count in self.pockets[self.turn].pieces.items():
                 if count and (
-                    pt != bugchess.PAWN or not bugchess.BB_BACKRANKS & bugchess.BB_SQUARES[to_square]
+                    pt != bugchess.PAWN
+                    or not bugchess.BB_BACKRANKS & bugchess.BB_SQUARES[to_square]
                 ):
                     yield bugchess.Move(to_square, to_square, drop=pt, board_id=self.board_id)
 
-    def generate_legal_drops(self, to_mask: bugchess.Bitboard = bugchess.BB_ALL) -> Iterator[bugchess.Move]:
+    def generate_legal_drops(
+        self, to_mask: bugchess.Bitboard = bugchess.BB_ALL
+    ) -> Iterator[bugchess.Move]:
         return self.generate_pseudo_legal_drops(to_mask=self.legal_drop_squares_mask() & to_mask)
 
     def generate_legal_moves(
-        self, from_mask: bugchess.Bitboard = bugchess.BB_ALL, to_mask: bugchess.Bitboard = bugchess.BB_ALL
+        self,
+        from_mask: bugchess.Bitboard = bugchess.BB_ALL,
+        to_mask: bugchess.Bitboard = bugchess.BB_ALL,
     ) -> Iterator[bugchess.Move]:
         return itertools.chain(
             super().generate_legal_moves(from_mask, to_mask),
@@ -1064,7 +1086,9 @@ class SingleBughouseBoard(CrazyhouseBoard):
             captured_piece = self.piece_at(move.to_square)
             if captured_piece is not None:
                 was_promoted = bool(self.promoted & bugchess.BB_SQUARES[move.to_square])
-                captured_piece_type = captured_piece.piece_type if not was_promoted else bugchess.PAWN
+                captured_piece_type = (
+                    captured_piece.piece_type if not was_promoted else bugchess.PAWN
+                )
         if captured_piece_type is not None:
             partner_pocket = self._other_board.pockets[int(not self.turn)]
             if partner_pocket.count(captured_piece_type) == 0:
@@ -1100,7 +1124,8 @@ class SingleBughouseBoard(CrazyhouseBoard):
         for to_square in bugchess.scan_forward(to_mask & ~self.occupied):
             for pt, count in pocket.pieces.items():
                 if count and (
-                    pt != bugchess.PAWN or not bugchess.BB_BACKRANKS & bugchess.BB_SQUARES[to_square]
+                    pt != bugchess.PAWN
+                    or not bugchess.BB_BACKRANKS & bugchess.BB_SQUARES[to_square]
                 ):
                     yield bugchess.Move(to_square, to_square, drop=pt, board_id=self.board_id)
 
