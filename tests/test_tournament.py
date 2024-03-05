@@ -199,7 +199,7 @@ class TournamentTestCase(AioHTTPTestCase):
                 task.cancel()
                 try:
                     await task
-                except asyncio.CancelledError:
+                except asyncio.CancelledError as e:
                     log.error(e, stack_info=True, exc_info=True)
 
         await self.client.close()
