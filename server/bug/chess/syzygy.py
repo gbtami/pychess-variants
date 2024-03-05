@@ -23,6 +23,7 @@ import os
 import re
 import struct
 import threading
+
 # import typing
 
 from bug import chess
