@@ -442,7 +442,7 @@ class Game:
             new_data["cb"] = self.clocks_b[1:]
 
         if self.app_state.db is not None:
-            await self.app_state.db.game.find_one_and_update({"_id": self.id}, {"$set": new_data})
+            await self.app_state.db.game.update_one({"_id": self.id}, {"$set": new_data})
 
     async def save_setup(self):
         """Used by Janggi prelude phase"""

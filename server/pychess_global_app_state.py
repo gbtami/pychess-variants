@@ -152,7 +152,8 @@ class PychessGlobalAppState:
                 if doc["status"] == T_STARTED or (
                     doc["status"] == T_CREATED and doc["startsAt"].date() <= to_date
                 ):
-                    await load_tournament(self, doc["_id"])
+                    if not DEV:
+                        await load_tournament(self, doc["_id"])
 
             already_scheduled = await get_scheduled_tournaments(self)
             new_tournaments_data = new_scheduled_tournaments(already_scheduled)

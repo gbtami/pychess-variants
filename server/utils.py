@@ -570,7 +570,7 @@ async def insert_game_to_db(game, app_state: PychessGlobalAppState):
         document["if"] = game.initial_fen
 
     result = await app_state.db.game.insert_one(document)
-    if not result:
+    if result.inserted_id != game.id:
         log.error("db insert game result %s failed !!!", game.id)
 
     if not game.corr:

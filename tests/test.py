@@ -9,6 +9,7 @@ from operator import neg
 
 from aiohttp.test_utils import AioHTTPTestCase
 from sortedcollections import ValueSortedDict
+
 from mongomock_motor import AsyncMongoMockClient
 
 import game
@@ -20,7 +21,7 @@ from login import RESERVED_USERS
 from newid import id8
 from server import make_app
 from user import User
-from utils import sanitize_fen
+from utils import insert_game_to_db, sanitize_fen
 from pychess_global_app_state_utils import get_app_state
 
 game.KEEP_TIME = 0
@@ -240,13 +241,14 @@ class GamePlayTestCase(AioHTTPTestCase):
 
     async def test_game_play(self):
         """Playtest test_player vs Random-Mover"""
+        app_state = get_app_state(self.app)
         for i, variant in enumerate(VARIANTS):
             print(i, variant)
             variant960 = variant.endswith("960")
             variant_name = variant[:-3] if variant960 else variant
             game_id = id8()
             game = Game(
-                get_app_state(self.app),
+                app_state,
                 game_id,
                 variant_name,
                 "",
@@ -256,8 +258,9 @@ class GamePlayTestCase(AioHTTPTestCase):
                 chess960=variant960,
                 create=True,
             )
-            app_state = get_app_state(self.app)
             app_state.games[game.id] = game
+            await insert_game_to_db(game, app_state)
+
             self.random_mover.game_queues[game_id] = None
 
             await self.play_random(game)
@@ -267,6 +270,8 @@ class GamePlayTestCase(AioHTTPTestCase):
 
             self.assertIn(game.result, ("1-0", "0-1", "1/2-1/2"))
             self.assertEqual(game.result, pgn_result)
+
+            # await app_state.db.game.delete_one({"_id": game_id})
 
 
 class HighscoreTestCase(AioHTTPTestCase):

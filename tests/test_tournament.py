@@ -79,10 +79,10 @@ class TestTournament(Tournament):
 
         if self.system == ARENA:
             if random.choice((True, False)):
-                await game.berserk("white")
+                game.berserk("white")
 
             if random.choice((True, False)):
-                await game.berserk("black")
+                game.berserk("black")
 
             await asyncio.sleep(random.choice((0, 0.1, 0.3, 0.5, 0.7)))
 
