@@ -594,7 +594,9 @@ class Piece:
         return self.symbol()
 
     def _repr_svg_(self) -> str:
-        return svg.piece(self, size=45)
+        import bugchess.svg
+
+        return bugchess.svg.piece(self, size=45)
 
     def __eq__(self, other: object) -> bool:
         if isinstance(other, Piece):
@@ -1402,6 +1404,8 @@ class BaseBoard:
         return "".join(builder)
 
     def _repr_svg_(self) -> str:
+        import bugchess.svg
+
         return bugchess.svg.board(board=self, size=400)
 
     def __eq__(self, board: object) -> bool:
@@ -3697,6 +3701,8 @@ class Board(BaseBoard):
             return "{}({!r}, chess960=True)".format(type(self).__name__, self.fen())
 
     def _repr_svg_(self) -> str:
+        import bugchess.svg
+
         return bugchess.svg.board(
             board=self,
             size=400,
@@ -4127,6 +4133,8 @@ class SquareSet:
         return "".join(builder)
 
     def _repr_svg_(self) -> str:
+        import bugchess.svg
+
         return bugchess.svg.board(squares=self, size=400)
 
     @classmethod
