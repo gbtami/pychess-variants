@@ -116,6 +116,7 @@ async def index(request):
         log.info("+++ New guest user %s connected.", user.username)
         app_state.users[user.username] = user
         session["user_name"] = user.username
+        await asyncio.sleep(5)
 
     lang = session.get("lang") if user.lang is None else user.lang
     if lang is None:
