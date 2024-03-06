@@ -1,4 +1,5 @@
 from __future__ import annotations
+import asyncio
 import logging
 from collections import UserDict
 
@@ -47,7 +48,7 @@ class Users(UserDict):
             return user
 
         if username.startswith(ANON_PREFIX):
-            #slow down creating new anon a bit
+            # slow down creating new anon a bit
             await asyncio.sleep(5)
             user = User(self.app_state, username=username, anon=True)
             self.app_state.users[username] = user
