@@ -16,6 +16,7 @@ from aiohttp import web
 from const import (
     ANON_PREFIX,
     LANGUAGES,
+    NONE_USER,
     TROPHIES,
     VARIANTS,
     VARIANT_ICONS,
@@ -149,6 +150,8 @@ async def index(request):
     elif request.path == "/faq":
         view = "faq"
     elif request.path == "/stats":
+        if user.anon:
+            return web.HTTPFound("/")
         view = "stats"
     elif request.path.startswith("/blogs"):
         blogId = request.match_info.get("blogId")
@@ -161,8 +164,12 @@ async def index(request):
     elif request.path.startswith("/memory"):
         view = "memory"
     elif request.path.startswith("/players"):
+        if user.anon:
+            return web.HTTPFound("/")
         view = "players"
     elif request.path == "/allplayers":
+        if user.anon:
+            return web.HTTPFound("/")
         view = "allplayers"
     elif request.path == "/games":
         view = "games"
@@ -173,6 +180,8 @@ async def index(request):
     elif request.path == "/features":
         view = "features"
     elif request.path == "/level8win":
+        if user.anon:
+            return web.HTTPFound("/")
         view = "level8win"
     elif request.path == "/tv":
         view = "tv"
@@ -186,6 +195,8 @@ async def index(request):
     elif request.path == "/paste":
         view = "paste"
     elif request.path.startswith("/tournaments"):
+        if user.anon:
+            return web.HTTPFound("/")
         if request.path.startswith("/tournaments/shields"):
             view = "shields"
         elif request.path.startswith("/tournaments/winners"):
@@ -231,9 +242,9 @@ async def index(request):
     profileId = request.match_info.get("profileId")
     if profileId is not None:
         profileId_user = await app_state.users.get(profileId)
-        if profileId_user is None:
+        if profileId_user.username == NONE_USER:
             await asyncio.sleep(3)
-            raise web.HTTPNotFound()
+            return web.HTTPFound("/")
 
     variant = request.match_info.get("variant")
     if (variant is not None) and ((variant not in VARIANTS) and variant != "terminology"):
@@ -265,6 +276,8 @@ async def index(request):
             view = "lobby"
             if user.anon and profileId != "Fairy-Stockfish":
                 return web.HTTPFound("/")
+        if user.anon and rated is not None:
+            return web.HTTPFound("/")
 
     # Play menu (Create a game)
     if request.rel_url.query.get("any") is not None:
