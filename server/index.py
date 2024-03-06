@@ -15,6 +15,7 @@ from aiohttp import web
 
 from const import (
     ANON_PREFIX,
+    DASH,
     LANGUAGES,
     NONE_USER,
     TROPHIES,
@@ -259,6 +260,9 @@ async def index(request):
         raise web.HTTPNotFound()
 
     if profileId is not None:
+        if user.anon and DASH in profileId:
+            await asyncio.sleep(3)
+            return web.HTTPFound("/")
         view = "profile"
         if request.path[-3:] == "/tv":
             view = "tv"
@@ -276,8 +280,6 @@ async def index(request):
             view = "lobby"
             if user.anon and profileId != "Fairy-Stockfish":
                 return web.HTTPFound("/")
-        if user.anon and rated is not None:
-            return web.HTTPFound("/")
 
     # Play menu (Create a game)
     if request.rel_url.query.get("any") is not None:
