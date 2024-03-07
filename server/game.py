@@ -350,8 +350,8 @@ class Game:
                         w, b = self.board.insufficient_material()
                         if (
                             (w and b)
-                            or (cur_color == "black" and w)
-                            or (cur_color == "white" and b)
+                            or (cur_color == BLACK and w)
+                            or (cur_color == WHITE and b)
                         ):
                             result = "1/2-1/2"
                         else:
