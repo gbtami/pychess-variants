@@ -112,6 +112,10 @@ async def index(request):
                 session.invalidate()
                 return web.HTTPFound("/")
     else:
+        if app_state.disable_new_anons:
+            session.invalidate()
+            raise web.HTTPUnauthorized()
+
         user = User(app_state, anon=True)
         log.info("+++ New guest user %s connected.", user.username)
         app_state.users[user.username] = user

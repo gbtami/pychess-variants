@@ -125,7 +125,7 @@ def make_app(db_client=None, simple_cookie_storage=False) -> Application:
 
     # Setup routes.
     for route in get_routes:
-        app.router.add_get(route[0], route[1])
+        app.router.add_get(route[0], route[1], allow_head=False)
     for route in post_routes:
         app.router.add_post(route[0], route[1])
     app.router.add_static("/static", "static", append_version=True)
