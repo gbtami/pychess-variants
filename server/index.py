@@ -114,6 +114,7 @@ async def index(request):
     else:
         if app_state.disable_new_anons:
             session.invalidate()
+            await asyncio.sleep(5)
             return web.HTTPFound("/login")
 
         user = User(app_state, anon=True)
