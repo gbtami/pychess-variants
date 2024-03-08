@@ -130,6 +130,9 @@ async def get_user_games(request):
     # Who made the request?
     session = await aiohttp_session.get_session(request)
     session_user = session.get("user_name")
+    if session_user.anon:
+        await asyncio.sleep(3)
+        return web.json_response({})
 
     filter_cond = {}
     # print("URL", request.rel_url)
