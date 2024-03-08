@@ -71,6 +71,7 @@ class PychessGlobalAppState:
 
         self.db = app[db_key]
         self.users = self.__init_users()
+        self.disable_new_anons = False
         self.lobby = Lobby(self)
         # one dict per tournament! {tournamentId: {user.username: user.tournament_sockets, ...}, ...}
         self.tourneysockets: dict[str, MyWebSocketResponse] = {}
