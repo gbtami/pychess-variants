@@ -121,7 +121,7 @@ def make_app(db_client=None, simple_cookie_storage=False) -> Application:
 
     # Setup routes.
     for route in get_routes:
-        app.router.add_get(route[0], route[1])
+        app.router.add_get(route[0], route[1], allow_head=False)
     for route in post_routes:
         app.router.add_post(route[0], route[1])
     app.router.add_static("/static", "static", append_version=True)
@@ -156,8 +156,8 @@ async def shutdown(app):
     app_state.shutdown = True
 
     # notify users
-    msg = "The server is about to restart. Sorry for the inconvenience."
-    await app_state.lobby.lobby_chat("", msg)
+    msg = "Server will restart in about 30 seconds. Sorry for the inconvenience!"
+    # await app_state.lobby.lobby_chat("", msg)
 
     response = {"type": "roundchat", "user": "", "message": msg, "room": "player"}
     for game in [game for game in app_state.games.values() if not game.corr]:
