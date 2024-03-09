@@ -4,6 +4,7 @@ import cProfile
 import pstats
 import time
 from timeit import default_timer
+from collections import UserDict
 
 from const import TYPE_CHECKING
 
@@ -98,24 +99,36 @@ def time_control_str(base, inc, byo, day=0):
 
 def server_state(app_state: PychessGlobalAppState, amount=3):
     print("=" * 40)
-    app = app_state.app
-    for akey in app:
-        length = len(app[akey]) if hasattr(app[akey], "__len__") else 1
-        print("--- %s %s ---" % (akey, length))
-        if isinstance(app[akey], dict):
-            items = list(app[akey].items())[: min(length, amount)]
-            for key, value in items:
-                print("   %s %s" % (key, value))
-        elif isinstance(app[akey], list):
-            for item in app[akey][: min(length, amount)]:
+    for attr in vars(app_state):
+        attrib = getattr(app_state, attr)
+        length = len(attrib) if hasattr(attrib, "__len__") else 1
+        print("--- %s %s ---" % (attr, length))
+        if isinstance(attrib, dict) or isinstance(attrib, UserDict):
+            for item in list(attrib.items())[: min(length, amount)]:
+                print("   %s %s" % item)
+            if length > amount:
+                last = list(attrib.items())[-1]
+                print("   ...")
+                print("   %s %s" % last)
+        elif isinstance(attrib, list):
+            for item in attrib[: min(length, amount)]:
                 print("   %s" % item)
+            if length > amount:
+                last = attrib[-1]
+                print("   ...")
+                print("   %s %s" % last)
         else:
-            print(app[akey])
+            print(attrib)
     print("=" * 40)
 
     q = app_state.users["Random-Mover"].event_queue
+    gq = app_state.users["Random-Mover"].game_queues
     print(" ... Random-Mover ...")
     print(q)
+    print(gq)
     q = app_state.users["Fairy-Stockfish"].event_queue
+    gq = app_state.users["Fairy-Stockfish"].game_queues
     print(" ... Fairy-Stockfish ...")
     print(q)
+    print(gq)
+    print("=" * 40)

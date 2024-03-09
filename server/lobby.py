@@ -44,8 +44,14 @@ class Lobby:
         response = {"type": "lobbychat", "user": username, "message": message}
         if time is not None:
             response["time"]: int = time
-        self.lobbychat.append(response)
+        await self.lobby_chat_save(response)
         await self.lobby_broadcast(response)
+
+    async def lobby_chat_save(self, response):
+        self.lobbychat.append(response)
+        await self.app_state.db.lobbychat.insert_one(response)
+        # We have to remove _id added by insert to remain our response JSON serializable
+        del response["_id"]
 
     async def handle_user_closes_lobby(self, user: User):
         # todo: maybe get rid of lobbysockets at some point and use app_state.users.loobby_sockets instead.

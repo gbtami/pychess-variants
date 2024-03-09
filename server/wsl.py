@@ -309,7 +309,7 @@ async def handle_lobbychat(app_state, user, data):
         else:
             admin_command = False
             response = chat_response("lobbychat", user.username, data["message"])
-            app_state.lobby.lobbychat.append(response)
+            await app_state.lobby.lobby_chat_save(response)
 
     elif user.anon and user.username != "Discord-Relay":
         pass
@@ -317,7 +317,7 @@ async def handle_lobbychat(app_state, user, data):
     else:
         if user.silence == 0:
             response = chat_response("lobbychat", user.username, data["message"])
-            app_state.lobby.lobbychat.append(response)
+            await app_state.lobby.lobby_chat_save(response)
 
     if response is not None:
         await app_state.lobby.lobby_broadcast(response)

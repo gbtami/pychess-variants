@@ -114,14 +114,14 @@ async def index(request):
     else:
         if app_state.disable_new_anons:
             session.invalidate()
-            await asyncio.sleep(5)
+            await asyncio.sleep(3)
             return web.HTTPFound("/login")
 
         user = User(app_state, anon=True)
         log.info("+++ New guest user %s connected.", user.username)
         app_state.users[user.username] = user
         session["user_name"] = user.username
-        await asyncio.sleep(5)
+        await asyncio.sleep(3)
 
     lang = session.get("lang") if user.lang is None else user.lang
     if lang is None:
@@ -268,7 +268,7 @@ async def index(request):
     if profileId is not None:
         if user.anon and DASH in profileId:
             await asyncio.sleep(3)
-            return web.HTTPFound("/")
+            raise web.HTTPOk()
         view = "profile"
         if request.path[-3:] == "/tv":
             view = "tv"
