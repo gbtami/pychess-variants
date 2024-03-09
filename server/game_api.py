@@ -305,18 +305,18 @@ async def subscribe_invites(request):
 
 async def subscribe_games(request):
     app_state = get_app_state(request.app)
+    queue = asyncio.Queue()
+    app_state.game_channels.add(queue)
     try:
         async with sse_response(request) as response:
-            app_state = get_app_state(request.app)
-            queue = asyncio.Queue()
-            app_state.game_channels.add(queue)
             while not response.task.done():
                 payload = await queue.get()
                 await response.send(payload)
                 queue.task_done()
-            app_state.game_channels.remove(queue)
     except (ConnectionResetError, asyncio.CancelledError) as e:
         log.error(e, exc_info=True)
+    finally:
+        app_state.game_channels.remove(queue)
     return response
 
 
