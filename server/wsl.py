@@ -194,6 +194,10 @@ async def handle_accept_seek(app_state: PychessGlobalAppState, ws, user, data):
     # Inform others, new_game() deleted accepted seek already.
     await app_state.lobby.lobby_broadcast_seeks()
 
+    if (seek is not None) and seek.target == "":
+        msg = "%s accepted by %s" % (seek.discord_msg, user.username)
+        await app_state.discord.send_to_discord("accept_seek", msg)
+
 
 async def send_lobby_user_connected(app_state, ws, user):
     # update websocket
