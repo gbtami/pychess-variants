@@ -15,7 +15,9 @@ from aiohttp import web
 
 from const import (
     ANON_PREFIX,
+    DASH,
     LANGUAGES,
+    NONE_USER,
     TROPHIES,
     VARIANTS,
     VARIANT_ICONS,
@@ -110,10 +112,16 @@ async def index(request):
                 session.invalidate()
                 return web.HTTPFound("/")
     else:
+        if app_state.disable_new_anons:
+            session.invalidate()
+            await asyncio.sleep(3)
+            return web.HTTPFound("/login")
+
         user = User(app_state, anon=True)
         log.info("+++ New guest user %s connected.", user.username)
         app_state.users[user.username] = user
         session["user_name"] = user.username
+        await asyncio.sleep(3)
 
     lang = session.get("lang") if user.lang is None else user.lang
     if lang is None:
@@ -149,6 +157,8 @@ async def index(request):
     elif request.path == "/faq":
         view = "faq"
     elif request.path == "/stats":
+        if user.anon:
+            return web.HTTPFound("/")
         view = "stats"
     elif request.path.startswith("/blogs"):
         blogId = request.match_info.get("blogId")
@@ -161,8 +171,12 @@ async def index(request):
     elif request.path.startswith("/memory"):
         view = "memory"
     elif request.path.startswith("/players"):
+        if user.anon:
+            return web.HTTPFound("/")
         view = "players"
     elif request.path == "/allplayers":
+        if user.anon:
+            return web.HTTPFound("/")
         view = "allplayers"
     elif request.path == "/games":
         view = "games"
@@ -173,6 +187,8 @@ async def index(request):
     elif request.path == "/features":
         view = "features"
     elif request.path == "/level8win":
+        if user.anon:
+            return web.HTTPFound("/")
         view = "level8win"
     elif request.path == "/tv":
         view = "tv"
@@ -186,6 +202,8 @@ async def index(request):
     elif request.path == "/paste":
         view = "paste"
     elif request.path.startswith("/tournaments"):
+        if user.anon:
+            return web.HTTPFound("/")
         if request.path.startswith("/tournaments/shields"):
             view = "shields"
         elif request.path.startswith("/tournaments/winners"):
@@ -231,9 +249,9 @@ async def index(request):
     profileId = request.match_info.get("profileId")
     if profileId is not None:
         profileId_user = await app_state.users.get(profileId)
-        if profileId_user is None:
+        if profileId_user.username == NONE_USER:
             await asyncio.sleep(3)
-            raise web.HTTPNotFound()
+            return web.HTTPFound("/")
 
     variant = request.match_info.get("variant")
     if (variant is not None) and ((variant not in VARIANTS) and variant != "terminology"):
@@ -248,6 +266,9 @@ async def index(request):
         raise web.HTTPNotFound()
 
     if profileId is not None:
+        if user.anon and DASH in profileId:
+            await asyncio.sleep(3)
+            raise web.HTTPOk()
         view = "profile"
         if request.path[-3:] == "/tv":
             view = "tv"

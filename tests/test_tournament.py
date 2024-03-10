@@ -223,7 +223,7 @@ class TournamentTestCase(AioHTTPTestCase):
         await asyncio.sleep(0.1)
         self.assertEqual(self.tournament.status, T_STARTED)
 
-        await asyncio.sleep(2)
+        await asyncio.sleep(3)
         self.assertEqual(self.tournament.status, T_FINISHED)
 
         await self.tournament.clock_task
