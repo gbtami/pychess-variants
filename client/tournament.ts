@@ -346,12 +346,8 @@ export class TournamentController implements ChatController {
         const games = msg.games.filter(game => game.result !== '-');
         const gamesLen = games.length;
         const avgOp = gamesLen
-            ? Math.round(
-                games.reduce(function (a, b) {
-                    return a + b.rating;
-                }, 0) / gamesLen
-            )
-            : 0;
+            ? Math.round(games.reduce((a, b) => a + b.rating, 0) / gamesLen)
+            : undefined;
 
         return [
             h('span.close', {
