@@ -66,7 +66,7 @@ export function movetimeChart(ctrl: AnalysisControllerBughouse) {
         };
         moveSeries[colorName].push(movePoint);
 
-        let clock = step.clocks![colorName];
+        let clock = step.clocks![color];
         if (clock !== undefined) {
             label += '<br />' + formatClock(clock);
             maxTotal = Math.max(clock, maxTotal);
