@@ -349,6 +349,9 @@ class User:
         else:
             return False
 
+    def __repr__(self):
+        return self.__str__()
+
     def __str__(self):
         return "%s %s bot=%s anon=%s chess=%s" % (
             self.title,
