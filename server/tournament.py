@@ -762,13 +762,17 @@ class Tournament(ABC):
             ws = next(iter(wp.tournament_sockets[self.id]))
             ok = await ws_send_json(ws, response)
             if not ok:
-                self.pause(wp)  # todo:this needs to be await-ed, but then it breaks test_tournament_pairing_5_round_SWISS test
+                self.pause(
+                    wp
+                )  # todo:this needs to be await-ed, but then it breaks test_tournament_pairing_5_round_SWISS test
                 log.debug("White player %s left the tournament (ws send failed)", wp.username)
 
             ws = next(iter(bp.tournament_sockets[self.id]))
             ok = await ws_send_json(ws, response)
             if not ok:
-                self.pause(bp)  # todo:this needs to be await-ed, but then it breaks test_tournament_pairing_5_round_SWISS test
+                self.pause(
+                    bp
+                )  # todo:this needs to be await-ed, but then it breaks test_tournament_pairing_5_round_SWISS test
                 log.debug("Black player %s left the tournament (ws send failed)", bp.username)
 
             if (
