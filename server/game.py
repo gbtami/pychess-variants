@@ -10,7 +10,7 @@ from user import User
 
 from broadcast import round_broadcast
 from clock import Clock, CorrClock
-from compress import encode_moves, R2C
+from compress import get_encode_method, R2C
 from const import (
     CREATED,
     STARTED,
@@ -161,6 +161,8 @@ class Game:
         self.last_server_clock = monotonic()
 
         self.id = gameId
+
+        self.encode_method = get_encode_method(variant)
 
         self.n_fold_is_draw = self.variant in (
             "makruk",
@@ -395,7 +397,7 @@ class Game:
                     if self.corr:
                         await opp_player.notify_game_end(self)
                 else:
-                    await self.save_moves()
+                    await self.save_move(move)
 
                 self.steps.append(
                     {
@@ -417,20 +419,14 @@ class Game:
                 if self.corr:
                     await opp_player.notify_game_end(self)
 
-    async def save_moves(self):
+    async def save_move(self, move):
         self.last_move_time = datetime.now(timezone.utc)
+        move_encoded = self.encode_method(grand2zero(move) if self.variant in GRANDS else move)
+
         new_data = {
             "f": self.board.fen,
             "l": self.last_move_time,
             "s": self.status,
-            "m": encode_moves(
-                (
-                    map(grand2zero, self.board.move_stack)
-                    if self.variant in GRANDS
-                    else self.board.move_stack
-                ),
-                self.variant,
-            ),
         }
 
         if self.rated == RATED:
@@ -438,7 +434,9 @@ class Game:
             new_data["cb"] = self.clocks_b[1:]
 
         if self.app_state.db is not None:
-            await self.app_state.db.game.update_one({"_id": self.id}, {"$set": new_data})
+            await self.app_state.db.game.update_one(
+                {"_id": self.id}, {"$set": new_data, "$push": {"m": move_encoded}}
+            )
 
     async def save_setup(self):
         """Used by Janggi prelude phase"""
@@ -520,14 +518,16 @@ class Game:
                 "f": self.board.fen,
                 "s": self.status,
                 "r": R2C[self.result],
-                "m": encode_moves(
-                    (
-                        map(grand2zero, self.board.move_stack)
-                        if self.variant in GRANDS
-                        else self.board.move_stack
-                    ),
-                    self.variant,
-                ),
+                "m": [
+                    *map(
+                        self.encode_method,
+                        (
+                            map(grand2zero, self.board.move_stack)
+                            if self.variant in GRANDS
+                            else self.board.move_stack
+                        ),
+                    )
+                ],
             }
 
             if self.rated == RATED and self.result != "*":

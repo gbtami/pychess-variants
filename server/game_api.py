@@ -9,7 +9,7 @@ import aiohttp_session
 from aiohttp import web
 from aiohttp_sse import sse_response
 
-from compress import decode_moves, C2V, V2C, C2R
+from compress import get_decode_method, C2V, V2C, C2R
 from const import GRANDS, STARTED, MATE, VARIANTS, INVALIDMOVE, VARIANTEND, CLAIM
 from convert import zero2grand
 from settings import ADMINS
@@ -101,18 +101,21 @@ async def get_tournament_games(request):
     cursor = app_state.db.game.find({"tid": tournamentId})
     game_doc_list = []
 
+    variant = app_state.tournaments[tournamentId].variant
+    decode_method = get_decode_method(variant)
+
     async for doc in cursor:
         doc["v"] = C2V[doc["v"]]
         doc["r"] = C2R[doc["r"]]
         game_doc_list.append(
             {
                 "id": doc["_id"],
-                "variant": doc["v"],
+                "variant": variant,
                 "is960": doc.get("z", 0),
                 "users": doc["us"],
                 "result": doc["r"],
                 "fen": doc.get("if"),
-                "moves": decode_moves(doc["m"], doc["v"]),
+                "moves": [*map(decode_method, doc["m"])],
             }
         )
 
@@ -242,7 +245,11 @@ async def get_user_games(request):
             doc["bt"] = (
                 app_state.users[doc["us"][1]].title if doc["us"][1] in app_state.users else ""
             )
-            doc["lm"] = decode_moves((doc["m"][-1],), doc["v"])[-1] if len(doc["m"]) > 0 else ""
+
+            variant = doc["v"]
+            decode_method = get_decode_method(variant)
+
+            doc["lm"] = decode_method(doc["m"][-1]) if len(doc["m"]) > 0 else ""
             if doc["v"] in GRANDS and doc["lm"] != "":
                 doc["lm"] = zero2grand(doc["lm"])
 
@@ -259,7 +266,7 @@ async def get_user_games(request):
                         "users": doc["us"],
                         "result": doc["r"],
                         "fen": doc.get("f"),
-                        "moves": decode_moves(doc["m"], doc["v"]),
+                        "moves": [*map(decode_method, doc["m"])],
                     }
                 )
             else:

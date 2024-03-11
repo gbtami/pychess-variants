@@ -28,7 +28,7 @@ from const import (
     CONSERVATIVE_CAPA_FEN,
     T_STARTED,
 )
-from compress import decode_moves, encode_moves, R2C, C2R, V2C, C2V
+from compress import get_decode_method, get_encode_method, R2C, C2R, V2C, C2V
 from convert import mirror5, mirror9, usi2uci, grand2zero, zero2grand
 from fairy import BLACK, STANDARD_FEN, FairyBoard
 from game import Game, MAX_PLY
@@ -137,7 +137,8 @@ async def load_game(app_state: PychessGlobalAppState, game_id):
         tournamentId=doc.get("tid"),
     )
 
-    mlist = decode_moves(doc["m"], variant)
+    decode_method = get_decode_method(variant)
+    mlist = [*map(decode_method, doc["m"])]
 
     if (mlist or game.tournamentId is not None) and doc["s"] > STARTED:
         game.saved = True
@@ -350,7 +351,8 @@ async def import_game(request):
         base, inc = 0, 0
 
     move_stack = data.get("moves", "").split(" ")
-    moves = encode_moves(map(grand2zero, move_stack) if variant in GRANDS else move_stack, variant)
+    encode_method = get_encode_method(variant)
+    moves = [*map(encode_method, map(grand2zero, move_stack) if variant in GRANDS else move_stack)]
 
     game_id = await new_id(None if app_state.db is None else app_state.db.game)
     existing = await app_state.db.game.find_one({"_id": {"$eq": game_id}})
@@ -698,7 +700,8 @@ async def play_move(app_state: PychessGlobalAppState, user, game, move, clocks=N
 
 def pgn(doc):
     variant = C2V[doc["v"]]
-    mlist = decode_moves(doc["m"], variant)
+    decode_method = get_decode_method(variant)
+    mlist = [*map(decode_method, doc["m"])]
     if len(mlist) == 0:
         return None
 
