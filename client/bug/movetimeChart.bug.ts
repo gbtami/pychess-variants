@@ -47,14 +47,14 @@ export function movetimeChart(ctrl: AnalysisControllerBughouse) {
 
         // const hasClocks = (msg.steps[1].clocks?.white !== undefined);
 
-        if (ply <= 2) {step.clocks!.movetime = 0;
+        if (ply <= 2) {step.movetime = 0;
         } else {
-            step.clocks!.movetime = (ply % 2 === 1) ?
+            step.movetime = (ply % 2 === 1) ?
                 (ctrl.steps[ply-2].clocks?.white! - (ctrl.steps[ply].clocks?.white! - ctrl.inc * 1000)) :
                 (ctrl.steps[ply-2].clocks?.black! - (ctrl.steps[ply].clocks?.black! - ctrl.inc * 1000));
         }
 
-        const y = Math.pow(Math.log(0.005 * Math.min(step.clocks!.movetime, 12e4) + 3), 2) - logC;
+        const y = Math.pow(Math.log(0.005 * Math.min(step.movetime, 12e4) + 3), 2) - logC;
         maxMove = Math.max(y, maxMove);
 
         let label = turn + (color ? '. ' : '... ') + step.san;
@@ -169,7 +169,7 @@ export function movetimeChart(ctrl: AnalysisControllerBughouse) {
                 format = format.replace('{series.name}', '');
                 const self: Highcharts.Point = this;
                 const step = ctrl.steps[self.x];
-                const movetime = step?.clocks?.movetime;
+                const movetime = step?.movetime;
                 if (movetime === undefined) return '';
                 else return format.replace('{point.y}', (movetime / 1000).toFixed(1) + "s");
             } as Highcharts.FormatterCallbackFunction<Highcharts.Point>

@@ -93,7 +93,7 @@ export function chatMessage (user: string, message: string, chatType: string, ti
         const discordMessage = message.substring(colonIndex + 2);
         patch(container, h('div#messages', [ h("li.message", [h("div.time", localTime), h("div.discord-icon-container", h("img.icon-discord-icon", { attrs: { src: '/static/icons/discord.svg' } })), h("user", discordUser), h("t", discordMessage)]) ]));
     } else if (message.startsWith("!bug!")) {
-        chatMessageBug(container, user, message, chatType, localTime);
+        chatMessageBug(container, user, message, /*chatType,*/ localTime);
     } else {
         patch(container, h('div#messages', [ h("li.message", [h("div.time", localTime), h("user", h("a", { attrs: {href: "/@/" + user} }, user)), h("t", message)]) ]));
     }

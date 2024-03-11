@@ -2,26 +2,14 @@ import { h, VNode } from 'snabbdom';
 
 import { patch } from '../document';
 import AnalysisController from "./analysisCtrl.bug";
-import {GameControllerBughouse} from "./gameCtrl.bug";
-import {Clocks, Step} from "../messages";
+import { GameControllerBughouse } from "./gameCtrl.bug";
+import { Clocks } from "../messages";
+import { BLACK, WHITE } from "../chess";
 
 export function renderClocks(ctrl: AnalysisController) {
     const lastStep = ctrl.steps[ctrl.ply];
-    renderClocksCC({white: lastStep.clocks!['white'], black: lastStep.clocks!['black']}, ctrl.b1, "");
-    renderClocksCC({white: lastStep.clocksB!['white'], black: lastStep.clocksB!['black']}, ctrl.b2, ".bug");
-    // const lastStepA = ctrl.steps[ctrl.steps.findLastIndex((s: Step, i: number) => s.boardName === "a" && i <= ctrl.ply)];
-    // const lastStepB = ctrl.steps[ctrl.steps.findLastIndex((s: Step, i: number) => s.boardName === "b" && i <= ctrl.ply)];
-    //
-    // if (lastStepA && lastStepA.clocks) {
-    //     renderClocksCC({white: lastStepA.clocks['white'], black: lastStepA.clocks['black']}, ctrl.b1, "");
-    // } else {
-    //     renderClocksCC({white: ctrl.base * 60 * 1000, black: ctrl.base * 60 * 1000}, ctrl.b1, "");
-    // }
-    // if (lastStepB && lastStepB.clocks) {
-    //     renderClocksCC({white:lastStepB.clocks['white'], black: lastStepB.clocks['black']}, ctrl.b2, ".bug");
-    // } else {
-    //     renderClocksCC({white: ctrl.base * 60 * 1000, black: ctrl.base * 60 * 1000}, ctrl.b2, ".bug");
-    // }
+    renderClocksCC([lastStep.clocks![WHITE], lastStep.clocks![BLACK]], ctrl.b1, "");
+    renderClocksCC([lastStep.clocksB![WHITE], lastStep.clocksB![BLACK]], ctrl.b2, ".bug");
 }
 
 export function renderClocksCC(clocks: Clocks, ctrl: GameControllerBughouse, suffix: string) {
@@ -30,14 +18,14 @@ export function renderClocksCC(clocks: Clocks, ctrl: GameControllerBughouse, suf
 
     const wclass = whitePov ? 'bottom' : 'top';
 
-    const wtime = clocks.white;
+    const wtime = clocks[WHITE];
     let wel: VNode | HTMLElement = document.querySelector(`div.anal-clock.${wclass}${suffix}`) as HTMLElement;
     if (wel) {
         wel = patch(wel, h(`div.anal-clock.${wclass}${suffix}`, ''));
         patch(wel, renderClock(wtime!, isWhiteTurn, wclass+suffix));
     }
     const bclass = whitePov ? 'top' : 'bottom';
-    const btime = clocks.black;
+    const btime = clocks[BLACK];
     let bel: VNode | HTMLElement = document.querySelector(`div.anal-clock.${bclass}${suffix}`) as HTMLElement;
     if (bel) {
         bel = patch(bel, h(`div.anal-clock.${bclass}${suffix}`, ''));

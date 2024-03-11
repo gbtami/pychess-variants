@@ -5,7 +5,6 @@ import {gameInfoBug} from './gameInfo.bug';
 import {VARIANTS, selectVariant} from "../variants"
 
 import {renderTimeago} from '../datetime';
-import {spinner} from '../view';
 import {PyChessModel} from "../types";
 import AnalysisControllerBughouse from "./analysisCtrl.bug";
 import {gauge} from "@/analysis";

@@ -177,8 +177,8 @@ export class RoundController extends GameController {
         // initialize users
         const player0 = document.getElementById('rplayer0') as HTMLElement;
         const player1 = document.getElementById('rplayer1') as HTMLElement;
-        this.vplayer0 = patch(player0, player('round-player0', 'player0', this.titles[0], this.players[0], this.ratings[0], this.level));
-        this.vplayer1 = patch(player1, player('round-player1', 'player1', this.titles[1], this.players[1], this.ratings[1], this.level));
+        this.vplayer0 = patch(player0, player('player0', this.titles[0], this.players[0], this.ratings[0], this.level));
+        this.vplayer1 = patch(player1, player('player1', this.titles[1], this.players[1], this.ratings[1], this.level));
 
         if (this.variant.material.showDiff) {
             const materialTop = document.querySelector('.material-top') as HTMLElement;
@@ -393,8 +393,8 @@ export class RoundController extends GameController {
         this.clocks[1].setTime(tmp_clock_time);
         if (this.status < 0) new_running_clck.start();
 
-        this.vplayer0 = patch(this.vplayer0, player('round-player0', 'player0', this.titles[this.flipped() ? 1 : 0], this.players[this.flipped() ? 1 : 0], this.ratings[this.flipped() ? 1 : 0], this.level));
-        this.vplayer1 = patch(this.vplayer1, player('round-player1', 'player1', this.titles[this.flipped() ? 0 : 1], this.players[this.flipped() ? 0 : 1], this.ratings[this.flipped() ? 0 : 1], this.level));
+        this.vplayer0 = patch(this.vplayer0, player('player0', this.titles[this.flipped() ? 1 : 0], this.players[this.flipped() ? 1 : 0], this.ratings[this.flipped() ? 1 : 0], this.level));
+        this.vplayer1 = patch(this.vplayer1, player('player1', this.titles[this.flipped() ? 0 : 1], this.players[this.flipped() ? 0 : 1], this.ratings[this.flipped() ? 0 : 1], this.level));
 
         if (this.variant.ui.counting)
             [this.vmiscInfoW, this.vmiscInfoB] = updateCount(this.fullfen, this.vmiscInfoB, this.vmiscInfoW);

@@ -258,13 +258,13 @@ export class RoundControllerBughouse implements ChatController {
         const titles = new Map<string, string>([[this.wplayer, this.wtitle], [this.bplayer, this.btitle], [this.wplayerB, this.wtitleB], [this.bplayerB, this.btitleB]]);
         const player0a = document.getElementById('rplayer0a') as HTMLElement;
         const player1a = document.getElementById('rplayer1a') as HTMLElement;
-        this.vplayerA0 = patch(player0a, player('round-player0', 'player0a', titles.get(this.players[0])!, this.players[0], ratings.get(this.players[0])!, this.level));
-        this.vplayerA1 = patch(player1a, player('round-player1', 'player1a', titles.get(this.players[1])!, this.players[1], ratings.get(this.players[1])!, this.level));
+        this.vplayerA0 = patch(player0a, player('player0a', titles.get(this.players[0])!, this.players[0], ratings.get(this.players[0])!, this.level));
+        this.vplayerA1 = patch(player1a, player('player1a', titles.get(this.players[1])!, this.players[1], ratings.get(this.players[1])!, this.level));
 
         const player0b = document.getElementById('rplayer0b') as HTMLElement;
         const player1b = document.getElementById('rplayer1b') as HTMLElement;
-        this.vplayerB0 = patch(player0b, player('round-player0.bug', 'player0b', titles.get(this.playersB[0])!, this.playersB[0], ratings.get(this.playersB[0])!, this.level));
-        this.vplayerB1 = patch(player1b, player('round-player1.bug', 'player1b', titles.get(this.playersB[1])!, this.playersB[1], ratings.get(this.playersB[1])!, this.level));
+        this.vplayerB0 = patch(player0b, player('player0b', titles.get(this.playersB[0])!, this.playersB[0], ratings.get(this.playersB[0])!, this.level));
+        this.vplayerB1 = patch(player1b, player('player1b', titles.get(this.playersB[1])!, this.playersB[1], ratings.get(this.playersB[1])!, this.level));
 
         this.clocktimes = [ this.base * 1000 * 60, this.base * 1000 * 60 ]
         this.clocktimesB = [ this.base * 1000 * 60, this.base * 1000 * 60 ]

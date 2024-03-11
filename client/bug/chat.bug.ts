@@ -30,7 +30,7 @@ export function renderBugChatPresets(sendMessage: (s:string)=>void): VNode{
                 ]);
 }
 
-export function chatMessageBug (container: HTMLElement, user: string, message: string, chatType: string, localTime?: string) {
+export function chatMessageBug (container: HTMLElement, user: string, message: string, /*chatType: string,*/ localTime?: string) {
     const m = message.replace('!bug!','');
     patch(container, h('div#messages', [ h("li.message",
         [h("div.time", localTime), h("user", h("a", { attrs: {href: "/@/" + user} }, user)),
