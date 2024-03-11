@@ -3,6 +3,7 @@ import Highcharts from "highcharts";
 import { selectMove } from './movelist.bug';
 import { Step } from "../messages";
 import AnalysisControllerBughouse from "@/bug/analysisCtrl.bug";
+import {BLACK, WHITE} from "@/chess";
 
 export interface MovePoint {
   y: number;
@@ -50,8 +51,8 @@ export function movetimeChart(ctrl: AnalysisControllerBughouse) {
         if (ply <= 2) {step.movetime = 0;
         } else {
             step.movetime = (ply % 2 === 1) ?
-                (ctrl.steps[ply-2].clocks?.white! - (ctrl.steps[ply].clocks?.white! - ctrl.inc * 1000)) :
-                (ctrl.steps[ply-2].clocks?.black! - (ctrl.steps[ply].clocks?.black! - ctrl.inc * 1000));
+                (ctrl.steps[ply-2].clocks![WHITE] - (ctrl.steps[ply].clocks![WHITE] - ctrl.inc * 1000)) :
+                (ctrl.steps[ply-2].clocks![BLACK] - (ctrl.steps[ply].clocks![BLACK] - ctrl.inc * 1000));
         }
 
         const y = Math.pow(Math.log(0.005 * Math.min(step.movetime, 12e4) + 3), 2) - logC;
