@@ -29,8 +29,6 @@ from const import (
     T_CREATED,
     T_STARTED,
     SCHEDULE_MAX_DAYS,
-    NOTIFY_EXPIRE_SECS,
-    CORR_SEEK_EXPIRE_SECS,
     ABORTED,
 )
 from discord_bot import DiscordBot, FakeDiscordBot
@@ -217,11 +215,11 @@ class PychessGlobalAppState:
             if "notify" not in db_collections:
                 await self.db.create_collection("notify")
             await self.db.notify.create_index("notifies")
-            await self.db.notify.create_index("createdAt", expireAfterSeconds=NOTIFY_EXPIRE_SECS)
+            await self.db.notify.create_index("expireAt", expireAfterSeconds=0)
 
             if "seek" not in db_collections:
                 await self.db.create_collection("seek")
-            await self.db.seek.create_index("createdAt", expireAfterSeconds=CORR_SEEK_EXPIRE_SECS)
+            await self.db.seek.create_index("expireAt", expireAfterSeconds=0)
 
             # Read correspondence seeks
             async for doc in self.db.seek.find():
@@ -236,7 +234,7 @@ class PychessGlobalAppState:
                         rated=doc["rated"],
                         chess960=doc["chess960"],
                         player1=user,
-                        created_at=doc["createdAt"],
+                        expire_at=doc.get("expireAt"),
                     )
                     self.seeks[seek.id] = seek
                     user.seeks[seek.id] = seek

@@ -1,4 +1,6 @@
 from __future__ import annotations
+from datetime import timedelta
+
 from settings import static_url
 
 # https://medium.com/quick-code/python-type-hinting-eliminating-importerror-due-to-circular-imports-265dfb0580f8
@@ -12,12 +14,12 @@ NONE_USER = "None" + DASH + "User"
 SCHEDULE_MAX_DAYS = 7
 TOURNAMENT_SPOTLIGHTS_MAX = 3
 
-# Max notify documents TTL (time to live) 4 weeks
-NOTIFY_EXPIRE_SECS = 60 * 60 * 24 * 7 * 4
+# Max notify documents TTL (time to live) weeks
+NOTIFY_EXPIRE_WEEKS = timedelta(weeks=4)
 NOTIFY_PAGE_SIZE = 7
 
-# Max corr seek documents TTL (time to live) 1 weeks
-CORR_SEEK_EXPIRE_SECS = 60 * 60 * 24 * 7
+# Max corr seek documents TTL (time to live) weeks
+CORR_SEEK_EXPIRE_WEEKS = timedelta(weeks=2)
 
 # Max number of lobby chat lines (deque limit)
 MAX_CHAT_LINES = 100
