@@ -104,8 +104,8 @@ class DiscordBot(Bot):
             log.debug("+++ lobbychat msg: %s %s", user, msg)
             await self.pychess_lobby_channel.send("**%s**: %s" % (user, msg))
 
-        elif self.game_seek_channel is not None and msg_type == "create_seek":
-            log.debug("+++ create_seek msg: %s", msg)
+        elif self.game_seek_channel is not None and msg_type in ("create_seek", "accept_seek"):
+            log.debug("+++ seek msg: %s", msg)
             await self.game_seek_channel.send("%s" % msg)
 
         elif self.tournament_channel is not None and msg_type == "create_tournament":
