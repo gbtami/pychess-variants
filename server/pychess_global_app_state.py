@@ -81,6 +81,8 @@ class PychessGlobalAppState:
 
         self.tournaments: dict[str, Tournament] = {}
 
+        self.tourney_calendar = None
+
         # lichess allows 7 team message per week, so we will send one (cumulative) per day only
         # TODO: save/restore from db
         self.sent_lichess_team_msg: List[date] = []
@@ -133,6 +135,8 @@ class PychessGlobalAppState:
         #####
         self.__start_bots()
         self.__init_translations()
+
+        self.started_at = datetime.now(timezone.utc)
 
     async def init_from_db(self):
         if self.db is None:

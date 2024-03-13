@@ -3,7 +3,6 @@ import argparse
 import asyncio
 import logging
 import os
-from datetime import datetime, timezone
 from sys import platform
 from urllib.parse import urlparse
 
@@ -27,7 +26,6 @@ from motor.motor_asyncio import AsyncIOMotorClient
 
 from typedefs import (
     client_key,
-    date_key,
     pychess_global_app_state_key,
     db_key,
 )
@@ -140,10 +138,6 @@ def make_app(db_client=None, simple_cookie_storage=False) -> Application:
 
 
 async def init_state(app):
-    # We have to put "kill" into a dict to prevent getting:
-    # DeprecationWarning: Changing state of started or joined application is deprecated
-    app[date_key] = {"startedAt": datetime.now(timezone.utc)}
-
     if db_key not in app:
         app[db_key] = None
 
