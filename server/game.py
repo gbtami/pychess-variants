@@ -348,11 +348,7 @@ class Game:
                         self.byoyomi_periods[cur_color] -= 1
                     else:
                         w, b = self.board.insufficient_material()
-                        if (
-                            (w and b)
-                            or (cur_color == "black" and w)
-                            or (cur_color == "white" and b)
-                        ):
+                        if (w and b) or (cur_color == BLACK and w) or (cur_color == WHITE and b):
                             result = "1/2-1/2"
                         else:
                             result = "1-0" if cur_color == BLACK else "0-1"
@@ -1066,7 +1062,7 @@ class Game:
             "gameId": self.id,
             "title": opp_player.title,
             "name": opp_player.username,
-            "rating": opp_rating,
+            "rating": opp_rating.rstrip("?"),
             "color": color,
             "result": self.result,
         }

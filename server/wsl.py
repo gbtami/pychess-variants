@@ -194,6 +194,10 @@ async def handle_accept_seek(app_state: PychessGlobalAppState, ws, user, data):
     # Inform others, new_game() deleted accepted seek already.
     await app_state.lobby.lobby_broadcast_seeks()
 
+    if (seek is not None) and seek.target == "":
+        msg = "%s accepted by %s" % (seek.discord_msg, user.username)
+        await app_state.discord.send_to_discord("accept_seek", msg)
+
 
 async def send_lobby_user_connected(app_state, ws, user):
     # update websocket
@@ -255,13 +259,20 @@ async def handle_lobbychat(app_state, user, data):
     admin_command = False
 
     if user.username in ADMINS:
+        admin_command = True
         if message.startswith("/silence"):
-            admin_command = True
             response = silence(message, app_state.lobby.lobbychat, app_state.users)
             # silence message was already added to lobbychat in silence()
 
+        elif message.startswith("/disable_new_anons"):
+            parts = message.split()
+            if len(parts) > 1:
+                if parts[1].lower() in ("1", "true", "yes"):
+                    app_state.disable_new_anons = True
+                else:
+                    app_state.disable_new_anons = False
+
         elif message.startswith("/stream"):
-            admin_command = True
             parts = message.split()
             if len(parts) >= 3:
                 if parts[1] == "add":
@@ -276,13 +287,11 @@ async def handle_lobbychat(app_state, user, data):
                 await broadcast_streams(app_state)
 
         elif message.startswith("/delete"):
-            admin_command = True
             parts = message.split()
             if len(parts) == 2 and len(parts[1]) == 5:
                 await app_state.db.puzzle.delete_one({"_id": parts[1]})
 
         elif message.startswith("/ban"):
-            admin_command = True
             parts = message.split()
             if len(parts) == 2 and parts[1] in app_state.users and parts[1] not in ADMINS:
                 banned_user = await app_state.users.get(parts[1])
@@ -293,19 +302,18 @@ async def handle_lobbychat(app_state, user, data):
                 await logout(None, banned_user)
 
         elif message.startswith("/highscore"):
-            admin_command = True
             parts = message.split()
             if len(parts) == 2 and parts[1] in VARIANTS:
                 variant = parts[1]
                 await generate_highscore(app_state, variant)
 
         elif message == "/state":
-            admin_command = True
             server_state(app_state)
 
         else:
+            admin_command = False
             response = chat_response("lobbychat", user.username, data["message"])
-            app_state.lobby.lobbychat.append(response)
+            await app_state.lobby.lobby_chat_save(response)
 
     elif user.anon and user.username != "Discord-Relay":
         pass
@@ -313,7 +321,7 @@ async def handle_lobbychat(app_state, user, data):
     else:
         if user.silence == 0:
             response = chat_response("lobbychat", user.username, data["message"])
-            app_state.lobby.lobbychat.append(response)
+            await app_state.lobby.lobby_chat_save(response)
 
     if response is not None:
         await app_state.lobby.lobby_broadcast(response)

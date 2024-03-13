@@ -974,10 +974,10 @@ async def subscribe_notify(request):
         return web.json_response({})
 
     user = await app_state.users.get(session_user)
+    queue = asyncio.Queue()
+    user.notify_channels.add(queue)
     try:
         async with sse_response(request) as response:
-            queue = asyncio.Queue()
-            user.notify_channels.add(queue)
             while not response.task.done():
                 payload = await queue.get()
                 await response.send(payload)

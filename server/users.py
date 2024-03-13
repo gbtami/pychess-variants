@@ -1,4 +1,5 @@
 from __future__ import annotations
+import asyncio
 import logging
 from collections import UserDict
 
@@ -47,6 +48,8 @@ class Users(UserDict):
             return user
 
         if username.startswith(ANON_PREFIX):
+            # slow down creating new anon a bit
+            await asyncio.sleep(5)
             user = User(self.app_state, username=username, anon=True)
             self.app_state.users[username] = user
             return user
@@ -54,7 +57,8 @@ class Users(UserDict):
         doc = await self.app_state.db.user.find_one({"_id": username})
         if doc is None:
             log.error("--- users.get() %s NOT IN db ---", username)
-            raise NotInDbUsers
+            # raise NotInDbUsers
+            return self.data[NONE_USER]
         else:
             perfs = doc.get("perfs", {variant: DEFAULT_PERF for variant in VARIANTS})
             pperfs = doc.get("pperfs", {variant: DEFAULT_PERF for variant in VARIANTS})
