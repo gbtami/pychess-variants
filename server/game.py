@@ -1084,7 +1084,7 @@ class Game:
             "gameId": self.id,
             "title": opp_player.title,
             "name": opp_player.username,
-            "rating": opp_rating.rstrip("?"),
+            "rating": int(opp_rating.rstrip("?")),
             "color": color,
             "result": self.result,
         }
