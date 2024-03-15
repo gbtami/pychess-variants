@@ -29,9 +29,9 @@ from const import (
     T_STARTED,
 )
 from compress import get_decode_method, get_encode_method, R2C, C2R, V2C, C2V
-from convert import mirror5, mirror9, usi2uci, grand2zero, zero2grand
-from fairy import BLACK, STANDARD_FEN, FairyBoard
-from game import Game, MAX_PLY
+from convert import mirror5, mirror9, grand2zero, zero2grand
+from fairy import BLACK, WHITE, STANDARD_FEN, FairyBoard
+from game import Game
 from newid import new_id
 from user import User
 from users import NotInDbUsers
@@ -137,6 +137,8 @@ async def load_game(app_state: PychessGlobalAppState, game_id):
         tournamentId=doc.get("tid"),
     )
 
+    game.usi_format = usi_format
+
     decode_method = get_decode_method(variant)
     mlist = [*map(decode_method, doc["m"])]
 
@@ -145,108 +147,25 @@ async def load_game(app_state: PychessGlobalAppState, game_id):
 
     if usi_format and variant == "shogi":
         mirror = mirror9
-        mlist = map(mirror, mlist)
+        mlist = [*map(mirror, mlist)]
 
     elif usi_format and (variant in ("minishogi", "kyotoshogi")):
         mirror = mirror5
-        mlist = map(mirror, mlist)
+        mlist = [*map(mirror, mlist)]
 
     elif variant in GRANDS:
-        mlist = map(zero2grand, mlist)
-
+        mlist = [*map(zero2grand, mlist)]
         if variant == "janggi":
             game.wsetup = doc.get("ws", False)
             game.bsetup = doc.get("bs", False)
 
     if "a" in doc:
-        if usi_format and "m" in doc["a"][0]:
-            doc["a"][0]["m"] = mirror(usi2uci(doc["a"][0]["m"]))
-        game.steps[0]["analysis"] = doc["a"][0]
+        game.analysis = doc["a"]
 
     if "cw" in doc:
         base_clock_time = (game.base * 1000 * 60) + (0 if game.base > 0 else game.inc * 1000)
         game.clocks_w = [base_clock_time] + doc["cw"] if len(doc["cw"]) > 0 else [base_clock_time]
         game.clocks_b = [base_clock_time] + doc["cb"] if len(doc["cb"]) > 0 else [base_clock_time]
-
-    if "mct" in doc:
-        manual_count_toggled = iter(doc["mct"])
-        count_started = -1
-        count_ended = -1
-
-    for ply, move in enumerate(mlist):
-        try:
-            if "mct" in doc:
-                # print("Ply", ply, "Move", move)
-                if ply + 1 >= count_ended:
-                    try:
-                        game.board.count_started = -1
-                        count_started, count_ended = next(manual_count_toggled)
-                        # print("New count interval", (count_started, count_ended))
-                    except StopIteration:
-                        # print("Piece's honour counting started")
-                        count_started = 0
-                        count_ended = MAX_PLY + 1
-                        game.board.count_started = 0
-                if ply + 1 == count_started:
-                    # print("Count started", count_started)
-                    game.board.count_started = ply
-
-            san = game.board.get_san(move)
-            game.board.push(move)
-            game.check = game.board.is_checked()
-            turnColor = "black" if game.board.color == BLACK else "white"
-            if usi_format:
-                turnColor = "black" if turnColor == "white" else "white"
-            step = {
-                "fen": game.board.fen,
-                "move": move,
-                "san": san,
-                "turnColor": turnColor,
-                "check": game.check,
-            }
-            if "cw" in doc and not corr:
-                move_number = ((ply + 1) // 2) + (1 if ply % 2 == 0 else 0)
-                if ply >= 2:
-                    if ply % 2 == 0:
-                        step["clocks"] = (
-                            game.clocks_w[move_number],
-                            game.clocks_b[move_number - 1],
-                        )
-                    else:
-                        step["clocks"] = (
-                            game.clocks_w[move_number],
-                            game.clocks_b[move_number],
-                        )
-                else:
-                    step["clocks"] = (
-                        game.clocks_w[move_number],
-                        game.clocks_b[move_number],
-                    )
-
-            game.steps.append(step)
-
-            if "a" in doc:
-                if usi_format and "m" in doc["a"][ply + 1]:
-                    doc["a"][ply + 1]["m"] = mirror(usi2uci(doc["a"][ply + 1]["m"]))
-                try:
-                    game.steps[-1]["analysis"] = doc["a"][ply + 1]
-                except IndexError:
-                    log.error("IndexError %d %s %s", ply, move, san, exc_info=True)
-
-        except Exception:
-            log.exception(
-                "ERROR: Exception in load_game() %s %s %s %s %s",
-                game_id,
-                variant,
-                doc.get("if"),
-                move,
-                list(mlist),
-            )
-            break
-
-    if len(game.steps) > 1:
-        move = game.steps[-1]["move"]
-        game.lastmove = move
 
     level = doc.get("x")
     game.date = doc["d"]
@@ -286,7 +205,15 @@ async def load_game(app_state: PychessGlobalAppState, game_id):
         if doc.get("bd", False):
             game.draw_offers.add(game.bplayer.username)
 
+    if len(mlist) > 0:
+        game.board.move_stack = mlist
+        game.board.fen = doc["f"]
+        game.board.color = WHITE if game.board.fen.split()[1] == "w" else BLACK
+        game.last_move = mlist[-1]
+        game.mct = doc.get("mct")
+
     game.loaded_at = datetime.now(timezone.utc)
+
     return game
 
 

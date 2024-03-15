@@ -100,10 +100,11 @@ class FairyBoard:
     def initial_sfen(self):
         return sf.get_fen(self.variant, self.initial_fen, [], False, True)
 
-    def push(self, move):
+    def push(self, move, append=True):
         try:
-            # log.debug("move=%s, fen=%s", move, self.fen)
-            self.move_stack.append(move)
+            # log.debug("move=%s, fen=%s", move, self.fen
+            if append:
+                self.move_stack.append(move)
             self.ply += 1
             self.color = WHITE if self.color == BLACK else BLACK
             self.fen = sf.get_fen(
