@@ -1119,7 +1119,7 @@ export class RoundController extends GameController {
         }
         // We always need this to get possible moves made while our websocket connection was established
         // fixes https://github.com/gbtami/pychess-variants/issues/962
-        this.doSend({ type: "board", gameId: this.gameId }); //todo:niki: i am still not fully understanding the whole logic but imho we should really send the board on reconnect and not do those roundtrips. check if same is the situation with bughouse - i am pretty sure i send the board there  on reconect without waiting for this roundtrips to happen and to ask for it excplicitly like this
+        this.doSend({ type: "board", gameId: this.gameId });
     }
 
     private onMsgUserPresent = (msg: MsgUserPresent) => {

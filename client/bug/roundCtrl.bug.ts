@@ -29,9 +29,9 @@ import {
     MsgUpdateTV,
     MsgGameStart, MsgViewRematch
 } from '../roundType';
-import {JSONObject, PyChessModel } from "../types";
-import {GameControllerBughouse } from "./gameCtrl.bug";
-import {BLACK, getTurnColor, uci2LastMove, WHITE} from "../chess";
+import { JSONObject, PyChessModel } from "../types";
+import { GameControllerBughouse } from "./gameCtrl.bug";
+import { BLACK, getTurnColor, uci2LastMove, WHITE } from "../chess";
 import { sound } from "../sound";
 import { renderRdiff } from "../result";
 import { player } from "../player";
@@ -39,6 +39,7 @@ import { WebsocketHeartbeatJs } from '../socket/socket';
 import { notify } from "../notification";
 import { VARIANTS } from "../variants";
 import { createWebsocket } from "@/webSocketUtils";
+import AnalysisControllerBughouse from "@/bug/analysisCtrl.bug";
 
 export class RoundControllerBughouse implements ChatController {
     sock: WebsocketHeartbeatJs;
@@ -99,7 +100,7 @@ export class RoundControllerBughouse implements ChatController {
 
     spectator: boolean;
 
-    gameControls: VNode;//todo:niki: usually inherited from gameCtrl
+    gameControls: VNode; // todo: usually inherited from gameCtrl - think about some reusable solution (DRY)
     readonly home: string;
 
     vplayerA0: VNode;
@@ -401,36 +402,20 @@ export class RoundControllerBughouse implements ChatController {
     }
 
     switchBoards = (): void => {
-        //TODO:NIKI:compare with implementation of same method in analysisCtrl.bug.ts - why are they different apart from the info stuff - DRY-it?
-        let mainboardVNode = document.getElementById('mainboard');
-        let mainboardPocket0 = document.getElementById('pocket00');
-        let mainboardPocket1 = document.getElementById('pocket01');
-
-        let bugboardVNode = document.getElementById('bugboard');
-        let bugboardPocket0 = document.getElementById('pocket10');
-        let bugboardPocket1 = document.getElementById('pocket11');
+        switchBoards(this);
 
         let infoWrap0 = document.getElementsByClassName('info-wrap0')[0] as HTMLElement;
         let infoWrap0bug = document.getElementsByClassName('info-wrap0 bug')[0] as HTMLElement;
         let infoWrap1 = document.getElementsByClassName('info-wrap1')[0] as HTMLElement;
         let infoWrap1bug = document.getElementsByClassName('info-wrap1 bug')[0] as HTMLElement;
 
-        let a = mainboardVNode!.style.gridArea || "board";
-        mainboardVNode!.style.gridArea = bugboardVNode!.style.gridArea || "boardPartner";
-        bugboardVNode!.style.gridArea = a;
-
-        a = infoWrap0!.style.gridArea || "clock-top";
+        let a = infoWrap0!.style.gridArea || "clock-top";
         infoWrap0!.style.gridArea = infoWrap0bug!.style.gridArea || "clockB-top";
         infoWrap0bug!.style.gridArea = a;
         a = infoWrap1!.style.gridArea || "clock-bot";
         infoWrap1!.style.gridArea = infoWrap1bug!.style.gridArea || "clockB-bot";
         infoWrap1bug!.style.gridArea = a;
 
-        swap(mainboardPocket0!, bugboardPocket0!);
-        swap(mainboardPocket1!, bugboardPocket1!);
-
-        this.b1.chessground.redrawAll();
-        this.b2.chessground.redrawAll();
     }
 
     getClock = (boardName: string, color: cg.Color) => {
@@ -541,12 +526,6 @@ export class RoundControllerBughouse implements ChatController {
 
     }
 
-    //
-    // private abort = () => {
-    //     // console.log("Abort");
-    //     this.doSend({ type: "abort", gameId: this.gameId });
-    // }
-    //
     private draw = () => {
         // console.log("Draw");
         if (confirm(_('Are you sure you want to draw?'))) {
@@ -643,15 +622,7 @@ export class RoundControllerBughouse implements ChatController {
         window.location.assign(home + '/' + this.gameId + '?ply=' + this.ply.toString());
     }
 
-    private gameOver = (rdiffs: RDiffs) => {
-        let container;
-        container = document.getElementById('wrdiff') as HTMLElement;
-        if (container) patch(container, renderRdiff(rdiffs["wrdiff"]));
-
-        container = document.getElementById('brdiff') as HTMLElement;
-        if (container) patch(container, renderRdiff(rdiffs["brdiff"]));
-
-        // console.log(rdiffs)
+    private gameOver = () => {
         this.gameControls = patch(this.gameControls, h('div'));
         let buttons: VNode[] = [];
         if (!this.spectator) {
@@ -678,18 +649,11 @@ export class RoundControllerBughouse implements ChatController {
             this.clocksB[1].pause(false);
             // this.dests = new Map();
 
-            if (this.result !== "*" && !this.spectator && !this.finishedGame)
+            if (this.result !== "*" && !this.spectator && !this.finishedGame) {
                 sound.gameEndSoundBughouse(msg.result, this.whichTeamAmI());
+            }
+            this.gameOver()
 
-            if ("rdiffs" in msg) this.gameOver(msg.rdiffs); //todo:niki: am i still using rdiffs - probably i should for boardA
-            // selectMove(this, this.ply);TODO:NIKI
-
-            // updateResult(this);TODO:NIKI
-
-            // if ("ct" in msg && msg.ct) {
-            //     this.ctableContainer = patch(this.ctableContainer, h('div.ctable-container'));
-            //     this.ctableContainer = patch(this.ctableContainer, crosstableView(msg.ct, this.gameId));
-            // }
 
             // clean up gating/promotion widget left over the ground while game ended by time out
             const container = document.getElementById('extension_choice') as HTMLElement;
@@ -704,16 +668,7 @@ export class RoundControllerBughouse implements ChatController {
     }
 
     private onMsgUpdateTV = (msg: MsgUpdateTV) => {
-        console.log(msg);
-        // if (msg.gameId !== this.gameId) {
-        //     if (this.profileid !== "") {
-        //         window.location.assign(this.home + '/@/' + this.profileid + '/tv');
-        //     } else {
-        //         window.location.assign(this.home + '/tv');
-        //     }
-        //     // TODO: reuse current websocket to fix https://github.com/gbtami/pychess-variants/issues/142
-        //     // this.doSend({ type: "game_user_connected", username: this.username, gameId: msg.gameId });
-        // }
+        console.log(msg); // todo: tv for bug not supported
     }
 
     private updateSteps = (full: boolean, steps: Step[], ply: number, latestPly: boolean) => {
@@ -727,14 +682,7 @@ export class RoundControllerBughouse implements ChatController {
                 });
             updateMovelist(this, true, true, false);
         } else { // single step message
-            if (ply === this.steps.length) { //todo:niki:where does this if come from? is it possible the incomuing message not to be for last ply - there are similar checks above aslso - which one is redundant maybe?
-                // const step = {
-                //     'fen': msg.fen,
-                //     'move': msg.lastMove,
-                //     'check': msg.check,
-                //     'turnColor': this.turnColor,
-                //     'san': msg.steps[0].san,
-                //     }; todo:niki:why not use step[0] and do this above? temporary doing it like this will see what will go wrong when testing
+            if (ply === this.steps.length) {
                 this.steps.push(steps[0]);
                 const full = false;
                 const activate = !this.spectator || latestPly;
@@ -759,7 +707,7 @@ export class RoundControllerBughouse implements ChatController {
         const msgTurnColor = step.turnColor; // whose turn it is after this move
 
         if (board.boardName == 'a') {
-            this.clocktimes = clocks || this.clocktimes; //todo:niki:have the feeling this or is redundant. probably only initial board message doesnt have clocktimes. maybe even it has. not sure
+            this.clocktimes = clocks || this.clocktimes;
         } else {
             this.clocktimesB = clocks || this.clocktimes;
         }
@@ -780,21 +728,21 @@ export class RoundControllerBughouse implements ChatController {
         clocks1[whiteClockAtIdx].setTime(clocktimes[WHITE]);
         clocks1[blackClockAtIdx].setTime(clocktimes[BLACK]);
 
-        if (this.clockOn && status < 0) { // todo:niki:not sure why this if is needed
+        if (this.clockOn && status < 0) {
             clocks1[startClockAtIdx].start();
         }
 
         //when message is for opp's move, meaning turnColor is my color - it is now my turn after this message
         if (latestPly) {
+            //todo: similar lines below for setting boards state repeat a lot, maybe make a method
             board.chessground.set({
                 fen: fen,
                 turnColor: board.turnColor,
                 check: check,
                 lastMove: lastMove,
             });
-            //todo:niki: updating model probably should be regardless of whetehre it is latestPly:
             board.fullfen = fen;
-            board.partnerCC.fullfen = fenPartner;//todo:niki:setter or something maybe
+            board.partnerCC.fullfen = fenPartner;
             board.partnerCC.chessground.set({ fen: fenPartner});
             if (!this.focus) this.notifyMsg(`Played ${step.san}\nYour turn.`);
         }
@@ -823,12 +771,6 @@ export class RoundControllerBughouse implements ChatController {
             //lastMove: lastMove,
         });
 
-        // // normally white clocks should start, except when custom fen (todo:not fully implemented yet):
-        // const whiteClockAidx = this.colors[0] === this.b1.turnColor? 0: 1;
-        // const whiteClockBidx = this.colorsB[0] === this.b2.turnColor? 0: 1;
-        // this.clocks[whiteClockAidx].start();
-        // this.clocksB[whiteClockBidx].start();
-
         this.clocks[0].pause(false);
         this.clocks[1].pause(false);
         this.clocksB[0].pause(false);
@@ -850,7 +792,7 @@ export class RoundControllerBughouse implements ChatController {
         if (this.status < 0) {
             const clockOnTurnAidx = this.colors[0] === this.b1.turnColor ? 0 : 1;
             const clockOnTurnBidx = this.colorsB[0] === this.b2.turnColor ? 0 : 1;
-            this.clocks[clockOnTurnAidx].start(this.clocktimes[this.b1.turnColor === 'white'? WHITE: BLACK]); //todo:niki:not perfect. this is server time and initial message means no moves were made so client clock doesnt really need update. will leave it for now though, like this. but probably doesnt matter much because its first move
+            this.clocks[clockOnTurnAidx].start(this.clocktimes[this.b1.turnColor === 'white'? WHITE: BLACK]);
             this.clocksB[clockOnTurnBidx].start(this.clocktimesB[this.b2.turnColor === 'white'? WHITE: BLACK]);
         }
 
@@ -858,10 +800,6 @@ export class RoundControllerBughouse implements ChatController {
 
     private updateBothBoardsAndClocksOnFullBoardMsg = (lastStepA: Step, lastStepB: Step, clocksA: Clocks, clocksB: Clocks) => {
         console.log("updateBothBoardsAndClocksOnFullBoardMsg", lastStepA, lastStepB, clocksA, clocksB);
-
-        // todo:niki: if undedefined it will get white, which is ok-ish, but ideally should use initial fen in case of custom start position
-
-
         if (lastStepA) {
             const partsA = lastStepA.fen.split(" ");
             this.b1.turnColor = partsA[1] === "b" ? "black" : "white";
@@ -876,8 +814,6 @@ export class RoundControllerBughouse implements ChatController {
                 check: this.b1.ffishBoard.isCheck(),
                 lastMove: lastMoveA,
             });
-
-
         }
         if (lastStepB) {
             const partsB = lastStepB.fenB!.split(" ");
@@ -1178,21 +1114,19 @@ export class RoundControllerBughouse implements ChatController {
             sound.moveSound(board.variant, capture);
         }
         this.ply = ply;
-
     }
 
     private onMsgUserConnected = (msg: MsgUserConnected) => {
         console.log(msg);
+        // todo: no need for additional roundtrips for all these - should just get this info initially on connect
         this.username = msg["username"];
         if (this.spectator) {
-            //todo:niki:this is stupid to make 4 requests - should just have this info in whatever message we get initially on connect
             this.doSend({ type: "is_user_present", username: this.wplayer, gameId: this.gameId });
             this.doSend({ type: "is_user_present", username: this.bplayer, gameId: this.gameId });
             this.doSend({ type: "is_user_present", username: this.wplayerB, gameId: this.gameId });
             this.doSend({ type: "is_user_present", username: this.bplayerB, gameId: this.gameId });
         } else {
             this.firstmovetime = msg.firstmovetime || this.firstmovetime;
-            // todo: i guess no need to call for our user, but also see above todo about this whole idea being bad
             this.doSend({ type: "is_user_present", username: this.wplayer, gameId: this.gameId });
             this.doSend({ type: "is_user_present", username: this.bplayer, gameId: this.gameId });
             this.doSend({ type: "is_user_present", username: this.wplayerB, gameId: this.gameId });
@@ -1208,7 +1142,7 @@ export class RoundControllerBughouse implements ChatController {
         }
         // We always need this to get possible moves made while our websocket connection was established
         // fixes https://github.com/gbtami/pychess-variants/issues/962
-        this.doSend({ type: "board", gameId: this.gameId }); // todo:niki: i already commented about this in the same line for single board ctrl. this should come with the first roundtrip not do one million requests for everyhitng. also, is this ever get executed - i have memory i send board on ohter event as well, but maybe i remember wrong?
+        this.doSend({ type: "board", gameId: this.gameId });
     }
 
     private onMsgUserPresent = (msg: MsgUserPresent) => {
@@ -1367,7 +1301,7 @@ export class RoundControllerBughouse implements ChatController {
     }
 }
 
-function swap(nodeA: HTMLElement, nodeB: HTMLElement) {
+export function swap(nodeA: HTMLElement, nodeB: HTMLElement) {
         const parentA = nodeA.parentNode;
         const siblingA = nodeA.nextSibling === nodeB ? nodeA : nodeA.nextSibling;
 
@@ -1377,3 +1311,27 @@ function swap(nodeA: HTMLElement, nodeB: HTMLElement) {
         // Move `nodeB` to before the sibling of `nodeA`
         parentA!.insertBefore(nodeB, siblingA);
 };
+
+export function switchBoards(ctrl: RoundControllerBughouse| AnalysisControllerBughouse) {
+            // todo: not sure if best implementation below
+        //       it manipulates the DOM directly switching places of elements identified by whether they are
+        //       main/second board, instead of keeping info about the switch and rendering boards on elements
+        //       called left/right
+        let mainboardVNode = document.getElementById('mainboard');
+        let mainboardPocket0 = document.getElementById('pocket00');
+        let mainboardPocket1 = document.getElementById('pocket01');
+
+        let bugboardVNode = document.getElementById('bugboard');
+        let bugboardPocket0 = document.getElementById('pocket10');
+        let bugboardPocket1 = document.getElementById('pocket11');
+
+        let a = mainboardVNode!.style.gridArea || "board";
+        mainboardVNode!.style.gridArea = bugboardVNode!.style.gridArea || "boardPartner";
+        bugboardVNode!.style.gridArea = a;
+
+        swap(mainboardPocket0!, bugboardPocket0!);
+        swap(mainboardPocket1!, bugboardPocket1!);
+
+        ctrl.b1.chessground.redrawAll();
+        ctrl.b2.chessground.redrawAll();
+}

@@ -183,14 +183,14 @@ async def load_game_bug(app_state: PychessGlobalAppState, game_id):
                 "check": game.checkA if board_name == "a" else game.checkB,
             }
 
-            step["clocks"] = {
-                "white": clocktimes_w[ply],
-                "black": clocktimes_b[ply],
-            }
-            step["clocksB"] = {
-                "white": clocktimes_wB[ply],
-                "black": clocktimes_bB[ply],
-            }
+            step["clocks"] = [
+                clocktimes_w[ply],
+                clocktimes_b[ply],
+            ]
+            step["clocksB"] = [
+                clocktimes_wB[ply],
+                clocktimes_bB[ply],
+            ]
 
             board_ply[board_name] += 1
 

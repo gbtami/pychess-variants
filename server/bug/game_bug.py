@@ -2,8 +2,9 @@ import asyncio
 import collections
 import logging
 from datetime import datetime, timezone
-from time import monotonic, time_ns
+from time import time_ns
 
+from bug.game_bug_clocks import GameBugClocks
 from pychess_global_app_state import PychessGlobalAppState
 from user import User
 
@@ -14,7 +15,6 @@ try:
 except ImportError:
     print("No pyffish module installed!")
 
-from clock import Clock
 from compress import encode_moves, R2C
 from const import (
     STARTED,
@@ -113,30 +113,6 @@ class GameBug:
         self.messages = collections.deque([], MAX_CHAT_LINES)
         self.date = datetime.now(timezone.utc)
 
-        self._ply_clocks = {
-            "a": [
-                {
-                    "black": (base * 1000 * 60) + 0 if base > 0 else inc * 1000,
-                    "white": (base * 1000 * 60) + 0 if base > 0 else inc * 1000,
-                }
-            ],
-            "b": [
-                {
-                    "black": (base * 1000 * 60) + 0 if base > 0 else inc * 1000,
-                    "white": (base * 1000 * 60) + 0 if base > 0 else inc * 1000,
-                }
-            ],
-        }
-        self.last_move_clocks = {
-            "a": {
-                "black": (base * 1000 * 60) + 0 if base > 0 else inc * 1000,
-                "white": (base * 1000 * 60) + 0 if base > 0 else inc * 1000,
-            },
-            "b": {
-                "black": (base * 1000 * 60) + 0 if base > 0 else inc * 1000,
-                "white": (base * 1000 * 60) + 0 if base > 0 else inc * 1000,
-            },
-        }
         self.dests_a = {}
         self.dests_b = {}
         self.promotions_a = []
@@ -145,12 +121,6 @@ class GameBug:
         self.lastmovePerBoardAndUser = {"a": {}, "b": {}}
         self.status = STARTED  # CREATED
         self.result = "*"
-        self.last_server_clock = (
-            monotonic()
-        )  # the last time a move was made on board A - we reconstruct current time on client refresh/reconnect from this
-        self.last_server_clockB = (
-            self.last_server_clock
-        )  # the last time a move was made on board A - we reconstruct current time on client refresh/reconnect from this
         self.id = gameId
 
         disabled_fen = ""
@@ -166,11 +136,11 @@ class GameBug:
             fenB = fenA
 
         self.boards = {
-            "a": FairyBoard(
-                self.variant, fenA, self.chess960, 0, disabled_fen
-            ),  # self.initial_fen.split("|")[0].strip()
+            "a": FairyBoard(self.variant, fenA, self.chess960, 0, disabled_fen),
             "b": FairyBoard(self.variant, fenB, self.chess960, 0, disabled_fen),
-        }  # self.initial_fen.split("|")[1].strip()
+        }
+
+        self.gameClocks = GameBugClocks(self)
 
         self.overtime = False
 
@@ -185,16 +155,11 @@ class GameBug:
                 "fen": self.boards["a"].initial_fen,
                 "fenB": self.boards["b"].initial_fen,
                 "san": None,
-                "clocks": self._ply_clocks["a"][0],
-                "clocksB": self._ply_clocks["b"][0],
+                "clocks": self.gameClocks.ply_clocks["a"][0],
+                "clocksB": self.gameClocks.ply_clocks["b"][0],
                 "ts": time_ns(),
             }
         ]
-
-        self.stopwatches = {
-            "a": Clock(self, self.boards["a"], self.last_move_clocks["a"]["white"]),
-            "b": Clock(self, self.boards["b"], self.last_move_clocks["b"]["white"]),
-        }
 
         if not self.bplayerA.bot:
             self.bplayerA.game_in_progress = self.id
@@ -212,10 +177,7 @@ class GameBug:
 
     def handle_chat_message(self, user, message):
         cur_ply = len(self.steps) - 1
-        cur_time = monotonic()
-        last_move_clock = max(self.last_server_clock, self.last_server_clockB)
-        time = int(round((cur_time - last_move_clock) * 1000))
-
+        time = self.gameClocks.elapsed_since_last_move()
         self.steps[cur_ply].setdefault("chat", []).append(
             {"message": message, "username": user.username, "time": time}
         )
@@ -235,7 +197,6 @@ class GameBug:
         log.debug(
             "play_move %r %r %r %r %r", move, clocks, clocks_b, board, last_move_captured_role
         )
-        self.stopwatches[board].stop()
 
         if self.status > STARTED:
             log.warning("play_move: game %s already ended", self.id)
@@ -248,20 +209,9 @@ class GameBug:
         cur_player_a = self.bplayerA if self.boards["a"].color == BLACK else self.wplayerA
         cur_player_b = self.bplayerB if self.boards["b"].color == BLACK else self.wplayerB
         cur_player = cur_player_a if board == "a" else cur_player_b
-        cur_color = self.boards[board].color
-
-        cur_time = monotonic()
-
-        if board == "a":
-            self.last_server_clock = cur_time
-            clocks_current = clocks
-        else:
-            self.last_server_clockB = cur_time
-            clocks_current = clocks_b
-
-        self.last_move_clocks[board][cur_color] = clocks_current[cur_color]
 
         if self.status <= STARTED:
+            self.gameClocks.update_clocks(board, clocks, clocks_b)
             try:
                 partner_board = "a" if board == "b" else "b"
                 log.debug("lastMoveCapturedRole: %s", last_move_captured_role)
@@ -286,8 +236,6 @@ class GameBug:
                 self.lastmove = move
                 self.lastmovePerBoardAndUser[board][cur_player.username] = move
                 self.boards[board].push(move)
-                self._ply_clocks["a"].append(clocks)
-                self._ply_clocks["b"].append(clocks_b)
 
                 self.set_dests()
                 self.update_status()
@@ -316,9 +264,7 @@ class GameBug:
 
                 if self.status > STARTED:
                     await self.save_game()
-                c = "black" if self.boards[board].color == BLACK else "white"
-                self.stopwatches[board].restart(self.last_move_clocks[board][c])
-
+                self.gameClocks.restart(board)
             except Exception:
                 log.exception("ERROR: Exception in game %s play_move() %s", self.id, move)
                 result = "1-0" if self.boards[board].color == BLACK else "0-1"
@@ -334,17 +280,7 @@ class GameBug:
             log.exception("Save IMPORTED game %s ???", self.id)
             return
 
-        self.stopwatches["a"].clock_task.cancel()
-        try:
-            await self.stopwatches["a"].clock_task
-        except asyncio.CancelledError:
-            pass
-
-        self.stopwatches["b"].clock_task.cancel()
-        try:
-            await self.stopwatches["b"].clock_task
-        except asyncio.CancelledError:
-            pass
+        await self.gameClocks.cancel_stopwatches()
 
         self.app_state.g_cnt[0] -= 1
         response = {"type": "g_cnt", "cnt": self.app_state.g_cnt[0]}
@@ -404,46 +340,16 @@ class GameBug:
                 "o": [0 if x["boardName"] == "a" else 1 for x in self.steps[1:]],
                 "c": self.construct_chat_list(),
                 "ts": [x["ts"] for x in self.steps],
+                "cw": self.gameClocks.get_ply_clocks_for_board_and_color("a", "white"),
+                "cb": self.gameClocks.get_ply_clocks_for_board_and_color("a", "black"),
+                "cwB": self.gameClocks.get_ply_clocks_for_board_and_color("b", "white"),
+                "cbB": self.gameClocks.get_ply_clocks_for_board_and_color("b", "black"),
             }
-
-            # if self.rated == RATED:
-            # TODO: self._ply_clocks dict stores clock data redundant
-            # possible it would be better to use self._ply_clocks_w and self._ply_clocks_b arrays instead
-            new_data["cw"] = [p["white"] for p in self._ply_clocks["a"]]  # [1:]][0::2]
-            new_data["cb"] = [p["black"] for p in self._ply_clocks["a"]]  # [2:]][0::2]
-            new_data["cwB"] = [p["white"] for p in self._ply_clocks["b"]]  # [1:]][0::2]
-            new_data["cbB"] = [p["black"] for p in self._ply_clocks["b"]]  # [2:]][0::2]
-
-            # if self.tournamentId is not None:
-            #     new_data["wb"] = self.wberserk
-            #     new_data["bb"] = self.bberserk
 
             if self.app_state.db is not None:
                 await self.app_state.db.game.find_one_and_update(
                     {"_id": self.id}, {"$set": new_data}
                 )
-
-    async def set_highscore(self, variant, chess960, value):
-        self.app_state.highscore[variant + ("960" if chess960 else "")].update(value)
-        # We have to preserve previous top 10!
-        # See test_win_and_in_then_lost_and_out() in test.py
-        # if len(self.highscore[variant + ("960" if chess960 else "")]) > MAX_HIGH_SCORE:
-        #     self.highscore[variant + ("960" if chess960 else "")].popitem()
-
-        new_data = {
-            "scores": dict(
-                self.app_state.highscore[variant + ("960" if chess960 else "")].items()[:10]
-            )
-        }
-        try:
-            await self.app_state.db.highscore.find_one_and_update(
-                {"_id": variant + ("960" if chess960 else "")},
-                {"$set": new_data},
-                upsert=True,
-            )
-        except Exception:
-            if self.app_state.db is not None:
-                log.error("Failed to save new highscore to mongodb!")
 
     async def update_ratings(self):
         pass  # todo no rating in bughouse for now
@@ -635,10 +541,6 @@ class GameBug:
         )
 
     @property
-    def clocks(self):
-        return self._ply_clocks["merged"][-1]
-
-    @property
     def is_claimable_draw(self):  # todo not sure this makes much sense in bughouse
         return False
 
@@ -702,40 +604,10 @@ class GameBug:
         }
 
     def get_board(self, full=False):
+        [clocks_a, clocks_b] = self.gameClocks.get_clocks_for_board_msg(full)
         if full:
             steps = self.steps
-            # To not touch self._ply_clocks we are creating deep copy from clocks
-            clocks_a = {
-                "black": self.last_move_clocks["a"]["black"],
-                "white": self.last_move_clocks["a"]["white"],
-            }
-            clocks_b = {
-                "black": self.last_move_clocks["b"]["black"],
-                "white": self.last_move_clocks["b"]["white"],
-            }
-
-            if self.status >= STARTED:
-                # We have to adjust current player latest saved clock time
-                # otherwise he will get free extra time on browser page refresh
-                # (also needed for spectators entering to see correct clock times)
-
-                cur_time = monotonic()
-                elapsed_a = int(round((cur_time - self.last_server_clock) * 1000))
-                elapsed_b = int(round((cur_time - self.last_server_clockB) * 1000))
-
-                cur_color_a = "black" if self.boards["a"].color == BLACK else "white"
-                cur_color_b = "black" if self.boards["b"].color == BLACK else "white"
-                clocks_a[cur_color_a] = max(0, clocks_a[cur_color_a] - elapsed_a)
-                clocks_b[cur_color_b] = max(0, clocks_b[cur_color_b] - elapsed_b)
         else:
-            clocks_a = {
-                "black": self.last_move_clocks["a"]["black"],
-                "white": self.last_move_clocks["a"]["white"],
-            }
-            clocks_b = {
-                "black": self.last_move_clocks["b"]["black"],
-                "white": self.last_move_clocks["b"]["white"],
-            }
             steps = (self.steps[-1],)
 
         return {
@@ -753,8 +625,8 @@ class GameBug:
             "check": self.checkA,
             "checkB": self.checkB,
             "ply": self.ply,
-            "clocks": {"black": clocks_a["black"], "white": clocks_a["white"]},
-            "clocksB": {"black": clocks_b["black"], "white": clocks_b["white"]},
+            "clocks": clocks_a,
+            "clocksB": clocks_b,
             "pgn": self.pgn if self.status > STARTED else "",
             "rdiffs": (
                 {"brdiff": self.brdiff, "wrdiff": self.wrdiff}

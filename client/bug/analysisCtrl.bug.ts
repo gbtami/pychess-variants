@@ -22,6 +22,7 @@ import { MsgAnalysis, MsgAnalysisBoard } from "../analysisType";
 import ffishModule from "ffish-es6";
 import { titleCase } from "@/analysisCtrl";
 import { movetimeChart } from "./movetimeChart.bug";
+import {switchBoards} from "@/bug/roundCtrl.bug";
 
 const EVAL_REGEX = new RegExp(''
   + /^info depth (\d+) seldepth \d+ multipv (\d+) /.source
@@ -288,37 +289,7 @@ export default class AnalysisControllerBughouse {
     }
 
     switchBoards = (): void => {
-        // todo: not sure if best implementation below
-        //       it manipulates the DOM directly switching places of elements identified by whether they are
-        //       main/second board, instead of keeping info about the switch and rendering boards on elements
-        //       called left/right
-
-        const swap = function (nodeA: HTMLElement, nodeB: HTMLElement) {
-            const parentA = nodeA.parentNode;
-            const siblingA = nodeA.nextSibling === nodeB ? nodeA : nodeA.nextSibling;
-
-            // Move `nodeA` to before the `nodeB`
-            nodeB.parentNode!.insertBefore(nodeA, nodeB);
-
-            // Move `nodeB` to before the sibling of `nodeA`
-            parentA!.insertBefore(nodeB, siblingA);
-        };
-        let mainboardVNode = document.getElementById('mainboard');
-        let mainboardPocket0 = document.getElementById('pocket00');
-        let mainboardPocket1 = document.getElementById('pocket01');
-
-        let bugboardVNode = document.getElementById('bugboard');
-        let bugboardPocket0 = document.getElementById('pocket10');
-        let bugboardPocket1 = document.getElementById('pocket11');
-
-        let a = mainboardVNode!.style.gridArea || "board";
-        mainboardVNode!.style.gridArea = bugboardVNode!.style.gridArea || "boardPartner";
-        bugboardVNode!.style.gridArea = a;
-
-        swap(mainboardPocket0!, bugboardPocket0!);
-        swap(mainboardPocket1!, bugboardPocket1!);
-        this.b1.chessground.redrawAll();
-        this.b2.chessground.redrawAll();
+        switchBoards(this);
     }
 
     private renderInput = (cc: GameControllerBughouse) => {
