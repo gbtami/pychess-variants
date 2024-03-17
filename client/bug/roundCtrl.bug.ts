@@ -16,7 +16,6 @@ import {
     MsgMovesAfterReconnect,
     MsgNewGame,
     MsgUserConnected,
-    RDiffs,
     Step
 } from "../messages";
 import {
@@ -33,7 +32,6 @@ import { JSONObject, PyChessModel } from "../types";
 import { GameControllerBughouse } from "./gameCtrl.bug";
 import { BLACK, getTurnColor, uci2LastMove, WHITE } from "../chess";
 import { sound } from "../sound";
-import { renderRdiff } from "../result";
 import { player } from "../player";
 import { WebsocketHeartbeatJs } from '../socket/socket';
 import { notify } from "../notification";
