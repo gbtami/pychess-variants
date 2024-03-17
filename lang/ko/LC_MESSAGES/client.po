@@ -7,7 +7,7 @@
 # Leo Ha <yeoha123@gmail.com>, 2020
 # 이상백 <esangbaek@ajou.ac.kr>, 2020
 # gbtami <gbtami@gmail.com>, 2022
-# 설월신서향雪月申瑞香（설월）, 2023
+# 설월신서향雪月申瑞香（설월）, 2024
 # 
 #, fuzzy
 msgid ""
@@ -16,7 +16,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2023-11-17 14:15+0100\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
-"Last-Translator: 설월신서향雪月申瑞香（설월）, 2023\n"
+"Last-Translator: 설월신서향雪月申瑞香（설월）, 2024\n"
 "Language-Team: Korean (https://app.transifex.com/gbtami/teams/14790/ko/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -281,7 +281,7 @@ msgstr "기물 행마법 보이기"
 
 #: ../client/boardSettings.ts:349
 msgid "Promote to the top choice automatically"
-msgstr "최상위 선택으로 자동 승격"
+msgstr "최상위 선택으로 자동 진급함"
 
 #: ../client/boardSettings.ts:378
 msgid "Invisible pieces"
@@ -313,7 +313,7 @@ msgstr "채팅방"
 
 #: ../client/chat.ts:42
 msgid "Toggle the chat"
-msgstr ""
+msgstr "대화 키거나 끄기"
 
 #: ../client/chat.ts:73
 msgid "Server"
@@ -821,11 +821,11 @@ msgstr "크레이지하우스의 투입 규칙을 가진 그랜드 체스."
 #: ../client/i18n.ts:122
 msgid ""
 "Introduces the cannon and elephant from Xiangqi into a 10x10 chess board."
-msgstr "10x10의 체스판에 샹치의 포와 상을 도입합니다."
+msgstr "10x10의 체스판에 샹치의 포와 상을 도입했습니다."
 
 #: ../client/i18n.ts:123
 msgid "Pieces promote and can be dropped, similar to Shogi."
-msgstr "쇼기와 비슷하게, 기물들은 진급되거나 투입될 수 있습니다."
+msgstr "쇼기와 비슷하게, 기물들이 진급되거나 투입될 수 있습니다."
 
 #: ../client/i18n.ts:124
 msgid "Knights capture as bishops; bishops  capture as knights."
@@ -1128,7 +1128,7 @@ msgstr "유효하지 않은 PGN"
 
 #: ../client/paste.ts:162
 msgid "Paste the PGN text here"
-msgstr "PGN 텍스트를 여기에 복사하세요"
+msgstr "PGN 텍스트를 여기에 붙여 넣으세요"
 
 #: ../client/paste.ts:166
 msgid "IMPORT GAME"
@@ -1251,7 +1251,7 @@ msgstr "이 퍼즐을 좋아하시나요?"
 
 #: ../client/puzzleCtrl.ts:387
 msgid "Vote to load the next one!"
-msgstr ""
+msgstr "다음을 로드하려면 투표하세요!"
 
 #: ../client/puzzleCtrl.ts:401
 msgid "Continue training"
@@ -1965,7 +1965,7 @@ msgstr "왕의 안전은 중요합니다. 시간을 절약하기 위해 왕의 �
 
 #: ../client/lobby/layer3.ts:124
 msgid "The ability to promote to rook makes for a dynamic endgame."
-msgstr "룩으로 진급할 수 있는 능력은 엔드게임을 더욱 역동적으로 만듭니다."
+msgstr "룩으로 진급할 수 있는 능력은 엔드게임을 더욱 역동적이게 합니다."
 
 #: ../client/lobby/layer3.ts:129 ../client/lobby/layer3.ts:141
 msgid "Internationalized sets are available by going to settings."

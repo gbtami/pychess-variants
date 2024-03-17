@@ -51,7 +51,7 @@
     "Confirm correspondence move": "서신 이동 확인",
     "Zoom": "확대하기",
     "Show piece destinations": "기물 행마법 보이기",
-    "Promote to the top choice automatically": "최상위 선택으로 자동 승격",
+    "Promote to the top choice automatically": "최상위 선택으로 자동 진급함",
     "Invisible pieces": "투명 기물",
     "Show material difference": "자원 차이 보이기",
     "Sign in to chat": "채팅을 하려면 로그인 하세요",
@@ -59,6 +59,7 @@
     "Chat is disabled": "채팅이 비활성화되었습니다",
     "Spectator room": "관전방",
     "Chat room": "채팅방",
+    "Toggle the chat": "대화 키거나 끄기",
     "Server": "서버",
     "%1 day": [
         "%1일"
@@ -205,8 +206,8 @@
     "S-Chess with Crazyhouse drop rules.": "크레이지하우스의 투입 규칙을 가진 S-체스.",
     "Play with the hybrid pieces, archbishop (B+N) and chancellor (R+N), on a grand 10x10 board.": "그랜드 10x10의 판에서 혼합 기물인 아치비숍(비숍+나이트)과 챈슬러(룩+나이트)를 가지고 플레이하세요.",
     "Grand Chess with Crazyhouse drop rules.": "크레이지하우스의 투입 규칙을 가진 그랜드 체스.",
-    "Introduces the cannon and elephant from Xiangqi into a 10x10 chess board.": "10x10의 체스판에 샹치의 포와 상을 도입합니다.",
-    "Pieces promote and can be dropped, similar to Shogi.": "쇼기와 비슷하게, 기물들은 진급되거나 투입될 수 있습니다.",
+    "Introduces the cannon and elephant from Xiangqi into a 10x10 chess board.": "10x10의 체스판에 샹치의 포와 상을 도입했습니다.",
+    "Pieces promote and can be dropped, similar to Shogi.": "쇼기와 비슷하게, 기물들이 진급되거나 투입될 수 있습니다.",
     "Knights capture as bishops; bishops  capture as knights.": "나이트는 비숍처럼 잡고, 비숍은 나이트처럼 잡습니다.",
     "Asymmetric variant where one army has pieces that move like knights but capture differently.": "한쪽 군대에 나이트처럼 움직이지만 다른 방식으로 잡는 기물들이 있는 비대칭 변형.",
     "Asymmetric East vs. West variant which pits the western Chess army against a Xiangqi and Janggi-styled army.": "샹치 및 장기류 군대와 서양 체스 군대가 겨루는 동양 대 서양의 비대칭 변형.",
@@ -281,7 +282,7 @@
     "Thank you for your support!": "지원해 주셔서 감사합니다!",
     "No notifications.": "알림 없음.",
     "Invalid PGN": "유효하지 않은 PGN",
-    "Paste the PGN text here": "PGN 텍스트를 여기에 복사하세요",
+    "Paste the PGN text here": "PGN 텍스트를 여기에 붙여 넣으세요",
     "IMPORT GAME": "게임 불러오기",
     "%1 move": [
         "%1수"
@@ -308,6 +309,7 @@
     "Puzzle complete!": "퍼즐 완료!",
     "We have no more puzzle for this variant.": "이 변형의 퍼즐이 더 이상 없습니다",
     "Did you like this puzzle?": "이 퍼즐을 좋아하시나요?",
+    "Vote to load the next one!": "다음을 로드하려면 투표하세요!",
     "Continue training": "훈련 계속하기",
     "Jump to next puzzle immediately": "즉시 다음 퍼즐로 건너뛰기",
     "IMPORT": "가져오기",
@@ -476,7 +478,7 @@
     "Watch out for knight checks, since they cannot be blocked.": "나이트 체크는 가로막을 수 없으니 주의하세요.",
     "You can use placement to utilize your stronger pieces from the start.": "처음부터 배치를 이용하여 더 큰 조각들을 활용할 수 있습니다.",
     "King safety is important. Use the king leap move to save time.": "왕의 안전은 중요합니다. 시간을 절약하기 위해 왕의 도약 이동을 사용합니다.",
-    "The ability to promote to rook makes for a dynamic endgame.": "룩으로 진급할 수 있는 능력은 엔드게임을 더욱 역동적으로 만듭니다.",
+    "The ability to promote to rook makes for a dynamic endgame.": "룩으로 진급할 수 있는 능력은 엔드게임을 더욱 역동적이게 합니다.",
     "Internationalized sets are available by going to settings.": "국제화된 세트는 설정에서 이용할 수 있습니다.",
     "Despite the simple appearance, there is still quite a bit of depth underlying this game.": "단순한 구조임에도 불구하고 이 게임에는 여전히 상당한 깊이가 있습니다.",
     "Sets that show both sides are available by going to settings.": "양면을 보여 주는 세트는 설정에서 이용할 수 있습니다.",
