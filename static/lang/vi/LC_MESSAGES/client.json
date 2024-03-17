@@ -43,10 +43,12 @@
     "Multiple lines": "Nhiều hàng",
     "CPUs": "CPU",
     "Memory": "Bộ nhớ",
+    "Use NNUE": "Dùng NNUE",
     "Light": "Sáng",
     "Dark": "Tối",
     "Piece animation": "Bộ quân cờ",
     "Confirm resigning": "Xác nhận đầu hàng",
+    "Confirm correspondence move": "Xác nhận nước cờ",
     "Zoom": "Phóng",
     "Show piece destinations": "Hiện đánh dấu trên bàn cờ (nước đi mới nhất)",
     "Promote to the top choice automatically": "Tự động phong cấp lên quân tốt nhất",
@@ -59,6 +61,12 @@
     "Chat room": "Phòng trò chuyện",
     "Toggle the chat": "Bật/Tắt trò chuyện",
     "Server": "Máy chủ",
+    "%1 day": [
+        "%1 ngày"
+    ],
+    "%1 hour": [
+        "%1 giờ"
+    ],
     "in %1 year": [
         "trong %1 năm"
     ],
@@ -204,8 +212,12 @@
     "Cancel": "Hủy bỏ",
     "Paste the FEN text here": "Dán FEN vào đây",
     " (must be signed in)": " (phải đăng nhập)",
+    "Time control": "Kiểu thời gian",
+    "Real time": "Thời gian thực",
+    "Correspondence": "Cờ qua thư",
     "Minutes per side:": "Số phút mỗi bên:",
     "Periods": "Chu kỳ",
+    "Days per turn:": "Ngày đến lượt đi:",
     "Casual": "Không tính Elo",
     "Rated": "Tính Elo",
     "Practice with Random-Mover": "Thực hành với Random-Mover",
@@ -231,11 +243,14 @@
     "Mode": "Chế độ",
     "Puzzle of the day": "Câu đố của ngày",
     "%1 to play": "Đến quân %1 đi",
+    "Lobby": "Phòng chờ",
     "Donate": "Ủng hộ",
     "FAQ": "Các câu hỏi thường gặp",
     "Stats": "Thống kê",
     "About": "Giới thiệu",
+    "A slew of new variants!": "Hàng loạt biến thể mới!",
     "Thank you for your support!": "Cảm ơn sự ủng hộ của bạn!",
+    "No notifications.": "Không có thông báo.",
     "Invalid PGN": "PGN không hợp lệ",
     "Paste the PGN text here": "Dán PGN vào đây",
     "IMPORT GAME": "NHẬP VÁN CỜ",
@@ -299,6 +314,7 @@
     "Are you sure you want to draw?": "Bạn có chắc muốn hòa?",
     "Draw offer sent": "Đã gửi đề nghị hòa",
     "Your opponent offers a draw": "Đối thủ của bạn đề nghị hòa",
+    "Confirm move": "Xác nhận nước đi",
     "Are you sure you want to resign?": "Bán có chắc muốn chịu thua?",
     "Blue (Cho)": "Xanh dương (Cho)",
     "Red (Han)": "Đỏ (Han)",
@@ -400,6 +416,7 @@
     "Quack.": "Quack.",
     "Reading the rules are a necessity to understand the movements before playing.": "Đọc luật chơi là điều cần thiết để hiểu rõ các nước cờ trước khi chơi.",
     "UsePluralFormIfNeeded\u0004Rated": "Tính ELo",
+    "UsePluralFormIfNeeded\u0004Playing": "Đang chơi",
     "": {
         "language": "vi",
         "plural-forms": "nplurals=1; plural=0;"
