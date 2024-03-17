@@ -1,6 +1,7 @@
 from __future__ import annotations
 from datetime import datetime, timezone
 
+from const import CORR_SEEK_EXPIRE_WEEKS
 from misc import time_control_str
 from newid import new_id
 
@@ -30,7 +31,7 @@ class Seek:
         bugPlayer2=None,
         ws=None,
         game_id=None,
-        created_at=None,
+        expire_at=None,
     ):
         self.creator = creator
         self.variant = variant
@@ -55,7 +56,9 @@ class Seek:
         self.id = self.gen_id
         self.game_id = game_id
 
-        self.created_at = datetime.now(timezone.utc) if created_at is None else created_at
+        self.expire_at = (
+            datetime.now(timezone.utc) + CORR_SEEK_EXPIRE_WEEKS if expire_at is None else expire_at
+        )
 
         # Seek is pending when it is not corr, and user has no live lobby websocket
         self.pending = False
@@ -96,7 +99,7 @@ class Seek:
             "color": self.color,
             "rated": self.rated,
             "day": self.day,
-            "createdAt": self.created_at,
+            "expireAt": self.expire_at,
         }
 
     @property

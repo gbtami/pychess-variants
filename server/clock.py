@@ -4,7 +4,7 @@ import json
 import logging
 from datetime import datetime, timezone
 
-from const import ABORTED, NOTIFY_PAGE_SIZE
+from const import ABORTED, NOTIFY_PAGE_SIZE, NOTIFY_EXPIRE_WEEKS
 from fairy import WHITE, BLACK
 from broadcast import round_broadcast
 from newid import new_id
@@ -185,12 +185,14 @@ class CorrClock:
         )
         db = self.game.app_state.db
         _id = await new_id(None if db is None else db.notify)
+        now = datetime.now(timezone.utc)
         document = {
             "_id": _id,
             "notifies": user.username,
             "type": "corrAlarm",
             "read": False,
-            "createdAt": datetime.now(timezone.utc),
+            "createdAt": now,
+            "expireAt": (now + NOTIFY_EXPIRE_WEEKS).isoformat(),
             "content": {
                 "id": self.game.id,
                 "opp": opp_name,
