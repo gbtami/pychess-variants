@@ -7,9 +7,13 @@ import { Clocks } from "../messages";
 import { BLACK, WHITE } from "../chess";
 
 export function renderClocks(ctrl: AnalysisController) {
-    const lastStep = ctrl.steps[ctrl.ply];
-    renderClocksCC([lastStep.clocks![WHITE], lastStep.clocks![BLACK]], ctrl.b1, "");
-    renderClocksCC([lastStep.clocksB![WHITE], lastStep.clocksB![BLACK]], ctrl.b2, ".bug");
+    const lastStep = ctrl.plyVari? ctrl.steps[ctrl.plyVari]: ctrl.steps[ctrl.ply];
+    if (lastStep.clocks) {
+        renderClocksCC([lastStep.clocks[WHITE], lastStep.clocks[BLACK]], ctrl.b1, "");
+    }
+    if (lastStep.clocksB) {
+        renderClocksCC([lastStep.clocksB[WHITE], lastStep.clocksB[BLACK]], ctrl.b2, ".bug");
+    }
 }
 
 export function renderClocksCC(clocks: Clocks, ctrl: GameControllerBughouse, suffix: string) {

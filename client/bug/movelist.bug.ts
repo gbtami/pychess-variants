@@ -3,8 +3,8 @@ import { h, VNode } from 'snabbdom';
 import AnalysisControllerBughouse from './analysisCtrl.bug';
 import { result } from '../result'
 import { patch } from '../document';
-import {RoundControllerBughouse} from "./roundCtrl.bug";
-import {Step} from "../messages";
+import { RoundControllerBughouse } from "./roundCtrl.bug";
+import { Step } from "../messages";
 
 export function selectMove (ctrl: AnalysisControllerBughouse | RoundControllerBughouse, ply: number, plyVari = 0): void {
     let plyMax = ctrl.steps.length - 1;
@@ -64,22 +64,16 @@ export function activatePlyVari (ply: number) {
 
 export function createMovelistButtons (ctrl: AnalysisControllerBughouse | RoundControllerBughouse ) {
     const container = document.getElementById('move-controls') as HTMLElement;
-    const vari = /*todo;niki;comentout for now "plyVari" in ctrl*/ 1 > 2? ctrl.steps[ctrl.plyVari]['vari']: undefined;
-    ctrl.moveControls = patch(container, h('div#btn-controls-top.btn-controls', [
+    let buttons = [
         h('button#flip', { on: { click: () => ctrl.flipBoards() } }, [ h('i.icon.icon-refresh') ]),
-        h('button#flip', { on: { click: () => ctrl.switchBoards() } }, [ h('i.icon.icon-refresh') ]),//todo:niki:another icon for switch boards rotated maybe or horizontal arrows
+        // todo: another icon for switch boards or maybe 2 new icons with horizontal arrows and vertical arrows
+        h('button#flip', { on: { click: () => ctrl.switchBoards() } }, [ h('i.icon.icon-refresh') ]),
         h('button', { on: { click: () => selectMove(ctrl, 0) } }, [ h('i.icon.icon-fast-backward') ]),
-        h('button', { on: { click: () => { 
-            // this line is necessary, but I don't understand why
-            ctrl.ply = Math.min(ctrl.ply, "plyVari" in ctrl && ctrl.plyVari > 0 && vari? vari.length - 1 : Number.MAX_VALUE);
-            selectMove(ctrl, 
-                (ctrl.ply === 0 && "plyVari" in ctrl && ctrl.plyVari > 0) ? ctrl.plyVari : Math.max(ctrl.ply - 1, 0),
-                "plyVari" in ctrl ? (ctrl.ply === 0 && ctrl.plyVari > 0) ? 0 : ctrl.plyVari: 0 )
-            } 
-        } }, [ h('i.icon.icon-step-backward') ]),
-        h('button', { on: { click: () => selectMove(ctrl, Math.min(ctrl.ply + 1, ("plyVari" in ctrl && ctrl.plyVari > 0 && vari? vari.length : ctrl.steps.length) - 1), "plyVari" in ctrl? ctrl.plyVari : 0) } }, [ h('i.icon.icon-step-forward') ]),
+        h('button', { on: { click: () => selectMove(ctrl, ctrl.ply - 1, ctrl.plyVari) } }, [ h('i.icon.icon-step-backward') ]),
+        h('button', { on: { click: () => selectMove(ctrl, ctrl.ply + 1, ctrl.plyVari) } }, [ h('i.icon.icon-step-forward') ]),
         h('button', { on: { click: () => selectMove(ctrl, ctrl.steps.length - 1) } }, [ h('i.icon.icon-fast-forward') ]),
-    ]));
+    ];
+    ctrl.moveControls = patch(container, h('div#btn-controls-top.btn-controls', buttons));
 }
 
 function fillWithEmpty(moves: VNode[], countOfEmptyCellsToAdd: number) {

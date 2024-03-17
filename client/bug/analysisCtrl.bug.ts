@@ -732,21 +732,6 @@ export default class AnalysisControllerBughouse {
             capture = (board.chessground.state.boardState.pieces.get(move[1] as cg.Key) !== undefined && step.san?.slice(0, 2) !== 'O-') || (step.san?.slice(1, 2) === 'x');
         }
 
-        board.chessground.set({
-            fen: fen,
-            turnColor: step.turnColor,
-            movable: {
-                color: step.turnColor,
-                },
-            check: board.ffishBoard.isCheck(),
-            lastMove: move,
-        });
-
-        const turnColorPartner = fenPartner.split(' ')[1] === "w"? "white": "black";
-        board.partnerCC.chessground.set({fen: fenPartner, lastMove: movePartner, turnColor: turnColorPartner, movable: {color: turnColorPartner}});
-
-        board.fullfen = fen;
-        board.partnerCC.fullfen = fenPartner;
 
         if (ply === this.ply + 1) { // no sound if we are scrolling backwards
             sound.moveSound(board.variant, capture);
@@ -777,21 +762,44 @@ export default class AnalysisControllerBughouse {
         }
         board.turnColor = step.turnColor;//todo: probably not needed here and other places as well where its set
 
-        renderClocks(this);
+        board.fullfen = fen;
         if (board.ffishBoard) { //TODO:NIKI: if this ffishboard object is one and the same, maybe move it to some global place instead of associating it to board
             board.ffishBoard.setFen(board.fullfen);
             board.setDests();
         }
+        board.chessground.set({
+            fen: fen,
+            turnColor: step.turnColor,
+            movable: {
+                color: step.turnColor,
+                },
+            check: board.ffishBoard.isCheck(),
+            lastMove: move,
+        });
+
         //todo:niki:actually try removing this below - no longer sure if needed/helping. there were other bugs to fix also and not sure which one helped and if this is needed at all
         //todo:niki:not great on first load when ffishboard not initialized yet.
         //     probably same bug exist in normal, but here in 2 board more visible because even after scroll of moves of one board, the second's dests dont get refreshed
         //     that is why i am adding this here, otherwise it shouldn't really be needed as position doesn't change, but
         //     we onle need it now because we dont know if second board ever got initialized
         //todo:niki:can we find a way to better wait for initializing of ffishboard stuff? put code like this in some lambda and pass it to some promise or something, maybe?
+        board.partnerCC.fullfen = fenPartner;
         if (board.partnerCC.ffishBoard) {
             board.partnerCC.ffishBoard.setFen(board.partnerCC.fullfen);
             board.partnerCC.setDests();
         }
+        const turnColorPartner = fenPartner.split(' ')[1] === "w"? "white": "black";
+        board.partnerCC.chessground.set({
+            fen: fenPartner,
+            turnColor: turnColorPartner,
+            movable: {
+                color: turnColorPartner
+            },
+            check: board.partnerCC.ffishBoard.isCheck(),
+            lastMove: movePartner,
+        });
+        //
+        renderClocks(this);
     }
 
     private getPgn = (idxInVari  = 0) => {
@@ -894,9 +902,9 @@ export default class AnalysisControllerBughouse {
         console.log(">>>>>>>>>>>>>>>>>>>>>")
         console.log(b.partnerCC.ffishBoard.moveStack().split(' '));
         console.log(b.ffishBoard.moveStack().split(' '));
-        const ffishBoardPly = b.ffishBoard.moveStack().split(' ').length;
+        const ffishBoardPly = b.ffishBoard.moveStack().split(' ').length; // TODO:NIKI: check all places where ffishBoard is used and we rely its state is preserved for each board but it seems like it is not actually the case then if we are open to bugs like losing that state because move happens on partner board, then this board logic still expecting old state is here and stuff like that
         const partnerBoardHasNoMoves = b.partnerCC.ffishBoard.moveStack().split(' ')[0] === '' ;
-        const ffishPartnerBoardPly = partnerBoardHasNoMoves? 0: b.partnerCC.ffishBoard.moveStack().split(' ').length;
+        // const ffishPartnerBoardPly = partnerBoardHasNoMoves? 0: b.partnerCC.ffishBoard.moveStack().split(' ').length;
         const moveIdx = (this.plyVari === 0) ? this.ply : this.plyInsideVari;
         // New main line move
         if (moveIdx === this.steps.length && this.plyVari === 0) {
@@ -909,20 +917,20 @@ export default class AnalysisControllerBughouse {
         // variation move
         } else {
             // possible new variation starts
-            if (ffishBoardPly === 1 && partnerBoardHasNoMoves) {
-                if (msg.lastMove === this.steps[this.ply - 1].move) {
+            if (ffishBoardPly === 1 && partnerBoardHasNoMoves) { // TODO:NIKI: i dont understand why i have added check for partnerBoardHasNoMoves but also above see TODO about probably that state being completely lost because its the same ffishBoard object we are checking twice here for being empty (that === 1 also practiacally checks if empty or something like that)
+                if (this.ply < this.steps.length && msg.lastMove === this.steps[this.ply].move) {
                     // existing main line played
                     selectMove(this, this.ply);
                     return;
                 }
                 // new variation starts
                 if (vv === undefined) {
-                    this.plyVari = moveIdx;
+                    this.plyVari = this.ply;
                     this.steps[this.plyVari]['vari'] = [];
                 } else {
                     // variation in the variation: drop old moves
                     if ( vv ) {
-                        this.steps[this.plyVari]['vari'] = vv.slice(0, ffishBoardPly + ffishPartnerBoardPly - this.plyVari); // todo:niki: probably doesn't work
+                        this.steps[this.plyVari]['vari'] = vv.slice(0, this.ply - this.plyVari);
                     }
                 }
             }
