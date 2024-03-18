@@ -494,7 +494,7 @@ export const VARIANTS: Record<string, Variant> = {
     cannonshogi: variant({
         name: "cannonshogi", displayName: "cannon shogi", tooltip: _("Shogi with Chinese and Korean cannons"),
         startFen: "lnsgkgsnl/1rci1uab1/p1p1p1p1p/9/9/9/P1P1P1P1P/1BAU1ICR1/LNSGKGSNL[-] w 0 1",
-        icon: "C",
+        icon: "💣",
         boardFamily: "shogi9x9", pieceFamily: "cannonshogi",
         colors: { first: "Black", second: "White" },
         pieceRow: ["k", "g", "r", "b", "s", "n", "l", "p", "u", "a", "c", "i"],
