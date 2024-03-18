@@ -28,4 +28,3 @@ A Flying Copper Cannon and a Flying Iron Cannon can move diagonally over whole r
 
 All other pieces move, capture and promote like Shogi pieces. Captured pieces are added to the capturer's "reserve", an army of pieces which can be reintroduced into play on the capturer's side. Like in Shogi, a Knight or Lance may not be dropped on a square from which it will never be able to move. Contrary to Shogi, there are no Pawn drop restrictions: Pawns may be placed on a file that already contains an unpromoted Pawn, and may also be dropped with mate.
 
-## Strategy
