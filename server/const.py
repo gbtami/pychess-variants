@@ -140,6 +140,7 @@ VARIANTS = (
     # "gothic",
     # "gothhouse",
     # "embassy",
+    "dragon",
     "seirawan",
     "seirawan960",
     "shouse",
@@ -175,6 +176,7 @@ VARIANT_ICONS = {
     "placement": "S",
     "capablanca": "P",
     "capahouse": "&",
+    "dragon": "D",
     "seirawan": "L",
     "seirawan960": "}",
     "shouse": "$",
@@ -258,6 +260,7 @@ CATEGORIES = {
         "capablanca960",
         "capahouse",
         "capahouse960",
+        "dragon",
         "seirawan",
         "seirawan960",
         "shouse",
@@ -333,7 +336,9 @@ def variant_display_name(variant):
     elif variant == "kingofthehill":
         return "KING OF THE HILL"
     elif variant == "3check":
-        return " THREE-CHECK"
+        return "THREE-CHECK"
+    elif variant == "dragon":
+        return "DRAGON CHESS"
     else:
         return variant.upper()
 
@@ -399,6 +404,7 @@ TRANSLATED_VARIANT_NAMES = {
     # "gothic",
     # "gothhouse",
     # "embassy",
+    "dragon": _("Dragon Chess"),
     "seirawan": _("S-Chess"),
     "seirawan960": _("S-Chess960"),
     "shouse": _("S-House"),

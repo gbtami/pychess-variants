@@ -1,8 +1,14 @@
+.seirawan .cg-wrap piece.d-piece.white {
+    background-image: url('../../images/pieces/merida/wA.svg');
+}
 .seirawan .cg-wrap piece.h-piece.white {
     background-image: url('../../images/pieces/merida/wA.svg');
 }
 .seirawan .cg-wrap piece.e-piece.white {
     background-image: url('../../images/pieces/merida/wC.svg');
+}
+.seirawan .cg-wrap piece.d-piece.black {
+    background-image: url('../../images/pieces/merida/bA.svg');
 }
 .seirawan .cg-wrap piece.h-piece.black {
     background-image: url('../../images/pieces/merida/bA.svg');
