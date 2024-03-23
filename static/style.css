@@ -39,6 +39,9 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+.icon-CannonShogi:before {
+  content: "\1f4a3";
+}
 .icon-ataxx:before {
   content: "\2623";
 }
