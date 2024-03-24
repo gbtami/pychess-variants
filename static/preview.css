@@ -390,6 +390,13 @@ label.piece.piece2.orda {
     background-image: url('images/pieces/disguised/g.svg');
 }
 
+label.piece.piece0.khans {
+    background-image: url('images/pieces/orda/merida/bT.svg');
+}
+label.piece.piece1.khans {
+    background-image: url('images/pieces/disguised/g.svg');
+}
+
 label.piece.piece0.synochess {
     background-image: url('images/pieces/synochess/intl-red/bR.svg');
 }

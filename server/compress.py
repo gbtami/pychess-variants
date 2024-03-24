@@ -37,6 +37,7 @@ V2C = {
     "janggi": "j",
     "makpong": "l",
     "orda": "f",
+    "khans": "L",
     "synochess": "v",
     "hoppelpoppel": "w",
     "manchu": "M",
