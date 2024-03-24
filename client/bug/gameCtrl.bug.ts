@@ -21,25 +21,11 @@ export class GameControllerBughouse extends GameController {
 
     constructor(el: HTMLElement,elPocket1: HTMLElement,elPocket2: HTMLElement, boardName: 'a' | 'b', model: PyChessModel) {
         super(el, model,elPocket1,elPocket2);
-
         this.boardName = boardName;
         const fens = model.fen.split(" | ");
         this.fullfen = this.boardName === "a" ? fens[0]: fens[1];
-
         this.chessground = this.createGround(el, elPocket1, elPocket2, this.fullfen, model.assetURL);
-
         this.mycolor = 'white';
-
-        this.steps = [];
-        this.steps.push({//TODO:NIKI:consider dropping this code and all usages of this.steps
-            'fen': this.fullfen,
-            'fenB': this.fullfen,
-            'move': undefined,
-            'check': false,
-            'turnColor': this.turnColor,
-            // 'turnColorB': this.b2.turnColor,
-        });
-
     }
 
     doSendMove(move: string) {
@@ -108,7 +94,7 @@ export class GameControllerBughouse extends GameController {
                 const fenPocket = f1.match(/\[.*\]/)![0]; // how the pocket should look like
                 this.partnerCC.fullfen=ff.replace(/\[.*\]/,fenPocket);
                 this.partnerCC.ffishBoard.setFen(this.partnerCC.fullfen);//todo:niki:hope it doesnt break anything this way. ply number i think is not correct now?
-                this.partnerCC.setDests();//dests = this.parent.getDests(this.partnerCC);//todo:niki:only needed for analysis and simul mode i guess
+                this.partnerCC.setDests(); // partner dests refresh needed for analysis and simul mode
 
                 this.partnerCC.chessground.state.dom.redraw(); // TODO: see todo comment also at same line in onUserDrop.
             }
@@ -118,7 +104,6 @@ export class GameControllerBughouse extends GameController {
         }
         this.processInput(moved, orig, dest, meta);; //if (!this.promotion.start(moved.role, orig, dest, meta.thisKey)) this.sendMove(orig, dest, '');
         this.preaction = false;
-
     }
 
     private setPremove = (orig: cg.Orig, dest: cg.Key, metadata?: cg.SetPremoveMetadata) => {

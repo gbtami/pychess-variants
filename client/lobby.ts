@@ -20,7 +20,7 @@ import { Post, Stream, Spotlight, MsgInviteCreated, MsgHostCreated, MsgGetSeeks,
 import { validFen, uci2LastMove } from './chess';
 import {seekViewBughouse, switchEnablingLobbyControls} from "./bug/lobby.bug";
 import { handleOngoingGameEvents, Game, gameViewPlaying, compareGames } from './nowPlaying';
-import {createWebsocket} from "@/webSocketUtils";
+import {createWebsocket} from "@/socket/webSocketUtils";
 
 export function createModeStr(mode: CreateMode) {
     switch (mode) {

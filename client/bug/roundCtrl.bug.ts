@@ -36,7 +36,7 @@ import { player } from "../player";
 import { WebsocketHeartbeatJs } from '../socket/socket';
 import { notify } from "../notification";
 import { VARIANTS } from "../variants";
-import { createWebsocket } from "@/webSocketUtils";
+import { createWebsocket } from "@/socket/webSocketUtils";
 import AnalysisControllerBughouse from "@/bug/analysisCtrl.bug";
 
 export class RoundControllerBughouse implements ChatController {

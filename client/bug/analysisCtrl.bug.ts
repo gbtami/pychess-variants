@@ -909,7 +909,6 @@ export default class AnalysisControllerBughouse {
         // New main line move
         if (moveIdx === this.steps.length && this.plyVari === 0) {
             this.steps.push(step);
-            b.steps.push(step);
             this.ply = moveIdx;
             updateMovelist(this);
 

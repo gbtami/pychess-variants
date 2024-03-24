@@ -1,5 +1,9 @@
 /**
- * WebsocketHeartbeatJs constructor.
+ * WebsocketHeartbeatJs class adapted to TypeScript from https://github.com/zimv/websocket-heartbeat-js.
+ * Only added (similar to lichess's, but slightly more sophistacated) logic for showing/hiding connection notifications.
+ * TODO: compare to the similar lichess class here: https://github.com/lichess-org/lila/blob/master/ui/site/src/socket.ts
+ *       general ping/reconnect approach is the same, but there are some differences, not sure how important yet.
+ *       consider also adopting the other logic for queueing messages, etc.
  *
  * @param url
  * @param pingTimeout
@@ -8,6 +12,13 @@
  * @param pingMsg
  *
  */
+import {
+    toggleSocketCssOnClose,
+    toggleSocketCssOnCreateWebSocket,
+    toggleSocketCssOnError,
+    toggleSocketCssOnOpen, toggleSocketCssOnPongTimeout,
+    toggleSocketCssOnReconnect
+} from "@/socket/webSocketUtils";
 
 export type SocketOpts =  {
           url: string
@@ -24,6 +35,8 @@ export class WebsocketHeartbeatJs {
     ws: WebSocket;
     opts: SocketOpts;
     repeat: number
+    lockReconnect: boolean = false;
+    forbidReconnect: boolean = false;
 
     onclose : (event: CloseEvent) => void;
     onerror : (event: Event) => void;
@@ -31,13 +44,7 @@ export class WebsocketHeartbeatJs {
     onmessage : (event: MessageEvent) =>  void;
     onreconnect : () => void;
 
-    constructor( opts: SocketOpts /*url: string,
-                 protocols = '',
-                 pingTimeout = 15000,
-                 pongTimeout = 10000,
-                 reconnectTimeout = 2000,
-                 pingMsg = 'heartbeat',
-                 repeatLimit = null*/) {
+    constructor( opts: SocketOpts) {
         this.opts = {
             url: opts.url,
             protocols: opts.protocols || undefined,
@@ -53,6 +60,7 @@ export class WebsocketHeartbeatJs {
     }
 
     createWebSocket = function () {
+        toggleSocketCssOnCreateWebSocket();
         try {
             if (this.opts.protocols) this.ws = new WebSocket(this.opts.url, this.opts.protocols);
             else this.ws = new WebSocket(this.opts.url);
@@ -65,15 +73,19 @@ export class WebsocketHeartbeatJs {
 
     initEventHandle = function () {
         this.ws.onclose = (e: CloseEvent) => {
-            this.onclose(e);
+            this.onclose(e); // todo: lichess doesnt have customization for this event.
+                             //       we only have it for roundCtrl.bug.ts to make clocks blink and in roundCtrl it is
+                             //       even on onReconnect event and not on onClose
             this.reconnect();
         };
         this.ws.onerror = (e: Event) => {
+            toggleSocketCssOnError();
             this.onerror(e);
-            this.reconnect();
+            this.reconnect(); // todo: liches doesnt call (directly) reconnect (call scheduleConnect() there) in onerror
         };
         this.ws.onopen = (e: Event) => {
             this.repeat = 0;
+            toggleSocketCssOnOpen();
             this.onopen(e);
             this.heartCheck();
         };
@@ -84,12 +96,18 @@ export class WebsocketHeartbeatJs {
     };
 
     reconnect = function () {
+        // todo: lichess calls clearTimeout-s here (the stuff in heartReset() in our code), we don't,
+        //       i guess in our case lockReconnect prevents for second reconnect getting triggered, but lichess approach
+        //       seems simpler/cleaner to me
+        console.log("reconnect() " + this.opts.repeatLimit + " " + this.repeat + " " + this.lockReconnect + " " + this.forbidReconnect);
         if (this.opts.repeatLimit !== null && this.opts.repeatLimit <= this.repeat) return;//limit repeat the number
         if (this.lockReconnect || this.forbidReconnect) return;
         this.lockReconnect = true;
         this.repeat++;
+        toggleSocketCssOnReconnect(this.opts.reconnectTimeout);
         this.onreconnect();
         setTimeout(() => {
+            console.log("Setting timeout to createWebSocket() in "+this.opts.reconnectTimeout+" ms");
             this.createWebSocket();
             this.lockReconnect = false;
         }, this.opts.reconnectTimeout);
@@ -109,6 +127,7 @@ export class WebsocketHeartbeatJs {
         this.pingTimeoutId = setTimeout(() => {
             this.ws.send(typeof this.opts.pingMsg === 'function' ? this.opts.pingMsg() : this.opts.pingMsg);
             this.pongTimeoutId = setTimeout(() => {
+                toggleSocketCssOnPongTimeout();
                 this.ws.close();
             }, this.opts.pongTimeout);
         }, this.opts.pingTimeout);
@@ -118,12 +137,14 @@ export class WebsocketHeartbeatJs {
     heartReset = function () {
         clearTimeout(this.pingTimeoutId);
         clearTimeout(this.pongTimeoutId);
+        // todo: here lichess has also a disconnect call and usets this.ws. see method destroy()
     };
 
 
     close = function () {
         this.forbidReconnect = true;
         this.heartReset();
+        toggleSocketCssOnClose();
         this.ws.close();
     };
 

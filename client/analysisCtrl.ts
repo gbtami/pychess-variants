@@ -29,7 +29,7 @@ import { MsgAnalysis, MsgAnalysisBoard } from './analysisType';
 import { GameController } from './gameCtrl';
 import { analysisSettings, EngineSettings } from './analysisSettings';
 import { setAriaTabClick } from './view';
-import {createWebsocket} from "@/webSocketUtils";
+import {createWebsocket} from "@/socket/webSocketUtils";
 import { initPocketRow } from './pocketRow';
 
 const EVAL_REGEX = new RegExp(''
@@ -97,7 +97,7 @@ export class AnalysisController extends GameController {
             }
         };
 
-        if (!this.puzzle) {
+        if (!this.puzzle && this.gameId) {
             this.sock = createWebsocket('wsr/' + this.gameId, onOpen, () => {}, () => {}, (e: MessageEvent) => this.onMessage(e));
         }
 
