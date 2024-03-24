@@ -201,7 +201,7 @@ VARIANT_ICONS = {
     "kyotoshogi": ")",
     "shogun": "-",
     "orda": "R",
-    "khans": "R",
+    "khans": "🐎",
     "synochess": "_",
     "hoppelpoppel": "`",
     "manchu": "{",

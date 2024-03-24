@@ -766,7 +766,7 @@ export const VARIANTS: Record<string, Variant> = {
     khans: variant({
         name: "khans", tooltip: "Asymmetric variant where one army has pieces that move like knights but capture differently.",
         startFen: "lhatkahl/ssssssss/8/8/8/8/PPPPPPPP/RNBQKBNR w KQ - 0 1",
-        icon: "R",
+        icon: "🐎",
         boardFamily: "standard8x8", pieceFamily: "khans",
         colors: { first: "White", second: "Gold" },
         pieceRow: { black: ["k", "t", "l", "a", "h", "s"], white: ["k", "q", "r", "b", "n", "p"] },

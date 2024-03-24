@@ -39,6 +39,9 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+.icon-khans:before {
+  content: "\1f40e";
+}
 .icon-CannonShogi:before {
   content: "\1f4a3";
 }
