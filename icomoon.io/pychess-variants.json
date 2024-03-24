@@ -7654,12 +7654,20 @@
     {
       "selection": [
         {
+          "order": 481,
+          "id": 116,
+          "name": "khans",
+          "prevSize": 32,
+          "code": 128014,
+          "tempChar": ""
+        },
+        {
           "order": 480,
           "id": 115,
           "name": "CannonShogi",
           "prevSize": 32,
           "code": 128163,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 479,
@@ -7667,7 +7675,7 @@
           "name": "ataxx",
           "prevSize": 32,
           "code": 9763,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 478,
@@ -7675,7 +7683,7 @@
           "name": "mansindam",
           "prevSize": 32,
           "code": 9973,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 475,
@@ -7683,7 +7691,7 @@
           "name": "3check960",
           "prevSize": 32,
           "code": 9783,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 466,
@@ -7691,7 +7699,7 @@
           "name": "3check",
           "prevSize": 32,
           "code": 9776,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 465,
@@ -7699,7 +7707,7 @@
           "name": "koth960",
           "prevSize": 32,
           "code": 127937,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 464,
@@ -7707,7 +7715,7 @@
           "name": "koth",
           "prevSize": 32,
           "code": 127988,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 457,
@@ -7715,7 +7723,7 @@
           "name": "Bughouse960",
           "prevSize": 32,
           "code": 8960,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 456,
@@ -7723,7 +7731,7 @@
           "name": "Bughouse",
           "prevSize": 32,
           "code": 162,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 453,
@@ -7731,7 +7739,7 @@
           "name": "spartan",
           "prevSize": 32,
           "code": 9082,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 452,
@@ -7739,7 +7747,7 @@
           "name": "duck",
           "prevSize": 32,
           "code": 129414,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 426,
@@ -7747,7 +7755,7 @@
           "name": "Chennis",
           "prevSize": 32,
           "code": 127934,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 441,
@@ -7755,7 +7763,7 @@
           "name": "Chak",
           "prevSize": 32,
           "code": 128044,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 446,
@@ -7763,7 +7771,7 @@
           "name": "berserk",
           "prevSize": 32,
           "code": 10595,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 429,
@@ -7771,7 +7779,7 @@
           "name": "ASEAN",
           "prevSize": 32,
           "code": 9851,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 430,
@@ -7779,7 +7787,7 @@
           "name": "discord",
           "prevSize": 32,
           "code": 127918,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 431,
@@ -7787,7 +7795,7 @@
           "name": "ToriShogi",
           "prevSize": 32,
           "code": 128038,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 432,
@@ -7795,7 +7803,7 @@
           "name": "ordamirror",
           "prevSize": 32,
           "code": 9705,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 433,
@@ -7803,7 +7811,7 @@
           "name": "empire",
           "prevSize": 32,
           "code": 9818,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 434,
@@ -7811,7 +7819,7 @@
           "name": "shinobi",
           "prevSize": 32,
           "code": 128034,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 1,
@@ -7820,7 +7828,7 @@
           "prevSize": 32,
           "code": 97,
           "name": "adjust",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 2,
@@ -7828,7 +7836,7 @@
           "prevSize": 32,
           "code": 98,
           "name": "black",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 3,
@@ -7836,7 +7844,7 @@
           "prevSize": 32,
           "code": 99,
           "name": "white",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 4,
@@ -7845,7 +7853,7 @@
           "prevSize": 32,
           "code": 100,
           "name": "flag-o",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 5,
@@ -7854,7 +7862,7 @@
           "prevSize": 32,
           "code": 101,
           "name": "hand-paper-o",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 6,
@@ -7863,7 +7871,7 @@
           "prevSize": 32,
           "code": 102,
           "name": "music",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 7,
@@ -7872,7 +7880,7 @@
           "prevSize": 32,
           "code": 103,
           "name": "search",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 8,
@@ -7881,7 +7889,7 @@
           "prevSize": 32,
           "code": 104,
           "name": "sign-in",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 9,
@@ -7890,7 +7898,7 @@
           "prevSize": 32,
           "code": 105,
           "name": "sign-out",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 10,
@@ -7899,7 +7907,7 @@
           "prevSize": 32,
           "code": 106,
           "name": "abort",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 11,
@@ -7908,7 +7916,7 @@
           "prevSize": 32,
           "code": 107,
           "name": "volume-up",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 12,
@@ -7917,7 +7925,7 @@
           "prevSize": 32,
           "code": 108,
           "name": "fast-backward",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 13,
@@ -7926,7 +7934,7 @@
           "prevSize": 32,
           "code": 109,
           "name": "fast-forward",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 14,
@@ -7935,7 +7943,7 @@
           "prevSize": 32,
           "code": 110,
           "name": "step-backward",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 15,
@@ -7944,7 +7952,7 @@
           "prevSize": 32,
           "code": 111,
           "name": "step-forward",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 16,
@@ -7953,7 +7961,7 @@
           "prevSize": 32,
           "code": 112,
           "name": "refresh",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 17,
@@ -7962,7 +7970,7 @@
           "prevSize": 32,
           "code": 113,
           "name": "thumbs-o-up",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 18,
@@ -7971,7 +7979,7 @@
           "prevSize": 32,
           "code": 114,
           "name": "trash-o",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 19,
@@ -7980,7 +7988,7 @@
           "prevSize": 32,
           "code": 115,
           "name": "bars",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 20,
@@ -7989,7 +7997,7 @@
           "prevSize": 32,
           "code": 116,
           "name": "cog",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 21,
@@ -7998,7 +8006,7 @@
           "prevSize": 32,
           "code": 117,
           "name": "bolt",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 22,
@@ -8007,7 +8015,7 @@
           "prevSize": 32,
           "code": 118,
           "name": "comment-o",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 23,
@@ -8016,7 +8024,7 @@
           "prevSize": 32,
           "code": 119,
           "name": "bell-o",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 24,
@@ -8025,7 +8033,7 @@
           "prevSize": 32,
           "code": 120,
           "name": "trophy",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 25,
@@ -8034,7 +8042,7 @@
           "prevSize": 32,
           "code": 121,
           "name": "paper-plane",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 26,
@@ -8043,7 +8051,7 @@
           "prevSize": 32,
           "code": 122,
           "name": "list",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 27,
@@ -8052,7 +8060,7 @@
           "prevSize": 32,
           "code": 65,
           "name": "download",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 28,
@@ -8061,7 +8069,7 @@
           "prevSize": 32,
           "code": 66,
           "name": "ban",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 29,
@@ -8070,7 +8078,7 @@
           "prevSize": 32,
           "code": 67,
           "name": "volume-off",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 30,
@@ -8079,7 +8087,7 @@
           "prevSize": 32,
           "code": 68,
           "name": "droid",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 31,
@@ -8088,7 +8096,7 @@
           "prevSize": 32,
           "code": 69,
           "name": "bot",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 32,
@@ -8097,7 +8105,7 @@
           "prevSize": 32,
           "code": 70,
           "name": "dark",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 33,
@@ -8106,7 +8114,7 @@
           "prevSize": 32,
           "code": 71,
           "name": "light",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 34,
@@ -8115,7 +8123,7 @@
           "prevSize": 32,
           "code": 72,
           "name": "h-square",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 35,
@@ -8124,7 +8132,7 @@
           "prevSize": 32,
           "code": 73,
           "name": "online",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 36,
@@ -8133,7 +8141,7 @@
           "prevSize": 32,
           "code": 74,
           "name": "offline",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 37,
@@ -8142,7 +8150,7 @@
           "prevSize": 32,
           "code": 75,
           "name": "shogi",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 38,
@@ -8151,7 +8159,7 @@
           "prevSize": 32,
           "code": 76,
           "name": "seirawan",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 39,
@@ -8160,7 +8168,7 @@
           "prevSize": 32,
           "code": 77,
           "name": "chess",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 40,
@@ -8169,7 +8177,7 @@
           "prevSize": 32,
           "code": 78,
           "name": "crazyhouse",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 41,
@@ -8178,7 +8186,7 @@
           "prevSize": 32,
           "code": 80,
           "name": "capablanca",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 42,
@@ -8187,7 +8195,7 @@
           "prevSize": 32,
           "code": 83,
           "name": "placement",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 43,
@@ -8196,7 +8204,7 @@
           "prevSize": 32,
           "code": 84,
           "name": "tv",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 44,
@@ -8205,7 +8213,7 @@
           "prevSize": 32,
           "code": 85,
           "name": "retweet",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 45,
@@ -8214,7 +8222,7 @@
           "prevSize": 32,
           "code": 86,
           "name": "dice",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 46,
@@ -8223,7 +8231,7 @@
           "prevSize": 32,
           "code": 87,
           "name": "plus-square",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 47,
@@ -8232,7 +8240,7 @@
           "prevSize": 32,
           "code": 88,
           "name": "reply",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 48,
@@ -8241,7 +8249,7 @@
           "prevSize": 32,
           "code": 89,
           "name": "microscope",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 49,
@@ -8250,7 +8258,7 @@
           "prevSize": 32,
           "code": 90,
           "name": "clipboard",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 50,
@@ -8259,7 +8267,7 @@
           "prevSize": 32,
           "code": 48,
           "name": "cloud-upload",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 51,
@@ -8268,7 +8276,7 @@
           "prevSize": 32,
           "code": 49,
           "name": "pencil",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 52,
@@ -8277,7 +8285,7 @@
           "prevSize": 32,
           "code": 50,
           "name": "ink-pen",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 53,
@@ -8286,7 +8294,7 @@
           "prevSize": 32,
           "code": 51,
           "name": "bar-chart",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 54,
@@ -8295,7 +8303,7 @@
           "prevSize": 32,
           "code": 52,
           "name": "microphone",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 55,
@@ -8304,7 +8312,7 @@
           "prevSize": 32,
           "code": 53,
           "name": "crown",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 56,
@@ -8313,7 +8321,7 @@
           "prevSize": 32,
           "code": 55,
           "name": "minixiangqi",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 57,
@@ -8322,7 +8330,7 @@
           "prevSize": 32,
           "code": 57,
           "name": "shako",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 58,
@@ -8331,7 +8339,7 @@
           "prevSize": 32,
           "code": 33,
           "name": "cambodian",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 59,
@@ -8340,7 +8348,7 @@
           "prevSize": 32,
           "code": 34,
           "name": "crossedswords",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 60,
@@ -8349,7 +8357,7 @@
           "prevSize": 32,
           "code": 35,
           "name": "at",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 61,
@@ -8358,7 +8366,7 @@
           "prevSize": 32,
           "code": 36,
           "name": "shouse",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 62,
@@ -8367,7 +8375,7 @@
           "prevSize": 32,
           "code": 37,
           "name": "crazyhouse960",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 63,
@@ -8376,7 +8384,7 @@
           "prevSize": 32,
           "code": 38,
           "name": "capahouse",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 64,
@@ -8385,7 +8393,7 @@
           "prevSize": 32,
           "code": 39,
           "name": "capahouse960",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 65,
@@ -8394,7 +8402,7 @@
           "prevSize": 32,
           "code": 40,
           "name": "grand",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 66,
@@ -8403,7 +8411,7 @@
           "prevSize": 32,
           "code": 42,
           "name": "grandhouse",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 67,
@@ -8412,7 +8420,7 @@
           "prevSize": 32,
           "code": 43,
           "name": "zh",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 68,
@@ -8421,7 +8429,7 @@
           "prevSize": 32,
           "code": 44,
           "name": "caparandom",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 69,
@@ -8430,7 +8438,7 @@
           "prevSize": 32,
           "code": 45,
           "name": "shogun",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 70,
@@ -8439,7 +8447,7 @@
           "prevSize": 32,
           "code": 46,
           "name": "bullhorn",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 71,
@@ -8448,7 +8456,7 @@
           "prevSize": 32,
           "code": 47,
           "name": "phone",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 72,
@@ -8457,7 +8465,7 @@
           "prevSize": 32,
           "code": 59,
           "name": "unlock",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 73,
@@ -8466,7 +8474,7 @@
           "prevSize": 32,
           "code": 60,
           "name": "unlock-alt",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 74,
@@ -8475,7 +8483,7 @@
           "prevSize": 32,
           "code": 62,
           "name": "exchange",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 75,
@@ -8484,7 +8492,7 @@
           "prevSize": 32,
           "code": 63,
           "name": "check",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 76,
@@ -8493,7 +8501,7 @@
           "prevSize": 32,
           "code": 41,
           "name": "kyotoshogi",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 77,
@@ -8502,7 +8510,7 @@
           "prevSize": 32,
           "code": 61,
           "name": "janggi",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 78,
@@ -8511,7 +8519,7 @@
           "prevSize": 32,
           "code": 81,
           "name": "makruk",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 79,
@@ -8520,7 +8528,7 @@
           "prevSize": 32,
           "code": 54,
           "name": "minishogi",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 80,
@@ -8529,7 +8537,7 @@
           "prevSize": 32,
           "code": 58,
           "name": "sittuyin",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 81,
@@ -8538,7 +8546,7 @@
           "prevSize": 32,
           "code": 79,
           "name": "makpong",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 82,
@@ -8547,7 +8555,7 @@
           "prevSize": 32,
           "code": 82,
           "name": "orda",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 83,
@@ -8556,7 +8564,7 @@
           "prevSize": 32,
           "code": 64,
           "name": "globe",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 84,
@@ -8565,7 +8573,7 @@
           "prevSize": 32,
           "code": 91,
           "name": "left",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 85,
@@ -8574,7 +8582,7 @@
           "prevSize": 32,
           "code": 93,
           "name": "right",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 86,
@@ -8583,7 +8591,7 @@
           "prevSize": 32,
           "code": 94,
           "name": "heart",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 87,
@@ -8592,7 +8600,7 @@
           "prevSize": 32,
           "code": 95,
           "name": "synochess",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 88,
@@ -8601,7 +8609,7 @@
           "prevSize": 32,
           "code": 96,
           "name": "hoppelpoppel",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 89,
@@ -8610,7 +8618,7 @@
           "prevSize": 32,
           "code": 123,
           "name": "manchu",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 90,
@@ -8619,7 +8627,7 @@
           "prevSize": 32,
           "code": 124,
           "name": "xiangqi",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 91,
@@ -8628,7 +8636,7 @@
           "prevSize": 32,
           "code": 56,
           "name": "dobutsu",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 92,
@@ -8637,7 +8645,7 @@
           "prevSize": 32,
           "code": 125,
           "name": "seirawan960",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 93,
@@ -8646,7 +8654,7 @@
           "prevSize": 32,
           "code": 126,
           "name": "atomic",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 94,
@@ -8655,7 +8663,7 @@
           "prevSize": 32,
           "code": 92,
           "name": "atomic960",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 412,
@@ -8663,7 +8671,7 @@
           "name": "Gorogoro",
           "prevSize": 32,
           "code": 128049,
-          "tempChar": ""
+          "tempChar": ""
         }
       ],
       "id": 2,
@@ -8677,6 +8685,30 @@
       "height": 1024,
       "prevSize": 32,
       "icons": [
+        {
+          "id": 115,
+          "paths": [
+            "M482.054 976.46c-32.96-3.050-70.548-13.252-100.349-27.233-74.54-34.969-132.114-97.435-160.333-173.955-9.596-26.020-13.506-43.19-17.901-78.594-2.646-21.32-2.646-37.656 0.004-58.893 1.153-9.234 2.151-17.76 2.22-18.947 0.069-1.192 1.229 1.951 2.574 6.966 10.582 39.465 29.189 79.198 51.595 110.172 27.822 38.463 67.273 71.722 112.167 94.564 29.899 15.212 56.487 23.608 98.796 31.2 12.234 2.198 53.683 3.034 69.472 1.417 50.434-5.186 101.435-22.909 141.751-49.263 34.621-22.631 66.747-54.001 89.128-87.029 21.051-31.067 37.682-69.212 46.201-105.972 0.975-4.203 0.977-4.203 1.879-0.697 0.495 1.927 1.616 13.348 2.487 25.376 2.714 37.479-1.877 79.487-12.183 111.463-9.077 28.163-17.488 47.417-29.977 68.621-31.216 53-79.216 96.535-135.84 123.206-49.078 23.117-105.715 32.786-161.691 27.604zM487.668 821.407c-46.854-5.937-90.818-24.721-124.188-53.039-25.957-22.027-46.043-47.821-60.745-78.005-7.351-15.092-17.034-44.932-20.267-62.455-2.423-13.13-2.392-64.129 0.034-77.192 5.387-28.862 21.143-68.137 36.035-89.822 41.673-60.685 103.298-97.086 175.214-103.496 56.99-5.078 115.673 13.007 164.52 50.707 8.274 6.386 30.54 28.895 37.642 38.053 16.067 20.719 33.399 54.871 39.529 77.893 7.384 27.729 9.42 42.213 9.376 66.665-0.034 19.61-0.612 25.845-3.767 40.701-7.025 33.086-15.593 55.457-30.955 80.821-15.664 25.862-42.366 53.759-67.19 70.198-25.052 16.591-60.968 31.484-87.91 36.453-11.566 2.129-56.983 3.832-67.339 2.523zM502.571 336.697c-2.997-2.268-6.335-5.387-7.42-6.935-2.368-3.375-8.208-5.039-25.027-7.129-16.646-2.067-25.108-4.528-36.719-10.691-19.194-10.187-28.838-23.685-34.179-47.84-6.641-30.036-1.762-54.648 14.421-72.734 9.442-10.553 10.071-12.293 10.135-28.062 0.069-13.962 0.103-14.155 5.169-21.053 2.812-3.832 7.541-9.172 10.511-11.874s7.439-7.439 9.932-10.526c5.94-7.353 7.356-5.325 7.351 10.526-0.003 10.736-0.437 12.702-4.35 19.648-6.506 11.556-6.019 18.828 2.058 30.781 9.871 14.604 11.1 17.706 10.249 25.873-2.87 27.548-3.049 24.948 2.185 31.809 5.508 7.222 10.394 10.181 13.8 8.359 1.284-0.697 3.776-6.123 5.585-12.19 3.17-10.628 3.201-11.259 1.091-21.533-1.198-5.821-4.171-15.572-6.612-21.666-8.102-20.234-7.294-26.508 5.298-41.135 10.062-11.689 11.793-15.781 11.020-26.058-0.358-4.745-2.409-13.36-4.562-19.149-5.131-13.804-5.538-28.44-1.060-38.198 2.942-6.417 15.008-20.748 17.463-20.748 0.667 0 1.218 1.099 1.225 2.454 0.021 3.754 6.014 15.809 12.010 24.155 7.614 10.599 9.465 20.426 6.851 36.37-3.949 24.086-2.911 29.883 8.582 47.894 10.083 15.802 10.927 26.38 4.088 51.216-5.439 19.75-4.32 28.812 4.405 35.675 5.029 3.955 9.557 3.7 13.049-0.774 5.030-6.394 5.828-12.302 3.462-25.631-2.54-14.309-1.851-21.522 2.96-31.015 8.732-17.233 8.892-29.023 0.609-44.937-5.263-10.112-4.919-12.219 3.514-21.573 5.998-6.657 9.226-7.516 9.226-2.461 0 1.362 2.598 5.898 5.77 10.092 9.482 12.526 10.084 14.865 8.988 34.93-1.115 20.435-0.454 23.021 8.296 32.374 9.599 10.263 18.728 25.099 21.102 34.295 1.187 4.598 2.151 14.075 2.144 21.053-0.032 23.1-5.363 35.163-21.392 48.39-13.806 11.394-29.696 19.225-44.555 21.96-15.227 2.802-21.555 5.627-30.653 13.715-6.55 5.821-8.043 6.51-13.954 6.471-5.114-0.032-7.859-0.983-12.067-4.164z"
+          ],
+          "attrs": [
+            {
+              "fill": "rgb(103, 108, 173)"
+            }
+          ],
+          "isMulticolor": false,
+          "isMulticolor2": false,
+          "grid": 0,
+          "tags": [
+            "khans"
+          ],
+          "colorPermutations": {
+            "103108173111112012511121201251114137218113617001141108701144191213115212945115710317311571031741551132001": [
+              {
+                "f": 6
+              }
+            ]
+          }
+        },
         {
           "id": 114,
           "paths": [
@@ -11693,7 +11725,7 @@
           "id": 31,
           "prevSize": 32,
           "code": 59678,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "ligatures": "book, read",
@@ -11702,7 +11734,7 @@
           "id": 32,
           "prevSize": 32,
           "code": 59679,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "ligatures": "books, library",
@@ -12437,7 +12469,7 @@
           "id": 154,
           "prevSize": 32,
           "code": 128030,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "ligatures": "pie-chart, stats",
@@ -12536,7 +12568,7 @@
           "id": 170,
           "prevSize": 32,
           "code": 59817,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "ligatures": "lab, beta",
@@ -12599,7 +12631,7 @@
           "id": 180,
           "prevSize": 32,
           "code": 59827,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "ligatures": "shield, security",
@@ -13235,7 +13267,7 @@
           "id": 285,
           "prevSize": 32,
           "code": 59932,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "ligatures": "pause2, player9",
@@ -13244,7 +13276,7 @@
           "id": 286,
           "prevSize": 32,
           "code": 59933,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "ligatures": "stop2, player10",
@@ -13379,7 +13411,7 @@
           "id": 308,
           "prevSize": 32,
           "code": 11016,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "ligatures": "arrow-right, right3",
@@ -13394,7 +13426,7 @@
           "id": 310,
           "prevSize": 32,
           "code": 11018,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "ligatures": "arrow-down, down",

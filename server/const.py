@@ -151,6 +151,7 @@ VARIANTS = (
     "hoppelpoppel",
     "mansindam",
     "orda",
+    "khans",
     "synochess",
     # Shinobi is superseded by Shinobiplus Plus
     # "shinobi",
@@ -202,6 +203,7 @@ VARIANT_ICONS = {
     "kyotoshogi": ")",
     "shogun": "-",
     "orda": "R",
+    "khans": "🐎",
     "synochess": "_",
     "hoppelpoppel": "`",
     "manchu": "{",
@@ -273,6 +275,7 @@ CATEGORIES = {
     ),
     "army": (
         "orda",
+        "khans",
         "synochess",
         "empire",
         "ordamirror",
@@ -414,6 +417,7 @@ TRANSLATED_VARIANT_NAMES = {
     "shako": _("Shako"),
     "hoppelpoppel": _("Hoppel-Poppel"),
     "orda": _("Orda Chess"),
+    "khans": _("Khan's Chess"),
     "synochess": _("Synochess"),
     "shinobi": _("Shinobi"),
     "shinobiplus": _("Shinobi+"),
