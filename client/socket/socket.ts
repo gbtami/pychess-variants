@@ -73,6 +73,7 @@ export class WebsocketHeartbeatJs {
 
     initEventHandle = function () {
         this.ws.onclose = (e: CloseEvent) => {
+            console.log("this.ws.onclose() " + e.code + " " + e.reason + " " + e.wasClean);
             this.onclose(e); // todo: lichess doesnt have customization for this event.
                              //       we only have it for roundCtrl.bug.ts to make clocks blink and in roundCtrl it is
                              //       even on onReconnect event and not on onClose
@@ -128,7 +129,9 @@ export class WebsocketHeartbeatJs {
             this.ws.send(typeof this.opts.pingMsg === 'function' ? this.opts.pingMsg() : this.opts.pingMsg);
             this.pongTimeoutId = setTimeout(() => {
                 toggleSocketCssOnPongTimeout();
-                this.ws.close();
+                this.ws.close(); // todo: I am not sure if closing is good. If we postpone closing right before
+                                 //       reconnect we give it more time to have a chance to recover -
+                                 //       maybe test like that as well
             }, this.opts.pongTimeout);
         }, this.opts.pingTimeout);
     };
