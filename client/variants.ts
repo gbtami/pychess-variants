@@ -783,6 +783,7 @@ export const VARIANTS: Record<string, Variant> = {
         pieceRow: { black: ["k", "t", "l", "a", "h", "s"], white: ["k", "q", "r", "b", "n", "p"] },
         promotion: { type: "regular" },
         rules: { enPassant: true },
+        ui: { boardMark: 'campmate' },
     }),
 
     synochess: variant({
