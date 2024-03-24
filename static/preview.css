@@ -82,6 +82,16 @@ label.piece.piece6.capa {
     background-image: url('images/pieces/disguised/w.svg');
 }
 
+label.piece.piece0.dragon {
+    background-image: url('images/pieces/merida/wA.svg');
+}
+label.piece.piece1.dragon {
+    background-image: url('images/pieces/green/wA.svg');
+}
+label.piece.piece2.dragon {
+    background-image: url('images/pieces/disguised/w.svg');
+}
+
 label.piece.piece0.seirawan {
     background-image: url('images/pieces/merida/wE.svg');
 }

@@ -1,49 +1,43 @@
-.seirawan .cg-wrap piece.h-piece.white {
+.dragon .cg-wrap piece.d-piece.white {
     background-image: url('../../images/pieces/merida/wA.svg');
 }
-.seirawan .cg-wrap piece.e-piece.white {
-    background-image: url('../../images/pieces/merida/wC.svg');
-}
-.seirawan .cg-wrap piece.h-piece.black {
+.dragon .cg-wrap piece.d-piece.black {
     background-image: url('../../images/pieces/merida/bA.svg');
 }
-.seirawan .cg-wrap piece.e-piece.black {
-    background-image: url('../../images/pieces/merida/bC.svg');
-}
 
-.seirawan .cg-wrap piece.p-piece.white {
+.dragon .cg-wrap piece.p-piece.white {
     background-image: url('../../images/pieces/merida/wP.svg');
 }
-.seirawan .cg-wrap piece.b-piece.white {
+.dragon .cg-wrap piece.b-piece.white {
     background-image: url('../../images/pieces/merida/wB.svg');
 }
-.seirawan .cg-wrap piece.n-piece.white {
+.dragon .cg-wrap piece.n-piece.white {
     background-image: url('../../images/pieces/merida/wN.svg');
 }
-.seirawan .cg-wrap piece.r-piece.white {
+.dragon .cg-wrap piece.r-piece.white {
     background-image: url('../../images/pieces/merida/wR.svg');
 }
-.seirawan .cg-wrap piece.q-piece.white {
+.dragon .cg-wrap piece.q-piece.white {
     background-image: url('../../images/pieces/merida/wQ.svg');
 }
-.seirawan .cg-wrap piece.k-piece.white {
+.dragon .cg-wrap piece.k-piece.white {
     background-image: url('../../images/pieces/merida/wK.svg');
 }
-.seirawan .cg-wrap piece.p-piece.black {
+.dragon .cg-wrap piece.p-piece.black {
     background-image: url('../../images/pieces/merida/bP.svg');
 }
-.seirawan .cg-wrap piece.b-piece.black {
+.dragon .cg-wrap piece.b-piece.black {
     background-image: url('../../images/pieces/merida/bB.svg');
 }
-.seirawan .cg-wrap piece.n-piece.black {
+.dragon .cg-wrap piece.n-piece.black {
     background-image: url('../../images/pieces/merida/bN.svg');
 }
-.seirawan .cg-wrap piece.r-piece.black {
+.dragon .cg-wrap piece.r-piece.black {
     background-image: url('../../images/pieces/merida/bR.svg');
 }
-.seirawan .cg-wrap piece.q-piece.black {
+.dragon .cg-wrap piece.q-piece.black {
     background-image: url('../../images/pieces/merida/bQ.svg');
 }
-.seirawan .cg-wrap piece.k-piece.black {
+.dragon .cg-wrap piece.k-piece.black {
     background-image: url('../../images/pieces/merida/bK.svg');
 }
