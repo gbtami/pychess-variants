@@ -18,6 +18,7 @@ V2C = {
     "atomic": "A",
     "makruk": "m",
     "placement": "p",
+    "dragon": "R",
     "seirawan": "s",
     "shogi": "g",
     "minishogi": "a",

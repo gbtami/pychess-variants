@@ -678,6 +678,16 @@ export const VARIANTS: Record<string, Variant> = {
         },
     }),
 
+    dragon: variant({
+        name: "dragon", displayName: "dragon chess", tooltip: "The dragon can be dropped to the base rank.",
+        startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[Dd] w KQkq - 0 1",
+        icon: "D",  icon960: "D",
+        boardFamily: "standard8x8", pieceFamily: "seirawan",
+        pieceRow: ["k", "q", "d", "r", "b", "n", "p"],
+        pocket: { roles: ["d"], captureToHand: false },
+        rules: { enPassant: true },
+    }),
+
     seirawan: variant({
         name: "seirawan", displayName: "s-chess", tooltip: "Hybrid pieces, the hawk (B+N) and elephant (R+N), can enter the board after moving a back rank piece.",
         startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[HEhe] w KQBCDFGkqbcdfg - 0 1",
@@ -966,6 +976,7 @@ export const noPuzzleVariants = [
     "gorogoroplus",
     "manchu",
     "minixiangqi",
+    "dragon",
     "grandhouse",
     "shinobiplus",
     "khans",
@@ -976,7 +987,7 @@ export const variantGroups: { [ key: string ]: { variants: string[] } } = {
     sea:      { variants: [ "makruk", "makpong", "cambodian", "sittuyin", "asean" ] },
     shogi:    { variants: [ "shogi", "minishogi", "kyotoshogi", "dobutsu", "gorogoroplus", "torishogi", "cannonshogi" ] },
     xiangqi:  { variants: [ "xiangqi", "manchu", "janggi", "minixiangqi" ] },
-    fairy:    { variants: [ "capablanca", "capahouse", "seirawan", "shouse", "grand", "grandhouse", "shako", "shogun", "hoppelpoppel", "mansindam" ] },
+    fairy:    { variants: [ "capablanca", "capahouse", "dragon", "seirawan", "shouse", "grand", "grandhouse", "shako", "shogun", "hoppelpoppel", "mansindam" ] },
     army:     { variants: [ "orda", "khans", "synochess", "shinobiplus", "empire", "ordamirror", "chak", "chennis", "spartan" ] },
     other:    { variants: [ "ataxx" ] }
 };
