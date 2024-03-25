@@ -26,7 +26,7 @@ The Scout also has divergent movement, but is better described below.
 
 **Horde** piece	| **Kingdom** “counterpart”	| Movement | Capture/Check
 -- | -- | -- | --
-Yurt | Queen | “Silver” | “Silver”
+Khatun | Queen | Knight | King
 Horse Archer | Bishop | Knight | Bishop
 Kheshig | Knight | Knight+King | Knight+King
 Lancer | Rook | Knight | Rook
