@@ -37,7 +37,7 @@ Details and diagrams of each piece are below. Green dots represent movement, red
 
 ![Scout](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Scout.png)
  
-The Scout is a divergent piece that moves and attacks differently. The scout moves like a knight, but only the forward FOUR squares (as above). Its attacks only one square forward. Because of its limited attack, it cannot create defenses as strong as pawns and is generally considered weaker. However, because it moves much faster, it can threaten promotion very quickly.
+The Scout is moves like a knight, but only the forward FOUR squares (as above). Its attacks only one square forward. Because of its limited attack, it cannot create defenses as strong as pawns and is generally considered weaker. However, because it moves much faster, it can threaten promotion very quickly.
 
 Scouts promote on the last rank (like pawns) and can only promote to khatuns.
  
@@ -45,7 +45,7 @@ Scouts promote on the last rank (like pawns) and can only promote to khatuns.
 
 ![Khatun](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Khatun.png)
  
-The Lancer is a divergent piece that moves and attacks differently. The khatun moves as a knight but captures as a king. This is the weakest of the back rank pieces, but is still very useful, especially on defense.
+The Khatun moves as a knight but captures as a king. This is the weakest of the back rank pieces, but is still very useful, especially on defense.
 
 ### Kheshig (H)
 
@@ -58,13 +58,13 @@ The kheshigs were the elite imperial guard for the Mongol royalty. Appropriately
 
 ![Horse Archer](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Archer.png)
  
-The Horse Archer, or simply abbreviated Archer, is a divergent piece that moves and attacks differently. The archer moves as a knight but captures as a bishop. Because the archer is not colorbound, its value is greater than its bishop counterpart.
+The Horse Archer, or simply abbreviated Archer, moves as a knight but captures as a bishop. Because the archer is not colorbound, its value is greater than its bishop counterpart.
 Horse Archers were one of the two core components of the Mongol cavalry, functioning as the light cavalry. Their speed and prowess as mounted archers made them a unique threat. Their ability to quickly position themselves for a deadly skewer or fork make them a dangerous threat for the Kingdom.
  
 ### Lancer (L)
 
 ![Lancer](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Lancer.png)
  
-The Lancer is a divergent piece that moves and attacks differently. The lancer moves as a knight but captures as a rook. Because the lancer is not as mobile as the rook, its value is generally weaker than the rook, and this becomes more pronounced in the endgame, as it cannot move across the board as quickly as a rook can. Its value is still comparable to the horse archer.
+The Lancer moves as a knight but captures as a rook. Because the lancer is not as mobile as the rook, its value is generally weaker than the rook, and this becomes more pronounced in the endgame, as it cannot move across the board as quickly as a rook can. Its value is still comparable to the horse archer.
 Lancers were one of the two core components of the Mongol cavalry, functioning as the heavy cavalry. Despite being weaker than the rook, their ability to come into play much earlier in the game is an advantage that the Horde player should utilize.
 
