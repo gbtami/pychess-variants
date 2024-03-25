@@ -866,6 +866,10 @@ ul.guide li {
   top: var(--site-header-height);
   right: 0;
 }
+#settings-lang, #settings-board {
+  overflow-y: auto;
+  max-height: min(100vh - 70px, 91vh);
+}
 #notify-app {
   overflow: hidden;
   width: 25rem;
