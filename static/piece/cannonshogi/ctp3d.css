@@ -1,5 +1,5 @@
 .cannonshogi .cg-wrap piece.p-piece.ally {
-    background-image: url('../../images/pieces/shogi/ctp3d/0FU.svg');
+    background-image: url('../../images/pieces/shogi/ctp3d/0Soldier.svg');
 }
 .cannonshogi .cg-wrap piece.pp-piece.ally {
     background-image: url('../../images/pieces/shogi/ctp3d/0TO.svg');
@@ -44,7 +44,7 @@
     background-image: url('../../images/pieces/shogi/ctp3d/0OU.svg');
 }
 .cannonshogi .cg-wrap piece.p-piece.enemy {
-    background-image: url('../../images/pieces/shogi/ctp3d/1FU.svg');
+    background-image: url('../../images/pieces/shogi/ctp3d/1Soldier.svg');
 }
 .cannonshogi .cg-wrap piece.pp-piece.enemy {
     background-image: url('../../images/pieces/shogi/ctp3d/1TO.svg');
