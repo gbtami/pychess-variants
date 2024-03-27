@@ -24,8 +24,7 @@ Estrategia [tal como está descrita en Lichess (en inglés)](https://lichess.org
 
 ## Recursos Adicionales
 
-Si te interesa introducirte más en el mundo del Crazyhouse y estás buscando un lugar por donde empezar a estudiar, este artículo de [@crosky](https://lichess.org/@/crosky) hace una gran labor introduciendo
-tácticas típicas, conceptos estratégicos y aperturas: [Crazyhouse, an overview (en inglés)](https://lichess.org/blog/VrQDNSoAACsA8sqc/crazyhouse-an-overview)
+Si te interesa introducirte más en el mundo del Crazyhouse y estás buscando un lugar por donde empezar a estudiar, este artículo de [@crosky](https://lichess.org/@/crosky) hace una gran labor introduciendo tácticas típicas, conceptos estratégicos y aperturas: [Crazyhouse, an overview (en inglés)](https://lichess.org/blog/VrQDNSoAACsA8sqc/crazyhouse-an-overview)
 
 Más Recursos: 
 
