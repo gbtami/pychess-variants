@@ -177,7 +177,7 @@ VARIANT_ICONS = {
     "placement": "S",
     "capablanca": "P",
     "capahouse": "&",
-    "dragon": "D",
+    "dragon": "🐉",
     "seirawan": "L",
     "seirawan960": "}",
     "shouse": "$",

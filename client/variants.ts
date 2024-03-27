@@ -682,7 +682,7 @@ export const VARIANTS: Record<string, Variant> = {
     dragon: variant({
         name: "dragon", displayName: "dragon chess", tooltip: "The dragon can be dropped to the base rank.",
         startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[Dd] w KQkq - 0 1",
-        icon: "D",  icon960: "D",
+        icon: "🐉",
         boardFamily: "standard8x8", pieceFamily: "dragon",
         pieceRow: ["k", "q", "d", "r", "b", "n", "p"],
         pocket: { roles: ["d"], captureToHand: false },

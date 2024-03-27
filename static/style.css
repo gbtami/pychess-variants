@@ -39,6 +39,9 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+.icon-dragon:before {
+  content: "\1f409";
+}
 .icon-khans:before {
   content: "\1f40e";
 }
