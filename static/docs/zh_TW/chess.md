@@ -6,4 +6,4 @@
 
 如果你還不熟悉西洋棋，你可以在網路上找到許多相關教學，例如維基百科或知名西洋棋網站如[lichess.org](https://lichess.org/)和[chess.com](https://www.chess.com/)。
 
-你可以在Pychess上和其他玩家或AI玩各種西洋棋類變體。你也可以透過[FEN](https://en.wikipedia.org/wiki/Forsyth%E2%80%93Edwards_Notation)自定棋盤，然後以標準玩法玩你自製的棋。
+你可以在Pychess上和其他玩家或AI玩各種西洋棋類變體。透過[FEN](https://en.wikipedia.org/wiki/Forsyth%E2%80%93Edwards_Notation)，你也可以[自定棋盤](https://www.pychess.org/editor/chess)，然後以標準玩法玩你自製的棋。
