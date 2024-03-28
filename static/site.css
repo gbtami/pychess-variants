@@ -2344,7 +2344,6 @@ a#zen-button {
 }
 .shield-trophy {
   display: block;
-  width: 67px;
   height: 80px;
   background: url(images/trophy/shield-gold.png) no-repeat;
   background-size: contain;
