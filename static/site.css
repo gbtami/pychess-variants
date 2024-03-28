@@ -2520,15 +2520,15 @@ span[aria-selected=true], div[role=tablist] span:hover::after {
     transform: scale(1);
 }
 div > span[role=tab]::after {
-    content:'';
-    background:var(--rusty);
-    height:2px;
-    position:absolute;
-    width:96%;
-    left:2%;
-    bottom:-2px;
-    transition:all .25s;
-    transform:scale(0)
+    content: '';
+    background: var(--rusty);
+    height: 2px;
+    position: absolute;
+    width: 100%;
+    left: 0%;
+    bottom: -2px;
+    transition: all .25s;
+    transform: scale(0)
 }
 .indicator {
     color: var(--rusty);
