@@ -715,8 +715,8 @@ class Tournament(ABC):
             self.app_state.games[game_id] = game
             await insert_game_to_db(game, self.app_state)
 
-            # TODO: save new game to db
-            if 0:  # self.app[db_key] is not None:
+            # TODO: save new pairing to db
+            if 0:
                 doc = {
                     "_id": game.id,
                     "tid": self.id,

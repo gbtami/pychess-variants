@@ -6,7 +6,6 @@ from functools import partial
 from aiohttp import web
 
 from pychess_global_app_state_utils import get_app_state
-from typedefs import calendar_key
 from scheduler import new_scheduled_tournaments
 from tournaments import get_scheduled_tournaments
 
@@ -44,8 +43,9 @@ def event(data, created_tournaments):
 
 
 async def tournament_calendar(request):
-    if calendar_key in request.app:
-        events = request.app[calendar_key]
+    app_state = get_app_state(request.app)
+    if app_state.tourney_calendar is not None:
+        events = app_state.tourney_calendar
         return web.json_response(events, dumps=partial(json.dumps, default=dt.datetime.isoformat))
 
     scheduled_tournaments = await get_scheduled_tournaments(get_app_state(request.app))
@@ -69,6 +69,6 @@ async def tournament_calendar(request):
 
         already_scheduled += next_data
 
-    request.app[calendar_key] = events
+    app_state.tourney_calendar = events
 
     return web.json_response(events, dumps=partial(json.dumps, default=dt.datetime.isoformat))
