@@ -483,6 +483,7 @@ div.pgn {
   height: 30vh;
   background-color: var(--bg-color2);
   border: 1px solid var(--input-border);
+  margin: 2em 1em 0;
 }
 
 div.about,
@@ -1333,7 +1334,7 @@ player-title {
 }
 i-side,
 .icon-cloud-upload:before {
-  margin-right: 0px;
+  margin-right: 12px;
 }
 .icon-blue:before {
   content: '\62';
