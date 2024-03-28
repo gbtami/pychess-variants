@@ -126,6 +126,7 @@ VARIANTS = (
     # "gorogoro",
     "gorogoroplus",
     "torishogi",
+    "cannonshogi",
     "xiangqi",
     "manchu",
     "janggi",
@@ -139,6 +140,7 @@ VARIANTS = (
     # "gothic",
     # "gothhouse",
     # "embassy",
+    "dragon",
     "seirawan",
     "seirawan960",
     "shouse",
@@ -149,6 +151,7 @@ VARIANTS = (
     "hoppelpoppel",
     "mansindam",
     "orda",
+    "khans",
     "synochess",
     # Shinobi is superseded by Shinobiplus Plus
     # "shinobi",
@@ -174,6 +177,7 @@ VARIANT_ICONS = {
     "placement": "S",
     "capablanca": "P",
     "capahouse": "&",
+    "dragon": "🐉",
     "seirawan": "L",
     "seirawan960": "}",
     "shouse": "$",
@@ -188,6 +192,7 @@ VARIANT_ICONS = {
     "gorogoro": "🐱",
     "gorogoroplus": "🐱",
     "torishogi": "🐦",
+    "cannonshogi": "💣",
     "cambodian": "!",
     "shako": "9",
     "minixiangqi": "7",
@@ -198,6 +203,7 @@ VARIANT_ICONS = {
     "kyotoshogi": ")",
     "shogun": "-",
     "orda": "R",
+    "khans": "🐎",
     "synochess": "_",
     "hoppelpoppel": "`",
     "manchu": "{",
@@ -256,6 +262,7 @@ CATEGORIES = {
         "capablanca960",
         "capahouse",
         "capahouse960",
+        "dragon",
         "seirawan",
         "seirawan960",
         "shouse",
@@ -268,6 +275,7 @@ CATEGORIES = {
     ),
     "army": (
         "orda",
+        "khans",
         "synochess",
         "empire",
         "ordamirror",
@@ -284,6 +292,7 @@ CATEGORIES = {
         "dobutsu",
         "gorogoroplus",
         "torishogi",
+        "cannonshogi",
     ),
     "xiangqi": ("xiangqi", "manchu", "janggi", "minixiangqi"),
     "other": ("ataxx"),
@@ -323,12 +332,16 @@ def variant_display_name(variant):
         return "KYOTO SHOGI"
     elif variant == "torishogi":
         return "TORI SHOGI"
+    elif variant == "cannonshogi":
+        return "CANNON SHOGI"
     elif variant == "duck":
         return "DUCK CHESS"
     elif variant == "kingofthehill":
         return "KING OF THE HILL"
     elif variant == "3check":
-        return " THREE-CHECK"
+        return "THREE-CHECK"
+    elif variant == "dragon":
+        return "DRAGON CHESS"
     else:
         return variant.upper()
 
@@ -380,6 +393,7 @@ TRANSLATED_VARIANT_NAMES = {
     # "gorogoro",
     "gorogoroplus": _("Gorogoro+"),
     "torishogi": _("Tori Shogi"),
+    "cannonshogi": _("Cannon Shogi"),
     "xiangqi": _("Xiangqi"),
     "manchu": _("Manchu"),
     "janggi": _("Janggi"),
@@ -393,6 +407,7 @@ TRANSLATED_VARIANT_NAMES = {
     # "gothic",
     # "gothhouse",
     # "embassy",
+    "dragon": _("Dragon Chess"),
     "seirawan": _("S-Chess"),
     "seirawan960": _("S-Chess960"),
     "shouse": _("S-House"),
@@ -402,6 +417,7 @@ TRANSLATED_VARIANT_NAMES = {
     "shako": _("Shako"),
     "hoppelpoppel": _("Hoppel-Poppel"),
     "orda": _("Orda Chess"),
+    "khans": _("Khan's Chess"),
     "synochess": _("Synochess"),
     "shinobi": _("Shinobi"),
     "shinobiplus": _("Shinobi+"),

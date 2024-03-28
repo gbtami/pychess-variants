@@ -1,0 +1,5 @@
+# ![dragon](https://github.com/gbtami/pychess-variants/blob/master/static/icons/dragon.svg) Dragon Chess
+
+Dragon chess is a chess variant created by GM Miguel Illescas.
+
+The dragon is a new and powerful piece, which moves as bishop + knight. The game starts in the standard position, with the dragons in reserve. At any time, you can use your move to place the dragon on a free square in your first rank.

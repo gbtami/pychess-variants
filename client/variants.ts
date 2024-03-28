@@ -43,6 +43,7 @@ export const PIECE_FAMILIES: Record<string, PieceFamily> = {
     ataxx: { pieceCSS: ["disguised", "virus", "zombie", "cat-dog"] },
     standard: { pieceCSS: ["standard", "green", "alpha", "chess_kaneo", "santa", "maestro", "dubrovny", "disguised", "atopdown"] },
     capa: { pieceCSS: ["capa0", "capa1", "capa2", "capa3", "capa4", "capa5", "disguised"] },
+    dragon: { pieceCSS: ["dragon0", "dragon1", "disguised"] },
     seirawan: { pieceCSS: ["seir1", "seir0", "seir2", "seir3", "seir4", "seir5", "disguised"] },
     makruk: { pieceCSS: ["makrukwb", "makrukwr", "makruk", "makruks", "makruki", "makrukc", "disguised"] },
     sittuyin: { pieceCSS: ["sittuyins", "sittuyinkagr", "sittuyinkabr", "sittuyinm", "sittuyini", "sittuyincb", "disguised"] },
@@ -51,11 +52,13 @@ export const PIECE_FAMILIES: Record<string, PieceFamily> = {
     kyoto: { pieceCSS: ["kyoto", "kyotok", "kyotoks", "kyotoi", "kyotod", "disguised"] },
     dobutsu: { pieceCSS: ["dobutsu", "disguised"] },
     tori: { pieceCSS: ["torii", "torik", "torim", "porti", "cz", "disguised"] },
+    cannonshogi: { pieceCSS: ["ctp3d", "cz", "czalt", "disguised"] },
     xiangqi: { pieceCSS: ["lishu", "xiangqi2di", "xiangqi", "xiangqict3", "xiangqihnz", "xiangqict2", "lishuw", "xiangqict2w", "xiangqiwikim", "xiangqiKa", "xiangqittxqhnz", "xiangqittxqintl", "xiangqi2d", "xiangqihnzw", "disguised", "euro"] },
     janggi: { pieceCSS: ["janggihb", "janggihg", "janggiikak", "janggiikaw", "janggikak", "janggikaw", "janggiib", "janggiig", "disguised"] },
     shako: { pieceCSS: ["shako0", "shako1", "shako2", "disguised"] },
     shogun: { pieceCSS: ["shogun0", "shogun1", "shogun2", "shogun3", "shogun4", "shogun5", "disguised"] },
     orda: { pieceCSS: ["orda0", "orda1", "disguised"] },
+    khans: { pieceCSS: ["khans0", "disguised"] },
     synochess: { pieceCSS: ["synochess0", "synochess1", "synochess2", "synochess3", "synochess4", "synochess5", "disguised"] },
     hoppel: { pieceCSS: ["hoppel0", "hoppel1", "hoppel2", "disguised"] },
     shinobi: { pieceCSS: ["shinobi0", "shinobi1", "disguised"] },
@@ -490,6 +493,19 @@ export const VARIANTS: Record<string, Variant> = {
         },
     }),
 
+    cannonshogi: variant({
+        name: "cannonshogi", displayName: "cannon shogi", tooltip: _("Shogi with Chinese and Korean cannons"),
+        startFen: "lnsgkgsnl/1rci1uab1/p1p1p1p1p/9/9/9/P1P1P1P1P/1BAU1ICR1/LNSGKGSNL[-] w 0 1",
+        icon: "💣",
+        boardFamily: "shogi9x9", pieceFamily: "cannonshogi",
+        colors: { first: "Black", second: "White" },
+        pieceRow: ["k", "g", "r", "b", "s", "n", "l", "p", "u", "a", "c", "i"],
+        pocket: { roles: ["p", "l", "n", "s", "g", "b", "r", "u", "a", "c", "i"], captureToHand: true },
+        promotion: { type: "shogi", roles: ["p", "l", "n", "s", "r", "b", "u", "a", "c", "i"] },
+        rules: { defaultTimeControl: "byoyomi" },
+        ui: { pieceSound: "shogi" },
+    }),
+
     minishogi: variant({
         name: "minishogi", tooltip: "5x5 Shogi for more compact and faster games. There are no knights or lances.",
         startFen: "rbsgk/4p/5/P4/KGSBR[-] w 0 1",
@@ -663,6 +679,17 @@ export const VARIANTS: Record<string, Variant> = {
         },
     }),
 
+    dragon: variant({
+        name: "dragon", displayName: "dragon chess", tooltip: "The dragon can be dropped to the base rank.",
+        startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[Dd] w KQkq - 0 1",
+        icon: "🐉",
+        boardFamily: "standard8x8", pieceFamily: "dragon",
+        pieceRow: ["k", "q", "d", "r", "b", "n", "p"],
+        pocket: { roles: ["d"], captureToHand: false },
+        promotion: { type: "regular", order: ["q", "d", "n", "r", "b"] },
+        rules: { enPassant: true },
+    }),
+
     seirawan: variant({
         name: "seirawan", displayName: "s-chess", tooltip: "Hybrid pieces, the hawk (B+N) and elephant (R+N), can enter the board after moving a back rank piece.",
         startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[HEhe] w KQBCDFGkqbcdfg - 0 1",
@@ -744,6 +771,18 @@ export const VARIANTS: Record<string, Variant> = {
         colors: { first: "White", second: "Gold" },
         pieceRow: { white: ["k", "q", "r", "b", "n", "p", "h"], black: ["k", "y", "l", "a", "h", "p", "q"] },
         promotion: { type: "regular", order: ["q", "h"] },
+        rules: { enPassant: true },
+        ui: { boardMark: 'campmate' },
+    }),
+
+    khans: variant({
+        name: "khans", tooltip: "Asymmetric variant where one army has pieces that move like knights but capture differently.",
+        startFen: "lhatkahl/ssssssss/8/8/8/8/PPPPPPPP/RNBQKBNR w KQ - 0 1",
+        icon: "🐎",
+        boardFamily: "standard8x8", pieceFamily: "khans",
+        colors: { first: "White", second: "Gold" },
+        pieceRow: { black: ["k", "t", "l", "a", "h", "s"], white: ["k", "q", "r", "b", "n", "p"] },
+        promotion: { type: "regular" },
         rules: { enPassant: true },
         ui: { boardMark: 'campmate' },
     }),
@@ -940,17 +979,19 @@ export const noPuzzleVariants = [
     "gorogoroplus",
     "manchu",
     "minixiangqi",
+    "dragon",
     "grandhouse",
     "shinobiplus",
+    "khans",
 ]
 
 export const variantGroups: { [ key: string ]: { variants: string[] } } = {
     standard: { variants: [ "chess", "crazyhouse", "atomic", "kingofthehill", "3check", "placement", "duck" ] },
     sea:      { variants: [ "makruk", "makpong", "cambodian", "sittuyin", "asean" ] },
-    shogi:    { variants: [ "shogi", "minishogi", "kyotoshogi", "dobutsu", "gorogoroplus", "torishogi" ] },
+    shogi:    { variants: [ "shogi", "minishogi", "kyotoshogi", "dobutsu", "gorogoroplus", "torishogi", "cannonshogi" ] },
     xiangqi:  { variants: [ "xiangqi", "manchu", "janggi", "minixiangqi" ] },
-    fairy:    { variants: [ "capablanca", "capahouse", "seirawan", "shouse", "grand", "grandhouse", "shako", "shogun", "hoppelpoppel", "mansindam" ] },
-    army:     { variants: [ "orda", "synochess", "shinobiplus", "empire", "ordamirror", "chak", "chennis", "spartan" ] },
+    fairy:    { variants: [ "capablanca", "capahouse", "dragon", "seirawan", "shouse", "grand", "grandhouse", "shako", "shogun", "hoppelpoppel", "mansindam" ] },
+    army:     { variants: [ "orda", "khans", "synochess", "shinobiplus", "empire", "ordamirror", "chak", "chennis", "spartan" ] },
     other:    { variants: [ "ataxx" ] }
 };
 

@@ -866,6 +866,10 @@ ul.guide li {
   top: var(--site-header-height);
   right: 0;
 }
+#settings-lang, #settings-board {
+  overflow-y: auto;
+  max-height: min(100vh - 70px, 91vh);
+}
 #notify-app {
   overflow: hidden;
   width: 25rem;
@@ -1535,7 +1539,6 @@ table.seeks {
   top: 0;
   width: 100%; /* Full width */
   height: 100%; /* Full height */
-  overflow: auto; /* Enable scroll if needed */
   background-color: rgb(0, 0, 0); /* Fallback color */
   background-color: rgba(0, 0, 0, 0.4); /* Black w/ opacity */
   padding-top: 60px;
@@ -2517,15 +2520,15 @@ span[aria-selected=true], div[role=tablist] span:hover::after {
     transform: scale(1);
 }
 div > span[role=tab]::after {
-    content:'';
-    background:var(--rusty);
-    height:2px;
-    position:absolute;
-    width:96%;
-    left:2%;
-    bottom:-2px;
-    transition:all .25s;
-    transform:scale(0)
+    content: '';
+    background: var(--rusty);
+    height: 2px;
+    position: absolute;
+    width: 100%;
+    left: 0%;
+    bottom: -2px;
+    transition: all .25s;
+    transform: scale(0)
 }
 .indicator {
     color: var(--rusty);

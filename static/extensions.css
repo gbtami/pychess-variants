@@ -18,7 +18,7 @@
     justify-content: center;
 }
 .mini .pocket square {
-    flex: 0 0 calc(100% / var(--files));
+    flex: 0 0 calc(100% / max(var(--files), var(--pocketLength)));
 }
 .mini .pocket.top {
     border-radius: 3px 3px 0px 0px;
