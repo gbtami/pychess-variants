@@ -5,7 +5,7 @@
         <span class="text"><a href="/@/gbtami">@gbtami</a></span>
         <span class="text">Announcements</span>
     </div>
-    <div class= "headline">Happy Eastern!</div>
+    <div class= "headline">Happy Easter!</div>
 </div>
 </br>
 
