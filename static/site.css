@@ -447,7 +447,14 @@ under-left {
   grid-area: uleft;
   display: flex;
   align-content: flex-start;
+  justify-content: center;
   flex-flow: row wrap;
+}
+.internalLinks {
+  display: flex;
+  flex: 1 0 100%;
+  justify-content: center;
+  margin-top: 0.5em;
 }
 under-board {
   grid-area: uboard;
