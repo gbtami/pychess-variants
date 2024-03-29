@@ -13,12 +13,12 @@
   <img src="https://github.com/gbtami/pychess-variants/blob/master/static/images/Kuniyoshi_Utagawa_The_actor_17.jpg" width="300" height="150">
 </p>
 
-We are happy to announce the availability of three new variants on pychess: Dragon chess, Khan's chess and Cannon shogi.
+We are happy to announce the availability of *three* new variants here on Pychess: Dragon Chess, Khan's Chess and Cannon Shogi!
 
-Dragon chess was created by GM Miguel Illescas and it is the simplest fairy piece variant on the site introducing only one new piece the Dragon. It is exactly the same as Hawk in S-Chess or Archbishop in Capablaca chess. You can drop it any time you want to your first rank.
+[**Dragon Chess**](https://www.pychess.org/variants/dragon.md) was created by GM Miguel Illescas and it is the simplest fairy piece variant on the site introducing only one new piece the Dragon. It is exactly the same as Hawk in S-Chess or Archbishop in Capablaca chess. You can drop it any time you want to your first rank.
 
-Khan's chess is Couch Tomato's new variant based on Orda chess but changing two pieces to new ones in the gold army. You can read more about it in the rules page.
+[**Khan's Chess**](https://www.pychess.org/variants/khans.md) is Couch Tomato's new variant, a successor to Orda Chess whith two new pieces in the gold Horde army.
 
-Cannon shogi was invented by Peter Michaelsen in February 1998. It introduces orthogonal and diagonal Xiangqi and Janggi cannons ot the game. If you like to play Shogi and liked the Quetzal from Chak you will like this a lot :)
+[**Cannon Shogi**](https://www.pychess.org/variants/cannohshogi.md)  was invented by Peter Michaelsen in February 1998. It introduces orthogonal and diagonal Xiangqi and Janggi cannons to the game. If you like to play Shogi and liked the Quetzal from Chak, you will like this a lot! :)
 
 -gbtami
