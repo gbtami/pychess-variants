@@ -7,6 +7,9 @@
     "type": "git",
     "url": "https://github.com/gbtami/pychess-variants.git"
   },
+  "engines": {
+    "node": "20.x"
+  },
   "main": "static/pychess-variants.js",
   "author": "Bajusz Tamás",
   "license": "AGPL-3.0",
