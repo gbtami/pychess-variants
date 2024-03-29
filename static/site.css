@@ -447,7 +447,14 @@ under-left {
   grid-area: uleft;
   display: flex;
   align-content: flex-start;
+  justify-content: center;
   flex-flow: row wrap;
+}
+.internalLinks {
+  display: flex;
+  flex: 1 0 100%;
+  justify-content: center;
+  margin-top: 0.5em;
 }
 under-board {
   grid-area: uboard;
@@ -483,6 +490,7 @@ div.pgn {
   height: 30vh;
   background-color: var(--bg-color2);
   border: 1px solid var(--input-border);
+  margin: 2em 1em 0;
 }
 
 div.about,
@@ -1333,7 +1341,7 @@ player-title {
 }
 i-side,
 .icon-cloud-upload:before {
-  margin-right: 0px;
+  margin-right: 12px;
 }
 .icon-blue:before {
   content: '\62';
@@ -2344,7 +2352,6 @@ a#zen-button {
 }
 .shield-trophy {
   display: block;
-  width: 67px;
   height: 80px;
   background: url(images/trophy/shield-gold.png) no-repeat;
   background-size: contain;
@@ -2429,6 +2436,10 @@ input:invalid {
   font-size: 17px;
   padding: 10px 0;
   background: none;
+}
+
+#ac-result {
+  padding-left: 12px;
 }
 
 #ac-result ul {

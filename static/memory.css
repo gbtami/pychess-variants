@@ -12,9 +12,9 @@ div.memory {
     align-items: center;
 }
 .memory .header h1 {
-    font-size: 7em;
+    font-size: 3em;
     color: #b3b3b3;
-    margin: 0 2rem 0 0;
+    margin: 0 2rem 0;
 }
 .memory .header p {
     padding: 0;
@@ -73,6 +73,8 @@ memory .memory-game {
   transform: scale(1);
   transform-style: preserve-3d;
   transition: transform 0.5s;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 .memory-card:active {
