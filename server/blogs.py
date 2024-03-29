@@ -18,7 +18,7 @@ BLOGS = [
     {
         "_id": "Spring_Update",
         "date": "2024-03-30",
-        "image": "/images/board/Kuniyoshi_Utagawa_The_actor_17.jpg",
+        "image": "/images/Kuniyoshi_Utagawa_The_actor_17.jpg",
         "title": "Spring Update",
         "subtitle": "Happy Easter!",
         "author": "gbtami",
