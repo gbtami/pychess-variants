@@ -20,7 +20,7 @@ BLOGS = [
         "date": "2024-03-30",
         "image": "/images/board/Kuniyoshi_Utagawa_The_actor_17.jpg",
         "title": "Spring Update",
-        "subtitle": "Happy Eastern!",
+        "subtitle": "Happy Easter!",
         "author": "gbtami",
         "tags": ["Announcement"],
     },
