@@ -450,7 +450,7 @@ under-left {
   justify-content: center;
   flex-flow: row wrap;
 }
-under-left > div {
+.internalLinks {
   display: flex;
   flex: 1 0 100%;
   justify-content: center;
