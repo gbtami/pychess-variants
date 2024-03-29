@@ -13,7 +13,7 @@
   <img src="https://github.com/gbtami/pychess-variants/blob/master/static/images/Kuniyoshi_Utagawa_The_actor_17.jpg" width="300" height="150">
 </p>
 
-We are happy to announce the availability of *three* new variants here on Pychess: Dragon Chess, Khan's Chess and Cannon Shogi!
+We are happy to announce the availability of *three* new variants here on Pychess: [**Dragon Chess**](https://www.pychess.org/variants/dragon.md), [**Khan's Chess**](https://www.pychess.org/variants/khans.md), and [**Cannon Shogi**](https://www.pychess.org/variants/cannohshogi.md)!
 
 [**Dragon Chess**](https://www.pychess.org/variants/dragon.md) was created by GM Miguel Illescas and it is the simplest fairy piece variant on the site introducing only one new piece the Dragon. It is exactly the same as Hawk in S-Chess or Archbishop in Capablaca chess. You can drop it any time you want to your first rank.
 
