@@ -2165,6 +2165,7 @@ vari-move {
   outline: none;
   /*  -webkit-transition: .2s;*/
   /*transition: opacity .2s;*/
+  padding: 0.6em 0em;
 }
 
 .slider::-webkit-slider-thumb {
