@@ -2431,6 +2431,10 @@ input:invalid {
   background: none;
 }
 
+#ac-result {
+  padding-left: 12px;
+}
+
 #ac-result ul {
   list-style-type: none;
   padding: 0;
