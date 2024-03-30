@@ -1341,7 +1341,8 @@ player-title {
   margin-left: 0.5em;
 }
 i-side,
-.icon-cloud-upload:before {
+button .icon-cloud-upload:before,
+button .icon-bar-chart:before {
   margin-right: 12px;
 }
 .icon-blue:before {
