@@ -1016,6 +1016,7 @@ button#btn-zen:hover {
 
 #board-settings > div {
   flex-direction: row;
+  align-items: center; /* in Safari the inputs and labels are not vertically aligned */
 }
 
 #style-settings {
