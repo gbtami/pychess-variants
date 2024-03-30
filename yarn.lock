@@ -484,10 +484,10 @@ esm@^3.2.25:
   resolved "https://registry.yarnpkg.com/esm/-/esm-3.2.25.tgz#342c18c29d56157688ba5ce31f8431fbb795cc10"
   integrity sha512-U1suiZ2oDVWv4zPO56S0NcR5QriEahGtdN2OR6FiOG4WJvcjBVFB0qI4+eKoWFH483PKGuLuu6V8Z4T5g63UVA==
 
-fairy-stockfish-nnue.wasm@^1.1.7:
-  version "1.1.7"
-  resolved "https://registry.yarnpkg.com/fairy-stockfish-nnue.wasm/-/fairy-stockfish-nnue.wasm-1.1.7.tgz#42a61e039b95d777371f577f1dbfb82672e03bc5"
-  integrity sha512-C+BVNY3qZMiA5AeQplbZkZDbpdNYu5wdJ8kcMh+Q/MDXdgndgzZxU8ce4P/bvBOnFSo+yweimaGmm+ARXEjYMQ==
+fairy-stockfish-nnue.wasm@^1.1.8:
+  version "1.1.8"
+  resolved "https://registry.yarnpkg.com/fairy-stockfish-nnue.wasm/-/fairy-stockfish-nnue.wasm-1.1.8.tgz#112bc0b0b99a7272f22bb23c0d05ab03fda1d6cc"
+  integrity sha512-jlPrFlXMRpnnlwFnvSvh8nLcj64XOPXGj8Rq8QBXx57a/1b1rG4irtyJNcEkWTEwOyKPHoBEND6GHRisN8Eazg==
 
 ffish-es6@^0.7.6:
   version "0.7.6"

@@ -13,9 +13,10 @@ For those familiar with Orda Chess, please just refer to the two new pieces (sco
 2.	The only pieces that the sides have in common are the kings (the Horde king is called a khan).
 3.	The Kingdom (AKA White) *always moves first*.
 4.	The Horde (AKA Gold) cannot castle.
-5.	Pawns can only promote to a queen. Scouts can only promote to a khatun.
+5.	Pawns can promote to any piece as in chess. Scouts can only promote to a khatun.
 7.	An additional method of victory is available: called **campmate**. Campmate is achieved by moving one’s king into the final rank without moving into check.
-8.	Other rules, including stalemate and repetition are as in chess.
+8.	**Stalemate** - loss for the player who can't move (rather than draw as in chess)
+9.	Other rules, including repetition are as in chess.
 
 ## Horde Pieces
 There are five new units unique to the Horde: 8 Scouts, 2 Lancers, 2 Horse Archers, 2 Kheshigs, and 1 Khatun. The Kheshigs are the strongest piece (knight + king movement) and lead each flank, while the Yurt is a fairly weak piece unlike the Queen. 
