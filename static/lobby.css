@@ -120,6 +120,11 @@ rating {
 .container input#fen {
   margin: 0.6em 0 0.6em;
 }
+
+.modal-content input#fen {
+    width: 90%;
+}
+
 div.tc-block {
     padding: 1em;
     background: var(--bg-color2);
