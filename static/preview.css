@@ -83,10 +83,10 @@ label.piece.piece6.capa {
 }
 
 label.piece.piece0.dragon {
-    background-image: url('images/pieces/merida/wD.svg');
+    background-image: url('images/pieces/green/wD.svg');
 }
 label.piece.piece1.dragon {
-    background-image: url('images/pieces/green/wD.svg');
+    background-image: url('images/pieces/merida/wD.svg');
 }
 label.piece.piece2.dragon {
     background-image: url('images/pieces/disguised/w.svg');
