@@ -1016,6 +1016,7 @@ button#btn-zen:hover {
 
 #board-settings > div {
   flex-direction: row;
+  align-items: center; /* in Safari the inputs and labels are not vertically aligned */
 }
 
 #style-settings {
@@ -1340,7 +1341,8 @@ player-title {
   margin-left: 0.5em;
 }
 i-side,
-.icon-cloud-upload:before {
+button .icon-cloud-upload:before,
+button .icon-bar-chart:before {
   margin-right: 12px;
 }
 .icon-blue:before {
