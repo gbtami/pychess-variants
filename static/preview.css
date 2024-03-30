@@ -89,6 +89,9 @@ label.piece.piece1.dragon {
     background-image: url('images/pieces/merida/wD.svg');
 }
 label.piece.piece2.dragon {
+    background-image: url('images/pieces/paradigm/wD.svg');
+}
+label.piece.piece3.dragon {
     background-image: url('images/pieces/disguised/w.svg');
 }
 
