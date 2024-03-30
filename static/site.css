@@ -1339,7 +1339,9 @@ player-title {
   margin-top: 0.5em;
   margin-left: 0.5em;
 }
-i-side, button .icon-cloud-upload:before, button .icon-bar-chart:before {
+i-side,
+button .icon-cloud-upload:before,
+button .icon-bar-chart:before {
   margin-right: 12px;
 }
 .icon-blue:before {
