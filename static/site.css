@@ -1928,15 +1928,17 @@ button.icon::-moz-focus-inner {
 
 /* Playing color */
 button.icon {
-  margin: 5px;
-  padding: 5px;
+  margin: 5px 8px;
+  padding: 8px;
 }
+  
 button.icon.icon-black,
 button.icon.icon-white {
-  font-size: 24px;
+  font-size: 29px;
 }
+  
 button.icon.icon-adjust {
-  font-size: 36px;
+  font-size: 43px;
 }
 
 /* Casual/Rated and A.I. Level https://codepen.io/skeddles/pen/PbROLK */
