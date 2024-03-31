@@ -134,7 +134,7 @@ export const translatedTooltips = [
     _("Mayan chess. Inspired by cultural elements of Mesoamerica."),
     _("Pieces alternate between two forms with each move."),
     _("Asymmetric Spartans vs. Persians variant."),
-    _("Pantheon tale"),
+    _("A variant that combines the Shogi's drop rule with strong pieces."),
     _("Like Capablanca Chess but with Grand starting setup."),
     _("Embassy with Crazyhouse drop rules."),
     _("Like Capablanca Chess but with a different starting setup."),

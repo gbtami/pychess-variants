@@ -107,6 +107,12 @@ function proTip (variant: string, chess960: boolean) {
         return _('For a drop version, choose GRANDHOUSE from the dropdown menu.');
     case 'seirawan':
         return _('For a drop version, choose S-HOUSE from the dropdown menu.');
+    case 'dragon':
+        return _("Dropping your Dragon too early may not be the best idea.");
+    case 'grandhouse':
+    case 'capahouse':
+    case 'shouse':
+        return _('Initiative is everything!');
     case 'shogun':
         return _('The queen actually demotes upon capture, so it is not worth as much.');
     case 'shako':

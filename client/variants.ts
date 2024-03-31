@@ -915,7 +915,7 @@ export const VARIANTS: Record<string, Variant> = {
     }),
 
     mansindam: variant({
-        name: "mansindam", tooltip: "Pantheon tale",
+        name: "mansindam", tooltip: "A variant that combines the Shogi's drop rule with strong pieces.",
         startFen: "rnbakqcnm/9/ppppppppp/9/9/9/PPPPPPPPP/9/MNCQKABNR[] w - - 0 1",
         icon: "⛵",
         boardFamily: "standard9x9", pieceFamily: "mansindam",
