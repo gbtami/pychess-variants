@@ -1084,7 +1084,8 @@ a:hover,
   color: var(--link-hover);
 }
 p a,
-.blogs ul li a {
+.blogs ul li a,
+div.guide li a {
   color: var(--link-hover);
 }
 div a {
