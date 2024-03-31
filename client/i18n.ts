@@ -129,6 +129,7 @@ export const translatedTooltips = [
     _("Asymmetric East vs. West variant which pits the western Chess army against a Xiangqi and Janggi-styled army."),
     _("Asymmetric variant which pits the western Chess army against a drop-based, Shogi-styled army."),
     _("Asymmetric variant where one army has pieces that move like queens but capture as usual."),
+    _("Orda Chess variant. The scout and khatun replaces the pawn and yurt."),
     _("Orda Chess variant with two Horde armies. The Falcon replaces the Yurt."),
     _("Mayan chess. Inspired by cultural elements of Mesoamerica."),
     _("Pieces alternate between two forms with each move."),
