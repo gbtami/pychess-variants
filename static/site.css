@@ -2323,8 +2323,12 @@ div.ctable-container {
     var(--blue-active),
     var(--blue-passive) 100%
   );
+}
+  
+div#spotlights > div {
   box-shadow: var(--base-shadow);
 }
+  
 .tour-spotlight:hover {
   opacity: 1;
 }
