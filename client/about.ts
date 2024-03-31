@@ -78,7 +78,7 @@ export function aboutView(model: PyChessModel): VNode[] {
                 ", ",
                 h('a', { attrs: { href: 'https://www.pychess.org/variants/orda' } }, 'Orda'),
                 ", ",
-                h('a', { attrs: { href: 'https://www.pychess.org/variants/khans' } }, 'Khan's chess'),
+                h('a', { attrs: { href: 'https://www.pychess.org/variants/khans' } }, 'Khan\'s chess'),
                 ", ",
                 h('a', { attrs: { href: 'https://www.pychess.org/variants/synochess' } }, 'Synochess'),
                 ", ",
