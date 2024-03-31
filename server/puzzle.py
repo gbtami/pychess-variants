@@ -13,16 +13,18 @@ from pychess_global_app_state_utils import get_app_state
 
 # variants having 0 puzzle so far
 NO_PUZZLE_VARIANTS = (
+    "ataxx",
     "3check",
     "placement",
     "sittuyin",
     "minishogi",
     "gorogoroplus",
     "manchu",
-    "minixiangqi",
+    "dragon",
     "grandhouse",
     "shinobi",
     "shinobiplus",
+    "cannonshogi",
 )
 
 PUZZLE_VARIANTS = [v for v in VARIANTS if (not v.endswith("960") and (v not in NO_PUZZLE_VARIANTS))]

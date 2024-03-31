@@ -978,11 +978,11 @@ export const noPuzzleVariants = [
     "minishogi",
     "gorogoroplus",
     "manchu",
-    "minixiangqi",
     "dragon",
     "grandhouse",
+    "shinobi",
     "shinobiplus",
-    "khans",
+    "cannonshogi",
 ]
 
 export const variantGroups: { [ key: string ]: { variants: string[] } } = {
