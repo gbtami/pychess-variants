@@ -1625,6 +1625,12 @@ input {
   width: 30%; /* Could be more or less, depending on screen size */
   border: 1px solid var(--bg-color2);
 }
+
+.modal-content h2{
+  font-size: 2em;
+  padding: 0;
+}
+
 @media (max-width: 799px) and (orientation: portrait) {
   .modal-content {
     margin: 0;
