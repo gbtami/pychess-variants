@@ -2198,6 +2198,20 @@ vari-move {
   cursor: pointer;
 }
 
+#tc_settings .slider {
+  width: 90%;
+  margin: 5px auto;
+  padding: 0.8em 0;
+  border: none;
+}
+
+#tc_settings .slider::-webkit-slider-thumb,
+#tc_settings .slider::-moz-range-thumb {
+  width: 35px;
+  border-radius: 15px;
+  padding: 0.3em 0;
+}
+
 input#fen {
   width: 100%;
   margin: 0;
