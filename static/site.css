@@ -2189,6 +2189,7 @@ vari-move {
   /*  -webkit-transition: .2s;*/
   /*transition: opacity .2s;*/
   padding: 0.6em 0em;
+  cursor: pointer;
 }
 
 .slider::-webkit-slider-thumb {
@@ -2218,7 +2219,12 @@ vari-move {
   border: none;
 }
 
-#tc_settings .slider::-webkit-slider-thumb,
+#tc_settings .slider::-webkit-slider-thumb {
+  width: 35px;
+  height: 22px;
+  border-radius: 15px;
+}
+
 #tc_settings .slider::-moz-range-thumb {
   width: 35px;
   border-radius: 15px;
