@@ -1962,6 +1962,10 @@ label {
   padding: 8px 12px;
 }
 
+form.modal-content span {
+  font-weight: bold;
+}
+
 .radio-group input[type='radio']:checked + label {
   box-shadow: inset 0 2px 5px #537c23;
   color: White;
