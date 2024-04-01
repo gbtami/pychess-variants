@@ -1976,12 +1976,16 @@ label {
 .radio-group {
   box-shadow: var(--base-shadow);
   display: inline-block;
-  margin: 12px;
+  margin: 20px auto 5px;
   overflow: hidden;
   border-radius: 4px;
   color: var(--font-color);
   background-color: var(--bg-color2);
   text-shadow: 0 1px 0 var(--text-shadow);
+}
+
+form#game-mode label {
+  padding: 10px 30px;
 }
 
 /* Chat */
