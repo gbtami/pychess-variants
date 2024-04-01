@@ -1,6 +1,7 @@
 from __future__ import annotations
 from datetime import datetime, timezone
 
+from const import CORR_SEEK_EXPIRE_WEEKS
 from misc import time_control_str
 from newid import new_id
 
@@ -28,7 +29,7 @@ class Seek:
         player2=None,
         ws=None,
         game_id=None,
-        created_at=None,
+        expire_at=None,
     ):
         self.creator = creator
         self.variant = variant
@@ -51,7 +52,9 @@ class Seek:
         self.id = self.gen_id
         self.game_id = game_id
 
-        self.created_at = datetime.now(timezone.utc) if created_at is None else created_at
+        self.expire_at = (
+            datetime.now(timezone.utc) + CORR_SEEK_EXPIRE_WEEKS if expire_at is None else expire_at
+        )
 
         # Seek is pending when it is not corr, and user has no live lobby websocket
         self.pending = False
@@ -90,7 +93,7 @@ class Seek:
             "color": self.color,
             "rated": self.rated,
             "day": self.day,
-            "createdAt": self.created_at,
+            "expireAt": self.expire_at,
         }
 
     @property
@@ -110,7 +113,12 @@ async def create_seek(db, invites, seeks, user, data, ws, empty=False):
     Currently there is no limit for them since they're used for tournament organisation purposes
     They can only be created by trusted users
     """
-    if len([seek for seek in user.seeks.values()]) >= MAX_USER_SEEKS and not empty:
+    day = data.get("day", 0)
+    live_seeks = len([seek for seek in user.seeks.values() if seek.day == 0])
+    corr_seeks = len([seek for seek in user.seeks.values() if seek.day != 0])
+    if (
+        (live_seeks >= MAX_USER_SEEKS and day == 0) or (corr_seeks >= MAX_USER_SEEKS and day != 0)
+    ) and not empty:
         return
 
     target = data.get("target")
@@ -127,7 +135,7 @@ async def create_seek(db, invites, seeks, user, data, ws, empty=False):
         base=data["minutes"],
         inc=data["increment"],
         byoyomi_period=data["byoyomiPeriod"],
-        day=data.get("day", 0),
+        day=day,
         rated=data.get("rated"),
         chess960=data.get("chess960"),
         target=target,

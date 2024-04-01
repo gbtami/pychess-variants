@@ -4,7 +4,7 @@
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2023.
 # 
 # Translators:
-# Việt Đinh Hoàng, 2023
+# Việt Đinh Hoàng, 2024
 # 
 #, fuzzy
 msgid ""
@@ -13,7 +13,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2023-11-17 14:15+0100\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
-"Last-Translator: Việt Đinh Hoàng, 2023\n"
+"Last-Translator: Việt Đinh Hoàng, 2024\n"
 "Language-Team: Vietnamese (https://app.transifex.com/gbtami/teams/14790/vi/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -260,7 +260,7 @@ msgstr "3 Check960"
 
 #: ../server/const.py:397
 msgid "Mansindam"
-msgstr ""
+msgstr "Mansindam"
 
 #: ../server/videos.py:10
 msgid "Howto"
@@ -384,7 +384,7 @@ msgstr "Nhập ván cờ"
 
 #: ../templates/profile.html:50
 msgid "Export games"
-msgstr "Xuất trò chơi"
+msgstr "Xuất ván cờ"
 
 #: ../templates/profile.html:54
 msgid "Lichess profile"

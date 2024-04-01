@@ -63,6 +63,13 @@ export function layer2shogi (lobbyCtrl: LobbyController, containerId: string): v
                 ]),
                 h('p.variant-extra-info', _('7x7, Bird Shogi')),
             ]),
+            h('button.layer-2-category', { on: { click: () => layer3variant('layer2shogicont', lobbyCtrl, 'cannonshogi', false) } }, [
+                h('div.variant-title-l2', [
+                    h('div.icon', { attrs: { 'data-icon': VARIANTS['cannonshogi'].icon(false) } }),
+                    h('h3', VARIANTS['cannonshogi'].displayName()),
+                ]),
+                h('p.variant-extra-info', _('Shogi with Cannons')),
+            ]),
         ]),
     ]);
 

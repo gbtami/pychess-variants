@@ -5,7 +5,7 @@
 # 
 # Translators:
 # Khoa Tan, 2023
-# Việt Đinh Hoàng, 2023
+# Việt Đinh Hoàng, 2024
 # 
 #, fuzzy
 msgid ""
@@ -14,7 +14,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2023-11-17 14:15+0100\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
-"Last-Translator: Việt Đinh Hoàng, 2023\n"
+"Last-Translator: Việt Đinh Hoàng, 2024\n"
 "Language-Team: Vietnamese (https://app.transifex.com/gbtami/teams/14790/vi/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -265,7 +265,7 @@ msgstr "Bộ nhớ"
 
 #: ../client/analysisSettings.ts:233
 msgid "Use NNUE"
-msgstr ""
+msgstr "Dùng NNUE"
 
 #: ../client/background.ts:9
 msgid "Light"
@@ -285,7 +285,7 @@ msgstr "Xác nhận đầu hàng"
 
 #: ../client/boardSettings.ts:217
 msgid "Confirm correspondence move"
-msgstr ""
+msgstr "Xác nhận nước cờ"
 
 #: ../client/boardSettings.ts:309
 msgid "Zoom"
@@ -338,12 +338,12 @@ msgstr "Máy chủ"
 #: ../client/clock.ts:29 ../client/view.ts:120
 msgid "%1 day"
 msgid_plural "%1 days"
-msgstr[0] ""
+msgstr[0] "%1 ngày"
 
 #: ../client/clock.ts:30
 msgid "%1 hour"
 msgid_plural "%1 hours"
-msgstr[0] ""
+msgstr[0] "%1 giờ"
 
 #: ../client/datetime.ts:20
 msgid "in %1 year"
@@ -988,15 +988,15 @@ msgstr " (phải đăng nhập)"
 
 #: ../client/lobby.ts:413
 msgid "Time control"
-msgstr ""
+msgstr "Kiểu thời gian"
 
 #: ../client/lobby.ts:418
 msgid "Real time"
-msgstr ""
+msgstr "Thời gian thực"
 
 #: ../client/lobby.ts:419 ../client/lobby.ts:1069
 msgid "Correspondence"
-msgstr ""
+msgstr "Cờ qua thư"
 
 #: ../client/lobby.ts:425
 msgid "Minutes per side:"
@@ -1008,7 +1008,7 @@ msgstr "Chu kỳ"
 
 #: ../client/lobby.ts:449
 msgid "Days per turn:"
-msgstr ""
+msgstr "Ngày đến lượt đi:"
 
 #: ../client/lobby.ts:467 ../client/lobby.ts:767 ../client/result.ts:16
 msgid "Casual"
@@ -1104,7 +1104,7 @@ msgstr "Đến quân %1 đi"
 
 #: ../client/lobby.ts:1068
 msgid "Lobby"
-msgstr ""
+msgstr "Phòng chờ"
 
 #: ../client/lobby.ts:1127
 msgid "Donate"
@@ -1140,7 +1140,7 @@ msgstr ""
 
 #: ../client/lobby.ts:1155
 msgid "A slew of new variants!"
-msgstr ""
+msgstr "Hàng loạt biến thể mới!"
 
 #: ../client/main.ts:114
 msgid "Thank you for your support!"
@@ -1148,7 +1148,7 @@ msgstr "Cảm ơn sự ủng hộ của bạn!"
 
 #: ../client/notifyView.ts:83
 msgid "No notifications."
-msgstr ""
+msgstr "Không có thông báo."
 
 #: ../client/paste.ts:139
 msgid "Invalid PGN"
@@ -1187,7 +1187,7 @@ msgstr "Tính ELo"
 #: ../client/profile.ts:228
 msgctxt "UsePluralFormIfNeeded"
 msgid "Playing"
-msgstr ""
+msgstr "Đang chơi"
 
 #: ../client/profile.ts:229
 msgid "Imported"
@@ -1417,7 +1417,7 @@ msgstr "Đối thủ của bạn đề nghị hòa"
 
 #: ../client/roundCtrl.ts:491
 msgid "Confirm move"
-msgstr ""
+msgstr "Xác nhận nước đi"
 
 #: ../client/roundCtrl.ts:518
 msgid "Are you sure you want to resign?"

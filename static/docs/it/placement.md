@@ -2,6 +2,6 @@
 
 Pal Benko attribuisce l'idea dei "Pre-Scacchi" o "Shuffle-Chess" a David Bronstein.
 
-Diversa dal "Placement Chess" descritta sul sito *Chess Variants*, questa variante è semplicemente una modifica in cui i giocatori posizionano a turno i loro pezzi in prima/ottava traversa. L'arrocco funziona solo quando il re e la torre corrispondente sono nella loro posizione normale.
+Diversa dal ["Placement Chess"](https://www.chessvariants.org/play/placement-chess) descritta sul sito *Chess Variants*, questa variante è semplicemente una modifica in cui i giocatori posizionano a turno i loro pezzi in prima/ottava traversa. L'arrocco funziona solo quando il re e la torre corrispondente sono nella loro posizione normale.
 
-[Clicca qui per saperne di più sulla storia della variante](http://www.quantumgambitz.com/blog/chess/cga/bronstein-chess-pre-chess-shuffle-chess)
+[Saperne di più sulla storia della variante](http://www.quantumgambitz.com/blog/chess/cga/bronstein-chess-pre-chess-shuffle-chess)

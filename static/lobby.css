@@ -30,8 +30,12 @@
   flex: 1;
   display: flex;
   flex-flow: column nowrap;
+  align-items: flex-start;
   position: absolute;
   bottom: 0;
+}
+.lobby-count a {
+  transition: color 150ms;
 }
 @media only screen and (max-width: 799px) {
   .lobby-count {

@@ -446,7 +446,8 @@ async def handle_reject_draw(user, game):
 
 async def handle_byoyomi(data, game):
     game.byo_correction += game.inc * 1000
-    game.byoyomi_periods[data["color"]] = data["period"]
+    color = WHITE if data["color"] == "white" else BLACK
+    game.byoyomi_periods[color] = data["period"]
     # print("BYOYOMI:", data)
 
 

@@ -21,6 +21,7 @@ from const import (
     NONE_USER,
     VARIANTS,
     LANGUAGES,
+    MAX_CHAT_LINES,
     MONTHLY,
     ARENA,
     WEEKLY,
@@ -28,8 +29,6 @@ from const import (
     T_CREATED,
     T_STARTED,
     SCHEDULE_MAX_DAYS,
-    NOTIFY_EXPIRE_SECS,
-    CORR_SEEK_EXPIRE_SECS,
     ABORTED,
 )
 from discord_bot import DiscordBot, FakeDiscordBot
@@ -71,6 +70,7 @@ class PychessGlobalAppState:
 
         self.db = app[db_key]
         self.users = self.__init_users()
+        self.disable_new_anons = False
         self.lobby = Lobby(self)
         # one dict per tournament! {tournamentId: {user.username: user.tournament_sockets, ...}, ...}
         self.tourneysockets: dict[str, MyWebSocketResponse] = {}
@@ -93,6 +93,7 @@ class PychessGlobalAppState:
         self.game_channels: Set[queue] = set()
         self.invite_channels: Set[queue] = set()
         self.highscore = {variant: ValueSortedDict(neg) for variant in VARIANTS}
+        self.get_top10_users = True
         self.crosstable: dict[str, object] = {}
         self.shield = {}
         self.shield_owners = {}  # {variant: username, ...}
@@ -160,14 +161,12 @@ class PychessGlobalAppState:
 
             db_collections = await self.db.list_collection_names()
 
-            # if "highscore" not in db_collections:
-            # Always create new highscore lists on server start
-            hs = await generate_highscore(self.db)
-            for doc in hs:
-                self.highscore[doc["_id"]] = ValueSortedDict(neg, doc["scores"])
-
-                for username in self.highscore[doc["_id"]]:
-                    await self.users.get(username)
+            if "highscore" not in db_collections:
+                await generate_highscore(self)
+            cursor = self.db.highscore.find()
+            async for doc in cursor:
+                if doc["_id"] in VARIANTS:
+                    self.highscore[doc["_id"]] = ValueSortedDict(neg, doc["scores"])
 
             if "crosstable" not in db_collections:
                 await generate_crosstable(self.db)
@@ -185,6 +184,27 @@ class PychessGlobalAppState:
                 docs = await cursor.to_list(length=365)
                 self.daily_puzzle_ids = {doc["_id"]: doc["puzzleId"] for doc in docs}
 
+            if "lobbychat" not in db_collections:
+                try:
+                    await self.db.create_collection(
+                        "lobbychat", capped=True, size=100000, max=MAX_CHAT_LINES
+                    )
+                except NotImplementedError:
+                    await self.db.create_collection("lobbychat")
+            else:
+                cursor = self.db.lobbychat.find(
+                    projection={
+                        "_id": 0,
+                        "type": 1,
+                        "user": 1,
+                        "message": 1,
+                        "room": 1,
+                        "time": 1,
+                    }
+                )
+                docs = await cursor.to_list(length=MAX_CHAT_LINES)
+                self.lobby.lobbychat = docs
+
             await self.db.game.create_index("us")
             await self.db.game.create_index("r")
             await self.db.game.create_index("v")
@@ -195,11 +215,11 @@ class PychessGlobalAppState:
             if "notify" not in db_collections:
                 await self.db.create_collection("notify")
             await self.db.notify.create_index("notifies")
-            await self.db.notify.create_index("createdAt", expireAfterSeconds=NOTIFY_EXPIRE_SECS)
+            await self.db.notify.create_index("expireAt", expireAfterSeconds=0)
 
             if "seek" not in db_collections:
                 await self.db.create_collection("seek")
-            await self.db.seek.create_index("createdAt", expireAfterSeconds=CORR_SEEK_EXPIRE_SECS)
+            await self.db.seek.create_index("expireAt", expireAfterSeconds=0)
 
             # Read correspondence seeks
             async for doc in self.db.seek.find():
@@ -214,7 +234,7 @@ class PychessGlobalAppState:
                         rated=doc["rated"],
                         chess960=doc["chess960"],
                         player1=user,
-                        created_at=doc["createdAt"],
+                        expire_at=doc.get("expireAt"),
                     )
                     self.seeks[seek.id] = seek
                     user.seeks[seek.id] = seek

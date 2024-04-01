@@ -30,6 +30,7 @@ import { MsgAnalysis, MsgAnalysisBoard } from './analysisType';
 import { GameController } from './gameCtrl';
 import { analysisSettings, EngineSettings } from './analysisSettings';
 import { setAriaTabClick } from './view';
+import { initPocketRow } from './pocketRow';
 
 const EVAL_REGEX = new RegExp(''
   + /^info depth (\d+) seldepth \d+ multipv (\d+) /.source
@@ -153,6 +154,11 @@ export class AnalysisController extends GameController {
                 select: this.onSelect(),
             },
         });
+
+        // initialize pockets
+        const pocket0 = document.getElementById('pocket0') as HTMLElement;
+        const pocket1 = document.getElementById('pocket1') as HTMLElement;
+        initPocketRow(this, pocket0, pocket1);
 
         if (!this.isAnalysisBoard && !this.embed) {
             this.ctableContainer = document.getElementById('panel-3') as HTMLElement;
@@ -906,7 +912,7 @@ export class AnalysisController extends GameController {
         } else {
             // possible new variation move
             if (ffishBoardPly === 1) {
-                if (msg.lastMove === this.steps[this.ply - 1].move) {
+                if (this.ply < this.steps.length && msg.lastMove === this.steps[this.ply].move) {
                     // existing main line played
                     selectMove(this, this.ply);
                     return;

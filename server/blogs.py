@@ -16,6 +16,24 @@ del _
 
 BLOGS = [
     {
+        "_id": "Spring_Update",
+        "date": "2024-03-30",
+        "image": "/images/Kuniyoshi_Utagawa_The_actor_17.jpg",
+        "title": "Spring Update",
+        "subtitle": "Happy Easter!",
+        "author": "gbtami",
+        "tags": ["Announcement"],
+    },
+    {
+        "_id": "S-chess_endings_4",
+        "date": "2024-03-01",
+        "image": "/images/pexels-renato-conti-2677849.jpg",
+        "title": "S-chess endings 4",
+        "subtitle": "The Elephant",
+        "author": "yasser-seirawan",
+        "tags": ["Blog"],
+    },
+    {
         "_id": "Mid_Autumn_Festival",
         "date": "2024-02-13",
         "image": "/images/MidAutumnFestival/20210915_134909.jpg",

@@ -25,6 +25,7 @@ import { MsgUserDisconnected, MsgUserPresent, MsgMoreTime, MsgDrawOffer, MsgDraw
 import { PyChessModel } from "./types";
 import { GameController } from './gameCtrl';
 import { handleOngoingGameEvents, Game, gameViewPlaying, compareGames } from './nowPlaying';
+import { initPocketRow } from './pocketRow';
 
 let rang = false;
 const CASUAL = '0';
@@ -178,6 +179,11 @@ export class RoundController extends GameController {
                 },
             });
         }
+
+        // initialize pockets
+        const pocket0 = document.getElementById('pocket0') as HTMLElement;
+        const pocket1 = document.getElementById('pocket1') as HTMLElement;
+        initPocketRow(this, pocket0, pocket1);
 
         // initialize users
         const player0 = document.getElementById('rplayer0') as HTMLElement;
@@ -531,7 +537,13 @@ export class RoundController extends GameController {
             return;
         }
 
-        chatMessage('', message, "roundchat");
+        chatMessage('_server', message, "roundchat");
+
+        const message1 = _('You can use the arrow buttons (below the board -- scroll down to display) to switch them, then click on the check mark to finalize your decision.');
+        chatMessage('_server', message1, "roundchat");
+
+        const message2 = _('To start the game you have to click on the check mark!');
+        chatMessage('_server', message2, "roundchat");
 
         const switchLetters = (side: number) => {
             const white = this.mycolor === 'white';

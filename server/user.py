@@ -14,7 +14,7 @@ from const import ANON_PREFIX, NOTIFY_PAGE_SIZE, STARTED, VARIANTS
 from glicko2.glicko2 import gl2, DEFAULT_PERF, Rating
 from login import RESERVED_USERS
 from newid import id8, new_id
-from const import TYPE_CHECKING
+from const import NOTIFY_EXPIRE_WEEKS, TYPE_CHECKING
 from seek import Seek
 
 if TYPE_CHECKING:
@@ -220,12 +220,14 @@ class User:
                 win = False
 
         _id = await new_id(None if self.app_state.db is None else self.app_state.db.notify)
+        now = datetime.now(timezone.utc)
         document = {
             "_id": _id,
             "notifies": self.username,
             "type": "gameAborted" if game.result == "*" else "gameEnd",
             "read": False,
-            "createdAt": datetime.now(timezone.utc),
+            "createdAt": now,
+            "expireAt": (now + NOTIFY_EXPIRE_WEEKS).isoformat(),
             "content": {
                 "id": game.id,
                 "opp": opp_name,
@@ -351,6 +353,9 @@ class User:
             return True
         else:
             return False
+
+    def __repr__(self):
+        return self.__str__()
 
     def __str__(self):
         return "%s %s bot=%s anon=%s chess=%s" % (

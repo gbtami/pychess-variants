@@ -405,7 +405,7 @@ div.player {
     color: var(--link-color-blue);
 }
 [class*=" icon-"]:before {
-    margin-right: 0.4em;
+    margin: 0 0.3em;
 }
 td.bye {
     text-align: center;

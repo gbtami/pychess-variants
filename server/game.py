@@ -29,6 +29,7 @@ from const import (
     RATED,
     IMPORTED,
     HIGHSCORE_MIN_GAMES,
+    MAX_HIGHSCORE_ITEM_LIMIT,
     variant_display_name,
     MAX_CHAT_LINES,
     TYPE_CHECKING,
@@ -54,7 +55,6 @@ except ImportError:
 
 log = logging.getLogger(__name__)
 
-MAX_HIGH_SCORE = 10
 MAX_PLY = 600
 KEEP_TIME = 1800  # keep game in app[games_key] for KEEP_TIME secs
 
@@ -348,11 +348,7 @@ class Game:
                         self.byoyomi_periods[cur_color] -= 1
                     else:
                         w, b = self.board.insufficient_material()
-                        if (
-                            (w and b)
-                            or (cur_color == "black" and w)
-                            or (cur_color == "white" and b)
-                        ):
+                        if (w and b) or (cur_color == BLACK and w) or (cur_color == WHITE and b):
                             result = "1/2-1/2"
                         else:
                             result = "1-0" if cur_color == BLACK else "0-1"
@@ -617,14 +613,11 @@ class Game:
 
     async def set_highscore(self, variant, chess960, value):
         self.app_state.highscore[variant + ("960" if chess960 else "")].update(value)
-        # We have to preserve previous top 10!
-        # See test_win_and_in_then_lost_and_out() in test.py
-        # if len(self.highscore[variant + ("960" if chess960 else "")]) > MAX_HIGH_SCORE:
-        #     self.highscore[variant + ("960" if chess960 else "")].popitem()
-
         new_data = {
             "scores": dict(
-                self.app_state.highscore[variant + ("960" if chess960 else "")].items()[:10]
+                self.app_state.highscore[variant + ("960" if chess960 else "")].items()[
+                    :MAX_HIGHSCORE_ITEM_LIMIT
+                ]
             )
         }
         try:
@@ -1069,7 +1062,7 @@ class Game:
             "gameId": self.id,
             "title": opp_player.title,
             "name": opp_player.username,
-            "rating": opp_rating,
+            "rating": int(opp_rating.rstrip("?")),
             "color": color,
             "result": self.result,
         }

@@ -21,6 +21,8 @@ from aiohttp.web_app import Application
 from aiohttp_session import SimpleCookieStorage
 from aiohttp_session.cookie_storage import EncryptedCookieStorage
 from aiohttp_session import setup
+import aiohttp_session
+
 from motor.motor_asyncio import AsyncIOMotorClient
 
 from typedefs import (
@@ -61,11 +63,18 @@ async def handle_404(request, handler):
         return await handler(request)
     except web.HTTPException as ex:
         if ex.status == 404:
+            theme = "dark"
+            session = await aiohttp_session.get_session(request)
+            session_user = session.get("user_name")
+            if session_user is not None:
+                user = await app_state.users.get(session_user)
+                theme = user.theme
             template = app_state.jinja["en"].get_template("404.html")
             text = await template.render_async(
                 {
                     "dev": DEV,
                     "home": URI,
+                    "theme": theme,
                     "view_css": "404.css",
                     "asseturl": STATIC_ROOT,
                     "js": "/static/pychess-variants.js%s%s" % (BR_EXTENSION, SOURCE_VERSION),
@@ -125,7 +134,7 @@ def make_app(db_client=None, simple_cookie_storage=False) -> Application:
 
     # Setup routes.
     for route in get_routes:
-        app.router.add_get(route[0], route[1])
+        app.router.add_get(route[0], route[1], allow_head=False)
     for route in post_routes:
         app.router.add_post(route[0], route[1])
     app.router.add_static("/static", "static", append_version=True)
@@ -162,7 +171,7 @@ async def shutdown(app):
 
     # notify users
     msg = "Server will restart in about 30 seconds. Sorry for the inconvenience!"
-    await app_state.lobby.lobby_chat("", msg)
+    # await app_state.lobby.lobby_chat("", msg)
 
     response = {"type": "roundchat", "user": "", "message": msg, "room": "player"}
     for game in [game for game in app_state.games.values() if not game.corr]:
