@@ -1064,10 +1064,10 @@ showdown@^2.1.0:
   dependencies:
     commander "^9.0.0"
 
-snabbdom@^3.5.1:
-  version "3.5.1"
-  resolved "https://registry.yarnpkg.com/snabbdom/-/snabbdom-3.5.1.tgz#25f80ef15b194baea703d9d5441892e369de18e1"
-  integrity sha512-wHMNIOjkm/YNE5EM3RCbr/+DVgPg6AqQAX1eOxO46zYNvCXjKP5Y865tqQj3EXnaMBjkxmQA5jFuDpDK/dbfiA==
+snabbdom@^3.6.2:
+  version "3.6.2"
+  resolved "https://registry.yarnpkg.com/snabbdom/-/snabbdom-3.6.2.tgz#57dd66878f6320497fa7f67941df356a045c75a1"
+  integrity sha512-ig5qOnCDbugFntKi6c7Xlib8bA6xiJVk8O+WdFrV3wxbMqeHO0hXFQC4nAhPVWfZfi8255lcZkNhtIBINCc4+Q==
 
 source-map-js@^1.2.0:
   version "1.2.0"
