@@ -1,6 +1,6 @@
-.tori .cg-wrap piece.ally {
+.tori piece.ally {
     background-image: url('../../images/pieces/disguised/shogi-ally.svg');
 }
-.tori .cg-wrap piece.enemy {
+.tori piece.enemy {
     background-image: url('../../images/pieces/disguised/shogi-enemy.svg');
 }

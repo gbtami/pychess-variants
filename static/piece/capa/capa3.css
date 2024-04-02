@@ -1,49 +1,49 @@
-.capa .cg-wrap piece.a-piece.white {
+.capa piece.a-piece.white {
     background-image: url('../../images/pieces/merida/wAr.svg');
 }
-.capa .cg-wrap piece.c-piece.white {
+.capa piece.c-piece.white {
     background-image: url('../../images/pieces/merida/wCh.svg');
 }
-.capa .cg-wrap piece.a-piece.black {
+.capa piece.a-piece.black {
     background-image: url('../../images/pieces/merida/bAr.svg');
 }
-.capa .cg-wrap piece.c-piece.black {
+.capa piece.c-piece.black {
     background-image: url('../../images/pieces/merida/bCh.svg');
 }
 
-.capa .cg-wrap piece.p-piece.white {
+.capa piece.p-piece.white {
     background-image: url('../../images/pieces/merida/wP.svg');
 }
-.capa .cg-wrap piece.b-piece.white {
+.capa piece.b-piece.white {
     background-image: url('../../images/pieces/merida/wB.svg');
 }
-.capa .cg-wrap piece.n-piece.white {
+.capa piece.n-piece.white {
     background-image: url('../../images/pieces/merida/wN.svg');
 }
-.capa .cg-wrap piece.r-piece.white {
+.capa piece.r-piece.white {
     background-image: url('../../images/pieces/merida/wR.svg');
 }
-.capa .cg-wrap piece.q-piece.white {
+.capa piece.q-piece.white {
     background-image: url('../../images/pieces/merida/wQ.svg');
 }
-.capa .cg-wrap piece.k-piece.white {
+.capa piece.k-piece.white {
     background-image: url('../../images/pieces/merida/wK.svg');
 }
-.capa .cg-wrap piece.p-piece.black {
+.capa piece.p-piece.black {
     background-image: url('../../images/pieces/merida/bP.svg');
 }
-.capa .cg-wrap piece.b-piece.black {
+.capa piece.b-piece.black {
     background-image: url('../../images/pieces/merida/bB.svg');
 }
-.capa .cg-wrap piece.n-piece.black {
+.capa piece.n-piece.black {
     background-image: url('../../images/pieces/merida/bN.svg');
 }
-.capa .cg-wrap piece.r-piece.black {
+.capa piece.r-piece.black {
     background-image: url('../../images/pieces/merida/bR.svg');
 }
-.capa .cg-wrap piece.q-piece.black {
+.capa piece.q-piece.black {
     background-image: url('../../images/pieces/merida/bQ.svg');
 }
-.capa .cg-wrap piece.k-piece.black {
+.capa piece.k-piece.black {
     background-image: url('../../images/pieces/merida/bK.svg');
 }

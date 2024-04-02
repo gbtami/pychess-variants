@@ -1,49 +1,49 @@
-.shako .cg-wrap piece.e-piece.white {
+.shako piece.e-piece.white {
     background-image: url('../../images/pieces/merida/shako/wE.svg');
 }
-.shako .cg-wrap piece.c-piece.white {
+.shako piece.c-piece.white {
     background-image: url('../../images/pieces/merida/shako/wC.svg');
 }
-.shako .cg-wrap piece.e-piece.black {
+.shako piece.e-piece.black {
     background-image: url('../../images/pieces/merida/shako/bE.svg');
 }
-.shako .cg-wrap piece.c-piece.black {
+.shako piece.c-piece.black {
     background-image: url('../../images/pieces/merida/shako/bC.svg');
 }
 
-.shako .cg-wrap piece.p-piece.white {
+.shako piece.p-piece.white {
     background-image: url('../../images/pieces/merida/wP.svg');
 }
-.shako .cg-wrap piece.b-piece.white {
+.shako piece.b-piece.white {
     background-image: url('../../images/pieces/merida/wB.svg');
 }
-.shako .cg-wrap piece.n-piece.white {
+.shako piece.n-piece.white {
     background-image: url('../../images/pieces/merida/wN.svg');
 }
-.shako .cg-wrap piece.r-piece.white {
+.shako piece.r-piece.white {
     background-image: url('../../images/pieces/merida/wR.svg');
 }
-.shako .cg-wrap piece.q-piece.white {
+.shako piece.q-piece.white {
     background-image: url('../../images/pieces/merida/wQ.svg');
 }
-.shako .cg-wrap piece.k-piece.white {
+.shako piece.k-piece.white {
     background-image: url('../../images/pieces/merida/wK.svg');
 }
-.shako .cg-wrap piece.p-piece.black {
+.shako piece.p-piece.black {
     background-image: url('../../images/pieces/merida/bP.svg');
 }
-.shako .cg-wrap piece.b-piece.black {
+.shako piece.b-piece.black {
     background-image: url('../../images/pieces/merida/bB.svg');
 }
-.shako .cg-wrap piece.n-piece.black {
+.shako piece.n-piece.black {
     background-image: url('../../images/pieces/merida/bN.svg');
 }
-.shako .cg-wrap piece.r-piece.black {
+.shako piece.r-piece.black {
     background-image: url('../../images/pieces/merida/bR.svg');
 }
-.shako .cg-wrap piece.q-piece.black {
+.shako piece.q-piece.black {
     background-image: url('../../images/pieces/merida/bQ.svg');
 }
-.shako .cg-wrap piece.k-piece.black {
+.shako piece.k-piece.black {
     background-image: url('../../images/pieces/merida/bK.svg');
 }

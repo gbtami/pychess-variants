@@ -1,39 +1,39 @@
-.standard .cg-wrap piece._-piece {
+.standard piece._-piece {
     background-image: url('../../images/pieces/green/Duck.svg');
 }
-.standard .cg-wrap piece.p-piece.white {
+.standard piece.p-piece.white {
     background-image: url('../../images/pieces/green/wP.svg');
 }
-.standard .cg-wrap piece.b-piece.white {
+.standard piece.b-piece.white {
     background-image: url('../../images/pieces/green/wB.svg');
 }
-.standard .cg-wrap piece.n-piece.white {
+.standard piece.n-piece.white {
     background-image: url('../../images/pieces/green/wN.svg');
 }
-.standard .cg-wrap piece.r-piece.white {
+.standard piece.r-piece.white {
     background-image: url('../../images/pieces/green/wR.svg');
 }
-.standard .cg-wrap piece.q-piece.white {
+.standard piece.q-piece.white {
     background-image: url('../../images/pieces/green/wQ.svg');
 }
-.standard .cg-wrap piece.k-piece.white {
+.standard piece.k-piece.white {
     background-image: url('../../images/pieces/green/wK.svg');
 }
-.standard .cg-wrap piece.p-piece.black {
+.standard piece.p-piece.black {
     background-image: url('../../images/pieces/green/bP.svg');
 }
-.standard .cg-wrap piece.b-piece.black {
+.standard piece.b-piece.black {
     background-image: url('../../images/pieces/green/bB.svg');
 }
-.standard .cg-wrap piece.n-piece.black {
+.standard piece.n-piece.black {
     background-image: url('../../images/pieces/green/bN.svg');
 }
-.standard .cg-wrap piece.r-piece.black {
+.standard piece.r-piece.black {
     background-image: url('../../images/pieces/green/bR.svg');
 }
-.standard .cg-wrap piece.q-piece.black {
+.standard piece.q-piece.black {
     background-image: url('../../images/pieces/green/bQ.svg');
 }
-.standard .cg-wrap piece.k-piece.black {
+.standard piece.k-piece.black {
     background-image: url('../../images/pieces/green/bK.svg');
 }
