@@ -154,7 +154,7 @@
   vertical-align: middle;
   opacity: 0.6;
 }
-.modal-content [data-icon]:before, header [data-icon]:before, header , [class*=' icon-']:before {
+.modal-content [data-icon]:before, header [data-icon]:before, [class*=' icon-']:before {
   opacity: 0.9;
 }
 .icon-puzzle:before {
