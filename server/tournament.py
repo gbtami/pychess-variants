@@ -715,19 +715,6 @@ class Tournament(ABC):
             self.app_state.games[game_id] = game
             await insert_game_to_db(game, self.app_state)
 
-            # TODO: save new pairing to db
-            if 0:
-                doc = {
-                    "_id": game.id,
-                    "tid": self.id,
-                    "u": [game.wplayer.username, game.bplayer.username],
-                    "r": "*",
-                    "d": game.date,
-                    "wr": game.wrating,
-                    "br": game.brating,
-                }
-                await self.app_state.db.tournament_pairing.insert_one(doc)
-
             self.players[wp].games.append(game)
             self.players[bp].games.append(game)
 
