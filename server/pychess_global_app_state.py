@@ -252,14 +252,15 @@ class PychessGlobalAppState:
 
             async for doc in cursor:
                 # Don't load old uninished games if they are NOT corr games
-                if doc["d"] < today - timedelta(days=1) and not doc["c"]:
-                    break
+                corr = doc.get("c", False)
+                if doc["d"] < today - timedelta(days=1) and not corr:
+                    continue
 
                 if doc["s"] < ABORTED:
                     try:
                         game = await load_game(self, doc["_id"])
                         self.games[doc["_id"]] = game
-                        if doc["c"]:
+                        if corr:
                             game.wplayer.correspondence_games.append(game)
                             game.bplayer.correspondence_games.append(game)
                             game.stopwatch.restart(from_db=True)
