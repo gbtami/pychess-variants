@@ -20,7 +20,7 @@ All other rules are as in Capablanca chess.
 
 ![Archbishop](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Princesses.png)
 
-Various symbols used for the archbishop. (Note that the hawk is only for Seirawan Chess)
+Various symbols used for the archbishop. (Note that the hawk is only for Seirawan Chess).
 
 ![Archbishop moves](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Archbishop.png)
 
