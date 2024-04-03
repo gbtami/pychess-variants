@@ -978,7 +978,6 @@ export const noPuzzleVariants = [
     "minishogi",
     "gorogoroplus",
     "manchu",
-    "dragon",
     "grandhouse",
     "shinobi",
     "shinobiplus",
