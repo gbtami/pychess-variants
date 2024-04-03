@@ -87,6 +87,7 @@ span.page {
     position: relative;
     background-color: var(--bg-color2);
     box-shadow: var(--base-shadow);
+    height: 40px;
 }
 .btn-controls i {
     font-size: 1.2em;
