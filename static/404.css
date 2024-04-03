@@ -16,8 +16,8 @@ div.not-found {
     color: #b3b3b3;
     margin: 0 2rem 0 0;
 }
-.not-found .header p {
-    padding: 0;
+.not-found .main-game-body p {
+    padding: 0.2em;
 }
 .not-found .header strong {
     text-transform: uppercase;
