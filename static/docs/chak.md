@@ -140,7 +140,7 @@ Endgames often boil down to getting the king to the Altar faster then our oppone
 ### King vs King
 ![KvsKzugzwang](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChakGuide/KvsKzugzwang.png)
 
-With the king being the only defender's piece, the win is pretty easy. The attacker only needs to reach a position with their king on the side of the altar and the defending king in the corner with the defending side to move. Then, the defender is forced to move their king away from the temple, allowing the attacker to move their king to the altar. 
+With the king being the only defender's piece, the win is pretty easy. The attacker only needs to reach a position with their king on the side of the altar and the defending king in the corner with the defender to move. Then, the defender is forced to move their king away from the temple, allowing the attacker to move their king to the altar. 
 
 With the offering still there, the attacker can still win, but it's trickier. What the attacker should be aiming for is not altar mate, but rather this stalemate:
 
