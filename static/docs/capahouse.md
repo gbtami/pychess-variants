@@ -30,13 +30,13 @@ The piece is often symbolized with a combination of a knight and bishop; most va
 
 The archbishop is unique in that it is the only piece that can checkmate on its own, which you may be able to appreciate if you look at its movement/attack pattern.
 
-The value of an archbishop is considered slightly better than a rook, but less than the chancellor and queen.
+The value of an archbishop is considered slightly better than a rook, but less than the chancellor or queen.
 
 ### Chancellor
 
 ![Chancellor](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Empresses.png)
 
-Various symbols used for the chancellor. (Note that the elephant is only for Seirawan Chess)
+Various symbols used for the chancellor. (Note that the elephant is only for Seirawan Chess).
 
 ![Chancellor moves](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Chancellor.png)
 
@@ -48,4 +48,4 @@ The value of a chancellor is considered better than an archbishop, but equivalen
 
 ## Strategy
 
-As in standard crazyhouse, the piece values don't align with the chess piece values, and as in standard crazyhouse, sacrificing material for fast development, attacks on the enemy King, or just for defence, are often wise. Sometimes it is better to reinforce defenders around one's King rather than try to save them. Here we may refer you to sources in standard crazyhouse strategy...
+As in standard crazyhouse, the piece values don't align with the chess piece values, and as in standard crazyhouse, sacrificing material for fast development, attacks on the enemy King, or just for defence are often wise. Sometimes it is better to reinforce defenders around one's King rather than try to save them. Here we may refer you to sources in standard crazyhouse strategy...
