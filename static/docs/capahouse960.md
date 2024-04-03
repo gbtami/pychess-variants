@@ -18,9 +18,10 @@ Drops can be performed with captured pieces, which would be done in lieu of movi
 
 The starting bottom ranks are randomized, but two rules must be followed:
 
-The bishops must be placed on opposite-color squares.
-The king must be placed on a square between the rooks.
-Castling is the other major rule to take note of. Basically, regardless of where the rooks are, if you castle, the end position will be the same as if the rooks were in standard position.
+* The bishops must be placed on opposite-color squares.
+* The king must be placed on a square between the rooks.
+
+Castling is the other major rule to take note of. Basically, regardless of where the rooks are, if you castle, the end position will be the same as if the rooks were in standard position. For example, a queenside castle will result with the king on the c file and the rook on the d file (notation: 0-0-0).
 
 ## New Pieces
 
@@ -28,7 +29,7 @@ Castling is the other major rule to take note of. Basically, regardless of where
 
 ![Archbishop](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Princesses.png)
 
-Various symbols used for the archbishop. (Note that the hawk is only for Seirawan Chess)
+Various symbols used for the archbishop. (Note that the hawk is only for Seirawan Chess).
 
 ![Archbishop moves](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Archbishop.png)
 
@@ -38,13 +39,13 @@ The piece is often symbolized with a combination of a knight and bishop; most va
 
 The archbishop is unique in that it is the only piece that can checkmate on its own, which you may be able to appreciate if you look at its movement/attack pattern.
 
-The value of an archbishop is considered slightly better than a rook, but less than the chancellor and queen.
+The value of an archbishop is considered slightly better than a rook, but less than the chancellor or queen.
 
 ### Chancellor
 
 ![Chancellor](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Empresses.png)
 
-Various symbols used for the chancellor. (Note that the elephant is only for Seirawan Chess)
+Various symbols used for the chancellor. (Note that the elephant is only for Seirawan Chess).
 
 ![Chancellor moves](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Chancellor.png)
 
