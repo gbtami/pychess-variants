@@ -62,12 +62,12 @@ div.main-game-body {
     }
 
     #rules {
-      padding: 2em;
+      padding: 1em;
       background: var(--bg-color2);
       box-shadow: var(--base-shadow);
       text-align: center;
       font-size: 16px;
-      margin-bottom: 20px;
+      margin-bottom: 30px;
     }
 
     #reset-button {
