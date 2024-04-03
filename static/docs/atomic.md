@@ -4,7 +4,7 @@ _Nuke your opponent's king to win!_
 
 ## Rules
 
-* In addition to standard rules, all captures cause an explosion by which the captured piece, the piece used to capture, and all surrounding pieces except pawns that are within a one square radius are removed from the board.
+* In addition to standard rules, all captures cause an explosion by which the captured piece, the piece used to capture, and all surrounding pieces except pawns that are within a one-square radius are removed from the board.
 * Thus, it is illegal to capture a piece right next to your king or capture a piece with the king.
 * Traditional checkmate applies to atomic as well, **but any move that results in blowing up the opposite king will result in an immediate victory, overriding all checks and checkmates.**
 
@@ -12,7 +12,7 @@ This lichess study explains the rules of atomic chess in detail: [https://liches
 
 ## Clarification
 
-In Atomic the kings can be connected by moving one into the adjacent squares of the other side’s king. **When the kings are connected, checks do not apply.** As it is illegal for a capture to blow up your own king, it is not possible to capture the other king directly. To win such an endgame, it is necessary to cause the kings to detach by zugzwang or explode a piece of the opposite color while the enemy king is next to it.
+In Atomic the kings can be connected by moving one into the adjacent squares of the other side’s king. **When the kings are connected, checks do not apply.** As it is illegal for a capture to blow up your king, it is not possible to capture the other king directly. To win such an endgame, it is necessary to cause the kings to detach by zugzwang or explode a piece of the opposite color while the enemy king is next to it.
 
 ## Strategy
 
