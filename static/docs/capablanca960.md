@@ -47,4 +47,4 @@ The chancellor (C) is a compound piece combining the moves of the **rook** and t
 
 The piece is often symbolized with a combination of a knight and rook; most variants often do not specify how the piece should look otherwise (which is why we offer different piece sets to choose from).
 
-The value of a chancellor is considered better than an archbishop, but equivalent or slightly less than a queen.
+The value of a chancellor is considered better than an archbishop, but equivalent to or slightly less than a queen.
