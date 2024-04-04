@@ -1544,6 +1544,7 @@ table.seeks {
 /* The Modal (background) */
 .modal {
   display: none; /* Hidden by default */
+  align-items: center;
   position: fixed; /* Stay in place */
   z-index: 999; /* Sit on top */
   left: 0;
@@ -1552,9 +1553,8 @@ table.seeks {
   height: 100%; /* Full height */
   background-color: rgb(0, 0, 0); /* Fallback color */
   background-color: rgba(0, 0, 0, 0.4); /* Black w/ opacity */
-  padding-top: 60px;
+  padding-top: 16px;
 }
-
 /* Input fields */
 select,
 input {
@@ -1620,11 +1620,17 @@ input {
 
 /* Modal Content/Box */
 .modal-content {
+  display: flex;
+  flex-flow: column;
+  max-height: 100%;
   background-color: var(--modal-bg);
   margin: 0 auto;
   border-radius: 10px;
   width: 30%; /* Could be more or less, depending on screen size */
   border: 1px solid var(--bg-color2);
+}
+.modal-content > div {
+  overflow: auto;
 }
 
 .modal-content h2{
