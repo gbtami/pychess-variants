@@ -11,6 +11,7 @@ let hasFlippedCard = false;
 let lockBoard = false; 
 let firstCard, secondCard; 
 let moves = 0;
+let pairsFound = 0;
 
 function flipCard() {
     if (lockBoard) return;
@@ -41,6 +42,11 @@ function CheckForMatch() {
 function disableCards() {
     firstCard.removeEventListener('click', flipCard)
     secondCard.removeEventListener('click', flipCard)
+    pairsFound ++;
+
+    if (pairsFound === 8) {
+        movesDisplay.textContent = `You found all the pairs in ${moves} moves!`;
+    }
 
     resetBoard();
 }
@@ -49,10 +55,10 @@ function unflipCards() {
     lockBoard = true;
 
     setTimeout( () => {
-    firstCard.classList.remove('flip')
-    secondCard.classList.remove('flip')
+        firstCard.classList.remove('flip')
+        secondCard.classList.remove('flip')
 
-    resetBoard();
+        resetBoard();
     }, 700)
 }
 
