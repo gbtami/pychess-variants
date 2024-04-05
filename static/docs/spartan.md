@@ -65,7 +65,7 @@ The captain (*tyntagmatarchos*) moves one or two squares in any direction orthog
 
 ![Lieutenant](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/SpartanLieutenant.png)
  
-The lieutenant (*tagmatarchos*) moves one or two squares in any direction diagonally or can move (but not capture) one square sideways. It can jump over blocking friendly/enemy pieces from reaching the second square. 
+The lieutenant (*tagmatarchos*) moves one or two squares in any direction diagonally or can move (but not capture) one square sideways. It can jump over blocking friendly/enemy pieces to reach the second square. 
  
 ## Piece valuation
 
