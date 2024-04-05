@@ -2,7 +2,7 @@
 
 ![Ouk Chaktrang](https://github.com/gbtami/pychess-variants/blob/master/static/images/MakrukGuide/Makruk.png?raw=true)
 
-*Ouk Chaktrang*, or Cambodian Chess, is a form of chess played in Cambodia. Its rules are similar to *Makruk*, the Thai Chess, with some special opening moves and slight differences. Ouk Chaktrang offers a taste of ancient Chess in its original form before the introduction of modern rules quickened the pace. The game is plenty of fun in its own right with its balance and dynamics. The slightly slower pace can provide a good way to cultivate patience and hone strategic thinking.
+*Ouk Chaktrang*, or Cambodian Chess, is the form of chess played in Cambodia. Its rules are similar to *Makruk*, the Thai Chess, with some special opening moves and slight differences. Ouk Chaktrang offers a taste of ancient Chess in its original form before the introduction of modern rules quickened the pace. The game is plenty of fun in its own right with its balance and dynamics. The slightly slower pace can provide a good way to cultivate patience and hone strategic thinking.
 
 ## Rules
 
