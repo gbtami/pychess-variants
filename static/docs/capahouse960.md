@@ -39,7 +39,7 @@ The piece is often symbolized with a combination of a knight and bishop; most va
 
 The archbishop is unique in that it is the only piece that can checkmate on its own, which you may be able to appreciate if you look at its movement/attack pattern.
 
-The value of an archbishop is considered slightly better than a rook, but less than the chancellor or queen.
+The value of an archbishop is considered slightly better than a rook, but less than the chancellor and queen.
 
 ### Chancellor
 
