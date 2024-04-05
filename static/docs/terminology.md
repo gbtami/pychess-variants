@@ -82,7 +82,7 @@ Games played in one sitting use a main timer set anywhere from 1 minute to 60 mi
 
 ![Skewer example](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Skewer.png)
 
-**Discovered attack** - One of your pieces would normally threaten an opposing piece but is blocked by one of your own pieces. Moving your blocking piece (and often threatening another piece at the same time), opens up the piece behind it to attack, which is called a discovered attack. Discovered attacks are particularly prominent in Xiangqi. 
+**Discovered attack** - One of your pieces would normally threaten an opposing piece but is blocked by one of your own pieces. Moving your blocking piece (and often threatening another piece at the same time) opens up the piece behind it to attack, which is called a discovered attack. Discovered attacks are particularly prominent in Xiangqi. 
 
 ![Discovered attack example](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Discovery.png)
 
