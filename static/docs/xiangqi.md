@@ -187,7 +187,7 @@ The most common opening move is the central cannon, which is a pretty obvious mo
 
 ![Cannon opening](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/CannonOpening.png)
 
-There are four very popular defenses and a fifth will also be mentioned.
+There are four very popular defenses, and a fifth will also be mentioned.
 
 **1. Screen horses / Two horse defense**
 
