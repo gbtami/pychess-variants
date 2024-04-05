@@ -1,10 +1,10 @@
 # Terminology
 
-Throughout the site and in the guides, many different terms are used. Many of these terms are global and apply to all chess variants, some apply to several (byo-yomi), and some may have different implications depending the variant (e.g. stalemate). Any terms that apply to a single variant will be discussed there (e.g. many shogi terms). This page serves as a reference to hopefully clear up any confusion!
+Throughout the site and in the guides, many different terms are used. Many of these terms are global and apply to all chess variants, some apply to several (byo-yomi), and some may have different implications depending on the variant (e.g. stalemate). Any terms that apply to a single variant will be discussed there (e.g. many shogi terms). This page serves as a reference to hopefully clear up any confusion!
 
 # "Chess Variants"
 
-Probably the most important term to clarify first is what a "**chess variant**" is. There is no doubt that games like Bughouse and Crazyhouse are chess variants, because they're derived from chess. However, regional games such as Xiangqi, Shogi, Janggi, and Makruk are all also labeled "chess variants," and this may cause confusion.
+Probably the most important term to clarify first is what a "**chess variant**" is. There is no doubt that games like Bughouse and Crazyhouse are chess variants because they're derived from chess. However, regional games such as Xiangqi, Shogi, Janggi, and Makruk are all also labeled "chess variants," and this may cause confusion.
 
 The biggest library for chess variants, chessvariants.com has an entire article dedicated to the topic of ["What is a chess variant?"](https://www.chessvariants.com/what.html). At Pychess, we share the same sentiments. For the sake of brevity, "chess variant" means any turn-based strategy game, derived from Chatturanga, where pieces have distinct movements, and the goal is to capture or "checkmate" the opponent's king. Even though eastern variants are not derived from chess, they share a common ancestor, and their names for the game all mean "chess." In this manner, the "chess" in chess variant instead means a general concept of chess-like game, rather than the international FIDE chess. This is analogous to sports, where "football" has a different meaning in different regions.
 
@@ -14,7 +14,7 @@ As chess variants can mean both variants directly based on international chess, 
 
 **Fairy piece** - A piece not used in conventional chess, with the word "fairy" connotating "invented." It's unclear if pieces native to regional variants are considered "fairy pieces," but we favor not using this term for established games. However, a xiangqi cannon appearing in a chess variant (as in Shako), or a bishop appearing in a xiangqi variant would count as "fairy pieces," because they don't exist in the native game.
 
-It should be noted that several pieces have the same piece-type, but different names. For example, the "rook" and "chariot" both referring to the same piece. The name should reflect the name used in the game being played.
+It should be noted that several pieces have the same piece-type, but different names. For example, the "rook" and "chariot" both refer to the same piece. The name should reflect the name used in the game being played.
 
 ## Classification
 
@@ -24,7 +24,7 @@ Because fairy pieces introduce dozens of possible pieces, there is a classificat
 
 **Leapers** are pieces that have fixed movements and cannot be obstructed to reach their destination. The knight in chess is a classic example. The horse in xiangqi and janggi is a modified leaper because it can be blocked. Similar pieces have also been referred to as "lame leapers."
 
-**Hoppers** are pieces that must first jump over another piece before it can move or capture. There are no hoppers in chess, but the cannon in Xiangqi (captures orthogonally by jumping over another piece first) as well as a different cannon in Janggi (both moves and captures orthogonally by jumping over another piece first) are the classic hoppers. (Note that technically, the xiangqi cannon is technically a hybrid rider-hopper because of its rider movement and hopper capture, while the janggi cannon is a pure hopper) 
+**Hoppers** are pieces that must first jump over another piece before it can move or capture. There are no hoppers in chess, but the cannon in Xiangqi (captures orthogonally by jumping over another piece first) as well as a different cannon in Janggi (both moves and captures orthogonally by jumping over another piece first) are the classic hoppers. (Note that technically, the xiangqi cannon is a hybrid rider-hopper because of its rider movement and hopper capture, while the janggi cannon is a pure hopper) 
 
 **Compound pieces** are pieces that combine the moves of two simple pieces. The chess queen, which combines the rook and bishop, is a classic example. Many fairy pieces are compound pieces.
 
@@ -32,11 +32,11 @@ Because fairy pieces introduce dozens of possible pieces, there is a classificat
 
 # Time Control
 
-Time controls determine the time restrictions that govern ending the game due to one player taking too long to move. One type of game, called **correspondence** games, uses long time controls of at least several hours, typically counted in days. Players typically play their moves whenever they happen to have a break in their day. As of now, correspondence is not available on Pychess, where games are instead meant to be finished in one sitting.
+Time controls determine the time restrictions that govern ending the game due to one player taking too long to move. One type of game, called **correspondence** games, uses long time controls of at least several hours, typically counted in days. Players typically play their moves whenever they happen to have a break in their day. Correspondence games are available on Pychess.
 
-Games played in one sitting use a main timer set anywhere from 1 minute to 60 minutes typically, with each player having their own timer. A player may or may not have extra time throughout the game. There are three main timer types that dictate how extra time is given:
+Games played in one sitting use a main timer set anywhere from 1 minute to 60 minutes typically, with each player having their own timer. A player may or may not have extra time throughout the game. Three main timer types dictate how extra time is given:
 
-1. **(Fischer) Increment** - Every time a player ends his turn, he/she gains a fixed amount of time to their clock. A game in Pychess labeled as "10+15" means 10 *minutes* on the starting timer, and a 15 second increment. This is the standard used for most variants.
+1. **(Fischer) Increment** - Every time a player ends his turn, he/she gains a fixed amount of time to their clock. A game in Pychess labeled as "10+15" means 10 *minutes* on the starting timer and a 15 second increment. This is the standard used for most variants.
 
 2. **Byo-yomi** - (Japanese for countdown) Once a player's main clock expires, he has a fixed amount of time to take his/her turns from that point on (i.e. extra time). This system is used in Shogi and Janggi. Multiple byo-yomi periods can be used, typically in Janggi. For example, if there are 3 periods, then that player can drain the clock up to 2 times before losing on the 3rd. This can be useful in a critical move, where a single period of byo-yomi is not enough time to assess the situation carefully. A game in Pychess labeled as "10+3x30(b)" means 10 *minutes* on the starting timer, then 3 periods of 30 second byo-yomi.
 
@@ -48,7 +48,7 @@ Games played in one sitting use a main timer set anywhere from 1 minute to 60 mi
 
 **Checkmate** - The primary goal in chess, where the king cannot escape check. The player that is checkmated loses.
 
-**Stalemate** - When the king is not in check, but has no valid moves. In chess, this is a draw, but in many variants (such as xiangqi), it is a loss for the player that's stalemated.
+**Stalemate** - When the king is not in check, but has no valid moves. In chess, this is a draw, but in many variants (such as xiangqi), it is a loss for the stalemated player.
 
 **Repetition** - When the board state repeats itself, usually at least three times. This is often due to pieces chasing each other. Different variants handle repetition differently. Even within the same game, different federations have different rules for repetition.
 
@@ -82,13 +82,13 @@ Games played in one sitting use a main timer set anywhere from 1 minute to 60 mi
 
 ![Skewer example](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Skewer.png)
 
-**Discovered attack** - One of your pieces would normally threaten an opposing piece, but is blocked by one of your own pieces. By moving your blocking piece (and often threatening another piece at the same time), this opens up the piece behind it to attack, which is called a discovered attack. Discovered attacks are particularly prominent in Xiangqi. 
+**Discovered attack** - One of your pieces would normally threaten an opposing piece but is blocked by one of your own pieces. Moving your blocking piece (and often threatening another piece at the same time), opens up the piece behind it to attack, which is called a discovered attack. Discovered attacks are particularly prominent in Xiangqi. 
 
 ![Discovered attack example](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Discovery.png)
 
 In this situation, moving the knight to threaten the black queen also opens a discovered check on the king by the rook. Since black must respond to the check, white can then take the queen. 
 
-**Sacrifice** - Losing material value in order to gain a better position.
+**Sacrifice** - Losing material value to gain a better position.
 
 ![Sacrifice example](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Sacrifice.png)
 
