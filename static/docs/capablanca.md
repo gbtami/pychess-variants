@@ -8,7 +8,7 @@ Capablanca chess (or Capablanca's chess) was created by World Chess Champion Jos
 
 The game is played on a 10 x 8 board, with additional files for the new Archbishop (Knight/Bishop) and Chancellor (Knight/Rook) pieces between the Bishop and Knight. The archbishop is on the queen side, and the chancellor is on the king side. For castling, the king then moves three squares instead of two. Pawns may promote to the archbishop and chancellor as well.
 
-There are several variants that have different starting positions. On this site, Capablanca960 is one such variant available, where the  starting positions are randomized.
+There are several variants that have different starting positions. On this site, Gothic chess is one such variant available, where the starting positions are swapped. These can be played by setting the "alternate start" in any new game dialog.
 
 ## New Pieces
 
@@ -26,7 +26,7 @@ The piece is often symbolized with a combination of a knight and bishop; most va
 
 The archbishop is unique in that it is the only piece that can checkmate on its own, which you may be able to appreciate if you look at its movement/attack pattern.
 
-The value of an archbishop is considered slightly better than a rook, but less than the chancellor or queen.
+The value of an archbishop is considered slightly better than a rook, but less than the chancellor and queen.
 
 ### Chancellor
 
