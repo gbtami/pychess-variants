@@ -4,7 +4,7 @@
 
 Spartan Chess is a chess variant created by Steven Streetman (rules recorded in 2010) and is one of the most popular variants to use asymmetric armies. This was also balanced before the time of modern engines such as Fairy Stockfish. 
 
-Spartan Chess reflects the asymmetric war between the ancient Spartans and Persians. The Black side represents the Spartans and the White the Persians. The Persians have pawns, pieces, initial placement, and piece moves in accord with the rules of orthodox chess. The Spartans have two kings, and except their kings, every Spartan playing piece moves differently from any piece found in orthodox chess.
+Spartan Chess reflects the asymmetric war between the ancient Spartans and Persians. The Black side represents the Spartans and the White the Persians. The Persians have pawns, pieces, initial placement, and piece moves in accord with the rules of orthodox chess. The Spartans have two kings, and with the exception of their kings, every Spartan playing piece moves differently from any piece found in orthodox chess.
  
 ## General Rules
 1.	Setup is as above.
