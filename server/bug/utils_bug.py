@@ -503,12 +503,11 @@ async def play_move(
         if app_state.tv == gameId:
             await app_state.lobby.lobby_broadcast(board_response)
 
+
 async def handle_accept_seek_bughouse(app_state: PychessGlobalAppState, user, data, seek):
     response = await join_seek_bughouse(app_state, user, data["seekID"], None, data["joinAs"])
     bug_users = set(
-        filter(
-            lambda item: item is not None, [seek.player2, seek.bugPlayer1, seek.bugPlayer2]
-        )
+        filter(lambda item: item is not None, [seek.player2, seek.bugPlayer1, seek.bugPlayer2])
     )
     for u in bug_users:
         for s in u.lobby_sockets:

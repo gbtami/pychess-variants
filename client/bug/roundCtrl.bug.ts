@@ -38,6 +38,8 @@ import { notify } from "../notification";
 import { VARIANTS } from "../variants";
 import { createWebsocket } from "@/socket/webSocketUtils";
 import AnalysisControllerBughouse from "@/bug/analysisCtrl.bug";
+import {boardSettings} from "@/boardSettings";
+import {ChessgroundController} from "@/cgCtrl";
 
 export class RoundControllerBughouse implements ChatController {
     sock: WebsocketHeartbeatJs;
@@ -379,6 +381,10 @@ export class RoundControllerBughouse implements ChatController {
         Promise.all([this.b1.ffishPromise, this.b2.ffishPromise]).then(() => {
             this.onMsgBoard(model["board"] as MsgBoard);
         });
+
+        // todo: boardsettings code is called also in cgCrtl constructor twice already as part of initializing b1 and b2
+        //       think how to avoid this
+        initBoardSettings(this.b1, this.b2, model.assetURL);
     }
 
 
@@ -1004,8 +1010,12 @@ export class RoundControllerBughouse implements ChatController {
         const fenA = fens[0];
         const fenB = fens[1];
 
-        const boardName = msg.steps[msg.steps.length - 1].boardName as 'a' | 'b';//todo:niki:change this to step[0] if/when that board message is fixed to have just one element in steps and stop always sending that redundnat initial dummy step (if it is indeed redundant)
-        //todo:niki:update to above's todo, actually it sometimes sends it with 2 elements, sometimes just with one - gotta check what is wrong with python code and how it works in other variants. for now always getting the last element should be robust in all cases
+        //todo:niki:change this to step[0] if/when that board message is fixed to have just one element in steps and
+        //     stop always sending that redundnat initial dummy step (if it is indeed redundant)
+        //todo:niki:update to above's todo, actually it sometimes sends it with 2 elements, sometimes just with one -
+        // gotta check what is wrong with python code and how it works in other variants. for now always getting the
+        // last element should be robust in all cases
+        const boardName = msg.steps[msg.steps.length - 1].boardName as 'a' | 'b';
         const board = boardName === 'a' ? this.b1 : this.b2;
         const colors = boardName === 'a' ? this.colors : this.colorsB;
 
@@ -1331,4 +1341,18 @@ export function switchBoards(ctrl: RoundControllerBughouse| AnalysisControllerBu
 
         ctrl.b1.chessground.redrawAll();
         ctrl.b2.chessground.redrawAll();
+}
+
+export function initBoardSettings(b1: ChessgroundController, b2: ChessgroundController, assetURL: string) {
+    boardSettings.ctrl = b1;
+    boardSettings.ctrl2 = b2;
+    boardSettings.assetURL = assetURL;
+
+    const boardFamily = this.variant.boardFamily;
+    const pieceFamily = this.variant.pieceFamily;
+
+    boardSettings.updateBoardStyle(boardFamily);
+    boardSettings.updatePieceStyle(pieceFamily);
+    boardSettings.updateZoom(boardFamily);
+    boardSettings.updateBlindfold();
 }

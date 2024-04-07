@@ -21,7 +21,7 @@ import { MsgAnalysis } from "../analysisType";
 import ffishModule from "ffish-es6";
 import { titleCase } from "@/analysisCtrl";
 import { movetimeChart } from "./movetimeChart.bug";
-import { switchBoards } from "@/bug/roundCtrl.bug";
+import {initBoardSettings, switchBoards} from "@/bug/roundCtrl.bug";
 
 const EVAL_REGEX = new RegExp(''
   + /^info depth (\d+) seldepth \d+ multipv (\d+) /.source
@@ -232,6 +232,11 @@ export default class AnalysisControllerBughouse {
 ``
         //
         this.onMsgBoard(model["board"] as MsgBoard);
+
+
+        // todo: boardsettings code is called also in cgCrtl constructor twice already as part of initializing b1 and b2
+        //       think how to avoid this
+        initBoardSettings(this.b1, this.b2, model.assetURL);
     }
 
     pvboxIni() {

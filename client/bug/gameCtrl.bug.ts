@@ -9,8 +9,6 @@ import {PyChessModel} from "../types";
 import {RoundControllerBughouse} from "./roundCtrl.bug";
 import {premove} from "chessgroundx/premove";
 import {predrop} from "chessgroundx/predrop";
-import {boardSettings} from "@/boardSettings";
-import {FEN} from "chessgroundx/types";
 import {uci2LastMove} from "@/chess";
 
 export class GameControllerBughouse extends GameController {
@@ -25,7 +23,7 @@ export class GameControllerBughouse extends GameController {
         this.boardName = boardName;
         const fens = model.fen.split(" | ");
         this.fullfen = this.boardName === "a" ? fens[0]: fens[1];
-        this.chessground = this.createGround(el, elPocket1, elPocket2, this.fullfen, model.assetURL);
+        this.chessground = this.createGround(el, elPocket1, elPocket2, this.fullfen);
         this.mycolor = 'white';
     }
 
@@ -148,7 +146,7 @@ export class GameControllerBughouse extends GameController {
         });
     }
 
-    createGround = (el: HTMLElement, pocket0:HTMLElement|undefined, pocket1:HTMLElement|undefined, fullfen: string, assetURL: string): Api => {
+    createGround = (el: HTMLElement, pocket0:HTMLElement|undefined, pocket1:HTMLElement|undefined, fullfen: string): Api => {
         //TODO:NIKI: this initialization happens over another construction of chessground object in cgCtrl the value of which is overwritten wit this one. can we somehow avoid this?
         const parts = fullfen.split(" ");
         const fen_placement: cg.FEN = parts[0];
@@ -192,20 +190,6 @@ export class GameControllerBughouse extends GameController {
                 select: this.onSelect(),
             },
         });
-
-        if (this.boardName === 'a') { // todo:niki:maytbe less ugly would be to move this in the parent cotroller. also not sure if good idea to call below stuff twice really
-            boardSettings.ctrl = this;
-        } else {
-            boardSettings.ctrl2 = this;
-        }
-        boardSettings.assetURL = assetURL;
-        const boardFamily = this.variant.boardFamily;
-        const pieceFamily = this.variant.pieceFamily;
-        boardSettings.updateBoardStyle(boardFamily);
-        boardSettings.updatePieceStyle(pieceFamily);
-        boardSettings.updateZoom(boardFamily);
-        boardSettings.updateBlindfold();
-
 
         return chessground;
     }

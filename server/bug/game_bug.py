@@ -199,23 +199,26 @@ class GameBug:
         if "@" in move:
             return None
 
-        fen_split = re.split('[\[\]]', fen)
-        fen_with_empty_pocket = fen_split[0] + '[]' + fen_split[2]
+        fen_split = re.split("[\[\]]", fen)
+        fen_with_empty_pocket = fen_split[0] + "[]" + fen_split[2]
         # pocket = fen_split[1]
         log.debug("fen_with_empty_pocket: %s", fen_with_empty_pocket)
-        fen_with_captured_piece = sf.get_fen("crazyhouse", fen_with_empty_pocket, [move], self.chess960, False,
-                                             False, False)
-        fen_with_captured_piece_split = re.split('[\\[\\]]', fen_with_captured_piece)
+        fen_with_captured_piece = sf.get_fen(
+            "crazyhouse", fen_with_empty_pocket, [move], self.chess960, False, False, False
+        )
+        fen_with_captured_piece_split = re.split("[\\[\\]]", fen_with_captured_piece)
         captured_piece = fen_with_captured_piece_split[1]
         # crazyhouse changes colors of captures pieces, but in bughouse we want it back to the original color:
-        captured_piece = captured_piece.lower() if captured_piece.isupper() else captured_piece.upper()
+        captured_piece = (
+            captured_piece.lower() if captured_piece.isupper() else captured_piece.upper()
+        )
         return captured_piece
 
     async def play_move(
-        self, move, clocks=None, clocks_b=None, board="a" #, last_move_captured_role=None
+        self, move, clocks=None, clocks_b=None, board="a"  # , last_move_captured_role=None
     ):
         log.debug(
-            "play_move %r %r %r %r", move, clocks, clocks_b, board #, last_move_captured_role
+            "play_move %r %r %r %r", move, clocks, clocks_b, board  # , last_move_captured_role
         )
 
         if self.status > STARTED:
@@ -242,7 +245,7 @@ class GameBug:
                 if last_move_captured_role is not None:
                     board_fen_split = split(
                         "[\\[\\]]", self.boards[partner_board].fen
-                    )   # todo: this doesnt work after first move when starting game from custom initial fen that doesnt
+                    )  # todo: this doesnt work after first move when starting game from custom initial fen that doesnt
                     #           have square brackets - either add them or dont consider it valid if missing pockets
                     self.boards[partner_board].fen = (
                         board_fen_split[0]
@@ -557,10 +560,10 @@ class GameBug:
 
         # Still in case this gets accidently called for game_bug.py objects, logging here an error and returning a
         # valid board object for board "A" so it doesn't crash:
-        log.error("game.board property called for a bughouse game object. Returning info just for board A")
-        return self.boards[
-            "a"
-        ]
+        log.error(
+            "game.board property called for a bughouse game object. Returning info just for board A"
+        )
+        return self.boards["a"]
 
     @property
     def pgn(self):

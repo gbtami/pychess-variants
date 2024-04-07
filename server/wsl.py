@@ -179,7 +179,7 @@ async def handle_accept_seek(app_state: PychessGlobalAppState, ws, user, data):
 
     # print("accept_seek", seek.as_json)
     if seek.variant == "bughouse":
-        handle_accept_seek_bughouse(app_state, user, data, seek)
+        await handle_accept_seek_bughouse(app_state, user, data, seek)
     else:
         response = await join_seek(app_state, user, data["seekID"])
         await ws_send_json(ws, response)
