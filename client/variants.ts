@@ -974,7 +974,6 @@ export const noPuzzleVariants = [
     "ataxx",
     "3check",
     "placement",
-    "sittuyin",
     "minishogi",
     "gorogoroplus",
     "manchu",

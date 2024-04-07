@@ -16,7 +16,6 @@ NO_PUZZLE_VARIANTS = (
     "ataxx",
     "3check",
     "placement",
-    "sittuyin",
     "minishogi",
     "gorogoroplus",
     "manchu",

@@ -154,6 +154,29 @@
   vertical-align: middle;
   opacity: 0.6;
 }
+ul.guide [data-icon]:before {
+  margin-inline: 0 0.3em;
+  opacity: 0.8;
+}
+ul.guide li a {
+  display: block;
+  position: relative;
+}
+@media (min-width: 800px) {
+  ul.guide li a::after {
+    content: "";
+    position: absolute;
+    width: 4px;
+    height: 100%;
+    right: -1px;
+    transform: scale(0);
+    transition: all 0.25s;
+  }
+  ul.guide li a.active::after,
+  ul.guide li a:hover::after {
+    transform: scale(1);
+  }
+}
 .modal-content [data-icon]:before, header [data-icon]:before, [class*=' icon-']:before {
   opacity: 0.9;
 }
