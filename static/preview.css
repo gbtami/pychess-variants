@@ -82,6 +82,19 @@ label.piece.piece6.capa {
     background-image: url('images/pieces/disguised/w.svg');
 }
 
+label.piece.piece0.dragon {
+    background-image: url('images/pieces/green/wD.svg');
+}
+label.piece.piece1.dragon {
+    background-image: url('images/pieces/merida/wD.svg');
+}
+label.piece.piece2.dragon {
+    background-image: url('images/pieces/paradigm/wD.svg');
+}
+label.piece.piece3.dragon {
+    background-image: url('images/pieces/disguised/w.svg');
+}
+
 label.piece.piece0.seirawan {
     background-image: url('images/pieces/merida/wE.svg');
 }
@@ -255,6 +268,19 @@ label.piece.piece5.tori {
     background-image: url('images/pieces/disguised/shogi-ally.svg');
 }
 
+label.piece.piece0.cannonshogi {
+    background-image: url('images/pieces/shogi/ctp3d/0GoldCannon.svg');
+}
+label.piece.piece1.cannonshogi {
+    background-image: url('images/pieces/shogi/cz/0_Gold Cannon.svg');
+}
+label.piece.piece2.cannonshogi {
+    background-image: url('images/pieces/shogi/cz/alt/0_Gold Cannon.svg');
+}
+label.piece.piece3.cannonshogi {
+    background-image: url('images/pieces/disguised/b.svg');
+}
+
 label.piece.piece0.xiangqi {
     background-image: url('images/pieces/xiangqi/lishu/RK.svg');
 }
@@ -374,6 +400,13 @@ label.piece.piece1.orda {
     background-image: url('images/pieces/orda/cburnett/bH.svg');
 }
 label.piece.piece2.orda {
+    background-image: url('images/pieces/disguised/g.svg');
+}
+
+label.piece.piece0.khans {
+    background-image: url('images/pieces/orda/merida/bT.svg');
+}
+label.piece.piece1.khans {
     background-image: url('images/pieces/disguised/g.svg');
 }
 

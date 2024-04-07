@@ -209,10 +209,6 @@ async def send_lobby_user_connected(app_state, ws, user):
     user.update_online()
     app_state.lobby.lobbysockets[user.username] = user.lobby_sockets
 
-    await send_game_in_progress_if_any(
-        app_state, user, ws
-    )  # if there is an ongoing game, always notify use on connect
-
     response = {
         "type": "lobby_user_connected",
         "username": user.username,

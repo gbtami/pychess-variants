@@ -1,61 +1,61 @@
-.shinobi .cg-wrap piece.p-piece.white {
+.shinobi piece.p-piece.white {
     background-image: url('../../images/pieces/shinobi/merida/wP.svg');
 }
-.shinobi .cg-wrap piece.l-piece.white {
+.shinobi piece.l-piece.white {
     background-image: url('../../images/pieces/shinobi/merida/wL.svg');
 }
-.shinobi .cg-wrap piece.h-piece.white {
+.shinobi piece.h-piece.white {
     background-image: url('../../images/pieces/shinobi/merida/wH.svg');
 }
-.shinobi .cg-wrap piece.c-piece.white {
+.shinobi piece.c-piece.white {
     background-image: url('../../images/pieces/shinobi/merida/wC.svg');
 }
-.shinobi .cg-wrap piece.k-piece.white {
+.shinobi piece.k-piece.white {
     background-image: url('../../images/pieces/shinobi/merida/wK.svg');
 }
-.shinobi .cg-wrap piece.m-piece.white {
+.shinobi piece.m-piece.white {
     background-image: url('../../images/pieces/shinobi/merida/wM.svg');
 }
-.shinobi .cg-wrap piece.d-piece.white {
+.shinobi piece.d-piece.white {
     background-image: url('../../images/pieces/shinobi/merida/wD.svg');
 }
-.shinobi .cg-wrap piece.j-piece.white {
+.shinobi piece.j-piece.white {
     background-image: url('../../images/pieces/shinobi/merida/wJ.svg');
 }
-.shinobi .cg-wrap piece.f-piece.white {
+.shinobi piece.f-piece.white {
     background-image: url('../../images/pieces/shinobi/merida/wF.svg');
 }
-.shinobi .cg-wrap piece.pp-piece.white {
+.shinobi piece.pp-piece.white {
     background-image: url('../../images/pieces/shinobi/merida/wC.svg');
 }
-.shinobi .cg-wrap piece.pl-piece.white {
+.shinobi piece.pl-piece.white {
     background-image: url('../../images/pieces/shinobi/merida/wR.svg');
 }
-.shinobi .cg-wrap piece.ph-piece.white {
+.shinobi piece.ph-piece.white {
     background-image: url('../../images/pieces/shinobi/merida/wN.svg');
 }
-.shinobi .cg-wrap piece.pm-piece.white {
+.shinobi piece.pm-piece.white {
     background-image: url('../../images/pieces/shinobi/merida/wB.svg');
 }
 
-.shinobi .cg-wrap piece.p-piece.black {
+.shinobi piece.p-piece.black {
     background-image: url('../../images/pieces/merida/bP.svg');
 }
-.shinobi .cg-wrap piece.n-piece.black {
+.shinobi piece.n-piece.black {
     background-image: url('../../images/pieces/merida/bN.svg');
 }
-.shinobi .cg-wrap piece.b-piece.black {
+.shinobi piece.b-piece.black {
     background-image: url('../../images/pieces/merida/bB.svg');
 }
-.shinobi .cg-wrap piece.r-piece.black {
+.shinobi piece.r-piece.black {
     background-image: url('../../images/pieces/merida/bR.svg');
 }
-.shinobi .cg-wrap piece.pp-piece.black {
+.shinobi piece.pp-piece.black {
     background-image: url('../../images/pieces/shogun/merida/mono/bC.svg');
 }
-.shinobi .cg-wrap piece.k-piece.black {
+.shinobi piece.k-piece.black {
     background-image: url('../../images/pieces/merida/bK.svg');
 }
-.shinobi .cg-wrap piece.q-piece.black {
+.shinobi piece.q-piece.black {
     background-image: url('../../images/pieces/merida/bQ.svg');
 }

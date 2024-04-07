@@ -30,8 +30,12 @@
   flex: 1;
   display: flex;
   flex-flow: column nowrap;
+  align-items: flex-start;
   position: absolute;
   bottom: 0;
+}
+.lobby-count a {
+  transition: color 150ms;
 }
 @media only screen and (max-width: 799px) {
   .lobby-count {
@@ -116,6 +120,11 @@ rating {
 .container input#fen {
   margin: 0.6em 0 0.6em;
 }
+
+.modal-content input#fen {
+    width: 90%;
+}
+
 div.tc-block {
     padding: 1em;
     background: var(--bg-color2);

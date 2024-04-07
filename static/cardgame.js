@@ -1,6 +1,6 @@
 const cards = document.querySelectorAll('.memory-card')
 const replay = document.querySelector('#replay')
-
+const movesDisplay = document.querySelector('#moves')
 // refresh the game 
 
 replay.addEventListener('click', () => location.reload())
@@ -10,6 +10,8 @@ replay.addEventListener('click', () => location.reload())
 let hasFlippedCard = false; 
 let lockBoard = false; 
 let firstCard, secondCard; 
+let moves = 0;
+let pairsFound = 0;
 
 function flipCard() {
     if (lockBoard) return;
@@ -26,7 +28,9 @@ function flipCard() {
     } 
         // second click 
         secondCard = this;
-
+        moves ++;
+        movesDisplay.textContent = `Moves: ${moves}`;
+    
         CheckForMatch()
 }
 
@@ -38,6 +42,11 @@ function CheckForMatch() {
 function disableCards() {
     firstCard.removeEventListener('click', flipCard)
     secondCard.removeEventListener('click', flipCard)
+    pairsFound ++;
+
+    if (pairsFound === 8) {
+        movesDisplay.textContent = `You found all the pairs in ${moves} moves!`;
+    }
 
     resetBoard();
 }
@@ -46,10 +55,10 @@ function unflipCards() {
     lockBoard = true;
 
     setTimeout( () => {
-    firstCard.classList.remove('flip')
-    secondCard.classList.remove('flip')
+        firstCard.classList.remove('flip')
+        secondCard.classList.remove('flip')
 
-    resetBoard();
+        resetBoard();
     }, 700)
 }
 
@@ -75,9 +84,9 @@ const boardBg = document.querySelector('.memory-game')
 
 gameBoardBackground.forEach( input => {
     input.addEventListener('click', function() {
-    const backgroundImg = this.getAttribute('label');
-    console.log(backgroundImg);
-    boardBg.style= `background: url(images/${backgroundImg}.png);background-size: cover;order: 1000;`
-    console.log(boardBg.style);
+        const backgroundImg = this.getAttribute('label');
+        console.log(backgroundImg);
+        boardBg.style= `background: url(images/${backgroundImg}.png);background-size: cover;order: 1000;`
+        console.log(boardBg.style);
     })
 })

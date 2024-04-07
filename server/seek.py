@@ -119,7 +119,12 @@ async def create_seek(db, invites, seeks, user, data, ws, empty=False):
     Currently there is no limit for them since they're used for tournament organisation purposes
     They can only be created by trusted users
     """
-    if len([seek for seek in user.seeks.values()]) >= MAX_USER_SEEKS and not empty:
+    day = data.get("day", 0)
+    live_seeks = len([seek for seek in user.seeks.values() if seek.day == 0])
+    corr_seeks = len([seek for seek in user.seeks.values() if seek.day != 0])
+    if (
+        (live_seeks >= MAX_USER_SEEKS and day == 0) or (corr_seeks >= MAX_USER_SEEKS and day != 0)
+    ) and not empty:
         return
 
     target = data.get("target")
@@ -136,7 +141,7 @@ async def create_seek(db, invites, seeks, user, data, ws, empty=False):
         base=data["minutes"],
         inc=data["increment"],
         byoyomi_period=data["byoyomiPeriod"],
-        day=data.get("day", 0),
+        day=day,
         rated=data.get("rated"),
         chess960=data.get("chess960"),
         target=target,

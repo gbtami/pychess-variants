@@ -1,6 +1,6 @@
-.hoppel .cg-wrap piece.white {
+.hoppel piece.white {
     background-image: url('../../images/pieces/disguised/w.svg');
 }
-.hoppel .cg-wrap piece.black {
+.hoppel piece.black {
     background-image: url('../../images/pieces/disguised/b.svg');
 }

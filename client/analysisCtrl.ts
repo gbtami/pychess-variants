@@ -908,7 +908,7 @@ export class AnalysisController extends GameController {
         } else {
             // possible new variation move
             if (ffishBoardPly === 1) {
-                if (msg.lastMove === this.steps[this.ply - 1].move) {
+                if (this.ply < this.steps.length && msg.lastMove === this.steps[this.ply].move) {
                     // existing main line played
                     selectMove(this, this.ply);
                     return;

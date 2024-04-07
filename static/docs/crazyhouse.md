@@ -23,8 +23,7 @@ Strategy [as on Lichess](https://lichess.org/variant/crazyhouse)
 
 ## Further Resources 
 
-If you'd like to dive deeper into the world of Crazyhouse and looking for a starting point to study, this article by [@crosky](https://lichess.org/@/crosky) does a great job of introducing 
-typical tactics, strategic concepts and openings: [Crazyhouse, an overview](https://lichess.org/blog/VrQDNSoAACsA8sqc/crazyhouse-an-overview)
+If you'd like to dive deeper into the world of Crazyhouse and looking for a starting point to study, this article by [@crosky](https://lichess.org/@/crosky) does a great job of introducing typical tactics, strategic concepts and openings: [Crazyhouse, an overview](https://lichess.org/blog/VrQDNSoAACsA8sqc/crazyhouse-an-overview)
 
 More Resources: 
 

@@ -6,8 +6,15 @@ import base64
 def main(css_path):
     if os.path.isdir(css_path):
         for root, dirs, files in os.walk(css_path):
+            print("===", root, dirs, files)
+            root_css_dir = root.replace("piece", "piece-css")
+            if not os.path.exists(root_css_dir):
+                os.makedirs(root_css_dir)
+
             for dir_name in dirs:
+                print("---", dir_name)
                 piece_css_dir = os.path.join(root.replace("piece", "piece-css"), dir_name)
+                print(piece_css_dir)
                 if not os.path.exists(piece_css_dir):
                     os.makedirs(piece_css_dir)
 

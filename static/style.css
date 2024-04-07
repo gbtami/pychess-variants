@@ -39,6 +39,15 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+.icon-dragon:before {
+  content: "\1f409";
+}
+.icon-khans:before {
+  content: "\1f40e";
+}
+.icon-CannonShogi:before {
+  content: "\1f4a3";
+}
 .icon-ataxx:before {
   content: "\2623";
 }
