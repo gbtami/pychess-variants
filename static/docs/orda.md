@@ -49,7 +49,7 @@ The kheshigs were the elite imperial guard for the Mongol royalty. Appropriately
 ![Horse Archer](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Archer.png)
  
 The Horse Archer, or simply abbreviated Archer, is a unique divergent piece that moves and attacks differently. The archer moves as a knight but captures as a bishop. Because the archer is not colorbound, its value is greater than its bishop counterpart.
-Horse Archers were one of the two core components of the Mongol cavalry, functioning as the light cavalry. Their speed and prowess as mounted archers made them a unique threat. Their ability to quickly position themselves for a deadly skewer or fork makes them a dangerous threat to the Kingdom.
+Horse Archers were one of the two core components of the Mongol cavalry, functioning as the light cavalry. Their speed and prowess as mounted archers made them a unique threat. Their ability to quickly position themselves for a deadly skewer or fork makes them a dangerous threat for the Kingdom.
  
 ### Lancer (L)
 
