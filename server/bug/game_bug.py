@@ -199,7 +199,7 @@ class GameBug:
         if "@" in move:
             return None
 
-        fen_split = re.split("[\[\]]", fen)
+        fen_split = re.split("[\\[\\]]", fen)
         fen_with_empty_pocket = fen_split[0] + "[]" + fen_split[2]
         # pocket = fen_split[1]
         log.debug("fen_with_empty_pocket: %s", fen_with_empty_pocket)

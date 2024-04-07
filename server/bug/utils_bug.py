@@ -6,7 +6,7 @@ from datetime import timezone
 from pychess_global_app_state import PychessGlobalAppState
 from user import User
 from compress import decode_moves, R2C, C2R, V2C, C2V
-from bug.game_bug import GameBug, MAX_PLY
+from bug.game_bug import GameBug
 from const import (
     STARTED,
     INVALIDMOVE,

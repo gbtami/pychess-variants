@@ -19,7 +19,7 @@ from pychess_global_app_state_utils import get_app_state
 from seek import challenge, create_seek, get_seeks, Seek
 from settings import ADMINS, TOURNAMENT_DIRECTORS
 from tournament_spotlights import tournament_spotlights
-from bug.utils_bug import join_seek_bughouse, handle_accept_seek_bughouse
+from bug.utils_bug import handle_accept_seek_bughouse
 from utils import join_seek, load_game, remove_seek
 from websocket_utils import get_user, process_ws, ws_send_json
 from generate_highscore import generate_highscore
