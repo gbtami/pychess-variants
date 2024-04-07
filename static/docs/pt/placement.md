@@ -2,6 +2,6 @@
 
 O jogador de Xadrez Pal Benko atribui a ideia de "Pré-Xadrez" ou "Baralho-de-Xadrez" a David Bronstein.
 
-Esta variante é diferente do "Placement Chess" descrita no site de Chess Variants, esta variante é apenas uma modificação onde os jogadores configuram a sua posição inicial na primeira linha. O Roque só resulta quando o Rei e a Torre estão na sua posição normal.
+Esta variante é diferente do ["Placement Chess"](https://www.chessvariants.org/play/placement-chess) descrita no site de Chess Variants, esta variante é apenas uma modificação onde os jogadores configuram a sua posição inicial na primeira linha. O Roque só resulta quando o Rei e a Torre estão na sua posição normal.
 
-[Veja aqui mais detalhes (inglês)](http://www.quantumgambitz.com/blog/chess/cga/bronstein-chess-pre-chess-shuffle-chess)
+[Mais detalhes (inglês)](http://www.quantumgambitz.com/blog/chess/cga/bronstein-chess-pre-chess-shuffle-chess)

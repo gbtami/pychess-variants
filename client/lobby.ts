@@ -110,7 +110,7 @@ export class LobbyController implements ChatController {
             this.renderDialogHeader(_('Challenge %1 to a game', this.profileid));
             document.getElementById('ailevel')!.style.display = this.createMode === 'playAI' ? 'block' : 'none';
             document.getElementById('rmplay-block')!.style.display = this.createMode === 'playAI' ? 'block' : 'none';
-            document.getElementById('id01')!.style.display = 'block';
+            document.getElementById('id01')!.style.display = 'flex';
             document.getElementById('color-button-group')!.style.display = 'block';
             document.getElementById('create-button')!.style.display = 'none';
 
@@ -344,7 +344,7 @@ export class LobbyController implements ChatController {
         return [
             h('div#id01.modal', [
                 h('form.modal-content', [
-                    h('div#closecontainer', [
+                    h('span#closecontainer', [
                         h('span.close', {
                             on: {
                                 click: () => {
@@ -358,126 +358,128 @@ export class LobbyController implements ChatController {
                         }),
                     ]),
                     h('div.container', [
-                        h('div#header-block'),
                         h('div', [
-                            h('label', { attrs: { for: "variant" } }, _("Variant")),
-                            selectVariant("variant", vVariant, () => this.setVariant(), () => this.setVariant()),
-                        ]),
-                        h('input#fen', {
-                            props: { name: 'fen', placeholder: _('Paste the FEN text here') + (this.anon ? _(' (must be signed in)') : ''),  autocomplete: "off" },
-                            on: { input: () => this.setFen() },
-                        }),
-                        h('div#alternate-start-block'),
-                        h('div#chess960-block', [
-                            h('label', { attrs: { for: "chess960" } }, "Chess960"),
-                            h('input#chess960', {
-                                props: {
-                                    name: "chess960",
-                                    type: "checkbox",
-                                },
-                                attrs: {
-                                    checked: vChess960 === "true"
-                                },
-                            }),
-                        ]),
-                        h('div.tc-block',[
+                            h('div#header-block'),
                             h('div', [
-                                h('label', { attrs: { for: "tc" } }, _("Time control")),
-                                h('select#tc', {
-                                    props: { name: 'tc' },
-                                    on: { change: (e: Event) => this.setTcMode((e.target as HTMLSelectElement).value as TcMode) },
-                                    }, [
-                                        h('option', { attrs: { value: 'real' }}, _('Real time')),
-                                        h('option', { attrs: { value: 'corr', disabled: this.anon || vVariant === "bughouse" }}, _('Correspondence')),
-                                    ]
-                                ),
+                                h('label', { attrs: { for: "variant" } }, _("Variant")),
+                                selectVariant("variant", vVariant, () => this.setVariant(), () => this.setVariant()),
                             ]),
-                            h('div#tc_settings', [
-                                h('div#real', [
-                                    h('label', { attrs: { for: "min" } }, _("Minutes per side:")),
-                                    h('span#minutes'),
-                                    h('input#min.slider', {
-                                        props: { name: "min", type: "range", min: 0, max: this.minutesValues.length - 1, value: vMin },
-                                        on: { input: e => this.setMinutes(parseInt((e.target as HTMLInputElement).value)) },
-                                        hook: { insert: vnode => this.setMinutes(parseInt((vnode.elm as HTMLInputElement).value)) },
-                                    }),
-                                    h('label#incrementlabel', { attrs: { for: "inc" } }, ''),
-                                    h('span#increment'),
-                                    h('input#inc.slider', {
-                                        props: { name: "inc", type: "range", min: 0, max: this.incrementValues.length - 1, value: vInc },
-                                        on: { input: e => this.setIncrement(this.incrementValues[parseInt((e.target as HTMLInputElement).value)]) },
-                                        hook: { insert: vnode => this.setIncrement(this.incrementValues[parseInt((vnode.elm as HTMLInputElement).value)]) },
-                                    }),
-                                    h('div#byoyomi-period', [
-                                        h('label#byoyomiLabel', { attrs: { for: "byo" } }, _('Periods')),
-                                        h('select#byo', {
-                                            props: { name: "byo" },
-                                        },
-                                            [ 1, 2, 3 ].map((n, idx) => h('option', { props: { value: n }, attrs: { selected: (idx === vByoIdx) } }, n))
-                                        ),
+                            h('input#fen', {
+                                props: { name: 'fen', placeholder: _('Paste the FEN text here') + (this.anon ? _(' (must be signed in)') : ''),  autocomplete: "off" },
+                                on: { input: () => this.setFen() },
+                            }),
+                            h('div#alternate-start-block'),
+                            h('div#chess960-block', [
+                                h('label', { attrs: { for: "chess960" } }, "Chess960"),
+                                h('input#chess960', {
+                                    props: {
+                                        name: "chess960",
+                                        type: "checkbox",
+                                    },
+                                    attrs: {
+                                        checked: vChess960 === "true"
+                                    },
+                                }),
+                            ]),
+                            h('div.tc-block',[
+                                h('div', [
+                                    h('label', { attrs: { for: "tc" } }, _("Time control")),
+                                    h('select#tc', {
+                                        props: { name: 'tc' },
+                                        on: { change: (e: Event) => this.setTcMode((e.target as HTMLSelectElement).value as TcMode) },
+                                        }, [
+                                            h('option', { attrs: { value: 'real' }}, _('Real time')),
+                                            h('option', { attrs: { value: 'corr', disabled: this.anon || vVariant === "bughouse" }}, _('Correspondence')),
+                                        ]
+                                    ),
+                                ]),
+                                h('div#tc_settings', [
+                                    h('div#real', [
+                                        h('label', { attrs: { for: "min" } }, _("Minutes per side:")),
+                                        h('span#minutes'),
+                                        h('input#min.slider', {
+                                            props: { name: "min", type: "range", min: 0, max: this.minutesValues.length - 1, value: vMin },
+                                            on: { input: e => this.setMinutes(parseInt((e.target as HTMLInputElement).value)) },
+                                            hook: { insert: vnode => this.setMinutes(parseInt((vnode.elm as HTMLInputElement).value)) },
+                                        }),
+                                        h('label#incrementlabel', { attrs: { for: "inc" } }, ''),
+                                        h('span#increment'),
+                                        h('input#inc.slider', {
+                                            props: { name: "inc", type: "range", min: 0, max: this.incrementValues.length - 1, value: vInc },
+                                            on: { input: e => this.setIncrement(this.incrementValues[parseInt((e.target as HTMLInputElement).value)]) },
+                                            hook: { insert: vnode => this.setIncrement(this.incrementValues[parseInt((vnode.elm as HTMLInputElement).value)]) },
+                                        }),
+                                        h('div#byoyomi-period', [
+                                            h('label#byoyomiLabel', { attrs: { for: "byo" } }, _('Periods')),
+                                            h('select#byo', {
+                                                props: { name: "byo" },
+                                            },
+                                                [ 1, 2, 3 ].map((n, idx) => h('option', { props: { value: n }, attrs: { selected: (idx === vByoIdx) } }, n))
+                                            ),
+                                        ]),
+                                    ]),
+                                    h('div#corr',[
+                                        h('label', { attrs: { for: "day" } }, _("Days per turn:")),
+                                        h('span#days'),
+                                        h('input#day.slider', {
+                                            props: { name: "day", type: "range", min: 0, max: this.daysValues.length - 1, value: vDay },
+                                            on: { input: e => this.setDays(parseInt((e.target as HTMLInputElement).value)) },
+                                            hook: { insert: vnode => this.setDays(parseInt((vnode.elm as HTMLInputElement).value)) },
+                                        }),
                                     ]),
                                 ]),
-                                h('div#corr',[
-                                    h('label', { attrs: { for: "day" } }, _("Days per turn:")),
-                                    h('span#days'),
-                                    h('input#day.slider', {
-                                        props: { name: "day", type: "range", min: 0, max: this.daysValues.length - 1, value: vDay },
-                                        on: { input: e => this.setDays(parseInt((e.target as HTMLInputElement).value)) },
-                                        hook: { insert: vnode => this.setDays(parseInt((vnode.elm as HTMLInputElement).value)) },
+                            ]),
+                            h('form#game-mode', [
+                                h('div.radio-group', [
+                                    h('input#casual', {
+                                        props: { type: "radio", name: "mode", value: "0" },
+                                        attrs: { checked: vRated === "0" }, 
+                                        on: { input: e => this.setCasual((e.target as HTMLInputElement).value) },
+                                        hook: { insert: vnode => this.setCasual((vnode.elm as HTMLInputElement).value) },
                                     }),
+                                    h('label', { attrs: { for: "casual"} }, _("Casual")),
+                                    h('input#rated', {
+                                        props: { type: "radio", name: "mode", value: "1" },
+                                        attrs: { checked: vRated === "1", disabled: this.anon || vVariant === "bughouse" /*dont support rated bughouse atm*/ },
+                                        on: { input: e => this.setRated((e.target as HTMLInputElement).value) },
+                                        hook: { insert: vnode => this.setRated((vnode.elm as HTMLInputElement).value) },
+                                    }),
+                                    h('label', { attrs: { for: "rated"} }, _("Rated")),
                                 ]),
                             ]),
-                        ]),
-                        h('form#game-mode', [
-                            h('div.radio-group', [
-                                h('input#casual', {
-                                    props: { type: "radio", name: "mode", value: "0" },
-                                    attrs: { checked: vRated === "0" }, 
-                                    on: { input: e => this.setCasual((e.target as HTMLInputElement).value) },
-                                    hook: { insert: vnode => this.setCasual((vnode.elm as HTMLInputElement).value) },
+                            // if play with the machine
+                            h('div#rmplay-block', [
+                                h('label', { attrs: { for: "rmplay" } }, "Random-Mover"),
+                                h('input#rmplay', {
+                                    props: {
+                                        name: "rmplay",
+                                        type: "checkbox",
+                                        title: _("Practice with Random-Mover"),
+                                    },
+                                    attrs: {
+                                        checked: vRMplay === "true"
+                                    },
+                                    on: { click: () => this.setRM() },
                                 }),
-                                h('label', { attrs: { for: "casual"} }, _("Casual")),
-                                h('input#rated', {
-                                    props: { type: "radio", name: "mode", value: "1" },
-                                    attrs: { checked: vRated === "1", disabled: this.anon || vVariant === "bughouse" /*dont support rated bughouse atm*/ },
-                                    on: { input: e => this.setRated((e.target as HTMLInputElement).value) },
-                                    hook: { insert: vnode => this.setRated((vnode.elm as HTMLInputElement).value) },
-                                }),
-                                h('label', { attrs: { for: "rated"} }, _("Rated")),
                             ]),
-                        ]),
-                        // if play with the machine
-                        h('div#rmplay-block', [
-                            h('label', { attrs: { for: "rmplay" } }, "Random-Mover"),
-                            h('input#rmplay', {
-                                props: {
-                                    name: "rmplay",
-                                    type: "checkbox",
-                                    title: _("Practice with Random-Mover"),
-                                },
-                                attrs: {
-                                    checked: vRMplay === "true"
-                                },
-                                on: { click: () => this.setRM() },
-                            }),
-                        ]),
-                        // A.I.Level (1-8 buttons)
-                        h('form#ailevel', [
-                            h('h4', _("A.I. Level")),
-                            h('div.radio-group',
-                                [ 0, 1, 2, 3, 4, 5, 6, 7, 8 ].map(level => [
-                                    h('input#ai' + level, { props: { type: "radio", name: "level", value: level }, attrs: { checked: vLevel === level } }),
-                                    h('label.level-ai.ai' + level, { attrs: { for: "ai" + level } }, level),
-                                ]).reduce((arr, v) => (arr.push(...v), arr), []) // flatmap
-                            ),
-                        ]),
-                        h('div#color-button-group', [
-                            h('button.icon.icon-black', { props: { type: "button", title: _("Black") }, on: { click: () => this.createSeek('b') } }),
-                            h('button.icon.icon-adjust', { props: { type: "button", title: _("Random") }, on: { click: () => this.createSeek('r') } }),
-                            h('button.icon.icon-white', { props: { type: "button", title: _("White") }, on: { click: () => this.createSeek('w') } }),
-                        ]),
-                        h('div#create-button', [
-                            h('button', { props: { type: "button" }, on: { click: () => this.createSeek('w') } }, _("Create")),
+                            // A.I.Level (1-8 buttons)
+                            h('form#ailevel', [
+                                h('h4', _("A.I. Level")),
+                                h('div.radio-group',
+                                    [ 0, 1, 2, 3, 4, 5, 6, 7, 8 ].map(level => [
+                                        h('input#ai' + level, { props: { type: "radio", name: "level", value: level }, attrs: { checked: vLevel === level } }),
+                                        h('label.level-ai.ai' + level, { attrs: { for: "ai" + level } }, level),
+                                    ]).reduce((arr, v) => (arr.push(...v), arr), []) // flatmap
+                                ),
+                            ]),
+                            h('div#color-button-group', [
+                                h('button.icon.icon-black', { props: { type: "button", title: _("Black") }, on: { click: () => this.createSeek('b') } }),
+                                h('button.icon.icon-adjust', { props: { type: "button", title: _("Random") }, on: { click: () => this.createSeek('r') } }),
+                                h('button.icon.icon-white', { props: { type: "button", title: _("White") }, on: { click: () => this.createSeek('w') } }),
+                            ]),
+                            h('div#create-button', [
+                                h('button', { props: { type: "button" }, on: { click: () => this.createSeek('w') } }, _("Create")),
+                            ]),
                         ]),
                     ]),
                 ]),
@@ -517,7 +519,7 @@ export class LobbyController implements ChatController {
         document.getElementById('game-mode')!.style.display = this.anon ? 'none' : 'inline-flex';
         document.getElementById('ailevel')!.style.display = 'none';
         document.getElementById('rmplay-block')!.style.display = 'none';
-        document.getElementById('id01')!.style.display = 'block';
+        document.getElementById('id01')!.style.display = 'flex';
         document.getElementById('color-button-group')!.style.display = 'block';
         document.getElementById('create-button')!.style.display = 'none';
     }
@@ -530,7 +532,7 @@ export class LobbyController implements ChatController {
         document.getElementById('game-mode')!.style.display = this.anon ? 'none' : 'inline-flex';
         document.getElementById('ailevel')!.style.display = 'none';
         document.getElementById('rmplay-block')!.style.display = 'none';
-        document.getElementById('id01')!.style.display = 'block';
+        document.getElementById('id01')!.style.display = 'flex';
         document.getElementById('color-button-group')!.style.display = 'block';
         document.getElementById('create-button')!.style.display = 'none';
     }
@@ -544,7 +546,7 @@ export class LobbyController implements ChatController {
         const e = document.getElementById('rmplay') as HTMLInputElement;
         document.getElementById('ailevel')!.style.display = e.checked ? 'none' : 'inline-block';
         document.getElementById('rmplay-block')!.style.display = 'block';
-        document.getElementById('id01')!.style.display = 'block';
+        document.getElementById('id01')!.style.display = 'flex';
         document.getElementById('color-button-group')!.style.display = 'block';
         document.getElementById('create-button')!.style.display = 'none';
     }
@@ -556,7 +558,7 @@ export class LobbyController implements ChatController {
         document.getElementById('game-mode')!.style.display = this.anon ? 'none' : 'inline-flex';
         document.getElementById('ailevel')!.style.display = 'none';
         document.getElementById('rmplay-block')!.style.display = 'none';
-        document.getElementById('id01')!.style.display = 'block';
+        document.getElementById('id01')!.style.display = 'flex';
         document.getElementById('color-button-group')!.style.display = 'none';
         document.getElementById('create-button')!.style.display = 'block';
     }
@@ -1102,10 +1104,12 @@ export function lobbyView(model: PyChessModel): VNode[] {
             h('a.reflist', { attrs: { href: 'https://discord.gg/aPs8RKr', rel: "noopener", target: "_blank" } }, 'Discord'),
             h('a.reflist', { attrs: { href: 'https://github.com/gbtami/pychess-variants', rel: "noopener", target: "_blank" } }, 'Github'),
             h('a.reflist', { attrs: { href: 'https://www.youtube.com/channel/UCj_r_FSVXQFLgZLwSeFBE8g', rel: "noopener", target: "_blank" } }, 'YouTube'),
-            h('a.reflist', { attrs: { href: '/patron' } }, _("Donate")),
-            h('a.reflist', { attrs: { href: '/faq' } }, _("FAQ")),
-            h('a.reflist', { attrs: { href: '/stats' } }, _("Stats")),
-            h('a.reflist', { attrs: { href: '/about' } }, _("About")),
+            h('div.internalLinks', [
+                h('a.reflist', { attrs: { href: '/patron' } }, _("Donate")),
+                h('a.reflist', { attrs: { href: '/faq' } }, _("FAQ")),
+                h('a.reflist', { attrs: { href: '/stats' } }, _("Stats")),
+                h('a.reflist', { attrs: { href: '/about' } }, _("About")),
+            ]),
         ]),
         h('div.tv', [h('a#tv-game', { attrs: {href: '/tv'} })]),
         h('under-lobby', [

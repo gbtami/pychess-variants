@@ -16,8 +16,8 @@ div.not-found {
     color: #b3b3b3;
     margin: 0 2rem 0 0;
 }
-.not-found .header p {
-    padding: 0;
+.not-found .main-game-body p {
+    padding: 0.2em;
 }
 .not-found .header strong {
     text-transform: uppercase;
@@ -26,14 +26,12 @@ div.not-found {
     margin: 10px 0;
     display: block;
 }
-    div.main-game-body {
-      margin: 2em;
-      margin-left: 10em;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-    }
+div.main-game-body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
 @media (max-width: 799px) and (orientation: portrait) {
      div.main-game-body {
          display: none;
@@ -49,11 +47,13 @@ div.not-found {
       background: var(--invalid-queen);
       border: 1px solid #800000;
       border-radius: 20px;
-      padding: 2.2em;
+      padding: 1.5em 1em;
       margin: 1em;
       margin-top: 10px;
       font-size: 18px;
       font-weight: bold;
+      max-width: 600px;
+      text-align: center;
     }
 
     #counter {
@@ -62,12 +62,12 @@ div.not-found {
     }
 
     #rules {
-      padding: 2em;
+      padding: 1em;
       background: var(--bg-color2);
       box-shadow: var(--base-shadow);
       text-align: center;
       font-size: 16px;
-      margin-bottom: 20px;
+      margin-bottom: 30px;
     }
 
     #reset-button {

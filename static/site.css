@@ -156,7 +156,30 @@
   vertical-align: middle;
   opacity: 0.6;
 }
-header [data-icon]:before, header , [class*=' icon-']:before {
+ul.guide [data-icon]:before {
+  margin-inline: 0 0.3em;
+  opacity: 0.8;
+}
+ul.guide li a {
+  display: block;
+  position: relative;
+}
+@media (min-width: 800px) {
+  ul.guide li a::after {
+    content: "";
+    position: absolute;
+    width: 4px;
+    height: 100%;
+    right: -1px;
+    transform: scale(0);
+    transition: all 0.25s;
+  }
+  ul.guide li a.active::after,
+  ul.guide li a:hover::after {
+    transform: scale(1);
+  }
+}
+.modal-content [data-icon]:before, header [data-icon]:before, [class*=' icon-']:before {
   opacity: 0.9;
 }
 .icon-puzzle:before {
@@ -248,7 +271,7 @@ h3 {
   font-family: 'Roboto', Sans-Serif;
 }
 h1 {
-  padding: 4vh 2vh;
+  padding: 4vh 0vh;
 }
 h2,
 p {
@@ -449,7 +472,14 @@ under-left {
   grid-area: uleft;
   display: flex;
   align-content: flex-start;
+  justify-content: center;
   flex-flow: row wrap;
+}
+.internalLinks {
+  display: flex;
+  flex: 1 0 100%;
+  justify-content: center;
+  margin-top: 0.5em;
 }
 under-board {
   grid-area: uboard;
@@ -485,6 +515,7 @@ div.pgn {
   height: 30vh;
   background-color: var(--bg-color2);
   border: 1px solid var(--input-border);
+  margin: 2em 1em 0;
 }
 
 div.about,
@@ -868,6 +899,10 @@ ul.guide li {
   top: var(--site-header-height);
   right: 0;
 }
+#settings-lang, #settings-board {
+  overflow-y: auto;
+  max-height: min(100vh - 70px, 91vh);
+}
 #notify-app {
   overflow: hidden;
   width: 25rem;
@@ -1006,6 +1041,7 @@ button#btn-zen:hover {
 
 #board-settings > div {
   flex-direction: row;
+  align-items: center; /* in Safari the inputs and labels are not vertically aligned */
 }
 
 #style-settings {
@@ -1073,7 +1109,8 @@ a:hover,
   color: var(--link-hover);
 }
 p a,
-.blogs ul li a {
+.blogs ul li a,
+div.guide li a {
   color: var(--link-hover);
 }
 div a {
@@ -1336,8 +1373,9 @@ player-title {
   margin-left: 0.5em;
 }
 i-side,
-.icon-cloud-upload:before {
-  margin-right: 0px;
+button .icon-cloud-upload:before,
+button .icon-bar-chart:before {
+  margin-right: 12px;
 }
 .icon-blue:before {
   content: '\62';
@@ -1537,18 +1575,17 @@ table.seeks {
 /* The Modal (background) */
 .modal {
   display: none; /* Hidden by default */
+  align-items: center;
   position: fixed; /* Stay in place */
   z-index: 999; /* Sit on top */
   left: 0;
   top: 0;
   width: 100%; /* Full width */
   height: 100%; /* Full height */
-  overflow: auto; /* Enable scroll if needed */
   background-color: rgb(0, 0, 0); /* Fallback color */
   background-color: rgba(0, 0, 0, 0.4); /* Black w/ opacity */
-  padding-top: 60px;
+  padding-top: 16px;
 }
-
 /* Input fields */
 select,
 input {
@@ -1614,12 +1651,29 @@ input {
 
 /* Modal Content/Box */
 .modal-content {
+  display: flex;
+  flex-flow: column;
+  max-height: 100%;
   background-color: var(--modal-bg);
-  margin: 10 auto 15% auto; /* 5% from the top, 15% from the bottom and centered */
-  border-radius: 3px;
+  margin: 0 auto;
+  border-radius: 10px;
   width: 30%; /* Could be more or less, depending on screen size */
   border: 1px solid var(--bg-color2);
 }
+.modal-content > div {
+  overflow: auto;
+}
+
+.modal-content h2{
+  font-size: 2em;
+  padding: 0;
+}
+
+.modal-content select, 
+.modal-content input#fen {
+  border-radius: 7px;
+}
+
 @media (max-width: 799px) and (orientation: portrait) {
   .modal-content {
     margin: 0;
@@ -1710,6 +1764,7 @@ div.btn-controls.after {
 
 button {
   cursor: pointer;
+  border-radius: 5px;
 }
 button:disabled {
   color: var(--bg-color1);
@@ -1926,15 +1981,17 @@ button.icon::-moz-focus-inner {
 
 /* Playing color */
 button.icon {
-  margin: 5px;
-  padding: 5px;
+  margin: 5px 8px;
+  padding: 8px;
 }
+  
 button.icon.icon-black,
 button.icon.icon-white {
-  font-size: 24px;
+  font-size: 29px;
 }
+  
 button.icon.icon-adjust {
-  font-size: 36px;
+  font-size: 43px;
 }
 
 /* Casual/Rated and A.I. Level https://codepen.io/skeddles/pen/PbROLK */
@@ -1948,6 +2005,10 @@ label {
   display: inline-block;
   cursor: pointer;
   padding: 8px 12px;
+}
+
+form.modal-content span {
+  font-weight: bold;
 }
 
 .radio-group input[type='radio']:checked + label {
@@ -1964,12 +2025,16 @@ label {
 .radio-group {
   box-shadow: var(--base-shadow);
   display: inline-block;
-  margin: 12px;
+  margin: 20px auto 5px;
   overflow: hidden;
   border-radius: 4px;
   color: var(--font-color);
   background-color: var(--bg-color2);
   text-shadow: 0 1px 0 var(--text-shadow);
+}
+
+form#game-mode label {
+  padding: 10px 30px;
 }
 
 /* Chat */
@@ -2082,6 +2147,7 @@ li.message.server {
 }
 #spectators {
   overflow-wrap: break-word;
+  justify-content: normal;
 }
 #move-controls {
   grid-area: move-ctr;
@@ -2166,6 +2232,8 @@ vari-move {
   outline: none;
   /*  -webkit-transition: .2s;*/
   /*transition: opacity .2s;*/
+  padding: 0.6em 0em;
+  cursor: pointer;
 }
 
 .slider::-webkit-slider-thumb {
@@ -2186,6 +2254,25 @@ vari-move {
   border-radius: 10px;
   background: var(--bg-color1);
   cursor: pointer;
+}
+
+#tc_settings .slider {
+  width: 90%;
+  margin: 5px auto;
+  padding: 0.8em 0;
+  border: none;
+}
+
+#tc_settings .slider::-webkit-slider-thumb {
+  width: 35px;
+  height: 22px;
+  border-radius: 15px;
+}
+
+#tc_settings .slider::-moz-range-thumb {
+  width: 35px;
+  border-radius: 15px;
+  padding: 0.3em 0;
 }
 
 input#fen {
@@ -2322,8 +2409,12 @@ div.ctable-container {
     var(--blue-active),
     var(--blue-passive) 100%
   );
+}
+  
+div#spotlights > div {
   box-shadow: var(--base-shadow);
 }
+  
 .tour-spotlight:hover {
   opacity: 1;
 }
@@ -2353,7 +2444,6 @@ a#zen-button {
 }
 .shield-trophy {
   display: block;
-  width: 67px;
   height: 80px;
   background: url(images/trophy/shield-gold.png) no-repeat;
   background-size: contain;
@@ -2438,6 +2528,10 @@ input:invalid {
   font-size: 17px;
   padding: 10px 0;
   background: none;
+}
+
+#ac-result {
+  padding-left: 12px;
 }
 
 #ac-result ul {
@@ -2529,15 +2623,15 @@ span[aria-selected=true], div[role=tablist] span:hover::after {
     transform: scale(1);
 }
 div > span[role=tab]::after {
-    content:'';
-    background:var(--rusty);
-    height:2px;
-    position:absolute;
-    width:96%;
-    left:2%;
-    bottom:-2px;
-    transition:all .25s;
-    transform:scale(0)
+    content: '';
+    background: var(--rusty);
+    height: 2px;
+    position: absolute;
+    width: 100%;
+    left: 0%;
+    bottom: -2px;
+    transition: all .25s;
+    transform: scale(0)
 }
 .indicator {
     color: var(--rusty);

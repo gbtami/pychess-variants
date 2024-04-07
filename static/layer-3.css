@@ -100,7 +100,7 @@ font-size: 1.3rem;
 /* Second Column with Image */
 
 [data-icon]:before {
-    font-size: 1.8em;
+    font-size: 1.4em;
     vertical-align: middle;
     opacity: 0.6;
 }

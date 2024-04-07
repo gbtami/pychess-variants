@@ -87,6 +87,7 @@ span.page {
     position: relative;
     background-color: var(--bg-color2);
     box-shadow: var(--base-shadow);
+    height: 40px;
 }
 .btn-controls i {
     font-size: 1.2em;
@@ -103,17 +104,20 @@ span.page {
     line-height: 1.3;
 }
 button#action {
+    height: auto;
+    margin: 0;
     position: absolute;
     right: 5px;
     top: -3px;
-    padding: 3px 20px;
+    padding: 8px 20px;
     border-radius: 8px;
     border-bottom: 5px solid #759900;
     color: white;
-    background-color: #89b25b;
+    background-color: #82bf56;
     font-size:1.2em;
     text-shadow: 0 -1px #759900;
     transform: translate(0px, 0px);
+    transition: 0.2s all;
 }
 button#action::before {
     margin-right: 0.4em;
@@ -405,7 +409,7 @@ div.player {
     color: var(--link-color-blue);
 }
 [class*=" icon-"]:before {
-    margin-right: 0.4em;
+    margin: 0 0.3em;
 }
 td.bye {
     text-align: center;

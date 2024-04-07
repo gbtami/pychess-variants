@@ -1,0 +1,43 @@
+.dragon piece.d-piece.white {
+    background-image: url('../../images/pieces/merida/wD.svg');
+}
+.dragon piece.d-piece.black {
+    background-image: url('../../images/pieces/merida/bD.svg');
+}
+
+.dragon piece.p-piece.white {
+    background-image: url('../../images/pieces/merida/wP.svg');
+}
+.dragon piece.b-piece.white {
+    background-image: url('../../images/pieces/merida/wB.svg');
+}
+.dragon piece.n-piece.white {
+    background-image: url('../../images/pieces/merida/wN.svg');
+}
+.dragon piece.r-piece.white {
+    background-image: url('../../images/pieces/merida/wR.svg');
+}
+.dragon piece.q-piece.white {
+    background-image: url('../../images/pieces/merida/wQ.svg');
+}
+.dragon piece.k-piece.white {
+    background-image: url('../../images/pieces/merida/wK.svg');
+}
+.dragon piece.p-piece.black {
+    background-image: url('../../images/pieces/merida/bP.svg');
+}
+.dragon piece.b-piece.black {
+    background-image: url('../../images/pieces/merida/bB.svg');
+}
+.dragon piece.n-piece.black {
+    background-image: url('../../images/pieces/merida/bN.svg');
+}
+.dragon piece.r-piece.black {
+    background-image: url('../../images/pieces/merida/bR.svg');
+}
+.dragon piece.q-piece.black {
+    background-image: url('../../images/pieces/merida/bQ.svg');
+}
+.dragon piece.k-piece.black {
+    background-image: url('../../images/pieces/merida/bK.svg');
+}

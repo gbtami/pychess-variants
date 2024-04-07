@@ -19,6 +19,7 @@ V2C = {
     "atomic": "A",
     "makruk": "m",
     "placement": "p",
+    "dragon": "R",
     "seirawan": "s",
     "shogi": "g",
     "minishogi": "a",
@@ -38,11 +39,13 @@ V2C = {
     "janggi": "j",
     "makpong": "l",
     "orda": "f",
+    "khans": "L",
     "synochess": "v",
     "hoppelpoppel": "w",
     "manchu": "M",
     "dobutsu": "D",
     "gorogoroplus": "G",
+    "cannonshogi": "W",
     "shinobi": "J",
     "shinobiplus": "K",
     "empire": "P",
@@ -88,6 +91,15 @@ for piece in PIECES:
 # Chennis drop moves can start with extra "+" as well (P and S are already added above for Kyoto Shogi)
 for piece in "FM":
     M2C["+%s" % piece] = m2c_len
+    m2c_len += 1
+
+# More droppable pieces
+#   The variant that uses these pieces (cannonshogi) was added after chennis
+#   so these letters need to be here to be backward compatible
+PIECES = "UI"
+m2c_len = len(M2C) + 34
+for piece in PIECES:
+    M2C["%s@" % piece] = m2c_len
     m2c_len += 1
 
 C2M = {v: k for k, v in M2C.items()}

@@ -1,0 +1,142 @@
+.cannonshogi piece.p-piece.ally {
+    background-image: url('../../images/pieces/shogi/cz/0_Cannon Pawn.svg');
+}
+.cannonshogi piece.pp-piece.ally {
+    background-image: url('../../images/pieces/shogi/cz/0TO.svg');
+}
+.cannonshogi piece.b-piece.ally {
+    background-image: url('../../images/pieces/shogi/cz/0KA.svg');
+}
+.cannonshogi piece.pb-piece.ally {
+    background-image: url('../../images/pieces/shogi/cz/0UM.svg');
+}
+.cannonshogi piece.n-piece.ally {
+    background-image: url('../../images/pieces/shogi/cz/0KE.svg');
+}
+.cannonshogi piece.pn-piece.ally {
+    background-image: url('../../images/pieces/shogi/cz/0NK.svg');
+}
+.cannonshogi piece.r-piece.ally {
+    background-image: url('../../images/pieces/shogi/cz/0HI.svg');
+}
+.cannonshogi piece.pr-piece.ally {
+    background-image: url('../../images/pieces/shogi/cz/0RY.svg');
+}
+.cannonshogi piece.l-piece.ally {
+    background-image: url('../../images/pieces/shogi/cz/0KY.svg');
+}
+.cannonshogi piece.pl-piece.ally {
+    background-image: url('../../images/pieces/shogi/cz/0NY.svg');
+}
+.cannonshogi piece.s-piece.ally {
+    background-image: url('../../images/pieces/shogi/cz/0GI.svg');
+}
+.cannonshogi piece.ps-piece.ally {
+    background-image: url('../../images/pieces/shogi/cz/0NG.svg');
+}
+.cannonshogi piece.g-piece.ally {
+    background-image: url('../../images/pieces/shogi/cz/0KI.svg');
+}
+.cannonshogi piece.k-piece.white.ally {
+    background-image: url('../../images/pieces/shogi/cz/0GY.svg');
+}
+.cannonshogi piece.k-piece.black.ally {
+    background-image: url('../../images/pieces/shogi/cz/0OU.svg');
+}
+.cannonshogi piece.p-piece.enemy {
+    background-image: url('../../images/pieces/shogi/cz/1_Cannon Pawn.svg');
+}
+.cannonshogi piece.pp-piece.enemy {
+    background-image: url('../../images/pieces/shogi/cz/1TO.svg');
+}
+.cannonshogi piece.b-piece.enemy {
+    background-image: url('../../images/pieces/shogi/cz/1KA.svg');
+}
+.cannonshogi piece.pb-piece.enemy {
+    background-image: url('../../images/pieces/shogi/cz/1UM.svg');
+}
+.cannonshogi piece.n-piece.enemy {
+    background-image: url('../../images/pieces/shogi/cz/1KE.svg');
+}
+.cannonshogi piece.pn-piece.enemy {
+    background-image: url('../../images/pieces/shogi/cz/1NK.svg');
+}
+.cannonshogi piece.r-piece.enemy {
+    background-image: url('../../images/pieces/shogi/cz/1HI.svg');
+}
+.cannonshogi piece.pr-piece.enemy {
+    background-image: url('../../images/pieces/shogi/cz/1RY.svg');
+}
+.cannonshogi piece.l-piece.enemy {
+    background-image: url('../../images/pieces/shogi/cz/1KY.svg');
+}
+.cannonshogi piece.pl-piece.enemy {
+    background-image: url('../../images/pieces/shogi/cz/1NY.svg');
+}
+.cannonshogi piece.s-piece.enemy {
+    background-image: url('../../images/pieces/shogi/cz/1GI.svg');
+}
+.cannonshogi piece.ps-piece.enemy {
+    background-image: url('../../images/pieces/shogi/cz/1NG.svg');
+}
+.cannonshogi piece.g-piece.enemy {
+    background-image: url('../../images/pieces/shogi/cz/1KI.svg');
+}
+.cannonshogi piece.k-piece.white.enemy {
+    background-image: url('../../images/pieces/shogi/cz/1GY.svg');
+}
+.cannonshogi piece.k-piece.black.enemy {
+    background-image: url('../../images/pieces/shogi/cz/1OU.svg');
+}
+
+.cannonshogi piece.a-piece.ally {
+    background-image: url('../../images/pieces/shogi/cz/0_Silver Cannon.svg');
+}
+.cannonshogi piece.u-piece.ally {
+    background-image: url('../../images/pieces/shogi/cz/0_Gold Cannon.svg');
+}
+.cannonshogi piece.i-piece.ally {
+    background-image: url('../../images/pieces/shogi/cz/0_Iron Cannon.svg');
+}
+.cannonshogi piece.c-piece.ally {
+    background-image: url('../../images/pieces/shogi/cz/0_Copper Cannon.svg');
+}
+
+.cannonshogi piece.pa-piece.ally {
+    background-image: url('../../images/pieces/shogi/cz/0_Flying Silver.svg');
+}
+.cannonshogi piece.pu-piece.ally {
+    background-image: url('../../images/pieces/shogi/cz/0_Flying Gold.svg');
+}
+.cannonshogi piece.pi-piece.ally {
+    background-image: url('../../images/pieces/shogi/cz/0_Flying Iron.svg');
+}
+.cannonshogi piece.pc-piece.ally {
+    background-image: url('../../images/pieces/shogi/cz/0_Flying Copper.svg');
+}
+
+.cannonshogi piece.a-piece.enemy {
+    background-image: url('../../images/pieces/shogi/cz/1_Silver Cannon.svg');
+}
+.cannonshogi piece.u-piece.enemy {
+    background-image: url('../../images/pieces/shogi/cz/1_Gold Cannon.svg');
+}
+.cannonshogi piece.i-piece.enemy {
+    background-image: url('../../images/pieces/shogi/cz/1_Iron Cannon.svg');
+}
+.cannonshogi piece.c-piece.enemy {
+    background-image: url('../../images/pieces/shogi/cz/1_Copper Cannon.svg');
+}
+
+.cannonshogi piece.pa-piece.enemy {
+    background-image: url('../../images/pieces/shogi/cz/1_Flying Silver.svg');
+}
+.cannonshogi piece.pu-piece.enemy {
+    background-image: url('../../images/pieces/shogi/cz/1_Flying Gold.svg');
+}
+.cannonshogi piece.pi-piece.enemy {
+    background-image: url('../../images/pieces/shogi/cz/1_Flying Iron.svg');
+}
+.cannonshogi piece.pc-piece.enemy {
+    background-image: url('../../images/pieces/shogi/cz/1_Flying Copper.svg');
+}

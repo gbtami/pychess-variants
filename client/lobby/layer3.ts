@@ -65,6 +65,16 @@ function chess960Tooltip(variant: string) {
         return _('Crazyhouse with random back row.');
     case 'atomic':
         return _('Atomic Chess with random back row.');
+    case 'kingofthehill':
+        return _('King of The Hill with random back row.');
+    case '3check':
+        return _('Three-Check with random back row.');
+    case 'seirawan':
+        return _('S-chess with random back row.');
+    case 'capablanca':
+        return _('Capablanca with random back row.');
+    case 'capahouse':
+        return _('Capahouse with random back row.');
     default:
         return '';
     }
@@ -97,6 +107,12 @@ function proTip (variant: string, chess960: boolean) {
         return _('For a drop version, choose GRANDHOUSE from the dropdown menu.');
     case 'seirawan':
         return _('For a drop version, choose S-HOUSE from the dropdown menu.');
+    case 'dragon':
+        return _("Dropping your Dragon too early may not be the best idea.");
+    case 'grandhouse':
+    case 'capahouse':
+    case 'shouse':
+        return _('Initiative is everything!');
     case 'shogun':
         return _('The queen actually demotes upon capture, so it is not worth as much.');
     case 'shako':
@@ -105,6 +121,7 @@ function proTip (variant: string, chess960: boolean) {
         return _('Other piece sets are available, which may help avoid confusion.');
 // army
     case 'orda':
+    case 'khans':
     case 'shinobiplus':
     case 'empire':
     case 'synochess':
@@ -132,6 +149,7 @@ function proTip (variant: string, chess960: boolean) {
     case 'shogi':
     case 'minishogi':
     case 'gorogoroplus':
+    case 'cannonshogi':
         return _('Internationalized sets are available by going to settings.');
     case 'dobutsu':
         return _('Despite the simple appearance, there is still quite a bit of depth underlying this game.');

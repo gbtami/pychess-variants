@@ -5,15 +5,11 @@
 <aside>
     <ul class="guide">
     <li>
-    <div class="icon" data-icon="">
-        <a href="{{ home }}/variants/terminology">Terminology</a>
-    </div>
+        <a class="icon" data-icon="" href="{{ home }}/variants/terminology">Terminology</a>
     </li>
     {% for key in variants %}
     <li>
-    <div class="icon {{ groups[key] }}" data-icon="{{ icons[key] }}">
-        <a href="{{ home }}/variants/{{ key }}">{{ variant_display_name(key) }}</a>
-    </div>
+        <a class="icon {{ groups[key] }}" data-icon="{{ icons[key] }}" href="{{ home }}/variants/{{ key }}">{{ variant_display_name(key) }}</a>
     </li>
     {% endfor %}
     </ul>

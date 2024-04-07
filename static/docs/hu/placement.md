@@ -4,4 +4,4 @@ A Pre-Sakk egy sakkvariáns, ami [Benkő Pál](https://hu.wikipedia.org/wiki/Ben
 
 A standard sakktól annyiban tér el, hogy a tisztek kezdőpozícióját a játékosok választhatják meg. Először a világos, aztán a sötét játékos helyez el egy bábut, és így tovább felváltva. A sáncolás csak akkor lehetséges, ha a király és a bástya az eredeti helyére kerül.
 
-A játék ezen az oldalon **Placement Chess** néven elérhető, melynek jelentése "Elhelyezési sakk", ami a bábuk játékosok általi táblára helyezésére utal. Nem összekeverendő a chessvariants oldalán ismertetett [Placement](https://www.chessvariants.com/diffsetup.dir/placement.html)-tel.
+A játék ezen az oldalon **Placement Chess** néven elérhető, melynek jelentése "Elhelyezési sakk", ami a bábuk játékosok általi táblára helyezésére utal. Nem összekeverendő a chessvariants oldalán ismertetett [Placement](https://www.chessvariants.org/play/placement-chess)-tel.

@@ -1,6 +1,6 @@
-.shako .cg-wrap piece.white {
+.shako piece.white {
     background-image: url('../../images/pieces/disguised/w.svg');
 }
-.shako .cg-wrap piece.black {
+.shako piece.black {
     background-image: url('../../images/pieces/disguised/b.svg');
 }

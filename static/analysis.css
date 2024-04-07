@@ -416,8 +416,9 @@ div.config-toggle {
     flex: 0 0 64px;
     height: 64px;
     margin-right: 10px;
-    background-size: cover;
-}
+    background-size: contain;
+    background-repeat: no-repeat;
+  }
 .feedback .player .icon {
     width: 64px;
     height: 64px;
@@ -434,85 +435,6 @@ div.config-toggle {
 .instruction san {
     font-size: 1.5em;
 }
-piece.standard.w, piece.capa.w, piece.seirawan.w, piece.hoppel.w, piece.shako.w, piece.asean.w, piece.shogun.w, piece.synochess.w, piece.orda.w, piece.spartan.w {
-    background-image: url('images/pieces/merida/wK.svg');
-}
-piece.standard.b, piece.capa.b, piece.seirawan.b, piece.hoppel.b, piece.shako.b, piece.asean.b, piece.shogun.b, piece.shinobi.b, piece.empire.b {
-    background-image: url('images/pieces/merida/bK.svg');
-}
-piece.makruk.w {
-    background-image: url('images/pieces/makruk/ada/wK.svg');
-}
-piece.makruk.b {
-    background-image: url('images/pieces/makruk/ada/bK.svg');
-}
-piece.sittuyin.w {
-    background-image: url('images/pieces/sittuyin/original/wK.svg');
-}
-piece.sittuyin.b {
-    background-image: url('images/pieces/sittuyin/original/bK.svg');
-}
-piece.shogi, piece.kyoto {
-    background-image: url('images/pieces/shogi/ctk/0GY.svg');
-}
-piece.dobutsu {
-    background-image: url('images/pieces/shogi/Ka/0GY.svg');
-}
-piece.tori.w {
-    background-image: url('images/pieces/tori/intl/0PhoenixWhite.svg');
-}
-piece.tori.b {
-    background-image: url('images/pieces/tori/intl/0PhoenixBlack.svg');
-}
-piece.xiangqi.w {
-    background-image: url('images/pieces/xiangqi/2dhanzi/RK.svg');
-}
-piece.xiangqi.b {
-    background-image: url('images/pieces/xiangqi/2dhanzi/BK.svg');
-}
-piece.janggi.w {
-    background-image: url('images/pieces/janggi/hanjablue/blue_king.svg');
-}
-piece.janggi.b {
-    background-image: url('images/pieces/janggi/hanjablue/red_king.svg');
-}
-piece.shinobi.w {
-    background-image: url('images/pieces/shinobi/merida/wK.svg');
-}
-piece.orda.b, piece.ordamirror.b {
-    background-image: url('images/pieces/orda/merida/bK.svg');
-}
-piece.ordamirror.w {
-    background-image: url('images/pieces/orda/merida/wK.svg');
-}
-piece.empire.w {
-    background-image: url('images/pieces/empire/merida/wK.svg');
-}
-piece.chak.w {
-    background-image: url('images/pieces/chak/WK.svg');
-}
-piece.chak.b {
-    background-image: url('images/pieces/chak/GK.svg');
-}
-piece.chennis.w {
-    background-image: url('images/pieces/chennis/wMN.svg');
-}
-piece.chennis.b {
-    background-image: url('images/pieces/chennis/bMN.svg');
-}
-piece.mansindam.w {
-    background-image: url('images/pieces/mansindam/intl/wk.svg');
-}
-piece.mansindam.b {
-    background-image: url('images/pieces/mansindam/intl/bk.svg');
-}
-piece.synochess.b {
-    background-image: url('images/pieces/synochess/intl-red/bK.svg');
-}
-piece.spartan.b {
-    background-image: url('images/pieces/spartan/bK.svg');
-}
-
 .feedback .instruction strong {
     font-size: 1.5em;
 }

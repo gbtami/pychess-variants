@@ -312,11 +312,13 @@ export class PuzzleController extends AnalysisController {
     }
     yourTurn() {
         const turnColor = this.fullfen.split(" ")[1];
+        const pieceColor = (turnColor == 'w') ? 'white' : 'black';
+        const kingRole = this.variant.kingRoles[0];
         const first = _(this.variant.colors.first);
         const second = _(this.variant.colors.second);
         this.playerEl = patch(this.playerEl,
-            h('div.player', [
-                h(`piece.${this.variant.pieceFamily}.${turnColor}.no-square`),
+            h(`div.player.${this.variant.pieceFamily}`, [
+                h(`piece.${pieceColor}.no-square.${kingRole}.ally`),
                 h('div.instruction', [
                     h('strong', _('Your turn')),
                     h('em', _('Find the best move for %1.', (turnColor === 'w') ? first : second)),
