@@ -19,7 +19,7 @@ from pychess_global_app_state_utils import get_app_state
 from seek import challenge, create_seek, get_seeks, Seek
 from settings import ADMINS, TOURNAMENT_DIRECTORS
 from tournament_spotlights import tournament_spotlights
-from bug.utils_bug import join_seek_bughouse
+from bug.utils_bug import join_seek_bughouse, handle_accept_seek_bughouse
 from utils import join_seek, load_game, remove_seek
 from websocket_utils import get_user, process_ws, ws_send_json
 from generate_highscore import generate_highscore
@@ -179,27 +179,7 @@ async def handle_accept_seek(app_state: PychessGlobalAppState, ws, user, data):
 
     # print("accept_seek", seek.as_json)
     if seek.variant == "bughouse":
-        response = await join_seek_bughouse(app_state, user, data["seekID"], None, data["joinAs"])
-        await ws_send_json(ws, response)
-
-        if (
-            seek.ws is None
-        ):  # TODO:NIKI: refactor so that no ws objects are referenced from multiple places, but are always accessed by user as key to avoid such checks. Also all ws usages should be wrapeed in util functions where if really needed null checks as well as other error handling is made
-            remove_seek(app_state.seeks, seek)
-            await app_state.lobby.lobby_broadcast_seeks()
-        else:
-            await ws_send_json(seek.ws, response)
-            bugUsers = set(
-                filter(
-                    lambda item: item is not None, [seek.player2, seek.bugPlayer1, seek.bugPlayer2]
-                )
-            )
-            for u in bugUsers:
-                s = next(
-                    iter(u.lobby_sockets)
-                )  # TODO:NIKI:could be more than one if multiple browsers - see above todo comment
-                await ws_send_json(s, response)
-            await app_state.lobby.lobby_broadcast_seeks()
+        handle_accept_seek_bughouse(app_state, user, data, seek)
     else:
         response = await join_seek(app_state, user, data["seekID"])
         await ws_send_json(ws, response)

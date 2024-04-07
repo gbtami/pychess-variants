@@ -465,7 +465,6 @@ export class RoundControllerBughouse implements ChatController {
                           clocksB: msgClocksB,
                           ply: this.ply + 1,
                           board: b.boardName,
-                          lastMoveCapturedRole: b.lastMoveCapturedPiece? b.lastMoveCapturedPiece?.color === 'white'? b.lastMoveCapturedPiece?.role.split("-")[0].toUpperCase(): b.lastMoveCapturedPiece?.role.split("-")[0].toLowerCase(): undefined,
         } as MsgMove;
 
         this.updateLastMovesRecorded(moveMsg);

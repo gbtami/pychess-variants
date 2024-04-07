@@ -80,7 +80,8 @@ export abstract class GameController extends ChessgroundController implements Ch
     ctableContainer: VNode | HTMLElement;
     clickDrop: cg.Piece | undefined;
 
-    lastmove: cg.Key[];
+    lastmove: cg.Orig[] | undefined;
+    isCheck: boolean;
 
     spectator: boolean;
 

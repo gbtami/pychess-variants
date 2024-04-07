@@ -142,7 +142,7 @@ async def create_seek(db, invites, seeks, user, data, ws, empty=False):
         target=target,
         player1=None if empty else user,
         player2=None,
-        ws=ws,
+        ws=ws,  # todo: dont see the need for this - instead the list of user's lobby websockets can be used
         game_id=game_id,
     )
 

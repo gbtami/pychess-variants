@@ -16,6 +16,7 @@ from const import (
 from glicko2.glicko2 import gl2
 from newid import new_id
 from utils import round_broadcast
+from websocket_utils import ws_send_json
 
 log = logging.getLogger(__name__)
 
@@ -105,31 +106,10 @@ async def load_game_bug(app_state: PychessGlobalAppState, game_id):
         clocktimes_wB.insert(0, base_clock_time)
         clocktimes_bB.insert(0, base_clock_time)
 
-    if "mct" in doc:
-        manual_count_toggled = iter(doc["mct"])
-        count_started = -1
-        count_ended = -1
-
     board_ply = {"a": 0, "b": 0}
     last_move, last_move_b = "", ""
     for ply, move in enumerate(mlist):
         try:
-            if "mct" in doc:
-                # print("Ply", ply, "Move", move)
-                if ply + 1 >= count_ended:
-                    try:
-                        game.board.count_started = -1
-                        count_started, count_ended = next(manual_count_toggled)
-                        # print("New count interval", (count_started, count_ended))
-                    except StopIteration:
-                        # print("Piece's honour counting started")
-                        count_started = 0
-                        count_ended = MAX_PLY + 1
-                        game.board.count_started = 0
-                if ply + 1 == count_started:
-                    # print("Count started", count_started)
-                    game.board.count_started = ply
-
             board_name = (
                 "a" if doc["o"][ply] == 0 else "b"
             )  # todo why am i not storing a/b instead of 0/1. either that or compress to bits maybe
@@ -159,9 +139,6 @@ async def load_game_bug(app_state: PychessGlobalAppState, game_id):
             san = game.boards[board_name].get_san(move)
             game.boards[board_name].push(move)
 
-            # todo:niki: see where this check stuff is used at all - theoretically can always be calculated on client
-            #  - if we decide to use it, because important for scrolling moves for example, then consider adding
-            #  checkB to have it for both boards if we jump at a ply with check on the other board
             if board_name == "a":
                 game.checkA = game.boards[board_name].is_checked()
             if board_name == "b":
@@ -425,7 +402,9 @@ async def join_seek_bughouse(
 
     if (
         join_as == "player1"
-    ):  # todo:niki:not really possible to happen - maybe delete eventually unless change of mind - should implement unseating a slot first and decide if player1 can un-seat their default slot
+    ):  # todo: not really possible at the moment - should implement possibility of unseating a slot and somehow
+        #       allowing the player who created the challenge to sit back in another slot or just remove this case and
+        #       dont bother supporting such complex scenarios
         if seek.player1 is None:
             seek.player1 = user
         else:
@@ -465,17 +444,15 @@ async def play_move(
     clocks=None,
     clocks_b=None,
     board=None,
-    last_move_captured_role=None,
 ):
     log.debug(
-        "play_move %r %r %r %r %r %r %r",
+        "play_move %r %r %r %r %r %r",
         user,
         game,
         move,
         clocks,
         clocks_b,
         board,
-        last_move_captured_role,
     )
     gameId = game.id
     invalid_move = False
@@ -484,19 +461,12 @@ async def play_move(
     if game.status <= STARTED:
         try:
             if (
-                not game.lastmovePerBoardAndUser[board].get(user.username) == move
-            ):  # in case of resending after reconnect we can have same move sent multiple times from client
-                await game.play_move(move, clocks, clocks_b, board, last_move_captured_role)
+                game.lastmovePerBoardAndUser[board].get(user.username) != move
+            ):  # in case of resending after reconnect we can get same move sent multiple times from client
+                await game.play_move(move, clocks, clocks_b, board)
             else:
                 log.debug("move already played - probably resent twice after multiple reconnects")
                 return
-                # this move has already been processed.
-                # todo:niki:i wonder if this is enough check.
-                #      is it possible to resend some old move, but before that do a new one and send it before the
-                #      resend of the old one or something like this?
-                #      - If we disconnect, make a move, refresh/close browser/whatever/open game
-                #        again and make a different move. If first one came through somehow but we refreshed before
-                #        it was processed so got old position and made another move - that doesnt seem possible
         except SystemError:
             invalid_move = True
             log.exception(
@@ -517,12 +487,7 @@ async def play_move(
 
     if not invalid_move:
         board_response = game.get_board()
-        await round_broadcast(game, board_response, channels=app_state.game_channels)
-
-        for u in set(game.all_players):
-            await u.send_game_message(
-                gameId, board_response
-            )  # todo:niki:why am i not just doint full broadcast?
+        await round_broadcast(game, board_response, full=True, channels=app_state.game_channels)
 
     if game.status > STARTED:
         response = {
@@ -537,3 +502,15 @@ async def play_move(
 
         if app_state.tv == gameId:
             await app_state.lobby.lobby_broadcast(board_response)
+
+async def handle_accept_seek_bughouse(app_state: PychessGlobalAppState, user, data, seek):
+    response = await join_seek_bughouse(app_state, user, data["seekID"], None, data["joinAs"])
+    bug_users = set(
+        filter(
+            lambda item: item is not None, [seek.player2, seek.bugPlayer1, seek.bugPlayer2]
+        )
+    )
+    for u in bug_users:
+        for s in u.lobby_sockets:
+            await ws_send_json(s, response)
+    await app_state.lobby.lobby_broadcast_seeks()

@@ -17,12 +17,11 @@ import { GameControllerBughouse } from "./gameCtrl.bug";
 import { sound } from "../sound";
 import { renderClocks } from "./analysisClock.bug";
 import { variantsIni } from "../variantsIni";
-import * as idb from "idb-keyval";
-import { MsgAnalysis, MsgAnalysisBoard } from "../analysisType";
+import { MsgAnalysis } from "../analysisType";
 import ffishModule from "ffish-es6";
 import { titleCase } from "@/analysisCtrl";
 import { movetimeChart } from "./movetimeChart.bug";
-import {switchBoards} from "@/bug/roundCtrl.bug";
+import { switchBoards } from "@/bug/roundCtrl.bug";
 
 const EVAL_REGEX = new RegExp(''
   + /^info depth (\d+) seldepth \d+ multipv (\d+) /.source
@@ -72,8 +71,6 @@ export default class AnalysisControllerBughouse {
     animation: boolean;
     showDests: boolean;
     analysisChart: Chart;
-    ctableContainer: VNode | HTMLElement;
-    localEngine: boolean;
 
     maxDepth: number;
     isAnalysisBoard: boolean;
@@ -90,8 +87,6 @@ export default class AnalysisControllerBughouse {
     arrow: boolean;
 
     multipv: number;
-    evalFile: string;
-    nnueOk: boolean;
 
     importedBy: string;
 
@@ -102,6 +97,7 @@ export default class AnalysisControllerBughouse {
     fsfEngineBoard: any;  // used to convert pv UCI move list to SAN
 
     username: string;
+    chess960: boolean;
 
     notation2ffishjs = (n: cg.Notation) => {
         switch (n) {
@@ -119,6 +115,7 @@ export default class AnalysisControllerBughouse {
         this.fsfError = [];
         this.embed = this.gameId === undefined;
         this.username = model["username"];
+        this.chess960 = model.chess960 === 'True';
 
         this.b1 = new GameControllerBughouse(el1, el1Pocket1, el1Pocket2, 'a', model);
         this.b2 = new GameControllerBughouse(el2, el2Pocket1, el2Pocket2, 'b', model);
@@ -142,9 +139,6 @@ export default class AnalysisControllerBughouse {
 
         this.isAnalysisBoard = model["gameId"] === "";
         this.chartFunctions = [movetimeChart];
-
-        // is local stockfish.wasm engine supports current variant?
-        this.localEngine = false;
 
         // UCI isready/readyok
         this.isEngineReady = false;
@@ -174,9 +168,6 @@ export default class AnalysisControllerBughouse {
         this.arrow = localStorage.arrow === undefined ? true : localStorage.arrow === "true";
 
         this.multipv = localStorage.multipv === undefined ? 1 : Math.max(1, Math.min(5, parseInt(localStorage.multipv)));
-        const variant = VARIANTS[model.variant];
-        this.evalFile = localStorage[`${variant.name}-nnue`] === undefined ? '' : localStorage[`${variant.name}-nnue`];
-        this.nnueOk = false;
 
         this.importedBy = '';
 
@@ -192,15 +183,10 @@ export default class AnalysisControllerBughouse {
             'turnColor': this.b1.turnColor,//not relevant/meaningful - we use the fens for that
             });
 
-        if (!this.isAnalysisBoard && !this.model["embed"]) {
-            this.ctableContainer = document.getElementById('ctable-container') as HTMLElement;
-        }
-
-
         createMovelistButtons(this);
         this.vmovelist = document.getElementById('movelist') as HTMLElement;
 
-        if (!this.model["embed"]) {
+        if (!this.model["embed"]) { // TODO:NIKI: what is this mode[embed] and how is it different than this.embed?
             patch(document.getElementById('input') as HTMLElement, h('input#input', this.renderInput(this.b1)));
             patch(document.getElementById('inputPartner') as HTMLElement, h('input#inputPartner', this.renderInput(this.b2)));
 
@@ -248,16 +234,6 @@ export default class AnalysisControllerBughouse {
         this.onMsgBoard(model["board"] as MsgBoard);
     }
 
-    nnueIni() {
-        if (this.b1.localAnalysis && this.nnueOk) {
-            this.engineStop();
-            this.engineGo(this.b1);
-        } else if (this.b2.localAnalysis && this.nnueOk) {
-            this.engineStop();
-            this.engineGo(this.b2);
-        }
-    }
-
     pvboxIni() {
         if (this.b1.localAnalysis || this.b2.localAnalysis) this.engineStop();
         this.clearPvlines();
@@ -295,7 +271,7 @@ export default class AnalysisControllerBughouse {
     private renderInput = (cc: GameControllerBughouse) => {
         return {
             attrs: {
-                disabled: !this.localEngine,
+                disabled: false,
             },
             on: {change: () => {
                 cc.localAnalysis = !cc.localAnalysis;
@@ -318,8 +294,8 @@ export default class AnalysisControllerBughouse {
         console.log("drawAnalysisChart "+withRequest)
     }
 
-    private checkStatus = (msg: MsgAnalysisBoard | MsgBoard) => {
-        if ((msg.gameId !== this.gameId && !this.isAnalysisBoard) || this.model["embed"]) return;
+    private checkStatus = () => {
+        if ((!this.isAnalysisBoard) || this.model["embed"]) return;
 
         // but on analysis page we always present pgn move list leading to current shown position!
         // const pgn = (this.isAnalysisBoard) ? this.getPgn() : this.pgn;
@@ -418,24 +394,12 @@ export default class AnalysisControllerBughouse {
         // if (lastMove.length > 0 && (this.turnColor === this.mycolor || this.spectator)) {
         //     sound.moveSound(this.variant, capture);
         // }
-        this.checkStatus(msg);
+        this.checkStatus();
 
-        // if (this.spectator) {
-        //     this.chessground.set({
-        //         fen: this.fullfen,
-        //         turnColor: this.turnColor,
-        //         check: msg.check,
-        //         lastMove: lastMove,
-        //     });
-        // }
         if (this.model["ply"] > 0) {
             this.ply = this.model["ply"]
             selectMove(this, this.ply);
         }
-    }
-
-    moveIndex = (ply: number) => {
-      return Math.floor((ply - 1) / 2) + 1 + (ply % 2 === 1 ? '.' : '...');
     }
 
     fsfPostMessage(msg: string) {
@@ -470,32 +434,12 @@ export default class AnalysisControllerBughouse {
             this.fsfPostMessage('load <<EOF');
         }
 
-        if (!this.localEngine) {
-            this.localEngine = true;
-            patch(document.getElementById('input') as HTMLElement, h('input#input', {attrs: {disabled: false}}));
-            patch(document.getElementById('inputPartner') as HTMLElement, h('input#inputPartner', {attrs: {disabled: false}}));
-            this.fsfEngineBoard = new this.ffish.Board(this.variant.name, this.b1.fullfen, false);
 
-            if (this.evalFile) {
-                idb.get(`${this.variant.name}--nnue-file`).then((nnuefile) => {
-                    if (nnuefile === this.evalFile) {
-                        idb.get(`${this.variant.name}--nnue-data`).then((data) => {
-                            const array = new Uint8Array(data);
-                            const filename = "/" + this.evalFile;
-                            window.fsf.FS.writeFile(filename, array);
-                            console.log('Loaded to fsf.FS:', filename);
-                            this.nnueOk = true;
-                            const nnueEl = document.querySelector('.nnue') as HTMLElement;
-                            const title = _('Multi-threaded WebAssembly (with NNUE evaluation)');
-                            patch(nnueEl, h('span.nnue', { props: {title: title } } , 'NNUE'));
-                        });
-                    }
-                });
-            }
+        patch(document.getElementById('input') as HTMLElement, h('input#input', {attrs: {disabled: false}}));
+        patch(document.getElementById('inputPartner') as HTMLElement, h('input#inputPartner', {attrs: {disabled: false}}));
+        this.fsfEngineBoard = new this.ffish.Board(this.variant.name, this.b1.fullfen, false);
 
-            window.addEventListener('beforeunload', () => this.fsfEngineBoard.delete());
-
-        }
+        window.addEventListener('beforeunload', () => this.fsfEngineBoard.delete());
 
         if (!(this.b1.localAnalysis || this.b2.localAnalysis) || !this.isEngineReady) return;
 
@@ -543,18 +487,13 @@ export default class AnalysisControllerBughouse {
     }
 
     engineGo = (cc: GameControllerBughouse) => {
-        if (false/*this.chess960*/) {
+        if (this.chess960) {
             this.fsfPostMessage('setoption name UCI_Chess960 value true');
         }
         if (this.variant.name !== 'chess') {
             this.fsfPostMessage('setoption name UCI_Variant value ' + /*'crazyhouse'*/this.variant.name);
         }
-        if (this.evalFile === '' || !this.nnueOk) {
-            this.fsfPostMessage('setoption name Use NNUE value false');
-        } else {
-            this.fsfPostMessage('setoption name Use NNUE value true');
-            this.fsfPostMessage('setoption name EvalFile value ' + this.evalFile);
-        }
+        this.fsfPostMessage('setoption name Use NNUE value false');
 
         //console.log('setoption name Threads value ' + maxThreads);
         this.fsfPostMessage('setoption name Threads value ' + maxThreads);
@@ -691,22 +630,6 @@ export default class AnalysisControllerBughouse {
         });
     }
 
-    // // Updates chart and score in movelist
-    drawServerEval = (ply: number, scoreStr?: string) => {
-        console.log("drawServerEval "+ply+" "+scoreStr);
-    //     if (ply > 0) {
-    //         const evalEl = document.getElementById('ply' + String(ply)) as HTMLElement;
-    //         patch(evalEl, h('eval#ply' + String(ply), scoreStr));
-    //     }
-    //
-    //     analysisChart(this);
-    //     const hc = this.analysisChart;
-    //     if (hc !== undefined) {
-    //         const hcPt = hc.series[0].data[ply];
-    //         if (hcPt !== undefined) hcPt.select();
-    //     }
-    }
-
     // When we are moving inside a variation move list
     // then plyVari > 0 and ply is the index inside vari movelist
     goPly = (ply: number, plyVari = 0) => {
@@ -717,13 +640,14 @@ export default class AnalysisControllerBughouse {
 
         console.log(step);
 
-        const board=step.boardName==='a'?this.b1:this.b2;
+        const board= step.boardName==='a'? this.b1: this.b2;
 
         const fen=step.boardName==='a'?step.fen: step.fenB!;
         const fenPartner=step.boardName==='b'?step.fen: step.fenB!;
 
-        const move = step.boardName==='a'?uci2LastMove(step.move):uci2LastMove(step.moveB);
-        const movePartner = step.boardName==='b'?uci2LastMove(step.move):uci2LastMove(step.moveB);
+        const move = step.boardName === 'a' ? uci2LastMove(step.move)! : uci2LastMove(step.moveB)!;
+        const movePartner = step.boardName === 'b'? uci2LastMove(step.move)! : uci2LastMove(step.moveB)!;
+        const turnColorPartner = fenPartner.split(' ')[1] === "w"? "white": "black";
 
         let capture = false;
         if (move) {
@@ -760,45 +684,15 @@ export default class AnalysisControllerBughouse {
             this.plyVari = 0;
             updateMovelist(this);
         }
-        board.turnColor = step.turnColor;//todo: probably not needed here and other places as well where its set
 
-        board.fullfen = fen;
-        if (board.ffishBoard) { //TODO:NIKI: if this ffishboard object is one and the same, maybe move it to some global place instead of associating it to board
-            board.ffishBoard.setFen(board.fullfen);
-            board.setDests();
-        }
-        board.chessground.set({
-            fen: fen,
-            turnColor: step.turnColor,
-            movable: {
-                color: step.turnColor,
-                },
-            check: board.ffishBoard.isCheck(),
-            lastMove: move,
-        });
+        board.setState(fen, step.turnColor, move!);
+        board.renderState();
+        board.chessground.set({movable: { color: step.turnColor}});
 
-        //todo:niki:actually try removing this below - no longer sure if needed/helping. there were other bugs to fix also and not sure which one helped and if this is needed at all
-        //todo:niki:not great on first load when ffishboard not initialized yet.
-        //     probably same bug exist in normal, but here in 2 board more visible because even after scroll of moves of one board, the second's dests dont get refreshed
-        //     that is why i am adding this here, otherwise it shouldn't really be needed as position doesn't change, but
-        //     we onle need it now because we dont know if second board ever got initialized
-        //todo:niki:can we find a way to better wait for initializing of ffishboard stuff? put code like this in some lambda and pass it to some promise or something, maybe?
-        board.partnerCC.fullfen = fenPartner;
-        if (board.partnerCC.ffishBoard) {
-            board.partnerCC.ffishBoard.setFen(board.partnerCC.fullfen);
-            board.partnerCC.setDests();
-        }
-        const turnColorPartner = fenPartner.split(' ')[1] === "w"? "white": "black";
-        board.partnerCC.chessground.set({
-            fen: fenPartner,
-            turnColor: turnColorPartner,
-            movable: {
-                color: turnColorPartner
-            },
-            check: board.partnerCC.ffishBoard.isCheck(),
-            lastMove: movePartner,
-        });
-        //
+        board.partnerCC.setState(fenPartner, turnColorPartner, movePartner);
+        board.partnerCC.renderState();
+        board.chessground.set({movable: { color: turnColorPartner}});
+
         renderClocks(this);
     }
 
@@ -864,34 +758,27 @@ export default class AnalysisControllerBughouse {
         const sanSAN = b.ffishBoard.sanMove(move);
         const vv = this.steps[this.plyVari]['vari'];
 
-        // console.log('sendMove()', move, san);
-        // Instead of sending moves to the server we can get new FEN and dests from ffishjs
-        b.ffishBoard.push(move);
-        // b.dests = this.getDests(b);
-        b.setDests();
 
         // We can't use ffishBoard.gamePly() to determine newply because it returns +1 more
         // when new this.ffish.Board() initial FEN moving color was "b"
         // const moves = b.ffishBoard.moveStack().split(' ');
-        const newPly = this.ply + 1;
+        this.ply = this.ply + 1;
 
-        const msg : MsgAnalysisBoard = {
-            gameId: this.gameId,
-            fen: b.ffishBoard.fen(this.b1.variant.ui.showPromoted, 0),
-            ply: newPly,
-            lastMove: move,
-            bikjang: b.ffishBoard.isBikjang(),
-            check: b.ffishBoard.isCheck(),
-        }
+        //
+        if (b.localAnalysis) this.engineStop();
+        b.pushMove(move);
+        b.renderState();
+        b.chessground.set({movable: {color: b.turnColor}});
 
-        this.onMsgAnalysisBoard(b, msg);
+        if (b.localAnalysis) this.engineGo(b);
+        //~
 
         const step = {  //no matter on which board the ply is happening i always need both fens and moves for both boards. this way when jumping to a ply in the middle of the list i can setup both boards and highlight both last moves
-            fen: b.boardName==='a'? b.ffishBoard.fen(b.variant.ui.showPromoted, 0): b.partnerCC.ffishBoard.fen(b.partnerCC.variant.ui.showPromoted, 0),
-            fenB: b.boardName==='b'? b.ffishBoard.fen(b.variant.ui.showPromoted, 0): b.partnerCC.ffishBoard.fen(b.partnerCC.variant.ui.showPromoted, 0),
-            'move': b.boardName==='a'? msg.lastMove: this.steps[this.steps.length-1].move,
-            'moveB': b.boardName==='b'? msg.lastMove: this.steps[this.steps.length-1].moveB,
-            'check': msg.check,
+            fen: this.b1.fullfen,
+            fenB: this.b2.fullfen,
+            'move': b.boardName==='a'? move: this.steps[this.steps.length-1].move,  // if the new move is not for A, repeat value from previous step for A
+            'moveB': b.boardName==='b'? move: this.steps[this.steps.length-1].moveB, // if the new move is not for B, repeat value from previous step for B
+            'check': b.isCheck,
             'turnColor': b.turnColor,
             'san': san,
             'sanSAN': sanSAN,
@@ -912,12 +799,12 @@ export default class AnalysisControllerBughouse {
             this.ply = moveIdx;
             updateMovelist(this);
 
-            this.checkStatus(msg);
+            this.checkStatus();
         // variation move
         } else {
             // possible new variation starts
             if (ffishBoardPly === 1 && partnerBoardHasNoMoves) { // TODO:NIKI: i dont understand why i have added check for partnerBoardHasNoMoves but also above see TODO about probably that state being completely lost because its the same ffishBoard object we are checking twice here for being empty (that === 1 also practiacally checks if empty or something like that)
-                if (this.ply < this.steps.length && msg.lastMove === this.steps[this.ply].move) {
+                if (this.ply < this.steps.length && move === this.steps[this.ply].move) {
                     // existing main line played
                     selectMove(this, this.ply);
                     return;
@@ -946,37 +833,12 @@ export default class AnalysisControllerBughouse {
             } else if (vv === undefined && this.plyVari > 0) {
                 activatePlyVari(this.plyVari);
             }
-            this.checkStatus(msg);
+            this.checkStatus();
         }
 
         const e = document.getElementById('fullfen') as HTMLInputElement;
         e.value = this.b1.fullfen+" "+this.b2.fullfen;
 
-    }
-
-    private onMsgAnalysisBoard = (b: GameControllerBughouse, msg: MsgAnalysisBoard) => {
-        // console.log("got analysis_board msg:", msg);
-        if (msg.gameId !== this.gameId) return;
-        if (b.localAnalysis) this.engineStop();
-
-        b.fullfen = msg.fen;
-        this.ply = msg.ply
-
-        const parts = msg.fen.split(" ");
-        b.turnColor = parts[1] === "w" ? "white" : "black";
-
-        b.chessground.set({
-            fen: b.fullfen,
-            turnColor: b.turnColor,
-            lastMove: uci2LastMove(msg.lastMove),
-            check: msg.check,
-            movable: {
-                color: b.turnColor,
-                // dests: b.dests,
-            },
-        });
-
-        if (b.localAnalysis) this.engineGo(b);
     }
 
     private buildScoreStr = (color: string, analysis: Ceval) => {
@@ -999,23 +861,10 @@ export default class AnalysisControllerBughouse {
     private onMsgAnalysis = (msg: MsgAnalysis, boardInAnalysis: GameControllerBughouse) => {
         // console.log(msg);
         if (msg['ceval']['s'] === undefined) return;
-
         const scoreStr = this.buildScoreStr(msg.color, msg.ceval);
+        const turnColor = msg.color === 'w' ? 'white' : 'black';
+        this.drawEval(msg.ceval, scoreStr, turnColor, boardInAnalysis);
 
-        // Server side analysis message
-        if (msg.type === 'analysis') {
-            this.steps[msg.ply]['ceval'] = msg.ceval;
-            this.steps[msg.ply]['scoreStr'] = scoreStr;
-
-            if (this.steps.every((step) => {return step.scoreStr !== undefined;})) {
-                const element = document.getElementById('loader-wrapper') as HTMLElement;
-                element.style.display = 'none';
-            }
-            this.drawServerEval(msg.ply, scoreStr);
-        } else {
-            const turnColor = msg.color === 'w' ? 'white' : 'black';
-            this.drawEval(msg.ceval, scoreStr, turnColor, boardInAnalysis);
-        }
     }
 
 }

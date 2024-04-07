@@ -155,7 +155,6 @@ async def handle_move(app_state: PychessGlobalAppState, user, data, game):
                     data["clocksB"],
                     # data["ply"],todo:dont even send it maybe
                     data["board"],
-                    data.get("lastMoveCapturedRole"),
                 )
             except Exception:
                 log.exception(

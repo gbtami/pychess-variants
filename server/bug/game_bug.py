@@ -1,6 +1,7 @@
 import asyncio
 import collections
 import logging
+import re
 from datetime import datetime, timezone
 from time import time_ns
 
@@ -191,11 +192,30 @@ class GameBug:
                     chat[ply].append({"t": msg["time"], "u": msg["username"], "m": msg["message"]})
         return chat
 
+    def get_captured(self, fen, move):
+        # todo: hopefully we find cleaner way to determine captured piece serverside. Clientside its easy to get from
+        #       Chessground, but we cannot trust clients will send correct info
+
+        if "@" in move:
+            return None
+
+        fen_split = re.split('[\[\]]', fen)
+        fen_with_empty_pocket = fen_split[0] + '[]' + fen_split[2]
+        # pocket = fen_split[1]
+        log.debug("fen_with_empty_pocket: %s", fen_with_empty_pocket)
+        fen_with_captured_piece = sf.get_fen("crazyhouse", fen_with_empty_pocket, [move], self.chess960, False,
+                                             False, False)
+        fen_with_captured_piece_split = re.split('[\\[\\]]', fen_with_captured_piece)
+        captured_piece = fen_with_captured_piece_split[1]
+        # crazyhouse changes colors of captures pieces, but in bughouse we want it back to the original color:
+        captured_piece = captured_piece.lower() if captured_piece.isupper() else captured_piece.upper()
+        return captured_piece
+
     async def play_move(
-        self, move, clocks=None, clocks_b=None, board="a", last_move_captured_role=None
+        self, move, clocks=None, clocks_b=None, board="a" #, last_move_captured_role=None
     ):
         log.debug(
-            "play_move %r %r %r %r %r", move, clocks, clocks_b, board, last_move_captured_role
+            "play_move %r %r %r %r", move, clocks, clocks_b, board #, last_move_captured_role
         )
 
         if self.status > STARTED:
@@ -214,15 +234,16 @@ class GameBug:
             self.gameClocks.update_clocks(board, clocks, clocks_b)
             try:
                 partner_board = "a" if board == "b" else "b"
+                last_move_captured_role = self.get_captured(self.boards[board].fen, move)
                 log.debug("lastMoveCapturedRole: %s", last_move_captured_role)
                 log.debug("self.boards[partner_board].fen: %s", self.boards[partner_board].fen)
 
                 # self.boards[partner_board].fen = partnerFen #
                 if last_move_captured_role is not None:
-                    # TODO:NIKI: consider this solution for determining captured piece serverside unless something cleaner cannot be figured out: https://github.com/nnickoloff1234/pychess-variants/blob/60b06cd475c195ec58199187c762b86424807285/server/fairy.py#L58-L65
                     board_fen_split = split(
                         "[\\[\\]]", self.boards[partner_board].fen
-                    )  # todo: this doesnt work after first move when starting a game from custom initial fen that doesnt have square brackets - either add them or dont consider it valid if missing pockets
+                    )   # todo: this doesnt work after first move when starting game from custom initial fen that doesnt
+                    #           have square brackets - either add them or dont consider it valid if missing pockets
                     self.boards[partner_board].fen = (
                         board_fen_split[0]
                         + "["
@@ -364,7 +385,7 @@ class GameBug:
 
     @property
     def non_bot_players(self):
-        return filter(lambda p: not p.bot, self.all_players)
+        return set(filter(lambda p: not p.bot, self.all_players))
 
     @property
     def wplayer(self):
@@ -524,9 +545,22 @@ class GameBug:
 
     @property
     def board(self):
+        # todo: potentially code that expects such property might be need to be changed in places related to
+        #       draw request and tournaments if we implement those for bughouse.
+        #
+        # todo: The only other place where this might be called for bughouse game object is in game_api.py/get_games.
+        #       Leaving it like this for now, doesn't seem critical.
+        #
+        # todo: Other places I have reviewed seem to only work with single-board game.py object. Often are related to
+        #       some specific variant logic - maybe consider encapsulating such logic in game.py object somehow
+        #       and avoid exposing board object directly.
+
+        # Still in case this gets accidently called for game_bug.py objects, logging here an error and returning a
+        # valid board object for board "A" so it doesn't crash:
+        log.error("game.board property called for a bughouse game object. Returning info just for board A")
         return self.boards[
             "a"
-        ]  # TODO:NIKI: fix code that depends on this to work with 2 boards as wwell - had exception in game_api.py
+        ]
 
     @property
     def pgn(self):

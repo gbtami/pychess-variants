@@ -680,14 +680,6 @@ async def play_move(app_state: PychessGlobalAppState, user, game, move, clocks=N
     if not invalid_move:
         await round_broadcast(game, board_response, channels=app_state.game_channels)
 
-        # bughouse has 2 more users to notify. If not bug, this will be empty:
-        bugUsers = filter(
-            lambda p: not p.bot and p.username != opp_name and p.username != user.username,
-            game.all_players,
-        )
-        for u in bugUsers:
-            await u.send_game_message(gameId, board_response)
-
         if game.tournamentId is not None:
             tournament = app_state.tournaments[game.tournamentId]
             if (

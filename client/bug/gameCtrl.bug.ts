@@ -10,6 +10,8 @@ import {RoundControllerBughouse} from "./roundCtrl.bug";
 import {premove} from "chessgroundx/premove";
 import {predrop} from "chessgroundx/predrop";
 import {boardSettings} from "@/boardSettings";
+import {FEN} from "chessgroundx/types";
+import {uci2LastMove} from "@/chess";
 
 export class GameControllerBughouse extends GameController {
 
@@ -17,7 +19,6 @@ export class GameControllerBughouse extends GameController {
     parent: AnalysisControllerBughouse | RoundControllerBughouse;
     boardName: 'a' | 'b';
     localAnalysis: boolean = false;
-    lastMoveCapturedPiece: cg.Piece | undefined;
 
     constructor(el: HTMLElement,elPocket1: HTMLElement,elPocket2: HTMLElement, boardName: 'a' | 'b', model: PyChessModel) {
         super(el, model,elPocket1,elPocket2);
@@ -98,9 +99,7 @@ export class GameControllerBughouse extends GameController {
 
                 this.partnerCC.chessground.state.dom.redraw(); // TODO: see todo comment also at same line in onUserDrop.
             }
-            this.lastMoveCapturedPiece = {role: meta.captured?.promoted? "p-piece": meta.captured.role, color: meta.captured.color}; // TODO:niki: this should happen serverside, but dont see how for now.
         } else {
-            this.lastMoveCapturedPiece = undefined;
         }
         this.processInput(moved, orig, dest, meta);; //if (!this.promotion.start(moved.role, orig, dest, meta.thisKey)) this.sendMove(orig, dest, '');
         this.preaction = false;
@@ -114,6 +113,39 @@ export class GameControllerBughouse extends GameController {
     private unsetPremove = () => {
         this.premove = undefined;
         this.preaction = false;
+    }
+
+    setState = (fen: cg.FEN, turnColor: cg.Color, move: cg.Orig[]) => {
+        this.fullfen = fen;
+        this.turnColor = turnColor;//todo: probably not needed here and other places as well where its set
+        this.lastmove = move;
+        if (this.ffishBoard) { //TODO:NIKI: if this ffishboard object is one and the same, maybe move it to some global place instead of associating it to board
+            this.ffishBoard.setFen(this.fullfen);
+            this.isCheck = this.ffishBoard.isCheck();
+            this.setDests();
+        } else {
+            console.error("ffishBoard not initialized yet");
+        }
+    }
+
+    pushMove = (move: string) => {
+        this.ffishBoard.push(move);
+
+        this.fullfen = this.ffishBoard.fen(VARIANTS['bughouse'].ui.showPromoted, 0);
+        const parts = this.fullfen.split(" ");
+        this.turnColor = parts[1] === "w" ? "white" : "black";
+        this.lastmove = uci2LastMove(move);
+        this.isCheck = this.ffishBoard.isCheck();
+        this.setDests();
+    }
+
+    renderState = () => {
+        this.chessground.set({
+            fen: this.fullfen,
+            turnColor: this.turnColor,
+            check: this.isCheck,
+            lastMove: this.lastmove,
+        });
     }
 
     createGround = (el: HTMLElement, pocket0:HTMLElement|undefined, pocket1:HTMLElement|undefined, fullfen: string, assetURL: string): Api => {

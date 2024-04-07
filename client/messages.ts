@@ -137,12 +137,10 @@ export type MsgMove = { // cannot be interface because cannot be converted to an
      clocksB?: Clocks;
      ply: number;
      board?: 'a' | 'b';
-     lastMoveCapturedRole?: string; // role single letter as in normal notation, without the "-piece" suffix of cg.Role type // todo: calculate this on server somehow
 }
 
 export type MsgMovesAfterReconnect = {
     type: string;//"reconnect"
     gameId: string;
     movesQueued: MsgMove[]; // in case of simul we might have 2 moves queued
-    // lastMaybeSentMsgMoveB?: MsgMove;
 }
