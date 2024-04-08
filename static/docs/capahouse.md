@@ -4,7 +4,7 @@ Capahouse is a custom variant combining the rules of Capablanca chess with the d
 
 ## Crazyhouse Rules
 
-Drops can be performed with captured pieces, which would be done in lieu of moving a piece on the board. Drops are annotated with @. So for example,R@e4 means rook drop at e4. The rules for dropping pieces are as follows:
+Drops can be performed with captured pieces, which would be done in lieu of moving a piece on the board. Drops are annotated with @. So for example, R@e4 means rook drop at e4. The rules for dropping pieces are as follows:
 
 * Drops resulting in immediate checkmate are permitted. Unlike in shogi, this includes pawn drops.
 * Pawns may not be dropped on the players' 1st or 8th ranks.
@@ -20,7 +20,7 @@ All other rules are as in Capablanca chess.
 
 ![Archbishop](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Princesses.png)
 
-Various symbols used for the archbishop. (Note that the hawk is only for Seirawan Chess)
+Various symbols used for the archbishop. (Note that the hawk is only for Seirawan Chess).
 
 ![Archbishop moves](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Archbishop.png)
 
@@ -36,7 +36,7 @@ The value of an archbishop is considered slightly better than a rook, but less t
 
 ![Chancellor](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Empresses.png)
 
-Various symbols used for the chancellor. (Note that the elephant is only for Seirawan Chess)
+Various symbols used for the chancellor. (Note that the elephant is only for Seirawan Chess).
 
 ![Chancellor moves](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Chancellor.png)
 
@@ -44,8 +44,8 @@ The chancellor (C) is a compound piece combining the moves of the **rook** and t
 
 The piece is often symbolized with a combination of a knight and rook; most variants often do not specify how the piece should look otherwise (which is why we offer different piece sets to choose from).
 
-The value of a chancellor is considered better than an archbishop, but equivalent or slightly less than a queen.
+The value of a chancellor is considered better than an archbishop, but equivalent to or slightly less than a queen.
 
 ## Strategy
 
-As in standard crazyhouse, the piece values don't align with the chess piece values, and as in standard crazyhouse, sacrificing material for fast development, attacks on the enemy King, or just for defence, are often wise. Sometimes it is better to reinforce defenders around one's King rather than try to save them. Here we may refer you to sources in standard crazyhouse strategy...
+As in standard crazyhouse, the piece values don't align with the chess piece values, and as in standard crazyhouse, sacrificing material for fast development, attacks on the enemy King, or just for defence, is often wise. Sometimes it is better to reinforce defenders around one's King rather than try to save them. Here we may refer you to sources in standard crazyhouse strategy...
