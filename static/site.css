@@ -1368,6 +1368,9 @@ button .icon-cloud-upload:before,
 button .icon-bar-chart:before {
   margin-right: 12px;
 }
+.online.icon.icon-online {
+  margin-right: 0px;
+}
 .icon-blue:before {
   content: '\62';
   color: var(--blue-text);
@@ -1390,7 +1393,7 @@ button .icon-bar-chart:before {
 }
 .icon-online::before {
   color: var(--good);
-  margin-right: 0.4em;
+  font-size: 0.85em;
 }
 .icon-offline::before {
   color: LightGray;
