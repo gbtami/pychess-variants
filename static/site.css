@@ -1347,7 +1347,7 @@ round-player {
 .player-data {
   display: block;
   justify-content: center;
-  padding: 2px 6px;
+  padding: 8px 6px;
 }
 player-title {
   color: var(--gold);
