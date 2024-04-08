@@ -3,13 +3,13 @@ import Highcharts from "highcharts";
 import { selectMove } from './movelist.bug';
 import { Step } from "../messages";
 import AnalysisControllerBughouse from "@/bug/analysisCtrl.bug";
-import {BLACK, WHITE} from "@/chess";
 
 export interface MovePoint {
   y: number;
   x?: number;
   name?: any;
   marker?: any;
+  color: string;
 }
 
 export function movetimeChart(ctrl: AnalysisControllerBughouse) {
@@ -25,22 +25,30 @@ export function movetimeChart(ctrl: AnalysisControllerBughouse) {
     const blackColumnBorder = '#ffffff33';
 
     const moveSeries = {
-        white: [] as MovePoint[],
-        black: [] as MovePoint[],
+        '1': [] as MovePoint[],
+        '2': [] as MovePoint[],
     };
     const totalSeries = {
-        white: [] as MovePoint[],
-        black: [] as MovePoint[],
+        '1': [] as MovePoint[],
+        '2': [] as MovePoint[],
     };
     const labels: string[] = [];
 
     const logC = Math.pow(Math.log(3), 2);
 
+    let plyA = 0;
+    let plyB = 0;
     ctrl.steps.forEach((step: Step, ply: number) => {
-        const turn = (ply + 1) >> 1;
-        const color = ply & 1;
-        const colorName = color ? 'white' : 'black';
-
+        if (step.boardName === 'a') {
+            plyA++;
+        } else {
+            plyB++;
+        }
+        const turnA = (plyA + 1) >> 1;
+        const turnB = (plyB + 1) >> 1;
+        // const colorName = step.turnColor;
+        const moveColor = step.turnColor === 'white'? 'black': 'white';
+        const team = moveColor === 'white' && step.boardName === 'a' || moveColor === 'black' && step.boardName === 'b' ? '1': '2';
         if (ply === 0) {
             //moveSeries[colorName].push({y: 0});
             return;
@@ -48,32 +56,44 @@ export function movetimeChart(ctrl: AnalysisControllerBughouse) {
 
         // const hasClocks = (msg.steps[1].clocks?.white !== undefined);
 
-        if (ply <= 2) {step.movetime = 0;
-        } else {
-            step.movetime = (ply % 2 === 1) ?
-                (ctrl.steps[ply-2].clocks![WHITE] - (ctrl.steps[ply].clocks![WHITE] - ctrl.inc * 1000)) :
-                (ctrl.steps[ply-2].clocks![BLACK] - (ctrl.steps[ply].clocks![BLACK] - ctrl.inc * 1000));
-        }
+        // if (ply <= 2) {step.movetime = 0;
+        // } else {
+        //     step.movetime = (ply % 2 === 1) ?
+        //         (ctrl.steps[ply-2].clocks![WHITE] - (ctrl.steps[ply].clocks![WHITE] - ctrl.inc * 1000)) :
+        //         (ctrl.steps[ply-2].clocks![BLACK] - (ctrl.steps[ply].clocks![BLACK] - ctrl.inc * 1000));
+        // }
+        step.movetime = 10000; // TODO:NIKI
 
         const y = Math.pow(Math.log(0.005 * Math.min(step.movetime, 12e4) + 3), 2) - logC;
         maxMove = Math.max(y, maxMove);
 
-        let label = turn + (color ? '. ' : '... ') + step.san;
+        let label = step.boardName === 'a'? turnA + 'A. ' + step.san: turnB + 'B. ' + step.san;
+
         const movePoint = {
             name: label,
             x: ply,
-            y: color ? y : -y,
+            y: team === '1' ? y : -y,
+            color: moveColor === 'white'? whiteColumnFill: blackColumnFill,
+            marker: {
+                symbol: 'url(/static/icons/bugchatmove.svg)'
+            }
         };
-        moveSeries[colorName].push(movePoint);
+        moveSeries[team].push(movePoint);
 
-        let clock = step.clocks![color];
+        let clock = 10000; //TODO:NIKI
         if (clock !== undefined) {
             label += '<br />' + formatClock(clock);
             maxTotal = Math.max(clock, maxTotal);
-            totalSeries[colorName].push({
+            totalSeries[team].push({
                 name: label,
                 x: ply,
-                y: color ? clock : -clock,
+                y: team === '1' ? clock : -clock,
+                color: team === '1'? "green": "red",
+                marker: {
+                    symbol: 'url(/static/icons/bugchatmove.svg)',
+                    width: '1em',
+                    height: '1em'
+                }
             });
         }
 
@@ -151,7 +171,6 @@ export function movetimeChart(ctrl: AnalysisControllerBughouse) {
             line: foregrondLineOptions,
             column: {
                 color: whiteColumnFill,
-                negativeColor: blackColumnFill,
                 grouping: false,
                 groupPadding: 0,
                 pointPadding: 0,
@@ -207,42 +226,42 @@ export function movetimeChart(ctrl: AnalysisControllerBughouse) {
         ],
         series: [
             {
-                name: 'White Clock Area',
+                name: 'Board A Clock Area',
                 type: 'area',
                 yAxis: 1,
-                data: totalSeries.white,
+                data: totalSeries['1'],
             },
             {
-                name: 'Black Clock Area',
+                name: 'Board B Clock Area',
                 type: 'area',
                 yAxis: 1,
-                data: totalSeries.black,
+                data: totalSeries['2'],
             },
             {
                 name: 'White Move Time',
                 type: 'column',
                 yAxis: 0,
-                data: moveSeries.white,
+                data: moveSeries['1'],
                 borderColor: whiteColumnBorder,
             },
             {
                 name: 'Black Move Time',
                 type: 'column',
                 yAxis: 0,
-                data: moveSeries.black,
+                data: moveSeries['2'],
                 borderColor: blackColumnBorder,
             },
             {
                 name: 'White Clock Line',
                 type: 'line',
                 yAxis: 1,
-                data: totalSeries.white,
+                data: totalSeries['1'],
             },
             {
                 name: 'Black Clock Line',
                 type: 'line',
                 yAxis: 1,
-                data: totalSeries.black,
+                data: totalSeries['2'],
             },
         ]
     });

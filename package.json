@@ -1,10 +1,6 @@
 {
   "name": "pychess-variants",
   "version": "0.0.2",
-  "engines": {
-    "node": "18.x",
-    "npm": "9.x"
-  },
   "private": true,
   "description": "free, open-source chess server designed to play chess variants.",
   "repository": {
