@@ -166,6 +166,7 @@ ul.guide li a {
 @media (min-width: 800px) {
   ul.guide li a::after {
     content: "";
+    background-color: rgba(215, 80, 0, 0.6);
     position: absolute;
     width: 4px;
     height: 100%;
