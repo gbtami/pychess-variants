@@ -61,7 +61,8 @@ td rating {
 .card div.info0 {
     color: WhiteSmoke;
     background-color: var(--gold);
-    padding:0.2em;
+    padding: 0.2em;
+    margin-bottom: 0;
 }
 div.info0.icon::before {
     opacity: 0.9;
