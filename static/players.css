@@ -107,9 +107,13 @@ div.info0.icon::before {
 }
 .user-link.player {
     display: inline-block;
-    white-space: nowrap;
     text-overflow: ellipsis;
     width: 60%;
+}
+.user-link.player, 
+table#players a,
+.flat-bg .highscore a {
+    white-space: nowrap;
 }
 .user-link.tourney-date {
     color: var(--link-color-blue);
