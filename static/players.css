@@ -96,11 +96,11 @@ div.info0.icon::before {
 .shields .player-data {
     padding: 1.2rem 1.2rem 1.2rem 0.5rem;
 }
-.player-data.odd {
-    background-color: var(--bg-color1);
+div.card div.player-data:nth-child(2n) {
+  background-color: var(--bg-color1);
 }
-.player-data.even {
-    background-color: rgba(255, 255, 255, 0.05);
+div.card div.player-data:nth-child(2n + 1) {
+  background-color: rgba(255, 255, 255, 0.05);
 }
 .tourney-date {
     float: right;
