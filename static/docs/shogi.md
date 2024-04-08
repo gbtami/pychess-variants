@@ -2,21 +2,21 @@
 
 ![Boards](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Boards.png)
 
-*Shogi* (将棋), or Japanese Chess is a classic board game native to Japan and descended from Chaturanga, the same ancestor as Chess. In its modern form, it has been around since the 16th century. The game is very popular in Japan, where it is more played than western chess and there is a thriving professional scene. The game itself is both similar yet very distinct from western chess, introducing the ability to drop captured pieces back onto the board. 
+*Shogi* (将棋), or Japanese Chess is a classic board game native to Japan and descended from Chaturanga, the same ancestor as Chess. In its modern form, it has been around since the 16th century. The game is very popular in Japan, where it is more played than western chess and there is a thriving professional scene. The game itself is similar yet very distinct from western chess, introducing the ability to drop captured pieces back onto the board. 
 
 ## Why learn Shogi?
 
-If you enjoy Chess, Shogi is definitely worth trying. While slightly slower paced and longer than Chess, the game is also more dynamic and complex, leading to a very different experience. Shogi is between Chess and Go in terms of complexity, but don’t let that deter you. As with other chess variants, improving your skill in Shogi can  also improve your skills in Chess as well as open up new ways of thinking! [See here for more about that.](https://chessbase.in/news/peter-heine-nielsen-on-shogi)
+If you enjoy Chess, Shogi is definitely worth trying. While slightly slower paced and longer than Chess, the game is also more dynamic and complex, leading to a very different experience. Shogi is between Chess and Go in terms of complexity, but don’t let that deter you. As with other chess variants, improving your skills in Shogi can also improve your skills in Chess as well as open up new ways of thinking! [See here for more about that.](https://chessbase.in/news/peter-heine-nielsen-on-shogi)
 
 ## Rules
 
-The rules are similar to Chess, so this guide will focus on the differences. Shogi is played on a 9 x 9 board. Players take turns moving pieces on a board to checkmate the enemy king. The black player, or *sente* (先手 first player), moves first, followed by white or *gote* (後手 second player), which is the opposite of chess. These colors are just arbitrary and do not reflect the actual color of pieces. 
+The rules are similar to Chess, so this guide will focus on the differences. Shogi is played on a 9 x 9 board. Players take turns moving pieces on a board to checkmate the enemy king. The black player, or *sente* (先手 first player), moves first, followed by white or *gote* (後手 second player), which is the opposite of chess. These colors are just arbitrary and do not reflect the actual color of the pieces. 
 
-A significant difference from Chess but similar to its Crazyhouse variant is that you can drop captured pieces onto the board as a move. There are a few restrictions to dropping notably with pawns, which are discussed later, but otherwise pieces can be generally dropped anywhere. Additionally, almost all pieces can be promoted. Pieces are promoted upon entering the promotion zone / enemy camp (last three ranks) or moving a piece already in the enemy camp. The piece will then flip over. Captured promoted pieces are returned to their unpromoted side when added to your hand.
+A significant difference from Chess but similar to its Crazyhouse variant is that you can drop captured pieces onto the board as a move. There are a few restrictions to dropping, notably with pawns, but otherwise, pieces can generally be dropped anywhere. Additionally, almost all pieces can be promoted. Pieces are promoted upon entering the promotion zone / enemy camp (last three ranks) or moving a piece already in the enemy camp. The piece will then flip over. Captured promoted pieces are returned to their unpromoted side when added to your hand.
 
 ## Pieces
 
-This guide will be based on the internationalized set. Traditional sets use Chinese characters, *kanji*, and piece sets come in either a full 2-kanji form, a 1-kanji abbreviated form. As it is now, knowledge of the kanji will be required if you want to utilize all English resources. 
+This guide will be based on the internationalized set. Traditional sets use Chinese characters, *kanji*, and piece sets come in either a full 2-kanji form or a 1-kanji abbreviated form. As it is now, knowledge of the kanji will be required if you want to utilize all English resources. 
 
 In general, shogi pieces are much more restricted than chess pieces. Minor pieces (i.e. not the rook or bishop) often move forward and not so much backwards.
 
@@ -86,7 +86,7 @@ While the movement pattern of the gold general may seem confusing at first, the 
 
 ![SilverDiagram](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Silver.png)
 
-While the movement pattern of the silver general may seem confusing at first, the easiest way to remember it is that it moves **one step diagonally in any direction**… or any of the three square in front. In the internationalized set, the protrusions of the helmet also point in all its directions.
+While the movement pattern of the silver general may seem confusing at first, the easiest way to remember it is that it moves **one step diagonally in any direction**… or any of the three squares in front. In the internationalized set, the protrusions of the helmet also point in all its directions.
 
 ### Knight
 
@@ -102,7 +102,7 @@ Similar to a chess knight, but can only move to the two spaces in front, i.e. it
 
 ![LanceeDiagram](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Lance.png)
 
-A lance can only move forward, but in any number of squares (similar to a rook).
+A lance can only move forward but in any number of squares (similar to a rook).
 
 ### Pawn
 
@@ -179,7 +179,7 @@ P = pawn
 
 ### Piece Values
 
-There is no standard piece value in shogi unlike chess. However, it's important to keep in mind that values are not worth as much, as losing pieces isn't permanent and position is far more important. That said, there is a basic piece value system, but professional players have also made more specific values; Tanigawa and Satoh's are shown below.
+There is no standard piece value in shogi, unlike chess. However, it's important to keep in mind that values are not worth as much, as losing pieces isn't permanent and position is far more important. That said, there is a basic piece value system, but professional players have also made more specific values; Tanigawa and Satoh's are shown below.
 
 Piece | Basic | Tanigawa | Satoh 
 ------------ | ------------- | ------------- | -------------
@@ -246,7 +246,7 @@ For development of the Yagura, remember that generals always move diagonally to 
 
 ![Mino Castle](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Mino.png)
 
-The Mino castle is a classic *ranging rook* castle, used against static rook. The king moves to the rook’s starting spot, the left gold moves up+right, and then the right silver moves up to form a “G G S” V formation. This castle is strong to the left, but weak to the front and edge.
+The Mino castle is a classic *ranging rook* castle, used against static rook. The king moves to the rook’s starting spot, the left gold moves up+right, and then the right silver moves up to form a “G G S” V formation. This castle is strong to the left but weak to the front and edge.
 
 Example opening for black using a 4th file rook:
 
@@ -267,7 +267,7 @@ After this point, you are free to exchange bishops and as many pieces as you wan
 
 ![Anaguma](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Anaguma.png)
 
-Anaguma (AKA “Bear in the hole”) is another *ranging rook* castle, and one of the most impenetrable in the game. However, it takes a long time to form.
+Anaguma (AKA “Bear in the hole”) is another *ranging rook* castle and one of the most impenetrable in the game. However, it takes a long time to form.
 
 **Double Wing Attack**
 

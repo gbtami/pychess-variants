@@ -23,7 +23,7 @@ In addition to the pieces and setup, there are three other significant differenc
 
 ![Cardinal](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Princesses.png)
 
-Various symbols used for the cardinal. (Note that the hawk is only for Seiwaran Chess)
+Various symbols used for the cardinal. (Note that the hawk is only for Seiwaran Chess).
 
 ![Cardinal moves](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Archbishop.png)
 
@@ -39,7 +39,7 @@ The value of a cardinal is considered slightly better than a rook, but less than
 
 ![Marshal](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Empresses.png)
 
-Various symbols used for the marshal. (Note that the elephant is only for Seiwaran Chess)
+Various symbols used for the marshal. (Note that the elephant is only for Seiwaran Chess).
 
 ![Marshal moves](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Chancellor.png)
 
@@ -53,7 +53,7 @@ The value of a marshal is considered better than a cardinal, but equivalent or s
 
 Relatively little is known about many of the variants here. Creativity and attention to detail are always important. And so the following advice is tentative. 
 
-Try not to make "routine" developing moves. Sometimes it is worth spending more time to reposition fewer pieces optimally, rather than to develop many pieces suboptimally in less time. Even the variants which appear to resemble chess cannot be played with routine chess moves for very long.
+Try not to make "routine" developing moves. Sometimes it is worth spending more time to reposition fewer pieces optimally, rather than to develop many pieces suboptimally in less time. Even the variants that appear to resemble chess cannot be played with routine chess moves for very long.
 
 Continue to play more and if you discover new strategies or advice, let us know!
 

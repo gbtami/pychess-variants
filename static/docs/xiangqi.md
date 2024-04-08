@@ -2,7 +2,7 @@
 
 ![Boards](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/Boards.png)
 
-*Xiangqi* (象棋, pronounced like “*shyang-chee*”), or Chinese Chess is a classic board game native to China and is thought to be descended from Chatturanga, the same ancestor as Chess, although some have argued the opposite. The game is very popular in China and Vietnam, and it has been said that it is the most played board game in the world. The game itself is similar to chess, although it plays much differently. 
+*Xiangqi* (象棋, pronounced like “*shyang-chee*”), or Chinese Chess is a classic board game native to China and is thought to be descended from Chaturanga, the same ancestor as Chess, although some have argued the opposite. The game is very popular in China and Vietnam, and it has been said that it is the most played board game in the world. The game itself is similar to chess, although it plays much differently. 
 
 ## Why learn Xiangqi?
 
@@ -143,7 +143,7 @@ Sometimes, some players would use a "." instead of "=".
 
 ### Disambiguation
 
-If two of the same piece are in the same file, then a + or - to specify if it's the more advanced piece (+) or the piece that's at a lower rank (-). For example, if two chariots are on the same file but on opposite sides of the river, and you wanted to move to the farther one to the center, that would be R+=5.
+If two pieces of the same type are on the same file, then a + or - to specify if it's the more advanced piece (+) or the piece that's at a lower rank (-). For example, if two chariots are on the same file but on opposite sides of the river, and you wanted to move to the farther one to the center, that would be R+=5.
 
 Finally, if there are 3 or more pawns in the same file, then the pawns are numbered in order, with the pawn closest to you being numbered 1 and so forth. Then instead of using "P", pawns are referred to by their number. So if three pawns are all on file 5, and you wanted to advance the furthest pawn forwards, that would be "35+1".
 
@@ -151,13 +151,13 @@ Finally, if there are 3 or more pawns in the same file, then the pawns are numbe
 
 [Xiangqi in English] (http://www.xqinenglish.com/) is a good place for beginners. The website owner, Jim Png Hau Cheng, has also written several books, the  “Xiangqi Primer” series, which may be a worthwhile investment for serious learners.
 
-[Club Xiangqi](https://www.clubxiangqi.com/) is a site where you can play against tough players, most of which are Vietnamese.
+[Club Xiangqi](https://www.clubxiangqi.com/) is a site where you can play against tough players.
 
 ## Strategy
 
 ### Piece Values
 
-Consensus piece values are as below
+Consensus piece values are as below.
 
 Piece | Value 
 ------------ | ------------- 
@@ -181,7 +181,7 @@ E | 2.5
 
 ### Opening Principles
 
-The following information is courtesy of [this site](http://www.shakki.info/english/openings.html)
+The following information is courtesy of [Shakki.info](http://www.shakki.info/english/openings.html).
 
 The most common opening move is the central cannon, which is a pretty obvious move because it opens aggression down the central file. About 70% of games start this way, so it's probably the best way to start learning the game.
 
@@ -207,13 +207,13 @@ Black moves the cannon from the same side that red moved his. Red capturing the 
 
 **4. Opposite Direction Cannon**
 
-Like the above, except the opposite cannon. The modern practice is to move the black cannon later though "Delayed Opposite Direction Cannon".
+Like the above, except the opposite cannon. The modern practice is to move the black cannon later through "Delayed Opposite Direction Cannon".
 
 **5. Three Step Tiger**
 
 ![Three Step Tiger](https://github.com/gbtami/pychess-variants/blob/master/static/images/XiangqiGuide/Three_Step_Tiger.png)
 
-Black develops his chariot quickly by moving his cannon to the edge of the board. A typical sequence would be advancing the horse first, then cannon to the edge, then finally followed by chariot to the cannon's file.
+Black develops his chariot quickly by moving his cannon to the edge of the board. A typical sequence would be advancing the horse first, then the cannon to the edge, then finally followed by chariot to the cannon's file.
 
 Any other defenses are considered rare.
 
