@@ -686,7 +686,6 @@ ul.guide {
 }
 ul.guide li {
   font-size: 1.1em;
-  margin-bottom: 24px;
 }
 @media (max-width: 799px) and (orientation: portrait) {
   ul.guide {
