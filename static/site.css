@@ -161,6 +161,7 @@ ul.guide [data-icon]:before {
 ul.guide li a {
   display: block;
   position: relative;
+  padding: 12px 24px 12px 0;
 }
 @media (min-width: 800px) {
   ul.guide li a::after {
@@ -168,6 +169,7 @@ ul.guide li a {
     position: absolute;
     width: 4px;
     height: 100%;
+    top: 1%;
     right: -1px;
     transform: scale(0);
     transition: all 0.25s;
@@ -440,7 +442,6 @@ div.seeks {
   grid-template-columns: max-content auto;
   grid-template-rows: min-content;
   grid-template-areas: 'side content';
-  grid-gap: 2vmin;
 }
 @media (max-width: 799px) and (orientation: portrait) {
   .page-menu {
@@ -682,7 +683,6 @@ span.text {
 }
 ul.guide {
   list-style: none;
-  margin-right: 24px;
 }
 ul.guide li {
   font-size: 1.1em;
