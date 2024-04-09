@@ -47,7 +47,7 @@ td rating {
     background-color: var(--bg-color1);
 }
 .highscore, .shields, .winners {
-    border-radius: none;
+    border-radius: 0;
 }
 .highscore h1, .shields h1, .winners h1 {
     font-size: 2.5em;
