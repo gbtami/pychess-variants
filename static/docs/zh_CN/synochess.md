@@ -1,4 +1,4 @@
-# ![Synochess](https://github.com/gbtami/pychess-variants/blob/master/static/icons/synochess.svg) 王朝象棋
+# ![Synochess](https://github.com/gbtami/pychess-variants/blob/master/static/icons/synochess.svg) 王朝象棋 | Synochess
 
 ![Synochess](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Synochess.png)
 
@@ -62,7 +62,7 @@ Synochess原本拟命名为Sinochess，前缀sino-表示“中国的”。然而
  
 ## 棋子价值
 
-棋子的具体价值分尚无定论。以下是StockFish使用的估计值。
+棋子的具体价值分尚无定论。以下是 StockFish 使用的估计值。
 
 王国棋子	| 价值 (开局 / 残局) | 王朝棋子 | 价值 (开局 / 残局)
 -- | -- | -- | --
@@ -73,7 +73,7 @@ Synochess原本拟命名为Sinochess，前缀sino-表示“中国的”。然而
 车 | 1276 / 1380	| 马 | 781 / 854
  | | | 车 | 1276 / 1380
 
-For those who want a more simplified approach, this table may be an approximation.
+以下是一个价值的简表：
 
 王国棋子	| 价值 | 王朝棋子	| 价值
 -- | -- | -- | --
@@ -118,7 +118,7 @@ For those who want a more simplified approach, this table may be an approximatio
 
 ### 王国方（白方）建议
 
-- **开局兵尽量不要走2格** – 经过Stockfish的分析，您开局阶段，尽量1格1格地移动您的兵。因为要想处理对方的卒，您需要一个坚固的兵阵。
+- **开局兵尽量不要走2格** – 经过 Stockfish 的分析，您开局阶段，尽量一格一格地移动您的兵。因为要想处理对方的卒，您需要一个坚固的兵阵。
 - **尽量不要用子力去换对方的炮** – 炮虽然开局很强，但是残局的作用不大。所以您需要尽量消灭其他棋子而不是炮。如果没有炮架，残局的炮寸步难行。
 - **保护皇后！** – 皇后的重要性在王国方阵容里甚至比国际象棋还重要，因为皇后是进攻的最强力量。一个后至少要换掉对方一个车才不亏。
 - **积极兑换** – 在兑子的过程中，如果您的后能保留，同时自己并没有去用大子换掉炮，那么您会占据很大优势。王朝方依赖棋子之间的协调，因此棋子越少，他们就越弱。王国方应尽量把局面变的简单开放，因为王朝方需要利用他们早期的开放纵线和卒的防御。
@@ -144,7 +144,7 @@ For those who want a more simplified approach, this table may be an approximatio
 
 这也是白棋e3是标准开局的原因。请尽量把e兵在前两个回合走到e3。这样可以使用主教或马阻挡对方的中炮。请注意e4是无意义的，因开局双王仅有e兵阻隔，e4兵不存在攻击性。
 
-**炮擒皇后Queenslayer**
+**炮擒皇后 Queenslayer**
 
 此战术对白棋而言是非常致命的，因为它会导致白方重要棋子的损失。通常会出现在车有开放线（事实上开局如此），且炮能够威胁白棋底线的情况（通常为b1或g1，且该位置必须是无保护的）。最基本的战术如下图。
 
