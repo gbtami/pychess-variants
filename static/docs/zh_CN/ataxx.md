@@ -2,7 +2,7 @@
 
 ![Ataxx Board](https://github.com/gbtami/pychess-variants/blob/master/static/images/Ataxx.png?raw=true)
 
-同化棋 (Ataxx) 是一款7×7的棋盘游戏，双方在棋盘上互相转化对方的棋子，尽量占据更多的棋盘。原版的同化棋是一款电子游戏，由 Leland Corporation 于 1990 年发布。在原版的电子游戏里，单人模式的对手被设定为「来自异次元的入侵者」。
+同化棋 (Ataxx) 是一款 7×7 的棋盘游戏，双方在棋盘上互相转化对方的棋子，尽量占据更多的棋盘。原版的同化棋是一款电子游戏，由 Leland Corporation 于 1990 年发布。在原版的电子游戏里，单人模式的对手被设定为「来自异次元的入侵者」。
 
 同化棋的概念原型来自于一款未发布的电子游戏 Infection，由 Dave Crummack 和 Craig Galley 设计。Virgin Mastertronic 将其授权给了 Leland Corporation，并且在于同化棋电子游戏发布的同年发布在 NES 平台，名叫《Spot: The Video Game》。同化棋有大量的变种版本，包括棋盘障碍物的变化、六角方格棋盘以及三人、四人游戏。
 同化棋是一款电子游戏，但是它可以使用一副黑白棋游玩。
