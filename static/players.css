@@ -100,7 +100,7 @@ div.card div.player-data:nth-child(2n) {
   background-color: var(--bg-color1);
 }
 div.card div.player-data:nth-child(2n + 1) {
-  background-color: rgba(255, 255, 255, 0.05);
+  background-color: var(--table-even);
 }
 .tourney-date {
     float: right;
