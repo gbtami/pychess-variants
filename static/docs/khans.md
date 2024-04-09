@@ -6,7 +6,7 @@
 
 Khan's Chess is a chess variant designed in 2023-2024 by Couch Tomato and is essentially a newer version of Orda Chess. Like Orda Chess, this is an asymmetric game where one army has knight movements but otherwise have different capture movements similar to the standard army. There were two main impetuses for creating Khan's Chess, both of which had to do with significant advancements in Fairy Stockfish since Orda's development several years earlier: 1) NNUE (neural network) evaluation demonstrated that at higher levels, Orda Chess was not as balanced as originally thought, and 2) the pawn setup for the Horde in Orda Chess did not fit the Mongol theme. To elaborate, pawns are slow defensive pieces that are very fitting for a medieval European soldier. Mongols were known for almost purely cavalry army and shock tactics. Fairy Stockfish had expanded its functionality to create more custom pieces, allowing for an exponentially larger amount of piece variety. After thorough testing, Khan's Chess took Orda Chess and replaced the pawn and yurt with two new pieces: the scout and khatun (a khatun is basically the khan's wife, a nice analogue to the queen). The new scouts also start on the second rank instead of the first. Regarding the balance, the game is overall fairly balanced based on high-level NNUE testing.
 
-For those familiar with Orda Chess, please just refer to the two new pieces (scout and khatun) for the new rules. Also, promotions are limited to one piece type on each side (queen for the Kingdom and khatun for the Horde)
+For those familiar with Orda Chess, please just refer to the two new pieces (scout and khatun) for the new rules.
  
 ## General Rules
 1.	Setup is as above. Despite new pieces, the placement of the Horde pieces mirror their chess counterparts.
@@ -14,12 +14,12 @@ For those familiar with Orda Chess, please just refer to the two new pieces (sco
 3.	The Kingdom (AKA White) *always moves first*.
 4.	The Horde (AKA Gold) cannot castle.
 5.	Pawns can promote to any piece as in chess. Scouts can only promote to a khatun.
-7.	An additional method of victory is available: called **campmate**. Campmate is achieved by moving one’s king into the final rank without moving into check.
-8.	**Stalemate** - loss for the player who can't move (rather than draw as in chess)
-9.	Other rules, including repetition are as in chess.
+6.	An additional method of victory is available: called **campmate**. Campmate is achieved by moving one’s king into the final rank without moving into check.
+7.	**Stalemate** - loss for the player who can't move (rather than draw as in chess)
+8.	Other rules, including repetition are as in chess.
 
 ## Horde Pieces
-There are five new units unique to the Horde: 8 Scouts, 2 Lancers, 2 Horse Archers, 2 Kheshigs, and 1 Khatun. The Kheshigs are the strongest piece (knight + king movement) and lead each flank, while the Yurt is a fairly weak piece unlike the Queen. 
+There are five new units unique to the Horde: 8 Scouts, 2 Lancers, 2 Horse Archers, 2 Kheshigs, and 1 Khatun. The Kheshigs are the strongest piece (knight + king movement) and lead each flank, while the Khatun is a fairly weak piece unlike the Queen. 
 The Horde’s king is called the Khan and has a different symbol, but is essentially the same as the Kingdom’s King, also using the same abbreviation (K) – the change is purely aesthetic and thematic. 
 The Horde's Lancer, Horse Archer, and Khatun are unique in that they capture differently than movement ("divergent" pieces, like the pawn). Remember that the Horde is horse-based, so the Lancer and Horse Archer both move like knights. They capture/check like rooks and bishops, respectively. The Khatun captures/checks like a king. The Kheshig is more traditional in that it captures where it moves; it combines the movements of the knight and king. 
 
