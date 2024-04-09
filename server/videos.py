@@ -520,4 +520,12 @@ VIDEOS = [
         "target": "beginner",
         "duration": "1:27:15",
     },
+    {
+        "_id": "YfdpMQTnZRM",
+        "title": "The chess dragon",
+        "author": " ChessFM",
+        "tags": ["Howto"],
+        "target": "beginner",
+        "duration": "5:54",
+    },
 ]
