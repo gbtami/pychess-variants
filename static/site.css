@@ -429,6 +429,7 @@ div.seeks {
   display: grid;
   grid-area: app;
   border-radius: 3px;
+  font-family: "Roboto", sans-serif;
 }
 .seeks [data-icon]:before {
   font-size: 20px;
