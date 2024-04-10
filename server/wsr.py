@@ -217,7 +217,7 @@ async def hande_board(ws, game):
 
 async def handle_setup(ws, users, user, data, game):
     # Janggi game starts with a prelude phase to set up horses and elephants
-    # First the second player (Red) choses his setup! Then the first player (Blue)
+    # First the second player (Red) chooses his setup! Then the first player (Blue)
 
     game.board.initial_fen = data["fen"]
     game.initial_fen = game.board.initial_fen
