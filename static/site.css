@@ -884,7 +884,6 @@ ul.guide li {
 #btn-settings, #btn-notify {
   padding: 8px;
   height: var(--site-header-height);
-  line-height: var(--site-header-height);
 }
 #btn-settings.shown, #btn-notify.shown {
   background-color: var(--bg-color1);
@@ -1076,6 +1075,7 @@ button.back {
   line-height: 3rem;
   border: none;
   cursor: pointer;
+  border-radius: unset;
 }
 
 .site-buttons button:hover {
