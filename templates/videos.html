@@ -6,7 +6,7 @@
     <ul class="guide">
     {% for tag in tags %}
     <li>
-    <a href="{{ home }}/video?tags={{ tag }}"><span>{{ video_tag(tag) }}</span></a>
+    <a href="{{ home }}/video?tags={{ tag }}">{{ video_tag(tag) }}</a>
     </li>
     {% endfor %}
     </ul>
