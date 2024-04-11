@@ -430,6 +430,9 @@ div.seeks {
   grid-area: app;
   border-radius: 3px;
 }
+span[role=tab], div.seeks-table thead {
+  font-family: "Roboto", sans-serif;
+}
 .seeks [data-icon]:before {
   font-size: 20px;
 }
