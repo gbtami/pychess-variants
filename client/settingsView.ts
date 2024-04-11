@@ -27,7 +27,7 @@ export function settingsView() {
 }
 
 function settingsButton() {
-    return h('button#btn-settings', { on: { click: toggleSettings } }, [
+    return h('button#btn-settings', { on: { click: toggleSettings }, attrs: { aria-label: "Settings" } }, [
         h('div.icon.icon-cog'),
     ]);
 }
