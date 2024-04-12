@@ -78,6 +78,7 @@
   --slider-border: #a9a9a9;
   --anal-clock: #bbd7f1;
   --pv-hover: #e0ebd3;
+  --table-even: rgb(235, 235, 235);
 }
 [data-theme='dark'] {
   --dark-mode: 1;
@@ -142,6 +143,7 @@
   --slider-border: #7a7a7a;
   --anal-clock: #2b455d;
   --pv-hover: #323c22;
+  --table-even: rgba(255, 255, 255, 0.05);
 }
 [data-theme='dark'] .icon-black:before {
   content: '\63';
@@ -1351,7 +1353,7 @@ round-player {
 .player-data {
   display: block;
   justify-content: center;
-  padding: 2px 6px;
+  padding: 8px 6px;
 }
 player-title {
   color: var(--gold);
@@ -1371,6 +1373,9 @@ i-side,
 button .icon-cloud-upload:before,
 button .icon-bar-chart:before {
   margin-right: 12px;
+}
+.online.icon.icon-online {
+  margin-right: 0px;
 }
 .icon-blue:before {
   content: '\62';
@@ -1394,7 +1399,8 @@ button .icon-bar-chart:before {
 }
 .icon-online::before {
   color: var(--good);
-  margin-right: 0.4em;
+  margin-right: 0.3em;
+  font-size: 0.85em;
 }
 .icon-offline::before {
   color: LightGray;
