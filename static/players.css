@@ -99,10 +99,10 @@ div.info0.icon::before {
 .shields .player-data {
     padding: 1.2rem 1.2rem 1.2rem 0.5rem;
 }
-div.card div.player-data:nth-child(2n) {
+div.card div.player-data:nth-child(2n), tr.player-data:nth-child(2n + 1) {
   background-color: var(--bg-color1);
 }
-div.card div.player-data:nth-child(2n + 1) {
+div.card div.player-data:nth-child(2n + 1), tr.player-data:nth-child(2n) {
   background-color: var(--table-even);
 }
 .tourney-date {
