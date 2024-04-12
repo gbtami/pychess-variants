@@ -1,4 +1,4 @@
-# ![Shogi](https://github.com/gbtami/pychess-variants/blob/master/static/icons/shogi.svg) 将棋|Shogi
+# ![Shogi](https://github.com/gbtami/pychess-variants/blob/master/static/icons/shogi.svg) 将棋 | Shogi
 
 ![Boards](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShogiGuide/Boards.png)
 
