@@ -721,6 +721,9 @@ class Tournament(ABC):
             self.players[wp].points.append("*")
             self.players[bp].points.append("*")
 
+            await self.db_update_player(wp, self.players[wp])
+            await self.db_update_player(bp, self.players[bp])
+
             self.ongoing_games += 1
 
             self.players[wp].free = False
@@ -1106,6 +1109,10 @@ class Tournament(ABC):
         if player_data.withdrawn:
             new_data = {
                 "wd": True,
+            }
+        elif len(player_data.points) > 0 and player_data.points[-1] == "*":
+            new_data = {
+                "p": player_data.points,
             }
         else:
             full_score = self.leaderboard[user]
