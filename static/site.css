@@ -348,6 +348,7 @@ iframe {
     1fr var(--main-margin);
   grid-template-areas: '. . main . .';
   margin-top: var(--site-header-margin);
+  --main-max-width: 1300px;
 }
 
 @media (max-width: 799px) and (orientation: portrait) {
@@ -534,7 +535,7 @@ div.memory,
 div.not-found {
   grid-area: main;
   margin: 0 auto;
-  border-radius: 3px;
+  border-radius: 5px;
   font-size: 1.1em;
   box-shadow: var(--base-shadow);
   background-color: var(--bg-color0);

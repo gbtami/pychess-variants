@@ -24,7 +24,7 @@ iframe {
 }
 
 .blogs {
-  max-width: 1000px;
+  max-width: 1300px;
   grid-area: content;
   padding: 2rem;
   border-radius: 3px;
@@ -34,7 +34,7 @@ iframe {
 .blog {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  grid-gap: 2vmin;
+  grid-gap: 1.5em;
   margin-bottom: 2em;
 }
 .blog .card {
