@@ -533,7 +533,7 @@ div.memory,
 div.not-found {
   grid-area: main;
   margin: 0 auto;
-  border-radius: 3px;
+  border-radius: 5px;
   font-size: 1.1em;
   box-shadow: var(--base-shadow);
   background-color: var(--bg-color0);
