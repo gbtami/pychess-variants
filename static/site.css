@@ -346,6 +346,7 @@ iframe {
     1fr var(--main-margin);
   grid-template-areas: '. . main . .';
   margin-top: var(--site-header-margin);
+  --main-max-width: 1300px;
 }
 
 @media (max-width: 799px) and (orientation: portrait) {
