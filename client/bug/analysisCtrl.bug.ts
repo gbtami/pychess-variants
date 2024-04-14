@@ -6,7 +6,7 @@ import { DrawShape } from 'chessgroundx/draw';
 
 import { _ } from '../i18n';
 import { uci2LastMove, uci2cg } from '../chess';
-import { VARIANTS, notation, moddedVariant } from "../variants"
+import { VARIANTS, notation } from "../variants"
 import { createMovelistButtons, updateMovelist, selectMove, activatePlyVari } from './movelist.bug';
 import { povChances } from '../winningChances';
 import { patch } from '../document';
@@ -78,7 +78,6 @@ export default class AnalysisControllerBughouse {
     notation: cg.Notation;
 
     ffish: any;
-    ffishBoard: any;
     notationAsObject: any;
 
     movetimeChart: Chart;
@@ -125,16 +124,10 @@ export default class AnalysisControllerBughouse {
         this.b1.parent = this;
         this.b2.parent = this;
 
-        const parts = this.b1.fullfen.split(" ");
         ffishModule().then((loadedModule: any) => {
             this.ffish = loadedModule;
             this.ffish.loadVariantConfig(variantsIni);
             this.notationAsObject = this.notation2ffishjs(this.notation);
-            this.ffishBoard = new this.ffish.Board(
-                moddedVariant(this.variant.name, false/*this.chess960*/, this.b1.chessground.state.boardState.pieces, parts[2]),
-                this.b1.fullfen,
-                false/*this.chess960*/);
-            window.addEventListener('beforeunload', () => this.ffishBoard.delete());
         });
 
         this.isAnalysisBoard = model["gameId"] === "";
@@ -186,23 +179,23 @@ export default class AnalysisControllerBughouse {
         createMovelistButtons(this);
         this.vmovelist = document.getElementById('movelist') as HTMLElement;
 
-        if (!this.model["embed"]) { // TODO:NIKI: what is this mode[embed] and how is it different than this.embed?
-            patch(document.getElementById('input') as HTMLElement, h('input#input', this.renderInput(this.b1)));
-            patch(document.getElementById('inputPartner') as HTMLElement, h('input#inputPartner', this.renderInput(this.b2)));
+        //
+        patch(document.getElementById('input') as HTMLElement, h('input#input', this.renderInput(this.b1)));
+        patch(document.getElementById('inputPartner') as HTMLElement, h('input#inputPartner', this.renderInput(this.b2)));
 
-            this.vscore = document.getElementById('score') as HTMLElement;
-            this.vscorePartner = document.getElementById('scorePartner') as HTMLElement;
-            this.vinfo = document.getElementById('info') as HTMLElement;
-            this.vpvlines = [...Array(5).fill(null).map((_, i) => document.querySelector(`.pvbox :nth-child(${i + 1})`) as HTMLElement)];
+        this.vscore = document.getElementById('score') as HTMLElement;
+        this.vscorePartner = document.getElementById('scorePartner') as HTMLElement;
+        this.vinfo = document.getElementById('info') as HTMLElement;
+        this.vpvlines = [...Array(5).fill(null).map((_, i) => document.querySelector(`.pvbox :nth-child(${i + 1})`) as HTMLElement)];
 
-            const pgn = (this.isAnalysisBoard) ? this.getPgn() : this.pgn;
-            this.renderFENAndPGN(pgn);
+        const pgn = (this.isAnalysisBoard) ? this.getPgn() : this.pgn;
+        this.renderFENAndPGN(pgn);
 
-            if (this.isAnalysisBoard) {
-                (document.querySelector('[role="tablist"]') as HTMLElement).style.display = 'none';
-                (document.querySelector('[tabindex="0"]') as HTMLElement).style.display = 'flex';
-            }
+        if (this.isAnalysisBoard) {
+            (document.querySelector('[role="tablist"]') as HTMLElement).style.display = 'none';
+            (document.querySelector('[tabindex="0"]') as HTMLElement).style.display = 'flex';
         }
+        //
 
         // Add a click event handler to each tab
         const tabs = document.querySelectorAll('[role="tab"]');
@@ -442,8 +435,8 @@ export default class AnalysisControllerBughouse {
 
         patch(document.getElementById('input') as HTMLElement, h('input#input', {attrs: {disabled: false}}));
         patch(document.getElementById('inputPartner') as HTMLElement, h('input#inputPartner', {attrs: {disabled: false}}));
-        this.fsfEngineBoard = new this.ffish.Board(this.variant.name, this.b1.fullfen, false);
 
+        this.fsfEngineBoard = new this.ffish.Board(this.variant.name, this.b1.fullfen, false);
         window.addEventListener('beforeunload', () => this.fsfEngineBoard.delete());
 
         if (!(this.b1.localAnalysis || this.b2.localAnalysis) || !this.isEngineReady) return;
@@ -759,10 +752,7 @@ export default class AnalysisControllerBughouse {
     }
 
     sendMove = (b: GameControllerBughouse, move: string) => {
-        const san = b.ffishBoard.sanMove(move, b.notationAsObject);
-        const sanSAN = b.ffishBoard.sanMove(move);
         const vv = this.steps[this.plyVari]['vari'];
-
 
         // We can't use ffishBoard.gamePly() to determine newply because it returns +1 more
         // when new this.ffish.Board() initial FEN moving color was "b"
@@ -785,30 +775,26 @@ export default class AnalysisControllerBughouse {
             'moveB': b.boardName==='b'? move: this.steps[this.steps.length-1].moveB, // if the new move is not for B, repeat value from previous step for B
             'check': b.isCheck,
             'turnColor': b.turnColor,
-            'san': san,
-            'sanSAN': sanSAN,
+            'san': b.san(move),
+            'sanSAN': b.sanSAN(move),
             'boardName': b.boardName,
             'plyA': this.b1.ply,
             'plyB': this.b2.ply,
             };
-        console.log(">>>>>>>>>>>>>>>>>>>>>")
-        console.log(b.partnerCC.ffishBoard.moveStack().split(' '));
-        console.log(b.ffishBoard.moveStack().split(' '));
-        const ffishBoardPly = b.ffishBoard.moveStack().split(' ').length; // TODO:NIKI: check all places where ffishBoard is used and we rely its state is preserved for each board but it seems like it is not actually the case then if we are open to bugs like losing that state because move happens on partner board, then this board logic still expecting old state is here and stuff like that
-        const partnerBoardHasNoMoves = b.partnerCC.ffishBoard.moveStack().split(' ')[0] === '' ;
-        // const ffishPartnerBoardPly = partnerBoardHasNoMoves? 0: b.partnerCC.ffishBoard.moveStack().split(' ').length;
+        const ffishBoardPly = b.getFFishPly();
+        const partnerBoardHasNoMoves = b.partnerCC.hasNoMoves();
         const moveIdx = (this.plyVari === 0) ? this.ply : this.plyInsideVari;
+
         // New main line move
         if (moveIdx === this.steps.length && this.plyVari === 0) {
             this.steps.push(step);
             this.ply = moveIdx;
             updateMovelist(this);
-
             this.checkStatus();
         // variation move
         } else {
             // possible new variation starts
-            if (ffishBoardPly === 1 && partnerBoardHasNoMoves) { // TODO:NIKI: i dont understand why i have added check for partnerBoardHasNoMoves but also above see TODO about probably that state being completely lost because its the same ffishBoard object we are checking twice here for being empty (that === 1 also practiacally checks if empty or something like that)
+            if (ffishBoardPly === 1 && partnerBoardHasNoMoves) {
                 if (this.ply < this.steps.length && move === this.steps[this.ply].move) {
                     // existing main line played
                     selectMove(this, this.ply);

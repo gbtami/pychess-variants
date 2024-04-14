@@ -48,7 +48,7 @@ export class GameControllerBughouse extends GameController {
 
     performPremove = () => {
         // const { orig, dest, meta } = this.premove;
-        // TODO: NIKI: promotion on premove currently not working correctly - it shows the dialog once the premove is executed and not when it is declared. Also probably doesnt respect the config for auto-promot
+        // todo: once premove+promotion bug is fixed for regular variants, apply here as well
         // console.log("performPremove()", orig, dest, meta);
         this.chessground.playPremove();
     }
@@ -79,27 +79,24 @@ export class GameControllerBughouse extends GameController {
         // important only during gap before we receive board message from server and reset whole FEN (see also onUserDrop)
         if (meta.captured) {
             const role = meta.captured.promoted? "p-piece": meta.captured.role;
-
-            if (this.partnerCC.chessground.state.boardState.pockets) {
-                // update pocket mode of partner board:
-                const pocket = this.partnerCC.chessground.state.boardState.pockets[meta.captured.color];
-                if (!pocket.has(role)) {
-                    pocket.set(role, 0);
-                }
-                pocket.set(role, pocket.get(role)! + 1);
-                // update fen of partner board:
-                let ff = this.partnerCC.ffishBoard.fen();
-                const f1 = this.partnerCC.chessground.getFen(); // we updated pocket model, so now chessground returns correct new fen with updated pockets
-                const fenPocket = f1.match(/\[.*\]/)![0]; // how the pocket should look like
-                this.partnerCC.fullfen=ff.replace(/\[.*\]/,fenPocket);
-                this.partnerCC.ffishBoard.setFen(this.partnerCC.fullfen);//todo:niki:hope it doesnt break anything this way. ply number i think is not correct now?
-                this.partnerCC.setDests(); // partner dests refresh needed for analysis and simul mode
-
-                this.partnerCC.chessground.state.dom.redraw(); // TODO: see todo comment also at same line in onUserDrop.
+            const pocketPartner = this.partnerCC.chessground.state.boardState.pockets![meta.captured.color];
+            if (!pocketPartner.has(role)) {
+                pocketPartner.set(role, 0);
             }
+            pocketPartner.set(role, pocketPartner.get(role)! + 1);
+            // update fen of partner board:
+            const partnerFenFromFFish = this.partnerCC.ffishBoard.fen();
+            // we updated pocket model, so now chessground returns correct new fen with updated pockets:
+            const partnerFenFromCG = this.partnerCC.chessground.getFen();
+            const partnerFenFromCGPocketsPart = partnerFenFromCG.match(/\[.*\]/)![0]; // how the pocket should look like
+            // todo: don't remember if there was any reason for not just using the fen from chessground directly instead
+            //       of replacing the pockets in the ffish fen
+            const partnerFenFromFFishNewPockets = partnerFenFromFFish.replace(/\[.*\]/,partnerFenFromCGPocketsPart);
+            this.partnerCC.setState(partnerFenFromFFishNewPockets, this.partnerCC.turnColor, this.partnerCC.lastmove);
+            this.partnerCC.chessground.state.dom.redraw();
         } else {
         }
-        this.processInput(moved, orig, dest, meta);; //if (!this.promotion.start(moved.role, orig, dest, meta.thisKey)) this.sendMove(orig, dest, '');
+        this.processInput(moved, orig, dest, meta);
         this.preaction = false;
     }
 
@@ -113,11 +110,11 @@ export class GameControllerBughouse extends GameController {
         this.preaction = false;
     }
 
-    setState = (fen: cg.FEN, turnColor: cg.Color, move: cg.Orig[]) => {
+    setState = (fen: cg.FEN, turnColor: cg.Color, move: cg.Orig[] | undefined) => {
         this.fullfen = fen;
-        this.turnColor = turnColor;//todo: probably not needed here and other places as well where its set
+        this.turnColor = turnColor; // todo: probably not needed here and other places as well where its set
         this.lastmove = move;
-        if (this.ffishBoard) { //TODO:NIKI: if this ffishboard object is one and the same, maybe move it to some global place instead of associating it to board
+        if (this.ffishBoard) {
             this.ffishBoard.setFen(this.fullfen);
             this.isCheck = this.ffishBoard.isCheck();
             this.setDests();
@@ -137,6 +134,25 @@ export class GameControllerBughouse extends GameController {
         this.setDests();
     }
 
+    getFFishPly = () => {
+        console.log(">>>>>>>>>>>>>>>>>>>>>")
+        console.log(this.partnerCC.ffishBoard.moveStack().split(' '));
+        console.log(this.ffishBoard.moveStack().split(' '));
+        return this.ffishBoard.moveStack().split(' ').length;
+    }
+
+    hasNoMoves = () => {
+        return this.ffishBoard.moveStack().split(' ')[0] === '';
+    }
+
+    san = (move: string): string => {
+        return this.ffishBoard.sanMove(move, this.notationAsObject);
+    }
+
+    sanSAN = (move: string): string => {
+        return this.ffishBoard.sanMove(move);
+    }
+
     renderState = () => {
         this.chessground.set({
             fen: this.fullfen,
@@ -147,7 +163,8 @@ export class GameControllerBughouse extends GameController {
     }
 
     createGround = (el: HTMLElement, pocket0:HTMLElement|undefined, pocket1:HTMLElement|undefined, fullfen: string): Api => {
-        //TODO:NIKI: this initialization happens over another construction of chessground object in cgCtrl the value of which is overwritten wit this one. can we somehow avoid this?
+        //TODO: There already is initialization of chessground in the parent class, but might require some changes to it
+        //      to decouple from model object and pass custom fens, etc. Ideally below initialization should happen there as well
         const parts = fullfen.split(" ");
         const fen_placement: cg.FEN = parts[0];
 
@@ -155,12 +172,12 @@ export class GameControllerBughouse extends GameController {
              fen: fen_placement as cg.FEN,
              dimensions: BOARD_FAMILIES.standard8x8.dimensions,
              notation: cg.Notation.ALGEBRAIC,
-             orientation: 'white',//todo:niki
-             turnColor: 'white',//todo:niki
+             orientation: 'white',// todo: meaningless, will be overwritten in a moment by roundCtrl.bug.ts or analysisCtrl.bug.ts
+             turnColor: 'white',//todo: meaningless, will be overwritten in a moment by roundCtrl.bug.ts or analysisCtrl.bug.ts
              animation: {
                  enabled: localStorage.animation === undefined || localStorage.animation === "true",
              },
-             addDimensionsCssVarsTo: this.boardName === 'a'? document.body: undefined, // todo:niki, i was hoping this check will result in only setting those variables once by first board, this avoiding that loop of resizing that happens but i guess not enough
+             addDimensionsCssVarsTo: this.boardName === 'a'? document.body: undefined,
              pocketRoles: VARIANTS.crazyhouse.pocket?.roles,
         }, pocket0, pocket1);
 

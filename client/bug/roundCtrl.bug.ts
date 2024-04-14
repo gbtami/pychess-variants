@@ -334,7 +334,8 @@ export class RoundControllerBughouse implements ChatController {
         this.b2.parent = this;
 
         ///////
-
+        // todo: redundant setting turnColor here. It will be overwritten a moment later in onMsgBoard which is
+        //       important and more correct in case of custom fen with black to move
         this.b1.chessground.set({
             orientation: this.myColor.get('a') === 'white' || this.partnerColor.get('a') === 'white' || this.spectator? 'white': 'black',
             turnColor: 'white',
@@ -379,6 +380,13 @@ export class RoundControllerBughouse implements ChatController {
         }
 
         Promise.all([this.b1.ffishPromise, this.b2.ffishPromise]).then(() => {
+            // todo: This call or the initial board message on /wrs ws connect is redundant. However the ws message
+            //       is important in case of ws reconnect so we cannot just remove it.
+            //       Currently updateBothBoardsAndClocksInitial is always being called twice
+            //       first here, then a moment later when the first board message is received on connect to /wsr
+            //       Above happens both first when game starts and when doing refresh without any moves have been made.
+            //       In case of refresh when moves have been made, then "updateBothBoardsAndClocksOnFullBoardMsg"
+            //       is called twice, again first time from here redundantly.
             this.onMsgBoard(model["board"] as MsgBoard);
         });
 
@@ -419,7 +427,6 @@ export class RoundControllerBughouse implements ChatController {
         a = infoWrap1!.style.gridArea || "clock-bot";
         infoWrap1!.style.gridArea = infoWrap1bug!.style.gridArea || "clockB-bot";
         infoWrap1bug!.style.gridArea = a;
-
     }
 
     getClock = (boardName: string, color: cg.Color) => {
@@ -526,7 +533,6 @@ export class RoundControllerBughouse implements ChatController {
             // this case only ever entered once, when first move was made.
             this.msgMovesAfterReconnect.movesQueued[0] = moveMsg;
         }
-
     }
 
     private draw = () => {
@@ -709,10 +715,15 @@ export class RoundControllerBughouse implements ChatController {
 
         const msgTurnColor = step.turnColor; // whose turn it is after this move
 
+        // todo: same clock logic also in updateSingleBoardAndClocks - move to reusable method.
+        // important we update only the board where the single move happened, the other clock values do not include the
+        // time passed since last move on that board, but contain what is last recorded on the server for that board,
+        // while the clock values for this move contain what the user making the moves has in their browser, which we
+        // consider most accurate
         if (board.boardName == 'a') {
-            this.clocktimes = clocks || this.clocktimes;
+            this.clocktimes = clocks;
         } else {
-            this.clocktimesB = clocks || this.clocktimes;
+            this.clocktimesB = clocks;
         }
 
         // resetting clocks on the client that has just sent them seems like a bad idea
@@ -834,6 +845,7 @@ export class RoundControllerBughouse implements ChatController {
             });
         }
 
+        // todo: mostly duplicates same code in updateBothBoardsAndClocksInitial - consider doing some reusable method
         this.clocks[0].pause(false);
         this.clocks[1].pause(false);
         this.clocksB[0].pause(false);
@@ -859,7 +871,6 @@ export class RoundControllerBughouse implements ChatController {
             this.clocks[clockOnTurnAidx].start(this.clocktimes[this.b1.turnColor === 'white'? WHITE: BLACK]);
             this.clocksB[clockOnTurnBidx].start(this.clocktimesB[this.b2.turnColor === 'white'? WHITE: BLACK]);
         } else {
-            //todo:niki:not great if there were no moves on one of the boards because then it will show initial clock times but anyway
             if (lastStepA) {
                 this.clocks[whiteAClockAtIdx].setTime(lastStepA.clocks![WHITE]);
                 this.clocks[blackAClockAtIdx].setTime(lastStepA.clocks![BLACK]);
@@ -870,10 +881,8 @@ export class RoundControllerBughouse implements ChatController {
             }
         }
 
-        // todo:niki: i dont understand below comment which i copied together with the code. Also probably good to check if status < 0 and reset premoes if game ended, instead of performing them
         // prevent sending premove/predrop when (auto)reconnecting websocked asks server to (re)sends the same board to us
         // console.log("trying to play premove....");
-
         if (this.b1.premove && this.b1.turnColor == this.myColor.get('a')) this.b1.performPremove();
         if (this.b2.premove && this.b2.turnColor == this.myColor.get('b')) this.b2.performPremove();
     }
@@ -882,33 +891,20 @@ export class RoundControllerBughouse implements ChatController {
                                           msgClocks: Clocks, latestPly: boolean, colors: cg.Color[], status: number, check: boolean) => {
         console.log("updateSingleBoardAndClocks", board, fen, fenPartner, lastMove, step, msgClocks, latestPly, colors, status, check);
 
-        board.turnColor = board.turnColor === 'white' ? 'black' : 'white';
-
-        if (board.ffishBoard) {
-            board.ffishBoard.setFen(fen);
-            board.setDests();
-        }
-
         this.clockOn = true;// Number(msg.ply) >= 2;
-
-        //todo:niki:sound not implemented for now
-        // const step = this.steps[this.steps.length - 1];
-        // const capture = (lastMove.length > 0) && ((this.chessground.state.pieces.get(lastMove[1]) && step.san?.slice(0, 2) !== 'O-') || (step.san?.slice(1, 2) === 'x'));
-        //
-        // if (lastMove.length > 0 && (this.turnColor === this.mycolor || this.spectator)) {
-        //     if (!this.finishedGame) sound.moveSound(this.variant, capture);
-        // }
-        // if (!this.spectator && msg.check && !this.finishedGame) {
-        //     sound.check();
-        // }
 
         const msgTurnColor = step.turnColor; // whose turn it is after this move
         const msgMoveColor = msgTurnColor === 'white'? 'black': 'white'; // which color made the move
         const myMove = this.myColor.get(board.boardName) === msgMoveColor; // the received move was made by me
+
+        // important we update only the board where the single move happened, the other clock values do not include the
+        // time passed since last move on that board, but contain what is last recorded on the server for that board,
+        // while the clock values for this move contain what the user making the moves has in their browser, which we
+        // consider most accurate
         if (board.boardName == 'a') {
-            this.clocktimes = msgClocks || this.clocktimes; //todo:niki:have the feeling this or is redundant. probably only initial board message doesnt have clocktimes. maybe even it has. not sure
+            this.clocktimes = msgClocks;
         } else {
-            this.clocktimesB = msgClocks || this.clocktimesB;
+            this.clocktimesB = msgClocks;
         }
 
         const capture = !!lastMove && ((board.chessground.state.boardState.pieces.get(lastMove[1] as cg.Key) && step.san?.slice(0, 2) !== 'O-') || (step.san?.slice(1, 2) === 'x'));
@@ -942,35 +938,25 @@ export class RoundControllerBughouse implements ChatController {
 
             //when message is for opp's move, meaning turnColor is my color - it is now my turn after this message
             if (latestPly) {
-                board.chessground.set({
-                    fen: fen,
-                    turnColor: board.turnColor,
-                    check: check,
-                    lastMove: lastMove,
-                });
-                //todo:niki: updating model probably should be regardless of whetehre it is latestPly:
-                board.fullfen = fen;
-                board.partnerCC.fullfen = fenPartner;//todo:niki:setter or something maybe
-                board.partnerCC.chessground.set({ fen: fenPartner});
-                board.partnerCC.ffishBoard.setFen(board.partnerCC.fullfen);
-                board.partnerCC.setDests();
+                board.setState(fen, board.turnColor === 'white' ? 'black' : 'white', lastMove);
+                board.renderState();
+
+                // because pocket might have changed. todo: condition it on if(capture) maybe
+                board.partnerCC.setState(fenPartner, board.partnerCC.turnColor, board.partnerCC.lastmove);
+                board.partnerCC.renderState();
+
                 if (!this.focus) this.notifyMsg(`Played ${step.san}\nYour turn.`);
 
-                // prevent sending premove/predrop when (auto)reconnecting websocked asks server to (re)sends the same board to us
-                // console.log("trying to play premove....");
                 if (board.premove) board.performPremove();
             }
         } else {
             //when message is about the move i just made
-            board.chessground.set({
-                // giving fen here will place castling rooks to their destination in chess960 variants
-                fen: fen,
-                turnColor: board.turnColor,
-                check: check,
-            });
-            board.fullfen = fen;
-            board.partnerCC.fullfen = fenPartner;
-            board.partnerCC.chessground.set({ fen: fenPartner});
+            board.setState(fen, board.turnColor === 'white' ? 'black': 'white', lastMove);
+            board.renderState();
+
+            // because pocket might have changed. todo: condition it on if(capture) maybe
+            board.partnerCC.setState(fenPartner, board.partnerCC.turnColor, board.partnerCC.lastmove);
+            board.partnerCC.renderState();
         }
 
     }
@@ -983,7 +969,7 @@ export class RoundControllerBughouse implements ChatController {
         // console.log("got board msg:", msg);
         let latestPly;
         const full = msg.steps.length > 1;
-        const isInitialBoardMessage = !(msg.steps[msg.steps.length-1].boardName);//todo:niki:not sure why step[0] is still being sent with every move, but when initial board message, that is always the only element (respectively also the last)
+        const isInitialBoardMessage = !(msg.steps[msg.steps.length-1].boardName);
         if (this.spectator) {
             // Fix https://github.com/gbtami/pychess-variants/issues/687
             latestPly = (this.ply === -1 || msg.ply === this.ply + 1);
@@ -1010,11 +996,6 @@ export class RoundControllerBughouse implements ChatController {
         const fenA = fens[0];
         const fenB = fens[1];
 
-        //todo:niki:change this to step[0] if/when that board message is fixed to have just one element in steps and
-        //     stop always sending that redundnat initial dummy step (if it is indeed redundant)
-        //todo:niki:update to above's todo, actually it sometimes sends it with 2 elements, sometimes just with one -
-        // gotta check what is wrong with python code and how it works in other variants. for now always getting the
-        // last element should be robust in all cases
         const boardName = msg.steps[msg.steps.length - 1].boardName as 'a' | 'b';
         const board = boardName === 'a' ? this.b1 : this.b2;
         const colors = boardName === 'a' ? this.colors : this.colorsB;
@@ -1027,10 +1008,10 @@ export class RoundControllerBughouse implements ChatController {
         const lastMove = uci2LastMove(msg.lastMove);
 
         if (this.spectator) {
-            this.updateBoardsAndClocksSpectors(board, fen, fenPartner, lastMove, msg.steps[0], msg.clocks!, latestPly, colors, msg.status, check);//todo:niki unclear what is different that when playing, but should have full mode as well
+            this.updateBoardsAndClocksSpectors(board, fen, fenPartner, lastMove, msg.steps[0], clocks!, latestPly, colors, msg.status, check);//todo:niki unclear what is different that when playing, but should have full mode as well. generally should test specator mode at least a little bit
         } else {
             if (isInitialBoardMessage) { // from constructor
-                this.updateBothBoardsAndClocksInitial(fenA, fenB, msg.clocks!, msg.clocksB!);// todo:niki: when no moves were made and we refresh, logic here doesnt differentiate it is not initial anymore, but full, and clocks have started so sending clock times again and inside duplicating the logic for clock from full mode as well - maybe think about reusing that logic or differentiating better this case as full
+                this.updateBothBoardsAndClocksInitial(fenA, fenB, msg.clocks!, msg.clocksB!);
             } else if (full) { // manual refresh or reconnect after lost ws connection
                 const lastStepA = msg.steps[msg.steps.findLastIndex(s => s.boardName === "a")];
                 const lastStepB = msg.steps[msg.steps.findLastIndex(s => s.boardName === "b")];

@@ -1,15 +1,8 @@
-/*analysis.css*/
+/* *****************************************************************************************
+ * analysis.css
+ ******************************************************************************************* */
 @media (min-width: 800px) {
         .analysis-app.bug {
-/*        grid-template-columns: minmax(230px, 20vw) 2vmin minmax(calc(70vmin * var(--board-scale)), calc(100vh * var(--board-scale) - calc(var(--site-header-height) + var(--site-header-margin)) - 3rem)) var(--gauge-gap) minmax(240px, 400px);*/
-/*        grid-template-columns: 2vmin minmax(calc(70vmin * var(--board-scale)), calc(100vh * var(--board-scale) - calc(var(--site-header-height) + var(--site-header-margin)) - 3rem)) var(--gauge-gap) minmax(240px, 400px) minmax(calc(70vmin * var(--board-scale)), calc(100vh * var(--board-scale) - calc(var(--site-header-height) + var(--site-header-margin)) - 3rem));*/
-        /*todo:niki:move list probably some max from this new expression and old one*/
-        /*grid-template-columns: minmax(calc(70vmin * var(--board-scale)), calc(100vh * var(--board-scale) - calc(var(--site-header-height) + var(--site-header-margin)) - 3rem))
-                               var(--gauge-gap)
-                               calc(var(--pocketLength) * (var(--cg-width) / var(--files)))
-                               calc(var(--pocketLength) * (var(--cg-width) / var(--files)))
-                               var(--gauge-gap)
-                               minmax(calc(70vmin * var(--board-scale)), calc(100vh * var(--board-scale) - calc(var(--site-header-height) + var(--site-header-margin)) - 3rem));*/
         grid-template-columns: 500px
                                var(--gauge-gap)
                                calc(var(--pocketLength) * (var(--cg-width) / var(--files)))
@@ -26,15 +19,19 @@
                              'gameinfo gameinfo uboard uboard uboard uboard uboard'
     }
 }
+
 .anal-clock.bug {
     left:0;
     right:initial;
 }
+
 #gaugePartner {
     grid-area: gaugePartner;
 }
 
-/* extensions.css*/
+/* *****************************************************************************************
+ * extensions.css
+ ******************************************************************************************* */
 main.round.bug .pocket.top {
   margin-bottom: unset;
 }
@@ -43,16 +40,10 @@ main.round.bug .pocket.bottom {
 }
 
 div#chatpresets{
-  /*display: flex;*/
   display: grid;
   grid-template-columns: auto auto auto auto auto;
   padding-top: 5px;
-  /*grid-template-columns: 15fr 15fr 15fr 15fr 15fr;*/
-  /*grid-template-rows: 15px 15px 15px 15px;*/
-  /*grid-template-rows: 15fr 15fr 15fr 15fr;*/
   grid-template-rows: auto auto auto auto;
-  /*flex-direction: row;
-  flex-wrap: wrap;*/
   order: 3;
 }
 
@@ -89,10 +80,7 @@ button.bugchat:focus {
 button.bugchat::-moz-focus-inner {
   border: 0;
 }
-/*button.bugchat:hover {*/
-/*  background-color: var(--vpanel-button-hover);*/
-/*  color: rgb(160, 160, 160);*/
-/*}*/
+
 .bugchat.p {
   background-image: url('../../static/images/bugroundchat/P.svg');
   background-size: cover;
@@ -113,8 +101,6 @@ button.bugchat::-moz-focus-inner {
   background-image: url('../../static/images/bugroundchat/Q.svg');
   background-size: cover;
 }
-
-
 .bugchat.nop{
   background-image: url('../../static/images/bugroundchat/noP.svg');
   background-size: cover;
@@ -135,8 +121,6 @@ button.bugchat::-moz-focus-inner {
   background-image: url('../../static/images/bugroundchat/noQ.svg');
   background-size: cover;
 }
-
-
 .bugchat.sit{
   background-image: url('../../static/images/bugroundchat/SIT.svg');
   background-size: cover;
@@ -157,8 +141,6 @@ button.bugchat::-moz-focus-inner {
   background-image: url('../../static/images/bugroundchat/MATE.svg');
   background-size: cover;
 }
-
-
 .bugchat.ok{
   background-image: url('../../static/images/bugroundchat/OK.svg');
   background-size: cover;
@@ -180,7 +162,9 @@ button.bugchat::-moz-focus-inner {
   background-size: cover;
 }
 
-/*round.css*/
+/* *****************************************************************************************
+ * round.css
+ ******************************************************************************************* */
 
 @media (max-width: 799px) and (orientation: portrait) {
     .round-app.bug {
@@ -194,26 +178,11 @@ button.bugchat::-moz-focus-inner {
 }
 
 @media (min-width: 800px) {
-
     .round-app.bug {
-/*        grid-template-columns: minmax(230px, 20vw) 2vmin minmax(calc(70vmin * var(--board-scale)), calc(100vh * var(--board-scale) - calc(var(--site-header-height) + var(--site-header-margin)) - 3rem)) var(--gauge-gap) minmax(240px, 400px);*/
-/*        grid-template-columns: 2vmin minmax(calc(70vmin * var(--board-scale)), calc(100vh * var(--board-scale) - calc(var(--site-header-height) + var(--site-header-margin)) - 3rem)) var(--gauge-gap) minmax(240px, 400px) minmax(calc(70vmin * var(--board-scale)), calc(100vh * var(--board-scale) - calc(var(--site-header-height) + var(--site-header-margin)) - 3rem));*/
-        /*todo:niki:move list probably some max from this new expression and old one*/
-        /*grid-template-columns: minmax(calc(70vmin * var(--board-scale)), calc(100vh * var(--board-scale) - calc(var(--site-header-height) + var(--site-header-margin)) - 3rem))*/
-        /*                       auto !*minmax(240px, 400px)*! !*calc(var(--pocketLength) * (var(--cg-width) / var(--files)))*!*/
-        /*                       auto !*minmax(240px, 400px)*! !*calc(var(--pocketLength) * (var(--cg-width) / var(--files)))*!*/
-        /*                       minmax(calc(70vmin * var(--board-scale)), calc(100vh * var(--board-scale) - calc(var(--site-header-height) + var(--site-header-margin)) - 3rem));*/
-        /*grid-template-columns: minmax(calc(70vmin * var(--board-scale)), calc(100vh * var(--board-scale) - calc(var(--site-header-height) + var(--site-header-margin)) - 3rem))*/
-        /*                       auto !*minmax(240px, 400px)*! !*calc(var(--pocketLength) * (var(--cg-width) / var(--files)))*!*/
-        /*                       auto !*minmax(240px, 400px)*! !*calc(var(--pocketLength) * (var(--cg-width) / var(--files)))*!*/
-        /*                       minmax(calc(70vmin * var(--board-scale)), calc(100vh * var(--board-scale) - calc(var(--site-header-height) + var(--site-header-margin)) - 3rem));*/
         grid-template-columns: calc(30vw * var(--board-scale))
-                               calc(var(--pocketLength) * (var(--cg-width) / var(--files))) /*minmax(240px, 400px)*/ /*calc(var(--pocketLength) * (var(--cg-width) / var(--files)))*/
+                               calc(var(--pocketLength) * (var(--cg-width) / var(--files)))
                                calc(30vw * var(--board-scale))
-                               calc(var(--pocketLength) * (var(--cg-width) / var(--files))); /*minmax(240px, 400px)*/ /*calc(var(--pocketLength) * (var(--cg-width) / var(--files)))*/
-;
-
-        /*grid-template-rows: min-content min-content 1fr 1fr 1fr 1fr min-content min-content min-content;*/
+                               calc(var(--pocketLength) * (var(--cg-width) / var(--files)));
         grid-template-rows: min-content min-content min-content min-content min-content min-content min-content min-content min-content;
         grid-template-areas: 'board pocket-top boardPartner pocket-top-partner'
                              'board clock-top boardPartner clockB-top'
@@ -225,7 +194,6 @@ button.bugchat::-moz-focus-inner {
                              'board pocket-bot boardPartner pocket-bot-partner'
                              '. move-controls move-controls .'
                              'uboard uboard uboard uboard'
-        /*'board . boardPartner' 'board mat-top boardPartner' 'board clock-top boardPartner' 'board expi-top boardPartner' 'board user-top boardPartner' 'board move-controls boardPartner' 'board moves boardPartner' 'board game-controls boardPartner' 'board user-bot boardPartner' 'board expi-bot boardPartner' 'board clock-bot boardPartner' 'board mat-bot boardPartner' 'board . boardPartner';*/
     }
 }
 
@@ -248,11 +216,13 @@ button.bugchat::-moz-focus-inner {
 
 }
 
-/*site.css*/
+/* *****************************************************************************************
+ * site.css
+ ******************************************************************************************* */
 
 #main-wrap.bug {
   display: grid;
-  grid-template-columns: minmax(auto, auto);/*todo:niki:no idea what im doing*/
+  grid-template-columns: minmax(auto, auto);
   grid-template-areas: 'main';
   margin-top: var(--site-header-margin);
 }
@@ -260,11 +230,10 @@ button.bugchat::-moz-focus-inner {
 @media (min-width: 800px) {
   .bug {
     grid-template-columns:
-      2*minmax(calc(70vmin * var(--board-scale)), calc(100vh * var(--board-scale) - calc(var(--site-header-height) + var(--site-header-margin)) - 3rem))
+      2 * minmax(calc(70vmin * var(--board-scale)), calc(100vh * var(--board-scale) - calc(var(--site-header-height) + var(--site-header-margin)) - 3rem))
       minmax(240px, 400px);
     grid-template-rows: fit-content(0) fit-content(0) 743px;
     grid-template-areas: 'app app' 'uleft uboard' 'side side';
-    /*grid-gap: 2vmin; i am not sure what is the point f this whole selector in min-width:800px, why i have it and in what cases it makes sense*/
   }
 }
 
@@ -284,64 +253,53 @@ button.bugchat::-moz-focus-inner {
   position: relative;
 }
 
-
-.bugseek{
+.bugseek {
   display: grid;
   grid-template-columns: auto/*team board color name;*/;
   grid-template-rows: auto auto 1em auto auto;
-  /*grid-template-areas: 'team1 board color name' 'team1 board color name' 'team2 board color name' 'team2 board color name';*/
 }
-td.bugseek1{
+
+td.bugseek1 {
   display: grid;
   grid-template-columns: auto auto auto/*team board color name;*/;
   grid-template-rows: auto auto 1em auto auto;
-  /*grid-template-areas: 'team1 board color name' 'team1 board color name' 'team2 board color name' 'team2 board color name';*/
 }
 
-.bugseekteam1{
+.bugseekteam1 {
   display: flex;
   justify-content: center;
   align-items: center;
   grid-row: 1/3;
 }
-.bugseekteam2{
+
+.bugseekteam2 {
   display: flex;
   justify-content: center;
   align-items: center;
   grid-row: 4/6;
 }
-.bugseekvs{
+
+.bugseekvs {
   grid-column: 1/4;
 }
+
 .bugseekteam1 div,
-.bugseekteam2 div{
-  /*  font-size: 13px;*/
+.bugseekteam2 div {
   font-color: #878787;
-  /*position: absolute;*/
-  /*top: 50%;
-  left: 50%;*/
-  /*background: #DDD;*/
-/*
-  -moz-transform: translateX(-50%) translateY(-50%) rotate(-90deg);
-  -webkit-transform: translateX(-50%) translateY(-50%) rotate(-90deg);
-  transform:  translateX(-50%) translateY(-50%) rotate(-90deg);*/
 }
 
-.bug-join-button{
-  /*background-color: transparent;*/
+.bug-join-button {
   background-color: var(--bg-color2);
   border: none;
   color: var(--font-color);
-  /*padding: 15px 2px;*/
   text-align: center;
   text-decoration: none;
   font-size: 18px;
-  /*margin: 4px 2px;*/
-
   cursor: pointer;
   box-shadow: var(--base-shadow);
   border-radius: 3px;
 }
+
 .bug-join-button:hover {
   background-color: var(--bg-color1);
 }
@@ -368,6 +326,7 @@ main.bug.analysis round-player1.bug rating {
   float: left;
   font-size: 16px;
 }
+
 main.bug.round rating,
 main.bug.round rating {
   font-size: 0.7vw;
@@ -376,9 +335,11 @@ main.bug.round rating {
 .info-wrap0.bug {
   grid-area: clockB-top;
 }
+
 .info-wrap1.bug {
   grid-area: clockB-bot;
 }
+
 main.bug round-player0,
 main.bug round-player1 {
   font-size: 0.7vw;
@@ -387,17 +348,20 @@ main.bug round-player1 {
   height: 48px;
   align-items: center;
 }
+
 round-player0.bug {
   grid-area: userB-top;
   /*justify-content: right;*/
 }
+
 round-player1.bug {
   grid-area: userB-bot;
-/*  justify-content: right;*/
 }
+
 .clock-wrap.bug {
   flex-direction: row-reverse;
 }
+
 #messages {
   width: 100%;
 }
@@ -407,11 +371,13 @@ round-player1.bug {
     font-size: 1.1em;
   }
 }
+
 @media (min-width: 800px) {
   main.round.bug #movelist {
     font-size: 0.68vw; // magic number that looks good and resizes itself with container
   }
 }
+
 main.round.bug #movelist {
   display: flex;
   height: 100%;
@@ -453,12 +419,7 @@ bugchat img{
 
 .bugchatpopup {
   list-style-type: none;
-  /*visibility: hidden;*/
   display: none;
-  /*background-color: #3c3934;*/
-  /*position: fixed;*/
-  /*left: 0;
-  top: 50px;*/
   min-width: 12rem;
   border-left: 2px solid #3692e7;
   border-radius: 0 3px 3px 3px;
@@ -467,30 +428,12 @@ bugchat img{
   z-index: 1000;
   min-height: unset;
   flex: 0 0 100%;
-  /*background-color: var(--bg-color2);
-  border-top: 1px solid var(--border-color);
-  border-bottom: 1px solid var(--border-color);*/
   max-width: 100%;
 }
 
-/*move-bug:hover + .bugchatpopup,*/
 move-bug.active + .bugchatpopup {
   display: block;
 }
-
-/*.bugchat .discord-icon-container {
-  display: inline-flex;
-  align-items: center;
-  margin-right: 3px;
-  width: 0.8em;
-  height: 0.55em;
-  background: white;
-  background-position: center;
-  transform: translateY(2px);
-}
-.bugchat .discord-icon {
-  fill: #5865f2;
-}*/
 
 move-bug.counter {
     color: Gray;
@@ -507,7 +450,6 @@ move-bug.counter {
     grid-area: pocket-bot-partner;
 }
 
-/* */
 player.bug {
     text-align: center;
 }

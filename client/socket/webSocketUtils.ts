@@ -24,7 +24,8 @@ export function toggleSocketCssOnOpen() {
 }
 
 export function toggleSocketCssOnError() {
-    //todo: Maybe remove this case. lichess just logs error, doesnt do any reconnect or popup notification, etc.
+    //todo: Not sure if server ws is closed with error flag when we have serverside error. Check serverside code and
+    //      make sure error is communicated and also check if ws.onerror is how it is supposed ot be handled on client
     console.log("toggleSocketCssOnError()");
     clearSocketCss();
     document.body.classList.add('offline-socket-error');
