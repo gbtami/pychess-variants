@@ -23,7 +23,7 @@ There are five additional rules that new players must be especially aware of! (A
 ## Dynasty Pieces
 There are four new units unique to the Dynasty: 6 Soldiers (2 start in hand), 2 Cannons, 2 Elephants, and 1 Advisor. 
 The Chariots are equal to the Rooks and use the same abbreviation (R) – the difference is purely cosmetic. Similarly, the Kings are the same, but just appear different. Despite the Horse being different in Xiangqi and Janggi, the Dynasty’s version is no different than the Kingdom's Knight and has the same name, moves, and appearance. 
-The Dynasty does not have a piece as strong as the Queen; instead it has more minor pieces than the Kingdom.
+The Dynasty does not have a piece as strong as the Queen; instead, it has more minor pieces than the Kingdom.
 Details and diagrams of each piece are below. 
 
 ### King (K) and Chariot (R)
@@ -31,7 +31,7 @@ Details and diagrams of each piece are below.
 
 As above, these pieces are purely cosmetic changes. The Chariot is essentially a Rook and uses the same symbol (R).
 Keep in mind the King Faceoff rule above for the King.
-The Chariot is the strongest piece for the Dynasty.
+The Chariot is the strongest piece of the Dynasty.
 
 ### Soldier (S)
 
@@ -56,7 +56,7 @@ The Cannon is a hopping piece. It is essentially a rook that requires an interve
 
 ![Advisor](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Advisor.png)
 
-The Advisor moves and captures exactly like a king. Unlike the king, it can be captured. While there is no equivalent piece in Xiangqi or Janggi, there is no palace in Synochess. As such, the Advisor needed to be stronger in order to protect its king, and one might think of its movements as combining the strength of two Xiangqi advisors to cover all 8 squares.
+The Advisor moves and captures exactly like a king. Unlike the king, it can be captured. While there is no equivalent piece in Xiangqi or Janggi, there is no palace in Synochess. As such, the Advisor needed to be stronger to protect its king, and one might think of its movements as combining the strength of two Xiangqi advisors to cover all 8 squares.
 
  
 ## Piece valuation
@@ -84,7 +84,7 @@ Rook | 5 | Knight | 3
  | |  | Chariot | 5
 
 ## Strategy
-The game is still young, so strategy is still being developed! Much of the data is currently based on Engine play. As with most games, a lot can be learned by playing against a high level AI, losing, and seeing how you lost!
+The game is still young, so strategy is still being developed! Much of the data is currently based on Engine play. As with most games, a lot can be learned by playing against a high-level AI, losing, and seeing how you lost!
 
 ### Openings
 
@@ -117,15 +117,15 @@ As the Dynasty, avoid moving the soldiers too much. Their initial formation is a
 
 ### Kingdom (white) tips
 
-* **Opening pawn moves – keep them single-step!** – This is more based on an analysis of Stockfish patterns, but your first moves should favor single step pawn moves rather than double steps. This is likely because it’s important to have a solid pawn backbone to take down the pesky Dynasty soldiers.
+* **Opening pawn moves – keep them single-step!** – This is more based on an analysis of Stockfish patterns, but your first moves should favor single-step pawn moves rather than double-step ones. This is likely because it’s important to have a solid pawn backbone to take down the pesky Dynasty soldiers.
 * **AVOID initiating an exchange for the cannon** – The cannon, while very menacing in the early game, depreciates rapidly throughout the game. In fact, killing the other pieces effectively kills the cannons (if there are no screens, it can’t move effectively), eventually leaving it open to be killed by another piece easily. 
-* **Protect the queen!** – The queen is valued even more than in standard chess, because it is the one big trump card that the Kingdom has over the Dynasty. If it has to be exchanged, make sure that one of the enemy chariots go down with it.
+* **Protect the queen!** – The queen is valued even more than in standard chess because it is the one big trump card that the Kingdom has over the Dynasty. If it has to be exchanged, make sure that one of the enemy chariots go down with it.
 * **Trade, trade, trade** – This follows the last two tips. If you keep trading, while keeping your queen alive and also not making too many exchanges for cannons, you will be on top. The Dynasty has a complex piece coordination, and that can get broken down the fewer pieces they have. The Kingdom wants a simple, open game, while the Dynasty wants to take advantage of its early open files and soldier screens.
 
 ### Dynasty (red) tips
 
 * **Know the pieces' moves!** – This may seem obvious, but a lot of beginners forget that soldiers can move sideways. 
-* **Soldier structure – DO NOT MOVE YOUR SOLDIERS** – This may seem counterintuitive compared to regular chess pawns, but soldiers really shouldn’t be moving as part of your development OR for most attacks. The starting positions of your starting four soldiers are actually the strongest formation already. They each defend each other and prevent white from placing pieces anywhere on the 5th file. As such, each pair are probably even worth more than the average minor piece. Keep them there and use them as screens for your cannons to cramp and redirect white’s development as much as possible. Also, despite the words "DO NOT MOVE" in bold capital letters, if you have to, then you obviously have to.
+* **Soldier structure – DO NOT MOVE YOUR SOLDIERS** – This may seem counterintuitive compared to regular chess pawns, but soldiers really shouldn’t be moving as part of your development OR for most attacks. The starting positions of your starting four soldiers are actually the strongest formation already. They each defend each other and prevent white from placing pieces anywhere on the 5th file. As such, each pair is probably even worth more than the average minor piece. Keep them there and use them as screens for your cannons to cramp and redirect white’s development as much as possible. Also, despite the words "DO NOT MOVE" in bold capital letters, if you have to, then you obviously have to.
 * **Reinforcement soldiers – Use sparingly** – As above, the original pawn structure is already optimal. Adding reinforcements without any need actually damages your structure and ruins your tempo. Use reinforcements when white is about to attack a soldier with a pawn supported by another piece. If instead there is a one-for-one soldier exchange, you can drop a reinforcement afterwards to repair your structure.
 * **Trade your cannons ASAP!** – As mentioned in the Kingdom tips above, cannons depreciate rapidly throughout the course of the game. Yes, they can be used for some devastating tactics, but the Dynasty player must acknowledge there is a small window for that (early to midgame). It’s recommended to trade off one of your cannons within the early game (first several moves). This allows the second cannon to move more freely.
 * **Activate your chariots** – This tip is similar to basic xiangqi strategy. The Dynasty starts with open chariot files – make sure to use them to get the chariots in the game. Once the enemy rooks come out, this advantage disappears quickly.
@@ -148,9 +148,9 @@ This is an extremely deadly tactic that may end in an inevitable loss for white 
 
 ![Queenslayer](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Queenslayer.png)
 
-Once this position happens, the chariot can take the pawn, forcing the rook to retake the chariot. This now exposes the b1/g1 square to the cannon, which will either threaten AND pin the queen if attacking queenside (b1), or skewer the queen by check on the kingside (g1). Either way, the queen is lost. It should noted that the Queenslayer is not an opening line. It's a *tactic* for a certain situation when red's soldiers are shifted to open up the chariot and cannon files. Intentionally aiming to recreate this position by shifting soldiers open will likely be counterproductive for red.
+Once this position happens, the chariot can take the pawn, forcing the rook to retake the chariot. This now exposes the b1/g1 square to the cannon, which will either threaten AND pin the queen if attacking queenside (b1) or skewer the queen by check on the kingside (g1). Either way, the queen is lost. It should noted that the Queenslayer is not an opening line. It's a *tactic* for a certain situation when red's soldiers are shifted to open up the chariot and cannon files. Intentionally aiming to recreate this position by shifting soldiers open will likely be counterproductive for red.
 
-Moveover this trap can go wrong in 2 ways.
+Moveover, this trap can go wrong in 2 ways.
 
 ![QueenslayerGoneWrongb1](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/QueenslayerGoneWrongb1.png)
 

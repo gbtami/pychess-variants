@@ -1,4 +1,4 @@
-# ![Cambodian](https://github.com/gbtami/pychess-variants/blob/master/static/icons/cambodian.svg) 高棉象棋 | Out Chaktrang
+# ![Cambodian](https://github.com/gbtami/pychess-variants/blob/master/static/icons/cambodian.svg) 高棉象棋 | Ouk Chaktrang
 
 ![Cambodian Board](https://github.com/gbtami/pychess-variants/blob/master/static/images/MakrukGuide/Makruk.png?raw=true)
 

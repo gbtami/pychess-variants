@@ -61,7 +61,7 @@ async def create_or_update_tournament(
         start_date = None
 
     name = form["name"]
-    # Create meningful tournament name in case we forget to change it :)
+    # Create meaningful tournament name in case we forget to change it :)
     if name == "":
         name = "%s Arena" % variant_display_name(variant).title()
 

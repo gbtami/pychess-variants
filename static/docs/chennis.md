@@ -16,7 +16,7 @@ When you capture a piece, it goes into your hand. On a future turn, you can drop
 
 ### Board
 
-Chennis is played on a 7x7 board as seen below:
+Chennis is played on a 7x7 board as shown below:
 
 ![Chak](https://github.com/gbtami/pychess-variants/blob/master/static/images/ChennisGuide/ChennisCourt.png)
 
@@ -51,7 +51,7 @@ Bishop-Soldier
 Knight-Mayor  
 Cannon-Ferz
 
-The rook, pawn, knight, and bishop move exactly as in chess. If you are not familiar with these pieces, please check out of a chess guide. The only exception is that the pawn does not have the two step move as in chess.
+The rook, pawn, knight, and bishop move exactly as in chess. If you are not familiar with these pieces, please check out a chess guide. The only exception is that the pawn does not have the two step move as in chess.
 
 In general, each pair has opposite movement: Diagonally-attacking pieces turn into orthogonally-attacking pieces and vice-versa.
 

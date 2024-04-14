@@ -8,6 +8,7 @@ _一种结合了强力棋子和打入玩法的棋类游戏。_
 
 ## 棋子
 所有的棋子在升变时，都附加八方1格的走法。
+
 ### 步兵/Pawn(P) 
 ![Pawn](https://github.com/gbtami/pychess-variants/blob/master/static/images/MansindamGuide/pawn.png)
 
