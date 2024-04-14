@@ -706,6 +706,9 @@ ul.guide li {
     font-size: 1rem;
     margin: 0;
   }
+  ul.guide li a {
+    padding: 8px 0px;
+  }
 }
 .login.nav-link {
   align-self: center;
