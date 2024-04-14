@@ -706,6 +706,9 @@ ul.guide li {
     font-size: 1rem;
     margin: 0;
   }
+  ul.guide li a {
+    padding: 8px 0px;
+  }
 }
 .login.nav-link {
   align-self: center;
@@ -917,7 +920,7 @@ ul.guide li {
 }
 .data-count::after {
   content: attr(data-count);
-  top: -5px;
+  top: 6px;
   right: 0;
   position: absolute;
   padding: 0 3px;
@@ -1354,6 +1357,9 @@ round-player {
 .player-data {
   display: block;
   justify-content: center;
+ padding: 2px 6px;
+}
+div.highscore .player-data {
   padding: 8px 6px;
 }
 player-title {
@@ -1370,10 +1376,12 @@ player-title {
   margin-top: 0.5em;
   margin-left: 0.5em;
 }
-i-side,
 button .icon-cloud-upload:before,
 button .icon-bar-chart:before {
   margin-right: 12px;
+}
+i-side {
+  margin-right: 3px;
 }
 .online.icon.icon-online {
   margin-right: 0px;
