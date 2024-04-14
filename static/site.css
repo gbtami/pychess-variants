@@ -1356,6 +1356,9 @@ round-player {
   justify-content: center;
   padding: 8px 6px;
 }
+div.game-info .player-data {
+  padding: 2px 6px;
+}
 player-title {
   color: var(--gold);
   font-weight: bold;
