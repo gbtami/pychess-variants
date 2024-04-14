@@ -1354,6 +1354,9 @@ round-player {
 .player-data {
   display: block;
   justify-content: center;
+ padding: 2px 6px;
+}
+div.highscore .player-data {
   padding: 8px 6px;
 }
 player-title {
@@ -1370,10 +1373,12 @@ player-title {
   margin-top: 0.5em;
   margin-left: 0.5em;
 }
-i-side,
 button .icon-cloud-upload:before,
 button .icon-bar-chart:before {
   margin-right: 12px;
+}
+i-side {
+  margin-right: 3px;
 }
 .online.icon.icon-online {
   margin-right: 0px;
