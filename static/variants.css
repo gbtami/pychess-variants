@@ -2,6 +2,7 @@
 iframe {
     display: block;
     margin: auto;
+    max-width: 100%;
 }
 .guide p img, .guide table {
     margin-left: auto;

@@ -9,7 +9,7 @@
             <table>
             <tbody>
             {% for user, score in highscore.items() %}
-                <tr class="player-data {{ loop.cycle('odd', 'even') }}">
+                <tr class="player-data">
                     <td><rank>{{ loop.index }}</rank></td>
                     <td><player><a class="user-link" href="{{ home }}/@/{{ user }}"><player-title>{{ users[user].title }}</player-title> {{ user }}</a></player></td>
                     <td><rating>{{ score }}</rating></td>

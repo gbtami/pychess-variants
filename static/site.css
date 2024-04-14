@@ -78,7 +78,8 @@
   --slider-border: #a9a9a9;
   --anal-clock: #bbd7f1;
   --pv-hover: #e0ebd3;
-  --bug-waiting: #787878
+  --table-even: rgb(235, 235, 235);
+  --bug-waiting: #787878;
 }
 [data-theme='dark'] {
   --dark-mode: 1;
@@ -143,7 +144,8 @@
   --slider-border: #7a7a7a;
   --anal-clock: #2b455d;
   --pv-hover: #323c22;
-  --bug-waiting: #404040
+  --table-even: rgba(255, 255, 255, 0.05);
+  --bug-waiting: #404040;
 }
 [data-theme='dark'] .icon-black:before {
   content: '\63';
@@ -163,13 +165,16 @@ ul.guide [data-icon]:before {
 ul.guide li a {
   display: block;
   position: relative;
+  padding: 12px 24px 12px 0;
 }
 @media (min-width: 800px) {
   ul.guide li a::after {
     content: "";
+    background-color: var(--rusty);
     position: absolute;
     width: 4px;
     height: 100%;
+    top: 1%;
     right: -1px;
     transform: scale(0);
     transition: all 0.25s;
@@ -345,6 +350,7 @@ iframe {
     1fr var(--main-margin);
   grid-template-areas: '. . main . .';
   margin-top: var(--site-header-margin);
+  --main-max-width: 1300px;
 }
 
 @media (max-width: 799px) and (orientation: portrait) {
@@ -430,6 +436,9 @@ div.seeks {
   grid-area: app;
   border-radius: 3px;
 }
+span[role=tab], div.seeks-table thead {
+  font-family: "Roboto", sans-serif;
+}
 .seeks [data-icon]:before {
   font-size: 20px;
 }
@@ -442,7 +451,6 @@ div.seeks {
   grid-template-columns: max-content auto;
   grid-template-rows: min-content;
   grid-template-areas: 'side content';
-  grid-gap: 2vmin;
 }
 @media (max-width: 799px) and (orientation: portrait) {
   .page-menu {
@@ -529,7 +537,7 @@ div.memory,
 div.not-found {
   grid-area: main;
   margin: 0 auto;
-  border-radius: 3px;
+  border-radius: 5px;
   font-size: 1.1em;
   box-shadow: var(--base-shadow);
   background-color: var(--bg-color0);
@@ -684,11 +692,9 @@ span.text {
 }
 ul.guide {
   list-style: none;
-  margin-right: 24px;
 }
 ul.guide li {
   font-size: 1.1em;
-  margin-bottom: 24px;
 }
 @media (max-width: 799px) and (orientation: portrait) {
   ul.guide {
@@ -701,6 +707,9 @@ ul.guide li {
   ul.guide li {
     font-size: 1rem;
     margin: 0;
+  }
+  ul.guide li a {
+    padding: 8px 0px;
   }
 }
 .login.nav-link {
@@ -884,7 +893,6 @@ ul.guide li {
 #btn-settings, #btn-notify {
   padding: 8px;
   height: var(--site-header-height);
-  line-height: var(--site-header-height);
 }
 #btn-settings.shown, #btn-notify.shown {
   background-color: var(--bg-color1);
@@ -914,7 +922,7 @@ ul.guide li {
 }
 .data-count::after {
   content: attr(data-count);
-  top: -5px;
+  top: 6px;
   right: 0;
   position: absolute;
   padding: 0 3px;
@@ -1076,6 +1084,7 @@ button.back {
   line-height: 3rem;
   border: none;
   cursor: pointer;
+  border-radius: unset;
 }
 
 .site-buttons button:hover {
@@ -1356,7 +1365,10 @@ round-player {
 .player-data {
   display: block;
   justify-content: center;
-  padding: 2px 6px;
+ padding: 2px 6px;
+}
+div.highscore .player-data {
+  padding: 8px 6px;
 }
 player-title {
   color: var(--gold);
@@ -1372,10 +1384,15 @@ player-title {
   margin-top: 0.5em;
   margin-left: 0.5em;
 }
-i-side,
 button .icon-cloud-upload:before,
 button .icon-bar-chart:before {
   margin-right: 12px;
+}
+i-side {
+  margin-right: 3px;
+}
+.online.icon.icon-online {
+  margin-right: 0px;
 }
 .icon-blue:before {
   content: '\62';
@@ -1399,7 +1416,8 @@ button .icon-bar-chart:before {
 }
 .icon-online::before {
   color: var(--good);
-  margin-right: 0.4em;
+  margin-right: 0.3em;
+  font-size: 0.85em;
 }
 .icon-offline::before {
   color: LightGray;
@@ -2446,6 +2464,7 @@ a#zen-button {
   display: block;
   height: 80px;
   background: url(images/trophy/shield-gold.png) no-repeat;
+  background-position: center;
   background-size: contain;
   font-family: 'pychess';
   font-size: 40px;

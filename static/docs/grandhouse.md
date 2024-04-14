@@ -33,7 +33,7 @@ In addition to the pieces and setup, there are three other significant differenc
 
 ![Cardinal](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Princesses.png)
 
-Various symbols used for the cardinal. (Note that the hawk is only for Seiwaran Chess)
+Various symbols used for the cardinal. (Note that the hawk is only for Seiwaran Chess).
 
 ![Cardinal moves](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Archbishop.png)
 
@@ -49,7 +49,7 @@ The value of a cardinal is considered slightly better than a rook, but less than
 
 ![Marshal](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Empresses.png)
 
-Various symbols used for the marshal. (Note that the elephant is only for Seiwaran Chess)
+Various symbols used for the marshal. (Note that the elephant is only for Seiwaran Chess).
 
 ![Marshal moves](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Chancellor.png)
 

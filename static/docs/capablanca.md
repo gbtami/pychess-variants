@@ -8,7 +8,7 @@ Capablanca chess (or Capablanca's chess) was created by World Chess Champion Jos
 
 The game is played on a 10 x 8 board, with additional files for the new Archbishop (Knight/Bishop) and Chancellor (Knight/Rook) pieces between the Bishop and Knight. The archbishop is on the queen side, and the chancellor is on the king side. For castling, the king then moves three squares instead of two. Pawns may promote to the archbishop and chancellor as well.
 
-There are several variants that have different starting positions. On this site, Gothic chess is one such variant available, where the  starting positions are swapped.
+There are several variants that have different starting positions. On this site, Gothic chess is one such variant available, where the starting positions are swapped. These can be played by setting the "alternate start" in any new game dialog.
 
 ## New Pieces
 
@@ -16,7 +16,7 @@ There are several variants that have different starting positions. On this site,
 
 ![Archbishop](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Princesses.png)
 
-Various symbols used for the archbishop. (Note that the hawk is only for Seirawan Chess)
+Various symbols used for the archbishop. (Note that the hawk is only for Seirawan Chess).
 
 ![Archbishop moves](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Archbishop.png)
 
@@ -32,7 +32,7 @@ The value of an archbishop is considered slightly better than a rook, but less t
 
 ![Chancellor](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Empresses.png)
 
-Various symbols used for the chancellor. (Note that the elephant is only for Seirawan Chess)
+Various symbols used for the chancellor. (Note that the elephant is only for Seirawan Chess).
 
 ![Chancellor moves](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Chancellor.png)
 
@@ -40,13 +40,13 @@ The chancellor (C) is a compound piece combining the moves of the **rook** and t
 
 The piece is often symbolized with a combination of a knight and rook; most variants often do not specify how the piece should look otherwise (which is why we offer different piece sets to choose from).
 
-The value of a chancellor is considered better than an archbishop, but equivalent or slightly less than a queen.
+The value of a chancellor is considered better than an archbishop, but equivalent to or slightly less than a queen.
 
 ### Strategy
 
 Relatively little is known about many of the variants here. Creativity and attention to detail are always important. And so the following advice is tentative. 
 
-Try not to make "routine" developing moves. Sometimes it is worth spending more time to reposition fewer pieces optimally, rather than to develop many pieces suboptimally in less time. Even the variants which appear to resemble chess cannot be played with routine chess moves for very long.
+Try not to make "routine" developing moves. Sometimes it is worth spending more time to reposition fewer pieces optimally, rather than to develop many pieces suboptimally in less time. Even the variants that appear to resemble chess cannot be played with routine chess moves for very long.
 
 Continue to play more and if you discover new strategies or advice, let us know!
 

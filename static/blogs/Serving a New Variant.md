@@ -33,6 +33,6 @@ Anyways, for more details, please check out [the guide](https://www.pychess.org/
 
 Hope you all enjoy!
 
-Also, in other news, we now have a calendar where you can see what tournaments are planned in advance! Many of these are now automated. As always, if you want to play a specific tournament, we're welcome to create one, but it's also recommended to recruit other people who are willing to play, especially if in it's a different time zone than usual.
+Also, in other news, we now have a calendar where you can see what tournaments are planned in advance! Many of these are now automated. As always, if you want to play a specific tournament, we're welcome to create one, but it's also recommended to recruit other people who are willing to play, especially if it's in a different time zone than usual.
 
 -Couch Tomato

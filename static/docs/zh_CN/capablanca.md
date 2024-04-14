@@ -8,7 +8,7 @@
 
 使用10*8格棋盘，每方增加了大主教和首相各一枚，均加入在象和马之间。大主教位于后翼（白方左侧）。因此在王车易位时，王移动三格而不是两格。兵也可以升变成大主教或首相。
 
-该游戏也有一些修改布置的衍生变体，例如Gothic Chess。
+该游戏也有一些修改布置的衍生变体，例如 Gothic Chess。
 
 ## 新棋子
 
@@ -16,7 +16,7 @@
 
 ![Archbishop](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Princesses.png)
 
-以上为本站大主教可能出现的各种棋子造型。其中老鹰为S-chess所用。
+以上为本站大主教可能出现的各种棋子造型。其中老鹰为 S-chess 所用。
 
 ![Archbishop moves](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Archbishop.png)
 
@@ -30,7 +30,7 @@
 
 ![Chancellor](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Empresses.png)
 
-以上是本站中首相可能会用的几种棋子造型。大象为S-chess所用。
+以上是本站中首相可能会用的几种棋子造型。大象为 S-chess 所用。
 
 ![Chancellor moves](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Chancellor.png)
 

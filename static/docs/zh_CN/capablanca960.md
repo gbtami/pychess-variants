@@ -14,7 +14,7 @@
 - 两枚象不可位于同色格，必须一黑一白。
 - 两枚车不能在王的同一侧，必须一左一右（可以不相邻）。
 
-在任意制卡帕布兰卡象棋中，包括基本布局在内，棋盘初始排列一共有4×4×8×7×6×5×4÷2=53760种。
+在任意制卡帕布兰卡象棋中，包括基本布局在内，棋盘初始排列一共有 4×4×8×7×6×5×4÷2=53760 种。
 
 王车易位仍旧允许，即使王和车不在原本位置。进行的条件与原本规则基本一致：
 
@@ -23,7 +23,7 @@
 - 王被将军时不能易位。
 - 王移动时经过或到达的格子不能被对方攻击。
   不论王和车的初始位置在哪里，王车易位后二者所处位置是固定的——和国际象棋一样。
-  当王与a线方向的车易位时，王移到c1(c8)，车到d1(d8)；当与j线方向的车易位时，王到g1(g8)，车到f1(f8)。
+  当王与a线方向的车易位时，王移到 c1(c8)，车到 d1(d8)；当与j线方向的车易位时，王到 g1(g8)，车到 f1(f8)。
 
 其余的规则与原本规则相同。
 
@@ -33,7 +33,7 @@
 
 ![Archbishop](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Princesses.png)
 
-以上为本站大主教可能出现的各种棋子造型。其中老鹰为S-chess所用。
+以上为本站大主教可能出现的各种棋子造型。其中老鹰为 S-chess 所用。
 
 ![Archbishop moves](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Archbishop.png)
 
@@ -47,7 +47,7 @@
 
 ![Chancellor](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Empresses.png)
 
-以上是本站中首相可能会用的几种棋子造型。大象为S-chess所用。
+以上是本站中首相可能会用的几种棋子造型。大象为 S-chess 所用。
 
 ![Chancellor moves](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Chancellor.png)
 
