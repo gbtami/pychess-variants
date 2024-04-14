@@ -2452,6 +2452,7 @@ a#zen-button {
   display: block;
   height: 80px;
   background: url(images/trophy/shield-gold.png) no-repeat;
+  background-position: center;
   background-size: contain;
   font-family: 'pychess';
   font-size: 40px;
