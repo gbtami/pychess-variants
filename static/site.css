@@ -1521,7 +1521,7 @@ table.seeks {
   overflow-y: scroll;
   -ms-overflow-style: scrollbar;
 }
-.seeks thead {
+.seeks th {
   background: var(--bg-color2);
 }
 /*
