@@ -1357,9 +1357,10 @@ round-player {
 .player-data {
   display: block;
   justify-content: center;
- padding: 2px 6px;
+  padding: 2px 6px;
 }
-div.highscore .player-data {
+div.highscore .player-data,
+table#players .player-data {
   padding: 8px 6px;
 }
 player-title {
