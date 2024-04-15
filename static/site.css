@@ -1357,9 +1357,10 @@ round-player {
 .player-data {
   display: block;
   justify-content: center;
- padding: 2px 6px;
+  padding: 2px 6px;
 }
-div.highscore .player-data {
+div.highscore .player-data,
+table#players .player-data {
   padding: 8px 6px;
 }
 player-title {
@@ -2452,6 +2453,7 @@ a#zen-button {
   display: block;
   height: 80px;
   background: url(images/trophy/shield-gold.png) no-repeat;
+  background-position: center;
   background-size: contain;
   font-family: 'pychess';
   font-size: 40px;
