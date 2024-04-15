@@ -212,7 +212,7 @@ export class PuzzleController extends AnalysisController {
                     ]),
                     h('div', [
                         h('span', _('Source:')),
-                        h('a', { attrs: { href: sourceLink } }, sourceText.replace(/\.github\.io/, ''),
+                        h('a', { attrs: { href: sourceLink } }, sourceText.replace(/\.github\.io/, '')),
                     ]),
                     h('div', [
                         h('span', _('Type:')),
