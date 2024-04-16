@@ -100,11 +100,11 @@ div.info0.icon::before {
     padding: 1.2rem 1.2rem 1.2rem 0.5rem;
 }
 div.card div.player-data:nth-child(even), 
-tr.player-data:nth-child(odd), {
+tr.player-data:nth-child(odd) {
   background-color: var(--bg-color1);
 }
 div.card div.player-data:nth-child(odd), 
-tr.player-data:nth-child(even), {
+tr.player-data:nth-child(even) {
   background-color: var(--table-even);
 }
 .tourney-date {
