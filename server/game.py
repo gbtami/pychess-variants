@@ -515,7 +515,11 @@ class Game:
 
             if self.tournamentId is not None:
                 try:
-                    await self.app_state.tournaments[self.tournamentId].game_update(self)
+                    # In case of server restart we have to wait for loading the tournament
+                    started_condition = self.app_state.started_condition
+                    async with started_condition:
+                        await started_condition.wait()
+                        await self.app_state.tournaments[self.tournamentId].game_update(self)
                 except Exception:
                     log.exception("Exception in tournament game_update()")
 

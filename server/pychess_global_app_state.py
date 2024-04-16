@@ -69,6 +69,8 @@ class PychessGlobalAppState:
         self.app = app
 
         self.shutdown = False
+        self.started_condition = asyncio.Condition()
+
         self.db = app[db_key]
         self.users = self.__init_users()
         self.disable_new_anons = False
