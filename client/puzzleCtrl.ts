@@ -172,8 +172,14 @@ export class PuzzleController extends AnalysisController {
         var sourceLink: string = this.home + '/' + this.gameId;
         var sourceText: string = this.gameId;
         if (!this.gameId) {
-            sourceLink = (!this.site || this.site.includes('fairy-stockfish')) ? 'https://fairy-stockfish.github.io' : this.site;
-            sourceText = sourceLink.slice(sourceLink.indexOf('://') + 3);
+            if (!this.site || this.site.toLowerCase().includes('fairy-stockfish')) {
+                sourceLink =  'https://fairy-stockfish.github.io';
+                sourceText = 'Fairy-Stockfish';
+            } else {
+                sourceLink = this.site;
+                const url = new URL(this.site);
+                sourceText = url.hostname.replace('www.', '');
+            }
         }
 
         var mateIn: string = '';
@@ -212,7 +218,7 @@ export class PuzzleController extends AnalysisController {
                     ]),
                     h('div', [
                         h('span', _('Source:')),
-                        h('a', { attrs: { href: sourceLink } }, sourceText.replace(/\.github\.io/, '')),
+                        h('a', { attrs: { href: sourceLink } }, sourceText),
                     ]),
                     h('div', [
                         h('span', _('Type:')),
