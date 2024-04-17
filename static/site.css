@@ -2112,13 +2112,10 @@ div.chatroom {
 
 ol#lobbychat-messages,
 ol#roundchat-messages {
-  display: flex;
   flex: 2 1 0;
   order: 1;
-  overflow-x: hide;
+  overflow-x: hidden;
   overflow-y: auto;
-  margin: 0;
-  padding: 0;
 }
 
 li.message {
