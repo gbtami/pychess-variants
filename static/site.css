@@ -2126,7 +2126,7 @@ li.message {
   padding-bottom: 6px;
   margin-top: 5px;
   margin-bottom: 5px;
-  font-size: 0.9em;
+  font-size: max(0.9em, 12px);
 }
 
 li.message.offer {
