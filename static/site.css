@@ -645,6 +645,9 @@ a.post span.text {
   max-height: 12em;
   padding: 3% 3% 4% 6%;
 }
+a.post span.text strong {
+  font-size: 1.2em;
+}
 a.post time {
   font-size: 90%;
   opacity: 1;
