@@ -721,6 +721,9 @@ class Tournament(ABC):
             self.players[wp].points.append("*")
             self.players[bp].points.append("*")
 
+            self.players[wp].nb_games += 1
+            self.players[bp].nb_games += 1
+
             await self.db_update_player(wp, self.players[wp])
             await self.db_update_player(bp, self.players[bp])
 
@@ -728,9 +731,6 @@ class Tournament(ABC):
 
             self.players[wp].free = False
             self.players[bp].free = False
-
-            self.players[wp].nb_games += 1
-            self.players[bp].nb_games += 1
 
             self.players[wp].prev_opp = game.bplayer.username
             self.players[bp].prev_opp = game.wplayer.username
@@ -1113,6 +1113,7 @@ class Tournament(ABC):
         elif len(player_data.points) > 0 and player_data.points[-1] == "*":
             new_data = {
                 "p": player_data.points,
+                "g": player_data.nb_games,
             }
         else:
             full_score = self.leaderboard[user]

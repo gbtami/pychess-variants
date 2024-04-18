@@ -142,10 +142,7 @@ async def init_state(app):
         app[db_key] = None
 
     app[pychess_global_app_state_key] = PychessGlobalAppState(app)
-    started_condition = app[pychess_global_app_state_key].started_condition
-    async with started_condition:
-        await app[pychess_global_app_state_key].init_from_db()
-        started_condition.notify_all()
+    await app[pychess_global_app_state_key].init_from_db()
 
     # create test tournament
     if 1:

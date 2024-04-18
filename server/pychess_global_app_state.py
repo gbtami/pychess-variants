@@ -69,7 +69,7 @@ class PychessGlobalAppState:
         self.app = app
 
         self.shutdown = False
-        self.started_condition = asyncio.Condition()
+        self.tournaments_loaded = asyncio.Event()
 
         self.db = app[db_key]
         self.users = self.__init_users()
@@ -158,8 +158,8 @@ class PychessGlobalAppState:
                 if doc["status"] == T_STARTED or (
                     doc["status"] == T_CREATED and doc["startsAt"].date() <= to_date
                 ):
-                    if not DEV:
-                        await load_tournament(self, doc["_id"])
+                    await load_tournament(self, doc["_id"])
+            self.tournaments_loaded.set()
 
             already_scheduled = await get_scheduled_tournaments(self)
             new_tournaments_data = new_scheduled_tournaments(already_scheduled)
