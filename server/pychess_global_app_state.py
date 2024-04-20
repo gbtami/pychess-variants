@@ -168,13 +168,15 @@ class PychessGlobalAppState:
             asyncio.create_task(generate_shield(self))
 
             db_collections = await self.db.list_collection_names()
-
+            self.leaderboard = ValueSortedDict(neg)
             if "highscore" not in db_collections:
                 await generate_highscore(self)
             cursor = self.db.highscore.find()
             async for doc in cursor:
                 if doc["_id"] in VARIANTS:
                     self.highscore[doc["_id"]] = ValueSortedDict(neg, doc["scores"])
+                    leader = self.highscore[doc["_id"]].peekitem(0)
+                    self.leaderboard.update({"%s|%s" % (doc["_id"], leader[0]): leader[1]})
 
             if "crosstable" not in db_collections:
                 await generate_crosstable(self.db)
