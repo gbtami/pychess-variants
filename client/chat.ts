@@ -42,7 +42,7 @@ export function chatView(ctrl: ChatController, chatType: string) {
             h('input#checkbox', { props: { title: _("Toggle the chat"), name: "checkbox", type: "checkbox", checked: "true" }, on: { click: onClick } })
         ]),
         // TODO: lock/unlock chat to spectators
-        h(`ol#${chatType}-messages`),
+        h(`ol#${chatType}-messages`, [ h('div#messages') ]),
         h('input#chat-entry', {
             props: {
                 type: "text",
@@ -68,16 +68,16 @@ export function chatMessage (user: string, message: string, chatType: string, ti
 
     const container = document.getElementById('messages') as HTMLElement;
     if (user.length === 0) {
-        patch(container, h("li.message.offer", [h("t", message)] ));
+        patch(container, h('div#messages', [ h("li.message.offer", [h("t", message)]) ]));
     } else if (user === '_server') {
-        patch(container, h("li.message.server", [h("div.time", localTime), h("user", _('Server')), h("t", message)]) );
+        patch(container, h('div#messages', [ h("li.message.server", [h("div.time", localTime), h("user", _('Server')), h("t", message)]) ]));
     } else if (user === 'Discord-Relay') {
         const colonIndex = message.indexOf(':'); // Discord doesn't allow colons in usernames so the first colon signifies the start of the message
         const discordUser = message.substring(0, colonIndex);
         const discordMessage = message.substring(colonIndex + 2);
-        patch(container, h("li.message", [h("div.time", localTime), h("div.discord-icon-container", h("img.icon-discord-icon", { attrs: { src: '/static/icons/discord.svg', alt: "" } })), h("user", discordUser), h("t", discordMessage)]) );
+        patch(container, h('div#messages', [ h("li.message", [h("div.time", localTime), h("div.discord-icon-container", h("img.icon-discord-icon", { attrs: { src: '/static/icons/discord.svg', alt: "" } })), h("user", discordUser), h("t", discordMessage)]) ]));
     } else {
-        patch(container, h("li.message", [h("div.time", localTime), h("user", h("a", { attrs: {href: "/@/" + user} }, user)), h("t", message)]) );
+        patch(container, h('div#messages', [ h("li.message", [h("div.time", localTime), h("user", h("a", { attrs: {href: "/@/" + user} }, user)), h("t", message)]) ]));
     }
 
     if (isBottom) setTimeout(() => {chatDiv.scrollTop = chatDiv.scrollHeight;}, 200);
