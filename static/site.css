@@ -35,6 +35,7 @@
   --bad: #c33;
   --gold: #d59020;
   --rusty: #d64f00;
+  --rusty-rgb: 214, 79, 0;
   --ct-current: #e2834d;
   --clock-hurry-bg: MistyRose;
   --clock-overtime-bg: #fffbad;
@@ -644,6 +645,9 @@ a.post span.text {
   flex-direction: column;
   max-height: 12em;
   padding: 3% 3% 4% 6%;
+}
+a.post span.text strong {
+  font-size: 1.2em;
 }
 a.post time {
   font-size: 90%;
@@ -1558,7 +1562,7 @@ table.seeks {
   z-index: 1;
 }
 .seeks tbody tr:hover {
-  background-color: var(--rusty);
+  background-color: rgba(var(--rusty-rgb), 0.5);
 }
 .seekbuttons {
   display: flex;
@@ -2112,13 +2116,10 @@ div.chatroom {
 
 ol#lobbychat-messages,
 ol#roundchat-messages {
-  display: flex;
   flex: 2 1 0;
   order: 1;
-  overflow-x: hide;
+  overflow-x: hidden;
   overflow-y: auto;
-  margin: 0;
-  padding: 0;
 }
 
 li.message {
@@ -2129,7 +2130,7 @@ li.message {
   padding-bottom: 6px;
   margin-top: 5px;
   margin-bottom: 5px;
-  font-size: 0.9em;
+  font-size: max(0.9em, 12px);
 }
 
 li.message.offer {
