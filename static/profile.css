@@ -7,6 +7,9 @@ div.filter-tabs div.sub-ratings {
     flex: auto;
     font-size: 1.2em;
 }
+div.filter-tabs a {
+    justify-content: center;
+}
 .player-sum {
     display: flex;
     flex-flow: column;
