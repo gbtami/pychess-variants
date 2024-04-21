@@ -12,10 +12,6 @@ div.memory {
     color: var(--font-color);
 }
 
-memory .memory-game {
-    display: block;
-}
-
 #moves {
     margin-top: 20px;
 }
@@ -29,7 +25,6 @@ memory .memory-game {
   border: none;
   border-radius: 3px;
   width: 200px;
-  cursor: pointer;
   margin-top: 30px;
 }
 
