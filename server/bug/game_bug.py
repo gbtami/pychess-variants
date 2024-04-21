@@ -187,9 +187,11 @@ class GameBug:
         chat = {}
         for ply, step in enumerate(self.steps):
             if "chat" in step:
-                chat["m"+str(ply)] = []
+                chat["m" + str(ply)] = []
                 for msg in step["chat"]:
-                    chat["m"+str(ply)].append({"t": msg["time"], "u": msg["username"], "m": msg["message"]})
+                    chat["m" + str(ply)].append(
+                        {"t": msg["time"], "u": msg["username"], "m": msg["message"]}
+                    )
         return chat
 
     def get_captured(self, fen, move):
