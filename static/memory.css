@@ -16,16 +16,7 @@ div.memory {
     color: var(--font-color);
     margin: 0 2rem 0;
 }
-.memory .header p {
-    padding: 0;
-}
-.memory .header strong {
-    text-transform: uppercase;
-    color: #b3b3b3;
-    font-size: 2em;
-    margin: 10px 0;
-    display: block;
-}
+
 memory .memory-game {
     display: block;
 }
