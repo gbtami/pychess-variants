@@ -13,7 +13,7 @@ div.memory {
 }
 .memory .header h1 {
     font-size: 3em;
-    color: #b3b3b3;
+    color: var(--font-color);
     margin: 0 2rem 0;
 }
 .memory .header p {
