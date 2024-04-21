@@ -6,15 +6,10 @@ div.memory {
     align-items: center;
     padding: 0 0 50px 0;
 }
-.memory .header {
-    display: flex;
-    flex-flow: row wrap;
-    align-items: center;
-}
+
 .memory .header h1 {
     font-size: 3em;
     color: var(--font-color);
-    margin: 0 2rem 0;
 }
 
 memory .memory-game {
@@ -26,7 +21,6 @@ memory .memory-game {
 }
 
 #replay {
-  margin: auto;
   text-transform: uppercase;
   padding: 15px 2px;
   font-size: 1.1rem;
@@ -53,7 +47,6 @@ memory .memory-game {
   height: 350px;
   display: flex;
   flex-wrap: wrap;
-  margin: auto;
   perspective: 1000px;
   background: url(images/zen.png);
   background-size: cover;
