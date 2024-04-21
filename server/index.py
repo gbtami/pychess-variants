@@ -601,6 +601,9 @@ async def index(request):
             render["status"] = game.status
             render["date"] = game.date.isoformat()
             render["title"] = game.browser_title
+            # todo: I think sent ply value shouldn't be minus 1.
+            #       But also it gets overwritten anyway right after that so why send all this stuff at all here.
+            #       just init client on 1st ws board msg received right after ws connection is established
             render["ply"] = ply if ply is not None else game.ply - 1
             render["ct"] = json.dumps(game.crosstable)
             render["board"] = json.dumps(game.get_board(full=True))

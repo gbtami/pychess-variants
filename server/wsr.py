@@ -65,6 +65,7 @@ async def init_ws(app_state, ws, user, game: game.Game):
         if p.username != user.username:
             await handle_is_user_present(ws, app_state.users, p.username, game)
     await handle_game_user_connected(app_state, ws, user, game)
+    await hande_board(ws, game)
 
 
 async def process_message(app_state, user, ws, data, game):

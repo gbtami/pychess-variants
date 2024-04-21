@@ -114,6 +114,7 @@ export class GameControllerBughouse extends GameController {
         this.fullfen = fen;
         this.turnColor = turnColor; // todo: probably not needed here and other places as well where its set
         this.lastmove = move;
+        // this.ffishPromise.then(() => {
         if (this.ffishBoard) {
             this.ffishBoard.setFen(this.fullfen);
             this.isCheck = this.ffishBoard.isCheck();

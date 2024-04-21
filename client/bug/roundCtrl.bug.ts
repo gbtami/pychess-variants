@@ -35,7 +35,7 @@ import { sound } from "../sound";
 import { player } from "../player";
 import { WebsocketHeartbeatJs } from '../socket/socket';
 import { notify } from "../notification";
-import { VARIANTS } from "../variants";
+import {Variant, VARIANTS} from "../variants";
 import { createWebsocket } from "@/socket/webSocketUtils";
 import AnalysisControllerBughouse from "@/bug/analysisCtrl.bug";
 import {boardSettings} from "@/boardSettings";
@@ -67,7 +67,7 @@ export class RoundControllerBughouse implements ChatController {
     clocktimesB: Clocks;
     // expirations: [VNode | HTMLElement, VNode | HTMLElement];
     expiStart: number;
-    firstmovetime: number;
+    // firstmovetime: number;
     profileid: string;
     level: number;
     clockOn: boolean;
@@ -193,16 +193,16 @@ export class RoundControllerBughouse implements ChatController {
         this.clockOn = true;//(Number(parts[parts.length - 1]) >= 2);
 
         this.steps = [];
-        this.ply = isNaN(model["ply"]) ? 0 : model["ply"];
+        // this.ply = isNaN(model["ply"]) ? 0 : model["ply"];
 
         // initialize users
-        this.wplayer = model["wplayer"];
-        this.bplayer = model["bplayer"];
+        this.wplayer = model.wplayer;
+        this.bplayer = model.bplayer;
 
-        this.wtitle = model["wtitle"];
-        this.btitle = model["btitle"];
-        this.wrating = model["wrating"];
-        this.brating = model["brating"];
+        this.wtitle = model.wtitle;
+        this.btitle = model.btitle;
+        this.wrating = model.wrating;
+        this.brating = model.brating;
 
         this.wplayerB = model.wplayerB;
         this.bplayerB = model.bplayerB;
@@ -361,6 +361,9 @@ export class RoundControllerBughouse implements ChatController {
 
         this.vdialog = patch(document.getElementById('offer-dialog')!, h('div#offer-dialog', ""));
 
+        // todo: if spectator do not render buttons, also good to render all player's messages for specatotors to see
+        //       all communication as it happens. However not sure how this can be combined with usual spectators chat
+        //       without becoming a bit messy, but maybe it is ok.
         patch(document.getElementById('bugroundchat') as HTMLElement, chatView(this, "bugroundchat"));
 
 
@@ -379,20 +382,9 @@ export class RoundControllerBughouse implements ChatController {
             movesQueued: [],
         }
 
-        Promise.all([this.b1.ffishPromise, this.b2.ffishPromise]).then(() => {
-            // todo: This call or the initial board message on /wrs ws connect is redundant. However the ws message
-            //       is important in case of ws reconnect so we cannot just remove it.
-            //       Currently updateBothBoardsAndClocksInitial is always being called twice
-            //       first here, then a moment later when the first board message is received on connect to /wsr
-            //       Above happens both first when game starts and when doing refresh without any moves have been made.
-            //       In case of refresh when moves have been made, then "updateBothBoardsAndClocksOnFullBoardMsg"
-            //       is called twice, again first time from here redundantly.
-            this.onMsgBoard(model["board"] as MsgBoard);
-        });
-
         // todo: boardsettings code is called also in cgCrtl constructor twice already as part of initializing b1 and b2
         //       think how to avoid this
-        initBoardSettings(this.b1, this.b2, model.assetURL);
+        initBoardSettings(this.b1, this.b2, model.assetURL, VARIANTS['bughouse']);
     }
 
 
@@ -491,32 +483,13 @@ export class RoundControllerBughouse implements ChatController {
     }
 
     private updateLastMovesRecorded = (moveMsg: MsgMove) => {
-        // todo: overly complicated logic just for the sake of preserving the order of the last 2 moves for each
-        //       board in case of simul mode so when re-sent after disconnect they get processed in the same order.
-        //       probably can be written more elegantly and not sure whats the value in preserving the order except
-        //       maybe to be consistent with recorded time of the move.
-        // todo:niki: But more importantly, the fact we made 2 moves on same board should mean we don't need to re-send
-        //       the move from the other board, thus no need to preserve that move, thus no need to preserve the order,
-        //       but might as well just clean the list and only keep the new move. Keeping both moves for both board is
-        //       needed only if they were made one after the other, because only then we are not sure if they were
-        //       received.
-        // todo:niki: What's more, even then we can be sure if one of them was received as long as we received
-        //       confirmation that it was made so on such even we can remove it from this list. This however will not
-        //       remove the need for server-side check for double processing, because a move can still have been received
-        //       and processed on the server, but connection got broken after that and we never received confirmation
-        if (this.msgMovesAfterReconnect.movesQueued.length == 2) {
-            // only relevant for simul mode
-            if (this.msgMovesAfterReconnect.movesQueued[0].board === moveMsg.board) {
-                // new move is on a board, different than the previous move.
-                // Previous moves to 0 to be processed first in case of resent, the new one to 1, to be processed second
-                this.msgMovesAfterReconnect.movesQueued[0] = this.msgMovesAfterReconnect.movesQueued[1];
-                this.msgMovesAfterReconnect.movesQueued[1] = moveMsg;
-            } else {
-                // new move is on the same board as the previous move.
-                // Still we want to process the older move from the other board first (tbh we really dont need to process
-                // it at all in this particular case probably), so board order remains the same and just this board's move gets replaced
-                this.msgMovesAfterReconnect.movesQueued[1] = moveMsg;
-            }
+        // TODO:NIKI: what happens if this movesQueue get lost becuase user refreshed, while disconnected, which is
+        //            very likely for a user to do, trying to troubleshoot. Maybe we keep this in localStorage?
+        // movesQueued[0] is always processed first by server, then movesQueued[1] if any (only possible in simul mode)
+
+        if (this.msgMovesAfterReconnect.movesQueued.length == 0) {
+            // this case only ever entered once, when first move was made.
+            this.msgMovesAfterReconnect.movesQueued[0] = moveMsg;
         } else if (this.msgMovesAfterReconnect.movesQueued.length == 1) {
             if (this.msgMovesAfterReconnect.movesQueued[0].board === moveMsg.board) {
                 // in non-simul mode, this is the only case that is relevant after the first move
@@ -529,9 +502,23 @@ export class RoundControllerBughouse implements ChatController {
                 // different board than the one on which their first move was made. From then on length is always 2
                 this.msgMovesAfterReconnect.movesQueued[1] = moveMsg;
             }
-        } else { //length == 0
-            // this case only ever entered once, when first move was made.
-            this.msgMovesAfterReconnect.movesQueued[0] = moveMsg;
+        } else if (this.msgMovesAfterReconnect.movesQueued.length == 2) {
+            // only relevant for simul mode
+            if (this.msgMovesAfterReconnect.movesQueued[1].board !== moveMsg.board) {
+                // new move is on a board, different than the previous move.
+                // Previous moves to 0 to be processed first in case of resent, the new one to 1, to be processed second
+                this.msgMovesAfterReconnect.movesQueued[0] = this.msgMovesAfterReconnect.movesQueued[1];
+                this.msgMovesAfterReconnect.movesQueued[1] = moveMsg;
+            } else {
+                // new move is on the same board as the previous move.
+                // We keep the older move from the other board at [0] to be processed first in case of resend
+                // although so board order remains the same and just this board's move gets replaced
+                // todo: in this case we dont need to keep the older move - 2 conseq moves from the same board means
+                //       we had connection in the time between those 2 moves, otherwise we cant make them
+                this.msgMovesAfterReconnect.movesQueued[1] = moveMsg;
+            }
+        } else {
+            // not possible
         }
     }
 
@@ -748,16 +735,13 @@ export class RoundControllerBughouse implements ChatController {
 
         //when message is for opp's move, meaning turnColor is my color - it is now my turn after this message
         if (latestPly) {
-            //todo: similar lines below for setting boards state repeat a lot, maybe make a method
-            board.chessground.set({
-                fen: fen,
-                turnColor: board.turnColor,
-                check: check,
-                lastMove: lastMove,
-            });
-            board.fullfen = fen;
-            board.partnerCC.fullfen = fenPartner;
-            board.partnerCC.chessground.set({ fen: fenPartner});
+            board.setState(fen, board.turnColor === 'white' ? 'black' : 'white', lastMove);
+            board.renderState();
+
+            // because pocket might have changed. todo: condition it on if(capture) maybe
+            board.partnerCC.setState(fenPartner, board.partnerCC.turnColor, board.partnerCC.lastmove);
+            board.partnerCC.renderState();
+
             if (!this.focus) this.notifyMsg(`Played ${step.san}\nYour turn.`);
         }
 
@@ -816,33 +800,15 @@ export class RoundControllerBughouse implements ChatController {
         console.log("updateBothBoardsAndClocksOnFullBoardMsg", lastStepA, lastStepB, clocksA, clocksB);
         if (lastStepA) {
             const partsA = lastStepA.fen.split(" ");
-            this.b1.turnColor = partsA[1] === "b" ? "black" : "white";
             const lastMoveA = uci2LastMove(lastStepA.move);
-            if (this.b1.ffishBoard) {
-                this.b1.ffishBoard.setFen(lastStepA.fen);
-                this.b1.setDests();
-            }
-            this.b1.chessground.set({
-                fen: lastStepA.fen,
-                turnColor: this.b1.turnColor,
-                check: this.b1.ffishBoard.isCheck(),
-                lastMove: lastMoveA,
-            });
+            this.b1.setState(lastStepA.fen, partsA[1] === "b" ? "black" : "white", lastMoveA);
+            this.b1.renderState();
         }
         if (lastStepB) {
             const partsB = lastStepB.fenB!.split(" ");
-            this.b2.turnColor = partsB[1] === "b" ? "black" : "white";
             const lastMoveB = uci2LastMove(lastStepB.moveB);
-            if (this.b2.ffishBoard) {
-                this.b2.ffishBoard.setFen(lastStepB.fenB!);
-                this.b2.setDests();
-            }
-            this.b2.chessground.set({
-                fen: lastStepB.fenB,
-                turnColor: this.b2.turnColor,
-                check: this.b2.ffishBoard.isCheck(),
-                lastMove: lastMoveB,
-            });
+            this.b2.setState(lastStepB.fenB!, partsB[1] === "b" ? "black" : "white", lastMoveB);
+            this.b2.renderState();
         }
 
         // todo: mostly duplicates same code in updateBothBoardsAndClocksInitial - consider doing some reusable method
@@ -969,19 +935,17 @@ export class RoundControllerBughouse implements ChatController {
         // console.log("got board msg:", msg);
         let latestPly;
         const full = msg.steps.length > 1;
-        const isInitialBoardMessage = !(msg.steps[msg.steps.length-1].boardName);
-        if (this.spectator) {
-            // Fix https://github.com/gbtami/pychess-variants/issues/687
-            latestPly = (this.ply === -1 || msg.ply === this.ply + 1);
-        } else {
-            latestPly = (this.ply === -1 || msg.ply === this.ply + 1 || (full && msg.ply > this.ply + 1));
-            // when receiving a board msg with full list of moves (aka steps) after reconnecting
-            // its ply might be ahead with 2 ply - our move that failed to get confirmed
-            // because of disconnect and then also opp's reply to it, that we didn't
-            // receive while offline. Not sure if it could be ahead with more than 2 ply
-            // todo:this if for spectators probably not needed if that check for full is added -
-            //  fix that in other controller as well
-        }
+        const isInitialBoardMessage = this.ply === undefined;
+
+        // latestPly=true means that the received move should be not only added to the move list, but also scrolled
+        // to in the move list and also rendered on the board. This shuold happen if:
+        // - initial page load/refresh - always consider it latest ply and show last position and scroll to last move
+        // - the received move is exactly one move after the current, we are in latestPly mode and scroll to the new move
+        // - we get full board message means refresh/reconnect, so we consider this a latestPly mode and will scroll to
+        // latest ply regardless if user has scrolled back examining older moves or not and potentially ruining his
+        // experience in case of network connection dropped and reconnected.
+        latestPly = (isInitialBoardMessage || msg.ply === this.ply + 1 || (full && msg.ply > this.ply));
+
         if (latestPly) this.ply = msg.ply;
 
         this.result = msg.result;
@@ -1049,28 +1013,11 @@ export class RoundControllerBughouse implements ChatController {
             capture = (board.chessground.state.boardState.pieces.get(move[1] as cg.Key) !== undefined && step.san?.slice(0, 2) !== 'O-') || (step.san?.slice(1, 2) === 'x');
         }
 
-        board.partnerCC.fullfen = fenPartner!;
-        board.partnerCC.ffishBoard.setFen(board.partnerCC.fullfen);
-        board.partnerCC.chessground.set({
-            fen: fenPartner,
-            lastMove: movePartner,
-            check: board.partnerCC.ffishBoard.isCheck(),
-            turnColor: getTurnColor(board.partnerCC.fullfen),
-        });
+        board.partnerCC.setState(fenPartner!, getTurnColor(board.partnerCC.fullfen), movePartner);
+        board.partnerCC.renderState();
 
-        board.fullfen = fen!;
-        board.turnColor = getTurnColor(board.fullfen);
-        if (board.ffishBoard !== null) {
-            board.ffishBoard.setFen(board.fullfen);
-            board.setDests();
-        }
-
-        board.chessground.set({
-            fen: fen,
-            turnColor: step.turnColor,
-            check: board.ffishBoard.isCheck(),
-            lastMove: move,
-        });
+        board.setState(fen!, getTurnColor(board.fullfen), move);
+        board.renderState();
 
         if (this.status >= 0) {
             //if it is a game that ended, then when scrolling it makes sense to show clocks when the move was made
@@ -1106,19 +1053,18 @@ export class RoundControllerBughouse implements ChatController {
 
     private onMsgUserConnected = (msg: MsgUserConnected) => {
         console.log(msg);
-        // todo: no need for additional roundtrips for all these - should just get this info initially on connect
-        this.username = msg["username"];
+        // this.username = msg["username"];
         if (this.spectator) {
-            this.doSend({ type: "is_user_present", username: this.wplayer, gameId: this.gameId });
-            this.doSend({ type: "is_user_present", username: this.bplayer, gameId: this.gameId });
-            this.doSend({ type: "is_user_present", username: this.wplayerB, gameId: this.gameId });
-            this.doSend({ type: "is_user_present", username: this.bplayerB, gameId: this.gameId });
+            // this.doSend({ type: "is_user_present", username: this.wplayer, gameId: this.gameId });
+            // this.doSend({ type: "is_user_present", username: this.bplayer, gameId: this.gameId });
+            // this.doSend({ type: "is_user_present", username: this.wplayerB, gameId: this.gameId });
+            // this.doSend({ type: "is_user_present", username: this.bplayerB, gameId: this.gameId });
         } else {
-            this.firstmovetime = msg.firstmovetime || this.firstmovetime;
-            this.doSend({ type: "is_user_present", username: this.wplayer, gameId: this.gameId });
-            this.doSend({ type: "is_user_present", username: this.bplayer, gameId: this.gameId });
-            this.doSend({ type: "is_user_present", username: this.wplayerB, gameId: this.gameId });
-            this.doSend({ type: "is_user_present", username: this.bplayerB, gameId: this.gameId });
+            // this.firstmovetime = msg.firstmovetime || this.firstmovetime;
+            // this.doSend({ type: "is_user_present", username: this.wplayer, gameId: this.gameId });
+            // this.doSend({ type: "is_user_present", username: this.bplayer, gameId: this.gameId });
+            // this.doSend({ type: "is_user_present", username: this.wplayerB, gameId: this.gameId });
+            // this.doSend({ type: "is_user_present", username: this.bplayerB, gameId: this.gameId });
 
             const container = document.getElementById('player1a') as HTMLElement;
             patch(container, h('i-side.online#player1a', {class: {"icon": true, "icon-online": true, "icon-offline": false}}));
@@ -1129,8 +1075,11 @@ export class RoundControllerBughouse implements ChatController {
             }
         }
         // We always need this to get possible moves made while our websocket connection was established
+        // niki: we shouldnt need this if first thing we get on establishing ws is the board state, after that
+        //       ws should be available for any other moves that come. if i am wrong then queuing messages on server is a
+        //       better solution.
         // fixes https://github.com/gbtami/pychess-variants/issues/962
-        this.doSend({ type: "board", gameId: this.gameId });
+        // this.doSend({ type: "board", gameId: this.gameId });
     }
 
     private onMsgUserPresent = (msg: MsgUserPresent) => {
@@ -1324,13 +1273,13 @@ export function switchBoards(ctrl: RoundControllerBughouse| AnalysisControllerBu
         ctrl.b2.chessground.redrawAll();
 }
 
-export function initBoardSettings(b1: ChessgroundController, b2: ChessgroundController, assetURL: string) {
+export function initBoardSettings(b1: ChessgroundController, b2: ChessgroundController, assetURL: string, variant: Variant) {
     boardSettings.ctrl = b1;
     boardSettings.ctrl2 = b2;
     boardSettings.assetURL = assetURL;
 
-    const boardFamily = this.variant.boardFamily;
-    const pieceFamily = this.variant.pieceFamily;
+    const boardFamily = variant.boardFamily;
+    const pieceFamily = variant.pieceFamily;
 
     boardSettings.updateBoardStyle(boardFamily);
     boardSettings.updatePieceStyle(pieceFamily);

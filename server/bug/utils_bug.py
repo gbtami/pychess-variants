@@ -235,7 +235,7 @@ async def load_game_bug(app_state: PychessGlobalAppState, game_id):
     if doc.get("c") is not None:
         chat = doc.get("c")
         for key in chat:
-            idx = int(key)
+            idx = int(key.replace("m",""))
             game.steps[idx]["chat"] = []
             for c in chat[key]:
                 game.steps[idx]["chat"].append(

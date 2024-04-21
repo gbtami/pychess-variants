@@ -30,7 +30,7 @@ from const import (
     variant_display_name,
     MAX_CHAT_LINES,
 )
-from fairy import FairyBoard, BLACK
+from fairy import FairyBoard, BLACK, WHITE
 from spectators import spectators
 from re import sub, split
 
@@ -185,11 +185,11 @@ class GameBug:
 
     def construct_chat_list(self):
         chat = {}
-        for ply, step in self.steps:
-            if step.chat:
-                chat[ply] = []
-                for msg in step.chat:
-                    chat[ply].append({"t": msg["time"], "u": msg["username"], "m": msg["message"]})
+        for ply, step in enumerate(self.steps):
+            if "chat" in step:
+                chat["m"+str(ply)] = []
+                for msg in step["chat"]:
+                    chat["m"+str(ply)].append({"t": msg["time"], "u": msg["username"], "m": msg["message"]})
         return chat
 
     def get_captured(self, fen, move):
@@ -335,9 +335,9 @@ class GameBug:
 
         self.remove_task = asyncio.create_task(remove(KEEP_TIME))
 
-        # always save them, even if no moves - will optimze eventually, just want it simple now
+        # always save them, even if no moves - todo: will optimize eventually, just want it simple now
         # and have trace of all games for later investigation
-        if (self.app_state.db is not None) and (self.tournamentId is None):
+        if False and (self.app_state.db is not None) and (self.tournamentId is None):
             result = await self.app_state.db.game.delete_one({"_id": self.id})
             log.debug(
                 "Removed too short game %s from db. Deleted %s game.",
@@ -364,10 +364,10 @@ class GameBug:
                 "o": [0 if x["boardName"] == "a" else 1 for x in self.steps[1:]],
                 "c": self.construct_chat_list(),
                 "ts": [x["ts"] for x in self.steps],
-                "cw": self.gameClocks.get_ply_clocks_for_board_and_color("a", "white"),
-                "cb": self.gameClocks.get_ply_clocks_for_board_and_color("a", "black"),
-                "cwB": self.gameClocks.get_ply_clocks_for_board_and_color("b", "white"),
-                "cbB": self.gameClocks.get_ply_clocks_for_board_and_color("b", "black"),
+                "cw": self.gameClocks.get_ply_clocks_for_board_and_color("a", WHITE),
+                "cb": self.gameClocks.get_ply_clocks_for_board_and_color("a", BLACK),
+                "cwB": self.gameClocks.get_ply_clocks_for_board_and_color("b", WHITE),
+                "cbB": self.gameClocks.get_ply_clocks_for_board_and_color("b", BLACK),
             }
 
             if self.app_state.db is not None:
@@ -676,6 +676,10 @@ class GameBug:
             "berserk": {"w": False, "b": False},
             "by": self.imported_by,
         }
+
+    @property
+    def turn_player(self):
+        return self.wplayer.username if self.board.color == WHITE else self.bplayer.username
 
     def game_json(self, player):
         color = "w" if self.wplayerA == player or self.wplayerB == player else "b"

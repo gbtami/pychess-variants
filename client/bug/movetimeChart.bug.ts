@@ -1,8 +1,9 @@
 import Highcharts from "highcharts";
 
-import { selectMove } from './movelist.bug';
-import { Step } from "../messages";
+import {selectMove} from './movelist.bug';
+import {Step} from "../messages";
 import AnalysisControllerBughouse from "@/bug/analysisCtrl.bug";
+import {BLACK, WHITE} from "@/chess";
 
 export interface MovePoint {
   y: number;
@@ -10,6 +11,73 @@ export interface MovePoint {
   name?: any;
   marker?: any;
   color: string;
+}
+
+function getChatImagePath(chatCode: string): string {
+    // TODO: should think of more elegant way to map those, since cant use html and css for highchart markers and need
+    switch (chatCode) {
+        case 'p': {
+            return 'url(../../static/images/bugroundchat/P.svg)';
+        }
+        case 'n': {
+            return 'url(../../static/images/bugroundchat/N.svg)';
+        }
+        case 'b': {
+            return 'url(../../static/images/bugroundchat/B.svg)';
+        }
+        case 'r': {
+            return 'url(../../static/images/bugroundchat/R.svg)';
+        }
+        case 'q': {
+            return 'url(../../static/images/bugroundchat/Q.svg)';
+        }
+        case 'nop': {
+            return 'url(../../static/images/bugroundchat/noP.svg)';
+        }
+        case 'non': {
+            return 'url(../../static/images/bugroundchat/noN.svg)';
+        }
+        case 'nob': {
+            return 'url(../../static/images/bugroundchat/noB.svg)';
+        }
+        case 'nor': {
+            return 'url(../../static/images/bugroundchat/noR.svg)';
+        }
+        case 'noq': {
+            return 'url(../../static/images/bugroundchat/noQ.svg)';
+        }
+        case 'sit': {
+            return 'url(../../static/images/bugroundchat/SIT.svg)';
+        }
+        case 'go': {
+            return 'url(../../static/images/bugroundchat/GO.svg)';
+        }
+        case 'trade': {
+            return 'url(../../static/images/bugroundchat/TRADE.svg)';
+        }
+        case 'notrade': {
+            return 'url(../../static/images/bugroundchat/NOTRADE.svg)';
+        }
+        case 'mate': {
+            return 'url(../../static/images/bugroundchat/MATE.svg)';
+        }
+        case 'ok': {
+            return 'url(../../static/images/bugroundchat/OK.svg)';
+        }
+        case 'no': {
+            return 'url(../../static/images/bugroundchat/NO.svg)';
+        }
+        case 'mb': {
+            return 'url(../../static/images/bugroundchat/MB.svg)';
+        }
+        case 'nvm': {
+            return 'url(../../static/images/bugroundchat/NVM.svg)';
+        }
+        case 'nice': {
+            return 'url(../../static/images/bugroundchat/NICE.svg)';
+        }
+    }
+    return 'url(/static/icons/bugchatmove.svg)';
 }
 
 export function movetimeChart(ctrl: AnalysisControllerBughouse) {
@@ -32,12 +100,15 @@ export function movetimeChart(ctrl: AnalysisControllerBughouse) {
         '1': [] as MovePoint[],
         '2': [] as MovePoint[],
     };
+    const chatSeries = [] as MovePoint[];
+
     const labels: string[] = [];
 
     const logC = Math.pow(Math.log(3), 2);
 
     let plyA = 0;
     let plyB = 0;
+    const clocktimeLast = {'a': [0, 0], 'b': [0, 0]};
     ctrl.steps.forEach((step: Step, ply: number) => {
         if (step.boardName === 'a') {
             plyA++;
@@ -47,10 +118,14 @@ export function movetimeChart(ctrl: AnalysisControllerBughouse) {
         const turnA = (plyA + 1) >> 1;
         const turnB = (plyB + 1) >> 1;
         // const colorName = step.turnColor;
-        const moveColor = step.turnColor === 'white'? 'black': 'white';
-        const team = moveColor === 'white' && step.boardName === 'a' || moveColor === 'black' && step.boardName === 'b' ? '1': '2';
+        const moveColor = step.turnColor === 'white'? BLACK: WHITE;
+        const team = moveColor === WHITE && step.boardName === 'a' || moveColor === BLACK && step.boardName === 'b' ? '1': '2';
         if (ply === 0) {
             //moveSeries[colorName].push({y: 0});
+            clocktimeLast['a'][WHITE] = step.clocks![WHITE];
+            clocktimeLast['a'][BLACK] = step.clocks![BLACK];
+            clocktimeLast['b'][WHITE] = step.clocksB![WHITE];
+            clocktimeLast['b'][BLACK] = step.clocksB![BLACK];
             return;
         }
 
@@ -62,7 +137,10 @@ export function movetimeChart(ctrl: AnalysisControllerBughouse) {
         //         (ctrl.steps[ply-2].clocks![WHITE] - (ctrl.steps[ply].clocks![WHITE] - ctrl.inc * 1000)) :
         //         (ctrl.steps[ply-2].clocks![BLACK] - (ctrl.steps[ply].clocks![BLACK] - ctrl.inc * 1000));
         // }
-        step.movetime = 10000; // TODO:NIKI
+        const moveClocktime = step.boardName === 'a'? step.clocks![moveColor]: step.clocksB![moveColor];
+        const lastClocktime = clocktimeLast[step.boardName!][moveColor];
+        clocktimeLast[step.boardName!][moveColor] = moveClocktime;
+        step.movetime = lastClocktime - (moveClocktime - ctrl.inc * 1000 );
 
         const y = Math.pow(Math.log(0.005 * Math.min(step.movetime, 12e4) + 3), 2) - logC;
         maxMove = Math.max(y, maxMove);
@@ -73,14 +151,34 @@ export function movetimeChart(ctrl: AnalysisControllerBughouse) {
             name: label,
             x: ply,
             y: team === '1' ? y : -y,
-            color: moveColor === 'white'? whiteColumnFill: blackColumnFill,
-            marker: {
-                symbol: 'url(/static/icons/bugchatmove.svg)'
-            }
+            color: moveColor === WHITE? whiteColumnFill: blackColumnFill,
         };
         moveSeries[team].push(movePoint);
+        //
+        if (step.chat !== undefined) {
+            for (const i in step.chat) {
+                const chatTime = step.chat[i].time;
+                const chatTxt = step.chat[i].message;
+                const chatUsr = step.chat[i].username;
+                'url(\'../../static/images/bugroundchat/noR.svg\')'
+                const yChat = Math.pow(Math.log(0.005 * Math.min(chatTime, 12e4) + 3), 2) - logC;
+                const chatPoint = {
+                    name: chatUsr + ":" + chatTxt,
+                    x: ply,
+                    y: team === '1' ? yChat : -yChat,
+                    color: moveColor === WHITE? whiteColumnFill: blackColumnFill,
+                    marker: {
+                            symbol: getChatImagePath(chatTxt.replace('!bug!','')),
+                            width: '2em',
+                            height: '2em'
+                        }
+                };
+                chatSeries.push(chatPoint);
+            }
+        }
+        //
 
-        let clock = 10000; //TODO:NIKI
+        let clock = clocktimeLast[step.boardName!][WHITE] + clocktimeLast[step.boardName!][BLACK];
         if (clock !== undefined) {
             label += '<br />' + formatClock(clock);
             maxTotal = Math.max(clock, maxTotal);
@@ -89,11 +187,6 @@ export function movetimeChart(ctrl: AnalysisControllerBughouse) {
                 x: ply,
                 y: team === '1' ? clock : -clock,
                 color: team === '1'? "green": "red",
-                marker: {
-                    symbol: 'url(/static/icons/bugchatmove.svg)',
-                    width: '1em',
-                    height: '1em'
-                }
             });
         }
 
@@ -170,6 +263,7 @@ export function movetimeChart(ctrl: AnalysisControllerBughouse) {
             },
             line: foregrondLineOptions,
             column: {
+                ...clickableOptions,
                 color: whiteColumnFill,
                 grouping: false,
                 groupPadding: 0,
@@ -182,6 +276,9 @@ export function movetimeChart(ctrl: AnalysisControllerBughouse) {
                         borderColor: highlightColor,
                     },
                 }
+            },
+            scatter: {
+                ...clickableOptions
             }
         },
         tooltip: {
@@ -262,6 +359,12 @@ export function movetimeChart(ctrl: AnalysisControllerBughouse) {
                 type: 'line',
                 yAxis: 1,
                 data: totalSeries['2'],
+            },
+            {
+                name: 'Chats',
+                type: 'scatter',
+                yAxis: 0,
+                data: chatSeries,
             },
         ]
     });
