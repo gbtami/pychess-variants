@@ -1439,16 +1439,12 @@ bad {
   color: var(--bad);
 }
 vs-swords {
-  font-size: 2em;
   padding: 4px 8px 0px 8px;
 }
-vs-swords.lobby {
-  display: inline-block;
-  font-size: 24px;
+.seeks vs-swords {
   color: var(--good);
-  vertical-align: bottom;
 }
-vs-swords.lobby.opp {
+.seeks vs-swords.opp {
   color: var(--bad);
 }
 .sub-ratings {
