@@ -711,7 +711,7 @@ export class LobbyController implements ChatController {
     }
 
     public challengeIcon(seek: Seek) {
-        const swords = (seek["user"] === this.username) ? 'vs-swords.lobby.icon' : 'vs-swords.lobby.opp.icon';
+        const swords = (seek["user"] === this.username) ? 'vs-swords.icon' : 'vs-swords.opp.icon';
         return (seek['target'] === '') ? null : h(swords, { attrs: {"data-icon": '"'} });
     }
     public seekTitle(seek: Seek) {

@@ -7,6 +7,18 @@ div.filter-tabs div.sub-ratings {
     flex: auto;
     font-size: 1.2em;
 }
+div.filter-tabs a {
+    justify-content: center;
+}
+div.versus player:nth-of-type(1) {
+  text-align: end;
+  white-space: normal;
+}
+div.versus vs-swords {
+  font-size: 2em;
+  width: 2.5em;
+  text-align: center;
+}
 .player-sum {
     display: flex;
     flex-flow: column;
@@ -29,6 +41,9 @@ div.filter-tabs div.sub-ratings {
     display: flex;
     background: var(--bg-color2);
     justify-content: flex-end;
+}
+player-title {
+  white-space: normal;
 }
 .trophies {
     height: 40px;
@@ -170,6 +185,12 @@ td.player-data {
 }
 #games tr a .icon-trophy::before {
     padding-right: 4px;
+}
+#games a:hover {
+  color: var(--font-hover);
+}
+#games .games-info a:hover {
+  color: var(--link-hover);
 }
 @media (max-width: 799px) and (orientation: portrait) {
     ul.perfs {
