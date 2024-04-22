@@ -9,7 +9,7 @@
         <div class="card">
         <h2><a href="{{ home }}/tournaments/shields/{{ key }}"><span class="shield-trophy">{{ icons[key] }}</span>{{ variant_display_name(key) }}</a></h2>
             {% for (user, date, tid) in winners[key] %}
-                <div class="player-data {{ loop.cycle('odd', 'even') }}">
+                <div class="player-data">
                     <player>
                         <a class="user-link player" href="{{ home }}/@/{{ user }}"><player-title>{{ users[user].title }}</player-title> {{ user }}</a>
                         <a class="user-link tourney-date" href="{{ home }}/tournament/{{ tid }}">{{ date }}</a>

@@ -10,7 +10,7 @@
 </br>
 
 <p align="center">
-  <img src="https://github.com/gbtami/pychess-variants/blob/master/static/images/pexels-renato-conti-2677849.jpg">
+  <img src="https://github.com/gbtami/pychess-variants/blob/master/static/images/pexels-renato-conti-2677849.jpg" alt="">
 </p>
 
 My article this month is dedicated to Noam D. Elkies. He inspired me greatly by cooking my Elephant study. In my first Endgame article I gave the following study and comments: "What is interesting is that the Elephant can win against the Rook without necessarily "forcing" the defender to the last rank. The diagram position features the pattern that I have in mind:
