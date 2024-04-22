@@ -9,7 +9,7 @@ from typing import List, Set
 
 from aiohttp import web
 import os
-from datetime import timedelta, datetime, date
+from datetime import timedelta, timezone, datetime, date
 from operator import neg
 
 import jinja2
@@ -68,6 +68,9 @@ class PychessGlobalAppState:
 
         self.app = app
 
+        self.shutdown = False
+        self.tournaments_loaded = asyncio.Event()
+
         self.db = app[db_key]
         self.users = self.__init_users()
         self.disable_new_anons = False
@@ -79,6 +82,8 @@ class PychessGlobalAppState:
         self.tourneynames: dict[str, dict] = {lang: {} for lang in LANGUAGES}
 
         self.tournaments: dict[str, Tournament] = {}
+
+        self.tourney_calendar = None
 
         # lichess allows 7 team message per week, so we will send one (cumulative) per day only
         # TODO: save/restore from db
@@ -133,6 +138,8 @@ class PychessGlobalAppState:
         self.__start_bots()
         self.__init_translations()
 
+        self.started_at = datetime.now(timezone.utc)
+
     async def init_from_db(self):
         if self.db is None:
             return
@@ -152,6 +159,7 @@ class PychessGlobalAppState:
                     doc["status"] == T_CREATED and doc["startsAt"].date() <= to_date
                 ):
                     await load_tournament(self, doc["_id"])
+            self.tournaments_loaded.set()
 
             already_scheduled = await get_scheduled_tournaments(self)
             new_tournaments_data = new_scheduled_tournaments(already_scheduled)
@@ -239,16 +247,27 @@ class PychessGlobalAppState:
                     self.seeks[seek.id] = seek
                     user.seeks[seek.id] = seek
 
-            # Read correspondence games in play and start their clocks
-            cursor = self.db.game.find({"r": "d", "c": True})
+            # Read games in play and start their clocks
+            cursor = self.db.game.find({"r": "d"})
+            cursor.sort("d", -1)
+            today = datetime.now(timezone.utc)
+
             async for doc in cursor:
+                # Don't load old uninished games if they are NOT corr games
+                corr = doc.get("c", False)
+                if doc["d"] < today - timedelta(days=1) and not corr:
+                    continue
+
                 if doc["s"] < ABORTED:
                     try:
                         game = await load_game(self, doc["_id"])
                         self.games[doc["_id"]] = game
-                        game.wplayer.correspondence_games.append(game)
-                        game.bplayer.correspondence_games.append(game)
-                        game.stopwatch.restart(from_db=True)
+                        if corr:
+                            game.wplayer.correspondence_games.append(game)
+                            game.bplayer.correspondence_games.append(game)
+                            game.stopwatch.restart(from_db=True)
+                        else:
+                            game.stopwatch.restart()
                     except NotInDbUsers:
                         log.error("Failed toload game %s", doc["_id"])
 

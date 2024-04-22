@@ -29,8 +29,8 @@ PERFS = {
 
 class RamatchChess960GameTestCase(AioHTTPTestCase):
     async def startup(self, app):
-        self.Aplayer = User(self.app, username="Aplayer", perfs=PERFS["newplayer"])
-        self.Bplayer = User(self.app, username="Bplayer", perfs=PERFS["newplayer"])
+        self.Aplayer = User(get_app_state(self.app), username="Aplayer", perfs=PERFS["newplayer"])
+        self.Bplayer = User(get_app_state(self.app), username="Bplayer", perfs=PERFS["newplayer"])
 
     async def get_application(self):
         app = make_app()
@@ -64,7 +64,7 @@ class RamatchChess960GameTestCase(AioHTTPTestCase):
         )
         app_state.seeks[seek.id] = seek
 
-        response = await join_seek(self.app, rematch_accepted_by, seek.id)
+        response = await join_seek(get_app_state(self.app), rematch_accepted_by, seek.id)
         rematch_id = response["gameId"]
 
         game_even = app_state.games[rematch_id]
@@ -101,7 +101,7 @@ class RamatchChess960GameTestCase(AioHTTPTestCase):
 
     async def test_ramatch(self):
         game_odd = Game(
-            self.app, "12345678", "chess", "", self.Aplayer, self.Bplayer, chess960=True
+            get_app_state(self.app), "12345678", "chess", "", self.Aplayer, self.Bplayer, chess960=True
         )
         print()
 

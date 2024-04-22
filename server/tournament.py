@@ -715,32 +715,22 @@ class Tournament(ABC):
             self.app_state.games[game_id] = game
             await insert_game_to_db(game, self.app_state)
 
-            # TODO: save new game to db
-            if 0:  # self.app[db_key] is not None:
-                doc = {
-                    "_id": game.id,
-                    "tid": self.id,
-                    "u": [game.wplayer.username, game.bplayer.username],
-                    "r": "*",
-                    "d": game.date,
-                    "wr": game.wrating,
-                    "br": game.brating,
-                }
-                await self.app_state.db.tournament_pairing.insert_one(doc)
-
             self.players[wp].games.append(game)
             self.players[bp].games.append(game)
 
             self.players[wp].points.append("*")
             self.players[bp].points.append("*")
 
+            self.players[wp].nb_games += 1
+            self.players[bp].nb_games += 1
+
+            await self.db_update_player(wp, self.players[wp])
+            await self.db_update_player(bp, self.players[bp])
+
             self.ongoing_games += 1
 
             self.players[wp].free = False
             self.players[bp].free = False
-
-            self.players[wp].nb_games += 1
-            self.players[bp].nb_games += 1
 
             self.players[wp].prev_opp = game.bplayer.username
             self.players[bp].prev_opp = game.wplayer.username
@@ -1119,6 +1109,11 @@ class Tournament(ABC):
         if player_data.withdrawn:
             new_data = {
                 "wd": True,
+            }
+        elif len(player_data.points) > 0 and player_data.points[-1] == "*":
+            new_data = {
+                "p": player_data.points,
+                "g": player_data.nb_games,
             }
         else:
             full_score = self.leaderboard[user]
