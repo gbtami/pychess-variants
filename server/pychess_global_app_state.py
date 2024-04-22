@@ -260,7 +260,6 @@ class PychessGlobalAppState:
 
                 if doc["s"] < ABORTED:
                     try:
-                        print(doc["_id"], doc["us"])
                         game = await load_game(self, doc["_id"])
                         if game is None:
                             continue
