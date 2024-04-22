@@ -260,7 +260,10 @@ class PychessGlobalAppState:
 
                 if doc["s"] < ABORTED:
                     try:
+                        print(doc["_id"], doc["us"])
                         game = await load_game(self, doc["_id"])
+                        if game is None:
+                            continue
                         self.games[doc["_id"]] = game
                         if corr:
                             game.wplayer.correspondence_games.append(game)
