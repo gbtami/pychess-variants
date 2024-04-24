@@ -9,3 +9,12 @@
     background-color: var(--bg-color1);
     padding: 24px;
 }
+h1 {
+    width: 85%;
+    margin: 0 auto;
+    background-color: var(--bg-color1);
+    padding-left: 30px;
+}
+.allplayers .player-data a {
+    white-space: nowrap;
+}
