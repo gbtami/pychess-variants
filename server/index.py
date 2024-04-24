@@ -383,8 +383,6 @@ async def index(request):
 
     if view == "lobby":
         page_title = "PyChess • Free Online Chess Variants"
-    elif view is None:
-        page_title = "404 Page Not Found"
     else:
         page_title = "%s • PyChess" % view.capitalize()
 
