@@ -66,6 +66,7 @@ async def handle_404(request, handler):
             template = app_state.jinja["en"].get_template("404.html")
             text = await template.render_async(
                 {
+                    "title": "404 Page Not Found",
                     "dev": DEV,
                     "home": URI,
                     "theme": theme,
