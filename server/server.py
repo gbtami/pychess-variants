@@ -63,6 +63,7 @@ async def handle_404(request, handler):
             if session_user is not None:
                 user = await app_state.users.get(session_user)
                 theme = user.theme
+            view = "404 Page Not Found"
             template = app_state.jinja["en"].get_template("404.html")
             text = await template.render_async(
                 {
