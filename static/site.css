@@ -472,9 +472,6 @@ span[role=tab], div.seeks-table thead {
   margin: 2em 0 0 0;
   position: relative;
 }
-.sidebar-second.analysis {
-  justify-content: none;
-}
 under-left {
   grid-area: uleft;
   display: flex;
@@ -659,7 +656,7 @@ a.post time {
   padding: 0.2em 0.5em 0.3em 0.5em;
   background: rgba(0, 0, 0, 0.65);
   color: #ddd;
-  text-shadow: 0 1px 1px 1px black;
+  text-shadow: 1px 1px 1px black;
 }
 a.post span.author {
   font-size: 90%;
@@ -668,7 +665,7 @@ a.post span.author {
   padding: 0.2em 0.5em 0.3em 0.5em;
   background: rgba(0, 0, 0, 0.65);
   color: #ddd;
-  text-shadow: 0 1px 1px 1px black;
+  text-shadow: 1px 1px 1px black;
   top: 0;
   right: 0;
 }
@@ -758,7 +755,7 @@ ul.guide li {
 .site-title-nav {
   display: flex;
   justify-content: flex-start;
-  padding-left: 14;
+  padding-left: 14px;
 }
 @media (max-width: 799px) and (orientation: portrait) {
   .site-title-nav {
@@ -2099,8 +2096,6 @@ div.chatroom {
   -webkit-appearance: none;
   display: block;
   background: var(--bg-color2);
-  xfloat: right;
-  xmargin: revert;
   padding: 0.5em;
   border-radius: 3px;
   border: 1px solid var(--checkbox-border);
@@ -2120,7 +2115,6 @@ ol#roundchat-messages {
 }
 
 li.message {
-  overflow-wrap: word-break;
   word-break: break-word;
   padding-left: 6px;
   padding-right: 6px;
@@ -2148,7 +2142,6 @@ li.message.server {
   margin-top: auto;
   color: var(--font-color);
   background: var(--chat-entry-bg);
-  font-size: 13.6894;
   letter-spacing: 0.035em;
   font-weight: 300;
 }
@@ -2205,7 +2198,7 @@ move.counter {
 
 vari-move:hover,
 move:hover {
-  color: var(font-color);
+  color: var(--font-color);
   background-color: var(--blue-hover);
 }
 vari-move.active,
