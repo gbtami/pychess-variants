@@ -6,7 +6,6 @@
 table {
     width: 100%;
     border-collapse: collapse;
-    border-spacing: 0;
 }
 tr.player-data {
     display: table-row;
@@ -30,13 +29,11 @@ td rating {
 .highscore, .shields, .winners {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(30ch, 1fr));
-    grid-gap: 6px;
     padding-left: 2px;
-}
-.highscore, .shields, .winners {
     grid-gap: 0;
     border: 1px solid var(--border-color);
     padding: 0;
+    border-radius: 0;
 }
 .small aside .highscore {
     border: 0;
@@ -46,16 +43,13 @@ td rating {
     border-radius: .25rem;
     background-color: var(--bg-color1);
 }
-.highscore, .shields, .winners {
-    border-radius: 0;
-}
 .highscore h1, .shields h1, .winners h1 {
     font-size: 2.5em;
 }
 .shields .card, .winners .card {
     border: none;
     border-right: 1px solid var(--border-color);
-    border-radius: none;
+    border-radius: 0;
     box-shadow: var(--base-shadow);
 }
 .card div.info0 {
@@ -76,8 +70,6 @@ div.info0.icon::before {
     text-shadow: 0 1px 0 var(--text-shadow);
 }
 .shields .card h2 {
-    padding-top: 1vh;
-    padding-bottom: 1vh;
     padding-left: 95px;
     position: relative;
     font-size: 1.3em;
@@ -121,7 +113,4 @@ table#players a,
 }
 .user-link.tourney-date {
     color: var(--link-color-blue);
-}
-.highscore a {
-    color: fff;
 }

@@ -309,6 +309,9 @@ header {
 
 iframe {
   border: none;
+  display: block;
+  margin: auto;
+  max-width: 100%;
 }
 
 .center {
@@ -471,9 +474,6 @@ span[role=tab], div.seeks-table thead {
   justify-content: center;
   margin: 2em 0 0 0;
   position: relative;
-}
-.sidebar-second.analysis {
-  justify-content: none;
 }
 under-left {
   grid-area: uleft;
@@ -659,7 +659,7 @@ a.post time {
   padding: 0.2em 0.5em 0.3em 0.5em;
   background: rgba(0, 0, 0, 0.65);
   color: #ddd;
-  text-shadow: 0 1px 1px 1px black;
+  text-shadow: 1px 1px 1px black;
 }
 a.post span.author {
   font-size: 90%;
@@ -668,7 +668,7 @@ a.post span.author {
   padding: 0.2em 0.5em 0.3em 0.5em;
   background: rgba(0, 0, 0, 0.65);
   color: #ddd;
-  text-shadow: 0 1px 1px 1px black;
+  text-shadow: 1px 1px 1px black;
   top: 0;
   right: 0;
 }
@@ -758,7 +758,7 @@ ul.guide li {
 .site-title-nav {
   display: flex;
   justify-content: flex-start;
-  padding-left: 14;
+  padding-left: 14px;
 }
 @media (max-width: 799px) and (orientation: portrait) {
   .site-title-nav {
@@ -1086,7 +1086,6 @@ button.back {
   height: 3rem;
   line-height: 3rem;
   border: none;
-  cursor: pointer;
   border-radius: unset;
 }
 
@@ -1173,7 +1172,6 @@ button.paste-url {
   text-decoration: none;
   font-size: 18px;
   margin: 4px 2px;
-  cursor: pointer;
   box-shadow: var(--base-shadow);
 }
 .lobby-button {
@@ -1210,21 +1208,12 @@ div.import {
 .lobby-button:hover {
   background-color: var(--bg-color1);
 }
-.donate-button {
-  background-color: var(--bg-color2);
-  color: var(--gold);
-}
-.donate-button:hover {
-  background-color: var(--gold);
-  color: White;
-}
 
 button.rematch {
   border: none;
   color: var(--font-color);
   background: var(--rematch);
   padding: 18px 0;
-  cursor: pointer;
 }
 button.rematch:hover {
   color: #fff;
@@ -1237,7 +1226,6 @@ button.analysis {
   color: var(--font-color);
   background-color: var(--bg-color0);
   padding: 12px 0;
-  cursor: pointer;
 }
 button.newopp:hover,
 button.analysis:hover {
@@ -1347,8 +1335,6 @@ div.info-result {
 }
 .info-result.lose {
   color: var(--bad);
-}
-div.anal-meta {
 }
 tc {
   padding: 8px;
@@ -1771,7 +1757,6 @@ div.btn-controls.after {
   border: none;
   color: var(--font-color);
   background-color: var(--bg-color0);
-  cursor: pointer;
 }
 
 button {
@@ -1878,7 +1863,6 @@ button.icon.icon-plus-square {
   color: var(--link-color-blue);
   background-color: var(--bg-body);
   font-size: 32px;
-  cursor: pointer;
   margin: 0;
   padding: 0 0 0 4px;
 }
@@ -2099,8 +2083,6 @@ div.chatroom {
   -webkit-appearance: none;
   display: block;
   background: var(--bg-color2);
-  xfloat: right;
-  xmargin: revert;
   padding: 0.5em;
   border-radius: 3px;
   border: 1px solid var(--checkbox-border);
@@ -2120,7 +2102,6 @@ ol#roundchat-messages {
 }
 
 li.message {
-  overflow-wrap: word-break;
   word-break: break-word;
   padding-left: 6px;
   padding-right: 6px;
@@ -2148,7 +2129,6 @@ li.message.server {
   margin-top: auto;
   color: var(--font-color);
   background: var(--chat-entry-bg);
-  font-size: 13.6894;
   letter-spacing: 0.035em;
   font-weight: 300;
 }
@@ -2205,7 +2185,7 @@ move.counter {
 
 vari-move:hover,
 move:hover {
-  color: var(font-color);
+  color: var(--font-color);
   background-color: var(--blue-hover);
 }
 vari-move.active,
