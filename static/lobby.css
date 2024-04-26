@@ -114,7 +114,6 @@ rating {
 }
 
 #header-block {
-    display: 'inline-flex';
     margin-bottom: 1.5rem;
 }
 .container input#fen {

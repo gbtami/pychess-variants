@@ -1208,14 +1208,6 @@ div.import {
 .lobby-button:hover {
   background-color: var(--bg-color1);
 }
-.donate-button {
-  background-color: var(--bg-color2);
-  color: var(--gold);
-}
-.donate-button:hover {
-  background-color: var(--gold);
-  color: White;
-}
 
 button.rematch {
   border: none;
@@ -1343,8 +1335,6 @@ div.info-result {
 }
 .info-result.lose {
   color: var(--bad);
-}
-div.anal-meta {
 }
 tc {
   padding: 8px;
