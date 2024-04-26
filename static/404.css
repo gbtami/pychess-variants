@@ -38,10 +38,6 @@ div.main-game-body {
      }
 }
 
-    #board {
-      border: none;
-    }
-
     #message {
       opacity: 0;
       background: var(--invalid-queen);
