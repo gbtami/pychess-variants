@@ -1086,7 +1086,6 @@ button.back {
   height: 3rem;
   line-height: 3rem;
   border: none;
-  cursor: pointer;
   border-radius: unset;
 }
 
@@ -1173,7 +1172,6 @@ button.paste-url {
   text-decoration: none;
   font-size: 18px;
   margin: 4px 2px;
-  cursor: pointer;
   box-shadow: var(--base-shadow);
 }
 .lobby-button {
@@ -1224,7 +1222,6 @@ button.rematch {
   color: var(--font-color);
   background: var(--rematch);
   padding: 18px 0;
-  cursor: pointer;
 }
 button.rematch:hover {
   color: #fff;
@@ -1237,7 +1234,6 @@ button.analysis {
   color: var(--font-color);
   background-color: var(--bg-color0);
   padding: 12px 0;
-  cursor: pointer;
 }
 button.newopp:hover,
 button.analysis:hover {
@@ -1771,7 +1767,6 @@ div.btn-controls.after {
   border: none;
   color: var(--font-color);
   background-color: var(--bg-color0);
-  cursor: pointer;
 }
 
 button {
@@ -1878,7 +1873,6 @@ button.icon.icon-plus-square {
   color: var(--link-color-blue);
   background-color: var(--bg-body);
   font-size: 32px;
-  cursor: pointer;
   margin: 0;
   padding: 0 0 0 4px;
 }

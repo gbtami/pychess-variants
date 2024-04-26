@@ -96,11 +96,9 @@ player-title {
     margin: 1em;
 }
 .btn-rack a {
-    justify-content: center;
     padding: 0 0.6em;
     text-align: center;
     line-height: 2rem;
-    cursor: pointer;
     border-right: 1px solid var(--border-color);
     color: var(--font-color);
 }

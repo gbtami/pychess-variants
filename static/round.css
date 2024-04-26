@@ -42,7 +42,6 @@
     height: 40px;
     color: var(--font-color);
     background: var(--bg-color2);
-    cursor: pointer;
 }
 
 #janggi-setup-buttons > button:nth-child(2):hover {
