@@ -1541,7 +1541,7 @@ table.seeks {
 }
 .seeks tbody tr {
   cursor: pointer;
-  border-bottom: 1px solid var(--bg-color2);
+  border-bottom: 1px solid var(--chat-entry-border-top);
   z-index: 1;
 }
 .seeks tbody tr:hover {
