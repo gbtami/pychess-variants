@@ -140,7 +140,7 @@
   --box-shadow-panel-btn: none;
   --chat-entry-border-top: #404040;
   --chat-entry-bg: #262421;
-  --chat-text: #8C8C8C;
+  --time-text: #8C8C8C;
   --toggle-bg: #696969;
   --slider-border: #7a7a7a;
   --anal-clock: #2b455d;
@@ -2049,7 +2049,7 @@ form#game-mode label {
 .chat .time {
   display: inline-flex;
   margin-right: 3px;
-  color: var(--chat-text);
+  color: var(--time-text);
 }
 
 .chat .discord-icon-container {
