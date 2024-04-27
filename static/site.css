@@ -48,7 +48,7 @@
   --gold-text: GoldenRod;
   --pink-text: Pink;
   --green-text: Green;
-  --gray-text: #808080;
+  --chat-text: #757575;
   --modal-bg: #fff;
   --box-header: #f5f5f5;
   --button-new-game: linear-gradient(to bottom, #f5f5f5 0%, #ededed 100%);
@@ -140,6 +140,7 @@
   --box-shadow-panel-btn: none;
   --chat-entry-border-top: #404040;
   --chat-entry-bg: #262421;
+  --chat-text: #8C8C8C;
   --toggle-bg: #696969;
   --slider-border: #7a7a7a;
   --anal-clock: #2b455d;
@@ -2048,7 +2049,7 @@ form#game-mode label {
 .chat .time {
   display: inline-flex;
   margin-right: 3px;
-  color: var(--gray-text);
+  color: var(--chat-text);
 }
 
 .chat .discord-icon-container {
