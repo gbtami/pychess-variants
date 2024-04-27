@@ -17,6 +17,7 @@ else:
 from aiohttp import web
 from aiohttp.log import access_logger
 from aiohttp.web_app import Application
+from aiohttp_remotes import Secure
 from aiohttp_session import SimpleCookieStorage
 from aiohttp_session.cookie_storage import EncryptedCookieStorage
 from aiohttp_session import setup
@@ -35,6 +36,7 @@ from settings import (
     DEV,
     MAX_AGE,
     SECRET_KEY,
+    LOCALHOST,
     MONGO_HOST,
     MONGO_DB_NAME,
     URI,
@@ -107,6 +109,11 @@ async def on_prepare(request, response):
 
 def make_app(db_client=None, simple_cookie_storage=False) -> Application:
     app = web.Application()
+
+    if URI != LOCALHOST:
+        secure = Secure()
+        app.on_response_prepare.append(secure.on_response_prepare)
+        app.middlewares.append(secure.middleware)
 
     parts = urlparse(URI)
 
