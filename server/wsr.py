@@ -222,7 +222,7 @@ async def hande_board(ws, game):
                         "type": "setup",
                         "color": "black",
                         "fen": game.board.initial_fen,
-                    }
+                    },
                 )
             elif game.wsetup:
                 await ws_send_json(
@@ -231,7 +231,7 @@ async def hande_board(ws, game):
                         "type": "setup",
                         "color": "white",
                         "fen": game.board.initial_fen,
-                    }
+                    },
                 )
         else:
             board_response = game.get_board(full=True)
