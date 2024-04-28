@@ -9,7 +9,7 @@ import { DrawShape } from 'chessgroundx/draw';
 
 import { _ } from './i18n';
 import { sound } from './sound';
-import {uci2LastMove, uci2cg, getTurnColor} from './chess';
+import { uci2LastMove, uci2cg, getTurnColor } from './chess';
 import { crosstableView } from './crosstable';
 import { chatView } from './chat';
 import { createMovelistButtons, updateMovelist, selectMove, activatePlyVari } from './movelist';
@@ -29,7 +29,7 @@ import { MsgAnalysis, MsgAnalysisBoard } from './analysisType';
 import { GameController } from './gameCtrl';
 import { analysisSettings, EngineSettings } from './analysisSettings';
 import { setAriaTabClick } from './view';
-import {createWebsocket} from "@/socket/webSocketUtils";
+import { createWebsocket } from "@/socket/webSocketUtils";
 import { initPocketRow } from './pocketRow';
 
 const EVAL_REGEX = new RegExp(''

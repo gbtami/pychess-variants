@@ -19,8 +19,8 @@ import { updateCount, updatePoint } from './info';
 import { sound } from './sound';
 import { chatMessage, ChatController } from './chat';
 import { selectMove } from './movelist';
-import {Api} from "chessgroundx/api";
-import {Variant} from "@/variants";
+import { Api } from "chessgroundx/api";
+import { Variant } from "@/variants";
 
 export abstract class GameController extends ChessgroundController implements ChatController {
     sock: WebsocketHeartbeatJs;
@@ -79,9 +79,6 @@ export abstract class GameController extends ChessgroundController implements Ch
     vmiscInfoB: VNode;
     ctableContainer: VNode | HTMLElement;
     clickDrop: cg.Piece | undefined;
-
-    lastmove: cg.Orig[] | undefined;
-    isCheck: boolean;
 
     spectator: boolean;
 
@@ -193,8 +190,7 @@ export abstract class GameController extends ChessgroundController implements Ch
     setDests() {
         if (this.ffishBoard === undefined) {
             // At very first time we may have to wait for ffish module to initialize
-            // setTimeout(this.setDests.bind(this), 100);
-            this.ffishPromise.then(this.setDests.bind(this));
+            setTimeout(this.setDests.bind(this), 100); // todo: can't we do this async and await the promise?
         } else {
             const legalMoves = this.ffishBoard.legalMoves().split(" ");
             const fakeDrops = this.variant.name === 'ataxx';

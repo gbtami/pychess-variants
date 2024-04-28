@@ -21,8 +21,8 @@ import { patch, getCookie } from './document';
 import { renderTimeago } from './datetime';
 import { zenButtonView, zenModeSettings } from './zen';
 import { PyChessModel } from './types';
-import {roundView as bugRoundView} from "./bug/round.bug";
-import {analysisView as bugAnalysisView} from "./bug/analysis.bug";
+import { roundView as bugRoundView } from "./bug/round.bug";
+import { analysisView as bugAnalysisView } from "./bug/analysis.bug";
 
 // redirect to correct URL except Heroku preview apps
 if (window.location.href.includes('heroku') && !window.location.href.includes('-pr-')) {
@@ -222,48 +222,6 @@ zenModeSettings.update();
 const el = document.getElementById('pychess-variants');
 export const model: PyChessModel = el? initModel(el) : initModel(new HTMLElement());
 
-
-/*const logtail = new Logtail("GbPHURaqN81zoawHXKVGnDJR");
-// console.log("zzz");
-// logtail.log("asdf");
-async function enrichLogs(log: ILogtailLog): Promise<ILogtailLog> {
-    return {
-        ...log,
-        username: model.username,
-        url: window.location
-    };
-}
-logtail.use(enrichLogs);
-console.log // define a new console
-var m=(function(oldCons){
-    return {
-        log: function(text){
-            oldCons.log(text);
-            logtail.log(text);
-            // Your code
-        },
-        info: function (text) {
-            oldCons.info(text);
-            logtail.info(text);
-            // Your code
-        },
-        warn: function (text) {
-            oldCons.warn(text);
-            logtail.warn(text);
-            // Your code
-        },
-        error: function (text) {
-            oldCons.error(text);
-            logtail.error(text);
-            // Your code
-        }
-    };
-}(window.console));
-
-//Then redefine the old console
-window.console = m;
-// console.log("aaa");
-*/
 if (el instanceof Element) {
 
     // Always update sound theme before volume

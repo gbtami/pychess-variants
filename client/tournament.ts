@@ -15,7 +15,7 @@ import { gameType } from './result';
 import { boardSettings } from './boardSettings';
 import { MsgBoard, MsgChat, MsgFullChat, MsgSpectators, MsgGameEnd, MsgNewGame } from "./messages";
 import { MsgUserStatus, MsgGetGames, TournamentGame, MsgTournamentStatus, MsgUserConnectedTournament, MsgGetPlayers, TournamentPlayer, MsgError, MsgPing, TopGame } from './tournamentType';
-import {newWebsocket} from "@/socket/webSocketUtils";
+import { newWebsocket } from "@/socket/webSocketUtils";
 
 const T_STATUS = {
     0: "created",

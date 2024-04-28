@@ -1,4 +1,5 @@
 import { h, VNode } from 'snabbdom';
+
 import { premove } from 'chessgroundx/premove';
 import { predrop } from 'chessgroundx/predrop';
 import * as cg from 'chessgroundx/types';
@@ -24,7 +25,7 @@ import { MsgUserDisconnected, MsgUserPresent, MsgMoreTime, MsgDrawOffer, MsgDraw
 import { PyChessModel } from "./types";
 import { GameController } from './gameCtrl';
 import { handleOngoingGameEvents, Game, gameViewPlaying, compareGames } from './nowPlaying';
-import {createWebsocket} from "@/socket/webSocketUtils";
+import { createWebsocket } from "@/socket/webSocketUtils";
 import { initPocketRow } from './pocketRow';
 
 let rang = false;

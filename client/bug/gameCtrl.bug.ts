@@ -18,6 +18,9 @@ export class GameControllerBughouse extends GameController {
     boardName: 'a' | 'b';
     localAnalysis: boolean = false;
 
+    isCheck: boolean;
+    lastmove: cg.Orig[] | undefined;
+
     constructor(el: HTMLElement,elPocket1: HTMLElement,elPocket2: HTMLElement, boardName: 'a' | 'b', model: PyChessModel) {
         super(el, model,elPocket1,elPocket2);
         this.boardName = boardName;

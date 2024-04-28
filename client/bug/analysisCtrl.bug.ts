@@ -21,7 +21,7 @@ import { MsgAnalysis } from "../analysisType";
 import ffishModule from "ffish-es6";
 import { titleCase } from "@/analysisCtrl";
 import { movetimeChart } from "./movetimeChart.bug";
-import {initBoardSettings, switchBoards} from "@/bug/roundCtrl.bug";
+import { initBoardSettings, switchBoards } from "@/bug/roundCtrl.bug";
 
 const EVAL_REGEX = new RegExp(''
   + /^info depth (\d+) seldepth \d+ multipv (\d+) /.source

@@ -93,8 +93,13 @@ class FairyBoard:
             new_fen = FairyBoard.shuffle_start(variant)
             while new_fen == disabled_fen:
                 new_fen = FairyBoard.shuffle_start(variant)
+        else:
+            new_fen = sf.start_fen(variant)
+
+        if variant == "bughouse":
+            return new_fen + " | " + new_fen
+        else:
             return new_fen
-        return sf.start_fen(variant)
 
     @property
     def initial_sfen(self):

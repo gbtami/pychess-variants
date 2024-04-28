@@ -18,9 +18,9 @@ import { MsgBoard, MsgChat, MsgFullChat } from "./messages";
 import { variantPanels } from './lobby/layer1';
 import { Post, Stream, Spotlight, MsgInviteCreated, MsgHostCreated, MsgGetSeeks, MsgNewGame, MsgGameInProgress, MsgUserConnected, MsgPing, MsgError, MsgShutdown, MsgGameCounter, MsgUserCounter, MsgStreams, MsgSpotlights, Seek, CreateMode, TvGame, TcMode } from './lobbyType';
 import { validFen, uci2LastMove } from './chess';
-import {seekViewBughouse, switchEnablingLobbyControls} from "./bug/lobby.bug";
+import { seekViewBughouse, switchEnablingLobbyControls } from "./bug/lobby.bug";
 import { handleOngoingGameEvents, Game, gameViewPlaying, compareGames } from './nowPlaying';
-import {createWebsocket} from "@/socket/webSocketUtils";
+import { createWebsocket } from "@/socket/webSocketUtils";
 
 export function createModeStr(mode: CreateMode) {
     switch (mode) {

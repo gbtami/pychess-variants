@@ -2,8 +2,8 @@ import { h } from "snabbdom";
 
 import { _ } from './i18n';
 import { patch } from './document';
-import {RoundControllerBughouse} from "./bug/roundCtrl.bug";
-import {chatMessageBug, renderBugChatPresets} from "@/bug/chat.bug";
+import { RoundControllerBughouse } from "./bug/roundCtrl.bug";
+import { chatMessageBug, renderBugChatPresets } from "@/bug/chat.bug";
 
 export interface ChatController {
     anon: boolean;
@@ -47,7 +47,7 @@ export function chatView(ctrl: ChatController, chatType: string) {
         chatEntry.disabled = !activated;
         chatEntry.placeholder = activated ? (anon ? _('Sign in to chat') : _('Please be nice in the chat!')) : _("Chat is disabled");
     }
-    const anon = ctrl.anon && !bughouse;
+    const anon = ctrl.anon && !bughouse; // chat is essential to bughouse, allow even if anons (or disallow anon bughouse games?)
     return h(`div#${chatType}.${chatType}.chat`, [
         bughouse? h('div.chatroom'): h('div.chatroom', [
             (spectator) ? _('Spectator room') : _('Chat room'),
