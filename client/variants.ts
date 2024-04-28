@@ -343,7 +343,7 @@ export const VARIANTS: Record<string, Variant> = {
         },
     }),
     bughouse: variant({
-        name: "bughouse", tooltip: "bughousebughousebughousebughouse.",
+        name: "bughouse", tooltip: "bughousebughousebughousebughouse.", displayName: "bughouse ᴮᴱᵀᴬ",
         startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[] w KQkq - 0 1",
         chess960: true, icon: "¢", icon960: "⌀",
         boardFamily: "standard8x8", pieceFamily: "standard",
