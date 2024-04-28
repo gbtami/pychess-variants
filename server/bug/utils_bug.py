@@ -5,7 +5,7 @@ from datetime import timezone
 
 from pychess_global_app_state import PychessGlobalAppState
 from user import User
-from compress import decode_moves, R2C, C2R, V2C, C2V
+from compress import R2C, C2R, V2C, C2V, decode_move_standard
 from bug.game_bug import GameBug
 from const import (
     STARTED,
@@ -84,7 +84,7 @@ async def load_game_bug(app_state: PychessGlobalAppState, game_id):
         tournamentId=doc.get("tid"),
     )
 
-    mlist = decode_moves(doc["m"], variant)
+    mlist = [*map(decode_move_standard, doc["m"])]
 
     if mlist or (game.tournamentId is not None and doc["s"] > STARTED):
         game.saved = True

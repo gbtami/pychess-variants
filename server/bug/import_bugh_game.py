@@ -3,13 +3,11 @@ import logging
 from bug.utils_bug import init_players
 from pychess_global_app_state_utils import get_app_state
 from const import (
-    GRANDS,
     UNKNOWNFINISH,
     IMPORTED,
 )
 from datetime import datetime, timezone
-from compress import encode_moves, R2C, V2C
-from convert import grand2zero
+from compress import R2C, V2C, encode_move_standard
 from newid import new_id
 from aiohttp import web
 from bugchess.pgn import read_game, Game
@@ -96,7 +94,7 @@ async def import_game_bpgn(request):
     [move_stack, move_times, boards] = get_main_variation(
         first_game
     )  # data.get("moves", "").split(" ")
-    moves = encode_moves(map(grand2zero, move_stack) if variant in GRANDS else move_stack, variant)
+    moves = [*map(encode_move_standard, move_stack)]
 
     game_id = await new_id(None if app_state.db is None else app_state.db.game)
     existing = await app_state.db.game.find_one({"_id": {"$eq": game_id}})

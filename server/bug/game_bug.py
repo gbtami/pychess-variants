@@ -16,7 +16,7 @@ try:
 except ImportError:
     print("No pyffish module installed!")
 
-from compress import encode_moves, R2C
+from compress import R2C, encode_move_standard
 from const import (
     STARTED,
     ABORTED,
@@ -356,13 +356,13 @@ class GameBug:
                     await self.app_state.tournaments[self.tournamentId].game_update(self)
                 except Exception:
                     log.exception("Exception in tournament game_update()")
-
+            moves = [x["move"] + x["moveB"] for x in self.steps[1:]]
             new_data = {
                 "d": self.date,
                 "f": self.boards["a"].fen + " | " + self.boards["b"].fen,
                 "s": self.status,
                 "r": R2C[self.result],
-                "m": encode_moves([x["move"] + x["moveB"] for x in self.steps[1:]], self.variant),
+                "m": [*map(encode_move_standard, moves)],
                 "o": [0 if x["boardName"] == "a" else 1 for x in self.steps[1:]],
                 "c": self.construct_chat_list(),
                 "ts": [x["ts"] for x in self.steps],
