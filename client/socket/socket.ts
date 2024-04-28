@@ -74,6 +74,12 @@ export class WebsocketHeartbeatJs {
     initEventHandle = function () {
         this.ws.onclose = (e: CloseEvent) => {
             console.log("this.ws.onclose() " + e.code + " " + e.reason + " " + e.wasClean);
+            if (e.code !== 1000 || !e.wasClean) {
+                toggleSocketCssOnClose();
+            } else {
+                // happens on navigation between pages for example - we dont want the popup when normal close like that
+                console.debug("this.ws.onclose() - clean close");
+            }
             this.onclose(e); // todo: lichess doesnt have customization for this event.
                              //       we only have it for roundCtrl.bug.ts to make clocks blink and in roundCtrl it is
                              //       even on onReconnect event and not on onClose
@@ -147,7 +153,6 @@ export class WebsocketHeartbeatJs {
     close = function () {
         this.forbidReconnect = true;
         this.heartReset();
-        toggleSocketCssOnClose();
         this.ws.close();
     };
 
