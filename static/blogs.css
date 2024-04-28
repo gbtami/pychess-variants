@@ -7,10 +7,7 @@
 .blogs > ul {
     margin: .5em 3em .5em 3em;
 }
-iframe {
-    display: block;
-    margin: auto;
-}
+
 @media (max-width: 799px) and (orientation: portrait) {
     div.blogs {
         width: 100%;

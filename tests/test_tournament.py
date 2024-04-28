@@ -49,8 +49,8 @@ class TestTournament(Tournament):
     async def join_players(self, nb_players):
         self.game_tasks = set()
 
-        for i in range(nb_players):
-            name = (id8() + id8())[: random.randint(1, 16)]
+        for i in range(1, nb_players + 1):
+            name = "Test_User_%s" % i
             player = User(self.app_state, username=name, title="TEST", perfs=PERFS)
             self.app_state.users[player.username] = player
             player.tournament_sockets[self.id] = set((None,))
@@ -107,7 +107,7 @@ class TestTournament(Tournament):
                     move = random.choice(game.legal_moves)
                     clocks = (game.clocks_w[-1], game.clocks_b[-1])
                     await play_move(self.app_state, cur_player, game, move, clocks=clocks)
-            await asyncio.sleep(0.1)
+            await asyncio.sleep(0.01)
 
 
 class ArenaTestTournament(TestTournament, ArenaTournament):
@@ -154,7 +154,7 @@ async def create_arena_test(app):
     await app_state.db.tournament_pairing.delete_many({"tid": tid})
 
     tournament = ArenaTestTournament(
-        app,
+        app_state,
         tid,
         variant="gorogoroplus",
         name="Test Arena",

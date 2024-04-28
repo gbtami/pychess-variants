@@ -8,7 +8,6 @@ from time import monotonic
 
 from const import MOVE, STARTED
 from const import TYPE_CHECKING
-from typedefs import kill_key
 
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
@@ -63,7 +62,7 @@ async def BOT_task(bot, app_state: PychessGlobalAppState):
 
     random_mover = bot.username == "Random-Mover"
 
-    while not app_state.app[kill_key]["kill"]:
+    while not app_state.shutdown:
         line = await bot.event_queue.get()
         try:
             bot.event_queue.task_done()

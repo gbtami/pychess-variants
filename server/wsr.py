@@ -179,6 +179,7 @@ async def handle_berserk(data, game):
     game.berserk(data["color"])
     response = {"type": "berserk", "color": data["color"]}
     await round_broadcast(game, response, full=True)
+    await game.save_berserk()
 
 
 async def handle_analysis_move(user, data, game):
