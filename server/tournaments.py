@@ -16,6 +16,7 @@ from const import (
     variant_display_name,
     T_STARTED,
     T_CREATED,
+    T_ABORTED,
     T_FINISHED,
     T_ARCHIVED,
     SHIELD,
@@ -462,7 +463,7 @@ async def load_tournament(app_state: PychessGlobalAppState, tournament_id, tourn
         res = doc["r"]
         result = C2R[res]
         # Skip aborted/unfinished games
-        if result == "*":
+        if result == "*" and tournament.status in (T_ABORTED, T_FINISHED, T_ARCHIVED):
             continue
 
         _id = doc["_id"]

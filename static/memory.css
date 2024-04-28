@@ -7,7 +7,7 @@ div.memory {
     padding: 0 0 50px 0;
 }
 
-.memory .header h1 {
+.memory h1 {
     font-size: 3em;
     color: var(--font-color);
 }

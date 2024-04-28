@@ -144,8 +144,8 @@ class CorrClock:
         self.ply = self.game.board.ply
         self.color = self.game.board.color
         self.mins = self.game.base * 24 * 60
-        if from_db and self.game.last_move_date is not None:
-            delta = datetime.now(timezone.utc) - self.game.last_move_date
+        if from_db and self.game.last_move_time is not None:
+            delta = datetime.now(timezone.utc) - self.game.last_move_time
             self.mins -= delta.total_seconds() / 60
         self.running = True
 

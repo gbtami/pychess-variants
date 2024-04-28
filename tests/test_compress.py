@@ -5,7 +5,7 @@ import unittest
 
 import pyffish as sf
 
-from compress import encode_moves, decode_moves
+from compress import get_encode_method, get_decode_method
 from fairy import FairyBoard
 from const import VARIANTS
 
@@ -34,7 +34,9 @@ class EncodeDecodeTestCase(unittest.TestCase):
             board = FairyBoard(variant, initial_fen=FEN)
             moves = board.legal_moves()
 
-            saved_restored = decode_moves(encode_moves(moves, variant), variant)
+            encode_method = get_encode_method(variant)
+            decode_method = get_decode_method(variant)
+            saved_restored = [*map(decode_method, map(encode_method, moves))]
             self.assertEqual(saved_restored, moves)
 
 

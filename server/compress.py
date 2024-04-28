@@ -105,53 +105,63 @@ for piece in PIECES:
 C2M = {v: k for k, v in M2C.items()}
 
 
-def encode_moves(moves, variant):
+def encode_move_flipping(move):
+    return (
+        chr(M2C[move[0:2]]) + chr(M2C[move[3:5]]) + "@"
+        if move[0] == "+"
+        else chr(M2C[move[0:2]]) + chr(M2C[move[2:4]]) + (move[4] if len(move) == 5 else "")
+    )
+
+
+def encode_move_duck(move):
+    return (
+        chr(M2C[move[0:2]])  # first leg 'from'
+        + chr(M2C[move[2:4]])  # first leg 'to'
+        + chr(M2C[move[-2:]])  # duck 'to'
+        + (move[4] if len(move) == 10 else "")  # promotion
+    )
+
+
+def encode_move_standard(move):
+    return chr(M2C[move[0:2]]) + chr(M2C[move[2:4]]) + (move[4] if len(move) == 5 else "")
+
+
+def get_encode_method(variant):
     if variant in ("kyotoshogi", "chennis"):
-        return [
-            (
-                chr(M2C[move[0:2]]) + chr(M2C[move[3:5]]) + "@"
-                if move[0] == "+"
-                else chr(M2C[move[0:2]]) + chr(M2C[move[2:4]]) + (move[4] if len(move) == 5 else "")
-            )
-            for move in moves
-        ]
+        return encode_move_flipping
     elif variant == "duck":
-        return [
-            chr(M2C[move[0:2]])  # first leg 'from'
-            + chr(M2C[move[2:4]])  # first leg 'to'
-            + chr(M2C[move[-2:]])  # duck 'to'
-            + (move[4] if len(move) == 10 else "")  # promotion
-            for move in moves
-        ]
-
-    return [
-        chr(M2C[move[0:2]]) + chr(M2C[move[2:4]]) + (move[4] if len(move) == 5 else "")
-        for move in moves
-    ]
+        return encode_move_duck
+    else:
+        return encode_move_standard
 
 
-def decode_moves(moves, variant):
+def decode_move_flipping(move):
+    return (
+        C2M[ord(move[0])] + "@" + C2M[ord(move[1])]
+        if move[-1] == "@"
+        else C2M[ord(move[0])] + C2M[ord(move[1])] + (move[2] if len(move) == 3 else "")
+    )
+
+
+def decode_move_duck(move):
+    return (
+        C2M[ord(move[0])]
+        + C2M[ord(move[1])]
+        + (move[3] if len(move) == 4 else "")
+        + ","
+        + C2M[ord(move[1])]
+        + C2M[ord(move[2])]
+    )
+
+
+def decode_move_standard(move):
+    return C2M[ord(move[0])] + C2M[ord(move[1])] + (move[2] if len(move) == 3 else "")
+
+
+def get_decode_method(variant):
     if variant in ("kyotoshogi", "chennis"):
-        return [
-            (
-                C2M[ord(move[0])] + "@" + C2M[ord(move[1])]
-                if move[-1] == "@"
-                else C2M[ord(move[0])] + C2M[ord(move[1])] + (move[2] if len(move) == 3 else "")
-            )
-            for move in moves
-        ]
+        return decode_move_flipping
     elif variant == "duck":
-        return [
-            C2M[ord(move[0])]
-            + C2M[ord(move[1])]
-            + (move[3] if len(move) == 4 else "")
-            + ","
-            + C2M[ord(move[1])]
-            + C2M[ord(move[2])]
-            for move in moves
-        ]
-
-    return [
-        C2M[ord(move[0])] + C2M[ord(move[1])] + (move[2] if len(move) == 3 else "")
-        for move in moves
-    ]
+        return decode_move_duck
+    else:
+        return decode_move_standard
