@@ -30,6 +30,60 @@
 }
 
 /* *****************************************************************************************
+ * round.css
+ ******************************************************************************************* */
+
+@media (max-width: 799px) and (orientation: portrait) {
+    .round-app.bug {
+        grid-template-columns: auto;
+        grid-template-rows:    auto         36px       auto        min-content 36px   auto        auto         auto    auto                 auto         min-content    auto         auto                 auto            auto    auto            auto     auto     auto;
+        grid-template-areas:  'pocket-top' 'user-top' 'clock-top' 'board' 'user-bot' 'clock-bot' 'pocket-bot' 'tools' 'pocket-top-partner' 'clockB-top' 'boardPartner' 'clockB-bot' 'pocket-bot-partner' 'game-controls' 'offer' 'move-controls' 'toolsB' 'uboard' 'uleft';
+    }
+    under-left {
+        display: none;
+    }
+}
+
+@media (min-width: 800px) {
+    .round-app.bug {
+        grid-template-columns: calc(30vw * var(--board-scale))
+                               calc(var(--pocketLength) * (var(--cg-width) / var(--files)))
+                               calc(30vw * var(--board-scale))
+                               calc(var(--pocketLength) * (var(--cg-width) / var(--files)));
+        grid-template-rows: min-content min-content min-content min-content min-content min-content min-content min-content min-content;
+        grid-template-areas: 'board pocket-top boardPartner pocket-top-partner'
+                             'board clock-top boardPartner clockB-top'
+                             'board tools boardPartner toolsB'
+                             'board tools boardPartner toolsB'
+                             'board tools boardPartner toolsB'
+                             'board tools boardPartner toolsB'
+                             'board clock-bot boardPartner clockB-bot'
+                             'board pocket-bot boardPartner pocket-bot-partner'
+                             '. move-controls move-controls .'
+                             'uboard uboard uboard uboard'
+    }
+}
+
+.bug-round-tools {
+    grid-area: tools;
+    display: flex;
+    flex-flow: column;
+}
+
+.bug-round-tools-part {
+    grid-area: toolsB;
+    display: flex;
+    flex-flow: column;
+
+}
+
+.bug-round-tools-part .movelist-block{
+    max-height: calc(var(--cg-height)*(6/8) - 48px - 48px);
+    min-height: calc(var(--cg-height)*(6/8) - 48px - 48px);
+
+}
+
+/* *****************************************************************************************
  * extensions.css
  ******************************************************************************************* */
 main.round.bug .pocket.top {
@@ -160,60 +214,6 @@ button.bugchat::-moz-focus-inner {
 .bugchat.nice{
   background-image: url('../../static/images/bugroundchat/NICE.svg');
   background-size: cover;
-}
-
-/* *****************************************************************************************
- * round.css
- ******************************************************************************************* */
-
-@media (max-width: 799px) and (orientation: portrait) {
-    .round-app.bug {
-        grid-template-columns: auto;
-        grid-template-rows:    auto         36px       auto        min-content 36px   auto        auto         auto    auto                 auto         min-content    auto         auto                 auto            auto    auto            auto     auto     auto;
-        grid-template-areas:  'pocket-top' 'user-top' 'clock-top' 'board' 'user-bot' 'clock-bot' 'pocket-bot' 'tools' 'pocket-top-partner' 'clockB-top' 'boardPartner' 'clockB-bot' 'pocket-bot-partner' 'game-controls' 'offer' 'move-controls' 'toolsB' 'uboard' 'uleft';
-    }
-    under-left {
-        display: none;
-    }
-}
-
-@media (min-width: 800px) {
-    .round-app.bug {
-        grid-template-columns: calc(30vw * var(--board-scale))
-                               calc(var(--pocketLength) * (var(--cg-width) / var(--files)))
-                               calc(30vw * var(--board-scale))
-                               calc(var(--pocketLength) * (var(--cg-width) / var(--files)));
-        grid-template-rows: min-content min-content min-content min-content min-content min-content min-content min-content min-content;
-        grid-template-areas: 'board pocket-top boardPartner pocket-top-partner'
-                             'board clock-top boardPartner clockB-top'
-                             'board tools boardPartner toolsB'
-                             'board tools boardPartner toolsB'
-                             'board tools boardPartner toolsB'
-                             'board tools boardPartner toolsB'
-                             'board clock-bot boardPartner clockB-bot'
-                             'board pocket-bot boardPartner pocket-bot-partner'
-                             '. move-controls move-controls .'
-                             'uboard uboard uboard uboard'
-    }
-}
-
-.bug-round-tools {
-    grid-area: tools;
-    display: flex;
-    flex-flow: column;
-}
-
-.bug-round-tools-part {
-    grid-area: toolsB;
-    display: flex;
-    flex-flow: column;
-
-}
-
-.bug-round-tools-part .movelist-block{
-    max-height: calc(var(--cg-height)*(6/8) - 48px - 48px);
-    min-height: calc(var(--cg-height)*(6/8) - 48px - 48px);
-
 }
 
 /* *****************************************************************************************

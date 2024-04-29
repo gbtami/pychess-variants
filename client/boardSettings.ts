@@ -1,5 +1,6 @@
 import { h, VNode } from 'snabbdom';
 
+
 import * as cg from 'chessgroundx/types';
 import { Api } from 'chessgroundx/api';
 
@@ -9,6 +10,7 @@ import { Settings, NumberSettings, BooleanSettings } from './settings';
 import { slider, checkbox } from './view';
 import { PyChessModel } from "./types";
 import { BOARD_FAMILIES, PIECE_FAMILIES, Variant, VARIANTS } from './variants';
+import { updateBounds } from "chessgroundx/render";
 
 export interface BoardController {
     readonly chessground: Api;
@@ -310,6 +312,31 @@ class ZoomSettings extends NumberSettings {
 
     update(): void {
         this.boardSettings.updateZoom(this.boardFamily);
+        if (this.boardSettings.ctrl2) {
+            // todo: figure out good solution for this problem when having 2 boards layout and zooming:
+            // below is ugly fix for when user scrolls the zoom slider too fast (really doesnt have to be really fast it is
+            // way too easy to reproduce). I am still not 100% sure what happens, but if we have 2 boards it seems to
+            // result in multiple ResizeObserver events getting triggered asynchronously after a single zoom change.
+            // I am guessing something to do with the change in one board results in some dom changes that trigger resize
+            // again for the other or both boards, etc. and this reapeats several times unnecessarily. Would be great to
+            // figure out how to avoid this, but might need changes on chessgroundx side as well - maybe at least expose
+            // the ResizeObserver instance so we can disconnect it temporarily when changing zoom or add checks if resize
+            // event really results in changes in width/height, because when i debugged/logged those they seemed to
+            // remain the same after the first change. Not sure.
+            //
+            // Anyway.
+            //
+            // So above async executions, most likely take certain amount of milliseconds to complete, and my suspicion
+            // is that if we move the slider one more time before they havent finished, everything gets messed up. If
+            // we move the slider very carefully and slowly the bug doesnt happen. Also after the layout gets messed up
+            // once, only fix is to resize the browser window as it causes updateBounds to get called. This is the reason
+            // here I am scheduleing updateBounds to be called after 100ms. It is still ugly and layout flickers while
+            // sliding the zoom slider, but at least when you stop sliding it, almost immediately the layout fixes itself.
+            setTimeout(() => {
+                updateBounds(this.boardSettings.ctrl.chessground.state);
+                updateBounds(this.boardSettings.ctrl2.chessground.state);
+            }, 100);
+        }
     }
 
     view(): VNode {

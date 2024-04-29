@@ -178,8 +178,6 @@ export class RoundControllerBughouse implements ChatController {
             this.clocksB[1].connecting = true;
         };
 
-        this.sock = createWebsocket('wsr/' + this.gameId, onOpen, onReconnect, onClose, (e: MessageEvent) => this.onMessage(e));
-
 //
         this.finishedGame = this.status >= 0;
         this.tv = model["tv"];
@@ -385,6 +383,9 @@ export class RoundControllerBughouse implements ChatController {
         // todo: boardsettings code is called also in cgCrtl constructor twice already as part of initializing b1 and b2
         //       think how to avoid this
         initBoardSettings(this.b1, this.b2, model.assetURL, VARIANTS['bughouse']);
+
+        // last so when it receive initial messages on connect all dom is ready to be updated
+        this.sock = createWebsocket('wsr/' + this.gameId, onOpen, onReconnect, onClose, (e: MessageEvent) => this.onMessage(e));
     }
 
 
