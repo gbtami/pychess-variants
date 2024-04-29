@@ -758,7 +758,6 @@ export class LobbyController implements ChatController {
             h('span.content', [
                 h('span.name', name),
                 h('span.more', [
-                    h('variant', variantName + ' • '),
                     h('nb', ngettext('%1 player', '%1 players', spotlight.nbPlayers) + ' • '),
                     h('info-date', { attrs: { "timestamp": spotlight.startsAt } } )
                 ])
