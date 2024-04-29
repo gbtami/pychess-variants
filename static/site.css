@@ -1656,7 +1656,7 @@ input {
   background-color: var(--modal-bg);
   margin: 0 auto;
   border-radius: 10px;
-  width: 30%; /* Could be more or less, depending on screen size */
+  max-width: min(calc(60vw + 100px), 450px);
   border: 1px solid var(--bg-color2);
 }
 .modal-content > div {
@@ -1673,15 +1673,6 @@ input {
   border-radius: 7px;
 }
 
-@media (max-width: 799px) and (orientation: portrait) {
-  .modal-content {
-    margin: 0;
-    width: 100%;
-  }
-  .modal-content .container {
-    padding: 0;
-  }
-}
 /* The Close Button (x) */
 .close {
   display: flex;
@@ -1697,12 +1688,7 @@ input {
   font-size: 18px;
   border-radius: 50%;
 }
-@media (max-width: 799px) and (orientation: portrait) {
-  .close {
-    right: 2px;
-    top: -16px;
-  }
-}
+
 .close:hover,
 .close:focus {
   cursor: pointer;
