@@ -1097,7 +1097,7 @@ export function lobbyView(model: PyChessModel): VNode[] {
         h('under-lobby', [
             h('posts', blogs.map((post: Post) => 
                 h('a.post', { attrs: {href: `/blogs/${post['_id']}`} }, [
-                    h('img', { attrs: {src: model.assetURL + `${post['image']}`} }),
+                    h('img', { attrs: {src: model.assetURL + `${post['image']}`, alt: `${post['alt']}`} }),
                     h('time', `${post['date']}`),
                     h('span.author', [
                         h('player-title', `${post['atitle']} `),
