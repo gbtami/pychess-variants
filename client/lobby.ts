@@ -748,7 +748,6 @@ export class LobbyController implements ChatController {
     private spotlightView(spotlight: Spotlight) {
         const variant = VARIANTS[spotlight.variant];
         const chess960 = spotlight.chess960;
-        const variantName = variant.displayName(chess960);
         const dataIcon = variant.icon(chess960);
         const lang = languageSettings.value;
         const name = spotlight.names[lang] ?? spotlight.names['en'];
