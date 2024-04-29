@@ -48,7 +48,7 @@
   --gold-text: GoldenRod;
   --pink-text: Pink;
   --green-text: Green;
-  --gray-text: #808080;
+  --time-text: #757575;
   --modal-bg: #fff;
   --box-header: #f5f5f5;
   --button-new-game: linear-gradient(to bottom, #f5f5f5 0%, #ededed 100%);
@@ -107,7 +107,7 @@
   --notify-new: #465330;
   --gold: #bf811d;
   --rusty: #d64f00;
-  --ct-current: #a1420a;
+  --ct-current: #f16e22;
   --clock-hurry-bg: #502826;
   --clock-overtime-bg: #474722;
   --clock-running-bg: #384722;
@@ -141,6 +141,7 @@
   --box-shadow-panel-btn: none;
   --chat-entry-border-top: #404040;
   --chat-entry-bg: #262421;
+  --time-text: #8C8C8C;
   --toggle-bg: #696969;
   --slider-border: #7a7a7a;
   --anal-clock: #2b455d;
@@ -1663,7 +1664,7 @@ input {
   background-color: var(--modal-bg);
   margin: 0 auto;
   border-radius: 10px;
-  width: 30%; /* Could be more or less, depending on screen size */
+  max-width: min(calc(60vw + 100px), 450px);
   border: 1px solid var(--bg-color2);
 }
 .modal-content > div {
@@ -1680,15 +1681,6 @@ input {
   border-radius: 7px;
 }
 
-@media (max-width: 799px) and (orientation: portrait) {
-  .modal-content {
-    margin: 0;
-    width: 100%;
-  }
-  .modal-content .container {
-    padding: 0;
-  }
-}
 /* The Close Button (x) */
 .close {
   display: flex;
@@ -1704,12 +1696,7 @@ input {
   font-size: 18px;
   border-radius: 50%;
 }
-@media (max-width: 799px) and (orientation: portrait) {
-  .close {
-    right: 2px;
-    top: -16px;
-  }
-}
+
 .close:hover,
 .close:focus {
   cursor: pointer;
@@ -2057,7 +2044,7 @@ form#game-mode label {
 .chat .time {
   display: inline-flex;
   margin-right: 3px;
-  color: var(--gray-text);
+  color: var(--time-text);
 }
 
 .chat .discord-icon-container {
@@ -2537,16 +2524,16 @@ input:invalid {
   padding: 0;
   margin: 0;
 }
-#ac-result ul li {
-  padding: 0.5em;
-}
 #ac-result ul li:hover {
   background: var(--blue-active);
 }
 
 #ac-result ul li a {
+  color: var(--text-color);
   display: inline-block;
   width: 100%;
+  padding: 0.6em 0.5em;
+  overflow: visible;
 }
 /* Search Bar End  */
 
