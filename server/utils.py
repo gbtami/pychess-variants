@@ -702,6 +702,15 @@ def pgn(doc):
 
 
 def sanitize_fen(variant, initial_fen, chess960):
+
+    if variant == "bughouse":
+        fens = initial_fen.split(" | ")
+        fen_a = fens[0]
+        fen_b = fens[1]
+        fen_valid_a, sanitized_fen_a = sanitize_fen("crazyhouse", fen_a, chess960)
+        fen_valid_b, sanitized_fen_b = sanitize_fen("crazyhouse", fen_b, chess960)
+        return fen_valid_a and fen_valid_b, sanitized_fen_a + " | " + sanitized_fen_b
+
     # Prevent this particular one to fail on our general castling check
     if variant == "capablanca" and initial_fen == CONSERVATIVE_CAPA_FEN:
         return True, initial_fen
@@ -713,7 +722,7 @@ def sanitize_fen(variant, initial_fen, chess960):
     # Initial_fen needs validation to prevent segfaulting in pyffish
     sanitized_fen = initial_fen
 
-    start_fen = FairyBoard.start_fen(variant)  # self.board.start_fen(self.variant)
+    start_fen = FairyBoard.start_fen(variant)
     start_fen_length = len(start_fen)
     start = start_fen.split()
     init = initial_fen.split()

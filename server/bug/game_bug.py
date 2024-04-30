@@ -133,8 +133,9 @@ class GameBug:
             fenA = FairyBoard.shuffle_start(self.variant)
             fenB = fenA
         else:
-            fenA = FairyBoard.start_fen(self.variant)
-            fenB = fenA
+            self.initial_fen = FairyBoard.start_fen(self.variant)
+            fenA = self.initial_fen.split("|")[0].strip()
+            fenB = self.initial_fen.split("|")[1].strip()
 
         self.boards = {
             "a": FairyBoard(self.variant, fenA, self.chess960, 0, disabled_fen),
@@ -144,8 +145,6 @@ class GameBug:
         self.gameClocks = GameBugClocks(self)
 
         self.overtime = False
-
-        self.initial_fen = self.boards["a"].initial_fen + " | " + self.boards["b"].initial_fen
 
         self.set_dests()
         self.checkA = self.boards["a"].is_checked()
