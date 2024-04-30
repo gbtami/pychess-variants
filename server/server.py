@@ -108,22 +108,46 @@ async def on_prepare(request, response):
 
 
 @web.middleware
-async def debug_request(request, handler):
-    log.debug(request)
-    log.debug(request.secure)
-    log.debug(request.url)
-    log.debug(request.headers)
+async def redirect_to_https(request, handler):
+    # log.debug(request)
+    # log.debug(request.secure)
+    # log.debug(request.url)
+    # log.debug(request.headers)
+
+    # The url we get from the request object is always http, so have too
+    # use the headers to determine what heroku is proxying to us
+    # This is how the headers of the initial plain http request looks like on heroku:
+    #
+    # 'Host': 'pychess-pr-bughouse-9926f4d40374.herokuapp.com',
+    # 'Connection': 'close',
+    # 'Upgrade-Insecure-Requests': '1',
+    # 'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36 OPR/109.0.0.0',
+    # 'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
+    # 'Accept-Encoding': 'gzip, deflate',
+    # 'Accept-Language': 'en-US,en;q=0.9',
+    # 'X-Request-Id': 'a757f6cd-8e17-432a-b7a9-5bc0043fbddc',
+    # 'X-Forwarded-For': '149.62.205.198',
+    # 'X-Forwarded-Proto': 'http',
+    # 'X-Forwarded-Port': '80',
+    # 'Via': '1.1 vegur',
+    # 'Connect-Time': '0',
+    # 'X-Request-Start': '1714441426609',
+    # 'Total-Route-Time': '0'
+    if request.headers.get('X-Forwarded-Proto') == 'http':
+        url = request.url.with_scheme("https").with_port(None)
+        raise web.HTTPPermanentRedirect(url)
+
     return await handler(request)
 
 
 def make_app(db_client=None, simple_cookie_storage=False) -> Application:
     app = web.Application()
-    app.middlewares.append(debug_request)
+    app.middlewares.append(redirect_to_https)
 
     if URI != LOCALHOST:
         secure = Secure()
-        app.on_response_prepare.append(secure.on_response_prepare)
-        app.middlewares.append(secure.middleware)
+        # app.on_response_prepare.append(secure.on_response_prepare)
+        # app.middlewares.append(secure.middleware)
 
     parts = urlparse(URI)
 
