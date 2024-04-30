@@ -106,6 +106,13 @@ async def on_prepare(request, response):
             response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
             response.headers["Expires"] = "0"
 
+@web.middleware
+async def debug_request(request, handler):
+    log.debug(request)
+    log.debug(request.secure)
+    log.debug(request.url)
+    log.debug(request.headers)
+    return await handler(request)
 
 def make_app(db_client=None, simple_cookie_storage=False) -> Application:
     app = web.Application()
@@ -141,6 +148,7 @@ def make_app(db_client=None, simple_cookie_storage=False) -> Application:
         app.router.add_post(route[0], route[1])
     app.router.add_static("/static", "static", append_version=True)
     app.middlewares.append(handle_404)
+    app.middlewares.append(debug_request)
 
     return app
 
