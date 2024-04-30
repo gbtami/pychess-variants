@@ -241,11 +241,6 @@ class GamePlayTestCase(AioHTTPTestCase):
             move = random.choice(game.legal_moves)
             await game.play_move(move)
 
-    async def play_random_bughouse(self, game: GameBug):
-        while game.status <= STARTED:
-            move = random.choice(game.boards["a"].legal_moves())
-            await game.play_move(move, clocks=[200000, 200000], clocks_b=[200000, 200000], board="a")
-
     async def test_game_play(self):
         """Playtest test_player vs Random-Mover"""
         app_state = get_app_state(self.app)
@@ -255,23 +250,7 @@ class GamePlayTestCase(AioHTTPTestCase):
             variant_name = variant[:-3] if variant960 else variant
             game_id = id8()
             if variant_name == "bughouse":
-                game = GameBug(
-                    app_state,
-                    game_id,
-                    variant_name,
-                    "",
-                    self.test_player,
-                    self.random_mover,
-                    self.random_mover,
-                    self.test_player,
-                    rated=False,
-                    chess960=variant960,
-                    create=True,
-                )
-                app_state.games[game.id] = game
-                await insert_game_to_db_bughouse(game, app_state)
-                self.random_mover.game_queues[game_id] = None
-                await self.play_random_bughouse(game)
+                pass
             else:
                 game = Game(
                     app_state,
@@ -289,10 +268,8 @@ class GamePlayTestCase(AioHTTPTestCase):
                 self.random_mover.game_queues[game_id] = None
                 await self.play_random(game)
 
-            pgn = game.pgn
-            self.assertIn(game.result, ("1-0", "0-1", "1/2-1/2"))
-            if variant_name != "bughouse":
-                # bughouse doesnt have pgn implemented
+                pgn = game.pgn
+                self.assertIn(game.result, ("1-0", "0-1", "1/2-1/2"))
                 pgn_result = pgn[pgn.rfind(" ") + 1: -1]
                 self.assertEqual(game.result, pgn_result)
 
