@@ -249,6 +249,7 @@ async def new_game_bughouse(app_state: PychessGlobalAppState, seek_id, game_id=N
 
     if seek.fen:
         from utils import sanitize_fen
+
         fen_valid, sanitized_fen = sanitize_fen(seek.variant, seek.fen, seek.chess960)
         if not fen_valid:
             message = "Failed to create game. Invalid FEN %s" % seek.fen
