@@ -133,7 +133,7 @@ async def redirect_to_https(request, handler):
     # 'Connect-Time': '0',
     # 'X-Request-Start': '1714441426609',
     # 'Total-Route-Time': '0'
-    if request.headers.get('X-Forwarded-Proto') == 'http':
+    if request.headers.get("X-Forwarded-Proto") == "http":
         url = request.url.with_scheme("https").with_port(None)
         raise web.HTTPPermanentRedirect(url)
 
