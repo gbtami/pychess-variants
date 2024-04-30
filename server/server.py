@@ -87,7 +87,9 @@ async def redirect_to_https(request, handler):
     # https://help.heroku.com/J2R1S4T8/can-heroku-force-an-application-to-use-ssl-tls
     # https://docs.aiohttp.org/en/stable/web_advanced.html#aiohttp-web-forwarded-support
     if request.headers.get("X-Forwarded-Proto") == "http":
-        request = request.clone(scheme="https")
+        # request = request.clone(scheme="https")
+        url = request.url.with_scheme("https").with_port(None)
+        raise web.HTTPPermanentRedirect(url)
 
     return await handler(request)
 
