@@ -10,7 +10,7 @@ The game was initially considered balanced by engine selfplay. However, player e
 1.	Setup is as above; the Clan player starts with additional pieces in hand.
 2.	The Clan (pink/sakura) always moves first.
 3.	Clan pieces in hand can only be dropped in the first four ranks (first half of the board).
-4.	All minor Clan pieces promote upon reaching the **7th or 8th rank**. Kingdom pawns now promote on the **6th rank.**
+4.	All minor Clan pieces promote upon reaching the **7th or 8th rank**. Kingdom pawns now promote on the **6th rank.** Pawns cannot promote if capturing by en passant. 
 5.	Pawns on either side can only promote to a Captain (see below).
 6.	An additional method of victory is available: called **campmate**. Campmate is achieved by moving one’s king into the final rank without moving into check.
 7.	**Stalemate** - loss for the player who can't move (rather than draw as in chess)

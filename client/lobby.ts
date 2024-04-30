@@ -766,7 +766,6 @@ export class LobbyController implements ChatController {
     private spotlightView(spotlight: Spotlight) {
         const variant = VARIANTS[spotlight.variant];
         const chess960 = spotlight.chess960;
-        const variantName = variant.displayName(chess960);
         const dataIcon = variant.icon(chess960);
         const lang = languageSettings.value;
         const name = spotlight.names[lang] ?? spotlight.names['en'];
@@ -776,7 +775,6 @@ export class LobbyController implements ChatController {
             h('span.content', [
                 h('span.name', name),
                 h('span.more', [
-                    h('variant', variantName + ' • '),
                     h('nb', ngettext('%1 player', '%1 players', spotlight.nbPlayers) + ' • '),
                     h('info-date', { attrs: { "timestamp": spotlight.startsAt } } )
                 ])
@@ -1115,7 +1113,7 @@ export function lobbyView(model: PyChessModel): VNode[] {
         h('under-lobby', [
             h('posts', blogs.map((post: Post) => 
                 h('a.post', { attrs: {href: `/blogs/${post['_id']}`} }, [
-                    h('img', { attrs: {src: model.assetURL + `${post['image']}`} }),
+                    h('img', { attrs: {src: model.assetURL + `${post['image']}`, alt: `${post['alt']}`} }),
                     h('time', `${post['date']}`),
                     h('span.author', [
                         h('player-title', `${post['atitle']} `),
