@@ -134,10 +134,10 @@
   resolved "https://registry.yarnpkg.com/@fullcalendar/interaction/-/interaction-6.1.10.tgz#9e99abd55d9f8072ad7f128e0b9fea931fbbff27"
   integrity sha512-aZRlwCpmDasq2RNeWV0ub20Uevare9Cb6iMlxCacx0fhOC14H28G9d1FsduJIecInL84SPGwt5ItqAYMsWv7zw==
 
-"@fullcalendar/list@^6.0.3":
-  version "6.1.10"
-  resolved "https://registry.yarnpkg.com/@fullcalendar/list/-/list-6.1.10.tgz#677b2530102cac16ee8beb6ccc7e1551d7225907"
-  integrity sha512-WE4vuSUCzol4tJd0ZP0cNxeyRPaZcsVVYs2I3qdf3OZQkXwDCdSyWEz0Hluf+XZWcZXt21aEYKlxRjwUpQcf4Q==
+"@fullcalendar/list@^6.1.11":
+  version "6.1.11"
+  resolved "https://registry.yarnpkg.com/@fullcalendar/list/-/list-6.1.11.tgz#4cd23700ea48b382b37387e29a706f2da692e174"
+  integrity sha512-9Qx8uvik9pXD12u50FiHwNzlHv4wkhfsr+r03ycahW7vEeIAKCsIZGTkUfFP+96I5wHihrfLazu1cFQG4MPiuw==
 
 "@fullcalendar/timegrid@^6.0.3":
   version "6.1.10"
