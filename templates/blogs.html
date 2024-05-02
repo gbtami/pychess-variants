@@ -15,7 +15,7 @@
     <div class="box-top"><h1>{% trans %}PyChess Blogs{% endtrans %}</h1></div>
     <div class="blog">
     {%- for blog in blogs -%}
-    <a class="card" href="{{ home }}/blogs/{{ blog['_id'] }}"><img style="background-image: url('static{{ blog['image'] }}') alt=blog['alt']"></img><span class="date">{{ blog['date'] }}</span><span class="author"><player-title>{{ blog['atitle'] }} </player-title>{{ blog['author'] }}</span><span class="info"><span class="title">{{ blog['title'] }}</span><span class="sub-title">{{ blog['subtitle'] }}</span></span></a>
+    <a class="card" href="{{ home }}/blogs/{{ blog['_id'] }}"><img style="background-image: url('static{{ blog['image'] }}')" alt="{{ blog['alt'] }}"></img><span class="date">{{ blog['date'] }}</span><span class="author"><player-title>{{ blog['atitle'] }} </player-title>{{ blog['author'] }}</span><span class="info"><span class="title">{{ blog['title'] }}</span><span class="sub-title">{{ blog['subtitle'] }}</span></span></a>
     {%- endfor -%}
     </div>
 </div>
