@@ -157,7 +157,7 @@ export function notifyView() {
     }
 
     return h('div#notify-panel', [
-        h('button#btn-notify', { on: { click: toggleNotify }, attrs: { 'aria-label': "Notifications: `${unread}`"} }, [
+        h('button#btn-notify', { on: { click: toggleNotify }, attrs: { 'aria-label': `Notifications: ${unread}`} }, [
             h('div.icon.icon-bell-o.data-count', {attrs: { 'data-count': 0 }}),
         ]),
         h('div#notify-app'),
