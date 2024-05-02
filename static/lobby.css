@@ -7,7 +7,7 @@
     display: grid;
     grid-gap: 2vmin;
 }
-@media (max-width: 799px) and (orientation: portrait) {
+@media (max-width: 799px) {
     .lobby {
         grid-template-areas: 'table' 'app' 'vpanel' 'side' 'blog' 'utable' 'uleft' 'tv' 'puzzle';
     }
