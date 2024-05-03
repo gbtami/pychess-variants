@@ -92,9 +92,7 @@ async def load_game_bug(app_state: PychessGlobalAppState, game_id):
     if "a" in doc:
         game.steps[0]["analysis"] = doc["a"][0]
 
-    base_clock_time = (game.base * 1000 * 60) + (
-        0 if game.base > 0 else game.inc * 1000
-    )
+    base_clock_time = (game.base * 1000 * 60) + (0 if game.base > 0 else game.inc * 1000)
 
     if "cw" in doc:
         clocktimes_w = doc["cw"] if len(doc["cw"]) > 0 else [base_clock_time]
@@ -265,14 +263,10 @@ async def new_game_bughouse(app_state: PychessGlobalAppState, seek_id, game_id=N
 
     color = random.choice(("w", "b")) if seek.color == "r" else seek.color
     wplayer, bug_bplayer = (
-        (seek.player1, seek.bugPlayer1)
-        if color == "w"
-        else (seek.player2, seek.bugPlayer2)
+        (seek.player1, seek.bugPlayer1) if color == "w" else (seek.player2, seek.bugPlayer2)
     )
     bplayer, bug_wplayer = (
-        (seek.player1, seek.bugPlayer1)
-        if color == "b"
-        else (seek.player2, seek.bugPlayer2)
+        (seek.player1, seek.bugPlayer1) if color == "b" else (seek.player2, seek.bugPlayer2)
     )
 
     if game_id is not None:
@@ -295,11 +289,7 @@ async def new_game_bughouse(app_state: PychessGlobalAppState, seek_id, game_id=N
             base=seek.base,
             inc=seek.inc,
             level=seek.level,
-            rated=(
-                RATED
-                if (seek.rated and (not wplayer.anon) and (not bplayer.anon))
-                else CASUAL
-            ),
+            rated=(RATED if (seek.rated and (not wplayer.anon) and (not bplayer.anon)) else CASUAL),
             chess960=seek.chess960,
             create=True,
         )
@@ -470,9 +460,7 @@ async def play_move(
             ):  # in case of resending after reconnect we can get same move sent multiple times from client
                 await game.play_move(move, clocks, clocks_b, board)
             else:
-                log.debug(
-                    "move already played - probably resent twice after multiple reconnects"
-                )
+                log.debug("move already played - probably resent twice after multiple reconnects")
                 return
         except SystemError:
             invalid_move = True
@@ -485,8 +473,7 @@ async def play_move(
             game.status = INVALIDMOVE
             game.result = (
                 "0-1"
-                if user.username == game.wplayer.username
-                or user.username == game.bplayerB.username
+                if user.username == game.wplayer.username or user.username == game.bplayerB.username
                 else "1-0"
             )  # if team1 sent the invalid move 0-1 team2 wins
     else:
@@ -495,9 +482,7 @@ async def play_move(
 
     if not invalid_move:
         board_response = game.get_board()
-        await round_broadcast(
-            game, board_response, full=True, channels=app_state.game_channels
-        )
+        await round_broadcast(game, board_response, full=True, channels=app_state.game_channels)
 
     if game.status > STARTED:
         response = {
@@ -514,12 +499,8 @@ async def play_move(
             await app_state.lobby.lobby_broadcast(board_response)
 
 
-async def handle_accept_seek_bughouse(
-    app_state: PychessGlobalAppState, user, data, seek
-):
-    response = await join_seek_bughouse(
-        app_state, user, data["seekID"], None, data["joinAs"]
-    )
+async def handle_accept_seek_bughouse(app_state: PychessGlobalAppState, user, data, seek):
+    response = await join_seek_bughouse(app_state, user, data["seekID"], None, data["joinAs"])
     bug_users = set(
         filter(
             lambda item: item is not None,
