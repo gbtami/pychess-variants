@@ -358,7 +358,7 @@ iframe {
   --main-max-width: 1300px;
 }
 
-@media (max-width: 799px) and (orientation: portrait) {
+@media (max-width: 799px) {
   #main-wrap {
     --main-max-width: calc(
       100vh - calc(var(--site-header-height) + var(--site-header-margin)) -
@@ -799,7 +799,7 @@ ul.guide li {
   width: 100%;
 }
 
-@media (max-width: 799px) and (orientation: portrait) {
+@media (max-width: 799px) {
   .site-title-nav {
     width: 64px;
   }
@@ -1181,7 +1181,7 @@ button.paste-url {
   width: 100%;
   margin: 20px 2px;
 }
-@media (max-width: 799px) and (orientation: portrait) {
+@media (max-width: 799px) {
   .lobby-button {
     padding: 0.5em;
     margin: 0.2em 0;
