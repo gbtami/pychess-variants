@@ -29,7 +29,7 @@
 .variant-category, .layer-2-category {
 border: none;
 background-color: var(--vpanel-button) ;
-color: #999;
+color: var(--vpanel-heading);
 display: flex;
 flex-direction: column;
 justify-content: center;
@@ -88,7 +88,7 @@ box-shadow: var(--box-shadow-panel-btn);
     height: 3.5rem;
     /* position: absolute; */
     filter: saturate(0.05);
-    opacity: 0.3;    
+    opacity: 0.45;    
 }
 
 .variant-category img {
@@ -127,12 +127,17 @@ box-shadow: var(--box-shadow-panel-btn);
 
 /* ANIMATIONS */
 
+.variant-category:hover, .layer-2-category:hover {
+    background-color: var(--vpanel-button-hover);
+    transform: scale(1.015);
+}
+
 .variant-category:hover .wR,.variant-category:hover .wJ, 
 .variant-category:hover .ONG, .variant-category:hover .xC, 
 .variant-category:hover .mN, .variant-category:hover .wH
 {
     transform: translateX(-135%);
-    opacity: 0.4;
+    opacity: 0.6;
 }
 
 .variant-category:hover .wB,.variant-category:hover .wD, 
@@ -140,7 +145,7 @@ box-shadow: var(--box-shadow-panel-btn);
 .variant-category:hover .sQ, .variant-category:hover .wE
 {
     transform: translateX(135%);
-    opacity: 0.4;
+    opacity: 0.6;
 }
 
 /* Xiangqi Side Pieces Size Adjustment */
@@ -150,27 +155,17 @@ box-shadow: var(--box-shadow-panel-btn);
     height: 45px;
 }
 
-.variant-category:hover .sQ {
-        opacity: 0.4;
-}
-
-.variant-category:hover, .layer-2-category:hover {
-    background-color: var(--vpanel-button-hover);
-    color: rgb(160, 160, 160);
-    transform: scale(1.015);
-}
-
 .variant-category:hover .wK,.variant-category:hover .bK, 
 .variant-category:hover .OGY, .variant-category:hover .xK,
 .variant-category:hover .wC
  {
     transform: scale(1.15);
-    opacity: 0.4;
+    opacity: 0.6;
     }
 
     .variant-category:hover .mK {
         transform: scale(1.1);
-        opacity: 0.4;
+        opacity: 0.6;
     }
 
 

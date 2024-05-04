@@ -72,6 +72,7 @@
   --post-hover: #ddebf8;
   --vpanel-button: #fbfbfb;
   --vpanel-button-hover: #fdfdfd;
+  --vpanel-heading: #737373;
   --box-shadow-panel-btn: 0px 2px 3px #7b7b7b85;
   --chat-entry-border-top: #d9d9d9;
   --chat-entry-bg: #fafaf9;
@@ -136,6 +137,7 @@
   --post-hover: #29353f;
   --vpanel-button: #3c3a35;
   --vpanel-button-hover: #464440;
+  --vpanel-heading: #a3a3a3;
   --panel-link-hover: rgb(179, 179, 179);
   --box-shadow-panel-btn: none;
   --chat-entry-border-top: #404040;
@@ -622,6 +624,7 @@ posts {
   grid-template-rows: auto;
   font-size: 0.9em;
   line-height: 1.5;
+  grid-auto-rows: 0;
 }
 a.post {
   background-color: var(--bg-color0);
