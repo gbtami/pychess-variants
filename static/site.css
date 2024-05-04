@@ -622,6 +622,7 @@ posts {
   grid-template-rows: auto;
   font-size: 0.9em;
   line-height: 1.5;
+  grid-auto-rows: 0;
 }
 a.post {
   background-color: var(--bg-color0);
