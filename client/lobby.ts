@@ -95,10 +95,10 @@ export class LobbyController implements ChatController {
         patch(document.querySelector('.seekbuttons') as HTMLElement, h('div.seekbuttons', this.renderSeekButtons()));
         
         const seekPanel = Array.from(document.getElementsByClassName('modal-content'));
-        document.addEventListener("click", function(event) {
+        document.addEventListener("click", (event) => {
             if (!seekPanel.some(panel => panel.contains(event.target as Node))) {
                 document.getElementById('id01')!.style.display = 'none';
-                 // prevent creating challenges continuously
+                // prevent creating challenges continuously
                 this.profileid = '';
                 window.history.replaceState({}, this.title, '/');
             }
