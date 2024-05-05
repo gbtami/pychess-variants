@@ -93,6 +93,16 @@ export class LobbyController implements ChatController {
         this.sock.onmessage = (e: MessageEvent) => this.onMessage(e);
 
         patch(document.querySelector('.seekbuttons') as HTMLElement, h('div.seekbuttons', this.renderSeekButtons()));
+        
+        const seekPanel = patch(document.getElementsByClassName('modal-content')) as HTMLElement;
+        document.addEventListener("click", function(event) {
+            if (!seekPanel.contains(event.target as Node))
+                document.getElementById('id01')!.style.display = 'none';
+                 // prevent creating challenges continuously
+                this.profileid = '';
+                window.history.replaceState({}, this.title, '/');
+        });
+        
         patch(document.getElementById('lobbychat') as HTMLElement, chatView(this, "lobbychat"));
 
         patch(document.getElementById('variants-catalog') as HTMLElement, variantPanels(this));
