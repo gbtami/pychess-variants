@@ -7,7 +7,7 @@ import ffishModule, { FairyStockfish, Board, Notation } from 'ffish-es6';
 import { boardSettings, BoardController } from '@/boardSettings';
 import { CGMove, uci2cg } from '@/chess';
 import { PyChessModel } from '@/types';
-import { Variant, VARIANTS, notation, moddedVariant } from '@/variants';
+import { Variant, VARIANTS, moddedVariant } from '@/variants';
 import { variantsIni } from '@/variantsIni';
 
 export abstract class ChessgroundController implements BoardController {
@@ -38,7 +38,7 @@ export abstract class ChessgroundController implements BoardController {
         this.mycolor = 'white';
         this.oppcolor = 'black';
         this.fullfen = model.fen as string;
-        this.notation = notation(this.variant);
+        this.notation = this.variant.notation;
 
         const pocket0 = document.getElementById('pocket0') as HTMLElement;
         const pocket1 = document.getElementById('pocket1') as HTMLElement;

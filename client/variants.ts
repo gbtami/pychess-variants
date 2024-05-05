@@ -83,6 +83,7 @@ export interface Variant {
     readonly startFen: string;
     readonly boardFamily: keyof typeof BOARD_FAMILIES;
     readonly board: BoardFamily;
+    readonly notation: cg.Notation;
     readonly pieceFamily: keyof typeof PIECE_FAMILIES;
     readonly piece: PieceFamily;
     readonly colors: {
@@ -143,6 +144,7 @@ function variant(config: VariantConfig): Variant {
         boardFamily: config.boardFamily,
         board: BOARD_FAMILIES[config.boardFamily],
         pieceFamily: config.pieceFamily,
+        notation: config.notation ?? cg.Notation.ALGEBRAIC,
         piece: PIECE_FAMILIES[config.pieceFamily],
         colors: config.colors ?? { first: 'White', second: 'Black' },
         pieceRow: Array.isArray(config.pieceRow) ? {
@@ -212,6 +214,8 @@ interface VariantConfig {
     icon960?: string;
     // Board appearance
     boardFamily: keyof typeof BOARD_FAMILIES;
+    // Chessground coord/move notation (default: cg.Notation.ALGEBRAIC)
+    notation?: cg.Notation;
     // Piece appearance
     pieceFamily: keyof typeof PIECE_FAMILIES;
     // Color names of each side for accurate color representation
@@ -472,6 +476,7 @@ export const VARIANTS: Record<string, Variant> = {
         startFen: "lnsgkgsnl/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL[-] w 0 1",
         icon: "K",
         boardFamily: "shogi9x9", pieceFamily: "shogi",
+        notation: cg.Notation.SHOGI_ARBNUM,
         colors: { first: "Black", second: "White" },
         pieceRow: ["k", "g", "r", "b", "s", "n", "l", "p"],
         pocket: { roles: ["p", "l", "n", "s", "g", "b", "r"], captureToHand: true },
@@ -498,6 +503,7 @@ export const VARIANTS: Record<string, Variant> = {
         startFen: "lnsgkgsnl/1rci1uab1/p1p1p1p1p/9/9/9/P1P1P1P1P/1BAU1ICR1/LNSGKGSNL[-] w 0 1",
         icon: "💣",
         boardFamily: "shogi9x9", pieceFamily: "cannonshogi",
+        notation: cg.Notation.SHOGI_ARBNUM,
         colors: { first: "Black", second: "White" },
         pieceRow: ["k", "g", "r", "b", "s", "n", "l", "p", "u", "a", "c", "i"],
         pocket: { roles: ["p", "l", "n", "s", "g", "b", "r", "u", "a", "c", "i"], captureToHand: true },
@@ -511,6 +517,7 @@ export const VARIANTS: Record<string, Variant> = {
         startFen: "rbsgk/4p/5/P4/KGSBR[-] w 0 1",
         icon: "6",
         boardFamily: "shogi5x5", pieceFamily: "shogi",
+        notation: cg.Notation.SHOGI_ARBNUM,
         colors: { first: "Black", second: "White" },
         pieceRow: ["k", "g", "r", "b", "s", "p"],
         pocket: { roles: ["p", "s", "g", "b", "r"], captureToHand: true },
@@ -524,6 +531,7 @@ export const VARIANTS: Record<string, Variant> = {
         startFen: "p+nks+l/5/5/5/+LSK+NP[-] w 0 1",
         icon: ")",
         boardFamily: "shogi5x5", pieceFamily: "kyoto",
+        notation: cg.Notation.SHOGI_ARBNUM,
         colors: { first: "Black", second: "White" },
         pieceRow: ["k", "l", "s", "n", "p"],
         pocket: { roles: ["p", "l", "n", "s"], captureToHand: true },
@@ -537,6 +545,7 @@ export const VARIANTS: Record<string, Variant> = {
         startFen: "gle/1c1/1C1/ELG[-] w 0 1",
         icon: "8",
         boardFamily: "shogi3x4", pieceFamily: "dobutsu",
+        notation: cg.Notation.SHOGI_ARBNUM,
         colors: { first: "Black", second: "White" },
         pieceRow: ["l", "g", "e", "c"],
         kingRoles: ["l"],
@@ -551,6 +560,7 @@ export const VARIANTS: Record<string, Variant> = {
         startFen: "sgkgs/5/1ppp1/1PPP1/5/SGKGS[-] w 0 1",
         icon: "🐱",
         boardFamily: "shogi5x6", pieceFamily: "shogi",
+        notation: cg.Notation.SHOGI_ARBNUM,
         colors: { first: "Black", second: "White" },
         pieceRow: ["k", "g", "s", "p"],
         pocket: { roles: ["p", "s", "g"], captureToHand: true },
@@ -564,6 +574,7 @@ export const VARIANTS: Record<string, Variant> = {
         startFen: "sgkgs/5/1ppp1/1PPP1/5/SGKGS[LNln] w 0 1",
         icon: "🐱",
         boardFamily: "shogi5x6", pieceFamily: "shogi",
+        notation: cg.Notation.SHOGI_ARBNUM,
         colors: { first: "Black", second: "White" },
         pieceRow: ["k", "g", "s", "n", "l", "p"],
         pocket: { roles: ["p", "l", "n", "s", "g"], captureToHand: true },
@@ -581,6 +592,7 @@ export const VARIANTS: Record<string, Variant> = {
         startFen: "rpckcpl/3f3/sssssss/2s1S2/SSSSSSS/3F3/LPCKCPR[-] w 0 1",
         icon: "🐦",
         boardFamily: "shogi7x7", pieceFamily: "tori",
+        notation: cg.Notation.SHOGI_ARBNUM,
         colors: { first: "Black", second: "White" },
         pieceRow: ["k", "c", "p", "l", "r", "f", "s"],
         pocket: { roles: ["s", "p", "l", "r", "c", "f"], captureToHand: true },
@@ -601,6 +613,7 @@ export const VARIANTS: Record<string, Variant> = {
         startFen: "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1",
         icon: "|",
         boardFamily: "xiangqi9x10", pieceFamily: "xiangqi",
+        notation: cg.Notation.XIANGQI_ARBNUM,
         colors: { first: "Red", second: "Black" },
         pieceRow: ["k", "a", "c", "r", "b", "n", "p"],
         promotion: { type: "regular", roles: [] },
@@ -611,6 +624,8 @@ export const VARIANTS: Record<string, Variant> = {
         startFen: "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/9/9/M1BAKAB2 w - - 0 1",
         icon: "{",
         boardFamily: "xiangqi9x10", pieceFamily: "xiangqi",
+        // XIANGQI_WXF can't handle Manchu banner piece!
+        // so notation have to remain the default cg.Notation.ALGEBRAIC
         colors: { first: "Red", second: "Black" },
         pieceRow: { white: ["k", "a", "m", "b", "p"], black: ["k", "a", "c", "r", "b", "n", "p"] },
         promotion: { type: "regular", roles: [] },
@@ -621,6 +636,7 @@ export const VARIANTS: Record<string, Variant> = {
         startFen: "rnba1abnr/4k4/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/4K4/RNBA1ABNR w - - 0 1",
         icon: "=",
         boardFamily: "janggi9x10", pieceFamily: "janggi",
+        notation: cg.Notation.JANGGI,
         colors: { first: "Blue", second: "Red" },
         pieceRow: ["k", "a", "c", "r", "b", "n", "p"],
         promotion: { type: "regular", roles: [] },
@@ -637,6 +653,7 @@ export const VARIANTS: Record<string, Variant> = {
         startFen: "rcnkncr/p1ppp1p/7/7/7/P1PPP1P/RCNKNCR w - - 0 1",
         icon: "7",
         boardFamily: "xiangqi7x7", pieceFamily: "xiangqi",
+        notation: cg.Notation.XIANGQI_ARBNUM,
         colors: { first: "Red", second: "Black" },
         pieceRow: ["k", "c", "r", "n", "p"],
         promotion: { type: "regular", roles: [] },
@@ -1037,29 +1054,4 @@ export function moddedVariant(variantName: string, chess960: boolean, pieces: cg
             return variantName.includes("house") ? "embassyhouse" : "embassy";
     }
     return variantName;
-}
-
-// TODO merge into the variant type
-export function notation(variant: Variant): cg.Notation {
-    let cgNotation = cg.Notation.ALGEBRAIC;
-    switch (variant.name) {
-        case 'janggi':
-            cgNotation = cg.Notation.JANGGI;
-            break;
-        case 'shogi':
-        case 'minishogi':
-        case 'kyotoshogi':
-        case 'dobutsu':
-        case 'gorogoro':
-        case 'gorogoroplus':
-        case 'torishogi':
-            cgNotation = cg.Notation.SHOGI_ARBNUM;
-            break;
-        case 'xiangqi':
-        case 'minixiangqi':
-        // XIANGQI_WXF can't handle Mmanchu banner piece!
-            cgNotation = cg.Notation.XIANGQI_ARBNUM;
-            break;
-    }
-    return cgNotation;
 }
