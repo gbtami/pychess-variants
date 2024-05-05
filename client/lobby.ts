@@ -94,7 +94,7 @@ export class LobbyController implements ChatController {
 
         patch(document.querySelector('.seekbuttons') as HTMLElement, h('div.seekbuttons', this.renderSeekButtons()));
         
-        const seekPanel = patch(document.getElementsByClassName('modal-content')) as HTMLElement;
+        const seekPanel = document.getElementsByClassName('modal-content');
         document.addEventListener("click", function(event) {
             if (!seekPanel.contains(event.target as Node))
                 document.getElementById('id01')!.style.display = 'none';
