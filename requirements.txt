@@ -3,7 +3,7 @@ aiohttp-remotes==1.2.0
 aiohttp-sse==2.2.0
 aiohttp==3.9.5
 brotli==1.1.0
-cryptography==42.0.5
+cryptography==42.0.6
 discord.py==2.3.2
 dnspython==2.6.1
 htmlmin==0.1.12
