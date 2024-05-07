@@ -560,6 +560,7 @@ div.blogs,
 div.about {
   padding: 20px 40px;
   font-size: 1.2em;
+  width: 100%;
 }
 
 div.guide h1,

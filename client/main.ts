@@ -2,6 +2,7 @@ import { h, VNode } from 'snabbdom';
 
 import { _, i18n } from './i18n';
 import { aboutView } from './about';
+import { markdownView } from './markdown';
 import { settingsView, hideSettings } from './settingsView';
 import { notifyView, hideNotify } from './notifyView';
 import { lobbyView } from './lobby';
@@ -78,15 +79,20 @@ function initModel(el: HTMLElement) {
         assetURL: el.getAttribute("data-asset-url") ?? "",
         puzzle: el.getAttribute("data-puzzle") ?? "",
         blogs: el.getAttribute("data-blogs") ?? "",
+        markdown: el.getAttribute("data-markdown") ?? "",
         corrGames: el.getAttribute("data-corrgames") ?? "",
     };
 }
 
 export function view(el: HTMLElement, model: PyChessModel): VNode {
-
+    const dataLang = el.getAttribute("data-lang") ?? 'en';
     switch (el.getAttribute("data-view")) {
     case 'about':
         return h('div#main-wrap', aboutView(model));
+    case 'blog':
+        return h('div#main-wrap', markdownView(model, dataLang, 'blogs', 'blogs'));
+    case 'variants':
+        return h('div#main-wrap', markdownView(model, dataLang, 'docs', 'guide'));
     case 'level8win':
     case 'profile':
         return h('div#profile', profileView(model));

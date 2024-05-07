@@ -636,7 +636,7 @@ async def index(request):
 
     # variant None indicates terminology.md
     if lang in ("es", "hu", "it", "pt", "fr", "zh", "zh_CN", "zh_TW"):
-        locale = ".%s" % lang
+        locale = "/%s" % lang
     else:
         locale = ""
 
@@ -649,10 +649,10 @@ async def index(request):
         render["groups"] = VARIANT_GROUPS
 
         if variant == "terminology":
-            render["variant"] = "docs/terminology%s.html" % locale
+            render["markdown"] = "terminology.md"
         else:
-            render["variant"] = (
-                "docs/" + ("terminology" if variant is None else variant) + "%s.html" % locale
+            render["markdown"] = (
+                ("terminology" if variant is None else variant) + ".md"
             )
 
     elif view == "videos":
@@ -684,8 +684,8 @@ async def index(request):
         render["blog_tag"] = blog_tag
 
     elif view == "blog":
-        blog_item = blogId.replace("_", " ")
-        render["blog_item"] = "blogs/%s%s.html" % (blog_item, locale)
+        blog_item = blogId.replace("_", " ") + ".md"
+        render["markdown"] = blog_item
         render["view_css"] = "blogs.css"
         render["tags"] = BLOG_TAGS
 
