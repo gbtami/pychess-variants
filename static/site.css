@@ -634,7 +634,7 @@ a.post {
   border-radius: 5px;
 }
 a.post:hover {
-  color: var(--font-color);
+  color: var(--link-color);
   background: var(--post-hover);
   box-shadow: none;
 }
