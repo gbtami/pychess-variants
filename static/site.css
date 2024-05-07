@@ -631,6 +631,7 @@ a.post {
   align-items: center;
   position: relative;
   box-shadow: var(--base-shadow);
+  border-radius: 5px;
 }
 a.post:hover {
   color: var(--font-color);
@@ -641,7 +642,6 @@ a.post img {
   max-width: none;
   width: 100%;
   height: auto;
-  border-radius: 3px;
   object-fit: cover;
   aspect-ratio: 1.5;
 }
@@ -650,9 +650,12 @@ a.post span.text {
   flex-direction: column;
   max-height: 12em;
   padding: 3% 3% 4% 6%;
+  margin: 0;
 }
 a.post span.text strong {
   font-size: 1.2em;
+  margin-bottom: 10px;
+  color: var(--font-color);
 }
 a.post time {
   font-size: 90%;
