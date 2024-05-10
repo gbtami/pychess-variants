@@ -8,6 +8,15 @@
 
 The general rules are extremely similar to Chess, so this guide will focus on the few differences. The objective is the same: checkmating your opponent's king. The major differences are some pieces having different moves and the starting positions: the pawns start on the third rank, and the king is always on the left side of the player regardless of color. Stalemates are draws, as in chess.
 
+## Differences with Makruk
+
+For those coming from Makruk, there are some differences Ouk Chatrang has from Makruk. For those who are new to both variants, I recommend skipping this section and looking at the more detailed rules below.
+
+* The King (*Khon*) and Queen (*Neang*) have special moves that can only be made on their first move, like Pawns. The King can perform a Knight jump to the second row (Unless an opposing Rook (*Touk*) goes to the same file or column as it, where the ability is permanently lost.) while the Queen can jump two spaces forward. There's more detail on that rule below.
+* To start Board Honour Counting, one player must have **three or more pieces left** instead of being at the disadvantage when there are no unpromoted Pawns left.
+* Instead of Piece Honour Counting starting as soon as there are no unpromoted pawns and one player is left with a King, the player with the bare king **has the option** to start the piece's honor counting or they can continue the board's honor counting. On PyChess, the system will automatically choose the way that will reach the limit in less number of moves.
+* The game is declared a draw if the Board/Piece honour count **reaches** the limit rather than exceeding the limit. (E.g. if the limit is 8, an Ouk Chatrang game will end in a draw if the count reaches 8 rather than in Makruk, the count reaches 9 which exceeds the 8 move limit.)
+
 ## The Pieces
 
 Cambodian piece names are in parentheses.
