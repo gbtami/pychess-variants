@@ -324,9 +324,15 @@ label.piece.piece13.xiangqi {
     background-image: url('images/pieces/xiangqi/hnzw/red_king.svg');
 }
 label.piece.piece14.xiangqi {
-    background-image: url('images/pieces/disguised/3d-red.svg');
+    background-image: url('images/pieces/xiangqi/basic/red_king.svg');
 }
 label.piece.piece15.xiangqi {
+    background-image: url('images/pieces/xiangqi/guided/red_king.svg');
+}
+label.piece.piece16.xiangqi {
+    background-image: url('images/pieces/disguised/3d-red.svg');
+}
+label.piece.piece17.xiangqi {
     background-image: url('images/pieces/xiangqi/euro/red_king.svg');
 }
 

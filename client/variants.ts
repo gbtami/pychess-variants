@@ -53,7 +53,7 @@ export const PIECE_FAMILIES: Record<string, PieceFamily> = {
     dobutsu: { pieceCSS: ["dobutsu", "disguised"] },
     tori: { pieceCSS: ["torii", "torik", "torim", "porti", "cz", "disguised"] },
     cannonshogi: { pieceCSS: ["ctp3d", "cz", "czalt", "disguised"] },
-    xiangqi: { pieceCSS: ["lishu", "xiangqi2di", "xiangqi", "xiangqict3", "xiangqihnz", "xiangqict2", "lishuw", "xiangqict2w", "xiangqiwikim", "xiangqiKa", "xiangqittxqhnz", "xiangqittxqintl", "xiangqi2d", "xiangqihnzw", "disguised", "euro"] },
+    xiangqi: { pieceCSS: ["lishu", "xiangqi2di", "xiangqi", "xiangqict3", "xiangqihnz", "xiangqict2", "lishuw", "xiangqict2w", "xiangqiwikim", "xiangqiKa", "xiangqittxqhnz", "xiangqittxqintl", "xiangqi2d", "xiangqihnzw", 'basic', 'guided', "disguised", "euro"] },
     janggi: { pieceCSS: ["janggihb", "janggihg", "janggiikak", "janggiikaw", "janggikak", "janggikaw", "janggiib", "janggiig", "disguised"] },
     shako: { pieceCSS: ["shako0", "shako1", "shako2", "disguised"] },
     shogun: { pieceCSS: ["shogun0", "shogun1", "shogun2", "shogun3", "shogun4", "shogun5", "disguised"] },
