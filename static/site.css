@@ -467,7 +467,6 @@ span[role=tab], div.seeks-table thead {
   display: flex;
   flex-flow: column nowrap;
   justify-content: right;
-  overflow: hidden;
 }
 .sidebar-second {
   grid-area: table;
@@ -2390,6 +2389,8 @@ div.ctable-container {
 }
   
 div#spotlights > div {
+  border-radius: 7px;
+  overflow: hidden;
   box-shadow: var(--base-shadow);
 }
   
