@@ -744,8 +744,6 @@ ul.guide li {
 .nav-link:link,
 .nav-link:visited {
   color: var(--link-color);
-  text-align: center;
-  text-decoration: none;
 }
 .drp .nav-link {
   color: var(--font-color);
@@ -788,7 +786,6 @@ ul.guide li {
 .topnav a {
   float: left;
   height: var(--site-header-height);
-  text-decoration: none;
   font-size: 14px;
 }
 .topnav section > a {
