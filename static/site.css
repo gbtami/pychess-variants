@@ -49,6 +49,7 @@
   --pink-text: Pink;
   --green-text: Green;
   --time-text: #757575;
+  --drop-down: #fff;
   --modal-bg: #fff;
   --box-header: #f5f5f5;
   --button-new-game: linear-gradient(to bottom, #f5f5f5 0%, #ededed 100%);
@@ -112,6 +113,7 @@
   --clock-overtime-bg: #474722;
   --clock-running-bg: #384722;
   --clock-running-color: #e3e3e3;
+  --drop-down: #3c3934;
   --modal-bg: rgb(38, 36, 33);
   --box-header: linear-gradient(to bottom, #3c3934, #33312e 100%);
   --button-new-game: linear-gradient(to bottom, #3c3934, #33312e 100%);
@@ -745,6 +747,9 @@ ul.guide li {
   text-align: center;
   text-decoration: none;
 }
+.drp .nav-link {
+  color: var(--font-color);
+}
 .nav-link:hover,
 .nav-link:active {
   color: var(--blue-hover);
@@ -847,10 +852,14 @@ ul.guide li {
   section a:first-child:hover {
     color: var(--font-color);
   }
+  
+  div.topnav section:hover {
+    background-color: var(--drop-down);
+  }
 
   .drp {
     visibility: hidden;
-    background-color: #3c3934;
+    background-color: var(--drop-down);
     position: absolute;
     left: 0;
     top: 50px;
@@ -874,12 +883,11 @@ ul.guide li {
   }
 
   .topnav section:hover {
-    background-color: var(--bg-color0);
     box-shadow: inset 2px 0px 0px 0px #3692e7;
   }
-
-  .drp .nav-link {
-    background-color: var(--bg-color0);
+  
+  .topnav section:hover > a {
+    color: var(--font-color);
   }
 
   .drp .nav-link:hover {
