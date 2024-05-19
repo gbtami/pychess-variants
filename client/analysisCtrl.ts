@@ -818,6 +818,15 @@ export class AnalysisController extends GameController {
         let whiteMove: boolean = true;
         let blackStarts: boolean = this.steps[0].turnColor === 'black';
 
+        // Imported game steps has no 'sanSAN' so we have to compute it
+        let sanSANneeded = false;
+
+        if (this.steps.length > 1 && this.steps[1]['sanSAN'] == undefined) {
+            sanSANneeded = true;
+            const startFEN = this.steps[0].fen;
+            this.ffishBoard.setFen(startFEN);
+        }
+
         for (let ply = 1; ply <= this.ply; ply++) {
             // we are in a variation line of the game
             if (this.steps[ply] && this.steps[ply].vari && this.plyVari > 0) {
@@ -843,9 +852,18 @@ export class AnalysisController extends GameController {
                     whiteMove = this.steps[ply].turnColor === 'black';
                     moveCounter = (whiteMove) ? Math.ceil((ply + 1) / 2) + '.' : '';
                 }
+                if (sanSANneeded) {
+                    this.steps[ply]['sanSAN'] = this.ffishBoard.sanMove(this.steps[ply].move);
+                    this.ffishBoard.push(this.steps[ply].move);
+                };
                 moves.push(moveCounter + this.steps[ply]['sanSAN']);
             }
         }
+
+        if (sanSANneeded) {
+            this.ffishBoard.setFen(this.fullfen);
+        }
+
         const moveText = moves.join(' ');
 
         const today = new Date().toISOString().substring(0, 10).replace(/-/g, '.');
@@ -951,7 +969,7 @@ export class AnalysisController extends GameController {
             const e = document.getElementById('fullfen') as HTMLInputElement;
             e.value = this.fullfen;
 
-            if (this.isAnalysisBoard) {
+            if (this.isAnalysisBoard || this.result == "*") {
                 this.vpgn = patch(this.vpgn, h('div#pgntext', this.getPgn(idxInVari)));
             }
         }
