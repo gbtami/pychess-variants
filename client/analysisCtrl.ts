@@ -853,8 +853,8 @@ export class AnalysisController extends GameController {
                     moveCounter = (whiteMove) ? Math.ceil((ply + 1) / 2) + '.' : '';
                 }
                 if (sanSANneeded) {
-                    this.steps[ply]['sanSAN'] = this.ffishBoard.sanMove(this.steps[ply].move);
-                    this.ffishBoard.push(this.steps[ply].move);
+                    this.steps[ply]['sanSAN'] = this.ffishBoard.sanMove(this.steps[ply].move!);
+                    this.ffishBoard.push(this.steps[ply].move!);
                 };
                 moves.push(moveCounter + this.steps[ply]['sanSAN']);
             }
