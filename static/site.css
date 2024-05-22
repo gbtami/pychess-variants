@@ -546,10 +546,6 @@ div.not-found {
   background-color: var(--bg-color0);
   padding: 2rem;
 }
-div.patron,
-div.invite {
-  width: 50%;
-}
 
 div.guide,
 div.blogs {
