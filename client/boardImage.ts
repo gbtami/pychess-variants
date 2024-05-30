@@ -1,18 +1,17 @@
-import { Chessground } from 'chessgroundx';
+import { Api } from 'chessgroundx/api';
 
 import { boardSettings } from '@/boardSettings';
 import { PIECE_FAMILIES } from '@/variants';
 import { Variant } from '@/variants';
 
 
-export function boardImageSVG(fen: string, variant: Variant, cg: Chessground, home: string): void {
+export function boardImageSVG(fen: string, variant: Variant, cg: Api, home: string): void {
     const pieceFamily = variant.pieceFamily;
     const idx = boardSettings.getSettings("PieceStyle", pieceFamily as string).value as number;
     const pieceCSS = PIECE_FAMILIES[pieceFamily].pieceCSS[idx] ?? 'letters';
 
     const css = `${variant.pieceFamily}_${pieceCSS}`;
 
-    const el = document.getElementsByTagName('cg-board')[0] as HTMLElement;
     const style = getComputedStyle(document.body);
     const width = parseInt(style.getPropertyValue('--cg-width'));
     const height = parseInt(style.getPropertyValue('--cg-height'));
@@ -25,7 +24,7 @@ export function boardImageSVG(fen: string, variant: Variant, cg: Chessground, ho
     if (state.drawable.shapes.length > 0) {
         const arrows:string[] = [];
         state.drawable.shapes.forEach(shape => {
-            const color = shape.brush.charAt(0).toUpperCase();
+            const color = (shape.brush) ? shape.brush.charAt(0).toUpperCase() :'';
             const orig = shape.orig.replace(/:/g, "10");
             const dest = (shape.dest) ? shape.dest.replace(/:/g, "10") : '';
             arrows.push(`${color}${orig}${dest}`);
@@ -33,5 +32,5 @@ export function boardImageSVG(fen: string, variant: Variant, cg: Chessground, ho
         params = params + '&arrows=' + arrows.join(',');
     }
     const url = `${home}/board.svg${params}`;
-    window.open(url, '_blank').focus();
+    window.open(url, '_blank')!.focus();
 }
