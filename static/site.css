@@ -310,6 +310,8 @@ header {
   z-index: 106;
   max-width: 1800px;
   margin: 0 auto;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 iframe {
@@ -860,7 +862,7 @@ ul.guide li {
     border-left: 2px solid #3692e7;
     border-radius: 0 3px 3px 3px;
     text-align: left;
-    box-shadow: var(--base-shadow);
+    box-shadow: 2px 5px 6px rgba(0, 0, 0, .3);
   }
 
   .drp a {
@@ -869,6 +871,16 @@ ul.guide li {
     height: 40px;
     align-items: center;
   }
+
+  .drp a:first-child {
+    border-top-right-radius: 3px;
+  }
+  
+  .drp a:last-child {
+    border-bottom-left-radius: 1px;
+    border-bottom-right-radius: 3px;
+  }
+  /* longhand because /puzzles is both first and last child */
 
   .drp a:hover {
     background-color: #3692e7;
@@ -904,22 +916,27 @@ ul.guide li {
   padding: 8px;
   height: var(--site-header-height);
 }
-#btn-settings.shown, #btn-notify.shown {
-  background-color: var(--bg-color1);
+#btn-notify.shown, #notify-app, 
+#btn-settings.shown, #settings {
+  background-color: var(--drop-down);
 }
 #settings, #notify-app {
   display: none;
   flex-direction: column;
   color: var(--font-color);
-  background-color: var(--bg-color1);
-  box-shadow: var(--base-shadow);
+  background-color: var(--drop-down);
+  box-shadow: -1px 5px 6px rgba(0, 0, 0, .3);
   position: absolute;
   top: var(--site-header-height);
   right: 0;
+  border-radius: 5px 0px 0px 5px;
 }
 #settings-lang, #settings-board {
-  overflow-y: auto;
+  overflow: auto;
   max-height: min(100vh - 70px, 91vh);
+}
+#settings-lang {
+  max-height: 400px;
 }
 #notify-app {
   overflow: hidden;
@@ -950,25 +967,25 @@ ul.guide li {
   margin-left: 3px;
 }
 .data-count[data-count="0"]::after {
-    display: none
+  display: none
 }
 
 .notification {
   display: flex;
   padding: .6rem .6rem .6rem 1rem;
-  border-bottom: 1px solid #d9d9d9;
+  border-bottom: 1px solid var(--bg-color2);
   position: relative;
 }
 .notification.new {
-    background: var(--notify-new);
+  background: var(--notify-new);
 }
 .notification:hover {
- color: var(--font-color);
- background: var(--bg-color2);
+  color: var(--font-color);
+  background: var(--bg-color2);
 }
-.notification:hover .icon {
- color: var(--blue-hover);
- opacity:.9
+ .notification:hover .icon {
+  color: var(--blue-hover);
+  opacity: .9;
 }
 .notification .icon {
   font-size: 2em;
@@ -979,7 +996,6 @@ ul.guide li {
     color: var(--good);
     opacity: .7;
 }
-
 .notification .content {
   flex: 0 1 100%;
   overflow: hidden;
@@ -1001,7 +1017,32 @@ span.notification.empty span.text {
 #settings div {
   display: flex;
   flex-direction: column;
+}
+#settings-main, #settings-lang, 
+#settings-background, #settings-sound,
+#settings-zen {
+  width: 200px;
+}
+#settings-board {
+  width: 300px;
+}
+#settings-board div {
   margin: 5px;
+}
+
+#btn-logout {
+  border-radius: 5px 0px 0px 0px;
+}
+#settings-lang label:last-child, 
+#soundtheme label:last-child, 
+#settings-background label:last-child, 
+#zen-selector label:last-child, 
+#btn-zen {
+  border-radius: 0px 0px 0px 5px;
+}
+
+#sound-volume {
+  width: 90%;
 }
 #settings div.labelled, div.labelled, div.arrow-toggle {
   display: flex;
@@ -1085,7 +1126,9 @@ button.back {
   line-height: var(--site-header-height);
   font-size: 17px;
 }
-
+.site-buttons > div > button:hover {
+  color: var(--blue-hover); 
+}
 .site-buttons button {
   color: var(--font-color);
   background-color: inherit;
@@ -1095,9 +1138,11 @@ button.back {
   border: none;
   border-radius: unset;
 }
-
-.site-buttons button:hover {
-  color: var(--blue-hover);
+.site-buttons button.back {
+  font-size: 15px;
+  height: unset;
+  line-height: unset;
+  padding: 1rem;
 }
 
 .user-link {
