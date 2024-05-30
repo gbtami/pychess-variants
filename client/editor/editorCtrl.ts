@@ -7,12 +7,14 @@ import { _ } from '@/i18n';
 import { validFen, hasCastling, unpromotedRole, promotedRole } from '@/chess'
 import { diff, calculatePieceNumber } from '@/material';
 import { copyBoardToPNG } from '@/png';
+import { boardImageSVG } from '@/boardImage';
 import { patch } from '@/document';
 import { PyChessModel } from "@/types";
 import { ChessgroundController } from '@/cgCtrl';
 import { copyTextToClipboard } from '@/clipboard';
 import { initPieceRow } from './pieceRow';
 import { initPocketRow } from '@/pocketRow';
+
 
 export class EditorController extends ChessgroundController {
     model: PyChessModel;
@@ -150,6 +152,9 @@ export class EditorController extends ChessgroundController {
                 ]),
                 h('a#pgn.i-pgn', { on: { click: () => copyBoardToPNG(this.parts.join(' ')) } }, [
                     h('div.icon.icon-download', _('EXPORT TO PNG'))
+                ]),
+                h('a#pgn.i-pgn', { on: { click: () => boardImageSVG(this.parts[0], this.variant, this.chessground, this.model["home"]) } }, [
+                    h('div.icon.icon-download', _('EXPORT TO SVG'))
                 ]),
                 h('a#pgn.i-pgn', { on: { click: () => copyTextToClipboard(this.parts.join(' ')) } }, [
                     h('div.icon.icon-clipboard', _('COPY FEN TO CLIPBOARD'))

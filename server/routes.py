@@ -33,6 +33,7 @@ from game_api import (
     get_variant_stats,
     cancel_invite,
 )
+from board_image import board_image_svg
 from utils import import_game, get_names, get_notifications, subscribe_notify, notified
 from login import login, logout, oauth
 from index import index, robots, select_lang
@@ -125,6 +126,7 @@ get_routes = (
     ("/api/invites", subscribe_invites),
     ("/api/ongoing", subscribe_games),
     ("/api/names", get_names),
+    ("/board.svg", board_image_svg),
     ("/paste", index),
     (r"/games/export/monthly/{yearmonth:\d{6}}", export),
     ("/games/export/{profileId}", export),
