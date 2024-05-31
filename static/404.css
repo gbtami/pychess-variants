@@ -38,10 +38,6 @@ div.main-game-body {
      }
 }
 
-    #board {
-      border: none;
-    }
-
     #message {
       opacity: 0;
       background: var(--invalid-queen);
@@ -78,7 +74,6 @@ div.main-game-body {
       border: none;
       color: white;
       font-weight: bold;
-      cursor: pointer;
       border-radius: 6px;
     }
     #reset-button:hover {

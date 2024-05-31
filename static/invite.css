@@ -42,7 +42,6 @@ form.invite {
     margin-top: 12px;
 }
 button.red {
-    cursor: pointer;
     font-size: 16px;
     background: #c33;
     color: white;
@@ -52,7 +51,6 @@ button.red {
     border-radius: 4px;
 }
 button.join {
-    cursor: pointer;
     font-size: 16px;
     background: var(--blue-hover);
     width: 100%;

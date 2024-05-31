@@ -53,6 +53,7 @@ export function chatView(ctrl: ChatController, chatType: string) {
             },
             attrs: {
                 maxlength: 140,
+                'aria-label': "Chat input",
             },
             on: { keypress: onKeyPress },
         })

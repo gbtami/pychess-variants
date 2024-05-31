@@ -5,13 +5,11 @@ import logging
 import aiohttp_session
 from aiohttp import web
 
-from admin import silence
-from broadcast import broadcast_streams
+from admin import ban, delete_puzzle, disable_new_anons, fishnet, highscore, silence, stream
 from chat import chat_response
 from const import ANON_PREFIX, STARTED
-from login import logout
 from misc import server_state
-from const import TYPE_CHECKING, VARIANTS
+from const import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
@@ -21,7 +19,6 @@ from settings import ADMINS, TOURNAMENT_DIRECTORS
 from tournament_spotlights import tournament_spotlights
 from utils import join_seek, load_game, remove_seek
 from websocket_utils import get_user, process_ws
-from generate_highscore import generate_highscore
 
 log = logging.getLogger(__name__)
 
@@ -246,7 +243,7 @@ async def send_lobby_user_connected(app_state, ws, user):
     await user.update_seeks(pending=False)
 
 
-async def handle_lobbychat(app_state, user, data):
+async def handle_lobbychat(app_state: PychessGlobalAppState, user, data):
     if user.username.startswith(ANON_PREFIX):
         return
 
@@ -257,51 +254,26 @@ async def handle_lobbychat(app_state, user, data):
     if user.username in ADMINS:
         admin_command = True
         if message.startswith("/silence"):
-            response = silence(message, app_state.lobby.lobbychat, app_state.users)
+            response = silence(app_state, message)
             # silence message was already added to lobbychat in silence()
 
         elif message.startswith("/disable_new_anons"):
-            parts = message.split()
-            if len(parts) > 1:
-                if parts[1].lower() in ("1", "true", "yes"):
-                    app_state.disable_new_anons = True
-                else:
-                    app_state.disable_new_anons = False
+            disable_new_anons(app_state, message)
 
         elif message.startswith("/stream"):
-            parts = message.split()
-            if len(parts) >= 3:
-                if parts[1] == "add":
-                    if len(parts) >= 5:
-                        app_state.youtube.add(parts[2], parts[3], parts[4])
-                    elif len(parts) >= 4:
-                        app_state.youtube.add(parts[2], parts[3])
-                    else:
-                        app_state.youtube.add(parts[2])
-                elif parts[1] == "remove":
-                    app_state.youtube.remove(parts[2])
-                await broadcast_streams(app_state)
+            await stream(app_state, message)
 
         elif message.startswith("/delete"):
-            parts = message.split()
-            if len(parts) == 2 and len(parts[1]) == 5:
-                await app_state.db.puzzle.delete_one({"_id": parts[1]})
+            await delete_puzzle(app_state, message)
 
         elif message.startswith("/ban"):
-            parts = message.split()
-            if len(parts) == 2 and parts[1] in app_state.users and parts[1] not in ADMINS:
-                banned_user = await app_state.users.get(parts[1])
-                banned_user.enabled = False
-                await app_state.db.user.find_one_and_update(
-                    {"_id": parts[1]}, {"$set": {"enabled": False}}
-                )
-                await logout(None, banned_user)
+            await ban(app_state, message)
 
         elif message.startswith("/highscore"):
-            parts = message.split()
-            if len(parts) == 2 and parts[1] in VARIANTS:
-                variant = parts[1]
-                await generate_highscore(app_state, variant)
+            await highscore(app_state, message)
+
+        elif message.startswith("/fishnet"):
+            await fishnet(app_state, message)
 
         elif message == "/state":
             server_state(app_state)

@@ -7,7 +7,7 @@
     display: grid;
     grid-gap: 2vmin;
 }
-@media (max-width: 799px) and (orientation: portrait) {
+@media (max-width: 799px) {
     .lobby {
         grid-template-areas: 'table' 'app' 'vpanel' 'side' 'blog' 'utable' 'uleft' 'tv' 'puzzle';
     }
@@ -114,7 +114,6 @@ rating {
 }
 
 #header-block {
-    display: 'inline-flex';
     margin-bottom: 1.5rem;
 }
 .container input#fen {
@@ -122,7 +121,7 @@ rating {
 }
 
 .modal-content input#fen {
-    width: 90%;
+    width: 80%;
 }
 
 div.tc-block {

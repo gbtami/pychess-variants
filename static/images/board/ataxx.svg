@@ -1,9 +1,1 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 700 700">
-   <defs>
-      <pattern id="grid" width="100" height="100" patternUnits="userSpaceOnUse">
-        <rect width="100" height="100" style="fill:#008B8B;stroke-width:2;stroke:black"/>
-      </pattern>
-    </defs>
-    <rect width="700" height="700" fill="url(#grid)" />
-</svg>
+<svg viewBox="0 0 700 700" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><pattern id="a" height="100" patternUnits="userSpaceOnUse" width="100"><path d="m0 0h100v100h-100z" fill="#008b8b" stroke="#000" stroke-width="2"/></pattern><path d="m0 0h700v700h-700z" fill="url(#a)"/></svg>

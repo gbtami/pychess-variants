@@ -65,6 +65,7 @@ div.patron {
     white-space: nowrap;
 }
 .patronbutton:hover {
+    background-color: var(--gold);
     box-shadow: 0 4px 10px 0px rgba(0,0,0,.225);
     filter: brightness(1.15);
     color: white;

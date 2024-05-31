@@ -66,6 +66,7 @@ async def handle_404(request, handler):
             template = app_state.jinja["en"].get_template("404.html")
             text = await template.render_async(
                 {
+                    "title": "404 Page Not Found",
                     "dev": DEV,
                     "home": URI,
                     "theme": theme,
@@ -79,6 +80,18 @@ async def handle_404(request, handler):
             raise
     except NotInDbUsers:
         return web.HTTPFound("/")
+
+
+@web.middleware
+async def redirect_to_https(request, handler):
+    # https://help.heroku.com/J2R1S4T8/can-heroku-force-an-application-to-use-ssl-tls
+    # https://docs.aiohttp.org/en/stable/web_advanced.html#aiohttp-web-forwarded-support
+    if request.headers.get("X-Forwarded-Proto") == "http":
+        # request = request.clone(scheme="https")
+        url = request.url.with_scheme("https").with_port(None)
+        raise web.HTTPPermanentRedirect(url)
+
+    return await handler(request)
 
 
 async def on_prepare(request, response):
@@ -106,6 +119,7 @@ async def on_prepare(request, response):
 
 def make_app(db_client=None, simple_cookie_storage=False) -> Application:
     app = web.Application()
+    app.middlewares.append(redirect_to_https)
 
     parts = urlparse(URI)
 

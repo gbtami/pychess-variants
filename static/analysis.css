@@ -118,7 +118,6 @@ div.ctable-container {
     grid-area: moves;
     flex: 2 1 0;
     overflow-y: auto;
-    overflow-x: hide;
     justify-content: initial;
 }
 #movelist {
@@ -180,7 +179,6 @@ a.icon.icon-plus-square {
     background-color: var(--bg-body);
     font-size: 16px;
     margin-left: 4px;
-    cursor: pointer;
 }
 div.pv {
     grid-area: pv;
@@ -355,7 +353,7 @@ div#pgntext {
     white-space: pre-wrap;
     font-family: monospace;
     user-select: all;
-    -moz-user-select: all
+    -moz-user-select: all;
     -webkit-user-select: all;
 }
 

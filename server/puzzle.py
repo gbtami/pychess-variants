@@ -238,7 +238,7 @@ def default_puzzle_perf(puzzle_eval):
         "la": datetime.now(timezone.utc),
         "nb": 0,
     }
-    if len(puzzle_eval) > 0 and puzzle_eval[0] == "#":
+    if len(puzzle_eval) > 1 and puzzle_eval[0] == "#":
         perf["gl"]["r"] = MU + 200 * (int(puzzle_eval[1:]) - 2)
     return perf
 

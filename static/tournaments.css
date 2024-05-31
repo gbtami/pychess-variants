@@ -52,7 +52,6 @@ a.button.icon-plus-square, a.button.calendar {
     border-radius: 3px;
     padding: 0.8em 1em;
     border: none;
-    cursor: pointer;
     text-align: center;
     white-space: nowrap;
     transition: all 150ms;

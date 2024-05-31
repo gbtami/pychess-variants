@@ -10,7 +10,6 @@ import { copyBoardToPNG } from '@/png';
 import { patch } from '@/document';
 import { PyChessModel } from "@/types";
 import { ChessgroundController } from '@/cgCtrl';
-import { notation } from '@/variants';
 import { copyTextToClipboard } from '@/clipboard';
 import { initPieceRow } from './pieceRow';
 import { initPocketRow } from '@/pocketRow';
@@ -33,8 +32,6 @@ export class EditorController extends ChessgroundController {
 
         this.parts = this.startfen.split(" ");
         this.castling = this.parts.length > 2 ? this.parts[2] : '';
-
-        this.notation = notation(this.variant);
 
         this.chessground.set({
             autoCastle: false,

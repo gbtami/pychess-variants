@@ -93,6 +93,14 @@ export class LobbyController implements ChatController {
         this.sock.onmessage = (e: MessageEvent) => this.onMessage(e);
 
         patch(document.querySelector('.seekbuttons') as HTMLElement, h('div.seekbuttons', this.renderSeekButtons()));
+
+        const id01modal = document.getElementById('id01') as HTMLElement;
+        document.addEventListener("click", (event) => {
+            if ((event.target as HTMLElement) == id01modal) {
+                id01modal.style.display = 'none';
+            }
+        });
+
         patch(document.getElementById('lobbychat') as HTMLElement, chatView(this, "lobbychat"));
 
         patch(document.getElementById('variants-catalog') as HTMLElement, variantPanels(this));
@@ -350,9 +358,6 @@ export class LobbyController implements ChatController {
                             on: {
                                 click: () => {
                                     document.getElementById('id01')!.style.display = 'none';
-                                    // prevent creating challenges continuously
-                                    this.profileid = '';
-                                    window.history.replaceState({}, this.title, '/');
                                 }
                             },
                             attrs: { 'data-icon': 'j' }, props: { title: _("Cancel") }
@@ -694,7 +699,7 @@ export class LobbyController implements ChatController {
         });
     }
     private challengeIcon(seek: Seek) {
-        const swords = (seek["user"] === this.username) ? 'vs-swords.lobby.icon' : 'vs-swords.lobby.opp.icon';
+        const swords = (seek["user"] === this.username) ? 'vs-swords.icon' : 'vs-swords.opp.icon';
         return (seek['target'] === '') ? null : h(swords, { attrs: {"data-icon": '"'} });
     }
     private seekTitle(seek: Seek) {
@@ -748,7 +753,6 @@ export class LobbyController implements ChatController {
     private spotlightView(spotlight: Spotlight) {
         const variant = VARIANTS[spotlight.variant];
         const chess960 = spotlight.chess960;
-        const variantName = variant.displayName(chess960);
         const dataIcon = variant.icon(chess960);
         const lang = languageSettings.value;
         const name = spotlight.names[lang] ?? spotlight.names['en'];
@@ -758,7 +762,6 @@ export class LobbyController implements ChatController {
             h('span.content', [
                 h('span.name', name),
                 h('span.more', [
-                    h('variant', variantName + ' • '),
                     h('nb', ngettext('%1 player', '%1 players', spotlight.nbPlayers) + ' • '),
                     h('info-date', { attrs: { "timestamp": spotlight.startsAt } } )
                 ])
@@ -1097,7 +1100,7 @@ export function lobbyView(model: PyChessModel): VNode[] {
         h('under-lobby', [
             h('posts', blogs.map((post: Post) => 
                 h('a.post', { attrs: {href: `/blogs/${post['_id']}`} }, [
-                    h('img', { attrs: {src: model.assetURL + `${post['image']}`} }),
+                    h('img', { attrs: {src: model.assetURL + `${post['image']}`, alt: `${post['alt']}`} }),
                     h('time', `${post['date']}`),
                     h('span.author', [
                         h('player-title', `${post['atitle']} `),

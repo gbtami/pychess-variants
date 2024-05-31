@@ -6,28 +6,10 @@ div.memory {
     align-items: center;
     padding: 0 0 50px 0;
 }
-.memory .header {
-    display: flex;
-    flex-flow: row wrap;
-    align-items: center;
-}
-.memory .header h1 {
+
+.memory h1 {
     font-size: 3em;
-    color: #b3b3b3;
-    margin: 0 2rem 0;
-}
-.memory .header p {
-    padding: 0;
-}
-.memory .header strong {
-    text-transform: uppercase;
-    color: #b3b3b3;
-    font-size: 2em;
-    margin: 10px 0;
-    display: block;
-}
-memory .memory-game {
-    display: block;
+    color: var(--font-color);
 }
 
 #moves {
@@ -35,7 +17,6 @@ memory .memory-game {
 }
 
 #replay {
-  margin: auto;
   text-transform: uppercase;
   padding: 15px 2px;
   font-size: 1.1rem;
@@ -44,7 +25,6 @@ memory .memory-game {
   border: none;
   border-radius: 3px;
   width: 200px;
-  cursor: pointer;
   margin-top: 30px;
 }
 
@@ -62,7 +42,6 @@ memory .memory-game {
   height: 350px;
   display: flex;
   flex-wrap: wrap;
-  margin: auto;
   perspective: 1000px;
   background: url(images/zen.png);
   background-size: cover;

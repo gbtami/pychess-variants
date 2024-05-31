@@ -1,6 +1,5 @@
 from __future__ import annotations
 import asyncio
-import json
 import logging
 from asyncio import Queue
 from datetime import datetime, timezone
@@ -10,11 +9,12 @@ import aiohttp_session
 from aiohttp import web
 
 from broadcast import round_broadcast
-from const import ANON_PREFIX, NOTIFY_PAGE_SIZE, STARTED, VARIANTS
+from const import ANON_PREFIX, STARTED, VARIANTS
 from glicko2.glicko2 import gl2, DEFAULT_PERF, Rating
 from login import RESERVED_USERS
-from newid import id8, new_id
-from const import NOTIFY_EXPIRE_WEEKS, TYPE_CHECKING
+from newid import id8
+from notify import notify
+from const import TYPE_CHECKING
 from seek import Seek
 
 if TYPE_CHECKING:
@@ -219,35 +219,13 @@ class User:
             else:
                 win = False
 
-        _id = await new_id(None if self.app_state.db is None else self.app_state.db.notify)
-        now = datetime.now(timezone.utc)
-        document = {
-            "_id": _id,
-            "notifies": self.username,
-            "type": "gameAborted" if game.result == "*" else "gameEnd",
-            "read": False,
-            "createdAt": now,
-            "expireAt": (now + NOTIFY_EXPIRE_WEEKS).isoformat(),
-            "content": {
-                "id": game.id,
-                "opp": opp_name,
-                "win": win,
-            },
+        notif_type = "gameAborted" if game.result == "*" else "gameEnd"
+        content = {
+            "id": game.id,
+            "opp": opp_name,
+            "win": win,
         }
-
-        if self.notifications is None:
-            cursor = self.app_state.db.notify.find({"notifies": self.username})
-            self.notifications = await cursor.to_list(length=100)
-
-        self.notifications.append(document)
-
-        for queue in self.notify_channels:
-            await queue.put(
-                json.dumps(self.notifications[-NOTIFY_PAGE_SIZE:], default=datetime.isoformat)
-            )
-
-        if self.app_state.db is not None:
-            await self.app_state.db.notify.insert_one(document)
+        await notify(self.app_state.db, self, notif_type, content)
 
     async def notified(self):
         self.notifications = [{**notif, "read": True} for notif in self.notifications]

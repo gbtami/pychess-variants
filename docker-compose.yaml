@@ -1,0 +1,39 @@
+version: '3.8'
+services:
+  mongodb:
+    image: mongo:4.4.29
+    restart: always
+    ports:
+      - 27017:27017
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_ADMIN_USER}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_ADMIN_PASS}
+
+  mongo-express:
+    image: mongo-express
+    restart: always
+    ports:
+      - 8081:8081
+    environment:
+      - ME_CONFIG_MONGODB_ADMINUSERNAME=${MONGO_ADMIN_USER}
+      - ME_CONFIG_MONGODB_ADMINPASSWORD=${MONGO_ADMIN_PASS}
+      - ME_CONFIG_MONGODB_SERVER=mongodb
+    depends_on:
+      - "mongodb"
+
+  client:
+    build:
+      context: .
+      dockerfile: docker/client.Dockerfile
+
+  server:
+    build:
+      context: .
+      dockerfile: docker/server.Dockerfile
+    restart: always
+    ports:
+      - 8080:8080
+    environment:
+      - MONGO_HOST=mongodb://${MONGO_ADMIN_USER}:${MONGO_ADMIN_PASS}@mongodb:27017
+    depends_on:
+      - "mongodb"

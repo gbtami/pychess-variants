@@ -263,6 +263,8 @@ class PychessGlobalAppState:
                 if doc["s"] < ABORTED:
                     try:
                         game = await load_game(self, doc["_id"])
+                        if game is None:
+                            continue
                         self.games[doc["_id"]] = game
                         if corr:
                             game.wplayer.correspondence_games.append(game)
@@ -283,6 +285,11 @@ class PychessGlobalAppState:
                     await self.db.blog.drop()
                 await self.db.blog.insert_many(BLOGS)
                 await self.db.blog.create_index("date")
+
+            if "fishnet" in db_collections:
+                cursor = self.db.fishnet.find()
+                async for doc in cursor:
+                    FISHNET_KEYS[doc["_id"]] = doc["name"]
 
         except Exception:
             print("Maybe mongodb is not running...")
@@ -348,6 +355,7 @@ class PychessGlobalAppState:
 
     def __init_fishnet_monitor(self) -> dict:
         result = {}
+        print(FISHNET_KEYS)
         for key in FISHNET_KEYS:
             result[FISHNET_KEYS[key]] = collections.deque([], 50)
         return result
