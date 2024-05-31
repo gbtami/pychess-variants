@@ -209,7 +209,7 @@ async def load_game(app_state: PychessGlobalAppState, game_id):
         game.board.move_stack = mlist
         game.board.fen = doc["f"]
         game.board.color = WHITE if game.board.fen.split()[1] == "w" else BLACK
-        game.last_move = mlist[-1]
+        game.lastmove = mlist[-1]
         game.mct = doc.get("mct")
 
     game.loaded_at = datetime.now(timezone.utc)
