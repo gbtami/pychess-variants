@@ -17,7 +17,7 @@ import { notify } from './notification';
 import { PyChessModel } from "./types";
 import { MsgBoard, MsgChat, MsgFullChat } from "./messages";
 import { variantPanels } from './lobby/layer1';
-import { Post, Stream, Spotlight, MsgInviteCreated, MsgHostCreated, MsgGetSeeks, MsgNewGame, MsgGameInProgress, MsgUserConnected, MsgPing, MsgError, MsgShutdown, MsgGameCounter, MsgUserCounter, MsgStreams, MsgSpotlights, Seek, CreateMode, TvGame, TcMode } from './lobbyType';
+import { Post, Stream, Spotlight, MsgInviteCreated, MsgHostCreated, MsgGetSeeks, MsgNewGame, MsgGameInProgress, MsgUserConnected, MsgPing, MsgError, MsgShutdown, MsgGameCounter, MsgUserCounter, MsgStreams, MsgSpotlights, Seek, CreateMode, TvGame, TcMode, MsgLeaderboard } from './lobbyType';
 import { validFen, uci2LastMove } from './chess';
 import { handleOngoingGameEvents, Game, gameViewPlaying, compareGames } from './nowPlaying';
 
@@ -837,6 +837,9 @@ export class LobbyController implements ChatController {
             case "fullchat":
                 this.onMsgFullChat(msg);
                 break;
+            case "leaderboard":
+                this.onMsgLeaderboard(msg);
+                break;
             case "ping":
                 this.onMsgPing(msg);
                 break;
@@ -946,6 +949,10 @@ export class LobbyController implements ChatController {
             h('div', msg.items.map(spotlight => this.spotlightView(spotlight))),
             h('a.cont-link', { attrs: { href: '/calendar' } }, _('Tournament calendar') + ' »'),
         ]));
+    }
+
+    private onMsgLeaderboard(msg: MsgLeaderboard) {
+        console.log(msg);
     }
 
     private onMsgTvGame(msg: TvGame) {

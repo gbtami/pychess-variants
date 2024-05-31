@@ -233,6 +233,9 @@ async def send_lobby_user_connected(app_state, ws, user):
     if len(streams) > 0:
         await ws.send_json({"type": "streams", "items": streams})
 
+    response = {"type": "leaderboard", "items": app_state.leaderboard.items()[:10]}
+    await ws.send_json(response)
+
     if (
         app_state.tv is not None
         and app_state.tv in app_state.games

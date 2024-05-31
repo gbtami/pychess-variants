@@ -78,6 +78,10 @@ export interface MsgSpotlights {
     items: Spotlight[];
 }
 
+export interface MsgLeaderboard {
+    items: [[key: string, value: number]];
+}
+
 export interface Seek {
     user: string;
     variant: string;
