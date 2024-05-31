@@ -119,7 +119,6 @@ div.ctable-container {
     grid-area: moves;
     flex: 2 1 0;
     overflow-y: auto;
-    overflow-x: hide;
     justify-content: initial;
 }
 #movelist {

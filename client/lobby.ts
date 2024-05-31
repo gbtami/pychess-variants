@@ -92,6 +92,14 @@ export class LobbyController implements ChatController {
         this.sock = createWebsocket('wsl', onOpen, () => {}, () => {},(e: MessageEvent) => this.onMessage(e));
 
         patch(document.querySelector('.seekbuttons') as HTMLElement, h('div.seekbuttons', this.renderSeekButtons()));
+
+        const id01modal = document.getElementById('id01') as HTMLElement;
+        document.addEventListener("click", (event) => {
+            if ((event.target as HTMLElement) == id01modal) {
+                id01modal.style.display = 'none';
+            }
+        });
+
         patch(document.getElementById('lobbychat') as HTMLElement, chatView(this, "lobbychat"));
 
         patch(document.getElementById('variants-catalog') as HTMLElement, variantPanels(this));
@@ -349,9 +357,6 @@ export class LobbyController implements ChatController {
                             on: {
                                 click: () => {
                                     document.getElementById('id01')!.style.display = 'none';
-                                    // prevent creating challenges continuously
-                                    this.profileid = '';
-                                    window.history.replaceState({}, this.title, '/');
                                 }
                             },
                             attrs: { 'data-icon': 'j' }, props: { title: _("Cancel") }

@@ -299,10 +299,10 @@ check-error@^2.0.0:
   resolved "https://registry.yarnpkg.com/check-error/-/check-error-2.0.0.tgz#589a4f201b6256fd93a2d165089fe43d2676d8c6"
   integrity sha512-tjLAOBHKVxtPoHe/SA7kNOMvhCRdCJ3vETdeY0RuAc9popf+hyaSV6ZEg9hr4cpWF7jmo/JSWEnLDrnijS9Tog==
 
-chessgroundx@^10.5.5:
-  version "10.5.5"
-  resolved "https://registry.yarnpkg.com/chessgroundx/-/chessgroundx-10.5.5.tgz#f11d3f50de51d6745244df459d4d8ed177812e42"
-  integrity sha512-jH1jwaPioEzGag8rh2LfvZUzpzQEAk934I684wk6sgQKkmpG42gvwn6wFKqADRnpv4LV6V2nHg7pzd+XOmDxQQ==
+chessgroundx@^10.5.6:
+  version "10.5.6"
+  resolved "https://registry.yarnpkg.com/chessgroundx/-/chessgroundx-10.5.6.tgz#bcd8d10b52fb740037159291b5465b06185cacf4"
+  integrity sha512-+R7rK3iziavklIM9eZNLdoFZVZN9+uTmQc1rBnQ7Qz0qEq4rsEf3kjsq3kAGF3t8klReTSvt5C010R8PS0F/+Q==
 
 chokidar@3.5.3:
   version "3.5.3"

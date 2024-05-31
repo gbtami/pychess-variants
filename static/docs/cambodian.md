@@ -1,4 +1,4 @@
-# ![Ouk Chaktrang](https://github.com/gbtami/pychess-variants/blob/master/static/icons/makruk.svg) Ouk Chaktrang
+# ![Ouk Chaktrang](https://github.com/gbtami/pychess-variants/blob/master/static/icons/cambodian.svg) Ouk Chaktrang
 
 ![Ouk Chaktrang](https://github.com/gbtami/pychess-variants/blob/master/static/images/MakrukGuide/Makruk.png?raw=true)
 

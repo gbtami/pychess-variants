@@ -110,7 +110,7 @@ class FairyBoard:
             # log.debug("move=%s, fen=%s", move, self.fen
             if append:
                 self.move_stack.append(move)
-            self.ply += 1
+                self.ply += 1
             self.color = WHITE if self.color == BLACK else BLACK
             self.fen = sf.get_fen(
                 self.variant,

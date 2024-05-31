@@ -51,21 +51,12 @@ div.tour-header {
     min-height: 7em;
     padding: 0 3vmin;
 }
-div.tour-header i {
-    font-size: 2.2rem;
-    color: var(--gold);
-    margin-right: 1rem;
-}
 div.tour-header h1 {
     color: var(--gold);
-    font-weight: normal;
     flex: 9 1 auto;
     margin: 0;
     overflow: hidden;
     text-align: center;
-}
-div.tour-header clock {
-    text-align: right;
 }
 table#players, table#games {
     width: 100%;
@@ -99,7 +90,6 @@ span.page {
     padding: 0.6em 1em;
     font-size:0.8em;
     background-color: var(--bg-color);
-    height: none;
     line-height: 1.3;
 }
 button#action {
@@ -157,7 +147,6 @@ table td {
 }
 td.rank {
     padding: 1em 0.5em 1em 10px;
-    width: 1px;
 }
 td.player {
     padding-left: 0px;
@@ -200,7 +189,6 @@ td.sheet double {
 }
 fire {
     color: var(--gold);
-    margin-right: 2vim;
 }
 td.total {
     text-align: right;
@@ -258,15 +246,6 @@ div#stats {
     opacity: 0.9;
     color: var(--bad);
     background: none;
-}
-.tour-stats table {
-    margin: auto;
-}
-.tour-stats td {
-    font-weight: bold;
-    padding-left: 1em;
-    text-align: right;
-    line-height: 2em;
 }
 #stats table {
     margin: 1em auto;

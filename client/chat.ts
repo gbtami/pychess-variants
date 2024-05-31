@@ -66,7 +66,8 @@ export function chatView(ctrl: ChatController, chatType: string) {
             },
             attrs: {
                 maxlength: 140,
-                autofocus: "true"
+                autofocus: "true",
+                'aria-label': "Chat input"
             },
             on: { keypress: onKeyPress, blur: blur },
 

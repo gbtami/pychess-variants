@@ -49,6 +49,7 @@
   --pink-text: Pink;
   --green-text: Green;
   --time-text: #757575;
+  --drop-down: #fff;
   --modal-bg: #fff;
   --box-header: #f5f5f5;
   --button-new-game: linear-gradient(to bottom, #f5f5f5 0%, #ededed 100%);
@@ -72,6 +73,7 @@
   --post-hover: #ddebf8;
   --vpanel-button: #fbfbfb;
   --vpanel-button-hover: #fdfdfd;
+  --vpanel-heading: #737373;
   --box-shadow-panel-btn: 0px 2px 3px #7b7b7b85;
   --chat-entry-border-top: #d9d9d9;
   --chat-entry-bg: #fafaf9;
@@ -112,6 +114,7 @@
   --clock-overtime-bg: #474722;
   --clock-running-bg: #384722;
   --clock-running-color: #e3e3e3;
+  --drop-down: #3c3934;
   --modal-bg: rgb(38, 36, 33);
   --box-header: linear-gradient(to bottom, #3c3934, #33312e 100%);
   --button-new-game: linear-gradient(to bottom, #3c3934, #33312e 100%);
@@ -137,6 +140,7 @@
   --post-hover: #29353f;
   --vpanel-button: #3c3a35;
   --vpanel-button-hover: #464440;
+  --vpanel-heading: #a3a3a3;
   --panel-link-hover: rgb(179, 179, 179);
   --box-shadow-panel-btn: none;
   --chat-entry-border-top: #404040;
@@ -308,6 +312,8 @@ header {
   z-index: 106;
   max-width: 1800px;
   margin: 0 auto;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 iframe {
@@ -467,7 +473,6 @@ span[role=tab], div.seeks-table thead {
   display: flex;
   flex-flow: column nowrap;
   justify-content: right;
-  overflow: hidden;
 }
 .sidebar-second {
   grid-area: table;
@@ -545,10 +550,6 @@ div.not-found {
   background-color: var(--bg-color0);
   padding: 2rem;
 }
-div.patron,
-div.invite {
-  width: 50%;
-}
 
 div.guide,
 div.blogs {
@@ -624,15 +625,17 @@ posts {
   grid-template-rows: auto;
   font-size: 0.9em;
   line-height: 1.5;
+  grid-auto-rows: 0;
 }
 a.post {
   background-color: var(--bg-color0);
   align-items: center;
   position: relative;
   box-shadow: var(--base-shadow);
+  border-radius: 5px;
 }
 a.post:hover {
-  color: var(--font-color);
+  color: var(--link-color);
   background: var(--post-hover);
   box-shadow: none;
 }
@@ -640,7 +643,6 @@ a.post img {
   max-width: none;
   width: 100%;
   height: auto;
-  border-radius: 3px;
   object-fit: cover;
   aspect-ratio: 1.5;
 }
@@ -649,9 +651,12 @@ a.post span.text {
   flex-direction: column;
   max-height: 12em;
   padding: 3% 3% 4% 6%;
+  margin: 0;
 }
 a.post span.text strong {
   font-size: 1.2em;
+  margin-bottom: 10px;
+  color: var(--font-color);
 }
 a.post time {
   font-size: 90%;
@@ -739,8 +744,9 @@ ul.guide li {
 .nav-link:link,
 .nav-link:visited {
   color: var(--link-color);
-  text-align: center;
-  text-decoration: none;
+}
+.drp .nav-link {
+  color: var(--font-color);
 }
 .nav-link:hover,
 .nav-link:active {
@@ -780,7 +786,6 @@ ul.guide li {
 .topnav a {
   float: left;
   height: var(--site-header-height);
-  text-decoration: none;
   font-size: 14px;
 }
 .topnav section > a {
@@ -844,10 +849,14 @@ ul.guide li {
   section a:first-child:hover {
     color: var(--font-color);
   }
+  
+  div.topnav section:hover {
+    background-color: var(--drop-down);
+  }
 
   .drp {
     visibility: hidden;
-    background-color: #3c3934;
+    background-color: var(--drop-down);
     position: absolute;
     left: 0;
     top: 50px;
@@ -855,7 +864,7 @@ ul.guide li {
     border-left: 2px solid #3692e7;
     border-radius: 0 3px 3px 3px;
     text-align: left;
-    box-shadow: var(--base-shadow);
+    box-shadow: 2px 5px 6px rgba(0, 0, 0, .3);
   }
 
   .drp a {
@@ -865,18 +874,27 @@ ul.guide li {
     align-items: center;
   }
 
+  .drp a:first-child {
+    border-top-right-radius: 3px;
+  }
+  
+  .drp a:last-child {
+    border-bottom-left-radius: 1px;
+    border-bottom-right-radius: 3px;
+  }
+  /* longhand because /puzzles is both first and last child */
+
   .drp a:hover {
     background-color: #3692e7;
     color: var(--font-color);
   }
 
   .topnav section:hover {
-    background-color: var(--bg-color0);
     box-shadow: inset 2px 0px 0px 0px #3692e7;
   }
-
-  .drp .nav-link {
-    background-color: var(--bg-color0);
+  
+  .topnav section:hover > a {
+    color: var(--font-color);
   }
 
   .drp .nav-link:hover {
@@ -900,22 +918,27 @@ ul.guide li {
   padding: 8px;
   height: var(--site-header-height);
 }
-#btn-settings.shown, #btn-notify.shown {
-  background-color: var(--bg-color1);
+#btn-notify.shown, #notify-app, 
+#btn-settings.shown, #settings {
+  background-color: var(--drop-down);
 }
 #settings, #notify-app {
   display: none;
   flex-direction: column;
   color: var(--font-color);
-  background-color: var(--bg-color1);
-  box-shadow: var(--base-shadow);
+  background-color: var(--drop-down);
+  box-shadow: -1px 5px 6px rgba(0, 0, 0, .3);
   position: absolute;
   top: var(--site-header-height);
   right: 0;
+  border-radius: 5px 0px 0px 5px;
 }
 #settings-lang, #settings-board {
-  overflow-y: auto;
+  overflow: auto;
   max-height: min(100vh - 70px, 91vh);
+}
+#settings-lang {
+  max-height: 400px;
 }
 #notify-app {
   overflow: hidden;
@@ -946,25 +969,25 @@ ul.guide li {
   margin-left: 3px;
 }
 .data-count[data-count="0"]::after {
-    display: none
+  display: none
 }
 
 .notification {
   display: flex;
   padding: .6rem .6rem .6rem 1rem;
-  border-bottom: 1px solid #d9d9d9;
+  border-bottom: 1px solid var(--bg-color2);
   position: relative;
 }
 .notification.new {
-    background: var(--notify-new);
+  background: var(--notify-new);
 }
 .notification:hover {
- color: var(--font-color);
- background: var(--bg-color2);
+  color: var(--font-color);
+  background: var(--bg-color2);
 }
-.notification:hover .icon {
- color: var(--blue-hover);
- opacity:.9
+ .notification:hover .icon {
+  color: var(--blue-hover);
+  opacity: .9;
 }
 .notification .icon {
   font-size: 2em;
@@ -975,7 +998,6 @@ ul.guide li {
     color: var(--good);
     opacity: .7;
 }
-
 .notification .content {
   flex: 0 1 100%;
   overflow: hidden;
@@ -997,7 +1019,32 @@ span.notification.empty span.text {
 #settings div {
   display: flex;
   flex-direction: column;
+}
+#settings-main, #settings-lang, 
+#settings-background, #settings-sound,
+#settings-zen {
+  width: 200px;
+}
+#settings-board {
+  width: 300px;
+}
+#settings-board div {
   margin: 5px;
+}
+
+#btn-logout {
+  border-radius: 5px 0px 0px 0px;
+}
+#settings-lang label:last-child, 
+#soundtheme label:last-child, 
+#settings-background label:last-child, 
+#zen-selector label:last-child, 
+#btn-zen {
+  border-radius: 0px 0px 0px 5px;
+}
+
+#sound-volume {
+  width: 90%;
 }
 #settings div.labelled, div.labelled, div.arrow-toggle {
   display: flex;
@@ -1081,7 +1128,9 @@ button.back {
   line-height: var(--site-header-height);
   font-size: 17px;
 }
-
+.site-buttons > div > button:hover {
+  color: var(--blue-hover); 
+}
 .site-buttons button {
   color: var(--font-color);
   background-color: inherit;
@@ -1091,9 +1140,11 @@ button.back {
   border: none;
   border-radius: unset;
 }
-
-.site-buttons button:hover {
-  color: var(--blue-hover);
+.site-buttons button.back {
+  font-size: 15px;
+  height: unset;
+  line-height: unset;
+  padding: 1rem;
 }
 
 .user-link {
@@ -2396,6 +2447,8 @@ div.ctable-container {
 }
   
 div#spotlights > div {
+  border-radius: 7px;
+  overflow: hidden;
   box-shadow: var(--base-shadow);
 }
   

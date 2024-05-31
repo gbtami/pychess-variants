@@ -6,32 +6,53 @@ Cannon Shogi is a shogi variant. It was invented by Peter Michaelsen in February
 
 ## Rules
 
-A Pawn moves and captures a single square forward or sideways, like the Soldier of Korean Chess. It promotes (optionally) to a Gold General when making a move that begins or ends in the last 3 ranks of the board.
-![Cannon Shogi](https://github.com/gbtami/pychess-variants/blob/master/static/images/CannonShogiGuide/Soldier.png)
+Setup is the same as Shogi. However, there are now 4 different Cannons from Xiangqi (Chinese Chess) and Janggi (Korean Chess) on the 2nd row, between the Bishop and the Rook and the nine Pawns on the 3rd row are changed to the five from Janggi.
 
-On the 2nd and 8th rank 2x4 cannons are situated. The four cannons of each player are all different.
+All other rules are the same as Shogi.
 
-The diagonal Bishop is flanked by two orthogonal cannons, and the orthogonal Rook is flanked by two diagonal cannons.
+![image](https://github.com/gbtami/pychess-variants/blob/master/static/images/CannonShogiGuide/Soldier.png)
 
-The Gold Cannons on d2/f8 move like Rooks, by sliding any number of squares along a row or column, but they can capture an enemy only if there is another piece (of either side) in between. To capture, they leap over the intervening piece and land on the enemy piece, like a cannonball. This is the same move and capture as the Cannon (Pao) of Chinese Chess (Xiangqi).
-![Cannon Shogi](https://github.com/gbtami/pychess-variants/blob/master/static/images/CannonShogiGuide/GoldCannon.png)
+The **Pawns** now move and capture one square forward or sideways. This is the same move as the Soldier in Janggi.
 
-The Silver Cannons on c2/g8 capture like Gold Cannons, but can only move by leaping over an intervening piece, called a "screen". They move and capture like the Cannon of Korean Chess.
-![Cannon Shogi](https://github.com/gbtami/pychess-variants/blob/master/static/images/CannonShogiGuide/SilverCannon.png)
+All drop restrictions that apply to Pawns in regular Shogi do not apply to the Pawns in this variant.
 
-The Copper Cannons on g2/c8 move like Bishops, by sliding any number of squares along a diagonal, but they can capture an enemy only if there is another piece (of either side) in between. They capture by leaping over an intervening piece, and have the same powers as the Cannon of Chinese Chess, but in a diagonal rather than orthogonal direction.
-![Cannon Shogi](https://github.com/gbtami/pychess-variants/blob/master/static/images/CannonShogiGuide/CopperCannon.png)
+* Two or more Pawns can be on the same file.
+* Pawn drop checkmate is legal
+* Pawns can be dropped on the back rank. (The sideways movement prevents them from being “trapped”)
 
-The Iron Cannons on f2/d8 capture like Copper Cannons, but can only move by leaping over a screen. They have the same powers as the Cannon of Korean Chess, but in a diagonal rather than orthogonal direction.
-![Cannon Shogi](https://github.com/gbtami/pychess-variants/blob/master/static/images/CannonShogiGuide/IronCannon.png)
+Pawns still promote to the Tokin (Gold General) as normal.
 
-A Cannon promotes (optionally) to a Flying Cannon when making a move that begins or ends in the last 3 ranks. It acquires additional powers:
+![image](https://github.com/gbtami/pychess-variants/blob/master/static/images/CannonShogiGuide/GoldCannon.png)
 
-A Flying Gold Cannon and a Flying Silver Cannon can move orthogonally over whole rows and is able to leap one piece by moving. The FGC and FSC can also move one square diagonally and, besides, move or capture two squares diagonally, by leaping an adjacent piece.
-![Cannon Shogi](https://github.com/gbtami/pychess-variants/blob/master/static/images/CannonShogiGuide/FlyingSilverFlyingGold.png)
+The **Gold Cannons** can move any number of spaces orthogonally like a Rook, but to capture there must be an intervening piece for them to jump over. This is the same move as the Cannon in Xiangqi.
 
-A Flying Copper Cannon and a Flying Iron Cannon can move diagonally over whole rows and is able to leap one piece by moving. The FCC and FIC can also move one square orthogonally and, besides, move or capture two squares orthogonally, by leaping an adjacent piece.
-![Cannon Shogi](https://github.com/gbtami/pychess-variants/blob/master/static/images/CannonShogiGuide/FlyingIronFlyingCopper.png)
+Gold Cannons promote to Flying Gold Cannons.
 
-All other pieces move, capture and promote like Shogi pieces. Captured pieces are added to the capturer's "reserve", an army of pieces which can be reintroduced into play on the capturer's side. Like in Shogi, a Knight or Lance may not be dropped on a square from which it will never be able to move. Contrary to Shogi, there are no Pawn drop restrictions: Pawns may be placed on a file that already contains an unpromoted Pawn and may also be dropped with mate.
+![image](https://github.com/gbtami/pychess-variants/blob/master/static/images/CannonShogiGuide/CopperCannon.png)
+
+The **Copper Cannons** can move any number of spaces diagonally like a Bishop, but to capture there must be an intervening piece for them to jump over. This is a diagonal version of the Cannon in Xiangqi.
+
+Copper Cannons promote to Flying Copper Cannons.
+
+![image](https://github.com/gbtami/pychess-variants/blob/master/static/images/CannonShogiGuide/SilverCannon.png)
+
+The **Silver Cannons** can move any number of spaces orthogonally like a Rook, but there must be an intervening piece for them to jump over first. This is the same move as the Cannon in Janggi.
+
+NOTE: unlike in Janggi, Silver Cannons can jump over and capture eachother.
+
+Silver Cannons promote to Flying Silver Cannons.
+
+![image](https://github.com/gbtami/pychess-variants/blob/master/static/images/CannonShogiGuide/IronCannon.png)
+
+The **Iron Cannons** can move any number of spaces diagonally like a Bishop, but there must be an intervening piece for them to jump over first. This is the same move as the Cannon in Janggi.
+
+Iron Cannons promote to Flying Iron Cannons.
+
+![image](https://github.com/gbtami/pychess-variants/blob/master/static/images/CannonShogiGuide/FlyingSilverFlyingGold.png)
+
+**Flying Gold Cannons** and **Flying Silver Cannons** have the combined powers of both pieces. They can also move one space diagonally, but if there is a piece adjacent to them in that direction, they will jump over that piece rather than capture it and will instead capture the piece on the destination square if there is one.
+
+![image](https://github.com/gbtami/pychess-variants/blob/master/static/images/CannonShogiGuide/FlyingCopperFlyingIron.png)
+
+**Flying Copper Cannons** and **Flying Iron Cannons** have the combined powers of both pieces. They can also move one space orthogonally, but if there is a piece adjacent to them in that direction, they will jump over that piece rather than capture it and will instead capture the piece on the destination square if there is one.
 

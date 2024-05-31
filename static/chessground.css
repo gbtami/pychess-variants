@@ -68,6 +68,13 @@
 .cg-wrap.cg-576-640.mini {
   width: 288px;
 }
+/* 9x10 Janggi */
+.cg-wrap.cg-janggi {
+    padding-bottom: 100%;
+}
+.cg-wrap.cg-janggi.mini {
+    width: 320px;
+}
 /* 10x10 */
 .cg-wrap.cg-640-640 {
     padding-bottom: 100%;
@@ -152,6 +159,10 @@ cg-board square {
   width: 11.11%;
   height: 10%;
 }
+.cg-janggi cg-board square{
+  width: 11.11%;
+  height: 10%;
+}
 .cg-640-640 cg-board square{
   width: 10%;
   height: 10%;
@@ -209,7 +220,7 @@ cg-board square.current-premove {
   opacity: 0;
   position: relative;
 }
-.shogi .cg-wrap piece, .kyoto .cg-wrap piece, .dobutsu .cg-wrap piece, .tori .cg-wrap piece, .cannonshogi .cg-wrap piece {
+.shogi .cg-wrap piece, .kyoto .cg-wrap piece, .dobutsu .cg-wrap piece, .tori .cg-wrap piece, .cannonshogi .cg-wrap piece, .janggi .cg-wrap piece {
   background-position: center;
 }
 .cg-wrap.cg-640 piece {
@@ -242,6 +253,10 @@ cg-board square.current-premove {
   height: 14.28%;
 }
 .cg-wrap.cg-576-640 piece{
+  width: 11.11%;
+  height: 10%;
+}
+.cg-wrap.cg-janggi piece{
   width: 11.11%;
   height: 10%;
 }
