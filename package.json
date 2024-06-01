@@ -21,7 +21,7 @@
   "dependencies": {
     "@fullcalendar/core": "^6.1.13",
     "@fullcalendar/daygrid": "^6.0.3",
-    "@fullcalendar/interaction": "^6.1.11",
+    "@fullcalendar/interaction": "^6.1.13",
     "@fullcalendar/list": "^6.1.11",
     "@fullcalendar/timegrid": "^6.1.11",
     "chessgroundx": "^10.5.6",
