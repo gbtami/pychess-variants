@@ -370,7 +370,7 @@ iframe {
     );
   }
 }
-@media (max-width: 599px) and (orientation: portrait) {
+@media (max-width: 599px) {
   #main-wrap {
     --main-max-width: 100%;
   }
@@ -427,11 +427,6 @@ iframe {
   grid-area: main;
   display: grid;
   grid-gap: 2vmin;
-}
-@media (max-width: 799px) and (orientation: portrait) {
-  .lobby {
-    grid-template-areas: 'app' 'table' 'side' 'uleft' 'utable' 'blog';
-  }
 }
 @media (min-width: 800px) {
   .lobby {
@@ -767,7 +762,7 @@ ul.guide li {
   justify-content: flex-start;
   padding-left: 14px;
 }
-@media (max-width: 799px) and (orientation: portrait) {
+@media (max-width: 799px) {
   .site-title-nav {
     padding-left: 0;
     flex-direction: column;
@@ -1410,7 +1405,7 @@ player-title {
   color: var(--gold);
   font-weight: bold;
 }
-@media (max-width: 799px) and (orientation: portrait) {
+@media (max-width: 799px) {
   variant-name {
     display: none;
   }
@@ -1578,12 +1573,6 @@ table.seeks {
   white-space: nowrap;
   font-weight: inherit;
   padding: 0.5em 0.7em 0.5em 0.7em;
-}
-@media (max-width: 799px) and (orientation: portrait) {
-  .seeks th,
-  .seeks td {
-    font-weight: 300;
-  }
 }
 .seeks thead th {
   position: sticky;
