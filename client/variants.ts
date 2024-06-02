@@ -1018,6 +1018,7 @@ export const noPuzzleVariants = [
     "shinobi",
     "shinobiplus",
     "cannonshogi",
+    "bughouse",
 ]
 
 export const variantGroups: { [ key: string ]: { variants: string[] } } = {
