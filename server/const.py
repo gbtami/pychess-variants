@@ -251,6 +251,8 @@ CATEGORIES = {
     "chess": (
         "chess",
         "chess960",
+        "bughouse",
+        "bughouse960",
         "crazyhouse",
         "crazyhouse960",
         "placement",
