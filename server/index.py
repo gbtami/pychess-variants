@@ -498,6 +498,7 @@ async def index(request):
             render["highscore"] = {
                 variant: dict(app_state.highscore[variant].items()[:10])
                 for variant in app_state.highscore
+                if not variant.startswith("bughouse")
             }
         else:
             hs = app_state.highscore[variant]
