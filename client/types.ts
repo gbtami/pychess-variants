@@ -46,6 +46,14 @@ export type PyChessModel = {
     tournamentDirector: boolean;
     assetURL: string;
     puzzle: string;
+
+    wplayerB: string;
+    wtitleB: string;
+    wratingB: string; // string, because can contain "?" suffix for provisional rating
+    bplayerB: string;
+    btitleB: string;
+    bratingB: string; // string, because can contain "?" suffix for provisional rating
+
     blogs: string;
     corrGames: string;
 };

@@ -35,6 +35,9 @@ from tournaments import upsert_tournament_to_db, new_tournament
 from user import User
 from utils import play_move
 
+import logging
+log = logging.getLogger(__name__)
+
 # from misc import timeit
 
 PERFS = {variant: DEFAULT_PERF for variant in VARIANTS}
@@ -188,16 +191,16 @@ class TournamentTestCase(AioHTTPTestCase):
                 game.remove_task.cancel()
                 try:
                     await game.remove_task
-                except asyncio.CancelledError:
-                    pass
+                except asyncio.CancelledError as e:
+                    log.error(e, stack_info=True, exc_info=True)
 
         if has_games:
             for task in self.tournament.game_tasks:
                 task.cancel()
                 try:
                     await task
-                except asyncio.CancelledError:
-                    pass
+                except asyncio.CancelledError as e:
+                    log.error(e, stack_info=True, exc_info=True)
 
         await self.client.close()
 

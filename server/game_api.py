@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 import asyncio
 import json
 import logging
@@ -9,7 +10,7 @@ import aiohttp_session
 from aiohttp import web
 from aiohttp_sse import sse_response
 
-from compress import get_decode_method, C2V, V2C, C2R
+from compress import get_decode_method, C2V, V2C, C2R, decode_move_standard
 from const import GRANDS, STARTED, MATE, VARIANTS, INVALIDMOVE, VARIANTEND, CLAIM
 from convert import zero2grand
 from settings import ADMINS
@@ -246,10 +247,24 @@ async def get_user_games(request):
                 app_state.users[doc["us"][1]].title if doc["us"][1] in app_state.users else ""
             )
 
-            variant = doc["v"]
-            decode_method = get_decode_method(variant)
+            if len(doc["us"]) > 2:
+                doc["wtB"] = (
+                    app_state.users[doc["us"][2]].title if doc["us"][2] in app_state.users else ""
+                )
+                doc["btB"] = (
+                    app_state.users[doc["us"][3]].title if doc["us"][3] in app_state.users else ""
+                )
 
-            doc["lm"] = decode_method(doc["m"][-1]) if len(doc["m"]) > 0 else ""
+            if doc["v"] in ("bughouse", "bughouse960"):
+                mA = [m for idx, m in enumerate(doc["m"]) if doc["o"][idx] == 0]
+                mB = [m for idx, m in enumerate(doc["m"]) if doc["o"][idx] == 1]
+                doc["lm"] = decode_move_standard(mA[-1]) if len(mA) > 0 else ""
+                doc["lmB"] = decode_move_standard(mB[-1]) if len(mB) > 0 else ""
+            else:
+                variant = doc["v"]
+                decode_method = get_decode_method(variant)
+
+                doc["lm"] = decode_method(doc["m"][-1]) if len(doc["m"]) > 0 else ""
             if doc["v"] in GRANDS and doc["lm"] != "":
                 doc["lm"] = zero2grand(doc["lm"])
 

@@ -5,13 +5,13 @@ import logging
 import aiohttp
 import aiohttp_session
 from aiohttp import WSMessage, web
+from aiohttp.web_ws import WebSocketResponse
 
 from const import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from user import User
 
-from utils import MyWebSocketResponse
 from pychess_global_app_state_utils import get_app_state
 
 log = logging.getLogger(__name__)
@@ -21,6 +21,13 @@ async def get_user(session: aiohttp_session.Session, request: web.Request) -> Us
     session_user = session.get("user_name")
     user = await get_app_state(request.app).users.get(session_user)
     return user
+
+
+# See https://github.com/aio-libs/aiohttp/issues/3122 why this is needed
+class MyWebSocketResponse(WebSocketResponse):
+    @property
+    def closed(self):
+        return self._closed or self._req is None or self._req.transport is None
 
 
 async def process_ws(
@@ -36,12 +43,14 @@ async def process_ws(
     app_state = get_app_state(request.app)
 
     if (user is not None) and (not user.enabled):
+        log.error("User %r is None or not enabled", user.username)
         session.invalidate()
         return None
 
     ws = MyWebSocketResponse(heartbeat=3.0, receive_timeout=10.0)
     ws_ready = ws.can_prepare(request)
     if not ws_ready.ok:
+        log.error("ws_ready not ok: %r", ws_ready)
         return None
 
     await ws.prepare(request)
@@ -93,7 +102,11 @@ async def process_ws(
         # disconnected
         log.error(e, exc_info=True)
     except Exception:
-        log.exception("ERROR: Exception in tournament_socket_handler() owned by %s ", user.username)
+        log.exception(
+            "ERROR: Exception in % socket handling owned by %s ",
+            request.rel_url.path,
+            user.username,
+        )
     finally:
         log.debug("--- %s finally: await ws.close() %s", request.rel_url.path, user.username)
         await ws.close()
@@ -110,9 +123,15 @@ async def ws_send_str(ws, msg) -> bool:
 
 
 async def ws_send_json(ws, msg) -> bool:
+    if ws is None:
+        log.error("ws_send_json: ws is None")
+        return False
     try:
         await ws.send_json(msg)
         return True
     except ConnectionResetError:
-        log.debug("Connection reset ", exc_info=True)
+        log.exception("Connection reset ", exc_info=True)
+        return False
+    except Exception:
+        log.exception("ERROR: Exception in ws_send_json")
         return False

@@ -26,7 +26,7 @@ export class EditorController extends ChessgroundController {
     vChallenge: VNode;
 
     constructor(el: HTMLElement, model: PyChessModel) {
-        super(el, model);
+        super(el, model, document.getElementById('pocket0') as HTMLElement, document.getElementById('pocket1') as HTMLElement); // todo: pocket elements best be passed as args
         this.model = model;
         this.startfen = model["fen"] as string;
 

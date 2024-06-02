@@ -13,13 +13,17 @@ import { timeControlStr } from './view';
 import { PyChessModel } from "./types";
 import { Ceval } from "./messages";
 import { aiLevel, gameType, result, renderRdiff } from './result';
+import { renderBugTeamInfo, renderGameBoardsBug } from "@/bug/profile.bug";
 
-interface Game {
+export interface Game {
     _id: string; // mongodb document id
     z: number; // chess960 (0/1)
     v: string; // variant name
     f: cg.FEN; // FEN 
+    fp: cg.FEN; // FEN partner/second board B in case of bughouse
+
     lm: string; // last move
+    lmB: string; // last move
 
     b: number; // TC base
     i: number; // TC increment
@@ -35,9 +39,13 @@ interface Game {
     wb?: boolean; // white berserk
     bb?: boolean; // black berserk
 
-    us: string[]; // users (wplayer name, bplayer name)
+    us: string[]; // users (wplayer name, bplayer name) or in case of bughouse: board A wplayer name, board A bplayer name, board B wplayer name, board B bplayer name
     wt: string; // white title
     bt: string; // black title
+
+    wtB: string; // white title board B in case of bughouse
+    btB: string; // black title board B in case of bughouse
+
     x: number; // Fairy level
     p0: Player; // white performance rating (rating, diff)
     p1: Player; // black performance rating (rating, diff)
@@ -66,11 +74,12 @@ function renderGames(model: PyChessModel, games: Game[]) {
         const variant = VARIANTS[game.v];
         const chess960 = game.z === 1;
         const tc = timeControlStr(game["b"], game["i"], game["bp"], game["c"] === true ? game["b"] : 0);
-
+        const isBug = variant === VARIANTS['bughouse'];
         return h('tr', [h('a', { attrs: { href : '/' + game["_id"] } }, [
-            h('td.board', { class: { "with-pockets": !!variant.pocket } }, [
-                h(`selection.${variant.boardFamily}.${variant.pieceFamily}`, [
-                    h(`div.cg-wrap.${variant.board.cg}.mini`, {
+            h('td.board', { class: { "with-pockets": !!variant.pocket, "bug": isBug} },
+               isBug? renderGameBoardsBug(game, model["profileid"]): [
+                    h(`selection.${variant.boardFamily}.${variant.pieceFamily}`,[
+                        h(`div.cg-wrap.${variant.board.cg}.mini`, {
                         hook: {
                             insert: vnode => Chessground(vnode.elm as HTMLElement, {
                                 coordinates: false,
@@ -81,7 +90,7 @@ function renderGames(model: PyChessModel, games: Game[]) {
                                 pocketRoles: variant.pocket?.roles,
                             })
                         }
-                    }),
+                    })
                 ]),
             ]),
             h('td.games-info', [
@@ -93,10 +102,13 @@ function renderGames(model: PyChessModel, games: Game[]) {
                     ]),
                 ]),
                 h('div.info-middle', [
-                    h('div.versus', [
-                        h('player', [
+                    h('div.versus',
+                        { class: { "bug": isBug } },
+                        [h('player.left',
+                            { class: { "bug": isBug } },
+                            isBug? renderBugTeamInfo(game, 0): [
                             h('a.user-link', { attrs: { href: '/@/' + game["us"][0] } }, [
-                                h('player-title', " " + game["wt"] + " "),
+                                h('player-title', game["wt"]? " " + game["wt"] + " ": ""),
                                 game["us"][0] + aiLevel(game["wt"], game['x']),
                             ]),
                             h('br'),
@@ -105,21 +117,23 @@ function renderGames(model: PyChessModel, games: Game[]) {
                             (game["p0"] === undefined) ? "": renderRdiff(game["p0"]["d"]),
                         ]),
                         h('vs-swords.icon', { attrs: { "data-icon": '"' } }),
-                        h('player', [
+                        h('player.right',
+                            { class: { "bug": isBug } },
+                            isBug? renderBugTeamInfo(game, 1): [
                             h('a.user-link', { attrs: { href: '/@/' + game["us"][1] } }, [
-                                h('player-title', " " + game["bt"] + " "),
+                                h('player-title', game["bt"]? " " + game["bt"] + " ": ""),
                                 game["us"][1] + aiLevel(game["bt"], game['x']),
                             ]),
                             h('br'),
                             (game["bb"] === true) ? h('icon.icon-berserk') : '',
                             (game["p1"] === undefined) ? "": game["p1"]["e"] + " ",
                             (game["p1"] === undefined) ? "": renderRdiff(game["p1"]["d"]),
-                        ]),
-                    ]),
+                        ])]
+                    ),
                     h('div.info-result', {
                         class: {
-                            "win": (game["r"] === '1-0' && game["us"][0] === model["profileid"]) || (game["r"] === '0-1' && game["us"][1] === model["profileid"]),
-                            "lose": (game["r"] === '0-1' && game["us"][0] === model["profileid"]) || (game["r"] === '1-0' && game["us"][1] === model["profileid"]),
+                            "win": isWinClass(model, game),
+                            "lose": !isWinClass(model, game),
                         }}, result(variant, game["s"], game["r"])
                     ),
                 ]),
@@ -133,6 +147,16 @@ function renderGames(model: PyChessModel, games: Game[]) {
         ])
     });
     return [h('tbody', rows)];
+}
+
+function isWinClass(model: PyChessModel, game: Game): boolean {
+    const variant = VARIANTS[game.v];
+    if (variant === VARIANTS['bughouse']){
+        const team = game["us"][0] === model["profileid"] || game["us"][3] === model["profileid"]? 0: 1;
+        return (game["r"] === '1-0' && team === 0) || (game["r"] === '0-1' && team === 1);
+    } else {
+        return (game["r"] === '1-0' && game["us"][0] === model["profileid"]) || (game["r"] === '0-1' && game["us"][1] === model["profileid"]);
+    }
 }
 
 function loadGames(model: PyChessModel, page: number) {

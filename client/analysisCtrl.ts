@@ -7,10 +7,9 @@ import * as cg from 'chessgroundx/types';
 import * as util from 'chessgroundx/util';
 import { DrawShape } from 'chessgroundx/draw';
 
-import { newWebsocket } from './socket';
 import { _ } from './i18n';
 import { sound } from './sound';
-import { uci2LastMove, uci2cg } from './chess';
+import { uci2LastMove, uci2cg, getTurnColor } from './chess';
 import { crosstableView } from './crosstable';
 import { chatView } from './chat';
 import { createMovelistButtons, updateMovelist, selectMove, activatePlyVari } from './movelist';
@@ -30,6 +29,7 @@ import { MsgAnalysis, MsgAnalysisBoard } from './analysisType';
 import { GameController } from './gameCtrl';
 import { analysisSettings, EngineSettings } from './analysisSettings';
 import { setAriaTabClick } from './view';
+import { createWebsocket } from "@/socket/webSocketUtils";
 import { initPocketRow } from './pocketRow';
 
 const EVAL_REGEX = new RegExp(''
@@ -43,7 +43,7 @@ const maxDepth = 18;
 
 const emptySan = '\xa0';
 
-function titleCase (words: string) {return words.split(' ').map(w =>  w.substring(0,1).toUpperCase() + w.substring(1).toLowerCase()).join(' ');}
+export function titleCase (words: string) {return words.split(' ').map(w =>  w.substring(0,1).toUpperCase() + w.substring(1).toLowerCase()).join(' ');}
 
 
 export class AnalysisController extends GameController {
@@ -80,7 +80,7 @@ export class AnalysisController extends GameController {
     fsfEngineBoard: any;  // used to convert pv UCI move list to SAN
 
     constructor(el: HTMLElement, model: PyChessModel) {
-        super(el, model);
+        super(el, model, document.getElementById('pocket0') as HTMLElement, document.getElementById('pocket1') as HTMLElement);
         this.fsfError = [];
         this.embed = this.gameId === undefined;
         this.puzzle = model["puzzle"] !== "";
@@ -96,12 +96,6 @@ export class AnalysisController extends GameController {
                 this.doSend({ type: "game_user_connected", username: this.username, gameId: this.gameId });
             }
         };
-
-        if (!this.puzzle) {
-            this.sock = newWebsocket('wsr/' + this.gameId);
-            this.sock.onopen = () => onOpen();
-            this.sock.onmessage = (e: MessageEvent) => this.onMessage(e);
-        }
 
         // is local stockfish.wasm engine supported at all
         this.localEngine = false;
@@ -222,7 +216,12 @@ export class AnalysisController extends GameController {
             (document.querySelector('.pgn-container') as HTMLElement).style.display = 'block';
         }
 
-        this.onMsgBoard(model["board"] as MsgBoard);
+        if (!this.puzzle && this.gameId) {
+            this.sock = createWebsocket('wsr/' + this.gameId, onOpen, () => {}, () => {}, (e: MessageEvent) => this.onMessage(e));
+        } else {
+            this.onMsgBoard(model["board"] as MsgBoard);
+        }
+
         analysisSettings.ctrl = this;
 
         Mousetrap.bind('p', () => copyTextToClipboard(`${this.fullfen};variant ${this.variant.name};site https://www.pychess.org/${this.gameId}\n`));
@@ -358,9 +357,7 @@ export class AnalysisController extends GameController {
 
         // console.log("got board msg:", msg);
         this.fullfen = msg.fen;
-        const parts = msg.fen.split(" ");
-        // turnColor have to be actualized before setDests() !!!
-        this.turnColor = parts[1] === "w" ? "white" : "black";
+        this.turnColor = getTurnColor(msg.fen);// turnColor have to be actualized before setDests() !!!
 
         this.setDests();
 

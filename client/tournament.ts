@@ -3,7 +3,6 @@ import { h, VNode } from 'snabbdom';
 import { Chessground } from 'chessgroundx';
 import { Api } from "chessgroundx/api";
 
-import { newWebsocket } from './socket';
 import { JSONObject, PyChessModel } from './types';
 import { _ } from './i18n';
 import { patch } from './document';
@@ -16,6 +15,7 @@ import { gameType } from './result';
 import { boardSettings } from './boardSettings';
 import { MsgBoard, MsgChat, MsgFullChat, MsgSpectators, MsgGameEnd, MsgNewGame } from "./messages";
 import { MsgUserStatus, MsgGetGames, TournamentGame, MsgTournamentStatus, MsgUserConnectedTournament, MsgGetPlayers, TournamentPlayer, MsgError, MsgPing, TopGame } from './tournamentType';
+import { newWebsocket } from "@/socket/webSocketUtils";
 
 const T_STATUS = {
     0: "created",

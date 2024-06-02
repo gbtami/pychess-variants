@@ -27,6 +27,8 @@ class Seek:
         target="",
         player1=None,
         player2=None,
+        bugPlayer1=None,
+        bugPlayer2=None,
         ws=None,
         game_id=None,
         expire_at=None,
@@ -46,6 +48,8 @@ class Seek:
         self.target = target
         self.player1 = player1
         self.player2 = player2
+        self.bugPlayer1 = bugPlayer1
+        self.bugPlayer2 = bugPlayer2
         self.ws = ws
 
         Seek.gen_id += 1
@@ -71,6 +75,8 @@ class Seek:
             "target": self.target,
             "player1": self.player1.username if self.player1 is not None else "",
             "player2": self.player2.username if self.player2 is not None else "",
+            "bugPlayer1": self.bugPlayer1.username if self.bugPlayer1 is not None else "",
+            "bugPlayer2": self.bugPlayer2.username if self.bugPlayer2 is not None else "",
             "fen": self.fen,
             "color": self.color,
             "rated": self.rated,
@@ -141,7 +147,7 @@ async def create_seek(db, invites, seeks, user, data, ws, empty=False):
         target=target,
         player1=None if empty else user,
         player2=None,
-        ws=ws,
+        ws=ws,  # todo: dont see the need for this - instead the list of user's lobby websockets can be used
         game_id=game_id,
     )
 

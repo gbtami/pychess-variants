@@ -82,6 +82,7 @@
   --anal-clock: #bbd7f1;
   --pv-hover: #e0ebd3;
   --table-even: rgb(235, 235, 235);
+  --bug-waiting: #787878;
 }
 [data-theme='dark'] {
   --dark-mode: 1;
@@ -150,6 +151,7 @@
   --anal-clock: #2b455d;
   --pv-hover: #323c22;
   --table-even: rgba(255, 255, 255, 0.05);
+  --bug-waiting: #404040;
 }
 [data-theme='dark'] .icon-black:before {
   content: '\63';
@@ -1368,6 +1370,12 @@ div.versus {
   display: flex;
   justify-content: center;
 }
+player.left {
+  text-align: right;
+}
+player.right {
+  text-align: left;
+}
 vs {
   padding: 0 6px 0 6px;
 }
@@ -1830,6 +1838,7 @@ button[disabled] i {
 .info-wrap0,
 .info-wrap1 {
   display: flex;
+  flex-wrap: wrap;
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
@@ -2121,6 +2130,7 @@ div.chatroom {
 }
 
 ol#lobbychat-messages,
+ol#bugroundchat-messages,
 ol#roundchat-messages {
   flex: 2 1 0;
   order: 1;
@@ -2211,12 +2221,14 @@ move.counter {
 }
 
 vari-move:hover,
-move:hover {
+move:hover,
+move-bug:hover {
   color: var(--font-color);
   background-color: var(--blue-hover);
 }
 vari-move.active,
-move.active {
+move.active,
+move-bug.active {
   background-color: var(--blue-active);
 }
 move.hidden {

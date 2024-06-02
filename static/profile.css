@@ -219,3 +219,9 @@ td.player-data {
     display: none;
     }
 }
+td.board.bug {
+    display: flex;
+}
+td.board.bug selection {
+    padding-right: 10px;
+}

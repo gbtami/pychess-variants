@@ -13,6 +13,8 @@ from sortedcollections import ValueSortedDict
 from mongomock_motor import AsyncMongoMockClient
 
 import game
+from bug.game_bug import GameBug
+from bug.utils_bug import insert_game_to_db_bughouse
 from const import CREATED, STARTED, VARIANTS, STALEMATE, MATE
 from fairy import FairyBoard
 from game import Game
@@ -247,29 +249,29 @@ class GamePlayTestCase(AioHTTPTestCase):
             variant960 = variant.endswith("960")
             variant_name = variant[:-3] if variant960 else variant
             game_id = id8()
-            game = Game(
-                app_state,
-                game_id,
-                variant_name,
-                "",
-                self.test_player,
-                self.random_mover,
-                rated=False,
-                chess960=variant960,
-                create=True,
-            )
-            app_state.games[game.id] = game
-            await insert_game_to_db(game, app_state)
+            if variant_name == "bughouse":
+                pass
+            else:
+                game = Game(
+                    app_state,
+                    game_id,
+                    variant_name,
+                    "",
+                    self.test_player,
+                    self.random_mover,
+                    rated=False,
+                    chess960=variant960,
+                    create=True,
+                )
+                app_state.games[game.id] = game
+                await insert_game_to_db(game, app_state)
+                self.random_mover.game_queues[game_id] = None
+                await self.play_random(game)
 
-            self.random_mover.game_queues[game_id] = None
-
-            await self.play_random(game)
-
-            pgn = game.pgn
-            pgn_result = pgn[pgn.rfind(" ") + 1 : -1]
-
-            self.assertIn(game.result, ("1-0", "0-1", "1/2-1/2"))
-            self.assertEqual(game.result, pgn_result)
+                pgn = game.pgn
+                self.assertIn(game.result, ("1-0", "0-1", "1/2-1/2"))
+                pgn_result = pgn[pgn.rfind(" ") + 1: -1]
+                self.assertEqual(game.result, pgn_result)
 
             # await app_state.db.game.delete_one({"_id": game_id})
 

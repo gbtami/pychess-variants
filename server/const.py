@@ -103,6 +103,8 @@ CONSERVATIVE_CAPA_FEN = "arnbqkbnrc/pppppppppp/10/10/10/10/PPPPPPPPPP/ARNBQKBNRC
 VARIANTS = (
     "chess",
     "chess960",
+    "bughouse",
+    "bughouse960",
     "crazyhouse",
     "crazyhouse960",
     "atomic",
@@ -223,9 +225,12 @@ VARIANT_ICONS = {
     "kingofthehill960": "🏁",
     "3check": "☰",
     "3check960": "☷",
+    "bughouse": "¢",
+    "bughouse960": "⌀",
 }
 
 VARIANT_960_TO_PGN = {
+    "bughouse": "Bughouse960",
     "chess": "Chess960",
     "capablanca": "Caparandom",
     "capahouse": "Capahouse960",
@@ -389,6 +394,8 @@ TRANSLATED_VARIANT_NAMES = {
     "minishogi": _("Minishogi"),
     "kyotoshogi": _("Kyoto Shogi"),
     "dobutsu": _("Dobutsu"),
+    "bughouse": _("Bughouse"),
+    "bughouse960": _("Bughouse960"),
     # Gorogoro is superseded by Gorogoro Plus
     # "gorogoro",
     "gorogoroplus": _("Gorogoro+"),

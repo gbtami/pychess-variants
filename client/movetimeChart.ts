@@ -1,6 +1,5 @@
 import Highcharts from "highcharts";
 
-import { _ } from './i18n';
 import { selectMove } from './movelist';
 import { AnalysisController } from './analysisCtrl';
 import { Step } from "./messages";
