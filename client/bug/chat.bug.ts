@@ -1,7 +1,7 @@
-import {h, VNode} from "snabbdom";
-import {patch} from "@/document";
+import { h, VNode } from "snabbdom";
+import { patch } from "@/document";
 
-export function renderBugChatPresets(sendMessage: (s:string)=>void): VNode{
+export function renderBugChatPresets(sendMessage: (s:string)=>void): VNode {
     return h('div#chatpresets', [
                     h('button.bugchat.p', { on: { click: () => sendMessage("!bug!p") } }, []),
                     h('button.bugchat.n', { on: { click: () => sendMessage("!bug!n") } }, []),

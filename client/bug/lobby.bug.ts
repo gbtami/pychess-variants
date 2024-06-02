@@ -1,9 +1,9 @@
-import {Variant, VARIANTS} from "@/variants";
-import {Seek} from "@/lobbyType";
-import {h} from "snabbdom";
-import {_} from "@/i18n";
-import {timeControlStr} from "@/view";
-import {LobbyController} from "@/lobby";
+import { Variant, VARIANTS } from "@/variants";
+import { Seek } from "@/lobbyType";
+import { h } from "snabbdom";
+import { _ } from "@/i18n";
+import { timeControlStr } from "@/view";
+import { LobbyController } from "@/lobby";
 
 export function switchEnablingLobbyControls(variant: Variant){
         const rated = document.getElementById('rated')! as HTMLInputElement;

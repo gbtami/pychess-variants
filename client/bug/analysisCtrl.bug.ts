@@ -6,7 +6,7 @@ import { DrawShape } from 'chessgroundx/draw';
 
 import { _ } from '../i18n';
 import { uci2LastMove, uci2cg } from '../chess';
-import { VARIANTS, notation } from "../variants"
+import { VARIANTS } from "../variants"
 import { createMovelistButtons, updateMovelist, selectMove, activatePlyVari } from './movelist.bug';
 import { povChances } from '../winningChances';
 import { patch } from '../document';
@@ -164,7 +164,7 @@ export default class AnalysisControllerBughouse {
 
         this.importedBy = '';
 
-        this.notation = notation(this.b1.variant);
+        this.notation = this.b1.variant.notation;
 
         const fens = model.fen.split(" | ");
 

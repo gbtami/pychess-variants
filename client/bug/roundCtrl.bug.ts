@@ -35,11 +35,11 @@ import { sound } from "../sound";
 import { player } from "../player";
 import { WebsocketHeartbeatJs } from '../socket/socket';
 import { notify } from "../notification";
-import {Variant, VARIANTS} from "../variants";
+import { Variant, VARIANTS } from "../variants";
 import { createWebsocket } from "@/socket/webSocketUtils";
 import AnalysisControllerBughouse from "@/bug/analysisCtrl.bug";
-import {boardSettings} from "@/boardSettings";
-import {ChessgroundController} from "@/cgCtrl";
+import { boardSettings } from "@/boardSettings";
+import { ChessgroundController } from "@/cgCtrl";
 
 export class RoundControllerBughouse implements ChatController {
     sock: WebsocketHeartbeatJs;

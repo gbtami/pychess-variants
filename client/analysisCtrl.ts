@@ -97,10 +97,6 @@ export class AnalysisController extends GameController {
             }
         };
 
-        if (!this.puzzle && this.gameId) {
-            this.sock = createWebsocket('wsr/' + this.gameId, onOpen, () => {}, () => {}, (e: MessageEvent) => this.onMessage(e));
-        }
-
         // is local stockfish.wasm engine supported at all
         this.localEngine = false;
 
@@ -220,7 +216,12 @@ export class AnalysisController extends GameController {
             (document.querySelector('.pgn-container') as HTMLElement).style.display = 'block';
         }
 
-        this.onMsgBoard(model["board"] as MsgBoard);
+        if (!this.puzzle && this.gameId) {
+            this.sock = createWebsocket('wsr/' + this.gameId, onOpen, () => {}, () => {}, (e: MessageEvent) => this.onMessage(e));
+        } else {
+            this.onMsgBoard(model["board"] as MsgBoard);
+        }
+
         analysisSettings.ctrl = this;
 
         Mousetrap.bind('p', () => copyTextToClipboard(`${this.fullfen};variant ${this.variant.name};site https://www.pychess.org/${this.gameId}\n`));

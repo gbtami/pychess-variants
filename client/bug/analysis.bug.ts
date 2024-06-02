@@ -1,13 +1,13 @@
-import {h, VNode} from "snabbdom";
+import { h, VNode } from "snabbdom";
 
-import {_} from '../i18n';
-import {gameInfoBug} from './gameInfo.bug';
-import {VARIANTS, selectVariant} from "../variants"
+import { _ } from '../i18n';
+import { gameInfoBug } from './gameInfo.bug';
+import { VARIANTS, selectVariant } from "../variants"
 
-import {renderTimeago} from '../datetime';
-import {PyChessModel} from "../types";
+import { renderTimeago } from '../datetime';
+import { PyChessModel } from "../types";
 import AnalysisControllerBughouse from "./analysisCtrl.bug";
-import {gauge} from "@/analysis";
+import { gauge } from "@/analysis";
 
 function leftSide(model: PyChessModel) {
 

@@ -1,9 +1,9 @@
 import Highcharts from "highcharts";
 
-import {selectMove} from './movelist.bug';
-import {Step} from "../messages";
+import { selectMove } from './movelist.bug';
+import { Step } from "../messages";
 import AnalysisControllerBughouse from "@/bug/analysisCtrl.bug";
-import {BLACK, WHITE} from "@/chess";
+import { BLACK, WHITE } from "@/chess";
 
 export interface MovePoint {
   y: number;

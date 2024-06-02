@@ -1,15 +1,15 @@
-import {Api} from "chessgroundx/api";
+import { Api } from "chessgroundx/api";
 import * as cg from "chessgroundx/types";
-import {Chessground} from "chessgroundx";
-import {VARIANTS, BOARD_FAMILIES} from "../variants"
+import { Chessground } from "chessgroundx";
+import { VARIANTS, BOARD_FAMILIES } from "../variants"
 import * as util from "chessgroundx/util";
 import AnalysisControllerBughouse from "./analysisCtrl.bug";
-import {GameController} from "../gameCtrl";
-import {PyChessModel} from "../types";
-import {RoundControllerBughouse} from "./roundCtrl.bug";
-import {premove} from "chessgroundx/premove";
-import {predrop} from "chessgroundx/predrop";
-import {uci2LastMove} from "@/chess";
+import { GameController} from "../gameCtrl";
+import { PyChessModel } from "../types";
+import { RoundControllerBughouse } from "./roundCtrl.bug";
+import { premove } from "chessgroundx/premove";
+import { predrop } from "chessgroundx/predrop";
+import { uci2LastMove } from "@/chess";
 
 export class GameControllerBughouse extends GameController {
 
