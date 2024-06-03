@@ -532,7 +532,7 @@ export class LobbyController implements ChatController {
     playFriend(variantName: string = '', chess960: boolean = false) {
         this.preSelectVariant(variantName, chess960);
         this.createMode = 'playFriend';
-        this.renderVariantsDropDown([]);
+        this.renderVariantsDropDown(["bughouse"]);
         this.renderDialogHeader(createModeStr(this.createMode))
         document.getElementById('game-mode')!.style.display = this.anon ? 'none' : 'inline-flex';
         document.getElementById('ailevel')!.style.display = 'none';
@@ -559,6 +559,7 @@ export class LobbyController implements ChatController {
     createHost(variantName: string = '', chess960: boolean = false) {
         this.preSelectVariant(variantName, chess960);
         this.createMode = 'createHost';
+        this.renderVariantsDropDown(["bughouse"]);
         this.renderDialogHeader(createModeStr(this.createMode))
         document.getElementById('game-mode')!.style.display = this.anon ? 'none' : 'inline-flex';
         document.getElementById('ailevel')!.style.display = 'none';
