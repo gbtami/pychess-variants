@@ -2084,7 +2084,7 @@ class Board(BaseBoard):
     def can_claim_threefold_repetition(self) -> bool:
         """
         Draw by threefold repetition can be claimed if the position on the
-        board occured for the third time or if such a repetition is reached
+        board occurred for the third time or if such a repetition is reached
         with one of the possible legal moves.
 
         Note that checking this can be slow: In the worst case
@@ -2093,7 +2093,7 @@ class Board(BaseBoard):
         """
         self._transposition_key()
 
-        # Threefold repetition occured.
+        # Threefold repetition occurred.
         if self.is_repetition(3):
             return True
 

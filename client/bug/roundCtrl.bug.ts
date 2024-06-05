@@ -484,7 +484,7 @@ export class RoundControllerBughouse implements ChatController {
     }
 
     private updateLastMovesRecorded = (moveMsg: MsgMove) => {
-        // TODO:NIKI: what happens if this movesQueue get lost becuase user refreshed, while disconnected, which is
+        // TODO:NIKI: what happens if this movesQueue get lost because user refreshed, while disconnected, which is
         //            very likely for a user to do, trying to troubleshoot. Maybe we keep this in localStorage?
         // movesQueued[0] is always processed first by server, then movesQueued[1] if any (only possible in simul mode)
 
