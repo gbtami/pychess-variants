@@ -318,7 +318,7 @@ class ZoomSettings extends NumberSettings {
             // way too easy to reproduce). I am still not 100% sure what happens, but if we have 2 boards it seems to
             // result in multiple ResizeObserver events getting triggered asynchronously after a single zoom change.
             // I am guessing something to do with the change in one board results in some dom changes that trigger resize
-            // again for the other or both boards, etc. and this reapeats several times unnecessarily. Would be great to
+            // again for the other or both boards, etc. and this repeats several times unnecessarily. Would be great to
             // figure out how to avoid this, but might need changes on chessgroundx side as well - maybe at least expose
             // the ResizeObserver instance so we can disconnect it temporarily when changing zoom or add checks if resize
             // event really results in changes in width/height, because when i debugged/logged those they seemed to
@@ -330,7 +330,7 @@ class ZoomSettings extends NumberSettings {
             // is that if we move the slider one more time before they havent finished, everything gets messed up. If
             // we move the slider very carefully and slowly the bug doesnt happen. Also after the layout gets messed up
             // once, only fix is to resize the browser window as it causes updateBounds to get called. This is the reason
-            // here I am scheduleing updateBounds to be called after 100ms. It is still ugly and layout flickers while
+            // here I am scheduling updateBounds to be called after 100ms. It is still ugly and layout flickers while
             // sliding the zoom slider, but at least when you stop sliding it, almost immediately the layout fixes itself.
             setTimeout(() => {
                 updateBounds(this.boardSettings.ctrl.chessground.state);

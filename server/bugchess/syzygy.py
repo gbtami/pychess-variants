@@ -3028,7 +3028,7 @@ class Tablebase:
 
     If *max_fds* is not ``None``, will at most use *max_fds* open file
     descriptors at any given time. The least recently used tables are closed,
-    if nescessary.
+    if necessary.
     """
 
     def __init__(
