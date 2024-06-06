@@ -23,6 +23,7 @@ import { zenButtonView, zenModeSettings } from './zen';
 import { PyChessModel } from './types';
 import { roundView as bugRoundView } from "./bug/round.bug";
 import { analysisView as bugAnalysisView } from "./bug/analysis.bug";
+import { variantGroups } from './variants';
 
 // redirect to correct URL except Heroku preview apps
 if (window.location.href.includes('heroku') && !window.location.href.includes('-pr-')) {
@@ -33,6 +34,12 @@ function initModel(el: HTMLElement) {
     // We have to remove leading and trailing double quotes from anon names
     // because python http.cookies.SimpleCookie() adds it when name contains dash "–"
     const user = getCookie("user").replace(/(^"|"$)/g, '');
+
+    // Remove bughouse from variants on prod site until it stabilizes
+    if (el.getAttribute("data-dev") !== "True") {
+        const idx = variantGroups.standard.variants.indexOf('bughouse');
+        variantGroups.standard.variants.splice(idx, 1);
+    }
 
     let ct = el.getAttribute("data-ct") ?? "";
     if (ct) ct = JSON.parse(ct);

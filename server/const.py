@@ -1,7 +1,7 @@
 from __future__ import annotations
 from datetime import timedelta
 
-from settings import static_url
+from settings import static_url, PROD
 
 # https://medium.com/quick-code/python-type-hinting-eliminating-importerror-due-to-circular-imports-265dfb0580f8
 TYPE_CHECKING = False
@@ -165,6 +165,10 @@ VARIANTS = (
     "spartan",
     "ataxx",
 )
+
+# Remove bughouse from variants on prod site until it stabilizes
+if PROD:
+    VARIANTS = tuple(e for e in VARIANTS if not e.startswith("bughouse"))
 
 VARIANT_ICONS = {
     "ataxx": "☣",
