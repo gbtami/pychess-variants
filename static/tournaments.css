@@ -132,4 +132,25 @@ td.header:hover {
 .system {
     margin: 0.5em 0;
 }
-
+@media (max-width: 800px) {
+    td .icon {
+        font-size: 2.5em;
+    }
+    .shield-trophy {
+        font-size: 2em;
+        line-height: 3.7em;
+        height: 4em;
+    }
+    .header .name, .header .system {
+        letter-spacing: unset;
+    }
+    .slist {
+        font-size: 95%;
+    }
+    .slist td {
+        padding: 0.5em;
+    }
+    .slist td.infos {
+        padding: 0;
+    }
+}
