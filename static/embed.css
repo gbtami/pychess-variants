@@ -36,7 +36,6 @@ body {
     display: flex;
     height: auto;
     max-height: none;
-    overflow-y: none;
 }
 @media (max-width: 799px) and (orientation: portrait) {
     .movelist-block {

@@ -285,7 +285,7 @@ td.bugseek1 {
 
 .bugseekteam1 div,
 .bugseekteam2 div {
-  font-color: #878787;
+  color: #878787;
 }
 
 .bug-join-button {
@@ -374,7 +374,7 @@ round-player1.bug {
 
 @media (min-width: 800px) {
   main.round.bug #movelist {
-    font-size: 0.68vw; // magic number that looks good and resizes itself with container
+    font-size: 0.68vw; /*  magic number that looks good and resizes itself with container */
   }
 }
 
