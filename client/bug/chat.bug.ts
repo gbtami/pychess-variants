@@ -11,11 +11,11 @@ export function renderBugChatPresets(sendMessage: (s:string)=>void): VNode {
                     h('button.bugchat.r', { on: { click: () => sendMessage("!bug!r") }, props: { title: _('Need rook')} }, []),
                     h('button.bugchat.q', { on: { click: () => sendMessage("!bug!q") }, props: { title: _('Need queen')} }, []),
 
-                    h('button.bugchat.nop', { on: { click: () => sendMessage("!bug!nop") }, props: { title: _('')} }, []),
-                    h('button.bugchat.non', { on: { click: () => sendMessage("!bug!non") }, props: { title: _('')} }, []),
-                    h('button.bugchat.nob', { on: { click: () => sendMessage("!bug!nob") }, props: { title: _('')} }, []),
-                    h('button.bugchat.nor', { on: { click: () => sendMessage("!bug!nor") }, props: { title: _('')} }, []),
-                    h('button.bugchat.noq', { on: { click: () => sendMessage("!bug!noq") }, props: { title: _('')} }, []),
+                    h('button.bugchat.nop', { on: { click: () => sendMessage("!bug!nop") }, props: { title: _("Don't give pawn")} }, []),
+                    h('button.bugchat.non', { on: { click: () => sendMessage("!bug!non") }, props: { title: _("Don't give knight")} }, []),
+                    h('button.bugchat.nob', { on: { click: () => sendMessage("!bug!nob") }, props: { title: _("Don't give bishop")} }, []),
+                    h('button.bugchat.nor', { on: { click: () => sendMessage("!bug!nor") }, props: { title: _("Don't give rook")} }, []),
+                    h('button.bugchat.noq', { on: { click: () => sendMessage("!bug!noq") }, props: { title: _("Don't give queen")} }, []),
 
                     h('button.bugchat.sit', { on: { click: () => sendMessage("!bug!sit") }, props: { title: _('Sit/stall')} }, []),
                     h('button.bugchat.go', { on: { click: () => sendMessage("!bug!go") }, props: { title: _('Go/hurry')} }, []),
