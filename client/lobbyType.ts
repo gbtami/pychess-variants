@@ -97,6 +97,10 @@ export interface Seek {
 
     target: string;
     title: string;
+
+    bugPlayer1: string;
+    player2: string;
+    bugPlayer2: string;
 }
 
 export interface TvGame {

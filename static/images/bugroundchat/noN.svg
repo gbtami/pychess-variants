@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="45"
+   height="45"
+   version="1.1"
+   id="svg16747"
+   sodipodi:docname="NoN.svg"
+   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs16751" />
+  <sodipodi:namedview
+     id="namedview16749"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     showgrid="false"
+     inkscape:zoom="11.79297"
+     inkscape:cx="-44.390854"
+     inkscape:cy="-9.7091744"
+     inkscape:window-width="3840"
+     inkscape:window-height="2036"
+     inkscape:window-x="-12"
+     inkscape:window-y="-12"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg16747" />
+  <g
+     fill="none"
+     fill-rule="evenodd"
+     stroke="#000"
+     stroke-width="1.5"
+     stroke-linecap="round"
+     stroke-linejoin="round"
+     id="g16745">
+    <path
+       d="M22 10c10.5 1 16.5 8 16 29H15c0-9 10-6.5 8-21"
+       fill="#fff"
+       id="path16739" />
+    <path
+       d="M24 18c.38 2.91-5.55 7.37-8 9-3 2-2.82 4.34-5 4-1.042-.94 1.41-3.04 0-3-1 0 .19 1.23-1 2-1 0-4.003 1-4-4 0-2 6-12 6-12s1.89-1.9 2-3.5c-.73-.994-.5-2-.5-3 1-1 3 2.5 3 2.5h2s.78-1.992 2.5-3c1 0 1 3 1 3"
+       fill="#fff"
+       id="path16741" />
+    <path
+       d="M9.5 25.5a.5.5 0 1 1-1 0 .5.5 0 1 1 1 0zm5.433-9.75a.5 1.5 30 1 1-.866-.5.5 1.5 30 1 1 .866.5z"
+       fill="#000"
+       id="path16743" />
+  </g>
+  <g
+     id="g16696"
+     transform="translate(-69.247108,-66.340622)">
+    <circle
+       style="opacity:0.98;fill:none;stroke:#800000;stroke-width:2.85725;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1;paint-order:fill markers stroke"
+       id="path11904"
+       cx="91.747108"
+       cy="88.840622"
+       r="18.973774" />
+    <path
+       style="fill:none;stroke:#800000;stroke-width:2.85725;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1"
+       d="M 77.825862,74.919377 105.66835,102.76186"
+       id="path12633" />
+  </g>
+</svg>

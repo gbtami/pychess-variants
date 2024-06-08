@@ -28,7 +28,6 @@ body {
     grid-area: moves;
     flex: 2 1 0;
     overflow-y: auto;
-    overflow-x: hide;
     justify-content: initial;
     border-bottom: 1px solid var(--border-color);
     border: 1px solid var(--border-color);
@@ -37,7 +36,6 @@ body {
     display: flex;
     height: auto;
     max-height: none;
-    overflow-y: none;
 }
 @media (max-width: 799px) and (orientation: portrait) {
     .movelist-block {

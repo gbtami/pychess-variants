@@ -6,7 +6,7 @@ from typing import Optional, Deque
 
 from const import TYPE_CHECKING, MAX_CHAT_LINES
 from seek import get_seeks
-from utils import MyWebSocketResponse
+from websocket_utils import ws_send_json, MyWebSocketResponse
 
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
@@ -25,12 +25,10 @@ class Lobby:
 
     # below methods maybe best in separate class eventually
     async def lobby_broadcast(self, response):
+        log.debug("lobby_broadcast: %r to %r", response, self.lobbysockets)
         for ws_set in self.lobbysockets.values():
             for ws in ws_set:
-                try:
-                    await ws.send_json(response)
-                except ConnectionResetError:
-                    log.debug("Connection reset ", exc_info=True)
+                await ws_send_json(ws, response)
 
     async def lobby_broadcast_u_cnt(self):
         # todo: probably wont scale great if we broadcast these on every user join/leave.

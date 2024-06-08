@@ -16,11 +16,11 @@ from newid import id8
 from notify import notify
 from const import TYPE_CHECKING
 from seek import Seek
+from websocket_utils import ws_send_json, MyWebSocketResponse
 
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
     from game import Game
-    from utils import MyWebSocketResponse
 
 from pychess_global_app_state_utils import get_app_state
 
@@ -290,10 +290,7 @@ class User:
             return
         for ws in ws_set:
             log.debug("Sending message %s to %s. ws = %r", message, self.username, ws)
-            try:
-                await ws.send_json(message)
-            except Exception:  # ConnectionResetError
-                log.error("dropping message %s for %s", stack_info=True, exc_info=True)
+            await ws_send_json(ws, message)
 
     async def close_all_game_sockets(self):
         for ws_set in list(

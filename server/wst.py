@@ -16,7 +16,7 @@ from pychess_global_app_state_utils import get_app_state
 from settings import TOURNAMENT_DIRECTORS
 from tournament import T_CREATED, T_STARTED
 from tournaments import load_tournament
-from websocket_utils import process_ws, get_user
+from websocket_utils import process_ws, get_user, ws_send_json
 
 log = logging.getLogger(__name__)
 
@@ -82,7 +82,7 @@ async def handle_get_players(app, ws, user, data):
         if user in tournament.players and tournament.players[user].page != page:
             tournament.players[user].page = page
         response = tournament.players_json(page=page)
-        await ws.send_json(response)
+        await ws_send_json(ws, response)
 
 
 async def handle_my_page(app, ws, user, data):
@@ -92,14 +92,14 @@ async def handle_my_page(app, ws, user, data):
             # force to get users current page by leaderboard status
             tournament.players[user].page = -1
         response = tournament.players_json(user=user)
-        await ws.send_json(response)
+        await ws_send_json(ws, response)
 
 
 async def handle_get_games(app, ws, data):
     tournament = await load_tournament(app, data["tournamentId"])
     if tournament is not None:
         response = await tournament.games_json(data["player"])
-        await ws.send_json(response)
+        await ws_send_json(ws, response)
 
 
 async def handle_join(app, ws, user, data):
@@ -111,7 +111,7 @@ async def handle_join(app, ws, user, data):
             "username": user.username,
             "ustatus": tournament.user_status(user),
         }
-        await ws.send_json(response)
+        await ws_send_json(ws, response)
 
 
 async def handle_pause(app, ws, user, data):
@@ -123,7 +123,7 @@ async def handle_pause(app, ws, user, data):
             "username": user.username,
             "ustatus": tournament.user_status(user),
         }
-        await ws.send_json(response)
+        await ws_send_json(ws, response)
 
 
 async def handle_withdraw(app, ws, user, data):
@@ -135,7 +135,7 @@ async def handle_withdraw(app, ws, user, data):
             "username": user.username,
             "ustatus": tournament.user_status(user),
         }
-        await ws.send_json(response)
+        await ws_send_json(ws, response)
 
 
 async def handle_user_connected(app_state: PychessGlobalAppState, ws, user, data):
@@ -179,19 +179,19 @@ async def handle_user_connected(app_state: PychessGlobalAppState, ws, user, data
         response["defender_title"] = defender.title
         response["defender_name"] = defender.username
 
-    await ws.send_json(response)
+    await ws_send_json(ws, response)
 
     if (tournament.top_game is not None) and (tournament.top_game.status <= STARTED):
-        await ws.send_json(tournament.top_game_json)
+        await ws_send_json(ws, tournament.top_game_json)
 
     if tournament.status > T_STARTED:
-        await ws.send_json(tournament.summary)
+        await ws_send_json(ws, tournament.summary)
 
     response = {
         "type": "fullchat",
         "lines": list(app_state.tourneychat[tournamentId]),
     }
-    await ws.send_json(response)
+    await ws_send_json(ws, response)
 
     if user.username not in tournament.spectators:
         tournament.spactator_join(user)

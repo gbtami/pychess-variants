@@ -61,7 +61,7 @@ class FairyBoard:
         self.variant = modded_variant(variant, chess960, initial_fen)
         self.chess960 = chess960
         self.sfen = False
-        self.show_promoted = variant in ("makruk", "makpong", "cambodian")
+        self.show_promoted = variant in ("makruk", "makpong", "cambodian", "bughouse")
         self.nnue = initial_fen == ""
         self.initial_fen = (
             initial_fen
@@ -93,8 +93,13 @@ class FairyBoard:
             new_fen = FairyBoard.shuffle_start(variant)
             while new_fen == disabled_fen:
                 new_fen = FairyBoard.shuffle_start(variant)
+        else:
+            new_fen = sf.start_fen(variant)
+
+        if variant == "bughouse":
+            return new_fen + " | " + new_fen
+        else:
             return new_fen
-        return sf.start_fen(variant)
 
     @property
     def initial_sfen(self):
@@ -105,7 +110,7 @@ class FairyBoard:
             # log.debug("move=%s, fen=%s", move, self.fen
             if append:
                 self.move_stack.append(move)
-            self.ply += 1
+                self.ply += 1
             self.color = WHITE if self.color == BLACK else BLACK
             self.fen = sf.get_fen(
                 self.variant,
@@ -152,6 +157,10 @@ class FairyBoard:
         # move legality can depend on history, e.g., passing and bikjang
         return sf.legal_moves(self.variant, self.initial_fen, self.move_stack, self.chess960)
 
+    def legal_moves_no_history(self):
+        # move legality can depend on history, but for bughouse we can't recreate history so we need this version
+        return sf.legal_moves(self.variant, self.fen, [], self.chess960)
+
     def is_checked(self):
         return sf.gives_check(self.variant, self.fen, [], self.chess960)
 
@@ -179,6 +188,9 @@ class FairyBoard:
 
     def game_result(self):
         return sf.game_result(self.variant, self.initial_fen, self.move_stack, self.chess960)
+
+    def game_result_no_history(self):
+        return sf.game_result(self.variant, self.fen, [], self.chess960)
 
     def print_pos(self):
         print()
@@ -326,7 +338,7 @@ class FairyBoard:
         else:
             body = "/pppppppp/8/8/8/8/PPPPPPPP/"
 
-        if variant in ("crazyhouse", "capahouse"):
+        if variant in ("crazyhouse", "capahouse", "bughouse"):
             holdings = "[]"
         elif seirawan:
             holdings = "[HEhe]"

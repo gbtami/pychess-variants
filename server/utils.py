@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 import asyncio
 import json
 import logging
@@ -11,7 +12,6 @@ from functools import partial
 
 from aiohttp import web
 import aiohttp_session
-from aiohttp.web import WebSocketResponse
 from aiohttp_sse import sse_response
 
 from broadcast import round_broadcast
@@ -50,13 +50,6 @@ except ImportError:
     log.error("No pyffish module installed!", exc_info=True)
 
 
-# See https://github.com/aio-libs/aiohttp/issues/3122 why this is needed
-class MyWebSocketResponse(WebSocketResponse):
-    @property
-    def closed(self):
-        return self._closed or self._req is None or self._req.transport is None
-
-
 async def tv_game(app_state: PychessGlobalAppState):
     """Get latest played game id"""
     if app_state.tv is not None:
@@ -91,12 +84,17 @@ async def load_game(app_state: PychessGlobalAppState, game_id):
     if doc is None:
         return None
 
+    variant = C2V[doc["v"]]
+
+    if variant == "bughouse":
+        from bug.utils_bug import load_game_bug
+
+        return await load_game_bug(app_state, game_id)
+
     wp, bp = doc["us"]
 
     wplayer = await app_state.users.get(wp)
     bplayer = await app_state.users.get(bp)
-
-    variant = C2V[doc["v"]]
 
     initial_fen = doc.get("if")
 
@@ -705,6 +703,15 @@ def pgn(doc):
 
 
 def sanitize_fen(variant, initial_fen, chess960):
+
+    if variant == "bughouse":
+        fens = initial_fen.split(" | ")
+        fen_a = fens[0]
+        fen_b = fens[1]
+        fen_valid_a, sanitized_fen_a = sanitize_fen("crazyhouse", fen_a, chess960)
+        fen_valid_b, sanitized_fen_b = sanitize_fen("crazyhouse", fen_b, chess960)
+        return fen_valid_a and fen_valid_b, sanitized_fen_a + " | " + sanitized_fen_b
+
     # Prevent this particular one to fail on our general castling check
     if variant == "capablanca" and initial_fen == CONSERVATIVE_CAPA_FEN:
         return True, initial_fen
@@ -716,7 +723,7 @@ def sanitize_fen(variant, initial_fen, chess960):
     # Initial_fen needs validation to prevent segfaulting in pyffish
     sanitized_fen = initial_fen
 
-    start_fen = FairyBoard.start_fen(variant)  # self.board.start_fen(self.variant)
+    start_fen = FairyBoard.start_fen(variant)
     start_fen_length = len(start_fen)
     start = start_fen.split()
     init = initial_fen.split()
@@ -852,8 +859,11 @@ async def get_blogs(request, tag=None, limit=0):
 
     cursor.sort("date", -1).limit(limit)
     async for doc in cursor:
-        user = await app_state.users.get(doc["author"])
-        doc["atitle"] = user.title
+        try:
+            user = await app_state.users.get(doc["author"])
+            doc["atitle"] = user.title
+        except NotInDbUsers:
+            pass
         blogs.append(doc)
     return blogs
 

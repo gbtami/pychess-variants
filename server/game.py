@@ -6,8 +6,6 @@ from datetime import datetime, timezone, timedelta
 from time import monotonic
 from typing import Set, List
 
-from user import User
-
 from broadcast import round_broadcast
 from clock import Clock, CorrClock
 from compress import get_encode_method, R2C
@@ -43,6 +41,7 @@ from spectators import spectators
 
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
+    from user import User
 
 log = logging.getLogger(__name__)
 
@@ -704,6 +703,9 @@ class Game:
                 self.chess960,
                 {self.bplayer.username: int(round(bcurr.mu + brdiff, 0))},
             )
+
+    def get_player_at(self, color, board):
+        return self.bplayer if color == BLACK else self.wplayer
 
     def is_player(self, user: User) -> bool:
         return user.username in (self.wplayer.username, self.bplayer.username)

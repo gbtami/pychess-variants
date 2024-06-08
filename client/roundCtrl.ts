@@ -1,10 +1,10 @@
 import { h, VNode } from 'snabbdom';
+
 import { premove } from 'chessgroundx/premove';
 import { predrop } from 'chessgroundx/predrop';
 import * as cg from 'chessgroundx/types';
 import { Api } from "chessgroundx/api";
 
-import { newWebsocket } from './socket';
 import { JSONObject } from './types';
 import { _, ngettext } from './i18n';
 import { patch } from './document';
@@ -25,6 +25,7 @@ import { MsgUserDisconnected, MsgUserPresent, MsgMoreTime, MsgDrawOffer, MsgDraw
 import { PyChessModel } from "./types";
 import { GameController } from './gameCtrl';
 import { handleOngoingGameEvents, Game, gameViewPlaying, compareGames } from './nowPlaying';
+import { createWebsocket } from "@/socket/webSocketUtils";
 import { initPocketRow } from './pocketRow';
 
 let rang = false;
@@ -64,7 +65,7 @@ export class RoundController extends GameController {
                           // If server received and processed it the first time, it will just ignore it
 
     constructor(el: HTMLElement, model: PyChessModel) {
-        super(el, model);
+        super(el, model, document.getElementById('pocket0') as HTMLElement, document.getElementById('pocket1') as HTMLElement);
         this.focus = !document.hidden;
         document.addEventListener("visibilitychange", () => {this.focus = !document.hidden});
         window.addEventListener('blur', () => {this.focus = false});
@@ -84,9 +85,6 @@ export class RoundController extends GameController {
 
             this.clocks[0].connecting = false;
             this.clocks[1].connecting = false;
-            const cl = document.body.classList; // removing the "reconnecting" message in lower left corner
-            cl.remove('offline');
-            cl.add('online');
         };
 
         const onReconnect = () => {
@@ -99,19 +97,11 @@ export class RoundController extends GameController {
             this.clocks[1].connecting = true;
             console.log('Reconnecting in round...');
 
-            // relevant to the "reconnecting" message in lower left corner
-            document.body.classList.add('offline');
-            document.body.classList.remove('online');
-            document.body.classList.add('reconnected'); // this will trigger the animation once we get "online" class added back on reconnect
-
             const container = document.getElementById('player1') as HTMLElement;
             patch(container, h('i-side.online#player1', {class: {"icon": true, "icon-online": false, "icon-offline": true}}));
         };
 
-        this.sock = newWebsocket('wsr/' + this.gameId);
-        this.sock.onopen = () => onOpen();
-        this.sock.onreconnect = () => onReconnect();
-        this.sock.onmessage = (e: MessageEvent) => this.onMessage(e);
+        this.sock = createWebsocket('wsr/' + this.gameId, onOpen, onReconnect, () => {}, (e: MessageEvent) => this.onMessage(e));
 
         this.assetURL = model["assetURL"];
         this.byoyomiPeriod = Number(model["byo"]);

@@ -8,7 +8,11 @@ export type Clocks = [number, number];
 
 export interface Step {
     fen: cg.FEN;
+    fenB?: cg.FEN;
+
     move: string | undefined;
+    moveB?: string | undefined;
+
     check: boolean;
     turnColor: cg.Color;
 
@@ -21,8 +25,18 @@ export interface Step {
     vari?: Step[];
     sanSAN?: string;
 
+    boardName?: 'a' | 'b';
+
+    chat?: {
+        message: string,
+        username: string,
+        time: number
+    }[],
+
     clocks?: Clocks,
+    clocksB?: Clocks,
     movetime?: number,
+    movetimeB?: number,
 }
 
 export interface CrossTable {
@@ -57,9 +71,11 @@ export interface MsgBoard {
     ply: number;
     lastMove: string;
     dests: { [orig: string]: cg.Key[] };
+    destsB?: { [orig: string]: cg.Key[] };
     promo: string[];
     bikjang: boolean;
     check: boolean;
+    checkB?: boolean;
     by: string;
     status: number;
     pgn: string;
@@ -69,7 +85,9 @@ export interface MsgBoard {
     berserk: { w: boolean, b: boolean };
 
     byo?: number[];
-    clocks?: Clocks;
+    clocks?: Clocks; // different than last stp clock - includes correction for the color whose turn it is with elapsed time on server since last move
+    clocksB?: Clocks; // different than last stp clock - includes correction for the color whose turn it is with elapsed time on server since last move
+
     takeback?: boolean;
 }
 
@@ -116,6 +134,13 @@ export type MsgMove = { // cannot be interface because cannot be converted to an
      gameId: string;
      move: string;
      clocks: Clocks;
+     clocksB?: Clocks;
      ply: number;
+     board?: 'a' | 'b';
 }
 
+export type MsgMovesAfterReconnect = {
+    type: string;//"reconnect"
+    gameId: string;
+    movesQueued: MsgMove[]; // in case of simul we might have 2 moves queued
+}

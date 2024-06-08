@@ -7,10 +7,9 @@ import * as cg from 'chessgroundx/types';
 import * as util from 'chessgroundx/util';
 import { DrawShape } from 'chessgroundx/draw';
 
-import { newWebsocket } from './socket';
 import { _ } from './i18n';
 import { sound } from './sound';
-import { uci2LastMove, uci2cg } from './chess';
+import { uci2LastMove, uci2cg, getTurnColor } from './chess';
 import { crosstableView } from './crosstable';
 import { chatView } from './chat';
 import { createMovelistButtons, updateMovelist, selectMove, activatePlyVari } from './movelist';
@@ -30,6 +29,7 @@ import { MsgAnalysis, MsgAnalysisBoard } from './analysisType';
 import { GameController } from './gameCtrl';
 import { analysisSettings, EngineSettings } from './analysisSettings';
 import { setAriaTabClick } from './view';
+import { createWebsocket } from "@/socket/webSocketUtils";
 import { initPocketRow } from './pocketRow';
 
 const EVAL_REGEX = new RegExp(''
@@ -43,7 +43,7 @@ const maxDepth = 18;
 
 const emptySan = '\xa0';
 
-function titleCase (words: string) {return words.split(' ').map(w =>  w.substring(0,1).toUpperCase() + w.substring(1).toLowerCase()).join(' ');}
+export function titleCase (words: string) {return words.split(' ').map(w =>  w.substring(0,1).toUpperCase() + w.substring(1).toLowerCase()).join(' ');}
 
 
 export class AnalysisController extends GameController {
@@ -80,7 +80,7 @@ export class AnalysisController extends GameController {
     fsfEngineBoard: any;  // used to convert pv UCI move list to SAN
 
     constructor(el: HTMLElement, model: PyChessModel) {
-        super(el, model);
+        super(el, model, document.getElementById('pocket0') as HTMLElement, document.getElementById('pocket1') as HTMLElement);
         this.fsfError = [];
         this.embed = this.gameId === undefined;
         this.puzzle = model["puzzle"] !== "";
@@ -96,12 +96,6 @@ export class AnalysisController extends GameController {
                 this.doSend({ type: "game_user_connected", username: this.username, gameId: this.gameId });
             }
         };
-
-        if (!this.puzzle) {
-            this.sock = newWebsocket('wsr/' + this.gameId);
-            this.sock.onopen = () => onOpen();
-            this.sock.onmessage = (e: MessageEvent) => this.onMessage(e);
-        }
 
         // is local stockfish.wasm engine supported at all
         this.localEngine = false;
@@ -222,7 +216,12 @@ export class AnalysisController extends GameController {
             (document.querySelector('.pgn-container') as HTMLElement).style.display = 'block';
         }
 
-        this.onMsgBoard(model["board"] as MsgBoard);
+        if (!this.puzzle && this.gameId) {
+            this.sock = createWebsocket('wsr/' + this.gameId, onOpen, () => {}, () => {}, (e: MessageEvent) => this.onMessage(e));
+        } else {
+            this.onMsgBoard(model["board"] as MsgBoard);
+        }
+
         analysisSettings.ctrl = this;
 
         Mousetrap.bind('p', () => copyTextToClipboard(`${this.fullfen};variant ${this.variant.name};site https://www.pychess.org/${this.gameId}\n`));
@@ -358,9 +357,7 @@ export class AnalysisController extends GameController {
 
         // console.log("got board msg:", msg);
         this.fullfen = msg.fen;
-        const parts = msg.fen.split(" ");
-        // turnColor have to be actualized before setDests() !!!
-        this.turnColor = parts[1] === "w" ? "white" : "black";
+        this.turnColor = getTurnColor(msg.fen);// turnColor have to be actualized before setDests() !!!
 
         this.setDests();
 
@@ -818,6 +815,15 @@ export class AnalysisController extends GameController {
         let whiteMove: boolean = true;
         let blackStarts: boolean = this.steps[0].turnColor === 'black';
 
+        // Imported game steps has no 'sanSAN' so we have to compute it
+        let sanSANneeded = false;
+
+        if (this.steps.length > 1 && this.steps[1]['sanSAN'] == undefined) {
+            sanSANneeded = true;
+            const startFEN = this.steps[0].fen;
+            this.ffishBoard.setFen(startFEN);
+        }
+
         for (let ply = 1; ply <= this.ply; ply++) {
             // we are in a variation line of the game
             if (this.steps[ply] && this.steps[ply].vari && this.plyVari > 0) {
@@ -843,9 +849,18 @@ export class AnalysisController extends GameController {
                     whiteMove = this.steps[ply].turnColor === 'black';
                     moveCounter = (whiteMove) ? Math.ceil((ply + 1) / 2) + '.' : '';
                 }
+                if (sanSANneeded) {
+                    this.steps[ply]['sanSAN'] = this.ffishBoard.sanMove(this.steps[ply].move!);
+                    this.ffishBoard.push(this.steps[ply].move!);
+                };
                 moves.push(moveCounter + this.steps[ply]['sanSAN']);
             }
         }
+
+        if (sanSANneeded) {
+            this.ffishBoard.setFen(this.fullfen);
+        }
+
         const moveText = moves.join(' ');
 
         const today = new Date().toISOString().substring(0, 10).replace(/-/g, '.');
@@ -951,7 +966,7 @@ export class AnalysisController extends GameController {
             const e = document.getElementById('fullfen') as HTMLInputElement;
             e.value = this.fullfen;
 
-            if (this.isAnalysisBoard) {
+            if (this.isAnalysisBoard || this.result == "*") {
                 this.vpgn = patch(this.vpgn, h('div#pgntext', this.getPgn(idxInVari)));
             }
         }

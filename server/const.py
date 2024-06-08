@@ -1,7 +1,7 @@
 from __future__ import annotations
 from datetime import timedelta
 
-from settings import static_url
+from settings import static_url, PROD
 
 # https://medium.com/quick-code/python-type-hinting-eliminating-importerror-due-to-circular-imports-265dfb0580f8
 TYPE_CHECKING = False
@@ -103,6 +103,8 @@ CONSERVATIVE_CAPA_FEN = "arnbqkbnrc/pppppppppp/10/10/10/10/PPPPPPPPPP/ARNBQKBNRC
 VARIANTS = (
     "chess",
     "chess960",
+    "bughouse",
+    "bughouse960",
     "crazyhouse",
     "crazyhouse960",
     "atomic",
@@ -164,6 +166,10 @@ VARIANTS = (
     "ataxx",
 )
 
+# Remove bughouse from variants on prod site until it stabilizes
+if PROD:
+    VARIANTS = tuple(e for e in VARIANTS if not e.startswith("bughouse"))
+
 VARIANT_ICONS = {
     "ataxx": "☣",
     "makruk": "Q",
@@ -223,9 +229,12 @@ VARIANT_ICONS = {
     "kingofthehill960": "🏁",
     "3check": "☰",
     "3check960": "☷",
+    "bughouse": "¢",
+    "bughouse960": "⌀",
 }
 
 VARIANT_960_TO_PGN = {
+    "bughouse": "Bughouse960",
     "chess": "Chess960",
     "capablanca": "Caparandom",
     "capahouse": "Capahouse960",
@@ -246,6 +255,8 @@ CATEGORIES = {
     "chess": (
         "chess",
         "chess960",
+        "bughouse",
+        "bughouse960",
         "crazyhouse",
         "crazyhouse960",
         "placement",
@@ -389,6 +400,8 @@ TRANSLATED_VARIANT_NAMES = {
     "minishogi": _("Minishogi"),
     "kyotoshogi": _("Kyoto Shogi"),
     "dobutsu": _("Dobutsu"),
+    "bughouse": _("Bughouse"),
+    "bughouse960": _("Bughouse960"),
     # Gorogoro is superseded by Gorogoro Plus
     # "gorogoro",
     "gorogoroplus": _("Gorogoro+"),

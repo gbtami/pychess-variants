@@ -92,6 +92,7 @@ export function embedView(model: PyChessModel): VNode[] {
 
 export function analysisView(model: PyChessModel): VNode[] {
     const variant = VARIANTS[model.variant];
+
     const isAnalysisBoard = model["gameId"] === "";
     const tabindexCt = (isAnalysisBoard) ? '-1' : '0';
     var tabindexPgn = (isAnalysisBoard) ? '0' : '-1';
@@ -211,8 +212,8 @@ export function analysisTools () {
         ])
 }
 
-export function gauge () {
-    return h('div#gauge', [
+export function gauge (id: string = "gauge") {
+    return h('div#'+id, [
         h('div.black',     { props: { style: "height: 50%;" } }),
         h('div.tick',      { props: { style: "height: 12.5%;" } }),
         h('div.tick',      { props: { style: "height: 25%;" } }),

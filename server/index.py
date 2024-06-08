@@ -498,6 +498,7 @@ async def index(request):
             render["highscore"] = {
                 variant: dict(app_state.highscore[variant].items()[:10])
                 for variant in app_state.highscore
+                if not variant.startswith("bughouse")
             }
         else:
             hs = app_state.highscore[variant]
@@ -601,6 +602,9 @@ async def index(request):
             render["status"] = game.status
             render["date"] = game.date.isoformat()
             render["title"] = game.browser_title
+            # todo: I think sent ply value shouldn't be minus 1.
+            #       But also it gets overwritten anyway right after that so why send all this stuff at all here.
+            #       just init client on 1st ws board msg received right after ws connection is established
             render["ply"] = ply if ply is not None else game.ply - 1
             render["ct"] = json.dumps(game.crosstable)
             render["board"] = json.dumps(game.get_board(full=True))
@@ -610,6 +614,13 @@ async def index(request):
                 render["tournamentname"] = tournament_name
                 render["wberserk"] = game.wberserk
                 render["bberserk"] = game.bberserk
+            if game.variant == "bughouse":
+                render["wplayerB"] = game.wplayerB.username
+                render["wtitleB"] = game.wplayerB.title
+                render["wratingB"] = game.wrating_b
+                render["bplayerB"] = game.bplayerB.username
+                render["btitleB"] = game.bplayerB.title
+                render["bratingB"] = game.brating_b
             if game.corr and user.username in (game.wplayer.username, game.bplayer.username):
                 c_games = corr_games(user.correspondence_games)
                 render["corr_games"] = json.dumps(c_games, default=datetime.isoformat)

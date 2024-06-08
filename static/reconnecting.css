@@ -19,7 +19,6 @@
     position: fixed;
     background: #cc3333;
     color: #fff;
-    position: fixed;
     bottom: 0;
     left: 0;
     height: 2.5rem;
@@ -36,7 +35,22 @@
     margin-right: 0.4em;
 }
 
-.offline #reconnecting {
+#reconnecting::after {
+    font-size: 1.3em;
+    /*margin-right: 0.4em;*/
+}
+
+.offline #reconnecting,
+.offline-close #reconnecting,
+.offline-ping-timeout #reconnecting,
+.offline-creating-socket #reconnecting,
+.offline-reconnecting-in #reconnecting{
+    transform: translateY(0);
+    opacity: 1;
+}
+
+.offline-socket-error #reconnecting{
+    background: #000000;
     transform: translateY(0);
     opacity: 1;
 }
@@ -48,4 +62,26 @@
 
 .online.reconnected #reconnecting::before {
     content: '?';
+}
+
+.online.reconnected #reconnecting::after {
+    content: 'Reconnected';
+}
+.offline #reconnecting::after {
+    content: 'Offline';
+}
+.offline-close #reconnecting::after {
+    content: 'Closed';
+}
+.offline-ping-timeout #reconnecting::after {
+    content: 'Ping timeout';
+}
+.offline-creating-socket #reconnecting::after {
+    content: 'Trying to reconnect';
+}
+.offline-socket-error #reconnecting::after {
+    content: 'Connection error';
+}
+.offline-reconnecting-in #reconnecting info-date::before {
+    content: 'Reconnecting ';
 }

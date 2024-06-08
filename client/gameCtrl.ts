@@ -1,4 +1,4 @@
-import WebsocketHeartbeatJs from 'websocket-heartbeat-js';
+import { WebsocketHeartbeatJs } from './socket/socket';
 
 import { h, VNode } from 'snabbdom';
 import * as Mousetrap  from 'mousetrap';
@@ -19,6 +19,8 @@ import { updateCount, updatePoint } from './info';
 import { sound } from './sound';
 import { chatMessage, ChatController } from './chat';
 import { selectMove } from './movelist';
+import { Api } from "chessgroundx/api";
+import { Variant } from "@/variants";
 
 export abstract class GameController extends ChessgroundController implements ChatController {
     sock: WebsocketHeartbeatJs;
@@ -78,8 +80,6 @@ export abstract class GameController extends ChessgroundController implements Ch
     ctableContainer: VNode | HTMLElement;
     clickDrop: cg.Piece | undefined;
 
-    lastmove: cg.Key[];
-
     spectator: boolean;
 
     // Settings
@@ -92,8 +92,8 @@ export abstract class GameController extends ChessgroundController implements Ch
 
     undo?: any;
 
-    constructor(el: HTMLElement, model: PyChessModel) {
-        super (el, model);
+    constructor(el: HTMLElement, model: PyChessModel, pocket0: HTMLElement, pocket1: HTMLElement) {
+        super (el, model, pocket0, pocket1);
 
         this.gameId = model["gameId"] as string;
         this.tournamentId = model["tournamentId"]
@@ -190,7 +190,7 @@ export abstract class GameController extends ChessgroundController implements Ch
     setDests() {
         if (this.ffishBoard === undefined) {
             // At very first time we may have to wait for ffish module to initialize
-            setTimeout(this.setDests.bind(this), 100);
+            setTimeout(this.setDests.bind(this), 100); // todo: can't we do this async and await the promise?
         } else {
             const legalMoves = this.ffishBoard.legalMoves().split(" ");
             const fakeDrops = this.variant.name === 'ataxx';
@@ -268,7 +268,7 @@ export abstract class GameController extends ChessgroundController implements Ch
             turnColor: step.turnColor,
             movable: {
                 color: step.turnColor,
-                },
+            },
             check: step.check,
             lastMove: move,
         });
@@ -399,13 +399,7 @@ export abstract class GameController extends ChessgroundController implements Ch
         if (moved === undefined) moved = {role: 'k-piece', color: this.mycolor} as cg.Piece;
 
         // chessground doesn't know about en passant, so we have to remove the captured pawn manually
-        if (meta.captured === undefined && moved !== undefined && moved.role === "p-piece" && orig[0] !== dest[0] && this.variant.rules.enPassant) {
-            const pos = util.key2pos(dest),
-                pawnKey = util.pos2key([pos[0], pos[1] + (this.mycolor === 'white' ? -1 : 1)]);
-            meta.captured = pieces.get(pawnKey);
-            this.chessground.setPieces(new Map([[pawnKey, undefined]]));
-        }
-
+        this.performEnPassant(meta, moved, orig, dest, pieces, this.chessground, this.variant, this.mycolor);
         // add the captured piece to the pocket
         // chessground doesn't know what piece to revert a captured promoted piece into, so it needs to be handled here
         if (this.variant.pocket?.captureToHand && meta.captured) {
@@ -419,6 +413,15 @@ export abstract class GameController extends ChessgroundController implements Ch
 
         this.processInput(moved, orig, dest, meta);
         this.preaction = false;
+    }
+
+    public performEnPassant(meta: cg.MoveMetadata, moved: cg.Piece, orig: cg.Key, dest: cg.Key, pieces: cg.Pieces, chessground: Api, variant: Variant, mycolor: cg.Color) {
+        if (meta.captured === undefined && moved !== undefined && moved.role === "p-piece" && orig[0] !== dest[0] && variant.rules.enPassant) {
+            const pos = util.key2pos(dest),
+                pawnKey = util.pos2key([pos[0], pos[1] + (mycolor === 'white' ? -1 : 1)]);
+            meta.captured = pieces.get(pawnKey);
+            chessground.setPieces(new Map([[pawnKey, undefined]]));
+        }
     }
 
     /**

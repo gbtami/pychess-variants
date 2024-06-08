@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="45"
+   height="45"
+   version="1.1"
+   id="svg17112"
+   sodipodi:docname="NoR.svg"
+   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs17116" />
+  <sodipodi:namedview
+     id="namedview17114"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     showgrid="false"
+     inkscape:zoom="33.355556"
+     inkscape:cx="19.052298"
+     inkscape:cy="22.52998"
+     inkscape:window-width="3840"
+     inkscape:window-height="2036"
+     inkscape:window-x="-12"
+     inkscape:window-y="-12"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg17112" />
+  <g
+     fill="#fff"
+     fill-rule="evenodd"
+     stroke="#000"
+     stroke-width="1.5"
+     stroke-linecap="round"
+     stroke-linejoin="round"
+     id="g17110">
+    <path
+       d="M9 39h27v-3H9v3zm3-3v-4h21v4H12zm-1-22V9h4v2h5V9h5v2h5V9h4v5"
+       stroke-linecap="butt"
+       id="path17100" />
+    <path
+       d="M34 14l-3 3H14l-3-3"
+       id="path17102" />
+    <path
+       d="M31 17v12.5H14V17"
+       stroke-linecap="butt"
+       stroke-linejoin="miter"
+       id="path17104" />
+    <path
+       d="M31 29.5l1.5 2.5h-20l1.5-2.5"
+       id="path17106" />
+    <path
+       d="M11 14h23"
+       fill="none"
+       stroke-linejoin="miter"
+       id="path17108" />
+  </g>
+  <g
+     id="g16696"
+     transform="translate(-69.247108,-66.340622)">
+    <circle
+       style="opacity:0.98;fill:none;stroke:#800000;stroke-width:2.85725;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1;paint-order:fill markers stroke"
+       id="path11904"
+       cx="91.747108"
+       cy="88.840622"
+       r="18.973774" />
+    <path
+       style="fill:none;stroke:#800000;stroke-width:2.85725;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1"
+       d="M 77.825862,74.919377 105.66835,102.76186"
+       id="path12633" />
+  </g>
+</svg>
