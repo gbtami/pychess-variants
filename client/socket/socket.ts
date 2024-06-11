@@ -1,6 +1,6 @@
 /**
  * WebsocketHeartbeatJs class adapted to TypeScript from https://github.com/zimv/websocket-heartbeat-js.
- * Only added (similar to lichess's, but slightly more sophistacated) logic for showing/hiding connection notifications.
+ * Only added (similar to lichess's, but slightly more sophisticated) logic for showing/hiding connection notifications.
  * TODO: compare to the similar lichess class here: https://github.com/lichess-org/lila/blob/master/ui/site/src/socket.ts
  *       general ping/reconnect approach is the same, but there are some differences, not sure how important yet.
  *       consider also adopting the other logic for queueing messages, etc.

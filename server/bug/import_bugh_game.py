@@ -61,7 +61,7 @@ async def import_game_bpgn(request):
     chess960 = False  # variant.endswith("960")
     # variant = variant.removesuffix("960")
 
-    # todo: replace with valid intial fen for now - maybe fix the problematic fen that ends with / instead of [] eventually - that is how chess.com fen looks like and doesnt parse well here
+    # todo: replace with valid initial fen for now - maybe fix the problematic fen that ends with / instead of [] eventually - that is how chess.com fen looks like and doesn't parse well here
     initial_fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[] w KQkq - 0 1 | rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[] w KQkq - 0 1"  # first_game.headers.get("FEN", "")
     final_fen = first_game.headers.get("final_fen", "")
     status = int(first_game.headers.get("Status", UNKNOWNFINISH))
