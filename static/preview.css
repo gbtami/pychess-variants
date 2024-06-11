@@ -15,6 +15,11 @@ label.piece {
 label.board {
     background-size: 90%;
 }
+
+/* Gray colored "?" */
+label.piece.piece98 {
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' version='1.1' width='80px' height='80px'><text font-size='30' x='50%' y='50%' fill='gray' class='white' text-anchor='middle' dominant-baseline='central'>?</text></svg>");
+}
 /* Gray colored "ABC" */
 label.piece.piece99 {
     background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' version='1.1' width='80px' height='80px'><text font-size='30' x='50%' y='50%' fill='gray' class='white' text-anchor='middle' dominant-baseline='central'>ABC</text></svg>");
@@ -55,10 +60,10 @@ label.piece.piece6.standard {
     background-image: url('images/pieces/dubrovny/wN.svg');
 }
 label.piece.piece7.standard {
-    background-image: url('images/pieces/disguised/w.svg');
+    background-image: url('images/pieces/atopdown/wn.svg');
 }
 label.piece.piece8.standard {
-    background-image: url('images/pieces/atopdown/wn.svg');
+    background-image: url('images/pieces/disguised/w.svg');
 }
 label.piece.piece0.capa {
     background-image: url('images/pieces/merida/wA.svg');

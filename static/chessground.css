@@ -216,10 +216,6 @@ cg-board square.current-premove {
   will-change: transform;
   pointer-events: none;
 }
-.blindfold piece {
-  opacity: 0;
-  position: relative;
-}
 .shogi .cg-wrap piece, .kyoto .cg-wrap piece, .dobutsu .cg-wrap piece, .tori .cg-wrap piece, .cannonshogi .cg-wrap piece, .janggi .cg-wrap piece {
   background-position: center;
 }

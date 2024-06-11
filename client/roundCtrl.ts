@@ -53,7 +53,6 @@ export class RoundController extends GameController {
     berserkable: boolean;
     settings: boolean;
     tv: boolean;
-    blindfold: boolean;
     handicap: boolean;
     setupFen: string;
     focus: boolean;
@@ -113,7 +112,6 @@ export class RoundController extends GameController {
         this.berserked = {wberserk: model["wberserk"] === "True", bberserk: model["bberserk"] === "True"};
 
         this.settings = true;
-        this.blindfold = localStorage.blindfold === undefined ? false : localStorage.blindfold === "true";
         this.autoPromote = localStorage.autoPromote === undefined ? false : localStorage.autoPromote === "true";
         this.materialDifference = localStorage.materialDifference === undefined ? false : localStorage.materialDifference === "true";
 

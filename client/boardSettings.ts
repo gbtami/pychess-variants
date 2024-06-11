@@ -28,7 +28,6 @@ export interface BoardController {
     arrow?: boolean;
     multipv?: number;
     evalFile?: string;
-    blindfold?: boolean;
     materialDifference?: boolean;
     updateMaterial?: any;
     pvboxIni?: any;
@@ -53,7 +52,6 @@ class BoardSettings {
         this.settings["showDests"] = new ShowDestsSettings(this);
         this.settings["autoPromote"] = new AutoPromoteSettings(this);
         this.settings["confirmCorrMove"] = new ConfirmCorrMoveSettings(this);        
-        this.settings["blindfold"] = new BlindfoldSettings(this);
         this.settings["materialDifference"] = new MaterialDifferenceSettings(this);
     }
 
@@ -90,7 +88,17 @@ class BoardSettings {
 
     updatePieceStyle(family: keyof typeof PIECE_FAMILIES) {
         const idx = this.getSettings("PieceStyle", family as string).value as number;
-        let css = PIECE_FAMILIES[family].pieceCSS[idx] ?? 'letters';
+        let css: string;
+        switch (idx) {
+        case 98:
+            css = 'invisible';
+            break;
+        case 99:
+            css = 'letters';
+            break;
+        default:
+            css = PIECE_FAMILIES[family].pieceCSS[idx];
+        }
         changePieceCSS(this.assetURL, family as string, css);
         this.updateDropSuggestion();
     }
@@ -132,10 +140,6 @@ class BoardSettings {
         }
     }
 
-    updateBlindfold () {
-        this.settings["blindfold"].update();
-    }
-
     view(variantName: string) {
         if (!variantName) return h("div#board-settings");
         const variant = VARIANTS[variantName];
@@ -155,8 +159,6 @@ class BoardSettings {
             settingsList.push(this.settings["autoPromote"].view());
 
         settingsList.push(this.settings["confirmCorrMove"].view());        
-
-        settingsList.push(this.settings["blindfold"].view());
 
         settingsList.push(this.settings["materialDifference"].view());
 
@@ -288,14 +290,24 @@ class PieceStyleSettings extends NumberSettings {
             }));
             pieces.push(h('label.piece.piece' + i + '.' + this.pieceFamily, { attrs: { for: "piece" + i } }, ""));
         }
-        // Finally add letter piece
-        const i=99;
+
+        // Add invisible piece
+        const i=98;
         pieces.push(h('input#piece' + i, {
             on: { change: e => this.value = Number((e.target as HTMLInputElement).value) },
             props: { type: "radio", name: "piece", value: i },
             attrs: { checked: vpiece === i },
         }));
-        pieces.push(h('label.piece.piece99', { attrs: { for: "piece" + i } }, ""));
+        pieces.push(h('label.piece.piece98', { attrs: { for: "piece" + i } }, ""));
+
+        // Finally add letter piece
+        const l=99;
+        pieces.push(h('input#piece' + l, {
+            on: { change: e => this.value = Number((e.target as HTMLInputElement).value) },
+            props: { type: "radio", name: "piece", value: l },
+            attrs: { checked: vpiece === l },
+        }));
+        pieces.push(h('label.piece.piece99', { attrs: { for: "piece" + l } }, ""));
         return h('settings-pieces', pieces);
     }
 }
@@ -390,39 +402,6 @@ class AutoPromoteSettings extends BooleanSettings {
 
     view(): VNode {
         return h('div', checkbox(this, 'autoPromote', _("Promote to the top choice automatically")));
-    }
-}
-
-class BlindfoldSettings extends BooleanSettings {
-    readonly boardSettings: BoardSettings;
-
-    constructor(boardSettings: BoardSettings) {
-        super('blindfold', false);
-        this.boardSettings = boardSettings;
-    }
-
-    update(): void {
-        this.updateCtrl(this.boardSettings.ctrl);
-        if (this.boardSettings.ctrl2) this.updateCtrl(this.boardSettings.ctrl2);
-    }
-
-    updateCtrl(ctrl: BoardController): void {
-        if ('blindfold' in ctrl)
-            ctrl.blindfold = this.value;
-
-        const el = document.getElementById('mainboard') as HTMLInputElement;
-        if (el) {
-            if (this.value) {
-                el.classList.add('blindfold');
-            } else {
-                el.classList.remove('blindfold');
-            }
-        }
-
-    }
-
-    view(): VNode {
-        return h('div', checkbox(this, 'blindfold', _("Invisible pieces")));
     }
 }
 

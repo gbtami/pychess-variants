@@ -61,7 +61,6 @@ export abstract class ChessgroundController implements BoardController {
         boardSettings.updateBoardStyle(boardFamily);
         boardSettings.updatePieceStyle(pieceFamily);
         boardSettings.updateZoom(boardFamily);
-        boardSettings.updateBlindfold();
         console.time('load ffish ' + (el.parentNode! as HTMLElement).id!);
         this.ffishPromise = ffishModule().then((loadedModule: any) => {
             console.timeEnd('load ffish ' + (el.parentNode! as HTMLElement).id!);

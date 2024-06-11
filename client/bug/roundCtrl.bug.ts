@@ -82,7 +82,6 @@ export class RoundControllerBughouse implements ChatController {
     tv: boolean;
     animation: boolean;
     showDests: boolean;
-    blindfold: boolean;
     handicap: boolean = false;
     setupFen: string;
     prevPieces: cg.Pieces;
@@ -185,7 +184,6 @@ export class RoundControllerBughouse implements ChatController {
         this.level = model["level"];
 
         this.settings = true;
-        this.blindfold = localStorage.blindfold === undefined ? false : localStorage.blindfold === "true";
         this.autoPromote = localStorage.autoPromote === undefined ? false : localStorage.autoPromote === "true";
 
         this.clockOn = true;//(Number(parts[parts.length - 1]) >= 2);
