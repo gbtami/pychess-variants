@@ -939,7 +939,7 @@ export class RoundControllerBughouse implements ChatController {
         const isInitialBoardMessage = this.ply === undefined;
 
         // latestPly=true means that the received move should be not only added to the move list, but also scrolled
-        // to in the move list and also rendered on the board. This shuold happen if:
+        // to in the move list and also rendered on the board. This should happen if:
         // - initial page load/refresh - always consider it latest ply and show last position and scroll to last move
         // - the received move is exactly one move after the current, we are in latestPly mode and scroll to the new move
         // - we get full board message means refresh/reconnect, so we consider this a latestPly mode and will scroll to
@@ -1070,7 +1070,7 @@ export class RoundControllerBughouse implements ChatController {
             const container = document.getElementById('player1a') as HTMLElement;
             patch(container, h('i-side.online#player1a', {class: {"icon": true, "icon-online": true, "icon-offline": false}}));
 
-            // prevent sending gameStart message when user just reconecting
+            // prevent sending gameStart message when user just reconnecting
             if (msg.ply === 0) {
                 this.doSend({ type: "ready", gameId: this.gameId });
             }

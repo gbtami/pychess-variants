@@ -921,7 +921,7 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
 
         Returns :class:`~chess.engine.AnalysisResult`, a handle that allows
         asynchronously iterating over the information sent by the engine
-        and stopping the the analysis at any time.
+        and stopping the analysis at any time.
         """
 
     @abc.abstractmethod

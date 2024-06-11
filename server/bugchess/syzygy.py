@@ -3542,7 +3542,7 @@ def open_tablebase(
         Generally probing requires tablebase files for the specific
         material composition, **as well as** tablebase files with less pieces.
         This is important because 6-piece and 5-piece files are often
-        distributed seperately, but are both required for 6-piece positions.
+        distributed separately, but are both required for 6-piece positions.
         Use :func:`~chess.syzygy.Tablebase.add_directory()` to load
         tables from additional directories.
     """
