@@ -1282,5 +1282,6 @@ export function initBoardSettings(b1: ChessgroundController, b2: ChessgroundCont
 
     boardSettings.updateBoardStyle(boardFamily);
     boardSettings.updatePieceStyle(pieceFamily);
-    boardSettings.updateZoom(boardFamily);
+    boardSettings.updateZoom(boardFamily, '');
+    boardSettings.updateZoom(boardFamily, 'Partner');
 }

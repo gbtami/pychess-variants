@@ -181,7 +181,8 @@ export class GameControllerBughouse extends GameController {
              animation: {
                  enabled: localStorage.animation === undefined || localStorage.animation === "true",
              },
-             addDimensionsCssVarsTo: this.boardName === 'a'? document.body: undefined,
+             addDimensionsCssVarsTo: document.body,
+             dimensionsCssVarsPostfix: this.boardName.toUpperCase(),
              pocketRoles: VARIANTS.crazyhouse.pocket?.roles,
         }, pocket0, pocket1);
 

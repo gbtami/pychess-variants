@@ -10,7 +10,7 @@ import { Settings, NumberSettings, BooleanSettings } from './settings';
 import { slider, checkbox } from './view';
 import { PyChessModel } from "./types";
 import { BOARD_FAMILIES, PIECE_FAMILIES, Variant, VARIANTS } from './variants';
-import { updateBounds } from "chessgroundx/render";
+import { renderResized, updateBounds } from "chessgroundx/render";
 
 export interface BoardController {
     readonly chessground: Api;
@@ -66,7 +66,8 @@ class BoardSettings {
                     this.settings[fullName] = new PieceStyleSettings(this, family);
                     break;
                 case "Zoom":
-                    this.settings[fullName] = new ZoomSettings(this, family);
+                case "ZoomPartner":
+                    this.settings[fullName] = new ZoomSettings(this, family, settingsType);
                     break;
                 default:
                     throw "Unknown settings type " + settingsType;
@@ -120,15 +121,14 @@ class BoardSettings {
         }
     }
 
-    updateZoom(family: keyof typeof BOARD_FAMILIES) {
+    updateZoom(family: keyof typeof BOARD_FAMILIES, settingsPostfix: string) {
         const variant = this.ctrl?.variant;
         if (variant && variant.boardFamily === family) {
-            const zoomSettings = this.getSettings("Zoom", family as string) as ZoomSettings;
+            const zoomSettings = this.getSettings('Zoom' + settingsPostfix, family as string) as ZoomSettings;
             const zoom = zoomSettings.value;
-            const el = document.querySelector('.cg-wrap:not(.pocket)') as HTMLElement;
+            const el = document.querySelector('.cg-wrap') as HTMLElement;
             if (el) {
-                document.body.setAttribute('style', '--zoom:' + zoom);
-                document.body.dispatchEvent(new Event('chessground.resize'));
+                document.body.style.setProperty('--zoom' + settingsPostfix, `${zoom}`);
 
                 // Analysis needs to zoom analysisChart and movetimeChart as well
                 if ('chartFunctions' in this.ctrl && this.ctrl.chartFunctions) {
@@ -164,6 +164,10 @@ class BoardSettings {
 
         if (variantName === this.ctrl?.variant.name)
             settingsList.push(this.getSettings("Zoom", boardFamily as string).view());
+
+        if (variantName === 'bughouse') {
+            settingsList.push(this.getSettings("ZoomPartner", boardFamily as string).view());
+        }
 
         settingsList.push(h('div#style-settings', [
             this.getSettings("BoardStyle", boardFamily as string).view(),
@@ -315,44 +319,33 @@ class PieceStyleSettings extends NumberSettings {
 class ZoomSettings extends NumberSettings {
     readonly boardSettings: BoardSettings;
     readonly boardFamily: string;
+    readonly settingsPostfix: string;
 
-    constructor(boardSettings: BoardSettings, boardFamily: string) {
-        super(boardFamily + '-zoom', 80);
+    constructor(boardSettings: BoardSettings, boardFamily: string, settingsType: string) {
+        const settingsPostfix = (settingsType === 'ZoomPartner') ? 'Partner' : '';
+        super(boardFamily + '-zoom' + settingsPostfix, 80);
         this.boardSettings = boardSettings;
         this.boardFamily = boardFamily;
+        this.settingsPostfix = settingsPostfix;
     }
 
     update(): void {
-        this.boardSettings.updateZoom(this.boardFamily);
+        this.boardSettings.updateZoom(this.boardFamily, this.settingsPostfix);
         if (this.boardSettings.ctrl2) {
-            // todo: figure out good solution for this problem when having 2 boards layout and zooming:
-            // below is ugly fix for when user scrolls the zoom slider too fast (really doesnt have to be really fast it is
-            // way too easy to reproduce). I am still not 100% sure what happens, but if we have 2 boards it seems to
-            // result in multiple ResizeObserver events getting triggered asynchronously after a single zoom change.
-            // I am guessing something to do with the change in one board results in some dom changes that trigger resize
-            // again for the other or both boards, etc. and this repeats several times unnecessarily. Would be great to
-            // figure out how to avoid this, but might need changes on chessgroundx side as well - maybe at least expose
-            // the ResizeObserver instance so we can disconnect it temporarily when changing zoom or add checks if resize
-            // event really results in changes in width/height, because when i debugged/logged those they seemed to
-            // remain the same after the first change. Not sure.
-            //
-            // Anyway.
-            //
-            // So above async executions, most likely take certain amount of milliseconds to complete, and my suspicion
-            // is that if we move the slider one more time before they havent finished, everything gets messed up. If
-            // we move the slider very carefully and slowly the bug doesnt happen. Also after the layout gets messed up
-            // once, only fix is to resize the browser window as it causes updateBounds to get called. This is the reason
-            // here I am scheduling updateBounds to be called after 100ms. It is still ugly and layout flickers while
-            // sliding the zoom slider, but at least when you stop sliding it, almost immediately the layout fixes itself.
+            // In case of bughouse updateZoom() doesn't trigger chessgroundx onResize() via ResizeObserver
+            // to prevent recursive call, so we have to force manual onResize() here
             setTimeout(() => {
-                updateBounds(this.boardSettings.ctrl.chessground.state);
-                updateBounds(this.boardSettings.ctrl2.chessground.state);
+                const state = (this.settingsPostfix) ?
+                    this.boardSettings.ctrl2.chessground.state:
+                    this.boardSettings.ctrl.chessground.state;
+                updateBounds(state);
+                renderResized(state);
             }, 100);
         }
     }
 
     view(): VNode {
-        return h('div.labelled', slider(this, 'zoom', 0, 100, this.boardFamily.includes("shogi") ? 1 : 1.15625, _('Zoom')));
+        return h('div.labelled', slider(this, 'zoom' + this.settingsPostfix, 0, 100, this.boardFamily.includes("shogi") ? 1 : 1.15625, _('Zoom')));
     }
 }
 
