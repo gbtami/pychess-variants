@@ -55,12 +55,12 @@
         --board-scaleA: calc((var(--zoom) / 100));
         --board-scaleB: calc((var(--zoomPartner) / 100));
         grid-row-gap: 2vmin;
-        grid-template-columns: calc(var(--pocketLength) * (var(--cg-widthA) / var(--files)))
-                               calc((30vw * var(--board-scaleA)) - var(--pocketLength) * (var(--cg-widthA) / var(--files)))
-                               calc(var(--pocketLength) * (var(--cg-widthA) / var(--files)))
-                               calc((30vw * var(--board-scaleB)) - var(--pocketLength) * (var(--cg-widthB) / var(--files)))
-                               calc(var(--pocketLength) * (var(--cg-widthB) / var(--files)))
-                               calc(var(--pocketLength) * (var(--cg-widthB) / var(--files)));
+        grid-template-columns: calc(var(--pocketLength) * (var(--cg-width-a) / var(--files)))
+                               calc((30vw * var(--board-scaleA)) - var(--pocketLength) * (var(--cg-width-a) / var(--files)))
+                               calc(var(--pocketLength) * (var(--cg-width-a) / var(--files)))
+                               calc((30vw * var(--board-scaleB)) - var(--pocketLength) * (var(--cg-width-b) / var(--files)))
+                               calc(var(--pocketLength) * (var(--cg-width-b) / var(--files)))
+                               calc(var(--pocketLength) * (var(--cg-width-b) / var(--files)));
         grid-template-rows: min-content min-content min-content min-content min-content;
         grid-template-areas: 'pocket-top clock-top tools clockB-top pocket-top-partner toolsB'
                              'board board tools boardPartner boardPartner toolsB'
@@ -68,13 +68,13 @@
                              '. . move-controls move-controls . .'
                              'uboard uboard uboard uboard uboard uboard';
     }
-    .pocket-top.bughouse.pocket, .pocket-bot.bughouse.pocket {
-      width: calc(var(--pocketLength) * (var(--cg-widthA) / var(--files)));
-      height: calc(var(--cg-heightA) / var(--ranks));
+    .pocket-top .bughouse .pocket, .pocket-bot .bughouse .pocket {
+      width: calc(var(--pocketLength) * (var(--cg-width-a) / var(--files)));
+      height: calc(var(--cg-height-a) / var(--ranks));
     }
-    .pocket-top-partner.bughouse.pocket, .pocket-bot-partner.bughouse.pocket {
-      width: calc(var(--pocketLength) * (var(--cg-widthB) / var(--files)));
-      height: calc(var(--cg-heightB) / var(--ranks));
+    .pocket-top-partner .bughouse .pocket, .pocket-bot-partner .bughouse .pocket {
+      width: calc(var(--pocketLength) * (var(--cg-width-b) / var(--files)));
+      height: calc(var(--cg-height-b) / var(--ranks));
     }
 }
 
@@ -96,8 +96,8 @@ rating {
 }
 
 .bug-round-tools-part .movelist-block{
-    max-height: calc(var(--cg-heightB));
-    min-height: calc(var(--cg-heightB));
+    max-height: calc(var(--cg-height-b));
+    min-height: calc(var(--cg-height-b));
 
 }
 
