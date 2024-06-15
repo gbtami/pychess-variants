@@ -55,8 +55,8 @@ class BoardSettings {
         this.settings["materialDifference"] = new MaterialDifferenceSettings(this);
     }
 
-    getSettings(settingsType: string, family: string) {
-        const fullName = family + settingsType;
+    getSettings(settingsType: string, family: string, boardName: string) {
+        const fullName = family + settingsType + boardName;
         if (!this.settings[fullName]) {
             switch (settingsType) {
                 case "BoardStyle":
@@ -66,8 +66,7 @@ class BoardSettings {
                     this.settings[fullName] = new PieceStyleSettings(this, family);
                     break;
                 case "Zoom":
-                case "ZoomPartner":
-                    this.settings[fullName] = new ZoomSettings(this, family, settingsType);
+                    this.settings[fullName] = new ZoomSettings(this, family, boardName);
                     break;
                 default:
                     throw "Unknown settings type " + settingsType;
@@ -121,14 +120,15 @@ class BoardSettings {
         }
     }
 
-    updateZoom(family: keyof typeof BOARD_FAMILIES, settingsPostfix: string) {
+    updateZoom(family: keyof typeof BOARD_FAMILIES, boardName: string) {
         const variant = this.ctrl?.variant;
         if (variant && variant.boardFamily === family) {
-            const zoomSettings = this.getSettings('Zoom' + settingsPostfix, family as string) as ZoomSettings;
+            const suffix = (boardName) ? '-' + boardName : '';
+            const zoomSettings = this.getSettings('Zoom', family as string, boardName) as ZoomSettings;
             const zoom = zoomSettings.value;
             const el = document.querySelector('.cg-wrap') as HTMLElement;
             if (el) {
-                document.body.style.setProperty('--zoom' + settingsPostfix, `${zoom}`);
+                document.body.style.setProperty('--zoom' + suffix, `${zoom}`);
 
                 // Analysis needs to zoom analysisChart and movetimeChart as well
                 if ('chartFunctions' in this.ctrl && this.ctrl.chartFunctions) {
@@ -163,11 +163,12 @@ class BoardSettings {
         settingsList.push(this.settings["materialDifference"].view());
 
         if (variantName === this.ctrl?.variant.name)
-            settingsList.push(this.getSettings("Zoom", boardFamily as string).view());
-
-        if (variantName === 'bughouse') {
-            settingsList.push(this.getSettings("ZoomPartner", boardFamily as string).view());
-        }
+            if (variantName === 'bughouse') {
+                settingsList.push(this.getSettings("Zoom", boardFamily as string, this.ctrl.boardName).view());
+                settingsList.push(this.getSettings("Zoom", boardFamily as string, this.ctrl2.boardName).view());
+            } else {
+                settingsList.push(this.getSettings("Zoom", boardFamily as string, '').view());
+            }
 
         settingsList.push(h('div#style-settings', [
             this.getSettings("BoardStyle", boardFamily as string).view(),
@@ -319,23 +320,23 @@ class PieceStyleSettings extends NumberSettings {
 class ZoomSettings extends NumberSettings {
     readonly boardSettings: BoardSettings;
     readonly boardFamily: string;
-    readonly settingsPostfix: string;
+    readonly boardName: string;
 
-    constructor(boardSettings: BoardSettings, boardFamily: string, settingsType: string) {
-        const settingsPostfix = (settingsType === 'ZoomPartner') ? 'Partner' : '';
-        super(boardFamily + '-zoom' + settingsPostfix, 80);
+    constructor(boardSettings: BoardSettings, boardFamily: string, boardName: string) {
+        const suffix = (boardName) ? '-' + boardName : '';
+        super(boardFamily + '-zoom' + suffix, 80);
         this.boardSettings = boardSettings;
         this.boardFamily = boardFamily;
-        this.settingsPostfix = settingsPostfix;
+        this.boardName = boardName;
     }
 
     update(): void {
-        this.boardSettings.updateZoom(this.boardFamily, this.settingsPostfix);
-        if (this.boardSettings.ctrl2) {
+        this.boardSettings.updateZoom(this.boardFamily, this.boardName);
+        if (this.boardName) {
             // In case of bughouse updateZoom() doesn't trigger chessgroundx onResize() via ResizeObserver
             // to prevent recursive call, so we have to force manual onResize() here
             setTimeout(() => {
-                const state = (this.settingsPostfix) ?
+                const state = (this.boardName === this.boardSettings.ctrl2.boardName) ?
                     this.boardSettings.ctrl2.chessground.state:
                     this.boardSettings.ctrl.chessground.state;
                 updateBounds(state);
@@ -345,7 +346,7 @@ class ZoomSettings extends NumberSettings {
     }
 
     view(): VNode {
-        return h('div.labelled', slider(this, 'zoom' + this.settingsPostfix, 0, 100, this.boardFamily.includes("shogi") ? 1 : 1.15625, _('Zoom')));
+        return h('div.labelled', slider(this, 'zoom' + this.boardName, 0, 100, this.boardFamily.includes("shogi") ? 1 : 1.15625, _('Zoom')));
     }
 }
 

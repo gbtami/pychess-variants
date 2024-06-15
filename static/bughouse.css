@@ -52,8 +52,8 @@
         justify-content: start;
     }
     .round-app.bug {
-        --board-scaleA: calc((var(--zoom) / 100));
-        --board-scaleB: calc((var(--zoomPartner) / 100));
+        --board-scaleA: calc((var(--zoom-a) / 100));
+        --board-scaleB: calc((var(--zoom-b) / 100));
         grid-row-gap: 2vmin;
         grid-template-columns: calc(var(--pocketLength) * (var(--cg-width-a) / var(--files)))
                                calc((30vw * var(--board-scaleA)) - var(--pocketLength) * (var(--cg-width-a) / var(--files)))
