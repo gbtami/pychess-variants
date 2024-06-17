@@ -19,5 +19,5 @@ objgraph==3.6.1
 black==24.4.2
 flake8==7.0.0
 mypy==1.10.0
-mongomock-motor==0.0.29
+mongomock-motor==0.0.30
 pre-commit
