@@ -3,7 +3,7 @@ import * as cg from 'chessgroundx/types';
 import { ChessgroundController } from './cgCtrl';
 
 
-function wrapRow(ctrl: ChessgroundController, color: cg.Color, pocket: HTMLElement) {
+function setCssVars(ctrl: ChessgroundController, color: cg.Color, pocket: HTMLElement) {
     if (ctrl.variant.pocket) {
         const width = ctrl.variant.board.dimensions.width;
         const roles: (cg.Role | '')[] = [...ctrl.variant.pocket.roles[color]];
@@ -21,7 +21,9 @@ function wrapRow(ctrl: ChessgroundController, color: cg.Color, pocket: HTMLEleme
     }
 }
 
-export function initPocketRow(ctrl: ChessgroundController, pocket0: HTMLElement, pocket1: HTMLElement): void {
-    wrapRow(ctrl, ctrl.flipped() ? ctrl.mycolor : ctrl.oppcolor, pocket0);
-    wrapRow(ctrl, ctrl.flipped() ? ctrl.oppcolor : ctrl.mycolor, pocket1);
+export function setPocketRowCssVars(ctrl: ChessgroundController): void {
+    const pocket0 = document.getElementById('pocket0') as HTMLElement;
+    const pocket1 = document.getElementById('pocket1') as HTMLElement;
+    setCssVars(ctrl, ctrl.flipped() ? ctrl.mycolor : ctrl.oppcolor, pocket0);
+    setCssVars(ctrl, ctrl.flipped() ? ctrl.oppcolor : ctrl.mycolor, pocket1);
 }

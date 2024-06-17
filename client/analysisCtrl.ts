@@ -30,7 +30,7 @@ import { GameController } from './gameCtrl';
 import { analysisSettings, EngineSettings } from './analysisSettings';
 import { setAriaTabClick } from './view';
 import { createWebsocket } from "@/socket/webSocketUtils";
-import { initPocketRow } from './pocketRow';
+import { setPocketRowCssVars } from './pocketRow';
 
 const EVAL_REGEX = new RegExp(''
   + /^info depth (\d+) seldepth \d+ multipv (\d+) /.source
@@ -149,10 +149,9 @@ export class AnalysisController extends GameController {
             },
         });
 
-        // initialize pockets
-        const pocket0 = document.getElementById('pocket0') as HTMLElement;
-        const pocket1 = document.getElementById('pocket1') as HTMLElement;
-        initPocketRow(this, pocket0, pocket1);
+        if (this.hasPockets) {
+            setPocketRowCssVars(this);
+        }
 
         if (!this.isAnalysisBoard && !this.embed) {
             this.ctableContainer = document.getElementById('panel-3') as HTMLElement;
@@ -275,7 +274,13 @@ export class AnalysisController extends GameController {
     toggleOrientation() {
         super.toggleOrientation()
         boardSettings.updateDropSuggestion();
-        renderClocks(this);
+        const clocktimes = this.steps[1]?.clocks;
+        if (clocktimes !== undefined) {
+            renderClocks(this);
+        }
+        if (this.hasPockets) {
+            setPocketRowCssVars(this);
+        }
     }
 
     private drawAnalysisChart = (withRequest: boolean) => {

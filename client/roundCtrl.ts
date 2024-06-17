@@ -26,7 +26,7 @@ import { PyChessModel } from "./types";
 import { GameController } from './gameCtrl';
 import { handleOngoingGameEvents, Game, gameViewPlaying, compareGames } from './nowPlaying';
 import { createWebsocket } from "@/socket/webSocketUtils";
-import { initPocketRow } from './pocketRow';
+import { setPocketRowCssVars } from './pocketRow';
 
 let rang = false;
 const CASUAL = '0';
@@ -168,10 +168,9 @@ export class RoundController extends GameController {
             });
         }
 
-        // initialize pockets
-        const pocket0 = document.getElementById('pocket0') as HTMLElement;
-        const pocket1 = document.getElementById('pocket1') as HTMLElement;
-        initPocketRow(this, pocket0, pocket1);
+        if (this.hasPockets) {
+            setPocketRowCssVars(this);
+        }
 
         // initialize users
         const player0 = document.getElementById('rplayer0') as HTMLElement;
@@ -379,6 +378,10 @@ export class RoundController extends GameController {
         // console.log("FLIP");
         if (this.variant.material.showDiff) {
             this.updateMaterial();
+        }
+
+        if (this.hasPockets) {
+            setPocketRowCssVars(this);
         }
 
         // TODO: moretime button

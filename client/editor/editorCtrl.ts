@@ -12,7 +12,7 @@ import { PyChessModel } from "@/types";
 import { ChessgroundController } from '@/cgCtrl';
 import { copyTextToClipboard } from '@/clipboard';
 import { initPieceRow } from './pieceRow';
-import { initPocketRow } from '@/pocketRow';
+import { setPocketRowCssVars } from '@/pocketRow';
 
 export class EditorController extends ChessgroundController {
     model: PyChessModel;
@@ -68,10 +68,9 @@ export class EditorController extends ChessgroundController {
         this.vpieces0.elm?.addEventListener('touchend', this.dropOnPocket);
         this.vpieces1.elm?.addEventListener('touchend', this.dropOnPocket);
 
-        // initialize pockets
-        const pocket0 = document.getElementById('pocket0') as HTMLElement;
-        const pocket1 = document.getElementById('pocket1') as HTMLElement;
-        initPocketRow(this, pocket0, pocket1);
+        if (this.hasPockets) {
+            setPocketRowCssVars(this);
+        }
 
         const e = document.getElementById('fen') as HTMLElement;
         this.vfen = patch(e,
@@ -164,6 +163,10 @@ export class EditorController extends ChessgroundController {
 
         if (this.vpieces0 !== undefined && this.vpieces1 !== undefined) {
             initPieceRow(this, this.vpieces0, this.vpieces1);
+        }
+
+        if (this.hasPockets) {
+            setPocketRowCssVars(this);
         }
     }
 
