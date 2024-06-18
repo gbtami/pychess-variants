@@ -22,7 +22,7 @@ label.piece.piece98 {
 }
 /* Gray colored "ABC" */
 label.piece.piece99 {
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' version='1.1' width='80px' height='80px'><text font-family='Noto Sans, Sans-Serif' font-size='30' x='50%' y='50%' fill='black' class='white' text-anchor='middle' dominant-baseline='central'>A</text></svg>");
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' version='1.1' width='80px' height='80px'><rect x='12' y='12' width='56' height='56' fill='gray'/><rect x='17' y='17' width='46' height='46' fill='lightgray'/><text font-family='Noto Sans, Sans-Serif' font-size='30' x='50%' y='50%' fill='black' text-anchor='middle' dominant-baseline='central'>A</text></svg>");
 }
 
 label.piece.piece0.ataxx {
