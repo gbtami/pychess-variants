@@ -219,7 +219,7 @@ function start() {
     });
 
     // Clicking outside settings panel closes it
-    const settingsPanel = patch(document.getElementById('settings-panel') as HTMLElement, settingsView()).elm as HTMLElement;
+    const settingsPanel = patch(document.getElementById('settings-panel') as HTMLElement, settingsView(model["variant"])).elm as HTMLElement;
     var notifyPanel = document.getElementById('notify-panel') as HTMLElement;
     if (model["anon"] !== 'True') {
         notifyPanel = patch(notifyPanel, notifyView()).elm as HTMLElement;

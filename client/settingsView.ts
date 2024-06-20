@@ -8,7 +8,7 @@ import { _, translatedLanguage, languageSettings } from './i18n';
 import { volumeSettings, soundThemeSettings } from './sound';
 import { zenModeSettings } from './zen';
 
-export function settingsView() {
+export function settingsView(modelVariant: string) {
     const anon = getDocumentData('anon');
     const menu = (anon === 'True') ? [ settingsMenu() ] : [ userMenu(), settingsMenu() ];
     return h('div#settings-panel', [
@@ -19,7 +19,7 @@ export function settingsView() {
                 langSettingsView(),
                 soundSettingsView(),
                 backgroundSettingsView(),
-                boardSettingsView(),
+                boardSettingsView(modelVariant),
                 zenModeSettingsView(),
             ]),
         ]),
@@ -124,7 +124,7 @@ function zenModeSettingsView() {
     ]);
 }
 
-function boardSettingsView() {
+function boardSettingsView(modelVariant: string) {
     const variant = getDocumentData('variant') || "chess";
     return h('div#settings-board', [
         backButton(_("Board Settings")),
@@ -134,8 +134,8 @@ function boardSettingsView() {
                 selectVariant(
                     "settings-variant",
                     variant,
-                    () => showVariantBoardSettings(),
-                    () => showVariantBoardSettings(),
+                    () => showVariantBoardSettings(modelVariant),
+                    () => showVariantBoardSettings(modelVariant),
                 ),
             ]),
             h('div#board-settings'),
@@ -143,10 +143,10 @@ function boardSettingsView() {
     ]);
 }
 
-function showVariantBoardSettings() {
+function showVariantBoardSettings(modelVariant: string) {
     const e = document.getElementById('settings-variant') as HTMLSelectElement;
-    const variant = e.options[e.selectedIndex].value;
+    const selectedVariant = e.options[e.selectedIndex].value;
     const settings = document.getElementById('board-settings') as HTMLElement;
     settings.innerHTML = "";
-    patch(settings, boardSettings.view(variant));
+    patch(settings, boardSettings.view(selectedVariant, modelVariant));
 }

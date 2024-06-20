@@ -27,8 +27,6 @@ export abstract class ChessgroundController implements BoardController {
     fullfen: string;
     notation: cg.Notation;
 
-    //ffishPromise: Promise<void | FairyStockfish>;
-
     constructor(el: HTMLElement, model: PyChessModel, pocket0: HTMLElement, pocket1: HTMLElement) {
         this.home = model.home;
         this.ffish = model.ffish;
@@ -44,7 +42,6 @@ export abstract class ChessgroundController implements BoardController {
         const parts = this.fullfen.split(" ");
         const fen_placement: cg.FEN = parts[0];
 
-        console.log('gameCtrl CREATE Chessground', el);
         this.chessground = Chessground(el, {
             fen: fen_placement as cg.FEN,
             dimensions: this.variant.board.dimensions,
@@ -67,7 +64,6 @@ export abstract class ChessgroundController implements BoardController {
             moddedVariant(this.variant.name, this.chess960, this.chessground.state.boardState.pieces, parts[2]),
             this.fullfen,
             this.chess960);
-        console.log('NEW this.ffish.Board()' + (el.parentNode! as HTMLElement).id!);
         window.addEventListener('beforeunload', () => this.ffishBoard.delete());
     }
 
