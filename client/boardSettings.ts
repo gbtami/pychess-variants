@@ -140,7 +140,7 @@ class BoardSettings {
         }
     }
 
-    view(variantName: string) {
+    view(variantName: string, modelVariant: string) {
         if (!variantName) return h("div#board-settings");
         const variant = VARIANTS[variantName];
 
@@ -162,7 +162,7 @@ class BoardSettings {
 
         settingsList.push(this.settings["materialDifference"].view());
 
-        if (variantName === this.ctrl?.variant.name)
+        if (variantName === modelVariant)
             if (variantName === 'bughouse') {
                 settingsList.push(this.getSettings("Zoom", boardFamily as string, this.ctrl.boardName).view());
                 settingsList.push(this.getSettings("Zoom", boardFamily as string, this.ctrl2.boardName).view());

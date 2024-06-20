@@ -1,5 +1,7 @@
 import { h, VNode } from 'snabbdom';
 
+import ffishModule, { FairyStockfish } from 'ffish-es6';
+
 import { _, i18n } from './i18n';
 import { aboutView } from './about';
 import { settingsView, hideSettings } from './settingsView';
@@ -24,6 +26,7 @@ import { PyChessModel } from './types';
 import { roundView as bugRoundView } from "./bug/round.bug";
 import { analysisView as bugAnalysisView } from "./bug/analysis.bug";
 import { variantGroups } from './variants';
+import { variantsIni } from './variantsIni';
 
 // redirect to correct URL except Heroku preview apps
 if (window.location.href.includes('heroku') && !window.location.href.includes('-pr-')) {
@@ -46,6 +49,7 @@ function initModel(el: HTMLElement) {
     let board = el.getAttribute("data-board") ?? "";
     if (board) board = JSON.parse(board);
     return {
+        ffish : {} as FairyStockfish,
         home : el.getAttribute("data-home") ?? "",
         anon : el.getAttribute("data-anon") ?? "",
         profileid : el.getAttribute("data-profile") ?? "",
@@ -149,7 +153,18 @@ export function view(el: HTMLElement, model: PyChessModel): VNode {
 function start() {
     const placeholder = document.getElementById('placeholder');
     if (placeholder && el)
-        patch(placeholder, view(el, model));
+
+        if (['round', 'analysis'].includes(el.getAttribute("data-view") ?? "")) {
+            console.time('load ffish');
+            ffishModule().then((loadedModule: any) => {
+                console.timeEnd('load ffish');
+                loadedModule.loadVariantConfig(variantsIni);
+                model.ffish = loadedModule;
+                patch(placeholder, view(el, model));
+            });
+        } else  {
+            patch(placeholder, view(el, model));
+        }
 
     if (model["embed"]) return;
 
@@ -204,7 +219,7 @@ function start() {
     });
 
     // Clicking outside settings panel closes it
-    const settingsPanel = patch(document.getElementById('settings-panel') as HTMLElement, settingsView()).elm as HTMLElement;
+    const settingsPanel = patch(document.getElementById('settings-panel') as HTMLElement, settingsView(model["variant"])).elm as HTMLElement;
     var notifyPanel = document.getElementById('notify-panel') as HTMLElement;
     if (model["anon"] !== 'True') {
         notifyPanel = patch(notifyPanel, notifyView()).elm as HTMLElement;

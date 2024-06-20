@@ -188,32 +188,27 @@ export abstract class GameController extends ChessgroundController implements Ch
     }
 
     setDests() {
-        if (this.ffishBoard === undefined) {
-            // At very first time we may have to wait for ffish module to initialize
-            setTimeout(this.setDests.bind(this), 100); // todo: can't we do this async and await the promise?
-        } else {
-            const legalMoves = this.ffishBoard.legalMoves().split(" ");
-            const fakeDrops = this.variant.name === 'ataxx';
-            const pieces = this.chessground.state.boardState.pieces;
-            const dests = moveDests(legalMoves as UCIMove[], fakeDrops, pieces, this.turnColor);
-            if (this.variant.rules.gate) {
-                // Remove rook takes king from the legal destinations
-                for (const [orig, destArray] of dests) {
-                    if (orig && util.isKey(orig)) {
-                        const origPiece = pieces.get(orig);
-                        if (origPiece?.role === 'r-piece') {
-                            dests.set(orig, destArray.filter(dest => {
-                                const destPiece = pieces.get(dest);
-                                return !(destPiece && destPiece.role === 'k-piece' && origPiece.color === destPiece.color);
-                            }));
-                        }
+        const legalMoves = this.ffishBoard.legalMoves().split(" ");
+        const fakeDrops = this.variant.name === 'ataxx';
+        const pieces = this.chessground.state.boardState.pieces;
+        const dests = moveDests(legalMoves as UCIMove[], fakeDrops, pieces, this.turnColor);
+        if (this.variant.rules.gate) {
+            // Remove rook takes king from the legal destinations
+            for (const [orig, destArray] of dests) {
+                if (orig && util.isKey(orig)) {
+                    const origPiece = pieces.get(orig);
+                    if (origPiece?.role === 'r-piece') {
+                        dests.set(orig, destArray.filter(dest => {
+                            const destPiece = pieces.get(dest);
+                            return !(destPiece && destPiece.role === 'k-piece' && origPiece.color === destPiece.color);
+                        }));
                     }
                 }
             }
-            this.chessground.set({ movable: { dests: dests }});
-            if (this.steps.length === 1) {
-                this.chessground.set({ check: (this.ffishBoard.isCheck()) ? this.turnColor : false});
-            }
+        }
+        this.chessground.set({ movable: { dests: dests }});
+        if (this.steps.length === 1) {
+            this.chessground.set({ check: (this.ffishBoard.isCheck()) ? this.turnColor : false});
         }
     }
 

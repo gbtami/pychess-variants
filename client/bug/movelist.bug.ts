@@ -65,9 +65,8 @@ export function activatePlyVari (ply: number) {
 export function createMovelistButtons (ctrl: AnalysisControllerBughouse | RoundControllerBughouse ) {
     const container = document.getElementById('move-controls') as HTMLElement;
     let buttons = [
-        h('button#flip', { on: { click: () => ctrl.flipBoards() } }, [ h('i.icon.icon-refresh') ]),
-        // todo: another icon for switch boards or maybe 2 new icons with horizontal arrows and vertical arrows
-        h('button#flip', { on: { click: () => ctrl.switchBoards() } }, [ h('i.icon.icon-refresh') ]),
+        h('button', { on: { click: () => ctrl.flipBoards() } }, [ h('i.icon.icon-refresh') ]),
+        h('button', { on: { click: () => ctrl.switchBoards() } }, [ h('i.icon.icon-exchange') ]),
         h('button', { on: { click: () => selectMove(ctrl, 0) } }, [ h('i.icon.icon-fast-backward') ]),
         h('button', { on: { click: () => selectMove(ctrl, ctrl.ply - 1, ctrl.plyVari) } }, [ h('i.icon.icon-step-backward') ]),
         h('button', { on: { click: () => selectMove(ctrl, ctrl.ply + 1, ctrl.plyVari) } }, [ h('i.icon.icon-step-forward') ]),
