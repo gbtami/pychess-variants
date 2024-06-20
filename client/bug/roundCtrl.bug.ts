@@ -28,7 +28,7 @@ import {
     MsgUpdateTV,
     MsgGameStart, MsgViewRematch
 } from '../roundType';
-import { JSONObject, PyChessModel } from "../types";
+import { BugBoardName, JSONObject, PyChessModel } from "../types";
 import { GameControllerBughouse } from "./gameCtrl.bug";
 import { BLACK, getTurnColor, uci2LastMove, WHITE } from "../chess";
 import { sound } from "../sound";
@@ -378,9 +378,7 @@ export class RoundControllerBughouse implements ChatController {
             movesQueued: [],
         }
 
-        // todo: boardsettings code is called also in cgCrtl constructor twice already as part of initializing b1 and b2
-        //       think how to avoid this
-        initBoardSettings(this.b1, this.b2, model.assetURL, VARIANTS['bughouse']);
+        initBoardSettings(this.b1, this.b2, VARIANTS['bughouse']);
 
         // last so when it receive initial messages on connect all dom is ready to be updated
         this.sock = createWebsocket('wsr/' + this.gameId, onOpen, onReconnect, onClose, (e: MessageEvent) => this.onMessage(e));
@@ -434,7 +432,7 @@ export class RoundControllerBughouse implements ChatController {
         this.clearDialog();
 
         //moveColor is "my color" on that board
-        const moveColor = this.myColor.get(b.boardName) === "black"? "black" : "white";
+        const moveColor = this.myColor.get(b.boardName as BugBoardName) === "black"? "black" : "white";
 
         const oppclock = b.chessground.state.orientation === moveColor? 0: 1; // only makes sense when board is flipped which not supported in gameplay yet and itself only makes sense in spectators mode todo: also switching boards to be implemented
         const myclock = 1 - oppclock;
@@ -860,7 +858,7 @@ export class RoundControllerBughouse implements ChatController {
 
         const msgTurnColor = step.turnColor; // whose turn it is after this move
         const msgMoveColor = msgTurnColor === 'white'? 'black': 'white'; // which color made the move
-        const myMove = this.myColor.get(board.boardName) === msgMoveColor; // the received move was made by me
+        const myMove = this.myColor.get(board.boardName as BugBoardName) === msgMoveColor; // the received move was made by me
 
         // important we update only the board where the single move happened, the other clock values do not include the
         // time passed since last move on that board, but contain what is last recorded on the server for that board,
@@ -959,7 +957,7 @@ export class RoundControllerBughouse implements ChatController {
         const fenA = fens[0];
         const fenB = fens[1];
 
-        const boardName = msg.steps[msg.steps.length - 1].boardName as 'a' | 'b';
+        const boardName = msg.steps[msg.steps.length - 1].boardName as BugBoardName;
         const board = boardName === 'a' ? this.b1 : this.b2;
         const colors = boardName === 'a' ? this.colors : this.colorsB;
 
@@ -1272,16 +1270,8 @@ export function switchBoards(ctrl: RoundControllerBughouse| AnalysisControllerBu
         ctrl.b2.chessground.redrawAll();
 }
 
-export function initBoardSettings(b1: ChessgroundController, b2: ChessgroundController, assetURL: string, variant: Variant) {
-    boardSettings.ctrl = b1;
-    boardSettings.ctrl2 = b2;
-    boardSettings.assetURL = assetURL;
-
+export function initBoardSettings(b1: ChessgroundController, b2: ChessgroundController, variant: Variant) {
     const boardFamily = variant.boardFamily;
-    const pieceFamily = variant.pieceFamily;
-
-    boardSettings.updateBoardStyle(boardFamily);
-    boardSettings.updatePieceStyle(pieceFamily);
     boardSettings.updateZoom(boardFamily, b1.boardName);
     boardSettings.updateZoom(boardFamily, b2.boardName);
 }

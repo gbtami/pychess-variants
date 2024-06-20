@@ -3,7 +3,7 @@ import { VARIANTS } from "../variants"
 import * as util from "chessgroundx/util";
 import AnalysisControllerBughouse from "./analysisCtrl.bug";
 import { GameController} from "../gameCtrl";
-import { PyChessModel } from "../types";
+import { BugBoardName, PyChessModel } from "../types";
 import { RoundControllerBughouse } from "./roundCtrl.bug";
 import { premove } from "chessgroundx/premove";
 import { predrop } from "chessgroundx/predrop";
@@ -13,15 +13,13 @@ export class GameControllerBughouse extends GameController {
 
     partnerCC: GameControllerBughouse;
     parent: AnalysisControllerBughouse | RoundControllerBughouse;
-    boardName: 'a' | 'b';
     localAnalysis: boolean = false;
 
     isCheck: boolean;
     lastmove: cg.Orig[] | undefined;
 
-    constructor(el: HTMLElement,elPocket1: HTMLElement,elPocket2: HTMLElement, boardName: 'a' | 'b', model: PyChessModel) {
-        super(el, model,elPocket1,elPocket2);
-        this.boardName = boardName;
+    constructor(el: HTMLElement,elPocket1: HTMLElement,elPocket2: HTMLElement, boardName: BugBoardName, model: PyChessModel) {
+        super(el, model, elPocket1, elPocket2, boardName);
         const fens = model.fen.split(" | ");
         this.fullfen = this.boardName === "a" ? fens[0]: fens[1];
         this.setGround(this.fullfen);

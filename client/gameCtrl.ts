@@ -14,7 +14,7 @@ import { GatingInput } from './input/gating';
 import { PromotionInput } from './input/promotion';
 import { DuckInput } from './input/duck';
 import { ChessgroundController } from './cgCtrl';
-import { JSONObject, PyChessModel } from './types';
+import { BoardName, JSONObject, PyChessModel } from './types';
 import { updateCount, updatePoint } from './info';
 import { sound } from './sound';
 import { chatMessage, ChatController } from './chat';
@@ -92,8 +92,8 @@ export abstract class GameController extends ChessgroundController implements Ch
 
     undo?: any;
 
-    constructor(el: HTMLElement, model: PyChessModel, pocket0: HTMLElement, pocket1: HTMLElement) {
-        super (el, model, pocket0, pocket1);
+    constructor(el: HTMLElement, model: PyChessModel, pocket0: HTMLElement, pocket1: HTMLElement, boardName: BoardName) {
+        super (el, model, pocket0, pocket1, boardName);
 
         this.gameId = model["gameId"] as string;
         this.tournamentId = model["tournamentId"]

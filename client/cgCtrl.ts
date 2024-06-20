@@ -6,10 +6,11 @@ import { FairyStockfish, Board, Notation } from 'ffish-es6';
 
 import { boardSettings, BoardController } from '@/boardSettings';
 import { CGMove, uci2cg } from '@/chess';
-import { PyChessModel } from '@/types';
+import { BoardName, PyChessModel } from '@/types';
 import { Variant, VARIANTS, moddedVariant } from '@/variants';
 
 export abstract class ChessgroundController implements BoardController {
+    boardName: BoardName;
     readonly home: string;
 
     chessground: Api;
@@ -27,7 +28,8 @@ export abstract class ChessgroundController implements BoardController {
     fullfen: string;
     notation: cg.Notation;
 
-    constructor(el: HTMLElement, model: PyChessModel, pocket0: HTMLElement, pocket1: HTMLElement) {
+    constructor(el: HTMLElement, model: PyChessModel, pocket0: HTMLElement, pocket1: HTMLElement, boardName: BoardName) {
+        this.boardName = boardName;
         this.home = model.home;
         this.ffish = model.ffish;
         this.variant = VARIANTS[model.variant];
@@ -47,11 +49,16 @@ export abstract class ChessgroundController implements BoardController {
             dimensions: this.variant.board.dimensions,
             notation: this.notation,
             addDimensionsCssVarsTo: document.body,
+            dimensionsCssVarsSuffix: this.boardName,
             kingRoles: this.variant.kingRoles,
             pocketRoles: this.variant.pocket?.roles,
         }, pocket0, pocket1);
 
-        boardSettings.ctrl = this;
+        if (this.boardName === 'b') {
+            boardSettings.ctrl2 = this;
+        } else {
+            boardSettings.ctrl = this;
+        }
         boardSettings.assetURL = model.assetURL;
         const boardFamily = this.variant.boardFamily;
         const pieceFamily = this.variant.pieceFamily;

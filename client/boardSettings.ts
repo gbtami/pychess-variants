@@ -8,13 +8,14 @@ import { _ } from './i18n';
 import { changeBoardCSS, changePieceCSS } from './document';
 import { Settings, NumberSettings, BooleanSettings } from './settings';
 import { slider, checkbox } from './view';
-import { PyChessModel } from "./types";
+import { BoardName, PyChessModel } from "./types";
 import { BOARD_FAMILIES, PIECE_FAMILIES, Variant, VARIANTS } from './variants';
 import { renderResized, updateBounds } from "chessgroundx/render";
 
 export interface BoardController {
     readonly chessground: Api;
 
+    boardName: BoardName;
     readonly variant: Variant;
     readonly mycolor: cg.Color;
     readonly oppcolor: cg.Color;
@@ -81,13 +82,13 @@ class BoardSettings {
     }
 
     updateBoardStyle(family: keyof typeof BOARD_FAMILIES) {
-        const idx = this.getSettings("BoardStyle", family as string).value as number;
+        const idx = this.getSettings("BoardStyle", family as string, '').value as number;
         const board = BOARD_FAMILIES[family].boardCSS[idx];
         changeBoardCSS(this.assetURL , family as string, board);
     }
 
     updatePieceStyle(family: keyof typeof PIECE_FAMILIES) {
-        const idx = this.getSettings("PieceStyle", family as string).value as number;
+        const idx = this.getSettings("PieceStyle", family as string, '').value as number;
         let css: string;
         switch (idx) {
         case 98:
@@ -164,15 +165,15 @@ class BoardSettings {
 
         if (variantName === modelVariant)
             if (variantName === 'bughouse') {
-                settingsList.push(this.getSettings("Zoom", boardFamily as string, this.ctrl.boardName).view());
-                settingsList.push(this.getSettings("Zoom", boardFamily as string, this.ctrl2.boardName).view());
+                settingsList.push(this.getSettings("Zoom", boardFamily as string, 'a').view());
+                settingsList.push(this.getSettings("Zoom", boardFamily as string, 'b').view());
             } else {
                 settingsList.push(this.getSettings("Zoom", boardFamily as string, '').view());
             }
 
         settingsList.push(h('div#style-settings', [
-            this.getSettings("BoardStyle", boardFamily as string).view(),
-            this.getSettings("PieceStyle", pieceFamily as string).view(),
+            this.getSettings("BoardStyle", boardFamily as string, '').view(),
+            this.getSettings("PieceStyle", pieceFamily as string, '').view(),
             ])
         );
         
