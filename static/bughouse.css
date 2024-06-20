@@ -71,10 +71,14 @@
     .pocket-top .bughouse .pocket, .pocket-bot .bughouse .pocket {
       width: calc(var(--pocketLength) * (var(--cg-width-a) / var(--files)));
       height: calc(var(--cg-height-a) / var(--ranks));
+      --fs: calc(var(--cg-height-a) / var(--ranks));
+      font-size: var(--fs);
     }
     .pocket-top-partner .bughouse .pocket, .pocket-bot-partner .bughouse .pocket {
       width: calc(var(--pocketLength) * (var(--cg-width-b) / var(--files)));
       height: calc(var(--cg-height-b) / var(--ranks));
+      --fs: calc(var(--cg-height-b) / var(--ranks));
+      font-size: var(--fs);
     }
 }
 
