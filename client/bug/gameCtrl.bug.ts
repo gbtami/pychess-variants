@@ -1,7 +1,5 @@
-import { Api } from "chessgroundx/api";
 import * as cg from "chessgroundx/types";
-import { Chessground } from "chessgroundx";
-import { VARIANTS, BOARD_FAMILIES } from "../variants"
+import { VARIANTS } from "../variants"
 import * as util from "chessgroundx/util";
 import AnalysisControllerBughouse from "./analysisCtrl.bug";
 import { GameController} from "../gameCtrl";
@@ -26,7 +24,7 @@ export class GameControllerBughouse extends GameController {
         this.boardName = boardName;
         const fens = model.fen.split(" | ");
         this.fullfen = this.boardName === "a" ? fens[0]: fens[1];
-        this.chessground = this.createGround(el, elPocket1, elPocket2, this.fullfen);
+        this.setGround(this.fullfen);
         this.mycolor = 'white';
     }
 
@@ -117,14 +115,9 @@ export class GameControllerBughouse extends GameController {
         this.fullfen = fen;
         this.turnColor = turnColor; // todo: probably not needed here and other places as well where its set
         this.lastmove = move;
-        // this.ffishPromise.then(() => {
-        if (this.ffishBoard) {
-            this.ffishBoard.setFen(this.fullfen);
-            this.isCheck = this.ffishBoard.isCheck();
-            this.setDests();
-        } else {
-            console.error("ffishBoard not initialized yet");
-        }
+        this.ffishBoard.setFen(this.fullfen);
+        this.isCheck = this.ffishBoard.isCheck();
+        this.setDests();
     }
 
     pushMove = (move: string) => {
@@ -166,26 +159,14 @@ export class GameControllerBughouse extends GameController {
         });
     }
 
-    createGround = (el: HTMLElement, pocket0:HTMLElement|undefined, pocket1:HTMLElement|undefined, fullfen: string): Api => {
+    setGround = (fullfen: string) => {
         //TODO: There already is initialization of chessground in the parent class, but might require some changes to it
         //      to decouple from model object and pass custom fens, etc. Ideally below initialization should happen there as well
         const parts = fullfen.split(" ");
         const fen_placement: cg.FEN = parts[0];
 
-        const chessground = Chessground(el, {
-             fen: fen_placement as cg.FEN,
-             dimensions: BOARD_FAMILIES.standard8x8.dimensions,
-             notation: cg.Notation.ALGEBRAIC,
-             orientation: 'white',// todo: meaningless, will be overwritten in a moment by roundCtrl.bug.ts or analysisCtrl.bug.ts
-             turnColor: 'white',//todo: meaningless, will be overwritten in a moment by roundCtrl.bug.ts or analysisCtrl.bug.ts
-             animation: {
-                 enabled: localStorage.animation === undefined || localStorage.animation === "true",
-             },
-             addDimensionsCssVarsTo: this.boardName === 'a'? document.body: undefined,
-             pocketRoles: VARIANTS.crazyhouse.pocket?.roles,
-        }, pocket0, pocket1);
-
-        chessground.set({
+        this.chessground.set({
+            fen: fen_placement as cg.FEN,
             animation: { enabled: false },
             movable: {
                 free: false,
@@ -211,8 +192,6 @@ export class GameControllerBughouse extends GameController {
                 select: this.onSelect(),
             },
         });
-
-        return chessground;
     }
 
     toggleSettings(): void {

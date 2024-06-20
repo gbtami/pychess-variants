@@ -2,13 +2,12 @@ import * as cg from 'chessgroundx/types';
 import { Chessground } from 'chessgroundx';
 import { Api } from 'chessgroundx/api';
 
-import ffishModule, { FairyStockfish, Board, Notation } from 'ffish-es6';
+import { FairyStockfish, Board, Notation } from 'ffish-es6';
 
 import { boardSettings, BoardController } from '@/boardSettings';
 import { CGMove, uci2cg } from '@/chess';
 import { PyChessModel } from '@/types';
 import { Variant, VARIANTS, moddedVariant } from '@/variants';
-import { variantsIni } from '@/variantsIni';
 
 export abstract class ChessgroundController implements BoardController {
     readonly home: string;
@@ -28,11 +27,11 @@ export abstract class ChessgroundController implements BoardController {
     fullfen: string;
     notation: cg.Notation;
 
-    ffishPromise: Promise<void | FairyStockfish>;
+    //ffishPromise: Promise<void | FairyStockfish>;
 
     constructor(el: HTMLElement, model: PyChessModel, pocket0: HTMLElement, pocket1: HTMLElement) {
         this.home = model.home;
-
+        this.ffish = model.ffish;
         this.variant = VARIANTS[model.variant];
         this.chess960 = model.chess960 === 'True';
         this.hasPockets = !!this.variant.pocket;
@@ -45,6 +44,7 @@ export abstract class ChessgroundController implements BoardController {
         const parts = this.fullfen.split(" ");
         const fen_placement: cg.FEN = parts[0];
 
+        console.log('gameCtrl CREATE Chessground', el);
         this.chessground = Chessground(el, {
             fen: fen_placement as cg.FEN,
             dimensions: this.variant.board.dimensions,
@@ -61,19 +61,14 @@ export abstract class ChessgroundController implements BoardController {
         boardSettings.updateBoardStyle(boardFamily);
         boardSettings.updatePieceStyle(pieceFamily);
         boardSettings.updateZoom(boardFamily);
-        console.time('load ffish ' + (el.parentNode! as HTMLElement).id!);
-        this.ffishPromise = ffishModule().then((loadedModule: any) => {
-            console.timeEnd('load ffish ' + (el.parentNode! as HTMLElement).id!);
-            this.ffish = loadedModule;
-            this.ffish.loadVariantConfig(variantsIni);
-            this.notationAsObject = this.notation2ffishjs(this.notation);
-            this.ffishBoard = new this.ffish.Board(
-                moddedVariant(this.variant.name, this.chess960, this.chessground.state.boardState.pieces, parts[2]),
-                this.fullfen,
-                this.chess960);
 
-            window.addEventListener('beforeunload', () => this.ffishBoard.delete());
-        });
+        this.notationAsObject = this.notation2ffishjs(this.notation);
+        this.ffishBoard = new this.ffish.Board(
+            moddedVariant(this.variant.name, this.chess960, this.chessground.state.boardState.pieces, parts[2]),
+            this.fullfen,
+            this.chess960);
+        console.log('NEW this.ffish.Board()' + (el.parentNode! as HTMLElement).id!);
+        window.addEventListener('beforeunload', () => this.ffishBoard.delete());
     }
 
     toggleOrientation(): void {

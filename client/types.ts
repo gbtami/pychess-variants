@@ -1,3 +1,4 @@
+import { FairyStockfish } from 'ffish-es6';
 import { CrossTable, MsgBoard } from './messages';
 
 export type JSONPrimitive = string | number | boolean | null;
@@ -6,6 +7,7 @@ export type JSONObject = { [member: string]: JSONValue };
 export type JSONArray = JSONValue[];
 
 export type PyChessModel = {
+    ffish: FairyStockfish;
     username: string;
     home: string;
     anon: string;
