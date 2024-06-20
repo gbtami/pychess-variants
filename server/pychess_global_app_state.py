@@ -270,7 +270,11 @@ class PychessGlobalAppState:
                             game.bplayer.correspondence_games.append(game)
                             game.stopwatch.restart(from_db=True)
                         else:
-                            game.stopwatch.restart()
+                            try:
+                                game.stopwatch.restart()
+                            except AttributeError:
+                                game.gameClocks.restart("a")
+                                game.gameClocks.restart("b")
                     except NotInDbUsers:
                         log.error("Failed toload game %s", doc["_id"])
 
