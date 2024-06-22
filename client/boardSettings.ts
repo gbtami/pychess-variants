@@ -56,7 +56,7 @@ class BoardSettings {
         this.settings["materialDifference"] = new MaterialDifferenceSettings(this);
     }
 
-    getSettings(settingsType: string, family: string, boardName: string) {
+    getSettings(settingsType: string, family: string, boardName: BoardName = '') {
         const fullName = family + settingsType + boardName;
         if (!this.settings[fullName]) {
             switch (settingsType) {
@@ -121,7 +121,7 @@ class BoardSettings {
         }
     }
 
-    updateZoom(family: keyof typeof BOARD_FAMILIES, boardName: string) {
+    updateZoom(family: keyof typeof BOARD_FAMILIES, boardName: BoardName = '') {
         const variant = this.ctrl?.variant;
         if (variant && variant.boardFamily === family) {
             const suffix = (boardName) ? '-' + boardName : '';
@@ -321,9 +321,9 @@ class PieceStyleSettings extends NumberSettings {
 class ZoomSettings extends NumberSettings {
     readonly boardSettings: BoardSettings;
     readonly boardFamily: string;
-    readonly boardName: string;
+    readonly boardName: BoardName;
 
-    constructor(boardSettings: BoardSettings, boardFamily: string, boardName: string) {
+    constructor(boardSettings: BoardSettings, boardFamily: string, boardName: BoardName = '') {
         const suffix = (boardName) ? '-' + boardName : '';
         super(boardFamily + '-zoom' + suffix, 80);
         this.boardSettings = boardSettings;

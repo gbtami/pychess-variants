@@ -28,7 +28,7 @@ export abstract class ChessgroundController implements BoardController {
     fullfen: string;
     notation: cg.Notation;
 
-    constructor(el: HTMLElement, model: PyChessModel, pocket0: HTMLElement, pocket1: HTMLElement, boardName: BoardName) {
+    constructor(el: HTMLElement, model: PyChessModel, pocket0: HTMLElement, pocket1: HTMLElement, boardName: BoardName = '') {
         this.boardName = boardName;
         this.home = model.home;
         this.ffish = model.ffish;
