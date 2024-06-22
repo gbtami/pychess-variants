@@ -6,6 +6,9 @@ export type JSONValue = JSONPrimitive | JSONObject | JSONArray;
 export type JSONObject = { [member: string]: JSONValue };
 export type JSONArray = JSONValue[];
 
+export type BugBoardName = 'a' | 'b';
+export type BoardName = '' | BugBoardName;
+
 export type PyChessModel = {
     ffish: FairyStockfish;
     username: string;

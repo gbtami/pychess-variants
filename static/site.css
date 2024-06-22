@@ -83,6 +83,9 @@
   --pv-hover: #e0ebd3;
   --table-even: rgb(235, 235, 235);
   --bug-waiting: #787878;
+  --zoom: 100;
+  --zoom-a: 100;
+  --zoom-b: 100;
 }
 [data-theme='dark'] {
   --dark-mode: 1;

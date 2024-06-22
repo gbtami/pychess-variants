@@ -4,6 +4,7 @@ import { selectMove } from './movelist.bug';
 import { Step } from "../messages";
 import AnalysisControllerBughouse from "@/bug/analysisCtrl.bug";
 import { BLACK, WHITE } from "@/chess";
+import { BugBoardName } from "../types";
 
 export interface MovePoint {
   y: number;
@@ -137,9 +138,10 @@ export function movetimeChart(ctrl: AnalysisControllerBughouse) {
         //         (ctrl.steps[ply-2].clocks![WHITE] - (ctrl.steps[ply].clocks![WHITE] - ctrl.inc * 1000)) :
         //         (ctrl.steps[ply-2].clocks![BLACK] - (ctrl.steps[ply].clocks![BLACK] - ctrl.inc * 1000));
         // }
+        const boardName = step.boardName! as BugBoardName
         const moveClocktime = step.boardName === 'a'? step.clocks![moveColor]: step.clocksB![moveColor];
-        const lastClocktime = clocktimeLast[step.boardName!][moveColor];
-        clocktimeLast[step.boardName!][moveColor] = moveClocktime;
+        const lastClocktime = clocktimeLast[boardName][moveColor];
+        clocktimeLast[boardName][moveColor] = moveClocktime;
         step.movetime = lastClocktime - (moveClocktime - ctrl.inc * 1000 );
 
         const y = Math.pow(Math.log(0.005 * Math.min(step.movetime, 12e4) + 3), 2) - logC;
@@ -178,7 +180,7 @@ export function movetimeChart(ctrl: AnalysisControllerBughouse) {
         }
         //
 
-        let clock = clocktimeLast[step.boardName!][WHITE] + clocktimeLast[step.boardName!][BLACK];
+        let clock = clocktimeLast[boardName][WHITE] + clocktimeLast[boardName][BLACK];
         if (clock !== undefined) {
             label += '<br />' + formatClock(clock);
             maxTotal = Math.max(clock, maxTotal);

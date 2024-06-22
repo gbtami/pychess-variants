@@ -226,10 +226,7 @@ export default class AnalysisControllerBughouse {
         //
         this.onMsgBoard(model["board"] as MsgBoard);
 
-
-        // todo: boardsettings code is called also in cgCrtl constructor twice already as part of initializing b1 and b2
-        //       think how to avoid this
-        initBoardSettings(this.b1, this.b2, model.assetURL, this.variant);
+        initBoardSettings(this.b1, this.b2, this.variant);
     }
 
     pvboxIni() {

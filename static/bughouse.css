@@ -45,31 +45,40 @@
 }
 
 @media (min-width: 800px) {
-    .info-wrap0, .info-wrap1, .clock-wrap {
+    .bug .info-wrap0, .bug .info-wrap1, .bug .clock-wrap {
         justify-content: end;
     }
     .info-wrap0.bug, .info-wrap1.bug, .clock-wrap.bug {
         justify-content: start;
     }
     .round-app.bug {
+        --board-scaleA: calc((var(--zoom-a) / 100));
+        --board-scaleB: calc((var(--zoom-b) / 100));
         grid-row-gap: 2vmin;
-        grid-template-columns: calc(var(--pocketLength) * (var(--cg-width) / var(--files)))
-                               calc((30vw * var(--board-scale)) - var(--pocketLength) * (var(--cg-width) / var(--files)))
-                               calc(var(--pocketLength) * (var(--cg-width) / var(--files)))
-                               calc((30vw * var(--board-scale)) - var(--pocketLength) * (var(--cg-width) / var(--files)))
-                               calc(var(--pocketLength) * (var(--cg-width) / var(--files)))
-                               calc(var(--pocketLength) * (var(--cg-width) / var(--files)));
-        grid-template-rows: min-content min-content min-content min-content min-content min-content min-content min-content min-content;
+        grid-template-columns: calc(var(--pocketLength) * (var(--cg-width-a) / var(--files)))
+                               calc((30vw * var(--board-scaleA)) - var(--pocketLength) * (var(--cg-width-a) / var(--files)))
+                               calc(var(--pocketLength) * (var(--cg-width-a) / var(--files)))
+                               calc((30vw * var(--board-scaleB)) - var(--pocketLength) * (var(--cg-width-b) / var(--files)))
+                               calc(var(--pocketLength) * (var(--cg-width-b) / var(--files)))
+                               calc(var(--pocketLength) * (var(--cg-width-b) / var(--files)));
+        grid-template-rows: min-content min-content min-content min-content min-content;
         grid-template-areas: 'pocket-top clock-top tools clockB-top pocket-top-partner toolsB'
-                             'board board tools boardPartner boardPartner toolsB'
-                             'board board tools boardPartner boardPartner toolsB'
-                             'board board tools boardPartner boardPartner toolsB'
-                             'board board tools boardPartner boardPartner toolsB'
-                             'board board tools boardPartner boardPartner toolsB'
                              'board board tools boardPartner boardPartner toolsB'
                              'pocket-bot clock-bot tools clockB-bot pocket-bot-partner tootsB'
                              '. . move-controls move-controls . .'
                              'uboard uboard uboard uboard uboard uboard';
+    }
+    .pocket-top .bughouse .pocket, .pocket-bot .bughouse .pocket {
+      width: calc(var(--pocketLength) * (var(--cg-width-a) / var(--files)));
+      height: calc(var(--cg-height-a) / var(--ranks));
+      --fs: calc(var(--cg-height-a) / var(--ranks));
+      font-size: var(--fs);
+    }
+    .pocket-top-partner .bughouse .pocket, .pocket-bot-partner .bughouse .pocket {
+      width: calc(var(--pocketLength) * (var(--cg-width-b) / var(--files)));
+      height: calc(var(--cg-height-b) / var(--ranks));
+      --fs: calc(var(--cg-height-b) / var(--ranks));
+      font-size: var(--fs);
     }
 }
 
@@ -91,8 +100,8 @@
 }
 
 .bug-round-tools-part .movelist-block{
-    max-height: calc(var(--cg-height) - 48px);
-    min-height: calc(var(--cg-height) - 48px);
+    max-height: calc(var(--cg-height-b));
+    min-height: calc(var(--cg-height-b));
 
 }
 
@@ -243,7 +252,7 @@ button.bugchat::-moz-focus-inner {
 @media (min-width: 800px) {
   .bug {
     grid-template-columns:
-      2 * minmax(calc(70vmin * var(--board-scale)), calc(100vh * var(--board-scale) - calc(var(--site-header-height) + var(--site-header-margin)) - 3rem))
+      2 * minmax(calc(70vmin * var(--board-scaleA)), calc(100vh * var(--board-scaleA) - calc(var(--site-header-height) + var(--site-header-margin)) - 3rem))
       minmax(240px, 400px);
     grid-template-rows: fit-content(0) fit-content(0) 743px;
     grid-template-areas: 'app app' 'uleft uboard' 'side side';
