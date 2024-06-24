@@ -1,22 +1,24 @@
 import { Variant, VARIANTS } from "@/variants";
-import { Seek } from "@/lobbyType";
+import { CreateMode, Seek } from "@/lobbyType";
 import { h } from "snabbdom";
 import { _ } from "@/i18n";
 import { timeControlStr } from "@/view";
-import { LobbyController } from "@/lobby";
+import { disableCorr, LobbyController } from "@/lobby";
 
-export function switchEnablingLobbyControls(variant: Variant){
+export function switchEnablingLobbyControls(mode: CreateMode, variant: Variant){
         const rated = document.getElementById('rated')! as HTMLInputElement;
         const casual = document.getElementById('casual')! as HTMLInputElement;
         if (variant === VARIANTS["bughouse"]) {
             rated.disabled = true;
             rated.checked = false;
             casual.checked = true;
+            disableCorr(true);
         } else {
             const vRated = localStorage.seek_rated ?? "0";
             rated.disabled = false;
             rated.checked = vRated === "1";
             casual.checked = vRated === "0";
+            disableCorr(mode === 'playAI');
         }
 }
 

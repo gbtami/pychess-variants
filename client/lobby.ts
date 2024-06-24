@@ -33,6 +33,14 @@ export function createModeStr(mode: CreateMode) {
     }
 }
 
+export function disableCorr(disable: boolean) {
+    document.querySelectorAll("#tc option").forEach((opt: HTMLInputElement) => {
+        if (opt.value == "corr") {
+            opt.disabled = disable;
+        }
+    });
+}
+
 export class LobbyController implements ChatController {
     sock: WebsocketHeartbeatJs;
     home: string;
@@ -45,7 +53,6 @@ export class LobbyController implements ChatController {
     title: string;
     tournamentDirector: boolean;
     fen: string;
-    variant: string;
     createMode: CreateMode;
     tcMode: TcMode;
     validGameData: boolean;
@@ -78,7 +85,6 @@ export class LobbyController implements ChatController {
         this.title = model["title"];
         this.tournamentDirector = model["tournamentDirector"];
         this.fen = model["fen"];
-        this.variant = model["variant"];
         this.profileid = model["profileid"]
         this.createMode = 'createGame';
         this.tcMode = 'real';
@@ -338,7 +344,7 @@ export class LobbyController implements ChatController {
     }
 
     renderSeekButtons() {
-        const vVariant = this.variant || localStorage.seek_variant || "chess";
+        const vVariant = localStorage.seek_variant || "chess";
         // 5+3 default TC needs vMin 9 because of the partial numbers at the beginning of minutesValues
         const vMin = localStorage.seek_min ?? "9";
         const vInc = localStorage.seek_inc ?? "3";
@@ -510,7 +516,7 @@ export class LobbyController implements ChatController {
     }
 
     renderVariantsDropDown(disabled: string[]) {
-        const vVariant = this.variant || localStorage.seek_variant || "chess";
+        const vVariant = localStorage.seek_variant || "chess";
         const e = document.getElementById('variant');
         e!.replaceChildren();
         patch(e!, selectVariant("variant", disabled.includes(vVariant)? null: vVariant, () => this.setVariant(), () => this.setVariant(), disabled));
@@ -527,6 +533,7 @@ export class LobbyController implements ChatController {
         document.getElementById('id01')!.style.display = 'flex';
         document.getElementById('color-button-group')!.style.display = 'block';
         document.getElementById('create-button')!.style.display = 'none';
+        disableCorr(false);
     }
 
     playFriend(variantName: string = '', chess960: boolean = false) {
@@ -540,6 +547,7 @@ export class LobbyController implements ChatController {
         document.getElementById('id01')!.style.display = 'flex';
         document.getElementById('color-button-group')!.style.display = 'block';
         document.getElementById('create-button')!.style.display = 'none';
+        disableCorr(false);
     }
 
     playAI(variantName: string = '', chess960: boolean = false) {
@@ -554,6 +562,7 @@ export class LobbyController implements ChatController {
         document.getElementById('id01')!.style.display = 'flex';
         document.getElementById('color-button-group')!.style.display = 'block';
         document.getElementById('create-button')!.style.display = 'none';
+        disableCorr(true);
     }
 
     createHost(variantName: string = '', chess960: boolean = false) {
@@ -567,6 +576,7 @@ export class LobbyController implements ChatController {
         document.getElementById('id01')!.style.display = 'flex';
         document.getElementById('color-button-group')!.style.display = 'none';
         document.getElementById('create-button')!.style.display = 'block';
+        disableCorr(true);
     }
 
     private setVariant() {
@@ -598,7 +608,7 @@ export class LobbyController implements ChatController {
                 ),
             ]));
         }
-        switchEnablingLobbyControls(variant);
+        switchEnablingLobbyControls(this.createMode, variant);
         this.setStartButtons();
     }
     private setAlternateStart(variant: Variant) {
