@@ -16,6 +16,16 @@ del _
 
 BLOGS = [
     {
+        "_id": "Alternate Variants",
+        "date": "2024-06-25",
+        "image": "/images/Kuniyoshi_Utagawa_The_actor_17.jpg",
+        "alt": "",
+        "title": "Alternate Variants",
+        "subtitle": "An additional PyChess server for alternate variants",
+        "author": "autocorr",
+        "tags": ["Announcement"],
+    },
+    {
         "_id": "Spring_Update",
         "date": "2024-03-30",
         "image": "/images/Kuniyoshi_Utagawa_The_actor_17.jpg",
