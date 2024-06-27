@@ -115,6 +115,7 @@ VARIANTS = (
     "3check960",
     "placement",
     "duck",
+    "alice",
     "makruk",
     "makpong",
     "cambodian",
@@ -231,6 +232,7 @@ VARIANT_ICONS = {
     "3check960": "☷",
     "bughouse": "¢",
     "bughouse960": "⌀",
+    "alice": "🪞",
 }
 
 VARIANT_960_TO_PGN = {
@@ -267,6 +269,7 @@ CATEGORIES = {
         "3check",
         "3check960",
         "duck",
+        "alice",
     ),
     "fairy": (
         "capablanca",
@@ -353,6 +356,8 @@ def variant_display_name(variant):
         return "THREE-CHECK"
     elif variant == "dragon":
         return "DRAGON CHESS"
+    elif variant == "alice":
+        return "ALICE CHESS"
     else:
         return variant.upper()
 
@@ -391,6 +396,7 @@ TRANSLATED_VARIANT_NAMES = {
     "atomic": _("Atomic"),
     "atomic960": _("Atomic960"),
     "duck": _("Duck Chess"),
+    "alice": _("Alice Chess"),
     "makruk": _("Makruk"),
     "makpong": _("Makpong"),
     "cambodian": _("Ouk Chaktrang"),

@@ -34,6 +34,7 @@ from const import (
 )
 from convert import grand2zero, uci2usi, mirror5, mirror9
 from fairy import FairyBoard, BLACK, WHITE
+from alice import AliceBoard
 from glicko2.glicko2 import gl2
 from draw import reject_draw
 from settings import URI
@@ -226,9 +227,12 @@ class Game:
                 disabled_fen = self.initial_fen
                 self.initial_fen = ""
 
-        self.board = FairyBoard(
-            self.variant, self.initial_fen, self.chess960, count_started, disabled_fen
-        )
+        if self.variant == "alice":
+            self.board = AliceBoard()
+        else:
+            self.board = FairyBoard(
+                self.variant, self.initial_fen, self.chess960, count_started, disabled_fen
+            )
 
         # Janggi setup needed when player is not BOT
         if self.variant == "janggi":
@@ -786,6 +790,12 @@ class Game:
                 self.result = result_string_from_value(self.board.color, game_result_value)
 
                 self.status = CLAIM if game_result_value != 0 else DRAW
+
+            if self.check and self.variant == "alice":
+                pass
+                # TODO: self.legal_moves are pseudo legal moves in case of Alice
+                # they may leave the king in check or put the king into check
+                # for move in self.legal_moves:
 
         if self.has_counting:
             parts = self.board.fen.split()
