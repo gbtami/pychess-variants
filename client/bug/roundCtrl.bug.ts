@@ -336,7 +336,6 @@ export class RoundControllerBughouse implements ChatController {
             orientation: this.myColor.get('a') === 'white' || this.partnerColor.get('a') === 'white' || this.spectator? 'white': 'black',
             turnColor: 'white',
             movable: {
-                free: false,
                 color: this.myColor.get('a') === 'white'? 'white': this.myColor.get('a') === 'black'? 'black': undefined
             },
             autoCastle: true,
@@ -345,7 +344,6 @@ export class RoundControllerBughouse implements ChatController {
             orientation: this.myColor.get('b') === 'white' || this.partnerColor.get('b') === 'white'? 'white': 'black',
             turnColor: 'white',
             movable: {
-                free: false,
                 color: this.myColor.get('b') === 'white'? 'white': this.myColor.get('b') === 'black'? 'black': undefined
             },
             autoCastle: true,
@@ -971,9 +969,9 @@ export class RoundControllerBughouse implements ChatController {
         if (this.spectator) {
             this.updateBoardsAndClocksSpectors(board, fen, fenPartner, lastMove, msg.steps[0], clocks!, latestPly, colors, msg.status, check);//todo:niki unclear what is different that when playing, but should have full mode as well. generally should test specator mode at least a little bit
         } else {
-            if (isInitialBoardMessage) { // from constructor
+            if (isInitialBoardMessage) { // from constructor - i.e. first opening of page or manual refresh
                 this.updateBothBoardsAndClocksInitial(fenA, fenB, msg.clocks!, msg.clocksB!);
-            } else if (full) { // manual refresh or reconnect after lost ws connection
+            } else if (full) { // reconnect after lost ws connection
                 const lastStepA = msg.steps[msg.steps.findLastIndex(s => s.boardName === "a")];
                 const lastStepB = msg.steps[msg.steps.findLastIndex(s => s.boardName === "b")];
                 this.updateBothBoardsAndClocksOnFullBoardMsg(lastStepA, lastStepB, msg.clocks!, msg.clocksB!);
@@ -1010,10 +1008,10 @@ export class RoundControllerBughouse implements ChatController {
             capture = (board.chessground.state.boardState.pieces.get(move[1] as cg.Key) !== undefined && step.san?.slice(0, 2) !== 'O-') || (step.san?.slice(1, 2) === 'x');
         }
 
-        board.partnerCC.setState(fenPartner!, getTurnColor(board.partnerCC.fullfen), movePartner);
+        board.partnerCC.setState(fenPartner!, getTurnColor(fenPartner!), movePartner);
         board.partnerCC.renderState();
 
-        board.setState(fen!, getTurnColor(board.fullfen), move);
+        board.setState(fen!, getTurnColor(fen!), move);
         board.renderState();
 
         if (this.status >= 0) {

@@ -92,8 +92,8 @@ export abstract class GameController extends ChessgroundController implements Ch
 
     undo?: any;
 
-    constructor(el: HTMLElement, model: PyChessModel, pocket0: HTMLElement, pocket1: HTMLElement, boardName: BoardName = '') {
-        super (el, model, pocket0, pocket1, boardName);
+    constructor(el: HTMLElement, model: PyChessModel, fullfen: string, pocket0: HTMLElement, pocket1: HTMLElement, boardName: BoardName = '') {
+        super (el, model, fullfen, pocket0, pocket1, boardName);
 
         this.gameId = model["gameId"] as string;
         this.tournamentId = model["tournamentId"]

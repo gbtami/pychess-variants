@@ -28,7 +28,7 @@ export abstract class ChessgroundController implements BoardController {
     fullfen: string;
     notation: cg.Notation;
 
-    constructor(el: HTMLElement, model: PyChessModel, pocket0: HTMLElement, pocket1: HTMLElement, boardName: BoardName = '') {
+    constructor(el: HTMLElement, model: PyChessModel, fullfen: string, pocket0: HTMLElement, pocket1: HTMLElement, boardName: BoardName = '') {
         this.boardName = boardName;
         this.home = model.home;
         this.ffish = model.ffish;
@@ -38,7 +38,7 @@ export abstract class ChessgroundController implements BoardController {
         this.anon = model.anon === 'True';
         this.mycolor = 'white';
         this.oppcolor = 'black';
-        this.fullfen = model.fen as string;
+        this.fullfen = fullfen;
         this.notation = this.variant.notation;
 
         const parts = this.fullfen.split(" ");
