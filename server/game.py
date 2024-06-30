@@ -228,7 +228,7 @@ class Game:
                 self.initial_fen = ""
 
         if self.variant == "alice":
-            self.board = AliceBoard()
+            self.board = AliceBoard(self.initial_fen)
         else:
             self.board = FairyBoard(
                 self.variant, self.initial_fen, self.chess960, count_started, disabled_fen
