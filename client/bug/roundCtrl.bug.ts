@@ -1008,10 +1008,10 @@ export class RoundControllerBughouse implements ChatController {
             capture = (board.chessground.state.boardState.pieces.get(move[1] as cg.Key) !== undefined && step.san?.slice(0, 2) !== 'O-') || (step.san?.slice(1, 2) === 'x');
         }
 
-        board.partnerCC.setState(fenPartner!, getTurnColor(board.partnerCC.fullfen), movePartner);
+        board.partnerCC.setState(fenPartner!, getTurnColor(fenPartner!), movePartner);
         board.partnerCC.renderState();
 
-        board.setState(fen!, getTurnColor(board.fullfen), move);
+        board.setState(fen!, getTurnColor(fen!), move);
         board.renderState();
 
         if (this.status >= 0) {
