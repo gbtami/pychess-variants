@@ -19,10 +19,8 @@ export class GameControllerBughouse extends GameController {
     lastmove: cg.Orig[] | undefined;
 
     constructor(el: HTMLElement,elPocket1: HTMLElement,elPocket2: HTMLElement, boardName: BugBoardName, model: PyChessModel) {
-        super(el, model, elPocket1, elPocket2, boardName);
-        const fens = model.fen.split(" | ");
-        this.fullfen = this.boardName === "a" ? fens[0]: fens[1];
-        this.setGround(this.fullfen);
+        super(el, model, boardName === "a" ? model.fen.split(" | ")[0]: model.fen.split(" | ")[1], elPocket1, elPocket2, boardName);
+        this.setGround();
         this.mycolor = 'white';
     }
 
@@ -157,19 +155,13 @@ export class GameControllerBughouse extends GameController {
         });
     }
 
-    setGround = (fullfen: string) => {
+    setGround = () => {
         //TODO: There already is initialization of chessground in the parent class, but might require some changes to it
         //      to decouple from model object and pass custom fens, etc. Ideally below initialization should happen there as well
-        const parts = fullfen.split(" ");
-        const fen_placement: cg.FEN = parts[0];
-
         this.chessground.set({
-            fen: fen_placement as cg.FEN,
-            animation: { enabled: false },
             movable: {
                 free: false,
                 color: 'white',
-                showDests: localStorage.showDests === undefined || localStorage.showDests === "true",
                 events: {
                     after: this.onUserMove,
                     afterNewPiece: this.onUserDrop,
