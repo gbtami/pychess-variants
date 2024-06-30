@@ -12,43 +12,45 @@ log = logging.getLogger(__name__)
 
 async def handle_reconnect_bughouse(app_state: PychessGlobalAppState, user, data, game):
     log.info("Got RECONNECT message %s %r" % (user.username, data))
-    movesQueued = data.get("movesQueued")
+    moves_queued = data.get("movesQueued")
+    # on reconnect use server time. Might be good to log the difference here to see how long a player was disconnected
+    game_clocks = game.gameClocks.get_clocks_for_board_msg(full=True)
     # dataA = data.get("lastMaybeSentMsgMoveA")
     # dataB = data.get("lastMaybeSentMsgMoveB")
     async with game.move_lock:
-        if movesQueued is not None and len(movesQueued) > 0 and movesQueued[0] is not None:
+        if moves_queued is not None and len(moves_queued) > 0 and moves_queued[0] is not None:
             try:
                 await play_move(
                     app_state,
                     user,
                     game,
-                    movesQueued[0]["move"],
-                    movesQueued[0]["clocks"],
-                    movesQueued[0]["clocksB"],
-                    movesQueued[0]["board"],
+                    moves_queued[0]["move"],
+                    game_clocks[0],  # moves_queued[0]["clocks"],
+                    game_clocks[1],  # moves_queued[0]["clocksB"],
+                    moves_queued[0]["board"],
                 )
             except Exception:
                 log.exception(
                     "ERROR: Exception in play_move() in %s by %s ",
-                    movesQueued[0]["gameId"],
+                    moves_queued[0]["gameId"],
                     user.username,
                 )
         ####
-        if movesQueued is not None and len(movesQueued) > 1 and movesQueued[1] is not None:
+        if moves_queued is not None and len(moves_queued) > 1 and moves_queued[1] is not None:
             try:
                 await play_move(
                     app_state,
                     user,
                     game,
-                    movesQueued[1]["move"],
-                    movesQueued[1]["clocks"],
-                    movesQueued[1]["clocksB"],
-                    movesQueued[1]["board"],
+                    moves_queued[1]["move"],
+                    game_clocks[0],  # moves_queued[1]["clocks"],
+                    game_clocks[1],  # moves_queued[1]["clocksB"],
+                    moves_queued[1]["board"],
                 )
             except Exception:
                 log.exception(
                     "ERROR: Exception in play_move() in %s by %s ",
-                    movesQueued[1]["gameId"],
+                    moves_queued[1]["gameId"],
                     user.username,
                 )
 
