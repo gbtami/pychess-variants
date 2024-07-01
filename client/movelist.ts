@@ -74,7 +74,7 @@ export function createMovelistButtons (ctrl: GameController) {
         h('button', { on: { click: () => selectMove(ctrl, ctrl.ply + 1, ctrl.plyVari) } }, [ h('i.icon.icon-step-forward') ]),
         h('button', { on: { click: () => selectMove(ctrl, ctrl.steps.length - 1) } }, [ h('i.icon.icon-fast-forward') ]),
     ];
-    if (ctrl.variant.name === 'alice') {
+    if ('switchAliceBoards' in ctrl && ctrl.switchAliceBoards) {
         buttons.push(h('button#alice', { on: { click: () => ctrl.switchAliceBoards() } }, [ h('i.icon.icon-exchange') ]));
     }
     if ("localEngine" in ctrl) {

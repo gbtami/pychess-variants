@@ -7,16 +7,29 @@ import { PyChessModel } from "./types";
 import { RoundController } from '@/roundCtrl';
 import { moveDests, CGMove, uci2cg, UCIMove } from './chess';
 
+type BoardId = 0 | 1;
+type Boards = [Chess, Chess];
+type Fens = [string, string];
+
 
 export class RoundControllerAlice extends RoundController {
-    board: 0 | 1;
-    boards: [Chess, Chess];
-    fens: [string, string];
+    board: BoardId;
+    boards: Boards;
+    fens: Fens;
 
     constructor(el: HTMLElement, model: PyChessModel) {
         super(el, model);
         this.board = 0;
-        this.fens = this.fullfen.split(' | ');
+        this.fens = this.fullfen.split(' | ') as Fens;
+
+        const setup0 = parseFen(this.fens[0]).unwrap();
+        const setup1 = parseFen(this.fens[1]).unwrap();
+
+        this.boards = [
+            Chess.fromSetup(setup0).unwrap(),
+            Chess.fromSetup(setup1).unwrap(),
+        ];
+
         console.log("CONSTRUCTOR this.fens");
         console.log(this.fens);
     }
@@ -47,9 +60,9 @@ export class RoundControllerAlice extends RoundController {
     }
 
     switchAliceBoards() {
-        this.board = 1 - this.board;
+        this.board = 1 - this.board as BoardId;
         console.log('switchAliceBoards()', this.fullfen);
-        this.fens = this.fullfen.split(' | ');
+        this.fens = this.fullfen.split(' | ') as Fens;
         const fen = this.fens[this.board];
 
         const parts = fen.split(" ");

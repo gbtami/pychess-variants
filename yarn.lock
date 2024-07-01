@@ -2,6 +2,11 @@
 # yarn lockfile v1
 
 
+"@badrap/result@^0.2":
+  version "0.2.13"
+  resolved "https://registry.yarnpkg.com/@badrap/result/-/result-0.2.13.tgz#3c23f39f7e861cfa8ac3a65726ac17b1ee364927"
+  integrity sha512-Qvyzz0dmGY0h8pwvBFo1BznAKf5Y5NXIDiqhPALWtfU7oHbAToCtPu4FlYQ3uysskSWLx8GUiyhe0nv0nDd/7Q==
+
 "@esbuild/aix-ppc64@0.21.4":
   version "0.21.4"
   resolved "https://registry.yarnpkg.com/@esbuild/aix-ppc64/-/aix-ppc64-0.21.4.tgz#f83eb142df3ca7b49531c1ed680b81e484316508"
@@ -291,10 +296,17 @@ check-error@^2.0.0:
   resolved "https://registry.yarnpkg.com/check-error/-/check-error-2.0.0.tgz#589a4f201b6256fd93a2d165089fe43d2676d8c6"
   integrity sha512-tjLAOBHKVxtPoHe/SA7kNOMvhCRdCJ3vETdeY0RuAc9popf+hyaSV6ZEg9hr4cpWF7jmo/JSWEnLDrnijS9Tog==
 
-chessgroundx@^10.5.6:
-  version "10.5.6"
-  resolved "https://registry.yarnpkg.com/chessgroundx/-/chessgroundx-10.5.6.tgz#bcd8d10b52fb740037159291b5465b06185cacf4"
-  integrity sha512-+R7rK3iziavklIM9eZNLdoFZVZN9+uTmQc1rBnQ7Qz0qEq4rsEf3kjsq3kAGF3t8klReTSvt5C010R8PS0F/+Q==
+chessgroundx@^10.6.1:
+  version "10.6.1"
+  resolved "https://registry.yarnpkg.com/chessgroundx/-/chessgroundx-10.6.1.tgz#42202d073edb47e6787db4fa5ae9ff979a03d095"
+  integrity sha512-+meZrb328/haryW8MoaWwGYx6AjHmY9i4+AHxxwjMCwcUfjtTkXLG1fX1LG2NcS4bePpJRXaEfyGMQKganxEwg==
+
+chessops@^0.14.1:
+  version "0.14.1"
+  resolved "https://registry.yarnpkg.com/chessops/-/chessops-0.14.1.tgz#3a32bed37420c0863804090575020f60cdb28bd6"
+  integrity sha512-CnMcfypDVrl/+MkErK0YMAEvivAAnUQ/2f32C54F9HbmDVEDjvoXJYLnS//+4HWGLqGA5+yDs+Y2T0gsxxLgpQ==
+  dependencies:
+    "@badrap/result" "^0.2"
 
 chokidar@3.5.3:
   version "3.5.3"
