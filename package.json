@@ -22,7 +22,7 @@
     "@fullcalendar/core": "^6.1.13",
     "@fullcalendar/daygrid": "^6.0.3",
     "@fullcalendar/interaction": "^6.1.13",
-    "@fullcalendar/list": "^6.1.11",
+    "@fullcalendar/list": "^6.1.13",
     "@fullcalendar/timegrid": "^6.1.11",
     "chessgroundx": "^10.6.1",
     "fairy-stockfish-nnue.wasm": "^1.1.8",
