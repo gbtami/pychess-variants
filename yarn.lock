@@ -134,10 +134,10 @@
   resolved "https://registry.yarnpkg.com/@fullcalendar/interaction/-/interaction-6.1.13.tgz#7b628871b934cec27ca6fc8bd0176c376fd7d81b"
   integrity sha512-r1w+jqCRGZZyxKFquueDSFvbsFhJLhc1BX8Nlyz684lYxS1SiToYJW9Q8X/XkySCzpjO3KOnxEp2jVOn1Usyjg==
 
-"@fullcalendar/list@^6.1.11":
-  version "6.1.11"
-  resolved "https://registry.yarnpkg.com/@fullcalendar/list/-/list-6.1.11.tgz#4cd23700ea48b382b37387e29a706f2da692e174"
-  integrity sha512-9Qx8uvik9pXD12u50FiHwNzlHv4wkhfsr+r03ycahW7vEeIAKCsIZGTkUfFP+96I5wHihrfLazu1cFQG4MPiuw==
+"@fullcalendar/list@^6.1.13":
+  version "6.1.13"
+  resolved "https://registry.yarnpkg.com/@fullcalendar/list/-/list-6.1.13.tgz#6eb50b1eff322a97ea9efe97a113382a839e2f9f"
+  integrity sha512-bPW4EsgGNwDZh91NtD+q4hqGfS6jEvCXQo7+MNy4JLMwFtdenEURRrzsb6CW3l97L3Vp0E2mSqiXaNESOmXEcQ==
 
 "@fullcalendar/timegrid@^6.1.11":
   version "6.1.11"
@@ -291,10 +291,10 @@ check-error@^2.0.0:
   resolved "https://registry.yarnpkg.com/check-error/-/check-error-2.0.0.tgz#589a4f201b6256fd93a2d165089fe43d2676d8c6"
   integrity sha512-tjLAOBHKVxtPoHe/SA7kNOMvhCRdCJ3vETdeY0RuAc9popf+hyaSV6ZEg9hr4cpWF7jmo/JSWEnLDrnijS9Tog==
 
-chessgroundx@^10.5.6:
-  version "10.5.6"
-  resolved "https://registry.yarnpkg.com/chessgroundx/-/chessgroundx-10.5.6.tgz#bcd8d10b52fb740037159291b5465b06185cacf4"
-  integrity sha512-+R7rK3iziavklIM9eZNLdoFZVZN9+uTmQc1rBnQ7Qz0qEq4rsEf3kjsq3kAGF3t8klReTSvt5C010R8PS0F/+Q==
+chessgroundx@^10.6.1:
+  version "10.6.1"
+  resolved "https://registry.yarnpkg.com/chessgroundx/-/chessgroundx-10.6.1.tgz#42202d073edb47e6787db4fa5ae9ff979a03d095"
+  integrity sha512-+meZrb328/haryW8MoaWwGYx6AjHmY9i4+AHxxwjMCwcUfjtTkXLG1fX1LG2NcS4bePpJRXaEfyGMQKganxEwg==
 
 chokidar@3.5.3:
   version "3.5.3"
