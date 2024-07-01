@@ -291,10 +291,10 @@ check-error@^2.0.0:
   resolved "https://registry.yarnpkg.com/check-error/-/check-error-2.0.0.tgz#589a4f201b6256fd93a2d165089fe43d2676d8c6"
   integrity sha512-tjLAOBHKVxtPoHe/SA7kNOMvhCRdCJ3vETdeY0RuAc9popf+hyaSV6ZEg9hr4cpWF7jmo/JSWEnLDrnijS9Tog==
 
-chessgroundx@^10.5.6:
-  version "10.5.6"
-  resolved "https://registry.yarnpkg.com/chessgroundx/-/chessgroundx-10.5.6.tgz#bcd8d10b52fb740037159291b5465b06185cacf4"
-  integrity sha512-+R7rK3iziavklIM9eZNLdoFZVZN9+uTmQc1rBnQ7Qz0qEq4rsEf3kjsq3kAGF3t8klReTSvt5C010R8PS0F/+Q==
+chessgroundx@^10.6.1:
+  version "10.6.1"
+  resolved "https://registry.yarnpkg.com/chessgroundx/-/chessgroundx-10.6.1.tgz#42202d073edb47e6787db4fa5ae9ff979a03d095"
+  integrity sha512-+meZrb328/haryW8MoaWwGYx6AjHmY9i4+AHxxwjMCwcUfjtTkXLG1fX1LG2NcS4bePpJRXaEfyGMQKganxEwg==
 
 chokidar@3.5.3:
   version "3.5.3"
@@ -602,10 +602,10 @@ he@1.2.0:
   resolved "https://registry.yarnpkg.com/he/-/he-1.2.0.tgz#84ae65fa7eafb165fddb61566ae14baf05664f0f"
   integrity sha512-F/1DnUGPopORZi0ni+CvrCgHQ5FyEAHRLSApuYWMmrbSwoN2Mn/7k+Gl38gJnR7yyDZk6WLXwiGod1JOWNDKGw==
 
-highcharts@^11.4.0:
-  version "11.4.0"
-  resolved "https://registry.yarnpkg.com/highcharts/-/highcharts-11.4.0.tgz#0f0e9ce21ad1f3baeac14e0362b4fc2a8b8cd382"
-  integrity sha512-f5POJz2WdHW6SNT4P2CoMjsgcX5F5sJXtdfWLQCaNP9JG0nG5TSGG7+A6vzHGzcDkTPM72EQbRQofNZHaRTUPg==
+highcharts@^11.4.3:
+  version "11.4.3"
+  resolved "https://registry.yarnpkg.com/highcharts/-/highcharts-11.4.3.tgz#a6cd961e0a7d4bf749ff32db41a90125a6ab4673"
+  integrity sha512-rMmvYvcdwyUVfnRPfiZ0PnW6TgVhoS0FTBI8fc4Fp8l8ocoC9dMecvxS6E6tm7h7LrnSGoEo3b/0IRHuLatD2w==
 
 howler@^2.2.3:
   version "2.2.4"
