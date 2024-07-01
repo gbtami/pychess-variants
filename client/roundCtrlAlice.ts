@@ -1,7 +1,8 @@
 import * as cg from 'chessgroundx/types';
 
-import { Chess } from 'chessops/chess';
+import { Position } from 'chessops/chess';
 import { parseFen } from 'chessops/fen';
+import { parseUci } from 'chessops/util';
 
 import { PyChessModel } from "./types";
 import { RoundController } from '@/roundCtrl';
@@ -14,45 +15,60 @@ type Fens = [string, string];
 
 export class RoundControllerAlice extends RoundController {
     board: BoardId;
-    boards: Boards;
-    fens: Fens;
 
     constructor(el: HTMLElement, model: PyChessModel) {
         super(el, model);
         this.board = 0;
-        this.fens = this.fullfen.split(' | ') as Fens;
-
-        const setup0 = parseFen(this.fens[0]).unwrap();
-        const setup1 = parseFen(this.fens[1]).unwrap();
-
-        this.boards = [
-            Chess.fromSetup(setup0).unwrap(),
-            Chess.fromSetup(setup1).unwrap(),
-        ];
-
-        console.log("CONSTRUCTOR this.fens");
-        console.log(this.fens);
     }
 
     goPly = (ply: number, plyVari = 0) => {
-        this.board = 0;
         super.goPly(ply, plyVari);
+        this.board = 0;
+    }
+
+    setDests() {
+        const legalMoves = this.getLegalAliceMoves();
+        const fakeDrops = false;
+        const pieces = this.chessground.state.boardState.pieces;
+
+        const dests = moveDests(legalMoves as UCIMove[], fakeDrops, pieces, this.turnColor);
+        this.chessground.set({ movable: { dests: dests } });
     }
 
     getLegalAliceMoves() {
-        console.log('getLegalMoves()');
-        this.ffishBoard.setFen(this.fens[0]);
-        const moves_0 = this.ffishBoard.legalMoves().split(" ");
-        // const pseudo_legal_moves_0 = [uci for uci in moves_0 if self.boards[1].piece_at(chess.Move.from_uci(uci).to_square) is None]
-        console.log('--- on board 0', moves_0);
+        const fens = this.fullfen.split(' | ') as Fens;
 
-        this.ffishBoard.setFen(this.fens[1]);
-        const moves_1 = this.ffishBoard.legalMoves().split(" ")
-        // const pseudo_legal_moves_1 = [uci for uci in moves_1 if self.boards[0].piece_at(chess.Move.from_uci(uci).to_square) is None]
-        console.log('--- on board 1', moves_1);
+        const setup0 = parseFen(fens[0]).unwrap();
+        const setup1 = parseFen(fens[1]).unwrap();
 
-        // return pseudo_legal_moves_0 + pseudo_legal_moves_1
-        return (this.board === 0) ? moves_0 : moves_1;
+        const pos0 = new Position();
+        pos0.reset();
+        const pos1 = new Position();
+        pos1.reset();
+
+        pos0.setupUnchecked(setup0);
+        pos1.setupUnchecked(setup1);
+
+        const boards = [pos0, pos1];
+        let pseudo_legal_moves_0, pseudo_legal_moves_1;
+
+        this.ffishBoard.setFen(fens[0]);
+        const moves_0 = this.ffishBoard.legalMoves();
+        if (moves_0.length > 0) {
+            pseudo_legal_moves_0 = moves_0.split(' ').filter(uci => boards[1].board.get(parseUci(uci).to) === undefined);
+        } else {
+            pseudo_legal_moves_0 = [];
+        }
+
+        this.ffishBoard.setFen(fens[1]);
+        const moves_1 = this.ffishBoard.legalMoves();
+        if (moves_1.length > 0) {
+            pseudo_legal_moves_1 = moves_1.split(' ').filter(uci => boards[0].board.get(parseUci(uci).to) === undefined);
+        } else {
+            pseudo_legal_moves_1 = [];
+        }
+
+        return (this.board === 0) ? pseudo_legal_moves_0 : pseudo_legal_moves_1;
     }
 
     legalMoves(): CGMove[] {
@@ -62,8 +78,8 @@ export class RoundControllerAlice extends RoundController {
     switchAliceBoards() {
         this.board = 1 - this.board as BoardId;
         console.log('switchAliceBoards()', this.fullfen);
-        this.fens = this.fullfen.split(' | ') as Fens;
-        const fen = this.fens[this.board];
+        const fens = this.fullfen.split(' | ') as Fens;
+        const fen = fens[this.board];
 
         const parts = fen.split(" ");
         const fen_placement: cg.FEN = parts[0];
