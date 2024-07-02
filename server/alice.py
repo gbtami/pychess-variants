@@ -91,7 +91,8 @@ class AliceBoard:
         self.fen = self.alice_fen
 
     def get_san(self, move):
-        return sf.get_san(VARIANT, self.fen, move, CHESS960, sf.NOTATION_SAN)
+        board_id = 0 if self.boards[0].piece_at(chess.Move.from_uci(move).from_square) else 1
+        return sf.get_san(VARIANT, self.fens[board_id], move, CHESS960, sf.NOTATION_SAN)
 
     def legal_moves(self):
         moves_0 = sf.legal_moves(VARIANT, self.fens[0], [], CHESS960)

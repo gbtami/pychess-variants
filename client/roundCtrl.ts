@@ -949,6 +949,7 @@ export class RoundController extends GameController {
     }
 
     goPly(ply: number, plyVari = 0) {
+        console.log("roundCtrl.goPly()");
         super.goPly(ply, plyVari);
 
         if (this.spectator || this.turnColor !== this.mycolor || this.result !== "*" || ply !== this.steps.length - 1) {

@@ -246,6 +246,7 @@ export abstract class GameController extends ChessgroundController implements Ch
     }
 
     goPly(ply: number, plyVari = 0) {
+        console.log("gameCtrl.goPly()");
         const vv = this.steps[plyVari]?.vari;
         const step = (plyVari > 0 && vv) ? vv[ply - plyVari] : this.steps[ply];
         if (step === undefined) return;

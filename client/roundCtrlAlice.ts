@@ -22,6 +22,7 @@ export class RoundControllerAlice extends RoundController {
     }
 
     goPly = (ply: number, plyVari = 0) => {
+        console.log("roundCtrlAlice.goPly()");
         super.goPly(ply, plyVari);
         this.board = 0;
     }
