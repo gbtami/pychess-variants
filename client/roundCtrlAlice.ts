@@ -23,11 +23,18 @@ export class RoundControllerAlice extends RoundController {
 
     goPly = (ply: number, plyVari = 0) => {
         console.log("roundCtrlAlice.goPly()");
-        super.goPly(ply, plyVari);
         this.board = 0;
+        super.goPly(ply, plyVari);
+    }
+
+    onMsgBoard = (msg: MsgBoard) => {
+        console.log("roundCtrlAlice.onMsgBoard()");
+        this.board = 0;
+        super.onMsgBoard(msg);
     }
 
     setDests() {
+        console.log("Alice setDests()");
         const legalMoves = this.getLegalAliceMoves();
         const fakeDrops = false;
         const pieces = this.chessground.state.boardState.pieces;
@@ -69,7 +76,8 @@ export class RoundControllerAlice extends RoundController {
             pseudo_legal_moves_1 = [];
         }
 
-        return (this.board === 0) ? pseudo_legal_moves_0 : pseudo_legal_moves_1;
+        //return (this.board === 0) ? pseudo_legal_moves_0 : pseudo_legal_moves_1;
+        return pseudo_legal_moves_0.concat(pseudo_legal_moves_1);
     }
 
     legalMoves(): CGMove[] {

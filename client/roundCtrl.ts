@@ -713,7 +713,7 @@ export class RoundController extends GameController {
         }
     }
 
-    private onMsgBoard = (msg: MsgBoard) => {
+    onMsgBoard(msg: MsgBoard) {
         if (msg.gameId !== this.gameId) return;
 
         // console.log("got board msg:", msg);
