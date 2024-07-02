@@ -7,7 +7,7 @@
     box-shadow: none;
 }
 
-@media (max-width: 799px) and (orientation: portrait) {
+@media (max-width: 799px) {
     .editor-app {
         grid-template-rows: auto;
         grid-template-areas: 'side' 'poc-top' 'pocket-top' 'board' 'pocket-bot' 'poc-bot' 'uboard' 'tools';
