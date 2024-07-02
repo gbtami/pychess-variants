@@ -791,12 +791,6 @@ class Game:
 
                 self.status = CLAIM if game_result_value != 0 else DRAW
 
-            if self.check and self.variant == "alice":
-                pass
-                # TODO: self.legal_moves are pseudo legal moves in case of Alice
-                # they may leave the king in check or put the king into check
-                # for move in self.legal_moves:
-
         if self.has_counting:
             parts = self.board.fen.split()
             if parts[3].isdigit():

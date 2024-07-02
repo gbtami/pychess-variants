@@ -40,6 +40,30 @@ class AliceBoard:
     def alice_fen(self):
         return "%s | %s" % (self.fens[0], self.fens[1])
 
+    def play_move(self, board_id, uci):
+        move = chess.Move.from_uci(uci)
+        self.boards[board_id].push(move)
+
+        piece = super(chess.Board, self.boards[board_id]).remove_piece_at(move.to_square)
+        super(chess.Board, self.boards[1 - board_id]).set_piece_at(move.to_square, piece)
+
+        self.boards[1 - board_id].turn = not self.boards[1 - board_id].turn
+
+        self.fens[board_id] = self.boards[board_id].fen()
+        self.fens[1 - board_id] = self.boards[1 - board_id].fen()
+
+    def undo_move(self, board_id, uci):
+        move = chess.Move.from_uci(uci)
+
+        piece = super(chess.Board, self.boards[1 - board_id]).remove_piece_at(move.to_square)
+        self.boards[1 - board_id].turn = not self.boards[1 - board_id].turn
+
+        super(chess.Board, self.boards[board_id]).set_piece_at(move.to_square, piece)
+        self.boards[board_id].pop()
+
+        self.fens[board_id] = self.boards[board_id].fen()
+        self.fens[1 - board_id] = self.boards[1 - board_id].fen()
+
     def push(self, uci, append=True):
         # TODO: handle castling and ep moves
         move = chess.Move.from_uci(uci)
@@ -101,7 +125,7 @@ class AliceBoard:
         moves_1 = sf.legal_moves(VARIANT, self.fens[1], [], CHESS960)
         pseudo_legal_moves_1 = [uci for uci in moves_1 if self.boards[0].piece_at(chess.Move.from_uci(uci).to_square) is None]
 
-        return pseudo_legal_moves_0 + pseudo_legal_moves_1
+        return self.legal_alice_moves(0, pseudo_legal_moves_0) + self.legal_alice_moves(1, pseudo_legal_moves_1)
 
     def switch_fen_moving_color(self, fen):
         old = " %s" % fen[fen.find(" ") + 1]
@@ -114,13 +138,13 @@ class AliceBoard:
             sf.gives_check(VARIANT, self.switch_fen_moving_color(self.fens[1]), [], CHESS960)
         )
 
-    def legal_alice_moves(self, moves):
+    def legal_alice_moves(self, board_id, moves):
         legals = []
         for move in moves:
-            self.push(move)
+            self.play_move(board_id, move)
             if not self.is_invalid_by_checked():
                 legals.append(move)
-            self.pop()
+            self.undo_move(board_id, move)
         return legals
 
     def is_checked(self):
@@ -144,7 +168,9 @@ class AliceBoard:
         return optional_end and result == 0
 
     def game_result(self):
-        return sf.game_result(VARIANT, self.initial_fen, self.move_stack, CHESS960)
+        cur_color = self.color == WHITE
+        board_id = 0 if self.boards[0].king(cur_color) is not None else 1
+        return sf.game_result(VARIANT, self.fens[board_id], [], CHESS960)
 
     def print_pos(self):
         print("================")
