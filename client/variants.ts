@@ -446,7 +446,7 @@ export const VARIANTS: Record<string, Variant> = {
         icon: "🪞",
         boardFamily: "standard8x8", pieceFamily: "standard",
         pieceRow: ["k", "q", "r", "b", "n", "p"],
-        rules: { enPassant: true },
+        rules: { enPassant: false },
 // TODO:
 //        alternateStart: {
 //            '': "",

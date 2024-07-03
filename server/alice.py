@@ -87,7 +87,6 @@ class AliceBoard:
         self.fens[1 - board_id] = self.boards[1 - board_id].fen()
 
     def push(self, uci, append=True):
-        # TODO: handle ep moves
         move = Move.from_uci(uci)
         board_id = 0 if self.boards[0].piece_at(move.from_square) else 1
         # print("push()", board_id, uci)

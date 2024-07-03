@@ -1,5 +1,6 @@
 export const variantsIni = `
 [alice:chess]
+enPassantRegion = -
 
 # Hybrid variant of Grand-chess and crazyhouse, using Grand-chess as a template
 [grandhouse:grand]
