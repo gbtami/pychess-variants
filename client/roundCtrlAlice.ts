@@ -93,43 +93,8 @@ export class RoundControllerAlice extends RoundController {
         const parts = fen.split(" ");
         const fen_placement: cg.FEN = parts[0];
         console.log('switchAliceBoards()', this.board, fen_placement);
-
-        if (this.spectator) {
-            this.chessground.set({
-                fen: fen_placement,
-                movable: { color: undefined },
-                // TODO:
-                //check: msg.check,
-                //lastMove: lastMove,
-            });
-        } else {
-            if (this.turnColor === this.mycolor) {
-                const latestPly = this.ply === this.steps.length - 1;
-                if (latestPly) {
-                    const legalMoves = this.getLegalAliceMoves();
-                    const fakeDrops = false;
-                    const pieces = this.chessground.state.boardState.pieces;
-
-                    const dests = moveDests(legalMoves as UCIMove[], fakeDrops, pieces, this.turnColor);
-                    console.log('DESTS=', dests);
-                    this.chessground.set({
-                        fen: fen_placement,
-                        movable: {
-                            dests: dests,
-                            free: false,
-                            color: this.mycolor,
-                        },
-                    });
-                } else {
-                    this.chessground.set({
-                        fen: fen_placement,
-                    });
-                }
-            } else {
-                this.chessground.set({
-                    fen: fen_placement,
-                });
-            }
-        }
+        this.chessground.set({
+            fen: fen_placement,
+        });
     }
 }
