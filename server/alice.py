@@ -5,6 +5,7 @@ from chess import Board, Move, D1, D8, F1, F8, square_file
 from fairy import BLACK, WHITE
 
 import logging
+
 log = logging.getLogger(__name__)
 
 try:
@@ -19,10 +20,7 @@ COUNT_STARTED = False
 START_FEN_0 = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 START_FEN_1 = "8/8/8/8/8/8/8/8 w - - 0 1"
 
-CASTLED_ROOK_SQUARE = (
-    (D1, D8),
-    (F1, F8)
-)
+CASTLED_ROOK_SQUARE = ((D1, D8), (F1, F8))
 
 
 class AliceBoard:
@@ -124,12 +122,18 @@ class AliceBoard:
 
     def legal_moves(self):
         moves_0 = sf.legal_moves(VARIANT, self.fens[0], [], CHESS960)
-        pseudo_legal_moves_0 = [uci for uci in moves_0 if self.boards[1].piece_at(Move.from_uci(uci).to_square) is None]
+        pseudo_legal_moves_0 = [
+            uci for uci in moves_0 if self.boards[1].piece_at(Move.from_uci(uci).to_square) is None
+        ]
 
         moves_1 = sf.legal_moves(VARIANT, self.fens[1], [], CHESS960)
-        pseudo_legal_moves_1 = [uci for uci in moves_1 if self.boards[0].piece_at(Move.from_uci(uci).to_square) is None]
+        pseudo_legal_moves_1 = [
+            uci for uci in moves_1 if self.boards[0].piece_at(Move.from_uci(uci).to_square) is None
+        ]
 
-        return self.legal_alice_moves(0, pseudo_legal_moves_0) + self.legal_alice_moves(1, pseudo_legal_moves_1)
+        return self.legal_alice_moves(0, pseudo_legal_moves_0) + self.legal_alice_moves(
+            1, pseudo_legal_moves_1
+        )
 
     def switch_fen_moving_color(self, fen):
         old = " %s" % fen[fen.find(" ") + 1]
@@ -137,10 +141,9 @@ class AliceBoard:
         return fen.replace(old, new)
 
     def is_invalid_by_checked(self):
-        return (
-            sf.gives_check(VARIANT, self.switch_fen_moving_color(self.fens[0]), [], CHESS960) or
-            sf.gives_check(VARIANT, self.switch_fen_moving_color(self.fens[1]), [], CHESS960)
-        )
+        return sf.gives_check(
+            VARIANT, self.switch_fen_moving_color(self.fens[0]), [], CHESS960
+        ) or sf.gives_check(VARIANT, self.switch_fen_moving_color(self.fens[1]), [], CHESS960)
 
     def legal_alice_moves(self, board_id, uci_moves):
         legals = []

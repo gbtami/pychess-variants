@@ -20,12 +20,49 @@ MATE5 = ("d2d4", "e7e6", "d1d6", "f8e7", "d6e5", "e8f8", "c1h6")
 # Paul Yearout vs. George Jelliss, 1996 AISE Grand Prix
 # TODO: SAN ambiguation of 6...Rg8 is missing in alice.py (it should be 6...Rbg8)
 GAME_PART1 = (
-    "d2d3", "g8f6", "b1c3", "c7c5", "d1d2", "b8c6", "d3d4", "a8b8", "e2e3", "g7g5", "f2f4", "b8g8", "c3d5", "h7h6", "g1f3", "g5f4", "c1f4", "g8g4",
-    "f4e5", "h8h5", "e1c1"
+    "d2d3",
+    "g8f6",
+    "b1c3",
+    "c7c5",
+    "d1d2",
+    "b8c6",
+    "d3d4",
+    "a8b8",
+    "e2e3",
+    "g7g5",
+    "f2f4",
+    "b8g8",
+    "c3d5",
+    "h7h6",
+    "g1f3",
+    "g5f4",
+    "c1f4",
+    "g8g4",
+    "f4e5",
+    "h8h5",
+    "e1c1",
 )
 GAME_PART2 = (
-    "f6e4", "e5c7", "g4a4", "f1a6", "f8g7", "a6b5", "a4c4", "c1b1", "h5f5", "c7a5", "f5d5", "d2d5", "d8a5", "a2a3", "a5d2", "d5d7", "e8f8", "d7g7",
-    "d2c3", "d1d8"
+    "f6e4",
+    "e5c7",
+    "g4a4",
+    "f1a6",
+    "f8g7",
+    "a6b5",
+    "a4c4",
+    "c1b1",
+    "h5f5",
+    "c7a5",
+    "f5d5",
+    "d2d5",
+    "d8a5",
+    "a2a3",
+    "a5d2",
+    "d5d7",
+    "e8f8",
+    "d7g7",
+    "d2c3",
+    "d1d8",
 )
 
 
