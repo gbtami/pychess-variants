@@ -3,14 +3,28 @@ import * as cg from 'chessgroundx/types';
 import { Position } from 'chessops/chess';
 import { parseFen } from 'chessops/fen';
 import { parseUci } from 'chessops/util';
+import { Setup } from 'chessops/setup';
 
 import { PyChessModel } from "./types";
 import { RoundController } from '@/roundCtrl';
 import { moveDests, CGMove, uci2cg, UCIMove } from './chess';
+import { MsgBoard } from "./messages";
 
 type BoardId = 0 | 1;
-type Boards = [Chess, Chess];
 type Fens = [string, string];
+
+
+class AlicePosition extends Position {
+    private constructor() {
+        super('chess');
+    }
+
+    static fromSetup(setup: Setup): AlicePosition {
+        const pos = new this();
+        pos.setupUnchecked(setup);
+        return pos;
+    }
+}  
 
 
 export class RoundControllerAlice extends RoundController {
@@ -43,27 +57,22 @@ export class RoundControllerAlice extends RoundController {
         this.chessground.set({ movable: { dests: dests } });
     }
 
-    getLegalAliceMoves() {
+    getLegalAliceMoves(): string[] {
         const fens = this.fullfen.split(' | ') as Fens;
 
         const setup0 = parseFen(fens[0]).unwrap();
         const setup1 = parseFen(fens[1]).unwrap();
 
-        const pos0 = new Position();
-        pos0.reset();
-        const pos1 = new Position();
-        pos1.reset();
-
-        pos0.setupUnchecked(setup0);
-        pos1.setupUnchecked(setup1);
+        const pos0 = AlicePosition.fromSetup(setup0);
+        const pos1 = AlicePosition.fromSetup(setup1);
 
         const boards = [pos0, pos1];
-        let pseudo_legal_moves_0, pseudo_legal_moves_1;
+        let pseudo_legal_moves_0: string[], pseudo_legal_moves_1: string[];
 
         this.ffishBoard.setFen(fens[0]);
         const moves_0 = this.ffishBoard.legalMoves();
         if (moves_0.length > 0) {
-            pseudo_legal_moves_0 = moves_0.split(' ').filter(uci => boards[1].board.get(parseUci(uci).to) === undefined);
+            pseudo_legal_moves_0 = moves_0.split(' ').filter(uci => boards[1].board.get(parseUci(uci)!.to) === undefined);
         } else {
             pseudo_legal_moves_0 = [];
         }
@@ -71,7 +80,7 @@ export class RoundControllerAlice extends RoundController {
         this.ffishBoard.setFen(fens[1]);
         const moves_1 = this.ffishBoard.legalMoves();
         if (moves_1.length > 0) {
-            pseudo_legal_moves_1 = moves_1.split(' ').filter(uci => boards[0].board.get(parseUci(uci).to) === undefined);
+            pseudo_legal_moves_1 = moves_1.split(' ').filter(uci => boards[0].board.get(parseUci(uci)!.to) === undefined);
         } else {
             pseudo_legal_moves_1 = [];
         }
@@ -84,7 +93,7 @@ export class RoundControllerAlice extends RoundController {
         return this.getLegalAliceMoves().map(uci2cg) as CGMove[];
     }
 
-    switchAliceBoards() {
+    switchAliceBoards(): void {
         this.board = 1 - this.board as BoardId;
         console.log('switchAliceBoards()', this.fullfen);
         const fens = this.fullfen.split(' | ') as Fens;
