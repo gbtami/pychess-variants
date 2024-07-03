@@ -90,12 +90,12 @@ class AliceBoard:
         # TODO: handle ep moves
         move = Move.from_uci(uci)
         board_id = 0 if self.boards[0].piece_at(move.from_square) else 1
-        print("push()", board_id, uci)
+        # print("push()", board_id, uci)
         self.board_id_stack.append(board_id)
 
         self.play_move(board_id, move)
 
-        self.print_pos()
+        # self.print_pos()
         if append:
             self.move_stack.append(uci)
             self.ply += 1
@@ -204,34 +204,3 @@ class AliceBoard:
         print("----------------")
         print(self.fens[1])
         print(self.boards[1].unicode(invert_color=True, empty_square="_"))
-
-
-if __name__ == "__main__":
-    sf.set_option("VariantPath", "variants.ini")
-
-    board = AliceBoard()
-    print(board.fen)
-    for move in (
-        "e2e4",
-        "h7h5",
-        "f1e2",
-        "h8h4",
-        "e2h5",
-        "h4e4",
-        "e1f1",
-        "d7d5",
-        "d1e2",
-        "c8h3",
-    ):
-        print("push()", move)
-        board.push(move)
-        board.print_pos()
-        print("is_checked()", board.is_checked())
-        print(board.legal_moves())
-
-    print("***********************************")
-    print(board.boards[0].move_stack)
-    print(board.boards[1].move_stack)
-    for i in range(10):
-        board.pop()
-        board.print_pos()
