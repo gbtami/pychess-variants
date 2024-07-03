@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 # -*- coding: utf-8 -*-
-import chess
+from chess import Board, Move, D1, D8, F1, F8, square_file
 from fairy import BLACK, WHITE
 
 import logging
@@ -19,6 +19,11 @@ COUNT_STARTED = False
 START_FEN_0 = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 START_FEN_1 = "8/8/8/8/8/8/8/8 w - - 0 1"
 
+CASTLED_ROOK_SQUARE = (
+    (D1, D8),
+    (F1, F8)
+)
+
 
 class AliceBoard:
     def __init__(self, initial_fen=""):
@@ -27,7 +32,7 @@ class AliceBoard:
         self.board_id_stack: list[str] = []
         self.ply = 0
         self.fens = self.initial_fen.split(" | ")
-        self.boards = (chess.Board(self.fens[0]), chess.Board(self.fens[1]))
+        self.boards = (Board(self.fens[0]), Board(self.fens[1]))
         self.color = WHITE if self.fens[0].split()[1] == "w" else BLACK
         self.fen = self.initial_fen
         self.count_started = False
@@ -40,49 +45,57 @@ class AliceBoard:
     def alice_fen(self):
         return "%s | %s" % (self.fens[0], self.fens[1])
 
-    def play_move(self, board_id, uci):
-        move = chess.Move.from_uci(uci)
+    def play_move(self, board_id, move):
+        castling = self.boards[board_id].is_castling(move)
+
         self.boards[board_id].push(move)
 
-        piece = super(chess.Board, self.boards[board_id]).remove_piece_at(move.to_square)
-        super(chess.Board, self.boards[1 - board_id]).set_piece_at(move.to_square, piece)
+        # Remove piece from the target square and put it to the other board
+        # we have to call BaseBoard remove_piece_at() and set_piece_at() methods
+        # via super() to avoid clearing the move stack!
+        piece = super(Board, self.boards[board_id]).remove_piece_at(move.to_square)
+        super(Board, self.boards[1 - board_id]).set_piece_at(move.to_square, piece)
 
+        # Remove the castled rook and put it to the another board
+        if castling:
+            a_side = 0 if square_file(move.to_square) < square_file(move.from_square) else 1
+            rook_to_square = CASTLED_ROOK_SQUARE[a_side][self.color]
+            rook = super(Board, self.boards[board_id]).remove_piece_at(rook_to_square)
+            super(Board, self.boards[1 - board_id]).set_piece_at(rook_to_square, rook)
+
+        # Switch the other board turn color
         self.boards[1 - board_id].turn = not self.boards[1 - board_id].turn
 
+        # Adjust both boards FEN
         self.fens[board_id] = self.boards[board_id].fen()
         self.fens[1 - board_id] = self.boards[1 - board_id].fen()
 
-    def undo_move(self, board_id, uci):
-        move = chess.Move.from_uci(uci)
+    def undo_move(self, board_id, move):
+        # Remove the castled rook and put it to the original board
+        if self.boards[board_id].is_castling(move):
+            a_side = 0 if square_file(move.to_square) < square_file(move.from_square) else 1
+            rook_to_square = CASTLED_ROOK_SQUARE[a_side][self.color]
+            rook = super(Board, self.boards[1 - board_id]).remove_piece_at(rook_to_square)
+            super(Board, self.boards[board_id]).set_piece_at(rook_to_square, rook)
 
-        piece = super(chess.Board, self.boards[1 - board_id]).remove_piece_at(move.to_square)
+        # Remove piece from the target square and put it to the original board
+        piece = super(Board, self.boards[1 - board_id]).remove_piece_at(move.to_square)
         self.boards[1 - board_id].turn = not self.boards[1 - board_id].turn
 
-        super(chess.Board, self.boards[board_id]).set_piece_at(move.to_square, piece)
+        super(Board, self.boards[board_id]).set_piece_at(move.to_square, piece)
         self.boards[board_id].pop()
 
         self.fens[board_id] = self.boards[board_id].fen()
         self.fens[1 - board_id] = self.boards[1 - board_id].fen()
 
     def push(self, uci, append=True):
-        # TODO: handle castling and ep moves
-        move = chess.Move.from_uci(uci)
+        # TODO: handle ep moves
+        move = Move.from_uci(uci)
         board_id = 0 if self.boards[0].piece_at(move.from_square) else 1
         print("push()", board_id, uci)
         self.board_id_stack.append(board_id)
 
-        self.boards[board_id].push(move)
-        # print("---", self.boards[board].move_stack)
-
-        # Have to call BaseBoard remove_piece_at() and set_piece_at() methods
-        # via super() to avoid clearing the move stack!
-        piece = super(chess.Board, self.boards[board_id]).remove_piece_at(move.to_square)
-        super(chess.Board, self.boards[1 - board_id]).set_piece_at(move.to_square, piece)
-
-        self.boards[1 - board_id].turn = not self.boards[1 - board_id].turn
-
-        self.fens[board_id] = self.boards[board_id].fen()
-        self.fens[1 - board_id] = self.boards[1 - board_id].fen()
+        self.play_move(board_id, move)
 
         self.print_pos()
         if append:
@@ -93,21 +106,12 @@ class AliceBoard:
 
     def pop(self):
         uci = self.move_stack.pop()
-        move = chess.Move.from_uci(uci)
+        move = Move.from_uci(uci)
 
         board_id = self.board_id_stack.pop()
         # print("pop()", board, uci)
 
-        # Have to call BaseBoard remove_piece_at() and set_piece_at() methods
-        # via super() to avoid clearing the move stack!
-        piece = super(chess.Board, self.boards[1 - board_id]).remove_piece_at(move.to_square)
-        self.boards[1 - board_id].turn = not self.boards[1 - board_id].turn
-
-        super(chess.Board, self.boards[board_id]).set_piece_at(move.to_square, piece)
-        self.boards[board_id].pop()
-
-        self.fens[board_id] = self.boards[board_id].fen()
-        self.fens[1 - board_id] = self.boards[1 - board_id].fen()
+        self.undo_move(board_id, move)
 
         self.ply -= 1
         self.color = 1 - self.color
@@ -115,15 +119,15 @@ class AliceBoard:
         self.fen = self.alice_fen
 
     def get_san(self, move):
-        board_id = 0 if self.boards[0].piece_at(chess.Move.from_uci(move).from_square) else 1
+        board_id = 0 if self.boards[0].piece_at(Move.from_uci(move).from_square) else 1
         return sf.get_san(VARIANT, self.fens[board_id], move, CHESS960, sf.NOTATION_SAN)
 
     def legal_moves(self):
         moves_0 = sf.legal_moves(VARIANT, self.fens[0], [], CHESS960)
-        pseudo_legal_moves_0 = [uci for uci in moves_0 if self.boards[1].piece_at(chess.Move.from_uci(uci).to_square) is None]
+        pseudo_legal_moves_0 = [uci for uci in moves_0 if self.boards[1].piece_at(Move.from_uci(uci).to_square) is None]
 
         moves_1 = sf.legal_moves(VARIANT, self.fens[1], [], CHESS960)
-        pseudo_legal_moves_1 = [uci for uci in moves_1 if self.boards[0].piece_at(chess.Move.from_uci(uci).to_square) is None]
+        pseudo_legal_moves_1 = [uci for uci in moves_1 if self.boards[0].piece_at(Move.from_uci(uci).to_square) is None]
 
         return self.legal_alice_moves(0, pseudo_legal_moves_0) + self.legal_alice_moves(1, pseudo_legal_moves_1)
 
@@ -138,13 +142,31 @@ class AliceBoard:
             sf.gives_check(VARIANT, self.switch_fen_moving_color(self.fens[1]), [], CHESS960)
         )
 
-    def legal_alice_moves(self, board_id, moves):
+    def legal_alice_moves(self, board_id, uci_moves):
         legals = []
-        for move in moves:
+        for uci in uci_moves:
+            castling_rights_before = self.boards[board_id].castling_rights
+
+            move = Move.from_uci(uci)
             self.play_move(board_id, move)
-            if not self.is_invalid_by_checked():
-                legals.append(move)
+
+            castling_move = castling_rights_before != self.boards[board_id].castling_rights
+
+            ok = not self.is_invalid_by_checked()
+
             self.undo_move(board_id, move)
+
+            # We have to check that rook_to_square was vacant as well
+            if castling_move:
+                a_side = 0 if square_file(move.to_square) < square_file(move.from_square) else 1
+                rook_to_square = CASTLED_ROOK_SQUARE[a_side][self.color]
+
+                if self.boards[1 - board_id].piece_at(rook_to_square) is not None:
+                    ok = False
+
+            if ok:
+                legals.append(uci)
+
         return legals
 
     def is_checked(self):
