@@ -12,7 +12,7 @@
 .sidebar-first {
     box-shadow: none;
 }
-@media (max-width: 799px) and (orientation: portrait) {
+@media (max-width: 799px) {
     .analysis-app {
         grid-template-rows: auto;
         grid-template-areas: 'pocket-top' 'board' 'pocket-bot' 'move-controls' 'ceval' 'pv' 'misc-info' 'vari' 'tools' 'uboard' 'side';
