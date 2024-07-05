@@ -20,15 +20,16 @@
   "funding": "patreon.com/pychess",
   "dependencies": {
     "@fullcalendar/core": "^6.1.13",
-    "@fullcalendar/daygrid": "^6.0.3",
+    "@fullcalendar/daygrid": "^6.1.13",
     "@fullcalendar/interaction": "^6.1.13",
-    "@fullcalendar/list": "^6.1.11",
+    "@fullcalendar/list": "^6.1.13",
     "@fullcalendar/timegrid": "^6.1.11",
-    "chessgroundx": "^10.6.0",
+    "chessgroundx": "^10.6.1",
+    "chessops": "^0.14.1",
     "fairy-stockfish-nnue.wasm": "^1.1.8",
     "ffish-es6": "^0.7.6",
     "gettext.js": "^2.0.2",
-    "highcharts": "^11.4.0",
+    "highcharts": "^11.4.3",
     "howler": "^2.2.3",
     "html-to-image": "^1.11.11",
     "idb-keyval": "^6.2.1",
@@ -36,21 +37,20 @@
     "snabbdom": "^3.6.2"
   },
   "devDependencies": {
-    "@types/chai": "^4.2.12",
     "@types/gettext.js": "^1.0.0",
     "@types/howler": "^2.2.4",
-    "@types/mocha": "^10.0.0",
     "@types/mousetrap": "^1.6.11",
-    "chai": "^5.1.0",
-    "esbuild": "^0.21.4",
+    "@jest/globals": "^29",
+    "jest": "^29",
+    "ts-jest": "^29",
+    "jest-environment-jsdom": "^29",
+    "esbuild": "^0.22.0",
     "esbuild-plugin-compress": "^1.0.1",
     "esm": "^3.2.25",
     "jsdom": "^24.1.0",
     "jsdom-global": "^3.0.2",
-    "mocha": "^10.4.0",
     "postcss": "8.x",
     "showdown": "^2.1.0",
-    "ts-mocha": "^10.0.0",
     "tslib": "^2.3.1",
     "typescript": "^5.4",
     "yarn": "^1.22.22",
@@ -63,6 +63,30 @@
     "prod": "node esbuild.mjs prod",
     "md": "./md2html.sh",
     "heroku-postbuild": "yarn run prod && yarn run md",
-    "test": "ts-mocha --extension ts --require esm --require jsdom-global/register 'tests/**/*.test.ts'"
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js"
+  },
+  "files": [
+    "/client",
+    "!/**/*.test.*"
+  ],
+  "jest": {
+    "testEnvironment": "jsdom",
+    "testRegex": ".*\\.test\\.ts$",
+    "transform": {
+      "\\.[jt]sx?$": [
+        "ts-jest",
+        {
+          "useESM": true,
+          "isolatedModules": true
+        }
+      ]
+    },
+    "extensionsToTreatAsEsm": [
+      ".ts"
+    ],
+    "moduleNameMapper": {
+      "^gettext": "gettext.js",
+      "(.+)\\.js": "$1"
+    }
   }
 }

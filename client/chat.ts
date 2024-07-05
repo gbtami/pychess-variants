@@ -18,6 +18,7 @@ export function chatView(ctrl: ChatController, chatType: string) {
     const bughouse = ctrl instanceof RoundControllerBughouse;
     function blur (e: Event) {
         if (bughouse) {
+            console.log(e);
             // always keep focus on chat text input for faster chatting when in bughouse round page
             //todo:niki: temporarily disable this to make playing on mobile a bit easier, until solution is found:
             //(e.target as HTMLInputElement).focus();
