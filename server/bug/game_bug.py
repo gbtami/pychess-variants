@@ -503,7 +503,10 @@ class GameBug:
         self.boards[board].fen = fen_before
 
         if count_valid_moves_with_full_pockets == 0:
-            game_result_value = self.boards[board].game_result_no_history()
+            # this always returns -32000 todo: maybe delete that function if cant figure out why
+            # game_result_value =  self.boards[board].game_result_no_history()
+            # if it is whites turn then black wins => -1, else white wins => +1
+            game_result_value = -1 if self.boards[board].color == WHITE else 1
             self.result = GameBug.result_string_from_value(game_result_value, board)
             self.status = MATE
             return True

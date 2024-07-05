@@ -5,7 +5,7 @@ import { _ } from '../i18n';
 import { patch } from '../document';
 import { Clock } from '../clock';
 import { ChatController, chatMessage, chatView } from '../chat';
-import { createMovelistButtons, updateMovelist } from './movelist.bug';
+import {createMovelistButtons, updateMovelist, updateResult} from './movelist.bug';
 import {
     Clocks,
     MsgBoard,
@@ -643,7 +643,8 @@ export class RoundControllerBughouse implements ChatController {
             if (this.result !== "*" && !this.spectator && !this.finishedGame) {
                 sound.gameEndSoundBughouse(msg.result, this.whichTeamAmI());
             }
-            this.gameOver()
+            updateResult(this);
+            this.gameOver();
 
 
             // clean up gating/promotion widget left over the ground while game ended by time out
