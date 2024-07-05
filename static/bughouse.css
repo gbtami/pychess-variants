@@ -36,8 +36,8 @@
 @media (max-width: 799px) and (orientation: portrait) {
     .round-app.bug {
         grid-template-columns: auto;
-        grid-template-rows:    auto         36px       auto        min-content 36px   auto        auto         auto    auto                 auto         min-content    auto         auto                 auto            auto    auto            auto     auto     auto;
-        grid-template-areas:  'pocket-top' 'user-top' 'clock-top' 'board' 'user-bot' 'clock-bot' 'pocket-bot' 'tools' 'pocket-top-partner' 'clockB-top' 'boardPartner' 'clockB-bot' 'pocket-bot-partner' 'game-controls' 'offer' 'move-controls' 'toolsB' 'uboard' 'uleft';
+        grid-template-rows:    min-content  36px       auto        min-content 36px   auto        min-content  min-content          auto         min-content    auto         min-content          auto    auto            auto    auto            auto     auto     auto;
+        grid-template-areas:  'pocket-top' 'user-top' 'clock-top' 'board' 'user-bot' 'clock-bot' 'pocket-bot' 'pocket-top-partner' 'clockB-top' 'boardPartner' 'clockB-bot' 'pocket-bot-partner' 'tools' 'game-controls' 'offer' 'move-controls' 'toolsB' 'uboard' 'uleft';
     }
     under-left {
         display: none;
