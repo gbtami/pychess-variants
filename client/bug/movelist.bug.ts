@@ -80,7 +80,7 @@ export function createMovelistButtons (ctrl: AnalysisControllerBughouse | RoundC
     ctrl.moveControls = patch(container, h('div#btn-controls-top.btn-controls', buttons));
 }
 
-function fillWithEmpty(moves: VNode[], countOfEmptyCellsToAdd: number, cls: string = '', ply: string = '', style: text = '') {
+function fillWithEmpty(moves: VNode[], countOfEmptyCellsToAdd: number, cls: string = '', ply: string = '', style: string = '') {
     for (let i = 0; i<countOfEmptyCellsToAdd;i++) {
         moves.push(h('move-bug.counter'+cls, {attrs: { _ply: ply, style: style }}));
         const el = h('move-bug'+cls, {attrs: { _ply: ply, style: style }});
