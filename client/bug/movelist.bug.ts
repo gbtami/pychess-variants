@@ -32,10 +32,15 @@ export function selectMove (ctrl: AnalysisControllerBughouse | RoundControllerBu
 
 function activatePly (ctrl: AnalysisControllerBughouse | RoundControllerBughouse ) {
     const active = document.querySelector('move-bug.active');
-    if (active) active.classList.remove('active');
+    if (active) {
+        const p = active.getAttribute("ply");
+        active.classList.remove('active');
+        document.querySelectorAll('move-bug[_ply="'+p+'"]').forEach(v => v.setAttribute("style", "display: none;"));
+    }
 
     const elPly = document.querySelector(`move-bug[ply="${ctrl.ply}"]`);
     if (elPly) elPly.classList.add('active');
+    document.querySelectorAll('move-bug[_ply="'+ctrl.ply+'"]').forEach(v => v.setAttribute("style", "display: block;"));
 }
 
 function scrollToPly (ctrl: AnalysisControllerBughouse | RoundControllerBughouse) {
@@ -75,10 +80,10 @@ export function createMovelistButtons (ctrl: AnalysisControllerBughouse | RoundC
     ctrl.moveControls = patch(container, h('div#btn-controls-top.btn-controls', buttons));
 }
 
-function fillWithEmpty(moves: VNode[], countOfEmptyCellsToAdd: number) {
+function fillWithEmpty(moves: VNode[], countOfEmptyCellsToAdd: number, cls: string = '', ply: string = '', style: string = '') {
     for (let i = 0; i<countOfEmptyCellsToAdd;i++) {
-        moves.push(h('move-bug.counter'));
-        const el = h('move-bug', {});
+        moves.push(h('move-bug.counter'+cls, {attrs: { _ply: ply, style: style }}));
+        const el = h('move-bug'+cls, {attrs: { _ply: ply, style: style }});
         moves.push(el);
     }
 }
@@ -95,6 +100,7 @@ export function updateMovelist (ctrl: AnalysisControllerBughouse | RoundControll
     let plyA: number = 0;
     let plyB: number = 0;
     let didWeRenderVariSectionAfterLastMove = false;
+    let didWeRenderChatSectionAfterLastMove = false;
 
     // in round mode we only call this for last move, so we need to reconstruct actual per-board ply from history
     for (let ply = 1; ply < plyFrom; ply++) {
@@ -115,6 +121,14 @@ export function updateMovelist (ctrl: AnalysisControllerBughouse | RoundControll
         } else {
             const countOfEmptyCellsToAdd = colIdx > lastColIdx? colIdx - lastColIdx - 1: 4 + colIdx - lastColIdx - 1;
             fillWithEmpty(moves, countOfEmptyCellsToAdd);
+        }
+
+        if (didWeRenderChatSectionAfterLastMove) {
+            // todo: this is really ugly solution for padding ply elems when chat div breaks the list
+            //       and tbh the similar padding solution for variations is not best either - consider some
+            //       other layout where these things can be done more natural, without all those dummy padding elements
+            fillWithEmpty(moves, colIdx-1,'.ch', ''+(ply - 1), 'display: none');
+            didWeRenderChatSectionAfterLastMove=false;
         }
         lastColIdx = colIdx;
 
@@ -140,6 +154,7 @@ export function updateMovelist (ctrl: AnalysisControllerBughouse | RoundControll
             }
             /*moveEl.push(h('bugchat#ply' + ply, [ h("img", { attrs: { src: '/static/icons/bugchatmove.svg' } })]));*/
             chats = h("ol.bugchatpopup.chat",chatMessages);
+            didWeRenderChatSectionAfterLastMove = true;
         }
 
         moves.push(h('move-bug.counter',  Math.floor(ctrl.steps[ply].boardName === 'a'? (plyA + 1) / 2 : (plyB + 1) / 2 ) ) );
