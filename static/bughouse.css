@@ -2,14 +2,33 @@
  * analysis.css
  ******************************************************************************************* */
 @media (min-width: 800px) {
-        .analysis-app.bug {
+    /*.analysis-app.bug {
         grid-template-columns: 500px
                                var(--gauge-gap)
-                               calc(var(--pocketLength) * (var(--cg-width) / var(--files)))
-                               calc(var(--pocketLength) * (var(--cg-width) / var(--files)))
+                               calc(var(--pocketLength) * (var(--cg-width-a) / var(--files)))
+                               calc(var(--pocketLength) * (var(--cg-width-b) / var(--files)))
                                var(--gauge-gap)
                                0.8em
                                500px;
+        grid-template-rows: min-content 1fr;
+        grid-template-areas: 'board gauge pocket-top pocket-top-partner gaugePartner d boardPartner'
+                             'board gauge tools tools gaugePartner d boardPartner'
+                             'board gauge tools tools gaugePartner d boardPartner'
+                             'board gauge pocket-bot pocket-bot-partner gaugePartner d boardPartner'
+                             '. . move-controls move-controls . . .'
+                             'gameinfo gameinfo uboard uboard uboard uboard uboard'
+    }*/
+    .analysis-app.bug {
+        --board-scaleA: calc((var(--zoom-a) / 100));
+        --board-scaleB: calc((var(--zoom-b) / 100));
+        grid-row-gap: 2vmin;
+        grid-template-columns: calc(30vw * var(--board-scaleA))
+                               var(--gauge-gap)
+                               calc(var(--pocketLength) * (var(--cg-width-a) / var(--files)))
+                               calc(var(--pocketLength) * (var(--cg-width-b) / var(--files)))
+                               var(--gauge-gap)
+                               0.8em
+                               calc(30vw * var(--board-scaleB));
         grid-template-rows: min-content 1fr;
         grid-template-areas: 'board gauge pocket-top pocket-top-partner gaugePartner d boardPartner'
                              'board gauge tools tools gaugePartner d boardPartner'
