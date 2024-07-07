@@ -418,6 +418,9 @@ label.piece.piece0.khans {
     background-image: url('images/pieces/orda/merida/bT.svg');
 }
 label.piece.piece1.khans {
+    background-image: url('images/pieces/orda/cburnett/bT.svg');
+}
+label.piece.piece2.khans {
     background-image: url('images/pieces/disguised/g.svg');
 }
 
