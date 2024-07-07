@@ -59,8 +59,6 @@ export class AliceBoard {
             const rook = afterBoards[boardId].board.take(rook_to_square);
             afterBoards[1 - boardId].board.set(rook_to_square, rook!);
         }
-        // Switch the other board turn color
-        // afterBoards[1 - boardId].turn = opposite(afterBoards[1 - boardId].turn);
     }
 
     getLegalAliceMoves(): string[] {
@@ -88,7 +86,6 @@ export class AliceBoard {
     filterOutIllegalMoves(boardId: BoardId, uciMoves: string[]): string[] {
         const legals: string[] = [];
         uciMoves.forEach((uci: string) => {
-            console.log("-- validate move", uci);
             let ok: boolean = true;
 
             const move = parseUci(uci);
