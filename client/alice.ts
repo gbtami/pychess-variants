@@ -86,8 +86,7 @@ export class AliceBoard {
 
     filterOutIllegalMoves(boardId: BoardId, uciMoves: string[]): string[] {
         const legals: string[] = [];
-        uciMoves.forEach((uci: string) => {
-            let ok: boolean = true;
+        for (const uci of uciMoves) {
 
             const move = parseUci(uci);
             const castlSide = castlingSide(this.boards[boardId], move!);
@@ -96,23 +95,19 @@ export class AliceBoard {
             this.playMove(afterBoards, boardId, move!);
 
             this.ffishBoard.setFen(makeBoardFen(afterBoards[0].board) + ' ' + this.turnColor[0]);
-            if (this.ffishBoard.isCheck()) ok = false;
+            if (this.ffishBoard.isCheck()) continue;
 
             this.ffishBoard.setFen(makeBoardFen(afterBoards[1].board) + ' ' + this.turnColor[0]);
-            if (this.ffishBoard.isCheck()) ok = false;
+            if (this.ffishBoard.isCheck()) continue;
 
             // We have to check that rook_to_square was vacant as well
             if (castlSide !== undefined) {
                 const rook_to_square = rookCastlesTo(this.turnColor, castlSide);
-
-                if (this.boards[1 - boardId].board.get(rook_to_square) !== undefined) {
-                    ok = false;
-                }
+                if (this.boards[1 - boardId].board.get(rook_to_square) !== undefined) continue;
             }
-            if (ok) {
-                legals.push(uci);
-            }
-        });
+            
+            legals.push(uci);
+        }
         return legals;
     }
 
