@@ -4,9 +4,9 @@ import { Board } from 'ffish-es6';
 
 import { Position, castlingSide } from 'chessops/chess';
 import { makeBoardFen, parseFen } from 'chessops/fen';
-import { parseUci, rookCastlesTo } from 'chessops/util';
+import { makeSquare, parseUci, rookCastlesTo } from 'chessops/util';
 import { Setup } from 'chessops/setup';
-import { Move } from 'chessops/types';
+import { Move, SquareNames } from 'chessops/types';
 
 export type Fens = [string, string];
 export type BoardId = 0 | 1;
@@ -42,6 +42,7 @@ export class AliceBoard {
         const pos1 = AlicePosition.fromSetup(setup1);
 
         this.boards = [pos0, pos1];
+        console.log("new AliceBoard", this.boards);
     }
 
     playMove(afterBoards: Boards, boardId: BoardId, move: Move): void {
@@ -113,5 +114,32 @@ export class AliceBoard {
             }
         });
         return legals;
+    }
+
+    getOccupiedSquares(boardId: BoardId): SquareNames[] {
+        const squareNames: SquareNames[] = [];
+        console.log("occ AliceBoard", boardId, this.boards);
+        const occ = this.boards[boardId].board.occupied;
+        for (const square of occ) {
+            squareNames.push(makeSquare(square));
+        }
+        return squareNames;
+    }
+
+    getUnionFen(boardId: BoardId): string {
+        // Make all the other board pieces promoted to let us use variant ui.showPromoted
+        // to present the other board piece images differently
+        const newBoard = this.boards[boardId].board.clone();
+        newBoard.occupied = newBoard.occupied.union(this.boards[1 - boardId].board.occupied);
+        newBoard.promoted = this.boards[1 - boardId].board.occupied;
+        newBoard.white = newBoard.white.union(this.boards[1 - boardId].board.white);
+        newBoard.black = newBoard.black.union(this.boards[1 - boardId].board.black);
+        newBoard.pawn = newBoard.pawn.union(this.boards[1 - boardId].board.pawn);
+        newBoard.knight = newBoard.knight.union(this.boards[1 - boardId].board.knight);
+        newBoard.bishop = newBoard.bishop.union(this.boards[1 - boardId].board.bishop);
+        newBoard.rook = newBoard.rook.union(this.boards[1 - boardId].board.rook);
+        newBoard.queen = newBoard.queen.union(this.boards[1 - boardId].board.queen);
+        newBoard.king = newBoard.king.union(this.boards[1 - boardId].board.king);
+        return makeBoardFen(newBoard);
     }
 }

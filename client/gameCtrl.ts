@@ -164,8 +164,7 @@ export abstract class GameController extends ChessgroundController implements Ch
             'turnColor': this.turnColor,
             });
 
-        // Is this really needed here? I think no.
-        // this.setDests();
+        this.setDests();
 
         Mousetrap.bind('left', () => selectMove(this, this.ply - 1, this.plyVari));
         Mousetrap.bind('right', () => selectMove(this, this.ply + 1, this.plyVari));
