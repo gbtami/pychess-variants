@@ -1,6 +1,3 @@
-import * as cg from 'chessgroundx/types';
-import { SquareNames } from 'chessops/types';
-
 import { PyChessModel } from "./types";
 import { RoundController } from '@/roundCtrl';
 import { moveDests, CGMove, uci2cg, UCIMove } from './chess';
@@ -10,7 +7,7 @@ import { AliceBoard, BoardId, Fens } from './alice';
 
 export class RoundControllerAlice extends RoundController {
     boardId: BoardId;
-    unionFens: [string,string];
+    unionFens: Fens;
 
     constructor(el: HTMLElement, model: PyChessModel) {
         super(el, model);

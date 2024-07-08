@@ -6,7 +6,7 @@ import { Position, castlingSide } from 'chessops/chess';
 import { makeBoardFen, parseFen } from 'chessops/fen';
 import { makeSquare, parseUci, rookCastlesTo } from 'chessops/util';
 import { Setup } from 'chessops/setup';
-import { Move, SquareNames } from 'chessops/types';
+import { Move, SquareName } from 'chessops/types';
 
 export type Fens = [string, string];
 export type BoardId = 0 | 1;
@@ -116,8 +116,8 @@ export class AliceBoard {
         return legals;
     }
 
-    getOccupiedSquares(boardId: BoardId): SquareNames[] {
-        const squareNames: SquareNames[] = [];
+    getOccupiedSquares(boardId: BoardId): SquareName[] {
+        const squareNames: SquareName[] = [];
         console.log("occ AliceBoard", boardId, this.boards);
         const occ = this.boards[boardId].board.occupied;
         for (const square of occ) {
