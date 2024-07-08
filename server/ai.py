@@ -37,7 +37,6 @@ async def BOT_task(bot, app_state: PychessGlobalAppState):
                 continue
             # print("   +++ game_queues get()", event)
             if random_mover:
-                # TODO: game.legal_moves are just pseudo legal ones in Alice games
                 await play_move(app_state, bot, game, random.choice(game.legal_moves))
             elif len(app_state.workers) > 0:
                 AI_move(game, level)
