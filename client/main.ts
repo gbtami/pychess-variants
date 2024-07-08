@@ -124,7 +124,7 @@ export function view(el: HTMLElement, model: PyChessModel): VNode {
         return h('div', embedView(model));
     case 'analysis':
         switch (model.variant) {
-            case 'bughouse': return h('div#main-wrap', bugAnalysisView(model));
+            case 'bughouse': return h('div#main-wrap.bug', bugAnalysisView(model));
             default: return h('div#main-wrap', analysisView(model));;
         }
     case 'puzzle':

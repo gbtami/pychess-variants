@@ -644,6 +644,7 @@ export class RoundControllerBughouse implements ChatController {
                 sound.gameEndSoundBughouse(msg.result, this.whichTeamAmI());
             }
             updateResult(this);
+            chatMessage("", "Game over. Messages visible to all again.", "bugroundchat", undefined, this.steps.length, this);
             this.gameOver();
 
 
@@ -669,8 +670,16 @@ export class RoundControllerBughouse implements ChatController {
             const container = document.getElementById('movelist') as HTMLElement;
             patch(container, h('div#movelist'));
 
-            steps.forEach((step) => {
+            steps.forEach((step, idx) => {
                 this.steps.push(step);
+                if (idx === 4) {
+                    chatMessage("", "Chat visible only to your partner", "bugroundchat", undefined, idx, this);
+                }
+                if (step.chat) { // todo: check if status < 0 and filter only partners messages
+                    step.chat.forEach((c) => {
+                        chatMessage(c.username, c.message, "bugroundchat", c.time, idx, this);
+                    });
+                }
                 });
             updateMovelist(this, true, true, false);
         } else { // single step message
@@ -680,8 +689,8 @@ export class RoundControllerBughouse implements ChatController {
                 const activate = !this.spectator || latestPly;
                 const result = false;
                 updateMovelist(this, full, activate, result);
-                if (this.steps.length === 4) {
-                    chatMessage("", "Chat visible only to your partner", "bugroundchat");
+                if (this.steps.length === 5) {
+                    chatMessage("", "Chat visible only to your partner", "bugroundchat", undefined, ply, this);
                 }
             }
         }
@@ -1155,7 +1164,7 @@ export class RoundControllerBughouse implements ChatController {
 
     private onMsgChat = (msg: MsgChat) => {
         if (this.spectator /*spectators always see everything*/ || (!this.spectator && msg.room !== 'spectator') || msg.user.length === 0) {
-            chatMessage(msg.user, msg.message, "bugroundchat", msg.time);
+            chatMessage(msg.user, msg.message, "bugroundchat", msg.time, this.ply, this);
         }
     }
 
@@ -1189,7 +1198,7 @@ export class RoundControllerBughouse implements ChatController {
                 this.onMsgBoard(msg);
                 break;
             case "gameEnd":
-                this.checkStatus(msg);
+                // this.checkStatus(msg); don't see why this is needed, it is already called in onMsgBoard
                 break;
             case "gameStart":
                 this.onMsgGameStart(msg);

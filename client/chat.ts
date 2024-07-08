@@ -3,7 +3,7 @@ import { h } from "snabbdom";
 import { _ } from './i18n';
 import { patch } from './document';
 import { RoundControllerBughouse } from "./bug/roundCtrl.bug";
-import { chatMessageBug, renderBugChatPresets } from "@/bug/chat.bug";
+import {chatMessageBug, onchatclick, renderBugChatPresets} from "@/bug/chat.bug";
 
 export interface ChatController {
     anon: boolean;
@@ -78,7 +78,8 @@ export function chatView(ctrl: ChatController, chatType: string) {
 }
 
 
-export function chatMessage (user: string, message: string, chatType: string, time?: number) {
+export function chatMessage (user: string, message: string, chatType: string, time?: number, ply?: number, ctrl?: RoundControllerBughouse) {
+
     const chatDiv = document.getElementById(chatType + '-messages') as HTMLElement;
     // You must add border widths, padding and margins to the right.
     // Only scroll the chat on a new message if the user is at the very bottom of the chat
@@ -96,9 +97,9 @@ export function chatMessage (user: string, message: string, chatType: string, ti
         const discordMessage = message.substring(colonIndex + 2);
         patch(container, h('div#messages', [ h("li.message", [h("div.time", localTime), h("div.discord-icon-container", h("img.icon-discord-icon", { attrs: { src: '/static/icons/discord.svg', alt: "" } })), h("user", discordUser), h("t", discordMessage)]) ]));
     } else if (message.startsWith("!bug!")) {
-        chatMessageBug(container, user, message, /*chatType,*/ localTime);
+        chatMessageBug(container, user, message, /*chatType,*/ localTime, ply, ctrl);
     } else {
-        patch(container, h('div#messages', [ h("li.message", [h("div.time", localTime), h("user", h("a", { attrs: {href: "/@/" + user} }, user)), h("t", message)]) ]));
+        patch(container, h('div#messages', [ h("li.message", [h("div.time", localTime), h("user", h("a", { attrs: {href: "/@/" + user} }, user)), h("t", { attrs: {"title": ctrl?.steps[ply!].san!}, on: { click: () => { onchatclick(ply, ctrl) }}}, message)]) ]));
     }
 
     if (isBottom) setTimeout(() => {chatDiv.scrollTop = chatDiv.scrollHeight;}, 200);

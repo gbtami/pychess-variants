@@ -54,7 +54,6 @@ export function analysisView(model: PyChessModel): VNode[] {
     const variant = VARIANTS[model.variant];
 
     const isAnalysisBoard = model["gameId"] === "";
-    const tabindexPgn = (isAnalysisBoard) ? '0' : '1';
 
     renderTimeago();
 
@@ -156,10 +155,10 @@ export function analysisView(model: PyChessModel): VNode[] {
             ]),
             h('under-left#spectators'),
             h('under-board', [
-                h('div.chart-container', {attrs: {id: 'panel-2', role: 'tabpanel', tabindex: '-1', 'aria-labelledby': 'tab-2'}}, [
+                h('div.chart-container', {attrs: {id: 'panel-2', role: 'tabpanel', tabindex: '0', 'aria-labelledby': 'tab-1'}}, [
                     h('div#chart-movetime'),
                 ]),
-                h('div', {attrs: {id: 'panel-4', role: 'tabpanel', tabindex: tabindexPgn, 'aria-labelledby': 'tab-4'}}, [
+                h('div', {attrs: {id: 'panel-4', role: 'tabpanel', tabindex: '1', 'aria-labelledby': 'tab-4'}}, [
                     h('div#fentext', [
                         h('strong', 'BFEN'),
                         h('input#fullfen', {attrs: {readonly: true, spellcheck: false}, on: { click: onClickFullfen } })
@@ -168,8 +167,8 @@ export function analysisView(model: PyChessModel): VNode[] {
                     h('div#pgntext'),
                 ]),
                 h('div', {attrs: {role: 'tablist', 'aria-label': 'Analysis Tabs'}}, [
-                    h('span', {attrs: {role: 'tab', 'aria-selected': true, 'aria-controls': 'panel-2', id: 'tab-1', tabindex: '0'}}, _('Move times')),
-                    h('span', {attrs: {role: 'tab', 'aria-selected': false, 'aria-controls': 'panel-4', id: 'tab-4', tabindex: tabindexPgn}}, _('FEN & PGN')),
+                    h('span', {attrs: {role: 'tab', 'aria-selected': 'true', 'aria-controls': 'panel-2', id: 'tab-1', tabindex: '0'}}, _('Move times')),
+                    h('span', {attrs: {role: 'tab', 'aria-selected': 'false', 'aria-controls': 'panel-4', id: 'tab-4', tabindex: '1'}}, _('FEN & PGN')),
                 ]),
             ]),
         ]),

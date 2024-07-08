@@ -127,7 +127,7 @@ export function updateMovelist (ctrl: AnalysisControllerBughouse | RoundControll
             // todo: this is really ugly solution for padding ply elems when chat div breaks the list
             //       and tbh the similar padding solution for variations is not best either - consider some
             //       other layout where these things can be done more natural, without all those dummy padding elements
-            fillWithEmpty(moves, colIdx-1,'.ch', ''+(ply - 1), 'display: none');
+            fillWithEmpty(moves, lastColIdx,'.ch', ''+(ply - 1), 'display: none');
             didWeRenderChatSectionAfterLastMove=false;
         }
         lastColIdx = colIdx;
