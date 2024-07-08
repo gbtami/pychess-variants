@@ -53,8 +53,6 @@ export function analysisView(model: PyChessModel): VNode[] {
 
     const variant = VARIANTS[model.variant];
 
-    const isAnalysisBoard = model["gameId"] === "";
-
     renderTimeago();
 
     const onClickFullfen = () => {
