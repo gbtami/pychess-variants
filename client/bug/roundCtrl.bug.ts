@@ -644,7 +644,6 @@ export class RoundControllerBughouse implements ChatController {
                 sound.gameEndSoundBughouse(msg.result, this.whichTeamAmI());
             }
             updateResult(this);
-            chatMessage("", "Game over. Messages visible to all again.", "bugroundchat", undefined, this.steps.length, this);
             this.gameOver();
 
 
@@ -1198,7 +1197,8 @@ export class RoundControllerBughouse implements ChatController {
                 this.onMsgBoard(msg);
                 break;
             case "gameEnd":
-                // this.checkStatus(msg); don't see why this is needed, it is already called in onMsgBoard
+                this.checkStatus(msg);
+                chatMessage("", "Game over. Messages visible to all again.", "bugroundchat", undefined, this.steps.length, this);
                 break;
             case "gameStart":
                 this.onMsgGameStart(msg);

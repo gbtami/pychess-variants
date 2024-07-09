@@ -15,22 +15,44 @@ from bugchess.pgn import read_game, Game
 log = logging.getLogger(__name__)
 
 
-def get_main_variation(game: Game) -> [list, list]:
+def get_main_variation(game: Game, base_tc_ms: int) -> [list, list]:
     variations = game.variations
     turns = {0: "w", 1: "w"}
     moves = []
     boards = []
-    move_times = {0: {"w": [], "b": []}, 1: {"w": [], "b": []}}
+    move_times = {0: {"w": [base_tc_ms], "b": [base_tc_ms]}, 1: {"w": [base_tc_ms], "b": [base_tc_ms]}}
+    ply = 0
     while variations:
+        ply = ply + 1
         board = variations[0].move.board_id
-        turn = turns[board]
-        turns[board] = "b" if turn == "w" else "w"
+        other_board = 1 - board
+        turn = turns[board]  # who made the current move
+        turns[board] = "b" if turn == "w" else "w"  # whose turn it is now after current move on each board
+        paused_other_board = "b" if turns[other_board] == "w" else "w"
+
         moves.append(variations[0].move.uci())
-        move_times[board][turn].append(
-            int(variations[0].move.move_time * 1000)
-            if variations[0].move.move_time is not None
-            else None
-        )
+
+        # for every ply we store all 4 times when that move was made.
+        # Since BPGN doesnt have this info we should reconstruct it
+        # todo: storing all those numbers is not necessary since we always can reconstruct
+        #       them but was simpler to implement initially consider at some point optimizing storage and
+        #       just store the times for the current move (as bgpn does as well)
+
+        clock_cur_ply = int(variations[0].move.move_time * 1000) if variations[0].move.move_time is not None else None
+        clock_prev_ply = move_times[board][turn][ply - 1]
+        time_since_prev_ply = clock_prev_ply - clock_cur_ply
+
+        # the clocks that are/were ticking when current move was made:
+        move_times[board][turn].append(move_times[board][turn][ply-1] - time_since_prev_ply)
+        move_times[other_board][turns[other_board]].append(move_times[other_board][turns[other_board]][ply-1] - time_since_prev_ply)
+
+        # the clocks that are/were paused when current move was made:
+        move_times[board][turns[board]].append(move_times[board][turns[board]][ply-1])
+        move_times[other_board][paused_other_board].append(move_times[other_board][paused_other_board][ply-1])
+
+        # this line probably not needed, assuming above calc is correct, but lets set it explicitly for good measure:
+        move_times[board][turn][ply] = clock_cur_ply
+
         boards.append(board)
         variations = variations[0].variations
     return [moves, move_times, boards]
@@ -48,6 +70,7 @@ async def import_game_bpgn(request):
 
     # strange bug in chess.com bpgn, whenever there is N@ it is instead $146@
     pgn = pgn.replace("$146@", "N@")
+    pgn = pgn.replace("][", "]\n[")  # bmacho returns bgpns with 2 header entries on same line sometimes
 
     first_game = read_game(pgn)
 
@@ -92,7 +115,7 @@ async def import_game_bpgn(request):
         base, inc = 0, 0
 
     [move_stack, move_times, boards] = get_main_variation(
-        first_game
+        first_game, tc[0] * 1000
     )  # data.get("moves", "").split(" ")
     moves = [*map(encode_move_standard, move_stack)]
 
