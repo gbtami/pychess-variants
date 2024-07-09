@@ -8,6 +8,7 @@ import { AliceBoard, BoardId, Fens } from './alice';
 export class RoundControllerAlice extends RoundController {
     boardId: BoardId;
     unionFens: Fens;
+    check: boolean;
 
     constructor(el: HTMLElement, model: PyChessModel) {
         super(el, model);
@@ -15,13 +16,17 @@ export class RoundControllerAlice extends RoundController {
     }
 
     goPly = (ply: number, plyVari = 0) => {
-        this.boardId = 0;
+        //this.boardId = 0;
         super.goPly(ply, plyVari);
+
         const aliceBoard = new AliceBoard(this.fullfen, this.ffishBoard);
+        this.check = aliceBoard.check;
         this.unionFens = [aliceBoard.getUnionFen(0), aliceBoard.getUnionFen(1)];
         const unionFen = this.unionFens[this.boardId ?? 0];
+
         this.chessground.set({
             animation: { enabled: false },
+            check: (this.check) ? this.turnColor : false,
             fen: unionFen,
         });
     }
@@ -32,7 +37,9 @@ export class RoundControllerAlice extends RoundController {
     }
 
     setDests() {
+        console.log("roundCtrlAlice.setDests()");
         const aliceBoard = new AliceBoard(this.fullfen, this.ffishBoard);
+        this.check = aliceBoard.check;
 
         this.unionFens = [aliceBoard.getUnionFen(0), aliceBoard.getUnionFen(1)];
         const unionFen = this.unionFens[this.boardId ?? 0];
@@ -44,6 +51,7 @@ export class RoundControllerAlice extends RoundController {
         const dests = moveDests(legalMoves as UCIMove[], fakeDrops, pieces, this.turnColor);
         this.chessground.set({
             fen: unionFen,
+            check: (this.check) ? this.turnColor : false,
             movable: { dests: dests } 
         });
     }
@@ -58,6 +66,7 @@ export class RoundControllerAlice extends RoundController {
         const unionFen = this.unionFens[this.boardId ?? 0];
         this.chessground.set({
             animation: { enabled: false },
+            check: (this.check) ? this.turnColor : false,
             fen: unionFen,
         });
     }

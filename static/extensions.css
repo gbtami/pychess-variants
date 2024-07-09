@@ -276,6 +276,6 @@
 /* Alice chess pieces on the other board */
 .standard piece.promoted {
   opacity: 0.2;
-  background-color: Aquamarine;
+  background-color: LightCyan;
   border: 1px solid blue;
 }

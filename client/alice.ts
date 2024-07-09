@@ -28,6 +28,7 @@ export class AliceBoard {
     fens: Fens;
     boards: Boards;
     turnColor: cg.Color;
+    check: boolean;
     ffishBoard: Board;
 
     constructor(fullfen: string, ffishBoard: Board) {
@@ -43,6 +44,14 @@ export class AliceBoard {
 
         this.boards = [pos0, pos1];
         console.log("new AliceBoard", this.boards);
+
+        this.ffishBoard.setFen(this.fens[0]);
+        const check0 = this.ffishBoard.isCheck();
+
+        this.ffishBoard.setFen(this.fens[1]);
+        const check1 = this.ffishBoard.isCheck();
+
+        this.check = check0 || check1;
     }
 
     playMove(afterBoards: Boards, boardId: BoardId, move: Move): void {
