@@ -758,6 +758,8 @@ export default class AnalysisControllerBughouse {
 
         //
         if (b.localAnalysis) this.engineStop();
+        const san = b.san(move); // doing this before we push the move to the ffboard, after which its invalid
+        const sanSAN = b.sanSAN(move);
         b.pushMove(move);
         b.renderState();
         b.chessground.set({movable: {color: b.turnColor}});
@@ -772,8 +774,8 @@ export default class AnalysisControllerBughouse {
             'moveB': b.boardName==='b'? move: this.steps[this.steps.length-1].moveB, // if the new move is not for B, repeat value from previous step for B
             'check': b.isCheck,
             'turnColor': b.turnColor,
-            'san': b.san(move),
-            'sanSAN': b.sanSAN(move),
+            'san': san,
+            'sanSAN': sanSAN,
             'boardName': b.boardName,
             'plyA': this.b1.ply,
             'plyB': this.b2.ply,
