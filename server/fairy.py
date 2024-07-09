@@ -192,6 +192,9 @@ class FairyBoard:
     def game_result_no_history(self):
         return sf.game_result(self.variant, self.fen, [], self.chess960)
 
+    def piece_to_partner(self, move):
+        return sf.piece_to_partner(self.variant, self.fen, [move])
+
     def print_pos(self):
         print()
         uni_pieces = {

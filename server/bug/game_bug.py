@@ -1,7 +1,6 @@
 import asyncio
 import collections
 import logging
-import re
 from datetime import datetime, timezone
 from time import time_ns
 
@@ -193,28 +192,6 @@ class GameBug:
                     )
         return chat
 
-    def get_captured(self, fen, move):
-        # todo: hopefully we find cleaner way to determine captured piece serverside. Clientside its easy to get from
-        #       Chessground, but we cannot trust clients will send correct info
-
-        if "@" in move:
-            return None
-
-        fen_split = re.split("[\\[\\]]", fen)
-        fen_with_empty_pocket = fen_split[0] + "[]" + fen_split[2]
-        # pocket = fen_split[1]
-        log.debug("fen_with_empty_pocket: %s", fen_with_empty_pocket)
-        fen_with_captured_piece = sf.get_fen(
-            "crazyhouse", fen_with_empty_pocket, [move], self.chess960, False, False, False
-        )
-        fen_with_captured_piece_split = re.split("[\\[\\]]", fen_with_captured_piece)
-        captured_piece = fen_with_captured_piece_split[1]
-        # crazyhouse changes colors of captures pieces, but in bughouse we want it back to the original color:
-        captured_piece = (
-            captured_piece.lower() if captured_piece.isupper() else captured_piece.upper()
-        )
-        return captured_piece
-
     async def play_move(
         self, move, clocks=None, clocks_b=None, board="a"  # , last_move_captured_role=None
     ):
@@ -238,7 +215,7 @@ class GameBug:
             self.gameClocks.update_clocks(board, clocks, clocks_b)
             try:
                 partner_board = "a" if board == "b" else "b"
-                last_move_captured_role = self.get_captured(self.boards[board].fen, move)
+                last_move_captured_role = self.boards[board].piece_to_partner(move)
                 log.debug("lastMoveCapturedRole: %s", last_move_captured_role)
                 log.debug("self.boards[partner_board].fen: %s", self.boards[partner_board].fen)
 
