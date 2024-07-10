@@ -297,6 +297,16 @@ async def handle_setup(ws, users, user, data, game):
 
 
 async def handle_analysis(app_state: PychessGlobalAppState, ws, data, game):
+    # fishnet_analysis() wants to inject analysis data into game.steps
+    # Analysis can be requested for older games. While get_board() creates steps
+    # load_game() does't put the game into the app_state.games, and when
+    # fishnet_analysis() calls load_game(), it will lose game.steps (they are
+    # cteated lousely via get_board() only!)
+    # We have to prevent this.
+    if game.id not in app_state.games:
+        app_state.games[data["gameId"]] = game
+        # TODO: maybe we have to schedule game.remove() ?
+
     # If there is any fishnet client, use it.
     if len(app_state.workers) > 0:
         work_id = "".join(random.choice(string.ascii_letters + string.digits) for x in range(6))
