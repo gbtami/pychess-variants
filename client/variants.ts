@@ -125,6 +125,7 @@ export interface Variant {
         readonly showPromoted: boolean;
         readonly pieceSound: PieceSoundType;
         readonly boardMark: BoardMarkType | '';
+        readonly showCheckCounters: boolean;
     };
     readonly alternateStart?: Record<string, string>;
 }
@@ -192,6 +193,7 @@ function variant(config: VariantConfig): Variant {
             showPromoted: config.ui?.showPromoted ?? false,
             pieceSound: config.ui?.pieceSound ?? 'regular',
             boardMark: config.ui?.boardMark ?? '',
+            showCheckCounters: config.ui?.showCheckCounters ?? false,
         },
         alternateStart: config.alternateStart,
     };
@@ -289,6 +291,8 @@ interface VariantConfig {
         pieceSound?: PieceSoundType;
         // Board marking for special squares (default: '')
         boardMark?: BoardMarkType;
+        // Render the remaining check numbers on King pieces
+        showCheckCounters?: boolean;
     };
     // Alternate starting positions, including handicaps
     alternateStart?: Record<string, string>;
@@ -425,6 +429,7 @@ export const VARIANTS: Record<string, Variant> = {
         boardFamily: "standard8x8", pieceFamily: "standard",
         pieceRow: ["k", "q", "r", "b", "n", "p"],
         rules: { enPassant: true },
+        ui: { showCheckCounters: true },
         alternateStart: {
             '': "",
             '5check': "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 5+5 0 1",

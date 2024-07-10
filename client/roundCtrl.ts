@@ -945,6 +945,10 @@ export class RoundController extends GameController {
             }
         }
 
+        if (this.variant.ui.showCheckCounters) {
+            this.updateCheckCounters(msg.fen);
+        }
+
         this.updateMaterial();
     }
 

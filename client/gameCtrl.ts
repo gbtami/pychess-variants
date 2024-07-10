@@ -21,6 +21,7 @@ import { chatMessage, ChatController } from './chat';
 import { selectMove } from './movelist';
 import { Api } from "chessgroundx/api";
 import { Variant } from "@/variants";
+import { CheckCounterSvg, Counter } from './glyphs';
 
 export abstract class GameController extends ChessgroundController implements ChatController {
     sock: WebsocketHeartbeatJs;
@@ -245,6 +246,23 @@ export abstract class GameController extends ChessgroundController implements Ch
         this.doSendMove(cg2uci(orig + dest + promo));
     }
 
+    updateCheckCounters(fen: string) {
+        const counters = fen.split(' ')[4].split('+');
+        const wSvg = CheckCounterSvg(counters[1] as Counter);
+        const bSvg = CheckCounterSvg(counters[0] as Counter);
+        const pieces = this.chessground.state.boardState.pieces;
+        const kings = { 'white': 'e1', 'black': 'e8' };
+        for (const [k, p] of pieces) {
+            if (p.role === 'k-piece') kings[p.color] = k;
+        }
+        this.chessground.set({
+            drawable: { autoShapes: [
+                { orig: kings['white'] as cg.Key, brush: 'paleGreen', customSvg: wSvg },
+                { orig: kings['black'] as cg.Key, brush: 'paleGreen', customSvg: bSvg },
+            ] }
+        });
+    }
+
     goPly(ply: number, plyVari = 0) {
         const vv = this.steps[plyVari]?.vari;
         const step = (plyVari > 0 && vv) ? vv[ply - plyVari] : this.steps[ply];
@@ -283,6 +301,10 @@ export abstract class GameController extends ChessgroundController implements Ch
 
         if (this.variant.ui.materialPoint) {
             [this.vmiscInfoW, this.vmiscInfoB] = updatePoint(this.variant, step.fen, document.getElementById('misc-infow') as HTMLElement, document.getElementById('misc-infob') as HTMLElement);
+        }
+
+        if (this.variant.ui.showCheckCounters) {
+            this.updateCheckCounters(step.fen);
         }
 
         if (ply === this.ply + 1) {
