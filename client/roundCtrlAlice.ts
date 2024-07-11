@@ -29,6 +29,7 @@ export class RoundControllerAlice extends RoundController {
             check: (this.check) ? this.turnColor : false,
             fen: unionFen,
         });
+        this.setDests();
     }
 
     onMsgBoard = (msg: MsgBoard) => {
@@ -37,7 +38,7 @@ export class RoundControllerAlice extends RoundController {
     }
 
     setDests() {
-        console.log("roundCtrlAlice.setDests()");
+        //console.log("roundCtrlAlice.setDests()");
         const aliceBoard = new AliceBoard(this.fullfen, this.ffishBoard);
         this.check = aliceBoard.check;
 

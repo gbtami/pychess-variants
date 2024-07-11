@@ -122,7 +122,7 @@ export class AliceBoard {
 
     getOccupiedSquares(boardId: BoardId): SquareName[] {
         const squareNames: SquareName[] = [];
-        console.log("occ AliceBoard", boardId, this.boards);
+        //console.log("occ AliceBoard", boardId, this.boards);
         const occ = this.boards[boardId].board.occupied;
         for (const square of occ) {
             squareNames.push(makeSquare(square));
