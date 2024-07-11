@@ -154,7 +154,7 @@ function start() {
     const placeholder = document.getElementById('placeholder');
     if (placeholder && el)
 
-        if (['round', 'analysis', 'editor'].includes(el.getAttribute("data-view") ?? "")) {
+        if (['round', 'analysis', 'puzzle', 'editor'].includes(el.getAttribute("data-view") ?? "")) {
             console.time('load ffish');
             ffishModule().then((loadedModule: any) => {
                 console.timeEnd('load ffish');

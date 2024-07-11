@@ -1,3 +1,16 @@
+<h1 align="center">Designing Internationalized Pieces for Eastern Forms of Chess</h1>
+
+<div class="meta-headline">
+    <div class= "meta">
+        <span class="text">2024.07.11</span>
+        <span class="text"><a href="/@/CouchTomato87">@CouchTomato87</a></span>
+        <span class="text">Blog</span>
+    </div>
+    <div class= "headline">My thought process on board game visual design</div>
+</div>
+
+![Internationalized Pieces](https://github.com/gbtami/pychess-variants/blob/master/static/images/Internationalized-Pieces.jpeg)
+
 Note: this blog originally was posted at 2021.10.17 on lichess.org
 
 ## **Intro**
@@ -15,8 +28,8 @@ Most people know me as the guy who has created different variants, such as Orda 
 
 So it might be clear already that my goal is to make internationalized pieces so that the game is more accessible to people who can’t read Chinese characters (*Hanzi* for Chinese, *Kanji* for Japanese). Specifically:
 
-1\. It reduces the psychologic barrier for introducing people to the game\.
-2\. It can make the pieces easier to learn\.
+* It reduces the psychologic barrier for introducing people to the game.
+* It can make the pieces easier to learn.
 
 There’s a lot of debate about point #2, especially from the western Shogi community, which is basically like opening a whole of can of worms. I will just say that there a significant selection bias in this community, as it’s mostly comprised of people who have made the effort to learn kanji. From personal experience, there are many people who struggle no matter how much we guide them, and these are the people I want to reach. Anyways, that’s all I’ll say on that matter! The rest of this post is more about design principles and how to maximize the benefit of point #2.
 
@@ -24,9 +37,9 @@ There’s a lot of debate about point #2, especially from the western Shogi comm
 
 The heart of chess is the pieces, and learning them is the most important part of learning the game. In my opinion, learning the piece itself comes down to three basic elements:
 
-1. The Name
-2. The Image or Symbol
-3. The Rules
+* The Name
+* The Image or Symbol
+* The Rules
 
 It’s these three things that your brain needs start making mnemonic interconnections before it finally understands what that piece is. Only after that foundation is established, then you can start tacking on new things to that foundation such as strategy and tactics.
 
@@ -60,9 +73,9 @@ Before I go into how I designed my pieces, there’s one more aspect to discuss,
 
 The point I’m trying to make clear is that clearly none of these games are derivative of western Chess. So to me, the idea of using “westernized pieces,” that is pieces designed to look like Chess pieces (king with a cross on its hat or a tower for the rook, or even the use of a Christian bishop) seems disrespectful to the integrity of the original game. That’s where I make the distinction between *westernized* pieces and *internationalized* pieces, with the latter being just pictures representing either the original meaning or at least a neutral international meaning. Clearly these games have a long tradition, so if I want to make an internationalized set, I want to make them as true to the original as possible. My order of preference was:
 
-1. Use the original name if possible as the inspiration for the piece
-2. If the original name is too cumbersome (typically with shogi), try to infuse the picture with elements of the common English translation. For example, “angle mover” as the “bishop.”
-3. Keep the symbolism culturally relevant. I.e. no Christian symbolism. Clothing and headwear are also culturally appropriate and hopefully not anachronistic.
+* Use the original name if possible as the inspiration for the piece
+* If the original name is too cumbersome (typically with shogi), try to infuse the picture with elements of the common English translation. For example, “angle mover” as the “bishop.”
+* Keep the symbolism culturally relevant. I.e. no Christian symbolism. Clothing and headwear are also culturally appropriate and hopefully not anachronistic.
 
 ### **Examples**
 
