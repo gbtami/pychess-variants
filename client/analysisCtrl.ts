@@ -149,6 +149,10 @@ export class AnalysisController extends GameController {
             },
         });
 
+        if (this.variant.ui.showCheckCounters) {
+            this.updateCheckCounters(this.fullfen);
+        }
+
         if (this.hasPockets) {
             setPocketRowCssVars(this);
         }
@@ -792,6 +796,10 @@ export class AnalysisController extends GameController {
                 window.history.replaceState({}, '', hist);
             }
         }
+
+        if (this.variant.ui.showCheckCounters) {
+            this.updateCheckCounters(this.fullfen);
+        }
     }
 
     updateUCImoves(idxInVari: number) {
@@ -1001,6 +1009,10 @@ export class AnalysisController extends GameController {
                 color: this.turnColor,
             },
         });
+
+        if (this.variant.ui.showCheckCounters) {
+            this.updateCheckCounters(this.fullfen);
+        }
     }
 
     private buildScoreStr = (color: string, analysis: Ceval) => {
