@@ -147,3 +147,28 @@ export class AliceBoard {
         return makeBoardFen(newBoard);
     }
 }
+
+export function getUnionFen(fullfen: string): string {
+    const fens = fullfen.split(' | ') as Fens;
+
+    const setup0 = parseFen(fens[0]).unwrap();
+    const setup1 = parseFen(fens[1]).unwrap();
+
+    const pos0 = AlicePosition.fromSetup(setup0);
+    const pos1 = AlicePosition.fromSetup(setup1);
+
+    // Make all the other board pieces promoted to let us use variant ui.showPromoted
+    // to present the other board piece images differently
+    const newBoard = pos0.board.clone();
+    newBoard.occupied = newBoard.occupied.union(pos1.board.occupied);
+    newBoard.promoted = pos1.board.occupied;
+    newBoard.white = newBoard.white.union(pos1.board.white);
+    newBoard.black = newBoard.black.union(pos1.board.black);
+    newBoard.pawn = newBoard.pawn.union(pos1.board.pawn);
+    newBoard.knight = newBoard.knight.union(pos1.board.knight);
+    newBoard.bishop = newBoard.bishop.union(pos1.board.bishop);
+    newBoard.rook = newBoard.rook.union(pos1.board.rook);
+    newBoard.queen = newBoard.queen.union(pos1.board.queen);
+    newBoard.king = newBoard.king.union(pos1.board.king);
+    return makeBoardFen(newBoard);
+}
