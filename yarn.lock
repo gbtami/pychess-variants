@@ -1077,7 +1077,7 @@ chessgroundx@^10.6.1:
   resolved "https://registry.yarnpkg.com/chessgroundx/-/chessgroundx-10.6.1.tgz#42202d073edb47e6787db4fa5ae9ff979a03d095"
   integrity sha512-+meZrb328/haryW8MoaWwGYx6AjHmY9i4+AHxxwjMCwcUfjtTkXLG1fX1LG2NcS4bePpJRXaEfyGMQKganxEwg==
 
-chessops@0.14.1:
+chessops@^0.14.1:
   version "0.14.1"
   resolved "https://registry.yarnpkg.com/chessops/-/chessops-0.14.1.tgz#3a32bed37420c0863804090575020f60cdb28bd6"
   integrity sha512-CnMcfypDVrl/+MkErK0YMAEvivAAnUQ/2f32C54F9HbmDVEDjvoXJYLnS//+4HWGLqGA5+yDs+Y2T0gsxxLgpQ==
