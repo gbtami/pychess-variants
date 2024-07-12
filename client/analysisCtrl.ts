@@ -440,6 +440,8 @@ export class AnalysisController extends GameController {
     onFSFline = (line: string) => {
         if (this.fsfDebug) console.debug('--->', line);
 
+        if (this.variant.name === 'alice') return;
+
         if (line.startsWith('info')) {
             const error = 'info string ERROR: ';
             if (line.startsWith(error)) {
