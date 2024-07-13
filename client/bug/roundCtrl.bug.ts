@@ -739,7 +739,7 @@ export class RoundControllerBughouse implements ChatController {
 
         //when message is for opp's move, meaning turnColor is my color - it is now my turn after this message
         if (latestPly) {
-            board.setState(fen, board.turnColor === 'white' ? 'black' : 'white', lastMove);
+            board.setState(fen, msgTurnColor, lastMove);
             board.renderState();
 
             // because pocket might have changed. todo: condition it on if(capture) maybe
