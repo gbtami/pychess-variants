@@ -973,7 +973,7 @@ export class RoundControllerBughouse implements ChatController {
 
         const check = boardName == 'a' ? msg.check : msg.checkB!;
         const clocks = boardName == 'a' ? msg.clocks : msg.clocksB!;
-        const lastMove = uci2LastMove(msg.lastMove);
+        const lastMove = uci2LastMove(msg.steps[msg.steps.length - 1].move);
 
         if (this.spectator) {
             this.updateBoardsAndClocksSpectors(board, fen, fenPartner, lastMove, msg.steps[0], clocks!, latestPly, colors, msg.status, check);//todo:niki unclear what is different that when playing, but should have full mode as well. generally should test specator mode at least a little bit
