@@ -5,7 +5,7 @@ import { _ } from '../i18n';
 import { patch } from '../document';
 import { Clock } from '../clock';
 import { ChatController, chatMessage, chatView } from '../chat';
-import {createMovelistButtons, updateMovelist, updateResult} from './movelist.bug';
+import { createMovelistButtons, updateMovelist, updateResult, selectMove } from './movelist.bug';
 import {
     Clocks,
     MsgBoard,
@@ -643,6 +643,7 @@ export class RoundControllerBughouse implements ChatController {
             if (this.result !== "*" && !this.spectator && !this.finishedGame) {
                 sound.gameEndSoundBughouse(msg.result, this.whichTeamAmI());
             }
+            selectMove(this, this.steps.length - 1); // show final position (also important to disable cg's movable)
             updateResult(this);
             this.gameOver();
 
