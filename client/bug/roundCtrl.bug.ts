@@ -1031,6 +1031,20 @@ export class RoundControllerBughouse implements ChatController {
         board.setState(fen!, getTurnColor(fen!), move);
         board.renderState();
 
+        if (this.status >=0 || ply !== this.steps.length - 1) {
+            board.chessground.set({ movable: { color: undefined, dests: undefined } });
+            board.partnerCC.chessground.set({ movable: { color: undefined, dests: undefined } });
+        } else if (ply === this.steps.length - 1) {
+            if (this.myColor.has("a")) {
+                this.b1.setDests();
+                this.b1.chessground.set({ movable: { color: this.myColor.get("a") } });
+            }
+            if (this.myColor.has("b")) {
+                this.b2.setDests();
+                this.b2.chessground.set({ movable: { color: this.myColor.get("b") } });
+            }
+        }
+
         if (this.status >= 0) {
             //if it is a game that ended, then when scrolling it makes sense to show clocks when the move was made
 
