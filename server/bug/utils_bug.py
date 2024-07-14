@@ -191,7 +191,11 @@ async def load_game_bug(app_state: PychessGlobalAppState, game_id):
             break
 
     if len(game.steps) > 1:
-        move = game.steps[-1]["move"] if game.steps[-1]["boardName"] == "a" else game.steps[-1]["moveB"]
+        move = (
+            game.steps[-1]["move"]
+            if game.steps[-1]["boardName"] == "a"
+            else game.steps[-1]["moveB"]
+        )
         game.lastmove = move  # TODO: msg.lastmove where this value goes is totally redundant imho
 
     level = doc.get("x")
