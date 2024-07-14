@@ -43,7 +43,7 @@ export class AliceBoard {
         const pos1 = AlicePosition.fromSetup(setup1);
 
         this.boards = [pos0, pos1];
-        console.log("new AliceBoard", this.boards);
+        // console.log("new AliceBoard", this.boards);
 
         this.ffishBoard.setFen(this.fens[0]);
         const check0 = this.ffishBoard.isCheck();

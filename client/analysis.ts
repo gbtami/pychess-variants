@@ -2,6 +2,7 @@ import { h, VNode } from "snabbdom";
 
 import { _ } from './i18n';
 import { AnalysisController } from './analysisCtrl';
+import { AnalysisControllerAlice } from './analysisCtrlAlice';
 import { gameInfo } from './gameInfo';
 import { selectVariant, VARIANTS } from './variants';
 import { renderTimeago } from './datetime';
@@ -11,7 +12,12 @@ import { analysisSettings } from './analysisSettings';
 
 function runGround(vnode: VNode, model: PyChessModel) {
     const el = vnode.elm as HTMLElement;
-    const ctrl = new AnalysisController(el, model);
+    let ctrl;
+    if (model.variant === 'alice') {
+        ctrl = new AnalysisControllerAlice(el, model);
+    } else {
+        ctrl = new AnalysisController(el, model);
+    }
     window['onFSFline'] = ctrl.onFSFline;
 }
 

@@ -351,7 +351,7 @@ export class AnalysisController extends GameController {
         }
     }
 
-    private onMsgBoard = (msg: MsgBoard) => {
+    onMsgBoard(msg: MsgBoard) {
         if (msg.gameId !== this.gameId) return;
 
         this.importedBy = msg.by;
