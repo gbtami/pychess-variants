@@ -3,10 +3,10 @@ import * as cg from 'chessgroundx/types';
 import { Board } from 'ffish-es6';
 
 import { Position, castlingSide } from 'chessops/chess';
-import { makeBoardFen, parseFen } from 'chessops/fen';
-import { makeSquare, parseUci, rookCastlesTo } from 'chessops/util';
+import { makeBoardFen, makeFen, parseFen } from 'chessops/fen';
+import { makeSquare, opposite, parseUci, rookCastlesTo } from 'chessops/util';
 import { Setup } from 'chessops/setup';
-import { Move, SquareName } from 'chessops/types';
+import { NormalMove, SquareName } from 'chessops/types';
 
 export type Fens = [string, string];
 export type BoardId = 0 | 1;
@@ -54,7 +54,17 @@ export class AliceBoard {
         this.check = check0 || check1;
     }
 
-    playMove(afterBoards: Boards, boardId: BoardId, move: Move): void {
+    getFen(uci: string): string {
+        const move = parseUci(uci);
+        const boardId = (this.boards[0].board.get((parseUci(uci)! as NormalMove).from) === undefined) ? 1 : 0;
+        const afterBoards: Boards = [this.boards[0].clone(), this.boards[1].clone()];
+        this.playMove(afterBoards, boardId, move!);
+        afterBoards[1 - boardId].turn = opposite(afterBoards[1 - boardId].turn);
+
+        return makeFen(afterBoards[0].toSetup()) + ' | ' + makeFen(afterBoards[1].toSetup());
+    }
+
+    playMove(afterBoards: Boards, boardId: BoardId, move: NormalMove): void {
         const castlSide = castlingSide(afterBoards[boardId], move);
 
         afterBoards[boardId].play(move);
@@ -148,7 +158,7 @@ export class AliceBoard {
     }
 }
 
-export function getUnionFen(fullfen: string): string {
+export function getUnionFen(fullfen: string, boardId: BoardId): string {
     const fens = fullfen.split(' | ') as Fens;
 
     const setup0 = parseFen(fens[0]).unwrap();
@@ -156,19 +166,19 @@ export function getUnionFen(fullfen: string): string {
 
     const pos0 = AlicePosition.fromSetup(setup0);
     const pos1 = AlicePosition.fromSetup(setup1);
-
+    const boards = [pos0, pos1];
     // Make all the other board pieces promoted to let us use variant ui.showPromoted
     // to present the other board piece images differently
-    const newBoard = pos0.board.clone();
-    newBoard.occupied = newBoard.occupied.union(pos1.board.occupied);
-    newBoard.promoted = pos1.board.occupied;
-    newBoard.white = newBoard.white.union(pos1.board.white);
-    newBoard.black = newBoard.black.union(pos1.board.black);
-    newBoard.pawn = newBoard.pawn.union(pos1.board.pawn);
-    newBoard.knight = newBoard.knight.union(pos1.board.knight);
-    newBoard.bishop = newBoard.bishop.union(pos1.board.bishop);
-    newBoard.rook = newBoard.rook.union(pos1.board.rook);
-    newBoard.queen = newBoard.queen.union(pos1.board.queen);
-    newBoard.king = newBoard.king.union(pos1.board.king);
+    const newBoard = boards[boardId].board.clone();
+    newBoard.occupied = newBoard.occupied.union(boards[1 - boardId].board.occupied);
+    newBoard.promoted = boards[1 - boardId].board.occupied;
+    newBoard.white = newBoard.white.union(boards[1 - boardId].board.white);
+    newBoard.black = newBoard.black.union(boards[1 - boardId].board.black);
+    newBoard.pawn = newBoard.pawn.union(boards[1 - boardId].board.pawn);
+    newBoard.knight = newBoard.knight.union(boards[1 - boardId].board.knight);
+    newBoard.bishop = newBoard.bishop.union(boards[1 - boardId].board.bishop);
+    newBoard.rook = newBoard.rook.union(boards[1 - boardId].board.rook);
+    newBoard.queen = newBoard.queen.union(boards[1 - boardId].board.queen);
+    newBoard.king = newBoard.king.union(boards[1 - boardId].board.king);
     return makeBoardFen(newBoard);
 }

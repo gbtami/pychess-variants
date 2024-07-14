@@ -369,8 +369,6 @@ export const VARIANTS: Record<string, Variant> = {
             'Theban': "1p6/2p3kn/3p2pp/4pppp/5ppp/8/PPPPPPPP/PPPPPPKN w - - 0 1",
             'No castle': 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w - - 0 1'
         },
-        // For Alice chess other board pieces we use promoted pieces to let them style differently,
-        // so if we enable showPromoted here, promoted pieces will be styled like in Alice as well.
         ui: { showPromoted: true },
     }),
     crazyhouse: variant({
@@ -458,7 +456,8 @@ export const VARIANTS: Record<string, Variant> = {
             '': "",
             'Looking glass': "8/8/8/8/8/8/PPPPPPPP/RNBQKBNR w KQ - 0 1 | rnbqkbnr/pppppppp/8/8/8/8/8/8 w kq - 0 1",
         },
-        ui: { showPromoted: true },
+        // For Alice chess other board pieces we use promoted pieces to let them style differently,
+        ui: { boardMark: 'alice' },
     }),
 
     makruk: variant({
