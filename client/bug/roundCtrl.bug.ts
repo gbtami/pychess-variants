@@ -920,8 +920,8 @@ export class RoundControllerBughouse implements ChatController {
                 board.renderState();
 
                 // because pocket might have changed. todo: condition it on if(capture) maybe
-                const messageFenPartnerSplit = fenPartner.split("[\\[\\]]");
-                const currentFenPartnerSplit = board.partnerCC.fullfen.split("[\\[\\]]");
+                const messageFenPartnerSplit = fenPartner.split(/[\[\]]/);
+                const currentFenPartnerSplit = board.partnerCC.fullfen.split(/[\[\]]/);
                 const newFen = currentFenPartnerSplit[0] + "[" + messageFenPartnerSplit[1] + "]" + currentFenPartnerSplit[2];
                 board.partnerCC.setState(newFen, board.partnerCC.turnColor, lastMovePartner);
                 board.partnerCC.renderState();
