@@ -118,7 +118,10 @@ export class LobbyController implements ChatController {
 
         // challenge!
         if (this.profileid !== "") {
-            if (this.profileid === 'Fairy-Stockfish') this.createMode = 'playAI';
+            if (this.profileid === 'Fairy-Stockfish') {
+                this.createMode = 'playAI';
+                this.preSelectVariant(model.variant);
+            }
             else if (this.profileid === 'Invite-friend') this.createMode = 'playFriend';
             document.getElementById('game-mode')!.style.display = (this.anon || this.createMode === 'playAI') ? 'none' : 'inline-flex';
             this.renderDialogHeader(_('Challenge %1 to a game', this.profileid));
