@@ -74,6 +74,8 @@ class User:
         self.abandon_game_task = None
         self.correspondence_games: List[Game] = []
 
+        self.blocked = set()  # TODO: save/load from mongodb
+
         if self.bot:
             self.event_queue: Queue = asyncio.Queue()
             self.game_queues: dict[str, Queue] = {}
@@ -362,3 +364,33 @@ async def set_theme(request):
         return web.HTTPFound(referer)
     else:
         raise web.HTTPNotFound()
+
+
+async def block_user(request):
+    app_state = get_app_state(request.app)
+    profileId = request.match_info.get("profileId")
+
+    # Who made the request?
+    session = await aiohttp_session.get_session(request)
+    session_user = session.get("user_name")
+    user = await app_state.users.get(session_user)
+
+    user.blocked.add(profileId)
+    print("%s blocked by %s" % (profileId, user.username))
+    print("BLOCKED list:", user.blocked)
+    raise web.HTTPFound("/@/%s" % profileId)
+
+
+async def unblock_user(request):
+    app_state = get_app_state(request.app)
+    profileId = request.match_info.get("profileId")
+
+    # Who made the request?
+    session = await aiohttp_session.get_session(request)
+    session_user = session.get("user_name")
+    user = await app_state.users.get(session_user)
+
+    user.blocked.remove(profileId)
+    print("%s unblocked by %s" % (profileId, user.username))
+    print("BLOCKED list:", user.blocked)
+    raise web.HTTPFound("/@/%s" % profileId)

@@ -425,6 +425,9 @@ async def index(request):
             profileId = "Fairy-Stockfish"
             render["trophies"] = []
         else:
+            render["can_block"] = profileId not in user.blocked
+            render["can_challenge"] = user.username not in profileId_user.blocked
+
             render["trophies"] = [
                 (v, "top10")
                 for v in app_state.highscore

@@ -26,9 +26,36 @@ class Lobby:
     # below methods maybe best in separate class eventually
     async def lobby_broadcast(self, response):
         log.debug("lobby_broadcast: %r to %r", response, self.lobbysockets)
-        for ws_set in self.lobbysockets.values():
-            for ws in ws_set:
-                await ws_send_json(ws, response)
+        seeks_response = False
+        if response["type"] == "get_seeks":
+            seeks_response = True
+            seek_users = {}
+            for seek in response["seeks"]:
+                seek_user = await self.app_state.users.get(seek["user"])
+                seek_users[seek_user.username] = seek_user
+
+        for username, ws_set in self.lobbysockets.items():
+            if seeks_response:
+                # filter out when one blocked the other
+                ws_user = await self.app_state.users.get(username)
+                filtered = [
+                    seek
+                    for seek in response["seeks"]
+                    if seek["user"] not in ws_user.blocked
+                    and username not in seek_users[seek["user"]].blocked
+                ]
+
+                for ws in ws_set:
+                    await ws_send_json(
+                        ws,
+                        {
+                            "type": "get_seeks",
+                            "seeks": filtered,
+                        },
+                    )
+            else:
+                for ws in ws_set:
+                    await ws_send_json(ws, response)
 
     async def lobby_broadcast_u_cnt(self):
         # todo: probably wont scale great if we broadcast these on every user join/leave.
