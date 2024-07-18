@@ -8,13 +8,14 @@ import { _ } from './i18n';
 import { changeBoardCSS, changePieceCSS } from './document';
 import { Settings, NumberSettings, BooleanSettings } from './settings';
 import { slider, checkbox } from './view';
-import { PyChessModel } from "./types";
+import { BoardName, PyChessModel } from "./types";
 import { BOARD_FAMILIES, PIECE_FAMILIES, Variant, VARIANTS } from './variants';
-import { updateBounds } from "chessgroundx/render";
+import { renderResized, updateBounds } from "chessgroundx/render";
 
 export interface BoardController {
     readonly chessground: Api;
 
+    boardName: BoardName;
     readonly variant: Variant;
     readonly mycolor: cg.Color;
     readonly oppcolor: cg.Color;
@@ -28,7 +29,6 @@ export interface BoardController {
     arrow?: boolean;
     multipv?: number;
     evalFile?: string;
-    blindfold?: boolean;
     materialDifference?: boolean;
     updateMaterial?: any;
     pvboxIni?: any;
@@ -53,12 +53,11 @@ class BoardSettings {
         this.settings["showDests"] = new ShowDestsSettings(this);
         this.settings["autoPromote"] = new AutoPromoteSettings(this);
         this.settings["confirmCorrMove"] = new ConfirmCorrMoveSettings(this);        
-        this.settings["blindfold"] = new BlindfoldSettings(this);
         this.settings["materialDifference"] = new MaterialDifferenceSettings(this);
     }
 
-    getSettings(settingsType: string, family: string) {
-        const fullName = family + settingsType;
+    getSettings(settingsType: string, family: string, boardName: BoardName = '') {
+        const fullName = family + settingsType + boardName;
         if (!this.settings[fullName]) {
             switch (settingsType) {
                 case "BoardStyle":
@@ -68,7 +67,7 @@ class BoardSettings {
                     this.settings[fullName] = new PieceStyleSettings(this, family);
                     break;
                 case "Zoom":
-                    this.settings[fullName] = new ZoomSettings(this, family);
+                    this.settings[fullName] = new ZoomSettings(this, family, boardName);
                     break;
                 default:
                     throw "Unknown settings type " + settingsType;
@@ -83,14 +82,24 @@ class BoardSettings {
     }
 
     updateBoardStyle(family: keyof typeof BOARD_FAMILIES) {
-        const idx = this.getSettings("BoardStyle", family as string).value as number;
+        const idx = this.getSettings("BoardStyle", family as string, '').value as number;
         const board = BOARD_FAMILIES[family].boardCSS[idx];
         changeBoardCSS(this.assetURL , family as string, board);
     }
 
     updatePieceStyle(family: keyof typeof PIECE_FAMILIES) {
-        const idx = this.getSettings("PieceStyle", family as string).value as number;
-        let css = PIECE_FAMILIES[family].pieceCSS[idx] ?? 'letters';
+        const idx = this.getSettings("PieceStyle", family as string, '').value as number;
+        let css: string;
+        switch (idx) {
+        case 98:
+            css = 'invisible';
+            break;
+        case 99:
+            css = 'letters';
+            break;
+        default:
+            css = PIECE_FAMILIES[family].pieceCSS[idx];
+        }
         changePieceCSS(this.assetURL, family as string, css);
         this.updateDropSuggestion();
     }
@@ -112,15 +121,15 @@ class BoardSettings {
         }
     }
 
-    updateZoom(family: keyof typeof BOARD_FAMILIES) {
+    updateZoom(family: keyof typeof BOARD_FAMILIES, boardName: BoardName = '') {
         const variant = this.ctrl?.variant;
         if (variant && variant.boardFamily === family) {
-            const zoomSettings = this.getSettings("Zoom", family as string) as ZoomSettings;
+            const suffix = (boardName) ? '-' + boardName : '';
+            const zoomSettings = this.getSettings('Zoom', family as string, boardName) as ZoomSettings;
             const zoom = zoomSettings.value;
-            const el = document.querySelector('.cg-wrap:not(.pocket)') as HTMLElement;
+            const el = document.querySelector('.cg-wrap') as HTMLElement;
             if (el) {
-                document.body.setAttribute('style', '--zoom:' + zoom);
-                document.body.dispatchEvent(new Event('chessground.resize'));
+                document.body.style.setProperty('--zoom' + suffix, `${zoom}`);
 
                 // Analysis needs to zoom analysisChart and movetimeChart as well
                 if ('chartFunctions' in this.ctrl && this.ctrl.chartFunctions) {
@@ -132,11 +141,7 @@ class BoardSettings {
         }
     }
 
-    updateBlindfold () {
-        this.settings["blindfold"].update();
-    }
-
-    view(variantName: string) {
+    view(variantName: string, modelVariant: string) {
         if (!variantName) return h("div#board-settings");
         const variant = VARIANTS[variantName];
 
@@ -156,16 +161,19 @@ class BoardSettings {
 
         settingsList.push(this.settings["confirmCorrMove"].view());        
 
-        settingsList.push(this.settings["blindfold"].view());
-
         settingsList.push(this.settings["materialDifference"].view());
 
-        if (variantName === this.ctrl?.variant.name)
-            settingsList.push(this.getSettings("Zoom", boardFamily as string).view());
+        if (variantName === modelVariant)
+            if (variantName === 'bughouse') {
+                settingsList.push(this.getSettings("Zoom", boardFamily as string, 'a').view());
+                settingsList.push(this.getSettings("Zoom", boardFamily as string, 'b').view());
+            } else {
+                settingsList.push(this.getSettings("Zoom", boardFamily as string, '').view());
+            }
 
         settingsList.push(h('div#style-settings', [
-            this.getSettings("BoardStyle", boardFamily as string).view(),
-            this.getSettings("PieceStyle", pieceFamily as string).view(),
+            this.getSettings("BoardStyle", boardFamily as string, '').view(),
+            this.getSettings("PieceStyle", pieceFamily as string, '').view(),
             ])
         );
         
@@ -288,14 +296,24 @@ class PieceStyleSettings extends NumberSettings {
             }));
             pieces.push(h('label.piece.piece' + i + '.' + this.pieceFamily, { attrs: { for: "piece" + i } }, ""));
         }
-        // Finally add letter piece
-        const i=99;
+
+        // Add invisible piece
+        const i=98;
         pieces.push(h('input#piece' + i, {
             on: { change: e => this.value = Number((e.target as HTMLInputElement).value) },
             props: { type: "radio", name: "piece", value: i },
             attrs: { checked: vpiece === i },
         }));
-        pieces.push(h('label.piece.piece99', { attrs: { for: "piece" + i } }, ""));
+        pieces.push(h('label.piece.piece98', { attrs: { for: "piece" + i } }, ""));
+
+        // Finally add letter piece
+        const l=99;
+        pieces.push(h('input#piece' + l, {
+            on: { change: e => this.value = Number((e.target as HTMLInputElement).value) },
+            props: { type: "radio", name: "piece", value: l },
+            attrs: { checked: vpiece === l },
+        }));
+        pieces.push(h('label.piece.piece99', { attrs: { for: "piece" + l } }, ""));
         return h('settings-pieces', pieces);
     }
 }
@@ -303,44 +321,33 @@ class PieceStyleSettings extends NumberSettings {
 class ZoomSettings extends NumberSettings {
     readonly boardSettings: BoardSettings;
     readonly boardFamily: string;
+    readonly boardName: BoardName;
 
-    constructor(boardSettings: BoardSettings, boardFamily: string) {
-        super(boardFamily + '-zoom', 80);
+    constructor(boardSettings: BoardSettings, boardFamily: string, boardName: BoardName = '') {
+        const suffix = (boardName) ? '-' + boardName : '';
+        super(boardFamily + '-zoom' + suffix, 80);
         this.boardSettings = boardSettings;
         this.boardFamily = boardFamily;
+        this.boardName = boardName;
     }
 
     update(): void {
-        this.boardSettings.updateZoom(this.boardFamily);
-        if (this.boardSettings.ctrl2) {
-            // todo: figure out good solution for this problem when having 2 boards layout and zooming:
-            // below is ugly fix for when user scrolls the zoom slider too fast (really doesnt have to be really fast it is
-            // way too easy to reproduce). I am still not 100% sure what happens, but if we have 2 boards it seems to
-            // result in multiple ResizeObserver events getting triggered asynchronously after a single zoom change.
-            // I am guessing something to do with the change in one board results in some dom changes that trigger resize
-            // again for the other or both boards, etc. and this repeats several times unnecessarily. Would be great to
-            // figure out how to avoid this, but might need changes on chessgroundx side as well - maybe at least expose
-            // the ResizeObserver instance so we can disconnect it temporarily when changing zoom or add checks if resize
-            // event really results in changes in width/height, because when i debugged/logged those they seemed to
-            // remain the same after the first change. Not sure.
-            //
-            // Anyway.
-            //
-            // So above async executions, most likely take certain amount of milliseconds to complete, and my suspicion
-            // is that if we move the slider one more time before they havent finished, everything gets messed up. If
-            // we move the slider very carefully and slowly the bug doesnt happen. Also after the layout gets messed up
-            // once, only fix is to resize the browser window as it causes updateBounds to get called. This is the reason
-            // here I am scheduling updateBounds to be called after 100ms. It is still ugly and layout flickers while
-            // sliding the zoom slider, but at least when you stop sliding it, almost immediately the layout fixes itself.
+        this.boardSettings.updateZoom(this.boardFamily, this.boardName);
+        if (this.boardName) {
+            // In case of bughouse updateZoom() doesn't trigger chessgroundx onResize() via ResizeObserver
+            // to prevent recursive call, so we have to force manual onResize() here
             setTimeout(() => {
-                updateBounds(this.boardSettings.ctrl.chessground.state);
-                updateBounds(this.boardSettings.ctrl2.chessground.state);
+                const state = (this.boardName === this.boardSettings.ctrl2.boardName) ?
+                    this.boardSettings.ctrl2.chessground.state:
+                    this.boardSettings.ctrl.chessground.state;
+                updateBounds(state);
+                renderResized(state);
             }, 100);
         }
     }
 
     view(): VNode {
-        return h('div.labelled', slider(this, 'zoom', 0, 100, this.boardFamily.includes("shogi") ? 1 : 1.15625, _('Zoom')));
+        return h('div.labelled', slider(this, 'zoom' + this.boardName, 0, 100, this.boardFamily.includes("shogi") ? 1 : 1.15625, _('Zoom')));
     }
 }
 
@@ -390,39 +397,6 @@ class AutoPromoteSettings extends BooleanSettings {
 
     view(): VNode {
         return h('div', checkbox(this, 'autoPromote', _("Promote to the top choice automatically")));
-    }
-}
-
-class BlindfoldSettings extends BooleanSettings {
-    readonly boardSettings: BoardSettings;
-
-    constructor(boardSettings: BoardSettings) {
-        super('blindfold', false);
-        this.boardSettings = boardSettings;
-    }
-
-    update(): void {
-        this.updateCtrl(this.boardSettings.ctrl);
-        if (this.boardSettings.ctrl2) this.updateCtrl(this.boardSettings.ctrl2);
-    }
-
-    updateCtrl(ctrl: BoardController): void {
-        if ('blindfold' in ctrl)
-            ctrl.blindfold = this.value;
-
-        const el = document.getElementById('mainboard') as HTMLInputElement;
-        if (el) {
-            if (this.value) {
-                el.classList.add('blindfold');
-            } else {
-                el.classList.remove('blindfold');
-            }
-        }
-
-    }
-
-    view(): VNode {
-        return h('div', checkbox(this, 'blindfold', _("Invisible pieces")));
     }
 }
 

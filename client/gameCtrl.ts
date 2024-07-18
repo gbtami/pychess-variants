@@ -14,13 +14,14 @@ import { GatingInput } from './input/gating';
 import { PromotionInput } from './input/promotion';
 import { DuckInput } from './input/duck';
 import { ChessgroundController } from './cgCtrl';
-import { JSONObject, PyChessModel } from './types';
+import { BoardName, JSONObject, PyChessModel } from './types';
 import { updateCount, updatePoint } from './info';
 import { sound } from './sound';
 import { chatMessage, ChatController } from './chat';
 import { selectMove } from './movelist';
 import { Api } from "chessgroundx/api";
 import { Variant } from "@/variants";
+import { CheckCounterSvg, Counter } from './glyphs';
 
 export abstract class GameController extends ChessgroundController implements ChatController {
     sock: WebsocketHeartbeatJs;
@@ -92,8 +93,8 @@ export abstract class GameController extends ChessgroundController implements Ch
 
     undo?: any;
 
-    constructor(el: HTMLElement, model: PyChessModel, pocket0: HTMLElement, pocket1: HTMLElement) {
-        super (el, model, pocket0, pocket1);
+    constructor(el: HTMLElement, model: PyChessModel, fullfen: string, pocket0: HTMLElement, pocket1: HTMLElement, boardName: BoardName = '') {
+        super (el, model, fullfen, pocket0, pocket1, boardName);
 
         this.gameId = model["gameId"] as string;
         this.tournamentId = model["tournamentId"]
@@ -188,32 +189,27 @@ export abstract class GameController extends ChessgroundController implements Ch
     }
 
     setDests() {
-        if (this.ffishBoard === undefined) {
-            // At very first time we may have to wait for ffish module to initialize
-            setTimeout(this.setDests.bind(this), 100); // todo: can't we do this async and await the promise?
-        } else {
-            const legalMoves = this.ffishBoard.legalMoves().split(" ");
-            const fakeDrops = this.variant.name === 'ataxx';
-            const pieces = this.chessground.state.boardState.pieces;
-            const dests = moveDests(legalMoves as UCIMove[], fakeDrops, pieces, this.turnColor);
-            if (this.variant.rules.gate) {
-                // Remove rook takes king from the legal destinations
-                for (const [orig, destArray] of dests) {
-                    if (orig && util.isKey(orig)) {
-                        const origPiece = pieces.get(orig);
-                        if (origPiece?.role === 'r-piece') {
-                            dests.set(orig, destArray.filter(dest => {
-                                const destPiece = pieces.get(dest);
-                                return !(destPiece && destPiece.role === 'k-piece' && origPiece.color === destPiece.color);
-                            }));
-                        }
+        const legalMoves = this.ffishBoard.legalMoves().split(" ");
+        const fakeDrops = this.variant.name === 'ataxx';
+        const pieces = this.chessground.state.boardState.pieces;
+        const dests = moveDests(legalMoves as UCIMove[], fakeDrops, pieces, this.turnColor);
+        if (this.variant.rules.gate) {
+            // Remove rook takes king from the legal destinations
+            for (const [orig, destArray] of dests) {
+                if (orig && util.isKey(orig)) {
+                    const origPiece = pieces.get(orig);
+                    if (origPiece?.role === 'r-piece') {
+                        dests.set(orig, destArray.filter(dest => {
+                            const destPiece = pieces.get(dest);
+                            return !(destPiece && destPiece.role === 'k-piece' && origPiece.color === destPiece.color);
+                        }));
                     }
                 }
             }
-            this.chessground.set({ movable: { dests: dests }});
-            if (this.steps.length === 1) {
-                this.chessground.set({ check: (this.ffishBoard.isCheck()) ? this.turnColor : false});
-            }
+        }
+        this.chessground.set({ movable: { dests: dests }});
+        if (this.steps.length === 1) {
+            this.chessground.set({ check: (this.ffishBoard.isCheck()) ? this.turnColor : false});
         }
     }
 
@@ -248,6 +244,23 @@ export abstract class GameController extends ChessgroundController implements Ch
 
     sendMove(orig: cg.Orig, dest: cg.Key, promo: string) {
         this.doSendMove(cg2uci(orig + dest + promo));
+    }
+
+    updateCheckCounters(fen: string) {
+        const counters = fen.split(' ')[4].split('+');
+        const wSvg = CheckCounterSvg(counters[1] as Counter);
+        const bSvg = CheckCounterSvg(counters[0] as Counter);
+        const pieces = this.chessground.state.boardState.pieces;
+        const kings = { 'white': 'e1', 'black': 'e8' };
+        for (const [k, p] of pieces) {
+            if (p.role === 'k-piece') kings[p.color] = k;
+        }
+        this.chessground.set({
+            drawable: { autoShapes: [
+                { orig: kings['white'] as cg.Key, brush: 'paleGreen', customSvg: wSvg },
+                { orig: kings['black'] as cg.Key, brush: 'paleGreen', customSvg: bSvg },
+            ] }
+        });
     }
 
     goPly(ply: number, plyVari = 0) {
@@ -288,6 +301,10 @@ export abstract class GameController extends ChessgroundController implements Ch
 
         if (this.variant.ui.materialPoint) {
             [this.vmiscInfoW, this.vmiscInfoB] = updatePoint(this.variant, step.fen, document.getElementById('misc-infow') as HTMLElement, document.getElementById('misc-infob') as HTMLElement);
+        }
+
+        if (this.variant.ui.showCheckCounters) {
+            this.updateCheckCounters(step.fen);
         }
 
         if (ply === this.ply + 1) {

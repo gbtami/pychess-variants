@@ -1,11 +1,9 @@
-import { Api } from "chessgroundx/api";
 import * as cg from "chessgroundx/types";
-import { Chessground } from "chessgroundx";
-import { VARIANTS, BOARD_FAMILIES } from "../variants"
+import { VARIANTS } from "../variants"
 import * as util from "chessgroundx/util";
 import AnalysisControllerBughouse from "./analysisCtrl.bug";
 import { GameController} from "../gameCtrl";
-import { PyChessModel } from "../types";
+import { BugBoardName, PyChessModel } from "../types";
 import { RoundControllerBughouse } from "./roundCtrl.bug";
 import { premove } from "chessgroundx/premove";
 import { predrop } from "chessgroundx/predrop";
@@ -15,18 +13,14 @@ export class GameControllerBughouse extends GameController {
 
     partnerCC: GameControllerBughouse;
     parent: AnalysisControllerBughouse | RoundControllerBughouse;
-    boardName: 'a' | 'b';
     localAnalysis: boolean = false;
 
     isCheck: boolean;
     lastmove: cg.Orig[] | undefined;
 
-    constructor(el: HTMLElement,elPocket1: HTMLElement,elPocket2: HTMLElement, boardName: 'a' | 'b', model: PyChessModel) {
-        super(el, model,elPocket1,elPocket2);
-        this.boardName = boardName;
-        const fens = model.fen.split(" | ");
-        this.fullfen = this.boardName === "a" ? fens[0]: fens[1];
-        this.chessground = this.createGround(el, elPocket1, elPocket2, this.fullfen);
+    constructor(el: HTMLElement,elPocket1: HTMLElement,elPocket2: HTMLElement, boardName: BugBoardName, model: PyChessModel) {
+        super(el, model, boardName === "a" ? model.fen.split(" | ")[0]: model.fen.split(" | ")[1], elPocket1, elPocket2, boardName);
+        this.setGround();
         this.mycolor = 'white';
     }
 
@@ -117,14 +111,9 @@ export class GameControllerBughouse extends GameController {
         this.fullfen = fen;
         this.turnColor = turnColor; // todo: probably not needed here and other places as well where its set
         this.lastmove = move;
-        // this.ffishPromise.then(() => {
-        if (this.ffishBoard) {
-            this.ffishBoard.setFen(this.fullfen);
-            this.isCheck = this.ffishBoard.isCheck();
-            this.setDests();
-        } else {
-            console.error("ffishBoard not initialized yet");
-        }
+        this.ffishBoard.setFen(this.fullfen);
+        this.isCheck = this.ffishBoard.isCheck();
+        this.setDests();
     }
 
     pushMove = (move: string) => {
@@ -166,31 +155,13 @@ export class GameControllerBughouse extends GameController {
         });
     }
 
-    createGround = (el: HTMLElement, pocket0:HTMLElement|undefined, pocket1:HTMLElement|undefined, fullfen: string): Api => {
+    setGround = () => {
         //TODO: There already is initialization of chessground in the parent class, but might require some changes to it
         //      to decouple from model object and pass custom fens, etc. Ideally below initialization should happen there as well
-        const parts = fullfen.split(" ");
-        const fen_placement: cg.FEN = parts[0];
-
-        const chessground = Chessground(el, {
-             fen: fen_placement as cg.FEN,
-             dimensions: BOARD_FAMILIES.standard8x8.dimensions,
-             notation: cg.Notation.ALGEBRAIC,
-             orientation: 'white',// todo: meaningless, will be overwritten in a moment by roundCtrl.bug.ts or analysisCtrl.bug.ts
-             turnColor: 'white',//todo: meaningless, will be overwritten in a moment by roundCtrl.bug.ts or analysisCtrl.bug.ts
-             animation: {
-                 enabled: localStorage.animation === undefined || localStorage.animation === "true",
-             },
-             addDimensionsCssVarsTo: this.boardName === 'a'? document.body: undefined,
-             pocketRoles: VARIANTS.crazyhouse.pocket?.roles,
-        }, pocket0, pocket1);
-
-        chessground.set({
-            animation: { enabled: false },
+        this.chessground.set({
             movable: {
                 free: false,
                 color: 'white',
-                showDests: localStorage.showDests === undefined || localStorage.showDests === "true",
                 events: {
                     after: this.onUserMove,
                     afterNewPiece: this.onUserDrop,
@@ -211,8 +182,6 @@ export class GameControllerBughouse extends GameController {
                 select: this.onSelect(),
             },
         });
-
-        return chessground;
     }
 
     toggleSettings(): void {

@@ -285,7 +285,7 @@ def board(
         400 board) or ``None`` (the default) for no size limit.
     :param style: A CSS stylesheet to include in the SVG image.
     :param base_svg: A svg element to embed this into
-    :param add_definitions: Whether or not to add piece and board defintions. Is only considered when base_svg is
+    :param add_definitions: Whether or not to add piece and board definitions. Is only considered when base_svg is
                             not None.
 
     >>> from bug import chess

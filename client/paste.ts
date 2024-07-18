@@ -11,7 +11,7 @@ import { importGameBugH } from "@/bug/paste.bug";
 
 const BRAINKING_SITE = '[Site "BrainKing.com (Prague, Czech Republic)"]';
 const EMBASSY_FEN = '[FEN "rnbqkmcbnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBQKMCBNR w KQkq - 0 1"]';
-const BUGHOUSE_VARIANT = '[Variant "Bughouse"]';
+const BUGHOUSE_VARIANT = '[WhiteA';
 
 
 export function pasteView(model: PyChessModel): VNode[] {

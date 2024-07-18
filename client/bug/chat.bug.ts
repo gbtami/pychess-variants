@@ -2,6 +2,8 @@ import { h, VNode } from "snabbdom";
 
 import { _ } from '@/i18n';
 import { patch } from "@/document";
+import {RoundControllerBughouse} from "@/bug/roundCtrl.bug";
+import {selectMove} from "@/bug/movelist.bug";
 
 export function renderBugChatPresets(sendMessage: (s:string)=>void): VNode {
     return h('div#chatpresets', [
@@ -32,10 +34,17 @@ export function renderBugChatPresets(sendMessage: (s:string)=>void): VNode {
                 ]);
 }
 
-export function chatMessageBug (container: HTMLElement, user: string, message: string, /*chatType: string,*/ localTime?: string) {
+export function chatMessageBug (container: HTMLElement, user: string, message: string, /*chatType: string,*/ localTime?: string, ply?: number, ctrl?: RoundControllerBughouse) {
     const m = message.replace('!bug!','');
     patch(container, h('div#messages', [ h("li.message",
         [h("div.time", localTime), h("user", h("a", { attrs: {href: "/@/" + user} }, user)),
-            h('div.bugchat.'+m,[])
+            h('div.bugchat.'+m,{ attrs: {"title": ctrl?.steps[ply!].san!}, on: { click: () => {onchatclick(ply, ctrl)}}}, [])
         ]) ]));
+}
+
+export function onchatclick(ply: number | undefined, ctrl?: RoundControllerBughouse) {
+    if (ply && ctrl) {
+        ctrl.goPly(ply);
+        selectMove(ctrl, ply);
+    }
 }

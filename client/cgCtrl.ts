@@ -2,15 +2,15 @@ import * as cg from 'chessgroundx/types';
 import { Chessground } from 'chessgroundx';
 import { Api } from 'chessgroundx/api';
 
-import ffishModule, { FairyStockfish, Board, Notation } from 'ffish-es6';
+import { FairyStockfish, Board, Notation } from 'ffish-es6';
 
 import { boardSettings, BoardController } from '@/boardSettings';
 import { CGMove, uci2cg } from '@/chess';
-import { PyChessModel } from '@/types';
+import { BoardName, PyChessModel } from '@/types';
 import { Variant, VARIANTS, moddedVariant } from '@/variants';
-import { variantsIni } from '@/variantsIni';
 
 export abstract class ChessgroundController implements BoardController {
+    boardName: BoardName;
     readonly home: string;
 
     chessground: Api;
@@ -28,18 +28,17 @@ export abstract class ChessgroundController implements BoardController {
     fullfen: string;
     notation: cg.Notation;
 
-    ffishPromise: Promise<void | FairyStockfish>;
-
-    constructor(el: HTMLElement, model: PyChessModel, pocket0: HTMLElement, pocket1: HTMLElement) {
+    constructor(el: HTMLElement, model: PyChessModel, fullfen: string, pocket0: HTMLElement, pocket1: HTMLElement, boardName: BoardName = '') {
+        this.boardName = boardName;
         this.home = model.home;
-
+        this.ffish = model.ffish;
         this.variant = VARIANTS[model.variant];
         this.chess960 = model.chess960 === 'True';
         this.hasPockets = !!this.variant.pocket;
         this.anon = model.anon === 'True';
         this.mycolor = 'white';
         this.oppcolor = 'black';
-        this.fullfen = model.fen as string;
+        this.fullfen = fullfen;
         this.notation = this.variant.notation;
 
         const parts = this.fullfen.split(" ");
@@ -50,31 +49,29 @@ export abstract class ChessgroundController implements BoardController {
             dimensions: this.variant.board.dimensions,
             notation: this.notation,
             addDimensionsCssVarsTo: document.body,
+            dimensionsCssVarsSuffix: this.boardName,
             kingRoles: this.variant.kingRoles,
             pocketRoles: this.variant.pocket?.roles,
         }, pocket0, pocket1);
 
-        boardSettings.ctrl = this;
+        if (this.boardName === 'b') {
+            boardSettings.ctrl2 = this;
+        } else {
+            boardSettings.ctrl = this;
+        }
         boardSettings.assetURL = model.assetURL;
         const boardFamily = this.variant.boardFamily;
         const pieceFamily = this.variant.pieceFamily;
         boardSettings.updateBoardStyle(boardFamily);
         boardSettings.updatePieceStyle(pieceFamily);
-        boardSettings.updateZoom(boardFamily);
-        boardSettings.updateBlindfold();
-        console.time('load ffish ' + (el.parentNode! as HTMLElement).id!);
-        this.ffishPromise = ffishModule().then((loadedModule: any) => {
-            console.timeEnd('load ffish ' + (el.parentNode! as HTMLElement).id!);
-            this.ffish = loadedModule;
-            this.ffish.loadVariantConfig(variantsIni);
-            this.notationAsObject = this.notation2ffishjs(this.notation);
-            this.ffishBoard = new this.ffish.Board(
-                moddedVariant(this.variant.name, this.chess960, this.chessground.state.boardState.pieces, parts[2]),
-                this.fullfen,
-                this.chess960);
+        boardSettings.updateZoom(boardFamily, '');
 
-            window.addEventListener('beforeunload', () => this.ffishBoard.delete());
-        });
+        this.notationAsObject = this.notation2ffishjs(this.notation);
+        this.ffishBoard = new this.ffish.Board(
+            moddedVariant(this.variant.name, this.chess960, this.chessground.state.boardState.pieces, parts[2]),
+            this.fullfen,
+            this.chess960);
+        window.addEventListener('beforeunload', () => this.ffishBoard.delete());
     }
 
     toggleOrientation(): void {

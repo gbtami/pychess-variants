@@ -16,6 +16,26 @@ del _
 
 BLOGS = [
     {
+        "_id": "Alternate_variants",
+        "date": "2024-07-11",
+        "image": "/images/alt-server-boards.png",
+        "alt": "",
+        "title": "Alternate Variants",
+        "subtitle": "An additional PyChess server for alternate variants",
+        "author": "autocorr",
+        "tags": ["Announcement"],
+    },
+    {
+        "_id": "Internationalized_Pieces",
+        "date": "2024-07-11",
+        "image": "/images/Internationalized-Pieces.jpeg",
+        "alt": "",
+        "title": "Designing Internationalized Pieces for Eastern Forms of Chess",
+        "subtitle": "My thought process on board game visual design",
+        "author": "CouchTomato87",
+        "tags": ["Blog"],
+    },
+    {
         "_id": "Spring_Update",
         "date": "2024-03-30",
         "image": "/images/Kuniyoshi_Utagawa_The_actor_17.jpg",

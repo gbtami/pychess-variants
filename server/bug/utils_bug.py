@@ -161,12 +161,12 @@ async def load_game_bug(app_state: PychessGlobalAppState, game_id):
             }
 
             step["clocks"] = [
-                clocktimes_w[ply],
-                clocktimes_b[ply],
+                clocktimes_w[ply] if ply < len(clocktimes_w) and clocktimes_w[ply] else None,
+                clocktimes_b[ply] if ply < len(clocktimes_b) and clocktimes_b[ply] else None,
             ]
             step["clocksB"] = [
-                clocktimes_wB[ply],
-                clocktimes_bB[ply],
+                clocktimes_wB[ply] if ply < len(clocktimes_wB) and clocktimes_wB[ply] else None,
+                clocktimes_bB[ply] if ply < len(clocktimes_bB) and clocktimes_bB[ply] else None,
             ]
 
             board_ply[board_name] += 1
@@ -191,8 +191,12 @@ async def load_game_bug(app_state: PychessGlobalAppState, game_id):
             break
 
     if len(game.steps) > 1:
-        move = game.steps[-1]["move"]
-        game.lastmove = move
+        move = (
+            game.steps[-1]["move"]
+            if game.steps[-1]["boardName"] == "a"
+            else game.steps[-1]["moveB"]
+        )
+        game.lastmove = move  # TODO: msg.lastmove where this value goes is totally redundant imho
 
     level = doc.get("x")
     game.date = doc["d"]

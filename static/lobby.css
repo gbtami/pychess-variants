@@ -103,7 +103,7 @@
 }
 
 .mini .pocket.bottom {
-    border-radius: 3px 3px 0px 0px;
+    border-radius: 0px 0px 3px 3px;
     position: absolute;
     top: calc((100% / var(--ranks)) * (var(--ranks) + 1));
     margin: 0;

@@ -30,7 +30,7 @@ import { GameController } from './gameCtrl';
 import { analysisSettings, EngineSettings } from './analysisSettings';
 import { setAriaTabClick } from './view';
 import { createWebsocket } from "@/socket/webSocketUtils";
-import { initPocketRow } from './pocketRow';
+import { setPocketRowCssVars } from './pocketRow';
 
 const EVAL_REGEX = new RegExp(''
   + /^info depth (\d+) seldepth \d+ multipv (\d+) /.source
@@ -80,7 +80,7 @@ export class AnalysisController extends GameController {
     fsfEngineBoard: any;  // used to convert pv UCI move list to SAN
 
     constructor(el: HTMLElement, model: PyChessModel) {
-        super(el, model, document.getElementById('pocket0') as HTMLElement, document.getElementById('pocket1') as HTMLElement);
+        super(el, model, model.fen, document.getElementById('pocket0') as HTMLElement, document.getElementById('pocket1') as HTMLElement, '');
         this.fsfError = [];
         this.embed = this.gameId === undefined;
         this.puzzle = model["puzzle"] !== "";
@@ -149,10 +149,13 @@ export class AnalysisController extends GameController {
             },
         });
 
-        // initialize pockets
-        const pocket0 = document.getElementById('pocket0') as HTMLElement;
-        const pocket1 = document.getElementById('pocket1') as HTMLElement;
-        initPocketRow(this, pocket0, pocket1);
+        if (this.variant.ui.showCheckCounters) {
+            this.updateCheckCounters(this.fullfen);
+        }
+
+        if (this.hasPockets) {
+            setPocketRowCssVars(this);
+        }
 
         if (!this.isAnalysisBoard && !this.embed) {
             this.ctableContainer = document.getElementById('panel-3') as HTMLElement;
@@ -275,7 +278,13 @@ export class AnalysisController extends GameController {
     toggleOrientation() {
         super.toggleOrientation()
         boardSettings.updateDropSuggestion();
-        renderClocks(this);
+        const clocktimes = this.steps[1]?.clocks;
+        if (clocktimes !== undefined) {
+            renderClocks(this);
+        }
+        if (this.hasPockets) {
+            setPocketRowCssVars(this);
+        }
     }
 
     private drawAnalysisChart = (withRequest: boolean) => {
@@ -787,6 +796,10 @@ export class AnalysisController extends GameController {
                 window.history.replaceState({}, '', hist);
             }
         }
+
+        if (this.variant.ui.showCheckCounters) {
+            this.updateCheckCounters(this.fullfen);
+        }
     }
 
     updateUCImoves(idxInVari: number) {
@@ -996,6 +1009,10 @@ export class AnalysisController extends GameController {
                 color: this.turnColor,
             },
         });
+
+        if (this.variant.ui.showCheckCounters) {
+            this.updateCheckCounters(this.fullfen);
+        }
     }
 
     private buildScoreStr = (color: string, analysis: Ceval) => {

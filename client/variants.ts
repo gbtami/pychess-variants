@@ -41,7 +41,7 @@ export const BOARD_FAMILIES: Record<string, BoardFamily> = {
 
 export const PIECE_FAMILIES: Record<string, PieceFamily> = {
     ataxx: { pieceCSS: ["disguised", "virus", "zombie", "cat-dog"] },
-    standard: { pieceCSS: ["standard", "green", "alpha", "chess_kaneo", "santa", "maestro", "dubrovny", "disguised", "atopdown"] },
+    standard: { pieceCSS: ["standard", "green", "alpha", "chess_kaneo", "santa", "maestro", "dubrovny", "atopdown", "disguised"] },
     capa: { pieceCSS: ["capa0", "capa1", "capa2", "capa3", "capa4", "capa5", "disguised"] },
     dragon: { pieceCSS: ["dragon1", "dragon0", "dragon2", "disguised"] },
     seirawan: { pieceCSS: ["seir1", "seir0", "seir2", "seir3", "seir4", "seir5", "disguised"] },
@@ -58,7 +58,7 @@ export const PIECE_FAMILIES: Record<string, PieceFamily> = {
     shako: { pieceCSS: ["shako0", "shako1", "shako2", "disguised"] },
     shogun: { pieceCSS: ["shogun0", "shogun1", "shogun2", "shogun3", "shogun4", "shogun5", "disguised"] },
     orda: { pieceCSS: ["orda0", "orda1", "disguised"] },
-    khans: { pieceCSS: ["khans0", "disguised"] },
+    khans: { pieceCSS: ["khans0", "khans1", "disguised"] },
     synochess: { pieceCSS: ["synochess0", "synochess1", "synochess2", "synochess3", "synochess4", "synochess5", "disguised"] },
     hoppel: { pieceCSS: ["hoppel0", "hoppel1", "hoppel2", "disguised"] },
     shinobi: { pieceCSS: ["shinobi0", "shinobi1", "disguised"] },
@@ -125,6 +125,7 @@ export interface Variant {
         readonly showPromoted: boolean;
         readonly pieceSound: PieceSoundType;
         readonly boardMark: BoardMarkType | '';
+        readonly showCheckCounters: boolean;
     };
     readonly alternateStart?: Record<string, string>;
 }
@@ -192,6 +193,7 @@ function variant(config: VariantConfig): Variant {
             showPromoted: config.ui?.showPromoted ?? false,
             pieceSound: config.ui?.pieceSound ?? 'regular',
             boardMark: config.ui?.boardMark ?? '',
+            showCheckCounters: config.ui?.showCheckCounters ?? false,
         },
         alternateStart: config.alternateStart,
     };
@@ -289,6 +291,8 @@ interface VariantConfig {
         pieceSound?: PieceSoundType;
         // Board marking for special squares (default: '')
         boardMark?: BoardMarkType;
+        // Render the remaining check numbers on King pieces
+        showCheckCounters?: boolean;
     };
     // Alternate starting positions, including handicaps
     alternateStart?: Record<string, string>;
@@ -425,6 +429,7 @@ export const VARIANTS: Record<string, Variant> = {
         boardFamily: "standard8x8", pieceFamily: "standard",
         pieceRow: ["k", "q", "r", "b", "n", "p"],
         rules: { enPassant: true },
+        ui: { showCheckCounters: true },
         alternateStart: {
             '': "",
             '5check': "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 5+5 0 1",

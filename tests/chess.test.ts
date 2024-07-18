@@ -1,60 +1,41 @@
-import { getJanggiPoints, variants, VARIANTS, getPockets, isHandicap, validFen, cg2uci, uci2cg, UCIMove } from '../client/chess';
-import { expect } from 'chai';
+import { expect, test } from '@jest/globals';
+import { getJanggiPoints, getPockets, isHandicap, validFen, cg2uci, uci2cg, UCIMove } from '../client/chess';
+import { variants, VARIANTS } from '../client/variants';
 
-describe('getPockets test', 
-    () => { 
-        it('should return empty for chess', () => { 
-            const result = getPockets(VARIANTS['chess'].startFen);
-            expect(result).to.be.empty; 
-    }); 
+test('getPockets test', () => { 
+    const result = getPockets(VARIANTS['chess'].startFen);
+    expect(result).toBe(""); 
 });
 
-describe('getPockets test', 
-    () => { 
-        it('should return [HEhe] for S-chess', () => { 
-            const result = getPockets(VARIANTS['seirawan'].startFen);
-            expect(result).to.be.equal("[HEhe]"); 
-    }); 
+test('getPockets test', () => { 
+    const result = getPockets(VARIANTS['seirawan'].startFen);
+    expect(result).toBe("[HEhe]"); 
 });
 
-describe('isHandicap test', 
-    () => { 
-        it('should return true for HC tail', () => { 
-            const result = isHandicap('10-PC HC');
-            expect(result).to.be.true; 
-    }); 
+test('isHandicap test', () => { 
+    const result = isHandicap('10-PC HC');
+    expect(result).toBeTruthy(); 
 });
 
-describe('validFen test', 
-    () => { 
-        it('should return true for all variants initial position', () => {
-            variants.forEach( (variant) => {
-                const result = validFen(VARIANTS[variant], VARIANTS[variant].startFen);
-                expect(result).to.be.true; 
-            });
-    }); 
+test('validFen test', () => { 
+    variants.forEach( (variant) => {
+        const result = validFen(VARIANTS[variant], VARIANTS[variant].startFen);
+        expect(result).toBeTruthy(); 
+    });
 });
 
-describe('uci2cg test', 
-    () => { 
-        it('should change all occurrences of "10" to ":" in UCI moves', () => { 
-            const result = uci2cg('a10j10' as UCIMove);
-            expect(result).to.be.equal('a:j:'); 
-    }); 
+test('uci2cg test', () => { 
+    const result = uci2cg('a10j10' as UCIMove);
+    expect(result).toBe('a:j:'); 
 });
 
-describe('cg2uci test', 
-    () => { 
-        it('should change all occurrences of ":" to "10" in UCI moves', () => { 
-            const result = cg2uci('a:j:');
-            expect(result).to.be.equal('a10j10'); 
-    }); 
+test('cg2uci test', () => { 
+    const result = cg2uci('a:j:');
+    expect(result).toBe('a10j10'); 
 });
 
-describe('getJanggiPoints test',
-    () => { 
-        it('should return [72, 73.5]', () => { 
-            const result = getJanggiPoints(VARIANTS['janggi'].startFen);
-            expect(result).to.have.members([72, 73.5]); 
-    }); 
+test('getJanggiPoints test', () => { 
+    const result = getJanggiPoints(VARIANTS['janggi'].startFen);
+    expect(result).toContain(72); 
+    expect(result).toContain(73.5); 
 });

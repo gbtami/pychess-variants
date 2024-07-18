@@ -297,6 +297,16 @@ async def handle_setup(ws, users, user, data, game):
 
 
 async def handle_analysis(app_state: PychessGlobalAppState, ws, data, game):
+    # fishnet_analysis() wants to inject analysis data into game.steps
+    # Analysis can be requested for older games. While get_board() creates steps
+    # load_game() does't put the game into the app_state.games, and when
+    # fishnet_analysis() calls load_game(), it will lose game.steps (they are
+    # cteated lousely via get_board() only!)
+    # We have to prevent this.
+    if game.id not in app_state.games:
+        app_state.games[data["gameId"]] = game
+        # TODO: maybe we have to schedule game.remove() ?
+
     # If there is any fishnet client, use it.
     if len(app_state.workers) > 0:
         work_id = "".join(random.choice(string.ascii_letters + string.digits) for x in range(6))
@@ -606,15 +616,20 @@ async def handle_moretime(users, user, data, game):
 async def handle_bugroundchat(users, user, data, game):
     gameId = data["gameId"]
     message = data["message"]
+    room = data["room"]
 
     response = chat_response(
         "bugroundchat",
         user.username,
         message,
-        room=data["room"],
+        room=room,
     )
-    game.handle_chat_message(user, message)
-    if game.ply < 4 or game.status > STARTED:
+    if room != "spectator":
+        game.handle_chat_message(user, message)
+
+    if room == "spectator":
+        recipients = []  # just the spectators. should be equivalent to room="spectator"
+    elif game.ply < 4 or game.status > STARTED:
         # Let all 4 players communicate in the beginning of the game and when it is over
         recipients = [
             game.wplayerA.username,
@@ -624,8 +639,10 @@ async def handle_bugroundchat(users, user, data, game):
         ]
     elif user.username in [game.wplayerA.username, game.bplayerB.username]:
         recipients = [game.wplayerA.username, game.bplayerB.username]
-    else:
+    elif user.username in [game.bplayerA.username, game.wplayerB.username]:
         recipients = [game.bplayerA.username, game.wplayerB.username]
+    else:
+        recipients = []  # just the spectators. should be equivalent to room="spectator"
     recipients = list(
         dict.fromkeys(recipients)
     )  # remove duplicates - can have if simuling (not that it makes sense to have this chat in simul mode but anyway)

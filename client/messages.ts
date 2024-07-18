@@ -4,6 +4,8 @@
 //       and see if there is any duplication or the ones that are here should be split or any other improvement that might be needed or better organization can be found
 import * as cg from "chessgroundx/types";
 
+import { BoardName } from './types';
+
 export type Clocks = [number, number];
 
 export interface Step {
@@ -25,7 +27,7 @@ export interface Step {
     vari?: Step[];
     sanSAN?: string;
 
-    boardName?: 'a' | 'b';
+    boardName?: BoardName;
 
     chat?: {
         message: string,
@@ -70,9 +72,6 @@ export interface MsgBoard {
     fen: string;
     ply: number;
     lastMove: string;
-    dests: { [orig: string]: cg.Key[] };
-    destsB?: { [orig: string]: cg.Key[] };
-    promo: string[];
     bikjang: boolean;
     check: boolean;
     checkB?: boolean;
@@ -136,7 +135,7 @@ export type MsgMove = { // cannot be interface because cannot be converted to an
      clocks: Clocks;
      clocksB?: Clocks;
      ply: number;
-     board?: 'a' | 'b';
+     board?: BoardName;
 }
 
 export type MsgMovesAfterReconnect = {
