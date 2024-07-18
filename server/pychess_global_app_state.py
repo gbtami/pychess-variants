@@ -177,6 +177,7 @@ class PychessGlobalAppState:
                 if doc["_id"] in VARIANTS:
                     self.highscore[doc["_id"]] = ValueSortedDict(neg, doc["scores"])
 
+            # TODO: read it on demand only, similar to users
             if "crosstable" not in db_collections:
                 await generate_crosstable(self.db)
             cursor = self.db.crosstable.find()
