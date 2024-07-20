@@ -29,10 +29,10 @@ class Lobby:
         seeks_response = False
         if response["type"] == "get_seeks":
             seeks_response = True
-            seek_users = {}
+            users = self.app_state.users
+            # We will need all the seek users blocked info
             for seek in response["seeks"]:
-                seek_user = await self.app_state.users.get(seek["user"])
-                seek_users[seek_user.username] = seek_user
+                await self.app_state.users.get(seek["user"])
 
         for username, ws_set in self.lobbysockets.items():
             if seeks_response:
@@ -42,7 +42,7 @@ class Lobby:
                     seek
                     for seek in response["seeks"]
                     if seek["user"] not in ws_user.blocked
-                    and username not in seek_users[seek["user"]].blocked
+                    and username not in users[seek["user"]].blocked
                 ]
 
                 for ws in ws_set:

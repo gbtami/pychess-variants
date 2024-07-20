@@ -74,7 +74,7 @@ class User:
         self.abandon_game_task = None
         self.correspondence_games: List[Game] = []
 
-        self.blocked = set()  # TODO: save/load from mongodb
+        self.blocked = set()
 
         if self.bot:
             self.event_queue: Queue = asyncio.Queue()
