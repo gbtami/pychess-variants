@@ -18,7 +18,7 @@ label.board {
 
 /* Gray colored "?" */
 label.piece.piece98 {
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' version='1.1' width='80px' height='80px'><text font-family='Noto Sans, Sans-Serif' font-size='30' x='50%' y='50%' fill='black' class='white' text-anchor='middle' dominant-baseline='central'>?</text></svg>");
+    background-image: url('images/pieces/invisible.svg');
 }
 /* Gray colored "ABC" */
 label.piece.piece99 {
