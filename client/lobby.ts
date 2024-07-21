@@ -357,7 +357,6 @@ export class LobbyController implements ChatController {
         const vLevel = Number(localStorage.seek_level ?? "1");
         const vChess960 = localStorage.seek_chess960 ?? "false";
         const vRMplay = localStorage.seek_rmplay ?? "false";
-
         return [
             h('div#id01.modal', [
                 h('form.modal-content', [
@@ -536,7 +535,7 @@ export class LobbyController implements ChatController {
         document.getElementById('id01')!.style.display = 'flex';
         document.getElementById('color-button-group')!.style.display = 'block';
         document.getElementById('create-button')!.style.display = 'none';
-        disableCorr(false);
+        disableCorr(this.anon || variantName === "bughouse" );
     }
 
     playFriend(variantName: string = '', chess960: boolean = false) {
@@ -611,7 +610,7 @@ export class LobbyController implements ChatController {
                 ),
             ]));
         }
-        switchEnablingLobbyControls(this.createMode, variant);
+        switchEnablingLobbyControls(this.createMode, variant, this.anon);
         this.setStartButtons();
     }
     private setAlternateStart(variant: Variant) {
