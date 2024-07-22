@@ -12,7 +12,7 @@ jinja2==3.1.4
 motor==3.5.1
 pymongo==4.8.0
 pyopenssl==24.1.0
-pyffish==0.0.83
+pyffish==0.0.84
 sortedcollections==2.1.0
 python-gettext==5.0
 uvloop==0.19.0 ; sys_platform == 'linux'
