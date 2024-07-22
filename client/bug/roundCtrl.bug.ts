@@ -5,7 +5,7 @@ import { _ } from '../i18n';
 import { patch } from '../document';
 import { Clock } from '../clock';
 import { ChatController, chatMessage, chatView } from '../chat';
-import {createMovelistButtons, updateMovelist, updateResult} from './movelist.bug';
+import { createMovelistButtons, updateMovelist, updateResult, selectMove } from './movelist.bug';
 import {
     Clocks,
     MsgBoard,
@@ -643,6 +643,7 @@ export class RoundControllerBughouse implements ChatController {
             if (this.result !== "*" && !this.spectator && !this.finishedGame) {
                 sound.gameEndSoundBughouse(msg.result, this.whichTeamAmI());
             }
+            selectMove(this, this.steps.length - 1); // show final position (also important to disable cg's movable)
             updateResult(this);
             this.gameOver();
 
@@ -919,8 +920,8 @@ export class RoundControllerBughouse implements ChatController {
                 board.renderState();
 
                 // because pocket might have changed. todo: condition it on if(capture) maybe
-                const messageFenPartnerSplit = fenPartner.split("[\\[\\]]");
-                const currentFenPartnerSplit = board.partnerCC.fullfen.split("[\\[\\]]");
+                const messageFenPartnerSplit = fenPartner.split(/[\[\]]/);
+                const currentFenPartnerSplit = board.partnerCC.fullfen.split(/[\[\]]/);
                 const newFen = currentFenPartnerSplit[0] + "[" + messageFenPartnerSplit[1] + "]" + currentFenPartnerSplit[2];
                 board.partnerCC.setState(newFen, board.partnerCC.turnColor, lastMovePartner);
                 board.partnerCC.renderState();

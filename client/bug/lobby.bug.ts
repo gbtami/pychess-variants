@@ -5,7 +5,7 @@ import { _ } from "@/i18n";
 import { timeControlStr } from "@/view";
 import { disableCorr, LobbyController } from "@/lobby";
 
-export function switchEnablingLobbyControls(mode: CreateMode, variant: Variant){
+export function switchEnablingLobbyControls(mode: CreateMode, variant: Variant, anon: boolean){
         const rated = document.getElementById('rated')! as HTMLInputElement;
         const casual = document.getElementById('casual')! as HTMLInputElement;
         if (variant === VARIANTS["bughouse"]) {
@@ -18,7 +18,7 @@ export function switchEnablingLobbyControls(mode: CreateMode, variant: Variant){
             rated.disabled = false;
             rated.checked = vRated === "1";
             casual.checked = vRated === "0";
-            disableCorr(mode === 'playAI');
+            disableCorr(mode === 'playAI' || anon);
         }
 }
 
