@@ -55,7 +55,7 @@ export class AliceBoard {
     }
 
     getFen(uci: string): string {
-        const move = parseUci(uci);
+        const move = parseUci(uci) as NormalMove;
         const boardId = (this.boards[0].board.get((parseUci(uci)! as NormalMove).from) === undefined) ? 1 : 0;
         const afterBoards: Boards = [this.boards[0].clone(), this.boards[1].clone()];
         this.playMove(afterBoards, boardId, move!);
@@ -107,7 +107,7 @@ export class AliceBoard {
         const legals: string[] = [];
         for (const uci of uciMoves) {
 
-            const move = parseUci(uci);
+            const move = parseUci(uci) as NormalMove;
             const castlSide = castlingSide(this.boards[boardId], move!);
 
             const afterBoards: Boards = [this.boards[0].clone(), this.boards[1].clone()];
@@ -158,7 +158,7 @@ export class AliceBoard {
     }
 }
 
-export function getUnionFen(fullfen: string, boardId: BoardId): string {
+export function getUnionFenFromFullFen(fullfen: string, boardId: BoardId): string {
     const fens = fullfen.split(' | ') as Fens;
 
     const setup0 = parseFen(fens[0]).unwrap();

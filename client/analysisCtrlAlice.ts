@@ -3,9 +3,10 @@ import { h } from 'snabbdom';
 import { PyChessModel } from "./types";
 import { AnalysisController } from '@/analysisCtrl';
 import { moveDests, CGMove, uci2cg, uci2LastMove, UCIMove } from './chess';
+import { MsgAnalysisBoard } from './analysisType';
 import { MsgBoard } from './messages';
 import { AliceBoard, BoardId, Fens } from './alice'; 
-import { createMovelistButtons, updateMovelist, selectMove, activatePlyVari } from './movelist';
+import { updateMovelist, selectMove, activatePlyVari } from './movelist';
 import { patch } from './document';
 
 
@@ -53,7 +54,7 @@ export class AnalysisControllerAlice extends AnalysisController {
         //const fen = this.ffishBoard.fen();
         this.fullfen = aliceBoard.getFen(move);
         this.check = aliceBoard.check;
-        const unionFen = aliceBoard.getUnionFen(this.fullfen, this.boardId ?? 0);
+        const unionFen = aliceBoard.getUnionFen(this.boardId ?? 0);
 
         console.log('ITT', move, this.fullfen, unionFen);
         const parts = this.fullfen.split(" ");
@@ -150,7 +151,7 @@ export class AnalysisControllerAlice extends AnalysisController {
         // this.doSend({ type: "analysis_move", gameId: this.gameId, move: move, fen: this.fullfen, ply: this.ply + 1 });
     }
 
-    private onMsgAnalysisBoard = (msg: MsgAnalysisBoard) => {
+    onMsgAnalysisBoard(msg: MsgAnalysisBoard) {
         // console.log("got analysis_board msg:", msg);
         if (msg.gameId !== this.gameId) return;
         if (this.localAnalysis) this.engineStop();

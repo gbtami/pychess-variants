@@ -306,7 +306,7 @@ export class AnalysisController extends GameController {
         analysisChart(this);
     }
 
-    private checkStatus = (msg: MsgBoard | MsgAnalysisBoard) => {
+    checkStatus(msg: MsgBoard | MsgAnalysisBoard) {
         if ((msg.gameId !== this.gameId && !this.isAnalysisBoard) || this.embed) return;
         if (("status" in msg && msg.status >= 0) || this.isAnalysisBoard) {
 
@@ -736,7 +736,7 @@ export class AnalysisController extends GameController {
     
     // When we are moving inside a variation move list
     // then plyVari > 0 and ply is the index inside vari movelist
-    goPly = (ply: number, plyVari = 0) => {
+    goPly(ply: number, plyVari = 0) {
         super.goPly(ply, plyVari);
 
         if (this.plyVari > 0) {
@@ -824,7 +824,7 @@ export class AnalysisController extends GameController {
         }
     }
 
-    private getPgn = (idxInVari = 0) => {
+    getPgn(idxInVari = 0) {
         const moves : string[] = [];
         let moveCounter: string = '';
         let whiteMove: boolean = true;
@@ -990,7 +990,7 @@ export class AnalysisController extends GameController {
         // this.doSend({ type: "analysis_move", gameId: this.gameId, move: move, fen: this.fullfen, ply: this.ply + 1 });
     }
 
-    private onMsgAnalysisBoard = (msg: MsgAnalysisBoard) => {
+    onMsgAnalysisBoard(msg: MsgAnalysisBoard) {
         // console.log("got analysis_board msg:", msg);
         if (msg.gameId !== this.gameId) return;
         if (this.localAnalysis) this.engineStop();

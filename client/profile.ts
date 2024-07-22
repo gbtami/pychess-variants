@@ -14,7 +14,7 @@ import { PyChessModel } from "./types";
 import { Ceval } from "./messages";
 import { aiLevel, gameType, result, renderRdiff } from './result';
 import { renderBugTeamInfo, renderGameBoardsBug } from "@/bug/profile.bug";
-import { getUnionFen } from './alice'; 
+import { getUnionFenFromFullFen } from './alice'; 
 
 export interface Game {
     _id: string; // mongodb document id
@@ -76,7 +76,7 @@ function renderGames(model: PyChessModel, games: Game[]) {
         const chess960 = game.z === 1;
         const tc = timeControlStr(game["b"], game["i"], game["bp"], game["c"] === true ? game["b"] : 0);
         const isBug = variant === VARIANTS['bughouse'];
-        const fen = (variant.name === 'alice') ? getUnionFen(game['f'], 0) : game['f'];
+        const fen = (variant.name === 'alice') ? getUnionFenFromFullFen(game['f'], 0) : game['f'];
         return h('tr', [h('a', { attrs: { href : '/' + game["_id"] } }, [
             h('td.board', { class: { "with-pockets": !!variant.pocket, "bug": isBug} },
                isBug? renderGameBoardsBug(game, model["profileid"]): [
