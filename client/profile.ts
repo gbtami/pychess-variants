@@ -216,18 +216,75 @@ function observeSentinel(vnode: VNode, model: PyChessModel) {
 export function profileView(model: PyChessModel) {
     boardSettings.assetURL = model.assetURL;
     boardSettings.updateBoardAndPieceStyles();
+
+    const profileId = model["profileid"];
+    const rated = model["rated"];
+
+    const blockEl = document.getElementById('block') as HTMLElement;
+    if (blockEl !== null) renderBlock('block', profileId);
+
+    const unblockEl = document.getElementById('unblock') as HTMLElement;
+    if (unblockEl !== null) renderUnblock('unblock', profileId);
+
     let tabs: VNode[] = [];
-    tabs.push(h('div.sub-ratings', [h('a', { attrs: { href: '/@/' + model["profileid"] }, class: {"active": model["rated"] === "None"} }, _('Games'))]));
-    if (model["username"] !== model["profileid"]) {
-        tabs.push(h('div.sub-ratings', [h('a', { attrs: { href: '/@/' + model["profileid"] + '/me' }, class: {"active": model["rated"] === "-1" } }, _('Games with you'))]));
+    tabs.push(h('div.sub-ratings', [h('a', { attrs: { href: '/@/' + profileId }, class: {"active": rated === "None"} }, _('Games'))]));
+    if (model["username"] !== profileId) {
+        tabs.push(h('div.sub-ratings', [h('a', { attrs: { href: '/@/' + profileId + '/me' }, class: {"active": rated === "-1" } }, _('Games with you'))]));
     }
-    tabs.push(h('div.sub-ratings', [h('a', { attrs: { href: '/@/' + model["profileid"] + '/rated' }, class: {"active": model["rated"] === "1" } }, pgettext('UsePluralFormIfNeeded', 'Rated'))]));
-    tabs.push(h('div.sub-ratings', [h('a', { attrs: { href: '/@/' + model["profileid"] + '/playing' }, class: {"active": model["rated"] === "-2" } }, pgettext('UsePluralFormIfNeeded', 'Playing'))]));
-    tabs.push(h('div.sub-ratings', [h('a', { attrs: { href: '/@/' + model["profileid"] + '/import' }, class: {"active": model["rated"] === "2" } }, _('Imported'))]));
+    tabs.push(h('div.sub-ratings', [h('a', { attrs: { href: '/@/' + profileId + '/rated' }, class: {"active": rated === "1" } }, pgettext('UsePluralFormIfNeeded', 'Rated'))]));
+    tabs.push(h('div.sub-ratings', [h('a', { attrs: { href: '/@/' + profileId + '/playing' }, class: {"active": rated === "-2" } }, pgettext('UsePluralFormIfNeeded', 'Playing'))]));
+    tabs.push(h('div.sub-ratings', [h('a', { attrs: { href: '/@/' + profileId + '/import' }, class: {"active": rated === "2" } }, _('Imported'))]));
 
     return [
         h('div.filter-tabs', tabs),
         h('table#games'),
         h('div#sentinel', { hook: { insert: (vnode) => observeSentinel(vnode, model) } }),
     ];
+}
+
+function renderBlock(id: string, profileId: string) {
+    const el = document.getElementById(id) as HTMLElement;
+    if (el !== null) {
+        patch(el, h('a#block.icon.icon-ban', {
+            attrs: { href: '/api/' + profileId + '/block', title: _('Block') },
+            on: { click: (e: Event) => postBlock(e, profileId, true) } },
+            _('Block')
+        ));
+    }
+}
+
+function renderUnblock(id: string, profileId: string) {
+    const el = document.getElementById(id) as HTMLElement;
+    if (el !== null) {
+        patch(el, h('a#unblock.icon.icon-ban', {
+            attrs: { href: '/api/' + profileId + '/block', title: _('Unblock') },
+            on: { click: (e: Event) => postBlock(e, profileId, false) } },
+            _('Unblock')
+        ));
+    }
+}
+
+function postBlock(e: Event, profileId: string, block: boolean) {
+    e.preventDefault();
+    const XHR = new XMLHttpRequest();
+    const FD  = new FormData();
+    FD.append('block', `${block}`);
+
+    XHR.onreadystatechange = function() {
+        if (this.readyState === 4 && this.status === 200) {
+            const response = JSON.parse(this.responseText);
+            if (response['error'] !== undefined) {
+                console.log(response['error']);
+            } else {
+                if (block) {
+                    renderUnblock('block', profileId);
+                } else {
+                    renderBlock('unblock', profileId);
+                }
+            }
+        }
+    }
+    XHR.open("POST", `/api/${profileId}/block`, true);
+    XHR.send(FD);
+    return false;
 }

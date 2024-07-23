@@ -24,6 +24,9 @@ CORR_SEEK_EXPIRE_WEEKS = timedelta(weeks=2)
 # Max number of lobby chat lines (deque limit)
 MAX_CHAT_LINES = 100
 
+BLOCK, FOLLOW = False, True
+MAX_USER_BLOCK = 100
+
 # Minimum number of rated games needed
 HIGHSCORE_MIN_GAMES = 10
 
