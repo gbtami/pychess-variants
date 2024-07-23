@@ -104,6 +104,7 @@ player-title {
 }
 [class*=" icon-"]::before {
     line-height: 2rem;
+    margin-right: 0.4em;
 }
 .i-at, .i-tv, .i-dl, .i-ch {
     float: right;

@@ -379,35 +379,23 @@ async def block_user(request):
         # TODO: Alert the user about blocked quota reached
         raise web.HTTPFound("/@/%s" % profileId)
 
+    post_data = await request.post()
+    block = post_data["block"] == "true"
     try:
-        await app_state.db.relation.find_one_and_update(
-            {"_id": "%s/%s" % (user.username, profileId)},
-            {"$set": {"u1": user.username, "u2": profileId, "r": BLOCK}},
-            upsert=True,
-        )
-        user.blocked.add(profileId)
+        if block:
+            await app_state.db.relation.find_one_and_update(
+                {"_id": "%s/%s" % (user.username, profileId)},
+                {"$set": {"u1": user.username, "u2": profileId, "r": BLOCK}},
+                upsert=True,
+            )
+            user.blocked.add(profileId)
+        else:
+            await app_state.db.relation.delete_one({"_id": "%s/%s" % (user.username, profileId)})
+            user.blocked.remove(profileId)
     except Exception:
         log.error("Failed to save new relation to mongodb!", exc_info=True)
 
-    raise web.HTTPFound("/@/%s" % profileId)
-
-
-async def unblock_user(request):
-    app_state = get_app_state(request.app)
-    profileId = request.match_info.get("profileId")
-
-    # Who made the request?
-    session = await aiohttp_session.get_session(request)
-    session_user = session.get("user_name")
-    user = await app_state.users.get(session_user)
-
-    try:
-        await app_state.db.relation.delete_one({"_id": "%s/%s" % (user.username, profileId)})
-        user.blocked.remove(profileId)
-    except Exception:
-        log.error("Failed to delete relation from mongodb!", exc_info=True)
-
-    raise web.HTTPFound("/@/%s" % profileId)
+    return web.json_response({})
 
 
 async def get_blocked_users(request):

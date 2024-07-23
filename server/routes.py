@@ -43,7 +43,7 @@ from wst import tournament_socket_handler
 from tournament_calendar import tournament_calendar
 from twitch import twitch_request_handler
 from puzzle import puzzle_complete, puzzle_vote
-from user import block_user, get_blocked_users, unblock_user, set_theme
+from user import block_user, get_blocked_users, set_theme
 
 
 get_routes = (
@@ -112,8 +112,6 @@ get_routes = (
     ("/api/stream/event", event_stream),
     ("/api/bot/game/stream/{gameId}", game_stream),
     ("/api/blocks", get_blocked_users),
-    ("/api/{profileId}/block", block_user),
-    ("/api/{profileId}/unblock", unblock_user),
     ("/api/{profileId}/all", get_user_games),
     ("/api/{profileId}/win", get_user_games),
     ("/api/{profileId}/loss", get_user_games),
@@ -155,6 +153,7 @@ post_routes = (
     ("/api/seek", create_bot_seek),
     ("/api/pong", bot_pong),
     ("/pref/theme", set_theme),
+    ("/api/{profileId}/block", block_user),
     ("/fishnet/acquire", fishnet_acquire),
     ("/fishnet/analysis/{workId}", fishnet_analysis),
     ("/fishnet/move/{workId}", fishnet_move),
