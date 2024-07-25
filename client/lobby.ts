@@ -354,6 +354,8 @@ export class LobbyController implements ChatController {
         const vByoIdx = (localStorage.seek_byo ?? 1) - 1;
         const vDay = localStorage.seek_day ?? "1";
         const vRated = vVariant === "bughouse"? "0": localStorage.seek_rated ?? "0";
+        const vRatingMin = localStorage.seek__rating_min ?? -500;
+        const vRatingMax = localStorage.seek__rating_max ?? 500;
         const vLevel = Number(localStorage.seek_level ?? "1");
         const vChess960 = localStorage.seek_chess960 ?? "false";
         const vRMplay = localStorage.seek_rmplay ?? "false";
@@ -460,6 +462,24 @@ export class LobbyController implements ChatController {
                                     h('label', { attrs: { for: "rated"} }, _("Rated")),
                                 ]),
                             ]),
+                            h('div#rating-range-setting', [
+                                _('Rating range'),
+                                h('div.rating-range', [
+                                    h('input#rating-min.slider', {
+                                        props: { name: "rating-min", type: "range", min: -500, max: 0, value: vRatingMin },
+                                        on: { input: e => this.setRatingMin(parseInt((e.target as HTMLInputElement).value)) },
+                                        hook: { insert: vnode => this.setRatingMin(parseInt((vnode.elm as HTMLInputElement).value)) },
+                                    }),
+                                    h('span.rating-min', '-500'),
+                                    '/',
+                                    h('span.rating-max', '+500'),
+                                    h('input#rating-max.slider', {
+                                        props: { name: "rating-max", type: "range", min: 0, max: 500, value: vRatingMax },
+                                        on: { input: e => this.setRatingMax(parseInt((e.target as HTMLInputElement).value)) },
+                                        hook: { insert: vnode => this.setRatingMax(parseInt((vnode.elm as HTMLInputElement).value)) },
+                                    }),
+                                ]),
+                            ]),
                             // if play with the machine
                             h('div#rmplay-block', [
                                 h('label', { attrs: { for: "rmplay" } }, "Random-Mover"),
@@ -530,6 +550,7 @@ export class LobbyController implements ChatController {
         this.renderVariantsDropDown([]);
         this.renderDialogHeader(createModeStr(this.createMode));
         document.getElementById('game-mode')!.style.display = this.anon ? 'none' : 'inline-flex';
+        document.getElementById('rating-range-setting')!.style.display = 'block';
         document.getElementById('ailevel')!.style.display = 'none';
         document.getElementById('rmplay-block')!.style.display = 'none';
         document.getElementById('id01')!.style.display = 'flex';
@@ -544,6 +565,7 @@ export class LobbyController implements ChatController {
         this.renderVariantsDropDown(["bughouse"]);
         this.renderDialogHeader(createModeStr(this.createMode))
         document.getElementById('game-mode')!.style.display = this.anon ? 'none' : 'inline-flex';
+        document.getElementById('rating-range-setting')!.style.display = 'none';
         document.getElementById('ailevel')!.style.display = 'none';
         document.getElementById('rmplay-block')!.style.display = 'none';
         document.getElementById('id01')!.style.display = 'flex';
@@ -558,6 +580,7 @@ export class LobbyController implements ChatController {
         this.renderVariantsDropDown(["bughouse"]);
         this.renderDialogHeader(createModeStr(this.createMode))
         document.getElementById('game-mode')!.style.display = 'none';
+        document.getElementById('rating-range-setting')!.style.display = 'none';
         const e = document.getElementById('rmplay') as HTMLInputElement;
         document.getElementById('ailevel')!.style.display = e.checked ? 'none' : 'inline-block';
         document.getElementById('rmplay-block')!.style.display = 'block';
@@ -573,6 +596,7 @@ export class LobbyController implements ChatController {
         this.renderVariantsDropDown(["bughouse"]);
         this.renderDialogHeader(createModeStr(this.createMode))
         document.getElementById('game-mode')!.style.display = this.anon ? 'none' : 'inline-flex';
+        document.getElementById('rating-range-setting')!.style.display = 'none';
         document.getElementById('ailevel')!.style.display = 'none';
         document.getElementById('rmplay-block')!.style.display = 'none';
         document.getElementById('id01')!.style.display = 'flex';
@@ -635,6 +659,12 @@ export class LobbyController implements ChatController {
         const days = this.daysValues[val];
         document.getElementById("days")!.innerHTML = String(days);
         this.setStartButtons();
+    }
+    private setRatingMin(val: number) {
+        console.log('setRatingMin()', val);
+    }
+    private setRatingMax(val: number) {
+        console.log('setRatingMax()', val);
     }
     private setFen() {
         const e = document.getElementById('fen') as HTMLInputElement;
