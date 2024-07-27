@@ -23,6 +23,8 @@ class Seek:
         day=0,
         level=6,
         rated=False,
+        rrmin=None,
+        rrmax=None,
         chess960=False,
         target="",
         player1=None,
@@ -38,6 +40,8 @@ class Seek:
         self.color = color
         self.fen = "" if fen is None else fen
         self.rated = rated
+        self.rrmin = rrmin
+        self.rrmax = rrmax
         self.rating = creator.get_rating(variant, chess960).rating_prov[0]
         self.base = base
         self.inc = inc
@@ -80,6 +84,8 @@ class Seek:
             "fen": self.fen,
             "color": self.color,
             "rated": self.rated,
+            "rrmin": self.rrmin,
+            "rrmax": self.rrmax,
             "rating": self.rating,
             "base": self.base,
             "inc": self.inc,
@@ -98,6 +104,8 @@ class Seek:
             "fen": self.fen,
             "color": self.color,
             "rated": self.rated,
+            "rrmin": self.rrmin,
+            "rrmax": self.rrmax,
             "day": self.day,
             "expireAt": self.expire_at,
         }
@@ -143,6 +151,8 @@ async def create_seek(db, invites, seeks, user, data, ws, empty=False):
         byoyomi_period=data["byoyomiPeriod"],
         day=day,
         rated=data.get("rated"),
+        rrmin=data.get("rrmin"),
+        rrmax=data.get("rrmax"),
         chess960=data.get("chess960"),
         target=target,
         player1=None if empty else user,

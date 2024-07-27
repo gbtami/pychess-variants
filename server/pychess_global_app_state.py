@@ -242,6 +242,8 @@ class PychessGlobalAppState:
                         color=doc["color"],
                         day=doc["day"],
                         rated=doc["rated"],
+                        rrmin=doc["rrmin"],
+                        rrmax=doc["rrmax"],
                         chess960=doc["chess960"],
                         player1=user,
                         expire_at=doc.get("expireAt"),
