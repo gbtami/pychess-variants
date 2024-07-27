@@ -445,6 +445,21 @@ export const VARIANTS: Record<string, Variant> = {
         rules: { enPassant: true, duck: true },
     }),
 
+    alice: variant({
+        name: "alice", tooltip: "Through the Looking-Glass",
+        startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1 | 8/8/8/8/8/8/8/8 w - - 0 1",
+        icon: "🪞",
+        boardFamily: "standard8x8", pieceFamily: "standard",
+        pieceRow: ["k", "q", "r", "b", "n", "p"],
+        rules: { enPassant: false },
+        alternateStart: {
+            '': "",
+            'Looking glass': "8/8/8/8/8/8/PPPPPPPP/RNBQKBNR w KQ - 0 1 | rnbqkbnr/pppppppp/8/8/8/8/8/8 w kq - 0 1",
+        },
+        // For Alice chess other board pieces we use promoted pieces to let them style differently,
+        ui: { boardMark: 'alice' },
+    }),
+
     fogofwar: variant({
         name: "fogofwar", displayName: "fog of war", tooltip: "Players can only see the squares to which their pieces can legally move to.",
         startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
@@ -452,7 +467,6 @@ export const VARIANTS: Record<string, Variant> = {
         boardFamily: "standard8x8", pieceFamily: "standard",
         pieceRow: ["k", "q", "r", "b", "n", "p"],
         rules: { enPassant: true },
-    }),
 
     makruk: variant({
         name: "makruk", tooltip: "Thai Chess. A game closely resembling the original Chaturanga. Similar to Chess but with a different queen and bishop.",
@@ -1033,10 +1047,15 @@ export const noPuzzleVariants = [
     "shinobiplus",
     "cannonshogi",
     "bughouse",
+    "alice",
 ]
 
 export const variantGroups: { [ key: string ]: { variants: string[] } } = {
+<<<<<<< HEAD
     standard: { variants: [ "chess", "bughouse", "crazyhouse", "atomic", "kingofthehill", "3check", "placement", "duck", "fogofwar" ] },
+=======
+    standard: { variants: [ "chess", "bughouse", "crazyhouse", "atomic", "kingofthehill", "3check", "placement", "duck", "alice" ] },
+>>>>>>> 02f4167e5c6061ffd39f07d0bb3d58f3c1d7d410
     sea:      { variants: [ "makruk", "makpong", "cambodian", "sittuyin", "asean" ] },
     shogi:    { variants: [ "shogi", "minishogi", "kyotoshogi", "dobutsu", "gorogoroplus", "torishogi", "cannonshogi" ] },
     xiangqi:  { variants: [ "xiangqi", "manchu", "janggi", "minixiangqi" ] },
