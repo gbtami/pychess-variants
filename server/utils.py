@@ -26,6 +26,7 @@ from const import (
     RATED,
     IMPORTED,
     CONSERVATIVE_CAPA_FEN,
+    LOOKING_GLASS_ALICE_FEN,
     T_STARTED,
 )
 from compress import get_decode_method, get_encode_method, R2C, C2R, V2C, C2V
@@ -714,6 +715,9 @@ def sanitize_fen(variant, initial_fen, chess960):
 
     # Prevent this particular one to fail on our general castling check
     if variant == "capablanca" and initial_fen == CONSERVATIVE_CAPA_FEN:
+        return True, initial_fen
+
+    if variant == "alice" and initial_fen == LOOKING_GLASS_ALICE_FEN:
         return True, initial_fen
 
     sf_validate = sf.validate_fen(initial_fen, variant, chess960)

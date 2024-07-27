@@ -102,6 +102,9 @@ LOSERS = {
 GRANDS = ("xiangqi", "manchu", "grand", "grandhouse", "shako", "janggi")
 
 CONSERVATIVE_CAPA_FEN = "arnbqkbnrc/pppppppppp/10/10/10/10/PPPPPPPPPP/ARNBQKBNRC w KQkq - 0 1"
+LOOKING_GLASS_ALICE_FEN = (
+    "8/8/8/8/8/8/PPPPPPPP/RNBQKBNR w KQ - 0 1 | rnbqkbnr/pppppppp/8/8/8/8/8/8 w kq - 0 1"
+)
 
 VARIANTS = (
     "chess",
@@ -118,6 +121,7 @@ VARIANTS = (
     "3check960",
     "placement",
     "duck",
+    "alice",
     "makruk",
     "makpong",
     "cambodian",
@@ -234,6 +238,7 @@ VARIANT_ICONS = {
     "3check960": "☷",
     "bughouse": "¢",
     "bughouse960": "⌀",
+    "alice": "🪞",
 }
 
 VARIANT_960_TO_PGN = {
@@ -270,6 +275,7 @@ CATEGORIES = {
         "3check",
         "3check960",
         "duck",
+        "alice",
     ),
     "fairy": (
         "capablanca",
@@ -356,6 +362,8 @@ def variant_display_name(variant):
         return "THREE-CHECK"
     elif variant == "dragon":
         return "DRAGON CHESS"
+    elif variant == "alice":
+        return "ALICE CHESS"
     else:
         return variant.upper()
 
@@ -394,6 +402,7 @@ TRANSLATED_VARIANT_NAMES = {
     "atomic": _("Atomic"),
     "atomic960": _("Atomic960"),
     "duck": _("Duck Chess"),
+    "alice": _("Alice Chess"),
     "makruk": _("Makruk"),
     "makpong": _("Makpong"),
     "cambodian": _("Ouk Chaktrang"),

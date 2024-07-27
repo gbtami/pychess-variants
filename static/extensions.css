@@ -272,3 +272,10 @@
   z-index: 1;
   pointer-events: none;
 }
+
+/* Alice chess pieces on the other board */
+.alice piece.promoted {
+  opacity: 0.2;
+  background-color: LightCyan;
+  border: 1px solid blue;
+}
