@@ -713,7 +713,7 @@ export class RoundController extends GameController {
         }
     }
 
-    private onMsgBoard = (msg: MsgBoard) => {
+    onMsgBoard(msg: MsgBoard) {
         if (msg.gameId !== this.gameId) return;
 
         // console.log("got board msg:", msg);
@@ -952,7 +952,8 @@ export class RoundController extends GameController {
         this.updateMaterial();
     }
 
-    goPly = (ply: number, plyVari = 0) => {
+    goPly(ply: number, plyVari = 0) {
+        console.log("roundCtrl.goPly()");
         super.goPly(ply, plyVari);
 
         if (this.spectator || this.turnColor !== this.mycolor || this.result !== "*" || ply !== this.steps.length - 1) {
