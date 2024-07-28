@@ -40,7 +40,7 @@ async def lobby_socket_handler(request):
 async def init_ws(app_state: PychessGlobalAppState, ws, user):
     await send_game_in_progress_if_any(app_state, user, ws)
     await send_lobby_user_connected(app_state, ws, user)
-    await send_get_seeks(ws, app_state.seeks)
+    await send_get_seeks(ws, user, app_state.seeks.values())
 
 
 async def finally_logic(app_state: PychessGlobalAppState, ws, user):
@@ -73,8 +73,8 @@ async def process_message(app_state: PychessGlobalAppState, user, ws, data):
         await handle_lobbychat(app_state, user, data)
 
 
-async def send_get_seeks(ws, seeks):
-    response = get_seeks(seeks)
+async def send_get_seeks(ws, user, seeks):
+    response = {"type": "get_seeks", "seeks": get_seeks(user, seeks)}
     await ws_send_json(ws, response)
 
 

@@ -123,10 +123,30 @@ rating {
 .modal-content input#fen {
     width: 80%;
 }
-
-div.tc-block {
+form#game-mode {
+    padding: 1em;
+}
+form#game-mode div.radio-group {
+    margin: 1em;
+}
+div.rating-range .slider {
+  width: 30%;
+  padding: .6em 0;
+  margin: 0;
+}
+div.tc-block, div#rating-range-setting {
     padding: 1em;
     background: var(--bg-color2);
     border-top: 1px solid var(--border-color);
     border-bottom: 1px solid var(--border-color);
+}
+.rating-range {
+  justify-content: center;
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+}
+.rating-range .rating-min, .rating-range .rating-max {
+    font-weight: inherit;
+    flex: 0 0 7ch;
 }

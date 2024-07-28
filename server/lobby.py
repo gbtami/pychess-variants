@@ -26,36 +26,9 @@ class Lobby:
     # below methods maybe best in separate class eventually
     async def lobby_broadcast(self, response):
         log.debug("lobby_broadcast: %r to %r", response, self.lobbysockets)
-        seeks_response = False
-        if response["type"] == "get_seeks":
-            seeks_response = True
-            users = self.app_state.users
-            # We will need all the seek users blocked info
-            for seek in response["seeks"]:
-                await self.app_state.users.get(seek["user"])
-
         for username, ws_set in self.lobbysockets.items():
-            if seeks_response:
-                # filter out when one blocked the other
-                ws_user = await self.app_state.users.get(username)
-                filtered = [
-                    seek
-                    for seek in response["seeks"]
-                    if seek["user"] not in ws_user.blocked
-                    and username not in users[seek["user"]].blocked
-                ]
-
-                for ws in ws_set:
-                    await ws_send_json(
-                        ws,
-                        {
-                            "type": "get_seeks",
-                            "seeks": filtered,
-                        },
-                    )
-            else:
-                for ws in ws_set:
-                    await ws_send_json(ws, response)
+            for ws in ws_set:
+                await ws_send_json(ws, response)
 
     async def lobby_broadcast_u_cnt(self):
         # todo: probably wont scale great if we broadcast these on every user join/leave.
@@ -63,7 +36,20 @@ class Lobby:
         await self.lobby_broadcast(response)
 
     async def lobby_broadcast_seeks(self):
-        await self.lobby_broadcast(get_seeks(self.app_state.seeks))
+        # We will need all the seek users blocked info
+        for seek in self.app_state.seeks.values():
+            await self.app_state.users.get(seek.creator.username)
+
+        for username, ws_set in self.lobbysockets.items():
+            ws_user = await self.app_state.users.get(username)
+            for ws in ws_set:
+                await ws_send_json(
+                    ws,
+                    {
+                        "type": "get_seeks",
+                        "seeks": get_seeks(ws_user, self.app_state.seeks.values()),
+                    },
+                )
 
     async def lobby_chat(self, username: str, message: str, time: Optional[int] = None):
         response = {"type": "lobbychat", "user": username, "message": message}

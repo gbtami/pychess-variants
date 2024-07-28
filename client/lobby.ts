@@ -158,7 +158,7 @@ export class LobbyController implements ChatController {
         this.sock.send(JSON.stringify(message));
     }
 
-    createSeekMsg(variant: string, color: string, fen: string, minutes: number, increment: number, byoyomiPeriod: number, day: number, chess960: boolean, rated: boolean) {
+    createSeekMsg(variant: string, color: string, fen: string, minutes: number, increment: number, byoyomiPeriod: number, day: number, chess960: boolean, rated: boolean, rrMin: number, rrMax: number) {
         this.doSend({
             type: "create_seek",
             user: this.username,
@@ -170,6 +170,8 @@ export class LobbyController implements ChatController {
             byoyomiPeriod: byoyomiPeriod,
             day: day,
             rated: rated,
+            rrmin: rrMin,
+            rrmax: rrMax,
             chess960: chess960,
             color: color
         });
@@ -225,7 +227,7 @@ export class LobbyController implements ChatController {
         });
     }
 
-    isNewSeek(variant: string, color: string, fen: string, minutes: number, increment: number, byoyomiPeriod: number, chess960: boolean, rated: boolean) {
+    isNewSeek(variant: string, color: string, fen: string, minutes: number, increment: number, byoyomiPeriod: number, day: number, chess960: boolean, rated: boolean) {
         // console.log("isNewSeek()?", variant, color, fen, minutes, increment, byoyomiPeriod, chess960, rated);
         // console.log(this.seeks);
         return !this.seeks.some(seek =>
@@ -236,6 +238,7 @@ export class LobbyController implements ChatController {
             seek.base === minutes &&
             seek.inc === increment &&
             seek.byoyomi === byoyomiPeriod &&
+            seek.day === day &&
             seek.chess960 === chess960 &&
             seek.rated === rated
         );
@@ -284,7 +287,6 @@ export class LobbyController implements ChatController {
             changeTabs('lobby_tab', corrTab)
             // TODO: use meaningful names!!!
         }
-        console.log('createSeek() day', day);
         e = document.querySelector('input[name="mode"]:checked') as HTMLInputElement;
         let rated: boolean;
         if (this.createMode === 'playAI' ||
@@ -299,11 +301,19 @@ export class LobbyController implements ChatController {
             rated = e.value === "1";
         localStorage.seek_rated = e.value;
 
+        e = document.getElementById('rating-min') as HTMLInputElement;
+        const rrMin = Number(e.value);
+        localStorage.seek_rating_min = e.value;
+
+        e = document.getElementById('rating-max') as HTMLInputElement;
+        const rrMax = Number(e.value);
+        localStorage.seek_rating_max = e.value;
+
         e = document.getElementById('chess960') as HTMLInputElement;
         const chess960 = (variant.chess960 && fen.trim() === "") ? e.checked : false;
         localStorage.seek_chess960 = e.checked;
 
-        // console.log("CREATE SEEK variant, color, fen, minutes, increment, hide, chess960", variant, color, fen, minutes, increment, chess960, rated);
+        // console.log("CREATE SEEK variant, color, fen, minutes, increment, hide, chess960", variant, color, fen, minutes, increment, chess960, rated, rrMin, rrMax);
 
         switch (this.createMode) {
             case 'playAI':
@@ -323,8 +333,8 @@ export class LobbyController implements ChatController {
                 this.createHostMsg(variant.name, seekColor, fen, minutes, increment, byoyomiPeriod, chess960, rated);
                 break;
             default:
-                if (this.isNewSeek(variant.name, seekColor, fen, minutes, increment, byoyomiPeriod, chess960, rated))
-                    this.createSeekMsg(variant.name, seekColor, fen, minutes, increment, byoyomiPeriod, day, chess960, rated);
+                if (this.isNewSeek(variant.name, seekColor, fen, minutes, increment, byoyomiPeriod, day, chess960, rated))
+                    this.createSeekMsg(variant.name, seekColor, fen, minutes, increment, byoyomiPeriod, day, chess960, rated, rrMin, rrMax);
         }
         // prevent to create challenges continuously
         this.profileid = '';
@@ -354,6 +364,8 @@ export class LobbyController implements ChatController {
         const vByoIdx = (localStorage.seek_byo ?? 1) - 1;
         const vDay = localStorage.seek_day ?? "1";
         const vRated = vVariant === "bughouse"? "0": localStorage.seek_rated ?? "0";
+        const vRatingMin = localStorage.seek_rating_min ?? -500;
+        const vRatingMax = localStorage.seek_rating_max ?? 500;
         const vLevel = Number(localStorage.seek_level ?? "1");
         const vChess960 = localStorage.seek_chess960 ?? "false";
         const vRMplay = localStorage.seek_rmplay ?? "false";
@@ -460,6 +472,24 @@ export class LobbyController implements ChatController {
                                     h('label', { attrs: { for: "rated"} }, _("Rated")),
                                 ]),
                             ]),
+                            h('div#rating-range-setting', [
+                                _('Rating range'),
+                                h('div.rating-range', [
+                                    h('input#rating-min.slider', {
+                                        props: { name: "rating-min", type: "range", min: -500, max: 0, step: 50, value: vRatingMin },
+                                        on: { input: e => this.setRatingMin(parseInt((e.target as HTMLInputElement).value)) },
+                                        hook: { insert: vnode => this.setRatingMin(parseInt((vnode.elm as HTMLInputElement).value)) },
+                                    }),
+                                    h('span.rating-min', '-500'),
+                                    '/',
+                                    h('span.rating-max', '+500'),
+                                    h('input#rating-max.slider', {
+                                        props: { name: "rating-max", type: "range", min: 0, max: 500, step: 50, value: vRatingMax },
+                                        on: { input: e => this.setRatingMax(parseInt((e.target as HTMLInputElement).value)) },
+                                        hook: { insert: vnode => this.setRatingMax(parseInt((vnode.elm as HTMLInputElement).value)) },
+                                    }),
+                                ]),
+                            ]),
                             // if play with the machine
                             h('div#rmplay-block', [
                                 h('label', { attrs: { for: "rmplay" } }, "Random-Mover"),
@@ -530,6 +560,7 @@ export class LobbyController implements ChatController {
         this.renderVariantsDropDown([]);
         this.renderDialogHeader(createModeStr(this.createMode));
         document.getElementById('game-mode')!.style.display = this.anon ? 'none' : 'inline-flex';
+        document.getElementById('rating-range-setting')!.style.display = 'block';
         document.getElementById('ailevel')!.style.display = 'none';
         document.getElementById('rmplay-block')!.style.display = 'none';
         document.getElementById('id01')!.style.display = 'flex';
@@ -544,6 +575,7 @@ export class LobbyController implements ChatController {
         this.renderVariantsDropDown(["bughouse"]);
         this.renderDialogHeader(createModeStr(this.createMode))
         document.getElementById('game-mode')!.style.display = this.anon ? 'none' : 'inline-flex';
+        document.getElementById('rating-range-setting')!.style.display = 'none';
         document.getElementById('ailevel')!.style.display = 'none';
         document.getElementById('rmplay-block')!.style.display = 'none';
         document.getElementById('id01')!.style.display = 'flex';
@@ -558,6 +590,7 @@ export class LobbyController implements ChatController {
         this.renderVariantsDropDown(["bughouse"]);
         this.renderDialogHeader(createModeStr(this.createMode))
         document.getElementById('game-mode')!.style.display = 'none';
+        document.getElementById('rating-range-setting')!.style.display = 'none';
         const e = document.getElementById('rmplay') as HTMLInputElement;
         document.getElementById('ailevel')!.style.display = e.checked ? 'none' : 'inline-block';
         document.getElementById('rmplay-block')!.style.display = 'block';
@@ -573,6 +606,7 @@ export class LobbyController implements ChatController {
         this.renderVariantsDropDown(["bughouse"]);
         this.renderDialogHeader(createModeStr(this.createMode))
         document.getElementById('game-mode')!.style.display = this.anon ? 'none' : 'inline-flex';
+        document.getElementById('rating-range-setting')!.style.display = 'none';
         document.getElementById('ailevel')!.style.display = 'none';
         document.getElementById('rmplay-block')!.style.display = 'none';
         document.getElementById('id01')!.style.display = 'flex';
@@ -635,6 +669,12 @@ export class LobbyController implements ChatController {
         const days = this.daysValues[val];
         document.getElementById("days")!.innerHTML = String(days);
         this.setStartButtons();
+    }
+    private setRatingMin(val: number) {
+        document.querySelector("span.rating-min")!.innerHTML = String(val);
+    }
+    private setRatingMax(val: number) {
+        document.querySelector("span.rating-max")!.innerHTML = String(val);
     }
     private setFen() {
         const e = document.getElementById('fen') as HTMLInputElement;
