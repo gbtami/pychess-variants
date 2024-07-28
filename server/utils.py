@@ -720,6 +720,9 @@ def sanitize_fen(variant, initial_fen, chess960):
     if variant == "alice" and initial_fen == LOOKING_GLASS_ALICE_FEN:
         return True, initial_fen
 
+    if variant == "fogofwar" and initial_fen == STANDARD_FEN:
+        return True, initial_fen
+
     sf_validate = sf.validate_fen(initial_fen, variant, chess960)
     if sf_validate != sf.FEN_OK and variant != "duck":
         return False, ""
