@@ -40,9 +40,9 @@ class Seek:
         self.color = color
         self.fen = "" if fen is None else fen
         self.rated = rated
-        self.rrmin = rrmin
-        self.rrmax = rrmax
         self.rating = creator.get_rating(variant, chess960).rating_prov[0]
+        self.rrmin = self.rating + (rrmin if rrmin is not None else 0)
+        self.rrmax = self.rating + (rrmax if rrmax is not None else 3000)
         self.base = base
         self.inc = inc
         self.byoyomi_period = byoyomi_period
@@ -170,12 +170,8 @@ async def create_seek(db, invites, seeks, user, data, ws, empty=False):
     return seek
 
 
-def get_seeks(seeks):
-    active_seeks = [seek.as_json for seek in seeks.values() if not seek.pending]
-    return {
-        "type": "get_seeks",
-        "seeks": active_seeks,
-    }
+def get_seeks(user, seeks):
+    return [seek.as_json for seek in seeks if not seek.pending and user.compatible_with_seek(seek)]
 
 
 def challenge(seek, gameId):
