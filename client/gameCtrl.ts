@@ -314,8 +314,8 @@ export abstract class GameController extends ChessgroundController implements Ch
             movable: {
                 color: step.turnColor,
             },
-            check: step.check,
-            lastMove: move,
+            check: (this.fog) ? false : step.check,
+            lastMove: (this.fog) ? undefined : move,
         });
 
         // turnColor have to be actualized before setDests() !!!

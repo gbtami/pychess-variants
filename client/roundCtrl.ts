@@ -898,8 +898,8 @@ export class RoundController extends GameController {
                             free: false,
                             color: (this.variant.rules.setup && this.status === -2) ? undefined : this.mycolor,
                         },
-                        check: msg.check,
-                        lastMove: lastMove,
+                        check: (this.fog) ? false : msg.check,
+                        lastMove: (this.fog) ? undefined : lastMove,
                     });
 
                     // This have to be exactly here (and before this.performPremove as well!!!),
@@ -926,8 +926,8 @@ export class RoundController extends GameController {
                     // giving fen here will place castling rooks to their destination in chess960 variants
                     fen: (this.fog) ? this.fogFen(this.fullfen) : parts[0],
                     turnColor: this.turnColor,
-                    check: msg.check,
-                    lastMove: lastMove,
+                    check: (this.fog) ? false : msg.check,
+                    lastMove: (this.fog) ? undefined : lastMove,
                 });
 
                 // This have to be here, because in case of takeback 
