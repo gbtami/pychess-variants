@@ -2,13 +2,14 @@ import { WebsocketHeartbeatJs } from './socket/socket';
 
 import { h, VNode } from 'snabbdom';
 import * as Mousetrap  from 'mousetrap';
+import * as fen from 'chessgroundx/fen';
 import * as cg from 'chessgroundx/types';
 import * as util from 'chessgroundx/util';
 
 import { _ } from './i18n';
 import { patch } from './document';
 import { Step, MsgChat, MsgFullChat, MsgSpectators, MsgShutdown,MsgGameNotFound } from './messages';
-import { adjacent, uci2LastMove, moveDests, cg2uci, unpromotedRole, UCIMove } from './chess';
+import { adjacent, uci2LastMove, moveDests, cg2uci, uci2cg, unpromotedRole, UCIMove } from './chess';
 import { InputType } from '@/input/input';
 import { GatingInput } from './input/gating';
 import { PromotionInput } from './input/promotion';
@@ -36,6 +37,7 @@ export abstract class GameController extends ChessgroundController implements Ch
     aiLevel: number;
     rated: string;
     corr : boolean;
+    fog: boolean;
 
     base: number;
     inc: number;
@@ -113,6 +115,7 @@ export abstract class GameController extends ChessgroundController implements Ch
         this.brating = model["brating"];
         this.rated = model["rated"];
         this.corr = model["corr"] === 'True';
+        this.fog = this.variant.name === 'fogofwar';
 
         this.spectator = this.username !== this.wplayer && this.username !== this.bplayer;
 
@@ -214,6 +217,33 @@ export abstract class GameController extends ChessgroundController implements Ch
         }
     }
 
+    fogFen(currentFen: string): string {
+        // Squares visibility is always calculated from my color turn perspective
+        this.ffishBoard.setFen([currentFen.split(' ')[0], this.mycolor[0]].join(' '));
+        const legalMoves = this.ffishBoard.legalMoves().split(" ");
+
+        const pieces = fen.read(currentFen, this.variant.board.dimensions).pieces;
+        const myPieceKeys = Array.from(pieces.keys()).filter((key) => pieces.get(key).color === this.mycolor);
+        const visibleKeys = new Set(myPieceKeys);
+
+        // Add dest squares to visibleKeys
+        legalMoves.map(uci2cg).forEach(move => {
+            visibleKeys.add(move.slice(2, 4) as cg.Key);
+        });
+
+        // We use promoted block pieces as fog to let them style differently in extension.css
+        const fog = {
+            color: this.oppcolor,
+            role: '_-piece',
+            promoted: true
+        }
+        const darks: cg.Key[] = util.allKeys(this.variant.board.dimensions).filter((key) => !(visibleKeys.has(key)));
+        const darkPieces = darks.map((key) => [key, fog]);
+        const visiblePieces = Array.from(visibleKeys).filter((key) => pieces.get(key)).map((key) => [key, pieces.get(key)]);
+        const newPieces = new Map([...darkPieces, ...visiblePieces]);
+        return fen.writeBoard(newPieces, this.variant.board.dimensions);
+    }
+
     abstract toggleSettings(): void;
 
     abstract doSendMove(move: string): void;
@@ -279,7 +309,7 @@ export abstract class GameController extends ChessgroundController implements Ch
         }
 
         this.chessground.set({
-            fen: step.fen,
+            fen: (this.fog) ? this.fogFen(step.fen) : step.fen,
             turnColor: step.turnColor,
             movable: {
                 color: step.turnColor,
