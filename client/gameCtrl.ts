@@ -218,6 +218,8 @@ export abstract class GameController extends ChessgroundController implements Ch
     }
 
     fogFen(currentFen: string): string {
+        if (!currentFen.includes('k') || !currentFen.includes('K')) return currentFen;
+
         // Squares visibility is always calculated from my color turn perspective
         this.ffishBoard.setFen([currentFen.split(' ')[0], this.mycolor[0]].join(' '));
         const legalMoves = this.ffishBoard.legalMoves().split(" ");
