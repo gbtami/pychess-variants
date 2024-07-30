@@ -154,7 +154,7 @@ export abstract class GameController extends ChessgroundController implements Ch
 
         this.chessground.set({
             animation: {
-                enabled: localStorage.animation === undefined || localStorage.animation === "true",
+                enabled: (localStorage.animation === undefined || localStorage.animation === "true") && !this.fog,
             },
             movable: {
                 showDests: localStorage.showDests === undefined || localStorage.showDests === "true",
@@ -218,6 +218,7 @@ export abstract class GameController extends ChessgroundController implements Ch
     }
 
     fogFen(currentFen: string): string {
+        // No king, no fog (game is over)
         if (!currentFen.includes('k') || !currentFen.includes('K')) return currentFen;
 
         // Squares visibility is always calculated from my color turn perspective

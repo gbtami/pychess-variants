@@ -11,7 +11,7 @@ import { patch } from './document';
 import { boardSettings } from './boardSettings';
 import { Clock } from './clock';
 import { sound } from './sound';
-import { WHITE, BLACK, uci2LastMove, getCounting, isHandicap } from './chess';
+import { DARK_FEN, WHITE, BLACK, uci2LastMove, getCounting, isHandicap } from './chess';
 import { crosstableView } from './crosstable';
 import { chatMessage, chatView } from './chat';
 import { createMovelistButtons, updateMovelist, updateResult, selectMove } from './movelist';
@@ -874,10 +874,10 @@ export class RoundController extends GameController {
         if (this.spectator) {
             if (latestPly) {
                 this.chessground.set({
-                    fen: this.fullfen,
+                    fen: (this.fog) ? DARK_FEN : this.fullfen,
                     turnColor: this.turnColor,
-                    check: msg.check,
-                    lastMove: lastMove,
+                    check: (this.fog) ? false : msg.check,
+                    lastMove: (this.fog) ? undefined : lastMove,
                     movable: { color: undefined },
                 });
             }

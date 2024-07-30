@@ -56,7 +56,8 @@ async def tv_game(app_state: PychessGlobalAppState):
     if app_state.tv is not None:
         return app_state.tv
     game_id = None
-    doc = await app_state.db.game.find_one({}, sort=[("$natural", -1)])
+    # No Fog of War games to TV
+    doc = await app_state.db.game.find_one({"v": {"$ne": "Q"}}, sort=[("$natural", -1)])
     if doc is not None:
         game_id = doc["_id"]
         app_state.tv = game_id
@@ -502,7 +503,8 @@ async def insert_game_to_db(game, app_state: PychessGlobalAppState):
     if result.inserted_id != game.id:
         log.error("db insert game result %s failed !!!", game.id)
 
-    if not game.corr:
+    # No corr and Fog of War games to TV
+    if (not game.corr) and (game.variant != "fogofwar"):
         app_state.tv = game.id
         await app_state.lobby.lobby_broadcast(game.tv_game_json)
         game.wplayer.tv = game.id
