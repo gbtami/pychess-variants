@@ -11,7 +11,7 @@ import { patch } from './document';
 import { boardSettings } from './boardSettings';
 import { Clock } from './clock';
 import { sound } from './sound';
-import { WHITE, BLACK, uci2LastMove, getCounting, isHandicap } from './chess';
+import { DARK_FEN, WHITE, BLACK, uci2LastMove, getCounting, isHandicap } from './chess';
 import { crosstableView } from './crosstable';
 import { chatMessage, chatView } from './chat';
 import { createMovelistButtons, updateMovelist, updateResult, selectMove } from './movelist';
@@ -874,10 +874,10 @@ export class RoundController extends GameController {
         if (this.spectator) {
             if (latestPly) {
                 this.chessground.set({
-                    fen: this.fullfen,
+                    fen: (this.fog) ? DARK_FEN : this.fullfen,
                     turnColor: this.turnColor,
-                    check: msg.check,
-                    lastMove: lastMove,
+                    check: (this.fog) ? false : msg.check,
+                    lastMove: (this.fog) ? undefined : lastMove,
                     movable: { color: undefined },
                 });
             }
@@ -892,14 +892,14 @@ export class RoundController extends GameController {
             if (this.turnColor === this.mycolor) {
                 if (latestPly) {
                     this.chessground.set({
-                        fen: this.fullfen,
+                        fen: (this.fog) ? this.fogFen(this.fullfen) : this.fullfen,
                         turnColor: this.turnColor,
                         movable: {
                             free: false,
                             color: (this.variant.rules.setup && this.status === -2) ? undefined : this.mycolor,
                         },
-                        check: msg.check,
-                        lastMove: lastMove,
+                        check: (this.fog) ? false : msg.check,
+                        lastMove: (this.fog) ? undefined : lastMove,
                     });
 
                     // This have to be exactly here (and before this.performPremove as well!!!),
@@ -924,10 +924,10 @@ export class RoundController extends GameController {
             } else {
                 this.chessground.set({
                     // giving fen here will place castling rooks to their destination in chess960 variants
-                    fen: parts[0],
+                    fen: (this.fog) ? this.fogFen(this.fullfen) : parts[0],
                     turnColor: this.turnColor,
-                    check: msg.check,
-                    lastMove: lastMove,
+                    check: (this.fog) ? false : msg.check,
+                    lastMove: (this.fog) ? undefined : lastMove,
                 });
 
                 // This have to be here, because in case of takeback 

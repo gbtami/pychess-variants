@@ -4,7 +4,7 @@ import { Chessground } from 'chessgroundx';
 import * as cg from "chessgroundx/types";
 
 import { _, ngettext, pgettext, languageSettings } from './i18n';
-import { uci2LastMove } from './chess';
+import { DARK_FEN, uci2LastMove } from './chess';
 import { VARIANTS } from './variants';
 import { patch } from './document';
 import { renderTimeago } from './datetime';
@@ -76,7 +76,21 @@ function renderGames(model: PyChessModel, games: Game[]) {
         const chess960 = game.z === 1;
         const tc = timeControlStr(game["b"], game["i"], game["bp"], game["c"] === true ? game["b"] : 0);
         const isBug = variant === VARIANTS['bughouse'];
-        const fen = (variant.name === 'alice') ? getUnionFenFromFullFen(game['f'], 0) : game['f'];
+        let fen, lastMove;
+        switch (variant.name) {
+            case 'alice':
+                fen = fen = getUnionFenFromFullFen(game['f'], 0);
+                lastMove = uci2LastMove(game.lm);
+                break
+            case 'fogofwar':
+                // Prevent leaking ongoing game info
+                fen = (game["r"] === "*") ? DARK_FEN : game['f'];
+                lastMove = undefined;
+                break
+            default:
+                fen = game['f'];
+                lastMove = uci2LastMove(game.lm);
+        }
         return h('tr', [h('a', { attrs: { href : '/' + game["_id"] } }, [
             h('td.board', { class: { "with-pockets": !!variant.pocket, "bug": isBug} },
                isBug? renderGameBoardsBug(game, model["profileid"]): [
@@ -87,7 +101,7 @@ function renderGames(model: PyChessModel, games: Game[]) {
                                 coordinates: false,
                                 viewOnly: true,
                                 fen: fen,
-                                lastMove: uci2LastMove(game.lm),
+                                lastMove: lastMove,
                                 dimensions: variant.board.dimensions,
                                 pocketRoles: variant.pocket?.roles,
                             })

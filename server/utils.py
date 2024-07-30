@@ -56,7 +56,8 @@ async def tv_game(app_state: PychessGlobalAppState):
     if app_state.tv is not None:
         return app_state.tv
     game_id = None
-    doc = await app_state.db.game.find_one({}, sort=[("$natural", -1)])
+    # No Fog of War games to TV
+    doc = await app_state.db.game.find_one({"v": {"$ne": "Q"}}, sort=[("$natural", -1)])
     if doc is not None:
         game_id = doc["_id"]
         app_state.tv = game_id
@@ -502,7 +503,8 @@ async def insert_game_to_db(game, app_state: PychessGlobalAppState):
     if result.inserted_id != game.id:
         log.error("db insert game result %s failed !!!", game.id)
 
-    if not game.corr:
+    # No corr and Fog of War games to TV
+    if (not game.corr) and (game.variant != "fogofwar"):
         app_state.tv = game.id
         await app_state.lobby.lobby_broadcast(game.tv_game_json)
         game.wplayer.tv = game.id
@@ -718,6 +720,9 @@ def sanitize_fen(variant, initial_fen, chess960):
         return True, initial_fen
 
     if variant == "alice" and initial_fen == LOOKING_GLASS_ALICE_FEN:
+        return True, initial_fen
+
+    if variant == "fogofwar" and initial_fen == STANDARD_FEN:
         return True, initial_fen
 
     sf_validate = sf.validate_fen(initial_fen, variant, chess960)

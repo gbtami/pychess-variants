@@ -365,7 +365,7 @@ def get_games(request):
                 "level": game.level,
             }
             for game in games
-            if game.status == STARTED and not game.corr
+            if game.status == STARTED and (not game.corr) and (game.variant != "fogofwar")
         ][-20:]
     )
 
