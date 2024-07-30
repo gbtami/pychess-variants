@@ -225,7 +225,7 @@ export abstract class GameController extends ChessgroundController implements Ch
         const legalMoves = this.ffishBoard.legalMoves().split(" ");
 
         const pieces = fen.read(currentFen, this.variant.board.dimensions).pieces;
-        const myPieceKeys = Array.from(pieces.keys()).filter((key) => pieces.get(key).color === this.mycolor);
+        const myPieceKeys = Array.from(pieces.keys()).filter((key) => pieces.get(key)!.color === this.mycolor);
         const visibleKeys = new Set(myPieceKeys);
 
         // Add dest squares to visibleKeys
@@ -236,13 +236,13 @@ export abstract class GameController extends ChessgroundController implements Ch
         // We use promoted block pieces as fog to let them style differently in extension.css
         const fog = {
             color: this.oppcolor,
-            role: '_-piece',
+            role: '_-piece' as cg.Role,
             promoted: true
         }
         const darks: cg.Key[] = util.allKeys(this.variant.board.dimensions).filter((key) => !(visibleKeys.has(key)));
-        const darkPieces = darks.map((key) => [key, fog]);
-        const visiblePieces = Array.from(visibleKeys).filter((key) => pieces.get(key)).map((key) => [key, pieces.get(key)]);
-        const newPieces = new Map([...darkPieces, ...visiblePieces]);
+        const darkPieces: [cg.Key, cg.Piece][]  = darks.map((key) => [key, fog]);
+        const visiblePieces: [cg.Key, cg.Piece][] = Array.from(visibleKeys).filter((key) => pieces.get(key)).map((key) => [key, pieces.get(key)!]);
+        const newPieces: cg.Pieces = new Map(darkPieces.concat(visiblePieces));
         return fen.writeBoard(newPieces, this.variant.board.dimensions);
     }
 
