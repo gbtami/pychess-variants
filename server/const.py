@@ -174,9 +174,11 @@ VARIANTS = (
     "ataxx",
 )
 
-# Remove bughouse from variants on prod site until it stabilizes
+# Remove new variants on prod site until they stabilize
 if PROD:
-    VARIANTS = tuple(e for e in VARIANTS if not e.startswith("bughouse"))
+    VARIANTS = tuple(
+        e for e in VARIANTS if e not in ("alice", "bughouse", "bughouse960", "fogofwar")
+    )
 
 VARIANT_ICONS = {
     "ataxx": "☣",

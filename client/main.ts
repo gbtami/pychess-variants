@@ -38,10 +38,13 @@ function initModel(el: HTMLElement) {
     // because python http.cookies.SimpleCookie() adds it when name contains dash "–"
     const user = getCookie("user").replace(/(^"|"$)/g, '');
 
-    // Remove bughouse from variants on prod site until it stabilizes
+    // Remove new variants from variants on prod site until they stabilize
     if (el.getAttribute("data-dev") !== "True") {
-        const idx = variantGroups.standard.variants.indexOf('bughouse');
-        variantGroups.standard.variants.splice(idx, 1);
+        const notReady = ['alice', 'bughouse', 'fogofwar'];
+        notReady.forEach((v) => {
+            const idx = variantGroups.standard.variants.indexOf(v);
+            variantGroups.standard.variants.splice(idx, 1);
+        });
     }
 
     let ct = el.getAttribute("data-ct") ?? "";
