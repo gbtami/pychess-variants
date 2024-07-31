@@ -98,7 +98,7 @@ export function updateMovelist (ctrl: GameController, full = true, activate = tr
     }
 
     for (let ply = plyFrom; ply < plyTo; ply++) {
-        const move = (ctrl.fog && ctrl.status < 0 && ctrl.steps[ply].turnColor === ctrl.mycolor) ? '?' : ctrl.steps[ply].san;
+        const move = (ctrl.fog && ctrl.status < 0 && (ctrl.steps[ply].turnColor === ctrl.mycolor || ctrl.spectator)) ? '?' : ctrl.steps[ply].san;
         if (move === null) continue;
 
         const whiteMove = ctrl.steps[ply].turnColor === 'black';
