@@ -8,7 +8,5 @@ Alice chess is a chess variant invented in 1953 by V. R. Parton which employs tw
 ## Rules
 
 - A move must be legal on the board where it is played.
-
 - A piece can only move or capture if the corresponding destination square on the other board is vacant.
-
 - After moving, the piece is transfered to the corresponding square on the other board.
