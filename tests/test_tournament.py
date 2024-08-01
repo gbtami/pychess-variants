@@ -36,6 +36,7 @@ from user import User
 from utils import play_move
 
 import logging
+
 log = logging.getLogger(__name__)
 
 # from misc import timeit
@@ -213,9 +214,7 @@ class TournamentTestCase(AioHTTPTestCase):
         app_state = get_app_state(self.app)
         # app_state.db = None
         tid = id8()
-        self.tournament = ArenaTestTournament(
-            app_state, tid, before_start=0, minutes=2.0 / 60.0
-        )
+        self.tournament = ArenaTestTournament(app_state, tid, before_start=0, minutes=2.0 / 60.0)
         app_state.tournaments[tid] = self.tournament
 
         self.assertEqual(self.tournament.status, T_CREATED)

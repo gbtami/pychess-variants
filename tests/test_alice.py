@@ -3,7 +3,7 @@
 import unittest
 
 import pyffish as sf
-from chess import A1, C1, D1, E1, KING, ROOK
+from chess import A1, C1, D1, E1, F1, F8, KING, ROOK
 
 from alice import AliceBoard, START_FEN_0, START_FEN_1
 
@@ -63,6 +63,26 @@ GAME_PART2 = (
     "d7g7",
     "d2c3",
     "d1d8",
+)
+
+GHOST_ROOKS_PART1 = (
+    "e2e4",
+    "e7e5",
+    "b1c3",
+    "g8f6",
+    "c3d5",
+    "f6e4",
+    "d5c7",
+    "f8d6",
+    "f1d3",
+    "d6c7",
+)
+GHOST_ROOKS_PART2 = (
+    "f2f3",
+    "e4d6",
+    "g1e2",
+    "d8e7",
+    "e2d4",
 )
 
 
@@ -131,6 +151,26 @@ class AliceTestCase(unittest.TestCase):
             board.pop()
         self.assertEqual(board.fens[0], START_FEN_0)
         self.assertEqual(board.fens[1], START_FEN_1)
+
+    def test_game_without_castling(self):
+        board = AliceBoard()
+        for move in GHOST_ROOKS_PART1:
+            board.get_san(move)
+            board.legal_moves()
+            board.push(move)
+
+        # After 5...Bxc7
+        self.assertIsNone(board.boards[0].piece_at(F8))
+        self.assertIsNone(board.boards[1].piece_at(F8))
+
+        for move in GHOST_ROOKS_PART2:
+            board.get_san(move)
+            board.legal_moves()
+            board.push(move)
+
+        # After 8. Nd4
+        self.assertIsNone(board.boards[0].piece_at(F1))
+        self.assertIsNone(board.boards[1].piece_at(F1))
 
 
 if __name__ == "__main__":

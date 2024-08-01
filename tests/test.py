@@ -270,7 +270,7 @@ class GamePlayTestCase(AioHTTPTestCase):
 
                 pgn = game.pgn
                 self.assertIn(game.result, ("1-0", "0-1", "1/2-1/2"))
-                pgn_result = pgn[pgn.rfind(" ") + 1: -1]
+                pgn_result = pgn[pgn.rfind(" ") + 1 : -1]
                 self.assertEqual(game.result, pgn_result)
 
             # await app_state.db.game.delete_one({"_id": game_id})

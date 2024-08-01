@@ -27,6 +27,7 @@ class AliceBoard:
     def __init__(self, initial_fen=""):
         self.initial_fen = initial_fen if initial_fen else AliceBoard.start_fen()
         self.move_stack: list[str] = []
+        self.castling_move_stack: list[bool] = []
         self.board_id_stack: list[str] = []
         self.ply = 0
         self.fens = self.initial_fen.split(" | ")
@@ -44,7 +45,7 @@ class AliceBoard:
         return "%s | %s" % (self.fens[0], self.fens[1])
 
     def play_move(self, board_id, move):
-        castling = self.boards[board_id].is_castling(move)
+        castling_move = self.boards[board_id].is_castling(move)
 
         self.boards[board_id].push(move)
 
@@ -55,7 +56,7 @@ class AliceBoard:
         super(Board, self.boards[1 - board_id]).set_piece_at(move.to_square, piece)
 
         # Remove the castled rook and put it to the another board
-        if castling:
+        if castling_move:
             a_side = 0 if square_file(move.to_square) < square_file(move.from_square) else 1
             rook_to_square = CASTLED_ROOK_SQUARE[a_side][self.color]
             rook = super(Board, self.boards[board_id]).remove_piece_at(rook_to_square)
@@ -68,9 +69,11 @@ class AliceBoard:
         self.fens[board_id] = self.boards[board_id].fen()
         self.fens[1 - board_id] = self.boards[1 - board_id].fen()
 
-    def undo_move(self, board_id, move):
+        return castling_move
+
+    def undo_move(self, board_id, move, castling_move):
         # Remove the castled rook and put it to the original board
-        if self.boards[board_id].is_castling(move):
+        if castling_move:
             a_side = 0 if square_file(move.to_square) < square_file(move.from_square) else 1
             rook_to_square = CASTLED_ROOK_SQUARE[a_side][self.color]
             rook = super(Board, self.boards[1 - board_id]).remove_piece_at(rook_to_square)
@@ -92,11 +95,12 @@ class AliceBoard:
         # print("push()", board_id, uci)
         self.board_id_stack.append(board_id)
 
-        self.play_move(board_id, move)
+        castling_move = self.play_move(board_id, move)
 
         # self.print_pos()
         if append:
             self.move_stack.append(uci)
+            self.castling_move_stack.append(castling_move)
             self.ply += 1
         self.color = 1 - self.color
         self.fen = self.alice_fen
@@ -106,9 +110,10 @@ class AliceBoard:
         move = Move.from_uci(uci)
 
         board_id = self.board_id_stack.pop()
+        castling_move = self.castling_move_stack.pop()
         # print("pop()", board, uci)
 
-        self.undo_move(board_id, move)
+        self.undo_move(board_id, move, castling_move)
 
         self.ply -= 1
         self.color = 1 - self.color
@@ -147,16 +152,12 @@ class AliceBoard:
     def legal_alice_moves(self, board_id, uci_moves):
         legals = []
         for uci in uci_moves:
-            castling_rights_before = self.boards[board_id].castling_rights
-
             move = Move.from_uci(uci)
-            self.play_move(board_id, move)
-
-            castling_move = castling_rights_before != self.boards[board_id].castling_rights
+            castling_move = self.play_move(board_id, move)
 
             ok = not self.is_invalid_by_checked()
 
-            self.undo_move(board_id, move)
+            self.undo_move(board_id, move, castling_move)
 
             # We have to check that rook_to_square was vacant as well
             if castling_move:

@@ -101,7 +101,13 @@ class RamatchChess960GameTestCase(AioHTTPTestCase):
 
     async def test_ramatch(self):
         game_odd = Game(
-            get_app_state(self.app), "12345678", "chess", "", self.Aplayer, self.Bplayer, chess960=True
+            get_app_state(self.app),
+            "12345678",
+            "chess",
+            "",
+            self.Aplayer,
+            self.Bplayer,
+            chess960=True,
         )
         print()
 
