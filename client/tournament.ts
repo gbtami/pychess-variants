@@ -7,8 +7,8 @@ import { JSONObject, PyChessModel } from './types';
 import { _ } from './i18n';
 import { patch } from './document';
 import { chatMessage, chatView, ChatController } from './chat';
-import { colorIcon, uci2LastMove } from './chess';
-import { VARIANTS, Variant } from './variants';
+import { colorIcon } from './chess';
+import { getLastMoveFen, VARIANTS, Variant } from './variants';
 import { timeControlStr } from "./view";
 import { initializeClock, localeOptions } from './tournamentClock';
 import { gameType } from './result';
@@ -386,9 +386,11 @@ export class TournamentController implements ChatController {
                 h(`div.cg-wrap.${variant.board.cg}.mini`, {
                     hook: {
                         insert: vnode => {
+                            let lastMove, fen;
+                            [lastMove, fen] = getLastMoveFen(this.variant.name, game.lastMove, game.fen, '*')
                             const cg = Chessground(vnode.elm as HTMLElement,  {
-                                fen: game.fen,
-                                lastMove: game.lastMove,
+                                fen: fen,
+                                lastMove: lastMove,
                                 dimensions: variant.board.dimensions,
                                 coordinates: false,
                                 viewOnly: true,
@@ -610,12 +612,14 @@ export class TournamentController implements ChatController {
         if (this.topGameChessground === undefined || this.topGameId !== msg.gameId) {
             return;
         };
+        let lastMove, fen;
+        [lastMove, fen] = getLastMoveFen(this.variant.name, msg.lastMove, msg.fen, msg.result)
 
         this.topGameChessground.set({
-            fen: msg.fen,
+            fen: fen,
             turnColor: msg.fen.split(" ")[1] === "w" ? "white" : "black",
             check: msg.check,
-            lastMove: uci2LastMove(msg.lastMove),
+            lastMove: lastMove,
         });
     }
 

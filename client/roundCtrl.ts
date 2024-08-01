@@ -876,7 +876,7 @@ export class RoundController extends GameController {
                 this.chessground.set({
                     fen: (this.fog) ? DARK_FEN : this.fullfen,
                     turnColor: this.turnColor,
-                    check: (this.fog) ? false : msg.check,
+                    check: msg.check,
                     lastMove: (this.fog) ? undefined : lastMove,
                     movable: { color: undefined },
                 });
@@ -898,7 +898,7 @@ export class RoundController extends GameController {
                             free: false,
                             color: (this.variant.rules.setup && this.status === -2) ? undefined : this.mycolor,
                         },
-                        check: (this.fog) ? false : msg.check,
+                        check: msg.check,
                         lastMove: (this.fog) ? undefined : lastMove,
                     });
 
@@ -926,7 +926,7 @@ export class RoundController extends GameController {
                     // giving fen here will place castling rooks to their destination in chess960 variants
                     fen: (this.fog) ? this.fogFen(this.fullfen) : parts[0],
                     turnColor: this.turnColor,
-                    check: (this.fog) ? false : msg.check,
+                    check: msg.check,
                     lastMove: (this.fog) ? undefined : lastMove,
                 });
 

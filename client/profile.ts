@@ -4,8 +4,7 @@ import { Chessground } from 'chessgroundx';
 import * as cg from "chessgroundx/types";
 
 import { _, ngettext, pgettext, languageSettings } from './i18n';
-import { DARK_FEN, uci2LastMove } from './chess';
-import { VARIANTS } from './variants';
+import { getLastMoveFen, VARIANTS } from './variants';
 import { patch } from './document';
 import { renderTimeago } from './datetime';
 import { boardSettings } from './boardSettings';
@@ -14,7 +13,6 @@ import { PyChessModel } from "./types";
 import { Ceval } from "./messages";
 import { aiLevel, gameType, result, renderRdiff } from './result';
 import { renderBugTeamInfo, renderGameBoardsBug } from "@/bug/profile.bug";
-import { getUnionFenFromFullFen } from './alice'; 
 
 export interface Game {
     _id: string; // mongodb document id
@@ -76,21 +74,8 @@ function renderGames(model: PyChessModel, games: Game[]) {
         const chess960 = game.z === 1;
         const tc = timeControlStr(game["b"], game["i"], game["bp"], game["c"] === true ? game["b"] : 0);
         const isBug = variant === VARIANTS['bughouse'];
-        let fen, lastMove;
-        switch (variant.name) {
-            case 'alice':
-                fen = fen = getUnionFenFromFullFen(game['f'], 0);
-                lastMove = uci2LastMove(game.lm);
-                break
-            case 'fogofwar':
-                // Prevent leaking ongoing game info
-                fen = (game["r"] === "*") ? DARK_FEN : game['f'];
-                lastMove = undefined;
-                break
-            default:
-                fen = game['f'];
-                lastMove = uci2LastMove(game.lm);
-        }
+        let lastMove, fen;
+        [lastMove, fen] = getLastMoveFen(variant.name, game.lm, game.f, game.r)
         return h('tr', [h('a', { attrs: { href : '/' + game["_id"] } }, [
             h('td.board', { class: { "with-pockets": !!variant.pocket, "bug": isBug} },
                isBug? renderGameBoardsBug(game, model["profileid"]): [
