@@ -88,6 +88,7 @@ export function renderGames(model: PyChessModel): VNode[] {
                 evtSource.onmessage = function(event) {
                     const message = JSON.parse(event.data);
                     const cg = games[message.gameId];
+                    if (cg === undefined) return;
                     cg.set({
                         fen: message.fen,
                         lastMove: uci2LastMove(message.lastMove),
