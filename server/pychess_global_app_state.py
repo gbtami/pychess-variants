@@ -242,8 +242,8 @@ class PychessGlobalAppState:
                         color=doc["color"],
                         day=doc["day"],
                         rated=doc["rated"],
-                        rrmin=doc["rrmin"],
-                        rrmax=doc["rrmax"],
+                        rrmin=doc.get("rrmin"),
+                        rrmax=doc.get("rrmax"),
                         chess960=doc["chess960"],
                         player1=user,
                         expire_at=doc.get("expireAt"),
@@ -280,6 +280,9 @@ class PychessGlobalAppState:
                                 game.gameClocks.restart("b")
                     except NotInDbUsers:
                         log.error("Failed toload game %s", doc["_id"])
+
+                    if game.board.ply > 0:
+                        self.g_cnt[0] += 1
 
             if "video" not in db_collections:
                 if DEV:

@@ -40,8 +40,6 @@ class Seek:
         self.color = color
         self.fen = "" if fen is None else fen
         self.rated = rated
-        self.rrmin = rrmin
-        self.rrmax = rrmax
         self.rating = creator.get_rating(variant, chess960).rating_prov[0]
         self.rrmin = self.rating + (rrmin if rrmin is not None else 0)
         self.rrmax = self.rating + (rrmax if rrmax is not None else 3000)

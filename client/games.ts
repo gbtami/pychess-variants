@@ -4,13 +4,12 @@ import { Api } from "chessgroundx/api";
 import * as cg from "chessgroundx/types";
 import { Chessground } from 'chessgroundx';
 
-import { uci2LastMove } from './chess';
 import { boardSettings } from './boardSettings';
 import { patch } from './document';
 import { timeControlStr } from './view';
 import { PyChessModel } from "./types";
 import { aiLevel } from './result';
-import { VARIANTS } from './variants';
+import { getLastMoveFen, VARIANTS } from './variants';
 
 export interface Game {
     gameId: string;
@@ -26,10 +25,13 @@ export interface Game {
     level: number;
     fen: cg.FEN;
     lastMove: string;
+    day: number;
 }
 
 function gameView(games: {[gameId: string]: Api}, game: Game) {
     const variant = VARIANTS[game.variant];
+    let lastMove, fen;
+    [lastMove, fen] = getLastMoveFen(variant.name, game.lastMove, game.fen, '*')
     return h(`minigame#${game.gameId}.${variant.boardFamily}.${variant.pieceFamily}`, {
         class: {
             "with-pockets": !!variant.pocket,
@@ -40,7 +42,7 @@ function gameView(games: {[gameId: string]: Api}, game: Game) {
         h('div.row', [
             h('div.variant-info', [
                 h('div.icon', { props: { title: variant.displayName(game.chess960) }, attrs: { "data-icon": variant.icon(game.chess960) } }),
-                h('div.tc', timeControlStr(game.base, game.inc, game.byoyomi)),
+                h('div.tc', timeControlStr(game.base, game.inc, game.byoyomi, game.day)),
             ]),
             h('div.name', [
                 h('player-title', " " + game.bTitle + " "),
@@ -51,8 +53,8 @@ function gameView(games: {[gameId: string]: Api}, game: Game) {
             hook: {
                 insert: vnode => {
                     const cg = Chessground(vnode.elm as HTMLElement, {
-                        fen: game.fen,
-                        lastMove: uci2LastMove(game.lastMove),
+                        fen: fen,
+                        lastMove: lastMove,
                         dimensions: variant.board.dimensions,
                         coordinates: false,
                         viewOnly: true,
@@ -89,9 +91,11 @@ export function renderGames(model: PyChessModel): VNode[] {
                     const message = JSON.parse(event.data);
                     const cg = games[message.gameId];
                     if (cg === undefined) return;
+                    let lastMove, fen;
+                    [lastMove, fen] = getLastMoveFen(variant.name, message.lastMove, message.fen, '*')
                     cg.set({
-                        fen: message.fen,
-                        lastMove: uci2LastMove(message.lastMove),
+                        fen: fen,
+                        lastMove: lastMove,
                     });
                 }
             }
