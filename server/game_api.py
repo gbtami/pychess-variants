@@ -366,7 +366,7 @@ def get_games(request):
                 "day": game.base if game.corr else 0,
             }
             for game in games
-#            if game.status == STARTED and (not game.corr) and (game.variant != "fogofwar")
+            #            if game.status == STARTED and (not game.corr) and (game.variant != "fogofwar")
             if game.status == STARTED
         ][-20:]
     )
