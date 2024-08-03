@@ -28,11 +28,14 @@ export interface Game {
     day: number;
 }
 
-function gameView(games: {[gameId: string]: Api}, game: Game) {
+type GameData = [Api, string];
+type Games = Map<string, GameData>;
+
+function gameView(games: Games, game: Game) {
     const variant = VARIANTS[game.variant];
     let lastMove, fen;
     [lastMove, fen] = getLastMoveFen(variant.name, game.lastMove, game.fen, '*')
-    return h(`minigame#${game.gameId}.${variant.boardFamily}.${variant.pieceFamily}`, {
+    return h(`minigame#${game.gameId}.${variant.boardFamily}.${variant.pieceFamily}.${variant.ui.boardMark}`, {
         class: {
             "with-pockets": !!variant.pocket,
             "smaller-text": game.bTitle == "BOT",
@@ -60,7 +63,7 @@ function gameView(games: {[gameId: string]: Api}, game: Game) {
                         viewOnly: true,
                         pocketRoles: variant.pocket?.roles,
                     });
-                    games[game.gameId] = cg;
+                    games.set(game.gameId, [cg, game.variant]);
                 }
             }
         }),
@@ -82,17 +85,19 @@ export function renderGames(model: PyChessModel): VNode[] {
         if (this.readyState === 4 && this.status === 200) {
             const response = JSON.parse(this.responseText);
             const oldVNode = document.getElementById('games');
-            const games: {[gameId: string]: Api} = {};
+            const games: Games = new Map;
             if (oldVNode instanceof Element) {
                 patch(oldVNode as HTMLElement, h('grid-container#games', response.map((game: Game) => gameView(games, game))));
 
                 const evtSource = new EventSource("/api/ongoing");
                 evtSource.onmessage = function(event) {
                     const message = JSON.parse(event.data);
-                    const cg = games[message.gameId];
-                    if (cg === undefined) return;
+                    const gameData = games.get(message.gameId);
+                    if (gameData === undefined) return;
+                    let cg, variantName;
+                    [cg, variantName] = gameData;
                     let lastMove, fen;
-                    [lastMove, fen] = getLastMoveFen(variant.name, message.lastMove, message.fen, '*')
+                    [lastMove, fen] = getLastMoveFen(variantName, message.lastMove, message.fen, '*')
                     cg.set({
                         fen: fen,
                         lastMove: lastMove,
