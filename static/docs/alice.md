@@ -1,4 +1,4 @@
-# ![Alice](https://github.com/gbtami/pychess-variants/blob/master/static/icons/alice.svg) Alice Chess
+# 🪞 Alice Chess
 
 ![Alice](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Aliceroom3.jpg)
 Alice steps through the looking-glass; illustration by Sir John Tenniel.
