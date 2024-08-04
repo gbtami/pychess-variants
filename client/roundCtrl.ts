@@ -128,7 +128,7 @@ export class RoundController extends GameController {
         this.berserkable = !this.spectator && this.tournamentGame && this.base > 0 && !this.berserked[berserkId];
 
         this.chessground.set({
-            orientation: this.mycolor,
+            orientation: this.variant.name === 'racingkings' ? 'white' : this.mycolor,
             turnColor: this.turnColor,
             autoCastle: this.variant.name !== 'cambodian', // TODO make more generic
         });

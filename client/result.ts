@@ -104,6 +104,9 @@ export function result(variant: Variant, status: number, result: string, bughous
                 case 'chak':
                     text = _('Altar mate');
                     break;
+                case 'racingkings':
+                    text = _('King crossed');
+                    break;
                 case 'atomic':
                     text = _('Explosion of king');
                     break;

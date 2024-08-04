@@ -105,6 +105,9 @@ export function validFen(variant: Variant, fen: string): boolean {
 
     if (variantName === "duck" && lc(placement, "*", false) > 1) return false;
 
+    // RK currently not implemented due to not being able to check for checks
+    if (variantName === "racingkings") return false;
+
     // Brackets paired
     if (lc(placement, '[', false) !== lc(placement, ']', false)) return false;
 

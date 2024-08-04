@@ -3,6 +3,7 @@ from __future__ import annotations
 # -*- coding: utf-8 -*-
 from ataxx import ATAXX_FENS
 from const import CATEGORIES, MANCHU_R_FEN
+from racingkings import RACINGKINGS_FENS
 
 import logging
 import re
@@ -262,6 +263,8 @@ class FairyBoard:
 
         if variant == "ataxx":
             return random.choice(ATAXX_FENS)
+        elif variant == "racingkings":
+            return random.choice(RACINGKINGS_FENS)
 
         castl = ""
         capa = variant in ("capablanca", "capahouse")
