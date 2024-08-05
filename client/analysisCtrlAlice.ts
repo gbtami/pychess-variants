@@ -5,7 +5,7 @@ import { AnalysisController } from '@/analysisCtrl';
 import { moveDests, CGMove, uci2cg, uci2LastMove, UCIMove } from './chess';
 import { MsgAnalysisBoard } from './analysisType';
 import { MsgBoard } from './messages';
-import { AliceBoard, BoardId, Fens } from './alice'; 
+import { AliceBoard, BoardId, Fens, getUnionFenFromFullFen } from './alice'; 
 import { updateMovelist, selectMove, activatePlyVari } from './movelist';
 import { patch } from './document';
 
@@ -14,15 +14,18 @@ export class AnalysisControllerAlice extends AnalysisController {
     boardId: BoardId;
     unionFens: Fens;
     check: boolean;
+    ffishBoardPly: number;
 
     constructor(el: HTMLElement, model: PyChessModel) {
         super(el, model);
         this.boardId = 0;
+        this.ffishBoardPly = 0;
     }
 
     goPly = (ply: number, plyVari = 0) => {
         //this.boardId = 0;
         super.goPly(ply, plyVari);
+        this.ffishBoardPly = 0;
 
         const aliceBoard = new AliceBoard(this.fullfen, this.ffishBoard);
         this.check = aliceBoard.check;
@@ -45,24 +48,26 @@ export class AnalysisControllerAlice extends AnalysisController {
     doSendMove(move: string) {
         const aliceBoard = new AliceBoard(this.fullfen, this.ffishBoard);
 
-        const san = this.ffishBoard.sanMove(move, this.notationAsObject);
-        const sanSAN = this.ffishBoard.sanMove(move);
+// TODO
+//        const san = this.ffishBoard.sanMove(move, this.notationAsObject);
+//        const sanSAN = this.ffishBoard.sanMove(move);
+        const san = move;
+        const sanSAN = move;
         const vv = this.steps[this.plyVari]?.vari;
 
         // Instead of sending moves to the server we can get new FEN and dests from ffishjs
         //this.ffishBoard.push(move);
         //const fen = this.ffishBoard.fen();
+
         this.fullfen = aliceBoard.getFen(move);
         this.check = aliceBoard.check;
-        const unionFen = aliceBoard.getUnionFen(this.boardId ?? 0);
+        const unionFen = getUnionFenFromFullFen(this.fullfen, this.boardId ?? 0);
 
-        console.log('ITT', move, this.fullfen, unionFen);
         const parts = this.fullfen.split(" ");
         // turnColor have to be actualized before setDests() !!!
         this.turnColor = parts[1] === "w" ? "white" : "black";
 
         this.setDests();
-        console.log('ITT0', move, this.fullfen);
 
         const newPly = this.ply + 1;
 
@@ -76,7 +81,6 @@ export class AnalysisControllerAlice extends AnalysisController {
         }
 
         this.onMsgAnalysisBoard(msg);
-        console.log('ITT1', move, this.fullfen);
 
         const step = {
             'fen': this.fullfen,
@@ -87,7 +91,9 @@ export class AnalysisControllerAlice extends AnalysisController {
             'sanSAN': sanSAN,
             };
 
-        const ffishBoardPly = this.ffishBoard.moveStack().split(' ').length;
+        //const ffishBoardPly = this.ffishBoard.moveStack().split(' ').length;
+        this.ffishBoardPly += 1;
+
         const moveIdx = (this.plyVari === 0) ? this.ply : this.plyInsideVari;
         // New main line move
         if (moveIdx === this.steps.length && this.plyVari === 0) {
@@ -99,7 +105,7 @@ export class AnalysisControllerAlice extends AnalysisController {
         // variation move
         } else {
             // possible new variation move
-            if (ffishBoardPly === 1) {
+            if (this.ffishBoardPly === 1) {
                 if (this.ply < this.steps.length && msg.lastMove === this.steps[this.ply].move) {
                     // existing main line played
                     selectMove(this, this.ply);
@@ -112,7 +118,7 @@ export class AnalysisControllerAlice extends AnalysisController {
                 } else {
                     // variation in the variation: drop old moves
                     if ( vv ) {
-                        this.steps[this.plyVari]['vari'] = vv.slice(0, ffishBoardPly - this.plyVari);
+                        this.steps[this.plyVari]['vari'] = vv.slice(0, this.ffishBoardPly - this.plyVari);
                     }
                 }
             }
@@ -130,7 +136,6 @@ export class AnalysisControllerAlice extends AnalysisController {
                 activatePlyVari(this.plyVari);
             }
         }
-        console.log('ITT2', move, this.fullfen);
 
         const idxInVari = (this.plyVari > 0) && vv ? vv.length - 1 : 0;
         this.updateUCImoves(idxInVari);
@@ -144,8 +149,6 @@ export class AnalysisControllerAlice extends AnalysisController {
                 this.vpgn = patch(this.vpgn, h('div#pgntext', this.getPgn(idxInVari)));
             }
         }
-
-        console.log('OTT', move, this.fullfen);
 
         // TODO: But sending moves to the server will be useful to implement shared live analysis!
         // this.doSend({ type: "analysis_move", gameId: this.gameId, move: move, fen: this.fullfen, ply: this.ply + 1 });
@@ -199,7 +202,6 @@ export class AnalysisControllerAlice extends AnalysisController {
     }
 
     legalMoves(): CGMove[] {
-        console.log('ITT', this.fullfen);
         const aliceBoard = new AliceBoard(this.fullfen, this.ffishBoard);
         return aliceBoard.getLegalAliceMoves().map(uci2cg) as CGMove[];
     }
