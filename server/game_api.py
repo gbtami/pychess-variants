@@ -346,7 +346,9 @@ def get_games(request):
     app_state = get_app_state(request.app)
     games = app_state.games.values()
     variant = request.match_info.get("variant")
-    # TODO: filter last 10 by variant
+    chess960 = variant.endswith("960") if variant else False
+    if chess960:
+        variant = variant[:-3]
     return web.json_response(
         [
             {
@@ -367,8 +369,8 @@ def get_games(request):
                 "day": game.base if game.corr else 0,
             }
             for game in games
-            #            if game.status == STARTED and (not game.corr) and (game.variant != "fogofwar")
-            if game.status == STARTED and (game.variant == variant if variant else True)
+            if game.status == STARTED
+            and ((game.variant == variant and game.chess960 == chess960) if variant else True)
         ][-20:]
     )
 
