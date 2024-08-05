@@ -179,7 +179,7 @@ async def index(request):
         if user.anon:
             return web.HTTPFound("/")
         view = "allplayers"
-    elif request.path == "/games":
+    elif request.path.startswith("/games"):
         view = "games"
     elif request.path == "/patron":
         view = "patron"
@@ -363,6 +363,8 @@ async def index(request):
         template = get_template("blog.html")
     elif view == "variants":
         template = get_template("variants.html")
+    elif view == "games":
+        template = get_template("games.html")
     elif view == "memory":
         template = get_template("memory.html")
     elif view == "videos":
@@ -669,6 +671,10 @@ async def index(request):
             render["variant"] = (
                 "docs/" + ("terminology" if variant is None else variant) + "%s.html" % locale
             )
+
+    elif view == "games":
+        render["icons"] = VARIANT_ICONS
+        render["groups"] = VARIANT_GROUPS
 
     elif view == "videos":
         tag = request.rel_url.query.get("tags")

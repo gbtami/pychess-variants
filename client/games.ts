@@ -77,9 +77,9 @@ function gameView(games: Games, game: Game) {
 export function renderGames(model: PyChessModel): VNode[] {
     boardSettings.assetURL = model.assetURL;
     boardSettings.updateBoardAndPieceStyles();
-
+    const variant = model.variant;
     const xmlhttp = new XMLHttpRequest();
-    const url = "/api/games";
+    const url = '/api/games' + ((variant !== '') ? `/${variant}` : '');
 
     xmlhttp.onreadystatechange = function() {
         if (this.readyState === 4 && this.status === 200) {
@@ -109,8 +109,5 @@ export function renderGames(model: PyChessModel): VNode[] {
     xmlhttp.open("GET", url, true);
     xmlhttp.send();
 
-    return [h('aside.sidebar-first'),
-        h('main.games', [h('grid-container#games')]),
-        h('aside.sidebar-second'),
-    ];
+    return [h('grid-container#games')];
 }
