@@ -4,11 +4,17 @@
 //       and see if there is any duplication or the ones that are here should be split or any other improvement that might be needed or better organization can be found
 import * as cg from "chessgroundx/types";
 
+import { BoardName } from './types';
+
 export type Clocks = [number, number];
 
 export interface Step {
     fen: cg.FEN;
+    fenB?: cg.FEN;
+
     move: string | undefined;
+    moveB?: string | undefined;
+
     check: boolean;
     turnColor: cg.Color;
 
@@ -21,8 +27,18 @@ export interface Step {
     vari?: Step[];
     sanSAN?: string;
 
+    boardName?: BoardName;
+
+    chat?: {
+        message: string,
+        username: string,
+        time: number
+    }[],
+
     clocks?: Clocks,
+    clocksB?: Clocks,
     movetime?: number,
+    movetimeB?: number,
 }
 
 export interface CrossTable {
@@ -56,10 +72,9 @@ export interface MsgBoard {
     fen: string;
     ply: number;
     lastMove: string;
-    dests: { [orig: string]: cg.Key[] };
-    promo: string[];
     bikjang: boolean;
     check: boolean;
+    checkB?: boolean;
     by: string;
     status: number;
     pgn: string;
@@ -69,7 +84,9 @@ export interface MsgBoard {
     berserk: { w: boolean, b: boolean };
 
     byo?: number[];
-    clocks?: Clocks;
+    clocks?: Clocks; // different than last stp clock - includes correction for the color whose turn it is with elapsed time on server since last move
+    clocksB?: Clocks; // different than last stp clock - includes correction for the color whose turn it is with elapsed time on server since last move
+
     takeback?: boolean;
 }
 
@@ -116,6 +133,13 @@ export type MsgMove = { // cannot be interface because cannot be converted to an
      gameId: string;
      move: string;
      clocks: Clocks;
+     clocksB?: Clocks;
      ply: number;
+     board?: BoardName;
 }
 
+export type MsgMovesAfterReconnect = {
+    type: string;//"reconnect"
+    gameId: string;
+    movesQueued: MsgMove[]; // in case of simul we might have 2 moves queued
+}

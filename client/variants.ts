@@ -3,9 +3,10 @@ import { h, InsertHook, VNode } from 'snabbdom';
 import * as cg from 'chessgroundx/types';
 import * as util from 'chessgroundx/util';
 
-import { BoardMarkType, ColorName, CountingType, MaterialPointType, PieceSoundType, PromotionSuffix, PromotionType, TimeControlType } from './chess';
+import { DARK_FEN, BoardMarkType, ColorName, CountingType, MaterialPointType, PieceSoundType, PromotionSuffix, PromotionType, TimeControlType, uci2LastMove } from './chess';
 import { _ } from './i18n';
 import { calculateDiff, Equivalence, MaterialDiff } from './material';
+import { getUnionFenFromFullFen } from './alice'; 
 
 export interface BoardFamily {
     readonly dimensions: cg.BoardDimensions;
@@ -41,7 +42,7 @@ export const BOARD_FAMILIES: Record<string, BoardFamily> = {
 
 export const PIECE_FAMILIES: Record<string, PieceFamily> = {
     ataxx: { pieceCSS: ["disguised", "virus", "zombie", "cat-dog"] },
-    standard: { pieceCSS: ["standard", "green", "alpha", "chess_kaneo", "santa", "maestro", "dubrovny", "disguised", "atopdown"] },
+    standard: { pieceCSS: ["standard", "green", "alpha", "chess_kaneo", "santa", "maestro", "dubrovny", "atopdown", "disguised"] },
     capa: { pieceCSS: ["capa0", "capa1", "capa2", "capa3", "capa4", "capa5", "disguised"] },
     dragon: { pieceCSS: ["dragon1", "dragon0", "dragon2", "disguised"] },
     seirawan: { pieceCSS: ["seir1", "seir0", "seir2", "seir3", "seir4", "seir5", "disguised"] },
@@ -58,7 +59,7 @@ export const PIECE_FAMILIES: Record<string, PieceFamily> = {
     shako: { pieceCSS: ["shako0", "shako1", "shako2", "disguised"] },
     shogun: { pieceCSS: ["shogun0", "shogun1", "shogun2", "shogun3", "shogun4", "shogun5", "disguised"] },
     orda: { pieceCSS: ["orda0", "orda1", "disguised"] },
-    khans: { pieceCSS: ["khans0", "disguised"] },
+    khans: { pieceCSS: ["khans0", "khans1", "disguised"] },
     synochess: { pieceCSS: ["synochess0", "synochess1", "synochess2", "synochess3", "synochess4", "synochess5", "disguised"] },
     hoppel: { pieceCSS: ["hoppel0", "hoppel1", "hoppel2", "disguised"] },
     shinobi: { pieceCSS: ["shinobi0", "shinobi1", "disguised"] },
@@ -125,6 +126,7 @@ export interface Variant {
         readonly showPromoted: boolean;
         readonly pieceSound: PieceSoundType;
         readonly boardMark: BoardMarkType | '';
+        readonly showCheckCounters: boolean;
     };
     readonly alternateStart?: Record<string, string>;
 }
@@ -192,6 +194,7 @@ function variant(config: VariantConfig): Variant {
             showPromoted: config.ui?.showPromoted ?? false,
             pieceSound: config.ui?.pieceSound ?? 'regular',
             boardMark: config.ui?.boardMark ?? '',
+            showCheckCounters: config.ui?.showCheckCounters ?? false,
         },
         alternateStart: config.alternateStart,
     };
@@ -289,6 +292,8 @@ interface VariantConfig {
         pieceSound?: PieceSoundType;
         // Board marking for special squares (default: '')
         boardMark?: BoardMarkType;
+        // Render the remaining check numbers on King pieces
+        showCheckCounters?: boolean;
     };
     // Alternate starting positions, including handicaps
     alternateStart?: Record<string, string>;
@@ -346,7 +351,27 @@ export const VARIANTS: Record<string, Variant> = {
             'No castle': 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w - - 0 1'
         },
     }),
-
+    bughouse: variant({
+        name: "bughouse", tooltip: "bughousebughousebughousebughouse.", displayName: "bughouse ᴮᴱᵀᴬ",
+        startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[] w KQkq - 0 1",
+        chess960: true, icon: "¢", icon960: "⌀",
+        boardFamily: "standard8x8", pieceFamily: "standard",
+        pieceRow: ["k", "q", "r", "b", "n", "p"],
+        pocket: {
+            roles: ["p", "n", "b", "r", "q"],
+            captureToHand: true,
+        },
+        rules: { enPassant: true },
+        alternateStart: {
+            '': '',
+            'PawnsPushed': "rnbqkbnr/8/8/pppppppp/PPPPPPPP/8/8/RNBQKBNR w - - 0 1",
+            'PawnsPassed': "rnbqkbnr/8/8/PPPPPPPP/pppppppp/8/8/RNBQKBNR w - - 0 1",
+            'UpsideDown': "RNBQKBNR/PPPPPPPP/8/8/8/8/pppppppp/rnbqkbnr w - - 0 1",
+            'Theban': "1p6/2p3kn/3p2pp/4pppp/5ppp/8/PPPPPPPP/PPPPPPKN w - - 0 1",
+            'No castle': 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w - - 0 1'
+        },
+        ui: { showPromoted: true },
+    }),
     crazyhouse: variant({
         name: "crazyhouse", tooltip: "Take captured pieces and drop them back on to the board as your own.",
         startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[] w KQkq - 0 1",
@@ -405,6 +430,7 @@ export const VARIANTS: Record<string, Variant> = {
         boardFamily: "standard8x8", pieceFamily: "standard",
         pieceRow: ["k", "q", "r", "b", "n", "p"],
         rules: { enPassant: true },
+        ui: { showCheckCounters: true },
         alternateStart: {
             '': "",
             '5check': "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 5+5 0 1",
@@ -418,6 +444,30 @@ export const VARIANTS: Record<string, Variant> = {
         boardFamily: "standard8x8", pieceFamily: "standard",
         pieceRow: { white: ["k", "q", "r", "b", "n", "p", "*"], black: ["k", "q", "r", "b", "n", "p"] },
         rules: { enPassant: true, duck: true },
+    }),
+
+    alice: variant({
+        name: "alice", tooltip: "Through the Looking-Glass",
+        startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1 | 8/8/8/8/8/8/8/8 w - - 0 1",
+        icon: "🪞",
+        boardFamily: "standard8x8", pieceFamily: "standard",
+        pieceRow: ["k", "q", "r", "b", "n", "p"],
+        rules: { enPassant: false },
+        alternateStart: {
+            '': "",
+            'Looking glass': "8/8/8/8/8/8/PPPPPPPP/RNBQKBNR w KQ - 0 1 | rnbqkbnr/pppppppp/8/8/8/8/8/8 w kq - 0 1",
+        },
+        // For Alice chess other board pieces we use promoted pieces to let them style differently,
+        ui: { boardMark: 'alice' },
+    }),
+
+    fogofwar: variant({
+        name: "fogofwar", displayName: "fog of war", tooltip: "Players can only see the squares to which their pieces can legally move to.",
+        startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+        icon: "🌫",
+        boardFamily: "standard8x8", pieceFamily: "standard",
+        pieceRow: ["k", "q", "r", "b", "n", "p"],
+        rules: { enPassant: true },
     }),
 
     makruk: variant({
@@ -998,10 +1048,13 @@ export const noPuzzleVariants = [
     "shinobi",
     "shinobiplus",
     "cannonshogi",
+    "bughouse",
+    "alice",
+    "fogofwar",
 ]
 
 export const variantGroups: { [ key: string ]: { variants: string[] } } = {
-    standard: { variants: [ "chess", "crazyhouse", "atomic", "kingofthehill", "3check", "placement", "duck" ] },
+    standard: { variants: [ "chess", "bughouse", "crazyhouse", "atomic", "kingofthehill", "3check", "placement", "duck", "alice", "fogofwar" ] },
     sea:      { variants: [ "makruk", "makpong", "cambodian", "sittuyin", "asean" ] },
     shogi:    { variants: [ "shogi", "minishogi", "kyotoshogi", "dobutsu", "gorogoroplus", "torishogi", "cannonshogi" ] },
     xiangqi:  { variants: [ "xiangqi", "manchu", "janggi", "minixiangqi" ] },
@@ -1054,4 +1107,16 @@ export function moddedVariant(variantName: string, chess960: boolean, pieces: cg
             return variantName.includes("house") ? "embassyhouse" : "embassy";
     }
     return variantName;
+}
+
+export function getLastMoveFen(variantName: string, lastMove: string, fen: string, result: string): [cg.Orig[] | undefined, string] {
+    switch (variantName) {
+        case 'alice':
+            return [uci2LastMove(lastMove), getUnionFenFromFullFen(fen, 0)];
+        case 'fogofwar':
+            // Prevent leaking ongoing game info
+            return [undefined, (result === "*") ? DARK_FEN : fen];
+        default:
+            return [uci2LastMove(lastMove), fen];
+    }
 }

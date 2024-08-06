@@ -39,6 +39,7 @@ from lichess_team_msg import lichess_team_msg
 from misc import time_control_str
 from newid import new_id
 from const import TYPE_CHECKING
+from websocket_utils import ws_send_json
 
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
@@ -748,23 +749,21 @@ class Tournament(ABC):
                 "bplayer": bp.username,
             }
 
-            try:
-                ws = next(iter(wp.tournament_sockets[self.id]))
-                if ws is not None:
-                    await ws.send_json(response)
-            except Exception as e:
-                log.error(e, exc_info=True)
-                self.pause(wp)
-                log.debug("White player %s left the tournament", wp.username)
+            ws = next(iter(wp.tournament_sockets[self.id]))
+            ok = await ws_send_json(ws, response)
+            if not ok:
+                self.pause(
+                    wp
+                )  # todo:this needs to be await-ed, but then it breaks test_tournament_pairing_5_round_SWISS test
+                log.debug("White player %s left the tournament (ws send failed)", wp.username)
 
-            try:
-                ws = next(iter(bp.tournament_sockets[self.id]))
-                if ws is not None:
-                    await ws.send_json(response)
-            except Exception as e:
-                log.error(e, exc_info=True)
-                self.pause(bp)
-                log.debug("Black player %s left the tournament", bp.username)
+            ws = next(iter(bp.tournament_sockets[self.id]))
+            ok = await ws_send_json(ws, response)
+            if not ok:
+                self.pause(
+                    bp
+                )  # todo:this needs to be await-ed, but then it breaks test_tournament_pairing_5_round_SWISS test
+                log.debug("Black player %s left the tournament (ws send failed)", bp.username)
 
             if (
                 check_top_game
@@ -1032,10 +1031,7 @@ class Tournament(ABC):
         for spectator in self.spectators:
             try:
                 for ws in spectator.tournament_sockets[self.id]:
-                    try:
-                        await ws.send_json(response)
-                    except ConnectionResetError as e:
-                        log.error(e, exc_info=True)
+                    await ws_send_json(ws, response)
             except KeyError:
                 log.error("spectator was removed", exc_info=True)
             except Exception:

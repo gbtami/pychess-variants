@@ -113,6 +113,7 @@ export function changePieceCSS(assetUrl: string, family: string, cssFile: string
     }
     let newUrl = `${assetUrl}/piece-css/${family}/${cssFile}.css`;
     if (cssFile === 'letters') newUrl = `${assetUrl}/piece-css/letters.css`;
+    if (cssFile === 'invisible') newUrl = `${assetUrl}/piece-css/invisible.css`;
     // console.log("changePieceCSS", family, cssFile, newUrl)
     changeCSS(cssLinkIndex, newUrl);
 }

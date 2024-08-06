@@ -6,7 +6,7 @@ from typing import Optional, Deque
 
 from const import TYPE_CHECKING, MAX_CHAT_LINES
 from seek import get_seeks
-from utils import MyWebSocketResponse
+from websocket_utils import ws_send_json, MyWebSocketResponse
 
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
@@ -25,12 +25,10 @@ class Lobby:
 
     # below methods maybe best in separate class eventually
     async def lobby_broadcast(self, response):
-        for ws_set in self.lobbysockets.values():
+        log.debug("lobby_broadcast: %r to %r", response, self.lobbysockets)
+        for username, ws_set in self.lobbysockets.items():
             for ws in ws_set:
-                try:
-                    await ws.send_json(response)
-                except ConnectionResetError:
-                    log.debug("Connection reset ", exc_info=True)
+                await ws_send_json(ws, response)
 
     async def lobby_broadcast_u_cnt(self):
         # todo: probably wont scale great if we broadcast these on every user join/leave.
@@ -38,7 +36,20 @@ class Lobby:
         await self.lobby_broadcast(response)
 
     async def lobby_broadcast_seeks(self):
-        await self.lobby_broadcast(get_seeks(self.app_state.seeks))
+        # We will need all the seek users blocked info
+        for seek in self.app_state.seeks.values():
+            await self.app_state.users.get(seek.creator.username)
+
+        for username, ws_set in self.lobbysockets.items():
+            ws_user = await self.app_state.users.get(username)
+            for ws in ws_set:
+                await ws_send_json(
+                    ws,
+                    {
+                        "type": "get_seeks",
+                        "seeks": get_seeks(ws_user, self.app_state.seeks.values()),
+                    },
+                )
 
     async def lobby_chat(self, username: str, message: str, time: Optional[int] = None):
         response = {"type": "lobbychat", "user": username, "message": message}

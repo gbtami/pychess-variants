@@ -28,6 +28,7 @@ from const import (
     TRANSLATED_VARIANT_NAMES,
     TRANSLATED_PAIRING_SYSTEM_NAMES,
 )
+from alice import AliceBoard
 from fairy import FairyBoard
 from glicko2.glicko2 import PROVISIONAL_PHI
 from robots import ROBOTS_TXT
@@ -178,7 +179,7 @@ async def index(request):
         if user.anon:
             return web.HTTPFound("/")
         view = "allplayers"
-    elif request.path == "/games":
+    elif request.path.startswith("/games"):
         view = "games"
     elif request.path == "/patron":
         view = "patron"
@@ -362,6 +363,8 @@ async def index(request):
         template = get_template("blog.html")
     elif view == "variants":
         template = get_template("variants.html")
+    elif view == "games":
+        template = get_template("games.html")
     elif view == "memory":
         template = get_template("memory.html")
     elif view == "videos":
@@ -425,6 +428,9 @@ async def index(request):
             profileId = "Fairy-Stockfish"
             render["trophies"] = []
         else:
+            render["can_block"] = profileId not in user.blocked
+            render["can_challenge"] = user.username not in profileId_user.blocked
+
             render["trophies"] = [
                 (v, "top10")
                 for v in app_state.highscore
@@ -498,6 +504,7 @@ async def index(request):
             render["highscore"] = {
                 variant: dict(app_state.highscore[variant].items()[:10])
                 for variant in app_state.highscore
+                if not variant.startswith("bughouse")
             }
         else:
             hs = app_state.highscore[variant]
@@ -601,6 +608,9 @@ async def index(request):
             render["status"] = game.status
             render["date"] = game.date.isoformat()
             render["title"] = game.browser_title
+            # todo: I think sent ply value shouldn't be minus 1.
+            #       But also it gets overwritten anyway right after that so why send all this stuff at all here.
+            #       just init client on 1st ws board msg received right after ws connection is established
             render["ply"] = ply if ply is not None else game.ply - 1
             render["ct"] = json.dumps(game.crosstable)
             render["board"] = json.dumps(game.get_board(full=True))
@@ -610,6 +620,13 @@ async def index(request):
                 render["tournamentname"] = tournament_name
                 render["wberserk"] = game.wberserk
                 render["bberserk"] = game.bberserk
+            if game.variant == "bughouse":
+                render["wplayerB"] = game.wplayerB.username
+                render["wtitleB"] = game.wplayerB.title
+                render["wratingB"] = game.wrating_b
+                render["bplayerB"] = game.bplayerB.username
+                render["btitleB"] = game.bplayerB.title
+                render["bratingB"] = game.brating_b
             if game.corr and user.username in (game.wplayer.username, game.bplayer.username):
                 c_games = corr_games(user.correspondence_games)
                 render["corr_games"] = json.dumps(c_games, default=datetime.isoformat)
@@ -655,6 +672,10 @@ async def index(request):
                 "docs/" + ("terminology" if variant is None else variant) + "%s.html" % locale
             )
 
+    elif view == "games":
+        render["icons"] = VARIANT_ICONS
+        render["groups"] = VARIANT_GROUPS
+
     elif view == "videos":
         tag = request.rel_url.query.get("tags")
         videos = []
@@ -694,7 +715,10 @@ async def index(request):
 
     elif view == "editor" or (view == "analysis" and gameId is None):
         if fen is None:
-            fen = FairyBoard.start_fen(variant)
+            if variant == "alice":
+                fen = AliceBoard.start_fen()
+            else:
+                fen = FairyBoard.start_fen(variant)
         else:
             fen = fen.replace(".", "+").replace("_", " ")
         render["variant"] = variant

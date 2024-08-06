@@ -1,7 +1,7 @@
 from __future__ import annotations
 from datetime import timedelta
 
-from settings import static_url
+from settings import static_url, PROD
 
 # https://medium.com/quick-code/python-type-hinting-eliminating-importerror-due-to-circular-imports-265dfb0580f8
 TYPE_CHECKING = False
@@ -23,6 +23,9 @@ CORR_SEEK_EXPIRE_WEEKS = timedelta(weeks=2)
 
 # Max number of lobby chat lines (deque limit)
 MAX_CHAT_LINES = 100
+
+BLOCK, FOLLOW = False, True
+MAX_USER_BLOCK = 100
 
 # Minimum number of rated games needed
 HIGHSCORE_MIN_GAMES = 10
@@ -99,10 +102,15 @@ LOSERS = {
 GRANDS = ("xiangqi", "manchu", "grand", "grandhouse", "shako", "janggi")
 
 CONSERVATIVE_CAPA_FEN = "arnbqkbnrc/pppppppppp/10/10/10/10/PPPPPPPPPP/ARNBQKBNRC w KQkq - 0 1"
+LOOKING_GLASS_ALICE_FEN = (
+    "8/8/8/8/8/8/PPPPPPPP/RNBQKBNR w KQ - 0 1 | rnbqkbnr/pppppppp/8/8/8/8/8/8 w kq - 0 1"
+)
 
 VARIANTS = (
     "chess",
     "chess960",
+    "bughouse",
+    "bughouse960",
     "crazyhouse",
     "crazyhouse960",
     "atomic",
@@ -113,6 +121,8 @@ VARIANTS = (
     "3check960",
     "placement",
     "duck",
+    "alice",
+    "fogofwar",
     "makruk",
     "makpong",
     "cambodian",
@@ -163,6 +173,12 @@ VARIANTS = (
     "spartan",
     "ataxx",
 )
+
+# Remove new variants on prod site until they stabilize
+if PROD:
+    VARIANTS = tuple(
+        e for e in VARIANTS if e not in ("alice", "bughouse", "bughouse960", "fogofwar")
+    )
 
 VARIANT_ICONS = {
     "ataxx": "☣",
@@ -223,9 +239,14 @@ VARIANT_ICONS = {
     "kingofthehill960": "🏁",
     "3check": "☰",
     "3check960": "☷",
+    "bughouse": "¢",
+    "bughouse960": "⌀",
+    "alice": "🪞",
+    "fogofwar": "🌫",
 }
 
 VARIANT_960_TO_PGN = {
+    "bughouse": "Bughouse960",
     "chess": "Chess960",
     "capablanca": "Caparandom",
     "capahouse": "Capahouse960",
@@ -246,6 +267,8 @@ CATEGORIES = {
     "chess": (
         "chess",
         "chess960",
+        "bughouse",
+        "bughouse960",
         "crazyhouse",
         "crazyhouse960",
         "placement",
@@ -256,6 +279,8 @@ CATEGORIES = {
         "3check",
         "3check960",
         "duck",
+        "alice",
+        "fogofwar",
     ),
     "fairy": (
         "capablanca",
@@ -342,6 +367,10 @@ def variant_display_name(variant):
         return "THREE-CHECK"
     elif variant == "dragon":
         return "DRAGON CHESS"
+    elif variant == "alice":
+        return "ALICE CHESS"
+    elif variant == "fogofwar":
+        return "FOG OF WAR"
     else:
         return variant.upper()
 
@@ -380,6 +409,8 @@ TRANSLATED_VARIANT_NAMES = {
     "atomic": _("Atomic"),
     "atomic960": _("Atomic960"),
     "duck": _("Duck Chess"),
+    "alice": _("Alice Chess"),
+    "fogofwar": _("Fog of War"),
     "makruk": _("Makruk"),
     "makpong": _("Makpong"),
     "cambodian": _("Ouk Chaktrang"),
@@ -389,6 +420,8 @@ TRANSLATED_VARIANT_NAMES = {
     "minishogi": _("Minishogi"),
     "kyotoshogi": _("Kyoto Shogi"),
     "dobutsu": _("Dobutsu"),
+    "bughouse": _("Bughouse"),
+    "bughouse960": _("Bughouse960"),
     # Gorogoro is superseded by Gorogoro Plus
     # "gorogoro",
     "gorogoroplus": _("Gorogoro+"),

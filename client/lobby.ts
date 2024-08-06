@@ -1,11 +1,10 @@
-import WebsocketHeartbeatJs from 'websocket-heartbeat-js';
+import { WebsocketHeartbeatJs } from './socket/socket';
 
 import { h, VNode } from 'snabbdom';
 
 import { Api } from "chessgroundx/api";
 import { Chessground } from 'chessgroundx';
 
-import { newWebsocket } from './socket';
 import { JSONObject } from './types';
 import { _, ngettext, languageSettings } from './i18n';
 import { patch } from './document';
@@ -19,7 +18,9 @@ import { MsgBoard, MsgChat, MsgFullChat } from "./messages";
 import { variantPanels } from './lobby/layer1';
 import { Post, Stream, Spotlight, MsgInviteCreated, MsgHostCreated, MsgGetSeeks, MsgNewGame, MsgGameInProgress, MsgUserConnected, MsgPing, MsgError, MsgShutdown, MsgGameCounter, MsgUserCounter, MsgStreams, MsgSpotlights, Seek, CreateMode, TvGame, TcMode, MsgLeaderboard } from './lobbyType';
 import { validFen, uci2LastMove } from './chess';
+import { seekViewBughouse, switchEnablingLobbyControls } from "./bug/lobby.bug";
 import { handleOngoingGameEvents, Game, gameViewPlaying, compareGames } from './nowPlaying';
+import { createWebsocket } from "@/socket/webSocketUtils";
 
 export function createModeStr(mode: CreateMode) {
     switch (mode) {
@@ -30,6 +31,14 @@ export function createModeStr(mode: CreateMode) {
     default:
         return '';
     }
+}
+
+export function disableCorr(disable: boolean) {
+    document.querySelectorAll("#tc option").forEach((opt: HTMLInputElement) => {
+        if (opt.value == "corr") {
+            opt.disabled = disable;
+        }
+    });
 }
 
 export class LobbyController implements ChatController {
@@ -44,7 +53,6 @@ export class LobbyController implements ChatController {
     title: string;
     tournamentDirector: boolean;
     fen: string;
-    variant: string;
     createMode: CreateMode;
     tcMode: TcMode;
     validGameData: boolean;
@@ -77,7 +85,6 @@ export class LobbyController implements ChatController {
         this.title = model["title"];
         this.tournamentDirector = model["tournamentDirector"];
         this.fen = model["fen"];
-        this.variant = model["variant"];
         this.profileid = model["profileid"]
         this.createMode = 'createGame';
         this.tcMode = 'real';
@@ -88,9 +95,7 @@ export class LobbyController implements ChatController {
             console.log('onOpen()');
         }
 
-        this.sock = newWebsocket('wsl');
-        this.sock.onopen = () => onOpen();
-        this.sock.onmessage = (e: MessageEvent) => this.onMessage(e);
+        this.sock = createWebsocket('wsl', onOpen, () => {}, () => {},(e: MessageEvent) => this.onMessage(e));
 
         patch(document.querySelector('.seekbuttons') as HTMLElement, h('div.seekbuttons', this.renderSeekButtons()));
 
@@ -113,7 +118,10 @@ export class LobbyController implements ChatController {
 
         // challenge!
         if (this.profileid !== "") {
-            if (this.profileid === 'Fairy-Stockfish') this.createMode = 'playAI';
+            if (this.profileid === 'Fairy-Stockfish') {
+                this.createMode = 'playAI';
+                this.preSelectVariant(model.variant);
+            }
             else if (this.profileid === 'Invite-friend') this.createMode = 'playFriend';
             document.getElementById('game-mode')!.style.display = (this.anon || this.createMode === 'playAI') ? 'none' : 'inline-flex';
             this.renderDialogHeader(_('Challenge %1 to a game', this.profileid));
@@ -150,7 +158,7 @@ export class LobbyController implements ChatController {
         this.sock.send(JSON.stringify(message));
     }
 
-    createSeekMsg(variant: string, color: string, fen: string, minutes: number, increment: number, byoyomiPeriod: number, day: number, chess960: boolean, rated: boolean) {
+    createSeekMsg(variant: string, color: string, fen: string, minutes: number, increment: number, byoyomiPeriod: number, day: number, chess960: boolean, rated: boolean, rrMin: number, rrMax: number) {
         this.doSend({
             type: "create_seek",
             user: this.username,
@@ -162,6 +170,8 @@ export class LobbyController implements ChatController {
             byoyomiPeriod: byoyomiPeriod,
             day: day,
             rated: rated,
+            rrmin: rrMin,
+            rrmax: rrMax,
             chess960: chess960,
             color: color
         });
@@ -217,7 +227,7 @@ export class LobbyController implements ChatController {
         });
     }
 
-    isNewSeek(variant: string, color: string, fen: string, minutes: number, increment: number, byoyomiPeriod: number, chess960: boolean, rated: boolean) {
+    isNewSeek(variant: string, color: string, fen: string, minutes: number, increment: number, byoyomiPeriod: number, day: number, chess960: boolean, rated: boolean) {
         // console.log("isNewSeek()?", variant, color, fen, minutes, increment, byoyomiPeriod, chess960, rated);
         // console.log(this.seeks);
         return !this.seeks.some(seek =>
@@ -228,6 +238,7 @@ export class LobbyController implements ChatController {
             seek.base === minutes &&
             seek.inc === increment &&
             seek.byoyomi === byoyomiPeriod &&
+            seek.day === day &&
             seek.chess960 === chess960 &&
             seek.rated === rated
         );
@@ -276,7 +287,6 @@ export class LobbyController implements ChatController {
             changeTabs('lobby_tab', corrTab)
             // TODO: use meaningful names!!!
         }
-        console.log('createSeek() day', day);
         e = document.querySelector('input[name="mode"]:checked') as HTMLInputElement;
         let rated: boolean;
         if (this.createMode === 'playAI' ||
@@ -291,11 +301,19 @@ export class LobbyController implements ChatController {
             rated = e.value === "1";
         localStorage.seek_rated = e.value;
 
+        e = document.getElementById('rating-min') as HTMLInputElement;
+        const rrMin = Number(e.value);
+        localStorage.seek_rating_min = e.value;
+
+        e = document.getElementById('rating-max') as HTMLInputElement;
+        const rrMax = Number(e.value);
+        localStorage.seek_rating_max = e.value;
+
         e = document.getElementById('chess960') as HTMLInputElement;
         const chess960 = (variant.chess960 && fen.trim() === "") ? e.checked : false;
         localStorage.seek_chess960 = e.checked;
 
-        // console.log("CREATE SEEK variant, color, fen, minutes, increment, hide, chess960", variant, color, fen, minutes, increment, chess960, rated);
+        // console.log("CREATE SEEK variant, color, fen, minutes, increment, hide, chess960", variant, color, fen, minutes, increment, chess960, rated, rrMin, rrMax);
 
         switch (this.createMode) {
             case 'playAI':
@@ -315,8 +333,8 @@ export class LobbyController implements ChatController {
                 this.createHostMsg(variant.name, seekColor, fen, minutes, increment, byoyomiPeriod, chess960, rated);
                 break;
             default:
-                if (this.isNewSeek(variant.name, seekColor, fen, minutes, increment, byoyomiPeriod, chess960, rated))
-                    this.createSeekMsg(variant.name, seekColor, fen, minutes, increment, byoyomiPeriod, day, chess960, rated);
+                if (this.isNewSeek(variant.name, seekColor, fen, minutes, increment, byoyomiPeriod, day, chess960, rated))
+                    this.createSeekMsg(variant.name, seekColor, fen, minutes, increment, byoyomiPeriod, day, chess960, rated, rrMin, rrMax);
         }
         // prevent to create challenges continuously
         this.profileid = '';
@@ -339,17 +357,18 @@ export class LobbyController implements ChatController {
     }
 
     renderSeekButtons() {
-        const vVariant = this.variant || localStorage.seek_variant || "chess";
+        const vVariant = localStorage.seek_variant || "chess";
         // 5+3 default TC needs vMin 9 because of the partial numbers at the beginning of minutesValues
         const vMin = localStorage.seek_min ?? "9";
         const vInc = localStorage.seek_inc ?? "3";
         const vByoIdx = (localStorage.seek_byo ?? 1) - 1;
         const vDay = localStorage.seek_day ?? "1";
-        const vRated = localStorage.seek_rated ?? "0";
+        const vRated = vVariant === "bughouse"? "0": localStorage.seek_rated ?? "0";
+        const vRatingMin = localStorage.seek_rating_min ?? -500;
+        const vRatingMax = localStorage.seek_rating_max ?? 500;
         const vLevel = Number(localStorage.seek_level ?? "1");
         const vChess960 = localStorage.seek_chess960 ?? "false";
         const vRMplay = localStorage.seek_rmplay ?? "false";
-
         return [
             h('div#id01.modal', [
                 h('form.modal-content', [
@@ -395,7 +414,7 @@ export class LobbyController implements ChatController {
                                         on: { change: (e: Event) => this.setTcMode((e.target as HTMLSelectElement).value as TcMode) },
                                         }, [
                                             h('option', { attrs: { value: 'real' }}, _('Real time')),
-                                            h('option', { attrs: { value: 'corr', disabled: this.anon }}, _('Correspondence')),
+                                            h('option', { attrs: { value: 'corr', disabled: this.anon || vVariant === "bughouse" }}, _('Correspondence')),
                                         ]
                                     ),
                                 ]),
@@ -446,11 +465,29 @@ export class LobbyController implements ChatController {
                                     h('label', { attrs: { for: "casual"} }, _("Casual")),
                                     h('input#rated', {
                                         props: { type: "radio", name: "mode", value: "1" },
-                                        attrs: { checked: vRated === "1", disabled: this.anon },
+                                        attrs: { checked: vRated === "1", disabled: this.anon || vVariant === "bughouse" /*dont support rated bughouse atm*/ },
                                         on: { input: e => this.setRated((e.target as HTMLInputElement).value) },
                                         hook: { insert: vnode => this.setRated((vnode.elm as HTMLInputElement).value) },
                                     }),
                                     h('label', { attrs: { for: "rated"} }, _("Rated")),
+                                ]),
+                            ]),
+                            h('div#rating-range-setting', [
+                                _('Rating range'),
+                                h('div.rating-range', [
+                                    h('input#rating-min.slider', {
+                                        props: { name: "rating-min", type: "range", min: -500, max: 0, step: 50, value: vRatingMin },
+                                        on: { input: e => this.setRatingMin(parseInt((e.target as HTMLInputElement).value)) },
+                                        hook: { insert: vnode => this.setRatingMin(parseInt((vnode.elm as HTMLInputElement).value)) },
+                                    }),
+                                    h('span.rating-min', '-500'),
+                                    '/',
+                                    h('span.rating-max', '+500'),
+                                    h('input#rating-max.slider', {
+                                        props: { name: "rating-max", type: "range", min: 0, max: 500, step: 50, value: vRatingMax },
+                                        on: { input: e => this.setRatingMax(parseInt((e.target as HTMLInputElement).value)) },
+                                        hook: { insert: vnode => this.setRatingMax(parseInt((vnode.elm as HTMLInputElement).value)) },
+                                    }),
                                 ]),
                             ]),
                             // if play with the machine
@@ -510,53 +547,72 @@ export class LobbyController implements ChatController {
         }
     }
 
+    renderVariantsDropDown(disabled: string[]) {
+        const vVariant = localStorage.seek_variant || "chess";
+        const e = document.getElementById('variant');
+        e!.replaceChildren();
+        patch(e!, selectVariant("variant", disabled.includes(vVariant)? null: vVariant, () => this.setVariant(), () => this.setVariant(), disabled));
+    }
+
     createGame(variantName: string = '', chess960: boolean = false) {
         this.preSelectVariant(variantName, chess960);
         this.createMode = 'createGame';
+        this.renderVariantsDropDown([]);
         this.renderDialogHeader(createModeStr(this.createMode));
         document.getElementById('game-mode')!.style.display = this.anon ? 'none' : 'inline-flex';
+        document.getElementById('rating-range-setting')!.style.display = 'block';
         document.getElementById('ailevel')!.style.display = 'none';
         document.getElementById('rmplay-block')!.style.display = 'none';
         document.getElementById('id01')!.style.display = 'flex';
         document.getElementById('color-button-group')!.style.display = 'block';
         document.getElementById('create-button')!.style.display = 'none';
+        disableCorr(this.anon || variantName === "bughouse" );
     }
 
     playFriend(variantName: string = '', chess960: boolean = false) {
         this.preSelectVariant(variantName, chess960);
         this.createMode = 'playFriend';
+        this.renderVariantsDropDown(["bughouse"]);
         this.renderDialogHeader(createModeStr(this.createMode))
         document.getElementById('game-mode')!.style.display = this.anon ? 'none' : 'inline-flex';
+        document.getElementById('rating-range-setting')!.style.display = 'none';
         document.getElementById('ailevel')!.style.display = 'none';
         document.getElementById('rmplay-block')!.style.display = 'none';
         document.getElementById('id01')!.style.display = 'flex';
         document.getElementById('color-button-group')!.style.display = 'block';
         document.getElementById('create-button')!.style.display = 'none';
+        disableCorr(false);
     }
 
     playAI(variantName: string = '', chess960: boolean = false) {
         this.preSelectVariant(variantName, chess960);
         this.createMode = 'playAI';
+        this.renderVariantsDropDown(["bughouse"]);
         this.renderDialogHeader(createModeStr(this.createMode))
         document.getElementById('game-mode')!.style.display = 'none';
+        document.getElementById('rating-range-setting')!.style.display = 'none';
         const e = document.getElementById('rmplay') as HTMLInputElement;
         document.getElementById('ailevel')!.style.display = e.checked ? 'none' : 'inline-block';
         document.getElementById('rmplay-block')!.style.display = 'block';
         document.getElementById('id01')!.style.display = 'flex';
         document.getElementById('color-button-group')!.style.display = 'block';
         document.getElementById('create-button')!.style.display = 'none';
+        disableCorr(true);
     }
 
     createHost(variantName: string = '', chess960: boolean = false) {
         this.preSelectVariant(variantName, chess960);
         this.createMode = 'createHost';
+        this.renderVariantsDropDown(["bughouse"]);
         this.renderDialogHeader(createModeStr(this.createMode))
         document.getElementById('game-mode')!.style.display = this.anon ? 'none' : 'inline-flex';
+        document.getElementById('rating-range-setting')!.style.display = 'none';
         document.getElementById('ailevel')!.style.display = 'none';
         document.getElementById('rmplay-block')!.style.display = 'none';
         document.getElementById('id01')!.style.display = 'flex';
         document.getElementById('color-button-group')!.style.display = 'none';
         document.getElementById('create-button')!.style.display = 'block';
+        disableCorr(true);
     }
 
     private setVariant() {
@@ -588,6 +644,7 @@ export class LobbyController implements ChatController {
                 ),
             ]));
         }
+        switchEnablingLobbyControls(this.createMode, variant, this.anon);
         this.setStartButtons();
     }
     private setAlternateStart(variant: Variant) {
@@ -612,6 +669,12 @@ export class LobbyController implements ChatController {
         const days = this.daysValues[val];
         document.getElementById("days")!.innerHTML = String(days);
         this.setStartButtons();
+    }
+    private setRatingMin(val: number) {
+        document.querySelector("span.rating-min")!.innerHTML = String(val);
+    }
+    private setRatingMax(val: number) {
+        document.querySelector("span.rating-max")!.innerHTML = String(val);
     }
     private setFen() {
         const e = document.getElementById('fen') as HTMLInputElement;
@@ -661,11 +724,11 @@ export class LobbyController implements ChatController {
         return [ seekHeader(), h('tbody', rows) ];
     }
 
-    private seekView(seek: Seek) {
+    private seekViewRegular(seek:Seek) {
         const variant = VARIANTS[seek.variant];
         const chess960 = seek.chess960;
 
-        return this.hide(seek) ? "" : h('tr', { on: { click: () => this.onClickSeek(seek) } }, [
+        return h('tr', { on: { click: () => this.onClickSeek(seek) } }, [
             h('td', [ this.colorIcon(seek.color) ]),
             h('td', [ this.challengeIcon(seek), this.seekTitle(seek), this.user(seek) ]),
             h('td', seek.rating),
@@ -675,7 +738,12 @@ export class LobbyController implements ChatController {
                 this.tooltip(seek, variant),
                 this.mode(seek),
             ]),
-        ]);
+        ])
+    }
+
+    private seekView(seek: Seek) {
+        const variant = VARIANTS[seek.variant];
+        return this.hide(seek) ? "" : variant === VARIANTS['bughouse']? seekViewBughouse(this, seek): this.seekViewRegular(seek);
     }
 
     private onClickSeek(seek: Seek) {
@@ -689,6 +757,7 @@ export class LobbyController implements ChatController {
             this.doSend({ type: "accept_seek", seekID: seek["seekID"], player: this.username });
         }
     }
+
     private colorIcon(color: string) {
         return h('i-side.icon', {
             class: {
@@ -698,11 +767,12 @@ export class LobbyController implements ChatController {
             }
         });
     }
-    private challengeIcon(seek: Seek) {
+
+    public challengeIcon(seek: Seek) {
         const swords = (seek["user"] === this.username) ? 'vs-swords.icon' : 'vs-swords.opp.icon';
         return (seek['target'] === '') ? null : h(swords, { attrs: {"data-icon": '"'} });
     }
-    private seekTitle(seek: Seek) {
+    public seekTitle(seek: Seek) {
         return (seek['target'] === '') ? h('player-title', " " + seek["title"] + " ") : null;
     }
     private user(seek: Seek) {
@@ -715,7 +785,7 @@ export class LobbyController implements ChatController {
         return ((this.anon || this.title === 'BOT') && seek["rated"]) ||
             (seek['target'] !== '' && this.username !== seek['user'] && this.username !== seek['target']);
     }
-    private tooltip(seek: Seek, variant: Variant) {
+    public tooltip(seek: Seek, variant: Variant) {
         let tooltipImage;
         if (seek.fen) {
             tooltipImage = h('minigame.' + variant.boardFamily + '.' + variant.pieceFamily, [
@@ -732,7 +802,8 @@ export class LobbyController implements ChatController {
         }
         return h('span.tooltiptext', [ tooltipImage ]);
     }
-    private mode(seek: Seek) {
+
+    public mode(seek: Seek) {
         if (seek.fen)
             return _("Custom");
         else if (seek.rated)

@@ -23,10 +23,14 @@ class Seek:
         day=0,
         level=6,
         rated=False,
+        rrmin=None,
+        rrmax=None,
         chess960=False,
         target="",
         player1=None,
         player2=None,
+        bugPlayer1=None,
+        bugPlayer2=None,
         ws=None,
         game_id=None,
         expire_at=None,
@@ -37,6 +41,8 @@ class Seek:
         self.fen = "" if fen is None else fen
         self.rated = rated
         self.rating = creator.get_rating(variant, chess960).rating_prov[0]
+        self.rrmin = self.rating + (rrmin if rrmin is not None else 0)
+        self.rrmax = self.rating + (rrmax if rrmax is not None else 3000)
         self.base = base
         self.inc = inc
         self.byoyomi_period = byoyomi_period
@@ -46,6 +52,8 @@ class Seek:
         self.target = target
         self.player1 = player1
         self.player2 = player2
+        self.bugPlayer1 = bugPlayer1
+        self.bugPlayer2 = bugPlayer2
         self.ws = ws
 
         Seek.gen_id += 1
@@ -71,9 +79,13 @@ class Seek:
             "target": self.target,
             "player1": self.player1.username if self.player1 is not None else "",
             "player2": self.player2.username if self.player2 is not None else "",
+            "bugPlayer1": self.bugPlayer1.username if self.bugPlayer1 is not None else "",
+            "bugPlayer2": self.bugPlayer2.username if self.bugPlayer2 is not None else "",
             "fen": self.fen,
             "color": self.color,
             "rated": self.rated,
+            "rrmin": self.rrmin,
+            "rrmax": self.rrmax,
             "rating": self.rating,
             "base": self.base,
             "inc": self.inc,
@@ -92,6 +104,8 @@ class Seek:
             "fen": self.fen,
             "color": self.color,
             "rated": self.rated,
+            "rrmin": self.rrmin,
+            "rrmax": self.rrmax,
             "day": self.day,
             "expireAt": self.expire_at,
         }
@@ -137,11 +151,13 @@ async def create_seek(db, invites, seeks, user, data, ws, empty=False):
         byoyomi_period=data["byoyomiPeriod"],
         day=day,
         rated=data.get("rated"),
+        rrmin=data.get("rrmin"),
+        rrmax=data.get("rrmax"),
         chess960=data.get("chess960"),
         target=target,
         player1=None if empty else user,
         player2=None,
-        ws=ws,
+        ws=ws,  # todo: dont see the need for this - instead the list of user's lobby websockets can be used
         game_id=game_id,
     )
 
@@ -154,12 +170,8 @@ async def create_seek(db, invites, seeks, user, data, ws, empty=False):
     return seek
 
 
-def get_seeks(seeks):
-    active_seeks = [seek.as_json for seek in seeks.values() if not seek.pending]
-    return {
-        "type": "get_seeks",
-        "seeks": active_seeks,
-    }
+def get_seeks(user, seeks):
+    return [seek.as_json for seek in seeks if not seek.pending and user.compatible_with_seek(seek)]
 
 
 def challenge(seek, gameId):

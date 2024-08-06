@@ -17,11 +17,12 @@ CORR_TICK = 60
 class Clock:
     """Check game start and time out abandoned games"""
 
-    def __init__(self, game):
+    def __init__(self, game, board=None, secs=None):
         self.game = game
+        self.board = board if board is not None else game.board
         self.running = False
         self.secs = -1
-        self.restart()
+        self.restart(secs)
         self.clock_task = asyncio.create_task(self.countdown())
 
     def stop(self):
@@ -29,13 +30,13 @@ class Clock:
         return self.secs
 
     def restart(self, secs=None):
-        self.ply = self.game.board.ply
-        self.color = self.game.board.color
+        self.ply = self.game.ply
+        self.color = self.board.color
         if secs is not None:
             self.secs = secs
         else:
             # give some time to make first move
-            if self.ply < 2:
+            if self.ply < 2 and self.game.variant != "bughouse":
                 if self.game.tournamentId is None:
                     # Non tournament games are not timed for the first moves of either
                     # player. We stop the clock to prevent unnecessary clock
@@ -45,6 +46,7 @@ class Clock:
                 # Rated games have their first move time set
                 self.secs = self.time_for_first_move
             else:
+                # now this same clock object starts measuring the time of the other player - set to what it was when he moved last time
                 self.secs = (
                     self.game.clocks_w[-1] if self.color == WHITE else self.game.clocks_b[-1]
                 )
@@ -58,7 +60,7 @@ class Clock:
 
             # Time was running out
             if self.running:
-                if self.game.board.ply == self.ply:
+                if self.board.ply == self.ply:
                     # On lichess rage quit waits 10 seconds
                     # until the other side gets the win claim,
                     # and a disconnection gets 120 seconds.
@@ -67,7 +69,8 @@ class Clock:
 
                     # If FLAG was not received we have to act
                     if self.game.status < ABORTED and self.secs <= 0 and self.running:
-                        user = self.game.bplayer if self.color == BLACK else self.game.wplayer
+                        user = self.game.get_player_at(self.color, self.board)
+
                         reason = (
                             "abort"
                             if (self.ply < 2) and (self.game.tournamentId is None)

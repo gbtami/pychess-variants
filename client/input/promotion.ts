@@ -81,7 +81,7 @@ export class PromotionInput extends ExtraInput {
     }
 
     private drawPromo(dest: cg.Key, color: cg.Color): void {
-        const container = toVNode(document.querySelector('extension') as Node);
+        const container = toVNode(this.ctrl.chessground.state.dom.elements.container.querySelector('extension') as Node);
         patch(container, this.view(dest, color, this.ctrl.chessground.state.orientation));
     }
 

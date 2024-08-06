@@ -53,7 +53,8 @@ from tournaments import translated_tournament_name, get_scheduled_tournaments, l
 from twitch import Twitch
 from user import User
 from users import Users, NotInDbUsers
-from utils import load_game, MyWebSocketResponse
+from utils import load_game
+from websocket_utils import MyWebSocketResponse
 from blogs import BLOGS
 from videos import VIDEOS
 from youtube import Youtube
@@ -178,6 +179,7 @@ class PychessGlobalAppState:
                     leader = self.highscore[doc["_id"]].peekitem(0)
                     self.leaderboard.update({"%s|%s" % (doc["_id"], leader[0]): leader[1]})
 
+            # TODO: read it on demand only, similar to users
             if "crosstable" not in db_collections:
                 await generate_crosstable(self.db)
             cursor = self.db.crosstable.find()
@@ -242,6 +244,8 @@ class PychessGlobalAppState:
                         color=doc["color"],
                         day=doc["day"],
                         rated=doc["rated"],
+                        rrmin=doc.get("rrmin"),
+                        rrmax=doc.get("rrmax"),
                         chess960=doc["chess960"],
                         player1=user,
                         expire_at=doc.get("expireAt"),
@@ -271,9 +275,16 @@ class PychessGlobalAppState:
                             game.bplayer.correspondence_games.append(game)
                             game.stopwatch.restart(from_db=True)
                         else:
-                            game.stopwatch.restart()
+                            try:
+                                game.stopwatch.restart()
+                            except AttributeError:
+                                game.gameClocks.restart("a")
+                                game.gameClocks.restart("b")
                     except NotInDbUsers:
                         log.error("Failed toload game %s", doc["_id"])
+
+                    if game.board.ply > 0:
+                        self.g_cnt[0] += 1
 
             if "video" not in db_collections:
                 if DEV:

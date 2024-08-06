@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 import asyncio
 import json
 import logging
@@ -11,7 +12,6 @@ from functools import partial
 
 from aiohttp import web
 import aiohttp_session
-from aiohttp.web import WebSocketResponse
 from aiohttp_sse import sse_response
 
 from broadcast import round_broadcast
@@ -26,6 +26,7 @@ from const import (
     RATED,
     IMPORTED,
     CONSERVATIVE_CAPA_FEN,
+    LOOKING_GLASS_ALICE_FEN,
     T_STARTED,
 )
 from compress import get_decode_method, get_encode_method, R2C, C2R, V2C, C2V
@@ -50,19 +51,13 @@ except ImportError:
     log.error("No pyffish module installed!", exc_info=True)
 
 
-# See https://github.com/aio-libs/aiohttp/issues/3122 why this is needed
-class MyWebSocketResponse(WebSocketResponse):
-    @property
-    def closed(self):
-        return self._closed or self._req is None or self._req.transport is None
-
-
 async def tv_game(app_state: PychessGlobalAppState):
     """Get latest played game id"""
     if app_state.tv is not None:
         return app_state.tv
     game_id = None
-    doc = await app_state.db.game.find_one({}, sort=[("$natural", -1)])
+    # No Fog of War games to TV
+    doc = await app_state.db.game.find_one({"v": {"$ne": "Q"}}, sort=[("$natural", -1)])
     if doc is not None:
         game_id = doc["_id"]
         app_state.tv = game_id
@@ -91,12 +86,17 @@ async def load_game(app_state: PychessGlobalAppState, game_id):
     if doc is None:
         return None
 
+    variant = C2V[doc["v"]]
+
+    if variant == "bughouse":
+        from bug.utils_bug import load_game_bug
+
+        return await load_game_bug(app_state, game_id)
+
     wp, bp = doc["us"]
 
     wplayer = await app_state.users.get(wp)
     bplayer = await app_state.users.get(bp)
-
-    variant = C2V[doc["v"]]
 
     initial_fen = doc.get("if")
 
@@ -503,7 +503,8 @@ async def insert_game_to_db(game, app_state: PychessGlobalAppState):
     if result.inserted_id != game.id:
         log.error("db insert game result %s failed !!!", game.id)
 
-    if not game.corr:
+    # No corr and Fog of War games to TV
+    if (not game.corr) and (game.variant != "fogofwar"):
         app_state.tv = game.id
         await app_state.lobby.lobby_broadcast(game.tv_game_json)
         game.wplayer.tv = game.id
@@ -705,8 +706,23 @@ def pgn(doc):
 
 
 def sanitize_fen(variant, initial_fen, chess960):
+
+    if variant == "bughouse":
+        fens = initial_fen.split(" | ")
+        fen_a = fens[0]
+        fen_b = fens[1]
+        fen_valid_a, sanitized_fen_a = sanitize_fen("crazyhouse", fen_a, chess960)
+        fen_valid_b, sanitized_fen_b = sanitize_fen("crazyhouse", fen_b, chess960)
+        return fen_valid_a and fen_valid_b, sanitized_fen_a + " | " + sanitized_fen_b
+
     # Prevent this particular one to fail on our general castling check
     if variant == "capablanca" and initial_fen == CONSERVATIVE_CAPA_FEN:
+        return True, initial_fen
+
+    if variant == "alice" and initial_fen == LOOKING_GLASS_ALICE_FEN:
+        return True, initial_fen
+
+    if variant == "fogofwar" and initial_fen == STANDARD_FEN:
         return True, initial_fen
 
     sf_validate = sf.validate_fen(initial_fen, variant, chess960)
@@ -716,7 +732,7 @@ def sanitize_fen(variant, initial_fen, chess960):
     # Initial_fen needs validation to prevent segfaulting in pyffish
     sanitized_fen = initial_fen
 
-    start_fen = FairyBoard.start_fen(variant)  # self.board.start_fen(self.variant)
+    start_fen = FairyBoard.start_fen(variant)
     start_fen_length = len(start_fen)
     start = start_fen.split()
     init = initial_fen.split()
@@ -852,8 +868,11 @@ async def get_blogs(request, tag=None, limit=0):
 
     cursor.sort("date", -1).limit(limit)
     async for doc in cursor:
-        user = await app_state.users.get(doc["author"])
-        doc["atitle"] = user.title
+        try:
+            user = await app_state.users.get(doc["author"])
+            doc["atitle"] = user.title
+        except NotInDbUsers:
+            pass
         blogs.append(doc)
     return blogs
 

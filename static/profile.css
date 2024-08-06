@@ -104,6 +104,7 @@ player-title {
 }
 [class*=" icon-"]::before {
     line-height: 2rem;
+    margin-right: 0.4em;
 }
 .i-at, .i-tv, .i-dl, .i-ch {
     float: right;
@@ -218,4 +219,10 @@ td.player-data {
     .trophies {
     display: none;
     }
+}
+td.board.bug {
+    display: flex;
+}
+td.board.bug selection {
+    padding-right: 10px;
 }

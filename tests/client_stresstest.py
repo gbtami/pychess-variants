@@ -8,10 +8,11 @@ import aiohttp
 
 import pyffish as sf
 
+from websocket_utils import ws_send_json
+
 sf.set_option("VariantPath", "variants.ini")
 
 from settings import URI
-
 
 LOBBY_URL = f"{URI}/wsl"
 ROUND_URL = f"{URI}/wsr/"
@@ -222,17 +223,18 @@ class TestUser:
             await wsr.close()
 
     async def send_lobby_chat(self, ws, message):
-        await ws.send_json({"type": "lobbychat", "user": self.username, "message": message})
+        await ws_send_json(ws, {"type": "lobbychat", "user": self.username, "message": message})
 
     async def send_round_chat(self, ws, message, game_id, room):
-        await ws.send_json(
+        await ws_send_json(
+            ws,
             {
                 "type": "roundchat",
                 "message": message,
                 "gameId": game_id,
                 "user": self.username,
                 "room": room,
-            }
+            },
         )
 
 

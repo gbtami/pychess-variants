@@ -108,6 +108,15 @@
 .icon-adjust:before {
   content: "\61";
 }
+.icon-adjust-rev:before {
+  content: "\61";
+}
+.icon-adjust-rev { /*TODO:maybe make a separate flipped icon instead*/
+  -webkit-transform: scaleX(-1);
+  transform: scaleX(-1);
+  width: fit-content;
+}
+
 .icon-black:before {
   content: "\62";
 }

@@ -107,6 +107,7 @@ export function result(variant: Variant, status: number, result: string) {
                     text = _('Three checks');
                     break;
                 case 'duck':
+                case 'fogofwar':
                     text = _('King captured');
                     break;
                 default:

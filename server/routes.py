@@ -34,6 +34,7 @@ from game_api import (
     cancel_invite,
 )
 from utils import import_game, get_names, get_notifications, subscribe_notify, notified
+from bug.import_bugh_game import import_game_bpgn
 from login import login, logout, oauth
 from index import index, robots, select_lang
 from wsl import lobby_socket_handler
@@ -42,7 +43,7 @@ from wst import tournament_socket_handler
 from tournament_calendar import tournament_calendar
 from twitch import twitch_request_handler
 from puzzle import puzzle_complete, puzzle_vote
-from user import set_theme
+from user import block_user, get_blocked_users, set_theme
 
 
 get_routes = (
@@ -59,6 +60,7 @@ get_routes = (
     ("/calendar", index),
     ("/features", index),
     ("/games", index),
+    ("/games/{variant}", index),
     ("/tv", index),
     ("/puzzle", index),
     ("/puzzle/daily", index),
@@ -110,6 +112,7 @@ get_routes = (
     ("/api/account/playing", playing),
     ("/api/stream/event", event_stream),
     ("/api/bot/game/stream/{gameId}", game_stream),
+    ("/api/blocks", get_blocked_users),
     ("/api/{profileId}/all", get_user_games),
     ("/api/{profileId}/win", get_user_games),
     ("/api/{profileId}/loss", get_user_games),
@@ -122,6 +125,7 @@ get_routes = (
     ("/api/stats", get_variant_stats),
     ("/api/stats/humans", get_variant_stats),
     ("/api/games", get_games),
+    ("/api/games/{variant}", get_games),
     ("/api/invites", subscribe_invites),
     ("/api/ongoing", subscribe_games),
     ("/api/names", get_names),
@@ -151,12 +155,14 @@ post_routes = (
     ("/api/seek", create_bot_seek),
     ("/api/pong", bot_pong),
     ("/pref/theme", set_theme),
+    ("/api/{profileId}/block", block_user),
     ("/fishnet/acquire", fishnet_acquire),
     ("/fishnet/analysis/{workId}", fishnet_analysis),
     ("/fishnet/move/{workId}", fishnet_move),
     ("/fishnet/abort/{workId}", fishnet_abort),
     ("/translation/select", select_lang),
     ("/import", import_game),
+    ("/import_bpgn", import_game_bpgn),
     ("/tournaments/arena", index),
     (r"/tournament/{tournamentId:\w{8}}/edit", index),
     ("/twitch", twitch_request_handler),

@@ -1,0 +1,40 @@
+.khans piece.a-piece.black {
+    background-image: url('../../images/pieces/orda/cburnett/bA.svg');
+}
+.khans piece.h-piece.black {
+    background-image: url('../../images/pieces/orda/cburnett/bH.svg');
+}
+.khans piece.l-piece.black {
+    background-image: url('../../images/pieces/orda/cburnett/bL.svg');
+}
+.khans piece.k-piece.black {
+    background-image: url('../../images/pieces/orda/cburnett/bK.svg');
+}
+.khans piece.t-piece.black {
+    background-image: url('../../images/pieces/orda/cburnett/bT.svg');
+}
+.khans piece.s-piece.black {
+    background-image: url('../../images/pieces/orda/cburnett/bS.svg');
+}
+.khans piece.ps-piece.black {
+    background-image: url('../../images/pieces/orda/cburnett/bA.svg');
+}
+
+.khans piece.p-piece.white {
+    background-image: url('../../images/pieces/green/wP.svg');
+}
+.khans piece.b-piece.white {
+    background-image: url('../../images/pieces/green/wB.svg');
+}
+.khans piece.n-piece.white {
+    background-image: url('../../images/pieces/green/wN.svg');
+}
+.khans piece.r-piece.white {
+    background-image: url('../../images/pieces/green/wR.svg');
+}
+.khans piece.q-piece.white {
+    background-image: url('../../images/pieces/green/wQ.svg');
+}
+.khans piece.k-piece.white {
+    background-image: url('../../images/pieces/green/wK.svg');
+}

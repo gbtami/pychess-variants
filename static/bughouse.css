@@ -1,0 +1,543 @@
+/* *****************************************************************************************
+ * analysis.css
+ ******************************************************************************************* */
+@media (min-width: 800px) {
+    /*.analysis-app.bug {
+        grid-template-columns: 500px
+                               var(--gauge-gap)
+                               calc(var(--pocketLength) * (var(--cg-width-a) / var(--files)))
+                               calc(var(--pocketLength) * (var(--cg-width-b) / var(--files)))
+                               var(--gauge-gap)
+                               0.8em
+                               500px;
+        grid-template-rows: min-content 1fr;
+        grid-template-areas: 'board gauge pocket-top pocket-top-partner gaugePartner d boardPartner'
+                             'board gauge tools tools gaugePartner d boardPartner'
+                             'board gauge tools tools gaugePartner d boardPartner'
+                             'board gauge pocket-bot pocket-bot-partner gaugePartner d boardPartner'
+                             '. . move-controls move-controls . . .'
+                             'gameinfo gameinfo uboard uboard uboard uboard uboard'
+    }*/
+    .analysis-app.bug {
+        --board-scaleA: calc((var(--zoom-a) / 100));
+        --board-scaleB: calc((var(--zoom-b) / 100));
+        grid-row-gap: 2vmin;
+        grid-template-columns: calc(30vw * var(--board-scaleA))
+                               var(--gauge-gap)
+                               calc(var(--pocketLength) * (var(--cg-width-a) / var(--files)))
+                               calc(var(--pocketLength) * (var(--cg-width-b) / var(--files)))
+                               var(--gauge-gap)
+                               0.8em
+                               calc(30vw * var(--board-scaleB));
+        grid-template-rows: min-content 1fr;
+        grid-template-areas: 'board gauge pocket-top pocket-top-partner gaugePartner d boardPartner'
+                             'board gauge tools tools gaugePartner d boardPartner'
+                             'board gauge tools tools gaugePartner d boardPartner'
+                             'board gauge pocket-bot pocket-bot-partner gaugePartner d boardPartner'
+                             '. . move-controls move-controls . . .'
+                             'gameinfo gameinfo uboard uboard uboard uboard uboard'
+    }
+}
+
+.anal-clock.bug {
+    left:0;
+    right:initial;
+}
+
+#gaugePartner {
+    grid-area: gaugePartner;
+}
+
+/* *****************************************************************************************
+ * round.css
+ ******************************************************************************************* */
+
+@media (max-width: 799px) and (orientation: portrait) {
+    .round-app.bug {
+        grid-template-columns: auto auto;
+        grid-template-rows:    auto
+                               min-content
+                               auto
+
+                               auto
+                               min-content
+                               auto
+
+                               auto
+                               auto
+                               auto
+                               auto
+                               auto
+                               auto
+                               auto;
+        grid-template-areas:  'pocket-top clock-top'
+                              'board board'
+                              'pocket-bot clock-bot'
+
+                              'pocket-top-partner clockB-top'
+                              'boardPartner boardPartner'
+                              'pocket-bot-partner clockB-bot'
+
+                              'tools tools'
+                              'game-controls game-controls'
+                              'offer offer'
+                              'move-controls move-controls'
+                              'toolsB toolsB'
+                              'uboard uboard'
+                              'uleft uleft';
+    }
+    under-left {
+        display: none;
+    }
+    .pocket-top .bughouse .pocket, .pocket-bot .bughouse .pocket {
+      width: calc(var(--pocketLength) * (var(--cg-width-a) / var(--files)));
+      height: calc(var(--cg-height-a) / var(--ranks));
+      --fs: calc(var(--cg-height-a) / var(--ranks));
+      font-size: var(--fs);
+    }
+    .pocket-top-partner .bughouse .pocket, .pocket-bot-partner .bughouse .pocket {
+      width: calc(var(--pocketLength) * (var(--cg-width-b) / var(--files)));
+      height: calc(var(--cg-height-b) / var(--ranks));
+      --fs: calc(var(--cg-height-b) / var(--ranks));
+      font-size: var(--fs);
+    }
+    .clock-wrap {
+      flex-direction: row-reverse;
+    }
+
+}
+
+@media (min-width: 800px) {
+    .bug .info-wrap0, .bug .info-wrap1, .bug .clock-wrap {
+        justify-content: end;
+    }
+    .info-wrap0.bug, .info-wrap1.bug, .clock-wrap.bug {
+        justify-content: start;
+    }
+    .round-app.bug {
+        --board-scaleA: calc((var(--zoom-a) / 100));
+        --board-scaleB: calc((var(--zoom-b) / 100));
+        grid-row-gap: 2vmin;
+        grid-template-columns: calc(var(--pocketLength) * (var(--cg-width-a) / var(--files)))
+                               calc((30vw * var(--board-scaleA)) - var(--pocketLength) * (var(--cg-width-a) / var(--files)))
+                               calc(var(--pocketLength) * (var(--cg-width-a) / var(--files)))
+                               calc((30vw * var(--board-scaleB)) - var(--pocketLength) * (var(--cg-width-b) / var(--files)))
+                               calc(var(--pocketLength) * (var(--cg-width-b) / var(--files)))
+                               calc(var(--pocketLength) * (var(--cg-width-b) / var(--files)));
+        grid-template-rows: min-content min-content min-content min-content min-content;
+        grid-template-areas: 'pocket-top clock-top tools clockB-top pocket-top-partner toolsB'
+                             'board board tools boardPartner boardPartner toolsB'
+                             'pocket-bot clock-bot tools clockB-bot pocket-bot-partner tootsB'
+                             '. . move-controls move-controls . .'
+                             'uboard uboard uboard uboard uboard uboard';
+    }
+    .pocket-top .bughouse .pocket, .pocket-bot .bughouse .pocket {
+      width: calc(var(--pocketLength) * (var(--cg-width-a) / var(--files)));
+      height: calc(var(--cg-height-a) / var(--ranks));
+      --fs: calc(var(--cg-height-a) / var(--ranks));
+      font-size: var(--fs);
+    }
+    .pocket-top-partner .bughouse .pocket, .pocket-bot-partner .bughouse .pocket {
+      width: calc(var(--pocketLength) * (var(--cg-width-b) / var(--files)));
+      height: calc(var(--cg-height-b) / var(--ranks));
+      --fs: calc(var(--cg-height-b) / var(--ranks));
+      font-size: var(--fs);
+    }
+}
+
+.bug rating {
+    display: none;
+}
+
+.bug-round-tools {
+    grid-area: tools;
+    display: flex;
+    flex-flow: column;
+}
+
+.bug-round-tools-part {
+    grid-area: toolsB;
+    display: flex;
+    flex-flow: column;
+
+}
+
+.bug-round-tools-part .movelist-block{
+    max-height: calc(var(--cg-height-b));
+    min-height: calc(var(--cg-height-b));
+
+}
+
+/* *****************************************************************************************
+ * extensions.css
+ ******************************************************************************************* */
+main.round.bug .pocket.top {
+  margin-bottom: unset;
+}
+main.round.bug .pocket.bottom {
+  margin-top: unset;
+}
+
+div#chatpresets{
+  display: grid;
+  grid-template-columns: auto auto auto auto auto;
+  padding-top: 5px;
+  grid-template-rows: auto auto auto auto;
+  order: 3;
+}
+
+div#chatpresets button.bugchat {
+  width: 60%;
+  /*width: 15%;*/
+  /*height: 15fr;*/
+  justify-self: center;
+  padding-top: 60%;
+  color: var(--font-color);
+  background-color: var(--bg-color0);
+  cursor: pointer;
+  border: none;
+}
+
+li.message .bugchat{
+  width: 2em;
+  height: 2em;
+  display: inline-flex;
+  color: var(--font-color);
+  background-color: var(--bg-color0);
+  cursor: pointer;
+  border: none;
+}
+
+button.bugchat:hover {
+  color: #fff;
+  background-color: var(--green-hover);
+}
+
+button.bugchat:focus {
+  outline: none;
+}
+button.bugchat::-moz-focus-inner {
+  border: 0;
+}
+
+.bugchat.p {
+  background-image: url('../../static/images/bugroundchat/P.svg');
+  background-size: cover;
+}
+.bugchat.n{
+  background-image: url('../../static/images/bugroundchat/N.svg');
+  background-size: cover;
+}
+.bugchat.b{
+  background-image: url('../../static/images/bugroundchat/B.svg');
+  background-size: cover;
+}
+.bugchat.r{
+  background-image: url('../../static/images/bugroundchat/R.svg');
+  background-size: cover;
+}
+.bugchat.q{
+  background-image: url('../../static/images/bugroundchat/Q.svg');
+  background-size: cover;
+}
+.bugchat.nop{
+  background-image: url('../../static/images/bugroundchat/noP.svg');
+  background-size: cover;
+}
+.bugchat.non{
+  background-image: url('../../static/images/bugroundchat/noN.svg');
+  background-size: cover;
+}
+.bugchat.nob{
+  background-image: url('../../static/images/bugroundchat/noB.svg');
+  background-size: cover;
+}
+.bugchat.nor{
+  background-image: url('../../static/images/bugroundchat/noR.svg');
+  background-size: cover;
+}
+.bugchat.noq{
+  background-image: url('../../static/images/bugroundchat/noQ.svg');
+  background-size: cover;
+}
+.bugchat.sit{
+  background-image: url('../../static/images/bugroundchat/SIT.svg');
+  background-size: cover;
+}
+.bugchat.go{
+  background-image: url('../../static/images/bugroundchat/GO.svg');
+  background-size: cover;
+}
+.bugchat.trade{
+  background-image: url('../../static/images/bugroundchat/TRADE.svg');
+  background-size: cover;
+}
+.bugchat.notrade{
+  background-image: url('../../static/images/bugroundchat/NOTRADE.svg');
+  background-size: cover;
+}
+.bugchat.mate{
+  background-image: url('../../static/images/bugroundchat/MATE.svg');
+  background-size: cover;
+}
+.bugchat.ok{
+  background-image: url('../../static/images/bugroundchat/OK.svg');
+  background-size: cover;
+}
+.bugchat.no{
+  background-image: url('../../static/images/bugroundchat/NO.svg');
+  background-size: cover;
+}
+.bugchat.mb{
+  background-image: url('../../static/images/bugroundchat/MB.svg');
+  background-size: cover;
+}
+.bugchat.nvm{
+  background-image: url('../../static/images/bugroundchat/NVM.svg');
+  background-size: cover;
+}
+.bugchat.nice{
+  background-image: url('../../static/images/bugroundchat/NICE.svg');
+  background-size: cover;
+}
+
+/* *****************************************************************************************
+ * site.css
+ ******************************************************************************************* */
+
+#main-wrap.bug {
+  display: grid;
+  grid-template-columns: minmax(auto, auto);
+  grid-template-areas: 'main';
+  margin-top: var(--site-header-margin);
+}
+
+@media (min-width: 800px) {
+  .bug {
+    grid-template-columns:
+      2 * minmax(calc(70vmin * var(--board-scaleA)), calc(100vh * var(--board-scaleA) - calc(var(--site-header-height) + var(--site-header-margin)) - 3rem))
+      minmax(240px, 400px);
+    grid-template-rows: fit-content(0) fit-content(0) 743px;
+    grid-template-areas: 'app app' 'uleft uboard' 'side side';
+  }
+}
+
+@media (max-width: 799px) and (orientation: portrait) {
+  .bug .info-wrap0 {
+    grid-area: clock-top;
+    justify-self: flex-end;
+  }
+  .bug .info-wrap1 {
+    grid-area: clock-bot;
+    justify-self: flex-end;
+  }
+}
+
+#bugboard {
+  grid-area: boardPartner;
+  position: relative;
+}
+
+.bugseek {
+  display: grid;
+  grid-template-columns: auto/*team board color name;*/;
+  grid-template-rows: auto auto 1em auto auto;
+}
+
+td.bugseek1 {
+  display: grid;
+  grid-template-columns: auto auto auto/*team board color name;*/;
+  grid-template-rows: auto auto 1em auto auto;
+}
+
+.bugseekteam1 {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  grid-row: 1/3;
+}
+
+.bugseekteam2 {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  grid-row: 4/6;
+}
+
+.bugseekvs {
+  grid-column: 1/4;
+}
+
+.bugseekteam1 div,
+.bugseekteam2 div {
+  color: #878787;
+}
+
+.bug-join-button {
+  background-color: var(--bg-color2);
+  border: none;
+  color: var(--font-color);
+  text-align: center;
+  text-decoration: none;
+  font-size: 18px;
+  cursor: pointer;
+  box-shadow: var(--base-shadow);
+  border-radius: 3px;
+}
+
+.bug-join-button:hover {
+  background-color: var(--bg-color1);
+}
+
+.bugwaiting {
+  color: var(--bug-waiting);
+}
+
+
+.bug-game-info {
+  grid-area: gameinfo;
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: right;
+  overflow: hidden;
+}
+
+main.round.bug .movelist-block {
+  flex:1
+}
+
+main.bug.analysis round-player0.bug rating,
+main.bug.analysis round-player1.bug rating {
+  float: left;
+  font-size: 16px;
+}
+
+main.bug.round rating,
+main.bug.round rating {
+  font-size: 0.7vw;
+}
+
+.info-wrap0.bug {
+  grid-area: clockB-top;
+}
+
+.info-wrap1.bug {
+  grid-area: clockB-bot;
+}
+
+main.bug round-player0,
+main.bug round-player1 {
+  font-size: 0.7vw;
+  width: 100%;
+  line-height: unset;
+  height: 48px;
+  align-items: center;
+}
+
+round-player0.bug {
+  grid-area: userB-top;
+  /*justify-content: right;*/
+}
+
+round-player1.bug {
+  grid-area: userB-bot;
+}
+
+.clock-wrap.bug {
+  flex-direction: row-reverse;
+}
+
+#messages {
+  width: 100%;
+}
+
+@media (max-width: 799px) and (orientation: portrait) {
+  main.round.bug #movelist {
+    font-size: 1.1em;
+  }
+}
+
+@media (min-width: 800px) {
+  main.round.bug #movelist {
+    font-size: 0.68vw; /*  magic number that looks good and resizes itself with container */
+  }
+}
+
+main.round.bug #movelist {
+  display: flex;
+  height: 100%;
+  max-height: unset;
+  overflow-y: auto;
+  flex-flow: row wrap;
+  position: relative;
+  line-height: 1.7;
+  align-items: center;
+  align-content: flex-start;
+  background: var(--bg-color0);
+}
+move-bug.active {
+  font-weight: bold;
+}
+move-bug {
+    line-height: 1.9em;
+    float: left;
+    flex: 0 0 calc(25% - 3ch);
+    max-width: calc(25% - 3ch);
+    padding-left: 6px;
+    box-sizing: border-box;
+    justify-content: center;
+    white-space: nowrap;
+}
+
+move-bug.haschat {
+    background-image: url('/static/icons/bugchatmove.svg');
+  background-size: 1em 1em;
+   background-repeat: no-repeat;
+  background-position: right;
+
+}
+bugchat img{
+  margin-left: 1em;
+  width: 1.1em;
+  height: 1.1em;
+}
+
+.bugchatpopup {
+  list-style-type: none;
+  display: none;
+  min-width: 12rem;
+  border-left: 2px solid #3692e7;
+  border-radius: 0 3px 3px 3px;
+  text-align: left;
+  box-shadow: var(--base-shadow);
+  z-index: 1000;
+  min-height: unset;
+  flex: 0 0 100%;
+  max-width: 100%;
+}
+
+move-bug.active + .bugchatpopup {
+  display: block;
+}
+
+move-bug.counter {
+    color: Gray;
+    flex: 0 0 3ch;
+    padding-left: 0px;
+    background-color: var(--bg-color2);
+    text-align: center;
+}
+
+.pocket-top-partner {
+    grid-area: pocket-top-partner;
+}
+.pocket-bot-partner {
+    grid-area: pocket-bot-partner;
+}
+
+player.bug {
+    text-align: center;
+}
+.versus.bug {
+    line-height: 100%;
+}
