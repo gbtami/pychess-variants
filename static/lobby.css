@@ -20,7 +20,7 @@
         grid-template-columns: repeat(4, 1fr);
         grid-template-rows: fit-content(0) 380px fit-content(0);
         grid-auto-rows: 1fr;
-        grid-template-areas: 'side app app table' 'side vpanel vpanel table' 'tv blog blog puzzle' 'uleft blog blog utable';
+        grid-template-areas: 'side app app table' 'side vpanel vpanel table' 'tv blog blog puzzle' 'tv leader winner puzzle' 'uleft leader winner utable';
     }
 }
 .lobby aside {
@@ -48,6 +48,10 @@
   width: 50%;
   text-align: center;
 }
+}
+#leaders {
+    grid-area: leader;
+    display: block;
 }
 .tv {
     grid-area: tv;

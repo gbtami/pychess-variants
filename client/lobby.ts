@@ -840,6 +840,12 @@ export class LobbyController implements ChatController {
         ]);
     }
 
+    private leadersView(msg) {
+        return h('table', [
+            h('tbody', msg.items.map(leader => h('tr', leader)))
+        ]);
+    }
+
     renderEmptyTvGame() {
         patch(document.getElementById('tv-game') as HTMLElement, h('a#tv-game.empty'));
     }
@@ -1023,7 +1029,7 @@ export class LobbyController implements ChatController {
     }
 
     private onMsgLeaderboard(msg: MsgLeaderboard) {
-        console.log(msg);
+        patch(document.getElementById('leaders') as HTMLElement, h('div#leaders', [this.leadersView(msg)]));
     }
 
     private onMsgTvGame(msg: TvGame) {
@@ -1191,6 +1197,8 @@ export function lobbyView(model: PyChessModel): VNode[] {
                 ])
             )),
         ]),
+        h('div#leaders'),
+        h('div#winners'),
         h('div.puzzle', [h('a#daily-puzzle', { attrs: {href: '/puzzle/daily'} }, dailyPuzzle)]),
     ];
 }

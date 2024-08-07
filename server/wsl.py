@@ -238,7 +238,7 @@ async def send_lobby_user_connected(app_state, ws, user):
     if len(streams) > 0:
         await ws_send_json(ws, {"type": "streams", "items": streams})
 
-    response = {"type": "leaderboard", "items": app_state.leaderboard.items()[:10]}
+    response = {"type": "leaderboard", "items": app_state.leaderboard.items()[:12]}
     await ws.send_json(response)
 
     if (
