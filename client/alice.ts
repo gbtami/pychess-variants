@@ -54,6 +54,12 @@ export class AliceBoard {
         this.check = check0 || check1;
     }
 
+    getSan(uci: string): string {
+        const boardId = (this.boards[0].board.get((parseUci(uci)! as NormalMove).from) === undefined) ? 1 : 0;
+        this.ffishBoard.setFen(this.fens[boardId]);
+        return this.ffishBoard.sanMove(uci);
+    }
+
     getFen(uci: string): string {
         const move = parseUci(uci) as NormalMove;
         const boardId = (this.boards[0].board.get((parseUci(uci)! as NormalMove).from) === undefined) ? 1 : 0;

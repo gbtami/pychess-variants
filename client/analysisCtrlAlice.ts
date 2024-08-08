@@ -48,11 +48,10 @@ export class AnalysisControllerAlice extends AnalysisController {
     doSendMove(move: string) {
         const aliceBoard = new AliceBoard(this.fullfen, this.ffishBoard);
 
-// TODO
 //        const san = this.ffishBoard.sanMove(move, this.notationAsObject);
 //        const sanSAN = this.ffishBoard.sanMove(move);
-        const san = move;
-        const sanSAN = move;
+        const san = aliceBoard.getSan(move);
+        const sanSAN = san;
         const vv = this.steps[this.plyVari]?.vari;
 
         // Instead of sending moves to the server we can get new FEN and dests from ffishjs
