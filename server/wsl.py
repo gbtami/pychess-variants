@@ -86,7 +86,7 @@ async def handle_create_ai_challenge(app_state: PychessGlobalAppState, ws, user,
     variant = data["variant"]
     engine = app_state.users["Fairy-Stockfish"]
 
-    if data["rm"] or (engine is None) or (not engine.online):
+    if variant == "alice" or data["rm"] or (engine is None) or (not engine.online):
         # TODO: message that engine is offline, but Random-Mover BOT will play instead
         engine = app_state.users["Random-Mover"]
 
