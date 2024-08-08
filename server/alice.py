@@ -25,6 +25,7 @@ CASTLED_ROOK_SQUARE = ((D1, D8), (F1, F8))
 
 class AliceBoard:
     def __init__(self, initial_fen=""):
+        self.nnue = False
         self.initial_fen = initial_fen if initial_fen else AliceBoard.start_fen()
         self.move_stack: list[str] = []
         self.castling_move_stack: list[bool] = []

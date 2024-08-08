@@ -587,7 +587,7 @@ export class LobbyController implements ChatController {
     playAI(variantName: string = '', chess960: boolean = false) {
         this.preSelectVariant(variantName, chess960);
         this.createMode = 'playAI';
-        this.renderVariantsDropDown(["bughouse"]);
+        this.renderVariantsDropDown(["alice", "bughouse"]);
         this.renderDialogHeader(createModeStr(this.createMode))
         document.getElementById('game-mode')!.style.display = 'none';
         document.getElementById('rating-range-setting')!.style.display = 'none';
