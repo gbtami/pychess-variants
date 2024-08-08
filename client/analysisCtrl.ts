@@ -385,7 +385,7 @@ export class AnalysisController extends GameController {
                 });
             updateMovelist(this);
 
-            if (this.steps[0].analysis === undefined) {
+            if (this.steps[0].analysis === undefined && this.variant.name !== 'alice') {
                 if (!this.isAnalysisBoard && !this.embed) {
                     const el = document.getElementById('request-analysis') as HTMLElement;
                     el.style.display = 'flex';
