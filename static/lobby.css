@@ -98,7 +98,7 @@
 .mini cg-board {
   top: calc(100% / var(--ranks));
 }
-.cg-wrap.cg-512.mini, .cg-wrap.cg-640.mini, .cg-wrap.cg-576.mini, .cg-wrap.cg-448-516.mini, .cg-wrap.cg-260-360.mini, .cg-wrap.cg-260.mini, .cg-wrap.cg-156.mini, .cg-wrap.cg-448.mini, .cg-wrap.cg-576-640.mini, .cg-wrap.cg-640-640.mini, .cg-wrap.cg-540.mini {
+.cg-wrap.cg-512.mini, .cg-wrap.cg-640.mini, .cg-wrap.cg-576.mini, .cg-wrap.cg-448-516.mini, .cg-wrap.cg-260-360.mini, .cg-wrap.cg-260.mini, .cg-wrap.cg-156.mini, .cg-wrap.cg-448.mini, .cg-wrap.cg-576-640.mini, .cg-wrap.cg-640-640.mini, .cg-wrap.cg-janggi.mini, .cg-wrap.cg-540.mini {
   width: unset;
 }
 
