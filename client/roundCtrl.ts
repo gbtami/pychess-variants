@@ -511,6 +511,9 @@ export class RoundController extends GameController {
 
     // Janggi second player (Red) setup
     private onMsgSetup = (msg: MsgSetup) => {
+        const buttonEl = document.getElementById('flipLeft') as HTMLElement;
+        if (buttonEl !== null) return;
+
         this.setupFen = msg.fen;
         this.chessground.set({fen: this.setupFen});
 

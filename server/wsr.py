@@ -213,7 +213,7 @@ async def handle_ready(ws, users, user, data, game):
 
 async def hande_board(ws, game):
     if game.variant == "janggi":
-        print("JANGGI", game.bsetup, game.wsetup, game.status)
+        # print("JANGGI", ws, game.bsetup, game.wsetup, game.status)
         if (game.bsetup or game.wsetup) and game.status <= STARTED:
             if game.bsetup:
                 await ws_send_json(
