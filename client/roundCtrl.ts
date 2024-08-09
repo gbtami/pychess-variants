@@ -294,8 +294,10 @@ export class RoundController extends GameController {
 
         if (!this.spectator && !this.corr) {
             if (this.byoyomiPeriod > 0) {
+                this.clocks[0].onByoyomi(byoyomiCallback);
                 this.clocks[1].onByoyomi(byoyomiCallback);
             }
+            this.clocks[0].onFlag(flagCallback);
             this.clocks[1].onFlag(flagCallback);
         }
 
