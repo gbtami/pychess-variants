@@ -959,8 +959,10 @@ export class RoundController extends GameController {
         console.log("roundCtrl.goPly()");
         super.goPly(ply, plyVari);
 
-        if (this.spectator || this.turnColor !== this.mycolor || this.result !== "*" || ply !== this.steps.length - 1) {
+        if (this.spectator || this.status >=0 || ply !== this.steps.length - 1) {
             this.chessground.set({ movable: { color: undefined } });
+        } else if (ply === this.steps.length - 1) {
+            this.chessground.set({ movable: { color: this.mycolor } });
         }
 
         this.updateMaterial();
