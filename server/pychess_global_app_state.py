@@ -99,7 +99,6 @@ class PychessGlobalAppState:
         self.game_channels: Set[queue] = set()
         self.invite_channels: Set[queue] = set()
         self.highscore = {variant: ValueSortedDict(neg) for variant in VARIANTS}
-        self.get_top10_users = True
         self.crosstable: dict[str, object] = {}
         self.shield = {}
         self.shield_owners = {}  # {variant: username, ...}
@@ -170,7 +169,8 @@ class PychessGlobalAppState:
 
             db_collections = await self.db.list_collection_names()
 
-            if "highscore" not in db_collections:
+            # TODO: remove 1 after next deploy
+            if 1:  # "highscore" not in db_collections:
                 await generate_highscore(self)
             cursor = self.db.highscore.find()
             async for doc in cursor:

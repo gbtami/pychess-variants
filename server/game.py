@@ -694,18 +694,20 @@ class Game:
 
         w_nb = self.wplayer.perfs[self.variant + ("960" if self.chess960 else "")]["nb"]
         if w_nb >= HIGHSCORE_MIN_GAMES:
+            _id = "%s|%s" % (self.wplayer.username, self.wplayer.title)
             await self.set_highscore(
                 self.variant,
                 self.chess960,
-                {self.wplayer.username: int(round(wcurr.mu + wrdiff, 0))},
+                {_id: int(round(wcurr.mu + wrdiff, 0))},
             )
 
         b_nb = self.bplayer.perfs[self.variant + ("960" if self.chess960 else "")]["nb"]
         if b_nb >= HIGHSCORE_MIN_GAMES:
+            _id = "%s|%s" % (self.bplayer.username, self.bplayer.title)
             await self.set_highscore(
                 self.variant,
                 self.chess960,
-                {self.bplayer.username: int(round(bcurr.mu + brdiff, 0))},
+                {_id: int(round(bcurr.mu + brdiff, 0))},
             )
 
     def get_player_at(self, color, board):

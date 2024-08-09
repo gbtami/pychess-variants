@@ -7,7 +7,6 @@ import logging
 import sys
 import warnings
 from datetime import datetime
-from itertools import islice
 from urllib.parse import urlparse
 
 import aiohttp_session
@@ -495,12 +494,6 @@ async def index(request):
         render["anon_online"] = anon_online
         render["admin"] = user.username in ADMINS
         if variant is None:
-            # read top10 users data
-            if app_state.get_top10_users:
-                for variant in VARIANTS:
-                    for username in islice(app_state.highscore[variant], 10):
-                        await app_state.users.get(username)
-                app_state.get_top10_users = False
             render["highscore"] = {
                 variant: dict(app_state.highscore[variant].items()[:10])
                 for variant in app_state.highscore
@@ -508,10 +501,6 @@ async def index(request):
             }
         else:
             hs = app_state.highscore[variant]
-            # read top50 users data
-            for username in hs:
-                await app_state.users.get(username)
-
             render["highscore"] = hs
             view = "players50"
 
