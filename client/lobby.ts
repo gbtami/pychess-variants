@@ -547,17 +547,19 @@ export class LobbyController implements ChatController {
         }
     }
 
-    renderVariantsDropDown(disabled: string[]) {
-        const vVariant = localStorage.seek_variant || "chess";
+    renderVariantsDropDown(variantName: string = '', chess960: boolean = false, disabled: string[]) {
+        // variantName and chess960 are set when this was called from the variant catalog (layer3.ts)
+        const vVariant = variantName || localStorage.seek_variant || "chess";
+        const vChess960 = chess960 || localStorage.seek_chess960 || false;
         const e = document.getElementById('variant');
         e!.replaceChildren();
         patch(e!, selectVariant("variant", disabled.includes(vVariant)? null: vVariant, () => this.setVariant(), () => this.setVariant(), disabled));
+        this.preSelectVariant(vVariant, vChess960);
     }
 
     createGame(variantName: string = '', chess960: boolean = false) {
-        this.preSelectVariant(variantName, chess960);
         this.createMode = 'createGame';
-        this.renderVariantsDropDown([]);
+        this.renderVariantsDropDown(variantName, chess960, []);
         this.renderDialogHeader(createModeStr(this.createMode));
         document.getElementById('game-mode')!.style.display = this.anon ? 'none' : 'inline-flex';
         document.getElementById('rating-range-setting')!.style.display = 'block';
@@ -570,9 +572,8 @@ export class LobbyController implements ChatController {
     }
 
     playFriend(variantName: string = '', chess960: boolean = false) {
-        this.preSelectVariant(variantName, chess960);
         this.createMode = 'playFriend';
-        this.renderVariantsDropDown(["bughouse"]);
+        this.renderVariantsDropDown(variantName, chess960, ["bughouse"]);
         this.renderDialogHeader(createModeStr(this.createMode))
         document.getElementById('game-mode')!.style.display = this.anon ? 'none' : 'inline-flex';
         document.getElementById('rating-range-setting')!.style.display = 'none';
@@ -585,9 +586,8 @@ export class LobbyController implements ChatController {
     }
 
     playAI(variantName: string = '', chess960: boolean = false) {
-        this.preSelectVariant(variantName, chess960);
         this.createMode = 'playAI';
-        this.renderVariantsDropDown(["bughouse"]);
+        this.renderVariantsDropDown(variantName, chess960, ["bughouse"]);
         this.renderDialogHeader(createModeStr(this.createMode))
         document.getElementById('game-mode')!.style.display = 'none';
         document.getElementById('rating-range-setting')!.style.display = 'none';
@@ -601,9 +601,8 @@ export class LobbyController implements ChatController {
     }
 
     createHost(variantName: string = '', chess960: boolean = false) {
-        this.preSelectVariant(variantName, chess960);
         this.createMode = 'createHost';
-        this.renderVariantsDropDown(["bughouse"]);
+        this.renderVariantsDropDown(variantName, chess960, ["bughouse"]);
         this.renderDialogHeader(createModeStr(this.createMode))
         document.getElementById('game-mode')!.style.display = this.anon ? 'none' : 'inline-flex';
         document.getElementById('rating-range-setting')!.style.display = 'none';
