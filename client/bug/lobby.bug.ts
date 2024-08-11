@@ -25,6 +25,9 @@ export function switchEnablingLobbyControls(mode: CreateMode, variant: Variant, 
 export function bugJoinSeek(ctrl: LobbyController, e: Event, seek: Seek, joinAs: string) {
     e.stopPropagation();
     // seek[player] = ctrl.username;
+    if (ctrl.anon) {
+        alert(_("Anon users cannot join bughouse games"));
+    }
     ctrl.doSend({ type: "accept_seek", seekID: seek["seekID"], player: ctrl.username, joinAs: joinAs });
 }
 

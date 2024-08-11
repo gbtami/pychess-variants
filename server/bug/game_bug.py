@@ -465,6 +465,7 @@ class GameBug:
 
     def check_checkmate_on_board_and_update_status(self, board: str):
         # it is not mate if there are possible move dests on the given board
+        # todo: if it is check that is blockable, but no pieces in pocket, dests might be empty but it is not mate
         if board == "a" and self.dests_a:
             return False
         elif board == "b" and self.dests_b:

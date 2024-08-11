@@ -504,6 +504,8 @@ async def play_move(
 
 
 async def handle_accept_seek_bughouse(app_state: PychessGlobalAppState, user, data, seek):
+    if user.anon:
+        return
     response = await join_seek_bughouse(app_state, user, data["seekID"], None, data["joinAs"])
     bug_users = set(
         filter(

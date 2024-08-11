@@ -559,7 +559,7 @@ export class LobbyController implements ChatController {
 
     createGame(variantName: string = '', chess960: boolean = false) {
         this.createMode = 'createGame';
-        this.renderVariantsDropDown(variantName, chess960, []);
+        this.renderVariantsDropDown(variantName, chess960, this.anon ? ["bughouse"]: []);
         this.renderDialogHeader(createModeStr(this.createMode));
         document.getElementById('game-mode')!.style.display = this.anon ? 'none' : 'inline-flex';
         document.getElementById('rating-range-setting')!.style.display = 'block';
