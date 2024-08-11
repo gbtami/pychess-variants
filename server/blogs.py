@@ -16,6 +16,16 @@ del _
 
 BLOGS = [
     {
+        "_id": "Late_Summer_Update",
+        "date": "2024-08-11",
+        "image": "/images/CVariantsGuide/Aliceroom3.jpg",
+        "alt": "",
+        "title": "Late Summer Update",
+        "subtitle": "New variants and bug fixes",
+        "author": "gbtami",
+        "tags": ["Announcement"],
+    },
+    {
         "_id": "Alternate_variants",
         "date": "2024-07-11",
         "image": "/images/alt-server-boards.png",
