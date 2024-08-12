@@ -16,6 +16,7 @@ import game
 from const import CREATED, STARTED, VARIANTS, STALEMATE, MATE
 from fairy import FairyBoard
 from game import Game
+from bug.game_bug import GameBug
 from glicko2.glicko2 import DEFAULT_PERF, Glicko2, WIN, LOSS
 from login import RESERVED_USERS
 from newid import id8
@@ -88,6 +89,25 @@ class GameResultTestCase(AioHTTPTestCase):
 
     async def tearDownAsync(self):
         await self.client.close()
+
+    async def test_bughouse_checkmate(self):
+        FEN = "r1b2Q2/ppp4p/1kn5/1q3N2/8/2P5/P1PK1q~1P/1R6[Npp] w - - 0 33 | 1r1k3r/pPpn2pp/4Qn2/3p4/2pNP3/1Bb5/PPPP1PPP/R1B1K2R[RBBNPPPqrbbnppp] w KQ - 1 19"
+        game = GameBug(
+            get_app_state(self.app),
+            "12345678",
+            "bughouse",
+            FEN,
+            self.wplayer,
+            self.wplayer,
+            self.bplayer,
+            self.bplayer,
+            rated=False,
+        )
+
+        await game.play_move("d4c6", board="b", clocks=CLOCKS, clocks_b=CLOCKS)
+
+        self.assertEqual(game.result, "0-1")
+        self.assertEqual(game.status, MATE)
 
     async def test_atomic_stalemate(self):
         FEN = "K7/Rk6/2B5/8/8/8/7Q/8 w - - 0 1"
