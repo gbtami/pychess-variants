@@ -177,7 +177,7 @@ VARIANTS = (
 # Remove new variants on prod site until they stabilize
 if PROD:
     VARIANTS = tuple(
-        e for e in VARIANTS if e not in ("alice", "bughouse", "bughouse960", "fogofwar")
+        e for e in VARIANTS if e not in ("bughouse", "bughouse960")
     )
 
 VARIANT_ICONS = {
