@@ -17,10 +17,10 @@ We are happy to announce the availability of two new variants here on Pychess: [
 
 Our FAQ declares "We can't even consider adding variants that aren't supported by Fairy-Stockfish." How this can happen then at all?
 But this saying had an extra (hidden) sentence from the very beginning: if a variant has a py and js lib that provides everything we need (valid move generation, FEN/UCI/SAN/PGN handling, game termination detection, etc-etc) that can be OK as well.
-I remember the times when Xiangqi was not in FSF, and we used [moonfish](https://github.com/walker8088/moonfish) lib and [ElephantEye](https://github.com/xqbase/eleeye).
-But explaining all of this is too long, so we just say "it needs FSF support" in short. Handling external py/js libs for a variant instead of just use pyffis/ffish.js complicates the code base, of course, but Alice Chess and Fog of War worth it I think.
+I remember the time when Xiangqi was not in FSF, and we used [moonfish](https://github.com/walker8088/moonfish) lib and [ElephantEye](https://github.com/xqbase/eleeye).
+But explaining all of this would take too long, so we just say "it needs FSF support" in short. Handling external py/js libs for a variant instead of just use pyffis/ffish.js complicates the code base, of course, but Alice Chess and Fog of War worth it I think.
 
-Before I was thinking Alice Chess is not possible to add, but later I realized that it is almost standard chess. Regarding the move generation you just have to check on the "other board" that your move target square is empty there.
+Before I was thinking Alice Chess is not possible to add, but later I realized that it is almost standard chess. Regarding the move generation, you just have to check on the "other board" that your move target square is empty.
 So we can use FSF move generation then filter out invalid moves using [python-chess](https://github.com/niklasf/python-chess) and [chessops](https://github.com/niklasf/chessops) lichess libs.
 
 Fog of war was asked for several times before, but the answer was always no, because FSF doesn't support it as well. But after looking at its rules, it is just a simple (king) extinction variant and FSF can play it! She just can look through to the fog :)
