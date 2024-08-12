@@ -643,6 +643,15 @@ export class LobbyController implements ChatController {
                 ),
             ]));
         }
+        // Select Random-Mover but disable FSF play for "unsupported by FSF" variants
+        if ('alice, fogofwar'.includes(variant.name)) {
+            document.getElementById('rmplay').checked = true;
+            document.getElementById('ailevel')!.style.display = 'none';
+        } else {
+            const vRMplay = localStorage.seek_rmplay ?? "false";
+            document.getElementById('rmplay').checked = vRMplay;
+            document.getElementById('ailevel')!.style.display = e.checked ? 'none' : 'inline-block';
+        };
         switchEnablingLobbyControls(this.createMode, variant, this.anon);
         this.setStartButtons();
     }
