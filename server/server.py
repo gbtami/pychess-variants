@@ -233,7 +233,7 @@ if __name__ == "__main__":
         level=logging.DEBUG if args.v else logging.WARNING if args.w else logging.INFO
     )
 
-    logging.getLogger('pymongo').setLevel(logging.DEBUG if args.m else logging.INFO)
+    logging.getLogger("pymongo").setLevel(logging.DEBUG if args.m else logging.INFO)
 
     app = make_app(
         db_client=AsyncIOMotorClient(MONGO_HOST, tz_aware=True),
