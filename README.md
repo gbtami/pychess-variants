@@ -28,6 +28,8 @@ Currently supported games are:
 - [Three check](https://www.pychess.org/variants/3check)
 - [King of the Hill](https://www.pychess.org/variants/kingofthehill)
 - [Duck chess](https://www.pychess.org/variants/duck)
+- [Alice chess](https://www.pychess.org/variants/alice)
+- [Fog of War](https://www.pychess.org/variants/fogofwar)
 - [S-chess](https://www.pychess.org/variants/seirawan)
 - [Capablanca](https://www.pychess.org/variants/capablanca)
 - [Gothic](https://www.pychess.org/variants/gothic)
