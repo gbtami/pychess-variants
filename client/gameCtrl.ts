@@ -224,7 +224,8 @@ export abstract class GameController extends ChessgroundController implements Ch
         if (this.spectator) return DARK_FEN;
 
         // Squares visibility is always calculated from my color turn perspective
-        this.ffishBoard.setFen([currentFen.split(' ')[0], this.mycolor[0]].join(' '));
+        const parts = currentFen.split(' ');
+        this.ffishBoard.setFen([parts[0], this.mycolor[0], parts[2], parts[3]].join(' '));
         const legalMoves = this.ffishBoard.legalMoves().split(" ");
 
         const pieces = fen.read(currentFen, this.variant.board.dimensions).pieces;
@@ -246,6 +247,7 @@ export abstract class GameController extends ChessgroundController implements Ch
         const darkPieces: [cg.Key, cg.Piece][]  = darks.map((key) => [key, fog]);
         const visiblePieces: [cg.Key, cg.Piece][] = Array.from(visibleKeys).filter((key) => pieces.get(key)).map((key) => [key, pieces.get(key)!]);
         const newPieces: cg.Pieces = new Map(darkPieces.concat(visiblePieces));
+        
         return fen.writeBoard(newPieces, this.variant.board.dimensions);
     }
 
