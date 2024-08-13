@@ -35,6 +35,19 @@ export class RoundControllerAlice extends RoundController {
     onMsgBoard = (msg: MsgBoard) => {
         this.boardId = 0;
         super.onMsgBoard(msg);
+        if (this.spectator) {
+            const aliceBoard = new AliceBoard(this.fullfen, this.ffishBoard);
+            this.check = aliceBoard.check;
+
+            this.unionFens = [aliceBoard.getUnionFen(0), aliceBoard.getUnionFen(1)];
+            const unionFen = this.unionFens[this.boardId ?? 0];
+
+            this.chessground.set({
+                fen: unionFen,
+                check: (this.check) ? this.turnColor : false,
+                movable: { color: undefined }, 
+            });
+        }
     }
 
     setDests() {
