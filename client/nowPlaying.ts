@@ -7,7 +7,7 @@ import * as cg from "chessgroundx/types";
 import { patch } from './document';
 import { uci2LastMove } from './chess';
 import { timeago } from './datetime';
-import { VARIANTS } from './variants';
+import { getLastMoveFen, VARIANTS } from './variants';
 
 export interface Game {
     gameId: string;
@@ -88,14 +88,18 @@ export function gameViewPlaying(cgMap: {[gameId: string]: Api}, game: Game, user
     const isMyTurn = game.tp === username;
     const opp = (username === game.w) ? game.b : game.w;
     const mycolor = (username === game.w) ? 'white' : 'black';
+
+    let lastMove, fen;
+    [lastMove, fen] = getLastMoveFen(variant.name, game.lastMove, game.fen, '*')
+
     return h(`a.${variant.boardFamily}.${variant.pieceFamily}`, { attrs: { href: game.gameId } }, [
         h(`div.cg-wrap.${variant.board.cg}`, {
             hook: {
                 insert: vnode => {
                     const cg = Chessground(vnode.elm as HTMLElement, {
                         orientation: mycolor,
-                        fen: game.fen,
-                        lastMove: uci2LastMove(game.lastMove),
+                        fen: fen,
+                        lastMove: lastMove,
                         dimensions: variant.board.dimensions,
                         coordinates: false,
                         viewOnly: true,
