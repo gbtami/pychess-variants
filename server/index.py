@@ -430,13 +430,14 @@ async def index(request):
             render["can_block"] = profileId not in user.blocked
             render["can_challenge"] = user.username not in profileId_user.blocked
 
+            _id = "%s|%s" % (profileId, profileId_user.title)
             render["trophies"] = [
                 (v, "top10")
                 for v in app_state.highscore
-                if profileId in app_state.highscore[v].keys()[:10]
+                if _id in app_state.highscore[v].keys()[:10]
             ]
             for i, (v, kind) in enumerate(render["trophies"]):
-                if app_state.highscore[v].peekitem(0)[0] == profileId:
+                if app_state.highscore[v].peekitem(0)[0] == _id:
                     render["trophies"][i] = (v, "top1")
             render["trophies"] = sorted(render["trophies"], key=lambda x: x[1])
 

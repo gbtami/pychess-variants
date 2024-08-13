@@ -25,7 +25,7 @@ class Lobby:
 
     # below methods maybe best in separate class eventually
     async def lobby_broadcast(self, response):
-        log.debug("lobby_broadcast: %r to %r", response, self.lobbysockets)
+        # log.debug("lobby_broadcast: %r to %r", response, self.lobbysockets)
         for username, ws_set in self.lobbysockets.items():
             for ws in ws_set:
                 await ws_send_json(ws, response)
