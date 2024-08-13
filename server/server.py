@@ -219,6 +219,11 @@ if __name__ == "__main__":
         action="store_true",
         help="Use SimpleCookieStorage. For testing purpose only!",
     )
+    parser.add_argument(
+        "-m",
+        action="store_true",
+        help="Verbose mongodb logging. Changes log level from INFO to DEBUG.",
+    )
     args = parser.parse_args()
 
     FORMAT = "%(asctime)s.%(msecs)03d [%(levelname)s] %(name)s:%(lineno)d %(message)s"
@@ -227,6 +232,8 @@ if __name__ == "__main__":
     logging.getLogger().setLevel(
         level=logging.DEBUG if args.v else logging.WARNING if args.w else logging.INFO
     )
+
+    logging.getLogger('pymongo').setLevel(logging.DEBUG if args.m else logging.INFO)
 
     app = make_app(
         db_client=AsyncIOMotorClient(MONGO_HOST, tz_aware=True),
