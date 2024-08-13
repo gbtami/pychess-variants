@@ -9,7 +9,7 @@ import * as util from 'chessgroundx/util';
 import { _ } from './i18n';
 import { patch } from './document';
 import { Step, MsgChat, MsgFullChat, MsgSpectators, MsgShutdown,MsgGameNotFound } from './messages';
-import { adjacent, uci2LastMove, moveDests, cg2uci, uci2cg, unpromotedRole, UCIMove } from './chess';
+import { adjacent, DARK_FEN, uci2LastMove, moveDests, cg2uci, uci2cg, unpromotedRole, UCIMove } from './chess';
 import { InputType } from '@/input/input';
 import { GatingInput } from './input/gating';
 import { PromotionInput } from './input/promotion';
@@ -220,6 +220,8 @@ export abstract class GameController extends ChessgroundController implements Ch
     fogFen(currentFen: string): string {
         // No king, no fog (game is over)
         if (!currentFen.includes('k') || !currentFen.includes('K') || this.result !== '*') return currentFen;
+        
+        if (this.spectator) return DARK_FEN;
 
         // Squares visibility is always calculated from my color turn perspective
         this.ffishBoard.setFen([currentFen.split(' ')[0], this.mycolor[0]].join(' '));
