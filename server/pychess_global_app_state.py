@@ -169,8 +169,7 @@ class PychessGlobalAppState:
 
             db_collections = await self.db.list_collection_names()
 
-            # TODO: remove 1 after next deploy
-            if 1:  # "highscore" not in db_collections:
+            if "highscore" not in db_collections:
                 await generate_highscore(self)
             cursor = self.db.highscore.find()
             async for doc in cursor:
