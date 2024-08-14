@@ -345,7 +345,7 @@ export class RoundController extends GameController {
 
         if (model.corrGames.length > 0) {
             const corrGames = JSON.parse(model.corrGames).sort(compareGames(this.username));
-            const cgMap: {[gameId: string]: Api} = {};
+            const cgMap: {[gameId: string]: [Api, string]} = {};
             handleOngoingGameEvents(this.username, cgMap);
 
             patch(document.querySelector('.games-container') as HTMLElement, 

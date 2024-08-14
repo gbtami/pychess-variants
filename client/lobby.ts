@@ -1136,7 +1136,7 @@ export function lobbyView(model: PyChessModel): VNode[] {
         ])
     );
     if (corrGames.length > 0) {
-        const cgMap: {[gameId: string]: Api} = {};
+        const cgMap: {[gameId: string]: [Api, string]} = {};
         handleOngoingGameEvents(username, cgMap);
 
         containers.push(
