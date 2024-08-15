@@ -331,9 +331,9 @@ class User:
         else:
             return False
 
-    def compatible_with_seek(self, seek):
+    async def compatible_with_seek(self, seek):
         self_rating = self.get_rating(seek.variant, seek.chess960).rating_prov[0]
-        seek_user = self.app_state.users[seek.creator.username]
+        seek_user = await self.app_state.users.get(seek.creator.username)
         return (
             (seek_user.username not in self.blocked)
             and (self.username not in seek_user.blocked)
