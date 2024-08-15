@@ -1572,10 +1572,10 @@ gettext-to-messageformat@0.3.1:
   dependencies:
     gettext-parser "^1.4.0"
 
-gettext.js@^2.0.2:
-  version "2.0.2"
-  resolved "https://registry.yarnpkg.com/gettext.js/-/gettext.js-2.0.2.tgz#2e3d7a0220b822dddcb61c6d905edb87da84cd9f"
-  integrity sha512-V5S0HCgOzHmTaaHUNMQr3xVPu6qLpv3j6K9Ygi41Pu6SRNNmWwvXCf/wQYXArznm4uZyZ1v8yrDZngxy6+kCyw==
+gettext.js@^2.0.3:
+  version "2.0.3"
+  resolved "https://registry.yarnpkg.com/gettext.js/-/gettext.js-2.0.3.tgz#ae6a9f396b193fafe9f3f089cef141f14ffb1648"
+  integrity sha512-11gyttZWBUBkenEVgPMqJTL9TIKaH4PW6ZCMZr+lNXrgiYHXBg+bOGAc8OjfLE8lvi0dgwtqrSfScd310PlKJw==
   dependencies:
     po2json "^1.0.0-beta-3"
 
