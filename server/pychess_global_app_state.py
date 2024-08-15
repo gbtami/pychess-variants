@@ -232,6 +232,12 @@ class PychessGlobalAppState:
 
             # Read correspondence seeks
             async for doc in self.db.seek.find():
+                # TODO: this is here to skip seeks created by my dumb code
+                # remove this check after next deploy
+                rrmin = doc.get("rrmin")
+                if rrmin > 0:
+                    continue
+
                 user = await self.users.get(doc["user"])
                 if user is not None:
                     seek = Seek(
@@ -241,7 +247,7 @@ class PychessGlobalAppState:
                         color=doc["color"],
                         day=doc["day"],
                         rated=doc["rated"],
-                        rrmin=doc.get("rrmin"),
+                        rrmin=rrmin,
                         rrmax=doc.get("rrmax"),
                         chess960=doc["chess960"],
                         player1=user,
