@@ -74,8 +74,7 @@ async def process_message(app_state: PychessGlobalAppState, user, ws, data):
 
 
 async def send_get_seeks(ws, user, seeks):
-    seeks = await get_seeks(user, seeks)
-    response = {"type": "get_seeks", "seeks": seeks}
+    response = {"type": "get_seeks", "seeks": get_seeks(user, seeks)}
     await ws_send_json(ws, response)
 
 
