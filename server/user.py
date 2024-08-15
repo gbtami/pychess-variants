@@ -337,8 +337,8 @@ class User:
         return (
             (seek_user.username not in self.blocked)
             and (self.username not in seek_user.blocked)
-            and self_rating >= seek.rrmin
-            and self_rating <= seek.rrmax
+            and self_rating >= seek.rating + seek.rrmin
+            and self_rating <= seek.rating + seek.rrmax
         )
 
     def __repr__(self):
