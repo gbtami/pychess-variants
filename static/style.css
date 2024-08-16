@@ -39,6 +39,12 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+.icon-FogOfWar:before {
+  content: "\1f32b";
+}
+.icon-Alice:before {
+  content: "\1f467";
+}
 .icon-dragon:before {
   content: "\1f409";
 }

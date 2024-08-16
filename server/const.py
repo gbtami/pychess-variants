@@ -239,7 +239,7 @@ VARIANT_ICONS = {
     "3check960": "☷",
     "bughouse": "¢",
     "bughouse960": "⌀",
-    "alice": "🪞",
+    "alice": "👧",
     "fogofwar": "🌫",
 }
 

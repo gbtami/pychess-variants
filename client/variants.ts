@@ -449,7 +449,7 @@ export const VARIANTS: Record<string, Variant> = {
     alice: variant({
         name: "alice", tooltip: "Through the Looking-Glass",
         startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1 | 8/8/8/8/8/8/8/8 w - - 0 1",
-        icon: "🪞",
+        icon: "👧",
         boardFamily: "standard8x8", pieceFamily: "standard",
         pieceRow: ["k", "q", "r", "b", "n", "p"],
         rules: { enPassant: false },

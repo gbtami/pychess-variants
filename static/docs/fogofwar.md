@@ -1,4 +1,4 @@
-# ![Fog of War](https://github.com/gbtami/pychess-variants/blob/master/static/icons/fogofwar.svg) Fog of War
+# ![Fog of War](https://github.com/gbtami/pychess-variants/blob/master/static/icons/FogOfWar.svg) Fog of War
 
 ![Fog of War](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Fogofwar.png)
 
