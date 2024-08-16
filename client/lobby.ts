@@ -322,7 +322,9 @@ export class LobbyController implements ChatController {
                 localStorage.seek_level = e.value;
                 // console.log(level, e.value, localStorage.getItem("seek_level"));
                 e = document.getElementById('rmplay') as HTMLInputElement;
-                localStorage.seek_rmplay = e.checked;
+                if (!'alice, fogofwar'.includes(variant.name)) {
+                    localStorage.seek_rmplay = e.checked;
+                }
                 const rm = e.checked;
                 this.createBotChallengeMsg(variant.name, seekColor, fen, minutes, increment, byoyomiPeriod, level, rm, chess960, rated);
                 break;
@@ -650,7 +652,7 @@ export class LobbyController implements ChatController {
             document.getElementById('ailevel')!.style.display = 'none';
         } else {
             const vRMplay = localStorage.seek_rmplay ?? "false";
-            e.checked = vRMplay;
+            e.checked = vRMplay === "true";
             document.getElementById('ailevel')!.style.display = e.checked ? 'none' : 'inline-block';
         };
         switchEnablingLobbyControls(this.createMode, variant, this.anon);
