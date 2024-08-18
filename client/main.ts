@@ -200,12 +200,12 @@ function start() {
         fetch('/api/names?p=' + val)
             .then(res => res.json())
             .then(data => {
-                console.log(data);
+                // console.log(data);
                 const list = data.map((el: String) => {
                     const title = (el[1]) ? `<player-title>${el[1]} </player-title>` : '';
                     return `<li><a class="user-link" href="${model["home"]}/@/${el[0]}">${title}${el[0]}</a></li>`;
                 });
-                console.log(list);
+                // console.log(list);
                 acResult.innerHTML = '<ul class="box">' + list.join('') + '</ul>';
             })
             .catch((err) => {

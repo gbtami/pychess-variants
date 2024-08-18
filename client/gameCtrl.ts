@@ -192,7 +192,7 @@ export abstract class GameController extends ChessgroundController implements Ch
     }
 
     setDests() {
-        console.log("gameCtrl.setDests()");
+        // console.log("gameCtrl.setDests()");
         const legalMoves = this.ffishBoard.legalMoves().split(" ");
         const fakeDrops = this.variant.name === 'ataxx';
         const pieces = this.chessground.state.boardState.pieces;
@@ -302,17 +302,18 @@ export abstract class GameController extends ChessgroundController implements Ch
     }
 
     goPly(ply: number, plyVari = 0) {
-        console.log("gameCtrl.goPly()");
+        // console.log("gameCtrl.goPly()");
         const vv = this.steps[plyVari]?.vari;
         const step = (plyVari > 0 && vv) ? vv[ply - plyVari] : this.steps[ply];
         if (step === undefined) return;
 
-        const move = uci2LastMove(step.move);
+        const lastMove = uci2LastMove(step.move);
         let capture = false;
-        if (move) {
+        if (lastMove) {
             // 960 king takes rook castling is not capture
             // TODO Defer this logic to ffish.js
-            capture = (this.chessground.state.boardState.pieces.get(move[1] as cg.Key) !== undefined && step.san?.slice(0, 2) !== 'O-') || (step.san?.slice(1, 2) === 'x');
+            const piece = this.chessground.state.boardState.pieces.get(lastMove[1] as cg.Key);
+            capture = (piece !== undefined && piece.role !== '_-piece' && step.san?.slice(0, 2) !== 'O-') || (step.san?.slice(1, 2) === 'x');
         }
 
         this.chessground.set({
@@ -322,7 +323,7 @@ export abstract class GameController extends ChessgroundController implements Ch
                 color: step.turnColor,
             },
             check: (this.fog) ? false : step.check,
-            lastMove: (this.fog) ? undefined : move,
+            lastMove: (this.fog) ? undefined : lastMove,
         });
 
         // turnColor have to be actualized before setDests() !!!

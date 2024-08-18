@@ -10,7 +10,7 @@ import { PyChessModel } from "../types";
 
 
 export function gameInfoBug(model: PyChessModel): VNode {
-    console.log("roundView model=", model);
+    // console.log("roundView model=", model);
     const variant = VARIANTS[model.variant];
     const chess960 = model.chess960 === 'True';
     const dataIcon = variant.icon(chess960);
