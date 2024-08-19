@@ -659,17 +659,13 @@ async def index(request):
         if variant == "terminology":
             item = "docs/terminology%s.html" % locale
         else:
-            item = (
-                "docs/" + ("terminology" if variant is None else variant) + "%s.html" % locale
-            )
+            item = "docs/" + ("terminology" if variant is None else variant) + "%s.html" % locale
 
         if not os.path.exists(os.path.abspath(os.path.join("templates", item))):
             if variant == "terminology":
                 item = "docs/terminology.html"
             else:
-                item = (
-                    "docs/" + ("terminology" if variant is None else variant) + ".html"
-                )
+                item = "docs/" + ("terminology" if variant is None else variant) + ".html"
         render["variant"] = item
 
     elif view == "games":
