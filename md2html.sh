@@ -2,20 +2,7 @@
 
 # Learn docs
 cd static/docs
-
-export PATH="../../node_modules/.bin/:$PATH"
-
-for f in *.md; do
-	showdown makehtml -i "$f" -o "$(basename -- "$f" .md).html" --flavor github
-	for lang in es hu it pt fr zh_CN zh_TW; do
-		if [ -e "$lang/$f" ]; then
-			showdown makehtml -i "$lang/$f" -o "$(basename -- "$f" .md).$lang.html" --flavor github
-		else
-			showdown makehtml -i "$f" -o "$(basename -- "$f" .md).$lang.html" --flavor github
-		fi
-	done
-done
-
+node ../../md2html.js
 
 SRC='https://github.com/gbtami/pychess-variants/blob/master'; 
 #DST='https://www.pychess.org';
@@ -27,17 +14,7 @@ mv *.html ../../templates/docs
 
 # Blogs
 cd ../blogs
-
-for f in *.md; do
-	showdown makehtml -i "$f" -o "$(basename -- "$f" .md).html" --flavor github
-	for lang in es hu it pt fr zh_CN zh_TW; do
-		if [ -e "$lang/$f" ]; then
-			showdown makehtml -i "$lang/$f" -o "$(basename -- "$f" .md).$lang.html" --flavor github
-		else
-			showdown makehtml -i "$f" -o "$(basename -- "$f" .md).$lang.html" --flavor github
-		fi
-	done
-done
+node ../../md2html.js
 
 find . -type f -name "*.html" -exec perl -pi -e s,$SRC,$DST,g '{}' +
 

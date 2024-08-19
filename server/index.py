@@ -4,6 +4,7 @@ import asyncio
 import functools
 import json
 import logging
+import os.path
 import sys
 import warnings
 from datetime import datetime
@@ -656,11 +657,20 @@ async def index(request):
         render["groups"] = VARIANT_GROUPS
 
         if variant == "terminology":
-            render["variant"] = "docs/terminology%s.html" % locale
+            item = "docs/terminology%s.html" % locale
         else:
-            render["variant"] = (
+            item = (
                 "docs/" + ("terminology" if variant is None else variant) + "%s.html" % locale
             )
+
+        if not os.path.exists(os.path.abspath(os.path.join("templates", item))):
+            if variant == "terminology":
+                item = "docs/terminology.html"
+            else:
+                item = (
+                    "docs/" + ("terminology" if variant is None else variant) + ".html"
+                )
+        render["variant"] = item
 
     elif view == "games":
         render["icons"] = VARIANT_ICONS
@@ -696,7 +706,10 @@ async def index(request):
 
     elif view == "blog":
         blog_item = blogId.replace("_", " ")
-        render["blog_item"] = "blogs/%s%s.html" % (blog_item, locale)
+        item = "blogs/%s%s.html" % (blog_item, locale)
+        if not os.path.exists(os.path.abspath(os.path.join("templates", item))):
+            item = "blogs/%s.html" % blog_item
+        render["blog_item"] = item
         render["view_css"] = "blogs.css"
         render["tags"] = BLOG_TAGS
 
