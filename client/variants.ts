@@ -3,9 +3,10 @@ import { h, InsertHook, VNode } from 'snabbdom';
 import * as cg from 'chessgroundx/types';
 import * as util from 'chessgroundx/util';
 
-import { BoardMarkType, ColorName, CountingType, MaterialPointType, PieceSoundType, PromotionSuffix, PromotionType, TimeControlType } from './chess';
+import { DARK_FEN, BoardMarkType, ColorName, CountingType, MaterialPointType, PieceSoundType, PromotionSuffix, PromotionType, TimeControlType, uci2LastMove } from './chess';
 import { _ } from './i18n';
 import { calculateDiff, Equivalence, MaterialDiff } from './material';
+import { getUnionFenFromFullFen } from './alice'; 
 
 export interface BoardFamily {
     readonly dimensions: cg.BoardDimensions;
@@ -33,7 +34,7 @@ export const BOARD_FAMILIES: Record<string, BoardFamily> = {
     shogi3x4: { dimensions: { width: 3, height: 4 }, cg: "cg-156", boardCSS: ["doubutsuboard.svg", "dobutsu3x4.svg"] },
     xiangqi9x10: { dimensions: { width: 9, height: 10 }, cg: "cg-576-640", boardCSS: ["xiangqi.svg", "xiangqic.svg", "xiangqiCTexture.png", "xiangqiPaper.png", "xiangqiWood.png", "xiangqiDark.svg", "xiangqiWikimedia.svg", "xiangqiLightWood.png", "xiangqiSand.svg"] },
     xiangqi7x7: { dimensions: { width: 7, height: 7 }, cg: "cg-448", boardCSS: ["minixiangqi.svg", "minixiangqiw.png", "minixqlg.svg"] },
-    janggi9x10: { dimensions: { width: 9, height: 10 }, cg: "cg-576-640", boardCSS: ["JanggiBrown.svg", "JanggiPaper.png", "JanggiWood.png", "JanggiDark.svg", "JanggiWoodDark.svg", "JanggiStone.svg"] },
+    janggi9x10: { dimensions: { width: 9, height: 10 }, cg: "cg-janggi", boardCSS: ["JanggiBrown.svg", "JanggiPaper.png", "JanggiWood.png", "JanggiDark.svg", "JanggiWoodDark.svg", "JanggiStone.svg"] },
     shogun8x8: { dimensions: { width: 8, height: 8 }, cg: "cg-512", boardCSS: ["ShogunPlain.svg", "ShogunMaple.png", "ShogunMaple2.png", "ShogunBlue.svg", "8x8brown.svg", "8x8maple.jpg"] },
     chak9x9:{ dimensions: { width: 9, height: 9 }, cg: "cg-540", boardCSS: ["StandardChakBoard.svg", "ColoredChakBoard.svg", "ChakArt.jpg"] },
     chennis7x7:{ dimensions: { width: 7, height: 7 }, cg: "cg-448", boardCSS: ["WimbledonBoard.svg", "FrenchOpenBoard.svg", "USOpenBoard.svg"] },
@@ -41,7 +42,7 @@ export const BOARD_FAMILIES: Record<string, BoardFamily> = {
 
 export const PIECE_FAMILIES: Record<string, PieceFamily> = {
     ataxx: { pieceCSS: ["disguised", "virus", "zombie", "cat-dog"] },
-    standard: { pieceCSS: ["standard", "green", "alpha", "chess_kaneo", "santa", "maestro", "dubrovny", "disguised", "atopdown"] },
+    standard: { pieceCSS: ["standard", "green", "alpha", "chess_kaneo", "santa", "maestro", "dubrovny", "atopdown", "disguised"] },
     capa: { pieceCSS: ["capa0", "capa1", "capa2", "capa3", "capa4", "capa5", "disguised"] },
     dragon: { pieceCSS: ["dragon1", "dragon0", "dragon2", "disguised"] },
     seirawan: { pieceCSS: ["seir1", "seir0", "seir2", "seir3", "seir4", "seir5", "disguised"] },
@@ -53,12 +54,12 @@ export const PIECE_FAMILIES: Record<string, PieceFamily> = {
     dobutsu: { pieceCSS: ["dobutsu", "disguised"] },
     tori: { pieceCSS: ["torii", "torik", "torim", "porti", "cz", "disguised"] },
     cannonshogi: { pieceCSS: ["ctp3d", "cz", "czalt", "disguised"] },
-    xiangqi: { pieceCSS: ["lishu", "xiangqi2di", "xiangqi", "xiangqict3", "xiangqihnz", "xiangqict2", "lishuw", "xiangqict2w", "xiangqiwikim", "xiangqiKa", "xiangqittxqhnz", "xiangqittxqintl", "xiangqi2d", "xiangqihnzw", "disguised", "euro"] },
+    xiangqi: { pieceCSS: ["lishu", "xiangqi2di", "xiangqi", "xiangqict3", "xiangqihnz", "xiangqict2", "lishuw", "xiangqict2w", "xiangqiwikim", "xiangqiKa", "xiangqittxqhnz", "xiangqittxqintl", "xiangqi2d", "xiangqihnzw", 'basic', 'guided', "disguised", "euro"] },
     janggi: { pieceCSS: ["janggihb", "janggihg", "janggiikak", "janggiikaw", "janggikak", "janggikaw", "janggiib", "janggiig", "disguised"] },
     shako: { pieceCSS: ["shako0", "shako1", "shako2", "disguised"] },
     shogun: { pieceCSS: ["shogun0", "shogun1", "shogun2", "shogun3", "shogun4", "shogun5", "disguised"] },
     orda: { pieceCSS: ["orda0", "orda1", "disguised"] },
-    khans: { pieceCSS: ["khans0", "disguised"] },
+    khans: { pieceCSS: ["khans0", "khans1", "disguised"] },
     synochess: { pieceCSS: ["synochess0", "synochess1", "synochess2", "synochess3", "synochess4", "synochess5", "disguised"] },
     hoppel: { pieceCSS: ["hoppel0", "hoppel1", "hoppel2", "disguised"] },
     shinobi: { pieceCSS: ["shinobi0", "shinobi1", "disguised"] },
@@ -83,6 +84,7 @@ export interface Variant {
     readonly startFen: string;
     readonly boardFamily: keyof typeof BOARD_FAMILIES;
     readonly board: BoardFamily;
+    readonly notation: cg.Notation;
     readonly pieceFamily: keyof typeof PIECE_FAMILIES;
     readonly piece: PieceFamily;
     readonly colors: {
@@ -124,6 +126,7 @@ export interface Variant {
         readonly showPromoted: boolean;
         readonly pieceSound: PieceSoundType;
         readonly boardMark: BoardMarkType | '';
+        readonly showCheckCounters: boolean;
     };
     readonly alternateStart?: Record<string, string>;
 }
@@ -143,6 +146,7 @@ function variant(config: VariantConfig): Variant {
         boardFamily: config.boardFamily,
         board: BOARD_FAMILIES[config.boardFamily],
         pieceFamily: config.pieceFamily,
+        notation: config.notation ?? cg.Notation.ALGEBRAIC,
         piece: PIECE_FAMILIES[config.pieceFamily],
         colors: config.colors ?? { first: 'White', second: 'Black' },
         pieceRow: Array.isArray(config.pieceRow) ? {
@@ -180,7 +184,7 @@ function variant(config: VariantConfig): Variant {
             noDrawOffer: !!config.rules?.noDrawOffer,
         },
         material: {
-            showDiff: !config.pocket?.captureToHand,
+            showDiff: !config.pocket?.captureToHand && !['alice', 'fogofwar'].includes(config.name),
             initialDiff: calculateDiff(config.startFen, BOARD_FAMILIES[config.boardFamily].dimensions, config.material?.equivalences ?? {}, !!config.pocket?.captureToHand),
             equivalences: config.material?.equivalences ?? {},
         },
@@ -190,6 +194,7 @@ function variant(config: VariantConfig): Variant {
             showPromoted: config.ui?.showPromoted ?? false,
             pieceSound: config.ui?.pieceSound ?? 'regular',
             boardMark: config.ui?.boardMark ?? '',
+            showCheckCounters: config.ui?.showCheckCounters ?? false,
         },
         alternateStart: config.alternateStart,
     };
@@ -212,6 +217,8 @@ interface VariantConfig {
     icon960?: string;
     // Board appearance
     boardFamily: keyof typeof BOARD_FAMILIES;
+    // Chessground coord/move notation (default: cg.Notation.ALGEBRAIC)
+    notation?: cg.Notation;
     // Piece appearance
     pieceFamily: keyof typeof PIECE_FAMILIES;
     // Color names of each side for accurate color representation
@@ -285,6 +292,8 @@ interface VariantConfig {
         pieceSound?: PieceSoundType;
         // Board marking for special squares (default: '')
         boardMark?: BoardMarkType;
+        // Render the remaining check numbers on King pieces
+        showCheckCounters?: boolean;
     };
     // Alternate starting positions, including handicaps
     alternateStart?: Record<string, string>;
@@ -342,7 +351,27 @@ export const VARIANTS: Record<string, Variant> = {
             'No castle': 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w - - 0 1'
         },
     }),
-
+    bughouse: variant({
+        name: "bughouse", tooltip: "bughousebughousebughousebughouse.", displayName: "bughouse ᴮᴱᵀᴬ",
+        startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[] w KQkq - 0 1",
+        chess960: true, icon: "¢", icon960: "⌀",
+        boardFamily: "standard8x8", pieceFamily: "standard",
+        pieceRow: ["k", "q", "r", "b", "n", "p"],
+        pocket: {
+            roles: ["p", "n", "b", "r", "q"],
+            captureToHand: true,
+        },
+        rules: { enPassant: true },
+        alternateStart: {
+            '': '',
+            'PawnsPushed': "rnbqkbnr/8/8/pppppppp/PPPPPPPP/8/8/RNBQKBNR w - - 0 1",
+            'PawnsPassed': "rnbqkbnr/8/8/PPPPPPPP/pppppppp/8/8/RNBQKBNR w - - 0 1",
+            'UpsideDown': "RNBQKBNR/PPPPPPPP/8/8/8/8/pppppppp/rnbqkbnr w - - 0 1",
+            'Theban': "1p6/2p3kn/3p2pp/4pppp/5ppp/8/PPPPPPPP/PPPPPPKN w - - 0 1",
+            'No castle': 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w - - 0 1'
+        },
+        ui: { showPromoted: true },
+    }),
     crazyhouse: variant({
         name: "crazyhouse", tooltip: "Take captured pieces and drop them back on to the board as your own.",
         startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[] w KQkq - 0 1",
@@ -401,6 +430,7 @@ export const VARIANTS: Record<string, Variant> = {
         boardFamily: "standard8x8", pieceFamily: "standard",
         pieceRow: ["k", "q", "r", "b", "n", "p"],
         rules: { enPassant: true },
+        ui: { showCheckCounters: true },
         alternateStart: {
             '': "",
             '5check': "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 5+5 0 1",
@@ -414,6 +444,30 @@ export const VARIANTS: Record<string, Variant> = {
         boardFamily: "standard8x8", pieceFamily: "standard",
         pieceRow: { white: ["k", "q", "r", "b", "n", "p", "*"], black: ["k", "q", "r", "b", "n", "p"] },
         rules: { enPassant: true, duck: true },
+    }),
+
+    alice: variant({
+        name: "alice", tooltip: "Through the Looking-Glass",
+        startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1 | 8/8/8/8/8/8/8/8 w - - 0 1",
+        icon: "👧",
+        boardFamily: "standard8x8", pieceFamily: "standard",
+        pieceRow: ["k", "q", "r", "b", "n", "p"],
+        rules: { enPassant: false },
+        alternateStart: {
+            '': "",
+            'Looking glass': "8/8/8/8/8/8/PPPPPPPP/RNBQKBNR w KQ - 0 1 | rnbqkbnr/pppppppp/8/8/8/8/8/8 w kq - 0 1",
+        },
+        // For Alice chess other board pieces we use promoted pieces to let them style differently,
+        ui: { boardMark: 'alice' },
+    }),
+
+    fogofwar: variant({
+        name: "fogofwar", displayName: "fog of war", tooltip: "Players can only see the squares to which their pieces can legally move to.",
+        startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+        icon: "🌫",
+        boardFamily: "standard8x8", pieceFamily: "standard",
+        pieceRow: ["k", "q", "r", "b", "n", "p"],
+        rules: { enPassant: true },
     }),
 
     makruk: variant({
@@ -472,6 +526,7 @@ export const VARIANTS: Record<string, Variant> = {
         startFen: "lnsgkgsnl/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL[-] w 0 1",
         icon: "K",
         boardFamily: "shogi9x9", pieceFamily: "shogi",
+        notation: cg.Notation.SHOGI_ARBNUM,
         colors: { first: "Black", second: "White" },
         pieceRow: ["k", "g", "r", "b", "s", "n", "l", "p"],
         pocket: { roles: ["p", "l", "n", "s", "g", "b", "r"], captureToHand: true },
@@ -498,6 +553,7 @@ export const VARIANTS: Record<string, Variant> = {
         startFen: "lnsgkgsnl/1rci1uab1/p1p1p1p1p/9/9/9/P1P1P1P1P/1BAU1ICR1/LNSGKGSNL[-] w 0 1",
         icon: "💣",
         boardFamily: "shogi9x9", pieceFamily: "cannonshogi",
+        notation: cg.Notation.SHOGI_ARBNUM,
         colors: { first: "Black", second: "White" },
         pieceRow: ["k", "g", "r", "b", "s", "n", "l", "p", "u", "a", "c", "i"],
         pocket: { roles: ["p", "l", "n", "s", "g", "b", "r", "u", "a", "c", "i"], captureToHand: true },
@@ -511,6 +567,7 @@ export const VARIANTS: Record<string, Variant> = {
         startFen: "rbsgk/4p/5/P4/KGSBR[-] w 0 1",
         icon: "6",
         boardFamily: "shogi5x5", pieceFamily: "shogi",
+        notation: cg.Notation.SHOGI_ARBNUM,
         colors: { first: "Black", second: "White" },
         pieceRow: ["k", "g", "r", "b", "s", "p"],
         pocket: { roles: ["p", "s", "g", "b", "r"], captureToHand: true },
@@ -524,6 +581,7 @@ export const VARIANTS: Record<string, Variant> = {
         startFen: "p+nks+l/5/5/5/+LSK+NP[-] w 0 1",
         icon: ")",
         boardFamily: "shogi5x5", pieceFamily: "kyoto",
+        notation: cg.Notation.SHOGI_ARBNUM,
         colors: { first: "Black", second: "White" },
         pieceRow: ["k", "l", "s", "n", "p"],
         pocket: { roles: ["p", "l", "n", "s"], captureToHand: true },
@@ -537,6 +595,7 @@ export const VARIANTS: Record<string, Variant> = {
         startFen: "gle/1c1/1C1/ELG[-] w 0 1",
         icon: "8",
         boardFamily: "shogi3x4", pieceFamily: "dobutsu",
+        notation: cg.Notation.SHOGI_ARBNUM,
         colors: { first: "Black", second: "White" },
         pieceRow: ["l", "g", "e", "c"],
         kingRoles: ["l"],
@@ -551,6 +610,7 @@ export const VARIANTS: Record<string, Variant> = {
         startFen: "sgkgs/5/1ppp1/1PPP1/5/SGKGS[-] w 0 1",
         icon: "🐱",
         boardFamily: "shogi5x6", pieceFamily: "shogi",
+        notation: cg.Notation.SHOGI_ARBNUM,
         colors: { first: "Black", second: "White" },
         pieceRow: ["k", "g", "s", "p"],
         pocket: { roles: ["p", "s", "g"], captureToHand: true },
@@ -564,6 +624,7 @@ export const VARIANTS: Record<string, Variant> = {
         startFen: "sgkgs/5/1ppp1/1PPP1/5/SGKGS[LNln] w 0 1",
         icon: "🐱",
         boardFamily: "shogi5x6", pieceFamily: "shogi",
+        notation: cg.Notation.SHOGI_ARBNUM,
         colors: { first: "Black", second: "White" },
         pieceRow: ["k", "g", "s", "n", "l", "p"],
         pocket: { roles: ["p", "l", "n", "s", "g"], captureToHand: true },
@@ -581,6 +642,7 @@ export const VARIANTS: Record<string, Variant> = {
         startFen: "rpckcpl/3f3/sssssss/2s1S2/SSSSSSS/3F3/LPCKCPR[-] w 0 1",
         icon: "🐦",
         boardFamily: "shogi7x7", pieceFamily: "tori",
+        notation: cg.Notation.SHOGI_ARBNUM,
         colors: { first: "Black", second: "White" },
         pieceRow: ["k", "c", "p", "l", "r", "f", "s"],
         pocket: { roles: ["s", "p", "l", "r", "c", "f"], captureToHand: true },
@@ -601,6 +663,7 @@ export const VARIANTS: Record<string, Variant> = {
         startFen: "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1",
         icon: "|",
         boardFamily: "xiangqi9x10", pieceFamily: "xiangqi",
+        notation: cg.Notation.XIANGQI_ARBNUM,
         colors: { first: "Red", second: "Black" },
         pieceRow: ["k", "a", "c", "r", "b", "n", "p"],
         promotion: { type: "regular", roles: [] },
@@ -611,9 +674,15 @@ export const VARIANTS: Record<string, Variant> = {
         startFen: "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/9/9/M1BAKAB2 w - - 0 1",
         icon: "{",
         boardFamily: "xiangqi9x10", pieceFamily: "xiangqi",
+        // XIANGQI_WXF can't handle Manchu banner piece!
+        // so notation have to remain the default cg.Notation.ALGEBRAIC
         colors: { first: "Red", second: "Black" },
         pieceRow: { white: ["k", "a", "m", "b", "p"], black: ["k", "a", "c", "r", "b", "n", "p"] },
         promotion: { type: "regular", roles: [] },
+        alternateStart: {
+            '': '',
+            'Manchu+R': 'm1bakab1r/9/9/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1',
+        },
     }),
 
     janggi: variant({
@@ -621,6 +690,7 @@ export const VARIANTS: Record<string, Variant> = {
         startFen: "rnba1abnr/4k4/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/4K4/RNBA1ABNR w - - 0 1",
         icon: "=",
         boardFamily: "janggi9x10", pieceFamily: "janggi",
+        notation: cg.Notation.JANGGI,
         colors: { first: "Blue", second: "Red" },
         pieceRow: ["k", "a", "c", "r", "b", "n", "p"],
         promotion: { type: "regular", roles: [] },
@@ -637,6 +707,7 @@ export const VARIANTS: Record<string, Variant> = {
         startFen: "rcnkncr/p1ppp1p/7/7/7/P1PPP1P/RCNKNCR w - - 0 1",
         icon: "7",
         boardFamily: "xiangqi7x7", pieceFamily: "xiangqi",
+        notation: cg.Notation.XIANGQI_ARBNUM,
         colors: { first: "Red", second: "Black" },
         pieceRow: ["k", "c", "r", "n", "p"],
         promotion: { type: "regular", roles: [] },
@@ -974,19 +1045,20 @@ export const noPuzzleVariants = [
     "ataxx",
     "3check",
     "placement",
-    "sittuyin",
     "minishogi",
     "gorogoroplus",
     "manchu",
-    "dragon",
     "grandhouse",
     "shinobi",
     "shinobiplus",
     "cannonshogi",
+    "bughouse",
+    "alice",
+    "fogofwar",
 ]
 
 export const variantGroups: { [ key: string ]: { variants: string[] } } = {
-    standard: { variants: [ "chess", "crazyhouse", "atomic", "kingofthehill", "3check", "placement", "duck" ] },
+    standard: { variants: [ "chess", "bughouse", "crazyhouse", "atomic", "kingofthehill", "3check", "placement", "duck", "alice", "fogofwar" ] },
     sea:      { variants: [ "makruk", "makpong", "cambodian", "sittuyin", "asean" ] },
     shogi:    { variants: [ "shogi", "minishogi", "kyotoshogi", "dobutsu", "gorogoroplus", "torishogi", "cannonshogi" ] },
     xiangqi:  { variants: [ "xiangqi", "manchu", "janggi", "minixiangqi" ] },
@@ -1041,27 +1113,14 @@ export function moddedVariant(variantName: string, chess960: boolean, pieces: cg
     return variantName;
 }
 
-// TODO merge into the variant type
-export function notation(variant: Variant): cg.Notation {
-    let cgNotation = cg.Notation.ALGEBRAIC;
-    switch (variant.name) {
-        case 'janggi':
-            cgNotation = cg.Notation.JANGGI;
-            break;
-        case 'shogi':
-        case 'minishogi':
-        case 'kyotoshogi':
-        case 'dobutsu':
-        case 'gorogoro':
-        case 'gorogoroplus':
-        case 'torishogi':
-            cgNotation = cg.Notation.SHOGI_ARBNUM;
-            break;
-        case 'xiangqi':
-        case 'minixiangqi':
-        // XIANGQI_WXF can't handle Mmanchu banner piece!
-            cgNotation = cg.Notation.XIANGQI_ARBNUM;
-            break;
+export function getLastMoveFen(variantName: string, lastMove: string, fen: string, result: string): [cg.Orig[] | undefined, string] {
+    switch (variantName) {
+        case 'alice':
+            return [uci2LastMove(lastMove), getUnionFenFromFullFen(fen, 0)];
+        case 'fogofwar':
+            // Prevent leaking ongoing game info
+            return [undefined, (result === "*") ? DARK_FEN : fen];
+        default:
+            return [uci2LastMove(lastMove), fen];
     }
-    return cgNotation;
 }

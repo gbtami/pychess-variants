@@ -35,6 +35,10 @@ from tournaments import upsert_tournament_to_db, new_tournament
 from user import User
 from utils import play_move
 
+import logging
+
+log = logging.getLogger(__name__)
+
 # from misc import timeit
 
 PERFS = {variant: DEFAULT_PERF for variant in VARIANTS}
@@ -46,8 +50,8 @@ class TestTournament(Tournament):
     async def join_players(self, nb_players):
         self.game_tasks = set()
 
-        for i in range(nb_players):
-            name = (id8() + id8())[: random.randint(1, 16)]
+        for i in range(1, nb_players + 1):
+            name = "Test_User_%s" % i
             player = User(self.app_state, username=name, title="TEST", perfs=PERFS)
             self.app_state.users[player.username] = player
             player.tournament_sockets[self.id] = set((None,))
@@ -104,7 +108,7 @@ class TestTournament(Tournament):
                     move = random.choice(game.legal_moves)
                     clocks = (game.clocks_w[-1], game.clocks_b[-1])
                     await play_move(self.app_state, cur_player, game, move, clocks=clocks)
-            await asyncio.sleep(0.1)
+            await asyncio.sleep(0.01)
 
 
 class ArenaTestTournament(TestTournament, ArenaTournament):
@@ -151,7 +155,7 @@ async def create_arena_test(app):
     await app_state.db.tournament_pairing.delete_many({"tid": tid})
 
     tournament = ArenaTestTournament(
-        app,
+        app_state,
         tid,
         variant="gorogoroplus",
         name="Test Arena",
@@ -188,16 +192,16 @@ class TournamentTestCase(AioHTTPTestCase):
                 game.remove_task.cancel()
                 try:
                     await game.remove_task
-                except asyncio.CancelledError:
-                    pass
+                except asyncio.CancelledError as e:
+                    log.error(e, stack_info=True, exc_info=True)
 
         if has_games:
             for task in self.tournament.game_tasks:
                 task.cancel()
                 try:
                     await task
-                except asyncio.CancelledError:
-                    pass
+                except asyncio.CancelledError as e:
+                    log.error(e, stack_info=True, exc_info=True)
 
         await self.client.close()
 
@@ -210,9 +214,7 @@ class TournamentTestCase(AioHTTPTestCase):
         app_state = get_app_state(self.app)
         # app_state.db = None
         tid = id8()
-        self.tournament = ArenaTestTournament(
-            app_state, tid, before_start=0, minutes=2.0 / 60.0
-        )
+        self.tournament = ArenaTestTournament(app_state, tid, before_start=0, minutes=2.0 / 60.0)
         app_state.tournaments[tid] = self.tournament
 
         self.assertEqual(self.tournament.status, T_CREATED)

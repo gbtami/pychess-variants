@@ -2,12 +2,12 @@ import * as cg from 'chessgroundx/types';
 import * as util from 'chessgroundx/util';
 import { read } from 'chessgroundx/fen';
 
-import { _ } from './i18n';
-
 import { Variant, variantGroups } from './variants';
 
 export const WHITE = 0;
 export const BLACK = 1;
+export const DARK_FEN = "*~*~*~*~*~*~*~*~/*~*~*~*~*~*~*~*~/*~*~*~*~*~*~*~*~/*~*~*~*~*~*~*~*~/*~*~*~*~*~*~*~*~/*~*~*~*~*~*~*~*~/*~*~*~*~*~*~*~*~/*~*~*~*~*~*~*~*~ w KQkq - 0 1"
+
 export const ranksUCI = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'] as const;
 export type UCIRank = typeof ranksUCI[number];
 export type UCIKey =  'a0' | `${cg.File}${UCIRank}`;
@@ -22,7 +22,7 @@ export type PromotionType = "regular" | "shogi";
 export type TimeControlType = "incremental" | "byoyomi";
 export type CountingType = "makruk" | "asean";
 export type MaterialPointType = "janggi" | "ataxx";
-export type BoardMarkType = "campmate" | "kingofthehill";
+export type BoardMarkType = "alice" | "campmate" | "kingofthehill";
 export type PieceSoundType = "regular" | "atomic" | "shogi";
 
 const handicapKeywords = [ "HC", "Handicap", "Odds" ];
@@ -86,9 +86,9 @@ export function validFen(variant: Variant, fen: string): boolean {
     const variantName = variant.name;
     const startfen = variant.startFen;
     const start = startfen.split(' ');
-    console.log(start);
+    // console.log(start);
     const parts = fen.split(' ');
-    console.log(parts);
+    // console.log(parts);
     // Need starting color
     if (parts.length < 2) return false;
 
@@ -200,6 +200,12 @@ function touchingKings(pieces: cg.Pieces): boolean {
         }
     }
     return adjacent(wk, bk);
+}
+
+// turn color part of the FEN
+export function getTurnColor(fen: string): cg.Color {
+    const c = fen.split(" ")[1];
+    return c === "w" ? "white" : "black";
 }
 
 // pocket part of the FEN (including brackets)

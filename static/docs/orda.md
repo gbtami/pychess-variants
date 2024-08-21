@@ -7,19 +7,19 @@
 Orda Chess is a chess variant designed in 2020 by Couch Tomato. The idea of the game was to create a true asymmetric chess with two different armies. Ralph Betza’s Chess with Different Armies was an inspiration, but the goal was to be a little more streamlined with the theme here. In this case, the theme of the new army is knight-based movement, where most pieces have an element of knight movement. Given the knight (or horse) theme, this was modeled after the Mongol army and named the Horde. In fact, an orda was a military structure for the people of the Steppes, which also gave rise to the English word “horde.” The original chess army is named the Kingdom for contrast. The game itself is incredibly balanced by engine evaluation (even more than standard chess), with a near 50-50 win ratio for the Kingdom and Horde.
  
 ## General Rules
-1.	Setup is as above. Despite new pieces, the placement of the Horde pieces mirror their chess counterparts.
+1.	Setup is as above. Despite new pieces, the placement of the Horde pieces mirrors their chess counterparts.
 2.	The only pieces that the sides have in common are the pawns and the kings (the Horde king is called a khan).
 3.	The Kingdom (AKA White) *always moves first*.
 4.	The Horde (AKA Gold) cannot castle.
 5.	As the Horde’s pawns start on the third rank, they do not have the option to move two spaces or be captured by en passant. Kingdom pawns retain the ability to move two spaces initially and to be captured via en passant.
 6.	Pawns *on either side* can only promote to a queen or kheshig.
 7.	An additional method of victory is available: called **campmate**. Campmate is achieved by moving one’s king into the final rank without moving into check.
-8.	Other rules, including stalemate and repetition are as in chess.
+8.	Other rules, including stalemate and repetition, are as in chess.
 
 ## Horde Pieces
-There are four new units unique* to the Horde: 2 Lancers, 2 Horse Archers, 2 Kheshigs, and 1 Yurt (* exception being that the Kingdom can still obtain a Kheshig by promotion). The Kheshigs are the strongest piece (knight + king movement) and lead each flank, while the Yurt is a fairly weak piece unlike the Queen. 
+There are four new units unique* to the Horde: 2 Lancers, 2 Horse Archers, 2 Kheshigs, and 1 Yurt (* exception being that the Kingdom can still obtain a Kheshig by promotion). The Kheshigs are the strongest piece (knight + king movement) and lead each flank, while the Yurt is a fairly weak piece, unlike the Queen. 
 The Horde’s king is called the Khan and has a different symbol, but is essentially the same as the Kingdom’s King, also using the same abbreviation (K) – the change is purely aesthetic and thematic. 
-The Horde's Lancer and Horse Archer are unique in that they capture differently than movement ("divergent" pieces, like the pawn). Remember that the Horde is horse-based, so the Lancer and Horse Archer both move like knights. They capture/check like rooks and bishops, respectively. The Kheshig is more traditional in that it captures where it moves; it combines the movements of the knight and king. Similarly, the Yurt also captures the same way it moves, which is as the silver general in Shogi.
+The Horde's Lancer and Horse Archer are unique in that they capture differently than movement ("divergent" pieces, like the pawn). Remember that the Horde is horse-based, so the Lancer and Horse Archer both move like knights. They capture/check like rooks and bishops, respectively. The Kheshig is more traditional in that it captures where it moves; it combines the movements of the knight and king. Similarly, the Yurt also captures the same way it moves, which is like the silver general in Shogi.
 
 **Horde** piece	| **Kingdom** “counterpart”	| Movement | Capture/Check
 -- | -- | -- | --
@@ -41,7 +41,7 @@ A yurt is a mobile home for Mongol and Turkic peoples in the steppes of Asia. Th
 
 ![Kheshig](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Kheshig.png)
  
-The Kheshig is a hybrid piece that moves and captures as a knight and king combined. This piece type is also generically called the centaur. The kheshig starts in the knight’s spot, but unlike the knight, is the strongest Horde piece. It can be thought of the general that leads its own troops on each flank. It is generally preferred to keep the kheshigs safely behind during early to mid game because of their extreme importance to the Horde in the endgame.
+The Kheshig is a hybrid piece that moves and captures as a knight and king combined. This piece type is also generically called the centaur. The kheshig starts in the knight’s spot, but unlike the knight, is the strongest Horde piece. It can be thought of as the general that leads its own troops on each flank. It is generally preferred to keep the kheshigs safely behind during early to mid-game because of their extreme importance to the Horde in the endgame.
 The kheshigs were the elite imperial guard for the Mongol royalty. Appropriately, it is incredibly difficult for the Kingdom to checkmate the khan without at least eliminating one of his kheshigs first.
 
 ### Horse Archer (A)
@@ -49,7 +49,7 @@ The kheshigs were the elite imperial guard for the Mongol royalty. Appropriately
 ![Horse Archer](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Archer.png)
  
 The Horse Archer, or simply abbreviated Archer, is a unique divergent piece that moves and attacks differently. The archer moves as a knight but captures as a bishop. Because the archer is not colorbound, its value is greater than its bishop counterpart.
-Horse Archers were one of the two core components of the Mongol cavalry, functioning as the light cavalry. Their speed and prowess as mounted archers made them a unique threat. Their ability to quickly position themselves for a deadly skewer or fork make them a dangerous threat for the Kingdom.
+Horse Archers were one of the two core components of the Mongol cavalry, functioning as the light cavalry. Their speed and prowess as mounted archers made them a unique threat. Their ability to quickly position themselves for a deadly skewer or fork makes them a dangerous threat for the Kingdom.
  
 ### Lancer (L)
 

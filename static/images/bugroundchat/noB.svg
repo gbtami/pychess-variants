@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="45"
+   height="45"
+   version="1.1"
+   id="svg17298"
+   sodipodi:docname="NoB.svg"
+   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs17302" />
+  <sodipodi:namedview
+     id="namedview17300"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     showgrid="false"
+     inkscape:zoom="33.355556"
+     inkscape:cx="19.052298"
+     inkscape:cy="22.52998"
+     inkscape:window-width="3840"
+     inkscape:window-height="2036"
+     inkscape:window-x="-12"
+     inkscape:window-y="-12"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg17298" />
+  <g
+     fill="none"
+     fill-rule="evenodd"
+     stroke="#000"
+     stroke-width="1.5"
+     stroke-linecap="round"
+     stroke-linejoin="round"
+     id="g17296">
+    <g
+       fill="#fff"
+       stroke-linecap="butt"
+       id="g17292">
+      <path
+         d="M9 36c3.39-.97 10.11.43 13.5-2 3.39 2.43 10.11 1.03 13.5 2 0 0 1.65.54 3 2-.68.97-1.65.99-3 .5-3.39-.97-10.11.46-13.5-1-3.39 1.46-10.11.03-13.5 1-1.354.49-2.323.47-3-.5 1.354-1.94 3-2 3-2z"
+         id="path17286" />
+      <path
+         d="M15 32c2.5 2.5 12.5 2.5 15 0 .5-1.5 0-2 0-2 0-2.5-2.5-4-2.5-4 5.5-1.5 6-11.5-5-15.5-11 4-10.5 14-5 15.5 0 0-2.5 1.5-2.5 4 0 0-.5.5 0 2z"
+         id="path17288" />
+      <path
+         d="M25 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 1 1 5 0z"
+         id="path17290" />
+    </g>
+    <path
+       d="M17.5 26h10M15 30h15m-7.5-14.5v5M20 18h5"
+       stroke-linejoin="miter"
+       id="path17294" />
+  </g>
+  <g
+     id="g16696"
+     transform="translate(-69.247108,-66.340622)">
+    <circle
+       style="opacity:0.98;fill:none;stroke:#800000;stroke-width:2.85725;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1;paint-order:fill markers stroke"
+       id="path11904"
+       cx="91.747108"
+       cy="88.840622"
+       r="18.973774" />
+    <path
+       style="fill:none;stroke:#800000;stroke-width:2.85725;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1"
+       d="M 77.825862,74.919377 105.66835,102.76186"
+       id="path12633" />
+  </g>
+</svg>

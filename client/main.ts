@@ -1,5 +1,7 @@
 import { h, VNode } from 'snabbdom';
 
+import ffishModule, { FairyStockfish } from 'ffish-es6';
+
 import { _, i18n } from './i18n';
 import { aboutView } from './about';
 import { settingsView, hideSettings } from './settingsView';
@@ -21,6 +23,10 @@ import { patch, getCookie } from './document';
 import { renderTimeago } from './datetime';
 import { zenButtonView, zenModeSettings } from './zen';
 import { PyChessModel } from './types';
+import { roundView as bugRoundView } from "./bug/round.bug";
+import { analysisView as bugAnalysisView } from "./bug/analysis.bug";
+import { variantGroups } from './variants';
+import { variantsIni } from './variantsIni';
 
 // redirect to correct URL except Heroku preview apps
 if (window.location.href.includes('heroku') && !window.location.href.includes('-pr-')) {
@@ -32,11 +38,21 @@ function initModel(el: HTMLElement) {
     // because python http.cookies.SimpleCookie() adds it when name contains dash "–"
     const user = getCookie("user").replace(/(^"|"$)/g, '');
 
+    // Remove new variants from variants on prod site until they stabilize
+    if (el.getAttribute("data-dev") !== "True") {
+        const notReady = ['bughouse'];
+        notReady.forEach((v) => {
+            const idx = variantGroups.standard.variants.indexOf(v);
+            variantGroups.standard.variants.splice(idx, 1);
+        });
+    }
+
     let ct = el.getAttribute("data-ct") ?? "";
     if (ct) ct = JSON.parse(ct);
     let board = el.getAttribute("data-board") ?? "";
     if (board) board = JSON.parse(board);
     return {
+        ffish : {} as FairyStockfish,
         home : el.getAttribute("data-home") ?? "",
         anon : el.getAttribute("data-anon") ?? "",
         profileid : el.getAttribute("data-profile") ?? "",
@@ -54,16 +70,27 @@ function initModel(el: HTMLElement) {
         ply : parseInt(""+el.getAttribute("data-ply")),
         ct: ct,
         board: board,
+
         wplayer : el.getAttribute("data-wplayer") ?? "",
         wtitle : el.getAttribute("data-wtitle") ?? "",
         wrating : el.getAttribute("data-wrating") ?? "",
         wrdiff : parseInt(""+el.getAttribute("data-wrdiff")),
         wberserk : el.getAttribute("data-wberserk") ?? "",
+
         bplayer : el.getAttribute("data-bplayer") ?? "",
         btitle : el.getAttribute("data-btitle") ?? "",
         brating : el.getAttribute("data-brating") ?? "",
         brdiff : parseInt(""+el.getAttribute("data-brdiff")),
         bberserk : el.getAttribute("data-bberserk") ?? "",
+
+        wplayerB : el.getAttribute("data-wplayer-b") ?? "",
+        wtitleB : el.getAttribute("data-wtitle-b") ?? "",
+        wratingB : el.getAttribute("data-wrating-b") ?? "",
+
+        bplayerB : el.getAttribute("data-bplayer-b") ?? "",
+        btitleB : el.getAttribute("data-btitle-b") ?? "",
+        bratingB : el.getAttribute("data-brating-b") ?? "",
+
         fen : el.getAttribute("data-fen") ?? "",
         base : parseFloat(""+el.getAttribute("data-base")),
         inc : parseInt(""+el.getAttribute("data-inc")),
@@ -92,11 +119,17 @@ export function view(el: HTMLElement, model: PyChessModel): VNode {
         return h('div#profile', profileView(model));
     case 'tv':
     case 'round':
-        return h('div#main-wrap', [h('main.round', roundView(model))]);
+        switch (model.variant) {
+            case 'bughouse': return h('div#main-wrap.bug', [h('main.round.bug', bugRoundView(model))]);
+            default: return h('div#main-wrap', [h('main.round', roundView(model))]);
+        }
     case 'embed':
         return h('div', embedView(model));
     case 'analysis':
-        return h('div#main-wrap', analysisView(model));
+        switch (model.variant) {
+            case 'bughouse': return h('div#main-wrap.bug', bugAnalysisView(model));
+            default: return h('div#main-wrap', analysisView(model));;
+        }
     case 'puzzle':
         return h('div#main-wrap', puzzleView(model));
     case 'invite':
@@ -123,7 +156,18 @@ export function view(el: HTMLElement, model: PyChessModel): VNode {
 function start() {
     const placeholder = document.getElementById('placeholder');
     if (placeholder && el)
-        patch(placeholder, view(el, model));
+
+        if (['round', 'analysis', 'puzzle', 'editor', 'tv'].includes(el.getAttribute("data-view") ?? "")) {
+            console.time('load ffish');
+            ffishModule().then((loadedModule: any) => {
+                console.timeEnd('load ffish');
+                loadedModule.loadVariantConfig(variantsIni);
+                model.ffish = loadedModule;
+                patch(placeholder, view(el, model));
+            });
+        } else  {
+            patch(placeholder, view(el, model));
+        }
 
     if (model["embed"]) return;
 
@@ -156,12 +200,12 @@ function start() {
         fetch('/api/names?p=' + val)
             .then(res => res.json())
             .then(data => {
-                console.log(data);
+                // console.log(data);
                 const list = data.map((el: String) => {
                     const title = (el[1]) ? `<player-title>${el[1]} </player-title>` : '';
                     return `<li><a class="user-link" href="${model["home"]}/@/${el[0]}">${title}${el[0]}</a></li>`;
                 });
-                console.log(list);
+                // console.log(list);
                 acResult.innerHTML = '<ul class="box">' + list.join('') + '</ul>';
             })
             .catch((err) => {
@@ -178,7 +222,7 @@ function start() {
     });
 
     // Clicking outside settings panel closes it
-    const settingsPanel = patch(document.getElementById('settings-panel') as HTMLElement, settingsView()).elm as HTMLElement;
+    const settingsPanel = patch(document.getElementById('settings-panel') as HTMLElement, settingsView(model["variant"])).elm as HTMLElement;
     var notifyPanel = document.getElementById('notify-panel') as HTMLElement;
     if (model["anon"] !== 'True') {
         notifyPanel = patch(notifyPanel, notifyView()).elm as HTMLElement;

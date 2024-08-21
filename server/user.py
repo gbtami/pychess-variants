@@ -1,6 +1,5 @@
 from __future__ import annotations
 import asyncio
-import json
 import logging
 from asyncio import Queue
 from datetime import datetime, timezone
@@ -10,17 +9,18 @@ import aiohttp_session
 from aiohttp import web
 
 from broadcast import round_broadcast
-from const import ANON_PREFIX, NOTIFY_PAGE_SIZE, STARTED, VARIANTS
+from const import ANON_PREFIX, STARTED, VARIANTS
 from glicko2.glicko2 import gl2, DEFAULT_PERF, Rating
 from login import RESERVED_USERS
-from newid import id8, new_id
-from const import NOTIFY_EXPIRE_WEEKS, TYPE_CHECKING
+from newid import id8
+from notify import notify
+from const import BLOCK, MAX_USER_BLOCK, TYPE_CHECKING
 from seek import Seek
+from websocket_utils import ws_send_json, MyWebSocketResponse
 
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
     from game import Game
-    from utils import MyWebSocketResponse
 
 from pychess_global_app_state_utils import get_app_state
 
@@ -73,6 +73,8 @@ class User:
         self.game_in_progress = None
         self.abandon_game_task = None
         self.correspondence_games: List[Game] = []
+
+        self.blocked = set()
 
         if self.bot:
             self.event_queue: Queue = asyncio.Queue()
@@ -219,35 +221,13 @@ class User:
             else:
                 win = False
 
-        _id = await new_id(None if self.app_state.db is None else self.app_state.db.notify)
-        now = datetime.now(timezone.utc)
-        document = {
-            "_id": _id,
-            "notifies": self.username,
-            "type": "gameAborted" if game.result == "*" else "gameEnd",
-            "read": False,
-            "createdAt": now,
-            "expireAt": (now + NOTIFY_EXPIRE_WEEKS).isoformat(),
-            "content": {
-                "id": game.id,
-                "opp": opp_name,
-                "win": win,
-            },
+        notif_type = "gameAborted" if game.result == "*" else "gameEnd"
+        content = {
+            "id": game.id,
+            "opp": opp_name,
+            "win": win,
         }
-
-        if self.notifications is None:
-            cursor = self.app_state.db.notify.find({"notifies": self.username})
-            self.notifications = await cursor.to_list(length=100)
-
-        self.notifications.append(document)
-
-        for queue in self.notify_channels:
-            await queue.put(
-                json.dumps(self.notifications[-NOTIFY_PAGE_SIZE:], default=datetime.isoformat)
-            )
-
-        if self.app_state.db is not None:
-            await self.app_state.db.notify.insert_one(document)
+        await notify(self.app_state.db, self, notif_type, content)
 
     async def notified(self):
         self.notifications = [{**notif, "read": True} for notif in self.notifications]
@@ -312,10 +292,7 @@ class User:
             return
         for ws in ws_set:
             log.debug("Sending message %s to %s. ws = %r", message, self.username, ws)
-            try:
-                await ws.send_json(message)
-            except Exception:  # ConnectionResetError
-                log.error("dropping message %s for %s", stack_info=True, exc_info=True)
+            await ws_send_json(ws, message)
 
     async def close_all_game_sockets(self):
         for ws_set in list(
@@ -354,6 +331,16 @@ class User:
         else:
             return False
 
+    def compatible_with_seek(self, seek):
+        self_rating = self.get_rating(seek.variant, seek.chess960).rating_prov[0]
+        seek_user = self.app_state.users[seek.creator.username]
+        return (
+            (seek_user.username not in self.blocked)
+            and (self.username not in seek_user.blocked)
+            and self_rating >= seek.rating + seek.rrmin
+            and self_rating <= seek.rating + seek.rrmax
+        )
+
     def __repr__(self):
         return self.__str__()
 
@@ -387,3 +374,49 @@ async def set_theme(request):
         return web.HTTPFound(referer)
     else:
         raise web.HTTPNotFound()
+
+
+async def block_user(request):
+    app_state = get_app_state(request.app)
+    profileId = request.match_info.get("profileId")
+
+    # Who made the request?
+    session = await aiohttp_session.get_session(request)
+    session_user = session.get("user_name")
+    user = await app_state.users.get(session_user)
+
+    if len(user.blocked) >= MAX_USER_BLOCK:
+        # TODO: Alert the user about blocked quota reached
+        raise web.HTTPFound("/@/%s" % profileId)
+
+    post_data = await request.post()
+    block = post_data["block"] == "true"
+    try:
+        if block:
+            await app_state.db.relation.find_one_and_update(
+                {"_id": "%s/%s" % (user.username, profileId)},
+                {"$set": {"u1": user.username, "u2": profileId, "r": BLOCK}},
+                upsert=True,
+            )
+            user.blocked.add(profileId)
+        else:
+            await app_state.db.relation.delete_one({"_id": "%s/%s" % (user.username, profileId)})
+            user.blocked.remove(profileId)
+    except Exception:
+        log.error("Failed to save new relation to mongodb!", exc_info=True)
+
+    return web.json_response({})
+
+
+async def get_blocked_users(request):
+    app_state = get_app_state(request.app)
+    # Who made the request?
+    session = await aiohttp_session.get_session(request)
+    session_user = session.get("user_name")
+    user = await app_state.users.get(session_user)
+
+    if user.anon:
+        await asyncio.sleep(3)
+        return web.json_response({})
+
+    return web.json_response({"blocks": list(user.blocked)})

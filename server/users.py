@@ -1,9 +1,8 @@
 from __future__ import annotations
-import asyncio
 import logging
 from collections import UserDict
 
-from const import ANON_PREFIX, NONE_USER, VARIANTS, TYPE_CHECKING
+from const import ANON_PREFIX, BLOCK, MAX_USER_BLOCK, NONE_USER, VARIANTS, TYPE_CHECKING
 from glicko2.glicko2 import DEFAULT_PERF
 from user import User
 
@@ -48,8 +47,6 @@ class Users(UserDict):
             return user
 
         if username.startswith(ANON_PREFIX):
-            # slow down creating new anon a bit
-            await asyncio.sleep(5)
             user = User(self.app_state, username=username, anon=True)
             self.app_state.users[username] = user
             return user
@@ -75,4 +72,9 @@ class Users(UserDict):
                 theme=doc.get("theme", "dark"),
             )
             self.data[username] = user
+
+            cursor = self.app_state.db.relation.find({"u1": username, "r": BLOCK})
+            docs = await cursor.to_list(MAX_USER_BLOCK)
+            user.blocked = {doc["u2"] for doc in docs}
+
             return user

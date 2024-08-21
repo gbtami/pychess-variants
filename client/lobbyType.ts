@@ -4,6 +4,7 @@ export interface Post {
     _id: string;
     date: string;
     image:string;
+    alt: string;
     title: string;
     subtitle: string;
     author: string;
@@ -96,6 +97,10 @@ export interface Seek {
 
     target: string;
     title: string;
+
+    bugPlayer1: string;
+    player2: string;
+    bugPlayer2: string;
 }
 
 export interface TvGame {

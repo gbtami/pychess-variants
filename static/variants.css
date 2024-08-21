@@ -1,11 +1,6 @@
 @import "group-colors.css";
-iframe {
-    display: block;
-    margin: auto;
-}
 .guide p img, .guide table {
-    margin-left: auto;
-    margin-right: auto;
+    margin: 0 auto;
 }
 .guide p img {
     display: block;

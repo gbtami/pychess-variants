@@ -1,12 +1,12 @@
-# ![Ouk Chaktrang](https://github.com/gbtami/pychess-variants/blob/master/static/icons/makruk.svg) Ouk Chaktrang
+# ![Ouk Chaktrang](https://github.com/gbtami/pychess-variants/blob/master/static/icons/cambodian.svg) Ouk Chaktrang
 
 ![Ouk Chaktrang](https://github.com/gbtami/pychess-variants/blob/master/static/images/MakrukGuide/Makruk.png?raw=true)
 
-*Ouk Chaktrang*, or Cambodian Chess, is the form of chess played in Cambodia. Its rules are similar to *Makruk*, the Thai Chess, with some special opening moves and slight differences. Ouk Chaktrang offers a taste of ancient Chess in the original form before the introduction of modern rules quickened the pace. The game is plenty of fun in its  own right, with its own balance/dynamics. The slightly slower pace can provide a good way to cultivate patience, and to hone strategic thinking.
+*Ouk Chaktrang*, or Cambodian Chess, is the form of chess played in Cambodia. Its rules are similar to *Makruk*, the Thai Chess, with some special opening moves and slight differences. Ouk Chaktrang offers a taste of ancient Chess in its original form before the introduction of modern rules quickened the pace. The game is plenty of fun in its own right with its balance and dynamics. The slightly slower pace can provide a good way to cultivate patience and hone strategic thinking.
 
 ## Rules
 
-The general rules are extremely similar to Chess, so this guide will focus on the few differences. The objective is the same: checkmating your opponent's king. The major difference is some pieces having different moves and the starting positions: the pawns start on the third rank, and the king is always on the left side of the player regardless of color. Stalemates are draws, as in chess.
+The general rules are extremely similar to Chess, so this guide will focus on the few differences. The objective is the same: checkmating your opponent's king. The major differences are some pieces having different moves and the starting positions: the pawns start on the third rank, and the king is always on the left side of the player regardless of color. Stalemates are draws, as in chess.
 
 ## The Pieces
 
@@ -86,9 +86,9 @@ During its first move, the queen can jump two squares forward. This move cannot 
 
 ## Counting Rules
 
-To prevent the games going on forever, there are rules that will declare the game a draw if it does not end in a certain number of moves, similar to Chess's 50-move rule. The maximum number of moves allowed will be called the **limit**.
+To prevent the games from going on forever, there are rules that will declare the game a draw if it does not end in a certain number of moves, similar to Chess's 50-move rule. The maximum number of moves allowed will be called the **limit**.
 
-During the endgame, one of the player will most likely have some advantage and be the one trying to win, *chasing* the other's king into checkmate, while the other player try to *escape* with a draw. For the purpose of this rule document the player with advantage will be called the **chasing player**, while the one with disadvantage will be called the **escaping player**.
+During the endgame, one of the players will most likely have some advantage and be the one trying to win, *chasing* the other's king into checkmate, while the other player try to *escape* with a draw. For the purpose of this rule document the player with advantage will be called the **chasing player**, while the one with disadvantage will be called the **escaping player**.
 
 In real over-the-board games, the escaping player verbally counts their moves. On PyChess, the current count and the limit are shown on the escaping player's side.
 
@@ -127,7 +127,7 @@ The pace is rather slow, with most pieces stepping only one square at a time. It
 Most Ouk Chaktrang games will actually reach the bitter (near) end.
 When one side has only a bare King remaining, there are certain "counting rules" (see above) which come into effect and put pressure on the stronger side. Such requirements offer the weaker side an incentive to play out the whole game. Therefore it is crucial to master all the basic checkmates against a lone King. There just isn't much point in playing these games if one can't finish off the bare King at the end.
  
-Because there is no promotion to heavy pieces, it becomes harder to force a checkmate after the existing pieces have left the board. Plan accordingly and leave yourself with enough fire power.
+Because there is no promotion to heavy pieces, it becomes harder to force a checkmate after the existing pieces have left the board. Plan accordingly and leave yourself with enough firepower.
  
 Please allow yourself enough time on the clock, as many of those mates require precision.
 

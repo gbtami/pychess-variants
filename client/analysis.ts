@@ -2,6 +2,7 @@ import { h, VNode } from "snabbdom";
 
 import { _ } from './i18n';
 import { AnalysisController } from './analysisCtrl';
+import { AnalysisControllerAlice } from './analysisCtrlAlice';
 import { gameInfo } from './gameInfo';
 import { selectVariant, VARIANTS } from './variants';
 import { renderTimeago } from './datetime';
@@ -11,7 +12,12 @@ import { analysisSettings } from './analysisSettings';
 
 function runGround(vnode: VNode, model: PyChessModel) {
     const el = vnode.elm as HTMLElement;
-    const ctrl = new AnalysisController(el, model);
+    let ctrl;
+    if (model.variant === 'alice') {
+        ctrl = new AnalysisControllerAlice(el, model);
+    } else {
+        ctrl = new AnalysisController(el, model);
+    }
     window['onFSFline'] = ctrl.onFSFline;
 }
 
@@ -92,6 +98,7 @@ export function embedView(model: PyChessModel): VNode[] {
 
 export function analysisView(model: PyChessModel): VNode[] {
     const variant = VARIANTS[model.variant];
+
     const isAnalysisBoard = model["gameId"] === "";
     const tabindexCt = (isAnalysisBoard) ? '-1' : '0';
     var tabindexPgn = (isAnalysisBoard) ? '0' : '-1';
@@ -211,8 +218,8 @@ export function analysisTools () {
         ])
 }
 
-export function gauge () {
-    return h('div#gauge', [
+export function gauge (id: string = "gauge") {
+    return h('div#'+id, [
         h('div.black',     { props: { style: "height: 50%;" } }),
         h('div.tick',      { props: { style: "height: 12.5%;" } }),
         h('div.tick',      { props: { style: "height: 25%;" } }),

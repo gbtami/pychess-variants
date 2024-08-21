@@ -7,7 +7,8 @@ import string
 
 from newid import id8
 
-URI = os.getenv("URI", "http://127.0.0.1:8080")
+LOCALHOST = "http://127.0.0.1:8080"
+URI = os.getenv("URI", LOCALHOST)
 PROD = os.getenv("PROD") == "true"
 # production deploy (yarn prod) uses brotli compressed pychess-variants.js.br
 BR_EXTENSION = ".br" if PROD else ""

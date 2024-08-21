@@ -1,5 +1,5 @@
+import { expect, test } from '@jest/globals';
 import { parseKif } from '../client/kif';
-import { expect } from 'chai';
 
 const KIF = `#KIF version=2.0 encoding=UTF-8
 開始日時：2020/11/12
@@ -135,17 +135,14 @@ const KIF = `#KIF version=2.0 encoding=UTF-8
 124   ５六歩打   (0:7/0:10:25)
 *反則手にて終局`
 
-describe('parseKif test', 
-    () => { 
-        it('should return PGN header and gamelist data from KIF', () => { 
-            const result = parseKif(KIF);
-            expect(result['date']).to.be.equal('2020/11/12');
-            expect(result['place']).to.be.equal('81Dojo');
-            expect(result['tc']).to.be.equal('15分+60秒');
-            expect(result['handicap']).to.be.equal('6-Piece HC');
-            expect(result['sente']).to.be.equal('elmasprr');
-            expect(result['gote']).to.be.equal('LittleMagician');
-            expect(result['status']).to.be.equal(11);  // not 10 (P@e4 is invalid move) because it is not indicated in move list, just in comment line
-            expect(result['moves'].join(' ')).to.be.equal('f9g8 g3g4 g9h8 g1f2 d9c8 d1c2 c9b8 f3f4 e9f8 e3e4 b7b6 c3c4 b8b7 d3d4 b7c6 c2c3 d7d6 f2e3 c8b7 a3a4 d6d5 a4a5 d5d4 e3d4 P@d5 d4e3 f7f6 f1f2 c6d7 i3i4 h7h6 i4i5 h8h7 g4g5 g8f7 h3h4 g7g6 h2g2 g6g5 g2g5 d7d6 P@d4 d5d4 c3b4 d4d3+ h4h5 d3e3 f2e3 f7g6 g5g2 S@h3 g2d2 P@d5 P@d7 f8f7 d7d8+ P@g2 i5i6 i7i6 i1i6 h7i6 h1i3 L@b5 h5h6 b5b4 b3b4 G@b3 h6h7+ b3b2 c1b2 i6h7 L@h1 P@h2 G@g3 h3i2+ d8d7 h2h1+ d7d6 B@g1 S@f2 g1i3+ d2d5 g2g1+ d6e7 f7e7 d5d9+ h1h2 P@d6 P@d8 d6d7+ d8d7 d9e9 P@e8 b2c3 h2g2 c3d4 g2f2 e1d1 g1g2 d4e5 g2g3 e9i9 g3f3 P@i1 f3e3 d1c2 P@i8 i1i2 i3i2 S@e6 i2e6 e5e6 e7e6 e4e5 e6e5 B@c3 N@d4 c2b3 S@c2 b3a4 S@b3 a4a3 L@a4 P@e4');
-    }); 
+test('parseKif test', () => { 
+    const result = parseKif(KIF);
+    expect(result['date']).toBe('2020/11/12');
+    expect(result['place']).toBe('81Dojo');
+    expect(result['tc']).toBe('15分+60秒');
+    expect(result['handicap']).toBe('6-Piece HC');
+    expect(result['sente']).toBe('elmasprr');
+    expect(result['gote']).toBe('LittleMagician');
+    expect(result['status']).toBe(11);  // not 10 (P@e4 is invalid move) because it is not indicated in move list, just in comment line
+    expect(result['moves'].join(' ')).toBe('f9g8 g3g4 g9h8 g1f2 d9c8 d1c2 c9b8 f3f4 e9f8 e3e4 b7b6 c3c4 b8b7 d3d4 b7c6 c2c3 d7d6 f2e3 c8b7 a3a4 d6d5 a4a5 d5d4 e3d4 P@d5 d4e3 f7f6 f1f2 c6d7 i3i4 h7h6 i4i5 h8h7 g4g5 g8f7 h3h4 g7g6 h2g2 g6g5 g2g5 d7d6 P@d4 d5d4 c3b4 d4d3+ h4h5 d3e3 f2e3 f7g6 g5g2 S@h3 g2d2 P@d5 P@d7 f8f7 d7d8+ P@g2 i5i6 i7i6 i1i6 h7i6 h1i3 L@b5 h5h6 b5b4 b3b4 G@b3 h6h7+ b3b2 c1b2 i6h7 L@h1 P@h2 G@g3 h3i2+ d8d7 h2h1+ d7d6 B@g1 S@f2 g1i3+ d2d5 g2g1+ d6e7 f7e7 d5d9+ h1h2 P@d6 P@d8 d6d7+ d8d7 d9e9 P@e8 b2c3 h2g2 c3d4 g2f2 e1d1 g1g2 d4e5 g2g3 e9i9 g3f3 P@i1 f3e3 d1c2 P@i8 i1i2 i3i2 S@e6 i2e6 e5e6 e7e6 e4e5 e6e5 B@c3 N@d4 c2b3 S@c2 b3a4 S@b3 a4a3 L@a4 P@e4');
 });

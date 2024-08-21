@@ -10,7 +10,7 @@ import { VARIANTS } from "./variants";
 
 
 export function gameInfo(model: PyChessModel): VNode {
-    console.log("roundView model=", model);
+    // console.log("roundView model=", model);
     const variant = VARIANTS[model.variant];
     const chess960 = model.chess960 === 'True';
     const dataIcon = variant.icon(chess960);
@@ -59,7 +59,7 @@ function playerInfo(model: PyChessModel, color: string) {
     const berserk = model[color === "w"? "wberserk": "bberserk"];
 
     return h('a.user-link', { attrs: { href: '/@/' + username } }, [
-        h('player-title', " " + title + " "),
+        (title !== '') ? h('player-title', title + ' ') : '',
         username + aiLevel(title, level) + (title !== 'BOT' ? (" (" + rating + ") ") : ''),
         model["status"] < 1 || model["rated"] !== '1' ? h('rdiff#' + color + 'rdiff') : renderRdiff(rdiff),
         (berserk === "True") ? h('icon.icon-berserk') : h('berserk#' + color + 'berserk'),

@@ -1,13 +1,12 @@
 from __future__ import annotations
 import asyncio
-import json
 import logging
 from datetime import datetime, timezone
 
-from const import ABORTED, NOTIFY_PAGE_SIZE, NOTIFY_EXPIRE_WEEKS
+from const import ABORTED
 from fairy import WHITE, BLACK
 from broadcast import round_broadcast
-from newid import new_id
+from notify import notify
 
 log = logging.getLogger(__name__)
 
@@ -18,11 +17,12 @@ CORR_TICK = 60
 class Clock:
     """Check game start and time out abandoned games"""
 
-    def __init__(self, game):
+    def __init__(self, game, board=None, secs=None):
         self.game = game
+        self.board = board if board is not None else game.board
         self.running = False
         self.secs = -1
-        self.restart()
+        self.restart(secs)
         self.clock_task = asyncio.create_task(self.countdown())
 
     def stop(self):
@@ -30,13 +30,13 @@ class Clock:
         return self.secs
 
     def restart(self, secs=None):
-        self.ply = self.game.board.ply
-        self.color = self.game.board.color
+        self.ply = self.game.ply
+        self.color = self.board.color
         if secs is not None:
             self.secs = secs
         else:
             # give some time to make first move
-            if self.ply < 2:
+            if self.ply < 2 and self.game.variant != "bughouse":
                 if self.game.tournamentId is None:
                     # Non tournament games are not timed for the first moves of either
                     # player. We stop the clock to prevent unnecessary clock
@@ -46,6 +46,7 @@ class Clock:
                 # Rated games have their first move time set
                 self.secs = self.time_for_first_move
             else:
+                # now this same clock object starts measuring the time of the other player - set to what it was when he moved last time
                 self.secs = (
                     self.game.clocks_w[-1] if self.color == WHITE else self.game.clocks_b[-1]
                 )
@@ -59,7 +60,7 @@ class Clock:
 
             # Time was running out
             if self.running:
-                if self.game.board.ply == self.ply:
+                if self.board.ply == self.ply:
                     # On lichess rage quit waits 10 seconds
                     # until the other side gets the win claim,
                     # and a disconnection gets 120 seconds.
@@ -68,7 +69,8 @@ class Clock:
 
                     # If FLAG was not received we have to act
                     if self.game.status < ABORTED and self.secs <= 0 and self.running:
-                        user = self.game.bplayer if self.color == BLACK else self.game.wplayer
+                        user = self.game.get_player_at(self.color, self.board)
+
                         reason = (
                             "abort"
                             if (self.ply < 2) and (self.game.tournamentId is None)
@@ -141,8 +143,8 @@ class CorrClock:
         self.ply = self.game.board.ply
         self.color = self.game.board.color
         self.mins = self.game.base * 24 * 60
-        if from_db and self.game.last_move_date is not None:
-            delta = datetime.now(timezone.utc) - self.game.last_move_date
+        if from_db and self.game.last_move_time is not None:
+            delta = datetime.now(timezone.utc) - self.game.last_move_time
             self.mins -= delta.total_seconds() / 60
         self.running = True
 
@@ -180,35 +182,13 @@ class CorrClock:
             if self.game.bplayer.username == user.username
             else self.game.bplayer.username
         )
-        db = self.game.app_state.db
-        _id = await new_id(None if db is None else db.notify)
-        now = datetime.now(timezone.utc)
-        document = {
-            "_id": _id,
-            "notifies": user.username,
-            "type": "corrAlarm",
-            "read": False,
-            "createdAt": now,
-            "expireAt": (now + NOTIFY_EXPIRE_WEEKS).isoformat(),
-            "content": {
-                "id": self.game.id,
-                "opp": opp_name,
-            },
+
+        notif_type = "corrAlarm"
+        content = {
+            "id": self.game.id,
+            "opp": opp_name,
         }
-
-        if user.notifications is None:
-            cursor = db.notify.find({"notifies": user.username})
-            user.notifications = await cursor.to_list(length=100)
-
-        user.notifications.append(document)
-
-        for queue in user.notify_channels:
-            await queue.put(
-                json.dumps(user.notifications[-NOTIFY_PAGE_SIZE:], default=datetime.isoformat)
-            )
-
-        if db is not None:
-            await db.notify.insert_one(document)
+        await notify(self.game.app_state.db, user, notif_type, content)
 
         # to prevent creating more than one notification for the same ply
         self.alarms.add(self.game.board.ply)

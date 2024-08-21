@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://github.com/gbtami/pychess-variants/blob/master/static/images/MidAutumnFestival/20210915_134909.jpg">
+  <img src="https://github.com/gbtami/pychess-variants/blob/master/static/images/MidAutumnFestival/20210915_134909.jpg" alt="Mooncake placed next to set-up Xiangqi board">
 </p>
 
 <h1 align="center">Mid Autumn Festival</h1>

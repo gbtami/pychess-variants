@@ -9,7 +9,7 @@ from typing import List, Set
 
 from aiohttp import web
 import os
-from datetime import timedelta, datetime, date
+from datetime import timedelta, timezone, datetime, date
 from operator import neg
 
 import jinja2
@@ -53,7 +53,8 @@ from tournaments import translated_tournament_name, get_scheduled_tournaments, l
 from twitch import Twitch
 from user import User
 from users import Users, NotInDbUsers
-from utils import load_game, MyWebSocketResponse
+from utils import load_game
+from websocket_utils import MyWebSocketResponse
 from blogs import BLOGS
 from videos import VIDEOS
 from youtube import Youtube
@@ -68,6 +69,9 @@ class PychessGlobalAppState:
 
         self.app = app
 
+        self.shutdown = False
+        self.tournaments_loaded = asyncio.Event()
+
         self.db = app[db_key]
         self.users = self.__init_users()
         self.disable_new_anons = False
@@ -79,6 +83,8 @@ class PychessGlobalAppState:
         self.tourneynames: dict[str, dict] = {lang: {} for lang in LANGUAGES}
 
         self.tournaments: dict[str, Tournament] = {}
+
+        self.tourney_calendar = None
 
         # lichess allows 7 team message per week, so we will send one (cumulative) per day only
         # TODO: save/restore from db
@@ -93,7 +99,6 @@ class PychessGlobalAppState:
         self.game_channels: Set[queue] = set()
         self.invite_channels: Set[queue] = set()
         self.highscore = {variant: ValueSortedDict(neg) for variant in VARIANTS}
-        self.get_top10_users = True
         self.crosstable: dict[str, object] = {}
         self.shield = {}
         self.shield_owners = {}  # {variant: username, ...}
@@ -133,6 +138,8 @@ class PychessGlobalAppState:
         self.__start_bots()
         self.__init_translations()
 
+        self.started_at = datetime.now(timezone.utc)
+
     async def init_from_db(self):
         if self.db is None:
             return
@@ -152,6 +159,7 @@ class PychessGlobalAppState:
                     doc["status"] == T_CREATED and doc["startsAt"].date() <= to_date
                 ):
                     await load_tournament(self, doc["_id"])
+            self.tournaments_loaded.set()
 
             already_scheduled = await get_scheduled_tournaments(self)
             new_tournaments_data = new_scheduled_tournaments(already_scheduled)
@@ -168,6 +176,7 @@ class PychessGlobalAppState:
                 if doc["_id"] in VARIANTS:
                     self.highscore[doc["_id"]] = ValueSortedDict(neg, doc["scores"])
 
+            # TODO: read it on demand only, similar to users
             if "crosstable" not in db_collections:
                 await generate_crosstable(self.db)
             cursor = self.db.crosstable.find()
@@ -223,6 +232,12 @@ class PychessGlobalAppState:
 
             # Read correspondence seeks
             async for doc in self.db.seek.find():
+                # TODO: this is here to skip seeks created by my dumb code
+                # remove this check after next deploy
+                rrmin = doc.get("rrmin")
+                if rrmin > 0:
+                    continue
+
                 user = await self.users.get(doc["user"])
                 if user is not None:
                     seek = Seek(
@@ -232,6 +247,8 @@ class PychessGlobalAppState:
                         color=doc["color"],
                         day=doc["day"],
                         rated=doc["rated"],
+                        rrmin=rrmin,
+                        rrmax=doc.get("rrmax"),
                         chess960=doc["chess960"],
                         player1=user,
                         expire_at=doc.get("expireAt"),
@@ -239,18 +256,38 @@ class PychessGlobalAppState:
                     self.seeks[seek.id] = seek
                     user.seeks[seek.id] = seek
 
-            # Read correspondence games in play and start their clocks
-            cursor = self.db.game.find({"r": "d", "c": True})
+            # Read games in play and start their clocks
+            cursor = self.db.game.find({"r": "d"})
+            cursor.sort("d", -1)
+            today = datetime.now(timezone.utc)
+
             async for doc in cursor:
+                # Don't load old uninished games if they are NOT corr games
+                corr = doc.get("c", False)
+                if doc["d"] < today - timedelta(days=1) and not corr:
+                    continue
+
                 if doc["s"] < ABORTED:
                     try:
                         game = await load_game(self, doc["_id"])
+                        if game is None:
+                            continue
                         self.games[doc["_id"]] = game
-                        game.wplayer.correspondence_games.append(game)
-                        game.bplayer.correspondence_games.append(game)
-                        game.stopwatch.restart(from_db=True)
+                        if corr:
+                            game.wplayer.correspondence_games.append(game)
+                            game.bplayer.correspondence_games.append(game)
+                            game.stopwatch.restart(from_db=True)
+                        else:
+                            try:
+                                game.stopwatch.restart()
+                            except AttributeError:
+                                game.gameClocks.restart("a")
+                                game.gameClocks.restart("b")
                     except NotInDbUsers:
                         log.error("Failed toload game %s", doc["_id"])
+
+                    if game.board.ply > 0:
+                        self.g_cnt[0] += 1
 
             if "video" not in db_collections:
                 if DEV:
@@ -262,6 +299,11 @@ class PychessGlobalAppState:
                     await self.db.blog.drop()
                 await self.db.blog.insert_many(BLOGS)
                 await self.db.blog.create_index("date")
+
+            if "fishnet" in db_collections:
+                cursor = self.db.fishnet.find()
+                async for doc in cursor:
+                    FISHNET_KEYS[doc["_id"]] = doc["name"]
 
         except Exception:
             print("Maybe mongodb is not running...")
@@ -327,6 +369,7 @@ class PychessGlobalAppState:
 
     def __init_fishnet_monitor(self) -> dict:
         result = {}
+        print(FISHNET_KEYS)
         for key in FISHNET_KEYS:
             result[FISHNET_KEYS[key]] = collections.deque([], 50)
         return result

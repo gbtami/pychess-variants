@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="30mm"
+   height="30mm"
+   viewBox="0 0 30 30"
+   version="1.1"
+   id="svg1"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs1">
+    <clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath182-4-0-4-0-4-2-4-25-4-3-9">
+      <path
+         d="M 0,2834.646 H 2834.646 V 0 H 0 Z"
+         transform="translate(-91.9855,-311.81193)"
+         id="path182-0-3-8-6-1-1-0-9-0-0-4" />
+    </clipPath>
+  </defs>
+  <g
+     id="layer1"
+     transform="translate(-680)">
+    <path
+       id="path471"
+       d="m 0,0 c 0,-19.491 -15.801,-35.292 -35.293,-35.292 -19.491,0 -35.292,15.801 -35.292,35.292 0,19.491 15.801,35.292 35.292,35.292 C -15.801,35.292 0,19.491 0,0"
+       style="font-variation-settings:normal;vector-effect:none;fill:#f9d08f;fill-opacity:1;fill-rule:nonzero;stroke:#4d3608;stroke-width:1.58026;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:10;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;-inkscape-stroke:none;stop-color:#000000"
+       transform="matrix(-0.37968369,0,0,0.37968364,681.60001,15)"
+       clip-path="url(#clipPath182-4-0-4-0-4-2-4-25-4-3-9)" />
+    <text
+       id="text553"
+       xml:space="preserve"
+       x="695.0249"
+       y="19.464844"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12.7px;font-family:Osaka;-inkscape-font-specification:'Osaka, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:center;text-anchor:middle;fill:#d20000;fill-opacity:1;stroke-width:0.352777"><tspan
+         id="tspan553"
+         x="695.0249"
+         y="19.464844"
+         style="font-size:12.7px;fill:#d20000;fill-opacity:1;stroke-width:0.352777">兵</tspan></text>
+    <path
+       id="path558"
+       style="fill:none;stroke:#d20000;stroke-width:1.5;stroke-miterlimit:10;stroke-opacity:1"
+       d="m 685.24991,14.99979 a 9.75,9.7499971 0 0 1 9.75,-9.7500001 9.75,9.7499971 0 0 1 9.75,9.7500001 9.75,9.7499971 0 0 1 -9.75,9.74999 9.75,9.7499971 0 0 1 -9.75,-9.74999 z" />
+    <path
+       style="fill:none;fill-opacity:1;stroke:#d20000;stroke-width:0.799999;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
+       d="m 704.74991,14.99999 h 1.75"
+       id="path559" />
+    <path
+       style="fill:none;fill-opacity:1;stroke:#d20000;stroke-width:0.799999;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
+       d="m 685.24988,15.00001 h -1.74997"
+       id="path560" />
+    <path
+       style="fill:none;fill-opacity:1;stroke:#d20000;stroke-width:0.799999;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
+       d="M 694.99991,24.75001 V 27.5"
+       id="path561" />
+  </g>
+</svg>

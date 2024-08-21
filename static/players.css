@@ -6,7 +6,6 @@
 table {
     width: 100%;
     border-collapse: collapse;
-    border-spacing: 0;
 }
 tr.player-data {
     display: table-row;
@@ -30,13 +29,11 @@ td rating {
 .highscore, .shields, .winners {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(30ch, 1fr));
-    grid-gap: 6px;
     padding-left: 2px;
-}
-.highscore, .shields, .winners {
     grid-gap: 0;
     border: 1px solid var(--border-color);
     padding: 0;
+    border-radius: 0;
 }
 .small aside .highscore {
     border: 0;
@@ -46,22 +43,26 @@ td rating {
     border-radius: .25rem;
     background-color: var(--bg-color1);
 }
-.highscore, .shields, .winners {
-    border-radius: none;
-}
 .highscore h1, .shields h1, .winners h1 {
     font-size: 2.5em;
 }
 .shields .card, .winners .card {
     border: none;
     border-right: 1px solid var(--border-color);
-    border-radius: none;
+    border-radius: 0;
     box-shadow: var(--base-shadow);
 }
 .card div.info0 {
     color: WhiteSmoke;
     background-color: var(--gold);
-    padding:0.2em;
+    padding: 0.2em;
+    margin-bottom: 0;
+}
+.card div.info0 a {
+    color: WhiteSmoke;
+}
+.winners .card div.info0 a {
+    color: var(--clock-running-color);
 }
 div.info0.icon::before {
     opacity: 0.9;
@@ -72,8 +73,6 @@ div.info0.icon::before {
     text-shadow: 0 1px 0 var(--text-shadow);
 }
 .shields .card h2 {
-    padding-top: 1vh;
-    padding-bottom: 1vh;
     padding-left: 95px;
     position: relative;
     font-size: 1.3em;
@@ -90,16 +89,16 @@ div.info0.icon::before {
     height: 80px;
 }
 .card .player-data {
-    padding:.4rem .5rem .4rem .5rem;
+    padding: .7rem .5rem .7rem .5rem;
 }
 .shields .player-data {
     padding: 1.2rem 1.2rem 1.2rem 0.5rem;
 }
-.player-data.odd {
-    background-color: var(--bg-color1);
+div.card div.player-data:nth-child(2n), tr.player-data:nth-child(2n + 1) {
+  background-color: var(--bg-color1);
 }
-.player-data.even {
-    background-color: var(--bg-color2);
+div.card div.player-data:nth-child(2n + 1), tr.player-data:nth-child(2n) {
+  background-color: var(--table-even);
 }
 .tourney-date {
     float: right;
@@ -107,13 +106,14 @@ div.info0.icon::before {
 }
 .user-link.player {
     display: inline-block;
-    white-space: nowrap;
     text-overflow: ellipsis;
     width: 60%;
 }
+.user-link.player, 
+table#players a,
+.flat-bg .highscore a {
+    white-space: nowrap;
+}
 .user-link.tourney-date {
     color: var(--link-color-blue);
-}
-.highscore a {
-    color: fff;
 }

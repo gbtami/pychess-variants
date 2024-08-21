@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="34mm"
+   height="34mm"
+   viewBox="0 0 34 34"
+   version="1.1"
+   id="svg1"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs1" />
+  <g
+     id="layer1"
+     transform="translate(-40)">
+    <ellipse
+       cx="57"
+       cy="17.000006"
+       fill="#ffffff"
+       stroke="#000000"
+       stroke-width="5.78055"
+       id="circle1-5"
+       rx="13"
+       ry="13.000001"
+       style="fill:none;fill-opacity:0;stroke-width:1.2;stroke-dasharray:2.4, 1.2;stroke-dashoffset:0" />
+    <ellipse
+       cx="57"
+       cy="17.000006"
+       fill="#ffffff"
+       stroke="#000000"
+       stroke-width="5.78055"
+       id="ellipse37"
+       rx="12.4"
+       ry="12.400001"
+       style="fill:#ffffff;fill-opacity:0.501961;stroke:none;stroke-width:0;stroke-dasharray:none;stroke-dashoffset:0" />
+    <text
+       xml:space="preserve"
+       style="font-size:20.9672px;line-height:0.9;font-family:KaiTi;-inkscape-font-specification:KaiTi;text-align:center;text-decoration-color:#000000;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.599996;stroke-miterlimit:10;stroke-opacity:1;-inkscape-stroke:none"
+       x="56.966148"
+       y="24.780796"
+       id="text37"><tspan
+         x="56.966148"
+         y="24.780796"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:0.9;font-family:sans-serif;-inkscape-font-specification:sans-serif;fill:#000000;fill-opacity:1;stroke-width:0.599996"
+         id="tspan37">?</tspan></text>
+  </g>
+</svg>

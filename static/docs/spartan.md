@@ -4,7 +4,7 @@
 
 Spartan Chess is a chess variant created by Steven Streetman (rules recorded in 2010) and is one of the most popular variants to use asymmetric armies. This was also balanced before the time of modern engines such as Fairy Stockfish. 
 
-Spartan Chess reflects the asymmetric war between the ancient Spartans and Persians. The Black side represents the Spartans and the White the Persians. The Persians have pawns, pieces, and an initial placement and piece moves in accord with the rules of orthodox chess. The Spartans have two kings, and with the exception of their kings, every Spartan playing piece moves differently from any piece found in orthodox chess.
+Spartan Chess reflects the asymmetric war between the ancient Spartans and Persians. The Black side represents the Spartans and the White the Persians. The Persians have pawns, pieces, initial placement, and piece moves in accord with the rules of orthodox chess. The Spartans have two kings, and with the exception of their kings, every Spartan playing piece moves differently from any piece found in orthodox chess.
  
 ## General Rules
 1.	Setup is as above.
@@ -41,7 +41,7 @@ The hoplite is the Spartan pawn, and for those familiar with fairy pieces, it is
 
 Additionally, a hoplite can move one OR two squares diagonally on its first move, much like how a Persian pawn can move two squares orthogonally forwards on its first move. **The two square movement is also a jumping movement, which means it can *hop* over intervening pieces.**
 
-As stated above, upon reaching the 8th rank, a hoplite can promote to any Spartan piece. This includes a king if there is only one king remaining.
+As stated above, upon reaching the 8th rank, a hoplite can promote to any Spartan piece. This includes a king if only one king is remaining.
 
 ### General (G)
 
@@ -84,11 +84,11 @@ With different armies, different strategies are effective for the Persians and t
 **Spartan Strategy**
 * Closed Game - With so many pieces that can jump, a closed game favors the Spartans. It is often best to avoid exchanges when possible.
 * Hoplite Mobility - Use the superior mobility of the hoplites over pawns to dominate a section of the board.
-* Phalanxes - When two or more hoplites are in a column one behind the other, this is a phalanx. One or more phalanxes can be powerful, and can act as the bulwark of a Spartan position.
-* Patience - With more Spartan pieces on foot, the Spartans have more short-range pieces. Be patient, develop and advance all your pieces.
+* Phalanxes - When two or more hoplites are in a column one behind the other, this is a phalanx. One or more phalanxes can be powerful and can act as the bulwark of a Spartan position.
+* Patience - With more Spartan pieces on foot, the Spartans have more short-range pieces. Be patient, develop, and advance all your pieces.
 * Kings Attack - When you have 2 kings in play, advance and attack with them too. Kings can be a powerful addition to an offensive.
 * Check Immunity - Keep both Spartan kings in play as long as you can to preserve the Spartan advantage of check immunity.
-* Quick Victory - A quick, early and long-range victory is sometimes possible when your general and warlord combine in an attack.
+* Quick Victory - A quick, early, and long-range victory is sometimes possible when your general and warlord combine in an attack.
 
 **Persian Strategy**
 * Open Game - Having more long-range pieces, an open game favors the Persians. Seek favorable exchanges to open up the board and exploit your pieces' superior mobility.

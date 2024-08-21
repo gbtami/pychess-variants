@@ -7,9 +7,11 @@ import { variantsIni } from './variantsIni';
 import { VARIANTS } from './variants';
 import { parseKif, resultString } from '../client/kif';
 import { PyChessModel } from "./types";
+import { importGameBugH } from "@/bug/paste.bug";
 
 const BRAINKING_SITE = '[Site "BrainKing.com (Prague, Czech Republic)"]';
 const EMBASSY_FEN = '[FEN "rnbqkmcbnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBQKMCBNR w KQkq - 0 1"]';
+const BUGHOUSE_VARIANT = '[WhiteA';
 
 
 export function pasteView(model: PyChessModel): VNode[] {
@@ -22,6 +24,12 @@ export function pasteView(model: PyChessModel): VNode[] {
         const e = document.getElementById("pgnpaste") as HTMLInputElement;
         //console.log('PGN:', e.value);
         let pgn = e.value;
+
+        if (pgn.indexOf(BUGHOUSE_VARIANT) !== -1 ) {
+            importGameBugH(pgn, model["home"]);
+            return;
+        }
+
         // Add missing Variant tag and switch short/long castling notations
         if (pgn.indexOf(BRAINKING_SITE) !== -1 && pgn.indexOf(EMBASSY_FEN) !== -1) {
             const lines = pgn.split(/\n/);

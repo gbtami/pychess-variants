@@ -2,9 +2,7 @@
 {% block content %}
 <div id="main-wrap">
   <div class="memory">
-    <div class="header">
-        <h1>Find the pairs!</h1>
-    </div>
+    <h1>Find the pairs!</h1>
     <div class="memory-game">
         <div class="memory-card" data-framework = "1">
             <img class="front-face" src={{ static("images/pieces/shogi/bw/0FU-1.svg") }} alt="">
@@ -79,6 +77,7 @@
             <input label="zen2" type="radio" id="zen2" name="game-bg">
         </div>
     </div>
+    <div id="moves">Moves: 0</div>
     <button id="replay" style="order: 1000;">Play again?</button>
   </div>
 </div>

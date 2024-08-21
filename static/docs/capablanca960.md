@@ -10,9 +10,10 @@ This variant can be played by checking the "Chess960" option when creating a Cap
 
 The starting bottom ranks are randomized, but two rules must be followed:
 
-The bishops must be placed on opposite-color squares.
-The king must be placed on a square between the rooks.
-Castling is the other major rule to take note of. Basically, regardless of where the rooks are, if you castle, the end position will be the same as if the rooks were in standard position.
+* The bishops must be placed on opposite-color squares.
+* The king must be placed on a square between the rooks.
+
+Castling is the other major rule to take note of. Basically, regardless of where the rooks are, if you castle, the end position will be the same as if the rooks were in standard position. For example, a queenside castle will result with the king on the c file and the rook on the d file (notation: 0-0-0).
 
 All other rules are as in Capablanca chess.
 
@@ -22,7 +23,7 @@ All other rules are as in Capablanca chess.
 
 ![Archbishop](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Princesses.png)
 
-Various symbols used for the archbishop. (Note that the hawk is only for Seirawan Chess)
+Various symbols used for the archbishop. (Note that the hawk is only for Seirawan Chess).
 
 ![Archbishop moves](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Archbishop.png)
 
@@ -38,7 +39,7 @@ The value of an archbishop is considered slightly better than a rook, but less t
 
 ![Chancellor](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Empresses.png)
 
-Various symbols used for the chancellor. (Note that the elephant is only for Seirawan Chess)
+Various symbols used for the chancellor. (Note that the elephant is only for Seirawan Chess).
 
 ![Chancellor moves](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Chancellor.png)
 
@@ -46,4 +47,4 @@ The chancellor (C) is a compound piece combining the moves of the **rook** and t
 
 The piece is often symbolized with a combination of a knight and rook; most variants often do not specify how the piece should look otherwise (which is why we offer different piece sets to choose from).
 
-The value of a chancellor is considered better than an archbishop, but equivalent or slightly less than a queen.
+The value of a chancellor is considered better than an archbishop, but equivalent to or slightly less than a queen.

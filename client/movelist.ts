@@ -1,6 +1,7 @@
 import { h, VNode } from 'snabbdom';
 
 import { GameController } from './gameCtrl';
+import { RoundControllerAlice } from './roundCtrlAlice';
 import { result } from './result'
 import { Step } from './messages';
 import { patch } from './document';
@@ -65,15 +66,18 @@ export function activatePlyVari (ply: number) {
     if (elPly) elPly.classList.add('active');
 }
 
-export function createMovelistButtons (ctrl: GameController) {
+export function createMovelistButtons (ctrl: GameController | RoundControllerAlice) {
     const container = document.getElementById('move-controls') as HTMLElement;
     let buttons = [
-        h('button#flip', { on: { click: () => ctrl.toggleOrientation() } }, [ h('i.icon.icon-refresh') ]),
+        h('button', { on: { click: () => ctrl.toggleOrientation() } }, [ h('i.icon.icon-refresh') ]),
         h('button', { on: { click: () => selectMove(ctrl, 0) } }, [ h('i.icon.icon-fast-backward') ]),
         h('button', { on: { click: () => selectMove(ctrl, ctrl.ply - 1, ctrl.plyVari) } }, [ h('i.icon.icon-step-backward') ]),
         h('button', { on: { click: () => selectMove(ctrl, ctrl.ply + 1, ctrl.plyVari) } }, [ h('i.icon.icon-step-forward') ]),
         h('button', { on: { click: () => selectMove(ctrl, ctrl.steps.length - 1) } }, [ h('i.icon.icon-fast-forward') ]),
     ];
+    if ('switchAliceBoards' in ctrl) {
+        buttons.push(h('button#alice', { on: { click: () => ctrl.switchAliceBoards() } }, [ h('i.icon.icon-exchange') ]));
+    }
     if ("localEngine" in ctrl) {
         buttons.push(h('button#bars', { on: { click: () => ctrl.toggleSettings() } }, [ h('i.icon.icon-bars') ]));
     }
@@ -94,7 +98,7 @@ export function updateMovelist (ctrl: GameController, full = true, activate = tr
     }
 
     for (let ply = plyFrom; ply < plyTo; ply++) {
-        const move = ctrl.steps[ply].san;
+        const move = (ctrl.fog && ctrl.status < 0 && (ctrl.steps[ply].turnColor === ctrl.mycolor || ctrl.spectator)) ? '?' : ctrl.steps[ply].san;
         if (move === null) continue;
 
         const whiteMove = ctrl.steps[ply].turnColor === 'black';

@@ -121,6 +121,27 @@ class Sounds {
         }
     }
 
+        gameEndSoundBughouse(result: string, team: '1' | '2') {
+        switch (result) {
+            case "1/2-1/2":
+                this.draw();
+                break;
+            case "1-0":
+                if (team === "1")
+                    this.victory();
+                else
+                    this.defeat();
+                break;
+            case "0-1":
+                if (team === "2")
+                    this.victory();
+                else
+                    this.defeat();
+                break;
+        }
+    }
+
+
 }
 
 class VolumeSettings extends NumberSettings {

@@ -1,3 +1,4 @@
+import { FairyStockfish } from 'ffish-es6';
 import { CrossTable, MsgBoard } from './messages';
 
 export type JSONPrimitive = string | number | boolean | null;
@@ -5,7 +6,11 @@ export type JSONValue = JSONPrimitive | JSONObject | JSONArray;
 export type JSONObject = { [member: string]: JSONValue };
 export type JSONArray = JSONValue[];
 
+export type BugBoardName = 'a' | 'b';
+export type BoardName = '' | BugBoardName;
+
 export type PyChessModel = {
+    ffish: FairyStockfish;
     username: string;
     home: string;
     anon: string;
@@ -46,6 +51,14 @@ export type PyChessModel = {
     tournamentDirector: boolean;
     assetURL: string;
     puzzle: string;
+
+    wplayerB: string;
+    wtitleB: string;
+    wratingB: string; // string, because can contain "?" suffix for provisional rating
+    bplayerB: string;
+    btitleB: string;
+    bratingB: string; // string, because can contain "?" suffix for provisional rating
+
     blogs: string;
     corrGames: string;
 };

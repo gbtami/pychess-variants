@@ -1,17 +1,17 @@
 import { h, VNode } from 'snabbdom';
+
 import { premove } from 'chessgroundx/premove';
 import { predrop } from 'chessgroundx/predrop';
 import * as cg from 'chessgroundx/types';
 import { Api } from "chessgroundx/api";
 
-import { newWebsocket } from './socket';
 import { JSONObject } from './types';
 import { _, ngettext } from './i18n';
 import { patch } from './document';
 import { boardSettings } from './boardSettings';
 import { Clock } from './clock';
 import { sound } from './sound';
-import { WHITE, BLACK, uci2LastMove, getCounting, isHandicap } from './chess';
+import { DARK_FEN, WHITE, BLACK, uci2LastMove, getCounting, isHandicap } from './chess';
 import { crosstableView } from './crosstable';
 import { chatMessage, chatView } from './chat';
 import { createMovelistButtons, updateMovelist, updateResult, selectMove } from './movelist';
@@ -25,7 +25,8 @@ import { MsgUserDisconnected, MsgUserPresent, MsgMoreTime, MsgDrawOffer, MsgDraw
 import { PyChessModel } from "./types";
 import { GameController } from './gameCtrl';
 import { handleOngoingGameEvents, Game, gameViewPlaying, compareGames } from './nowPlaying';
-import { initPocketRow } from './pocketRow';
+import { createWebsocket } from "@/socket/webSocketUtils";
+import { setPocketRowCssVars } from './pocketRow';
 
 let rang = false;
 const CASUAL = '0';
@@ -52,7 +53,6 @@ export class RoundController extends GameController {
     berserkable: boolean;
     settings: boolean;
     tv: boolean;
-    blindfold: boolean;
     handicap: boolean;
     setupFen: string;
     focus: boolean;
@@ -64,7 +64,7 @@ export class RoundController extends GameController {
                           // If server received and processed it the first time, it will just ignore it
 
     constructor(el: HTMLElement, model: PyChessModel) {
-        super(el, model);
+        super(el, model, model.fen, document.getElementById('pocket0') as HTMLElement, document.getElementById('pocket1') as HTMLElement, '');
         this.focus = !document.hidden;
         document.addEventListener("visibilitychange", () => {this.focus = !document.hidden});
         window.addEventListener('blur', () => {this.focus = false});
@@ -84,9 +84,6 @@ export class RoundController extends GameController {
 
             this.clocks[0].connecting = false;
             this.clocks[1].connecting = false;
-            const cl = document.body.classList; // removing the "reconnecting" message in lower left corner
-            cl.remove('offline');
-            cl.add('online');
         };
 
         const onReconnect = () => {
@@ -99,19 +96,11 @@ export class RoundController extends GameController {
             this.clocks[1].connecting = true;
             console.log('Reconnecting in round...');
 
-            // relevant to the "reconnecting" message in lower left corner
-            document.body.classList.add('offline');
-            document.body.classList.remove('online');
-            document.body.classList.add('reconnected'); // this will trigger the animation once we get "online" class added back on reconnect
-
             const container = document.getElementById('player1') as HTMLElement;
             patch(container, h('i-side.online#player1', {class: {"icon": true, "icon-online": false, "icon-offline": true}}));
         };
 
-        this.sock = newWebsocket('wsr/' + this.gameId);
-        this.sock.onopen = () => onOpen();
-        this.sock.onreconnect = () => onReconnect();
-        this.sock.onmessage = (e: MessageEvent) => this.onMessage(e);
+        this.sock = createWebsocket('wsr/' + this.gameId, onOpen, onReconnect, () => {}, (e: MessageEvent) => this.onMessage(e));
 
         this.assetURL = model["assetURL"];
         this.byoyomiPeriod = Number(model["byo"]);
@@ -123,7 +112,6 @@ export class RoundController extends GameController {
         this.berserked = {wberserk: model["wberserk"] === "True", bberserk: model["bberserk"] === "True"};
 
         this.settings = true;
-        this.blindfold = localStorage.blindfold === undefined ? false : localStorage.blindfold === "true";
         this.autoPromote = localStorage.autoPromote === undefined ? false : localStorage.autoPromote === "true";
         this.materialDifference = localStorage.materialDifference === undefined ? false : localStorage.materialDifference === "true";
 
@@ -180,10 +168,9 @@ export class RoundController extends GameController {
             });
         }
 
-        // initialize pockets
-        const pocket0 = document.getElementById('pocket0') as HTMLElement;
-        const pocket1 = document.getElementById('pocket1') as HTMLElement;
-        initPocketRow(this, pocket0, pocket1);
+        if (this.hasPockets) {
+            setPocketRowCssVars(this);
+        }
 
         // initialize users
         const player0 = document.getElementById('rplayer0') as HTMLElement;
@@ -307,8 +294,10 @@ export class RoundController extends GameController {
 
         if (!this.spectator && !this.corr) {
             if (this.byoyomiPeriod > 0) {
+                this.clocks[0].onByoyomi(byoyomiCallback);
                 this.clocks[1].onByoyomi(byoyomiCallback);
             }
+            this.clocks[0].onFlag(flagCallback);
             this.clocks[1].onFlag(flagCallback);
         }
 
@@ -356,7 +345,7 @@ export class RoundController extends GameController {
 
         if (model.corrGames.length > 0) {
             const corrGames = JSON.parse(model.corrGames).sort(compareGames(this.username));
-            const cgMap: {[gameId: string]: Api} = {};
+            const cgMap: {[gameId: string]: [Api, string]} = {};
             handleOngoingGameEvents(this.username, cgMap);
 
             patch(document.querySelector('.games-container') as HTMLElement, 
@@ -391,6 +380,10 @@ export class RoundController extends GameController {
         // console.log("FLIP");
         if (this.variant.material.showDiff) {
             this.updateMaterial();
+        }
+
+        if (this.hasPockets) {
+            setPocketRowCssVars(this);
         }
 
         // TODO: moretime button
@@ -520,6 +513,9 @@ export class RoundController extends GameController {
 
     // Janggi second player (Red) setup
     private onMsgSetup = (msg: MsgSetup) => {
+        const buttonEl = document.getElementById('flipLeft') as HTMLElement;
+        if (buttonEl !== null) return;
+
         this.setupFen = msg.fen;
         this.chessground.set({fen: this.setupFen});
 
@@ -722,7 +718,7 @@ export class RoundController extends GameController {
         }
     }
 
-    private onMsgBoard = (msg: MsgBoard) => {
+    onMsgBoard(msg: MsgBoard) {
         if (msg.gameId !== this.gameId) return;
 
         // console.log("got board msg:", msg);
@@ -833,8 +829,11 @@ export class RoundController extends GameController {
 
         const lastMove = uci2LastMove(msg.lastMove);
         const step = this.steps[this.steps.length - 1];
-        const capture = !!lastMove && ((this.chessground.state.boardState.pieces.get(lastMove[1] as cg.Key) && step.san?.slice(0, 2) !== 'O-') || (step.san?.slice(1, 2) === 'x'));
-
+        let capture = false;
+        if (lastMove) {
+            const piece = this.chessground.state.boardState.pieces.get(lastMove[1] as cg.Key);
+            capture = (piece !== undefined && piece.role !== '_-piece' && step.san?.slice(0, 2) !== 'O-') || (step.san?.slice(1, 2) === 'x');
+        }
         if (msg.steps.length === 1 && lastMove && (this.turnColor === this.mycolor || this.spectator)) {
             if (!this.finishedGame) sound.moveSound(this.variant, capture);
         }
@@ -883,10 +882,10 @@ export class RoundController extends GameController {
         if (this.spectator) {
             if (latestPly) {
                 this.chessground.set({
-                    fen: this.fullfen,
+                    fen: (this.fog) ? DARK_FEN : this.fullfen,
                     turnColor: this.turnColor,
                     check: msg.check,
-                    lastMove: lastMove,
+                    lastMove: (this.fog) ? undefined : lastMove,
                     movable: { color: undefined },
                 });
             }
@@ -901,14 +900,14 @@ export class RoundController extends GameController {
             if (this.turnColor === this.mycolor) {
                 if (latestPly) {
                     this.chessground.set({
-                        fen: this.fullfen,
+                        fen: (this.fog) ? this.fogFen(this.fullfen) : this.fullfen,
                         turnColor: this.turnColor,
                         movable: {
                             free: false,
                             color: (this.variant.rules.setup && this.status === -2) ? undefined : this.mycolor,
                         },
                         check: msg.check,
-                        lastMove: lastMove,
+                        lastMove: (this.fog) ? undefined : lastMove,
                     });
 
                     // This have to be exactly here (and before this.performPremove as well!!!),
@@ -933,10 +932,10 @@ export class RoundController extends GameController {
             } else {
                 this.chessground.set({
                     // giving fen here will place castling rooks to their destination in chess960 variants
-                    fen: parts[0],
+                    fen: (this.fog) ? this.fogFen(this.fullfen) : parts[0],
                     turnColor: this.turnColor,
                     check: msg.check,
-                    lastMove: lastMove,
+                    lastMove: (this.fog) ? undefined : lastMove,
                 });
 
                 // This have to be here, because in case of takeback 
@@ -954,14 +953,21 @@ export class RoundController extends GameController {
             }
         }
 
+        if (this.variant.ui.showCheckCounters) {
+            this.updateCheckCounters(msg.fen);
+        }
+
         this.updateMaterial();
     }
 
-    goPly = (ply: number, plyVari = 0) => {
+    goPly(ply: number, plyVari = 0) {
+        // console.log("roundCtrl.goPly()");
         super.goPly(ply, plyVari);
 
-        if (this.spectator || this.turnColor !== this.mycolor || this.result !== "*" || ply !== this.steps.length - 1) {
+        if (this.spectator || this.status >=0 || ply !== this.steps.length - 1) {
             this.chessground.set({ movable: { color: undefined } });
+        } else if (ply === this.steps.length - 1) {
+            this.chessground.set({ movable: { color: this.mycolor } });
         }
 
         this.updateMaterial();

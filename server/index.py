@@ -4,10 +4,10 @@ import asyncio
 import functools
 import json
 import logging
+import os.path
 import sys
 import warnings
 from datetime import datetime
-from itertools import islice
 from urllib.parse import urlparse
 
 import aiohttp_session
@@ -28,6 +28,7 @@ from const import (
     TRANSLATED_VARIANT_NAMES,
     TRANSLATED_PAIRING_SYSTEM_NAMES,
 )
+from alice import AliceBoard
 from fairy import FairyBoard
 from glicko2.glicko2 import PROVISIONAL_PHI
 from robots import ROBOTS_TXT
@@ -178,7 +179,7 @@ async def index(request):
         if user.anon:
             return web.HTTPFound("/")
         view = "allplayers"
-    elif request.path == "/games":
+    elif request.path.startswith("/games"):
         view = "games"
     elif request.path == "/patron":
         view = "patron"
@@ -362,6 +363,8 @@ async def index(request):
         template = get_template("blog.html")
     elif view == "variants":
         template = get_template("variants.html")
+    elif view == "games":
+        template = get_template("games.html")
     elif view == "memory":
         template = get_template("memory.html")
     elif view == "videos":
@@ -425,13 +428,17 @@ async def index(request):
             profileId = "Fairy-Stockfish"
             render["trophies"] = []
         else:
+            render["can_block"] = profileId not in user.blocked
+            render["can_challenge"] = user.username not in profileId_user.blocked
+
+            _id = "%s|%s" % (profileId, profileId_user.title)
             render["trophies"] = [
                 (v, "top10")
                 for v in app_state.highscore
-                if profileId in app_state.highscore[v].keys()[:10]
+                if _id in app_state.highscore[v].keys()[:10]
             ]
             for i, (v, kind) in enumerate(render["trophies"]):
-                if app_state.highscore[v].peekitem(0)[0] == profileId:
+                if app_state.highscore[v].peekitem(0)[0] == _id:
                     render["trophies"][i] = (v, "top1")
             render["trophies"] = sorted(render["trophies"], key=lambda x: x[1])
 
@@ -489,22 +496,13 @@ async def index(request):
         render["anon_online"] = anon_online
         render["admin"] = user.username in ADMINS
         if variant is None:
-            # read top10 users data
-            if app_state.get_top10_users:
-                for variant in VARIANTS:
-                    for username in islice(app_state.highscore[variant], 10):
-                        await app_state.users.get(username)
-                app_state.get_top10_users = False
             render["highscore"] = {
                 variant: dict(app_state.highscore[variant].items()[:10])
                 for variant in app_state.highscore
+                if not variant.startswith("bughouse")
             }
         else:
             hs = app_state.highscore[variant]
-            # read top50 users data
-            for username in hs:
-                await app_state.users.get(username)
-
             render["highscore"] = hs
             view = "players50"
 
@@ -601,6 +599,9 @@ async def index(request):
             render["status"] = game.status
             render["date"] = game.date.isoformat()
             render["title"] = game.browser_title
+            # todo: I think sent ply value shouldn't be minus 1.
+            #       But also it gets overwritten anyway right after that so why send all this stuff at all here.
+            #       just init client on 1st ws board msg received right after ws connection is established
             render["ply"] = ply if ply is not None else game.ply - 1
             render["ct"] = json.dumps(game.crosstable)
             render["board"] = json.dumps(game.get_board(full=True))
@@ -610,6 +611,13 @@ async def index(request):
                 render["tournamentname"] = tournament_name
                 render["wberserk"] = game.wberserk
                 render["bberserk"] = game.bberserk
+            if game.variant == "bughouse":
+                render["wplayerB"] = game.wplayerB.username
+                render["wtitleB"] = game.wplayerB.title
+                render["wratingB"] = game.wrating_b
+                render["bplayerB"] = game.bplayerB.username
+                render["btitleB"] = game.bplayerB.title
+                render["bratingB"] = game.brating_b
             if game.corr and user.username in (game.wplayer.username, game.bplayer.username):
                 c_games = corr_games(user.correspondence_games)
                 render["corr_games"] = json.dumps(c_games, default=datetime.isoformat)
@@ -649,11 +657,20 @@ async def index(request):
         render["groups"] = VARIANT_GROUPS
 
         if variant == "terminology":
-            render["variant"] = "docs/terminology%s.html" % locale
+            item = "docs/terminology%s.html" % locale
         else:
-            render["variant"] = (
-                "docs/" + ("terminology" if variant is None else variant) + "%s.html" % locale
-            )
+            item = "docs/" + ("terminology" if variant is None else variant) + "%s.html" % locale
+
+        if not os.path.exists(os.path.abspath(os.path.join("templates", item))):
+            if variant == "terminology":
+                item = "docs/terminology.html"
+            else:
+                item = "docs/" + ("terminology" if variant is None else variant) + ".html"
+        render["variant"] = item
+
+    elif view == "games":
+        render["icons"] = VARIANT_ICONS
+        render["groups"] = VARIANT_GROUPS
 
     elif view == "videos":
         tag = request.rel_url.query.get("tags")
@@ -685,7 +702,10 @@ async def index(request):
 
     elif view == "blog":
         blog_item = blogId.replace("_", " ")
-        render["blog_item"] = "blogs/%s%s.html" % (blog_item, locale)
+        item = "blogs/%s%s.html" % (blog_item, locale)
+        if not os.path.exists(os.path.abspath(os.path.join("templates", item))):
+            item = "blogs/%s.html" % blog_item
+        render["blog_item"] = item
         render["view_css"] = "blogs.css"
         render["tags"] = BLOG_TAGS
 
@@ -694,7 +714,10 @@ async def index(request):
 
     elif view == "editor" or (view == "analysis" and gameId is None):
         if fen is None:
-            fen = FairyBoard.start_fen(variant)
+            if variant == "alice":
+                fen = AliceBoard.start_fen()
+            else:
+                fen = FairyBoard.start_fen(variant)
         else:
             fen = fen.replace(".", "+").replace("_", " ")
         render["variant"] = variant

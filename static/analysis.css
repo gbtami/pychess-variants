@@ -12,7 +12,7 @@
 .sidebar-first {
     box-shadow: none;
 }
-@media (max-width: 799px) and (orientation: portrait) {
+@media (max-width: 799px) {
     .analysis-app {
         grid-template-rows: auto;
         grid-template-areas: 'pocket-top' 'board' 'pocket-bot' 'move-controls' 'ceval' 'pv' 'misc-info' 'vari' 'tools' 'uboard' 'side';
@@ -72,16 +72,17 @@
 div.ctable-container {
     padding-top: 3vmin;
 }
-
 #gauge {
     grid-area: gauge;
+}
+#gauge, #gaugePartner {
     display: block;
     background-color: #fff;
     width: var(--gauge-gap);
     overflow: hidden;
     position: relative;
 }
-#gauge::after {
+#gauge::after, #gaugePartner::after {
     content: '';
     display: block;
     position: absolute;
@@ -91,11 +92,11 @@ div.ctable-container {
     right: 0;
     box-shadow: 0 0 5px rgba(0,0,0,0.7) inset;
 }
-#gauge .black {
+#gauge .black, #gaugePartner .black{
     background-color: #888;
     transition: height 1s;
 }
-#gauge .tick {
+#gauge .tick, #gaugePartner .tick{
     position: absolute;
     top: 0;
     left: 0;
@@ -103,13 +104,13 @@ div.ctable-container {
     border-bottom: 2px ridge #eee;
     opacity: 0.4;
 }
-#gauge .tick.zero {
+#gauge .tick.zero, #gaugePartner .tick.zero{
     opacity: 1;
     border-bottom: 7px solid rgba(214,79,0,0.4);
     margin-top: -3px;
 }
 @media (max-width: 799px) and (orientation: portrait) {
-    #gauge {
+    #gauge, #gaugePartner {
         display: none;
     }
 }
@@ -118,14 +119,12 @@ div.ctable-container {
     grid-area: moves;
     flex: 2 1 0;
     overflow-y: auto;
-    overflow-x: hide;
     justify-content: initial;
 }
 #movelist {
     display: flex;
     height: auto;
     max-height: none;
-    overflow-y: none;
 }
 @media (max-width: 799px) and (orientation: portrait) {
     .movelist-block {
@@ -169,10 +168,13 @@ div#ceval {
     align-items: stretch;
     padding: 6px;
 }
-div.info {
+div.info, div.infoBug {
     flex: 1 1 auto;
     align-self: center;
     line-height: 18px;
+}
+div.infoBug{
+    text-align: center;
 }
 a.icon.icon-plus-square {
     opacity:0.9;
@@ -180,7 +182,6 @@ a.icon.icon-plus-square {
     background-color: var(--bg-body);
     font-size: 16px;
     margin-left: 4px;
-    cursor: pointer;
 }
 div.pv {
     grid-area: pv;
@@ -355,7 +356,7 @@ div#pgntext {
     white-space: pre-wrap;
     font-family: monospace;
     user-select: all;
-    -moz-user-select: all
+    -moz-user-select: all;
     -webkit-user-select: all;
 }
 
@@ -412,8 +413,9 @@ div.config-toggle {
     flex: 0 0 64px;
     height: 64px;
     margin-right: 10px;
-    background-size: cover;
-}
+    background-size: contain;
+    background-repeat: no-repeat;
+  }
 .feedback .player .icon {
     width: 64px;
     height: 64px;
@@ -430,85 +432,6 @@ div.config-toggle {
 .instruction san {
     font-size: 1.5em;
 }
-piece.standard.w, piece.capa.w, piece.seirawan.w, piece.hoppel.w, piece.shako.w, piece.asean.w, piece.shogun.w, piece.synochess.w, piece.orda.w, piece.spartan.w {
-    background-image: url('images/pieces/merida/wK.svg');
-}
-piece.standard.b, piece.capa.b, piece.seirawan.b, piece.hoppel.b, piece.shako.b, piece.asean.b, piece.shogun.b, piece.shinobi.b, piece.empire.b {
-    background-image: url('images/pieces/merida/bK.svg');
-}
-piece.makruk.w {
-    background-image: url('images/pieces/makruk/ada/wK.svg');
-}
-piece.makruk.b {
-    background-image: url('images/pieces/makruk/ada/bK.svg');
-}
-piece.sittuyin.w {
-    background-image: url('images/pieces/sittuyin/original/wK.svg');
-}
-piece.sittuyin.b {
-    background-image: url('images/pieces/sittuyin/original/bK.svg');
-}
-piece.shogi, piece.kyoto {
-    background-image: url('images/pieces/shogi/ctk/0GY.svg');
-}
-piece.dobutsu {
-    background-image: url('images/pieces/shogi/Ka/0GY.svg');
-}
-piece.tori.w {
-    background-image: url('images/pieces/tori/intl/0PhoenixWhite.svg');
-}
-piece.tori.b {
-    background-image: url('images/pieces/tori/intl/0PhoenixBlack.svg');
-}
-piece.xiangqi.w {
-    background-image: url('images/pieces/xiangqi/2dhanzi/RK.svg');
-}
-piece.xiangqi.b {
-    background-image: url('images/pieces/xiangqi/2dhanzi/BK.svg');
-}
-piece.janggi.w {
-    background-image: url('images/pieces/janggi/hanjablue/blue_king.svg');
-}
-piece.janggi.b {
-    background-image: url('images/pieces/janggi/hanjablue/red_king.svg');
-}
-piece.shinobi.w {
-    background-image: url('images/pieces/shinobi/merida/wK.svg');
-}
-piece.orda.b, piece.ordamirror.b {
-    background-image: url('images/pieces/orda/merida/bK.svg');
-}
-piece.ordamirror.w {
-    background-image: url('images/pieces/orda/merida/wK.svg');
-}
-piece.empire.w {
-    background-image: url('images/pieces/empire/merida/wK.svg');
-}
-piece.chak.w {
-    background-image: url('images/pieces/chak/WK.svg');
-}
-piece.chak.b {
-    background-image: url('images/pieces/chak/GK.svg');
-}
-piece.chennis.w {
-    background-image: url('images/pieces/chennis/wMN.svg');
-}
-piece.chennis.b {
-    background-image: url('images/pieces/chennis/bMN.svg');
-}
-piece.mansindam.w {
-    background-image: url('images/pieces/mansindam/intl/wk.svg');
-}
-piece.mansindam.b {
-    background-image: url('images/pieces/mansindam/intl/bk.svg');
-}
-piece.synochess.b {
-    background-image: url('images/pieces/synochess/intl-red/bK.svg');
-}
-piece.spartan.b {
-    background-image: url('images/pieces/spartan/bK.svg');
-}
-
 .feedback .instruction strong {
     font-size: 1.5em;
 }

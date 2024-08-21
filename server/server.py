@@ -1,9 +1,9 @@
 from __future__ import annotations
+
 import argparse
 import asyncio
 import logging
 import os
-from datetime import datetime, timezone
 from sys import platform
 from urllib.parse import urlparse
 
@@ -27,15 +27,10 @@ from motor.motor_asyncio import AsyncIOMotorClient
 
 from typedefs import (
     client_key,
-    date_key,
-    kill_key,
     pychess_global_app_state_key,
     db_key,
 )
 from broadcast import round_broadcast
-from const import (
-    STARTED,
-)
 from routes import get_routes, post_routes
 from settings import (
     DEV,
@@ -72,6 +67,7 @@ async def handle_404(request, handler):
             template = app_state.jinja["en"].get_template("404.html")
             text = await template.render_async(
                 {
+                    "title": "404 Page Not Found",
                     "dev": DEV,
                     "home": URI,
                     "theme": theme,
@@ -85,6 +81,18 @@ async def handle_404(request, handler):
             raise
     except NotInDbUsers:
         return web.HTTPFound("/")
+
+
+@web.middleware
+async def redirect_to_https(request, handler):
+    # https://help.heroku.com/J2R1S4T8/can-heroku-force-an-application-to-use-ssl-tls
+    # https://docs.aiohttp.org/en/stable/web_advanced.html#aiohttp-web-forwarded-support
+    if request.headers.get("X-Forwarded-Proto") == "http":
+        # request = request.clone(scheme="https")
+        url = request.url.with_scheme("https").with_port(None)
+        raise web.HTTPPermanentRedirect(url)
+
+    return await handler(request)
 
 
 async def on_prepare(request, response):
@@ -112,6 +120,7 @@ async def on_prepare(request, response):
 
 def make_app(db_client=None, simple_cookie_storage=False) -> Application:
     app = web.Application()
+    app.middlewares.append(redirect_to_https)
 
     parts = urlparse(URI)
 
@@ -144,11 +153,6 @@ def make_app(db_client=None, simple_cookie_storage=False) -> Application:
 
 
 async def init_state(app):
-    # We have to put "kill" into a dict to prevent getting:
-    # DeprecationWarning: Changing state of started or joined application is deprecated
-    app[kill_key] = {"kill": False}
-    app[date_key] = {"startedAt": datetime.now(timezone.utc)}
-
     if db_key not in app:
         app[db_key] = None
 
@@ -167,7 +171,7 @@ async def init_state(app):
 
 async def shutdown(app):
     app_state = get_app_state(app)
-    app[kill_key]["kill"] = True
+    app_state.shutdown = True
 
     # notify users
     msg = "Server will restart in about 30 seconds. Sorry for the inconvenience!"
@@ -176,11 +180,6 @@ async def shutdown(app):
     response = {"type": "roundchat", "user": "", "message": msg, "room": "player"}
     for game in [game for game in app_state.games.values() if not game.corr]:
         await round_broadcast(game, response, full=True)
-
-    # No need to wait in dev mode and in unit tests
-    if not DEV and app_state.db is not None:
-        print("......WAIT 20")
-        await asyncio.sleep(20)
 
     # save corr seeks
     corr_seeks = [seek.corr_json for seek in app_state.seeks.values() if seek.day > 0]
@@ -191,14 +190,6 @@ async def shutdown(app):
     # terminate BOT users
     for user in [user for user in app_state.users.values() if user.bot]:
         await user.event_queue.put('{"type": "terminated"}')
-
-    # abort games
-    for game in [
-        game for game in app_state.games.values() if game.status <= STARTED and not game.corr
-    ]:
-        response = await game.abort_by_server()
-        for player in game.non_bot_players:
-            await player.send_game_message(game.id, response)
 
     # close game_sockets
     for user in [user for user in app_state.users.values() if not user.bot]:
@@ -228,6 +219,11 @@ if __name__ == "__main__":
         action="store_true",
         help="Use SimpleCookieStorage. For testing purpose only!",
     )
+    parser.add_argument(
+        "-m",
+        action="store_true",
+        help="Verbose mongodb logging. Changes log level from INFO to DEBUG.",
+    )
     args = parser.parse_args()
 
     FORMAT = "%(asctime)s.%(msecs)03d [%(levelname)s] %(name)s:%(lineno)d %(message)s"
@@ -236,6 +232,8 @@ if __name__ == "__main__":
     logging.getLogger().setLevel(
         level=logging.DEBUG if args.v else logging.WARNING if args.w else logging.INFO
     )
+
+    logging.getLogger("pymongo").setLevel(logging.DEBUG if args.m else logging.INFO)
 
     app = make_app(
         db_client=AsyncIOMotorClient(MONGO_HOST, tz_aware=True),

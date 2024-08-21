@@ -1,6 +1,6 @@
 # ![Seirawan](https://github.com/gbtami/pychess-variants/blob/master/static/icons/schess.svg) S-chess (Seirawan Chess, SHARPER Chess)
 
-S-chess was created by Yasser Seirawan and Bruce Harper in 2007. The game is played on an 8x8 board but adds a twist by adding two new hybrid pieces through the process of gating (introducing the pieces on to the board by replacing vacancies in the back rank). 
+S-chess was created by Yasser Seirawan and Bruce Harper in 2007. The game is played on an 8x8 board but adds a twist by adding two new hybrid pieces through the process of gating (introducing the pieces onto the board by replacing vacancies in the back rank). 
 
 ## Rules
 
@@ -28,13 +28,13 @@ The value of a hawk is considered slightly better than a rook, but less than the
 
 The elephant (E) is a compound piece combining the moves of the **rook** and the **knight**. In terms of fairy pieces, this is generically known as the empress, but also has other names in different variants. 
 
-The value of an elephant is considered better than a hawk, but equivalent or slightly less than a queen.
+The value of an elephant is considered better than a hawk, but equivalent to or slightly less than a queen.
 
 ## Strategy
 
 Per Yasser Seirawan, protecting the king is even more important in this game because a ranged attack by a back rank piece such as the queen, bishop, or rook, can immediately be supported by an incoming hawk or elephant, in some cases leading to checkmate!
 [https://www.chess.com/blog/catask/s-chess-ramblings-1](https://www.chess.com/blog/catask/s-chess-ramblings-1) by catask is recommended for everyone.
 
-You can also see a stream of Yasser Seirawan playing against JannLee
+Stream of Yasser Seirawan playing against JannLee:
 
 <iframe width="560" height="315" src="https://www.youtube.com/embed/ujWzsxm18aQ" frameborder="0" allowfullscreen></iframe>

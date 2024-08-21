@@ -1,7 +1,7 @@
 /* variant stats chart */
 #stats-chart {
     width: 100%;
-    height: 90%;
+    height: calc(100vh - var(--site-header-height) - 52px);
 }
 .highcharts-background {
     fill: var(--bg-color0);
@@ -12,4 +12,20 @@
 }
 .highcharts-legend-item:hover text {
     fill: var(--link-hover) !important;
+}
+.highcharts-axis-labels text {
+    fill: var(--font-color) !important;
+}
+.highcharts-axis-title {
+    fill: var(--font-color) !important;
+    font-size: 1em !important;
+}
+.highcharts-legend-navigation {
+    fill: var(--font-color);
+}
+#linear {
+    margin-left: 60px;
+}   
+#stats label {
+    padding-right: 30px;
 }

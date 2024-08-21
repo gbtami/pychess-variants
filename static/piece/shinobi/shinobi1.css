@@ -1,61 +1,61 @@
-.shinobi .cg-wrap piece.p-piece.white {
+.shinobi piece.p-piece.white {
     background-image: url('../../images/pieces/shinobi/cburnett/wP.svg');
 }
-.shinobi .cg-wrap piece.l-piece.white {
+.shinobi piece.l-piece.white {
     background-image: url('../../images/pieces/shinobi/cburnett/wL.svg');
 }
-.shinobi .cg-wrap piece.h-piece.white {
+.shinobi piece.h-piece.white {
     background-image: url('../../images/pieces/shinobi/cburnett/wH.svg');
 }
-.shinobi .cg-wrap piece.c-piece.white {
+.shinobi piece.c-piece.white {
     background-image: url('../../images/pieces/shinobi/cburnett/wC.svg');
 }
-.shinobi .cg-wrap piece.k-piece.white {
+.shinobi piece.k-piece.white {
     background-image: url('../../images/pieces/shinobi/cburnett/wK.svg');
 }
-.shinobi .cg-wrap piece.m-piece.white {
+.shinobi piece.m-piece.white {
     background-image: url('../../images/pieces/shinobi/cburnett/wM.svg');
 }
-.shinobi .cg-wrap piece.d-piece.white {
+.shinobi piece.d-piece.white {
     background-image: url('../../images/pieces/shinobi/cburnett/wD.svg');
 }
-.shinobi .cg-wrap piece.j-piece.white {
+.shinobi piece.j-piece.white {
     background-image: url('../../images/pieces/shinobi/cburnett/wJ.svg');
 }
-.shinobi .cg-wrap piece.f-piece.white {
+.shinobi piece.f-piece.white {
     background-image: url('../../images/pieces/shinobi/cburnett/wF.svg');
 }
-.shinobi .cg-wrap piece.pp-piece.white {
+.shinobi piece.pp-piece.white {
     background-image: url('../../images/pieces/shinobi/cburnett/wC.svg');
 }
-.shinobi .cg-wrap piece.pl-piece.white {
+.shinobi piece.pl-piece.white {
     background-image: url('../../images/pieces/shinobi/cburnett/wR.svg');
 }
-.shinobi .cg-wrap piece.ph-piece.white {
+.shinobi piece.ph-piece.white {
     background-image: url('../../images/pieces/shinobi/cburnett/wN.svg');
 }
-.shinobi .cg-wrap piece.pm-piece.white {
+.shinobi piece.pm-piece.white {
     background-image: url('../../images/pieces/shinobi/cburnett/wB.svg');
 }
 
-.shinobi .cg-wrap piece.p-piece.black {
+.shinobi piece.p-piece.black {
     background-image: url('../../images/pieces/green/bP.svg');
 }
-.shinobi .cg-wrap piece.n-piece.black {
+.shinobi piece.n-piece.black {
     background-image: url('../../images/pieces/green/bN.svg');
 }
-.shinobi .cg-wrap piece.b-piece.black {
+.shinobi piece.b-piece.black {
     background-image: url('../../images/pieces/green/bB.svg');
 }
-.shinobi .cg-wrap piece.r-piece.black {
+.shinobi piece.r-piece.black {
     background-image: url('../../images/pieces/green/bR.svg');
 }
-.shinobi .cg-wrap piece.pp-piece.black {
+.shinobi piece.pp-piece.black {
     background-image: url('../../images/pieces/shinobi/cburnett/bC.svg');
 }
-.shinobi .cg-wrap piece.k-piece.black {
+.shinobi piece.k-piece.black {
     background-image: url('../../images/pieces/green/bK.svg');
 }
-.shinobi .cg-wrap piece.q-piece.black {
+.shinobi piece.q-piece.black {
     background-image: url('../../images/pieces/green/bQ.svg');
 }

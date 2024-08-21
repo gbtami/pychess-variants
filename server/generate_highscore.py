@@ -25,7 +25,8 @@ async def generate_highscore(app_state, one_variant=None):
         scores = {}
         cursor = db.user.find(filt, sort=[(r, -1)], limit=MAX_HIGHSCORE_ITEM_LIMIT)
         async for doc in cursor:
-            scores[doc["_id"]] = int(round(Decimal(doc["perfs"][variant]["gl"]["r"]), 0))
+            _id = "%s|%s" % (doc["_id"], doc["title"])
+            scores[_id] = int(round(Decimal(doc["perfs"][variant]["gl"]["r"]), 0))
 
         if len(scores) > 0:
             # update app_state

@@ -6,11 +6,9 @@ from datetime import datetime, timezone, timedelta
 from time import monotonic
 from typing import Set, List
 
-from user import User
-
 from broadcast import round_broadcast
 from clock import Clock, CorrClock
-from compress import encode_moves, R2C
+from compress import get_encode_method, R2C
 from const import (
     CREATED,
     STARTED,
@@ -36,6 +34,7 @@ from const import (
 )
 from convert import grand2zero, uci2usi, mirror5, mirror9
 from fairy import FairyBoard, BLACK, WHITE
+from alice import AliceBoard
 from glicko2.glicko2 import gl2
 from draw import reject_draw
 from settings import URI
@@ -43,6 +42,7 @@ from spectators import spectators
 
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
+    from user import User
 
 log = logging.getLogger(__name__)
 
@@ -146,7 +146,10 @@ class Game:
         self.draw_offers: Set[str] = set()
         self.rematch_offers: Set[str] = set()
         self.messages: collections.deque = collections.deque([], MAX_CHAT_LINES)
+
         self.date = datetime.now(timezone.utc)
+        self.loaded_at = None
+        self.analysis = None
 
         clocks_init = (base * 1000 * 60) + 0 if base > 0 else inc * 1000
         self.clocks_w = [clocks_init]
@@ -159,6 +162,8 @@ class Game:
         self.last_server_clock = monotonic()
 
         self.id = gameId
+
+        self.encode_method = get_encode_method(variant)
 
         self.n_fold_is_draw = self.variant in (
             "makruk",
@@ -175,6 +180,10 @@ class Game:
         use_manual_counting = self.variant in ("makruk", "makpong", "cambodian")
         self.manual_count = use_manual_counting and not self.bot_game
         self.manual_count_toggled: List = []
+        self.mct = None
+
+        # Old USI Shogi games saved using usi2uci() need special handling in create_steps()
+        self.usi_format = False
 
         # Ataxx is not default or 960, just random
         self.random_only = self.variant == "ataxx"
@@ -218,9 +227,12 @@ class Game:
                 disabled_fen = self.initial_fen
                 self.initial_fen = ""
 
-        self.board = FairyBoard(
-            self.variant, self.initial_fen, self.chess960, count_started, disabled_fen
-        )
+        if self.variant == "alice":
+            self.board = AliceBoard(self.initial_fen)
+        else:
+            self.board = FairyBoard(
+                self.variant, self.initial_fen, self.chess960, count_started, disabled_fen
+            )
 
         # Janggi setup needed when player is not BOT
         if self.variant == "janggi":
@@ -271,7 +283,7 @@ class Game:
             }
         ]
 
-        self.last_move_date = None
+        self.last_move_time = None
         if self.corr:
             self.stopwatch: Clock | CorrClock = CorrClock(self)
         else:
@@ -294,6 +306,16 @@ class Game:
         elif color == "black" and not self.bberserk:
             self.bberserk = True
             self.clocks_b[0] = self.berserk_time
+
+    async def save_berserk(self):
+        new_data = {
+            "wb": self.wberserk,
+            "bb": self.bberserk,
+            "cw": self.clocks_w[1:],
+            "cb": self.clocks_b[1:],
+        }
+
+        await self.app_state.db.game.find_one_and_update({"_id": self.id}, {"$set": new_data})
 
     async def play_move(self, move, clocks=None, ply=None):
         self.stopwatch.stop()
@@ -382,9 +404,8 @@ class Game:
                     await self.save_game()
                     if self.corr:
                         await opp_player.notify_game_end(self)
-
-                elif self.corr:
-                    await self.save_moves()
+                else:
+                    await self.save_move(move)
 
                 self.steps.append(
                     {
@@ -406,22 +427,24 @@ class Game:
                 if self.corr:
                     await opp_player.notify_game_end(self)
 
-    async def save_moves(self):
+    async def save_move(self, move):
+        self.last_move_time = datetime.now(timezone.utc)
+        move_encoded = self.encode_method(grand2zero(move) if self.variant in GRANDS else move)
+
         new_data = {
             "f": self.board.fen,
-            "l": datetime.now(timezone.utc),
+            "l": self.last_move_time,
             "s": self.status,
-            "m": encode_moves(
-                (
-                    map(grand2zero, self.board.move_stack)
-                    if self.variant in GRANDS
-                    else self.board.move_stack
-                ),
-                self.variant,
-            ),
         }
+
+        if self.rated == RATED:
+            new_data["cw"] = self.clocks_w[1:]
+            new_data["cb"] = self.clocks_b[1:]
+
         if self.app_state.db is not None:
-            await self.app_state.db.game.find_one_and_update({"_id": self.id}, {"$set": new_data})
+            await self.app_state.db.game.update_one(
+                {"_id": self.id}, {"$set": new_data, "$push": {"m": move_encoded}}
+            )
 
     async def save_setup(self):
         """Used by Janggi prelude phase"""
@@ -495,6 +518,8 @@ class Game:
 
             if self.tournamentId is not None:
                 try:
+                    # In case of server restart we have to wait for loading ongoing tournaments
+                    await self.app_state.tournaments_loaded.wait()
                     await self.app_state.tournaments[self.tournamentId].game_update(self)
                 except Exception:
                     log.exception("Exception in tournament game_update()")
@@ -503,14 +528,16 @@ class Game:
                 "f": self.board.fen,
                 "s": self.status,
                 "r": R2C[self.result],
-                "m": encode_moves(
-                    (
-                        map(grand2zero, self.board.move_stack)
-                        if self.variant in GRANDS
-                        else self.board.move_stack
-                    ),
-                    self.variant,
-                ),
+                "m": [
+                    *map(
+                        self.encode_method,
+                        (
+                            map(grand2zero, self.board.move_stack)
+                            if self.variant in GRANDS
+                            else self.board.move_stack
+                        ),
+                    )
+                ],
             }
 
             if self.rated == RATED and self.result != "*":
@@ -667,19 +694,24 @@ class Game:
 
         w_nb = self.wplayer.perfs[self.variant + ("960" if self.chess960 else "")]["nb"]
         if w_nb >= HIGHSCORE_MIN_GAMES:
+            _id = "%s|%s" % (self.wplayer.username, self.wplayer.title)
             await self.set_highscore(
                 self.variant,
                 self.chess960,
-                {self.wplayer.username: int(round(wcurr.mu + wrdiff, 0))},
+                {_id: int(round(wcurr.mu + wrdiff, 0))},
             )
 
         b_nb = self.bplayer.perfs[self.variant + ("960" if self.chess960 else "")]["nb"]
         if b_nb >= HIGHSCORE_MIN_GAMES:
+            _id = "%s|%s" % (self.bplayer.username, self.bplayer.title)
             await self.set_highscore(
                 self.variant,
                 self.chess960,
-                {self.bplayer.username: int(round(bcurr.mu + brdiff, 0))},
+                {_id: int(round(bcurr.mu + brdiff, 0))},
             )
+
+    def get_player_at(self, color, board):
+        return self.bplayer if color == BLACK else self.wplayer
 
     def is_player(self, user: User) -> bool:
         return user.username in (self.wplayer.username, self.bplayer.username)
@@ -794,17 +826,23 @@ class Game:
 
     @property
     def pgn(self):
-        try:
-            mlist = sf.get_san_moves(
-                self.variant,
-                self.initial_fen if self.initial_fen else self.board.initial_fen,
-                self.board.move_stack,
-                self.chess960,
-                sf.NOTATION_SAN,
-            )
-        except Exception:
-            log.error("ERROR: Exception in game %s pgn()", self.id, exc_info=True)
-            mlist = self.board.move_stack
+        if self.variant == "alice" and len(self.steps) > 1:
+            # sf.get_san_moves() fails (FSF doesn't support Alice), but
+            # if we already have the san moves in self.steps we can use them.
+            mlist = [step["san"] for step in self.steps[1:]]
+        else:
+            try:
+                mlist = sf.get_san_moves(
+                    self.variant,
+                    self.initial_fen if self.initial_fen else self.board.initial_fen,
+                    self.board.move_stack,
+                    self.chess960,
+                    sf.NOTATION_SAN,
+                )
+            except Exception:
+                log.error("ERROR: Exception in game %s pgn()", self.id, exc_info=True)
+                mlist = self.board.move_stack
+
         moves = " ".join(
             (
                 move if ind % 2 == 1 else "%s. %s" % (((ind + 1) // 2) + 1, move)
@@ -993,7 +1031,92 @@ class Game:
             self.manual_count_toggled.append((self.board.count_started, self.board.ply + 1))
             self.board.count_started = -1
 
+    def create_steps(self):
+        if self.mct is not None:
+            manual_count_toggled = iter(self.mct)
+            count_started = -1
+            count_ended = -1
+
+        if self.analysis is not None:
+            self.steps[0]["analysis"] = self.analysis[0]
+
+        self.board.fen = self.board.initial_fen
+        self.board.color = WHITE if self.board.fen.split()[1] == "w" else BLACK
+        for ply, move in enumerate(self.board.move_stack):
+            try:
+                if self.mct is not None:
+                    # print("Ply", ply, "Move", move)
+                    if ply + 1 >= count_ended:
+                        try:
+                            self.board.count_started = -1
+                            count_started, count_ended = next(manual_count_toggled)
+                            # print("New count interval", (count_started, count_ended))
+                        except StopIteration:
+                            # print("Piece's honour counting started")
+                            count_started = 0
+                            count_ended = MAX_PLY + 1
+                            self.board.count_started = 0
+                    if ply + 1 == count_started:
+                        # print("Count started", count_started)
+                        self.board.count_started = ply
+
+                san = self.board.get_san(move)
+                self.board.push(move, append=False)
+                self.check = self.board.is_checked()
+                turnColor = "black" if self.board.color == BLACK else "white"
+
+                if self.usi_format:
+                    turnColor = "black" if turnColor == "white" else "white"
+                step = {
+                    "fen": self.board.fen,
+                    "move": move,
+                    "san": san,
+                    "turnColor": turnColor,
+                    "check": self.check,
+                }
+
+                if len(self.clocks_w) > 1 and not self.corr:
+                    move_number = ((ply + 1) // 2) + (1 if ply % 2 == 0 else 0)
+                    if ply >= 2:
+                        if ply % 2 == 0:
+                            step["clocks"] = (
+                                self.clocks_w[move_number],
+                                self.clocks_b[move_number - 1],
+                            )
+                        else:
+                            step["clocks"] = (
+                                self.clocks_w[move_number],
+                                self.clocks_b[move_number],
+                            )
+                    else:
+                        step["clocks"] = (
+                            self.clocks_w[move_number],
+                            self.clocks_b[move_number],
+                        )
+
+                self.steps.append(step)
+
+                if (self.analysis is not None) and (not self.usi_format):
+                    try:
+                        self.steps[-1]["analysis"] = self.analysis[ply + 1]
+                    except IndexError:
+                        log.error("IndexError %d %s %s", ply, move, san, exc_info=True)
+
+            except Exception:
+                log.exception(
+                    "ERROR: Exception in load_game() %s %s %s %s %s",
+                    self.id,
+                    self.variant,
+                    self.board.initial_fen,
+                    move,
+                    self.board.move_stack,
+                )
+                break
+
     def get_board(self, full=False):
+        if len(self.board.move_stack) > 0 and len(self.steps) == 1:
+            self.create_steps()
+
         if full:
             steps = self.steps
 
@@ -1005,10 +1128,15 @@ class Game:
                 # otherwise he will get free extra time on browser page refresh
                 # (also needed for spectators entering to see correct clock times)
 
+                elapsed0 = 0
+                # Extra adjustment needed when game resumed after server restart
+                if (self.last_move_time is not None) and (self.loaded_at is not None):
+                    elapsed0 = ((self.loaded_at - self.last_move_time).total_seconds()) * 1000
+
                 cur_time = monotonic()
-                elapsed = int(round((cur_time - self.last_server_clock) * 1000))
+                elapsed1 = int(round((cur_time - self.last_server_clock) * 1000))
                 clocks[self.board.color] = max(
-                    0, clocks[self.board.color] + self.byo_correction - elapsed
+                    0, clocks[self.board.color] + self.byo_correction - elapsed0 - elapsed1
                 )
             crosstable = self.crosstable
         else:
@@ -1109,6 +1237,7 @@ class Game:
 
             self.legal_moves = self.board.legal_moves()
             self.lastmove = self.board.move_stack[-1] if self.board.move_stack else None
+            self.check = self.board.is_checked()
 
     def handle_chat_message(self, chat_message):
         self.messages.append(chat_message)

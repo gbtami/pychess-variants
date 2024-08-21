@@ -46,9 +46,9 @@
                 <a href="{{ home }}/players/{{ key }}"><div class="variant">{{ variant_display_name(key) }}</div></a>
             </div>
             {% for user, score in highscore[key].items() %}
-                <div class="player-data {{ loop.cycle('odd', 'even') }}">
+                <div class="player-data">
                     <player>
-                        <a class="user-link" href="{{ home }}/@/{{ user }}"><player-title>{{ users[user].title }}</player-title> {{ user }}</a>
+                        <a class="user-link" href="{{ home }}/@/{{ user.split("|")[0] }}"><player-title>{{ user.split("|")[1] }}</player-title> {{ user.split("|")[0] }}</a>
                         <rating>{{ score }}</rating>
                     </player>
                 </div>

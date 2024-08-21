@@ -22,6 +22,7 @@ from settings import (
     DEV,
 )
 from pychess_global_app_state_utils import get_app_state
+from websocket_utils import ws_send_json
 
 log = logging.getLogger(__name__)
 
@@ -194,18 +195,12 @@ async def logout(request, user=None):
     # close lobby socket
     ws_set = user.lobby_sockets
     for ws in ws_set:
-        try:
-            await ws.send_json(response)
-        except ConnectionResetError as e:
-            log.error(e, exc_info=True)
+        await ws_send_json(ws, response)
 
     # close tournament sockets
     for ws_set in user.tournament_sockets.values():
         for ws in ws_set:
-            try:
-                await ws.send_json(response)
-            except ConnectionResetError as e:
-                log.error(e, exc_info=True)
+            await ws_send_json(ws, response)
 
     # lose and close game sockets
     # TODO: this can't end game if logout came from an ongoing game

@@ -4,13 +4,13 @@
 
 Shinobi Chess is a chess variant designed in 2021 by Couch Tomato with help from Fables, fourth in the series of asymmetric games. The Western chess army (“the Kingdom,” black) has invaded the land of the Sakura Clan (pink/sakura). While having mostly weak pieces at the start, the Clan is very resourceful and can instantly recruit and summon allies to defend at a minute’s notice. The Clan starts with many pieces in hand and can drop them on its side of the board in lieu of moving a piece. Furthermore, they can promote upon reaching the far end of the board – these abilities are similar to the game of shogi, with the major exception that captured pieces do not go into a player’s hand, so each drop counts! 
 
-The game was initially considered balance by engine selfplay. However, player experience and also deeper NNUE engine skill revealed that the pink army had quite a decent advantage. Therefore, "Shinobi+" was created as a more balanced version. Most pieces were moved to being in the hand, and the new Fox piece was introduced. Additionally, black was allowed an earlier promotion rank.
+The game was initially considered balanced by engine selfplay. However, player experience and deeper NNUE engine skill revealed that the pink army had quite a decent advantage. Therefore, "Shinobi+" was created as a more balanced version. Most pieces were moved to being in the hand, and the new Fox piece was introduced. Additionally, black was allowed an earlier promotion rank.
  
 ## General Rules
 1.	Setup is as above; the Clan player starts with additional pieces in hand.
 2.	The Clan (pink/sakura) always moves first.
 3.	Clan pieces in hand can only be dropped in the first four ranks (first half of the board).
-4.	All minor Clan pieces promote upon reaching the **7th or 8th rank**. Kingdom pawns now promote on the **6th rank.**
+4.	All minor Clan pieces promote upon reaching the **7th or 8th rank**. Kingdom pawns now promote on the **6th rank.** Pawns cannot promote if capturing by en passant. 
 5.	Pawns on either side can only promote to a Captain (see below).
 6.	An additional method of victory is available: called **campmate**. Campmate is achieved by moving one’s king into the final rank without moving into check.
 7.	**Stalemate** - loss for the player who can't move (rather than draw as in chess)
@@ -42,7 +42,7 @@ The Ninja does not promote.
 
 ![Dragon](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Dragon.png)
 
-The Dragon is a hybrid piece that combines the movements of the rook and king (or for purists, rook and ferz). This is identical to the Dragon King (promoted Rook) in Shogi. The Dragon is weaker than the Ninja, but stronger than the Rook.
+The Dragon is a hybrid piece that combines the movements of the rook and king (or for purists, rook and ferz). This is identical to the Dragon King (promoted Rook) in Shogi. The Dragon is weaker than the Ninja but stronger than the Rook.
 
 The Dragon does not promote.
 
@@ -58,13 +58,13 @@ The Fox does not promote.
 
 ![Lance](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Lance.png)
 
-The Lance is like a Rook but can only move straight forward. This is identical to the Lance in Shogi. One Lance starts in hand and can be thought of a droppable skewer. Because it can't retreat, make sure the drop counts! The Lances that start on the board are much less fiexible and serve to control the board. The **Lance promotes to a Rook** upon reaching the 7th (optional) or 8th (mandatory) ranks. The Lance is valued less than the typical minor Kingdom piece; however, it has hidden value in its ability to promote to one of the strongest pieces in the game.
+The Lance is like a Rook but can only move straight forward. This is identical to the Lance in Shogi. One Lance starts in hand and can be thought of as a droppable skewer. Because it can't retreat, make sure the drop counts! The Lances that start on the board are much less flexible and serve to control the board. The **Lance promotes to a Rook** upon reaching the 7th (optional) or 8th (mandatory) ranks. The Lance is valued less than the typical minor Kingdom piece; however, it has hidden value in its ability to promote to one of the strongest pieces in the game.
 
 ### Wooden Horse (H)
 
 ![Wooden Horse](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Horse.png)
 
-The Wooden Horse (or Horse, for short) is like a Knight but can only move to the forward-most two spots. This is identical to the Knight in Shogi. One Horse starts in hand and can be thought of a droppable fork. Because it can't retreat, make sure the drop counts! The **Horse promotes to a Knight** upon reaching the 7th or 8th rank; promotion is mandatory. The Horse is valued less than the typical minor Kingdom piece; however, it has hidden value in its ability to promote to a Knight.
+The Wooden Horse (or Horse, for short) is like a Knight but can only move to the forward-most two spots. This is identical to the Knight in Shogi. One Horse starts in hand and can be thought of as a droppable fork. Because it can't retreat, make sure the drop counts! The **Horse promotes to a Knight** upon reaching the 7th or 8th rank; promotion is mandatory. The Horse is valued less than the typical minor Kingdom piece; however, it has hidden value in its ability to promote to a Knight.
 
 ### Monk (M)
 
@@ -75,4 +75,4 @@ The Monk moves one space diagonally, either forwards or backwards. In other vari
 ## Strategy
 The game is still young, so strategy is still being developed! Much of the data is currently based on Engine play.
 
-Piece values are difficult to asssess given the ability to promote pieces. Please note that Stockfish evaluation may be off at the beginning of the game because of these promotions. However, the game is balanced in terms of outcome.
+Piece values are difficult to assess given the ability to promote pieces. Please note that Stockfish evaluation may be off at the beginning of the game because of these promotions. However, the game is balanced in terms of outcome.

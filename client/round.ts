@@ -1,6 +1,7 @@
 import { h, VNode } from "snabbdom";
 
 import { RoundController } from './roundCtrl';
+import { RoundControllerAlice } from './roundCtrlAlice';
 import { gameInfo } from './gameInfo';
 import { renderTimeago } from './datetime';
 import { VARIANTS } from './variants';
@@ -8,7 +9,13 @@ import { PyChessModel } from "./types";
 
 function runGround(vnode: VNode, model: PyChessModel) {
     const el = vnode.elm as HTMLElement;
-    const ctrl = new RoundController(el, model);
+    let ctrl;
+    if (model.variant === 'alice') {
+        ctrl = new RoundControllerAlice(el, model);
+    } else {
+        ctrl = new RoundController(el, model);
+    }
+
     const cg = ctrl.chessground;
     window['cg'] = cg;
 }

@@ -10,7 +10,7 @@ Orda Mirror is a chess variant designed in 2020 by Couch Tomato and is a derivat
 4.	Neither side can castle.
 6.	Pawns can promote to any Horde piece.
 7.	An additional method of victory is available: called **campmate**. Campmate is achieved by moving one’s king into the final rank without moving into check.
-8.	Other rules, including stalemate and repetition are as in chess.
+8.	Other rules, including stalemate and repetition, are as in chess.
 
 ## Horde Pieces
 There are four new units unique to the Horde: 2 Lancers, 2 Horse Archers, 2 Kheshigs, and 1 Falcon (the Falcon being unique to Orda Mirror). The Kheshigs are the strongest piece (knight + king movement) and lead each flank. 
@@ -36,7 +36,7 @@ The Falcon is a unique divergent piece that moves and attacks differently. It mo
 
 ![Kheshig](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Kheshig.png)
  
-The Kheshig is a hybrid piece that moves and captures as a knight and king combined. This piece type is also generically called the centaur. The kheshig starts in the knight’s spot, but unlike the knight, is the strongest Horde piece. It can be thought of the general that leads its own troops on each flank.
+The Kheshig is a hybrid piece that moves and captures as a knight and king combined. This piece type is also generically called the centaur. The kheshig starts in the knight’s spot, but unlike the knight, is the strongest Horde piece. It can be thought of as the general that leads its own troops on each flank.
 
 ### Horse Archer (A)
 
