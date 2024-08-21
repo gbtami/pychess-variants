@@ -679,6 +679,10 @@ export const VARIANTS: Record<string, Variant> = {
         colors: { first: "Red", second: "Black" },
         pieceRow: { white: ["k", "a", "m", "b", "p"], black: ["k", "a", "c", "r", "b", "n", "p"] },
         promotion: { type: "regular", roles: [] },
+        alternateStart: {
+            '': '',
+            'Manchu+R': 'm1bakab1r/9/9/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1',
+        },
     }),
 
     janggi: variant({

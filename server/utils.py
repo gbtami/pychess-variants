@@ -27,6 +27,7 @@ from const import (
     IMPORTED,
     CONSERVATIVE_CAPA_FEN,
     LOOKING_GLASS_ALICE_FEN,
+    MANCHU_R_FEN,
     T_STARTED,
 )
 from compress import get_decode_method, get_encode_method, R2C, C2R, V2C, C2V
@@ -723,6 +724,9 @@ def sanitize_fen(variant, initial_fen, chess960):
         return True, initial_fen
 
     if variant == "fogofwar" and initial_fen == STANDARD_FEN:
+        return True, initial_fen
+
+    if variant == "manchu" and initial_fen == MANCHU_R_FEN:
         return True, initial_fen
 
     sf_validate = sf.validate_fen(initial_fen, variant, chess960)

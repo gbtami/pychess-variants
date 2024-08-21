@@ -44,3 +44,6 @@
 .xiangqi piece.k-piece.black {
     background-image: url('../../images/pieces/xiangqi/ct2/black_king2.svg');
 }
+.xiangqi piece.m-piece.black {
+    background-image: url('../../images/pieces/xiangqi/ct2/black_chariot2.svg');
+}
