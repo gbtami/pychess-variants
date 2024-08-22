@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import asyncio
 import logging
 import unittest
 from datetime import datetime, timezone
@@ -221,10 +220,6 @@ class RequestLobbyTestCase(AioHTTPTestCase):
         for user in app_state.users.values():
             if user.anon and user.username not in RESERVED_USERS:
                 user.remove_task.cancel()
-                try:
-                    await user.remove_task
-                except asyncio.CancelledError:
-                    pass
 
         await self.client.close()
 

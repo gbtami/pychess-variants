@@ -470,10 +470,6 @@ class Game:
 
         self.stopwatch.stop()
         self.stopwatch.clock_task.cancel()
-        try:
-            await self.stopwatch.clock_task
-        except asyncio.CancelledError:
-            pass
 
         if self.board.ply > 0:
             self.app_state.g_cnt[0] -= 1

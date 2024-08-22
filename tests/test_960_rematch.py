@@ -15,6 +15,7 @@ from server import make_app
 from user import User
 from utils import join_seek
 from pychess_global_app_state_utils import get_app_state
+from newid import id8
 
 game.KEEP_TIME = 0
 game.MAX_PLY = 120
@@ -50,6 +51,7 @@ class RamatchChess960GameTestCase(AioHTTPTestCase):
         rematch_accepted_by = self.Aplayer if self.Bplayer == rematch_offfered_by else self.Bplayer
         color = "w" if game_odd.bplayer.username == rematch_offfered_by.username else "b"
         seek = Seek(
+            id8(),
             rematch_offfered_by,
             game_odd.variant,
             fen=game_odd.initial_fen,
@@ -78,6 +80,7 @@ class RamatchChess960GameTestCase(AioHTTPTestCase):
         rematch_accepted_by = self.Aplayer if self.Bplayer == rematch_offfered_by else self.Bplayer
         color = "w" if game_odd.bplayer.username == rematch_offfered_by.username else "b"
         seek = Seek(
+            id8(),
             rematch_offfered_by,
             game_even.variant,
             fen=game_even.initial_fen,

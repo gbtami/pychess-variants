@@ -1,4 +1,3 @@
-import asyncio
 from time import monotonic
 
 from clock import Clock
@@ -93,18 +92,11 @@ class GameBugClocks:
         cur_time = monotonic()
         return int(round((cur_time - self.last_move_clock()) * 1000))
 
-    async def cancel_stopwatches(self):
+    def cancel_stopwatches(self):
+        self.stopwatches["a"].stop()
+        self.stopwatches["b"].stop()
         self.stopwatches["a"].clock_task.cancel()
-        try:
-            await self.stopwatches["a"].clock_task
-        except asyncio.CancelledError:
-            pass
-
         self.stopwatches["b"].clock_task.cancel()
-        try:
-            await self.stopwatches["b"].clock_task
-        except asyncio.CancelledError:
-            pass
 
     def get_ply_clocks_for_board_and_color(self, board, color):
         return [p[color] for p in self.ply_clocks[board]]

@@ -282,7 +282,7 @@ class GameBug:
             log.exception("Save IMPORTED game %s ???", self.id)
             return
 
-        await self.gameClocks.cancel_stopwatches()
+        self.gameClocks.cancel_stopwatches()
 
         self.app_state.g_cnt[0] -= 1
         response = {"type": "g_cnt", "cnt": self.app_state.g_cnt[0]}
