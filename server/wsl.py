@@ -9,6 +9,7 @@ from admin import ban, delete_puzzle, disable_new_anons, fishnet, highscore, sil
 from chat import chat_response
 from const import ANON_PREFIX, STARTED
 from misc import server_state
+from newid import new_id
 from const import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -95,7 +96,9 @@ async def handle_create_ai_challenge(app_state: PychessGlobalAppState, ws, user,
         # TODO: message that engine is offline, but Random-Mover BOT will play instead
         engine = app_state.users["Random-Mover"]
 
+    seek_id = await new_id(None if app_state.db is None else app_state.db.seek)
     seek = Seek(
+        seek_id,
         user,
         variant,
         fen=data["fen"],

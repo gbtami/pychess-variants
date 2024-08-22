@@ -241,6 +241,7 @@ class PychessGlobalAppState:
                 user = await self.users.get(doc["user"])
                 if user is not None:
                     seek = Seek(
+                        doc["_id"],
                         user,
                         doc["variant"],
                         fen=doc["fen"],

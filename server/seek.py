@@ -9,10 +9,9 @@ MAX_USER_SEEKS = 10
 
 
 class Seek:
-    gen_id = 0
-
     def __init__(
         self,
+        seek_id,
         creator,
         variant,
         fen="",
@@ -35,6 +34,7 @@ class Seek:
         game_id=None,
         expire_at=None,
     ):
+        self.id = seek_id
         self.creator = creator
         self.variant = variant
         self.color = color
@@ -56,8 +56,6 @@ class Seek:
         self.bugPlayer2 = bugPlayer2
         self.ws = ws
 
-        Seek.gen_id += 1
-        self.id = self.gen_id
         self.game_id = game_id
 
         self.expire_at = (
@@ -141,7 +139,9 @@ async def create_seek(db, invites, seeks, user, data, ws, empty=False):
     else:
         game_id = None
 
+    seek_id = await new_id(None if db is None else db.seek)
     seek = Seek(
+        seek_id,
         user,
         data["variant"],
         fen=data["fen"],
