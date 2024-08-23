@@ -1,5 +1,4 @@
 from __future__ import annotations
-import collections
 import logging
 from datetime import datetime, timezone
 
@@ -141,7 +140,6 @@ async def new_tournament(app_state: PychessGlobalAppState, data):
 
     app_state.tournaments[tid] = tournament
     app_state.tourneysockets[tid] = {}
-    app_state.tourneychat[tid] = collections.deque([], MAX_CHAT_LINES)
 
     await upsert_tournament_to_db(tournament, app_state)
 
@@ -412,7 +410,6 @@ async def load_tournament(app_state: PychessGlobalAppState, tournament_id, tourn
 
     app_state.tournaments[tournament_id] = tournament
     app_state.tourneysockets[tournament_id] = {}
-    app_state.tourneychat[tournament_id] = collections.deque([], MAX_CHAT_LINES)
 
     tournament.winner = doc.get("winner", "")
 
@@ -507,6 +504,20 @@ async def load_tournament(app_state: PychessGlobalAppState, tournament_id, tourn
     tournament.b_win = b_win
     tournament.draw = draw
     tournament.nb_berserk = berserk
+
+    cursor = app_state.db.tournament_chat.find(
+        {"tid": tournament.id},
+        projection={
+            "_id": 0,
+            "type": 1,
+            "user": 1,
+            "message": 1,
+            "room": 1,
+            "time": 1,
+        }
+    )
+    docs = await cursor.to_list(length=MAX_CHAT_LINES)
+    tournament.tourneychat = docs
 
     return tournament
 

@@ -175,8 +175,6 @@ async def shutdown(app):
 
     # notify users
     msg = "Server will restart in about 30 seconds. Sorry for the inconvenience!"
-    # await app_state.lobby.lobby_chat("", msg)
-
     response = {"type": "roundchat", "user": "", "message": msg, "room": "player"}
     for game in [game for game in app_state.games.values() if not game.corr]:
         await round_broadcast(game, response, full=True)
