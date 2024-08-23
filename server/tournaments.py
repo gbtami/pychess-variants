@@ -514,7 +514,7 @@ async def load_tournament(app_state: PychessGlobalAppState, tournament_id, tourn
             "message": 1,
             "room": 1,
             "time": 1,
-        }
+        },
     )
     docs = await cursor.to_list(length=MAX_CHAT_LINES)
     tournament.tourneychat = docs
