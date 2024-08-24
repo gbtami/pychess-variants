@@ -45,9 +45,7 @@ class AliceBoard:
     def alice_fen(self):
         return "%s | %s" % (self.fens[0], self.fens[1])
 
-    def play_move(self, board_id, move):
-        castling_move = self.boards[board_id].is_castling(move)
-
+    def play_move(self, board_id, move, castling_move):
         self.boards[board_id].push(move)
 
         # Remove piece from the target square and put it to the other board
@@ -93,10 +91,11 @@ class AliceBoard:
     def push(self, uci, append=True):
         move = Move.from_uci(uci)
         board_id = 0 if self.boards[0].piece_at(move.from_square) else 1
+        castling_move = self.boards[board_id].is_castling(move)
         # print("push()", board_id, uci)
         self.board_id_stack.append(board_id)
 
-        castling_move = self.play_move(board_id, move)
+        self.play_move(board_id, move, castling_move)
 
         # self.print_pos()
         if append:
@@ -154,11 +153,7 @@ class AliceBoard:
         legals = []
         for uci in uci_moves:
             move = Move.from_uci(uci)
-            castling_move = self.play_move(board_id, move)
-
-            ok = not self.is_invalid_by_checked()
-
-            self.undo_move(board_id, move, castling_move)
+            castling_move = self.boards[board_id].is_castling(move)
 
             # We have to check that rook_to_square was vacant as well
             if castling_move:
@@ -166,7 +161,13 @@ class AliceBoard:
                 rook_to_square = CASTLED_ROOK_SQUARE[a_side][self.color]
 
                 if self.boards[1 - board_id].piece_at(rook_to_square) is not None:
-                    ok = False
+                    continue
+
+            self.play_move(board_id, move, castling_move)
+
+            ok = not self.is_invalid_by_checked()
+
+            self.undo_move(board_id, move, castling_move)
 
             if ok:
                 legals.append(uci)

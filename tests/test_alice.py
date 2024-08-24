@@ -3,7 +3,7 @@
 import unittest
 
 import pyffish as sf
-from chess import A1, C1, D1, E1, F1, F8, KING, ROOK
+from chess import A1, C1, D1, E1, F1, F8, D8, KING, QUEEN, ROOK
 
 from alice import AliceBoard, START_FEN_0, START_FEN_1
 
@@ -65,6 +65,7 @@ GAME_PART2 = (
     "d1d8",
 )
 
+# https://github.com/gbtami/pychess-variants/issues/1570
 GHOST_ROOKS_PART1 = (
     "e2e4",
     "e7e5",
@@ -83,6 +84,20 @@ GHOST_ROOKS_PART2 = (
     "g1e2",
     "d8e7",
     "e2d4",
+)
+
+# https://github.com/gbtami/pychess-variants/issues/1604
+QUEEN_DISAPPEARED = (
+    "d2d4",
+    "d7d5",
+    "d1d8",
+    "c8d7",
+    "b1c3",
+    "g8f6",
+    "c3d5",
+    "b8a6",
+    "c1g5",
+    "a8c8",
 )
 
 
@@ -152,7 +167,7 @@ class AliceTestCase(unittest.TestCase):
         self.assertEqual(board.fens[0], START_FEN_0)
         self.assertEqual(board.fens[1], START_FEN_1)
 
-    def test_game_without_castling(self):
+    def test_game_without_castling1(self):
         board = AliceBoard()
         for move in GHOST_ROOKS_PART1:
             board.get_san(move)
@@ -171,6 +186,17 @@ class AliceTestCase(unittest.TestCase):
         # After 8. Nd4
         self.assertIsNone(board.boards[0].piece_at(F1))
         self.assertIsNone(board.boards[1].piece_at(F1))
+
+    def test_game_without_castling2(self):
+        board = AliceBoard()
+        for move in QUEEN_DISAPPEARED:
+            board.get_san(move)
+            board.legal_moves()
+            board.push(move)
+
+        # After 5...Rc8
+        self.assertIsNone(board.boards[0].piece_at(D8))
+        self.assertEqual(board.boards[1].piece_type_at(D8), QUEEN)
 
 
 if __name__ == "__main__":
