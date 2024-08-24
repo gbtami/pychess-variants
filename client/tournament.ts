@@ -520,6 +520,11 @@ export class TournamentController implements ChatController {
     }
 
     private onMsgUserConnected(msg: MsgUserConnectedTournament) {
+        if (msg.chatClosed) {
+            const chatEntryEl = document.getElementById('chat-entry') as HTMLInputElement;
+            chatEntryEl.disabled = true;
+        }
+
         const chess960 = this.chess960;
         const dataIcon = this.variant.icon(chess960);
 
@@ -536,6 +541,7 @@ export class TournamentController implements ChatController {
         const startsAtDate = new Date(msg.startsAt);
         const startsAt = document.getElementById('startsAt') as Element;
         if (startsAt) patch(startsAt, h('date', startsAtDate.toLocaleString("default", localeOptions)));
+
         if (msg.startFen !== '') {
             const startFen = document.getElementById('startFen') as Element;
             const fen = msg.startFen.split(" ").join('_').replace(/\+/g, '.');
@@ -563,6 +569,7 @@ export class TournamentController implements ChatController {
         this.userRating = msg.urating;
         this.secondsToStart = msg.secondsToStart;
         this.secondsToFinish = msg.secondsToFinish;
+
         this.updateActionButton()
 
         if (!this.completed()) {

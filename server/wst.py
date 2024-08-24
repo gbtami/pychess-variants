@@ -172,6 +172,7 @@ async def handle_user_connected(app_state: PychessGlobalAppState, ws, user, data
         "secondsToFinish": (
             (tournament.ends_at - now).total_seconds() if tournament.starts_at < now else 0
         ),
+        "chatClosed": (now - tournament.ends_at).total_seconds() > 60 * 60,
     }
     if tournament.frequency == SHIELD:
         variant_name = tournament.variant + ("960" if tournament.chess960 else "")
