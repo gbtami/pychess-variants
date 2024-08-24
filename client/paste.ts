@@ -117,6 +117,13 @@ export function pasteView(model: PyChessModel): VNode[] {
                     //console.log("Variant:", v);
                     if (v) variant = v.toLowerCase();
 
+                    if (variant === 'alice') {
+                        const error = _('Importing Alice PGN is not supported');
+                        e.setCustomValidity(error);
+                        alert(error);
+                        return;
+                    }
+
                     initialFen = VARIANTS[variant].startFen;
                     const f = game.headers("FEN");
                     if (f) initialFen = f;
