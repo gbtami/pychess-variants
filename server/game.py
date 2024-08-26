@@ -264,9 +264,14 @@ class Game:
             self.initial_fen = self.board.initial_fen
             self.wplayer.fen960_as_white = self.initial_fen
 
-        self.random_mover = "Random-Mover" in (
-            self.wplayer.username,
-            self.bplayer.username,
+        self.random_mover = (
+            "Random-Mover"
+            in (
+                self.wplayer.username,
+                self.bplayer.username,
+            )
+            or self.wplayer.title == "TEST"
+            or self.wplayer.title == "TEST"
         )
 
         self.has_legal_move = self.board.has_legal_move()
