@@ -108,7 +108,7 @@ class AliceTestCase(unittest.TestCase):
             for move in movelist:
                 board.push(move)
             self.assertTrue(board.is_checked())
-            self.assertEqual(len(board.legal_moves()), 0)
+            self.assertFalse(board.has_legal_move())
 
             for _ in range(len(movelist)):
                 board.pop()
@@ -133,7 +133,7 @@ class AliceTestCase(unittest.TestCase):
         board.push("d8b6")
         board.push("d1d8")
         self.assertTrue(board.is_checked())
-        self.assertEqual(len(board.legal_moves()), 0)
+        self.assertFalse(board.has_legal_move())
         board.pop()
         board.pop()
 
@@ -144,21 +144,21 @@ class AliceTestCase(unittest.TestCase):
         board.push("c8d7")
         board.push("g7g8")
         self.assertTrue(board.is_checked())
-        self.assertEqual(len(board.legal_moves()), 0)
+        self.assertFalse(board.has_legal_move())
         board.pop()
         board.pop()
 
         board.push("c8e6")
         board.push("d8e8")
         self.assertTrue(board.is_checked())
-        self.assertEqual(len(board.legal_moves()), 0)
+        self.assertFalse(board.has_legal_move())
         board.pop()
         board.pop()
 
         board.push("e4f6")
         board.push("g7h8")
         self.assertTrue(board.is_checked())
-        self.assertEqual(len(board.legal_moves()), 0)
+        self.assertFalse(board.has_legal_move())
         board.pop()
         board.pop()
 

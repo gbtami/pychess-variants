@@ -268,7 +268,10 @@ class Game:
             self.wplayer.username,
             self.bplayer.username,
         )
-        self.legal_moves = self.board.legal_moves()
+
+        self.has_legal_move = self.board.has_legal_move()
+        if self.random_mover:
+            self.legal_moves = self.board.legal_moves()
 
         if self.board.move_stack:
             self.check = self.board.is_checked()
@@ -397,7 +400,11 @@ class Game:
                     self.clocks_b.append(clocks[BLACK])
 
                 self.board.push(move)
-                self.legal_moves = self.board.legal_moves()
+
+                self.has_legal_move = self.board.has_legal_move()
+                if self.random_mover:
+                    self.legal_moves = self.board.legal_moves()
+
                 self.update_status()
 
                 if self.status > STARTED:
@@ -753,7 +760,7 @@ class Game:
             self.status = DRAW
             self.result = "1/2-1/2"
 
-        if not self.legal_moves:
+        if not self.has_legal_move:
             game_result_value = self.board.game_result()
             self.result = result_string_from_value(self.board.color, game_result_value)
 
@@ -1235,7 +1242,9 @@ class Game:
                 cur_clock.pop()
                 self.steps.pop()
 
-            self.legal_moves = self.board.legal_moves()
+            self.has_legal_move = self.board.has_legal_move()
+            if self.random_mover:
+                self.legal_moves = self.board.legal_moves()
             self.lastmove = self.board.move_stack[-1] if self.board.move_stack else None
             self.check = self.board.is_checked()
 
