@@ -182,8 +182,8 @@ async def login(request):
 
 
 async def logout(request, user=None):
-    app_state = get_app_state(request.app)
     if request is not None:
+        app_state = get_app_state(request.app)
         session = await aiohttp_session.get_session(request)
         session_user = session.get("user_name")
         user = await app_state.users.get(session_user)
