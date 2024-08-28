@@ -237,16 +237,6 @@ class PychessGlobalAppState:
 
             # Load seeks from database
             async for doc in self.db.seek.find():
-                # TODO: this is here to skip seeks created by my dumb code
-                # remove this check after next deploy
-                rrmin = doc.get("rrmin")
-                if rrmin > 0:
-                    log.info(
-                        "rrmin > 0; skipping loading seek from database: %s %s %s"
-                        % {doc["_id"], user.username, doc["variant"]}
-                    )
-                    continue
-
                 user = await self.users.get(doc["user"])
                 if user is not None:
                     seek = Seek(
@@ -257,7 +247,7 @@ class PychessGlobalAppState:
                         color=doc["color"],
                         day=doc["day"],
                         rated=doc["rated"],
-                        rrmin=rrmin,
+                        rrmin=doc.get("rrmin"),
                         rrmax=doc.get("rrmax"),
                         chess960=doc["chess960"],
                         player1=user,
