@@ -241,8 +241,10 @@ class PychessGlobalAppState:
                 # remove this check after next deploy
                 rrmin = doc.get("rrmin")
                 if rrmin > 0:
-                    log.info("rrmin > 0; skipping loading seek from database: %s %s %s" \
-                        %{doc["_id"], user.username, doc["variant"]})
+                    log.info(
+                        "rrmin > 0; skipping loading seek from database: %s %s %s"
+                        % {doc["_id"], user.username, doc["variant"]}
+                    )
                     continue
 
                 user = await self.users.get(doc["user"])
@@ -261,7 +263,7 @@ class PychessGlobalAppState:
                         player1=user,
                         expire_at=doc.get("expireAt"),
                     )
-                    log.debug("Loading seek from database: %s" %seek)
+                    log.debug("Loading seek from database: %s" % seek)
                     self.seeks[seek.id] = seek
                     user.seeks[seek.id] = seek
 

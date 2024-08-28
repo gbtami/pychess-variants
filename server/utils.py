@@ -523,6 +523,7 @@ def remove_seek(seeks, seek):
 
     log.debug("Removed seek. Seeks now contains: [%s]" % " ".join(seeks))
 
+
 async def analysis_move(user, game, move, fen, ply):
     invalid_move = False
 

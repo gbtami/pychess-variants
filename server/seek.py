@@ -71,22 +71,24 @@ class Seek:
     def __str__(self):
         fen = "fen='%s', " % self.fen if self.fen else ""
         game_id = "game_id='%s', " % self.game_id if self.game_id else ""
-        return "\n<Seek: id='%s', " % self.id + \
-               "user='%s', " % self.creator.username + \
-               "variant='%s', " % self.variant + \
-               "color='%s', " % self.color + \
-               fen + \
-               "rated='%s', " % self.rated + \
-               "level='%d', " % self.level + \
-               "base='%s', " % self.base + \
-               "inc='%s', " % self.inc + \
-               "chess960='%s', " % self.chess960 + \
-               "rated='%s', " % self.rated + \
-               "rrmin='%d', " % self.rrmin + \
-               "rrmax='%d', " % self.rrmax + \
-               game_id + \
-               "pending='%d', " % self.pending + \
-               "day='%d'>" % self.day
+        return (
+            "\n<Seek: id='%s', " % self.id
+            + "user='%s', " % self.creator.username
+            + "variant='%s', " % self.variant
+            + "color='%s', " % self.color
+            + fen
+            + "rated='%s', " % self.rated
+            + "level='%d', " % self.level
+            + "base='%s', " % self.base
+            + "inc='%s', " % self.inc
+            + "chess960='%s', " % self.chess960
+            + "rated='%s', " % self.rated
+            + "rrmin='%d', " % self.rrmin
+            + "rrmax='%d', " % self.rrmax
+            + game_id
+            + "pending='%d', " % self.pending
+            + "day='%d'>" % self.day
+        )
 
     @property
     def as_json(self):
