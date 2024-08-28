@@ -54,7 +54,8 @@ async def finally_logic(app_state: PychessGlobalAppState, ws, user):
         if user.is_user_active_in_game() and len(user.lobby_sockets) == 0:
             await app_state.lobby.lobby_broadcast_u_cnt()
 
-        await user.update_seeks(pending=True)
+        if (user.game_in_progress is not None) or len(user.lobby_sockets) == 0:
+            await user.update_seeks(pending=True)
 
 
 async def process_message(app_state: PychessGlobalAppState, user, ws, data):
