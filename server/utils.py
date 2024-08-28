@@ -513,11 +513,15 @@ async def insert_game_to_db(game, app_state: PychessGlobalAppState):
 
 
 def remove_seek(seeks, seek):
+    log.debug("Seeks now contains: [%s]" % " ".join(seeks))
+    log.debug("Removing seek: %s" % seek)
+
     if (not seek.creator.bot) and seek.id in seeks:
         del seeks[seek.id]
         if seek.id in seek.creator.seeks:
             del seek.creator.seeks[seek.id]
 
+    log.debug("Removed seek. Seeks now contains: [%s]" % " ".join(seeks))
 
 async def analysis_move(user, game, move, fen, ply):
     invalid_move = False

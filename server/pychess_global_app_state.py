@@ -235,12 +235,14 @@ class PychessGlobalAppState:
                 await self.db.create_collection("seek")
             await self.db.seek.create_index("expireAt", expireAfterSeconds=0)
 
-            # Read correspondence seeks
+            # Load seeks from database
             async for doc in self.db.seek.find():
                 # TODO: this is here to skip seeks created by my dumb code
                 # remove this check after next deploy
                 rrmin = doc.get("rrmin")
                 if rrmin > 0:
+                    log.info("rrmin > 0; skipping loading seek from database: %s %s %s" \
+                        %{doc["_id"], user.username, doc["variant"]})
                     continue
 
                 user = await self.users.get(doc["user"])
@@ -259,6 +261,7 @@ class PychessGlobalAppState:
                         player1=user,
                         expire_at=doc.get("expireAt"),
                     )
+                    log.debug("Loading seek from database: %s" %seek)
                     self.seeks[seek.id] = seek
                     user.seeks[seek.id] = seek
 
