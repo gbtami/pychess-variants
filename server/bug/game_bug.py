@@ -121,16 +121,11 @@ class GameBug:
 
         disabled_fen = ""
 
-        if initial_fen:
-            fenA = initial_fen.split("|")[0].strip()
-            fenB = initial_fen.split("|")[1].strip()
-        elif chess960:
-            fenA = FairyBoard.shuffle_start(self.variant)
-            fenB = fenA
-        else:
-            self.initial_fen = FairyBoard.start_fen(self.variant)
-            fenA = self.initial_fen.split("|")[0].strip()
-            fenB = self.initial_fen.split("|")[1].strip()
+        start_fen = initial_fen if initial_fen else FairyBoard.start_fen(variant, chess960)
+        if chess960:
+            self.initial_fen = start_fen
+        fenA = start_fen.split("|")[0].strip()
+        fenB = start_fen.split("|")[1].strip()
 
         self.boards = {
             "a": FairyBoard(self.variant, fenA, self.chess960, 0, disabled_fen),
