@@ -224,7 +224,7 @@ class RequestLobbyTestCase(AioHTTPTestCase):
         await self.client.close()
 
     async def get_application(self):
-        app = make_app()
+        app = make_app(db_client=AsyncMongoMockClient())
         return app
 
     async def test_example(self):
