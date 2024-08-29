@@ -45,9 +45,7 @@ class AliceBoard:
     def alice_fen(self):
         return "%s | %s" % (self.fens[0], self.fens[1])
 
-    def play_move(self, board_id, move):
-        castling_move = self.boards[board_id].is_castling(move)
-
+    def play_move(self, board_id, move, castling_move):
         self.boards[board_id].push(move)
 
         # Remove piece from the target square and put it to the other board
@@ -93,10 +91,11 @@ class AliceBoard:
     def push(self, uci, append=True):
         move = Move.from_uci(uci)
         board_id = 0 if self.boards[0].piece_at(move.from_square) else 1
+        castling_move = self.boards[board_id].is_castling(move)
         # print("push()", board_id, uci)
         self.board_id_stack.append(board_id)
 
-        castling_move = self.play_move(board_id, move)
+        self.play_move(board_id, move, castling_move)
 
         # self.print_pos()
         if append:
@@ -125,20 +124,31 @@ class AliceBoard:
         board_id = 0 if self.boards[0].piece_at(Move.from_uci(move).from_square) else 1
         return sf.get_san(VARIANT, self.fens[board_id], move, CHESS960, sf.NOTATION_SAN)
 
-    def legal_moves(self):
-        moves_0 = sf.legal_moves(VARIANT, self.fens[0], [], CHESS960)
-        pseudo_legal_moves_0 = [
-            uci for uci in moves_0 if self.boards[1].piece_at(Move.from_uci(uci).to_square) is None
-        ]
+    def has_legal_move(self):
+        legal_moves_0 = self.legal_alice_moves(0, self.pseudo_legal_moves(0))
+        try:
+            next(legal_moves_0)
+            return True
+        except StopIteration:
+            legal_moves_1 = self.legal_alice_moves(1, self.pseudo_legal_moves(1))
+            try:
+                next(legal_moves_1)
+                return True
+            except StopIteration:
+                return False
 
-        moves_1 = sf.legal_moves(VARIANT, self.fens[1], [], CHESS960)
-        pseudo_legal_moves_1 = [
-            uci for uci in moves_1 if self.boards[0].piece_at(Move.from_uci(uci).to_square) is None
-        ]
-
-        return self.legal_alice_moves(0, pseudo_legal_moves_0) + self.legal_alice_moves(
-            1, pseudo_legal_moves_1
+    def pseudo_legal_moves(self, board_id):
+        moves = sf.legal_moves(VARIANT, self.fens[board_id], [], CHESS960)
+        return (
+            uci
+            for uci in moves
+            if self.boards[1 - board_id].piece_at(Move.from_uci(uci).to_square) is None
         )
+
+    def legal_moves(self):
+        return [move for move in self.legal_alice_moves(0, self.pseudo_legal_moves(0))] + [
+            move for move in self.legal_alice_moves(1, self.pseudo_legal_moves(1))
+        ]
 
     def switch_fen_moving_color(self, fen):
         old = " %s" % fen[fen.find(" ") + 1]
@@ -151,14 +161,9 @@ class AliceBoard:
         ) or sf.gives_check(VARIANT, self.switch_fen_moving_color(self.fens[1]), [], CHESS960)
 
     def legal_alice_moves(self, board_id, uci_moves):
-        legals = []
         for uci in uci_moves:
             move = Move.from_uci(uci)
-            castling_move = self.play_move(board_id, move)
-
-            ok = not self.is_invalid_by_checked()
-
-            self.undo_move(board_id, move, castling_move)
+            castling_move = self.boards[board_id].is_castling(move)
 
             # We have to check that rook_to_square was vacant as well
             if castling_move:
@@ -166,12 +171,16 @@ class AliceBoard:
                 rook_to_square = CASTLED_ROOK_SQUARE[a_side][self.color]
 
                 if self.boards[1 - board_id].piece_at(rook_to_square) is not None:
-                    ok = False
+                    continue
+
+            self.play_move(board_id, move, castling_move)
+
+            ok = not self.is_invalid_by_checked()
+
+            self.undo_move(board_id, move, castling_move)
 
             if ok:
-                legals.append(uci)
-
-        return legals
+                yield uci
 
     def is_checked(self):
         gives_check_0 = sf.gives_check(VARIANT, self.fens[0], [], CHESS960)

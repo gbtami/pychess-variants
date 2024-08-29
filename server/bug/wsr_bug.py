@@ -3,6 +3,7 @@ import logging
 
 from broadcast import round_broadcast
 from const import STARTED
+from newid import new_id
 from pychess_global_app_state import PychessGlobalAppState
 from seek import Seek
 from bug.utils_bug import play_move, join_seek_bughouse
@@ -94,7 +95,9 @@ async def handle_rematch_bughouse(app_state: PychessGlobalAppState, game, user, 
     ):
         color = "w"  # if game.wplayer.username == opp_name else "b"
         fen = game.initial_fen
+        seek_id = await new_id(None if app_state.db is None else app_state.db.seek)
         seek = Seek(
+            seek_id,
             game.bplayer,
             game.variant,
             fen=fen,

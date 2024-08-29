@@ -94,6 +94,9 @@ class GameBugClocks:
         return int(round((cur_time - self.last_move_clock()) * 1000))
 
     async def cancel_stopwatches(self):
+        self.stopwatches["a"].stop()
+        self.stopwatches["b"].stop()
+
         self.stopwatches["a"].clock_task.cancel()
         try:
             await self.stopwatches["a"].clock_task

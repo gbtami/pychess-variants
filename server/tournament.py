@@ -6,7 +6,7 @@ import random
 from abc import ABC, abstractmethod
 from datetime import datetime, timedelta, timezone
 from operator import neg
-from typing import ClassVar, Tuple, Set
+from typing import ClassVar, Deque, Tuple, Set
 
 from pymongo import ReturnDocument
 from sortedcollections import ValueSortedDict
@@ -237,6 +237,8 @@ class Tournament(ABC):
             self.starts_at = self.created_at + timedelta(seconds=int(before_start * 60))
         else:
             self.starts_at = starts_at
+
+        self.tourneychat: Deque[dict] = collections.deque([], MAX_CHAT_LINES)
 
         # TODO: calculate wave from TC, variant, number of players
         self.wave = timedelta(seconds=3)
@@ -1235,3 +1237,10 @@ class Tournament(ABC):
             time_text,
             url,
         )
+
+    async def tourney_chat_save(self, response):
+        self.tourneychat.append(response)
+        response["tid"] = self.id
+        await self.app_state.db.tournament_chat.insert_one(response)
+        # We have to remove _id added by insert to remain our response JSON serializable
+        del response["_id"]

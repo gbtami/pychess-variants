@@ -62,6 +62,7 @@ class FairyBoard:
         self.chess960 = chess960
         self.sfen = False
         self.show_promoted = variant in ("makruk", "makpong", "cambodian", "bughouse")
+        self.legal_moves_need_history = variant in ("Janggi",)
         self.nnue = initial_fen == ""
         self.initial_fen = (
             initial_fen
@@ -152,6 +153,15 @@ class FairyBoard:
 
     def get_san(self, move):
         return sf.get_san(self.variant, self.fen, move, self.chess960, self.notation)
+
+    def has_legal_move(self):
+        if self.legal_moves_need_history:
+            return (
+                len(sf.legal_moves(self.variant, self.initial_fen, self.move_stack, self.chess960))
+                > 0
+            )
+        else:
+            return len(sf.legal_moves(self.variant, self.fen, [], self.chess960)) > 0
 
     def legal_moves(self):
         # move legality can depend on history, e.g., passing and bikjang

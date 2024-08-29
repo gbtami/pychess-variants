@@ -1,18 +1,20 @@
 from __future__ import annotations
 from datetime import datetime, timezone
+import logging
 
 from const import CORR_SEEK_EXPIRE_WEEKS
 from misc import time_control_str
 from newid import new_id
 
+log = logging.getLogger(__name__)
+
 MAX_USER_SEEKS = 10
 
 
 class Seek:
-    gen_id = 0
-
     def __init__(
         self,
+        seek_id,
         creator,
         variant,
         fen="",
@@ -35,6 +37,7 @@ class Seek:
         game_id=None,
         expire_at=None,
     ):
+        self.id = seek_id
         self.creator = creator
         self.variant = variant
         self.color = color
@@ -56,8 +59,6 @@ class Seek:
         self.bugPlayer2 = bugPlayer2
         self.ws = ws
 
-        Seek.gen_id += 1
-        self.id = self.gen_id
         self.game_id = game_id
 
         self.expire_at = (
@@ -67,9 +68,59 @@ class Seek:
         # Seek is pending when it is not corr, and user has no live lobby websocket
         self.pending = False
 
+    def __str__(self):
+        fen = "fen='%s', " % self.fen if self.fen else ""
+        game_id = "game_id='%s', " % self.game_id if self.game_id else ""
+        return (
+            "\n<Seek: id='%s', " % self.id
+            + "user='%s', " % self.creator.username
+            + "variant='%s', " % self.variant
+            + "color='%s', " % self.color
+            + fen
+            + "rated='%s', " % self.rated
+            + "level='%d', " % self.level
+            + "base='%s', " % self.base
+            + "inc='%s', " % self.inc
+            + "chess960='%s', " % self.chess960
+            + "rated='%s', " % self.rated
+            + "rrmin='%d', " % self.rrmin
+            + "rrmax='%d', " % self.rrmax
+            + game_id
+            + "pending='%d', " % self.pending
+            + "day='%d'>" % self.day
+        )
+
     @property
     def as_json(self):
         return {
+            "seekID": self.id,
+            "user": self.creator.username,
+            "bot": self.creator.bot,
+            "title": self.creator.title,
+            "variant": self.variant,
+            "chess960": self.chess960,
+            "target": self.target,
+            "player1": self.player1.username if self.player1 is not None else "",
+            "player2": self.player2.username if self.player2 is not None else "",
+            "bugPlayer1": self.bugPlayer1.username if self.bugPlayer1 is not None else "",
+            "bugPlayer2": self.bugPlayer2.username if self.bugPlayer2 is not None else "",
+            "fen": self.fen,
+            "color": self.color,
+            "rated": self.rated,
+            "rrmin": self.rrmin,
+            "rrmax": self.rrmax,
+            "rating": self.rating,
+            "base": self.base,
+            "inc": self.inc,
+            "byoyomi": self.byoyomi_period,
+            "day": self.day,
+            "gameId": self.game_id if self.game_id is not None else "",
+        }
+
+    @property
+    def seek_json(self):
+        return {
+            "_id": self.id,
             "seekID": self.id,
             "user": self.creator.username,
             "bot": self.creator.bot,
@@ -141,7 +192,9 @@ async def create_seek(db, invites, seeks, user, data, ws, empty=False):
     else:
         game_id = None
 
+    seek_id = await new_id(None if db is None else db.seek)
     seek = Seek(
+        seek_id,
         user,
         data["variant"],
         fen=data["fen"],
@@ -161,6 +214,7 @@ async def create_seek(db, invites, seeks, user, data, ws, empty=False):
         game_id=game_id,
     )
 
+    log.debug("adding seek: %s" % seek)
     seeks[seek.id] = seek
     user.seeks[seek.id] = seek
 

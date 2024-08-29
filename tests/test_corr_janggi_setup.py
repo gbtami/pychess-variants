@@ -14,6 +14,7 @@ from user import User
 from users import Users
 from utils import join_seek, load_game
 from pychess_global_app_state_utils import get_app_state
+from newid import id8
 
 logging.basicConfig()
 logging.getLogger().setLevel(level=logging.ERROR)
@@ -88,6 +89,7 @@ class CorrJanggiGameTestCase(AioHTTPTestCase):
         red_player = app_state.users["red"]
 
         seek = Seek(
+            id8(),
             blue_player,
             "janggi",
             color="w",

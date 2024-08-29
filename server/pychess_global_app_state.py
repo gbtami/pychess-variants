@@ -90,9 +90,6 @@ class PychessGlobalAppState:
         # TODO: save/restore from db
         self.sent_lichess_team_msg: List[date] = []
 
-        # one deque per tournament! {tournamentId: collections.deque([], MAX_CHAT_LINES), ...}
-        self.tourneychat: dict[str, collections.deque] = {}
-
         self.seeks: dict[int, Seek] = {}
         self.games: dict[str, Game] = {}
         self.invites: dict[str, Seek] = {}
@@ -146,6 +143,16 @@ class PychessGlobalAppState:
 
         # Read tournaments, users and highscore from db
         try:
+            db_collections = await self.db.list_collection_names()
+
+            if "tournament_chat" not in db_collections:
+                try:
+                    await self.db.create_collection(
+                        "tournament_chat", capped=True, size=100000, max=MAX_CHAT_LINES
+                    )
+                except NotImplementedError:
+                    await self.db.create_collection("tournament_chat")
+
             await self.db.tournament.create_index("startsAt")
             await self.db.tournament.create_index("status")
 
@@ -166,8 +173,6 @@ class PychessGlobalAppState:
             await create_scheduled_tournaments(self, new_tournaments_data)
 
             asyncio.create_task(generate_shield(self))
-
-            db_collections = await self.db.list_collection_names()
 
             if "highscore" not in db_collections:
                 await generate_highscore(self)
@@ -230,29 +235,25 @@ class PychessGlobalAppState:
                 await self.db.create_collection("seek")
             await self.db.seek.create_index("expireAt", expireAfterSeconds=0)
 
-            # Read correspondence seeks
+            # Load seeks from database
             async for doc in self.db.seek.find():
-                # TODO: this is here to skip seeks created by my dumb code
-                # remove this check after next deploy
-                rrmin = doc.get("rrmin")
-                if rrmin > 0:
-                    continue
-
                 user = await self.users.get(doc["user"])
                 if user is not None:
                     seek = Seek(
+                        doc["_id"],
                         user,
                         doc["variant"],
                         fen=doc["fen"],
                         color=doc["color"],
                         day=doc["day"],
                         rated=doc["rated"],
-                        rrmin=rrmin,
+                        rrmin=doc.get("rrmin"),
                         rrmax=doc.get("rrmax"),
                         chess960=doc["chess960"],
                         player1=user,
                         expire_at=doc.get("expireAt"),
                     )
+                    log.debug("Loading seek from database: %s" % seek)
                     self.seeks[seek.id] = seek
                     user.seeks[seek.id] = seek
 

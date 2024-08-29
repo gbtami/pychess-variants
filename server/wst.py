@@ -172,6 +172,7 @@ async def handle_user_connected(app_state: PychessGlobalAppState, ws, user, data
         "secondsToFinish": (
             (tournament.ends_at - now).total_seconds() if tournament.starts_at < now else 0
         ),
+        "chatClosed": (now - tournament.ends_at).total_seconds() > 60 * 60,
     }
     if tournament.frequency == SHIELD:
         variant_name = tournament.variant + ("960" if tournament.chess960 else "")
@@ -187,10 +188,7 @@ async def handle_user_connected(app_state: PychessGlobalAppState, ws, user, data
     if tournament.status > T_STARTED:
         await ws_send_json(ws, tournament.summary)
 
-    response = {
-        "type": "fullchat",
-        "lines": list(app_state.tourneychat[tournamentId]),
-    }
+    response = {"type": "fullchat", "lines": list(tournament.tourneychat)}
     await ws_send_json(ws, response)
 
     if user.username not in tournament.spectators:
@@ -220,7 +218,7 @@ async def handle_lobbychat(app_state: PychessGlobalAppState, user, data):
                 await tournament.abort()
         else:
             response = chat_response("lobbychat", user.username, data["message"])
-            app_state.tourneychat[tournamentId].append(response)
+            await tournament.tourney_chat_save(response)
 
     elif user.anon:
         pass
@@ -228,7 +226,7 @@ async def handle_lobbychat(app_state: PychessGlobalAppState, user, data):
     else:
         if user.silence == 0:
             response = chat_response("lobbychat", user.username, data["message"])
-            app_state.tourneychat[tournamentId].append(response)
+            await tournament.tourney_chat_save(response)
 
     if response is not None:
         await tournament.broadcast(response)

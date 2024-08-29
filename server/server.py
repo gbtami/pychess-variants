@@ -173,19 +173,26 @@ async def shutdown(app):
     app_state = get_app_state(app)
     app_state.shutdown = True
 
+    log.debug("\nServer shutdown activated\n")
+
     # notify users
     msg = "Server will restart in about 30 seconds. Sorry for the inconvenience!"
-    # await app_state.lobby.lobby_chat("", msg)
-
     response = {"type": "roundchat", "user": "", "message": msg, "room": "player"}
     for game in [game for game in app_state.games.values() if not game.corr]:
         await round_broadcast(game, response, full=True)
 
-    # save corr seeks
+    # save correspondence and regular seeks to database
     corr_seeks = [seek.corr_json for seek in app_state.seeks.values() if seek.day > 0]
+    reg_seeks = [seek.seek_json for seek in app_state.seeks.values() if seek.day == 0]
+    await app_state.db.seek.delete_many({})
     if len(corr_seeks) > 0:
-        await app_state.db.seek.delete_many({})
+        for seek in corr_seeks:
+            log.debug("saving correspondence seek to database: %s" % seek)
         await app_state.db.seek.insert_many(corr_seeks)
+    if len(reg_seeks) > 0:
+        for seek in reg_seeks:
+            log.debug("saving regular seek to database: %s" % seek)
+        await app_state.db.seek.insert_many(reg_seeks)
 
     # terminate BOT users
     for user in [user for user in app_state.users.values() if user.bot]:
