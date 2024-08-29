@@ -1,17 +1,15 @@
 from __future__ import annotations
 
 import asyncio
-import functools
 import json
 import logging
 import os.path
-import sys
-import warnings
 from datetime import datetime
 from urllib.parse import urlparse
 
 import aiohttp_session
 from aiohttp import web
+import minify_html
 
 from const import (
     ANON_PREFIX,
@@ -64,15 +62,6 @@ from puzzle import (
 from custom_trophy_owners import CUSTOM_TROPHY_OWNERS
 
 log = logging.getLogger(__name__)
-
-try:
-    import htmlmin
-
-    html_minify = functools.partial(htmlmin.minify, remove_optional_attribute_quotes=False)
-except ImportError as e:
-    log.error(e, exc_info=True)
-    warnings.warn("Not using HTML minification, htmlmin not imported.")
-    sys.exit(0)
 
 
 async def index(request):
@@ -735,7 +724,12 @@ async def index(request):
         log.error("ERROR: template.render_async() failed.", exc_info=True)
         return web.HTTPFound("/")
 
-    response = web.Response(text=html_minify(text), content_type="text/html")
+    response = web.Response(
+        text=minify_html.minify(
+            text, minify_js=True, do_not_minify_doctype=True, keep_spaces_between_attributes=True
+        ),
+        content_type="text/html",
+    )
     parts = urlparse(URI)
     response.set_cookie(
         "user",
