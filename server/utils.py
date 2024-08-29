@@ -513,7 +513,6 @@ async def insert_game_to_db(game, app_state: PychessGlobalAppState):
 
 
 def remove_seek(seeks, seek):
-    print("ITT", seeks)
     log.debug("Seeks now contains: [%s]" % " ".join(seeks))
     log.debug("Removing seek: %s" % seek)
 
