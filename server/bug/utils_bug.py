@@ -1,6 +1,5 @@
 import logging
 import random
-import re
 from datetime import timezone
 
 from pychess_global_app_state import PychessGlobalAppState
@@ -12,6 +11,7 @@ from const import (
     INVALIDMOVE,
     CASUAL,
     RATED,
+    POCKET_PATTERN,
 )
 from glicko2.glicko2 import gl2
 from newid import new_id
@@ -119,22 +119,13 @@ async def load_game_bug(app_state: PychessGlobalAppState, game_id):
             )
 
             if move[1:2] != "@":
-                piece = re.sub(
-                    r"\d",
-                    (lambda m: "." * int(m.group(0))),
-                    game.boards[board_name].fen.split("[")[0],
-                ).split("/")[8 - int(move[1:2])][ord(move[0:1]) - ord("a")]
-                piece_captured = re.sub(
-                    r"\d",
-                    (lambda m: "." * int(m.group(0))),
-                    game.boards[board_name].fen.split("[")[0],
-                ).split("/")[8 - int(move[3:4])][ord(move[2:3]) - ord("a")]
-                if piece == "p" and piece_captured == "." and move[0:1] != move[2:3]:
-                    piece_captured = "p"  # en passant
-                if piece_captured != ".":
-                    f = game.boards["b" if board_name == "a" else "a"].fen
-                    f = re.sub("\\[(.*)\\]", r"[\1{}]".format(piece_captured), f)
-                    game.boards["b" if board_name == "a" else "a"].fen = f
+                last_move_captured_role = game.boards[board_name].piece_to_partner(move)
+                # Add the captured piece to the partner pocked
+                if last_move_captured_role is not None:
+                    partner_board = game.boards["b" if board_name == "a" else "a"]
+                    game.boards[partner_board].fen = POCKET_PATTERN.sub(
+                        r"[\1%s]" % last_move_captured_role, game.boards[partner_board].fen
+                    )
 
             san = game.boards[board_name].get_san(move)
             game.boards[board_name].push(move)

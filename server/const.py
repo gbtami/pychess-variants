@@ -1,7 +1,10 @@
 from __future__ import annotations
 from datetime import timedelta
+import re
 
 from settings import static_url, PROD
+
+POCKET_PATTERN = re.compile("\\[(.*)\\]")
 
 # https://medium.com/quick-code/python-type-hinting-eliminating-importerror-due-to-circular-imports-265dfb0580f8
 TYPE_CHECKING = False
