@@ -207,13 +207,12 @@ class GameBug:
         if self.status <= STARTED:
             self.gameClocks.update_clocks(board, clocks, clocks_b)
             try:
-                partner_board = "a" if board == "b" else "b"
                 last_move_captured_role = self.boards[board].piece_to_partner(move)
-                log.debug("lastMoveCapturedRole: %s", last_move_captured_role)
-                log.debug("self.boards[partner_board].fen: %s", self.boards[partner_board].fen)
-
                 # Add the captured piece to the partner pocked
                 if last_move_captured_role is not None:
+                    partner_board = "a" if board == "b" else "b"
+                    log.debug("lastMoveCapturedRole: %s", last_move_captured_role)
+                    log.debug("self.boards[partner_board].fen: %s", self.boards[partner_board].fen)
                     # todo: this doesnt work after first move when starting game from custom initial fen that doesnt
                     #       have square brackets - either add them or dont consider it valid if missing pockets
                     self.boards[partner_board].fen = POCKET_PATTERN.sub(

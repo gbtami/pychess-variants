@@ -15,7 +15,7 @@ from const import (
 )
 from glicko2.glicko2 import gl2
 from newid import new_id
-from utils import round_broadcast
+from utils import remove_seek, round_broadcast, sanitize_fen
 from websocket_utils import ws_send_json
 
 log = logging.getLogger(__name__)
@@ -122,7 +122,7 @@ async def load_game_bug(app_state: PychessGlobalAppState, game_id):
                 last_move_captured_role = game.boards[board_name].piece_to_partner(move)
                 # Add the captured piece to the partner pocked
                 if last_move_captured_role is not None:
-                    partner_board = game.boards["b" if board_name == "a" else "a"]
+                    partner_board = "b" if board_name == "a" else "a"
                     game.boards[partner_board].fen = POCKET_PATTERN.sub(
                         r"[\1%s]" % last_move_captured_role, game.boards[partner_board].fen
                     )
@@ -243,14 +243,10 @@ async def new_game_bughouse(app_state: PychessGlobalAppState, seek_id, game_id=N
     seek = app_state.seeks[seek_id]
 
     if seek.fen:
-        from utils import sanitize_fen
-
         fen_valid, sanitized_fen = sanitize_fen(seek.variant, seek.fen, seek.chess960)
         if not fen_valid:
             message = "Failed to create game. Invalid FEN %s" % seek.fen
             log.debug(message)
-            from utils import remove_seek
-
             remove_seek(app_state.seeks, seek)
             return {"type": "error", "message": message}
     else:
@@ -300,13 +296,10 @@ async def new_game_bughouse(app_state: PychessGlobalAppState, seek_id, game_id=N
             bug_wplayer,
             bplayer,
         )
-        from utils import remove_seek
 
         remove_seek(app_state.seeks, seek)
         return {"type": "error", "message": "Failed to create game"}
     app_state.games[game_id] = game
-
-    from utils import remove_seek
 
     remove_seek(app_state.seeks, seek)
 
