@@ -31,6 +31,7 @@ from const import (
     SCHEDULE_MAX_DAYS,
     ABORTED,
 )
+from broadcast import round_broadcast
 from discord_bot import DiscordBot, FakeDiscordBot
 from game import Game
 from generate_crosstable import generate_crosstable
@@ -50,6 +51,7 @@ from seek import Seek
 from settings import DEV, FISHNET_KEYS, static_url, DISCORD_TOKEN
 from tournament import Tournament
 from tournaments import translated_tournament_name, get_scheduled_tournaments, load_tournament
+from typedefs import client_key
 from twitch import Twitch
 from user import User
 from users import Users, NotInDbUsers
@@ -406,6 +408,44 @@ class PychessGlobalAppState:
         result[NONE_USER] = User(self, anon=True, username=NONE_USER)
         result[NONE_USER].enabled = False
         return result
+
+    async def server_shutdown(self):
+        self.shutdown = True
+
+        log.debug("\nServer shutdown activated\n")
+
+        # notify users
+        msg = "Server will restart in about 30 seconds. Sorry for the inconvenience!"
+        response = {"type": "roundchat", "user": "", "message": msg, "room": "player"}
+        for game in [game for game in self.games.values() if not game.corr]:
+            await round_broadcast(game, response, full=True)
+
+        # save correspondence and regular seeks to database
+        corr_seeks = [seek.corr_json for seek in self.seeks.values() if seek.day > 0]
+        reg_seeks = [seek.seek_json for seek in self.seeks.values() if seek.day == 0]
+        await self.db.seek.delete_many({})
+        if len(corr_seeks) > 0:
+            for seek in corr_seeks:
+                log.debug("saving correspondence seek to database: %s" % seek)
+            await self.db.seek.insert_many(corr_seeks)
+        if len(reg_seeks) > 0:
+            for seek in reg_seeks:
+                log.debug("saving regular seek to database: %s" % seek)
+            await self.db.seek.insert_many(reg_seeks)
+
+        # terminate BOT users
+        for user in [user for user in self.users.values() if user.bot]:
+            await user.event_queue.put('{"type": "terminated"}')
+
+        # close game_sockets
+        for user in [user for user in self.users.values() if not user.bot]:
+            await user.close_all_game_sockets()
+
+        # close lobbysockets
+        await self.lobby.close_lobby_sockets()
+
+        if client_key in self.app:
+            self.app[client_key].close()
 
     def online_count(self):
         return sum((1 for user in self.users.values() if user.online))
