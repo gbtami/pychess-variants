@@ -343,7 +343,7 @@ export class RoundController extends GameController {
         boardSettings.assetURL = this.assetURL;
         boardSettings.updateBoardAndPieceStyles();
 
-        if (model.corrGames.length > 0) {
+        if (this.corr && model.corrGames.length > 0) {
             const corrGames = JSON.parse(model.corrGames).sort(compareGames(this.username));
             const cgMap: {[gameId: string]: [Api, string]} = {};
             handleOngoingGameEvents(this.username, cgMap);

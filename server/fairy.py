@@ -203,7 +203,7 @@ class FairyBoard:
         return sf.game_result(self.variant, self.fen, [], self.chess960)
 
     def piece_to_partner(self, move):
-        return sf.piece_to_partner(self.variant, self.fen, [move])
+        return sf.piece_to_partner(self.variant, self.fen, [move], self.chess960)
 
     def print_pos(self):
         print()
