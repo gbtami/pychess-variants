@@ -314,7 +314,7 @@ async def subscribe_invites(request):
         async with sse_response(request) as response:
             queue = asyncio.Queue()
             app_state.invite_channels.add(queue)
-            while not response.task.done():
+            while response.is_connected():
                 payload = await queue.get()
                 await response.send(payload)
                 queue.task_done()
@@ -331,7 +331,7 @@ async def subscribe_games(request):
     app_state.game_channels.add(queue)
     try:
         async with sse_response(request) as response:
-            while not response.task.done():
+            while response.is_connected():
                 payload = await queue.get()
                 await response.send(payload)
                 queue.task_done()

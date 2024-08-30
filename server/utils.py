@@ -938,7 +938,7 @@ async def subscribe_notify(request):
     user.notify_channels.add(queue)
     try:
         async with sse_response(request) as response:
-            while not response.task.done():
+            while response.is_connected():
                 payload = await queue.get()
                 await response.send(payload)
                 queue.task_done()
