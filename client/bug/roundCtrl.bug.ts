@@ -532,17 +532,21 @@ export class RoundControllerBughouse implements ChatController {
     //
     private renderDrawOffer = () => {
         this.vdialog = patch(this.vdialog, h('div#offer-dialog', [
-            h('div', { class: { reject: true }, on: { click: () => this.rejectDrawOffer() } }, h('i.icon.icon-abort.reject')),
-            h('div.text', _("Your opponent offers a draw")),
-            h('div', { class: { accept: true }, on: { click: () => this.draw() } }, h('i.icon.icon-check')),
+            h('div.dcontrols', [
+                h('div', { class: { reject: true }, on: { click: () => this.rejectDrawOffer() } }, h('i.icon.icon-abort.reject')),
+                h('div.text', _("Your opponent offers a draw")),
+                h('div', { class: { accept: true }, on: { click: () => this.draw() } }, h('i.icon.icon-check')),
+            ])
         ]));
     }
     //
     private setDialog = (message: string) => {
         this.vdialog = patch(this.vdialog, h('div#offer-dialog', [
-            h('div', { class: { reject: false } }),
-            h('div.text', message),
-            h('div', { class: { accept: false } }),
+            h('div.dcontrols', [
+                h('div', { class: { reject: false } }),
+                h('div.text', message),
+                h('div', { class: { accept: false } }),
+            ])
         ]));
     }
     //
@@ -598,9 +602,11 @@ export class RoundControllerBughouse implements ChatController {
     //
     private renderRematchOffer = () => {
         this.vdialog = patch(this.vdialog, h('div#offer-dialog', [
-            h('div', { class: { reject: true }, on: { click: () => this.rejectRematchOffer() } }, h('i.icon.icon-abort.reject')),
-            h('div.text', _("Your opponent offers a rematch")),
-            h('div', { class: { accept: true }, on: { click: () => this.rematch() } }, h('i.icon.icon-check')),
+            h('div.dcontrols', [
+                h('div', { class: { reject: true }, on: { click: () => this.rejectRematchOffer() } }, h('i.icon.icon-abort.reject')),
+                h('div.text', _("Your opponent offers a rematch")),
+                h('div', { class: { accept: true }, on: { click: () => this.rematch() } }, h('i.icon.icon-check')),
+            ])
         ]));
     }
     //

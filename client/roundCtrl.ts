@@ -616,11 +616,13 @@ export class RoundController extends GameController {
     }
 
     private renderRematchOffer = () => {
-        (document.querySelector('.btn-controls.game') as HTMLElement).style.display= "none";
+        (document.querySelector('.btn-controls.after') as HTMLElement).style.display= "none";
         this.vdialog = patch(this.vdialog, h('div#offer-dialog', [
-            h('div', { class: { reject: true }, on: { click: () => this.rejectRematchOffer() } }, h('i.icon.icon-abort.reject')),
-            h('div.text', _("Your opponent offers a rematch")),
-            h('div', { class: { accept: true }, on: { click: () => this.rematch() } }, h('i.icon.icon-check')),
+            h('div.dcontrols', [
+                h('div', { class: { reject: true }, on: { click: () => this.rejectRematchOffer() } }, h('i.icon.icon-abort.reject')),
+                h('div.text', _("Your opponent offers a rematch")),
+                h('div', { class: { accept: true }, on: { click: () => this.rematch() } }, h('i.icon.icon-check')),
+            ])
         ]));
     }
 
