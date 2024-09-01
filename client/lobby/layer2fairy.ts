@@ -20,98 +20,77 @@ export function layer2fairy (lobbyCtrl: LobbyController, containerId: string): v
             ]),
         ]),
         h('div.button-grid', [
-            h('button.layer-2-category', { on: { click: () => layer3variant('layer2fairycont', lobbyCtrl, 'capablanca', false) } }, [
+            h('button.layer-2-category', { on: { click: () => layer3variant('layer2fairycont', lobbyCtrl, 'capablanca') } }, [
                 h('div.variant-title-l2', [
                     h('div.icon', { attrs: { 'data-icon': VARIANTS['capablanca'].icon(false) } }),
-                    h('h3', VARIANTS['capablanca'].displayName()),
+                    h('h3', VARIANTS['capablanca'].displayName() + '(960)'),
                 ]),
 //                h('p.variant-extra-info', _('Knight hybrid pieces')),
             ]),
-            h('button.layer-2-category', { on: { click: () => layer3variant('layer2fairycont', lobbyCtrl, 'capablanca', true) } }, [
-                h('div.variant-title-l2', [
-                    h('div.icon', { attrs: { 'data-icon': VARIANTS['capablanca'].icon(true) } }),
-                    h('h3', VARIANTS['capablanca'].displayName(true)),
-                ]),
-//                h('p.variant-extra-info', _('Knight hybrid pieces + 960')),
-            ]),
-            h('button.layer-2-category', { on: { click: () => layer3variant('layer2fairycont', lobbyCtrl, 'capahouse', false) } }, [
+            h('button.layer-2-category', { on: { click: () => layer3variant('layer2fairycont', lobbyCtrl, 'capahouse') } }, [
                 h('div.variant-title-l2', [
                     h('div.icon', { attrs: { 'data-icon': VARIANTS['capahouse'].icon(false) } }),
-                    h('h3', VARIANTS['capahouse'].displayName()),
+                    h('h3', VARIANTS['capahouse'].displayName() + '(960)'),
                 ]),
 //                h('p.variant-extra-info', _('Knight hybrid pieces + zh')),
             ]),
-            h('button.layer-2-category', { on: { click: () => layer3variant('layer2fairycont', lobbyCtrl, 'capahouse', true) } }, [
-                h('div.variant-title-l2', [
-                    h('div.icon', { attrs: { 'data-icon': VARIANTS['capahouse'].icon(true) } }),
-                    h('h3', VARIANTS['capahouse'].displayName(true)),
-                ]),
-//                h('p.variant-extra-info', _('Knight hybrid pieces + zh960')),
-            ]),
-            h('button.layer-2-category', { on: { click: () => layer3variant('layer2fairycont', lobbyCtrl, 'dragon', false) } }, [
+            h('button.layer-2-category', { on: { click: () => layer3variant('layer2fairycont', lobbyCtrl, 'dragon') } }, [
                 h('div.variant-title-l2', [
                     h('div.icon', { attrs: { 'data-icon': VARIANTS['dragon'].icon(false) } }),
                     h('h3', VARIANTS['dragon'].displayName()),
                 ]),
 //                h('p.variant-extra-info', _('8x8 with Dragon')),
             ]),
-            h('button.layer-2-category', { on: { click: () => layer3variant('layer2fairycont', lobbyCtrl, 'seirawan', false) } }, [
+            h('button.layer-2-category', { on: { click: () => layer3variant('layer2fairycont', lobbyCtrl, 'seirawan') } }, [
                 h('div.variant-title-l2', [
                     h('div.icon', { attrs: { 'data-icon': VARIANTS['seirawan'].icon(false) } }),
-                    h('h3', VARIANTS['seirawan'].displayName()),
+                    h('h3', VARIANTS['seirawan'].displayName() + '(960)'),
                 ]),
 //                h('p.variant-extra-info', _('8x8 with new pieces')),
             ]),
-            h('button.layer-2-category', { on: { click: () => layer3variant('layer2fairycont', lobbyCtrl, 'seirawan', true) } }, [
-                h('div.variant-title-l2', [
-                    h('div.icon', { attrs: { 'data-icon': VARIANTS['seirawan'].icon(true) } }),
-                    h('h3', VARIANTS['seirawan'].displayName(true)),
-                ]),
-//                h('p.variant-extra-info', _('8x8 with new pieces + 960')),
-            ]),
-            h('button.layer-2-category', { on: { click: () => layer3variant('layer2fairycont', lobbyCtrl, 'shouse', false) } }, [
+            h('button.layer-2-category', { on: { click: () => layer3variant('layer2fairycont', lobbyCtrl, 'shouse') } }, [
                 h('div.variant-title-l2', [
                     h('div.icon', { attrs: { 'data-icon': VARIANTS['shouse'].icon(false) } }),
                     h('h3', VARIANTS['shouse'].displayName()),
                 ]),
 //                h('p.variant-extra-info', _('8x8 with new pieces + zh')),
             ]),
-            h('button.layer-2-category', { on: { click: () => layer3variant('layer2fairycont', lobbyCtrl, 'shako', false) } }, [
+            h('button.layer-2-category', { on: { click: () => layer3variant('layer2fairycont', lobbyCtrl, 'shako') } }, [
                 h('div.variant-title-l2', [
                     h('div.icon', { attrs: { 'data-icon': VARIANTS['shako'].icon(false) } }),
                     h('h3', VARIANTS['shako'].displayName()),
                 ]),
 //                h('p.variant-extra-info', _('Cannon and Elephant from Xiangqi')),
             ]),
-            h('button.layer-2-category', { on: { click: () => layer3variant('layer2fairycont', lobbyCtrl, 'grand', false) } }, [
+            h('button.layer-2-category', { on: { click: () => layer3variant('layer2fairycont', lobbyCtrl, 'grand') } }, [
                 h('div.variant-title-l2', [
                     h('div.icon', { attrs: { 'data-icon': VARIANTS['grand'].icon(false) } }),
                     h('h3', VARIANTS['grand'].displayName()),
                 ]),
 //                h('p.variant-extra-info', _('10x10 with new pieces')),
             ]),
-            h('button.layer-2-category', { on: { click: () => layer3variant('layer2fairycont', lobbyCtrl, 'grandhouse', false) } }, [
+            h('button.layer-2-category', { on: { click: () => layer3variant('layer2fairycont', lobbyCtrl, 'grandhouse') } }, [
                 h('div.variant-title-l2', [
                     h('div.icon', { attrs: { 'data-icon': VARIANTS['grandhouse'].icon(false) } }),
                     h('h3', VARIANTS['grandhouse'].displayName()),
                 ]),
 //                h('p.variant-extra-info', _('10x10 with new pieces + zh')),
             ]),
-            h('button.layer-2-category', { on: { click: () => layer3variant('layer2fairycont', lobbyCtrl, 'shogun', false) } }, [
+            h('button.layer-2-category', { on: { click: () => layer3variant('layer2fairycont', lobbyCtrl, 'shogun') } }, [
                 h('div.variant-title-l2', [
                     h('div.icon', { attrs: { 'data-icon': VARIANTS['shogun'].icon(false) } }),
                     h('h3', VARIANTS['shogun'].displayName()),
                 ]),
 //                h('p.variant-extra-info', _('Crazyhouse with promotions')),
             ]),
-            h('button.layer-2-category', { on: { click: () => layer3variant('layer2fairycont', lobbyCtrl, 'hoppelpoppel', false) } }, [
+            h('button.layer-2-category', { on: { click: () => layer3variant('layer2fairycont', lobbyCtrl, 'hoppelpoppel') } }, [
                 h('div.variant-title-l2', [
                     h('div.icon', { attrs: { 'data-icon': VARIANTS['hoppelpoppel'].icon(false) } }),
                     h('h3', VARIANTS['hoppelpoppel'].displayName()),
                 ]),
 //                h('p.variant-extra-info', _('Bishops and Knights swap their capture moves')),
             ]),
-            h('button.layer-2-category', { on: { click: () => layer3variant('layer2fairycont', lobbyCtrl, 'mansindam', false) } }, [
+            h('button.layer-2-category', { on: { click: () => layer3variant('layer2fairycont', lobbyCtrl, 'mansindam') } }, [
                 h('div.variant-title-l2', [
                     h('div.icon', { attrs: { 'data-icon': VARIANTS['mansindam'].icon(false) } }),
                     h('h3', VARIANTS['mansindam'].displayName()),
