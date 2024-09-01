@@ -20,28 +20,28 @@ export function layer2xiangqi (lobbyCtrl: LobbyController, containerId: string):
             ]),
         ]),
         h('div.button-grid', [
-            h('button.layer-2-category', { on: { click: () => layer3variant('layer2xiangqicont', lobbyCtrl, 'xiangqi', false) } }, [
+            h('button.layer-2-category', { on: { click: () => layer3variant('layer2xiangqicont', lobbyCtrl, 'xiangqi') } }, [
                 h('div.variant-title-l2', [
                     h('div.icon', { attrs: { 'data-icon': VARIANTS['xiangqi'].icon(false) } }),
                     h('h3', VARIANTS['xiangqi'].displayName()),
                 ]),
                 h('p.variant-extra-info', _('Chinese Chess, one of the most played games in the world')),
             ]),
-            h('button.layer-2-category', { on: { click: () => layer3variant('layer2xiangqicont', lobbyCtrl, 'janggi', false) } }, [
+            h('button.layer-2-category', { on: { click: () => layer3variant('layer2xiangqicont', lobbyCtrl, 'janggi') } }, [
                 h('div.variant-title-l2', [
                     h('div.icon', { attrs: { 'data-icon': VARIANTS['janggi'].icon(false) } }),
                     h('h3', VARIANTS['janggi'].displayName()),
                 ]),
                 h('p.variant-extra-info', _('Korean Chess, based on Xiangqi but very different')),
             ]),
-            h('button.layer-2-category', { on: { click: () => layer3variant('layer2xiangqicont', lobbyCtrl, 'minixiangqi', false) } }, [
+            h('button.layer-2-category', { on: { click: () => layer3variant('layer2xiangqicont', lobbyCtrl, 'minixiangqi') } }, [
                 h('div.variant-title-l2', [
                     h('div.icon', { attrs: { 'data-icon': VARIANTS['minixiangqi'].icon(false) } }),
                     h('h3', VARIANTS['minixiangqi'].displayName()),
                 ]),
                 h('p.variant-extra-info', _('Compact Xiangqi on a 7x7 board')),
             ]),
-            h('button.layer-2-category', { on: { click: () => layer3variant('layer2xiangqicont', lobbyCtrl, 'manchu', false) } }, [
+            h('button.layer-2-category', { on: { click: () => layer3variant('layer2xiangqicont', lobbyCtrl, 'manchu') } }, [
                 h('div.variant-title-l2', [
                     h('div.icon', { attrs: { 'data-icon': VARIANTS['manchu'].icon(false) } }),
                     h('h3', VARIANTS['manchu'].displayName()),

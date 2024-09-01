@@ -559,7 +559,7 @@ export class LobbyController implements ChatController {
         this.preSelectVariant(vVariant, vChess960);
     }
 
-    createGame(variantName: string = '', chess960: boolean = false) {
+    createGame(variantName: string = '') {
         this.createMode = 'createGame';
         this.renderVariantsDropDown(variantName, this.anon ? ["bughouse"]: []);
         this.renderDialogHeader(createModeStr(this.createMode));
@@ -573,7 +573,7 @@ export class LobbyController implements ChatController {
         disableCorr(this.anon || variantName === "bughouse" );
     }
 
-    playFriend(variantName: string = '', chess960: boolean = false) {
+    playFriend(variantName: string = '') {
         this.createMode = 'playFriend';
         this.renderVariantsDropDown(variantName, ["bughouse"]);
         this.renderDialogHeader(createModeStr(this.createMode))
@@ -587,7 +587,7 @@ export class LobbyController implements ChatController {
         disableCorr(false);
     }
 
-    playAI(variantName: string = '', chess960: boolean = false) {
+    playAI(variantName: string = '') {
         this.createMode = 'playAI';
         this.renderVariantsDropDown(variantName, ["bughouse"]);
         this.renderDialogHeader(createModeStr(this.createMode))
@@ -602,7 +602,7 @@ export class LobbyController implements ChatController {
         disableCorr(true);
     }
 
-    createHost(variantName: string = '', chess960: boolean = false) {
+    createHost(variantName: string = '') {
         this.createMode = 'createHost';
         this.renderVariantsDropDown(variantName, ["bughouse"]);
         this.renderDialogHeader(createModeStr(this.createMode))
