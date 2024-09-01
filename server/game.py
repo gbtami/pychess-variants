@@ -418,6 +418,9 @@ class Game:
                         await opp_player.notify_game_end(self)
                 else:
                     await self.save_move(move)
+                    # SAN checkmate indicator created by pyffish may be wrong in Alice chess
+                    if san[-1] in ("#", "+") and not self.check:
+                        san = san[:-1]
 
                 self.steps.append(
                     {
@@ -1076,6 +1079,10 @@ class Game:
                 self.board.push(move, append=False)
                 self.check = self.board.is_checked()
                 turnColor = "black" if self.board.color == BLACK else "white"
+
+                # SAN checkmate indicator created by pyffish may be wrong in Alice chess
+                if san[-1] in ("#", "+") and not self.check:
+                    san = san[:-1]
 
                 if self.usi_format:
                     turnColor = "black" if turnColor == "white" else "white"
