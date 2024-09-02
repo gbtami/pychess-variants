@@ -1140,7 +1140,11 @@ class Game:
             steps = self.steps
 
             # To not touch self.clocks_w and self.clocks_b we are creating deep copy from clocks
-            clocks = [self.clocks[WHITE], self.clocks[BLACK]]
+            try:
+                clocks = [self.clocks[WHITE], self.clocks[BLACK]]
+            except IndexError:
+                clocks_init = (self.base * 1000 * 60) + 0 if self.base > 0 else self.inc * 1000
+                clocks = [clocks_init, clocks_init]
 
             if self.status == STARTED and self.board.ply >= 2 and (not self.corr):
                 # We have to adjust current player latest saved clock time
