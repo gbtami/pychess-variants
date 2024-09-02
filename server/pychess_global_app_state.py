@@ -148,12 +148,8 @@ class PychessGlobalAppState:
             db_collections = await self.db.list_collection_names()
 
             if "tournament_chat" not in db_collections:
-                try:
-                    await self.db.create_collection(
-                        "tournament_chat", capped=True, size=100000, max=MAX_CHAT_LINES
-                    )
-                except NotImplementedError:
-                    await self.db.create_collection("tournament_chat")
+                await self.db.create_collection("tournament_chat")
+                await self.db.tournament_chat.create_index("tid")
 
             await self.db.tournament.create_index("startsAt")
             await self.db.tournament.create_index("status")
