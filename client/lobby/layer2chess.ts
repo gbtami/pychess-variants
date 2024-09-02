@@ -14,6 +14,8 @@ export function layer2chess (lobbyCtrl: LobbyController, containerId: string): v
     const atomic = VARIANTS['atomic'];
     const kingofthehill = VARIANTS['kingofthehill'];
     const duck = VARIANTS['duck'];
+    const alice = VARIANTS['alice'];
+    const fogofwar = VARIANTS['fogofwar'];
     const threecheck = VARIANTS['3check'];
     const layer2cont = h('div#layer2chesscont.layer-2-container.fairy-grid', [
         h('button.layer-2-category generic-variant-info.generic-fairy', [
@@ -69,13 +71,13 @@ export function layer2chess (lobbyCtrl: LobbyController, containerId: string): v
             ]),
             h('button.layer-2-category', { on: { click: () => layer3variant('layer2chesscont', lobbyCtrl, 'alice') } }, [
                 h('div.variant-title-l2', [
-                    h('div.icon', { attrs: { 'data-icon': duck.icon(false) } }),
+                    h('div.icon', { attrs: { 'data-icon': alice.icon(false) } }),
                     h('h3', VARIANTS['alice'].displayName())
                 ]),
             ]),
             h('button.layer-2-category', { on: { click: () => layer3variant('layer2chesscont', lobbyCtrl, 'fogofwar') } }, [
                 h('div.variant-title-l2', [
-                    h('div.icon', { attrs: { 'data-icon': duck.icon(false) } }),
+                    h('div.icon', { attrs: { 'data-icon': fogofwar.icon(false) } }),
                     h('h3', VARIANTS['fogofwar'].displayName())
                 ]),
             ]),
