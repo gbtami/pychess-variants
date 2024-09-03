@@ -1015,6 +1015,11 @@ export class RoundController extends GameController {
             if (this.preaction) {
                 this.clocks[myclock].setTime(this.clocktimes[(this.mycolor === 'white') ? WHITE : BLACK] + increment);
             }
+
+            // Prevent sending "flag" message by opp clock via flagCallback
+            // fixes https://github.com/gbtami/pychess-variants/issues/1588
+            this.turnColor = this.oppcolor;
+
             if (this.clockOn) this.clocks[oppclock].start();
         }
 

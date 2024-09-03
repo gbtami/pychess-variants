@@ -109,7 +109,10 @@ export class GameControllerBughouse extends GameController {
 
     setState = (fen: cg.FEN, turnColor: cg.Color, move: cg.Orig[] | undefined) => {
         this.fullfen = fen;
-        this.turnColor = turnColor; // todo: probably not needed here and other places as well where its set
+
+        // this is used by clocks to prevent sending "flag" message by flagCallback when turnColor == oppcolor
+        this.turnColor = turnColor;
+
         this.lastmove = move;
         this.ffishBoard.setFen(this.fullfen);
         this.isCheck = this.ffishBoard.isCheck();
