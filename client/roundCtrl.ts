@@ -1093,7 +1093,8 @@ export class RoundController extends GameController {
         const timeLeft = Math.max(0, this.expiStart - Date.now() + this.firstmovetime );
         // console.log("renderExpiration()", position, timeLeft);
         if (timeLeft === 0 || this.status >= 0) {
-            this.expirations[expi] = patch(this.expirations[expi], h('div#expiration-' + position));
+            this.expirations[0] = patch(this.expirations[0], h('div#expiration-top'));
+            this.expirations[1] = patch(this.expirations[1], h('div#expiration-bottom'));
         } else {
             const emerg = (this.turnColor === this.mycolor && timeLeft < 8000);
             if (!rang && emerg) {
