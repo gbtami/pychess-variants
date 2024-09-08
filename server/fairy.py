@@ -2,7 +2,7 @@ from __future__ import annotations
 
 # -*- coding: utf-8 -*-
 from ataxx import ATAXX_FENS
-from const import CATEGORIES
+from const import CATEGORIES, MANCHU_R_FEN
 
 import logging
 import re
@@ -82,8 +82,9 @@ class FairyBoard:
             self.notation = sf.NOTATION_SHOGI_HODGES_NUMBER
         elif self.variant in (
             "xiangqi",
+            "manchu",
             "minixiangqi",
-        ):  # XIANGQI_WXF can't handle Manchu banner!
+        ):
             self.notation = sf.NOTATION_XIANGQI_WXF
         else:
             self.notation = sf.NOTATION_SAN
@@ -99,6 +100,8 @@ class FairyBoard:
 
         if variant == "bughouse":
             return new_fen + " | " + new_fen
+        elif variant == "manchu":
+            return MANCHU_R_FEN
         else:
             return new_fen
 
