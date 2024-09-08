@@ -671,7 +671,8 @@ export const VARIANTS: Record<string, Variant> = {
 
     manchu: variant({
         name: "manchu", tooltip: "Xiangqi variant where one side has a chariot that can also move as a cannon or horse.",
-        startFen: "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/9/9/M1BAKAB2 w - - 0 1",
+        // Manchu+R proved to be balanced
+        startFen: "m1bakab1r/9/9/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1",
         icon: "{",
         boardFamily: "xiangqi9x10", pieceFamily: "xiangqi",
         notation: cg.Notation.XIANGQI_ARBNUM,
@@ -680,7 +681,7 @@ export const VARIANTS: Record<string, Variant> = {
         promotion: { type: "regular", roles: [] },
         alternateStart: {
             '': '',
-            'Manchu+R': 'm1bakab1r/9/9/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1',
+            'Original Manchu': 'rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/9/9/M1BAKAB2 w - - 0 1',
         },
     }),
 

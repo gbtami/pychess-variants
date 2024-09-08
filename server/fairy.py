@@ -2,7 +2,7 @@ from __future__ import annotations
 
 # -*- coding: utf-8 -*-
 from ataxx import ATAXX_FENS
-from const import CATEGORIES
+from const import CATEGORIES, MANCHU_R_FEN
 
 import logging
 import re
@@ -100,6 +100,8 @@ class FairyBoard:
 
         if variant == "bughouse":
             return new_fen + " | " + new_fen
+        elif variant == "manchu":
+            return MANCHU_R_FEN
         else:
             return new_fen
 
