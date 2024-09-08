@@ -82,8 +82,9 @@ class FairyBoard:
             self.notation = sf.NOTATION_SHOGI_HODGES_NUMBER
         elif self.variant in (
             "xiangqi",
+            "manchu",
             "minixiangqi",
-        ):  # XIANGQI_WXF can't handle Manchu banner!
+        ):
             self.notation = sf.NOTATION_XIANGQI_WXF
         else:
             self.notation = sf.NOTATION_SAN
