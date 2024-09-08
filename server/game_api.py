@@ -26,8 +26,13 @@ GAME_PAGE_SIZE = 12
 async def get_variant_stats(request):
     app_state = get_app_state(request.app)
 
-    cur_period = datetime.now().isoformat()[:7]
+    request_period = request.rel_url.query.get("period")
+    request_period = "202408"
+    if request_period is not None:
+        year, month = int(request_period[:4]), int(request_period[4:])
 
+    cur_period = datetime.now().isoformat()[:7]
+    print(cur_period)
     if "/humans" in request.path:
         stats = app_state.stats_humans
     else:
@@ -36,39 +41,48 @@ async def get_variant_stats(request):
     if cur_period in stats:
         series = stats[cur_period]
     else:
+        match_cond = {}
+
+        if request_period is not None:
+            match_cond["$expr"] = {
+                "$and": [
+                    {"$eq": [{"$month": "$d"}, month]},
+                    {"$eq": [{"$year": "$d"}, year]},
+                ]
+            }
+
         pipeline = [
             {
                 "$group": {
                     "_id": {
-                        "period": {"$dateToString": {"format": "%Y-%m", "date": "$d"}},
+                        "p": {"$dateToString": {"format": "%Y%m", "date": "$d"}},
                         "v": "$v",
-                        "960": "$z",
+                        "9": "$z",
                     },
-                    "count": {"$sum": 1},
+                    "c": {"$sum": 1},
                 }
             },
             {"$sort": {"_id": 1}},
         ]
+
         if "/humans" in request.path:
-            pipeline.insert(
-                0,
-                {
-                    "$match": {
-                        "us": {"$not": {"$elemMatch": {"$in": ["Fairy-Stockfish", "Random-Mover"]}}}
-                    }
-                },
-            )
+            match_cond = {"us": {"$not": {"$elemMatch": {"$in": ["Fairy-Stockfish", "Random-Mover"]}}}}
+
+        if len(match_cond) > 0:
+            pipeline.insert(0, {"$match": match_cond})
+
         cursor = app_state.db.game.aggregate(pipeline)
 
         variant_counts = {variant: [] for variant in VARIANTS}
 
         period = ""
         async for doc in cursor:
-            # print(doc)
-            if doc["_id"]["period"] < "2019-07":
+            print(doc)
+            await app_state.db.stats.insert_one(doc)
+            if doc["_id"]["p"] < "201907":
                 continue
-            if doc["_id"]["period"] != period:
-                period = doc["_id"]["period"]
+            if doc["_id"]["p"] != period:
+                period = doc["_id"]["p"]
                 # skip current period
                 if period == cur_period:
                     break
@@ -76,13 +90,13 @@ async def get_variant_stats(request):
                 for variant in VARIANTS:
                     variant_counts[variant].append(0)
 
-            is_960 = doc["_id"].get("960", False)
+            is_960 = doc["_id"].get("9", False)
             variant = C2V[doc["_id"]["v"]] + ("960" if is_960 else "")
-            cnt = doc["count"]
+            cnt = doc["c"]
             try:
                 variant_counts[variant][-1] = cnt
             except KeyError:
-                log.error("support of variant discontinued!")
+                log.error("Support of variant %s discontinued!", variant)
 
         series = [{"name": variant, "data": variant_counts[variant]} for variant in VARIANTS]
 
