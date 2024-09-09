@@ -248,7 +248,6 @@ def perft(board, depth, root):
 # PYTHONPATH=server python3 server/alice.py
 if __name__ == "__main__":
     sf.set_option("VariantPath", "variants.ini")
-    FEN = "rnbqkbnr/pppppppp/8/8/8/8/PP1PPPPP/RNBQKBNR b KQkq - 0 1 | 8/8/8/8/2P5/8/8/8 b - - 0 1"
     board = AliceBoard()
     board.push("c2c4")
     board.push("d7d5")
