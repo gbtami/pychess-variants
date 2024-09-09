@@ -249,7 +249,4 @@ def perft(board, depth, root):
 if __name__ == "__main__":
     sf.set_option("VariantPath", "variants.ini")
     board = AliceBoard()
-    board.push("c2c4")
-    board.push("d7d5")
-    board.push("c4d5")
-    perft(board, 1, 1)
+    perft(board, 5, 1)
