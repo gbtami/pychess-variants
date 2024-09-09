@@ -3,7 +3,7 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
-from datetime import datetime
+from datetime import date, datetime, timedelta
 from functools import partial
 
 import aiohttp_session
@@ -23,80 +23,116 @@ log = logging.getLogger(__name__)
 GAME_PAGE_SIZE = 12
 
 
+async def variant_counts_aggregation(app_state, humans, query_period=None):
+    pipeline = [
+        {
+            "$group": {
+                "_id": {
+                    "p": {"$dateToString": {"format": "%Y%m", "date": "$d"}},
+                    "v": "$v",
+                    "z": "$z",
+                },
+                "c": {"$sum": 1},
+            }
+        },
+        {"$sort": {"_id": 1}},
+    ]
+
+    match_cond = {}
+
+    if query_period is not None:
+        year, month = int(query_period[:4]), int(query_period[4:])
+        match_cond["$expr"] = {
+            "$and": [
+                {"$eq": [{"$month": "$d"}, month]},
+                {"$eq": [{"$year": "$d"}, year]},
+            ]
+        }
+
+    if humans:
+        humans_cond = {"us": {"$not": {"$elemMatch": {"$in": ["Fairy-Stockfish", "Random-Mover"]}}}}
+        if query_period is None:
+            match_cond = humans_cond
+        else:
+            match_cond["$expr"]["$and"].append(humans_cond)
+
+    if len(match_cond) > 0:
+        pipeline.insert(0, {"$match": match_cond})
+
+    cursor = app_state.db.game.aggregate(pipeline)
+
+    docs = []
+
+    async for doc in cursor:
+        print(doc)
+        if doc["_id"]["p"] < "201907":
+            continue
+        docs.append(doc)
+
+    if docs:
+        if humans:
+            await app_state.db.stats_humans.insert_many(docs)
+        else:
+            await app_state.db.stats.insert_many(docs)
+
+    return docs
+
+
+def variant_counts_from_docs(variant_counts, docs):
+    period = ""
+    for doc in docs:
+        print(doc)
+        if doc["_id"]["p"] != period:
+            period = doc["_id"]["p"]
+            for variant in VARIANTS:
+                variant_counts[variant].append(0)
+
+        variant = C2V[doc["_id"]["v"]] + ("960" if doc["_id"].get("z", 0) else "")
+        try:
+            variant_counts[variant][-1] = doc["c"]
+        except KeyError:
+            log.error("Support of variant %s discontinued!", variant)
+
+
 async def get_variant_stats(request):
     app_state = get_app_state(request.app)
+    humans = "/humans" in request.path
+    stats = app_state.stats_humans if humans else app_state.stats
 
-    request_period = request.rel_url.query.get("period")
-    request_period = "202408"
-    if request_period is not None:
-        year, month = int(request_period[:4]), int(request_period[4:])
+    first_day_of_current_month = date.today().replace(day=1)
+    last_day_of_previous_month = first_day_of_current_month - timedelta(days=1)
 
-    cur_period = datetime.now().isoformat()[:7]
+    cur_period = last_day_of_previous_month.isoformat()[:7].replace("-", "")
     print(cur_period)
-    if "/humans" in request.path:
-        stats = app_state.stats_humans
-    else:
-        stats = app_state.stats
 
     if cur_period in stats:
         series = stats[cur_period]
     else:
-        match_cond = {}
-
-        if request_period is not None:
-            match_cond["$expr"] = {
-                "$and": [
-                    {"$eq": [{"$month": "$d"}, month]},
-                    {"$eq": [{"$year": "$d"}, year]},
-                ]
-            }
-
-        pipeline = [
-            {
-                "$group": {
-                    "_id": {
-                        "p": {"$dateToString": {"format": "%Y%m", "date": "$d"}},
-                        "v": "$v",
-                        "9": "$z",
-                    },
-                    "c": {"$sum": 1},
-                }
-            },
-            {"$sort": {"_id": 1}},
-        ]
-
-        if "/humans" in request.path:
-            match_cond = {"us": {"$not": {"$elemMatch": {"$in": ["Fairy-Stockfish", "Random-Mover"]}}}}
-
-        if len(match_cond) > 0:
-            pipeline.insert(0, {"$match": match_cond})
-
-        cursor = app_state.db.game.aggregate(pipeline)
-
         variant_counts = {variant: [] for variant in VARIANTS}
+        if humans:
+            n = await app_state.db.stats_humans.count_documents({})
+        else:
+            n = await app_state.db.stats.count_documents({})
 
-        period = ""
-        async for doc in cursor:
-            print(doc)
-            await app_state.db.stats.insert_one(doc)
-            if doc["_id"]["p"] < "201907":
-                continue
-            if doc["_id"]["p"] != period:
-                period = doc["_id"]["p"]
-                # skip current period
-                if period == cur_period:
-                    break
+        if n > 0:
+            # We already have some stats
+            if humans:
+                cursor = app_state.db.stats_humans.find()
+            else:
+                cursor = app_state.db.stats.find()
 
-                for variant in VARIANTS:
-                    variant_counts[variant].append(0)
+            docs = await cursor.to_list(n)
+            variant_counts_from_docs(variant_counts, docs)
 
-            is_960 = doc["_id"].get("9", False)
-            variant = C2V[doc["_id"]["v"]] + ("960" if is_960 else "")
-            cnt = doc["c"]
-            try:
-                variant_counts[variant][-1] = cnt
-            except KeyError:
-                log.error("Support of variant %s discontinued!", variant)
+            doc = await app_state.db.stats.find_one({"_id": {"p": cur_period}})
+            # If the last period is missing from the stats we call the aggregation
+            if doc is None:
+                docs = await variant_counts_aggregation(app_state, humans, cur_period)
+                variant_counts_from_docs(variant_counts, docs)
+        else:
+            # Call the aggregation on the whole games collection
+            docs = await variant_counts_aggregation(app_state, humans)
+            variant_counts_from_docs(variant_counts, docs)
 
         series = [{"name": variant, "data": variant_counts[variant]} for variant in VARIANTS]
 
