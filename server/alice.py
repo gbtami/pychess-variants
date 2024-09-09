@@ -1,4 +1,5 @@
 from __future__ import annotations
+from time import time
 
 # -*- coding: utf-8 -*-
 from chess import Board, Move, D1, D8, F1, F8, square_file
@@ -214,3 +215,40 @@ class AliceBoard:
         print("----------------")
         print(self.fens[1])
         print(self.boards[1].unicode(invert_color=True, empty_square="_"))
+
+
+def do_perft(board, depth, root):
+    nodes = 0
+    if depth == 0:
+        return 1
+
+    for move in board.legal_moves():
+        board.push(move)
+        count = do_perft(board, depth - 1, root - 1)
+        nodes += count
+        board.pop()
+        if root > 0:
+            print("%8s %10d %10d" % (move, count, nodes))
+
+    return nodes
+
+
+def perft(board, depth, root):
+    for i in range(depth):
+        start_time = time()
+        nodes = do_perft(board, i + 1, root)
+        ttime = time() - start_time
+        print(
+            "%2d %10d %5.2f %12.2fnps"
+            % (i + 1, nodes, ttime, nodes / ttime if ttime > 0 else nodes)
+        )
+
+
+if __name__ == "__main__":
+    sf.set_option("VariantPath", "variants.ini")
+    FEN = "rnbqkbnr/pppppppp/8/8/8/8/PP1PPPPP/RNBQKBNR b KQkq - 0 1 | 8/8/8/8/2P5/8/8/8 b - - 0 1"
+    board = AliceBoard()
+    board.push("c2c4")
+    board.push("d7d5")
+    board.push("c4d5")
+    perft(board, 1, 1)
