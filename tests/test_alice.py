@@ -3,7 +3,7 @@
 import unittest
 
 import pyffish as sf
-from chess import A1, C1, D1, E1, F1, F8, D8, KING, QUEEN, ROOK
+from chess import A1, C1, D1, E1, F1, A8, B8, C8, D8, E8, F8, G8, H8, KING, QUEEN, ROOK
 
 from alice import AliceBoard, START_FEN_0, START_FEN_1
 
@@ -197,6 +197,48 @@ class AliceTestCase(unittest.TestCase):
         # After 5...Rc8
         self.assertIsNone(board.boards[0].piece_at(D8))
         self.assertEqual(board.boards[1].piece_type_at(D8), QUEEN)
+
+    def test_castling(self):
+        FEN = "r3k2r/1pp1pp2/4P3/2PP4/6n1/7p/5PPP/R3K2R b KQkq - 0 13 | 1q6/3b2b1/P1np2p1/8/8/2N1BN2/1pQ5/5B2 b - - 0 6"
+        board = AliceBoard(initial_fen=FEN)
+
+        move = "e8c8"
+        board.get_san(move)
+        board.legal_moves()
+        board.push(move)
+
+        self.assertIsNone(board.boards[0].piece_at(A8))
+        self.assertIsNone(board.boards[0].piece_at(B8))
+        self.assertIsNone(board.boards[0].piece_at(C8))
+        self.assertIsNone(board.boards[0].piece_at(D8))
+        self.assertIsNone(board.boards[0].piece_at(E8))
+        self.assertIsNone(board.boards[0].piece_at(F8))
+        self.assertIsNone(board.boards[0].piece_at(G8))
+        self.assertEqual(board.boards[1].piece_type_at(C8), KING)
+        self.assertEqual(board.boards[1].piece_type_at(D8), ROOK)
+        self.assertEqual(board.boards[0].piece_type_at(H8), ROOK)
+
+        board.pop()
+        self.assertEqual(board.alice_fen, FEN)
+
+        move = "e8g8"
+        board.get_san(move)
+        board.legal_moves()
+        board.push(move)
+
+        self.assertIsNone(board.boards[0].piece_at(B8))
+        self.assertIsNone(board.boards[0].piece_at(C8))
+        self.assertIsNone(board.boards[0].piece_at(D8))
+        self.assertIsNone(board.boards[0].piece_at(E8))
+        self.assertIsNone(board.boards[0].piece_at(F8))
+        self.assertIsNone(board.boards[0].piece_at(G8))
+        self.assertIsNone(board.boards[0].piece_at(H8))
+        self.assertEqual(board.boards[1].piece_type_at(G8), KING)
+        self.assertEqual(board.boards[0].piece_type_at(A8), ROOK)
+        self.assertEqual(board.boards[1].piece_type_at(F8), ROOK)
+
+        board.pop()
+        self.assertEqual(board.alice_fen, FEN)
 
 
 if __name__ == "__main__":
