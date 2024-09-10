@@ -431,7 +431,7 @@ TRANSLATED_VARIANT_NAMES = {
     "torishogi": _("Tori Shogi"),
     "cannonshogi": _("Cannon Shogi"),
     "xiangqi": _("Xiangqi"),
-    "manchu": _("Manchu"),
+    "manchu": _("Manchu+"),
     "janggi": _("Janggi"),
     "minixiangqi": _("Minixiangqi"),
     "capablanca": _("Capablanca"),

@@ -734,7 +734,7 @@ def sanitize_fen(variant, initial_fen, chess960):
     if variant == "fogofwar" and initial_fen == STANDARD_FEN:
         return True, initial_fen
 
-    if variant == "manchu" and initial_fen == MANCHU_R_FEN:
+    if variant == "manchu" and initial_fen in (MANCHU_FEN, MANCHU_R_FEN):
         return True, initial_fen
 
     sf_validate = sf.validate_fen(initial_fen, variant, chess960)
