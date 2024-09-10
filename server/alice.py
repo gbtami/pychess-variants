@@ -1,6 +1,12 @@
 from __future__ import annotations
 from time import time
 
+from collections.abc import Iterator
+import multiprocessing
+import multiprocessing.pool
+import functools
+import copy
+
 # -*- coding: utf-8 -*-
 from chess import Board, Move, D1, D8, F1, F8, square_file
 from fairy import BLACK, WHITE
@@ -219,14 +225,14 @@ class AliceBoard:
         print(self.boards[1].unicode(invert_color=True, empty_square="_"))
 
 
-def do_perft(board, depth, root):
+def do_perft(depth, root, board):
     nodes = 0
     if depth == 0:
         return 1
 
     for move in board.legal_moves():
         board.push(move)
-        count = do_perft(board, depth - 1, root - 1)
+        count = do_perft(depth - 1, root - 1, board)
         nodes += count
         board.pop()
 
@@ -236,10 +242,28 @@ def do_perft(board, depth, root):
     return nodes
 
 
-def perft(board, depth, root):
+def parallel_perft(pool: multiprocessing.pool.Pool, depth, root, board):
+    if depth == 1:
+        return len(board.legal_moves())
+    elif depth > 1:
+
+        def successors(board) -> Iterator[AliceBoard()]:
+            for move in board.legal_moves():
+                board_after = copy.deepcopy(board)
+                board_after.push(move)
+                yield board_after
+
+        return sum(
+            pool.imap_unordered(functools.partial(do_perft, depth - 1, root), successors(board))
+        )
+    else:
+        return 1
+
+
+def perft(board, depth, root, pool: multiprocessing.pool.Pool):
     for i in range(depth):
         start_time = time()
-        nodes = do_perft(board, i + 1, root)
+        nodes = parallel_perft(pool, i + 1, root, board)
         ttime = time() - start_time
         print(
             "%2d %10d %5.2f %12.2fnps"
@@ -256,4 +280,6 @@ if __name__ == "__main__":
     # perft(board, 2, 1)
 
     board = AliceBoard()
-    perft(board, 5, 1)
+    # perft(board, 5, 1)
+    pool = multiprocessing.Pool(6)
+    perft(board, 5, 1, pool)
