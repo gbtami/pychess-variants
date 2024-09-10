@@ -1,4 +1,11 @@
 from __future__ import annotations
+from time import time
+
+from collections.abc import Iterator
+import multiprocessing
+import multiprocessing.pool
+import functools
+import copy
 
 # -*- coding: utf-8 -*-
 from chess import Board, Move, D1, D8, F1, F8, square_file
@@ -68,13 +75,15 @@ class AliceBoard:
         self.fens[board_id] = self.boards[board_id].fen()
         self.fens[1 - board_id] = self.boards[1 - board_id].fen()
 
+        self.color = 1 - self.color
+
         return castling_move
 
     def undo_move(self, board_id, move, castling_move):
         # Remove the castled rook and put it to the original board
         if castling_move:
             a_side = 0 if square_file(move.to_square) < square_file(move.from_square) else 1
-            rook_to_square = CASTLED_ROOK_SQUARE[a_side][self.color]
+            rook_to_square = CASTLED_ROOK_SQUARE[a_side][1 - self.color]
             rook = super(Board, self.boards[1 - board_id]).remove_piece_at(rook_to_square)
             super(Board, self.boards[board_id]).set_piece_at(rook_to_square, rook)
 
@@ -88,11 +97,13 @@ class AliceBoard:
         self.fens[board_id] = self.boards[board_id].fen()
         self.fens[1 - board_id] = self.boards[1 - board_id].fen()
 
+        self.color = 1 - self.color
+
     def push(self, uci, append=True):
         move = Move.from_uci(uci)
         board_id = 0 if self.boards[0].piece_at(move.from_square) else 1
         castling_move = self.boards[board_id].is_castling(move)
-        # print("push()", board_id, uci)
+        # print("push()", board_id, uci, castling_move)
         self.board_id_stack.append(board_id)
 
         self.play_move(board_id, move, castling_move)
@@ -102,7 +113,6 @@ class AliceBoard:
             self.move_stack.append(uci)
             self.castling_move_stack.append(castling_move)
             self.ply += 1
-        self.color = 1 - self.color
         self.fen = self.alice_fen
 
     def pop(self):
@@ -111,12 +121,11 @@ class AliceBoard:
 
         board_id = self.board_id_stack.pop()
         castling_move = self.castling_move_stack.pop()
-        # print("pop()", board, uci)
+        # print("pop()", board_id, uci)
 
         self.undo_move(board_id, move, castling_move)
 
         self.ply -= 1
-        self.color = 1 - self.color
         # self.print_pos()
         self.fen = self.alice_fen
 
@@ -214,3 +223,63 @@ class AliceBoard:
         print("----------------")
         print(self.fens[1])
         print(self.boards[1].unicode(invert_color=True, empty_square="_"))
+
+
+def do_perft(depth, root, board):
+    nodes = 0
+    if depth == 0:
+        return 1
+
+    for move in board.legal_moves():
+        board.push(move)
+        count = do_perft(depth - 1, root - 1, board)
+        nodes += count
+        board.pop()
+
+        if root > 0:
+            print("%8s %10d %10d" % (move, count, nodes))
+
+    return nodes
+
+
+def parallel_perft(pool: multiprocessing.pool.Pool, depth, root, board):
+    if depth == 1:
+        return len(board.legal_moves())
+    elif depth > 1:
+
+        def successors(board) -> Iterator[AliceBoard()]:
+            for move in board.legal_moves():
+                board_after = copy.deepcopy(board)
+                board_after.push(move)
+                yield board_after
+
+        return sum(
+            pool.imap_unordered(functools.partial(do_perft, depth - 1, root), successors(board))
+        )
+    else:
+        return 1
+
+
+def perft(board, depth, root, pool: multiprocessing.pool.Pool):
+    for i in range(depth):
+        start_time = time()
+        nodes = parallel_perft(pool, i + 1, root, board)
+        ttime = time() - start_time
+        print(
+            "%2d %10d %5.2f %12.2fnps"
+            % (i + 1, nodes, ttime, nodes / ttime if ttime > 0 else nodes)
+        )
+
+
+# You can run perft like this
+# PYTHONPATH=server python3 server/alice.py
+if __name__ == "__main__":
+    sf.set_option("VariantPath", "variants.ini")
+    # FEN = "r3k2r/1pp1pp2/4P3/2PP4/6n1/7p/5PPP/R3K2R b KQkq - 0 13 | 1q6/3b2b1/P1np2p1/8/8/2N1BN2/1pQ5/5B2 b - - 0 6"
+    # board = AliceBoard(initial_fen=FEN)
+    # perft(board, 2, 1)
+
+    board = AliceBoard()
+    # perft(board, 5, 1)
+    pool = multiprocessing.Pool(6)
+    perft(board, 5, 1, pool)

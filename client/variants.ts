@@ -670,18 +670,18 @@ export const VARIANTS: Record<string, Variant> = {
     }),
 
     manchu: variant({
-        name: "manchu", tooltip: "Xiangqi variant where one side has a chariot that can also move as a cannon or horse.",
-        startFen: "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/9/9/M1BAKAB2 w - - 0 1",
+        name: "manchu", displayName: "manchu+", tooltip: "Xiangqi variant where one side has a chariot that can also move as a cannon or horse.",
+        // Manchu+R proved to be balanced
+        startFen: "m1bakab1r/9/9/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1",
         icon: "{",
         boardFamily: "xiangqi9x10", pieceFamily: "xiangqi",
-        // XIANGQI_WXF can't handle Manchu banner piece!
-        // so notation have to remain the default cg.Notation.ALGEBRAIC
+        notation: cg.Notation.XIANGQI_ARBNUM,
         colors: { first: "Red", second: "Black" },
-        pieceRow: { white: ["k", "a", "m", "b", "p"], black: ["k", "a", "c", "r", "b", "n", "p"] },
+        pieceRow: { white: ["k", "a", "c", "r", "b", "n", "p"], black: ["k", "a", "m", "r", "b", "p"] },
         promotion: { type: "regular", roles: [] },
         alternateStart: {
             '': '',
-            'Manchu+R': 'm1bakab1r/9/9/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1',
+            'Original Manchu': 'rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/9/9/M1BAKAB2 w - - 0 1',
         },
     }),
 
