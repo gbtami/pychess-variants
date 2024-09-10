@@ -7,7 +7,7 @@ import logging
 from const import TYPE_CHECKING
 
 import random
-from datetime import datetime, timezone, timedelta
+from datetime import date, datetime, timezone, timedelta
 from functools import partial
 
 from aiohttp import web
@@ -27,6 +27,7 @@ from const import (
     IMPORTED,
     CONSERVATIVE_CAPA_FEN,
     LOOKING_GLASS_ALICE_FEN,
+    MANCHU_FEN,
     MANCHU_R_FEN,
     T_STARTED,
 )
@@ -100,6 +101,8 @@ async def load_game(app_state: PychessGlobalAppState, game_id):
     bplayer = await app_state.users.get(bp)
 
     initial_fen = doc.get("if")
+    if variant == "manchu" and initial_fen is None and doc["d"].date() < date(2024, 9, 9):
+        initial_fen = MANCHU_FEN
 
     # Old USI Shogi games saved using usi2uci() need special handling
     usi_format = variant.endswith("shogi") and doc.get("uci") is None
