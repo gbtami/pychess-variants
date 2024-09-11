@@ -134,7 +134,7 @@ function renderGames(model: PyChessModel, games: Game[]) {
                     h('div.info-result', {
                         class: {
                             "win": isWinClass(model, game),
-                            "lose": !isWinClass(model, game),
+                            "lose": game["s"] > 0 && !isWinClass(model, game),
                         }}, result(variant, game["s"], game["r"])
                     ),
                 ]),
