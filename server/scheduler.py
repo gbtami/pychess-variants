@@ -63,6 +63,15 @@ MONTHLY_VARIANTS = (
     "mansindam",
 )
 
+NEW_MONTHLY_VARIANTS = (
+    "ataxx",
+    "cannonshogi",
+    "dragon",
+    "khans",
+    "alice",
+    "fogofwar",
+)
+
 # Old MONTHLY tournaments, needed to create translated tourney names
 PAUSED_MONTHLY_VARIANTS = ("shinobi", "manchu", "duck", "capahouse960")
 
@@ -75,6 +84,10 @@ WEEKLY_VARIANTS = (
 
 # Monthly Variant Tournaments need different TC
 TC_MONTHLY_VARIANTS: dict[str, tuple[int, int, int]] = {v: (3, 2, 0) for v in MONTHLY_VARIANTS}
+
+TC_MONTHLY_VARIANTS["alice"] = (5, 3, 0)
+TC_MONTHLY_VARIANTS["fogofwar"] = (5, 3, 0)
+TC_MONTHLY_VARIANTS["ataxx"] = (3, 0, 0)
 
 for v in CATEGORIES["fairy"]:
     TC_MONTHLY_VARIANTS[v] = (3, 3, 0)
@@ -90,6 +103,7 @@ TC_MONTHLY_VARIANTS["janggi"] = (5, 15, 1)
 
 for v in CATEGORIES["shogi"]:
     TC_MONTHLY_VARIANTS[v] = (2, 15, 1)
+TC_MONTHLY_VARIANTS["cannonshogi"] = (5, 15, 1)
 
 
 def go_month(orig_date, month=1):
@@ -147,6 +161,19 @@ class Scheduler:
         SEA = self.get_next_variant(self.now.month, ("sittuyin", "cambodian"))
         plans = []
         number_of_days = calendar.monthrange(self.now.year, self.now.month)[1]
+
+        for i, v in enumerate(NEW_MONTHLY_VARIANTS):
+            if i + 1 > number_of_days:
+                break
+            is_960 = v.endswith("960")
+            base, inc, byo = TC_MONTHLY_VARIANTS[v]
+            try:
+                date = dt.datetime(self.now.year, self.now.month, i + 1, tzinfo=dt.timezone.utc)
+            except ValueError as e:
+                log.error(e, exc_info=True)
+                break
+            plans.append(Plan(MONTHLY, date, 14, v.rstrip("960"), is_960, base, inc, byo, 90))
+
         for i, v in enumerate(MONTHLY_VARIANTS):
             if i + 1 > number_of_days:
                 break
@@ -174,7 +201,7 @@ class Scheduler:
             Plan(MONTHLY, self.fourth_monthly(SATURDAY), 12, "makpong", False, 3, 2, 0, 90),
             # Plan(WEEKLY, self.next_day_of_week(FRIDAY), 18, "crazyhouse", True, 3, 0, 0, 60),  # 960
             # Plan(WEEKLY, self.next_day_of_week(TUESDAY), 18, "atomic", True, 3, 0, 0, 60),  # 960
-            Plan(WEEKLY, self.next_day_of_week(THURSDAY), 14, "makruk", False, 3, 2, 0, 90),
+            Plan(WEEKLY, self.next_day_of_week(THURSDAY), 12, "makruk", False, 3, 2, 0, 90),
             Plan(WEEKLY, self.next_day_of_week(SUNDAY), 18, "duck", False, 3, 5, 0, 90),
         ]
 

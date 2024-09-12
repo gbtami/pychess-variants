@@ -41,6 +41,7 @@ from lobby import Lobby
 from scheduler import (
     MONTHLY_VARIANTS,
     SEATURDAY,
+    NEW_MONTHLY_VARIANTS,
     PAUSED_MONTHLY_VARIANTS,
     WEEKLY_VARIANTS,
     SHIELDS,
@@ -348,6 +349,7 @@ class PychessGlobalAppState:
             for variant in VARIANTS + PAUSED_MONTHLY_VARIANTS:
                 if (
                     variant in MONTHLY_VARIANTS
+                    or variant in NEW_MONTHLY_VARIANTS
                     or variant in SEATURDAY
                     or variant in PAUSED_MONTHLY_VARIANTS
                 ):
