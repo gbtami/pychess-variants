@@ -42,19 +42,16 @@ async def variant_counts_aggregation(app_state, humans, query_period=None):
 
     if query_period is not None:
         year, month = int(query_period[:4]), int(query_period[4:])
-        match_cond["$expr"] = {
-            "$and": [
-                {"$eq": [{"$month": "$d"}, month]},
-                {"$eq": [{"$year": "$d"}, year]},
-            ]
-        }
+        match_cond["$expr"] = {"$and": [
+            {"$eq": [{"$month": "$d"}, month]},
+            {"$eq": [{"$year": "$d"}, year]},
+        ]}
 
     if humans:
-        humans_cond = {"us": {"$not": {"$elemMatch": {"$in": ["Fairy-Stockfish", "Random-Mover"]}}}}
-        if query_period is None:
-            match_cond = humans_cond
-        else:
-            match_cond["$expr"]["$and"].append(humans_cond)
+        match_cond["$and"] = [
+            {"us.0": {"$nin": ["Fairy-Stockfish", "Random-Mover"]}},
+            {"us.1": {"$nin": ["Fairy-Stockfish", "Random-Mover"]}},
+        ]
 
     if len(match_cond) > 0:
         pipeline.insert(0, {"$match": match_cond})
@@ -63,10 +60,17 @@ async def variant_counts_aggregation(app_state, humans, query_period=None):
 
     docs = []
 
+    cur_period = datetime.now().isoformat()[:7].replace("-", "")
+
     async for doc in cursor:
-        print(doc)
-        if doc["_id"]["p"] < "201907":
+        # print(doc)
+        period = doc["_id"]["p"]
+        if period < "201907":
             continue
+        # skip current period
+        if period == cur_period:
+            break
+
         docs.append(doc)
 
     if docs:
@@ -81,7 +85,7 @@ async def variant_counts_aggregation(app_state, humans, query_period=None):
 def variant_counts_from_docs(variant_counts, docs):
     period = ""
     for doc in docs:
-        print(doc)
+        # print(doc)
         if doc["_id"]["p"] != period:
             period = doc["_id"]["p"]
             for variant in VARIANTS:
@@ -103,7 +107,7 @@ async def get_variant_stats(request):
     last_day_of_previous_month = first_day_of_current_month - timedelta(days=1)
 
     cur_period = last_day_of_previous_month.isoformat()[:7].replace("-", "")
-    print(cur_period)
+    # print(cur_period)
 
     if cur_period in stats:
         series = stats[cur_period]
@@ -124,9 +128,8 @@ async def get_variant_stats(request):
             docs = await cursor.to_list(n)
             variant_counts_from_docs(variant_counts, docs)
 
-            doc = await app_state.db.stats.find_one({"_id": {"p": cur_period}})
-            # If the last period is missing from the stats we call the aggregation
-            if doc is None:
+            # If cur_period is missing from the stats we call the aggregation
+            if docs[-1]["_id"]["p"] != cur_period:
                 docs = await variant_counts_aggregation(app_state, humans, cur_period)
                 variant_counts_from_docs(variant_counts, docs)
         else:
