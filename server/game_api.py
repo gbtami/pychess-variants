@@ -42,10 +42,12 @@ async def variant_counts_aggregation(app_state, humans, query_period=None):
 
     if query_period is not None:
         year, month = int(query_period[:4]), int(query_period[4:])
-        match_cond["$expr"] = {"$and": [
-            {"$eq": [{"$month": "$d"}, month]},
-            {"$eq": [{"$year": "$d"}, year]},
-        ]}
+        match_cond["$expr"] = {
+            "$and": [
+                {"$eq": [{"$month": "$d"}, month]},
+                {"$eq": [{"$year": "$d"}, year]},
+            ]
+        }
 
     if humans:
         match_cond["$and"] = [
