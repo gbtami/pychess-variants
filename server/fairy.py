@@ -62,7 +62,7 @@ class FairyBoard:
         self.chess960 = chess960
         self.sfen = False
         self.show_promoted = variant in ("makruk", "makpong", "cambodian", "bughouse")
-        self.legal_moves_need_history = variant in ("Janggi",)
+        self.legal_moves_need_history = variant in ("janggi",)
         self.nnue = initial_fen == ""
         self.initial_fen = (
             initial_fen
@@ -551,3 +551,22 @@ if __name__ == "__main__":
     print(sf.version())
     print(sf.info())
     print(sf.variants())
+
+    board = FairyBoard("janggi", initial_fen="1nba2b2/4ka1R1/1cc6/p1p1p1p1p/9/9/P1P1P1PP1/1C5C1/4AK3/RNBA2BN1 w - - 0 1")
+    for move in (
+        "h9f9",
+        "e9f9",
+        "f2f2",
+    ):
+        print("push move", move, board.get_san(move))
+        if board.move_stack:
+            print(
+                "is_checked(), insuff material, draw?",
+                board.is_checked(),
+                board.insufficient_material(),
+                board.is_claimable_draw(),
+            )
+        board.push(move)
+        board.print_pos()
+        print(board.fen)
+        print(board.legal_moves())
