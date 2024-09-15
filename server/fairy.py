@@ -552,7 +552,10 @@ if __name__ == "__main__":
     print(sf.info())
     print(sf.variants())
 
-    board = FairyBoard("janggi", initial_fen="1nba2b2/4ka1R1/1cc6/p1p1p1p1p/9/9/P1P1P1PP1/1C5C1/4AK3/RNBA2BN1 w - - 0 1")
+    board = FairyBoard(
+        "janggi",
+        initial_fen="1nba2b2/4ka1R1/1cc6/p1p1p1p1p/9/9/P1P1P1PP1/1C5C1/4AK3/RNBA2BN1 w - - 0 1",
+    )
     for move in (
         "h9f9",
         "e9f9",
