@@ -4,6 +4,7 @@ import * as idb from 'idb-keyval';
 
 import { Settings } from "./settings";
 import { _, ngettext } from './i18n';
+import { Variant } from './variants';
 
 export function radioList(settings: Settings<string>, name: string, options: { [key: string]: string }, onchange: (evt: Event, key: string) => void): VNode[] {
     const result: VNode[] = [];
@@ -138,6 +139,15 @@ export function timeControlStr(minutes: number | string, increment = 0, byoyomiP
         case 0 : return `${minutes}+${increment}`;
         case 1 : return `${minutes}+${increment}(b)`;
         default: return `${minutes}+${byoyomiPeriod}×${increment}(b)`;
+    }
+}
+
+export function alternateStartName(variant: Variant, initialFen: string) {
+    if (variant.alternateStart !== undefined) {
+        const keys = Object.keys(variant.alternateStart);
+        return keys.find(key => variant.alternateStart![key] === initialFen);
+    } else {
+        return undefined;
     }
 }
 

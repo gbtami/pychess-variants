@@ -327,6 +327,8 @@ async def get_user_games(request):
             if tournament_id is not None:
                 doc["tn"] = await get_tournament_name(request, tournament_id)
 
+            doc["initialFen"] = doc.get("if", "")
+
             if uci_moves:
                 game_doc_list.append(
                     {

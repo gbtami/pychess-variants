@@ -592,6 +592,7 @@ async def index(request):
             #       But also it gets overwritten anyway right after that so why send all this stuff at all here.
             #       just init client on 1st ws board msg received right after ws connection is established
             render["ply"] = ply if ply is not None else game.ply - 1
+            render["initialFen"] = game.initial_fen
             render["ct"] = json.dumps(game.crosstable)
             render["board"] = json.dumps(game.get_board(full=True))
             if game.tournamentId is not None:
