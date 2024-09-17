@@ -426,7 +426,7 @@ TRANSLATED_VARIANT_NAMES = {
     "bughouse": _("Bughouse"),
     "bughouse960": _("Bughouse960"),
     # Gorogoro is superseded by Gorogoro Plus
-    # "gorogoro",
+    "gorogoro": _("Gorogoro"),
     "gorogoroplus": _("Gorogoro+"),
     "torishogi": _("Tori Shogi"),
     "cannonshogi": _("Cannon Shogi"),
@@ -440,9 +440,9 @@ TRANSLATED_VARIANT_NAMES = {
     "capahouse960": _("Capahouse960"),
     # We support to import/store/analyze these variants
     # but don't support to add them to leaderboard page
-    # "gothic",
-    # "gothhouse",
-    # "embassy",
+    "gothic": _("Gothic"),
+    "gothhouse": _("Gothhouse"),
+    "embassy": _("Embassy"),
     "dragon": _("Dragon Chess"),
     "seirawan": _("S-Chess"),
     "seirawan960": _("S-Chess960"),
