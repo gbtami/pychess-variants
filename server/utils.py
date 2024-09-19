@@ -25,10 +25,7 @@ from const import (
     CASUAL,
     RATED,
     IMPORTED,
-    CONSERVATIVE_CAPA_FEN,
-    LOOKING_GLASS_ALICE_FEN,
     MANCHU_FEN,
-    MANCHU_R_FEN,
     T_STARTED,
 )
 from compress import get_decode_method, get_encode_method, R2C, C2R, V2C, C2V
@@ -38,6 +35,7 @@ from game import Game
 from newid import new_id
 from user import User
 from users import NotInDbUsers
+from valid_fen import VALID_FEN
 
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
@@ -724,17 +722,8 @@ def sanitize_fen(variant, initial_fen, chess960):
         fen_valid_b, sanitized_fen_b = sanitize_fen("crazyhouse", fen_b, chess960)
         return fen_valid_a and fen_valid_b, sanitized_fen_a + " | " + sanitized_fen_b
 
-    # Prevent this particular one to fail on our general castling check
-    if variant == "capablanca" and initial_fen == CONSERVATIVE_CAPA_FEN:
-        return True, initial_fen
-
-    if variant == "alice" and initial_fen == LOOKING_GLASS_ALICE_FEN:
-        return True, initial_fen
-
-    if variant == "fogofwar" and initial_fen == STANDARD_FEN:
-        return True, initial_fen
-
-    if variant == "manchu" and initial_fen in (MANCHU_FEN, MANCHU_R_FEN):
+    # Prevent alternate FENs to fail on our general castling check
+    if variant in VALID_FEN and initial_fen in VALID_FEN[variant]:
         return True, initial_fen
 
     sf_validate = sf.validate_fen(initial_fen, variant, chess960)
