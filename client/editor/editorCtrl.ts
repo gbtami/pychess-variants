@@ -144,8 +144,11 @@ export class EditorController extends ChessgroundController {
                 h('a#analysis.i-pgn', { on: { click: () => this.setAnalysisFen() } }, [
                     h('div.icon.icon-microscope', _('ANALYSIS BOARD'))
                 ]),
-                h('a#challengeAI.i-pgn', { on: { click: () => this.setChallengeFen() } }, [
+                h('a#challengeAI.i-pgn', { on: { click: () => this.setChallengeAIFen() } }, [
                     h('div.icon.icon-bot', _('PLAY WITH MACHINE'))
+                ]),
+                h('a#createseek.i-pgn', { on: { click: () => this.setSeekFen() } }, [
+                    h('div.icon.icon-crossedswords', _('CONTIMUE FROM HERE'))
                 ]),
                 h('a#pgn.i-pgn', { on: { click: () => copyBoardToPNG(this.parts.join(' ')) } }, [
                     h('div.icon.icon-download', _('EXPORT TO PNG'))
@@ -263,9 +266,14 @@ export class EditorController extends ChessgroundController {
         window.location.assign(this.model["home"] + '/analysis/' + this.model["variant"] + '?fen=' + fen);
     }
 
-    private setChallengeFen = () => {
+    private setChallengeAIFen = () => {
         const fen = this.parts.join('_').replace(/\+/g, '.');
         window.location.assign(this.model["home"] + '/@/Fairy-Stockfish/challenge/' + this.model["variant"] + '?fen=' + fen);
+    }
+
+    private setSeekFen = () => {
+        const fen = this.parts.join('_').replace(/\+/g, '.');
+        window.location.assign(this.model["home"] + '/seek/' + this.model["variant"] + '?fen=' + fen);
     }
 
     private onChangeFen = () => {

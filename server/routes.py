@@ -68,6 +68,7 @@ get_routes = (
     ("/puzzle/{variant}", index),
     ("/analysis/{variant}", index),
     ("/analysis/{variant}/{fen}", index),
+    ("/seek/{variant}", index),
     ("/editor/{variant}", index),
     ("/editor/{variant}/{fen}", index),
     ("/notifications", get_notifications),

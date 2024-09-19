@@ -137,6 +137,11 @@ export class LobbyController implements ChatController {
             }
         }
 
+        // Seek from Editor with custom start position
+        if (this.fen !== "") {
+            this.createGame(model.variant);
+        }
+
         setAriaTabClick("lobby_tab");
 
         const tabId = localStorage.lobby_tab ?? "tab-1";
