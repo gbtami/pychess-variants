@@ -148,7 +148,7 @@ export class EditorController extends ChessgroundController {
                     h('div.icon.icon-bot', _('PLAY WITH MACHINE'))
                 ]),
                 h('a#createseek.i-pgn', { on: { click: () => this.setSeekFen() } }, [
-                    h('div.icon.icon-crossedswords', _('CONTIMUE FROM HERE'))
+                    h('div.icon.icon-crossedswords', _('CONTINUE FROM HERE'))
                 ]),
                 h('a#pgn.i-pgn', { on: { click: () => copyBoardToPNG(this.parts.join(' ')) } }, [
                     h('div.icon.icon-download', _('EXPORT TO PNG'))
