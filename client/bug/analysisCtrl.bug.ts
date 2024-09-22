@@ -120,8 +120,8 @@ export default class AnalysisControllerBughouse {
         this.username = model["username"];
         this.chess960 = model.chess960 === 'True';
 
-        this.teamFirst = [playerInfoData(model, "white", "a"), playerInfoData(model, "black", "b")]
-        this.teamSecond = [playerInfoData(model, "black", "a"), playerInfoData(model, "white", "b")]
+        this.teamFirst = [playerInfoData(model, "w", "a"), playerInfoData(model, "b", "b")]
+        this.teamSecond = [playerInfoData(model, "b", "a"), playerInfoData(model, "w", "b")]
 
         this.b1 = new GameControllerBughouse(el1, el1Pocket1, el1Pocket2, 'a', model);
         this.b2 = new GameControllerBughouse(el2, el2Pocket1, el2Pocket2, 'b', model);
