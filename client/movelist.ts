@@ -143,7 +143,8 @@ export function updateMovelist (ctrl: GameController, full = true, activate = tr
     }
 
     if (ctrl.status >= 0 && needResult) {
-        moves.push(h('div#result', result(ctrl.variant, ctrl.status, ctrl.result)));
+        moves.push(h('div.result', ctrl.result));
+        moves.push(h('div.status', result(ctrl.variant, ctrl.status, ctrl.result)));
     }
 
     const container = document.getElementById('movelist') as HTMLElement;
@@ -168,6 +169,9 @@ export function updateResult (ctrl: GameController) {
     if (resultEl) return;
 
     const container = document.getElementById('movelist') as HTMLElement;
-    ctrl.vmovelist = patch(container, h('div#movelist', [h('div#result', result(ctrl.variant, ctrl.status, ctrl.result))]));
+    ctrl.vmovelist = patch(container, h('div#movelist', [
+        h('div.result', ctrl.result),
+        h('div.status', result(ctrl.variant, ctrl.status, ctrl.result))
+    ]));
     container.scrollTop = 99999;
 }

@@ -1123,7 +1123,7 @@ class Game:
 
             except Exception:
                 log.exception(
-                    "ERROR: Exception in load_game() %s %s %s %s %s",
+                    "ERROR: Exception in create_steps() %s %s %s %s %s",
                     self.id,
                     self.variant,
                     self.board.initial_fen,

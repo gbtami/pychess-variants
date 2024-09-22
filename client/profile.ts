@@ -77,6 +77,11 @@ function renderGames(model: PyChessModel, games: Game[]) {
         const tc = timeControlStr(game["b"], game["i"], game["bp"], game["c"] === true ? game["b"] : 0);
         const altStartName = alternateStartName(variant, game.initialFen);
         const isBug = variant === VARIANTS['bughouse'];
+        let teamFirst, teamSecond = '';
+        if (isBug) {
+            teamFirst = game["us"][0] + "+" + game["us"][3];
+            teamSecond = game["us"][2] + "+" + game["us"][1];
+        }
         let lastMove, fen;
         [lastMove, fen] = getLastMoveFen(variant.name, game.lm, game.f, game.r)
         return h('tr', [h('a', { attrs: { href : '/' + game["_id"] } }, [
@@ -138,8 +143,8 @@ function renderGames(model: PyChessModel, games: Game[]) {
                     h('div.info-result', {
                         class: {
                             "win": isWinClass(model, game),
-                            "lose": game["s"] > 0 && !isWinClass(model, game),
-                        }}, result(variant, game["s"], game["r"])
+                            "lose": ['1-0', '0-1'].includes(game["r"]) && !isWinClass(model, game),
+                        }}, result(variant, game["s"], game["r"], teamFirst, teamSecond)
                     ),
                 ]),
                 h('div.info0.games', [

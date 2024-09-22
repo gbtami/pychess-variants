@@ -1199,18 +1199,19 @@ div a {
   box-shadow: var(--base-shadow);
 }
 
-div#result {
+div.result, div.status {
   width: 100%;
   display: block;
-  padding: 12px 0;
-  font-family: Roboto, sans-serif;
-  font-size: 16px;
-  font-style: italic;
-  font-weight: bold;
+  font-size: 1.2em;
   text-align: center;
+}
+div.result {
+  font-weight: bold;
   border-top: 1px solid var(--bg-color2);
 }
-
+div.status {
+  font-style: italic;
+}
 .lobby-button,
 .donate-button,
 button.request-analysis,

@@ -41,9 +41,13 @@ export function result(variant: Variant, status: number, result: string, bughous
     // console.log("result()", variantName, status, result);
     const first = _(variant.colors.first);
     const second = _(variant.colors.second);
+
     const loserSingleBoard = (result === '1-0') ? second : first;
-    const loser = bughouseTeamNameFirst !== '' ? (result === '1-0') ? bughouseTeamNameSecond : bughouseTeamNameFirst : loserSingleBoard;
-    const winnerBughouse = bughouseTeamNameFirst === '' || (result !== '0-1' && result !== '1-0') ? '': ". " + (result === '0-1' ? bughouseTeamNameSecond : bughouseTeamNameFirst) + ' ' + _('won');
+    const loser = (bughouseTeamNameFirst !== '') ? ((result === '1-0') ? bughouseTeamNameSecond : bughouseTeamNameFirst) : loserSingleBoard;
+
+    const winnerSingleBoard = (result === '0-1') ? second : first;
+    const winner = (bughouseTeamNameFirst !== '') ? ((result === '0-1') ? bughouseTeamNameSecond : bughouseTeamNameFirst) : winnerSingleBoard;
+
     switch (status) {
         case -2:
         case -1:
@@ -53,7 +57,7 @@ export function result(variant: Variant, status: number, result: string, bughous
             text = _('Game aborted');
             break;
         case 1:
-            text = _('Checkmate' + winnerBughouse);
+            text = _('Checkmate');
             break;
         case 2:
             text = _('%1 resigned', loser);
@@ -62,28 +66,28 @@ export function result(variant: Variant, status: number, result: string, bughous
             text = _('Stalemate');
             break;
         case 4:
-            text = _('Time out' + winnerBughouse);
+            text = _('Time out');
             break;
         case 5:
             text = _('Draw');
             break;
         case 6:
-            text = _('Time out' + winnerBughouse);
+            text = _('Time out');
             break;
         case 7:
             text = _('%1 abandoned the game', loser);
             break;
         case 8:
-            text = _('Cheat detected' + winnerBughouse);
+            text = _('Cheat detected');
             break;
         case 9:
             text = _('Not started');
             break;
         case 10:
-            text = _('Invalid move' + winnerBughouse);
+            text = _('Invalid move');
             break;
         case 11:
-            text = _('Unknown reason' + winnerBughouse);
+            text = _('Unknown reason');
             break;
         case 12:
             switch (variantName) {
@@ -132,5 +136,18 @@ export function result(variant: Variant, status: number, result: string, bughous
             text = '*';
             break
     }
-    return (status <= 0) ? text : text + ', ' + result;
+
+    if (status <= 0) {
+        return text;
+    } else {
+        if (result === '1/2-1/2') {
+            if (status === 5) {
+                return text;
+            } else {
+                return text + ' • ' + _('Draw');
+            }
+        } else {
+            return text + ' • ' + _('%1 won', winner);
+        }
+    }
 }
