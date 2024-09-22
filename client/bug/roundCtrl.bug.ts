@@ -40,6 +40,7 @@ import { createWebsocket } from "@/socket/webSocketUtils";
 import AnalysisControllerBughouse from "@/bug/analysisCtrl.bug";
 import { boardSettings } from "@/boardSettings";
 import { ChessgroundController } from "@/cgCtrl";
+import {playerInfoData} from "@/bug/gameInfo.bug";
 
 export class RoundControllerBughouse implements ChatController {
     sock: WebsocketHeartbeatJs;
@@ -133,6 +134,9 @@ export class RoundControllerBughouse implements ChatController {
     myColor: Map<'a'|'b', cg.Color|undefined> = new Map<'a'|'b', cg.Color|undefined>([['a', undefined],['b', undefined]]);
     partnerColor: Map<'a'|'b', cg.Color|undefined> = new Map<'a'|'b', cg.Color|undefined>([['a', undefined],['b', undefined]]);
 
+    teamFirst: [[string, string, string], [string, string, string]]
+    teamSecond: [[string, string, string], [string, string, string]]
+
     constructor(el1: HTMLElement,el1Pocket1: HTMLElement,el1Pocket2: HTMLElement,el2: HTMLElement,el2Pocket1: HTMLElement,el2Pocket2: HTMLElement, model: PyChessModel) {
 
         this.home = model.home;
@@ -144,6 +148,9 @@ export class RoundControllerBughouse implements ChatController {
         this.gameId = model["gameId"] as string;
         this.username = model["username"];
         this.anon = model.anon === 'True';
+
+        this.teamFirst = [playerInfoData(model, "w", "a"), playerInfoData(model, "b", "b")]
+        this.teamSecond = [playerInfoData(model, "b", "a"), playerInfoData(model, "w", "b")]
 
         this.focus = !document.hidden;
         document.addEventListener("visibilitychange", () => {this.focus = !document.hidden});

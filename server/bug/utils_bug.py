@@ -25,23 +25,23 @@ def init_players(app_state: PychessGlobalAppState, wp_a, bp_a, wp_b, bp_b):
     if wp_a in app_state.users:
         wplayer_a = app_state.users[wp_a]
     else:
-        wplayer_a = User(app_state, username=wp_a, anon=True)
+        wplayer_a = User(app_state, username=wp_a)
         app_state.users[wp_a] = wplayer_a
     if wp_b in app_state.users:
         wplayer_b = app_state.users[wp_b]
     else:
-        wplayer_b = User(app_state, username=wp_b, anon=True)
+        wplayer_b = User(app_state, username=wp_b)
         app_state.users[wp_b] = wplayer_b
 
     if bp_a in app_state.users:
         bplayer_a = app_state.users[bp_a]
     else:
-        bplayer_a = User(app_state, username=bp_a, anon=True)
+        bplayer_a = User(app_state, username=bp_a)
         app_state.users[bp_a] = bplayer_a
     if bp_b in app_state.users:
         bplayer_b = app_state.users[bp_b]
     else:
-        bplayer_b = User(app_state, username=bp_b, anon=True)
+        bplayer_b = User(app_state, username=bp_b)
         app_state.users[bp_b] = bplayer_b
     return [wplayer_a, bplayer_a, wplayer_b, bplayer_b]
 

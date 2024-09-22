@@ -200,7 +200,9 @@ export function updateMovelist (ctrl: AnalysisControllerBughouse | RoundControll
     }
 
     if (ctrl.status >= 0 && needResult) {
-        moves.push(h('div#result', result(ctrl.b1.variant, ctrl.status, ctrl.result)));
+        const teamFirst = ctrl.teamFirst[0][0] + "+" + ctrl.teamFirst[1][0];
+        const teamSecond = ctrl.teamSecond[0][0] + "+" + ctrl.teamSecond[1][0];
+        moves.push(h('div#result', result(ctrl.b1.variant, ctrl.status, ctrl.result, teamFirst, teamSecond)));
     }
 
     const container = document.getElementById('movelist') as HTMLElement;
@@ -225,6 +227,10 @@ export function updateResult (ctrl: AnalysisControllerBughouse | RoundController
     if (resultEl) return;
 
     const container = document.getElementById('movelist') as HTMLElement;
-    ctrl.vmovelist = patch(container, h('div#movelist', [h('div#result', result(ctrl.b1.variant, ctrl.status, ctrl.result))]));
+
+    const teamFirst = ctrl.teamFirst[0][0] + "+" + ctrl.teamFirst[1][0];
+    const teamSecond = ctrl.teamSecond[0][0] + "+" + ctrl.teamSecond[1][0];
+
+    ctrl.vmovelist = patch(container, h('div#movelist', [h('div#result', result(ctrl.b1.variant, ctrl.status, ctrl.result, teamFirst, teamSecond))]));
     container.scrollTop = 99999;
 }
