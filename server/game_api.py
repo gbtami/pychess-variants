@@ -9,6 +9,7 @@ from functools import partial
 import aiohttp_session
 from aiohttp import web
 from aiohttp_sse import sse_response
+import pymongo
 
 from compress import get_decode_method, C2V, V2C, C2R, decode_move_standard
 from const import GRANDS, STARTED, MATE, VARIANTS, INVALIDMOVE, VARIANTEND, CLAIM
@@ -126,7 +127,7 @@ async def get_variant_stats(request):
                 cursor = app_state.db.stats_humans.find()
             else:
                 cursor = app_state.db.stats.find()
-
+            cursor.sort("_id", pymongo.ASCENDING)
             docs = await cursor.to_list(n)
             variant_counts_from_docs(variant_counts, docs)
 
