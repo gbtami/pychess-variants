@@ -1248,14 +1248,16 @@ class Game:
             cur_clock = self.clocks_b if self.board.color == BLACK else self.clocks_w
 
             self.board.pop()
-            cur_clock.pop()
+            if len(cur_clock) > 1:
+                cur_clock.pop()
             self.steps.pop()
 
             if not cur_player.bot:
                 cur_clock = self.clocks_b if self.board.color == BLACK else self.clocks_w
 
                 self.board.pop()
-                cur_clock.pop()
+                if len(cur_clock) > 1:
+                    cur_clock.pop()
                 self.steps.pop()
 
             self.has_legal_move = self.board.has_legal_move()

@@ -268,11 +268,12 @@ class PychessGlobalAppState:
                     continue
 
                 if doc["s"] < ABORTED:
+                    game_id = doc["_id"]
                     try:
-                        game = await load_game(self, doc["_id"])
+                        game = await load_game(self, game_id)
                         if game is None:
                             continue
-                        self.games[doc["_id"]] = game
+                        self.games[game_id] = game
                         if corr:
                             game.wplayer.correspondence_games.append(game)
                             game.bplayer.correspondence_games.append(game)
@@ -284,7 +285,15 @@ class PychessGlobalAppState:
                                 game.gameClocks.restart("a")
                                 game.gameClocks.restart("b")
                     except NotInDbUsers:
-                        log.error("Failed toload game %s", doc["_id"])
+                        log.error("Failed toload game %s", game_id)
+
+                    if game.bot_game:
+                        if len(game.board.move_stack) > 0 and len(game.steps) == 1:
+                            game.create_steps()
+                        bot_player = game.wplayer if game.wplayer.bot else game.bplayer
+                        bot_player.game_queues[game_id] = asyncio.Queue()
+                        await bot_player.event_queue.put(game.game_start)
+                        await bot_player.game_queues[game_id].put(game.game_state)
 
                     if game.board.ply > 0:
                         self.g_cnt[0] += 1

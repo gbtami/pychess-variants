@@ -60,6 +60,10 @@ async def BOT_task(bot, app_state: PychessGlobalAppState):
         app_state.fishnet_works[work_id] = work
         app_state.fishnet_queue.put_nowait((MOVE, work_id))
 
+    # After server restart we may have to wait for fairyfishnet workers to join...
+    while not bot.online:
+        await asyncio.sleep(3)
+
     random_mover = bot.username == "Random-Mover"
 
     while not app_state.shutdown:
