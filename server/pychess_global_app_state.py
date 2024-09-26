@@ -420,7 +420,9 @@ class PychessGlobalAppState:
 
         # save correspondence and regular seeks to database
         corr_seeks = [seek.corr_json for seek in self.seeks.values() if seek.day > 0]
-        reg_seeks = [seek.seek_json for seek in self.seeks.values() if seek.day == 0]
+        reg_seeks = [
+            seek.seek_json for seek in self.seeks.values() if seek.day == 0 and seek.creator.online
+        ]
         await self.db.seek.delete_many({})
         if len(corr_seeks) > 0:
             for seek in corr_seeks:
