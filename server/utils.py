@@ -560,7 +560,9 @@ async def play_move(app_state: PychessGlobalAppState, user, game, move, clocks=N
     # log.info("%s move %s %s %s - %s" % (user.username, move, gameId, game.wplayer.username, game.bplayer.username))
 
     if game.status <= STARTED:
-        if ply is not None and game.ply + 1 != ply:
+        if (ply is not None and game.ply + 1 != ply) or (
+            game.ply > 0 and move == game.board.move_stack[-1]
+        ):
             log.info(
                 "invalid ply received - probably a re-sent move that has already been processed"
             )
