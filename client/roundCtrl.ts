@@ -921,7 +921,10 @@ export class RoundController extends GameController {
                         this.setDests();
                     }
 
-                    if (!this.focus) this.notifyMsg(`Played ${step.san}\nYour turn.`);
+                    if (!this.focus) {
+                        const sanMove = (this.fog) ? 'a move' : step.san;
+                        this.notifyMsg(`Played ${sanMove}\nYour turn.`);
+                    }
 
                     // prevent sending premove/predrop when (auto)reconnecting websocked asks server to (re)sends the same board to us
                     // console.log("trying to play premove....");
