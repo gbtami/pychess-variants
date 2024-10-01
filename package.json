@@ -38,7 +38,7 @@
   },
   "devDependencies": {
     "@types/gettext.js": "^1.0.0",
-    "@types/howler": "^2.2.4",
+    "@types/howler": "^2.2.12",
     "@types/mousetrap": "^1.6.11",
     "@jest/globals": "^29",
     "jest": "^29",
