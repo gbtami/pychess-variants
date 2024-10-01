@@ -443,10 +443,10 @@
   resolved "https://registry.yarnpkg.com/@fullcalendar/interaction/-/interaction-6.1.13.tgz#7b628871b934cec27ca6fc8bd0176c376fd7d81b"
   integrity sha512-r1w+jqCRGZZyxKFquueDSFvbsFhJLhc1BX8Nlyz684lYxS1SiToYJW9Q8X/XkySCzpjO3KOnxEp2jVOn1Usyjg==
 
-"@fullcalendar/list@^6.1.13":
-  version "6.1.13"
-  resolved "https://registry.yarnpkg.com/@fullcalendar/list/-/list-6.1.13.tgz#6eb50b1eff322a97ea9efe97a113382a839e2f9f"
-  integrity sha512-bPW4EsgGNwDZh91NtD+q4hqGfS6jEvCXQo7+MNy4JLMwFtdenEURRrzsb6CW3l97L3Vp0E2mSqiXaNESOmXEcQ==
+"@fullcalendar/list@^6.1.15":
+  version "6.1.15"
+  resolved "https://registry.yarnpkg.com/@fullcalendar/list/-/list-6.1.15.tgz#d9b7ff0a50d7efa0d31234ed6caea06db6090c29"
+  integrity sha512-U1bce04tYDwkFnuVImJSy2XalYIIQr6YusOWRPM/5ivHcJh67Gm8CIMSWpi3KdRSNKFkqBxLPkfZGBMaOcJYug==
 
 "@fullcalendar/timegrid@^6.1.13":
   version "6.1.13"

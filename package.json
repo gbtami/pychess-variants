@@ -22,7 +22,7 @@
     "@fullcalendar/core": "^6.1.15",
     "@fullcalendar/daygrid": "^6.1.13",
     "@fullcalendar/interaction": "^6.1.13",
-    "@fullcalendar/list": "^6.1.13",
+    "@fullcalendar/list": "^6.1.15",
     "@fullcalendar/timegrid": "^6.1.13",
     "chessgroundx": "^10.6.2",
     "chessops": "^0.14.1",
