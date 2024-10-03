@@ -836,7 +836,7 @@ export class RoundController extends GameController {
             const piece = this.chessground.state.boardState.pieces.get(lastMove[1] as cg.Key);
             capture = (piece !== undefined && piece.role !== '_-piece' && step.san?.slice(0, 2) !== 'O-') || (step.san?.slice(1, 2) === 'x');
         }
-        if (msg.steps.length === 1 && lastMove && (this.turnColor === this.mycolor || this.spectator)) {
+        if (msg.steps.length <= 2 && lastMove && (this.turnColor === this.mycolor || this.spectator)) {
             if (!this.finishedGame) sound.moveSound(this.variant, capture);
         }
         this.checkStatus(msg);
