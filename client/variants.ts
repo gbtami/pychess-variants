@@ -438,11 +438,12 @@ export const VARIANTS: Record<string, Variant> = {
     }),
 
     racingkings: variant({
-        name: "racingkings", displayName: "racing kings", tooltip: "Cross to win, no checks.",
+        name: "racingkings", displayName: "racing kings", tooltip: "Race your King to the eighth rank to win.",
         startFen: "8/8/8/8/8/8/krbnNBRK/qrbnNBRQ w - - 0 1",
         chess960: true, icon: "🏁", icon960: "🏁",
         boardFamily: "standard8x8", pieceFamily: "standard",
         pieceRow: ["k", "q", "r", "b", "n", "p"],
+        ui: { boardMark: 'racingkings' },
     }),
 
     duck: variant({

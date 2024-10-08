@@ -22,7 +22,7 @@ export type PromotionType = "regular" | "shogi";
 export type TimeControlType = "incremental" | "byoyomi";
 export type CountingType = "makruk" | "asean";
 export type MaterialPointType = "janggi" | "ataxx";
-export type BoardMarkType = "alice" | "campmate" | "kingofthehill";
+export type BoardMarkType = "alice" | "campmate" | "racingkings" | "kingofthehill";
 export type PieceSoundType = "regular" | "atomic" | "shogi";
 
 const handicapKeywords = [ "HC", "Handicap", "Odds" ];
@@ -106,7 +106,7 @@ export function validFen(variant: Variant, fen: string): boolean {
     if (variantName === "duck" && lc(placement, "*", false) > 1) return false;
 
     // RK currently not implemented due to not being able to check for checks
-    if (variantName === "racingkings") return false;
+    // if (variantName === "racingkings") return false;
 
     // Brackets paired
     if (lc(placement, '[', false) !== lc(placement, ']', false)) return false;

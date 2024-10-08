@@ -208,7 +208,7 @@
   box-shadow: 0 3px 4px rgba(0, 0, 0, 0.15) inset !important;
 }
 
-.campmate .cg-512 cg-board::before {
+.campmate .cg-512 cg-board::before, .racingkings .cg-512 cg-board::before {
   width: 100%;
   height: 12.5%;
   top: 0%;
