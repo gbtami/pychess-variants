@@ -512,12 +512,15 @@ label.piece.piece2.ordamirror {
 }
 
 label.piece.piece0.chak {
-    background-image: url('images/pieces/chak/WK.svg');
+    background-image: url('images/pieces/chak/WV.svg');
 }
 label.piece.piece1.chak {
-    background-image: url('images/pieces/chak/maya/WK.svg');
+    background-image: url('images/pieces/chak/ronin/WV.svg');
 }
 label.piece.piece2.chak {
+    background-image: url('images/pieces/chak/maya/WV.svg');
+}
+label.piece.piece3.chak {
     background-image: url('images/pieces/disguised/chak-w.svg');
 }
 label.piece.piece0.chennis {
