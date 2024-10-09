@@ -460,7 +460,7 @@ export const VARIANTS: Record<string, Variant> = {
         startFen: "rnbqkbnr/pppppppp/8/1PP2PP1/PPPPPPPP/PPPPPPPP/PPPPPPPP/PPPPPPPP w kq - 0 1",
         chess960: true, icon: "🐖", icon960: "🐖",
         boardFamily: "standard8x8", pieceFamily: "standard",
-        pieceRow: ["k", "q", "r", "b", "n", "p"],
+        pieceRow: { "white": ["p"], "black": ["k", "q", "r", "b", "n", "p"] },
         rules: { enPassant: true },
     }),
 
