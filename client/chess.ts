@@ -177,10 +177,13 @@ export function validFen(variant: Variant, fen: string): boolean {
     const king = util.letterOf(variant.kingRoles[0]);
     const bK = lc(placement, king, false);
     const wK = lc(placement, king, true);
-    if (variantName === 'spartan') {
-        if (bK === 0 || bK > 2 || wK !== 1) return false;
-    } else {
-        if (bK !== 1 || wK !== 1) return false;
+    switch (variantName) {
+        case 'spartan':
+            if (bK === 0 || bK > 2 || wK !== 1) return false;
+        case 'horde':
+            if (bK !== 1 || wK !== 0) return false;
+        default:
+            if (bK !== 1 || wK !== 1) return false;
     }
 
     return true;
