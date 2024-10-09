@@ -1,8 +1,8 @@
 {
   "metadata": {
-    "name": "pychess-variants",
+    "name": "pychess-variants 1",
     "lastOpened": 0,
-    "created": 1683541147172
+    "created": 1728412006899
   },
   "iconSets": [
     {
@@ -12727,12 +12727,36 @@
     {
       "selection": [
         {
+          "order": 490,
+          "id": 122,
+          "name": "horde",
+          "prevSize": 32,
+          "code": 128022,
+          "tempChar": ""
+        },
+        {
+          "order": 489,
+          "id": 121,
+          "name": "antichess",
+          "prevSize": 32,
+          "code": 128037,
+          "tempChar": ""
+        },
+        {
+          "order": 488,
+          "id": 120,
+          "name": "racingkings",
+          "prevSize": 32,
+          "code": 128663,
+          "tempChar": ""
+        },
+        {
           "order": 487,
           "id": 119,
           "name": "FogOfWar",
           "prevSize": 32,
           "code": 127787,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 486,
@@ -12740,7 +12764,7 @@
           "name": "Alice",
           "prevSize": 32,
           "code": 128103,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 484,
@@ -12748,7 +12772,7 @@
           "name": "dragon",
           "prevSize": 32,
           "code": 128009,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 481,
@@ -12756,7 +12780,7 @@
           "name": "khans",
           "prevSize": 32,
           "code": 128014,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 480,
@@ -12764,7 +12788,7 @@
           "name": "CannonShogi",
           "prevSize": 32,
           "code": 128163,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 479,
@@ -12772,7 +12796,7 @@
           "name": "ataxx",
           "prevSize": 32,
           "code": 9763,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 478,
@@ -12780,7 +12804,7 @@
           "name": "mansindam",
           "prevSize": 32,
           "code": 9973,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 475,
@@ -12788,7 +12812,7 @@
           "name": "3check960",
           "prevSize": 32,
           "code": 9783,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 466,
@@ -12796,7 +12820,7 @@
           "name": "3check",
           "prevSize": 32,
           "code": 9776,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 465,
@@ -12804,7 +12828,7 @@
           "name": "koth960",
           "prevSize": 32,
           "code": 127937,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 464,
@@ -12812,7 +12836,7 @@
           "name": "koth",
           "prevSize": 32,
           "code": 127988,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 457,
@@ -12820,7 +12844,7 @@
           "name": "Bughouse960",
           "prevSize": 32,
           "code": 8960,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 456,
@@ -12828,7 +12852,7 @@
           "name": "Bughouse",
           "prevSize": 32,
           "code": 162,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 453,
@@ -12836,7 +12860,7 @@
           "name": "spartan",
           "prevSize": 32,
           "code": 9082,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 452,
@@ -12844,7 +12868,7 @@
           "name": "duck",
           "prevSize": 32,
           "code": 129414,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 426,
@@ -12852,7 +12876,7 @@
           "name": "Chennis",
           "prevSize": 32,
           "code": 127934,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 441,
@@ -12860,7 +12884,7 @@
           "name": "Chak",
           "prevSize": 32,
           "code": 128044,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 446,
@@ -12868,7 +12892,7 @@
           "name": "berserk",
           "prevSize": 32,
           "code": 10595,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 429,
@@ -12876,7 +12900,7 @@
           "name": "ASEAN",
           "prevSize": 32,
           "code": 9851,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 430,
@@ -12884,7 +12908,7 @@
           "name": "discord",
           "prevSize": 32,
           "code": 127918,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 431,
@@ -12892,7 +12916,7 @@
           "name": "ToriShogi",
           "prevSize": 32,
           "code": 128038,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 432,
@@ -12900,7 +12924,7 @@
           "name": "ordamirror",
           "prevSize": 32,
           "code": 9705,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 433,
@@ -12908,7 +12932,7 @@
           "name": "empire",
           "prevSize": 32,
           "code": 9818,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 434,
@@ -12916,7 +12940,7 @@
           "name": "shinobi",
           "prevSize": 32,
           "code": 128034,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 1,
@@ -12925,7 +12949,7 @@
           "prevSize": 32,
           "code": 97,
           "name": "adjust",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 2,
@@ -12933,7 +12957,7 @@
           "prevSize": 32,
           "code": 98,
           "name": "black",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 3,
@@ -12941,7 +12965,7 @@
           "prevSize": 32,
           "code": 99,
           "name": "white",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 4,
@@ -12950,7 +12974,7 @@
           "prevSize": 32,
           "code": 100,
           "name": "flag-o",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 5,
@@ -12959,7 +12983,7 @@
           "prevSize": 32,
           "code": 101,
           "name": "hand-paper-o",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 6,
@@ -12968,7 +12992,7 @@
           "prevSize": 32,
           "code": 102,
           "name": "music",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 7,
@@ -12977,7 +13001,7 @@
           "prevSize": 32,
           "code": 103,
           "name": "search",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 8,
@@ -12986,7 +13010,7 @@
           "prevSize": 32,
           "code": 104,
           "name": "sign-in",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 9,
@@ -12995,7 +13019,7 @@
           "prevSize": 32,
           "code": 105,
           "name": "sign-out",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 10,
@@ -13004,7 +13028,7 @@
           "prevSize": 32,
           "code": 106,
           "name": "abort",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 11,
@@ -13013,7 +13037,7 @@
           "prevSize": 32,
           "code": 107,
           "name": "volume-up",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 12,
@@ -13022,7 +13046,7 @@
           "prevSize": 32,
           "code": 108,
           "name": "fast-backward",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 13,
@@ -13031,7 +13055,7 @@
           "prevSize": 32,
           "code": 109,
           "name": "fast-forward",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 14,
@@ -13040,7 +13064,7 @@
           "prevSize": 32,
           "code": 110,
           "name": "step-backward",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 15,
@@ -13049,7 +13073,7 @@
           "prevSize": 32,
           "code": 111,
           "name": "step-forward",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 16,
@@ -13058,7 +13082,7 @@
           "prevSize": 32,
           "code": 112,
           "name": "refresh",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 17,
@@ -13067,7 +13091,7 @@
           "prevSize": 32,
           "code": 113,
           "name": "thumbs-o-up",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 18,
@@ -13076,7 +13100,7 @@
           "prevSize": 32,
           "code": 114,
           "name": "trash-o",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 19,
@@ -13085,7 +13109,7 @@
           "prevSize": 32,
           "code": 115,
           "name": "bars",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 20,
@@ -13094,7 +13118,7 @@
           "prevSize": 32,
           "code": 116,
           "name": "cog",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 21,
@@ -13103,7 +13127,7 @@
           "prevSize": 32,
           "code": 117,
           "name": "bolt",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 22,
@@ -13112,7 +13136,7 @@
           "prevSize": 32,
           "code": 118,
           "name": "comment-o",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 23,
@@ -13121,7 +13145,7 @@
           "prevSize": 32,
           "code": 119,
           "name": "bell-o",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 24,
@@ -13130,7 +13154,7 @@
           "prevSize": 32,
           "code": 120,
           "name": "trophy",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 25,
@@ -13139,7 +13163,7 @@
           "prevSize": 32,
           "code": 121,
           "name": "paper-plane",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 26,
@@ -13148,7 +13172,7 @@
           "prevSize": 32,
           "code": 122,
           "name": "list",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 27,
@@ -13157,7 +13181,7 @@
           "prevSize": 32,
           "code": 65,
           "name": "download",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 28,
@@ -13166,7 +13190,7 @@
           "prevSize": 32,
           "code": 66,
           "name": "ban",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 29,
@@ -13175,7 +13199,7 @@
           "prevSize": 32,
           "code": 67,
           "name": "volume-off",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 30,
@@ -13184,7 +13208,7 @@
           "prevSize": 32,
           "code": 68,
           "name": "droid",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 31,
@@ -13193,7 +13217,7 @@
           "prevSize": 32,
           "code": 69,
           "name": "bot",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 32,
@@ -13202,7 +13226,7 @@
           "prevSize": 32,
           "code": 70,
           "name": "dark",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 33,
@@ -13211,7 +13235,7 @@
           "prevSize": 32,
           "code": 71,
           "name": "light",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 34,
@@ -13220,7 +13244,7 @@
           "prevSize": 32,
           "code": 72,
           "name": "h-square",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 35,
@@ -13229,7 +13253,7 @@
           "prevSize": 32,
           "code": 73,
           "name": "online",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 36,
@@ -13238,7 +13262,7 @@
           "prevSize": 32,
           "code": 74,
           "name": "offline",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 37,
@@ -13247,7 +13271,7 @@
           "prevSize": 32,
           "code": 75,
           "name": "shogi",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 38,
@@ -13256,7 +13280,7 @@
           "prevSize": 32,
           "code": 76,
           "name": "seirawan",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 39,
@@ -13265,7 +13289,7 @@
           "prevSize": 32,
           "code": 77,
           "name": "chess",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 40,
@@ -13274,7 +13298,7 @@
           "prevSize": 32,
           "code": 78,
           "name": "crazyhouse",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 41,
@@ -13283,7 +13307,7 @@
           "prevSize": 32,
           "code": 80,
           "name": "capablanca",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 42,
@@ -13292,7 +13316,7 @@
           "prevSize": 32,
           "code": 83,
           "name": "placement",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 43,
@@ -13301,7 +13325,7 @@
           "prevSize": 32,
           "code": 84,
           "name": "tv",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 44,
@@ -13310,7 +13334,7 @@
           "prevSize": 32,
           "code": 85,
           "name": "retweet",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 45,
@@ -13319,7 +13343,7 @@
           "prevSize": 32,
           "code": 86,
           "name": "dice",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 46,
@@ -13328,7 +13352,7 @@
           "prevSize": 32,
           "code": 87,
           "name": "plus-square",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 47,
@@ -13337,7 +13361,7 @@
           "prevSize": 32,
           "code": 88,
           "name": "reply",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 48,
@@ -13346,7 +13370,7 @@
           "prevSize": 32,
           "code": 89,
           "name": "microscope",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 49,
@@ -13355,7 +13379,7 @@
           "prevSize": 32,
           "code": 90,
           "name": "clipboard",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 50,
@@ -13364,7 +13388,7 @@
           "prevSize": 32,
           "code": 48,
           "name": "cloud-upload",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 51,
@@ -13373,7 +13397,7 @@
           "prevSize": 32,
           "code": 49,
           "name": "pencil",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 52,
@@ -13382,7 +13406,7 @@
           "prevSize": 32,
           "code": 50,
           "name": "ink-pen",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 53,
@@ -13391,7 +13415,7 @@
           "prevSize": 32,
           "code": 51,
           "name": "bar-chart",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 54,
@@ -13400,7 +13424,7 @@
           "prevSize": 32,
           "code": 52,
           "name": "microphone",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 55,
@@ -13409,7 +13433,7 @@
           "prevSize": 32,
           "code": 53,
           "name": "crown",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 56,
@@ -13418,7 +13442,7 @@
           "prevSize": 32,
           "code": 55,
           "name": "minixiangqi",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 57,
@@ -13427,7 +13451,7 @@
           "prevSize": 32,
           "code": 57,
           "name": "shako",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 58,
@@ -13436,7 +13460,7 @@
           "prevSize": 32,
           "code": 33,
           "name": "cambodian",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 59,
@@ -13445,7 +13469,7 @@
           "prevSize": 32,
           "code": 34,
           "name": "crossedswords",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 60,
@@ -13454,7 +13478,7 @@
           "prevSize": 32,
           "code": 35,
           "name": "at",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 61,
@@ -13463,7 +13487,7 @@
           "prevSize": 32,
           "code": 36,
           "name": "shouse",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 62,
@@ -13472,7 +13496,7 @@
           "prevSize": 32,
           "code": 37,
           "name": "crazyhouse960",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 63,
@@ -13481,7 +13505,7 @@
           "prevSize": 32,
           "code": 38,
           "name": "capahouse",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 64,
@@ -13490,7 +13514,7 @@
           "prevSize": 32,
           "code": 39,
           "name": "capahouse960",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 65,
@@ -13499,7 +13523,7 @@
           "prevSize": 32,
           "code": 40,
           "name": "grand",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 66,
@@ -13508,7 +13532,7 @@
           "prevSize": 32,
           "code": 42,
           "name": "grandhouse",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 67,
@@ -13517,7 +13541,7 @@
           "prevSize": 32,
           "code": 43,
           "name": "zh",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 68,
@@ -13526,7 +13550,7 @@
           "prevSize": 32,
           "code": 44,
           "name": "caparandom",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 69,
@@ -13535,7 +13559,7 @@
           "prevSize": 32,
           "code": 45,
           "name": "shogun",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 70,
@@ -13544,7 +13568,7 @@
           "prevSize": 32,
           "code": 46,
           "name": "bullhorn",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 71,
@@ -13553,7 +13577,7 @@
           "prevSize": 32,
           "code": 47,
           "name": "phone",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 72,
@@ -13562,7 +13586,7 @@
           "prevSize": 32,
           "code": 59,
           "name": "unlock",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 73,
@@ -13571,7 +13595,7 @@
           "prevSize": 32,
           "code": 60,
           "name": "unlock-alt",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 74,
@@ -13580,7 +13604,7 @@
           "prevSize": 32,
           "code": 62,
           "name": "exchange",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 75,
@@ -13589,7 +13613,7 @@
           "prevSize": 32,
           "code": 63,
           "name": "check",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 76,
@@ -13598,7 +13622,7 @@
           "prevSize": 32,
           "code": 41,
           "name": "kyotoshogi",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 77,
@@ -13607,7 +13631,7 @@
           "prevSize": 32,
           "code": 61,
           "name": "janggi",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 78,
@@ -13616,7 +13640,7 @@
           "prevSize": 32,
           "code": 81,
           "name": "makruk",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 79,
@@ -13625,7 +13649,7 @@
           "prevSize": 32,
           "code": 54,
           "name": "minishogi",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 80,
@@ -13634,7 +13658,7 @@
           "prevSize": 32,
           "code": 58,
           "name": "sittuyin",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 81,
@@ -13643,7 +13667,7 @@
           "prevSize": 32,
           "code": 79,
           "name": "makpong",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 82,
@@ -13652,7 +13676,7 @@
           "prevSize": 32,
           "code": 82,
           "name": "orda",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 83,
@@ -13661,7 +13685,7 @@
           "prevSize": 32,
           "code": 64,
           "name": "globe",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 84,
@@ -13670,7 +13694,7 @@
           "prevSize": 32,
           "code": 91,
           "name": "left",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 85,
@@ -13679,7 +13703,7 @@
           "prevSize": 32,
           "code": 93,
           "name": "right",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 86,
@@ -13688,7 +13712,7 @@
           "prevSize": 32,
           "code": 94,
           "name": "heart",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 87,
@@ -13697,7 +13721,7 @@
           "prevSize": 32,
           "code": 95,
           "name": "synochess",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 88,
@@ -13706,7 +13730,7 @@
           "prevSize": 32,
           "code": 96,
           "name": "hoppelpoppel",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 89,
@@ -13715,7 +13739,7 @@
           "prevSize": 32,
           "code": 123,
           "name": "manchu",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 90,
@@ -13724,7 +13748,7 @@
           "prevSize": 32,
           "code": 124,
           "name": "xiangqi",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 91,
@@ -13733,7 +13757,7 @@
           "prevSize": 32,
           "code": 56,
           "name": "dobutsu",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 92,
@@ -13742,7 +13766,7 @@
           "prevSize": 32,
           "code": 125,
           "name": "seirawan960",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 93,
@@ -13751,7 +13775,7 @@
           "prevSize": 32,
           "code": 126,
           "name": "atomic",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 94,
@@ -13760,7 +13784,7 @@
           "prevSize": 32,
           "code": 92,
           "name": "atomic960",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 412,
@@ -13768,20 +13792,83 @@
           "name": "Gorogoro",
           "prevSize": 32,
           "code": 128049,
-          "tempChar": ""
+          "tempChar": ""
         }
       ],
       "id": 2,
       "metadata": {
         "name": "pychess",
         "importSize": {
-          "width": 50,
-          "height": 50
+          "width": 384,
+          "height": 480
         }
       },
       "height": 1024,
       "prevSize": 32,
       "icons": [
+        {
+          "id": 121,
+          "paths": [
+            "M204.8 183.467q0 21.333-21.333 21.333h-162.133q-21.333 0-21.333-21.333v-162.133q0-21.333 21.333-21.333h162.133q21.333 0 21.333 21.333zM518.4 183.467q0 21.333-21.333 21.333h-162.133q-21.333 0-21.333-21.333v-162.133q0-21.333 21.333-21.333h162.133q21.333 0 21.333 21.333zM819.2 183.467q0 21.333-21.333 21.333h-162.133q-21.333 0-21.333-21.333v-162.133q0-21.333 21.333-21.333h162.133q21.333 0 21.333 21.333zM204.8 456.533q0 21.333-21.333 21.333h-162.133q-21.333 0-21.333-21.333v-162.133q0-21.333 21.333-21.333h162.133q21.333 0 21.333 21.333zM518.4 456.533q0 21.333-21.333 21.333h-162.133q-21.333 0-21.333-21.333v-162.133q0-21.333 21.333-21.333h162.133q21.333 0 21.333 21.333zM819.2 456.533q0 21.333-21.333 21.333h-162.133q-21.333 0-21.333-21.333v-162.133q0-21.333 21.333-21.333h162.133q21.333 0 21.333 21.333zM204.8 729.6q0 21.333-21.333 21.333h-162.133q-21.333 0-21.333-21.333v-162.133q0-21.333 21.333-21.333h162.133q21.333 0 21.333 21.333zM518.4 729.6q0 21.333-21.333 21.333h-162.133q-21.333 0-21.333-21.333v-162.133q0-21.333 21.333-21.333h162.133q21.333 0 21.333 21.333zM518.4 1002.667q0 21.333-21.333 21.333h-162.133q-21.333 0-21.333-21.333v-162.133q0-21.333 21.333-21.333h162.133q21.333 0 21.333 21.333zM819.2 729.6q0 21.333-21.333 21.333h-162.133q-21.333 0-21.333-21.333v-162.133q0-21.333 21.333-21.333h162.133q21.333 0 21.333 21.333z"
+          ],
+          "attrs": [
+            {}
+          ],
+          "width": 819,
+          "isMulticolor": false,
+          "isMulticolor2": false,
+          "grid": 0,
+          "tags": [
+            "horde"
+          ],
+          "colorPermutations": {
+            "10310817311111201251112120125111413721811361700114110870114419121311441922131144193213115212945115710317311571031741551132001": [
+              {}
+            ]
+          }
+        },
+        {
+          "id": 120,
+          "paths": [
+            "M397.344 2.271q-211.157 9.082-238.404 86.279-4.541 13.623-4.541 38.599-2.271 65.845-15.894 115.796-15.894 61.304-88.55 163.477-49.951 72.656-49.951 133.96 0 74.927 49.951 124.878 43.14 43.14 104.443 56.763 47.681 4.541 79.468-2.271 54.492-9.082 102.173-47.681l11.353-6.812v18.164q0 54.492 15.894 84.009 6.812 13.623 22.705 29.517 13.623 13.623 31.787 27.246l13.623 9.082v38.599l-31.787 18.164-29.517 20.435-2.271 27.246v29.517h59.033l9.082 27.246 9.082 29.517h52.222l11.353-29.517 9.082-27.246h56.763v-56.763l-31.787-20.435-29.517-18.164v-38.599l11.353-9.082q43.14-31.787 54.492-52.222 18.164-31.787 18.164-84.009v-9.082l4.541-13.623v2.271q15.894 15.894 47.681 29.517 49.951 27.246 102.173 27.246 65.845 0 113.525-34.058 31.787-18.164 52.222-54.492 47.681-72.656 18.164-149.854-15.894-45.41-61.304-108.984-29.517-38.599-43.14-65.845-34.058-68.115-40.869-181.641-2.271-47.681-20.435-65.845-27.246-29.517-90.82-43.14-99.902-27.246-281.543-18.164zM376.909 129.419l95.361 9.082 95.361-9.082q99.902-6.812 118.067-4.541 13.623 4.541 15.894 14.758t-9.082 19.299q-38.599 29.517-238.404 24.976-165.747-4.541-202.075-24.976-11.353-6.812-11.353-15.894 2.271-15.894 24.976-18.164 9.082-2.271 111.255 4.541zM331.499 306.519q65.845 4.541 120.337 18.164l18.164 2.271 29.517-4.541q74.927-13.623 154.395-18.164 49.951-4.541 84.009 11.353 27.246 13.623 81.738 81.738 38.599 59.033 59.033 106.714 4.541 18.164 4.541 40.869 0 38.599-13.623 61.304-29.517 59.033-120.337 63.574-4.541 0-15.894-1.135t-13.623-1.135q-65.845-13.623-129.419-77.197-31.787-31.787-49.951-68.115-27.246-54.492-27.246-124.878 0-27.246-29.517-34.058-29.517-4.541-47.681 9.082-6.812 11.353-6.812 27.246 0 81.738-45.41 154.395-54.492 77.197-133.96 106.714-56.763 20.435-113.525 0-43.14-13.623-63.574-52.222-11.353-27.246-13.623-49.951-2.271-34.058 6.812-59.033 24.976-74.927 106.714-158.936 29.517-27.246 52.222-31.787 31.787-9.082 106.714-2.271zM247.49 347.388q-20.435 2.271-45.41 22.705-56.763 40.869-93.091 113.525-13.623 24.976-15.894 54.492 0 40.869 22.705 63.574 15.894 15.894 47.681 24.976 36.328 9.082 70.386 0 52.222-15.894 90.82-56.763 59.033-65.845 65.845-165.747 2.271-24.976 0-31.787-11.353-18.164-45.41-24.976-38.599-4.541-97.632 0zM601.69 347.388q-38.599 6.812-49.951 27.246-2.271 6.812-2.271 27.246 6.812 61.304 29.517 111.255 15.894 34.058 47.681 61.304 38.599 38.599 81.738 52.222 11.353 2.271 36.328 2.271 36.328 0 61.304-11.353 24.976-15.894 31.787-31.787 11.353-18.164 11.353-49.951 0-72.656-104.443-158.936-31.787-27.246-54.492-29.517-52.222-4.541-88.55 0z"
+          ],
+          "attrs": [
+            {}
+          ],
+          "width": 947,
+          "isMulticolor": false,
+          "isMulticolor2": false,
+          "grid": 0,
+          "tags": [
+            "antichess"
+          ],
+          "colorPermutations": {
+            "10310817311111201251112120125111413721811361700114110870114419121311441922131144193213115212945115710317311571031741551132001": [
+              {}
+            ]
+          }
+        },
+        {
+          "id": 119,
+          "paths": [
+            "M514.338 582.137v-128.584q-119.233 9.352-257.169 77.151v123.909q142.612-65.461 257.169-72.475zM514.338 301.589v-130.922q-116.895 7.014-257.169 84.164v126.247q140.274-72.475 257.169-79.489zM1068.42 612.53v-123.909q-156.639 77.151-254.831 46.758v-149.626q-18.703-4.676-25.717-9.352l-2.338-2.338q-4.676-2.338-10.521-4.676t-10.521-4.676l-9.352-4.676q0 0-8.183-4.676t-5.845-2.338h-2.338l-18.703-9.352q-18.703-9.352-23.379-9.352-2.338-2.338-21.041-9.352-4.676-2.338-12.858-5.845t-10.521-3.507q-4.676 0-23.379-4.676t-25.717-4.676q-9.352-2.338-28.055-2.338-9.352-2.338-28.055-2.338-21.041 0-32.731 2.338v147.288h11.689q67.799 0 128.584 21.041 53.772 16.365 133.26 53.772 7.014 4.676 25.717 9.352v126.247q30.393 11.689 60.785 11.689 77.151 0 194.046-60.785zM1068.42 327.306v-126.247q-114.557 60.785-203.397 60.785-30.393 0-51.434-7.014v130.922q98.192 28.055 254.831-58.447zM170.667 84.164q0 28.055-11.689 42.082-9.352 18.703-30.393 32.731v843.982q0 7.014-4.676 16.365-4.676 4.676-16.365 4.676h-42.082q-11.689 0-16.365-4.676t-4.676-16.365v-843.982q-18.703-14.027-32.731-32.731-11.689-18.703-11.689-42.082 0-35.068 25.717-60.785 23.379-23.379 60.785-23.379t60.785 23.379 23.379 60.785zM1154.922 126.247v509.662q0 25.717-23.379 39.744-9.352 4.676-11.689 4.676-142.612 77.151-245.479 77.151-60.785 0-105.205-23.379l-18.703-9.352q-39.744-18.703-67.799-30.393-18.703-9.352-60.785-21.041-46.758-9.352-74.813-9.352-60.785 0-158.977 30.393-86.502 28.055-151.963 67.799-11.689 7.014-21.041 7.014t-21.041-7.014q-23.379-9.352-23.379-37.406v-495.635q0-21.041 21.041-35.068 32.731-18.703 53.772-28.055 2.338-2.338 74.813-35.068 56.11-23.379 102.868-32.731 53.772-14.027 102.868-14.027 72.475 0 140.274 21.041 70.137 23.379 140.274 58.447 28.055 11.689 58.447 11.689 79.489 0 208.073-74.813 14.027-7.014 18.703-11.689 21.041-11.689 42.082 2.338t21.041 35.068z"
+          ],
+          "attrs": [
+            {}
+          ],
+          "width": 1155,
+          "isMulticolor": false,
+          "isMulticolor2": false,
+          "grid": 0,
+          "tags": [
+            "racingkings"
+          ],
+          "colorPermutations": {
+            "10310817311111201251112120125111413721811361700114110870114419121311441922131144193213115212945115710317311571031741551132001": [
+              {}
+            ]
+          }
+        },
         {
           "id": 118,
           "paths": [
@@ -17263,7 +17350,7 @@
           "id": 31,
           "prevSize": 32,
           "code": 59678,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "ligatures": "book, read",
@@ -17272,7 +17359,7 @@
           "id": 32,
           "prevSize": 32,
           "code": 59679,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "ligatures": "books, library",
@@ -18007,7 +18094,7 @@
           "id": 154,
           "prevSize": 32,
           "code": 128030,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "ligatures": "pie-chart, stats",
@@ -18106,7 +18193,7 @@
           "id": 170,
           "prevSize": 32,
           "code": 59817,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "ligatures": "lab, beta",
@@ -18169,7 +18256,7 @@
           "id": 180,
           "prevSize": 32,
           "code": 59827,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "ligatures": "shield, security",
@@ -18706,7 +18793,7 @@
           "id": 269,
           "prevSize": 32,
           "code": 59916,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "ligatures": "cancel-circle, close",
@@ -18805,7 +18892,7 @@
           "id": 285,
           "prevSize": 32,
           "code": 59932,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "ligatures": "pause2, player9",
@@ -18814,7 +18901,7 @@
           "id": 286,
           "prevSize": 32,
           "code": 59933,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "ligatures": "stop2, player10",
@@ -18949,7 +19036,7 @@
           "id": 308,
           "prevSize": 32,
           "code": 11016,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "ligatures": "arrow-right, right3",
@@ -18964,7 +19051,7 @@
           "id": 310,
           "prevSize": 32,
           "code": 11018,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "ligatures": "arrow-down, down",
@@ -27591,7 +27678,7 @@
     "showCodes": true,
     "gridSize": 16,
     "quickUsageToken": {
-      "pychess-variants": null
+      "pychess-variants1": null
     },
     "showLiga": false
   },

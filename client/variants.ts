@@ -437,10 +437,19 @@ export const VARIANTS: Record<string, Variant> = {
         },
     }),
 
+    antichess: variant({
+        name: "antichess", tooltip: "Lose all your pieces to win.",
+        startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+        chess960: true, icon: "🐥", icon960: "🐥",
+        boardFamily: "standard8x8", pieceFamily: "standard",
+        pieceRow: ["k", "q", "r", "b", "n", "p"],
+        rules: { enPassant: true },
+    }),
+
     racingkings: variant({
         name: "racingkings", displayName: "racing kings", tooltip: "Race your King to the eighth rank to win.",
         startFen: "8/8/8/8/8/8/krbnNBRK/qrbnNBRQ w - - 0 1",
-        chess960: true, icon: "🏁", icon960: "🏁",
+        chess960: true, icon: "🚗", icon960: "🚗",
         boardFamily: "standard8x8", pieceFamily: "standard",
         pieceRow: ["k", "q", "r", "b", "n", "p"],
         ui: { boardMark: 'racingkings' },
@@ -1074,7 +1083,7 @@ export const noPuzzleVariants = [
 ]
 
 export const variantGroups: { [ key: string ]: { variants: string[] } } = {
-    standard: { variants: [ "chess", "bughouse", "crazyhouse", "atomic", "kingofthehill", "3check", "racingkings", "placement", "duck", "alice", "fogofwar" ] },
+    standard: { variants: [ "chess", "bughouse", "crazyhouse", "atomic", "kingofthehill", "3check", "antichess", "racingkings", "placement", "duck", "alice", "fogofwar" ] },
     sea:      { variants: [ "makruk", "makpong", "cambodian", "sittuyin", "asean" ] },
     shogi:    { variants: [ "shogi", "minishogi", "kyotoshogi", "dobutsu", "gorogoroplus", "torishogi", "cannonshogi" ] },
     xiangqi:  { variants: [ "xiangqi", "manchu", "janggi", "minixiangqi" ] },

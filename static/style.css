@@ -39,6 +39,15 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+.icon-horde:before {
+  content: "\1f416";
+}
+.icon-antichess:before {
+  content: "\1f425";
+}
+.icon-racingkings:before {
+  content: "\1f697";
+}
 .icon-FogOfWar:before {
   content: "\1f32b";
 }

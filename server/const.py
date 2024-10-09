@@ -124,6 +124,10 @@ VARIANTS = (
     "kingofthehill960",
     "3check",
     "3check960",
+    "antichess",
+    "antichess960",
+    "racingkings",
+    "racingkings960",
     "placement",
     "duck",
     "alice",
@@ -177,8 +181,6 @@ VARIANTS = (
     "chennis",
     "spartan",
     "ataxx",
-    "racingkings",
-    "racingkings960",
 )
 
 # Remove new variants on prod site until they stabilize
@@ -248,8 +250,10 @@ VARIANT_ICONS = {
     "bughouse960": "⌀",
     "alice": "👧",
     "fogofwar": "🌫",
-    "racingkings": "🏁",
-    "racingkings960": "🏁",
+    "antichess": "🐥",
+    "antichess960": "🐥",
+    "racingkings": "🚗",
+    "racingkings960": "🚗",
 }
 
 VARIANT_960_TO_PGN = {
@@ -268,6 +272,7 @@ VARIANT_960_TO_PGN = {
     "makruk": "Makruk",
     "placement": "Placement",
     "grand": "Grand",
+    "antichess": "Antichess960",
     "racingkings": "Racingkings960",
 }
 
@@ -286,6 +291,8 @@ CATEGORIES = {
         "kingofthehill960",
         "3check",
         "3check960",
+        "antichess",
+        "antichess960",
         "racingkings",
         "racingkings960",
         "duck",
@@ -474,6 +481,8 @@ TRANSLATED_VARIANT_NAMES = {
     "3check": _("Three check"),
     "3check960": _("Three check 960"),
     "mansindam": _("Mansindam"),
+    "antichess": _("Antichess"),
+    "antichess960": _("Antichess960"),
     "racingkings": _("Racing Kings"),
     "racingkings960": _("Racing Kings 960"),
 }

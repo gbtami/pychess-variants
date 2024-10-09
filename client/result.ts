@@ -120,8 +120,11 @@ export function result(variant: Variant, status: number, result: string, bughous
                 case 'fogofwar':
                     text = _('King captured');
                     break;
-                default:
+                case 'ataxx':
                     text = _('Point counting');
+                    break;
+                default:
+                    text = _('Variant ending');
                     break;
             }
             break;
