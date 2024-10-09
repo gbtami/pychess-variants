@@ -128,6 +128,8 @@ VARIANTS = (
     "antichess960",
     "racingkings",
     "racingkings960",
+    "horde",
+    "horde960",
     "placement",
     "duck",
     "alice",
@@ -254,6 +256,8 @@ VARIANT_ICONS = {
     "antichess960": "🐥",
     "racingkings": "🚗",
     "racingkings960": "🚗",
+    "horde": "🐖",
+    "horde960": "🐖",
 }
 
 VARIANT_960_TO_PGN = {
@@ -272,8 +276,9 @@ VARIANT_960_TO_PGN = {
     "makruk": "Makruk",
     "placement": "Placement",
     "grand": "Grand",
-    "antichess": "Antichess960",
-    "racingkings": "Racingkings960",
+    "antichess": "Antichess",  # to let lichess import work
+    "racingkings": "Racingkings",  # to let lichess import work
+    "horde": "Horde",  # to let lichess import work
 }
 
 CATEGORIES = {
@@ -295,6 +300,8 @@ CATEGORIES = {
         "antichess960",
         "racingkings",
         "racingkings960",
+        "horde",
+        "horde960",
         "duck",
         "alice",
         "fogofwar",
@@ -485,6 +492,8 @@ TRANSLATED_VARIANT_NAMES = {
     "antichess960": _("Antichess960"),
     "racingkings": _("Racing Kings"),
     "racingkings960": _("Racing Kings 960"),
+    "horde": _("Horde"),
+    "horde960": _("Horde960"),
 }
 
 del _

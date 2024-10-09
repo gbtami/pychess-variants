@@ -63,6 +63,7 @@ V2C = {
     "fogofwar": "Q",
     "antichess": "’",
     "racingkings": "°",
+    "horde": "š",
 }
 C2V = {v: k for k, v in V2C.items()}
 

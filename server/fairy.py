@@ -366,18 +366,28 @@ class FairyBoard:
 
         checks = "3+3 " if variant == "3check" else ""
 
-        fen = (
-            fen
-            + body
-            + fen.upper()
-            + holdings
-            + " w "
-            + castl.upper()
-            + castl
-            + " - "
-            + checks
-            + "0 1"
-        )
+        if variant == "horde":
+            fen = (
+                fen
+                + "/pppppppp/8/1PP2PP1/PPPPPPPP/PPPPPPPP/PPPPPPPP/PPPPPPPP"
+                + " w "
+                + castl
+                + " - "
+                + "0 1"
+            )
+        else:
+            fen = (
+                fen
+                + body
+                + fen.upper()
+                + holdings
+                + " w "
+                + castl.upper()
+                + castl
+                + " - "
+                + checks
+                + "0 1"
+            )
         return fen
 
 

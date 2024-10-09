@@ -826,6 +826,8 @@ def sanitize_fen(variant, initial_fen, chess960):
     wK = init[0].count(wking)
     if variant == "spartan":
         invalid5 = bK == 0 or bK > 2 or wK != 1
+    elif variant == "horde":
+        invalid5 = bK != 1
     else:
         invalid5 = bK != 1 or wK != 1
 
