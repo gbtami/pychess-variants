@@ -180,8 +180,10 @@ export function validFen(variant: Variant, fen: string): boolean {
     switch (variantName) {
         case 'spartan':
             if (bK === 0 || bK > 2 || wK !== 1) return false;
+            break;
         case 'horde':
             if (bK !== 1 || wK !== 0) return false;
+            break;
         default:
             if (bK !== 1 || wK !== 1) return false;
     }
