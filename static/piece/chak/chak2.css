@@ -1,0 +1,123 @@
+.chak piece.s-piece.white.ally {
+    background-image: url('../../images/pieces/chak/mayav2/0_WS.svg');
+}
+.chak piece.pk-piece.white.ally {
+    background-image: url('../../images/pieces/chak/mayav2/0_WD.svg');
+}
+.chak piece.j-piece.white.ally {
+    background-image: url('../../images/pieces/chak/mayav2/0_WJ.svg');
+}
+.chak piece.k-piece.white.ally {
+    background-image: url('../../images/pieces/chak/mayav2/0_WK.svg');
+}
+.chak piece.o-piece.white.ally {
+    background-image: url('../../images/pieces/chak/mayav2/0_WO.svg');
+}
+.chak piece.p-piece.white.ally {
+    background-image: url('../../images/pieces/chak/mayav2/0_WP.svg');
+}
+.chak piece.q-piece.white.ally {
+    background-image: url('../../images/pieces/chak/mayav2/0_WQ.svg');
+}
+.chak piece.r-piece.white.ally {
+    background-image: url('../../images/pieces/chak/mayav2/0_WR.svg');
+}
+.chak piece.v-piece.white.ally {
+    background-image: url('../../images/pieces/chak/mayav2/0_WV.svg');
+}
+.chak piece.pp-piece.white.ally {
+    background-image: url('../../images/pieces/chak/mayav2/0_WW.svg');
+}
+
+.chak piece.s-piece.black.ally {
+    background-image: url('../../images/pieces/chak/mayav2/0_GS.svg');
+}
+.chak piece.pk-piece.black.ally {
+    background-image: url('../../images/pieces/chak/mayav2/0_GD.svg');
+}
+.chak piece.j-piece.black.ally {
+    background-image: url('../../images/pieces/chak/mayav2/0_GJ.svg');
+}
+.chak piece.k-piece.black.ally {
+    background-image: url('../../images/pieces/chak/mayav2/0_GK.svg');
+}
+.chak piece.o-piece.black.ally {
+    background-image: url('../../images/pieces/chak/mayav2/0_GO.svg');
+}
+.chak piece.p-piece.black.ally {
+    background-image: url('../../images/pieces/chak/mayav2/0_GP.svg');
+}
+.chak piece.q-piece.black.ally {
+    background-image: url('../../images/pieces/chak/mayav2/0_GQ.svg');
+}
+.chak piece.r-piece.black.ally {
+    background-image: url('../../images/pieces/chak/mayav2/0_GR.svg');
+}
+.chak piece.v-piece.black.ally {
+    background-image: url('../../images/pieces/chak/mayav2/0_GV.svg');
+}
+.chak piece.pp-piece.black.ally {
+    background-image: url('../../images/pieces/chak/mayav2/0_GW.svg');
+}
+
+.chak piece.s-piece.white.enemy {
+    background-image: url('../../images/pieces/chak/mayav2/1_WS.svg');
+}
+.chak piece.pk-piece.white.enemy {
+    background-image: url('../../images/pieces/chak/mayav2/1_WD.svg');
+}
+.chak piece.j-piece.white.enemy {
+    background-image: url('../../images/pieces/chak/mayav2/1_WJ.svg');
+}
+.chak piece.k-piece.white.enemy {
+    background-image: url('../../images/pieces/chak/mayav2/1_WK.svg');
+}
+.chak piece.o-piece.white.enemy {
+    background-image: url('../../images/pieces/chak/mayav2/1_WO.svg');
+}
+.chak piece.p-piece.white.enemy {
+    background-image: url('../../images/pieces/chak/mayav2/1_WP.svg');
+}
+.chak piece.q-piece.white.enemy {
+    background-image: url('../../images/pieces/chak/mayav2/1_WQ.svg');
+}
+.chak piece.r-piece.white.enemy {
+    background-image: url('../../images/pieces/chak/mayav2/1_WR.svg');
+}
+.chak piece.v-piece.white.enemy {
+    background-image: url('../../images/pieces/chak/mayav2/1_WV.svg');
+}
+.chak piece.pp-piece.white.enemy {
+    background-image: url('../../images/pieces/chak/mayav2/1_WW.svg');
+}
+
+.chak piece.s-piece.black.enemy {
+    background-image: url('../../images/pieces/chak/mayav2/1_GS.svg');
+}
+.chak piece.pk-piece.black.enemy {
+    background-image: url('../../images/pieces/chak/mayav2/1_GD.svg');
+}
+.chak piece.j-piece.black.enemy {
+    background-image: url('../../images/pieces/chak/mayav2/1_GJ.svg');
+}
+.chak piece.k-piece.black.enemy {
+    background-image: url('../../images/pieces/chak/mayav2/1_GK.svg');
+}
+.chak piece.o-piece.black.enemy {
+    background-image: url('../../images/pieces/chak/mayav2/1_GO.svg');
+}
+.chak piece.p-piece.black.enemy {
+    background-image: url('../../images/pieces/chak/mayav2/1_GP.svg');
+}
+.chak piece.q-piece.black.enemy {
+    background-image: url('../../images/pieces/chak/mayav2/1_GQ.svg');
+}
+.chak piece.r-piece.black.enemy {
+    background-image: url('../../images/pieces/chak/mayav2/1_GR.svg');
+}
+.chak piece.v-piece.black.enemy {
+    background-image: url('../../images/pieces/chak/mayav2/1_GV.svg');
+}
+.chak piece.pp-piece.black.enemy {
+    background-image: url('../../images/pieces/chak/mayav2/1_GW.svg');
+}
