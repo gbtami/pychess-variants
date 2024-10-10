@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import asyncio
 import logging
-import random
 import unittest
 from datetime import datetime, timezone
 from operator import neg
@@ -13,17 +11,16 @@ from sortedcollections import ValueSortedDict
 from mongomock_motor import AsyncMongoMockClient
 
 import game
-from bug.game_bug import GameBug
-from bug.utils_bug import insert_game_to_db_bughouse
-from const import CREATED, STARTED, VARIANTS, STALEMATE, MATE
+from const import CREATED, VARIANTS, STALEMATE, MATE
 from fairy import FairyBoard
 from game import Game
+from bug.game_bug import GameBug
 from glicko2.glicko2 import DEFAULT_PERF, Glicko2, WIN, LOSS
 from login import RESERVED_USERS
 from newid import id8
 from server import make_app
 from user import User
-from utils import insert_game_to_db, sanitize_fen
+from utils import sanitize_fen
 from pychess_global_app_state_utils import get_app_state
 
 game.KEEP_TIME = 0
@@ -33,16 +30,16 @@ logging.basicConfig()
 logging.getLogger().setLevel(level=logging.ERROR)
 
 ZH960 = {
-    "user0": 1868,
-    "user1": 1861,
-    "user2": 1696,
-    "user3": 1685,
-    "user4": 1681,
-    "user5": 1668,
-    "user6": 1644,
-    "user7": 1642,  # peekitem(7)
-    "user8": 1642,
-    "user9": 1639,
+    "user0|NM": 1868,
+    "user1|IM": 1861,
+    "user2|GM": 1696,
+    "user3|": 1685,
+    "user4|": 1681,
+    "user5|": 1668,
+    "user6|": 1644,
+    "user7|": 1642,  # peekitem(7)
+    "user8|": 1642,
+    "user9|": 1639,
 }
 
 PERFS = {
@@ -90,6 +87,25 @@ class GameResultTestCase(AioHTTPTestCase):
 
     async def tearDownAsync(self):
         await self.client.close()
+
+    async def test_bughouse_checkmate(self):
+        FEN = "r1b2Q2/ppp4p/1kn5/1q3N2/8/2P5/P1PK1q~1P/1R6[Npp] w - - 0 33 | 1r1k3r/pPpn2pp/4Qn2/3p4/2pNP3/1Bb5/PPPP1PPP/R1B1K2R[RBBNPPPqrbbnppp] w KQ - 1 19"
+        game = GameBug(
+            get_app_state(self.app),
+            "12345678",
+            "bughouse",
+            FEN,
+            self.wplayer,
+            self.wplayer,
+            self.bplayer,
+            self.bplayer,
+            rated=False,
+        )
+
+        await game.play_move("d4c6", board="b", clocks=CLOCKS, clocks_b=CLOCKS)
+
+        self.assertEqual(game.result, "0-1")
+        self.assertEqual(game.status, MATE)
 
     async def test_atomic_stalemate(self):
         FEN = "K7/Rk6/2B5/8/8/8/7Q/8 w - - 0 1"
@@ -204,15 +220,11 @@ class RequestLobbyTestCase(AioHTTPTestCase):
         for user in app_state.users.values():
             if user.anon and user.username not in RESERVED_USERS:
                 user.remove_task.cancel()
-                try:
-                    await user.remove_task
-                except asyncio.CancelledError:
-                    pass
 
         await self.client.close()
 
     async def get_application(self):
-        app = make_app()
+        app = make_app(db_client=AsyncMongoMockClient())
         return app
 
     async def test_example(self):
@@ -220,60 +232,6 @@ class RequestLobbyTestCase(AioHTTPTestCase):
         self.assertEqual(resp.status, 200)
         text = await resp.text()
         self.assertIn("<title>PyChess", text)
-
-
-class GamePlayTestCase(AioHTTPTestCase):
-    async def startup(self, app):
-        app_state = get_app_state(self.app)
-        self.test_player = User(app_state, username="test_player", perfs=PERFS["newplayer"])
-        self.random_mover = app_state.users["Random-Mover"]
-
-    async def get_application(self):
-        app = make_app(db_client=AsyncMongoMockClient())
-        app.on_startup.append(self.startup)
-        return app
-
-    async def tearDownAsync(self):
-        await self.client.close()
-
-    async def play_random(self, game):
-        while game.status <= STARTED:
-            move = random.choice(game.legal_moves)
-            await game.play_move(move)
-
-    async def test_game_play(self):
-        """Playtest test_player vs Random-Mover"""
-        app_state = get_app_state(self.app)
-        for i, variant in enumerate(VARIANTS):
-            print(i, variant)
-            variant960 = variant.endswith("960")
-            variant_name = variant[:-3] if variant960 else variant
-            game_id = id8()
-            if variant_name == "bughouse":
-                pass
-            else:
-                game = Game(
-                    app_state,
-                    game_id,
-                    variant_name,
-                    "",
-                    self.test_player,
-                    self.random_mover,
-                    rated=False,
-                    chess960=variant960,
-                    create=True,
-                )
-                app_state.games[game.id] = game
-                await insert_game_to_db(game, app_state)
-                self.random_mover.game_queues[game_id] = None
-                await self.play_random(game)
-
-                pgn = game.pgn
-                self.assertIn(game.result, ("1-0", "0-1", "1/2-1/2"))
-                pgn_result = pgn[pgn.rfind(" ") + 1: -1]
-                self.assertEqual(game.result, pgn_result)
-
-            # await app_state.db.game.delete_one({"_id": game_id})
 
 
 class HighscoreTestCase(AioHTTPTestCase):
@@ -339,7 +297,7 @@ class HighscoreTestCase(AioHTTPTestCase):
 
         self.assertEqual(len(game.crosstable["r"]), 1)
         self.assertNotEqual(highscore0, highscore1)
-        self.assertTrue(self.wplayer.username in game.app_state.highscore["crazyhouse960"])
+        self.assertTrue(self.wplayer.username + "|" in game.app_state.highscore["crazyhouse960"])
 
     async def test_lost_and_out(self):
         game_id = id8()
@@ -371,7 +329,8 @@ class HighscoreTestCase(AioHTTPTestCase):
         self.assertEqual(len(game.crosstable["r"]), 1, msg="game.crosstable still empty")
         self.assertNotEqual(highscore0, highscore1, msg="highscore not changed")
         self.assertTrue(
-            self.wplayer.username not in game.app_state.highscore["crazyhouse960"].keys()[:10],
+            self.wplayer.username + "|"
+            not in game.app_state.highscore["crazyhouse960"].keys()[:10],
             msg="wplayer not in highscore",
         )
 
@@ -403,10 +362,12 @@ class HighscoreTestCase(AioHTTPTestCase):
         self.assertEqual(len(game.crosstable["r"]), 1)
         print(game.crosstable)
         self.assertTrue(
-            self.weak_player.username not in game.app_state.highscore["crazyhouse960"].keys()[:10]
+            self.weak_player.username + "|"
+            not in game.app_state.highscore["crazyhouse960"].keys()[:10]
         )
         self.assertTrue(
-            self.strong_player.username in game.app_state.highscore["crazyhouse960"].keys()[:10]
+            self.strong_player.username + "|"
+            in game.app_state.highscore["crazyhouse960"].keys()[:10]
         )
 
         # now strong player will lose to weak_player and should be out from leaderboard
@@ -433,10 +394,12 @@ class HighscoreTestCase(AioHTTPTestCase):
         print(game.crosstable)
         self.assertEqual(len(game.crosstable["r"]), 2)
         self.assertTrue(
-            self.weak_player.username not in game.app_state.highscore["crazyhouse960"].keys()[:10]
+            self.weak_player.username + "|"
+            not in game.app_state.highscore["crazyhouse960"].keys()[:10]
         )
         self.assertTrue(
-            self.strong_player.username not in game.app_state.highscore["crazyhouse960"].keys()[:10]
+            self.strong_player.username + "|"
+            not in game.app_state.highscore["crazyhouse960"].keys()[:10]
         )
 
 

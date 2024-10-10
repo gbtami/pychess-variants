@@ -182,8 +182,8 @@ async def login(request):
 
 
 async def logout(request, user=None):
-    app_state = get_app_state(request.app)
     if request is not None:
+        app_state = get_app_state(request.app)
         session = await aiohttp_session.get_session(request)
         session_user = session.get("user_name")
         user = await app_state.users.get(session_user)
@@ -202,15 +202,16 @@ async def logout(request, user=None):
         for ws in ws_set:
             await ws_send_json(ws, response)
 
-    # lose and close game sockets
+    # lose and close game sockets when ban() calls this from admin.py
     # TODO: this can't end game if logout came from an ongoing game
     # because its ws was already closed and removed from game_sockets
-    for gameId in user.game_sockets:
-        if gameId in app_state.games:
-            game = app_state.games[gameId]
-            if game.status <= STARTED:
-                response = await game.game_ended(user, "abandon")
-                await round_broadcast(game, response, full=True)
+    if not user.enabled:
+        for gameId in user.game_sockets:
+            if gameId in app_state.games:
+                game = app_state.games[gameId]
+                if game.status <= STARTED:
+                    response = await game.game_ended(user, "abandon")
+                    await round_broadcast(game, response, full=True)
 
     if request is not None:
         session.invalidate()

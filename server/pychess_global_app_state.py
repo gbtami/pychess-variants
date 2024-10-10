@@ -31,6 +31,7 @@ from const import (
     SCHEDULE_MAX_DAYS,
     ABORTED,
 )
+from broadcast import round_broadcast
 from discord_bot import DiscordBot, FakeDiscordBot
 from game import Game
 from generate_crosstable import generate_crosstable
@@ -40,6 +41,7 @@ from lobby import Lobby
 from scheduler import (
     MONTHLY_VARIANTS,
     SEATURDAY,
+    NEW_MONTHLY_VARIANTS,
     PAUSED_MONTHLY_VARIANTS,
     WEEKLY_VARIANTS,
     SHIELDS,
@@ -50,6 +52,7 @@ from seek import Seek
 from settings import DEV, FISHNET_KEYS, static_url, DISCORD_TOKEN
 from tournament import Tournament
 from tournaments import translated_tournament_name, get_scheduled_tournaments, load_tournament
+from typedefs import client_key
 from twitch import Twitch
 from user import User
 from users import Users, NotInDbUsers
@@ -90,16 +93,12 @@ class PychessGlobalAppState:
         # TODO: save/restore from db
         self.sent_lichess_team_msg: List[date] = []
 
-        # one deque per tournament! {tournamentId: collections.deque([], MAX_CHAT_LINES), ...}
-        self.tourneychat: dict[str, collections.deque] = {}
-
         self.seeks: dict[int, Seek] = {}
         self.games: dict[str, Game] = {}
         self.invites: dict[str, Seek] = {}
         self.game_channels: Set[queue] = set()
         self.invite_channels: Set[queue] = set()
         self.highscore = {variant: ValueSortedDict(neg) for variant in VARIANTS}
-        self.get_top10_users = True
         self.crosstable: dict[str, object] = {}
         self.shield = {}
         self.shield_owners = {}  # {variant: username, ...}
@@ -147,6 +146,12 @@ class PychessGlobalAppState:
 
         # Read tournaments, users and highscore from db
         try:
+            db_collections = await self.db.list_collection_names()
+
+            if "tournament_chat" not in db_collections:
+                await self.db.create_collection("tournament_chat")
+                await self.db.tournament_chat.create_index("tid")
+
             await self.db.tournament.create_index("startsAt")
             await self.db.tournament.create_index("status")
 
@@ -168,8 +173,6 @@ class PychessGlobalAppState:
 
             asyncio.create_task(generate_shield(self))
 
-            db_collections = await self.db.list_collection_names()
-
             if "highscore" not in db_collections:
                 await generate_highscore(self)
             cursor = self.db.highscore.find()
@@ -177,6 +180,7 @@ class PychessGlobalAppState:
                 if doc["_id"] in VARIANTS:
                     self.highscore[doc["_id"]] = ValueSortedDict(neg, doc["scores"])
 
+            # TODO: read it on demand only, similar to users
             if "crosstable" not in db_collections:
                 await generate_crosstable(self.db)
             cursor = self.db.crosstable.find()
@@ -230,21 +234,25 @@ class PychessGlobalAppState:
                 await self.db.create_collection("seek")
             await self.db.seek.create_index("expireAt", expireAfterSeconds=0)
 
-            # Read correspondence seeks
+            # Load seeks from database
             async for doc in self.db.seek.find():
                 user = await self.users.get(doc["user"])
                 if user is not None:
                     seek = Seek(
+                        doc["_id"],
                         user,
                         doc["variant"],
                         fen=doc["fen"],
                         color=doc["color"],
                         day=doc["day"],
                         rated=doc["rated"],
+                        rrmin=doc.get("rrmin"),
+                        rrmax=doc.get("rrmax"),
                         chess960=doc["chess960"],
                         player1=user,
                         expire_at=doc.get("expireAt"),
                     )
+                    log.debug("Loading seek from database: %s" % seek)
                     self.seeks[seek.id] = seek
                     user.seeks[seek.id] = seek
 
@@ -260,11 +268,12 @@ class PychessGlobalAppState:
                     continue
 
                 if doc["s"] < ABORTED:
+                    game_id = doc["_id"]
                     try:
-                        game = await load_game(self, doc["_id"])
+                        game = await load_game(self, game_id)
                         if game is None:
                             continue
-                        self.games[doc["_id"]] = game
+                        self.games[game_id] = game
                         if corr:
                             game.wplayer.correspondence_games.append(game)
                             game.bplayer.correspondence_games.append(game)
@@ -276,7 +285,18 @@ class PychessGlobalAppState:
                                 game.gameClocks.restart("a")
                                 game.gameClocks.restart("b")
                     except NotInDbUsers:
-                        log.error("Failed toload game %s", doc["_id"])
+                        log.error("Failed toload game %s", game_id)
+
+                    if game.bot_game:
+                        if len(game.board.move_stack) > 0 and len(game.steps) == 1:
+                            game.create_steps()
+                        bot_player = game.wplayer if game.wplayer.bot else game.bplayer
+                        bot_player.game_queues[game_id] = asyncio.Queue()
+                        await bot_player.event_queue.put(game.game_start)
+                        await bot_player.game_queues[game_id].put(game.game_state)
+
+                    if game.board.ply > 0:
+                        self.g_cnt[0] += 1
 
             if "video" not in db_collections:
                 if DEV:
@@ -338,6 +358,7 @@ class PychessGlobalAppState:
             for variant in VARIANTS + PAUSED_MONTHLY_VARIANTS:
                 if (
                     variant in MONTHLY_VARIANTS
+                    or variant in NEW_MONTHLY_VARIANTS
                     or variant in SEATURDAY
                     or variant in PAUSED_MONTHLY_VARIANTS
                 ):
@@ -394,6 +415,46 @@ class PychessGlobalAppState:
         result[NONE_USER] = User(self, anon=True, username=NONE_USER)
         result[NONE_USER].enabled = False
         return result
+
+    async def server_shutdown(self):
+        self.shutdown = True
+
+        log.debug("\nServer shutdown activated\n")
+
+        # notify users
+        msg = "Server will restart in about 30 seconds. Sorry for the inconvenience!"
+        response = {"type": "roundchat", "user": "", "message": msg, "room": "player"}
+        for game in [game for game in self.games.values() if not game.corr]:
+            await round_broadcast(game, response, full=True)
+
+        # save correspondence and regular seeks to database
+        corr_seeks = [seek.corr_json for seek in self.seeks.values() if seek.day > 0]
+        reg_seeks = [
+            seek.seek_json for seek in self.seeks.values() if seek.day == 0 and seek.creator.online
+        ]
+        await self.db.seek.delete_many({})
+        if len(corr_seeks) > 0:
+            for seek in corr_seeks:
+                log.debug("saving correspondence seek to database: %s" % seek)
+            await self.db.seek.insert_many(corr_seeks)
+        if len(reg_seeks) > 0:
+            for seek in reg_seeks:
+                log.debug("saving regular seek to database: %s" % seek)
+            await self.db.seek.insert_many(reg_seeks)
+
+        # terminate BOT users
+        for user in [user for user in self.users.values() if user.bot]:
+            await user.event_queue.put('{"type": "terminated"}')
+
+        # close game_sockets
+        for user in [user for user in self.users.values() if not user.bot]:
+            await user.close_all_game_sockets()
+
+        # close lobbysockets
+        await self.lobby.close_lobby_sockets()
+
+        if client_key in self.app:
+            self.app[client_key].close()
 
     def online_count(self):
         return sum((1 for user in self.users.values() if user.online))

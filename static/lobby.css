@@ -98,7 +98,7 @@
 .mini cg-board {
   top: calc(100% / var(--ranks));
 }
-.cg-wrap.cg-512.mini, .cg-wrap.cg-640.mini, .cg-wrap.cg-576.mini, .cg-wrap.cg-448-516.mini, .cg-wrap.cg-260-360.mini, .cg-wrap.cg-260.mini, .cg-wrap.cg-156.mini, .cg-wrap.cg-448.mini, .cg-wrap.cg-576-640.mini, .cg-wrap.cg-640-640.mini, .cg-wrap.cg-540.mini {
+.cg-wrap.cg-512.mini, .cg-wrap.cg-640.mini, .cg-wrap.cg-576.mini, .cg-wrap.cg-448-516.mini, .cg-wrap.cg-260-360.mini, .cg-wrap.cg-260.mini, .cg-wrap.cg-156.mini, .cg-wrap.cg-448.mini, .cg-wrap.cg-576-640.mini, .cg-wrap.cg-640-640.mini, .cg-wrap.cg-janggi.mini, .cg-wrap.cg-540.mini {
   width: unset;
 }
 
@@ -123,10 +123,30 @@ rating {
 .modal-content input#fen {
     width: 80%;
 }
-
-div.tc-block {
+form#game-mode {
+    padding: 1em;
+}
+form#game-mode div.radio-group {
+    margin: 1em;
+}
+div.rating-range .slider {
+  width: 30%;
+  padding: .6em 0;
+  margin: 0;
+}
+div.tc-block, div#rating-range-setting {
     padding: 1em;
     background: var(--bg-color2);
     border-top: 1px solid var(--border-color);
     border-bottom: 1px solid var(--border-color);
+}
+.rating-range {
+  justify-content: center;
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+}
+.rating-range .rating-min, .rating-range .rating-max {
+    font-weight: inherit;
+    flex: 0 0 7ch;
 }

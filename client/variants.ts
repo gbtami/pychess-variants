@@ -3,9 +3,10 @@ import { h, InsertHook, VNode } from 'snabbdom';
 import * as cg from 'chessgroundx/types';
 import * as util from 'chessgroundx/util';
 
-import { BoardMarkType, ColorName, CountingType, MaterialPointType, PieceSoundType, PromotionSuffix, PromotionType, TimeControlType } from './chess';
+import { DARK_FEN, BoardMarkType, ColorName, CountingType, MaterialPointType, PieceSoundType, PromotionSuffix, PromotionType, TimeControlType, uci2LastMove } from './chess';
 import { _ } from './i18n';
 import { calculateDiff, Equivalence, MaterialDiff } from './material';
+import { getUnionFenFromFullFen } from './alice'; 
 
 export interface BoardFamily {
     readonly dimensions: cg.BoardDimensions;
@@ -19,7 +20,7 @@ export interface PieceFamily {
 
 export const BOARD_FAMILIES: Record<string, BoardFamily> = {
     ataxx7x7: { dimensions: { width: 7, height: 7 }, cg: "cg-448", boardCSS: ["ataxx.svg", "ataxx.png"] },
-    standard8x8: { dimensions: { width: 8, height: 8 }, cg: "cg-512", boardCSS: ["8x8brown.svg", "8x8blue.svg", "8x8green.svg", "8x8maple.jpg", "8x8olive.jpg", "8x8santa.png", "8x8wood2.jpg", "8x8wood4.jpg", "8x8ic.svg", "8x8purple.svg"] },
+    standard8x8: { dimensions: { width: 8, height: 8 }, cg: "cg-512", boardCSS: ["8x8brown.svg", "8x8blue.svg", "8x8green.svg", "8x8maple.jpg", "8x8olive.jpg", "8x8santa.png", "8x8wood2.jpg", "8x8wood4.jpg", "8x8ic.svg", "8x8purple.svg", "8x8dobutsu.svg"] },
     standard9x9: { dimensions: { width: 9, height: 9 }, cg: "cg-540", boardCSS: ["9x9mansindam.svg", "9x9brown.svg", "9x9blue.svg", "9x9green.svg", "9x9maple.jpg", "9x9olive.jpg"] },
     standard10x8: { dimensions: { width: 10, height: 8 }, cg: "cg-640", boardCSS: ["10x8brown.svg", "10x8blue.svg", "10x8green.svg", "10x8maple.jpg", "10x8olive.jpg"] },
     standard10x10: { dimensions: { width: 10, height: 10 }, cg: "cg-640-640", boardCSS: ["10x10brown.svg", "10x10blue.svg", "10x10green.svg", "10x10maple.jpg", "10x10olive.jpg"] },
@@ -41,7 +42,7 @@ export const BOARD_FAMILIES: Record<string, BoardFamily> = {
 
 export const PIECE_FAMILIES: Record<string, PieceFamily> = {
     ataxx: { pieceCSS: ["disguised", "virus", "zombie", "cat-dog"] },
-    standard: { pieceCSS: ["standard", "green", "alpha", "chess_kaneo", "santa", "maestro", "dubrovny", "atopdown", "disguised"] },
+    standard: { pieceCSS: ["standard", "green", "alpha", "chess_kaneo", "santa", "maestro", "dubrovny", "atopdown", "luffy", "disguised"] },
     capa: { pieceCSS: ["capa0", "capa1", "capa2", "capa3", "capa4", "capa5", "disguised"] },
     dragon: { pieceCSS: ["dragon1", "dragon0", "dragon2", "disguised"] },
     seirawan: { pieceCSS: ["seir1", "seir0", "seir2", "seir3", "seir4", "seir5", "disguised"] },
@@ -52,7 +53,7 @@ export const PIECE_FAMILIES: Record<string, PieceFamily> = {
     kyoto: { pieceCSS: ["kyoto", "kyotok", "kyotoks", "kyotoi", "kyotod", "disguised"] },
     dobutsu: { pieceCSS: ["dobutsu", "disguised"] },
     tori: { pieceCSS: ["torii", "torik", "torim", "porti", "cz", "disguised"] },
-    cannonshogi: { pieceCSS: ["ctp3d", "cz", "czalt", "disguised"] },
+    cannonshogi: { pieceCSS: ["ctp3d", "ctim", "cz", "czalt", "disguised"] },
     xiangqi: { pieceCSS: ["lishu", "xiangqi2di", "xiangqi", "xiangqict3", "xiangqihnz", "xiangqict2", "lishuw", "xiangqict2w", "xiangqiwikim", "xiangqiKa", "xiangqittxqhnz", "xiangqittxqintl", "xiangqi2d", "xiangqihnzw", 'basic', 'guided', "disguised", "euro"] },
     janggi: { pieceCSS: ["janggihb", "janggihg", "janggiikak", "janggiikaw", "janggikak", "janggikaw", "janggiib", "janggiig", "disguised"] },
     shako: { pieceCSS: ["shako0", "shako1", "shako2", "disguised"] },
@@ -64,7 +65,7 @@ export const PIECE_FAMILIES: Record<string, PieceFamily> = {
     shinobi: { pieceCSS: ["shinobi0", "shinobi1", "disguised"] },
     empire: { pieceCSS: ["empire0", "empire1", "disguised"] },
     ordamirror: { pieceCSS: ["ordamirror0", "ordamirror1", "disguised"] },
-    chak: { pieceCSS: ["chak0", "chak1", "disguised"] },
+    chak: { pieceCSS: ["chak0", "ronin", "chak1", "disguised"] },
     chennis: { pieceCSS: ["chennis0", "chennis1", "chennis2", "chennis3", "chennis4", "disguised"] },
     spartan: { pieceCSS: ["spartan0", "disguised"] },
     mansindam: { pieceCSS: ["mansindam2", "mansindam1", "mansindam3", "mansindam4", "disguised"] },
@@ -183,7 +184,7 @@ function variant(config: VariantConfig): Variant {
             noDrawOffer: !!config.rules?.noDrawOffer,
         },
         material: {
-            showDiff: !config.pocket?.captureToHand,
+            showDiff: !config.pocket?.captureToHand && !['alice', 'fogofwar'].includes(config.name),
             initialDiff: calculateDiff(config.startFen, BOARD_FAMILIES[config.boardFamily].dimensions, config.material?.equivalences ?? {}, !!config.pocket?.captureToHand),
             equivalences: config.material?.equivalences ?? {},
         },
@@ -436,6 +437,33 @@ export const VARIANTS: Record<string, Variant> = {
         },
     }),
 
+    antichess: variant({
+        name: "antichess", tooltip: "Lose all your pieces to win.",
+        startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+        chess960: true, icon: "🐥", icon960: "🐥",
+        boardFamily: "standard8x8", pieceFamily: "standard",
+        pieceRow: ["k", "q", "r", "b", "n", "p"],
+        rules: { enPassant: true },
+    }),
+
+    racingkings: variant({
+        name: "racingkings", displayName: "racing kings", tooltip: "Race your King to the eighth rank to win.",
+        startFen: "8/8/8/8/8/8/krbnNBRK/qrbnNBRQ w - - 0 1",
+        chess960: true, icon: "🚗", icon960: "🚗",
+        boardFamily: "standard8x8", pieceFamily: "standard",
+        pieceRow: ["k", "q", "r", "b", "n", "p"],
+        ui: { boardMark: 'racingkings' },
+    }),
+
+    horde: variant({
+        name: "horde", tooltip: "Destroy the horde to win!",
+        startFen: "rnbqkbnr/pppppppp/8/1PP2PP1/PPPPPPPP/PPPPPPPP/PPPPPPPP/PPPPPPPP w kq - 0 1",
+        chess960: true, icon: "🐖", icon960: "🐖",
+        boardFamily: "standard8x8", pieceFamily: "standard",
+        pieceRow: { "white": ["p"], "black": ["k", "q", "r", "b", "n", "p"] },
+        rules: { enPassant: true },
+    }),
+
     duck: variant({
         name: "duck", tooltip: "The duck must be moved to a new square after every turn.",
         startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
@@ -443,6 +471,30 @@ export const VARIANTS: Record<string, Variant> = {
         boardFamily: "standard8x8", pieceFamily: "standard",
         pieceRow: { white: ["k", "q", "r", "b", "n", "p", "*"], black: ["k", "q", "r", "b", "n", "p"] },
         rules: { enPassant: true, duck: true },
+    }),
+
+    alice: variant({
+        name: "alice", tooltip: "Through the Looking-Glass",
+        startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1 | 8/8/8/8/8/8/8/8 w - - 0 1",
+        icon: "👧",
+        boardFamily: "standard8x8", pieceFamily: "standard",
+        pieceRow: ["k", "q", "r", "b", "n", "p"],
+        rules: { enPassant: false },
+        alternateStart: {
+            '': "",
+            'Looking glass': "8/8/8/8/8/8/PPPPPPPP/RNBQKBNR w KQ - 0 1 | rnbqkbnr/pppppppp/8/8/8/8/8/8 w kq - 0 1",
+        },
+        // For Alice chess other board pieces we use promoted pieces to let them style differently,
+        ui: { boardMark: 'alice' },
+    }),
+
+    fogofwar: variant({
+        name: "fogofwar", displayName: "fog of war", tooltip: "Players can only see the squares to which their pieces can legally move to.",
+        startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+        icon: "🌫",
+        boardFamily: "standard8x8", pieceFamily: "standard",
+        pieceRow: ["k", "q", "r", "b", "n", "p"],
+        rules: { enPassant: true },
     }),
 
     makruk: variant({
@@ -645,15 +697,19 @@ export const VARIANTS: Record<string, Variant> = {
     }),
 
     manchu: variant({
-        name: "manchu", tooltip: "Xiangqi variant where one side has a chariot that can also move as a cannon or horse.",
-        startFen: "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/9/9/M1BAKAB2 w - - 0 1",
+        name: "manchu", displayName: "manchu+", tooltip: "Xiangqi variant where one side has a chariot that can also move as a cannon or horse.",
+        // Manchu+R proved to be balanced
+        startFen: "m1bakab1r/9/9/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1",
         icon: "{",
         boardFamily: "xiangqi9x10", pieceFamily: "xiangqi",
-        // XIANGQI_WXF can't handle Manchu banner piece!
-        // so notation have to remain the default cg.Notation.ALGEBRAIC
+        notation: cg.Notation.XIANGQI_ARBNUM,
         colors: { first: "Red", second: "Black" },
-        pieceRow: { white: ["k", "a", "m", "b", "p"], black: ["k", "a", "c", "r", "b", "n", "p"] },
+        pieceRow: { white: ["k", "a", "c", "r", "b", "n", "p"], black: ["k", "a", "m", "r", "b", "p"] },
         promotion: { type: "regular", roles: [] },
+        alternateStart: {
+            '': '',
+            'Original Manchu': 'rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/9/9/M1BAKAB2 w - - 0 1',
+        },
     }),
 
     janggi: variant({
@@ -698,7 +754,10 @@ export const VARIANTS: Record<string, Variant> = {
             'Conservative': 'arnbqkbnrc/pppppppppp/10/10/10/10/PPPPPPPPPP/ARNBQKBNRC w KQkq - 0 1',
             'Embassy': 'rnbqkcabnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBQKCABNR w KQkq - 0 1',
             'Gothic': 'rnbqckabnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBQCKABNR w KQkq - 0 1',
+            'Grotesque': 'rbqnkcnabr/pppppppppp/10/10/10/10/PPPPPPPPPP/RBQNKCNABR w KQkq - 0 1',
             'Schoolbook': 'rqnbakbncr/pppppppppp/10/10/10/10/PPPPPPPPPP/RQNBAKBNCR w KQkq - 0 1',
+            'Univers': 'rbncqkanbr/pppppppppp/10/10/10/10/PPPPPPPPPP/RBNCQKANBR w KQkq - 0 1',
+            'Victorian': 'crnbakbnrq/pppppppppp/10/10/10/10/PPPPPPPPPP/CRNBAKBNRQ w KQkq - 0 1',
         },
     }),
 
@@ -717,7 +776,10 @@ export const VARIANTS: Record<string, Variant> = {
             'Conservative': 'arnbqkbnrc/pppppppppp/10/10/10/10/PPPPPPPPPP/ARNBQKBNRC[] w KQkq - 0 1',
             'Embassy': 'rnbqkcabnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBQKCABNR[] w KQkq - 0 1',
             'Gothic': 'rnbqckabnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBQCKABNR[] w KQkq - 0 1',
+            'Grotesque': 'rbqnkcnabr/pppppppppp/10/10/10/10/PPPPPPPPPP/RBQNKCNABR[] w KQkq - 0 1',
             'Schoolbook': 'rqnbakbncr/pppppppppp/10/10/10/10/PPPPPPPPPP/RQNBAKBNCR[] w KQkq - 0 1',
+            'Univers': 'rbncqkanbr/pppppppppp/10/10/10/10/PPPPPPPPPP/RBNCQKANBR[] w KQkq - 0 1',
+            'Victorian': 'crnbakbnrq/pppppppppp/10/10/10/10/PPPPPPPPPP/CRNBAKBNRQ[] w KQkq - 0 1',
         },
     }),
 
@@ -1024,10 +1086,15 @@ export const noPuzzleVariants = [
     "shinobiplus",
     "cannonshogi",
     "bughouse",
+    "alice",
+    "fogofwar",
+    "racingkings",
+    "antichess",
+    "horde",
 ]
 
 export const variantGroups: { [ key: string ]: { variants: string[] } } = {
-    standard: { variants: [ "chess", "bughouse", "crazyhouse", "atomic", "kingofthehill", "3check", "placement", "duck" ] },
+    standard: { variants: [ "chess", "bughouse", "crazyhouse", "atomic", "kingofthehill", "3check", "antichess", "racingkings", "horde", "placement", "duck", "alice", "fogofwar" ] },
     sea:      { variants: [ "makruk", "makpong", "cambodian", "sittuyin", "asean" ] },
     shogi:    { variants: [ "shogi", "minishogi", "kyotoshogi", "dobutsu", "gorogoroplus", "torishogi", "cannonshogi" ] },
     xiangqi:  { variants: [ "xiangqi", "manchu", "janggi", "minixiangqi" ] },
@@ -1080,4 +1147,16 @@ export function moddedVariant(variantName: string, chess960: boolean, pieces: cg
             return variantName.includes("house") ? "embassyhouse" : "embassy";
     }
     return variantName;
+}
+
+export function getLastMoveFen(variantName: string, lastMove: string, fen: string, result: string): [cg.Orig[] | undefined, string] {
+    switch (variantName) {
+        case 'alice':
+            return [uci2LastMove(lastMove), getUnionFenFromFullFen(fen, 0)];
+        case 'fogofwar':
+            // Prevent leaking ongoing game info
+            return [undefined, (result === "*") ? DARK_FEN : fen];
+        default:
+            return [uci2LastMove(lastMove), fen];
+    }
 }

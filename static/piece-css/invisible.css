@@ -51,3 +51,8 @@ piece.y-piece {}
 piece.py-piece {}
 piece.z-piece {}
 piece.pz-piece {}
+
+.xiangqi piece.black.m-piece, .manchu piece.black.m-piece, .xiangqi piece.white.m-piece, .manchu piece.white.m-piece {
+  background-color: unset;
+  border-radius: unset;
+}

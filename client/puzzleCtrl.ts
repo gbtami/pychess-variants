@@ -381,7 +381,7 @@ export class PuzzleController extends AnalysisController {
                 text = _('Puzzle complete!');
                 this.postSuccess(false);
             } else {
-                text = _('We have no more puzzle for this variant.');
+                text = _('We have no more puzzles for this variant.');
             }
         }
         this.completed = true;

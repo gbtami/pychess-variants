@@ -523,9 +523,17 @@ VIDEOS = [
     {
         "_id": "YfdpMQTnZRM",
         "title": "The chess dragon",
-        "author": " ChessFM",
+        "author": "ChessFM",
         "tags": ["Howto"],
         "target": "beginner",
         "duration": "5:54",
+    },
+    {
+        "_id": "JsSdRLVgoY4",
+        "title": "Mansindam vs shibamizo57",
+        "author": "Firicle",
+        "tags": ["Match"],
+        "target": "intermediate",
+        "duration": "44:22",
     },
 ]

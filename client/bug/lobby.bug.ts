@@ -5,7 +5,7 @@ import { _ } from "@/i18n";
 import { timeControlStr } from "@/view";
 import { disableCorr, LobbyController } from "@/lobby";
 
-export function switchEnablingLobbyControls(mode: CreateMode, variant: Variant){
+export function switchEnablingLobbyControls(mode: CreateMode, variant: Variant, anon: boolean){
         const rated = document.getElementById('rated')! as HTMLInputElement;
         const casual = document.getElementById('casual')! as HTMLInputElement;
         if (variant === VARIANTS["bughouse"]) {
@@ -18,13 +18,16 @@ export function switchEnablingLobbyControls(mode: CreateMode, variant: Variant){
             rated.disabled = false;
             rated.checked = vRated === "1";
             casual.checked = vRated === "0";
-            disableCorr(mode === 'playAI');
+            disableCorr(mode === 'playAI' || anon);
         }
 }
 
 export function bugJoinSeek(ctrl: LobbyController, e: Event, seek: Seek, joinAs: string) {
     e.stopPropagation();
     // seek[player] = ctrl.username;
+    if (ctrl.anon) {
+        alert(_("Anon users cannot join bughouse games"));
+    }
     ctrl.doSend({ type: "accept_seek", seekID: seek["seekID"], player: ctrl.username, joinAs: joinAs });
 }
 

@@ -49,19 +49,22 @@
 }
 
 /* *****************************************************************************************
- * round.css
+ * round.css pocket-top-partner pocket-bot-partner
  ******************************************************************************************* */
 
 @media (max-width: 799px) and (orientation: portrait) {
     .round-app.bug {
-        grid-template-columns: auto auto;
-        grid-template-rows:    auto
+        grid-template-columns: calc((var(--cg-width-a) / var(--files)) * var(--pocketLength)) calc(100vw - ((var(--cg-width-a) / var(--files)) * var(--pocketLength)));
+        grid-template-rows:
                                min-content
-                               auto
+                               min-content
+                               min-content
+                               min-content
+                               min-content
 
-                               auto
+                               max-content
                                min-content
-                               auto
+                               min-content
 
                                auto
                                auto
@@ -70,13 +73,16 @@
                                auto
                                auto
                                auto;
-        grid-template-areas:  'pocket-top clock-top'
+        grid-template-areas:
+                              'boardPartner pocket-top-partner'
+                              'boardPartner clockB-top'
+                              'boardPartner .'
+                              'boardPartner clockB-bot'
+                              'boardPartner pocket-bot-partner'
+
+                              'pocket-top clock-top'
                               'board board'
                               'pocket-bot clock-bot'
-
-                              'pocket-top-partner clockB-top'
-                              'boardPartner boardPartner'
-                              'pocket-bot-partner clockB-bot'
 
                               'tools tools'
                               'game-controls game-controls'
@@ -85,6 +91,7 @@
                               'toolsB toolsB'
                               'uboard uboard'
                               'uleft uleft';
+        column-gap: 0px;
     }
     under-left {
         display: none;
@@ -96,18 +103,81 @@
       font-size: var(--fs);
     }
     .pocket-top-partner .bughouse .pocket, .pocket-bot-partner .bughouse .pocket {
-      width: calc(var(--pocketLength) * (var(--cg-width-b) / var(--files)));
-      height: calc(var(--cg-height-b) / var(--ranks));
-      --fs: calc(var(--cg-height-b) / var(--ranks));
+      /*width: calc((100vw / (var(--files) + var(--pocketLength))) * var(--pocketLength));*/
+/*        width: auto;*/
+        width: calc((100vw - ((var(--cg-height-a) / var(--ranks)) * var(--pocketLength))));
+        height: calc((100vw - ((var(--cg-height-a) / var(--ranks)) * var(--pocketLength))) / var(--pocketLength));
+
+      /*height: calc(100cqmin / var(--pocketLength));*/
+/*      width: calc(var(--pocketLength) * (var(--cg-width-b) / var(--files)));
+      height: calc(var(--cg-height-b) / var(--ranks));*/
+      --fs: calc(20px / var(--ranks));
       font-size: var(--fs);
     }
     .clock-wrap {
       flex-direction: row-reverse;
     }
-
 }
 
-@media (min-width: 800px) {
+@media (max-height: 600px) and (orientation: landscape) {
+    body[data-variant='bughouse'] header {
+        display: none;
+    }
+    .round-app.bug {
+        grid-template-columns: 40vh 40vh 40vh 40vh auto;
+        grid-template-rows:
+                               10vh
+                               20vh
+                               20vh
+                               20vh
+                               20vh
+                               10vh
+
+                               auto
+                               auto
+                               auto
+                               auto
+                               auto
+                               auto;
+        grid-template-areas:
+
+                              'pocket-top clock-top pocket-top-partner clockB-top tools'
+                              'board board boardPartner boardPartner tools'
+                              'board board boardPartner boardPartner tools'
+                              'board board boardPartner boardPartner tools'
+                              'board board boardPartner boardPartner tools'
+                              'pocket-bot clock-bot pocket-bot-partner clockB-bot tools'
+
+                              'game-controls game-controls game-controls game-controls game-controls'
+                              'offer offer offer offer offer'
+                              'move-controls move-controls move-controls move-controls move-controls'
+                              'toolsB toolsB toolsB toolsB toolsB'
+                              'uboard uboard uboard uboard uboard'
+                              'uleft uleft uleft uleft uleft';
+        column-gap: 0px;
+    }
+    under-left {
+        display: none;
+    }
+    .pocket-top .bughouse .pocket, .pocket-bot .bughouse .pocket {
+      width: 40vh;
+      height: 10vh;
+      --fs: calc(var(--cg-height-a) / var(--ranks));
+      font-size: var(--fs);
+    }
+    .pocket-top-partner .bughouse .pocket, .pocket-bot-partner .bughouse .pocket {
+      width: 40vh;
+      height: 10vh;
+      --fs: calc(20px / var(--ranks));
+      font-size: var(--fs);
+    }
+    .clock-wrap {
+      flex-direction: row-reverse;
+        font-size: 5pt;
+    }
+}
+
+@media (min-height: 600px) and (orientation: landscape) {
     .bug .info-wrap0, .bug .info-wrap1, .bug .clock-wrap {
         justify-content: end;
     }
@@ -178,13 +248,28 @@ main.round.bug .pocket.bottom {
   margin-top: unset;
 }
 
-div#chatpresets{
+div#chatpresets {
   display: grid;
   grid-template-columns: auto auto auto auto auto;
   padding-top: 5px;
   grid-template-rows: auto auto auto auto;
   order: 3;
 }
+
+@media (max-width: 799px) and (orientation: portrait) {
+  div#chatpresets {
+    grid-template-columns: auto auto auto auto auto auto auto auto auto auto;
+  }
+  .bugroundchat.chat {
+      flex-direction: column-reverse;
+  }
+}
+@media (max-height: 600px) and (orientation: landscape) {
+  div#chatpresets {
+    grid-template-columns: auto auto auto auto auto;
+  }
+}
+
 
 div#chatpresets button.bugchat {
   width: 60%;
@@ -323,13 +408,19 @@ button.bugchat::-moz-focus-inner {
 }
 
 @media (max-width: 799px) and (orientation: portrait) {
-  .bug .info-wrap0 {
+  .bug .info-wrap0, .info-wrap0 {
+    flex-direction: column-reverse;
     grid-area: clock-top;
     justify-self: flex-end;
+    justify-content: right;
   }
-  .bug .info-wrap1 {
+  .bug .info-wrap1, .info-wrap1 {
     grid-area: clock-bot;
     justify-self: flex-end;
+    justify-content: right;
+  }
+  .clock-wrap{
+    align-self: end;
   }
 }
 

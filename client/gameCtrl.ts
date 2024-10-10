@@ -2,13 +2,14 @@ import { WebsocketHeartbeatJs } from './socket/socket';
 
 import { h, VNode } from 'snabbdom';
 import * as Mousetrap  from 'mousetrap';
+import * as fen from 'chessgroundx/fen';
 import * as cg from 'chessgroundx/types';
 import * as util from 'chessgroundx/util';
 
 import { _ } from './i18n';
 import { patch } from './document';
 import { Step, MsgChat, MsgFullChat, MsgSpectators, MsgShutdown,MsgGameNotFound } from './messages';
-import { adjacent, uci2LastMove, moveDests, cg2uci, unpromotedRole, UCIMove } from './chess';
+import { adjacent, DARK_FEN, uci2LastMove, moveDests, cg2uci, uci2cg, unpromotedRole, UCIMove } from './chess';
 import { InputType } from '@/input/input';
 import { GatingInput } from './input/gating';
 import { PromotionInput } from './input/promotion';
@@ -36,6 +37,7 @@ export abstract class GameController extends ChessgroundController implements Ch
     aiLevel: number;
     rated: string;
     corr : boolean;
+    fog: boolean;
 
     base: number;
     inc: number;
@@ -113,6 +115,7 @@ export abstract class GameController extends ChessgroundController implements Ch
         this.brating = model["brating"];
         this.rated = model["rated"];
         this.corr = model["corr"] === 'True';
+        this.fog = this.variant.name === 'fogofwar';
 
         this.spectator = this.username !== this.wplayer && this.username !== this.bplayer;
 
@@ -151,7 +154,7 @@ export abstract class GameController extends ChessgroundController implements Ch
 
         this.chessground.set({
             animation: {
-                enabled: localStorage.animation === undefined || localStorage.animation === "true",
+                enabled: (localStorage.animation === undefined || localStorage.animation === "true") && !this.fog,
             },
             movable: {
                 showDests: localStorage.showDests === undefined || localStorage.showDests === "true",
@@ -189,6 +192,7 @@ export abstract class GameController extends ChessgroundController implements Ch
     }
 
     setDests() {
+        // console.log("gameCtrl.setDests()");
         const legalMoves = this.ffishBoard.legalMoves().split(" ");
         const fakeDrops = this.variant.name === 'ataxx';
         const pieces = this.chessground.state.boardState.pieces;
@@ -211,6 +215,40 @@ export abstract class GameController extends ChessgroundController implements Ch
         if (this.steps.length === 1) {
             this.chessground.set({ check: (this.ffishBoard.isCheck()) ? this.turnColor : false});
         }
+    }
+
+    fogFen(currentFen: string): string {
+        // No king, no fog (game is over)
+        if (!currentFen.includes('k') || !currentFen.includes('K') || this.result !== '*') return currentFen;
+        
+        if (this.spectator) return DARK_FEN;
+
+        // Squares visibility is always calculated from my color turn perspective
+        const parts = currentFen.split(' ');
+        this.ffishBoard.setFen([parts[0], this.mycolor[0], parts[2], parts[3]].join(' '));
+        const legalMoves = this.ffishBoard.legalMoves().split(" ");
+
+        const pieces = fen.read(currentFen, this.variant.board.dimensions).pieces;
+        const myPieceKeys = Array.from(pieces.keys()).filter((key) => pieces.get(key)!.color === this.mycolor);
+        const visibleKeys = new Set(myPieceKeys);
+
+        // Add dest squares to visibleKeys
+        legalMoves.map(uci2cg).forEach(move => {
+            visibleKeys.add(move.slice(2, 4) as cg.Key);
+        });
+
+        // We use promoted block pieces as fog to let them style differently in extension.css
+        const fog = {
+            color: this.oppcolor,
+            role: '_-piece' as cg.Role,
+            promoted: true
+        }
+        const darks: cg.Key[] = util.allKeys(this.variant.board.dimensions).filter((key) => !(visibleKeys.has(key)));
+        const darkPieces: [cg.Key, cg.Piece][]  = darks.map((key) => [key, fog]);
+        const visiblePieces: [cg.Key, cg.Piece][] = Array.from(visibleKeys).filter((key) => pieces.get(key)).map((key) => [key, pieces.get(key)!]);
+        const newPieces: cg.Pieces = new Map(darkPieces.concat(visiblePieces));
+        
+        return fen.writeBoard(newPieces, this.variant.board.dimensions);
     }
 
     abstract toggleSettings(): void;
@@ -264,26 +302,28 @@ export abstract class GameController extends ChessgroundController implements Ch
     }
 
     goPly(ply: number, plyVari = 0) {
+        // console.log("gameCtrl.goPly()");
         const vv = this.steps[plyVari]?.vari;
         const step = (plyVari > 0 && vv) ? vv[ply - plyVari] : this.steps[ply];
         if (step === undefined) return;
 
-        const move = uci2LastMove(step.move);
+        const lastMove = uci2LastMove(step.move);
         let capture = false;
-        if (move) {
+        if (lastMove) {
             // 960 king takes rook castling is not capture
             // TODO Defer this logic to ffish.js
-            capture = (this.chessground.state.boardState.pieces.get(move[1] as cg.Key) !== undefined && step.san?.slice(0, 2) !== 'O-') || (step.san?.slice(1, 2) === 'x');
+            const piece = this.chessground.state.boardState.pieces.get(lastMove[1] as cg.Key);
+            capture = (piece !== undefined && piece.role !== '_-piece' && step.san?.slice(0, 2) !== 'O-') || (step.san?.slice(1, 2) === 'x');
         }
 
         this.chessground.set({
-            fen: step.fen,
+            fen: (this.fog) ? this.fogFen(step.fen) : step.fen,
             turnColor: step.turnColor,
             movable: {
                 color: step.turnColor,
             },
-            check: step.check,
-            lastMove: move,
+            check: (this.fog) ? false : step.check,
+            lastMove: (this.fog) ? undefined : lastMove,
         });
 
         // turnColor have to be actualized before setDests() !!!

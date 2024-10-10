@@ -59,7 +59,7 @@ The warlord (*polemarchos*) moves as a bishop combined with a knight (i.e. archb
 
 ![Captain](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/SpartanCaptain.png)
  
-The captain (*tyntagmatarchos*) moves one or two squares in any direction orthogonally. It can jump over blocking friendly/enemy pieces to reach the second square.
+The captain (*syntagmatarchis*) moves one or two squares in any direction orthogonally. It can jump over blocking friendly/enemy pieces to reach the second square.
 
 ### Lieutenant (L)
 

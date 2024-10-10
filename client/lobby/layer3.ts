@@ -12,8 +12,9 @@ import { layer2makruk } from './layer2makruk';
 import { layer2shogi } from './layer2shogi';
 import { layer2xiangqi } from './layer2xiangqi';
 
-export function layer3variant (container2Id: string, lobbyCtrl: LobbyController, variantName: string, chess960: boolean): void {
+export function layer3variant (container2Id: string, lobbyCtrl: LobbyController, variantName: string): void {
     const variant: Variant = VARIANTS[variantName];
+    const chess960 = false;
 
     let leve2func: (lobbyCtrl: LobbyController, containerId: string) => void, container3Id: string='';
     switch (container2Id) {
@@ -37,9 +38,9 @@ export function layer3variant (container2Id: string, lobbyCtrl: LobbyController,
                 h('div.icon', { attrs: { 'data-icon': variant.icon(chess960) } }, variant.displayName(chess960)),
             ]),
             h('ul.l3links-cont', [
-                h('li.l3links', { class: {"icon": true, "icon-crossedswords": true}, on: { click: () => lobbyCtrl.createGame(variantName, chess960) } }, createModeStr('createGame')),
-                h('li.l3links', { class: {"icon": true, "icon-crossedswords": true}, on: { click: () => lobbyCtrl.playFriend(variantName, chess960) } }, createModeStr('playFriend')),
-                h('li.l3links', { class: {"icon": true, "icon-bot": true}, on: { click: () => lobbyCtrl.playAI(variantName, chess960) } }, createModeStr('playAI')),
+                h('li.l3links', { class: {"icon": true, "icon-crossedswords": true}, on: { click: () => lobbyCtrl.createGame(variantName) } }, createModeStr('createGame')),
+                h('li.l3links', { class: {"icon": true, "icon-crossedswords": true}, on: { click: () => lobbyCtrl.playFriend(variantName) } }, createModeStr('playFriend')),
+                h('li.l3links', { class: {"icon": true, "icon-bot": true}, on: { click: () => lobbyCtrl.playAI(variantName) } }, createModeStr('playAI')),
             ]),
             h('h5#chessl3back', { class: {"icon": true, "icon-reply": true}, on: { click: () => leve2func(lobbyCtrl, container3Id) } }, _('Go Back')),
         ]),
@@ -100,6 +101,10 @@ function proTip (variant: string, chess960: boolean) {
         return _('Castling is only possible if the king and rook are dropped to their usual places like in standard Chess.');
     case 'duck':
         return _('Quack.');
+    case 'alice':
+        return _('Kings are much more at risk than in Chess.');
+    case 'fogofwar':
+        return _('Castling is essential.');
 // fairy
     case 'capablanca':
         return _('You can choose different starting setups including Embassy Chess and Gothic Chess.');

@@ -28,10 +28,10 @@ from const import (
     IMPORTED,
     variant_display_name,
     MAX_CHAT_LINES,
+    POCKET_PATTERN,
 )
 from fairy import FairyBoard, BLACK, WHITE
 from spectators import spectators
-from re import sub, split
 
 log = logging.getLogger(__name__)
 
@@ -113,10 +113,6 @@ class GameBug:
         self.messages = collections.deque([], MAX_CHAT_LINES)
         self.date = datetime.now(timezone.utc)
 
-        self.dests_a = {}
-        self.dests_b = {}
-        self.promotions_a = []
-        self.promotions_b = []
         self.lastmove = None
         self.lastmovePerBoardAndUser = {"a": {}, "b": {}}
         self.status = STARTED  # CREATED
@@ -125,16 +121,11 @@ class GameBug:
 
         disabled_fen = ""
 
-        if initial_fen:
-            fenA = initial_fen.split("|")[0].strip()
-            fenB = initial_fen.split("|")[1].strip()
-        elif chess960:
-            fenA = FairyBoard.shuffle_start(self.variant)
-            fenB = fenA
-        else:
-            self.initial_fen = FairyBoard.start_fen(self.variant)
-            fenA = self.initial_fen.split("|")[0].strip()
-            fenB = self.initial_fen.split("|")[1].strip()
+        start_fen = initial_fen if initial_fen else FairyBoard.start_fen(variant, chess960)
+        if chess960:
+            self.initial_fen = start_fen
+        fenA = start_fen.split("|")[0].strip()
+        fenB = start_fen.split("|")[1].strip()
 
         self.boards = {
             "a": FairyBoard(self.variant, fenA, self.chess960, 0, disabled_fen),
@@ -145,7 +136,9 @@ class GameBug:
 
         self.overtime = False
 
-        self.set_dests()
+        self.has_legal_moveA = self.boards["a"].has_legal_move()
+        self.has_legal_moveB = self.boards["b"].has_legal_move()
+
         self.checkA = self.boards["a"].is_checked()
         self.checkB = self.boards["b"].is_checked()
 
@@ -214,24 +207,16 @@ class GameBug:
         if self.status <= STARTED:
             self.gameClocks.update_clocks(board, clocks, clocks_b)
             try:
-                partner_board = "a" if board == "b" else "b"
                 last_move_captured_role = self.boards[board].piece_to_partner(move)
-                log.debug("lastMoveCapturedRole: %s", last_move_captured_role)
-                log.debug("self.boards[partner_board].fen: %s", self.boards[partner_board].fen)
-
-                # self.boards[partner_board].fen = partnerFen #
+                # Add the captured piece to the partner pocked
                 if last_move_captured_role is not None:
-                    board_fen_split = split(
-                        "[\\[\\]]", self.boards[partner_board].fen
-                    )  # todo: this doesnt work after first move when starting game from custom initial fen that doesnt
-                    #           have square brackets - either add them or dont consider it valid if missing pockets
-                    self.boards[partner_board].fen = (
-                        board_fen_split[0]
-                        + "["
-                        + board_fen_split[1]
-                        + last_move_captured_role
-                        + "]"
-                        + board_fen_split[2]
+                    partner_board = "a" if board == "b" else "b"
+                    log.debug("lastMoveCapturedRole: %s", last_move_captured_role)
+                    log.debug("self.boards[partner_board].fen: %s", self.boards[partner_board].fen)
+                    # todo: this doesnt work after first move when starting game from custom initial fen that doesnt
+                    #       have square brackets - either add them or dont consider it valid if missing pockets
+                    self.boards[partner_board].fen = POCKET_PATTERN.sub(
+                        r"[\1%s]" % last_move_captured_role, self.boards[partner_board].fen
                     )
 
                 san = self.boards[board].get_san(move)
@@ -239,7 +224,9 @@ class GameBug:
                 self.lastmovePerBoardAndUser[board][cur_player.username] = move
                 self.boards[board].push(move)
 
-                self.set_dests()
+                self.has_legal_moveA = self.boards["a"].has_legal_move()
+                self.has_legal_moveB = self.boards["b"].has_legal_move()
+
                 self.update_status()
 
                 move_a = move if board == "a" else ""
@@ -465,17 +452,17 @@ class GameBug:
 
     def check_checkmate_on_board_and_update_status(self, board: str):
         # it is not mate if there are possible move dests on the given board
-        if board == "a" and self.dests_a:
+        # todo: if it is check that is blockable, but no pieces in pocket, dests might be empty but it is not mate
+        if board == "a" and self.has_legal_moveA:
             return False
-        elif board == "b" and self.dests_b:
+        elif board == "b" and self.has_legal_moveB:
             return False
 
         # did it really end - chess rules for checkmate do not apply here if it is possible to block the check
         # with a piece that partner could potentially give. Check same position, but with full pocket
         # to confirm it is really checkmate even if we wait for partner
         fen_before = self.boards[board].fen
-        fen_fullpockets = sub("\\[.*\\]", "[qrbnpQRBNP]", fen_before)
-        self.boards[board].fen = fen_fullpockets
+        self.boards[board].fen = POCKET_PATTERN.sub("[qrbnpQRBNP]", fen_before)
         count_valid_moves_with_full_pockets = len(self.boards[board].legal_moves_no_history())
         self.boards[board].fen = fen_before
 
@@ -488,39 +475,6 @@ class GameBug:
             self.status = MATE
             return True
         return False
-
-    def set_dests(self):
-        dests_a = {}
-        dests_b = {}
-        promotions_a = []
-        promotions_b = []
-        moves_a = self.boards["a"].legal_moves_no_history()
-        moves_b = self.boards["b"].legal_moves_no_history()
-
-        for move in moves_a:
-            source, dest = move[0:2], move[2:4]
-            if source in dests_a:
-                dests_a[source].append(dest)
-            else:
-                dests_a[source] = [dest]
-
-            if not move[-1].isdigit():
-                promotions_a.append(move)
-
-        for move in moves_b:
-            source, dest = move[0:2], move[2:4]
-            if source in dests_b:
-                dests_b[source].append(dest)
-            else:
-                dests_b[source] = [dest]
-
-            if not move[-1].isdigit():
-                promotions_b.append(move)
-
-        self.dests_a = dests_a
-        self.promotions_a = promotions_a
-        self.dests_b = dests_b
-        self.promotions_b = promotions_b
 
     def print_game(self):
         print(self.pgn)

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 24.0.2, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 60 60" style="enable-background:new 0 0 60 60;" xml:space="preserve">
+<style type="text/css">
+	.st0{filter:url(#a);}
+	.st1{fill:#FEEC99;}
+	.st2{fill:#FF0000;stroke:#FF0000;stroke-width:2.4635;stroke-miterlimit:10;}
+	.st3{fill:#FF0000;stroke:#FF0000;stroke-width:2.791;stroke-miterlimit:10;}
+	.st4{fill:#FF0000;stroke:#FF0000;stroke-width:0.4164;stroke-linecap:square;}
+	.st5{opacity:0.98;fill:#FF0000;enable-background:new    ;}
+	.st6{fill:#FF0000;stroke:#FEEC99;stroke-width:0.3805;stroke-linecap:square;stroke-linejoin:bevel;stroke-opacity:0.9882;}
+	.st7{fill:#FEEC99;fill-opacity:0.9882;stroke:#FEEC99;stroke-width:0.3929;stroke-linecap:square;stroke-opacity:0.9882;}
+	.st8{fill:#FF0000;stroke:#FF0000;stroke-width:0.4208;stroke-linecap:square;}
+</style>
+<filter  id="a">
+	<feGaussianBlur  in="SourceAlpha" result="blur" stdDeviation="2"></feGaussianBlur>
+	<feOffset  dx="2" dy="2" result="offsetBlur"></feOffset>
+	<feBlend  in="SourceGraphic" in2="offsetBlur" mode="normal"></feBlend>
+</filter>
+<g id="Capa_1">
+	<g transform="matrix(.88521 0 0 .88521 39.633 3.208)" class="st0">
+		<path class="st1" d="M-10.8,54.3L2,50.7L9.1,6.2h-39.9l6.8,44.2C-19.6,51.7-15.2,53-10.8,54.3z"/>
+	</g>
+</g>
+<g id="Capa_5">
+	<g transform="matrix(-.22736199 .07959256 .06665119 .19039403 269.58419 -123.49968)">
+		<path class="st2" d="M1106.8,346.9l82.5-31.8c0,0,7.2-8.3,2.4-20.2l-0.1-0.3l-0.1-0.3c-4.6-11.9-15.2-11.9-15.2-11.9
+			c-33.6,26-58.3,34.3-77.3,45.2c0.2,3.8,1.8,7.1,2.7,10.6C1103.2,341.3,1104.6,344.3,1106.8,346.9L1106.8,346.9z"/>
+		
+			<ellipse transform="matrix(0.9704 0.2414 -0.2414 0.9704 106.1603 -278.9912)" class="st3" cx="1192" cy="293.9" rx="3.4" ry="-3.5"/>
+	</g>
+	<path class="st4" d="M34,26.4l0-4.7l-9.4-0.9c-4-5.6-4.7-5.7-9.6-5.3c4.6,1.4,6.3,7,8.9,10.9L34,26.4z"/>
+	<path class="st5" d="M34.9,43.8l1.2-4.5l2.4,1.4l-1.4-2.4l4.5-1.2l-4.5-1.2l1.4-2.4l-2.4,1.4l-1.2-4.5l-1.2,4.5l-2.4-1.4l1.4,2.4
+		l-4.5,1.2l4.5,1.2l-1.4,2.4l2.4-1.4L34.9,43.8z M34.9,40l-0.5-1.9l-1.1,0.6l0.6-1.1L32,37.1l1.9-0.5l-0.6-1.1l1.1,0.6l0.5-1.9
+		l0.5,1.9l1.1-0.6l-0.6,1.1l1.9,0.5l-1.9,0.5l0.6,1.1l-1.1-0.6L34.9,40z"/>
+	<g>
+		<circle class="st6" cx="30.6" cy="20.7" r="5.7"/>
+		<circle class="st7" cx="30.6" cy="20.7" r="3.7"/>
+		<path class="st8" d="M33.3,23.6l0.4-0.4L28,17.7l-0.4,0.4L33.3,23.6z"/>
+		<path class="st8" d="M27.6,23.3l0.4,0.4l5.5-5.7L33,17.7L27.6,23.3z"/>
+		<path class="st8" d="M34.5,20.9l0-0.6l-7.9,0l0,0.6L34.5,20.9z"/>
+		<path class="st8" d="M30.4,24.6l0.6,0l0-7.9l-0.6,0L30.4,24.6z"/>
+	</g>
+</g>
+</svg>

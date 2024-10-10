@@ -23,7 +23,7 @@ class Clock:
         self.running = False
         self.secs = -1
         self.restart(secs)
-        self.clock_task = asyncio.create_task(self.countdown())
+        self.clock_task = asyncio.create_task(self.countdown(), name="clock_task-%s" % game.id)
 
     def stop(self):
         self.running = False
@@ -131,7 +131,7 @@ class CorrClock:
         self.running = False
         self.restart()
         self.time_for_first_move = self.mins
-        self.clock_task = asyncio.create_task(self.countdown())
+        self.clock_task = asyncio.create_task(self.countdown(), name="clock_task-%s" % game.id)
         self.alarm_mins = int((self.game.base * 24 * 60) / 5)
         self.alarms = set()
 

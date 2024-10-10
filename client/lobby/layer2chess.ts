@@ -14,6 +14,8 @@ export function layer2chess (lobbyCtrl: LobbyController, containerId: string): v
     const atomic = VARIANTS['atomic'];
     const kingofthehill = VARIANTS['kingofthehill'];
     const duck = VARIANTS['duck'];
+    const alice = VARIANTS['alice'];
+    const fogofwar = VARIANTS['fogofwar'];
     const threecheck = VARIANTS['3check'];
     const layer2cont = h('div#layer2chesscont.layer-2-container.fairy-grid', [
         h('button.layer-2-category generic-variant-info.generic-fairy', [
@@ -25,76 +27,58 @@ export function layer2chess (lobbyCtrl: LobbyController, containerId: string): v
             ]),
         ]),
         h('div.button-grid', [
-            h('button.layer-2-category', { on: { click: () => layer3variant('layer2chesscont', lobbyCtrl, 'chess', false) } }, [
+            h('button.layer-2-category', { on: { click: () => layer3variant('layer2chesscont', lobbyCtrl, 'chess') } }, [
                 h('div.variant-title-l2', [
                     h('div.icon', { attrs: { 'data-icon': chess.icon(false) } }),
-                    h('h3', VARIANTS['chess'].displayName())
+                    h('h3', VARIANTS['chess'].displayName() + '(960)')
                 ]),
             ]),
-            h('button.layer-2-category', { on: { click: () => layer3variant('layer2chesscont', lobbyCtrl, 'chess', true) } }, [
-                h('div.variant-title-l2', [
-                    h('div.icon', { attrs: { 'data-icon': chess.icon(true) } }),
-                    h('h3', VARIANTS['chess'].displayName(true))
-                ]),
-            ]),
-            h('button.layer-2-category', { on: { click: () => layer3variant('layer2chesscont', lobbyCtrl, 'crazyhouse', false) } }, [
+            h('button.layer-2-category', { on: { click: () => layer3variant('layer2chesscont', lobbyCtrl, 'crazyhouse') } }, [
                 h('div.variant-title-l2', [
                     h('div.icon', { attrs: { 'data-icon': crazyhouse.icon(false) } }),
-                    h('h3', VARIANTS['crazyhouse'].displayName())
+                    h('h3', VARIANTS['crazyhouse'].displayName() + '(960)')
                 ]),
             ]),
-            h('button.layer-2-category', { on: { click: () => layer3variant('layer2chesscont', lobbyCtrl, 'crazyhouse', true) } }, [
-                h('div.variant-title-l2', [
-                    h('div.icon', { attrs: { 'data-icon': crazyhouse.icon(true) } }),
-                    h('h3', VARIANTS['crazyhouse'].displayName(true))
-                ]),
-            ]),
-            h('button.layer-2-category', { on: { click: () => layer3variant('layer2chesscont', lobbyCtrl, 'atomic', false) } }, [
+            h('button.layer-2-category', { on: { click: () => layer3variant('layer2chesscont', lobbyCtrl, 'atomic') } }, [
                 h('div.variant-title-l2', [
                     h('div.icon', { attrs: { 'data-icon': atomic.icon(false) } }),
-                    h('h3', VARIANTS['atomic'].displayName())
+                    h('h3', VARIANTS['atomic'].displayName() + '(960)')
                 ]),
             ]),
-            h('button.layer-2-category', { on: { click: () => layer3variant('layer2chesscont', lobbyCtrl, 'atomic', true) } }, [
-                h('div.variant-title-l2', [
-                    h('div.icon', { attrs: { 'data-icon': atomic.icon(true) } }),
-                    h('h3', VARIANTS['atomic'].displayName(true))
-                ]),
-            ]),
-            h('button.layer-2-category', { on: { click: () => layer3variant('layer2chesscont', lobbyCtrl, 'kingofthehill', false) } }, [
+            h('button.layer-2-category', { on: { click: () => layer3variant('layer2chesscont', lobbyCtrl, 'kingofthehill') } }, [
                 h('div.variant-title-l2', [
                     h('div.icon', { attrs: { 'data-icon': kingofthehill.icon(false) } }),
-                    h('h3', VARIANTS['kingofthehill'].displayName())
+                    h('h3', VARIANTS['kingofthehill'].displayName() + '(960)')
                 ]),
             ]),
-            h('button.layer-2-category', { on: { click: () => layer3variant('layer2chesscont', lobbyCtrl, 'kingofthehill', true) } }, [
-                h('div.variant-title-l2', [
-                    h('div.icon', { attrs: { 'data-icon': kingofthehill.icon(true) } }),
-                    h('h3', VARIANTS['kingofthehill'].displayName(true))
-                ]),
-            ]),
-            h('button.layer-2-category', { on: { click: () => layer3variant('layer2chesscont', lobbyCtrl, '3check', false) } }, [
+            h('button.layer-2-category', { on: { click: () => layer3variant('layer2chesscont', lobbyCtrl, '3check') } }, [
                 h('div.variant-title-l2', [
                     h('div.icon', { attrs: { 'data-icon': threecheck.icon(false) } }),
-                    h('h3', VARIANTS['3check'].displayName())
+                    h('h3', VARIANTS['3check'].displayName() + '(960)')
                 ]),
             ]),
-            h('button.layer-2-category', { on: { click: () => layer3variant('layer2chesscont', lobbyCtrl, '3check', true) } }, [
-                h('div.variant-title-l2', [
-                    h('div.icon', { attrs: { 'data-icon': threecheck.icon(true) } }),
-                    h('h3', VARIANTS['3check'].displayName(true))
-                ]),
-            ]),
-            h('button.layer-2-category', { on: { click: () => layer3variant('layer2chesscont', lobbyCtrl, 'placement', false) } }, [
+            h('button.layer-2-category', { on: { click: () => layer3variant('layer2chesscont', lobbyCtrl, 'placement') } }, [
                 h('div.variant-title-l2', [
                     h('div.icon', { attrs: { 'data-icon': placement.icon(false) } }),
                     h('h3', VARIANTS['placement'].displayName())
                 ]),
             ]),
-            h('button.layer-2-category', { on: { click: () => layer3variant('layer2chesscont', lobbyCtrl, 'duck', false) } }, [
+            h('button.layer-2-category', { on: { click: () => layer3variant('layer2chesscont', lobbyCtrl, 'duck') } }, [
                 h('div.variant-title-l2', [
                     h('div.icon', { attrs: { 'data-icon': duck.icon(false) } }),
                     h('h3', VARIANTS['duck'].displayName())
+                ]),
+            ]),
+            h('button.layer-2-category', { on: { click: () => layer3variant('layer2chesscont', lobbyCtrl, 'alice') } }, [
+                h('div.variant-title-l2', [
+                    h('div.icon', { attrs: { 'data-icon': alice.icon(false) } }),
+                    h('h3', VARIANTS['alice'].displayName())
+                ]),
+            ]),
+            h('button.layer-2-category', { on: { click: () => layer3variant('layer2chesscont', lobbyCtrl, 'fogofwar') } }, [
+                h('div.variant-title-l2', [
+                    h('div.icon', { attrs: { 'data-icon': fogofwar.icon(false) } }),
+                    h('h3', VARIANTS['fogofwar'].displayName())
                 ]),
             ]),
         ]),

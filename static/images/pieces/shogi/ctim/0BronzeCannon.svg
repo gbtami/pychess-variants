@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 24.0.2, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 60 60" style="enable-background:new 0 0 60 60;" xml:space="preserve">
+<style type="text/css">
+	.st0{filter:url(#a);}
+	.st1{fill:#CEBD6A;}
+	.st2{fill:#FF0000;fill-opacity:0.9922;stroke:#FF0000;stroke-width:2.5453;stroke-miterlimit:10;stroke-opacity:0.9922;}
+	.st3{fill:#FF0000;fill-opacity:0.9922;stroke:#FF0000;stroke-width:2.8837;stroke-miterlimit:10;stroke-opacity:0.9922;}
+	.st4{fill:#FF0000;fill-opacity:0.9922;stroke:#FF0000;stroke-width:0.3949;stroke-linecap:square;stroke-opacity:0.9922;}
+	.st5{fill-opacity:0.9922;stroke:#000000;stroke-width:2.5453;stroke-miterlimit:10;stroke-opacity:0.9922;}
+	.st6{fill-opacity:0.9922;stroke:#000000;stroke-width:2.8837;stroke-miterlimit:10;stroke-opacity:0.9922;}
+	.st7{fill-opacity:0.9922;stroke:#000000;stroke-width:0.3949;stroke-linecap:square;stroke-opacity:0.9922;}
+	.st8{stroke:#CEBD6A;stroke-width:0.385;stroke-linecap:square;stroke-linejoin:bevel;stroke-opacity:0.9922;}
+	.st9{fill:#CEBD6A;fill-opacity:0.9922;stroke:#CEBD6A;stroke-width:0.3976;stroke-linecap:square;stroke-opacity:0.9922;}
+	.st10{stroke:#000000;stroke-width:0.4258;stroke-linecap:square;}
+</style>
+<filter  id="a">
+	<feGaussianBlur  in="SourceAlpha" result="blur" stdDeviation="2"></feGaussianBlur>
+	<feOffset  dx="2" dy="2" result="offsetBlur"></feOffset>
+	<feBlend  in="SourceGraphic" in2="offsetBlur" mode="normal"></feBlend>
+</filter>
+<g id="Capa_1">
+	<g transform="matrix(.88521 0 0 .88521 39.633 3.208)" class="st0">
+		<path class="st1" d="M-11,6.2l-12.8,3.6l-7.1,44.5H9.1L2.3,10.1C-2.1,8.8-6.5,7.5-11,6.2z"/>
+	</g>
+</g>
+<g id="Capa_3">
+	<g transform="translate(-51.197797 -77.440226)">
+		<g transform="matrix(.22182004 -.04193896 .0351199 .18575317 -192.77363 97.834614)">
+			<path class="st2" d="M1226.2,299.2l-87,33.6c0,0-7.7,8.6-2.8,20.6l0.1,0.3l0.1,0.3c4.7,12,15.8,11.8,15.8,11.8
+				c35.6-27,61.6-35.8,81.7-47.2c-0.2-3.9-1.8-7.2-2.7-10.7C1230,304.9,1228.5,301.9,1226.2,299.2L1226.2,299.2z"/>
+			
+				<ellipse transform="matrix(-0.965 0.2624 -0.2624 -0.965 2325.6091 398.4959)" class="st3" cx="1136.2" cy="354.5" rx="3.5" ry="3.5"/>
+		</g>
+		<path class="st4" d="M84,112.4l1,3.4l-8.9,0.9c-3.8,5.3-4.5,5.4-9.1,5c4.3-1.3,6-6.6,8.5-10.3L84,112.4z"/>
+	</g>
+	<g transform="translate(-51.197797 -77.440226)">
+		<g transform="matrix(.22182004 -.04193896 .0351199 .18575317 -192.77363 97.834614)">
+			<path class="st5" d="M1226.2,299.2l-87,33.6c0,0-7.7,8.6-2.8,20.6l0.1,0.3l0.1,0.3c4.7,12,15.8,11.8,15.8,11.8
+				c35.6-27,61.6-35.8,81.7-47.2c-0.2-3.9-1.8-7.2-2.7-10.7C1230,304.9,1228.5,301.9,1226.2,299.2L1226.2,299.2z"/>
+			
+				<ellipse transform="matrix(-0.965 0.2624 -0.2624 -0.965 2325.6091 398.4959)" class="st6" cx="1136.2" cy="354.5" rx="3.5" ry="3.5"/>
+		</g>
+		<path class="st7" d="M84,112.4l1,3.4l-8.9,0.9c-3.8,5.3-4.5,5.4-9.1,5c4.3-1.3,6-6.6,8.5-10.3L84,112.4z"/>
+	</g>
+	<g>
+		<circle class="st8" cx="30.7" cy="39.3" r="5.7"/>
+		<circle class="st9" cx="30.7" cy="39.3" r="3.7"/>
+		<path class="st10" d="M28,36.4l-0.4,0.4l5.7,5.5l0.4-0.4L28,36.4z"/>
+		<path class="st10" d="M33.8,36.7l-0.4-0.4L27.8,42l0.4,0.4L33.8,36.7z"/>
+		<path class="st10" d="M26.7,39.2l0,0.6l8,0l0-0.6L26.7,39.2z"/>
+		<path class="st10" d="M30.9,35.3l-0.6,0l0,8l0.6,0L30.9,35.3z"/>
+	</g>
+</g>
+</svg>

@@ -38,10 +38,13 @@ function initModel(el: HTMLElement) {
     // because python http.cookies.SimpleCookie() adds it when name contains dash "–"
     const user = getCookie("user").replace(/(^"|"$)/g, '');
 
-    // Remove bughouse from variants on prod site until it stabilizes
+    // Remove new variants from variants on prod site until they stabilize
     if (el.getAttribute("data-dev") !== "True") {
-        const idx = variantGroups.standard.variants.indexOf('bughouse');
-        variantGroups.standard.variants.splice(idx, 1);
+        const notReady = ['bughouse'];
+        notReady.forEach((v) => {
+            const idx = variantGroups.standard.variants.indexOf(v);
+            variantGroups.standard.variants.splice(idx, 1);
+        });
     }
 
     let ct = el.getAttribute("data-ct") ?? "";
@@ -65,6 +68,7 @@ function initModel(el: HTMLElement) {
         tournamentname : el.getAttribute("data-tournamentname") ?? "",
         inviter : el.getAttribute("data-inviter") ?? "",
         ply : parseInt(""+el.getAttribute("data-ply")),
+        initialFen : el.getAttribute("data-initialfen") ?? "",
         ct: ct,
         board: board,
 
@@ -197,12 +201,12 @@ function start() {
         fetch('/api/names?p=' + val)
             .then(res => res.json())
             .then(data => {
-                console.log(data);
+                // console.log(data);
                 const list = data.map((el: String) => {
                     const title = (el[1]) ? `<player-title>${el[1]} </player-title>` : '';
                     return `<li><a class="user-link" href="${model["home"]}/@/${el[0]}">${title}${el[0]}</a></li>`;
                 });
-                console.log(list);
+                // console.log(list);
                 acResult.innerHTML = '<ul class="box">' + list.join('') + '</ul>';
             })
             .catch((err) => {

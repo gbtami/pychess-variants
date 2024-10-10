@@ -39,19 +39,25 @@
         </div>
         <div class="player-social">
             <div class="btn-rack">
-            <a class="icon icon-tv" href="/@/{{ profile }}/tv" title="{% trans %}Watch games{% endtrans %}"></a>
-            {% if (not anon) and (profile != username) %}
-            <a class="icon icon-crossedswords" href="/@/{{ profile }}/challenge" title="{% trans %}Challenge to a game{% endtrans %}"></a>
+
+            <a class="icon icon-tv" href="/@/{{ profile }}/tv" title="{% trans %}Watch games{% endtrans %}">{% trans %}Watch{% endtrans %}</a>
+
+            {% if (profile != username) and (not anon) and (profile_title != "BOT") %}
+            {% if (can_block) %}
+                <a id="block"></a>
+            {% else %}
+                <a id="unblock"></a>
             {% endif %}
+            {% endif %}
+
+            {% if (can_challenge) and (not anon) and (profile != username) %}
+            <a class="icon icon-crossedswords" href="/@/{{ profile }}/challenge" title="{% trans %}Challenge to a game{% endtrans %}">{% trans %}Challenge{% endtrans %}</a>
+            {% endif %}
+
             {% if (not anon) and (profile_title != "BOT") %}
-            <a class="icon icon-cloud-upload" href="/paste" title="{% trans %}Import game{% endtrans %}"></a>
-            {% endif %}
-            {% if (not anon) and (profile_title != "BOT") %}
-            <a class="icon icon-download" href="/games/export/{{ profile }}" download="{{ profile }}.pgn" title="{% trans %}Export games{% endtrans %}"></a>
-            {% endif %}
-            <a class="icon icon-download" href="/games/json/{{ profile }}" download="{{ profile }}.json" title="Export games to json"></a>
-            {% if not anon %}
-            <a class="icon icon-at" href="https://lichess.org/@/{{ profile }}" rel="noopener" target="_blank" title="{% trans %}Lichess profile{% endtrans %}"></a>
+            <a class="icon icon-cloud-upload" href="/paste" title="{% trans %}Import game{% endtrans %}">{% trans %}Import{% endtrans %}</a>
+            <a class="icon icon-download" href="/games/export/{{ profile }}" download="{{ profile }}.pgn" title="{% trans %}Export games{% endtrans %}">{% trans %}Export{% endtrans %}</a>
+            <a class="icon icon-at" href="https://lichess.org/@/{{ profile }}" rel="noopener" target="_blank" title="{% trans %}Lichess profile{% endtrans %}">{% trans %}Lichess{% endtrans %}</a>
             {% endif %}
             </div>
         </div>

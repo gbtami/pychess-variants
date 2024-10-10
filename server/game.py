@@ -34,6 +34,7 @@ from const import (
 )
 from convert import grand2zero, uci2usi, mirror5, mirror9
 from fairy import FairyBoard, BLACK, WHITE
+from alice import AliceBoard
 from glicko2.glicko2 import gl2
 from draw import reject_draw
 from settings import URI
@@ -226,9 +227,12 @@ class Game:
                 disabled_fen = self.initial_fen
                 self.initial_fen = ""
 
-        self.board = FairyBoard(
-            self.variant, self.initial_fen, self.chess960, count_started, disabled_fen
-        )
+        if self.variant == "alice":
+            self.board = AliceBoard(self.initial_fen)
+        else:
+            self.board = FairyBoard(
+                self.variant, self.initial_fen, self.chess960, count_started, disabled_fen
+            )
 
         # Janggi setup needed when player is not BOT
         if self.variant == "janggi":
@@ -260,11 +264,19 @@ class Game:
             self.initial_fen = self.board.initial_fen
             self.wplayer.fen960_as_white = self.initial_fen
 
-        self.random_mover = "Random-Mover" in (
-            self.wplayer.username,
-            self.bplayer.username,
+        self.random_mover = (
+            "Random-Mover"
+            in (
+                self.wplayer.username,
+                self.bplayer.username,
+            )
+            or self.wplayer.title == "TEST"
+            or self.wplayer.title == "TEST"
         )
-        self.legal_moves = self.board.legal_moves()
+
+        self.has_legal_move = self.board.has_legal_move()
+        if self.random_mover:
+            self.legal_moves = self.board.legal_moves()
 
         if self.board.move_stack:
             self.check = self.board.is_checked()
@@ -393,7 +405,11 @@ class Game:
                     self.clocks_b.append(clocks[BLACK])
 
                 self.board.push(move)
-                self.legal_moves = self.board.legal_moves()
+
+                self.has_legal_move = self.board.has_legal_move()
+                if self.random_mover:
+                    self.legal_moves = self.board.legal_moves()
+
                 self.update_status()
 
                 if self.status > STARTED:
@@ -402,6 +418,9 @@ class Game:
                         await opp_player.notify_game_end(self)
                 else:
                     await self.save_move(move)
+                    # SAN checkmate indicator created by pyffish may be wrong in Alice chess
+                    if san[-1] in ("#", "+") and not self.check:
+                        san = san[:-1]
 
                 self.steps.append(
                     {
@@ -690,18 +709,20 @@ class Game:
 
         w_nb = self.wplayer.perfs[self.variant + ("960" if self.chess960 else "")]["nb"]
         if w_nb >= HIGHSCORE_MIN_GAMES:
+            _id = "%s|%s" % (self.wplayer.username, self.wplayer.title)
             await self.set_highscore(
                 self.variant,
                 self.chess960,
-                {self.wplayer.username: int(round(wcurr.mu + wrdiff, 0))},
+                {_id: int(round(wcurr.mu + wrdiff, 0))},
             )
 
         b_nb = self.bplayer.perfs[self.variant + ("960" if self.chess960 else "")]["nb"]
         if b_nb >= HIGHSCORE_MIN_GAMES:
+            _id = "%s|%s" % (self.bplayer.username, self.bplayer.title)
             await self.set_highscore(
                 self.variant,
                 self.chess960,
-                {self.bplayer.username: int(round(bcurr.mu + brdiff, 0))},
+                {_id: int(round(bcurr.mu + brdiff, 0))},
             )
 
     def get_player_at(self, color, board):
@@ -747,7 +768,7 @@ class Game:
             self.status = DRAW
             self.result = "1/2-1/2"
 
-        if not self.legal_moves:
+        if not self.has_legal_move:
             game_result_value = self.board.game_result()
             self.result = result_string_from_value(self.board.color, game_result_value)
 
@@ -820,17 +841,23 @@ class Game:
 
     @property
     def pgn(self):
-        try:
-            mlist = sf.get_san_moves(
-                self.variant,
-                self.initial_fen if self.initial_fen else self.board.initial_fen,
-                self.board.move_stack,
-                self.chess960,
-                sf.NOTATION_SAN,
-            )
-        except Exception:
-            log.error("ERROR: Exception in game %s pgn()", self.id, exc_info=True)
-            mlist = self.board.move_stack
+        if self.variant == "alice" and len(self.steps) > 1:
+            # sf.get_san_moves() fails (FSF doesn't support Alice), but
+            # if we already have the san moves in self.steps we can use them.
+            mlist = [step["san"] for step in self.steps[1:]]
+        else:
+            try:
+                mlist = sf.get_san_moves(
+                    self.variant,
+                    self.initial_fen if self.initial_fen else self.board.initial_fen,
+                    self.board.move_stack,
+                    self.chess960,
+                    sf.NOTATION_SAN,
+                )
+            except Exception:
+                log.error("ERROR: Exception in game %s pgn()", self.id, exc_info=True)
+                mlist = self.board.move_stack
+
         moves = " ".join(
             (
                 move if ind % 2 == 1 else "%s. %s" % (((ind + 1) // 2) + 1, move)
@@ -1053,6 +1080,10 @@ class Game:
                 self.check = self.board.is_checked()
                 turnColor = "black" if self.board.color == BLACK else "white"
 
+                # SAN checkmate indicator created by pyffish may be wrong in Alice chess
+                if san[-1] in ("#", "+") and not self.check:
+                    san = san[:-1]
+
                 if self.usi_format:
                     turnColor = "black" if turnColor == "white" else "white"
                 step = {
@@ -1092,7 +1123,7 @@ class Game:
 
             except Exception:
                 log.exception(
-                    "ERROR: Exception in load_game() %s %s %s %s %s",
+                    "ERROR: Exception in create_steps() %s %s %s %s %s",
                     self.id,
                     self.variant,
                     self.board.initial_fen,
@@ -1109,7 +1140,11 @@ class Game:
             steps = self.steps
 
             # To not touch self.clocks_w and self.clocks_b we are creating deep copy from clocks
-            clocks = [self.clocks[WHITE], self.clocks[BLACK]]
+            try:
+                clocks = [self.clocks[WHITE], self.clocks[BLACK]]
+            except IndexError:
+                clocks_init = (self.base * 1000 * 60) + 0 if self.base > 0 else self.inc * 1000
+                clocks = [clocks_init, clocks_init]
 
             if self.status == STARTED and self.board.ply >= 2 and (not self.corr):
                 # We have to adjust current player latest saved clock time
@@ -1213,18 +1248,23 @@ class Game:
             cur_clock = self.clocks_b if self.board.color == BLACK else self.clocks_w
 
             self.board.pop()
-            cur_clock.pop()
+            if len(cur_clock) > 1:
+                cur_clock.pop()
             self.steps.pop()
 
             if not cur_player.bot:
                 cur_clock = self.clocks_b if self.board.color == BLACK else self.clocks_w
 
                 self.board.pop()
-                cur_clock.pop()
+                if len(cur_clock) > 1:
+                    cur_clock.pop()
                 self.steps.pop()
 
-            self.legal_moves = self.board.legal_moves()
+            self.has_legal_move = self.board.has_legal_move()
+            if self.random_mover:
+                self.legal_moves = self.board.legal_moves()
             self.lastmove = self.board.move_stack[-1] if self.board.move_stack else None
+            self.check = self.board.is_checked()
 
     def handle_chat_message(self, chat_message):
         self.messages.append(chat_message)

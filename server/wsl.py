@@ -9,6 +9,7 @@ from admin import ban, delete_puzzle, disable_new_anons, fishnet, highscore, sil
 from chat import chat_response
 from const import ANON_PREFIX, STARTED
 from misc import server_state
+from newid import new_id
 from const import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -40,7 +41,7 @@ async def lobby_socket_handler(request):
 async def init_ws(app_state: PychessGlobalAppState, ws, user):
     await send_game_in_progress_if_any(app_state, user, ws)
     await send_lobby_user_connected(app_state, ws, user)
-    await send_get_seeks(ws, app_state.seeks)
+    await send_get_seeks(app_state, ws, user)
 
 
 async def finally_logic(app_state: PychessGlobalAppState, ws, user):
@@ -53,7 +54,8 @@ async def finally_logic(app_state: PychessGlobalAppState, ws, user):
         if user.is_user_active_in_game() and len(user.lobby_sockets) == 0:
             await app_state.lobby.lobby_broadcast_u_cnt()
 
-        await user.update_seeks(pending=True)
+        if (user.game_in_progress is not None) or len(user.lobby_sockets) == 0:
+            await user.update_seeks(pending=True)
 
 
 async def process_message(app_state: PychessGlobalAppState, user, ws, data):
@@ -73,8 +75,13 @@ async def process_message(app_state: PychessGlobalAppState, user, ws, data):
         await handle_lobbychat(app_state, user, data)
 
 
-async def send_get_seeks(ws, seeks):
-    response = get_seeks(seeks)
+async def send_get_seeks(app_state, ws, user):
+    # We will need all the seek users blocked info
+    seeks = app_state.seeks.values()
+    for seek in seeks:
+        await app_state.users.get(seek.creator.username)
+
+    response = {"type": "get_seeks", "seeks": get_seeks(user, seeks)}
     await ws_send_json(ws, response)
 
 
@@ -86,11 +93,13 @@ async def handle_create_ai_challenge(app_state: PychessGlobalAppState, ws, user,
     variant = data["variant"]
     engine = app_state.users["Fairy-Stockfish"]
 
-    if data["rm"] or (engine is None) or (not engine.online):
+    if variant in ("alice", "fogofwar") or data["rm"] or (engine is None) or (not engine.online):
         # TODO: message that engine is offline, but Random-Mover BOT will play instead
         engine = app_state.users["Random-Mover"]
 
+    seek_id = await new_id(None if app_state.db is None else app_state.db.seek)
     seek = Seek(
+        seek_id,
         user,
         variant,
         fen=data["fen"],
@@ -103,7 +112,7 @@ async def handle_create_ai_challenge(app_state: PychessGlobalAppState, ws, user,
         rated=False,
         chess960=data["chess960"],
     )
-    # print("SEEK", user, variant, data["fen"], data["color"], data["minutes"], data["increment"], data["level"], False, data["chess960"])
+    log.debug("adding seek: %s" % seek)
     app_state.seeks[seek.id] = seek
 
     response = await join_seek(app_state, engine, seek.id)
@@ -120,8 +129,9 @@ async def handle_create_seek(app_state, ws, user, data):
     if no:
         return
 
-    log.debug("create_seek %s", data)
+    log.debug("Creating seek from request: %s", data)
     seek = await create_seek(app_state.db, app_state.invites, app_state.seeks, user, data, ws)
+    log.debug("Created seek: %s", seek)
     await app_state.lobby.lobby_broadcast_seeks()
     if (seek is not None) and seek.target == "":
         await app_state.discord.send_to_discord("create_seek", seek.discord_msg)
@@ -132,8 +142,9 @@ async def handle_create_invite(app_state: PychessGlobalAppState, ws, user, data)
     if no:
         return
 
-    print("create_invite", data)
+    log.debug("Creating seek invite from request: %s", data)
     seek = await create_seek(app_state.db, app_state.invites, app_state.seeks, user, data, ws)
+    log.debug("Created seek invite: %s", seek)
 
     response = {"type": "invite_created", "gameId": seek.game_id}
     await ws_send_json(ws, response)
@@ -157,8 +168,13 @@ async def handle_delete_seek(app_state: PychessGlobalAppState, user, data):
         if seek.game_id is not None:
             # delete game invite
             del app_state.invites[seek.game_id]
+
+        log.debug("Seeks now contains: [%s]" % " ".join(app_state.seeks))
+        log.debug("Deleting seek: %s" % seek)
         del app_state.seeks[data["seekID"]]
         del user.seeks[data["seekID"]]
+        log.debug("Deleted seek. Seeks now contains: [%s]" % " ".join(app_state.seeks))
+
     except KeyError:
         # Seek was already deleted
         log.error("Seek was already deleted", stack_info=True, exc_info=True)

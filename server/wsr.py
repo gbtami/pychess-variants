@@ -15,6 +15,7 @@ from const import ANON_PREFIX, ANALYSIS, STARTED
 from draw import draw, reject_draw
 from fairy import WHITE, BLACK
 from const import TYPE_CHECKING
+from newid import new_id
 
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
@@ -213,7 +214,7 @@ async def handle_ready(ws, users, user, data, game):
 
 async def hande_board(ws, game):
     if game.variant == "janggi":
-        print("JANGGI", game.bsetup, game.wsetup, game.status)
+        # print("JANGGI", ws, game.bsetup, game.wsetup, game.status)
         if (game.bsetup or game.wsetup) and game.status <= STARTED:
             if game.bsetup:
                 await ws_send_json(
@@ -376,7 +377,9 @@ async def handle_rematch(app_state: PychessGlobalAppState, ws, user, data, game)
         color = "w" if game.wplayer.username == opp_name else "b"
         if handicap:
             color = "w" if color == "b" else "b"
+        seek_id = await new_id(None if app_state.db is None else app_state.db.seek)
         seek = Seek(
+            seek_id,
             user,
             game.variant,
             fen=fen,
@@ -404,7 +407,9 @@ async def handle_rematch(app_state: PychessGlobalAppState, ws, user, data, game)
             color = "w" if game.wplayer.username == opp_name else "b"
             if handicap:
                 color = "w" if color == "b" else "b"
+            seek_id = await new_id(None if app_state.db is None else app_state.db.seek)
             seek = Seek(
+                seek_id,
                 user,
                 game.variant,
                 fen=fen,

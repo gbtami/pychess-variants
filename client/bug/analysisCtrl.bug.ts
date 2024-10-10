@@ -22,6 +22,7 @@ import ffishModule from "ffish-es6";
 import { titleCase } from "@/analysisCtrl";
 import { movetimeChart } from "./movetimeChart.bug";
 import { initBoardSettings, switchBoards } from "@/bug/roundCtrl.bug";
+import {playerInfoData} from "@/bug/gameInfo.bug";
 
 const EVAL_REGEX = new RegExp(''
   + /^info depth (\d+) seldepth \d+ multipv (\d+) /.source
@@ -98,6 +99,9 @@ export default class AnalysisControllerBughouse {
     username: string;
     chess960: boolean;
 
+    teamFirst: [[string, string, string], [string, string, string]]
+    teamSecond: [[string, string, string], [string, string, string]]
+
     notation2ffishjs = (n: cg.Notation) => {
         switch (n) {
             case cg.Notation.ALGEBRAIC: return this.ffish.Notation.SAN;
@@ -115,6 +119,9 @@ export default class AnalysisControllerBughouse {
         this.embed = this.gameId === undefined;
         this.username = model["username"];
         this.chess960 = model.chess960 === 'True';
+
+        this.teamFirst = [playerInfoData(model, "w", "a"), playerInfoData(model, "b", "b")]
+        this.teamSecond = [playerInfoData(model, "b", "a"), playerInfoData(model, "w", "b")]
 
         this.b1 = new GameControllerBughouse(el1, el1Pocket1, el1Pocket2, 'a', model);
         this.b2 = new GameControllerBughouse(el2, el2Pocket1, el2Pocket2, 'b', model);

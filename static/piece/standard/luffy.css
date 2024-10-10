@@ -1,0 +1,39 @@
+.standard piece._-piece {
+    background-image: url('../../images/pieces/merida/Duck.svg');
+}
+.standard piece.p-piece.ally {
+    background-image: url('../../images/pieces/luffy/wP.svg');
+}
+.standard piece.b-piece.ally {
+    background-image: url('../../images/pieces/luffy/wB.svg');
+}
+.standard piece.n-piece.ally {
+    background-image: url('../../images/pieces/luffy/wN.svg');
+}
+.standard piece.r-piece.ally {
+    background-image: url('../../images/pieces/luffy/wR.svg');
+}
+.standard piece.q-piece.ally {
+    background-image: url('../../images/pieces/luffy/wQ.svg');
+}
+.standard piece.k-piece.ally {
+    background-image: url('../../images/pieces/luffy/wK.svg');
+}
+.standard piece.p-piece.enemy {
+    background-image: url('../../images/pieces/luffy/bP.svg');
+}
+.standard piece.b-piece.enemy {
+    background-image: url('../../images/pieces/luffy/bB.svg');
+}
+.standard piece.n-piece.enemy {
+    background-image: url('../../images/pieces/luffy/bN.svg');
+}
+.standard piece.r-piece.enemy {
+    background-image: url('../../images/pieces/luffy/bR.svg');
+}
+.standard piece.q-piece.enemy {
+    background-image: url('../../images/pieces/luffy/bQ.svg');
+}
+.standard piece.k-piece.enemy {
+    background-image: url('../../images/pieces/luffy/bK.svg');
+}

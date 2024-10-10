@@ -4,12 +4,11 @@ import { Chessground } from 'chessgroundx';
 import * as cg from "chessgroundx/types";
 
 import { _, ngettext, pgettext, languageSettings } from './i18n';
-import { uci2LastMove } from './chess';
-import { VARIANTS } from './variants';
+import { getLastMoveFen, VARIANTS } from './variants';
 import { patch } from './document';
 import { renderTimeago } from './datetime';
 import { boardSettings } from './boardSettings';
-import { timeControlStr } from './view';
+import { alternateStartName, timeControlStr } from './view';
 import { PyChessModel } from "./types";
 import { Ceval } from "./messages";
 import { aiLevel, gameType, result, renderRdiff } from './result';
@@ -53,6 +52,8 @@ export interface Game {
     r: string; // game result string (1-0, 0-1, 1/2-1/2, *)
     m: string[]; // moves in compressed format as they are stored in mongo. Only used for count of moves here
     a: Ceval[]; // analysis
+
+    initialFen: string;
 }
 
 interface Player {
@@ -74,18 +75,26 @@ function renderGames(model: PyChessModel, games: Game[]) {
         const variant = VARIANTS[game.v];
         const chess960 = game.z === 1;
         const tc = timeControlStr(game["b"], game["i"], game["bp"], game["c"] === true ? game["b"] : 0);
+        const altStartName = alternateStartName(variant, game.initialFen);
         const isBug = variant === VARIANTS['bughouse'];
+        let teamFirst, teamSecond = '';
+        if (isBug) {
+            teamFirst = game["us"][0] + "+" + game["us"][3];
+            teamSecond = game["us"][2] + "+" + game["us"][1];
+        }
+        let lastMove, fen;
+        [lastMove, fen] = getLastMoveFen(variant.name, game.lm, game.f, game.r)
         return h('tr', [h('a', { attrs: { href : '/' + game["_id"] } }, [
             h('td.board', { class: { "with-pockets": !!variant.pocket, "bug": isBug} },
                isBug? renderGameBoardsBug(game, model["profileid"]): [
-                    h(`selection.${variant.boardFamily}.${variant.pieceFamily}`,[
+                    h(`selection.${variant.boardFamily}.${variant.pieceFamily}.${variant.ui.boardMark}`,[
                         h(`div.cg-wrap.${variant.board.cg}.mini`, {
                         hook: {
                             insert: vnode => Chessground(vnode.elm as HTMLElement, {
                                 coordinates: false,
                                 viewOnly: true,
-                                fen: game["f"],
-                                lastMove: uci2LastMove(game.lm),
+                                fen: fen,
+                                lastMove: lastMove,
                                 dimensions: variant.board.dimensions,
                                 pocketRoles: variant.pocket?.roles,
                             })
@@ -98,6 +107,7 @@ function renderGames(model: PyChessModel, games: Game[]) {
                     // h('div.info1.icon', { attrs: { "data-icon": (game["z"] === 1) ? "V" : "" } }),
                     h('div.info2', [
                         h('div.tc', tc + " • " + gameType(game["y"]) + " • " + variant.displayName(chess960)),
+                        h('div', (altStartName) ? altStartName : ''),
                         h('div', tournamentInfo(game)),
                     ]),
                 ]),
@@ -133,8 +143,8 @@ function renderGames(model: PyChessModel, games: Game[]) {
                     h('div.info-result', {
                         class: {
                             "win": isWinClass(model, game),
-                            "lose": !isWinClass(model, game),
-                        }}, result(variant, game["s"], game["r"])
+                            "lose": ['1-0', '0-1'].includes(game["r"]) && !isWinClass(model, game),
+                        }}, result(variant, game["s"], game["r"], teamFirst, teamSecond)
                     ),
                 ]),
                 h('div.info0.games', [
@@ -216,18 +226,75 @@ function observeSentinel(vnode: VNode, model: PyChessModel) {
 export function profileView(model: PyChessModel) {
     boardSettings.assetURL = model.assetURL;
     boardSettings.updateBoardAndPieceStyles();
+
+    const profileId = model["profileid"];
+    const rated = model["rated"];
+
+    const blockEl = document.getElementById('block') as HTMLElement;
+    if (blockEl !== null) renderBlock('block', profileId);
+
+    const unblockEl = document.getElementById('unblock') as HTMLElement;
+    if (unblockEl !== null) renderUnblock('unblock', profileId);
+
     let tabs: VNode[] = [];
-    tabs.push(h('div.sub-ratings', [h('a', { attrs: { href: '/@/' + model["profileid"] }, class: {"active": model["rated"] === "None"} }, _('Games'))]));
-    if (model["username"] !== model["profileid"]) {
-        tabs.push(h('div.sub-ratings', [h('a', { attrs: { href: '/@/' + model["profileid"] + '/me' }, class: {"active": model["rated"] === "-1" } }, _('Games with you'))]));
+    tabs.push(h('div.sub-ratings', [h('a', { attrs: { href: '/@/' + profileId }, class: {"active": rated === "None"} }, _('Games'))]));
+    if (model["username"] !== profileId) {
+        tabs.push(h('div.sub-ratings', [h('a', { attrs: { href: '/@/' + profileId + '/me' }, class: {"active": rated === "-1" } }, _('Games with you'))]));
     }
-    tabs.push(h('div.sub-ratings', [h('a', { attrs: { href: '/@/' + model["profileid"] + '/rated' }, class: {"active": model["rated"] === "1" } }, pgettext('UsePluralFormIfNeeded', 'Rated'))]));
-    tabs.push(h('div.sub-ratings', [h('a', { attrs: { href: '/@/' + model["profileid"] + '/playing' }, class: {"active": model["rated"] === "-2" } }, pgettext('UsePluralFormIfNeeded', 'Playing'))]));
-    tabs.push(h('div.sub-ratings', [h('a', { attrs: { href: '/@/' + model["profileid"] + '/import' }, class: {"active": model["rated"] === "2" } }, _('Imported'))]));
+    tabs.push(h('div.sub-ratings', [h('a', { attrs: { href: '/@/' + profileId + '/rated' }, class: {"active": rated === "1" } }, pgettext('UsePluralFormIfNeeded', 'Rated'))]));
+    tabs.push(h('div.sub-ratings', [h('a', { attrs: { href: '/@/' + profileId + '/playing' }, class: {"active": rated === "-2" } }, pgettext('UsePluralFormIfNeeded', 'Playing'))]));
+    tabs.push(h('div.sub-ratings', [h('a', { attrs: { href: '/@/' + profileId + '/import' }, class: {"active": rated === "2" } }, _('Imported'))]));
 
     return [
         h('div.filter-tabs', tabs),
         h('table#games'),
         h('div#sentinel', { hook: { insert: (vnode) => observeSentinel(vnode, model) } }),
     ];
+}
+
+function renderBlock(id: string, profileId: string) {
+    const el = document.getElementById(id) as HTMLElement;
+    if (el !== null) {
+        patch(el, h('a#block.icon.icon-ban', {
+            attrs: { href: '/api/' + profileId + '/block', title: _('Block') },
+            on: { click: (e: Event) => postBlock(e, profileId, true) } },
+            _('Block')
+        ));
+    }
+}
+
+function renderUnblock(id: string, profileId: string) {
+    const el = document.getElementById(id) as HTMLElement;
+    if (el !== null) {
+        patch(el, h('a#unblock.icon.icon-ban', {
+            attrs: { href: '/api/' + profileId + '/block', title: _('Unblock') },
+            on: { click: (e: Event) => postBlock(e, profileId, false) } },
+            _('Unblock')
+        ));
+    }
+}
+
+function postBlock(e: Event, profileId: string, block: boolean) {
+    e.preventDefault();
+    const XHR = new XMLHttpRequest();
+    const FD  = new FormData();
+    FD.append('block', `${block}`);
+
+    XHR.onreadystatechange = function() {
+        if (this.readyState === 4 && this.status === 200) {
+            const response = JSON.parse(this.responseText);
+            if (response['error'] !== undefined) {
+                console.log(response['error']);
+            } else {
+                if (block) {
+                    renderUnblock('block', profileId);
+                } else {
+                    renderBlock('unblock', profileId);
+                }
+            }
+        }
+    }
+    XHR.open("POST", `/api/${profileId}/block`, true);
+    XHR.send(FD);
+    return false;
 }

@@ -82,7 +82,7 @@ class TestUser:
                 text = await resp.text()
                 index = text.find("data-user=")
                 index = index + len("data-user=") + 1
-                self.username = text[index: index + 13]
+                self.username = text[index : index + 13]
                 print(self.username)
 
             session_data = {"session": {"user_name": self.username}, "created": int(time.time())}
@@ -136,8 +136,8 @@ class TestUser:
                             await wsl.send_json(data)
 
                     elif msg.type in (
-                            aiohttp.WSMsgType.CLOSED,
-                            aiohttp.WSMsgType.ERROR,
+                        aiohttp.WSMsgType.CLOSED,
+                        aiohttp.WSMsgType.ERROR,
                     ):
                         break
                 await wsl.close()
@@ -226,14 +226,16 @@ class TestUser:
         await ws_send_json(ws, {"type": "lobbychat", "user": self.username, "message": message})
 
     async def send_round_chat(self, ws, message, game_id, room):
-        await ws_send_json(ws,
-                           {
-                               "type": "roundchat",
-                               "message": message,
-                               "gameId": game_id,
-                               "user": self.username,
-                               "room": room,
-                           })
+        await ws_send_json(
+            ws,
+            {
+                "type": "roundchat",
+                "message": message,
+                "gameId": game_id,
+                "user": self.username,
+                "room": room,
+            },
+        )
 
 
 async def spectators(game_id):

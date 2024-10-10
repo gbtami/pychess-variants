@@ -7,6 +7,7 @@ from aiohttp import web
 
 from broadcast import round_broadcast
 from const import STARTED, RESIGN
+from newid import new_id
 from seek import challenge, Seek
 from settings import BOT_TOKENS
 from user import User
@@ -104,7 +105,8 @@ async def create_bot_seek(request):
                 seek = existing_seek
                 break
         if seek is None:
-            seek = Seek(bot_player, data["variant"], player1=bot_player)
+            seek_id = await new_id(None if app_state.db is None else app_state.db.seek)
+            seek = Seek(seek_id, bot_player, data["variant"], player1=bot_player)
             app_state.seeks[seek.id] = seek
         bot_player.seeks[seek.id] = seek
 

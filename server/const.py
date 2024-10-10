@@ -1,7 +1,10 @@
 from __future__ import annotations
 from datetime import timedelta
+import re
 
 from settings import static_url, PROD
+
+POCKET_PATTERN = re.compile("\\[(.*)\\]")
 
 # https://medium.com/quick-code/python-type-hinting-eliminating-importerror-due-to-circular-imports-265dfb0580f8
 TYPE_CHECKING = False
@@ -23,6 +26,9 @@ CORR_SEEK_EXPIRE_WEEKS = timedelta(weeks=2)
 
 # Max number of lobby chat lines (deque limit)
 MAX_CHAT_LINES = 100
+
+BLOCK, FOLLOW = False, True
+MAX_USER_BLOCK = 100
 
 # Minimum number of rated games needed
 HIGHSCORE_MIN_GAMES = 10
@@ -99,6 +105,11 @@ LOSERS = {
 GRANDS = ("xiangqi", "manchu", "grand", "grandhouse", "shako", "janggi")
 
 CONSERVATIVE_CAPA_FEN = "arnbqkbnrc/pppppppppp/10/10/10/10/PPPPPPPPPP/ARNBQKBNRC w KQkq - 0 1"
+LOOKING_GLASS_ALICE_FEN = (
+    "8/8/8/8/8/8/PPPPPPPP/RNBQKBNR w KQ - 0 1 | rnbqkbnr/pppppppp/8/8/8/8/8/8 w kq - 0 1"
+)
+MANCHU_FEN = "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/9/9/M1BAKAB2 w - - 0 1"
+MANCHU_R_FEN = "m1bakab1r/9/9/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1"
 
 VARIANTS = (
     "chess",
@@ -113,8 +124,16 @@ VARIANTS = (
     "kingofthehill960",
     "3check",
     "3check960",
+    "antichess",
+    "antichess960",
+    "racingkings",
+    "racingkings960",
+    "horde",
+    "horde960",
     "placement",
     "duck",
+    "alice",
+    "fogofwar",
     "makruk",
     "makpong",
     "cambodian",
@@ -166,9 +185,9 @@ VARIANTS = (
     "ataxx",
 )
 
-# Remove bughouse from variants on prod site until it stabilizes
+# Remove new variants on prod site until they stabilize
 if PROD:
-    VARIANTS = tuple(e for e in VARIANTS if not e.startswith("bughouse"))
+    VARIANTS = tuple(e for e in VARIANTS if e not in ("bughouse", "bughouse960"))
 
 VARIANT_ICONS = {
     "ataxx": "☣",
@@ -231,6 +250,14 @@ VARIANT_ICONS = {
     "3check960": "☷",
     "bughouse": "¢",
     "bughouse960": "⌀",
+    "alice": "👧",
+    "fogofwar": "🌫",
+    "antichess": "🐥",
+    "antichess960": "🐥",
+    "racingkings": "🚗",
+    "racingkings960": "🚗",
+    "horde": "🐖",
+    "horde960": "🐖",
 }
 
 VARIANT_960_TO_PGN = {
@@ -249,6 +276,9 @@ VARIANT_960_TO_PGN = {
     "makruk": "Makruk",
     "placement": "Placement",
     "grand": "Grand",
+    "antichess": "Antichess",  # to let lichess import work
+    "racingkings": "Racingkings",  # to let lichess import work
+    "horde": "Horde",  # to let lichess import work
 }
 
 CATEGORIES = {
@@ -266,7 +296,15 @@ CATEGORIES = {
         "kingofthehill960",
         "3check",
         "3check960",
+        "antichess",
+        "antichess960",
+        "racingkings",
+        "racingkings960",
+        "horde",
+        "horde960",
         "duck",
+        "alice",
+        "fogofwar",
     ),
     "fairy": (
         "capablanca",
@@ -353,6 +391,10 @@ def variant_display_name(variant):
         return "THREE-CHECK"
     elif variant == "dragon":
         return "DRAGON CHESS"
+    elif variant == "alice":
+        return "ALICE CHESS"
+    elif variant == "fogofwar":
+        return "FOG OF WAR"
     else:
         return variant.upper()
 
@@ -391,6 +433,8 @@ TRANSLATED_VARIANT_NAMES = {
     "atomic": _("Atomic"),
     "atomic960": _("Atomic960"),
     "duck": _("Duck Chess"),
+    "alice": _("Alice Chess"),
+    "fogofwar": _("Fog of War"),
     "makruk": _("Makruk"),
     "makpong": _("Makpong"),
     "cambodian": _("Ouk Chaktrang"),
@@ -403,12 +447,12 @@ TRANSLATED_VARIANT_NAMES = {
     "bughouse": _("Bughouse"),
     "bughouse960": _("Bughouse960"),
     # Gorogoro is superseded by Gorogoro Plus
-    # "gorogoro",
+    "gorogoro": _("Gorogoro"),
     "gorogoroplus": _("Gorogoro+"),
     "torishogi": _("Tori Shogi"),
     "cannonshogi": _("Cannon Shogi"),
     "xiangqi": _("Xiangqi"),
-    "manchu": _("Manchu"),
+    "manchu": _("Manchu+"),
     "janggi": _("Janggi"),
     "minixiangqi": _("Minixiangqi"),
     "capablanca": _("Capablanca"),
@@ -417,9 +461,9 @@ TRANSLATED_VARIANT_NAMES = {
     "capahouse960": _("Capahouse960"),
     # We support to import/store/analyze these variants
     # but don't support to add them to leaderboard page
-    # "gothic",
-    # "gothhouse",
-    # "embassy",
+    "gothic": _("Gothic"),
+    "gothhouse": _("Gothhouse"),
+    "embassy": _("Embassy"),
     "dragon": _("Dragon Chess"),
     "seirawan": _("S-Chess"),
     "seirawan960": _("S-Chess960"),
@@ -444,6 +488,12 @@ TRANSLATED_VARIANT_NAMES = {
     "3check": _("Three check"),
     "3check960": _("Three check 960"),
     "mansindam": _("Mansindam"),
+    "antichess": _("Antichess"),
+    "antichess960": _("Antichess960"),
+    "racingkings": _("Racing Kings"),
+    "racingkings960": _("Racing Kings 960"),
+    "horde": _("Horde"),
+    "horde960": _("Horde960"),
 }
 
 del _

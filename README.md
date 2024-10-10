@@ -18,6 +18,7 @@ Currently supported games are:
 - [Dobutsu shogi](https://www.pychess.org/variants/dobutsu)
 - [Goro-Goro shogi](https://www.pychess.org/variants/gorogoroplus)
 - [Tori Shogi](https://www.pychess.org/variants/torishogi)
+- [Cannon Shogi](https://www.pychess.org/variants/cannonshogi)
 - [Xiangqi](https://www.pychess.org/variants/xiangqi)
 - [Manchu](https://www.pychess.org/variants/manchu)
 - [Janggi](https://www.pychess.org/variants/janggi)
@@ -28,6 +29,9 @@ Currently supported games are:
 - [Three check](https://www.pychess.org/variants/3check)
 - [King of the Hill](https://www.pychess.org/variants/kingofthehill)
 - [Duck chess](https://www.pychess.org/variants/duck)
+- [Alice chess](https://www.pychess.org/variants/alice)
+- [Fog of War](https://www.pychess.org/variants/fogofwar)
+- [Dragon chess](https://www.pychess.org/variants/dragon)
 - [S-chess](https://www.pychess.org/variants/seirawan)
 - [Capablanca](https://www.pychess.org/variants/capablanca)
 - [Gothic](https://www.pychess.org/variants/gothic)
@@ -36,6 +40,7 @@ Currently supported games are:
 - [Shogun](https://www.pychess.org/variants/shogun)
 - [Mansindam](https://www.pychess.org/variants/mansindam)
 - [Orda](https://www.pychess.org/variants/orda)
+- [Khan's chess](https://www.pychess.org/variants/khans)
 - [Synochess](https://www.pychess.org/variants/synochess)
 - [Hoppel-Poppel](https://www.pychess.org/variants/hoppelpoppel)
 - [Shinobi+](https://www.pychess.org/variants/shinobiplus)
@@ -86,6 +91,14 @@ yarn md                                 // Compile md files to html
 ```
 python3 server/server.py
 ```
+
+### Docker setup
+If you want to avoid installing dependencies (mongo, node, python) you can instead run the server locally in docker using compose. To start it, simply run:
+```
+docker compose up --build
+```
+This recompiles the frontend and starts the server and DB. Once it is up, you can connect to `localhost:8080` in your browser.
+
 
 ## Supported browsers
 

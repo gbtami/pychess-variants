@@ -30,7 +30,6 @@ from typedefs import (
     pychess_global_app_state_key,
     db_key,
 )
-from broadcast import round_broadcast
 from routes import get_routes, post_routes
 from settings import (
     DEV,
@@ -171,35 +170,7 @@ async def init_state(app):
 
 async def shutdown(app):
     app_state = get_app_state(app)
-    app_state.shutdown = True
-
-    # notify users
-    msg = "Server will restart in about 30 seconds. Sorry for the inconvenience!"
-    # await app_state.lobby.lobby_chat("", msg)
-
-    response = {"type": "roundchat", "user": "", "message": msg, "room": "player"}
-    for game in [game for game in app_state.games.values() if not game.corr]:
-        await round_broadcast(game, response, full=True)
-
-    # save corr seeks
-    corr_seeks = [seek.corr_json for seek in app_state.seeks.values() if seek.day > 0]
-    if len(corr_seeks) > 0:
-        await app_state.db.seek.delete_many({})
-        await app_state.db.seek.insert_many(corr_seeks)
-
-    # terminate BOT users
-    for user in [user for user in app_state.users.values() if user.bot]:
-        await user.event_queue.put('{"type": "terminated"}')
-
-    # close game_sockets
-    for user in [user for user in app_state.users.values() if not user.bot]:
-        await user.close_all_game_sockets()
-
-    # close lobbysockets
-    await app_state.lobby.close_lobby_sockets()
-
-    if client_key in app:
-        app[client_key].close()
+    await app_state.server_shutdown()
 
 
 if __name__ == "__main__":
@@ -219,6 +190,11 @@ if __name__ == "__main__":
         action="store_true",
         help="Use SimpleCookieStorage. For testing purpose only!",
     )
+    parser.add_argument(
+        "-m",
+        action="store_true",
+        help="Verbose mongodb logging. Changes log level from INFO to DEBUG.",
+    )
     args = parser.parse_args()
 
     FORMAT = "%(asctime)s.%(msecs)03d [%(levelname)s] %(name)s:%(lineno)d %(message)s"
@@ -227,6 +203,8 @@ if __name__ == "__main__":
     logging.getLogger().setLevel(
         level=logging.DEBUG if args.v else logging.WARNING if args.w else logging.INFO
     )
+
+    logging.getLogger("pymongo").setLevel(logging.DEBUG if args.m else logging.INFO)
 
     app = make_app(
         db_client=AsyncIOMotorClient(MONGO_HOST, tz_aware=True),

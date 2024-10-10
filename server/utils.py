@@ -7,7 +7,7 @@ import logging
 from const import TYPE_CHECKING
 
 import random
-from datetime import datetime, timezone, timedelta
+from datetime import date, datetime, timezone, timedelta
 from functools import partial
 
 from aiohttp import web
@@ -25,7 +25,7 @@ from const import (
     CASUAL,
     RATED,
     IMPORTED,
-    CONSERVATIVE_CAPA_FEN,
+    MANCHU_FEN,
     T_STARTED,
 )
 from compress import get_decode_method, get_encode_method, R2C, C2R, V2C, C2V
@@ -35,6 +35,7 @@ from game import Game
 from newid import new_id
 from user import User
 from users import NotInDbUsers
+from valid_fen import VALID_FEN
 
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
@@ -55,7 +56,8 @@ async def tv_game(app_state: PychessGlobalAppState):
     if app_state.tv is not None:
         return app_state.tv
     game_id = None
-    doc = await app_state.db.game.find_one({}, sort=[("$natural", -1)])
+    # No Fog of War games to TV
+    doc = await app_state.db.game.find_one({"v": {"$ne": "Q"}}, sort=[("$natural", -1)])
     if doc is not None:
         game_id = doc["_id"]
         app_state.tv = game_id
@@ -97,6 +99,8 @@ async def load_game(app_state: PychessGlobalAppState, game_id):
     bplayer = await app_state.users.get(bp)
 
     initial_fen = doc.get("if")
+    if variant == "manchu" and initial_fen is None and doc["d"].date() < date(2024, 9, 9):
+        initial_fen = MANCHU_FEN
 
     # Old USI Shogi games saved using usi2uci() need special handling
     usi_format = variant.endswith("shogi") and doc.get("uci") is None
@@ -501,7 +505,8 @@ async def insert_game_to_db(game, app_state: PychessGlobalAppState):
     if result.inserted_id != game.id:
         log.error("db insert game result %s failed !!!", game.id)
 
-    if not game.corr:
+    # No corr and Fog of War games to TV
+    if (not game.corr) and (game.variant != "fogofwar"):
         app_state.tv = game.id
         await app_state.lobby.lobby_broadcast(game.tv_game_json)
         game.wplayer.tv = game.id
@@ -509,10 +514,15 @@ async def insert_game_to_db(game, app_state: PychessGlobalAppState):
 
 
 def remove_seek(seeks, seek):
+    log.debug("Seeks now contains: [%s]" % " ".join(seeks))
+    log.debug("Removing seek: %s" % seek)
+
     if (not seek.creator.bot) and seek.id in seeks:
         del seeks[seek.id]
         if seek.id in seek.creator.seeks:
             del seek.creator.seeks[seek.id]
+
+    log.debug("Removed seek. Seeks now contains: [%s]" % " ".join(seeks))
 
 
 async def analysis_move(user, game, move, fen, ply):
@@ -550,7 +560,9 @@ async def play_move(app_state: PychessGlobalAppState, user, game, move, clocks=N
     # log.info("%s move %s %s %s - %s" % (user.username, move, gameId, game.wplayer.username, game.bplayer.username))
 
     if game.status <= STARTED:
-        if ply is not None and game.ply + 1 != ply:
+        if (ply is not None and game.ply + 1 != ply) or (
+            game.ply > 0 and move == game.board.move_stack[-1]
+        ):
             log.info(
                 "invalid ply received - probably a re-sent move that has already been processed"
             )
@@ -712,8 +724,8 @@ def sanitize_fen(variant, initial_fen, chess960):
         fen_valid_b, sanitized_fen_b = sanitize_fen("crazyhouse", fen_b, chess960)
         return fen_valid_a and fen_valid_b, sanitized_fen_a + " | " + sanitized_fen_b
 
-    # Prevent this particular one to fail on our general castling check
-    if variant == "capablanca" and initial_fen == CONSERVATIVE_CAPA_FEN:
+    # Prevent alternate FENs to fail on our general castling check
+    if variant in VALID_FEN and initial_fen in VALID_FEN[variant]:
         return True, initial_fen
 
     sf_validate = sf.validate_fen(initial_fen, variant, chess960)
@@ -814,12 +826,17 @@ def sanitize_fen(variant, initial_fen, chess960):
     wK = init[0].count(wking)
     if variant == "spartan":
         invalid5 = bK == 0 or bK > 2 or wK != 1
+    elif variant == "horde":
+        invalid5 = bK != 1 or wK != 0
     else:
         invalid5 = bK != 1 or wK != 1
 
     # Opp king already in check
     invalid6 = False
-    if not (invalid0 or invalid1 or invalid2 or invalid3 or invalid4 or invalid5):
+    if variant == "racingkings":
+        board = FairyBoard(variant, " ".join(init), chess960)
+        invalid6 = board.is_checked()
+    if not (invalid0 or invalid1 or invalid2 or invalid3 or invalid4 or invalid5 or invalid6):
         curr_color = init[1]
         opp_color = "w" if curr_color == "b" else "b"
         init[1] = init[1].replace(curr_color, opp_color)
@@ -920,7 +937,7 @@ async def subscribe_notify(request):
     user.notify_channels.add(queue)
     try:
         async with sse_response(request) as response:
-            while not response.task.done():
+            while response.is_connected():
                 payload = await queue.get()
                 await response.send(payload)
                 queue.task_done()

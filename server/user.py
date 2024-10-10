@@ -14,7 +14,7 @@ from glicko2.glicko2 import gl2, DEFAULT_PERF, Rating
 from login import RESERVED_USERS
 from newid import id8
 from notify import notify
-from const import TYPE_CHECKING
+from const import BLOCK, MAX_USER_BLOCK, TYPE_CHECKING
 from seek import Seek
 from websocket_utils import ws_send_json, MyWebSocketResponse
 
@@ -73,6 +73,8 @@ class User:
         self.game_in_progress = None
         self.abandon_game_task = None
         self.correspondence_games: List[Game] = []
+
+        self.blocked = set()
 
         if self.bot:
             self.event_queue: Queue = asyncio.Queue()
@@ -329,6 +331,16 @@ class User:
         else:
             return False
 
+    def compatible_with_seek(self, seek):
+        self_rating = self.get_rating(seek.variant, seek.chess960).rating_prov[0]
+        seek_user = self.app_state.users[seek.creator.username]
+        return (
+            (seek_user.username not in self.blocked)
+            and (self.username not in seek_user.blocked)
+            and self_rating >= seek.rating + seek.rrmin
+            and self_rating <= seek.rating + seek.rrmax
+        )
+
     def __repr__(self):
         return self.__str__()
 
@@ -362,3 +374,49 @@ async def set_theme(request):
         return web.HTTPFound(referer)
     else:
         raise web.HTTPNotFound()
+
+
+async def block_user(request):
+    app_state = get_app_state(request.app)
+    profileId = request.match_info.get("profileId")
+
+    # Who made the request?
+    session = await aiohttp_session.get_session(request)
+    session_user = session.get("user_name")
+    user = await app_state.users.get(session_user)
+
+    if len(user.blocked) >= MAX_USER_BLOCK:
+        # TODO: Alert the user about blocked quota reached
+        raise web.HTTPFound("/@/%s" % profileId)
+
+    post_data = await request.post()
+    block = post_data["block"] == "true"
+    try:
+        if block:
+            await app_state.db.relation.find_one_and_update(
+                {"_id": "%s/%s" % (user.username, profileId)},
+                {"$set": {"u1": user.username, "u2": profileId, "r": BLOCK}},
+                upsert=True,
+            )
+            user.blocked.add(profileId)
+        else:
+            await app_state.db.relation.delete_one({"_id": "%s/%s" % (user.username, profileId)})
+            user.blocked.remove(profileId)
+    except Exception:
+        log.error("Failed to save new relation to mongodb!", exc_info=True)
+
+    return web.json_response({})
+
+
+async def get_blocked_users(request):
+    app_state = get_app_state(request.app)
+    # Who made the request?
+    session = await aiohttp_session.get_session(request)
+    session_user = session.get("user_name")
+    user = await app_state.users.get(session_user)
+
+    if user.anon:
+        await asyncio.sleep(3)
+        return web.json_response({})
+
+    return web.json_response({"blocks": list(user.blocked)})

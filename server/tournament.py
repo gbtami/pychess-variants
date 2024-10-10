@@ -6,7 +6,7 @@ import random
 from abc import ABC, abstractmethod
 from datetime import datetime, timedelta, timezone
 from operator import neg
-from typing import ClassVar, Tuple, Set
+from typing import ClassVar, Deque, Tuple, Set
 
 from pymongo import ReturnDocument
 from sortedcollections import ValueSortedDict
@@ -237,6 +237,8 @@ class Tournament(ABC):
             self.starts_at = self.created_at + timedelta(seconds=int(before_start * 60))
         else:
             self.starts_at = starts_at
+
+        self.tourneychat: Deque[dict] = collections.deque([], MAX_CHAT_LINES)
 
         # TODO: calculate wave from TC, variant, number of players
         self.wave = timedelta(seconds=3)
@@ -749,20 +751,28 @@ class Tournament(ABC):
                 "bplayer": bp.username,
             }
 
-            ws = next(iter(wp.tournament_sockets[self.id]))
-            ok = await ws_send_json(ws, response)
-            if not ok:
-                self.pause(
-                    wp
-                )  # todo:this needs to be await-ed, but then it breaks test_tournament_pairing_5_round_SWISS test
+            ws_ok = True
+            try:
+                ws = next(iter(wp.tournament_sockets[self.id]))
+            except StopIteration:
+                ws_ok = False
+
+            if ws_ok:
+                ws_ok = await ws_send_json(ws, response)
+            if not ws_ok:
+                await self.pause(wp)
                 log.debug("White player %s left the tournament (ws send failed)", wp.username)
 
-            ws = next(iter(bp.tournament_sockets[self.id]))
-            ok = await ws_send_json(ws, response)
-            if not ok:
-                self.pause(
-                    bp
-                )  # todo:this needs to be await-ed, but then it breaks test_tournament_pairing_5_round_SWISS test
+            ws_ok = True
+            try:
+                ws = next(iter(bp.tournament_sockets[self.id]))
+            except StopIteration:
+                ws_ok = False
+
+            if ws_ok:
+                ws_ok = await ws_send_json(ws, response)
+            if not ws_ok:
+                await self.pause(bp)
                 log.debug("Black player %s left the tournament (ws send failed)", bp.username)
 
             if (
@@ -1235,3 +1245,10 @@ class Tournament(ABC):
             time_text,
             url,
         )
+
+    async def tourney_chat_save(self, response):
+        self.tourneychat.append(response)
+        response["tid"] = self.id
+        await self.app_state.db.tournament_chat.insert_one(response)
+        # We have to remove _id added by insert to remain our response JSON serializable
+        del response["_id"]

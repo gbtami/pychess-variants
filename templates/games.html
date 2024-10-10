@@ -1,0 +1,22 @@
+{% extends "template.html" %}
+{% block content %}
+<div id="main-wrap">
+<main class="page-menu">
+<aside>
+    <ul class="guide">
+    {% for key in variants %}
+    <li>
+        <a class="icon {{ groups[key] }}" data-icon="{{ icons[key] }}" href="{{ home }}/games/{{ key }}">{{ variant_display_name(key) }}</a>
+    </li>
+    {% endfor %}
+    </ul>
+</aside>
+<aside>
+<div id="placeholder">
+</aside>
+</main>
+</div>
+{% endblock %}
+{% block js %}
+    <script src="{{ js }}"></script>
+{% endblock %}
