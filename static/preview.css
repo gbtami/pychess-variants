@@ -219,15 +219,18 @@ label.piece.piece9.shogi {
     background-image: url('images/pieces/shogi/bw/0KA.svg');
 }
 label.piece.piece10.shogi {
-    background-image: url('images/pieces/shogi/Portella/Kanji/0KA.png');
+    background-image: url('images/pieces/shogi/bnw/0KA.svg');
 }
 label.piece.piece11.shogi {
-    background-image: url('images/pieces/shogi/Portella/Intl/0KA.png');
+    background-image: url('images/pieces/shogi/Portella/Kanji/0KA.png');
 }
 label.piece.piece12.shogi {
-    background-image: url('images/pieces/shogi/cz/0KA.svg');
+    background-image: url('images/pieces/shogi/Portella/Intl/0KA.png');
 }
 label.piece.piece13.shogi {
+    background-image: url('images/pieces/shogi/cz/0KA.svg');
+}
+label.piece.piece14.shogi {
     background-image: url('images/pieces/disguised/shogi-ally.svg');
 }
 
@@ -283,12 +286,15 @@ label.piece.piece1.cannonshogi {
     background-image: url('images/pieces/shogi/ctim/0GoldCannon.svg');
 }
 label.piece.piece2.cannonshogi {
-    background-image: url('images/pieces/shogi/cz/0_Gold Cannon.svg');
+    background-image: url('images/pieces/shogi/bnw/0GoldCannon.svg');
 }
 label.piece.piece3.cannonshogi {
-    background-image: url('images/pieces/shogi/cz/alt/0_Gold Cannon.svg');
+    background-image: url('images/pieces/shogi/cz/0_Gold Cannon.svg');
 }
 label.piece.piece4.cannonshogi {
+    background-image: url('images/pieces/shogi/cz/alt/0_Gold Cannon.svg');
+}
+label.piece.piece5.cannonshogi {
     background-image: url('images/pieces/disguised/b.svg');
 }
 
