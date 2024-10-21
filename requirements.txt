@@ -19,6 +19,6 @@ uvloop==0.20.0 ; sys_platform == 'linux'
 objgraph==3.6.2
 black==24.10.0
 flake8==7.1.1
-mypy==1.11.2
+mypy==1.12.1
 mongomock-motor==0.0.34
 pre-commit
