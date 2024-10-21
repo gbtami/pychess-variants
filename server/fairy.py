@@ -375,6 +375,16 @@ class FairyBoard:
                 + " - "
                 + "0 1"
             )
+        elif variant == "antichess":
+            fen = (
+                fen
+                + body
+                + fen.upper()
+                + " w "
+                + " - "
+                + " - "
+                + "0 1"
+            )
         else:
             fen = (
                 fen
