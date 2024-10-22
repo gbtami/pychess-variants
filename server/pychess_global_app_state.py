@@ -75,6 +75,7 @@ class PychessGlobalAppState:
         self.shutdown = False
         self.tournaments_loaded = asyncio.Event()
 
+        self.db_client = app[client_key]
         self.db = app[db_key]
         self.users = self.__init_users()
         self.disable_new_anons = False

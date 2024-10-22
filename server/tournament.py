@@ -8,6 +8,7 @@ from datetime import datetime, timedelta, timezone
 from operator import neg
 from typing import ClassVar, Deque, Tuple, Set
 
+from mongomock_motor import AsyncMongoMockClient
 from pymongo import ReturnDocument
 from sortedcollections import ValueSortedDict
 from sortedcontainers import SortedKeysView
@@ -757,7 +758,7 @@ class Tournament(ABC):
             except StopIteration:
                 ws_ok = False
 
-            if ws_ok:
+            if ws_ok and wp.title != "TEST":
                 ws_ok = await ws_send_json(ws, response)
             if not ws_ok:
                 await self.pause(wp)
@@ -769,7 +770,7 @@ class Tournament(ABC):
             except StopIteration:
                 ws_ok = False
 
-            if ws_ok:
+            if ws_ok and bp.title != "TEST":
                 ws_ok = await ws_send_json(ws, response)
             if not ws_ok:
                 await self.pause(bp)
@@ -924,7 +925,7 @@ class Tournament(ABC):
 
     async def game_update(self, game):
         """Called from Game.update_status()"""
-        if self.status == T_FINISHED and self.status != T_ARCHIVED:
+        if self.status in (T_FINISHED, T_ABORTED):
             return
 
         wplayer = self.players[game.wplayer]
@@ -1141,14 +1142,15 @@ class Tournament(ABC):
             }
 
         try:
-            print(
-                await player_table.find_one_and_update(
-                    {"_id": player_id},
-                    {"$set": new_data},
-                    upsert=True,
-                    return_document=ReturnDocument.AFTER,
-                )
+            doc_after = await player_table.find_one_and_update(
+                {"_id": player_id},
+                {"$set": new_data},
+                upsert=True,
+                return_document=ReturnDocument.AFTER,
             )
+            if doc_after is None and not isinstance(self.app_state.db_client, AsyncMongoMockClient):
+                log.error("Failed to save %s player data update %s to mongodb", player_id, new_data)
+
         except Exception as e:
             log.error(e, exc_info=True)
             if self.app_state.db is not None:
@@ -1159,13 +1161,13 @@ class Tournament(ABC):
                 )
 
         new_data = {"nbPlayers": self.nb_players, "nbBerserk": self.nb_berserk}
-        print(
-            await self.app_state.db.tournament.find_one_and_update(
-                {"_id": self.id},
-                {"$set": new_data},
-                return_document=ReturnDocument.AFTER,
-            )
+        doc_after = await self.app_state.db.tournament.find_one_and_update(
+            {"_id": self.id},
+            {"$set": new_data},
+            return_document=ReturnDocument.AFTER,
         )
+        if doc_after is None and not isinstance(self.app_state.db_client, AsyncMongoMockClient):
+            log.error("Failed to save %s player data update %s to mongodb", self.id, new_data)
 
     async def save(self):
         if self.app_state.db is None:
@@ -1184,13 +1186,13 @@ class Tournament(ABC):
             "winner": winner,
         }
 
-        print(
-            await self.app_state.db.tournament.find_one_and_update(
-                {"_id": self.id},
-                {"$set": new_data},
-                return_document=ReturnDocument.AFTER,
-            )
+        doc_after = await self.app_state.db.tournament.find_one_and_update(
+            {"_id": self.id},
+            {"$set": new_data},
+            return_document=ReturnDocument.AFTER,
         )
+        if doc_after is None and not isinstance(self.app_state.db_client, AsyncMongoMockClient):
+            log.error("Failed to save %s tournament data update %s to mongodb", self.id, new_data)
 
         for user in self.leaderboard:
             await self.db_update_player(user, self.players[user])

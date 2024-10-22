@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 import asyncio
-import collections
 import random
 import unittest
 from datetime import datetime, timezone
@@ -169,7 +168,6 @@ async def create_arena_test(app):
     #    tournament = RRTestTournament(app, tid, variant="makpong", name="First Makpong RR", before_start=0.1, rounds=7, created_by="PyChess")
     app_state.tournaments[tid] = tournament
     app_state.tourneysockets[tid] = {}
-    app_state.tourneychat[tid] = collections.deque([], 100)
 
     await upsert_tournament_to_db(tournament, app_state)
 
@@ -192,16 +190,16 @@ class TournamentTestCase(AioHTTPTestCase):
                 game.remove_task.cancel()
                 try:
                     await game.remove_task
-                except asyncio.CancelledError as e:
-                    log.error(e, stack_info=True, exc_info=True)
+                except asyncio.CancelledError:
+                    pass
 
         if has_games:
             for task in self.tournament.game_tasks:
                 task.cancel()
                 try:
                     await task
-                except asyncio.CancelledError as e:
-                    log.error(e, stack_info=True, exc_info=True)
+                except asyncio.CancelledError:
+                    pass
 
         await self.client.close()
 
