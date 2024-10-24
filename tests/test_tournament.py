@@ -8,7 +8,7 @@ from datetime import datetime, timezone
 from aiohttp.test_utils import AioHTTPTestCase
 from mongomock_motor import AsyncMongoMockClient
 
-from arena import ArenaTournament
+from arena_new import ArenaTournament
 from const import (
     BYEGAME,
     STARTED,
@@ -271,7 +271,7 @@ class TournamentTestCase(AioHTTPTestCase):
         for user in self.tournament.players:
             self.assertTrue(self.tournament.players[user].nb_not_paired <= 1)
 
-    @unittest.skip("It fails because disconnected websockets indicate pause() in create_games()")
+    @unittest.skipIf(ONE_TEST_ONLY, "1 test only")
     async def test_tournament_pairing_5_round_SWISS(self):
         app_state = get_app_state(self.app)
         # app_state.db = None

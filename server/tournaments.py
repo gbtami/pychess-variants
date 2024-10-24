@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 
 import aiohttp_session
 
-from arena import ArenaTournament
+from arena_new import ArenaTournament
 from compress import C2V, V2C, C2R
 from const import (
     CASUAL,

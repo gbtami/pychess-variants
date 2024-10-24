@@ -241,8 +241,7 @@ class Tournament(ABC):
 
         self.tourneychat: Deque[dict] = collections.deque([], MAX_CHAT_LINES)
 
-        # TODO: calculate wave from TC, variant, number of players
-        self.wave = timedelta(seconds=3)
+        self.wave = timedelta(seconds=7)
         self.wave_delta = timedelta(seconds=1)
         self.current_round = 0
         self.prev_pairing = None
