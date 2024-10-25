@@ -440,7 +440,7 @@ export const VARIANTS: Record<string, Variant> = {
     antichess: variant({
         name: "antichess", tooltip: "Lose all your pieces to win.",
         startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
-        chess960: true, icon: "🐥", icon960: "🐥",
+        chess960: true, icon: "🐥", icon960: "🐓",
         boardFamily: "standard8x8", pieceFamily: "standard",
         pieceRow: ["k", "q", "r", "b", "n", "p"],
         rules: { enPassant: true },
@@ -449,7 +449,7 @@ export const VARIANTS: Record<string, Variant> = {
     racingkings: variant({
         name: "racingkings", displayName: "racing kings", tooltip: "Race your King to the eighth rank to win.",
         startFen: "8/8/8/8/8/8/krbnNBRK/qrbnNBRQ w - - 0 1",
-        chess960: true, icon: "🚗", icon960: "🚗",
+        chess960: true, icon: "🚗", icon960: "🚙",
         boardFamily: "standard8x8", pieceFamily: "standard",
         pieceRow: ["k", "q", "r", "b", "n", "p"],
         ui: { boardMark: 'racingkings' },
@@ -458,7 +458,7 @@ export const VARIANTS: Record<string, Variant> = {
     horde: variant({
         name: "horde", tooltip: "Destroy the horde to win!",
         startFen: "rnbqkbnr/pppppppp/8/1PP2PP1/PPPPPPPP/PPPPPPPP/PPPPPPPP/PPPPPPPP w kq - 0 1",
-        chess960: true, icon: "🐖", icon960: "🐖",
+        chess960: true, icon: "🐖", icon960: "🐷",
         boardFamily: "standard8x8", pieceFamily: "standard",
         pieceRow: { "white": ["p"], "black": ["k", "q", "r", "b", "n", "p"] },
         rules: { enPassant: true },

@@ -267,11 +267,11 @@ VARIANT_ICONS = {
     "alice": "👧",
     "fogofwar": "🌫",
     "antichess": "🐥",
-    "antichess960": "🐥",
+    "antichess960": "🐓",
     "racingkings": "🚗",
-    "racingkings960": "🚗",
+    "racingkings960": "🚙",
     "horde": "🐖",
-    "horde960": "🐖",
+    "horde960": "🐷",
 }
 
 VARIANT_960_TO_PGN = {
