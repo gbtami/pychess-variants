@@ -161,7 +161,7 @@ async def create_arena_test(app):
         chess960=False,
         base=1,
         before_start=0.1,
-        minutes=20,
+        minutes=3,
         created_by="PyChess",
     )
     #    tournament = SwissTestTournament(app, tid, variant="makpong", name="First Makpong Swiss", before_start=0.1, rounds=7, created_by="PyChess")

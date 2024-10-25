@@ -138,6 +138,7 @@ def make_app(db_client=None, simple_cookie_storage=False) -> Application:
 
     app.on_startup.append(init_state)
     app.on_shutdown.append(shutdown)
+    app.on_cleanup.append(close_mongodb_client)
     app.on_response_prepare.append(on_prepare)
 
     # Setup routes.
@@ -171,6 +172,14 @@ async def init_state(app):
 async def shutdown(app):
     app_state = get_app_state(app)
     await app_state.server_shutdown()
+
+
+async def close_mongodb_client(app):
+    if client_key in app:
+        # wait some time to finish ongoing mongodb related tasks
+        await asyncio.sleep(3)
+        app[client_key].close()
+        log.debug("\nMongoClient closed.\n")
 
 
 if __name__ == "__main__":

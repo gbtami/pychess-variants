@@ -454,8 +454,14 @@ class PychessGlobalAppState:
         # close lobbysockets
         await self.lobby.close_lobby_sockets()
 
-        if client_key in self.app:
-            self.app[client_key].close()
+        # close tourneysockets
+        for tid in self.tourneysockets:
+            for username in list(self.tourneysockets[tid].keys()):
+                ts_dict = self.users[username].tournament_sockets
+                if tid in ts_dict:
+                    ws_set = ts_dict[tid]
+                    for ws in list(ws_set):
+                        await ws.close()
 
     def online_count(self):
         return sum((1 for user in self.users.values() if user.online))
