@@ -92,6 +92,9 @@ function proTip (variant: string, chess960: boolean) {
     case 'crazyhouse':
     case 'atomic':
     case '3check':
+    case 'antichess':
+    case 'racingkings':
+    case 'horde':
         if (chess960) {
             return _('Move the king on top of the rook to castle.');
         } else {

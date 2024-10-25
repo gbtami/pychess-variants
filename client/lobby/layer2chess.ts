@@ -17,6 +17,9 @@ export function layer2chess (lobbyCtrl: LobbyController, containerId: string): v
     const alice = VARIANTS['alice'];
     const fogofwar = VARIANTS['fogofwar'];
     const threecheck = VARIANTS['3check'];
+    const antichess = VARIANTS['antichess'];
+    const racingkings = VARIANTS['racingkings'];
+    const horde = VARIANTS['horde'];
     const layer2cont = h('div#layer2chesscont.layer-2-container.fairy-grid', [
         h('button.layer-2-category generic-variant-info.generic-fairy', [
             h('div.layer-two-category-info', [
@@ -55,6 +58,24 @@ export function layer2chess (lobbyCtrl: LobbyController, containerId: string): v
                 h('div.variant-title-l2', [
                     h('div.icon', { attrs: { 'data-icon': threecheck.icon(false) } }),
                     h('h3', VARIANTS['3check'].displayName() + '(960)')
+                ]),
+            ]),
+            h('button.layer-2-category', { on: { click: () => layer3variant('layer2chesscont', lobbyCtrl, 'antichess') } }, [
+                h('div.variant-title-l2', [
+                    h('div.icon', { attrs: { 'data-icon': antichess.icon(false) } }),
+                    h('h3', VARIANTS['antichess'].displayName() + '(960)')
+                ]),
+            ]),
+            h('button.layer-2-category', { on: { click: () => layer3variant('layer2chesscont', lobbyCtrl, 'racingkings') } }, [
+                h('div.variant-title-l2', [
+                    h('div.icon', { attrs: { 'data-icon': racingkings.icon(false) } }),
+                    h('h3', VARIANTS['racingkings'].displayName() + '(960)')
+                ]),
+            ]),
+            h('button.layer-2-category', { on: { click: () => layer3variant('layer2chesscont', lobbyCtrl, 'horde') } }, [
+                h('div.variant-title-l2', [
+                    h('div.icon', { attrs: { 'data-icon': horde.icon(false) } }),
+                    h('h3', VARIANTS['horde'].displayName() + '(960)')
                 ]),
             ]),
             h('button.layer-2-category', { on: { click: () => layer3variant('layer2chesscont', lobbyCtrl, 'placement') } }, [
