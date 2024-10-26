@@ -40,7 +40,7 @@ function initModel(el: HTMLElement) {
 
     // Remove new variants from variants on prod site until they stabilize
     if (el.getAttribute("data-dev") !== "True") {
-        const notReady = ["bughouse", "antichess", "racingkings", "horde"];
+        const notReady = ["bughouse", "antichess", "racingkings", "horde", "shatranj"];
         notReady.forEach((v) => {
             const idx = variantGroups.standard.variants.indexOf(v);
             variantGroups.standard.variants.splice(idx, 1);

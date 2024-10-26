@@ -1101,6 +1101,7 @@ export const noPuzzleVariants = [
     "racingkings",
     "antichess",
     "horde",
+    "shatranj",
 ]
 
 export const variantGroups: { [ key: string ]: { variants: string[] } } = {
