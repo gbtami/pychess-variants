@@ -109,6 +109,8 @@ function proTip (variant: string, chess960: boolean) {
     case 'fogofwar':
         return _('Castling is essential.');
 // fairy
+    case 'shatranj':
+        return _('Stalemating the opposing king is win.');
     case 'capablanca':
         return _('You can choose different starting setups including Embassy Chess and Gothic Chess.');
     case 'grand':
