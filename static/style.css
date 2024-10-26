@@ -39,6 +39,9 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+.icon-Shatranj:before {
+  content: "\1f418";
+}
 .icon-Horde960:before {
   content: "\1f437";
 }
