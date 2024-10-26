@@ -381,6 +381,15 @@ label.piece.piece8.janggi {
     background-image: url('images/pieces/disguised/janggi-b.svg');
 }
 
+label.piece.piece0.shatranj {
+    background-image: url('images/pieces/merida/wN.svg');
+}
+label.piece.piece1.shatranj {
+    background-image: url('images/pieces/green/wN.svg');
+}
+label.piece.piece2.shatranj {
+    background-image: url('images/pieces/disguised/b.svg');
+}
 label.piece.piece0.shako {
     background-image: url('images/pieces/merida/shako/wC.svg');
 }

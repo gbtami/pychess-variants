@@ -152,6 +152,7 @@ VARIANTS = (
     "manchu",
     "janggi",
     "minixiangqi",
+    "shatranj",
     "capablanca",
     "capablanca960",
     "capahouse",
@@ -200,6 +201,7 @@ if PROD:
             "racingkings960",
             "horde",
             "horde960",
+            "shatranj",
         )
     )
 
@@ -272,6 +274,7 @@ VARIANT_ICONS = {
     "racingkings960": "🚙",
     "horde": "🐖",
     "horde960": "🐷",
+    "shatranj": "🐘",
 }
 
 VARIANT_960_TO_PGN = {
@@ -321,6 +324,7 @@ CATEGORIES = {
         "fogofwar",
     ),
     "fairy": (
+        "shatranj",
         "capablanca",
         "capablanca960",
         "capahouse",
@@ -508,6 +512,7 @@ TRANSLATED_VARIANT_NAMES = {
     "racingkings960": _("Racing Kings 960"),
     "horde": _("Horde"),
     "horde960": _("Horde960"),
+    "shatranj": _("shatranj"),
 }
 
 del _
