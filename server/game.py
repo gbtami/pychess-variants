@@ -821,6 +821,16 @@ class Game:
             self.status = DRAW
             self.result = "1/2-1/2"
 
+        # Shatranj K vs K
+        # TODO: remove when https://github.com/fairy-stockfish/Fairy-Stockfish/issues/833 resolves
+        if (
+            self.variant == "shatranj"
+            and len([p for p in self.board.fen.split()[0] if p.isalpha()]) == 2
+        ):
+            self.status = DRAW
+            self.result = "1/2-1/2"
+            print("ITT")
+
         if self.status > STARTED:
             self.set_crosstable()
             self.update_in_plays()
