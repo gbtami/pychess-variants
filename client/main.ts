@@ -40,7 +40,7 @@ function initModel(el: HTMLElement) {
 
     // Remove new variants from variants on prod site until they stabilize
     if (el.getAttribute("data-dev") !== "True") {
-        const notReadyStandard = ["bughouse", "antichess", "racingkings", "horde", "shatranj"];
+        const notReadyStandard = ["bughouse", "antichess", "racingkings", "horde"];
         notReadyStandard.forEach((v) => {
             const idx = variantGroups.standard.variants.indexOf(v);
             variantGroups.standard.variants.splice(idx, 1);
@@ -48,8 +48,8 @@ function initModel(el: HTMLElement) {
 
         const notReadyFairy = ["shatranj"];
         notReadyFairy.forEach((v) => {
-            const idx = variantGroups.standard.variants.indexOf(v);
-            variantGroups.standard.variants.splice(idx, 1);
+            const idx = variantGroups.fairy.variants.indexOf(v);
+            variantGroups.fairy.variants.splice(idx, 1);
         });
     }
 
