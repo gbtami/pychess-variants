@@ -71,6 +71,10 @@ NEW_MONTHLY_VARIANTS = (
     "khans",
     "alice",
     "fogofwar",
+    "antichess960",
+    "horde960",
+    "racingkings960",
+    "shatranj",
 )
 
 # Old MONTHLY tournaments, needed to create translated tourney names
@@ -81,6 +85,8 @@ WEEKLY_VARIANTS = (
     "crazyhouse960",
     "atomic960",
     "duck",
+    "xiangqi",
+    "janggi",
 )
 
 # Monthly Variant Tournaments need different TC
@@ -89,6 +95,10 @@ TC_MONTHLY_VARIANTS: dict[str, tuple[int, int, int]] = {v: (3, 2, 0) for v in MO
 TC_MONTHLY_VARIANTS["alice"] = (5, 3, 0)
 TC_MONTHLY_VARIANTS["fogofwar"] = (5, 3, 0)
 TC_MONTHLY_VARIANTS["ataxx"] = (3, 0, 0)
+
+TC_MONTHLY_VARIANTS["antichess960"] = (3, 2, 0)
+TC_MONTHLY_VARIANTS["horde960"] = (3, 2, 0)
+TC_MONTHLY_VARIANTS["racingkings960"] = (3, 2, 0)
 
 for v in CATEGORIES["fairy"]:
     TC_MONTHLY_VARIANTS[v] = (3, 3, 0)
@@ -204,6 +214,8 @@ class Scheduler:
             # Plan(WEEKLY, self.next_day_of_week(TUESDAY), 18, "atomic", True, 3, 0, 0, 60),  # 960
             Plan(WEEKLY, self.next_day_of_week(THURSDAY), 12, "makruk", False, 3, 2, 0, 90),
             Plan(WEEKLY, self.next_day_of_week(SUNDAY), 18, "duck", False, 3, 5, 0, 90),
+            Plan(WEEKLY, self.next_day_of_week(FRIDAY), 12, "xiangqi", False, 5, 3, 0, 90),
+            Plan(WEEKLY, self.next_day_of_week(WEDNESDAY), 12, "janggi", False, 5, 15, 1, 90),
         ]
 
         return plans

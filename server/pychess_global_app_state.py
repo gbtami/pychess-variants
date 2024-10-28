@@ -316,7 +316,7 @@ class PychessGlobalAppState:
                     FISHNET_KEYS[doc["_id"]] = doc["name"]
 
         except Exception:
-            print("Maybe mongodb is not running...")
+            log.error("init_from_db() failed", stack_info=True, exc_info=True)
             raise
 
     def __init_translations(self):
