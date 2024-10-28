@@ -115,7 +115,7 @@ class TournamentSchedulerTestCase(unittest.TestCase):
         d = self.now + dt.timedelta(days=day)
         return (d.year, d.month, d.day)
 
-    def test_koth_dst_off(self):
+    def test_koth_dst_on(self):
         data = create_scheduled_data(2024, 10, 7)
 
         self.assertIn(SHIELD_KOTH_2024_10, data)
