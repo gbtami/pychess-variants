@@ -75,6 +75,22 @@ SHIELD_ATOMIC_2022_01 = (
     180,
 )
 
+SHIELD_KOTH_2024_10 = (
+    SHIELD,
+    "kingofthehill",
+    True,
+    dt.datetime(2024, 10, 7, 18, tzinfo=dt.timezone.utc),
+    180,
+)
+
+SHIELD_KOTH_2024_11 = (
+    SHIELD,
+    "kingofthehill",
+    True,
+    dt.datetime(2024, 11, 4, 19, tzinfo=dt.timezone.utc),
+    180,
+)
+
 ONE_TEST_ONLY = False
 
 
@@ -98,6 +114,16 @@ class TournamentSchedulerTestCase(unittest.TestCase):
     def go_day(self, day):
         d = self.now + dt.timedelta(days=day)
         return (d.year, d.month, d.day)
+
+    def test_koth_dst_off(self):
+        data = create_scheduled_data(2024, 10, 7)
+
+        self.assertIn(SHIELD_KOTH_2024_10, data)
+
+    def test_koth_dst_off(self):
+        data = create_scheduled_data(2024, 11, 4)
+
+        self.assertIn(SHIELD_KOTH_2024_11, data)
 
     @unittest.skipIf(ONE_TEST_ONLY, "1 test only")
     def test_no_shield_in_next_week(self):

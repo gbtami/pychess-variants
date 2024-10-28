@@ -231,6 +231,7 @@ def new_scheduled_tournaments(already_scheduled, now=None):
     new_tournaments_data = []
 
     budapest = zoneinfo.ZoneInfo("Europe/Budapest")
+    from_now = dt.datetime(2024, 10, 28, tzinfo=dt.timezone.utc)
 
     for plan in plans:
         starts_at = dt.datetime(
@@ -242,7 +243,7 @@ def new_scheduled_tournaments(already_scheduled, now=None):
         )
 
         # When it starts outside of daylight saving time (DST), shift it one hour later
-        if budapest.dst(starts_at.astimezone(budapest)).seconds == 0:
+        if plan.date >= from_now and budapest.dst(starts_at.astimezone(budapest)).seconds == 0:
             starts_at = starts_at + dt.timedelta(hours=1)
 
         if (
