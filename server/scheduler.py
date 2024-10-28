@@ -2,6 +2,7 @@ from __future__ import annotations
 import calendar
 from collections import namedtuple
 import datetime as dt
+import zoneinfo
 
 from const import (
     ARENA,
@@ -229,6 +230,8 @@ def new_scheduled_tournaments(already_scheduled, now=None):
 
     new_tournaments_data = []
 
+    budapest = zoneinfo.ZoneInfo("Europe/Budapest")
+
     for plan in plans:
         starts_at = dt.datetime(
             plan.date.year,
@@ -237,6 +240,10 @@ def new_scheduled_tournaments(already_scheduled, now=None):
             hour=plan.hour,
             tzinfo=dt.timezone.utc,
         )
+
+        # When it starts outside of daylight saving time (DST), shift it one hour later
+        if budapest.dst(starts_at.astimezone(budapest)).seconds == 0:
+            starts_at = starts_at + dt.timedelta(hours=1)
 
         if (
             starts_at >= now
