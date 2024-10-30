@@ -16,11 +16,17 @@
 We're pleased to announce that we've had another break from our variant moratorium to introduce FOUR new variants! You may have seen these on the site, but in case you haven't been paying attention, here they are!
 
 [**Antichess**](https://www.pychess.org/variants/Antichess) - You may be familiar with this from Lichess. Lose all your pieces (or get stalemated) to win the game.
+
 [**Antichess 960**](https://www.pychess.org/variants/antichess960) - Of course, it wouldn't be Pychess if we didn't have another spin on variants. This is antichess but with randomized Chess960 positions.
+
 [**Horde**](https://www.pychess.org/variants/horde) - Also from Lichess. Destroy the horde to win.
+
 [**Horde 960**](https://www.pychess.org/variants/Horde960) - Same deal, with 960 rules for black.
+
 [**RacingKings**](https://www.pychess.org/variants/racingkings) - Also from Lichess. Race your King to the eighth rank to win.
+
 [**RacingKings 960**](https://www.pychess.org/variants/racingkings960) - Same deal, but with 1440 random start positions. (We use "960" as the synonime for "random".)
+
 [**Shatranj**](https://www.pychess.org/variants/shatranj) - Shatranj is an old form of chess, as played in the Sasanian Empire. Its origins are in the Indian game of chaturanga. Modern chess gradually developed from this game, as it was introduced to Europe by contacts in Muslim Al-Andalus (modern Spain) and in Sicily in the 10th century.
 
 The main change on the server side is re-implementation of our arena tournament pairing.
