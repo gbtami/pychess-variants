@@ -179,7 +179,7 @@ export function analysisView(model: PyChessModel): VNode[] {
 }
 
 
-export function analysisTools (isOngoingGame: bool = false) {
+export function analysisTools (isOngoingGame: boolean = false) {
     return h('div.analysis-tools', [
             (isOngoingGame) ? '' : h('div#ceval', [
                 h('div.engine', [
