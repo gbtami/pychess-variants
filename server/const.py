@@ -188,7 +188,7 @@ VARIANTS = (
 
 # Remove new variants on prod site until they stabilize
 if PROD:
-    VARIANTS = tuple(e for e in VARIANTS if e not in [])
+    VARIANTS = tuple(e for e in VARIANTS if e not in ["bughouse", "bughouse960"])
 
 VARIANT_ICONS = {
     "ataxx": "☣",
