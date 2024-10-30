@@ -188,7 +188,9 @@ export abstract class GameController extends ChessgroundController implements Ch
     }
 
     flipped() {
-        return this.chessground.state.orientation !== this.mycolor;
+        return (this.variant.name === 'racingkings')
+        ? this.chessground.state.orientation !== 'white'
+        : this.chessground.state.orientation !== this.mycolor;
     }
 
     setDests() {
