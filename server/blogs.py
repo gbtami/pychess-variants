@@ -16,6 +16,16 @@ del _
 
 BLOGS = [
     {
+        "_id": "Halloween_Update",
+        "date": "2024-10-31",
+        "image": "/images/witch.png",
+        "alt": "",
+        "title": "Halloween Update",
+        "subtitle": "New variants and bug fixes",
+        "author": "gbtami",
+        "tags": ["Announcement"],
+    },
+    {
         "_id": "Late_Summer_Update",
         "date": "2024-08-11",
         "image": "/images/CVariantsGuide/Aliceroom3.jpg",
