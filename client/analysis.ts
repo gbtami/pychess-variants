@@ -100,6 +100,7 @@ export function analysisView(model: PyChessModel): VNode[] {
     const variant = VARIANTS[model.variant];
 
     const isAnalysisBoard = model["gameId"] === "";
+    const isOngoingGame = model["status"] == -1;
     const tabindexCt = (isAnalysisBoard) ? '-1' : '0';
     var tabindexPgn = (isAnalysisBoard) ? '0' : '-1';
 
@@ -112,16 +113,18 @@ export function analysisView(model: PyChessModel): VNode[] {
     }
 
     let tabs = [];
-    tabs.push(h('span', {attrs: {role: 'tab', 'aria-selected': false, 'aria-controls': 'panel-1', id: 'tab-1', tabindex: '-1'}}, _('Computer analysis')));
-    if (model.rated === "1") {
-        tabs.push(h('span', {attrs: {role: 'tab', 'aria-selected': true, 'aria-controls': 'panel-2', id: 'tab-2', tabindex: '-1'}}, _('Move times')))
+    if (!isOngoingGame) {
+        tabs.push(h('span', {attrs: {role: 'tab', 'aria-selected': false, 'aria-controls': 'panel-1', id: 'tab-1', tabindex: '-1'}}, _('Computer analysis')));
+        if (model.rated === "1") {
+            tabs.push(h('span', {attrs: {role: 'tab', 'aria-selected': true, 'aria-controls': 'panel-2', id: 'tab-2', tabindex: '-1'}}, _('Move times')))
+        }
+        if (model.ct) {
+            tabs.push(h('span', {attrs: {role: 'tab', 'aria-selected': false, 'aria-controls': 'panel-3', id: 'tab-3', tabindex: tabindexCt}}, _('Crosstable')))
+        } else {
+            tabindexPgn = "0";
+        }
+        tabs.push(h('span', {attrs: {role: 'tab', 'aria-selected': false, 'aria-controls': 'panel-4', id: 'tab-4', tabindex: tabindexPgn}}, _('FEN & PGN')));
     }
-    if (model.ct) {
-        tabs.push(h('span', {attrs: {role: 'tab', 'aria-selected': false, 'aria-controls': 'panel-3', id: 'tab-3', tabindex: tabindexCt}}, _('Crosstable')))
-    } else {
-        tabindexPgn = "0";
-    }
-    tabs.push(h('span', {attrs: {role: 'tab', 'aria-selected': false, 'aria-controls': 'panel-4', id: 'tab-4', tabindex: tabindexPgn}}, _('FEN & PGN')));
 
     return [
         h('div.analysis-app', [
@@ -131,7 +134,7 @@ export function analysisView(model: PyChessModel): VNode[] {
                 h('div.cg-wrap.' + variant.board.cg, { hook: { insert: (vnode) => runGround(vnode, model) } }),
                 h('div#anal-clock-bottom'),
             ]),
-            gauge(),
+            (isOngoingGame) ? '' : gauge(),
             h('div.pocket-top', [
                 h('div.' + variant.pieceFamily + '.' + model["variant"], [
                     h('div.cg-wrap.pocket', [
@@ -139,7 +142,7 @@ export function analysisView(model: PyChessModel): VNode[] {
                     ]),
                 ]),
             ]),
-            analysisTools(),
+            analysisTools(isOngoingGame),
             analysisSettings.view(variant.name),
             h('div#move-controls'),
 
@@ -176,9 +179,9 @@ export function analysisView(model: PyChessModel): VNode[] {
 }
 
 
-export function analysisTools () {
+export function analysisTools (isOngoingGame: boolean = false) {
     return h('div.analysis-tools', [
-            h('div#ceval', [
+            (isOngoingGame) ? '' : h('div#ceval', [
                 h('div.engine', [
                     h('score#score', ''),
                     h('div.info', [
@@ -190,7 +193,7 @@ export function analysisTools () {
                     h('div.engine-toggle'),
                 ]),
             ]),
-            h('div.pvbox', [
+            (isOngoingGame) ? '' : h('div.pvbox', [
                 h('div#pv1'),
                 h('div#pv2'),
                 h('div#pv3'),
@@ -206,7 +209,7 @@ export function analysisTools () {
                 h('div#misc-info-center'),
                 h('div#misc-infob'),
             ]),
-            h('div.feedback', [
+            (isOngoingGame) ? '' : h('div.feedback', [
                 h('div.player'),
                 h('div.view-hint', [
                     h('a.button.hint'),
