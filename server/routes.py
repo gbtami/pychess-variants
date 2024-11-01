@@ -66,7 +66,7 @@ get_routes = (
     ("/puzzle/daily", index),
     (r"/puzzle/{puzzleId:\w{5}}", index),
     ("/puzzle/{variant}", index),
-    (r"/analysis/{gameId:\w{8}}", index),
+    (r"/corranalysis/{gameId:\w{8}}", index),
     ("/analysis/{variant}", index),
     ("/analysis/{variant}/{fen}", index),
     ("/seek/{variant}", index),

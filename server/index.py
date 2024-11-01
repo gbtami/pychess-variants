@@ -185,7 +185,7 @@ async def index(request):
         gameId = await tv_game(app_state)
     elif request.path.startswith("/editor"):
         view = "editor"
-    elif request.path.startswith("/analysis"):
+    elif request.path.startswith("/analysis") or request.path.startswith("/corr"):
         view = "analysis"
     elif request.path.startswith("/embed"):
         view = "embed"

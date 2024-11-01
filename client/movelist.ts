@@ -82,8 +82,8 @@ export function createMovelistButtons (ctrl: GameController | RoundControllerAli
     if ("localEngine" in ctrl) {
         buttons.push(h('button#bars', { on: { click: () => ctrl.toggleSettings() } }, [ h('i.icon.icon-bars') ]));
     } else {
-        if (ctrl.corr) {
-            const url = ctrl.home + '/analysis/' + ctrl.gameId + `?ply=${ctrl.ply + 1}`;
+        if (ctrl.corr && ctrl.variant.name !== 'fogofwar') {
+            const url = ctrl.home + '/corranalysis/' + ctrl.gameId + `?ply=${ctrl.ply + 1}`;
             buttons.push(h('button#corr', { on: { click: () => window.location.assign(url) } }, [ h('i.icon.icon-microscope') ]));
         }
     }

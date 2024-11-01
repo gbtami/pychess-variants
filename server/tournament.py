@@ -480,11 +480,6 @@ class Tournament(ABC):
                                 log.debug("Enough player (%s), do pairing", nb_waiting_players)
                                 await self.create_new_pairings(waiting_players)
                                 self.prev_pairing = now
-                            else:
-                                log.debug(
-                                    "Too few player (%s) to make pairing",
-                                    nb_waiting_players,
-                                )
                         else:
                             log.debug("Waiting for new pairing wave...")
 
@@ -507,7 +502,6 @@ class Tournament(ABC):
                             )
                         )
 
-                    log.debug("%s CLOCK %s", self.id, now.strftime("%H:%M:%S"))
                 await asyncio.sleep(1)
         except Exception:
             log.exception("Exception in tournament clock()")
