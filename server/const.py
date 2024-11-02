@@ -497,7 +497,7 @@ TRANSLATED_VARIANT_NAMES = {
     "racingkings960": _("Racing Kings 960"),
     "horde": _("Horde"),
     "horde960": _("Horde960"),
-    "shatranj": _("shatranj"),
+    "shatranj": _("Shatranj"),
 }
 
 del _
