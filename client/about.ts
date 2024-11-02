@@ -62,11 +62,19 @@ export function aboutView(model: PyChessModel): VNode[] {
                 ", ",
                 h('a', { attrs: { href: 'https://www.pychess.org/variants/kingofthehill' } }, 'King of the Hill'),
                 ", ",
+                h('a', { attrs: { href: 'https://www.pychess.org/variants/racingkings' } }, 'Racing Kings'),
+                ", ",
+                h('a', { attrs: { href: 'https://www.pychess.org/variants/antichess' } }, 'Antichess'),
+                ", ",
+                h('a', { attrs: { href: 'https://www.pychess.org/variants/horde' } }, 'Horde'),
+                ", ",
                 h('a', { attrs: { href: 'https://www.pychess.org/variants/duck' } }, 'Duck chess'),
                 ", ",
                 h('a', { attrs: { href: 'https://www.pychess.org/variants/alice' } }, 'Alice chess'),
                 ", ",
                 h('a', { attrs: { href: 'https://www.pychess.org/variants/fogofwar' } }, 'Fog of War'),
+                ", ",
+                h('a', { attrs: { href: 'https://www.pychess.org/variants/shatranj' } }, 'Shatranj'),
                 ", ",
                 h('a', { attrs: { href: 'https://www.pychess.org/variants/seirawan' } }, 'S-chess'),
                 ", ",
@@ -113,7 +121,7 @@ export function aboutView(model: PyChessModel): VNode[] {
                 h('a', { attrs: { href: 'https://www.pychess.org/variants/chess' } }, 'Chess'),
             ]),
             h('p', [
-                _('Additionally, you can check the Chess960 option for Chess, Crazyhouse, Atomic, Three check, King of the Hill, S-chess, Capablanca, and Capahouse to start games from random positions with '),
+                _('Additionally, you can check the Chess960 option for Chess, Crazyhouse, Atomic, Three check, King of the Hill, Racing Kings, Antichess, Horde, S-chess, Capablanca, and Capahouse to start games from random positions with '),
                 h('a', { attrs: { href: 'https://en.wikipedia.org/wiki/Fischer_random_chess#Castling_rules' } }, _('Chess960 castling rules.'))
             ]),
             h('p', [
