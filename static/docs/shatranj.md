@@ -9,7 +9,7 @@ Shatranj is an old form of chess, as played in the Sasanian Empire. Its origins 
 The general rules are extremely similar to Chess, so this guide will focus on the few differences. The objective is the same: checkmating your opponent's king.
 
 * The pawns can't move two squares on the first move. When they reach the eighth rank, they only promote to a ferz.
-* The king is always on the left side of the player regardless of color. Stalemates is a loss for the stealmated player.
+* The king is always on the left side of the player regardless of color. Stalemate is a loss for the stalemated player.
 * Capturing all one's opponent's pieces apart from the king (baring the king) is a win.
 
 ### Ferz
