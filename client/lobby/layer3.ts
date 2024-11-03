@@ -35,7 +35,9 @@ export function layer3variant (container2Id: string, lobbyCtrl: LobbyController,
     const layer3cont = h(`div#${container3Id}.layer-3-container.chess-l3` , [
         h('button.layer-2-category l3v', [
             h('div.variant-title-l2', [
-                h('div.icon', { attrs: { 'data-icon': variant.icon(chess960) } }, variant.displayName(chess960)),
+                h('div.icon', { attrs: { 'data-icon': variant.icon() } }),
+                h('h3', variant.displayName()),
+                variant.chess960 ? h('div.icon', { attrs: { 'data-icon': 'V' } }) : '',
             ]),
             h('ul.l3links-cont', [
                 h('li.l3links', { class: {"icon": true, "icon-crossedswords": true}, on: { click: () => lobbyCtrl.createGame(variantName) } }, createModeStr('createGame')),

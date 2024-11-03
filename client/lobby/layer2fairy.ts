@@ -22,73 +22,76 @@ export function layer2fairy (lobbyCtrl: LobbyController, containerId: string): v
         h('div.button-grid', [
             h('button.layer-2-category', { on: { click: () => layer3variant('layer2fairycont', lobbyCtrl, 'shatranj') } }, [
                 h('div.variant-title-l2', [
-                    h('div.icon', { attrs: { 'data-icon': VARIANTS['shatranj'].icon(false) } }),
+                    h('div.icon', { attrs: { 'data-icon': VARIANTS['shatranj'].icon() } }),
                     h('h3', VARIANTS['shatranj'].displayName()),
                 ]),
             ]),
             h('button.layer-2-category', { on: { click: () => layer3variant('layer2fairycont', lobbyCtrl, 'capablanca') } }, [
                 h('div.variant-title-l2', [
-                    h('div.icon', { attrs: { 'data-icon': VARIANTS['capablanca'].icon(false) } }),
-                    h('h3', VARIANTS['capablanca'].displayName() + '(960)'),
+                    h('div.icon', { attrs: { 'data-icon': VARIANTS['capablanca'].icon() } }),
+                    h('h3', VARIANTS['capablanca'].displayName()),
+                    h('div.icon', { attrs: { 'data-icon': 'V' } }),
                 ]),
             ]),
             h('button.layer-2-category', { on: { click: () => layer3variant('layer2fairycont', lobbyCtrl, 'capahouse') } }, [
                 h('div.variant-title-l2', [
-                    h('div.icon', { attrs: { 'data-icon': VARIANTS['capahouse'].icon(false) } }),
-                    h('h3', VARIANTS['capahouse'].displayName() + '(960)'),
+                    h('div.icon', { attrs: { 'data-icon': VARIANTS['capahouse'].icon() } }),
+                    h('h3', VARIANTS['capahouse'].displayName()),
+                    h('div.icon', { attrs: { 'data-icon': 'V' } }),
                 ]),
             ]),
             h('button.layer-2-category', { on: { click: () => layer3variant('layer2fairycont', lobbyCtrl, 'dragon') } }, [
                 h('div.variant-title-l2', [
-                    h('div.icon', { attrs: { 'data-icon': VARIANTS['dragon'].icon(false) } }),
+                    h('div.icon', { attrs: { 'data-icon': VARIANTS['dragon'].icon() } }),
                     h('h3', VARIANTS['dragon'].displayName()),
                 ]),
             ]),
             h('button.layer-2-category', { on: { click: () => layer3variant('layer2fairycont', lobbyCtrl, 'seirawan') } }, [
                 h('div.variant-title-l2', [
-                    h('div.icon', { attrs: { 'data-icon': VARIANTS['seirawan'].icon(false) } }),
-                    h('h3', VARIANTS['seirawan'].displayName() + '(960)'),
+                    h('div.icon', { attrs: { 'data-icon': VARIANTS['seirawan'].icon() } }),
+                    h('h3', VARIANTS['seirawan'].displayName()),
+                    h('div.icon', { attrs: { 'data-icon': 'V' } }),
                 ]),
             ]),
             h('button.layer-2-category', { on: { click: () => layer3variant('layer2fairycont', lobbyCtrl, 'shouse') } }, [
                 h('div.variant-title-l2', [
-                    h('div.icon', { attrs: { 'data-icon': VARIANTS['shouse'].icon(false) } }),
+                    h('div.icon', { attrs: { 'data-icon': VARIANTS['shouse'].icon() } }),
                     h('h3', VARIANTS['shouse'].displayName()),
                 ]),
             ]),
             h('button.layer-2-category', { on: { click: () => layer3variant('layer2fairycont', lobbyCtrl, 'shako') } }, [
                 h('div.variant-title-l2', [
-                    h('div.icon', { attrs: { 'data-icon': VARIANTS['shako'].icon(false) } }),
+                    h('div.icon', { attrs: { 'data-icon': VARIANTS['shako'].icon() } }),
                     h('h3', VARIANTS['shako'].displayName()),
                 ]),
             ]),
             h('button.layer-2-category', { on: { click: () => layer3variant('layer2fairycont', lobbyCtrl, 'grand') } }, [
                 h('div.variant-title-l2', [
-                    h('div.icon', { attrs: { 'data-icon': VARIANTS['grand'].icon(false) } }),
+                    h('div.icon', { attrs: { 'data-icon': VARIANTS['grand'].icon() } }),
                     h('h3', VARIANTS['grand'].displayName()),
                 ]),
             ]),
             h('button.layer-2-category', { on: { click: () => layer3variant('layer2fairycont', lobbyCtrl, 'grandhouse') } }, [
                 h('div.variant-title-l2', [
-                    h('div.icon', { attrs: { 'data-icon': VARIANTS['grandhouse'].icon(false) } }),
+                    h('div.icon', { attrs: { 'data-icon': VARIANTS['grandhouse'].icon() } }),
                     h('h3', VARIANTS['grandhouse'].displayName()),
                 ]),
             ]),
             h('button.layer-2-category', { on: { click: () => layer3variant('layer2fairycont', lobbyCtrl, 'shogun') } }, [
                 h('div.variant-title-l2', [
-                    h('div.icon', { attrs: { 'data-icon': VARIANTS['shogun'].icon(false) } }),
+                    h('div.icon', { attrs: { 'data-icon': VARIANTS['shogun'].icon() } }),
                     h('h3', VARIANTS['shogun'].displayName()),
                 ]),
             ]),
             h('button.layer-2-category', { on: { click: () => layer3variant('layer2fairycont', lobbyCtrl, 'hoppelpoppel') } }, [
                 h('div.variant-title-l2', [
-                    h('div.icon', { attrs: { 'data-icon': VARIANTS['hoppelpoppel'].icon(false) } }),
+                    h('div.icon', { attrs: { 'data-icon': VARIANTS['hoppelpoppel'].icon() } }),
                     h('h3', VARIANTS['hoppelpoppel'].displayName()),
                 ]),
             ]),
             h('button.layer-2-category', { on: { click: () => layer3variant('layer2fairycont', lobbyCtrl, 'mansindam') } }, [
                 h('div.variant-title-l2', [
-                    h('div.icon', { attrs: { 'data-icon': VARIANTS['mansindam'].icon(false) } }),
+                    h('div.icon', { attrs: { 'data-icon': VARIANTS['mansindam'].icon() } }),
                     h('h3', VARIANTS['mansindam'].displayName()),
                 ]),
             ]),

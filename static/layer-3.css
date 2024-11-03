@@ -94,6 +94,7 @@ font-size: 1.3rem;
 }
 .layer-3-container .icon:before, .layer-2-container .icon:before {
     vertical-align: middle;
+    padding-left: 4px;
     padding-right: 4px;
 }
 
