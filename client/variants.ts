@@ -75,6 +75,7 @@ export const PIECE_FAMILIES: Record<string, PieceFamily> = {
 export interface Variant {
     readonly name: string;
     readonly _displayName: string;
+    readonly _display960: string;
     readonly displayName: (chess960?: boolean) => string;
     readonly _tooltip: string;
     readonly tooltip: string;
