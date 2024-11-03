@@ -494,7 +494,7 @@ TRANSLATED_VARIANT_NAMES = {
     "antichess": _("Antichess"),
     "antichess960": _("Antichess960"),
     "racingkings": _("Racing Kings"),
-    "racingkings960": _("Racing Kings 960"),
+    "racingkings960": _("Racing Kings 1440"),
     "horde": _("Horde"),
     "horde960": _("Horde960"),
     "shatranj": _("Shatranj"),

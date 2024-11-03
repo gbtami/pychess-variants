@@ -136,7 +136,8 @@ function variant(config: VariantConfig): Variant {
     return {
         name: config.name,
         _displayName: config.displayName ?? config.name,
-        displayName: function (chess960 = false) { return _(this._displayName).toUpperCase() + (chess960 ? '960' : ''); },
+        _display960: config.display960 ?? '960',
+        displayName: function (chess960 = false) { return _(this._displayName).toUpperCase() + (chess960 ? this._display960 : ''); },
         _tooltip: config.tooltip,
         get tooltip() { return _(this._tooltip) },
         chess960: !!config.chess960,
@@ -448,7 +449,7 @@ export const VARIANTS: Record<string, Variant> = {
     }),
 
     racingkings: variant({
-        name: "racingkings", displayName: "racing kings", tooltip: "Race your King to the eighth rank to win.",
+        name: "racingkings", displayName: "racing kings", display960: '1440', tooltip: "Race your King to the eighth rank to win.",
         startFen: "8/8/8/8/8/8/krbnNBRK/qrbnNBRQ w - - 0 1",
         chess960: true, icon: "🚗", icon960: "🚙",
         boardFamily: "standard8x8", pieceFamily: "standard",
