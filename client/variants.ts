@@ -208,6 +208,8 @@ interface VariantConfig {
     name: string;
     // Display name for use on the website (default: same as name)
     displayName?: string;
+    // Display name postfix for variants having randomized start positions (default: '960')
+    display960?: string;
     // Tooltip displayed when variant name is hovered
     tooltip: string;
     // Start FEN for use in some client-side calculations
