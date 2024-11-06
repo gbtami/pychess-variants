@@ -752,6 +752,10 @@ export const VARIANTS: Record<string, Variant> = {
         boardFamily: "makruk8x8", pieceFamily: "shatranj",
         pieceRow: ["k", "q", "r", "b", "n", "p"],
         promotion: { type: "regular", order: ["q"] },
+        alternateStart: {
+            '': "",
+            'Chaturanga': "rnbkqbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w - - 0 1",
+        },
     }),
 
     capablanca: variant({
