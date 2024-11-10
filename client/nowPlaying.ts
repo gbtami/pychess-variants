@@ -97,7 +97,7 @@ export function gameViewPlaying(cgMap: {[gameId: string]: [Api, string]}, game: 
     let lastMove, fen;
     [lastMove, fen] = getLastMoveFen(variant.name, game.lastMove, game.fen, '*')
 
-    return h(`a.${variant.boardFamily}.${variant.pieceFamily}`, { attrs: { href: game.gameId } }, [
+    return h(`a.${variant.boardFamily}.${variant.pieceFamily}.${variant.ui.boardMark}`, { attrs: { href: game.gameId } }, [
         h(`div.cg-wrap.${variant.board.cg}`, {
             hook: {
                 insert: vnode => {
