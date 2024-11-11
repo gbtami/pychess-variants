@@ -64,7 +64,6 @@ export class AnalysisController extends GameController {
     maxDepth: number;
     isAnalysisBoard: boolean;
     isEngineReady: boolean;
-    notationAsObject: any;
     arrow: boolean;
     multipv: number;
     threads: number;

@@ -54,7 +54,6 @@ export class RoundController extends GameController {
     settings: boolean;
     tv: boolean;
     handicap: boolean;
-    setupFen: string;
     focus: boolean;
     finishedGame: boolean;
     lastMaybeSentMsgMove: MsgMove; // Always store the last "move" message that was passed for sending via websocket.
