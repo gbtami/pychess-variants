@@ -6,17 +6,18 @@
         "paths": {
             "@/*": [ "./client/*" ]
         },
+        "noEmit": true,
         "noImplicitAny": true,
         "strictNullChecks": true,
         "noUnusedLocals": true,
-        "noEmitOnError": false,
         "alwaysStrict": true,
         "noImplicitReturns": true,
         "noUnusedParameters": true,
         "esModuleInterop": true,
-        "module": "esnext",
+        "skipLibCheck": true,
+        "module": "ES2022",
         "moduleResolution": "node",
-        "lib": ["DOM", "ES2017"],
-        "target": "ES2017"
+        "lib": ["DOM", "ES2022"],
+        "target": "ES2022"
     }
 }
