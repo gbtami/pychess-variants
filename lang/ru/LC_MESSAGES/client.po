@@ -1277,7 +1277,7 @@ msgstr "Рейтинговые"
 #: ../client/profile.ts:228
 msgctxt "UsePluralFormIfNeeded"
 msgid "Playing"
-msgstr "Играющий"
+msgstr "Играемые"
 
 #: ../client/profile.ts:229
 msgid "Imported"

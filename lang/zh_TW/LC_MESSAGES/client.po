@@ -5,7 +5,8 @@
 # 
 # Translators:
 # gbtami <gbtami@gmail.com>, 2022
-# 何承恩, 2022
+# Supaplex <bejokeup@gmail.com>, 2024
+# 何承恩, 2024
 # 
 #, fuzzy
 msgid ""
@@ -14,7 +15,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2023-11-17 14:15+0100\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
-"Last-Translator: 何承恩, 2022\n"
+"Last-Translator: 何承恩, 2024\n"
 "Language-Team: Chinese (Taiwan) (https://app.transifex.com/gbtami/teams/14790/zh_TW/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -30,7 +31,7 @@ msgid ""
 "create such a powerful engine for FREE. That's a lot of great minds and "
 "computing power they've managed to harness."
 msgstr ""
-"\"對於我來說，我們能走到今天，在很大程度上要歸功於Stockfish。他們召集了全球的志願者，本著開源的精神，共同創造了一個如此強大的免費引擎。他們這可是聚集了很多優秀的人才和計算能力。"
+"\"對於我來說，我們能走到今天，在很大程度上要歸功於Stockfish。他們召集了全球的志工，本著開源的精神，共同創造了一個如此強大的免費引擎。他們這可是聚集了很多優秀的人才和運算能力。"
 " "
 
 #: ../client/about.ts:10
@@ -39,7 +40,7 @@ msgid ""
 "source spirit, and it too drew in great people as well. Once Lichess "
 "incorporated Stockfish as its brains, the rest is history."
 msgstr ""
-"接下來我們還須感謝Lichess。Lichess同樣是開源精神的產物，也同樣吸引了大批人才。自從Lichess將Stockfish作為其思維主腦，剩下的就人盡皆知了。"
+"接下來我們還須要感謝Lichess。Lichess同樣是開源精神的產物，也同樣吸引了大批人才。自從Lichess將Stockfish作為其背後運算大腦，剩下的事情就人盡皆知了。"
 
 #: ../client/about.ts:11
 msgid ""
@@ -48,7 +49,7 @@ msgid ""
 "benefit from it without configuring a local GUI. I believe this development "
 "turns out to be of great consequence and significance."
 msgstr ""
-"Lichess實現了遊戲的線上、實時和競爭幾個方面。他們同時還將Stockfish的巨大力量帶給了大眾，使得大眾現在無須配置本地GUI也可從中受益。我認為這一發展產生了巨大的影響和意義。"
+"Lichess實現了遊戲的線上、即時和競爭的部分。他們同時還將Stockfish的巨大能力帶給了大眾，使得大眾現在無須配置本地GUI也可從中受益。我認為這一發展產生了巨大的影響和意義。"
 
 #: ../client/about.ts:12
 msgid ""
@@ -59,10 +60,10 @@ msgid ""
 "variant support and extensibility. Thus Fairy-Stockfish was born, so "
 "powerful because it builds on the Stockfish project."
 msgstr ""
-"後來，熟悉Lichess項目的開發者最終將Stockfish擴展為Multivariant-"
-"Stockfish（即多變體Stockfish），以支持Crazyhouse等。Fairy-"
-"Stockfish之父Fabian也是那些（仍然）致力於該多變體Stockfish的開發者之一，而他後來在變體支持和擴展性方面又邁出了幾步。就此，Fairy-"
-"Stockfish誕生了，其作為建立在Stockfish基礎上的項目，是如此的強大。"
+"後來，熟悉Lichess項目的開發者最終將Stockfish擴展為Multivariant-Stockfish , "
+"即多變體Stockfish，以支援Crazyhouse等。Fairy-Stockfish之父Fabian也是那些 (仍然) "
+"致力於該多變體Stockfish的開發者之一，而他後來在變體支持和擴展性方面又邁出了幾步。就此，Fairy-"
+"Stockfish誕生了，其作為建立在Stockfish基礎上的專案可是如此的強大。"
 
 #: ../client/about.ts:13
 msgid ""
@@ -72,7 +73,7 @@ msgid ""
 " power of Stockfish!\""
 msgstr ""
 "最後是我們心愛的pychess-"
-"variants，它再次非常聰明地利用了之前大項目的潛在超級力量。其有著同樣的線上、實時和競爭的方面；同樣乾淨和熟悉的Lichess外觀和感覺；但額外加上了Stockfish的力量！\""
+"variants，它再次非常聰明地利用了之前大專案的潛在超級力量。其有著同樣的線上、即時和競爭的方面；同樣乾淨和熟悉的Lichess外觀和感覺；但額外加上了Stockfish的力量！\""
 
 #: ../client/about.ts:18
 msgid "About pychess"
@@ -82,11 +83,11 @@ msgstr "關於pychess"
 msgid ""
 "Pychess is a free, open-source chess server designed to play several chess "
 "variants."
-msgstr "Pychess是個免費開源象棋網站，支持下多種棋類。"
+msgstr "Pychess是個免費開源棋類伺服器，支持下多種棋類。"
 
 #: ../client/about.ts:22
 msgid "Currently supported games are "
-msgstr "目前支持的棋類包括"
+msgstr "目前支援的棋類包括"
 
 #: ../client/about.ts:100
 msgid ""
@@ -94,7 +95,7 @@ msgid ""
 "Atomic, S-chess, Capablanca, and Capahouse to start games from random "
 "positions with "
 msgstr ""
-"若要下普通國際象棋、Crazyhouse、Atomic、S-Chess、Capablanca、Capahouse，可以通過勾選Chess960選項而創造一局棋，從隨機局面起始又包含"
+"若要下西洋棋、Crazyhouse、Atomic、S-Chess、Capablanca、Capahouse，可以透過勾選Chess960選項而創造一局棋，從隨機局面起始又包含"
 
 #: ../client/about.ts:101
 msgid "Chess960 castling rules."
@@ -110,19 +111,19 @@ msgstr "在客戶端，棋盤的用戶界面使用"
 
 #: ../client/about.ts:118
 msgid "The source code of the server is available on "
-msgstr "本服務器的源碼投稿在"
+msgstr "本伺服器的原始碼在"
 
 #: ../client/about.ts:123
 msgid ""
 "To play on PyChess, you need to have an open and unmarked account on "
 "Lichess. "
-msgstr "使用PyChess之前，你必需先擁用一個Lichess帳號。"
+msgstr "使用PyChess之前，你必需先擁用一個開啟且未標記的Lichess帳號。"
 
 #: ../client/about.ts:124
 msgid ""
 "Regarding Privacy and Terms of Service, the rules of lichess.org are also "
 "applied here. "
-msgstr "關於隱私和服務條款，我們向lichess.org借之而行。"
+msgstr "關於隱私和服務條款，我們套用lichess.org的規範。"
 
 #: ../client/analysis.ts:39 ../client/editor/editor.ts:30
 #: ../client/lobby.ts:391 ../client/lobby.ts:1013 ../client/puzzle.ts:32
@@ -148,7 +149,7 @@ msgstr "FEN和PGN"
 
 #: ../client/analysis.ts:179
 msgid "Multi-threaded WebAssembly (classical evaluation)"
-msgstr ""
+msgstr "多執行序WebAssembly (經典評估)"
 
 #: ../client/analysis.ts:181 ../client/analysisCtrl.ts:669
 msgid "in local browser"
@@ -212,7 +213,7 @@ msgstr "請重新載入網頁。"
 
 #: ../client/analysisCtrl.ts:480
 msgid "Multi-threaded WebAssembly (with NNUE evaluation)"
-msgstr "多進程WebAssembly(具有NNUE評估)"
+msgstr "多執行序WebAssembly(具有NNUE評估)"
 
 #: ../client/analysisCtrl.ts:652
 msgid "Depth"
@@ -228,23 +229,23 @@ msgstr ""
 
 #: ../client/analysisSettings.ts:106
 msgid "Infinite analysis"
-msgstr ""
+msgstr "無限分析"
 
 #: ../client/analysisSettings.ts:132
 msgid "Multiple lines"
-msgstr ""
+msgstr "多線分析"
 
 #: ../client/analysisSettings.ts:159
 msgid "CPUs"
-msgstr ""
+msgstr "CPUs"
 
 #: ../client/analysisSettings.ts:205
 msgid "Memory"
-msgstr ""
+msgstr "記憶體"
 
 #: ../client/analysisSettings.ts:233
 msgid "Use NNUE"
-msgstr ""
+msgstr "使用 NNUE"
 
 #: ../client/background.ts:9
 msgid "Light"
@@ -260,11 +261,11 @@ msgstr "棋子動畫"
 
 #: ../client/boardSettings.ts:200
 msgid "Confirm resigning"
-msgstr ""
+msgstr "確認投降"
 
 #: ../client/boardSettings.ts:217
 msgid "Confirm correspondence move"
-msgstr ""
+msgstr "確認通信棋局棋步"
 
 #: ../client/boardSettings.ts:309
 msgid "Zoom"
@@ -955,15 +956,15 @@ msgstr "（必須登錄）"
 
 #: ../client/lobby.ts:413
 msgid "Time control"
-msgstr ""
+msgstr "時間控制"
 
 #: ../client/lobby.ts:418
 msgid "Real time"
-msgstr ""
+msgstr "實時棋局"
 
 #: ../client/lobby.ts:419 ../client/lobby.ts:1069
 msgid "Correspondence"
-msgstr ""
+msgstr "通信棋局"
 
 #: ../client/lobby.ts:425
 msgid "Minutes per side:"
@@ -975,7 +976,7 @@ msgstr "次數"
 
 #: ../client/lobby.ts:449
 msgid "Days per turn:"
-msgstr ""
+msgstr "每日手數"
 
 #: ../client/lobby.ts:467 ../client/lobby.ts:767 ../client/result.ts:16
 msgid "Casual"
@@ -1012,7 +1013,7 @@ msgstr "每步加時（秒）："
 
 #: ../client/lobby.ts:603
 msgid "Alternate Start"
-msgstr ""
+msgstr "其他起始局面"
 
 #: ../client/editor/editorCtrl.ts:218 ../client/lobby.ts:642
 msgid "Invalid FEN"
@@ -1062,7 +1063,7 @@ msgstr "模式"
 
 #: ../client/lobby.ts:1042
 msgid "Puzzle of the day"
-msgstr ""
+msgstr "每日棋題"
 
 #: ../client/editor/editorCtrl.ts:92 ../client/editor/editorCtrl.ts:93
 #: ../client/lobby.ts:1043
@@ -1071,7 +1072,7 @@ msgstr "%1 走棋"
 
 #: ../client/lobby.ts:1068
 msgid "Lobby"
-msgstr ""
+msgstr "大廳"
 
 #: ../client/lobby.ts:1127
 msgid "Donate"
@@ -1091,7 +1092,7 @@ msgstr "關於我們"
 
 #: ../client/lobby.ts:1138
 msgid "Correspondence Chess"
-msgstr ""
+msgstr "通信棋局"
 
 #: ../client/lobby.ts:1139
 msgid "You have time now"
@@ -1103,7 +1104,7 @@ msgstr ""
 
 #: ../client/lobby.ts:1154
 msgid "Autumn Update"
-msgstr ""
+msgstr "秋季更新"
 
 #: ../client/lobby.ts:1155
 msgid "A slew of new variants!"
@@ -1115,7 +1116,7 @@ msgstr "感謝您的支持！"
 
 #: ../client/notifyView.ts:83
 msgid "No notifications."
-msgstr ""
+msgstr "沒有通知"
 
 #: ../client/paste.ts:139
 msgid "Invalid PGN"
@@ -1154,7 +1155,7 @@ msgstr "積分"
 #: ../client/profile.ts:228
 msgctxt "UsePluralFormIfNeeded"
 msgid "Playing"
-msgstr ""
+msgstr "正在下棋"
 
 #: ../client/profile.ts:229
 msgid "Imported"
@@ -1162,15 +1163,15 @@ msgstr "導入的棋局"
 
 #: ../client/puzzleCtrl.ts:88
 msgid "LOGIN"
-msgstr ""
+msgstr "登入"
 
 #: ../client/puzzleCtrl.ts:116
 msgid "Hint"
-msgstr ""
+msgstr "提示"
 
 #: ../client/puzzleCtrl.ts:124
 msgid "View the solution"
-msgstr ""
+msgstr "看解答"
 
 #: ../client/puzzleCtrl.ts:165
 msgid ""
@@ -1180,23 +1181,23 @@ msgstr ""
 
 #: ../client/puzzleCtrl.ts:195
 msgid "Puzzle"
-msgstr ""
+msgstr "棋題"
 
 #: ../client/puzzleCtrl.ts:196
 msgid "Rating:"
-msgstr ""
+msgstr "積分"
 
 #: ../client/puzzleCtrl.ts:196
 msgid "hidden"
-msgstr ""
+msgstr "隱藏"
 
 #: ../client/puzzleCtrl.ts:197
 msgid "Played:"
-msgstr ""
+msgstr "已下完"
 
 #: ../client/puzzleCtrl.ts:214
 msgid "Source:"
-msgstr ""
+msgstr "來源"
 
 #: ../client/puzzleCtrl.ts:218
 msgid "Type:"
@@ -1204,7 +1205,7 @@ msgstr ""
 
 #: ../client/puzzleCtrl.ts:321
 msgid "Your turn"
-msgstr ""
+msgstr "你的回合"
 
 #: ../client/puzzleCtrl.ts:322
 msgid "Find the best move for %1."
@@ -1212,11 +1213,11 @@ msgstr ""
 
 #: ../client/puzzleCtrl.ts:339
 msgid "That's not the move!"
-msgstr ""
+msgstr "不是這一步"
 
 #: ../client/puzzleCtrl.ts:340
 msgid "Try something else."
-msgstr ""
+msgstr "再試試"
 
 #: ../client/puzzleCtrl.ts:354
 msgid "Best move!"
@@ -1224,23 +1225,23 @@ msgstr "最好的一步"
 
 #: ../client/puzzleCtrl.ts:355
 msgid "Keep going..."
-msgstr ""
+msgstr "繼續"
 
 #: ../client/puzzleCtrl.ts:368
 msgid "Success!"
-msgstr ""
+msgstr "答對了!"
 
 #: ../client/puzzleCtrl.ts:373
 msgid "Puzzle complete!"
-msgstr ""
+msgstr "棋題完成!"
 
 #: ../client/puzzleCtrl.ts:376
 msgid "We have no more puzzle for this variant."
-msgstr ""
+msgstr "這個變體沒有更多棋題了"
 
 #: ../client/puzzleCtrl.ts:386
 msgid "Did you like this puzzle?"
-msgstr ""
+msgstr "你喜歡這個棋題嗎"
 
 #: ../client/puzzleCtrl.ts:387
 msgid "Vote to load the next one!"
@@ -1381,7 +1382,7 @@ msgstr "對方提和"
 
 #: ../client/roundCtrl.ts:491
 msgid "Confirm move"
-msgstr ""
+msgstr "確認走棋"
 
 #: ../client/roundCtrl.ts:518
 msgid "Are you sure you want to resign?"
@@ -1693,11 +1694,11 @@ msgstr "導出PNG"
 
 #: ../client/input/duck.ts:52
 msgid "Undo"
-msgstr ""
+msgstr "悔棋"
 
 #: ../client/input/duck.ts:58
 msgid "Place the duck on an empty square."
-msgstr ""
+msgstr "請將小鴨放在空的格子上"
 
 #: ../client/lobby/layer2army.ts:18
 msgid ""
@@ -1894,7 +1895,7 @@ msgstr "只有把王和車打入它們在國際象棋的普通位置時才能王
 
 #: ../client/lobby/layer3.ts:87
 msgid "Quack."
-msgstr ""
+msgstr "呱"
 
 #: ../client/lobby/layer3.ts:90
 msgid ""
