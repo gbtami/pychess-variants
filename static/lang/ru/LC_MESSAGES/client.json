@@ -551,7 +551,7 @@
     "Sets that show both sides are available by going to settings.": "Наборы, отображающие обе стороны, доступны в разделе Настройки.",
     "Reading the rules are a necessity to understand the movements before playing.": "Чтение правил перед игрой необходимо для понимания, как ходят фигуры.",
     "UsePluralFormIfNeeded\u0004Rated": "Рейтинговые",
-    "UsePluralFormIfNeeded\u0004Playing": "Играющий",
+    "UsePluralFormIfNeeded\u0004Playing": "Играемые",
     "": {
         "language": "ru",
         "plural-forms": "nplurals=4; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || (n%100>=11 && n%100<=14)? 2 : 3);"
