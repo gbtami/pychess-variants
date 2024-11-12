@@ -2,6 +2,7 @@ import * as cg from 'chessgroundx/types';
 
 import { Board } from 'ffish-es6';
 
+import { Board as ChessopsBoard } from 'chessops/board';
 import { Position, castlingSide } from 'chessops/chess';
 import { makeBoardFen, makeFen, parseFen } from 'chessops/fen';
 import { makeSquare, opposite, parseSquare, parseUci, rookCastlesTo } from 'chessops/util';
@@ -22,7 +23,7 @@ class AlicePosition extends Position {
         pos.setupUnchecked(setup);
         return pos;
     }
-}  
+}
 
 export class AliceBoard {
     fens: Fens;
@@ -191,7 +192,7 @@ export function getUnionFenFromFullFen(fullfen: string, boardId: BoardId): strin
 
 export function movePieceToTheOtherBoard(fullfen: string, key: string): string {
     const fens = fullfen.split(' | ') as Fens;
-    const square = parseSquare(key);
+    const square = parseSquare(key) as number;
 
     const setup0 = parseFen(fens[0]).unwrap();
     const setup1 = parseFen(fens[1]).unwrap();
@@ -204,8 +205,28 @@ export function movePieceToTheOtherBoard(fullfen: string, key: string): string {
 
     // Remove piece from the target square and put it to the other board
     const piece = afterBoards[boardId].board.take(square);
-    console.log("transferring from", boardId, square, piece);
     afterBoards[1 - boardId].board.set(square, piece!);
+
+    return makeFen(afterBoards[0].toSetup()) + ' | ' + makeFen(afterBoards[1].toSetup());
+}
+
+export function getFullFenFromUnionFen(unionfen: string, keys: string[]): string {
+    const fens = unionfen.split(' | ') as Fens;
+
+    const setup0 = parseFen(fens[0].replaceAll('~', '')).unwrap();
+    const setup1 = parseFen(fens[1]).unwrap();
+
+    const pos0 = AlicePosition.fromSetup(setup0);
+    const pos1 = AlicePosition.fromSetup(setup1);
+
+    const afterBoards: Boards = [pos0.clone(), pos1.clone()];
+    afterBoards[1].board = ChessopsBoard.empty();
+
+    keys.forEach((key) => {
+        const square = parseSquare(key) as number;
+        const piece = afterBoards[0].board.take(square);
+        afterBoards[1].board.set(square, piece!);
+    });
 
     return makeFen(afterBoards[0].toSetup()) + ' | ' + makeFen(afterBoards[1].toSetup());
 }

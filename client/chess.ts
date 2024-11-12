@@ -84,6 +84,8 @@ export function validFen(variant: Variant, fen: string): boolean {
         if (Object.keys(as).some((key) => {return as[key].includes(fen);})) return true;
     }
     const variantName = variant.name;
+    if (variantName === 'alice') return true;
+
     const startfen = variant.startFen;
     const start = startfen.split(' ');
     // console.log(start);

@@ -13,7 +13,7 @@ import { ChessgroundController } from '@/cgCtrl';
 import { copyTextToClipboard } from '@/clipboard';
 import { initPieceRow } from './pieceRow';
 import { setPocketRowCssVars } from '@/pocketRow';
-import { getUnionFenFromFullFen, movePieceToTheOtherBoard } from '@/alice';
+import { getFullFenFromUnionFen, getUnionFenFromFullFen, movePieceToTheOtherBoard } from '@/alice';
 import { AliceMirrorSettings } from './editorSettings';
 
 
@@ -336,7 +336,13 @@ export class EditorController extends ChessgroundController {
         // onChange() will get then set and validate FEN from chessground pieces
         this.parts[0] = this.chessground.getFen();
         this.fullfen = this.parts.join(' ');
-        console.log("onChangeBoard", this.fullfen);
+
+        if (this.variant.name === 'alice') {
+            const pieces = this.chessground.state.boardState.pieces;
+            const otherBoardPieces = [...pieces].filter(([_, v]) => v.promoted).map(e => e[0]);
+            this.fullfen = getFullFenFromUnionFen(this.fullfen, otherBoardPieces);
+        }
+
         const e = document.getElementById('fen') as HTMLInputElement;
         e.value = this.fullfen;
         this.setInvalid(!this.validFen());
@@ -347,7 +353,6 @@ export class EditorController extends ChessgroundController {
         let lastKey: cg.Key | undefined;
         return (key: cg.Key) => {
             const piece = this.chessground.state.boardState.pieces.get(key);
-            console.log("ITT", piece, key);
             const curTime = performance.now();
             // Check double click (promote/unpromote)
             if ((lastKey === key && curTime - lastTime < 500)) {
@@ -385,7 +390,6 @@ export class EditorController extends ChessgroundController {
                 const aliceMirrorOn = (this.variant.name === 'alice' && this.aliceMirror);
                 if (aliceMirrorOn && piece) {
                     this.fullfen = movePieceToTheOtherBoard(this.fullfen, key);
-                    console.log("NA?", this.fullfen, key);
                     const e = document.getElementById('fen') as HTMLInputElement;
                     e.value = this.fullfen;
                     this.onChangeFen();
