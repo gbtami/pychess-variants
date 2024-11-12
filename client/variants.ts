@@ -554,7 +554,7 @@ export const VARIANTS: Record<string, Variant> = {
     }),
 
     shogi: variant({
-        name: "shogi", tooltip: _("Japanese Chess, the standard 9x9 version played today with drops and promotions."),
+        name: "shogi", tooltip: "Japanese Chess, the standard 9x9 version played today with drops and promotions.",
         startFen: "lnsgkgsnl/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL[-] w 0 1",
         icon: "K",
         boardFamily: "shogi9x9", pieceFamily: "shogi",
@@ -581,7 +581,7 @@ export const VARIANTS: Record<string, Variant> = {
     }),
 
     cannonshogi: variant({
-        name: "cannonshogi", displayName: "cannon shogi", tooltip: _("Shogi with Chinese and Korean cannons"),
+        name: "cannonshogi", displayName: "cannon shogi", tooltip: "Shogi with Chinese and Korean cannons",
         startFen: "lnsgkgsnl/1rci1uab1/p1p1p1p1p/9/9/9/P1P1P1P1P/1BAU1ICR1/LNSGKGSNL[-] w 0 1",
         icon: "💣",
         boardFamily: "shogi9x9", pieceFamily: "cannonshogi",
@@ -833,7 +833,7 @@ export const VARIANTS: Record<string, Variant> = {
     }),
 
     grand: variant({
-        name: "grand", tooltip: _("Play with the hybrid pieces, archbishop (B+N) and chancellor (R+N), on a grand 10x10 board."),
+        name: "grand", tooltip: "Play with the hybrid pieces, archbishop (B+N) and chancellor (R+N), on a grand 10x10 board.",
         startFen: "r8r/1nbqkcabn1/pppppppppp/10/10/10/10/PPPPPPPPPP/1NBQKCABN1/R8R w - - 0 1",
         icon: "(",
         boardFamily: "grand10x10", pieceFamily: "capa",

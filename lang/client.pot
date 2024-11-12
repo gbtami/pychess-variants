@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-11-11 12:16+0100\n"
+"POT-Creation-Date: 2024-11-12 18:21+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -720,190 +720,220 @@ msgid "Check your opponent 3 times to win the game."
 msgstr ""
 
 #: ../client/i18n.ts:103
-msgid "The duck must be moved to a new square after every turn."
+msgid "Lose all your pieces to win."
 msgstr ""
 
 #: ../client/i18n.ts:104
+msgid "Race your King to the eighth rank to win."
+msgstr ""
+
+#: ../client/i18n.ts:105
+msgid "Destroy the horde to win!"
+msgstr ""
+
+#: ../client/i18n.ts:106
+msgid "The duck must be moved to a new square after every turn."
+msgstr ""
+
+#: ../client/i18n.ts:107
+msgid "Through the Looking-Glass"
+msgstr ""
+
+#: ../client/i18n.ts:108
+msgid ""
+"Players can only see the squares to which their pieces can legally move "
+"to."
+msgstr ""
+
+#: ../client/i18n.ts:109
 msgid ""
 "Thai Chess. A game closely resembling the original Chaturanga. Similar to"
 " Chess but with a different queen and bishop."
 msgstr ""
 
-#: ../client/i18n.ts:105
+#: ../client/i18n.ts:110
 msgid "Makruk variant where kings cannot move to escape out of check."
 msgstr ""
 
-#: ../client/i18n.ts:106
+#: ../client/i18n.ts:111
 msgid "Cambodian Chess. Makruk with a few additional opening abilities."
 msgstr ""
 
-#: ../client/i18n.ts:107
+#: ../client/i18n.ts:112
 msgid ""
 "Burmese Chess. Similar to Makruk, but pieces are placed at the start of "
 "the match."
 msgstr ""
 
-#: ../client/i18n.ts:108
+#: ../client/i18n.ts:113
 msgid ""
 "Makruk using the board/pieces from International Chess as well as pawn "
 "promotion rules."
 msgstr ""
 
-#: ../client/i18n.ts:109 ../client/variants.ts:557
+#: ../client/i18n.ts:114
 msgid ""
 "Japanese Chess, the standard 9x9 version played today with drops and "
 "promotions."
 msgstr ""
 
-#: ../client/i18n.ts:110
+#: ../client/i18n.ts:115
+msgid "Shogi with Chinese and Korean cannons"
+msgstr ""
+
+#: ../client/i18n.ts:116
 msgid ""
 "5x5 Shogi for more compact and faster games. There are no knights or "
 "lances."
 msgstr ""
 
-#: ../client/i18n.ts:111
+#: ../client/i18n.ts:117
 msgid ""
 "A wild Shogi variant on a 5x5 board where pieces flip into a different "
 "piece after each move."
 msgstr ""
 
-#: ../client/i18n.ts:112
+#: ../client/i18n.ts:118
 msgid "3x4 game with cute animals, designed to teach children how to play Shogi."
 msgstr ""
 
-#: ../client/i18n.ts:113
+#: ../client/i18n.ts:119
 msgid "5x6 Shogi designed to introduce tactics with the generals."
 msgstr ""
 
-#: ../client/i18n.ts:114
+#: ../client/i18n.ts:120
 msgid ""
 "A confrontational 7x7 variant with unique pieces each named after "
 "different birds."
 msgstr ""
 
-#: ../client/i18n.ts:115
+#: ../client/i18n.ts:121
 msgid "Chinese Chess, one of the oldest and most played board games in the world."
 msgstr ""
 
-#: ../client/i18n.ts:116
+#: ../client/i18n.ts:122
 msgid ""
 "Xiangqi variant where one side has a chariot that can also move as a "
 "cannon or horse."
 msgstr ""
 
-#: ../client/i18n.ts:117
+#: ../client/i18n.ts:123
 msgid ""
 "Korean Chess, similar to Xiangqi but plays much differently. Tournament "
 "rules are used."
 msgstr ""
 
-#: ../client/i18n.ts:118
+#: ../client/i18n.ts:124
 msgid "Compact version of Xiangqi played on a 7x7 board without a river."
 msgstr ""
 
-#: ../client/i18n.ts:119
+#: ../client/i18n.ts:125
+msgid "Ancient Arabian and Persian form of Chess."
+msgstr ""
+
+#: ../client/i18n.ts:126
 msgid ""
 "Play with the hybrid pieces, archbishop (B+N) and chancellor (R+N), on a "
 "10x8 board."
 msgstr ""
 
-#: ../client/i18n.ts:120
+#: ../client/i18n.ts:127
 msgid "Capablanca with Crazyhouse drop rules."
 msgstr ""
 
-#: ../client/i18n.ts:121
+#: ../client/i18n.ts:128
 msgid ""
 "Hybrid pieces, the hawk (B+N) and elephant (R+N), can enter the board "
 "after moving a back rank piece."
 msgstr ""
 
-#: ../client/i18n.ts:122
+#: ../client/i18n.ts:129
 msgid "S-Chess with Crazyhouse drop rules."
 msgstr ""
 
-#: ../client/i18n.ts:123 ../client/variants.ts:836
+#: ../client/i18n.ts:130
 msgid ""
 "Play with the hybrid pieces, archbishop (B+N) and chancellor (R+N), on a "
 "grand 10x10 board."
 msgstr ""
 
-#: ../client/i18n.ts:124
+#: ../client/i18n.ts:131
 msgid "Grand Chess with Crazyhouse drop rules."
 msgstr ""
 
-#: ../client/i18n.ts:125
+#: ../client/i18n.ts:132
 msgid "Introduces the cannon and elephant from Xiangqi into a 10x10 chess board."
 msgstr ""
 
-#: ../client/i18n.ts:126
+#: ../client/i18n.ts:133
 msgid "Pieces promote and can be dropped, similar to Shogi."
 msgstr ""
 
-#: ../client/i18n.ts:127
+#: ../client/i18n.ts:134
 msgid "Knights capture as bishops; bishops  capture as knights."
 msgstr ""
 
-#: ../client/i18n.ts:128
+#: ../client/i18n.ts:135
 msgid ""
 "Asymmetric variant where one army has pieces that move like knights but "
 "capture differently."
 msgstr ""
 
-#: ../client/i18n.ts:129
+#: ../client/i18n.ts:136
 msgid ""
 "Asymmetric East vs. West variant which pits the western Chess army "
 "against a Xiangqi and Janggi-styled army."
 msgstr ""
 
-#: ../client/i18n.ts:130
+#: ../client/i18n.ts:137
 msgid ""
 "Asymmetric variant which pits the western Chess army against a drop-"
 "based, Shogi-styled army."
 msgstr ""
 
-#: ../client/i18n.ts:131
+#: ../client/i18n.ts:138
 msgid ""
 "Asymmetric variant where one army has pieces that move like queens but "
 "capture as usual."
 msgstr ""
 
-#: ../client/i18n.ts:132
+#: ../client/i18n.ts:139
 msgid "Orda Chess variant. The scout and khatun replaces the pawn and yurt."
 msgstr ""
 
-#: ../client/i18n.ts:133
+#: ../client/i18n.ts:140
 msgid "Orda Chess variant with two Horde armies. The Falcon replaces the Yurt."
 msgstr ""
 
-#: ../client/i18n.ts:134
+#: ../client/i18n.ts:141
 msgid "Mayan chess. Inspired by cultural elements of Mesoamerica."
 msgstr ""
 
-#: ../client/i18n.ts:135
+#: ../client/i18n.ts:142
 msgid "Pieces alternate between two forms with each move."
 msgstr ""
 
-#: ../client/i18n.ts:136
+#: ../client/i18n.ts:143
 msgid "Asymmetric Spartans vs. Persians variant."
 msgstr ""
 
-#: ../client/i18n.ts:137
+#: ../client/i18n.ts:144
 msgid "A variant that combines the Shogi's drop rule with strong pieces."
 msgstr ""
 
-#: ../client/i18n.ts:138
+#: ../client/i18n.ts:145
 msgid "Like Capablanca Chess but with Grand starting setup."
 msgstr ""
 
-#: ../client/i18n.ts:139
+#: ../client/i18n.ts:146
 msgid "Embassy with Crazyhouse drop rules."
 msgstr ""
 
-#: ../client/i18n.ts:140
+#: ../client/i18n.ts:147
 msgid "Like Capablanca Chess but with a different starting setup."
 msgstr ""
 
-#: ../client/i18n.ts:141
+#: ../client/i18n.ts:148
 msgid "Gothic with Crazyhouse drop rules."
 msgstr ""
 
@@ -1660,10 +1690,6 @@ msgstr ""
 
 #: ../client/tournamentClock.ts:42
 msgid "STARTING IN"
-msgstr ""
-
-#: ../client/variants.ts:584
-msgid "Shogi with Chinese and Korean cannons"
 msgstr ""
 
 #: ../client/lobby/layer1.ts:51 ../client/lobby/layer2chess.ts:26
