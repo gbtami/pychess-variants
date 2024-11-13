@@ -10,7 +10,7 @@
 </br>
 
 <p align="center">
-  <img src="https://github.com/gbtami/pychess-variants/blob/master/static/images/Background.svg" width="300" height="150">
+  <img src="https://github.com/gbtami/pychess-variants/blob/master/static/images/man-design-thinking.453x512.png">
 </p>
 
 **Introduction**
