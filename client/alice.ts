@@ -213,7 +213,7 @@ export function movePieceToTheOtherBoard(fullfen: string, key: string): string {
 export function getFullFenFromUnionFen(unionfen: string, keys: string[]): string {
     const fens = unionfen.split(' | ') as Fens;
 
-    const setup0 = parseFen(fens[0].replaceAll('~', '')).unwrap();
+    const setup0 = parseFen(fens[0].replace(/~/g, '')).unwrap();
     const setup1 = parseFen(fens[1]).unwrap();
 
     const pos0 = AlicePosition.fromSetup(setup0);
