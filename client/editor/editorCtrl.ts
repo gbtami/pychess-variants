@@ -341,6 +341,7 @@ export class EditorController extends ChessgroundController {
             const pieces = this.chessground.state.boardState.pieces;
             const otherBoardPieces = [...pieces].filter(([_, v]) => v.promoted).map(e => e[0]);
             this.fullfen = getFullFenFromUnionFen(this.fullfen, otherBoardPieces);
+            this.parts = this.fullfen.split(' ');
         }
 
         const e = document.getElementById('fen') as HTMLInputElement;
