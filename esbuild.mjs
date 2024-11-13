@@ -11,7 +11,7 @@ const baseOpts = {
     entryPoints: ['./client/main.ts'],
     platform: 'browser',
     format: 'iife',
-    target: 'es2020',
+    target: 'es2017',
     bundle: true,
     outfile: './static/pychess-variants.js',
 };
