@@ -1,3 +1,18 @@
+<h1 align="center">Variant Design Contest</h1>
+<div class="meta-headline">
+    <div class= "meta">
+        <span class="text">2024.11.14</span>
+        <span class="text"><a href="/@/CouchTomato87">@CouchTomato87</a></span>
+        <span class="text">Announcements</span>
+    </div>
+    <div class= "headline">Create the best chess variant!</div>
+</div>
+</br>
+
+<p align="center">
+  <img src="https://github.com/gbtami/pychess-variants/blob/master/static/images/Background.svg" width="300" height="150">
+</p>
+
 **Introduction**
 We are happy to announce Pychess’ first community contest, the Variant Design Contest! The goal of the contest is to create the *best* chess variant. *But* there will be a special theme for the contest which the designs have to make use of. The winning entry will have the honor of being added to the site. 
 
