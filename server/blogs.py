@@ -16,7 +16,7 @@ del _
 
 BLOGS = [
     {
-        "_id": "Variant Design Contest",
+        "_id": "Variant_Design_Contest",
         "date": "2024-11-14",
         "image": "/images/man-design-thinking.453x512.png",
         "alt": "",
