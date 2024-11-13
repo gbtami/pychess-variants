@@ -41,8 +41,8 @@ Again, the variant must be compatible with FairyStockfish. This means the varian
 Entries should be playtested using FairyStockfish.  At the most basic level, this involves downloading the FairyStockfish engine and then running a script to have the engine play against itself for multiple games. One such script provided by ubdip (FSF’s creator) is [variantfishtest](https://github.com/ianfab/variantfishtest). If there any difficulties, there members in the community that will be be able to help.
 
 Tomato’s standards/recommendations from playtesting are the following:
-1.    Balance – Ideally there should be no larger than a 40/60% winrate between the two sides. Testing should be done over at least 100 games with a long time control.
-2.    Sharpness – Ideally there should not be a forced opening. When looking at the log of AI selfplay, seeing some variation in the opening moves is important.
+1. Balance – Ideally there should be no larger than a 40/60% winrate between the two sides. Testing should be done over at least 100 games with a long time control.
+2. Sharpness – Ideally there should not be a forced opening. When looking at the log of AI selfplay, seeing some variation in the opening moves is important.
 
 Don't worry about being particular perfect on these. The design is more important for the contest. The main thing is that the variant is not obviously imbalanced or sharp/limiting in choices.
 The chosen winner will likely undergo more vigorous testing with NNUE and ironing out any issues before being added to the site.
