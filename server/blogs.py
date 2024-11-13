@@ -16,6 +16,16 @@ del _
 
 BLOGS = [
     {
+        "_id": "Variant Design Contest",
+        "date": "2024-11-14",
+        "image": "/images/man-design-thinking.453x512.png",
+        "alt": "",
+        "title": "Variant Design Contest",
+        "subtitle": "Create the best chess variant!",
+        "author": "CouchTomato87",
+        "tags": ["Announcement"],
+    },
+    {
         "_id": "Halloween_Update",
         "date": "2024-10-31",
         "image": "/images/witch.png",
