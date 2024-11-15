@@ -351,6 +351,7 @@ export abstract class GameController extends ChessgroundController implements Ch
 
         if (ply === this.ply + 1) {
             sound.moveSound(this.variant, capture);
+            if (step.check) sound.check();
         }
 
         this.ply = ply

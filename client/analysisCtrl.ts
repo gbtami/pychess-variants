@@ -1020,6 +1020,8 @@ export class AnalysisController extends GameController {
             },
         });
 
+        if (msg.check) sound.check();
+
         if (this.variant.ui.showCheckCounters) {
             this.updateCheckCounters(this.fullfen);
         }
