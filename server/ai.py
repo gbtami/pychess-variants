@@ -38,7 +38,8 @@ async def BOT_task(bot, app_state: PychessGlobalAppState):
                 continue
             # print("   +++ game_queues get()", event)
             if random_mover:
-                await play_move(app_state, bot, game, random.choice(game.legal_moves))
+                async with game.move_lock:
+                    await play_move(app_state, bot, game, random.choice(game.legal_moves))
             elif len(app_state.workers) > 0:
                 AI_move(game, level)
 
@@ -98,7 +99,8 @@ async def BOT_task(bot, app_state: PychessGlobalAppState):
 
         if turn_player == bot.username:
             if random_mover:
-                await play_move(app_state, bot, game, random.choice(game.legal_moves))
+                async with game.move_lock:
+                    await play_move(app_state, bot, game, random.choice(game.legal_moves))
             else:
                 AI_move(game, level)
 

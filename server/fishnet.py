@@ -227,7 +227,8 @@ async def fishnet_move(request):
     user = app_state.users["Fairy-Stockfish"]
     move = data["move"]["bestmove"]
 
-    await play_move(app_state, user, game, move)
+    async with game.move_lock:
+        await play_move(app_state, user, game, move)
 
     response = await get_work(app_state, data)
     return response
