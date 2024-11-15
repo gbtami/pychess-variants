@@ -65,19 +65,23 @@ export const translatedColorNames = [
 ];
 
 export const translatedVariantDisplayNames = [
-    _("chess"), _("crazyhouse"), _("placement"), _("atomic"),
+    _("chess"), _("bughouse"), _("crazyhouse"), _("placement"), _("atomic"),
+    _("king of the hill"), _("three-check"), _("antichess"), _("racing kings"),
+    _("horde"), _("duck"), _("alice"), _("fog of war"),
 
     _("makruk"), _("makpong"), _("ouk chaktrang"), _("sittuyin"), _("asean"),
 
-    _("shogi"), _("minishogi"), _("kyoto shogi"),
-    _("dobutsu"), _("gorogoro"), _("gorogoro+"), _("tori shogi"),
+    _("shogi"), _("minishogi"), _("kyoto shogi"), _("dobutsu"), _("gorogoro"),
+    _("gorogoro+"), _("tori shogi", _("cannon shogi")),
 
     _("xiangqi"), _("manchu"), _("janggi"), _("minixiangqi"),
 
-    _("capablanca"), _("capahouse"), _("s-chess"), _("s-house"),
-    _("grand"), _("grandhouse"), _("shako"), _("shogun"), _("hoppel-poppel"),
+    _("shatranj"), _("capablanca"), _("capahouse"), _("dragon chess"),
+    _("s-chess"), _("s-house"), _("grand"), _("grandhouse"), _("shako"),
+    _("shogun"), _("hoppel-poppel"), _("mansindam"),
 
-    _("orda"), _("synochess"), _("shinobi"), _("shinobi+"), _("empire"), _("orda mirror"), _("chak"), _("chennis"),
+    _("orda"), _("khans"), _("synochess"), _("shinobi"), _("shinobi+"),
+    _("empire"), _("orda mirror"), _("chak"), _("chennis"),
 ];
 
 export const translatedCustomStartPositions = [
@@ -123,6 +127,7 @@ export const translatedTooltips = [
     _("Korean Chess, similar to Xiangqi but plays much differently. Tournament rules are used."),
     _("Compact version of Xiangqi played on a 7x7 board without a river."),
     _("Ancient Arabian and Persian form of Chess."),
+    _("The dragon can be dropped to the base rank."),
     _("Play with the hybrid pieces, archbishop (B+N) and chancellor (R+N), on a 10x8 board."),
     _("Capablanca with Crazyhouse drop rules."),
     _("Hybrid pieces, the hawk (B+N) and elephant (R+N), can enter the board after moving a back rank piece."),
