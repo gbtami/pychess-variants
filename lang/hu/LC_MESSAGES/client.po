@@ -12,7 +12,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-11-11 12:16+0100\n"
+"POT-Creation-Date: 2024-11-12 18:21+0100\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Last-Translator: gbtami <gbtami@gmail.com>, 2024\n"
 "Language-Team: Hungarian (https://app.transifex.com/gbtami/teams/14790/hu/)\n"
@@ -538,7 +538,7 @@ msgstr "gorogoro+"
 
 #: ../client/i18n.ts:73
 msgid "tori shogi"
-msgstr "tori sógi"
+msgstr "madár sógi"
 
 #: ../client/i18n.ts:75
 msgid "xiangqi"
@@ -750,17 +750,38 @@ msgstr "Ütésnél a tisztek felrobbannak."
 
 #: ../client/i18n.ts:101
 msgid "Bring your King to the center to win the game."
-msgstr "Vidd a királyt a centrumba!"
+msgstr "Vidd a királyt a centrumba, és győztél!"
 
 #: ../client/i18n.ts:102
 msgid "Check your opponent 3 times to win the game."
-msgstr "Adj háromszor sakkot és győztél!"
+msgstr "Adj 3-szor sakkot, és győztél!"
 
 #: ../client/i18n.ts:103
+msgid "Lose all your pieces to win."
+msgstr "Veszítsd el az összes bábudat, és győztél!"
+
+#: ../client/i18n.ts:104
+msgid "Race your King to the eighth rank to win."
+msgstr "Vidd a királyodat a 8. sorra, és győztél!"
+
+#: ../client/i18n.ts:105
+msgid "Destroy the horde to win!"
+msgstr "Semmisítsd meg a hordát, és győztél!"
+
+#: ../client/i18n.ts:106
 msgid "The duck must be moved to a new square after every turn."
 msgstr "A kacsát minden lépés után kötelező új mezőre vinni."
 
-#: ../client/i18n.ts:104
+#: ../client/i18n.ts:107
+msgid "Through the Looking-Glass"
+msgstr "Tükörországban."
+
+#: ../client/i18n.ts:108
+msgid ""
+"Players can only see the squares to which their pieces can legally move to."
+msgstr "Csak azok a mezők láthatók amelyekre a figuráid léphetnek."
+
+#: ../client/i18n.ts:109
 msgid ""
 "Thai Chess. A game closely resembling the original Chaturanga. Similar to "
 "Chess but with a different queen and bishop."
@@ -768,15 +789,15 @@ msgstr ""
 "Thai sakk. Az eredeti Csaturangához közel álló sakk variáns. Hasonló a "
 "sakkhoz, de a vezér és a futó másként lép."
 
-#: ../client/i18n.ts:105
+#: ../client/i18n.ts:110
 msgid "Makruk variant where kings cannot move to escape out of check."
 msgstr "Makruk variáns, ahol a király nem léphet ki a sakkból."
 
-#: ../client/i18n.ts:106
+#: ../client/i18n.ts:111
 msgid "Cambodian Chess. Makruk with a few additional opening abilities."
 msgstr "Kambodzsai sakk. Makruk variáns néhány extra lépéssel a megnyitásban."
 
-#: ../client/i18n.ts:107
+#: ../client/i18n.ts:112
 msgid ""
 "Burmese Chess. Similar to Makruk, but pieces are placed at the start of the "
 "match."
@@ -784,7 +805,7 @@ msgstr ""
 "Burmai sakk. A Makrukhoz hasonló, de a játékosok helyezhetik el a tiszteket "
 "kezdés előtt."
 
-#: ../client/i18n.ts:108
+#: ../client/i18n.ts:113
 msgid ""
 "Makruk using the board/pieces from International Chess as well as pawn "
 "promotion rules."
@@ -792,50 +813,54 @@ msgstr ""
 "Makruk hagyományos sakktáblán és figurákkal, a sakk átváltozási "
 "szabályaival."
 
-#: ../client/i18n.ts:109 ../client/variants.ts:557
+#: ../client/i18n.ts:114
 msgid ""
 "Japanese Chess, the standard 9x9 version played today with drops and "
 "promotions."
 msgstr "Japán sakk, a standard 9x9-es változat."
 
-#: ../client/i18n.ts:110
+#: ../client/i18n.ts:115
+msgid "Shogi with Chinese and Korean cannons"
+msgstr "Sógi kínai és koreai ágyúkkal"
+
+#: ../client/i18n.ts:116
 msgid ""
 "5x5 Shogi for more compact and faster games. There are no knights or lances."
 msgstr ""
 "5x5-ös Sógi gyorsabb játszmákhoz. Nincsenek benne lovasok és lándzsások."
 
-#: ../client/i18n.ts:111
+#: ../client/i18n.ts:117
 msgid ""
 "A wild Shogi variant on a 5x5 board where pieces flip into a different piece"
 " after each move."
 msgstr ""
 "5x5-ös Sógi variáns, ahol a figurák minden lépésben oda-vissza átváltoznak."
 
-#: ../client/i18n.ts:112
+#: ../client/i18n.ts:118
 msgid ""
 "3x4 game with cute animals, designed to teach children how to play Shogi."
 msgstr ""
 "3x4-es variáns aranyos állatokkal. Gyerekek számára létrehozott játék a Sógi"
 " tanításához."
 
-#: ../client/i18n.ts:113
+#: ../client/i18n.ts:119
 msgid "5x6 Shogi designed to introduce tactics with the generals."
 msgstr ""
 "5x6-os Sógi, a tábornokok megismeréséhez és a Sógi taktika elsajátításához."
 
-#: ../client/i18n.ts:114
+#: ../client/i18n.ts:120
 msgid ""
 "A confrontational 7x7 variant with unique pieces each named after different "
 "birds."
 msgstr "Vad 7x7-es variáns különféle madár figurákkal."
 
-#: ../client/i18n.ts:115
+#: ../client/i18n.ts:121
 msgid ""
 "Chinese Chess, one of the oldest and most played board games in the world."
 msgstr ""
 "Kínai sakk. Az egyik legrégebbi és legtöbbek által játszott játék a földön."
 
-#: ../client/i18n.ts:116
+#: ../client/i18n.ts:122
 msgid ""
 "Xiangqi variant where one side has a chariot that can also move as a cannon "
 "or horse."
@@ -843,7 +868,7 @@ msgstr ""
 "Xiangqi variáns, ahol az egyik oldal szekér figurája ágyúként és lovasként "
 "is léphet."
 
-#: ../client/i18n.ts:117
+#: ../client/i18n.ts:123
 msgid ""
 "Korean Chess, similar to Xiangqi but plays much differently. Tournament "
 "rules are used."
@@ -851,11 +876,15 @@ msgstr ""
 "Koreai sakk. A Xiangqi-hoz hasonló, de sok mindenben el is tér. A "
 "versenyszabályok érvényesek."
 
-#: ../client/i18n.ts:118
+#: ../client/i18n.ts:124
 msgid "Compact version of Xiangqi played on a 7x7 board without a river."
 msgstr "7x7-es Xiangqi, a két tábort elválasztó folyó nélkül."
 
-#: ../client/i18n.ts:119
+#: ../client/i18n.ts:125
+msgid "Ancient Arabian and Persian form of Chess."
+msgstr "A sakk ősi arab és perzsa változata."
+
+#: ../client/i18n.ts:126
 msgid ""
 "Play with the hybrid pieces, archbishop (B+N) and chancellor (R+N), on a "
 "10x8 board."
@@ -863,11 +892,11 @@ msgstr ""
 "10x8-as sakk két új figurával. Az archbishop = futó + ló, a chancellor = "
 "bástya + ló."
 
-#: ../client/i18n.ts:120
+#: ../client/i18n.ts:127
 msgid "Capablanca with Crazyhouse drop rules."
 msgstr "Capablanca variáns Crazyhouse szabályokkal."
 
-#: ../client/i18n.ts:121
+#: ../client/i18n.ts:128
 msgid ""
 "Hybrid pieces, the hawk (B+N) and elephant (R+N), can enter the board after "
 "moving a back rank piece."
@@ -875,11 +904,11 @@ msgstr ""
 "A sólyom = futó + ló és az elefánt = bástya + ló a táblára léphet amikor az "
 "alapsorról először lép el egy figura."
 
-#: ../client/i18n.ts:122
+#: ../client/i18n.ts:129
 msgid "S-Chess with Crazyhouse drop rules."
 msgstr "S-Chess Crazyhouse szabályokkal."
 
-#: ../client/i18n.ts:123 ../client/variants.ts:836
+#: ../client/i18n.ts:130
 msgid ""
 "Play with the hybrid pieces, archbishop (B+N) and chancellor (R+N), on a "
 "grand 10x10 board."
@@ -887,26 +916,26 @@ msgstr ""
 "10x10-es sakk két új figurával. Az archbishop = futó + ló, a chancellor = "
 "bástya + ló."
 
-#: ../client/i18n.ts:124
+#: ../client/i18n.ts:131
 msgid "Grand Chess with Crazyhouse drop rules."
 msgstr "Grand Chess Crazyhouse szabályokkal."
 
-#: ../client/i18n.ts:125
+#: ../client/i18n.ts:132
 msgid ""
 "Introduces the cannon and elephant from Xiangqi into a 10x10 chess board."
 msgstr "10x10-es variáns Xiangqi ágyúval és elefánttal."
 
-#: ../client/i18n.ts:126
+#: ../client/i18n.ts:133
 msgid "Pieces promote and can be dropped, similar to Shogi."
 msgstr ""
 "A figurák átváltozhatnak és a leütött figurák visszarakhatók a Sógi-hoz "
 "hasonlóan."
 
-#: ../client/i18n.ts:127
+#: ../client/i18n.ts:134
 msgid "Knights capture as bishops; bishops  capture as knights."
 msgstr "A huszárok futóként ütnek, a futók meg huszárként."
 
-#: ../client/i18n.ts:128
+#: ../client/i18n.ts:135
 msgid ""
 "Asymmetric variant where one army has pieces that move like knights but "
 "capture differently."
@@ -914,14 +943,14 @@ msgstr ""
 "Aszimmetrikus variáns, ahol az arany horda tisztjei lóként lépnek, de "
 "másként ütnek."
 
-#: ../client/i18n.ts:129
+#: ../client/i18n.ts:136
 msgid ""
 "Asymmetric East vs. West variant which pits the western Chess army against a"
 " Xiangqi and Janggi-styled army."
 msgstr ""
 "Aszimmetrikus variáns, kínai és koreai figurákkal a nyugati sakk ellen."
 
-#: ../client/i18n.ts:130
+#: ../client/i18n.ts:137
 msgid ""
 "Asymmetric variant which pits the western Chess army against a drop-based, "
 "Shogi-styled army."
@@ -929,7 +958,7 @@ msgstr ""
 "Aszimmetrikus variáns, a nyugati sakk figurák a visszarakható, Sógi-hoz "
 "hasonló figurák ellen."
 
-#: ../client/i18n.ts:131
+#: ../client/i18n.ts:138
 msgid ""
 "Asymmetric variant where one army has pieces that move like queens but "
 "capture as usual."
@@ -937,45 +966,45 @@ msgstr ""
 "Aszimmetrikus variáns, ahol a világos tisztek a szokásos módon ütnek, de "
 "vezérként lépnek."
 
-#: ../client/i18n.ts:132
+#: ../client/i18n.ts:139
 msgid "Orda Chess variant. The scout and khatun replaces the pawn and yurt."
 msgstr "Orda sakk változat."
 
-#: ../client/i18n.ts:133
+#: ../client/i18n.ts:140
 msgid ""
 "Orda Chess variant with two Horde armies. The Falcon replaces the Yurt."
 msgstr "Orda sakk variáns két Orda sereggel, a jurta helyett sólyommal."
 
-#: ../client/i18n.ts:134
+#: ../client/i18n.ts:141
 msgid "Mayan chess. Inspired by cultural elements of Mesoamerica."
 msgstr ""
 "Maja sakk. Mezoamerika kulturális elemei által inspirált sakk variáns."
 
-#: ../client/i18n.ts:135
+#: ../client/i18n.ts:142
 msgid "Pieces alternate between two forms with each move."
 msgstr "A figurák minden lépésnél oda vissza átváltoznak."
 
-#: ../client/i18n.ts:136
+#: ../client/i18n.ts:143
 msgid "Asymmetric Spartans vs. Persians variant."
 msgstr "A spártaiak a perzsák ellen."
 
-#: ../client/i18n.ts:137
+#: ../client/i18n.ts:144
 msgid "A variant that combines the Shogi's drop rule with strong pieces."
-msgstr "Erős figurák kmbinálva Shógi szabályokkal."
+msgstr "Erős figurák kombinálva Shógi szabályokkal."
 
-#: ../client/i18n.ts:138
+#: ../client/i18n.ts:145
 msgid "Like Capablanca Chess but with Grand starting setup."
 msgstr "Capablanca sakk Grand sakk kezdőállással."
 
-#: ../client/i18n.ts:139
+#: ../client/i18n.ts:146
 msgid "Embassy with Crazyhouse drop rules."
 msgstr "Embassy Crazyhouse visszarakásokkal."
 
-#: ../client/i18n.ts:140
+#: ../client/i18n.ts:147
 msgid "Like Capablanca Chess but with a different starting setup."
 msgstr "Capablanca sakk más kezdőállással."
 
-#: ../client/i18n.ts:141
+#: ../client/i18n.ts:148
 msgid "Gothic with Crazyhouse drop rules."
 msgstr "Capablanca variáns Crazyhouse szabályokkal."
 
@@ -1744,10 +1773,6 @@ msgstr ""
 #: ../client/tournamentClock.ts:42
 msgid "STARTING IN"
 msgstr "A KEZDÉSIG VAN MÉG"
-
-#: ../client/variants.ts:584
-msgid "Shogi with Chinese and Korean cannons"
-msgstr "Sógi kínai és koreai ágyúkkal"
 
 #: ../client/lobby/layer1.ts:51 ../client/lobby/layer2chess.ts:26
 #: ../client/variants.ts:1127

@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-11-11 12:16+0100\n"
+"POT-Creation-Date: 2024-11-12 18:21+0100\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Last-Translator: gbtami <gbtami@gmail.com>, 2024\n"
 "Language-Team: Hungarian (https://app.transifex.com/gbtami/teams/14790/hu/)\n"
@@ -176,11 +176,11 @@ msgstr "Gorogoro+"
 
 #: ../server/const.py:455
 msgid "Tori Shogi"
-msgstr "Tori Sógi"
+msgstr "Madár Sógi"
 
 #: ../server/const.py:456
 msgid "Cannon Shogi"
-msgstr "Cannon Shogi"
+msgstr "Ágyú Shogi"
 
 #: ../server/const.py:457 ../server/videos.py:21
 msgid "Xiangqi"
