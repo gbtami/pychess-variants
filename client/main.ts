@@ -40,11 +40,18 @@ function initModel(el: HTMLElement) {
 
     // Remove new variants from variants on prod site until they stabilize
     if (el.getAttribute("data-dev") !== "True") {
-        const notReady = ['bughouse'];
-        notReady.forEach((v) => {
+        const notReadyStandard = ["bughouse"];
+        notReadyStandard.forEach((v) => {
             const idx = variantGroups.standard.variants.indexOf(v);
             variantGroups.standard.variants.splice(idx, 1);
         });
+/*
+        const notReadyFairy = [];
+        notReadyFairy.forEach((v) => {
+            const idx = variantGroups.fairy.variants.indexOf(v);
+            variantGroups.fairy.variants.splice(idx, 1);
+        });
+*/
     }
 
     let ct = el.getAttribute("data-ct") ?? "";
@@ -68,6 +75,7 @@ function initModel(el: HTMLElement) {
         tournamentname : el.getAttribute("data-tournamentname") ?? "",
         inviter : el.getAttribute("data-inviter") ?? "",
         ply : parseInt(""+el.getAttribute("data-ply")),
+        initialFen : el.getAttribute("data-initialfen") ?? "",
         ct: ct,
         board: board,
 
@@ -157,7 +165,7 @@ function start() {
     const placeholder = document.getElementById('placeholder');
     if (placeholder && el)
 
-        if (['round', 'analysis', 'puzzle', 'editor', 'tv'].includes(el.getAttribute("data-view") ?? "")) {
+        if (['round', 'analysis', 'puzzle', 'editor', 'tv', 'embed'].includes(el.getAttribute("data-view") ?? "")) {
             console.time('load ffish');
             ffishModule().then((loadedModule: any) => {
                 console.timeEnd('load ffish');

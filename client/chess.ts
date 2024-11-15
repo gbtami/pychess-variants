@@ -22,7 +22,7 @@ export type PromotionType = "regular" | "shogi";
 export type TimeControlType = "incremental" | "byoyomi";
 export type CountingType = "makruk" | "asean";
 export type MaterialPointType = "janggi" | "ataxx";
-export type BoardMarkType = "alice" | "campmate" | "kingofthehill";
+export type BoardMarkType = "alice" | "campmate" | "racingkings" | "kingofthehill";
 export type PieceSoundType = "regular" | "atomic" | "shogi";
 
 const handicapKeywords = [ "HC", "Handicap", "Odds" ];
@@ -84,6 +84,8 @@ export function validFen(variant: Variant, fen: string): boolean {
         if (Object.keys(as).some((key) => {return as[key].includes(fen);})) return true;
     }
     const variantName = variant.name;
+    if (variantName === 'alice') return true;
+
     const startfen = variant.startFen;
     const start = startfen.split(' ');
     // console.log(start);
@@ -104,6 +106,9 @@ export function validFen(variant: Variant, fen: string): boolean {
     if (placement.split('').some(alien)) return false;
 
     if (variantName === "duck" && lc(placement, "*", false) > 1) return false;
+
+    // RK currently not implemented due to not being able to check for checks
+    // if (variantName === "racingkings") return false;
 
     // Brackets paired
     if (lc(placement, '[', false) !== lc(placement, ']', false)) return false;
@@ -174,10 +179,15 @@ export function validFen(variant: Variant, fen: string): boolean {
     const king = util.letterOf(variant.kingRoles[0]);
     const bK = lc(placement, king, false);
     const wK = lc(placement, king, true);
-    if (variantName === 'spartan') {
-        if (bK === 0 || bK > 2 || wK !== 1) return false;
-    } else {
-        if (bK !== 1 || wK !== 1) return false;
+    switch (variantName) {
+        case 'spartan':
+            if (bK === 0 || bK > 2 || wK !== 1) return false;
+            break;
+        case 'horde':
+            if (bK !== 1 || wK !== 0) return false;
+            break;
+        default:
+            if (bK !== 1 || wK !== 1) return false;
     }
 
     return true;

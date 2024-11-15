@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 import asyncio
-import collections
 import random
 import unittest
 from datetime import datetime, timezone
@@ -9,7 +8,7 @@ from datetime import datetime, timezone
 from aiohttp.test_utils import AioHTTPTestCase
 from mongomock_motor import AsyncMongoMockClient
 
-from arena import ArenaTournament
+from arena_new import ArenaTournament
 from const import (
     BYEGAME,
     STARTED,
@@ -162,14 +161,13 @@ async def create_arena_test(app):
         chess960=False,
         base=1,
         before_start=0.1,
-        minutes=20,
+        minutes=3,
         created_by="PyChess",
     )
     #    tournament = SwissTestTournament(app, tid, variant="makpong", name="First Makpong Swiss", before_start=0.1, rounds=7, created_by="PyChess")
     #    tournament = RRTestTournament(app, tid, variant="makpong", name="First Makpong RR", before_start=0.1, rounds=7, created_by="PyChess")
     app_state.tournaments[tid] = tournament
     app_state.tourneysockets[tid] = {}
-    app_state.tourneychat[tid] = collections.deque([], 100)
 
     await upsert_tournament_to_db(tournament, app_state)
 
@@ -192,16 +190,16 @@ class TournamentTestCase(AioHTTPTestCase):
                 game.remove_task.cancel()
                 try:
                     await game.remove_task
-                except asyncio.CancelledError as e:
-                    log.error(e, stack_info=True, exc_info=True)
+                except asyncio.CancelledError:
+                    pass
 
         if has_games:
             for task in self.tournament.game_tasks:
                 task.cancel()
                 try:
                     await task
-                except asyncio.CancelledError as e:
-                    log.error(e, stack_info=True, exc_info=True)
+                except asyncio.CancelledError:
+                    pass
 
         await self.client.close()
 

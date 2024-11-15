@@ -21,49 +21,49 @@ export function layer2shogi (lobbyCtrl: LobbyController, containerId: string): v
             ]),
         ]),
         h('div.button-grid', [
-            h('button.layer-2-category', { on: { click: () => layer3variant('layer2shogicont', lobbyCtrl, 'shogi', false) } }, [
+            h('button.layer-2-category', { on: { click: () => layer3variant('layer2shogicont', lobbyCtrl, 'shogi') } }, [
                 h('div.variant-title-l2', [
                     h('div.icon', { attrs: { 'data-icon': VARIANTS['shogi'].icon(false) } }),
                     h('h3', VARIANTS['shogi'].displayName()),
                 ]),
                 h('p.variant-extra-info', _('Original Shogi')),
             ]),
-            h('button.layer-2-category', { on: { click: () => layer3variant('layer2shogicont', lobbyCtrl, 'minishogi', false) } }, [
+            h('button.layer-2-category', { on: { click: () => layer3variant('layer2shogicont', lobbyCtrl, 'minishogi') } }, [
                 h('div.variant-title-l2', [
                     h('div.icon', { attrs: { 'data-icon': VARIANTS['minishogi'].icon(false) } }),
                     h('h3', VARIANTS['minishogi'].displayName()),
                 ]),
                 h('p.variant-extra-info', _('5x5 Shogi')),
             ]),
-            h('button.layer-2-category', { on: { click: () => layer3variant('layer2shogicont', lobbyCtrl, 'kyotoshogi', false) } }, [
+            h('button.layer-2-category', { on: { click: () => layer3variant('layer2shogicont', lobbyCtrl, 'kyotoshogi') } }, [
                 h('div.variant-title-l2', [
                     h('div.icon', { attrs: { 'data-icon': VARIANTS['kyotoshogi'].icon(false) } }),
                     h('h3', VARIANTS['kyotoshogi'].displayName()),
                 ]),
                 h('p.variant-extra-info', _('5x5, pieces flip each turn')),
             ]),
-            h('button.layer-2-category', { on: { click: () => layer3variant('layer2shogicont', lobbyCtrl, 'dobutsu', false) } }, [
+            h('button.layer-2-category', { on: { click: () => layer3variant('layer2shogicont', lobbyCtrl, 'dobutsu') } }, [
                 h('div.variant-title-l2', [
                     h('div.icon', { attrs: { 'data-icon': VARIANTS['dobutsu'].icon(false) } }),
                     h('h3', VARIANTS['dobutsu'].displayName()),
                 ]),
                 h('p.variant-extra-info', _('3x4 game to teach Shogi')),
             ]),
-            h('button.layer-2-category', { on: { click: () => layer3variant('layer2shogicont', lobbyCtrl, 'gorogoroplus', false) } }, [
+            h('button.layer-2-category', { on: { click: () => layer3variant('layer2shogicont', lobbyCtrl, 'gorogoroplus') } }, [
                 h('div.variant-title-l2', [
                     h('div.icon', { attrs: { 'data-icon': VARIANTS['gorogoroplus'].icon(false) } }),
                     h('h3', VARIANTS['gorogoroplus'].displayName()),
                 ]),
                 h('p.variant-extra-info', _('5x6 with Generals')),
             ]),
-            h('button.layer-2-category', { on: { click: () => layer3variant('layer2shogicont', lobbyCtrl, 'torishogi', false) } }, [
+            h('button.layer-2-category', { on: { click: () => layer3variant('layer2shogicont', lobbyCtrl, 'torishogi') } }, [
                 h('div.variant-title-l2', [
                     h('div.icon', { attrs: { 'data-icon': VARIANTS['torishogi'].icon(false) } }),
                     h('h3', VARIANTS['torishogi'].displayName()),
                 ]),
                 h('p.variant-extra-info', _('7x7, Bird Shogi')),
             ]),
-            h('button.layer-2-category', { on: { click: () => layer3variant('layer2shogicont', lobbyCtrl, 'cannonshogi', false) } }, [
+            h('button.layer-2-category', { on: { click: () => layer3variant('layer2shogicont', lobbyCtrl, 'cannonshogi') } }, [
                 h('div.variant-title-l2', [
                     h('div.icon', { attrs: { 'data-icon': VARIANTS['cannonshogi'].icon(false) } }),
                     h('h3', VARIANTS['cannonshogi'].displayName()),

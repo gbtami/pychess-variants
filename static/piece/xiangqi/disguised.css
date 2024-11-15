@@ -4,3 +4,6 @@
 .xiangqi piece.black {
     background-image: url('../../images/pieces/disguised/3d-black.svg');
 }
+.xiangqi piece.white.m-piece, .manchu piece.white.m-piece {
+  background-color: unset;
+}

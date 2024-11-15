@@ -418,6 +418,9 @@ class Game:
                         await opp_player.notify_game_end(self)
                 else:
                     await self.save_move(move)
+                    # SAN checkmate indicator created by pyffish may be wrong in Alice chess
+                    if san[-1] in ("#", "+") and not self.check:
+                        san = san[:-1]
 
                 self.steps.append(
                     {
@@ -818,6 +821,16 @@ class Game:
             self.status = DRAW
             self.result = "1/2-1/2"
 
+        # Shatranj K vs K
+        # TODO: remove when https://github.com/fairy-stockfish/Fairy-Stockfish/issues/833 resolves
+        if (
+            self.variant == "shatranj"
+            and len([p for p in self.board.fen.split()[0] if p.isalpha()]) == 2
+        ):
+            self.status = DRAW
+            self.result = "1/2-1/2"
+            print("ITT")
+
         if self.status > STARTED:
             self.set_crosstable()
             self.update_in_plays()
@@ -1077,6 +1090,10 @@ class Game:
                 self.check = self.board.is_checked()
                 turnColor = "black" if self.board.color == BLACK else "white"
 
+                # SAN checkmate indicator created by pyffish may be wrong in Alice chess
+                if san[-1] in ("#", "+") and not self.check:
+                    san = san[:-1]
+
                 if self.usi_format:
                     turnColor = "black" if turnColor == "white" else "white"
                 step = {
@@ -1116,7 +1133,7 @@ class Game:
 
             except Exception:
                 log.exception(
-                    "ERROR: Exception in load_game() %s %s %s %s %s",
+                    "ERROR: Exception in create_steps() %s %s %s %s %s",
                     self.id,
                     self.variant,
                     self.board.initial_fen,
@@ -1133,7 +1150,11 @@ class Game:
             steps = self.steps
 
             # To not touch self.clocks_w and self.clocks_b we are creating deep copy from clocks
-            clocks = [self.clocks[WHITE], self.clocks[BLACK]]
+            try:
+                clocks = [self.clocks[WHITE], self.clocks[BLACK]]
+            except IndexError:
+                clocks_init = (self.base * 1000 * 60) + 0 if self.base > 0 else self.inc * 1000
+                clocks = [clocks_init, clocks_init]
 
             if self.status == STARTED and self.board.ply >= 2 and (not self.corr):
                 # We have to adjust current player latest saved clock time
@@ -1237,14 +1258,16 @@ class Game:
             cur_clock = self.clocks_b if self.board.color == BLACK else self.clocks_w
 
             self.board.pop()
-            cur_clock.pop()
+            if len(cur_clock) > 1:
+                cur_clock.pop()
             self.steps.pop()
 
             if not cur_player.bot:
                 cur_clock = self.clocks_b if self.board.color == BLACK else self.clocks_w
 
                 self.board.pop()
-                cur_clock.pop()
+                if len(cur_clock) > 1:
+                    cur_clock.pop()
                 self.steps.pop()
 
             self.has_legal_move = self.board.has_legal_move()

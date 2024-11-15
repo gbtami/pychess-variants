@@ -8,7 +8,7 @@ import { getLastMoveFen, VARIANTS } from './variants';
 import { patch } from './document';
 import { renderTimeago } from './datetime';
 import { boardSettings } from './boardSettings';
-import { timeControlStr } from './view';
+import { alternateStartName, timeControlStr } from './view';
 import { PyChessModel } from "./types";
 import { Ceval } from "./messages";
 import { aiLevel, gameType, result, renderRdiff } from './result';
@@ -52,6 +52,8 @@ export interface Game {
     r: string; // game result string (1-0, 0-1, 1/2-1/2, *)
     m: string[]; // moves in compressed format as they are stored in mongo. Only used for count of moves here
     a: Ceval[]; // analysis
+
+    initialFen: string;
 }
 
 interface Player {
@@ -73,7 +75,13 @@ function renderGames(model: PyChessModel, games: Game[]) {
         const variant = VARIANTS[game.v];
         const chess960 = game.z === 1;
         const tc = timeControlStr(game["b"], game["i"], game["bp"], game["c"] === true ? game["b"] : 0);
+        const altStartName = alternateStartName(variant, game.initialFen);
         const isBug = variant === VARIANTS['bughouse'];
+        let teamFirst, teamSecond = '';
+        if (isBug) {
+            teamFirst = game["us"][0] + "+" + game["us"][3];
+            teamSecond = game["us"][2] + "+" + game["us"][1];
+        }
         let lastMove, fen;
         [lastMove, fen] = getLastMoveFen(variant.name, game.lm, game.f, game.r)
         return h('tr', [h('a', { attrs: { href : '/' + game["_id"] } }, [
@@ -99,6 +107,7 @@ function renderGames(model: PyChessModel, games: Game[]) {
                     // h('div.info1.icon', { attrs: { "data-icon": (game["z"] === 1) ? "V" : "" } }),
                     h('div.info2', [
                         h('div.tc', tc + " • " + gameType(game["y"]) + " • " + variant.displayName(chess960)),
+                        h('div', (altStartName) ? altStartName : ''),
                         h('div', tournamentInfo(game)),
                     ]),
                 ]),
@@ -134,8 +143,8 @@ function renderGames(model: PyChessModel, games: Game[]) {
                     h('div.info-result', {
                         class: {
                             "win": isWinClass(model, game),
-                            "lose": !isWinClass(model, game),
-                        }}, result(variant, game["s"], game["r"])
+                            "lose": ['1-0', '0-1'].includes(game["r"]) && !isWinClass(model, game),
+                        }}, result(variant, game["s"], game["r"], teamFirst, teamSecond)
                     ),
                 ]),
                 h('div.info0.games', [

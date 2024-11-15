@@ -39,6 +39,28 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+.icon-Shatranj:before {
+  content: "\1f418";
+}
+.icon-Horde960:before {
+  content: "\1f437";
+}
+.icon-Antichess960:before {
+  content: "\1f413";
+}
+.icon-Racingkings960:before {
+  content: "\1f699";
+}
+
+.icon-horde:before {
+  content: "\1f416";
+}
+.icon-antichess:before {
+  content: "\1f425";
+}
+.icon-racingkings:before {
+  content: "\1f697";
+}
 .icon-FogOfWar:before {
   content: "\1f32b";
 }

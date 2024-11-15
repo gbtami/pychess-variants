@@ -208,7 +208,7 @@
   box-shadow: 0 3px 4px rgba(0, 0, 0, 0.15) inset !important;
 }
 
-.campmate .cg-512 cg-board::before {
+.campmate .cg-512 cg-board::before, .racingkings .cg-512 cg-board::before {
   width: 100%;
   height: 12.5%;
   top: 0%;
@@ -279,7 +279,7 @@
   background-color: LightCyan;
   border: 1px solid blue;
 }
-/* Fog of War for pieces */
+/* Fog of War fog pieces */
 .standard piece.promoted._-piece {
   background-image: url('data:image/svg+xml;base64,PHN2ZyBlbmFibGUtYmFja2dyb3VuZD0ibmV3IDAgMCA0Ny41IDQ3LjUiIHZpZXdCb3g9IjAgMCA0Ny41IDQ3LjUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiPjxjbGlwUGF0aCBpZD0iYSI+PHBhdGggZD0ibTAgMzhoMzh2LTM4aC0zOHoiLz48L2NsaXBQYXRoPjxnIGNsaXAtcGF0aD0idXJsKCNhKSIgdHJhbnNmb3JtPSJtYXRyaXgoMS4yNSAwIDAgLTEuMjUgMCA0Ny41KSI+PHBhdGggZD0ibTAgMGE0IDQgMCAwIDAgLTQtNGgtMjhhNCA0IDAgMCAwIC00IDR2MjhhNCA0IDAgMCAwIDQgNGgyOGE0IDQgMCAwIDAgNC00eiIgZmlsbD0iI2E5YTlhOSIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMzcgNSkiLz48L2c+PC9zdmc+');
   opacity: 0.7;

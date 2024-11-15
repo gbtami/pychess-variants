@@ -54,7 +54,6 @@ export class RoundController extends GameController {
     settings: boolean;
     tv: boolean;
     handicap: boolean;
-    setupFen: string;
     focus: boolean;
     finishedGame: boolean;
     lastMaybeSentMsgMove: MsgMove; // Always store the last "move" message that was passed for sending via websocket.
@@ -128,7 +127,7 @@ export class RoundController extends GameController {
         this.berserkable = !this.spectator && this.tournamentGame && this.base > 0 && !this.berserked[berserkId];
 
         this.chessground.set({
-            orientation: this.mycolor,
+            orientation: this.variant.name === 'racingkings' ? 'white' : this.mycolor,
             turnColor: this.turnColor,
             autoCastle: this.variant.name !== 'cambodian', // TODO make more generic
         });
@@ -343,7 +342,7 @@ export class RoundController extends GameController {
         boardSettings.assetURL = this.assetURL;
         boardSettings.updateBoardAndPieceStyles();
 
-        if (model.corrGames.length > 0) {
+        if (this.corr && model.corrGames.length > 0) {
             const corrGames = JSON.parse(model.corrGames).sort(compareGames(this.username));
             const cgMap: {[gameId: string]: [Api, string]} = {};
             handleOngoingGameEvents(this.username, cgMap);
@@ -616,11 +615,13 @@ export class RoundController extends GameController {
     }
 
     private renderRematchOffer = () => {
-        (document.querySelector('.btn-controls.game') as HTMLElement).style.display= "none";
+        (document.querySelector('.btn-controls.after') as HTMLElement).style.display= "none";
         this.vdialog = patch(this.vdialog, h('div#offer-dialog', [
-            h('div', { class: { reject: true }, on: { click: () => this.rejectRematchOffer() } }, h('i.icon.icon-abort.reject')),
-            h('div.text', _("Your opponent offers a rematch")),
-            h('div', { class: { accept: true }, on: { click: () => this.rematch() } }, h('i.icon.icon-check')),
+            h('div.dcontrols', [
+                h('div', { class: { reject: true }, on: { click: () => this.rejectRematchOffer() } }, h('i.icon.icon-abort.reject')),
+                h('div.text', _("Your opponent offers a rematch")),
+                h('div', { class: { accept: true }, on: { click: () => this.rematch() } }, h('i.icon.icon-check')),
+            ])
         ]));
     }
 
@@ -834,7 +835,7 @@ export class RoundController extends GameController {
             const piece = this.chessground.state.boardState.pieces.get(lastMove[1] as cg.Key);
             capture = (piece !== undefined && piece.role !== '_-piece' && step.san?.slice(0, 2) !== 'O-') || (step.san?.slice(1, 2) === 'x');
         }
-        if (msg.steps.length === 1 && lastMove && (this.turnColor === this.mycolor || this.spectator)) {
+        if (msg.steps.length <= 2 && lastMove && (this.turnColor === this.mycolor || this.spectator)) {
             if (!this.finishedGame) sound.moveSound(this.variant, capture);
         }
         this.checkStatus(msg);
@@ -919,7 +920,10 @@ export class RoundController extends GameController {
                         this.setDests();
                     }
 
-                    if (!this.focus) this.notifyMsg(`Played ${step.san}\nYour turn.`);
+                    if (!this.focus) {
+                        const sanMove = (this.fog) ? 'a move' : step.san;
+                        this.notifyMsg(`Played ${sanMove}\nYour turn.`);
+                    }
 
                     // prevent sending premove/predrop when (auto)reconnecting websocked asks server to (re)sends the same board to us
                     // console.log("trying to play premove....");
@@ -1013,6 +1017,11 @@ export class RoundController extends GameController {
             if (this.preaction) {
                 this.clocks[myclock].setTime(this.clocktimes[(this.mycolor === 'white') ? WHITE : BLACK] + increment);
             }
+
+            // Prevent sending "flag" message by opp clock via flagCallback
+            // fixes https://github.com/gbtami/pychess-variants/issues/1588
+            this.turnColor = this.oppcolor;
+
             if (this.clockOn) this.clocks[oppclock].start();
         }
 
@@ -1086,7 +1095,8 @@ export class RoundController extends GameController {
         const timeLeft = Math.max(0, this.expiStart - Date.now() + this.firstmovetime );
         // console.log("renderExpiration()", position, timeLeft);
         if (timeLeft === 0 || this.status >= 0) {
-            this.expirations[expi] = patch(this.expirations[expi], h('div#expiration-' + position));
+            this.expirations[0] = patch(this.expirations[0], h('div#expiration-top'));
+            this.expirations[1] = patch(this.expirations[1], h('div#expiration-bottom'));
         } else {
             const emerg = (this.turnColor === this.mycolor && timeLeft < 8000);
             if (!rang && emerg) {

@@ -13,6 +13,9 @@ import { ChessgroundController } from '@/cgCtrl';
 import { copyTextToClipboard } from '@/clipboard';
 import { initPieceRow } from './pieceRow';
 import { setPocketRowCssVars } from '@/pocketRow';
+import { getFullFenFromUnionFen, getUnionFenFromFullFen, movePieceToTheOtherBoard } from '@/alice';
+import { AliceMirrorSettings } from './editorSettings';
+
 
 export class EditorController extends ChessgroundController {
     model: PyChessModel;
@@ -24,11 +27,13 @@ export class EditorController extends ChessgroundController {
     vfen: VNode;
     vAnalysis: VNode;
     vChallenge: VNode;
+    aliceMirror: boolean;
 
     constructor(el: HTMLElement, model: PyChessModel) {
         super(el, model, model.fen, document.getElementById('pocket0') as HTMLElement, document.getElementById('pocket1') as HTMLElement, '');
         this.model = model;
         this.startfen = model["fen"] as string;
+        console.log("startfen", this.startfen);
 
         this.parts = this.startfen.split(" ");
         this.castling = this.parts.length > 2 ? this.parts[2] : '';
@@ -144,8 +149,11 @@ export class EditorController extends ChessgroundController {
                 h('a#analysis.i-pgn', { on: { click: () => this.setAnalysisFen() } }, [
                     h('div.icon.icon-microscope', _('ANALYSIS BOARD'))
                 ]),
-                h('a#challengeAI.i-pgn', { on: { click: () => this.setChallengeFen() } }, [
+                h('a#challengeAI.i-pgn', { on: { click: () => this.setChallengeAIFen() } }, [
                     h('div.icon.icon-bot', _('PLAY WITH MACHINE'))
+                ]),
+                h('a#createseek.i-pgn', { on: { click: () => this.setSeekFen() } }, [
+                    h('div.icon.icon-crossedswords', _('CONTINUE FROM HERE'))
                 ]),
                 h('a#pgn.i-pgn', { on: { click: () => copyBoardToPNG(this.parts.join(' ')) } }, [
                     h('div.icon.icon-download', _('EXPORT TO PNG'))
@@ -154,6 +162,10 @@ export class EditorController extends ChessgroundController {
                     h('div.icon.icon-clipboard', _('COPY FEN TO CLIPBOARD'))
                 ]),
             ];
+            if (this.variant.name === 'alice') {
+                const aliceMirrorSettings = new AliceMirrorSettings(this);
+                buttons.push(aliceMirrorSettings.view());
+            }
             patch(container, h('div.editor-button-container', buttons));
         }
     }
@@ -213,7 +225,10 @@ export class EditorController extends ChessgroundController {
         const fen = (document.getElementById('fen') as HTMLInputElement).value;
         const valid = validFen(this.variant, fen);
         const ff = this.ffish.validateFen(fen, this.variant.name);
-        const ffValid = (ff === 1) || (this.variant.rules.gate && ff === -5) || (this.variant.rules.duck && ff === -10);
+        const ffValid = (ff === 1) || 
+            (this.variant.rules.gate && ff === -5) || 
+            (this.variant.rules.duck && ff === -10) || 
+            (this.variant.name === 'alice' && ff === -11);
         return valid && ffValid;
     }
 
@@ -263,15 +278,20 @@ export class EditorController extends ChessgroundController {
         window.location.assign(this.model["home"] + '/analysis/' + this.model["variant"] + '?fen=' + fen);
     }
 
-    private setChallengeFen = () => {
+    private setChallengeAIFen = () => {
         const fen = this.parts.join('_').replace(/\+/g, '.');
         window.location.assign(this.model["home"] + '/@/Fairy-Stockfish/challenge/' + this.model["variant"] + '?fen=' + fen);
+    }
+
+    private setSeekFen = () => {
+        const fen = this.parts.join('_').replace(/\+/g, '.');
+        window.location.assign(this.model["home"] + '/seek/' + this.model["variant"] + '?fen=' + fen);
     }
 
     private onChangeFen = () => {
         const fen = (document.getElementById('fen') as HTMLInputElement).value;
         this.parts = fen.split(' ');
-        this.chessground.set({ fen: fen });
+        this.chessground.set({ fen: (this.variant.name === 'alice') ? getUnionFenFromFullFen(fen, 0) : fen });
         this.setInvalid(!this.validFen());
 
         if (this.parts.length > 1) {
@@ -316,6 +336,14 @@ export class EditorController extends ChessgroundController {
         // onChange() will get then set and validate FEN from chessground pieces
         this.parts[0] = this.chessground.getFen();
         this.fullfen = this.parts.join(' ');
+
+        if (this.variant.name === 'alice') {
+            const pieces = this.chessground.state.boardState.pieces;
+            const otherBoardPieces = [...pieces].filter(([_, v]) => v.promoted).map(e => e[0]);
+            this.fullfen = getFullFenFromUnionFen(this.fullfen, otherBoardPieces);
+            this.parts = this.fullfen.split(' ');
+        }
+
         const e = document.getElementById('fen') as HTMLInputElement;
         e.value = this.fullfen;
         this.setInvalid(!this.validFen());
@@ -325,9 +353,10 @@ export class EditorController extends ChessgroundController {
         let lastTime = performance.now();
         let lastKey: cg.Key | undefined;
         return (key: cg.Key) => {
+            const piece = this.chessground.state.boardState.pieces.get(key);
             const curTime = performance.now();
-            if (lastKey === key && curTime - lastTime < 500) {
-                const piece = this.chessground.state.boardState.pieces.get(key);
+            // Check double click (promote/unpromote)
+            if ((lastKey === key && curTime - lastTime < 500)) {
                 if (piece) {
                     const newColor = this.variant.pocket?.captureToHand ? util.opposite(piece.color) : piece.color;
                     let newPiece: cg.Piece;
@@ -359,6 +388,14 @@ export class EditorController extends ChessgroundController {
                 }
                 lastKey = undefined;
             } else {
+                const aliceMirrorOn = (this.variant.name === 'alice' && this.aliceMirror);
+                if (aliceMirrorOn && piece) {
+                    this.fullfen = movePieceToTheOtherBoard(this.fullfen, key);
+                    const e = document.getElementById('fen') as HTMLInputElement;
+                    e.value = this.fullfen;
+                    this.onChangeFen();
+                }
+
                 lastKey = key;
                 lastTime = curTime;
             }

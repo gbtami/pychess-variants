@@ -6,17 +6,19 @@
         "paths": {
             "@/*": [ "./client/*" ]
         },
+        "noEmit": true,
+        "incremental": true,
         "noImplicitAny": true,
         "strictNullChecks": true,
         "noUnusedLocals": true,
-        "noEmitOnError": false,
         "alwaysStrict": true,
         "noImplicitReturns": true,
         "noUnusedParameters": true,
         "esModuleInterop": true,
-        "module": "esnext",
+        "skipLibCheck": true,
+        "module": "es2020",
         "moduleResolution": "node",
-        "lib": ["DOM", "ES2017"],
-        "target": "ES2017"
+        "lib": ["DOM", "es2020"],
+        "target": "es2020"
     }
 }

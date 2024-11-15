@@ -1,6 +1,5 @@
 import logging
 import random
-import re
 from datetime import timezone
 
 from pychess_global_app_state import PychessGlobalAppState
@@ -12,10 +11,11 @@ from const import (
     INVALIDMOVE,
     CASUAL,
     RATED,
+    POCKET_PATTERN,
 )
 from glicko2.glicko2 import gl2
 from newid import new_id
-from utils import round_broadcast
+from utils import remove_seek, round_broadcast, sanitize_fen
 from websocket_utils import ws_send_json
 
 log = logging.getLogger(__name__)
@@ -25,23 +25,23 @@ def init_players(app_state: PychessGlobalAppState, wp_a, bp_a, wp_b, bp_b):
     if wp_a in app_state.users:
         wplayer_a = app_state.users[wp_a]
     else:
-        wplayer_a = User(app_state, username=wp_a, anon=True)
+        wplayer_a = User(app_state, username=wp_a)
         app_state.users[wp_a] = wplayer_a
     if wp_b in app_state.users:
         wplayer_b = app_state.users[wp_b]
     else:
-        wplayer_b = User(app_state, username=wp_b, anon=True)
+        wplayer_b = User(app_state, username=wp_b)
         app_state.users[wp_b] = wplayer_b
 
     if bp_a in app_state.users:
         bplayer_a = app_state.users[bp_a]
     else:
-        bplayer_a = User(app_state, username=bp_a, anon=True)
+        bplayer_a = User(app_state, username=bp_a)
         app_state.users[bp_a] = bplayer_a
     if bp_b in app_state.users:
         bplayer_b = app_state.users[bp_b]
     else:
-        bplayer_b = User(app_state, username=bp_b, anon=True)
+        bplayer_b = User(app_state, username=bp_b)
         app_state.users[bp_b] = bplayer_b
     return [wplayer_a, bplayer_a, wplayer_b, bplayer_b]
 
@@ -119,22 +119,13 @@ async def load_game_bug(app_state: PychessGlobalAppState, game_id):
             )
 
             if move[1:2] != "@":
-                piece = re.sub(
-                    r"\d",
-                    (lambda m: "." * int(m.group(0))),
-                    game.boards[board_name].fen.split("[")[0],
-                ).split("/")[8 - int(move[1:2])][ord(move[0:1]) - ord("a")]
-                piece_captured = re.sub(
-                    r"\d",
-                    (lambda m: "." * int(m.group(0))),
-                    game.boards[board_name].fen.split("[")[0],
-                ).split("/")[8 - int(move[3:4])][ord(move[2:3]) - ord("a")]
-                if piece == "p" and piece_captured == "." and move[0:1] != move[2:3]:
-                    piece_captured = "p"  # en passant
-                if piece_captured != ".":
-                    f = game.boards["b" if board_name == "a" else "a"].fen
-                    f = re.sub("\\[(.*)\\]", r"[\1{}]".format(piece_captured), f)
-                    game.boards["b" if board_name == "a" else "a"].fen = f
+                last_move_captured_role = game.boards[board_name].piece_to_partner(move)
+                # Add the captured piece to the partner pocked
+                if last_move_captured_role is not None:
+                    partner_board = "b" if board_name == "a" else "a"
+                    game.boards[partner_board].fen = POCKET_PATTERN.sub(
+                        r"[\1%s]" % last_move_captured_role, game.boards[partner_board].fen
+                    )
 
             san = game.boards[board_name].get_san(move)
             game.boards[board_name].push(move)
@@ -252,14 +243,10 @@ async def new_game_bughouse(app_state: PychessGlobalAppState, seek_id, game_id=N
     seek = app_state.seeks[seek_id]
 
     if seek.fen:
-        from utils import sanitize_fen
-
         fen_valid, sanitized_fen = sanitize_fen(seek.variant, seek.fen, seek.chess960)
         if not fen_valid:
             message = "Failed to create game. Invalid FEN %s" % seek.fen
             log.debug(message)
-            from utils import remove_seek
-
             remove_seek(app_state.seeks, seek)
             return {"type": "error", "message": message}
     else:
@@ -309,13 +296,10 @@ async def new_game_bughouse(app_state: PychessGlobalAppState, seek_id, game_id=N
             bug_wplayer,
             bplayer,
         )
-        from utils import remove_seek
 
         remove_seek(app_state.seeks, seek)
         return {"type": "error", "message": "Failed to create game"}
     app_state.games[game_id] = game
-
-    from utils import remove_seek
 
     remove_seek(app_state.seeks, seek)
 

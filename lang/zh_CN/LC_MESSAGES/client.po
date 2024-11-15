@@ -5,7 +5,7 @@
 # 
 # Translators:
 # gbtami <gbtami@gmail.com>, 2022
-# Zhennan.Su, 2023
+# Zhennan.Su, 2024
 # 
 #, fuzzy
 msgid ""
@@ -14,7 +14,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2023-11-17 14:15+0100\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
-"Last-Translator: Zhennan.Su, 2023\n"
+"Last-Translator: Zhennan.Su, 2024\n"
 "Language-Team: Chinese (China) (https://app.transifex.com/gbtami/teams/14790/zh_CN/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -510,7 +510,7 @@ msgstr "满洲棋"
 
 #: ../client/i18n.ts:75
 msgid "janggi"
-msgstr "韩国将棋"
+msgstr "韩国象棋"
 
 #: ../client/i18n.ts:75
 msgid "minixiangqi"
@@ -534,7 +534,7 @@ msgstr "双狂S-Chess"
 
 #: ../client/i18n.ts:78
 msgid "grand"
-msgstr "西洋大象棋"
+msgstr "大型国际象棋"
 
 #: ../client/i18n.ts:78
 msgid "grandhouse"
@@ -734,18 +734,18 @@ msgstr "泰国象棋，但带有国际象棋的生变规则。"
 msgid ""
 "Japanese Chess, and the standard 9x9 version played today with drops and "
 "promotions. "
-msgstr "日本将棋。现在广泛的9x9正统将棋，含有打入和升变的规则。"
+msgstr "将棋广泛流行于日本。标准的9x9正统将棋，含有打入和升变的规则。"
 
 #: ../client/i18n.ts:107
 msgid ""
 "5x5 Shogi for more compact and faster games. There are no knights or lances."
-msgstr "5x5盘上的将棋，更窄小更快节奏的游戏。无桂马也无香车。"
+msgstr "5x5盘上的将棋，更窄小更快节奏的游戏。没有桂马和香车。"
 
 #: ../client/i18n.ts:108
 msgid ""
 "A wild Shogi variant on a 5x5 board where pieces flip into a different piece"
 " after each move."
-msgstr "将棋的狂野5x5变体，动子后子会翻换。"
+msgstr "将棋变体中比较特别的一种，棋盘为5x5，棋子行动后会翻面改变棋子类型。"
 
 #: ../client/i18n.ts:109 ../client/variants.ts:483
 msgid ""
@@ -754,13 +754,13 @@ msgstr "棋子为动物的3x4棋盘，用来教小朋友怎么下将棋。"
 
 #: ../client/i18n.ts:110
 msgid "5x6 Shogi designed to introduce tactics with the generals."
-msgstr "5x6将棋是用来向大众介绍战术的。"
+msgstr "5x6将棋是将棋的简化版，用来向新手玩家介绍战术。"
 
 #: ../client/i18n.ts:111
 msgid ""
 "A confrontational 7x7 variant with unique pieces each named after different "
 "birds."
-msgstr "棋子以不同鸟类命名的7x7变例。"
+msgstr "棋子以不同鸟类命名的7x7将棋变种。"
 
 #: ../client/i18n.ts:112
 msgid ""
@@ -777,7 +777,7 @@ msgstr "一个象棋变体，车可以同时又具有炮和马的走法。"
 msgid ""
 "Korean Chess, similar to Xiangqi but plays much differently. Tournament "
 "rules are used."
-msgstr "朝鲜将棋。相似象棋，但玩法异同。本站使用大赛规则。"
+msgstr "朝鲜象棋。与象棋相似，但棋子走法和规则稍有不同。本站使用比赛规则。"
 
 #: ../client/i18n.ts:115
 msgid "Compact version of Xiangqi played on a 7x7 board without a river."
@@ -1204,7 +1204,7 @@ msgstr ""
 
 #: ../client/puzzleCtrl.ts:321
 msgid "Your turn"
-msgstr ""
+msgstr "轮到您走棋"
 
 #: ../client/puzzleCtrl.ts:322
 msgid "Find the best move for %1."
@@ -1220,7 +1220,7 @@ msgstr "请继续思考更好的答案。"
 
 #: ../client/puzzleCtrl.ts:354
 msgid "Best move!"
-msgstr "正确的走法！"
+msgstr "正确！"
 
 #: ../client/puzzleCtrl.ts:355
 msgid "Keep going..."
@@ -1228,7 +1228,7 @@ msgstr "请继续走棋."
 
 #: ../client/puzzleCtrl.ts:368
 msgid "Success!"
-msgstr ""
+msgstr "恭喜完成棋谜！"
 
 #: ../client/puzzleCtrl.ts:373
 msgid "Puzzle complete!"
@@ -1236,23 +1236,23 @@ msgstr ""
 
 #: ../client/puzzleCtrl.ts:376
 msgid "We have no more puzzle for this variant."
-msgstr ""
+msgstr "本棋种已没有更多棋谜。"
 
 #: ../client/puzzleCtrl.ts:386
 msgid "Did you like this puzzle?"
-msgstr ""
+msgstr "您对此棋谜评价如何？"
 
 #: ../client/puzzleCtrl.ts:387
 msgid "Vote to load the next one!"
-msgstr ""
+msgstr "点击投票按钮投票可挑战下一题！"
 
 #: ../client/puzzleCtrl.ts:401
 msgid "Continue training"
-msgstr ""
+msgstr "继续游玩下一个棋谜"
 
 #: ../client/puzzleSettings.ts:53
 msgid "Jump to next puzzle immediately"
-msgstr ""
+msgstr "解谜成功之后自动跳到下一题"
 
 #: ../client/result.ts:14
 msgid "IMPORT"
@@ -1308,7 +1308,7 @@ msgstr "原因不明"
 
 #: ../client/result.ts:93
 msgid "Campmate"
-msgstr "抢占"
+msgstr "触底"
 
 #: ../client/result.ts:96
 msgid "Altar mate"
@@ -1316,19 +1316,19 @@ msgstr "登坛"
 
 #: ../client/result.ts:99
 msgid "Explosion of king"
-msgstr "爆王死"
+msgstr "国王爆炸"
 
 #: ../client/result.ts:102
 msgid "King in the center"
-msgstr ""
+msgstr "王占据中心"
 
 #: ../client/result.ts:105
 msgid "Three checks"
-msgstr ""
+msgstr "三次将军成功"
 
 #: ../client/result.ts:108
 msgid "King captured"
-msgstr ""
+msgstr "王被吃"
 
 #: ../client/result.ts:111 ../client/result.ts:118
 msgid "Point counting"

@@ -1,0 +1,42 @@
+.shatranj piece.p-piece.white {
+    background-image: url('../../images/pieces/green/wP.svg');
+}
+.shatranj piece.b-piece.white {
+    background-image: url('../../images/pieces/green/synoshako/wE.svg');
+}
+.shatranj piece.n-piece.white {
+    background-image: url('../../images/pieces/green/wN.svg');
+}
+.shatranj piece.r-piece.white {
+    background-image: url('../../images/pieces/green/wR.svg');
+}
+.shatranj piece.q-piece.white {
+    background-image: url('../../images/pieces/shogun/cburnett/blue/wF.svg');
+}
+.shatranj piece.q-piece.promoted.white {
+    background-image: url('../../images/pieces/green/wF.svg');
+}
+.shatranj piece.k-piece.white {
+    background-image: url('../../images/pieces/green/wK.svg');
+}
+.shatranj piece.p-piece.black {
+    background-image: url('../../images/pieces/green/bP.svg');
+}
+.shatranj piece.b-piece.black {
+    background-image: url('../../images/pieces/green/synoshako/bE.svg');
+}
+.shatranj piece.n-piece.black {
+    background-image: url('../../images/pieces/green/bN.svg');
+}
+.shatranj piece.r-piece.black {
+    background-image: url('../../images/pieces/green/bR.svg');
+}
+.shatranj piece.q-piece.black {
+    background-image: url('../../images/pieces/shogun/cburnett/blue/bF.svg');
+}
+.shatranj piece.q-piece.promoted.black {
+    background-image: url('../../images/pieces/green/bF.svg');
+}
+.shatranj piece.k-piece.black {
+    background-image: url('../../images/pieces/green/bK.svg');
+}

@@ -55,12 +55,18 @@ export function gameInfoBug(model: PyChessModel): VNode {
     ])
 }
 
-function playerInfo(model: PyChessModel, color: string, board: string) {
-
+export function playerInfoData(model: PyChessModel, color: "w" | "b", board: "a" | "b"): [string, string, string] {
     const username = model[board == "a"? (color === "w"? "wplayer": "bplayer"): (color === "w"? "wplayerB": "bplayerB")];
     const title = model[board == "a"? color === "w"? "wtitle": "btitle": color === "w"? "wtitleB": "btitleB"];
-    const level = model.level;
     const rating = model[board == "a"? color === "w"? "wrating": "brating": color === "w"? "wratingB": "bratingB"];
+    return [username, title, rating];
+}
+
+function playerInfo(model: PyChessModel, color: "w" | "b", board: "a" | "b") {
+
+    const [username, title, rating] = playerInfoData(model, color, board);
+
+    const level = model.level;
 
     return h('a.user-link', { attrs: { href: '/@/' + username } }, [
         h('player-title', " " + title + " "),

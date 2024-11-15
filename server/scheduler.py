@@ -2,6 +2,7 @@ from __future__ import annotations
 import calendar
 from collections import namedtuple
 import datetime as dt
+import zoneinfo
 
 from const import (
     ARENA,
@@ -63,6 +64,19 @@ MONTHLY_VARIANTS = (
     "mansindam",
 )
 
+NEW_MONTHLY_VARIANTS = (
+    "ataxx",
+    "cannonshogi",
+    "dragon",
+    "khans",
+    "alice",
+    "fogofwar",
+    "antichess960",
+    "horde960",
+    "racingkings960",
+    "shatranj",
+)
+
 # Old MONTHLY tournaments, needed to create translated tourney names
 PAUSED_MONTHLY_VARIANTS = ("shinobi", "manchu", "duck", "capahouse960")
 
@@ -71,10 +85,20 @@ WEEKLY_VARIANTS = (
     "crazyhouse960",
     "atomic960",
     "duck",
+    "xiangqi",
+    "janggi",
 )
 
 # Monthly Variant Tournaments need different TC
 TC_MONTHLY_VARIANTS: dict[str, tuple[int, int, int]] = {v: (3, 2, 0) for v in MONTHLY_VARIANTS}
+
+TC_MONTHLY_VARIANTS["alice"] = (5, 3, 0)
+TC_MONTHLY_VARIANTS["fogofwar"] = (5, 3, 0)
+TC_MONTHLY_VARIANTS["ataxx"] = (3, 0, 0)
+
+TC_MONTHLY_VARIANTS["antichess960"] = (3, 2, 0)
+TC_MONTHLY_VARIANTS["horde960"] = (3, 2, 0)
+TC_MONTHLY_VARIANTS["racingkings960"] = (3, 2, 0)
 
 for v in CATEGORIES["fairy"]:
     TC_MONTHLY_VARIANTS[v] = (3, 3, 0)
@@ -90,6 +114,7 @@ TC_MONTHLY_VARIANTS["janggi"] = (5, 15, 1)
 
 for v in CATEGORIES["shogi"]:
     TC_MONTHLY_VARIANTS[v] = (2, 15, 1)
+TC_MONTHLY_VARIANTS["cannonshogi"] = (5, 15, 1)
 
 
 def go_month(orig_date, month=1):
@@ -147,6 +172,19 @@ class Scheduler:
         SEA = self.get_next_variant(self.now.month, ("sittuyin", "cambodian"))
         plans = []
         number_of_days = calendar.monthrange(self.now.year, self.now.month)[1]
+
+        for i, v in enumerate(NEW_MONTHLY_VARIANTS):
+            if i + 1 > number_of_days:
+                break
+            is_960 = v.endswith("960")
+            base, inc, byo = TC_MONTHLY_VARIANTS[v]
+            try:
+                date = dt.datetime(self.now.year, self.now.month, i + 1, tzinfo=dt.timezone.utc)
+            except ValueError as e:
+                log.error(e, exc_info=True)
+                break
+            plans.append(Plan(MONTHLY, date, 14, v.rstrip("960"), is_960, base, inc, byo, 90))
+
         for i, v in enumerate(MONTHLY_VARIANTS):
             if i + 1 > number_of_days:
                 break
@@ -174,8 +212,10 @@ class Scheduler:
             Plan(MONTHLY, self.fourth_monthly(SATURDAY), 12, "makpong", False, 3, 2, 0, 90),
             # Plan(WEEKLY, self.next_day_of_week(FRIDAY), 18, "crazyhouse", True, 3, 0, 0, 60),  # 960
             # Plan(WEEKLY, self.next_day_of_week(TUESDAY), 18, "atomic", True, 3, 0, 0, 60),  # 960
-            Plan(WEEKLY, self.next_day_of_week(THURSDAY), 14, "makruk", False, 3, 2, 0, 90),
+            Plan(WEEKLY, self.next_day_of_week(THURSDAY), 12, "makruk", False, 3, 2, 0, 90),
             Plan(WEEKLY, self.next_day_of_week(SUNDAY), 18, "duck", False, 3, 5, 0, 90),
+            Plan(WEEKLY, self.next_day_of_week(FRIDAY), 12, "xiangqi", False, 5, 3, 0, 90),
+            Plan(WEEKLY, self.next_day_of_week(WEDNESDAY), 12, "janggi", False, 5, 15, 1, 90),
         ]
 
         return plans
@@ -202,6 +242,9 @@ def new_scheduled_tournaments(already_scheduled, now=None):
 
     new_tournaments_data = []
 
+    budapest = zoneinfo.ZoneInfo("Europe/Budapest")
+    from_now = dt.datetime(2024, 10, 28, tzinfo=dt.timezone.utc)
+
     for plan in plans:
         starts_at = dt.datetime(
             plan.date.year,
@@ -210,6 +253,10 @@ def new_scheduled_tournaments(already_scheduled, now=None):
             hour=plan.hour,
             tzinfo=dt.timezone.utc,
         )
+
+        # When it starts outside of daylight saving time (DST), shift it one hour later
+        if plan.date >= from_now and budapest.dst(starts_at.astimezone(budapest)).seconds == 0:
+            starts_at = starts_at + dt.timedelta(hours=1)
 
         if (
             starts_at >= now

@@ -3,12 +3,13 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
-from datetime import datetime
+from datetime import date, datetime, timedelta
 from functools import partial
 
 import aiohttp_session
 from aiohttp import web
 from aiohttp_sse import sse_response
+import pymongo
 
 from compress import get_decode_method, C2V, V2C, C2R, decode_move_standard
 from const import GRANDS, STARTED, MATE, VARIANTS, INVALIDMOVE, VARIANTEND, CLAIM
@@ -23,66 +24,121 @@ log = logging.getLogger(__name__)
 GAME_PAGE_SIZE = 12
 
 
+async def variant_counts_aggregation(app_state, humans, query_period=None):
+    pipeline = [
+        {
+            "$group": {
+                "_id": {
+                    "p": {"$dateToString": {"format": "%Y%m", "date": "$d"}},
+                    "v": "$v",
+                    "z": "$z",
+                },
+                "c": {"$sum": 1},
+            }
+        },
+        {"$sort": {"_id": 1}},
+    ]
+
+    match_cond = {}
+
+    if query_period is not None:
+        year, month = int(query_period[:4]), int(query_period[4:])
+        match_cond["$expr"] = {
+            "$and": [
+                {"$eq": [{"$month": "$d"}, month]},
+                {"$eq": [{"$year": "$d"}, year]},
+            ]
+        }
+
+    if humans:
+        match_cond["$and"] = [
+            {"us.0": {"$nin": ["Fairy-Stockfish", "Random-Mover"]}},
+            {"us.1": {"$nin": ["Fairy-Stockfish", "Random-Mover"]}},
+        ]
+
+    if len(match_cond) > 0:
+        pipeline.insert(0, {"$match": match_cond})
+
+    cursor = app_state.db.game.aggregate(pipeline)
+
+    docs = []
+
+    cur_period = datetime.now().isoformat()[:7].replace("-", "")
+
+    async for doc in cursor:
+        # print(doc)
+        period = doc["_id"]["p"]
+        if period < "201907":
+            continue
+        # skip current period
+        if period == cur_period:
+            break
+
+        docs.append(doc)
+
+    if docs:
+        if humans:
+            await app_state.db.stats_humans.insert_many(docs)
+        else:
+            await app_state.db.stats.insert_many(docs)
+
+    return docs
+
+
+def variant_counts_from_docs(variant_counts, docs):
+    period = ""
+    for doc in docs:
+        # print(doc)
+        if doc["_id"]["p"] != period:
+            period = doc["_id"]["p"]
+            for variant in VARIANTS:
+                variant_counts[variant].append(0)
+
+        variant = C2V[doc["_id"]["v"]] + ("960" if doc["_id"].get("z", 0) else "")
+        try:
+            variant_counts[variant][-1] = doc["c"]
+        except KeyError:
+            log.error("Support of variant %s discontinued!", variant)
+
+
 async def get_variant_stats(request):
     app_state = get_app_state(request.app)
+    humans = "/humans" in request.path
+    stats = app_state.stats_humans if humans else app_state.stats
 
-    cur_period = datetime.now().isoformat()[:7]
+    first_day_of_current_month = date.today().replace(day=1)
+    last_day_of_previous_month = first_day_of_current_month - timedelta(days=1)
 
-    if "/humans" in request.path:
-        stats = app_state.stats_humans
-    else:
-        stats = app_state.stats
+    cur_period = last_day_of_previous_month.isoformat()[:7].replace("-", "")
+    # print(cur_period)
 
     if cur_period in stats:
         series = stats[cur_period]
     else:
-        pipeline = [
-            {
-                "$group": {
-                    "_id": {
-                        "period": {"$dateToString": {"format": "%Y-%m", "date": "$d"}},
-                        "v": "$v",
-                        "960": "$z",
-                    },
-                    "count": {"$sum": 1},
-                }
-            },
-            {"$sort": {"_id": 1}},
-        ]
-        if "/humans" in request.path:
-            pipeline.insert(
-                0,
-                {
-                    "$match": {
-                        "us": {"$not": {"$elemMatch": {"$in": ["Fairy-Stockfish", "Random-Mover"]}}}
-                    }
-                },
-            )
-        cursor = app_state.db.game.aggregate(pipeline)
-
         variant_counts = {variant: [] for variant in VARIANTS}
+        if humans:
+            n = await app_state.db.stats_humans.count_documents({})
+        else:
+            n = await app_state.db.stats.count_documents({})
 
-        period = ""
-        async for doc in cursor:
-            # print(doc)
-            if doc["_id"]["period"] < "2019-07":
-                continue
-            if doc["_id"]["period"] != period:
-                period = doc["_id"]["period"]
-                # skip current period
-                if period == cur_period:
-                    break
+        if n > 0:
+            # We already have some stats
+            if humans:
+                cursor = app_state.db.stats_humans.find()
+            else:
+                cursor = app_state.db.stats.find()
+            cursor.sort("_id", pymongo.ASCENDING)
+            docs = await cursor.to_list(n)
+            variant_counts_from_docs(variant_counts, docs)
 
-                for variant in VARIANTS:
-                    variant_counts[variant].append(0)
-
-            is_960 = doc["_id"].get("960", False)
-            variant = C2V[doc["_id"]["v"]] + ("960" if is_960 else "")
-            cnt = doc["count"]
-            try:
-                variant_counts[variant][-1] = cnt
-            except KeyError:
-                log.error("support of variant discontinued!")
+            # If cur_period is missing from the stats we call the aggregation
+            if docs[-1]["_id"]["p"] != cur_period:
+                docs = await variant_counts_aggregation(app_state, humans, cur_period)
+                variant_counts_from_docs(variant_counts, docs)
+        else:
+            # Call the aggregation on the whole games collection
+            docs = await variant_counts_aggregation(app_state, humans)
+            variant_counts_from_docs(variant_counts, docs)
 
         series = [{"name": variant, "data": variant_counts[variant]} for variant in VARIANTS]
 
@@ -272,6 +328,8 @@ async def get_user_games(request):
             if tournament_id is not None:
                 doc["tn"] = await get_tournament_name(request, tournament_id)
 
+            doc["initialFen"] = doc.get("if", "")
+
             if uci_moves:
                 game_doc_list.append(
                     {
@@ -314,7 +372,7 @@ async def subscribe_invites(request):
         async with sse_response(request) as response:
             queue = asyncio.Queue()
             app_state.invite_channels.add(queue)
-            while not response.task.done():
+            while response.is_connected():
                 payload = await queue.get()
                 await response.send(payload)
                 queue.task_done()
@@ -331,7 +389,7 @@ async def subscribe_games(request):
     app_state.game_channels.add(queue)
     try:
         async with sse_response(request) as response:
-            while not response.task.done():
+            while response.is_connected():
                 payload = await queue.get()
                 await response.send(payload)
                 queue.task_done()

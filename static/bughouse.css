@@ -260,7 +260,7 @@ div#chatpresets {
   div#chatpresets {
     grid-template-columns: auto auto auto auto auto auto auto auto auto auto;
   }
-  .chat {
+  .bugroundchat.chat {
       flex-direction: column-reverse;
   }
 }

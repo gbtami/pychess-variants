@@ -49,13 +49,14 @@ export const PIECE_FAMILIES: Record<string, PieceFamily> = {
     makruk: { pieceCSS: ["makrukwb", "makrukwr", "makruk", "makruks", "makruki", "makrukc", "disguised"] },
     sittuyin: { pieceCSS: ["sittuyins", "sittuyinkagr", "sittuyinkabr", "sittuyinm", "sittuyini", "sittuyincb", "disguised"] },
     asean: { pieceCSS: ["aseani", "aseanm", "aseanc", "aseans", "aseancb", "disguised"] },
-    shogi: { pieceCSS: ["shogik", "shogi", "shogiw", "shogip", "shogim", "shogip3d", "shogikw3d", "shogid", "shogiim", "shogibw", "portk", "porti", "cz", "disguised"] },
+    shogi: { pieceCSS: ["shogik", "shogi", "shogiw", "shogip", "shogim", "shogip3d", "shogikw3d", "shogid", "shogiim", "shogibw", "shogibnw", "portk", "porti", "cz", "disguised"] },
     kyoto: { pieceCSS: ["kyoto", "kyotok", "kyotoks", "kyotoi", "kyotod", "disguised"] },
     dobutsu: { pieceCSS: ["dobutsu", "disguised"] },
     tori: { pieceCSS: ["torii", "torik", "torim", "porti", "cz", "disguised"] },
-    cannonshogi: { pieceCSS: ["ctp3d", "cz", "czalt", "disguised"] },
+    cannonshogi: { pieceCSS: ["ctp3d", "ctim", "bnw", "cz", "czalt", "disguised"] },
     xiangqi: { pieceCSS: ["lishu", "xiangqi2di", "xiangqi", "xiangqict3", "xiangqihnz", "xiangqict2", "lishuw", "xiangqict2w", "xiangqiwikim", "xiangqiKa", "xiangqittxqhnz", "xiangqittxqintl", "xiangqi2d", "xiangqihnzw", 'basic', 'guided', "disguised", "euro"] },
     janggi: { pieceCSS: ["janggihb", "janggihg", "janggiikak", "janggiikaw", "janggikak", "janggikaw", "janggiib", "janggiig", "disguised"] },
+    shatranj: { pieceCSS: ["shatranj0", "shatranj1", "disguised"] },
     shako: { pieceCSS: ["shako0", "shako1", "shako2", "disguised"] },
     shogun: { pieceCSS: ["shogun0", "shogun1", "shogun2", "shogun3", "shogun4", "shogun5", "disguised"] },
     orda: { pieceCSS: ["orda0", "orda1", "disguised"] },
@@ -65,7 +66,7 @@ export const PIECE_FAMILIES: Record<string, PieceFamily> = {
     shinobi: { pieceCSS: ["shinobi0", "shinobi1", "disguised"] },
     empire: { pieceCSS: ["empire0", "empire1", "disguised"] },
     ordamirror: { pieceCSS: ["ordamirror0", "ordamirror1", "disguised"] },
-    chak: { pieceCSS: ["chak0", "chak1", "disguised"] },
+    chak: { pieceCSS: ["chak0", "ronin", "chak1", "chak2", "disguised"] },
     chennis: { pieceCSS: ["chennis0", "chennis1", "chennis2", "chennis3", "chennis4", "disguised"] },
     spartan: { pieceCSS: ["spartan0", "disguised"] },
     mansindam: { pieceCSS: ["mansindam2", "mansindam1", "mansindam3", "mansindam4", "disguised"] },
@@ -74,6 +75,7 @@ export const PIECE_FAMILIES: Record<string, PieceFamily> = {
 export interface Variant {
     readonly name: string;
     readonly _displayName: string;
+    readonly _display960: string;
     readonly displayName: (chess960?: boolean) => string;
     readonly _tooltip: string;
     readonly tooltip: string;
@@ -135,7 +137,8 @@ function variant(config: VariantConfig): Variant {
     return {
         name: config.name,
         _displayName: config.displayName ?? config.name,
-        displayName: function (chess960 = false) { return _(this._displayName).toUpperCase() + (chess960 ? '960' : ''); },
+        _display960: config.display960 ?? '960',
+        displayName: function (chess960 = false) { return _(this._displayName).toUpperCase() + (chess960 ? this._display960 : ''); },
         _tooltip: config.tooltip,
         get tooltip() { return _(this._tooltip) },
         chess960: !!config.chess960,
@@ -205,6 +208,8 @@ interface VariantConfig {
     name: string;
     // Display name for use on the website (default: same as name)
     displayName?: string;
+    // Display name postfix for variants having randomized start positions (default: '960')
+    display960?: string;
     // Tooltip displayed when variant name is hovered
     tooltip: string;
     // Start FEN for use in some client-side calculations
@@ -437,6 +442,33 @@ export const VARIANTS: Record<string, Variant> = {
         },
     }),
 
+    antichess: variant({
+        name: "antichess", tooltip: "Lose all your pieces to win.",
+        startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+        chess960: true, icon: "🐥", icon960: "🐓",
+        boardFamily: "standard8x8", pieceFamily: "standard",
+        pieceRow: ["k", "q", "r", "b", "n", "p"],
+        rules: { enPassant: true },
+    }),
+
+    racingkings: variant({
+        name: "racingkings", displayName: "racing kings", display960: '1440', tooltip: "Race your King to the eighth rank to win.",
+        startFen: "8/8/8/8/8/8/krbnNBRK/qrbnNBRQ w - - 0 1",
+        chess960: true, icon: "🚗", icon960: "🚙",
+        boardFamily: "standard8x8", pieceFamily: "standard",
+        pieceRow: ["k", "q", "r", "b", "n", "p"],
+        ui: { boardMark: 'racingkings' },
+    }),
+
+    horde: variant({
+        name: "horde", tooltip: "Destroy the horde to win!",
+        startFen: "rnbqkbnr/pppppppp/8/1PP2PP1/PPPPPPPP/PPPPPPPP/PPPPPPPP/PPPPPPPP w kq - 0 1",
+        chess960: true, icon: "🐖", icon960: "🐷",
+        boardFamily: "standard8x8", pieceFamily: "standard",
+        pieceRow: { "white": ["p"], "black": ["k", "q", "r", "b", "n", "p"] },
+        rules: { enPassant: true },
+    }),
+
     duck: variant({
         name: "duck", tooltip: "The duck must be moved to a new square after every turn.",
         startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
@@ -522,7 +554,7 @@ export const VARIANTS: Record<string, Variant> = {
     }),
 
     shogi: variant({
-        name: "shogi", tooltip: _("Japanese Chess, the standard 9x9 version played today with drops and promotions."),
+        name: "shogi", tooltip: "Japanese Chess, the standard 9x9 version played today with drops and promotions.",
         startFen: "lnsgkgsnl/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL[-] w 0 1",
         icon: "K",
         boardFamily: "shogi9x9", pieceFamily: "shogi",
@@ -549,7 +581,7 @@ export const VARIANTS: Record<string, Variant> = {
     }),
 
     cannonshogi: variant({
-        name: "cannonshogi", displayName: "cannon shogi", tooltip: _("Shogi with Chinese and Korean cannons"),
+        name: "cannonshogi", displayName: "cannon shogi", tooltip: "Shogi with Chinese and Korean cannons",
         startFen: "lnsgkgsnl/1rci1uab1/p1p1p1p1p/9/9/9/P1P1P1P1P/1BAU1ICR1/LNSGKGSNL[-] w 0 1",
         icon: "💣",
         boardFamily: "shogi9x9", pieceFamily: "cannonshogi",
@@ -670,18 +702,18 @@ export const VARIANTS: Record<string, Variant> = {
     }),
 
     manchu: variant({
-        name: "manchu", tooltip: "Xiangqi variant where one side has a chariot that can also move as a cannon or horse.",
-        startFen: "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/9/9/M1BAKAB2 w - - 0 1",
+        name: "manchu", displayName: "manchu+", tooltip: "Xiangqi variant where one side has a chariot that can also move as a cannon or horse.",
+        // Manchu+R proved to be balanced
+        startFen: "m1bakab1r/9/9/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1",
         icon: "{",
         boardFamily: "xiangqi9x10", pieceFamily: "xiangqi",
-        // XIANGQI_WXF can't handle Manchu banner piece!
-        // so notation have to remain the default cg.Notation.ALGEBRAIC
+        notation: cg.Notation.XIANGQI_ARBNUM,
         colors: { first: "Red", second: "Black" },
-        pieceRow: { white: ["k", "a", "m", "b", "p"], black: ["k", "a", "c", "r", "b", "n", "p"] },
+        pieceRow: { white: ["k", "a", "c", "r", "b", "n", "p"], black: ["k", "a", "m", "r", "b", "p"] },
         promotion: { type: "regular", roles: [] },
         alternateStart: {
             '': '',
-            'Manchu+R': 'm1bakab1r/9/9/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1',
+            'Original Manchu': 'rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/9/9/M1BAKAB2 w - - 0 1',
         },
     }),
 
@@ -713,6 +745,19 @@ export const VARIANTS: Record<string, Variant> = {
         promotion: { type: "regular", roles: [] },
     }),
 
+    shatranj: variant({
+        name: "shatranj", displayName: "shatranj", tooltip: "Ancient Arabian and Persian form of Chess.",
+        startFen: "rnbkqbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBKQBNR w - - 0 1",
+        icon: "🐘",
+        boardFamily: "makruk8x8", pieceFamily: "shatranj",
+        pieceRow: ["k", "q", "r", "b", "n", "p"],
+        promotion: { type: "regular", order: ["q"] },
+        alternateStart: {
+            '': "",
+            'Chaturanga': "rnbkqbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w - - 0 1",
+        },
+    }),
+
     capablanca: variant({
         name: "capablanca", tooltip: "Play with the hybrid pieces, archbishop (B+N) and chancellor (R+N), on a 10x8 board.",
         startFen: "rnabqkbcnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNABQKBCNR w KQkq - 0 1",
@@ -727,7 +772,10 @@ export const VARIANTS: Record<string, Variant> = {
             'Conservative': 'arnbqkbnrc/pppppppppp/10/10/10/10/PPPPPPPPPP/ARNBQKBNRC w KQkq - 0 1',
             'Embassy': 'rnbqkcabnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBQKCABNR w KQkq - 0 1',
             'Gothic': 'rnbqckabnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBQCKABNR w KQkq - 0 1',
+            'Grotesque': 'rbqnkcnabr/pppppppppp/10/10/10/10/PPPPPPPPPP/RBQNKCNABR w KQkq - 0 1',
             'Schoolbook': 'rqnbakbncr/pppppppppp/10/10/10/10/PPPPPPPPPP/RQNBAKBNCR w KQkq - 0 1',
+            'Univers': 'rbncqkanbr/pppppppppp/10/10/10/10/PPPPPPPPPP/RBNCQKANBR w KQkq - 0 1',
+            'Victorian': 'crnbakbnrq/pppppppppp/10/10/10/10/PPPPPPPPPP/CRNBAKBNRQ w KQkq - 0 1',
         },
     }),
 
@@ -746,7 +794,10 @@ export const VARIANTS: Record<string, Variant> = {
             'Conservative': 'arnbqkbnrc/pppppppppp/10/10/10/10/PPPPPPPPPP/ARNBQKBNRC[] w KQkq - 0 1',
             'Embassy': 'rnbqkcabnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBQKCABNR[] w KQkq - 0 1',
             'Gothic': 'rnbqckabnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBQCKABNR[] w KQkq - 0 1',
+            'Grotesque': 'rbqnkcnabr/pppppppppp/10/10/10/10/PPPPPPPPPP/RBQNKCNABR[] w KQkq - 0 1',
             'Schoolbook': 'rqnbakbncr/pppppppppp/10/10/10/10/PPPPPPPPPP/RQNBAKBNCR[] w KQkq - 0 1',
+            'Univers': 'rbncqkanbr/pppppppppp/10/10/10/10/PPPPPPPPPP/RBNCQKANBR[] w KQkq - 0 1',
+            'Victorian': 'crnbakbnrq/pppppppppp/10/10/10/10/PPPPPPPPPP/CRNBAKBNRQ[] w KQkq - 0 1',
         },
     }),
 
@@ -782,7 +833,7 @@ export const VARIANTS: Record<string, Variant> = {
     }),
 
     grand: variant({
-        name: "grand", tooltip: _("Play with the hybrid pieces, archbishop (B+N) and chancellor (R+N), on a grand 10x10 board."),
+        name: "grand", tooltip: "Play with the hybrid pieces, archbishop (B+N) and chancellor (R+N), on a grand 10x10 board.",
         startFen: "r8r/1nbqkcabn1/pppppppppp/10/10/10/10/PPPPPPPPPP/1NBQKCABN1/R8R w - - 0 1",
         icon: "(",
         boardFamily: "grand10x10", pieceFamily: "capa",
@@ -1055,14 +1106,18 @@ export const noPuzzleVariants = [
     "bughouse",
     "alice",
     "fogofwar",
+    "racingkings",
+    "antichess",
+    "horde",
+    "shatranj",
 ]
 
 export const variantGroups: { [ key: string ]: { variants: string[] } } = {
-    standard: { variants: [ "chess", "bughouse", "crazyhouse", "atomic", "kingofthehill", "3check", "placement", "duck", "alice", "fogofwar" ] },
+    standard: { variants: [ "chess", "bughouse", "crazyhouse", "atomic", "kingofthehill", "3check", "antichess", "racingkings", "horde", "placement", "duck", "alice", "fogofwar" ] },
     sea:      { variants: [ "makruk", "makpong", "cambodian", "sittuyin", "asean" ] },
     shogi:    { variants: [ "shogi", "minishogi", "kyotoshogi", "dobutsu", "gorogoroplus", "torishogi", "cannonshogi" ] },
     xiangqi:  { variants: [ "xiangqi", "manchu", "janggi", "minixiangqi" ] },
-    fairy:    { variants: [ "capablanca", "capahouse", "dragon", "seirawan", "shouse", "grand", "grandhouse", "shako", "shogun", "hoppelpoppel", "mansindam" ] },
+    fairy:    { variants: [ "shatranj", "capablanca", "capahouse", "dragon", "seirawan", "shouse", "grand", "grandhouse", "shako", "shogun", "hoppelpoppel", "mansindam" ] },
     army:     { variants: [ "orda", "khans", "synochess", "shinobiplus", "empire", "ordamirror", "chak", "chennis", "spartan" ] },
     other:    { variants: [ "ataxx" ] }
 };

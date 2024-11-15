@@ -39,6 +39,7 @@ export type PyChessModel = {
     brdiff: number;
     bberserk: string;
     fen: string;
+    initialFen: string;
     base: number;
     inc: number;
     byo: number;

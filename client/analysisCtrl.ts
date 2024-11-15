@@ -64,7 +64,6 @@ export class AnalysisController extends GameController {
     maxDepth: number;
     isAnalysisBoard: boolean;
     isEngineReady: boolean;
-    notationAsObject: any;
     arrow: boolean;
     multipv: number;
     threads: number;
@@ -75,6 +74,7 @@ export class AnalysisController extends GameController {
     importedBy: string;
     embed: boolean;
     puzzle: boolean;
+    ongoing: boolean;
     fsfDebug: boolean;
     fsfError: string[];
     fsfEngineBoard: any;  // used to convert pv UCI move list to SAN
@@ -97,11 +97,13 @@ export class AnalysisController extends GameController {
             }
         };
 
+        this.ongoing = this.status == -1;
+
         // is local stockfish.wasm engine supported at all
         this.localEngine = false;
 
         // is local engine analysis enabled? (the switch)
-        this.localAnalysis = localStorage.localAnalysis === undefined ? false : localStorage.localAnalysis === "true";
+        this.localAnalysis = localStorage.localAnalysis === undefined || this.ongoing ? false : localStorage.localAnalysis === "true";
 
         // UCI isready/readyok
         this.isEngineReady = false;
@@ -157,7 +159,7 @@ export class AnalysisController extends GameController {
             setPocketRowCssVars(this);
         }
 
-        if (!this.isAnalysisBoard && !this.embed) {
+        if (!this.isAnalysisBoard && !this.embed && !this.ongoing) {
             this.ctableContainer = document.getElementById('panel-3') as HTMLElement;
             if (model["ct"]) {
                 this.ctableContainer = patch(this.ctableContainer, h('panel-3'));
@@ -168,11 +170,11 @@ export class AnalysisController extends GameController {
         createMovelistButtons(this);
         this.vmovelist = document.getElementById('movelist') as HTMLElement;
 
-        if (!this.isAnalysisBoard && !this.embed && !this.puzzle) {
+        if (!this.isAnalysisBoard && !this.embed && !this.puzzle && !this.ongoing) {
             patch(document.getElementById('roundchat') as HTMLElement, chatView(this, "roundchat"));
         }
 
-        if (!this.embed) {
+        if (!this.embed && !this.ongoing) {
             const engineSettings = new EngineSettings(this);
             const et = document.querySelector('.engine-toggle') as HTMLElement;
             patch(et, engineSettings.view());
@@ -206,7 +208,7 @@ export class AnalysisController extends GameController {
 
         setAriaTabClick("analysis_tab");
 
-        if (!this.puzzle) {
+        if (!this.puzzle && !this.ongoing) {
             const initialEl = document.querySelector('[tabindex="0"]') as HTMLElement;
             initialEl.setAttribute('aria-selected', 'true');
             (initialEl!.parentNode!.parentNode!.querySelector(`#${initialEl.getAttribute('aria-controls')}`)! as HTMLElement).style.display = 'block';
@@ -219,7 +221,7 @@ export class AnalysisController extends GameController {
             (document.querySelector('.pgn-container') as HTMLElement).style.display = 'block';
         }
 
-        if (!this.puzzle && this.gameId) {
+        if (!this.puzzle && !this.ongoing && this.gameId) {
             this.sock = createWebsocket('wsr/' + this.gameId, onOpen, () => {}, () => {}, (e: MessageEvent) => this.onMessage(e));
         } else {
             this.onMsgBoard(model["board"] as MsgBoard);
@@ -443,6 +445,8 @@ export class AnalysisController extends GameController {
     onFSFline = (line: string) => {
         if (this.fsfDebug) console.debug('--->', line);
 
+        if (this.ongoing) return;
+
         if (this.variant.name === 'alice') return;
 
         if (line.startsWith('info')) {
@@ -497,7 +501,7 @@ export class AnalysisController extends GameController {
 
             window.addEventListener('beforeunload', () => this.fsfEngineBoard.delete());
 
-            if (this.localAnalysis && !this.puzzle) this.pvboxIni();
+            if (this.localAnalysis && !this.puzzle && !this.ongoing) this.pvboxIni();
         }
 
         if (!this.localAnalysis || !this.isEngineReady) return;
@@ -677,7 +681,7 @@ export class AnalysisController extends GameController {
             patch(evalEl, h('eval#ply' + String(ply), scoreStr));
         }
 
-        if (!this.puzzle) {
+        if (!this.puzzle && !this.ongoing) {
             analysisChart(this);
             const hc = this.analysisChart;
             if (hc !== undefined) {
@@ -782,14 +786,16 @@ export class AnalysisController extends GameController {
             this.setDests();
         }
 
-        this.drawEval(step.ceval, step.scoreStr, step.turnColor);
-        if (plyVari === 0) this.drawServerEval(ply, step.scoreStr);
+        if (!this.ongoing) {
+            this.drawEval(step.ceval, step.scoreStr, step.turnColor);
+            if (plyVari === 0) this.drawServerEval(ply, step.scoreStr);
+        }
 
         const idxInVari = (plyVari > 0) ? ply - plyVari : 0;
         this.updateUCImoves(idxInVari);
         if (this.localAnalysis) this.engineGo();
 
-        if (!this.puzzle) {
+        if (!this.puzzle && !this.ongoing) {
             const e = document.getElementById('fullfen') as HTMLInputElement;
             e.value = this.fullfen;
         
@@ -979,7 +985,7 @@ export class AnalysisController extends GameController {
         this.updateUCImoves(idxInVari);
         if (this.localAnalysis) this.engineGo();
 
-        if (!this.puzzle) {
+        if (!this.puzzle && !this.ongoing) {
             const e = document.getElementById('fullfen') as HTMLInputElement;
             e.value = this.fullfen;
 
@@ -996,7 +1002,7 @@ export class AnalysisController extends GameController {
         // console.log("got analysis_board msg:", msg);
         if (msg.gameId !== this.gameId) return;
         if (this.localAnalysis) this.engineStop();
-        this.clearPvlines();
+        if (!this.ongoing) this.clearPvlines();
 
         this.fullfen = msg.fen;
         this.ply = msg.ply

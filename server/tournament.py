@@ -8,6 +8,7 @@ from datetime import datetime, timedelta, timezone
 from operator import neg
 from typing import ClassVar, Deque, Tuple, Set
 
+from mongomock_motor import AsyncMongoMockClient
 from pymongo import ReturnDocument
 from sortedcollections import ValueSortedDict
 from sortedcontainers import SortedKeysView
@@ -240,8 +241,7 @@ class Tournament(ABC):
 
         self.tourneychat: Deque[dict] = collections.deque([], MAX_CHAT_LINES)
 
-        # TODO: calculate wave from TC, variant, number of players
-        self.wave = timedelta(seconds=3)
+        self.wave = timedelta(seconds=7)
         self.wave_delta = timedelta(seconds=1)
         self.current_round = 0
         self.prev_pairing = None
@@ -480,11 +480,6 @@ class Tournament(ABC):
                                 log.debug("Enough player (%s), do pairing", nb_waiting_players)
                                 await self.create_new_pairings(waiting_players)
                                 self.prev_pairing = now
-                            else:
-                                log.debug(
-                                    "Too few player (%s) to make pairing",
-                                    nb_waiting_players,
-                                )
                         else:
                             log.debug("Waiting for new pairing wave...")
 
@@ -507,7 +502,6 @@ class Tournament(ABC):
                             )
                         )
 
-                    log.debug("%s CLOCK %s", self.id, now.strftime("%H:%M:%S"))
                 await asyncio.sleep(1)
         except Exception:
             log.exception("Exception in tournament clock()")
@@ -751,20 +745,28 @@ class Tournament(ABC):
                 "bplayer": bp.username,
             }
 
-            ws = next(iter(wp.tournament_sockets[self.id]))
-            ok = await ws_send_json(ws, response)
-            if not ok:
-                self.pause(
-                    wp
-                )  # todo:this needs to be await-ed, but then it breaks test_tournament_pairing_5_round_SWISS test
+            ws_ok = True
+            try:
+                ws = next(iter(wp.tournament_sockets[self.id]))
+            except StopIteration:
+                ws_ok = False
+
+            if ws_ok and wp.title != "TEST":
+                ws_ok = await ws_send_json(ws, response)
+            if not ws_ok:
+                await self.pause(wp)
                 log.debug("White player %s left the tournament (ws send failed)", wp.username)
 
-            ws = next(iter(bp.tournament_sockets[self.id]))
-            ok = await ws_send_json(ws, response)
-            if not ok:
-                self.pause(
-                    bp
-                )  # todo:this needs to be await-ed, but then it breaks test_tournament_pairing_5_round_SWISS test
+            ws_ok = True
+            try:
+                ws = next(iter(bp.tournament_sockets[self.id]))
+            except StopIteration:
+                ws_ok = False
+
+            if ws_ok and bp.title != "TEST":
+                ws_ok = await ws_send_json(ws, response)
+            if not ws_ok:
+                await self.pause(bp)
                 log.debug("Black player %s left the tournament (ws send failed)", bp.username)
 
             if (
@@ -916,7 +918,7 @@ class Tournament(ABC):
 
     async def game_update(self, game):
         """Called from Game.update_status()"""
-        if self.status == T_FINISHED and self.status != T_ARCHIVED:
+        if self.status in (T_FINISHED, T_ABORTED):
             return
 
         wplayer = self.players[game.wplayer]
@@ -1133,14 +1135,15 @@ class Tournament(ABC):
             }
 
         try:
-            print(
-                await player_table.find_one_and_update(
-                    {"_id": player_id},
-                    {"$set": new_data},
-                    upsert=True,
-                    return_document=ReturnDocument.AFTER,
-                )
+            doc_after = await player_table.find_one_and_update(
+                {"_id": player_id},
+                {"$set": new_data},
+                upsert=True,
+                return_document=ReturnDocument.AFTER,
             )
+            if doc_after is None and not isinstance(self.app_state.db_client, AsyncMongoMockClient):
+                log.error("Failed to save %s player data update %s to mongodb", player_id, new_data)
+
         except Exception as e:
             log.error(e, exc_info=True)
             if self.app_state.db is not None:
@@ -1151,13 +1154,13 @@ class Tournament(ABC):
                 )
 
         new_data = {"nbPlayers": self.nb_players, "nbBerserk": self.nb_berserk}
-        print(
-            await self.app_state.db.tournament.find_one_and_update(
-                {"_id": self.id},
-                {"$set": new_data},
-                return_document=ReturnDocument.AFTER,
-            )
+        doc_after = await self.app_state.db.tournament.find_one_and_update(
+            {"_id": self.id},
+            {"$set": new_data},
+            return_document=ReturnDocument.AFTER,
         )
+        if doc_after is None and not isinstance(self.app_state.db_client, AsyncMongoMockClient):
+            log.error("Failed to save %s player data update %s to mongodb", self.id, new_data)
 
     async def save(self):
         if self.app_state.db is None:
@@ -1176,13 +1179,13 @@ class Tournament(ABC):
             "winner": winner,
         }
 
-        print(
-            await self.app_state.db.tournament.find_one_and_update(
-                {"_id": self.id},
-                {"$set": new_data},
-                return_document=ReturnDocument.AFTER,
-            )
+        doc_after = await self.app_state.db.tournament.find_one_and_update(
+            {"_id": self.id},
+            {"$set": new_data},
+            return_document=ReturnDocument.AFTER,
         )
+        if doc_after is None and not isinstance(self.app_state.db_client, AsyncMongoMockClient):
+            log.error("Failed to save %s tournament data update %s to mongodb", self.id, new_data)
 
         for user in self.leaderboard:
             await self.db_update_player(user, self.players[user])

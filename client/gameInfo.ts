@@ -4,7 +4,7 @@ import { _ } from './i18n';
 import { colorIcon } from './chess';
 import { aiLevel, gameType, renderRdiff } from './result';
 import { timeago, } from './datetime';
-import { timeControlStr } from "./view";
+import { alternateStartName, timeControlStr } from "./view";
 import { PyChessModel } from "./types";
 import { VARIANTS } from "./variants";
 
@@ -14,8 +14,8 @@ export function gameInfo(model: PyChessModel): VNode {
     const variant = VARIANTS[model.variant];
     const chess960 = model.chess960 === 'True';
     const dataIcon = variant.icon(chess960);
-    const tc = timeControlStr(model["base"], model["inc"], model["byo"], model["corr"] === "True" ? model["base"] : 0)
-
+    const tc = timeControlStr(model["base"], model["inc"], model["byo"], model["corr"] === "True" ? model["base"] : 0);
+    const altStartName = alternateStartName(variant, model.initialFen);
     return h('div.game-info', [
         h('section', [
         h('div.info0.icon', { attrs: { "data-icon": dataIcon } }, [
@@ -30,7 +30,8 @@ export function gameInfo(model: PyChessModel): VNode {
                     },
                         variant.displayName(chess960)),
                 ]),
-                Number(model["status"]) >= 0 ? h('info-date', { attrs: { timestamp: model["date"] } }, timeago(model["date"])) : _("Playing right now"),
+                h('div', (altStartName) ? altStartName : ''),
+                h('div', Number(model["status"]) >= 0 ? h('info-date', { attrs: { timestamp: model["date"] } }, timeago(model["date"])) : _("Playing right now")),
             ]),
         ]),
         h('div.player-data', [

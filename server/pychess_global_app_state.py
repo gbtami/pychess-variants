@@ -31,6 +31,7 @@ from const import (
     SCHEDULE_MAX_DAYS,
     ABORTED,
 )
+from broadcast import round_broadcast
 from discord_bot import DiscordBot, FakeDiscordBot
 from game import Game
 from generate_crosstable import generate_crosstable
@@ -40,6 +41,7 @@ from lobby import Lobby
 from scheduler import (
     MONTHLY_VARIANTS,
     SEATURDAY,
+    NEW_MONTHLY_VARIANTS,
     PAUSED_MONTHLY_VARIANTS,
     WEEKLY_VARIANTS,
     SHIELDS,
@@ -50,6 +52,7 @@ from seek import Seek
 from settings import DEV, FISHNET_KEYS, static_url, DISCORD_TOKEN
 from tournament import Tournament
 from tournaments import translated_tournament_name, get_scheduled_tournaments, load_tournament
+from typedefs import client_key
 from twitch import Twitch
 from user import User
 from users import Users, NotInDbUsers
@@ -72,6 +75,7 @@ class PychessGlobalAppState:
         self.shutdown = False
         self.tournaments_loaded = asyncio.Event()
 
+        self.db_client = app[client_key]
         self.db = app[db_key]
         self.users = self.__init_users()
         self.disable_new_anons = False
@@ -146,12 +150,8 @@ class PychessGlobalAppState:
             db_collections = await self.db.list_collection_names()
 
             if "tournament_chat" not in db_collections:
-                try:
-                    await self.db.create_collection(
-                        "tournament_chat", capped=True, size=100000, max=MAX_CHAT_LINES
-                    )
-                except NotImplementedError:
-                    await self.db.create_collection("tournament_chat")
+                await self.db.create_collection("tournament_chat")
+                await self.db.tournament_chat.create_index("tid")
 
             await self.db.tournament.create_index("startsAt")
             await self.db.tournament.create_index("status")
@@ -269,11 +269,12 @@ class PychessGlobalAppState:
                     continue
 
                 if doc["s"] < ABORTED:
+                    game_id = doc["_id"]
                     try:
-                        game = await load_game(self, doc["_id"])
+                        game = await load_game(self, game_id)
                         if game is None:
                             continue
-                        self.games[doc["_id"]] = game
+                        self.games[game_id] = game
                         if corr:
                             game.wplayer.correspondence_games.append(game)
                             game.bplayer.correspondence_games.append(game)
@@ -285,7 +286,15 @@ class PychessGlobalAppState:
                                 game.gameClocks.restart("a")
                                 game.gameClocks.restart("b")
                     except NotInDbUsers:
-                        log.error("Failed toload game %s", doc["_id"])
+                        log.error("Failed toload game %s", game_id)
+
+                    if game.bot_game:
+                        if len(game.board.move_stack) > 0 and len(game.steps) == 1:
+                            game.create_steps()
+                        bot_player = game.wplayer if game.wplayer.bot else game.bplayer
+                        bot_player.game_queues[game_id] = asyncio.Queue()
+                        await bot_player.event_queue.put(game.game_start)
+                        await bot_player.game_queues[game_id].put(game.game_state)
 
                     if game.board.ply > 0:
                         self.g_cnt[0] += 1
@@ -307,7 +316,7 @@ class PychessGlobalAppState:
                     FISHNET_KEYS[doc["_id"]] = doc["name"]
 
         except Exception:
-            print("Maybe mongodb is not running...")
+            log.error("init_from_db() failed", stack_info=True, exc_info=True)
             raise
 
     def __init_translations(self):
@@ -350,6 +359,7 @@ class PychessGlobalAppState:
             for variant in VARIANTS + PAUSED_MONTHLY_VARIANTS:
                 if (
                     variant in MONTHLY_VARIANTS
+                    or variant in NEW_MONTHLY_VARIANTS
                     or variant in SEATURDAY
                     or variant in PAUSED_MONTHLY_VARIANTS
                 ):
@@ -406,6 +416,52 @@ class PychessGlobalAppState:
         result[NONE_USER] = User(self, anon=True, username=NONE_USER)
         result[NONE_USER].enabled = False
         return result
+
+    async def server_shutdown(self):
+        self.shutdown = True
+
+        log.debug("\nServer shutdown activated\n")
+
+        # notify users
+        msg = "Server will restart in about 30 seconds. Sorry for the inconvenience!"
+        response = {"type": "roundchat", "user": "", "message": msg, "room": "player"}
+        for game in [game for game in self.games.values() if not game.corr]:
+            await round_broadcast(game, response, full=True)
+
+        # save correspondence and regular seeks to database
+        corr_seeks = [seek.corr_json for seek in self.seeks.values() if seek.day > 0]
+        reg_seeks = [
+            seek.seek_json for seek in self.seeks.values() if seek.day == 0 and seek.creator.online
+        ]
+        await self.db.seek.delete_many({})
+        if len(corr_seeks) > 0:
+            for seek in corr_seeks:
+                log.debug("saving correspondence seek to database: %s" % seek)
+            await self.db.seek.insert_many(corr_seeks)
+        if len(reg_seeks) > 0:
+            for seek in reg_seeks:
+                log.debug("saving regular seek to database: %s" % seek)
+            await self.db.seek.insert_many(reg_seeks)
+
+        # terminate BOT users
+        for user in [user for user in self.users.values() if user.bot]:
+            await user.event_queue.put('{"type": "terminated"}')
+
+        # close game_sockets
+        for user in [user for user in self.users.values() if not user.bot]:
+            await user.close_all_game_sockets()
+
+        # close lobbysockets
+        await self.lobby.close_lobby_sockets()
+
+        # close tourneysockets
+        for tid in self.tourneysockets:
+            for username in list(self.tourneysockets[tid].keys()):
+                ts_dict = self.users[username].tournament_sockets
+                if tid in ts_dict:
+                    ws_set = ts_dict[tid]
+                    for ws in list(ws_set):
+                        await ws.close()
 
     def online_count(self):
         return sum((1 for user in self.users.values() if user.online))

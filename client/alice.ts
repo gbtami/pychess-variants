@@ -2,9 +2,10 @@ import * as cg from 'chessgroundx/types';
 
 import { Board } from 'ffish-es6';
 
+import { Board as ChessopsBoard } from 'chessops/board';
 import { Position, castlingSide } from 'chessops/chess';
 import { makeBoardFen, makeFen, parseFen } from 'chessops/fen';
-import { makeSquare, opposite, parseUci, rookCastlesTo } from 'chessops/util';
+import { makeSquare, opposite, parseSquare, parseUci, rookCastlesTo } from 'chessops/util';
 import { Setup } from 'chessops/setup';
 import { NormalMove, SquareName } from 'chessops/types';
 
@@ -22,7 +23,7 @@ class AlicePosition extends Position {
         pos.setupUnchecked(setup);
         return pos;
     }
-}  
+}
 
 export class AliceBoard {
     fens: Fens;
@@ -187,4 +188,45 @@ export function getUnionFenFromFullFen(fullfen: string, boardId: BoardId): strin
     newBoard.queen = newBoard.queen.union(boards[1 - boardId].board.queen);
     newBoard.king = newBoard.king.union(boards[1 - boardId].board.king);
     return makeBoardFen(newBoard);
+}
+
+export function movePieceToTheOtherBoard(fullfen: string, key: string): string {
+    const fens = fullfen.split(' | ') as Fens;
+    const square = parseSquare(key) as number;
+
+    const setup0 = parseFen(fens[0]).unwrap();
+    const setup1 = parseFen(fens[1]).unwrap();
+
+    const pos0 = AlicePosition.fromSetup(setup0);
+    const pos1 = AlicePosition.fromSetup(setup1);
+
+    const boardId = (pos0.board.get(square) === undefined) ? 1 : 0;
+    const afterBoards: Boards = [pos0.clone(), pos1.clone()];
+
+    // Remove piece from the target square and put it to the other board
+    const piece = afterBoards[boardId].board.take(square);
+    afterBoards[1 - boardId].board.set(square, piece!);
+
+    return makeFen(afterBoards[0].toSetup()) + ' | ' + makeFen(afterBoards[1].toSetup());
+}
+
+export function getFullFenFromUnionFen(unionfen: string, keys: string[]): string {
+    const fens = unionfen.split(' | ') as Fens;
+
+    const setup0 = parseFen(fens[0].replace(/~/g, '')).unwrap();
+    const setup1 = parseFen(fens[1]).unwrap();
+
+    const pos0 = AlicePosition.fromSetup(setup0);
+    const pos1 = AlicePosition.fromSetup(setup1);
+
+    const afterBoards: Boards = [pos0.clone(), pos1.clone()];
+    afterBoards[1].board = ChessopsBoard.empty();
+
+    keys.forEach((key) => {
+        const square = parseSquare(key) as number;
+        const piece = afterBoards[0].board.take(square);
+        afterBoards[1].board.set(square, piece!);
+    });
+
+    return makeFen(afterBoards[0].toSetup()) + ' | ' + makeFen(afterBoards[1].toSetup());
 }

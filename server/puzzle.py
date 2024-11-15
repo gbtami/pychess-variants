@@ -15,6 +15,10 @@ from pychess_global_app_state_utils import get_app_state
 NO_PUZZLE_VARIANTS = (
     "ataxx",
     "3check",
+    "antichess",
+    "racingkings",
+    "horde",
+    "shatranj",
     "placement",
     "minishogi",
     "gorogoroplus",

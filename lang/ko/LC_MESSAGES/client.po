@@ -32,8 +32,8 @@ msgid ""
 "create such a powerful engine for FREE. That's a lot of great minds and "
 "computing power they've managed to harness."
 msgstr ""
-"\"저에게 있어, 오늘 우리가 여기까지 올 수 있었던 것은 대대적으로 Stockfish 덕분입니다. 그들은 오픈 소스 정신으로 모여 "
-"강력한 무료 엔진을 만들기 위해 글로 자원봉사자들을 모았습니다. 그것은 그들이 활용한 많은 뛰어난 사고력과 컴퓨팅 능력입니다."
+"\"저에게, 우리가 오늘 여기까지 올 수 있었던 것은 대대적으로 Stockfish 덕분입니다. 그들은 오픈 소스 정신으로 모여 강력한 "
+"무료 엔진을 만들기 위해 글로 자원봉사자들을 모았습니다. 그것은 그들이 활용한 많은 뛰어난 사고력과 컴퓨팅 능력입니다."
 
 #: ../client/about.ts:10
 msgid ""
@@ -173,11 +173,11 @@ msgstr "계정이 필요합니다."
 
 #: ../client/analysisCtrl.ts:327
 msgid "Download game to PGN file"
-msgstr "PGN 파일로 기보 저장하기"
+msgstr "PGN 파일로 게임 내려받기"
 
 #: ../client/analysisCtrl.ts:327
 msgid "Download PGN"
-msgstr "PGN 파일로 저장"
+msgstr "PGN 내려받기"
 
 #: ../client/analysisCtrl.ts:329
 msgid "Copy USI/UCI to clipboard"
@@ -189,7 +189,7 @@ msgstr "UCI/USI 복사하기"
 
 #: ../client/analysisCtrl.ts:331
 msgid "Download position to PNG image file"
-msgstr "PNG 이미지 파일로 위치 저장하기"
+msgstr "PNG 이미지 파일로 위치 내려받기"
 
 #: ../client/analysisCtrl.ts:331
 msgid "PNG image"
@@ -245,7 +245,7 @@ msgstr "CPU"
 
 #: ../client/analysisSettings.ts:205
 msgid "Memory"
-msgstr "메모리 게임"
+msgstr "메모리"
 
 #: ../client/analysisSettings.ts:233
 msgid "Use NNUE"
@@ -265,11 +265,11 @@ msgstr "기물 애니메이션"
 
 #: ../client/boardSettings.ts:200
 msgid "Confirm resigning"
-msgstr "정말 기권하시겠습니까?"
+msgstr "기권 확인하기"
 
 #: ../client/boardSettings.ts:217
 msgid "Confirm correspondence move"
-msgstr "서신 이동 확인"
+msgstr "서신 이동 확인하기"
 
 #: ../client/boardSettings.ts:309
 msgid "Zoom"
@@ -281,7 +281,7 @@ msgstr "기물 행마법 보이기"
 
 #: ../client/boardSettings.ts:349
 msgid "Promote to the top choice automatically"
-msgstr "최상위 선택으로 자동 진급함"
+msgstr "최상의 선택으로 자동 진급하기"
 
 #: ../client/boardSettings.ts:378
 msgid "Invisible pieces"
@@ -293,7 +293,7 @@ msgstr "자원 차이 보이기"
 
 #: ../client/chat.ts:36 ../client/chat.ts:51
 msgid "Sign in to chat"
-msgstr "채팅을 하려면 로그인 하세요"
+msgstr "대화하려면 로그인하세요"
 
 #: ../client/chat.ts:36 ../client/chat.ts:51
 msgid "Please be nice in the chat!"
@@ -301,7 +301,7 @@ msgstr "대화할 때 예의를 지킵시다!"
 
 #: ../client/chat.ts:36
 msgid "Chat is disabled"
-msgstr "채팅이 비활성화되었습니다"
+msgstr "대화가 비활성화되었음"
 
 #: ../client/chat.ts:41
 msgid "Spectator room"
@@ -309,7 +309,7 @@ msgstr "관전방"
 
 #: ../client/chat.ts:41
 msgid "Chat room"
-msgstr "채팅방"
+msgstr "대화방"
 
 #: ../client/chat.ts:42
 msgid "Toggle the chat"
@@ -687,7 +687,7 @@ msgstr "엠버시"
 
 #: ../client/i18n.ts:92
 msgid "Conservative"
-msgstr ""
+msgstr "보수적"
 
 #: ../client/i18n.ts:96
 msgid "Chess, unmodified, as it's played by FIDE standards."
@@ -1388,11 +1388,11 @@ msgstr "상대가 무승부를 제안합니다"
 
 #: ../client/roundCtrl.ts:491
 msgid "Confirm move"
-msgstr "이동 확인"
+msgstr "이동 확인하기"
 
 #: ../client/roundCtrl.ts:518
 msgid "Are you sure you want to resign?"
-msgstr "기권 하시겠습니까?"
+msgstr "정말 기권하시겠습니까?"
 
 #: ../client/roundCtrl.ts:530
 msgid "Blue (Cho)"
@@ -1566,11 +1566,11 @@ msgstr ""
 
 #: ../client/tournament.ts:209
 msgid "Download all games"
-msgstr "모든 게임 다운로드"
+msgstr "모든 게임 내려받기"
 
 #: ../client/tournament.ts:217
 msgid "Download all games in JSON"
-msgstr "JSON에서 모든 게임 다운로드"
+msgstr "JSON에서 모든 게임 내려받기"
 
 #: ../client/tournament.ts:345
 msgid "Arena"
@@ -1604,7 +1604,7 @@ msgstr "방어자:"
 
 #: ../client/tournament.ts:555
 msgid "Custom position"
-msgstr "위치 수정"
+msgstr "위치 수정하기"
 
 #: ../client/tournament.ts:556
 msgid "Analysis board"
@@ -1690,7 +1690,7 @@ msgstr "%1 님의 손을 채우기"
 
 #: ../client/editor/editorCtrl.ts:139
 msgid "STARTING POSITION"
-msgstr "초기 배치"
+msgstr "시작 위치"
 
 #: ../client/editor/editorCtrl.ts:145
 msgid "PLAY WITH MACHINE"

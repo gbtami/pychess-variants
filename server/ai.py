@@ -8,6 +8,7 @@ from time import monotonic
 
 from const import MOVE, STARTED
 from const import TYPE_CHECKING
+from fairy import WHITE
 
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
@@ -60,6 +61,10 @@ async def BOT_task(bot, app_state: PychessGlobalAppState):
         app_state.fishnet_works[work_id] = work
         app_state.fishnet_queue.put_nowait((MOVE, work_id))
 
+    # After server restart we may have to wait for fairyfishnet workers to join...
+    while not bot.online:
+        await asyncio.sleep(3)
+
     random_mover = bot.username == "Random-Mover"
 
     while not app_state.shutdown:
@@ -89,13 +94,9 @@ async def BOT_task(bot, app_state: PychessGlobalAppState):
             await game.abort_by_server()
             continue
 
-        starting_color = game.board.initial_fen.split()[1]
-        if starting_color == "b":
-            starting_player = game.bplayer.username
-        else:
-            starting_player = game.wplayer.username
+        turn_player = game.wplayer.username if game.board.color == WHITE else game.bplayer.username
 
-        if starting_player == bot.username:
+        if turn_player == bot.username:
             if random_mover:
                 await play_move(app_state, bot, game, random.choice(game.legal_moves))
             else:

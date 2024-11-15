@@ -35,12 +35,19 @@ export function renderRdiff(rdiff: number) {
     }
 }
 
-export function result(variant: Variant, status: number, result: string) {
+export function result(variant: Variant, status: number, result: string, bughouseTeamNameFirst: string='', bughouseTeamNameSecond: string='') {
     let text = '';
     const variantName = variant.name;
     // console.log("result()", variantName, status, result);
     const first = _(variant.colors.first);
     const second = _(variant.colors.second);
+
+    const loserSingleBoard = (result === '1-0') ? second : first;
+    const loser = (bughouseTeamNameFirst !== '') ? ((result === '1-0') ? bughouseTeamNameSecond : bughouseTeamNameFirst) : loserSingleBoard;
+
+    const winnerSingleBoard = (result === '0-1') ? second : first;
+    const winner = (bughouseTeamNameFirst !== '') ? ((result === '0-1') ? bughouseTeamNameSecond : bughouseTeamNameFirst) : winnerSingleBoard;
+
     switch (status) {
         case -2:
         case -1:
@@ -53,7 +60,7 @@ export function result(variant: Variant, status: number, result: string) {
             text = _('Checkmate');
             break;
         case 2:
-            text = _('%1 resigned', (result === '1-0') ? second : first);
+            text = _('%1 resigned', loser);
             break;
         case 3:
             text = _('Stalemate');
@@ -68,7 +75,7 @@ export function result(variant: Variant, status: number, result: string) {
             text = _('Time out');
             break;
         case 7:
-            text = _('%1 abandoned the game', (result === '1-0') ? second : first);
+            text = _('%1 abandoned the game', loser);
             break;
         case 8:
             text = _('Cheat detected');
@@ -97,6 +104,9 @@ export function result(variant: Variant, status: number, result: string) {
                 case 'chak':
                     text = _('Altar mate');
                     break;
+                case 'racingkings':
+                    text = _('Race finished');
+                    break;
                 case 'atomic':
                     text = _('Explosion of king');
                     break;
@@ -110,8 +120,11 @@ export function result(variant: Variant, status: number, result: string) {
                 case 'fogofwar':
                     text = _('King captured');
                     break;
-                default:
+                case 'ataxx':
                     text = _('Point counting');
+                    break;
+                default:
+                    text = _('Variant ending');
                     break;
             }
             break;
@@ -129,5 +142,18 @@ export function result(variant: Variant, status: number, result: string) {
             text = '*';
             break
     }
-    return (status <= 0) ? text : text + ', ' + result;
+
+    if (status <= 0) {
+        return text;
+    } else {
+        if (result === '1/2-1/2') {
+            if (status === 5) {
+                return text;
+            } else {
+                return text + ' • ' + _('Draw');
+            }
+        } else {
+            return text + ' • ' + _('%1 won', winner);
+        }
+    }
 }

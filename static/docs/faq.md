@@ -44,10 +44,6 @@ Check out the [Variants page](https://www.pychess.org/variants). Also, within a 
 
 Major regional variants have high precedence. For western chess variants, often the most popular or well-known variants are added. However, there are still some that can't be added. Pychess relies on Fairy-Stockfish to support the variant, as our code also depends on Fairy-Stockfish for move validation. This also means no variants that aren't supported by Fairy-Stockfish can be on Pychess.</details>
 
-<details><summary>Can you add Shatranj?</summary>
-
-Shatranj is a dead variant, and there are similar games that are still alive (i.e. Makruk), so no. If you want to play Shatranj, there are other sites that offer it.</details>
-
 <details><summary>Can you add XXX?</summary>
 
 It depends on how popular or how interesting the variant is. We can't even consider adding variants that aren't supported by Fairy-Stockfish. Otherwise, you can ask us on Discord or Github.</details>

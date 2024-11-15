@@ -63,7 +63,7 @@ div.dcontrols {
     align-content: center;
     background: var(--bg-color2);
     border-bottom: 1px solid var(--border-color);
-    line-height: 4em;
+    line-height: 2em;
 }
 div.dcontrols .reject {
     color: var(--bad);

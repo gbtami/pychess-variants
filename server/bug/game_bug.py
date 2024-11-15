@@ -28,10 +28,10 @@ from const import (
     IMPORTED,
     variant_display_name,
     MAX_CHAT_LINES,
+    POCKET_PATTERN,
 )
 from fairy import FairyBoard, BLACK, WHITE
 from spectators import spectators
-from re import sub, split
 
 log = logging.getLogger(__name__)
 
@@ -207,24 +207,16 @@ class GameBug:
         if self.status <= STARTED:
             self.gameClocks.update_clocks(board, clocks, clocks_b)
             try:
-                partner_board = "a" if board == "b" else "b"
                 last_move_captured_role = self.boards[board].piece_to_partner(move)
-                log.debug("lastMoveCapturedRole: %s", last_move_captured_role)
-                log.debug("self.boards[partner_board].fen: %s", self.boards[partner_board].fen)
-
-                # self.boards[partner_board].fen = partnerFen #
+                # Add the captured piece to the partner pocked
                 if last_move_captured_role is not None:
-                    board_fen_split = split(
-                        "[\\[\\]]", self.boards[partner_board].fen
-                    )  # todo: this doesnt work after first move when starting game from custom initial fen that doesnt
-                    #           have square brackets - either add them or dont consider it valid if missing pockets
-                    self.boards[partner_board].fen = (
-                        board_fen_split[0]
-                        + "["
-                        + board_fen_split[1]
-                        + last_move_captured_role
-                        + "]"
-                        + board_fen_split[2]
+                    partner_board = "a" if board == "b" else "b"
+                    log.debug("lastMoveCapturedRole: %s", last_move_captured_role)
+                    log.debug("self.boards[partner_board].fen: %s", self.boards[partner_board].fen)
+                    # todo: this doesnt work after first move when starting game from custom initial fen that doesnt
+                    #       have square brackets - either add them or dont consider it valid if missing pockets
+                    self.boards[partner_board].fen = POCKET_PATTERN.sub(
+                        r"[\1%s]" % last_move_captured_role, self.boards[partner_board].fen
                     )
 
                 san = self.boards[board].get_san(move)
@@ -470,8 +462,7 @@ class GameBug:
         # with a piece that partner could potentially give. Check same position, but with full pocket
         # to confirm it is really checkmate even if we wait for partner
         fen_before = self.boards[board].fen
-        fen_fullpockets = sub("\\[.*\\]", "[qrbnpQRBNP]", fen_before)
-        self.boards[board].fen = fen_fullpockets
+        self.boards[board].fen = POCKET_PATTERN.sub("[qrbnpQRBNP]", fen_before)
         count_valid_moves_with_full_pockets = len(self.boards[board].legal_moves_no_history())
         self.boards[board].fen = fen_before
 

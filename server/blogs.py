@@ -16,6 +16,26 @@ del _
 
 BLOGS = [
     {
+        "_id": "Variant_Design_Contest",
+        "date": "2024-11-14",
+        "image": "/images/man-design-thinking.453x512.png",
+        "alt": "",
+        "title": "Variant Design Contest",
+        "subtitle": "Create the best chess variant!",
+        "author": "CouchTomato87",
+        "tags": ["Announcement"],
+    },
+    {
+        "_id": "Halloween_Update",
+        "date": "2024-10-31",
+        "image": "/images/witch.png",
+        "alt": "",
+        "title": "Halloween Update",
+        "subtitle": "New variants and bug fixes",
+        "author": "gbtami",
+        "tags": ["Announcement"],
+    },
+    {
         "_id": "Late_Summer_Update",
         "date": "2024-08-11",
         "image": "/images/CVariantsGuide/Aliceroom3.jpg",

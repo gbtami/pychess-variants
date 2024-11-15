@@ -2,7 +2,8 @@ from __future__ import annotations
 
 # -*- coding: utf-8 -*-
 from ataxx import ATAXX_FENS
-from const import CATEGORIES
+from const import CATEGORIES, MANCHU_R_FEN
+from racingkings import RACINGKINGS_FENS
 
 import logging
 import re
@@ -62,7 +63,7 @@ class FairyBoard:
         self.chess960 = chess960
         self.sfen = False
         self.show_promoted = variant in ("makruk", "makpong", "cambodian", "bughouse")
-        self.legal_moves_need_history = variant in ("Janggi",)
+        self.legal_moves_need_history = variant in ("janggi",)
         self.nnue = initial_fen == ""
         self.initial_fen = (
             initial_fen
@@ -82,8 +83,9 @@ class FairyBoard:
             self.notation = sf.NOTATION_SHOGI_HODGES_NUMBER
         elif self.variant in (
             "xiangqi",
+            "manchu",
             "minixiangqi",
-        ):  # XIANGQI_WXF can't handle Manchu banner!
+        ):
             self.notation = sf.NOTATION_XIANGQI_WXF
         else:
             self.notation = sf.NOTATION_SAN
@@ -99,6 +101,8 @@ class FairyBoard:
 
         if variant == "bughouse":
             return new_fen + " | " + new_fen
+        elif variant == "manchu":
+            return MANCHU_R_FEN
         else:
             return new_fen
 
@@ -203,7 +207,7 @@ class FairyBoard:
         return sf.game_result(self.variant, self.fen, [], self.chess960)
 
     def piece_to_partner(self, move):
-        return sf.piece_to_partner(self.variant, self.fen, [move])
+        return sf.piece_to_partner(self.variant, self.fen, [move], self.chess960)
 
     def print_pos(self):
         print()
@@ -259,6 +263,8 @@ class FairyBoard:
 
         if variant == "ataxx":
             return random.choice(ATAXX_FENS)
+        elif variant == "racingkings":
+            return random.choice(RACINGKINGS_FENS)
 
         castl = ""
         capa = variant in ("capablanca", "capahouse")
@@ -360,18 +366,30 @@ class FairyBoard:
 
         checks = "3+3 " if variant == "3check" else ""
 
-        fen = (
-            fen
-            + body
-            + fen.upper()
-            + holdings
-            + " w "
-            + castl.upper()
-            + castl
-            + " - "
-            + checks
-            + "0 1"
-        )
+        if variant == "horde":
+            fen = (
+                fen
+                + "/pppppppp/8/1PP2PP1/PPPPPPPP/PPPPPPPP/PPPPPPPP/PPPPPPPP"
+                + " w "
+                + castl
+                + " - "
+                + "0 1"
+            )
+        elif variant == "antichess":
+            fen = fen + body + fen.upper() + " w - - 0 1"
+        else:
+            fen = (
+                fen
+                + body
+                + fen.upper()
+                + holdings
+                + " w "
+                + castl.upper()
+                + castl
+                + " - "
+                + checks
+                + "0 1"
+            )
         return fen
 
 
@@ -548,3 +566,25 @@ if __name__ == "__main__":
     print(sf.version())
     print(sf.info())
     print(sf.variants())
+
+    board = FairyBoard(
+        "janggi",
+        initial_fen="1nba2b2/4ka1R1/1cc6/p1p1p1p1p/9/9/P1P1P1PP1/1C5C1/4AK3/RNBA2BN1 w - - 0 1",
+    )
+    for move in (
+        "h9f9",
+        "e9f9",
+        "f2f2",
+    ):
+        print("push move", move, board.get_san(move))
+        if board.move_stack:
+            print(
+                "is_checked(), insuff material, draw?",
+                board.is_checked(),
+                board.insufficient_material(),
+                board.is_claimable_draw(),
+            )
+        board.push(move)
+        board.print_pos()
+        print(board.fen)
+        print(board.legal_moves())

@@ -78,10 +78,16 @@ export function createMovelistButtons (ctrl: GameController | RoundControllerAli
     if ('switchAliceBoards' in ctrl) {
         buttons.push(h('button#alice', { on: { click: () => ctrl.switchAliceBoards() } }, [ h('i.icon.icon-exchange') ]));
     }
+
     if ("localEngine" in ctrl) {
         buttons.push(h('button#bars', { on: { click: () => ctrl.toggleSettings() } }, [ h('i.icon.icon-bars') ]));
+    } else {
+        if (ctrl.corr && ctrl.variant.name !== 'fogofwar') {
+            const url = ctrl.home + '/corranalysis/' + ctrl.gameId + `?ply=${ctrl.ply + 1}`;
+            buttons.push(h('button#corr', { on: { click: () => window.location.assign(url) } }, [ h('i.icon.icon-microscope') ]));
+        }
     }
-    
+
     ctrl.moveControls = patch(container, h('div#btn-controls-top.btn-controls', buttons));
 }
 
@@ -143,7 +149,8 @@ export function updateMovelist (ctrl: GameController, full = true, activate = tr
     }
 
     if (ctrl.status >= 0 && needResult) {
-        moves.push(h('div#result', result(ctrl.variant, ctrl.status, ctrl.result)));
+        moves.push(h('div.result', ctrl.result));
+        moves.push(h('div.status', result(ctrl.variant, ctrl.status, ctrl.result)));
     }
 
     const container = document.getElementById('movelist') as HTMLElement;
@@ -164,10 +171,13 @@ export function updateResult (ctrl: GameController) {
     if (ctrl.status < 0) return;
 
     // Prevent to render it twice
-    const resultEl = document.getElementById('result') as HTMLElement;
+    const resultEl = document.querySelector('.result');
     if (resultEl) return;
 
     const container = document.getElementById('movelist') as HTMLElement;
-    ctrl.vmovelist = patch(container, h('div#movelist', [h('div#result', result(ctrl.variant, ctrl.status, ctrl.result))]));
+    ctrl.vmovelist = patch(container, h('div#movelist', [
+        h('div.result', ctrl.result),
+        h('div.status', result(ctrl.variant, ctrl.status, ctrl.result))
+    ]));
     container.scrollTop = 99999;
 }
