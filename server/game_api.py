@@ -400,7 +400,7 @@ async def subscribe_games(request):
     return response
 
 
-def get_games(request):
+async def get_games(request):
     app_state = get_app_state(request.app)
     games = app_state.games.values()
     variant = request.match_info.get("variant")
