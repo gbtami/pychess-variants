@@ -898,6 +898,10 @@ export class RoundController extends GameController {
                     this.clocks[oppclock].start();
                 }
             }
+            // This is needed for above capture detection
+            if (this.ffishBoard) {
+                this.ffishBoard.setFen(this.fullfen);
+            }
         } else {
             if (this.turnColor === this.mycolor) {
                 if (latestPly) {
