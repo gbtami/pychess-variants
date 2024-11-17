@@ -69,6 +69,7 @@ async def create_or_update_tournament(
         name = "%s Shield Arena" % variant_display_name(variant).title()
     else:
         description = form["description"]
+        name = name if name.lower().endswith("arena") else name + " Arena"
 
     data = {
         "name": name,
