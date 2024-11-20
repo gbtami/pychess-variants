@@ -288,5 +288,6 @@ immobilityIllegal = true
 [fogofwar:chess]
 king = -
 commoner = k
+castlingKingPiece = k
 extinctionValue = loss
 extinctionPieceTypes = k`
