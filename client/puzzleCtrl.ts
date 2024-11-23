@@ -9,6 +9,7 @@ import { lmBeforeEp, uci2LastMove, UCIMove, uci2cg } from './chess';
 import { updateMovelist } from './movelist';
 import { variants } from './variants';
 import { RatedSettings, AutoNextSettings } from './puzzleSettings';
+import { updatePoint } from './info';
 
 
 export class PuzzleController extends AnalysisController {
@@ -300,6 +301,10 @@ export class PuzzleController extends AnalysisController {
         this.steps.push(step);
         this.ply += 1
         updateMovelist(this);
+
+        if (this.variant.ui.materialPoint) {
+            [this.vmiscInfoW, this.vmiscInfoB] = updatePoint(this.variant, this.ffishBoard.fen(), this.vmiscInfoW, this.vmiscInfoB);
+        }
     }
 
     cgConfig = (move: string) => {

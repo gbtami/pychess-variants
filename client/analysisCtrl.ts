@@ -31,6 +31,7 @@ import { analysisSettings, EngineSettings } from './analysisSettings';
 import { setAriaTabClick } from './view';
 import { createWebsocket } from "@/socket/webSocketUtils";
 import { setPocketRowCssVars } from './pocketRow';
+import { updatePoint } from './info';
 
 const EVAL_REGEX = new RegExp(''
   + /^info depth (\d+) seldepth \d+ multipv (\d+) /.source
@@ -191,14 +192,16 @@ export class AnalysisController extends GameController {
         }
 
         if (this.variant.ui.materialPoint) {
-            const miscW = document.getElementById('misc-infow') as HTMLElement;
-            const miscB = document.getElementById('misc-infob') as HTMLElement;
-            miscW.style.textAlign = 'right';
-            miscB.style.textAlign = 'left';
-            miscW.style.width = '100px';
-            miscB.style.width = '100px';
+            this.vmiscInfoW = document.getElementById('misc-infow') as HTMLElement;
+            this.vmiscInfoB = document.getElementById('misc-infob') as HTMLElement;
+            this.vmiscInfoW.style.textAlign = 'right';
+            this.vmiscInfoB.style.textAlign = 'left';
+            this.vmiscInfoW.style.width = '100px';
+            this.vmiscInfoB.style.width = '100px';
             patch(document.getElementById('misc-info-center') as HTMLElement, h('div#misc-info-center', '-'));
             (document.getElementById('misc-info') as HTMLElement).style.justifyContent = 'space-around';
+
+            [this.vmiscInfoW, this.vmiscInfoB] = updatePoint(this.variant, this.fullfen, this.vmiscInfoW, this.vmiscInfoB);
         }
 
         if (this.variant.ui.counting) {
@@ -992,6 +995,10 @@ export class AnalysisController extends GameController {
             if (this.isAnalysisBoard || this.result == "*") {
                 this.vpgn = patch(this.vpgn, h('div#pgntext', this.getPgn(idxInVari)));
             }
+        }
+
+        if (this.variant.ui.materialPoint) {
+            [this.vmiscInfoW, this.vmiscInfoB] = updatePoint(this.variant, msg.fen, this.vmiscInfoW, this.vmiscInfoB);
         }
 
         // TODO: But sending moves to the server will be useful to implement shared live analysis!

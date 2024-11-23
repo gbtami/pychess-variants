@@ -849,7 +849,7 @@ export class RoundController extends GameController {
         }
 
         if (this.variant.ui.materialPoint) {
-            this.updatePoint(msg.fen);
+            [this.vmiscInfoW, this.vmiscInfoB] = updatePoint(this.variant, msg.fen, this.vmiscInfoW, this.vmiscInfoB);
         }
 
         const oppclock = !this.flipped() ? 0 : 1;
@@ -1060,10 +1060,6 @@ export class RoundController extends GameController {
             else
                 patch(countButton, h('button#count', { props: {title: _('Start counting')}, class: { disabled: true } }, _('Count')));
         }
-    }
-
-    private updatePoint = (fen: cg.FEN) => {
-        [this.vmiscInfoW, this.vmiscInfoB] = updatePoint(this.variant, fen, this.vmiscInfoW, this.vmiscInfoB);
     }
 
     private updateMaterial(): void {
