@@ -192,16 +192,17 @@ export class AnalysisController extends GameController {
         }
 
         if (this.variant.ui.materialPoint) {
-            this.vmiscInfoW = document.getElementById('misc-infow') as HTMLElement;
-            this.vmiscInfoB = document.getElementById('misc-infob') as HTMLElement;
-            this.vmiscInfoW.style.textAlign = 'right';
-            this.vmiscInfoB.style.textAlign = 'left';
-            this.vmiscInfoW.style.width = '100px';
-            this.vmiscInfoB.style.width = '100px';
+            const miscW = document.getElementById('misc-infow') as HTMLElement;
+            const miscB = document.getElementById('misc-infob') as HTMLElement;
+            miscW.style.textAlign = 'right';
+            miscB.style.textAlign = 'left';
+            miscW.style.width = '100px';
+            miscB.style.width = '100px';
+
             patch(document.getElementById('misc-info-center') as HTMLElement, h('div#misc-info-center', '-'));
             (document.getElementById('misc-info') as HTMLElement).style.justifyContent = 'space-around';
 
-            [this.vmiscInfoW, this.vmiscInfoB] = updatePoint(this.variant, this.fullfen, this.vmiscInfoW, this.vmiscInfoB);
+            [this.vmiscInfoW, this.vmiscInfoB] = updatePoint(this.variant, this.fullfen, miscW, miscB);
         }
 
         if (this.variant.ui.counting) {
