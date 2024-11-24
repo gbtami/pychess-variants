@@ -63,7 +63,7 @@ class FairyBoard:
         self.chess960 = chess960
         self.sfen = False
         self.show_promoted = variant in ("makruk", "makpong", "cambodian", "bughouse")
-        self.legal_moves_need_history = variant in ("janggi",)
+        self.legal_moves_need_history = variant in ("janggi", "ataxx")
         self.nnue = initial_fen == ""
         self.initial_fen = (
             initial_fen
