@@ -13,8 +13,16 @@ log = logging.getLogger(__name__)
 
 try:
     import pyffish as sf
+
+    sf.set_option("VariantPath", "variants.ini")
 except ImportError:
     log.error("No pyffish module installed!", exc_info=True)
+
+FEN_OK = sf.FEN_OK
+NOTATION_SAN = sf.NOTATION_SAN
+NOTATION_JANGGI = sf.NOTATION_JANGGI
+NOTATION_XIANGQI_WXF = sf.NOTATION_XIANGQI_WXF
+NOTATION_SHOGI_HODGES_NUMBER = sf.NOTATION_SHOGI_HODGES_NUMBER
 
 WHITE, BLACK = 0, 1
 FILES = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j"]
@@ -78,17 +86,17 @@ class FairyBoard:
         self.count_started = count_started
 
         if self.variant == "janggi":
-            self.notation = sf.NOTATION_JANGGI
+            self.notation = NOTATION_JANGGI
         elif self.variant in CATEGORIES["shogi"]:
-            self.notation = sf.NOTATION_SHOGI_HODGES_NUMBER
+            self.notation = NOTATION_SHOGI_HODGES_NUMBER
         elif self.variant in (
             "xiangqi",
             "manchu",
             "minixiangqi",
         ):
-            self.notation = sf.NOTATION_XIANGQI_WXF
+            self.notation = NOTATION_XIANGQI_WXF
         else:
-            self.notation = sf.NOTATION_SAN
+            self.notation = NOTATION_SAN
 
     @staticmethod
     def start_fen(variant, chess960=False, disabled_fen=""):
@@ -393,9 +401,15 @@ class FairyBoard:
         return fen
 
 
-if __name__ == "__main__":
-    sf.set_option("VariantPath", "variants.ini")
+def get_san_moves(variant, fen, mlist, chess960, notation):
+    return sf.get_san_moves(variant, fen, mlist, chess960, notation)
 
+
+def validate_fen(fen, variant, chess960):
+    return sf.validate_fen(fen, variant, chess960)
+
+
+if __name__ == "__main__":
     board = FairyBoard("shogi")
     print(board.fen)
     board.print_pos()

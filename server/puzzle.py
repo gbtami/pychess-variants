@@ -3,11 +3,11 @@ import random
 from datetime import datetime, timezone
 
 import aiohttp_session
-import pyffish as sf
 from pymongo.errors import DuplicateKeyError
 from aiohttp import web
 
 from const import VARIANTS
+from fairy import FairyBoard
 from glicko2.glicko2 import MU, gl2, Rating, rating
 from pychess_global_app_state_utils import get_app_state
 
@@ -42,7 +42,7 @@ def empty_puzzle(variant):
     puzzle = {
         "_id": "0",
         "variant": variant,
-        "fen": sf.start_fen(variant),
+        "fen": FairyBoard.start_fen(variant),
         "type": "",
         "moves": "",
         "eval": "",
