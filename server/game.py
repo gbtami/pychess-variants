@@ -34,7 +34,6 @@ from const import (
 )
 from convert import grand2zero, uci2usi, mirror5, mirror9
 from fairy import get_san_moves, NOTATION_SAN, FairyBoard, BLACK, WHITE
-from alice import AliceBoard
 from glicko2.glicko2 import gl2
 from draw import reject_draw
 from settings import URI
@@ -218,12 +217,9 @@ class Game:
                 disabled_fen = self.initial_fen
                 self.initial_fen = ""
 
-        if self.variant == "alice":
-            self.board = AliceBoard(self.initial_fen)
-        else:
-            self.board = FairyBoard(
-                self.variant, self.initial_fen, self.chess960, count_started, disabled_fen
-            )
+        self.board = FairyBoard(
+            self.variant, self.initial_fen, self.chess960, count_started, disabled_fen
+        )
 
         # Janggi setup needed when player is not BOT
         if self.variant == "janggi":
