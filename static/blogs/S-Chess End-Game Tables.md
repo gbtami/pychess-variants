@@ -9,7 +9,7 @@
 </div>
 </br>
 
-It is well known that the Queen-vs-Rook end-game in orthodox Chess is a general win. The number of draws that are not due to a forced tactical loss of the Queen ('fortress draws') is very small. The Elephant in S-Chess (which combines the move of Rook and Knight) does appreciably worse. By End-Game Tables produced by the FairyGen EGT generator show that a very large fraction of the positions are fortress draws there.
+It is well known that the Queen-vs-Rook end-game in orthodox Chess is a general win. The number of draws that are not due to a forced tactical loss of the Queen ('fortress draws') is very small. The Elephant in S-Chess (which combines the move of Rook and Knight) does appreciably worse. By End-Game Tables produced by the [FairyGen](https://github.com/ceebo/fairygen) EGT generator show that a very large fraction of the positions are fortress draws there.
 
 Neither Queen nor Elephant can safely attack a Rook with their orthogonal moves. So to gain the Rook the Queen must attack with its diagonal moves, the Elephant with its Knight jumps. The crucial difference is that the Queen can do this from any distance, while the Elephant must be close. That makes it impossible for the Elephant to fork King and Rook is the latter stay sufficiently far apart. And an 8x8 board is large enough to achieve that.
 

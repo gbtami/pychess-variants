@@ -20,7 +20,7 @@ BLOGS = [
         "date": "2024.11.27",
         "image": "/images/SchessEGT/KEKR.png",
         "alt": "",
-        "title": "S-Chess End Game Tables",
+        "title": "S-Chess End-Game Tables",
         "subtitle": "Elephant vs Rook",
         "author": "h.g.muller",
         "tags": ["Blog"],
