@@ -1,6 +1,6 @@
-import ffishModule from 'ffish-es6';
-
 import { h, VNode } from 'snabbdom';
+
+import { FairyStockfish } from 'ffish-es6';
 
 import { _ } from './i18n';
 import { variantsIni } from './variantsIni';
@@ -15,10 +15,7 @@ const BUGHOUSE_VARIANT = '[WhiteA';
 
 
 export function pasteView(model: PyChessModel): VNode[] {
-    let ffish: any = null;
-    ffishModule().then((loadedModule: any) => {
-        ffish = loadedModule;
-    });
+    const ffish: FairyStockfish = model.ffish;
 
     const importGame = (model: PyChessModel, ffish: any) => {
         const e = document.getElementById("pgnpaste") as HTMLInputElement;
