@@ -28,6 +28,7 @@
     "chessops": "^0.14.1",
     "fairy-stockfish-nnue.wasm": "^1.1.8",
     "ffish-es6": "^0.7.6",
+    "ffish-alice-es6": "^0.0.1",
     "gettext.js": "^2.0.3",
     "highcharts": "^11.4.8",
     "howler": "^2.2.3",

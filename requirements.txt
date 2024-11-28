@@ -13,6 +13,7 @@ motor==3.6.0
 pymongo==4.9.1
 pyopenssl==24.2.1
 pyffish==0.0.84
+pyffish_alice==0.0.1
 rustworkx==0.15.1
 sortedcollections==2.1.0
 tzdata==2024.2
