@@ -219,6 +219,14 @@ export abstract class GameController extends ChessgroundController implements Ch
         }
     }
 
+    switchAliceBoards(): void {
+        this.chessground.set({
+            //animation: { enabled: false },
+            //check: (this.check) ? this.turnColor : false,
+            fen: this.fullfen, // TODO
+        });
+    }
+
     fogFen(currentFen: string): string {
         // No king, no fog (game is over)
         if (!currentFen.includes('k') || !currentFen.includes('K') || this.result !== '*') return currentFen;
