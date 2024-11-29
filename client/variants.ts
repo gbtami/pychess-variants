@@ -486,7 +486,7 @@ export const VARIANTS: Record<string, Variant> = {
         rules: { enPassant: false },
         alternateStart: {
             '': "",
-            'Looking glass': "8/8/8/8/8/8/PPPPPPPP/RNBQKBNR w KQ - 0 1 | rnbqkbnr/pppppppp/8/8/8/8/8/8 w kq - 0 1",
+            'Looking glass': "|r|n|b|q|k|b|n|r/|p|p|p|p|p|p|p|p/8/8/8/8/PPPPPPPP/RNBQKBNR w KQ - 0 1",
         },
         // For Alice chess other board pieces we use promoted pieces to let them style differently,
         ui: { boardMark: 'alice' },

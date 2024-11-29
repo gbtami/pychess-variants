@@ -4,7 +4,7 @@ from fairy import STANDARD_FEN
 
 VALID_FEN = {
     "alice": (
-        "8/8/8/8/8/8/PPPPPPPP/RNBQKBNR w KQ - 0 1 | rnbqkbnr/pppppppp/8/8/8/8/8/8 w kq - 0 1",  # Lookig glass
+        "|r|n|b|q|k|b|n|r/|p|p|p|p|p|p|p|p/8/8/8/8/PPPPPPPP/RNBQKBNR w KQ - 0 1",  # Lookig glass
     ),
     "fogofwar": {
         STANDARD_FEN,
