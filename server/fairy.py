@@ -13,6 +13,7 @@ log = logging.getLogger(__name__)
 
 try:
     import pyffish as sf
+
     sf.set_option("VariantPath", "variants.ini")
 except ImportError:
     log.error("No pyffish module installed!", exc_info=True)
@@ -176,7 +177,11 @@ class FairyBoard:
     def has_legal_move(self):
         if self.legal_moves_need_history:
             return (
-                len(self.sf.legal_moves(self.variant, self.initial_fen, self.move_stack, self.chess960))
+                len(
+                    self.sf.legal_moves(
+                        self.variant, self.initial_fen, self.move_stack, self.chess960
+                    )
+                )
                 > 0
             )
         else:
