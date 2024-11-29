@@ -27,7 +27,6 @@ NO_PUZZLE_VARIANTS = (
     "shinobiplus",
     "cannonshogi",
     "bughouse",
-    "alice",
     "fogofwar",
 )
 

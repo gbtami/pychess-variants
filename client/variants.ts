@@ -1102,7 +1102,6 @@ export const noPuzzleVariants = [
     "shinobiplus",
     "cannonshogi",
     "bughouse",
-    "alice",
     "fogofwar",
     "racingkings",
     "antichess",
