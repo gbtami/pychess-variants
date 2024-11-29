@@ -16,6 +16,8 @@ import jinja2
 from pythongettext.msgfmt import Msgfmt, PoSyntaxError
 from sortedcollections import ValueSortedDict
 
+from mongomock_motor import AsyncMongoMockClient
+
 from ai import BOT_task
 from alice_fen import py2fsf
 from const import (
@@ -150,30 +152,32 @@ class PychessGlobalAppState:
         try:
             db_collections = await self.db.list_collection_names()
 
-            if "tournament_chat" not in db_collections:
-                await self.db.create_collection("tournament_chat")
-                await self.db.tournament_chat.create_index("tid")
+            # Prevent unit test slowdown when db_client is AsyncMongoMockClient
+            if not isinstance(self.db_client, AsyncMongoMockClient):
+                if "tournament_chat" not in db_collections:
+                    await self.db.create_collection("tournament_chat")
+                    await self.db.tournament_chat.create_index("tid")
 
-            await self.db.tournament.create_index("startsAt")
-            await self.db.tournament.create_index("status")
+                await self.db.tournament.create_index("startsAt")
+                await self.db.tournament.create_index("status")
 
-            cursor = self.db.tournament.find(
-                {"$or": [{"status": T_STARTED}, {"status": T_CREATED}]}
-            )
-            cursor.sort("startsAt", -1)
-            to_date = (datetime.now() + timedelta(days=SCHEDULE_MAX_DAYS)).date()
-            async for doc in cursor:
-                if doc["status"] == T_STARTED or (
-                    doc["status"] == T_CREATED and doc["startsAt"].date() <= to_date
-                ):
-                    await load_tournament(self, doc["_id"])
-            self.tournaments_loaded.set()
+                cursor = self.db.tournament.find(
+                    {"$or": [{"status": T_STARTED}, {"status": T_CREATED}]}
+                )
+                cursor.sort("startsAt", -1)
+                to_date = (datetime.now() + timedelta(days=SCHEDULE_MAX_DAYS)).date()
+                async for doc in cursor:
+                    if doc["status"] == T_STARTED or (
+                        doc["status"] == T_CREATED and doc["startsAt"].date() <= to_date
+                    ):
+                        await load_tournament(self, doc["_id"])
+                self.tournaments_loaded.set()
 
-            already_scheduled = await get_scheduled_tournaments(self)
-            new_tournaments_data = new_scheduled_tournaments(already_scheduled)
-            await create_scheduled_tournaments(self, new_tournaments_data)
+                already_scheduled = await get_scheduled_tournaments(self)
+                new_tournaments_data = new_scheduled_tournaments(already_scheduled)
+                await create_scheduled_tournaments(self, new_tournaments_data)
 
-            asyncio.create_task(generate_shield(self))
+                asyncio.create_task(generate_shield(self))
 
             if "highscore" not in db_collections:
                 await generate_highscore(self)
