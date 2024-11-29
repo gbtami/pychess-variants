@@ -3,13 +3,9 @@
 import string
 import unittest
 
-import pyffish as sf
-
 from compress import get_encode_method, get_decode_method
 from fairy import FairyBoard
 from const import VARIANTS
-
-sf.set_option("VariantPath", "variants.ini")
 
 
 class EncodeDecodeTestCase(unittest.TestCase):
