@@ -29,7 +29,7 @@
     "fairy-stockfish-nnue.wasm": "^1.1.8",
     "ffish-es6": "^0.7.6",
     "gettext.js": "^2.0.3",
-    "highcharts": "^11.4.8",
+    "highcharts": "^12.0.1",
     "howler": "^2.2.3",
     "html-to-image": "^1.11.11",
     "idb-keyval": "^6.2.1",

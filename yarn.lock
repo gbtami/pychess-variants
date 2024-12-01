@@ -1618,10 +1618,10 @@ hasown@^2.0.2:
   dependencies:
     function-bind "^1.1.2"
 
-highcharts@^11.4.8:
-  version "11.4.8"
-  resolved "https://registry.yarnpkg.com/highcharts/-/highcharts-11.4.8.tgz#252e71b81c24ec9f99e756b76dbebd7546e18dda"
-  integrity sha512-5Tke9LuzZszC4osaFisxLIcw7xgNGz4Sy3Jc9pRMV+ydm6sYqsPYdU8ELOgpzGNrbrRNDRBtveoR5xS3SzneEA==
+highcharts@^12.0.1:
+  version "12.0.1"
+  resolved "https://registry.yarnpkg.com/highcharts/-/highcharts-12.0.1.tgz#a8c45938a510fc23ca5380dbfec5f82cd0eee5c9"
+  integrity sha512-86pku0cZnHfEu6uqbbEpU50XKHcAFFXeD4pYvxlVBRDLRDlxpT0WuClgJBuBJZof1ZjFUh1D7IxUxFgt9Epb7Q==
 
 howler@^2.2.3:
   version "2.2.4"
