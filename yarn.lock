@@ -1084,10 +1084,10 @@ char-regex@^1.0.2:
   resolved "https://registry.yarnpkg.com/char-regex/-/char-regex-1.0.2.tgz#d744358226217f981ed58f479b1d6bcc29545dcf"
   integrity sha512-kWWXztvZ5SBQV+eRgKFeh8q5sLuZY2+8WUIzlxWVTg+oGwY14qylx1KbKzHd8P6ZYkAg0xyIDU9JMHhyJMZ1jw==
 
-chessgroundx@^10.6.3:
-  version "10.6.3"
-  resolved "https://registry.yarnpkg.com/chessgroundx/-/chessgroundx-10.6.3.tgz#c4a1509af4c7f51e2e46f6682e708f885f4b7839"
-  integrity sha512-URPPcHlX3XYMmrCsXBmrPznrxOPWPCCIDZWCJYTHmSEq+qWchK8GUZCAX81UPij1jI+niJtoA4+yGpk8ufAWsg==
+chessgroundx@^10.7.0:
+  version "10.7.0"
+  resolved "https://registry.yarnpkg.com/chessgroundx/-/chessgroundx-10.7.0.tgz#7f0fb0abf82057af1b506337a719e3a0a0475088"
+  integrity sha512-gL+bahB6JcjJKOvcCnyIVPV7jdl9uE19GUpJ+1VpeiOXCmxaBJka0LD0c+fmSF8kT8qd8nzKm0BucG2hq1GcmA==
 
 chessops@^0.14.1:
   version "0.14.1"
