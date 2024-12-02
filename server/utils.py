@@ -30,7 +30,16 @@ from const import (
 )
 from compress import get_decode_method, get_encode_method, R2C, C2R, V2C, C2V
 from convert import mirror5, mirror9, grand2zero, zero2grand
-from fairy import BLACK, WHITE, STANDARD_FEN, FairyBoard
+from fairy import (
+    BLACK,
+    WHITE,
+    STANDARD_FEN,
+    FairyBoard,
+    FEN_OK,
+    NOTATION_SAN,
+    get_san_moves,
+    validate_fen,
+)
 from game import Game
 from newid import new_id
 from user import User
@@ -42,13 +51,6 @@ if TYPE_CHECKING:
 from pychess_global_app_state_utils import get_app_state
 
 log = logging.getLogger(__name__)
-
-try:
-    import pyffish as sf
-
-    sf.set_option("VariantPath", "variants.ini")
-except ImportError:
-    log.error("No pyffish module installed!", exc_info=True)
 
 
 async def tv_game(app_state: PychessGlobalAppState):
@@ -676,11 +678,11 @@ def pgn(doc):
     fen = initial_fen if initial_fen is not None else FairyBoard.start_fen(variant)
     # print(variant, fen, mlist)
     try:
-        mlist = sf.get_san_moves(variant, fen, mlist, chess960, sf.NOTATION_SAN)
+        mlist = get_san_moves(variant, fen, mlist, chess960, NOTATION_SAN)
     except Exception as e:
         log.error(e, exc_info=True)
         try:
-            mlist = sf.get_san_moves(variant, fen, mlist[:-1], chess960, sf.NOTATION_SAN)
+            mlist = get_san_moves(variant, fen, mlist[:-1], chess960, NOTATION_SAN)
         except Exception:
             log.exception("%s %s %s movelist contains invalid move", doc["_id"], variant, doc["d"])
             mlist = mlist[0]
@@ -728,8 +730,8 @@ def sanitize_fen(variant, initial_fen, chess960):
     if variant in VALID_FEN and initial_fen in VALID_FEN[variant]:
         return True, initial_fen
 
-    sf_validate = sf.validate_fen(initial_fen, variant, chess960)
-    if sf_validate != sf.FEN_OK and variant != "duck":
+    sf_validate = validate_fen(initial_fen, variant, chess960)
+    if sf_validate != FEN_OK and variant != "duck":
         return False, ""
 
     # Initial_fen needs validation to prevent segfaulting in pyffish

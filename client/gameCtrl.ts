@@ -82,6 +82,7 @@ export abstract class GameController extends ChessgroundController implements Ch
     vmiscInfoB: VNode;
     ctableContainer: VNode | HTMLElement;
     clickDrop: cg.Piece | undefined;
+    mirrorBoard: boolean;
 
     spectator: boolean;
 
@@ -116,6 +117,7 @@ export abstract class GameController extends ChessgroundController implements Ch
         this.rated = model["rated"];
         this.corr = model["corr"] === 'True';
         this.fog = this.variant.name === 'fogofwar';
+        this.mirrorBoard = false;
 
         this.spectator = this.username !== this.wplayer && this.username !== this.bplayer;
 
@@ -303,6 +305,39 @@ export abstract class GameController extends ChessgroundController implements Ch
         });
     }
 
+    getAliceFen(fen: string): string {
+        if (!this.mirrorBoard) {
+            return fen;
+        } else {
+            const placement = fen.split(" ")[0];
+            let newPlacement: string[] = [];
+            let mirrorPiece: boolean = false;
+            for (const c of placement) {
+                if ('12345678/'.includes(c)) {
+                    newPlacement.push(c);
+                } else {
+                    if (c === '|') {
+                        mirrorPiece = true;
+                    } else {
+                        if (mirrorPiece) {
+                            newPlacement.push(c);
+                            mirrorPiece = false;
+                        } else {
+                            newPlacement.push('|');
+                            newPlacement.push(c);
+                        }
+                    }
+                }
+            }
+            return newPlacement.join('');
+        }
+    }
+
+    switchAliceBoards(): void {
+        this.mirrorBoard = !this.mirrorBoard;
+        this.chessground.set({ fen: this.getAliceFen(this.fullfen) });
+    }
+
     goPly(ply: number, plyVari = 0) {
         // console.log("gameCtrl.goPly()");
         const vv = this.steps[plyVari]?.vari;
@@ -318,8 +353,9 @@ export abstract class GameController extends ChessgroundController implements Ch
             capture = (piece !== undefined && piece.role !== '_-piece' && step.san?.slice(0, 2) !== 'O-') || (step.san?.slice(1, 2) === 'x');
         }
 
+        const fen = (this.mirrorBoard) ? this.getAliceFen(step.fen) : step.fen;
         this.chessground.set({
-            fen: (this.fog) ? this.fogFen(step.fen) : step.fen,
+            fen: (this.fog) ? this.fogFen(fen) : fen,
             turnColor: step.turnColor,
             movable: {
                 color: step.turnColor,

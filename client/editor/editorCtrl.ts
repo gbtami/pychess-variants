@@ -13,7 +13,6 @@ import { ChessgroundController } from '@/cgCtrl';
 import { copyTextToClipboard } from '@/clipboard';
 import { initPieceRow } from './pieceRow';
 import { setPocketRowCssVars } from '@/pocketRow';
-import { getFullFenFromUnionFen, getUnionFenFromFullFen, movePieceToTheOtherBoard } from '@/alice';
 import { AliceMirrorSettings } from './editorSettings';
 
 
@@ -291,7 +290,7 @@ export class EditorController extends ChessgroundController {
     private onChangeFen = () => {
         const fen = (document.getElementById('fen') as HTMLInputElement).value;
         this.parts = fen.split(' ');
-        this.chessground.set({ fen: (this.variant.name === 'alice') ? getUnionFenFromFullFen(fen, 0) : fen });
+        this.chessground.set({ fen: fen });
         this.setInvalid(!this.validFen());
 
         if (this.parts.length > 1) {
@@ -336,14 +335,6 @@ export class EditorController extends ChessgroundController {
         // onChange() will get then set and validate FEN from chessground pieces
         this.parts[0] = this.chessground.getFen();
         this.fullfen = this.parts.join(' ');
-
-        if (this.variant.name === 'alice') {
-            const pieces = this.chessground.state.boardState.pieces;
-            const otherBoardPieces = [...pieces].filter(([_, v]) => v.promoted).map(e => e[0]);
-            this.fullfen = getFullFenFromUnionFen(this.fullfen, otherBoardPieces);
-            this.parts = this.fullfen.split(' ');
-        }
-
         const e = document.getElementById('fen') as HTMLInputElement;
         e.value = this.fullfen;
         this.setInvalid(!this.validFen());
@@ -390,7 +381,7 @@ export class EditorController extends ChessgroundController {
             } else {
                 const aliceMirrorOn = (this.variant.name === 'alice' && this.aliceMirror);
                 if (aliceMirrorOn && piece) {
-                    this.fullfen = movePieceToTheOtherBoard(this.fullfen, key);
+                    this.movePieceToTheOtherBoard(key);
                     const e = document.getElementById('fen') as HTMLInputElement;
                     e.value = this.fullfen;
                     this.onChangeFen();
@@ -402,7 +393,7 @@ export class EditorController extends ChessgroundController {
         }
     }
 
-    private dropOnPocket = (): void => {
+    private dropOnPocket = () => {
         const dragCurrent = this.chessground.state.draggable.current;
         if (dragCurrent) {
             const el = document.elementFromPoint(dragCurrent.pos[0], dragCurrent.pos[1]);
@@ -414,6 +405,36 @@ export class EditorController extends ChessgroundController {
                 const color = el?.getAttribute('data-color') as cg.Color;
                 this.chessground.changePocket({ role, color }, 1);
                 this.onChangeBoard();
+            }
+        }
+    }
+
+    private movePieceToTheOtherBoard = (key: cg.Key) => {
+        const files = "abcdefgh";
+        const fenParts = this.fullfen.split(" ");
+        const placement = fenParts[0].split('/');
+        const rank = 8 - parseInt(key[1]);
+        let part = placement[rank];
+        let file_idx = 0;
+        let part_idx = 0;
+        for (const c of part) {
+            if (c >= '1' && c <= '8') {
+                file_idx += parseInt(c);
+                part_idx += 1;
+            } else {
+                if (files[file_idx] === key[0]) {
+                    if (part[part_idx] === '|') {
+                        placement[rank] = part.slice(0, part_idx) + part.slice(part_idx + 1);
+                    } else {
+                        placement[rank] = part.slice(0, part_idx) + '|' + part.slice(part_idx);
+                    }
+                    fenParts[0] = placement.join('/');
+                    this.fullfen = fenParts.join(' ');
+                    break;
+                } else {
+                    if (c !== '|') file_idx += 1;
+                    part_idx += 1;
+                }
             }
         }
     }

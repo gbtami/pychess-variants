@@ -2,6 +2,8 @@ import { h, VNode } from 'snabbdom';
 
 import ffishModule, { FairyStockfish } from 'ffish-es6';
 
+import ffishAliceModule from 'ffish-alice-es6';
+
 import { _, i18n } from './i18n';
 import { aboutView } from './about';
 import { settingsView, hideSettings } from './settingsView';
@@ -167,12 +169,21 @@ function start() {
 
         if (['round', 'analysis', 'puzzle', 'editor', 'tv', 'embed', 'paste'].includes(el.getAttribute("data-view") ?? "")) {
             console.time('load ffish');
-            ffishModule().then((loadedModule: any) => {
-                console.timeEnd('load ffish');
-                loadedModule.loadVariantConfig(variantsIni);
-                model.ffish = loadedModule;
-                patch(placeholder, view(el, model));
-            });
+            if (model["variant"] === "alice") {
+                ffishAliceModule().then((loadedModule: any) => {
+                    console.timeEnd('load ffish_alice');
+                    loadedModule.loadVariantConfig(variantsIni);
+                    model.ffish = loadedModule;
+                    patch(placeholder, view(el, model));
+                });
+            } else {
+                ffishModule().then((loadedModule: any) => {
+                    console.timeEnd('load ffish');
+                    loadedModule.loadVariantConfig(variantsIni);
+                    model.ffish = loadedModule;
+                    patch(placeholder, view(el, model));
+                });
+            }
         } else  {
             patch(placeholder, view(el, model));
         }

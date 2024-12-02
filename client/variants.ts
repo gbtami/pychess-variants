@@ -6,7 +6,6 @@ import * as util from 'chessgroundx/util';
 import { DARK_FEN, BoardMarkType, ColorName, CountingType, MaterialPointType, PieceSoundType, PromotionSuffix, PromotionType, TimeControlType, uci2LastMove } from './chess';
 import { _ } from './i18n';
 import { calculateDiff, Equivalence, MaterialDiff } from './material';
-import { getUnionFenFromFullFen } from './alice'; 
 
 export interface BoardFamily {
     readonly dimensions: cg.BoardDimensions;
@@ -480,14 +479,14 @@ export const VARIANTS: Record<string, Variant> = {
 
     alice: variant({
         name: "alice", tooltip: "Through the Looking-Glass",
-        startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1 | 8/8/8/8/8/8/8/8 w - - 0 1",
+        startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
         icon: "👧",
         boardFamily: "standard8x8", pieceFamily: "standard",
         pieceRow: ["k", "q", "r", "b", "n", "p"],
         rules: { enPassant: false },
         alternateStart: {
             '': "",
-            'Looking glass': "8/8/8/8/8/8/PPPPPPPP/RNBQKBNR w KQ - 0 1 | rnbqkbnr/pppppppp/8/8/8/8/8/8 w kq - 0 1",
+            'Looking glass': "|r|n|b|q|k|b|n|r/|p|p|p|p|p|p|p|p/8/8/8/8/PPPPPPPP/RNBQKBNR w KQ - 0 1",
         },
         // For Alice chess other board pieces we use promoted pieces to let them style differently,
         ui: { boardMark: 'alice' },
@@ -1103,7 +1102,6 @@ export const noPuzzleVariants = [
     "shinobiplus",
     "cannonshogi",
     "bughouse",
-    "alice",
     "fogofwar",
     "racingkings",
     "antichess",
@@ -1169,8 +1167,6 @@ export function moddedVariant(variantName: string, chess960: boolean, pieces: cg
 
 export function getLastMoveFen(variantName: string, lastMove: string, fen: string, result: string): [cg.Orig[] | undefined, string] {
     switch (variantName) {
-        case 'alice':
-            return [uci2LastMove(lastMove), getUnionFenFromFullFen(fen, 0)];
         case 'fogofwar':
             // Prevent leaking ongoing game info
             return [undefined, (result === "*") ? DARK_FEN : fen];

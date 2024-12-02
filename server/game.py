@@ -33,8 +33,7 @@ from const import (
     TYPE_CHECKING,
 )
 from convert import grand2zero, uci2usi, mirror5, mirror9
-from fairy import FairyBoard, BLACK, WHITE
-from alice import AliceBoard
+from fairy import get_san_moves, NOTATION_SAN, FairyBoard, BLACK, WHITE
 from glicko2.glicko2 import gl2
 from draw import reject_draw
 from settings import URI
@@ -43,15 +42,6 @@ from spectators import spectators
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
     from user import User
-
-log = logging.getLogger(__name__)
-
-try:
-    import pyffish as sf
-
-    sf.set_option("VariantPath", "variants.ini")
-except ImportError:
-    log.error("No pyffish module installed!", exc_info=True)
 
 log = logging.getLogger(__name__)
 
@@ -227,12 +217,9 @@ class Game:
                 disabled_fen = self.initial_fen
                 self.initial_fen = ""
 
-        if self.variant == "alice":
-            self.board = AliceBoard(self.initial_fen)
-        else:
-            self.board = FairyBoard(
-                self.variant, self.initial_fen, self.chess960, count_started, disabled_fen
-            )
+        self.board = FairyBoard(
+            self.variant, self.initial_fen, self.chess960, count_started, disabled_fen
+        )
 
         # Janggi setup needed when player is not BOT
         if self.variant == "janggi":
@@ -418,9 +405,6 @@ class Game:
                         await opp_player.notify_game_end(self)
                 else:
                     await self.save_move(move)
-                    # SAN checkmate indicator created by pyffish may be wrong in Alice chess
-                    if san[-1] in ("#", "+") and not self.check:
-                        san = san[:-1]
 
                 self.steps.append(
                     {
@@ -851,22 +835,17 @@ class Game:
 
     @property
     def pgn(self):
-        if self.variant == "alice" and len(self.steps) > 1:
-            # sf.get_san_moves() fails (FSF doesn't support Alice), but
-            # if we already have the san moves in self.steps we can use them.
-            mlist = [step["san"] for step in self.steps[1:]]
-        else:
-            try:
-                mlist = sf.get_san_moves(
-                    self.variant,
-                    self.initial_fen if self.initial_fen else self.board.initial_fen,
-                    self.board.move_stack,
-                    self.chess960,
-                    sf.NOTATION_SAN,
-                )
-            except Exception:
-                log.error("ERROR: Exception in game %s pgn()", self.id, exc_info=True)
-                mlist = self.board.move_stack
+        try:
+            mlist = get_san_moves(
+                self.variant,
+                self.initial_fen if self.initial_fen else self.board.initial_fen,
+                self.board.move_stack,
+                self.chess960,
+                NOTATION_SAN,
+            )
+        except Exception:
+            log.error("ERROR: Exception in game %s pgn()", self.id, exc_info=True)
+            mlist = self.board.move_stack
 
         moves = " ".join(
             (
@@ -1089,10 +1068,6 @@ class Game:
                 self.board.push(move, append=False)
                 self.check = self.board.is_checked()
                 turnColor = "black" if self.board.color == BLACK else "white"
-
-                # SAN checkmate indicator created by pyffish may be wrong in Alice chess
-                if san[-1] in ("#", "+") and not self.check:
-                    san = san[:-1]
 
                 if self.usi_format:
                     turnColor = "black" if turnColor == "white" else "white"

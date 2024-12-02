@@ -1,14 +1,10 @@
-from const import MANCHU_FEN, MANCHU_R_FEN
+from const import LOOKING_GLASS_ALICE_FEN, MANCHU_FEN, MANCHU_R_FEN
 from fairy import STANDARD_FEN
 
 
 VALID_FEN = {
-    "alice": (
-        "8/8/8/8/8/8/PPPPPPPP/RNBQKBNR w KQ - 0 1 | rnbqkbnr/pppppppp/8/8/8/8/8/8 w kq - 0 1",  # Lookig glass
-    ),
-    "fogofwar": {
-        STANDARD_FEN,
-    },
+    "alice": (LOOKING_GLASS_ALICE_FEN,),
+    "fogofwar": (STANDARD_FEN,),
     "capablanca": (
         "rnbcqkabnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBCQKABNR w KQkq - 0 1",  # Bird
         "ranbqkbncr/pppppppppp/10/10/10/10/PPPPPPPPPP/RANBQKBNCR w KQkq - 0 1",  # Carrera

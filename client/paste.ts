@@ -115,6 +115,7 @@ export function pasteView(model: PyChessModel): VNode[] {
                     if (v) variant = v.toLowerCase();
 
                     if (variant === 'alice') {
+                        // TODO
                         const error = _('Importing Alice PGN is not supported');
                         e.setCustomValidity(error);
                         alert(error);

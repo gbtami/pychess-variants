@@ -26,7 +26,6 @@ from const import (
     TRANSLATED_VARIANT_NAMES,
     TRANSLATED_PAIRING_SYSTEM_NAMES,
 )
-from alice import AliceBoard
 from fairy import FairyBoard
 from glicko2.glicko2 import PROVISIONAL_PHI
 from robots import ROBOTS_TXT
@@ -704,10 +703,7 @@ async def index(request):
 
     elif view == "editor" or (view == "analysis" and gameId is None):
         if fen is None:
-            if variant == "alice":
-                fen = AliceBoard.start_fen()
-            else:
-                fen = FairyBoard.start_fen(variant)
+            fen = FairyBoard.start_fen(variant)
         else:
             fen = fen.replace(".", "+").replace("_", " ")
         render["variant"] = variant

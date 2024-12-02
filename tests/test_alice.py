@@ -2,12 +2,7 @@
 
 import unittest
 
-import pyffish as sf
-from chess import A1, C1, D1, E1, F1, A8, B8, C8, D8, E8, F8, G8, H8, KING, QUEEN, ROOK
-
-from alice import AliceBoard, START_FEN_0, START_FEN_1
-
-sf.set_option("VariantPath", "variants.ini")
+from fairy import FairyBoard, STANDARD_FEN
 
 # https://en.wikipedia.org/wiki/Alice_chess#Early_mates
 MATE1 = ("e2e4", "d7d5", "f1e2", "d5e4", "e2b5")
@@ -104,7 +99,7 @@ QUEEN_DISAPPEARED = (
 class AliceTestCase(unittest.TestCase):
     def test_checkmate(self):
         for movelist in (MATE1, MATE2, MATE3, MATE4, MATE5):
-            board = AliceBoard()
+            board = FairyBoard("alice")
             for move in movelist:
                 board.push(move)
             self.assertTrue(board.is_checked())
@@ -112,26 +107,21 @@ class AliceTestCase(unittest.TestCase):
 
             for _ in range(len(movelist)):
                 board.pop()
-            self.assertEqual(board.fens[0], START_FEN_0)
-            self.assertEqual(board.fens[1], START_FEN_1)
+
+            self.assertEqual(board.fen, STANDARD_FEN)
 
     def test_game_with_castling(self):
-        board = AliceBoard()
+        board = FairyBoard("alice")
         for move in GAME_PART1:
             board.push(move)
 
         # After 11. 0-0-0
-        self.assertIsNone(board.boards[0].piece_at(A1))
-        self.assertIsNone(board.boards[0].piece_at(C1))
-        self.assertIsNone(board.boards[0].piece_at(D1))
-        self.assertIsNone(board.boards[0].piece_at(E1))
-
-        self.assertEqual(board.boards[1].piece_type_at(C1), KING)
-        self.assertEqual(board.boards[1].piece_type_at(D1), ROOK)
+        FEN = "2bqkb2/pp1ppp2/2|n2|n1|p/2|pNB2|r/3P2|r1/4|P|N2/PPP|Q2PP/2|K|R1B1R b - - 4 11"
+        self.assertEqual(board.fen, FEN)
 
         # The black queen is now effectively 'pinned': 11...Q–c7/b6?? 12.Qd8#.)
         board.push("d8b6")
-        board.push("d1d8")
+        board.push("d2d8")
         self.assertTrue(board.is_checked())
         self.assertFalse(board.has_legal_move())
         board.pop()
@@ -164,19 +154,18 @@ class AliceTestCase(unittest.TestCase):
 
         for _ in range(len(GAME_PART1) + len(GAME_PART2)):
             board.pop()
-        self.assertEqual(board.fens[0], START_FEN_0)
-        self.assertEqual(board.fens[1], START_FEN_1)
+        self.assertEqual(board.fen, STANDARD_FEN)
 
     def test_game_without_castling1(self):
-        board = AliceBoard()
+        board = FairyBoard("alice")
         for move in GHOST_ROOKS_PART1:
             board.get_san(move)
             board.legal_moves()
             board.push(move)
 
         # After 5...Bxc7
-        self.assertIsNone(board.boards[0].piece_at(F8))
-        self.assertIsNone(board.boards[1].piece_at(F8))
+        FEN = "rnbqk2r/ppbp1ppp/8/4|p3/4n3/3|B4/PPPP1PPP/R1BQK1NR w KQkq - 0 6"
+        self.assertEqual(board.fen, FEN)
 
         for move in GHOST_ROOKS_PART2:
             board.get_san(move)
@@ -184,61 +173,45 @@ class AliceTestCase(unittest.TestCase):
             board.push(move)
 
         # After 8. Nd4
-        self.assertIsNone(board.boards[0].piece_at(F1))
-        self.assertIsNone(board.boards[1].piece_at(F1))
+        FEN = "rnb1k2r/ppbp|qppp/3|n4/4|p3/3N4/3|B1|P2/PPPP2PP/R1BQK2R b KQkq - 4 8"
+        self.assertEqual(board.fen, FEN)
 
     def test_game_without_castling2(self):
-        board = AliceBoard()
+        board = FairyBoard("alice")
         for move in QUEEN_DISAPPEARED:
             board.get_san(move)
             board.legal_moves()
             board.push(move)
 
         # After 5...Rc8
-        self.assertIsNone(board.boards[0].piece_at(D8))
-        self.assertEqual(board.boards[1].piece_type_at(D8), QUEEN)
+        FEN = "2|r|Qkb1r/ppp|bpppp/|n4|n2/3N2|B1/3|P4/8/PPP1PPPP/R3KBNR w KQk - 3 6"
+        self.assertEqual(board.fen, FEN)
 
     def test_castling(self):
-        FEN = "r3k2r/1pp1pp2/4P3/2PP4/6n1/7p/5PPP/R3K2R b KQkq - 0 13 | 1q6/3b2b1/P1np2p1/8/8/2N1BN2/1pQ5/5B2 b - - 0 6"
-        board = AliceBoard(initial_fen=FEN)
+        FEN = "r|q2k2r/1pp|bpp|b1/|P1|n|pP1|p1/2PP4/6n1/2|N1|B|N1p/1|p|Q2PPP/R3K|B1R b KQkq - 0 13"
+        board = FairyBoard("alice", initial_fen=FEN)
 
         move = "e8c8"
         board.get_san(move)
         board.legal_moves()
         board.push(move)
 
-        self.assertIsNone(board.boards[0].piece_at(A8))
-        self.assertIsNone(board.boards[0].piece_at(B8))
-        self.assertIsNone(board.boards[0].piece_at(C8))
-        self.assertIsNone(board.boards[0].piece_at(D8))
-        self.assertIsNone(board.boards[0].piece_at(E8))
-        self.assertIsNone(board.boards[0].piece_at(F8))
-        self.assertIsNone(board.boards[0].piece_at(G8))
-        self.assertEqual(board.boards[1].piece_type_at(C8), KING)
-        self.assertEqual(board.boards[1].piece_type_at(D8), ROOK)
-        self.assertEqual(board.boards[0].piece_type_at(H8), ROOK)
+        FEN_OOO = "1|q|k|r3r/1pp|bpp|b1/|P1|n|pP1|p1/2PP4/6n1/2|N1|B|N1p/1|p|Q2PPP/R3K|B1R w KQ - 1 14"
+        self.assertEqual(board.fen, FEN_OOO)
 
         board.pop()
-        self.assertEqual(board.alice_fen, FEN)
+        self.assertEqual(board.fen, FEN)
 
         move = "e8g8"
         board.get_san(move)
         board.legal_moves()
         board.push(move)
 
-        self.assertIsNone(board.boards[0].piece_at(B8))
-        self.assertIsNone(board.boards[0].piece_at(C8))
-        self.assertIsNone(board.boards[0].piece_at(D8))
-        self.assertIsNone(board.boards[0].piece_at(E8))
-        self.assertIsNone(board.boards[0].piece_at(F8))
-        self.assertIsNone(board.boards[0].piece_at(G8))
-        self.assertIsNone(board.boards[0].piece_at(H8))
-        self.assertEqual(board.boards[1].piece_type_at(G8), KING)
-        self.assertEqual(board.boards[0].piece_type_at(A8), ROOK)
-        self.assertEqual(board.boards[1].piece_type_at(F8), ROOK)
+        FEN_OO = "r|q3|r|k1/1pp|bpp|b1/|P1|n|pP1|p1/2PP4/6n1/2|N1|B|N1p/1|p|Q2PPP/R3K|B1R w KQ - 1 14"
+        self.assertEqual(board.fen, FEN_OO)
 
         board.pop()
-        self.assertEqual(board.alice_fen, FEN)
+        self.assertEqual(board.fen, FEN)
 
 
 if __name__ == "__main__":

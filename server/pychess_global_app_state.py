@@ -16,7 +16,10 @@ import jinja2
 from pythongettext.msgfmt import Msgfmt, PoSyntaxError
 from sortedcollections import ValueSortedDict
 
+from mongomock_motor import AsyncMongoMockClient
+
 from ai import BOT_task
+from alice_fen import py2fsf
 from const import (
     NONE_USER,
     VARIANTS,
@@ -165,7 +168,9 @@ class PychessGlobalAppState:
                 if doc["status"] == T_STARTED or (
                     doc["status"] == T_CREATED and doc["startsAt"].date() <= to_date
                 ):
-                    await load_tournament(self, doc["_id"])
+                    # Prevent unit test slowdown when db_client is AsyncMongoMockClient
+                    if not isinstance(self.db_client, AsyncMongoMockClient):
+                        await load_tournament(self, doc["_id"])
             self.tournaments_loaded.set()
 
             already_scheduled = await get_scheduled_tournaments(self)
@@ -225,6 +230,33 @@ class PychessGlobalAppState:
             await self.db.game.create_index("y")
             await self.db.game.create_index("by")
             await self.db.game.create_index("c")
+
+            # Convert Alice FENs to FSF format
+            # TODO: remove after deployed
+            doc = await self.db.puzzle.find_one({"_id": "ecila"})
+            py2fsf_needed = doc is None
+            if py2fsf_needed:
+                cursor = self.db.game.find({"v": "Y"})
+                async for doc in cursor:
+                    fen = doc["f"]
+                    ifen = doc.get("if")
+                    if " | " in fen:
+                        new_data = {"f": py2fsf(fen)}
+                        if ifen is not None:
+                            new_data["if"] = py2fsf(ifen)
+                        await self.db.game.update_one({"_id": doc["_id"]}, {"$set": new_data})
+
+                matein1 = {
+                    "_id": "ecila",
+                    "variant": "alice",
+                    "fen": "rnb1kbnr/ppp1pppp/|B7/3|p4/8/4|P3/PPP|q1PPP/RNBQK1NR w KQkq - 0 1",
+                    "site": "https://www.pychess.org/KGoHCcF0",
+                    "type": "mate",
+                    "eval": "#1",
+                    "lm": "d8d2",
+                    "moves": "a6b5",
+                }
+                await self.db.puzzle.insert_one(matein1)
 
             if "notify" not in db_collections:
                 await self.db.create_collection("notify")
