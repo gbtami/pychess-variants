@@ -2,7 +2,7 @@
 <div class="meta-headline">
     <div class= "meta">
         <span class="text">2024.11.27</span>
-        <span class="text"><a href="/@/h.g.muller">H.G.Muller</a></span>
+        <span class="text"><a href="/@/HGMuller">H.G.Muller</a></span>
         <span class="text">Blog</span>
     </div>
     <div class= "headline">Elephant vs Rook</div>
