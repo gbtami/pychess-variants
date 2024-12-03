@@ -1026,9 +1026,9 @@ camelcase@^6.2.0:
   integrity sha512-Gmy6FhYlCY7uOElZUSbxo2UCDH8owEk996gkbrpsgGtrJLM3J7jGxl9Ic7Qwwj4ivOE5AWZWRMecDdF7hqGjFA==
 
 caniuse-lite@^1.0.30001669:
-  version "1.0.30001685"
-  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001685.tgz#2d10d36c540a9a5d47ad6ab9e1ed5f61fdeadd8c"
-  integrity sha512-e/kJN1EMyHQzgcMEEgoo+YTCO1NGCmIYHk5Qk8jT6AazWemS5QFKJ5ShCJlH3GZrNIdZofcNCEwZqbMjjKzmnA==
+  version "1.0.30001686"
+  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001686.tgz#0e04b8d90de8753188e93c9989d56cb19d902670"
+  integrity sha512-Y7deg0Aergpa24M3qLC5xjNklnKnhsmSyR/V89dLZ1n0ucJIFNs7PgR2Yfa/Zf6W79SbBicgtGxZr2juHkEUIA==
 
 chalk@^4.0.0, chalk@^4.0.2, chalk@^4.1.2:
   version "4.1.2"
@@ -1043,10 +1043,10 @@ char-regex@^1.0.2:
   resolved "https://registry.yarnpkg.com/char-regex/-/char-regex-1.0.2.tgz#d744358226217f981ed58f479b1d6bcc29545dcf"
   integrity sha512-kWWXztvZ5SBQV+eRgKFeh8q5sLuZY2+8WUIzlxWVTg+oGwY14qylx1KbKzHd8P6ZYkAg0xyIDU9JMHhyJMZ1jw==
 
-chessgroundx@^10.7.0:
-  version "10.7.0"
-  resolved "https://registry.yarnpkg.com/chessgroundx/-/chessgroundx-10.7.0.tgz#7f0fb0abf82057af1b506337a719e3a0a0475088"
-  integrity sha512-gL+bahB6JcjJKOvcCnyIVPV7jdl9uE19GUpJ+1VpeiOXCmxaBJka0LD0c+fmSF8kT8qd8nzKm0BucG2hq1GcmA==
+chessgroundx@^10.7.1:
+  version "10.7.1"
+  resolved "https://registry.yarnpkg.com/chessgroundx/-/chessgroundx-10.7.1.tgz#7083e98d1b520bba9f841b7031cab87d65b75a07"
+  integrity sha512-F4LdlQyEhl7bCj9LKo2sPBlVUCmm9u6ru9iLJPLVj85YrqKsr5ZGyshf17MlvWcsDpWxQFBqWQHafOOQ7nzQFw==
 
 chessops@^0.14.1:
   version "0.14.2"
