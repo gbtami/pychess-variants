@@ -24,7 +24,7 @@
     "@fullcalendar/interaction": "^6.1.15",
     "@fullcalendar/list": "^6.1.15",
     "@fullcalendar/timegrid": "^6.1.15",
-    "chessgroundx": "^10.7.0",
+    "chessgroundx": "^10.7.1",
     "chessops": "^0.14.1",
     "fairy-stockfish-nnue.wasm": "^1.1.8",
     "ffish-es6": "^0.7.6",
