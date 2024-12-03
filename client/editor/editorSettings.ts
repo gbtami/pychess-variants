@@ -10,7 +10,7 @@ export class AliceMirrorSettings extends BooleanSettings {
     ctrl: EditorController;
 
     constructor(ctrl: EditorController) {
-        super('editor_aliceMirror', false);
+        super('aliceMirror', false);
         this.ctrl = ctrl;
     }
 

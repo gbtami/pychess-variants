@@ -37,6 +37,9 @@ export class EditorController extends ChessgroundController {
         this.parts = this.startfen.split(" ");
         this.castling = this.parts.length > 2 ? this.parts[2] : '';
 
+        // is aliceMirror on? (the switch)
+        this.aliceMirror = localStorage.aliceMirror === undefined ? false : localStorage.aliceMirror === "true";
+
         this.chessground.set({
             autoCastle: false,
             orientation: this.mycolor,
