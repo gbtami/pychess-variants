@@ -8,6 +8,8 @@ import queue
 from typing import List, Set
 
 from aiohttp import web
+from aiohttp.web_ws import WebSocketResponse
+
 import os
 from datetime import timedelta, timezone, datetime, date
 from operator import neg
@@ -60,7 +62,6 @@ from twitch import Twitch
 from user import User
 from users import Users, NotInDbUsers
 from utils import load_game
-from websocket_utils import MyWebSocketResponse
 from blogs import BLOGS
 from videos import VIDEOS
 from youtube import Youtube
@@ -84,7 +85,7 @@ class PychessGlobalAppState:
         self.disable_new_anons = False
         self.lobby = Lobby(self)
         # one dict per tournament! {tournamentId: {user.username: user.tournament_sockets, ...}, ...}
-        self.tourneysockets: dict[str, MyWebSocketResponse] = {}
+        self.tourneysockets: dict[str, WebSocketResponse] = {}
 
         # translated scheduled tournament names {(variant, frequency, t_type): tournament.name, ...}
         self.tourneynames: dict[str, dict] = {lang: {} for lang in LANGUAGES}

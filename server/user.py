@@ -7,6 +7,7 @@ from typing import Set, List
 
 import aiohttp_session
 from aiohttp import web
+from aiohttp.web_ws import WebSocketResponse
 
 from broadcast import round_broadcast
 from const import ANON_PREFIX, STARTED, VARIANTS
@@ -16,7 +17,7 @@ from newid import id8
 from notify import notify
 from const import BLOCK, MAX_USER_BLOCK, TYPE_CHECKING
 from seek import Seek
-from websocket_utils import ws_send_json, MyWebSocketResponse
+from websocket_utils import ws_send_json
 
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
@@ -60,15 +61,15 @@ class User:
             self.username = username
 
         self.seeks: dict[int, Seek] = {}
-        self.lobby_sockets: Set[MyWebSocketResponse] = set()
-        self.tournament_sockets: dict[str, MyWebSocketResponse] = {}  # {tournamentId: set()}
+        self.lobby_sockets: Set[WebSocketResponse] = set()
+        self.tournament_sockets: dict[str, WebSocketResponse] = {}  # {tournamentId: set()}
 
         self.notify_channels: Set[Queue] = set()
 
         self.puzzles = {}  # {pizzleId: vote} where vote 0 = not voted, 1 = up, -1 = down
         self.puzzle_variant = None
 
-        self.game_sockets: dict[str, MyWebSocketResponse] = {}
+        self.game_sockets: dict[str, WebSocketResponse] = {}
         self.title = title
         self.game_in_progress = None
         self.abandon_game_task = None

@@ -23,22 +23,15 @@ async def get_user(session: aiohttp_session.Session, request: web.Request) -> Us
     return user
 
 
-# See https://github.com/aio-libs/aiohttp/issues/3122 why this is needed
-class MyWebSocketResponse(WebSocketResponse):
-    @property
-    def closed(self):
-        return self._closed or self._req is None or self._req.transport is None
-
-
 async def process_ws(
     session: aiohttp_session.Session,
     request: web.Request,
     user: User,
     init_msg: callable,
     custom_msg_processor: callable,
-) -> MyWebSocketResponse:
+) -> WebSocketResponse:
     """
-    Process websocket messages until socket closed or errored. Returns the closed MyWebSocketResponse object.
+    Process websocket messages until socket closed or errored. Returns the closed WebSocketResponse object.
     """
     app_state = get_app_state(request.app)
 
@@ -47,7 +40,7 @@ async def process_ws(
         session.invalidate()
         return None
 
-    ws = MyWebSocketResponse(heartbeat=3.0, receive_timeout=10.0)
+    ws = WebSocketResponse(heartbeat=3.0, receive_timeout=10.0)
     ws_ready = ws.can_prepare(request)
     if not ws_ready.ok:
         log.error("ws_ready not ok: %r", ws_ready)

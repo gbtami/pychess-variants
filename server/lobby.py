@@ -4,9 +4,11 @@ import collections
 import logging
 from typing import Optional, Deque
 
+from aiohttp.web_ws import WebSocketResponse
+
 from const import TYPE_CHECKING, MAX_CHAT_LINES
 from seek import get_seeks
-from websocket_utils import ws_send_json, MyWebSocketResponse
+from websocket_utils import ws_send_json
 
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
@@ -18,7 +20,7 @@ log = logging.getLogger(__name__)
 class Lobby:
     def __init__(self, app_state: PychessGlobalAppState):
         self.app_state = app_state
-        self.lobbysockets: dict[str, MyWebSocketResponse] = (
+        self.lobbysockets: dict[str, WebSocketResponse] = (
             {}
         )  # one dict only! {user.username: user.tournament_sockets, ...}
         self.lobbychat: Deque[dict] = collections.deque([], MAX_CHAT_LINES)
