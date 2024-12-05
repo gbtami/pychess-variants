@@ -79,6 +79,7 @@ export class AnalysisController extends GameController {
     fsfDebug: boolean;
     fsfError: string[];
     fsfEngineBoard: any;  // used to convert pv UCI move list to SAN
+    variantSupportedByFSF: boolean;
 
     constructor(el: HTMLElement, model: PyChessModel) {
         super(el, model, model.fen, document.getElementById('pocket0') as HTMLElement, document.getElementById('pocket1') as HTMLElement, '');
@@ -130,6 +131,7 @@ export class AnalysisController extends GameController {
         this.hash = localStorage.hash === undefined ? 16 : parseInt(localStorage.hash);
         this.nnue = localStorage.nnue === undefined ? true : localStorage.nnue === "true";
         this.fsfDebug = localStorage.fsfDebug === undefined ? false : localStorage.fsfDebug === "true";
+        this.variantSupportedByFSF = true;
 
         this.nnueOk = false;
         this.importedBy = '';
@@ -391,7 +393,7 @@ export class AnalysisController extends GameController {
                 });
             updateMovelist(this);
 
-            if (this.steps[0].analysis === undefined && this.variant.name !== 'alice') {
+            if (this.steps[0].analysis === undefined && this.variantSupportedByFSF) {
                 if (!this.isAnalysisBoard && !this.embed) {
                     const el = document.getElementById('request-analysis') as HTMLElement;
                     el.style.display = 'flex';
@@ -451,7 +453,7 @@ export class AnalysisController extends GameController {
 
         if (this.ongoing) return;
 
-        if (this.variant.name === 'alice') return;
+        if (!this.variantSupportedByFSF) return;
 
         if (line.startsWith('info')) {
             const error = 'info string ERROR: ';
@@ -468,6 +470,11 @@ export class AnalysisController extends GameController {
             }
         }
 
+        if (line.startsWith('option name UCI_Variant') && !line.includes(this.variant.name)) {
+            this.variantSupportedByFSF = false;
+            console.log('This variant is NOT supported by Fairy-Stockfish!');
+        }
+
         if (line.includes('readyok')) this.isEngineReady = true;
 
         if (line.startsWith('Fairy-Stockfish')) {
@@ -475,6 +482,7 @@ export class AnalysisController extends GameController {
                 return variantsIni + '\nEOF';
             }
             this.fsfPostMessage('load <<EOF');
+            this.fsfPostMessage('uci');
         }
 
         if (!this.localEngine) {
