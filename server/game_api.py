@@ -292,7 +292,7 @@ async def get_user_games(request):
             try:
                 doc["v"] = C2V[doc["v"]]
             except KeyError:
-                log.error("Unknown variant %r", doc, exc_info=True)
+                log.error("get_user_games() KeyError. Unknown variant %r", doc["v"])
                 continue
 
             doc["r"] = C2R[doc["r"]]
@@ -361,7 +361,11 @@ async def cancel_invite(request):
             del app_state.seeks[seek_id]
             del creator.seeks[seek_id]
         except KeyError:
-            log.error("Seek was already deleted!", exc_info=True)
+            log.error(
+                "cancel_invite() KeyError. Invite %s for game %s was already deleted!",
+                seek_id,
+                gameId,
+            )
 
     return web.HTTPFound("/")
 
@@ -376,8 +380,8 @@ async def subscribe_invites(request):
                 payload = await queue.get()
                 await response.send(payload)
                 queue.task_done()
-    except ConnectionResetError as e:
-        log.error(e, exc_info=True)
+    except ConnectionResetError:
+        log.error("subscribe_invites() ConnectionResetError")
     finally:
         app_state.invite_channels.remove(queue)
     return response
@@ -393,8 +397,8 @@ async def subscribe_games(request):
                 payload = await queue.get()
                 await response.send(payload)
                 queue.task_done()
-    except (ConnectionResetError, asyncio.CancelledError) as e:
-        log.error(e, exc_info=True)
+    except (ConnectionResetError, asyncio.CancelledError):
+        log.error("subscribe_games() ConnectionResetError")
     finally:
         app_state.game_channels.remove(queue)
     return response
@@ -477,11 +481,10 @@ async def export(request):
             except Exception:
                 failed += 1
                 log.error(
-                    "Failed to load game %s %s %s (early games may contain invalid moves)",
+                    "Failed to pgn export game %s %s %s (early games may contain invalid moves)",
                     doc["_id"],
                     C2V[doc["v"]],
                     doc["d"].strftime("%Y.%m.%d"),
-                    exc_info=True,
                 )
                 continue
         print("failed/all:", failed, game_counter)

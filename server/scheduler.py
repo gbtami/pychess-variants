@@ -180,8 +180,8 @@ class Scheduler:
             base, inc, byo = TC_MONTHLY_VARIANTS[v]
             try:
                 date = dt.datetime(self.now.year, self.now.month, i + 1, tzinfo=dt.timezone.utc)
-            except ValueError as e:
-                log.error(e, exc_info=True)
+            except ValueError:
+                log.error("schedule_plan() ValueError")
                 break
             plans.append(Plan(MONTHLY, date, 14, v.rstrip("960"), is_960, base, inc, byo, 90))
 
@@ -192,8 +192,8 @@ class Scheduler:
             base, inc, byo = TC_MONTHLY_VARIANTS[v]
             try:
                 date = dt.datetime(self.now.year, self.now.month, i + 1, tzinfo=dt.timezone.utc)
-            except ValueError as e:
-                log.error(e, exc_info=True)
+            except ValueError:
+                log.error("schedule_plan() ValueError")
                 break
             plans.append(Plan(MONTHLY, date, 16, v.rstrip("960"), is_960, base, inc, byo, 90))
 

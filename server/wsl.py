@@ -176,8 +176,7 @@ async def handle_delete_seek(app_state: PychessGlobalAppState, user, data):
         log.debug("Deleted seek. Seeks now contains: [%s]" % " ".join(app_state.seeks))
 
     except KeyError:
-        # Seek was already deleted
-        log.error("Seek was already deleted", stack_info=True, exc_info=True)
+        log.error("handle_delete_seek() KeyError. Seek %s was already deleted", data["seekID"])
     await app_state.lobby.lobby_broadcast_seeks()
 
 

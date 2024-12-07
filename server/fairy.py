@@ -16,12 +16,12 @@ try:
 
     sf.set_option("VariantPath", "variants.ini")
 except ImportError:
-    log.error("No pyffish module installed!", exc_info=True)
+    log.error("No pyffish module installed!")
 
 try:
     import pyffish_alice as sf_alice
 except ImportError:
-    log.error("No pyffish-alice module installed!", exc_info=True)
+    log.error("No pyffish-alice module installed!")
 
 FEN_OK = sf.FEN_OK
 NOTATION_SAN = sf.NOTATION_SAN
@@ -145,7 +145,7 @@ class FairyBoard:
         except Exception:
             self.pop()
             log.error(
-                "ERROR: self.sf.get_fen() failed on %s %s %s %s %s %s %s",
+                "sf.get_fen() failed on %s %s %s %s %s %s %s",
                 self.variant,
                 self.fen,
                 move,
@@ -153,7 +153,6 @@ class FairyBoard:
                 self.sfen,
                 self.show_promoted,
                 self.count_started,
-                exc_info=True,
             )
             raise
 

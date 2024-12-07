@@ -79,7 +79,10 @@ async def index(request):
         try:
             doc = await app_state.db.user.find_one({"_id": session_user})
         except Exception:
-            log.error("Failed to get user %s from mongodb!", session_user, exc_info=True)
+            log.error(
+                "index() app_state.db.user.find_one Exception. Failed to get user %s from mongodb!",
+                session_user,
+            )
         if doc is not None:
             session["guest"] = False
 
@@ -307,8 +310,8 @@ async def index(request):
                         for queue in channels:
                             await queue.put(json.dumps({"gameId": gameId}))
                         # return games[game_id]
-                    except ConnectionResetError as e:
-                        log.error(e, session_user, exc_info=True)
+                    except ConnectionResetError:
+                        log.error("/invite/accept/ ConnectionResetError for user %s", session_user)
 
             else:
                 view = "invite"
@@ -718,7 +721,7 @@ async def index(request):
     try:
         text = await template.render_async(render)
     except Exception:
-        log.error("ERROR: template.render_async() failed.", exc_info=True)
+        log.error("ERROR: template.render_async() failed.")
         return web.HTTPFound("/")
 
     response = web.Response(

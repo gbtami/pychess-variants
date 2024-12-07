@@ -680,11 +680,11 @@ def pgn(doc):
     try:
         mlist = get_san_moves(variant, fen, mlist, chess960, NOTATION_SAN)
     except Exception as e:
-        log.error(e, exc_info=True)
+        log.error("%s %s %s movelist contains invalid move", doc["_id"], variant, doc["d"])
         try:
             mlist = get_san_moves(variant, fen, mlist[:-1], chess960, NOTATION_SAN)
         except Exception:
-            log.exception("%s %s %s movelist contains invalid move", doc["_id"], variant, doc["d"])
+            log.error("%s %s %s movelist contains invalid move", doc["_id"], variant, doc["d"])
             mlist = mlist[0]
 
     moves = " ".join(

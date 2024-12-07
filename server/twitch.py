@@ -159,7 +159,6 @@ class Twitch:
                     log.error(
                         "No 'data' in twitch request_subscription() json response: %s",
                         response_data,
-                        exc_info=True,
                     )
 
     async def get_subscriptions(self):

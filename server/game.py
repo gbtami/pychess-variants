@@ -497,7 +497,7 @@ class Game:
                     if self.bplayer.bot:
                         del self.bplayer.game_queues[self.id]
                 except KeyError:
-                    log.error("Failed to del %s from game_queues", self.id, exc_info=True)
+                    log.error("Failed to del %s from game_queues", self.id)
 
         self.remove_task = asyncio.create_task(remove(KEEP_TIME))
 
@@ -624,7 +624,7 @@ class Game:
                 {"_id": self.ct_id}, {"$set": new_data}, upsert=True
             )
         except Exception:
-            log.error("Failed to save new crosstable to mongodb!", exc_info=True)
+            log.error("Failed to save new crosstable to mongodb!")
 
         self.need_crosstable_save = False
 
@@ -653,7 +653,7 @@ class Game:
                 upsert=True,
             )
         except Exception:
-            log.error("Failed to save new highscore to mongodb!", exc_info=True)
+            log.error("Failed to save new %s highscore to mongodb!", variant)
 
     async def update_ratings(self):
         if self.result == "1-0":
@@ -844,7 +844,7 @@ class Game:
                 NOTATION_SAN,
             )
         except Exception:
-            log.error("ERROR: Exception in game %s pgn()", self.id, exc_info=True)
+            log.error("Exception in game %s pgn()", self.id)
             mlist = self.board.move_stack
 
         moves = " ".join(
@@ -1104,11 +1104,11 @@ class Game:
                     try:
                         self.steps[-1]["analysis"] = self.analysis[ply + 1]
                     except IndexError:
-                        log.error("IndexError %d %s %s", ply, move, san, exc_info=True)
+                        log.error("IndexError in create_steps() %d %s %s", ply, move, san)
 
             except Exception:
-                log.exception(
-                    "ERROR: Exception in create_steps() %s %s %s %s %s",
+                log.error(
+                    "Exception in create_steps() %s %s %s %s %s",
                     self.id,
                     self.variant,
                     self.board.initial_fen,

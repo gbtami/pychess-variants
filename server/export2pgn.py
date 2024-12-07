@@ -58,7 +58,6 @@ async def main():
                         doc["_id"],
                         C2V[doc["v"]],
                         doc["d"].strftime("%Y.%m.%d"),
-                        exc_info=True,
                     )
                     continue
 

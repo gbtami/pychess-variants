@@ -197,7 +197,7 @@ async def event_stream(request):
                 await resp.write(answer.encode("utf-8"))
                 await resp.drain()
         except Exception:
-            log.error("BOT %s event_stream is broken...", username, exc_info=True)
+            log.error("BOT %s event_stream is broken...", username)
             break
 
     pinger_task.cancel()
@@ -249,13 +249,13 @@ async def game_stream(request):
             await resp.write(answer.encode("utf-8"))
             await resp.drain()
         except Exception:
-            log.error("Writing %s to BOT game_stream failed!", answer, exc_info=True)
+            log.error("Writing %s to BOT game_stream failed!", answer)
             break
 
     try:
         await resp.write_eof()
     except Exception:
-        log.error("Writing EOF to BOT game_stream failed!", exc_info=True)
+        log.error("Writing EOF to BOT game_stream failed!")
     pinger_task.cancel()
 
     return resp

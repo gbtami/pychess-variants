@@ -93,10 +93,10 @@ async def process_ws(
                 log.debug("--- %s ws other msg.type %s %s", request.rel_url.path, msg.type, msg)
     except OSError as e:
         # disconnected
-        log.error(e, exc_info=True)
+        log.error("process_ws() OSError")
     except Exception:
-        log.exception(
-            "ERROR: Exception in % socket handling owned by %s ",
+        log.error(
+            "Exception in % socket handling owned by %s ",
             request.rel_url.path,
             user.username,
         )
@@ -111,7 +111,7 @@ async def ws_send_str(ws, msg) -> bool:
         await ws.send_str(msg)
         return True
     except ConnectionResetError:
-        log.debug("Connection reset ", exc_info=True)
+        log.error("ws_send_str() ConnectionResetError")
         return False
 
 
@@ -123,8 +123,8 @@ async def ws_send_json(ws, msg) -> bool:
         await ws.send_json(msg)
         return True
     except ConnectionResetError:
-        log.exception("Connection reset ", exc_info=True)
+        log.error("ws_send_json() ConnectionResetError")
         return False
     except Exception:
-        log.exception("ERROR: Exception in ws_send_json")
+        log.error("Exception in ws_send_json()")
         return False

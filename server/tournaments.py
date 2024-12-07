@@ -179,7 +179,9 @@ async def upsert_tournament_to_db(tournament, app_state: PychessGlobalAppState):
             {"_id": tournament.id}, {"$set": new_data}, upsert=True
         )
     except Exception:
-        log.error("Failed to save tournament data to mongodb!", exc_info=True)
+        log.error(
+            "upsert_tournament_to_db() Failed to save tournament %s data to mongodb!", tournament.id
+        )
 
 
 async def get_winners(app_state: PychessGlobalAppState, shield, variant: str = None):

@@ -1037,9 +1037,9 @@ class Tournament(ABC):
                 for ws in spectator.tournament_sockets[self.id]:
                     await ws_send_json(ws, response)
             except KeyError:
-                log.error("spectator was removed", exc_info=True)
+                log.error("tournament broadcast() spectator socket was removed")
             except Exception:
-                log.exception("Exception in tournament broadcast()")
+                log.error("Exception in tournament broadcast()")
 
     async def db_insert_pairing(self, games):
         if self.app_state.db is None:
@@ -1086,8 +1086,7 @@ class Tournament(ABC):
                     return_document=ReturnDocument.AFTER,
                 )
             )
-        except Exception as e:
-            log.error(e, exc_info=True)
+        except Exception:
             if self.app_state.db is not None:
                 log.error(
                     "db find_one_and_update pairing_table %s into %s failed !!!",
@@ -1144,8 +1143,7 @@ class Tournament(ABC):
             if doc_after is None and not isinstance(self.app_state.db_client, AsyncMongoMockClient):
                 log.error("Failed to save %s player data update %s to mongodb", player_id, new_data)
 
-        except Exception as e:
-            log.error(e, exc_info=True)
+        except Exception:
             if self.app_state.db is not None:
                 log.error(
                     "db find_one_and_update tournament_player %s into %s failed !!!",

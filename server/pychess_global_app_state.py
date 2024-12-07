@@ -349,7 +349,7 @@ class PychessGlobalAppState:
                     FISHNET_KEYS[doc["_id"]] = doc["name"]
 
         except Exception:
-            log.error("init_from_db() failed", stack_info=True, exc_info=True)
+            log.error("init_from_db() Exception")
             raise
 
     def __init_translations(self):
@@ -366,7 +366,7 @@ class PychessGlobalAppState:
                     with open(moname, "wb") as mo_file:
                         mo_file.write(mo)
             except PoSyntaxError:
-                log.error("PoSyntaxError in %s", poname, stack_info=True, exc_info=True)
+                log.error("PoSyntaxError in %s", poname)
 
             # Create translation class
             try:

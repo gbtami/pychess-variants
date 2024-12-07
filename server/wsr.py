@@ -478,9 +478,7 @@ async def handle_draw(ws, users, user, data, game):
         try:
             await users[opp_name].send_game_message(data["gameId"], response)
         except KeyError:
-            log.error("Opp disconnected", stack_info=True, exc_info=True)
-            # opp disconnected
-            pass
+            log.error("handle_draw() KeyError. Opp %s disconnected", opp_name)
 
     await round_broadcast(game, response)
 

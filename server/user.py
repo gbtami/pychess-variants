@@ -123,7 +123,9 @@ class User:
                     try:
                         del self.app_state.users[self.username]
                     except KeyError:
-                        log.error("Failed to del %s from users", self.username, exc_info=True)
+                        log.error(
+                            "User.remove() KeyError. Failed to del %s from users", self.username
+                        )
                     break
 
     async def abandon_game(self, game):
@@ -265,7 +267,9 @@ class User:
                     del self.seeks[seek.id]
                     del self.app_state.seeks[seek.id]
                 except KeyError:
-                    log.error("Failed to del %s from seeks", seek.id, exc_info=True)
+                    log.error(
+                        "delete_pending_seek() KeyError. Failed to del %s from seeks", seek.id
+                    )
 
         asyncio.create_task(delete_seek(seek))
 
@@ -302,8 +306,8 @@ class User:
             for ws in list(ws_set):
                 try:
                     await ws.close()
-                except Exception as e:
-                    log.error(e, stack_info=True, exc_info=True)
+                except Exception:
+                    log.error("close_all_game_sockets() Exception for %s %s", self.username, ws)
 
     def is_user_active_in_game(self, game_id=None):
         # todo: maybe also check if ws is still open or that the sets corresponding to (each) game_id are not empty?
@@ -404,7 +408,9 @@ async def block_user(request):
             await app_state.db.relation.delete_one({"_id": "%s/%s" % (user.username, profileId)})
             user.blocked.remove(profileId)
     except Exception:
-        log.error("Failed to save new relation to mongodb!", exc_info=True)
+        log.error(
+            "block_user() Exception. Failed to save new relation for %s to mongodb!", session_user
+        )
 
     return web.json_response({})
 
