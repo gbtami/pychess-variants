@@ -190,9 +190,9 @@ class PychessGlobalAppState:
             # TODO: read it on demand only, similar to users
             if "crosstable" not in db_collections:
                 await generate_crosstable(self.db)
-#            cursor = self.db.crosstable.find()
-#            async for doc in cursor:
-#                self.crosstable[doc["_id"]] = doc
+            cursor = self.db.crosstable.find()
+            async for doc in cursor:
+                self.crosstable[doc["_id"]] = doc
 
             if "dailypuzzle" not in db_collections:
                 try:
