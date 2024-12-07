@@ -91,7 +91,7 @@ async def process_ws(
                 break
             else:
                 log.debug("--- %s ws other msg.type %s %s", request.rel_url.path, msg.type, msg)
-    except OSError as e:
+    except OSError:
         # disconnected
         log.error("process_ws() OSError")
     except Exception:
