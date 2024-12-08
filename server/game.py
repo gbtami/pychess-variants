@@ -566,11 +566,7 @@ class Game:
 
     @property
     def has_crosstable(self):
-        return not (
-            self.bot_game
-            or self.wplayer.anon
-            or self.bplayer.anon
-        )
+        return not (self.bot_game or self.wplayer.anon or self.bplayer.anon)
 
     def set_crosstable(self):
         if (not self.has_crosstable) or self.board.ply < 3 or self.result == "*":
