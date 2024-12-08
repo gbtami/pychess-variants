@@ -116,10 +116,11 @@ class Game:
         self.brdiff: int | str = 0
 
         # crosstable info
+        self.crosstable = ""
         self.need_crosstable_save = False
         self.bot_game = self.bplayer.bot or self.wplayer.bot
         if self.bot_game or self.wplayer.anon or self.bplayer.anon:
-            self.crosstable = ""
+            self.ct_id = ""
         else:
             if self.wplayer.username < self.bplayer.username:
                 self.s1player = self.wplayer.username
@@ -128,9 +129,6 @@ class Game:
                 self.s1player = self.bplayer.username
                 self.s2player = self.wplayer.username
             self.ct_id = self.s1player + "/" + self.s2player
-            self.crosstable = app_state.crosstable.get(
-                self.ct_id, {"_id": self.ct_id, "s1": 0, "s2": 0, "r": []}
-            )
 
         self.spectators: Set[User] = set()
         self.draw_offers: Set[str] = set()
@@ -566,14 +564,16 @@ class Game:
                     {"_id": self.id}, {"$set": new_data}
                 )
 
-    def set_crosstable(self):
-        if (
+    @property
+    def has_crosstable(self):
+        return not (
             self.bot_game
             or self.wplayer.anon
             or self.bplayer.anon
-            or self.board.ply < 3
-            or self.result == "*"
-        ):
+        )
+
+    def set_crosstable(self):
+        if (not self.has_crosstable) or self.board.ply < 3 or self.result == "*":
             return
 
         if len(self.crosstable["r"]) > 0 and self.crosstable["r"][-1].startswith(self.id):
@@ -598,14 +598,6 @@ class Game:
         self.crosstable["s2"] += s2
         self.crosstable["r"].append("%s%s" % (self.id, tail))
         self.crosstable["r"] = self.crosstable["r"][-20:]
-
-        new_data = {
-            "_id": self.ct_id,
-            "s1": self.crosstable["s1"],
-            "s2": self.crosstable["s2"],
-            "r": self.crosstable["r"],
-        }
-        self.app_state.crosstable[self.ct_id] = new_data
 
         self.need_crosstable_save = True
 

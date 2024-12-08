@@ -103,7 +103,6 @@ class PychessGlobalAppState:
         self.game_channels: Set[queue] = set()
         self.invite_channels: Set[queue] = set()
         self.highscore = {variant: ValueSortedDict(neg) for variant in VARIANTS}
-        self.crosstable: dict[str, object] = {}
         self.shield = {}
         self.shield_owners = {}  # {variant: username, ...}
         self.daily_puzzle_ids = {}  # {date: puzzle._id, ...}
@@ -186,12 +185,8 @@ class PychessGlobalAppState:
                 if doc["_id"] in VARIANTS:
                     self.highscore[doc["_id"]] = ValueSortedDict(neg, doc["scores"])
 
-            # TODO: read it on demand only, similar to users
             if "crosstable" not in db_collections:
                 await generate_crosstable(self.db)
-            cursor = self.db.crosstable.find()
-            async for doc in cursor:
-                self.crosstable[doc["_id"]] = doc
 
             if "dailypuzzle" not in db_collections:
                 try:
