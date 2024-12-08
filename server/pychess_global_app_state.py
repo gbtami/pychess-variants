@@ -108,7 +108,7 @@ class PychessGlobalAppState:
         self.shield_owners = {}  # {variant: username, ...}
         self.daily_puzzle_ids = {}  # {date: puzzle._id, ...}
 
-        # TODO: save/restore monthly stats from db when current month is over
+        # monthly game stats per variant
         self.stats = {}
         self.stats_humans = {}
 
