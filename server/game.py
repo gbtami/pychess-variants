@@ -1096,7 +1096,7 @@ class Game:
                         log.error("IndexError in create_steps() %d %s %s", ply, move, san)
 
             except Exception:
-                log.error(
+                log.exception(
                     "Exception in create_steps() %s %s %s %s %s",
                     self.id,
                     self.variant,

@@ -258,15 +258,21 @@ class PychessGlobalAppState:
                     user.seeks[seek.id] = seek
 
             # Read games in play and start their clocks
-            cursor = self.db.game.find({"r": "d"})
+            cursor = self.db.game.find({"r": "d", "$or": [{"s": -2}, {"s": -1}]})
             cursor.sort("d", -1)
             today = datetime.now(timezone.utc)
 
             async for doc in cursor:
-                # Don't load old uninished games if they are NOT corr games
                 corr = doc.get("c", False)
-                if doc["d"] < today - timedelta(days=1) and not corr:
-                    continue
+
+                if corr:
+                    # Don't load old never started corr games
+                    if doc["s"] == -2 and doc["d"] < today - timedelta(days=doc["b"]):
+                        continue
+                else:
+                    # Don't load old uninished games
+                    if doc["d"] < today - timedelta(days=1):
+                        continue
 
                 if doc["s"] < ABORTED:
                     game_id = doc["_id"]
