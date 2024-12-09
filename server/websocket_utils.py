@@ -6,6 +6,7 @@ import aiohttp
 import aiohttp_session
 from aiohttp import WSMessage, web
 from aiohttp.web_ws import WebSocketResponse
+from aiohttp.client_exceptions import ClientConnectionResetError
 
 from const import TYPE_CHECKING
 
@@ -110,7 +111,7 @@ async def ws_send_str(ws, msg) -> bool:
     try:
         await ws.send_str(msg)
         return True
-    except ConnectionResetError:
+    except (ConnectionResetError, ClientConnectionResetError):
         log.error("ws_send_str() ConnectionResetError")
         return False
 
@@ -122,7 +123,7 @@ async def ws_send_json(ws, msg) -> bool:
     try:
         await ws.send_json(msg)
         return True
-    except ConnectionResetError:
+    except (ConnectionResetError, ClientConnectionResetError):
         log.error("ws_send_json() ConnectionResetError")
         return False
     except Exception:
