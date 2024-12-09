@@ -116,11 +116,11 @@ class Game:
         self.brdiff: int | str = 0
 
         # crosstable info
-        self.crosstable = ""
         self.need_crosstable_save = False
         self.bot_game = self.bplayer.bot or self.wplayer.bot
         if self.bot_game or self.wplayer.anon or self.bplayer.anon:
             self.ct_id = ""
+            self.crosstable = ""
         else:
             if self.wplayer.username < self.bplayer.username:
                 self.s1player = self.wplayer.username
@@ -129,6 +129,7 @@ class Game:
                 self.s1player = self.bplayer.username
                 self.s2player = self.wplayer.username
             self.ct_id = self.s1player + "/" + self.s2player
+            self.crosstable = {"s1": 0, "s2": 0, "r": []}
 
         self.spectators: Set[User] = set()
         self.draw_offers: Set[str] = set()

@@ -384,6 +384,10 @@ class HighscoreTestCase(AioHTTPTestCase):
             create=True,
         )
         app_state.games[game.id] = game
+
+        doc = await game.app_state.db.crosstable.find_one({"_id": game.ct_id})
+        if doc is not None:
+            game.crosstable = doc
         print(game.crosstable)
 
         # strong_player resign 0-1

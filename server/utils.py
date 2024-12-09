@@ -217,9 +217,10 @@ async def load_game(app_state: PychessGlobalAppState, game_id):
         game.lastmove = mlist[-1]
         game.mct = doc.get("mct")
 
-    if game.has_crosstable and game.crosstable == "":
+    if game.has_crosstable and len(game.crosstable["r"]) == 0:
         doc = await app_state.db.crosstable.find_one({"_id": game.ct_id})
-        game.crosstable = doc if doc is not None else {"s1": 0, "s2": 0, "r": []}
+        if doc is not None:
+            game.crosstable = doc
 
     game.loaded_at = datetime.now(timezone.utc)
 
@@ -456,9 +457,10 @@ async def new_game(app_state: PychessGlobalAppState, seek_id, game_id=None):
         game.wplayer.correspondence_games.append(game)
         game.bplayer.correspondence_games.append(game)
 
-    if game.has_crosstable and game.crosstable == "":
+    if game.has_crosstable and len(game.crosstable["r"]) == 0:
         doc = await app_state.db.crosstable.find_one({"_id": game.ct_id})
-        game.crosstable = doc if doc is not None else {"s1": 0, "s2": 0, "r": []}
+        if doc is not None:
+            game.crosstable = doc
 
     return {
         "type": "new_game",
