@@ -194,12 +194,12 @@ async def logout(request, user=None):
 
     # close lobby socket
     ws_set = user.lobby_sockets
-    for ws in ws_set:
+    for ws in list(ws_set):
         await ws_send_json(ws, response)
 
     # close tournament sockets
     for ws_set in user.tournament_sockets.values():
-        for ws in ws_set:
+        for ws in list(ws_set):
             await ws_send_json(ws, response)
 
     # lose and close game sockets when ban() calls this from admin.py

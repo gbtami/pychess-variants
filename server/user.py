@@ -295,7 +295,7 @@ class User:
                     "Currently user %s has these game_sockets: %r", self.username, self.game_sockets
                 )
             return
-        for ws in ws_set:
+        for ws in list(ws_set):
             log.debug("Sending message %s to %s. ws = %r", message, self.username, ws)
             await ws_send_json(ws, message)
 

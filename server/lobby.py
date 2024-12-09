@@ -29,7 +29,7 @@ class Lobby:
     async def lobby_broadcast(self, response):
         # log.debug("lobby_broadcast: %r to %r", response, self.lobbysockets)
         for username, ws_set in self.lobbysockets.items():
-            for ws in ws_set:
+            for ws in list(ws_set):
                 await ws_send_json(ws, response)
 
     async def lobby_broadcast_u_cnt(self):
@@ -44,7 +44,7 @@ class Lobby:
 
         for username, ws_set in self.lobbysockets.items():
             ws_user = await self.app_state.users.get(username)
-            for ws in ws_set:
+            for ws in list(ws_set):
                 await ws_send_json(
                     ws,
                     {
