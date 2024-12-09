@@ -748,7 +748,7 @@ class Tournament(ABC):
             ws_ok = True
             try:
                 ws = next(iter(wp.tournament_sockets[self.id]))
-            except StopIteration:
+            except (KeyError, StopIteration):
                 ws_ok = False
 
             if ws_ok and wp.title != "TEST":
@@ -760,7 +760,7 @@ class Tournament(ABC):
             ws_ok = True
             try:
                 ws = next(iter(bp.tournament_sockets[self.id]))
-            except StopIteration:
+            except (KeyError, StopIteration):
                 ws_ok = False
 
             if ws_ok and bp.title != "TEST":
