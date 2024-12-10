@@ -2,7 +2,8 @@ from __future__ import annotations
 import collections
 
 from broadcast import broadcast_streams
-from const import TYPE_CHECKING, VARIANTS
+from const import NONE_USER, TYPE_CHECKING, VARIANTS
+from generate_crosstable import generate_crosstable
 from generate_highscore import generate_highscore
 from login import logout
 from settings import ADMINS, FISHNET_KEYS
@@ -72,6 +73,15 @@ async def ban(app_state: PychessGlobalAppState, message):
         banned_user.enabled = False
         await app_state.db.user.find_one_and_update({"_id": parts[1]}, {"$set": {"enabled": False}})
         await logout(None, banned_user)
+
+
+async def crosstable(app_state: PychessGlobalAppState, message):
+    parts = message.split()
+    print(parts)
+    if len(parts) == 2:
+        user = await app_state.users.get(parts[1])
+        if user.username != NONE_USER:
+            await generate_crosstable(app_state, user.username)
 
 
 async def highscore(app_state: PychessGlobalAppState, message):

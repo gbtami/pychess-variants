@@ -3,9 +3,16 @@ from __future__ import annotations
 from compress import V2C
 
 
-async def generate_crosstable(db):
+async def generate_crosstable(app_state, username=None):
+    db = app_state.db
     ct = {}
-    cursor = db.game.find().sort("d")
+
+    if username is None:
+        cursor = db.game.find().sort("d")
+    else:
+        cursor = db.game.find({"us": username}).sort("d")
+        print("START generate_crosstable", username)
+
     async for doc in cursor:
         if doc["v"] == V2C["bughouse"]:
             continue  # todo:bughouse has no crosstable implemented at the moment
@@ -21,12 +28,12 @@ async def generate_crosstable(db):
             s1p = bp
             s2p = wp
         ct_id = s1p + "/" + s2p
-
+        # print(ct_id, game_id)
         # R2C = {"1-0": "a", "0-1": "b", "1/2-1/2": "c", "*": "d"}
         if (
             result == "d"
-            or wp.startswith("Anon ")
-            or bp.startswith("Anon ")
+            or wp.startswith("Anon")
+            or bp.startswith("Anon")
             or wp == "Random-Mover"
             or wp == "Fairy-Stockfish"
             or bp == "Random-Mover"
@@ -63,7 +70,13 @@ async def generate_crosstable(db):
         ct[item["_id"]]["r"] = ct[item["_id"]]["r"][-20:]
         # print(i, item)
 
-    await db.crosstable.drop()
-    # bulk insert to crosstable
-    if len(ct) > 0:
-        await db.crosstable.insert_many(ct.values())
+    if username is None:
+        await db.crosstable.drop()
+        # bulk insert to crosstable
+        if len(ct) > 0:
+            await db.crosstable.insert_many(ct.values())
+    else:
+        for key, value in ct.items():
+            # print(key, value)
+            await db.crosstable.find_one_and_update({"_id": key}, {"$set": value}, upsert=True)
+    print("DONE generate_crosstable", username)

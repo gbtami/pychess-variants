@@ -5,7 +5,16 @@ import logging
 import aiohttp_session
 from aiohttp import web
 
-from admin import ban, delete_puzzle, disable_new_anons, fishnet, highscore, silence, stream
+from admin import (
+    ban,
+    crosstable,
+    delete_puzzle,
+    disable_new_anons,
+    fishnet,
+    highscore,
+    silence,
+    stream,
+)
 from chat import chat_response
 from const import ANON_PREFIX, STARTED
 from misc import server_state
@@ -291,6 +300,9 @@ async def handle_lobbychat(app_state: PychessGlobalAppState, user, data):
 
         elif message.startswith("/highscore"):
             await highscore(app_state, message)
+
+        elif message.startswith("/crosstable"):
+            await crosstable(app_state, message)
 
         elif message.startswith("/fishnet"):
             await fishnet(app_state, message)
