@@ -186,7 +186,7 @@ class PychessGlobalAppState:
                     self.highscore[doc["_id"]] = ValueSortedDict(neg, doc["scores"])
 
             if "crosstable" not in db_collections:
-                await generate_crosstable(self.db)
+                await generate_crosstable(self)
 
             if "dailypuzzle" not in db_collections:
                 try:
