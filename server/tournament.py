@@ -708,7 +708,7 @@ class Tournament(ABC):
                 chess960=self.chess960,
             )
 
-            if game.has_crosstable and len(game.crosstable["r"]) == 0:
+            if game.has_crosstable:
                 doc = await self.app_state.db.crosstable.find_one({"_id": game.ct_id})
                 if doc is not None:
                     game.crosstable = doc

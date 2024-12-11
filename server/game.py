@@ -86,6 +86,8 @@ class Game:
         self.wplayer = wplayer
         self.bplayer = bplayer
 
+        self.bot_game = self.bplayer.bot or self.wplayer.bot
+
         self.all_players = [self.wplayer, self.bplayer]
         self.non_bot_players = [player for player in self.all_players if not player.bot]
 
@@ -115,13 +117,10 @@ class Game:
         self.brating: int | str = "%s%s" % black_rating.rating_prov
         self.brdiff: int | str = 0
 
-        # crosstable info
+        # crosstable info (this have to be updated after game creation from db !)
         self.need_crosstable_save = False
-        self.bot_game = self.bplayer.bot or self.wplayer.bot
-        if self.bot_game or self.wplayer.anon or self.bplayer.anon:
-            self.ct_id = ""
-            self.crosstable = ""
-        else:
+        self.has_crosstable = not (self.bot_game or self.wplayer.anon or self.bplayer.anon)
+        if self.has_crosstable:
             if self.wplayer.username < self.bplayer.username:
                 self.s1player = self.wplayer.username
                 self.s2player = self.bplayer.username
@@ -130,6 +129,9 @@ class Game:
                 self.s2player = self.wplayer.username
             self.ct_id = self.s1player + "/" + self.s2player
             self.crosstable = {"_id": self.ct_id, "s1": 0, "s2": 0, "r": []}
+        else:
+            self.ct_id = ""
+            self.crosstable = ""
 
         self.spectators: Set[User] = set()
         self.draw_offers: Set[str] = set()
@@ -564,10 +566,6 @@ class Game:
                 await self.app_state.db.game.find_one_and_update(
                     {"_id": self.id}, {"$set": new_data}
                 )
-
-    @property
-    def has_crosstable(self):
-        return not (self.bot_game or self.wplayer.anon or self.bplayer.anon)
 
     def set_crosstable(self):
         if (not self.has_crosstable) or self.board.ply < 3 or self.result == "*":
