@@ -91,33 +91,6 @@ class Seek:
         )
 
     @property
-    def as_json(self):
-        return {
-            "seekID": self.id,
-            "user": self.creator.username,
-            "bot": self.creator.bot,
-            "title": self.creator.title,
-            "variant": self.variant,
-            "chess960": self.chess960,
-            "target": self.target,
-            "player1": self.player1.username if self.player1 is not None else "",
-            "player2": self.player2.username if self.player2 is not None else "",
-            "bugPlayer1": self.bugPlayer1.username if self.bugPlayer1 is not None else "",
-            "bugPlayer2": self.bugPlayer2.username if self.bugPlayer2 is not None else "",
-            "fen": self.fen,
-            "color": self.color,
-            "rated": self.rated,
-            "rrmin": self.rrmin,
-            "rrmax": self.rrmax,
-            "rating": self.rating,
-            "base": self.base,
-            "inc": self.inc,
-            "byoyomi": self.byoyomi_period,
-            "day": self.day,
-            "gameId": self.game_id if self.game_id is not None else "",
-        }
-
-    @property
     def seek_json(self):
         return {
             "_id": self.id,
