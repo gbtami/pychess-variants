@@ -97,7 +97,7 @@ class PychessGlobalAppState:
         # TODO: save/restore from db
         self.sent_lichess_team_msg: List[date] = []
 
-        self.seeks: dict[int, Seek] = {}
+        self.seeks: dict[str, Seek] = {}
         self.games: dict[str, Game] = {}
         self.invites: dict[str, Seek] = {}
         self.game_channels: Set[queue] = set()
