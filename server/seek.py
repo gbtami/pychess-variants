@@ -198,7 +198,9 @@ async def create_seek(db, invites, seeks, user, data, ws, empty=False):
 
 
 def get_seeks(user, seeks):
-    return [seek.seek_json for seek in seeks if not seek.pending and user.compatible_with_seek(seek)]
+    return [
+        seek.seek_json for seek in seeks if not seek.pending and user.compatible_with_seek(seek)
+    ]
 
 
 def challenge(seek, gameId):
