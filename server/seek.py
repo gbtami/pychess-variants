@@ -33,7 +33,6 @@ class Seek:
         player2=None,
         bugPlayer1=None,
         bugPlayer2=None,
-        ws=None,
         game_id=None,
         expire_at=None,
     ):
@@ -57,7 +56,6 @@ class Seek:
         self.player2 = player2
         self.bugPlayer1 = bugPlayer1
         self.bugPlayer2 = bugPlayer2
-        self.ws = ws
 
         self.game_id = game_id
 
@@ -141,7 +139,7 @@ class Seek:
         return "%s: **%s%s** %s" % (self.creator.username, self.variant, tail960, tc)
 
 
-async def create_seek(db, invites, seeks, user, data, ws, empty=False):
+async def create_seek(db, invites, seeks, user, data, empty=False):
     """Seek can be
     - invite (has reserved new game id stored in app[invites], and target is 'Invite-friend')
     - challenge (has another username as target)
@@ -183,7 +181,6 @@ async def create_seek(db, invites, seeks, user, data, ws, empty=False):
         target=target,
         player1=None if empty else user,
         player2=None,
-        ws=ws,  # todo: dont see the need for this - instead the list of user's lobby websockets can be used
         game_id=game_id,
     )
 
