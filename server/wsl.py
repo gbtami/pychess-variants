@@ -17,7 +17,7 @@ from admin import (
     stream,
 )
 from chat import chat_response
-from const import ANON_PREFIX, NONE_USER, STARTED
+from const import ANON_PREFIX, BYOS, NONE_USER, STARTED
 from misc import server_state
 from newid import new_id
 from const import TYPE_CHECKING
@@ -351,6 +351,10 @@ async def handle_create_auto_pairing(app_state, ws, user, data):
 
     for variant_tc in product(data["variants"].split(), data["tcs"].split()):
         print(variant_tc)
+        variant, tc = variant_tc
+        if variant.startswith("bughouse") or (tc.endswith("b)") and variant not in BYOS):
+            continue
+
         if variant_tc not in app_state.auto_pairings:
             app_state.auto_pairings[variant_tc] = set()
 
@@ -404,6 +408,9 @@ async def handle_create_auto_pairing(app_state, ws, user, data):
 
             response = await join_seek(app_state, other_user, seek.id)
             await ws_send_json(ws, response)
+
+            for other_user_ws in other_user.lobby_sockets:
+                await ws_send_json(other_user_ws, response)
     else:
         app_state.auto_pairing_players.add(username)
 
