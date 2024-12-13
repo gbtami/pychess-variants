@@ -103,15 +103,16 @@ LOSERS = {
 }
 
 GRANDS = ("xiangqi", "manchu", "grand", "grandhouse", "shako", "janggi")
-BYOS = ("shogi",
-        "minishogi",
-        "kyotoshogi",
-        "dobutsu",
-        "gorogoroplus",
-        "torishogi",
-        "cannonshogi",
-        "janggi",
-        "shogun",
+BYOS = (
+    "shogi",
+    "minishogi",
+    "kyotoshogi",
+    "dobutsu",
+    "gorogoroplus",
+    "torishogi",
+    "cannonshogi",
+    "janggi",
+    "shogun",
 )
 
 CONSERVATIVE_CAPA_FEN = "arnbqkbnrc/pppppppppp/10/10/10/10/PPPPPPPPPP/ARNBQKBNRC w KQkq - 0 1"

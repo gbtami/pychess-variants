@@ -358,7 +358,11 @@ async def handle_create_auto_pairing(app_state, ws, user, data):
         if variant_tc not in app_state.auto_pairings:
             app_state.auto_pairings[variant_tc] = set()
 
-        pairables = [uname for uname in app_state.auto_pairings[variant_tc] if uname in app_state.auto_pairing_players]
+        pairables = [
+            uname
+            for uname in app_state.auto_pairings[variant_tc]
+            if uname in app_state.auto_pairing_players
+        ]
         if pairables and (not auto_paired):
             print("FIND pairables!", pairables)
             auto_other = pairables[0]
