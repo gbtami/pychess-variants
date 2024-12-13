@@ -1,6 +1,7 @@
 from __future__ import annotations
 import asyncio
 import logging
+from itertools import product
 
 import aiohttp_session
 from aiohttp import web
@@ -16,7 +17,7 @@ from admin import (
     stream,
 )
 from chat import chat_response
-from const import ANON_PREFIX, STARTED
+from const import ANON_PREFIX, NONE_USER, STARTED
 from misc import server_state
 from newid import new_id
 from const import TYPE_CHECKING
@@ -82,6 +83,8 @@ async def process_message(app_state: PychessGlobalAppState, user, ws, data):
         await handle_accept_seek(app_state, ws, user, data)
     elif data["type"] == "lobbychat":
         await handle_lobbychat(app_state, user, data)
+    elif data["type"] == "create_auto_pairing":
+        await handle_create_auto_pairing(app_state, ws, user, data)
 
 
 async def send_get_seeks(app_state, ws, user):
@@ -328,6 +331,83 @@ async def handle_lobbychat(app_state: PychessGlobalAppState, user, data):
 
     if user.silence == 0 and not admin_command:
         await app_state.discord.send_to_discord("lobbychat", data["message"], user.username)
+
+
+async def handle_create_auto_pairing(app_state, ws, user, data):
+    no = await send_game_in_progress_if_any(app_state, user, ws)
+    if no:
+        return
+
+    print("Creating auto_pairing from request", data)
+    print(app_state.auto_pairings)
+    print(app_state.auto_pairing_players)
+
+    username = user.username
+    auto_paired = False
+    auto_variant_tc = None
+    auto_other = ""
+
+    for variant_tc in product(data["variants"].split(), data["tcs"].split()):
+        print(variant_tc)
+        if variant_tc not in app_state.auto_pairings:
+            app_state.auto_pairings[variant_tc] = set()
+
+        pairables = [uname for uname in app_state.auto_pairings[variant_tc] if uname in app_state.auto_pairing_players]
+        if pairables and (not auto_paired):
+            print("FIND pairables!", pairables)
+            auto_other = pairables[0]
+            auto_variant_tc = variant_tc
+            auto_paired = True
+
+        app_state.auto_pairings[variant_tc].add(username)
+
+    if auto_paired:
+        other_user = await app_state.users.get(auto_other)
+        if other_user.username != NONE_USER:
+            # remove user from auto_pairing_players
+            try:
+                app_state.auto_pairing_players.remove(username)
+            except KeyError:
+                pass
+            # remove the other player user can play with from auto_pairing_players
+            try:
+                app_state.auto_pairing_players.remove(auto_other)
+            except KeyError:
+                pass
+
+            variant = auto_variant_tc[0]
+            chess960 = variant.endswith("960")
+            variant = variant.removesuffix("960")
+            tc = auto_variant_tc[1]
+            byo = 1 if tc.endswith("b)") else 0
+
+            tc = tc.split("(")[0].split("+")
+            base = int(tc[0])
+            inc = int(tc[1])
+
+            seek_id = await new_id(None if app_state.db is None else app_state.db.seek)
+            seek = Seek(
+                seek_id,
+                user,
+                variant,
+                base=base,
+                inc=inc,
+                byoyomi_period=byo,
+                player1=user,
+                rated=True,
+                chess960=chess960,
+            )
+            print("adding seek:", seek)
+            app_state.seeks[seek.id] = seek
+
+            response = await join_seek(app_state, other_user, seek.id)
+            await ws_send_json(ws, response)
+    else:
+        app_state.auto_pairing_players.add(username)
+
+    print("AFTER auto_pairing", user)
+    print(app_state.auto_pairings)
+    print(app_state.auto_pairing_players)
 
 
 async def send_game_in_progress_if_any(app_state: PychessGlobalAppState, user, ws):

@@ -534,11 +534,21 @@ export class LobbyController implements ChatController {
                     ]),
                 ]),
             ]),
+            h('button.lobby-button', { on: { click: () => this.createAutoPairing() } }, 'AutoPairing'),
             h('button.lobby-button', { on: { click: () => this.createGame() } }, createModeStr('createGame')),
             h('button.lobby-button', { on: { click: () => this.playFriend() } }, createModeStr('playFriend')),
             h('button.lobby-button', { on: { click: () => this.playAI() } }, createModeStr('playAI')),
             h('button.lobby-button', { on: { click: () => this.createHost() }, style: { display: this.tournamentDirector ? "block" : "none" } }, createModeStr('createHost')),
         ];
+    }
+
+    createAutoPairing() {
+        const variants = (this.username === 'gbtami') ? 'chess960 crazyhouse960 kingofthehill960 kyotoshogi ataxx' : 'kingofthehill960 3check';
+        this.doSend({
+            type: "create_auto_pairing",
+            variants: variants,
+            tcs: '1+0 3+0 5+0 3+2 5+3 3+15(b)'
+        });
     }
 
     preSelectVariant(variantName: string, chess960: boolean=false) {
