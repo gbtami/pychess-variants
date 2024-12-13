@@ -139,7 +139,7 @@ async def handle_create_seek(app_state, ws, user, data):
         return
 
     log.debug("Creating seek from request: %s", data)
-    seek = await create_seek(app_state.db, app_state.invites, app_state.seeks, user, data, ws)
+    seek = await create_seek(app_state.db, app_state.invites, app_state.seeks, user, data)
     log.debug("Created seek: %s", seek)
     await app_state.lobby.lobby_broadcast_seeks()
     if (seek is not None) and seek.target == "":
@@ -152,7 +152,7 @@ async def handle_create_invite(app_state: PychessGlobalAppState, ws, user, data)
         return
 
     log.debug("Creating seek invite from request: %s", data)
-    seek = await create_seek(app_state.db, app_state.invites, app_state.seeks, user, data, ws)
+    seek = await create_seek(app_state.db, app_state.invites, app_state.seeks, user, data)
     log.debug("Created seek invite: %s", seek)
 
     response = {"type": "invite_created", "gameId": seek.game_id}
@@ -165,7 +165,7 @@ async def handle_create_host(app_state: PychessGlobalAppState, ws, user, data):
         return
 
     print("create_host", data)
-    seek = await create_seek(app_state.db, app_state.invites, app_state.seeks, user, data, ws, True)
+    seek = await create_seek(app_state.db, app_state.invites, app_state.seeks, user, data, True)
 
     response = {"type": "host_created", "gameId": seek.game_id}
     await ws_send_json(ws, response)
@@ -211,11 +211,13 @@ async def handle_accept_seek(app_state: PychessGlobalAppState, ws, user, data):
             seek.creator.game_queues[gameId] = asyncio.Queue()
             await seek.creator.event_queue.put(challenge(seek, response))
         else:
-            if seek.ws is None:
+            ws_set = seek.creator.lobby_sockets
+            if len(ws_set) == 0:
                 remove_seek(app_state.seeks, seek)
                 await app_state.lobby.lobby_broadcast_seeks()
             else:
-                await ws_send_json(seek.ws, response)
+                for creator_ws in ws_set:
+                    await ws_send_json(creator_ws, response)
 
         # Inform others, new_game() deleted accepted seek already.
         await app_state.lobby.lobby_broadcast_seeks()
