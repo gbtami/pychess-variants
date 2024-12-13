@@ -127,7 +127,7 @@ async def handle_create_ai_challenge(app_state: PychessGlobalAppState, ws, user,
     log.debug("adding seek: %s" % seek)
     app_state.seeks[seek.id] = seek
 
-    response = await join_seek(app_state, engine, seek.id)
+    response = await join_seek(app_state, engine, seek)
     await ws_send_json(ws, response)
 
     if response["type"] != "error":
@@ -206,7 +206,7 @@ async def handle_accept_seek(app_state: PychessGlobalAppState, ws, user, data):
     if seek.variant == "bughouse":
         await handle_accept_seek_bughouse(app_state, user, data, seek)
     else:
-        response = await join_seek(app_state, user, data["seekID"])
+        response = await join_seek(app_state, user, seek)
         await ws_send_json(ws, response)
 
         if seek.creator.bot:
@@ -404,9 +404,10 @@ async def handle_create_auto_pairing(app_state, ws, user, data):
                 chess960=chess960,
             )
             print("adding seek:", seek)
-            app_state.seeks[seek.id] = seek
+            # DON'T add auto-pairing seeks to the app_state !
+            # app_state.seeks[seek.id] = seek
 
-            response = await join_seek(app_state, other_user, seek.id)
+            response = await join_seek(app_state, other_user, seek)
             await ws_send_json(ws, response)
 
             for other_user_ws in other_user.lobby_sockets:

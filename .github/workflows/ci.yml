@@ -39,6 +39,7 @@ jobs:
       run: |
         PYTHONPATH=server python tests/test.py
         PYTHONPATH=server python tests/test_compress.py
+        PYTHONPATH=server python tests/test_960_rematch.py
         PYTHONPATH=server python tests/test_tournament.py
         PYTHONPATH=server python tests/test_scheduler.py
         PYTHONPATH=server python tests/test_corr_janggi_setup.py
