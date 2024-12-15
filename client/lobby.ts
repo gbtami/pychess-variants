@@ -543,11 +543,29 @@ export class LobbyController implements ChatController {
     }
 
     createAutoPairing() {
-        const variants = (this.username === 'gbtami') ? 'chess960 crazyhouse960 kingofthehill960 kyotoshogi ataxx' : 'kingofthehill960 3check';
+        const variants = (this.username === 'gbtami') ?
+            [
+                ['chess', true],
+                ['crazyhouse', true],
+                ['kingofthehill', true],
+                ['kyotoshogi', false],
+                ['ataxx', false],
+            ] :
+            [
+                ['kingofthehill', true],
+                ['3check', false]
+            ];
         this.doSend({
             type: "create_auto_pairing",
             variants: variants,
-            tcs: '1+0 3+0 5+0 3+2 5+3 3+15(b)'
+            tcs: [
+                [1, 0, 0],
+                [3, 0, 0],
+                [5, 0, 0],
+                [3, 2, 0],
+                [5, 3, 0],
+                [3, 0, 15],
+            ]
         });
     }
 

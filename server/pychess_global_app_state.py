@@ -98,7 +98,7 @@ class PychessGlobalAppState:
         self.sent_lichess_team_msg: List[date] = []
 
         self.seeks: dict[str, Seek] = {}
-        self.auto_pairing_players: set = set()
+        self.auto_pairing_users: set = set()
         self.auto_pairings: dict[str, set] = {}
         self.games: dict[str, Game] = {}
         self.invites: dict[str, Seek] = {}
