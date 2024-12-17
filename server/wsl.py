@@ -16,8 +16,14 @@ from admin import (
     silence,
     stream,
 )
+from auto_pair import (
+    auto_pair,
+    find_matching_seek,
+    find_matching_user,
+    remove_from_auto_pairings,
+)
 from chat import chat_response
-from const import ANON_PREFIX, BYOS, NONE_USER, STARTED
+from const import ANON_PREFIX, BYOS, STARTED
 from misc import server_state
 from newid import new_id
 from const import TYPE_CHECKING
@@ -65,6 +71,7 @@ async def finally_logic(app_state: PychessGlobalAppState, ws, user):
             await app_state.lobby.lobby_broadcast_u_cnt()
 
         if (user.game_in_progress is not None) or len(user.lobby_sockets) == 0:
+            remove_from_auto_pairings(app_state, user)
             await user.update_seeks(pending=True)
 
 
@@ -125,7 +132,6 @@ async def handle_create_ai_challenge(app_state: PychessGlobalAppState, ws, user,
         chess960=data["chess960"],
     )
     log.debug("adding seek: %s" % seek)
-    app_state.seeks[seek.id] = seek
 
     response = await join_seek(app_state, engine, seek)
     await ws_send_json(ws, response)
@@ -144,9 +150,19 @@ async def handle_create_seek(app_state, ws, user, data):
     log.debug("Creating seek from request: %s", data)
     seek = await create_seek(app_state.db, app_state.invites, app_state.seeks, user, data)
     log.debug("Created seek: %s", seek)
-    await app_state.lobby.lobby_broadcast_seeks()
-    if (seek is not None) and seek.target == "":
-        await app_state.discord.send_to_discord("create_seek", seek.discord_msg)
+
+    variant_tc = (seek.variant, seek.chess960, seek.base, seek.inc, seek.byoyomi_period)
+    matching_user = find_matching_user(app_state, user, variant_tc)
+
+    auto_paired = False
+    if matching_user is not None:
+        # Try to create a new game
+        auto_paired = await auto_pair(app_state, matching_user, variant_tc, user, seek)
+
+    if not auto_paired:
+        await app_state.lobby.lobby_broadcast_seeks()
+        if (seek is not None) and seek.target == "":
+            await app_state.discord.send_to_discord("create_seek", seek.discord_msg)
 
 
 async def handle_create_invite(app_state: PychessGlobalAppState, ws, user, data):
@@ -341,94 +357,50 @@ async def handle_create_auto_pairing(app_state, ws, user, data):
         return
 
     auto_variant_tc = None
-    other_user = None
+    matching_user = None
+    matching_seek = None
 
     for variant_tc in product(data["variants"], data["tcs"]):
-        variant_tc = (variant_tc[0][0], variant_tc[0][1], variant_tc[1][0], variant_tc[1][1], variant_tc[1][2])
+        variant_tc = (
+            variant_tc[0][0],
+            variant_tc[0][1],
+            variant_tc[1][0],
+            variant_tc[1][1],
+            variant_tc[1][2],
+        )
         variant, chess960, base, inc, byoyomi_period = variant_tc
-        # We don't want to create unsupported variant_tc combinations
-        if variant.startswith("bughouse") or (byoyomi_period > 0 and variant not in BYOS):
+        # We don't want to create non byo variant with byo TC combinations
+        if (byoyomi_period > 0 and variant not in BYOS) or variant.startswith("bughouse"):
             continue
 
-        # If we don't have it in auto_pairings, add it
         if variant_tc not in app_state.auto_pairings:
             app_state.auto_pairings[variant_tc] = set()
-
-        if other_user is None:
-            # Try to find the same combo in auto_pairings
-            auto_pairing_users = [
-                auto_pairing_user
-                for auto_pairing_user in app_state.auto_pairings[variant_tc]
-                if auto_pairing_user in app_state.auto_pairing_users
-            ]
-
-            if auto_pairing_users:
-                for ap_user in auto_pairing_users:
-                    if user.compatible_with_other_user(ap_user):
-                        other_user = ap_user
-                        auto_variant_tc = variant_tc
-                        break
-            else:
-                # Maybe there is a matching normal seek
-                maybe_seeks = [
-                    seek
-                    for seek in app_state.seeks.values()
-                    if seek.variant == variant
-                    and seek.chess960 == chess960
-                    and seek.rated
-                    and seek.base == base
-                    and seek.inc == inc
-                    and seek.byoyomi_period == byoyomi_period
-                    and seek.color == "r"
-                    and seek.fen == ""
-                ]
-
-                for seek in maybe_seeks:
-                    if user.compatible_with_seek(seek):
-                        other_user = seek.creator
-                        auto_variant_tc = variant_tc
-                        break
-
-        # Now we can't pair the user, so we can safely add it to auto_pairings
         app_state.auto_pairings[variant_tc].add(user)
 
+        if (matching_user is None) and (matching_seek is None):
+            # Try to find the same combo in auto_pairings
+            matching_user = find_matching_user(app_state, user, variant_tc)
+            auto_variant_tc = variant_tc
+
+        if (matching_user is None) and (matching_seek is None):
+            # Maybe there is a matching normal seek
+            matching_seek = find_matching_seek(app_state, user, variant_tc)
+            auto_variant_tc = variant_tc
+
+    auto_paired = False
+    if (matching_user is not None) or (matching_seek is not None):
         # Try to create a new game
-        if other_user is not None:
-            if other_user.username != NONE_USER:
-                # remove user from auto_pairing_users
-                try:
-                    app_state.auto_pairing_users.remove(user)
-                except KeyError:
-                    pass
-                # remove the other user from auto_pairing_users
-                try:
-                    app_state.auto_pairing_users.remove(other_user)
-                except KeyError:
-                    pass
+        auto_paired = await auto_pair(
+            app_state, user, auto_variant_tc, matching_user, matching_seek
+        )
 
-                variant, chess960, base, inc, byoyomi_period = auto_variant_tc
-
-                seek_id = await new_id(None if app_state.db is None else app_state.db.seek)
-                seek = Seek(
-                    seek_id,
-                    user,
-                    variant,
-                    base=base,
-                    inc=inc,
-                    byoyomi_period=byoyomi_period,
-                    player1=user,
-                    rated=True,
-                    chess960=chess960,
-                )
-
-                response = await join_seek(app_state, other_user, seek)
-                await ws_send_json(ws, response)
-
-                for other_user_ws in other_user.lobby_sockets:
-                    await ws_send_json(other_user_ws, response)
-
-    if other_user is None:
+    if not auto_paired:
         app_state.auto_pairing_users.add(user)
+
+
+#    print("AUTO_PAIRING USERS", [user.username for user in app_state.auto_pairing_users])
+#    for key, value in app_state.auto_pairings.items():
+#        print(key, [user.username for user in app_state.auto_pairings[key]])
 
 
 async def send_game_in_progress_if_any(app_state: PychessGlobalAppState, user, ws):
