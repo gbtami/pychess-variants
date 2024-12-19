@@ -23,7 +23,7 @@ import { handleOngoingGameEvents, Game, gameViewPlaying, compareGames } from './
 import { createWebsocket } from "@/socket/webSocketUtils";
 
 
-const autoPairingTCs = [
+const autoPairingTCs: [number, number, number][] = [
     [1, 0, 0],
     [3, 0, 0],
     [3, 2, 0],
@@ -564,7 +564,7 @@ export class LobbyController implements ChatController {
     }
 
     autoPairingSubmit() {
-        const variants = [];
+        const variants: [string, boolean][] = [];
         document.querySelectorAll('input[name^="va_"]').forEach((inp: HTMLInputElement) => {
             localStorage[inp.name] = inp.checked;
             if (inp.checked) {
@@ -574,8 +574,8 @@ export class LobbyController implements ChatController {
             }
         })
 
-        const tcs = [];
-        document.querySelectorAll('input[name^="tc_"]').forEach((inp: HTMLInputElement, index) => {
+        const tcs: [number, number, number][] = [];
+        document.querySelectorAll('input[name^="tc_"]').forEach((inp: HTMLInputElement, index: number) => {
             localStorage[inp.name] = inp.checked;
             if (inp.checked) tcs.push(autoPairingTCs[index]);
         })
@@ -948,12 +948,7 @@ export class LobbyController implements ChatController {
     }
 
     renderAutoPairingTable() {
-        // TODO: load/save from localStorage
-        // TODO: call createAutoPairing() on clicking SUBMIT button
-        const asVariants = localStorage.auto_seek_variants ?? "";
-        const asTCs = localStorage.auto_seek_tcs ?? "";
-
-        const variantList = [];
+        const variantList: VNode[] = [];
         enabledVariants.forEach(v => {
             const variant = VARIANTS[v];
             let variantName = variant.name;
@@ -968,7 +963,7 @@ export class LobbyController implements ChatController {
             }
         })
 
-        const tcList = [];
+        const tcList: VNode[] = [];
         autoPairingTCs.forEach(v => {
             const tcName = timeControlStr(v[0], v[1], v[2]);
             const checked = localStorage[`tc_${tcName}`] ?? "false";
