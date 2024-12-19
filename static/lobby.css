@@ -150,11 +150,11 @@ div.tc-block, div#rating-range-setting, div.timecontrols {
     font-weight: inherit;
     flex: 0 0 7ch;
 }
-div.auto-seeks {
+div.auto-pairing {
   display: grid;
   grid-gap: 3px;
 }
-div.auto-seeks div.variants {
+div.auto-pairing div.variants {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr 1fr;
 }
