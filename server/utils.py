@@ -354,46 +354,43 @@ async def import_game(request):
     return web.json_response({"gameId": game_id})
 
 
-async def join_seek(app_state: PychessGlobalAppState, user, seek_id, game_id=None, join_as="any"):
-    seek = app_state.seeks[seek_id]
+async def join_seek(app_state: PychessGlobalAppState, user, seek, game_id=None, join_as="any"):
     log.info(
         "+++ Seek %s joined by %s FEN:%s 960:%s",
-        seek_id,
+        seek.id,
         user.username,
         seek.fen,
         seek.chess960,
     )
 
     if user is seek.player1 or user is seek.player2:
-        return {"type": "seek_yourself", "seekID": seek_id}
+        return {"type": "seek_yourself", "seekID": seek.id}
 
     if join_as == "player1":
         if seek.player1 is None:
             seek.player1 = user
         else:
-            return {"type": "seek_occupied", "seekID": seek_id}
+            return {"type": "seek_occupied", "seekID": seek.id}
     elif join_as == "player2":
         if seek.player2 is None:
             seek.player2 = user
         else:
-            return {"type": "seek_occupied", "seekID": seek_id}
+            return {"type": "seek_occupied", "seekID": seek.id}
     else:
         if seek.player1 is None:
             seek.player1 = user
         elif seek.player2 is None:
             seek.player2 = user
         else:
-            return {"type": "seek_occupied", "seekID": seek_id}
+            return {"type": "seek_occupied", "seekID": seek.id}
 
     if seek.player1 is not None and seek.player2 is not None:
-        return await new_game(app_state, seek_id, game_id)
+        return await new_game(app_state, seek, game_id)
     else:
-        return {"type": "seek_joined", "seekID": seek_id}
+        return {"type": "seek_joined", "seekID": seek.id}
 
 
-async def new_game(app_state: PychessGlobalAppState, seek_id, game_id=None):
-    seek = app_state.seeks[seek_id]
-
+async def new_game(app_state: PychessGlobalAppState, seek, game_id=None):
     fen_valid = True
     if seek.fen:
         fen_valid, sanitized_fen = sanitize_fen(seek.variant, seek.fen, seek.chess960)

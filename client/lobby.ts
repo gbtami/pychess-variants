@@ -10,7 +10,7 @@ import { _, ngettext, languageSettings } from './i18n';
 import { patch } from './document';
 import { boardSettings } from './boardSettings';
 import { chatMessage, chatView, ChatController } from './chat';
-import { VARIANTS, selectVariant, Variant } from './variants';
+import { enabledVariants, VARIANTS, selectVariant, Variant } from './variants';
 import { timeControlStr, changeTabs, setAriaTabClick } from './view';
 import { notify } from './notification';
 import { PyChessModel } from "./types";
@@ -21,6 +21,16 @@ import { validFen, uci2LastMove } from './chess';
 import { seekViewBughouse, switchEnablingLobbyControls } from "./bug/lobby.bug";
 import { handleOngoingGameEvents, Game, gameViewPlaying, compareGames } from './nowPlaying';
 import { createWebsocket } from "@/socket/webSocketUtils";
+
+
+const autoPairingTCs: [number, number, number][] = [
+    [1, 0, 0],
+    [3, 0, 0],
+    [3, 2, 0],
+    [5, 3, 0],
+    [2, 15, 1],
+    [5, 15, 1],
+];
 
 export function createModeStr(mode: CreateMode) {
     switch (mode) {
@@ -153,6 +163,8 @@ export class LobbyController implements ChatController {
         const e = document.getElementById("fen") as HTMLInputElement;
         if (this.fen !== "")
             e.value = this.fen;
+
+        if (!this.anon) this.renderAutoPairingTable();
 
         boardSettings.assetURL = this.assetURL;
         boardSettings.updateBoardAndPieceStyles();
@@ -541,6 +553,38 @@ export class LobbyController implements ChatController {
         ];
     }
 
+    autoPairingReset() {
+        console.log('autoPairingReset()');
+        document.querySelectorAll('input[name^="va_"]').forEach((inp: HTMLInputElement) => {
+            inp.checked = false;
+        });
+        document.querySelectorAll('input[name^="tc_"]').forEach((inp: HTMLInputElement) => {
+            inp.checked = false;
+        });
+    }
+
+    autoPairingSubmit() {
+        const variants: [string, boolean][] = [];
+        document.querySelectorAll('input[name^="va_"]').forEach((inp: HTMLInputElement) => {
+            localStorage[inp.name] = inp.checked;
+            if (inp.checked) {
+                const chess960 = inp.name.endsWith('960');
+                const name = (chess960) ? inp.name.slice(3, -3) : inp.name.slice(3);
+                variants.push([name, chess960]);
+            }
+        })
+
+        const tcs: [number, number, number][] = [];
+        document.querySelectorAll('input[name^="tc_"]').forEach((inp: HTMLInputElement, index: number) => {
+            localStorage[inp.name] = inp.checked;
+            if (inp.checked) tcs.push(autoPairingTCs[index]);
+        })
+
+        console.log('autoPairingSubmit()', variants);
+        console.log('autoPairingSubmit()', tcs);
+        this.doSend({ type: "create_auto_pairing", variants: variants, tcs: tcs });
+    }
+
     preSelectVariant(variantName: string, chess960: boolean=false) {
         if (variantName !== '') {
             const select = document.getElementById("variant") as HTMLSelectElement;
@@ -903,6 +947,40 @@ export class LobbyController implements ChatController {
         boardSettings.updateBoardAndPieceStyles();
     }
 
+    renderAutoPairingTable() {
+        const variantList: VNode[] = [];
+        enabledVariants.forEach(v => {
+            const variant = VARIANTS[v];
+            let variantName = variant.name;
+            let checked = localStorage[`va_${variantName}`] ?? "false";
+            if (variantName !== 'bughouse') {
+                variantList.push(h('label', [h('input', { props: { name: `va_${variantName}`, type: "checkbox" }, attrs: { checked: checked === "true" } }), variantName]));
+                if (variant.chess960) {
+                    variantName = variantName + '960';
+                    checked = localStorage[`va_${variantName}`] ?? "false";
+                    variantList.push(h('label', [h('input', { props: { name: `va_${variantName}`, type: "checkbox" }, attrs: { checked: checked === "true" } }), variantName]));
+                }
+            }
+        })
+
+        const tcList: VNode[] = [];
+        autoPairingTCs.forEach(v => {
+            const tcName = timeControlStr(v[0], v[1], v[2]);
+            const checked = localStorage[`tc_${tcName}`] ?? "false";
+            tcList.push(h('label', [h('input', { props: { name: `tc_${tcName}`, type: "checkbox" }, attrs: { checked: checked === "true" } }), tcName]));
+        })
+
+        const el = document.querySelector('div.auto-pairing') as Element;
+        patch(el, h('div.auto-pairing', [
+            h('div.actions', [
+                h('button.reset', { on: { click: () => this.autoPairingReset() } }, [h('div.icon.icon-ban', _('RESET'))]),
+                h('button.submit', { on: { click: () => this.autoPairingSubmit() } }, [h('div.icon.icon-check',  _('SUBMIT'))]),
+            ]),
+            h('div.timecontrols', tcList),
+            h('div.variants', variantList),
+        ]));
+    }
+
     onMessage(evt: MessageEvent) {
         // console.log("<+++ lobby onMessage():", evt.data);
         if (evt.data === '/n') return;
@@ -1080,6 +1158,7 @@ export function lobbyView(model: PyChessModel): VNode[] {
     const puzzle = JSON.parse(model.puzzle);
     const blogs = JSON.parse(model.blogs);
     const username = model.username;
+    const anonUser = model["anon"] === 'True';
     const corrGames = JSON.parse(model.corrGames).sort(compareGames(username));
     const gpCounter = corrGames.length;
 
@@ -1127,6 +1206,9 @@ export function lobbyView(model: PyChessModel): VNode[] {
             h('span.noread.data-count', {attrs: { 'data-count': count }})
         ]))
     }
+    if (!anonUser) {
+        tabs.push(h('span', {attrs: {role: 'tab', 'aria-selected': false, 'aria-controls': 'panel-4', id: 'tab-4', tabindex: '-1'}}, _('Auto pairing')))
+    }
 
     let containers = [];
     containers.push(h('div', {attrs: {role: 'tablist', 'aria-label': 'Seek Tabs'}}, tabs));
@@ -1155,6 +1237,14 @@ export function lobbyView(model: PyChessModel): VNode[] {
                         h('games-grid#games', corrGames.map((game: Game) => gameViewPlaying(cgMap, game, username)))
                     ])
                 ])
+            ])
+        )
+    }
+
+    if (!anonUser) {
+        containers.push(
+            h('div.auto-container', {attrs: {id: 'panel-4', role: 'tabpanel', tabindex: '-1', 'aria-labelledby': 'tab-4'}}, [
+                h('div.seeks-table', [h('div.seeks-wrapper', [h('div.auto-pairing')])])
             ])
         )
     }
