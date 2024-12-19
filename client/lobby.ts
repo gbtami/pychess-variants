@@ -10,7 +10,7 @@ import { _, ngettext, languageSettings } from './i18n';
 import { patch } from './document';
 import { boardSettings } from './boardSettings';
 import { chatMessage, chatView, ChatController } from './chat';
-import { VARIANTS, selectVariant, Variant } from './variants';
+import { enabledVariants, VARIANTS, selectVariant, Variant } from './variants';
 import { timeControlStr, changeTabs, setAriaTabClick } from './view';
 import { notify } from './notification';
 import { PyChessModel } from "./types";
@@ -21,6 +21,16 @@ import { validFen, uci2LastMove } from './chess';
 import { seekViewBughouse, switchEnablingLobbyControls } from "./bug/lobby.bug";
 import { handleOngoingGameEvents, Game, gameViewPlaying, compareGames } from './nowPlaying';
 import { createWebsocket } from "@/socket/webSocketUtils";
+
+
+const autoSeekTCs = [
+    [1, 0, 0],
+    [3, 0, 0],
+    [3, 2, 0],
+    [5, 3, 0],
+    [2, 15, 1],
+    [5, 15, 1],
+];
 
 export function createModeStr(mode: CreateMode) {
     switch (mode) {
@@ -543,6 +553,8 @@ export class LobbyController implements ChatController {
     }
 
     createAutoPairing() {
+        localStorage.auto_seek_variants = '';
+        localStorage.auto_seek_tcs = '';
         const variants = (this.username === 'gbtami') ?
             [
                 ['chess', true],
@@ -558,14 +570,7 @@ export class LobbyController implements ChatController {
         this.doSend({
             type: "create_auto_pairing",
             variants: variants,
-            tcs: [
-                [1, 0, 0],
-                [3, 0, 0],
-                [5, 0, 0],
-                [3, 2, 0],
-                [5, 3, 0],
-                [3, 0, 15],
-            ]
+            tcs: autoSeekTCs
         });
     }
 
@@ -1108,6 +1113,7 @@ export function lobbyView(model: PyChessModel): VNode[] {
     const puzzle = JSON.parse(model.puzzle);
     const blogs = JSON.parse(model.blogs);
     const username = model.username;
+    const anonUser = model["anon"] === 'True';
     const corrGames = JSON.parse(model.corrGames).sort(compareGames(username));
     const gpCounter = corrGames.length;
 
@@ -1155,6 +1161,9 @@ export function lobbyView(model: PyChessModel): VNode[] {
             h('span.noread.data-count', {attrs: { 'data-count': count }})
         ]))
     }
+    if (!anonUser) {
+        tabs.push(h('span', {attrs: {role: 'tab', 'aria-selected': false, 'aria-controls': 'panel-4', id: 'tab-4', tabindex: '-1'}}, _('Auto pairing')))
+    }
 
     let containers = [];
     containers.push(h('div', {attrs: {role: 'tablist', 'aria-label': 'Seek Tabs'}}, tabs));
@@ -1181,6 +1190,57 @@ export function lobbyView(model: PyChessModel): VNode[] {
                 h('div.seeks-table', [
                     h('div.seeks-wrapper', [
                         h('games-grid#games', corrGames.map((game: Game) => gameViewPlaying(cgMap, game, username)))
+                    ])
+                ])
+            ])
+        )
+    }
+
+    if (!anonUser) {
+        const variantList = [];
+        // TODO: load/save from localStorage
+        // TODO: call createAutoPairing() on clicking SUBMIT button
+        const asVariants = localStorage.auto_seek_variants ?? "";
+        const asTCs = localStorage.auto_seek_tcs ?? "";
+
+        enabledVariants.forEach(v => {
+            const variant = VARIANTS[v];
+            if (variant.name !== 'bughouse') {
+                variantList.push(
+                    h('label', [
+                        h('input#a-' + variant.name, { props: { name: variant.name, type: "checkbox", }, attrs: { checked: false } }),
+                        variant.name
+                    ])
+                );
+                if (variant.chess960) {
+                    variantList.push(
+                        h('label', [
+                            h('input#a-' + variant.name, { props: { name: variant.name, type: "checkbox", }, attrs: { checked: true } }),
+                            variant.name + '960'
+                        ])
+                    );
+                }
+            }
+        })
+
+        const tcList = [];
+        autoSeekTCs.forEach(v => {
+            const tcName = timeControlStr(v[0], v[1], v[2]);
+            tcList.push(h('label', [h('input#a-' + tcName, { props: { name: tcName, type: "checkbox", }, attrs: { checked: false } }), tcName]));
+        })
+
+        containers.push(
+            h('div.auto-container', {attrs: {id: 'panel-4', role: 'tabpanel', tabindex: '-1', 'aria-labelledby': 'tab-4'}}, [
+                h('div.seeks-table', [
+                    h('div.seeks-wrapper', [
+                        h('div.auto-seeks', [
+                            h('div.variants', variantList),
+                            h('div.timecontrols', tcList),
+                            h('div.actions', [
+                                h('button.reset', [h('div.icon.icon-ban', _('RESET'))]),
+                                h('button.submit', [h('div.icon.icon-check',  _('SUBMIT'))]),
+                            ])
+                        ])
                     ])
                 ])
             ])

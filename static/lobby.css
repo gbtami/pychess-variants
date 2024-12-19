@@ -134,7 +134,7 @@ div.rating-range .slider {
   padding: .6em 0;
   margin: 0;
 }
-div.tc-block, div#rating-range-setting {
+div.tc-block, div#rating-range-setting, div.timecontrols {
     padding: 1em;
     background: var(--bg-color2);
     border-top: 1px solid var(--border-color);
@@ -149,4 +149,37 @@ div.tc-block, div#rating-range-setting {
 .rating-range .rating-min, .rating-range .rating-max {
     font-weight: inherit;
     flex: 0 0 7ch;
+}
+div.auto-seeks {
+  display: grid;
+  grid-gap: 3px;
+}
+div.auto-seeks div.variants {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+}
+input {
+  margin-inline-end: .3em;
+}
+div.actions {
+  margin-top: 1.5em;
+  text-align: end;
+  padding-right: 1.3em;
+}
+button.submit, button.reset {
+  border-radius: 6px;
+  padding: .8em 1em;
+}
+button.submit {
+  color: White;
+  background: var(--good);
+  font-weight: 600;
+}
+button.reset {
+  color: var(--bad);
+  border: none;
+  background: none;
+}
+button [class*=' icon-']::before {
+  margin-inline-end: 0.4em;
 }
