@@ -92,6 +92,8 @@ async def process_message(app_state: PychessGlobalAppState, user, ws, data):
         await handle_lobbychat(app_state, user, data)
     elif data["type"] == "create_auto_pairing":
         await handle_create_auto_pairing(app_state, ws, user, data)
+    elif data["type"] == "cancel_auto_pairing":
+        await handle_cancel_auto_pairing(app_state, ws, user, data)
 
 
 async def send_get_seeks(app_state, ws, user):
@@ -292,6 +294,9 @@ async def send_lobby_user_connected(app_state, ws, user):
 
     await user.update_seeks(pending=False)
 
+    auto_pairing = "auto_pairing_on" if user in app_state.auto_pairing_users else "auto_pairing_off"
+    await ws_send_json(ws, {"type": auto_pairing})
+
 
 async def handle_lobbychat(app_state: PychessGlobalAppState, user, data):
     if user.username.startswith(ANON_PREFIX):
@@ -351,6 +356,12 @@ async def handle_lobbychat(app_state: PychessGlobalAppState, user, data):
         await app_state.discord.send_to_discord("lobbychat", data["message"], user.username)
 
 
+async def handle_cancel_auto_pairing(app_state, ws, user, data):
+    remove_from_auto_pairings(app_state, user)
+    for user_ws in user.lobby_sockets:
+        await ws_send_json(user_ws, {"type": "auto_pairing_off"})
+
+
 async def handle_create_auto_pairing(app_state, ws, user, data):
     no = await send_game_in_progress_if_any(app_state, user, ws)
     if no:
@@ -396,6 +407,9 @@ async def handle_create_auto_pairing(app_state, ws, user, data):
 
     if not auto_paired:
         app_state.auto_pairing_users.add(user)
+
+        for user_ws in user.lobby_sockets:
+            await ws_send_json(user_ws, {"type": "auto_pairing_on"})
 
 
 #    print("AUTO_PAIRING USERS", [user.username for user in app_state.auto_pairing_users])

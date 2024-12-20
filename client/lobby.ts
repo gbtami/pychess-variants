@@ -71,6 +71,7 @@ export class LobbyController implements ChatController {
     streams: VNode | HTMLElement;
     spotlights: VNode | HTMLElement;
     dialogHeaderEl: VNode | HTMLElement;
+    autoPairingActions: VNode | HTMLElement;
     tvGame: TvGame;
     tvGameId: string;
     tvGameChessground: Api;
@@ -164,7 +165,10 @@ export class LobbyController implements ChatController {
         if (this.fen !== "")
             e.value = this.fen;
 
-        if (!this.anon) this.renderAutoPairingTable();
+        if (!this.anon) {
+            this.renderAutoPairingTable();
+            this.autoPairingActions = document.querySelector('div.auto-pairing-actions') as HTMLElement;
+        }
 
         boardSettings.assetURL = this.assetURL;
         boardSettings.updateBoardAndPieceStyles();
@@ -553,14 +557,26 @@ export class LobbyController implements ChatController {
         ];
     }
 
+    autoPairingSelectAll() {
+        document.querySelectorAll('input[name^="va_"]').forEach((inp: HTMLInputElement) => {
+            inp.checked = true;
+        });
+        document.querySelectorAll('input[name^="tc_"]').forEach((inp: HTMLInputElement) => {
+            inp.checked = true;
+        });
+    }
+
     autoPairingReset() {
-        console.log('autoPairingReset()');
         document.querySelectorAll('input[name^="va_"]').forEach((inp: HTMLInputElement) => {
             inp.checked = false;
         });
         document.querySelectorAll('input[name^="tc_"]').forEach((inp: HTMLInputElement) => {
             inp.checked = false;
         });
+    }
+
+    autoPairingCancel() {
+        this.doSend({ type: "cancel_auto_pairing" });
     }
 
     autoPairingSubmit() {
@@ -580,8 +596,8 @@ export class LobbyController implements ChatController {
             if (inp.checked) tcs.push(autoPairingTCs[index]);
         })
 
-        console.log('autoPairingSubmit()', variants);
-        console.log('autoPairingSubmit()', tcs);
+        // console.log('autoPairingSubmit()', variants);
+        // console.log('autoPairingSubmit()', tcs);
         this.doSend({ type: "create_auto_pairing", variants: variants, tcs: tcs });
     }
 
@@ -947,6 +963,25 @@ export class LobbyController implements ChatController {
         boardSettings.updateBoardAndPieceStyles();
     }
 
+    renderAutoPairingActions(autoPairingIsOn: boolean) {
+        if (autoPairingIsOn) {
+            this.autoPairingActions = patch(this.autoPairingActions,
+                h('div.auto-pairing-actions', [
+                    h('span.standingby', _('Standing by for auto pairing...')),
+                    h('button.cancel', { on: { click: () => this.autoPairingCancel() } }, [h('div.icon.icon-ban', _('CANCEL'))]),
+                ])
+            );
+        } else {
+            this.autoPairingActions = patch(this.autoPairingActions,
+                h('div.auto-pairing-actions', [
+                    h('button.selectall', { on: { click: () => this.autoPairingSelectAll() } }, [h('div.icon.icon-check', _('SELECT ALL'))]),
+                    h('button.reset', { on: { click: () => this.autoPairingReset() } }, [h('div.icon.icon-trash-o', _('CLEAR ALL'))]),
+                    h('button.submit', { on: { click: () => this.autoPairingSubmit() } }, [h('div.icon.icon-check',  _('SUBMIT'))]),
+                ])
+            );
+        }
+    }
+
     renderAutoPairingTable() {
         const variantList: VNode[] = [];
         enabledVariants.forEach(v => {
@@ -962,6 +997,7 @@ export class LobbyController implements ChatController {
                 }
             }
         })
+        patch(document.querySelector('div.variants') as Element, h('div.variants', variantList));
 
         const tcList: VNode[] = [];
         autoPairingTCs.forEach(v => {
@@ -969,16 +1005,7 @@ export class LobbyController implements ChatController {
             const checked = localStorage[`tc_${tcName}`] ?? "false";
             tcList.push(h('label', [h('input', { props: { name: `tc_${tcName}`, type: "checkbox" }, attrs: { checked: checked === "true" } }), tcName]));
         })
-
-        const el = document.querySelector('div.auto-pairing') as Element;
-        patch(el, h('div.auto-pairing', [
-            h('div.actions', [
-                h('button.reset', { on: { click: () => this.autoPairingReset() } }, [h('div.icon.icon-ban', _('RESET'))]),
-                h('button.submit', { on: { click: () => this.autoPairingSubmit() } }, [h('div.icon.icon-check',  _('SUBMIT'))]),
-            ]),
-            h('div.timecontrols', tcList),
-            h('div.variants', variantList),
-        ]));
+        patch(document.querySelector('div.timecontrols') as Element, h('div.timecontrols', tcList));
     }
 
     onMessage(evt: MessageEvent) {
@@ -1031,6 +1058,12 @@ export class LobbyController implements ChatController {
             case "host_created":
                 this.onMsgHostCreated(msg);
                 break;
+            case "auto_pairing_on":
+                this.onMsgAutoPairingOn();
+                break;
+            case "auto_pairing_off":
+                this.onMsgAutoPairingOff();
+                break;
             case "shutdown":
                 this.onMsgShutdown(msg);
                 break;
@@ -1051,6 +1084,14 @@ export class LobbyController implements ChatController {
         window.location.assign('/' + msg.gameId);
     }
 
+    private onMsgAutoPairingOn() {
+        this.renderAutoPairingActions(true);
+    }
+
+    private onMsgAutoPairingOff() {
+        this.renderAutoPairingActions(false);
+    }
+
     private onMsgGetSeeks(msg: MsgGetSeeks) {
         this.seeks = msg.seeks;
         // console.log("!!!! got get_seeks msg:", msg);
@@ -1063,9 +1104,11 @@ export class LobbyController implements ChatController {
         oldCorrs.innerHTML = "";
         patch(oldCorrs, h('table.seeks', this.renderSeeks(msg.seeks.filter(seek => seek.day !== 0))));
     }
+
     private onMsgNewGame(msg: MsgNewGame) {
         window.location.assign('/' + msg.gameId);
     }
+
     private onMsgGameInProgress(msg: MsgGameInProgress) {
         const response = confirm(_("You have an unfinished game!\nPress OK to continue."));
         if (response) window.location.assign('/' + msg.gameId);
@@ -1244,7 +1287,11 @@ export function lobbyView(model: PyChessModel): VNode[] {
     if (!anonUser) {
         containers.push(
             h('div.auto-container', {attrs: {id: 'panel-4', role: 'tabpanel', tabindex: '-1', 'aria-labelledby': 'tab-4'}}, [
-                h('div.seeks-table', [h('div.seeks-wrapper', [h('div.auto-pairing')])])
+                h('div.seeks-table', [h('div.seeks-wrapper', [h('div.auto-pairing', [
+                    h('div.auto-pairing-actions'),
+                    h('div.timecontrols'),
+                    h('div.variants'),
+                ])])])
             ])
         )
     }

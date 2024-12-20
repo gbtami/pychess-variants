@@ -161,12 +161,11 @@ div.auto-pairing div.variants {
 input {
   margin-inline-end: .3em;
 }
-div.actions {
-  margin-top: 1.5em;
-  text-align: end;
-  padding-right: 1.3em;
+div.auto-pairing-actions {
+  margin: 1em;
+  text-align: center;
 }
-button.submit, button.reset {
+button.submit, button.cancel, button.reset, button.selectall {
   border-radius: 6px;
   padding: .8em 1em;
 }
@@ -175,8 +174,27 @@ button.submit {
   background: var(--good);
   font-weight: 600;
 }
+button.cancel {
+  color: White;
+  background: var(--bad);
+  font-weight: 600;
+}
+.standingby {
+   animation: blink 1.5s infinite;
+   animation-fill-mode: both;
+}
+@keyframes blink {
+   0% { opacity: 0 }
+   50% { opacity: 1 }
+   100% { opacity: 0 }
+}
 button.reset {
   color: var(--bad);
+  border: none;
+  background: none;
+}
+button.selectall {
+  color: var(--good);
   border: none;
   background: none;
 }

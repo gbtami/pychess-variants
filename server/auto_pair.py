@@ -36,7 +36,6 @@ async def auto_pair(app_state, user, auto_variant_tc, other_user=None, matching_
 
     # create game
     response = await join_seek(app_state, user, seek)
-    print(response)
 
     for user_ws in user.lobby_sockets:
         await ws_send_json(user_ws, response)
