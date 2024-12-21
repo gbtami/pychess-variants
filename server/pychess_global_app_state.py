@@ -178,7 +178,7 @@ class PychessGlobalAppState:
             new_tournaments_data = new_scheduled_tournaments(already_scheduled)
             await create_scheduled_tournaments(self, new_tournaments_data)
 
-            asyncio.create_task(generate_shield(self))
+            asyncio.create_task(generate_shield(self), name="generate-shield")
 
             if "highscore" not in db_collections:
                 await generate_highscore(self)
@@ -383,8 +383,8 @@ class PychessGlobalAppState:
     def __start_bots(self):
         rm = self.users["Random-Mover"]
         ai = self.users["Fairy-Stockfish"]
-        asyncio.create_task(BOT_task(ai, self))
-        asyncio.create_task(BOT_task(rm, self))
+        asyncio.create_task(BOT_task(ai, self), name="BOT-RM")
+        asyncio.create_task(BOT_task(rm, self), name="BOT-FSF")
 
     def __init_fishnet_monitor(self) -> dict:
         result = {}
@@ -403,12 +403,12 @@ class PychessGlobalAppState:
         else:
             bot = DiscordBot(self)
             self.discord = bot
-            asyncio.create_task(bot.start(DISCORD_TOKEN))
+            asyncio.create_task(bot.start(DISCORD_TOKEN), name="Discord-BOT")
 
     def __init_twitch(self) -> Twitch:
         result = Twitch(self.app)
         if not DEV:
-            asyncio.create_task(result.init_subscriptions())
+            asyncio.create_task(result.init_subscriptions(), name="Twitch-subscriptions")
         return result
 
     def __init_users(self) -> Users:

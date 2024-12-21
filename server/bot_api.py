@@ -170,7 +170,8 @@ async def event_stream(request):
     log.info("+++ BOT %s connected", bot_player.username)
 
     pinger_task = asyncio.create_task(
-        bot_player.pinger(app_state.sockets, app_state.seeks, app_state.users, app_state.games)
+        bot_player.pinger(app_state.sockets, app_state.seeks, app_state.users, app_state.games),
+        name="BOT-event-stream-pinger",
     )
 
     # inform others
@@ -235,7 +236,7 @@ async def game_stream(request):
             else:
                 break
 
-    pinger_task = asyncio.create_task(pinger())
+    pinger_task = asyncio.create_task(pinger(), name="BOT-game-stream-pinger")
 
     while True:
         answer = await bot_player.game_queues[gameId].get()
