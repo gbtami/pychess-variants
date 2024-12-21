@@ -111,7 +111,9 @@ class User:
 
         # purge inactive anon users after ANON_TIMEOUT sec
         if self.anon and self.username not in RESERVED_USERS:
-            self.remove_task = asyncio.create_task(self.remove(), name="user-remove-%s" % self.username)
+            self.remove_task = asyncio.create_task(
+                self.remove(), name="user-remove-%s" % self.username
+            )
 
     async def remove(self):
         while True:

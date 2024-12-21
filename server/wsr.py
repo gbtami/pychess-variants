@@ -129,7 +129,9 @@ async def finally_logic(app_state: PychessGlobalAppState, ws, user, game):
             user.update_online()
 
         if user in (game.wplayer, game.bplayer) and (not game.corr):
-            user.abandon_game_task = asyncio.create_task(user.abandon_game(game), name="abandone-game-%s-%s" % (user.username, game.id))
+            user.abandon_game_task = asyncio.create_task(
+                user.abandon_game(game), name="abandone-game-%s-%s" % (user.username, game.id)
+            )
         else:
             game.spectators.discard(user)
             await round_broadcast(game, game.spectator_list, full=True)

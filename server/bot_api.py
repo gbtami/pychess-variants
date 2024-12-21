@@ -171,7 +171,7 @@ async def event_stream(request):
 
     pinger_task = asyncio.create_task(
         bot_player.pinger(app_state.sockets, app_state.seeks, app_state.users, app_state.games),
-        name="BOT-event-stream-pinger"
+        name="BOT-event-stream-pinger",
     )
 
     # inform others

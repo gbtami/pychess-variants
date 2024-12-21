@@ -457,7 +457,9 @@ class Tournament(ABC):
                             "notify_tournament",
                             self.notify_discord_msg(remaining_mins_to_start),
                         )
-                        asyncio.create_task(lichess_team_msg(self.app_state), name="t-lichess-team-msg")
+                        asyncio.create_task(
+                            lichess_team_msg(self.app_state), name="t-lichess-team-msg"
+                        )
                         continue
 
                 elif (self.minutes is not None) and now >= self.ends_at:
