@@ -5,6 +5,7 @@ import random
 import unittest
 
 from aiohttp.test_utils import AioHTTPTestCase
+from mongomock_motor import AsyncMongoMockClient
 
 import game
 from const import VARIANTS
@@ -34,7 +35,7 @@ class RamatchChess960GameTestCase(AioHTTPTestCase):
         self.Bplayer = User(get_app_state(self.app), username="Bplayer", perfs=PERFS["newplayer"])
 
     async def get_application(self):
-        app = make_app()
+        app = make_app(db_client=AsyncMongoMockClient())
         app.on_startup.append(self.startup)
         return app
 
@@ -66,7 +67,7 @@ class RamatchChess960GameTestCase(AioHTTPTestCase):
         )
         app_state.seeks[seek.id] = seek
 
-        response = await join_seek(get_app_state(self.app), rematch_accepted_by, seek.id)
+        response = await join_seek(get_app_state(self.app), rematch_accepted_by, seek)
         rematch_id = response["gameId"]
 
         game_even = app_state.games[rematch_id]
@@ -95,7 +96,7 @@ class RamatchChess960GameTestCase(AioHTTPTestCase):
         )
         app_state.seeks[seek.id] = seek
 
-        response = await join_seek(app_state, rematch_accepted_by, seek.id)
+        response = await join_seek(app_state, rematch_accepted_by, seek)
         rematch_id = response["gameId"]
 
         game_odd = app_state.games[rematch_id]

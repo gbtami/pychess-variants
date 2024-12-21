@@ -397,7 +397,7 @@ async def handle_rematch(app_state: PychessGlobalAppState, ws, user, data, game)
         )
         app_state.seeks[seek.id] = seek
 
-        response = await join_seek(app_state, engine, seek.id)
+        response = await join_seek(app_state, engine, seek)
         await ws_send_json(ws, response)
 
         await engine.event_queue.put(challenge(seek, response))
@@ -427,7 +427,7 @@ async def handle_rematch(app_state: PychessGlobalAppState, ws, user, data, game)
             )
             app_state.seeks[seek.id] = seek
 
-            response = await join_seek(app_state, opp_player, seek.id)
+            response = await join_seek(app_state, opp_player, seek)
             rematch_id = response["gameId"]
             await ws_send_json(ws, response)
             await app_state.users[opp_name].send_game_message(data["gameId"], response)

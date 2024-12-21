@@ -97,7 +97,7 @@ class CorrJanggiGameTestCase(AioHTTPTestCase):
             player1=blue_player,
         )
         app_state.seeks[seek.id] = seek
-        response = await join_seek(app_state, red_player, seek.id)
+        response = await join_seek(app_state, red_player, seek)
         gameId = response["gameId"]
 
         game = app_state.games[gameId]

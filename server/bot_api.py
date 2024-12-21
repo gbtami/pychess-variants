@@ -113,7 +113,7 @@ async def create_bot_seek(request):
         # inform others
         await app_state.lobby.lobby_broadcast_seeks()
     else:
-        response = await join_seek(app_state, bot_player, matching_seek.id)
+        response = await join_seek(app_state, bot_player, matching_seek)
 
         gameId = response["gameId"]
         game = app_state.games[gameId]
