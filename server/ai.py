@@ -104,4 +104,4 @@ async def BOT_task(bot, app_state: PychessGlobalAppState):
             else:
                 AI_move(game, level)
 
-        asyncio.create_task(game_task(bot, game, level, random_mover))
+        asyncio.create_task(game_task(bot, game, level, random_mover), name="bot-game-%s" % game.id)

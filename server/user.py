@@ -111,7 +111,7 @@ class User:
 
         # purge inactive anon users after ANON_TIMEOUT sec
         if self.anon and self.username not in RESERVED_USERS:
-            self.remove_task = asyncio.create_task(self.remove())
+            self.remove_task = asyncio.create_task(self.remove(), name="user-remove-%s" % self.username)
 
     async def remove(self):
         while True:
@@ -171,7 +171,7 @@ class User:
             await asyncio.sleep(SILENCE)
             self.silence -= SILENCE
 
-        asyncio.create_task(silencio())
+        asyncio.create_task(silencio(), "silence-%s" % self.username)
 
     async def set_rating(self, variant, chess960, rating):
         if self.anon:
@@ -271,7 +271,7 @@ class User:
                         "delete_pending_seek() KeyError. Failed to del %s from seeks", seek.id
                     )
 
-        asyncio.create_task(delete_seek(seek))
+        asyncio.create_task(delete_seek(seek), name="delete-pending-seek-%s" % seek.id)
 
     async def update_seeks(self, pending=True):
         if len(self.seeks) > 0:

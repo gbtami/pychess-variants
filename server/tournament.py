@@ -277,7 +277,7 @@ class Tournament(ABC):
             self.ends_at = self.starts_at + timedelta(minutes=minutes)
 
         if with_clock:
-            self.clock_task = asyncio.create_task(self.clock())
+            self.clock_task = asyncio.create_task(self.clock(), name="tournament-clock")
 
         self.browser_title = "%s Tournament • %s" % (
             variant_display_name(self.variant),
@@ -457,7 +457,7 @@ class Tournament(ABC):
                             "notify_tournament",
                             self.notify_discord_msg(remaining_mins_to_start),
                         )
-                        asyncio.create_task(lichess_team_msg(self.app_state))
+                        asyncio.create_task(lichess_team_msg(self.app_state), name="t-lichess-team-msg")
                         continue
 
                 elif (self.minutes is not None) and now >= self.ends_at:
@@ -669,7 +669,7 @@ class Tournament(ABC):
         games = await self.create_games(pairing)
 
         # save pairings to db
-        asyncio.create_task(self.db_insert_pairing(games))
+        asyncio.create_task(self.db_insert_pairing(games), name="t-insert-pairings")
 
         return (pairing, games)
 
@@ -983,12 +983,12 @@ class Tournament(ABC):
         elif game.result == "1/2-1/2":
             self.draw += 1
 
-        asyncio.create_task(self.delayed_free(game, wplayer, bplayer))
+        asyncio.create_task(self.delayed_free(game, wplayer, bplayer), name="t-delayed-free")
 
         # save player points to db
-        asyncio.create_task(self.db_update_player(game.wplayer, wplayer))
-        asyncio.create_task(self.db_update_player(game.bplayer, bplayer))
-        asyncio.create_task(self.db_update_pairing(game))
+        asyncio.create_task(self.db_update_player(game.wplayer, wplayer), name="t-update-player")
+        asyncio.create_task(self.db_update_player(game.bplayer, bplayer), name="t-update-player")
+        asyncio.create_task(self.db_update_pairing(game), name="t-update-pairing")
 
         self.set_top_player()
 

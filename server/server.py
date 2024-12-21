@@ -172,6 +172,11 @@ async def init_state(app):
 async def shutdown(app):
     app_state = get_app_state(app)
     await app_state.server_shutdown()
+    for task in asyncio.all_tasks():
+        if task.get_name().startswith("Task-"):
+            print(task)
+        else:
+            print(task.get_name())
 
 
 async def close_mongodb_client(app):

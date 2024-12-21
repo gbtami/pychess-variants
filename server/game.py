@@ -500,7 +500,7 @@ class Game:
                 except KeyError:
                     log.error("Failed to del %s from game_queues", self.id)
 
-        self.remove_task = asyncio.create_task(remove(KEEP_TIME))
+        self.remove_task = asyncio.create_task(remove(KEEP_TIME), name="game-remove")
 
         if self.board.ply < 3 and (self.app_state.db is not None) and (self.tournamentId is None):
             result = await self.app_state.db.game.delete_one({"_id": self.id})
