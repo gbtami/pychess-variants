@@ -298,7 +298,7 @@ class GameBug:
                 except KeyError:
                     log.info("Failed to del %s from game_queues", self.id)
 
-        self.remove_task = asyncio.create_task(remove(KEEP_TIME), name="remove-game-%s" % game.id)
+        self.remove_task = asyncio.create_task(remove(KEEP_TIME), name="remove-game-%s" % self.id)
 
         # always save them, even if no moves - todo: will optimize eventually, just want it simple now
         # and have trace of all games for later investigation

@@ -96,7 +96,7 @@ async def process_ws(
         # disconnected
         log.error("process_ws() OSError")
     except Exception:
-        log.error(
+        log.exception(
             "Exception in % socket handling owned by %s ",
             request.rel_url.path,
             user.username,
@@ -127,5 +127,5 @@ async def ws_send_json(ws, msg) -> bool:
         log.error("ws_send_json() ConnectionResetError")
         return False
     except Exception:
-        log.error("Exception in ws_send_json()")
+        log.exception("Exception in ws_send_json()")
         return False

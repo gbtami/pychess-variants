@@ -98,6 +98,8 @@ class PychessGlobalAppState:
         self.sent_lichess_team_msg: List[date] = []
 
         self.seeks: dict[str, Seek] = {}
+        self.auto_pairing_users: set = set()
+        self.auto_pairings: dict[str, set] = {}
         self.games: dict[str, Game] = {}
         self.invites: dict[str, Seek] = {}
         self.game_channels: Set[queue] = set()
@@ -234,6 +236,18 @@ class PychessGlobalAppState:
             if "seek" not in db_collections:
                 await self.db.create_collection("seek")
             await self.db.seek.create_index("expireAt", expireAfterSeconds=0)
+
+            # Load auto pairings from database
+            async for doc in self.db.autopairing.find():
+                variant_tc = tuple(doc["variant_tc"])
+                print(variant_tc)
+                if variant_tc not in self.auto_pairings:
+                    self.auto_pairings[variant_tc] = set()
+
+                for username in doc["users"]:
+                    user = await self.users.get(username)
+                    self.auto_pairing_users.add(user)
+                    self.auto_pairings[variant_tc].add(user)
 
             # Load seeks from database
             async for doc in self.db.seek.find():
@@ -448,6 +462,18 @@ class PychessGlobalAppState:
             for seek in reg_seeks:
                 log.debug("saving regular seek to database: %s" % seek)
             await self.db.seek.insert_many(reg_seeks)
+
+        # save auto pairings
+        await self.db.autopairing.delete_many({})
+        auto_pairings = [
+            {
+                "variant_tc": variant_tc,
+                "users": [user.username for user in self.auto_pairings[variant_tc]],
+            }
+            for variant_tc in self.auto_pairings
+        ]
+        if len(auto_pairings) > 0:
+            await self.db.autopairing.insert_many(auto_pairings)
 
         # terminate BOT users
         for user in [user for user in self.users.values() if user.bot]:

@@ -338,6 +338,11 @@ class User:
         else:
             return False
 
+    def compatible_with_other_user(self, other_user):
+        return (other_user.username not in self.blocked) and (
+            self.username not in other_user.blocked
+        )
+
     def compatible_with_seek(self, seek):
         self_rating = self.get_rating(seek.variant, seek.chess960).rating_prov[0]
         seek_user = self.app_state.users[seek.creator.username]

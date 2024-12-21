@@ -44,12 +44,13 @@ class Lobby:
 
         for username, ws_set in self.lobbysockets.items():
             ws_user = await self.app_state.users.get(username)
+            compatible_seeks = get_seeks(ws_user, self.app_state.seeks.values())
             for ws in list(ws_set):
                 await ws_send_json(
                     ws,
                     {
                         "type": "get_seeks",
-                        "seeks": get_seeks(ws_user, self.app_state.seeks.values()),
+                        "seeks": compatible_seeks,
                     },
                 )
 

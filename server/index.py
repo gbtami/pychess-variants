@@ -292,7 +292,7 @@ async def index(request):
             seek = app_state.seeks[seek_id]
             if request.path.startswith("/invite/accept/"):
                 player = request.match_info.get("player")
-                seek_status = await join_seek(app_state, user, seek_id, gameId, join_as=player)
+                seek_status = await join_seek(app_state, user, seek, gameId, join_as=player)
 
                 if seek_status["type"] == "seek_joined":
                     view = "invite"

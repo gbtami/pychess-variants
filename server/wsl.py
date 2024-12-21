@@ -1,6 +1,7 @@
 from __future__ import annotations
 import asyncio
 import logging
+from itertools import product
 
 import aiohttp_session
 from aiohttp import web
@@ -15,8 +16,14 @@ from admin import (
     silence,
     stream,
 )
+from auto_pair import (
+    auto_pair,
+    find_matching_seek,
+    find_matching_user,
+    remove_from_auto_pairings,
+)
 from chat import chat_response
-from const import ANON_PREFIX, STARTED
+from const import ANON_PREFIX, BYOS, STARTED
 from misc import server_state
 from newid import new_id
 from const import TYPE_CHECKING
@@ -64,6 +71,7 @@ async def finally_logic(app_state: PychessGlobalAppState, ws, user):
             await app_state.lobby.lobby_broadcast_u_cnt()
 
         if (user.game_in_progress is not None) or len(user.lobby_sockets) == 0:
+            remove_from_auto_pairings(app_state, user)
             await user.update_seeks(pending=True)
 
 
@@ -82,6 +90,10 @@ async def process_message(app_state: PychessGlobalAppState, user, ws, data):
         await handle_accept_seek(app_state, ws, user, data)
     elif data["type"] == "lobbychat":
         await handle_lobbychat(app_state, user, data)
+    elif data["type"] == "create_auto_pairing":
+        await handle_create_auto_pairing(app_state, ws, user, data)
+    elif data["type"] == "cancel_auto_pairing":
+        await handle_cancel_auto_pairing(app_state, ws, user, data)
 
 
 async def send_get_seeks(app_state, ws, user):
@@ -122,9 +134,8 @@ async def handle_create_ai_challenge(app_state: PychessGlobalAppState, ws, user,
         chess960=data["chess960"],
     )
     log.debug("adding seek: %s" % seek)
-    app_state.seeks[seek.id] = seek
 
-    response = await join_seek(app_state, engine, seek.id)
+    response = await join_seek(app_state, engine, seek)
     await ws_send_json(ws, response)
 
     if response["type"] != "error":
@@ -141,9 +152,22 @@ async def handle_create_seek(app_state, ws, user, data):
     log.debug("Creating seek from request: %s", data)
     seek = await create_seek(app_state.db, app_state.invites, app_state.seeks, user, data)
     log.debug("Created seek: %s", seek)
-    await app_state.lobby.lobby_broadcast_seeks()
-    if (seek is not None) and seek.target == "":
-        await app_state.discord.send_to_discord("create_seek", seek.discord_msg)
+
+    matching_user = None
+    # auto pairing games are always rated, so anon seek will never match!
+    if not user.anon:
+        variant_tc = (seek.variant, seek.chess960, seek.base, seek.inc, seek.byoyomi_period)
+        matching_user = find_matching_user(app_state, user, variant_tc)
+
+    auto_paired = False
+    if matching_user is not None:
+        # Try to create a new game
+        auto_paired = await auto_pair(app_state, matching_user, variant_tc, user, seek)
+
+    if not auto_paired:
+        await app_state.lobby.lobby_broadcast_seeks()
+        if (seek is not None) and seek.target == "":
+            await app_state.discord.send_to_discord("create_seek", seek.discord_msg)
 
 
 async def handle_create_invite(app_state: PychessGlobalAppState, ws, user, data):
@@ -203,7 +227,7 @@ async def handle_accept_seek(app_state: PychessGlobalAppState, ws, user, data):
     if seek.variant == "bughouse":
         await handle_accept_seek_bughouse(app_state, user, data, seek)
     else:
-        response = await join_seek(app_state, user, data["seekID"])
+        response = await join_seek(app_state, user, seek)
         await ws_send_json(ws, response)
 
         if seek.creator.bot:
@@ -273,6 +297,9 @@ async def send_lobby_user_connected(app_state, ws, user):
 
     await user.update_seeks(pending=False)
 
+    auto_pairing = "auto_pairing_on" if user in app_state.auto_pairing_users else "auto_pairing_off"
+    await ws_send_json(ws, {"type": auto_pairing})
+
 
 async def handle_lobbychat(app_state: PychessGlobalAppState, user, data):
     if user.username.startswith(ANON_PREFIX):
@@ -330,6 +357,67 @@ async def handle_lobbychat(app_state: PychessGlobalAppState, user, data):
 
     if user.silence == 0 and not admin_command:
         await app_state.discord.send_to_discord("lobbychat", data["message"], user.username)
+
+
+async def handle_cancel_auto_pairing(app_state, ws, user, data):
+    remove_from_auto_pairings(app_state, user)
+    for user_ws in user.lobby_sockets:
+        await ws_send_json(user_ws, {"type": "auto_pairing_off"})
+
+
+async def handle_create_auto_pairing(app_state, ws, user, data):
+    no = await send_game_in_progress_if_any(app_state, user, ws)
+    if no:
+        return
+
+    auto_variant_tc = None
+    matching_user = None
+    matching_seek = None
+
+    for variant_tc in product(data["variants"], data["tcs"]):
+        variant_tc = (
+            variant_tc[0][0],
+            variant_tc[0][1],
+            variant_tc[1][0],
+            variant_tc[1][1],
+            variant_tc[1][2],
+        )
+        variant, chess960, base, inc, byoyomi_period = variant_tc
+        # We don't want to create non byo variant with byo TC combinations
+        if (byoyomi_period > 0 and variant not in BYOS) or variant.startswith("bughouse"):
+            continue
+
+        if variant_tc not in app_state.auto_pairings:
+            app_state.auto_pairings[variant_tc] = set()
+        app_state.auto_pairings[variant_tc].add(user)
+
+        if (matching_user is None) and (matching_seek is None):
+            # Try to find the same combo in auto_pairings
+            matching_user = find_matching_user(app_state, user, variant_tc)
+            auto_variant_tc = variant_tc
+
+        if (matching_user is None) and (matching_seek is None):
+            # Maybe there is a matching normal seek
+            matching_seek = find_matching_seek(app_state, user, variant_tc)
+            auto_variant_tc = variant_tc
+
+    auto_paired = False
+    if (matching_user is not None) or (matching_seek is not None):
+        # Try to create a new game
+        auto_paired = await auto_pair(
+            app_state, user, auto_variant_tc, matching_user, matching_seek
+        )
+
+    if not auto_paired:
+        app_state.auto_pairing_users.add(user)
+
+        for user_ws in user.lobby_sockets:
+            await ws_send_json(user_ws, {"type": "auto_pairing_on"})
+
+
+#    print("AUTO_PAIRING USERS", [user.username for user in app_state.auto_pairing_users])
+#    for key, value in app_state.auto_pairings.items():
+#        print(key, [user.username for user in app_state.auto_pairings[key]])
 
 
 async def send_game_in_progress_if_any(app_state: PychessGlobalAppState, user, ws):
