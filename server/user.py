@@ -9,6 +9,7 @@ import aiohttp_session
 from aiohttp import web
 from aiohttp.web_ws import WebSocketResponse
 
+from auto_pair import remove_from_auto_pairings
 from broadcast import round_broadcast
 from const import ANON_PREFIX, STARTED, VARIANTS
 from glicko2.glicko2 import gl2, DEFAULT_PERF, Rating
@@ -61,6 +62,7 @@ class User:
             self.username = username
 
         self.seeks: dict[int, Seek] = {}
+        self.ready_for_auto_pairing = False
         self.lobby_sockets: Set[WebSocketResponse] = set()
         self.tournament_sockets: dict[str, WebSocketResponse] = {}  # {tournamentId: set()}
 
@@ -259,6 +261,20 @@ class User:
                     del self.seeks[seek_id]
 
             await self.app_state.lobby.lobby_broadcast_seeks()
+
+    def delete_pending_auto_pairing(self):
+        async def delete_auto_pairing(seek):
+            await asyncio.sleep(PENDING_SEEK_TIMEOUT)
+
+            if not self.ready_for_auto_pairing:
+                remove_from_auto_pairings(self.app_state, self)
+
+        asyncio.create_task(delete_auto_pairing(), name="delete-auto-pending-%s" % self.username)
+
+    def update_auto_pairing(self, ready=True):
+        self.ready_for_auto_pairing = ready
+        if not ready:
+            self.delete_pending_auto_pairing()
 
     def delete_pending_seek(self, seek):
         async def delete_seek(seek):

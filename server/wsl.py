@@ -71,7 +71,7 @@ async def finally_logic(app_state: PychessGlobalAppState, ws, user):
             await app_state.lobby.lobby_broadcast_u_cnt()
 
         if (user.game_in_progress is not None) or len(user.lobby_sockets) == 0:
-            remove_from_auto_pairings(app_state, user)
+            user.update_auto_pairing(ready=False)
             await user.update_seeks(pending=True)
 
 
@@ -296,6 +296,7 @@ async def send_lobby_user_connected(app_state, ws, user):
     ):
         await ws_send_json(ws, app_state.games[app_state.tv].tv_game_json)
 
+    user.update_auto_pairing(ready=True)
     await user.update_seeks(pending=False)
 
     auto_pairing = "auto_pairing_on" if user in app_state.auto_pairing_users else "auto_pairing_off"
@@ -411,7 +412,7 @@ async def handle_create_auto_pairing(app_state, ws, user, data):
 
     if not auto_paired:
         app_state.auto_pairing_users.add(user)
-
+        user.ready_for_auto_pairing = True
         for user_ws in user.lobby_sockets:
             await ws_send_json(user_ws, {"type": "auto_pairing_on"})
 

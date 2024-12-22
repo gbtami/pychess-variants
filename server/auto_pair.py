@@ -56,6 +56,7 @@ def remove_from_auto_pairings(app_state, user):
         for variant_tc in app_state.auto_pairings
         if app_state.auto_pairings[variant_tc].discard(user)
     ]
+    user.ready_for_auto_pairing = False
 
 
 def find_matching_user(app_state, user, variant_tc):
@@ -66,7 +67,10 @@ def find_matching_user(app_state, user, variant_tc):
             for user_candidate in (
                 auto_pairing_user
                 for auto_pairing_user in app_state.auto_pairings[variant_tc]
-                if auto_pairing_user in app_state.auto_pairing_users and auto_pairing_user != user
+                if auto_pairing_user in app_state.auto_pairing_users
+                and auto_pairing_user != user
+                and user.ready_for_auto_pairing
+                and auto_pairing_user.ready_for_auto_pairing
             )
             if user.compatible_with_other_user(user_candidate)
         ),
