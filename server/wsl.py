@@ -157,7 +157,8 @@ async def handle_create_seek(app_state, ws, user, data):
     # auto pairing games are always rated, so anon seek will never match!
     if not user.anon:
         variant_tc = (seek.variant, seek.chess960, seek.base, seek.inc, seek.byoyomi_period)
-        matching_user = find_matching_user(app_state, user, variant_tc)
+        if variant_tc in app_state.auto_pairings[variant_tc]:
+            matching_user = find_matching_user(app_state, user, variant_tc)
 
     auto_paired = False
     if matching_user is not None:
