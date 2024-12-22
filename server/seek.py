@@ -43,8 +43,8 @@ class Seek:
         self.fen = "" if fen is None else fen
         self.rated = rated
         self.rating = creator.get_rating(variant, chess960).rating_prov[0]
-        self.rrmin = rrmin if (rrmin is not None and rrmin != -500) else -10000
-        self.rrmax = rrmax if (rrmax is not None and rrmax != 500) else 10000
+        self.rrmin = rrmin if (rrmin is not None and rrmin != -1000) else -10000
+        self.rrmax = rrmax if (rrmax is not None and rrmax != 1000) else 10000
         self.base = base
         self.inc = inc
         self.byoyomi_period = byoyomi_period

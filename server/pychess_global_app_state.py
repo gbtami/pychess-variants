@@ -240,7 +240,6 @@ class PychessGlobalAppState:
             # Load auto pairings from database
             async for doc in self.db.autopairing.find():
                 variant_tc = tuple(doc["variant_tc"])
-                print(variant_tc)
                 if variant_tc not in self.auto_pairings:
                     self.auto_pairings[variant_tc] = set()
 

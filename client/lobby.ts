@@ -387,8 +387,8 @@ export class LobbyController implements ChatController {
         const vByoIdx = (localStorage.seek_byo ?? 1) - 1;
         const vDay = localStorage.seek_day ?? "1";
         const vRated = vVariant === "bughouse"? "0": localStorage.seek_rated ?? "0";
-        const vRatingMin = localStorage.seek_rating_min ?? -500;
-        const vRatingMax = localStorage.seek_rating_max ?? 500;
+        const vRatingMin = localStorage.seek_rating_min ?? -1000;
+        const vRatingMax = localStorage.seek_rating_max ?? 1000;
         const vLevel = Number(localStorage.seek_level ?? "1");
         const vChess960 = localStorage.seek_chess960 ?? "false";
         const vRMplay = localStorage.seek_rmplay ?? "false";
@@ -499,7 +499,7 @@ export class LobbyController implements ChatController {
                                 _('Rating range'),
                                 h('div.rating-range', [
                                     h('input#rating-min.slider', {
-                                        props: { name: "rating-min", type: "range", min: -500, max: 0, step: 50, value: vRatingMin },
+                                        props: { name: "rating-min", type: "range", min: -1000, max: 0, step: 50, value: vRatingMin },
                                         on: { input: e => this.setRatingMin(parseInt((e.target as HTMLInputElement).value)) },
                                         hook: { insert: vnode => this.setRatingMin(parseInt((vnode.elm as HTMLInputElement).value)) },
                                     }),
@@ -507,7 +507,7 @@ export class LobbyController implements ChatController {
                                     '/',
                                     h('span.rating-max', '+500'),
                                     h('input#rating-max.slider', {
-                                        props: { name: "rating-max", type: "range", min: 0, max: 500, step: 50, value: vRatingMax },
+                                        props: { name: "rating-max", type: "range", min: 0, max: 1000, step: 50, value: vRatingMax },
                                         on: { input: e => this.setRatingMax(parseInt((e.target as HTMLInputElement).value)) },
                                         hook: { insert: vnode => this.setRatingMax(parseInt((vnode.elm as HTMLInputElement).value)) },
                                     }),
