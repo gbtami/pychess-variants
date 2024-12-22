@@ -9,7 +9,6 @@ import aiohttp_session
 from aiohttp import web
 from aiohttp.web_ws import WebSocketResponse
 
-from auto_pair import remove_from_auto_pairings
 from broadcast import round_broadcast
 from const import ANON_PREFIX, STARTED, VARIANTS
 from glicko2.glicko2 import gl2, DEFAULT_PERF, Rating
@@ -262,12 +261,24 @@ class User:
 
             await self.app_state.lobby.lobby_broadcast_seeks()
 
+    def remove_from_auto_pairings(self):
+        try:
+            self.app_state.auto_pairing_users.remove(self)
+        except KeyError:
+            pass
+        [
+            variant_tc
+            for variant_tc in self.app_state.auto_pairings
+            if self.app_state.auto_pairings[variant_tc].discard(self)
+        ]
+        self.ready_for_auto_pairing = False
+
     def delete_pending_auto_pairing(self):
         async def delete_auto_pairing(seek):
             await asyncio.sleep(PENDING_SEEK_TIMEOUT)
 
             if not self.ready_for_auto_pairing:
-                remove_from_auto_pairings(self.app_state, self)
+                self.remove_from_auto_pairings()
 
         asyncio.create_task(delete_auto_pairing(), name="delete-auto-pending-%s" % self.username)
 

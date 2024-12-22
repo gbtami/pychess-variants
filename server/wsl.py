@@ -20,7 +20,6 @@ from auto_pair import (
     auto_pair,
     find_matching_seek,
     find_matching_user,
-    remove_from_auto_pairings,
 )
 from chat import chat_response
 from const import ANON_PREFIX, BYOS, STARTED
@@ -362,7 +361,7 @@ async def handle_lobbychat(app_state: PychessGlobalAppState, user, data):
 
 
 async def handle_cancel_auto_pairing(app_state, ws, user, data):
-    remove_from_auto_pairings(app_state, user)
+    user.remove_from_auto_pairings()
     for user_ws in user.lobby_sockets:
         await ws_send_json(user_ws, {"type": "auto_pairing_off"})
 

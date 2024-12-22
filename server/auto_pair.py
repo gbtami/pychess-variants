@@ -1,6 +1,6 @@
 from newid import new_id
 from seek import Seek
-from utils import join_seek, remove_seek
+from utils import join_seek
 from websocket_utils import ws_send_json
 
 
@@ -24,15 +24,12 @@ async def auto_pair(app_state, user, auto_variant_tc, other_user=None, matching_
     else:
         other_user = matching_seek.creator
         seek = matching_seek
-        ws_set = other_user.lobby_sockets
-        if len(ws_set) == 0:
-            remove_seek(app_state.seeks, seek)
-            await app_state.lobby.lobby_broadcast_seeks()
+        if len(other_user.lobby_sockets) == 0:
             return False
 
     # remove them from auto_pairings
-    remove_from_auto_pairings(app_state, user)
-    remove_from_auto_pairings(app_state, other_user)
+    user.remove_from_auto_pairings()
+    other_user.remove_from_auto_pairings()
 
     # create game
     response = await join_seek(app_state, user, seek)
@@ -44,19 +41,6 @@ async def auto_pair(app_state, user, auto_variant_tc, other_user=None, matching_
         await ws_send_json(other_user_ws, response)
 
     return True
-
-
-def remove_from_auto_pairings(app_state, user):
-    try:
-        app_state.auto_pairing_users.remove(user)
-    except KeyError:
-        pass
-    [
-        variant_tc
-        for variant_tc in app_state.auto_pairings
-        if app_state.auto_pairings[variant_tc].discard(user)
-    ]
-    user.ready_for_auto_pairing = False
 
 
 def find_matching_user(app_state, user, variant_tc):
