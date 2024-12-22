@@ -149,6 +149,12 @@ class User:
             or len(self.tournament_sockets) > 0
         )
 
+    def get_rating_value(self, variant: str, chess960: bool) -> int:
+        try:
+            return int(round(self.perfs[variant + ("960" if chess960 else "")]["gl"]["r"], 0))
+        except KeyError:
+            return 1500
+
     def get_rating(self, variant: str, chess960: bool) -> Rating:
         if variant in self.perfs:
             gl = self.perfs[variant + ("960" if chess960 else "")]["gl"]
@@ -371,7 +377,8 @@ class User:
         )
 
     def compatible_with_seek(self, seek):
-        self_rating = self.get_rating(seek.variant, seek.chess960).rating_prov[0]
+        self_rating = self.get_rating_value(seek.variant, seek.chess960)
+        print(self.username, seek.variant, seek.chess960, self_rating)
         seek_user = self.app_state.users[seek.creator.username]
         return (
             (seek_user.username not in self.blocked)
