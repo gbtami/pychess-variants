@@ -274,7 +274,7 @@ class User:
         self.ready_for_auto_pairing = False
 
     def delete_pending_auto_pairing(self):
-        async def delete_auto_pairing(seek):
+        async def delete_auto_pairing():
             await asyncio.sleep(PENDING_SEEK_TIMEOUT)
 
             if not self.ready_for_auto_pairing:
