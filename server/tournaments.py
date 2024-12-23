@@ -356,13 +356,20 @@ async def get_tournament_name(request, tournament_id):
             frequency = doc.get("fr", "")
             if frequency:
                 chess960 = bool(doc.get("z"))
-                name = app_state.tourneynames[lang][
-                    (
+                try:
+                    name = app_state.tourneynames[lang][
+                        (
+                            C2V[doc["v"]] + ("960" if chess960 else ""),
+                            frequency,
+                            doc["system"],
+                        )
+                    ]
+                except KeyError:
+                    name = "%s %s %s" % (
                         C2V[doc["v"]] + ("960" if chess960 else ""),
                         frequency,
                         doc["system"],
                     )
-                ]
             else:
                 name = doc["name"]
         app_state.tourneynames[lang][tournament_id] = name
