@@ -503,9 +503,9 @@ export class LobbyController implements ChatController {
                                         on: { input: e => this.setRatingMin(parseInt((e.target as HTMLInputElement).value)) },
                                         hook: { insert: vnode => this.setRatingMin(parseInt((vnode.elm as HTMLInputElement).value)) },
                                     }),
-                                    h('span.rating-min', '-500'),
-                                    '/',
-                                    h('span.rating-max', '+500'),
+                                    h('div.rating-min', '-1000'),
+                                    h('span', '/'),
+                                    h('div.rating-max', '+1000'),
                                     h('input#rating-max.slider', {
                                         props: { name: "rating-max", type: "range", min: 0, max: 1000, step: 50, value: vRatingMax },
                                         on: { input: e => this.setRatingMax(parseInt((e.target as HTMLInputElement).value)) },
@@ -596,9 +596,15 @@ export class LobbyController implements ChatController {
             if (inp.checked) tcs.push(autoPairingTCs[index]);
         })
 
-        // console.log('autoPairingSubmit()', variants);
-        // console.log('autoPairingSubmit()', tcs);
-        this.doSend({ type: "create_auto_pairing", variants: variants, tcs: tcs });
+        const minEle = document.getElementById('auto-rating-min') as HTMLInputElement;
+        const rrMin = Number(minEle.value);
+        localStorage.auto_rating_min = minEle.value;
+
+        const maxEle = document.getElementById('auto-rating-max') as HTMLInputElement;
+        const rrMax = Number(maxEle.value);
+        localStorage.auto_rating_max = maxEle.value;
+
+        this.doSend({ type: "create_auto_pairing", variants: variants, tcs: tcs, rrmin: rrMin, rrmax: rrMax });
     }
 
     preSelectVariant(variantName: string, chess960: boolean=false) {
@@ -749,10 +755,16 @@ export class LobbyController implements ChatController {
         this.setStartButtons();
     }
     private setRatingMin(val: number) {
-        document.querySelector("span.rating-min")!.innerHTML = String(val);
+        document.querySelector("div.rating-min")!.innerHTML = '-' + String(Math.abs(val));
     }
     private setRatingMax(val: number) {
-        document.querySelector("span.rating-max")!.innerHTML = String(val);
+        document.querySelector("div.rating-max")!.innerHTML = '+' + String(val);
+    }
+    private setAutoRatingMin(val: number) {
+        document.querySelector("div.auto-rating-min")!.innerHTML = '-' + String(Math.abs(val));
+    }
+    private setAutoRatingMax(val: number) {
+        document.querySelector("div.auto-rating-max")!.innerHTML = '+' + String(val);
     }
     private setFen() {
         const e = document.getElementById('fen') as HTMLInputElement;
@@ -1005,7 +1017,31 @@ export class LobbyController implements ChatController {
             const checked = localStorage[`tc_${tcName}`] ?? "false";
             tcList.push(h('label', [h('input', { props: { name: `tc_${tcName}`, type: "checkbox" }, attrs: { checked: checked === "true" } }), tcName]));
         })
+
         patch(document.querySelector('div.timecontrols') as Element, h('div.timecontrols', tcList));
+
+        const aRatingMin = localStorage.auto_rating_min ?? -1000;
+        const aRatingMax = localStorage.auto_rating_max ?? 1000;
+        const aRatingRange = [
+            _('Rating range'),
+            h('div.rating-range', [
+                h('input#auto-rating-min.slider', {
+                    props: { name: "rating-min", type: "range", min: -1000, max: 0, step: 50, value: aRatingMin },
+                    on: { input: e => this.setAutoRatingMin(parseInt((e.target as HTMLInputElement).value)) },
+                    hook: { insert: vnode => this.setAutoRatingMin(parseInt((vnode.elm as HTMLInputElement).value)) },
+                }),
+                h('div.auto-rating-min', '-1000'),
+                h('span', '/'),
+                h('div.auto-rating-max', '+1000'),
+                h('input#auto-rating-max.slider', {
+                    props: { name: "rating-max", type: "range", min: 0, max: 1000, step: 50, value: aRatingMax },
+                    on: { input: e => this.setAutoRatingMax(parseInt((e.target as HTMLInputElement).value)) },
+                    hook: { insert: vnode => this.setAutoRatingMax(parseInt((vnode.elm as HTMLInputElement).value)) },
+                }),
+            ]),
+        ];
+
+        patch(document.querySelector('div.auto-rating-range') as Element, h('div.auto-rating-range', aRatingRange));
     }
 
     onMessage(evt: MessageEvent) {
@@ -1289,6 +1325,7 @@ export function lobbyView(model: PyChessModel): VNode[] {
             h('div.auto-container', {attrs: {id: 'panel-4', role: 'tabpanel', tabindex: '-1', 'aria-labelledby': 'tab-4'}}, [
                 h('div.seeks-table', [h('div.seeks-wrapper', [h('div.auto-pairing', [
                     h('div.auto-pairing-actions'),
+                    h('div.auto-rating-range'),
                     h('div.timecontrols'),
                     h('div.variants'),
                 ])])])

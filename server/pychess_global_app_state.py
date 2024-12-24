@@ -98,7 +98,7 @@ class PychessGlobalAppState:
         self.sent_lichess_team_msg: List[date] = []
 
         self.seeks: dict[str, Seek] = {}
-        self.auto_pairing_users: set = set()
+        self.auto_pairing_users: dict[User, (int, int)] = {}
         self.auto_pairings: dict[str, set] = {}
         self.games: dict[str, Game] = {}
         self.invites: dict[str, Seek] = {}
@@ -243,10 +243,11 @@ class PychessGlobalAppState:
                 if variant_tc not in self.auto_pairings:
                     self.auto_pairings[variant_tc] = set()
 
-                for username in doc["users"]:
+                for username, rrange in doc["users"]:
                     user = await self.users.get(username)
-                    self.auto_pairing_users.add(user)
                     self.auto_pairings[variant_tc].add(user)
+                    if user not in self.auto_pairing_users:
+                        self.auto_pairing_users[user] = rrange
 
             # Load seeks from database
             async for doc in self.db.seek.find():
@@ -467,7 +468,10 @@ class PychessGlobalAppState:
         auto_pairings = [
             {
                 "variant_tc": variant_tc,
-                "users": [user.username for user in self.auto_pairings[variant_tc]],
+                "users": [
+                    (user.username, self.auto_pairing_users[user])
+                    for user in self.auto_pairings[variant_tc]
+                ],
             }
             for variant_tc in self.auto_pairings
         ]

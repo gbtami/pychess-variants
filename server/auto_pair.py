@@ -45,6 +45,7 @@ async def auto_pair(app_state, user, auto_variant_tc, other_user=None, matching_
 
 def find_matching_user(app_state, user, variant_tc):
     """Return first compatible user from app_state.auto_pairing_users if there is any, else None"""
+    variant, chess960, _, _, _ = variant_tc
     return next(
         (
             user_candidate
@@ -56,7 +57,7 @@ def find_matching_user(app_state, user, variant_tc):
                 and user.ready_for_auto_pairing
                 and auto_pairing_user.ready_for_auto_pairing
             )
-            if user.compatible_with_other_user(user_candidate)
+            if user.auto_compatible_with_other_user(user_candidate, variant, chess960)
         ),
         None,
     )
@@ -80,7 +81,7 @@ def find_matching_seek(app_state, user, variant_tc):
                 and seek.color == "r"
                 and seek.fen == ""
             )
-            if user.compatible_with_seek(seek_candidate)
+            if user.auto_compatible_with_seek(seek_candidate)
         ),
         None,
     )

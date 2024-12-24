@@ -135,10 +135,17 @@ div.rating-range .slider {
   margin: 0;
 }
 div.tc-block, div#rating-range-setting, div.timecontrols {
-    padding: 1em;
-    background: var(--bg-color2);
-    border-top: 1px solid var(--border-color);
-    border-bottom: 1px solid var(--border-color);
+  padding: 1em;
+  background: var(--bg-color2);
+  border-top: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color);
+}
+div.timecontrols {
+  padding: 1em 0 1em 0;
+}
+div.auto-rating-range {
+  display: flex;
+  padding: 8px;
 }
 .rating-range {
   justify-content: center;
@@ -146,9 +153,10 @@ div.tc-block, div#rating-range-setting, div.timecontrols {
   flex-flow: row nowrap;
   align-items: center;
 }
-.rating-range .rating-min, .rating-range .rating-max {
-    font-weight: inherit;
-    flex: 0 0 7ch;
+.auto-rating-min, .rating-min, .auto-rating-max, .rating-max {
+    font-weight: normal;
+    padding: 0 1ch 0 1ch;
+    width: 7ch;
 }
 div.auto-pairing {
   display: grid;

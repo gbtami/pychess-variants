@@ -75,6 +75,7 @@ async def finally_logic(app_state: PychessGlobalAppState, ws, user):
 
 
 async def process_message(app_state: PychessGlobalAppState, user, ws, data):
+    print(user.username, data)
     if data["type"] == "create_ai_challenge":
         await handle_create_ai_challenge(app_state, ws, user, data)
     elif data["type"] == "create_seek":
@@ -375,6 +376,12 @@ async def handle_create_auto_pairing(app_state, ws, user, data):
     matching_user = None
     matching_seek = None
 
+    rrmin = data["rrmin"]
+    rrmax = data["rrmax"]
+    rrmin = rrmin if (rrmin != -1000) else -10000
+    rrmax = rrmax if (rrmax != 1000) else 10000
+    app_state.auto_pairing_users[user] = (rrmin, rrmax)
+
     for variant_tc in product(data["variants"], data["tcs"]):
         variant_tc = (
             variant_tc[0][0],
@@ -410,15 +417,13 @@ async def handle_create_auto_pairing(app_state, ws, user, data):
         )
 
     if not auto_paired:
-        app_state.auto_pairing_users.add(user)
         user.ready_for_auto_pairing = True
         for user_ws in user.lobby_sockets:
             await ws_send_json(user_ws, {"type": "auto_pairing_on"})
 
-
-#    print("AUTO_PAIRING USERS", [user.username for user in app_state.auto_pairing_users])
-#    for key, value in app_state.auto_pairings.items():
-#        print(key, [user.username for user in app_state.auto_pairings[key]])
+    # print("AUTO_PAIRING USERS", [item for item in app_state.auto_pairing_users.items()])
+    # for key, value in app_state.auto_pairings.items():
+    #     print(key, [user.username for user in app_state.auto_pairings[key]])
 
 
 async def send_game_in_progress_if_any(app_state: PychessGlobalAppState, user, ws):

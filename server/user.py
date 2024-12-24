@@ -61,6 +61,7 @@ class User:
             self.username = username
 
         self.seeks: dict[int, Seek] = {}
+
         self.ready_for_auto_pairing = False
         self.lobby_sockets: Set[WebSocketResponse] = set()
         self.tournament_sockets: dict[str, WebSocketResponse] = {}  # {tournamentId: set()}
@@ -269,7 +270,7 @@ class User:
 
     def remove_from_auto_pairings(self):
         try:
-            self.app_state.auto_pairing_users.remove(self)
+            del self.app_state.auto_pairing_users[self]
         except KeyError:
             pass
         [
@@ -371,14 +372,43 @@ class User:
         else:
             return False
 
-    def compatible_with_other_user(self, other_user):
+    def auto_compatible_with_other_user(self, other_user, variant, chess960):
+        """Users are compatible when their auto pairing rating ranges are overlapped
+        and the users are not blocked by each other"""
+
+        rating = self.get_rating_value(variant, chess960)
+        rr = self.app_state.auto_pairing_users[self]
+        a = (rating + rr[0], rating + rr[1])
+
+        rating = other_user.get_rating_value(variant, chess960)
+        rr = self.app_state.auto_pairing_users[other_user]
+        b = (rating + rr[0], rating + rr[1])
+
         return (other_user.username not in self.blocked) and (
-            self.username not in other_user.blocked
+            self.username not in other_user.blocked and max(a[0], b[0]) <= min(a[1], b[1])
+        )
+
+    def auto_compatible_with_seek(self, seek):
+        """Seek is auto pairing compatible when the rating ranges are overlapped
+        and the users are not blocked by each other"""
+
+        rating = self.get_rating_value(seek.variant, seek.chess960)
+        rr = self.app_state.auto_pairing_users[self]
+        a = (rating + rr[0], rating + rr[1])
+
+        other_user = seek.creator
+        rating = other_user.get_rating_value(seek.variant, seek.chess960)
+        b = (rating + seek.rrmin, rating + seek.rrmax)
+
+        return (other_user.username not in self.blocked) and (
+            self.username not in other_user.blocked and max(a[0], b[0]) <= min(a[1], b[1])
         )
 
     def compatible_with_seek(self, seek):
+        """Seek is compatible when my rating is inside the seek rating range
+        and the users are not blocked by each other"""
+
         self_rating = self.get_rating_value(seek.variant, seek.chess960)
-        print(self.username, seek.variant, seek.chess960, self_rating)
         seek_user = self.app_state.users[seek.creator.username]
         return (
             (seek_user.username not in self.blocked)
