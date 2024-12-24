@@ -196,7 +196,9 @@ class AliceTestCase(unittest.TestCase):
         board.legal_moves()
         board.push(move)
 
-        FEN_OOO = "1|q|k|r3r/1pp|bpp|b1/|P1|n|pP1|p1/2PP4/6n1/2|N1|B|N1p/1|p|Q2PPP/R3K|B1R w KQ - 1 14"
+        FEN_OOO = (
+            "1|q|k|r3r/1pp|bpp|b1/|P1|n|pP1|p1/2PP4/6n1/2|N1|B|N1p/1|p|Q2PPP/R3K|B1R w KQ - 1 14"
+        )
         self.assertEqual(board.fen, FEN_OOO)
 
         board.pop()
@@ -207,7 +209,9 @@ class AliceTestCase(unittest.TestCase):
         board.legal_moves()
         board.push(move)
 
-        FEN_OO = "r|q3|r|k1/1pp|bpp|b1/|P1|n|pP1|p1/2PP4/6n1/2|N1|B|N1p/1|p|Q2PPP/R3K|B1R w KQ - 1 14"
+        FEN_OO = (
+            "r|q3|r|k1/1pp|bpp|b1/|P1|n|pP1|p1/2PP4/6n1/2|N1|B|N1p/1|p|Q2PPP/R3K|B1R w KQ - 1 14"
+        )
         self.assertEqual(board.fen, FEN_OO)
 
         board.pop()

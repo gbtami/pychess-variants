@@ -1,7 +1,6 @@
 from __future__ import annotations
 import asyncio
 import logging
-from itertools import product
 
 import aiohttp_session
 from aiohttp import web
@@ -18,11 +17,11 @@ from admin import (
 )
 from auto_pair import (
     auto_pair,
-    find_matching_seek,
+    add_to_auto_pairings,
     find_matching_user,
 )
 from chat import chat_response
-from const import ANON_PREFIX, BYOS, STARTED
+from const import ANON_PREFIX, STARTED
 from misc import server_state
 from newid import new_id
 from const import TYPE_CHECKING
@@ -372,42 +371,7 @@ async def handle_create_auto_pairing(app_state, ws, user, data):
     if no:
         return
 
-    auto_variant_tc = None
-    matching_user = None
-    matching_seek = None
-
-    rrmin = data["rrmin"]
-    rrmax = data["rrmax"]
-    rrmin = rrmin if (rrmin != -1000) else -10000
-    rrmax = rrmax if (rrmax != 1000) else 10000
-    app_state.auto_pairing_users[user] = (rrmin, rrmax)
-
-    for variant_tc in product(data["variants"], data["tcs"]):
-        variant_tc = (
-            variant_tc[0][0],
-            variant_tc[0][1],
-            variant_tc[1][0],
-            variant_tc[1][1],
-            variant_tc[1][2],
-        )
-        variant, chess960, base, inc, byoyomi_period = variant_tc
-        # We don't want to create non byo variant with byo TC combinations
-        if (byoyomi_period > 0 and variant not in BYOS) or variant.startswith("bughouse"):
-            continue
-
-        if variant_tc not in app_state.auto_pairings:
-            app_state.auto_pairings[variant_tc] = set()
-        app_state.auto_pairings[variant_tc].add(user)
-
-        if (matching_user is None) and (matching_seek is None):
-            # Try to find the same combo in auto_pairings
-            matching_user = find_matching_user(app_state, user, variant_tc)
-            auto_variant_tc = variant_tc
-
-        if (matching_user is None) and (matching_seek is None):
-            # Maybe there is a matching normal seek
-            matching_seek = find_matching_seek(app_state, user, variant_tc)
-            auto_variant_tc = variant_tc
+    auto_variant_tc, matching_user, matching_seek = add_to_auto_pairings(app_state, user, data)
 
     auto_paired = False
     if (matching_user is not None) or (matching_seek is not None):
@@ -417,7 +381,6 @@ async def handle_create_auto_pairing(app_state, ws, user, data):
         )
 
     if not auto_paired:
-        user.ready_for_auto_pairing = True
         for user_ws in user.lobby_sockets:
             await ws_send_json(user_ws, {"type": "auto_pairing_on"})
 

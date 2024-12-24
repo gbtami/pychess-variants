@@ -174,11 +174,12 @@ class PychessGlobalAppState:
                         await load_tournament(self, doc["_id"])
             self.tournaments_loaded.set()
 
-            already_scheduled = await get_scheduled_tournaments(self)
-            new_tournaments_data = new_scheduled_tournaments(already_scheduled)
-            await create_scheduled_tournaments(self, new_tournaments_data)
+            if not isinstance(self.db_client, AsyncMongoMockClient):
+                already_scheduled = await get_scheduled_tournaments(self)
+                new_tournaments_data = new_scheduled_tournaments(already_scheduled)
+                await create_scheduled_tournaments(self, new_tournaments_data)
 
-            asyncio.create_task(generate_shield(self), name="generate-shield")
+                asyncio.create_task(generate_shield(self), name="generate-shield")
 
             if "highscore" not in db_collections:
                 await generate_highscore(self)

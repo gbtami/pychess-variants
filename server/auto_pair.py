@@ -1,14 +1,64 @@
+from itertools import product
+
+from const import BYOS
+from misc import time_control_str
 from newid import new_id
 from seek import Seek
 from utils import join_seek
 from websocket_utils import ws_send_json
 
 
+def add_to_auto_pairings(app_state, user, data):
+    """Add auto pairing to app_state and while doing this
+    tries to find a compatible other auto pairing or seek"""
+
+    auto_variant_tc = None
+    matching_user = None
+    matching_seek = None
+
+    rrmin = data["rrmin"]
+    rrmax = data["rrmax"]
+    rrmin = rrmin if (rrmin != -1000) else -10000
+    rrmax = rrmax if (rrmax != 1000) else 10000
+    app_state.auto_pairing_users[user] = (rrmin, rrmax)
+
+    for variant_tc in product(data["variants"], data["tcs"]):
+        variant_tc = (
+            variant_tc[0][0],
+            variant_tc[0][1],
+            variant_tc[1][0],
+            variant_tc[1][1],
+            variant_tc[1][2],
+        )
+        variant, chess960, base, inc, byoyomi_period = variant_tc
+        # We don't want to create non byo variant with byo TC combinations
+        if (byoyomi_period > 0 and variant not in BYOS) or variant.startswith("bughouse"):
+            continue
+
+        if variant_tc not in app_state.auto_pairings:
+            app_state.auto_pairings[variant_tc] = set()
+        app_state.auto_pairings[variant_tc].add(user)
+
+        if (matching_user is None) and (matching_seek is None):
+            # Try to find the same combo in auto_pairings
+            matching_user = find_matching_user(app_state, user, variant_tc)
+            auto_variant_tc = variant_tc
+
+        if (matching_user is None) and (matching_seek is None):
+            # Maybe there is a matching normal seek
+            matching_seek = find_matching_seek(app_state, user, variant_tc)
+            auto_variant_tc = variant_tc
+
+    user.ready_for_auto_pairing = True
+
+    return auto_variant_tc, matching_user, matching_seek
+
+
 async def auto_pair(app_state, user, auto_variant_tc, other_user=None, matching_seek=None):
     """If matching_seek is not None accept it, else create a new one and accpt it by other_user"""
-    if matching_seek is None:
-        variant, chess960, base, inc, byoyomi_period = auto_variant_tc
 
+    variant, chess960, base, inc, byoyomi_period = auto_variant_tc
+    if matching_seek is None:
         seek_id = await new_id(None if app_state.db is None else app_state.db.seek)
         seek = Seek(
             seek_id,
@@ -40,11 +90,23 @@ async def auto_pair(app_state, user, auto_variant_tc, other_user=None, matching_
     for other_user_ws in other_user.lobby_sockets:
         await ws_send_json(other_user_ws, response)
 
+    tc = time_control_str(base, inc, byoyomi_period)
+    tail960 = "960" if chess960 else ""
+    msg = "**AUTO PAIR** %s - %s **%s%s** %s" % (
+        user.username,
+        other_user.username,
+        variant,
+        tail960,
+        tc,
+    )
+    await app_state.discord.send_to_discord("accept_seek", msg)
+
     return True
 
 
 def find_matching_user(app_state, user, variant_tc):
     """Return first compatible user from app_state.auto_pairing_users if there is any, else None"""
+
     variant, chess960, _, _, _ = variant_tc
     return next(
         (
@@ -65,6 +127,7 @@ def find_matching_user(app_state, user, variant_tc):
 
 def find_matching_seek(app_state, user, variant_tc):
     """Return first compatible seek from app_state.seeks if there is any, else None"""
+
     variant, chess960, base, inc, byoyomi_period = variant_tc
     return next(
         (
