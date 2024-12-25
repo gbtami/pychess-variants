@@ -1087,7 +1087,7 @@ export const VARIANTS: Record<string, Variant> = {
 };
 
 export const variants = Object.keys(VARIANTS);
-const disabledVariants = [ "gothic", "gothhouse", "embassy", "embassyhouse", "gorogoro" ];
+const disabledVariants = [ "gothic", "gothhouse", "embassy", "embassyhouse", "gorogoro", "shinobi" ];
 export const enabledVariants = variants.filter(v => !disabledVariants.includes(v));
 
 // variants having 0 puzzle so far
