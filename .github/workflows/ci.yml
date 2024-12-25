@@ -38,6 +38,8 @@ jobs:
     - name: Run unit tests
       run: |
         PYTHONPATH=server python tests/test.py
+        PYTHONPATH=server python tests/test_alice.py
+        PYTHONPATH=server python tests/test_auto_pairing.py
         PYTHONPATH=server python tests/test_compress.py
         PYTHONPATH=server python tests/test_960_rematch.py
         PYTHONPATH=server python tests/test_tournament.py
