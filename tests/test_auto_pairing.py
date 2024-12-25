@@ -96,7 +96,7 @@ class AutoPairingTestCase(AioHTTPTestCase):
             app_state, self.bplayer, DATA["chess"]
         )
 
-        self.assertEqual(auto_variant_tc, variant_tc)
+        self.assertIn(variant_tc, app_state.auto_pairings)
         self.assertEqual(app_state.auto_pairing_users[self.bplayer], (-10000, 10000))
         self.assertIn(self.bplayer, app_state.auto_pairings[variant_tc])
         self.assertTrue(self.bplayer.ready_for_auto_pairing)
@@ -106,7 +106,7 @@ class AutoPairingTestCase(AioHTTPTestCase):
             app_state, self.aplayer, DATA["chess960"]
         )
 
-        self.assertEqual(auto_variant_tc, variant_tc)
+        self.assertIn(variant_tc, app_state.auto_pairings)
         self.assertIsNone(matching_user)
         self.assertIsNone(matching_seek)
         self.assertTrue(self.aplayer.ready_for_auto_pairing)

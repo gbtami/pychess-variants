@@ -31,6 +31,7 @@ def add_to_auto_pairings(app_state, user, data):
             variant_tc[1][2],
         )
         variant, chess960, base, inc, byoyomi_period = variant_tc
+        print(variant_tc)
         # We don't want to create non byo variant with byo TC combinations
         if (byoyomi_period > 0 and variant not in BYOS) or variant.startswith("bughouse"):
             continue
