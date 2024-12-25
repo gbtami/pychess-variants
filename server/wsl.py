@@ -18,7 +18,7 @@ from admin import (
 from auto_pair import (
     auto_pair,
     add_to_auto_pairings,
-    find_matching_user,
+    find_matching_user_for_seek,
 )
 from chat import chat_response
 from const import ANON_PREFIX, STARTED
@@ -157,7 +157,7 @@ async def handle_create_seek(app_state, ws, user, data):
     if not user.anon:
         variant_tc = (seek.variant, seek.chess960, seek.base, seek.inc, seek.byoyomi_period)
         if variant_tc in app_state.auto_pairings:
-            matching_user = find_matching_user(app_state, user, variant_tc)
+            matching_user = find_matching_user_for_seek(app_state, seek, variant_tc)
 
     auto_paired = False
     if matching_user is not None:

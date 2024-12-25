@@ -12,7 +12,12 @@ from user import User
 from pychess_global_app_state_utils import get_app_state
 from const import VARIANTS
 from glicko2.glicko2 import DEFAULT_PERF
-from auto_pair import add_to_auto_pairings, find_matching_seek, find_matching_user
+from auto_pair import (
+    add_to_auto_pairings,
+    find_matching_seek,
+    find_matching_user,
+    find_matching_user_for_seek,
+)
 
 ONE_TEST_ONLY = False
 
@@ -279,6 +284,21 @@ class AutoPairingTestCase(AioHTTPTestCase):
         variant_tc = ("chess", False, 5, 3, 0)  # chess 5+3
         add_to_auto_pairings(app_state, self.lplayer, DATA["chess"])
         result = find_matching_user(app_state, self.lplayer, variant_tc)
+        self.assertEqual(result, self.aplayer)
+
+    @unittest.skipIf(ONE_TEST_ONLY, "1 test only")
+    def test_find_matching_user_for_seek(self):
+        """Test find_matching_user_for_seek() called by wsl.py handle_create_seek()"""
+
+        app_state = get_app_state(self.app)
+
+        variant_tc = ("chess", False, 5, 3, 0)  # chess 5+3
+        add_to_auto_pairings(app_state, self.aplayer, DATA["chess"])
+
+        seek = Seek("id", self.bplayer, "chess", rated=True)
+        app_state.seeks[seek.id] = seek
+
+        result = find_matching_user_for_seek(app_state, seek, variant_tc)
         self.assertEqual(result, self.aplayer)
 
 

@@ -148,3 +148,22 @@ def find_matching_seek(app_state, user, variant_tc):
         ),
         None,
     )
+
+
+def find_matching_user_for_seek(app_state, seek, variant_tc):
+    """Return first compatible user from app_state.auto_pairing_users if there is any, else None"""
+
+    return next(
+        (
+            user_candidate
+            for user_candidate in (
+                auto_pairing_user
+                for auto_pairing_user in app_state.auto_pairings[variant_tc]
+                if auto_pairing_user in app_state.auto_pairing_users
+                and auto_pairing_user.ready_for_auto_pairing
+                and auto_pairing_user != seek.creator
+            )
+            if user_candidate.auto_compatible_with_seek(seek)
+        ),
+        None,
+    )
