@@ -136,7 +136,8 @@ def find_matching_seek(app_state, user, variant_tc):
             for seek_candidate in (
                 seek
                 for seek in app_state.seeks.values()
-                if seek.variant == variant
+                if seek.day == 0
+                and seek.variant == variant
                 and seek.chess960 == chess960
                 and seek.rated
                 and seek.base == base
