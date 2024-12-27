@@ -586,7 +586,6 @@ async def handle_game_user_connected(app_state: PychessGlobalAppState, ws, user,
 
 async def handle_is_user_present(ws, users, player_name, game):
     player = await users.get(player_name)
-    await asyncio.sleep(1)
     if (
         player is not None and (game.id in player.game_queues)
         if player.bot
