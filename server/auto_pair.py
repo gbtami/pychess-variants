@@ -1,4 +1,5 @@
 from itertools import product
+from random import random
 
 from const import BYOS
 from misc import time_control_str
@@ -22,7 +23,9 @@ def add_to_auto_pairings(app_state, user, data):
     rrmax = rrmax if (rrmax != 1000) else 10000
     app_state.auto_pairing_users[user] = (rrmin, rrmax)
 
-    for variant_tc in product(data["variants"], data["tcs"]):
+    user.ready_for_auto_pairing = True
+
+    for variant_tc in product(sorted(data["variants"], key=lambda _: random()), data["tcs"]):
         variant_tc = (
             variant_tc[0][0],
             variant_tc[0][1],
@@ -49,8 +52,6 @@ def add_to_auto_pairings(app_state, user, data):
             # Maybe there is a matching normal seek
             matching_seek = find_matching_seek(app_state, user, variant_tc)
             auto_variant_tc = variant_tc
-
-    user.ready_for_auto_pairing = True
 
     return auto_variant_tc, matching_user, matching_seek
 
