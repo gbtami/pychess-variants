@@ -977,6 +977,9 @@ export class LobbyController implements ChatController {
     }
 
     renderAutoPairingActions(autoPairingIsOn: boolean) {
+        const eRange = document.querySelector('div.auto-rating-range') as Element;
+        const eTimeControls = document.querySelector('div.timecontrols') as Element;
+        const eVariants = document.querySelector('div.variants') as Element;
         if (autoPairingIsOn) {
             this.autoPairingActions = patch(this.autoPairingActions,
                 h('div.auto-pairing-actions', [
@@ -984,6 +987,9 @@ export class LobbyController implements ChatController {
                     h('button.cancel', { on: { click: () => this.autoPairingCancel() } }, [h('div.icon.icon-ban', _('CANCEL'))]),
                 ])
             );
+            eRange.classList.toggle("disabled", true);
+            eTimeControls.classList.toggle("disabled", true);
+            eVariants.classList.toggle("disabled", true);
         } else {
             this.autoPairingActions = patch(this.autoPairingActions,
                 h('div.auto-pairing-actions', [
@@ -992,6 +998,9 @@ export class LobbyController implements ChatController {
                     h('button.submit', { on: { click: () => this.autoPairingSubmit() } }, [h('div.icon.icon-check',  _('SUBMIT'))]),
                 ])
             );
+            eRange.classList.toggle("disabled", false);
+            eTimeControls.classList.toggle("disabled", false);
+            eVariants.classList.toggle("disabled", false);
         }
     }
 
