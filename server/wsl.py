@@ -282,6 +282,10 @@ async def send_lobby_user_connected(app_state, ws, user):
         }  # todo: duplicated message definition also in lobby_broadcast_u_cnt
         await ws_send_json(ws, response)
 
+    # send auto pairing count
+    response = {"type": "ap_cnt", "cnt": app_state.auto_pairing_count()}
+    await ws_send_json(ws, response)
+
     spotlights = tournament_spotlights(app_state)
     if len(spotlights) > 0:
         await ws_send_json(ws, {"type": "spotlights", "items": spotlights})
@@ -367,6 +371,8 @@ async def handle_cancel_auto_pairing(app_state, ws, user, data):
     for user_ws in user.lobby_sockets:
         await ws_send_json(user_ws, {"type": "auto_pairing_off"})
 
+    await app_state.lobby.lobby_broadcast_ap_cnt()
+
     if DEV:
         msg = "Auto pairing cancelled."
         await app_state.lobby.lobby_chat("server", "%s: %s" % (user.username, msg), int(time()))
@@ -400,6 +406,8 @@ async def handle_create_auto_pairing(app_state, ws, user, data):
     if not auto_paired:
         for user_ws in user.lobby_sockets:
             await ws_send_json(user_ws, {"type": "auto_pairing_on"})
+
+    await app_state.lobby.lobby_broadcast_ap_cnt()
 
     # print("AUTO_PAIRING USERS", [item for item in app_state.auto_pairing_users.items()])
     # for key, value in app_state.auto_pairings.items():

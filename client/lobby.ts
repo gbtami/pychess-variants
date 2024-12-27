@@ -16,7 +16,7 @@ import { notify } from './notification';
 import { PyChessModel } from "./types";
 import { MsgBoard, MsgChat, MsgFullChat } from "./messages";
 import { variantPanels } from './lobby/layer1';
-import { Post, Stream, Spotlight, MsgInviteCreated, MsgHostCreated, MsgGetSeeks, MsgNewGame, MsgGameInProgress, MsgUserConnected, MsgPing, MsgError, MsgShutdown, MsgGameCounter, MsgUserCounter, MsgStreams, MsgSpotlights, Seek, CreateMode, TvGame, TcMode } from './lobbyType';
+import { Post, Stream, Spotlight, MsgInviteCreated, MsgHostCreated, MsgGetSeeks, MsgNewGame, MsgGameInProgress, MsgUserConnected, MsgPing, MsgError, MsgShutdown, MsgCounter, MsgStreams, MsgSpotlights, Seek, CreateMode, TvGame, TcMode } from './lobbyType';
 import { validFen, uci2LastMove } from './chess';
 import { seekViewBughouse, switchEnablingLobbyControls } from "./bug/lobby.bug";
 import { handleOngoingGameEvents, Game, gameViewPlaying, compareGames } from './nowPlaying';
@@ -1092,6 +1092,9 @@ export class LobbyController implements ChatController {
             case "u_cnt":
                 this.onMsgUserCounter(msg);
                 break;
+            case "ap_cnt":
+                this.onMsgAutoPairingCounter(msg);
+                break;
             case "streams":
                 this.onMsgStreams(msg);
                 break;
@@ -1159,12 +1162,15 @@ export class LobbyController implements ChatController {
         const response = confirm(_("You have an unfinished game!\nPress OK to continue."));
         if (response) window.location.assign('/' + msg.gameId);
     }
+
     private onMsgUserConnected(msg: MsgUserConnected) {
         this.username = msg.username;
     }
+
     private onMsgChat(msg: MsgChat) {
         chatMessage(msg.user, msg.message, "lobbychat", msg.time);
     }
+
     private onMsgFullChat(msg: MsgFullChat) {
         // To prevent multiplication of messages we have to remove old messages div first
         patch(document.getElementById('messages') as HTMLElement, h('div#messages-clear'));
@@ -1173,24 +1179,35 @@ export class LobbyController implements ChatController {
         // console.log("NEW FULL MESSAGES");
         msg.lines.forEach(line => chatMessage(line.user, line.message, "lobbychat", line.time));
     }
+
     private onMsgPing(msg: MsgPing) {
         this.doSend({ type: "pong", timestamp: msg.timestamp });
     }
+
     private onMsgError(msg: MsgError) {
         alert(msg.message);
     }
+
     private onMsgShutdown(msg: MsgShutdown) {
         alert(msg.message);
     }
-    private onMsgGameCounter(msg: MsgGameCounter) {
+
+    private onMsgGameCounter(msg: MsgCounter) {
         // console.log("Gcnt=", msg.cnt);
         const gameCount = document.getElementById('g_cnt') as HTMLElement;
         patch(gameCount, h('counter#g_cnt', ngettext('%1 game in play', '%1 games in play', msg.cnt)));
     }
-    private onMsgUserCounter(msg: MsgUserCounter) {
+
+    private onMsgUserCounter(msg: MsgCounter) {
         // console.log("Ucnt=", msg.cnt);
         const userCount = document.getElementById('u_cnt') as HTMLElement;
         patch(userCount as HTMLElement, h('counter#u_cnt', ngettext('%1 player', '%1 players', msg.cnt)));
+    }
+
+    private onMsgAutoPairingCounter(msg: MsgCounter) {
+        // console.log("APcnt=", msg.cnt);
+        const gameCount = document.getElementById('ap_cnt') as HTMLElement;
+        patch(gameCount, h('counter#ap_cnt', ngettext('%1 auto pairing', '%1 auto pairings', msg.cnt)));
     }
 
     private onMsgStreams(msg: MsgStreams) {
@@ -1356,6 +1373,7 @@ export function lobbyView(model: PyChessModel): VNode[] {
             h('div.lobby-count', [
                 h('a', { attrs: { href: '/players' } }, [ h('counter#u_cnt') ]),
                 h('a', { attrs: { href: '/games' } }, [ h('counter#g_cnt') ]),
+                h('counter#ap_cnt'),
             ]),
         ]),
         h('under-left', [

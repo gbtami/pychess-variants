@@ -37,6 +37,10 @@ class Lobby:
         response = {"type": "u_cnt", "cnt": self.app_state.online_count()}
         await self.lobby_broadcast(response)
 
+    async def lobby_broadcast_ap_cnt(self):
+        response = {"type": "ap_cnt", "cnt": self.app_state.auto_pairing_count()}
+        await self.lobby_broadcast(response)
+
     async def lobby_broadcast_seeks(self):
         # We will need all the seek users blocked info
         for seek in self.app_state.seeks.values():

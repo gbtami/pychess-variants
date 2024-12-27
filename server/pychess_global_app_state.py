@@ -502,6 +502,9 @@ class PychessGlobalAppState:
     def online_count(self):
         return sum((1 for user in self.users.values() if user.online))
 
+    def auto_pairing_count(self):
+        return sum((1 for user in self.auto_pairing_users if user.ready_for_auto_pairing))
+
     def __str__(self):
         return self.__stringify(str)
 
