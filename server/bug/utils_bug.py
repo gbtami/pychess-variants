@@ -48,7 +48,7 @@ def init_players(app_state: PychessGlobalAppState, wp_a, bp_a, wp_b, bp_b):
 
 async def load_game_bug(app_state: PychessGlobalAppState, game_id):
     """Return Game object from app cache or from database"""
-
+    log.debug("load_game_bug from db ")
     # games = app[games_key]
 
     # if game_id in games:
@@ -56,6 +56,7 @@ async def load_game_bug(app_state: PychessGlobalAppState, game_id):
 
     doc = await app_state.db.game.find_one({"_id": game_id})
 
+    log.debug("load_game_bug parse START")
     if doc is None:
         return None
 
@@ -236,6 +237,8 @@ async def load_game_bug(app_state: PychessGlobalAppState, game_id):
                 game.steps[idx]["chat"].append(
                     {"message": c["m"], "username": c["u"], "time": c["t"]}
                 )
+    log.debug("load_game_bug parse DONE")
+
     return game
 
 
