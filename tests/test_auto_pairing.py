@@ -91,7 +91,7 @@ class AutoPairingTestCase(AioHTTPTestCase):
     def test_add_to_auto_pairings(self):
         app_state = get_app_state(self.app)
 
-        variant_tc = ("chess", False, 5, 3, 0)
+        variant_tc = ("chess", False, 5, 5, 0)
         auto_variant_tc, matching_user, matching_seek = add_to_auto_pairings(
             app_state, self.bplayer, DATA["chess"]
         )
@@ -101,7 +101,7 @@ class AutoPairingTestCase(AioHTTPTestCase):
         self.assertIn(self.bplayer, app_state.auto_pairings[variant_tc])
         self.assertTrue(self.bplayer.ready_for_auto_pairing)
 
-        variant_tc = ("chess", True, 5, 3, 0)
+        variant_tc = ("chess", True, 5, 5, 0)
         auto_variant_tc, matching_user, matching_seek = add_to_auto_pairings(
             app_state, self.aplayer, DATA["chess960"]
         )
@@ -115,7 +115,7 @@ class AutoPairingTestCase(AioHTTPTestCase):
     def remove_from_auto_pairings(self):
         app_state = get_app_state(self.app)
 
-        variant_tc = ("chess", False, 5, 3, 0)
+        variant_tc = ("chess", False, 5, 5, 0)
         add_to_auto_pairings(app_state, self.bplayer, DATA["chess"])
         self.bplayer.remove_from_auto_pairings()
 
@@ -243,7 +243,7 @@ class AutoPairingTestCase(AioHTTPTestCase):
         app_state.seeks[seek2.id] = seek2
 
         # There is no 960 in seeks
-        variant_tc = ("chess", True, 5, 3, 0)  # chess960 5+3
+        variant_tc = ("chess", True, 5, 5, 0)  # chess960 5+5
         add_to_auto_pairings(app_state, self.lplayer, DATA["chess960"])
         result = find_matching_seek(app_state, self.lplayer, variant_tc)
         self.assertIsNone(result)
@@ -251,7 +251,7 @@ class AutoPairingTestCase(AioHTTPTestCase):
         self.lplayer.remove_from_auto_pairings()
 
         # There is no rated seek in seeks
-        variant_tc = ("chess", False, 5, 3, 0)  # chess 5+3
+        variant_tc = ("chess", False, 5, 5, 0)  # chess 5+5
         add_to_auto_pairings(app_state, self.lplayer, DATA["chess"])
         result = find_matching_seek(app_state, self.lplayer, variant_tc)
         self.assertIsNone(result)
@@ -261,7 +261,7 @@ class AutoPairingTestCase(AioHTTPTestCase):
         seek3 = Seek("id3", self.dplayer, "chess", rated=True)
         app_state.seeks[seek3.id] = seek3
 
-        variant_tc = ("chess", False, 5, 3, 0)  # chess 5+3
+        variant_tc = ("chess", False, 5, 5, 0)  # chess 5+5
         add_to_auto_pairings(app_state, self.lplayer, DATA["chess"])
         result = find_matching_seek(app_state, self.lplayer, variant_tc)
         self.assertEqual(result, seek3)
@@ -275,14 +275,14 @@ class AutoPairingTestCase(AioHTTPTestCase):
         add_to_auto_pairings(app_state, self.cplayer, DATA["zh"])
         add_to_auto_pairings(app_state, self.dplayer, DATA["zh960"])
 
-        variant_tc = ("kingofthehill", False, 5, 3, 0)  # koth 5+3
+        variant_tc = ("kingofthehill", False, 5, 5, 0)  # koth 5+5
         add_to_auto_pairings(app_state, self.lplayer, DATA["koth"])
         result = find_matching_user(app_state, self.lplayer, variant_tc)
         self.assertIsNone(result)
 
         self.lplayer.remove_from_auto_pairings()
 
-        variant_tc = ("chess", False, 5, 3, 0)  # chess 5+3
+        variant_tc = ("chess", False, 5, 5, 0)  # chess 5+5
         add_to_auto_pairings(app_state, self.lplayer, DATA["chess"])
         result = find_matching_user(app_state, self.lplayer, variant_tc)
         self.assertEqual(result, self.aplayer)
@@ -293,7 +293,7 @@ class AutoPairingTestCase(AioHTTPTestCase):
 
         app_state = get_app_state(self.app)
 
-        variant_tc = ("chess", False, 5, 3, 0)  # chess 5+3
+        variant_tc = ("chess", False, 5, 5, 0)  # chess 5+5
         add_to_auto_pairings(app_state, self.aplayer, DATA["chess"])
 
         seek = Seek("id", self.bplayer, "chess", rated=True)

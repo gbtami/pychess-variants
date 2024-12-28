@@ -20,7 +20,7 @@ class Seek:
         fen="",
         color="r",
         base=5,
-        inc=3,
+        inc=5,
         byoyomi_period=0,
         day=0,
         level=6,
