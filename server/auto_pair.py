@@ -13,6 +13,7 @@ def add_to_auto_pairings(app_state, user, data):
     """Add auto pairing to app_state and while doing this
     tries to find a compatible other auto pairing or seek"""
 
+    added = False
     auto_variant_tc = None
     matching_user = None
     matching_seek = None
@@ -21,8 +22,8 @@ def add_to_auto_pairings(app_state, user, data):
     rrmax = data["rrmax"]
     rrmin = rrmin if (rrmin != -1000) else -10000
     rrmax = rrmax if (rrmax != 1000) else 10000
-    app_state.auto_pairing_users[user] = (rrmin, rrmax)
 
+    app_state.auto_pairing_users[user] = (rrmin, rrmax)
     user.ready_for_auto_pairing = True
 
     for variant_tc in product(sorted(data["variants"], key=lambda _: random()), data["tcs"]):
@@ -35,13 +36,19 @@ def add_to_auto_pairings(app_state, user, data):
         )
         variant, chess960, base, inc, byoyomi_period = variant_tc
 
-        # We don't want to create non byo variant with byo TC combinations
-        if (byoyomi_period > 0 and variant not in BYOS) or variant.startswith("bughouse"):
+        # We don't want to create unsupported variant-TC combinations
+        if (
+            (byoyomi_period > 0 and variant not in BYOS)
+            or (byoyomi_period == 0 and variant in BYOS)
+            or variant.startswith("bughouse")
+        ):
             continue
 
         if variant_tc not in app_state.auto_pairings:
             app_state.auto_pairings[variant_tc] = set()
+
         app_state.auto_pairings[variant_tc].add(user)
+        added = True
 
         if (matching_user is None) and (matching_seek is None):
             # Try to find the same combo in auto_pairings
@@ -52,6 +59,10 @@ def add_to_auto_pairings(app_state, user, data):
             # Maybe there is a matching normal seek
             matching_seek = find_matching_seek(app_state, user, variant_tc)
             auto_variant_tc = variant_tc
+
+    if not added:
+        del app_state.auto_pairing_users[user]
+        user.ready_for_auto_pairing = False
 
     return auto_variant_tc, matching_user, matching_seek
 
