@@ -29,10 +29,10 @@ ALL_TC = [
     (1, 0, 0),
     (3, 0, 0),
     (3, 2, 0),
-    (5, 3, 0),
-    (10, 5, 0),
+    (5, 5, 0),
+    (15, 10, 0),
     (2, 15, 1),
-    (5, 15, 1),
+    (10, 30, 1),
 ]
 
 ALL_VARIANT = product(map(lambda x: x.removesuffix("960"), VARIANTS), (True, False))
