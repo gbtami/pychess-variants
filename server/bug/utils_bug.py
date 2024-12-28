@@ -133,7 +133,7 @@ async def load_game_bug(app_state: PychessGlobalAppState, game_id):
 
             if board_name == "a":
                 game.checkA = game.boards[board_name].is_checked()
-            if board_name == "b":
+            else:
                 game.checkB = game.boards[board_name].is_checked()
 
             # turnColor = "black" if game.board.color == BLACK else "white" todo: should i use board at all here? i mean adding a second one - maybe for fen ahd and check - but still can happen on client as well
