@@ -154,14 +154,17 @@ class Twitch:
                 TWITCH_EVENTSUB_API_URL, headers=self.headers, json=data
             ) as resp:
                 response_data = await resp.json()
-                try:
-                    subs = response_data["data"][0]
-                    self.subscriptions[subs["id"]] = subs
-                except KeyError:
-                    log.error(
-                        "No 'data' in twitch request_subscription() json response: %s",
-                        response_data,
-                    )
+                if "error" in response_data:
+                    log.debug("request_subscription response: %s", response_data)
+                else:
+                    try:
+                        subs = response_data["data"][0]
+                        self.subscriptions[subs["id"]] = subs
+                    except KeyError:
+                        log.error(
+                            "No 'data' in twitch request_subscription() json response: %s",
+                            response_data,
+                        )
 
     async def get_subscriptions(self):
         log.debug("--- get_subscriptions from twitch ---")
