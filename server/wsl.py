@@ -1,7 +1,6 @@
 from __future__ import annotations
 import asyncio
 import logging
-from time import time
 
 import aiohttp_session
 from aiohttp import web
@@ -26,7 +25,6 @@ from const import ANON_PREFIX, STARTED
 from misc import server_state
 from newid import new_id
 from const import TYPE_CHECKING
-from settings import DEV
 
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
@@ -373,26 +371,11 @@ async def handle_cancel_auto_pairing(app_state, ws, user, data):
 
     await app_state.lobby.lobby_broadcast_ap_cnt()
 
-    if DEV:
-        msg = "Auto pairing cancelled."
-        await app_state.lobby.lobby_chat("server", "%s: %s" % (user.username, msg), int(time()))
-
 
 async def handle_create_auto_pairing(app_state, ws, user, data):
     no = await send_game_in_progress_if_any(app_state, user, ws)
     if no:
         return
-
-    if DEV:
-        variants = ",".join((v[0] + ("960" if v[1] else "") for v in data["variants"]))
-        msg = "%s: %s %s %s %s" % (
-            user.username,
-            variants,
-            data["tcs"],
-            data["rrmin"],
-            data["rrmax"],
-        )
-        await app_state.lobby.lobby_chat("server", msg, int(time()))
 
     auto_variant_tc, matching_user, matching_seek = add_to_auto_pairings(app_state, user, data)
 
