@@ -1,3 +1,4 @@
+import asyncio
 import logging
 import random
 from datetime import timezone
@@ -237,6 +238,10 @@ async def load_game_bug(app_state: PychessGlobalAppState, game_id):
                 game.steps[idx]["chat"].append(
                     {"message": c["m"], "username": c["u"], "time": c["t"]}
                 )
+
+    app_state.games[game_id] = game
+    if game.status > STARTED:
+        asyncio.create_task(app_state.remove_from_cache(game), name="game-remove-%s" % game_id)
     log.debug("load_game_bug parse DONE")
 
     return game

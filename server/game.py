@@ -46,7 +46,6 @@ if TYPE_CHECKING:
 log = logging.getLogger(__name__)
 
 MAX_PLY = 600
-KEEP_TIME = 1800  # keep game in app[games_key] for KEEP_TIME secs
 
 INVALID_PAWN_DROP_MATE = (
     ("P@", "shogi"),
@@ -480,27 +479,7 @@ class Game:
             response = {"type": "g_cnt", "cnt": self.app_state.g_cnt[0]}
             await self.app_state.lobby.lobby_broadcast(response)
 
-        async def remove(keep_time):
-            # Keep it in our games dict a little to let players get the last board
-            # not to mention that BOT players want to abort games after 20 sec inactivity
-            await asyncio.sleep(keep_time)
-
-            if self.id == self.app_state.tv:
-                self.app_state.tv = None
-
-            if self.id in self.app_state.games:
-                del self.app_state.games[self.id]
-
-            if self.bot_game:
-                try:
-                    if self.wplayer.bot:
-                        del self.wplayer.game_queues[self.id]
-                    if self.bplayer.bot:
-                        del self.bplayer.game_queues[self.id]
-                except KeyError:
-                    log.error("Failed to del %s from game_queues", self.id)
-
-        self.remove_task = asyncio.create_task(remove(KEEP_TIME), name="game-remove-%s" % self.id)
+        asyncio.create_task(self.app_state.remove_from_cache(self), name="game-remove-%s" % self.id)
 
         if self.board.ply < 3 and (self.app_state.db is not None) and (self.tournamentId is None):
             result = await self.app_state.db.game.delete_one({"_id": self.id})
@@ -1023,6 +1002,7 @@ class Game:
             self.board.count_started = -1
 
     def create_steps(self):
+        log.debug("create_steps() START")
         if self.mct is not None:
             manual_count_toggled = iter(self.mct)
             count_started = -1
@@ -1103,6 +1083,7 @@ class Game:
                     self.board.move_stack,
                 )
                 break
+        log.debug("create_steps() OK")
 
     def get_board(self, full=False):
         if len(self.board.move_stack) > 0 and len(self.steps) == 1:

@@ -68,6 +68,8 @@ from youtube import Youtube
 
 log = logging.getLogger(__name__)
 
+GAME_KEEP_TIME = 1800  # keep game in app[games_key] for GAME_KEEP_TIME secs
+
 
 class PychessGlobalAppState:
     def __init__(self, app: web.Application):
@@ -437,6 +439,25 @@ class PychessGlobalAppState:
         result[NONE_USER] = User(self, anon=True, username=NONE_USER)
         result[NONE_USER].enabled = False
         return result
+
+    async def remove_from_cache(self, game):
+        await asyncio.sleep(GAME_KEEP_TIME)
+
+        if game.id == self.tv:
+            self.tv = None
+
+        if game.id in self.games:
+            del self.games[game.id]
+
+        if game.bot_game:
+            try:
+                for player in game.all_players:
+                    if player.bot:
+                        del player.game_queues[game.id]
+            except KeyError:
+                log.error("Failed to del %s from game_queues", game.id)
+
+        log.debug("Removed %s OK", game.id)
 
     async def server_shutdown(self):
         self.shutdown = True
