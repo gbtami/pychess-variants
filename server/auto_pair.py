@@ -157,6 +157,7 @@ def find_matching_seek(app_state, user, variant_tc):
                 and seek.byoyomi_period == byoyomi_period
                 and seek.color == "r"
                 and seek.fen == ""
+                and user != seek.creator
             )
             if user.auto_compatible_with_seek(seek_candidate)
         ),
