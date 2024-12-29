@@ -21,8 +21,7 @@ TWITCH_USERS_API_URL = "https://api.twitch.tv/helix/users"
 TWITCH_STREAMS_API_URL = "https://api.twitch.tv/helix/streams"
 
 if DEV:
-    # https://github.com/localtunnel/localtunnel
-    CALLBACK_URL = "https://fresh-husky-89.loca.lt/twitch"
+    CALLBACK_URL = "https://localhost"
 else:
     CALLBACK_URL = "https://www.pychess.org/twitch"
 
@@ -76,13 +75,15 @@ class Twitch:
         await self.get_subscriptions()
 
         for subscription_id in self.subscriptions:
+            print("delete subs id", subscription_id)
             await self.delete_subscription(subscription_id)
 
         uids = await self.get_users_data(TWITCH_STREAMERS.keys())
-        for uid in uids:
-            await self.request_subscription(uid, "stream.online")
-            await self.request_subscription(uid, "stream.offline")
-            await self.request_subscription(uid, "channel.update")
+        for name, uid in uids:
+            print("request subs", name, uid)
+            await self.request_subscription(name, uid, "stream.online")
+            await self.request_subscription(name, uid, "stream.offline")
+            await self.request_subscription(name, uid, "channel.update")
 
         if len(self.streams) > 0:
             await broadcast_streams(self.app)
@@ -130,9 +131,10 @@ class Twitch:
             ):
                 pass
 
-    async def request_subscription(self, broadcaster_user_id, subscription_type):
+    async def request_subscription(self, name, broadcaster_user_id, subscription_type):
         log.debug(
-            "--- request_subscription ---- %s %s",
+            "--- request_subscription ---- %s %s %s",
+            name,
             broadcaster_user_id,
             subscription_type,
         )
@@ -166,7 +168,10 @@ class Twitch:
         async with aiohttp.ClientSession() as client_session:
             async with client_session.get(TWITCH_EVENTSUB_API_URL, headers=self.headers) as resp:
                 response_data = await resp.json()
+                print("---response---")
                 for subs in response_data["data"]:
+                    print(subs)
+                    print("---")
                     self.subscriptions[subs["id"]] = subs
 
     async def get_users_data(self, usernames):
@@ -174,7 +179,7 @@ class Twitch:
         async with aiohttp.ClientSession() as client_session:
             uids = []
             query_params = "&".join(["login=%s" % username for username in usernames])
-
+            print("---USERS")
             async with client_session.get(
                 "%s?%s" % (TWITCH_USERS_API_URL, query_params), headers=self.headers
             ) as resp:
@@ -184,9 +189,11 @@ class Twitch:
                 else:
                     json = await resp.json()
                     for user in json["data"]:
-                        uids.append(user["id"])
+                        print(user["login"], user["id"])
+                        uids.append((user["login"], user["id"]))
 
             query_params = "&".join(["user_login=%s" % username for username in usernames])
+            print("---STREAMS")
             async with client_session.get(
                 "%s?%s" % (TWITCH_STREAMS_API_URL, query_params), headers=self.headers
             ) as resp:
@@ -196,6 +203,7 @@ class Twitch:
                 else:
                     json = await resp.json()
                     for stream in json["data"]:
+                        print(stream)
                         title = stream["title"]
                         streamer = stream["user_login"]
                         live = stream["type"] == "live"
