@@ -232,12 +232,21 @@ async def load_game_bug(app_state: PychessGlobalAppState, game_id):
     if doc.get("c") is not None:
         chat = doc.get("c")
         for key in chat:
-            idx = int(key.replace("m", ""))
-            game.steps[idx]["chat"] = []
-            for c in chat[key]:
-                game.steps[idx]["chat"].append(
-                    {"message": c["m"], "username": c["u"], "time": c["t"]}
+            try:
+                idx = int(key.replace("m", ""))
+                game.steps[idx]["chat"] = []
+                for c in chat[key]:
+                    game.steps[idx]["chat"].append(
+                        {"message": c["m"], "username": c["u"], "time": c["t"]}
+                    )
+            except Exception:
+                log.exception(
+                    "ERROR: Exception in load_game() chat parsing %s %s %s",
+                    game_id,
+                    variant,
+                    doc.get("c"),
                 )
+                break
 
     app_state.games[game_id] = game
     if game.status > STARTED:
