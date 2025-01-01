@@ -209,7 +209,7 @@ export class PuzzleController extends AnalysisController {
                 h('div.info2', [
                     h('div', [
                         h('span', _('Variant')),
-                        h('a.user-link', {
+                        h('a', {
                             attrs: {
                                 target: '_blank',
                                 href: '/variants/' + this.variant.name,
