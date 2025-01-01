@@ -573,6 +573,7 @@ async def play_move(app_state: PychessGlobalAppState, user, game, move, clocks=N
     gameId = game.id
     users = app_state.users
     invalid_move = False
+    play_color = game.board.color
     # log.info("%s move %s %s %s - %s" % (user.username, move, gameId, game.wplayer.username, game.bplayer.username))
 
     if game.status <= STARTED:
@@ -607,7 +608,7 @@ async def play_move(app_state: PychessGlobalAppState, user, game, move, clocks=N
         return
 
     if not invalid_move:
-        board_response = game.get_board(full=game.board.ply == 1)
+        board_response = game.get_board(full=game.board.ply == 1, persp_color=play_color)
 
         if not user.bot:
             await user.send_game_message(gameId, board_response)
@@ -618,6 +619,11 @@ async def play_move(app_state: PychessGlobalAppState, user, game, move, clocks=N
     opp_name = (
         game.wplayer.username if user.username == game.bplayer.username else game.bplayer.username
     )
+
+    # FEN sent to opp player is different in fogofwar games!
+    if game.fow:
+        board_response = game.get_board(full=game.board.ply == 1, persp_color=1 - play_color)
+
     if users[opp_name].bot:
         if game.status > STARTED:
             await users[opp_name].game_queues[gameId].put(game.game_end)

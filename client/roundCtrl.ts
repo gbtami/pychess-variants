@@ -906,7 +906,7 @@ export class RoundController extends GameController {
             if (this.turnColor === this.mycolor) {
                 if (latestPly) {
                     this.chessground.set({
-                        fen: (this.fog) ? this.fogFen(this.fullfen) : this.fullfen,
+                        fen: this.fullfen,
                         turnColor: this.turnColor,
                         movable: {
                             free: false,
@@ -941,7 +941,7 @@ export class RoundController extends GameController {
             } else {
                 this.chessground.set({
                     // giving fen here will place castling rooks to their destination in chess960 variants
-                    fen: (this.fog) ? this.fogFen(this.fullfen) : parts[0],
+                    fen: parts[0],
                     turnColor: this.turnColor,
                     check: msg.check,
                     lastMove: (this.fog) ? undefined : lastMove,

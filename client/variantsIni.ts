@@ -286,5 +286,6 @@ immobilityIllegal = true
 king = -
 commoner = k
 castlingKingPiece = k
-extinctionValue = loss
-extinctionPieceTypes = k`
+# extinction rules prevents to get valid moves for fog FENs ceated on server side
+#extinctionValue = loss
+#extinctionPieceTypes = k`

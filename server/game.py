@@ -11,6 +11,7 @@ from clock import Clock, CorrClock
 from compress import get_encode_method, R2C
 from const import (
     CREATED,
+    DARK_FEN,
     STARTED,
     ABORTED,
     MATE,
@@ -154,6 +155,8 @@ class Game:
         self.id = gameId
 
         self.encode_method = get_encode_method(variant)
+
+        self.fow = variant == "fogofwar"
 
         self.n_fold_is_draw = self.variant in (
             "makruk",
@@ -779,7 +782,6 @@ class Game:
         ):
             self.status = DRAW
             self.result = "1/2-1/2"
-            print("ITT")
 
         if self.status > STARTED:
             self.set_crosstable()
@@ -1085,9 +1087,11 @@ class Game:
                 break
         log.debug("create_steps() OK")
 
-    def get_board(self, full=False):
+    def get_board(self, full=False, persp_color=None):
         if len(self.board.move_stack) > 0 and len(self.steps) == 1:
             self.create_steps()
+
+        fen, lastmove = self.board.fen, self.lastmove
 
         if full:
             steps = self.steps
@@ -1120,6 +1124,16 @@ class Game:
             steps = (self.steps[-1],)
             crosstable = self.crosstable if self.status > STARTED else ""
 
+        if self.fow and self.status <= STARTED:
+            if persp_color is not None:
+                fen = self.board.get_fog_fen(persp_color)
+            else:
+                fen = DARK_FEN
+
+            steps[-1]["fen"] = fen
+            steps[-1]["move"] = ""
+            lastmove = ""
+
         if self.corr:
             clock_mins = self.stopwatch.mins * 60 * 1000
             base_mins = self.base * 24 * 60 * 60 * 1000
@@ -1133,8 +1147,8 @@ class Game:
             "gameId": self.id,
             "status": self.status,
             "result": self.result,
-            "fen": self.board.fen,
-            "lastMove": self.lastmove,
+            "fen": fen,
+            "lastMove": lastmove,
             "tp": self.turn_player,
             "steps": steps,
             "check": self.check,
