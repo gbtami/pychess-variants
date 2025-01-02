@@ -1235,11 +1235,13 @@ class Game:
 
 def get_fog_steps(steps, persp_color):
     if persp_color is None:
-        return [
-            {"fen": DARK_FEN} for step in steps
-        ]
+        return [{"fen": DARK_FEN} for step in steps]
     else:
         return [
-            {"fen": get_fog_fen(step["fen"], persp_color), "san": "?", "turnColor": step["turnColor"]}
+            {
+                "fen": get_fog_fen(step["fen"], persp_color),
+                "san": "?",
+                "turnColor": step["turnColor"],
+            }
             for step in steps
         ]
