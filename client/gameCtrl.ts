@@ -36,7 +36,6 @@ export abstract class GameController extends ChessgroundController implements Ch
     aiLevel: number;
     rated: string;
     corr : boolean;
-    fog: boolean;
 
     base: number;
     inc: number;
@@ -115,7 +114,6 @@ export abstract class GameController extends ChessgroundController implements Ch
         this.brating = model["brating"];
         this.rated = model["rated"];
         this.corr = model["corr"] === 'True';
-        this.fog = this.variant.name === 'fogofwar';
         this.mirrorBoard = false;
 
         this.spectator = this.username !== this.wplayer && this.username !== this.bplayer;
@@ -320,7 +318,7 @@ export abstract class GameController extends ChessgroundController implements Ch
 
         const fen = (this.mirrorBoard) ? this.getAliceFen(step.fen) : step.fen;
         this.chessground.set({
-            fen: fen,
+            fen: (this.fog) ? this.fogFen(fen) : fen,
             turnColor: step.turnColor,
             movable: {
                 color: step.turnColor,
