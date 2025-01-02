@@ -34,7 +34,7 @@ from const import (
     TYPE_CHECKING,
 )
 from convert import grand2zero, uci2usi, mirror5, mirror9
-from fairy import get_san_moves, NOTATION_SAN, FairyBoard, BLACK, WHITE
+from fairy import get_fog_fen, get_san_moves, NOTATION_SAN, FairyBoard, BLACK, WHITE
 from glicko2.glicko2 import gl2
 from draw import reject_draw
 from settings import URI
@@ -1125,14 +1125,10 @@ class Game:
             crosstable = self.crosstable if self.status > STARTED else ""
 
         if self.fow and self.status <= STARTED:
-            if persp_color is not None:
-                fen = self.board.get_fog_fen(persp_color)
-            else:
-                fen = DARK_FEN
-
-            steps[-1]["fen"] = fen
-            steps[-1]["move"] = ""
-            lastmove = ""
+            steps = get_fog_steps(steps, persp_color)
+            fen = steps[-1]["fen"]
+            if (persp_color is None) or (persp_color == self.board.color):
+                lastmove = ""
 
         if self.corr:
             clock_mins = self.stopwatch.mins * 60 * 1000
@@ -1235,3 +1231,15 @@ class Game:
 
     def handle_chat_message(self, chat_message):
         self.messages.append(chat_message)
+
+
+def get_fog_steps(steps, persp_color):
+    if persp_color is None:
+        return [
+            {"fen": DARK_FEN} for step in steps
+        ]
+    else:
+        return [
+            {"fen": get_fog_fen(step["fen"], persp_color), "san": "?", "turnColor": step["turnColor"]}
+            for step in steps
+        ]

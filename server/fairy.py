@@ -8,6 +8,7 @@ from racingkings import RACINGKINGS_FENS
 import logging
 import re
 import random
+from functools import cache
 
 log = logging.getLogger(__name__)
 
@@ -228,31 +229,6 @@ class FairyBoard:
     def piece_to_partner(self, move):
         return self.sf.piece_to_partner(self.variant, self.fen, [move], self.chess960)
 
-    def get_fog_fen(self, persp_color):
-        fen = self.fen
-        fen_color = "w" if self.color == WHITE else "b"
-        other_color = "w" if persp_color == WHITE else "b"
-
-        # set the perspective color to sf.get_fog_fen()
-        parts = self.fen.split(" ")
-        parts[1] = parts[1].replace(fen_color, other_color)
-
-        # remove castling right of the player in fog
-        if persp_color == WHITE:
-            parts[2] = "".join((letter for letter in parts[2] if letter.isupper()))
-        else:
-            parts[2] = "".join((letter for letter in parts[2] if letter.islower()))
-        fen = " ".join(parts)
-
-        fen = sf.get_fog_fen(fen, "fogofwar")
-
-        # restore original FEN color
-        parts = fen.split(" ")
-        parts[1] = parts[1].replace(other_color, fen_color)
-        fen = " ".join(parts)
-
-        return fen
-
     def print_pos(self):
         print()
         uni_pieces = {
@@ -435,6 +411,34 @@ class FairyBoard:
                 + "0 1"
             )
         return fen
+
+
+@cache
+def get_fog_fen(fen, persp_color):
+    parts = fen.split(" ")
+
+    fen_color = "w" if parts[1] == "w" else "b"
+    opp_color = "w" if persp_color == WHITE else "b"
+
+    # set the perspective color to sf.get_fog_fen()
+    parts[1] = parts[1].replace(fen_color, opp_color)
+
+    # remove castling rights of the player in fog
+    # because the resulting fog FEN may have no king
+    if persp_color == WHITE:
+        parts[2] = "".join((letter for letter in parts[2] if letter.isupper()))
+    else:
+        parts[2] = "".join((letter for letter in parts[2] if letter.islower()))
+    fen = " ".join(parts)
+
+    fen = sf.get_fog_fen(fen, "fogofwar")
+
+    # restore original FEN color
+    parts = fen.split(" ")
+    parts[1] = parts[1].replace(opp_color, fen_color)
+    fen = " ".join(parts)
+
+    return fen
 
 
 def get_san_moves(variant, fen, mlist, chess960, notation):

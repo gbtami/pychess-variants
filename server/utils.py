@@ -643,6 +643,10 @@ async def play_move(app_state: PychessGlobalAppState, user, game, move, clocks=N
             await users[opp_name].send_game_message(gameId, response)
 
     if not invalid_move:
+        # FEN sent to visitors is different in fogofwar games!
+        if game.fow:
+            board_response = game.get_board(full=game.board.ply == 1, persp_color=None)
+
         await round_broadcast(game, board_response, channels=app_state.game_channels)
 
         if game.tournamentId is not None:
