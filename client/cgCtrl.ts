@@ -27,6 +27,7 @@ export abstract class ChessgroundController implements BoardController {
 
     fullfen: string;
     notation: cg.Notation;
+    fog: boolean;
 
     constructor(el: HTMLElement, model: PyChessModel, fullfen: string, pocket0: HTMLElement, pocket1: HTMLElement, boardName: BoardName = '') {
         this.boardName = boardName;
@@ -40,9 +41,10 @@ export abstract class ChessgroundController implements BoardController {
         this.oppcolor = 'black';
         this.fullfen = fullfen;
         this.notation = this.variant.notation;
+        this.fog = model.variant === 'fogofwar';
 
         const parts = this.fullfen.split(" ");
-        const fen_placement: cg.FEN = parts[0];
+        const fen_placement: cg.FEN = (this.fog) ? this.fogFen(parts[0]) : parts[0];
 
         this.chessground = Chessground(el, {
             fen: fen_placement as cg.FEN,
@@ -72,6 +74,10 @@ export abstract class ChessgroundController implements BoardController {
             this.fullfen,
             this.chess960);
         window.addEventListener('beforeunload', () => this.ffishBoard.delete());
+    }
+
+    fogFen(currentFen: string): string {
+        return currentFen.replace(/\*/g, '*~');
     }
 
     toggleOrientation(): void {

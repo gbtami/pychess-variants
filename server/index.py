@@ -26,7 +26,7 @@ from const import (
     TRANSLATED_VARIANT_NAMES,
     TRANSLATED_PAIRING_SYSTEM_NAMES,
 )
-from fairy import FairyBoard
+from fairy import FairyBoard, BLACK, WHITE
 from glicko2.glicko2 import PROVISIONAL_PHI
 from robots import ROBOTS_TXT
 from settings import (
@@ -596,7 +596,10 @@ async def index(request):
             render["ply"] = ply if ply is not None else game.ply - 1
             render["initialFen"] = game.initial_fen
             render["ct"] = json.dumps(game.crosstable)
-            render["board"] = json.dumps(game.get_board(full=True))
+
+            user_color = WHITE if user == game.wplayer else BLACK if user == game.bplayer else None
+            render["board"] = json.dumps(game.get_board(full=True, persp_color=user_color))
+
             if game.tournamentId is not None:
                 tournament_name = await get_tournament_name(request, game.tournamentId)
                 render["tournamentid"] = game.tournamentId

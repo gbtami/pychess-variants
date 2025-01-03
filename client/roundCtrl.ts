@@ -944,7 +944,7 @@ export class RoundController extends GameController {
                     fen: (this.fog) ? this.fogFen(this.fullfen) : parts[0],
                     turnColor: this.turnColor,
                     check: msg.check,
-                    lastMove: (this.fog) ? undefined : lastMove,
+                    lastMove: lastMove,
                 });
 
                 // This have to be here, because in case of takeback 

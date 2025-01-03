@@ -11,6 +11,7 @@ from clock import Clock, CorrClock
 from compress import get_encode_method, R2C
 from const import (
     CREATED,
+    DARK_FEN,
     STARTED,
     ABORTED,
     MATE,
@@ -33,7 +34,7 @@ from const import (
     TYPE_CHECKING,
 )
 from convert import grand2zero, uci2usi, mirror5, mirror9
-from fairy import get_san_moves, NOTATION_SAN, FairyBoard, BLACK, WHITE
+from fairy import get_fog_fen, get_san_moves, NOTATION_SAN, FairyBoard, BLACK, WHITE
 from glicko2.glicko2 import gl2
 from draw import reject_draw
 from settings import URI
@@ -154,6 +155,8 @@ class Game:
         self.id = gameId
 
         self.encode_method = get_encode_method(variant)
+
+        self.fow = variant == "fogofwar"
 
         self.n_fold_is_draw = self.variant in (
             "makruk",
@@ -779,7 +782,6 @@ class Game:
         ):
             self.status = DRAW
             self.result = "1/2-1/2"
-            print("ITT")
 
         if self.status > STARTED:
             self.set_crosstable()
@@ -1085,9 +1087,11 @@ class Game:
                 break
         log.debug("create_steps() OK")
 
-    def get_board(self, full=False):
+    def get_board(self, full=False, persp_color=None):
         if len(self.board.move_stack) > 0 and len(self.steps) == 1:
             self.create_steps()
+
+        fen, lastmove = self.board.fen, self.lastmove
 
         if full:
             steps = self.steps
@@ -1120,6 +1124,12 @@ class Game:
             steps = (self.steps[-1],)
             crosstable = self.crosstable if self.status > STARTED else ""
 
+        if self.fow and self.status <= STARTED:
+            steps = get_fog_steps(steps, persp_color)
+            fen = steps[-1]["fen"]
+            if (persp_color is None) or (persp_color == self.board.color):
+                lastmove = ""
+
         if self.corr:
             clock_mins = self.stopwatch.mins * 60 * 1000
             base_mins = self.base * 24 * 60 * 60 * 1000
@@ -1133,8 +1143,8 @@ class Game:
             "gameId": self.id,
             "status": self.status,
             "result": self.result,
-            "fen": self.board.fen,
-            "lastMove": self.lastmove,
+            "fen": fen,
+            "lastMove": lastmove,
             "tp": self.turn_player,
             "steps": steps,
             "check": self.check,
@@ -1221,3 +1231,17 @@ class Game:
 
     def handle_chat_message(self, chat_message):
         self.messages.append(chat_message)
+
+
+def get_fog_steps(steps, persp_color):
+    if persp_color is None:
+        return [{"fen": DARK_FEN} for step in steps]
+    else:
+        return [
+            {
+                "fen": get_fog_fen(step["fen"], persp_color),
+                "san": "?",
+                "turnColor": step["turnColor"],
+            }
+            for step in steps
+        ]

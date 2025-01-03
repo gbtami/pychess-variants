@@ -66,7 +66,7 @@ async def init_ws(app_state, ws, user, game: game.Game):
         if p.username != user.username:
             await handle_is_user_present(ws, app_state.users, p.username, game)
     await handle_game_user_connected(app_state, ws, user, game)
-    await hande_board(ws, game)
+    await handle_board(ws, user, game)
 
 
 async def process_message(app_state, user, ws, data, game):
@@ -81,7 +81,7 @@ async def process_message(app_state, user, ws, data, game):
     elif data["type"] == "ready":
         await handle_ready(ws, app_state.users, user, data, game)
     elif data["type"] == "board":
-        await hande_board(ws, game)
+        await handle_board(ws, user, game)
     elif data["type"] == "setup":
         await handle_setup(ws, app_state.users, user, data, game)
     elif data["type"] == "analysis":
@@ -214,7 +214,7 @@ async def handle_ready(ws, users, user, data, game):
         await round_broadcast(game, game.spectator_list, full=True)
 
 
-async def hande_board(ws, game):
+async def handle_board(ws, user, game):
     if game.variant == "janggi":
         # print("JANGGI", ws, game.bsetup, game.wsetup, game.status)
         if (game.bsetup or game.wsetup) and game.status <= STARTED:
@@ -240,7 +240,8 @@ async def hande_board(ws, game):
             board_response = game.get_board(full=True)
             await ws_send_json(ws, board_response)
     else:
-        board_response = game.get_board(full=True)
+        user_color = WHITE if user == game.wplayer else BLACK if user == game.bplayer else None
+        board_response = game.get_board(full=True, persp_color=user_color)
         await ws_send_json(ws, board_response)
 
     if game.corr and game.status <= STARTED and len(game.draw_offers) > 0:
