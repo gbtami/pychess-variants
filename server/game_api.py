@@ -290,7 +290,8 @@ async def get_user_games(request):
                 continue
 
             try:
-                doc["v"] = C2V[doc["v"]]
+                variant = C2V[doc["v"]]
+                doc["v"] = variant
             except KeyError:
                 log.error("get_user_games() KeyError. Unknown variant %r", doc["v"])
                 continue
@@ -311,17 +312,16 @@ async def get_user_games(request):
                     app_state.users[doc["us"][3]].title if doc["us"][3] in app_state.users else ""
                 )
 
-            if doc["v"] in ("bughouse", "bughouse960"):
+            if variant.startswith("bughouse"):
                 mA = [m for idx, m in enumerate(doc["m"]) if doc["o"][idx] == 0]
                 mB = [m for idx, m in enumerate(doc["m"]) if doc["o"][idx] == 1]
                 doc["lm"] = decode_move_standard(mA[-1]) if len(mA) > 0 else ""
                 doc["lmB"] = decode_move_standard(mB[-1]) if len(mB) > 0 else ""
             else:
-                variant = doc["v"]
                 decode_method = get_decode_method(variant)
 
                 doc["lm"] = decode_method(doc["m"][-1]) if len(doc["m"]) > 0 else ""
-            if doc["v"] in GRANDS and doc["lm"] != "":
+            if variant in GRANDS and doc["lm"] != "":
                 doc["lm"] = zero2grand(doc["lm"])
 
             tournament_id = doc.get("tid")
@@ -334,7 +334,7 @@ async def get_user_games(request):
                 game_doc_list.append(
                     {
                         "id": doc["_id"],
-                        "variant": doc["v"],
+                        "variant": variant,
                         "is960": doc.get("z", 0),
                         "users": doc["us"],
                         "result": doc["r"],
@@ -343,6 +343,11 @@ async def get_user_games(request):
                     }
                 )
             else:
+                if doc["s"] <= STARTED and variant == "fogofwar":
+                    del doc["f"]
+                    del doc["lm"]
+                    del doc["m"]
+
                 game_doc_list.append(doc)
 
     return web.json_response(game_doc_list, dumps=partial(json.dumps, default=datetime.isoformat))
@@ -463,6 +468,7 @@ async def export(request):
         print("---", yearmonth[:4], yearmonth[4:])
         filter_cond = {
             "$and": [
+                {"$expr": {"s": {"$gt": STARTED}}},  # prevent leaking ongoing fogofwar game info
                 {"$expr": {"$eq": [{"$year": "$d"}, int(yearmonth[:4])]}},
                 {"$expr": {"$eq": [{"$month": "$d"}, int(yearmonth[4:])]}},
             ]
