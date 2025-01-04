@@ -12,7 +12,7 @@ from aiohttp_sse import sse_response
 import pymongo
 
 from compress import get_decode_method, C2V, V2C, C2R, decode_move_standard
-from const import GRANDS, STARTED, MATE, VARIANTS, INVALIDMOVE, VARIANTEND, CLAIM
+from const import DARK_FEN, GRANDS, STARTED, MATE, VARIANTS, INVALIDMOVE, VARIANTEND, CLAIM
 from convert import zero2grand
 from settings import ADMINS
 from tournaments import get_tournament_name
@@ -290,7 +290,8 @@ async def get_user_games(request):
                 continue
 
             try:
-                doc["v"] = C2V[doc["v"]]
+                variant = C2V[doc["v"]]
+                doc["v"] = variant
             except KeyError:
                 log.error("get_user_games() KeyError. Unknown variant %r", doc["v"])
                 continue
@@ -311,17 +312,16 @@ async def get_user_games(request):
                     app_state.users[doc["us"][3]].title if doc["us"][3] in app_state.users else ""
                 )
 
-            if doc["v"] in ("bughouse", "bughouse960"):
+            if variant.startswith("bughouse"):
                 mA = [m for idx, m in enumerate(doc["m"]) if doc["o"][idx] == 0]
                 mB = [m for idx, m in enumerate(doc["m"]) if doc["o"][idx] == 1]
                 doc["lm"] = decode_move_standard(mA[-1]) if len(mA) > 0 else ""
                 doc["lmB"] = decode_move_standard(mB[-1]) if len(mB) > 0 else ""
             else:
-                variant = doc["v"]
                 decode_method = get_decode_method(variant)
 
                 doc["lm"] = decode_method(doc["m"][-1]) if len(doc["m"]) > 0 else ""
-            if doc["v"] in GRANDS and doc["lm"] != "":
+            if variant in GRANDS and doc["lm"] != "":
                 doc["lm"] = zero2grand(doc["lm"])
 
             tournament_id = doc.get("tid")
@@ -334,7 +334,7 @@ async def get_user_games(request):
                 game_doc_list.append(
                     {
                         "id": doc["_id"],
-                        "variant": doc["v"],
+                        "variant": variant,
                         "is960": doc.get("z", 0),
                         "users": doc["us"],
                         "result": doc["r"],
@@ -343,6 +343,11 @@ async def get_user_games(request):
                     }
                 )
             else:
+                if doc["s"] <= STARTED and variant == "fogofwar":
+                    doc["f"] = DARK_FEN
+                    doc["lm"] = ""
+                    doc["m"] = ""
+
                 game_doc_list.append(doc)
 
     return web.json_response(game_doc_list, dumps=partial(json.dumps, default=datetime.isoformat))
@@ -416,8 +421,8 @@ async def get_games(request):
             {
                 "gameId": game.id,
                 "variant": game.variant,
-                "fen": game.board.fen,
-                "lastMove": game.lastmove,
+                "fen": DARK_FEN if game.variant == "fogofwar" else game.board.fen,
+                "lastMove": "" if game.variant == "fogofwar" else game.lastmove,
                 "tp": game.turn_player,
                 "w": game.wplayer.username,
                 "wTitle": game.wplayer.title,
@@ -463,6 +468,7 @@ async def export(request):
         print("---", yearmonth[:4], yearmonth[4:])
         filter_cond = {
             "$and": [
+                {"$expr": {"s": {"$gt": STARTED}}},  # prevent leaking ongoing fogofwar game info
                 {"$expr": {"$eq": [{"$year": "$d"}, int(yearmonth[:4])]}},
                 {"$expr": {"$eq": [{"$month": "$d"}, int(yearmonth[4:])]}},
             ]

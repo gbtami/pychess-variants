@@ -34,7 +34,7 @@ type Games = Map<string, GameData>;
 function gameView(games: Games, game: Game) {
     const variant = VARIANTS[game.variant];
     let lastMove, fen;
-    [lastMove, fen] = getLastMoveFen(variant.name, game.lastMove, game.fen, '*')
+    [lastMove, fen] = getLastMoveFen(variant.name, game.lastMove, game.fen)
     return h(`minigame#${game.gameId}.${variant.boardFamily}.${variant.pieceFamily}.${variant.ui.boardMark}`, {
         class: {
             "with-pockets": !!variant.pocket,
@@ -97,7 +97,7 @@ export function renderGames(model: PyChessModel): VNode[] {
                     let cg, variantName;
                     [cg, variantName] = gameData;
                     let lastMove, fen;
-                    [lastMove, fen] = getLastMoveFen(variantName, message.lastMove, message.fen, '*')
+                    [lastMove, fen] = getLastMoveFen(variantName, message.lastMove, message.fen)
                     cg.set({
                         fen: fen,
                         lastMove: lastMove,

@@ -38,7 +38,7 @@ export function handleOngoingGameEvents(username: string, cgMap: {[gameId: strin
         [cg, variantName] = cgMap[message.gameId];
 
         let lastMove, fen;
-        [lastMove, fen] = getLastMoveFen(variantName, message.lastMove, message.fen, '*')
+        [lastMove, fen] = getLastMoveFen(variantName, message.lastMove, message.fen)
 
         cg.set({
             fen: fen,
@@ -95,7 +95,7 @@ export function gameViewPlaying(cgMap: {[gameId: string]: [Api, string]}, game: 
     const mycolor = (username === game.w) ? 'white' : 'black';
 
     let lastMove, fen;
-    [lastMove, fen] = getLastMoveFen(variant.name, game.lastMove, game.fen, '*')
+    [lastMove, fen] = getLastMoveFen(variant.name, game.lastMove, game.fen)
 
     return h(`a.${variant.boardFamily}.${variant.pieceFamily}.${variant.ui.boardMark}`, { attrs: { href: game.gameId } }, [
         h(`div.cg-wrap.${variant.board.cg}`, {

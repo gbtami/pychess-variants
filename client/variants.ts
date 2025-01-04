@@ -3,7 +3,7 @@ import { h, InsertHook, VNode } from 'snabbdom';
 import * as cg from 'chessgroundx/types';
 import * as util from 'chessgroundx/util';
 
-import { DARK_FEN, BoardMarkType, ColorName, CountingType, MaterialPointType, PieceSoundType, PromotionSuffix, PromotionType, TimeControlType, uci2LastMove } from './chess';
+import { BoardMarkType, ColorName, CountingType, MaterialPointType, PieceSoundType, PromotionSuffix, PromotionType, TimeControlType, uci2LastMove } from './chess';
 import { _ } from './i18n';
 import { calculateDiff, Equivalence, MaterialDiff } from './material';
 
@@ -1165,12 +1165,11 @@ export function moddedVariant(variantName: string, chess960: boolean, pieces: cg
     return variantName;
 }
 
-export function getLastMoveFen(variantName: string, lastMove: string, fen: string, result: string): [cg.Orig[] | undefined, string] {
-    switch (variantName) {
-        case 'fogofwar':
-            // Prevent leaking ongoing game info
-            return [undefined, (result === "*") ? DARK_FEN : fen];
-        default:
-            return [uci2LastMove(lastMove), fen];
-    }
+export function getLastMoveFen(variantName: string, lastMove: string, fen: string): [cg.Orig[] | undefined, string] {
+    return [uci2LastMove(lastMove), variantName === 'fogofwar' ? fogFen(fen) : fen];
+}
+
+// Replace all brick ("*") pieces to be promoted ("*~") to let them CSS style as fog instead of duck
+export function fogFen(currentFen: string): string {
+    return currentFen.replace(/\*/g, '*~');
 }

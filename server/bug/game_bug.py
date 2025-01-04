@@ -552,7 +552,7 @@ class GameBug:
             ),
         }
 
-    def get_board(self, full=False):
+    def get_board(self, full=False, persp_color=None):
         [clocks_a, clocks_b] = self.gameClocks.get_clocks_for_board_msg(full)
         if full:
             steps = self.steps

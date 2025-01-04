@@ -83,7 +83,7 @@ function renderGames(model: PyChessModel, games: Game[]) {
             teamSecond = game["us"][2] + "+" + game["us"][1];
         }
         let lastMove, fen;
-        [lastMove, fen] = getLastMoveFen(variant.name, game.lm, game.f, game.r)
+        [lastMove, fen] = getLastMoveFen(variant.name, game.lm, game.f)
         return h('tr', [h('a', { attrs: { href : '/' + game["_id"] } }, [
             h('td.board', { class: { "with-pockets": !!variant.pocket, "bug": isBug} },
                isBug? renderGameBoardsBug(game, model["profileid"]): [

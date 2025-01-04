@@ -2,14 +2,13 @@ import { WebsocketHeartbeatJs } from './socket/socket';
 
 import { h, VNode } from 'snabbdom';
 import * as Mousetrap  from 'mousetrap';
-import * as fen from 'chessgroundx/fen';
 import * as cg from 'chessgroundx/types';
 import * as util from 'chessgroundx/util';
 
 import { _ } from './i18n';
 import { patch } from './document';
 import { Step, MsgChat, MsgFullChat, MsgSpectators, MsgShutdown,MsgGameNotFound } from './messages';
-import { adjacent, DARK_FEN, uci2LastMove, moveDests, cg2uci, uci2cg, unpromotedRole, UCIMove } from './chess';
+import { adjacent, uci2LastMove, moveDests, cg2uci, unpromotedRole, UCIMove } from './chess';
 import { InputType } from '@/input/input';
 import { GatingInput } from './input/gating';
 import { PromotionInput } from './input/promotion';
@@ -21,7 +20,7 @@ import { sound } from './sound';
 import { chatMessage, ChatController } from './chat';
 import { selectMove } from './movelist';
 import { Api } from "chessgroundx/api";
-import { Variant } from "@/variants";
+import { fogFen, Variant } from "./variants";
 import { CheckCounterSvg, Counter } from './glyphs';
 
 export abstract class GameController extends ChessgroundController implements ChatController {
@@ -37,7 +36,6 @@ export abstract class GameController extends ChessgroundController implements Ch
     aiLevel: number;
     rated: string;
     corr : boolean;
-    fog: boolean;
 
     base: number;
     inc: number;
@@ -116,7 +114,6 @@ export abstract class GameController extends ChessgroundController implements Ch
         this.brating = model["brating"];
         this.rated = model["rated"];
         this.corr = model["corr"] === 'True';
-        this.fog = this.variant.name === 'fogofwar';
         this.mirrorBoard = false;
 
         this.spectator = this.username !== this.wplayer && this.username !== this.bplayer;
@@ -221,40 +218,6 @@ export abstract class GameController extends ChessgroundController implements Ch
         }
     }
 
-    fogFen(currentFen: string): string {
-        // No king, no fog (game is over)
-        if (!currentFen.includes('k') || !currentFen.includes('K') || this.result !== '*') return currentFen;
-        
-        if (this.spectator) return DARK_FEN;
-
-        // Squares visibility is always calculated from my color turn perspective
-        const parts = currentFen.split(' ');
-        this.ffishBoard.setFen([parts[0], this.mycolor[0], parts[2], parts[3]].join(' '));
-        const legalMoves = this.ffishBoard.legalMoves().split(" ");
-
-        const pieces = fen.read(currentFen, this.variant.board.dimensions).pieces;
-        const myPieceKeys = Array.from(pieces.keys()).filter((key) => pieces.get(key)!.color === this.mycolor);
-        const visibleKeys = new Set(myPieceKeys);
-
-        // Add dest squares to visibleKeys
-        legalMoves.map(uci2cg).forEach(move => {
-            visibleKeys.add(move.slice(2, 4) as cg.Key);
-        });
-
-        // We use promoted block pieces as fog to let them style differently in extension.css
-        const fog = {
-            color: this.oppcolor,
-            role: '_-piece' as cg.Role,
-            promoted: true
-        }
-        const darks: cg.Key[] = util.allKeys(this.variant.board.dimensions).filter((key) => !(visibleKeys.has(key)));
-        const darkPieces: [cg.Key, cg.Piece][]  = darks.map((key) => [key, fog]);
-        const visiblePieces: [cg.Key, cg.Piece][] = Array.from(visibleKeys).filter((key) => pieces.get(key)).map((key) => [key, pieces.get(key)!]);
-        const newPieces: cg.Pieces = new Map(darkPieces.concat(visiblePieces));
-        
-        return fen.writeBoard(newPieces, this.variant.board.dimensions);
-    }
-
     abstract toggleSettings(): void;
 
     abstract doSendMove(move: string): void;
@@ -355,7 +318,7 @@ export abstract class GameController extends ChessgroundController implements Ch
 
         const fen = (this.mirrorBoard) ? this.getAliceFen(step.fen) : step.fen;
         this.chessground.set({
-            fen: (this.fog) ? this.fogFen(fen) : fen,
+            fen: (this.fog) ? fogFen(fen) : fen,
             turnColor: step.turnColor,
             movable: {
                 color: step.turnColor,
