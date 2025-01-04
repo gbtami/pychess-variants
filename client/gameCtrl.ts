@@ -20,7 +20,7 @@ import { sound } from './sound';
 import { chatMessage, ChatController } from './chat';
 import { selectMove } from './movelist';
 import { Api } from "chessgroundx/api";
-import { Variant } from "@/variants";
+import { fogFen, Variant } from "./variants";
 import { CheckCounterSvg, Counter } from './glyphs';
 
 export abstract class GameController extends ChessgroundController implements ChatController {
@@ -318,7 +318,7 @@ export abstract class GameController extends ChessgroundController implements Ch
 
         const fen = (this.mirrorBoard) ? this.getAliceFen(step.fen) : step.fen;
         this.chessground.set({
-            fen: (this.fog) ? this.fogFen(fen) : fen,
+            fen: (this.fog) ? fogFen(fen) : fen,
             turnColor: step.turnColor,
             movable: {
                 color: step.turnColor,

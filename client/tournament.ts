@@ -387,7 +387,7 @@ export class TournamentController implements ChatController {
                     hook: {
                         insert: vnode => {
                             let lastMove, fen;
-                            [lastMove, fen] = getLastMoveFen(this.variant.name, game.lastMove, game.fen, '*')
+                            [lastMove, fen] = getLastMoveFen(this.variant.name, game.lastMove, game.fen)
                             const cg = Chessground(vnode.elm as HTMLElement,  {
                                 fen: fen,
                                 lastMove: lastMove,
@@ -620,7 +620,7 @@ export class TournamentController implements ChatController {
             return;
         };
         let lastMove, fen;
-        [lastMove, fen] = getLastMoveFen(this.variant.name, msg.lastMove, msg.fen, msg.result)
+        [lastMove, fen] = getLastMoveFen(this.variant.name, msg.lastMove, msg.fen)
 
         this.topGameChessground.set({
             fen: fen,

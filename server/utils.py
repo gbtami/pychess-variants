@@ -16,6 +16,7 @@ from aiohttp_sse import sse_response
 
 from broadcast import round_broadcast
 from const import (
+    DARK_FEN,
     NOTIFY_PAGE_SIZE,
     STARTED,
     VARIANT_960_TO_PGN,
@@ -980,8 +981,8 @@ def corr_games(games):
         {
             "gameId": game.id,
             "variant": game.variant,
-            "fen": game.board.fen,
-            "lastMove": game.lastmove,
+            "fen": DARK_FEN if game.variant == "fogofwar" else game.board.fen,
+            "lastMove": "" if game.variant == "fogofwar" else game.lastmove,
             "tp": game.turn_player,
             "w": game.wplayer.username,
             "wTitle": game.wplayer.title,
