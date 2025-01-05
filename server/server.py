@@ -233,9 +233,14 @@ if __name__ == "__main__":
         # init monitor just before run_app
         with aiomonitor.start_monitor(loop=loop, locals=locals_):
             web.run_app(
-                app, loop=loop, access_log=None if args.w else access_logger, port=int(os.environ.get("PORT", 8080))
+                app,
+                loop=loop,
+                access_log=None if args.w else access_logger,
+                port=int(os.environ.get("PORT", 8080)),
             )
     else:
         web.run_app(
-            app, access_log=None if args.w else access_logger, port=int(os.environ.get("PORT", 8080))
+            app,
+            access_log=None if args.w else access_logger,
+            port=int(os.environ.get("PORT", 8080)),
         )
