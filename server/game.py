@@ -1004,7 +1004,7 @@ class Game:
             self.board.count_started = -1
 
     def create_steps(self):
-        log.debug("create_steps() START")
+        # log.debug("create_steps() START")
         if self.mct is not None:
             manual_count_toggled = iter(self.mct)
             count_started = -1
@@ -1085,7 +1085,7 @@ class Game:
                     self.board.move_stack,
                 )
                 break
-        log.debug("create_steps() OK")
+        # log.debug("create_steps() OK")
 
     def get_board(self, full=False, persp_color=None):
         if len(self.board.move_stack) > 0 and len(self.steps) == 1:

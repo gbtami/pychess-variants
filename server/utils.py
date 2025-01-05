@@ -84,7 +84,7 @@ async def load_game(app_state: PychessGlobalAppState, game_id):
     if game_id in app_state.games:
         return app_state.games[game_id]
 
-    log.debug("load_game() %s from db ", game_id)
+    # log.debug("load_game() %s from db ", game_id)
     doc = await app_state.db.game.find_one({"_id": game_id})
 
     if doc is None:
@@ -97,7 +97,7 @@ async def load_game(app_state: PychessGlobalAppState, game_id):
 
         return await load_game_bug(app_state, game_id)
 
-    log.debug("load_game() parse START")
+    # log.debug("load_game() parse START")
     wp, bp = doc["us"]
 
     wplayer = await app_state.users.get(wp)
@@ -231,7 +231,7 @@ async def load_game(app_state: PychessGlobalAppState, game_id):
     if game.status > STARTED:
         asyncio.create_task(app_state.remove_from_cache(game), name="game-remove-%s" % game_id)
 
-    log.debug("load_game() parse DONE")
+    # log.debug("load_game() parse DONE")
     return game
 
 

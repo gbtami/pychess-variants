@@ -22,6 +22,7 @@ from aiohttp_session import SimpleCookieStorage
 from aiohttp_session.cookie_storage import EncryptedCookieStorage
 from aiohttp_session import setup
 import aiohttp_session
+import aiomonitor
 
 from motor.motor_asyncio import AsyncIOMotorClient
 
@@ -223,6 +224,18 @@ if __name__ == "__main__":
         simple_cookie_storage=args.s,
     )
 
-    web.run_app(
-        app, access_log=None if args.w else access_logger, port=int(os.environ.get("PORT", 8080))
-    )
+    if DEV:
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        # it is possible to pass a dictionary with local variables
+        # to the python console environment
+        locals_ = {"app": app, "state": pychess_global_app_state_key}
+        # init monitor just before run_app
+        with aiomonitor.start_monitor(loop=loop, locals=locals_):
+            web.run_app(
+                app, loop=loop, access_log=None if args.w else access_logger, port=int(os.environ.get("PORT", 8080))
+            )
+    else:
+        web.run_app(
+            app, access_log=None if args.w else access_logger, port=int(os.environ.get("PORT", 8080))
+        )
