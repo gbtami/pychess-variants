@@ -503,7 +503,7 @@ async def handle_byoyomi(data, game):
 
 
 async def handle_takeback(ws, game):
-    game.takeback()
+    await game.takeback()
     board_response = game.get_board(full=True)
     board_response["takeback"] = True
     await ws_send_json(ws, board_response)

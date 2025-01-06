@@ -448,6 +448,13 @@ class Game:
                 {"_id": self.id}, {"$set": new_data, "$push": {"m": move_encoded}}
             )
 
+    async def pop_move_from_db(self):
+        if self.app_state.db is not None:
+            new_data = {"f": self.board.fen}
+            await self.app_state.db.game.update_one(
+                {"_id": self.id}, {"$set": new_data, "$pop": {"m": 1}}
+            )
+
     async def save_setup(self):
         """Used by Janggi prelude phase"""
         new_data = {
@@ -1205,7 +1212,7 @@ class Game:
     def turn_player(self):
         return self.wplayer.username if self.board.color == WHITE else self.bplayer.username
 
-    def takeback(self):
+    async def takeback(self):
         if self.bot_game and self.board.ply >= 2:
             cur_player = self.bplayer if self.board.color == BLACK else self.wplayer
             cur_clock = self.clocks_b if self.board.color == BLACK else self.clocks_w
@@ -1214,6 +1221,7 @@ class Game:
             if len(cur_clock) > 1:
                 cur_clock.pop()
             self.steps.pop()
+            await self.pop_move_from_db()
 
             if not cur_player.bot:
                 cur_clock = self.clocks_b if self.board.color == BLACK else self.clocks_w
@@ -1222,6 +1230,7 @@ class Game:
                 if len(cur_clock) > 1:
                     cur_clock.pop()
                 self.steps.pop()
+                await self.pop_move_from_db()
 
             self.has_legal_move = self.board.has_legal_move()
             if self.random_mover:
