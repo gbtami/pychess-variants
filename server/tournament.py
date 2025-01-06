@@ -17,6 +17,7 @@ from compress import R2C
 from const import (
     ABORTED,
     CASUAL,
+    DARK_FEN,
     RATED,
     CREATED,
     STARTED,
@@ -399,7 +400,7 @@ class Tournament(ABC):
             "type": "top_game",
             "gameId": self.top_game.id,
             "variant": self.top_game.variant,
-            "fen": self.top_game.board.fen,
+            "fen": DARK_FEN if self.top_game.fow else self.top_game.board.fen,
             "w": self.top_game.wplayer.username,
             "b": self.top_game.bplayer.username,
             "wr": self.leaderboard_keys_view.index(self.top_game.wplayer) + 1,
@@ -408,7 +409,7 @@ class Tournament(ABC):
             "base": self.top_game.base,
             "inc": self.top_game.inc,
             "byoyomi": self.top_game.byoyomi_period,
-            "lastMove": self.top_game.lastmove,
+            "lastMove": "" if self.top_game.fow else self.top_game.lastmove,
         }
 
     def waiting_players(self):
