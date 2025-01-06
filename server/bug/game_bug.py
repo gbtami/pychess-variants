@@ -171,9 +171,7 @@ class GameBug:
         cur_ply = len(self.steps) - 1
         time = self.gameClocks.elapsed_since_last_move()
         step_chat = {"message": message, "username": user.username, "time": time, "room": room}
-        self.steps[cur_ply].setdefault("chat", []).append(
-            step_chat
-        )
+        self.steps[cur_ply].setdefault("chat", []).append(step_chat)
         return step_chat
 
     def construct_chat_list(self):

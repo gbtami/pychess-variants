@@ -56,7 +56,9 @@ class User:
 
         if username is None:
             self.anon = False if self.app_state.anon_as_test_users else True
-            self.username = (TEST_PREFIX if self.app_state.anon_as_test_users else ANON_PREFIX) + id8()
+            self.username = (
+                TEST_PREFIX if self.app_state.anon_as_test_users else ANON_PREFIX
+            ) + id8()
         else:
             self.username = username
 

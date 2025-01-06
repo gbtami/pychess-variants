@@ -631,7 +631,7 @@ async def handle_bugroundchat(users, user, data, game):
     # )
     response = game.handle_chat_message(user, message, room)
     response["type"] = "bugroundchat"
-    
+
     if room == "spectator":
         recipients = []  # just the spectators. should be equivalent to room="spectator"
     elif game.ply < 4 or game.status > STARTED:
