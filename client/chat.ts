@@ -3,7 +3,7 @@ import { h } from "snabbdom";
 import { _ } from './i18n';
 import { patch } from './document';
 import { RoundControllerBughouse } from "./bug/roundCtrl.bug";
-import {chatMessageBug, onchatclick, renderBugChatPresets} from "@/bug/chat.bug";
+import { onchatclick, renderBugChatPresets} from "@/bug/chat.bug";
 
 export interface ChatController {
     anon: boolean;
@@ -96,8 +96,6 @@ export function chatMessage (user: string, message: string, chatType: string, ti
         const discordUser = message.substring(0, colonIndex);
         const discordMessage = message.substring(colonIndex + 2);
         patch(container, h('div#messages', [ h("li.message", [h("div.time", localTime), h("div.discord-icon-container", h("img.icon-discord-icon", { attrs: { src: '/static/icons/discord.svg', alt: "" } })), h("user", discordUser), h("t", discordMessage)]) ]));
-    } else if (message.startsWith("!bug!")) {
-        chatMessageBug(container, user, message, /*chatType,*/ localTime, ply, ctrl);
     } else {
         patch(container, h('div#messages', [ h("li.message", [h("div.time", localTime), h("user", h("a", { attrs: {href: "/@/" + user} }, user)), h("t", { attrs: {"title": ctrl?.steps[ply!].san!}, on: { click: () => { onchatclick(ply, ctrl) }}}, message)]) ]));
     }

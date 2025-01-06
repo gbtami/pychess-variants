@@ -167,12 +167,14 @@ class GameBug:
     def berserk(self, color):
         pass
 
-    def handle_chat_message(self, user, message):
+    def handle_chat_message(self, user, message, room):
         cur_ply = len(self.steps) - 1
         time = self.gameClocks.elapsed_since_last_move()
+        step_chat = {"message": message, "username": user.username, "time": time, "room": room}
         self.steps[cur_ply].setdefault("chat", []).append(
-            {"message": message, "username": user.username, "time": time}
+            step_chat
         )
+        return step_chat
 
     def construct_chat_list(self):
         chat = {}
@@ -180,9 +182,10 @@ class GameBug:
             if "chat" in step:
                 chat["m" + str(ply)] = []
                 for msg in step["chat"]:
-                    chat["m" + str(ply)].append(
-                        {"t": msg["time"], "u": msg["username"], "m": msg["message"]}
-                    )
+                    if msg["room"] != "spectator":
+                        chat["m" + str(ply)].append(
+                            {"t": msg["time"], "u": msg["username"], "m": msg["message"]}
+                        )
         return chat
 
     async def play_move(

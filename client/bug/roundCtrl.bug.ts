@@ -9,14 +9,12 @@ import { createMovelistButtons, updateMovelist, updateResult, selectMove } from 
 import {
     Clocks,
     MsgBoard,
-    MsgChat,
-    MsgFullChat,
     MsgGameEnd,
     MsgMove,
     MsgMovesAfterReconnect,
     MsgNewGame,
     MsgUserConnected,
-    Step
+    Step, StepChat
 } from "../messages";
 import {
     MsgUserDisconnected,
@@ -41,6 +39,7 @@ import AnalysisControllerBughouse from "@/bug/analysisCtrl.bug";
 import { boardSettings } from "@/boardSettings";
 import { ChessgroundController } from "@/cgCtrl";
 import {playerInfoData} from "@/bug/gameInfo.bug";
+import {chatMessageBug} from "@/bug/chat.bug";
 
 export class RoundControllerBughouse implements ChatController {
     sock: WebsocketHeartbeatJs;
@@ -54,6 +53,8 @@ export class RoundControllerBughouse implements ChatController {
 
     steps: Step[];
     ply: number;
+    plyA: number = 0;
+    plyB: number = 0;
     plyVari: number;
 
     moveControls: VNode;
@@ -684,19 +685,39 @@ export class RoundControllerBughouse implements ChatController {
             patch(container, h('div#movelist'));
 
             steps.forEach((step, idx) => {
+                if (idx > 0) {
+                    //skip first dummy element
+                    if (step.boardName === "a") {
+                        this.plyA++;
+                    } else {
+                        this.plyB++;
+                    }
+                }
+                step.plyA = this.plyA;
+                step.plyB = this.plyB;
                 this.steps.push(step);
                 if (idx === 4) {
                     chatMessage("", "Chat visible only to your partner", "bugroundchat", undefined, idx, this);
                 }
                 if (step.chat) { // todo: check if status < 0 and filter only partners messages
                     step.chat.forEach((c) => {
-                        chatMessage(c.username, c.message, "bugroundchat", c.time, idx, this);
+                        chatMessageBug(idx, this, c);
                     });
                 }
                 });
             updateMovelist(this, true, true, false);
         } else { // single step message
             if (ply === this.steps.length) {
+                if (ply > 0) {
+                    //skip first dummy element
+                    if (steps[0].boardName === "a") {
+                        this.plyA++;
+                    } else {
+                        this.plyB++;
+                    }
+                }
+                steps[0].plyA = this.plyA;
+                steps[0].plyB = this.plyB;
                 this.steps.push(steps[0]);
                 const full = false;
                 const activate = !this.spectator || latestPly;
@@ -719,7 +740,7 @@ export class RoundControllerBughouse implements ChatController {
         }
         const step = board.boardName === 'a'? lastStepA: lastStepB;
         const stepPartner = board.boardName === 'b'? lastStepA: lastStepB;
-        const msgTurnColor = step.turnColor; // whose turn it is after this move
+        const msgTurnColor = getTurnColor(fen);//step.turnColor; // whose turn it is after this move
 
         // todo: same clock logic also in updateSingleBoardAndClocks - move to reusable method.
         // important we update only the board where the single move happened, the other clock values do not include the
@@ -754,12 +775,12 @@ export class RoundControllerBughouse implements ChatController {
 
         //when message is for opp's move, meaning turnColor is my color - it is now my turn after this message
         if (latestPly) {
-            const move = board.boardName == "a"? step.move: step.moveB;
+            const move = step == undefined? undefined: board.boardName == "a"? step.move: step.moveB;
             board.setState(fen, msgTurnColor, uci2LastMove(move));
             board.renderState();
 
             // because pocket might have changed. todo: condition it on if(capture) maybe
-            const movePartner = board.partnerCC.boardName == "a"? stepPartner.move: stepPartner.moveB;
+            const movePartner = stepPartner == undefined? undefined: board.partnerCC.boardName == "a"? stepPartner.move: stepPartner.moveB;
             board.partnerCC.setState(fenPartner, board.partnerCC.turnColor, uci2LastMove(movePartner));
             board.partnerCC.renderState();
 
@@ -767,55 +788,6 @@ export class RoundControllerBughouse implements ChatController {
         }
 
     }
-
-    // private updateBothBoardsAndClocksInitial = (fenA: cg.FEN, fenB: cg.FEN, clocksA: Clocks, clocksB: Clocks) => {
-    //     console.log("updateBothBoardsAndClocksInitial", fenA, fenB, clocksA, clocksB);
-    //
-    //     const partsA = fenA.split(" ");
-    //     const partsB = fenB.split(" ");
-    //
-    //     this.b1.turnColor = partsA[1] === "w" ? "white" : "black";
-    //     this.b2.turnColor = partsB[1] === "w" ? "white" : "black";
-    //
-    //     this.b1.chessground.set({
-    //         fen: fenA,
-    //         turnColor: this.b1.turnColor,
-    //         //  check: msg.check,
-    //         //lastMove: lastMove,
-    //     });
-    //     this.b2.chessground.set({
-    //         fen: fenB,
-    //         turnColor: this.b2.turnColor,
-    //         // check: msg.check,
-    //         //lastMove: lastMove,
-    //     });
-    //
-    //     this.clocks[0].pause(false);
-    //     this.clocks[1].pause(false);
-    //     this.clocksB[0].pause(false);
-    //     this.clocksB[1].pause(false);
-    //
-    //     this.clocktimes = clocksA;
-    //     this.clocktimesB = clocksB;
-    //
-    //     const whiteAClockAtIdx = this.colors[0] === 'white'? 0: 1;
-    //     const blackAClockAtIdx = 1 -whiteAClockAtIdx;
-    //     const whiteBClockAtIdx = this.colorsB[0] === 'white'? 0: 1;
-    //     const blackBClockAtIdx = 1 -whiteBClockAtIdx;
-    //
-    //     this.clocks[whiteAClockAtIdx].setTime(this.clocktimes[WHITE]);
-    //     this.clocks[blackAClockAtIdx].setTime(this.clocktimes[BLACK]);
-    //     this.clocksB[whiteBClockAtIdx].setTime(this.clocktimesB[WHITE]);
-    //     this.clocksB[blackBClockAtIdx].setTime(this.clocktimesB[BLACK]);
-    //
-    //     if (this.status < 0) {
-    //         const clockOnTurnAidx = this.colors[0] === this.b1.turnColor ? 0 : 1;
-    //         const clockOnTurnBidx = this.colorsB[0] === this.b2.turnColor ? 0 : 1;
-    //         this.clocks[clockOnTurnAidx].start(this.clocktimes[this.b1.turnColor === 'white'? WHITE: BLACK]);
-    //         this.clocksB[clockOnTurnBidx].start(this.clocktimesB[this.b2.turnColor === 'white'? WHITE: BLACK]);
-    //     }
-    //
-    // }
 
     private updateBothBoardsAndClocksOnFullBoardMsg = (lastStepA: Step, lastStepB: Step, clocksA: Clocks, clocksB: Clocks) => {
         console.log("updateBothBoardsAndClocksOnFullBoardMsg", lastStepA, lastStepB, clocksA, clocksB);
@@ -1002,7 +974,12 @@ export class RoundControllerBughouse implements ChatController {
         const lastStepB = this.steps[this.steps.findLastIndex(s => s.boardName === "b")];
 
         if (this.spectator) {
-            this.updateBoardsAndClocksSpectors(board, fen, fenPartner, lastStepA, lastStepB, clocks!, latestPly, colors, msg.status, check);//todo:niki unclear what is different that when playing, but should have full mode as well. generally should test specator mode at least a little bit
+            if (isInitialBoardMessage || full) { // reconnect after lost ws connection or refresh
+                this.updateBoardsAndClocksSpectors(this.b1, fenA, fenB, lastStepA, lastStepB, msg.clocks!, latestPly, this.colors, msg.status, msg.check);
+                this.updateBoardsAndClocksSpectors(this.b2, fenB, fenA, lastStepA, lastStepB, msg.clocksB!, latestPly, this.colorsB, msg.status, msg.checkB!);
+            } else {
+                this.updateBoardsAndClocksSpectors(board, fen, fenPartner, lastStepA, lastStepB, clocks!, latestPly, colors, msg.status, check);
+            }
         } else {
             if (isInitialBoardMessage || full) { // reconnect after lost ws connection or refresh
                 this.updateBothBoardsAndClocksOnFullBoardMsg(lastStepA, lastStepB, msg.clocks!, msg.clocksB!);
@@ -1019,7 +996,7 @@ export class RoundControllerBughouse implements ChatController {
 
 
     goPly = (ply: number) => {
-        console.log("RoundControllerBughouse.goPly"+ply);
+        console.log("RoundControllerBughouse.goPly "+ply);
 
         const step = this.steps[ply];
         console.log(step);
@@ -1059,9 +1036,14 @@ export class RoundControllerBughouse implements ChatController {
             }
         }
 
-        if (this.status >= 0) {
+        if (this.status >= 0 && this.ply !== ply) {
             //if it is a game that ended, then when scrolling it makes sense to show clocks when the move was made
-
+            // however if timeout happened and we receive gameEnd message we don't want to update clocks, we want to see
+            // the zeros.
+            // todo:this is a mess. also on lichess and other pychess variants we don't update clocks in round page only in analysis
+            //      if we decide to preserver and improve this behaviour in round page, at least some refactoring to reduce this complexity
+            //      of this if and calling goPly on gameEnd just for the sake of setting movable to none - really no other reason
+            //      to call this on gameEnd.
             const whiteAClockAtIdx = this.colors[0] === 'white'? 0: 1;
             const blackAClockAtIdx = 1 - whiteAClockAtIdx;
             const whiteBClockAtIdx = this.colorsB[0] === 'white'? 0: 1;
@@ -1093,33 +1075,16 @@ export class RoundControllerBughouse implements ChatController {
 
     private onMsgUserConnected = (msg: MsgUserConnected) => {
         console.log(msg);
-        // this.username = msg["username"];
-        if (this.spectator) {
-            // this.doSend({ type: "is_user_present", username: this.wplayer, gameId: this.gameId });
-            // this.doSend({ type: "is_user_present", username: this.bplayer, gameId: this.gameId });
-            // this.doSend({ type: "is_user_present", username: this.wplayerB, gameId: this.gameId });
-            // this.doSend({ type: "is_user_present", username: this.bplayerB, gameId: this.gameId });
-        } else {
-            // this.firstmovetime = msg.firstmovetime || this.firstmovetime;
-            // this.doSend({ type: "is_user_present", username: this.wplayer, gameId: this.gameId });
-            // this.doSend({ type: "is_user_present", username: this.bplayer, gameId: this.gameId });
-            // this.doSend({ type: "is_user_present", username: this.wplayerB, gameId: this.gameId });
-            // this.doSend({ type: "is_user_present", username: this.bplayerB, gameId: this.gameId });
-
+        if (!this.spectator) {
             const container = document.getElementById('player1a') as HTMLElement;
             patch(container, h('i-side.online#player1a', {class: {"icon": true, "icon-online": true, "icon-offline": false}}));
 
             // prevent sending gameStart message when user just reconnecting
+            //todo:niki:what is the point of this message - also what if we refresh before moves are made? also what is the point of this whole method at all?
             if (msg.ply === 0) {
                 this.doSend({ type: "ready", gameId: this.gameId });
             }
         }
-        // We always need this to get possible moves made while our websocket connection was established
-        // niki: we shouldnt need this if first thing we get on establishing ws is the board state, after that
-        //       ws should be available for any other moves that come. if i am wrong then queuing messages on server is a
-        //       better solution.
-        // fixes https://github.com/gbtami/pychess-variants/issues/962
-        // this.doSend({ type: "board", gameId: this.gameId });
     }
 
     private onMsgUserPresent = (msg: MsgUserPresent) => {
@@ -1180,26 +1145,26 @@ export class RoundControllerBughouse implements ChatController {
         // this.clearDialog();
     }
 
-    private onMsgFullChat = (msg: MsgFullChat) => {
+    // private onMsgFullChat = (msg: MsgFullChat) => {
         // To prevent multiplication of messages we have to remove old messages div first
-        patch(document.getElementById('messages') as HTMLElement, h('div#messages-clear'));
-        // then create a new one
-        patch(document.getElementById('messages-clear') as HTMLElement, h('div#messages'));
-        if (this.ply > 4) {
-            chatMessage("", "Chat visible only to your partner", "bugroundchat");
-        } else {
-            chatMessage("", "Messages visible to all 4 players for the first 4 moves", "bugroundchat");
-        }
-        msg.lines.forEach((line) => {
-            if ((this.spectator && line.room === 'spectator') || (!this.spectator && line.room !== 'spectator') || line.user.length === 0) {
-                chatMessage(line.user, line.message, "bugroundchat", line.time);
-            }
-        });
-    }
+        // patch(document.getElementById('messages') as HTMLElement, h('div#messages-clear'));
+        // // then create a new one
+        // patch(document.getElementById('messages-clear') as HTMLElement, h('div#messages'));
+        // if (this.ply > 4) {
+        //     chatMessage("", "Chat visible only to your partner", "bugroundchat");
+        // } else {
+        //     chatMessage("", "Messages visible to all 4 players for the first 4 moves", "bugroundchat");
+        // }
+        // msg.lines.forEach((line) => {
+        //     if ((this.spectator && line.room === 'spectator') || (!this.spectator && line.room !== 'spectator') || line.user.length === 0) {
+        //         chatMessage(line.user, line.message, "bugroundchat", line.time);
+        //     }
+        // });
+    // }
 
-    private onMsgChat = (msg: MsgChat) => {
-        if (this.spectator /*spectators always see everything*/ || (!this.spectator && msg.room !== 'spectator') || msg.user.length === 0) {
-            chatMessage(msg.user, msg.message, "bugroundchat", msg.time, this.ply, this);
+    private onMsgChat = (msg: StepChat) => {
+        if (this.spectator /*spectators always see everything*/ || (!this.spectator && msg.room !== 'spectator') || msg.username.length === 0) {
+            chatMessageBug(this.ply, this, msg);
         }
     }
 
@@ -1216,9 +1181,9 @@ export class RoundControllerBughouse implements ChatController {
             case "bugroundchat":
                 this.onMsgChat(msg);
                 break;
-            case "fullchat":
-                this.onMsgFullChat(msg);
-                break;
+            // case "fullchat":
+            //     this.onMsgFullChat(msg);
+            //     break;
             case "game_not_found":
                 // this.onMsgGameNotFound(msg);
                 break

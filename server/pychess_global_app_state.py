@@ -76,6 +76,7 @@ class PychessGlobalAppState:
         from typedefs import db_key
 
         self.app = app
+        self.anon_as_test_users = app["anon_as_test_users"]
 
         self.shutdown = False
         self.tournaments_loaded = asyncio.Event()

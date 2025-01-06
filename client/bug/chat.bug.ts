@@ -3,7 +3,8 @@ import { h, VNode } from "snabbdom";
 import { _ } from '@/i18n';
 import { patch } from "@/document";
 import {RoundControllerBughouse} from "@/bug/roundCtrl.bug";
-import {selectMove} from "@/bug/movelist.bug";
+import {formatChatMessageTime, getLocalMoveNum, selectMove} from "@/bug/movelist.bug";
+import {StepChat} from "@/messages";
 
 export function renderBugChatPresets(sendMessage: (s:string)=>void): VNode {
     return h('div#chatpresets', [
@@ -34,12 +35,48 @@ export function renderBugChatPresets(sendMessage: (s:string)=>void): VNode {
                 ]);
 }
 
-export function chatMessageBug (container: HTMLElement, user: string, message: string, /*chatType: string,*/ localTime?: string, ply?: number, ctrl?: RoundControllerBughouse) {
+export function chatMessageBug (ply: number, ctrl: RoundControllerBughouse, x: StepChat) {
+
+    //TODO: first lines and very last copied from chat.ts
+    const chatDiv = document.getElementById('bugroundchat-messages') as HTMLElement;
+    // You must add border widths, padding and margins to the right.
+    // Only scroll the chat on a new message if the user is at the very bottom of the chat
+    const isBottom = chatDiv.scrollHeight - (chatDiv.scrollTop + chatDiv.offsetHeight) < 80;
+    const container = document.getElementById('messages') as HTMLElement;
+
+    const step = ctrl?.steps[ply!]!;
+    const boardName = step.turnColor === 'black' ? step.boardName?.toUpperCase() : step.boardName;
+    const lastMoveSan = ply === 0? "": getLocalMoveNum(step) + '' + boardName + "." + step.san!;
+
+    const message = x.message
     const m = message.replace('!bug!','');
-    patch(container, h('div#messages', [ h("li.message",
-        [h("div.time", localTime), h("user", h("a", { attrs: {href: "/@/" + user} }, user)),
-            h('div.bugchat.'+m,{ attrs: {"title": ctrl?.steps[ply!].san!}, on: { click: () => {onchatclick(ply, ctrl)}}}, [])
-        ]) ]));
+
+    const user = x.username
+
+    const time = formatChatMessageTime(x);
+
+    const san = h("div.time.bugchatpointer", {attrs: {"title": time }, on: {
+                click: () => {
+                    onchatclick(ply, ctrl)
+                }}}, lastMoveSan);
+
+    if (message.startsWith("!bug!")) {
+
+        patch(container, h('div#messages', [h("li.message",
+            [san, h("user", h("a", {attrs: {href: "/@/" + user}}, user)),
+                h('div.bugchat.' + m, {
+                    attrs: {"title": lastMoveSan}, on: {
+                        click: () => {
+                            onchatclick(ply, ctrl)
+                        }
+                    }
+                }, [])
+            ])]));
+    } else {
+        patch(container, h('div#messages', [ h("li.message", [san, h("user", h("a", { attrs: {href: "/@/" + user} }, user)), h("t.bugchatpointer", { attrs: {"title": ctrl?.steps[ply!].san!}, on: { click: () => { onchatclick(ply, ctrl) }}}, message)]) ]));
+    }
+
+    if (isBottom) setTimeout(() => {chatDiv.scrollTop = chatDiv.scrollHeight;}, 200);
 }
 
 export function onchatclick(ply: number | undefined, ctrl?: RoundControllerBughouse) {

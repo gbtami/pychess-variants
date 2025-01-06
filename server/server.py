@@ -118,9 +118,11 @@ async def on_prepare(request, response):
             response.headers["Expires"] = "0"
 
 
-def make_app(db_client=None, simple_cookie_storage=False) -> Application:
+def make_app(db_client=None, simple_cookie_storage=False, anon_as_test_users=False) -> Application:
     app = web.Application()
     app.middlewares.append(redirect_to_https)
+
+    app["anon_as_test_users"] = anon_as_test_users
 
     parts = urlparse(URI)
 
@@ -208,6 +210,11 @@ if __name__ == "__main__":
         action="store_true",
         help="Verbose mongodb logging. Changes log level from INFO to DEBUG.",
     )
+    parser.add_argument(
+        "-a",
+        action="store_true",
+        help="Turn anon users to test users that behave like logged in real users.",
+    )
     args = parser.parse_args()
 
     FORMAT = "%(asctime)s.%(msecs)03d [%(levelname)s] %(name)s:%(lineno)d %(message)s"
@@ -222,6 +229,7 @@ if __name__ == "__main__":
     app = make_app(
         db_client=AsyncIOMotorClient(MONGO_HOST, tz_aware=True),
         simple_cookie_storage=args.s,
+        anon_as_test_users=args.a,
     )
 
     if DEV:

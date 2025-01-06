@@ -11,6 +11,7 @@ TYPE_CHECKING = False
 
 DASH = "–"
 ANON_PREFIX = "Anon" + DASH
+TEST_PREFIX = "Test" + DASH
 
 NONE_USER = "None" + DASH + "User"
 

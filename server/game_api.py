@@ -313,8 +313,8 @@ async def get_user_games(request):
                 )
 
             if variant.startswith("bughouse"):
-                mA = [m for idx, m in enumerate(doc["m"]) if doc["o"][idx] == 0]
-                mB = [m for idx, m in enumerate(doc["m"]) if doc["o"][idx] == 1]
+                mA = [m for idx, m in enumerate(doc["m"]) if "o" in doc and doc["o"][idx] == 0]
+                mB = [m for idx, m in enumerate(doc["m"]) if "o" in doc and doc["o"][idx] == 1]
                 doc["lm"] = decode_move_standard(mA[-1]) if len(mA) > 0 else ""
                 doc["lmB"] = decode_move_standard(mB[-1]) if len(mB) > 0 else ""
             else:

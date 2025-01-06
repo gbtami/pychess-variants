@@ -283,6 +283,10 @@ div#chatpresets button.bugchat {
   border: none;
 }
 
+.bugchatpointer {
+  cursor: pointer;
+}
+
 li.message .bugchat{
   width: 2em;
   height: 2em;

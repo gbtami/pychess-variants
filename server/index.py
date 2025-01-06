@@ -109,7 +109,7 @@ async def index(request):
             await asyncio.sleep(3)
             return web.HTTPFound("/login")
 
-        user = User(app_state, anon=True)
+        user = User(app_state, anon=not app_state.anon_as_test_users)
         log.info("+++ New guest user %s connected.", user.username)
         app_state.users[user.username] = user
         session["user_name"] = user.username
