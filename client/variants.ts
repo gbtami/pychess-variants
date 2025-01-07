@@ -1103,7 +1103,6 @@ export const noPuzzleVariants = [
     "cannonshogi",
     "bughouse",
     "fogofwar",
-    "racingkings",
     "antichess",
     "horde",
     "shatranj",
