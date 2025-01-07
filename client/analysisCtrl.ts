@@ -84,7 +84,7 @@ export class AnalysisController extends GameController {
     constructor(el: HTMLElement, model: PyChessModel) {
         super(el, model, model.fen, document.getElementById('pocket0') as HTMLElement, document.getElementById('pocket1') as HTMLElement, '');
         this.fsfError = [];
-        this.embed = this.gameId === undefined;
+        this.embed = model.embed;
         this.puzzle = model["puzzle"] !== "";
         this.isAnalysisBoard = this.gameId === "" && !this.puzzle;
         if (!this.embed) {
@@ -214,7 +214,7 @@ export class AnalysisController extends GameController {
 
         setAriaTabClick("analysis_tab");
 
-        if (!this.puzzle && !this.ongoing) {
+        if (!this.puzzle && !this.ongoing && !this.embed) {
             const initialEl = document.querySelector('[tabindex="0"]') as HTMLElement;
             initialEl.setAttribute('aria-selected', 'true');
             (initialEl!.parentNode!.parentNode!.querySelector(`#${initialEl.getAttribute('aria-controls')}`)! as HTMLElement).style.display = 'block';

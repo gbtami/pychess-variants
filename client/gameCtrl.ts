@@ -495,7 +495,9 @@ export abstract class GameController extends ChessgroundController implements Ch
 
     private onMsgSpectators = (msg: MsgSpectators) => {
         const container = document.getElementById('spectators') as HTMLElement;
-        patch(container, h('under-left#spectators', _('Spectators: ') + msg.spectators));
+        if (container) {
+            patch(container, h('under-left#spectators', _('Spectators: ') + msg.spectators));
+        }
     }
 
     private onMsgChat = (msg: MsgChat) => {
@@ -505,15 +507,18 @@ export abstract class GameController extends ChessgroundController implements Ch
     }
 
     private onMsgFullChat = (msg: MsgFullChat) => {
-        // To prevent multiplication of messages we have to remove old messages div first
-        patch(document.getElementById('messages') as HTMLElement, h('div#messages-clear'));
-        // then create a new one
-        patch(document.getElementById('messages-clear') as HTMLElement, h('div#messages'));
-        msg.lines.forEach((line) => {
-            if ((this.spectator && line.room === 'spectator') || (!this.spectator && line.room !== 'spectator') || line.user.length === 0) {
-                chatMessage(line.user, line.message, "roundchat", line.time);
-            }
-        });
+        const container = document.getElementById('messages') as HTMLElement;
+        if (container) {
+            // To prevent multiplication of messages we have to remove old messages div first
+            patch(container, h('div#messages-clear'));
+            // then create a new one
+            patch(document.getElementById('messages-clear') as HTMLElement, h('div#messages'));
+            msg.lines.forEach((line) => {
+                if ((this.spectator && line.room === 'spectator') || (!this.spectator && line.room !== 'spectator') || line.user.length === 0) {
+                    chatMessage(line.user, line.message, "roundchat", line.time);
+                }
+            });
+        }
     }
 
     private onMsgGameNotFound = (msg: MsgGameNotFound) => {
