@@ -8,7 +8,6 @@ if TYPE_CHECKING:
 from logger import log
 
 
-
 async def broadcast_streams(app_state: PychessGlobalAppState):
     """Send live_streams to lobby"""
     live_streams = app_state.twitch.live_streams + app_state.youtube.live_streams

@@ -6,6 +6,7 @@ from const import ABORTED
 from fairy import WHITE, BLACK
 from broadcast import round_broadcast
 from notify import notify
+
 # from logger import log
 
 ESTIMATE_MOVES = 40

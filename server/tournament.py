@@ -507,7 +507,7 @@ class Tournament(ABC):
 
                 await asyncio.sleep(1)
         except Exception as exc:
-            log.critical(''.join(traceback.format_exception(exc)))
+            log.critical("".join(traceback.format_exception(exc)))
 
     async def start(self, now):
         self.status = T_STARTED

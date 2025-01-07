@@ -52,8 +52,8 @@ if sys.platform not in ("win32", "darwin"):
 
 
 def log_uncaught_exceptions(ex_cls, ex, tb):
-    log.critical(''.join(traceback.format_tb(tb)))
-    log.critical('{0}: {1}'.format(ex_cls, ex))
+    log.critical("".join(traceback.format_tb(tb)))
+    log.critical("{0}: {1}".format(ex_cls, ex))
 
 
 sys.excepthook = log_uncaught_exceptions
@@ -225,9 +225,7 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
-    log.setLevel(
-        level=logging.DEBUG if args.v else logging.WARNING if args.w else logging.INFO
-    )
+    log.setLevel(level=logging.DEBUG if args.v else logging.WARNING if args.w else logging.INFO)
 
     logging.getLogger("pymongo").setLevel(logging.DEBUG if args.m else logging.INFO)
 
