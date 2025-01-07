@@ -3,7 +3,6 @@ from __future__ import annotations
 import asyncio
 import collections
 import gettext
-import logging
 import queue
 from typing import List, Set
 
@@ -64,9 +63,8 @@ from utils import load_game
 from blogs import BLOGS
 from videos import VIDEOS
 from youtube import Youtube
+from logger import log
 
-
-log = logging.getLogger(__name__)
 
 GAME_KEEP_TIME = 1800  # keep game in app[games_key] for GAME_KEEP_TIME secs
 

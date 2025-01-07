@@ -1,7 +1,6 @@
 from __future__ import annotations
 import asyncio
 import json
-import logging
 import random
 import string
 from time import monotonic
@@ -13,8 +12,7 @@ from fairy import WHITE
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
 from utils import play_move
-
-log = logging.getLogger(__name__)
+from logger import log
 
 
 async def BOT_task(bot, app_state: PychessGlobalAppState):

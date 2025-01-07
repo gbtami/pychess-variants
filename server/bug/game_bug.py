@@ -1,12 +1,12 @@
 import asyncio
 import collections
-import logging
 from datetime import datetime, timezone
 from time import time_ns
 
 from bug.game_bug_clocks import GameBugClocks
 from pychess_global_app_state import PychessGlobalAppState
 from user import User
+from logger import log
 
 try:
     import pyffish as sf
@@ -32,8 +32,6 @@ from const import (
 )
 from fairy import FairyBoard, BLACK, WHITE
 from spectators import spectators
-
-log = logging.getLogger(__name__)
 
 MAX_HIGH_SCORE = 10
 MAX_PLY = 2 * 600

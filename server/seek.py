@@ -1,12 +1,11 @@
 from __future__ import annotations
 from datetime import datetime, timezone
-import logging
 
 from const import CORR_SEEK_EXPIRE_WEEKS
 from misc import time_control_str
 from newid import new_id
+from logger import log
 
-log = logging.getLogger(__name__)
 
 MAX_USER_SEEKS = 10
 

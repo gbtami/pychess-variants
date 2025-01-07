@@ -1,14 +1,10 @@
-import logging
-
-
 from broadcast import round_broadcast
 from const import STARTED
 from newid import new_id
 from pychess_global_app_state import PychessGlobalAppState
 from seek import Seek
 from bug.utils_bug import play_move, join_seek_bughouse
-
-log = logging.getLogger(__name__)
+from logger import log
 
 
 async def handle_reconnect_bughouse(app_state: PychessGlobalAppState, user, data, game):

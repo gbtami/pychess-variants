@@ -1,13 +1,12 @@
 from __future__ import annotations
 import json
-import logging
 
 from const import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
+from logger import log
 
-log = logging.getLogger(__name__)
 
 
 async def broadcast_streams(app_state: PychessGlobalAppState):

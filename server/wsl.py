@@ -1,6 +1,5 @@
 from __future__ import annotations
 import asyncio
-import logging
 
 import aiohttp_session
 from aiohttp import web
@@ -35,9 +34,7 @@ from tournament_spotlights import tournament_spotlights
 from bug.utils_bug import handle_accept_seek_bughouse
 from utils import join_seek, load_game, remove_seek
 from websocket_utils import get_user, process_ws, ws_send_json
-
-
-log = logging.getLogger(__name__)
+from logger import log
 
 
 async def lobby_socket_handler(request):

@@ -1,6 +1,5 @@
 from __future__ import annotations
 import json
-import logging
 
 import aiohttp
 import aiohttp_session
@@ -14,8 +13,7 @@ if TYPE_CHECKING:
     from user import User
 
 from pychess_global_app_state_utils import get_app_state
-
-log = logging.getLogger(__name__)
+from logger import log
 
 
 async def get_user(session: aiohttp_session.Session, request: web.Request) -> User:

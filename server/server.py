@@ -4,13 +4,11 @@ import argparse
 import asyncio
 import logging
 import os
-from sys import platform
+import sys
+import traceback
 from urllib.parse import urlparse
 
-from pychess_global_app_state import PychessGlobalAppState
-from pychess_global_app_state_utils import get_app_state
-
-if platform not in ("win32", "darwin"):
+if sys.platform not in ("win32", "darwin"):
     import uvloop
 else:
     print("uvloop not installed")
@@ -25,6 +23,9 @@ import aiohttp_session
 import aiomonitor
 
 from motor.motor_asyncio import AsyncIOMotorClient
+
+from pychess_global_app_state import PychessGlobalAppState
+from pychess_global_app_state_utils import get_app_state
 
 from typedefs import (
     client_key,
@@ -44,11 +45,18 @@ from settings import (
     SOURCE_VERSION,
 )
 from users import NotInDbUsers
+from logger import log
 
-log = logging.getLogger(__name__)
-
-if platform not in ("win32", "darwin"):
+if sys.platform not in ("win32", "darwin"):
     asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
+
+
+def log_uncaught_exceptions(ex_cls, ex, tb):
+    log.critical(''.join(traceback.format_tb(tb)))
+    log.critical('{0}: {1}'.format(ex_cls, ex))
+
+
+sys.excepthook = log_uncaught_exceptions
 
 
 @web.middleware
@@ -217,10 +225,7 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
-    FORMAT = "%(asctime)s.%(msecs)03d [%(levelname)s] %(name)s:%(lineno)d %(message)s"
-    DATEFMT = "%z %Y-%m-%d %H:%M:%S"
-    logging.basicConfig(format=FORMAT, datefmt=DATEFMT)
-    logging.getLogger().setLevel(
+    log.setLevel(
         level=logging.DEBUG if args.v else logging.WARNING if args.w else logging.INFO
     )
 

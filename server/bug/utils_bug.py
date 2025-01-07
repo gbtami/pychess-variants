@@ -1,5 +1,4 @@
 import asyncio
-import logging
 import random
 from datetime import timezone
 
@@ -18,8 +17,7 @@ from glicko2.glicko2 import gl2
 from newid import new_id
 from utils import remove_seek, round_broadcast, sanitize_fen
 from websocket_utils import ws_send_json
-
-log = logging.getLogger(__name__)
+from logger import log
 
 
 def init_players(app_state: PychessGlobalAppState, wp_a, bp_a, wp_b, bp_b):

@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import asyncio
 import json
-import logging
 import os.path
 from datetime import datetime
 from urllib.parse import urlparse
@@ -59,8 +58,7 @@ from puzzle import (
     default_puzzle_perf,
 )
 from custom_trophy_owners import CUSTOM_TROPHY_OWNERS
-
-log = logging.getLogger(__name__)
+from logger import log
 
 
 async def index(request):

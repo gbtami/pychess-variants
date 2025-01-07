@@ -1,5 +1,4 @@
 from __future__ import annotations
-import logging
 from datetime import datetime, timezone
 
 import aiohttp_session
@@ -35,8 +34,7 @@ from pychess_global_app_state_utils import get_app_state
 from rr import RRTournament
 from swiss import SwissTournament
 from tournament import GameData, PlayerData, SCORE_SHIFT, Tournament
-
-log = logging.getLogger(__name__)
+from logger import log
 
 
 async def create_or_update_tournament(

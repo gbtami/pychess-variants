@@ -2,7 +2,6 @@ from __future__ import annotations
 import asyncio
 import hashlib
 import hmac
-import logging
 import random
 import string
 from datetime import datetime, timedelta, timezone
@@ -14,6 +13,7 @@ from broadcast import broadcast_streams
 from settings import DEV, TWITCH_CLIENT_ID, TWITCH_CLIENT_SECRET
 from streamers import TWITCH_STREAMERS
 from pychess_global_app_state_utils import get_app_state
+from logger import log
 
 TWITCH_OAUTH2_TOKEN_URL = "https://id.twitch.tv/oauth2/token"
 TWITCH_EVENTSUB_API_URL = "https://api.twitch.tv/helix/eventsub/subscriptions"
@@ -27,8 +27,6 @@ else:
 
 ID_CHARS = string.ascii_letters + string.digits
 SECRET = "".join(random.choice(ID_CHARS) for x in range(16))
-
-log = logging.getLogger(__name__)
 
 
 def validate_twitch_signature(secret, request, data):

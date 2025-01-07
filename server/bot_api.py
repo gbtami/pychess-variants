@@ -1,7 +1,6 @@
 from __future__ import annotations
 import asyncio
 import json
-import logging
 
 from aiohttp import web
 
@@ -13,8 +12,7 @@ from settings import BOT_TOKENS
 from user import User
 from utils import join_seek, play_move
 from pychess_global_app_state_utils import get_app_state
-
-log = logging.getLogger(__name__)
+from logger import log
 
 
 def authorized(func):

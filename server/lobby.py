@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import collections
-import logging
 from typing import Optional, Deque
 
 from aiohttp.web_ws import WebSocketResponse
@@ -13,8 +12,7 @@ from websocket_utils import ws_send_json
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
     from user import User
-
-log = logging.getLogger(__name__)
+# from logger import log
 
 
 class Lobby:

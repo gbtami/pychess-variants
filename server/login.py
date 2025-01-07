@@ -1,7 +1,6 @@
 from __future__ import annotations
 import base64
 import hashlib
-import logging
 import secrets
 from urllib.parse import urlencode
 
@@ -23,8 +22,8 @@ from settings import (
 )
 from pychess_global_app_state_utils import get_app_state
 from websocket_utils import ws_send_json
+from logger import log
 
-log = logging.getLogger(__name__)
 
 RESERVED_USERS = (
     "Random-Mover",

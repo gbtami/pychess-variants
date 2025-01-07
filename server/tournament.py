@@ -1,8 +1,8 @@
 from __future__ import annotations
 import asyncio
 import collections
-import logging
 import random
+import traceback
 from abc import ABC, abstractmethod
 from datetime import datetime, timedelta, timezone
 from operator import neg
@@ -49,8 +49,8 @@ from spectators import spectators
 from tournament_spotlights import tournament_spotlights
 from user import User
 from utils import insert_game_to_db
+from logger import log
 
-log = logging.getLogger(__name__)
 
 SCORE, STREAK, DOUBLE = range(1, 4)
 
@@ -506,8 +506,8 @@ class Tournament(ABC):
                         )
 
                 await asyncio.sleep(1)
-        except Exception:
-            log.exception("Exception in tournament clock()")
+        except Exception as exc:
+            log.critical(''.join(traceback.format_exception(exc)))
 
     async def start(self, now):
         self.status = T_STARTED

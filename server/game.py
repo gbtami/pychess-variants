@@ -1,7 +1,6 @@
 from __future__ import annotations
 import asyncio
 import collections
-import logging
 from datetime import datetime, timezone, timedelta
 from time import monotonic
 from typing import Set, List
@@ -39,12 +38,11 @@ from glicko2.glicko2 import gl2
 from draw import reject_draw
 from settings import URI
 from spectators import spectators
+from logger import log
 
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
     from user import User
-
-log = logging.getLogger(__name__)
 
 MAX_PLY = 600
 

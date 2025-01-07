@@ -1,14 +1,12 @@
 from __future__ import annotations
 import asyncio
-import logging
 from datetime import datetime, timezone
 
 from const import ABORTED
 from fairy import WHITE, BLACK
 from broadcast import round_broadcast
 from notify import notify
-
-log = logging.getLogger(__name__)
+# from logger import log
 
 ESTIMATE_MOVES = 40
 CORR_TICK = 60

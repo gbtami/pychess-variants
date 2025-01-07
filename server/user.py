@@ -1,6 +1,5 @@
 from __future__ import annotations
 import asyncio
-import logging
 from asyncio import Queue
 from datetime import datetime, timezone
 from typing import Set, List
@@ -24,8 +23,8 @@ if TYPE_CHECKING:
     from game import Game
 
 from pychess_global_app_state_utils import get_app_state
+from logger import log
 
-log = logging.getLogger(__name__)
 
 SILENCE = 15 * 60
 ANON_TIMEOUT = 10 * 60

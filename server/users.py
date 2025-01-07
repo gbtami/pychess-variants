@@ -1,15 +1,13 @@
 from __future__ import annotations
-import logging
 from collections import UserDict
 
 from const import ANON_PREFIX, BLOCK, MAX_USER_BLOCK, NONE_USER, VARIANTS, TYPE_CHECKING
 from glicko2.glicko2 import DEFAULT_PERF
 from user import User
+from logger import log
 
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
-
-log = logging.getLogger(__name__)
 
 
 class NotInAppUsers(Exception):

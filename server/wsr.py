@@ -1,6 +1,5 @@
 from __future__ import annotations
 import asyncio
-import logging
 import random
 import string
 
@@ -31,8 +30,7 @@ from utils import (
 )
 from bug.utils_bug import play_move as play_move_bug
 from websocket_utils import process_ws, get_user, ws_send_json
-
-log = logging.getLogger(__name__)
+from logger import log
 
 MORE_TIME = 15 * 1000
 

@@ -1,5 +1,3 @@
-import logging
-
 from bug.utils_bug import init_players
 from pychess_global_app_state_utils import get_app_state
 from const import (
@@ -11,8 +9,7 @@ from compress import R2C, V2C, encode_move_standard
 from newid import new_id
 from aiohttp import web
 from bugchess.pgn import read_game, Game
-
-log = logging.getLogger(__name__)
+from logger import log
 
 
 def get_main_variation(game: Game, base_tc_ms: int) -> [list, list]:

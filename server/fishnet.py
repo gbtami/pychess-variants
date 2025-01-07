@@ -1,7 +1,6 @@
 from __future__ import annotations
 import asyncio
 import json
-import logging
 from datetime import datetime, timezone
 from functools import partial
 from time import monotonic
@@ -16,8 +15,7 @@ if TYPE_CHECKING:
 from pychess_global_app_state_utils import get_app_state
 from settings import FISHNET_KEYS
 from utils import load_game, play_move
-
-log = logging.getLogger(__name__)
+from logger import log
 
 REQUIRED_FISHNET_VERSION = "1.16.23"
 MOVE_WORK_TIME_OUT = 5.0

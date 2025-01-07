@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import asyncio
 import json
-import logging
 from datetime import date, datetime, timedelta
 from functools import partial
 
@@ -18,8 +17,7 @@ from settings import ADMINS
 from tournaments import get_tournament_name
 from utils import pgn
 from pychess_global_app_state_utils import get_app_state
-
-log = logging.getLogger(__name__)
+from logger import log
 
 GAME_PAGE_SIZE = 12
 

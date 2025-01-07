@@ -1,5 +1,4 @@
 from __future__ import annotations
-import logging
 from datetime import datetime, timezone
 
 import aiohttp_session
@@ -17,8 +16,7 @@ from settings import TOURNAMENT_DIRECTORS
 from tournament import T_CREATED, T_STARTED
 from tournaments import load_tournament
 from websocket_utils import process_ws, get_user, ws_send_json
-
-log = logging.getLogger(__name__)
+from logger import log
 
 
 async def tournament_socket_handler(request):

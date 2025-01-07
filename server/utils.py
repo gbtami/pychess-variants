@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import asyncio
 import json
-import logging
 
 from const import TYPE_CHECKING
 
@@ -50,8 +49,7 @@ from valid_fen import VALID_FEN
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
 from pychess_global_app_state_utils import get_app_state
-
-log = logging.getLogger(__name__)
+from logger import log
 
 
 async def tv_game(app_state: PychessGlobalAppState):

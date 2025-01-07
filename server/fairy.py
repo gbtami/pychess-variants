@@ -1,16 +1,13 @@
 from __future__ import annotations
+import re
+import random
+from functools import cache
 
 # -*- coding: utf-8 -*-
 from ataxx import ATAXX_FENS
 from const import CATEGORIES, MANCHU_R_FEN
 from racingkings import RACINGKINGS_FENS
-
-import logging
-import re
-import random
-from functools import cache
-
-log = logging.getLogger(__name__)
+from logger import log
 
 try:
     import pyffish as sf
@@ -34,8 +31,6 @@ WHITE, BLACK = 0, 1
 FILES = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j"]
 
 STANDARD_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
-
-log = logging.getLogger(__name__)
 
 
 def file_of(piece: str, rank: str) -> int:

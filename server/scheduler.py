@@ -21,9 +21,8 @@ if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
 
 from tournaments import new_tournament
-import logging
+from logger import log
 
-log = logging.getLogger(__name__)
 
 MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY = range(7)
 Plan = namedtuple("Plan", "freq, date, hour, variant, is960, base, inc, byo, duration")
