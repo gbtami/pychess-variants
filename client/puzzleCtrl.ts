@@ -62,7 +62,7 @@ export class PuzzleController extends AnalysisController {
         const lm = (data.lm) ? data.lm : lmBeforeEp(this.variant, this.fullfen);
 
         this.chessground.set({
-            orientation: this.turnColor,
+            orientation: this.variant.name === 'racingkings' ? 'white' : this.turnColor,
             turnColor: this.turnColor,
             lastMove: uci2LastMove(lm),
             movable: {

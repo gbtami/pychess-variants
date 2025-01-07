@@ -137,7 +137,7 @@ export class AnalysisController extends GameController {
         this.importedBy = '';
 
         this.chessground.set({
-            orientation: this.mycolor,
+            orientation: this.variant.name === 'racingkings' ? 'white' : this.mycolor,
             turnColor: this.turnColor,
             movable: {
                 free: false,
