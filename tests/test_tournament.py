@@ -33,10 +33,12 @@ from tournament import Tournament
 from tournaments import upsert_tournament_to_db, new_tournament
 from user import User
 from utils import play_move
+from logger import handler
 
 import logging
 
 log = logging.getLogger(__name__)
+logging.getLogger().removeHandler(handler)
 
 # from misc import timeit
 

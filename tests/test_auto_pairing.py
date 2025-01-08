@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+import logging
 import unittest
 from itertools import product
 
@@ -18,6 +18,9 @@ from auto_pair import (
     find_matching_user,
     find_matching_user_for_seek,
 )
+from logger import handler
+
+logging.getLogger().removeHandler(handler)
 
 ONE_TEST_ONLY = False
 

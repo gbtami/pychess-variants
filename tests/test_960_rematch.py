@@ -17,12 +17,14 @@ from user import User
 from utils import join_seek
 from pychess_global_app_state_utils import get_app_state
 from newid import id8
+from logger import handler
 
 game.KEEP_TIME = 0
 game.MAX_PLY = 120
 
 logging.basicConfig()
 logging.getLogger().setLevel(level=logging.ERROR)
+logging.getLogger().removeHandler(handler)
 
 PERFS = {
     "newplayer": {variant: DEFAULT_PERF for variant in VARIANTS},
