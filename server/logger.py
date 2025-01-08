@@ -9,7 +9,7 @@ logging.basicConfig(format=FORMAT, datefmt=DATEFMT)
 
 log = logging.getLogger()
 
-handler = MongoHandler(host=MONGO_HOST, capped=True)
+handler = MongoHandler(host=MONGO_HOST, fail_silently=True, capped=True)
 handler.setLevel(logging.CRITICAL)
 
 log.addHandler(handler)

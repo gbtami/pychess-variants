@@ -16,7 +16,6 @@ from pychess_global_app_state_utils import get_app_state
 
 # variants having 0 puzzle so far
 NO_PUZZLE_VARIANTS = (
-    "3check",
     "antichess",
     "horde",
     "shatranj",
