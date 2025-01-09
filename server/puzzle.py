@@ -198,12 +198,13 @@ async def puzzle_vote(request):
     good = post_data["vote"] == "true"
     up_or_down = "up" if good else "down"
 
-    users = app_state.users
+    # Who made the request?
     session = await aiohttp_session.get_session(request)
-    try:
-        user = users[session.get("user_name")]
-    except KeyError:
+    session_user = session.get("user_name")
+    if session_user is None:
         return web.json_response({})
+
+    user = await app_state.users.get(session_user)
 
     if user.puzzles.get("puzzleId"):
         return web.json_response({})
