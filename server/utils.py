@@ -920,7 +920,7 @@ async def get_notifications(request):
     if session_user is None:
         return web.json_response({})
 
-    user = app_state.users[session_user]
+    user = await app_state.users.get(session_user)
 
     if user.notifications is None:
         cursor = app_state.db.notify.find({"notifies": session_user})
