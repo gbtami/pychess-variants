@@ -11,7 +11,6 @@ from mongomock_motor import AsyncMongoMockClient
 from const import VARIANTS
 from fairy import FairyBoard
 from glicko2.glicko2 import MU, gl2, Rating, rating
-from users import NotInAppUsers
 from pychess_global_app_state_utils import get_app_state
 
 # variants having 0 puzzle so far
@@ -154,12 +153,13 @@ async def puzzle_complete(request):
 
     await puzzle.set_played()
 
-    users = app_state.users
+    # Who made the request?
     session = await aiohttp_session.get_session(request)
-    try:
-        user = users[session.get("user_name")]
-    except NotInAppUsers:
+    session_user = session.get("user_name")
+    if session_user is None:
         return web.json_response({})
+
+    user = await app_state.users.get(session_user)
 
     if puzzleId in user.puzzles:
         return web.json_response({})
