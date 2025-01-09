@@ -241,8 +241,8 @@ async def import_game(request):
     # print(data)
     # print("-----------------")
 
-    wp = data["White"]
-    bp = data["Black"]
+    wp = data.get("White", "White")
+    bp = data.get("Black", "Black")
 
     try:
         wplayer = await app_state.users.get(wp)
