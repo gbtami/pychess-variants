@@ -26,7 +26,7 @@ class Lobby:
     # below methods maybe best in separate class eventually
     async def lobby_broadcast(self, response):
         # log.debug("lobby_broadcast: %r to %r", response, self.lobbysockets)
-        for username, ws_set in self.lobbysockets.items():
+        for username, ws_set in list(self.lobbysockets.items()):
             for ws in list(ws_set):
                 await ws_send_json(ws, response)
 
@@ -44,7 +44,7 @@ class Lobby:
         for seek in self.app_state.seeks.values():
             await self.app_state.users.get(seek.creator.username)
 
-        for username, ws_set in self.lobbysockets.items():
+        for username, ws_set in list(self.lobbysockets.items()):
             ws_user = await self.app_state.users.get(username)
             compatible_seeks = get_seeks(ws_user, self.app_state.seeks.values())
             for ws in list(ws_set):
