@@ -39,6 +39,7 @@ from settings import (
     SECRET_KEY,
     MONGO_HOST,
     MONGO_DB_NAME,
+    LOCALHOST,
     URI,
     STATIC_ROOT,
     BR_EXTENSION,
@@ -235,7 +236,7 @@ if __name__ == "__main__":
         anon_as_test_users=args.a,
     )
 
-    if DEV:
+    if URI == LOCALHOST:
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
         # it is possible to pass a dictionary with local variables
