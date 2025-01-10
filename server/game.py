@@ -1055,22 +1055,10 @@ class Game:
 
                 if len(self.clocks_w) > 1 and not self.corr:
                     move_number = ((ply + 1) // 2) + (1 if ply % 2 == 0 else 0)
-                    if ply >= 2:
-                        if ply % 2 == 0:
-                            step["clocks"] = (
-                                self.clocks_w[move_number],
-                                self.clocks_b[move_number - 1],
-                            )
-                        else:
-                            step["clocks"] = (
-                                self.clocks_w[move_number],
-                                self.clocks_b[move_number],
-                            )
-                    else:
-                        step["clocks"] = (
-                            self.clocks_w[move_number],
-                            self.clocks_b[move_number],
-                        )
+                    step["clocks"] = (
+                        self.clocks_w[move_number],
+                        self.clocks_b[move_number - 1 if ply % 2 == 0 else move_number],
+                    )
 
                 self.steps.append(step)
 
