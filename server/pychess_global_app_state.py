@@ -25,12 +25,14 @@ from const import (
     VARIANTS,
     LANGUAGES,
     MAX_CHAT_LINES,
+    MONTHLY,
     ARENA,
+    WEEKLY,
+    SHIELD,
     T_CREATED,
     T_STARTED,
     SCHEDULE_MAX_DAYS,
     ABORTED,
-    TFreq,
 )
 from broadcast import round_broadcast
 from discord_bot import DiscordBot, FakeDiscordBot
@@ -383,14 +385,14 @@ class PychessGlobalAppState:
                     or variant in SEATURDAY
                     or variant in PAUSED_MONTHLY_VARIANTS
                 ):
-                    tname = translated_tournament_name(variant, TFreq.MONTHLY, ARENA, translation)
-                    self.tourneynames[lang][(variant, TFreq.MONTHLY, ARENA)] = tname
+                    tname = translated_tournament_name(variant, MONTHLY, ARENA, translation)
+                    self.tourneynames[lang][(variant, MONTHLY, ARENA)] = tname
                 if variant in SEATURDAY or variant in WEEKLY_VARIANTS:
-                    tname = translated_tournament_name(variant, TFreq.WEEKLY, ARENA, translation)
-                    self.tourneynames[lang][(variant, TFreq.WEEKLY, ARENA)] = tname
+                    tname = translated_tournament_name(variant, WEEKLY, ARENA, translation)
+                    self.tourneynames[lang][(variant, WEEKLY, ARENA)] = tname
                 if variant in SHIELDS:
-                    tname = translated_tournament_name(variant, TFreq.SHIELD, ARENA, translation)
-                    self.tourneynames[lang][(variant, TFreq.SHIELD, ARENA)] = tname
+                    tname = translated_tournament_name(variant, SHIELD, ARENA, translation)
+                    self.tourneynames[lang][(variant, SHIELD, ARENA)] = tname
 
     def __start_bots(self):
         rm = self.users["Random-Mover"]
