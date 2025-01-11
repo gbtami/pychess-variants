@@ -194,8 +194,12 @@ class Scheduler:
             plans.append(Plan(TFreq.MONTHLY, date, 16, v.rstrip("960"), is_960, base, inc, byo, 90))
 
         plans += [
-            Plan(TFreq.SHIELD, self.first_monthly(MONDAY), 18, "kingofthehill", True, 3, 2, 0, 180),  # 960
-            Plan(TFreq.SHIELD, self.second_monthly(MONDAY), 18, "crazyhouse", True, 3, 2, 0, 180),  # 960
+            Plan(
+                TFreq.SHIELD, self.first_monthly(MONDAY), 18, "kingofthehill", True, 3, 2, 0, 180
+            ),  # 960
+            Plan(
+                TFreq.SHIELD, self.second_monthly(MONDAY), 18, "crazyhouse", True, 3, 2, 0, 180
+            ),  # 960
             Plan(TFreq.SHIELD, self.third_monthly(MONDAY), 18, "3check", True, 3, 2, 0, 180),  # 960
             # Plan(TFreq.SHIELD, self.second_monthly(THURSDAY), 18, "shinobi", False, 3, 4, 0, 180),
             Plan(TFreq.SHIELD, self.second_monthly(SATURDAY), 12, "makruk", False, 5, 3, 0, 180),
