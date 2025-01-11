@@ -6,7 +6,7 @@ from aiohttp import web
 
 from admin import silence
 from chat import chat_response
-from const import ANON_PREFIX, STARTED, SHIELD
+from const import ANON_PREFIX, STARTED, TFreq
 from const import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -173,7 +173,7 @@ async def handle_user_connected(app_state: PychessGlobalAppState, ws, user, data
         ),
         "chatClosed": (now - tournament.ends_at).total_seconds() > 60 * 60,
     }
-    if tournament.frequency == SHIELD:
+    if tournament.frequency == TFreq.SHIELD:
         variant_name = tournament.variant + ("960" if tournament.chess960 else "")
         defender = await app_state.users.get(app_state.shield_owners[variant_name])
         response["defender_title"] = defender.title

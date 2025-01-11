@@ -17,7 +17,7 @@ from const import (
     T_ABORTED,
     T_FINISHED,
     T_ARCHIVED,
-    SHIELD,
+    TFreq,
     VARIANTS,
     MAX_CHAT_LINES,
     CATEGORIES,
@@ -49,7 +49,7 @@ async def create_or_update_tournament(
     base = float(form["clockTime"])
     inc = int(form["clockIncrement"])
     bp = int(form["byoyomiPeriod"])
-    frequency = SHIELD if form.get("shield", "") == "true" else ""
+    frequency = TFreq.SHIELD if form.get("shield", "") == "true" else ""
 
     if form["startDate"]:
         start_date = datetime.fromisoformat(form["startDate"].rstrip("Z")).replace(
@@ -63,7 +63,7 @@ async def create_or_update_tournament(
     if name == "":
         name = "%s Arena" % variant_display_name(variant).title()
 
-    if frequency == SHIELD:
+    if frequency == TFreq.SHIELD:
         name = "%s Shield Arena" % variant_display_name(variant).title()
     else:
         description = form["description"]
@@ -201,7 +201,7 @@ async def get_winners(app_state: PychessGlobalAppState, shield, variant: str = N
 
         filter_cond = {"v": V2C[v], "z": z, "status": {"$in": [T_FINISHED, T_ARCHIVED]}}
         if shield:
-            filter_cond["fr"] = SHIELD
+            filter_cond["fr"] = TFreq.SHIELD
 
         winners = []
         cursor = app_state.db.tournament.find(filter_cond, sort=[("startsAt", -1)], limit=limit)
