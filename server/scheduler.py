@@ -20,8 +20,15 @@ if TYPE_CHECKING:
 from tournaments import new_tournament
 from logger import log
 
+from calendar import (
+    MONDAY,
+    WEDNESDAY,
+    THURSDAY,
+    FRIDAY,
+    SATURDAY,
+    SUNDAY
+)
 
-MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY = range(7)
 Plan = namedtuple("Plan", "freq, date, hour, variant, is960, base, inc, byo, duration")
 
 SHIELDS = ["crazyhouse960", "atomic960", "kingofthehill960", "3check960", "makruk"]
