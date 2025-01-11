@@ -31,7 +31,7 @@ from const import (
     T_ABORTED,
     T_FINISHED,
     T_ARCHIVED,
-    TFreq,
+    SHIELD,
     variant_display_name,
     MAX_CHAT_LINES,
 )
@@ -1196,7 +1196,7 @@ class Tournament(ABC):
         for user in self.leaderboard:
             await self.db_update_player(user, self.players[user])
 
-        if self.frequency == TFreq.SHIELD:
+        if self.frequency == SHIELD:
             variant_name = self.variant + ("960" if self.chess960 else "")
             self.app_state.shield[variant_name].append((winner, self.starts_at, self.id))
             self.app_state.shield_owners[variant_name] = winner

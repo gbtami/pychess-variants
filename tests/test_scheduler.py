@@ -3,40 +3,40 @@
 import unittest
 import datetime as dt
 
-from const import SCHEDULE_MAX_DAYS, TFreq
+from const import SCHEDULE_MAX_DAYS, SHIELD
 from scheduler import new_scheduled_tournaments, MONTHLY_VARIANTS, SHIELDS, Scheduler
 
 # Crazhouse960 Shield scheduled at second MONDAY of month
 SHIELD_ZH_2021_09 = (
-    TFreq.SHIELD,
+    SHIELD,
     "crazyhouse",
     True,
     dt.datetime(2021, 9, 13, 18, tzinfo=dt.timezone.utc),
     180,
 )
 SHIELD_ZH_2021_10 = (
-    TFreq.SHIELD,
+    SHIELD,
     "crazyhouse",
     True,
     dt.datetime(2021, 10, 11, 18, tzinfo=dt.timezone.utc),
     180,
 )
 SHIELD_ZH_2021_11 = (
-    TFreq.SHIELD,
+    SHIELD,
     "crazyhouse",
     True,
     dt.datetime(2021, 11, 8, 18, tzinfo=dt.timezone.utc),
     180,
 )
 SHIELD_ZH_2021_12 = (
-    TFreq.SHIELD,
+    SHIELD,
     "crazyhouse",
     True,
     dt.datetime(2021, 12, 13, 18, tzinfo=dt.timezone.utc),
     180,
 )
 SHIELD_ZH_2022_01 = (
-    TFreq.SHIELD,
+    SHIELD,
     "crazyhouse",
     True,
     dt.datetime(2022, 1, 10, 18, tzinfo=dt.timezone.utc),
@@ -45,28 +45,28 @@ SHIELD_ZH_2022_01 = (
 
 # Atomic960 Shield scheduled at third SUNDAY of month
 SHIELD_ATOMIC_2021_10 = (
-    TFreq.SHIELD,
+    SHIELD,
     "atomic",
     True,
     dt.datetime(2021, 10, 17, 12, tzinfo=dt.timezone.utc),
     180,
 )
 SHIELD_ATOMIC_2021_11 = (
-    TFreq.SHIELD,
+    SHIELD,
     "atomic",
     True,
     dt.datetime(2021, 11, 14, 12, tzinfo=dt.timezone.utc),
     180,
 )
 SHIELD_ATOMIC_2021_12 = (
-    TFreq.SHIELD,
+    SHIELD,
     "atomic",
     True,
     dt.datetime(2021, 12, 19, 12, tzinfo=dt.timezone.utc),
     180,
 )
 SHIELD_ATOMIC_2022_01 = (
-    TFreq.SHIELD,
+    SHIELD,
     "atomic",
     True,
     dt.datetime(2022, 1, 16, 12, tzinfo=dt.timezone.utc),
@@ -74,7 +74,7 @@ SHIELD_ATOMIC_2022_01 = (
 )
 
 SHIELD_KOTH_2024_10 = (
-    TFreq.SHIELD,
+    SHIELD,
     "kingofthehill",
     True,
     dt.datetime(2024, 10, 7, 18, tzinfo=dt.timezone.utc),
@@ -82,7 +82,7 @@ SHIELD_KOTH_2024_10 = (
 )
 
 SHIELD_KOTH_2024_11 = (
-    TFreq.SHIELD,
+    SHIELD,
     "kingofthehill",
     True,
     dt.datetime(2024, 11, 4, 19, tzinfo=dt.timezone.utc),

@@ -1,6 +1,6 @@
 from __future__ import annotations
 from datetime import timedelta
-from enum import IntEnum, StrEnum
+from enum import global_enum, IntEnum, StrEnum
 import re
 
 from settings import static_url, PROD
@@ -58,6 +58,7 @@ T_ARCHIVED = TStatus.ARCHIVED
 
 
 # tournament frequency
+@global_enum
 class TFreq(StrEnum):
     HOURLY = "h"
     DAILY = "d"

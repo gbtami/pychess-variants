@@ -11,7 +11,11 @@ from const import (
     variant_display_name,
     SCHEDULE_MAX_DAYS,
     TYPE_CHECKING,
-    TFreq,
+    DAILY,
+    WEEKLY,
+    MONTHLY,
+    YEARLY,
+    SHIELD,
 )
 
 if TYPE_CHECKING:
@@ -20,14 +24,7 @@ if TYPE_CHECKING:
 from tournaments import new_tournament
 from logger import log
 
-from calendar import (
-    MONDAY,
-    WEDNESDAY,
-    THURSDAY,
-    FRIDAY,
-    SATURDAY,
-    SUNDAY
-)
+from calendar import MONDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY
 
 Plan = namedtuple("Plan", "freq, date, hour, variant, is960, base, inc, byo, duration")
 
@@ -186,7 +183,7 @@ class Scheduler:
             except ValueError:
                 log.error("schedule_plan() ValueError")
                 break
-            plans.append(Plan(TFreq.MONTHLY, date, 14, v.rstrip("960"), is_960, base, inc, byo, 90))
+            plans.append(Plan(MONTHLY, date, 14, v.rstrip("960"), is_960, base, inc, byo, 90))
 
         for i, v in enumerate(MONTHLY_VARIANTS):
             if i + 1 > number_of_days:
@@ -198,29 +195,27 @@ class Scheduler:
             except ValueError:
                 log.error("schedule_plan() ValueError")
                 break
-            plans.append(Plan(TFreq.MONTHLY, date, 16, v.rstrip("960"), is_960, base, inc, byo, 90))
+            plans.append(Plan(MONTHLY, date, 16, v.rstrip("960"), is_960, base, inc, byo, 90))
 
         plans += [
             Plan(
-                TFreq.SHIELD, self.first_monthly(MONDAY), 18, "kingofthehill", True, 3, 2, 0, 180
+                SHIELD, self.first_monthly(MONDAY), 18, "kingofthehill", True, 3, 2, 0, 180
             ),  # 960
-            Plan(
-                TFreq.SHIELD, self.second_monthly(MONDAY), 18, "crazyhouse", True, 3, 2, 0, 180
-            ),  # 960
-            Plan(TFreq.SHIELD, self.third_monthly(MONDAY), 18, "3check", True, 3, 2, 0, 180),  # 960
-            # Plan(TFreq.SHIELD, self.second_monthly(THURSDAY), 18, "shinobi", False, 3, 4, 0, 180),
-            Plan(TFreq.SHIELD, self.second_monthly(SATURDAY), 12, "makruk", False, 5, 3, 0, 180),
-            Plan(TFreq.SHIELD, self.third_monthly(SUNDAY), 12, "atomic", True, 3, 2, 0, 180),  # 960
-            Plan(TFreq.MONTHLY, self.first_monthly(SATURDAY), 12, "asean", False, 3, 2, 0, 90),
+            Plan(SHIELD, self.second_monthly(MONDAY), 18, "crazyhouse", True, 3, 2, 0, 180),  # 960
+            Plan(SHIELD, self.third_monthly(MONDAY), 18, "3check", True, 3, 2, 0, 180),  # 960
+            # Plan(SHIELD, self.second_monthly(THURSDAY), 18, "shinobi", False, 3, 4, 0, 180),
+            Plan(SHIELD, self.second_monthly(SATURDAY), 12, "makruk", False, 5, 3, 0, 180),
+            Plan(SHIELD, self.third_monthly(SUNDAY), 12, "atomic", True, 3, 2, 0, 180),  # 960
+            Plan(MONTHLY, self.first_monthly(SATURDAY), 12, "asean", False, 3, 2, 0, 90),
             # The second Saturday is Makruk Shield
-            Plan(TFreq.MONTHLY, self.third_monthly(SATURDAY), 12, SEA, False, 3, 2, 0, 90),
-            Plan(TFreq.MONTHLY, self.fourth_monthly(SATURDAY), 12, "makpong", False, 3, 2, 0, 90),
-            # Plan(TFreq.WEEKLY, self.next_day_of_week(FRIDAY), 18, "crazyhouse", True, 3, 0, 0, 60),  # 960
-            # Plan(TFreq.WEEKLY, self.next_day_of_week(TUESDAY), 18, "atomic", True, 3, 0, 0, 60),  # 960
-            Plan(TFreq.WEEKLY, self.next_day_of_week(THURSDAY), 12, "makruk", False, 3, 2, 0, 90),
-            Plan(TFreq.WEEKLY, self.next_day_of_week(SUNDAY), 18, "duck", False, 3, 5, 0, 90),
-            Plan(TFreq.WEEKLY, self.next_day_of_week(FRIDAY), 12, "xiangqi", False, 5, 3, 0, 90),
-            Plan(TFreq.WEEKLY, self.next_day_of_week(WEDNESDAY), 12, "janggi", False, 5, 15, 1, 90),
+            Plan(MONTHLY, self.third_monthly(SATURDAY), 12, SEA, False, 3, 2, 0, 90),
+            Plan(MONTHLY, self.fourth_monthly(SATURDAY), 12, "makpong", False, 3, 2, 0, 90),
+            # Plan(WEEKLY, self.next_day_of_week(FRIDAY), 18, "crazyhouse", True, 3, 0, 0, 60),  # 960
+            # Plan(WEEKLY, self.next_day_of_week(TUESDAY), 18, "atomic", True, 3, 0, 0, 60),  # 960
+            Plan(WEEKLY, self.next_day_of_week(THURSDAY), 12, "makruk", False, 3, 2, 0, 90),
+            Plan(WEEKLY, self.next_day_of_week(SUNDAY), 18, "duck", False, 3, 5, 0, 90),
+            Plan(WEEKLY, self.next_day_of_week(FRIDAY), 12, "xiangqi", False, 5, 3, 0, 90),
+            Plan(WEEKLY, self.next_day_of_week(WEDNESDAY), 12, "janggi", False, 5, 15, 1, 90),
         ]
 
         return plans
@@ -273,16 +268,18 @@ def new_scheduled_tournaments(already_scheduled, now=None):
                 plan.variant + ("960" if plan.is960 else "")
             ).title()
 
-            if plan.freq == TFreq.SHIELD:
+            if plan.freq == SHIELD:
                 name = "%s Shield Arena" % variant_name
-            elif plan.freq == TFreq.MONTHLY:
+            elif plan.freq == YEARLY:
+                name = "Yearly %s Arena" % variant_name
+            elif plan.freq == MONTHLY:
                 if plan.variant in CATEGORIES["makruk"]:
                     name = "SEAturday %s Arena" % variant_name
                 else:
                     name = "Monthly %s Arena" % variant_name
-            elif plan.freq == TFreq.WEEKLY:
+            elif plan.freq == WEEKLY:
                 name = "Weekly %s Arena" % variant_name
-            elif plan.freq == TFreq.DAILY:
+            elif plan.freq == DAILY:
                 name = "Daily %s Arena" % variant_name
             else:
                 name = "%s Arena" % variant_name
