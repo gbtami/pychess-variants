@@ -42,19 +42,13 @@ MAX_NAMED_SPECTATORS = 20
 
 
 # tournament status
+@global_enum
 class TStatus(IntEnum):
-    CREATED = 0
-    STARTED = 1
-    ABORTED = 2
-    FINISHED = 3
-    ARCHIVED = 4
-
-
-T_CREATED = TStatus.CREATED
-T_STARTED = TStatus.STARTED
-T_ABORTED = TStatus.ABORTED
-T_FINISHED = TStatus.FINISHED
-T_ARCHIVED = TStatus.ARCHIVED
+    T_CREATED = 0
+    T_STARTED = 1
+    T_ABORTED = 2
+    T_FINISHED = 3
+    T_ARCHIVED = 4
 
 
 # tournament frequency
