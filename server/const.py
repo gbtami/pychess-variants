@@ -64,7 +64,12 @@ class TFreq(StrEnum):
 
 
 # tournament pairing
-ARENA, RR, SWISS = range(3)
+@global_enum
+class TPairing(IntEnum):
+    ARENA = 0
+    RR = 1
+    SWISS = 2
+
 
 # translations
 LANGUAGES = [
@@ -88,37 +93,48 @@ LANGUAGES = [
     "zh_TW",
 ]
 
+
 # fishnet work types
-MOVE, ANALYSIS = 0, 1
+@global_enum
+class WorkType(IntEnum):
+    MOVE = 0
+    ANALYSIS = 1
+
 
 # game types
-CASUAL, RATED, IMPORTED = 0, 1, 2
+@global_enum
+class GameType(IntEnum):
+    CASUAL = 0
+    RATED = 1
+    IMPORTED = 2
+
 
 # game status
-(
-    CREATED,
-    STARTED,
-    ABORTED,
-    MATE,
-    RESIGN,
-    STALEMATE,
-    TIMEOUT,
-    DRAW,
-    FLAG,
-    ABANDON,
-    CHEAT,
-    BYEGAME,
-    INVALIDMOVE,
-    UNKNOWNFINISH,
-    VARIANTEND,
-    CLAIM,
-) = range(-2, 14)
+@global_enum
+class GameStatus(IntEnum):
+    CREATED = -2
+    STARTED = -1
+    ABORTED = 0
+    MATE = 1
+    RESIGN = 2
+    STALEMATE = 3
+    TIMEOUT = 4
+    DRAW = 5
+    FLAG = 6
+    ABANDON = 7
+    CHEAT = 8
+    BYEGAME = 9
+    INVALIDMOVE = 10
+    UNKNOWNFINISH = 11
+    VARIANTEND = 12
+    CLAIM = 13
+
 
 LOSERS = {
-    "abandon": ABANDON,
-    "abort": ABORTED,
-    "resign": RESIGN,
-    "flag": FLAG,
+    "abandon": GameStatus.ABANDON,
+    "abort": GameStatus.ABORTED,
+    "resign": GameStatus.RESIGN,
+    "flag": GameStatus.FLAG,
 }
 
 GRANDS = ("xiangqi", "manchu", "grand", "grandhouse", "shako", "janggi")
