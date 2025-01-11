@@ -1,5 +1,6 @@
 from __future__ import annotations
 from datetime import timedelta
+from enum import IntEnum, StrEnum
 import re
 
 from settings import static_url, PROD
@@ -39,11 +40,33 @@ MAX_HIGHSCORE_ITEM_LIMIT = 50
 # Show the number of spectators only after this limit
 MAX_NAMED_SPECTATORS = 20
 
+
 # tournament status
-T_CREATED, T_STARTED, T_ABORTED, T_FINISHED, T_ARCHIVED = range(5)
+class TStatus(IntEnum):
+    CREATED = 0
+    STARTED = 1
+    ABORTED = 2
+    FINISHED = 3
+    ARCHIVED = 4
+
+
+T_CREATED = TStatus.CREATED
+T_STARTED = TStatus.STARTED
+T_ABORTED = TStatus.ABORTED
+T_FINISHED = TStatus.FINISHED
+T_ARCHIVED = TStatus.ARCHIVED
+
 
 # tournament frequency
-HOURLY, DAILY, WEEKLY, MONTHLY, YEARLY, MARATHON, SHIELD = "h", "d", "w", "m", "y", "a", "s"
+class TFreq(StrEnum):
+    HOURLY = "h"
+    DAILY = "d"
+    WEEKLY = "w"
+    MONTHLY = "m"
+    YEARLY = "y"
+    MARATHON = "a"
+    SHIELD = "s"
+
 
 # tournament pairing
 ARENA, RR, SWISS = range(3)
