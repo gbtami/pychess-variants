@@ -8,13 +8,14 @@ from const import (
     ARENA,
     CATEGORIES,
     GRANDS,
-    DAILY,
-    WEEKLY,
-    MONTHLY,
-    SHIELD,
     variant_display_name,
     SCHEDULE_MAX_DAYS,
     TYPE_CHECKING,
+    DAILY,
+    WEEKLY,
+    MONTHLY,
+    YEARLY,
+    SHIELD,
 )
 
 if TYPE_CHECKING:
@@ -23,8 +24,8 @@ if TYPE_CHECKING:
 from tournaments import new_tournament
 from logger import log
 
+from calendar import MONDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY
 
-MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY = range(7)
 Plan = namedtuple("Plan", "freq, date, hour, variant, is960, base, inc, byo, duration")
 
 SHIELDS = ["crazyhouse960", "atomic960", "kingofthehill960", "3check960", "makruk"]
@@ -269,6 +270,8 @@ def new_scheduled_tournaments(already_scheduled, now=None):
 
             if plan.freq == SHIELD:
                 name = "%s Shield Arena" % variant_name
+            elif plan.freq == YEARLY:
+                name = "Yearly %s Arena" % variant_name
             elif plan.freq == MONTHLY:
                 if plan.variant in CATEGORIES["makruk"]:
                     name = "SEAturday %s Arena" % variant_name
