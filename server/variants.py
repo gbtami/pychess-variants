@@ -117,8 +117,14 @@ DEV_VARIANTS = (
     ServerVariants.BUGHOUSE960,
 )
 
-SERVER_VARIANTS = {variant.server_name: variant for variant in ServerVariants if variant not in OLD_VARIANTS}
-VARIANT_ICONS = {variant.server_name: variant.value.icon for variant in ServerVariants if variant not in OLD_VARIANTS}
+SERVER_VARIANTS = {
+    variant.server_name: variant for variant in ServerVariants if variant not in OLD_VARIANTS
+}
+VARIANT_ICONS = {
+    variant.server_name: variant.value.icon
+    for variant in ServerVariants
+    if variant not in OLD_VARIANTS
+}
 
 # Remove new variants on prod site until they stabilize
 if PROD:

@@ -101,9 +101,7 @@ class Game:
         self.imported_by = ""
 
         self.server_variant = SERVER_VARIANTS[
-            ("_" if variant[0].isdigit() else "") +
-            variant +
-            ("960" if chess960 else "")
+            ("_" if variant[0].isdigit() else "") + variant + ("960" if chess960 else "")
         ]
 
         self.berserk_time = self.base * 1000 * 30
