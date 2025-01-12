@@ -16,8 +16,6 @@ from const import (
     LANGUAGES,
     NONE_USER,
     TROPHIES,
-    VARIANTS,
-    VARIANT_ICONS,
     VARIANT_GROUPS,
     RATED,
     IMPORTED,
@@ -59,6 +57,7 @@ from puzzle import (
 )
 from custom_trophy_owners import CUSTOM_TROPHY_OWNERS
 from logger import log
+from variants import SERVER_VARIANTS, VARIANT_ICONS
 
 
 async def index(request):
@@ -244,7 +243,7 @@ async def index(request):
             return web.HTTPFound("/")
 
     variant = request.match_info.get("variant")
-    if (variant is not None) and ((variant not in VARIANTS) and variant != "terminology"):
+    if (variant is not None) and ((variant not in SERVER_VARIANTS) and variant != "terminology"):
         log.debug("Invalid variant %s in request", variant)
         raise web.HTTPNotFound()
 
@@ -397,7 +396,7 @@ async def index(request):
         "profile": profileId if profileId is not None else "",
         "variant": variant if variant is not None else "",
         "fen": fen.replace(".", "+").replace("_", " ") if fen is not None else "",
-        "variants": VARIANTS,
+        "variants": SERVER_VARIANTS,
         "variant_display_name": variant_display_name,
         "tournamentdirector": user.username in TOURNAMENT_DIRECTORS,
     }
@@ -440,7 +439,7 @@ async def index(request):
             if profileId in CUSTOM_TROPHY_OWNERS:
                 trophies = CUSTOM_TROPHY_OWNERS[profileId]
                 for v, kind in trophies:
-                    if v in VARIANTS:
+                    if v in SERVER_VARIANTS:
                         render["trophies"].append((v, kind))
 
         render["title"] = "Profile • " + profileId
@@ -488,7 +487,7 @@ async def index(request):
             render["highscore"] = {
                 variant: dict(app_state.highscore[variant].items()[:10])
                 for variant in app_state.highscore
-                if variant in VARIANTS
+                if variant in SERVER_VARIANTS
             }
         else:
             hs = app_state.highscore[variant]
@@ -519,10 +518,10 @@ async def index(request):
         else:
             puzzleId = request.match_info.get("puzzleId")
 
-            if puzzleId in VARIANTS:
+            if puzzleId in SERVER_VARIANTS:
                 user.puzzle_variant = puzzleId
                 puzzleId = None
-            elif variant in VARIANTS:
+            elif variant in SERVER_VARIANTS:
                 user.puzzle_variant = variant
             else:
                 user.puzzle_variant = None
