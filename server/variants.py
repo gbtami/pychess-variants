@@ -20,6 +20,8 @@ class Variant:
     display_name: str
     icon: str
     chess960: bool = False
+    grand: bool = False
+    byo: bool = False
     bug: bool = False
     move_encoding: Callable = encode_move_standard
     move_decoding: Callable = decode_move_standard
@@ -37,6 +39,9 @@ class ServerVariants(Enum):
         self.display_name = variant.display_name.upper()
         self.translated_name = variant.display_name
         self.icon = variant.icon
+        self.chess960 = variant.chess960
+        self.grand = variant.grand
+        self.byo = variant.byo
 
     CHESS = Variant("n", "chess", _("Chess"), "M")
     CHESS960 = Variant("n", "chess", _("Chess960"), "V", chess960=True)
@@ -67,17 +72,17 @@ class ServerVariants(Enum):
     SITTUYIN = Variant("y", "sittuyin", _("Sittuyin"), ":")
     ASEAN = Variant("S", "asean", _("ASEAN"), "♻")
 
-    SHOGI = Variant("g", "shogi", _("Shogi"), "K")
+    SHOGI = Variant("g", "shogi", _("Shogi"), "K", byo=True)
     MINISHOGI = Variant("a", "minishogi", _("Minishogi"), "6")
-    KYOTOSHOGI = Variant("k", "kyotoshogi", _("Kyoto Shogi"), ")", move_encoding=encode_move_flipping, move_decoding=decode_move_flipping)  # fmt: skip
-    DOBUTSU = Variant("D", "dobutsu", _("Dobutsu"), "8")
-    GOROGOROPLUS = Variant("G", "gorogoroplus", _("Gorogoro+"), "🐱")
-    TORISHOGI = Variant("T", "torishogi", _("Tori Shogi"), "🐦")
-    CANNONSHOGI = Variant("W", "cannonshogi", _("Cannon Shogi"), "💣")
+    KYOTOSHOGI = Variant("k", "kyotoshogi", _("Kyoto Shogi"), ")", byo=True, move_encoding=encode_move_flipping, move_decoding=decode_move_flipping)  # fmt: skip
+    DOBUTSU = Variant("D", "dobutsu", _("Dobutsu"), "8", byo=True)
+    GOROGOROPLUS = Variant("G", "gorogoroplus", _("Gorogoro+"), "🐱", byo=True)
+    TORISHOGI = Variant("T", "torishogi", _("Tori Shogi"), "🐦", byo=True)
+    CANNONSHOGI = Variant("W", "cannonshogi", _("Cannon Shogi"), "💣", byo=True)
 
-    XIANGQI = Variant("x", "xiangqi", _("Xiangqi"), "|")
-    MANCHU = Variant("M", "manchu", _("Manchu+"), "{")
-    JANGGI = Variant("j", "janggi", _("Janggi"), "=")
+    XIANGQI = Variant("x", "xiangqi", _("Xiangqi"), "|", grand=True)
+    MANCHU = Variant("M", "manchu", _("Manchu+"), "{", grand=True)
+    JANGGI = Variant("j", "janggi", _("Janggi"), "=", grand=True, byo=True)
     MINIXIANGQI = Variant("e", "minixiangqi", _("Minixiangqi"), "7")
 
     SHATRANJ = Variant("†", "shatranj", _("Shatranj"), "🐘")
@@ -92,10 +97,10 @@ class ServerVariants(Enum):
     SEIRAWAN = Variant("s", "seirawan", _("S-Chess"), "L")
     SEIRAWAN960 = Variant("s", "seirawan", _("S-Chess960"), "}", chess960=True)
     SHOUSE = Variant("z", "shouse", _("S-House"), "$")
-    GRAND = Variant("q", "grand", _("Grand"), "(")
-    GRANDHOUSE = Variant("r", "grandhouse", _("Grandhouse"), "*")
-    SHOGUN = Variant("u", "shogun", _("Shogun"), "-")
-    SHAKO = Variant("d", "shako", _("Shako"), "9")
+    GRAND = Variant("q", "grand", _("Grand"), "(", grand=True)
+    GRANDHOUSE = Variant("r", "grandhouse", _("Grandhouse"), "*", grand=True)
+    SHOGUN = Variant("u", "shogun", _("Shogun"), "-", byo=True)
+    SHAKO = Variant("d", "shako", _("Shako"), "9", grand=True)
     HOPPELPOPPEL = Variant("w", "hoppelpoppel", _("Hoppel-Poppel"), "`")
     MANSINDAM = Variant("I", "mansindam", _("Mansindam"), "⛵")
 
@@ -114,7 +119,7 @@ class ServerVariants(Enum):
 
     @property
     def server_name(self):
-        return self.value.uci_variant + ("960" if self.value.chess960 else "")
+        return self.uci_variant + ("960" if self.chess960 else "")
 
 
 del _
@@ -142,7 +147,7 @@ VARIANTS = {
     variant.server_name: variant for variant in ServerVariants if variant not in OLD_VARIANTS
 }
 
-VARIANT_ICONS = {variant.server_name: variant.value.icon for variant in ServerVariants}
+VARIANT_ICONS = {variant.server_name: variant.icon for variant in ServerVariants}
 
 # Remove new variants on prod site until they stabilize
 if PROD:
@@ -151,8 +156,13 @@ if PROD:
 
 C2V = {variant.code: variant.uci_variant for variant in ServerVariants}
 
+GRANDS = tuple(variant.server_name for variant in ServerVariants if variant.grand)
+
+BYOS = tuple(variant.server_name for variant in ServerVariants if variant.byo)
+
 
 if __name__ == "__main__":
+    print(GRANDS)
 
     from deprecated import VARIANT_ICONS_ORIG, V2C_ORIG
 

@@ -137,19 +137,6 @@ LOSERS = {
     "flag": GameStatus.FLAG,
 }
 
-GRANDS = ("xiangqi", "manchu", "grand", "grandhouse", "shako", "janggi")
-BYOS = (
-    "shogi",
-    "minishogi",
-    "kyotoshogi",
-    "dobutsu",
-    "gorogoroplus",
-    "torishogi",
-    "cannonshogi",
-    "janggi",
-    "shogun",
-)
-
 CONSERVATIVE_CAPA_FEN = "arnbqkbnrc/pppppppppp/10/10/10/10/PPPPPPPPPP/ARNBQKBNRC w KQkq - 0 1"
 LOOKING_GLASS_ALICE_FEN = "|r|n|b|q|k|b|n|r/|p|p|p|p|p|p|p|p/8/8/8/8/PPPPPPPP/RNBQKBNR w KQ - 0 1"
 MANCHU_FEN = "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/9/9/M1BAKAB2 w - - 0 1"

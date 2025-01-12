@@ -22,7 +22,6 @@ from const import (
     VARIANT_960_TO_PGN,
     LOSERS,
     VARIANTEND,
-    GRANDS,
     CASUAL,
     RATED,
     IMPORTED,
@@ -38,7 +37,7 @@ from draw import reject_draw
 from settings import URI
 from spectators import spectators
 from logger import log
-from variants import get_server_variant
+from variants import get_server_variant, GRANDS
 
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState

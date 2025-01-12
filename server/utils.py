@@ -20,7 +20,6 @@ from const import (
     STARTED,
     VARIANT_960_TO_PGN,
     INVALIDMOVE,
-    GRANDS,
     UNKNOWNFINISH,
     CASUAL,
     RATED,
@@ -50,7 +49,7 @@ if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
 from pychess_global_app_state_utils import get_app_state
 from logger import log
-from variants import C2V
+from variants import C2V, GRANDS
 
 
 async def tv_game(app_state: PychessGlobalAppState):

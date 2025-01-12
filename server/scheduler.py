@@ -7,7 +7,6 @@ import zoneinfo
 from const import (
     ARENA,
     CATEGORIES,
-    GRANDS,
     SCHEDULE_MAX_DAYS,
     TYPE_CHECKING,
     DAILY,
@@ -22,7 +21,7 @@ if TYPE_CHECKING:
 
 from tournaments import new_tournament
 from logger import log
-from variants import get_server_variant
+from variants import get_server_variant, GRANDS
 
 from calendar import MONDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY
 

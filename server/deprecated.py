@@ -1,5 +1,19 @@
-# Create mappings to compress variant, result and uci/usi move lists a little
-# DEPRECATED (this is in ServerVariants enum from now on)
+# All of this deprecated info is stored in ServerVariants enum now
+
+GRANDS = ("xiangqi", "manchu", "grand", "grandhouse", "shako", "janggi")
+
+BYOS = (
+    "shogi",
+    "minishogi",
+    "kyotoshogi",
+    "dobutsu",
+    "gorogoroplus",
+    "torishogi",
+    "cannonshogi",
+    "janggi",
+    "shogun",
+)
+
 V2C_ORIG = {
     "ataxx": "Z",
     "chess": "n",
@@ -59,7 +73,6 @@ V2C_ORIG = {
 }
 
 
-# DEPRECATED (this is in ServerVariants enum from now on)
 VARIANTS_ORIG = (
     "chess",
     "chess960",
@@ -135,7 +148,6 @@ VARIANTS_ORIG = (
     "ataxx",
 )
 
-# DEPRECATED (this is in ServerVariants enum from now on)
 VARIANT_ICONS_ORIG = {
     "ataxx": "☣",
     "makruk": "Q",
@@ -209,7 +221,6 @@ VARIANT_ICONS_ORIG = {
 }
 
 
-# DEPRECATED (this is in ServerVariants enum from now on)
 def variant_display_name_orig(variant):
     if variant == "seirawan":
         return "S-CHESS"
