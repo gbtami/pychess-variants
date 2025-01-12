@@ -28,7 +28,6 @@ from const import (
     IMPORTED,
     HIGHSCORE_MIN_GAMES,
     MAX_HIGHSCORE_ITEM_LIMIT,
-    variant_display_name,
     MAX_CHAT_LINES,
     TYPE_CHECKING,
 )
@@ -105,7 +104,7 @@ class Game:
         self.berserk_time = self.base * 1000 * 30
 
         self.browser_title = "%s • %s vs %s" % (
-            variant_display_name(self.variant + ("960" if self.chess960 else "")).title(),
+            self.server_variant.display_name.title(),
             self.wplayer.username,
             self.bplayer.username,
         )

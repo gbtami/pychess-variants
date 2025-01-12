@@ -11,7 +11,6 @@ from const import (
     ARENA,
     RR,
     SWISS,
-    variant_display_name,
     T_STARTED,
     T_CREATED,
     T_ABORTED,
@@ -45,6 +44,8 @@ async def create_or_update_tournament(
     variant = form["variant"]
     variant960 = variant.endswith("960")
     variant_name = variant[:-3] if variant960 else variant
+    server_variant = get_server_variant(variant_name, variant960)
+
     rated = form.get("rated", "") == "1" and form["position"] == ""
     base = float(form["clockTime"])
     inc = int(form["clockIncrement"])
@@ -61,10 +62,10 @@ async def create_or_update_tournament(
     name = form["name"]
     # Create meaningful tournament name in case we forget to change it :)
     if name == "":
-        name = "%s Arena" % variant_display_name(variant).title()
+        name = "%s Arena" % server_variant.display_name.title()
 
     if frequency == SHIELD:
-        name = "%s Shield Arena" % variant_display_name(variant).title()
+        name = "%s Shield Arena" % server_variant.display_name.title()
     else:
         description = form["description"]
         name = name if name.lower().endswith("arena") else name + " Arena"

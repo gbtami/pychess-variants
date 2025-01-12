@@ -156,6 +156,7 @@ MANCHU_FEN = "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/9/9/M1BAKAB2 w - - 0 1"
 MANCHU_R_FEN = "m1bakab1r/9/9/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1"
 DARK_FEN = "********/********/********/********/********/********/********/******** w - - 0 1"
 
+# DEPRECATED (this is in ServerVariants enum from now on)
 VARIANTS_ORIG = (
     "chess",
     "chess960",
@@ -235,6 +236,7 @@ VARIANTS_ORIG = (
 if PROD:
     VARIANTS_ORIG = tuple(e for e in VARIANTS_ORIG if e not in ["bughouse", "bughouse960"])
 
+# DEPRECATED (this is in ServerVariants enum from now on)
 VARIANT_ICONS_ORIG = {
     "ataxx": "☣",
     "makruk": "Q",
@@ -412,7 +414,8 @@ TROPHIES = {
 }
 
 
-def variant_display_name(variant):
+# DEPRECATED (this is in ServerVariants enum from now on)
+def variant_display_name_orig(variant):
     if variant == "seirawan":
         return "S-CHESS"
     elif variant == "seirawan960":

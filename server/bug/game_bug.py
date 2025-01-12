@@ -26,7 +26,6 @@ from const import (
     CASUAL,
     RATED,
     IMPORTED,
-    variant_display_name,
     MAX_CHAT_LINES,
     POCKET_PATTERN,
 )
@@ -85,7 +84,7 @@ class GameBug:
         self.berserk_time = self.base * 1000 * 30
 
         self.browser_title = "%s • %s+%s vs %s+%s" % (
-            variant_display_name(self.variant + ("960" if self.chess960 else "")).title(),
+            self.server_variant.display_name.title(),
             self.wplayerA.username,
             self.bplayerB.username,
             self.wplayerB.username,

@@ -32,7 +32,6 @@ from const import (
     T_FINISHED,
     T_ARCHIVED,
     SHIELD,
-    variant_display_name,
     MAX_CHAT_LINES,
 )
 from game import Game
@@ -284,7 +283,7 @@ class Tournament(ABC):
             self.clock_task = asyncio.create_task(self.clock(), name="tournament-clock")
 
         self.browser_title = "%s Tournament • %s" % (
-            variant_display_name(self.variant),
+            self.server_variant.display_name,
             self.name,
         )
 

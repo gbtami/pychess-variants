@@ -9,6 +9,7 @@ https://lichess.org/blog/Wqa7GiAAAOIpBLoY/developer-update-275-improved-game-com
 """
 
 # Create mappings to compress variant, result and uci/usi move lists a little
+# DEPRECATED (this is in ServerVariants enum from now on)
 V2C_ORIG = {
     "ataxx": "Z",
     "chess": "n",
