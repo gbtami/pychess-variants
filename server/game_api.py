@@ -11,13 +11,14 @@ from aiohttp_sse import sse_response
 import pymongo
 
 from compress import get_decode_method, C2V, V2C, C2R, decode_move_standard
-from const import DARK_FEN, GRANDS, STARTED, MATE, VARIANTS, INVALIDMOVE, VARIANTEND, CLAIM
+from const import DARK_FEN, GRANDS, STARTED, MATE, INVALIDMOVE, VARIANTEND, CLAIM
 from convert import zero2grand
 from settings import ADMINS
 from tournaments import get_tournament_name
 from utils import pgn
 from pychess_global_app_state_utils import get_app_state
 from logger import log
+from variants import VARIANTS
 
 GAME_PAGE_SIZE = 12
 

@@ -117,7 +117,7 @@ DEV_VARIANTS = (
     ServerVariants.BUGHOUSE960,
 )
 
-SERVER_VARIANTS = {
+VARIANTS = {
     variant.server_name: variant for variant in ServerVariants if variant not in OLD_VARIANTS
 }
 VARIANT_ICONS = {
@@ -129,15 +129,15 @@ VARIANT_ICONS = {
 # Remove new variants on prod site until they stabilize
 if PROD:
     for variant in DEV_VARIANTS:
-        del SERVER_VARIANTS[variant.server_name]
+        del VARIANTS[variant.server_name]
 
 
 if __name__ == "__main__":
 
-    from const import VARIANT_ICONS as VARIANT_ICONS_ORIG
+    from const import VARIANT_ICONS_ORIG
     from compress import V2C
 
-    for sn, variant in SERVER_VARIANTS.items():
+    for sn, variant in VARIANTS.items():
         print(variant.value.code, variant.value.icon, sn)
         assert variant.value.code == V2C[variant.value.uci_variant]
         assert variant.value.icon == VARIANT_ICONS_ORIG[variant.server_name]

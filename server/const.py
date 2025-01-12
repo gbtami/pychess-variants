@@ -156,7 +156,7 @@ MANCHU_FEN = "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/9/9/M1BAKAB2 w - - 0 1"
 MANCHU_R_FEN = "m1bakab1r/9/9/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1"
 DARK_FEN = "********/********/********/********/********/********/********/******** w - - 0 1"
 
-VARIANTS = (
+VARIANTS_ORIG = (
     "chess",
     "chess960",
     "bughouse",
@@ -233,9 +233,9 @@ VARIANTS = (
 
 # Remove new variants on prod site until they stabilize
 if PROD:
-    VARIANTS = tuple(e for e in VARIANTS if e not in ["bughouse", "bughouse960"])
+    VARIANTS_ORIG = tuple(e for e in VARIANTS_ORIG if e not in ["bughouse", "bughouse960"])
 
-VARIANT_ICONS = {
+VARIANT_ICONS_ORIG = {
     "ataxx": "☣",
     "makruk": "Q",
     "makpong": "O",

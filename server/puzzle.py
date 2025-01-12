@@ -8,10 +8,10 @@ from aiohttp import web
 
 from mongomock_motor import AsyncMongoMockClient
 
-from const import VARIANTS
 from fairy import FairyBoard
 from glicko2.glicko2 import MU, gl2, Rating, rating
 from pychess_global_app_state_utils import get_app_state
+from variants import VARIANTS
 
 # variants having 0 puzzle so far
 NO_PUZZLE_VARIANTS = (

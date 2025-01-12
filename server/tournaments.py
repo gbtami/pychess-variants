@@ -18,7 +18,6 @@ from const import (
     T_FINISHED,
     T_ARCHIVED,
     SHIELD,
-    VARIANTS,
     MAX_CHAT_LINES,
     CATEGORIES,
     TRANSLATED_FREQUENCY_NAMES,
@@ -35,6 +34,7 @@ from rr import RRTournament
 from swiss import SwissTournament
 from tournament import GameData, PlayerData, SCORE_SHIFT, Tournament
 from logger import log
+from variants import VARIANTS
 
 
 async def create_or_update_tournament(
