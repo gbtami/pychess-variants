@@ -9,7 +9,7 @@ https://lichess.org/blog/Wqa7GiAAAOIpBLoY/developer-update-275-improved-game-com
 """
 
 # Create mappings to compress variant, result and uci/usi move lists a little
-V2C = {
+V2C_ORIG = {
     "ataxx": "Z",
     "chess": "n",
     "capablanca": "c",
@@ -66,7 +66,6 @@ V2C = {
     "horde": "š",
     "shatranj": "†",
 }
-C2V = {v: k for k, v in V2C.items()}
 
 R2C = {"1-0": "a", "0-1": "b", "1/2-1/2": "c", "*": "d"}
 C2R = {v: k for k, v in R2C.items()}

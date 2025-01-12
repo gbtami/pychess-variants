@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 import aiohttp_session
 
 from arena_new import ArenaTournament
-from compress import C2V, V2C, C2R
+from compress import C2R
 from const import (
     CASUAL,
     RATED,
@@ -34,7 +34,7 @@ from rr import RRTournament
 from swiss import SwissTournament
 from tournament import GameData, PlayerData, SCORE_SHIFT, Tournament
 from logger import log
-from variants import VARIANTS
+from variants import C2V, get_server_variant, VARIANTS
 
 
 async def create_or_update_tournament(
@@ -155,7 +155,7 @@ async def upsert_tournament_to_db(tournament, app_state: PychessGlobalAppState):
         "d": tournament.description,
         "fr": tournament.frequency,
         "minutes": tournament.minutes,
-        "v": V2C[tournament.variant],
+        "v": tournament.server_variant.code,
         "b": tournament.base,
         "i": tournament.inc,
         "bp": tournament.byoyomi_period,
@@ -192,14 +192,13 @@ async def get_winners(app_state: PychessGlobalAppState, shield, variant: str = N
         limit = 50
 
     for variant in variants:
-        if variant.endswith("960"):
-            v = variant[:-3]
-            z = 1
-        else:
-            v = variant
-            z = 0
+        variant960 = variant.endswith("960")
+        uci_variant = variant[:-3] if variant960 else variant
 
-        filter_cond = {"v": V2C[v], "z": z, "status": {"$in": [T_FINISHED, T_ARCHIVED]}}
+        v = get_server_variant(uci_variant, variant960)
+        z = 1 if variant960 else 0
+
+        filter_cond = {"v": v.code, "z": z, "status": {"$in": [T_FINISHED, T_ARCHIVED]}}
         if shield:
             filter_cond["fr"] = SHIELD
 

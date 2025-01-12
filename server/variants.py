@@ -26,6 +26,12 @@ class Variant:
 
 
 class ServerVariants(Enum):
+    def __init__(self, variant):
+        self.code = variant.code
+        self.uci_variant = variant.uci_variant
+        self.display_name = variant.display_name
+        self.icon = variant.icon
+
     CHESS = Variant("n", "chess", "CHESS", "M")
     CHESS960 = Variant("n", "chess", "CHESS960", "V", chess960=True)
     BUGHOUSE = Variant("F", "bughouse", "BUGHOUSE", "¢", bug=True)
@@ -105,6 +111,10 @@ class ServerVariants(Enum):
         return self.value.uci_variant + ("960" if self.value.chess960 else "")
 
 
+def get_server_variant(uci_variant, chess960):
+    return VARIANTS[uci_variant + ("960" if chess960 else "")]
+
+
 OLD_VARIANTS = (
     ServerVariants.EMBASSY,
     ServerVariants.GOTHIC,
@@ -112,7 +122,7 @@ OLD_VARIANTS = (
     ServerVariants.SHINOBI,
 )
 
-DEV_VARIANTS = (
+BUG_VARIANTS = (
     ServerVariants.BUGHOUSE,
     ServerVariants.BUGHOUSE960,
 )
@@ -128,16 +138,18 @@ VARIANT_ICONS = {
 
 # Remove new variants on prod site until they stabilize
 if PROD:
-    for variant in DEV_VARIANTS:
+    for variant in BUG_VARIANTS:
         del VARIANTS[variant.server_name]
+
+C2V = {variant.code: variant.uci_variant for variant in ServerVariants}
 
 
 if __name__ == "__main__":
 
     from const import VARIANT_ICONS_ORIG
-    from compress import V2C
+    from compress import V2C_ORIG
 
     for sn, variant in VARIANTS.items():
-        print(variant.value.code, variant.value.icon, sn)
-        assert variant.value.code == V2C[variant.value.uci_variant]
-        assert variant.value.icon == VARIANT_ICONS_ORIG[variant.server_name]
+        print(variant.code, variant.icon, sn)
+        assert variant.code == V2C_ORIG[variant.uci_variant]
+        assert variant.icon == VARIANT_ICONS_ORIG[variant.server_name]

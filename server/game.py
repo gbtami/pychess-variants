@@ -39,7 +39,7 @@ from draw import reject_draw
 from settings import URI
 from spectators import spectators
 from logger import log
-from variants import VARIANTS
+from variants import get_server_variant
 
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
@@ -100,9 +100,7 @@ class Game:
         self.create = create
         self.imported_by = ""
 
-        self.server_variant = VARIANTS[
-            ("_" if variant[0].isdigit() else "") + variant + ("960" if chess960 else "")
-        ]
+        self.server_variant = get_server_variant(variant, chess960)
 
         self.berserk_time = self.base * 1000 * 30
 

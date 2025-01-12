@@ -28,7 +28,7 @@ from const import (
     MANCHU_FEN,
     T_STARTED,
 )
-from compress import get_decode_method, get_encode_method, R2C, C2R, V2C, C2V
+from compress import get_decode_method, get_encode_method, R2C, C2R
 from convert import mirror5, mirror9, grand2zero, zero2grand
 from fairy import (
     BLACK,
@@ -50,6 +50,7 @@ if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
 from pychess_global_app_state_utils import get_app_state
 from logger import log
+from variants import C2V
 
 
 async def tv_game(app_state: PychessGlobalAppState):
@@ -325,7 +326,7 @@ async def import_game(request):
     document = {
         "_id": game_id,
         "us": [wplayer.username, bplayer.username],
-        "v": V2C[variant],
+        "v": new_game.server_variant.code,
         "b": base,
         "i": inc,
         "bp": new_game.byoyomi_period,
@@ -483,7 +484,7 @@ async def insert_game_to_db(game, app_state: PychessGlobalAppState):
         "us": [game.wplayer.username, game.bplayer.username],
         "p0": {"e": game.wrating},
         "p1": {"e": game.brating},
-        "v": V2C[game.variant],
+        "v": game.server_variant.code,
         "b": game.base,
         "i": game.inc,
         "bp": game.byoyomi_period,

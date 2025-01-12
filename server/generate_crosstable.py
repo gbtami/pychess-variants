@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from compress import V2C
+from variants import BUG_VARIANTS
 
 
 async def generate_crosstable(app_state, username=None):
@@ -13,8 +13,9 @@ async def generate_crosstable(app_state, username=None):
         cursor = db.game.find({"us": username}).sort("d")
         print("START generate_crosstable", username)
 
+    bug_variant_codes = [variant.code for variant in BUG_VARIANTS]
     async for doc in cursor:
-        if doc["v"] == V2C["bughouse"]:
+        if doc["v"] in bug_variant_codes:
             continue  # todo:bughouse has no crosstable implemented at the moment
 
         game_id = doc["_id"]

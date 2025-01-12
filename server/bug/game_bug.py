@@ -32,6 +32,7 @@ from const import (
 )
 from fairy import FairyBoard, BLACK, WHITE
 from spectators import spectators
+from variants import get_server_variant
 
 MAX_HIGH_SCORE = 10
 MAX_PLY = 2 * 600
@@ -78,6 +79,8 @@ class GameBug:
         self.chess960 = chess960
         self.create = create
         self.imported_by = ""
+
+        self.server_variant = get_server_variant(variant, chess960)
 
         self.berserk_time = self.base * 1000 * 30
 

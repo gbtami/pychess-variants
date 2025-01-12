@@ -5,7 +5,7 @@ import unittest
 
 from compress import get_encode_method, get_decode_method
 from fairy import FairyBoard
-from const import VARIANTS
+from variants import VARIANTS
 
 
 class EncodeDecodeTestCase(unittest.TestCase):
