@@ -6,7 +6,7 @@ import unittest
 from aiohttp.test_utils import AioHTTPTestCase
 from mongomock_motor import AsyncMongoMockClient
 
-from const import VARIANTS, STARTED
+from const import STARTED
 from glicko2.glicko2 import DEFAULT_PERF
 from seek import Seek
 from server import make_app
@@ -15,6 +15,7 @@ from users import Users
 from utils import join_seek, load_game
 from pychess_global_app_state_utils import get_app_state
 from newid import id8
+from variants import VARIANTS
 
 logging.basicConfig()
 logging.getLogger().setLevel(level=logging.ERROR)

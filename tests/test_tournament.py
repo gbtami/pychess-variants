@@ -12,7 +12,6 @@ from arena_new import ArenaTournament
 from const import (
     BYEGAME,
     STARTED,
-    VARIANTS,
     ARENA,
     RR,
     SWISS,
@@ -34,6 +33,7 @@ from tournaments import upsert_tournament_to_db, new_tournament
 from user import User
 from utils import play_move
 from logger import handler
+from variants import VARIANTS
 
 import logging
 

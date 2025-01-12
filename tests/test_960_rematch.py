@@ -8,7 +8,6 @@ from aiohttp.test_utils import AioHTTPTestCase
 from mongomock_motor import AsyncMongoMockClient
 
 import game
-from const import VARIANTS
 from game import Game
 from glicko2.glicko2 import DEFAULT_PERF
 from seek import Seek
@@ -18,6 +17,7 @@ from utils import join_seek
 from pychess_global_app_state_utils import get_app_state
 from newid import id8
 from logger import handler
+from variants import VARIANTS
 
 game.KEEP_TIME = 0
 game.MAX_PLY = 120

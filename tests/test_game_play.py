@@ -5,7 +5,7 @@ from aiohttp.test_utils import AioHTTPTestCase
 
 from mongomock_motor import AsyncMongoMockClient
 
-from const import STARTED, VARIANTS
+from const import STARTED
 from game import Game
 from glicko2.glicko2 import DEFAULT_PERF
 from newid import id8
@@ -13,6 +13,7 @@ from server import make_app
 from user import User
 from utils import insert_game_to_db
 from pychess_global_app_state_utils import get_app_state
+from variants import VARIANTS
 
 DEFAULT_PERFS = {variant: DEFAULT_PERF for variant in VARIANTS}
 
