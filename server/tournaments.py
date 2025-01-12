@@ -21,7 +21,6 @@ from const import (
     CATEGORIES,
     TRANSLATED_FREQUENCY_NAMES,
     TRANSLATED_PAIRING_SYSTEM_NAMES,
-    TRANSLATED_VARIANT_NAMES,
 )
 from newid import new_id
 from const import TYPE_CHECKING
@@ -33,7 +32,7 @@ from rr import RRTournament
 from swiss import SwissTournament
 from tournament import GameData, PlayerData, SCORE_SHIFT, Tournament
 from logger import log
-from variants import C2V, get_server_variant, VARIANTS
+from variants import C2V, get_server_variant, ALL_VARIANTS, VARIANTS
 
 
 async def create_or_update_tournament(
@@ -535,13 +534,13 @@ def translated_tournament_name(variant, frequency, system, lang_translation):
     frequency = "S" if variant in CATEGORIES["makruk"] and frequency == "m" else frequency
     if frequency == "s":
         return "%s %s %s" % (
-            lang_translation.gettext(TRANSLATED_VARIANT_NAMES[variant]),
+            lang_translation.gettext(ALL_VARIANTS[variant].translated_name),
             lang_translation.gettext(TRANSLATED_FREQUENCY_NAMES[frequency]),
             lang_translation.gettext(TRANSLATED_PAIRING_SYSTEM_NAMES[system]),
         )
     else:
         return "%s %s %s" % (
             lang_translation.gettext(TRANSLATED_FREQUENCY_NAMES[frequency]),
-            lang_translation.gettext(TRANSLATED_VARIANT_NAMES[variant]),
+            lang_translation.gettext(ALL_VARIANTS[variant].translated_name),
             lang_translation.gettext(TRANSLATED_PAIRING_SYSTEM_NAMES[system]),
         )

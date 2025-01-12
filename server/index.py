@@ -20,7 +20,6 @@ from const import (
     RATED,
     IMPORTED,
     T_CREATED,
-    TRANSLATED_VARIANT_NAMES,
     TRANSLATED_PAIRING_SYSTEM_NAMES,
 )
 from fairy import FairyBoard, BLACK, WHITE
@@ -122,7 +121,7 @@ async def index(request):
     lang_translation.install()
 
     def variant_display_name(variant):
-        return lang_translation.gettext(TRANSLATED_VARIANT_NAMES[variant])
+        return lang_translation.gettext(VARIANTS[variant].translated_name)
 
     def pairing_system_name(system):
         return lang_translation.gettext(TRANSLATED_PAIRING_SYSTEM_NAMES[system])

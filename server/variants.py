@@ -25,94 +25,103 @@ class Variant:
     move_decoding: Callable = decode_move_standard
 
 
+#  Deferred translations!
+def _(message):
+    return message
+
+
 class ServerVariants(Enum):
     def __init__(self, variant):
         self.code = variant.code
         self.uci_variant = variant.uci_variant
-        self.display_name = variant.display_name
+        self.display_name = variant.display_name.upper()
+        self.translated_name = variant.display_name
         self.icon = variant.icon
 
-    CHESS = Variant("n", "chess", "CHESS", "M")
-    CHESS960 = Variant("n", "chess", "CHESS960", "V", chess960=True)
-    BUGHOUSE = Variant("F", "bughouse", "BUGHOUSE", "¢", bug=True)
-    BUGHOUSE960 = Variant("F", "bughouse", "BUGHOUSE960", "⌀", chess960=True, bug=True)
-    CRAZYHOUSE = Variant("h", "crazyhouse", "CRAZYHOUSE", "+")
-    CRAZYHOUSE960 = Variant("h", "crazyhouse", "CRAZYHOUSE960", "%", chess960=True)
-    ATOMIC = Variant("A", "atomic", "ATOMIC", "~")
-    ATOMIC960 = Variant("A", "atomic", "ATOMIC960", "\\", chess960=True)
-    KINGOFTHEHILL = Variant("B", "kingofthehill", "KING OF THE HILL", "🏴")
-    KINGOFTHEHILL960 = Variant("B", "kingofthehill", "KING OF THE HILL960", "🏁", chess960=True)
-    _3CHECK = Variant("X", "3check", "THREE-CHECK", "☰")
-    _3CHECK960 = Variant("X", "3check", "THREE-CHECK960", "☷", chess960=True)
-    ANTICHESS = Variant("’", "antichess", "ANTICHESS", "🐥")
-    ANTICHESS960 = Variant("’", "antichess", "ANTICHESS960", "🐓", chess960=True)
-    RACINGKINGS = Variant("°", "racingkings", "RACING KINGS", "🚗")
-    RACINGKINGS960 = Variant("°", "racingkings", "RACING KINGS1440", "🚙", chess960=True)
-    HORDE = Variant("š", "horde", "HORDE", "🐖")
-    HORDE960 = Variant("š", "horde", "HORDE960", "🐷", chess960=True)
-    PLACEMENT = Variant("p", "placement", "PLACEMENT", "S")
-    DUCK = Variant("U", "duck", "DUCK CHESS", "🦆", move_encoding=encode_move_duck, move_decoding=decode_move_duck)  # fmt: skip
-    ALICE = Variant("Y", "alice", "ALICE CHESS", "👧")
-    FOGOFWAR = Variant("Q", "fogofwar", "FOG OF WAR", "🌫")
+    CHESS = Variant("n", "chess", _("Chess"), "M")
+    CHESS960 = Variant("n", "chess", _("Chess960"), "V", chess960=True)
+    BUGHOUSE = Variant("F", "bughouse", _("Bughouse"), "¢", bug=True)
+    BUGHOUSE960 = Variant("F", "bughouse", _("Bughouse960"), "⌀", chess960=True, bug=True)
+    CRAZYHOUSE = Variant("h", "crazyhouse", _("Crazyhouse"), "+")
+    CRAZYHOUSE960 = Variant("h", "crazyhouse", _("Crazyhouse960"), "%", chess960=True)
+    ATOMIC = Variant("A", "atomic", _("Atomic"), "~")
+    ATOMIC960 = Variant("A", "atomic", _("Atomic960"), "\\", chess960=True)
+    KINGOFTHEHILL = Variant("B", "kingofthehill", _("King of the Hill"), "🏴")
+    KINGOFTHEHILL960 = Variant("B", "kingofthehill", _("King of the Hill 960"), "🏁", chess960=True)
+    _3CHECK = Variant("X", "3check", _("Three check"), "☰")
+    _3CHECK960 = Variant("X", "3check", _("Three check 960"), "☷", chess960=True)
+    ANTICHESS = Variant("’", "antichess", _("Antichess"), "🐥")
+    ANTICHESS960 = Variant("’", "antichess", _("Antichess960"), "🐓", chess960=True)
+    RACINGKINGS = Variant("°", "racingkings", _("Racing Kings"), "🚗")
+    RACINGKINGS960 = Variant("°", "racingkings", _("Racing Kings 1440"), "🚙", chess960=True)
+    HORDE = Variant("š", "horde", _("Horde"), "🐖")
+    HORDE960 = Variant("š", "horde", _("Horde960"), "🐷", chess960=True)
+    PLACEMENT = Variant("p", "placement", _("Placement"), "S")
+    DUCK = Variant("U", "duck", _("Duck Chess"), "🦆", move_encoding=encode_move_duck, move_decoding=decode_move_duck)  # fmt: skip
+    ALICE = Variant("Y", "alice", _("Alice Chess"), "👧")
+    FOGOFWAR = Variant("Q", "fogofwar", _("Fog of War"), "🌫")
 
-    MAKRUK = Variant("m", "makruk", "MAKRUK", "Q")
-    MAKPONG = Variant("l", "makpong", "MAKPONG", "O")
-    CAMBODIAN = Variant("b", "cambodian", "OUK CHAKTRANG", "!")
-    SITTUYIN = Variant("y", "sittuyin", "SITTUYIN", ":")
-    ASEAN = Variant("S", "asean", "ASEAN", "♻")
+    MAKRUK = Variant("m", "makruk", _("Makruk"), "Q")
+    MAKPONG = Variant("l", "makpong", _("Makpong"), "O")
+    CAMBODIAN = Variant("b", "cambodian", _("Ouk Chaktrang"), "!")
+    SITTUYIN = Variant("y", "sittuyin", _("Sittuyin"), ":")
+    ASEAN = Variant("S", "asean", _("ASEAN"), "♻")
 
-    SHOGI = Variant("g", "shogi", "SHOGI", "K")
-    MINISHOGI = Variant("a", "minishogi", "MINISHOGI", "6")
-    KYOTOSHOGI = Variant("k", "kyotoshogi", "KYOTO SHOGI", ")", move_encoding=encode_move_flipping, move_decoding=decode_move_flipping)  # fmt: skip
-    DOBUTSU = Variant("D", "dobutsu", "DOBUTSU", "8")
-    GOROGOROPLUS = Variant("G", "gorogoroplus", "GOROGORO+", "🐱")
-    TORISHOGI = Variant("T", "torishogi", "TORI SHOGI", "🐦")
-    CANNONSHOGI = Variant("W", "cannonshogi", "CANNON SHOGI", "💣")
+    SHOGI = Variant("g", "shogi", _("Shogi"), "K")
+    MINISHOGI = Variant("a", "minishogi", _("Minishogi"), "6")
+    KYOTOSHOGI = Variant("k", "kyotoshogi", _("Kyoto Shogi"), ")", move_encoding=encode_move_flipping, move_decoding=decode_move_flipping)  # fmt: skip
+    DOBUTSU = Variant("D", "dobutsu", _("Dobutsu"), "8")
+    GOROGOROPLUS = Variant("G", "gorogoroplus", _("Gorogoro+"), "🐱")
+    TORISHOGI = Variant("T", "torishogi", _("Tori Shogi"), "🐦")
+    CANNONSHOGI = Variant("W", "cannonshogi", _("Cannon Shogi"), "💣")
 
-    XIANGQI = Variant("x", "xiangqi", "XIANGQI", "|")
-    MANCHU = Variant("M", "manchu", "MANCHU+", "{")
-    JANGGI = Variant("j", "janggi", "JANGGI", "=")
-    MINIXIANGQI = Variant("e", "minixiangqi", "MINIXIANGQI", "7")
+    XIANGQI = Variant("x", "xiangqi", _("Xiangqi"), "|")
+    MANCHU = Variant("M", "manchu", _("Manchu+"), "{")
+    JANGGI = Variant("j", "janggi", _("Janggi"), "=")
+    MINIXIANGQI = Variant("e", "minixiangqi", _("Minixiangqi"), "7")
 
-    SHATRANJ = Variant("†", "shatranj", "SHATRANJ", "🐘")
-    CAPABLANCA = Variant("c", "capablanca", "CAPABLANCA", "P")
-    CAPABLANCA960 = Variant("c", "capablanca", "CAPABLANCA960", ",", chess960=True)
-    CAPAHOUSE = Variant("i", "capahouse", "CAPAHOUSE", "&")
-    CAPAHOUSE960 = Variant("i", "capahouse", "CAPAHOUSE960", "'", chess960=True)
-    GOTHIC = Variant("o", "gothic", "GOTHIC", "P")
-    GOTHHOUSE = Variant("t", "gothhouse", "GOTHHOUSE", "&")
-    EMBASSY = Variant("E", "embassy", "EMBASSY", "P")
-    DRAGON = Variant("R", "dragon", "DRAGON CHESS", "🐉")
-    SEIRAWAN = Variant("s", "seirawan", "S-CHESS", "L")
-    SEIRAWAN960 = Variant("s", "seirawan", "S-CHESS960", "}", chess960=True)
-    SHOUSE = Variant("z", "shouse", "S-HOUSE", "$")
-    GRAND = Variant("q", "grand", "GRAND", "(")
-    GRANDHOUSE = Variant("r", "grandhouse", "GRANDHOUSE", "*")
-    SHOGUN = Variant("u", "shogun", "SHOGUN", "-")
-    SHAKO = Variant("d", "shako", "SHAKO", "9")
-    HOPPELPOPPEL = Variant("w", "hoppelpoppel", "HOPPEL-POPPEL", "`")
-    MANSINDAM = Variant("I", "mansindam", "MANSINDAM", "⛵")
+    SHATRANJ = Variant("†", "shatranj", _("Shatranj"), "🐘")
+    CAPABLANCA = Variant("c", "capablanca", _("Capablanca"), "P")
+    CAPABLANCA960 = Variant("c", "capablanca", _("Capablanca960"), ",", chess960=True)
+    CAPAHOUSE = Variant("i", "capahouse", _("Capahouse"), "&")
+    CAPAHOUSE960 = Variant("i", "capahouse", _("Capahouse960"), "'", chess960=True)
+    GOTHIC = Variant("o", "gothic", _("Gothic"), "P")
+    GOTHHOUSE = Variant("t", "gothhouse", _("Gothhouse"), "&")
+    EMBASSY = Variant("E", "embassy", _("Embassy"), "P")
+    DRAGON = Variant("R", "dragon", _("Dragon Chess"), "🐉")
+    SEIRAWAN = Variant("s", "seirawan", _("S-Chess"), "L")
+    SEIRAWAN960 = Variant("s", "seirawan", _("S-Chess960"), "}", chess960=True)
+    SHOUSE = Variant("z", "shouse", _("S-House"), "$")
+    GRAND = Variant("q", "grand", _("Grand"), "(")
+    GRANDHOUSE = Variant("r", "grandhouse", _("Grandhouse"), "*")
+    SHOGUN = Variant("u", "shogun", _("Shogun"), "-")
+    SHAKO = Variant("d", "shako", _("Shako"), "9")
+    HOPPELPOPPEL = Variant("w", "hoppelpoppel", _("Hoppel-Poppel"), "`")
+    MANSINDAM = Variant("I", "mansindam", _("Mansindam"), "⛵")
 
-    ORDA = Variant("f", "orda", "ORDA", "R")
-    KHANS = Variant("L", "khans", "KHANS", "🐎")
-    SYNOCHESS = Variant("v", "synochess", "SYNOCHESS", "_")
-    SHINOBI = Variant("J", "shinobi", "SHINOBI", "🐢")
-    SHINOBIPLUS = Variant("K", "shinobiplus", "SHINOBI+", "🐢")
-    EMPIRE = Variant("P", "empire", "EMPIRE", "♚")
-    ORDAMIRROR = Variant("O", "ordamirror", "ORDA MIRROR", "◩")
-    CHAK = Variant("C", "chak", "CHAK", "🐬")
-    CHENNIS = Variant("H", "chennis", "CHENNIS", "🎾", move_encoding=encode_move_flipping, move_decoding=decode_move_flipping)  # fmt: skip
-    SPARTAN = Variant("N", "spartan", "SPARTAN", "⍺")
+    ORDA = Variant("f", "orda", _("Orda Chess"), "R")
+    KHANS = Variant("L", "khans", _("Khan's Chess"), "🐎")
+    SYNOCHESS = Variant("v", "synochess", _("Synochess"), "_")
+    SHINOBI = Variant("J", "shinobi", _("Shinobi"), "🐢")
+    SHINOBIPLUS = Variant("K", "shinobiplus", _("Shinobi+"), "🐢")
+    EMPIRE = Variant("P", "empire", _("Empire"), "♚")
+    ORDAMIRROR = Variant("O", "ordamirror", _("Orda Mirror"), "◩")
+    CHAK = Variant("C", "chak", _("Chak"), "🐬")
+    CHENNIS = Variant("H", "chennis", _("Chennis"), "🎾", move_encoding=encode_move_flipping, move_decoding=decode_move_flipping)  # fmt: skip
+    SPARTAN = Variant("N", "spartan", _("Spartan"), "⍺")
 
-    ATAXX = Variant("Z", "ataxx", "ATAXX", "☣")
+    ATAXX = Variant("Z", "ataxx", _("Ataxx"), "☣")
 
     @property
     def server_name(self):
         return self.value.uci_variant + ("960" if self.value.chess960 else "")
 
 
+del _
+
+
 def get_server_variant(uci_variant, chess960):
-    return VARIANTS[uci_variant + ("960" if chess960 else "")]
+    return ALL_VARIANTS[uci_variant + ("960" if chess960 else "")]
 
 
 OLD_VARIANTS = (
@@ -127,14 +136,13 @@ BUG_VARIANTS = (
     ServerVariants.BUGHOUSE960,
 )
 
+ALL_VARIANTS = {variant.server_name: variant for variant in ServerVariants}
+
 VARIANTS = {
     variant.server_name: variant for variant in ServerVariants if variant not in OLD_VARIANTS
 }
-VARIANT_ICONS = {
-    variant.server_name: variant.value.icon
-    for variant in ServerVariants
-    if variant not in OLD_VARIANTS
-}
+
+VARIANT_ICONS = {variant.server_name: variant.value.icon for variant in ServerVariants}
 
 # Remove new variants on prod site until they stabilize
 if PROD:
@@ -146,8 +154,7 @@ C2V = {variant.code: variant.uci_variant for variant in ServerVariants}
 
 if __name__ == "__main__":
 
-    from const import VARIANT_ICONS_ORIG
-    from compress import V2C_ORIG
+    from deprecated import VARIANT_ICONS_ORIG, V2C_ORIG
 
     for sn, variant in VARIANTS.items():
         print(variant.code, variant.icon, sn)
