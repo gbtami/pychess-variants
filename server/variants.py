@@ -52,7 +52,7 @@ class ServerVariants(Enum):
     HORDE960 = Variant("š", "horde", "HORDE960", "🐷", chess960=True)
     PLACEMENT = Variant("p", "placement", "PLACEMENT", "S")
     DUCK = Variant("U", "duck", "DUCK CHESS", "🦆", move_encoding=encode_move_duck, move_decoding=decode_move_duck)  # fmt: skip
-    ALICE = Variant("Y", "alice", "ALICE", "👧")
+    ALICE = Variant("Y", "alice", "ALICE CHESS", "👧")
     FOGOFWAR = Variant("Q", "fogofwar", "FOG OF WAR", "🌫")
 
     MAKRUK = Variant("m", "makruk", "MAKRUK", "Q")
