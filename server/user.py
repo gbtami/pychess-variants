@@ -183,7 +183,7 @@ class User:
             await asyncio.sleep(SILENCE)
             self.silence -= SILENCE
 
-        asyncio.create_task(silencio(), "silence-%s" % self.username)
+        asyncio.create_task(silencio(), name="silence-%s" % self.username)
 
     async def set_rating(self, variant, chess960, rating):
         if self.anon:
