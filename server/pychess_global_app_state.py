@@ -22,7 +22,6 @@ from mongomock_motor import AsyncMongoMockClient
 from ai import BOT_task
 from const import (
     NONE_USER,
-    VARIANTS,
     LANGUAGES,
     MAX_CHAT_LINES,
     MONTHLY,
@@ -64,6 +63,7 @@ from blogs import BLOGS
 from videos import VIDEOS
 from youtube import Youtube
 from logger import log
+from variants import VARIANTS
 
 
 GAME_KEEP_TIME = 1800  # keep game in app[games_key] for GAME_KEEP_TIME secs
@@ -378,7 +378,7 @@ class PychessGlobalAppState:
 
             translation.install()
 
-            for variant in VARIANTS + PAUSED_MONTHLY_VARIANTS:
+            for variant in tuple(VARIANTS.keys()) + PAUSED_MONTHLY_VARIANTS:
                 if (
                     variant in MONTHLY_VARIANTS
                     or variant in NEW_MONTHLY_VARIANTS

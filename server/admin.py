@@ -2,11 +2,12 @@ from __future__ import annotations
 import collections
 
 from broadcast import broadcast_streams
-from const import NONE_USER, TYPE_CHECKING, VARIANTS
+from const import NONE_USER, TYPE_CHECKING
 from generate_crosstable import generate_crosstable
 from generate_highscore import generate_highscore
 from login import logout
 from settings import ADMINS, FISHNET_KEYS
+from variants import VARIANTS
 
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState

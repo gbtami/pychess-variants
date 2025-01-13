@@ -1,7 +1,7 @@
 from itertools import product
 from random import random
 
-from const import BYOS
+from variants import BYOS
 from misc import time_control_str
 from newid import new_id
 from seek import Seek
@@ -40,7 +40,7 @@ def add_to_auto_pairings(app_state, user, data):
         if (
             (byoyomi_period > 0 and variant not in BYOS)
             or (byoyomi_period == 0 and variant in BYOS)
-            or variant.startswith("bughouse")
+            or variant.startswith("bug")
         ):
             continue
 

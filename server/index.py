@@ -16,13 +16,10 @@ from const import (
     LANGUAGES,
     NONE_USER,
     TROPHIES,
-    VARIANTS,
-    VARIANT_ICONS,
     VARIANT_GROUPS,
     RATED,
     IMPORTED,
     T_CREATED,
-    TRANSLATED_VARIANT_NAMES,
     TRANSLATED_PAIRING_SYSTEM_NAMES,
 )
 from fairy import FairyBoard, BLACK, WHITE
@@ -59,6 +56,7 @@ from puzzle import (
 )
 from custom_trophy_owners import CUSTOM_TROPHY_OWNERS
 from logger import log
+from variants import VARIANTS, VARIANT_ICONS
 
 
 async def index(request):
@@ -123,7 +121,7 @@ async def index(request):
     lang_translation.install()
 
     def variant_display_name(variant):
-        return lang_translation.gettext(TRANSLATED_VARIANT_NAMES[variant])
+        return lang_translation.gettext(VARIANTS[variant].translated_name)
 
     def pairing_system_name(system):
         return lang_translation.gettext(TRANSLATED_PAIRING_SYSTEM_NAMES[system])
@@ -604,7 +602,7 @@ async def index(request):
                 render["tournamentname"] = tournament_name
                 render["wberserk"] = game.wberserk
                 render["bberserk"] = game.bberserk
-            if game.variant == "bughouse":
+            if game.server_variant.bug:
                 render["wplayerB"] = game.wplayerB.username
                 render["wtitleB"] = game.wplayerB.title
                 render["wratingB"] = game.wrating_b

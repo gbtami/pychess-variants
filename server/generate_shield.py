@@ -1,6 +1,6 @@
 from __future__ import annotations
-from compress import V2C
-from const import SHIELD, VARIANTS, T_STARTED, TYPE_CHECKING
+from const import SHIELD, T_STARTED, TYPE_CHECKING
+from variants import get_server_variant, VARIANTS
 
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
@@ -9,15 +9,15 @@ if TYPE_CHECKING:
 async def generate_shield(app_state: PychessGlobalAppState):
     for variant in VARIANTS:
         variant960 = variant.endswith("960")
-        variant_name = variant[:-3] if variant960 else variant
+        uci_variant = variant[:-3] if variant960 else variant
 
-        v = V2C[variant_name]
+        v = get_server_variant(uci_variant, variant960)
         z = 1 if variant960 else 0
 
         app_state.shield[variant] = []
 
         cursor = app_state.db.tournament.find(
-            {"v": v, "z": z, "fr": SHIELD}, sort=[("startsAt", -1)], limit=5
+            {"v": v.code, "z": z, "fr": SHIELD}, sort=[("startsAt", -1)], limit=5
         )
         async for doc in cursor:
             if doc["status"] > T_STARTED:

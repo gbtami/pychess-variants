@@ -7,7 +7,7 @@ from typing import Set, List
 
 from broadcast import round_broadcast
 from clock import Clock, CorrClock
-from compress import get_encode_method, R2C
+from compress import R2C
 from const import (
     CREATED,
     DARK_FEN,
@@ -22,13 +22,11 @@ from const import (
     VARIANT_960_TO_PGN,
     LOSERS,
     VARIANTEND,
-    GRANDS,
     CASUAL,
     RATED,
     IMPORTED,
     HIGHSCORE_MIN_GAMES,
     MAX_HIGHSCORE_ITEM_LIMIT,
-    variant_display_name,
     MAX_CHAT_LINES,
     TYPE_CHECKING,
 )
@@ -39,6 +37,7 @@ from draw import reject_draw
 from settings import URI
 from spectators import spectators
 from logger import log
+from variants import get_server_variant, GRANDS
 
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
@@ -99,10 +98,13 @@ class Game:
         self.create = create
         self.imported_by = ""
 
+        self.server_variant = get_server_variant(variant, chess960)
+        self.encode_method = self.server_variant.move_encoding
+
         self.berserk_time = self.base * 1000 * 30
 
         self.browser_title = "%s • %s vs %s" % (
-            variant_display_name(self.variant + ("960" if self.chess960 else "")).title(),
+            self.server_variant.display_name.title(),
             self.wplayer.username,
             self.bplayer.username,
         )
@@ -151,8 +153,6 @@ class Game:
         self.last_server_clock = monotonic()
 
         self.id = gameId
-
-        self.encode_method = get_encode_method(variant)
 
         self.fow = variant == "fogofwar"
 

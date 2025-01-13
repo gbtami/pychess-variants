@@ -10,14 +10,15 @@ from aiohttp import web
 from aiohttp_sse import sse_response
 import pymongo
 
-from compress import get_decode_method, C2V, V2C, C2R, decode_move_standard
-from const import DARK_FEN, GRANDS, STARTED, MATE, VARIANTS, INVALIDMOVE, VARIANTEND, CLAIM
+from compress import C2R, decode_move_standard
+from const import DARK_FEN, STARTED, MATE, INVALIDMOVE, VARIANTEND, CLAIM
 from convert import zero2grand
 from settings import ADMINS
 from tournaments import get_tournament_name
 from utils import pgn
 from pychess_global_app_state_utils import get_app_state
 from logger import log
+from variants import C2V, GRANDS, get_server_variant, VARIANTS
 
 GAME_PAGE_SIZE = 12
 
@@ -156,8 +157,9 @@ async def get_tournament_games(request):
     cursor = app_state.db.game.find({"tid": tournamentId})
     game_doc_list = []
 
-    variant = app_state.tournaments[tournamentId].variant
-    decode_method = get_decode_method(variant)
+    tournament = app_state.tournaments[tournamentId]
+    variant = tournament.variant
+    decode_method = tournament.server_variant.move_decoding
 
     async for doc in cursor:
         doc["v"] = C2V[doc["v"]]
@@ -238,15 +240,15 @@ async def get_user_games(request):
         filter_cond["by"] = profileId
         filter_cond["y"] = 2
     elif ("/perf" in request.path or uci_moves) and variant in VARIANTS:
-        if variant.endswith("960"):
-            v = V2C[variant[:-3]]
-            z = 1
-        else:
-            v = V2C[variant]
-            z = 0
+        variant960 = variant.endswith("960")
+        uci_variant = variant[:-3] if variant960 else variant
+
+        v = get_server_variant(uci_variant, variant960)
+        z = 1 if variant960 else 0
+
         filter_cond["$or"] = [
-            {"v": v, "z": z, "us.1": profileId},
-            {"v": v, "z": z, "us.0": profileId},
+            {"v": v.code, "z": z, "us.1": profileId},
+            {"v": v.code, "z": z, "us.0": profileId},
         ]
     elif "/me" in request.path:
         session = await aiohttp_session.get_session(request)
@@ -310,15 +312,16 @@ async def get_user_games(request):
                     app_state.users[doc["us"][3]].title if doc["us"][3] in app_state.users else ""
                 )
 
-            if variant.startswith("bughouse"):
+            server_variant = get_server_variant(variant, bool(doc.get("z", 0)))
+            if server_variant.bug:
                 mA = [m for idx, m in enumerate(doc["m"]) if "o" in doc and doc["o"][idx] == 0]
                 mB = [m for idx, m in enumerate(doc["m"]) if "o" in doc and doc["o"][idx] == 1]
                 doc["lm"] = decode_move_standard(mA[-1]) if len(mA) > 0 else ""
                 doc["lmB"] = decode_move_standard(mB[-1]) if len(mB) > 0 else ""
             else:
-                decode_method = get_decode_method(variant)
-
+                decode_method = server_variant.move_decoding
                 doc["lm"] = decode_method(doc["m"][-1]) if len(doc["m"]) > 0 else ""
+
             if variant in GRANDS and doc["lm"] != "":
                 doc["lm"] = zero2grand(doc["lm"])
 

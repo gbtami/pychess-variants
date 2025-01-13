@@ -7,8 +7,6 @@ import zoneinfo
 from const import (
     ARENA,
     CATEGORIES,
-    GRANDS,
-    variant_display_name,
     SCHEDULE_MAX_DAYS,
     TYPE_CHECKING,
     DAILY,
@@ -23,6 +21,7 @@ if TYPE_CHECKING:
 
 from tournaments import new_tournament
 from logger import log
+from variants import get_server_variant, GRANDS
 
 from calendar import MONDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY
 
@@ -264,9 +263,8 @@ def new_scheduled_tournaments(already_scheduled, now=None):
             and (plan.freq, plan.variant, plan.is960, starts_at, plan.duration)
             not in already_scheduled
         ):
-            variant_name = variant_display_name(
-                plan.variant + ("960" if plan.is960 else "")
-            ).title()
+            server_variant = get_server_variant(plan.variant, plan.is960)
+            variant_name = server_variant.display_name.title()
 
             if plan.freq == SHIELD:
                 name = "%s Shield Arena" % variant_name

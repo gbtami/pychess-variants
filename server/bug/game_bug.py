@@ -26,12 +26,12 @@ from const import (
     CASUAL,
     RATED,
     IMPORTED,
-    variant_display_name,
     MAX_CHAT_LINES,
     POCKET_PATTERN,
 )
 from fairy import FairyBoard, BLACK, WHITE
 from spectators import spectators
+from variants import get_server_variant
 
 MAX_HIGH_SCORE = 10
 MAX_PLY = 2 * 600
@@ -79,10 +79,12 @@ class GameBug:
         self.create = create
         self.imported_by = ""
 
+        self.server_variant = get_server_variant(variant, chess960)
+
         self.berserk_time = self.base * 1000 * 30
 
         self.browser_title = "%s • %s+%s vs %s+%s" % (
-            variant_display_name(self.variant + ("960" if self.chess960 else "")).title(),
+            self.server_variant.display_name.title(),
             self.wplayerA.username,
             self.bplayerB.username,
             self.wplayerB.username,

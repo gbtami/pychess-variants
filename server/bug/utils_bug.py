@@ -4,7 +4,7 @@ from datetime import timezone
 
 from pychess_global_app_state import PychessGlobalAppState
 from user import User
-from compress import R2C, C2R, V2C, C2V, decode_move_standard
+from compress import R2C, C2R, decode_move_standard
 from bug.game_bug import GameBug
 from const import (
     STARTED,
@@ -18,6 +18,7 @@ from newid import new_id
 from utils import remove_seek, round_broadcast, sanitize_fen
 from websocket_utils import ws_send_json
 from logger import log
+from variants import C2V
 
 
 def init_players(app_state: PychessGlobalAppState, wp_a, bp_a, wp_b, bp_b):
@@ -347,7 +348,7 @@ async def insert_game_to_db_bughouse(game: GameBug, app_state: PychessGlobalAppS
         "p1": {"e": game.brating_a},
         "p2": {"e": game.wrating_b},
         "p3": {"e": game.brating_b},
-        "v": V2C[game.variant],
+        "v": game.server_variant.code,
         "b": game.base,
         "i": game.inc,
         # "bp": game.byoyomi_period,

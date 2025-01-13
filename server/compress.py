@@ -8,66 +8,6 @@ For more sophisticated encoding consider using lichess method described at:
 https://lichess.org/blog/Wqa7GiAAAOIpBLoY/developer-update-275-improved-game-compression
 """
 
-# Create mappings to compress variant, result and uci/usi move lists a little
-V2C = {
-    "ataxx": "Z",
-    "chess": "n",
-    "capablanca": "c",
-    "capahouse": "i",
-    "crazyhouse": "h",
-    "bughouse": "F",
-    "atomic": "A",
-    "makruk": "m",
-    "placement": "p",
-    "dragon": "R",
-    "seirawan": "s",
-    "shogi": "g",
-    "minishogi": "a",
-    "shouse": "z",
-    "sittuyin": "y",
-    "xiangqi": "x",
-    "grand": "q",
-    "grandhouse": "r",
-    "gothic": "o",
-    "gothhouse": "t",
-    "embassy": "E",
-    "cambodian": "b",
-    "shako": "d",
-    "minixiangqi": "e",
-    "kyotoshogi": "k",
-    "shogun": "u",
-    "janggi": "j",
-    "makpong": "l",
-    "orda": "f",
-    "khans": "L",
-    "synochess": "v",
-    "hoppelpoppel": "w",
-    "manchu": "M",
-    "dobutsu": "D",
-    "gorogoroplus": "G",
-    "cannonshogi": "W",
-    "shinobi": "J",
-    "shinobiplus": "K",
-    "empire": "P",
-    "ordamirror": "O",
-    "torishogi": "T",
-    "asean": "S",
-    "chak": "C",
-    "chennis": "H",
-    "mansindam": "I",
-    "duck": "U",
-    "spartan": "N",
-    "kingofthehill": "B",
-    "3check": "X",
-    "alice": "Y",
-    "fogofwar": "Q",
-    "antichess": "’",
-    "racingkings": "°",
-    "horde": "š",
-    "shatranj": "†",
-}
-C2V = {v: k for k, v in V2C.items()}
-
 R2C = {"1-0": "a", "0-1": "b", "1/2-1/2": "c", "*": "d"}
 C2R = {v: k for k, v in R2C.items()}
 
@@ -132,15 +72,6 @@ def encode_move_standard(move):
     return chr(M2C[move[0:2]]) + chr(M2C[move[2:4]]) + (move[4] if len(move) == 5 else "")
 
 
-def get_encode_method(variant):
-    if variant in ("kyotoshogi", "chennis"):
-        return encode_move_flipping
-    elif variant == "duck":
-        return encode_move_duck
-    else:
-        return encode_move_standard
-
-
 def decode_move_flipping(move):
     return (
         C2M[ord(move[0])] + "@" + C2M[ord(move[1])]
@@ -162,12 +93,3 @@ def decode_move_duck(move):
 
 def decode_move_standard(move):
     return C2M[ord(move[0])] + C2M[ord(move[1])] + (move[2] if len(move) == 3 else "")
-
-
-def get_decode_method(variant):
-    if variant in ("kyotoshogi", "chennis"):
-        return decode_move_flipping
-    elif variant == "duck":
-        return decode_move_duck
-    else:
-        return decode_move_standard

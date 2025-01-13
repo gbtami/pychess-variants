@@ -10,7 +10,6 @@ from server import make_app
 from seek import Seek
 from user import User
 from pychess_global_app_state_utils import get_app_state
-from const import VARIANTS
 from glicko2.glicko2 import DEFAULT_PERF
 from auto_pair import (
     add_to_auto_pairings,
@@ -19,6 +18,7 @@ from auto_pair import (
     find_matching_user_for_seek,
 )
 from logger import handler
+from variants import VARIANTS
 
 logging.getLogger().removeHandler(handler)
 

@@ -35,7 +35,7 @@ class Clock:
             self.secs = secs
         else:
             # give some time to make first move
-            if self.ply < 2 and self.game.variant != "bughouse":
+            if self.ply < 2 and not self.game.server_variant.bug:
                 if self.game.tournamentId is None:
                     # Non tournament games are not timed for the first moves of either
                     # player. We stop the clock to prevent unnecessary clock

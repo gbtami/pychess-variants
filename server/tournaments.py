@@ -4,26 +4,23 @@ from datetime import datetime, timezone
 import aiohttp_session
 
 from arena_new import ArenaTournament
-from compress import C2V, V2C, C2R
+from compress import C2R
 from const import (
     CASUAL,
     RATED,
     ARENA,
     RR,
     SWISS,
-    variant_display_name,
     T_STARTED,
     T_CREATED,
     T_ABORTED,
     T_FINISHED,
     T_ARCHIVED,
     SHIELD,
-    VARIANTS,
     MAX_CHAT_LINES,
     CATEGORIES,
     TRANSLATED_FREQUENCY_NAMES,
     TRANSLATED_PAIRING_SYSTEM_NAMES,
-    TRANSLATED_VARIANT_NAMES,
 )
 from newid import new_id
 from const import TYPE_CHECKING
@@ -35,6 +32,7 @@ from rr import RRTournament
 from swiss import SwissTournament
 from tournament import GameData, PlayerData, SCORE_SHIFT, Tournament
 from logger import log
+from variants import C2V, get_server_variant, ALL_VARIANTS, VARIANTS
 
 
 async def create_or_update_tournament(
@@ -45,6 +43,8 @@ async def create_or_update_tournament(
     variant = form["variant"]
     variant960 = variant.endswith("960")
     variant_name = variant[:-3] if variant960 else variant
+    server_variant = get_server_variant(variant_name, variant960)
+
     rated = form.get("rated", "") == "1" and form["position"] == ""
     base = float(form["clockTime"])
     inc = int(form["clockIncrement"])
@@ -61,10 +61,10 @@ async def create_or_update_tournament(
     name = form["name"]
     # Create meaningful tournament name in case we forget to change it :)
     if name == "":
-        name = "%s Arena" % variant_display_name(variant).title()
+        name = "%s Arena" % server_variant.display_name.title()
 
     if frequency == SHIELD:
-        name = "%s Shield Arena" % variant_display_name(variant).title()
+        name = "%s Shield Arena" % server_variant.display_name.title()
     else:
         description = form["description"]
         name = name if name.lower().endswith("arena") else name + " Arena"
@@ -155,7 +155,7 @@ async def upsert_tournament_to_db(tournament, app_state: PychessGlobalAppState):
         "d": tournament.description,
         "fr": tournament.frequency,
         "minutes": tournament.minutes,
-        "v": V2C[tournament.variant],
+        "v": tournament.server_variant.code,
         "b": tournament.base,
         "i": tournament.inc,
         "bp": tournament.byoyomi_period,
@@ -192,14 +192,13 @@ async def get_winners(app_state: PychessGlobalAppState, shield, variant: str = N
         limit = 50
 
     for variant in variants:
-        if variant.endswith("960"):
-            v = variant[:-3]
-            z = 1
-        else:
-            v = variant
-            z = 0
+        variant960 = variant.endswith("960")
+        uci_variant = variant[:-3] if variant960 else variant
 
-        filter_cond = {"v": V2C[v], "z": z, "status": {"$in": [T_FINISHED, T_ARCHIVED]}}
+        v = get_server_variant(uci_variant, variant960)
+        z = 1 if variant960 else 0
+
+        filter_cond = {"v": v.code, "z": z, "status": {"$in": [T_FINISHED, T_ARCHIVED]}}
         if shield:
             filter_cond["fr"] = SHIELD
 
@@ -535,13 +534,13 @@ def translated_tournament_name(variant, frequency, system, lang_translation):
     frequency = "S" if variant in CATEGORIES["makruk"] and frequency == "m" else frequency
     if frequency == "s":
         return "%s %s %s" % (
-            lang_translation.gettext(TRANSLATED_VARIANT_NAMES[variant]),
+            lang_translation.gettext(ALL_VARIANTS[variant].translated_name),
             lang_translation.gettext(TRANSLATED_FREQUENCY_NAMES[frequency]),
             lang_translation.gettext(TRANSLATED_PAIRING_SYSTEM_NAMES[system]),
         )
     else:
         return "%s %s %s" % (
             lang_translation.gettext(TRANSLATED_FREQUENCY_NAMES[frequency]),
-            lang_translation.gettext(TRANSLATED_VARIANT_NAMES[variant]),
+            lang_translation.gettext(ALL_VARIANTS[variant].translated_name),
             lang_translation.gettext(TRANSLATED_PAIRING_SYSTEM_NAMES[system]),
         )

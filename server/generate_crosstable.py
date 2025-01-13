@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from compress import V2C
+from variants import BUG_VARIANT_CODES
 
 
 async def generate_crosstable(app_state, username=None):
@@ -14,7 +14,7 @@ async def generate_crosstable(app_state, username=None):
         print("START generate_crosstable", username)
 
     async for doc in cursor:
-        if doc["v"] == V2C["bughouse"]:
+        if doc["v"] in BUG_VARIANT_CODES:
             continue  # todo:bughouse has no crosstable implemented at the moment
 
         game_id = doc["_id"]

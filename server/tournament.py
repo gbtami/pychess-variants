@@ -32,7 +32,6 @@ from const import (
     T_FINISHED,
     T_ARCHIVED,
     SHIELD,
-    variant_display_name,
     MAX_CHAT_LINES,
 )
 from game import Game
@@ -50,6 +49,7 @@ from tournament_spotlights import tournament_spotlights
 from user import User
 from utils import insert_game_to_db
 from logger import log
+from variants import get_server_variant
 
 
 SCORE, STREAK, DOUBLE = range(1, 4)
@@ -233,6 +233,8 @@ class Tournament(ABC):
         self.rounds = rounds
         self.frequency = frequency
 
+        self.server_variant = get_server_variant(variant, chess960)
+
         self.created_by = created_by
         self.created_at = datetime.now(timezone.utc) if created_at is None else created_at
         if starts_at == "" or starts_at is None:
@@ -281,7 +283,7 @@ class Tournament(ABC):
             self.clock_task = asyncio.create_task(self.clock(), name="tournament-clock")
 
         self.browser_title = "%s Tournament • %s" % (
-            variant_display_name(self.variant),
+            self.server_variant.display_name,
             self.name,
         )
 

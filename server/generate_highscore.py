@@ -4,7 +4,8 @@ from operator import neg
 
 from sortedcollections import ValueSortedDict
 
-from const import VARIANTS, HIGHSCORE_MIN_GAMES, MAX_HIGHSCORE_ITEM_LIMIT
+from const import HIGHSCORE_MIN_GAMES, MAX_HIGHSCORE_ITEM_LIMIT
+from variants import VARIANTS
 
 
 async def generate_highscore(app_state, one_variant=None):
