@@ -35,6 +35,7 @@ from bug.utils_bug import handle_accept_seek_bughouse
 from utils import join_seek, load_game, remove_seek
 from websocket_utils import get_user, process_ws, ws_send_json
 from logger import log
+from variants import get_server_variant
 
 
 async def lobby_socket_handler(request):
@@ -221,7 +222,8 @@ async def handle_accept_seek(app_state: PychessGlobalAppState, ws, user, data):
         return
 
     # print("accept_seek", seek.seek_json)
-    if seek.variant == "bughouse":
+    server_variant = get_server_variant(seek.variant, seek.chess960)
+    if server_variant.bug:
         await handle_accept_seek_bughouse(app_state, user, data, seek)
     else:
         response = await join_seek(app_state, user, seek)

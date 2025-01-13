@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from variants import BUG_VARIANTS
+from variants import BUG_VARIANT_CODES
 
 
 async def generate_crosstable(app_state, username=None):
@@ -13,9 +13,8 @@ async def generate_crosstable(app_state, username=None):
         cursor = db.game.find({"us": username}).sort("d")
         print("START generate_crosstable", username)
 
-    bug_variant_codes = [variant.code for variant in BUG_VARIANTS]
     async for doc in cursor:
-        if doc["v"] in bug_variant_codes:
+        if doc["v"] in BUG_VARIANT_CODES:
             continue  # todo:bughouse has no crosstable implemented at the moment
 
         game_id = doc["_id"]

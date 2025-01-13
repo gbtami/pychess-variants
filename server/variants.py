@@ -42,6 +42,7 @@ class ServerVariants(Enum):
         self.chess960 = variant.chess960
         self.grand = variant.grand
         self.byo = variant.byo
+        self.bug = variant.bug
         self.move_encoding = variant.move_encoding
         self.move_decoding = variant.move_decoding
 
@@ -138,10 +139,8 @@ OLD_VARIANTS = (
     ServerVariants.SHINOBI,
 )
 
-BUG_VARIANTS = (
-    ServerVariants.BUGHOUSE,
-    ServerVariants.BUGHOUSE960,
-)
+BUG_VARIANTS = tuple(variant for variant in ServerVariants if variant.bug)
+BUG_VARIANT_CODES = [variant.code for variant in BUG_VARIANTS]
 
 ALL_VARIANTS = {variant.server_name: variant for variant in ServerVariants}
 

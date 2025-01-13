@@ -49,7 +49,7 @@ if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
 from pychess_global_app_state_utils import get_app_state
 from logger import log
-from variants import C2V, GRANDS, get_server_variant
+from variants import BUG_VARIANT_CODES, C2V, GRANDS, get_server_variant
 
 
 async def tv_game(app_state: PychessGlobalAppState):
@@ -90,7 +90,7 @@ async def load_game(app_state: PychessGlobalAppState, game_id):
 
     variant = C2V[doc["v"]]
 
-    if variant == "bughouse":
+    if doc["v"] in BUG_VARIANT_CODES:
         from bug.utils_bug import load_game_bug
 
         return await load_game_bug(app_state, game_id)
@@ -740,8 +740,8 @@ def pgn(doc):
 
 
 def sanitize_fen(variant, initial_fen, chess960):
-
-    if variant == "bughouse":
+    server_variant = get_server_variant(variant, chess960)
+    if server_variant.bug:
         fens = initial_fen.split(" | ")
         fen_a = fens[0]
         fen_b = fens[1]

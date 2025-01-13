@@ -312,15 +312,16 @@ async def get_user_games(request):
                     app_state.users[doc["us"][3]].title if doc["us"][3] in app_state.users else ""
                 )
 
-            if variant.startswith("bughouse"):
+            server_variant = get_server_variant(variant, bool(doc.get("z", 0)))
+            if server_variant.bug:
                 mA = [m for idx, m in enumerate(doc["m"]) if "o" in doc and doc["o"][idx] == 0]
                 mB = [m for idx, m in enumerate(doc["m"]) if "o" in doc and doc["o"][idx] == 1]
                 doc["lm"] = decode_move_standard(mA[-1]) if len(mA) > 0 else ""
                 doc["lmB"] = decode_move_standard(mB[-1]) if len(mB) > 0 else ""
             else:
-                server_variant = get_server_variant(variant, bool(doc.get("z", 0)))
                 decode_method = server_variant.move_decoding
                 doc["lm"] = decode_method(doc["m"][-1]) if len(doc["m"]) > 0 else ""
+
             if variant in GRANDS and doc["lm"] != "":
                 doc["lm"] = zero2grand(doc["lm"])
 
