@@ -42,6 +42,8 @@ class ServerVariants(Enum):
         self.chess960 = variant.chess960
         self.grand = variant.grand
         self.byo = variant.byo
+        self.move_encoding = variant.move_encoding
+        self.move_decoding = variant.move_decoding
 
     CHESS = Variant("n", "chess", _("Chess"), "M")
     CHESS960 = Variant("n", "chess", _("Chess960"), "V", chess960=True)

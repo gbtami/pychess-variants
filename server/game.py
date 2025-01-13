@@ -7,7 +7,7 @@ from typing import Set, List
 
 from broadcast import round_broadcast
 from clock import Clock, CorrClock
-from compress import get_encode_method, R2C
+from compress import R2C
 from const import (
     CREATED,
     DARK_FEN,
@@ -99,6 +99,7 @@ class Game:
         self.imported_by = ""
 
         self.server_variant = get_server_variant(variant, chess960)
+        self.encode_method = self.server_variant.move_encoding
 
         self.berserk_time = self.base * 1000 * 30
 
@@ -152,8 +153,6 @@ class Game:
         self.last_server_clock = monotonic()
 
         self.id = gameId
-
-        self.encode_method = get_encode_method(variant)
 
         self.fow = variant == "fogofwar"
 

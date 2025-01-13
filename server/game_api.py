@@ -10,7 +10,7 @@ from aiohttp import web
 from aiohttp_sse import sse_response
 import pymongo
 
-from compress import get_decode_method, C2R, decode_move_standard
+from compress import C2R, decode_move_standard
 from const import DARK_FEN, STARTED, MATE, INVALIDMOVE, VARIANTEND, CLAIM
 from convert import zero2grand
 from settings import ADMINS
@@ -157,8 +157,9 @@ async def get_tournament_games(request):
     cursor = app_state.db.game.find({"tid": tournamentId})
     game_doc_list = []
 
-    variant = app_state.tournaments[tournamentId].variant
-    decode_method = get_decode_method(variant)
+    tournament = app_state.tournaments[tournamentId]
+    variant = tournament.variant
+    decode_method = tournament.server_variant.move_decoding
 
     async for doc in cursor:
         doc["v"] = C2V[doc["v"]]
@@ -317,8 +318,8 @@ async def get_user_games(request):
                 doc["lm"] = decode_move_standard(mA[-1]) if len(mA) > 0 else ""
                 doc["lmB"] = decode_move_standard(mB[-1]) if len(mB) > 0 else ""
             else:
-                decode_method = get_decode_method(variant)
-
+                server_variant = get_server_variant(variant, bool(doc.get("z", 0)))
+                decode_method = server_variant.move_decoding
                 doc["lm"] = decode_method(doc["m"][-1]) if len(doc["m"]) > 0 else ""
             if variant in GRANDS and doc["lm"] != "":
                 doc["lm"] = zero2grand(doc["lm"])

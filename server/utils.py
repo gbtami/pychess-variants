@@ -27,7 +27,7 @@ from const import (
     MANCHU_FEN,
     T_STARTED,
 )
-from compress import get_decode_method, get_encode_method, R2C, C2R
+from compress import R2C, C2R
 from convert import mirror5, mirror9, grand2zero, zero2grand
 from fairy import (
     BLACK,
@@ -49,7 +49,7 @@ if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
 from pychess_global_app_state_utils import get_app_state
 from logger import log
-from variants import C2V, GRANDS
+from variants import C2V, GRANDS, get_server_variant
 
 
 async def tv_game(app_state: PychessGlobalAppState):
@@ -144,7 +144,7 @@ async def load_game(app_state: PychessGlobalAppState, game_id):
 
     game.usi_format = usi_format
 
-    decode_method = get_decode_method(variant)
+    decode_method = game.server_variant.move_decoding
     mlist = [*map(decode_method, doc["m"])]
 
     if (mlist or game.tournamentId is not None) and doc["s"] > STARTED:
@@ -294,7 +294,7 @@ async def import_game(request):
         base, inc = 0, 0
 
     move_stack = data.get("moves", "").split(" ")
-    encode_method = get_encode_method(variant)
+    encode_method = get_server_variant(variant, chess960).move_encoding
     moves = [*map(encode_method, map(grand2zero, move_stack) if variant in GRANDS else move_stack)]
 
     game_id = await new_id(None if app_state.db is None else app_state.db.game)
@@ -663,12 +663,12 @@ async def play_move(app_state: PychessGlobalAppState, user, game, move, clocks=N
 
 def pgn(doc):
     variant = C2V[doc["v"]]
-    decode_method = get_decode_method(variant)
+    chess960 = bool(int(doc.get("z"))) if "z" in doc else False
+
+    decode_method = get_server_variant(variant, chess960).move_decoding
     mlist = [*map(decode_method, doc["m"])]
     if len(mlist) == 0:
         return None
-
-    chess960 = bool(int(doc.get("z"))) if "z" in doc else False
 
     initial_fen = doc.get("if")
     usi_format = variant.endswith("shogi") and doc.get("uci") is None

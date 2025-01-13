@@ -72,15 +72,6 @@ def encode_move_standard(move):
     return chr(M2C[move[0:2]]) + chr(M2C[move[2:4]]) + (move[4] if len(move) == 5 else "")
 
 
-def get_encode_method(variant):
-    if variant in ("kyotoshogi", "chennis"):
-        return encode_move_flipping
-    elif variant == "duck":
-        return encode_move_duck
-    else:
-        return encode_move_standard
-
-
 def decode_move_flipping(move):
     return (
         C2M[ord(move[0])] + "@" + C2M[ord(move[1])]
@@ -102,12 +93,3 @@ def decode_move_duck(move):
 
 def decode_move_standard(move):
     return C2M[ord(move[0])] + C2M[ord(move[1])] + (move[2] if len(move) == 3 else "")
-
-
-def get_decode_method(variant):
-    if variant in ("kyotoshogi", "chennis"):
-        return decode_move_flipping
-    elif variant == "duck":
-        return decode_move_duck
-    else:
-        return decode_move_standard
