@@ -305,7 +305,12 @@ class GameBug:
                 "f": self.boards["a"].fen + " | " + self.boards["b"].fen,
                 "s": self.status,
                 "r": R2C[self.result],
-                "m": [*map(self.encode_method, (map(grand2zero, moves) if self.variant in GRANDS else moves))],
+                "m": [
+                    *map(
+                        self.encode_method,
+                        (map(grand2zero, moves) if self.variant in GRANDS else moves),
+                    )
+                ],
                 "o": [0 if x["boardName"] == "a" else 1 for x in self.steps[1:]],
                 "c": self.construct_chat_list(),
                 "ts": [x["ts"] for x in self.steps],
