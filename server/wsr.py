@@ -97,7 +97,7 @@ async def process_message(app_state, user, ws, data, game):
     elif data["type"] == "takeback":
         await handle_takeback(ws, game)
     elif data["type"] in ("abort", "resign", "abandon", "flag"):
-        if game.server_variant.bug:
+        if game.server_variant.two_boards:
             await handle_resign_bughouse(data, game, user)
         else:
             await handle_abort_resign_abandon_flag(ws, app_state.users, user, data, game)
@@ -146,7 +146,7 @@ async def finally_logic(app_state: PychessGlobalAppState, ws, user, game):
 async def handle_move(app_state: PychessGlobalAppState, user, data, game):
     log.debug("Got USER move %s %s %s" % (user.username, data["gameId"], data["move"]))
     async with game.move_lock:
-        if game.server_variant.bug:
+        if game.server_variant.two_boards:
             try:
                 await play_move_bug(
                     app_state,
@@ -352,7 +352,7 @@ async def handle_analysis(app_state: PychessGlobalAppState, ws, data, game):
 
 
 async def handle_rematch(app_state: PychessGlobalAppState, ws, user, data, game):
-    if game.server_variant.bug:
+    if game.server_variant.two_boards:
         await handle_rematch_bughouse(app_state, game, user, app_state.users)
         return
 
@@ -558,7 +558,7 @@ async def handle_game_user_connected(app_state: PychessGlobalAppState, ws, user,
         game.spectators.add(user)
         await round_broadcast(game, game.spectator_list, full=True)
 
-    stopwatch_secs = game.stopwatch.secs if (not game.corr and not game.server_variant.bug) else 0
+    stopwatch_secs = game.stopwatch.secs if (not game.corr and not game.server_variant.two_boards) else 0
     response = {
         "type": "game_user_connected",
         "username": user.username,

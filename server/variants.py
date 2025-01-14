@@ -22,7 +22,7 @@ class Variant:
     chess960: bool = False
     grand: bool = False
     byo: bool = False
-    bug: bool = False
+    two_boards: bool = False
     base_variant: str = ""
     move_encoding: Callable = encode_move_standard
     move_decoding: Callable = decode_move_standard
@@ -43,15 +43,15 @@ class ServerVariants(Enum):
         self.chess960 = variant.chess960
         self.grand = variant.grand
         self.byo = variant.byo
-        self.bug = variant.bug
+        self.two_boards = variant.two_boards
         self.base_variant = variant.base_variant
         self.move_encoding = variant.move_encoding
         self.move_decoding = variant.move_decoding
 
     CHESS = Variant("n", "chess", _("Chess"), "M")
     CHESS960 = Variant("n", "chess", _("Chess960"), "V", chess960=True)
-    BUGHOUSE = Variant("F", "bughouse", _("Bughouse"), "¢", bug=True, base_variant="crazyhouse")
-    BUGHOUSE960 = Variant("F", "bughouse", _("Bughouse960"), "⌀", chess960=True, bug=True, base_variant="crazyhouse")  # fmt: skip
+    BUGHOUSE = Variant("F", "bughouse", _("Bughouse"), "¢", two_boards=True, base_variant="crazyhouse")
+    BUGHOUSE960 = Variant("F", "bughouse", _("Bughouse960"), "⌀", chess960=True, two_boards=True, base_variant="crazyhouse")  # fmt: skip
     CRAZYHOUSE = Variant("h", "crazyhouse", _("Crazyhouse"), "+")
     CRAZYHOUSE960 = Variant("h", "crazyhouse", _("Crazyhouse960"), "%", chess960=True)
     ATOMIC = Variant("A", "atomic", _("Atomic"), "~")
@@ -87,7 +87,7 @@ class ServerVariants(Enum):
 
     XIANGQI = Variant("x", "xiangqi", _("Xiangqi"), "|", grand=True)
     XIANGQIHOUSE = Variant("x", "xiangqihouse", _("Xiangqihouse"), "|", grand=True)
-    SUPPLY = Variant("@", "supply", _("Supply Chess"), "¢", grand=True, bug=True, base_variant="xiangqihouse")  # fmt: skip
+    SUPPLY = Variant("@", "supply", _("Supply Chess"), "¢", grand=True, two_boards=True, base_variant="xiangqihouse")  # fmt: skip
     MANCHU = Variant("M", "manchu", _("Manchu+"), "{", grand=True)
     JANGGI = Variant("j", "janggi", _("Janggi"), "=", grand=True, byo=True)
     MINIXIANGQI = Variant("e", "minixiangqi", _("Minixiangqi"), "7")
@@ -144,8 +144,8 @@ NO_VARIANTS = (
     ServerVariants.XIANGQIHOUSE,
 )
 
-BUG_VARIANTS = tuple(variant for variant in ServerVariants if variant.bug)
-BUG_VARIANT_CODES = [variant.code for variant in BUG_VARIANTS]
+TWO_BOARD_VARIANTS = tuple(variant for variant in ServerVariants if variant.two_boards)
+TWO_BOARD_VARIANT_CODES = [variant.code for variant in TWO_BOARD_VARIANTS]
 
 ALL_VARIANTS = {variant.server_name: variant for variant in ServerVariants}
 
@@ -157,7 +157,7 @@ VARIANT_ICONS = {variant.server_name: variant.icon for variant in ServerVariants
 
 # Remove new variants on prod site until they stabilize
 if PROD:
-    for variant in BUG_VARIANTS:
+    for variant in TWO_BOARD_VARIANTS:
         del VARIANTS[variant.server_name]
 
 C2V = {variant.code: variant.uci_variant for variant in ServerVariants}
