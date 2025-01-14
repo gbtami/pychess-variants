@@ -739,14 +739,18 @@ def pgn(doc):
     )
 
 
-def sanitize_fen(variant, initial_fen, chess960):
+def sanitize_fen(variant, initial_fen, chess960, base=False):
     server_variant = get_server_variant(variant, chess960)
-    if server_variant.bug:
+    if server_variant.bug and not base:
         fens = initial_fen.split(" | ")
         fen_a = fens[0]
         fen_b = fens[1]
-        fen_valid_a, sanitized_fen_a = sanitize_fen("crazyhouse", fen_a, chess960)
-        fen_valid_b, sanitized_fen_b = sanitize_fen("crazyhouse", fen_b, chess960)
+        fen_valid_a, sanitized_fen_a = sanitize_fen(
+            server_variant.base_variant, fen_a, chess960, base=True
+        )
+        fen_valid_b, sanitized_fen_b = sanitize_fen(
+            server_variant.base_variant, fen_b, chess960, base=True
+        )
         return fen_valid_a and fen_valid_b, sanitized_fen_a + " | " + sanitized_fen_b
 
     # Prevent alternate FENs to fail on our general castling check

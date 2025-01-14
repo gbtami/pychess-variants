@@ -372,7 +372,7 @@ class FairyBoard:
         else:
             body = "/pppppppp/8/8/8/8/PPPPPPPP/"
 
-        if variant in ("crazyhouse", "capahouse", "bughouse", "supply"):
+        if variant in ("crazyhouse", "capahouse", "bughouse"):
             holdings = "[]"
         elif seirawan:
             holdings = "[HEhe]"
