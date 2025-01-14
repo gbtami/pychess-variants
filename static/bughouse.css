@@ -96,13 +96,13 @@
     under-left {
         display: none;
     }
-    .pocket-top .bughouse .pocket, .pocket-bot .bughouse .pocket {
+    .pocket-top .twoboards .pocket, .pocket-bot .twoboards .pocket {
       width: calc(var(--pocketLength) * (var(--cg-width-a) / var(--files)));
       height: calc(var(--cg-height-a) / var(--ranks));
       --fs: calc(var(--cg-height-a) / var(--ranks));
       font-size: var(--fs);
     }
-    .pocket-top-partner .bughouse .pocket, .pocket-bot-partner .bughouse .pocket {
+    .pocket-top-partner .twoboards .pocket, .pocket-bot-partner .twoboards .pocket {
       /*width: calc((100vw / (var(--files) + var(--pocketLength))) * var(--pocketLength));*/
 /*        width: auto;*/
         width: calc((100vw - ((var(--cg-height-a) / var(--ranks)) * var(--pocketLength))));
@@ -159,13 +159,13 @@
     under-left {
         display: none;
     }
-    .pocket-top .bughouse .pocket, .pocket-bot .bughouse .pocket {
+    .pocket-top .twoboards .pocket, .pocket-bot .twoboards .pocket {
       width: 40vh;
       height: 10vh;
       --fs: calc(var(--cg-height-a) / var(--ranks));
       font-size: var(--fs);
     }
-    .pocket-top-partner .bughouse .pocket, .pocket-bot-partner .bughouse .pocket {
+    .pocket-top-partner .twoboards .pocket, .pocket-bot-partner .twoboards .pocket {
       width: 40vh;
       height: 10vh;
       --fs: calc(20px / var(--ranks));
@@ -201,13 +201,13 @@
                              '. . move-controls move-controls . .'
                              'uboard uboard uboard uboard uboard uboard';
     }
-    .pocket-top .bughouse .pocket, .pocket-bot .bughouse .pocket {
+    .pocket-top .twoboards .pocket, .pocket-bot .twoboards .pocket {
       width: calc(var(--pocketLength) * (var(--cg-width-a) / var(--files)));
       height: calc(var(--cg-height-a) / var(--ranks));
       --fs: calc(var(--cg-height-a) / var(--ranks));
       font-size: var(--fs);
     }
-    .pocket-top-partner .bughouse .pocket, .pocket-bot-partner .bughouse .pocket {
+    .pocket-top-partner .twoboards .pocket, .pocket-bot-partner .twoboards .pocket {
       width: calc(var(--pocketLength) * (var(--cg-width-b) / var(--files)));
       height: calc(var(--cg-height-b) / var(--ranks));
       --fs: calc(var(--cg-height-b) / var(--ranks));

@@ -223,7 +223,7 @@ async def handle_accept_seek(app_state: PychessGlobalAppState, ws, user, data):
 
     # print("accept_seek", seek.seek_json)
     server_variant = get_server_variant(seek.variant, seek.chess960)
-    if server_variant.bug:
+    if server_variant.two_boards:
         await handle_accept_seek_bughouse(app_state, user, data, seek)
     else:
         response = await join_seek(app_state, user, seek)

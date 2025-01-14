@@ -98,6 +98,7 @@ export class RoundControllerBughouse implements ChatController {
     base: number;
     inc: number;
     vmovelist: VNode | HTMLElement;
+    variant: Variant;
 
     spectator: boolean;
 
@@ -149,6 +150,8 @@ export class RoundControllerBughouse implements ChatController {
         this.gameId = model["gameId"] as string;
         this.username = model["username"];
         this.anon = model.anon === 'True';
+
+        this.variant = VARIANTS[model.variant];
 
         this.teamFirst = [playerInfoData(model, "w", "a"), playerInfoData(model, "b", "b")]
         this.teamSecond = [playerInfoData(model, "b", "a"), playerInfoData(model, "w", "b")]
@@ -384,7 +387,7 @@ export class RoundControllerBughouse implements ChatController {
             movesQueued: [],
         }
 
-        initBoardSettings(this.b1, this.b2, VARIANTS['bughouse']);
+        initBoardSettings(this.b1, this.b2, this.variant);
 
         // last so when it receive initial messages on connect all dom is ready to be updated
         this.sock = createWebsocket('wsr/' + this.gameId, onOpen, onReconnect, onClose, (e: MessageEvent) => this.onMessage(e));
@@ -872,7 +875,7 @@ export class RoundControllerBughouse implements ChatController {
 
         const capture = !!lastMove && ((board.chessground.state.boardState.pieces.get(lastMove[1] as cg.Key) && step.san?.slice(0, 2) !== 'O-') || (step.san?.slice(1, 2) === 'x'));
         if (lastMove && (!myMove || this.spectator)) {
-            if (!this.finishedGame) sound.moveSound(VARIANTS['bughouse'], capture);
+            if (!this.finishedGame) sound.moveSound(this.variant, capture);
         }
         if (!this.spectator && check && !this.finishedGame) {
             sound.check();

@@ -49,7 +49,7 @@ if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
 from pychess_global_app_state_utils import get_app_state
 from logger import log
-from variants import BUG_VARIANT_CODES, C2V, GRANDS, get_server_variant
+from variants import TWO_BOARD_VARIANT_CODES, C2V, GRANDS, get_server_variant
 
 
 async def tv_game(app_state: PychessGlobalAppState):
@@ -90,7 +90,7 @@ async def load_game(app_state: PychessGlobalAppState, game_id):
 
     variant = C2V[doc["v"]]
 
-    if doc["v"] in BUG_VARIANT_CODES:
+    if doc["v"] in TWO_BOARD_VARIANT_CODES:
         from bug.utils_bug import load_game_bug
 
         return await load_game_bug(app_state, game_id)
@@ -739,14 +739,18 @@ def pgn(doc):
     )
 
 
-def sanitize_fen(variant, initial_fen, chess960):
+def sanitize_fen(variant, initial_fen, chess960, base=False):
     server_variant = get_server_variant(variant, chess960)
-    if server_variant.bug:
+    if server_variant.two_boards and not base:
         fens = initial_fen.split(" | ")
         fen_a = fens[0]
         fen_b = fens[1]
-        fen_valid_a, sanitized_fen_a = sanitize_fen("crazyhouse", fen_a, chess960)
-        fen_valid_b, sanitized_fen_b = sanitize_fen("crazyhouse", fen_b, chess960)
+        fen_valid_a, sanitized_fen_a = sanitize_fen(
+            server_variant.base_variant, fen_a, chess960, base=True
+        )
+        fen_valid_b, sanitized_fen_b = sanitize_fen(
+            server_variant.base_variant, fen_b, chess960, base=True
+        )
         return fen_valid_a and fen_valid_b, sanitized_fen_a + " | " + sanitized_fen_b
 
     # Prevent alternate FENs to fail on our general castling check

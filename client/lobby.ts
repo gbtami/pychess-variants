@@ -10,7 +10,7 @@ import { _, ngettext, languageSettings } from './i18n';
 import { patch } from './document';
 import { boardSettings } from './boardSettings';
 import { chatMessage, chatView, ChatController } from './chat';
-import { enabledVariants, VARIANTS, selectVariant, Variant } from './variants';
+import { enabledVariants, twoBoarsVariants, VARIANTS, selectVariant, Variant } from './variants';
 import { timeControlStr, changeTabs, setAriaTabClick } from './view';
 import { notify } from './notification';
 import { PyChessModel } from "./types";
@@ -382,12 +382,13 @@ export class LobbyController implements ChatController {
 
     renderSeekButtons() {
         const vVariant = localStorage.seek_variant || "chess";
+        const twoBoards = VARIANTS[vVariant].twoBoards;
         // 5+3 default TC needs vMin 9 because of the partial numbers at the beginning of minutesValues
         const vMin = localStorage.seek_min ?? "9";
         const vInc = localStorage.seek_inc ?? "3";
         const vByoIdx = (localStorage.seek_byo ?? 1) - 1;
         const vDay = localStorage.seek_day ?? "1";
-        const vRated = vVariant === "bughouse"? "0": localStorage.seek_rated ?? "0";
+        const vRated = twoBoards ? "0": localStorage.seek_rated ?? "0";
         const vRatingMin = localStorage.seek_rating_min ?? -1000;
         const vRatingMax = localStorage.seek_rating_max ?? 1000;
         const vLevel = Number(localStorage.seek_level ?? "1");
@@ -438,7 +439,7 @@ export class LobbyController implements ChatController {
                                         on: { change: (e: Event) => this.setTcMode((e.target as HTMLSelectElement).value as TcMode) },
                                         }, [
                                             h('option', { attrs: { value: 'real' }}, _('Real time')),
-                                            h('option', { attrs: { value: 'corr', disabled: this.anon || vVariant === "bughouse" }}, _('Correspondence')),
+                                            h('option', { attrs: { value: 'corr', disabled: this.anon || twoBoards }}, _('Correspondence')),
                                         ]
                                     ),
                                 ]),
@@ -489,7 +490,7 @@ export class LobbyController implements ChatController {
                                     h('label', { attrs: { for: "casual"} }, _("Casual")),
                                     h('input#rated', {
                                         props: { type: "radio", name: "mode", value: "1" },
-                                        attrs: { checked: vRated === "1", disabled: this.anon || vVariant === "bughouse" /*dont support rated bughouse atm*/ },
+                                        attrs: { checked: vRated === "1", disabled: this.anon || twoBoards }, /*dont support rated bughouse atm*/
                                         on: { input: e => this.setRated((e.target as HTMLInputElement).value) },
                                         hook: { insert: vnode => this.setRated((vnode.elm as HTMLInputElement).value) },
                                     }),
@@ -632,8 +633,9 @@ export class LobbyController implements ChatController {
     }
 
     createGame(variantName: string = '') {
+        const twoBoards = (variantName) ? VARIANTS[variantName].twoBoards : false;
         this.createMode = 'createGame';
-        this.renderVariantsDropDown(variantName, this.anon ? ["bughouse"]: []);
+        this.renderVariantsDropDown(variantName, this.anon ? twoBoarsVariants: []);
         this.renderDialogHeader(createModeStr(this.createMode));
         document.getElementById('game-mode')!.style.display = this.anon ? 'none' : 'inline-flex';
         document.getElementById('rating-range-setting')!.style.display = 'block';
@@ -642,12 +644,12 @@ export class LobbyController implements ChatController {
         document.getElementById('id01')!.style.display = 'flex';
         document.getElementById('color-button-group')!.style.display = 'block';
         document.getElementById('create-button')!.style.display = 'none';
-        disableCorr(this.anon || variantName === "bughouse" );
+        disableCorr(this.anon || twoBoards);
     }
 
     playFriend(variantName: string = '') {
         this.createMode = 'playFriend';
-        this.renderVariantsDropDown(variantName, ["bughouse"]);
+        this.renderVariantsDropDown(variantName, twoBoarsVariants);
         this.renderDialogHeader(createModeStr(this.createMode))
         document.getElementById('game-mode')!.style.display = this.anon ? 'none' : 'inline-flex';
         document.getElementById('rating-range-setting')!.style.display = 'none';
@@ -661,7 +663,7 @@ export class LobbyController implements ChatController {
 
     playAI(variantName: string = '') {
         this.createMode = 'playAI';
-        this.renderVariantsDropDown(variantName, ["bughouse"]);
+        this.renderVariantsDropDown(variantName, twoBoarsVariants);
         this.renderDialogHeader(createModeStr(this.createMode))
         document.getElementById('game-mode')!.style.display = 'none';
         document.getElementById('rating-range-setting')!.style.display = 'none';
@@ -676,7 +678,7 @@ export class LobbyController implements ChatController {
 
     createHost(variantName: string = '') {
         this.createMode = 'createHost';
-        this.renderVariantsDropDown(variantName, ["bughouse"]);
+        this.renderVariantsDropDown(variantName, twoBoarsVariants);
         this.renderDialogHeader(createModeStr(this.createMode))
         document.getElementById('game-mode')!.style.display = this.anon ? 'none' : 'inline-flex';
         document.getElementById('rating-range-setting')!.style.display = 'none';
@@ -834,7 +836,7 @@ export class LobbyController implements ChatController {
 
     private seekView(seek: Seek) {
         const variant = VARIANTS[seek.variant];
-        return this.hide(seek) ? "" : variant === VARIANTS['bughouse']? seekViewBughouse(this, seek): this.seekViewRegular(seek);
+        return this.hide(seek) ? "" : variant.twoBoards ? seekViewBughouse(this, seek): this.seekViewRegular(seek);
     }
 
     private onClickSeek(seek: Seek) {
@@ -1010,7 +1012,7 @@ export class LobbyController implements ChatController {
             const variant = VARIANTS[v];
             let variantName = variant.name;
             let checked = localStorage[`va_${variantName}`] ?? "false";
-            if (variantName !== 'bughouse') {
+            if (!variant.twoBoards) {
                 variantList.push(h('label', [h('input', { props: { name: `va_${variantName}`, type: "checkbox" }, attrs: { checked: checked === "true" } }), variantName]));
                 if (variant.chess960) {
                     variantName = variantName + '960';

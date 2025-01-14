@@ -72,7 +72,7 @@ class FairyBoard:
         self.sf = sf_alice if variant == "alice" else sf
         self.chess960 = chess960
         self.sfen = False
-        self.show_promoted = variant in ("makruk", "makpong", "cambodian", "bughouse")
+        self.show_promoted = variant in ("makruk", "makpong", "cambodian", "bughouse", "supply")
         self.legal_moves_need_history = variant in ("janggi", "ataxx")
         self.nnue = initial_fen == ""
         self.initial_fen = (
@@ -111,7 +111,7 @@ class FairyBoard:
         else:
             new_fen = sf.start_fen(variant)
 
-        if variant == "bughouse":
+        if variant == "bughouse" or variant == "supply":
             return new_fen + " | " + new_fen
         elif variant == "manchu":
             return MANCHU_R_FEN

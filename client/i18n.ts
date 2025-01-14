@@ -74,7 +74,7 @@ export const translatedVariantDisplayNames = [
     _("shogi"), _("minishogi"), _("kyoto shogi"), _("dobutsu"), _("gorogoro"),
     _("gorogoro+"), _("tori shogi", _("cannon shogi")),
 
-    _("xiangqi"), _("manchu"), _("janggi"), _("minixiangqi"),
+    _("xiangqi"), _("supply chess"), _("manchu"), _("janggi"), _("minixiangqi"),
 
     _("shatranj"), _("capablanca"), _("capahouse"), _("dragon chess"),
     _("s-chess"), _("s-house"), _("grand"), _("grandhouse"), _("shako"),

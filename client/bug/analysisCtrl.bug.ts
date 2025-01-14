@@ -6,7 +6,7 @@ import { DrawShape } from 'chessgroundx/draw';
 
 import { _ } from '../i18n';
 import { uci2LastMove, uci2cg } from '../chess';
-import { VARIANTS } from "../variants"
+import { Variant, VARIANTS } from "../variants"
 import { createMovelistButtons, updateMovelist, selectMove, activatePlyVari } from './movelist.bug';
 import { povChances } from '../winningChances';
 import { patch } from '../document';
@@ -54,7 +54,7 @@ export default class AnalysisControllerBughouse {
     vinfo: VNode | HTMLElement;
     vpvlines: VNode[] | HTMLElement[];
 
-    readonly variant = VARIANTS['bughouse'];
+    variant: Variant;
 
     vmovelist: VNode | HTMLElement;
     moveControls: VNode;
@@ -119,6 +119,8 @@ export default class AnalysisControllerBughouse {
         this.embed = this.gameId === undefined;
         this.username = model["username"];
         this.chess960 = model.chess960 === 'True';
+
+        this.variant = VARIANTS[model.variant];
 
         this.teamFirst = [playerInfoData(model, "w", "a"), playerInfoData(model, "b", "b")]
         this.teamSecond = [playerInfoData(model, "b", "a"), playerInfoData(model, "w", "b")]

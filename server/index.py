@@ -602,7 +602,7 @@ async def index(request):
                 render["tournamentname"] = tournament_name
                 render["wberserk"] = game.wberserk
                 render["bberserk"] = game.bberserk
-            if game.server_variant.bug:
+            if game.server_variant.two_boards:
                 render["wplayerB"] = game.wplayerB.username
                 render["wtitleB"] = game.wplayerB.title
                 render["wratingB"] = game.wrating_b
