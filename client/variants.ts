@@ -79,6 +79,7 @@ export interface Variant {
     readonly _tooltip: string;
     readonly tooltip: string;
     readonly chess960: boolean;
+    readonly twoBoards: boolean;
     readonly _icon: string;
     readonly _icon960: string;
     readonly icon: (chess960?: boolean) => string;
@@ -141,6 +142,7 @@ function variant(config: VariantConfig): Variant {
         _tooltip: config.tooltip,
         get tooltip() { return _(this._tooltip) },
         chess960: !!config.chess960,
+        twoBoards: !!config.twoBoards,
         _icon: config.icon,
         _icon960: config.icon960 ?? config.icon,
         icon: function (chess960 = false) { return chess960 ? this._icon960 : this._icon; },
@@ -215,6 +217,8 @@ interface VariantConfig {
     startFen: string;
     // Whether it is possible to play a randomized starting position (default: false)
     chess960?: boolean;
+    // Pocket pieces are added from an external source, usually from a second board (e.g., bughouse)
+    twoBoards?: boolean;
     // Icon letter in the site's font
     icon: string;
     // Icon of the 960 version (default: same as icon)
@@ -358,7 +362,7 @@ export const VARIANTS: Record<string, Variant> = {
     bughouse: variant({
         name: "bughouse", tooltip: "bughousebughousebughousebughouse.", displayName: "bughouse ᴮᴱᵀᴬ",
         startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[] w KQkq - 0 1",
-        chess960: true, icon: "¢", icon960: "⌀",
+        chess960: true, icon: "¢", icon960: "⌀", twoBoards: true,
         boardFamily: "standard8x8", pieceFamily: "standard",
         pieceRow: ["k", "q", "r", "b", "n", "p"],
         pocket: {
@@ -698,6 +702,22 @@ export const VARIANTS: Record<string, Variant> = {
         colors: { first: "Red", second: "Black" },
         pieceRow: ["k", "a", "c", "r", "b", "n", "p"],
         promotion: { type: "regular", roles: [] },
+    }),
+
+    supply: variant({
+        name: "supply", tooltip: "Chinese bughouse chess", displayName: "supply chess ᴮᴱᵀᴬ",
+        startFen: "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR[] w - - 0 1",
+        icon: "¢", twoBoards: true,
+        boardFamily: "xiangqi9x10", pieceFamily: "xiangqi",
+        notation: cg.Notation.XIANGQI_ARBNUM,
+        colors: { first: "Red", second: "Black" },
+        pieceRow: ["k", "a", "c", "r", "b", "n", "p"],
+        promotion: { type: "regular", roles: [] },
+        pocket: {
+            roles: ["p", "n", "b", "r", "c", "a"],
+            captureToHand: true,
+        },
+        ui: { showPromoted: true },
     }),
 
     manchu: variant({
@@ -1105,13 +1125,16 @@ export const noPuzzleVariants = [
     "antichess",
     "horde",
     "shatranj",
+    "supply",
 ]
+
+export const twoBoarsVariants = variants.filter(v => VARIANTS[v].twoBoards);
 
 export const variantGroups: { [ key: string ]: { variants: string[] } } = {
     standard: { variants: [ "chess", "bughouse", "crazyhouse", "atomic", "kingofthehill", "3check", "antichess", "racingkings", "horde", "placement", "duck", "alice", "fogofwar" ] },
     sea:      { variants: [ "makruk", "makpong", "cambodian", "sittuyin", "asean" ] },
     shogi:    { variants: [ "shogi", "minishogi", "kyotoshogi", "dobutsu", "gorogoroplus", "torishogi", "cannonshogi" ] },
-    xiangqi:  { variants: [ "xiangqi", "manchu", "janggi", "minixiangqi" ] },
+    xiangqi:  { variants: [ "xiangqi", "supply", "manchu", "janggi", "minixiangqi" ] },
     fairy:    { variants: [ "shatranj", "capablanca", "capahouse", "dragon", "seirawan", "shouse", "grand", "grandhouse", "shako", "shogun", "hoppelpoppel", "mansindam" ] },
     army:     { variants: [ "orda", "khans", "synochess", "shinobiplus", "empire", "ordamirror", "chak", "chennis", "spartan" ] },
     other:    { variants: [ "ataxx" ] }

@@ -8,7 +8,7 @@ import { disableCorr, LobbyController } from "@/lobby";
 export function switchEnablingLobbyControls(mode: CreateMode, variant: Variant, anon: boolean){
         const rated = document.getElementById('rated')! as HTMLInputElement;
         const casual = document.getElementById('casual')! as HTMLInputElement;
-        if (variant === VARIANTS["bughouse"]) {
+        if (variant.twoBoards) {
             rated.disabled = true;
             rated.checked = false;
             casual.checked = true;
@@ -26,7 +26,7 @@ export function bugJoinSeek(ctrl: LobbyController, e: Event, seek: Seek, joinAs:
     e.stopPropagation();
     // seek[player] = ctrl.username;
     if (ctrl.anon) {
-        alert(_("Anon users cannot join bughouse games"));
+        alert(_("Anon users cannot join two board games"));
     }
     ctrl.doSend({ type: "accept_seek", seekID: seek["seekID"], player: ctrl.username, joinAs: joinAs });
 }

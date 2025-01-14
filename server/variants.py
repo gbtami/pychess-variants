@@ -84,6 +84,7 @@ class ServerVariants(Enum):
     CANNONSHOGI = Variant("W", "cannonshogi", _("Cannon Shogi"), "💣", byo=True)
 
     XIANGQI = Variant("x", "xiangqi", _("Xiangqi"), "|", grand=True)
+    SUPPLY = Variant("@", "supply", _("Supply Chess"), "¢", grand=True, bug=True)
     MANCHU = Variant("M", "manchu", _("Manchu+"), "{", grand=True)
     JANGGI = Variant("j", "janggi", _("Janggi"), "=", grand=True, byo=True)
     MINIXIANGQI = Variant("e", "minixiangqi", _("Minixiangqi"), "7")
