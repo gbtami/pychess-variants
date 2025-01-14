@@ -15,7 +15,8 @@ try:
 except ImportError:
     print("No pyffish module installed!")
 
-from compress import R2C, encode_move_standard
+from compress import R2C
+from convert import grand2zero
 from const import (
     STARTED,
     ABORTED,
@@ -31,7 +32,7 @@ from const import (
 )
 from fairy import FairyBoard, BLACK, WHITE
 from spectators import spectators
-from variants import get_server_variant
+from variants import get_server_variant, GRANDS
 
 MAX_HIGH_SCORE = 10
 MAX_PLY = 2 * 600
@@ -80,6 +81,7 @@ class GameBug:
         self.imported_by = ""
 
         self.server_variant = get_server_variant(variant, chess960)
+        self.encode_method = self.server_variant.move_encoding
 
         self.berserk_time = self.base * 1000 * 30
 
@@ -303,7 +305,7 @@ class GameBug:
                 "f": self.boards["a"].fen + " | " + self.boards["b"].fen,
                 "s": self.status,
                 "r": R2C[self.result],
-                "m": [*map(encode_move_standard, moves)],
+                "m": [*map(self.encode_method, (map(grand2zero, moves) if self.variant in GRANDS else moves))],
                 "o": [0 if x["boardName"] == "a" else 1 for x in self.steps[1:]],
                 "c": self.construct_chat_list(),
                 "ts": [x["ts"] for x in self.steps],

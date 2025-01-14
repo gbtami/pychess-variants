@@ -4,7 +4,8 @@ from datetime import timezone
 
 from pychess_global_app_state import PychessGlobalAppState
 from user import User
-from compress import R2C, C2R, decode_move_standard
+from compress import R2C, C2R
+from convert import zero2grand
 from bug.game_bug import GameBug
 from const import (
     STARTED,
@@ -18,7 +19,7 @@ from newid import new_id
 from utils import remove_seek, round_broadcast, sanitize_fen
 from websocket_utils import ws_send_json
 from logger import log
-from variants import C2V
+from variants import C2V, GRANDS
 
 
 def init_players(app_state: PychessGlobalAppState, wp_a, bp_a, wp_b, bp_b):
@@ -85,7 +86,11 @@ async def load_game_bug(app_state: PychessGlobalAppState, game_id):
         tournamentId=doc.get("tid"),
     )
 
-    mlist = [*map(decode_move_standard, doc["m"])]
+    decode_method = game.server_variant.move_decoding
+    mlist = [*map(decode_method, doc["m"])]
+
+    if variant in GRANDS:
+        mlist = [*map(zero2grand, mlist)]
 
     if mlist or (game.tournamentId is not None and doc["s"] > STARTED):
         game.saved = True
