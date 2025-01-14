@@ -50,7 +50,7 @@ class ServerVariants(Enum):
 
     CHESS = Variant("n", "chess", _("Chess"), "M")
     CHESS960 = Variant("n", "chess", _("Chess960"), "V", chess960=True)
-    BUGHOUSE = Variant("F", "bughouse", _("Bughouse"), "¢", two_boards=True, base_variant="crazyhouse")
+    BUGHOUSE = Variant("F", "bughouse", _("Bughouse"), "¢", two_boards=True, base_variant="crazyhouse")  # fmt: skip
     BUGHOUSE960 = Variant("F", "bughouse", _("Bughouse960"), "⌀", chess960=True, two_boards=True, base_variant="crazyhouse")  # fmt: skip
     CRAZYHOUSE = Variant("h", "crazyhouse", _("Crazyhouse"), "+")
     CRAZYHOUSE960 = Variant("h", "crazyhouse", _("Crazyhouse960"), "%", chess960=True)

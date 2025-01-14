@@ -558,7 +558,9 @@ async def handle_game_user_connected(app_state: PychessGlobalAppState, ws, user,
         game.spectators.add(user)
         await round_broadcast(game, game.spectator_list, full=True)
 
-    stopwatch_secs = game.stopwatch.secs if (not game.corr and not game.server_variant.two_boards) else 0
+    stopwatch_secs = (
+        game.stopwatch.secs if (not game.corr and not game.server_variant.two_boards) else 0
+    )
     response = {
         "type": "game_user_connected",
         "username": user.username,
