@@ -217,7 +217,7 @@ CATEGORIES = {
         "shinobiplus",
         "spartan",
     ),
-    "makruk": ("makruk", "makpong", "cambodian", "sittuyin", "asean"),
+    "makruk": ("makruk", "makbug", "makpong", "cambodian", "sittuyin", "asean"),
     "shogi": (
         "shogi",
         "minishogi",

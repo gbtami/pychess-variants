@@ -515,6 +515,33 @@ export const VARIANTS: Record<string, Variant> = {
         ui: { counting: "makruk", showPromoted: true },
     }),
 
+    makrukhouse: variant({
+        name: "makrukhouse", tooltip: "Take captured pieces and drop them back on to the board as your own.",
+        startFen: "rnsmksnr/8/pppppppp/8/8/PPPPPPPP/8/RNSKMSNR[] w - - 0 1",
+        icon: "Q",
+        boardFamily: "makruk8x8", pieceFamily: "makruk",
+        pieceRow: ["k", "s", "m", "n", "r", "p", "m~" as cg.Letter],
+        promotion: { type: "regular", order: ["m"] },
+        pocket: {
+            roles: ["p", "m", "s", "n", "r"],
+            captureToHand: true,
+        },
+    }),
+
+    makbug: variant({
+        name: "makbug", tooltip: "Thai bughouse chess", displayName: "makbug ᴮᴱᵀᴬ",
+        startFen: "rnsmksnr/8/pppppppp/8/8/PPPPPPPP/8/RNSKMSNR[] w - - 0 1",
+        icon: "Q", twoBoards: true,
+        boardFamily: "makruk8x8", pieceFamily: "makruk",
+        pieceRow: ["k", "s", "m", "n", "r", "p", "m~" as cg.Letter],
+        promotion: { type: "regular", order: ["m"] },
+        pocket: {
+            roles: ["p", "m", "s", "n", "r"],
+            captureToHand: true,
+        },
+        ui: { showPromoted: true },
+    }),
+
     makpong: variant({
         name: "makpong", tooltip: "Makruk variant where kings cannot move to escape out of check.",
         startFen: "rnsmksnr/8/pppppppp/8/8/PPPPPPPP/8/RNSKMSNR w - - 0 1",
@@ -702,6 +729,21 @@ export const VARIANTS: Record<string, Variant> = {
         colors: { first: "Red", second: "Black" },
         pieceRow: ["k", "a", "c", "r", "b", "n", "p"],
         promotion: { type: "regular", roles: [] },
+    }),
+
+    xiangqihouse: variant({
+        name: "xiangqihouse", tooltip: "Take captured pieces and drop them back on to the board as your own.",
+        startFen: "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR[] w - - 0 1",
+        icon: "+",
+        boardFamily: "xiangqi9x10", pieceFamily: "xiangqi",
+        notation: cg.Notation.XIANGQI_ARBNUM,
+        colors: { first: "Red", second: "Black" },
+        pieceRow: ["k", "a", "c", "r", "b", "n", "p"],
+        promotion: { type: "regular", roles: [] },
+        pocket: {
+            roles: ["p", "n", "b", "r", "c", "a"],
+            captureToHand: true,
+        },
     }),
 
     supply: variant({
@@ -1107,7 +1149,7 @@ export const VARIANTS: Record<string, Variant> = {
 };
 
 export const variants = Object.keys(VARIANTS);
-const disabledVariants = [ "gothic", "gothhouse", "embassy", "embassyhouse", "gorogoro", "shinobi" ];
+const disabledVariants = [ "gothic", "gothhouse", "embassy", "embassyhouse", "gorogoro", "shinobi", "makrukhouse", "xiangqihouse" ];
 export const enabledVariants = variants.filter(v => !disabledVariants.includes(v));
 
 // variants having 0 puzzle so far
@@ -1132,7 +1174,7 @@ export const twoBoarsVariants = variants.filter(v => VARIANTS[v].twoBoards);
 
 export const variantGroups: { [ key: string ]: { variants: string[] } } = {
     standard: { variants: [ "chess", "bughouse", "crazyhouse", "atomic", "kingofthehill", "3check", "antichess", "racingkings", "horde", "placement", "duck", "alice", "fogofwar" ] },
-    sea:      { variants: [ "makruk", "makpong", "cambodian", "sittuyin", "asean" ] },
+    sea:      { variants: [ "makruk", "makbug", "makpong", "cambodian", "sittuyin", "asean" ] },
     shogi:    { variants: [ "shogi", "minishogi", "kyotoshogi", "dobutsu", "gorogoroplus", "torishogi", "cannonshogi" ] },
     xiangqi:  { variants: [ "xiangqi", "supply", "manchu", "janggi", "minixiangqi" ] },
     fairy:    { variants: [ "shatranj", "capablanca", "capahouse", "dragon", "seirawan", "shouse", "grand", "grandhouse", "shako", "shogun", "hoppelpoppel", "mansindam" ] },

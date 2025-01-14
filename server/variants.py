@@ -72,6 +72,8 @@ class ServerVariants(Enum):
     FOGOFWAR = Variant("Q", "fogofwar", _("Fog of War"), "🌫")
 
     MAKRUK = Variant("m", "makruk", _("Makruk"), "Q")
+    MAKRUKHOUSE = Variant("Ł", "makrukhouse", _("Makrukhouse"), "Q")
+    MAKBUG = Variant("ß", "makbug", _("Makbug"), "Q", two_boards=True, base_variant="makrukhouse")  # fmt: skip
     MAKPONG = Variant("l", "makpong", _("Makpong"), "O")
     CAMBODIAN = Variant("b", "cambodian", _("Ouk Chaktrang"), "!")
     SITTUYIN = Variant("y", "sittuyin", _("Sittuyin"), ":")
@@ -86,8 +88,8 @@ class ServerVariants(Enum):
     CANNONSHOGI = Variant("W", "cannonshogi", _("Cannon Shogi"), "💣", byo=True)
 
     XIANGQI = Variant("x", "xiangqi", _("Xiangqi"), "|", grand=True)
-    XIANGQIHOUSE = Variant("x", "xiangqihouse", _("Xiangqihouse"), "|", grand=True)
-    SUPPLY = Variant("@", "supply", _("Supply Chess"), "¢", grand=True, two_boards=True, base_variant="xiangqihouse")  # fmt: skip
+    XIANGQIHOUSE = Variant("[", "xiangqihouse", _("Xiangqihouse"), "|", grand=True)
+    SUPPLY = Variant("@", "supply", _("Supply Chess"), "|", grand=True, two_boards=True, base_variant="xiangqihouse")  # fmt: skip
     MANCHU = Variant("M", "manchu", _("Manchu+"), "{", grand=True)
     JANGGI = Variant("j", "janggi", _("Janggi"), "=", grand=True, byo=True)
     MINIXIANGQI = Variant("e", "minixiangqi", _("Minixiangqi"), "7")
@@ -141,6 +143,7 @@ NO_VARIANTS = (
     ServerVariants.GOTHIC,
     ServerVariants.GOTHHOUSE,
     ServerVariants.SHINOBI,
+    ServerVariants.MAKRUKHOUSE,
     ServerVariants.XIANGQIHOUSE,
 )
 
