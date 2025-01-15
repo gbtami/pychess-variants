@@ -634,7 +634,7 @@ async def index(request):
         render["title"] = tournament.browser_title
 
     # variant None indicates terminology.md
-    if lang in ("es", "hu", "it", "pt", "fr", "zh", "zh_CN", "zh_TW"):
+    if lang in ("es", "hu", "it", "pt", "fr", "zh_CN", "zh_TW"):
         locale = ".%s" % lang
     else:
         locale = ""
