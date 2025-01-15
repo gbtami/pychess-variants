@@ -156,6 +156,12 @@ VARIANTS = {
     variant.server_name: variant for variant in ServerVariants if variant not in NO_VARIANTS
 }
 
+RATED_VARIANTS = tuple(
+    variant.server_name
+    for variant in ServerVariants
+    if (variant not in NO_VARIANTS) and not variant.two_boards
+)
+
 VARIANT_ICONS = {variant.server_name: variant.icon for variant in ServerVariants}
 
 # Remove new variants on prod site until they stabilize

@@ -17,7 +17,7 @@ from notify import notify
 from const import BLOCK, MAX_USER_BLOCK, TYPE_CHECKING
 from seek import Seek
 from websocket_utils import ws_send_json
-from variants import VARIANTS
+from variants import RATED_VARIANTS
 
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
@@ -89,19 +89,19 @@ class User:
         self.online = False
 
         if perfs is None:
-            self.perfs = {variant: DEFAULT_PERF for variant in VARIANTS}
+            self.perfs = {variant: DEFAULT_PERF for variant in RATED_VARIANTS}
         else:
             self.perfs = {
                 variant: perfs[variant] if variant in perfs else DEFAULT_PERF
-                for variant in VARIANTS
+                for variant in RATED_VARIANTS
             }
 
         if pperfs is None:
-            self.pperfs = {variant: DEFAULT_PERF for variant in VARIANTS}
+            self.pperfs = {variant: DEFAULT_PERF for variant in RATED_VARIANTS}
         else:
             self.pperfs = {
                 variant: pperfs[variant] if variant in pperfs else DEFAULT_PERF
-                for variant in VARIANTS
+                for variant in RATED_VARIANTS
             }
 
         self.enabled = enabled

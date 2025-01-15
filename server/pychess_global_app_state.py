@@ -63,7 +63,7 @@ from blogs import BLOGS
 from videos import VIDEOS
 from youtube import Youtube
 from logger import log
-from variants import VARIANTS
+from variants import VARIANTS, RATED_VARIANTS
 
 
 GAME_KEEP_TIME = 1800  # keep game in app[games_key] for GAME_KEEP_TIME secs
@@ -105,7 +105,7 @@ class PychessGlobalAppState:
         self.invites: dict[str, Seek] = {}
         self.game_channels: Set[queue] = set()
         self.invite_channels: Set[queue] = set()
-        self.highscore = {variant: ValueSortedDict(neg) for variant in VARIANTS}
+        self.highscore = {variant: ValueSortedDict(neg) for variant in RATED_VARIANTS}
         self.shield = {}
         self.shield_owners = {}  # {variant: username, ...}
         self.daily_puzzle_ids = {}  # {date: puzzle._id, ...}
