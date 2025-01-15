@@ -57,7 +57,7 @@ export function chatView(ctrl: ChatController, chatType: string) {
         ]),
         // TODO: lock/unlock chat to spectators
         h(`ol#${chatType}-messages`, [ h('div#messages') ]),
-        bughouse? renderBugChatPresets(sendMessage): null,
+        bughouse? renderBugChatPresets(ctrl.variant, sendMessage): null,
         h('input#chat-entry', {
             props: {
                 type: "text",

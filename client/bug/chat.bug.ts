@@ -5,34 +5,44 @@ import { patch } from "@/document";
 import {RoundControllerBughouse} from "@/bug/roundCtrl.bug";
 import {formatChatMessageTime, getLocalMoveNum, selectMove} from "@/bug/movelist.bug";
 import {StepChat} from "@/messages";
+import { Variant } from "../variants";
 
-export function renderBugChatPresets(sendMessage: (s:string)=>void): VNode {
-    return h('div#chatpresets', [
-                    h('button.bugchat.p', { on: { click: () => sendMessage("!bug!p") }, props: { title: _('Need pawn')} }, []),
-                    h('button.bugchat.n', { on: { click: () => sendMessage("!bug!n") }, props: { title: _('Need knight')} }, []),
-                    h('button.bugchat.b', { on: { click: () => sendMessage("!bug!b") }, props: { title: _('Need bishop')} }, []),
-                    h('button.bugchat.r', { on: { click: () => sendMessage("!bug!r") }, props: { title: _('Need rook')} }, []),
-                    h('button.bugchat.q', { on: { click: () => sendMessage("!bug!q") }, props: { title: _('Need queen')} }, []),
+export function renderBugChatPresets(variant: Variant, sendMessage: (s:string)=>void): VNode {
+    console.log(variant.pocket.roles.white);
+    let buttons = [];
+    const neddButtons = variant.pocket.roles.white.map(
+        role => {
+            const letter = role.charAt(0);
+            return h(`button.bugchat.${letter}`, { on: { click: () => sendMessage(`!bug!${letter}`) }, props: { title: _("Need %1", role)} }, []);
+        }
+    );
 
-                    h('button.bugchat.nop', { on: { click: () => sendMessage("!bug!nop") }, props: { title: _("Don't give pawn")} }, []),
-                    h('button.bugchat.non', { on: { click: () => sendMessage("!bug!non") }, props: { title: _("Don't give knight")} }, []),
-                    h('button.bugchat.nob', { on: { click: () => sendMessage("!bug!nob") }, props: { title: _("Don't give bishop")} }, []),
-                    h('button.bugchat.nor', { on: { click: () => sendMessage("!bug!nor") }, props: { title: _("Don't give rook")} }, []),
-                    h('button.bugchat.noq', { on: { click: () => sendMessage("!bug!noq") }, props: { title: _("Don't give queen")} }, []),
+    const dontGiveButtons = variant.pocket.roles.white.map(
+        role => {
+            const letter = role.charAt(0);
+            return h(`button.bugchat.no${letter}`, { on: { click: () => sendMessage(`!bug!no${letter}`) }, props: { title: _("Don't give %1", role)} }, []);
+        }
+    );
 
-                    h('button.bugchat.sit', { on: { click: () => sendMessage("!bug!sit") }, props: { title: _('Sit/stall')} }, []),
-                    h('button.bugchat.go', { on: { click: () => sendMessage("!bug!go") }, props: { title: _('Go/hurry')} }, []),
-                    h('button.bugchat.trade', { on: { click: () => sendMessage("!bug!trade") }, props: { title: _('Trades are good')} }, []),
-                    h('button.bugchat.notrade', { on: { click: () => sendMessage("!bug!notrade") }, props: { title: _("Don't trade")} }, []),
-                    h('button.bugchat.mate', { on: { click: () => sendMessage("!bug!mate") }, props: { title: _('I have checkmate')} },[]),
+    const tells = [
+        h('button.bugchat.sit', { on: { click: () => sendMessage("!bug!sit") }, props: { title: _('Sit/stall')} }, []),
+        h('button.bugchat.go', { on: { click: () => sendMessage("!bug!go") }, props: { title: _('Go/hurry')} }, []),
+        h('button.bugchat.trade', { on: { click: () => sendMessage("!bug!trade") }, props: { title: _('Trades are good')} }, []),
+        h('button.bugchat.notrade', { on: { click: () => sendMessage("!bug!notrade") }, props: { title: _("Don't trade")} }, []),
+        h('button.bugchat.mate', { on: { click: () => sendMessage("!bug!mate") }, props: { title: _('I have checkmate')} },[]),
 
-                    h('button.bugchat.ok', { on: { click: () => sendMessage("!bug!ok") }, props: { title: _('OK')} }, []),
-                    h('button.bugchat.no', { on: { click: () => sendMessage("!bug!no") }, props: { title: _('No')} }, []),
-                    h('button.bugchat.mb', { on: { click: () => sendMessage("!bug!mb") }, props: { title: _('My bad')} }, []),
-                    h('button.bugchat.nvm', { on: { click: () => sendMessage("!bug!nvm") }, props: { title: _('Nevermind')} }, []),
-                    h('button.bugchat.nice', { on: { click: () => sendMessage("!bug!nice") }, props: { title: _('Nice')} }, []),
+        h('button.bugchat.ok', { on: { click: () => sendMessage("!bug!ok") }, props: { title: _('OK')} }, []),
+        h('button.bugchat.no', { on: { click: () => sendMessage("!bug!no") }, props: { title: _('No')} }, []),
+        h('button.bugchat.mb', { on: { click: () => sendMessage("!bug!mb") }, props: { title: _('My bad')} }, []),
+        h('button.bugchat.nvm', { on: { click: () => sendMessage("!bug!nvm") }, props: { title: _('Nevermind')} }, []),
+        h('button.bugchat.nice', { on: { click: () => sendMessage("!bug!nice") }, props: { title: _('Nice')} }, []),
+    ];
 
-                ]);
+    buttons.push(...neddButtons);
+    buttons.push(...dontGiveButtons);
+    buttons.push(...tells);
+
+    return h('div#chatpresets', buttons);
 }
 
 export function chatMessageBug (ply: number, ctrl: RoundControllerBughouse, x: StepChat) {
