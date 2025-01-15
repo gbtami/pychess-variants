@@ -69,7 +69,7 @@ export const translatedVariantDisplayNames = [
     _("king of the hill"), _("three-check"), _("antichess"), _("racing kings"),
     _("horde"), _("duck"), _("alice"), _("fog of war"),
 
-    _("makruk"), _("makpong"), _("ouk chaktrang"), _("sittuyin"), _("asean"),
+    _("makruk"), _("makbug"), _("makpong"), _("ouk chaktrang"), _("sittuyin"), _("asean"),
 
     _("shogi"), _("minishogi"), _("kyoto shogi"), _("dobutsu"), _("gorogoro"),
     _("gorogoro+"), _("tori shogi", _("cannon shogi")),

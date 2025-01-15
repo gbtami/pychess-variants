@@ -100,6 +100,8 @@ class FairyBoard:
             self.notation = NOTATION_SHOGI_HODGES_NUMBER
         elif self.variant in (
             "xiangqi",
+            "xiangqihouse",
+            "supply",
             "manchu",
             "minixiangqi",
         ):

@@ -1168,6 +1168,7 @@ export const noPuzzleVariants = [
     "horde",
     "shatranj",
     "supply",
+    "makbug",
 ]
 
 export const twoBoarsVariants = variants.filter(v => VARIANTS[v].twoBoards);

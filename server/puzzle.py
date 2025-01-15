@@ -29,6 +29,7 @@ NO_PUZZLE_VARIANTS = (
     "bughouse",
     "fogofwar",
     "supply",
+    "makbug",
 )
 
 PUZZLE_VARIANTS = [v for v in VARIANTS if (not v.endswith("960") and (v not in NO_PUZZLE_VARIANTS))]
