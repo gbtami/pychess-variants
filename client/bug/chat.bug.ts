@@ -1,4 +1,5 @@
 import { h, VNode } from "snabbdom";
+import * as cg from 'chessgroundx/types';
 
 import { _ } from '@/i18n';
 import { patch } from "@/document";
@@ -8,16 +9,17 @@ import {StepChat} from "@/messages";
 import { Variant } from "../variants";
 
 export function renderBugChatPresets(variant: Variant, sendMessage: (s:string)=>void): VNode {
-    console.log(variant.pocket.roles.white);
+    const roles: (cg.Role | '')[] = [...variant.pocket!.roles.white];
     let buttons = [];
-    const neddButtons = variant.pocket.roles.white.map(
+
+    const needButtons = roles.map(
         role => {
             const letter = role.charAt(0);
             return h(`button.bugchat.${letter}`, { on: { click: () => sendMessage(`!bug!${letter}`) }, props: { title: _("Need %1", role)} }, []);
         }
     );
-
-    const dontGiveButtons = variant.pocket.roles.white.map(
+    console.log(needButtons);
+    const dontGiveButtons = roles.map(
         role => {
             const letter = role.charAt(0);
             return h(`button.bugchat.no${letter}`, { on: { click: () => sendMessage(`!bug!no${letter}`) }, props: { title: _("Don't give %1", role)} }, []);
@@ -38,7 +40,7 @@ export function renderBugChatPresets(variant: Variant, sendMessage: (s:string)=>
         h('button.bugchat.nice', { on: { click: () => sendMessage("!bug!nice") }, props: { title: _('Nice')} }, []),
     ];
 
-    buttons.push(...neddButtons);
+    buttons.push(...needButtons);
     buttons.push(...dontGiveButtons);
     buttons.push(...tells);
 
