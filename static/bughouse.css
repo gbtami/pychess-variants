@@ -250,7 +250,7 @@ main.round.bug .pocket.bottom {
 
 div#chatpresets {
   display: grid;
-  grid-template-columns: auto auto auto auto auto;
+  grid-template-columns: repeat(var(--rolesCount), 1fr);
   padding-top: 5px;
   grid-template-rows: auto auto auto auto;
   order: 3;
@@ -258,7 +258,7 @@ div#chatpresets {
 
 @media (max-width: 799px) and (orientation: portrait) {
   div#chatpresets {
-    grid-template-columns: auto auto auto auto auto auto auto auto auto auto;
+    grid-template-columns: repeat(calc(var(--rolesCount) * 2), 1fr);
   }
   .bugroundchat.chat {
       flex-direction: column-reverse;
@@ -266,7 +266,7 @@ div#chatpresets {
 }
 @media (max-height: 600px) and (orientation: landscape) {
   div#chatpresets {
-    grid-template-columns: auto auto auto auto auto;
+    grid-template-columns: repeat(var(--rolesCount), 1fr);
   }
 }
 

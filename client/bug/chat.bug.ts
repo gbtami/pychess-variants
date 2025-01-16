@@ -18,7 +18,6 @@ export function renderBugChatPresets(variant: Variant, sendMessage: (s:string)=>
             return h(`button.bugchat.${letter}`, { on: { click: () => sendMessage(`!bug!${letter}`) }, props: { title: _("Need %1", role)} }, []);
         }
     );
-    console.log(needButtons);
     const dontGiveButtons = roles.map(
         role => {
             const letter = role.charAt(0);
@@ -44,7 +43,7 @@ export function renderBugChatPresets(variant: Variant, sendMessage: (s:string)=>
     buttons.push(...dontGiveButtons);
     buttons.push(...tells);
 
-    return h('div#chatpresets', buttons);
+    return h('div#chatpresets', { style: {'--rolesCount': String(roles.length) } }, buttons);
 }
 
 export function chatMessageBug (ply: number, ctrl: RoundControllerBughouse, x: StepChat) {
