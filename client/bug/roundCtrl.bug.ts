@@ -702,9 +702,17 @@ export class RoundControllerBughouse implements ChatController {
                 if (idx === 4) {
                     chatMessage("", "Chat visible only to your partner", "bugroundchat", undefined, idx, this);
                 }
-                if (step.chat) { // todo: check if status < 0 and filter only partners messages
+                if (step.chat) {
                     step.chat.forEach((c) => {
-                        chatMessageBug(idx, this, c);
+                        // Check if status < 0 and filter only partners messages
+                        const myTeam = (this.whichTeamAmI() === '1') ? this.teamFirst : this.teamSecond;
+                        if (this.status < 0) {
+                            if (c.username === myTeam[0][0] || c.username === myTeam[1][0]) {
+                                chatMessageBug(idx, this, c);
+                            }
+                        } else {
+                            chatMessageBug(idx, this, c);
+                        }
                     });
                 }
                 });
