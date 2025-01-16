@@ -27,9 +27,8 @@ The space in front of the King's starting point in a straight line is called Mye
 
 Red (Han) gives Blue (Cho) three rights in exchange for 1.5 points:
 * Cho's right to choose setup later
-* Cho's right to change setup before the game starts
+* Cho's right to change setup before the game starts (This is rarely applied online, but Red still gets 1.5 points.)
 * Cho's right to move first
-(2 is rarely applied online, but Red still gets 1.5 points.)
 
 For repetitions and other game-end scenarios:
 * Perpetual check is a loss for the player checking after the third repetition
