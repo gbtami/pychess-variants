@@ -224,7 +224,7 @@ export function updateResult (ctrl: AnalysisControllerBughouse | RoundController
     if (ctrl.status < 0) return;
 
     // Prevent to render it twice
-    const resultEl = document.getElementById('result') as HTMLElement;
+    const resultEl = document.querySelector('.result');
     if (resultEl) return;
 
     const container = document.getElementById('movelist') as HTMLElement;
