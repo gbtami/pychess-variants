@@ -99,7 +99,7 @@ export class AnalysisController extends GameController {
             }
         };
 
-        this.ongoing = this.status == -1;
+        this.ongoing = this.status <= -1;
 
         // is local stockfish.wasm engine supported at all
         this.localEngine = false;
