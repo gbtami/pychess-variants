@@ -64,7 +64,11 @@ export default class AnalysisControllerBughouse {
     flip: boolean;
     settings: boolean;
     status: number;
+
     steps: Step[];
+    plyA: number = 0;
+    plyB: number = 0;
+
     pgn: string;
     ply: number;
     plyVari: number;
@@ -352,12 +356,24 @@ export default class AnalysisControllerBughouse {
         if (msg.steps.length > 1) {
             this.steps = [];
 
-            msg.steps.forEach((step, ply) => {
+            msg.steps.forEach((step, idx) => {
                 if (step.analysis !== undefined) {
                     step.ceval = step.analysis;
-                    const scoreStr = this.buildScoreStr(ply % 2 === 0 ? "w" : "b", step.analysis);
+                    const scoreStr = this.buildScoreStr(idx % 2 === 0 ? "w" : "b", step.analysis);
                     step.scoreStr = scoreStr;
                 }
+
+                if (idx > 0) {
+                    //skip first dummy element
+                    if (step.boardName === "a") {
+                        this.plyA++;
+                    } else {
+                        this.plyB++;
+                    }
+                }
+                step.plyA = this.plyA;
+                step.plyB = this.plyB;
+
                 this.steps.push(step);
                 });
             updateMovelist(this);
