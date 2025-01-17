@@ -11,7 +11,7 @@ There are two sides, one is colored red (called Han), and the other blue (called
 Setup for all pieces except for the horse and elephant are as in the picture above. Like xiangqi, janggi is placed on a 9 x 10 board, where pieces are placed on intersections rather than squares. The 3x3 square with the X on each side is called the *Palace*. Unlike in most other chess variants, in janggi, players can choose the starting positions of the horses and elephants. There are four types to choose from:
 
 1. Both elephants are inside (An Sang Charim, means 'Inner Elephant Setup')
-2. Both elephants are outside (Bakat Sang Charim, means 'Outer Elephant Setup')
+2. Both elephants are outside (Bakkat Sang Charim, means 'Outer Elephant Setup')
 3. Left elephant is inside, and right elephant is outside (Oen Sang Charim, means 'Left Elephant Setup')
 4. Left elephant is outside, and right elephant is inside (Oreun Sang Charim, 'Right Elephant Setup')
 
