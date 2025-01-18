@@ -800,18 +800,18 @@ export class RoundControllerBughouse implements ChatController {
 
     }
 
-    private updateBothBoardsAndClocksOnFullBoardMsg = (lastStepA: Step, lastStepB: Step, clocksA: Clocks, clocksB: Clocks) => {
-        console.log("updateBothBoardsAndClocksOnFullBoardMsg", lastStepA, lastStepB, clocksA, clocksB);
+    private updateBothBoardsAndClocksOnFullBoardMsg = (fen: cg.FEN, fenPartner: cg.FEN, lastStepA: Step, lastStepB: Step, clocksA: Clocks, clocksB: Clocks) => {
+        console.log("updateBothBoardsAndClocksOnFullBoardMsg", fen, fenPartner, lastStepA, lastStepB, clocksA, clocksB);
         if (lastStepA) {
             const partsA = lastStepA.fen.split(" ");
             const lastMoveA = uci2LastMove(lastStepA.move);
-            this.b1.setState(lastStepA.fen, partsA[1] === "b" ? "black" : "white", lastMoveA);
+            this.b1.setState(fen, partsA[1] === "b" ? "black" : "white", lastMoveA);
             this.b1.renderState();
         }
         if (lastStepB) {
             const partsB = lastStepB.fenB!.split(" ");
             const lastMoveB = uci2LastMove(lastStepB.moveB);
-            this.b2.setState(lastStepB.fenB!, partsB[1] === "b" ? "black" : "white", lastMoveB);
+            this.b2.setState(fenPartner, partsB[1] === "b" ? "black" : "white", lastMoveB);
             this.b2.renderState();
         }
 
@@ -915,11 +915,7 @@ export class RoundControllerBughouse implements ChatController {
                 board.setState(fen, board.turnColor === 'white' ? 'black' : 'white', lastMove);
                 board.renderState();
 
-                // because pocket might have changed. todo: condition it on if(capture) maybe
-                const messageFenPartnerSplit = fenPartner.split(/[\[\]]/);
-                const currentFenPartnerSplit = board.partnerCC.fullfen.split(/[\[\]]/);
-                const newFen = currentFenPartnerSplit[0] + "[" + messageFenPartnerSplit[1] + "]" + currentFenPartnerSplit[2];
-                board.partnerCC.setState(newFen, board.partnerCC.turnColor, lastMovePartner);
+                board.partnerCC.setState(fenPartner, board.partnerCC.turnColor, lastMovePartner);
                 board.partnerCC.renderState();
 
                 if (!this.focus) this.notifyMsg(`Played ${step.san}\nYour turn.`);
@@ -993,7 +989,7 @@ export class RoundControllerBughouse implements ChatController {
             }
         } else {
             if (isInitialBoardMessage || full) { // reconnect after lost ws connection or refresh
-                this.updateBothBoardsAndClocksOnFullBoardMsg(lastStepA, lastStepB, msg.clocks!, msg.clocksB!);
+                this.updateBothBoardsAndClocksOnFullBoardMsg(fen, fenPartner, lastStepA, lastStepB, msg.clocks!, msg.clocksB!);
             } else { // usual single ply board messages sent on each move
                 this.updateSingleBoardAndClocks(board, fen, fenPartner, lastStepA, lastStepB, clocks!, latestPly, colors, msg.status, check);
             }
