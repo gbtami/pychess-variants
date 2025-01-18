@@ -234,7 +234,7 @@ async def handle_accept_seek(app_state: PychessGlobalAppState, ws, user, data):
             seek.creator.game_queues[gameId] = asyncio.Queue()
             await seek.creator.event_queue.put(challenge(seek, response))
         else:
-            ws_set = seek.creator.lobby_sockets
+            ws_set = list(seek.creator.lobby_sockets)
             if len(ws_set) == 0:
                 remove_seek(app_state.seeks, seek)
                 await app_state.lobby.lobby_broadcast_seeks()

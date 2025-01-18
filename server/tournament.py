@@ -755,26 +755,20 @@ class Tournament(ABC):
                 "bplayer": bp.username,
             }
 
-            ws_ok = True
-            try:
-                ws = next(iter(wp.tournament_sockets[self.id]))
-            except (KeyError, StopIteration):
-                ws_ok = False
-
-            if ws_ok and wp.title != "TEST":
-                ws_ok = await ws_send_json(ws, response)
+            ws_ok = False
+            if wp.title != "TEST":
+                for ws in list(wp.tournament_sockets[self.id]):
+                    ok = await ws_send_json(ws, response)
+                    ws_ok = ws_ok or ok
             if not ws_ok:
                 await self.pause(wp)
                 log.debug("White player %s left the tournament (ws send failed)", wp.username)
 
-            ws_ok = True
-            try:
-                ws = next(iter(bp.tournament_sockets[self.id]))
-            except (KeyError, StopIteration):
-                ws_ok = False
-
-            if ws_ok and bp.title != "TEST":
-                ws_ok = await ws_send_json(ws, response)
+            ws_ok = False
+            if bp.title != "TEST":
+                for ws in list(bp.tournament_sockets[self.id]):
+                    ok = await ws_send_json(ws, response)
+                    ws_ok = ws_ok or ok
             if not ws_ok:
                 await self.pause(bp)
                 log.debug("Black player %s left the tournament (ws send failed)", bp.username)
