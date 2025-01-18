@@ -40,20 +40,15 @@ function initModel(el: HTMLElement) {
     // because python http.cookies.SimpleCookie() adds it when name contains dash "–"
     const user = getCookie("user").replace(/(^"|"$)/g, '');
 
-    // Remove new variants from variants on prod site until they stabilize
+    // Remove twoBoards variants from variants on prod site until they stabilize
     if (el.getAttribute("data-dev") !== "True") {
-        const notReadyStandard = twoBoarsVariants;
-        notReadyStandard.forEach((v) => {
-            const idx = variantGroups.standard.variants.indexOf(v);
-            variantGroups.standard.variants.splice(idx, 1);
-        });
-/*
-        const notReadyFairy = [];
-        notReadyFairy.forEach((v) => {
-            const idx = variantGroups.fairy.variants.indexOf(v);
-            variantGroups.fairy.variants.splice(idx, 1);
-        });
-*/
+        Object.keys(variantGroups).forEach(g => {
+            const group = variantGroups[g];
+            twoBoarsVariants.forEach((v) => {
+                const idx = group.variants.indexOf(v);
+                if (idx > -1) group.variants.splice(idx, 1);
+            })
+        })
     }
 
     let ct = el.getAttribute("data-ct") ?? "";
