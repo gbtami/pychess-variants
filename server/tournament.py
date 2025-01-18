@@ -760,7 +760,7 @@ class Tournament(ABC):
                 for ws in list(wp.tournament_sockets[self.id]):
                     ok = await ws_send_json(ws, response)
                     ws_ok = ws_ok or ok
-            if not ws_ok:
+            if (not ws_ok) and wp.title != "TEST":
                 await self.pause(wp)
                 log.debug("White player %s left the tournament (ws send failed)", wp.username)
 
@@ -769,7 +769,7 @@ class Tournament(ABC):
                 for ws in list(bp.tournament_sockets[self.id]):
                     ok = await ws_send_json(ws, response)
                     ws_ok = ws_ok or ok
-            if not ws_ok:
+            if (not ws_ok) and bp.title != "TEST":
                 await self.pause(bp)
                 log.debug("Black player %s left the tournament (ws send failed)", bp.username)
 
