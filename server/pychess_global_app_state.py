@@ -422,7 +422,9 @@ class PychessGlobalAppState:
     def __init_twitch(self) -> Twitch:
         result = Twitch(self.app)
         if not DEV:
-            asyncio.create_task(result.init_subscriptions(), name="Twitch-subscriptions")
+            pass
+            # TODO: make twitch SECRET permanent
+            # asyncio.create_task(result.init_subscriptions(), name="Twitch-subscriptions")
         return result
 
     def __init_users(self) -> Users:
