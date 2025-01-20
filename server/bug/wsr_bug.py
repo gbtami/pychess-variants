@@ -1,14 +1,11 @@
-import logging
-
-
 from broadcast import round_broadcast
+from bug.game_bug import GameBug
 from const import STARTED
 from newid import new_id
 from pychess_global_app_state import PychessGlobalAppState
 from seek import Seek
 from bug.utils_bug import play_move, join_seek_bughouse
-
-log = logging.getLogger(__name__)
+from logger import log
 
 
 async def handle_reconnect_bughouse(app_state: PychessGlobalAppState, user, data, game):
@@ -56,7 +53,7 @@ async def handle_reconnect_bughouse(app_state: PychessGlobalAppState, user, data
                 )
 
 
-async def handle_resign_bughouse(data, game, user):
+async def handle_resign_bughouse(data, game: GameBug, user):
     if data["type"] == "abort" and (game is not None) and game.board.ply > 2:
         return
 
@@ -68,25 +65,13 @@ async def handle_resign_bughouse(data, game, user):
     async with game.move_lock:
         response = await game.game_ended(user, data["type"])
 
-    for u in game.all_players:
-        await u.send_game_message(
-            game.id, response
-        )  # todo: just do full broadcast below - dont need this i think
-
-    await round_broadcast(game, response)
+    await round_broadcast(game, response, full=True)
 
 
 async def handle_rematch_bughouse(app_state: PychessGlobalAppState, game, user, users):
     log.info("rematch request by %s.", user)
     rematch_id = None
-    other_players = filter(lambda p: p.username != user.username, game.all_players)
-    other_players = set(other_players)
-    # opp_name = (
-    #     game.wplayer.username
-    #     if user.username == game.bplayer.username
-    #     else game.bplayer.username
-    # )
-    # opp_player = users[opp_name]
+    other_players = filter(lambda p: p.username != user.username, game.non_bot_players)
 
     log.info("other_plauers %s.", other_players)
     if all(
@@ -119,7 +104,7 @@ async def handle_rematch_bughouse(app_state: PychessGlobalAppState, game, user, 
             app_state, None, seek.id, None, "all-joined-players-set-generate-response"
         )
         rematch_id = response["gameId"]
-        for u in set(game.all_players):
+        for u in set(game.non_bot_players):
             await u.send_game_message(game.id, response)
     else:
         game.rematch_offers.add(user.username)
@@ -131,7 +116,7 @@ async def handle_rematch_bughouse(app_state: PychessGlobalAppState, game, user, 
             "user": "",
         }
         game.messages.append(response)
-        for u in set(game.all_players):
+        for u in set(game.non_bot_players):
             await u.send_game_message(game.id, response)
     if rematch_id:
         await round_broadcast(game, {"type": "view_rematch", "gameId": rematch_id})

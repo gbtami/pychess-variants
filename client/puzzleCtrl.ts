@@ -9,6 +9,7 @@ import { lmBeforeEp, uci2LastMove, UCIMove, uci2cg } from './chess';
 import { updateMovelist } from './movelist';
 import { variants } from './variants';
 import { RatedSettings, AutoNextSettings } from './puzzleSettings';
+import { updatePoint } from './info';
 
 
 export class PuzzleController extends AnalysisController {
@@ -61,7 +62,7 @@ export class PuzzleController extends AnalysisController {
         const lm = (data.lm) ? data.lm : lmBeforeEp(this.variant, this.fullfen);
 
         this.chessground.set({
-            orientation: this.turnColor,
+            orientation: this.variant.name === 'racingkings' ? 'white' : this.turnColor,
             turnColor: this.turnColor,
             lastMove: uci2LastMove(lm),
             movable: {
@@ -208,7 +209,7 @@ export class PuzzleController extends AnalysisController {
                 h('div.info2', [
                     h('div', [
                         h('span', _('Variant')),
-                        h('a.user-link', {
+                        h('a', {
                             attrs: {
                                 target: '_blank',
                                 href: '/variants/' + this.variant.name,
@@ -300,6 +301,10 @@ export class PuzzleController extends AnalysisController {
         this.steps.push(step);
         this.ply += 1
         updateMovelist(this);
+
+        if (this.variant.ui.materialPoint) {
+            [this.vmiscInfoW, this.vmiscInfoB] = updatePoint(this.variant, this.ffishBoard.fen(), this.vmiscInfoW, this.vmiscInfoB);
+        }
     }
 
     cgConfig = (move: string) => {

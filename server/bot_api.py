@@ -1,7 +1,6 @@
 from __future__ import annotations
 import asyncio
 import json
-import logging
 
 from aiohttp import web
 
@@ -13,8 +12,7 @@ from settings import BOT_TOKENS
 from user import User
 from utils import join_seek, play_move
 from pychess_global_app_state_utils import get_app_state
-
-log = logging.getLogger(__name__)
+from logger import log
 
 
 def authorized(func):
@@ -113,7 +111,7 @@ async def create_bot_seek(request):
         # inform others
         await app_state.lobby.lobby_broadcast_seeks()
     else:
-        response = await join_seek(app_state, bot_player, matching_seek.id)
+        response = await join_seek(app_state, bot_player, matching_seek)
 
         gameId = response["gameId"]
         game = app_state.games[gameId]
@@ -170,7 +168,8 @@ async def event_stream(request):
     log.info("+++ BOT %s connected", bot_player.username)
 
     pinger_task = asyncio.create_task(
-        bot_player.pinger(app_state.sockets, app_state.seeks, app_state.users, app_state.games)
+        bot_player.pinger(app_state.sockets, app_state.seeks, app_state.users, app_state.games),
+        name="BOT-event-stream-pinger",
     )
 
     # inform others
@@ -197,7 +196,7 @@ async def event_stream(request):
                 await resp.write(answer.encode("utf-8"))
                 await resp.drain()
         except Exception:
-            log.error("BOT %s event_stream is broken...", username, exc_info=True)
+            log.error("BOT %s event_stream is broken...", username)
             break
 
     pinger_task.cancel()
@@ -235,7 +234,7 @@ async def game_stream(request):
             else:
                 break
 
-    pinger_task = asyncio.create_task(pinger())
+    pinger_task = asyncio.create_task(pinger(), name="BOT-game-stream-pinger")
 
     while True:
         answer = await bot_player.game_queues[gameId].get()
@@ -249,13 +248,13 @@ async def game_stream(request):
             await resp.write(answer.encode("utf-8"))
             await resp.drain()
         except Exception:
-            log.error("Writing %s to BOT game_stream failed!", answer, exc_info=True)
+            log.error("Writing %s to BOT game_stream failed!", answer)
             break
 
     try:
         await resp.write_eof()
     except Exception:
-        log.error("Writing EOF to BOT game_stream failed!", exc_info=True)
+        log.error("Writing EOF to BOT game_stream failed!")
     pinger_task.cancel()
 
     return resp

@@ -1,24 +1,24 @@
 from __future__ import annotations
 
 import collections
-import logging
 from typing import Optional, Deque
+
+from aiohttp.web_ws import WebSocketResponse
 
 from const import TYPE_CHECKING, MAX_CHAT_LINES
 from seek import get_seeks
-from websocket_utils import ws_send_json, MyWebSocketResponse
+from websocket_utils import ws_send_json
 
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
     from user import User
-
-log = logging.getLogger(__name__)
+# from logger import log
 
 
 class Lobby:
     def __init__(self, app_state: PychessGlobalAppState):
         self.app_state = app_state
-        self.lobbysockets: dict[str, MyWebSocketResponse] = (
+        self.lobbysockets: dict[str, WebSocketResponse] = (
             {}
         )  # one dict only! {user.username: user.tournament_sockets, ...}
         self.lobbychat: Deque[dict] = collections.deque([], MAX_CHAT_LINES)
@@ -26,8 +26,8 @@ class Lobby:
     # below methods maybe best in separate class eventually
     async def lobby_broadcast(self, response):
         # log.debug("lobby_broadcast: %r to %r", response, self.lobbysockets)
-        for username, ws_set in self.lobbysockets.items():
-            for ws in ws_set:
+        for username, ws_set in list(self.lobbysockets.items()):
+            for ws in list(ws_set):
                 await ws_send_json(ws, response)
 
     async def lobby_broadcast_u_cnt(self):
@@ -35,19 +35,24 @@ class Lobby:
         response = {"type": "u_cnt", "cnt": self.app_state.online_count()}
         await self.lobby_broadcast(response)
 
+    async def lobby_broadcast_ap_cnt(self):
+        response = {"type": "ap_cnt", "cnt": self.app_state.auto_pairing_count()}
+        await self.lobby_broadcast(response)
+
     async def lobby_broadcast_seeks(self):
         # We will need all the seek users blocked info
         for seek in self.app_state.seeks.values():
             await self.app_state.users.get(seek.creator.username)
 
-        for username, ws_set in self.lobbysockets.items():
+        for username, ws_set in list(self.lobbysockets.items()):
             ws_user = await self.app_state.users.get(username)
-            for ws in ws_set:
+            compatible_seeks = get_seeks(ws_user, self.app_state.seeks.values())
+            for ws in list(ws_set):
                 await ws_send_json(
                     ws,
                     {
                         "type": "get_seeks",
-                        "seeks": get_seeks(ws_user, self.app_state.seeks.values()),
+                        "seeks": compatible_seeks,
                     },
                 )
 

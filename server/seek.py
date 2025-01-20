@@ -1,12 +1,11 @@
 from __future__ import annotations
 from datetime import datetime, timezone
-import logging
 
 from const import CORR_SEEK_EXPIRE_WEEKS
 from misc import time_control_str
 from newid import new_id
+from logger import log
 
-log = logging.getLogger(__name__)
 
 MAX_USER_SEEKS = 10
 
@@ -20,7 +19,7 @@ class Seek:
         fen="",
         color="r",
         base=5,
-        inc=3,
+        inc=5,
         byoyomi_period=0,
         day=0,
         level=6,
@@ -33,7 +32,6 @@ class Seek:
         player2=None,
         bugPlayer1=None,
         bugPlayer2=None,
-        ws=None,
         game_id=None,
         expire_at=None,
     ):
@@ -43,9 +41,9 @@ class Seek:
         self.color = color
         self.fen = "" if fen is None else fen
         self.rated = rated
-        self.rating = creator.get_rating(variant, chess960).rating_prov[0]
-        self.rrmin = rrmin if (rrmin is not None and rrmin != -500) else -10000
-        self.rrmax = rrmax if (rrmax is not None and rrmax != 500) else 10000
+        self.rating = creator.get_rating_value(variant, chess960)
+        self.rrmin = rrmin if (rrmin is not None and rrmin != -1000) else -10000
+        self.rrmax = rrmax if (rrmax is not None and rrmax != 1000) else 10000
         self.base = base
         self.inc = inc
         self.byoyomi_period = byoyomi_period
@@ -57,7 +55,6 @@ class Seek:
         self.player2 = player2
         self.bugPlayer1 = bugPlayer1
         self.bugPlayer2 = bugPlayer2
-        self.ws = ws
 
         self.game_id = game_id
 
@@ -89,33 +86,6 @@ class Seek:
             + "pending='%d', " % self.pending
             + "day='%d'>" % self.day
         )
-
-    @property
-    def as_json(self):
-        return {
-            "seekID": self.id,
-            "user": self.creator.username,
-            "bot": self.creator.bot,
-            "title": self.creator.title,
-            "variant": self.variant,
-            "chess960": self.chess960,
-            "target": self.target,
-            "player1": self.player1.username if self.player1 is not None else "",
-            "player2": self.player2.username if self.player2 is not None else "",
-            "bugPlayer1": self.bugPlayer1.username if self.bugPlayer1 is not None else "",
-            "bugPlayer2": self.bugPlayer2.username if self.bugPlayer2 is not None else "",
-            "fen": self.fen,
-            "color": self.color,
-            "rated": self.rated,
-            "rrmin": self.rrmin,
-            "rrmax": self.rrmax,
-            "rating": self.rating,
-            "base": self.base,
-            "inc": self.inc,
-            "byoyomi": self.byoyomi_period,
-            "day": self.day,
-            "gameId": self.game_id if self.game_id is not None else "",
-        }
 
     @property
     def seek_json(self):
@@ -168,7 +138,7 @@ class Seek:
         return "%s: **%s%s** %s" % (self.creator.username, self.variant, tail960, tc)
 
 
-async def create_seek(db, invites, seeks, user, data, ws, empty=False):
+async def create_seek(db, invites, seeks, user, data, empty=False):
     """Seek can be
     - invite (has reserved new game id stored in app[invites], and target is 'Invite-friend')
     - challenge (has another username as target)
@@ -210,7 +180,6 @@ async def create_seek(db, invites, seeks, user, data, ws, empty=False):
         target=target,
         player1=None if empty else user,
         player2=None,
-        ws=ws,  # todo: dont see the need for this - instead the list of user's lobby websockets can be used
         game_id=game_id,
     )
 
@@ -225,7 +194,9 @@ async def create_seek(db, invites, seeks, user, data, ws, empty=False):
 
 
 def get_seeks(user, seeks):
-    return [seek.as_json for seek in seeks if not seek.pending and user.compatible_with_seek(seek)]
+    return [
+        seek.seek_json for seek in seeks if not seek.pending and user.compatible_with_seek(seek)
+    ]
 
 
 def challenge(seek, gameId):

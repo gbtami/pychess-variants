@@ -3,11 +3,12 @@ from __future__ import annotations
 import asyncio
 import collections
 import gettext
-import logging
 import queue
 from typing import List, Set
 
 from aiohttp import web
+from aiohttp.web_ws import WebSocketResponse
+
 import os
 from datetime import timedelta, timezone, datetime, date
 from operator import neg
@@ -16,10 +17,11 @@ import jinja2
 from pythongettext.msgfmt import Msgfmt, PoSyntaxError
 from sortedcollections import ValueSortedDict
 
+from mongomock_motor import AsyncMongoMockClient
+
 from ai import BOT_task
 from const import (
     NONE_USER,
-    VARIANTS,
     LANGUAGES,
     MAX_CHAT_LINES,
     MONTHLY,
@@ -57,13 +59,14 @@ from twitch import Twitch
 from user import User
 from users import Users, NotInDbUsers
 from utils import load_game
-from websocket_utils import MyWebSocketResponse
 from blogs import BLOGS
 from videos import VIDEOS
 from youtube import Youtube
+from logger import log
+from variants import VARIANTS, RATED_VARIANTS
 
 
-log = logging.getLogger(__name__)
+GAME_KEEP_TIME = 1800  # keep game in app[games_key] for GAME_KEEP_TIME secs
 
 
 class PychessGlobalAppState:
@@ -71,6 +74,7 @@ class PychessGlobalAppState:
         from typedefs import db_key
 
         self.app = app
+        self.anon_as_test_users = app["anon_as_test_users"]
 
         self.shutdown = False
         self.tournaments_loaded = asyncio.Event()
@@ -81,7 +85,7 @@ class PychessGlobalAppState:
         self.disable_new_anons = False
         self.lobby = Lobby(self)
         # one dict per tournament! {tournamentId: {user.username: user.tournament_sockets, ...}, ...}
-        self.tourneysockets: dict[str, MyWebSocketResponse] = {}
+        self.tourneysockets: dict[str, WebSocketResponse] = {}
 
         # translated scheduled tournament names {(variant, frequency, t_type): tournament.name, ...}
         self.tourneynames: dict[str, dict] = {lang: {} for lang in LANGUAGES}
@@ -94,18 +98,19 @@ class PychessGlobalAppState:
         # TODO: save/restore from db
         self.sent_lichess_team_msg: List[date] = []
 
-        self.seeks: dict[int, Seek] = {}
+        self.seeks: dict[str, Seek] = {}
+        self.auto_pairing_users: dict[User, (int, int)] = {}
+        self.auto_pairings: dict[str, set] = {}
         self.games: dict[str, Game] = {}
         self.invites: dict[str, Seek] = {}
         self.game_channels: Set[queue] = set()
         self.invite_channels: Set[queue] = set()
-        self.highscore = {variant: ValueSortedDict(neg) for variant in VARIANTS}
-        self.crosstable: dict[str, object] = {}
+        self.highscore = {variant: ValueSortedDict(neg) for variant in RATED_VARIANTS}
         self.shield = {}
         self.shield_owners = {}  # {variant: username, ...}
         self.daily_puzzle_ids = {}  # {date: puzzle._id, ...}
 
-        # TODO: save/restore monthly stats from db when current month is over
+        # monthly game stats per variant
         self.stats = {}
         self.stats_humans = {}
 
@@ -165,14 +170,17 @@ class PychessGlobalAppState:
                 if doc["status"] == T_STARTED or (
                     doc["status"] == T_CREATED and doc["startsAt"].date() <= to_date
                 ):
-                    await load_tournament(self, doc["_id"])
+                    # Prevent unit test slowdown when db_client is AsyncMongoMockClient
+                    if not isinstance(self.db_client, AsyncMongoMockClient):
+                        await load_tournament(self, doc["_id"])
             self.tournaments_loaded.set()
 
-            already_scheduled = await get_scheduled_tournaments(self)
-            new_tournaments_data = new_scheduled_tournaments(already_scheduled)
-            await create_scheduled_tournaments(self, new_tournaments_data)
+            if not isinstance(self.db_client, AsyncMongoMockClient):
+                already_scheduled = await get_scheduled_tournaments(self)
+                new_tournaments_data = new_scheduled_tournaments(already_scheduled)
+                await create_scheduled_tournaments(self, new_tournaments_data)
 
-            asyncio.create_task(generate_shield(self))
+                asyncio.create_task(generate_shield(self), name="generate-shield")
 
             if "highscore" not in db_collections:
                 await generate_highscore(self)
@@ -181,12 +189,8 @@ class PychessGlobalAppState:
                 if doc["_id"] in VARIANTS:
                     self.highscore[doc["_id"]] = ValueSortedDict(neg, doc["scores"])
 
-            # TODO: read it on demand only, similar to users
             if "crosstable" not in db_collections:
-                await generate_crosstable(self.db)
-            cursor = self.db.crosstable.find()
-            async for doc in cursor:
-                self.crosstable[doc["_id"]] = doc
+                await generate_crosstable(self)
 
             if "dailypuzzle" not in db_collections:
                 try:
@@ -235,6 +239,18 @@ class PychessGlobalAppState:
                 await self.db.create_collection("seek")
             await self.db.seek.create_index("expireAt", expireAfterSeconds=0)
 
+            # Load auto pairings from database
+            async for doc in self.db.autopairing.find():
+                variant_tc = tuple(doc["variant_tc"])
+                if variant_tc not in self.auto_pairings:
+                    self.auto_pairings[variant_tc] = set()
+
+                for username, rrange in doc["users"]:
+                    user = await self.users.get(username)
+                    self.auto_pairings[variant_tc].add(user)
+                    if user not in self.auto_pairing_users:
+                        self.auto_pairing_users[user] = rrange
+
             # Load seeks from database
             async for doc in self.db.seek.find():
                 user = await self.users.get(doc["user"])
@@ -258,15 +274,21 @@ class PychessGlobalAppState:
                     user.seeks[seek.id] = seek
 
             # Read games in play and start their clocks
-            cursor = self.db.game.find({"r": "d"})
+            cursor = self.db.game.find({"r": "d", "$or": [{"s": -2}, {"s": -1}]})
             cursor.sort("d", -1)
             today = datetime.now(timezone.utc)
 
             async for doc in cursor:
-                # Don't load old uninished games if they are NOT corr games
                 corr = doc.get("c", False)
-                if doc["d"] < today - timedelta(days=1) and not corr:
-                    continue
+
+                if corr:
+                    # Don't load old never started corr games
+                    if doc["s"] == -2 and doc["d"] < today - timedelta(days=doc["b"]):
+                        continue
+                else:
+                    # Don't load old uninished games
+                    if doc["d"] < today - timedelta(days=1):
+                        continue
 
                 if doc["s"] < ABORTED:
                     game_id = doc["_id"]
@@ -316,7 +338,7 @@ class PychessGlobalAppState:
                     FISHNET_KEYS[doc["_id"]] = doc["name"]
 
         except Exception:
-            log.error("init_from_db() failed", stack_info=True, exc_info=True)
+            log.error("init_from_db() Exception")
             raise
 
     def __init_translations(self):
@@ -333,7 +355,7 @@ class PychessGlobalAppState:
                     with open(moname, "wb") as mo_file:
                         mo_file.write(mo)
             except PoSyntaxError:
-                log.error("PoSyntaxError in %s", poname, stack_info=True, exc_info=True)
+                log.error("PoSyntaxError in %s", poname)
 
             # Create translation class
             try:
@@ -356,7 +378,7 @@ class PychessGlobalAppState:
 
             translation.install()
 
-            for variant in VARIANTS + PAUSED_MONTHLY_VARIANTS:
+            for variant in tuple(VARIANTS.keys()) + PAUSED_MONTHLY_VARIANTS:
                 if (
                     variant in MONTHLY_VARIANTS
                     or variant in NEW_MONTHLY_VARIANTS
@@ -375,8 +397,8 @@ class PychessGlobalAppState:
     def __start_bots(self):
         rm = self.users["Random-Mover"]
         ai = self.users["Fairy-Stockfish"]
-        asyncio.create_task(BOT_task(ai, self))
-        asyncio.create_task(BOT_task(rm, self))
+        asyncio.create_task(BOT_task(ai, self), name="BOT-RM")
+        asyncio.create_task(BOT_task(rm, self), name="BOT-FSF")
 
     def __init_fishnet_monitor(self) -> dict:
         result = {}
@@ -395,12 +417,14 @@ class PychessGlobalAppState:
         else:
             bot = DiscordBot(self)
             self.discord = bot
-            asyncio.create_task(bot.start(DISCORD_TOKEN))
+            asyncio.create_task(bot.start(DISCORD_TOKEN), name="Discord-BOT")
 
     def __init_twitch(self) -> Twitch:
         result = Twitch(self.app)
         if not DEV:
-            asyncio.create_task(result.init_subscriptions())
+            pass
+            # TODO: make twitch SECRET permanent
+            # asyncio.create_task(result.init_subscriptions(), name="Twitch-subscriptions")
         return result
 
     def __init_users(self) -> Users:
@@ -416,6 +440,25 @@ class PychessGlobalAppState:
         result[NONE_USER] = User(self, anon=True, username=NONE_USER)
         result[NONE_USER].enabled = False
         return result
+
+    async def remove_from_cache(self, game):
+        await asyncio.sleep(GAME_KEEP_TIME)
+
+        if game.id == self.tv:
+            self.tv = None
+
+        if game.id in self.games:
+            del self.games[game.id]
+
+        if game.bot_game:
+            try:
+                for player in game.all_players:
+                    if player.bot:
+                        del player.game_queues[game.id]
+            except KeyError:
+                log.error("Failed to del %s from game_queues", game.id)
+
+        log.debug("Removed %s OK", game.id)
 
     async def server_shutdown(self):
         self.shutdown = True
@@ -443,6 +486,21 @@ class PychessGlobalAppState:
                 log.debug("saving regular seek to database: %s" % seek)
             await self.db.seek.insert_many(reg_seeks)
 
+        # save auto pairings
+        await self.db.autopairing.delete_many({})
+        auto_pairings = [
+            {
+                "variant_tc": variant_tc,
+                "users": [
+                    (user.username, self.auto_pairing_users[user])
+                    for user in self.auto_pairings[variant_tc]
+                ],
+            }
+            for variant_tc in self.auto_pairings
+        ]
+        if len(auto_pairings) > 0:
+            await self.db.autopairing.insert_many(auto_pairings)
+
         # terminate BOT users
         for user in [user for user in self.users.values() if user.bot]:
             await user.event_queue.put('{"type": "terminated"}')
@@ -465,6 +523,9 @@ class PychessGlobalAppState:
 
     def online_count(self):
         return sum((1 for user in self.users.values() if user.online))
+
+    def auto_pairing_count(self):
+        return sum((1 for user in self.auto_pairing_users if user.ready_for_auto_pairing))
 
     def __str__(self):
         return self.__stringify(str)

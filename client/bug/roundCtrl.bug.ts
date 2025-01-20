@@ -9,14 +9,12 @@ import { createMovelistButtons, updateMovelist, updateResult, selectMove } from 
 import {
     Clocks,
     MsgBoard,
-    MsgChat,
-    MsgFullChat,
     MsgGameEnd,
     MsgMove,
     MsgMovesAfterReconnect,
     MsgNewGame,
     MsgUserConnected,
-    Step
+    Step, StepChat
 } from "../messages";
 import {
     MsgUserDisconnected,
@@ -28,7 +26,7 @@ import {
     MsgUpdateTV,
     MsgGameStart, MsgViewRematch
 } from '../roundType';
-import { BugBoardName, JSONObject, PyChessModel } from "../types";
+import {BoardName, BugBoardName, JSONObject, PyChessModel} from "../types";
 import { GameControllerBughouse } from "./gameCtrl.bug";
 import { BLACK, getTurnColor, uci2LastMove, WHITE } from "../chess";
 import { sound } from "../sound";
@@ -41,6 +39,7 @@ import AnalysisControllerBughouse from "@/bug/analysisCtrl.bug";
 import { boardSettings } from "@/boardSettings";
 import { ChessgroundController } from "@/cgCtrl";
 import {playerInfoData} from "@/bug/gameInfo.bug";
+import {chatMessageBug} from "@/bug/chat.bug";
 
 export class RoundControllerBughouse implements ChatController {
     sock: WebsocketHeartbeatJs;
@@ -54,6 +53,8 @@ export class RoundControllerBughouse implements ChatController {
 
     steps: Step[];
     ply: number;
+    plyA: number = 0;
+    plyB: number = 0;
     plyVari: number;
 
     moveControls: VNode;
@@ -97,6 +98,7 @@ export class RoundControllerBughouse implements ChatController {
     base: number;
     inc: number;
     vmovelist: VNode | HTMLElement;
+    variant: Variant;
 
     spectator: boolean;
 
@@ -148,6 +150,8 @@ export class RoundControllerBughouse implements ChatController {
         this.gameId = model["gameId"] as string;
         this.username = model["username"];
         this.anon = model.anon === 'True';
+
+        this.variant = VARIANTS[model.variant];
 
         this.teamFirst = [playerInfoData(model, "w", "a"), playerInfoData(model, "b", "b")]
         this.teamSecond = [playerInfoData(model, "b", "a"), playerInfoData(model, "w", "b")]
@@ -383,7 +387,7 @@ export class RoundControllerBughouse implements ChatController {
             movesQueued: [],
         }
 
-        initBoardSettings(this.b1, this.b2, VARIANTS['bughouse']);
+        initBoardSettings(this.b1, this.b2, this.variant);
 
         // last so when it receive initial messages on connect all dom is ready to be updated
         this.sock = createWebsocket('wsr/' + this.gameId, onOpen, onReconnect, onClose, (e: MessageEvent) => this.onMessage(e));
@@ -644,7 +648,7 @@ export class RoundControllerBughouse implements ChatController {
     private checkStatus = (msg: MsgBoard | MsgGameEnd) => {
         console.log(msg);
         if (msg.gameId !== this.gameId) return;
-        if (msg.status >= 0) {
+        if (msg.status >= 0) { // game over
             this.status = msg.status;
             this.result = msg.result;
             this.clocks[0].pause(false);
@@ -684,19 +688,47 @@ export class RoundControllerBughouse implements ChatController {
             patch(container, h('div#movelist'));
 
             steps.forEach((step, idx) => {
+                if (idx > 0) {
+                    //skip first dummy element
+                    if (step.boardName === "a") {
+                        this.plyA++;
+                    } else {
+                        this.plyB++;
+                    }
+                }
+                step.plyA = this.plyA;
+                step.plyB = this.plyB;
                 this.steps.push(step);
                 if (idx === 4) {
                     chatMessage("", "Chat visible only to your partner", "bugroundchat", undefined, idx, this);
                 }
-                if (step.chat) { // todo: check if status < 0 and filter only partners messages
+                if (step.chat) {
                     step.chat.forEach((c) => {
-                        chatMessage(c.username, c.message, "bugroundchat", c.time, idx, this);
+                        // Check if status < 0 and filter only partners messages
+                        const myTeam = (this.whichTeamAmI() === '1') ? this.teamFirst : this.teamSecond;
+                        if (this.status < 0) {
+                            if (c.username === myTeam[0][0] || c.username === myTeam[1][0]) {
+                                chatMessageBug(idx, this, c);
+                            }
+                        } else {
+                            chatMessageBug(idx, this, c);
+                        }
                     });
                 }
                 });
             updateMovelist(this, true, true, false);
         } else { // single step message
             if (ply === this.steps.length) {
+                if (ply > 0) {
+                    //skip first dummy element
+                    if (steps[0].boardName === "a") {
+                        this.plyA++;
+                    } else {
+                        this.plyB++;
+                    }
+                }
+                steps[0].plyA = this.plyA;
+                steps[0].plyB = this.plyB;
                 this.steps.push(steps[0]);
                 const full = false;
                 const activate = !this.spectator || latestPly;
@@ -709,8 +741,8 @@ export class RoundControllerBughouse implements ChatController {
         }
     }
 
-    private updateBoardsAndClocksSpectors = (board: GameControllerBughouse, fen: cg.FEN, fenPartner: cg.FEN, lastStepA: Step, lastStepB: Step, clocks: Clocks, latestPly: boolean, colors: cg.Color[], status: number, check: boolean) => {
-        console.log("updateBoardsAndClocksSpectors", board, fen, fenPartner, lastStepA, lastStepB, clocks, latestPly, colors, status, check);
+    private updateBoardsAndClocksSpectors = (board: GameControllerBughouse, fen: cg.FEN, fenPartner: cg.FEN, lastStepA: Step, lastStepB: Step, msgClocks: Clocks, latestPly: boolean, colors: cg.Color[], status: number, check: boolean) => {
+        console.log("updateBoardsAndClocksSpectors", board, fen, fenPartner, lastStepA, lastStepB, msgClocks, latestPly, colors, status, check);
 
         this.clockOn = true;// Number(msg.ply) >= 2;
         if ( !this.spectator && this.clockOn ) {
@@ -719,47 +751,24 @@ export class RoundControllerBughouse implements ChatController {
         }
         const step = board.boardName === 'a'? lastStepA: lastStepB;
         const stepPartner = board.boardName === 'b'? lastStepA: lastStepB;
-        const msgTurnColor = step.turnColor; // whose turn it is after this move
+        const msgTurnColor = getTurnColor(fen);//step.turnColor; // whose turn it is after this move
 
         // todo: same clock logic also in updateSingleBoardAndClocks - move to reusable method.
         // important we update only the board where the single move happened, the other clock values do not include the
         // time passed since last move on that board, but contain what is last recorded on the server for that board,
         // while the clock values for this move contain what the user making the moves has in their browser, which we
         // consider most accurate
-        if (board.boardName == 'a') {
-            this.clocktimes = clocks;
-        } else {
-            this.clocktimesB = clocks;
-        }
 
-        // resetting clocks on the client that has just sent them seems like a bad idea
-        const startClockAtIdx = colors[0] === msgTurnColor? 0: 1;
-        const stopClockAtIdx = 1 - startClockAtIdx;
-
-        const whiteClockAtIdx = colors[0] === 'white'? 0: 1;
-        const blackClockAtIdx = 1 -whiteClockAtIdx;
-
-        const clocks1 = board.boardName === 'a'? this.clocks: this.clocksB;
-        const clocktimes = board.boardName === 'a'? this.clocktimes: this.clocktimesB;
-
-
-        clocks1[stopClockAtIdx].pause(false);
-
-        clocks1[whiteClockAtIdx].setTime(clocktimes[WHITE]);
-        clocks1[blackClockAtIdx].setTime(clocktimes[BLACK]);
-
-        if (this.clockOn && status < 0) {
-            clocks1[startClockAtIdx].start();
-        }
+        this.updateClocks(board.boardName, msgTurnColor, msgClocks);
 
         //when message is for opp's move, meaning turnColor is my color - it is now my turn after this message
         if (latestPly) {
-            const move = board.boardName == "a"? step.move: step.moveB;
+            const move = step == undefined? undefined: board.boardName == "a"? step.move: step.moveB;
             board.setState(fen, msgTurnColor, uci2LastMove(move));
             board.renderState();
 
             // because pocket might have changed. todo: condition it on if(capture) maybe
-            const movePartner = board.partnerCC.boardName == "a"? stepPartner.move: stepPartner.moveB;
+            const movePartner = stepPartner == undefined? undefined: board.partnerCC.boardName == "a"? stepPartner.move: stepPartner.moveB;
             board.partnerCC.setState(fenPartner, board.partnerCC.turnColor, uci2LastMove(movePartner));
             board.partnerCC.renderState();
 
@@ -768,103 +777,25 @@ export class RoundControllerBughouse implements ChatController {
 
     }
 
-    // private updateBothBoardsAndClocksInitial = (fenA: cg.FEN, fenB: cg.FEN, clocksA: Clocks, clocksB: Clocks) => {
-    //     console.log("updateBothBoardsAndClocksInitial", fenA, fenB, clocksA, clocksB);
-    //
-    //     const partsA = fenA.split(" ");
-    //     const partsB = fenB.split(" ");
-    //
-    //     this.b1.turnColor = partsA[1] === "w" ? "white" : "black";
-    //     this.b2.turnColor = partsB[1] === "w" ? "white" : "black";
-    //
-    //     this.b1.chessground.set({
-    //         fen: fenA,
-    //         turnColor: this.b1.turnColor,
-    //         //  check: msg.check,
-    //         //lastMove: lastMove,
-    //     });
-    //     this.b2.chessground.set({
-    //         fen: fenB,
-    //         turnColor: this.b2.turnColor,
-    //         // check: msg.check,
-    //         //lastMove: lastMove,
-    //     });
-    //
-    //     this.clocks[0].pause(false);
-    //     this.clocks[1].pause(false);
-    //     this.clocksB[0].pause(false);
-    //     this.clocksB[1].pause(false);
-    //
-    //     this.clocktimes = clocksA;
-    //     this.clocktimesB = clocksB;
-    //
-    //     const whiteAClockAtIdx = this.colors[0] === 'white'? 0: 1;
-    //     const blackAClockAtIdx = 1 -whiteAClockAtIdx;
-    //     const whiteBClockAtIdx = this.colorsB[0] === 'white'? 0: 1;
-    //     const blackBClockAtIdx = 1 -whiteBClockAtIdx;
-    //
-    //     this.clocks[whiteAClockAtIdx].setTime(this.clocktimes[WHITE]);
-    //     this.clocks[blackAClockAtIdx].setTime(this.clocktimes[BLACK]);
-    //     this.clocksB[whiteBClockAtIdx].setTime(this.clocktimesB[WHITE]);
-    //     this.clocksB[blackBClockAtIdx].setTime(this.clocktimesB[BLACK]);
-    //
-    //     if (this.status < 0) {
-    //         const clockOnTurnAidx = this.colors[0] === this.b1.turnColor ? 0 : 1;
-    //         const clockOnTurnBidx = this.colorsB[0] === this.b2.turnColor ? 0 : 1;
-    //         this.clocks[clockOnTurnAidx].start(this.clocktimes[this.b1.turnColor === 'white'? WHITE: BLACK]);
-    //         this.clocksB[clockOnTurnBidx].start(this.clocktimesB[this.b2.turnColor === 'white'? WHITE: BLACK]);
-    //     }
-    //
-    // }
-
-    private updateBothBoardsAndClocksOnFullBoardMsg = (lastStepA: Step, lastStepB: Step, clocksA: Clocks, clocksB: Clocks) => {
+    private updateBothBoardsAndClocksOnFullBoardMsg = (lastStepA: Step, lastStepB: Step, fenA: cg.FEN, fenB: cg.FEN, clocksA: Clocks, clocksB: Clocks) => {
         console.log("updateBothBoardsAndClocksOnFullBoardMsg", lastStepA, lastStepB, clocksA, clocksB);
-        if (lastStepA) {
-            const partsA = lastStepA.fen.split(" ");
-            const lastMoveA = uci2LastMove(lastStepA.move);
-            this.b1.setState(lastStepA.fen, partsA[1] === "b" ? "black" : "white", lastMoveA);
-            this.b1.renderState();
-        }
-        if (lastStepB) {
-            const partsB = lastStepB.fenB!.split(" ");
-            const lastMoveB = uci2LastMove(lastStepB.moveB);
-            this.b2.setState(lastStepB.fenB!, partsB[1] === "b" ? "black" : "white", lastMoveB);
-            this.b2.renderState();
-        }
 
-        // todo: mostly duplicates same code in updateBothBoardsAndClocksInitial - consider doing some reusable method
-        this.clocks[0].pause(false);
-        this.clocks[1].pause(false);
-        this.clocksB[0].pause(false);
-        this.clocksB[1].pause(false);
-
-        this.clocktimes = clocksA;
-        this.clocktimesB = clocksB;
-
-        const whiteAClockAtIdx = this.colors[0] === 'white'? 0: 1;
-        const blackAClockAtIdx = 1 - whiteAClockAtIdx;
-        const whiteBClockAtIdx = this.colorsB[0] === 'white'? 0: 1;
-        const blackBClockAtIdx = 1 - whiteBClockAtIdx;
-
+        this.b1.setState(fenA, getTurnColor(fenA), uci2LastMove(lastStepA?.move));
+        this.b1.renderState();
+        this.b2.setState(fenB, getTurnColor(fenB), uci2LastMove(lastStepB?.moveB));
+        this.b2.renderState();
 
         if (this.status < 0) {
-            this.clocks[whiteAClockAtIdx].setTime(this.clocktimes[WHITE]);
-            this.clocks[blackAClockAtIdx].setTime(this.clocktimes[BLACK]);
-            this.clocksB[whiteBClockAtIdx].setTime(this.clocktimesB[WHITE]);
-            this.clocksB[blackBClockAtIdx].setTime(this.clocktimesB[BLACK]);
-
-            const clockOnTurnAidx = this.colors[0] === this.b1.turnColor ? 0 : 1;
-            const clockOnTurnBidx = this.colorsB[0] === this.b2.turnColor ? 0 : 1;
-            this.clocks[clockOnTurnAidx].start(this.clocktimes[this.b1.turnColor === 'white'? WHITE: BLACK]);
-            this.clocksB[clockOnTurnBidx].start(this.clocktimesB[this.b2.turnColor === 'white'? WHITE: BLACK]);
+            this.updateClocks("a", this.b1.turnColor, clocksA);
+            this.updateClocks("b", this.b2.turnColor, clocksB);
         } else {
+            // TODO: this logic differs than single board games and lichess - not sure if to preserve+improve or remove
+            //       for finished games they dont update clocks according to move times of last moves and here i do
             if (lastStepA) {
-                this.clocks[whiteAClockAtIdx].setTime(lastStepA.clocks![WHITE]);
-                this.clocks[blackAClockAtIdx].setTime(lastStepA.clocks![BLACK]);
+                this.updateClocks("a", this.b1.turnColor, lastStepA.clocks!);
             }
             if (lastStepB) {
-                this.clocksB[whiteBClockAtIdx].setTime(lastStepB.clocksB![WHITE]);
-                this.clocksB[blackBClockAtIdx].setTime(lastStepB.clocksB![BLACK]);
+                this.updateClocks("b", this.b2.turnColor, lastStepB.clocks!);
             }
         }
 
@@ -872,6 +803,45 @@ export class RoundControllerBughouse implements ChatController {
         // console.log("trying to play premove....");
         if (this.b1.premove && this.b1.turnColor == this.myColor.get('a')) this.b1.performPremove();
         if (this.b2.premove && this.b2.turnColor == this.myColor.get('b')) this.b2.performPremove();
+    }
+
+    /**
+     * @param boardName - for which board we are updating the clocks
+     * @param turnColor - whose turn it is after this move - their clock should be started
+     *
+     * Stops clock of user how made the move for the board in question,
+     * updates the clock times with the new values,
+     * starts the clock of the player whose turn is now
+     * */
+    private updateClocks(boardName: BoardName, turnColor: cg.Color, msgClocks: Clocks) {
+
+        if (boardName == 'a') {
+            this.clocktimes = msgClocks;
+        } else {
+            this.clocktimesB = msgClocks;
+        }
+
+        const colors = boardName === 'a' ? this.colors : this.colorsB;
+
+        // 0 - top, 1 - botton (in non-flipped mode) - that is how we identify clocks
+        // todo: maybe make some enums for top/bottom
+        const startClockAtIdx = colors[0] === turnColor? 0: 1;
+        const stopClockAtIdx = 1 - startClockAtIdx;
+
+        const whiteClockAtIdx = colors[0] === 'white'? 0: 1;
+        const blackClockAtIdx = 1 - whiteClockAtIdx;
+
+        const clocks = boardName === 'a'? this.clocks: this.clocksB;
+
+        clocks[stopClockAtIdx].pause(false);
+
+        clocks[whiteClockAtIdx].setTime(msgClocks[WHITE]);
+        clocks[blackClockAtIdx].setTime(msgClocks[BLACK]);
+
+        if (this.clockOn && this.status < 0) {
+            clocks[startClockAtIdx].start();
+        }
+
     }
 
     private updateSingleBoardAndClocks = (board: GameControllerBughouse, fen: cg.FEN, fenPartner: cg.FEN, lastStepA: Step, lastStepB: Step,
@@ -888,44 +858,20 @@ export class RoundControllerBughouse implements ChatController {
         const lastMove = uci2LastMove( board.boardName === 'a'? step.move: step.moveB);
         const lastMovePartner = stepPartner? uci2LastMove( board.partnerCC.boardName === 'a'? stepPartner.move: stepPartner.moveB): undefined;
 
-        // important we update only the board where the single move happened, the other clock values do not include the
-        // time passed since last move on that board, but contain what is last recorded on the server for that board,
-        // while the clock values for this move contain what the user making the moves has in their browser, which we
-        // consider most accurate
-        if (board.boardName == 'a') {
-            this.clocktimes = msgClocks;
-        } else {
-            this.clocktimesB = msgClocks;
-        }
-
         const capture = !!lastMove && ((board.chessground.state.boardState.pieces.get(lastMove[1] as cg.Key) && step.san?.slice(0, 2) !== 'O-') || (step.san?.slice(1, 2) === 'x'));
         if (lastMove && (!myMove || this.spectator)) {
-            if (!this.finishedGame) sound.moveSound(VARIANTS['bughouse'], capture);
+            if (!this.finishedGame) sound.moveSound(this.variant, capture);
         }
         if (!this.spectator && check && !this.finishedGame) {
             sound.check();
         }
 
         if (!myMove) {
-            // resetting clocks on the client that has just sent them seems like a bad idea
-            const startClockAtIdx = colors[0] === msgTurnColor? 0: 1;
-            const stopClockAtIdx = 1 - startClockAtIdx;
-
-            const whiteClockAtIdx = colors[0] === 'white'? 0: 1;
-            const blackClockAtIdx = 1 -whiteClockAtIdx;
-
-            const clocks = board.boardName === 'a'? this.clocks: this.clocksB;
-            const clocktimes = board.boardName === 'a'? this.clocktimes: this.clocktimesB;
-
-
-            clocks[stopClockAtIdx].pause(false);
-
-            clocks[whiteClockAtIdx].setTime(clocktimes[WHITE]);
-            clocks[blackClockAtIdx].setTime(clocktimes[BLACK]);
-
-            if (this.clockOn && status < 0) {
-                clocks[startClockAtIdx].start();
-            }
+            // important we update only the board where the single move happened, the other clock values do not include the
+            // time passed since last move on that board, but contain what is last recorded on the server for that board,
+            // while the clock values for this move contain what the user making the moves has in their browser, which we
+            // consider most accurate
+            this.updateClocks(board.boardName, msgTurnColor, msgClocks);
 
             //when message is for opp's move, meaning turnColor is my color - it is now my turn after this message
             if (latestPly) {
@@ -958,9 +904,7 @@ export class RoundControllerBughouse implements ChatController {
     private onMsgBoard = (msg: MsgBoard) => {
         console.log(msg);
         if (msg.gameId !== this.gameId) return;
-        // if (msg.ply <= this.ply) return;// ideally not needed but putting it for now to handle a serverside bug that sends board messages twice sometimes
 
-        // console.log("got board msg:", msg);
         let latestPly;
         const full = msg.steps.length > 1;
         const isInitialBoardMessage = this.ply === undefined;
@@ -980,33 +924,32 @@ export class RoundControllerBughouse implements ChatController {
         this.status = msg.status;
 
         this.updateSteps(full, msg.steps, msg.ply, latestPly);
-
         this.checkStatus(msg);
 
         //
-        const fens = msg.fen.split(" | ");
-        const fenA = fens[0];
-        const fenB = fens[1];
-
-        const boardName = msg.steps[msg.steps.length - 1].boardName as BugBoardName;
-        const board = boardName === 'a' ? this.b1 : this.b2;
-        const colors = boardName === 'a' ? this.colors : this.colorsB;
-
-        const fen = boardName == 'a' ? fenA : fenB;
-        const fenPartner = boardName == 'a' ? fenB : fenA;
-
-        const check = boardName == 'a' ? msg.check : msg.checkB!;
-        const clocks = boardName == 'a' ? msg.clocks : msg.clocksB!;
+        const lastStep = this.steps[this.steps.length - 1];
 
         const lastStepA = this.steps[this.steps.findLastIndex(s => s.boardName === "a")];
         const lastStepB = this.steps[this.steps.findLastIndex(s => s.boardName === "b")];
 
-        if (this.spectator) {
-            this.updateBoardsAndClocksSpectors(board, fen, fenPartner, lastStepA, lastStepB, clocks!, latestPly, colors, msg.status, check);//todo:niki unclear what is different that when playing, but should have full mode as well. generally should test specator mode at least a little bit
+        if (isInitialBoardMessage || full) { // reconnect after lost ws connection or refresh
+            if (this.spectator) {
+                this.updateBoardsAndClocksSpectors(this.b1, lastStep.fen, lastStep.fenB!, lastStepA, lastStepB, msg.clocks!, latestPly, this.colors, msg.status, msg.check);
+                this.updateBoardsAndClocksSpectors(this.b2, lastStep.fenB!, lastStep.fen, lastStepA, lastStepB, msg.clocksB!, latestPly, this.colorsB, msg.status, msg.checkB!);
+            } else {
+                this.updateBothBoardsAndClocksOnFullBoardMsg(lastStepA, lastStepB, lastStep.fen, lastStep.fenB!, msg.clocks!, msg.clocksB!);
+            }
         } else {
-            if (isInitialBoardMessage || full) { // reconnect after lost ws connection or refresh
-                this.updateBothBoardsAndClocksOnFullBoardMsg(lastStepA, lastStepB, msg.clocks!, msg.clocksB!);
-            } else { // usual single ply board messages sent on each move
+            const boardName = msg.steps[msg.steps.length - 1].boardName as BugBoardName;
+            const board = boardName === 'a' ? this.b1 : this.b2;
+            const colors = boardName === 'a' ? this.colors : this.colorsB;
+            const check = boardName == 'a' ? msg.check : msg.checkB!;
+            const clocks = boardName == 'a' ? msg.clocks : msg.clocksB!;
+            const fen = boardName == 'a' ? lastStep.fen : lastStep.fenB!;
+            const fenPartner = boardName == 'a' ? lastStep.fenB! : lastStep.fen;
+            if (this.spectator) {
+                this.updateBoardsAndClocksSpectors(board, fen, fenPartner, lastStepA, lastStepB, clocks!, latestPly, colors, msg.status, check);
+            } else {
                 this.updateSingleBoardAndClocks(board, fen, fenPartner, lastStepA, lastStepB, clocks!, latestPly, colors, msg.status, check);
             }
         }
@@ -1019,7 +962,7 @@ export class RoundControllerBughouse implements ChatController {
 
 
     goPly = (ply: number) => {
-        console.log("RoundControllerBughouse.goPly"+ply);
+        console.log("RoundControllerBughouse.goPly "+ply);
 
         const step = this.steps[ply];
         console.log(step);
@@ -1059,9 +1002,14 @@ export class RoundControllerBughouse implements ChatController {
             }
         }
 
-        if (this.status >= 0) {
+        if (this.status >= 0 && this.ply !== ply) {
             //if it is a game that ended, then when scrolling it makes sense to show clocks when the move was made
-
+            // however if timeout happened and we receive gameEnd message we don't want to update clocks, we want to see
+            // the zeros.
+            // todo:this is a mess. also on lichess and other pychess variants we don't update clocks in round page only in analysis
+            //      if we decide to preserver and improve this behaviour in round page, at least some refactoring to reduce this complexity
+            //      of this if and calling goPly on gameEnd just for the sake of setting movable to none - really no other reason
+            //      to call this on gameEnd.
             const whiteAClockAtIdx = this.colors[0] === 'white'? 0: 1;
             const blackAClockAtIdx = 1 - whiteAClockAtIdx;
             const whiteBClockAtIdx = this.colorsB[0] === 'white'? 0: 1;
@@ -1093,33 +1041,16 @@ export class RoundControllerBughouse implements ChatController {
 
     private onMsgUserConnected = (msg: MsgUserConnected) => {
         console.log(msg);
-        // this.username = msg["username"];
-        if (this.spectator) {
-            // this.doSend({ type: "is_user_present", username: this.wplayer, gameId: this.gameId });
-            // this.doSend({ type: "is_user_present", username: this.bplayer, gameId: this.gameId });
-            // this.doSend({ type: "is_user_present", username: this.wplayerB, gameId: this.gameId });
-            // this.doSend({ type: "is_user_present", username: this.bplayerB, gameId: this.gameId });
-        } else {
-            // this.firstmovetime = msg.firstmovetime || this.firstmovetime;
-            // this.doSend({ type: "is_user_present", username: this.wplayer, gameId: this.gameId });
-            // this.doSend({ type: "is_user_present", username: this.bplayer, gameId: this.gameId });
-            // this.doSend({ type: "is_user_present", username: this.wplayerB, gameId: this.gameId });
-            // this.doSend({ type: "is_user_present", username: this.bplayerB, gameId: this.gameId });
-
+        if (!this.spectator) {
             const container = document.getElementById('player1a') as HTMLElement;
             patch(container, h('i-side.online#player1a', {class: {"icon": true, "icon-online": true, "icon-offline": false}}));
 
             // prevent sending gameStart message when user just reconnecting
+            //todo:niki:what is the point of this message - also what if we refresh before moves are made? also what is the point of this whole method at all?
             if (msg.ply === 0) {
                 this.doSend({ type: "ready", gameId: this.gameId });
             }
         }
-        // We always need this to get possible moves made while our websocket connection was established
-        // niki: we shouldnt need this if first thing we get on establishing ws is the board state, after that
-        //       ws should be available for any other moves that come. if i am wrong then queuing messages on server is a
-        //       better solution.
-        // fixes https://github.com/gbtami/pychess-variants/issues/962
-        // this.doSend({ type: "board", gameId: this.gameId });
     }
 
     private onMsgUserPresent = (msg: MsgUserPresent) => {
@@ -1180,26 +1111,26 @@ export class RoundControllerBughouse implements ChatController {
         // this.clearDialog();
     }
 
-    private onMsgFullChat = (msg: MsgFullChat) => {
+    // private onMsgFullChat = (msg: MsgFullChat) => {
         // To prevent multiplication of messages we have to remove old messages div first
-        patch(document.getElementById('messages') as HTMLElement, h('div#messages-clear'));
-        // then create a new one
-        patch(document.getElementById('messages-clear') as HTMLElement, h('div#messages'));
-        if (this.ply > 4) {
-            chatMessage("", "Chat visible only to your partner", "bugroundchat");
-        } else {
-            chatMessage("", "Messages visible to all 4 players for the first 4 moves", "bugroundchat");
-        }
-        msg.lines.forEach((line) => {
-            if ((this.spectator && line.room === 'spectator') || (!this.spectator && line.room !== 'spectator') || line.user.length === 0) {
-                chatMessage(line.user, line.message, "bugroundchat", line.time);
-            }
-        });
-    }
+        // patch(document.getElementById('messages') as HTMLElement, h('div#messages-clear'));
+        // // then create a new one
+        // patch(document.getElementById('messages-clear') as HTMLElement, h('div#messages'));
+        // if (this.ply > 4) {
+        //     chatMessage("", "Chat visible only to your partner", "bugroundchat");
+        // } else {
+        //     chatMessage("", "Messages visible to all 4 players for the first 4 moves", "bugroundchat");
+        // }
+        // msg.lines.forEach((line) => {
+        //     if ((this.spectator && line.room === 'spectator') || (!this.spectator && line.room !== 'spectator') || line.user.length === 0) {
+        //         chatMessage(line.user, line.message, "bugroundchat", line.time);
+        //     }
+        // });
+    // }
 
-    private onMsgChat = (msg: MsgChat) => {
-        if (this.spectator /*spectators always see everything*/ || (!this.spectator && msg.room !== 'spectator') || msg.user.length === 0) {
-            chatMessage(msg.user, msg.message, "bugroundchat", msg.time, this.ply, this);
+    private onMsgChat = (msg: StepChat) => {
+        if (this.spectator /*spectators always see everything*/ || (!this.spectator && msg.room !== 'spectator') || msg.username.length === 0) {
+            chatMessageBug(this.ply, this, msg);
         }
     }
 
@@ -1216,9 +1147,9 @@ export class RoundControllerBughouse implements ChatController {
             case "bugroundchat":
                 this.onMsgChat(msg);
                 break;
-            case "fullchat":
-                this.onMsgFullChat(msg);
-                break;
+            // case "fullchat":
+            //     this.onMsgFullChat(msg);
+            //     break;
             case "game_not_found":
                 // this.onMsgGameNotFound(msg);
                 break

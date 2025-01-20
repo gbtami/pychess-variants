@@ -1,3 +1,4 @@
+@import 'switch.css';
 .editor-app {
     grid-area: main;
     display: grid;

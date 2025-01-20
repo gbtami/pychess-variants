@@ -1,11 +1,11 @@
 from __future__ import annotations
 import json
-import logging
 
 import aiohttp
 import aiohttp_session
 from aiohttp import WSMessage, web
 from aiohttp.web_ws import WebSocketResponse
+from aiohttp.client_exceptions import ClientConnectionResetError
 
 from const import TYPE_CHECKING
 
@@ -13,8 +13,7 @@ if TYPE_CHECKING:
     from user import User
 
 from pychess_global_app_state_utils import get_app_state
-
-log = logging.getLogger(__name__)
+from logger import log
 
 
 async def get_user(session: aiohttp_session.Session, request: web.Request) -> User:
@@ -23,22 +22,15 @@ async def get_user(session: aiohttp_session.Session, request: web.Request) -> Us
     return user
 
 
-# See https://github.com/aio-libs/aiohttp/issues/3122 why this is needed
-class MyWebSocketResponse(WebSocketResponse):
-    @property
-    def closed(self):
-        return self._closed or self._req is None or self._req.transport is None
-
-
 async def process_ws(
     session: aiohttp_session.Session,
     request: web.Request,
     user: User,
     init_msg: callable,
     custom_msg_processor: callable,
-) -> MyWebSocketResponse:
+) -> WebSocketResponse:
     """
-    Process websocket messages until socket closed or errored. Returns the closed MyWebSocketResponse object.
+    Process websocket messages until socket closed or errored. Returns the closed WebSocketResponse object.
     """
     app_state = get_app_state(request.app)
 
@@ -47,7 +39,7 @@ async def process_ws(
         session.invalidate()
         return None
 
-    ws = MyWebSocketResponse(heartbeat=3.0, receive_timeout=10.0)
+    ws = WebSocketResponse(heartbeat=3.0, receive_timeout=10.0)
     ws_ready = ws.can_prepare(request)
     if not ws_ready.ok:
         log.error("ws_ready not ok: %r", ws_ready)
@@ -98,12 +90,12 @@ async def process_ws(
                 break
             else:
                 log.debug("--- %s ws other msg.type %s %s", request.rel_url.path, msg.type, msg)
-    except OSError as e:
+    except OSError:
         # disconnected
-        log.error(e, exc_info=True)
+        log.error("process_ws() OSError")
     except Exception:
         log.exception(
-            "ERROR: Exception in % socket handling owned by %s ",
+            "Exception in % socket handling owned by %s ",
             request.rel_url.path,
             user.username,
         )
@@ -117,8 +109,8 @@ async def ws_send_str(ws, msg) -> bool:
     try:
         await ws.send_str(msg)
         return True
-    except ConnectionResetError:
-        log.debug("Connection reset ", exc_info=True)
+    except (ConnectionResetError, ClientConnectionResetError):
+        log.error("ws_send_str() ConnectionResetError")
         return False
 
 
@@ -129,9 +121,9 @@ async def ws_send_json(ws, msg) -> bool:
     try:
         await ws.send_json(msg)
         return True
-    except ConnectionResetError:
-        log.exception("Connection reset ", exc_info=True)
+    except (ConnectionResetError, ClientConnectionResetError):
+        log.error("ws_send_json() ConnectionResetError")
         return False
     except Exception:
-        log.exception("ERROR: Exception in ws_send_json")
+        log.exception("Exception in ws_send_json()")
         return False

@@ -8,16 +8,16 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.9, "3.10", "3.11", "3.12"]
+        python-version: ["3.12"]
 
     steps:
-    - uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab  # v3.5.2
+    - uses: actions/checkout@cbb722410c2e876e24abbe8de2cc27693e501dcb  # v3.5.2
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@d27e3f3d7c64b4bbf8e4abfb9b63b83e846e0435  # v4.5.0
+      uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b  # v5.3.0
       with:
         python-version: ${{ matrix.python-version }}
     - name: Cache pip
-      uses: actions/cache@88522ab9f39a2ea568f7027eddc7d8d8bc9d59c8  # v3.3.1
+      uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57  # v4.2.0
       with:
         path: ~/.cache/pip
         key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
@@ -38,7 +38,10 @@ jobs:
     - name: Run unit tests
       run: |
         PYTHONPATH=server python tests/test.py
+        PYTHONPATH=server python tests/test_alice.py
+        PYTHONPATH=server python tests/test_auto_pairing.py
         PYTHONPATH=server python tests/test_compress.py
+        PYTHONPATH=server python tests/test_960_rematch.py
         PYTHONPATH=server python tests/test_tournament.py
         PYTHONPATH=server python tests/test_scheduler.py
         PYTHONPATH=server python tests/test_corr_janggi_setup.py

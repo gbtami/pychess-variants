@@ -1,16 +1,16 @@
 from __future__ import annotations
 import asyncio
 import collections
-import logging
 from datetime import datetime, timezone, timedelta
 from time import monotonic
 from typing import Set, List
 
 from broadcast import round_broadcast
 from clock import Clock, CorrClock
-from compress import get_encode_method, R2C
+from compress import R2C
 from const import (
     CREATED,
+    DARK_FEN,
     STARTED,
     ABORTED,
     MATE,
@@ -22,41 +22,28 @@ from const import (
     VARIANT_960_TO_PGN,
     LOSERS,
     VARIANTEND,
-    GRANDS,
     CASUAL,
     RATED,
     IMPORTED,
     HIGHSCORE_MIN_GAMES,
     MAX_HIGHSCORE_ITEM_LIMIT,
-    variant_display_name,
     MAX_CHAT_LINES,
     TYPE_CHECKING,
 )
 from convert import grand2zero, uci2usi, mirror5, mirror9
-from fairy import FairyBoard, BLACK, WHITE
-from alice import AliceBoard
+from fairy import get_fog_fen, get_san_moves, NOTATION_SAN, FairyBoard, BLACK, WHITE
 from glicko2.glicko2 import gl2
 from draw import reject_draw
 from settings import URI
 from spectators import spectators
+from logger import log
+from variants import get_server_variant, GRANDS
 
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
     from user import User
 
-log = logging.getLogger(__name__)
-
-try:
-    import pyffish as sf
-
-    sf.set_option("VariantPath", "variants.ini")
-except ImportError:
-    log.error("No pyffish module installed!", exc_info=True)
-
-log = logging.getLogger(__name__)
-
 MAX_PLY = 600
-KEEP_TIME = 1800  # keep game in app[games_key] for KEEP_TIME secs
 
 INVALID_PAWN_DROP_MATE = (
     ("P@", "shogi"),
@@ -96,6 +83,8 @@ class Game:
         self.wplayer = wplayer
         self.bplayer = bplayer
 
+        self.bot_game = self.bplayer.bot or self.wplayer.bot
+
         self.all_players = [self.wplayer, self.bplayer]
         self.non_bot_players = [player for player in self.all_players if not player.bot]
 
@@ -109,10 +98,13 @@ class Game:
         self.create = create
         self.imported_by = ""
 
+        self.server_variant = get_server_variant(variant, chess960)
+        self.encode_method = self.server_variant.move_encoding
+
         self.berserk_time = self.base * 1000 * 30
 
         self.browser_title = "%s • %s vs %s" % (
-            variant_display_name(self.variant + ("960" if self.chess960 else "")).title(),
+            self.server_variant.display_name.title(),
             self.wplayer.username,
             self.bplayer.username,
         )
@@ -125,12 +117,10 @@ class Game:
         self.brating: int | str = "%s%s" % black_rating.rating_prov
         self.brdiff: int | str = 0
 
-        # crosstable info
+        # crosstable info (this have to be updated after game creation from db !)
         self.need_crosstable_save = False
-        self.bot_game = self.bplayer.bot or self.wplayer.bot
-        if self.bot_game or self.wplayer.anon or self.bplayer.anon:
-            self.crosstable = ""
-        else:
+        self.has_crosstable = not (self.bot_game or self.wplayer.anon or self.bplayer.anon)
+        if self.has_crosstable:
             if self.wplayer.username < self.bplayer.username:
                 self.s1player = self.wplayer.username
                 self.s2player = self.bplayer.username
@@ -138,9 +128,10 @@ class Game:
                 self.s1player = self.bplayer.username
                 self.s2player = self.wplayer.username
             self.ct_id = self.s1player + "/" + self.s2player
-            self.crosstable = app_state.crosstable.get(
-                self.ct_id, {"_id": self.ct_id, "s1": 0, "s2": 0, "r": []}
-            )
+            self.crosstable = {"_id": self.ct_id, "s1": 0, "s2": 0, "r": []}
+        else:
+            self.ct_id = ""
+            self.crosstable = ""
 
         self.spectators: Set[User] = set()
         self.draw_offers: Set[str] = set()
@@ -163,7 +154,7 @@ class Game:
 
         self.id = gameId
 
-        self.encode_method = get_encode_method(variant)
+        self.fow = variant == "fogofwar"
 
         self.n_fold_is_draw = self.variant in (
             "makruk",
@@ -227,12 +218,9 @@ class Game:
                 disabled_fen = self.initial_fen
                 self.initial_fen = ""
 
-        if self.variant == "alice":
-            self.board = AliceBoard(self.initial_fen)
-        else:
-            self.board = FairyBoard(
-                self.variant, self.initial_fen, self.chess960, count_started, disabled_fen
-            )
+        self.board = FairyBoard(
+            self.variant, self.initial_fen, self.chess960, count_started, disabled_fen
+        )
 
         # Janggi setup needed when player is not BOT
         if self.variant == "janggi":
@@ -418,9 +406,6 @@ class Game:
                         await opp_player.notify_game_end(self)
                 else:
                     await self.save_move(move)
-                    # SAN checkmate indicator created by pyffish may be wrong in Alice chess
-                    if san[-1] in ("#", "+") and not self.check:
-                        san = san[:-1]
 
                 self.steps.append(
                     {
@@ -461,6 +446,13 @@ class Game:
                 {"_id": self.id}, {"$set": new_data, "$push": {"m": move_encoded}}
             )
 
+    async def pop_move_from_db(self):
+        if self.app_state.db is not None:
+            new_data = {"f": self.board.fen}
+            await self.app_state.db.game.update_one(
+                {"_id": self.id}, {"$set": new_data, "$pop": {"m": 1}}
+            )
+
     async def save_setup(self):
         """Used by Janggi prelude phase"""
         new_data = {
@@ -495,27 +487,7 @@ class Game:
             response = {"type": "g_cnt", "cnt": self.app_state.g_cnt[0]}
             await self.app_state.lobby.lobby_broadcast(response)
 
-        async def remove(keep_time):
-            # Keep it in our games dict a little to let players get the last board
-            # not to mention that BOT players want to abort games after 20 sec inactivity
-            await asyncio.sleep(keep_time)
-
-            if self.id == self.app_state.tv:
-                self.app_state.tv = None
-
-            if self.id in self.app_state.games:
-                del self.app_state.games[self.id]
-
-            if self.bot_game:
-                try:
-                    if self.wplayer.bot:
-                        del self.wplayer.game_queues[self.id]
-                    if self.bplayer.bot:
-                        del self.bplayer.game_queues[self.id]
-                except KeyError:
-                    log.error("Failed to del %s from game_queues", self.id, exc_info=True)
-
-        self.remove_task = asyncio.create_task(remove(KEEP_TIME))
+        asyncio.create_task(self.app_state.remove_from_cache(self), name="game-remove-%s" % self.id)
 
         if self.board.ply < 3 and (self.app_state.db is not None) and (self.tournamentId is None):
             result = await self.app_state.db.game.delete_one({"_id": self.id})
@@ -583,13 +555,7 @@ class Game:
                 )
 
     def set_crosstable(self):
-        if (
-            self.bot_game
-            or self.wplayer.anon
-            or self.bplayer.anon
-            or self.board.ply < 3
-            or self.result == "*"
-        ):
+        if (not self.has_crosstable) or self.board.ply < 3 or self.result == "*":
             return
 
         if len(self.crosstable["r"]) > 0 and self.crosstable["r"][-1].startswith(self.id):
@@ -615,14 +581,6 @@ class Game:
         self.crosstable["r"].append("%s%s" % (self.id, tail))
         self.crosstable["r"] = self.crosstable["r"][-20:]
 
-        new_data = {
-            "_id": self.ct_id,
-            "s1": self.crosstable["s1"],
-            "s2": self.crosstable["s2"],
-            "r": self.crosstable["r"],
-        }
-        self.app_state.crosstable[self.ct_id] = new_data
-
         self.need_crosstable_save = True
 
     async def save_crosstable(self):
@@ -640,7 +598,7 @@ class Game:
                 {"_id": self.ct_id}, {"$set": new_data}, upsert=True
             )
         except Exception:
-            log.error("Failed to save new crosstable to mongodb!", exc_info=True)
+            log.error("Failed to save new crosstable to mongodb!")
 
         self.need_crosstable_save = False
 
@@ -669,7 +627,7 @@ class Game:
                 upsert=True,
             )
         except Exception:
-            log.error("Failed to save new highscore to mongodb!", exc_info=True)
+            log.error("Failed to save new %s highscore to mongodb!", variant)
 
     async def update_ratings(self):
         if self.result == "1-0":
@@ -829,7 +787,6 @@ class Game:
         ):
             self.status = DRAW
             self.result = "1/2-1/2"
-            print("ITT")
 
         if self.status > STARTED:
             self.set_crosstable()
@@ -851,22 +808,17 @@ class Game:
 
     @property
     def pgn(self):
-        if self.variant == "alice" and len(self.steps) > 1:
-            # sf.get_san_moves() fails (FSF doesn't support Alice), but
-            # if we already have the san moves in self.steps we can use them.
-            mlist = [step["san"] for step in self.steps[1:]]
-        else:
-            try:
-                mlist = sf.get_san_moves(
-                    self.variant,
-                    self.initial_fen if self.initial_fen else self.board.initial_fen,
-                    self.board.move_stack,
-                    self.chess960,
-                    sf.NOTATION_SAN,
-                )
-            except Exception:
-                log.error("ERROR: Exception in game %s pgn()", self.id, exc_info=True)
-                mlist = self.board.move_stack
+        try:
+            mlist = get_san_moves(
+                self.variant,
+                self.initial_fen if self.initial_fen else self.board.initial_fen,
+                self.board.move_stack,
+                self.chess960,
+                NOTATION_SAN,
+            )
+        except Exception:
+            log.error("Exception in game %s pgn()", self.id)
+            mlist = self.board.move_stack
 
         moves = " ".join(
             (
@@ -1057,6 +1009,7 @@ class Game:
             self.board.count_started = -1
 
     def create_steps(self):
+        # log.debug("create_steps() START")
         if self.mct is not None:
             manual_count_toggled = iter(self.mct)
             count_started = -1
@@ -1090,10 +1043,6 @@ class Game:
                 self.check = self.board.is_checked()
                 turnColor = "black" if self.board.color == BLACK else "white"
 
-                # SAN checkmate indicator created by pyffish may be wrong in Alice chess
-                if san[-1] in ("#", "+") and not self.check:
-                    san = san[:-1]
-
                 if self.usi_format:
                     turnColor = "black" if turnColor == "white" else "white"
                 step = {
@@ -1106,22 +1055,10 @@ class Game:
 
                 if len(self.clocks_w) > 1 and not self.corr:
                     move_number = ((ply + 1) // 2) + (1 if ply % 2 == 0 else 0)
-                    if ply >= 2:
-                        if ply % 2 == 0:
-                            step["clocks"] = (
-                                self.clocks_w[move_number],
-                                self.clocks_b[move_number - 1],
-                            )
-                        else:
-                            step["clocks"] = (
-                                self.clocks_w[move_number],
-                                self.clocks_b[move_number],
-                            )
-                    else:
-                        step["clocks"] = (
-                            self.clocks_w[move_number],
-                            self.clocks_b[move_number],
-                        )
+                    step["clocks"] = (
+                        self.clocks_w[move_number],
+                        self.clocks_b[move_number - 1 if ply % 2 == 0 else move_number],
+                    )
 
                 self.steps.append(step)
 
@@ -1129,11 +1066,11 @@ class Game:
                     try:
                         self.steps[-1]["analysis"] = self.analysis[ply + 1]
                     except IndexError:
-                        log.error("IndexError %d %s %s", ply, move, san, exc_info=True)
+                        log.error("IndexError in create_steps() %d %s %s", ply, move, san)
 
             except Exception:
                 log.exception(
-                    "ERROR: Exception in create_steps() %s %s %s %s %s",
+                    "Exception in create_steps() %s %s %s %s %s",
                     self.id,
                     self.variant,
                     self.board.initial_fen,
@@ -1141,10 +1078,13 @@ class Game:
                     self.board.move_stack,
                 )
                 break
+        # log.debug("create_steps() OK")
 
-    def get_board(self, full=False):
+    def get_board(self, full=False, persp_color=None):
         if len(self.board.move_stack) > 0 and len(self.steps) == 1:
             self.create_steps()
+
+        fen, lastmove = self.board.fen, self.lastmove
 
         if full:
             steps = self.steps
@@ -1177,6 +1117,12 @@ class Game:
             steps = (self.steps[-1],)
             crosstable = self.crosstable if self.status > STARTED else ""
 
+        if self.fow and self.status <= STARTED:
+            steps = get_fog_steps(steps, persp_color)
+            fen = steps[-1]["fen"]
+            if (persp_color is None) or (persp_color == self.board.color):
+                lastmove = ""
+
         if self.corr:
             clock_mins = self.stopwatch.mins * 60 * 1000
             base_mins = self.base * 24 * 60 * 60 * 1000
@@ -1190,8 +1136,8 @@ class Game:
             "gameId": self.id,
             "status": self.status,
             "result": self.result,
-            "fen": self.board.fen,
-            "lastMove": self.lastmove,
+            "fen": fen,
+            "lastMove": lastmove,
             "tp": self.turn_player,
             "steps": steps,
             "check": self.check,
@@ -1252,7 +1198,7 @@ class Game:
     def turn_player(self):
         return self.wplayer.username if self.board.color == WHITE else self.bplayer.username
 
-    def takeback(self):
+    async def takeback(self):
         if self.bot_game and self.board.ply >= 2:
             cur_player = self.bplayer if self.board.color == BLACK else self.wplayer
             cur_clock = self.clocks_b if self.board.color == BLACK else self.clocks_w
@@ -1261,6 +1207,7 @@ class Game:
             if len(cur_clock) > 1:
                 cur_clock.pop()
             self.steps.pop()
+            await self.pop_move_from_db()
 
             if not cur_player.bot:
                 cur_clock = self.clocks_b if self.board.color == BLACK else self.clocks_w
@@ -1269,6 +1216,7 @@ class Game:
                 if len(cur_clock) > 1:
                     cur_clock.pop()
                 self.steps.pop()
+                await self.pop_move_from_db()
 
             self.has_legal_move = self.board.has_legal_move()
             if self.random_mover:
@@ -1278,3 +1226,17 @@ class Game:
 
     def handle_chat_message(self, chat_message):
         self.messages.append(chat_message)
+
+
+def get_fog_steps(steps, persp_color):
+    if persp_color is None:
+        return [{"fen": DARK_FEN} for step in steps]
+    else:
+        return [
+            {
+                "fen": get_fog_fen(step["fen"], persp_color),
+                "san": "?",
+                "turnColor": step["turnColor"],
+            }
+            for step in steps
+        ]

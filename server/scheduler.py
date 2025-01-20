@@ -7,25 +7,24 @@ import zoneinfo
 from const import (
     ARENA,
     CATEGORIES,
-    GRANDS,
+    SCHEDULE_MAX_DAYS,
+    TYPE_CHECKING,
     DAILY,
     WEEKLY,
     MONTHLY,
+    YEARLY,
     SHIELD,
-    variant_display_name,
-    SCHEDULE_MAX_DAYS,
-    TYPE_CHECKING,
 )
 
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
 
 from tournaments import new_tournament
-import logging
+from logger import log
+from variants import get_server_variant, GRANDS
 
-log = logging.getLogger(__name__)
+from calendar import MONDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY
 
-MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY = range(7)
 Plan = namedtuple("Plan", "freq, date, hour, variant, is960, base, inc, byo, duration")
 
 SHIELDS = ["crazyhouse960", "atomic960", "kingofthehill960", "3check960", "makruk"]
@@ -180,8 +179,8 @@ class Scheduler:
             base, inc, byo = TC_MONTHLY_VARIANTS[v]
             try:
                 date = dt.datetime(self.now.year, self.now.month, i + 1, tzinfo=dt.timezone.utc)
-            except ValueError as e:
-                log.error(e, exc_info=True)
+            except ValueError:
+                log.error("schedule_plan() ValueError")
                 break
             plans.append(Plan(MONTHLY, date, 14, v.rstrip("960"), is_960, base, inc, byo, 90))
 
@@ -192,8 +191,8 @@ class Scheduler:
             base, inc, byo = TC_MONTHLY_VARIANTS[v]
             try:
                 date = dt.datetime(self.now.year, self.now.month, i + 1, tzinfo=dt.timezone.utc)
-            except ValueError as e:
-                log.error(e, exc_info=True)
+            except ValueError:
+                log.error("schedule_plan() ValueError")
                 break
             plans.append(Plan(MONTHLY, date, 16, v.rstrip("960"), is_960, base, inc, byo, 90))
 
@@ -264,12 +263,13 @@ def new_scheduled_tournaments(already_scheduled, now=None):
             and (plan.freq, plan.variant, plan.is960, starts_at, plan.duration)
             not in already_scheduled
         ):
-            variant_name = variant_display_name(
-                plan.variant + ("960" if plan.is960 else "")
-            ).title()
+            server_variant = get_server_variant(plan.variant, plan.is960)
+            variant_name = server_variant.display_name.title()
 
             if plan.freq == SHIELD:
                 name = "%s Shield Arena" % variant_name
+            elif plan.freq == YEARLY:
+                name = "Yearly %s Arena" % variant_name
             elif plan.freq == MONTHLY:
                 if plan.variant in CATEGORIES["makruk"]:
                     name = "SEAturday %s Arena" % variant_name

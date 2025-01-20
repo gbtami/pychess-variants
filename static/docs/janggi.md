@@ -6,16 +6,29 @@
 
 ## Rules: Board and Setup
 
-There are two sides, one is colored red (called Han), and the other blue (called Cho). The blue side can also be colored green. These two sides represent the two sides in the Chu-Han Contention from Chinese history. Red pieces are written using Chinese characters (hanja), while blue pieces are written in cursive-style hanja.
+There are two sides, one is colored red (called Han), and the other blue (called Cho). The blue side can also be colored green. These two sides represent the two sides in the Chu-Han Contention from Chinese history. Red pieces are written using regular-style hanja (chinese character), while blue pieces are written in cursive-style hanja.
 
 Setup for all pieces except for the horse and elephant are as in the picture above. Like xiangqi, janggi is placed on a 9 x 10 board, where pieces are placed on intersections rather than squares. The 3x3 square with the X on each side is called the *Palace*. Unlike in most other chess variants, in janggi, players can choose the starting positions of the horses and elephants. There are four types to choose from:
 
-1. Both horses are closer to the edge (*won ang ma*)
-2. Both horses are closer to the general (*yang gwee ma*)
-3. Left inner horse, right outer horse (*gwee ma*)
-4. Left outer horse, right inner horse (*mat sang jang gi*)
+1. Both elephants are inside (An Sang Charim, means 'Inner Elephant Setup')
+2. Both elephants are outside (Bakkat Sang Charim, means 'Outer Elephant Setup')
+3. Left elephant is inside, and right elephant is outside (Oen Sang Charim, means 'Left Elephant Setup')
+4. Left elephant is outside, and right elephant is inside (Oreun Sang Charim, 'Right Elephant Setup')
 
-Red (Han) chooses his positioning first, then Blue (Cho) chooses. However, Blue is the first to move the pieces.
+Usually, 1 is called Wonang-ma (Mandarin Duck Horse), 2 is called Yang-gwima (Both Corner Horse), and 3 and 4 are called Gwima (Corner Horse).
+If Cho and Han choose the same setup among 3 or 4, it is called Mat Sang (Elephants facing each other).
+The reason it is called that is as follows.
+
+The space in front of the King's starting point in a straight line is called Myeon (Face), and the space in front of the King's starting point in a diagonal line is called Gwi (Corner).
+- In cases 3 and 4, one Horse can go to the Corner, so it is called Corner Horse, Gwima.
+- In case 2, two Horses can go to the Corner, so it is called Both Corner Horse, Yang-gwima.
+- In case 1, two Horses cannot go to the Corner, but if one Horse comes out to the center, they protect each other, so it is called Mandarin Duck Horse, Wonang-ma.
+(Unlike reality, there is a Korean folklore that mandarin ducks are a couple that loves each other deeply. The name Mandarin Duck Horse may have originated from that folklore)
+
+Red (Han) gives Blue (Cho) three rights in exchange for 1.5 points:
+* Cho's right to choose setup later
+* Cho's right to change setup before the game starts (This is rarely applied online, but Red still gets 1.5 points.)
+* Cho's right to move first
 
 For repetitions and other game-end scenarios:
 * Perpetual check is a loss for the player checking after the third repetition

@@ -3,13 +3,8 @@
 import string
 import unittest
 
-import pyffish as sf
-
-from compress import get_encode_method, get_decode_method
 from fairy import FairyBoard
-from const import VARIANTS
-
-sf.set_option("VariantPath", "variants.ini")
+from variants import get_server_variant, VARIANTS
 
 
 class EncodeDecodeTestCase(unittest.TestCase):
@@ -34,8 +29,9 @@ class EncodeDecodeTestCase(unittest.TestCase):
             board = FairyBoard(variant, initial_fen=FEN)
             moves = board.legal_moves()
 
-            encode_method = get_encode_method(variant)
-            decode_method = get_decode_method(variant)
+            server_variant = get_server_variant(variant, False)
+            encode_method = server_variant.move_encoding
+            decode_method = server_variant.move_decoding
             saved_restored = [*map(decode_method, map(encode_method, moves))]
             self.assertEqual(saved_restored, moves)
 

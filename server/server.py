@@ -4,13 +4,11 @@ import argparse
 import asyncio
 import logging
 import os
-from sys import platform
+import sys
+import traceback
 from urllib.parse import urlparse
 
-from pychess_global_app_state import PychessGlobalAppState
-from pychess_global_app_state_utils import get_app_state
-
-if platform not in ("win32", "darwin"):
+if sys.platform not in ("win32", "darwin"):
     import uvloop
 else:
     print("uvloop not installed")
@@ -22,8 +20,12 @@ from aiohttp_session import SimpleCookieStorage
 from aiohttp_session.cookie_storage import EncryptedCookieStorage
 from aiohttp_session import setup
 import aiohttp_session
+import aiomonitor
 
 from motor.motor_asyncio import AsyncIOMotorClient
+
+from pychess_global_app_state import PychessGlobalAppState
+from pychess_global_app_state_utils import get_app_state
 
 from typedefs import (
     client_key,
@@ -37,17 +39,25 @@ from settings import (
     SECRET_KEY,
     MONGO_HOST,
     MONGO_DB_NAME,
+    LOCALHOST,
     URI,
     STATIC_ROOT,
     BR_EXTENSION,
     SOURCE_VERSION,
 )
 from users import NotInDbUsers
+from logger import log
 
-log = logging.getLogger(__name__)
-
-if platform not in ("win32", "darwin"):
+if sys.platform not in ("win32", "darwin"):
     asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
+
+
+def log_uncaught_exceptions(ex_cls, ex, tb):
+    log.critical("".join(traceback.format_tb(tb)))
+    log.critical("{0}: {1}".format(ex_cls, ex))
+
+
+sys.excepthook = log_uncaught_exceptions
 
 
 @web.middleware
@@ -117,9 +127,11 @@ async def on_prepare(request, response):
             response.headers["Expires"] = "0"
 
 
-def make_app(db_client=None, simple_cookie_storage=False) -> Application:
+def make_app(db_client=None, simple_cookie_storage=False, anon_as_test_users=False) -> Application:
     app = web.Application()
     app.middlewares.append(redirect_to_https)
+
+    app["anon_as_test_users"] = anon_as_test_users
 
     parts = urlparse(URI)
 
@@ -172,14 +184,17 @@ async def init_state(app):
 async def shutdown(app):
     app_state = get_app_state(app)
     await app_state.server_shutdown()
+    for task in asyncio.all_tasks():
+        if task.get_name().startswith("Task-"):
+            print(task)
+        else:
+            print(task.get_name())
 
 
 async def close_mongodb_client(app):
     if client_key in app:
-        # wait some time to finish ongoing mongodb related tasks
-        await asyncio.sleep(3)
         app[client_key].close()
-        log.debug("\nMongoClient closed.\n")
+        log.debug("\nMongoClient closed OK.\n")
 
 
 if __name__ == "__main__":
@@ -204,22 +219,40 @@ if __name__ == "__main__":
         action="store_true",
         help="Verbose mongodb logging. Changes log level from INFO to DEBUG.",
     )
+    parser.add_argument(
+        "-a",
+        action="store_true",
+        help="Turn anon users to test users that behave like logged in real users.",
+    )
     args = parser.parse_args()
 
-    FORMAT = "%(asctime)s.%(msecs)03d [%(levelname)s] %(name)s:%(lineno)d %(message)s"
-    DATEFMT = "%z %Y-%m-%d %H:%M:%S"
-    logging.basicConfig(format=FORMAT, datefmt=DATEFMT)
-    logging.getLogger().setLevel(
-        level=logging.DEBUG if args.v else logging.WARNING if args.w else logging.INFO
-    )
+    log.setLevel(level=logging.DEBUG if args.v else logging.WARNING if args.w else logging.INFO)
 
     logging.getLogger("pymongo").setLevel(logging.DEBUG if args.m else logging.INFO)
 
     app = make_app(
         db_client=AsyncIOMotorClient(MONGO_HOST, tz_aware=True),
         simple_cookie_storage=args.s,
+        anon_as_test_users=args.a,
     )
 
-    web.run_app(
-        app, access_log=None if args.w else access_logger, port=int(os.environ.get("PORT", 8080))
-    )
+    if URI == LOCALHOST:
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        # it is possible to pass a dictionary with local variables
+        # to the python console environment
+        locals_ = {"app": app, "state": pychess_global_app_state_key}
+        # init monitor just before run_app
+        with aiomonitor.start_monitor(loop=loop, locals=locals_):
+            web.run_app(
+                app,
+                loop=loop,
+                access_log=None if args.w else access_logger,
+                port=int(os.environ.get("PORT", 8080)),
+            )
+    else:
+        web.run_app(
+            app,
+            access_log=None if args.w else access_logger,
+            port=int(os.environ.get("PORT", 8080)),
+        )

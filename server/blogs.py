@@ -16,6 +16,16 @@ del _
 
 BLOGS = [
     {
+        "_id": "S-Chess_End-Game_Tables",
+        "date": "2024.11.27",
+        "image": "/images/SchessEGT/KEKR.png",
+        "alt": "",
+        "title": "S-Chess End-Game Tables",
+        "subtitle": "Elephant vs Rook",
+        "author": "h.g.muller",
+        "tags": ["Blog"],
+    },
+    {
         "_id": "Variant_Design_Contest",
         "date": "2024-11-14",
         "image": "/images/man-design-thinking.453x512.png",

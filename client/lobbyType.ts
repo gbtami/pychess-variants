@@ -64,10 +64,7 @@ export interface MsgShutdown {
     message: string;
 }
 
-export interface MsgGameCounter {
-    cnt: number;
-}
-export interface MsgUserCounter {
+export interface MsgCounter {
     cnt: number;
 }
 export interface MsgStreams {

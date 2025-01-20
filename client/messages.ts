@@ -29,16 +29,21 @@ export interface Step {
 
     boardName?: BoardName;
 
-    chat?: {
-        message: string,
-        username: string,
-        time: number
-    }[],
+    chat?: StepChat[],
 
     clocks?: Clocks,
     clocksB?: Clocks,
     movetime?: number,
     movetimeB?: number,
+    plyA?: number,
+    plyB?: number,
+}
+
+export interface StepChat{
+    message: string,
+    username: string,
+    time: number,
+    room: string,
 }
 
 export interface CrossTable {

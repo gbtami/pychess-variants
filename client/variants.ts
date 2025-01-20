@@ -3,10 +3,9 @@ import { h, InsertHook, VNode } from 'snabbdom';
 import * as cg from 'chessgroundx/types';
 import * as util from 'chessgroundx/util';
 
-import { DARK_FEN, BoardMarkType, ColorName, CountingType, MaterialPointType, PieceSoundType, PromotionSuffix, PromotionType, TimeControlType, uci2LastMove } from './chess';
+import { BoardMarkType, ColorName, CountingType, MaterialPointType, PieceSoundType, PromotionSuffix, PromotionType, TimeControlType, uci2LastMove } from './chess';
 import { _ } from './i18n';
 import { calculateDiff, Equivalence, MaterialDiff } from './material';
-import { getUnionFenFromFullFen } from './alice'; 
 
 export interface BoardFamily {
     readonly dimensions: cg.BoardDimensions;
@@ -80,6 +79,7 @@ export interface Variant {
     readonly _tooltip: string;
     readonly tooltip: string;
     readonly chess960: boolean;
+    readonly twoBoards: boolean;
     readonly _icon: string;
     readonly _icon960: string;
     readonly icon: (chess960?: boolean) => string;
@@ -142,6 +142,7 @@ function variant(config: VariantConfig): Variant {
         _tooltip: config.tooltip,
         get tooltip() { return _(this._tooltip) },
         chess960: !!config.chess960,
+        twoBoards: !!config.twoBoards,
         _icon: config.icon,
         _icon960: config.icon960 ?? config.icon,
         icon: function (chess960 = false) { return chess960 ? this._icon960 : this._icon; },
@@ -216,6 +217,8 @@ interface VariantConfig {
     startFen: string;
     // Whether it is possible to play a randomized starting position (default: false)
     chess960?: boolean;
+    // Pocket pieces are added from an external source, usually from a second board (e.g., bughouse)
+    twoBoards?: boolean;
     // Icon letter in the site's font
     icon: string;
     // Icon of the 960 version (default: same as icon)
@@ -359,7 +362,7 @@ export const VARIANTS: Record<string, Variant> = {
     bughouse: variant({
         name: "bughouse", tooltip: "bughousebughousebughousebughouse.", displayName: "bughouse ᴮᴱᵀᴬ",
         startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[] w KQkq - 0 1",
-        chess960: true, icon: "¢", icon960: "⌀",
+        chess960: true, icon: "¢", icon960: "⌀", twoBoards: true,
         boardFamily: "standard8x8", pieceFamily: "standard",
         pieceRow: ["k", "q", "r", "b", "n", "p"],
         pocket: {
@@ -480,14 +483,14 @@ export const VARIANTS: Record<string, Variant> = {
 
     alice: variant({
         name: "alice", tooltip: "Through the Looking-Glass",
-        startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1 | 8/8/8/8/8/8/8/8 w - - 0 1",
+        startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
         icon: "👧",
         boardFamily: "standard8x8", pieceFamily: "standard",
         pieceRow: ["k", "q", "r", "b", "n", "p"],
         rules: { enPassant: false },
         alternateStart: {
             '': "",
-            'Looking glass': "8/8/8/8/8/8/PPPPPPPP/RNBQKBNR w KQ - 0 1 | rnbqkbnr/pppppppp/8/8/8/8/8/8 w kq - 0 1",
+            'Looking glass': "|r|n|b|q|k|b|n|r/|p|p|p|p|p|p|p|p/8/8/8/8/PPPPPPPP/RNBQKBNR w KQ - 0 1",
         },
         // For Alice chess other board pieces we use promoted pieces to let them style differently,
         ui: { boardMark: 'alice' },
@@ -510,6 +513,33 @@ export const VARIANTS: Record<string, Variant> = {
         pieceRow: ["k", "s", "m", "n", "r", "p", "m~" as cg.Letter],
         promotion: { type: "regular", order: ["m"] },
         ui: { counting: "makruk", showPromoted: true },
+    }),
+
+    makrukhouse: variant({
+        name: "makrukhouse", tooltip: "Take captured pieces and drop them back on to the board as your own.",
+        startFen: "rnsmksnr/8/pppppppp/8/8/PPPPPPPP/8/RNSKMSNR[] w - - 0 1",
+        icon: "Q",
+        boardFamily: "makruk8x8", pieceFamily: "makruk",
+        pieceRow: ["k", "s", "m", "n", "r", "p", "m~" as cg.Letter],
+        promotion: { type: "regular", order: ["m"] },
+        pocket: {
+            roles: ["p", "m", "s", "n", "r"],
+            captureToHand: true,
+        },
+    }),
+
+    makbug: variant({
+        name: "makbug", tooltip: "Thai bughouse chess", displayName: "makbug ᴮᴱᵀᴬ",
+        startFen: "rnsmksnr/8/pppppppp/8/8/PPPPPPPP/8/RNSKMSNR[] w - - 0 1",
+        icon: "Q", twoBoards: true,
+        boardFamily: "makruk8x8", pieceFamily: "makruk",
+        pieceRow: ["k", "s", "m", "n", "r", "p", "m~" as cg.Letter],
+        promotion: { type: "regular", order: ["m"] },
+        pocket: {
+            roles: ["p", "m", "s", "n", "r"],
+            captureToHand: true,
+        },
+        ui: { showPromoted: true },
     }),
 
     makpong: variant({
@@ -699,6 +729,37 @@ export const VARIANTS: Record<string, Variant> = {
         colors: { first: "Red", second: "Black" },
         pieceRow: ["k", "a", "c", "r", "b", "n", "p"],
         promotion: { type: "regular", roles: [] },
+    }),
+
+    xiangqihouse: variant({
+        name: "xiangqihouse", tooltip: "Take captured pieces and drop them back on to the board as your own.",
+        startFen: "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR[] w - - 0 1",
+        icon: "+",
+        boardFamily: "xiangqi9x10", pieceFamily: "xiangqi",
+        notation: cg.Notation.XIANGQI_ARBNUM,
+        colors: { first: "Red", second: "Black" },
+        pieceRow: ["k", "a", "c", "r", "b", "n", "p"],
+        promotion: { type: "regular", roles: [] },
+        pocket: {
+            roles: ["p", "n", "b", "r", "c", "a"],
+            captureToHand: true,
+        },
+    }),
+
+    supply: variant({
+        name: "supply", tooltip: "Chinese bughouse chess", displayName: "supply chess ᴮᴱᵀᴬ",
+        startFen: "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR[] w - - 0 1",
+        icon: "¢", twoBoards: true,
+        boardFamily: "xiangqi9x10", pieceFamily: "xiangqi",
+        notation: cg.Notation.XIANGQI_ARBNUM,
+        colors: { first: "Red", second: "Black" },
+        pieceRow: ["k", "a", "c", "r", "b", "n", "p"],
+        promotion: { type: "regular", roles: [] },
+        pocket: {
+            roles: ["p", "n", "b", "r", "c", "a"],
+            captureToHand: true,
+        },
+        ui: { showPromoted: true },
     }),
 
     manchu: variant({
@@ -1088,13 +1149,11 @@ export const VARIANTS: Record<string, Variant> = {
 };
 
 export const variants = Object.keys(VARIANTS);
-const disabledVariants = [ "gothic", "gothhouse", "embassy", "embassyhouse", "gorogoro" ];
+const disabledVariants = [ "gothic", "gothhouse", "embassy", "embassyhouse", "gorogoro", "shinobi", "makrukhouse", "xiangqihouse" ];
 export const enabledVariants = variants.filter(v => !disabledVariants.includes(v));
 
 // variants having 0 puzzle so far
 export const noPuzzleVariants = [
-    "ataxx",
-    "3check",
     "placement",
     "minishogi",
     "gorogoroplus",
@@ -1104,19 +1163,21 @@ export const noPuzzleVariants = [
     "shinobiplus",
     "cannonshogi",
     "bughouse",
-    "alice",
     "fogofwar",
-    "racingkings",
     "antichess",
     "horde",
     "shatranj",
+    "supply",
+    "makbug",
 ]
+
+export const twoBoarsVariants = variants.filter(v => VARIANTS[v].twoBoards);
 
 export const variantGroups: { [ key: string ]: { variants: string[] } } = {
     standard: { variants: [ "chess", "bughouse", "crazyhouse", "atomic", "kingofthehill", "3check", "antichess", "racingkings", "horde", "placement", "duck", "alice", "fogofwar" ] },
-    sea:      { variants: [ "makruk", "makpong", "cambodian", "sittuyin", "asean" ] },
+    sea:      { variants: [ "makruk", "makbug", "makpong", "cambodian", "sittuyin", "asean" ] },
     shogi:    { variants: [ "shogi", "minishogi", "kyotoshogi", "dobutsu", "gorogoroplus", "torishogi", "cannonshogi" ] },
-    xiangqi:  { variants: [ "xiangqi", "manchu", "janggi", "minixiangqi" ] },
+    xiangqi:  { variants: [ "xiangqi", "supply", "manchu", "janggi", "minixiangqi" ] },
     fairy:    { variants: [ "shatranj", "capablanca", "capahouse", "dragon", "seirawan", "shouse", "grand", "grandhouse", "shako", "shogun", "hoppelpoppel", "mansindam" ] },
     army:     { variants: [ "orda", "khans", "synochess", "shinobiplus", "empire", "ordamirror", "chak", "chennis", "spartan" ] },
     other:    { variants: [ "ataxx" ] }
@@ -1168,14 +1229,11 @@ export function moddedVariant(variantName: string, chess960: boolean, pieces: cg
     return variantName;
 }
 
-export function getLastMoveFen(variantName: string, lastMove: string, fen: string, result: string): [cg.Orig[] | undefined, string] {
-    switch (variantName) {
-        case 'alice':
-            return [uci2LastMove(lastMove), getUnionFenFromFullFen(fen, 0)];
-        case 'fogofwar':
-            // Prevent leaking ongoing game info
-            return [undefined, (result === "*") ? DARK_FEN : fen];
-        default:
-            return [uci2LastMove(lastMove), fen];
-    }
+export function getLastMoveFen(variantName: string, lastMove: string, fen: string): [cg.Orig[] | undefined, string] {
+    return [uci2LastMove(lastMove), variantName === 'fogofwar' ? fogFen(fen) : fen];
+}
+
+// Replace all brick ("*") pieces to be promoted ("*~") to let them CSS style as fog instead of duck
+export function fogFen(currentFen: string): string {
+    return currentFen.replace(/\*/g, '*~');
 }

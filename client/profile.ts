@@ -76,14 +76,14 @@ function renderGames(model: PyChessModel, games: Game[]) {
         const chess960 = game.z === 1;
         const tc = timeControlStr(game["b"], game["i"], game["bp"], game["c"] === true ? game["b"] : 0);
         const altStartName = alternateStartName(variant, game.initialFen);
-        const isBug = variant === VARIANTS['bughouse'];
+        const isBug = variant.twoBoards;
         let teamFirst, teamSecond = '';
         if (isBug) {
             teamFirst = game["us"][0] + "+" + game["us"][3];
             teamSecond = game["us"][2] + "+" + game["us"][1];
         }
         let lastMove, fen;
-        [lastMove, fen] = getLastMoveFen(variant.name, game.lm, game.f, game.r)
+        [lastMove, fen] = getLastMoveFen(variant.name, game.lm, game.f)
         return h('tr', [h('a', { attrs: { href : '/' + game["_id"] } }, [
             h('td.board', { class: { "with-pockets": !!variant.pocket, "bug": isBug} },
                isBug? renderGameBoardsBug(game, model["profileid"]): [
@@ -161,7 +161,7 @@ function renderGames(model: PyChessModel, games: Game[]) {
 
 function isWinClass(model: PyChessModel, game: Game): boolean {
     const variant = VARIANTS[game.v];
-    if (variant === VARIANTS['bughouse']){
+    if (variant.twoBoards){
         const team = game["us"][0] === model["profileid"] || game["us"][3] === model["profileid"]? 0: 1;
         return (game["r"] === '1-0' && team === 0) || (game["r"] === '0-1' && team === 1);
     } else {

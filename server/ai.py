@@ -1,7 +1,6 @@
 from __future__ import annotations
 import asyncio
 import json
-import logging
 import random
 import string
 from time import monotonic
@@ -13,8 +12,7 @@ from fairy import WHITE
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
 from utils import play_move
-
-log = logging.getLogger(__name__)
+from logger import log
 
 
 async def BOT_task(bot, app_state: PychessGlobalAppState):
@@ -38,7 +36,8 @@ async def BOT_task(bot, app_state: PychessGlobalAppState):
                 continue
             # print("   +++ game_queues get()", event)
             if random_mover:
-                await play_move(app_state, bot, game, random.choice(game.legal_moves))
+                async with game.move_lock:
+                    await play_move(app_state, bot, game, random.choice(game.legal_moves))
             elif len(app_state.workers) > 0:
                 AI_move(game, level)
 
@@ -98,8 +97,9 @@ async def BOT_task(bot, app_state: PychessGlobalAppState):
 
         if turn_player == bot.username:
             if random_mover:
-                await play_move(app_state, bot, game, random.choice(game.legal_moves))
+                async with game.move_lock:
+                    await play_move(app_state, bot, game, random.choice(game.legal_moves))
             else:
                 AI_move(game, level)
 
-        asyncio.create_task(game_task(bot, game, level, random_mover))
+        asyncio.create_task(game_task(bot, game, level, random_mover), name="bot-game-%s" % game.id)

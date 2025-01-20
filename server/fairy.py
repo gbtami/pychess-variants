@@ -1,27 +1,36 @@
 from __future__ import annotations
+import re
+import random
+from functools import cache
 
 # -*- coding: utf-8 -*-
 from ataxx import ATAXX_FENS
 from const import CATEGORIES, MANCHU_R_FEN
 from racingkings import RACINGKINGS_FENS
-
-import logging
-import re
-import random
-
-log = logging.getLogger(__name__)
+from logger import log
 
 try:
     import pyffish as sf
+
+    sf.set_option("VariantPath", "variants.ini")
 except ImportError:
-    log.error("No pyffish module installed!", exc_info=True)
+    log.error("No pyffish module installed!")
+
+try:
+    import pyffish_alice as sf_alice
+except ImportError:
+    log.error("No pyffish-alice module installed!")
+
+FEN_OK = sf.FEN_OK
+NOTATION_SAN = sf.NOTATION_SAN
+NOTATION_JANGGI = sf.NOTATION_JANGGI
+NOTATION_XIANGQI_WXF = sf.NOTATION_XIANGQI_WXF
+NOTATION_SHOGI_HODGES_NUMBER = sf.NOTATION_SHOGI_HODGES_NUMBER
 
 WHITE, BLACK = 0, 1
 FILES = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j"]
 
 STANDARD_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
-
-log = logging.getLogger(__name__)
 
 
 def file_of(piece: str, rank: str) -> int:
@@ -60,10 +69,18 @@ class FairyBoard:
         self, variant: str, initial_fen="", chess960=False, count_started=0, disabled_fen=""
     ):
         self.variant = modded_variant(variant, chess960, initial_fen)
+        self.sf = sf_alice if variant == "alice" else sf
         self.chess960 = chess960
         self.sfen = False
-        self.show_promoted = variant in ("makruk", "makpong", "cambodian", "bughouse")
-        self.legal_moves_need_history = variant in ("janggi",)
+        self.show_promoted = variant in (
+            "makruk",
+            "makpong",
+            "cambodian",
+            "bughouse",
+            "supply",
+            "makbug",
+        )
+        self.legal_moves_need_history = variant in ("janggi", "ataxx")
         self.nnue = initial_fen == ""
         self.initial_fen = (
             initial_fen
@@ -78,17 +95,19 @@ class FairyBoard:
         self.count_started = count_started
 
         if self.variant == "janggi":
-            self.notation = sf.NOTATION_JANGGI
+            self.notation = NOTATION_JANGGI
         elif self.variant in CATEGORIES["shogi"]:
-            self.notation = sf.NOTATION_SHOGI_HODGES_NUMBER
+            self.notation = NOTATION_SHOGI_HODGES_NUMBER
         elif self.variant in (
             "xiangqi",
+            "xiangqihouse",
+            "supply",
             "manchu",
             "minixiangqi",
         ):
-            self.notation = sf.NOTATION_XIANGQI_WXF
+            self.notation = NOTATION_XIANGQI_WXF
         else:
-            self.notation = sf.NOTATION_SAN
+            self.notation = NOTATION_SAN
 
     @staticmethod
     def start_fen(variant, chess960=False, disabled_fen=""):
@@ -96,10 +115,12 @@ class FairyBoard:
             new_fen = FairyBoard.shuffle_start(variant)
             while new_fen == disabled_fen:
                 new_fen = FairyBoard.shuffle_start(variant)
+        elif variant == "alice":
+            new_fen = sf_alice.start_fen("alice")
         else:
             new_fen = sf.start_fen(variant)
 
-        if variant == "bughouse":
+        if variant in ("bughouse", "supply", "makbug"):
             return new_fen + " | " + new_fen
         elif variant == "manchu":
             return MANCHU_R_FEN
@@ -108,7 +129,7 @@ class FairyBoard:
 
     @property
     def initial_sfen(self):
-        return sf.get_fen(self.variant, self.initial_fen, [], False, True)
+        return self.sf.get_fen(self.variant, self.initial_fen, [], False, True)
 
     def push(self, move, append=True):
         try:
@@ -117,7 +138,7 @@ class FairyBoard:
                 self.move_stack.append(move)
                 self.ply += 1
             self.color = WHITE if self.color == BLACK else BLACK
-            self.fen = sf.get_fen(
+            self.fen = self.sf.get_fen(
                 self.variant,
                 self.fen,
                 [move],
@@ -129,7 +150,7 @@ class FairyBoard:
         except Exception:
             self.pop()
             log.error(
-                "ERROR: sf.get_fen() failed on %s %s %s %s %s %s %s",
+                "sf.get_fen() failed on %s %s %s %s %s %s %s",
                 self.variant,
                 self.fen,
                 move,
@@ -137,7 +158,6 @@ class FairyBoard:
                 self.sfen,
                 self.show_promoted,
                 self.count_started,
-                exc_info=True,
             )
             raise
 
@@ -145,7 +165,7 @@ class FairyBoard:
         self.move_stack.pop()
         self.ply -= 1
         self.color = not self.color
-        self.fen = sf.get_fen(
+        self.fen = self.sf.get_fen(
             self.variant,
             self.initial_fen,
             self.move_stack,
@@ -156,39 +176,43 @@ class FairyBoard:
         )
 
     def get_san(self, move):
-        return sf.get_san(self.variant, self.fen, move, self.chess960, self.notation)
+        return self.sf.get_san(self.variant, self.fen, move, self.chess960, self.notation)
 
     def has_legal_move(self):
         if self.legal_moves_need_history:
             return (
-                len(sf.legal_moves(self.variant, self.initial_fen, self.move_stack, self.chess960))
+                len(
+                    self.sf.legal_moves(
+                        self.variant, self.initial_fen, self.move_stack, self.chess960
+                    )
+                )
                 > 0
             )
         else:
-            return len(sf.legal_moves(self.variant, self.fen, [], self.chess960)) > 0
+            return len(self.sf.legal_moves(self.variant, self.fen, [], self.chess960)) > 0
 
     def legal_moves(self):
         # move legality can depend on history, e.g., passing and bikjang
-        return sf.legal_moves(self.variant, self.initial_fen, self.move_stack, self.chess960)
+        return self.sf.legal_moves(self.variant, self.initial_fen, self.move_stack, self.chess960)
 
     def legal_moves_no_history(self):
         # move legality can depend on history, but for bughouse we can't recreate history so we need this version
-        return sf.legal_moves(self.variant, self.fen, [], self.chess960)
+        return self.sf.legal_moves(self.variant, self.fen, [], self.chess960)
 
     def is_checked(self):
-        return sf.gives_check(self.variant, self.fen, [], self.chess960)
+        return self.sf.gives_check(self.variant, self.fen, [], self.chess960)
 
     def insufficient_material(self):
-        return sf.has_insufficient_material(self.variant, self.fen, [], self.chess960)
+        return self.sf.has_insufficient_material(self.variant, self.fen, [], self.chess960)
 
     def is_immediate_game_end(self):
-        immediate_end, result = sf.is_immediate_game_end(
+        immediate_end, result = self.sf.is_immediate_game_end(
             self.variant, self.initial_fen, self.move_stack, self.chess960
         )
         return immediate_end, result
 
     def is_optional_game_end(self):
-        return sf.is_optional_game_end(
+        return self.sf.is_optional_game_end(
             self.variant,
             self.initial_fen,
             self.move_stack,
@@ -201,13 +225,13 @@ class FairyBoard:
         return optional_end and result == 0
 
     def game_result(self):
-        return sf.game_result(self.variant, self.initial_fen, self.move_stack, self.chess960)
+        return self.sf.game_result(self.variant, self.initial_fen, self.move_stack, self.chess960)
 
     def game_result_no_history(self):
-        return sf.game_result(self.variant, self.fen, [], self.chess960)
+        return self.sf.game_result(self.variant, self.fen, [], self.chess960)
 
     def piece_to_partner(self, move):
-        return sf.piece_to_partner(self.variant, self.fen, [move], self.chess960)
+        return self.sf.piece_to_partner(self.variant, self.fen, [move], self.chess960)
 
     def print_pos(self):
         print()
@@ -393,9 +417,49 @@ class FairyBoard:
         return fen
 
 
-if __name__ == "__main__":
-    sf.set_option("VariantPath", "variants.ini")
+@cache
+def get_fog_fen(fen, persp_color):
+    parts = fen.split(" ")
 
+    fen_color = "w" if parts[1] == "w" else "b"
+    opp_color = "w" if persp_color == WHITE else "b"
+
+    # set the perspective color to sf.get_fog_fen()
+    parts[1] = parts[1].replace(fen_color, opp_color)
+
+    # remove castling rights of the player in fog
+    # because the resulting fog FEN may have no king
+    if persp_color == WHITE:
+        parts[2] = "".join((letter for letter in parts[2] if letter.isupper()))
+    else:
+        parts[2] = "".join((letter for letter in parts[2] if letter.islower()))
+    fen = " ".join(parts)
+
+    fen = sf.get_fog_fen(fen, "fogofwar")
+
+    # restore original FEN color
+    parts = fen.split(" ")
+    parts[1] = parts[1].replace(opp_color, fen_color)
+    fen = " ".join(parts)
+
+    return fen
+
+
+def get_san_moves(variant, fen, mlist, chess960, notation):
+    if variant == "alice":
+        return sf_alice.get_san_moves(variant, fen, mlist, chess960, notation)
+    else:
+        return sf.get_san_moves(variant, fen, mlist, chess960, notation)
+
+
+def validate_fen(fen, variant, chess960):
+    if variant == "alice":
+        return sf_alice.validate_fen(fen, variant, chess960)
+    else:
+        return sf.validate_fen(fen, variant, chess960)
+
+
+if __name__ == "__main__":
     board = FairyBoard("shogi")
     print(board.fen)
     board.print_pos()

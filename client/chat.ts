@@ -3,7 +3,7 @@ import { h } from "snabbdom";
 import { _ } from './i18n';
 import { patch } from './document';
 import { RoundControllerBughouse } from "./bug/roundCtrl.bug";
-import {chatMessageBug, onchatclick, renderBugChatPresets} from "@/bug/chat.bug";
+import { onchatclick, renderBugChatPresets} from "@/bug/chat.bug";
 
 export interface ChatController {
     anon: boolean;
@@ -47,24 +47,22 @@ export function chatView(ctrl: ChatController, chatType: string) {
         const chatEntry = (<HTMLInputElement>document.getElementById('chat-entry'));
         (<HTMLElement>document.getElementById(chatType + "-messages")).style.display = activated ? "block" : "none";
         chatEntry.disabled = !activated;
-        chatEntry.placeholder = activated ? (anon ? _('Sign in to chat') : _('Please be nice in the chat!')) : _("Chat is disabled");
+        chatEntry.placeholder = activated ? (ctrl.anon ? _('Sign in to chat') : _('Please be nice in the chat!')) : _("Chat is disabled");
     }
-    const anon = ctrl.anon && !bughouse; // chat is essential to bughouse, allow even if anons (or disallow anon bughouse games?)
     return h(`div#${chatType}.${chatType}.chat`, [
         bughouse? h('div.chatroom'): h('div.chatroom', [
             (spectator) ? _('Spectator room') : _('Chat room'),
             h('input#checkbox', { props: { title: _("Toggle the chat"), name: "checkbox", type: "checkbox", checked: "true" }, on: { click: onClick } })
         ]),
-        // TODO: lock/unlock chat to spectators
         h(`ol#${chatType}-messages`, [ h('div#messages') ]),
-        bughouse? renderBugChatPresets(sendMessage): null,
+        bughouse && !ctrl.spectator? renderBugChatPresets(ctrl.variant, sendMessage): null,
         h('input#chat-entry', {
             props: {
                 type: "text",
                 name: "entry",
                 autocomplete: "off",
-                placeholder: (anon) ? _('Sign in to chat') : _('Please be nice in the chat!'),
-                disabled: anon,
+                placeholder: (ctrl.anon) ? _('Sign in to chat') : _('Please be nice in the chat!'),
+                disabled: ctrl.anon,
             },
             attrs: {
                 maxlength: 140,
@@ -96,8 +94,6 @@ export function chatMessage (user: string, message: string, chatType: string, ti
         const discordUser = message.substring(0, colonIndex);
         const discordMessage = message.substring(colonIndex + 2);
         patch(container, h('div#messages', [ h("li.message", [h("div.time", localTime), h("div.discord-icon-container", h("img.icon-discord-icon", { attrs: { src: '/static/icons/discord.svg', alt: "" } })), h("user", discordUser), h("t", discordMessage)]) ]));
-    } else if (message.startsWith("!bug!")) {
-        chatMessageBug(container, user, message, /*chatType,*/ localTime, ply, ctrl);
     } else {
         patch(container, h('div#messages', [ h("li.message", [h("div.time", localTime), h("user", h("a", { attrs: {href: "/@/" + user} }, user)), h("t", { attrs: {"title": ctrl?.steps[ply!].san!}, on: { click: () => { onchatclick(ply, ctrl) }}}, message)]) ]));
     }

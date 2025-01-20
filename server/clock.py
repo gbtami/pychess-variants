@@ -1,6 +1,5 @@
 from __future__ import annotations
 import asyncio
-import logging
 from datetime import datetime, timezone
 
 from const import ABORTED
@@ -8,7 +7,7 @@ from fairy import WHITE, BLACK
 from broadcast import round_broadcast
 from notify import notify
 
-log = logging.getLogger(__name__)
+# from logger import log
 
 ESTIMATE_MOVES = 40
 CORR_TICK = 60
@@ -23,7 +22,7 @@ class Clock:
         self.running = False
         self.secs = -1
         self.restart(secs)
-        self.clock_task = asyncio.create_task(self.countdown(), name="clock_task-%s" % game.id)
+        self.clock_task = asyncio.create_task(self.countdown(), name="game-clock-%s" % game.id)
 
     def stop(self):
         self.running = False
@@ -36,7 +35,7 @@ class Clock:
             self.secs = secs
         else:
             # give some time to make first move
-            if self.ply < 2 and self.game.variant != "bughouse":
+            if self.ply < 2 and not self.game.server_variant.two_boards:
                 if self.game.tournamentId is None:
                     # Non tournament games are not timed for the first moves of either
                     # player. We stop the clock to prevent unnecessary clock
@@ -131,7 +130,7 @@ class CorrClock:
         self.running = False
         self.restart()
         self.time_for_first_move = self.mins
-        self.clock_task = asyncio.create_task(self.countdown(), name="clock_task-%s" % game.id)
+        self.clock_task = asyncio.create_task(self.countdown(), name="corr-clock-%s" % game.id)
         self.alarm_mins = int((self.game.base * 24 * 60) / 5)
         self.alarms = set()
 

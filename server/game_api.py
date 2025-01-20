@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import asyncio
 import json
-import logging
 from datetime import date, datetime, timedelta
 from functools import partial
 
@@ -11,15 +10,15 @@ from aiohttp import web
 from aiohttp_sse import sse_response
 import pymongo
 
-from compress import get_decode_method, C2V, V2C, C2R, decode_move_standard
-from const import GRANDS, STARTED, MATE, VARIANTS, INVALIDMOVE, VARIANTEND, CLAIM
+from compress import C2R, decode_move_standard
+from const import DARK_FEN, STARTED, MATE, INVALIDMOVE, VARIANTEND, CLAIM
 from convert import zero2grand
 from settings import ADMINS
 from tournaments import get_tournament_name
 from utils import pgn
 from pychess_global_app_state_utils import get_app_state
-
-log = logging.getLogger(__name__)
+from logger import log
+from variants import C2V, GRANDS, get_server_variant, VARIANTS
 
 GAME_PAGE_SIZE = 12
 
@@ -158,8 +157,9 @@ async def get_tournament_games(request):
     cursor = app_state.db.game.find({"tid": tournamentId})
     game_doc_list = []
 
-    variant = app_state.tournaments[tournamentId].variant
-    decode_method = get_decode_method(variant)
+    tournament = app_state.tournaments[tournamentId]
+    variant = tournament.variant
+    decode_method = tournament.server_variant.move_decoding
 
     async for doc in cursor:
         doc["v"] = C2V[doc["v"]]
@@ -240,15 +240,15 @@ async def get_user_games(request):
         filter_cond["by"] = profileId
         filter_cond["y"] = 2
     elif ("/perf" in request.path or uci_moves) and variant in VARIANTS:
-        if variant.endswith("960"):
-            v = V2C[variant[:-3]]
-            z = 1
-        else:
-            v = V2C[variant]
-            z = 0
+        variant960 = variant.endswith("960")
+        uci_variant = variant[:-3] if variant960 else variant
+
+        v = get_server_variant(uci_variant, variant960)
+        z = 1 if variant960 else 0
+
         filter_cond["$or"] = [
-            {"v": v, "z": z, "us.1": profileId},
-            {"v": v, "z": z, "us.0": profileId},
+            {"v": v.code, "z": z, "us.1": profileId},
+            {"v": v.code, "z": z, "us.0": profileId},
         ]
     elif "/me" in request.path:
         session = await aiohttp_session.get_session(request)
@@ -290,9 +290,10 @@ async def get_user_games(request):
                 continue
 
             try:
-                doc["v"] = C2V[doc["v"]]
+                variant = C2V[doc["v"]]
+                doc["v"] = variant
             except KeyError:
-                log.error("Unknown variant %r", doc, exc_info=True)
+                log.error("get_user_games() KeyError. Unknown variant %r", doc["v"])
                 continue
 
             doc["r"] = C2R[doc["r"]]
@@ -311,17 +312,17 @@ async def get_user_games(request):
                     app_state.users[doc["us"][3]].title if doc["us"][3] in app_state.users else ""
                 )
 
-            if doc["v"] in ("bughouse", "bughouse960"):
-                mA = [m for idx, m in enumerate(doc["m"]) if doc["o"][idx] == 0]
-                mB = [m for idx, m in enumerate(doc["m"]) if doc["o"][idx] == 1]
+            server_variant = get_server_variant(variant, bool(doc.get("z", 0)))
+            if server_variant.two_boards:
+                mA = [m for idx, m in enumerate(doc["m"]) if "o" in doc and doc["o"][idx] == 0]
+                mB = [m for idx, m in enumerate(doc["m"]) if "o" in doc and doc["o"][idx] == 1]
                 doc["lm"] = decode_move_standard(mA[-1]) if len(mA) > 0 else ""
                 doc["lmB"] = decode_move_standard(mB[-1]) if len(mB) > 0 else ""
             else:
-                variant = doc["v"]
-                decode_method = get_decode_method(variant)
-
+                decode_method = server_variant.move_decoding
                 doc["lm"] = decode_method(doc["m"][-1]) if len(doc["m"]) > 0 else ""
-            if doc["v"] in GRANDS and doc["lm"] != "":
+
+            if variant in GRANDS and doc["lm"] != "":
                 doc["lm"] = zero2grand(doc["lm"])
 
             tournament_id = doc.get("tid")
@@ -334,7 +335,7 @@ async def get_user_games(request):
                 game_doc_list.append(
                     {
                         "id": doc["_id"],
-                        "variant": doc["v"],
+                        "variant": variant,
                         "is960": doc.get("z", 0),
                         "users": doc["us"],
                         "result": doc["r"],
@@ -343,6 +344,11 @@ async def get_user_games(request):
                     }
                 )
             else:
+                if doc["s"] <= STARTED and variant == "fogofwar":
+                    doc["f"] = DARK_FEN
+                    doc["lm"] = ""
+                    doc["m"] = ""
+
                 game_doc_list.append(doc)
 
     return web.json_response(game_doc_list, dumps=partial(json.dumps, default=datetime.isoformat))
@@ -361,7 +367,11 @@ async def cancel_invite(request):
             del app_state.seeks[seek_id]
             del creator.seeks[seek_id]
         except KeyError:
-            log.error("Seek was already deleted!", exc_info=True)
+            log.error(
+                "cancel_invite() KeyError. Invite %s for game %s was already deleted!",
+                seek_id,
+                gameId,
+            )
 
     return web.HTTPFound("/")
 
@@ -376,10 +386,10 @@ async def subscribe_invites(request):
                 payload = await queue.get()
                 await response.send(payload)
                 queue.task_done()
-    except ConnectionResetError as e:
-        log.error(e, exc_info=True)
+    except ConnectionResetError:
+        log.error("subscribe_invites() ConnectionResetError")
     finally:
-        app_state.invite_channels.remove(queue)
+        app_state.invite_channels.discard(queue)
     return response
 
 
@@ -393,14 +403,14 @@ async def subscribe_games(request):
                 payload = await queue.get()
                 await response.send(payload)
                 queue.task_done()
-    except (ConnectionResetError, asyncio.CancelledError) as e:
-        log.error(e, exc_info=True)
+    except (ConnectionResetError, asyncio.CancelledError):
+        log.error("subscribe_games() ConnectionResetError")
     finally:
-        app_state.game_channels.remove(queue)
+        app_state.game_channels.discard(queue)
     return response
 
 
-def get_games(request):
+async def get_games(request):
     app_state = get_app_state(request.app)
     games = app_state.games.values()
     variant = request.match_info.get("variant")
@@ -412,8 +422,8 @@ def get_games(request):
             {
                 "gameId": game.id,
                 "variant": game.variant,
-                "fen": game.board.fen,
-                "lastMove": game.lastmove,
+                "fen": DARK_FEN if game.variant == "fogofwar" else game.board.fen,
+                "lastMove": "" if game.variant == "fogofwar" else game.lastmove,
                 "tp": game.turn_player,
                 "w": game.wplayer.username,
                 "wTitle": game.wplayer.title,
@@ -459,6 +469,7 @@ async def export(request):
         print("---", yearmonth[:4], yearmonth[4:])
         filter_cond = {
             "$and": [
+                {"$expr": {"s": {"$gt": STARTED}}},  # prevent leaking ongoing fogofwar game info
                 {"$expr": {"$eq": [{"$year": "$d"}, int(yearmonth[:4])]}},
                 {"$expr": {"$eq": [{"$month": "$d"}, int(yearmonth[4:])]}},
             ]
@@ -477,11 +488,10 @@ async def export(request):
             except Exception:
                 failed += 1
                 log.error(
-                    "Failed to load game %s %s %s (early games may contain invalid moves)",
+                    "Failed to pgn export game %s %s %s (early games may contain invalid moves)",
                     doc["_id"],
                     C2V[doc["v"]],
                     doc["d"].strftime("%Y.%m.%d"),
-                    exc_info=True,
                 )
                 continue
         print("failed/all:", failed, game_counter)

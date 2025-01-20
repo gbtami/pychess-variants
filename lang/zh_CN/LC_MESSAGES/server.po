@@ -1,7 +1,7 @@
 # Translations template for PROJECT.
-# Copyright (C) 2023 ORGANIZATION
+# Copyright (C) 2024 ORGANIZATION
 # This file is distributed under the same license as the PROJECT project.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2023.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2024.
 # 
 # Translators:
 # gbtami <gbtami@gmail.com>, 2022
@@ -12,319 +12,407 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2023-11-17 14:15+0100\n"
+"POT-Creation-Date: 2024-11-15 13:31+0100\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Last-Translator: Zhennan.Su, 2024\n"
 "Language-Team: Chinese (China) (https://app.transifex.com/gbtami/teams/14790/zh_CN/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.12.1\n"
+"Generated-By: Babel 2.10.3\n"
 "Language: zh_CN\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-#: ../server/const.py:325
-msgid "Arena"
+#: ../server/blogs.py:10
+msgid "Announcement"
 msgstr ""
 
-#: ../server/const.py:326
-msgid "Round-Robin"
-msgstr ""
-
-#: ../server/const.py:327
-msgid "Swiss"
-msgstr ""
-
-#: ../server/const.py:331
-msgid "Hourly"
-msgstr ""
-
-#: ../server/const.py:332
-msgid "Daily"
-msgstr ""
-
-#: ../server/const.py:333
-msgid "Weekly"
-msgstr "周赛"
-
-#: ../server/const.py:334
-msgid "Monthly"
-msgstr "月赛"
-
-#: ../server/const.py:335
-msgid "Yearly"
-msgstr "年赛"
-
-#: ../server/const.py:336
-msgid "Marathon"
-msgstr ""
-
-#: ../server/const.py:337
-msgid "Shield"
-msgstr ""
-
-#: ../server/const.py:338
-msgid "SEAturday"
-msgstr "亚细安周六赛"
-
-#: ../server/const.py:342
-msgid "Chess"
-msgstr "国际象棋"
-
-#: ../server/const.py:343
-msgid "Chess960"
-msgstr "国际象棋 960"
-
-#: ../server/const.py:344
-msgid "Crazyhouse"
-msgstr "双狂象棋"
-
-#: ../server/const.py:345
-msgid "Crazyhouse960"
-msgstr "双狂象棋960"
-
-#: ../server/const.py:346 ../server/videos.py:24
-msgid "Placement"
-msgstr "自由布局国际象棋"
-
-#: ../server/const.py:347
-msgid "Atomic"
-msgstr "核爆象棋"
-
-#: ../server/const.py:348
-msgid "Atomic960"
-msgstr "核爆象棋960"
-
-#: ../server/const.py:349
-msgid "Duck Chess"
-msgstr "橡皮鸭象棋"
-
-#: ../server/const.py:350 ../server/videos.py:20
-msgid "Makruk"
-msgstr "泰国象棋"
-
-#: ../server/const.py:351
-msgid "Makpong"
-msgstr "防御泰国象棋"
-
-#: ../server/const.py:352
-msgid "Ouk Chaktrang"
-msgstr "高棉象棋"
-
-#: ../server/const.py:353
-msgid "Sittuyin"
-msgstr "缅甸象棋"
-
-#: ../server/const.py:354
-msgid "ASEAN"
-msgstr "亚细安象棋"
-
-#: ../server/const.py:355 ../server/videos.py:21
-msgid "Shogi"
-msgstr "将棋"
-
-#: ../server/const.py:356
-msgid "Minishogi"
-msgstr "迷你将棋"
-
-#: ../server/const.py:357
-msgid "Kyoto Shogi"
-msgstr "京都将棋"
-
-#: ../server/const.py:358
-msgid "Dobutsu"
-msgstr "动物将棋"
-
-#: ../server/const.py:361
-msgid "Gorogoro+"
-msgstr "五六将棋"
-
-#: ../server/const.py:362
-msgid "Tori Shogi"
-msgstr "禽将棋"
-
-#: ../server/const.py:363 ../server/videos.py:19
-msgid "Xiangqi"
-msgstr "象棋"
-
-#: ../server/const.py:364
-msgid "Manchu"
-msgstr "满洲棋"
-
-#: ../server/const.py:365 ../server/videos.py:18
-msgid "Janggi"
-msgstr "朝鲜象棋"
-
-#: ../server/const.py:366
-msgid "Minixiangqi"
-msgstr "迷你象棋"
-
-#: ../server/const.py:367 ../server/videos.py:23
-msgid "Capablanca"
-msgstr "卡帕布兰卡象棋"
-
-#: ../server/const.py:368
-msgid "Capablanca960"
-msgstr "卡帕布兰卡960"
-
-#: ../server/const.py:369
-msgid "Capahouse"
-msgstr "双狂卡帕布兰卡"
-
-#: ../server/const.py:370
-msgid "Capahouse960"
-msgstr "双狂卡帕960"
-
-#: ../server/const.py:376 ../server/videos.py:22
-msgid "S-Chess"
-msgstr "S-Chess"
-
-#: ../server/const.py:377
-msgid "S-Chess960"
-msgstr "S-Chess960"
-
-#: ../server/const.py:378
-msgid "S-House"
-msgstr "S-House"
-
-#: ../server/const.py:379
-msgid "Grand"
-msgstr "大型国际象棋"
-
-#: ../server/const.py:380
-msgid "Grandhouse"
-msgstr "双狂大型国际象棋"
-
-#: ../server/const.py:381
-msgid "Shogun"
-msgstr "幕府象棋"
-
-#: ../server/const.py:382
-msgid "Shako"
-msgstr "中西国际象棋"
-
-#: ../server/const.py:383
-msgid "Hoppel-Poppel"
-msgstr "跳跳国际象棋"
-
-#: ../server/const.py:384
-msgid "Orda Chess"
-msgstr "可汗西征棋"
-
-#: ../server/const.py:385
-msgid "Synochess"
-msgstr "王朝象棋"
-
-#: ../server/const.py:386
-msgid "Shinobi"
-msgstr "忍者象棋"
-
-#: ../server/const.py:387
-msgid "Shinobi+"
-msgstr "新忍者象棋"
-
-#: ../server/const.py:388
-msgid "Empire"
-msgstr "帝王象棋"
-
-#: ../server/const.py:389
-msgid "Orda Mirror"
-msgstr "可汗对决棋"
-
-#: ../server/const.py:390
-msgid "Chak"
-msgstr "玛雅象棋"
-
-#: ../server/const.py:391
-msgid "Chennis"
-msgstr "网球棋"
-
-#: ../server/const.py:392
-msgid "Spartan"
-msgstr "斯巴达象棋"
-
-#: ../server/const.py:393
-msgid "King of the Hill"
-msgstr "争夺中心"
-
-#: ../server/const.py:394
-msgid "King of the Hill 960"
-msgstr "争夺中心 960"
-
-#: ../server/const.py:395
-msgid "Three check"
-msgstr "三将象棋"
-
-#: ../server/const.py:396
-msgid "Three check 960"
-msgstr "三将象棋 960"
-
-#: ../server/const.py:397
-msgid "Mansindam"
-msgstr "万神谈"
-
-#: ../server/videos.py:10
-msgid "Howto"
-msgstr ""
-
-#: ../server/videos.py:11
-msgid "Introduction"
-msgstr ""
-
-#: ../server/videos.py:12
-msgid "Opening"
-msgstr ""
-
-#: ../server/videos.py:13
-msgid "Middlegame"
-msgstr ""
-
-#: ../server/videos.py:14
-msgid "Endgame"
-msgstr ""
-
-#: ../server/videos.py:15
-msgid "Fundamentals"
-msgstr ""
-
-#: ../server/videos.py:16
-msgid "Tactics"
-msgstr ""
-
-#: ../server/videos.py:17
-msgid "Puzzle"
-msgstr ""
-
-#: ../server/videos.py:25
-msgid "Duck"
-msgstr ""
-
-#: ../server/videos.py:26
-msgid "Match"
-msgstr ""
-
-#: ../server/videos.py:27
+#: ../server/blogs.py:11 ../server/videos.py:29
 msgid "Tournament"
 msgstr ""
 
+#: ../server/blogs.py:12 ../templates/template.html:49
+msgid "Blog"
+msgstr "网志"
+
+#: ../server/const.py:413
+msgid "Arena"
+msgstr ""
+
+#: ../server/const.py:414
+msgid "Round-Robin"
+msgstr ""
+
+#: ../server/const.py:415
+msgid "Swiss"
+msgstr ""
+
+#: ../server/const.py:419
+msgid "Hourly"
+msgstr ""
+
+#: ../server/const.py:420
+msgid "Daily"
+msgstr ""
+
+#: ../server/const.py:421
+msgid "Weekly"
+msgstr "周赛"
+
+#: ../server/const.py:422
+msgid "Monthly"
+msgstr "月赛"
+
+#: ../server/const.py:423
+msgid "Yearly"
+msgstr "年赛"
+
+#: ../server/const.py:424
+msgid "Marathon"
+msgstr ""
+
+#: ../server/const.py:425
+msgid "Shield"
+msgstr ""
+
+#: ../server/const.py:426
+msgid "SEAturday"
+msgstr "亚细安周六赛"
+
+#: ../server/const.py:430
+msgid "Ataxx"
+msgstr ""
+
+#: ../server/const.py:431
+msgid "Chess"
+msgstr "国际象棋"
+
+#: ../server/const.py:432
+msgid "Chess960"
+msgstr "国际象棋 960"
+
+#: ../server/const.py:433
+msgid "Crazyhouse"
+msgstr "双狂象棋"
+
+#: ../server/const.py:434
+msgid "Crazyhouse960"
+msgstr "双狂象棋960"
+
+#: ../server/const.py:435 ../server/videos.py:26
+msgid "Placement"
+msgstr "自由布局国际象棋"
+
+#: ../server/const.py:436
+msgid "Atomic"
+msgstr "核爆象棋"
+
+#: ../server/const.py:437
+msgid "Atomic960"
+msgstr "核爆象棋960"
+
+#: ../server/const.py:438
+msgid "Duck Chess"
+msgstr "橡皮鸭象棋"
+
+#: ../server/const.py:439
+msgid "Alice Chess"
+msgstr ""
+
+#: ../server/const.py:440
+msgid "Fog of War"
+msgstr ""
+
+#: ../server/const.py:441 ../server/videos.py:22
+msgid "Makruk"
+msgstr "泰国象棋"
+
+#: ../server/const.py:442
+msgid "Makpong"
+msgstr "防御泰国象棋"
+
+#: ../server/const.py:443
+msgid "Ouk Chaktrang"
+msgstr "高棉象棋"
+
+#: ../server/const.py:444
+msgid "Sittuyin"
+msgstr "缅甸象棋"
+
+#: ../server/const.py:445
+msgid "ASEAN"
+msgstr "亚细安象棋"
+
+#: ../server/const.py:446 ../server/videos.py:23
+msgid "Shogi"
+msgstr "将棋"
+
+#: ../server/const.py:447
+msgid "Minishogi"
+msgstr "迷你将棋"
+
+#: ../server/const.py:448
+msgid "Kyoto Shogi"
+msgstr "京都将棋"
+
+#: ../server/const.py:449
+msgid "Dobutsu"
+msgstr "动物将棋"
+
+#: ../server/const.py:450
+msgid "Bughouse"
+msgstr ""
+
+#: ../server/const.py:451
+msgid "Bughouse960"
+msgstr ""
+
+#: ../server/const.py:453
+msgid "Gorogoro"
+msgstr ""
+
+#: ../server/const.py:454
+msgid "Gorogoro+"
+msgstr "五六将棋"
+
+#: ../server/const.py:455
+msgid "Tori Shogi"
+msgstr "禽将棋"
+
+#: ../server/const.py:456
+msgid "Cannon Shogi"
+msgstr ""
+
+#: ../server/const.py:457 ../server/videos.py:21
+msgid "Xiangqi"
+msgstr "象棋"
+
+#: ../server/const.py:458
+msgid "Manchu+"
+msgstr ""
+
+#: ../server/const.py:459 ../server/videos.py:20
+msgid "Janggi"
+msgstr "朝鲜象棋"
+
+#: ../server/const.py:460
+msgid "Minixiangqi"
+msgstr "迷你象棋"
+
+#: ../server/const.py:461 ../server/videos.py:25
+msgid "Capablanca"
+msgstr "卡帕布兰卡象棋"
+
+#: ../server/const.py:462
+msgid "Capablanca960"
+msgstr "卡帕布兰卡960"
+
+#: ../server/const.py:463
+msgid "Capahouse"
+msgstr "双狂卡帕布兰卡"
+
+#: ../server/const.py:464
+msgid "Capahouse960"
+msgstr "双狂卡帕960"
+
+#: ../server/const.py:467
+msgid "Gothic"
+msgstr ""
+
+#: ../server/const.py:468
+msgid "Gothhouse"
+msgstr ""
+
+#: ../server/const.py:469
+msgid "Embassy"
+msgstr ""
+
+#: ../server/const.py:470
+msgid "Dragon Chess"
+msgstr ""
+
+#: ../server/const.py:471 ../server/videos.py:24
+msgid "S-Chess"
+msgstr "S-Chess"
+
+#: ../server/const.py:472
+msgid "S-Chess960"
+msgstr "S-Chess960"
+
+#: ../server/const.py:473
+msgid "S-House"
+msgstr "S-House"
+
+#: ../server/const.py:474
+msgid "Grand"
+msgstr "大型国际象棋"
+
+#: ../server/const.py:475
+msgid "Grandhouse"
+msgstr "双狂大型国际象棋"
+
+#: ../server/const.py:476
+msgid "Shogun"
+msgstr "幕府象棋"
+
+#: ../server/const.py:477
+msgid "Shako"
+msgstr "中西国际象棋"
+
+#: ../server/const.py:478
+msgid "Hoppel-Poppel"
+msgstr "跳跳国际象棋"
+
+#: ../server/const.py:479
+msgid "Orda Chess"
+msgstr "可汗西征棋"
+
+#: ../server/const.py:480
+msgid "Khan's Chess"
+msgstr ""
+
+#: ../server/const.py:481
+msgid "Synochess"
+msgstr "王朝象棋"
+
+#: ../server/const.py:482
+msgid "Shinobi"
+msgstr "忍者象棋"
+
+#: ../server/const.py:483
+msgid "Shinobi+"
+msgstr "新忍者象棋"
+
+#: ../server/const.py:484
+msgid "Empire"
+msgstr "帝王象棋"
+
+#: ../server/const.py:485
+msgid "Orda Mirror"
+msgstr "可汗对决棋"
+
+#: ../server/const.py:486
+msgid "Chak"
+msgstr "玛雅象棋"
+
+#: ../server/const.py:487
+msgid "Chennis"
+msgstr "网球棋"
+
+#: ../server/const.py:488
+msgid "Spartan"
+msgstr "斯巴达象棋"
+
+#: ../server/const.py:489
+msgid "King of the Hill"
+msgstr "争夺中心"
+
+#: ../server/const.py:490
+msgid "King of the Hill 960"
+msgstr "争夺中心 960"
+
+#: ../server/const.py:491
+msgid "Three check"
+msgstr "三将象棋"
+
+#: ../server/const.py:492
+msgid "Three check 960"
+msgstr "三将象棋 960"
+
+#: ../server/const.py:493
+msgid "Mansindam"
+msgstr "万神谈"
+
+#: ../server/const.py:494
+msgid "Antichess"
+msgstr ""
+
+#: ../server/const.py:495
+msgid "Antichess960"
+msgstr ""
+
+#: ../server/const.py:496
+msgid "Racing Kings"
+msgstr ""
+
+#: ../server/const.py:497
+msgid "Racing Kings 1440"
+msgstr ""
+
+#: ../server/const.py:498
+msgid "Horde"
+msgstr ""
+
+#: ../server/const.py:499
+msgid "Horde960"
+msgstr ""
+
+#: ../server/const.py:500
+msgid "Shatranj"
+msgstr ""
+
+#: ../server/videos.py:12
+msgid "Howto"
+msgstr ""
+
+#: ../server/videos.py:13
+msgid "Introduction"
+msgstr ""
+
+#: ../server/videos.py:14
+msgid "Opening"
+msgstr ""
+
+#: ../server/videos.py:15
+msgid "Middlegame"
+msgstr ""
+
+#: ../server/videos.py:16
+msgid "Endgame"
+msgstr ""
+
+#: ../server/videos.py:17
+msgid "Fundamentals"
+msgstr ""
+
+#: ../server/videos.py:18
+msgid "Tactics"
+msgstr ""
+
+#: ../server/videos.py:19
+msgid "Puzzle"
+msgstr ""
+
+#: ../server/videos.py:27
+msgid "Duck"
+msgstr ""
+
 #: ../server/videos.py:28
+msgid "Match"
+msgstr ""
+
+#: ../server/videos.py:30
 msgid "Hu Ronghua"
 msgstr ""
 
-#: ../server/videos.py:29
+#: ../server/videos.py:31
 msgid "Yoshiharu Habu"
 msgstr ""
 
-#: ../server/videos.py:33
+#: ../server/videos.py:35
 msgid "beginner"
 msgstr ""
 
-#: ../server/videos.py:34
+#: ../server/videos.py:36
 msgid "intermediate"
 msgstr ""
 
-#: ../server/videos.py:35
+#: ../server/videos.py:37
 msgid "advanced"
+msgstr ""
+
+#: ../templates/blogs.html:15
+msgid "PyChess Blogs"
 msgstr ""
 
 #: ../templates/closed.html:8
@@ -369,34 +457,44 @@ msgid "%(count)s game"
 msgid_plural "%(count)s games"
 msgstr[0] "%(count)s 对局"
 
-#: ../templates/profile.html:42
+#: ../templates/profile.html:43
 msgid "Watch games"
 msgstr "观看棋局"
 
-#: ../templates/profile.html:44
+#: ../templates/profile.html:43 ../templates/template.html:38
+msgid "Watch"
+msgstr "观看对局"
+
+#: ../templates/profile.html:54
 msgid "Challenge to a game"
 msgstr "挑战"
 
-#: ../templates/profile.html:47
+#: ../templates/profile.html:54
+msgid "Challenge"
+msgstr ""
+
+#: ../templates/profile.html:58 ../templates/template.html:58
 msgid "Import game"
 msgstr "导入棋局"
 
-#: ../templates/profile.html:50
+#: ../templates/profile.html:58
+msgid "Import"
+msgstr ""
+
+#: ../templates/profile.html:59
 msgid "Export games"
 msgstr "导出棋局"
 
-#: ../templates/profile.html:54
+#: ../templates/profile.html:59
+msgid "Export"
+msgstr ""
+
+#: ../templates/profile.html:60
 msgid "Lichess profile"
 msgstr "Lichess个人资料"
 
-#: ../templates/puzzle_profile.html:14
-#, python-format
-msgid "%(count)s puzzle"
-msgid_plural "%(count)s puzzles"
-msgstr[0] ""
-
-#: ../templates/puzzle_profile.html:23
-msgid "Puzzle history"
+#: ../templates/profile.html:60
+msgid "Lichess"
 msgstr ""
 
 #: ../templates/template.html:18
@@ -427,10 +525,6 @@ msgstr "棋种介绍"
 msgid "Memory"
 msgstr "小游戏"
 
-#: ../templates/template.html:38
-msgid "Watch"
-msgstr "观看对局"
-
 #: ../templates/template.html:40
 msgid "Tv"
 msgstr "随机直播"
@@ -451,10 +545,6 @@ msgstr "本站社区"
 msgid "Players"
 msgstr "棋手"
 
-#: ../templates/template.html:49
-msgid "Blog"
-msgstr "网志"
-
 #: ../templates/template.html:50
 msgid "Donate"
 msgstr "捐款"
@@ -471,11 +561,11 @@ msgstr "棋盘编辑器"
 msgid "Analysis"
 msgstr "分析面板"
 
-#: ../templates/template.html:72
+#: ../templates/template.html:73
 msgid "Login with Lichess"
 msgstr "Lichess登录"
 
-#: ../templates/template.html:72
+#: ../templates/template.html:73
 msgid "Log in"
 msgstr "登录"
 
@@ -499,15 +589,15 @@ msgstr "即将开始"
 msgid "Finished"
 msgstr "已完毕"
 
-#: ../templates/tournaments.html:44
+#: ../templates/tournaments.html:43
 msgid "Rated"
 msgstr "积分"
 
-#: ../templates/tournaments.html:44
+#: ../templates/tournaments.html:43
 msgid "Casual"
 msgstr "无积分"
 
-#: ../templates/tournaments.html:51
+#: ../templates/tournaments.html:55
 #, python-format
 msgid "%(count)s player"
 msgid_plural "%(count)s players"

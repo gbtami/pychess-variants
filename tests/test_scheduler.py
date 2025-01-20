@@ -6,8 +6,6 @@ import datetime as dt
 from const import SHIELD, SCHEDULE_MAX_DAYS
 from scheduler import new_scheduled_tournaments, MONTHLY_VARIANTS, SHIELDS, Scheduler
 
-MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY = range(7)
-
 # Crazhouse960 Shield scheduled at second MONDAY of month
 SHIELD_ZH_2021_09 = (
     SHIELD,

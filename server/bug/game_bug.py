@@ -1,12 +1,12 @@
 import asyncio
 import collections
-import logging
 from datetime import datetime, timezone
 from time import time_ns
 
 from bug.game_bug_clocks import GameBugClocks
 from pychess_global_app_state import PychessGlobalAppState
 from user import User
+from logger import log
 
 try:
     import pyffish as sf
@@ -15,7 +15,8 @@ try:
 except ImportError:
     print("No pyffish module installed!")
 
-from compress import R2C, encode_move_standard
+from compress import R2C
+from convert import grand2zero
 from const import (
     STARTED,
     ABORTED,
@@ -26,14 +27,12 @@ from const import (
     CASUAL,
     RATED,
     IMPORTED,
-    variant_display_name,
     MAX_CHAT_LINES,
     POCKET_PATTERN,
 )
 from fairy import FairyBoard, BLACK, WHITE
 from spectators import spectators
-
-log = logging.getLogger(__name__)
+from variants import get_server_variant, GRANDS
 
 MAX_HIGH_SCORE = 10
 MAX_PLY = 2 * 600
@@ -81,10 +80,13 @@ class GameBug:
         self.create = create
         self.imported_by = ""
 
+        self.server_variant = get_server_variant(variant, chess960)
+        self.encode_method = self.server_variant.move_encoding
+
         self.berserk_time = self.base * 1000 * 30
 
         self.browser_title = "%s • %s+%s vs %s+%s" % (
-            variant_display_name(self.variant + ("960" if self.chess960 else "")).title(),
+            self.server_variant.display_name.title(),
             self.wplayerA.username,
             self.bplayerB.username,
             self.wplayerB.username,
@@ -167,12 +169,12 @@ class GameBug:
     def berserk(self, color):
         pass
 
-    def handle_chat_message(self, user, message):
+    def handle_chat_message(self, user, message, room):
         cur_ply = len(self.steps) - 1
         time = self.gameClocks.elapsed_since_last_move()
-        self.steps[cur_ply].setdefault("chat", []).append(
-            {"message": message, "username": user.username, "time": time}
-        )
+        step_chat = {"message": message, "username": user.username, "time": time, "room": room}
+        self.steps[cur_ply].setdefault("chat", []).append(step_chat)
+        return step_chat
 
     def construct_chat_list(self):
         chat = {}
@@ -180,9 +182,10 @@ class GameBug:
             if "chat" in step:
                 chat["m" + str(ply)] = []
                 for msg in step["chat"]:
-                    chat["m" + str(ply)].append(
-                        {"t": msg["time"], "u": msg["username"], "m": msg["message"]}
-                    )
+                    if msg["room"] != "spectator":
+                        chat["m" + str(ply)].append(
+                            {"t": msg["time"], "u": msg["username"], "m": msg["message"]}
+                        )
         return chat
 
     async def play_move(
@@ -275,30 +278,7 @@ class GameBug:
         response = {"type": "g_cnt", "cnt": self.app_state.g_cnt[0]}
         await self.app_state.lobby.lobby_broadcast(response)
 
-        async def remove(keep_time):
-            # Keep it in our games dict a little to let players get the last board
-            # not to mention that BOT players want to abort games after 20 sec inactivity
-            await asyncio.sleep(keep_time)
-
-            try:
-                del self.games[self.id]
-            except KeyError:
-                log.info("Failed to del %s from games", self.id)
-
-            if self.bot_game:
-                try:
-                    if self.wplayerA.bot:
-                        del self.wplayerA.game_queues[self.id]
-                    if self.bplayerA.bot:
-                        del self.bplayerA.game_queues[self.id]
-                    if self.wplayerB.bot:
-                        del self.wplayerB.game_queues[self.id]
-                    if self.bplayerB.bot:
-                        del self.bplayerB.game_queues[self.id]
-                except KeyError:
-                    log.info("Failed to del %s from game_queues", self.id)
-
-        self.remove_task = asyncio.create_task(remove(KEEP_TIME))
+        asyncio.create_task(self.app_state.remove_from_cache(self), name="game-remove-%s" % self.id)
 
         # always save them, even if no moves - todo: will optimize eventually, just want it simple now
         # and have trace of all games for later investigation
@@ -325,7 +305,12 @@ class GameBug:
                 "f": self.boards["a"].fen + " | " + self.boards["b"].fen,
                 "s": self.status,
                 "r": R2C[self.result],
-                "m": [*map(encode_move_standard, moves)],
+                "m": [
+                    *map(
+                        self.encode_method,
+                        (map(grand2zero, moves) if self.variant in GRANDS else moves),
+                    )
+                ],
                 "o": [0 if x["boardName"] == "a" else 1 for x in self.steps[1:]],
                 "c": self.construct_chat_list(),
                 "ts": [x["ts"] for x in self.steps],
@@ -575,7 +560,7 @@ class GameBug:
             ),
         }
 
-    def get_board(self, full=False):
+    def get_board(self, full=False, persp_color=None):
         [clocks_a, clocks_b] = self.gameClocks.get_clocks_for_board_msg(full)
         if full:
             steps = self.steps

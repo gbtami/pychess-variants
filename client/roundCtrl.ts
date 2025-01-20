@@ -11,7 +11,8 @@ import { patch } from './document';
 import { boardSettings } from './boardSettings';
 import { Clock } from './clock';
 import { sound } from './sound';
-import { DARK_FEN, WHITE, BLACK, uci2LastMove, getCounting, isHandicap } from './chess';
+import { fogFen } from "./variants";
+import { WHITE, BLACK, uci2LastMove, getCounting, isHandicap } from './chess';
 import { crosstableView } from './crosstable';
 import { chatMessage, chatView } from './chat';
 import { createMovelistButtons, updateMovelist, updateResult, selectMove } from './movelist';
@@ -832,10 +833,11 @@ export class RoundController extends GameController {
         const step = this.steps[this.steps.length - 1];
         let capture = false;
         if (lastMove) {
-            const piece = this.chessground.state.boardState.pieces.get(lastMove[1] as cg.Key);
-            capture = (piece !== undefined && piece.role !== '_-piece' && step.san?.slice(0, 2) !== 'O-') || (step.san?.slice(1, 2) === 'x');
+            //const piece = this.chessground.state.boardState.pieces.get(lastMove[1] as cg.Key);
+            //capture = (piece !== undefined && piece.role !== '_-piece' && step.san?.slice(0, 2) !== 'O-') || (step.san?.slice(1, 2) === 'x');
+            capture = this.ffishBoard.isCapture(msg.lastMove);
         }
-        if (msg.steps.length <= 2 && lastMove && (this.turnColor === this.mycolor || this.spectator)) {
+        if (msg.steps.length <= 2 && this.steps.length > 1 && (this.turnColor === this.mycolor || this.spectator)) {
             if (!this.finishedGame) sound.moveSound(this.variant, capture);
         }
         this.checkStatus(msg);
@@ -848,7 +850,7 @@ export class RoundController extends GameController {
         }
 
         if (this.variant.ui.materialPoint) {
-            this.updatePoint(msg.fen);
+            [this.vmiscInfoW, this.vmiscInfoB] = updatePoint(this.variant, msg.fen, this.vmiscInfoW, this.vmiscInfoB);
         }
 
         const oppclock = !this.flipped() ? 0 : 1;
@@ -883,7 +885,7 @@ export class RoundController extends GameController {
         if (this.spectator) {
             if (latestPly) {
                 this.chessground.set({
-                    fen: (this.fog) ? DARK_FEN : this.fullfen,
+                    fen: (this.fog) ? fogFen(this.fullfen) : this.fullfen,
                     turnColor: this.turnColor,
                     check: msg.check,
                     lastMove: (this.fog) ? undefined : lastMove,
@@ -897,11 +899,15 @@ export class RoundController extends GameController {
                     this.clocks[oppclock].start();
                 }
             }
+            // This is needed for above capture detection
+            if (this.ffishBoard) {
+                this.ffishBoard.setFen(this.fullfen);
+            }
         } else {
             if (this.turnColor === this.mycolor) {
                 if (latestPly) {
                     this.chessground.set({
-                        fen: (this.fog) ? this.fogFen(this.fullfen) : this.fullfen,
+                        fen: (this.fog) ? fogFen(this.fullfen) : this.fullfen,
                         turnColor: this.turnColor,
                         movable: {
                             free: false,
@@ -936,10 +942,10 @@ export class RoundController extends GameController {
             } else {
                 this.chessground.set({
                     // giving fen here will place castling rooks to their destination in chess960 variants
-                    fen: (this.fog) ? this.fogFen(this.fullfen) : parts[0],
+                    fen: (this.fog) ? fogFen(this.fullfen) : parts[0],
                     turnColor: this.turnColor,
                     check: msg.check,
-                    lastMove: (this.fog) ? undefined : lastMove,
+                    lastMove: lastMove,
                 });
 
                 // This have to be here, because in case of takeback 
@@ -1055,10 +1061,6 @@ export class RoundController extends GameController {
             else
                 patch(countButton, h('button#count', { props: {title: _('Start counting')}, class: { disabled: true } }, _('Count')));
         }
-    }
-
-    private updatePoint = (fen: cg.FEN) => {
-        [this.vmiscInfoW, this.vmiscInfoB] = updatePoint(this.variant, fen, this.vmiscInfoW, this.vmiscInfoB);
     }
 
     private updateMaterial(): void {

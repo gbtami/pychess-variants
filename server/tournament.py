@@ -1,8 +1,8 @@
 from __future__ import annotations
 import asyncio
 import collections
-import logging
 import random
+import traceback
 from abc import ABC, abstractmethod
 from datetime import datetime, timedelta, timezone
 from operator import neg
@@ -17,6 +17,7 @@ from compress import R2C
 from const import (
     ABORTED,
     CASUAL,
+    DARK_FEN,
     RATED,
     CREATED,
     STARTED,
@@ -31,7 +32,6 @@ from const import (
     T_FINISHED,
     T_ARCHIVED,
     SHIELD,
-    variant_display_name,
     MAX_CHAT_LINES,
 )
 from game import Game
@@ -48,8 +48,9 @@ from spectators import spectators
 from tournament_spotlights import tournament_spotlights
 from user import User
 from utils import insert_game_to_db
+from logger import log
+from variants import get_server_variant
 
-log = logging.getLogger(__name__)
 
 SCORE, STREAK, DOUBLE = range(1, 4)
 
@@ -232,6 +233,8 @@ class Tournament(ABC):
         self.rounds = rounds
         self.frequency = frequency
 
+        self.server_variant = get_server_variant(variant, chess960)
+
         self.created_by = created_by
         self.created_at = datetime.now(timezone.utc) if created_at is None else created_at
         if starts_at == "" or starts_at is None:
@@ -277,10 +280,10 @@ class Tournament(ABC):
             self.ends_at = self.starts_at + timedelta(minutes=minutes)
 
         if with_clock:
-            self.clock_task = asyncio.create_task(self.clock())
+            self.clock_task = asyncio.create_task(self.clock(), name="tournament-clock")
 
         self.browser_title = "%s Tournament • %s" % (
-            variant_display_name(self.variant),
+            self.server_variant.display_name,
             self.name,
         )
 
@@ -399,7 +402,7 @@ class Tournament(ABC):
             "type": "top_game",
             "gameId": self.top_game.id,
             "variant": self.top_game.variant,
-            "fen": self.top_game.board.fen,
+            "fen": DARK_FEN if self.top_game.fow else self.top_game.board.fen,
             "w": self.top_game.wplayer.username,
             "b": self.top_game.bplayer.username,
             "wr": self.leaderboard_keys_view.index(self.top_game.wplayer) + 1,
@@ -408,7 +411,7 @@ class Tournament(ABC):
             "base": self.top_game.base,
             "inc": self.top_game.inc,
             "byoyomi": self.top_game.byoyomi_period,
-            "lastMove": self.top_game.lastmove,
+            "lastMove": "" if self.top_game.fow else self.top_game.lastmove,
         }
 
     def waiting_players(self):
@@ -457,7 +460,9 @@ class Tournament(ABC):
                             "notify_tournament",
                             self.notify_discord_msg(remaining_mins_to_start),
                         )
-                        asyncio.create_task(lichess_team_msg(self.app_state))
+                        asyncio.create_task(
+                            lichess_team_msg(self.app_state), name="t-lichess-team-msg"
+                        )
                         continue
 
                 elif (self.minutes is not None) and now >= self.ends_at:
@@ -503,8 +508,8 @@ class Tournament(ABC):
                         )
 
                 await asyncio.sleep(1)
-        except Exception:
-            log.exception("Exception in tournament clock()")
+        except Exception as exc:
+            log.critical("".join(traceback.format_exception(exc)))
 
     async def start(self, now):
         self.status = T_STARTED
@@ -669,7 +674,7 @@ class Tournament(ABC):
         games = await self.create_games(pairing)
 
         # save pairings to db
-        asyncio.create_task(self.db_insert_pairing(games))
+        asyncio.create_task(self.db_insert_pairing(games), name="t-insert-pairings")
 
         return (pairing, games)
 
@@ -708,6 +713,11 @@ class Tournament(ABC):
                 chess960=self.chess960,
             )
 
+            if game.has_crosstable:
+                doc = await self.app_state.db.crosstable.find_one({"_id": game.ct_id})
+                if doc is not None:
+                    game.crosstable = doc
+
             games.append(game)
             self.app_state.games[game_id] = game
             await insert_game_to_db(game, self.app_state)
@@ -745,27 +755,21 @@ class Tournament(ABC):
                 "bplayer": bp.username,
             }
 
-            ws_ok = True
-            try:
-                ws = next(iter(wp.tournament_sockets[self.id]))
-            except StopIteration:
-                ws_ok = False
-
-            if ws_ok and wp.title != "TEST":
-                ws_ok = await ws_send_json(ws, response)
-            if not ws_ok:
+            ws_ok = False
+            if wp.title != "TEST":
+                for ws in list(wp.tournament_sockets[self.id]):
+                    ok = await ws_send_json(ws, response)
+                    ws_ok = ws_ok or ok
+            if (not ws_ok) and wp.title != "TEST":
                 await self.pause(wp)
                 log.debug("White player %s left the tournament (ws send failed)", wp.username)
 
-            ws_ok = True
-            try:
-                ws = next(iter(bp.tournament_sockets[self.id]))
-            except StopIteration:
-                ws_ok = False
-
-            if ws_ok and bp.title != "TEST":
-                ws_ok = await ws_send_json(ws, response)
-            if not ws_ok:
+            ws_ok = False
+            if bp.title != "TEST":
+                for ws in list(bp.tournament_sockets[self.id]):
+                    ok = await ws_send_json(ws, response)
+                    ws_ok = ws_ok or ok
+            if (not ws_ok) and bp.title != "TEST":
                 await self.pause(bp)
                 log.debug("Black player %s left the tournament (ws send failed)", bp.username)
 
@@ -978,12 +982,12 @@ class Tournament(ABC):
         elif game.result == "1/2-1/2":
             self.draw += 1
 
-        asyncio.create_task(self.delayed_free(game, wplayer, bplayer))
+        asyncio.create_task(self.delayed_free(game, wplayer, bplayer), name="t-delayed-free")
 
         # save player points to db
-        asyncio.create_task(self.db_update_player(game.wplayer, wplayer))
-        asyncio.create_task(self.db_update_player(game.bplayer, bplayer))
-        asyncio.create_task(self.db_update_pairing(game))
+        asyncio.create_task(self.db_update_player(game.wplayer, wplayer), name="t-update-player")
+        asyncio.create_task(self.db_update_player(game.bplayer, bplayer), name="t-update-player")
+        asyncio.create_task(self.db_update_pairing(game), name="t-update-pairing")
 
         self.set_top_player()
 
@@ -1037,9 +1041,9 @@ class Tournament(ABC):
                 for ws in spectator.tournament_sockets[self.id]:
                     await ws_send_json(ws, response)
             except KeyError:
-                log.error("spectator was removed", exc_info=True)
+                log.error("tournament broadcast() spectator socket was removed")
             except Exception:
-                log.exception("Exception in tournament broadcast()")
+                log.error("Exception in tournament broadcast()")
 
     async def db_insert_pairing(self, games):
         if self.app_state.db is None:
@@ -1086,8 +1090,7 @@ class Tournament(ABC):
                     return_document=ReturnDocument.AFTER,
                 )
             )
-        except Exception as e:
-            log.error(e, exc_info=True)
+        except Exception:
             if self.app_state.db is not None:
                 log.error(
                     "db find_one_and_update pairing_table %s into %s failed !!!",
@@ -1144,8 +1147,7 @@ class Tournament(ABC):
             if doc_after is None and not isinstance(self.app_state.db_client, AsyncMongoMockClient):
                 log.error("Failed to save %s player data update %s to mongodb", player_id, new_data)
 
-        except Exception as e:
-            log.error(e, exc_info=True)
+        except Exception:
             if self.app_state.db is not None:
                 log.error(
                     "db find_one_and_update tournament_player %s into %s failed !!!",
