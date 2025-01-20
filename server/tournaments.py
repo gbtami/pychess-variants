@@ -442,7 +442,7 @@ async def load_tournament(app_state: PychessGlobalAppState, tournament_id, tourn
 
         withdrawn = doc.get("wd", False)
 
-        tournament.players[user] = PlayerData(doc["r"], doc["pr"])
+        tournament.players[user] = PlayerData(user.title, user.username, doc["r"], doc["pr"])
         tournament.players[user].id = doc["_id"]
         tournament.players[user].paused = doc["a"]
         tournament.players[user].withdrawn = withdrawn

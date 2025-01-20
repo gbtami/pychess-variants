@@ -5,6 +5,7 @@ import random
 import traceback
 from abc import ABC, abstractmethod
 from datetime import datetime, timedelta, timezone
+from functools import cache
 from operator import neg
 from typing import ClassVar, Deque, Tuple, Set
 
@@ -94,6 +95,8 @@ class PlayerData:
 
     __slots__ = (
         "id",
+        "title",
+        "username",
         "rating",
         "provisional",
         "free",
@@ -112,8 +115,10 @@ class PlayerData:
         "page",
     )
 
-    def __init__(self, rating: int, provisional: str):
-        self.id = None
+    def __init__(self, title: str, username: str, rating: int, provisional: str):
+        self.id = None  # db.tournament_player._id will be generated when user firt joins
+        self.title = title
+        self.username = username
         self.rating = rating
         self.provisional = provisional
         self.free = True
@@ -133,6 +138,23 @@ class PlayerData:
 
     def __str__(self):
         return (" ").join(self.points)
+
+
+@cache
+def player_json(player, full_score):
+    return {
+        "paused": player.paused,
+        "title": player.title,
+        "name": player.username,
+        "rating": player.rating,
+        "points": player.points,
+        "fire": player.win_streak,
+        "score": full_score,  # SCORE_SHIFT-ed + performance rating
+        "perf": player.performance,
+        "nbGames": player.nb_games,
+        "nbWin": player.nb_win,
+        "nbBerserk": player.nb_berserk,
+    }
 
 
 class GameData:
@@ -264,9 +286,6 @@ class Tournament(ABC):
         self.draw = 0
         self.nb_berserk = 0
 
-        self.nb_games_cached = -1
-        self.leaderboard_cache: dict[int, dict] = {}
-
         self.first_pairing = False
         self.top_game = None
         self.top_game_max_rank = -1
@@ -322,37 +341,6 @@ class Tournament(ABC):
         if page is None:
             page = 1
 
-        if self.nb_games_cached != self.nb_games_finished:
-            # number of games changed (game ended)
-            self.leaderboard_cache = {}
-            self.nb_games_cached = self.nb_games_finished
-        elif user is not None:
-            if self.status == T_STARTED:
-                # player status changed (JOIN/PAUSE)
-                if page in self.leaderboard_cache:
-                    del self.leaderboard_cache[page]
-            elif self.status == T_CREATED:
-                # number of players changed (JOIN/WITHDRAW)
-                self.leaderboard_cache = {}
-
-        if page in self.leaderboard_cache:
-            return self.leaderboard_cache[page]
-
-        def player_json(player, full_score):
-            return {
-                "paused": self.players[player].paused if self.status == T_STARTED else False,
-                "title": player.title,
-                "name": player.username,
-                "rating": self.players[player].rating,
-                "points": self.players[player].points,
-                "fire": self.players[player].win_streak,
-                "score": full_score,  # SCORE_SHIFT-ed + performance rating
-                "perf": self.players[player].performance,
-                "nbGames": self.players[player].nb_games,
-                "nbWin": self.players[player].nb_win,
-                "nbBerserk": self.players[player].nb_berserk,
-            }
-
         start = (page - 1) * 10
         end = min(start + 10, self.nb_players)
 
@@ -363,18 +351,17 @@ class Tournament(ABC):
             "nbGames": self.nb_games_finished,
             "page": page,
             "players": [
-                player_json(player, full_score)
+                player_json(self.players[player], full_score)
                 for player, full_score in self.leaderboard.items()[start:end]
             ],
         }
 
         if self.status > T_STARTED:
             page_json["podium"] = [
-                player_json(player, full_score)
+                player_json(self.players[player], full_score)
                 for player, full_score in self.leaderboard.items()[0:3]
             ]
 
-        self.leaderboard_cache[page] = page_json
         return page_json
 
     # TODO: cache this
@@ -563,6 +550,8 @@ class Tournament(ABC):
             for i in range(min(3, len(self.leaderboard))):
                 player = self.leaderboard.peekitem(i)[0]
                 print("--- #%s ---" % (i + 1), player.username)
+            print("--- CACHE INFO ---")
+            print(player_json.cache_info())
 
         # remove latest games from players tournament if it was not finished in time
         for player in self.players:
@@ -573,9 +562,6 @@ class Tournament(ABC):
                 self.players[player].games.pop()
                 self.players[player].points.pop()
                 self.players[player].nb_games -= 1
-
-        # force to create new players json data
-        self.nb_games_cached = -1
 
         await self.broadcast(self.summary)
         await self.save()
@@ -603,7 +589,7 @@ class Tournament(ABC):
         if user not in self.players:
             # new player joined
             rating, provisional = user.get_rating(self.variant, self.chess960).rating_prov
-            self.players[user] = PlayerData(rating, provisional)
+            self.players[user] = PlayerData(user.title, user.username, rating, provisional)
         elif self.players[user].withdrawn:
             # withdrawn player joined again
             rating, provisional = user.get_rating(self.variant, self.chess960).rating_prov
@@ -1094,7 +1080,7 @@ class Tournament(ABC):
             new_data = {
                 "_id": player_id,
                 "tid": self.id,
-                "uid": user.username,
+                "uid": player_data.username,
                 "r": player_data.rating,
                 "pr": player_data.provisional,
                 "a": player_data.paused,

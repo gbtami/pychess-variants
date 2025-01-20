@@ -228,7 +228,7 @@ export class TournamentController implements ChatController {
         if (this.system > 0 && this.variant.name !== 'janggi') fullScore = fullScore / 2;
         
         return h('tr', { on: { click: () => this.onClickPlayer(player.name) } }, [
-            h('td.rank', [(player.paused) ? h('i', {class: {"icon": true, "icon-pause": true} }) : index]),
+            h('td.rank', [(player.paused && !this.completed()) ? h('i', {class: {"icon": true, "icon-pause": true} }) : index]),
             h('td.player', [
                 h('span.title', player.title),
                 h('span.name', player.name),
