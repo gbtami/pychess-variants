@@ -6,7 +6,7 @@ from aiohttp import web
 
 from admin import silence
 from chat import chat_response
-from const import ANON_PREFIX, STARTED, SHIELD
+from const import ANON_PREFIX, SHIELD
 from const import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -181,11 +181,10 @@ async def handle_user_connected(app_state: PychessGlobalAppState, ws, user, data
 
     await ws_send_json(ws, response)
 
-    if (tournament.top_game is not None) and (tournament.top_game.status <= STARTED):
-        await ws_send_json(ws, tournament.top_game_json)
-
     if tournament.status > T_STARTED:
         await ws_send_json(ws, tournament.summary)
+    elif tournament.top_game is not None:
+        await ws_send_json(ws, tournament.top_game_json)
 
     response = {"type": "fullchat", "lines": list(tournament.tourneychat)}
     await ws_send_json(ws, response)

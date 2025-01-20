@@ -21,6 +21,7 @@ from const import (
     CATEGORIES,
     TRANSLATED_FREQUENCY_NAMES,
     TRANSLATED_PAIRING_SYSTEM_NAMES,
+    TEST_PREFIX,
 )
 from newid import new_id
 from const import TYPE_CHECKING
@@ -33,6 +34,7 @@ from swiss import SwissTournament
 from tournament import GameData, PlayerData, SCORE_SHIFT, Tournament
 from logger import log
 from variants import C2V, get_server_variant, ALL_VARIANTS, VARIANTS
+from user import User
 
 
 async def create_or_update_tournament(
@@ -432,7 +434,11 @@ async def load_tournament(app_state: PychessGlobalAppState, tournament_id, tourn
 
     async for doc in cursor:
         uid = doc["uid"]
-        user = await app_state.users.get(uid)
+        if uid.startswith(TEST_PREFIX):
+            user = User(app_state, username=uid, title="TEST")
+            app_state.users[user.username] = user
+        else:
+            user = await app_state.users.get(uid)
 
         withdrawn = doc.get("wd", False)
 

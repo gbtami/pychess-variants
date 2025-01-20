@@ -268,8 +268,8 @@ class Tournament(ABC):
         self.leaderboard_cache: dict[int, dict] = {}
 
         self.first_pairing = False
-        self.top_player = None
         self.top_game = None
+        self.top_game_max_rank = -1
 
         self.notify1 = False
         self.notify2 = False
@@ -515,7 +515,6 @@ class Tournament(ABC):
         self.status = T_STARTED
 
         self.first_pairing = True
-        self.set_top_player()
 
         response = {
             "type": "tstatus",
@@ -648,9 +647,6 @@ class Tournament(ABC):
         response = self.players_json(user=user)
         await self.broadcast(response)
 
-        if (self.top_player is not None) and self.top_player.username == user.username:
-            self.set_top_player()
-
         await self.db_update_player(user, self.players[user])
 
     def spactator_join(self, spectator):
@@ -678,21 +674,8 @@ class Tournament(ABC):
 
         return (pairing, games)
 
-    def set_top_player(self):
-        idx = 0
-        self.top_player = None
-        while idx < self.nb_players:
-            top_player = self.leaderboard.peekitem(idx)[0]
-            if self.players[top_player].paused:
-                idx += 1
-                continue
-            else:
-                self.top_player = top_player
-                break
-
     async def create_games(self, pairing):
-        check_top_game = self.top_player is not None
-        new_top_game = False
+        is_new_top_game = False
 
         games = []
         game_table = None if self.app_state.db is None else self.app_state.db.game
@@ -773,19 +756,20 @@ class Tournament(ABC):
                 await self.pause(bp)
                 log.debug("Black player %s left the tournament (ws send failed)", bp.username)
 
-            if (
-                check_top_game
-                and (self.top_player is not None)
-                and self.top_player.username in (game.wplayer.username, game.bplayer.username)
-                and game.status != BYEGAME
-            ):  # Bye game
-                self.top_game = game
-                check_top_game = False
-                new_top_game = True
+            if game.status != BYEGAME:
+                brank = self.leaderboard.index(game.bplayer)
+                wrank = self.leaderboard.index(game.wplayer)
+                if (
+                    (self.top_game is not None and self.top_game.status > STARTED)
+                    or brank >= self.top_game_max_rank
+                    or wrank >= self.top_game_max_rank
+                ):
+                    self.top_game_max_rank = max(brank, wrank)
+                    self.top_game = game
+                    is_new_top_game = True
 
-        if new_top_game:
-            tgj = self.top_game_json
-            await self.broadcast(tgj)
+        if is_new_top_game:
+            await self.broadcast(self.top_game_json)
 
         return games
 
@@ -989,8 +973,6 @@ class Tournament(ABC):
         asyncio.create_task(self.db_update_player(game.bplayer, bplayer), name="t-update-player")
         asyncio.create_task(self.db_update_pairing(game), name="t-update-pairing")
 
-        self.set_top_player()
-
         await self.broadcast(
             {
                 "type": "game_update",
@@ -1007,17 +989,6 @@ class Tournament(ABC):
                 "gameId": game.id,
             }
             await self.broadcast(response)
-
-            if (self.top_player is not None) and self.top_player.username not in (
-                game.wplayer.username,
-                game.bplayer.username,
-            ):
-                top_game_candidate = self.players[self.top_player].games[-1]
-                if top_game_candidate.status != BYEGAME:
-                    self.top_game = top_game_candidate
-                    if (self.top_game is not None) and (self.top_game.status <= STARTED):
-                        tgj = self.top_game_json
-                        await self.broadcast(tgj)
 
     async def delayed_free(self, game, wplayer, bplayer):
         if self.system == ARENA:

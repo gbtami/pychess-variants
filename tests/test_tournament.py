@@ -18,6 +18,7 @@ from const import (
     T_CREATED,
     T_STARTED,
     T_FINISHED,
+    TEST_PREFIX,
 )
 from draw import draw
 from fairy import BLACK
@@ -52,7 +53,7 @@ class TestTournament(Tournament):
         self.game_tasks = set()
 
         for i in range(1, nb_players + 1):
-            name = "Test_User_%s" % i
+            name = "%sUser_%s" % (TEST_PREFIX, i)
             player = User(self.app_state, username=name, title="TEST", perfs=PERFS)
             self.app_state.users[player.username] = player
             player.tournament_sockets[self.id] = set((None,))
