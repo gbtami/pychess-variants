@@ -9,7 +9,7 @@ Pychess是一个收录各种象棋类游戏的网站，您可以在此游玩各�
 
 <details><summary>为何取名为 Pychess？</summary>
 
-因为此网站的语言为 Python 写成。 </details>
+Py 取自 Python，本站使用的程序语言。 </details>
 
 <details><summary>这和国际象棋软件 Pychess 有何不同?</summary>
 
@@ -48,9 +48,11 @@ Stockfish 是最强的国际象棋引擎之一，而 [Fairy-Stockfish](https://g
 
 通常会加入各地流行的传统棋类，也有加入一些较常见的国际象棋变体和 Pychess 社区玩家发明的变体。然而，有一部分棋类游戏是无法收录的。原因是 Pychess 依靠 Fairy-Stockfish 作为引擎， 我们的代码也是由它来运作，因此 Fairy-Stockfish 无法支持的变体是无法收录的。 </details>
 
-<details><summary>Pychess 会加入恰图兰卡(古印度象棋，所有象棋类游戏的源头)吗?</summary>
+<details><summary>Pychess 会加入沙特兰兹（国际象棋的前身）吗?</summary>
 
-恰图兰卡的原始规则已经失传了，而且尚有许多十分相似的棋(例如:泰国象棋)，因此不会收录。如果你想玩，可以去其他的网站。 </details>
+~~沙特兰兹的原始规则已经失传了，而且尚有许多十分相似的棋(例如:泰国象棋)，因此不会收录。如果你想玩，可以去其他的网站。~~ 
+经过一些讨论，我们已经在2024年的秋季更新中加入沙特兰兹。尽管我们认为它已经有很多相似的变体在本站收录。
+</details>
 
 <details><summary>可以新增XX棋吗?</summary>
 
@@ -64,7 +66,7 @@ Stockfish 是最强的国际象棋引擎之一，而 [Fairy-Stockfish](https://g
 
 <details><summary>我要如何改变棋盘和棋子外观?有通用的国际棋子吗?</summary>
 
-同上，点选"棋盘设定"。所有的亚洲变体都有国际棋子。 </details>
+同上，点选"棋盘设定"。所有的变体都有对应的国际棋子。 </details>
 
 <details><summary>我要如何在棋盘上划记?</summary>
 
@@ -78,9 +80,9 @@ Stockfish 是最强的国际象棋引擎之一，而 [Fairy-Stockfish](https://g
 
 b 代表倒数计时，这与加时不同，只有特定变体会有(例如:将棋和朝鲜象棋)。当双方的时间用完时(在此范例里是 5 分钟)，则进入读秒，双方每步必须在设定时间内走棋，否则判负。在此范例中，就是每步 3 秒。通常倒数计时是 10 秒或 30 秒。 </details>
 
-<details><summary>什么是电脑随机走子?</summary>
+<details><summary>Ramdom-Mover是做什么的?</summary>
 
-电脑随机走子是让电脑随机移动的模式，主要是用来让玩家熟悉游戏规则。之后会建议与 Fairy-Stockfish (就算是比较低等级的)对局以增进棋感。 </details>
+勾选Random-Mover可以使电脑随机走子。主要是用来让玩家熟悉游戏规则。熟悉规则之后，建议您与 Fairy-Stockfish （较低等级的）对局以增进棋感。 </details>
 
 ## 帐号与社区
 
