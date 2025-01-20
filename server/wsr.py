@@ -60,7 +60,7 @@ async def round_socket_handler(request: web.Request):
 
 
 async def init_ws(app_state, ws, user, game: game.Game):
-    for p in game.all_players:
+    for p in game.non_bot_players:
         if p.username != user.username:
             await handle_is_user_present(ws, app_state.users, p.username, game)
     await handle_game_user_connected(app_state, ws, user, game)
@@ -710,11 +710,10 @@ async def handle_leave(user, data, game):
         "username": user.username,
     }
 
-    other_players = filter(lambda p: p.username != user.username, game.all_players)
+    other_players = filter(lambda p: p.username != user.username, game.non_bot_players)
     for p in other_players:
-        if not p.bot:
-            await p.send_game_message(gameId, response_chat)
-            await p.send_game_message(gameId, response)
+        await p.send_game_message(gameId, response_chat)
+        await p.send_game_message(gameId, response)
 
     await round_broadcast(game, response)
 

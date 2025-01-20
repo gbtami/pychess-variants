@@ -501,7 +501,7 @@ async def play_move(
             "gameId": gameId,
             "pgn": game.pgn,
         }
-        for u in set(game.all_players):
+        for u in set(game.non_bot_players):
             await u.send_game_message(gameId, response)
 
         if app_state.tv == gameId:

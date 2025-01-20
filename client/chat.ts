@@ -47,24 +47,22 @@ export function chatView(ctrl: ChatController, chatType: string) {
         const chatEntry = (<HTMLInputElement>document.getElementById('chat-entry'));
         (<HTMLElement>document.getElementById(chatType + "-messages")).style.display = activated ? "block" : "none";
         chatEntry.disabled = !activated;
-        chatEntry.placeholder = activated ? (anon ? _('Sign in to chat') : _('Please be nice in the chat!')) : _("Chat is disabled");
+        chatEntry.placeholder = activated ? (ctrl.anon ? _('Sign in to chat') : _('Please be nice in the chat!')) : _("Chat is disabled");
     }
-    const anon = ctrl.anon && !bughouse; // chat is essential to bughouse, allow even if anons (or disallow anon bughouse games?)
     return h(`div#${chatType}.${chatType}.chat`, [
         bughouse? h('div.chatroom'): h('div.chatroom', [
             (spectator) ? _('Spectator room') : _('Chat room'),
             h('input#checkbox', { props: { title: _("Toggle the chat"), name: "checkbox", type: "checkbox", checked: "true" }, on: { click: onClick } })
         ]),
-        // TODO: lock/unlock chat to spectators
         h(`ol#${chatType}-messages`, [ h('div#messages') ]),
-        bughouse? renderBugChatPresets(ctrl.variant, sendMessage): null,
+        bughouse && !ctrl.spectator? renderBugChatPresets(ctrl.variant, sendMessage): null,
         h('input#chat-entry', {
             props: {
                 type: "text",
                 name: "entry",
                 autocomplete: "off",
-                placeholder: (anon) ? _('Sign in to chat') : _('Please be nice in the chat!'),
-                disabled: anon,
+                placeholder: (ctrl.anon) ? _('Sign in to chat') : _('Please be nice in the chat!'),
+                disabled: ctrl.anon,
             },
             attrs: {
                 maxlength: 140,
