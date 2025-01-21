@@ -202,7 +202,7 @@ class Scheduler:
                 SHIELD, self.first_monthly(MONDAY), 18, "kingofthehill", True, 3, 2, 0, 180
             ),  # 960
             Plan(SHIELD, self.second_monthly(MONDAY), 18, "crazyhouse", True, 3, 2, 0, 180),  # 960
-            Plan(SHIELD, self.third_monthly(MONDAY), 18, "3check", True, 3, 2, 0, 180),  # 960
+            Plan(SHIELD, self.fourth_monthly(SUNDAY), 12, "3check", True, 3, 2, 0, 180),  # 960
             # Plan(SHIELD, self.second_monthly(THURSDAY), 18, "shinobi", False, 3, 4, 0, 180),
             Plan(SHIELD, self.second_monthly(SATURDAY), 12, "makruk", False, 5, 3, 0, 180),
             Plan(SHIELD, self.third_monthly(SUNDAY), 12, "atomic", True, 3, 2, 0, 180),  # 960
