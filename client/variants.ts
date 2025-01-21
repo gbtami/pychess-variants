@@ -1166,7 +1166,6 @@ export const noPuzzleVariants = [
     "fogofwar",
     "antichess",
     "horde",
-    "shatranj",
     "supply",
     "makbug",
 ]

@@ -17,7 +17,6 @@ from variants import VARIANTS
 NO_PUZZLE_VARIANTS = (
     "antichess",
     "horde",
-    "shatranj",
     "placement",
     "minishogi",
     "gorogoroplus",
