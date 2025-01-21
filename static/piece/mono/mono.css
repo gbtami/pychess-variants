@@ -31,6 +31,13 @@ mpiece.p-piece {
     background-image: url('../../images/pieces/mono/pawn.svg');
 }
 
+.shatranj mpiece.b-piece {
+    background-image: url('../../images/pieces/mono/shako-elephant.svg');
+}
+.shatranj mpiece.q-piece {
+    background-image: url('../../images/pieces/mono/ferz.svg');
+}
+
 .makruk mpiece.s-piece, .sittuyin mpiece.s-piece, .asean mpiece.b-piece {
     background-image: url('../../images/pieces/mono/makruk-bishop.svg');
 }
@@ -43,6 +50,10 @@ mpiece.p-piece {
 }
 .capa mpiece.a-piece, .grand mpiece.a-piece {
     background-image: url('../../images/pieces/mono/archbishop.svg');
+}
+
+.dragon mpiece.d-piece {
+    background-image: url('../../images/pieces/mono/dragon_chess_dragon.svg');
 }
 
 .seirawan mpiece.e-piece {
@@ -66,8 +77,11 @@ mpiece.p-piece {
     background-image: url('../../images/pieces/mono/snake.svg');
 }
 
-.xiangqi mpiece.r-piece, .janggi mpiece.r-piece, .xiangqi mpiece.m-piece {
+.xiangqi mpiece.r-piece, .janggi mpiece.r-piece {
     background-image: url('../../images/pieces/mono/chariot.svg');
+}
+.xiangqi mpiece.m-piece {
+    background-image: url('../../images/pieces/mono/banner.svg');
 }
 .xiangqi mpiece.b-piece, .janggi mpiece.b-piece {
     background-image: url('../../images/pieces/mono/shako-elephant.svg');
@@ -85,13 +99,13 @@ mpiece.p-piece {
     background-image: url('../../images/pieces/mono/soldier.svg');
 }
 
-.orda mpiece.l-piece, .ordamirror mpiece.l-piece {
+.orda mpiece.l-piece, .ordamirror mpiece.l-piece, .khans mpiece.l-piece {
     background-image: url('../../images/pieces/mono/lancer.svg');
 }
-.orda mpiece.h-piece, .ordamirror mpiece.h-piece {
+.orda mpiece.h-piece, .ordamirror mpiece.h-piece, .khans mpiece.h-piece {
     background-image: url('../../images/pieces/mono/kheshig.svg');
 }
-.orda mpiece.a-piece, .ordamirror mpiece.a-piece {
+.orda mpiece.a-piece, .ordamirror mpiece.a-piece, .khans mpiece.a-piece {
     background-image: url('../../images/pieces/mono/archer.svg');
 }
 .orda mpiece.y-piece {
@@ -99,6 +113,12 @@ mpiece.p-piece {
 }
 .ordamirror mpiece.f-piece {
     background-image: url('../../images/pieces/mono/falcon.svg');
+}
+.khans mpiece.t-piece {
+    background-image: url('../../images/pieces/mono/khatun.svg');
+}
+.khans mpiece.s-piece {
+    background-image: url('../../images/pieces/mono/scout.svg');
 }
 
 .synochess mpiece.e-piece {
@@ -131,6 +151,9 @@ mpiece.p-piece {
 }
 .shinobi mpiece.d-piece {
     background-image: url('../../images/pieces/mono/dragon.svg');
+}
+.shinobi mpiece.f-piece {
+    background-image: url('../../images/pieces/mono/fox.svg');
 }
 .shinobi mpiece.j-piece {
     background-image: url('../../images/pieces/mono/ninja.svg');
@@ -178,4 +201,26 @@ mpiece.p-piece {
 }
 .chak mpiece.pp-piece {
     background-image: url('../../images/pieces/mono/warrior.svg');
+}
+
+.spartan mpiece.h-piece {
+    background-image: url('../../images/pieces/mono/spartanpawn.svg');
+}
+.spartan mpiece.l-piece {
+    background-image: url('../../images/pieces/mono/lieutenant.svg');
+}
+.spartan mpiece.w-piece {
+    background-image: url('../../images/pieces/mono/warlord.svg');
+}
+.spartan mpiece.g-piece {
+    background-image: url('../../images/pieces/mono/spartangeneral.svg');
+}
+.spartan mpiece.w-piece {
+    background-image: url('../../images/pieces/mono/warlord.svg');
+}
+.spartan mpiece.c-piece {
+    background-image: url('../../images/pieces/mono/spartancaptain.svg');
+}
+.spartan mpiece.k-piece {
+    background-image: url('../../images/pieces/mono/spartanking.svg');
 }
