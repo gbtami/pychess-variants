@@ -1166,6 +1166,8 @@ export class RoundControllerBughouse implements ChatController {
             case "gameEnd":
                 this.checkStatus(msg);
                 chatMessage("", "Game over. Messages visible to all again.", "bugroundchat", undefined, this.steps.length, this);
+                // now force full chat reload
+                this.doSend({"type": "board", "gameId": this.gameId});
                 break;
             case "gameStart":
                 this.onMsgGameStart(msg);
