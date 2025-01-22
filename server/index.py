@@ -721,7 +721,7 @@ async def index(request):
     try:
         text = await template.render_async(render)
     except Exception:
-        log.error("ERROR: template.render_async() failed.")
+        log.exception("ERROR: template.render_async() failed.")
         return web.HTTPFound("/")
 
     response = web.Response(
