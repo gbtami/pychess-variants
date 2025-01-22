@@ -12,6 +12,7 @@ import minify_html
 
 from const import (
     ANON_PREFIX,
+    DARK_FEN,
     DASH,
     LANGUAGES,
     NONE_USER,
@@ -578,7 +579,7 @@ async def index(request):
             render["btitle"] = game.bplayer.title
             render["brating"] = game.brating
             render["brdiff"] = game.brdiff
-            render["fen"] = game.fen
+            render["fen"] = DARK_FEN if game.variant == "fogofwar" else game.fen
             render["base"] = game.base
             render["inc"] = game.inc
             render["byo"] = game.byoyomi_period
