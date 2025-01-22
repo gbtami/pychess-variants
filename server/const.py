@@ -148,20 +148,21 @@ VARIANT_960_TO_PGN = {
     "chess": "Chess960",
     "capablanca": "Caparandom",
     "capahouse": "Capahouse960",
-    "crazyhouse": "Crazyhouse",  # to let lichess import work
-    "atomic": "Atomic",  # to let lichess import work
-    "kingofthehill": "King of the Hill",  # to let lichess import work
-    "3check": "Three-check",  # to let lichess import work
     "seirawan": "Seirawan960",
+    # to let lichess import work we produce variant names without "960" in PGNs
+    "crazyhouse": "Crazyhouse",
+    "atomic": "Atomic",
+    "kingofthehill": "King of the Hill",
+    "3check": "Three-check",
+    "antichess": "Antichess",
+    "racingkings": "Racingkings",
+    "horde": "Horde",
     # some early game is accidentally saved as 960 in mongodb
     "shogi": "Shogi",
     "sittuyin": "Sittuyin",
     "makruk": "Makruk",
     "placement": "Placement",
     "grand": "Grand",
-    "antichess": "Antichess",  # to let lichess import work
-    "racingkings": "Racingkings",  # to let lichess import work
-    "horde": "Horde",  # to let lichess import work
 }
 
 CATEGORIES = {
