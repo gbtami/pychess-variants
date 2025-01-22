@@ -1,4 +1,5 @@
 import { h, VNode } from 'snabbdom';
+import * as Mousetrap  from 'mousetrap';
 import * as cg from 'chessgroundx/types';
 
 import { _ } from '../i18n';
@@ -391,8 +392,18 @@ export class RoundControllerBughouse implements ChatController {
 
         // last so when it receive initial messages on connect all dom is ready to be updated
         this.sock = createWebsocket('wsr/' + this.gameId, onOpen, onReconnect, onClose, (e: MessageEvent) => this.onMessage(e));
+
+        Mousetrap.bind('left', () => selectMove(this, this.ply - 1, this.plyVari));
+        Mousetrap.bind('right', () => selectMove(this, this.ply + 1, this.plyVari));
+        Mousetrap.bind('up', () => selectMove(this, 0));
+        Mousetrap.bind('down', () => selectMove(this, this.steps.length - 1));
+        Mousetrap.bind('f', () => this.flipBoards());
+        Mousetrap.bind('?', () => this.helpDialog());
     }
 
+    helpDialog() {
+        console.log('HELP!');
+    }
 
     flipBoards = (): void => {
         let infoWrap0 = document.getElementsByClassName('info-wrap0')[0] as HTMLElement;
