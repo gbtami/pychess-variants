@@ -27,7 +27,7 @@ import { zenButtonView, zenModeSettings } from './zen';
 import { PyChessModel } from './types';
 import { roundView as bugRoundView } from "./bug/round.bug";
 import { analysisView as bugAnalysisView } from "./bug/analysis.bug";
-import { twoBoarsVariants, variantGroups, VARIANTS } from './variants';
+import { devVariants, variantGroups, VARIANTS } from './variants';
 import { variantsIni } from './variantsIni';
 
 // redirect to correct URL except Heroku preview apps
@@ -44,7 +44,7 @@ function initModel(el: HTMLElement) {
     if (el.getAttribute("data-dev") !== "True") {
         Object.keys(variantGroups).forEach(g => {
             const group = variantGroups[g];
-            twoBoarsVariants.forEach((v) => {
+            devVariants.forEach((v) => {
                 const idx = group.variants.indexOf(v);
                 if (idx > -1) group.variants.splice(idx, 1);
             })

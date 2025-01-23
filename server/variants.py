@@ -156,6 +156,7 @@ VARIANTS = {
     variant.server_name: variant for variant in ServerVariants if variant not in NO_VARIANTS
 }
 
+# Two board variants has no ratings implemented so far
 RATED_VARIANTS = tuple(
     variant.server_name
     for variant in ServerVariants
@@ -164,9 +165,14 @@ RATED_VARIANTS = tuple(
 
 VARIANT_ICONS = {variant.server_name: variant.icon for variant in ServerVariants}
 
-# Remove new variants on prod site until they stabilize
+
+DEV_VARIANTS = (
+    ServerVariants.MAKBUG,
+    ServerVariants.SUPPLY,
+)
+# Remove DEV variants on prod site until they stabilize
 if PROD:
-    for variant in TWO_BOARD_VARIANTS:
+    for variant in DEV_VARIANTS:
         del VARIANTS[variant.server_name]
 
 C2V = {variant.code: variant.uci_variant for variant in ServerVariants}
