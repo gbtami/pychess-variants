@@ -782,8 +782,6 @@ export class RoundControllerBughouse implements ChatController {
             const movePartner = stepPartner == undefined? undefined: board.partnerCC.boardName == "a"? stepPartner.move: stepPartner.moveB;
             board.partnerCC.setState(fenPartner, board.partnerCC.turnColor, uci2LastMove(movePartner));
             board.partnerCC.renderState();
-
-            if (!this.focus) this.notifyMsg(`Played ${step.san}\nYour turn.`);
         }
 
     }
