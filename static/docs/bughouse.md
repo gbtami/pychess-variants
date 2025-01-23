@@ -1,5 +1,7 @@
 # ![Bughouse](https://raw.githubusercontent.com/gbtami/pychess-variants/master/static/icons/Bughouse.svg) Bughouse
 
+![Boards](https://github.com/gbtami/pychess-variants/blob/master/static/images/bugboards.png)
+
 Bughouse is a chess variant played on two chessboards by four players in teams of two. Each team member faces one opponent of the other team. One player per team has black pieces, while the other has white pieces. Each player plays the opponent as in a standard chess game, with the exception of the rules specified below.
 
 ## Rules
@@ -15,15 +17,3 @@ The match ends when the game on either board ends. A game is won when one player
 ### Communication
 
 Partners are normally allowed to talk to each other during the game. They can, for instance, ask for a specific piece, for more trades, ask to hold a piece, suggest moves or ask their partner to stall. Shouts like "Knight mates!" or "Don't give up a Bishop!" are common and can lead to seemingly absurd sacrificial captures on the other board. Partners are not allowed to physically act on the other board.
-
-## Strategy
-
-TBD
-
-## Further Resources 
-
-TBD
-
-More Resources: 
-
-TBD
