@@ -9,10 +9,8 @@
 </div>
 </br>
 
-<p align="center">
-  <img src="https://github.com/gbtami/pychess-variants/blob/master/static/images/bughouse.jpg" width="300" height="150">
-  (Photo: Alexandre Duret-Lutz. CC BY-SA 2.0)
-</p>
+![Bughouse](https://github.com/gbtami/pychess-variants/blob/master/static/images/bughouse.jpg)
+(Photo: Alexandre Duret-Lutz. CC BY-SA 2.0)
 
 We’re pleased to announce that Bughouse Chess, one of the most popular variant, now available to play on Pychess!
 
