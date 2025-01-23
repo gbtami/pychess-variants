@@ -12,7 +12,7 @@ A player capturing a piece immediately passes that piece to their partner. The p
 
 ### End of the game
 
-The match ends when the game on either board ends. A game is won when one player gets checkmated, resigns, runs out of time, or makes an illegal move. 
+The match ends when the game on either board ends. A game is won when one player gets checkmated, resigns or runs out of time. 
 
 ### Communication
 
