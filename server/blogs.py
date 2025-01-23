@@ -21,7 +21,7 @@ BLOGS = [
         "image": "/images/bughouse.jpg",
         "alt": "",
         "title": "The longest development in the history of pychess",
-        "subtitle": "Spartan chess has arrived",
+        "subtitle": "Bughouse chess has arrived",
         "author": "gbtami",
         "tags": ["Announcement"],
     },
