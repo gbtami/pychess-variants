@@ -695,6 +695,11 @@ export class LobbyController implements ChatController {
         e = document.getElementById('variant') as HTMLSelectElement;
         const variant = VARIANTS[e.options[e.selectedIndex].value];
         const byoyomi = variant.rules.defaultTimeControl === "byoyomi";
+        if (variant.twoBoards) {
+            const select = document.getElementById('tc') as HTMLSelectElement;
+            select.selectedIndex = 0;
+            this.tcMode = 'real';
+        }
         // TODO use toggle class instead of setting style directly
         document.getElementById('chess960-block')!.style.display = variant.chess960 ? 'block' : 'none';
         document.getElementById('byoyomi-period')!.style.display = byoyomi ? 'block' : 'none';
