@@ -624,7 +624,8 @@ export class LobbyController implements ChatController {
 
     renderVariantsDropDown(variantName: string = '', disabled: string[]) {
         // variantName and chess960 are set when this was called from the variant catalog (layer3.ts)
-        const vVariant = variantName || localStorage.seek_variant || "chess";
+        let vVariant = variantName || localStorage.seek_variant || "chess";
+        if (disabled.includes(vVariant)) vVariant = "chess";
         const vChess960 = localStorage.seek_chess960 === 'true' || false;
         const e = document.getElementById('variant');
         e!.replaceChildren();

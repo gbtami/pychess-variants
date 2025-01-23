@@ -522,3 +522,13 @@ async def handle_accept_seek_bughouse(app_state: PychessGlobalAppState, user, da
         for s in u.lobby_sockets:
             await ws_send_json(s, response)
     await app_state.lobby.lobby_broadcast_seeks()
+
+
+async def handle_leave_seek_bughouse(app_state: PychessGlobalAppState, user, seek):
+    if seek.player2 == user:
+        seek.player2 = None
+    if seek.bugPlayer1 == user:
+        seek.bugPlayer1 = None
+    if seek.bugPlayer2 == user:
+        seek.bugPlayer2 = None
+    await app_state.lobby.lobby_broadcast_seeks()

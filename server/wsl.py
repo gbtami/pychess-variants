@@ -31,7 +31,7 @@ from pychess_global_app_state_utils import get_app_state
 from seek import challenge, create_seek, get_seeks, Seek
 from settings import ADMINS, TOURNAMENT_DIRECTORS
 from tournament_spotlights import tournament_spotlights
-from bug.utils_bug import handle_accept_seek_bughouse
+from bug.utils_bug import handle_accept_seek_bughouse, handle_leave_seek_bughouse
 from utils import join_seek, load_game, remove_seek
 from websocket_utils import get_user, process_ws, ws_send_json
 from logger import log
@@ -70,6 +70,12 @@ async def finally_logic(app_state: PychessGlobalAppState, ws, user):
             user.update_auto_pairing(ready=False)
             await user.update_seeks(pending=True)
 
+            if (not user.anon) and len(user.lobby_sockets) == 0:
+                for seek in list(app_state.seeks.values()):
+                    server_variant = get_server_variant(seek.variant, seek.chess960)
+                    if server_variant.two_boards:
+                        await handle_leave_seek_bughouse(app_state, user, seek)
+
 
 async def process_message(app_state: PychessGlobalAppState, user, ws, data):
     print(user.username, data)
@@ -83,6 +89,8 @@ async def process_message(app_state: PychessGlobalAppState, user, ws, data):
         await handle_create_host(app_state, ws, user, data)
     elif data["type"] == "delete_seek":
         await handle_delete_seek(app_state, user, data)
+    elif data["type"] == "leave_seek":
+        await handle_leave_seek(app_state, ws, user, data)
     elif data["type"] == "accept_seek":
         await handle_accept_seek(app_state, ws, user, data)
     elif data["type"] == "lobbychat":
@@ -209,6 +217,17 @@ async def handle_delete_seek(app_state: PychessGlobalAppState, user, data):
     except KeyError:
         log.error("handle_delete_seek() KeyError. Seek %s was already deleted", data["seekID"])
     await app_state.lobby.lobby_broadcast_seeks()
+
+
+async def handle_leave_seek(app_state: PychessGlobalAppState, ws, user, data):
+    if data["seekID"] not in app_state.seeks:
+        return
+
+    seek = app_state.seeks[data["seekID"]]
+
+    server_variant = get_server_variant(seek.variant, seek.chess960)
+    if server_variant.two_boards:
+        await handle_leave_seek_bughouse(app_state, user, seek)
 
 
 async def handle_accept_seek(app_state: PychessGlobalAppState, ws, user, data):
