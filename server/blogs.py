@@ -16,6 +16,16 @@ del _
 
 BLOGS = [
     {
+        "_id": "Bughouse_Chess",
+        "date": "2025-01-26",
+        "image": "/images/bughouse.jpg",
+        "alt": "",
+        "title": "The longest development in the history of pychess",
+        "subtitle": "Spartan chess has arrived",
+        "author": "gbtami",
+        "tags": ["Announcement"],
+    },
+    {
         "_id": "S-Chess_End-Game_Tables",
         "date": "2024.11.27",
         "image": "/images/SchessEGT/KEKR.png",
