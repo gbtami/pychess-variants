@@ -5,7 +5,7 @@
 Bughouse is a chess variant played on two chessboards by four players in teams of two. Each team member faces one opponent of the other team. One player per team has black pieces, while the other has white pieces. Each player plays the opponent as in a standard chess game, with the exception of the rules specified below.
 
 ## Rules
-
+Shortened version of https://en.wikipedia.org/wiki/Bughouse_chess [CC BY-SA 4.0](https://en.wikipedia.org/wiki/Wikipedia:Text_of_the_Creative_Commons_Attribution-ShareAlike_4.0_International_License)
 ### Captured pieces
 
 A player capturing a piece immediately passes that piece to their partner. The partner keeps these pieces in their reserve and may, on their turn, instead of playing a regular move, place one of these pieces on the board (as in shogi and crazyhouse), called dropping the piece. Pieces in reserve may be dropped on any vacant square, including squares where the piece delivers check or checkmate; however, pawns may not be dropped on the first or last rank.  Dropped pawns may promote, but all promoted pawns convert back to pawns when captured. A pawn placed on the second rank may move two squares on its first move, and, if it lands directly next to an enemy pawn, be captured en passant.
