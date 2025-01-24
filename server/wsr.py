@@ -1,6 +1,5 @@
 from __future__ import annotations
 import asyncio
-import logging
 import random
 import string
 
@@ -31,8 +30,7 @@ from utils import (
 )
 from bug.utils_bug import play_move as play_move_bug
 from websocket_utils import process_ws, get_user, ws_send_json
-
-log = logging.getLogger(__name__)
+from logger import log
 
 MORE_TIME = 15 * 1000
 
@@ -62,11 +60,11 @@ async def round_socket_handler(request: web.Request):
 
 
 async def init_ws(app_state, ws, user, game: game.Game):
-    for p in game.all_players:
+    for p in game.non_bot_players:
         if p.username != user.username:
             await handle_is_user_present(ws, app_state.users, p.username, game)
     await handle_game_user_connected(app_state, ws, user, game)
-    await hande_board(ws, game)
+    await handle_board(ws, user, game)
 
 
 async def process_message(app_state, user, ws, data, game):
@@ -81,7 +79,7 @@ async def process_message(app_state, user, ws, data, game):
     elif data["type"] == "ready":
         await handle_ready(ws, app_state.users, user, data, game)
     elif data["type"] == "board":
-        await hande_board(ws, game)
+        await handle_board(ws, user, game)
     elif data["type"] == "setup":
         await handle_setup(ws, app_state.users, user, data, game)
     elif data["type"] == "analysis":
@@ -99,7 +97,7 @@ async def process_message(app_state, user, ws, data, game):
     elif data["type"] == "takeback":
         await handle_takeback(ws, game)
     elif data["type"] in ("abort", "resign", "abandon", "flag"):
-        if game.variant == "bughouse":
+        if game.server_variant.two_boards:
             await handle_resign_bughouse(data, game, user)
         else:
             await handle_abort_resign_abandon_flag(ws, app_state.users, user, data, game)
@@ -129,7 +127,9 @@ async def finally_logic(app_state: PychessGlobalAppState, ws, user, game):
             user.update_online()
 
         if user in (game.wplayer, game.bplayer) and (not game.corr):
-            user.abandon_game_task = asyncio.create_task(user.abandon_game(game))
+            user.abandon_game_task = asyncio.create_task(
+                user.abandon_game(game), name="abandone-game-%s-%s" % (user.username, game.id)
+            )
         else:
             game.spectators.discard(user)
             await round_broadcast(game, game.spectator_list, full=True)
@@ -146,7 +146,7 @@ async def finally_logic(app_state: PychessGlobalAppState, ws, user, game):
 async def handle_move(app_state: PychessGlobalAppState, user, data, game):
     log.debug("Got USER move %s %s %s" % (user.username, data["gameId"], data["move"]))
     async with game.move_lock:
-        if game.variant == "bughouse":
+        if game.server_variant.two_boards:
             try:
                 await play_move_bug(
                     app_state,
@@ -212,7 +212,7 @@ async def handle_ready(ws, users, user, data, game):
         await round_broadcast(game, game.spectator_list, full=True)
 
 
-async def hande_board(ws, game):
+async def handle_board(ws, user, game):
     if game.variant == "janggi":
         # print("JANGGI", ws, game.bsetup, game.wsetup, game.status)
         if (game.bsetup or game.wsetup) and game.status <= STARTED:
@@ -238,7 +238,8 @@ async def hande_board(ws, game):
             board_response = game.get_board(full=True)
             await ws_send_json(ws, board_response)
     else:
-        board_response = game.get_board(full=True)
+        user_color = WHITE if user == game.wplayer else BLACK if user == game.bplayer else None
+        board_response = game.get_board(full=True, persp_color=user_color)
         await ws_send_json(ws, board_response)
 
     if game.corr and game.status <= STARTED and len(game.draw_offers) > 0:
@@ -351,7 +352,7 @@ async def handle_analysis(app_state: PychessGlobalAppState, ws, data, game):
 
 
 async def handle_rematch(app_state: PychessGlobalAppState, ws, user, data, game):
-    if game.variant == "bughouse":
+    if game.server_variant.two_boards:
         await handle_rematch_bughouse(app_state, game, user, app_state.users)
         return
 
@@ -395,7 +396,7 @@ async def handle_rematch(app_state: PychessGlobalAppState, ws, user, data, game)
         )
         app_state.seeks[seek.id] = seek
 
-        response = await join_seek(app_state, engine, seek.id)
+        response = await join_seek(app_state, engine, seek)
         await ws_send_json(ws, response)
 
         await engine.event_queue.put(challenge(seek, response))
@@ -425,7 +426,7 @@ async def handle_rematch(app_state: PychessGlobalAppState, ws, user, data, game)
             )
             app_state.seeks[seek.id] = seek
 
-            response = await join_seek(app_state, opp_player, seek.id)
+            response = await join_seek(app_state, opp_player, seek)
             rematch_id = response["gameId"]
             await ws_send_json(ws, response)
             await app_state.users[opp_name].send_game_message(data["gameId"], response)
@@ -478,9 +479,7 @@ async def handle_draw(ws, users, user, data, game):
         try:
             await users[opp_name].send_game_message(data["gameId"], response)
         except KeyError:
-            log.error("Opp disconnected", stack_info=True, exc_info=True)
-            # opp disconnected
-            pass
+            log.error("handle_draw() KeyError. Opp %s disconnected", opp_name)
 
     await round_broadcast(game, response)
 
@@ -502,7 +501,7 @@ async def handle_byoyomi(data, game):
 
 
 async def handle_takeback(ws, game):
-    game.takeback()
+    await game.takeback()
     board_response = game.get_board(full=True)
     board_response["takeback"] = True
     await ws_send_json(ws, board_response)
@@ -559,7 +558,9 @@ async def handle_game_user_connected(app_state: PychessGlobalAppState, ws, user,
         game.spectators.add(user)
         await round_broadcast(game, game.spectator_list, full=True)
 
-    stopwatch_secs = game.stopwatch.secs if (not game.corr and game.variant != "bughouse") else 0
+    stopwatch_secs = (
+        game.stopwatch.secs if (not game.corr and not game.server_variant.two_boards) else 0
+    )
     response = {
         "type": "game_user_connected",
         "username": user.username,
@@ -586,7 +587,6 @@ async def handle_game_user_connected(app_state: PychessGlobalAppState, ws, user,
 
 async def handle_is_user_present(ws, users, player_name, game):
     player = await users.get(player_name)
-    await asyncio.sleep(1)
     if (
         player is not None and (game.id in player.game_queues)
         if player.bot
@@ -623,14 +623,14 @@ async def handle_bugroundchat(users, user, data, game):
     message = data["message"]
     room = data["room"]
 
-    response = chat_response(
-        "bugroundchat",
-        user.username,
-        message,
-        room=room,
-    )
-    if room != "spectator":
-        game.handle_chat_message(user, message)
+    # response = chat_response(
+    #     "bugroundchat",
+    #     user.username,
+    #     message,
+    #     room=room,
+    # )
+    response = game.handle_chat_message(user, message, room)
+    response["type"] = "bugroundchat"
 
     if room == "spectator":
         recipients = []  # just the spectators. should be equivalent to room="spectator"
@@ -710,11 +710,10 @@ async def handle_leave(user, data, game):
         "username": user.username,
     }
 
-    other_players = filter(lambda p: p.username != user.username, game.all_players)
+    other_players = filter(lambda p: p.username != user.username, game.non_bot_players)
     for p in other_players:
-        if not p.bot:
-            await p.send_game_message(gameId, response_chat)
-            await p.send_game_message(gameId, response)
+        await p.send_game_message(gameId, response_chat)
+        await p.send_game_message(gameId, response)
 
     await round_broadcast(game, response)
 

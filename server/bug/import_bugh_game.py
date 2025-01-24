@@ -1,5 +1,3 @@
-import logging
-
 from bug.utils_bug import init_players
 from pychess_global_app_state_utils import get_app_state
 from const import (
@@ -7,12 +5,12 @@ from const import (
     IMPORTED,
 )
 from datetime import datetime, timezone
-from compress import R2C, V2C, encode_move_standard
+from compress import R2C, encode_move_standard
 from newid import new_id
 from aiohttp import web
 from bugchess.pgn import read_game, Game
-
-log = logging.getLogger(__name__)
+from logger import log
+from variants import get_server_variant
 
 
 def get_main_variation(game: Game, base_tc_ms: int) -> [list, list]:
@@ -96,8 +94,10 @@ async def import_game_bpgn(request):
     wplayer_a, bplayer_a, wplayer_b, bplayer_b = init_players(app_state, wp_a, bp_a, wp_b, bp_b)
 
     variant = "bughouse"
-    chess960 = False  # variant.endswith("960")
-    # variant = variant.removesuffix("960")
+    chess960 = variant.endswith("960")
+    variant = variant.removesuffix("960")
+
+    server_variant = get_server_variant(variant, chess960)
 
     # todo: replace with valid initial fen for now - maybe fix the problematic fen that ends with / instead of [] eventually - that is how chess.com fen looks like and doesn't parse well here
     initial_fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[] w KQkq - 0 1 | rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[] w KQkq - 0 1"  # first_game.headers.get("FEN", "")
@@ -162,7 +162,7 @@ async def import_game_bpgn(request):
     document = {
         "_id": game_id,
         "us": [wplayer_a.username, bplayer_a.username, wplayer_b.username, bplayer_b.username],
-        "v": V2C[variant],
+        "v": server_variant.code,
         "b": base,
         "i": inc,
         "bp": 0,
@@ -178,7 +178,7 @@ async def import_game_bpgn(request):
         "r": R2C[result],
         "x": 0,
         "y": IMPORTED,
-        "z": int(False),  # int(new_game.chess960),
+        "z": int(chess960),
         "by": first_game.headers.get("username"),
     }
 

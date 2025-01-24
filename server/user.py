@@ -1,30 +1,31 @@
 from __future__ import annotations
 import asyncio
-import logging
 from asyncio import Queue
 from datetime import datetime, timezone
 from typing import Set, List
 
 import aiohttp_session
 from aiohttp import web
+from aiohttp.web_ws import WebSocketResponse
 
 from broadcast import round_broadcast
-from const import ANON_PREFIX, STARTED, VARIANTS
+from const import ANON_PREFIX, STARTED, TEST_PREFIX
 from glicko2.glicko2 import gl2, DEFAULT_PERF, Rating
 from login import RESERVED_USERS
 from newid import id8
 from notify import notify
 from const import BLOCK, MAX_USER_BLOCK, TYPE_CHECKING
 from seek import Seek
-from websocket_utils import ws_send_json, MyWebSocketResponse
+from websocket_utils import ws_send_json
+from variants import RATED_VARIANTS
 
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
     from game import Game
 
 from pychess_global_app_state_utils import get_app_state
+from logger import log
 
-log = logging.getLogger(__name__)
 
 SILENCE = 15 * 60
 ANON_TIMEOUT = 10 * 60
@@ -54,21 +55,25 @@ class User:
         self.notifications = None
 
         if username is None:
-            self.anon = True
-            self.username = ANON_PREFIX + id8()
+            self.anon = False if self.app_state.anon_as_test_users else True
+            self.username = (
+                TEST_PREFIX if self.app_state.anon_as_test_users else ANON_PREFIX
+            ) + id8()
         else:
             self.username = username
 
         self.seeks: dict[int, Seek] = {}
-        self.lobby_sockets: Set[MyWebSocketResponse] = set()
-        self.tournament_sockets: dict[str, MyWebSocketResponse] = {}  # {tournamentId: set()}
+
+        self.ready_for_auto_pairing = False
+        self.lobby_sockets: Set[WebSocketResponse] = set()
+        self.tournament_sockets: dict[str, WebSocketResponse] = {}  # {tournamentId: set()}
 
         self.notify_channels: Set[Queue] = set()
 
         self.puzzles = {}  # {pizzleId: vote} where vote 0 = not voted, 1 = up, -1 = down
         self.puzzle_variant = None
 
-        self.game_sockets: dict[str, MyWebSocketResponse] = {}
+        self.game_sockets: dict[str, WebSocketResponse] = {}
         self.title = title
         self.game_in_progress = None
         self.abandon_game_task = None
@@ -84,19 +89,19 @@ class User:
         self.online = False
 
         if perfs is None:
-            self.perfs = {variant: DEFAULT_PERF for variant in VARIANTS}
+            self.perfs = {variant: DEFAULT_PERF for variant in RATED_VARIANTS}
         else:
             self.perfs = {
                 variant: perfs[variant] if variant in perfs else DEFAULT_PERF
-                for variant in VARIANTS
+                for variant in RATED_VARIANTS
             }
 
         if pperfs is None:
-            self.pperfs = {variant: DEFAULT_PERF for variant in VARIANTS}
+            self.pperfs = {variant: DEFAULT_PERF for variant in RATED_VARIANTS}
         else:
             self.pperfs = {
                 variant: pperfs[variant] if variant in pperfs else DEFAULT_PERF
-                for variant in VARIANTS
+                for variant in RATED_VARIANTS
             }
 
         self.enabled = enabled
@@ -110,7 +115,9 @@ class User:
 
         # purge inactive anon users after ANON_TIMEOUT sec
         if self.anon and self.username not in RESERVED_USERS:
-            self.remove_task = asyncio.create_task(self.remove())
+            self.remove_task = asyncio.create_task(
+                self.remove(), name="user-remove-%s" % self.username
+            )
 
     async def remove(self):
         while True:
@@ -122,7 +129,9 @@ class User:
                     try:
                         del self.app_state.users[self.username]
                     except KeyError:
-                        log.error("Failed to del %s from users", self.username, exc_info=True)
+                        log.error(
+                            "User.remove() KeyError. Failed to del %s from users", self.username
+                        )
                     break
 
     async def abandon_game(self, game):
@@ -142,6 +151,12 @@ class User:
             or len(self.lobby_sockets) > 0
             or len(self.tournament_sockets) > 0
         )
+
+    def get_rating_value(self, variant: str, chess960: bool) -> int:
+        try:
+            return int(round(self.perfs[variant + ("960" if chess960 else "")]["gl"]["r"], 0))
+        except KeyError:
+            return 1500
 
     def get_rating(self, variant: str, chess960: bool) -> Rating:
         if variant in self.perfs:
@@ -168,7 +183,7 @@ class User:
             await asyncio.sleep(SILENCE)
             self.silence -= SILENCE
 
-        asyncio.create_task(silencio())
+        asyncio.create_task(silencio(), name="silence-%s" % self.username)
 
     async def set_rating(self, variant, chess960, rating):
         if self.anon:
@@ -255,6 +270,32 @@ class User:
 
             await self.app_state.lobby.lobby_broadcast_seeks()
 
+    def remove_from_auto_pairings(self):
+        try:
+            del self.app_state.auto_pairing_users[self]
+        except KeyError:
+            pass
+        [
+            variant_tc
+            for variant_tc in self.app_state.auto_pairings
+            if self.app_state.auto_pairings[variant_tc].discard(self)
+        ]
+        self.ready_for_auto_pairing = False
+
+    def delete_pending_auto_pairing(self):
+        async def delete_auto_pairing():
+            await asyncio.sleep(PENDING_SEEK_TIMEOUT)
+
+            if not self.ready_for_auto_pairing:
+                self.remove_from_auto_pairings()
+
+        asyncio.create_task(delete_auto_pairing(), name="delete-auto-pending-%s" % self.username)
+
+    def update_auto_pairing(self, ready=True):
+        self.ready_for_auto_pairing = ready
+        if not ready:
+            self.delete_pending_auto_pairing()
+
     def delete_pending_seek(self, seek):
         async def delete_seek(seek):
             await asyncio.sleep(PENDING_SEEK_TIMEOUT)
@@ -264,9 +305,11 @@ class User:
                     del self.seeks[seek.id]
                     del self.app_state.seeks[seek.id]
                 except KeyError:
-                    log.error("Failed to del %s from seeks", seek.id, exc_info=True)
+                    log.error(
+                        "delete_pending_seek() KeyError. Failed to del %s from seeks", seek.id
+                    )
 
-        asyncio.create_task(delete_seek(seek))
+        asyncio.create_task(delete_seek(seek), name="delete-pending-seek-%s" % seek.id)
 
     async def update_seeks(self, pending=True):
         if len(self.seeks) > 0:
@@ -290,7 +333,7 @@ class User:
                     "Currently user %s has these game_sockets: %r", self.username, self.game_sockets
                 )
             return
-        for ws in ws_set:
+        for ws in list(ws_set):
             log.debug("Sending message %s to %s. ws = %r", message, self.username, ws)
             await ws_send_json(ws, message)
 
@@ -301,8 +344,8 @@ class User:
             for ws in list(ws_set):
                 try:
                     await ws.close()
-                except Exception as e:
-                    log.error(e, stack_info=True, exc_info=True)
+                except Exception:
+                    log.error("close_all_game_sockets() Exception for %s %s", self.username, ws)
 
     def is_user_active_in_game(self, game_id=None):
         # todo: maybe also check if ws is still open or that the sets corresponding to (each) game_id are not empty?
@@ -331,8 +374,48 @@ class User:
         else:
             return False
 
+    def auto_compatible_with_other_user(self, other_user, variant, chess960):
+        """Users are compatible when their auto pairing rating ranges are ok
+        and the users are not blocked by any direction"""
+
+        self_rating = self.get_rating_value(variant, chess960)
+        self_rrmin, self_rrmax = self.app_state.auto_pairing_users[self]
+
+        other_rating = other_user.get_rating_value(variant, chess960)
+        other_rrmin, other_rrmax = self.app_state.auto_pairing_users[other_user]
+
+        return (
+            (other_user.username not in self.blocked)
+            and (self.username not in other_user.blocked)
+            and self_rating >= other_rating + other_rrmin
+            and self_rating <= other_rating + other_rrmax
+            and other_rating >= self_rating + self_rrmin
+            and other_rating <= self_rating + self_rrmax
+        )
+
+    def auto_compatible_with_seek(self, seek):
+        """Seek is auto pairing compatible when the rating ranges are ok
+        and the users are not blocked by any direction"""
+
+        self_rating = self.get_rating_value(seek.variant, seek.chess960)
+        seek_user = self.app_state.users[seek.creator.username]
+
+        auto_rrmin, auto_rrmax = self.app_state.auto_pairing_users[self]
+
+        return (
+            (seek_user.username not in self.blocked)
+            and (self.username not in seek_user.blocked)
+            and self_rating >= seek.rating + seek.rrmin
+            and self_rating <= seek.rating + seek.rrmax
+            and seek.rating >= self_rating + auto_rrmin
+            and seek.rating <= self_rating + auto_rrmax
+        )
+
     def compatible_with_seek(self, seek):
-        self_rating = self.get_rating(seek.variant, seek.chess960).rating_prov[0]
+        """Seek is compatible when my rating is inside the seek rating range
+        and the users are not blocked by any direction"""
+
+        self_rating = self.get_rating_value(seek.variant, seek.chess960)
         seek_user = self.app_state.users[seek.creator.username]
         return (
             (seek_user.username not in self.blocked)
@@ -403,7 +486,9 @@ async def block_user(request):
             await app_state.db.relation.delete_one({"_id": "%s/%s" % (user.username, profileId)})
             user.blocked.remove(profileId)
     except Exception:
-        log.error("Failed to save new relation to mongodb!", exc_info=True)
+        log.error(
+            "block_user() Exception. Failed to save new relation for %s to mongodb!", session_user
+        )
 
     return web.json_response({})
 

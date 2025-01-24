@@ -31,6 +31,7 @@ import { analysisSettings, EngineSettings } from './analysisSettings';
 import { setAriaTabClick } from './view';
 import { createWebsocket } from "@/socket/webSocketUtils";
 import { setPocketRowCssVars } from './pocketRow';
+import { updatePoint } from './info';
 
 const EVAL_REGEX = new RegExp(''
   + /^info depth (\d+) seldepth \d+ multipv (\d+) /.source
@@ -64,7 +65,6 @@ export class AnalysisController extends GameController {
     maxDepth: number;
     isAnalysisBoard: boolean;
     isEngineReady: boolean;
-    notationAsObject: any;
     arrow: boolean;
     multipv: number;
     threads: number;
@@ -79,11 +79,12 @@ export class AnalysisController extends GameController {
     fsfDebug: boolean;
     fsfError: string[];
     fsfEngineBoard: any;  // used to convert pv UCI move list to SAN
+    variantSupportedByFSF: boolean;
 
     constructor(el: HTMLElement, model: PyChessModel) {
         super(el, model, model.fen, document.getElementById('pocket0') as HTMLElement, document.getElementById('pocket1') as HTMLElement, '');
         this.fsfError = [];
-        this.embed = this.gameId === undefined;
+        this.embed = model.embed;
         this.puzzle = model["puzzle"] !== "";
         this.isAnalysisBoard = this.gameId === "" && !this.puzzle;
         if (!this.embed) {
@@ -98,7 +99,7 @@ export class AnalysisController extends GameController {
             }
         };
 
-        this.ongoing = this.status == -1;
+        this.ongoing = this.status <= -1;
 
         // is local stockfish.wasm engine supported at all
         this.localEngine = false;
@@ -130,12 +131,13 @@ export class AnalysisController extends GameController {
         this.hash = localStorage.hash === undefined ? 16 : parseInt(localStorage.hash);
         this.nnue = localStorage.nnue === undefined ? true : localStorage.nnue === "true";
         this.fsfDebug = localStorage.fsfDebug === undefined ? false : localStorage.fsfDebug === "true";
+        this.variantSupportedByFSF = true;
 
         this.nnueOk = false;
         this.importedBy = '';
 
         this.chessground.set({
-            orientation: this.mycolor,
+            orientation: this.variant.name === 'racingkings' ? 'white' : this.mycolor,
             turnColor: this.turnColor,
             movable: {
                 free: false,
@@ -198,8 +200,11 @@ export class AnalysisController extends GameController {
             miscB.style.textAlign = 'left';
             miscW.style.width = '100px';
             miscB.style.width = '100px';
+
             patch(document.getElementById('misc-info-center') as HTMLElement, h('div#misc-info-center', '-'));
             (document.getElementById('misc-info') as HTMLElement).style.justifyContent = 'space-around';
+
+            [this.vmiscInfoW, this.vmiscInfoB] = updatePoint(this.variant, this.fullfen, miscW, miscB);
         }
 
         if (this.variant.ui.counting) {
@@ -209,7 +214,7 @@ export class AnalysisController extends GameController {
 
         setAriaTabClick("analysis_tab");
 
-        if (!this.puzzle && !this.ongoing) {
+        if (!this.puzzle && !this.ongoing && !this.embed) {
             const initialEl = document.querySelector('[tabindex="0"]') as HTMLElement;
             initialEl.setAttribute('aria-selected', 'true');
             (initialEl!.parentNode!.parentNode!.querySelector(`#${initialEl.getAttribute('aria-controls')}`)! as HTMLElement).style.display = 'block';
@@ -388,7 +393,7 @@ export class AnalysisController extends GameController {
                 });
             updateMovelist(this);
 
-            if (this.steps[0].analysis === undefined && this.variant.name !== 'alice') {
+            if (this.steps[0].analysis === undefined && this.variantSupportedByFSF) {
                 if (!this.isAnalysisBoard && !this.embed) {
                     const el = document.getElementById('request-analysis') as HTMLElement;
                     el.style.display = 'flex';
@@ -448,7 +453,7 @@ export class AnalysisController extends GameController {
 
         if (this.ongoing) return;
 
-        if (this.variant.name === 'alice') return;
+        if (!this.variantSupportedByFSF) return;
 
         if (line.startsWith('info')) {
             const error = 'info string ERROR: ';
@@ -465,6 +470,11 @@ export class AnalysisController extends GameController {
             }
         }
 
+        if (line.startsWith('option name UCI_Variant') && !line.includes(this.variant.name)) {
+            this.variantSupportedByFSF = false;
+            console.log('This variant is NOT supported by Fairy-Stockfish!');
+        }
+
         if (line.includes('readyok')) this.isEngineReady = true;
 
         if (line.startsWith('Fairy-Stockfish')) {
@@ -472,6 +482,7 @@ export class AnalysisController extends GameController {
                 return variantsIni + '\nEOF';
             }
             this.fsfPostMessage('load <<EOF');
+            this.fsfPostMessage('uci');
         }
 
         if (!this.localEngine) {
@@ -995,6 +1006,10 @@ export class AnalysisController extends GameController {
             }
         }
 
+        if (this.variant.ui.materialPoint) {
+            [this.vmiscInfoW, this.vmiscInfoB] = updatePoint(this.variant, msg.fen, this.vmiscInfoW, this.vmiscInfoB);
+        }
+
         // TODO: But sending moves to the server will be useful to implement shared live analysis!
         // this.doSend({ type: "analysis_move", gameId: this.gameId, move: move, fen: this.fullfen, ply: this.ply + 1 });
     }
@@ -1020,6 +1035,8 @@ export class AnalysisController extends GameController {
                 color: this.turnColor,
             },
         });
+
+        if (msg.check) sound.check();
 
         if (this.variant.ui.showCheckCounters) {
             this.updateCheckCounters(this.fullfen);

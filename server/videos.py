@@ -536,4 +536,12 @@ VIDEOS = [
         "target": "intermediate",
         "duration": "44:22",
     },
+    {
+        "_id": "lL367e31i2c",
+        "title": "Mansindam - How to play",
+        "author": "PyChess",
+        "tags": ["Howto"],
+        "target": "beginner",
+        "duration": "7:21",
+    },
 ]

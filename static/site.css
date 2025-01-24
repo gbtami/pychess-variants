@@ -1044,7 +1044,7 @@ span.notification.empty span.text {
 #sound-volume {
   width: 90%;
 }
-#settings div.labelled, div.labelled, div.arrow-toggle {
+#settings div.labelled, div.labelled, div.arrow-toggle, div.infiniteAnalysis-toggle, div.nnue-toggle, div.fsfDebug-toggle, div.alice-mirror-toggle {
   display: flex;
   align-items: center;
   flex-direction: row;

@@ -1,7 +1,6 @@
 from __future__ import annotations
 import base64
 import hashlib
-import logging
 import secrets
 from urllib.parse import urlencode
 
@@ -23,8 +22,8 @@ from settings import (
 )
 from pychess_global_app_state_utils import get_app_state
 from websocket_utils import ws_send_json
+from logger import log
 
-log = logging.getLogger(__name__)
 
 RESERVED_USERS = (
     "Random-Mover",
@@ -194,12 +193,12 @@ async def logout(request, user=None):
 
     # close lobby socket
     ws_set = user.lobby_sockets
-    for ws in ws_set:
+    for ws in list(ws_set):
         await ws_send_json(ws, response)
 
     # close tournament sockets
     for ws_set in user.tournament_sockets.values():
-        for ws in ws_set:
+        for ws in list(ws_set):
             await ws_send_json(ws, response)
 
     # lose and close game sockets when ban() calls this from admin.py

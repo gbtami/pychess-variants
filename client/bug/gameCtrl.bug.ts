@@ -1,5 +1,4 @@
 import * as cg from "chessgroundx/types";
-import { VARIANTS } from "../variants"
 import * as util from "chessgroundx/util";
 import AnalysisControllerBughouse from "./analysisCtrl.bug";
 import { GameController} from "../gameCtrl";
@@ -122,7 +121,7 @@ export class GameControllerBughouse extends GameController {
     pushMove = (move: string) => {
         this.ffishBoard.push(move);
 
-        this.fullfen = this.ffishBoard.fen(VARIANTS['bughouse'].ui.showPromoted, 0);
+        this.fullfen = this.ffishBoard.fen(this.variant.ui.showPromoted, 0);
         const parts = this.fullfen.split(" ");
         this.turnColor = parts[1] === "w" ? "white" : "black";
         this.lastmove = uci2LastMove(move);

@@ -274,7 +274,7 @@
 }
 
 /* Alice chess pieces on the other board */
-.alice piece.promoted {
+.alice piece.mirror {
   opacity: 0.2;
   background-color: LightCyan;
   border: 1px solid blue;

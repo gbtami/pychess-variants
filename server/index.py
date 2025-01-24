@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import asyncio
 import json
-import logging
 import os.path
 from datetime import datetime
 from urllib.parse import urlparse
@@ -13,21 +12,18 @@ import minify_html
 
 from const import (
     ANON_PREFIX,
+    DARK_FEN,
     DASH,
     LANGUAGES,
     NONE_USER,
     TROPHIES,
-    VARIANTS,
-    VARIANT_ICONS,
     VARIANT_GROUPS,
     RATED,
     IMPORTED,
     T_CREATED,
-    TRANSLATED_VARIANT_NAMES,
     TRANSLATED_PAIRING_SYSTEM_NAMES,
 )
-from alice import AliceBoard
-from fairy import FairyBoard
+from fairy import FairyBoard, BLACK, WHITE
 from glicko2.glicko2 import PROVISIONAL_PHI
 from robots import ROBOTS_TXT
 from settings import (
@@ -60,8 +56,8 @@ from puzzle import (
     default_puzzle_perf,
 )
 from custom_trophy_owners import CUSTOM_TROPHY_OWNERS
-
-log = logging.getLogger(__name__)
+from logger import log
+from variants import VARIANTS, VARIANT_ICONS
 
 
 async def index(request):
@@ -80,7 +76,10 @@ async def index(request):
         try:
             doc = await app_state.db.user.find_one({"_id": session_user})
         except Exception:
-            log.error("Failed to get user %s from mongodb!", session_user, exc_info=True)
+            log.error(
+                "index() app_state.db.user.find_one Exception. Failed to get user %s from mongodb!",
+                session_user,
+            )
         if doc is not None:
             session["guest"] = False
 
@@ -107,7 +106,7 @@ async def index(request):
             await asyncio.sleep(3)
             return web.HTTPFound("/login")
 
-        user = User(app_state, anon=True)
+        user = User(app_state, anon=not app_state.anon_as_test_users)
         log.info("+++ New guest user %s connected.", user.username)
         app_state.users[user.username] = user
         session["user_name"] = user.username
@@ -123,7 +122,7 @@ async def index(request):
     lang_translation.install()
 
     def variant_display_name(variant):
-        return lang_translation.gettext(TRANSLATED_VARIANT_NAMES[variant])
+        return lang_translation.gettext(VARIANTS[variant].translated_name)
 
     def pairing_system_name(system):
         return lang_translation.gettext(TRANSLATED_PAIRING_SYSTEM_NAMES[system])
@@ -290,7 +289,7 @@ async def index(request):
             seek = app_state.seeks[seek_id]
             if request.path.startswith("/invite/accept/"):
                 player = request.match_info.get("player")
-                seek_status = await join_seek(app_state, user, seek_id, gameId, join_as=player)
+                seek_status = await join_seek(app_state, user, seek, gameId, join_as=player)
 
                 if seek_status["type"] == "seek_joined":
                     view = "invite"
@@ -308,8 +307,8 @@ async def index(request):
                         for queue in channels:
                             await queue.put(json.dumps({"gameId": gameId}))
                         # return games[game_id]
-                    except ConnectionResetError as e:
-                        log.error(e, session_user, exc_info=True)
+                    except ConnectionResetError:
+                        log.error("/invite/accept/ ConnectionResetError for user %s", session_user)
 
             else:
                 view = "invite"
@@ -580,7 +579,7 @@ async def index(request):
             render["btitle"] = game.bplayer.title
             render["brating"] = game.brating
             render["brdiff"] = game.brdiff
-            render["fen"] = game.fen
+            render["fen"] = DARK_FEN if game.variant == "fogofwar" else game.fen
             render["base"] = game.base
             render["inc"] = game.inc
             render["byo"] = game.byoyomi_period
@@ -594,14 +593,17 @@ async def index(request):
             render["ply"] = ply if ply is not None else game.ply - 1
             render["initialFen"] = game.initial_fen
             render["ct"] = json.dumps(game.crosstable)
-            render["board"] = json.dumps(game.get_board(full=True))
+
+            user_color = WHITE if user == game.wplayer else BLACK if user == game.bplayer else None
+            render["board"] = json.dumps(game.get_board(full=True, persp_color=user_color))
+
             if game.tournamentId is not None:
                 tournament_name = await get_tournament_name(request, game.tournamentId)
                 render["tournamentid"] = game.tournamentId
                 render["tournamentname"] = tournament_name
                 render["wberserk"] = game.wberserk
                 render["bberserk"] = game.bberserk
-            if game.variant == "bughouse":
+            if game.server_variant.two_boards:
                 render["wplayerB"] = game.wplayerB.username
                 render["wtitleB"] = game.wplayerB.title
                 render["wratingB"] = game.wrating_b
@@ -633,7 +635,7 @@ async def index(request):
         render["title"] = tournament.browser_title
 
     # variant None indicates terminology.md
-    if lang in ("es", "hu", "it", "pt", "fr", "zh", "zh_CN", "zh_TW"):
+    if lang in ("es", "hu", "it", "pt", "fr", "zh_CN", "zh_TW"):
         locale = ".%s" % lang
     else:
         locale = ""
@@ -704,10 +706,7 @@ async def index(request):
 
     elif view == "editor" or (view == "analysis" and gameId is None):
         if fen is None:
-            if variant == "alice":
-                fen = AliceBoard.start_fen()
-            else:
-                fen = FairyBoard.start_fen(variant)
+            fen = FairyBoard.start_fen(variant)
         else:
             fen = fen.replace(".", "+").replace("_", " ")
         render["variant"] = variant
@@ -722,7 +721,7 @@ async def index(request):
     try:
         text = await template.render_async(render)
     except Exception:
-        log.error("ERROR: template.render_async() failed.", exc_info=True)
+        log.exception("ERROR: template.render_async() failed.")
         return web.HTTPFound("/")
 
     response = web.Response(

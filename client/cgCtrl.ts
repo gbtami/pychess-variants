@@ -7,7 +7,7 @@ import { FairyStockfish, Board, Notation } from 'ffish-es6';
 import { boardSettings, BoardController } from '@/boardSettings';
 import { CGMove, uci2cg } from '@/chess';
 import { BoardName, PyChessModel } from '@/types';
-import { Variant, VARIANTS, moddedVariant } from '@/variants';
+import { fogFen, Variant, VARIANTS, moddedVariant } from '@/variants';
 
 export abstract class ChessgroundController implements BoardController {
     boardName: BoardName;
@@ -27,6 +27,7 @@ export abstract class ChessgroundController implements BoardController {
 
     fullfen: string;
     notation: cg.Notation;
+    fog: boolean;
 
     constructor(el: HTMLElement, model: PyChessModel, fullfen: string, pocket0: HTMLElement, pocket1: HTMLElement, boardName: BoardName = '') {
         this.boardName = boardName;
@@ -40,9 +41,10 @@ export abstract class ChessgroundController implements BoardController {
         this.oppcolor = 'black';
         this.fullfen = fullfen;
         this.notation = this.variant.notation;
+        this.fog = model.variant === 'fogofwar';
 
         const parts = this.fullfen.split(" ");
-        const fen_placement: cg.FEN = parts[0];
+        const fen_placement: cg.FEN = (this.fog) ? fogFen(parts[0]) : parts[0];
 
         this.chessground = Chessground(el, {
             fen: fen_placement as cg.FEN,

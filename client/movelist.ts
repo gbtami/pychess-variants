@@ -1,7 +1,6 @@
 import { h, VNode } from 'snabbdom';
 
 import { GameController } from './gameCtrl';
-import { RoundControllerAlice } from './roundCtrlAlice';
 import { result } from './result'
 import { Step } from './messages';
 import { patch } from './document';
@@ -66,7 +65,7 @@ export function activatePlyVari (ply: number) {
     if (elPly) elPly.classList.add('active');
 }
 
-export function createMovelistButtons (ctrl: GameController | RoundControllerAlice) {
+export function createMovelistButtons (ctrl: GameController) {
     const container = document.getElementById('move-controls') as HTMLElement;
     let buttons = [
         h('button', { on: { click: () => ctrl.toggleOrientation() } }, [ h('i.icon.icon-refresh') ]),
@@ -75,7 +74,7 @@ export function createMovelistButtons (ctrl: GameController | RoundControllerAli
         h('button', { on: { click: () => selectMove(ctrl, ctrl.ply + 1, ctrl.plyVari) } }, [ h('i.icon.icon-step-forward') ]),
         h('button', { on: { click: () => selectMove(ctrl, ctrl.steps.length - 1) } }, [ h('i.icon.icon-fast-forward') ]),
     ];
-    if ('switchAliceBoards' in ctrl) {
+    if (ctrl.variant.name === 'alice') {
         buttons.push(h('button#alice', { on: { click: () => ctrl.switchAliceBoards() } }, [ h('i.icon.icon-exchange') ]));
     }
 
@@ -171,7 +170,7 @@ export function updateResult (ctrl: GameController) {
     if (ctrl.status < 0) return;
 
     // Prevent to render it twice
-    const resultEl = document.getElementById('result') as HTMLElement;
+    const resultEl = document.querySelector('.result');
     if (resultEl) return;
 
     const container = document.getElementById('movelist') as HTMLElement;

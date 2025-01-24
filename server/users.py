@@ -1,15 +1,14 @@
 from __future__ import annotations
-import logging
 from collections import UserDict
 
-from const import ANON_PREFIX, BLOCK, MAX_USER_BLOCK, NONE_USER, VARIANTS, TYPE_CHECKING
+from const import ANON_PREFIX, BLOCK, MAX_USER_BLOCK, NONE_USER, TYPE_CHECKING
 from glicko2.glicko2 import DEFAULT_PERF
 from user import User
+from logger import log
+from variants import RATED_VARIANTS
 
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
-
-log = logging.getLogger(__name__)
 
 
 class NotInAppUsers(Exception):
@@ -57,8 +56,8 @@ class Users(UserDict):
             # raise NotInDbUsers
             return self.data[NONE_USER]
         else:
-            perfs = doc.get("perfs", {variant: DEFAULT_PERF for variant in VARIANTS})
-            pperfs = doc.get("pperfs", {variant: DEFAULT_PERF for variant in VARIANTS})
+            perfs = doc.get("perfs", {variant: DEFAULT_PERF for variant in RATED_VARIANTS})
+            pperfs = doc.get("pperfs", {variant: DEFAULT_PERF for variant in RATED_VARIANTS})
 
             user = User(
                 self.app_state,

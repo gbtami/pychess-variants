@@ -12,13 +12,13 @@ from arena_new import ArenaTournament
 from const import (
     BYEGAME,
     STARTED,
-    VARIANTS,
     ARENA,
     RR,
     SWISS,
     T_CREATED,
     T_STARTED,
     T_FINISHED,
+    TEST_PREFIX,
 )
 from draw import draw
 from fairy import BLACK
@@ -33,10 +33,13 @@ from tournament import Tournament
 from tournaments import upsert_tournament_to_db, new_tournament
 from user import User
 from utils import play_move
+from logger import handler
+from variants import VARIANTS
 
 import logging
 
 log = logging.getLogger(__name__)
+logging.getLogger().removeHandler(handler)
 
 # from misc import timeit
 
@@ -50,7 +53,7 @@ class TestTournament(Tournament):
         self.game_tasks = set()
 
         for i in range(1, nb_players + 1):
-            name = "Test_User_%s" % i
+            name = "%sUser_%s" % (TEST_PREFIX, i)
             player = User(self.app_state, username=name, title="TEST", perfs=PERFS)
             self.app_state.users[player.username] = player
             player.tournament_sockets[self.id] = set((None,))

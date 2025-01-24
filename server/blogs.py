@@ -16,6 +16,36 @@ del _
 
 BLOGS = [
     {
+        "_id": "Bughouse_Chess",
+        "date": "2025-01-26",
+        "image": "/images/bughouse.jpg",
+        "alt": "",
+        "title": "The longest development in the history of pychess",
+        "subtitle": "Bughouse chess has arrived",
+        "author": "gbtami",
+        "tags": ["Announcement"],
+    },
+    {
+        "_id": "S-Chess_End-Game_Tables",
+        "date": "2024.11.27",
+        "image": "/images/SchessEGT/KEKR.png",
+        "alt": "",
+        "title": "S-Chess End-Game Tables",
+        "subtitle": "Elephant vs Rook",
+        "author": "h.g.muller",
+        "tags": ["Blog"],
+    },
+    {
+        "_id": "Variant_Design_Contest",
+        "date": "2024-11-14",
+        "image": "/images/man-design-thinking.453x512.png",
+        "alt": "",
+        "title": "Variant Design Contest",
+        "subtitle": "Create the best chess variant!",
+        "author": "CouchTomato87",
+        "tags": ["Announcement"],
+    },
+    {
         "_id": "Halloween_Update",
         "date": "2024-10-31",
         "image": "/images/witch.png",

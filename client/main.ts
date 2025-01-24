@@ -2,6 +2,8 @@ import { h, VNode } from 'snabbdom';
 
 import ffishModule, { FairyStockfish } from 'ffish-es6';
 
+import ffishAliceModule from 'ffish-alice-es6';
+
 import { _, i18n } from './i18n';
 import { aboutView } from './about';
 import { settingsView, hideSettings } from './settingsView';
@@ -25,7 +27,7 @@ import { zenButtonView, zenModeSettings } from './zen';
 import { PyChessModel } from './types';
 import { roundView as bugRoundView } from "./bug/round.bug";
 import { analysisView as bugAnalysisView } from "./bug/analysis.bug";
-import { variantGroups } from './variants';
+import { devVariants, variantGroups, VARIANTS } from './variants';
 import { variantsIni } from './variantsIni';
 
 // redirect to correct URL except Heroku preview apps
@@ -38,20 +40,15 @@ function initModel(el: HTMLElement) {
     // because python http.cookies.SimpleCookie() adds it when name contains dash "–"
     const user = getCookie("user").replace(/(^"|"$)/g, '');
 
-    // Remove new variants from variants on prod site until they stabilize
+    // Remove twoBoards variants from variants on prod site until they stabilize
     if (el.getAttribute("data-dev") !== "True") {
-        const notReadyStandard = ["bughouse"];
-        notReadyStandard.forEach((v) => {
-            const idx = variantGroups.standard.variants.indexOf(v);
-            variantGroups.standard.variants.splice(idx, 1);
-        });
-/*
-        const notReadyFairy = [];
-        notReadyFairy.forEach((v) => {
-            const idx = variantGroups.fairy.variants.indexOf(v);
-            variantGroups.fairy.variants.splice(idx, 1);
-        });
-*/
+        Object.keys(variantGroups).forEach(g => {
+            const group = variantGroups[g];
+            devVariants.forEach((v) => {
+                const idx = group.variants.indexOf(v);
+                if (idx > -1) group.variants.splice(idx, 1);
+            })
+        })
     }
 
     let ct = el.getAttribute("data-ct") ?? "";
@@ -118,7 +115,7 @@ function initModel(el: HTMLElement) {
 }
 
 export function view(el: HTMLElement, model: PyChessModel): VNode {
-
+    const twoBoards = (model.variant) ? VARIANTS[model.variant].twoBoards : false;
     switch (el.getAttribute("data-view")) {
     case 'about':
         return h('div#main-wrap', aboutView(model));
@@ -127,16 +124,18 @@ export function view(el: HTMLElement, model: PyChessModel): VNode {
         return h('div#profile', profileView(model));
     case 'tv':
     case 'round':
-        switch (model.variant) {
-            case 'bughouse': return h('div#main-wrap.bug', [h('main.round.bug', bugRoundView(model))]);
-            default: return h('div#main-wrap', [h('main.round', roundView(model))]);
+        if (twoBoards) {
+            return h('div#main-wrap.bug', [h('main.round.bug', bugRoundView(model))]);
+        } else {
+            return h('div#main-wrap', [h('main.round', roundView(model))]);
         }
     case 'embed':
         return h('div', embedView(model));
     case 'analysis':
-        switch (model.variant) {
-            case 'bughouse': return h('div#main-wrap.bug', bugAnalysisView(model));
-            default: return h('div#main-wrap', analysisView(model));;
+        if (twoBoards) {
+            return h('div#main-wrap.bug', bugAnalysisView(model));
+        } else {
+            return h('div#main-wrap', analysisView(model));;
         }
     case 'puzzle':
         return h('div#main-wrap', puzzleView(model));
@@ -165,14 +164,23 @@ function start() {
     const placeholder = document.getElementById('placeholder');
     if (placeholder && el)
 
-        if (['round', 'analysis', 'puzzle', 'editor', 'tv', 'embed'].includes(el.getAttribute("data-view") ?? "")) {
+        if (['round', 'analysis', 'puzzle', 'editor', 'tv', 'embed', 'paste'].includes(el.getAttribute("data-view") ?? "")) {
             console.time('load ffish');
-            ffishModule().then((loadedModule: any) => {
-                console.timeEnd('load ffish');
-                loadedModule.loadVariantConfig(variantsIni);
-                model.ffish = loadedModule;
-                patch(placeholder, view(el, model));
-            });
+            if (model["variant"] === "alice") {
+                ffishAliceModule().then((loadedModule: any) => {
+                    console.timeEnd('load ffish_alice');
+                    loadedModule.loadVariantConfig(variantsIni);
+                    model.ffish = loadedModule;
+                    patch(placeholder, view(el, model));
+                });
+            } else {
+                ffishModule().then((loadedModule: any) => {
+                    console.timeEnd('load ffish');
+                    loadedModule.loadVariantConfig(variantsIni);
+                    model.ffish = loadedModule;
+                    patch(placeholder, view(el, model));
+                });
+            }
         } else  {
             patch(placeholder, view(el, model));
         }

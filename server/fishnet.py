@@ -1,7 +1,6 @@
 from __future__ import annotations
 import asyncio
 import json
-import logging
 from datetime import datetime, timezone
 from functools import partial
 from time import monotonic
@@ -16,8 +15,7 @@ if TYPE_CHECKING:
 from pychess_global_app_state_utils import get_app_state
 from settings import FISHNET_KEYS
 from utils import load_game, play_move
-
-log = logging.getLogger(__name__)
+from logger import log
 
 REQUIRED_FISHNET_VERSION = "1.16.23"
 MOVE_WORK_TIME_OUT = 5.0
@@ -227,7 +225,8 @@ async def fishnet_move(request):
     user = app_state.users["Fairy-Stockfish"]
     move = data["move"]["bestmove"]
 
-    await play_move(app_state, user, game, move)
+    async with game.move_lock:
+        await play_move(app_state, user, game, move)
 
     response = await get_work(app_state, data)
     return response

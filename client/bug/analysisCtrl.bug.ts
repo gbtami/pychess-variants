@@ -6,7 +6,7 @@ import { DrawShape } from 'chessgroundx/draw';
 
 import { _ } from '../i18n';
 import { uci2LastMove, uci2cg } from '../chess';
-import { VARIANTS } from "../variants"
+import { Variant, VARIANTS } from "../variants"
 import { createMovelistButtons, updateMovelist, selectMove, activatePlyVari } from './movelist.bug';
 import { povChances } from '../winningChances';
 import { patch } from '../document';
@@ -54,7 +54,7 @@ export default class AnalysisControllerBughouse {
     vinfo: VNode | HTMLElement;
     vpvlines: VNode[] | HTMLElement[];
 
-    readonly variant = VARIANTS['bughouse'];
+    variant: Variant;
 
     vmovelist: VNode | HTMLElement;
     moveControls: VNode;
@@ -64,7 +64,11 @@ export default class AnalysisControllerBughouse {
     flip: boolean;
     settings: boolean;
     status: number;
+
     steps: Step[];
+    plyA: number = 0;
+    plyB: number = 0;
+
     pgn: string;
     ply: number;
     plyVari: number;
@@ -119,6 +123,8 @@ export default class AnalysisControllerBughouse {
         this.embed = this.gameId === undefined;
         this.username = model["username"];
         this.chess960 = model.chess960 === 'True';
+
+        this.variant = VARIANTS[model.variant];
 
         this.teamFirst = [playerInfoData(model, "w", "a"), playerInfoData(model, "b", "b")]
         this.teamSecond = [playerInfoData(model, "b", "a"), playerInfoData(model, "w", "b")]
@@ -350,12 +356,24 @@ export default class AnalysisControllerBughouse {
         if (msg.steps.length > 1) {
             this.steps = [];
 
-            msg.steps.forEach((step, ply) => {
+            msg.steps.forEach((step, idx) => {
                 if (step.analysis !== undefined) {
                     step.ceval = step.analysis;
-                    const scoreStr = this.buildScoreStr(ply % 2 === 0 ? "w" : "b", step.analysis);
+                    const scoreStr = this.buildScoreStr(idx % 2 === 0 ? "w" : "b", step.analysis);
                     step.scoreStr = scoreStr;
                 }
+
+                if (idx > 0) {
+                    //skip first dummy element
+                    if (step.boardName === "a") {
+                        this.plyA++;
+                    } else {
+                        this.plyB++;
+                    }
+                }
+                step.plyA = this.plyA;
+                step.plyB = this.plyB;
+
                 this.steps.push(step);
                 });
             updateMovelist(this);

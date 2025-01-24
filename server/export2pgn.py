@@ -1,15 +1,13 @@
 from __future__ import annotations
 import asyncio
 import bz2
-import logging
 
 from motor import motor_asyncio as ma
 
 from settings import MONGO_HOST, MONGO_DB_NAME
 from utils import pgn
 from compress import C2V
-
-log = logging.getLogger(__name__)
+from logger import log
 
 YEARS = (2019, 2020, 2021, 2022, 2023, 2024)
 MONTHS = range(1, 13)
@@ -58,7 +56,6 @@ async def main():
                         doc["_id"],
                         C2V[doc["v"]],
                         doc["d"].strftime("%Y.%m.%d"),
-                        exc_info=True,
                     )
                     continue
 

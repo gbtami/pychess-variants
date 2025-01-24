@@ -10,17 +10,28 @@ import { _, ngettext, languageSettings } from './i18n';
 import { patch } from './document';
 import { boardSettings } from './boardSettings';
 import { chatMessage, chatView, ChatController } from './chat';
-import { VARIANTS, selectVariant, Variant } from './variants';
+import { enabledVariants, twoBoarsVariants, VARIANTS, selectVariant, Variant } from './variants';
 import { timeControlStr, changeTabs, setAriaTabClick } from './view';
 import { notify } from './notification';
 import { PyChessModel } from "./types";
 import { MsgBoard, MsgChat, MsgFullChat } from "./messages";
 import { variantPanels } from './lobby/layer1';
-import { Post, Stream, Spotlight, MsgInviteCreated, MsgHostCreated, MsgGetSeeks, MsgNewGame, MsgGameInProgress, MsgUserConnected, MsgPing, MsgError, MsgShutdown, MsgGameCounter, MsgUserCounter, MsgStreams, MsgSpotlights, Seek, CreateMode, TvGame, TcMode } from './lobbyType';
+import { Post, Stream, Spotlight, MsgInviteCreated, MsgHostCreated, MsgGetSeeks, MsgNewGame, MsgGameInProgress, MsgUserConnected, MsgPing, MsgError, MsgShutdown, MsgCounter, MsgStreams, MsgSpotlights, Seek, CreateMode, TvGame, TcMode } from './lobbyType';
 import { validFen, uci2LastMove } from './chess';
 import { seekViewBughouse, switchEnablingLobbyControls } from "./bug/lobby.bug";
 import { handleOngoingGameEvents, Game, gameViewPlaying, compareGames } from './nowPlaying';
 import { createWebsocket } from "@/socket/webSocketUtils";
+
+
+const autoPairingTCs: [number, number, number][] = [
+    [1, 0, 0],
+    [3, 0, 0],
+    [3, 2, 0],
+    [5, 5, 0],
+    [15, 10, 0],
+    [2, 15, 1],
+    [10, 30, 1],
+];
 
 export function createModeStr(mode: CreateMode) {
     switch (mode) {
@@ -61,6 +72,7 @@ export class LobbyController implements ChatController {
     streams: VNode | HTMLElement;
     spotlights: VNode | HTMLElement;
     dialogHeaderEl: VNode | HTMLElement;
+    autoPairingActions: VNode | HTMLElement;
     tvGame: TvGame;
     tvGameId: string;
     tvGameChessground: Api;
@@ -153,6 +165,11 @@ export class LobbyController implements ChatController {
         const e = document.getElementById("fen") as HTMLInputElement;
         if (this.fen !== "")
             e.value = this.fen;
+
+        if (!this.anon) {
+            this.renderAutoPairingTable();
+            this.autoPairingActions = document.querySelector('div.auto-pairing-actions') as HTMLElement;
+        }
 
         boardSettings.assetURL = this.assetURL;
         boardSettings.updateBoardAndPieceStyles();
@@ -365,14 +382,15 @@ export class LobbyController implements ChatController {
 
     renderSeekButtons() {
         const vVariant = localStorage.seek_variant || "chess";
+        const twoBoards = VARIANTS[vVariant].twoBoards;
         // 5+3 default TC needs vMin 9 because of the partial numbers at the beginning of minutesValues
         const vMin = localStorage.seek_min ?? "9";
         const vInc = localStorage.seek_inc ?? "3";
         const vByoIdx = (localStorage.seek_byo ?? 1) - 1;
         const vDay = localStorage.seek_day ?? "1";
-        const vRated = vVariant === "bughouse"? "0": localStorage.seek_rated ?? "0";
-        const vRatingMin = localStorage.seek_rating_min ?? -500;
-        const vRatingMax = localStorage.seek_rating_max ?? 500;
+        const vRated = twoBoards ? "0": localStorage.seek_rated ?? "0";
+        const vRatingMin = localStorage.seek_rating_min ?? -1000;
+        const vRatingMax = localStorage.seek_rating_max ?? 1000;
         const vLevel = Number(localStorage.seek_level ?? "1");
         const vChess960 = localStorage.seek_chess960 ?? "false";
         const vRMplay = localStorage.seek_rmplay ?? "false";
@@ -421,7 +439,7 @@ export class LobbyController implements ChatController {
                                         on: { change: (e: Event) => this.setTcMode((e.target as HTMLSelectElement).value as TcMode) },
                                         }, [
                                             h('option', { attrs: { value: 'real' }}, _('Real time')),
-                                            h('option', { attrs: { value: 'corr', disabled: this.anon || vVariant === "bughouse" }}, _('Correspondence')),
+                                            h('option', { attrs: { value: 'corr', disabled: this.anon || twoBoards }}, _('Correspondence')),
                                         ]
                                     ),
                                 ]),
@@ -472,7 +490,7 @@ export class LobbyController implements ChatController {
                                     h('label', { attrs: { for: "casual"} }, _("Casual")),
                                     h('input#rated', {
                                         props: { type: "radio", name: "mode", value: "1" },
-                                        attrs: { checked: vRated === "1", disabled: this.anon || vVariant === "bughouse" /*dont support rated bughouse atm*/ },
+                                        attrs: { checked: vRated === "1", disabled: this.anon || twoBoards }, /*dont support rated bughouse atm*/
                                         on: { input: e => this.setRated((e.target as HTMLInputElement).value) },
                                         hook: { insert: vnode => this.setRated((vnode.elm as HTMLInputElement).value) },
                                     }),
@@ -483,15 +501,15 @@ export class LobbyController implements ChatController {
                                 _('Rating range'),
                                 h('div.rating-range', [
                                     h('input#rating-min.slider', {
-                                        props: { name: "rating-min", type: "range", min: -500, max: 0, step: 50, value: vRatingMin },
+                                        props: { name: "rating-min", type: "range", min: -1000, max: 0, step: 50, value: vRatingMin },
                                         on: { input: e => this.setRatingMin(parseInt((e.target as HTMLInputElement).value)) },
                                         hook: { insert: vnode => this.setRatingMin(parseInt((vnode.elm as HTMLInputElement).value)) },
                                     }),
-                                    h('span.rating-min', '-500'),
-                                    '/',
-                                    h('span.rating-max', '+500'),
+                                    h('div.rating-min', '-1000'),
+                                    h('span', '/'),
+                                    h('div.rating-max', '+1000'),
                                     h('input#rating-max.slider', {
-                                        props: { name: "rating-max", type: "range", min: 0, max: 500, step: 50, value: vRatingMax },
+                                        props: { name: "rating-max", type: "range", min: 0, max: 1000, step: 50, value: vRatingMax },
                                         on: { input: e => this.setRatingMax(parseInt((e.target as HTMLInputElement).value)) },
                                         hook: { insert: vnode => this.setRatingMax(parseInt((vnode.elm as HTMLInputElement).value)) },
                                     }),
@@ -541,6 +559,56 @@ export class LobbyController implements ChatController {
         ];
     }
 
+    autoPairingSelectAll() {
+        document.querySelectorAll('input[name^="va_"]').forEach((inp: HTMLInputElement) => {
+            inp.checked = true;
+        });
+        document.querySelectorAll('input[name^="tc_"]').forEach((inp: HTMLInputElement) => {
+            inp.checked = true;
+        });
+    }
+
+    autoPairingReset() {
+        document.querySelectorAll('input[name^="va_"]').forEach((inp: HTMLInputElement) => {
+            inp.checked = false;
+        });
+        document.querySelectorAll('input[name^="tc_"]').forEach((inp: HTMLInputElement) => {
+            inp.checked = false;
+        });
+    }
+
+    autoPairingCancel() {
+        this.doSend({ type: "cancel_auto_pairing" });
+    }
+
+    autoPairingSubmit() {
+        const variants: [string, boolean][] = [];
+        document.querySelectorAll('input[name^="va_"]').forEach((inp: HTMLInputElement) => {
+            localStorage[inp.name] = inp.checked;
+            if (inp.checked) {
+                const chess960 = inp.name.endsWith('960');
+                const name = (chess960) ? inp.name.slice(3, -3) : inp.name.slice(3);
+                variants.push([name, chess960]);
+            }
+        })
+
+        const tcs: [number, number, number][] = [];
+        document.querySelectorAll('input[name^="tc_"]').forEach((inp: HTMLInputElement, index: number) => {
+            localStorage[inp.name] = inp.checked;
+            if (inp.checked) tcs.push(autoPairingTCs[index]);
+        })
+
+        const minEle = document.getElementById('auto-rating-min') as HTMLInputElement;
+        const rrMin = Number(minEle.value);
+        localStorage.auto_rating_min = minEle.value;
+
+        const maxEle = document.getElementById('auto-rating-max') as HTMLInputElement;
+        const rrMax = Number(maxEle.value);
+        localStorage.auto_rating_max = maxEle.value;
+
+        this.doSend({ type: "create_auto_pairing", variants: variants, tcs: tcs, rrmin: rrMin, rrmax: rrMax });
+    }
+
     preSelectVariant(variantName: string, chess960: boolean=false) {
         if (variantName !== '') {
             const select = document.getElementById("variant") as HTMLSelectElement;
@@ -556,7 +624,8 @@ export class LobbyController implements ChatController {
 
     renderVariantsDropDown(variantName: string = '', disabled: string[]) {
         // variantName and chess960 are set when this was called from the variant catalog (layer3.ts)
-        const vVariant = variantName || localStorage.seek_variant || "chess";
+        let vVariant = variantName || localStorage.seek_variant || "chess";
+        if (disabled.includes(vVariant)) vVariant = "chess";
         const vChess960 = localStorage.seek_chess960 === 'true' || false;
         const e = document.getElementById('variant');
         e!.replaceChildren();
@@ -565,8 +634,9 @@ export class LobbyController implements ChatController {
     }
 
     createGame(variantName: string = '') {
+        const twoBoards = (variantName) ? VARIANTS[variantName].twoBoards : false;
         this.createMode = 'createGame';
-        this.renderVariantsDropDown(variantName, this.anon ? ["bughouse"]: []);
+        this.renderVariantsDropDown(variantName, this.anon ? twoBoarsVariants: []);
         this.renderDialogHeader(createModeStr(this.createMode));
         document.getElementById('game-mode')!.style.display = this.anon ? 'none' : 'inline-flex';
         document.getElementById('rating-range-setting')!.style.display = 'block';
@@ -575,12 +645,12 @@ export class LobbyController implements ChatController {
         document.getElementById('id01')!.style.display = 'flex';
         document.getElementById('color-button-group')!.style.display = 'block';
         document.getElementById('create-button')!.style.display = 'none';
-        disableCorr(this.anon || variantName === "bughouse" );
+        disableCorr(this.anon || twoBoards);
     }
 
     playFriend(variantName: string = '') {
         this.createMode = 'playFriend';
-        this.renderVariantsDropDown(variantName, ["bughouse"]);
+        this.renderVariantsDropDown(variantName, twoBoarsVariants);
         this.renderDialogHeader(createModeStr(this.createMode))
         document.getElementById('game-mode')!.style.display = this.anon ? 'none' : 'inline-flex';
         document.getElementById('rating-range-setting')!.style.display = 'none';
@@ -594,7 +664,7 @@ export class LobbyController implements ChatController {
 
     playAI(variantName: string = '') {
         this.createMode = 'playAI';
-        this.renderVariantsDropDown(variantName, ["bughouse"]);
+        this.renderVariantsDropDown(variantName, twoBoarsVariants);
         this.renderDialogHeader(createModeStr(this.createMode))
         document.getElementById('game-mode')!.style.display = 'none';
         document.getElementById('rating-range-setting')!.style.display = 'none';
@@ -609,7 +679,7 @@ export class LobbyController implements ChatController {
 
     createHost(variantName: string = '') {
         this.createMode = 'createHost';
-        this.renderVariantsDropDown(variantName, ["bughouse"]);
+        this.renderVariantsDropDown(variantName, twoBoarsVariants);
         this.renderDialogHeader(createModeStr(this.createMode))
         document.getElementById('game-mode')!.style.display = this.anon ? 'none' : 'inline-flex';
         document.getElementById('rating-range-setting')!.style.display = 'none';
@@ -626,6 +696,11 @@ export class LobbyController implements ChatController {
         e = document.getElementById('variant') as HTMLSelectElement;
         const variant = VARIANTS[e.options[e.selectedIndex].value];
         const byoyomi = variant.rules.defaultTimeControl === "byoyomi";
+        if (variant.twoBoards) {
+            const select = document.getElementById('tc') as HTMLSelectElement;
+            select.selectedIndex = 0;
+            this.tcMode = 'real';
+        }
         // TODO use toggle class instead of setting style directly
         document.getElementById('chess960-block')!.style.display = variant.chess960 ? 'block' : 'none';
         document.getElementById('byoyomi-period')!.style.display = byoyomi ? 'block' : 'none';
@@ -689,10 +764,16 @@ export class LobbyController implements ChatController {
         this.setStartButtons();
     }
     private setRatingMin(val: number) {
-        document.querySelector("span.rating-min")!.innerHTML = String(val);
+        document.querySelector("div.rating-min")!.innerHTML = '-' + String(Math.abs(val));
     }
     private setRatingMax(val: number) {
-        document.querySelector("span.rating-max")!.innerHTML = String(val);
+        document.querySelector("div.rating-max")!.innerHTML = '+' + String(val);
+    }
+    private setAutoRatingMin(val: number) {
+        document.querySelector("div.auto-rating-min")!.innerHTML = '-' + String(Math.abs(val));
+    }
+    private setAutoRatingMax(val: number) {
+        document.querySelector("div.auto-rating-max")!.innerHTML = '+' + String(val);
     }
     private setFen() {
         const e = document.getElementById('fen') as HTMLInputElement;
@@ -761,7 +842,7 @@ export class LobbyController implements ChatController {
 
     private seekView(seek: Seek) {
         const variant = VARIANTS[seek.variant];
-        return this.hide(seek) ? "" : variant === VARIANTS['bughouse']? seekViewBughouse(this, seek): this.seekViewRegular(seek);
+        return this.hide(seek) ? "" : variant.twoBoards ? seekViewBughouse(this, seek): this.seekViewRegular(seek);
     }
 
     private onClickSeek(seek: Seek) {
@@ -903,6 +984,84 @@ export class LobbyController implements ChatController {
         boardSettings.updateBoardAndPieceStyles();
     }
 
+    renderAutoPairingActions(autoPairingIsOn: boolean) {
+        const eRange = document.querySelector('div.auto-rating-range') as Element;
+        const eTimeControls = document.querySelector('div.timecontrols') as Element;
+        const eVariants = document.querySelector('div.variants') as Element;
+        if (autoPairingIsOn) {
+            this.autoPairingActions = patch(this.autoPairingActions,
+                h('div.auto-pairing-actions', [
+                    h('span.standingby', _('Standing by for auto pairing...')),
+                    h('button.cancel', { on: { click: () => this.autoPairingCancel() } }, [h('div.icon.icon-ban', _('CANCEL'))]),
+                ])
+            );
+            eRange.classList.toggle("disabled", true);
+            eTimeControls.classList.toggle("disabled", true);
+            eVariants.classList.toggle("disabled", true);
+        } else {
+            this.autoPairingActions = patch(this.autoPairingActions,
+                h('div.auto-pairing-actions', [
+                    h('button.selectall', { on: { click: () => this.autoPairingSelectAll() } }, [h('div.icon.icon-check', _('SELECT ALL'))]),
+                    h('button.reset', { on: { click: () => this.autoPairingReset() } }, [h('div.icon.icon-trash-o', _('CLEAR ALL'))]),
+                    h('button.submit', { on: { click: () => this.autoPairingSubmit() } }, [h('div.icon.icon-check',  _('SUBMIT'))]),
+                ])
+            );
+            eRange.classList.toggle("disabled", false);
+            eTimeControls.classList.toggle("disabled", false);
+            eVariants.classList.toggle("disabled", false);
+        }
+    }
+
+    renderAutoPairingTable() {
+        const variantList: VNode[] = [];
+        enabledVariants.forEach(v => {
+            const variant = VARIANTS[v];
+            let variantName = variant.name;
+            let checked = localStorage[`va_${variantName}`] ?? "false";
+            if (!variant.twoBoards) {
+                variantList.push(h('label', [h('input', { props: { name: `va_${variantName}`, type: "checkbox" }, attrs: { checked: checked === "true" } }), variantName]));
+                if (variant.chess960) {
+                    variantName = variantName + '960';
+                    checked = localStorage[`va_${variantName}`] ?? "false";
+                    variantList.push(h('label', [h('input', { props: { name: `va_${variantName}`, type: "checkbox" }, attrs: { checked: checked === "true" } }), variantName]));
+                }
+            }
+        })
+        patch(document.querySelector('div.variants') as Element, h('div.variants', variantList));
+
+        const tcList: VNode[] = [];
+        autoPairingTCs.forEach(v => {
+            const tcName = timeControlStr(v[0], v[1], v[2]);
+            const checked = localStorage[`tc_${tcName}`] ?? "false";
+            tcList.push(h('label', [h('input', { props: { name: `tc_${tcName}`, type: "checkbox" }, attrs: { checked: checked === "true" } }), tcName]));
+        })
+
+        patch(document.querySelector('div.timecontrols') as Element, h('div.timecontrols', tcList));
+
+        const aRatingMin = localStorage.auto_rating_min ?? -1000;
+        const aRatingMax = localStorage.auto_rating_max ?? 1000;
+        const aRatingRange = [
+            _('Rating range'),
+            h('div.rating-range', [
+                h('input#auto-rating-min.slider', {
+                    props: { name: "rating-min", type: "range", min: -1000, max: 0, step: 50, value: aRatingMin },
+                    on: { input: e => this.setAutoRatingMin(parseInt((e.target as HTMLInputElement).value)) },
+                    hook: { insert: vnode => this.setAutoRatingMin(parseInt((vnode.elm as HTMLInputElement).value)) },
+                }),
+                h('div.auto-rating-min', '-1000'),
+                h('span', '/'),
+                h('div.auto-rating-max', '+1000'),
+                h('input#auto-rating-max.slider', {
+                    props: { name: "rating-max", type: "range", min: 0, max: 1000, step: 50, value: aRatingMax },
+                    on: { input: e => this.setAutoRatingMax(parseInt((e.target as HTMLInputElement).value)) },
+                    hook: { insert: vnode => this.setAutoRatingMax(parseInt((vnode.elm as HTMLInputElement).value)) },
+                }),
+            ]),
+        ];
+
+        patch(document.querySelector('div.auto-rating-range') as Element, h('div.auto-rating-range', aRatingRange));
+    }
+
     onMessage(evt: MessageEvent) {
         // console.log("<+++ lobby onMessage():", evt.data);
         if (evt.data === '/n') return;
@@ -941,6 +1100,9 @@ export class LobbyController implements ChatController {
             case "u_cnt":
                 this.onMsgUserCounter(msg);
                 break;
+            case "ap_cnt":
+                this.onMsgAutoPairingCounter(msg);
+                break;
             case "streams":
                 this.onMsgStreams(msg);
                 break;
@@ -952,6 +1114,12 @@ export class LobbyController implements ChatController {
                 break;
             case "host_created":
                 this.onMsgHostCreated(msg);
+                break;
+            case "auto_pairing_on":
+                this.onMsgAutoPairingOn();
+                break;
+            case "auto_pairing_off":
+                this.onMsgAutoPairingOff();
                 break;
             case "shutdown":
                 this.onMsgShutdown(msg);
@@ -973,6 +1141,14 @@ export class LobbyController implements ChatController {
         window.location.assign('/' + msg.gameId);
     }
 
+    private onMsgAutoPairingOn() {
+        this.renderAutoPairingActions(true);
+    }
+
+    private onMsgAutoPairingOff() {
+        this.renderAutoPairingActions(false);
+    }
+
     private onMsgGetSeeks(msg: MsgGetSeeks) {
         this.seeks = msg.seeks;
         // console.log("!!!! got get_seeks msg:", msg);
@@ -985,19 +1161,24 @@ export class LobbyController implements ChatController {
         oldCorrs.innerHTML = "";
         patch(oldCorrs, h('table.seeks', this.renderSeeks(msg.seeks.filter(seek => seek.day !== 0))));
     }
+
     private onMsgNewGame(msg: MsgNewGame) {
         window.location.assign('/' + msg.gameId);
     }
+
     private onMsgGameInProgress(msg: MsgGameInProgress) {
         const response = confirm(_("You have an unfinished game!\nPress OK to continue."));
         if (response) window.location.assign('/' + msg.gameId);
     }
+
     private onMsgUserConnected(msg: MsgUserConnected) {
         this.username = msg.username;
     }
+
     private onMsgChat(msg: MsgChat) {
         chatMessage(msg.user, msg.message, "lobbychat", msg.time);
     }
+
     private onMsgFullChat(msg: MsgFullChat) {
         // To prevent multiplication of messages we have to remove old messages div first
         patch(document.getElementById('messages') as HTMLElement, h('div#messages-clear'));
@@ -1006,24 +1187,35 @@ export class LobbyController implements ChatController {
         // console.log("NEW FULL MESSAGES");
         msg.lines.forEach(line => chatMessage(line.user, line.message, "lobbychat", line.time));
     }
+
     private onMsgPing(msg: MsgPing) {
         this.doSend({ type: "pong", timestamp: msg.timestamp });
     }
+
     private onMsgError(msg: MsgError) {
         alert(msg.message);
     }
+
     private onMsgShutdown(msg: MsgShutdown) {
         alert(msg.message);
     }
-    private onMsgGameCounter(msg: MsgGameCounter) {
+
+    private onMsgGameCounter(msg: MsgCounter) {
         // console.log("Gcnt=", msg.cnt);
         const gameCount = document.getElementById('g_cnt') as HTMLElement;
         patch(gameCount, h('counter#g_cnt', ngettext('%1 game in play', '%1 games in play', msg.cnt)));
     }
-    private onMsgUserCounter(msg: MsgUserCounter) {
+
+    private onMsgUserCounter(msg: MsgCounter) {
         // console.log("Ucnt=", msg.cnt);
         const userCount = document.getElementById('u_cnt') as HTMLElement;
         patch(userCount as HTMLElement, h('counter#u_cnt', ngettext('%1 player', '%1 players', msg.cnt)));
+    }
+
+    private onMsgAutoPairingCounter(msg: MsgCounter) {
+        // console.log("APcnt=", msg.cnt);
+        const gameCount = document.getElementById('ap_cnt') as HTMLElement;
+        patch(gameCount, h('counter#ap_cnt', ngettext('%1 auto pairing', '%1 auto pairings', msg.cnt)));
     }
 
     private onMsgStreams(msg: MsgStreams) {
@@ -1080,6 +1272,7 @@ export function lobbyView(model: PyChessModel): VNode[] {
     const puzzle = JSON.parse(model.puzzle);
     const blogs = JSON.parse(model.blogs);
     const username = model.username;
+    const anonUser = model["anon"] === 'True';
     const corrGames = JSON.parse(model.corrGames).sort(compareGames(username));
     const gpCounter = corrGames.length;
 
@@ -1127,6 +1320,9 @@ export function lobbyView(model: PyChessModel): VNode[] {
             h('span.noread.data-count', {attrs: { 'data-count': count }})
         ]))
     }
+    if (!anonUser) {
+        tabs.push(h('span', {attrs: {role: 'tab', 'aria-selected': false, 'aria-controls': 'panel-4', id: 'tab-4', tabindex: '-1'}}, _('Auto pairing')))
+    }
 
     let containers = [];
     containers.push(h('div', {attrs: {role: 'tablist', 'aria-label': 'Seek Tabs'}}, tabs));
@@ -1159,6 +1355,19 @@ export function lobbyView(model: PyChessModel): VNode[] {
         )
     }
 
+    if (!anonUser) {
+        containers.push(
+            h('div.auto-container', {attrs: {id: 'panel-4', role: 'tabpanel', tabindex: '-1', 'aria-labelledby': 'tab-4'}}, [
+                h('div.seeks-table', [h('div.seeks-wrapper', [h('div.auto-pairing', [
+                    h('div.auto-pairing-actions'),
+                    h('div.auto-rating-range'),
+                    h('div.timecontrols'),
+                    h('div.variants'),
+                ])])])
+            ])
+        )
+    }
+
     return [
         h('aside.sidebar-first', [
             h('div#streams'),
@@ -1172,6 +1381,7 @@ export function lobbyView(model: PyChessModel): VNode[] {
             h('div.lobby-count', [
                 h('a', { attrs: { href: '/players' } }, [ h('counter#u_cnt') ]),
                 h('a', { attrs: { href: '/games' } }, [ h('counter#g_cnt') ]),
+                h('counter#ap_cnt'),
             ]),
         ]),
         h('under-left', [

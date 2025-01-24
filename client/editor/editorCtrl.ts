@@ -13,6 +13,8 @@ import { ChessgroundController } from '@/cgCtrl';
 import { copyTextToClipboard } from '@/clipboard';
 import { initPieceRow } from './pieceRow';
 import { setPocketRowCssVars } from '@/pocketRow';
+import { AliceMirrorSettings } from './editorSettings';
+
 
 export class EditorController extends ChessgroundController {
     model: PyChessModel;
@@ -24,14 +26,19 @@ export class EditorController extends ChessgroundController {
     vfen: VNode;
     vAnalysis: VNode;
     vChallenge: VNode;
+    aliceMirror: boolean;
 
     constructor(el: HTMLElement, model: PyChessModel) {
         super(el, model, model.fen, document.getElementById('pocket0') as HTMLElement, document.getElementById('pocket1') as HTMLElement, '');
         this.model = model;
         this.startfen = model["fen"] as string;
+        console.log("startfen", this.startfen);
 
         this.parts = this.startfen.split(" ");
         this.castling = this.parts.length > 2 ? this.parts[2] : '';
+
+        // is aliceMirror on? (the switch)
+        this.aliceMirror = localStorage.aliceMirror === undefined ? false : localStorage.aliceMirror === "true";
 
         this.chessground.set({
             autoCastle: false,
@@ -157,6 +164,10 @@ export class EditorController extends ChessgroundController {
                     h('div.icon.icon-clipboard', _('COPY FEN TO CLIPBOARD'))
                 ]),
             ];
+            if (this.variant.name === 'alice') {
+                const aliceMirrorSettings = new AliceMirrorSettings(this);
+                buttons.push(aliceMirrorSettings.view());
+            }
             patch(container, h('div.editor-button-container', buttons));
         }
     }
@@ -216,7 +227,10 @@ export class EditorController extends ChessgroundController {
         const fen = (document.getElementById('fen') as HTMLInputElement).value;
         const valid = validFen(this.variant, fen);
         const ff = this.ffish.validateFen(fen, this.variant.name);
-        const ffValid = (ff === 1) || (this.variant.rules.gate && ff === -5) || (this.variant.rules.duck && ff === -10);
+        const ffValid = (ff === 1) || 
+            (this.variant.rules.gate && ff === -5) || 
+            (this.variant.rules.duck && ff === -10) || 
+            (this.variant.name === 'alice' && ff === -11);
         return valid && ffValid;
     }
 
@@ -333,9 +347,10 @@ export class EditorController extends ChessgroundController {
         let lastTime = performance.now();
         let lastKey: cg.Key | undefined;
         return (key: cg.Key) => {
+            const piece = this.chessground.state.boardState.pieces.get(key);
             const curTime = performance.now();
-            if (lastKey === key && curTime - lastTime < 500) {
-                const piece = this.chessground.state.boardState.pieces.get(key);
+            // Check double click (promote/unpromote)
+            if ((lastKey === key && curTime - lastTime < 500)) {
                 if (piece) {
                     const newColor = this.variant.pocket?.captureToHand ? util.opposite(piece.color) : piece.color;
                     let newPiece: cg.Piece;
@@ -367,13 +382,21 @@ export class EditorController extends ChessgroundController {
                 }
                 lastKey = undefined;
             } else {
+                const aliceMirrorOn = (this.variant.name === 'alice' && this.aliceMirror);
+                if (aliceMirrorOn && piece) {
+                    this.movePieceToTheOtherBoard(key);
+                    const e = document.getElementById('fen') as HTMLInputElement;
+                    e.value = this.fullfen;
+                    this.onChangeFen();
+                }
+
                 lastKey = key;
                 lastTime = curTime;
             }
         }
     }
 
-    private dropOnPocket = (): void => {
+    private dropOnPocket = () => {
         const dragCurrent = this.chessground.state.draggable.current;
         if (dragCurrent) {
             const el = document.elementFromPoint(dragCurrent.pos[0], dragCurrent.pos[1]);
@@ -385,6 +408,36 @@ export class EditorController extends ChessgroundController {
                 const color = el?.getAttribute('data-color') as cg.Color;
                 this.chessground.changePocket({ role, color }, 1);
                 this.onChangeBoard();
+            }
+        }
+    }
+
+    private movePieceToTheOtherBoard = (key: cg.Key) => {
+        const files = "abcdefgh";
+        const fenParts = this.fullfen.split(" ");
+        const placement = fenParts[0].split('/');
+        const rank = 8 - parseInt(key[1]);
+        let part = placement[rank];
+        let file_idx = 0;
+        let part_idx = 0;
+        for (const c of part) {
+            if (c >= '1' && c <= '8') {
+                file_idx += parseInt(c);
+                part_idx += 1;
+            } else {
+                if (files[file_idx] === key[0]) {
+                    if (part[part_idx] === '|') {
+                        placement[rank] = part.slice(0, part_idx) + part.slice(part_idx + 1);
+                    } else {
+                        placement[rank] = part.slice(0, part_idx) + '|' + part.slice(part_idx);
+                    }
+                    fenParts[0] = placement.join('/');
+                    this.fullfen = fenParts.join(' ');
+                    break;
+                } else {
+                    if (c !== '|') file_idx += 1;
+                    part_idx += 1;
+                }
             }
         }
     }

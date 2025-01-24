@@ -5,9 +5,9 @@ import random
 import unittest
 
 from aiohttp.test_utils import AioHTTPTestCase
+from mongomock_motor import AsyncMongoMockClient
 
 import game
-from const import VARIANTS
 from game import Game
 from glicko2.glicko2 import DEFAULT_PERF
 from seek import Seek
@@ -16,12 +16,15 @@ from user import User
 from utils import join_seek
 from pychess_global_app_state_utils import get_app_state
 from newid import id8
+from logger import handler
+from variants import VARIANTS
 
 game.KEEP_TIME = 0
 game.MAX_PLY = 120
 
 logging.basicConfig()
 logging.getLogger().setLevel(level=logging.ERROR)
+logging.getLogger().removeHandler(handler)
 
 PERFS = {
     "newplayer": {variant: DEFAULT_PERF for variant in VARIANTS},
@@ -34,7 +37,7 @@ class RamatchChess960GameTestCase(AioHTTPTestCase):
         self.Bplayer = User(get_app_state(self.app), username="Bplayer", perfs=PERFS["newplayer"])
 
     async def get_application(self):
-        app = make_app()
+        app = make_app(db_client=AsyncMongoMockClient())
         app.on_startup.append(self.startup)
         return app
 
@@ -66,7 +69,7 @@ class RamatchChess960GameTestCase(AioHTTPTestCase):
         )
         app_state.seeks[seek.id] = seek
 
-        response = await join_seek(get_app_state(self.app), rematch_accepted_by, seek.id)
+        response = await join_seek(get_app_state(self.app), rematch_accepted_by, seek)
         rematch_id = response["gameId"]
 
         game_even = app_state.games[rematch_id]
@@ -95,7 +98,7 @@ class RamatchChess960GameTestCase(AioHTTPTestCase):
         )
         app_state.seeks[seek.id] = seek
 
-        response = await join_seek(app_state, rematch_accepted_by, seek.id)
+        response = await join_seek(app_state, rematch_accepted_by, seek)
         rematch_id = response["gameId"]
 
         game_odd = app_state.games[rematch_id]

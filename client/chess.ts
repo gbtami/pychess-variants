@@ -6,7 +6,6 @@ import { Variant, variantGroups } from './variants';
 
 export const WHITE = 0;
 export const BLACK = 1;
-export const DARK_FEN = "*~*~*~*~*~*~*~*~/*~*~*~*~*~*~*~*~/*~*~*~*~*~*~*~*~/*~*~*~*~*~*~*~*~/*~*~*~*~*~*~*~*~/*~*~*~*~*~*~*~*~/*~*~*~*~*~*~*~*~/*~*~*~*~*~*~*~*~ w KQkq - 0 1"
 
 export const ranksUCI = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'] as const;
 export type UCIRank = typeof ranksUCI[number];
@@ -84,6 +83,8 @@ export function validFen(variant: Variant, fen: string): boolean {
         if (Object.keys(as).some((key) => {return as[key].includes(fen);})) return true;
     }
     const variantName = variant.name;
+    if (variantName === 'alice') return true;
+
     const startfen = variant.startFen;
     const start = startfen.split(' ');
     // console.log(start);

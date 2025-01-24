@@ -164,7 +164,7 @@ class BoardSettings {
         settingsList.push(this.settings["materialDifference"].view());
 
         if (variantName === modelVariant)
-            if (variantName === 'bughouse') {
+            if (variant.twoBoards) {
                 settingsList.push(this.getSettings("Zoom", boardFamily as string, 'a').view());
                 settingsList.push(this.getSettings("Zoom", boardFamily as string, 'b').view());
             } else {

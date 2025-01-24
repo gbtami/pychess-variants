@@ -1,5 +1,4 @@
 from __future__ import annotations
-import logging
 from datetime import datetime
 
 import aiohttp
@@ -14,13 +13,12 @@ from settings import (
     DEV,
     LICHESS_API_TOKEN,
 )
+from logger import log
 
 # POST
 # Responses:
 # 200: {"ok": true}
 # 400: {"error": "This request is invalid because [...]"}
-
-log = logging.getLogger(__name__)
 
 
 async def lichess_team_msg(app_state: PychessGlobalAppState):

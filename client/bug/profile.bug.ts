@@ -6,7 +6,7 @@ import { Game } from "@/profile";
 import * as cg from "chessgroundx/types";
 
 export function renderGameBoardsBug(game: Game, username: string): VNode[] {
-    const variant = VARIANTS['bughouse'];
+    const variant = VARIANTS[game.v];
     const [fenA, fenB] = game["f"].split(" | ");
     const orientation = determineOrientation(game, username);
     return [

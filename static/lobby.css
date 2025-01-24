@@ -134,11 +134,18 @@ div.rating-range .slider {
   padding: .6em 0;
   margin: 0;
 }
-div.tc-block, div#rating-range-setting {
-    padding: 1em;
-    background: var(--bg-color2);
-    border-top: 1px solid var(--border-color);
-    border-bottom: 1px solid var(--border-color);
+div.tc-block, div#rating-range-setting, div.timecontrols {
+  padding: 1em;
+  background: var(--bg-color2);
+  border-top: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color);
+}
+div.timecontrols {
+  padding: 1em 0 1em 0;
+}
+div.auto-rating-range {
+  display: flex;
+  padding: 8px;
 }
 .rating-range {
   justify-content: center;
@@ -146,7 +153,59 @@ div.tc-block, div#rating-range-setting {
   flex-flow: row nowrap;
   align-items: center;
 }
-.rating-range .rating-min, .rating-range .rating-max {
-    font-weight: inherit;
-    flex: 0 0 7ch;
+.auto-rating-min, .rating-min, .auto-rating-max, .rating-max {
+    font-weight: normal;
+    padding: 0 1ch 0 1ch;
+    width: 7ch;
+}
+div.auto-pairing {
+  display: grid;
+  grid-gap: 3px;
+}
+div.auto-pairing div.variants {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+}
+input {
+  margin-inline-end: .3em;
+}
+div.auto-pairing-actions {
+  margin: 1em;
+  text-align: center;
+}
+button.submit, button.cancel, button.reset, button.selectall {
+  border-radius: 6px;
+  padding: .8em 1em;
+}
+button.submit {
+  color: White;
+  background: var(--good);
+  font-weight: 600;
+}
+button.cancel {
+  color: White;
+  background: var(--bad);
+  font-weight: 600;
+}
+.standingby {
+   animation: blink 1.5s infinite;
+   animation-fill-mode: both;
+}
+@keyframes blink {
+   0% { opacity: 0 }
+   50% { opacity: 1 }
+   100% { opacity: 0 }
+}
+button.reset {
+  color: var(--bad);
+  border: none;
+  background: none;
+}
+button.selectall {
+  color: var(--good);
+  border: none;
+  background: none;
+}
+button [class*=' icon-']::before {
+  margin-inline-end: 0.4em;
 }

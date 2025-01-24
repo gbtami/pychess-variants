@@ -4,7 +4,7 @@ import AnalysisControllerBughouse from './analysisCtrl.bug';
 import { result } from '../result'
 import { patch } from '../document';
 import { RoundControllerBughouse } from "./roundCtrl.bug";
-import { Step } from "../messages";
+import {Step, StepChat} from "../messages";
 
 export function selectMove (ctrl: AnalysisControllerBughouse | RoundControllerBughouse, ply: number, plyVari = 0): void {
     let plyMax = ctrl.steps.length - 1;
@@ -97,21 +97,12 @@ export function updateMovelist (ctrl: AnalysisControllerBughouse | RoundControll
     const moves: VNode[] = [];
     const prevPly = ctrl.steps[plyFrom-1];
     let lastColIdx = plyFrom ===1? 0: prevPly.boardName === 'a'? prevPly.turnColor === 'white'/*black made the move*/? 2: 1: prevPly.turnColor === 'white'/*black made the move*/? 4: 3;
-    let plyA: number = 0;
-    let plyB: number = 0;
     let didWeRenderVariSectionAfterLastMove = false;
     let didWeRenderChatSectionAfterLastMove = false;
-
-    // in round mode we only call this for last move, so we need to reconstruct actual per-board ply from history
-    for (let ply = 1; ply < plyFrom; ply++) {
-        ctrl.steps[ply].boardName === 'a'? plyA++ : plyB++;
-    }
 
     for (let ply = plyFrom; ply < plyTo; ply++) {
         const move = ctrl.steps[ply].san;
         if (move === null) continue;
-
-        ctrl.steps[ply].boardName === 'a'? plyA++ : plyB++;
 
         const colIdx = ctrl.steps[ply].boardName === 'a'? ctrl.steps[ply].turnColor === 'black'/*meaning move was made by white and now black's turn*/? 1 : 2 : ctrl.steps[ply].turnColor === 'black'? 3 : 4 ;
 
@@ -139,10 +130,7 @@ export function updateMovelist (ctrl: AnalysisControllerBughouse | RoundControll
         if (ctrl.steps[ply].chat) {
             const chatMessages: VNode[] = [];
             for (let x of ctrl.steps[ply].chat!) {
-                const min = Math.floor(x.time/60000);
-                const sec = Math.floor((x.time - min*60000)/1000);
-                const millis = x.time - min*60000 - sec*1000;
-                const time = min+":"+(sec.toString().padStart(2, '0'))+"."+(millis.toString().padStart(3, '0'));
+                const time = formatChatMessageTime(x)
                 const m = x.message.replace('!bug!','');
                 const v = h("li.message",
                     [h("div.time", time), h("user", h("a", { attrs: {href: "/@/" + x.username} }, x.username)),
@@ -157,7 +145,7 @@ export function updateMovelist (ctrl: AnalysisControllerBughouse | RoundControll
             didWeRenderChatSectionAfterLastMove = true;
         }
 
-        moves.push(h('move-bug.counter',  Math.floor(ctrl.steps[ply].boardName === 'a'? (plyA + 1) / 2 : (plyB + 1) / 2 ) ) );
+        moves.push(h('move-bug.counter',  getLocalMoveNum(ctrl.steps[ply])));
 
         const el = h('move-bug', {
             class: { active: ((ply === plyTo - 1) && activate), haschat: !!ctrl.steps[ply].chat },
@@ -173,8 +161,8 @@ export function updateMovelist (ctrl: AnalysisControllerBughouse | RoundControll
 
             // if (ply % 2 !== 0) moves.push(h('move-bug', '...'));
 
-            let plyAVari = plyA;
-            let plyBVari = plyB;
+            let plyAVari = ctrl.steps[ply].plyA!;
+            let plyBVari = ctrl.steps[ply].plyB!;
 
             moves.push(h('vari#vari' + ctrl.plyVari,
                 variMoves?
@@ -220,11 +208,23 @@ export function updateMovelist (ctrl: AnalysisControllerBughouse | RoundControll
     }
 }
 
+export function getLocalMoveNum(step: Step) {
+    return Math.floor(step.boardName === 'a'? (step.plyA! + 1) / 2 : (step.plyB! + 1) / 2 );
+}
+
+export function formatChatMessageTime(x: StepChat) {
+    const min = Math.floor(x.time/60000);
+    const sec = Math.floor((x.time - min*60000)/1000);
+    const millis = x.time - min*60000 - sec*1000;
+    const time = min+":"+(sec.toString().padStart(2, '0'))+"."+(millis.toString().padStart(3, '0'));
+    return time;
+}
+
 export function updateResult (ctrl: AnalysisControllerBughouse | RoundControllerBughouse) {
     if (ctrl.status < 0) return;
 
     // Prevent to render it twice
-    const resultEl = document.getElementById('result') as HTMLElement;
+    const resultEl = document.querySelector('.result');
     if (resultEl) return;
 
     const container = document.getElementById('movelist') as HTMLElement;

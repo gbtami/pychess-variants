@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import asyncio
 import json
-import logging
 
 from const import TYPE_CHECKING
 
@@ -16,11 +15,11 @@ from aiohttp_sse import sse_response
 
 from broadcast import round_broadcast
 from const import (
+    DARK_FEN,
     NOTIFY_PAGE_SIZE,
     STARTED,
     VARIANT_960_TO_PGN,
     INVALIDMOVE,
-    GRANDS,
     UNKNOWNFINISH,
     CASUAL,
     RATED,
@@ -28,9 +27,18 @@ from const import (
     MANCHU_FEN,
     T_STARTED,
 )
-from compress import get_decode_method, get_encode_method, R2C, C2R, V2C, C2V
+from compress import R2C, C2R
 from convert import mirror5, mirror9, grand2zero, zero2grand
-from fairy import BLACK, WHITE, STANDARD_FEN, FairyBoard
+from fairy import (
+    BLACK,
+    WHITE,
+    STANDARD_FEN,
+    FairyBoard,
+    FEN_OK,
+    NOTATION_SAN,
+    get_san_moves,
+    validate_fen,
+)
 from game import Game
 from newid import new_id
 from user import User
@@ -40,15 +48,8 @@ from valid_fen import VALID_FEN
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
 from pychess_global_app_state_utils import get_app_state
-
-log = logging.getLogger(__name__)
-
-try:
-    import pyffish as sf
-
-    sf.set_option("VariantPath", "variants.ini")
-except ImportError:
-    log.error("No pyffish module installed!", exc_info=True)
+from logger import log
+from variants import TWO_BOARD_VARIANT_CODES, C2V, GRANDS, get_server_variant
 
 
 async def tv_game(app_state: PychessGlobalAppState):
@@ -81,6 +82,7 @@ async def load_game(app_state: PychessGlobalAppState, game_id):
     if game_id in app_state.games:
         return app_state.games[game_id]
 
+    # log.debug("load_game() %s from db ", game_id)
     doc = await app_state.db.game.find_one({"_id": game_id})
 
     if doc is None:
@@ -88,11 +90,12 @@ async def load_game(app_state: PychessGlobalAppState, game_id):
 
     variant = C2V[doc["v"]]
 
-    if variant == "bughouse":
+    if doc["v"] in TWO_BOARD_VARIANT_CODES:
         from bug.utils_bug import load_game_bug
 
         return await load_game_bug(app_state, game_id)
 
+    # log.debug("load_game() parse START")
     wp, bp = doc["us"]
 
     wplayer = await app_state.users.get(wp)
@@ -141,7 +144,7 @@ async def load_game(app_state: PychessGlobalAppState, game_id):
 
     game.usi_format = usi_format
 
-    decode_method = get_decode_method(variant)
+    decode_method = game.server_variant.move_decoding
     mlist = [*map(decode_method, doc["m"])]
 
     if (mlist or game.tournamentId is not None) and doc["s"] > STARTED:
@@ -215,8 +218,18 @@ async def load_game(app_state: PychessGlobalAppState, game_id):
         game.lastmove = mlist[-1]
         game.mct = doc.get("mct")
 
+    if game.has_crosstable:
+        doc = await app_state.db.crosstable.find_one({"_id": game.ct_id})
+        if doc is not None:
+            game.crosstable = doc
+
     game.loaded_at = datetime.now(timezone.utc)
 
+    app_state.games[game_id] = game
+    if game.status > STARTED:
+        asyncio.create_task(app_state.remove_from_cache(game), name="game-remove-%s" % game_id)
+
+    # log.debug("load_game() parse DONE")
     return game
 
 
@@ -228,8 +241,8 @@ async def import_game(request):
     # print(data)
     # print("-----------------")
 
-    wp = data["White"]
-    bp = data["Black"]
+    wp = data.get("White", "White")
+    bp = data.get("Black", "Black")
 
     try:
         wplayer = await app_state.users.get(wp)
@@ -281,7 +294,7 @@ async def import_game(request):
         base, inc = 0, 0
 
     move_stack = data.get("moves", "").split(" ")
-    encode_method = get_encode_method(variant)
+    encode_method = get_server_variant(variant, chess960).move_encoding
     moves = [*map(encode_method, map(grand2zero, move_stack) if variant in GRANDS else move_stack)]
 
     game_id = await new_id(None if app_state.db is None else app_state.db.game)
@@ -312,7 +325,7 @@ async def import_game(request):
     document = {
         "_id": game_id,
         "us": [wplayer.username, bplayer.username],
-        "v": V2C[variant],
+        "v": new_game.server_variant.code,
         "b": base,
         "i": inc,
         "bp": new_game.byoyomi_period,
@@ -347,46 +360,43 @@ async def import_game(request):
     return web.json_response({"gameId": game_id})
 
 
-async def join_seek(app_state: PychessGlobalAppState, user, seek_id, game_id=None, join_as="any"):
-    seek = app_state.seeks[seek_id]
+async def join_seek(app_state: PychessGlobalAppState, user, seek, game_id=None, join_as="any"):
     log.info(
         "+++ Seek %s joined by %s FEN:%s 960:%s",
-        seek_id,
+        seek.id,
         user.username,
         seek.fen,
         seek.chess960,
     )
 
     if user is seek.player1 or user is seek.player2:
-        return {"type": "seek_yourself", "seekID": seek_id}
+        return {"type": "seek_yourself", "seekID": seek.id}
 
     if join_as == "player1":
         if seek.player1 is None:
             seek.player1 = user
         else:
-            return {"type": "seek_occupied", "seekID": seek_id}
+            return {"type": "seek_occupied", "seekID": seek.id}
     elif join_as == "player2":
         if seek.player2 is None:
             seek.player2 = user
         else:
-            return {"type": "seek_occupied", "seekID": seek_id}
+            return {"type": "seek_occupied", "seekID": seek.id}
     else:
         if seek.player1 is None:
             seek.player1 = user
         elif seek.player2 is None:
             seek.player2 = user
         else:
-            return {"type": "seek_occupied", "seekID": seek_id}
+            return {"type": "seek_occupied", "seekID": seek.id}
 
     if seek.player1 is not None and seek.player2 is not None:
-        return await new_game(app_state, seek_id, game_id)
+        return await new_game(app_state, seek, game_id)
     else:
-        return {"type": "seek_joined", "seekID": seek_id}
+        return {"type": "seek_joined", "seekID": seek.id}
 
 
-async def new_game(app_state: PychessGlobalAppState, seek_id, game_id=None):
-    seek = app_state.seeks[seek_id]
-
+async def new_game(app_state: PychessGlobalAppState, seek, game_id=None):
     fen_valid = True
     if seek.fen:
         fen_valid, sanitized_fen = sanitize_fen(seek.variant, seek.fen, seek.chess960)
@@ -450,6 +460,11 @@ async def new_game(app_state: PychessGlobalAppState, seek_id, game_id=None):
         game.wplayer.correspondence_games.append(game)
         game.bplayer.correspondence_games.append(game)
 
+    if game.has_crosstable:
+        doc = await app_state.db.crosstable.find_one({"_id": game.ct_id})
+        if doc is not None:
+            game.crosstable = doc
+
     return {
         "type": "new_game",
         "gameId": game_id,
@@ -468,7 +483,7 @@ async def insert_game_to_db(game, app_state: PychessGlobalAppState):
         "us": [game.wplayer.username, game.bplayer.username],
         "p0": {"e": game.wrating},
         "p1": {"e": game.brating},
-        "v": V2C[game.variant],
+        "v": game.server_variant.code,
         "b": game.base,
         "i": game.inc,
         "bp": game.byoyomi_period,
@@ -557,6 +572,7 @@ async def play_move(app_state: PychessGlobalAppState, user, game, move, clocks=N
     gameId = game.id
     users = app_state.users
     invalid_move = False
+    play_color = game.board.color
     # log.info("%s move %s %s %s - %s" % (user.username, move, gameId, game.wplayer.username, game.bplayer.username))
 
     if game.status <= STARTED:
@@ -591,7 +607,7 @@ async def play_move(app_state: PychessGlobalAppState, user, game, move, clocks=N
         return
 
     if not invalid_move:
-        board_response = game.get_board(full=game.board.ply == 1)
+        board_response = game.get_board(full=game.board.ply == 1, persp_color=play_color)
 
         if not user.bot:
             await user.send_game_message(gameId, board_response)
@@ -602,6 +618,11 @@ async def play_move(app_state: PychessGlobalAppState, user, game, move, clocks=N
     opp_name = (
         game.wplayer.username if user.username == game.bplayer.username else game.bplayer.username
     )
+
+    # FEN sent to opp player is different in fogofwar games!
+    if game.fow:
+        board_response = game.get_board(full=game.board.ply == 1, persp_color=1 - play_color)
+
     if users[opp_name].bot:
         if game.status > STARTED:
             await users[opp_name].game_queues[gameId].put(game.game_end)
@@ -621,6 +642,10 @@ async def play_move(app_state: PychessGlobalAppState, user, game, move, clocks=N
             await users[opp_name].send_game_message(gameId, response)
 
     if not invalid_move:
+        # FEN sent to visitors is different in fogofwar games!
+        if game.fow:
+            board_response = game.get_board(full=game.board.ply == 1, persp_color=None)
+
         await round_broadcast(game, board_response, channels=app_state.game_channels)
 
         if game.tournamentId is not None:
@@ -638,12 +663,12 @@ async def play_move(app_state: PychessGlobalAppState, user, game, move, clocks=N
 
 def pgn(doc):
     variant = C2V[doc["v"]]
-    decode_method = get_decode_method(variant)
+    chess960 = bool(int(doc.get("z"))) if "z" in doc else False
+
+    decode_method = get_server_variant(variant, chess960).move_decoding
     mlist = [*map(decode_method, doc["m"])]
     if len(mlist) == 0:
         return None
-
-    chess960 = bool(int(doc.get("z"))) if "z" in doc else False
 
     initial_fen = doc.get("if")
     usi_format = variant.endswith("shogi") and doc.get("uci") is None
@@ -676,13 +701,13 @@ def pgn(doc):
     fen = initial_fen if initial_fen is not None else FairyBoard.start_fen(variant)
     # print(variant, fen, mlist)
     try:
-        mlist = sf.get_san_moves(variant, fen, mlist, chess960, sf.NOTATION_SAN)
-    except Exception as e:
-        log.error(e, exc_info=True)
+        mlist = get_san_moves(variant, fen, mlist, chess960, NOTATION_SAN)
+    except Exception:
+        log.error("%s %s %s movelist contains invalid move", doc["_id"], variant, doc["d"])
         try:
-            mlist = sf.get_san_moves(variant, fen, mlist[:-1], chess960, sf.NOTATION_SAN)
+            mlist = get_san_moves(variant, fen, mlist[:-1], chess960, NOTATION_SAN)
         except Exception:
-            log.exception("%s %s %s movelist contains invalid move", doc["_id"], variant, doc["d"])
+            log.error("%s %s %s movelist contains invalid move", doc["_id"], variant, doc["d"])
             mlist = mlist[0]
 
     moves = " ".join(
@@ -714,22 +739,26 @@ def pgn(doc):
     )
 
 
-def sanitize_fen(variant, initial_fen, chess960):
-
-    if variant == "bughouse":
+def sanitize_fen(variant, initial_fen, chess960, base=False):
+    server_variant = get_server_variant(variant, chess960)
+    if server_variant.two_boards and not base:
         fens = initial_fen.split(" | ")
         fen_a = fens[0]
         fen_b = fens[1]
-        fen_valid_a, sanitized_fen_a = sanitize_fen("crazyhouse", fen_a, chess960)
-        fen_valid_b, sanitized_fen_b = sanitize_fen("crazyhouse", fen_b, chess960)
+        fen_valid_a, sanitized_fen_a = sanitize_fen(
+            server_variant.base_variant, fen_a, chess960, base=True
+        )
+        fen_valid_b, sanitized_fen_b = sanitize_fen(
+            server_variant.base_variant, fen_b, chess960, base=True
+        )
         return fen_valid_a and fen_valid_b, sanitized_fen_a + " | " + sanitized_fen_b
 
     # Prevent alternate FENs to fail on our general castling check
     if variant in VALID_FEN and initial_fen in VALID_FEN[variant]:
         return True, initial_fen
 
-    sf_validate = sf.validate_fen(initial_fen, variant, chess960)
-    if sf_validate != sf.FEN_OK and variant != "duck":
+    sf_validate = validate_fen(initial_fen, variant, chess960)
+    if sf_validate != FEN_OK and variant != "duck":
         return False, ""
 
     # Initial_fen needs validation to prevent segfaulting in pyffish
@@ -895,7 +924,7 @@ async def get_notifications(request):
     if session_user is None:
         return web.json_response({})
 
-    user = app_state.users[session_user]
+    user = await app_state.users.get(session_user)
 
     if user.notifications is None:
         cursor = app_state.db.notify.find({"notifies": session_user})
@@ -954,8 +983,8 @@ def corr_games(games):
         {
             "gameId": game.id,
             "variant": game.variant,
-            "fen": game.board.fen,
-            "lastMove": game.lastmove,
+            "fen": DARK_FEN if game.variant == "fogofwar" else game.board.fen,
+            "lastMove": "" if game.variant == "fogofwar" else game.lastmove,
             "tp": game.turn_player,
             "w": game.wplayer.username,
             "wTitle": game.wplayer.title,

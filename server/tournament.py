@@ -1,10 +1,11 @@
 from __future__ import annotations
 import asyncio
 import collections
-import logging
 import random
+import traceback
 from abc import ABC, abstractmethod
 from datetime import datetime, timedelta, timezone
+from functools import cache
 from operator import neg
 from typing import ClassVar, Deque, Tuple, Set
 
@@ -17,6 +18,7 @@ from compress import R2C
 from const import (
     ABORTED,
     CASUAL,
+    DARK_FEN,
     RATED,
     CREATED,
     STARTED,
@@ -31,7 +33,6 @@ from const import (
     T_FINISHED,
     T_ARCHIVED,
     SHIELD,
-    variant_display_name,
     MAX_CHAT_LINES,
 )
 from game import Game
@@ -48,8 +49,9 @@ from spectators import spectators
 from tournament_spotlights import tournament_spotlights
 from user import User
 from utils import insert_game_to_db
+from logger import log
+from variants import get_server_variant
 
-log = logging.getLogger(__name__)
 
 SCORE, STREAK, DOUBLE = range(1, 4)
 
@@ -93,6 +95,8 @@ class PlayerData:
 
     __slots__ = (
         "id",
+        "title",
+        "username",
         "rating",
         "provisional",
         "free",
@@ -111,8 +115,10 @@ class PlayerData:
         "page",
     )
 
-    def __init__(self, rating: int, provisional: str):
-        self.id = None
+    def __init__(self, title: str, username: str, rating: int, provisional: str):
+        self.id = None  # db.tournament_player._id will be generated when user firt joins
+        self.title = title
+        self.username = username
         self.rating = rating
         self.provisional = provisional
         self.free = True
@@ -132,6 +138,23 @@ class PlayerData:
 
     def __str__(self):
         return (" ").join(self.points)
+
+
+@cache
+def player_json(player, full_score):
+    return {
+        "paused": player.paused,
+        "title": player.title,
+        "name": player.username,
+        "rating": player.rating,
+        "points": player.points,
+        "fire": player.win_streak,
+        "score": full_score,  # SCORE_SHIFT-ed + performance rating
+        "perf": player.performance,
+        "nbGames": player.nb_games,
+        "nbWin": player.nb_win,
+        "nbBerserk": player.nb_berserk,
+    }
 
 
 class GameData:
@@ -232,6 +255,8 @@ class Tournament(ABC):
         self.rounds = rounds
         self.frequency = frequency
 
+        self.server_variant = get_server_variant(variant, chess960)
+
         self.created_by = created_by
         self.created_at = datetime.now(timezone.utc) if created_at is None else created_at
         if starts_at == "" or starts_at is None:
@@ -261,12 +286,9 @@ class Tournament(ABC):
         self.draw = 0
         self.nb_berserk = 0
 
-        self.nb_games_cached = -1
-        self.leaderboard_cache: dict[int, dict] = {}
-
         self.first_pairing = False
-        self.top_player = None
         self.top_game = None
+        self.top_game_max_rank = -1
 
         self.notify1 = False
         self.notify2 = False
@@ -277,10 +299,10 @@ class Tournament(ABC):
             self.ends_at = self.starts_at + timedelta(minutes=minutes)
 
         if with_clock:
-            self.clock_task = asyncio.create_task(self.clock())
+            self.clock_task = asyncio.create_task(self.clock(), name="tournament-clock")
 
         self.browser_title = "%s Tournament • %s" % (
-            variant_display_name(self.variant),
+            self.server_variant.display_name,
             self.name,
         )
 
@@ -319,37 +341,6 @@ class Tournament(ABC):
         if page is None:
             page = 1
 
-        if self.nb_games_cached != self.nb_games_finished:
-            # number of games changed (game ended)
-            self.leaderboard_cache = {}
-            self.nb_games_cached = self.nb_games_finished
-        elif user is not None:
-            if self.status == T_STARTED:
-                # player status changed (JOIN/PAUSE)
-                if page in self.leaderboard_cache:
-                    del self.leaderboard_cache[page]
-            elif self.status == T_CREATED:
-                # number of players changed (JOIN/WITHDRAW)
-                self.leaderboard_cache = {}
-
-        if page in self.leaderboard_cache:
-            return self.leaderboard_cache[page]
-
-        def player_json(player, full_score):
-            return {
-                "paused": self.players[player].paused if self.status == T_STARTED else False,
-                "title": player.title,
-                "name": player.username,
-                "rating": self.players[player].rating,
-                "points": self.players[player].points,
-                "fire": self.players[player].win_streak,
-                "score": full_score,  # SCORE_SHIFT-ed + performance rating
-                "perf": self.players[player].performance,
-                "nbGames": self.players[player].nb_games,
-                "nbWin": self.players[player].nb_win,
-                "nbBerserk": self.players[player].nb_berserk,
-            }
-
         start = (page - 1) * 10
         end = min(start + 10, self.nb_players)
 
@@ -360,18 +351,17 @@ class Tournament(ABC):
             "nbGames": self.nb_games_finished,
             "page": page,
             "players": [
-                player_json(player, full_score)
+                player_json(self.players[player], full_score)
                 for player, full_score in self.leaderboard.items()[start:end]
             ],
         }
 
         if self.status > T_STARTED:
             page_json["podium"] = [
-                player_json(player, full_score)
+                player_json(self.players[player], full_score)
                 for player, full_score in self.leaderboard.items()[0:3]
             ]
 
-        self.leaderboard_cache[page] = page_json
         return page_json
 
     # TODO: cache this
@@ -399,7 +389,7 @@ class Tournament(ABC):
             "type": "top_game",
             "gameId": self.top_game.id,
             "variant": self.top_game.variant,
-            "fen": self.top_game.board.fen,
+            "fen": DARK_FEN if self.top_game.fow else self.top_game.board.fen,
             "w": self.top_game.wplayer.username,
             "b": self.top_game.bplayer.username,
             "wr": self.leaderboard_keys_view.index(self.top_game.wplayer) + 1,
@@ -408,7 +398,7 @@ class Tournament(ABC):
             "base": self.top_game.base,
             "inc": self.top_game.inc,
             "byoyomi": self.top_game.byoyomi_period,
-            "lastMove": self.top_game.lastmove,
+            "lastMove": "" if self.top_game.fow else self.top_game.lastmove,
         }
 
     def waiting_players(self):
@@ -457,7 +447,9 @@ class Tournament(ABC):
                             "notify_tournament",
                             self.notify_discord_msg(remaining_mins_to_start),
                         )
-                        asyncio.create_task(lichess_team_msg(self.app_state))
+                        asyncio.create_task(
+                            lichess_team_msg(self.app_state), name="t-lichess-team-msg"
+                        )
                         continue
 
                 elif (self.minutes is not None) and now >= self.ends_at:
@@ -503,14 +495,13 @@ class Tournament(ABC):
                         )
 
                 await asyncio.sleep(1)
-        except Exception:
-            log.exception("Exception in tournament clock()")
+        except Exception as exc:
+            log.critical("".join(traceback.format_exception(exc)))
 
     async def start(self, now):
         self.status = T_STARTED
 
         self.first_pairing = True
-        self.set_top_player()
 
         response = {
             "type": "tstatus",
@@ -559,6 +550,8 @@ class Tournament(ABC):
             for i in range(min(3, len(self.leaderboard))):
                 player = self.leaderboard.peekitem(i)[0]
                 print("--- #%s ---" % (i + 1), player.username)
+            print("--- CACHE INFO ---")
+            print(player_json.cache_info())
 
         # remove latest games from players tournament if it was not finished in time
         for player in self.players:
@@ -569,9 +562,6 @@ class Tournament(ABC):
                 self.players[player].games.pop()
                 self.players[player].points.pop()
                 self.players[player].nb_games -= 1
-
-        # force to create new players json data
-        self.nb_games_cached = -1
 
         await self.broadcast(self.summary)
         await self.save()
@@ -599,7 +589,7 @@ class Tournament(ABC):
         if user not in self.players:
             # new player joined
             rating, provisional = user.get_rating(self.variant, self.chess960).rating_prov
-            self.players[user] = PlayerData(rating, provisional)
+            self.players[user] = PlayerData(user.title, user.username, rating, provisional)
         elif self.players[user].withdrawn:
             # withdrawn player joined again
             rating, provisional = user.get_rating(self.variant, self.chess960).rating_prov
@@ -643,9 +633,6 @@ class Tournament(ABC):
         response = self.players_json(user=user)
         await self.broadcast(response)
 
-        if (self.top_player is not None) and self.top_player.username == user.username:
-            self.set_top_player()
-
         await self.db_update_player(user, self.players[user])
 
     def spactator_join(self, spectator):
@@ -669,25 +656,12 @@ class Tournament(ABC):
         games = await self.create_games(pairing)
 
         # save pairings to db
-        asyncio.create_task(self.db_insert_pairing(games))
+        asyncio.create_task(self.db_insert_pairing(games), name="t-insert-pairings")
 
         return (pairing, games)
 
-    def set_top_player(self):
-        idx = 0
-        self.top_player = None
-        while idx < self.nb_players:
-            top_player = self.leaderboard.peekitem(idx)[0]
-            if self.players[top_player].paused:
-                idx += 1
-                continue
-            else:
-                self.top_player = top_player
-                break
-
     async def create_games(self, pairing):
-        check_top_game = self.top_player is not None
-        new_top_game = False
+        is_new_top_game = False
 
         games = []
         game_table = None if self.app_state.db is None else self.app_state.db.game
@@ -707,6 +681,11 @@ class Tournament(ABC):
                 tournamentId=self.id,
                 chess960=self.chess960,
             )
+
+            if game.has_crosstable:
+                doc = await self.app_state.db.crosstable.find_one({"_id": game.ct_id})
+                if doc is not None:
+                    game.crosstable = doc
 
             games.append(game)
             self.app_state.games[game_id] = game
@@ -745,43 +724,38 @@ class Tournament(ABC):
                 "bplayer": bp.username,
             }
 
-            ws_ok = True
-            try:
-                ws = next(iter(wp.tournament_sockets[self.id]))
-            except StopIteration:
-                ws_ok = False
-
-            if ws_ok and wp.title != "TEST":
-                ws_ok = await ws_send_json(ws, response)
-            if not ws_ok:
+            ws_ok = False
+            if wp.title != "TEST":
+                for ws in list(wp.tournament_sockets[self.id]):
+                    ok = await ws_send_json(ws, response)
+                    ws_ok = ws_ok or ok
+            if (not ws_ok) and wp.title != "TEST":
                 await self.pause(wp)
                 log.debug("White player %s left the tournament (ws send failed)", wp.username)
 
-            ws_ok = True
-            try:
-                ws = next(iter(bp.tournament_sockets[self.id]))
-            except StopIteration:
-                ws_ok = False
-
-            if ws_ok and bp.title != "TEST":
-                ws_ok = await ws_send_json(ws, response)
-            if not ws_ok:
+            ws_ok = False
+            if bp.title != "TEST":
+                for ws in list(bp.tournament_sockets[self.id]):
+                    ok = await ws_send_json(ws, response)
+                    ws_ok = ws_ok or ok
+            if (not ws_ok) and bp.title != "TEST":
                 await self.pause(bp)
                 log.debug("Black player %s left the tournament (ws send failed)", bp.username)
 
-            if (
-                check_top_game
-                and (self.top_player is not None)
-                and self.top_player.username in (game.wplayer.username, game.bplayer.username)
-                and game.status != BYEGAME
-            ):  # Bye game
-                self.top_game = game
-                check_top_game = False
-                new_top_game = True
+            if game.status != BYEGAME:
+                brank = self.leaderboard.index(game.bplayer)
+                wrank = self.leaderboard.index(game.wplayer)
+                if (
+                    (self.top_game is not None and self.top_game.status > STARTED)
+                    or brank >= self.top_game_max_rank
+                    or wrank >= self.top_game_max_rank
+                ):
+                    self.top_game_max_rank = max(brank, wrank)
+                    self.top_game = game
+                    is_new_top_game = True
 
-        if new_top_game:
-            tgj = self.top_game_json
-            await self.broadcast(tgj)
+        if is_new_top_game:
+            await self.broadcast(self.top_game_json)
 
         return games
 
@@ -978,14 +952,12 @@ class Tournament(ABC):
         elif game.result == "1/2-1/2":
             self.draw += 1
 
-        asyncio.create_task(self.delayed_free(game, wplayer, bplayer))
+        asyncio.create_task(self.delayed_free(game, wplayer, bplayer), name="t-delayed-free")
 
         # save player points to db
-        asyncio.create_task(self.db_update_player(game.wplayer, wplayer))
-        asyncio.create_task(self.db_update_player(game.bplayer, bplayer))
-        asyncio.create_task(self.db_update_pairing(game))
-
-        self.set_top_player()
+        asyncio.create_task(self.db_update_player(game.wplayer, wplayer), name="t-update-player")
+        asyncio.create_task(self.db_update_player(game.bplayer, bplayer), name="t-update-player")
+        asyncio.create_task(self.db_update_pairing(game), name="t-update-pairing")
 
         await self.broadcast(
             {
@@ -1003,17 +975,6 @@ class Tournament(ABC):
                 "gameId": game.id,
             }
             await self.broadcast(response)
-
-            if (self.top_player is not None) and self.top_player.username not in (
-                game.wplayer.username,
-                game.bplayer.username,
-            ):
-                top_game_candidate = self.players[self.top_player].games[-1]
-                if top_game_candidate.status != BYEGAME:
-                    self.top_game = top_game_candidate
-                    if (self.top_game is not None) and (self.top_game.status <= STARTED):
-                        tgj = self.top_game_json
-                        await self.broadcast(tgj)
 
     async def delayed_free(self, game, wplayer, bplayer):
         if self.system == ARENA:
@@ -1037,9 +998,9 @@ class Tournament(ABC):
                 for ws in spectator.tournament_sockets[self.id]:
                     await ws_send_json(ws, response)
             except KeyError:
-                log.error("spectator was removed", exc_info=True)
+                log.error("tournament broadcast() spectator socket was removed")
             except Exception:
-                log.exception("Exception in tournament broadcast()")
+                log.error("Exception in tournament broadcast()")
 
     async def db_insert_pairing(self, games):
         if self.app_state.db is None:
@@ -1086,8 +1047,7 @@ class Tournament(ABC):
                     return_document=ReturnDocument.AFTER,
                 )
             )
-        except Exception as e:
-            log.error(e, exc_info=True)
+        except Exception:
             if self.app_state.db is not None:
                 log.error(
                     "db find_one_and_update pairing_table %s into %s failed !!!",
@@ -1120,7 +1080,7 @@ class Tournament(ABC):
             new_data = {
                 "_id": player_id,
                 "tid": self.id,
-                "uid": user.username,
+                "uid": player_data.username,
                 "r": player_data.rating,
                 "pr": player_data.provisional,
                 "a": player_data.paused,
@@ -1144,8 +1104,7 @@ class Tournament(ABC):
             if doc_after is None and not isinstance(self.app_state.db_client, AsyncMongoMockClient):
                 log.error("Failed to save %s player data update %s to mongodb", player_id, new_data)
 
-        except Exception as e:
-            log.error(e, exc_info=True)
+        except Exception:
             if self.app_state.db is not None:
                 log.error(
                     "db find_one_and_update tournament_player %s into %s failed !!!",

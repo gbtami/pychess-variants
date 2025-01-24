@@ -2,7 +2,7 @@ import { h, VNode } from 'snabbdom';
 
 import { _ } from '@/i18n';
 import { PyChessModel } from "@/types";
-import { selectVariant, VARIANTS } from '@/variants';
+import { twoBoarsVariants, selectVariant, VARIANTS } from '@/variants';
 import { EditorController } from './editorCtrl';
 
 function runEditor(vnode: VNode, model: PyChessModel) {
@@ -28,7 +28,7 @@ export function editorView(model: PyChessModel): VNode[] {
                 h('div.container', [
                     h('div', [
                         h('label', { attrs: { for: "variant" } }, _("Variant")),
-                        selectVariant("variant", vVariant, () => setVariant(true), () => setVariant(false), ["alice", "bughouse"]/*todo:bughouse editor not implemented*/),
+                        selectVariant("variant", vVariant, () => setVariant(true), () => setVariant(false), twoBoarsVariants), /*todo:bughouse editor not implemented*/
                     ]),
                 ])
             ]),

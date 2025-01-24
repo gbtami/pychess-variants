@@ -65,19 +65,23 @@ export const translatedColorNames = [
 ];
 
 export const translatedVariantDisplayNames = [
-    _("chess"), _("crazyhouse"), _("placement"), _("atomic"),
+    _("chess"), _("bughouse"), _("crazyhouse"), _("placement"), _("atomic"),
+    _("king of the hill"), _("three-check"), _("antichess"), _("racing kings"),
+    _("horde"), _("duck"), _("alice"), _("fog of war"),
 
-    _("makruk"), _("makpong"), _("ouk chaktrang"), _("sittuyin"), _("asean"),
+    _("makruk"), _("makbug"), _("makpong"), _("ouk chaktrang"), _("sittuyin"), _("asean"),
 
-    _("shogi"), _("minishogi"), _("kyoto shogi"),
-    _("dobutsu"), _("gorogoro"), _("gorogoro+"), _("tori shogi"),
+    _("shogi"), _("minishogi"), _("kyoto shogi"), _("dobutsu"), _("gorogoro"),
+    _("gorogoro+"), _("tori shogi", _("cannon shogi")),
 
-    _("xiangqi"), _("manchu"), _("janggi"), _("minixiangqi"),
+    _("xiangqi"), _("supply chess"), _("manchu"), _("janggi"), _("minixiangqi"),
 
-    _("capablanca"), _("capahouse"), _("s-chess"), _("s-house"),
-    _("grand"), _("grandhouse"), _("shako"), _("shogun"), _("hoppel-poppel"),
+    _("shatranj"), _("capablanca"), _("capahouse"), _("dragon chess"),
+    _("s-chess"), _("s-house"), _("grand"), _("grandhouse"), _("shako"),
+    _("shogun"), _("hoppel-poppel"), _("mansindam"),
 
-    _("orda"), _("synochess"), _("shinobi"), _("shinobi+"), _("empire"), _("orda mirror"), _("chak"), _("chennis"),
+    _("orda"), _("khans"), _("synochess"), _("shinobi"), _("shinobi+"),
+    _("empire"), _("orda mirror"), _("chak"), _("chennis"),
 ];
 
 export const translatedCustomStartPositions = [
@@ -100,13 +104,19 @@ export const translatedTooltips = [
     _("Pieces explode upon capture."),
     _("Bring your King to the center to win the game."),
     _("Check your opponent 3 times to win the game."),
+    _("Lose all your pieces to win."),
+    _("Race your King to the eighth rank to win."),
+    _("Destroy the horde to win!"),
     _("The duck must be moved to a new square after every turn."),
+    _("Through the Looking-Glass"),
+    _("Players can only see the squares to which their pieces can legally move to."),
     _("Thai Chess. A game closely resembling the original Chaturanga. Similar to Chess but with a different queen and bishop."),
     _("Makruk variant where kings cannot move to escape out of check."),
     _("Cambodian Chess. Makruk with a few additional opening abilities."),
     _("Burmese Chess. Similar to Makruk, but pieces are placed at the start of the match."),
     _("Makruk using the board/pieces from International Chess as well as pawn promotion rules."),
     _("Japanese Chess, the standard 9x9 version played today with drops and promotions."),
+    _("Shogi with Chinese and Korean cannons"),
     _("5x5 Shogi for more compact and faster games. There are no knights or lances."),
     _("A wild Shogi variant on a 5x5 board where pieces flip into a different piece after each move."),
     _("3x4 game with cute animals, designed to teach children how to play Shogi."),
@@ -116,6 +126,8 @@ export const translatedTooltips = [
     _("Xiangqi variant where one side has a chariot that can also move as a cannon or horse."),
     _("Korean Chess, similar to Xiangqi but plays much differently. Tournament rules are used."),
     _("Compact version of Xiangqi played on a 7x7 board without a river."),
+    _("Ancient Arabian and Persian form of Chess."),
+    _("The dragon can be dropped to the base rank."),
     _("Play with the hybrid pieces, archbishop (B+N) and chancellor (R+N), on a 10x8 board."),
     _("Capablanca with Crazyhouse drop rules."),
     _("Hybrid pieces, the hawk (B+N) and elephant (R+N), can enter the board after moving a back rank piece."),

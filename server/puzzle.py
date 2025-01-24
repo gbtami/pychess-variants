@@ -3,22 +3,20 @@ import random
 from datetime import datetime, timezone
 
 import aiohttp_session
-import pyffish as sf
 from pymongo.errors import DuplicateKeyError
 from aiohttp import web
 
-from const import VARIANTS
+from mongomock_motor import AsyncMongoMockClient
+
+from fairy import FairyBoard
 from glicko2.glicko2 import MU, gl2, Rating, rating
 from pychess_global_app_state_utils import get_app_state
+from variants import VARIANTS
 
 # variants having 0 puzzle so far
 NO_PUZZLE_VARIANTS = (
-    "ataxx",
-    "3check",
     "antichess",
-    "racingkings",
     "horde",
-    "shatranj",
     "placement",
     "minishogi",
     "gorogoroplus",
@@ -28,8 +26,9 @@ NO_PUZZLE_VARIANTS = (
     "shinobiplus",
     "cannonshogi",
     "bughouse",
-    "alice",
     "fogofwar",
+    "supply",
+    "makbug",
 )
 
 PUZZLE_VARIANTS = [v for v in VARIANTS if (not v.endswith("960") and (v not in NO_PUZZLE_VARIANTS))]
@@ -43,7 +42,7 @@ def empty_puzzle(variant):
     puzzle = {
         "_id": "0",
         "variant": variant,
-        "fen": sf.start_fen(variant),
+        "fen": FairyBoard.start_fen(variant),
         "type": "",
         "moves": "",
         "eval": "",
@@ -58,7 +57,7 @@ async def get_puzzle(request, puzzleId):
 
 async def get_daily_puzzle(request):
     app_state = get_app_state(request.app)
-    if app_state.db is None:
+    if app_state.db is None or isinstance(app_state.db_client, AsyncMongoMockClient):
         return empty_puzzle("chess")
 
     db_collections = await app_state.db.list_collection_names()
@@ -155,12 +154,13 @@ async def puzzle_complete(request):
 
     await puzzle.set_played()
 
-    users = app_state.users
+    # Who made the request?
     session = await aiohttp_session.get_session(request)
-    try:
-        user = users[session.get("user_name")]
-    except KeyError:
+    session_user = session.get("user_name")
+    if session_user is None:
         return web.json_response({})
+
+    user = await app_state.users.get(session_user)
 
     if puzzleId in user.puzzles:
         return web.json_response({})
@@ -199,12 +199,13 @@ async def puzzle_vote(request):
     good = post_data["vote"] == "true"
     up_or_down = "up" if good else "down"
 
-    users = app_state.users
+    # Who made the request?
     session = await aiohttp_session.get_session(request)
-    try:
-        user = users[session.get("user_name")]
-    except KeyError:
+    session_user = session.get("user_name")
+    if session_user is None:
         return web.json_response({})
+
+    user = await app_state.users.get(session_user)
 
     if user.puzzles.get("puzzleId"):
         return web.json_response({})

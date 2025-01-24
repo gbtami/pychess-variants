@@ -11,7 +11,7 @@ from sortedcollections import ValueSortedDict
 from mongomock_motor import AsyncMongoMockClient
 
 import game
-from const import CREATED, VARIANTS, STALEMATE, MATE
+from const import CREATED, STALEMATE, MATE
 from fairy import FairyBoard
 from game import Game
 from bug.game_bug import GameBug
@@ -22,12 +22,15 @@ from server import make_app
 from user import User
 from utils import sanitize_fen
 from pychess_global_app_state_utils import get_app_state
+from logger import handler
+from variants import VARIANTS
 
 game.KEEP_TIME = 0
 game.MAX_PLY = 120
 
 logging.basicConfig()
 logging.getLogger().setLevel(level=logging.ERROR)
+logging.getLogger().removeHandler(handler)
 
 ZH960 = {
     "user0|NM": 1868,
@@ -384,6 +387,10 @@ class HighscoreTestCase(AioHTTPTestCase):
             create=True,
         )
         app_state.games[game.id] = game
+
+        doc = await game.app_state.db.crosstable.find_one({"_id": game.ct_id})
+        if doc is not None:
+            game.crosstable = doc
         print(game.crosstable)
 
         # strong_player resign 0-1

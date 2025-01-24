@@ -228,7 +228,7 @@ export class TournamentController implements ChatController {
         if (this.system > 0 && this.variant.name !== 'janggi') fullScore = fullScore / 2;
         
         return h('tr', { on: { click: () => this.onClickPlayer(player.name) } }, [
-            h('td.rank', [(player.paused) ? h('i', {class: {"icon": true, "icon-pause": true} }) : index]),
+            h('td.rank', [(player.paused && !this.completed()) ? h('i', {class: {"icon": true, "icon-pause": true} }) : index]),
             h('td.player', [
                 h('span.title', player.title),
                 h('span.name', player.name),
@@ -387,7 +387,7 @@ export class TournamentController implements ChatController {
                     hook: {
                         insert: vnode => {
                             let lastMove, fen;
-                            [lastMove, fen] = getLastMoveFen(this.variant.name, game.lastMove, game.fen, '*')
+                            [lastMove, fen] = getLastMoveFen(this.variant.name, game.lastMove, game.fen)
                             const cg = Chessground(vnode.elm as HTMLElement,  {
                                 fen: fen,
                                 lastMove: lastMove,
@@ -620,7 +620,7 @@ export class TournamentController implements ChatController {
             return;
         };
         let lastMove, fen;
-        [lastMove, fen] = getLastMoveFen(this.variant.name, msg.lastMove, msg.fen, msg.result)
+        [lastMove, fen] = getLastMoveFen(this.variant.name, msg.lastMove, msg.fen)
 
         this.topGameChessground.set({
             fen: fen,
