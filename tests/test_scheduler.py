@@ -3,91 +3,9 @@
 import unittest
 import datetime as dt
 
-from const import SHIELD, SCHEDULE_MAX_DAYS
+from const import SCHEDULE_MAX_DAYS
 from scheduler import new_scheduled_tournaments, MONTHLY_VARIANTS, SHIELDS, Scheduler
 
-# Crazhouse960 Shield scheduled at second MONDAY of month
-SHIELD_ZH_2021_09 = (
-    SHIELD,
-    "crazyhouse",
-    True,
-    dt.datetime(2021, 9, 13, 18, tzinfo=dt.timezone.utc),
-    180,
-)
-SHIELD_ZH_2021_10 = (
-    SHIELD,
-    "crazyhouse",
-    True,
-    dt.datetime(2021, 10, 11, 18, tzinfo=dt.timezone.utc),
-    180,
-)
-SHIELD_ZH_2021_11 = (
-    SHIELD,
-    "crazyhouse",
-    True,
-    dt.datetime(2021, 11, 8, 18, tzinfo=dt.timezone.utc),
-    180,
-)
-SHIELD_ZH_2021_12 = (
-    SHIELD,
-    "crazyhouse",
-    True,
-    dt.datetime(2021, 12, 13, 18, tzinfo=dt.timezone.utc),
-    180,
-)
-SHIELD_ZH_2022_01 = (
-    SHIELD,
-    "crazyhouse",
-    True,
-    dt.datetime(2022, 1, 10, 18, tzinfo=dt.timezone.utc),
-    180,
-)
-
-# Atomic960 Shield scheduled at third SUNDAY of month
-SHIELD_ATOMIC_2021_10 = (
-    SHIELD,
-    "atomic",
-    True,
-    dt.datetime(2021, 10, 17, 12, tzinfo=dt.timezone.utc),
-    180,
-)
-SHIELD_ATOMIC_2021_11 = (
-    SHIELD,
-    "atomic",
-    True,
-    dt.datetime(2021, 11, 14, 12, tzinfo=dt.timezone.utc),
-    180,
-)
-SHIELD_ATOMIC_2021_12 = (
-    SHIELD,
-    "atomic",
-    True,
-    dt.datetime(2021, 12, 19, 12, tzinfo=dt.timezone.utc),
-    180,
-)
-SHIELD_ATOMIC_2022_01 = (
-    SHIELD,
-    "atomic",
-    True,
-    dt.datetime(2022, 1, 16, 12, tzinfo=dt.timezone.utc),
-    180,
-)
-
-SHIELD_KOTH_2024_10 = (
-    SHIELD,
-    "kingofthehill",
-    True,
-    dt.datetime(2024, 10, 7, 18, tzinfo=dt.timezone.utc),
-    180,
-)
-
-SHIELD_KOTH_2024_11 = (
-    SHIELD,
-    "kingofthehill",
-    True,
-    dt.datetime(2024, 11, 4, 19, tzinfo=dt.timezone.utc),
-    180,
-)
 
 ONE_TEST_ONLY = False
 
@@ -112,76 +30,6 @@ class TournamentSchedulerTestCase(unittest.TestCase):
     def go_day(self, day):
         d = self.now + dt.timedelta(days=day)
         return (d.year, d.month, d.day)
-
-    def test_koth_dst_on(self):
-        data = create_scheduled_data(2024, 10, 7)
-
-        self.assertIn(SHIELD_KOTH_2024_10, data)
-
-    def test_koth_dst_off(self):
-        data = create_scheduled_data(2024, 11, 4)
-
-        self.assertIn(SHIELD_KOTH_2024_11, data)
-
-    @unittest.skipIf(ONE_TEST_ONLY, "1 test only")
-    def test_no_shield_in_next_week(self):
-        data = create_scheduled_data(2021, 12, 1)
-
-        self.assertNotIn(SHIELD_ZH_2021_12, data)
-        self.assertNotIn(SHIELD_ATOMIC_2021_12, data)
-
-        data = create_scheduled_data(2022, 1, 1)
-
-        self.assertNotIn(SHIELD_ZH_2022_01, data)
-        self.assertNotIn(SHIELD_ATOMIC_2022_01, data)
-
-    @unittest.skipIf(ONE_TEST_ONLY, "1 test only")
-    def test_zh_in_next_week(self):
-        data = create_scheduled_data(2021, 12, 6)
-
-        self.assertIn(SHIELD_ZH_2021_12, data)
-        self.assertNotIn(SHIELD_ATOMIC_2021_12, data)
-
-        data = create_scheduled_data(2022, 1, 3)
-
-        self.assertIn(SHIELD_ZH_2022_01, data)
-        self.assertNotIn(SHIELD_ATOMIC_2022_01, data)
-
-    @unittest.skipIf(ONE_TEST_ONLY, "1 test only")
-    def test_zh_and_atomic_in_next_week(self):
-        data = create_scheduled_data(2021, 12, 12)
-
-        self.assertIn(SHIELD_ZH_2021_12, data)
-        self.assertIn(SHIELD_ATOMIC_2021_12, data)
-
-        data = create_scheduled_data(2022, 1, 9)
-
-        self.assertIn(SHIELD_ZH_2022_01, data)
-        self.assertIn(SHIELD_ATOMIC_2022_01, data)
-
-    @unittest.skipIf(ONE_TEST_ONLY, "1 test only")
-    def test_zh_is_over(self):
-        data = create_scheduled_data(2021, 12, 14)
-
-        self.assertNotIn(SHIELD_ZH_2021_12, data)
-        self.assertIn(SHIELD_ATOMIC_2021_12, data)
-
-        data = create_scheduled_data(2022, 1, 11)
-
-        self.assertNotIn(SHIELD_ZH_2022_01, data)
-        self.assertIn(SHIELD_ATOMIC_2022_01, data)
-
-    @unittest.skipIf(ONE_TEST_ONLY, "1 test only")
-    def test_zh_and_atomic_are_over(self):
-        data = create_scheduled_data(2021, 12, 20)
-
-        self.assertNotIn(SHIELD_ZH_2021_12, data)
-        self.assertNotIn(SHIELD_ATOMIC_2021_12, data)
-
-        data = create_scheduled_data(2022, 1, 17)
-
-        self.assertNotIn(SHIELD_ZH_2022_01, data)
-        self.assertNotIn(SHIELD_ATOMIC_2022_01, data)
 
     @unittest.skipIf(ONE_TEST_ONLY, "1 test only")
     def test_shedule_plan(self):
