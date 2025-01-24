@@ -102,9 +102,9 @@ export function updateMaterial(variant: Variant, fen: string, vmaterialTop: VNod
     ];
 }
 
-export function emptyMaterial(variant: Variant): [VNode, VNode] {
+export function emptyMaterial(variant: Variant, vmaterialTop: VNode | HTMLElement, vmaterialBottom: VNode | HTMLElement): [VNode, VNode] {
     return [
-        makeMaterialVNode(variant, 'top', [], true),
-        makeMaterialVNode(variant, 'bottom', [], true),
+        patch(vmaterialTop, makeMaterialVNode(variant, 'top', [], true)),
+        patch(vmaterialBottom, makeMaterialVNode(variant, 'bottom', [], true)),
     ];
 }
