@@ -20,7 +20,7 @@ BLOGS = [
         "date": "2025-01-26",
         "image": "/images/bughouse.jpg",
         "alt": "",
-        "title": "The longest development in the history of pychess",
+        "title": "The bugs are in the house!",
         "subtitle": "Bughouse chess has arrived",
         "author": "gbtami",
         "tags": ["Announcement"],
