@@ -18,6 +18,9 @@ This is the result of almost three years of relentless coding work by [@blunderm
 
 Bughouse was requested on lichess from the very beginning [here](https://github.com/lichess-org/lila/issues/50) and [here](https://github.com/lichess-org/lila/issues/1628), but it was denied because "The long-term complexity is probably just not worth it". Lichess users never gave up thogh, they wrote several petitions and later created the [lichess-bughouse](https://lichess.org/team/lichess-bughouse) team as well. In light of this, it is impossible to appreciate enough what blunderman1 has achieved.
 
+This variant is probably the most popular one played by club and tournament players all over the world. You can watch several top GMs playing it on [John Brezina's YouTube channel](https://www.youtube.com/@chessvideosbyjohnbrezina5947/search?query=bughouse)
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/rz3f5febUAU" frameborder="0" allowfullscreen></iframe> 
 
 <p align="center">
   <img src="https://github.com/gbtami/pychess-variants/blob/master/static/icons/Bughouse.svg" width="25" height="25">
