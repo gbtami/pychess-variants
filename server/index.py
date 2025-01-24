@@ -57,7 +57,7 @@ from puzzle import (
 )
 from custom_trophy_owners import CUSTOM_TROPHY_OWNERS
 from logger import log
-from variants import VARIANTS, VARIANT_ICONS
+from variants import ALL_VARIANTS, VARIANTS, VARIANT_ICONS
 
 
 async def index(request):
@@ -122,7 +122,7 @@ async def index(request):
     lang_translation.install()
 
     def variant_display_name(variant):
-        return lang_translation.gettext(VARIANTS[variant].translated_name)
+        return lang_translation.gettext(ALL_VARIANTS[variant].translated_name)
 
     def pairing_system_name(system):
         return lang_translation.gettext(TRANSLATED_PAIRING_SYSTEM_NAMES[system])
