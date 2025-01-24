@@ -16,7 +16,7 @@ We’re pleased to announce that Bughouse Chess, one of the most popular variant
 
 This is the result of almost three years of relentless coding work by [@blunderman1](https://www.pychess.org/@/blunderman1)
 
-Bughouse was requested on lichess from the very beginning [here](https://github.com/lichess-org/lila/issues/50) and [here](https://github.com/lichess-org/lila/issues/1628), but it was denied because "The long-term complexity is probably just not worth it". Lichess users never gave up thogh, they wrote several petitions and later created the [lichess-bughouse](https://lichess.org/team/lichess-bughouse) team there. In light of this, it is impossible to appreciate enough what blunderman1 has achieved.
+Bughouse was requested on lichess from the very beginning [here](https://github.com/lichess-org/lila/issues/50) and [here](https://github.com/lichess-org/lila/issues/1628), but it was denied because "The long-term complexity is probably just not worth it". Lichess users never gave up thogh, they wrote several petitions and later created the [lichess-bughouse](https://lichess.org/team/lichess-bughouse) team as well. In light of this, it is impossible to appreciate enough what blunderman1 has achieved.
 
 
 <p align="center">
