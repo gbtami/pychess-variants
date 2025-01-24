@@ -14,9 +14,9 @@
 
 We’re pleased to announce that Bughouse Chess, one of the most popular variants, is now available to play on Pychess!
 
-This is the result of almost three years of relentless coding work by [@blunderman1](https://www.pychess.org/@/blunderman1)
-
-Bughouse was requested on lichess from the very beginning [here](https://github.com/lichess-org/lila/issues/50) and [here](https://github.com/lichess-org/lila/issues/1628), but it was denied because "The long-term complexity is probably just not worth it". Lichess users never gave up though, they wrote several petitions and later created the [lichess-bughouse](https://lichess.org/team/lichess-bughouse) team as well. In light of this, it is impossible to appreciate enough what blunderman1 has achieved.
+Bughouse had been requested numerous times on the lichess platform from the very beginning, but was never included on the roadmap on grounds of "cost/benefit analysis" and even "long-term complexity". 
+Nevertheless, user support for the variant persevered and lichess users  kept writing petition after petition - eventually creating a dedicated [lichess-bughouse](https://lichess.org/team/lichess-bughouse) team as well. 
+In light of this history, it is impossible to appreciate enough the monumental effort put in by [@blunderman1](https://www.pychess.org/@/blunderman1), who not only succeeded in implementing a working codebase for this variant, but kept perfecting it for three years. Nonetheless every big new feature inevitably has bugs, so if you find anything odd, please let us know.
 
 Here is [part one of the Chess Life bughouse articles](https://uscf1-nyc1.aodhosting.com/CL-AND-CR-ALL/CL-ALL/2003/2003_03.pdf#page=37) of WIM Dr. Alexey Root and Eric Wiggins, better known as GhostShell. Thanks, Alexey and Eric! And here are parts [two](https://uscf1-nyc1.aodhosting.com/CL-AND-CR-ALL/CL-ALL/2003/2003_05.pdf#page=39) and [three](https://uscf1-nyc1.aodhosting.com/CL-AND-CR-ALL/CL-ALL/2003/2003_09.pdf#page=27).
 
