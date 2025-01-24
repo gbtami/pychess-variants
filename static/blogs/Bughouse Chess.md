@@ -1,4 +1,4 @@
-<h1 align="center">The longest development in the history of pychess</h1>
+<h1 align="center">The bugs are in the house!</h1>
 <div class="meta-headline">
     <div class= "meta">
         <span class="text">2025.01.26</span>
