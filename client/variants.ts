@@ -134,6 +134,8 @@ export interface Variant {
     readonly alternateStart?: Record<string, string>;
 }
 
+const pieceFamiliesWithMaterialDifferenceSupported = ["standard", "makruk", "sittuyin", "asean", "xiangqi", "janggi", "shatranj", "capa", "dragon", "seirawan", "shako", "hoppel", "orda", "khans", "synochess", "shinobi", "empire", "ordamirror", "chak", "spartan"];
+
 function variant(config: VariantConfig): Variant {
     return {
         name: config.name,
@@ -190,7 +192,7 @@ function variant(config: VariantConfig): Variant {
             noDrawOffer: !!config.rules?.noDrawOffer,
         },
         material: {
-            showDiff: !config.pocket?.captureToHand && !['ataxx', 'fogofwar', 'horde'].includes(config.name),
+            showDiff: !config.pocket?.captureToHand && !['ataxx', 'fogofwar', 'horde'].includes(config.name) && pieceFamiliesWithMaterialDifferenceSupported.includes(config.pieceFamily),
             initialDiff: calculateDiff(config.startFen, BOARD_FAMILIES[config.boardFamily].dimensions, config.material?.equivalences ?? {}, !!config.pocket?.captureToHand),
             equivalences: config.material?.equivalences ?? {},
         },
