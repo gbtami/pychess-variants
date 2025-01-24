@@ -98,6 +98,7 @@ export interface Variant {
     readonly pocket?: {
         readonly roles: Record<cg.Color, cg.Role[]>;
         readonly captureToHand: boolean;
+        readonly pieceNames?: Partial<Record<cg.Role, string>>;
     };
     readonly promotion: {
         readonly type: PromotionType;
@@ -169,6 +170,7 @@ function variant(config: VariantConfig): Variant {
                 white: config.pocket.roles.white.map(util.roleOf),
                 black: config.pocket.roles.black.map(util.roleOf),
             },
+            pieceNames: config.pocket?.pieceNames,
             captureToHand: config.pocket.captureToHand,
         } : undefined,
         promotion: {
@@ -245,6 +247,8 @@ interface VariantConfig {
         // Pieces in the pocket
         // Use the record version if the pieces of each side are different
         roles: cg.Letter[] | Record<cg.Color, cg.Letter[]>;
+        // Translatable names of the pieces in the pocket (used for bug chat tooltip)
+        pieceNames?: Partial<Record<cg.Role, string>>;
         // Whether captured pieces go to the pocket (Fairy's terminology)
         captureToHand: boolean;
     };
@@ -367,6 +371,13 @@ export const VARIANTS: Record<string, Variant> = {
         pieceRow: ["k", "q", "r", "b", "n", "p"],
         pocket: {
             roles: ["p", "n", "b", "r", "q"],
+            pieceNames: {
+                'p-piece': _('pawn'),
+                'n-piece': _('knight'),
+                'b-piece': _('bishop'),
+                'r-piece': _('rook'),
+                'q-piece': _('queen'),
+            },
             captureToHand: true,
         },
         rules: { enPassant: true },
@@ -537,6 +548,13 @@ export const VARIANTS: Record<string, Variant> = {
         promotion: { type: "regular", order: ["m"] },
         pocket: {
             roles: ["p", "m", "s", "n", "r"],
+            pieceNames: {
+                'p-piece': _('pawn'),
+                'm-piece': _('queen'),
+                's-piece': _('bishop'),
+                'n-piece': _('knight'),
+                'r-piece': _('rook'),
+            },
             captureToHand: true,
         },
         ui: { showPromoted: true },
@@ -757,6 +775,14 @@ export const VARIANTS: Record<string, Variant> = {
         promotion: { type: "regular", roles: [] },
         pocket: {
             roles: ["p", "n", "b", "r", "c", "a"],
+            pieceNames: {
+                'p-piece': _('pawn'),
+                'n-piece': _('horse'),
+                'b-piece': _('elephant'),
+                'r-piece': _('chariot'),
+                'c-piece': _('cannon'),
+                'a-piece': _('advisor'),
+            },
             captureToHand: true,
         },
         ui: { showPromoted: true },
