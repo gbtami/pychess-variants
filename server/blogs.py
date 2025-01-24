@@ -17,7 +17,7 @@ del _
 BLOGS = [
     {
         "_id": "Bughouse_Chess",
-        "date": "2025-01-26",
+        "date": "2025-01-25",
         "image": "/images/bughouse.jpg",
         "alt": "",
         "title": "The bugs are in the house!",
