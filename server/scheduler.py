@@ -176,40 +176,29 @@ class Scheduler:
                 break
             is_960 = v.endswith("960")
             base, inc, byo = TC_MONTHLY_VARIANTS[v]
-            put_early = False
+            hour = 14
             try:
                 date = dt.datetime(self.now.year, self.now.month, i + 1, tzinfo=dt.timezone.utc)
                 if date.weekday() == cal.SUNDAY:
                     # Shields on each SUNDAY starts at 12 and 3 hours long, so put this early...
-                    put_early = True
+                    hour = 10
             except ValueError:
                 log.error("schedule_plan() ValueError")
                 break
-            plans.append(
-                Plan(
-                    MONTHLY,
-                    date,
-                    10 if put_early else 14,
-                    v.rstrip("960"),
-                    is_960,
-                    base,
-                    inc,
-                    byo,
-                    90,
-                )
-            )
+            plans.append(Plan(MONTHLY, date, hour, v.rstrip("960"), is_960, base, inc, byo, 90))
 
         for i, v in enumerate(MONTHLY_VARIANTS):
             if i + 1 > number_of_days:
                 break
             is_960 = v.endswith("960")
             base, inc, byo = TC_MONTHLY_VARIANTS[v]
+            hour = 16
             try:
                 date = dt.datetime(self.now.year, self.now.month, i + 1, tzinfo=dt.timezone.utc)
             except ValueError:
                 log.error("schedule_plan() ValueError")
                 break
-            plans.append(Plan(MONTHLY, date, 16, v.rstrip("960"), is_960, base, inc, byo, 90))
+            plans.append(Plan(MONTHLY, date, hour, v.rstrip("960"), is_960, base, inc, byo, 90))
 
         plans += [
             Plan(SHIELD, self.first_monthly(cal.SUNDAY), 12, "kingofthehill", True, 3, 2, 0, 180),
