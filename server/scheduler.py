@@ -1,5 +1,5 @@
 from __future__ import annotations
-import calendar
+import calendar as cal
 from collections import namedtuple
 import datetime as dt
 import zoneinfo
@@ -22,8 +22,6 @@ if TYPE_CHECKING:
 from tournaments import new_tournament
 from logger import log
 from variants import get_server_variant, GRANDS
-
-from calendar import MONDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY
 
 Plan = namedtuple("Plan", "freq, date, hour, variant, is960, base, inc, byo, duration")
 
@@ -125,7 +123,7 @@ def go_month(orig_date, month=1):
         new_year += 1
         new_month -= 12
 
-    last_day_of_month = calendar.monthrange(new_year, new_month)[1]
+    last_day_of_month = cal.monthrange(new_year, new_month)[1]
     new_day = min(orig_date.day, last_day_of_month)
 
     return orig_date.replace(year=new_year, month=new_month, day=new_day)
@@ -171,19 +169,35 @@ class Scheduler:
         """Create planned tournament plan list for one full month"""
         SEA = self.get_next_variant(self.now.month, ("sittuyin", "cambodian"))
         plans = []
-        number_of_days = calendar.monthrange(self.now.year, self.now.month)[1]
+        number_of_days = cal.monthrange(self.now.year, self.now.month)[1]
 
         for i, v in enumerate(NEW_MONTHLY_VARIANTS):
             if i + 1 > number_of_days:
                 break
             is_960 = v.endswith("960")
             base, inc, byo = TC_MONTHLY_VARIANTS[v]
+            put_early = False
             try:
                 date = dt.datetime(self.now.year, self.now.month, i + 1, tzinfo=dt.timezone.utc)
+                if date.weekday() == cal.SUNDAY:
+                    # Shields on each SUNDAY starts at 12 and 3 hours long, so put this early...
+                    put_early = True
             except ValueError:
                 log.error("schedule_plan() ValueError")
                 break
-            plans.append(Plan(MONTHLY, date, 14, v.rstrip("960"), is_960, base, inc, byo, 90))
+            plans.append(
+                Plan(
+                    MONTHLY,
+                    date,
+                    10 if put_early else 14,
+                    v.rstrip("960"),
+                    is_960,
+                    base,
+                    inc,
+                    byo,
+                    90,
+                )
+            )
 
         for i, v in enumerate(MONTHLY_VARIANTS):
             if i + 1 > number_of_days:
@@ -198,24 +212,19 @@ class Scheduler:
             plans.append(Plan(MONTHLY, date, 16, v.rstrip("960"), is_960, base, inc, byo, 90))
 
         plans += [
-            Plan(
-                SHIELD, self.first_monthly(MONDAY), 18, "kingofthehill", True, 3, 2, 0, 180
-            ),  # 960
-            Plan(SHIELD, self.second_monthly(MONDAY), 18, "crazyhouse", True, 3, 2, 0, 180),  # 960
-            Plan(SHIELD, self.fourth_monthly(SUNDAY), 12, "3check", True, 3, 2, 0, 180),  # 960
-            # Plan(SHIELD, self.second_monthly(THURSDAY), 18, "shinobi", False, 3, 4, 0, 180),
-            Plan(SHIELD, self.second_monthly(SATURDAY), 12, "makruk", False, 5, 3, 0, 180),
-            Plan(SHIELD, self.third_monthly(SUNDAY), 12, "atomic", True, 3, 2, 0, 180),  # 960
-            Plan(MONTHLY, self.first_monthly(SATURDAY), 12, "asean", False, 3, 2, 0, 90),
+            Plan(SHIELD, self.first_monthly(cal.SUNDAY), 12, "kingofthehill", True, 3, 2, 0, 180),
+            Plan(SHIELD, self.second_monthly(cal.SUNDAY), 12, "crazyhouse", True, 3, 2, 0, 180),
+            Plan(SHIELD, self.fourth_monthly(cal.SUNDAY), 12, "3check", True, 3, 2, 0, 180),
+            Plan(SHIELD, self.second_monthly(cal.SATURDAY), 12, "makruk", False, 5, 3, 0, 180),
+            Plan(SHIELD, self.third_monthly(cal.SUNDAY), 12, "atomic", True, 3, 2, 0, 180),
+            Plan(MONTHLY, self.first_monthly(cal.SATURDAY), 12, "asean", False, 3, 2, 0, 90),
             # The second Saturday is Makruk Shield
-            Plan(MONTHLY, self.third_monthly(SATURDAY), 12, SEA, False, 3, 2, 0, 90),
-            Plan(MONTHLY, self.fourth_monthly(SATURDAY), 12, "makpong", False, 3, 2, 0, 90),
-            # Plan(WEEKLY, self.next_day_of_week(FRIDAY), 18, "crazyhouse", True, 3, 0, 0, 60),  # 960
-            # Plan(WEEKLY, self.next_day_of_week(TUESDAY), 18, "atomic", True, 3, 0, 0, 60),  # 960
-            Plan(WEEKLY, self.next_day_of_week(THURSDAY), 12, "makruk", False, 3, 2, 0, 90),
-            Plan(WEEKLY, self.next_day_of_week(SUNDAY), 18, "duck", False, 3, 5, 0, 90),
-            Plan(WEEKLY, self.next_day_of_week(FRIDAY), 12, "xiangqi", False, 5, 3, 0, 90),
-            Plan(WEEKLY, self.next_day_of_week(WEDNESDAY), 12, "janggi", False, 5, 15, 1, 90),
+            Plan(MONTHLY, self.third_monthly(cal.SATURDAY), 12, SEA, False, 3, 2, 0, 90),
+            Plan(MONTHLY, self.fourth_monthly(cal.SATURDAY), 12, "makpong", False, 3, 2, 0, 90),
+            Plan(WEEKLY, self.next_day_of_week(cal.THURSDAY), 12, "makruk", False, 3, 2, 0, 90),
+            Plan(WEEKLY, self.next_day_of_week(cal.SUNDAY), 18, "duck", False, 3, 5, 0, 90),
+            Plan(WEEKLY, self.next_day_of_week(cal.FRIDAY), 12, "xiangqi", False, 5, 3, 0, 90),
+            Plan(WEEKLY, self.next_day_of_week(cal.WEDNESDAY), 12, "janggi", False, 5, 15, 1, 90),
         ]
 
         return plans
