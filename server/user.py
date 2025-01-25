@@ -159,22 +159,24 @@ class User:
             return 1500
 
     def get_rating(self, variant: str, chess960: bool) -> Rating:
-        if variant in self.perfs:
+        try:
             gl = self.perfs[variant + ("960" if chess960 else "")]["gl"]
             la = self.perfs[variant + ("960" if chess960 else "")]["la"]
             return gl2.create_rating(gl["r"], gl["d"], gl["v"], la)
-        rating = gl2.create_rating()
-        self.perfs[variant + ("960" if chess960 else "")] = DEFAULT_PERF
-        return rating
+        except KeyError:
+            rating = gl2.create_rating()
+            self.perfs[variant + ("960" if chess960 else "")] = DEFAULT_PERF
+            return rating
 
     def get_puzzle_rating(self, variant: str, chess960: bool) -> Rating:
-        if variant in self.pperfs:
+        try:
             gl = self.pperfs[variant + ("960" if chess960 else "")]["gl"]
             la = self.pperfs[variant + ("960" if chess960 else "")]["la"]
             return gl2.create_rating(gl["r"], gl["d"], gl["v"], la)
-        rating = gl2.create_rating()
-        self.pperfs[variant + ("960" if chess960 else "")] = DEFAULT_PERF
-        return rating
+        except KeyError:
+            rating = gl2.create_rating()
+            self.pperfs[variant + ("960" if chess960 else "")] = DEFAULT_PERF
+            return rating
 
     def set_silence(self):
         self.silence += SILENCE
