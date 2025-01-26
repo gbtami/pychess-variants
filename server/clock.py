@@ -7,7 +7,7 @@ from fairy import WHITE, BLACK
 from broadcast import round_broadcast
 from notify import notify
 
-# from logger import log
+from logger import log
 
 ESTIMATE_MOVES = 40
 CORR_TICK = 60
@@ -165,6 +165,7 @@ class CorrClock:
             if self.game.status < ABORTED and self.running:
                 user = self.game.bplayer if self.color == BLACK else self.game.wplayer
                 if self.mins <= 0:
+                    log.debug("min < 0. Flagging from serverside. Mins: %f. Board: %s. ply: %s", self.mins, self.board, self.ply)
                     reason = "abort" if self.ply < 2 else "flag"
 
                     async with self.game.move_lock:

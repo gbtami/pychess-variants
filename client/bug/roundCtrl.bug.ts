@@ -811,14 +811,14 @@ export class RoundControllerBughouse implements ChatController {
             this.updateClocks("a", this.b1.turnColor, clocksA);
             this.updateClocks("b", this.b2.turnColor, clocksB);
         } else {
-            // TODO: this logic differs than single board games and lichess - not sure if to preserve+improve or remove
-            //       for finished games they dont update clocks according to move times of last moves and here i do
-            if (lastStepA) {
-                this.updateClocks("a", this.b1.turnColor, lastStepA.clocks!);
-            }
-            if (lastStepB) {
-                this.updateClocks("b", this.b2.turnColor, lastStepB.clocks!);
-            }
+            // // TODO: this logic differs than single board games and lichess - not sure if to preserve+improve or remove
+            // //       for finished games they dont update clocks according to move times of last moves and here i do
+            // if (lastStepA) {
+            //     this.updateClocks("a", this.b1.turnColor, lastStepA.clocks!);
+            // }
+            // if (lastStepB) {
+            //     this.updateClocks("b", this.b2.turnColor, lastStepB.clocks!);
+            // }
         }
 
         // prevent sending premove/predrop when (auto)reconnecting websocked asks server to (re)sends the same board to us
@@ -1031,36 +1031,36 @@ export class RoundControllerBughouse implements ChatController {
             }
         }
 
-        if (this.status >= 0 && this.ply !== ply) {
-            //if it is a game that ended, then when scrolling it makes sense to show clocks when the move was made
-            // however if timeout happened and we receive gameEnd message we don't want to update clocks, we want to see
-            // the zeros.
-            // todo:this is a mess. also on lichess and other pychess variants we don't update clocks in round page only in analysis
-            //      if we decide to preserver and improve this behaviour in round page, at least some refactoring to reduce this complexity
-            //      of this if and calling goPly on gameEnd just for the sake of setting movable to none - really no other reason
-            //      to call this on gameEnd.
-            const whiteAClockAtIdx = this.colors[0] === 'white'? 0: 1;
-            const blackAClockAtIdx = 1 - whiteAClockAtIdx;
-            const whiteBClockAtIdx = this.colorsB[0] === 'white'? 0: 1;
-            const blackBClockAtIdx = 1 - whiteBClockAtIdx;
-
-            const lastStepA = this.steps[this.steps.findLastIndex((s, i) => s.boardName === "a" && i <= ply)];
-            const lastStepB = this.steps[this.steps.findLastIndex((s, i) => s.boardName === "b" && i <= ply)];
-            if (lastStepA) {
-                this.clocks[whiteAClockAtIdx].setTime(lastStepA.clocks![WHITE]);
-                this.clocks[blackAClockAtIdx].setTime(lastStepA.clocks![BLACK]);
-            } else {
-                this.clocks[whiteAClockAtIdx].setTime(this.base * 60 * 1000);
-                this.clocks[blackAClockAtIdx].setTime(this.base * 60 * 1000);
-            }
-            if (lastStepB) {
-                this.clocksB[whiteBClockAtIdx].setTime(lastStepB.clocks![WHITE]);
-                this.clocksB[blackBClockAtIdx].setTime(lastStepB.clocks![BLACK]);
-            } else {
-                this.clocksB[whiteBClockAtIdx].setTime(this.base * 60 * 1000);
-                this.clocksB[blackBClockAtIdx].setTime(this.base * 60 * 1000);
-            }
-        }
+        // if (this.status >= 0 && this.ply !== ply) {
+        //     //if it is a game that ended, then when scrolling it makes sense to show clocks when the move was made
+        //     // however if timeout happened and we receive gameEnd message we don't want to update clocks, we want to see
+        //     // the zeros.
+        //     // todo:this is a mess. also on lichess and other pychess variants we don't update clocks in round page only in analysis
+        //     //      if we decide to preserver and improve this behaviour in round page, at least some refactoring to reduce this complexity
+        //     //      of this if and calling goPly on gameEnd just for the sake of setting movable to none - really no other reason
+        //     //      to call this on gameEnd.
+        //     const whiteAClockAtIdx = this.colors[0] === 'white'? 0: 1;
+        //     const blackAClockAtIdx = 1 - whiteAClockAtIdx;
+        //     const whiteBClockAtIdx = this.colorsB[0] === 'white'? 0: 1;
+        //     const blackBClockAtIdx = 1 - whiteBClockAtIdx;
+        //
+        //     const lastStepA = this.steps[this.steps.findLastIndex((s, i) => s.boardName === "a" && i <= ply)];
+        //     const lastStepB = this.steps[this.steps.findLastIndex((s, i) => s.boardName === "b" && i <= ply)];
+        //     if (lastStepA) {
+        //         this.clocks[whiteAClockAtIdx].setTime(lastStepA.clocks![WHITE]);
+        //         this.clocks[blackAClockAtIdx].setTime(lastStepA.clocks![BLACK]);
+        //     } else {
+        //         this.clocks[whiteAClockAtIdx].setTime(this.base * 60 * 1000);
+        //         this.clocks[blackAClockAtIdx].setTime(this.base * 60 * 1000);
+        //     }
+        //     if (lastStepB) {
+        //         this.clocksB[whiteBClockAtIdx].setTime(lastStepB.clocks![WHITE]);
+        //         this.clocksB[blackBClockAtIdx].setTime(lastStepB.clocks![BLACK]);
+        //     } else {
+        //         this.clocksB[whiteBClockAtIdx].setTime(this.base * 60 * 1000);
+        //         this.clocksB[blackBClockAtIdx].setTime(this.base * 60 * 1000);
+        //     }
+        // }
 
         if (ply === this.ply + 1) { // no sound if we are scrolling backwards
             sound.moveSound(board.variant, capture);
