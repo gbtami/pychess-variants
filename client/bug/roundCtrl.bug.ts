@@ -710,13 +710,12 @@ export class RoundControllerBughouse implements ChatController {
                     } else {
                         this.plyB++;
                     }
+                } else {
+                    chatMessage("", "Messages visible to all 4 players for the first 4 moves", "bugroundchat", undefined, undefined, this);
                 }
                 step.plyA = this.plyA;
                 step.plyB = this.plyB;
                 this.steps.push(step);
-                if (idx === 0) {
-                    chatMessage("", "Messages visible to all 4 players for the first 4 moves", "bugroundchat", undefined, idx, this);
-                }
                 if (idx === 4) {
                     chatMessage("", "Chat visible only to your partner", "bugroundchat", undefined, idx, this);
                 }
@@ -733,6 +732,9 @@ export class RoundControllerBughouse implements ChatController {
                         }
                     });
                 }
+                if (idx === steps.length - 1 && this.status > 0) {
+                    chatMessage("", "Game over. All messages visible to all.", "bugroundchat", undefined, this.steps.length, this);
+                }
                 });
             updateMovelist(this, true, true, false);
         } else { // single step message
@@ -744,6 +746,8 @@ export class RoundControllerBughouse implements ChatController {
                     } else {
                         this.plyB++;
                     }
+                } else {
+                    chatMessage("", "Messages visible to all 4 players for the first 4 moves", "bugroundchat", undefined, undefined, this);
                 }
                 steps[0].plyA = this.plyA;
                 steps[0].plyB = this.plyB;
@@ -1201,8 +1205,6 @@ export class RoundControllerBughouse implements ChatController {
                 break;
             case "gameEnd":
                 this.checkStatus(msg);
-                chatMessage("", "Game over. Messages visible to all again.", "bugroundchat", undefined, this.steps.length, this);
-                // now force full chat reload
                 this.doSend({"type": "board", "gameId": this.gameId});
                 break;
             case "gameStart":
