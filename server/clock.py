@@ -165,7 +165,16 @@ class CorrClock:
             if self.game.status < ABORTED and self.running:
                 user = self.game.bplayer if self.color == BLACK else self.game.wplayer
                 if self.mins <= 0:
+<<<<<<< HEAD
                     log.debug("min < 0. Flagging from serverside. Mins: %f. Board: %s. ply: %s", self.mins, self.board, self.ply)
+=======
+                    log.debug(
+                        "min < 0. Flagging from serverside. Mins: %f. Board: %s. ply: %s",
+                        self.mins,
+                        self.board,
+                        self.ply,
+                    )
+>>>>>>> some fixes for clock problems in bughouse
                     reason = "abort" if self.ply < 2 else "flag"
 
                     async with self.game.move_lock:
