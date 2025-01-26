@@ -775,7 +775,20 @@ export class RoundControllerBughouse implements ChatController {
         //when message is for opp's move, meaning turnColor is my color - it is now my turn after this message
         if (latestPly) {
             const move = step == undefined? undefined: board.boardName == "a"? step.move: step.moveB;
-            board.setState(fen, msgTurnColor, uci2LastMove(move));
+            const lastMove = uci2LastMove(move);
+            let capture = false;
+            if (move) {
+                // const capture = !!lastMove && ((board.chessground.state.boardState.pieces.get(lastMove[1] as cg.Key) && step.san?.slice(0, 2) !== 'O-') || (step.san?.slice(1, 2) === 'x'));
+                capture = board.ffishBoard.isCapture(move);
+            }
+            if (lastMove) {
+                if (!this.finishedGame) sound.moveSound(this.variant, capture);
+            }
+            if (check && !this.finishedGame) {
+                sound.check();
+            }
+
+            board.setState(fen, msgTurnColor, lastMove);
             board.renderState();
 
             // because pocket might have changed. todo: condition it on if(capture) maybe
@@ -864,14 +877,21 @@ export class RoundControllerBughouse implements ChatController {
         const msgTurnColor = step.turnColor; // whose turn it is after this move
         const msgMoveColor = msgTurnColor === 'white'? 'black': 'white'; // which color made the move
         const myMove = this.myColor.get(board.boardName as BugBoardName) === msgMoveColor; // the received move was made by me
-        const lastMove = uci2LastMove( board.boardName === 'a'? step.move: step.moveB);
+
+        const move = board.boardName === 'a'? step.move: step.moveB;
+        const lastMove = uci2LastMove(move);
         const lastMovePartner = stepPartner? uci2LastMove( board.partnerCC.boardName === 'a'? stepPartner.move: stepPartner.moveB): undefined;
 
-        const capture = !!lastMove && ((board.chessground.state.boardState.pieces.get(lastMove[1] as cg.Key) && step.san?.slice(0, 2) !== 'O-') || (step.san?.slice(1, 2) === 'x'));
-        if (lastMove && (!myMove || this.spectator)) {
+        let capture = false;
+        if (move) {
+            //const capture = !!lastMove && ((board.chessground.state.boardState.pieces.get(lastMove[1] as cg.Key) && step.san?.slice(0, 2) !== 'O-') || (step.san?.slice(1, 2) === 'x'));
+            capture = board.ffishBoard.isCapture(move);
+        }
+
+        if (lastMove && !myMove) {
             if (!this.finishedGame) sound.moveSound(this.variant, capture);
         }
-        if (!this.spectator && check && !this.finishedGame) {
+        if (check && !this.finishedGame) {
             sound.check();
         }
 
