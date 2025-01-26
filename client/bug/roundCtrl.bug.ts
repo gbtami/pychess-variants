@@ -40,7 +40,7 @@ import AnalysisControllerBughouse from "@/bug/analysisCtrl.bug";
 import { boardSettings } from "@/boardSettings";
 import { ChessgroundController } from "@/cgCtrl";
 import {playerInfoData} from "@/bug/gameInfo.bug";
-import {chatMessageBug} from "@/bug/chat.bug";
+import {chatMessageBug, resetChat} from "@/bug/chat.bug";
 
 export class RoundControllerBughouse implements ChatController {
     sock: WebsocketHeartbeatJs;
@@ -695,6 +695,10 @@ export class RoundControllerBughouse implements ChatController {
     private updateSteps = (full: boolean, steps: Step[], ply: number, latestPly: boolean) => {
         if (full) { // all steps in one message
             this.steps = [];
+            this.ply = 0;
+            this.plyA = 0;
+            this.plyB = 0;
+            resetChat();
             const container = document.getElementById('movelist') as HTMLElement;
             patch(container, h('div#movelist'));
 
@@ -710,6 +714,9 @@ export class RoundControllerBughouse implements ChatController {
                 step.plyA = this.plyA;
                 step.plyB = this.plyB;
                 this.steps.push(step);
+                if (idx === 0) {
+                    chatMessage("", "Messages visible to all 4 players for the first 4 moves", "bugroundchat", undefined, idx, this);
+                }
                 if (idx === 4) {
                     chatMessage("", "Chat visible only to your partner", "bugroundchat", undefined, idx, this);
                 }

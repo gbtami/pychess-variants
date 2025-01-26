@@ -48,6 +48,11 @@ export function renderBugChatPresets(variant: Variant, sendMessage: (s:string)=>
     return h('div#chatpresets', { style: {'--rolesCount': String(roles.length) } }, buttons);
 }
 
+export function resetChat() {
+    const container = document.getElementById('messages') as HTMLElement;
+    container.innerHTML = '';
+}
+
 export function chatMessageBug (ply: number, ctrl: RoundControllerBughouse, x: StepChat) {
 
     //TODO: first lines and very last copied from chat.ts
