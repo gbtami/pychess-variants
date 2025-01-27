@@ -17,7 +17,7 @@ pyffish==0.0.86
 pyffish_alice==0.0.1
 rustworkx==0.15.1
 sortedcollections==2.1.0
-tzdata==2024.2
+tzdata==2025.1
 python-gettext==5.0
 uvloop==0.21.0 ; sys_platform == 'linux'
 objgraph==3.6.2
