@@ -57,6 +57,7 @@ class GameBug:
         chess960=False,
         create=True,
         tournamentId=None,
+        new_960_fen_needed_for_rematch=False,
     ):
         self.app_state = app_state
 
@@ -78,6 +79,7 @@ class GameBug:
         self.tournamentId = tournamentId
         self.chess960 = chess960
         self.create = create
+        self.new_960_fen_needed_for_rematch = new_960_fen_needed_for_rematch
         self.imported_by = ""
 
         self.server_variant = get_server_variant(variant, chess960)
@@ -121,17 +123,15 @@ class GameBug:
         self.result = "*"
         self.id = gameId
 
-        disabled_fen = ""
-
         start_fen = initial_fen if initial_fen else FairyBoard.start_fen(variant, chess960)
         if chess960:
             self.initial_fen = start_fen
-        fenA = start_fen.split("|")[0].strip()
-        fenB = start_fen.split("|")[1].strip()
+
+        fenA, fenB = map(str.strip, start_fen.split("|"))
 
         self.boards = {
-            "a": FairyBoard(self.variant, fenA, self.chess960, 0, disabled_fen),
-            "b": FairyBoard(self.variant, fenB, self.chess960, 0, disabled_fen),
+            "a": FairyBoard(self.variant, fenA, self.chess960),
+            "b": FairyBoard(self.variant, fenB, self.chess960),
         }
 
         self.gameClocks = GameBugClocks(self)

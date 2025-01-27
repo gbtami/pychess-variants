@@ -1,5 +1,6 @@
 from broadcast import round_broadcast
 from bug.game_bug import GameBug
+from fairy import FairyBoard
 from const import STARTED
 from newid import new_id
 from pychess_global_app_state import PychessGlobalAppState
@@ -68,7 +69,7 @@ async def handle_resign_bughouse(data, game: GameBug, user):
     await round_broadcast(game, response, full=True)
 
 
-async def handle_rematch_bughouse(app_state: PychessGlobalAppState, game, user, users):
+async def handle_rematch_bughouse(app_state: PychessGlobalAppState, game, user):
     log.info("rematch request by %s.", user)
     rematch_id = None
     other_players = filter(lambda p: p.username != user.username, game.non_bot_players)
@@ -76,10 +77,16 @@ async def handle_rematch_bughouse(app_state: PychessGlobalAppState, game, user, 
     log.info("other_plauers %s.", other_players)
     if all(
         elem in game.rematch_offers
-        for elem in map(lambda u: users[u.username].username, other_players)
+        for elem in map(lambda u: app_state.users[u.username].username, other_players)
     ):
         color = "w"  # if game.wplayer.username == opp_name else "b"
         fen = game.initial_fen
+
+        reused_fen = True
+        if game.chess960 and game.new_960_fen_needed_for_rematch:
+            fen = FairyBoard.start_fen(game.variant, game.chess960, disabled_fen=game.initial_fen)
+            reused_fen = False
+
         seek_id = await new_id(None if app_state.db is None else app_state.db.seek)
         seek = Seek(
             seek_id,
@@ -97,6 +104,7 @@ async def handle_rematch_bughouse(app_state: PychessGlobalAppState, game, user, 
             bugPlayer1=game.wplayerB,
             bugPlayer2=game.bplayerB,
             chess960=game.chess960,
+            reused_fen=reused_fen,
         )
         app_state.seeks[seek.id] = seek
 
@@ -120,3 +128,5 @@ async def handle_rematch_bughouse(app_state: PychessGlobalAppState, game, user, 
             await u.send_game_message(game.id, response)
     if rematch_id:
         await round_broadcast(game, {"type": "view_rematch", "gameId": rematch_id})
+
+    return response

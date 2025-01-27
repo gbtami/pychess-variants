@@ -105,7 +105,6 @@ class User:
             }
 
         self.enabled = enabled
-        self.fen960_as_white = None
 
         # last game played
         self.tv = None

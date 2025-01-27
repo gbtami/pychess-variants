@@ -34,6 +34,7 @@ class Seek:
         bugPlayer2=None,
         game_id=None,
         expire_at=None,
+        reused_fen=False,
     ):
         self.id = seek_id
         self.creator = creator
@@ -61,6 +62,9 @@ class Seek:
         self.expire_at = (
             datetime.now(timezone.utc) + CORR_SEEK_EXPIRE_WEEKS if expire_at is None else expire_at
         )
+
+        # True if this is 960 variant 1st, 3rd etc. rematch seek
+        self.reused_fen = reused_fen
 
         # Seek is pending when it is not corr, and user has no live lobby websocket
         self.pending = False

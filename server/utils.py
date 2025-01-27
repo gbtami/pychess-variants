@@ -437,6 +437,7 @@ async def new_game(app_state: PychessGlobalAppState, seek, game_id=None):
             chess960=seek.chess960,
             corr=seek.day > 0,
             create=True,
+            new_960_fen_needed_for_rematch=seek.reused_fen,
         )
     except Exception:
         log.exception(

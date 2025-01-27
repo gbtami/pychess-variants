@@ -72,6 +72,7 @@ class Game:
         corr=False,
         create=True,
         tournamentId=None,
+        new_960_fen_needed_for_rematch=False,
     ):
         self.app_state = app_state
 
@@ -96,6 +97,7 @@ class Game:
         self.chess960 = chess960
         self.corr = corr
         self.create = create
+        self.new_960_fen_needed_for_rematch = new_960_fen_needed_for_rematch
         self.imported_by = ""
 
         self.server_variant = get_server_variant(variant, chess960)
@@ -212,15 +214,7 @@ class Game:
                             )
                             self.draw_offers.add(counting_player.username)
 
-        disabled_fen = ""
-        if (self.chess960 or self.random_only) and self.initial_fen and self.create:
-            if self.wplayer.fen960_as_white == self.initial_fen:
-                disabled_fen = self.initial_fen
-                self.initial_fen = ""
-
-        self.board = FairyBoard(
-            self.variant, self.initial_fen, self.chess960, count_started, disabled_fen
-        )
+        self.board = FairyBoard(self.variant, self.initial_fen, self.chess960)
 
         # Janggi setup needed when player is not BOT
         if self.variant == "janggi":

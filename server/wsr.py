@@ -12,7 +12,7 @@ from broadcast import round_broadcast
 from chat import chat_response
 from const import ANON_PREFIX, ANALYSIS, STARTED
 from draw import draw, reject_draw
-from fairy import WHITE, BLACK
+from fairy import WHITE, BLACK, FairyBoard
 from const import TYPE_CHECKING
 from newid import new_id
 
@@ -353,7 +353,7 @@ async def handle_analysis(app_state: PychessGlobalAppState, ws, data, game):
 
 async def handle_rematch(app_state: PychessGlobalAppState, ws, user, data, game):
     if game.server_variant.two_boards:
-        await handle_rematch_bughouse(app_state, game, user, app_state.users)
+        await handle_rematch_bughouse(app_state, game, user)
         return
 
     rematch_id = None
@@ -364,6 +364,11 @@ async def handle_rematch(app_state: PychessGlobalAppState, ws, user, data, game)
     opp_player = app_state.users[opp_name]
     handicap = data["handicap"]
     fen = "" if game.variant == "janggi" else game.initial_fen
+
+    reused_fen = True
+    if game.chess960 and game.new_960_fen_needed_for_rematch:
+        fen = FairyBoard.start_fen(game.variant, game.chess960, disabled_fen=game.initial_fen)
+        reused_fen = False
 
     if opp_player.bot:
         if opp_player.username == "Random-Mover":
@@ -393,6 +398,7 @@ async def handle_rematch(app_state: PychessGlobalAppState, ws, user, data, game)
             rated=game.rated,
             player1=user,
             chess960=game.chess960,
+            reused_fen=reused_fen,
         )
         app_state.seeks[seek.id] = seek
 
@@ -423,6 +429,7 @@ async def handle_rematch(app_state: PychessGlobalAppState, ws, user, data, game)
                 rated=game.rated,
                 player1=user,
                 chess960=game.chess960,
+                reused_fen=reused_fen,
             )
             app_state.seeks[seek.id] = seek
 
@@ -444,6 +451,8 @@ async def handle_rematch(app_state: PychessGlobalAppState, ws, user, data, game)
             await app_state.users[opp_name].send_game_message(data["gameId"], response)
     if rematch_id:
         await round_broadcast(game, {"type": "view_rematch", "gameId": rematch_id})
+
+    return response
 
 
 async def handle_reject_rematch(user, game):

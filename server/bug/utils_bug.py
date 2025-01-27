@@ -304,6 +304,7 @@ async def new_game_bughouse(app_state: PychessGlobalAppState, seek_id, game_id=N
             rated=(RATED if (seek.rated and (not wplayer.anon) and (not bplayer.anon)) else CASUAL),
             chess960=seek.chess960,
             create=True,
+            new_960_fen_needed_for_rematch=seek.reused_fen,
         )
     except Exception:
         log.exception(
