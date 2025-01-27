@@ -38,7 +38,8 @@ export function calculateDiff(fen: string, dimensions: cg.BoardDimensions, equiv
     for (const [_, piece] of boardState.pieces) {
         const role = equivalentRole(piece.role, equivalences, captureToHand);
         const num = materialDiff.get(role) ?? 0;
-        materialDiff.set(role, (piece.color === 'white') ? num - 1 : num + 1);
+        if (piece.role !== '_-piece') //Exclude duck/any other type of brick
+            materialDiff.set(role, (piece.color === 'white') ? num - 1 : num + 1);
     }
 
     if (boardState.pockets) {
