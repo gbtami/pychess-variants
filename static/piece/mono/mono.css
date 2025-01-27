@@ -5,7 +5,7 @@ mpiece {
     background-size: cover;
     display: inline-block;
 }
-mpiece.p-piece {
+mpiece.p-piece, .synochess mpiece.s-piece, .khans mpiece.s-piece, .spartan mpiece.h-piece {
     margin-left: -15px;
 }
 .material div {
