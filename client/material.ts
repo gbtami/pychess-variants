@@ -97,13 +97,9 @@ function generateContent(variant: Variant, fen: string): [VNode[], VNode[]] {
     const whiteCapturedOrder: cg.Role[] = mergeOrders(variant.pieceRow['black'], variant.pieceRow['white']);
     const blackCapturedOrder: cg.Role[] = mergeOrders(variant.pieceRow['white'], variant.pieceRow['black']);
     
-    console.log(whiteCapturedOrder, blackCapturedOrder)
-    console.log(imbalance);
-
     for (const role of whiteCapturedOrder) {
         const num = imbalance.get(role);
         if (num === undefined) continue;
-        console.log(role, num);
         if (num < 0) {
             const pieceDiff = Math.abs(num);
             const currentDiv: VNode[] = [];
@@ -115,7 +111,6 @@ function generateContent(variant: Variant, fen: string): [VNode[], VNode[]] {
     for (const role of blackCapturedOrder) {
         const num = imbalance.get(role);
         if (num === undefined) continue;
-        console.log(role, num);
         if (num > 0) {
             const pieceDiff = Math.abs(num);
             const currentDiv: VNode[] = [];
