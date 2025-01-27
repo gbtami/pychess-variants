@@ -271,16 +271,18 @@ async def import_game(request):
     status = int(data.get("Status", UNKNOWNFINISH))
     result = data.get("Result", "*")
     try:
-        date = data.get("Date", "")[0:10]
+        date_tag = data.get("Date", "")
+        date = date_tag[0:10]
         date = map(int, date.split("." if "." in date else "/"))
         date = datetime(*date, tzinfo=timezone.utc)
     except Exception:
-        log.exception("Date tag parsing failed")
+        log.debug("Date tag parsing failed. %s", date_tag)
         date = datetime.now(timezone.utc)
 
     try:
         minute = False
-        tc = data.get("TimeControl", "").split("+")
+        tc_tag = data.get("TimeControl", "")
+        tc = tc_tag.split("+")
         if tc[0][-1] == "分":
             minute = True
             tc[0] = tc[0][:-1]
@@ -290,7 +292,7 @@ async def import_game(request):
         base = int((tc[0] / 60 if tc[0] > 60 else tc[0]) if not minute else tc[0])
         inc = int(tc[1])
     except Exception:
-        log.exception("TimeControl tag parsing failed")
+        log.debug("TimeControl tag parsing failed. %s", tc_tag)
         base, inc = 0, 0
 
     move_stack = data.get("moves", "").split(" ")
