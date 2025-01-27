@@ -15,7 +15,7 @@ log4mongo==1.8.1
 pyopenssl==25.0.0
 pyffish==0.0.86
 pyffish_alice==0.0.1
-rustworkx==0.15.1
+rustworkx==0.16.0
 sortedcollections==2.1.0
 tzdata==2025.1
 python-gettext==5.0
