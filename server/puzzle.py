@@ -22,8 +22,6 @@ NO_PUZZLE_VARIANTS = (
     "gorogoroplus",
     "manchu",
     "grandhouse",
-    "shinobi",
-    "shinobiplus",
     "cannonshogi",
     "bughouse",
     "fogofwar",

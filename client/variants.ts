@@ -1171,8 +1171,6 @@ export const noPuzzleVariants = [
     "gorogoroplus",
     "manchu",
     "grandhouse",
-    "shinobi",
-    "shinobiplus",
     "cannonshogi",
     "bughouse",
     "fogofwar",
