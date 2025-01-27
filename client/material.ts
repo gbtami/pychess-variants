@@ -102,6 +102,7 @@ function generateContent(variant: Variant, fen: string): [VNode[], VNode[]] {
 
     for (const role of whiteCapturedOrder) {
         const num = imbalance.get(role);
+        if (num === undefined) continue;
         console.log(role, num);
         if (num < 0) {
             const pieceDiff = Math.abs(num);
@@ -113,6 +114,7 @@ function generateContent(variant: Variant, fen: string): [VNode[], VNode[]] {
     }
     for (const role of blackCapturedOrder) {
         const num = imbalance.get(role);
+        if (num === undefined) continue;
         console.log(role, num);
         if (num > 0) {
             const pieceDiff = Math.abs(num);
