@@ -38,7 +38,8 @@ export function calculateDiff(fen: string, dimensions: cg.BoardDimensions, equiv
     for (const [_, piece] of boardState.pieces) {
         const role = equivalentRole(piece.role, equivalences, captureToHand);
         const num = materialDiff.get(role) ?? 0;
-        materialDiff.set(role, (piece.color === 'white') ? num - 1 : num + 1);
+        if (piece.role !== '_-piece') //Exclude duck/any other type of brick
+            materialDiff.set(role, (piece.color === 'white') ? num - 1 : num + 1);
     }
 
     if (boardState.pockets) {
@@ -71,19 +72,52 @@ export function calculateGameDiff(variant: Variant, fen: string): MaterialDiff {
     return diff(calculateMaterialDiff(variant, fen), variant.material.initialDiff);
 }
 
+function mergeOrders(order1: cg.Role[], order2: cg.Role[]): cg.Role[] {
+    let result: cg.Role[] = [];
+    let seen = new Set<cg.Role>();
+    for (const piece of order1) {
+        if (!seen.has(piece)) {
+            result.push(piece);
+            seen.add(piece);
+        }
+    }
+    for (const piece of order2) {
+        if (!seen.has(piece)) {
+            result.push(piece);
+            seen.add(piece);
+        }
+    }
+    return result;
+}
+
 function generateContent(variant: Variant, fen: string): [VNode[], VNode[]] {
     const imbalance = calculateGameDiff(variant, fen);
     const whiteContent: VNode[] = [];
     const blackContent: VNode[] = [];
-
-    for (const [role, num] of imbalance) {
-        if (num === 0) continue;
-        const content = num > 0 ? blackContent : whiteContent;
-        const pieceDiff = Math.abs(num);
-        const currentDiv: VNode[] = [];
-        for (let i = 0; i < pieceDiff; i++)
-        currentDiv.push(h('mpiece.' + role));
-        content.push(h('div', currentDiv));
+    const whiteCapturedOrder: cg.Role[] = mergeOrders(variant.pieceRow['black'], variant.pieceRow['white']);
+    const blackCapturedOrder: cg.Role[] = mergeOrders(variant.pieceRow['white'], variant.pieceRow['black']);
+    
+    for (const role of whiteCapturedOrder) {
+        const num = imbalance.get(role);
+        if (num === undefined) continue;
+        if (num < 0) {
+            const pieceDiff = Math.abs(num);
+            const currentDiv: VNode[] = [];
+            for (let i = 0; i < pieceDiff; i++)
+            currentDiv.push(h('mpiece.' + role));
+            whiteContent.push(h('div', currentDiv));
+        }
+    }
+    for (const role of blackCapturedOrder) {
+        const num = imbalance.get(role);
+        if (num === undefined) continue;
+        if (num > 0) {
+            const pieceDiff = Math.abs(num);
+            const currentDiv: VNode[] = [];
+            for (let i = 0; i < pieceDiff; i++)
+            currentDiv.push(h('mpiece.' + role));
+            blackContent.push(h('div', currentDiv));
+        }
     }
     return [whiteContent, blackContent];
 }
@@ -102,9 +136,9 @@ export function updateMaterial(variant: Variant, fen: string, vmaterialTop: VNod
     ];
 }
 
-export function emptyMaterial(variant: Variant): [VNode, VNode] {
+export function emptyMaterial(variant: Variant, vmaterialTop: VNode | HTMLElement, vmaterialBottom: VNode | HTMLElement): [VNode, VNode] {
     return [
-        makeMaterialVNode(variant, 'top', [], true),
-        makeMaterialVNode(variant, 'bottom', [], true),
+        patch(vmaterialTop, makeMaterialVNode(variant, 'top', [], true)),
+        patch(vmaterialBottom, makeMaterialVNode(variant, 'bottom', [], true)),
     ];
 }

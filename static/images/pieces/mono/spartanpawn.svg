@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   clip-rule="evenodd"
+   fill-rule="evenodd"
+   height="177.17"
+   image-rendering="optimizeQuality"
+   shape-rendering="geometricPrecision"
+   viewBox="0 0 50 50"
+   width="177.17"
+   version="1.1"
+   id="svg1388"
+   sodipodi:docname="spartanpawn.svg"
+   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs1392" />
+  <sodipodi:namedview
+     id="namedview1390"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     showgrid="false"
+     inkscape:zoom="6.5925383"
+     inkscape:cx="58.323514"
+     inkscape:cy="88.584999"
+     inkscape:window-width="2494"
+     inkscape:window-height="1371"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg1388" />
+  <linearGradient
+     id="a"
+     gradientUnits="userSpaceOnUse"
+     x1="-95.809341"
+     x2="-54.847065"
+     y1="25.855843"
+     y2="25.855843"
+     gradientTransform="translate(125.29412,1.820825)">
+    <stop
+       offset="0"
+       stop-color="#e9e9e8"
+       id="stop1370" />
+    <stop
+       offset="1"
+       stop-color="#e9e9e8"
+       stop-opacity="0"
+       id="stop1372" />
+  </linearGradient>
+  <linearGradient
+     id="b"
+     gradientUnits="userSpaceOnUse"
+     x1="-101.568829"
+     x2="-72.801292"
+     y1="24.055792"
+     y2="24.055792"
+     gradientTransform="translate(125.29412,1.820825)">
+    <stop
+       offset="0"
+       stop-color="#fff"
+       id="stop1375" />
+    <stop
+       offset="1"
+       stop-color="#fff"
+       stop-opacity="0"
+       id="stop1377" />
+  </linearGradient>
+  <path
+     id="circle1380"
+     style="fill:#888888;fill-opacity:1"
+     d="M 25.000265 8.9002398 A 18.776175 18.776175 0 0 0 6.2236086 27.676896 A 18.776175 18.776175 0 0 0 25.000265 46.453001 A 18.776175 18.776175 0 0 0 43.77637 27.676896 A 18.776175 18.776175 0 0 0 25.000265 8.9002398 z M 23.354379 16.855721 L 23.355482 16.855721 L 26.643395 16.855721 L 26.645599 16.855721 L 35.470876 34.897076 L 32.083195 34.897076 L 25.000265 20.254426 L 17.916783 34.897076 L 14.529654 34.897076 L 23.354379 16.855721 z " />
+</svg>
