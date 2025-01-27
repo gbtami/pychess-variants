@@ -72,19 +72,55 @@ export function calculateGameDiff(variant: Variant, fen: string): MaterialDiff {
     return diff(calculateMaterialDiff(variant, fen), variant.material.initialDiff);
 }
 
+function mergeOrders(order1: cg.Role[], order2: cg.Role[]): cg.Role[] {
+    let result: cg.Role[] = [];
+    let seen = new Set<cg.Role>();
+    for (const piece of order1) {
+        if (!seen.has(piece)) {
+            result.push(piece);
+            seen.add(piece);
+        }
+    }
+    for (const piece of order2) {
+        if (!seen.has(piece)) {
+            result.push(piece);
+            seen.add(piece);
+        }
+    }
+    return result;
+}
+
 function generateContent(variant: Variant, fen: string): [VNode[], VNode[]] {
     const imbalance = calculateGameDiff(variant, fen);
     const whiteContent: VNode[] = [];
     const blackContent: VNode[] = [];
+    const whiteCapturedOrder: cg.Role[] = mergeOrders(variant.pieceRow['black'], variant.pieceRow['white']);
+    const blackCapturedOrder: cg.Role[] = mergeOrders(variant.pieceRow['white'], variant.pieceRow['black']);
+    
+    console.log(whiteCapturedOrder, blackCapturedOrder)
+    console.log(imbalance);
 
-    for (const [role, num] of imbalance) {
-        if (num === 0) continue;
-        const content = num > 0 ? blackContent : whiteContent;
-        const pieceDiff = Math.abs(num);
-        const currentDiv: VNode[] = [];
-        for (let i = 0; i < pieceDiff; i++)
-        currentDiv.push(h('mpiece.' + role));
-        content.push(h('div', currentDiv));
+    for (const role of whiteCapturedOrder) {
+        const num = imbalance.get(role);
+        console.log(role, num);
+        if (num < 0) {
+            const pieceDiff = Math.abs(num);
+            const currentDiv: VNode[] = [];
+            for (let i = 0; i < pieceDiff; i++)
+            currentDiv.push(h('mpiece.' + role));
+            whiteContent.push(h('div', currentDiv));
+        }
+    }
+    for (const role of blackCapturedOrder) {
+        const num = imbalance.get(role);
+        console.log(role, num);
+        if (num > 0) {
+            const pieceDiff = Math.abs(num);
+            const currentDiv: VNode[] = [];
+            for (let i = 0; i < pieceDiff; i++)
+            currentDiv.push(h('mpiece.' + role));
+            blackContent.push(h('div', currentDiv));
+        }
     }
     return [whiteContent, blackContent];
 }
