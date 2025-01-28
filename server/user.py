@@ -33,6 +33,10 @@ PENDING_SEEK_TIMEOUT = 10
 ABANDON_TIMEOUT = 90
 
 
+class RatingResetError(Exception):
+    """Raised when new User object created with perft=None, but user already in leaderboards"""
+
+
 class User:
     def __init__(
         self,
@@ -89,7 +93,18 @@ class User:
         self.online = False
 
         if perfs is None:
-            self.perfs = {variant: DEFAULT_PERF for variant in RATED_VARIANTS}
+            if self.anon or self.bot:
+                self.perfs = {variant: DEFAULT_PERF for variant in RATED_VARIANTS}
+            else:
+                # User() with perfs=None can be dangerous
+                _id = "%s|%s" % (self.username, self.title)
+                hs = app_state.highscore
+                if any((_id in hs[variant] for variant in RATED_VARIANTS)):
+                    raise RatingResetError(
+                        "%s User() called with perfs=None. Use await users.get() instead.", username
+                    )
+                else:
+                    self.perfs = {variant: DEFAULT_PERF for variant in RATED_VARIANTS}
         else:
             self.perfs = {
                 variant: perfs[variant] if variant in perfs else DEFAULT_PERF
