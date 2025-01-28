@@ -32,7 +32,7 @@ BLOGS = [
         "alt": "",
         "title": "S-Chess End-Game Tables",
         "subtitle": "Elephant vs Rook",
-        "author": "h.g.muller",
+        "author": "HGMuller",
         "tags": ["Blog"],
     },
     {
