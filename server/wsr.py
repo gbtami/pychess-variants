@@ -260,7 +260,7 @@ async def handle_setup(ws, users, user, data, game):
     opp_name = (
         game.wplayer.username if user.username == game.bplayer.username else game.bplayer.username
     )
-    opp_player = users[opp_name]
+    opp_player = users[opp_name] if opp_name in users else None
 
     game.steps[0]["fen"] = data["fen"]
 
@@ -273,11 +273,12 @@ async def handle_setup(ws, users, user, data, game):
         }
         await ws_send_json(ws, response)
 
-        if opp_player.bot:
-            game.board.janggi_setup("w")
-            game.steps[0]["fen"] = game.board.initial_fen
-        else:
-            await users[opp_name].send_game_message(game.id, response)
+        if opp_player is not None:
+            if opp_player.bot:
+                game.board.janggi_setup("w")
+                game.steps[0]["fen"] = game.board.initial_fen
+            else:
+                await opp_player.send_game_message(game.id, response)
     else:
         game.wsetup = False
         game.status = STARTED
@@ -286,7 +287,7 @@ async def handle_setup(ws, users, user, data, game):
         # log.info("User %s asked board. Server sent: %s" % (user.username, board_response["fen"]))
         await ws_send_json(ws, response)
 
-        if not opp_player.bot:
+        if (opp_player is not None) and (not opp_player.bot):
             await opp_player.send_game_message(data["gameId"], response)
 
     await game.save_setup()
@@ -474,21 +475,23 @@ async def handle_reject_rematch(user, game):
 async def handle_draw(ws, users, user, data, game):
     color = WHITE if user.username == game.wplayer.username else BLACK
     opp_name = game.wplayer.username if color == BLACK else game.bplayer.username
-    opp_player = users[opp_name]
 
     if opp_name not in game.draw_offers:
         game.draw_offers.add(user.username)
 
     response = await draw(game, user, agreement=opp_name in game.draw_offers)
     await ws_send_json(ws, response)
-    if opp_player.bot:
-        if game.status > STARTED and data["gameId"] in opp_player.game_queues:
-            await opp_player.game_queues[data["gameId"]].put(game.game_end)
-    else:
-        try:
-            await users[opp_name].send_game_message(data["gameId"], response)
-        except KeyError:
-            log.error("handle_draw() KeyError. Opp %s disconnected", opp_name)
+
+    if opp_name in users:
+        opp_player = users[opp_name]
+        if opp_player.bot:
+            if game.status > STARTED and data["gameId"] in opp_player.game_queues:
+                await opp_player.game_queues[data["gameId"]].put(game.game_end)
+        else:
+            try:
+                await opp_player.send_game_message(data["gameId"], response)
+            except KeyError:
+                log.error("handle_draw() KeyError. Opp %s disconnected", opp_name)
 
     await round_broadcast(game, response)
 
@@ -533,12 +536,13 @@ async def handle_abort_resign_abandon_flag(ws, users, user, data, game):
     opp_name = (
         game.wplayer.username if user.username == game.bplayer.username else game.bplayer.username
     )
-    opp_player = users[opp_name]
-    if opp_player.bot:
-        if data["gameId"] in opp_player.game_queues:
-            await opp_player.game_queues[data["gameId"]].put(game.game_end)
-    else:
-        await users[opp_name].send_game_message(data["gameId"], response)
+    if opp_name in users:
+        opp_player = users[opp_name]
+        if opp_player.bot:
+            if data["gameId"] in opp_player.game_queues:
+                await opp_player.game_queues[data["gameId"]].put(game.game_end)
+        else:
+            await opp_player.send_game_message(data["gameId"], response)
 
     await round_broadcast(game, response)
 
@@ -619,12 +623,12 @@ async def handle_moretime(users, user, data, game):
     opp_name = (
         game.wplayer.username if user.username == game.bplayer.username else game.bplayer.username
     )
-    opp_player = users[opp_name]
-
-    if not opp_player.bot:
-        response = {"type": "moretime", "username": opp_name}
-        await users[opp_name].send_game_message(data["gameId"], response)
-        await round_broadcast(game, response)
+    if opp_name in users:
+        opp_player = users[opp_name]
+        if not opp_player.bot:
+            response = {"type": "moretime", "username": opp_name}
+            await users[opp_name].send_game_message(data["gameId"], response)
+            await round_broadcast(game, response)
 
 
 async def handle_bugroundchat(users, user, data, game):
