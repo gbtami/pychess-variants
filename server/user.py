@@ -34,7 +34,7 @@ ABANDON_TIMEOUT = 90
 
 
 class RatingResetError(Exception):
-    """Raised when new User object created with perft=None, but user already in leaderboards"""
+    """Raised when new User object created with perft=None, but user already exists in leaderboards"""
 
 
 class User:
