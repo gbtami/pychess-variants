@@ -882,6 +882,7 @@ export class LobbyController implements ChatController {
     }
     private hide(seek: Seek) {
         return ((this.anon || this.title === 'BOT') && seek["rated"]) ||
+            (this.anon && VARIANTS[seek.variant].twoBoards) ||
             (seek['target'] !== '' && this.username !== seek['user'] && this.username !== seek['target']);
     }
     public tooltip(seek: Seek, variant: Variant) {
@@ -1142,11 +1143,11 @@ export class LobbyController implements ChatController {
     }
 
     private onMsgAutoPairingOn() {
-        this.renderAutoPairingActions(true);
+        if (!this.anon) this.renderAutoPairingActions(true);
     }
 
     private onMsgAutoPairingOff() {
-        this.renderAutoPairingActions(false);
+        if (!this.anon) this.renderAutoPairingActions(false);
     }
 
     private onMsgGetSeeks(msg: MsgGetSeeks) {
