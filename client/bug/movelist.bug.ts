@@ -1,5 +1,6 @@
 import { h, VNode } from 'snabbdom';
 
+import { _ } from '@/i18n';
 import AnalysisControllerBughouse from './analysisCtrl.bug';
 import { result } from '../result'
 import { patch } from '../document';
@@ -70,8 +71,8 @@ export function activatePlyVari (ply: number) {
 export function createMovelistButtons (ctrl: AnalysisControllerBughouse | RoundControllerBughouse ) {
     const container = document.getElementById('move-controls') as HTMLElement;
     let buttons = [
-        h('button', { on: { click: () => ctrl.flipBoards() } }, [ h('i.icon.icon-refresh') ]),
-        h('button', { on: { click: () => ctrl.switchBoards() } }, [ h('i.icon.icon-exchange') ]),
+        h('button', { on: { click: () => ctrl.flipBoards() }, props: { title: _('Flip boards')} }, [ h('i.icon.icon-refresh') ]),
+        h('button', { on: { click: () => ctrl.switchBoards() }, props: { title: _('Switch boards')} }, [ h('i.icon.icon-exchange') ]),
         h('button', { on: { click: () => selectMove(ctrl, 0) } }, [ h('i.icon.icon-fast-backward') ]),
         h('button', { on: { click: () => selectMove(ctrl, ctrl.ply - 1, ctrl.plyVari) } }, [ h('i.icon.icon-step-backward') ]),
         h('button', { on: { click: () => selectMove(ctrl, ctrl.ply + 1, ctrl.plyVari) } }, [ h('i.icon.icon-step-forward') ]),

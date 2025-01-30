@@ -1,5 +1,6 @@
 import { h, VNode } from 'snabbdom';
 
+import { _ } from './i18n';
 import { GameController } from './gameCtrl';
 import { result } from './result'
 import { Step } from './messages';
@@ -68,22 +69,22 @@ export function activatePlyVari (ply: number) {
 export function createMovelistButtons (ctrl: GameController) {
     const container = document.getElementById('move-controls') as HTMLElement;
     let buttons = [
-        h('button', { on: { click: () => ctrl.toggleOrientation() } }, [ h('i.icon.icon-refresh') ]),
+        h('button', { on: { click: () => ctrl.toggleOrientation() }, props: { title: _('Flip board')} }, [ h('i.icon.icon-refresh') ]),
         h('button', { on: { click: () => selectMove(ctrl, 0) } }, [ h('i.icon.icon-fast-backward') ]),
         h('button', { on: { click: () => selectMove(ctrl, ctrl.ply - 1, ctrl.plyVari) } }, [ h('i.icon.icon-step-backward') ]),
         h('button', { on: { click: () => selectMove(ctrl, ctrl.ply + 1, ctrl.plyVari) } }, [ h('i.icon.icon-step-forward') ]),
         h('button', { on: { click: () => selectMove(ctrl, ctrl.steps.length - 1) } }, [ h('i.icon.icon-fast-forward') ]),
     ];
     if (ctrl.variant.name === 'alice') {
-        buttons.push(h('button#alice', { on: { click: () => ctrl.switchAliceBoards() } }, [ h('i.icon.icon-exchange') ]));
+        buttons.push(h('button#alice', { on: { click: () => ctrl.switchAliceBoards() }, props: { title: _('Switch boards')} }, [ h('i.icon.icon-exchange') ]));
     }
 
     if ("localEngine" in ctrl) {
-        buttons.push(h('button#bars', { on: { click: () => ctrl.toggleSettings() } }, [ h('i.icon.icon-bars') ]));
+        buttons.push(h('button#bars', { on: { click: () => ctrl.toggleSettings() }, props: { title: _('Menu')} }, [ h('i.icon.icon-bars') ]));
     } else {
         if (ctrl.corr && ctrl.variant.name !== 'fogofwar') {
             const url = ctrl.home + '/corranalysis/' + ctrl.gameId + `?ply=${ctrl.ply + 1}`;
-            buttons.push(h('button#corr', { on: { click: () => window.location.assign(url) } }, [ h('i.icon.icon-microscope') ]));
+            buttons.push(h('button#corr', { on: { click: () => window.location.assign(url) }, props: { title: _('Analysis board')} }, [ h('i.icon.icon-microscope') ]));
         }
     }
 
