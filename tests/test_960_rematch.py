@@ -27,6 +27,8 @@ PERFS = {
     "newplayer": {variant: DEFAULT_PERF for variant in VARIANTS},
 }
 
+ONE_TEST_ONLY = False
+
 
 class FakeWs:
     async def send_json(self, msg):
@@ -72,6 +74,21 @@ class RamatchChess960GameTestCase(AioHTTPTestCase):
 
         return resp
 
+    @unittest.skipIf(ONE_TEST_ONLY, "1 test only")
+    async def test_ramatch_ataxx(self):
+        app_state = get_app_state(self.app)
+        game = Game(
+            app_state,
+            "12345678",
+            "ataxx",
+            "",
+            self.Aplayer,
+            self.Bplayer,
+            chess960=False,
+        )
+        await self.play_the_match(game)
+
+    @unittest.skipIf(ONE_TEST_ONLY, "1 test only")
     async def test_ramatch_bug_2vs2(self):
         app_state = get_app_state(self.app)
         game = GameBug(
@@ -87,6 +104,7 @@ class RamatchChess960GameTestCase(AioHTTPTestCase):
         )
         await self.play_the_match(game)
 
+    @unittest.skipIf(ONE_TEST_ONLY, "1 test only")
     async def test_ramatch_bug_1vs2(self):
         app_state = get_app_state(self.app)
         game = GameBug(
@@ -102,6 +120,7 @@ class RamatchChess960GameTestCase(AioHTTPTestCase):
         )
         await self.play_the_match(game)
 
+    @unittest.skipIf(ONE_TEST_ONLY, "1 test only")
     async def test_ramatch_bug_1vs1(self):
         app_state = get_app_state(self.app)
         game = GameBug(
@@ -117,7 +136,8 @@ class RamatchChess960GameTestCase(AioHTTPTestCase):
         )
         await self.play_the_match(game)
 
-    async def test_ramatch(self):
+    @unittest.skipIf(ONE_TEST_ONLY, "1 test only")
+    async def test_ramatch_chess(self):
         app_state = get_app_state(self.app)
         game = Game(
             app_state,

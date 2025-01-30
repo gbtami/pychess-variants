@@ -111,7 +111,7 @@ class FairyBoard:
 
     @staticmethod
     def start_fen(variant, chess960=False, disabled_fen=""):
-        if chess960:
+        if chess960 or variant == "ataxx":
             new_fen = FairyBoard.shuffle_start(variant)
             while new_fen == disabled_fen:
                 new_fen = FairyBoard.shuffle_start(variant)

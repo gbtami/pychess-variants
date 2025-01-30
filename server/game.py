@@ -244,7 +244,6 @@ class Game:
 
         if self.chess960 or self.random_only:
             self.initial_fen = self.board.initial_fen
-            self.wplayer.fen960_as_white = self.initial_fen
 
         self.random_mover = (
             "Random-Mover"

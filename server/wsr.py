@@ -367,7 +367,7 @@ async def handle_rematch(app_state: PychessGlobalAppState, ws, user, data, game)
     fen = "" if game.variant == "janggi" else game.initial_fen
 
     reused_fen = True
-    if game.chess960 and game.new_960_fen_needed_for_rematch:
+    if (game.chess960 or game.random_only) and game.new_960_fen_needed_for_rematch:
         fen = FairyBoard.start_fen(game.variant, game.chess960, disabled_fen=game.initial_fen)
         reused_fen = False
 
