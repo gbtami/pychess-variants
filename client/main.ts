@@ -115,7 +115,8 @@ function initModel(el: HTMLElement) {
 }
 
 export function view(el: HTMLElement, model: PyChessModel): VNode {
-    const twoBoards = (model.variant) ? VARIANTS[model.variant].twoBoards : false;
+    const variant = (model.variant.endsWith('960') ? model.variant.slice(0, -3) : model.variant);
+    const twoBoards = (variant) ? VARIANTS[variant].twoBoards : false;
     switch (el.getAttribute("data-view")) {
     case 'about':
         return h('div#main-wrap', aboutView(model));
