@@ -47,7 +47,7 @@
     "esbuild": "^0.24.2",
     "esbuild-plugin-compress": "^1.0.1",
     "esm": "^3.2.25",
-    "jsdom": "^25.0.1",
+    "jsdom": "^26.0.0",
     "jsdom-global": "^3.0.2",
     "postcss": "8.x",
     "showdown": "^2.1.0",
