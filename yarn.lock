@@ -268,11 +268,6 @@
     "@babel/helper-string-parser" "^7.25.9"
     "@babel/helper-validator-identifier" "^7.25.9"
 
-"@badrap/result@^0.2":
-  version "0.2.13"
-  resolved "https://registry.yarnpkg.com/@badrap/result/-/result-0.2.13.tgz#3c23f39f7e861cfa8ac3a65726ac17b1ee364927"
-  integrity sha512-Qvyzz0dmGY0h8pwvBFo1BznAKf5Y5NXIDiqhPALWtfU7oHbAToCtPu4FlYQ3uysskSWLx8GUiyhe0nv0nDd/7Q==
-
 "@bcoe/v8-coverage@^0.2.3":
   version "0.2.3"
   resolved "https://registry.yarnpkg.com/@bcoe/v8-coverage/-/v8-coverage-0.2.3.tgz#75a2e8b51cb758a7553d6804a5932d7aace75c39"
@@ -1052,13 +1047,6 @@ chessgroundx@^10.7.1:
   version "10.7.1"
   resolved "https://registry.yarnpkg.com/chessgroundx/-/chessgroundx-10.7.1.tgz#7083e98d1b520bba9f841b7031cab87d65b75a07"
   integrity sha512-F4LdlQyEhl7bCj9LKo2sPBlVUCmm9u6ru9iLJPLVj85YrqKsr5ZGyshf17MlvWcsDpWxQFBqWQHafOOQ7nzQFw==
-
-chessops@^0.14.1:
-  version "0.14.2"
-  resolved "https://registry.yarnpkg.com/chessops/-/chessops-0.14.2.tgz#b5d822e5f92cc94ddb2a74a461b2705b2fa6afe6"
-  integrity sha512-7DghoMODSN8a17L9JHYBWhLBaSKROKS7+NDsvseNJ502UTbuZ7EYueIAmo1oD+f0TeEqh+jo2gsUFRhGRKAR3g==
-  dependencies:
-    "@badrap/result" "^0.2"
 
 ci-info@^3.2.0:
   version "3.9.0"
@@ -2847,9 +2835,9 @@ type-fest@^0.21.3:
   integrity sha512-t0rzBq87m3fVcduHDUFhKmyyX+9eo6WQjZvf51Ea/M0Q7+T374Jp1aUiyUl0GKxp8M/OETVHSDvmkyPgvX+X2w==
 
 typescript@^5.7:
-  version "5.7.2"
-  resolved "https://registry.yarnpkg.com/typescript/-/typescript-5.7.2.tgz#3169cf8c4c8a828cde53ba9ecb3d2b1d5dd67be6"
-  integrity sha512-i5t66RHxDvVN40HfDd1PsEThGNnlMCMT3jMUuoh9/0TaqWevNontacunWyN02LA9/fIbEWlcHZcgTKb9QoaLfg==
+  version "5.7.3"
+  resolved "https://registry.yarnpkg.com/typescript/-/typescript-5.7.3.tgz#919b44a7dbb8583a9b856d162be24a54bf80073e"
+  integrity sha512-84MVSjMEHP+FQRPy3pX9sTVV/INIex71s9TL2Gm5FG/WG1SqXeKyZ0k7/blY/4FdOzI12CBy1vGc4og/eus0fw==
 
 undici-types@~6.20.0:
   version "6.20.0"
