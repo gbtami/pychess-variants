@@ -59,7 +59,7 @@ class Clock:
 
             # Time was running out
             if self.running:
-                if self.board.ply == self.ply:
+                if self.game.ply == self.ply:
                     # On lichess rage quit waits 10 seconds
                     # until the other side gets the win claim,
                     # and a disconnection gets 120 seconds.
@@ -69,12 +69,14 @@ class Clock:
                     # If FLAG was not received we have to act
                     if self.game.status < ABORTED and self.secs <= 0 and self.running:
                         user = self.game.get_player_at(self.color, self.board)
+                        log.debug("FLAG from server. Secs: %s User: %s", self.secs, user.username)
 
                         reason = (
                             "abort"
                             if (self.ply < 2) and (self.game.tournamentId is None)
                             else "flag"
                         )
+
                         async with self.game.move_lock:
                             response = await self.game.game_ended(user, reason)
                             await round_broadcast(self.game, response, full=True)
@@ -139,12 +141,19 @@ class CorrClock:
         return self.mins
 
     def restart(self, from_db=False):
-        self.ply = self.game.board.ply
+        self.ply = self.game.ply
         self.color = self.game.board.color
         self.mins = self.game.base * 24 * 60
         if from_db and self.game.last_move_time is not None:
             delta = datetime.now(timezone.utc) - self.game.last_move_time
-            self.mins -= delta.total_seconds() / 60
+            remaining_mins = self.mins - delta.total_seconds() / 60
+            # Clocks may go to negative while server is restarting
+            # force to detect it again
+            if remaining_mins <= 0:
+                log.debug("Negative clock in unfinished game %s", self.game.id)
+                self.mins = 5
+            else:
+                self.mins = remaining_mins
         self.running = True
 
     async def countdown(self):
@@ -162,21 +171,16 @@ class CorrClock:
                     user = self.game.bplayer if self.color == BLACK else self.game.wplayer
                     await self.notify_hurry(user)
 
-            if self.game.status < ABORTED and self.running:
+            if self.game.status < ABORTED and self.mins <= 0 and self.running:
                 user = self.game.bplayer if self.color == BLACK else self.game.wplayer
-                if self.mins <= 0:
-                    log.debug(
-                        "min < 0. Flagging from serverside. Mins: %f. Board: %s. ply: %s",
-                        self.mins,
-                        self.board,
-                        self.ply,
-                    )
-                    reason = "abort" if self.ply < 2 else "flag"
+                log.debug("FLAG from server. Mins: %s User: %s", self.mins, user.username)
 
-                    async with self.game.move_lock:
-                        response = await self.game.game_ended(user, reason)
-                        await round_broadcast(self.game, response, full=True)
-                    return
+                reason = "abort" if self.ply < 2 else "flag"
+
+                async with self.game.move_lock:
+                    response = await self.game.game_ended(user, reason)
+                    await round_broadcast(self.game, response, full=True)
+                return
 
             # After stop() we are just waiting for next restart
             await asyncio.sleep(CORR_TICK)
