@@ -29,6 +29,39 @@ class Sounds {
         Berserk: 'Berserk',
     };
 
+    private static readonly bugTrackNames = {
+        p: 'pawn',
+        n: 'knight',
+        b: 'bishop',
+        r: 'rook',
+        q: 'queen',
+        h: 'horse',
+        e: 'elephant',
+//        c: 'chariot',
+        c: 'cannon',
+        a: 'advisor',
+        nop: 'no-pawn',
+        non: 'no-knight',
+        nob: 'no-bishop',
+        nor: 'no-rook',
+        noq: 'no-queen',
+        noh: 'no-horse',
+        noe: 'no-elephant',
+//        noc: 'no-chariot',
+        noc: 'no-cannon',
+        noa: 'no-advisor',
+        sit: 'sit',
+        go: 'go',
+        trade: 'trade',
+        notrade: 'dont-trade',
+        mate: 'checkmate',
+        ok: 'ok',
+        no: 'no',
+        mb: 'my-bad',
+        nvm: 'nevermind',
+        nice: 'nice',
+    };
+
     tracks: { [key: string]: Howl };
 
     constructor() {
@@ -42,14 +75,20 @@ class Sounds {
         });
     }
 
-    updateSoundTheme(assetURL: string) {
-        Object.keys(Sounds.trackNames).forEach( (key: keyof typeof Sounds.trackNames) => {
-            this.tracks[key] = this.buildSound(assetURL, Sounds.trackNames[key]);
+    buildBugChatSounds(assetURL: string) {
+        Object.keys(Sounds.bugTrackNames).forEach( (key: keyof typeof Sounds.bugTrackNames) => {
+            this.tracks[key] = this.buildSound(assetURL, 'bugchat', Sounds.bugTrackNames[key]);
         });
     }
 
-    private buildSound(assetURL: string, trackName: string) {
+    updateSoundTheme(assetURL: string) {
         const soundTheme = soundThemeSettings.value;
+        Object.keys(Sounds.trackNames).forEach( (key: keyof typeof Sounds.trackNames) => {
+            this.tracks[key] = this.buildSound(assetURL, soundTheme, Sounds.trackNames[key]);
+        });
+    }
+
+    private buildSound(assetURL: string, soundTheme: string, trackName: string) {
         const soundTrack = (soundTheme === 'silent') ? 'Silence' : trackName;
         const sound = new Howl({
             src: [
@@ -87,11 +126,15 @@ class Sounds {
     explosion()     { if (this.audio()) this.tracks.Explosion.play(); }
     berserk()       { if (this.audio()) this.tracks.Berserk.play(); }
 
+    bugchat(msg:string) { if (this.audio()) this.tracks[msg].play(); }
+
     private moveSoundSet: {[k:string]: { move: ()=> void; capture: ()=>void;}} = {
         regular: { move: () => this.move(), capture: () => this.capture() },
         shogi: { move: () => this.shogimove(), capture: () => this.shogicapture() },
         atomic: { move: () => this.move(), capture: () => this.explosion() },
     };
+
+    bugChatSound(msg: string) { this.bugchat(msg) }
 
     moveSound(variant: Variant, capture: boolean) {
         const soundSet = variant.ui.pieceSound in this.moveSoundSet? this.moveSoundSet[variant.ui.pieceSound] : this.moveSoundSet.regular;
@@ -121,7 +164,7 @@ class Sounds {
         }
     }
 
-        gameEndSoundBughouse(result: string, team: '1' | '2') {
+    gameEndSoundBughouse(result: string, team: '1' | '2') {
         switch (result) {
             case "1/2-1/2":
                 this.draw();
@@ -140,8 +183,6 @@ class Sounds {
                 break;
         }
     }
-
-
 }
 
 class VolumeSettings extends NumberSettings {
@@ -179,6 +220,10 @@ class SoundThemeSettings extends StringSettings {
 
     update(): void {
         sound.updateSoundTheme(this.assetURL);
+    }
+
+    buildBugChatSounds(): void {
+        sound.buildBugChatSounds(this.assetURL);
     }
 
     view(): VNode {

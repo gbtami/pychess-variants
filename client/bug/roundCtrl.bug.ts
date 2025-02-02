@@ -30,7 +30,7 @@ import {
 import {BoardName, BugBoardName, JSONObject, PyChessModel} from "../types";
 import { GameControllerBughouse } from "./gameCtrl.bug";
 import { BLACK, getTurnColor, uci2LastMove, WHITE } from "../chess";
-import { sound } from "../sound";
+import { sound, soundThemeSettings } from "../sound";
 import { player } from "../player";
 import { WebsocketHeartbeatJs } from '../socket/socket';
 import { notify } from "../notification";
@@ -399,6 +399,8 @@ export class RoundControllerBughouse implements ChatController {
         Mousetrap.bind('down', () => selectMove(this, this.steps.length - 1));
         Mousetrap.bind('f', () => this.flipBoards());
         Mousetrap.bind('?', () => this.helpDialog());
+
+        soundThemeSettings.buildBugChatSounds();
     }
 
     helpDialog() {
@@ -1171,6 +1173,9 @@ export class RoundControllerBughouse implements ChatController {
     private onMsgChat = (msg: StepChat) => {
         if (this.spectator /*spectators always see everything*/ || (!this.spectator && msg.room !== 'spectator') || msg.username.length === 0) {
             chatMessageBug(this.ply, this, msg);
+            if (msg.username !== this.username && msg.message.startsWith("!bug!")) {
+                sound.bugChatSound(msg.message.replace('!bug!',''));
+            }
         }
     }
 
