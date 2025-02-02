@@ -111,7 +111,7 @@ Moves one square orthogonally or diagonally. Does not promote. When called witho
 * Any piece you capture is called a Handpiece (held "in hand" in Shogi terminology).
 * Handpieces are placed on a Piece stand (the square plate on which you place the captured piece).
 * On your turn, you may place a handpiece on any empty square instead of moving a piece on the board. (This is called Drop.)
-* You can only drop one piece on a turn.
+* You can only drop one piece on a turn. (Pieces must always be dropped in their pre-promotion state.)
 * If you drop a piece in the enemy camp, it is not automatically promoted. Pieces are always dropped in their pre-promotion state. A piece dropped in enemy camp can be promoted only when it is moved after being dropped.
 * You can deliver a check or checkmate to your opponent by dropping a piece.
 
