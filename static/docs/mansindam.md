@@ -121,14 +121,14 @@ Moves one square orthogonally or diagonally. Does not promote. (Betza: K) When c
 * Pawns cannot be dropped to the last (9th) rank. (This rule was created to prevent this, because once a pawn is dropped on the last rank, it can no longer move.)
 
 **Stalemate**
-The player who can no longer move or drop pieces loses.
+The player who can no longer move or drop pieces loses. (It is called Stalemate.)
 
 **Campmate**
 * The player whose King reaches last rank first wins. (It is called Campmate.)
 * Obviously, when the King reaches the last rank, that square must not be attacked by an opponent's piece.
 
 **Prohibition of Threefold Repetition**
-Neither White nor Black can repeat the same situation three times. Even if it is not repeated in succession, if the same situation is repeated twice in one game, no one can repeat the situation again.
+Neither White nor Black can repeat the same situation three times. Even if it is not repeated in succession, if the same situation is repeated twice in one game, no one can repeat the situation again. (A player who can no longer block or avoid a perpetual check due to the prohibiion of threefold repetition rule also loses.)
 
 **Resignation**
 When you resign, you declare resignation by placing your King on your piece stand. You can resign only on your turn.
