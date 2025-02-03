@@ -81,7 +81,7 @@ Moves like a Bishop, Rook, or Knight. Does not promote. (Betza: RBN)
 ### Yang(陽)=Eum(陰)
 ![King](https://github.com/gbtami/pychess-variants/blob/master/static/images/MansindamGuide/king.png)
 
-Moves one square orthogonally or diagonally. Does not promote. (Betza: K) When called without distinction between Yang and Eum, it is simply called Ok(玉)/King(K). (therefore, in notation, Yang and Eum are written as 玉/K.)
+Moves one square orthogonally or diagonally. Does not promote. (Betza: K) When called without distinction between Yang and Eum, it is simply called Ok(玉)/King(K). (Therefore, in notation, Yang and Eum are written as 玉/K.)
 
 ## Rules
 
