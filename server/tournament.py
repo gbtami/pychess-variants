@@ -141,9 +141,9 @@ class PlayerData:
 
 
 @cache
-def player_json(player, full_score):
+def player_json(player, full_score, paused):
     return {
-        "paused": player.paused,
+        "paused": paused,
         "title": player.title,
         "name": player.username,
         "rating": player.rating,
@@ -351,20 +351,19 @@ class Tournament(ABC):
             "nbGames": self.nb_games_finished,
             "page": page,
             "players": [
-                player_json(self.players[player], full_score)
+                player_json(self.players[player], full_score, self.players[player].paused)
                 for player, full_score in self.leaderboard.items()[start:end]
             ],
         }
 
         if self.status > T_STARTED:
             page_json["podium"] = [
-                player_json(self.players[player], full_score)
+                player_json(self.players[player], full_score, self.players[player].paused)
                 for player, full_score in self.leaderboard.items()[0:3]
             ]
 
         return page_json
 
-    # TODO: cache this
     async def games_json(self, player_name):
         player = await self.app_state.users.get(player_name)
         return {
@@ -582,6 +581,7 @@ class Tournament(ABC):
     async def join(self, user):
         if user.anon:
             return
+        log.debug("JOIN: %s in tournament %s", user.username, self.id)
 
         if self.system == RR and len(self.players) > self.rounds + 1:
             raise EnoughPlayer
@@ -602,8 +602,11 @@ class Tournament(ABC):
                 self.leaderboard.setdefault(user, 0)
             self.nb_players += 1
 
-        self.players[user].paused = False
-        self.players[user].withdrawn = False
+        player = self.players[user]
+
+        player.free = True
+        player.paused = False
+        player.withdrawn = False
 
         response = self.players_json(user=user)
         await self.broadcast(response)
@@ -611,9 +614,10 @@ class Tournament(ABC):
         if self.status == T_CREATED:
             await self.broadcast_spotlight()
 
-        await self.db_update_player(user, self.players[user])
+        await self.db_update_player(user, player)
 
     async def withdraw(self, user):
+        log.debug("WITHDRAW: %s in tournament %s", user.username, self.id)
         self.players[user].withdrawn = True
 
         self.leaderboard.pop(user)
@@ -627,6 +631,7 @@ class Tournament(ABC):
         await self.db_update_player(user, self.players[user])
 
     async def pause(self, user):
+        log.debug("PAUSE: %s in tournament %s", user.username, self.id)
         self.players[user].paused = True
 
         # pause is different from withdraw and join because pause can be initiated from finished games page as well
@@ -952,7 +957,7 @@ class Tournament(ABC):
         elif game.result == "1/2-1/2":
             self.draw += 1
 
-        asyncio.create_task(self.delayed_free(game, wplayer, bplayer), name="t-delayed-free")
+        asyncio.create_task(self.delayed_free(game), name="t-delayed-free")
 
         # save player points to db
         asyncio.create_task(self.db_update_player(game.wplayer, wplayer), name="t-update-player")
@@ -976,19 +981,29 @@ class Tournament(ABC):
             }
             await self.broadcast(response)
 
-    async def delayed_free(self, game, wplayer, bplayer):
+    async def delayed_free(self, game):
         if self.system == ARENA:
             await asyncio.sleep(3)
 
-        wplayer.free = True
-        bplayer.free = True
+        wplayer = self.players[game.wplayer]
+        bplayer = self.players[game.bplayer]
 
         if game.status == FLAG:
             # pause players when they don't start their game
             if game.board.ply == 0:
-                wplayer.paused = True
+                bplayer.free = True
+                await self.pause(game.wplayer)
+                log.debug("AUTO PAUSE: %s in tournament %s", wplayer.username, self.id)
             elif game.board.ply == 1:
-                bplayer.paused = True
+                wplayer.free = True
+                await self.pause(game.bplayer)
+                log.debug("AUTO PAUSE: %s in tournament %s", bplayer.username, self.id)
+            else:
+                wplayer.free = True
+                bplayer.free = True
+        else:
+            wplayer.free = True
+            bplayer.free = True
 
         self.ongoing_games -= 1
 
