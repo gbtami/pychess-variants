@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 """
-    glicko2
-    ~~~~~~~
+glicko2
+~~~~~~~
 
-    The Glicko2 rating system.
+The Glicko2 rating system.
 
-    :copyright: (c) 2012 by Heungsub Lee
-    :Modified by Bajusz Tamás
-    :license: BSD, see LICENSE for more details.
+:copyright: (c) 2012 by Heungsub Lee
+:Modified by Bajusz Tamás
+:license: BSD, see LICENSE for more details.
 """
 from typing import Tuple
 import math
