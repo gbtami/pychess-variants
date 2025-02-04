@@ -227,6 +227,7 @@ table.stats td {
 }
 div#player {
     position: relative;
+    width: 100%;
 }
 div#stats {
     display: flex;

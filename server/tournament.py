@@ -559,7 +559,6 @@ class Tournament(ABC):
             latest = self.players[player].games[-1]
             if latest and isinstance(latest, Game) and latest.status in (CREATED, STARTED):
                 self.players[player].games.pop()
-                self.players[player].points.pop()
                 self.players[player].nb_games -= 1
 
         await self.broadcast(self.summary)
@@ -602,11 +601,11 @@ class Tournament(ABC):
                 self.leaderboard.setdefault(user, 0)
             self.nb_players += 1
 
-        player = self.players[user]
+        player_data = self.players[user]
 
-        player.free = True
-        player.paused = False
-        player.withdrawn = False
+        player_data.free = True
+        player_data.paused = False
+        player_data.withdrawn = False
 
         response = self.players_json(user=user)
         await self.broadcast(response)
@@ -614,7 +613,7 @@ class Tournament(ABC):
         if self.status == T_CREATED:
             await self.broadcast_spotlight()
 
-        await self.db_update_player(user, player)
+        await self.db_update_player(user)
 
     async def withdraw(self, user):
         log.debug("WITHDRAW: %s in tournament %s", user.username, self.id)
@@ -628,7 +627,7 @@ class Tournament(ABC):
 
         await self.broadcast_spotlight()
 
-        await self.db_update_player(user, self.players[user])
+        await self.db_update_player(user)
 
     async def pause(self, user):
         log.debug("PAUSE: %s in tournament %s", user.username, self.id)
@@ -638,7 +637,7 @@ class Tournament(ABC):
         response = self.players_json(user=user)
         await self.broadcast(response)
 
-        await self.db_update_player(user, self.players[user])
+        await self.db_update_player(user)
 
     def spactator_join(self, spectator):
         self.spectators.add(spectator)
@@ -699,14 +698,11 @@ class Tournament(ABC):
             self.players[wp].games.append(game)
             self.players[bp].games.append(game)
 
-            self.players[wp].points.append("*")
-            self.players[bp].points.append("*")
-
             self.players[wp].nb_games += 1
             self.players[bp].nb_games += 1
 
-            await self.db_update_player(wp, self.players[wp])
-            await self.db_update_player(bp, self.players[bp])
+            await self.db_update_player(wp)
+            await self.db_update_player(bp)
 
             self.ongoing_games += 1
 
@@ -904,8 +900,6 @@ class Tournament(ABC):
         bplayer = self.players[game.bplayer]
 
         if game.status == ABORTED:
-            wplayer.points.pop()
-            bplayer.points.pop()
             return
 
         if game.wberserk:
@@ -921,8 +915,8 @@ class Tournament(ABC):
         else:
             wpoint, bpoint, wperf, bperf = self.points_perfs(game)
 
-        wplayer.points[-1] = wpoint
-        bplayer.points[-1] = bpoint
+        wplayer.points.append(wpoint)
+        bplayer.points.append(bpoint)
         if wpoint[1] == STREAK and len(wplayer.points) >= 2:
             wplayer.points[-2] = (wplayer.points[-2][0], STREAK)
         if bpoint[1] == STREAK and len(bplayer.points) >= 2:
@@ -960,8 +954,8 @@ class Tournament(ABC):
         asyncio.create_task(self.delayed_free(game), name="t-delayed-free")
 
         # save player points to db
-        asyncio.create_task(self.db_update_player(game.wplayer, wplayer), name="t-update-player")
-        asyncio.create_task(self.db_update_player(game.bplayer, bplayer), name="t-update-player")
+        asyncio.create_task(self.db_update_player(game.wplayer), name="t-update-player")
+        asyncio.create_task(self.db_update_player(game.bplayer), name="t-update-player")
         asyncio.create_task(self.db_update_pairing(game), name="t-update-pairing")
 
         await self.broadcast(
@@ -1070,10 +1064,11 @@ class Tournament(ABC):
                     self.id,
                 )
 
-    async def db_update_player(self, user, player_data):
+    async def db_update_player(self, user):
         if self.app_state.db is None:
             return
 
+        player_data = self.players[user]
         player_id = player_data.id
         player_table = self.app_state.db.tournament_player
 
@@ -1085,7 +1080,7 @@ class Tournament(ABC):
             new_data = {
                 "wd": True,
             }
-        elif len(player_data.points) > 0 and player_data.points[-1] == "*":
+        elif player_data.nb_games > len(player_data.points):
             new_data = {
                 "p": player_data.points,
                 "g": player_data.nb_games,
@@ -1162,7 +1157,7 @@ class Tournament(ABC):
             log.error("Failed to save %s tournament data update %s to mongodb", self.id, new_data)
 
         for user in self.leaderboard:
-            await self.db_update_player(user, self.players[user])
+            await self.db_update_player(user)
 
         if self.frequency == SHIELD:
             variant_name = self.variant + ("960" if self.chess960 else "")
