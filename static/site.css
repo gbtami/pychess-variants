@@ -365,7 +365,7 @@ iframe {
   grid-template-areas: '. . main . .';
   margin-top: var(--site-header-margin);
   place-content: center;
-  --main-max-width: 1300px;
+  --main-max-width: 1400px;
 }
 
 @media (max-width: 799px) {

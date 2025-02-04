@@ -1,4 +1,4 @@
-:root {
+#main-wrap {
     --main-max-width: auto;
 }
 .tour {
@@ -13,7 +13,7 @@
 }
 @media (min-width: 800px) {
     .tour {
-        grid-template-columns: minmax(230px, 20vw) minmax(500px, calc( 100vh * .9 - calc(var(--site-header-height) + var(--site-header-margin)) - 3rem)) minmax(240px, calc(350px * (var(--files) / var(--ranks))));
+        grid-template-columns: minmax(250px, 350px) minmax(500px, calc(100vh * 0.9 - calc(var(--site-header-height) + var(--site-header-margin)) - 3rem)) minmax(240px, 400px);
         grid-template-rows: calc(100vh - calc(var(--site-header-height) + var(--site-header-margin)) - 2vmin - 3rem) auto;
         grid-template-areas: 'side main table' 'uchat players table';
     }
@@ -201,6 +201,7 @@ strong.score {
 .tour-table {
     display: flex;
     flex-flow: column;
+    align-items: center;
 }
 #player table th {
     text-align: left;
@@ -312,6 +313,7 @@ div.player {
     text-align: center;
     overflow: hidden;
     text-overflow: ellipsis;
+    font-weight: bold;
 }
 .podium .second {
     font-size: 1.3em;
@@ -364,6 +366,7 @@ div.player {
 }
 #summary.box  {
     padding: 1.7em 0;
+    width:100%;
 }
 #summary h2 {
     font-size: 1.5em;
@@ -415,6 +418,7 @@ div.with-pockets div.cg-wrap.mini {
 #top-game {
     display: flex;
     flex-flow: column;
+    width: calc(100% * (var(--files) / (var(--ranks) + var(--pocketLength) / var(--files))));
 }
 #mainboard.with-pockets {
     padding-bottom: calc(var(--cg-height) / var(--ranks) * 2);
