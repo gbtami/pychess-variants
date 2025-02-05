@@ -201,7 +201,6 @@ strong.score {
 .tour-table {
     display: flex;
     flex-flow: column;
-    align-items: center;
 }
 #player table th {
     text-align: left;
@@ -418,9 +417,48 @@ div.with-pockets div.cg-wrap.mini {
 }
 #top-game {
     display: flex;
+    align-self: center;
     flex-flow: column;
     width: calc(100% * (var(--files) / (var(--ranks) + var(--pocketLength) / var(--files))));
 }
 #mainboard.with-pockets {
     padding-bottom: calc(var(--cg-height) / var(--ranks) * 2);
+}
+
+.duels {
+    margin: var(--block-gap) 0 0 0;
+}
+.duels a {
+    display: flex;
+    flex-flow: column;
+    color: var(--font-color);
+    padding: .5em .7em;
+    white-space: nowrap;
+    line-height: 1.9em;
+    border-top: 1px solid var(--chat-entry-border-top);
+    transition: all 150ms;
+}
+.duels a:hover {
+    background-color: var(--game-hover);
+}
+line {
+  display: flex;
+  flex-flow: row wrap;
+  align-items: center;
+  justify-content: space-between;
+}
+line.a .rank {
+  margin-left: .3em;
+  padding: .1em .5em;
+  background: var(--bg-color2);
+}
+line.b .rank {
+  margin-right: .3em;
+  padding: .1em .5em;
+  background: var(--bg-color2);
+}
+.duels h2 {
+  font-size: 1.5em;
+  text-transform: uppercase;
+  letter-spacing: 2px;
 }

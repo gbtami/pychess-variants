@@ -39,7 +39,7 @@ export interface Step {
     plyB?: number,
 }
 
-export interface StepChat{
+export interface StepChat {
     message: string,
     username: string,
     time: number,
@@ -51,12 +51,12 @@ export interface CrossTable {
     s2: number;
     r: string[];
     _id: string;
-
 }
 
 export interface MsgGameNotFound {
     gameId: string;
 }
+
 export interface MsgShutdown {
     message: string;
 }
@@ -125,7 +125,7 @@ export interface MsgGameEnd {
 }
 
 export interface MsgNewGame {
-	gameId: string;
+    gameId: string;
 }
 
 export interface RDiffs {
@@ -134,13 +134,13 @@ export interface RDiffs {
 }
 
 export type MsgMove = { // cannot be interface because cannot be converted to an indexed type and JSONObject, which is used in doSend is such
-     type: string;//"move"
-     gameId: string;
-     move: string;
-     clocks: Clocks;
-     clocksB?: Clocks;
-     ply: number;
-     board?: BoardName;
+    type: string;//"move"
+    gameId: string;
+    move: string;
+    clocks: Clocks;
+    clocksB?: Clocks;
+    ply: number;
+    board?: BoardName;
 }
 
 export type MsgMovesAfterReconnect = {

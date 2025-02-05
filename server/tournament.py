@@ -274,10 +274,11 @@ class Tournament(ABC):
         self.messages: collections.deque = collections.deque([], MAX_CHAT_LINES)
         self.spectators: Set[User] = set()
         self.players: dict[User, PlayerData] = {}
+
         self.leaderboard = ValueSortedDict(neg)
         self.leaderboard_keys_view = SortedKeysView(self.leaderboard)
         self.status = T_CREATED if status is None else status
-        self.ongoing_games = 0
+        self.ongoing_games = set()
         self.nb_players = 0
 
         self.nb_games_finished = 0
@@ -400,6 +401,26 @@ class Tournament(ABC):
             "lastMove": "" if self.top_game.fow else self.top_game.lastmove,
         }
 
+    @property
+    def duels_json(self):
+        return {
+            "type": "duels",
+            "duels": [
+                {
+                    "id": game.id,
+                    "wp": game.wplayer.username,
+                    "wt": game.wplayer.title,
+                    "wr": game.wrating,
+                    "wk": game.wrank if isinstance(game, Game) else "",
+                    "bp": game.bplayer.username,
+                    "bt": game.bplayer.title,
+                    "br": game.brating,
+                    "bk": game.brank if isinstance(game, Game) else "",
+                }
+                for game in self.ongoing_games
+            ][0:6],
+        }
+
     def waiting_players(self):
         return [
             p
@@ -474,7 +495,7 @@ class Tournament(ABC):
                         else:
                             log.debug("Waiting for new pairing wave...")
 
-                    elif self.ongoing_games == 0:
+                    elif len(self.ongoing_games) == 0:
                         if self.current_round < self.rounds:
                             self.current_round += 1
                             log.debug("Do %s. round pairing", self.current_round)
@@ -489,7 +510,7 @@ class Tournament(ABC):
                             "%s has %s ongoing game(s)..."
                             % (
                                 "RR" if self.system == RR else "Swiss",
-                                self.ongoing_games,
+                                len(self.ongoing_games),
                             )
                         )
 
@@ -695,6 +716,8 @@ class Tournament(ABC):
             self.app_state.games[game_id] = game
             await insert_game_to_db(game, self.app_state)
 
+            self.ongoing_games.add(game)
+
             self.players[wp].games.append(game)
             self.players[bp].games.append(game)
 
@@ -703,8 +726,6 @@ class Tournament(ABC):
 
             await self.db_update_player(wp)
             await self.db_update_player(bp)
-
-            self.ongoing_games += 1
 
             self.players[wp].free = False
             self.players[bp].free = False
@@ -746,6 +767,8 @@ class Tournament(ABC):
             if game.status != BYEGAME:
                 brank = self.leaderboard.index(game.bplayer)
                 wrank = self.leaderboard.index(game.wplayer)
+                game.brank = brank + 1
+                game.wrank = wrank + 1
                 if (
                     (self.top_game is not None and self.top_game.status > STARTED)
                     or brank >= self.top_game_max_rank
@@ -757,6 +780,8 @@ class Tournament(ABC):
 
         if is_new_top_game:
             await self.broadcast(self.top_game_json)
+
+        await self.broadcast(self.duels_json)
 
         return games
 
@@ -951,6 +976,10 @@ class Tournament(ABC):
         elif game.result == "1/2-1/2":
             self.draw += 1
 
+        self.ongoing_games.discard(game)
+
+        await self.broadcast(self.duels_json)
+
         asyncio.create_task(self.delayed_free(game), name="t-delayed-free")
 
         # save player points to db
@@ -998,8 +1027,6 @@ class Tournament(ABC):
         else:
             wplayer.free = True
             bplayer.free = True
-
-        self.ongoing_games -= 1
 
     async def broadcast(self, response):
         for spectator in self.spectators:

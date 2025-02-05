@@ -111,6 +111,7 @@ async def handle_join(app, ws, user, data):
             "ustatus": tournament.user_status(user),
         }
         await ws_send_json(ws, response)
+        await tournament.broadcast(tournament.duels_json)
 
 
 async def handle_pause(app, ws, user, data):

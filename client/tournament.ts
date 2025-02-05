@@ -17,6 +17,24 @@ import { MsgBoard, MsgChat, MsgFullChat, MsgSpectators, MsgGameEnd, MsgNewGame }
 import { MsgUserStatus, MsgGetGames, TournamentGame, MsgTournamentStatus, MsgUserConnectedTournament, MsgGetPlayers, TournamentPlayer, MsgError, MsgPing, TopGame } from './tournamentType';
 import { newWebsocket } from "@/socket/webSocketUtils";
 
+
+interface Duel {
+    id: string, // game id
+    wp: string, // white username 
+    wt: string, // white title
+    wr: string, // white reating
+    wk: number, // white tournament rank
+    bp: string,
+    bt: string,
+    br: string,
+    bk: number,
+}
+
+interface MsgDuels {
+    type: string,
+    duels: Duel[],
+}
+
 const T_STATUS = {
     0: "created",
     1: "started",
@@ -49,6 +67,7 @@ export class TournamentController implements ChatController {
     topGame: TopGame;
     topGameId: string;
     topGameChessground: Api;
+    vDuels: VNode | HTMLElement;
     playerGamesOn: boolean;
     variant: Variant;
     chess960: boolean;
@@ -89,6 +108,8 @@ export class TournamentController implements ChatController {
 
         this.clockdiv = patch(document.getElementById('clockdiv') as HTMLElement, h('div#clockdiv'));
         this.playerGamesOn = false;
+
+        this.vDuels = document.querySelector('div.duels') as HTMLElement;
 
         this.username = model["username"];
         this.anon = model["anon"] === "True";
@@ -465,6 +486,9 @@ export class TournamentController implements ChatController {
                 patch(podium, this.renderPodium(msg.podium));
             }
         }
+        if (this.completed()) {
+            this.vDuels = patch(this.vDuels, h('div.duels'));
+        }
 
         if (this.page === msg.page || msg.requestedBy === this.username) {
             this.players = msg.players;
@@ -615,6 +639,19 @@ export class TournamentController implements ChatController {
         }
     }
 
+    private renderDuels(duels: Duel[]) {
+        return duels.map(duel => h('a', { attrs: { href : '/' + duel.id } }, [
+            h('line.a', [h('strong', duel.wp), h('span', [h('em.rating', duel.br), h('em.rank', '#' + duel.bk)])]),
+            h('line.b', [h('span', [h('em.rank', '#' + duel.wk), h('em.rating', duel.wr)]), h('strong', duel.bp)]),
+        ]));
+    }
+
+    private onMsgDuels(msg: MsgDuels) {
+        if (this.vDuels) {
+            this.vDuels = patch(this.vDuels, h('div.duels', [h('h2', 'Top games')].concat(this.renderDuels(msg.duels))));
+        }
+    }
+
     private onMsgBoard = (msg: MsgBoard) => {
         if (this.topGameChessground === undefined || this.topGameId !== msg.gameId) {
             return;
@@ -688,6 +725,9 @@ export class TournamentController implements ChatController {
                 break;
             case "gameEnd":
                 this.checkStatus(msg);
+                break;
+            case "duels":
+                this.onMsgDuels(msg);
                 break;
             case "tournament_user_connected":
                 this.onMsgUserConnected(msg);
@@ -772,6 +812,7 @@ export function tournamentView(model: PyChessModel): VNode[] {
                     h('div#stats.box'),
                     h('table#games.box'),
             ]),
+            h('div.duels'),
         ]),
         h('under-chat#spectators'),
     ];

@@ -86,6 +86,7 @@
   --zoom: 100;
   --zoom-a: 100;
   --zoom-b: 100;
+  --block-gap: 15px;
 }
 [data-theme='dark'] {
   --dark-mode: 1;
@@ -365,7 +366,7 @@ iframe {
   grid-template-areas: '. . main . .';
   margin-top: var(--site-header-margin);
   place-content: center;
-  --main-max-width: 1400px;
+  --main-max-width: 1300px;
 }
 
 @media (max-width: 799px) {

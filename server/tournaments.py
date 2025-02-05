@@ -511,7 +511,10 @@ async def load_tournament(app_state: PychessGlobalAppState, tournament_id, tourn
         if bberserk:
             berserk += 1
 
-        tournament.nb_games_finished += 1
+        if result == "*":
+            tournament.ongoing_games.add(game_data)
+        else:
+            tournament.nb_games_finished += 1
 
     tournament.w_win = w_win
     tournament.b_win = b_win

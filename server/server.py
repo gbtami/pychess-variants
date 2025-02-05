@@ -5,7 +5,6 @@ import asyncio
 import logging
 import os
 import sys
-import traceback
 from urllib.parse import urlparse
 
 if sys.platform not in ("win32", "darwin"):
@@ -50,14 +49,6 @@ from logger import log
 
 if sys.platform not in ("win32", "darwin"):
     asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
-
-
-def log_uncaught_exceptions(ex_cls, ex, tb):
-    log.critical("".join(traceback.format_tb(tb)))
-    log.critical("{0}: {1}".format(ex_cls, ex))
-
-
-sys.excepthook = log_uncaught_exceptions
 
 
 @web.middleware
