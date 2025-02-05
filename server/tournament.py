@@ -289,7 +289,7 @@ class Tournament(ABC):
 
         self.first_pairing = False
         self.top_game = None
-        self.top_game_max_rank = -1
+        self.top_game_rank = 1
 
         self.notify1 = False
         self.notify2 = False
@@ -765,16 +765,16 @@ class Tournament(ABC):
                 log.debug("Black player %s left the tournament (ws send failed)", bp.username)
 
             if game.status != BYEGAME:
-                brank = self.leaderboard.index(game.bplayer)
-                wrank = self.leaderboard.index(game.wplayer)
-                game.brank = brank + 1
-                game.wrank = wrank + 1
+                brank = self.leaderboard.index(game.bplayer) + 1
+                wrank = self.leaderboard.index(game.wplayer) + 1
+                game.brank = brank
+                game.wrank = wrank
                 if (
                     (self.top_game is not None and self.top_game.status > STARTED)
-                    or brank >= self.top_game_max_rank
-                    or wrank >= self.top_game_max_rank
+                    or brank <= self.top_game_rank
+                    or wrank <= self.top_game_rank
                 ):
-                    self.top_game_max_rank = max(brank, wrank)
+                    self.top_game_rank = min(brank, wrank)
                     self.top_game = game
                     is_new_top_game = True
 
