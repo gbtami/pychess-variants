@@ -232,6 +232,9 @@ class GameBug:
 
                 self.update_status()
 
+                if self.status != MATE and san.endswith("#"):
+                    san = san.replace("#", "+")
+
                 move_a = move if board == "a" else ""
                 move_b = move if board == "b" else ""
                 check = self.checkB if board == "b" else self.checkA

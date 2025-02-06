@@ -7,6 +7,7 @@ from compress import R2C, C2R
 from convert import zero2grand
 from bug.game_bug import GameBug
 from const import (
+    MATE,
     STARTED,
     INVALIDMOVE,
     CASUAL,
@@ -111,6 +112,10 @@ async def load_game_bug(app_state: PychessGlobalAppState, game_id):
                     )
 
             san = game.boards[board_name].get_san(move)
+
+            if doc["s"] != MATE and san.endswith("#"):
+                san = san.replace("#", "+")
+
             game.boards[board_name].push(move)
 
             if board_name == "a":
