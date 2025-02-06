@@ -71,6 +71,7 @@ export class AnalysisController extends GameController {
     hash: number;
     nnue: boolean;
     evalFile: string;
+    uciOk: boolean;
     nnueOk: boolean;
     importedBy: string;
     embed: boolean;
@@ -714,6 +715,8 @@ export class AnalysisController extends GameController {
     }
 
     engineGo = () => {
+        if (!this.variantSupportedByFSF) return;
+
         if (this.chess960) {
             this.fsfPostMessage('setoption name UCI_Chess960 value true');
         }
