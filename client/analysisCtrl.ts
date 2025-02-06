@@ -131,8 +131,8 @@ export class AnalysisController extends GameController {
         this.hash = localStorage.hash === undefined ? 16 : parseInt(localStorage.hash);
         this.nnue = localStorage.nnue === undefined ? true : localStorage.nnue === "true";
         this.fsfDebug = localStorage.fsfDebug === undefined ? false : localStorage.fsfDebug === "true";
-        this.variantSupportedByFSF = true;
-
+        this.variantSupportedByFSF = false;
+        this.uciOk = false;
         this.nnueOk = false;
         this.importedBy = '';
 
@@ -453,8 +453,6 @@ export class AnalysisController extends GameController {
 
         if (this.ongoing) return;
 
-        if (!this.variantSupportedByFSF) return;
-
         if (line.startsWith('info')) {
             const error = 'info string ERROR: ';
             if (line.startsWith(error)) {
@@ -470,10 +468,16 @@ export class AnalysisController extends GameController {
             }
         }
 
-        if (line.startsWith('option name UCI_Variant') && !line.includes(this.variant.name)) {
-            this.variantSupportedByFSF = false;
-            console.log('This variant is NOT supported by Fairy-Stockfish!');
+        if (line.startsWith('option name UCI_Variant')) {
+            if (!line.includes(this.variant.name)) {
+                console.log('This variant is NOT supported by Fairy-Stockfish!');
+                return;
+            } else {
+                this.variantSupportedByFSF = true;
+            }
         }
+
+        if (line.includes('uciok')) this.uciOk = true;
 
         if (line.includes('readyok')) this.isEngineReady = true;
 
@@ -485,7 +489,7 @@ export class AnalysisController extends GameController {
             this.fsfPostMessage('uci');
         }
 
-        if (!this.localEngine) {
+        if (!this.localEngine && this.uciOk && this.variantSupportedByFSF) {
             this.localEngine = true;
             patch(document.getElementById('engine-enabled') as HTMLElement, h('input#engine-enabled', {attrs: {disabled: false}}));
             this.fsfEngineBoard = new this.ffish.Board(this.variant.name, this.fullfen, this.chess960);

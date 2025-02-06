@@ -320,7 +320,7 @@ export class EngineSettings extends BooleanSettings {
                 this,
                 'engine-enabled',
                 '',
-                !this.ctrl.localEngine || !this.ctrl.isEngineReady
+                !this.ctrl.localEngine || !this.ctrl.isEngineReady || !this.variantSupportedByFSF
             )
         );
     }
