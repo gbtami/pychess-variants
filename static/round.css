@@ -1,5 +1,5 @@
-:root {
-    --main-max-width: auto;
+#main-wrap {
+  --main-max-width: auto;
 }
 .round-app {
     grid-area: app;

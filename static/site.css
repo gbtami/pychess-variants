@@ -399,7 +399,7 @@ iframe {
 @media (min-width: 800px) {
   .round {
     grid-template-columns:
-      minmax(230px, 20vw) minmax(
+      minmax(250px, 350px) minmax(
         calc(70vmin * var(--board-scale)),
         calc(
           100vh * var(--board-scale) -
