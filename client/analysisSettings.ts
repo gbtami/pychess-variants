@@ -132,7 +132,7 @@ class MultiPVSettings extends NumberSettings {
     }
 
     view(): VNode {
-        const els = slider(this, 'multipv', 1, 5, 1, _('Multiple lines')); 
+        const els = slider(this, 'multipv', 0, 5, 1, _('Multiple lines')); 
         els.push(h('div.multipv_range_value', `${this.value} / 5`));
         return h('div.labelled', els);
     }

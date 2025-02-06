@@ -613,7 +613,7 @@ export class AnalysisController extends GameController {
     drawEval = (ceval: Ceval | undefined, scoreStr: string | undefined, turnColor: cg.Color) => {
         const pvlineIdx = (ceval && ceval.multipv) ? ceval.multipv - 1 : 0;
         // Render PV line
-        if (ceval?.p !== undefined) {
+        if (ceval?.p !== undefined && this.multipv > 0) {
             let pvSan: string | VNode = ceval.p;
             if (this.fsfEngineBoard) {
                 try {
