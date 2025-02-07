@@ -305,7 +305,10 @@ export class AnalysisController extends GameController {
                 alert(_('You need an account to do that.'));
                 return;
             }
-
+            if (!this.variantSupportedByFSF) {
+                alert(_('This variant is not supported by Fairy-Stockfish.'));
+                return;
+            }
             this.doSend({ type: "analysis", username: this.username, gameId: this.gameId });
             const loaderEl = document.getElementById('loader') as HTMLElement;
             loaderEl.style.display = 'block';
@@ -394,7 +397,7 @@ export class AnalysisController extends GameController {
                 });
             updateMovelist(this);
 
-            if (this.steps[0].analysis === undefined && this.variantSupportedByFSF) {
+            if (this.steps[0].analysis === undefined) {
                 if (!this.isAnalysisBoard && !this.embed) {
                     const el = document.getElementById('request-analysis') as HTMLElement;
                     el.style.display = 'flex';
