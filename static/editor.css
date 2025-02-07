@@ -1,4 +1,7 @@
 @import 'switch.css';
+#main-wrap {
+  --main-max-width: auto;
+}
 .editor-app {
     grid-area: main;
     display: grid;

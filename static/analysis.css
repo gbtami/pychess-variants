@@ -1,5 +1,5 @@
 @import 'switch.css';
-:root {
+#main-wrap {
     --main-max-width: auto;
     --ranks-top: 0px;
     --files-left: 0px;
