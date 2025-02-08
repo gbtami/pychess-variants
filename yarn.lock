@@ -1443,10 +1443,10 @@ ffish-alice-es6@^0.0.1:
   resolved "https://registry.yarnpkg.com/ffish-alice-es6/-/ffish-alice-es6-0.0.1.tgz#eea3b7282546595d8e3bc9720d7f65f0041dd29a"
   integrity sha512-KGToKP0PatG60r2qR+Djb+9q8mBiO4YoOMONKWfoisDPxtGXxjAWn2DICsPu+jFMOM3Ql29tLjAFTg8tZKMHCQ==
 
-ffish-es6@^0.7.6:
-  version "0.7.6"
-  resolved "https://registry.yarnpkg.com/ffish-es6/-/ffish-es6-0.7.6.tgz#89aa33cda04dd425d727f974edcce811b0875c8d"
-  integrity sha512-G2gwthbkg/KY3f9yWPE21dponbKY+8cFo1NZCuMSW5Sd5Q6/vfXLlbViT+QgL03E/wESt38BFUjETSnN01qQWQ==
+ffish-es6@^0.7.7:
+  version "0.7.7"
+  resolved "https://registry.yarnpkg.com/ffish-es6/-/ffish-es6-0.7.7.tgz#691897e17abcfdae6a2df5aaf4f34b7d9b7c1385"
+  integrity sha512-XSKZDq8ioM6f4/Qhk2XqxlCpxh6avWHUnvsh/0+QStoMjiKHLrG0+P18WJ1HKlLhLf8KgIxYI0law8WjH/XRtA==
 
 filelist@^1.0.4:
   version "1.0.4"
