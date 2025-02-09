@@ -111,7 +111,6 @@ async def handle_join(app, ws, user, data):
             "ustatus": tournament.user_status(user),
         }
         await ws_send_json(ws, response)
-        await tournament.broadcast(tournament.duels_json)
 
 
 async def handle_pause(app, ws, user, data):
@@ -189,6 +188,8 @@ async def handle_user_connected(app_state: PychessGlobalAppState, ws, user, data
 
     response = {"type": "fullchat", "lines": list(tournament.tourneychat)}
     await ws_send_json(ws, response)
+
+    await ws_send_json(ws, tournament.duels_json)
 
     if user.username not in tournament.spectators:
         tournament.spactator_join(user)

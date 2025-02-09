@@ -36,7 +36,6 @@ from const import (
     MAX_CHAT_LINES,
 )
 from game import Game
-from glicko2.glicko2 import gl2
 from lichess_team_msg import lichess_team_msg
 from misc import time_control_str
 from newid import new_id
@@ -163,9 +162,9 @@ class GameData:
     __slots__ = (
         "id",
         "wplayer",
-        "white_rating",
+        "wrating",
         "bplayer",
-        "black_rating",
+        "brating",
         "result",
         "date",
         "wberserk",
@@ -189,16 +188,17 @@ class GameData:
         self.bplayer = bplayer
         self.result = result
         self.date = date
-        self.white_rating = gl2.create_rating(int(wrating.rstrip("?")))
-        self.black_rating = gl2.create_rating(int(brating.rstrip("?")))
+        self.wrating = wrating
+        self.brating = brating
         self.wberserk = wberserk
         self.bberserk = bberserk
 
     def game_json(self, player: User) -> dict:
         color = "w" if self.wplayer == player else "b"
         opp_player = self.bplayer if color == "w" else self.wplayer
-        opp_rating = self.black_rating if color == "w" else self.white_rating
-        opp_rating, prov = opp_rating.rating_prov
+        opp_rating = self.brating if color == "w" else self.wrating
+        prov = "?" if opp_rating.endswith("?") else ""
+        opp_rating = opp_rating.replace("?", "")
         return {
             "gameId": self.id,
             "title": opp_player.title,
