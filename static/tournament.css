@@ -419,7 +419,7 @@ div.with-pockets div.cg-wrap.mini {
     display: flex;
     align-self: center;
     flex-flow: column;
-    width: calc(100% * (var(--files) / (var(--ranks) + var(--pocketLength) / var(--files))));
+    width: calc(min(100%, 100% * (var(--files) / (var(--ranks) + var(--pocketLength) / var(--files)))));
 }
 #mainboard.with-pockets {
     padding-bottom: calc(var(--cg-height) / var(--ranks) * 2);
