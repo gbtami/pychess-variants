@@ -57,7 +57,7 @@ from puzzle import (
 )
 from custom_trophy_owners import CUSTOM_TROPHY_OWNERS
 from logger import log
-from variants import ALL_VARIANTS, VARIANTS, VARIANT_ICONS
+from variants import ALL_VARIANTS, VARIANTS, VARIANT_ICONS, RATED_VARIANTS, NOT_RATED_VARIANTS
 
 
 async def index(request):
@@ -445,6 +445,10 @@ async def index(request):
         render["title"] = "Profile • " + profileId
         render["icons"] = VARIANT_ICONS
         render["cup"] = TROPHIES
+
+        if variant is not None:
+            render["variant"] = variant
+
         if profileId not in app_state.users or app_state.users[profileId].perfs is None:
             render["ratings"] = {}
         else:
@@ -463,8 +467,9 @@ async def index(request):
                     reverse=True,
                 )
             }
-        if variant is not None:
-            render["variant"] = variant
+            for v in NOT_RATED_VARIANTS:
+                render["ratings"][v] = ("1500?", 0)
+
         render["profile_title"] = (
             app_state.users[profileId].title if profileId in app_state.users else ""
         )
@@ -715,6 +720,7 @@ async def index(request):
     elif view == "arena-new":
         render["edit"] = tournamentId is not None
         render["admin"] = user.username in ADMINS
+        render["variants"] = RATED_VARIANTS
         if tournamentId is None:
             render["rated"] = True
 

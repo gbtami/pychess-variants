@@ -175,6 +175,12 @@ if PROD:
     for variant in DEV_VARIANTS:
         del VARIANTS[variant.server_name]
 
+NOT_RATED_VARIANTS = tuple(
+    variant.server_name
+    for variant in ServerVariants
+    if (variant.server_name not in RATED_VARIANTS) and (variant.server_name in VARIANTS)
+)
+
 C2V = {variant.code: variant.uci_variant for variant in ServerVariants}
 
 GRANDS = tuple(variant.server_name for variant in ServerVariants if variant.grand)
