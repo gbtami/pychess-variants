@@ -39,7 +39,6 @@ MONTHLY_VARIANTS = (
     "capablanca960",
     "hoppelpoppel",
     "grand",
-    "janggi",
     "seirawan",
     "empire",
     "kyotoshogi",
@@ -76,7 +75,7 @@ NEW_MONTHLY_VARIANTS = (
 )
 
 # Old MONTHLY tournaments, needed to create translated tourney names
-PAUSED_MONTHLY_VARIANTS = ("shinobi", "duck", "capahouse960")
+PAUSED_MONTHLY_VARIANTS = ("shinobi", "duck", "capahouse960", "janggi")
 
 # Old WEEKLY tournaments, paused atm., but needed to create translated tourney names
 WEEKLY_VARIANTS = (
