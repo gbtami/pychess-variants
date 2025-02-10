@@ -17,3 +17,20 @@ The match ends when the game on either board ends. A game is won when one player
 ### Communication
 
 Partners are normally allowed to talk to each other during the game. They can, for instance, ask for a specific piece, for more trades, ask to hold a piece, suggest moves or ask their partner to stall. Shouts like "Knight mates!" or "Don't give up a Bishop!" are common and can lead to seemingly absurd sacrificial captures on the other board. Partners are not allowed to physically act on the other board.
+
+## Strategy
+We suggest to read the Bughouse for Beginners series by [@JarlCarlander](https://www.pychess.org/@/JarlCarlander)
+
+* [Early Sacrifices](https://www.chess.com/blog/JarlCarlander/bughouse-for-beginners-early-sacrifices)
+* [Give up the Queen](https://www.chess.com/blog/JarlCarlander/bughouse-for-beginners-give-up-the-queen)
+* [Don't not move your King's Pawn](https://www.chess.com/blog/JarlCarlander/bughouse-for-beginners-dont-not-move-your-kings-pawn)
+* [Don't Castle](https://www.chess.com/blog/JarlCarlander/bughouse-for-beginners-dont-castle)
+* [Is the Pinkie Opening Sound?](https://www.chess.com/blog/JarlCarlander/bughouse-for-beginners-is-the-pinkie-opening-sound)
+* [Being Safe](https://www.chess.com/blog/JarlCarlander/bughouse-for-beginners-being-safe)
+* [The Advance Variation of the French Defense for Black](https://www.chess.com/blog/JarlCarlander/bughouse-for-beginners-the-advance-variation-of-the-french-defense-for-black)
+* [Rapid Improvement](https://www.chess.com/blog/JarlCarlander/bughouse-for-beginners-rapid-improvement)
+* [Survey of Opening Theory for Black...](https://www.chess.com/blog/JarlCarlander/bughouse-for-beginners-survey-of-opening-theory-for-black)
+
+You may also interested to watch [@JannLee's](https://www.pychess.org/@/JannLee) videos on YT
+* [Bughouse Concepts](https://www.youtube.com/watch?v=BUwkHfQr0OQ)
+* [Bughouse Concepts 2](https://www.youtube.com/watch?v=NhyAxgBRn-A)
