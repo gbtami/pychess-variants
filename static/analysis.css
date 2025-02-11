@@ -14,6 +14,9 @@
     box-shadow: none;
 }
 @media (max-width: 799px) {
+    #main-wrap {
+        --main-max-width: 100%;
+    }
     .analysis-app {
         grid-template-rows: auto;
         grid-template-areas: 'pocket-top' 'board' 'pocket-bot' 'move-controls' 'ceval' 'pv' 'misc-info' 'vari' 'tools' 'uboard' 'side';

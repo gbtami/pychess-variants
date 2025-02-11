@@ -12,6 +12,9 @@
 }
 
 @media (max-width: 799px) {
+    #main-wrap {
+        --main-max-width: 100%;
+    }
     .editor-app {
         grid-template-rows: auto;
         grid-template-areas: 'side' 'poc-top' 'pocket-top' 'board' 'pocket-bot' 'poc-bot' 'uboard' 'tools';

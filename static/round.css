@@ -8,6 +8,9 @@
 }
 
 @media (max-width: 799px) and (orientation: portrait) {
+    #main-wrap {
+        --main-max-width: 100%;
+    }
     .round-app {
         grid-template-rows: auto auto auto 36px auto auto min-content 36px auto auto auto auto auto auto auto auto;
         grid-template-areas: 'move-controls' 'mat-top' 'pocket-top' 'user-top' 'clock-top' 'expi-top' 'board' 'user-bot' 'expi-bot' 'clock-bot' 'pocket-bot' 'mat-bot' 'game-controls' 'moves' 'uboard' 'uleft';

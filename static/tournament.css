@@ -7,6 +7,9 @@
     grid-gap: 2vmin;
 }
 @media (max-width: 799px) and (orientation: portrait) {
+    #main-wrap {
+        --main-max-width: 100%;
+    }
     .tour {
         grid-template-areas: 'main' 'side' 'uchat' 'table';
     }
