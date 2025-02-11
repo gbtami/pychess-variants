@@ -305,7 +305,10 @@ export class AnalysisController extends GameController {
                 alert(_('You need an account to do that.'));
                 return;
             }
-            if (!this.variantSupportedByFSF) {
+//            if (!this.variantSupportedByFSF) {
+// We can't use FSF WASM detection here because users may use unsupported hardware
+// but server side analysis will work for them at the same time!
+            if (this.variant.name === 'alice') {
                 alert(_('This variant is not supported by Fairy-Stockfish.'));
                 return;
             }
