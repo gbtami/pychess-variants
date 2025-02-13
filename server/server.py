@@ -4,13 +4,7 @@ import argparse
 import asyncio
 import logging
 import os
-import sys
 from urllib.parse import urlparse
-
-if sys.platform not in ("win32", "darwin"):
-    import uvloop
-else:
-    print("uvloop not installed")
 
 from aiohttp import web
 from aiohttp.log import access_logger
@@ -46,9 +40,6 @@ from settings import (
 )
 from users import NotInDbUsers
 from logger import log
-
-if sys.platform not in ("win32", "darwin"):
-    asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 
 
 @web.middleware
