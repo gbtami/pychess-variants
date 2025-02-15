@@ -94,7 +94,7 @@ async def process_message(app_state: PychessGlobalAppState, user, ws, data):
     elif data["type"] == "accept_seek":
         await handle_accept_seek(app_state, ws, user, data)
     elif data["type"] == "lobbychat":
-        await handle_lobbychat(app_state, user, data)
+        await handle_lobbychat(app_state, ws, user, data)
     elif data["type"] == "create_auto_pairing":
         await handle_create_auto_pairing(app_state, ws, user, data)
     elif data["type"] == "cancel_auto_pairing":
@@ -324,7 +324,7 @@ async def send_lobby_user_connected(app_state, ws, user):
     await ws_send_json(ws, {"type": auto_pairing})
 
 
-async def handle_lobbychat(app_state: PychessGlobalAppState, user, data):
+async def handle_lobbychat(app_state: PychessGlobalAppState, ws, user, data):
     if user.username.startswith(ANON_PREFIX):
         return
 
@@ -357,7 +357,9 @@ async def handle_lobbychat(app_state: PychessGlobalAppState, user, data):
             await crosstable(app_state, message)
 
         elif message.startswith("/fishnet"):
-            await fishnet(app_state, message)
+            # Don't give it to the response variable to prevent broadcasting it
+            answare = await fishnet(app_state, message)
+            await ws_send_json(ws, answare)
 
         elif message == "/state":
             server_state(app_state)

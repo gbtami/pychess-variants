@@ -17,7 +17,7 @@ from settings import FISHNET_KEYS
 from utils import load_game, play_move
 from logger import log
 
-REQUIRED_FISHNET_VERSION = "1.16.23"
+REQUIRED_FISHNET_VERSION = "1.16.42"
 MOVE_WORK_TIME_OUT = 5.0
 
 
