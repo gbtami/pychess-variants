@@ -1185,7 +1185,6 @@ export const noPuzzleVariants = [
     "placement",
     "minishogi",
     "gorogoroplus",
-    "manchu",
     "grandhouse",
     "cannonshogi",
     "bughouse",

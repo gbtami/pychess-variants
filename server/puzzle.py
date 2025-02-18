@@ -20,7 +20,6 @@ NO_PUZZLE_VARIANTS = (
     "placement",
     "minishogi",
     "gorogoroplus",
-    "manchu",
     "grandhouse",
     "cannonshogi",
     "bughouse",
