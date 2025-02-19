@@ -208,7 +208,10 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
-    log.setLevel(level=logging.DEBUG if args.v else logging.WARNING if args.w else logging.INFO)
+    loglevel = logging.DEBUG if args.v else logging.WARNING if args.w else logging.INFO
+
+    log.setLevel(level=loglevel)
+    logging.getLogger("asyncio").setLevel(loglevel)
 
     logging.getLogger("pymongo").setLevel(logging.DEBUG if args.m else logging.INFO)
 
