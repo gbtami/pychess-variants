@@ -29,7 +29,13 @@ if TYPE_CHECKING:
 from pychess_global_app_state_utils import get_app_state
 from tournament.rr import RRTournament
 from tournament.swiss import SwissTournament
-from tournament.tournament import GameData, PlayerData, SCORE_SHIFT, Tournament, upsert_tournament_to_db
+from tournament.tournament import (
+    GameData,
+    PlayerData,
+    SCORE_SHIFT,
+    Tournament,
+    upsert_tournament_to_db,
+)
 from tournament.auto_play_arena import ArenaTestTournament, AUTO_PLAY_ARENA_NAME
 from variants import C2V, get_server_variant, ALL_VARIANTS, VARIANTS
 from user import User
