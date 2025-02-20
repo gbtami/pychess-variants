@@ -16,54 +16,17 @@ from const import (
 from newid import id8
 from pychess_global_app_state_utils import get_app_state
 from server import make_app
-from tournament.auto_play_tournament import (
+from tournament.auto_play_arena import (
     ArenaTestTournament,
     SwissTestTournament,
     RRTestTournament,
 )
-from tournament.tournaments import upsert_tournament_to_db
 
 import logging
 
 log = logging.getLogger(__name__)
 
 ONE_TEST_ONLY = False
-
-
-async def create_arena_test(app):
-    app_state = get_app_state(app)
-    tid = "12345678"
-    if tid in app_state.tournaments:
-        print("--- CONTIMUE Test Arena ---")
-        tournament = app_state.tournaments[tid]
-        # await tournament.join_players(19)
-        return
-
-    print("--- CREATE Test Arena ---")
-    await app_state.db.tournament.delete_one({"_id": tid})
-    await app_state.db.tournament_player.delete_many({"tid": tid})
-    await app_state.db.tournament_pairing.delete_many({"tid": tid})
-
-    tournament = ArenaTestTournament(
-        app_state,
-        tid,
-        variant="gorogoroplus",
-        name="Test Arena",
-        chess960=False,
-        base=1,
-        before_start=0.1,
-        minutes=3,
-        created_by="PyChess",
-    )
-    #    tournament = SwissTestTournament(app, tid, variant="makpong", name="First Makpong Swiss", before_start=0.1, rounds=7, created_by="PyChess")
-    #    tournament = RRTestTournament(app, tid, variant="makpong", name="First Makpong RR", before_start=0.1, rounds=7, created_by="PyChess")
-    app_state.tournaments[tid] = tournament
-    app_state.tourneysockets[tid] = {}
-
-    await upsert_tournament_to_db(tournament, app_state)
-
-    #    await tournament.join_players(6)
-    await tournament.join_players(19)
 
 
 class TournamentTestCase(AioHTTPTestCase):
