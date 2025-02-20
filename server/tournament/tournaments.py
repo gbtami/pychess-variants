@@ -6,8 +6,6 @@ import aiohttp_session
 from tournament.arena_new import ArenaTournament
 from compress import C2R
 from const import (
-    CASUAL,
-    RATED,
     ARENA,
     RR,
     SWISS,
@@ -31,8 +29,8 @@ if TYPE_CHECKING:
 from pychess_global_app_state_utils import get_app_state
 from tournament.rr import RRTournament
 from tournament.swiss import SwissTournament
-from tournament.tournament import GameData, PlayerData, SCORE_SHIFT, Tournament
-from logger import log
+from tournament.tournament import GameData, PlayerData, SCORE_SHIFT, Tournament, upsert_tournament_to_db
+from tournament.auto_play_arena import ArenaTestTournament, AUTO_PLAY_ARENA_NAME
 from variants import C2V, get_server_variant, ALL_VARIANTS, VARIANTS
 from user import User
 
@@ -145,43 +143,6 @@ async def new_tournament(app_state: PychessGlobalAppState, data):
     await upsert_tournament_to_db(tournament, app_state)
 
     return tournament
-
-
-async def upsert_tournament_to_db(tournament, app_state: PychessGlobalAppState):
-    # unit test app may have no db
-    if app_state.db is None:
-        return
-
-    new_data = {
-        "name": tournament.name,
-        "d": tournament.description,
-        "fr": tournament.frequency,
-        "minutes": tournament.minutes,
-        "v": tournament.server_variant.code,
-        "b": tournament.base,
-        "i": tournament.inc,
-        "bp": tournament.byoyomi_period,
-        "f": tournament.fen,
-        "y": RATED if tournament.rated else CASUAL,
-        "z": int(tournament.chess960),
-        "system": tournament.system,
-        "rounds": tournament.rounds,
-        "nbPlayers": 0,
-        "createdBy": tournament.created_by,
-        "createdAt": tournament.created_at,
-        "beforeStart": tournament.before_start,
-        "startsAt": tournament.starts_at,
-        "status": tournament.status,
-    }
-
-    try:
-        await app_state.db.tournament.find_one_and_update(
-            {"_id": tournament.id}, {"$set": new_data}, upsert=True
-        )
-    except Exception:
-        log.error(
-            "upsert_tournament_to_db() Failed to save tournament %s data to mongodb!", tournament.id
-        )
 
 
 async def get_winners(app_state: PychessGlobalAppState, shield, variant: str = None):
@@ -395,6 +356,10 @@ async def load_tournament(app_state: PychessGlobalAppState, tournament_id, tourn
     elif tournament_klass is not None:
         tournament_class = tournament_klass
 
+    auto_play = doc["name"] == AUTO_PLAY_ARENA_NAME
+    if auto_play:
+        tournament_class = ArenaTestTournament
+
     tournament = tournament_class(
         app_state,
         doc["_id"],
@@ -456,6 +421,9 @@ async def load_tournament(app_state: PychessGlobalAppState, tournament_id, tourn
         if not withdrawn:
             tournament.leaderboard.update({user: SCORE_SHIFT * (doc["s"]) + doc["e"]})
             nb_players += 1
+
+        if auto_play and tournament.status in (T_CREATED, T_STARTED):
+            await tournament.join(user)
 
     tournament.nb_players = nb_players
 

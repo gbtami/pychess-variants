@@ -1243,3 +1243,40 @@ class Tournament(ABC):
         await self.app_state.db.tournament_chat.insert_one(response)
         # We have to remove _id added by insert to remain our response JSON serializable
         del response["_id"]
+
+
+async def upsert_tournament_to_db(tournament, app_state: PychessGlobalAppState):
+    # unit test app may have no db
+    if app_state.db is None:
+        return
+
+    new_data = {
+        "name": tournament.name,
+        "d": tournament.description,
+        "fr": tournament.frequency,
+        "minutes": tournament.minutes,
+        "v": tournament.server_variant.code,
+        "b": tournament.base,
+        "i": tournament.inc,
+        "bp": tournament.byoyomi_period,
+        "f": tournament.fen,
+        "y": RATED if tournament.rated else CASUAL,
+        "z": int(tournament.chess960),
+        "system": tournament.system,
+        "rounds": tournament.rounds,
+        "nbPlayers": 0,
+        "createdBy": tournament.created_by,
+        "createdAt": tournament.created_at,
+        "beforeStart": tournament.before_start,
+        "startsAt": tournament.starts_at,
+        "status": tournament.status,
+    }
+
+    try:
+        await app_state.db.tournament.find_one_and_update(
+            {"_id": tournament.id}, {"$set": new_data}, upsert=True
+        )
+    except Exception:
+        log.error(
+            "upsert_tournament_to_db() Failed to save tournament %s data to mongodb!", tournament.id
+        )
