@@ -45,7 +45,7 @@ from websocket_utils import ws_send_json
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
 from spectators import spectators
-from tournament_spotlights import tournament_spotlights
+from tournament.tournament_spotlights import tournament_spotlights
 from user import User
 from utils import insert_game_to_db
 from logger import log

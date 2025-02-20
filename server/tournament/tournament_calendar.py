@@ -6,8 +6,8 @@ from functools import partial
 from aiohttp import web
 
 from pychess_global_app_state_utils import get_app_state
-from scheduler import new_scheduled_tournaments
-from tournaments import get_scheduled_tournaments
+from tournament.scheduler import new_scheduled_tournaments
+from tournament.tournaments import get_scheduled_tournaments
 
 
 def create_scheduled_data(year, month, day, already_scheduled=None):

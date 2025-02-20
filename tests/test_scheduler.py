@@ -4,7 +4,7 @@ import unittest
 import datetime as dt
 
 from const import SCHEDULE_MAX_DAYS
-from scheduler import new_scheduled_tournaments, MONTHLY_VARIANTS, SHIELDS, Scheduler
+from tournament.scheduler import new_scheduled_tournaments, MONTHLY_VARIANTS, SHIELDS, Scheduler
 
 
 ONE_TEST_ONLY = False

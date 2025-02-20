@@ -14,7 +14,7 @@ from compress import C2R, decode_move_standard
 from const import DARK_FEN, STARTED, MATE, INVALIDMOVE, VARIANTEND, CLAIM
 from convert import zero2grand
 from settings import ADMINS
-from tournaments import get_tournament_name
+from tournament.tournaments import get_tournament_name
 from utils import pgn
 from pychess_global_app_state_utils import get_app_state
 from logger import log

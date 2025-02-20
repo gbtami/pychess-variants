@@ -5,7 +5,7 @@ from itertools import product
 import rustworkx as rx
 
 from const import ARENA
-from tournament import Tournament
+from tournament.tournament import Tournament
 
 
 class ArenaTournament(Tournament):

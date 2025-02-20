@@ -2,7 +2,7 @@ from __future__ import annotations
 import random
 
 from const import SWISS
-from tournament import Tournament, ByeGame
+from tournament.tournament import Tournament, ByeGame
 
 
 class SwissTournament(Tournament):

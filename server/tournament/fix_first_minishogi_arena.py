@@ -7,8 +7,8 @@ from const import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
-from tournament import SCORE_SHIFT
-from tournaments import load_tournament
+from tournament.tournament import SCORE_SHIFT
+from tournament.tournaments import load_tournament
 from utils import load_game
 
 

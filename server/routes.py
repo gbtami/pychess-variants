@@ -39,8 +39,8 @@ from login import login, logout, oauth
 from index import index, robots, select_lang
 from wsl import lobby_socket_handler
 from wsr import round_socket_handler
-from wst import tournament_socket_handler
-from tournament_calendar import tournament_calendar
+from tournament.wst import tournament_socket_handler
+from tournament.tournament_calendar import tournament_calendar
 from twitch import twitch_request_handler
 from puzzle import puzzle_complete, puzzle_vote
 from user import block_user, get_blocked_users, set_theme

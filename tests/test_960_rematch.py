@@ -61,7 +61,10 @@ class RamatchChess960GameTestCase(AioHTTPTestCase):
 
     async def play_game_and_rematch_game(self, game):
         app_state = get_app_state(self.app)
-        print("GAME (%s) %s - %s %s" % (game.id, game.wplayer.username, game.bplayer.username, game.initial_fen))
+        print(
+            "GAME (%s) %s - %s %s"
+            % (game.id, game.wplayer.username, game.bplayer.username, game.initial_fen)
+        )
         await game.game_ended(game.wplayer, "flag")
 
         data = {"gameId": game.id, "handicap": False}

@@ -4,8 +4,8 @@ from datetime import datetime, timezone
 from typing import Tuple
 
 from const import RR, T_ARCHIVED
-from tournament import ByeGame
-from tournaments import new_tournament
+from tournament.tournament import ByeGame
+from tournament.tournaments import new_tournament
 from utils import load_game
 from pychess_global_app_state_utils import get_app_state
 

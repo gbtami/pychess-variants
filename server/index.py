@@ -42,7 +42,7 @@ from videos import VIDEO_TAGS, VIDEO_TARGETS
 from user import User
 from utils import corr_games, get_blogs, load_game, join_seek, tv_game, tv_game_user
 from pychess_global_app_state_utils import get_app_state
-from tournaments import (
+from tournament.tournaments import (
     get_winners,
     get_latest_tournaments,
     load_tournament,

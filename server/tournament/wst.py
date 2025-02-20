@@ -13,8 +13,8 @@ if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
 from pychess_global_app_state_utils import get_app_state
 from settings import TOURNAMENT_DIRECTORS
-from tournament import T_CREATED, T_STARTED
-from tournaments import load_tournament
+from tournament.tournament import T_CREATED, T_STARTED
+from tournament.tournaments import load_tournament
 from websocket_utils import process_ws, get_user, ws_send_json
 
 # from logger import log

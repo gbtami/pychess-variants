@@ -2,7 +2,7 @@ from __future__ import annotations
 import time
 
 from const import ARENA
-from tournament import Tournament
+from tournament.tournament import Tournament
 
 
 class ArenaTournament(Tournament):

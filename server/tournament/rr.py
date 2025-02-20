@@ -1,6 +1,6 @@
 from __future__ import annotations
 from const import RR
-from tournament import Tournament, ByeGame
+from tournament.tournament import Tournament, ByeGame
 
 
 BERGER_TABLES = (

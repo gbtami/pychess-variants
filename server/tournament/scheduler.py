@@ -19,7 +19,7 @@ from const import (
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
 
-from tournaments import new_tournament
+from tournament.tournaments import new_tournament
 from logger import log
 from variants import get_server_variant, GRANDS
 

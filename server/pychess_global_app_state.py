@@ -40,7 +40,7 @@ from generate_crosstable import generate_crosstable
 from generate_highscore import generate_highscore
 from generate_shield import generate_shield
 from lobby import Lobby
-from scheduler import (
+from tournament.scheduler import (
     MONTHLY_VARIANTS,
     SEATURDAY,
     NEW_MONTHLY_VARIANTS,
@@ -52,8 +52,12 @@ from scheduler import (
 )
 from seek import Seek
 from settings import DEV, FISHNET_KEYS, static_url, DISCORD_TOKEN
-from tournament import Tournament
-from tournaments import translated_tournament_name, get_scheduled_tournaments, load_tournament
+from tournament.tournament import Tournament
+from tournament.tournaments import (
+    translated_tournament_name,
+    get_scheduled_tournaments,
+    load_tournament,
+)
 from typedefs import client_key
 from twitch import Twitch
 from user import User

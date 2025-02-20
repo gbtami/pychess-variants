@@ -3,7 +3,7 @@ from datetime import datetime, timezone
 
 import aiohttp_session
 
-from arena_new import ArenaTournament
+from tournament.arena_new import ArenaTournament
 from compress import C2R
 from const import (
     CASUAL,
@@ -29,9 +29,9 @@ from const import TYPE_CHECKING
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
 from pychess_global_app_state_utils import get_app_state
-from rr import RRTournament
-from swiss import SwissTournament
-from tournament import GameData, PlayerData, SCORE_SHIFT, Tournament
+from tournament.rr import RRTournament
+from tournament.swiss import SwissTournament
+from tournament.tournament import GameData, PlayerData, SCORE_SHIFT, Tournament
 from logger import log
 from variants import C2V, get_server_variant, ALL_VARIANTS, VARIANTS
 from user import User
