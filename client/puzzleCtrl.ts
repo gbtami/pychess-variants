@@ -199,7 +199,7 @@ export class PuzzleController extends AnalysisController {
             h('section', [
                 h('div.info0.icon.icon-puzzle', [
                     h('div.info2', [
-                        h('div', [h('span', _('Puzzle')), h('a', { attrs: { href: `/puzzle/${this._id}` } }, `#${this._id}`) ]),
+                        h('div', [h('span', _('Puzzle')), (this._id === '0') ? '' : h('a', { attrs: { href: `/puzzle/${this._id}` } }, `#${this._id}`) ]),
                         h('div', [h('span', _('Rating:')), h('span.hidden', _('hidden'))]),
                         h('div', [h('span', _('Played:')), this.played])
                     ])
