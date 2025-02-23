@@ -340,6 +340,7 @@ class PychessGlobalAppState:
                 cursor = self.db.fishnet.find()
                 async for doc in cursor:
                     FISHNET_KEYS[doc["_id"]] = doc["name"]
+                    self.fishnet_monitor[doc["name"]] = collections.deque([], 50)
 
         except Exception:
             log.error("init_from_db() Exception")
