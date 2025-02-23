@@ -314,6 +314,11 @@ div.config-toggle {
   display: flex;
   align-items: center;
 }
+.rated-toggle, .auto-next-toggle {
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+} 
 .puzzle-user .rating {
   font-size: 3.5em;
 }
