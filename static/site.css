@@ -1146,12 +1146,15 @@ button.back {
   line-height: unset;
   padding: 1rem;
 }
-
+.site-buttons #settings-main button{
+font-size: 14px;
+}
 .user-link {
   padding-right: 8px;
 }
 @media only screen and (max-width: 799px) {
 .user-link {font-size: 0.8em;}
+.site-buttons #settings-main button {font-size: 12px;}
 }
 a {
   white-space: break-spaces;
