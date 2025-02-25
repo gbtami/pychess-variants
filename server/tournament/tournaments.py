@@ -39,6 +39,7 @@ from tournament.tournament import (
 from tournament.auto_play_arena import ArenaTestTournament, AUTO_PLAY_ARENA_NAME
 from variants import C2V, get_server_variant, ALL_VARIANTS, VARIANTS
 from user import User
+from utils import load_game
 
 
 async def create_or_update_tournament(
@@ -373,7 +374,7 @@ async def load_tournament(app_state: PychessGlobalAppState, tournament_id, tourn
         base=doc["b"],
         inc=doc["i"],
         byoyomi_period=int(bool(doc.get("bp"))),
-        rated=doc.get("y"),
+        rated=bool(doc.get("y")),
         chess960=bool(doc.get("z")),
         fen=doc.get("f"),
         rounds=doc["rounds"],
@@ -429,6 +430,7 @@ async def load_tournament(app_state: PychessGlobalAppState, tournament_id, tourn
             nb_players += 1
 
         if auto_play and tournament.status in (T_CREATED, T_STARTED):
+            user.tournament_sockets[tournament.id] = set((None,))
             await tournament.join(user)
 
     tournament.nb_players = nb_players
@@ -446,7 +448,7 @@ async def load_tournament(app_state: PychessGlobalAppState, tournament_id, tourn
     async for doc in cursor:
         res = doc["r"]
         result = C2R[res]
-        # Skip aborted/unfinished games
+        # Skip aborted/unfinished games if tournament is over
         if result == "*" and tournament.status in (T_ABORTED, T_FINISHED, T_ARCHIVED):
             continue
 
@@ -458,20 +460,23 @@ async def load_tournament(app_state: PychessGlobalAppState, tournament_id, tourn
         wberserk = doc.get("wb", False)
         bberserk = doc.get("bb", False)
 
-        game_data = GameData(
-            _id,
-            app_state.users[wp],
-            wrating,
-            app_state.users[bp],
-            brating,
-            result,
-            date,
-            wberserk,
-            bberserk,
-        )
-
-        tournament.players[app_state.users[wp]].games.append(game_data)
-        tournament.players[app_state.users[bp]].games.append(game_data)
+        if tournament.status in (T_CREATED, T_STARTED) and result == "*":
+            game = await load_game(app_state, _id)
+            tournament.ongoing_games.add(game)
+            tournament.update_game_ranks(game)
+        else:
+            game = GameData(
+                _id,
+                app_state.users[wp],
+                wrating,
+                app_state.users[bp],
+                brating,
+                result,
+                date,
+                wberserk,
+                bberserk,
+            )
+            tournament.nb_games_finished += 1
 
         if res == "a":
             w_win += 1
@@ -485,10 +490,7 @@ async def load_tournament(app_state: PychessGlobalAppState, tournament_id, tourn
         if bberserk:
             berserk += 1
 
-        if result == "*":
-            tournament.ongoing_games.add(game_data)
-        else:
-            tournament.nb_games_finished += 1
+        tournament.update_players(game)
 
     tournament.w_win = w_win
     tournament.b_win = b_win

@@ -73,8 +73,6 @@ async def create_auto_play_arena(app):
 class TestTournament(Tournament):
 
     async def join_players(self, nb_players):
-        self.game_tasks = set()
-
         for i in range(1, nb_players + 1):
             name = "%sUser_%s" % (TEST_PREFIX, i)
             player = User(self.app_state, username=name, title="TEST", perfs=PERFS)
@@ -98,7 +96,7 @@ class TestTournament(Tournament):
                 continue
             self.app_state.games[game.id] = game
             game.random_mover = True
-            self.game_tasks.add(asyncio.create_task(self.play_random(game)))
+            asyncio.create_task(self.play_random(game))
 
     # @timeit
     async def play_random(self, game):

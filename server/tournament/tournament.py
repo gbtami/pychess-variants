@@ -481,7 +481,7 @@ class Tournament(ABC):
                     if self.system == ARENA:
                         # In case of server restart
                         if self.prev_pairing is None:
-                            self.prev_pairing = now - self.wave
+                            self.prev_pairing = now - self.wave - self.wave_delta
 
                         if now >= self.prev_pairing + self.wave + random.uniform(
                             -self.wave_delta, self.wave_delta
@@ -717,27 +717,10 @@ class Tournament(ABC):
             await insert_game_to_db(game, self.app_state)
 
             self.ongoing_games.add(game)
-
-            self.players[wp].games.append(game)
-            self.players[bp].games.append(game)
-
-            self.players[wp].nb_games += 1
-            self.players[bp].nb_games += 1
+            self.update_players(game)
 
             await self.db_update_player(wp)
             await self.db_update_player(bp)
-
-            self.players[wp].free = False
-            self.players[bp].free = False
-
-            self.players[wp].prev_opp = game.bplayer.username
-            self.players[bp].prev_opp = game.wplayer.username
-
-            self.players[wp].color_balance += 1
-            self.players[bp].color_balance -= 1
-
-            self.players[wp].nb_not_paired = 0
-            self.players[bp].nb_not_paired = 0
 
             response = {
                 "type": "new_game",
@@ -764,19 +747,8 @@ class Tournament(ABC):
                 await self.pause(bp)
                 log.debug("Black player %s left the tournament (ws send failed)", bp.username)
 
-            if game.status != BYEGAME:
-                brank = self.leaderboard.index(game.bplayer) + 1
-                wrank = self.leaderboard.index(game.wplayer) + 1
-                game.brank = brank
-                game.wrank = wrank
-                if (
-                    (self.top_game is not None and self.top_game.status > STARTED)
-                    or brank <= self.top_game_rank
-                    or wrank <= self.top_game_rank
-                ):
-                    self.top_game_rank = min(brank, wrank)
-                    self.top_game = game
-                    is_new_top_game = True
+            if self.update_game_ranks(game):
+                is_new_top_game = True
 
         if is_new_top_game:
             await self.broadcast(self.top_game_json)
@@ -784,6 +756,44 @@ class Tournament(ABC):
         await self.broadcast(self.duels_json)
 
         return games
+
+    def update_players(self, game):
+        wp, bp = game.wplayer, game.bplayer
+
+        self.players[wp].games.append(game)
+        self.players[bp].games.append(game)
+
+        self.players[wp].nb_games += 1
+        self.players[bp].nb_games += 1
+
+        self.players[wp].free = False
+        self.players[bp].free = False
+
+        self.players[wp].prev_opp = game.bplayer.username
+        self.players[bp].prev_opp = game.wplayer.username
+
+        self.players[wp].color_balance += 1
+        self.players[bp].color_balance -= 1
+
+        self.players[wp].nb_not_paired = 0
+        self.players[bp].nb_not_paired = 0
+
+    def update_game_ranks(self, game):
+        if game.status != BYEGAME:
+            brank = self.leaderboard.index(game.bplayer) + 1
+            wrank = self.leaderboard.index(game.wplayer) + 1
+            game.brank = brank
+            game.wrank = wrank
+            if (
+                (self.top_game is not None and self.top_game.status > STARTED)
+                or brank <= self.top_game_rank
+                or wrank <= self.top_game_rank
+            ):
+                self.top_game_rank = min(brank, wrank)
+                self.top_game = game
+                return True
+
+        return False
 
     def points_perfs(self, game: Game) -> Tuple[Point, Point, int, int]:
         wplayer = self.players[game.wplayer]
