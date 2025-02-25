@@ -71,6 +71,9 @@ async def create_auto_play_arena(app):
 
 
 class TestTournament(Tournament):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.game_tasks = set()
 
     async def join_players(self, nb_players):
         for i in range(1, nb_players + 1):
@@ -96,7 +99,7 @@ class TestTournament(Tournament):
                 continue
             self.app_state.games[game.id] = game
             game.random_mover = True
-            asyncio.create_task(self.play_random(game))
+            self.game_tasks.add(asyncio.create_task(self.play_random(game)))
 
     # @timeit
     async def play_random(self, game):

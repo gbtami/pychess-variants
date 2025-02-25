@@ -628,7 +628,8 @@ export class TournamentController implements ChatController {
         }
         this.updateActionButton()
         if (this.tournamentStatus !== 'created') {
-            patch(document.querySelector('div.tour-faq') as HTMLElement, h('div'), '');
+            const faqEl = document.querySelector('div.tour-faq') as HTMLElement;
+            if (faqEl) patch(faqEl, h('div', ''));
         }
         if (this.completed()) {
             patch(this.clockdiv, h('div#clockdiv'));
