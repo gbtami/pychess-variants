@@ -465,3 +465,13 @@ line.b .rank {
   text-transform: uppercase;
   letter-spacing: 2px;
 }
+div.tour-faq {
+  padding: 4em;
+}
+.tour-faq h2 {
+  margin: 1.5em 0 .5em 0;
+  font-size: 30px;
+}
+.tour-faq p {
+  padding: 0;
+}

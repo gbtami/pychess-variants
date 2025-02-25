@@ -16,6 +16,7 @@ import { boardSettings } from './boardSettings';
 import { MsgBoard, MsgChat, MsgFullChat, MsgSpectators, MsgGameEnd, MsgNewGame } from "./messages";
 import { MsgUserStatus, MsgGetGames, TournamentGame, MsgTournamentStatus, MsgUserConnectedTournament, MsgGetPlayers, TournamentPlayer, MsgError, MsgPing, TopGame } from './tournamentType';
 import { newWebsocket } from "@/socket/webSocketUtils";
+import { faq } from './tournamentFaq';
 
 
 interface Duel {
@@ -105,6 +106,10 @@ export class TournamentController implements ChatController {
 
         patch(document.getElementById('lobbychat') as HTMLElement, chatView(this, "lobbychat"));
         this.buttons = patch(document.getElementById('page-controls') as HTMLElement, this.renderButtons());
+
+        if (this.tournamentStatus === 'created') {
+            patch(document.querySelector('div.tour-faq') as HTMLElement, faq(this.rated));
+        }
 
         this.clockdiv = patch(document.getElementById('clockdiv') as HTMLElement, h('div#clockdiv'));
         this.playerGamesOn = false;
@@ -622,6 +627,9 @@ export class TournamentController implements ChatController {
             initializeClock(this);
         }
         this.updateActionButton()
+        if (this.tournamentStatus !== 'created') {
+            patch(document.querySelector('div.tour-faq') as HTMLElement, h('div'), '');
+        }
         if (this.completed()) {
             patch(this.clockdiv, h('div#clockdiv'));
             this.renderEmptyTopGame();
@@ -803,6 +811,7 @@ export function tournamentView(model: PyChessModel): VNode[] {
                 h('div#podium'),
                 h('div#page-controls'),
                 h('table#players', { hook: { insert: vnode => runTournament(vnode, model) } }),
+                h('div.tour-faq'),
             ]),
         ]),
         h('div.tour-table', [
