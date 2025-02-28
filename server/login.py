@@ -182,10 +182,14 @@ async def login(request):
 
 async def logout(request, user=None):
     if request is not None:
+        # user clicked the logout
         app_state = get_app_state(request.app)
         session = await aiohttp_session.get_session(request)
         session_user = session.get("user_name")
         user = await app_state.users.get(session_user)
+    else:
+        # admin banned the user
+        app_state = user.app_state
 
     if user is None:
         return web.HTTPFound("/")
