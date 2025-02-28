@@ -216,6 +216,7 @@ async def handle_lobbychat(app_state: PychessGlobalAppState, user, data):
         elif message.startswith("/abort"):
             if tournament.status in (T_CREATED, T_STARTED):
                 await tournament.abort()
+
         else:
             response = chat_response("lobbychat", user.username, data["message"])
             await tournament.tourney_chat_save(response)

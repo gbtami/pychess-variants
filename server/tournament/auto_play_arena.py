@@ -40,11 +40,9 @@ async def create_auto_play_arena(app):
     app_state = get_app_state(app)
     tid = "12345678"
     if tid in app_state.tournaments:
-        print("--- CONTIMUE Test Arena ---")
         tournament = app_state.tournaments[tid]
         return
 
-    print("--- CREATE Test Arena ---")
     await app_state.db.tournament.delete_one({"_id": tid})
     await app_state.db.tournament_player.delete_many({"tid": tid})
     await app_state.db.tournament_pairing.delete_many({"tid": tid})

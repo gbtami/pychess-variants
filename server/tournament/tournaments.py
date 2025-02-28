@@ -419,7 +419,6 @@ async def load_tournament(app_state: PychessGlobalAppState, tournament_id, tourn
         tournament.players[user].paused = doc["a"]
         tournament.players[user].withdrawn = withdrawn
         tournament.players[user].points = doc["p"]
-        tournament.players[user].nb_games = doc["g"]
         tournament.players[user].nb_win = doc["w"]
         tournament.players[user].nb_berserk = doc.get("b", 0)
         tournament.players[user].performance = doc["e"]

@@ -104,7 +104,6 @@ class PlayerData:
         "win_streak",
         "games",
         "points",
-        "nb_games",
         "nb_win",
         "nb_berserk",
         "nb_not_paired",
@@ -126,7 +125,6 @@ class PlayerData:
         self.win_streak = 0
         self.games: list[Game | GameData] = []
         self.points: list[Point] = []
-        self.nb_games = 0
         self.nb_win = 0
         self.nb_berserk = 0
         self.nb_not_paired = 0
@@ -150,7 +148,7 @@ def player_json(player, full_score, paused):
         "fire": player.win_streak,
         "score": full_score,  # SCORE_SHIFT-ed + performance rating
         "perf": player.performance,
-        "nbGames": player.nb_games,
+        "nbGames": len(player.points),
         "nbWin": player.nb_win,
         "nbBerserk": player.nb_berserk,
     }
@@ -203,7 +201,7 @@ class GameData:
             "gameId": self.id,
             "title": opp_player.title,
             "name": opp_player.username,
-            "rating": opp_rating,
+            "rating": int(opp_rating),
             "prov": prov,
             "color": color,
             "result": self.result,
@@ -373,7 +371,7 @@ class Tournament(ABC):
             "title": player.title,
             "name": player_name,
             "perf": self.players[player].performance,
-            "nbGames": self.players[player].nb_games,
+            "nbGames": len(self.players[player].points),
             "nbWin": self.players[player].nb_win,
             "nbBerserk": self.players[player].nb_berserk,
             "games": [game.game_json(player) for game in self.players[player].games],
@@ -580,7 +578,6 @@ class Tournament(ABC):
             latest = self.players[player].games[-1]
             if latest and isinstance(latest, Game) and latest.status in (CREATED, STARTED):
                 self.players[player].games.pop()
-                self.players[player].nb_games -= 1
 
         await self.broadcast(self.summary)
         await self.save()
@@ -634,7 +631,7 @@ class Tournament(ABC):
         if self.status == T_CREATED:
             await self.broadcast_spotlight()
 
-        await self.db_update_player(user)
+        await self.db_update_player(user, "JOIN")
 
     async def withdraw(self, user):
         log.debug("WITHDRAW: %s in tournament %s", user.username, self.id)
@@ -648,7 +645,7 @@ class Tournament(ABC):
 
         await self.broadcast_spotlight()
 
-        await self.db_update_player(user)
+        await self.db_update_player(user, "WITHDRAW")
 
     async def pause(self, user):
         log.debug("PAUSE: %s in tournament %s", user.username, self.id)
@@ -658,7 +655,7 @@ class Tournament(ABC):
         response = self.players_json(user=user)
         await self.broadcast(response)
 
-        await self.db_update_player(user)
+        await self.db_update_player(user, "PAUSE")
 
     def spactator_join(self, spectator):
         self.spectators.add(spectator)
@@ -719,9 +716,6 @@ class Tournament(ABC):
             self.ongoing_games.add(game)
             self.update_players(game)
 
-            await self.db_update_player(wp)
-            await self.db_update_player(bp)
-
             response = {
                 "type": "new_game",
                 "gameId": game_id,
@@ -762,9 +756,6 @@ class Tournament(ABC):
 
         self.players[wp].games.append(game)
         self.players[bp].games.append(game)
-
-        self.players[wp].nb_games += 1
-        self.players[bp].nb_games += 1
 
         self.players[wp].free = False
         self.players[bp].free = False
@@ -961,10 +952,10 @@ class Tournament(ABC):
         bplayer.rating = int(game.brating.rstrip("?")) + (int(game.brdiff) if game.brdiff else 0)
 
         # TODO: in Swiss we will need Berger instead of performance to calculate tie breaks
-        nb = wplayer.nb_games
+        nb = len(wplayer.points)
         wplayer.performance = int(round((wplayer.performance * (nb - 1) + wperf) / nb, 0))
 
-        nb = bplayer.nb_games
+        nb = len(bplayer.points)
         bplayer.performance = int(round((bplayer.performance * (nb - 1) + bperf) / nb, 0))
 
         wpscore = self.leaderboard.get(game.wplayer) // SCORE_SHIFT
@@ -988,14 +979,14 @@ class Tournament(ABC):
 
         self.ongoing_games.discard(game)
 
+        # save player points to db
+        await self.db_update_player(game.wplayer, "GAME_END")
+        await self.db_update_player(game.bplayer, "GAME_END")
+        await self.db_update_pairing(game)
+
         await self.broadcast(self.duels_json)
 
         asyncio.create_task(self.delayed_free(game), name="t-delayed-free")
-
-        # save player points to db
-        asyncio.create_task(self.db_update_player(game.wplayer), name="t-update-player")
-        asyncio.create_task(self.db_update_player(game.bplayer), name="t-update-player")
-        asyncio.create_task(self.db_update_pairing(game), name="t-update-pairing")
 
         await self.broadcast(
             {
@@ -1101,7 +1092,7 @@ class Tournament(ABC):
                     self.id,
                 )
 
-    async def db_update_player(self, user):
+    async def db_update_player(self, user, action):
         if self.app_state.db is None:
             return
 
@@ -1109,20 +1100,35 @@ class Tournament(ABC):
         player_id = player_data.id
         player_table = self.app_state.db.tournament_player
 
-        if player_data.id is None:  # new player join
-            player_id = await new_id(player_table)
-            player_data.id = player_id
+        if action == "JOIN":
+            if player_data.id is None:  # new player JOIN
+                player_id = await new_id(player_table)
+                player_data.id = player_id
+                new_data = {
+                    "_id": player_id,
+                    "tid": self.id,
+                    "uid": player_data.username,
+                    "r": player_data.rating,
+                    "pr": player_data.provisional,
+                    "a": False,
+                    "f": 0,
+                    "s": 0,
+                    "w": 0,
+                    "b": 0,
+                    "e": 0,
+                    "p": [],
+                    "wd": False,
+                }
+            else:
+                new_data = {"a": False, "wd": False}
 
-        if player_data.withdrawn:
-            new_data = {
-                "wd": True,
-            }
-        elif player_data.nb_games > len(player_data.points):
-            new_data = {
-                "p": player_data.points,
-                "g": player_data.nb_games,
-            }
-        else:
+        elif action == "WITHDRAW":
+            new_data = {"wd": True}
+
+        elif action == "PAUSE":
+            new_data = {"a": True}
+
+        elif action == "GAME_END":
             full_score = self.leaderboard[user]
             new_data = {
                 "_id": player_id,
@@ -1133,7 +1139,6 @@ class Tournament(ABC):
                 "a": player_data.paused,
                 "f": player_data.win_streak,  # win_streak == 2 means "fire"
                 "s": int(full_score / SCORE_SHIFT),
-                "g": player_data.nb_games,
                 "w": player_data.nb_win,
                 "b": player_data.nb_berserk,
                 "e": player_data.performance,
@@ -1193,9 +1198,6 @@ class Tournament(ABC):
         if doc_after is None and not isinstance(self.app_state.db_client, AsyncMongoMockClient):
             log.error("Failed to save %s tournament data update %s to mongodb", self.id, new_data)
 
-        for user in self.leaderboard:
-            await self.db_update_player(user)
-
         if self.frequency == SHIELD:
             variant_name = self.variant + ("960" if self.chess960 else "")
             self.app_state.shield[variant_name].append((winner, self.starts_at, self.id))
@@ -1205,9 +1207,10 @@ class Tournament(ABC):
         print("--- LEADERBOARD ---", self.id)
         for player, full_score in self.leaderboard.items()[:10]:
             print(
-                "%20s %4s %30s %2s %s"
+                "%15s (%8s) %4s %30s %2s %s"
                 % (
                     player.username,
+                    self.players[player].id,
                     self.players[player].rating,
                     self.players[player].points,
                     full_score,
