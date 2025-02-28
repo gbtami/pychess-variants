@@ -757,8 +757,9 @@ class Tournament(ABC):
         self.players[wp].games.append(game)
         self.players[bp].games.append(game)
 
-        self.players[wp].free = False
-        self.players[bp].free = False
+        if game.result == "*":
+            self.players[wp].free = False
+            self.players[bp].free = False
 
         self.players[wp].prev_opp = game.bplayer.username
         self.players[bp].prev_opp = game.wplayer.username
