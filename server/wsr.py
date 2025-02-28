@@ -53,7 +53,6 @@ async def round_socket_handler(request: web.Request):
         lambda app_state, user, ws, data: process_message(app_state, user, ws, data, game),
     )
     if ws is None:
-        log.error("WS is None")
         return web.HTTPFound("/")
     await finally_logic(app_state, ws, user, game)
     return ws
