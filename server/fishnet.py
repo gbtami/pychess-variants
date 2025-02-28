@@ -224,9 +224,14 @@ async def fishnet_move(request):
 
     user = app_state.users["Fairy-Stockfish"]
     move = data["move"]["bestmove"]
+    fen = data["move"].get("fen")
 
-    async with game.move_lock:
-        await play_move(app_state, user, game, move)
+    # Allow to make fishnet move if no takeback changed the current FEN
+    if fen is None or fen == game.board.fen:
+        async with game.move_lock:
+            await play_move(app_state, user, game, move)
+    else:
+        print("--- DISCARD FISHNET ---", move)
 
     response = await get_work(app_state, data)
     return response
