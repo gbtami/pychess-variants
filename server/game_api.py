@@ -386,8 +386,8 @@ async def subscribe_invites(request):
                 payload = await queue.get()
                 await response.send(payload)
                 queue.task_done()
-    except ConnectionResetError:
-        log.error("subscribe_invites() ConnectionResetError")
+    except Exception:
+        pass
     finally:
         app_state.invite_channels.discard(queue)
     return response
@@ -403,8 +403,8 @@ async def subscribe_games(request):
                 payload = await queue.get()
                 await response.send(payload)
                 queue.task_done()
-    except (ConnectionResetError, asyncio.CancelledError):
-        log.error("subscribe_games() ConnectionResetError")
+    except Exception:
+        pass
     finally:
         app_state.game_channels.discard(queue)
     return response
