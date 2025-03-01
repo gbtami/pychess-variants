@@ -109,6 +109,8 @@ export class TournamentController implements ChatController {
 
         if (this.tournamentStatus === 'created') {
             patch(document.querySelector('div.tour-faq') as HTMLElement, faq(this.rated));
+        } else {
+            patch(document.querySelector('div.tour-faq') as HTMLElement, h('!'));
         }
 
         this.clockdiv = patch(document.getElementById('clockdiv') as HTMLElement, h('div#clockdiv'));
@@ -629,7 +631,7 @@ export class TournamentController implements ChatController {
         this.updateActionButton()
         if (this.tournamentStatus !== 'created') {
             const faqEl = document.querySelector('div.tour-faq') as HTMLElement;
-            if (faqEl) patch(faqEl, h('div', ''));
+            if (faqEl) patch(faqEl, h('!'));
         }
         if (this.completed()) {
             patch(this.clockdiv, h('div#clockdiv'));
