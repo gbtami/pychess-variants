@@ -659,7 +659,8 @@ export class TournamentController implements ChatController {
 
     private onMsgDuels(msg: MsgDuels) {
         if (this.vDuels) {
-            this.vDuels = patch(this.vDuels, h('div.duels', [h('h2', 'Top games')].concat(this.renderDuels(msg.duels))));
+            const header = (this.tournamentStatus !== 'created') ? _('Top games') : '';
+            this.vDuels = patch(this.vDuels, h('div.duels', [h('h2', header)].concat(this.renderDuels(msg.duels))));
         }
     }
 
