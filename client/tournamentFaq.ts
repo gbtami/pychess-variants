@@ -52,6 +52,6 @@ h('p', _("The tournament has a countdown clock. When it reaches zero, the tourna
 h('h2', _('Other important rules')),
 h('p', _('There is a countdown for your first move. Failing to make a move within this time will forfeit the game to your opponent.')),
 h('br'),
-h('p', _('Drawing the game within the first 10 half-moves (5 fullmoves) will earn neither player any points.')),
+h('p', _('Drawing the game before each player has moved 5 times will earn neither player any points.')),
 ]);
 }
