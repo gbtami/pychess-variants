@@ -4,7 +4,7 @@ aiohttp-sse==2.2.0
 aiohttp==3.11.13
 aiomonitor==0.7.1
 brotli==1.1.0
-cryptography==44.0.1
+cryptography==44.0.2
 discord.py==2.5.0
 dnspython==2.7.0
 minify-html==0.15.0
