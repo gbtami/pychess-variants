@@ -94,7 +94,7 @@
         column-gap: 0px;
     }
     under-left {
-        display: none;
+        display: flex;
     }
     .pocket-top .twoboards .pocket, .pocket-bot .twoboards .pocket {
       width: calc(var(--pocketLength) * (var(--cg-width-a) / var(--files)));
