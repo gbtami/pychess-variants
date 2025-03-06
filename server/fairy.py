@@ -57,8 +57,8 @@ def modded_variant(variant: str, chess960: bool, initial_fen: str) -> str:
         ranks = parts[0].split("/")
         if (
             parts[2] != "-"
-            and (("K" not in parts[2] and "Q" not in parts[2]) or file_of("K", ranks[7]) == 4)
-            and (("k" not in parts[2] and "q" not in parts[2]) or file_of("k", ranks[0]) == 4)
+            and (("K" in parts[2] or "Q" in parts[2]) and file_of("K", ranks[7]) == 4)
+            and (("k" in parts[2] or "q" in parts[2]) and file_of("k", ranks[0]) == 4)
         ):
             return "embassyhouse" if "house" in variant else "embassy"
     return variant

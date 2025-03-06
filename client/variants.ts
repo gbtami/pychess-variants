@@ -861,7 +861,6 @@ export const VARIANTS: Record<string, Variant> = {
             'Conservative': 'arnbqkbnrc/pppppppppp/10/10/10/10/PPPPPPPPPP/ARNBQKBNRC w KQkq - 0 1',
             'Embassy': 'rnbqkcabnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBQKCABNR w KQkq - 0 1',
             'Gothic': 'rnbqckabnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBQCKABNR w KQkq - 0 1',
-            'Grotesque': 'rbqnkcnabr/pppppppppp/10/10/10/10/PPPPPPPPPP/RBQNKCNABR w KQkq - 0 1',
             'Schoolbook': 'rqnbakbncr/pppppppppp/10/10/10/10/PPPPPPPPPP/RQNBAKBNCR w KQkq - 0 1',
             'Univers': 'rbncqkanbr/pppppppppp/10/10/10/10/PPPPPPPPPP/RBNCQKANBR w KQkq - 0 1',
             'Victorian': 'crnbakbnrq/pppppppppp/10/10/10/10/PPPPPPPPPP/CRNBAKBNRQ w KQkq - 0 1',
@@ -883,7 +882,6 @@ export const VARIANTS: Record<string, Variant> = {
             'Conservative': 'arnbqkbnrc/pppppppppp/10/10/10/10/PPPPPPPPPP/ARNBQKBNRC[] w KQkq - 0 1',
             'Embassy': 'rnbqkcabnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBQKCABNR[] w KQkq - 0 1',
             'Gothic': 'rnbqckabnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBQCKABNR[] w KQkq - 0 1',
-            'Grotesque': 'rbqnkcnabr/pppppppppp/10/10/10/10/PPPPPPPPPP/RBQNKCNABR[] w KQkq - 0 1',
             'Schoolbook': 'rqnbakbncr/pppppppppp/10/10/10/10/PPPPPPPPPP/RQNBAKBNCR[] w KQkq - 0 1',
             'Univers': 'rbncqkanbr/pppppppppp/10/10/10/10/PPPPPPPPPP/RBNCQKANBR[] w KQkq - 0 1',
             'Victorian': 'crnbakbnrq/pppppppppp/10/10/10/10/PPPPPPPPPP/CRNBAKBNRQ[] w KQkq - 0 1',
@@ -1248,8 +1246,8 @@ export function moddedVariant(variantName: string, chess960: boolean, pieces: cg
         const whiteKing = pieces.get('e1');
         const blackKing = pieces.get('e8');
         if (castling !== '-' &&
-            ((!castling.includes('K') && !castling.includes('Q')) || (whiteKing && util.samePiece(whiteKing, { role: 'k-piece', color: 'white' }))) &&
-            ((!castling.includes('k') && !castling.includes('q')) || (blackKing && util.samePiece(blackKing, { role: 'k-piece', color: 'black' }))))
+            ((castling.includes('K') || castling.includes('Q')) && (whiteKing && util.samePiece(whiteKing, { role: 'k-piece', color: 'white' }))) &&
+            ((castling.includes('k') || castling.includes('q')) && (blackKing && util.samePiece(blackKing, { role: 'k-piece', color: 'black' }))))
             return variantName.includes("house") ? "embassyhouse" : "embassy";
     }
     return variantName;
