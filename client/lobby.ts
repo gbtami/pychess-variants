@@ -118,6 +118,12 @@ export class LobbyController implements ChatController {
             }
         });
 
+        document.addEventListener("keydown", (event) => {
+            if (event.key === "Escape") {
+                id01modal.style.display = 'none';
+            }
+        })
+
         patch(document.getElementById('lobbychat') as HTMLElement, chatView(this, "lobbychat"));
 
         patch(document.getElementById('variants-catalog') as HTMLElement, variantPanels(this));
