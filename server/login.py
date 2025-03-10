@@ -47,11 +47,13 @@ async def oauth(request):
         OAUTH_AUTHORIZE_URL = "https://accounts.google.com/o/oauth2/v2/auth"
         OAUTH_TOKEN_URL = "https://oauth2.googleapis.com/token"
 
-        scopes = " ".join([
-            "https://www.googleapis.com/auth/userinfo.email",
-            "https://www.googleapis.com/auth/userinfo.profile",
-            "openid",
-        ])
+        scopes = " ".join(
+            [
+                "https://www.googleapis.com/auth/userinfo.email",
+                "https://www.googleapis.com/auth/userinfo.profile",
+                "openid",
+            ]
+        )
 
     elif provider == "chessdotcom":
         CLIENT_ID = os.getenv("CLIENT_ID", "pychess")
