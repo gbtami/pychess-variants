@@ -2716,3 +2716,6 @@ cg-resize {
     background:hsla(88, 62%, 37%, 0.5);
   }
 }
+img.logo {
+  height:1em;
+}
