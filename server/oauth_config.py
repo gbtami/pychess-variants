@@ -7,7 +7,7 @@ oauth_config = {
         "oauth_authorize_url": "https://lichess.org/oauth",
         "oauth_token_url": "https://lichess.org/api/token",
         "scope": "email:read",
-        "account_api_url" : "https://lichess.org/api/account",
+        "account_api_url": "https://lichess.org/api/account",
     },
     "google": {
         "client_id": os.getenv("GOOGLE_CLIENT_ID", "pychess"),
@@ -21,7 +21,7 @@ oauth_config = {
                 "openid",
             ]
         ),
-        "account_api_url" : "https://www.googleapis.com/oauth2/v2/userinfo",
+        "account_api_url": "https://www.googleapis.com/oauth2/v2/userinfo",
     },
     "discord": {
         "client_id": os.getenv("DISCORD_CLIENT_ID", "pychess"),
@@ -29,7 +29,7 @@ oauth_config = {
         "oauth_authorize_url": "https://discord.com/oauth2/authorize",
         "oauth_token_url": "https://discord.com/api/oauth2/token",
         "scope": "identify email",
-        "account_api_url" : "https://discordapp.com/api/users/@me",
+        "account_api_url": "https://discordapp.com/api/users/@me",
     },
     "chessdotcom": {
         "client_id": os.getenv("CHESSDOTCOM_CLIENT_ID", "pychess"),
@@ -37,6 +37,6 @@ oauth_config = {
         "oauth_authorize_url": "https://oauth.chess.com/authorize",
         "oauth_token_url": "https://oauth.chess.com/token",
         "scope": "openid profile email",
-        "account_api_url" : "https://api.chess.com/pub/player",
+        "account_api_url": "https://api.chess.com/pub/player",
     },
 }
