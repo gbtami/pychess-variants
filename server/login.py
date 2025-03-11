@@ -1,4 +1,3 @@
-import os
 import base64
 import hashlib
 import secrets
@@ -10,6 +9,7 @@ from aiohttp import web
 
 from broadcast import round_broadcast
 from const import NONE_USER, STARTED
+from oauth_config import oauth_config
 from settings import DEV, URI
 from pychess_global_app_state_utils import get_app_state
 from websocket_utils import ws_send_json
@@ -32,36 +32,14 @@ async def oauth(request):
     provider = request.match_info.get("provider")
     redirect_uri = URI + ("/oauth" if provider is None else "/oauth/%s" % provider)
 
-    if provider is None:
-        CLIENT_ID = os.getenv("CLIENT_ID", "pychess")
-        CLIENT_SECRET = os.getenv("CLIENT_SECRET", "secret")
+    config = oauth_config.get(provider, oauth_config["lichess"])
 
-        OAUTH_AUTHORIZE_URL = "https://lichess.org/oauth"
-        OAUTH_TOKEN_URL = "https://lichess.org/api/token"
-        scopes = "email:read"
+    client_id = config["client_id"]
+    client_secret = config["client_secret"]
 
-    elif provider == "google":
-        CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID", "pychess")
-        CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET", "secret")
-
-        OAUTH_AUTHORIZE_URL = "https://accounts.google.com/o/oauth2/v2/auth"
-        OAUTH_TOKEN_URL = "https://oauth2.googleapis.com/token"
-
-        scopes = " ".join(
-            [
-                "https://www.googleapis.com/auth/userinfo.email",
-                "https://www.googleapis.com/auth/userinfo.profile",
-                "openid",
-            ]
-        )
-
-    elif provider == "chessdotcom":
-        CLIENT_ID = os.getenv("CLIENT_ID", "pychess")
-        CLIENT_SECRET = os.getenv("CLIENT_SECRET", "secret")
-
-        OAUTH_AUTHORIZE_URL = "https://oauth.chess.com/authorize"
-        OAUTH_TOKEN_URL = "https://oauth.chess.com/token"
-        scopes = "openid profile email"
+    oauth_authorize_url = config["oauth_authorize_url"]
+    oauth_token_url = config["oauth_token_url"]
+    scope = config["scope"]
 
     session = await aiohttp_session.get_session(request)
     code = request.rel_url.query.get("code")
@@ -72,25 +50,25 @@ async def oauth(request):
         code_challenge = get_code_challenge(code_verifier)
 
         authorize_url = (
-            OAUTH_AUTHORIZE_URL
+            oauth_authorize_url
             + "?"
             + urlencode(
                 {
-                    "state": CLIENT_SECRET,
-                    "client_id": CLIENT_ID,
+                    "state": client_secret,
+                    "client_id": client_id,
                     "response_type": "code",
                     "redirect_uri": redirect_uri,
                     "code_challenge": code_challenge,
                     "code_challenge_method": "S256",
-                    "scope": scopes,
+                    "scope": scope,
                 }
             )
         )
         return web.HTTPFound(authorize_url)
     else:
         state = request.rel_url.query.get("state")
-        if state != CLIENT_SECRET:
-            log.error("State got back from %s changed", OAUTH_AUTHORIZE_URL)
+        if state != client_secret:
+            log.error("State got back from %s changed", oauth_authorize_url)
             return web.HTTPFound("/")
 
         if "oauth_code_verifier" not in session:
@@ -101,13 +79,20 @@ async def oauth(request):
             "grant_type": "authorization_code",
             "code": code,
             "code_verifier": session["oauth_code_verifier"],
-            "client_id": CLIENT_ID,
-            "client_secret": CLIENT_SECRET,
+            "client_id": client_id,
+            "client_secret": client_secret,
             "redirect_uri": redirect_uri,
         }
 
+        print(oauth_token_url)
+        print(data)
+        print("----------------")
+
+        #        headers = {"Content-Type": "application/x-www-form-urlencoded"}
+
         async with aiohttp.ClientSession() as client_session:
-            async with client_session.post(OAUTH_TOKEN_URL, json=data) as resp:
+            #            async with client_session.post(oauth_token_url, json=data, headers=headers) as resp:
+            async with client_session.post(oauth_token_url, json=data) as resp:
                 data = await resp.json()
                 print("OAUTH_DATA=", data)
                 token = data.get("access_token")
@@ -117,7 +102,7 @@ async def oauth(request):
                 else:
                     log.error(
                         "Failed to get OAuth token from %s",
-                        OAUTH_TOKEN_URL,
+                        oauth_token_url,
                     )
                     return web.HTTPFound("/")
 
@@ -131,14 +116,8 @@ async def login(request):
     if "token" not in session:
         return web.HTTPFound(redirect_path)
 
-    if provider is None:
-        account_api_url = "https://lichess.org/api/account"
-
-    elif provider == "google":
-        account_api_url = "https://www.googleapis.com/oauth2/v2/userinfo"
-
-    elif provider == "chessdotcom":
-        account_api_url = "https://api.chess.com/pub/player"
+    config = oauth_config.get(provider, oauth_config["lichess"])
+    account_api_url = config["account_api_url"]
 
     user_data = await get_user_data(account_api_url, session["token"])
 
