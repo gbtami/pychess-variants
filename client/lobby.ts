@@ -118,6 +118,10 @@ export class LobbyController implements ChatController {
             }
         });
 
+        id01modal.addEventListener("cancel", (event) => {
+            (document.activeElement as HTMLElement).blur();
+        }); 
+
         patch(document.getElementById('lobbychat') as HTMLElement, chatView(this, "lobbychat"));
 
         patch(document.getElementById('variants-catalog') as HTMLElement, variantPanels(this));
