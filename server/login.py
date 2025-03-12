@@ -84,17 +84,17 @@ async def oauth(request):
             "redirect_uri": redirect_uri,
         }
 
-        print(oauth_token_url)
-        print(data)
-        print("----------------")
+        # print(oauth_token_url)
+        # print(data)
+        # print("----------------")
 
-        #        headers = {"Content-Type": "application/x-www-form-urlencoded"}
+        # headers = {"Content-Type": "application/x-www-form-urlencoded"}
 
         async with aiohttp.ClientSession() as client_session:
-            #            async with client_session.post(oauth_token_url, json=data, headers=headers) as resp:
+            # async with client_session.post(oauth_token_url, json=data, headers=headers) as resp:
             async with client_session.post(oauth_token_url, json=data) as resp:
                 data = await resp.json()
-                print("OAUTH_DATA=", data)
+                # print("OAUTH_DATA=", data)
                 token = data.get("access_token")
                 if token is not None:
                     session["token"] = token
@@ -126,7 +126,7 @@ async def login(request):
         email = email_data.get("email")
     else:
         email = user_data.get("email")
-    print("EMAIL=", email)
+    # print("EMAIL=", email)
 
     _id = user_data.get("id")
     username = user_data.get("username", _id)
@@ -200,7 +200,7 @@ async def get_user_data(url, token):
         data = {"Authorization": "Bearer %s" % token}
         async with client_session.get(url, headers=data) as resp:
             data = await resp.json()
-            print("USER_DATA", data)
+            # print("USER_DATA", data)
             return data
 
 
