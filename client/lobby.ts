@@ -118,7 +118,7 @@ export class LobbyController implements ChatController {
             }
         });
 
-        id01modal.addEventListener("cancel", (event) => {
+        id01modal.addEventListener("cancel", () => {
             (document.activeElement as HTMLElement).blur();
         }); 
 
