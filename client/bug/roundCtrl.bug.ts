@@ -697,7 +697,6 @@ export class RoundControllerBughouse implements ChatController {
     private updateSteps = (full: boolean, steps: Step[], ply: number, latestPly: boolean) => {
         if (full) { // all steps in one message
             this.steps = [];
-            this.ply = 0;
             this.plyA = 0;
             this.plyB = 0;
             resetChat();
