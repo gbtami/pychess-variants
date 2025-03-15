@@ -114,9 +114,14 @@ export class LobbyController implements ChatController {
         const id01modal = document.getElementById('id01') as HTMLElement;
         document.addEventListener("click", (event) => {
             if ((event.target as HTMLElement) == id01modal) {
-                id01modal.style.display = 'none';
+                (id01modal as HTMLDialogElement).close();
             }
         });
+
+        id01modal.addEventListener("cancel", () => {
+            (id01modal as HTMLDialogElement).close();
+            (document.activeElement as HTMLElement).blur();
+        }); 
 
         patch(document.getElementById('lobbychat') as HTMLElement, chatView(this, "lobbychat"));
 
@@ -139,7 +144,7 @@ export class LobbyController implements ChatController {
             this.renderDialogHeader(_('Challenge %1 to a game', this.profileid));
             document.getElementById('ailevel')!.style.display = this.createMode === 'playAI' ? 'block' : 'none';
             document.getElementById('rmplay-block')!.style.display = this.createMode === 'playAI' ? 'block' : 'none';
-            document.getElementById('id01')!.style.display = 'flex';
+            (document.getElementById('id01') as HTMLDialogElement).showModal();
             document.getElementById('color-button-group')!.style.display = 'block';
             document.getElementById('create-button')!.style.display = 'none';
 
@@ -267,7 +272,7 @@ export class LobbyController implements ChatController {
     }
 
     createSeek(color: string) {
-        document.getElementById('id01')!.style.display='none';
+        (document.getElementById('id01') as HTMLDialogElement).close();
         if (!this.validGameData) return;
 
         let e;
@@ -395,13 +400,13 @@ export class LobbyController implements ChatController {
         const vChess960 = localStorage.seek_chess960 ?? "false";
         const vRMplay = localStorage.seek_rmplay ?? "false";
         return [
-            h('div#id01.modal', [
+            h('dialog#id01.modal', [
                 h('form.modal-content', [
                     h('span#closecontainer', [
                         h('span.close', {
                             on: {
                                 click: () => {
-                                    document.getElementById('id01')!.style.display = 'none';
+                                    (document.getElementById("id01") as HTMLDialogElement).close();
                                 }
                             },
                             attrs: { 'data-icon': 'j' }, props: { title: _("Cancel") }
@@ -642,7 +647,7 @@ export class LobbyController implements ChatController {
         document.getElementById('rating-range-setting')!.style.display = 'block';
         document.getElementById('ailevel')!.style.display = 'none';
         document.getElementById('rmplay-block')!.style.display = 'none';
-        document.getElementById('id01')!.style.display = 'flex';
+        (document.getElementById('id01') as HTMLDialogElement).showModal();
         document.getElementById('color-button-group')!.style.display = 'block';
         document.getElementById('create-button')!.style.display = 'none';
         disableCorr(this.anon || twoBoards);
@@ -656,7 +661,7 @@ export class LobbyController implements ChatController {
         document.getElementById('rating-range-setting')!.style.display = 'none';
         document.getElementById('ailevel')!.style.display = 'none';
         document.getElementById('rmplay-block')!.style.display = 'none';
-        document.getElementById('id01')!.style.display = 'flex';
+        (document.getElementById('id01') as HTMLDialogElement).showModal();
         document.getElementById('color-button-group')!.style.display = 'block';
         document.getElementById('create-button')!.style.display = 'none';
         disableCorr(false);
@@ -671,7 +676,7 @@ export class LobbyController implements ChatController {
         const e = document.getElementById('rmplay') as HTMLInputElement;
         document.getElementById('ailevel')!.style.display = e.checked ? 'none' : 'inline-block';
         document.getElementById('rmplay-block')!.style.display = 'block';
-        document.getElementById('id01')!.style.display = 'flex';
+        (document.getElementById('id01') as HTMLDialogElement).showModal();
         document.getElementById('color-button-group')!.style.display = 'block';
         document.getElementById('create-button')!.style.display = 'none';
         disableCorr(true);
@@ -685,7 +690,7 @@ export class LobbyController implements ChatController {
         document.getElementById('rating-range-setting')!.style.display = 'none';
         document.getElementById('ailevel')!.style.display = 'none';
         document.getElementById('rmplay-block')!.style.display = 'none';
-        document.getElementById('id01')!.style.display = 'flex';
+        (document.getElementById('id01') as HTMLDialogElement).showModal();
         document.getElementById('color-button-group')!.style.display = 'none';
         document.getElementById('create-button')!.style.display = 'block';
         disableCorr(true);
