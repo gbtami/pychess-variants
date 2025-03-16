@@ -88,11 +88,10 @@ async def oauth(request):
         # print(data)
         # print("----------------")
 
-        # headers = {"Content-Type": "application/x-www-form-urlencoded"}
+        headers = {"Content-Type": "application/x-www-form-urlencoded"}
 
         async with aiohttp.ClientSession() as client_session:
-            # async with client_session.post(oauth_token_url, json=data, headers=headers) as resp:
-            async with client_session.post(oauth_token_url, json=data) as resp:
+            async with client_session.post(oauth_token_url, data=data, headers=headers) as resp:
                 data = await resp.json()
                 # print("OAUTH_DATA=", data)
                 token = data.get("access_token")

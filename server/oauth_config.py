@@ -23,6 +23,14 @@ oauth_config = {
         ),
         "account_api_url": "https://www.googleapis.com/oauth2/v2/userinfo",
     },
+    "facebook": {
+        "client_id": os.getenv("FACEBOOK_CLIENT_ID", "pychess"),
+        "client_secret": os.getenv("FACEBOOK_CLIENT_SECRET", "secret"),
+        "oauth_authorize_url": "https://www.facebook.com/dialog/oauth",
+        "oauth_token_url": "https://graph.facebook.com/oauth/access_token",
+        "scope": "email",
+        "account_api_url": "https://graph.facebook.com/me",
+    },
     "discord": {
         "client_id": os.getenv("DISCORD_CLIENT_ID", "pychess"),
         "client_secret": os.getenv("DISCORD_CLIENT_SECRET", "secret"),
