@@ -72,6 +72,9 @@ async def handle_404(request, handler):
             raise
     except NotInDbUsers:
         return web.HTTPFound("/")
+    except asyncio.CancelledError:
+        # Prevent emitting endless tracebacks on server shutdown
+        return web.Response()
 
 
 @web.middleware
