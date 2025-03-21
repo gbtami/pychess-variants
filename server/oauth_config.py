@@ -23,12 +23,20 @@ oauth_config = {
         ),
         "account_api_url": "https://www.googleapis.com/oauth2/v2/userinfo",
     },
+    "microsoft": {
+        "client_id": os.getenv("MICROSOFT_CLIENT_ID", "pychess"),
+        "client_secret": os.getenv("MICROSOFT_CLIENT_SECRET", "secret"),
+        "oauth_authorize_url": "https://login.microsoftonline.com/common/oauth2/v2.0/authorize",
+        "oauth_token_url": "https://login.microsoftonline.com/common/oauth2/v2.0/token",
+        "scope": "openid email",
+        "account_api_url": "https://graph.microsoft.com/v1.0/me",
+    },
     "facebook": {
         "client_id": os.getenv("FACEBOOK_CLIENT_ID", "pychess"),
         "client_secret": os.getenv("FACEBOOK_CLIENT_SECRET", "secret"),
         "oauth_authorize_url": "https://www.facebook.com/dialog/oauth",
         "oauth_token_url": "https://graph.facebook.com/oauth/access_token",
-        "scope": "email",
+        "scope": "user_link",
         "account_api_url": "https://graph.facebook.com/me",
     },
     "discord": {
@@ -38,13 +46,5 @@ oauth_config = {
         "oauth_token_url": "https://discord.com/api/oauth2/token",
         "scope": "identify email",
         "account_api_url": "https://discordapp.com/api/users/@me",
-    },
-    "chessdotcom": {
-        "client_id": os.getenv("CHESSDOTCOM_CLIENT_ID", "pychess"),
-        "client_secret": os.getenv("CHESSDOTCOM_CLIENT_SECRET", "secret"),
-        "oauth_authorize_url": "https://oauth.chess.com/authorize",
-        "oauth_token_url": "https://oauth.chess.com/token",
-        "scope": "openid profile email",
-        "account_api_url": "https://api.chess.com/pub/player",
     },
 }
