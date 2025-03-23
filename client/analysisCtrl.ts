@@ -287,6 +287,7 @@ export class AnalysisController extends GameController {
     toggleOrientation() {
         super.toggleOrientation()
         boardSettings.updateDropSuggestion();
+        (document.getElementById('gauge') as HTMLElement).classList.toggle("flipped");
         const clocktimes = this.steps[1]?.clocks;
         if (clocktimes !== undefined) {
             renderClocks(this);
