@@ -4,7 +4,6 @@ import asyncio
 import json
 import os.path
 from datetime import datetime
-from urllib.parse import urlparse
 
 import aiohttp_session
 from aiohttp import web
@@ -29,7 +28,6 @@ from robots import ROBOTS_TXT
 from settings import (
     ADMINS,
     TOURNAMENT_DIRECTORS,
-    MAX_AGE,
     URI,
     STATIC_ROOT,
     BR_EXTENSION,
@@ -389,7 +387,6 @@ async def index(request):
         "asseturl": STATIC_ROOT,
         "view_css": ("round" if view == "tv" else view) + ".css",
         "home": URI,
-        "user": user.username if session["guest"] else "",
         "anon": user.anon,
         "username": user.username,
         "guest": session["guest"],
@@ -732,18 +729,9 @@ async def index(request):
 
     response = web.Response(
         text=minify_html.minify(
-            text, minify_js=True, do_not_minify_doctype=True, keep_spaces_between_attributes=True
+            text, minify_js=True, keep_spaces_between_attributes=True
         ),
         content_type="text/html",
-    )
-    parts = urlparse(URI)
-    response.set_cookie(
-        "user",
-        session["user_name"],
-        domain=parts.hostname,
-        secure=parts.scheme == "https",
-        samesite="Lax",
-        max_age=None if user.anon else MAX_AGE,
     )
     return response
 

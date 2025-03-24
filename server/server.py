@@ -125,7 +125,9 @@ def make_app(db_client=None, simple_cookie_storage=False, anon_as_test_users=Fal
         (
             SimpleCookieStorage()
             if simple_cookie_storage
-            else EncryptedCookieStorage(SECRET_KEY, max_age=MAX_AGE, secure=parts.scheme == "https")
+            else EncryptedCookieStorage(
+                SECRET_KEY, max_age=MAX_AGE, secure=parts.scheme == "https", samesite="Lax"
+            )
         ),
     )
 
