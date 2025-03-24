@@ -157,7 +157,6 @@ async def login(request):
         prev_user.update_online()
 
     session["user_name"] = username
-    session["title"] = title
 
     if username:
         doc = await app_state.db.user.find_one({"_id": username})
@@ -165,7 +164,7 @@ async def login(request):
             result = await app_state.db.user.insert_one(
                 {
                     "_id": username,
-                    "title": session.get("title"),
+                    "title": title,
                     "perfs": {},
                     "pperfs": {},
                 }

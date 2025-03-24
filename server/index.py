@@ -67,7 +67,6 @@ async def index(request):
     session_user = session.get("user_name")
 
     session["last_visit"] = datetime.now().isoformat()
-    session["guest"] = True
     if session_user is not None:
         log.info("+++ Existing user %s connected.", session_user)
         doc = None
@@ -79,8 +78,6 @@ async def index(request):
                 session_user,
             )
         if doc is not None:
-            session["guest"] = False
-
             if not doc.get("enabled", True):
                 log.info("Closed account %s tried to connect.", session_user)
                 session.invalidate()
@@ -105,7 +102,7 @@ async def index(request):
             return web.HTTPFound("/login")
 
         user = User(app_state, anon=not app_state.anon_as_test_users)
-        log.info("+++ New guest user %s connected.", user.username)
+        log.info("+++ New anon user %s connected.", user.username)
         app_state.users[user.username] = user
         session["user_name"] = user.username
         await asyncio.sleep(3)
@@ -389,7 +386,6 @@ async def index(request):
         "home": URI,
         "anon": user.anon,
         "username": user.username,
-        "guest": session["guest"],
         "profile": profileId if profileId is not None else "",
         "variant": variant if variant is not None else "",
         "fen": fen.replace(".", "+").replace("_", " ") if fen is not None else "",
