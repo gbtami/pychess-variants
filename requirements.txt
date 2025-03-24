@@ -16,7 +16,7 @@ pyffish==0.0.87
 pyffish_alice==0.0.1
 rustworkx==0.16.0
 sortedcollections==2.1.0
-tzdata==2025.1
+tzdata==2025.2
 python-gettext==5.0
 objgraph==3.6.2
 black==25.1.0
