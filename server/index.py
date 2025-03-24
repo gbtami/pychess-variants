@@ -728,7 +728,7 @@ async def index(request):
         return web.HTTPFound("/")
 
     response = web.Response(
-        text=minify_html.minify(text, minify_js=True, keep_spaces_between_attributes=True),
+        text=minify_html.minify(text, minify_js=True),
         content_type="text/html",
     )
     return response
