@@ -79,15 +79,15 @@ div.ctable-container {
 #gauge {
     grid-area: gauge;
 }
-#gauge.flipped {
-    transform: rotateX(180deg);
-}
 #gauge, #gaugePartner {
     display: block;
     background-color: #fff;
     width: var(--gauge-gap);
     overflow: hidden;
     position: relative;
+}
+.flipped {
+    transform: rotateX(180deg);
 }
 #gauge::after, #gaugePartner::after {
     content: '';
