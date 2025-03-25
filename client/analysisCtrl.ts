@@ -647,6 +647,9 @@ export class AnalysisController extends GameController {
         this.chessground.setAutoShapes(shapes0);
 
         const gaugeEl = document.getElementById('gauge') as HTMLElement;
+
+        if (this.chessground.state.mycolor === 'black') gaugeEl.classList.add("flipped");
+
         if (gaugeEl && pvlineIdx === 0) {
             const blackEl = gaugeEl.querySelector('div.black') as HTMLElement | undefined;
             if (blackEl && ceval !== undefined) {
