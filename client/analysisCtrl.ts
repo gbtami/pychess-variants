@@ -237,6 +237,9 @@ export class AnalysisController extends GameController {
         analysisSettings.ctrl = this;
 
         Mousetrap.bind('p', () => copyTextToClipboard(`${this.fullfen};variant ${this.variant.name};site https://www.pychess.org/${this.gameId}\n`));
+    
+        const gaugeEl = document.getElementById('gauge') as HTMLElement;
+        if (this.variant.name !== 'racingkings' && this.mycolor === 'black') gaugeEl.classList.add("flipped");
     }
 
     toggleSettings() {
@@ -647,8 +650,6 @@ export class AnalysisController extends GameController {
         this.chessground.setAutoShapes(shapes0);
 
         const gaugeEl = document.getElementById('gauge') as HTMLElement;
-
-        if (this.chessground.state.mycolor === 'black') gaugeEl.classList.add("flipped");
 
         if (gaugeEl && pvlineIdx === 0) {
             const blackEl = gaugeEl.querySelector('div.black') as HTMLElement | undefined;
