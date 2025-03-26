@@ -22,6 +22,7 @@ from pychess_global_app_state_utils import get_app_state
 
 from typedefs import (
     client_key,
+    anon_as_test_users_key,
     pychess_global_app_state_key,
     db_key,
 )
@@ -116,7 +117,7 @@ def make_app(db_client=None, simple_cookie_storage=False, anon_as_test_users=Fal
     app = web.Application()
     app.middlewares.append(redirect_to_https)
 
-    app["anon_as_test_users"] = anon_as_test_users
+    app[anon_as_test_users_key] = anon_as_test_users
 
     parts = urlparse(URI)
 

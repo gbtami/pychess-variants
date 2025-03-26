@@ -58,7 +58,7 @@ from tournament.tournaments import (
     get_scheduled_tournaments,
     load_tournament,
 )
-from typedefs import client_key
+from typedefs import anon_as_test_users_key, client_key
 from twitch import Twitch
 from user import User
 from users import Users, NotInDbUsers
@@ -78,7 +78,7 @@ class PychessGlobalAppState:
         from typedefs import db_key
 
         self.app = app
-        self.anon_as_test_users = app["anon_as_test_users"]
+        self.anon_as_test_users = app[anon_as_test_users_key]
 
         self.shutdown = False
         self.tournaments_loaded = asyncio.Event()
