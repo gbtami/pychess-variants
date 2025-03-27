@@ -240,6 +240,8 @@ export default class AnalysisControllerBughouse {
         this.onMsgBoard(model["board"] as MsgBoard);
 
         initBoardSettings(this.b1, this.b2, this.variant);
+
+        (document.getElementById('gaugePartner') as HTMLElement).classList.add('flipped');
     }
 
     pvboxIni() {
@@ -573,9 +575,6 @@ export default class AnalysisControllerBughouse {
         boardInAnalysis.chessground.setAutoShapes(shapes0);
 
         const gaugeEl = document.getElementById(boardInAnalysis.boardName == 'a'? 'gauge': 'gaugePartner') as HTMLElement;
-
-        (document.getElementById('gaugePartner') as HTMLElement).classList.add('flipped');
-
         if (gaugeEl && pvlineIdx === 0) {
             const blackEl = gaugeEl.querySelector('div.black') as HTMLElement | undefined;
             if (blackEl && ceval !== undefined) {
