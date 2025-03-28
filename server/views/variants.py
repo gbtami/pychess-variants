@@ -14,6 +14,8 @@ async def variants(request):
 
     app_state = get_app_state(request.app)
     variant = request.match_info.get("variant")
+    if (variant is not None) and ((variant not in VARIANTS) and variant != "terminology"):
+        variant = "chess"
 
     context["variants"] = VARIANTS
     context["icons"] = VARIANT_ICONS

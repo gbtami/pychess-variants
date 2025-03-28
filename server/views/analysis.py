@@ -5,8 +5,8 @@ from variants import VARIANTS
 from views import get_user_context
 
 
-@aiohttp_jinja2.template("index.html")
-async def editor(request):
+@aiohttp_jinja2.template("analysis.html")
+async def analysis(request):
     user, context = await get_user_context(request)
 
     variant = request.match_info.get("variant")
@@ -18,7 +18,6 @@ async def editor(request):
         fen = FairyBoard.start_fen(variant)
     else:
         fen = fen.replace(".", "+").replace("_", " ")
-
     context["variant"] = variant
     context["fen"] = fen
 
