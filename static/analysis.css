@@ -86,6 +86,9 @@ div.ctable-container {
     overflow: hidden;
     position: relative;
 }
+.flipped {
+    transform: rotateX(180deg);
+}
 #gauge::after, #gaugePartner::after {
     content: '';
     display: block;
