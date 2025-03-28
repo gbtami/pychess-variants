@@ -45,7 +45,6 @@ from logger import log
 
 @web.middleware
 async def handle_404(request, handler):
-    app_state = get_app_state(request.app)
     try:
         return await handler(request)
     except web.HTTPException as ex:
@@ -53,6 +52,7 @@ async def handle_404(request, handler):
             theme = "dark"
             session = await aiohttp_session.get_session(request)
             session_user = session.get("user_name")
+            app_state = get_app_state(request.app)
             if session_user is not None:
                 user = await app_state.users.get(session_user)
                 theme = user.theme
