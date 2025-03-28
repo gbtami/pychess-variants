@@ -60,6 +60,7 @@ from variants import ALL_VARIANTS, VARIANTS, VARIANT_ICONS, RATED_VARIANTS, NOT_
 
 async def index(request):
     """Create home html."""
+    print("OLD INDEX !!!!!!!!!!!")
     app_state = get_app_state(request.app)
 
     # Who made the request?
