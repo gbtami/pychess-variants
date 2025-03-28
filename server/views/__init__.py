@@ -1,10 +1,10 @@
 import asyncio
-from contextvars import ContextVar
 from datetime import datetime
 
 import aiohttp_session
 from aiohttp import web
 
+from pychess_global_app_state import LOCALE
 from pychess_global_app_state_utils import get_app_state
 from logger import log
 from const import (
@@ -12,8 +12,6 @@ from const import (
     LANGUAGES,
 )
 from user import User
-
-LOCALE: ContextVar[str] = ContextVar("LOCALE", default="en")
 
 
 async def get_user_context(request):
@@ -25,7 +23,6 @@ async def get_user_context(request):
 
     session["last_visit"] = datetime.now().isoformat()
     if session_user is not None:
-        print("SESSION_USER", session_user, ANON_PREFIX, session_user.startswith(ANON_PREFIX))
         log.info("+++ Existing user %s connected.", session_user)
         doc = None
         try:
@@ -61,17 +58,11 @@ async def get_user_context(request):
         session["user_name"] = user.username
         await asyncio.sleep(3)
 
-    lang = session.get("lang") if user.lang is None else user.lang
-    if lang is None:
-        lang = detect_locale(request)
-
-    LOCALE.set(lang)
-
     view = request.path.split("/")[1] if len(request.path) > 2 else "lobby"
 
     context = {
         "user": user,
-        "lang": lang,
+        "lang": LOCALE.get(),
         "theme": user.theme,
         "title": "%s • PyChess" % view.capitalize(),
         "view": view,

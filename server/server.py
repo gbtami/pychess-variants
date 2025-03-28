@@ -18,7 +18,7 @@ import jinja2
 
 from motor.motor_asyncio import AsyncIOMotorClient
 
-from pychess_global_app_state import PychessGlobalAppState
+from pychess_global_app_state import PychessGlobalAppState, LOCALE
 from pychess_global_app_state_utils import get_app_state
 
 from typedefs import (
@@ -91,6 +91,13 @@ async def redirect_to_https(request, handler):
     return await handler(request)
 
 
+@web.middleware
+async def set_user_locale(request, handler):
+    session = await aiohttp_session.get_session(request)
+    LOCALE.set(session.get("lang", "en"))
+    return await handler(request)
+
+
 async def on_prepare(request, response):
     if request.path.endswith(".br"):
         # brotli compressed js
@@ -132,6 +139,8 @@ def make_app(db_client=None, simple_cookie_storage=False, anon_as_test_users=Fal
             )
         ),
     )
+
+    app.middlewares.append(set_user_locale)
 
     aiohttp_jinja2.setup(
         app,
