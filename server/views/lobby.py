@@ -15,6 +15,7 @@ async def lobby(request):
     context["title"] = "PyChess • Free Online Chess Variants"
 
     puzzle = await get_daily_puzzle(request)
+    print("PUZZLE", puzzle)
     context["puzzle"] = json.dumps(puzzle, default=datetime.isoformat)
 
     c_games = corr_games(user.correspondence_games)
