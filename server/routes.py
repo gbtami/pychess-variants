@@ -45,7 +45,23 @@ from tournament.tournament_calendar import tournament_calendar
 from twitch import twitch_request_handler
 from puzzle import puzzle_complete, puzzle_vote
 from user import block_user, get_blocked_users, set_theme
-from views import about, allplayers, blog, blogs, editor, faq, lobby, players, players50, stats
+from views import (
+    about,
+    allplayers,
+    blog,
+    blogs,
+    calendar,
+    editor,
+    faq,
+    features,
+    lobby,
+    patron,
+    players,
+    players50,
+    stats,
+    videos,
+    video,
+)
 
 
 get_routes = (
@@ -59,8 +75,8 @@ get_routes = (
     ("/players", players.players),
     ("/players/{variant}", players50.players50),
     ("/allplayers", allplayers.allplayers),
-    ("/calendar", index),
-    ("/features", index),
+    ("/calendar", calendar.calendar),
+    ("/features", features.features),
     ("/games", index),
     ("/games/{variant}", index),
     ("/tv", index),
@@ -100,15 +116,15 @@ get_routes = (
     ("/@/{profileId}/me", index),
     ("/@/{profileId}/import", index),
     ("/level8win", index),
-    ("/patron", index),
-    ("/patron/thanks", index),
+    ("/patron", patron.patron),
+    ("/patron/thanks", patron.patron),
     ("/blogs", blogs.blogs),
     ("/blogs/{blogId}", blog.blog),
     ("/variants", index),
     ("/variants/{variant}", index),
     ("/memory", index),
-    ("/video", index),
-    ("/video/{videoId}", index),
+    ("/video", videos.videos),
+    ("/video/{videoId}", video.video),
     ("/wsl", lobby_socket_handler),
     ("/wsr/{gameId}", round_socket_handler),
     ("/wst", tournament_socket_handler),
