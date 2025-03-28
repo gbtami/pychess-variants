@@ -59,6 +59,7 @@ from views import (
     players,
     players50,
     stats,
+    variants,
     videos,
     video,
 )
@@ -120,8 +121,8 @@ get_routes = (
     ("/patron/thanks", patron.patron),
     ("/blogs", blogs.blogs),
     ("/blogs/{blogId}", blog.blog),
-    ("/variants", index),
-    ("/variants/{variant}", index),
+    ("/variants", variants.variants),
+    ("/variants/{variant}", variants.variants),
     ("/memory", index),
     ("/video", videos.videos),
     ("/video/{videoId}", video.video),
