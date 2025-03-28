@@ -48,7 +48,9 @@ from user import block_user, get_blocked_users, set_theme
 
 get_routes = (
     ("/login", login),
+    ("/login/{provider}", login),
     ("/oauth", oauth),
+    ("/oauth/{provider}", oauth),
     ("/logout", logout),
     ("/", index),
     ("/about", index),
