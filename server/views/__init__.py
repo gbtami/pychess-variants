@@ -7,10 +7,6 @@ from aiohttp import web
 from pychess_global_app_state import LOCALE
 from pychess_global_app_state_utils import get_app_state
 from logger import log
-from const import (
-    ANON_PREFIX,
-    LANGUAGES,
-)
 from user import User
 
 
@@ -71,34 +67,3 @@ async def get_user_context(request):
         "username": user.username,
     }
     return (user, context)
-
-
-def parse_accept_language(accept_language):
-    languages = accept_language.split(",")
-    locale_q_pairs = []
-
-    for language in languages:
-        parts = language.split(";")
-        if parts[0] == language:
-            # no q => q = 1
-            locale_q_pairs.append((language.strip(), "1"))
-        else:
-            locale_q_pairs.append((parts[0].strip(), parts[1].split("=")[1]))
-
-    return locale_q_pairs
-
-
-def detect_locale(request):
-    default_locale = "en"
-    accept_language = request.headers.get("Accept-Language")
-
-    if accept_language is not None:
-        locale_q_pairs = parse_accept_language(accept_language)
-
-        for pair in locale_q_pairs:
-            for locale in LANGUAGES:
-                # pair[0] is locale, pair[1] is q value
-                if pair[0].replace("-", "_").lower().startswith(locale.lower()):
-                    return locale
-
-    return default_locale
