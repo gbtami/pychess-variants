@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import os
+from datetime import timedelta, timezone, datetime, date
+from operator import neg
 import asyncio
 import collections
 import gettext
@@ -8,12 +11,8 @@ from typing import List, Set
 
 from aiohttp import web
 from aiohttp.web_ws import WebSocketResponse
+import aiohttp_jinja2
 
-import os
-from datetime import timedelta, timezone, datetime, date
-from operator import neg
-
-import jinja2
 from pythongettext.msgfmt import Msgfmt, PoSyntaxError
 from sortedcollections import ValueSortedDict
 
@@ -51,7 +50,16 @@ from tournament.scheduler import (
     create_scheduled_tournaments,
 )
 from seek import Seek
-from settings import DEV, FISHNET_KEYS, static_url, DISCORD_TOKEN
+from settings import (
+    FISHNET_KEYS,
+    DISCORD_TOKEN,
+    URI,
+    STATIC_ROOT,
+    BR_EXTENSION,
+    SOURCE_VERSION,
+    DEV,
+    static_url,
+)
 from tournament.tournament import Tournament
 from tournament.tournaments import (
     translated_tournament_name,
@@ -68,6 +76,7 @@ from videos import VIDEOS
 from youtube import Youtube
 from logger import log
 from variants import VARIANTS, RATED_VARIANTS
+from views import LOCALE
 
 
 GAME_KEEP_TIME = 1800  # keep game in app[games_key] for GAME_KEEP_TIME secs
@@ -137,9 +146,8 @@ class PychessGlobalAppState:
         self.fishnet_monitor = self.__init_fishnet_monitor()
         self.fishnet_versions = {}
 
-        # Configure translations and templating.
-        self.gettext = {}
-        self.jinja = {}
+        # Configure translations
+        self.translations = {}
 
         # self.discord:
         self.__init_discord()
@@ -369,17 +377,7 @@ class PychessGlobalAppState:
                 log.warning("Missing translations file for lang %s", lang)
                 translation = gettext.NullTranslations()
 
-            env = jinja2.Environment(
-                enable_async=True,
-                extensions=["jinja2.ext.i18n"],
-                loader=jinja2.FileSystemLoader("templates"),
-                autoescape=jinja2.select_autoescape(["html"]),
-            )
-            env.install_gettext_translations(translation, newstyle=True)
-            env.globals["static"] = static_url
-
-            self.jinja[lang] = env
-            self.gettext[lang] = translation
+            self.translations[lang] = translation
 
             translation.install()
 
@@ -399,6 +397,27 @@ class PychessGlobalAppState:
                     tname = translated_tournament_name(variant, SHIELD, ARENA, translation)
                     self.tourneynames[lang][(variant, SHIELD, ARENA)] = tname
 
+        # https://github.com/aio-libs/aiohttp-jinja2/issues/187#issuecomment-2519831516
+        class _Translations:
+            @staticmethod
+            def gettext(message: str):
+                return self.translations[LOCALE.get()].gettext(message)
+
+            @staticmethod
+            def ngettext(singular: str, plural: str, num: int):
+                return self.translations[LOCALE.get()].ngettext(singular, plural, num)
+
+        env = aiohttp_jinja2.get_env(self.app)
+        env.install_gettext_translations(_Translations, newstyle=True)
+
+        env.globals["static"] = static_url
+        env.globals["js"] = "/static/pychess-variants.js%s%s" % (BR_EXTENSION, SOURCE_VERSION)
+        env.globals["dev"] = DEV
+        env.globals["app_name"] = "PyChess"
+        env.globals["languages"] = LANGUAGES
+        env.globals["asseturl"] = STATIC_ROOT
+        env.globals["home"] = URI
+
     def __start_bots(self):
         rm = self.users["Random-Mover"]
         ai = self.users["Fairy-Stockfish"]
@@ -407,7 +426,7 @@ class PychessGlobalAppState:
 
     def __init_fishnet_monitor(self) -> dict:
         result = {}
-        print(FISHNET_KEYS)
+        # print(FISHNET_KEYS)
         for key in FISHNET_KEYS:
             result[FISHNET_KEYS[key]] = collections.deque([], 50)
         return result

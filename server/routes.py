@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 from bot_api import (
     account,
     playing,
@@ -44,19 +45,20 @@ from tournament.tournament_calendar import tournament_calendar
 from twitch import twitch_request_handler
 from puzzle import puzzle_complete, puzzle_vote
 from user import block_user, get_blocked_users, set_theme
+from views import about, allplayers, blog, blogs, editor, faq, lobby, players, players50, stats
 
 
 get_routes = (
     ("/login", login),
     ("/oauth", oauth),
     ("/logout", logout),
-    ("/", index),
-    ("/about", index),
-    ("/faq", index),
-    ("/stats", index),
-    ("/players", index),
-    ("/players/{variant}", index),
-    ("/allplayers", index),
+    ("/", lobby.lobby),
+    ("/about", about.about),
+    ("/faq", faq.faq),
+    ("/stats", stats.stats),
+    ("/players", players.players),
+    ("/players/{variant}", players50.players50),
+    ("/allplayers", allplayers.allplayers),
     ("/calendar", index),
     ("/features", index),
     ("/games", index),
@@ -70,8 +72,8 @@ get_routes = (
     ("/analysis/{variant}", index),
     ("/analysis/{variant}/{fen}", index),
     ("/seek/{variant}", index),
-    ("/editor/{variant}", index),
-    ("/editor/{variant}/{fen}", index),
+    ("/editor/{variant}", editor.editor),
+    ("/editor/{variant}/{fen}", editor.editor),
     ("/notifications", get_notifications),
     ("/notify", subscribe_notify),
     ("/notified", notified),
@@ -100,8 +102,8 @@ get_routes = (
     ("/level8win", index),
     ("/patron", index),
     ("/patron/thanks", index),
-    ("/blogs", index),
-    ("/blogs/{blogId}", index),
+    ("/blogs", blogs.blogs),
+    ("/blogs/{blogId}", blog.blog),
     ("/variants", index),
     ("/variants/{variant}", index),
     ("/memory", index),
