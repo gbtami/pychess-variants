@@ -26,9 +26,7 @@ async def tournament(request):
     if user.username in TOURNAMENT_DIRECTORS and tournament.status == T_CREATED:
         if request.path.endswith("/edit"):
             data = await request.post()
-            await create_or_update_tournament(
-                app_state, user.username, data, tournament=tournament
-            )
+            await create_or_update_tournament(app_state, user.username, data, tournament=tournament)
 
         elif request.path.endswith("/cancel"):
             await tournament.abort()
