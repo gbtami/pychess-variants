@@ -18,7 +18,6 @@ NO_PUZZLE_VARIANTS = (
     "antichess",
     "horde",
     "placement",
-    "minishogi",
     "gorogoroplus",
     "grandhouse",
     "cannonshogi",

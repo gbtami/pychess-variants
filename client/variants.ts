@@ -1181,7 +1181,6 @@ export const enabledVariants = variants.filter(v => !disabledVariants.includes(v
 // variants having 0 puzzle so far
 export const noPuzzleVariants = [
     "placement",
-    "minishogi",
     "gorogoroplus",
     "grandhouse",
     "cannonshogi",
