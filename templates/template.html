@@ -69,7 +69,7 @@
                 <div id="ac-result"></div>
             </form>
             <div id="username"><a class="user-link" href="/@/{{ username }}">{{ username }}</a></div>
-            {% if guest %}
+            {% if anon %}
             <a class="login nav-link" href="/login" title="{% trans %}Login with Lichess{% endtrans %}">{% trans %}Log in{% endtrans %}</a>
             {% endif %}
             <div id="notify-panel"></div>
