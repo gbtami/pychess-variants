@@ -48,7 +48,6 @@ class Users(UserDict):
         if username.startswith(ANON_PREFIX):
             user = User(self.app_state, username=username, anon=True)
             self.app_state.users[username] = user
-            print("NEW ANON", username)
             return user
 
         doc = await self.app_state.db.user.find_one({"_id": username})
