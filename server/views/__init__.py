@@ -8,6 +8,7 @@ from pychess_global_app_state import LOCALE
 from pychess_global_app_state_utils import get_app_state
 from logger import log
 from user import User
+from variants import ALL_VARIANTS
 
 
 def get_locale_ext(context):
@@ -60,10 +61,16 @@ async def get_user_context(request):
         await asyncio.sleep(3)
 
     view = request.path.split("/")[1] if len(request.path) > 2 else "lobby"
+    lang = LOCALE.get()
+    gettext = app_state.translations[lang].gettext
+
+    def variant_display_name(variant):
+        return gettext(ALL_VARIANTS[variant].translated_name)
 
     context = {
         "user": user,
-        "lang": LOCALE.get(),
+        "lang": lang,
+        "variant_display_name": variant_display_name,
         "theme": user.theme,
         "title": "%s • PyChess" % view.capitalize(),
         "view": view,

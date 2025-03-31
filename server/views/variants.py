@@ -4,15 +4,13 @@ import aiohttp_jinja2
 
 from const import VARIANT_GROUPS
 from views import get_locale_ext, get_user_context
-from pychess_global_app_state_utils import get_app_state
-from variants import ALL_VARIANTS, VARIANTS, VARIANT_ICONS
+from variants import VARIANTS, VARIANT_ICONS
 
 
 @aiohttp_jinja2.template("variants.html")
 async def variants(request):
     user, context = await get_user_context(request)
 
-    app_state = get_app_state(request.app)
     variant = request.match_info.get("variant")
     if (variant is not None) and ((variant not in VARIANTS) and variant != "terminology"):
         variant = "chess"
@@ -21,7 +19,6 @@ async def variants(request):
     context["icons"] = VARIANT_ICONS
     context["groups"] = VARIANT_GROUPS
 
-    lang = context["lang"]
     locale = get_locale_ext(context)
 
     # try translated docs file first
@@ -37,10 +34,5 @@ async def variants(request):
         else:
             item = "docs/" + ("terminology" if variant is None else variant) + ".html"
     context["variant"] = item
-
-    def variant_display_name(variant):
-        return app_state.translations[lang].gettext(ALL_VARIANTS[variant].translated_name)
-
-    context["variant_display_name"] = variant_display_name
 
     return context

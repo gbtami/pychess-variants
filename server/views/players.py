@@ -3,7 +3,7 @@ import aiohttp_jinja2
 from views import get_user_context
 from settings import ADMINS
 from pychess_global_app_state_utils import get_app_state
-from variants import ALL_VARIANTS, VARIANTS, VARIANT_ICONS
+from variants import VARIANTS, VARIANT_ICONS
 
 
 @aiohttp_jinja2.template("players.html")
@@ -25,12 +25,6 @@ async def players(request):
     context["admin"] = user.username in ADMINS
 
     variant = request.match_info.get("variant")
-    lang = context["lang"]
-
-    def variant_display_name(variant):
-        return app_state.translations[lang].gettext(ALL_VARIANTS[variant].translated_name)
-
-    context["variant_display_name"] = variant_display_name
 
     if variant is None:
         context["highscore"] = {

@@ -6,7 +6,7 @@ from custom_trophy_owners import CUSTOM_TROPHY_OWNERS
 from glicko2.glicko2 import PROVISIONAL_PHI
 from views import get_user_context
 from pychess_global_app_state_utils import get_app_state
-from variants import ALL_VARIANTS, NOT_RATED_VARIANTS, VARIANTS, VARIANT_ICONS
+from variants import NOT_RATED_VARIANTS, VARIANTS, VARIANT_ICONS
 
 
 @aiohttp_jinja2.template("profile.html")
@@ -20,13 +20,10 @@ async def profile(request):
 
     rated = None
 
-    lang = context["lang"]
-
-    def variant_display_name(variant):
-        return app_state.translations[lang].gettext(ALL_VARIANTS[variant].translated_name)
+    if variant is not None:
+        context["variant"] = variant
 
     context["icons"] = VARIANT_ICONS
-    context["variant_display_name"] = variant_display_name
 
     if profileId is not None:
         profileId_user = await app_state.users.get(profileId)

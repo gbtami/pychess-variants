@@ -9,7 +9,7 @@ from tournament.tournaments import (
     create_or_update_tournament,
     get_latest_tournaments,
 )
-from variants import ALL_VARIANTS, VARIANT_ICONS
+from variants import VARIANT_ICONS
 
 
 @aiohttp_jinja2.template("tournaments.html")
@@ -24,15 +24,12 @@ async def tournaments(request):
             await create_or_update_tournament(app_state, user.username, data)
 
     lang = context["lang"]
+    gettext = app_state.translations[lang].gettext
 
     def pairing_system_name(system):
-        return app_state.translations[lang].gettext(TRANSLATED_PAIRING_SYSTEM_NAMES[system])
-
-    def variant_display_name(variant):
-        return app_state.translations[lang].gettext(ALL_VARIANTS[variant].translated_name)
+        return gettext(TRANSLATED_PAIRING_SYSTEM_NAMES[system])
 
     context["icons"] = VARIANT_ICONS
-    context["variant_display_name"] = variant_display_name
     context["pairing_system_name"] = pairing_system_name
     context["time_control_str"] = time_control_str
     context["tables"] = await get_latest_tournaments(app_state, lang)
