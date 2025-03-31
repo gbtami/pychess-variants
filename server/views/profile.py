@@ -52,9 +52,7 @@ async def profile(request):
 
     _id = "%s|%s" % (profileId, profileId_user.title)
     context["trophies"] = [
-        (v, "top10")
-        for v in app_state.highscore
-        if _id in app_state.highscore[v].keys()[:10]
+        (v, "top10") for v in app_state.highscore if _id in app_state.highscore[v].keys()[:10]
     ]
     for i, (v, kind) in enumerate(context["trophies"]):
         if app_state.highscore[v].peekitem(0)[0] == _id:
