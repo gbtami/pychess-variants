@@ -36,10 +36,6 @@ async def lobby(request):
             context["profile"] = profileId
             context["view_css"] = "lobby.css"
 
-    # play or analyze game
-    gameId = request.match_info.get("gameId")
-    ply = request.rel_url.query.get("ply")
-
     context["title"] = "PyChess • Free Online Chess Variants"
 
     puzzle = await get_daily_puzzle(request)
