@@ -1458,10 +1458,10 @@ expect@^29.7.0:
     jest-message-util "^29.7.0"
     jest-util "^29.7.0"
 
-fairy-stockfish-nnue.wasm@^1.1.8:
-  version "1.1.8"
-  resolved "https://registry.yarnpkg.com/fairy-stockfish-nnue.wasm/-/fairy-stockfish-nnue.wasm-1.1.8.tgz#112bc0b0b99a7272f22bb23c0d05ab03fda1d6cc"
-  integrity sha512-jlPrFlXMRpnnlwFnvSvh8nLcj64XOPXGj8Rq8QBXx57a/1b1rG4irtyJNcEkWTEwOyKPHoBEND6GHRisN8Eazg==
+fairy-stockfish-nnue.wasm@^1.1.9:
+  version "1.1.9"
+  resolved "https://registry.yarnpkg.com/fairy-stockfish-nnue.wasm/-/fairy-stockfish-nnue.wasm-1.1.9.tgz#089729670583e5a58e8260517d0c6ebe14a0ebd5"
+  integrity sha512-vWirUkTzj3nboBxTZTKgBgv/eW8ATKQi2OmJvZF7UIbkrSrqly0qN7MI4oVUuClD7fXscVu9Umv9vP+CA8tPxA==
 
 fast-json-stable-stringify@2.x, fast-json-stable-stringify@^2.1.0:
   version "2.1.0"
