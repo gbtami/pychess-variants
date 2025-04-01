@@ -2,6 +2,7 @@ import json
 from datetime import datetime
 
 import aiohttp_jinja2
+from aiohttp import web
 
 from views import get_user_context
 from puzzle import get_daily_puzzle
@@ -15,10 +16,21 @@ async def lobby(request):
     # Seek from Editor with custom start position
     variant = request.match_info.get("variant")
     fen = request.rel_url.query.get("fen")
+
     if fen is not None:
         context["variant"] = variant
         context["fen"] = fen.replace(".", "+").replace("_", " ")
         context["view_css"] = "lobby.css"
+
+    # Challenge user from user's profile or FSF from Editor
+    profileId = request.match_info.get("profileId")
+
+    if "/challenge" in request.path:
+        if user.anon and profileId != "Fairy-Stockfish":
+            raise web.HTTPNotFound()
+        else:
+            context["profile"] = profileId
+            context["view_css"] = "lobby.css"
 
     context["title"] = "PyChess • Free Online Chess Variants"
 
