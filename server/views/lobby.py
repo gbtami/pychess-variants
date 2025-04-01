@@ -7,6 +7,7 @@ from aiohttp import web
 from views import get_user_context
 from puzzle import get_daily_puzzle
 from utils import corr_games, get_blogs
+from variants import VARIANTS
 
 
 @aiohttp_jinja2.template("index.html")
@@ -15,6 +16,9 @@ async def lobby(request):
 
     # Seek from Editor with custom start position
     variant = request.match_info.get("variant")
+    if (variant is not None) and (variant not in VARIANTS):
+        variant = "chess"
+
     fen = request.rel_url.query.get("fen")
 
     if fen is not None:
@@ -31,6 +35,10 @@ async def lobby(request):
         else:
             context["profile"] = profileId
             context["view_css"] = "lobby.css"
+
+    # play or analyze game
+    gameId = request.match_info.get("gameId")
+    ply = request.rel_url.query.get("ply")
 
     context["title"] = "PyChess • Free Online Chess Variants"
 
