@@ -12,6 +12,14 @@ from utils import corr_games, get_blogs
 async def lobby(request):
     user, context = await get_user_context(request)
 
+    # Seek from Editor with custom start position
+    variant = request.match_info.get("variant")
+    fen = request.rel_url.query.get("fen")
+    if fen is not None:
+        context["variant"] = variant
+        context["fen"] = fen.replace(".", "+").replace("_", " ")
+        context["view_css"] = "lobby.css"
+
     context["title"] = "PyChess • Free Online Chess Variants"
 
     puzzle = await get_daily_puzzle(request)

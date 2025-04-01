@@ -100,7 +100,7 @@ get_routes = (
     (r"/corranalysis/{gameId:\w{8}}", analysis.analysis),
     ("/analysis/{variant}", analysis.analysis),
     ("/analysis/{variant}/{fen}", analysis.analysis),
-    ("/seek/{variant}", index),
+    ("/seek/{variant}", lobby.lobby),
     ("/editor/{variant}", editor.editor),
     ("/editor/{variant}/{fen}", editor.editor),
     ("/notifications", get_notifications),
