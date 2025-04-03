@@ -29,18 +29,15 @@ from typedefs import (
 )
 from routes import get_routes, post_routes
 from settings import (
-    DEV,
     MAX_AGE,
     SECRET_KEY,
     MONGO_HOST,
     MONGO_DB_NAME,
     LOCALHOST,
     URI,
-    STATIC_ROOT,
-    BR_EXTENSION,
-    SOURCE_VERSION,
 )
 from users import NotInDbUsers
+from views import page404
 from logger import log
 
 
@@ -50,27 +47,8 @@ async def handle_404(request, handler):
         return await handler(request)
     except web.HTTPException as ex:
         if ex.status == 404:
-            theme = "dark"
-            session = await aiohttp_session.get_session(request)
-            session_user = session.get("user_name")
-            app_state = get_app_state(request.app)
-            if session_user is not None:
-                user = await app_state.users.get(session_user)
-                theme = user.theme
-            template = app_state.jinja["en"].get_template("404.html")
-            text = await template.render_async(
-                {
-                    "title": "404 Page Not Found",
-                    "dev": DEV,
-                    "home": URI,
-                    "theme": theme,
-                    "view_css": "404.css",
-                    "asseturl": STATIC_ROOT,
-                    "js": "/static/pychess-variants.js%s%s" % (BR_EXTENSION, SOURCE_VERSION),
-                }
-            )
-            return web.Response(text=text, content_type="text/html")
-        else:
+            response = await page404.page404(request)
+            return response
             raise
     except NotInDbUsers:
         return web.HTTPFound("/")

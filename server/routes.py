@@ -37,7 +37,7 @@ from game_api import (
 from utils import import_game, get_names, get_notifications, subscribe_notify, notified
 from bug.import_bugh_game import import_game_bpgn
 from login import login, logout, oauth
-from index import index, robots, select_lang
+from index import robots, select_lang
 from wsl import lobby_socket_handler
 from wsr import round_socket_handler
 from tournament.wst import tournament_socket_handler
@@ -59,6 +59,7 @@ from views import (
     features,
     game,
     games,
+    invite,
     level8win,
     lobby,
     memory,
@@ -183,8 +184,8 @@ post_routes = (
     ("/api/bot/game/{gameId}/chat", bot_chat),
     ("/api/bot/game/{gameId}/move/{move}", bot_move),
     ("/api/challenge/{username}", challenge_create),
-    (r"/invite/accept/{gameId:\w{8}}", index),
-    (r"/invite/accept/{gameId:\w{8}}/{player:player[1-2]}", index),
+    (r"/invite/accept/{gameId:\w{8}}", invite.invite),
+    (r"/invite/accept/{gameId:\w{8}}/{player:player[1-2]}", invite.invite),
     (r"/invite/cancel/{gameId:\w{8}}", cancel_invite),
     ("/api/challenge/{challengeId}/accept", challenge_accept),
     ("/api/challenge/{challengeId}/decline", challenge_decline),
