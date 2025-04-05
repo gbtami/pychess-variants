@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from aiohttp import web
+
 ROBOTS_TXT = """User-agent: PetalBot
 Disallow: /
 User-agent: *
@@ -20,3 +22,7 @@ Disallow: /tournaments/
 Disallow: /calendar/
 Crawl-delay: 30
 """
+
+
+async def robots(request):
+    return web.Response(text=ROBOTS_TXT, content_type="text/plain")

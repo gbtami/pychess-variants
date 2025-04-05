@@ -12,7 +12,7 @@ export function inviteView(model: PyChessModel): VNode[] {
     const gameId = model["gameId"];
     const variant = VARIANTS[model.variant];
     const chess960 = model.chess960 === 'True';
-    const gameURL = '/' + gameId;
+    const gameURL = '/invite/' + gameId;
     const gameURLPlayer1 = gameURL + '/player1';
     const gameURLPlayer2 = gameURL + '/player2';
     const seekEmpty = model["seekEmpty"];
