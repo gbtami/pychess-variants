@@ -1143,7 +1143,7 @@ export class LobbyController implements ChatController {
     }
 
     private onMsgHostCreated(msg: MsgHostCreated) {
-        window.location.assign('/' + msg.gameId);
+        window.location.assign('/invite/' + msg.gameId);
     }
 
     private onMsgAutoPairingOn() {

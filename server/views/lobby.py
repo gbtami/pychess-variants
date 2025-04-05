@@ -6,6 +6,7 @@ from aiohttp import web
 
 from views import get_user_context
 from puzzle import get_daily_puzzle
+from settings import TOURNAMENT_DIRECTORS
 from utils import corr_games, get_blogs
 from variants import VARIANTS
 
@@ -37,6 +38,7 @@ async def lobby(request):
             context["view_css"] = "lobby.css"
 
     context["title"] = "PyChess • Free Online Chess Variants"
+    context["tournamentdirector"] = user.username in TOURNAMENT_DIRECTORS
 
     puzzle = await get_daily_puzzle(request)
     context["puzzle"] = json.dumps(puzzle, default=datetime.isoformat)
