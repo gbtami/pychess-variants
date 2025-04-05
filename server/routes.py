@@ -37,13 +37,14 @@ from game_api import (
 from utils import import_game, get_names, get_notifications, subscribe_notify, notified
 from bug.import_bugh_game import import_game_bpgn
 from login import login, logout, oauth
-from index import robots, select_lang
+from lang import select_lang
 from wsl import lobby_socket_handler
 from wsr import round_socket_handler
 from tournament.wst import tournament_socket_handler
 from tournament.tournament_calendar import tournament_calendar
 from twitch import twitch_request_handler
 from puzzle import puzzle_complete, puzzle_vote
+from robots import robots
 from user import block_user, get_blocked_users, set_theme
 from views import (
     about,
@@ -116,7 +117,7 @@ get_routes = (
     (r"/embed/{gameId:\w{8}}", embed.embed),
     ("/tournaments", tournaments.tournaments),
     ("/tournaments/new", arena_new.arena_new),
-    # (r"/tournaments/{tournamentId:\w{8}}/edit", index),
+    # (r"/tournaments/{tournamentId:\w{8}}/edit", tournament.tournament),  # TODO
     ("/tournaments/shields", shields.shields),
     ("/tournaments/shields/{variant}", shields.shields),
     ("/tournaments/winners", winners.winners),

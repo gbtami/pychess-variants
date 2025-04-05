@@ -14,11 +14,6 @@ from user import User
 from variants import ALL_VARIANTS
 
 
-def get_locale_ext(context):
-    lang = context["lang"]
-    return (".%s" % lang) if lang in ("es", "hu", "it", "pt", "fr", "zh_CN", "zh_TW") else ""
-
-
 async def get_user_context(request):
     app_state = get_app_state(request.app)
 

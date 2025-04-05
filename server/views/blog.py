@@ -3,7 +3,8 @@ import os
 import aiohttp_jinja2
 
 from blogs import BLOG_TAGS
-from views import get_locale_ext, get_user_context
+from lang import get_locale_ext
+from views import get_user_context
 
 
 @aiohttp_jinja2.template("blog.html")
