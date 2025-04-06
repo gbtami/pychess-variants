@@ -21,7 +21,7 @@ import { calendarView } from './calendar';
 import { pasteView } from './paste';
 import { statsView } from './stats';
 import { volumeSettings, soundThemeSettings } from './sound';
-import { patch, getCookie } from './document';
+import { patch } from './document';
 import { renderTimeago } from './datetime';
 import { zenButtonView, zenModeSettings } from './zen';
 import { PyChessModel } from './types';
@@ -36,10 +36,6 @@ if (window.location.href.includes('heroku') && !window.location.href.includes('-
 }
 
 function initModel(el: HTMLElement) {
-    // We have to remove leading and trailing double quotes from anon names
-    // because python http.cookies.SimpleCookie() adds it when name contains dash "–"
-    const user = getCookie("user").replace(/(^"|"$)/g, '');
-
     // Remove twoBoards variants from variants on prod site until they stabilize
     if (el.getAttribute("data-dev") !== "True") {
         Object.keys(variantGroups).forEach(g => {
@@ -66,7 +62,7 @@ function initModel(el: HTMLElement) {
         rated : el.getAttribute("data-rated") ?? "",
         corr: el.getAttribute("data-corr") ?? "",
         level : parseInt(""+el.getAttribute("data-level")),
-        username : user !== "" ? user : el.getAttribute("data-user") ?? "",
+        username : el.getAttribute("data-username") ?? "",
         gameId : el.getAttribute("data-gameid") ?? "",
         tournamentId : el.getAttribute("data-tournamentid") ?? "",
         tournamentname : el.getAttribute("data-tournamentname") ?? "",

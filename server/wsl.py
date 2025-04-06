@@ -194,7 +194,6 @@ async def handle_create_host(app_state: PychessGlobalAppState, ws, user, data):
     if no:
         return
 
-    print("create_host", data)
     seek = await create_seek(app_state.db, app_state.invites, app_state.seeks, user, data, True)
 
     response = {"type": "host_created", "gameId": seek.game_id}

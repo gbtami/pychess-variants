@@ -11,67 +11,50 @@ from aiohttp.log import access_logger
 from aiohttp.web_app import Application
 from aiohttp_session import SimpleCookieStorage
 from aiohttp_session.cookie_storage import EncryptedCookieStorage
-from aiohttp_session import setup
+import aiohttp_jinja2
 import aiohttp_session
 import aiomonitor
+import jinja2
 
 from motor.motor_asyncio import AsyncIOMotorClient
 
-from pychess_global_app_state import PychessGlobalAppState
+from pychess_global_app_state import PychessGlobalAppState, LOCALE
 from pychess_global_app_state_utils import get_app_state
 
 from typedefs import (
     client_key,
+    anon_as_test_users_key,
     pychess_global_app_state_key,
     db_key,
 )
 from routes import get_routes, post_routes
 from settings import (
-    DEV,
     MAX_AGE,
     SECRET_KEY,
     MONGO_HOST,
     MONGO_DB_NAME,
     LOCALHOST,
     URI,
-    STATIC_ROOT,
-    BR_EXTENSION,
-    SOURCE_VERSION,
 )
 from users import NotInDbUsers
+from views import page404
 from logger import log
 
 
 @web.middleware
 async def handle_404(request, handler):
-    app_state = get_app_state(request.app)
     try:
         return await handler(request)
     except web.HTTPException as ex:
         if ex.status == 404:
-            theme = "dark"
-            session = await aiohttp_session.get_session(request)
-            session_user = session.get("user_name")
-            if session_user is not None:
-                user = await app_state.users.get(session_user)
-                theme = user.theme
-            template = app_state.jinja["en"].get_template("404.html")
-            text = await template.render_async(
-                {
-                    "title": "404 Page Not Found",
-                    "dev": DEV,
-                    "home": URI,
-                    "theme": theme,
-                    "view_css": "404.css",
-                    "asseturl": STATIC_ROOT,
-                    "js": "/static/pychess-variants.js%s%s" % (BR_EXTENSION, SOURCE_VERSION),
-                }
-            )
-            return web.Response(text=text, content_type="text/html")
-        else:
+            response = await page404.page404(request)
+            return response
             raise
     except NotInDbUsers:
         return web.HTTPFound("/")
+    except asyncio.CancelledError:
+        # Prevent emitting endless tracebacks on server shutdown
+        return web.Response()
 
 
 @web.middleware
@@ -83,6 +66,13 @@ async def redirect_to_https(request, handler):
         url = request.url.with_scheme("https").with_port(None)
         raise web.HTTPPermanentRedirect(url)
 
+    return await handler(request)
+
+
+@web.middleware
+async def set_user_locale(request, handler):
+    session = await aiohttp_session.get_session(request)
+    LOCALE.set(session.get("lang", "en"))
     return await handler(request)
 
 
@@ -113,17 +103,29 @@ def make_app(db_client=None, simple_cookie_storage=False, anon_as_test_users=Fal
     app = web.Application()
     app.middlewares.append(redirect_to_https)
 
-    app["anon_as_test_users"] = anon_as_test_users
+    app[anon_as_test_users_key] = anon_as_test_users
 
     parts = urlparse(URI)
 
-    setup(
+    aiohttp_session.setup(
         app,
         (
             SimpleCookieStorage()
             if simple_cookie_storage
-            else EncryptedCookieStorage(SECRET_KEY, max_age=MAX_AGE, secure=parts.scheme == "https")
+            else EncryptedCookieStorage(
+                SECRET_KEY, max_age=MAX_AGE, secure=parts.scheme == "https", samesite="Lax"
+            )
         ),
+    )
+
+    app.middlewares.append(set_user_locale)
+
+    aiohttp_jinja2.setup(
+        app,
+        enable_async=True,
+        extensions=["jinja2.ext.i18n"],
+        loader=jinja2.FileSystemLoader("templates"),
+        autoescape=jinja2.select_autoescape(["html"]),
     )
 
     if db_client is not None:

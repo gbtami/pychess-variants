@@ -237,6 +237,9 @@ export class AnalysisController extends GameController {
         analysisSettings.ctrl = this;
 
         Mousetrap.bind('p', () => copyTextToClipboard(`${this.fullfen};variant ${this.variant.name};site https://www.pychess.org/${this.gameId}\n`));
+    
+        const gaugeEl = document.getElementById('gauge') as HTMLElement;
+        if (this.variant.name !== 'racingkings' && this.mycolor === 'black') gaugeEl.classList.add("flipped");
     }
 
     toggleSettings() {
@@ -287,6 +290,7 @@ export class AnalysisController extends GameController {
     toggleOrientation() {
         super.toggleOrientation()
         boardSettings.updateDropSuggestion();
+        (document.getElementById('gauge') as HTMLElement).classList.toggle("flipped");
         const clocktimes = this.steps[1]?.clocks;
         if (clocktimes !== undefined) {
             renderClocks(this);
@@ -650,7 +654,6 @@ export class AnalysisController extends GameController {
             const blackEl = gaugeEl.querySelector('div.black') as HTMLElement | undefined;
             if (blackEl && ceval !== undefined) {
                 const score = ceval['s'];
-                // TODO set gauge colour according to the variant's piece colour
                 const color = (this.variant.colors.first === "Black") ? turnColor === 'black' ? 'white' : 'black' : turnColor;
                 if (score !== undefined) {
                     const ev = povChances(color, score);

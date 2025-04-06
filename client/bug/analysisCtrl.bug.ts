@@ -240,6 +240,8 @@ export default class AnalysisControllerBughouse {
         this.onMsgBoard(model["board"] as MsgBoard);
 
         initBoardSettings(this.b1, this.b2, this.variant);
+
+        (document.getElementById('gaugePartner') as HTMLElement).classList.add('flipped');
     }
 
     pvboxIni() {
@@ -577,7 +579,6 @@ export default class AnalysisControllerBughouse {
             const blackEl = gaugeEl.querySelector('div.black') as HTMLElement | undefined;
             if (blackEl && ceval !== undefined) {
                 const score = ceval['s'];
-                // TODO set gauge colour according to the variant's piece colour
                 const color = (this.variant.colors.first === "Black") ? turnColor === 'black' ? 'white' : 'black' : turnColor;
                 if (score !== undefined) {
                     const ev = povChances(color, score);

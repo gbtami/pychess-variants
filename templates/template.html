@@ -9,11 +9,7 @@
                 </div>
             </div>
             <div class="topnav">
-                <a class="nav-link active home" href="/">PyChess
-                {% if dev %}
-                <span>DEV</span>
-                {% endif %}
-                </a>
+                <a class="nav-link active home" href="/">PyChess{% if dev %}<span>DEV</span>{% endif %}</a>
                 <section>
                     <a class="nav-link" href="/?any">{% trans %}Play{% endtrans %}</a>
                     <div class="drp" >
@@ -69,7 +65,7 @@
                 <div id="ac-result"></div>
             </form>
             <div id="username"><a class="user-link" href="/@/{{ username }}">{{ username }}</a></div>
-            {% if guest %}
+            {% if anon %}
             <a class="login nav-link" href="/login" title="{% trans %}Login with Lichess{% endtrans %}">L</a>
             <a class="login nav-link" href="/login/google" title="{% trans %}Login with Google{% endtrans %}">G</a>
             <a class="login nav-link" href="/login/discord" title="{% trans %}Login with Discord{% endtrans %}">D</a>
