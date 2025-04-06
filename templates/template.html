@@ -66,7 +66,9 @@
             </form>
             <div id="username"><a class="user-link" href="/@/{{ username }}">{{ username }}</a></div>
             {% if anon %}
-            <a class="login nav-link" href="/login" title="{% trans %}Login with Lichess{% endtrans %}">{% trans %}Log in{% endtrans %}</a>
+            <a class="login nav-link" href="/login" title="{% trans %}Login with Lichess{% endtrans %}">L</a>
+            <a class="login nav-link" href="/login/google" title="{% trans %}Login with Google{% endtrans %}">G</a>
+            <a class="login nav-link" href="/login/discord" title="{% trans %}Login with Discord{% endtrans %}">D</a>
             {% endif %}
             <div id="notify-panel"></div>
             <div id="settings-panel"></div>
