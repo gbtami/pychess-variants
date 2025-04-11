@@ -9,9 +9,8 @@ from aiohttp import web
 from aiohttp.web_ws import WebSocketResponse
 
 from broadcast import round_broadcast
-from const import ANON_PREFIX, STARTED, TEST_PREFIX
+from const import ANON_PREFIX, RESERVED_USERS, STARTED, TEST_PREFIX
 from glicko2.glicko2 import gl2, DEFAULT_PERF, Rating
-from login import RESERVED_USERS
 from newid import id8
 from notify import notify
 from const import BLOCK, MAX_USER_BLOCK, TYPE_CHECKING

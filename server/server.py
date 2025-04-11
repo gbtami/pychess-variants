@@ -18,7 +18,7 @@ import jinja2
 
 from motor.motor_asyncio import AsyncIOMotorClient
 
-from pychess_global_app_state import PychessGlobalAppState, LOCALE
+from pychess_global_app_state import PychessGlobalAppState
 from pychess_global_app_state_utils import get_app_state
 
 from typedefs import (
@@ -38,6 +38,7 @@ from settings import (
 )
 from users import NotInDbUsers
 from views import page404
+from lang import LOCALE
 from logger import log
 
 

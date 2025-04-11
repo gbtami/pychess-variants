@@ -63,6 +63,7 @@ function initModel(el: HTMLElement) {
         corr: el.getAttribute("data-corr") ?? "",
         level : parseInt(""+el.getAttribute("data-level")),
         username : el.getAttribute("data-username") ?? "",
+        email : el.getAttribute("data-email") ?? "",
         gameId : el.getAttribute("data-gameid") ?? "",
         tournamentId : el.getAttribute("data-tournamentid") ?? "",
         tournamentname : el.getAttribute("data-tournamentname") ?? "",

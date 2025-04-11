@@ -3,6 +3,7 @@ from datetime import datetime
 
 import aiohttp_jinja2
 from aiohttp import web
+import aiohttp_session
 
 from views import get_user_context
 from puzzle import get_daily_puzzle
@@ -14,6 +15,10 @@ from variants import VARIANTS
 @aiohttp_jinja2.template("index.html")
 async def lobby(request):
     user, context = await get_user_context(request)
+
+    # If email exists in session after oauth login, we need a new username
+    session = await aiohttp_session.get_session(request)
+    context["email"] = session.get("email")
 
     # Seek from Editor with custom start position
     variant = request.match_info.get("variant")

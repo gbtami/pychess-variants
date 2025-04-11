@@ -7,7 +7,7 @@ from aiohttp import web
 
 from const import DARK_FEN
 from fairy import BLACK, WHITE
-from pychess_global_app_state import LOCALE
+from lang import LOCALE
 from pychess_global_app_state_utils import get_app_state
 from logger import log
 from user import User

@@ -8,22 +8,12 @@ import aiohttp_session
 from aiohttp import web
 
 from broadcast import round_broadcast
-from const import NONE_USER, STARTED
+from const import RESERVED_USERS, STARTED
 from oauth_config import oauth_config
 from settings import DEV, URI
 from pychess_global_app_state_utils import get_app_state
 from websocket_utils import ws_send_json
 from logger import log
-
-
-RESERVED_USERS = (
-    "Random-Mover",
-    "Fairy-Stockfish",
-    "Discord-Relay",
-    "Invite-friend",
-    "PyChess",
-    NONE_USER,
-)
 
 
 async def oauth(request):
@@ -127,6 +117,8 @@ async def login(request):
         email = user_data.get("email")
     # print("EMAIL=", email)
 
+    del session["token"]
+
     _id = user_data.get("id")
     username = user_data.get("username", _id)
     title = user_data.get("title", "")
@@ -160,15 +152,10 @@ async def login(request):
     app_state = get_app_state(request.app)
     users = app_state.users
 
-    prev_session_user = session.get("user_name")
-    prev_user = await users.get(prev_session_user)
-    if prev_user is not None:
-        # todo: is consistency with app_state.lobby.lobbysockets lost here?
-        #       also don't we want to close all these sockets - lobby, tournament and game?
-        prev_user.lobby_sockets = set()  # make it offline
-        prev_user.game_sockets = {}
-        prev_user.tournament_sockets = {}
-        prev_user.update_online()
+    need_new_username = True
+    if need_new_username:
+        session["email"] = email
+        return web.HTTPFound("/")
 
     session["user_name"] = username
 
@@ -184,11 +171,21 @@ async def login(request):
                 }
             )
             print("db insert user result %s" % repr(result.inserted_id))
+
         elif not doc.get("enabled", True):
             log.info("Closed account %s tried to log in.", username)
-            session["user_name"] = prev_session_user
 
-        del session["token"]
+            prev_session_user = session.get("user_name")
+            prev_user = await users.get(prev_session_user)
+            if prev_user is not None:
+                # todo: is consistency with app_state.lobby.lobbysockets lost here?
+                #       also don't we want to close all these sockets - lobby, tournament and game?
+                prev_user.lobby_sockets = set()  # make it offline
+                prev_user.game_sockets = {}
+                prev_user.tournament_sockets = {}
+                prev_user.update_online()
+
+                session["user_name"] = prev_session_user
 
     return web.HTTPFound("/")
 

@@ -128,6 +128,10 @@ export class LobbyController implements ChatController {
         
         this.dialogHeaderEl = document.getElementById('header-block') as HTMLElement;
 
+        if (model["email"]) {
+            alert(model["email"]);
+        }
+
         // challenge!
         if (this.profileid !== "") {
             if (this.profileid === 'Fairy-Stockfish') {
