@@ -14,7 +14,7 @@ jobs:
     steps:
     - uses: actions/checkout@cbb722410c2e876e24abbe8de2cc27693e501dcb  # v3.5.2
     - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@cdca7365b2dadb8aad0a33bc7601856ffabcc48e  # v4.3.0
+      uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020  # v4.4.0
       with:
         node-version: ${{ matrix.node-version }}
     - run: yarn install
