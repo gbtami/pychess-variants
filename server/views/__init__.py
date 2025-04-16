@@ -95,6 +95,7 @@ def add_game_context(game, ply, user, context):
     context["brating"] = game.brating
     context["brdiff"] = game.brdiff
     context["fen"] = DARK_FEN if game.variant == "fogofwar" else game.fen
+    context["posnum"] = game.board.posnum
     context["base"] = game.base
     context["inc"] = game.inc
     context["byo"] = game.byoyomi_period

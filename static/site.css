@@ -1322,7 +1322,7 @@ button.analysis:hover {
 .tourney {
   padding: 2px 6px;
 }
-.tourney a {
+.tourney a, .posnum a {
   color: var(--link-color-blue);
 }
 div.info1.icon,

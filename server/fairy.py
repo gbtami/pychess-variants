@@ -5,6 +5,8 @@ from functools import cache
 
 # -*- coding: utf-8 -*-
 from ataxx import ATAXX_FENS
+from caparandom import caparandom_rank8
+from chess960 import CHESS960_FENS
 from const import CATEGORIES, MANCHU_R_FEN
 from racingkings import RACINGKINGS_FENS
 from logger import log
@@ -126,6 +128,18 @@ class FairyBoard:
             return MANCHU_R_FEN
         else:
             return new_fen
+
+    @property
+    def posnum(self):
+        if self.chess960:
+            if self.variant == "racingkings":
+                return RACINGKINGS_FENS.index(self.initial_fen[12:29])
+            elif self.variant in ("capablanca", "capahouse"):
+                return -1
+            else:
+                return CHESS960_FENS.index(self.initial_fen[:8])
+        else:
+            return -1
 
     @property
     def initial_sfen(self):
@@ -288,94 +302,29 @@ class FairyBoard:
         if variant == "ataxx":
             return random.choice(ATAXX_FENS)
         elif variant == "racingkings":
-            return random.choice(RACINGKINGS_FENS)
+            return "8/8/8/8/8/8/%s w - - 0 1" % random.choice(RACINGKINGS_FENS)
 
-        castl = ""
         capa = variant in ("capablanca", "capahouse")
         seirawan = variant in ("seirawan", "shouse")
 
-        # https://www.chessvariants.com/contests/10/crc.html
-        # we don't skip spositions that have unprotected pawns
         if capa:
-            board = [""] * 10
-            positions = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
-            bright = [1, 3, 5, 7, 9]
-            dark = [0, 2, 4, 6, 8]
-
-            # 1. select queen or the archbishop to be placed first
-            piece = random.choice("qa")
-
-            # 2. place the selected 1st piece upon a bright square
-            piece_pos = random.choice(bright)
-            board[piece_pos] = piece
-            positions.remove(piece_pos)
-            bright.remove(piece_pos)
-
-            # 3. place the selected 2nd piece upon a dark square
-            piece_pos = random.choice(dark)
-            board[piece_pos] = "q" if piece == "a" else "a"
-            positions.remove(piece_pos)
-            dark.remove(piece_pos)
+            rank8 = caparandom_rank8()
         else:
-            board = [""] * 8
-            positions = [0, 1, 2, 3, 4, 5, 6, 7]
-            bright = [1, 3, 5, 7]
-            dark = [0, 2, 4, 6]
+            rank8 = random.choice(CHESS960_FENS)
 
-        # 4. one bishop has to be placed upon a bright square
-        piece_pos = random.choice(bright)
-        board[piece_pos] = "b"
-        positions.remove(piece_pos)
         if seirawan:
-            castl += FILES[piece_pos]
-
-        # 5. one bishop has to be placed upon a dark square
-        piece_pos = random.choice(dark)
-        board[piece_pos] = "b"
-        positions.remove(piece_pos)
-        if seirawan:
-            castl += FILES[piece_pos]
-
-        if capa:
-            # 6. one chancellor has to be placed upon a free square
-            piece_pos = random.choice(positions)
-            board[piece_pos] = "c"
-            positions.remove(piece_pos)
+            castl = (
+                "kq"
+                + FILES[rank8.index("b")]
+                + FILES[rank8.rindex("b")]
+                + FILES[rank8.index("q")]
+                + FILES[rank8.index("n")]
+                + FILES[rank8.rindex("n")]
+            )
         else:
-            piece_pos = random.choice(positions)
-            board[piece_pos] = "q"
-            positions.remove(piece_pos)
-            if seirawan:
-                castl += FILES[piece_pos]
+            castl = FILES[rank8.index("r")] + FILES[rank8.rindex("r")]
 
-        # 7. one knight has to be placed upon a free square
-        piece_pos = random.choice(positions)
-        board[piece_pos] = "n"
-        positions.remove(piece_pos)
-        if seirawan:
-            castl += FILES[piece_pos]
-
-        # 8. one knight has to be placed upon a free square
-        piece_pos = random.choice(positions)
-        board[piece_pos] = "n"
-        positions.remove(piece_pos)
-        if seirawan:
-            castl += FILES[piece_pos]
-
-        # 9. set the king upon the center of three free squares left
-        piece_pos = positions[1]
-        board[piece_pos] = "k"
-
-        # 10. set the rooks upon the both last free squares left
-        piece_pos = positions[0]
-        board[piece_pos] = "r"
-        castl += "q" if seirawan else FILES[piece_pos]
-
-        piece_pos = positions[2]
-        board[piece_pos] = "r"
-        castl += "k" if seirawan else FILES[piece_pos]
-
-        fen = "".join(board)
+        rank8 = "".join(rank8)
         if capa:
             body = "/pppppppppp/10/10/10/10/PPPPPPPPPP/"
         else:
@@ -392,7 +341,7 @@ class FairyBoard:
 
         if variant == "horde":
             fen = (
-                fen
+                rank8
                 + "/pppppppp/8/1PP2PP1/PPPPPPPP/PPPPPPPP/PPPPPPPP/PPPPPPPP"
                 + " w "
                 + castl
@@ -400,12 +349,12 @@ class FairyBoard:
                 + "0 1"
             )
         elif variant == "antichess":
-            fen = fen + body + fen.upper() + " w - - 0 1"
+            fen = rank8 + body + rank8.upper() + " w - - 0 1"
         else:
             fen = (
-                fen
+                rank8
                 + body
-                + fen.upper()
+                + rank8.upper()
                 + holdings
                 + " w "
                 + castl.upper()
