@@ -41,6 +41,14 @@ del _
 
 VIDEOS = [
     {
+        "_id": "LSW51A6AxFk",
+        "title": "Interview - Stockfish creator Tord Romstad",
+        "author": "Antichess Lore",
+        "tags": ["Fundamentals"],
+        "target": "beginner",
+        "duration": "15:33",
+    },
+    {
         "_id": "BUwkHfQr0OQ",
         "title": "Bughouse Concepts - Atrophied and JannLee",
         "author": "JannLee Crazyhouse",
