@@ -5,7 +5,7 @@ from datetime import datetime
 import aiohttp_session
 from aiohttp import web
 
-from const import DARK_FEN
+from const import DARK_FEN, STARTED
 from fairy import BLACK, WHITE
 from pychess_global_app_state import LOCALE
 from pychess_global_app_state_utils import get_app_state
@@ -95,7 +95,7 @@ def add_game_context(game, ply, user, context):
     context["brating"] = game.brating
     context["brdiff"] = game.brdiff
     context["fen"] = DARK_FEN if game.variant == "fogofwar" else game.fen
-    context["posnum"] = game.board.posnum
+    context["posnum"] = game.board.posnum if game.status > STARTED else -1
     context["base"] = game.base
     context["inc"] = game.inc
     context["byo"] = game.byoyomi_period
