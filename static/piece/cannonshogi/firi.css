@@ -1,0 +1,138 @@
+.cannonshogi piece.p-piece.black {
+    background-image: url('../../images/pieces/firi/wsoldier.svg');
+}
+.cannonshogi piece.pp-piece.black {
+    background-image: url('../../images/pieces/firi/wpp.svg');
+}
+.cannonshogi piece.b-piece.black {
+    background-image: url('../../images/pieces/firi/wb.svg');
+}
+.cannonshogi piece.pb-piece.black {
+    background-image: url('../../images/pieces/firi/wpb.svg');
+}
+.cannonshogi piece.n-piece.black {
+    background-image: url('../../images/pieces/firi/wn.svg');
+}
+.cannonshogi piece.pn-piece.black {
+    background-image: url('../../images/pieces/firi/wpn.svg');
+}
+.cannonshogi piece.r-piece.black {
+    background-image: url('../../images/pieces/firi/wr.svg');
+}
+.cannonshogi piece.pr-piece.black {
+    background-image: url('../../images/pieces/firi/wpr.svg');
+}
+.cannonshogi piece.l-piece.black {
+    background-image: url('../../images/pieces/firi/wl.svg');
+}
+.cannonshogi piece.pl-piece.black {
+    background-image: url('../../images/pieces/firi/wpl.svg');
+}
+.cannonshogi piece.s-piece.black {
+    background-image: url('../../images/pieces/firi/ws.svg');
+}
+.cannonshogi piece.ps-piece.black {
+    background-image: url('../../images/pieces/firi/wps.svg');
+}
+.cannonshogi piece.g-piece.black {
+    background-image: url('../../images/pieces/firi/wg.svg');
+}
+.cannonshogi piece.k-piece.black {
+    background-image: url('../../images/pieces/firi/wk.svg');
+}
+
+
+.cannonshogi piece.p-piece.white {
+    background-image: url('../../images/pieces/firi/bsoldier.svg');
+}
+.cannonshogi piece.pp-piece.white {
+    background-image: url('../../images/pieces/firi/bpp.svg');
+}
+.cannonshogi piece.b-piece.white {
+    background-image: url('../../images/pieces/firi/bb.svg');
+}
+.cannonshogi piece.pb-piece.white {
+    background-image: url('../../images/pieces/firi/bpb.svg');
+}
+.cannonshogi piece.n-piece.white {
+    background-image: url('../../images/pieces/firi/bn.svg');
+}
+.cannonshogi piece.pn-piece.white {
+    background-image: url('../../images/pieces/firi/bpn.svg');
+}
+.cannonshogi piece.r-piece.white {
+    background-image: url('../../images/pieces/firi/br.svg');
+}
+.cannonshogi piece.pr-piece.white {
+    background-image: url('../../images/pieces/firi/bpr.svg');
+}
+.cannonshogi piece.l-piece.white {
+    background-image: url('../../images/pieces/firi/bl.svg');
+}
+.cannonshogi piece.pl-piece.white {
+    background-image: url('../../images/pieces/firi/bpl.svg');
+}
+.cannonshogi piece.s-piece.white {
+    background-image: url('../../images/pieces/firi/bs.svg');
+}
+.cannonshogi piece.ps-piece.white {
+    background-image: url('../../images/pieces/firi/bps.svg');
+}
+.cannonshogi piece.g-piece.white {
+    background-image: url('../../images/pieces/firi/bg.svg');
+}
+.cannonshogi piece.k-piece.white {
+    background-image: url('../../images/pieces/firi/bk.svg');
+}
+
+.cannonshogi piece.a-piece.black {
+    background-image: url('../../images/pieces/firi/wa.svg');
+}
+.cannonshogi piece.u-piece.black {
+    background-image: url('../../images/pieces/firi/wu.svg');
+}
+.cannonshogi piece.i-piece.black {
+    background-image: url('../../images/pieces/firi/wi.svg');
+}
+.cannonshogi piece.c-piece.black {
+    background-image: url('../../images/pieces/firi/wc.svg');
+}
+
+.cannonshogi piece.pa-piece.black {
+    background-image: url('../../images/pieces/firi/wpa.svg');
+}
+.cannonshogi piece.pu-piece.black {
+    background-image: url('../../images/pieces/firi/wpu.svg');
+}
+.cannonshogi piece.pi-piece.black {
+    background-image: url('../../images/pieces/firi/wpi.svg');
+}
+.cannonshogi piece.pc-piece.black {
+    background-image: url('../../images/pieces/firi/wpc.svg');
+}
+
+.cannonshogi piece.a-piece.white {
+    background-image: url('../../images/pieces/firi/ba.svg');
+}
+.cannonshogi piece.u-piece.white {
+    background-image: url('../../images/pieces/firi/bu.svg');
+}
+.cannonshogi piece.i-piece.white {
+    background-image: url('../../images/pieces/firi/bi.svg');
+}
+.cannonshogi piece.c-piece.white {
+    background-image: url('../../images/pieces/firi/bc.svg');
+}
+
+.cannonshogi piece.pa-piece.white {
+    background-image: url('../../images/pieces/firi/bpa.svg');
+}
+.cannonshogi piece.pu-piece.white {
+    background-image: url('../../images/pieces/firi/bpu.svg');
+}
+.cannonshogi piece.pi-piece.white {
+    background-image: url('../../images/pieces/firi/bpi.svg');
+}
+.cannonshogi piece.pc-piece.white {
+    background-image: url('../../images/pieces/firi/bpc.svg');
+}
