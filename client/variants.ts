@@ -37,6 +37,8 @@ export const BOARD_FAMILIES: Record<string, BoardFamily> = {
     shogun8x8: { dimensions: { width: 8, height: 8 }, cg: "cg-512", boardCSS: ["ShogunPlain.svg", "ShogunMaple.png", "ShogunMaple2.png", "ShogunBlue.svg", "8x8brown.svg", "8x8maple.jpg"] },
     chak9x9:{ dimensions: { width: 9, height: 9 }, cg: "cg-540", boardCSS: ["StandardChakBoard.svg", "ColoredChakBoard.svg", "ChakArt.jpg"] },
     chennis7x7:{ dimensions: { width: 7, height: 7 }, cg: "cg-448", boardCSS: ["WimbledonBoard.svg", "FrenchOpenBoard.svg", "USOpenBoard.svg"] },
+    borderlands9x10: { dimensions: { width: 9, height: 10 }, cg: "cg-borderlands", boardCSS: ["borderland.svg"] },
+    shocking11x8: { dimensions: { width: 11, height: 8 }, cg: "cg-shocking", boardCSS: ["brown11x8", "blue11x8.svg", "green11x8.svg"] },
 };
 
 export const PIECE_FAMILIES: Record<string, PieceFamily> = {
@@ -314,6 +316,112 @@ interface VariantConfig {
 }
 
 export const VARIANTS: Record<string, Variant> = {
+    // variant contest start
+
+    melonvariant: variant({
+        name: "melonvariant", tooltip: "melonvariant",
+        startFen: "+r+c+bk+q+a+m+w/pppppppp/8/8/8/8/PPPPPPPP/+W+M+A+QK+B+C+R w - 0 1",
+        icon: "🍉",
+        boardFamily: "standard8x8", pieceFamily: "standard",
+        pieceRow: ["k", "q", "c", "b", "r", "a", "m", "w", "p"],
+        pocket: {
+            roles: ["p", "q", "c", "b", "r", "a", "m", "w"],
+            captureToHand: true,
+        },
+        promotion: { type: "shogi", roles: ["q", "r", "b", "c", "a", "m", "w"] },
+    }),
+
+    martialxiangqi: variant({
+        name: "martialxiangqi", tooltip: "martialxiangqi",
+        startFen: "2rbe4/2can4/2k1k4/9/9/9/4K1K2/4NAC2/4EBR2 w - 0 1",
+        icon: "👊",
+        boardFamily: "standard9x9", pieceFamily: "standard",
+        pieceRow: ["k", "r", "b", "e", "c", "a", "n"],
+        pocket: {
+            roles: ["r", "b", "e", "c", "a", "n"],
+            captureToHand: true,
+        },
+        promotion: { type: "regular", roles: [] },
+    }),
+
+    sinting: variant({
+        name: "sinting", tooltip: "sinting",
+        startFen: "rnbkqbir/pppppppp/8/8/8/8/PPPPPPPP/RIBQKBNR w - - 0 1",
+        icon: "🐜",
+        boardFamily: "standard8x8", pieceFamily: "standard",
+        pieceRow: ["k", "q", "r", "b", "n", "i", "p"],
+        promotion: { type: "regular", roles: [] },
+        rules: { enPassant: true },
+    }),
+
+    borderlands: variant({
+        name: "borderlands", displayName: "borderlands", tooltip: "borderlands",
+        startFen: "a1hs1sh1a/1ce1l1ec1/fwgw1wgwf/w1w1w1w1w/9/9/W1W1W1W1W/FWGW1WGWF/1CE1L1EC1/A1HS1SH1A[MMmm] w - - 0 1",
+        icon: "🌵",
+        boardFamily: "borderlands9x10", pieceFamily: "standard",
+        pieceRow: ["a", "h", "s", "c", "e", "f", "w", "g", "m"],
+        pocket: {
+            roles: ["m"],
+            captureToHand: false,
+        },
+        promotion: { type: "regular", roles: [] },
+    }),
+
+    od_variant: variant({
+        name: "od_variant", tooltip: "od_variant",
+        startFen: "mfjezejfm/sssssssss/9/9/9/9/9/PPPPPPPPP/RHBCKABHR[sssss] w - - 0 1",
+        icon: "⛏️",
+        boardFamily: "standard9x9", pieceFamily: "standard",
+        pieceRow: { white: ["p", "r", "h", "b", "c", "k"], black: ["s", "m", "f", "j", "e", "z"] },
+        pocket: {
+            roles: ["s"],
+            captureToHand: false,
+        },
+        promotion: { type: "regular", roles: ["p", "s", "z"] },
+        rules: { enPassant: true },
+        kingRoles: ["k", "z", "+z"],
+    }),
+
+    shocking: variant({
+        name: "shocking", tooltip: "shocking",
+        startFen: "dca2acd***/moa2aom***/ttt2ttt***/8***/8***/8***/PPPPPPPP**C/RNBQKBNR**C w KQ - 0 1",
+        icon: "😲",
+        boardFamily: "shocking11x8", pieceFamily: "standard",
+        pieceRow: ["k", "q", "r", "b", "n", "i", "p"],
+        promotion: { type: "regular", roles: [] },
+        rules: { enPassant: true },
+    }),
+
+    chess_xiangqi: variant({
+        name: "chess_xiangqi", tooltip: "chess_xiangqi",
+        startFen: "rheawaehr/9/1c5c1/s1s1s1s1s/9/9/8*/PPPPPPPP*/RNB1KBNR*[Us] w KQ - - 0 1",
+        icon: "☯️️",
+        boardFamily: "standard9x9", pieceFamily: "standard",
+        pieceRow: { white: ["p", "r", "n", "b", "k"], black: ["r", "h", "e", "a", "w", "c", "s"] },
+        pocket: {
+            roles: { white: ["u"], black: ["s"] },
+            captureToHand: false,
+        },
+        promotion: { type: "regular", roles: ["p", "s"] },
+        rules: { enPassant: true },
+    }),
+
+    variant_000: variant({
+        name: "variant_000", tooltip: "variant_000",
+        startFen: "rnbqkbnr/8/pppppppp/8/8/PPPPPPPP/8/RNBQKBNR[] w - - 0 1",
+        icon: "🏰️",
+        boardFamily: "standard8x8", pieceFamily: "standard",
+        pieceRow: ["k", "q", "r", "b", "n", "p"],
+        pocket: {
+            roles: ["p", "n", "b", "r", "q"],
+            captureToHand: false,
+        },
+        promotion: { type: "regular", roles: ["r", "b", "n", "p"] },
+        rules: { enPassant: true },
+    }),
+
+    // variant contest end
+
     ataxx: variant({
         name: "ataxx", tooltip: "Infection game.",
         startFen: "P5p/7/7/7/7/7/p5P w 0 1",
@@ -1203,7 +1311,7 @@ export const variantGroups: { [ key: string ]: { variants: string[] } } = {
     xiangqi:  { variants: [ "xiangqi", "supply", "manchu", "janggi", "minixiangqi" ] },
     fairy:    { variants: [ "shatranj", "capablanca", "capahouse", "dragon", "seirawan", "shouse", "grand", "grandhouse", "shako", "shogun", "hoppelpoppel", "mansindam" ] },
     army:     { variants: [ "orda", "khans", "synochess", "shinobiplus", "empire", "ordamirror", "chak", "chennis", "spartan" ] },
-    other:    { variants: [ "ataxx" ] }
+    other:    { variants: [ "ataxx", "melonvariant", "martialxiangqi", "sinting", "borderlands", "od_variant", "shocking", "chess_xiangqi", "variant_000" ] }
 };
 
 function variantGroupLabel(group: string): string {

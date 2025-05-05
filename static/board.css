@@ -55,3 +55,9 @@
 .standard9x9 cg-board {
     background-image: url('images/board/9x9brown.svg');
 }
+.borderlands9x10 cg-board {
+    background-image: url('images/board/borderland.svg');
+}
+.shocking11x8 cg-board {
+    background-image: url('images/board/brows11x8.svg');
+}
