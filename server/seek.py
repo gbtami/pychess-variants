@@ -204,8 +204,9 @@ def get_seeks(user, seeks):
 
 
 def challenge(seek, gameId):
+    """BOT API stream event response"""
     return (
-        '{"type":"challenge", "challenge": {"id":"%s", "challenger":{"name":"%s", "rating":1500,"title":""},"variant":{"key":"%s"},"rated":"true","timeControl":{"type":"clock","limit":300,"increment":0},"color":"random","speed":"rapid","perf":{"name":"Rapid"}, "level":%s, "chess960":%s}}\n'
+        '{"type":"challenge", "challenge": {"id":"%s", "challenger":{"name":"%s", "rating":1500,"title":""},"variant":{"key":"%s"},"rated":"true","timeControl":{"type":"clock","limit":300,"increment":0},"color":"random","finalColor":"white","speed":"rapid","perf":{"name":"Rapid"}, "level":%s, "chess960":%s}}\n'
         % (
             gameId,
             seek.creator.username,

@@ -15,6 +15,7 @@ from bot_api import (
     challenge_create,
     bot_pong,
     bot_analysis,
+    bot_token_test,
 )
 from fishnet import (
     fishnet_monitor,
@@ -180,6 +181,7 @@ get_routes = (
 )
 
 post_routes = (
+    ("/api/token/test", bot_token_test),
     ("/api/bot/game/{gameId}/abort", bot_abort),
     ("/api/bot/game/{gameId}/resign", bot_resign),
     ("/api/bot/game/{gameId}/analysis", bot_analysis),

@@ -130,7 +130,8 @@ export class LobbyController implements ChatController {
 
         // challenge!
         if (this.profileid !== "") {
-            if (this.profileid === 'Fairy-Stockfish') {
+//            if (this.profileid === 'Fairy-Stockfish') {
+            if (this.title === 'BOT') {
                 this.createMode = 'playAI';
                 this.preSelectVariant(model.variant);
             }
@@ -229,7 +230,8 @@ export class LobbyController implements ChatController {
             rated: rated,
             level: level,
             chess960: chess960,
-            color: color
+            color: color,
+            profileid: this.profileid
         });
     }
 

@@ -117,7 +117,10 @@ async def handle_create_ai_challenge(app_state: PychessGlobalAppState, ws, user,
         return
 
     variant = data["variant"]
-    engine = app_state.users["Fairy-Stockfish"]
+    profileid = data["profileid"]
+    print("ITT", profileid)
+    # engine = app_state.users["Fairy-Stockfish"]
+    engine = app_state.users[profileid]
 
     if variant in ("alice", "fogofwar") or data["rm"] or (engine is None) or (not engine.online):
         # TODO: message that engine is offline, but Random-Mover BOT will play instead
@@ -146,7 +149,10 @@ async def handle_create_ai_challenge(app_state: PychessGlobalAppState, ws, user,
     if response["type"] != "error":
         gameId = response["gameId"]
         engine.game_queues[gameId] = asyncio.Queue()
-        await engine.event_queue.put(challenge(seek, response))
+        await engine.event_queue.put(challenge(seek, gameId))
+        if engine.username not in ("Random-Mover", "Fairy-Stockfish"):
+            game = app_state.games[gameId]
+            await engine.event_queue.put(game.game_start)
 
 
 async def handle_create_seek(app_state, ws, user, data):
@@ -250,7 +256,7 @@ async def handle_accept_seek(app_state: PychessGlobalAppState, ws, user, data):
         if seek.creator.bot:
             gameId = response["gameId"]
             seek.creator.game_queues[gameId] = asyncio.Queue()
-            await seek.creator.event_queue.put(challenge(seek, response))
+            await seek.creator.event_queue.put(challenge(seek, gameId))
         else:
             ws_set = list(seek.creator.lobby_sockets)
             if len(ws_set) == 0:

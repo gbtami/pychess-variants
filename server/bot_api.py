@@ -3,6 +3,7 @@ import asyncio
 import json
 
 from aiohttp import web
+import aiohttp_session
 
 from broadcast import round_broadcast
 from const import STARTED, RESIGN
@@ -17,9 +18,9 @@ from logger import log
 
 def authorized(func):
     """Authorization decorator"""
-
     async def inner(request):
         auth = request.headers.get("Authorization")
+
         if auth is None:
             log.error("BOT request without Authorization header!")
             raise web.HTTPForbidden()
@@ -29,9 +30,30 @@ def authorized(func):
             log.error("BOT account token %s is not in BOT_TOKENS!", token)
             raise web.HTTPForbidden()
 
-        await func(request)
+        session = await aiohttp_session.get_session(request)
+        session["username"] = BOT_TOKENS[token]
+        response = await func(request)
+        return response
 
     return inner
+
+
+async def bot_token_test(request):
+    text = await request.text()
+    tokens = text.split(",")
+
+    response = {}
+    for token in tokens:
+        if token in BOT_TOKENS:
+            response[token] = {
+                "scopes": "bot:play",
+                "userId": BOT_TOKENS[token],
+                "expires": 1358509698620,
+            }
+        else:
+            response[token] = None
+
+    return web.json_response(response)
 
 
 @authorized
@@ -41,9 +63,9 @@ async def bot_pong(request):
 
 @authorized
 async def account(request):
-    user_agent = request.headers.get("User-Agent")
-    username = user_agent[user_agent.find("user:") + 5 :]
-    return web.json_response({"username": username, "title": "BOT"})
+    session = await aiohttp_session.get_session(request)
+    username = session["username"]
+    return web.json_response({"id": username, "username": username, "title": "BOT"})
 
 
 @authorized
@@ -69,8 +91,8 @@ async def challenge_decline(request):
 
 @authorized
 async def create_bot_seek(request):
-    user_agent = request.headers.get("User-Agent")
-    username = user_agent[user_agent.find("user:") + 5 :]
+    session = await aiohttp_session.get_session(request)
+    username = session["username"]
 
     data = await request.post()
 
@@ -132,8 +154,8 @@ async def create_bot_seek(request):
 
 @authorized
 async def event_stream(request):
-    user_agent = request.headers.get("User-Agent")
-    username = user_agent[user_agent.find("user:") + 5 :]
+    session = await aiohttp_session.get_session(request)
+    username = session["username"]
 
     app_state = get_app_state(request.app)
 
@@ -167,10 +189,13 @@ async def event_stream(request):
 
     log.info("+++ BOT %s connected", bot_player.username)
 
-    pinger_task = asyncio.create_task(
-        bot_player.pinger(app_state.sockets, app_state.seeks, app_state.users, app_state.games),
-        name="BOT-event-stream-pinger",
-    )
+    async def pinger():
+        """To prevent lichess-bot.py sleep by heroku because of no activity."""
+        while True:
+            await bot_player.event_queue.put("{}\n")
+            await asyncio.sleep(6)
+
+    pinger_task = asyncio.create_task(pinger(), name="BOT-event-stream-pinger")
 
     # inform others
     # TODO: do we need this at all?
@@ -194,20 +219,19 @@ async def event_stream(request):
                 break
             else:
                 await resp.write(answer.encode("utf-8"))
-                await resp.drain()
         except Exception:
             log.error("BOT %s event_stream is broken...", username)
             break
 
     pinger_task.cancel()
-    await bot_player.clear_seeks(force=True)
+    await bot_player.clear_seeks()
     return resp
 
 
 @authorized
 async def game_stream(request):
-    user_agent = request.headers.get("User-Agent")
-    username = user_agent[user_agent.find("user:") + 5 :]
+    session = await aiohttp_session.get_session(request)
+    username = session["username"]
 
     gameId = request.match_info["gameId"]
 
@@ -229,8 +253,8 @@ async def game_stream(request):
         """To help lichess-bot.py abort games showing no activity."""
         while True:
             if gameId in bot_player.game_queues:
-                await bot_player.game_queues[gameId].put("\n")
-                await asyncio.sleep(5)
+                await bot_player.game_queues[gameId].put("{}\n")
+                await asyncio.sleep(6)
             else:
                 break
 
@@ -246,7 +270,6 @@ async def game_stream(request):
             )
         try:
             await resp.write(answer.encode("utf-8"))
-            await resp.drain()
         except Exception:
             log.error("Writing %s to BOT game_stream failed!", answer)
             break
@@ -262,8 +285,9 @@ async def game_stream(request):
 
 @authorized
 async def bot_move(request):
-    user_agent = request.headers.get("User-Agent")
-    username = user_agent[user_agent.find("user:") + 5 :]
+    session = await aiohttp_session.get_session(request)
+    username = session["username"]
+
     gameId = request.match_info["gameId"]
     move = request.match_info["move"]
 
@@ -279,8 +303,8 @@ async def bot_move(request):
 
 @authorized
 async def bot_abort(request):
-    user_agent = request.headers.get("User-Agent")
-    username = user_agent[user_agent.find("user:") + 5 :]
+    session = await aiohttp_session.get_session(request)
+    username = session["username"]
 
     app_state = get_app_state(request.app)
 
@@ -306,8 +330,8 @@ async def bot_abort(request):
 
 @authorized
 async def bot_resign(request):
-    user_agent = request.headers.get("User-Agent")
-    username = user_agent[user_agent.find("user:") + 5 :]
+    session = await aiohttp_session.get_session(request)
+    username = session["username"]
 
     app_state = get_app_state(request.app)
 
@@ -320,8 +344,8 @@ async def bot_resign(request):
 
 @authorized
 async def bot_analysis(request):
-    user_agent = request.headers.get("User-Agent")
-    bot_name = user_agent[user_agent.find("user:") + 5 :]
+    session = await aiohttp_session.get_session(request)
+    username = session["username"]
 
     app_state = get_app_state(request.app)
 
@@ -342,7 +366,7 @@ async def bot_analysis(request):
 
         response = {
             "type": "roundchat",
-            "user": bot_name,
+            "user": username,
             "room": "spectator",
             "message": ply + " " + json.dumps(ceval),
         }
@@ -361,8 +385,8 @@ async def bot_analysis(request):
 
 @authorized
 async def bot_chat(request):
-    user_agent = request.headers.get("User-Agent")
-    username = user_agent[user_agent.find("user:") + 5 :]
+    session = await aiohttp_session.get_session(request)
+    username = session["username"]
 
     app_state = get_app_state(request.app)
 
