@@ -84,7 +84,9 @@ from views import (
 
 get_routes = (
     ("/login", login),
+    ("/login/{provider}", login),
     ("/oauth", oauth),
+    ("/oauth/{provider}", oauth),
     ("/logout", logout),
     ("/", lobby.lobby),
     ("/about", about.about),
