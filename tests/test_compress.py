@@ -27,6 +27,7 @@ class EncodeDecodeTestCase(unittest.TestCase):
                     parts = FEN.split(empty_pocket)
                     FEN = "%s[%s]%s" % (parts[0], pocket, parts[1])
 
+            print(idx, variant, FEN)
             board = FairyBoard(variant, initial_fen=FEN)
             moves = board.legal_moves()
 

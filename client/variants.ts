@@ -320,7 +320,7 @@ export const VARIANTS: Record<string, Variant> = {
 
     melonvariant: variant({
         name: "melonvariant", tooltip: "melonvariant",
-        startFen: "+r+c+bk+q+a+m+w/pppppppp/8/8/8/8/PPPPPPPP/+W+M+A+QK+B+C+R w - 0 1",
+        startFen: "+r+c+bk+q+a+m+w/pppppppp/8/8/8/8/PPPPPPPP/+W+M+A+QK+B+C+R[] w - 0 1",
         icon: "🍉",
         boardFamily: "standard8x8", pieceFamily: "standard",
         pieceRow: ["k", "q", "c", "b", "r", "a", "m", "w", "p"],
@@ -333,7 +333,7 @@ export const VARIANTS: Record<string, Variant> = {
 
     martialxiangqi: variant({
         name: "martialxiangqi", tooltip: "martialxiangqi",
-        startFen: "2rbe4/2can4/2k1k4/9/9/9/4K1K2/4NAC2/4EBR2 w - 0 1",
+        startFen: "2rbe4/2can4/2k1k4/9/9/9/4K1K2/4NAC2/4EBR2[] w - 0 1",
         icon: "👊",
         boardFamily: "standard9x9", pieceFamily: "standard",
         pieceRow: ["k", "r", "b", "e", "c", "a", "n"],

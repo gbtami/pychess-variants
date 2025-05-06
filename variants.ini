@@ -384,7 +384,7 @@ blackDropRegion = *1 *2 *7 *8 a* b* g* h*
 # OTHER RULES
 perpetualCheckIllegal = true
 nFoldValue = loss
-startFen = +r+c+bk+q+a+m+w/pppppppp/8/8/8/8/PPPPPPPP/+W+M+A+QK+B+C+R w - 0 1
+startFen = +r+c+bk+q+a+m+w/pppppppp/8/8/8/8/PPPPPPPP/+W+M+A+QK+B+C+R[] w - 0 1
 
 # MARTIAL ARTS XIANGQI
 # V3 of my variant
@@ -404,7 +404,7 @@ elephant = e
 cannon = c
 customPiece1 = a:mBcpB
 
-startFen = 2rbe4/2can4/2k1k4/9/9/9/4K1K2/4NAC2/4EBR2 w - 0 1
+startFen = 2rbe4/2can4/2k1k4/9/9/9/4K1K2/4NAC2/4EBR2[] w - 0 1
 
 # Palace
 mobilityRegionBlackCommoner = c3 c4 c5 c6 c7 d3 d4 d5 d6 d7 e3 e4 e5 e6 e7 f3 f4 f5 f6 f7 g3 g4 g5 g6 g7
