@@ -1286,6 +1286,17 @@ export const variants = Object.keys(VARIANTS);
 const disabledVariants = [ "gothic", "gothhouse", "embassy", "embassyhouse", "gorogoro", "shinobi", "makrukhouse", "xiangqihouse" ];
 export const enabledVariants = variants.filter(v => !disabledVariants.includes(v));
 
+export const contestVariants = [
+    "melonvariant",
+    "martialxiangqi",
+    "sinting",
+    "borderlands",
+    "od_variant",
+    "shocking",
+    "chess_xiangqi",
+    "variant_000",
+]
+
 // variants having 0 puzzle so far
 export const noPuzzleVariants = [
     "placement",
