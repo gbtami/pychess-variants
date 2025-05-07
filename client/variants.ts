@@ -37,7 +37,7 @@ export const BOARD_FAMILIES: Record<string, BoardFamily> = {
     shogun8x8: { dimensions: { width: 8, height: 8 }, cg: "cg-512", boardCSS: ["ShogunPlain.svg", "ShogunMaple.png", "ShogunMaple2.png", "ShogunBlue.svg", "8x8brown.svg", "8x8maple.jpg"] },
     chak9x9:{ dimensions: { width: 9, height: 9 }, cg: "cg-540", boardCSS: ["StandardChakBoard.svg", "ColoredChakBoard.svg", "ChakArt.jpg"] },
     chennis7x7:{ dimensions: { width: 7, height: 7 }, cg: "cg-448", boardCSS: ["WimbledonBoard.svg", "FrenchOpenBoard.svg", "USOpenBoard.svg"] },
-    borderlands9x10: { dimensions: { width: 9, height: 10 }, cg: "cg-borderlands", boardCSS: ["borderland.svg"] },
+    borderlands9x10: { dimensions: { width: 9, height: 10 }, cg: "cg-borderlands", boardCSS: ["borderlands-xiangqi.svg", "borderlands-cobalt.svg"] },
     shocking11x8: { dimensions: { width: 11, height: 8 }, cg: "cg-shocking", boardCSS: ["brown11x8", "blue11x8.svg", "green11x8.svg"] },
 };
 
@@ -71,6 +71,7 @@ export const PIECE_FAMILIES: Record<string, PieceFamily> = {
     chennis: { pieceCSS: ["chennis0", "chennis1", "chennis2", "chennis3", "chennis4", "disguised"] },
     spartan: { pieceCSS: ["spartan0", "spartan1", "disguised"] },
     mansindam: { pieceCSS: ["mansindam2", "mansindam1", "mansindam3", "mansindam4", "disguised"] },
+    borderlands: { pieceCSS: ["borderlands", "disguised"] },
     shocking: { pieceCSS: ["shocking", "disguised"] },
 };
 
@@ -359,7 +360,7 @@ export const VARIANTS: Record<string, Variant> = {
         name: "borderlands", displayName: "borderlands", tooltip: "borderlands",
         startFen: "a1hs1sh1a/1ce1l1ec1/fwgw1wgwf/w1w1w1w1w/9/9/W1W1W1W1W/FWGW1WGWF/1CE1L1EC1/A1HS1SH1A[MMmm] w - - 0 1",
         icon: "🌵",
-        boardFamily: "borderlands9x10", pieceFamily: "standard",
+        boardFamily: "borderlands9x10", pieceFamily: "borderlands",
         pieceRow: ["a", "h", "s", "c", "e", "f", "w", "g", "m"],
         pocket: {
             roles: ["m"],

@@ -588,3 +588,10 @@ label.piece.piece0.shocking {
 label.piece.piece1.shocking {
     background-image: url('images/pieces/disguised/b.svg');
 }
+
+label.piece.piece0.borderlands {
+    background-image: url('images/pieces/borderlands/bC.svg');
+}
+label.piece.piece1.borderlands {
+    background-image: url('images/pieces/disguised/b.svg');
+}
