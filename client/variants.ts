@@ -386,9 +386,9 @@ export const VARIANTS: Record<string, Variant> = {
 
     shocking: variant({
         name: "shocking", tooltip: "shocking",
-        startFen: "dca2acd***/moa2aom***/ttt2ttt***/8***/8***/8***/PPPPPPPP**C/RNBQKBNR**C w KQ - 0 1",
+        startFen: "dca2acd/moa2aom/ttt2ttt/8/8/8/PPPPPPPP/RNBQKBNR w KQ - 0 1",
         icon: "🤖",
-        boardFamily: "shocking11x8", pieceFamily: "shocking",
+        boardFamily: "standard8x8", pieceFamily: "shocking",
         pieceRow: ["k", "q", "r", "b", "n", "i", "p"],
         promotion: { type: "regular", roles: [] },
         rules: { enPassant: true },

@@ -553,8 +553,7 @@ stalemateValue = win
 connectRegion1Black = d*
 connectRegion2Black = e*
 connectValue = loss
-maxFile = 11
-startFen = dca2acd***/moa2aom***/ttt2ttt***/8***/8***/8***/PPPPPPPP**C/RNBQKBNR**C w KQ - 0 1
+startFen = dca2acd/moa2aom/ttt2ttt/8/8/8/PPPPPPPP/RNBQKBNR w KQ - 0 1
 pawnTypes = pta
 enPassantTypes = t
 enPassantRegion = *3
@@ -570,6 +569,7 @@ customPiece4 = c:KgQ2
 extinctionPieceTypes = c
 extinctionPseudoRoyal = true
 extinctionPieceCount = 1
+extinctionOpponentPieceCount = -1
 # automaton
 customPiece5 = a:fcWfcpR2fmFfmpB2
 # rover (better name needed)
