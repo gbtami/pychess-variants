@@ -128,7 +128,7 @@ class ServerVariants(Enum):
     MELONEVARIANT = Variant("!", "melonvariant", _("MelonVariant"), "🍉")
     MARTIALXIANGQI = Variant('"', "martialxiangqi", _("MartialXiangqi"), "👊")
     SINTING = Variant("#", "sinting", _("Sinting"), "🐜")
-    BORDERLANDS = Variant("$", "borderlands", _("Borderlands"), "🌵", grand=True)
+    BORDERLANDS = Variant("$", "borderlands", _("Borderlands"), " 🌄", grand=True)
     OD_VARIANT = Variant("%", "od_variant", _("OD_variant"), "⛏️")
     SHOCKING = Variant("&", "shocking", _("Shocking"), "️🤖")
     CHESS_XIANGQI = Variant('"', "chess_xiangqi", _("Chess_Xiangqi"), "☯️")

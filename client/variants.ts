@@ -359,7 +359,7 @@ export const VARIANTS: Record<string, Variant> = {
     borderlands: variant({
         name: "borderlands", displayName: "borderlands", tooltip: "borderlands",
         startFen: "a1hs1sh1a/1ce1l1ec1/fwgw1wgwf/w1w1w1w1w/9/9/W1W1W1W1W/FWGW1WGWF/1CE1L1EC1/A1HS1SH1A[MMmm] w - - 0 1",
-        icon: "🌵",
+        icon: " 🌄",
         boardFamily: "borderlands9x10", pieceFamily: "borderlands",
         pieceRow: ["a", "h", "s", "c", "e", "f", "w", "g", "m"],
         pocket: {
