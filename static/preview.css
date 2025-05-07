@@ -581,3 +581,10 @@ label.piece.piece1.spartan {
 label.piece.piece2.spartan {
     background-image: url('images/pieces/disguised/b.svg');
 }
+
+label.piece.piece0.shocking {
+    background-image: url('images/pieces/shocking/bC.svg');
+}
+label.piece.piece1.shocking {
+    background-image: url('images/pieces/disguised/b.svg');
+}

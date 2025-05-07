@@ -71,6 +71,7 @@ export const PIECE_FAMILIES: Record<string, PieceFamily> = {
     chennis: { pieceCSS: ["chennis0", "chennis1", "chennis2", "chennis3", "chennis4", "disguised"] },
     spartan: { pieceCSS: ["spartan0", "spartan1", "disguised"] },
     mansindam: { pieceCSS: ["mansindam2", "mansindam1", "mansindam3", "mansindam4", "disguised"] },
+    shocking: { pieceCSS: ["shocking", "disguised"] },
 };
 
 export interface Variant {
@@ -385,11 +386,12 @@ export const VARIANTS: Record<string, Variant> = {
     shocking: variant({
         name: "shocking", tooltip: "shocking",
         startFen: "dca2acd***/moa2aom***/ttt2ttt***/8***/8***/8***/PPPPPPPP**C/RNBQKBNR**C w KQ - 0 1",
-        icon: "😲",
-        boardFamily: "shocking11x8", pieceFamily: "standard",
+        icon: "🤖",
+        boardFamily: "shocking11x8", pieceFamily: "shocking",
         pieceRow: ["k", "q", "r", "b", "n", "i", "p"],
         promotion: { type: "regular", roles: [] },
         rules: { enPassant: true },
+        kingRoles: ["c"],
     }),
 
     chess_xiangqi: variant({
