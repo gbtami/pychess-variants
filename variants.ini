@@ -573,7 +573,7 @@ extinctionOpponentPieceCount = -1
 # automaton
 customPiece5 = a:fcWfcpR2fmFfmpB2
 # rover (better name needed)
-customPiece6 = o:snDsnNnAvnZ
+customPiece6 = o:FnN
 
 [chess_xiangqi:chess]
 

@@ -392,7 +392,7 @@ export const VARIANTS: Record<string, Variant> = {
         pieceRow: ["k", "q", "r", "b", "n", "i", "p"],
         promotion: { type: "regular", roles: [] },
         rules: { enPassant: true },
-        kingRoles: ["c"],
+        kingRoles: ["c", "k"],
     }),
 
     chess_xiangqi: variant({
