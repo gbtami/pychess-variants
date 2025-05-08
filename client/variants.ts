@@ -38,7 +38,6 @@ export const BOARD_FAMILIES: Record<string, BoardFamily> = {
     chak9x9:{ dimensions: { width: 9, height: 9 }, cg: "cg-540", boardCSS: ["StandardChakBoard.svg", "ColoredChakBoard.svg", "ChakArt.jpg"] },
     chennis7x7:{ dimensions: { width: 7, height: 7 }, cg: "cg-448", boardCSS: ["WimbledonBoard.svg", "FrenchOpenBoard.svg", "USOpenBoard.svg"] },
     borderlands9x10: { dimensions: { width: 9, height: 10 }, cg: "cg-borderlands", boardCSS: ["borderlands-xiangqi.svg", "borderlands-cobalt.svg"] },
-    shocking11x8: { dimensions: { width: 11, height: 8 }, cg: "cg-shocking", boardCSS: ["brown11x8", "blue11x8.svg", "green11x8.svg"] },
 };
 
 export const PIECE_FAMILIES: Record<string, PieceFamily> = {
@@ -393,7 +392,8 @@ export const VARIANTS: Record<string, Variant> = {
         promotion: { type: "regular", roles: [] },
         rules: { enPassant: true },
         kingRoles: ["c", "k"],
-    }),
+        ui: { boardMark: 'shocking' },
+}),
 
     chess_xiangqi: variant({
         name: "chess_xiangqi", tooltip: "chess_xiangqi",
