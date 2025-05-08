@@ -125,6 +125,14 @@ class ServerVariants(Enum):
     SPARTAN = Variant("N", "spartan", _("Spartan"), "⍺")
 
     ATAXX = Variant("Z", "ataxx", _("Ataxx"), "☣")
+    MELONVARIANT = Variant("!", "melonvariant", _("MelonVariant"), "🍉")
+    MARTIALXIANGQI = Variant('"', "martialxiangqi", _("MartialXiangqi"), "👊")
+    SINTING = Variant("#", "sinting", _("Sinting"), "🐜")
+    BORDERLANDS = Variant("$", "borderlands", _("Borderlands"), " 🌄", grand=True)
+    OD_VARIANT = Variant("%", "od_variant", _("OD_variant"), "⛏️")
+    SHOCKING = Variant("&", "shocking", _("Shocking"), "️🤖")
+    CHESS_XIANGQI = Variant('"', "chess_xiangqi", _("Chess_Xiangqi"), "☯️")
+    VARIANT_000 = Variant("*", "variant_000", _("Variant_000"), "🏰️")
 
     @property
     def server_name(self):
@@ -137,6 +145,18 @@ del _
 def get_server_variant(uci_variant, chess960):
     return ALL_VARIANTS[uci_variant + ("960" if chess960 else "")]
 
+
+VARIANT_CONTEST = (
+    ServerVariants.MELONVARIANT,
+    ServerVariants.MARTIALXIANGQI,
+    ServerVariants.SINTING,
+    ServerVariants.BORDERLANDS,
+    ServerVariants.OD_VARIANT,
+    ServerVariants.SHOCKING,
+    ServerVariants.CHESS_XIANGQI,
+    ServerVariants.VARIANT_000,
+)
+VARIANT_CONTESTANTS = {variant.server_name: variant for variant in VARIANT_CONTEST}
 
 NO_VARIANTS = (
     ServerVariants.EMBASSY,

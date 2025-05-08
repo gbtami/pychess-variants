@@ -69,6 +69,9 @@ label.piece.piece9.standard {
     background-image: url('images/pieces/firi/wpb.svg');
 }
 label.piece.piece10.standard {
+    background-image: url('images/pieces/sinting/wlN.svg');
+}
+label.piece.piece11.standard {
     background-image: url('images/pieces/disguised/w.svg');
 }
 label.piece.piece0.capa {
@@ -576,5 +579,19 @@ label.piece.piece1.spartan {
     background-image: url('images/pieces/green/spartan/bK.svg');
 }
 label.piece.piece2.spartan {
+    background-image: url('images/pieces/disguised/b.svg');
+}
+
+label.piece.piece0.shocking {
+    background-image: url('images/pieces/shocking/bC.svg');
+}
+label.piece.piece1.shocking {
+    background-image: url('images/pieces/disguised/b.svg');
+}
+
+label.piece.piece0.borderlands {
+    background-image: url('images/pieces/borderlands/bC.svg');
+}
+label.piece.piece1.borderlands {
     background-image: url('images/pieces/disguised/b.svg');
 }

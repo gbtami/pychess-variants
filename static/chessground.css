@@ -18,6 +18,7 @@
 .cg-wrap.cg-640.mini {
   width: 320px;
 }
+
 /* 9x9 */
 .cg-wrap.cg-576 {
     padding-bottom: calc(1200 * 100% / 1100);
@@ -62,10 +63,10 @@
   width: 224px;
 }
 /* 9x10 */
-.cg-wrap.cg-576-640 {
+.cg-wrap.cg-576-640, .cg-wrap.cg-borderlands {
     padding-bottom: calc(640 * 100% / 576);
 }
-.cg-wrap.cg-576-640.mini {
+.cg-wrap.cg-576-640.mini, .cg-wrap.cg-borderlands.mini {
   width: 288px;
 }
 /* 9x10 Janggi */
@@ -155,7 +156,7 @@ cg-board square {
   width: 14.28%;
   height: 14.28%;
 }
-.cg-576-640 cg-board square{
+.cg-576-640 cg-board square, .cg-borderlands cg-board square{
   width: 11.11%;
   height: 10%;
 }
@@ -248,7 +249,7 @@ cg-board square.current-premove {
   width: 14.28%;
   height: 14.28%;
 }
-.cg-wrap.cg-576-640 piece{
+.cg-wrap.cg-576-640 piece, .cg-wrap.cg-borderlands piece{
   width: 11.11%;
   height: 10%;
 }
