@@ -126,7 +126,7 @@ class ServerVariants(Enum):
 
     ATAXX = Variant("Z", "ataxx", _("Ataxx"), "☣")
     MELONVARIANT = Variant("!", "melonvariant", _("MelonVariant"), "🍉")
-    MARTIALXIANGQI = Variant('"', "martialxiangqi", _("MartialXiangqi"), "👊")
+    XIANGFU = Variant('"', "xiangfu", _("Xiangfu"), "👊")
     SINTING = Variant("#", "sinting", _("Sinting"), "🐜")
     BORDERLANDS = Variant("$", "borderlands", _("Borderlands"), " 🌄", grand=True)
     OD_VARIANT = Variant("%", "od_variant", _("OD_variant"), "⛏️")
@@ -148,7 +148,7 @@ def get_server_variant(uci_variant, chess960):
 
 VARIANT_CONTEST = (
     ServerVariants.MELONVARIANT,
-    ServerVariants.MARTIALXIANGQI,
+    ServerVariants.XIANGFU,
     ServerVariants.SINTING,
     ServerVariants.BORDERLANDS,
     ServerVariants.OD_VARIANT,

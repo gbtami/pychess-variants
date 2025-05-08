@@ -388,7 +388,7 @@ startFen = +r+c+bk+q+a+m+w/pppppppp/8/8/8/8/PPPPPPPP/+W+M+A+QK+B+C+R[] w - 0 1
 
 # MARTIAL ARTS XIANGQI
 # V3 of my variant
-[martialxiangqi]
+[xiangfu]
 
 # Board Parameters
 maxFile = 9

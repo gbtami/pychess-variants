@@ -39,6 +39,7 @@ export const BOARD_FAMILIES: Record<string, BoardFamily> = {
     chennis7x7:{ dimensions: { width: 7, height: 7 }, cg: "cg-448", boardCSS: ["WimbledonBoard.svg", "FrenchOpenBoard.svg", "USOpenBoard.svg"] },
     borderlands9x10: { dimensions: { width: 9, height: 10 }, cg: "cg-borderlands", boardCSS: ["borderlands-xiangqi.svg", "borderlands-cobalt.svg"] },
     sinting8x8: { dimensions: { width: 8, height: 8 }, cg: "cg-512", boardCSS: ["sinting.svg"] },
+    xiangfu9x9: { dimensions: { width: 9, height: 9 }, cg: "cg-540", boardCSS: ["xiangfu.svg"] },
 };
 
 export const PIECE_FAMILIES: Record<string, PieceFamily> = {
@@ -333,11 +334,11 @@ export const VARIANTS: Record<string, Variant> = {
         promotion: { type: "shogi", roles: ["q", "r", "b", "c", "a", "m", "w"] },
     }),
 
-    martialxiangqi: variant({
-        name: "martialxiangqi", tooltip: "martialxiangqi",
+    xiangfu: variant({
+        name: "xiangfu", tooltip: "xiangfu",
         startFen: "2rbe4/2can4/2k1k4/9/9/9/4K1K2/4NAC2/4EBR2[] w - 0 1",
         icon: "👊",
-        boardFamily: "standard9x9", pieceFamily: "standard",
+        boardFamily: "xiangfu9x9", pieceFamily: "standard",
         pieceRow: ["k", "r", "b", "e", "c", "a", "n"],
         pocket: {
             roles: ["r", "b", "e", "c", "a", "n"],
@@ -1292,7 +1293,7 @@ export const enabledVariants = variants.filter(v => !disabledVariants.includes(v
 
 export const contestVariants = [
     "melonvariant",
-    "martialxiangqi",
+    "xiangfu",
     "sinting",
     "borderlands",
     "od_variant",
@@ -1326,7 +1327,7 @@ export const variantGroups: { [ key: string ]: { variants: string[] } } = {
     xiangqi:  { variants: [ "xiangqi", "supply", "manchu", "janggi", "minixiangqi" ] },
     fairy:    { variants: [ "shatranj", "capablanca", "capahouse", "dragon", "seirawan", "shouse", "grand", "grandhouse", "shako", "shogun", "hoppelpoppel", "mansindam" ] },
     army:     { variants: [ "orda", "khans", "synochess", "shinobiplus", "empire", "ordamirror", "chak", "chennis", "spartan" ] },
-    other:    { variants: [ "ataxx", "melonvariant", "martialxiangqi", "sinting", "borderlands", "od_variant", "shocking", "chess_xiangqi", "variant_000" ] }
+    other:    { variants: [ "ataxx", "melonvariant", "xiangfu", "sinting", "borderlands", "od_variant", "shocking", "chess_xiangqi", "variant_000" ] }
 };
 
 function variantGroupLabel(group: string): string {
