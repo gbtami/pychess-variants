@@ -1,6 +1,6 @@
 # 🌄 Borderlands
 
-![Borderlands](../static/images/BorderlandsGuide/board.png)
+![Borderlands](https://github.com/gbtami/pychess-variants/blob/master/static/images/BorderlandsGuide/board.png)
 
 Borderlands is a chess variant created by dpldgr in 2025 for PyChess' Variant Design Contest.
 
@@ -54,7 +54,7 @@ Roads | a4-a7, e4-e7, i4-i7. | □
 
 ## Promotion
 With the exception of the Chief and Guard (which are non-promoting pieces), pieces mandatorily promote upon reaching the Promotion Zone:
-![PromotionZone](../static/images/BorderlandsGuide/PromotionZone.png)
+![PromotionZone](https://github.com/gbtami/pychess-variants/blob/master/static/images/BorderlandsGuide/PromotionZone.png)
 
 ## Pieces
 
@@ -90,17 +90,17 @@ For the images below, the following convention is used:
 
 ### Chief (C)
 
-![Chief](../static/images/BorderlandsGuide/Chief.png)
+![Chief](https://github.com/gbtami/pychess-variants/blob/master/static/images/BorderlandsGuide/Chief.png)
 Chiefs can move like a King (K), and also make non-capturing moves like a Knight, Alfil, and Dabbaba (mNmAmD).
 
 Chiefs are the most valuable pieces on the board. Capture both of the enemy Chiefs and your enemy immediately surrenders.
 
 Chiefs are restricted to the Village Zones and the Roads connecting them:
-![ChiefZone](../static/images/BorderlandsGuide/ChiefZone.png)
+![ChiefZone](https://github.com/gbtami/pychess-variants/blob/master/static/images/BorderlandsGuide/ChiefZone.png)
 
 ### Guard (G)
 
-![Guard](../static/images/BorderlandsGuide/Guard.png)
+![Guard](https://github.com/gbtami/pychess-variants/blob/master/static/images/BorderlandsGuide/Guard.png)
 
 Guards can move like a King (K), and also make non-capturing moves like a Knight, Alfil, and Dabbaba (mNmAmD).
  
@@ -108,78 +108,78 @@ Guards are the only pieces that don't promote and are free to roam the entire bo
 
 ### Marauder (M)
 
-![Marauder](../static/images/BorderlandsGuide/Marauder.png)
+![Marauder](https://github.com/gbtami/pychess-variants/blob/master/static/images/BorderlandsGuide/Marauder.png)
 
 Marauders can move like a Ferz (F), and also make a non-capturing move like a Knight (mN).
 
 Marauders role is to disrupt the enemy through any means necessary. They can very quickly slip behind enemy lines if there are small holes in the enemy's defenses.
 
 Marauders start the game in hand, and must come into play by being dropped into the Incursion Zone, and can often promote on their next move:
-![ChiefZone](../static/images/BorderlandsGuide/IncursionZone.png)
+![ChiefZone](https://github.com/gbtami/pychess-variants/blob/master/static/images/BorderlandsGuide/IncursionZone.png)
 
 ### Archer (A)
 
-![Archer](../static/images/BorderlandsGuide/Archer.png)
+![Archer](https://github.com/gbtami/pychess-variants/blob/master/static/images/BorderlandsGuide/Archer.png)
  
 Archers are long range pieces able to attack from afar. They can move like a Rook (R), capture like a Pao (aka Cannon) (cpR), and also make one non-capturing step diagonally (mF).
 
 ### Promoted Archer (+A)
 
-![ArcherPromoted](../static/images/BorderlandsGuide/ArcherPromoted.png)
+![ArcherPromoted](https://github.com/gbtami/pychess-variants/blob/master/static/images/BorderlandsGuide/ArcherPromoted.png)
 
 Promoted Archers move the same as Archers, and gain the ability to make one capturing step diagonally (F).
 
 ### Slinger (S)
 
-![Slinger](../static/images/BorderlandsGuide/Slinger.png)
+![Slinger](https://github.com/gbtami/pychess-variants/blob/master/static/images/BorderlandsGuide/Slinger.png)
 
 Slingers are long range pieces able to attack from afar. They can move like a Bishop (B), capture like a Vao (diagonal version of the Cannon) (cpB), and also make one non-capturing step orthogonally (mW).
 
 ### Promoted Slinger (+S)
 
-![SlingerPromoted](../static/images/BorderlandsGuide/SlingerPromoted.png)
+![SlingerPromoted](https://github.com/gbtami/pychess-variants/blob/master/static/images/BorderlandsGuide/SlingerPromoted.png)
  
 Promoted Slingers move the same as Slingers, and gain the ability to make one capturing step orthogonally (W).
 
 ### Horse (H)
 
-![Horse](../static/images/BorderlandsGuide/Horse.png)
+![Horse](https://github.com/gbtami/pychess-variants/blob/master/static/images/BorderlandsGuide/Horse.png)
  
 Horses are jumping pieces. They can move like a Knight (N), and also make a non-capturing slide up to three squares like a Bishop (mB3).
 
 ### Promoted Horse (+H)
 
-![HorsePromoted](../static/images/BorderlandsGuide/HorsePromoted.png)
+![HorsePromoted](https://github.com/gbtami/pychess-variants/blob/master/static/images/BorderlandsGuide/HorsePromoted.png)
  
 Promoted Horses move the same as Horses, and gain the ability to make one step diagonally (F), and one non-capturing step orthogonally (mW).
 
 ### Elephant (E)
 
-![Elephant](../static/images/BorderlandsGuide/Elephant.png)
+![Elephant](https://github.com/gbtami/pychess-variants/blob/master/static/images/BorderlandsGuide/Elephant.png)
  
 Elephants are jumping pieces. They can move like both an Alfil and Dabbaba (AD), and also make a non-capturing slide up to three squares like a Rook (mR3).
 
 ### Promoted Elephant (+E)
 
-![ElephantPromoted](../static/images/BorderlandsGuide/ElephantPromoted.png)
+![ElephantPromoted](https://github.com/gbtami/pychess-variants/blob/master/static/images/BorderlandsGuide/ElephantPromoted.png)
  
 Promoted Elephants move the same as Elephants, and gain the ability to make one step orthogonally (W), and one non-capturing step diagonally (mF).
 
 ### Falcon (F)
 
-![Falcon](../static/images/BorderlandsGuide/Falcon.png)
+![Falcon](https://github.com/gbtami/pychess-variants/blob/master/static/images/BorderlandsGuide/Falcon.png)
  
 Falcons can move like a Wazir (W), and also make a non-capturing moves like both an Alfil and Dabbaba (mAmD).
 
 ### Promoted Falcon (+F)
 
-![FalconPromoted](../static/images/BorderlandsGuide/FalconPromoted.png)
+![FalconPromoted](https://github.com/gbtami/pychess-variants/blob/master/static/images/BorderlandsGuide/FalconPromoted.png)
  
 Promoted Falcons move the same as Falcons, and gain the ability to make one step diagonally (F).
 
 ### Warrior (W)
 
-![Warrior](../static/images/BorderlandsGuide/Warrior.png)
+![Warrior](https://github.com/gbtami/pychess-variants/blob/master/static/images/BorderlandsGuide/Warrior.png)
 
 Warriors can move like both a Chess Pawn (fmWfceFifmnD) and Shogi Pawn (fW).
 
@@ -187,22 +187,22 @@ Every square of the enemy's Incursion Zone is initially protected by Warriors.
 
 ### Promoted Warrior (+W)
 
-![WarriorPromoted](../static/images/BorderlandsGuide/WarriorPromoted.png)
+![WarriorPromoted](https://github.com/gbtami/pychess-variants/blob/master/static/images/BorderlandsGuide/WarriorPromoted.png)
  
 Promoted Warriors can move like a Knight, Alfil, and Dabbaba (NAD), and can also make a non-capturing slide up to three squares like both a Rook and Bishop (mQ3).
 
 ### Lion (L)
 
-![Lion](../static/images/BorderlandsGuide/Lion.png)
+![Lion](https://github.com/gbtami/pychess-variants/blob/master/static/images/BorderlandsGuide/Lion.png)
 
 Lions can move like a King, Knight, Alfil, and Dabbaba (KNAD).
 
 Lions start the game as a defensive piece restricted to their side's Territory, and have a very limited path to promotion (via the Lion's Incursion Squares) that is easily defended against. Upon reaching the Lion's Promotion Square, a Lion gains the ability to roam the entire board.
-![LionZone](../static/images/BorderlandsGuide/LionZone.png)
+![LionZone](https://github.com/gbtami/pychess-variants/blob/master/static/images/BorderlandsGuide/LionZone.png)
 
 ### Promoted Lion (+L)
 
-![LionPromoted](../static/images/BorderlandsGuide/LionPromoted.png)
+![LionPromoted](https://github.com/gbtami/pychess-variants/blob/master/static/images/BorderlandsGuide/LionPromoted.png)
 
 Promoted Lions can move like a King, Knight, Alfil, and Dabbaba (KNAD).
  
