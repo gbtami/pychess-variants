@@ -595,3 +595,10 @@ label.piece.piece0.borderlands {
 label.piece.piece1.borderlands {
     background-image: url('images/pieces/disguised/b.svg');
 }
+
+label.piece.piece0.xiangfu {
+    background-image: url('images/pieces/xiangfu/bC.svg');
+}
+label.piece.piece1.xiangfu {
+    background-image: url('images/pieces/disguised/b.svg');
+}
