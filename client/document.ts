@@ -112,6 +112,7 @@ export function changePieceCSS(assetUrl: string, family: string, cssFile: string
         case "shatranj": cssLinkIndex += 28; break;
         case "borderlands": cssLinkIndex += 29; break;
         case "shocking": cssLinkIndex += 30; break;
+        case "xiangfu": cssLinkIndex += 31; break;
         default: throw "Unknown piece family " + family;
     }
     let newUrl = `${assetUrl}/piece-css/${family}/${cssFile}.css`;

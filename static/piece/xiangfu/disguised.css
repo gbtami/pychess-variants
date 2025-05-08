@@ -1,0 +1,6 @@
+.xiangfu piece.white {
+    background-image: url('../../images/pieces/disguised/3d-red.svg');
+}
+.xiangfu piece.black {
+    background-image: url('../../images/pieces/disguised/3d-black.svg');
+}

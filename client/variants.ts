@@ -74,6 +74,7 @@ export const PIECE_FAMILIES: Record<string, PieceFamily> = {
     mansindam: { pieceCSS: ["mansindam2", "mansindam1", "mansindam3", "mansindam4", "disguised"] },
     borderlands: { pieceCSS: ["borderlands", "disguised"] },
     shocking: { pieceCSS: ["shocking", "disguised"] },
+    xiangfu: { pieceCSS: ["xiangfu", "disguised"] },
 };
 
 export interface Variant {
@@ -338,7 +339,7 @@ export const VARIANTS: Record<string, Variant> = {
         name: "xiangfu", tooltip: "xiangfu",
         startFen: "2rbe4/2can4/2k1k4/9/9/9/4K1K2/4NAC2/4EBR2[] w - 0 1",
         icon: "👊",
-        boardFamily: "xiangfu9x9", pieceFamily: "standard",
+        boardFamily: "xiangfu9x9", pieceFamily: "xiangfu",
         pieceRow: ["k", "r", "b", "e", "c", "a", "n"],
         pocket: {
             roles: ["r", "b", "e", "c", "a", "n"],
