@@ -143,6 +143,9 @@ del _
 
 
 def get_server_variant(uci_variant, chess960):
+    # TODO: remove this after variant contest ends
+    if uci_variant == "martialxiangqi":
+        uci_variant = "xiangfu"
     return ALL_VARIANTS[uci_variant + ("960" if chess960 else "")]
 
 
