@@ -1,13 +1,15 @@
-# chess_xiangqi
+# Chess VS Xiangqi
 
-Here's my current submission, it's a classic Xianqgi vs Chess army impossible to balance task. I'm also supplying the graphics for the pieces so it looks cool lol. I'm not sure if I'm gonna make any more changes.
+Chess VS Xiangqi is a chess variant created by Omshinwa in 2025 for PyChess' Variant Design Contest.
 
-Story: the Red Army assassinated the White Queen. White has come back for revenge but the Red Army was expecting them and the assassin is still hiding.
+## Lore
+The Red Army assassinated the White Queen. White has come back for revenge but the assassin is still hiding.
 
-Notable change:
+## General Rules
+The pieces move like in their respective game, those are the changes:
+1.White has the first move. Red wins on any draws. Fifty-move rule is now 25.
+2.Anywhere above the 5th rank, Red Soldiers have double move, on the 5th rank or below they can move sideway but cannot double move. If any soldier reaches the last rank, Red also wins.
+3.White cannot enter Red's palace.
+4.White can summon the ghost of the White Queen anywhere on its territory (ranks 1 to 4). The ghost is a Queen piece that cannot take.
+5.Red has a single Soldier it can drop anywhere on its territory (ranks 6 to 9).
 
-    White starts. Red wins on any draws. Fifty-move rule is now 25.
-    Red Soldiers have double move, they can move sideways on the 5th range or below (but then lose the double move). If any soldier reaches the last rank, Red also wins.
-    White cannot enter Red's palace.
-    White can summon the ghost of the White Queen anywhere on its field (4 lower ranks). The ghost is a Queen piece that cannot take.
-    Red has a single Soldier it can drop anywhere on its field (4 top ranks).
