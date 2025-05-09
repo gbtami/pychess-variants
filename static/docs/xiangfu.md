@@ -22,8 +22,8 @@ The Generals move 1 space in any direction, like the King from Chess. They are t
 Unlike in regular Xiangqi, the opposing Kings can face eachother.
 
 ELEPHANT
-The Elephant moves two spaces diagonally... Wait that's literally the same piece from Xiangqi right?
-Correct, but since there's no river, that means the Elephant can freely move anywhere. Yep, that's the difference.
+The Elephant moves two spaces diagonally, but can move freely since there is no river.
+...Yeah, that's the only difference the Elephant has in this variant.
 
 BISHOP
 A diagonal variant of the Chariot, the Bishop moves any number of spaces diagonally. This is the same piece as the Bishop from Chess.
