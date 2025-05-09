@@ -75,6 +75,7 @@ export const PIECE_FAMILIES: Record<string, PieceFamily> = {
     borderlands: { pieceCSS: ["borderlands", "disguised"] },
     shocking: { pieceCSS: ["shocking", "disguised"] },
     xiangfu: { pieceCSS: ["xiangfu", "disguised"] },
+    chess_xiangqi: { pieceCSS: ["chess_xiangqi", "disguised"] },
 };
 
 export interface Variant {
@@ -402,7 +403,7 @@ export const VARIANTS: Record<string, Variant> = {
         name: "chess_xiangqi", tooltip: "chess_xiangqi",
         startFen: "rheawaehr/9/1c5c1/s1s1s1s1s/9/9/8*/PPPPPPPP*/RNB1KBNR*[Us] w KQ - - 0 1",
         icon: "☯️️",
-        boardFamily: "standard9x9", pieceFamily: "standard",
+        boardFamily: "standard9x9", pieceFamily: "chess_xiangqi",
         pieceRow: { white: ["p", "r", "n", "b", "k"], black: ["r", "h", "e", "a", "w", "c", "s"] },
         pocket: {
             roles: { white: ["u"], black: ["s"] },
