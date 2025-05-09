@@ -38,7 +38,7 @@ export const BOARD_FAMILIES: Record<string, BoardFamily> = {
     chak9x9:{ dimensions: { width: 9, height: 9 }, cg: "cg-540", boardCSS: ["StandardChakBoard.svg", "ColoredChakBoard.svg", "ChakArt.jpg"] },
     chennis7x7:{ dimensions: { width: 7, height: 7 }, cg: "cg-448", boardCSS: ["WimbledonBoard.svg", "FrenchOpenBoard.svg", "USOpenBoard.svg"] },
     borderlands9x10: { dimensions: { width: 9, height: 10 }, cg: "cg-borderlands", boardCSS: ["borderlands-xiangqi.svg", "borderlands-cobalt.svg"] },
-    sinting8x8: { dimensions: { width: 8, height: 8 }, cg: "cg-512", boardCSS: ["sinting.svg"] },
+    sinting8x8: { dimensions: { width: 8, height: 8 }, cg: "cg-512", boardCSS: ["sinting.svg", "sinting1.svg"] },
     xiangfu9x9: { dimensions: { width: 9, height: 9 }, cg: "cg-540", boardCSS: ["xiangfu.svg"] },
 };
 
