@@ -1,6 +1,8 @@
 import asyncio
 import json
+import os
 from datetime import datetime
+from pathlib import Path
 
 import aiohttp_session
 from aiohttp import web
@@ -65,6 +67,9 @@ async def get_user_context(request):
     def variant_display_name(variant):
         return gettext(ALL_VARIANTS[variant].translated_name)
 
+    piece_css_path = Path(Path(__file__).parent.parent.parent, "static/piece-css")
+    piece_sets = [x.name for x in piece_css_path.iterdir() if x.is_dir()]
+
     context = {
         "user": user,
         "lang": lang,
@@ -75,6 +80,7 @@ async def get_user_context(request):
         "view_css": ("round" if view == "tv" else view) + ".css",
         "anon": user.anon,
         "username": user.username,
+        "piece_sets": piece_sets,
     }
     return (user, context)
 
