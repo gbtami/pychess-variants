@@ -19,7 +19,6 @@ NO_PUZZLE_VARIANTS = (
     "horde",
     "placement",
     "gorogoroplus",
-    "grandhouse",
     "cannonshogi",
     "bughouse",
     "fogofwar",

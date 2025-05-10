@@ -1308,7 +1308,6 @@ export const contestVariants = [
 export const noPuzzleVariants = [
     "placement",
     "gorogoroplus",
-    "grandhouse",
     "cannonshogi",
     "bughouse",
     "fogofwar",
