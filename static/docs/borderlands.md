@@ -37,6 +37,7 @@ td { vertical-align: top; }
 .region_name { vertical-align: bottom; font-weight: bold; }
 .region_area { vertical-align: top; }
 .piece_movement { vertical-align: middle; }
+.piece_values { vertical-align: middle; border: 1px solid; }
 </style>
 
 <table style="border: 1px solid;border-collapse: collapse;">
@@ -170,31 +171,21 @@ Promoted Marauders move the same as Marauders, and gain the ability to make one 
 </table>
 <p/>
 ### Piece Values
-<table border="1">
-<thead>
-	<tr><th><b>Piece</b></th><th><b>Notation</b></th><th><b>Value</b></th></tr>
-</thead>
+<table  style="border-collapse: collapse; border: 1px solid;">
 <tbody>
-	<tr><td>Promoted Lion</td><td>+L</td><td>9.45</td></tr>
-	<tr><td>Promoted Archer</td><td>+A</td><td>8.82</td></tr>
-	<tr><td>Promoted Warrior</td><td>+W</td><td>6.75</td></tr>
-	<tr><td>Archer</td><td>A</td><td>5.77</td></tr>
-	<tr><td>Promoted Slinger</td><td>+S</td><td>4.88</td></tr>
-	<tr><td>Lion</td><td>L</td><td>4.14</td></tr>
-	<tr><td>Promoted Horse</td><td>+H</td><td>3.94</td></tr>
-	<tr><td>Slinger</td><td>S</td><td>3.81</td></tr>
-	<tr><td>Promoted Elephant</td><td>+E</td><td>3.61</td></tr>
-	<tr><td>Chief</td><td>C</td><td>3.11</td></tr>
-	<tr><td>Promoted Falcon</td><td>+F</td><td>2.51</td></tr>
-	<tr><td>Guard</td><td>G</td><td>2.17</td></tr>
-	<tr><td>Horse</td><td>H</td><td>2.16</td></tr>
-	<tr><td>Elephant</td><td>E</td><td>2.12</td></tr>
-	<tr><td>Promoted Marauder</td><td>+M</td><td>1.51</td></tr>
-	<tr><td>Warrior</td><td>W</td><td>1.00</td></tr>
-	<tr><td>Falcon</td><td>F</td><td>0.90</td></tr>
-	<tr><td>Marauder</td><td>M</td><td>0.65</td></tr>
+	<tr><td class="piece_values"><b>Piece</b></td><td class="piece_values"><b>Notation</b></td><td class="piece_values"><b>Value</b></td><td class="piece_values"><b>Piece</b></td><td class="piece_values"><b>Notation</b></td><td class="piece_values"><b>Value</b></td></tr>
+	<tr><td class="piece_values">Promoted Lion</td><td class="piece_values">+L</td><td class="piece_values">9.45</td><td class="piece_values">Chief</td><td class="piece_values">C</td><td class="piece_values">3.11</td></tr>
+	<tr><td class="piece_values">Promoted Archer</td><td class="piece_values">+A</td><td class="piece_values">8.82</td><td class="piece_values">Promoted Falcon</td><td class="piece_values">+F</td><td class="piece_values">2.51</td></tr>
+	<tr><td class="piece_values">Promoted Warrior</td><td class="piece_values">+W</td><td class="piece_values">6.75</td><td class="piece_values">Guard</td><td class="piece_values">G</td><td class="piece_values">2.17</td></tr>
+	<tr><td class="piece_values">Archer</td><td class="piece_values">A</td><td class="piece_values">5.77</td><td class="piece_values">Horse</td><td class="piece_values">H</td><td class="piece_values">2.16</td></tr>
+	<tr><td class="piece_values">Promoted Slinger</td><td class="piece_values">+S</td><td class="piece_values">4.88</td><td class="piece_values">Elephant</td><td class="piece_values">E</td><td class="piece_values">2.12</td></tr>
+	<tr><td class="piece_values">Lion</td><td class="piece_values">L</td><td class="piece_values">4.14</td><td class="piece_values">Promoted Marauder</td><td class="piece_values">+M</td><td class="piece_values">1.51</td></tr>
+	<tr><td class="piece_values">Promoted Horse</td><td class="piece_values">+H</td><td class="piece_values">3.94</td><td class="piece_values">Warrior</td><td class="piece_values">W</td><td class="piece_values">1.00</td></tr>
+	<tr><td class="piece_values">Slinger</td><td class="piece_values">S</td><td class="piece_values">3.81</td><td class="piece_values">Falcon</td><td class="piece_values">F</td><td class="piece_values">0.90</td></tr>
+	<tr><td class="piece_values">Promoted Elephant</td><td class="piece_values">+E</td><td class="piece_values">3.61</td><td class="piece_values">Marauder</td><td class="piece_values">M</td><td class="piece_values">0.65</td></tr>
 </tbody>
 </table>
+<img src="../static/images/BorderlandsGuide/PieceValues.png" alt="Piece Values">
 
 ## Strategy
 TODO.
