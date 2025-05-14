@@ -22,7 +22,7 @@ Borderlands draws inspiration from many classic variants (Chess, Shogi, Xiangqi,
 - Sliding pieces (Rooks, Bishops) and jump capturing pieces (Pao, Vao) are merged to create more powerful pieces (Archer, Slinger).
 - Most pieces are promotable, giving incentive to keep them on the board as every piece can help win the game by cornering and capturing enemy Chiefs or occupying Village Squares.
 - Players can't just push their pieces forward or they leave themselves exposed to a quick loss by conquest.
-- There is a wide variety of pieces with with different strengths and weaknesses.
+- There is a wide variety of pieces with different strengths and weaknesses.
 
 ## General Rules
 1.	White has the first move.
