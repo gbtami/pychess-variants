@@ -372,8 +372,8 @@ export const VARIANTS: Record<string, Variant> = {
         promotion: { type: "regular", roles: [] },
     }),
 
-    od_variant: variant({
-        name: "od_variant", tooltip: "od_variant",
+    battleofideologies: variant({
+        name: "battleofideologies", tooltip: "battleofideologies",
         startFen: "mfjezejfm/sssssssss/9/9/9/9/9/PPPPPPPPP/RHBCKABHR[sssss] w - - 0 1",
         icon: "⛏️",
         boardFamily: "standard9x9", pieceFamily: "standard",
@@ -1298,7 +1298,7 @@ export const contestVariants = [
     "xiangfu",
     "sinting",
     "borderlands",
-    "od_variant",
+    "battleofideologies",
     "shocking",
     "chess_xiangqi",
     "variant_000",
@@ -1328,7 +1328,7 @@ export const variantGroups: { [ key: string ]: { variants: string[] } } = {
     xiangqi:  { variants: [ "xiangqi", "supply", "manchu", "janggi", "minixiangqi" ] },
     fairy:    { variants: [ "shatranj", "capablanca", "capahouse", "dragon", "seirawan", "shouse", "grand", "grandhouse", "shako", "shogun", "hoppelpoppel", "mansindam" ] },
     army:     { variants: [ "orda", "khans", "synochess", "shinobiplus", "empire", "ordamirror", "chak", "chennis", "spartan" ] },
-    other:    { variants: [ "ataxx", "melonvariant", "xiangfu", "sinting", "borderlands", "od_variant", "shocking", "chess_xiangqi", "variant_000" ] }
+    other:    { variants: [ "ataxx", "melonvariant", "xiangfu", "sinting", "borderlands", "battleofideologies", "shocking", "chess_xiangqi", "variant_000" ] }
 };
 
 function variantGroupLabel(group: string): string {
