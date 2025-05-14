@@ -1,15 +1,36 @@
+<style>
+td { vertical-align: top; }
+.tab_inline { display: inline; width: 50%; border: 1px solid; }
+.region_name { vertical-align: bottom; font-weight: bold; }
+.region_area { vertical-align: top; }
+.piece_movement { vertical-align: middle; }
+.piece_values { vertical-align: middle; border: 1px solid; }
+
+.board_row { display: flex; }
+.board_column { flex: 50%; padding: 5px; }
+</style>
+
 # 🌄 Borderlands
 
 ![Borderlands](../static/images/BorderlandsGuide/BorderlandsPoster.png)
 
 Borderlands is a chess variant created by dpldgr in 2025 for PyChess' Variant Design Contest.
 
+Borderlands draws inspiration from many classic variants (Chess, Shogi, Xiangqi, and Courier Chess) and fuses them together in a unique and creative way. Pieces are in general more powerful than those found in the classic variants.
+
+- The Chief (the "royal" piece) is very mobile, but has restricted movement which allows it to be cornered and captured.
+- Sliding pieces (Rooks, Bishops) and jump capturing pieces (Pao, Vao) are merged to create more powerful pieces (Archer, Slinger).
+- Most pieces are promotable, giving incentive to keep them on the board as every piece can help win the game by cornering and capturing enemy Chiefs or occupying Village Squares.
+- Players can't just push their pieces forward or they leave themselves exposed to a quick loss by conquest.
+- There is a wide variety of pieces with different strengths and weaknesses.
+
 ## General Rules
 1.	White has the first move.
 2.	All pieces are capturable and are permanently removed from play upon capture.
-3.	As Chiefs are capturable, checkmate and stalemate don't exist in Borderlands.
-4.	Pieces promote immediately upon reaching their Promotion Zone/Square.
-5.	Warriors starting on the 3rd rank may make a double step on their first move, and may be captured en passant on the enemy's next move.
+3.	There is no checkmate or stalemate in Borderlands.
+4.	There is no castling in Borderlands. On any move, a Chief can instead make a non-capturing leap two squares in any direction within their movement zone.
+5.	Pieces promote immediately upon reaching their Promotion Zone/Square.
+6.	Warriors starting on the 3rd rank may make a double step on their first move, and may be captured en passant on the enemy's next move.
 
 ## Win Conditions
 1.	Win by Surrender: Capture both enemy Chiefs and the enemy immediately surrenders.
@@ -27,18 +48,13 @@ Borderlands is a chess variant created by dpldgr in 2025 for PyChess' Variant De
 ## The Board
 The empty board and initial position for Borderlands are as follows:
 
-![Borderlands Board](../static/images/BorderlandsGuide/board.png)
+<div class="board_row">
+  <div class="board_column"><img src="../static/images/BorderlandsGuide/BoardEmpty.png" alt="Borderlands Empty Board" style="width:100%"></div>
+  <div class="board_column"><img src="../static/images/BorderlandsGuide/BoardInitial.png" alt="Borderlands Initial Position" style="width:100%"></div>
+</div>
 
 ### Regions and Squares
 There are a number of important regions and squares in Borderlands:
-<style>
-td { vertical-align: top; }
-.tab_inline { display: inline; width: 50%; border: 1px solid; }
-.region_name { vertical-align: bottom; font-weight: bold; }
-.region_area { vertical-align: top; }
-.piece_movement { vertical-align: middle; }
-.piece_values { vertical-align: middle; border: 1px solid; }
-</style>
 
 <table style="border: 1px solid;border-collapse: collapse;">
 <thead>
@@ -120,11 +136,11 @@ td { vertical-align: top; }
 The movement diagrams below follow these conventions:
 <table style="border-collapse: collapse;">
 <tbody>
-	<tr><td width="15%"><img src="../static/images/BorderlandsGuide/RedCircle.png" alt="Red Circle"></td><td class="piece_movement" style="text-align: left;">Can make both capturing and non-capturing moves to this square unimpeded.</td></tr>
-	<tr><td width="15%"><img src="../static/images/BorderlandsGuide/GreenCircle.png" alt="Green Circle"></td><td class="piece_movement" style="text-align: left;">Can make a non-capturing move to this square unimpeded.</td></tr>
-	<tr><td width="15%"><img src="../static/images/BorderlandsGuide/BlueCircle.png" alt="Blue Circle"></td><td class="piece_movement" style="text-align: left;">Can make a capturing move to this square unimpeded.</td></tr>
-	<tr><td width="15%"><img src="../static/images/BorderlandsGuide/GreenLine.png" alt="Green Line"></td><td class="piece_movement" style="text-align: left;">Can make a non-capturing slide up to three squares.</td></tr>
-	<tr><td width="15%"><img src="../static/images/BorderlandsGuide/TealLine.png" alt="Teal Line"></td><td class="piece_movement" style="text-align: left;">Can make both a capturing and non-capturing sliding move, or jump a piece and capture in a manner similar to a Cannon.</td></tr>
+	<tr><td width="15%"><img src="../static/images/BorderlandsGuide/RedCircle.png" alt="Red Circle"></td><td class="piece_movement" style="text-align: left;">Red Circle: can make both capturing and non-capturing moves to this square unimpeded.</td></tr>
+	<tr><td width="15%"><img src="../static/images/BorderlandsGuide/GreenCircle.png" alt="Green Circle"></td><td class="piece_movement" style="text-align: left;">Green Circle: can make a non-capturing move to this square unimpeded.</td></tr>
+	<tr><td width="15%"><img src="../static/images/BorderlandsGuide/BlueCircle.png" alt="Blue Circle"></td><td class="piece_movement" style="text-align: left;">Blue Circle: can make a capturing move to this square unimpeded.</td></tr>
+	<tr><td width="15%"><img src="../static/images/BorderlandsGuide/GreenLine.png" alt="Green Line"></td><td class="piece_movement" style="text-align: left;">Green Line: can make a non-capturing slide up to three squares.</td></tr>
+	<tr><td width="15%"><img src="../static/images/BorderlandsGuide/TealLine.png" alt="Teal Line"></td><td class="piece_movement" style="text-align: left;">Teal Line: can make both a capturing and non-capturing sliding move, or jump a piece and capture in a manner similar to a Cannon.</td></tr>
 </tbody>
 </table>
 
@@ -132,10 +148,10 @@ The movement diagrams below follow these conventions:
 <tbody>
 	<tr><td width="25%"></td><td width="50%" style="background-color:#d4c7e3;color:#000000">Chief (C)</td><td width="25%"></td></tr>
 	<tr><td width="25%"></td><td><img src="../static/images/BorderlandsGuide/Chief.png" alt="Chief"><br/>Betza: KmNmAmD</td><td width="25%"></td></tr>
-	<tr><td colspan="3">Chiefs are the most valuable pieces on the board. Capture both of the enemy Chiefs and your enemy immediately surrenders.<p/>Chiefs are restricted to the Village Zones and the Roads connecting them.</td><td></td><td></td></tr>
-	<tr><td width="25%"></td><td style="background-color:#d4c7e3;color:#000000">Guard (G)</td><td width="25%"></td></tr>
+	<tr><td colspan="3">Chiefs are the most valuable pieces on the board. Capture both of the enemy Chiefs and your enemy immediately surrenders.<p/>Chiefs are restricted to the Village Zones and the Roads connecting them.<p/></td><td></td><td></td></tr>
+	<tr><td width="25%"></td><td style="background-color:#e6e6e6;color:#000000">Guard (G)</td><td width="25%"></td></tr>
 	<tr><td width="25%"></td><td><img src="../static/images/BorderlandsGuide/Guard.png" alt="Guard"><br/>Betza: KmNmAmD</td><td width="25%"></td></tr>
-	<tr><td colspan="3">Guards are the only pieces that don't promote and are free to roam the entire board from the start of the game. Their role is to protect the allied Chiefs through any means necessary.</td><td></td><td></td></tr>
+	<tr><td colspan="3">Guards are the only pieces that don't promote and are free to roam the entire board from the start of the game. Their role is to protect the allied Chiefs through any means necessary.<p/></td><td></td><td></td></tr>
 </tbody>
 </table>
 <table style="border-collapse: collapse;">
@@ -145,31 +161,30 @@ The movement diagrams below follow these conventions:
 	<tr><td colspan="2">The Marauder's role is to disrupt the enemy through any means necessary. They can very quickly slip behind enemy lines if there are small holes in the enemy's defenses.
 <p/>
 Marauders start the game in hand, and must come into play by being dropped into their Incursion Zone, and can often promote on their next move.<p/>
-Promoted Marauders move the same as Marauders, and gain the ability to make one step orthogonally (W).</td><td></td></tr>
+They can move like a Ferz (F), and make a non-capturing jump like a Knight (mN). Upon promotion, Marauders gain the ability to make one step orthogonally (W).</td><td></td></tr>
 	<tr><td style="background-color:#e6e6e6;color:#000000">Falcon (F)</td><td style="background-color:#f7e6ae;color:#000000">Promoted Falcon (+F)</td></tr>
 	<tr><td><img src="../static/images/BorderlandsGuide/Falcon.png" alt="Falcon"><br/>Betza: WmAmD</td><td><img src="../static/images/BorderlandsGuide/FalconPromoted.png" alt="Falcon Promoted"><br/>Betza: KmAmD</td></tr>
-	<tr><td colspan="2">TODO: Description here.</td><td></td></tr>
+	<tr><td colspan="2">They can move like a Wazir (W), and make a non-capturing jump like a Alfil or Dabbaba (mAmD). Upon promotion, Falcons gain the ability to make one step diagonally (F).<p/></td><td></td></tr>
 	<tr><td style="background-color:#e6e6e6;color:#000000">Elephant (E)</td><td style="background-color:#f7e6ae;color:#000000">Promoted Elephant (+E)</td></tr>
 	<tr><td><img src="../static/images/BorderlandsGuide/Elephant.png" alt="Elephant"><br/>Betza: ADmR3</td><td><img src="../static/images/BorderlandsGuide/ElephantPromoted.png" alt="Elephant Promoted"><br/>Betza: ADmR3WmF</td></tr>
-	<tr><td colspan="2">Promoted Elephants move the same as Elephants, and gain the ability to make one step orthogonally (W), and one non-capturing step diagonally (mF).</td><td></td></tr>
+	<tr><td colspan="2">Elephants are jumping pieces. They can move like a Alfil or Dabbaba (AD), and make a non-capturing slide like a Rook up to three squares (mR3). Upon promotion, Elephants gain the ability to make one step orthogonally (W), and one non-capturing step diagonally (mF).<p/></td><td></td></tr>
 	<tr><td style="background-color:#e6e6e6;color:#000000">Horse (H)</td><td style="background-color:#f7e6ae;color:#000000">Promoted Horse (+H)</td></tr>
 	<tr><td><img src="../static/images/BorderlandsGuide/Horse.png" alt="Horse"><br/>Betza: NmB3</td><td><img src="../static/images/BorderlandsGuide/HorsePromoted.png" alt="Horse Promoted"><br/>Betza: NmB3FmW</td></tr>
-	<tr><td colspan="2">Promoted Horses move the same as Horses, and gain the ability to make one step diagonally (F), and one non-capturing step orthogonally (mW).</td><td></td></tr>
+	<tr><td colspan="2">Horses are jumping pieces. They can move like a Knight (N), and make a non-capturing slide like a Bishop up to three squares (mB3). Upon promotion, Horses gain the ability to make one step diagonally (F), and one non-capturing step orthogonally (mW).<p/></td><td></td></tr>
 	<tr><td style="background-color:#e6e6e6;color:#000000">Slinger (S)</td><td style="background-color:#f7e6ae;color:#000000">Promoted Slinger (+S)</td></tr>
 	<tr><td><img src="../static/images/BorderlandsGuide/Slinger.png" alt="Slinger"><br/>Betza: BcpBmW</td><td><img src="../static/images/BorderlandsGuide/SlingerPromoted.png" alt="Slinger Promoted"><br/>Betza: BcpBW</td></tr>
-	<tr><td colspan="2">Slingers are long range pieces able to attack from afar along diagonal lines. They can move like a Bishop (B), capture like a Vao (cpB), and also make one non-capturing step orthogonally (mW).<p/>Promoted Slingers move the same as Slingers, and gain the ability to make one capturing step orthogonally (W).</td><td></td></tr>
-	<tr><td style="background-color:#e6e6e6;color:#000000">Archer (A)</td><td style="background-color:#f7e6ae;color:#000000">Promoted Archer (+A)</td></tr>
+	<tr><td colspan="2">Slingers are long range pieces able to attack from afar along diagonal lines. They can move like a Bishop (B), capture like a Vao (cpB), and also make one non-capturing step orthogonally (mW). Upon promotion, Slingers gain the ability to make one capturing step orthogonally (W).<p/></td><td></td></tr>
+	<tr><td style="background-color:#e6e6e6;color:#000000">Archer (A)</td><td style="background-color:#f7e6ae;color:#000000">Promoted Archer (+A)<p/></td></tr>
 	<tr><td><img src="../static/images/BorderlandsGuide/Archer.png" alt="Archer"><br/>Betza: RcpRmF</td><td><img src="../static/images/BorderlandsGuide/ArcherPromoted.png" alt="Archer Promoted"><br/>Betza: RcpRF</td></tr>
-	<tr><td colspan="2">Archers are long range pieces able to attack from afar along orthogonal lines. They can move like a Rook (R), capture like a Pao (cpR), and also make one non-capturing step diagonally (mF).<p/>Promoted Archers move the same as Archers, and gain the ability to make one capturing step diagonally (F).</td><td></td></tr>
-	<tr><td style="background-color:#e6e6e6;color:#000000">Warrior (W)</td><td style="background-color:#f7e6ae;color:#000000">Promoted Warrior (+W)</td></tr>
+	<tr><td colspan="2">Archers are long range pieces able to attack from afar along orthogonal lines. They can move like a Rook (R), capture like a Pao (cpR), and also make one non-capturing step diagonally (mF). Upon promotion, Archers gain the ability to make one capturing step diagonally (F).<p/></td><td></td></tr>
+	<tr><td style="background-color:#e6e6e6;color:#000000">Warrior (W)</td><td style="background-color:#f7e6ae;color:#000000">Promoted Warrior (+W)<p/></td></tr>
 	<tr><td><img src="../static/images/BorderlandsGuide/Warrior.png" alt="Warrior"><br/>Betza: fWfceFifmnD</td><td><img src="../static/images/BorderlandsGuide/WarriorPromoted.png" alt="Warrior Promoted"><br/>Betza: NADmQ3</td></tr>
-	<tr><td colspan="2">TODO: Description here.</td><td></td></tr>
+	<tr><td colspan="2">Warriors can move like both a Chess Pawn (fmWfceFifmnD) and a Shogi Pawn (fW). Warriors starting on the 3rd rank may make a double step on their first move, and may be captured en passant by an enemy Warrior on the enemy's next move. Upon promotion, the Warrior's movement changes.<p/>A Promoted Warrior can move like a Knight, Alfil, or Dabbaba, and can make a non-capturing slide like a Queen up to three squares (mQ3).<p/></td><td></td></tr>
 	<tr><td style="background-color:#e6e6e6;color:#000000">Lion (L)</td><td style="background-color:#f7e6ae;color:#000000">Promoted Lion (+L)</td></tr>
 	<tr><td><img src="../static/images/BorderlandsGuide/Lion.png" alt="Lion"><br/>Betza: KNAD</td><td><img src="../static/images/BorderlandsGuide/LionPromoted.png" alt="Lion Promoted"><br/>Betza: KNAD</td></tr>
-	<tr><td colspan="2">Lions start the game as a defensive piece restricted to their side's Territory, and have a very limited path to promotion (via the Lion's Incursion Squares) that is easily defended against. Upon reaching the Lion's Promotion Square, a Lion gains the ability to roam the entire board.</td><td></td></tr>
+	<tr><td colspan="2">Lions start the game as a defensive piece restricted to their side's Territory, and have a very limited path to promotion (via the Lion's Incursion Squares) that is easily defended against. Upon promotion, Lions gain the ability to roam the entire board.<p/></td><td></td></tr>
 </tbody>
 </table>
-<p/>
 ### Piece Values
 <table  style="border-collapse: collapse; border: 1px solid;">
 <tbody>
