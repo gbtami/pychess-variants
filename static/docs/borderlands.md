@@ -28,7 +28,7 @@ Borderlands draws inspiration from many classic variants (Chess, Shogi, Xiangqi,
 1.	White has the first move.
 2.	All pieces are capturable and are permanently removed from play upon capture.
 3.	There is no checkmate or stalemate in Borderlands.
-4.	There is no castling in Borderlands. On any move, Chiefs can instead leap two squares in any direction within their movement zone.
+4.	There is no castling in Borderlands. On any move, a Chief can instead make a non-capturing leap two squares in any direction within their movement zone.
 5.	Pieces promote immediately upon reaching their Promotion Zone/Square.
 6.	Warriors starting on the 3rd rank may make a double step on their first move, and may be captured en passant on the enemy's next move.
 
