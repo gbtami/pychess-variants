@@ -16,9 +16,9 @@ td { vertical-align: top; }
 
 Borderlands is a chess variant created by dpldgr in 2025 for PyChess' Variant Design Contest.
 
-Borderlands draws inspiration from many classic variants (Chess, Shogi, Xiangqi, Chu Shogi, and Courier Chess) and fuses them together in a unique and creative way. Pieces are more powerful than those found in the classic variants. 
+Borderlands draws inspiration from many classic variants (Chess, Shogi, Xiangqi, and Courier Chess) and fuses them together in a unique and creative way. Pieces are in general more powerful than those found in the classic variants.
 
-- The Chief (the "royal" piece) is very mobile, but has restricted movement such that it can be captured.
+- The Chief (the "royal" piece) is very mobile, but has restricted movement which allows it to be cornered and captured.
 - Sliding pieces (Rooks, Bishops) and jump capturing pieces (Pao, Vao) are merged to create more powerful pieces (Archer, Slinger).
 - Most pieces are promotable, giving incentive to keep them on the board as every piece can help win the game by cornering and capturing enemy Chiefs or occupying Village Squares.
 - Players can't just push their pieces forward or they leave themselves exposed to a quick loss by conquest.
