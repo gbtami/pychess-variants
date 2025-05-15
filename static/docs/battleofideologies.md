@@ -1,4 +1,4 @@
-# OD_variant
+# Battle Of Ideologies
 
 (Image of board here)
 Battle of Ideologies is an asymmetric Variant Created by RadarUndetectable in 2025 for PyChess' Variant Design Contest.
@@ -34,12 +34,13 @@ The Kirin's ideology is that "**Defence** is the best **Offence**".
 Stalemate results in a win for the stalemated player. (why not)
 
 # Regions
-
-All Black Pieces (expect Promoted Black Royal)         Ranks 5 - 9 & Ranks 1 - 2
-White Royal Piece                                                                  d1 d2 e1 e2 f1 f2 
-Black Promotion Zone                                                          Ranks 3 - 5
-White Promotion Zone                                                          Rank 9
-Black Flag Zone                                                                      Rank 1
+Region / Condition | Defined Area
+--- | ---
+All Black Pieces (expect Promoted Black Royal) | Ranks 5 - 9 & Ranks 1 - 2
+White Royal Piece | d1 d2 e1 e2 f1 f2 
+Black Promotion Zone | Ranks 3 - 5
+White Promotion Zone | Rank 9
+Black Flag Zone | Rank 1
 
 # The armies
 
@@ -69,12 +70,13 @@ Red = Attack only
 Arrows = Other helpful demonstrations
 
 ## Pawn
-(Image Here)
+![Pawn](https://cdn.discordapp.com/attachments/732661871261253843/1372114541659295795/image.png?ex=682598bf&is=6824473f&hm=88de4c8f1f07cb7b277104455a823e936e04c7d0215cc0d9983bcff0bef28df6&)
 
+<sub> The arrow describes the first move double step </sub><br></br>
 The Pawn moves like its Chess counterpart and promotes upon reaching the 9th rank to any other piece in White's army, except for the King.
 
 ## Rook
-(Image Here)
+![Rook](https://cdn.discordapp.com/attachments/732661871261253843/1372115014734975016/image.png?ex=68259930&is=682447b0&hm=851ca79b8d1cc998ce3ee32c0e2d357ec510754a953c4202b5466629ade8617a&)
 
 The Rook moves like its Chess counterpart.
 
@@ -87,7 +89,7 @@ The Xiangqui Horse moves like its Xiangqi counterpart i.e. like a Chess Knight w
 One square diagonally and the other orthogonally away from itself.
 
 ## Bishop
-(Image Here)
+![Bishop](https://cdn.discordapp.com/attachments/732661871261253843/1372115378943033396/image.png?ex=68259987&is=68244807&hm=ed5eeea7006c1c1ac50e3dde40d4f43fc613fa1d33b7dd17246a6ef78359813c&)
 
 The Bishop moves like its Chess counterpart.
 
@@ -102,10 +104,11 @@ The Chancellor moves like a Chess Knight and a Chess Rook. One of the only 2 pie
 The Archbishop moves like a Chess Knight and a Chess Bishop. One of the only 2 pieces in White's army that can jump.
 
 ## King
-(Image Here)
+![King1](https://cdn.discordapp.com/attachments/732661871261253843/1372115667372867645/image.png?ex=682599cb&is=6824484b&hm=bdc19b43657777756102bd619cfec0d0492bc48d56930687965e10772f2c1d9c&)
 
 The King moves like its Chess counterpart, however it's restricted to its palace of radius 1 around itself. This is the royal piece of the White army.
-(Image Here)
+
+![King2](https://cdn.discordapp.com/attachments/732661871261253843/1372115987620691998/image.png?ex=68259a18&is=68244898&hm=473b53b341faa117e38ca29a9a2c50d35cd6f647461c319d1146776b9d5c732b&)
 
 ## Quadrapawn
 (Image Here)
