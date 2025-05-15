@@ -16,7 +16,7 @@ import aiohttp_session
 import aiomonitor
 import jinja2
 
-from motor.motor_asyncio import AsyncIOMotorClient
+from pymongo import AsyncMongoClient
 
 from pychess_global_app_state import PychessGlobalAppState, LOCALE
 from pychess_global_app_state_utils import get_app_state
@@ -210,7 +210,7 @@ if __name__ == "__main__":
     logging.getLogger("pymongo").setLevel(logging.DEBUG if args.m else logging.INFO)
 
     app = make_app(
-        db_client=AsyncIOMotorClient(MONGO_HOST, tz_aware=True),
+        db_client=AsyncMongoClient(MONGO_HOST, tz_aware=True),
         simple_cookie_storage=args.s,
         anon_as_test_users=args.a,
     )
