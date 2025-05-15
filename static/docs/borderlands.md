@@ -24,6 +24,9 @@ Borderlands draws inspiration from many classic variants (Chess, Shogi, Xiangqi,
 - Players can't just push their pieces forward or they leave themselves exposed to a quick loss by conquest.
 - There is a wide variety of pieces with different strengths and weaknesses.
 
+## Historical Setting
+Borderlands is not set in a specific place or culture. Rather, it serves as an abstract representation of warfare as it evolved during the early Classical Antiquity period (approximately 500–100 BCE), following the decline of chariot warfare. It reflects the tactical emphasis on infantry formations, skirmishers, and emerging combined-arms warfare typical of that era.
+
 ## General Rules
 1.	White has the first move.
 2.	All pieces are capturable and are permanently removed from play upon capture.
