@@ -83,7 +83,7 @@ There are a number of important regions and squares in Borderlands:
 	<tr style="border-bottom: 1px solid;"><td>All promotable White pieces (except the Lion) can promote anywhere within this region.</td><td></td></tr>
 	<tr><td class="region_name">White Villages</td><td class="zone_highlight" rowspan="2"><img src="../static/images/BorderlandsGuide/WhiteVillages.png" alt="White Villages"></td></tr>
 	<tr style="border-bottom: 1px solid;"><td>South-West Village: a1,b1,c1,a2,b2,c2,a3,b3,c3<br/>South-East Village: g1,h1,i1,g2,h2,i2,g3,h3,i3</td><td></td></tr>
-	<tr><td class="region_name">White Village Squares</td><td rowspan="2"><img src="../static/images/BorderlandsGuide/WhiteVillageSquares.png" alt="White Village Squares"></td></tr>
+	<tr><td class="region_name">White Village Squares</td><td class="zone_highlight" rowspan="2"><img src="../static/images/BorderlandsGuide/WhiteVillageSquares.png" alt="White Village Squares"></td></tr>
 	<tr style="border-bottom: 1px solid;"><td>South-West Village Square: b2<br/>South-East Village Square: h2</td><td></td></tr>
 	<tr><td class="region_name">White Lion's Yard</td><td class="zone_highlight" rowspan="2"><img src="../static/images/BorderlandsGuide/WhiteLionsYard.png" alt="White Lion's Yard"></td></tr>
 	<tr style="border-bottom: 1px solid;"><td>Squares: d1,e1,f1,d2,e2,f2,d3,e3,f3</td><td></td></tr>
@@ -112,7 +112,7 @@ There are a number of important regions and squares in Borderlands:
 	<tr style="border-bottom: 1px solid;"><td>All promotable Black pieces (except the Lion) can promote anywhere within this region.</td><td></td></tr>
 	<tr><td class="region_name">Black Villages</td><td class="zone_highlight" rowspan="2"><img src="../static/images/BorderlandsGuide/BlackVillages.png" alt="Black Villages"></td></tr>
 	<tr style="border-bottom: 1px solid;"><td>Noth-West Village: a8,b8,c8,a9,b9,c9,a10,b10,c10<br/>Noth-East Village: g8,h8,i8,g9,h9,i9,g10,h10,i10</td><td></td></tr>
-	<tr><td class="region_name">Black Village Squares</td><td rowspan="2"><img src="../static/images/BorderlandsGuide/BlackVillageSquares.png" alt="Black Village Squares"></td></tr>
+	<tr><td class="region_name">Black Village Squares</td><td class="zone_highlight" rowspan="2"><img src="../static/images/BorderlandsGuide/BlackVillageSquares.png" alt="Black Village Squares"></td></tr>
 	<tr style="border-bottom: 1px solid;"><td>Noth-West Village Square: b9<br/>Noth-East Village Square: h9</td><td></td></tr>
 	<tr><td class="region_name">Black Lion's Yard</td><td class="zone_highlight" rowspan="2"><img src="../static/images/BorderlandsGuide/BlackLionsYard.png" alt="Black Lion's Yard"></td></tr>
 	<tr style="border-bottom: 1px solid;"><td>Squares: d8,e8,f8,d9,e9,f9,d10,e10,f10</td><td></td></tr>
