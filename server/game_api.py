@@ -58,7 +58,7 @@ async def variant_counts_aggregation(app_state, humans, query_period=None):
     if len(match_cond) > 0:
         pipeline.insert(0, {"$match": match_cond})
 
-    cursor = app_state.db.game.aggregate(pipeline)
+    cursor = await app_state.db.game.aggregate(pipeline)
 
     docs = []
 
