@@ -1,5 +1,8 @@
-.borderlands .cg-wrap piece.w-piece.white {
+.borderlands .cg-wrap piece.w-piece.white.ally {
   background-image: url('../../images/pieces/borderlands/wW.svg');
+}
+.borderlands .cg-wrap piece.w-piece.white.enemy {
+  background-image: url('../../images/pieces/borderlands/wW.e.svg');
 }
 .borderlands .cg-wrap piece.wp-piece.white {
   background-image: url('../../images/pieces/borderlands/w+W.svg');
@@ -52,15 +55,11 @@
 .borderlands .cg-wrap piece.g-piece.white {
   background-image: url('../../images/pieces/borderlands/wG.svg');
 }
-.borderlands .cg-wrap piece.w-piece.white {
-  background-image: url('../../images/pieces/borderlands/wW.svg');
-}
-.borderlands .cg-wrap piece.pw-piece.white {
-  background-image: url('../../images/pieces/borderlands/w+W.svg');
-}
-
-.borderlands .cg-wrap piece.w-piece.black {
+.borderlands .cg-wrap piece.w-piece.black.ally {
   background-image: url('../../images/pieces/borderlands/bW.svg');
+}
+.borderlands .cg-wrap piece.w-piece.black.enemy {
+  background-image: url('../../images/pieces/borderlands/bW.e.svg');
 }
 .borderlands .cg-wrap piece.pw-piece.black {
   background-image: url('../../images/pieces/borderlands/b+W.svg');
