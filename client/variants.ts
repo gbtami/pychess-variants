@@ -352,7 +352,7 @@ export const VARIANTS: Record<string, Variant> = {
     sinting: variant({
         name: "sinting", tooltip: "sinting",
         startFen: "rnbkqbir/pppppppp/8/8/8/8/PPPPPPPP/RIBQKBNR w - - 0 1",
-        icon: "🐜",
+        icon: "♞",
         boardFamily: "sinting8x8", pieceFamily: "standard",
         pieceRow: ["k", "q", "r", "b", "n", "i", "p"],
         promotion: { type: "regular", roles: [] },
