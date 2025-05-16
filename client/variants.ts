@@ -357,6 +357,7 @@ export const VARIANTS: Record<string, Variant> = {
         pieceRow: ["k", "q", "r", "b", "n", "i", "p"],
         promotion: { type: "regular", roles: [] },
         rules: { enPassant: true },
+        kingRoles: ["k", "q"],
     }),
 
     borderlands: variant({
@@ -384,7 +385,7 @@ export const VARIANTS: Record<string, Variant> = {
         },
         promotion: { type: "regular", roles: ["p", "s", "z"] },
         rules: { enPassant: true },
-        kingRoles: ["k", "z", "+z"],
+        kingRoles: ["k", "z"],
     }),
 
     shocking: variant({
@@ -411,6 +412,7 @@ export const VARIANTS: Record<string, Variant> = {
         },
         promotion: { type: "regular", roles: ["p", "s"] },
         rules: { enPassant: true },
+        kingRoles: ["k", "w"],
     }),
 
     variant_000: variant({
