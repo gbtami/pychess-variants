@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   id="svg2"
+   height="100%"
+   width="100%"
+   version="1.1"
+   viewBox="0 0 2048 2048"
+   inkscape:version="1.0.2-2 (e86c870879, 2021-01-15)"
+   sodipodi:docname="wking.svg"
+   inkscape:export-filename="S:\Greg\Projects\Chess\CVP\Graphics\Alfaerie SVG\WKing.png"
+   inkscape:export-xdpi="18.75"
+   inkscape:export-ydpi="18.75">
+  <defs
+     id="defs13" />
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1545"
+     inkscape:window-height="990"
+     id="namedview11"
+     showgrid="false"
+     inkscape:zoom="0.32593203"
+     inkscape:cx="824.36472"
+     inkscape:cy="958.27666"
+     inkscape:window-x="263"
+     inkscape:window-y="81"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg2"
+     inkscape:document-rotation="0"
+     inkscape:snap-global="false" />
+  <metadata
+     id="metadata12">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     id="g3341-3"
+     style="fill:#5984bd">
+    <g
+       style="fill:#5984bd"
+       transform="matrix(1,0,0,-1,0,2048)"
+       id="g4-6">
+      <path
+         inkscape:connector-curvature="0"
+         style="fill:#5984bd;stroke-width:0.975999;fill-opacity:1"
+         d="m 1000.7057,1734.6594 v 85.7956 l 52.7245,3.0681 3.0681,-91.9318 95.7891,-9.2044 0,-48.9782 -95.7891,3.0682 -3.0681,-189.8175 c -30.4824,10.6667 -26.5803,10.6667 -55.79261,0 l 6.13621,192.8856 -108.0616,-6.1363 6.13625,58.1826 z M 854.11928,1006.9322 c -19.68652,24 1.69961,319.7199 -10.36632,332.3866 C 902.81254,1432.6521 968.00837,1510 1027.068,1510 c 58.4244,0 126.6884,-108.0292 198.6556,-182.9537 -12.701,-12.6667 -47.9875,-289.6056 -67.039,-313.6056 -100.2552,161.0306 -225.31577,105.4493 -304.56532,-6.5085 z M 1027.068,205 H 478.38543 l 58.107,365 c -206.391,186.66667 -309.90401,365 -310.53906,535 -0.63506,106 45.19178,188.2956 125.20797,265.2956 80.0162,77 152.52277,94.0232 242.0647,94.0232 49.53385,0 99.8615,-18.7349 150.98296,-50.0682 C 795.33047,1382.9173 846.71397,1377 886.08701,1329 c 159.62059,-252.3306 122.71769,-220.5225 281.96189,0 38.738,48 102.2352,63.1217 153.6742,94.455 51.4389,31.3333 108.0616,40.8638 157.5955,40.8638 88.9068,0 142.6872,-26.2275 222.7034,-103.2275 80.0162,-77 126.1605,-150.0913 126.1605,-256.0913 -1.2701,-170 -104.7831,-348.33333 -310.5391,-535 l 58.1071,-365 z"
+         id="path6-7"
+         sodipodi:nodetypes="cccccccccccccccscccccccsssccssscccc" />
+    </g>
+  </g>
+  <g
+     id="g3341">
+    <g
+       style="fill:#000000"
+       transform="matrix(1 0 0 -1 0 2048)"
+       id="g4">
+      <path
+         style="fill:#000000"
+         fill="currentColor"
+         d="m977 1750v95h94v-95h107v-95h-107v-153q-48 16-94 0v153h-107v95h107zm47-314q-47 0-136-121-31 36-50 55 93 140 186 140 92 0 186-140-20-19-50-55-90 121-136 121zm-447-907l-26-156 145 84zm410 206q-1 147-36.5 274.5t-80.5 193.5q-45 88-131.5 153t-168.5 65q-103 0-208-93t-105-229q0-109 86.5-236t202.5-223q212 88 441 95zm37-530h-576l61 365q-325 280-326 535-1 159 125 274.5t267 115.5q78 0 158.5-47t142.5-119q61-74 98.5-164.5t49.5-150.5q12 60 49 150.5t99 164.5q61 72 142 119t159 47q140 0 266-115.5t126-274.5q-2-255-326-535l61-365h-576zm0 74h489l-50 298q-216 84-439 84t-439-84l-50-298h489zm447 250l26-156-145 84zm-410 206q229-7 441-95 115 96 202 223t87 236q0 136-105.5 229t-207.5 93q-83 0-169.5-65t-130.5-153q-46-66-81.5-193.5t-35.5-274.5zm-176-233l141 84 137-86-141-84z"
+         id="path6" />
+    </g>
+  </g>
+</svg>
