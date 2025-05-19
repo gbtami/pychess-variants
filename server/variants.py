@@ -127,7 +127,7 @@ class ServerVariants(Enum):
     ATAXX = Variant("Z", "ataxx", _("Ataxx"), "☣")
     MELONVARIANT = Variant("!", "melonvariant", _("MelonVariant"), "🍉")
     XIANGFU = Variant('"', "xiangfu", _("Xiangfu"), "👊")
-    SINTING = Variant("#", "sinting", _("Sinting"), "🐜")
+    SINTING = Variant("#", "sinting", _("Sinting"), "♞")
     BORDERLANDS = Variant("$", "borderlands", _("Borderlands"), " 🌄", grand=True)
     BATTLEOFIDEOLOGIES = Variant("%", "battleofideologies", _("Battle of Ideologies"), "⛏️")
     SHOCKING = Variant("&", "shocking", _("Shocking"), "️🤖")

@@ -30,8 +30,8 @@ import { analysisView as bugAnalysisView } from "./bug/analysis.bug";
 import { devVariants, variantGroups, VARIANTS } from './variants';
 import { variantsIni } from './variantsIni';
 
-// redirect to correct URL except Heroku preview apps
-if (window.location.href.includes('heroku') && !window.location.href.includes('-pr-')) {
+// redirect to correct URL except Heroku preview/dev apps
+if (window.location.href.includes('heroku') && !window.location.href.includes('-pr-') && !window.location.href.includes('-dev-')) {
     window.location.assign('https://www.pychess.org/');
 }
 

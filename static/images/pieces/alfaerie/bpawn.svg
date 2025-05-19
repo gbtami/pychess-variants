@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   id="svg2"
+   height="100%"
+   width="100%"
+   version="1.1"
+   viewBox="0 0 2048 2048"
+   inkscape:version="1.0.2-2 (e86c870879, 2021-01-15)"
+   sodipodi:docname="wpawn.svg"
+   inkscape:export-filename="S:\Greg\Projects\Chess\CVP\Graphics\Alfaerie SVG\WPawn.png"
+   inkscape:export-xdpi="18.75"
+   inkscape:export-ydpi="18.75">
+  <defs
+     id="defs11" />
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1920"
+     inkscape:window-height="1137"
+     id="namedview9"
+     showgrid="false"
+     inkscape:zoom="0.32593203"
+     inkscape:cx="1149.8305"
+     inkscape:cy="1024"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg2"
+     inkscape:document-rotation="0"
+     inkscape:snap-global="false" />
+  <metadata
+     id="metadata12">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     id="g3339-3">
+    <g
+       style="fill:#000000"
+       transform="matrix(1,0,0,-1,0,2048)"
+       id="g4-6">
+      <path
+         inkscape:connector-curvature="0"
+         style="fill:#5984bd;stroke-width:0.95128;fill-opacity:1"
+         d="M 1023.9967,241.81749 H 473.59768 l 12.2725,54.9826 c -2.53933,50.6834 35.15657,91.01294 64.0414,127.12486 28.88484,36.11192 93.26552,94.86822 144.05205,127.17889 74.2753,57.65237 113.3715,120.41387 147.96982,200.55699 34.59832,80.14313 59.51546,184.87944 74.75142,274.20897 H 643.38985 l 258.18765,231.67 c -54.59552,46.8821 -94.16578,94.1626 -94.16578,166.3865 0,65.2549 32.37572,115.1871 78.71843,162.0692 46.34272,46.8821 71.84408,64.187 137.86655,64.187 65.3877,0 121.4116,-23.4411 168.0717,-70.3232 46.6601,-46.8821 60.7858,-78.4056 60.7858,-143.6605 0,-72.2239 -54.9109,-137.9132 -109.5064,-184.7953 l 279.2558,-225.5337 h -273.295 c 14.601,-89.32953 39.3595,-194.06584 74.2753,-274.20897 34.9157,-80.14312 74.1706,-158.24524 148.4459,-215.89761 50.1517,-32.31067 86.6019,-60.38572 115.4867,-96.49764 28.8848,-36.11192 88.7837,-76.44147 86.8792,-127.12487 v -70.32322 z"
+         id="path6-7"
+         sodipodi:nodetypes="cccscscccssssscccscsccc" />
+    </g>
+  </g>
+  <g
+     id="g3339">
+    <g
+       style="fill:#000000"
+       transform="matrix(1 0 0 -1 0 2048)"
+       id="g4">
+      <path
+         style="fill:#000000"
+         fill="currentColor"
+         d="m520 279h1008q8 97-132 182-132 101-196.5 239.5t-79.5 308.5h-192q-15-170-79.5-308.5t-196.5-239.5q-141-85-132-182zm504-74h-578v74q-4 80 41.5 137t125.5 108q117 91 171.5 217.5t78.5 267.5h-287l284 239q-86 74-86 188 0 103 73 177t177 74q103 0 176.5-74t73.5-177q0-114-86-188l284-239h-287q23-141 78-267.5t172-217.5q79-51 124.5-108t42.5-137v-74h-578zm-268 869h536l-225 191q134 31 134 171 0 76-52.5 126.5t-124.5 50.5q-73 0-125-50.5t-52-126.5q0-140 134-171z"
+         id="path6" />
+    </g>
+  </g>
+</svg>
