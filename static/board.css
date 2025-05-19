@@ -64,3 +64,6 @@
 .xiangfu9x9 cg-board {
     background-image: url('images/board/xiangfu.svg');
 }
+.melonvariant8x8 cg-board {
+    background-image: url('images/board/8x8melonvariant.svg');
+}

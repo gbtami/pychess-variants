@@ -40,6 +40,7 @@ export const BOARD_FAMILIES: Record<string, BoardFamily> = {
     borderlands9x10: { dimensions: { width: 9, height: 10 }, cg: "cg-borderlands", boardCSS: ["borderlands-xiangqi.svg", "borderlands-cobalt.svg"] },
     sinting8x8: { dimensions: { width: 8, height: 8 }, cg: "cg-512", boardCSS: ["sinting.svg", "sinting1.svg"] },
     xiangfu9x9: { dimensions: { width: 9, height: 9 }, cg: "cg-540", boardCSS: ["xiangfu.svg"] },
+    melonvariant8x8: { dimensions: { width: 8, height: 8 }, cg: "cg-512", boardCSS: ["8x8melonvariant.svg"] },
 };
 
 export const PIECE_FAMILIES: Record<string, PieceFamily> = {
@@ -76,6 +77,7 @@ export const PIECE_FAMILIES: Record<string, PieceFamily> = {
     shocking: { pieceCSS: ["shocking", "disguised"] },
     xiangfu: { pieceCSS: ["xiangfu", "disguised"] },
     chess_xiangqi: { pieceCSS: ["chess_xiangqi", "disguised"] },
+    melonvariant: { pieceCSS: ["melonvariant", "disguised"] },
 };
 
 export interface Variant {
@@ -327,7 +329,7 @@ export const VARIANTS: Record<string, Variant> = {
         name: "melonvariant", tooltip: "melonvariant",
         startFen: "+r+c+bk+q+a+m+w/pppppppp/8/8/8/8/PPPPPPPP/+W+M+A+QK+B+C+R[] w - 0 1",
         icon: "🍉",
-        boardFamily: "standard8x8", pieceFamily: "standard",
+        boardFamily: "melonvariant8x8", pieceFamily: "melonvariant",
         pieceRow: ["k", "q", "c", "b", "r", "a", "m", "w", "p"],
         pocket: {
             roles: ["p", "q", "c", "b", "r", "a", "m", "w"],
