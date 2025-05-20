@@ -1,6 +1,6 @@
 # melonvariant
 
-![stratpos](https://github.com/gbtami/pychess-variants/blob/master/static/images/MelonvariantGuide/startpos.webp)
+![stratpos](../static/images/MelonvariantGuide/startpos.webp)
 
 Is a chess variant designed in 2024-2025 by Watermelonely for the Variant Design Contest.
 The idea was to make use of unique short range pieces used in Shatranj and Shogi variants while also allowing powerful pieces to exist without dominating the game, and achieve a game feel rather different to standard Chess without making use of complex pieces and rules.
@@ -26,85 +26,85 @@ Is the regular 8x8 Chess board, but divided into multiple regions with different
 
 ### KING (KmpQ2)
 
-![king](https://github.com/gbtami/pychess-variants/blob/master/static/images/MelonvariantGuide/king.webp)
+![king](../static/images/MelonvariantGuide/king.webp)
 
 Moves and captures like a Chess King, and can also move without capturing by hopping adjacent pieces to the next immediate square.
 It's the royal and flag piece of the game.
 
 ### PAWN (mKpQ2)
 
-![pawn](https://github.com/gbtami/pychess-variants/blob/master/static/images/MelonvariantGuide/pawn.webp)
+![pawn](../static/images/MelonvariantGuide/pawn.webp)
 
 Moves without capturing like a Chess King, and can also move and capture by hopping adjacent pieces to the next immediate square. This is the Cannon Pawn from the Chess Variant Rococo.
 Pawns never promote.
 
 ### KNIGHT (N / NN)
 
-![knight](https://github.com/gbtami/pychess-variants/blob/master/static/images/MelonvariantGuide/knight.webp)
+![knight](../static/images/MelonvariantGuide/knight.webp)
 
 Moves and captured like a Chess Knight.
 
-![knight+](https://github.com/gbtami/pychess-variants/blob/master/static/images/MelonvariantGuide/knight+.webp)
+![knight+](../static/images/MelonvariantGuide/knight+.webp)
 
 Drops promoted as a Nightrider.
 
 ### COMMONER (K / Q)
 
-![commoner](https://github.com/gbtami/pychess-variants/blob/master/static/images/MelonvariantGuide/commoner.webp)
+![commoner](../static/images/MelonvariantGuide/commoner.webp)
 
 Moves and captures like a Chess King.
 
-![commoner+](https://github.com/gbtami/pychess-variants/blob/master/static/images/MelonvariantGuide/commoner+.webp)
+![commoner+](../static/images/MelonvariantGuide/commoner+.webp)
 
 Drops promoted as a Chess Queen.
 
 ### ALIBABA (AD / pQ)
 
-![alibaba](https://github.com/gbtami/pychess-variants/blob/master/static/images/MelonvariantGuide/alibaba.webp)
+![alibaba](../static/images/MelonvariantGuide/alibaba.webp)
 
 Moves and captures like an Alibaba.
 
-![alibaba+](https://github.com/gbtami/pychess-variants/blob/master/static/images/MelonvariantGuide/alibaba+.webp)
+![alibaba+](../static/images/MelonvariantGuide/alibaba+.webp)
 
 Drops promoted as a Quetzal from Chak.
 
 ### ELEPHANT (FA / BpB)
 
-![elephant](https://github.com/gbtami/pychess-variants/blob/master/static/images/MelonvariantGuide/elephant.webp)
+![elephant](../static/images/MelonvariantGuide/elephant.webp)
 
 Moves and captures like the Elephant in Shako.
 
-![elephant+](https://github.com/gbtami/pychess-variants/blob/master/static/images/MelonvariantGuide/elephant+.webp)
+![elephant+](../static/images/MelonvariantGuide/elephant+.webp)
 
 Drops promoted as a Chess Bishop + Janggi diagonal Cannon.
 
 ### MACHINE (WD / RpR)
 
-![machine](https://github.com/gbtami/pychess-variants/blob/master/static/images/MelonvariantGuide/machine.webp)
+![machine](../static/images/MelonvariantGuide/machine.webp)
 
 Moves and captures like the Captain in Spartan Chess.
 
-![machine+](https://github.com/gbtami/pychess-variants/blob/master/static/images/MelonvariantGuide/machine+.webp)
+![machine+](../static/images/MelonvariantGuide/machine+.webp)
 
 Drops promoted as a Chess Rook + Janggi Cannon.
 
 ### KIRIN (FD / BpR)
 
-![kirin](https://github.com/gbtami/pychess-variants/blob/master/static/images/MelonvariantGuide/kirin.webp)
+![kirin](../static/images/MelonvariantGuide/kirin.webp)
 
 Moves and captures like the Kirin in Chu Shogi.
 
-![kirin+](https://github.com/gbtami/pychess-variants/blob/master/static/images/MelonvariantGuide/kirin+.webp)
+![kirin+](../static/images/MelonvariantGuide/kirin+.webp)
 
 Drops promoted as a Bishop + Janggi Cannon.
 
 ### PHOENIX (WA / RpB)
 
-![phoenix](https://github.com/gbtami/pychess-variants/blob/master/static/images/MelonvariantGuide/phoenix.webp)
+![phoenix](../static/images/MelonvariantGuide/phoenix.webp)
 
 Moves and captures like the Phoenix in Chu Shogi.
 
-![phoenix+](https://github.com/gbtami/pychess-variants/blob/master/static/images/MelonvariantGuide/phoenix+.webp)
+![phoenix+](../static/images/MelonvariantGuide/phoenix+.webp)
 
 Drops promoted as a Rook + Janggi diagonal Cannon.
 
