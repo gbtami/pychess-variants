@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import os
-from contextvars import ContextVar
 from datetime import timedelta, timezone, datetime, date
 from operator import neg
 import asyncio
@@ -75,12 +74,11 @@ from utils import load_game
 from blogs import BLOGS
 from videos import VIDEOS
 from youtube import Youtube
+from lang import LOCALE
 from logger import log
 from variants import VARIANTS, RATED_VARIANTS
 
 GAME_KEEP_TIME = 1800  # keep game in app[games_key] for GAME_KEEP_TIME secs
-
-LOCALE: ContextVar[str] = ContextVar("LOCALE", default="en")
 
 
 class PychessGlobalAppState:
