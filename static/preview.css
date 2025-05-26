@@ -602,3 +602,10 @@ label.piece.piece0.xiangfu {
 label.piece.piece1.xiangfu {
     background-image: url('images/pieces/disguised/b.svg');
 }
+
+label.piece.piece0.melonvariant {
+    background-image: url('images/pieces/alfaerie/bcannonpawn.svg');
+}
+label.piece.piece1.melonvariant {
+    background-image: url('images/pieces/disguised/b.svg');
+}

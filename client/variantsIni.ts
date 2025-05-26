@@ -498,7 +498,7 @@ extinctionPseudoRoyal = false
 extinctionPieceTypes = c
 extinctionPieceCount = 0
 
-[od_variant:chess]
+[battleofideologies:chess]
 customPiece1 = s:cFmW
 #black royal z (using pseudoroyal and extinction)
 customPiece2 = z:FD 

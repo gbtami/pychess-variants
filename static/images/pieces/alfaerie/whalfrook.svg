@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   id="svg2"
+   height="100%"
+   width="100%"
+   version="1.1"
+   viewBox="0 0 2048 2048"
+   inkscape:version="1.0.2-2 (e86c870879, 2021-01-15)"
+   sodipodi:docname="whalfrook.svg"
+   inkscape:export-filename="S:\Greg\Projects\Chess\CVP\Graphics\Alfaerie SVG\WHalfRook.png"
+   inkscape:export-xdpi="18.75"
+   inkscape:export-ydpi="18.75">
+  <defs
+     id="defs11">
+    <inkscape:perspective
+       sodipodi:type="inkscape:persp3d"
+       inkscape:vp_x="0 : 1024 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_z="2048 : 1024 : 1"
+       inkscape:persp3d-origin="1024 : 682.66667 : 1"
+       id="perspective13" />
+    <inkscape:perspective
+       id="perspective2841"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 0.5 : 1"
+       sodipodi:type="inkscape:persp3d" />
+  </defs>
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1636"
+     inkscape:window-height="920"
+     id="namedview9"
+     showgrid="false"
+     inkscape:zoom="0.32593203"
+     inkscape:cx="1041.356"
+     inkscape:cy="1132.7897"
+     inkscape:window-x="4"
+     inkscape:window-y="24"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg2"
+     inkscape:document-rotation="0" />
+  <metadata
+     id="metadata12">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     id="g2874-3">
+    <g
+       transform="translate(17.355932,269.01694)"
+       id="g3339-6">
+      <g
+         id="g4-7"
+         transform="matrix(1,0,0,-1,0,2048)"
+         style="fill:#000000">
+        <path
+           sodipodi:nodetypes="ccccccccccccccccccccccccccccccccc"
+           id="path6-5"
+           d="m 621.9661,855.30509 771.5255,2.16949 34.2883,-75.09038 -837.67823,-1.07912 M 1024,1208 H 670.30508 L 697,1282 h 654 l 22.3559,-71.8305 z m 25.5075,-699.70728 -605.67142,3.06813 40.21969,200.0958 136.96478,103.74412 33.72882,443.07173 -142.86375,119.2725 -10.86375,273.5013 209.22876,0 v -147 l 204.49874,9.2043 6.13625,143.9319 209.29688,-6.1362 3.0681,-143.9319 198.3625,9.2044 12.2725,134.7275 209.2288,3.0681 -13.9319,-273.5013 -136.7275,-110.0681 11.6819,-247.7667 8.6897,-195.86337 147.6261,-119.79727 31.1695,-198.82494 z"
+           style="fill:#f9f9f9;fill-opacity:1"
+           inkscape:connector-curvature="0" />
+      </g>
+    </g>
+  </g>
+  <g
+     id="g2874">
+    <g
+       transform="translate(17.355932,269.01694)"
+       id="g3339">
+      <g
+         id="g4"
+         transform="matrix(1,0,0,-1,0,2048)"
+         style="fill:#000000">
+        <path
+           sodipodi:nodetypes="ccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+           id="path6"
+           d="m 621.9661,855.30509 771.5255,2.16949 34.2883,-75.09038 -837.67823,-1.07912 M 1024,1208 H 670.30508 L 697,1282 h 654 l 22.3559,-71.8305 z m 34.7119,-742.66102 H 391.67797 L 438.0339,720.66102 587.27118,839.74576 621,1246 472,1353 455,1694 h 289 v -147 h 137 v 147 h 286 v -147 h 137 v 147 h 289 l -17,-341 -149,-107 20.8863,-266.17545 11.7578,-149.8415 156.8305,-113.66102 31.1695,-250.98305 z m -8.678,74 h 520.1186 L 1557.322,678.57627 1393.0678,792.15254 1351,1282 l 152,109 13,230 h -138 v -148 h -285 v 148 H 955 V 1473 H 670 v 148 H 532 L 545,1391 697,1282 659.27119,792.15254 499.35593,678.57627 474.59322,542.59322 Z"
+           style="fill:#000000"
+           inkscape:connector-curvature="0" />
+      </g>
+    </g>
+  </g>
+</svg>

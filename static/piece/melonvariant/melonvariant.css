@@ -1,0 +1,97 @@
+.melonvariant piece.p-piece.black {
+    background-image: url('../../images/pieces/alfaerie/bcannonpawn.svg');
+}
+.melonvariant piece.a-piece.black {
+    background-image: url('../../images/pieces/alfaerie/bbishoppao.svg');
+}
+.melonvariant piece.b-piece.black {
+    background-image: url('../../images/pieces/alfaerie/bbishopvao.svg');
+}
+.melonvariant piece.pb-piece.black {
+    background-image: url('../../images/pieces/alfaerie/belephantferz.svg');
+}
+.melonvariant piece.pm-piece.black {
+    background-image: url('../../images/pieces/alfaerie/belephantwarmachine.svg');
+}
+.melonvariant piece.pw-piece.black {
+    background-image: url('../../images/pieces/alfaerie/belephantwazir.svg');
+}
+.melonvariant piece.pq-piece.black {
+    background-image: url('../../images/pieces/alfaerie/bguard.svg');
+}
+.melonvariant piece.k-piece.black {
+    background-image: url('../../images/pieces/alfaerie/bking.svg');
+}
+.melonvariant piece.pc-piece.black {
+    background-image: url('../../images/pieces/alfaerie/bknight.svg');
+}
+.melonvariant piece.c-piece.black {
+    background-image: url('../../images/pieces/alfaerie/bnightrider.svg');
+}
+.melonvariant piece.m-piece.black {
+    background-image: url('../../images/pieces/alfaerie/bpaovao.svg');
+}
+.melonvariant piece.q-piece.black {
+    background-image: url('../../images/pieces/alfaerie/bqueen.svg');
+}
+.melonvariant piece.r-piece.black {
+    background-image: url('../../images/pieces/alfaerie/brookpao.svg');
+}
+.melonvariant piece.w-piece.black {
+    background-image: url('../../images/pieces/alfaerie/brookvao.svg');
+}
+.melonvariant piece.pa-piece.black {
+    background-image: url('../../images/pieces/alfaerie/bwarmachineferz.svg');
+}
+.melonvariant piece.pr-piece.black {
+    background-image: url('../../images/pieces/alfaerie/bwarmachinewazir.svg');
+}
+
+.melonvariant piece.p-piece.white {
+    background-image: url('../../images/pieces/alfaerie/wcannonpawn.svg');
+}
+.melonvariant piece.a-piece.white {
+    background-image: url('../../images/pieces/alfaerie/wbishoppao.svg');
+}
+.melonvariant piece.b-piece.white {
+    background-image: url('../../images/pieces/alfaerie/wbishopvao.svg');
+}
+.melonvariant piece.pb-piece.white {
+    background-image: url('../../images/pieces/alfaerie/welephantferz.svg');
+}
+.melonvariant piece.pm-piece.white {
+    background-image: url('../../images/pieces/alfaerie/welephantwarmachine.svg');
+}
+.melonvariant piece.pw-piece.white {
+    background-image: url('../../images/pieces/alfaerie/welephantwazir.svg');
+}
+.melonvariant piece.pq-piece.white {
+    background-image: url('../../images/pieces/alfaerie/wguard.svg');
+}
+.melonvariant piece.k-piece.white {
+    background-image: url('../../images/pieces/alfaerie/wking.svg');
+}
+.melonvariant piece.pc-piece.white {
+    background-image: url('../../images/pieces/alfaerie/wknight.svg');
+}
+.melonvariant piece.c-piece.white {
+    background-image: url('../../images/pieces/alfaerie/wnightrider.svg');
+}
+.melonvariant piece.m-piece.white {
+    background-image: url('../../images/pieces/alfaerie/wpaovao.svg');
+}
+.melonvariant piece.q-piece.white {
+    background-image: url('../../images/pieces/alfaerie/wqueen.svg');
+}
+.melonvariant piece.r-piece.white {
+    background-image: url('../../images/pieces/alfaerie/wrookpao.svg');
+}
+.melonvariant piece.w-piece.white {
+    background-image: url('../../images/pieces/alfaerie/wrookvao.svg');
+}
+.melonvariant piece.pa-piece.white {
+    background-image: url('../../images/pieces/alfaerie/wwarmachineferz.svg');
+}
+.melonvariant piece.pr-piece.white {
+    background-image: url('../../images/pieces/alfaerie/wwarmachinewazir.svg');
+}
