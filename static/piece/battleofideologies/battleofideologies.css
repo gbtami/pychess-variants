@@ -1,0 +1,46 @@
+.battleofideologies piece.p-piece.white {
+    background-image: url('../../images/pieces/battleofideologies/wP.svg');
+}
+.battleofideologies piece.b-piece.white {
+    background-image: url('../../images/pieces/battleofideologies/wB.svg');
+}
+.battleofideologies piece.c-piece.white {
+    background-image: url('../../images/pieces/battleofideologies/wC.svg');
+}
+.battleofideologies piece.a-piece.white {
+    background-image: url('../../images/pieces/battleofideologies/wA.svg');
+}
+.battleofideologies piece.r-piece.white {
+    background-image: url('../../images/pieces/battleofideologies/wR.svg');
+}
+.battleofideologies piece.h-piece.white {
+    background-image: url('../../images/pieces/battleofideologies/wH.svg');
+}
+.battleofideologies piece.k-piece.white {
+    background-image: url('../../images/pieces/battleofideologies/wK.svg');
+}
+.battleofideologies piece.s-piece.white {
+    background-image: url('../../images/pieces/battleofideologies/wS.svg');
+}
+
+.battleofideologies piece.s-piece.black {
+    background-image: url('../../images/pieces/battleofideologies/bS.svg');
+}
+.battleofideologies piece.m-piece.black {
+    background-image: url('../../images/pieces/battleofideologies/bM.svg');
+}
+.battleofideologies piece.f-piece.black {
+    background-image: url('../../images/pieces/battleofideologies/bF.svg');
+}
+.battleofideologies piece.j-piece.black {
+    background-image: url('../../images/pieces/battleofideologies/bJ.svg');
+}
+.battleofideologies piece.e-piece.black {
+    background-image: url('../../images/pieces/battleofideologies/bE.svg');
+}
+.battleofideologies piece.z-piece.black {
+    background-image: url('../../images/pieces/battleofideologies/bZ.svg');
+}
+.battleofideologies piece.pz-piece.black {
+    background-image: url('../../images/pieces/battleofideologies/bZ.svg');
+}

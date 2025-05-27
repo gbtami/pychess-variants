@@ -8,7 +8,7 @@
     "url": "https://github.com/gbtami/pychess-variants.git"
   },
   "engines": {
-    "node": "20.x",
+    "node": "22.x",
     "yarn": "1.x"
   },
   "main": "static/pychess-variants.js",

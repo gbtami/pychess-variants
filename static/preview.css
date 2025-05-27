@@ -609,3 +609,10 @@ label.piece.piece0.melonvariant {
 label.piece.piece1.melonvariant {
     background-image: url('images/pieces/disguised/b.svg');
 }
+
+label.piece.piece0.battleofideologies {
+    background-image: url('images/pieces/battleofideologies/bZ.svg');
+}
+label.piece.piece1.battleofideologies {
+    background-image: url('images/pieces/disguised/b.svg');
+}

@@ -78,6 +78,7 @@ export const PIECE_FAMILIES: Record<string, PieceFamily> = {
     xiangfu: { pieceCSS: ["xiangfu", "disguised"] },
     chess_xiangqi: { pieceCSS: ["chess_xiangqi", "disguised"] },
     melonvariant: { pieceCSS: ["melonvariant", "disguised"] },
+    battleofideologies: { pieceCSS: ["battleofideologies", "disguised"] },
 };
 
 export interface Variant {
@@ -243,7 +244,7 @@ interface VariantConfig {
     // Piece appearance
     pieceFamily: keyof typeof PIECE_FAMILIES;
     // Color names of each side for accurate color representation
-    colors?: {             
+    colors?: {
         // (default: White)
         first: ColorName;
         // (default: Black)
@@ -379,10 +380,10 @@ export const VARIANTS: Record<string, Variant> = {
         name: "battleofideologies", tooltip: "battleofideologies",
         startFen: "mfjezejfm/sssssssss/9/9/9/9/9/PPPPPPPPP/RHBCKABHR[sssss] w - - 0 1",
         icon: "⛏️",
-        boardFamily: "standard9x9", pieceFamily: "standard",
+        boardFamily: "standard9x9", pieceFamily: "battleofideologies",
         pieceRow: { white: ["p", "r", "h", "b", "c", "k"], black: ["s", "m", "f", "j", "e", "z"] },
         pocket: {
-            roles: ["s"],
+            roles: { white: [], black: ["s"] },
             captureToHand: false,
         },
         promotion: { type: "regular", roles: ["p", "s", "z"] },
