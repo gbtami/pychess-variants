@@ -455,7 +455,6 @@ async def export(request):
     session = await aiohttp_session.get_session(request)
     session_user = session.get("user_name")
 
-    game_list = []
     game_counter = 0
     failed = 0
     cursor = None
