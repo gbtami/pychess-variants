@@ -476,14 +476,21 @@ async def export(request):
         }
         cursor = app_state.db.game.find(filter_cond)
 
-    if cursor is not None:
+    if cursor is None:
+        return web.Response(text="")
+
+    response = web.StreamResponse()
+    response.content_type = "text/pgn"
+    await response.prepare(request)
+    try:
         async for doc in cursor:
             try:
                 # print(game_counter)
                 # log.info("%s %s %s" % (doc["d"].strftime("%Y.%m.%d"), doc["_id"], C2V[doc["v"]]))
                 pgn_text = pgn(doc)
                 if pgn_text is not None:
-                    game_list.append(pgn_text)
+                    await response.write(pgn_text.encode())
+                    await asyncio.sleep(0)
                 game_counter += 1
             except Exception:
                 failed += 1
@@ -495,5 +502,13 @@ async def export(request):
                 )
                 continue
         print("failed/all:", failed, game_counter)
-    pgn_text = "\n".join(game_list)
-    return web.Response(text=pgn_text, content_type="text/pgn")
+    except ConnectionResetError:
+        print("Client disconnected unexpectedly.")
+    except Exception as e:
+        print(f"An unexpected error occurred: {e}")
+    finally:
+        try:
+            await response.write_eof()
+        except ConnectionResetError:
+            print("Connection already closed, cannot write EOF.")
+    return response
