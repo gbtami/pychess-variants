@@ -383,7 +383,7 @@ export const VARIANTS: Record<string, Variant> = {
         boardFamily: "standard9x9", pieceFamily: "battleofideologies",
         pieceRow: { white: ["p", "r", "h", "b", "c", "k"], black: ["s", "m", "f", "j", "e", "z"] },
         pocket: {
-            roles: ["s"],
+            roles: { white: [], black: ["s"] },
             captureToHand: false,
         },
         promotion: { type: "regular", roles: ["p", "s", "z"] },
