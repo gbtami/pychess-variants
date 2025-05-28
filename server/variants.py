@@ -192,7 +192,8 @@ VARIANT_ICONS = {variant.server_name: variant.icon for variant in ServerVariants
 DEV_VARIANTS = (
     ServerVariants.MAKBUG,
     ServerVariants.SUPPLY,
-)
+) + VARIANT_CONTEST
+
 # Remove DEV variants on prod site until they stabilize
 if PROD:
     for variant in DEV_VARIANTS:
