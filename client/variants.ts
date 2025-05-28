@@ -422,7 +422,7 @@ export const VARIANTS: Record<string, Variant> = {
         name: "variant_000", tooltip: "variant_000",
         startFen: "rnbqkbnr/8/pppppppp/8/8/PPPPPPPP/8/RNBQKBNR[] w - - 0 1",
         icon: "🏰️",
-        boardFamily: "standard8x8", pieceFamily: "standard",
+        boardFamily: "shogun8x8", pieceFamily: "standard",
         pieceRow: ["k", "q", "r", "b", "n", "p"],
         pocket: {
             roles: ["p", "n", "b", "r", "q"],
