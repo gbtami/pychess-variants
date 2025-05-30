@@ -203,6 +203,7 @@ class Scheduler:
             Plan(SHIELD, self.first_monthly(cal.SUNDAY), 12, "kingofthehill", True, 3, 2, 0, 180),
             Plan(SHIELD, self.second_monthly(cal.SUNDAY), 12, "crazyhouse", True, 3, 2, 0, 180),
             Plan(SHIELD, self.fourth_monthly(cal.SUNDAY), 12, "3check", True, 3, 2, 0, 180),
+            Plan(SHIELD, self.fourth_monthly(cal.TUESDAY), 18, "racingkings", True, 3, 2, 0, 180),
             Plan(SHIELD, self.second_monthly(cal.SATURDAY), 12, "makruk", False, 5, 3, 0, 180),
             Plan(SHIELD, self.third_monthly(cal.SUNDAY), 12, "atomic", True, 3, 2, 0, 180),
             Plan(MONTHLY, self.first_monthly(cal.SATURDAY), 12, "asean", False, 3, 2, 0, 90),
