@@ -25,7 +25,14 @@ from variants import get_server_variant, GRANDS
 
 Plan = namedtuple("Plan", "freq, date, hour, variant, is960, base, inc, byo, duration")
 
-SHIELDS = ["crazyhouse960", "atomic960", "kingofthehill960", "3check960", "racingkings960", "makruk"]
+SHIELDS = [
+    "crazyhouse960",
+    "atomic960",
+    "kingofthehill960",
+    "3check960",
+    "racingkings960",
+    "makruk",
+]
 SEATURDAY = ["makruk", "makpong", "sittuyin", "cambodian", "asean"]
 
 MONTHLY_VARIANTS = (
