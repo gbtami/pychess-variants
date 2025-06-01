@@ -1088,10 +1088,10 @@ char-regex@^1.0.2:
   resolved "https://registry.yarnpkg.com/char-regex/-/char-regex-1.0.2.tgz#d744358226217f981ed58f479b1d6bcc29545dcf"
   integrity sha512-kWWXztvZ5SBQV+eRgKFeh8q5sLuZY2+8WUIzlxWVTg+oGwY14qylx1KbKzHd8P6ZYkAg0xyIDU9JMHhyJMZ1jw==
 
-chessgroundx@^10.7.1:
-  version "10.7.1"
-  resolved "https://registry.yarnpkg.com/chessgroundx/-/chessgroundx-10.7.1.tgz#7083e98d1b520bba9f841b7031cab87d65b75a07"
-  integrity sha512-F4LdlQyEhl7bCj9LKo2sPBlVUCmm9u6ru9iLJPLVj85YrqKsr5ZGyshf17MlvWcsDpWxQFBqWQHafOOQ7nzQFw==
+chessgroundx@^10.7.2:
+  version "10.7.2"
+  resolved "https://registry.yarnpkg.com/chessgroundx/-/chessgroundx-10.7.2.tgz#83b20da7513d53beeaa26b4bbb783ec63893f421"
+  integrity sha512-dcFXe8CXSUVTYt7dydgQCKJR8pXu1CpixidBIYVEHWe9oiSo/qOe3JursV0Ndo+heHSgRPRCfjxNpMiOQoPDxA==
 
 ci-info@^3.2.0:
   version "3.9.0"
@@ -2974,9 +2974,9 @@ type-fest@^4.39.1:
   integrity sha512-9YvLNnORDpI+vghLU/Nf+zSv0kL47KbVJ1o3sKgoTefl6i+zebxbiDQWoe/oWWqPhIgQdRZRT1KA9sCPL810SA==
 
 typescript@^5.8:
-  version "5.8.2"
-  resolved "https://registry.yarnpkg.com/typescript/-/typescript-5.8.2.tgz#8170b3702f74b79db2e5a96207c15e65807999e4"
-  integrity sha512-aJn6wq13/afZp/jT9QZmwEjDqqvSGp1VT5GVg+f/t6/oVyrgXM6BY1h9BRh/O5p3PlUPAe+WuiEZOmb/49RqoQ==
+  version "5.8.3"
+  resolved "https://registry.yarnpkg.com/typescript/-/typescript-5.8.3.tgz#92f8a3e5e3cf497356f4178c34cd65a7f5e8440e"
+  integrity sha512-p1diW6TqL9L07nNxvRMM7hMMw4c5XOo/1ibL4aAIGmSAt9slTE1Xgw5KWuof2uTOvCg9BY7ZRi+GaF+7sfgPeQ==
 
 undici-types@~6.20.0:
   version "6.20.0"
