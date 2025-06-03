@@ -548,7 +548,11 @@ class Game:
                 )
 
     def set_crosstable(self):
-        if (not self.has_crosstable) or self.board.ply < 3 or self.result == "*":
+        if (
+            (not self.has_crosstable)
+            or (self.board.ply < 3 and self.tournamentId is None)
+            or self.result == "*"
+        ):
             return
 
         if len(self.crosstable["r"]) > 0 and self.crosstable["r"][-1].startswith(self.id):
