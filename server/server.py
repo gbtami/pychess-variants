@@ -77,11 +77,7 @@ async def set_user_locale(request, handler):
 
 
 async def on_prepare(request, response):
-    if request.path.endswith(".br"):
-        # brotli compressed js
-        response.headers["Content-Encoding"] = "br"
-        return
-    elif (
+    if (
         request.path.startswith("/variants")
         or request.path.startswith("/blogs")
         or request.path.startswith("/video")

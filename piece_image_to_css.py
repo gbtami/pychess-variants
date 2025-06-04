@@ -35,6 +35,10 @@ def image_to_css(css_path):
                 start_idx = line.find("url('") + 5
                 end_idx = line.rfind("')")
                 image_path = line[start_idx: end_idx].replace("../..", "static")
+                print(image_path)
+                if not os.path.exists(image_path):
+                    print("! Missing file", image_path)
+                    image_path = "static/images/pieces/invisible.svg"
 
                 image64 = encode_image(image_path)
                 url64 = css_url(image64, image_path)

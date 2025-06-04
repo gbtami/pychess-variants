@@ -25,7 +25,14 @@ from variants import get_server_variant, GRANDS
 
 Plan = namedtuple("Plan", "freq, date, hour, variant, is960, base, inc, byo, duration")
 
-SHIELDS = ["crazyhouse960", "atomic960", "kingofthehill960", "3check960", "makruk"]
+SHIELDS = [
+    "crazyhouse960",
+    "atomic960",
+    "kingofthehill960",
+    "3check960",
+    "racingkings960",
+    "makruk",
+]
 SEATURDAY = ["makruk", "makpong", "sittuyin", "cambodian", "asean"]
 
 MONTHLY_VARIANTS = (
@@ -203,6 +210,7 @@ class Scheduler:
             Plan(SHIELD, self.first_monthly(cal.SUNDAY), 12, "kingofthehill", True, 3, 2, 0, 180),
             Plan(SHIELD, self.second_monthly(cal.SUNDAY), 12, "crazyhouse", True, 3, 2, 0, 180),
             Plan(SHIELD, self.fourth_monthly(cal.SUNDAY), 12, "3check", True, 3, 2, 0, 180),
+            Plan(SHIELD, self.fourth_monthly(cal.TUESDAY), 18, "racingkings", True, 3, 2, 0, 180),
             Plan(SHIELD, self.second_monthly(cal.SATURDAY), 12, "makruk", False, 5, 3, 0, 180),
             Plan(SHIELD, self.third_monthly(cal.SUNDAY), 12, "atomic", True, 3, 2, 0, 180),
             Plan(MONTHLY, self.first_monthly(cal.SATURDAY), 12, "asean", False, 3, 2, 0, 90),

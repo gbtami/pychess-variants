@@ -39,7 +39,7 @@ export const BOARD_FAMILIES: Record<string, BoardFamily> = {
     chennis7x7:{ dimensions: { width: 7, height: 7 }, cg: "cg-448", boardCSS: ["WimbledonBoard.svg", "FrenchOpenBoard.svg", "USOpenBoard.svg"] },
     borderlands9x10: { dimensions: { width: 9, height: 10 }, cg: "cg-borderlands", boardCSS: ["borderlands-xiangqi.svg", "borderlands-cobalt.svg"] },
     sinting8x8: { dimensions: { width: 8, height: 8 }, cg: "cg-512", boardCSS: ["sinting.svg", "sinting1.svg"] },
-    xiangfu9x9: { dimensions: { width: 9, height: 9 }, cg: "cg-540", boardCSS: ["xiangfu.svg"] },
+    xiangfu9x9: { dimensions: { width: 9, height: 9 }, cg: "cg-540", boardCSS: ["xiangfu.svg", "xiangfu-chess-board.svg"] },
     melonvariant8x8: { dimensions: { width: 8, height: 8 }, cg: "cg-512", boardCSS: ["8x8melonvariant1.svg", "8x8melonvariant.svg"] },
 };
 
@@ -78,6 +78,7 @@ export const PIECE_FAMILIES: Record<string, PieceFamily> = {
     xiangfu: { pieceCSS: ["xiangfu", "disguised"] },
     chess_xiangqi: { pieceCSS: ["chess_xiangqi", "disguised"] },
     melonvariant: { pieceCSS: ["melonvariant", "disguised"] },
+    battleofideologies: { pieceCSS: ["battleofideologies", "disguised"] },
 };
 
 export interface Variant {
@@ -243,7 +244,7 @@ interface VariantConfig {
     // Piece appearance
     pieceFamily: keyof typeof PIECE_FAMILIES;
     // Color names of each side for accurate color representation
-    colors?: {             
+    colors?: {
         // (default: White)
         first: ColorName;
         // (default: Black)
@@ -379,13 +380,13 @@ export const VARIANTS: Record<string, Variant> = {
         name: "battleofideologies", tooltip: "battleofideologies",
         startFen: "mfjezejfm/sssssssss/9/9/9/9/9/PPPPPPPPP/RHBCKABHR[sssss] w - - 0 1",
         icon: "⛏️",
-        boardFamily: "standard9x9", pieceFamily: "standard",
-        pieceRow: { white: ["p", "r", "h", "b", "c", "k"], black: ["s", "m", "f", "j", "e", "z"] },
+        boardFamily: "standard9x9", pieceFamily: "battleofideologies",
+        pieceRow: { white: ["p", "r", "h", "b", "c", "k"], black: ["s", "m", "f", "j", "e", "z", "+z" as cg.Letter] },
         pocket: {
-            roles: ["s"],
+            roles: { white: [], black: ["s"] },
             captureToHand: false,
         },
-        promotion: { type: "regular", roles: ["p", "s", "z"] },
+        promotion: { type: "shogi", roles: ["p", "s", "z"] },
         rules: { enPassant: true },
         kingRoles: ["k", "z"],
     }),
@@ -421,7 +422,7 @@ export const VARIANTS: Record<string, Variant> = {
         name: "variant_000", tooltip: "variant_000",
         startFen: "rnbqkbnr/8/pppppppp/8/8/PPPPPPPP/8/RNBQKBNR[] w - - 0 1",
         icon: "🏰️",
-        boardFamily: "standard8x8", pieceFamily: "standard",
+        boardFamily: "shogun8x8", pieceFamily: "standard",
         pieceRow: ["k", "q", "r", "b", "n", "p"],
         pocket: {
             roles: ["p", "n", "b", "r", "q"],
@@ -1323,7 +1324,7 @@ export const noPuzzleVariants = [
 
 export const twoBoarsVariants = variants.filter(v => VARIANTS[v].twoBoards);
 
-export const devVariants = ["makbug", "supply"];
+export const devVariants = ["makbug", "supply"].concat(contestVariants);
 
 export const variantGroups: { [ key: string ]: { variants: string[] } } = {
     standard: { variants: [ "chess", "bughouse", "crazyhouse", "atomic", "kingofthehill", "3check", "antichess", "racingkings", "horde", "placement", "duck", "alice", "fogofwar" ] },
