@@ -260,7 +260,8 @@ class User:
         await notify(self.app_state.db, self, notif_type, content)
 
     async def notified(self):
-        self.notifications = [{**notif, "read": True} for notif in self.notifications]
+        if self.notifications is not None:
+            self.notifications = [{**notif, "read": True} for notif in self.notifications]
 
         if self.app_state.db is not None:
             await self.app_state.db.notify.update_many(

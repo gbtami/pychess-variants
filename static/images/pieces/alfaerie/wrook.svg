@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   id="svg2"
+   height="100%"
+   width="100%"
+   version="1.1"
+   viewBox="0 0 2048 2048"
+   inkscape:version="1.0.1 (3bc2e813f5, 2020-09-07)"
+   sodipodi:docname="wrook.svg"
+   inkscape:export-filename="S:\Greg\Projects\Chess\CVP\Graphics\Alfaerie SVG\WRook.png"
+   inkscape:export-xdpi="18.75"
+   inkscape:export-ydpi="18.75">
+  <defs
+     id="defs11" />
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1595"
+     inkscape:window-height="882"
+     id="namedview9"
+     showgrid="false"
+     inkscape:zoom="0.4609375"
+     inkscape:cx="872.95577"
+     inkscape:cy="1110.7797"
+     inkscape:window-x="269"
+     inkscape:window-y="185"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg2"
+     inkscape:document-rotation="0" />
+  <metadata
+     id="metadata12">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     id="g3343-3"
+     style="fill:#f9f9f9;fill-opacity:1">
+    <g
+       id="g3339-6"
+       style="fill:#f9f9f9;fill-opacity:1">
+      <g
+         id="g4-7"
+         transform="matrix(1,0,0,-1,0,2048)"
+         style="fill:#f9f9f9;fill-opacity:1">
+        <path
+           id="path6-5"
+           style="fill:#f9f9f9;fill-opacity:1"
+           d="m 489.71094,386.54199 21.33991,295.44106 135.98305,109.16949 -47.83051,689.37296 -154.66102,126.6778 -39.84745,215.1865 h 625.81358 601.9491 l -15.983,-215.1865 -154.661,-126.6778 -54.339,-693.71194 120.7969,-83.13583 38.6953,-317.13574 h -223.916 l -4.3399,151.33984 H 1136.627 V 386.54199 H 924.39062 l -8.67968,151.33984 H 709.28906 V 386.54199 Z"
+           transform="matrix(1,0,0,-1,0,2048)"
+           sodipodi:nodetypes="cccccccccccccccccccccc" />
+      </g>
+    </g>
+  </g>
+  <g
+     id="g3343">
+    <g
+       id="g3339">
+      <g
+         id="g4"
+         transform="matrix(1 0 0 -1 0 2048)"
+         style="fill:#000000">
+        <path
+           id="path6"
+           d="m1024 547h-381l5 74h752l5-74h-381zm0 661h-332l5 74h654l5-74h-332zm0-1003h-641l29 264 159 118 50 659-149 107-17 341h289v-147h137v147h286v-147h137v147h289l-17-341-149-107 50-659 159-118 29-264h-641zm0 74h557l-15 149-161 119-54 735 152 109 13 230h-138v-148h-285v148h-138v-148h-285v148h-138l13-230 152-109-54-735-161-119-15-149h557z"
+           fill="currentColor"
+           style="fill:#000000" />
+      </g>
+    </g>
+  </g>
+</svg>

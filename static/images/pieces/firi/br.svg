@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="svg3" width="100mm" height="100mm" clip-rule="evenodd" fill-rule="evenodd" image-rendering="optimizeQuality" shape-rendering="geometricPrecision" version="1.1" viewBox="0 0 106.66 106.66" xmlns="http://www.w3.org/2000/svg">
+ <defs id="defs3">
+  <linearGradient id="linearGradient4" x1="3.8534" x2="24.368" y1="14.167" y2="14.167" gradientUnits="userSpaceOnUse">
+   <stop id="stop3" stop-color="#fad028" offset="0"/>
+   <stop id="stop4" stop-color="#856a02" offset="1"/>
+  </linearGradient>
+ </defs>
+ <path id="path4" transform="matrix(3.4206,0,0,3.4206,5.2172,4.8735)" d="m14.066 1.9097c-0.02937-1.03e-5 -0.03613 1.3128-0.03613 1.9664l-2.5516 1.9744c-1.6077 0.69789-2.9033 0.01044-2.7051 0.18513l1.8741 1.4888 1.4171-0.00125v0.00125l-0.01205 2.2763h-1.4096c-1.8389 1.5368-3.9509 0.48347-3.6664 0.69505l2.3712 1.7995h1.6455l-0.0042 2.4945h-1.8415c-2.2695 1.724-4.0262 0.62942-3.6431 0.93328 0.7576 0.5834 1.5483 0.97785 2.306 1.5612h1.5968l0.019851 2.8064h-1.523c-1.8025 1.6318-3.9832 0.64484-3.5835 0.76922l2.4179 1.7418v3.7253h14.655v-3.7253l2.4179-1.7418c0.39971-0.12438-1.781 0.8626-3.5835-0.76922h-1.523l0.01985-2.8064h1.5968c0.75767-0.5834 1.5484-0.97785 2.306-1.5612 0.3831-0.30386-1.3736 0.7907-3.6431-0.93328h-1.8415l-0.0042-2.4945h1.6455l2.3712-1.7995c0.28452-0.21158-1.8275 0.8417-3.6664-0.69505h-1.4096l-0.01205-2.2763v-0.00125l1.4171 0.00125 1.8741-1.4888c0.19816-0.17469-1.0974 0.51276-2.7051-0.18513l-2.5516-1.9744c0-0.65366-0.0068-1.9664-0.03613-1.9664" fill="url(#linearGradient4)" stroke="#000" stroke-width=".93545" style="font-variation-settings:'wdth' 80, 'wght' 749"/>
+ <path id="path1" d="m28.406 83.042 50.065-0.5986" fill="#ea5858" fill-opacity=".99216" stroke-width="3.1998"/>
+ <path id="path6" d="m28.265 82.185 50.206 0.25922" fill="none" stroke="#000" stroke-width="3.1998"/>
+ <path id="path7" d="m37.462 73.595h31.737" fill="none" stroke="#000" stroke-width="3.1998"/>
+ <path id="path8" d="m37.394 63.996h31.873" fill="none" stroke="#000" stroke-width="3.1998"/>
+ <path id="path9" d="m42.804 55.463h21.051" fill="none" stroke="#000" stroke-width="3.1998"/>
+ <path id="path10" d="m42.819 46.93h21.023" fill="none" stroke="#000" stroke-width="3.1998"/>
+ <path id="path11" d="m46.442 38.398h13.776" fill="none" stroke="#000" stroke-width="3.1998"/>
+ <path id="path12" d="m46.483 30.611 13.693-0.0043" fill="none" stroke="#000" stroke-width="3.1998"/>
+</svg>

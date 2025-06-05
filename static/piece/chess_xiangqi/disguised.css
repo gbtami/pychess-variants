@@ -1,0 +1,6 @@
+.chess_xiangqi piece.white {
+    background-image: url('../../images/pieces/disguised/w.svg');
+}
+.chess_xiangqi piece.black {
+    background-image: url('../../images/pieces/disguised/b.svg');
+}
