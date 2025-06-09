@@ -36,7 +36,7 @@ from game_api import (
 )
 from utils import import_game, get_names, get_notifications, subscribe_notify, notified
 from bug.import_bugh_game import import_game_bpgn
-from login import login, logout, oauth
+from login import login, logout, oauth, select_username, check_username_availability, confirm_username
 from lang import select_lang
 from wsl import lobby_socket_handler
 from wsr import round_socket_handler
@@ -88,6 +88,7 @@ get_routes = (
     ("/oauth", oauth),
     ("/oauth/{provider}", oauth),
     ("/logout", logout),
+    ("/select-username", select_username),
     ("/", lobby.lobby),
     ("/about", about.about),
     ("/faq", faq.faq),
@@ -195,6 +196,8 @@ post_routes = (
     ("/api/challenge/{challengeId}/decline", challenge_decline),
     ("/api/seek", create_bot_seek),
     ("/api/pong", bot_pong),
+    ("/api/check-username", check_username_availability),
+    ("/api/confirm-username", confirm_username),
     ("/pref/theme", set_theme),
     ("/api/{profileId}/block", block_user),
     ("/fishnet/acquire", fishnet_acquire),

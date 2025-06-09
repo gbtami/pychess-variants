@@ -152,12 +152,25 @@ async def login(request):
     app_state = get_app_state(request.app)
     users = app_state.users
 
-    need_new_username = True
-    if need_new_username:
-        session["email"] = email
-        return web.HTTPFound("/")
+    # For Lichess, use the existing username directly
+    if provider is None:  # Lichess provider
+        session["user_name"] = username
+    else:
+        # For other OAuth providers, check if user needs to choose a username
+        existing_user = await app_state.db.user.find_one({"oauth_id": _id, "oauth_provider": provider})
+        if existing_user:
+            # User exists with this OAuth ID, use their existing username
+            session["user_name"] = existing_user["_id"]
+        else:
+            # New user from non-Lichess OAuth provider - needs to choose username
+            session["oauth_id"] = _id
+            session["oauth_provider"] = provider
+            session["oauth_username"] = username
+            session["oauth_email"] = email
+            session["oauth_title"] = title
+            return web.HTTPFound("/select-username")
 
-    session["user_name"] = username
+    username = session["user_name"]
 
     if username:
         doc = await app_state.db.user.find_one({"_id": username})
@@ -195,7 +208,7 @@ async def get_user_data(url, token):
         data = {"Authorization": "Bearer %s" % token}
         async with client_session.get(url, headers=data) as resp:
             data = await resp.json()
-            # print("USER_DATA", data)
+            print("USER_DATA", data)
             return data
 
 
@@ -239,6 +252,117 @@ async def logout(request, user=None):
         session.invalidate()
 
     return web.HTTPFound("/")
+
+
+async def select_username(request):
+    """Handle username selection for new OAuth users"""
+    session = await aiohttp_session.get_session(request)
+
+    # Check if user is in the middle of OAuth flow
+    if "oauth_id" not in session:
+        return web.HTTPFound("/")
+
+    # This will be handled by the client-side view
+    return web.HTTPFound("/")
+
+
+async def check_username_availability(request):
+    """API endpoint to check if username is available"""
+    data = await request.json()
+    username = data.get("username", "").strip()
+
+    if not username:
+        return web.json_response({"available": False, "error": "Username cannot be empty"})
+
+    if len(username) < 3:
+        return web.json_response({"available": False, "error": "Username must be at least 3 characters"})
+
+    if len(username) > 20:
+        return web.json_response({"available": False, "error": "Username must be at most 20 characters"})
+
+    # Check for invalid characters
+    import re
+    if not re.match(r'^[a-zA-Z0-9_-]+$', username):
+        return web.json_response({"available": False, "error": "Username can only contain letters, numbers, _ and -"})
+
+    if username.upper() in RESERVED_USERS:
+        return web.json_response({"available": False, "error": "Username is reserved"})
+
+    app_state = get_app_state(request.app)
+    existing_user = await app_state.db.user.find_one({"_id": username})
+
+    if existing_user:
+        return web.json_response({"available": False, "error": "Username is already taken"})
+
+    return web.json_response({"available": True})
+
+
+async def confirm_username(request):
+    """Confirm username selection and complete OAuth registration"""
+    session = await aiohttp_session.get_session(request)
+
+    # Check if user is in the middle of OAuth flow
+    if "oauth_id" not in session:
+        return web.json_response({"error": "Invalid session"}, status=400)
+
+    data = await request.json()
+    username = data.get("username", "").strip()
+
+    # Validate username again by calling the validation logic directly
+    if not username:
+        return web.json_response({"error": "Username cannot be empty"}, status=400)
+
+    if len(username) < 3:
+        return web.json_response({"error": "Username must be at least 3 characters"}, status=400)
+
+    if len(username) > 20:
+        return web.json_response({"error": "Username must be at most 20 characters"}, status=400)
+
+    # Check for invalid characters
+    import re
+    if not re.match(r'^[a-zA-Z0-9_-]+$', username):
+        return web.json_response({"error": "Username can only contain letters, numbers, _ and -"}, status=400)
+
+    if username.upper() in RESERVED_USERS:
+        return web.json_response({"error": "Username is reserved"}, status=400)
+
+    app_state = get_app_state(request.app)
+    existing_user = await app_state.db.user.find_one({"_id": username})
+
+    if existing_user:
+        return web.json_response({"error": "Username is already taken"}, status=400)
+
+    # Create new user with OAuth information
+    oauth_id = session["oauth_id"]
+    oauth_provider = session["oauth_provider"]
+    title = session.get("oauth_title", "")
+
+    try:
+        result = await app_state.db.user.insert_one({
+            "_id": username,
+            "title": title,
+            "oauth_id": oauth_id,
+            "oauth_provider": oauth_provider,
+            "perfs": {},
+            "pperfs": {},
+            "enabled": True,
+        })
+
+        # Set session username and clean up OAuth data
+        session["user_name"] = username
+        session.pop("oauth_id", None)
+        session.pop("oauth_provider", None)
+        session.pop("oauth_username", None)
+        session.pop("oauth_email", None)
+        session.pop("oauth_title", None)
+        session.pop("email", None)  # Also clear the email field
+
+        log.info("Created new user %s from %s OAuth", username, oauth_provider)
+        return web.json_response({"success": True})
+
+    except Exception as e:
+        log.error("Failed to create user %s: %s", username, e)
+        return web.json_response({"error": "Failed to create user"}, status=500)
 
 
 def get_code_challenge(code_verifier):

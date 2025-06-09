@@ -72,7 +72,7 @@ export class LobbyController implements ChatController {
     streams: VNode | HTMLElement;
     spotlights: VNode | HTMLElement;
     dialogHeaderEl: VNode | HTMLElement;
-    autoPairingActions: VNode | HTMLElement;
+    autoPairingActions: VNode | HTMLElement | null;
     tvGame: TvGame;
     tvGameId: string;
     tvGameChessground: Api;
@@ -128,7 +128,7 @@ export class LobbyController implements ChatController {
 
         this.dialogHeaderEl = document.getElementById('header-block') as HTMLElement;
 
-        if (model["email"]) {
+        if (model["email"] && model["email"] !== "None" && model["email"] !== "") {
             alert(model["email"]);
         }
 
@@ -172,7 +172,7 @@ export class LobbyController implements ChatController {
 
         if (!this.anon) {
             this.renderAutoPairingTable();
-            this.autoPairingActions = document.querySelector('div.auto-pairing-actions') as HTMLElement;
+            this.autoPairingActions = document.querySelector('div.auto-pairing-actions') as HTMLElement | null;
         }
 
         boardSettings.assetURL = this.assetURL;
@@ -998,23 +998,27 @@ export class LobbyController implements ChatController {
         const eTimeControls = document.querySelector('div.timecontrols') as Element;
         const eVariants = document.querySelector('div.variants') as Element;
         if (autoPairingIsOn) {
-            this.autoPairingActions = patch(this.autoPairingActions,
-                h('div.auto-pairing-actions', [
-                    h('span.standingby', _('Standing by for auto pairing...')),
-                    h('button.cancel', { on: { click: () => this.autoPairingCancel() } }, [h('div.icon.icon-ban', _('CANCEL'))]),
-                ])
-            );
+            if (this.autoPairingActions) {
+                this.autoPairingActions = patch(this.autoPairingActions,
+                    h('div.auto-pairing-actions', [
+                        h('span.standingby', _('Standing by for auto pairing...')),
+                        h('button.cancel', { on: { click: () => this.autoPairingCancel() } }, [h('div.icon.icon-ban', _('CANCEL'))]),
+                    ])
+                );
+            }
             eRange.classList.toggle("disabled", true);
             eTimeControls.classList.toggle("disabled", true);
             eVariants.classList.toggle("disabled", true);
         } else {
-            this.autoPairingActions = patch(this.autoPairingActions,
-                h('div.auto-pairing-actions', [
-                    h('button.selectall', { on: { click: () => this.autoPairingSelectAll() } }, [h('div.icon.icon-check', _('SELECT ALL'))]),
-                    h('button.reset', { on: { click: () => this.autoPairingReset() } }, [h('div.icon.icon-trash-o', _('CLEAR ALL'))]),
-                    h('button.submit', { on: { click: () => this.autoPairingSubmit() } }, [h('div.icon.icon-check',  _('SUBMIT'))]),
-                ])
-            );
+            if (this.autoPairingActions) {
+                this.autoPairingActions = patch(this.autoPairingActions,
+                    h('div.auto-pairing-actions', [
+                        h('button.selectall', { on: { click: () => this.autoPairingSelectAll() } }, [h('div.icon.icon-check', _('SELECT ALL'))]),
+                        h('button.reset', { on: { click: () => this.autoPairingReset() } }, [h('div.icon.icon-trash-o', _('CLEAR ALL'))]),
+                        h('button.submit', { on: { click: () => this.autoPairingSubmit() } }, [h('div.icon.icon-check',  _('SUBMIT'))]),
+                    ])
+                );
+            }
             eRange.classList.toggle("disabled", false);
             eTimeControls.classList.toggle("disabled", false);
             eVariants.classList.toggle("disabled", false);
