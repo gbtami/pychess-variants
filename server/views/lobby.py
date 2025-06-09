@@ -30,6 +30,11 @@ async def lobby(request):
     # Challenge user from user's profile or FSF from Editor
     profileId = request.match_info.get("profileId")
 
+    # Play menu (Create a game)
+    if request.rel_url.query.get("any") is not None:
+        profileId = "any#"
+        context["profile"] = profileId
+
     if "/challenge" in request.path:
         if user.anon and profileId != "Fairy-Stockfish":
             raise web.HTTPNotFound()
