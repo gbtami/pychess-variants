@@ -157,7 +157,9 @@ async def login(request):
         session["user_name"] = username
     else:
         # For other OAuth providers, check if user needs to choose a username
-        existing_user = await app_state.db.user.find_one({"oauth_id": _id, "oauth_provider": provider})
+        existing_user = await app_state.db.user.find_one(
+            {"oauth_id": _id, "oauth_provider": provider}
+        )
         if existing_user:
             # User exists with this OAuth ID, use their existing username
             session["user_name"] = existing_user["_id"]
@@ -275,15 +277,22 @@ async def check_username_availability(request):
         return web.json_response({"available": False, "error": "Username cannot be empty"})
 
     if len(username) < 3:
-        return web.json_response({"available": False, "error": "Username must be at least 3 characters"})
+        return web.json_response(
+            {"available": False, "error": "Username must be at least 3 characters"}
+        )
 
     if len(username) > 20:
-        return web.json_response({"available": False, "error": "Username must be at most 20 characters"})
+        return web.json_response(
+            {"available": False, "error": "Username must be at most 20 characters"}
+        )
 
     # Check for invalid characters
     import re
-    if not re.match(r'^[a-zA-Z0-9_-]+$', username):
-        return web.json_response({"available": False, "error": "Username can only contain letters, numbers, _ and -"})
+
+    if not re.match(r"^[a-zA-Z0-9_-]+$", username):
+        return web.json_response(
+            {"available": False, "error": "Username can only contain letters, numbers, _ and -"}
+        )
 
     if username.upper() in RESERVED_USERS:
         return web.json_response({"available": False, "error": "Username is reserved"})
@@ -320,8 +329,11 @@ async def confirm_username(request):
 
     # Check for invalid characters
     import re
-    if not re.match(r'^[a-zA-Z0-9_-]+$', username):
-        return web.json_response({"error": "Username can only contain letters, numbers, _ and -"}, status=400)
+
+    if not re.match(r"^[a-zA-Z0-9_-]+$", username):
+        return web.json_response(
+            {"error": "Username can only contain letters, numbers, _ and -"}, status=400
+        )
 
     if username.upper() in RESERVED_USERS:
         return web.json_response({"error": "Username is reserved"}, status=400)
@@ -338,15 +350,17 @@ async def confirm_username(request):
     title = session.get("oauth_title", "")
 
     try:
-        result = await app_state.db.user.insert_one({
-            "_id": username,
-            "title": title,
-            "oauth_id": oauth_id,
-            "oauth_provider": oauth_provider,
-            "perfs": {},
-            "pperfs": {},
-            "enabled": True,
-        })
+        result = await app_state.db.user.insert_one(
+            {
+                "_id": username,
+                "title": title,
+                "oauth_id": oauth_id,
+                "oauth_provider": oauth_provider,
+                "perfs": {},
+                "pperfs": {},
+                "enabled": True,
+            }
+        )
 
         # Set session username and clean up OAuth data
         session["user_name"] = username
