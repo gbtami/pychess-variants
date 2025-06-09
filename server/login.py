@@ -361,6 +361,7 @@ async def confirm_username(request):
                 "enabled": True,
             }
         )
+        print("db insert user result %s" % repr(result.inserted_id))
 
         # Set session username and clean up OAuth data
         session["user_name"] = username
