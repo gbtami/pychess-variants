@@ -25,6 +25,11 @@ RESERVED_USERS = (
     NONE_USER,
 )
 
+
+def reserved(username):
+    return username.upper() in map(str.upper, RESERVED_USERS)
+
+
 SCHEDULE_MAX_DAYS = 7
 TOURNAMENT_SPOTLIGHTS_MAX = 3
 

@@ -8,7 +8,7 @@ import aiohttp_session
 from aiohttp import web
 
 from broadcast import round_broadcast
-from const import RESERVED_USERS, STARTED
+from const import STARTED, reserved
 from oauth_config import oauth_config
 from settings import DEV, URI
 from pychess_global_app_state_utils import get_app_state
@@ -110,6 +110,7 @@ async def login(request):
 
     user_data = await get_user_data(account_api_url, session["token"])
 
+    # To get email we have to use another API endpoint for lichess/lishogi
     if provider in ("lichess", "lishogi"):
         email_data = await get_user_data(account_api_url + "/email", session["token"])
         email = email_data.get("email")
@@ -132,7 +133,7 @@ async def login(request):
         )
         return web.HTTPFound("/")
 
-    if username.upper() in RESERVED_USERS:
+    if reserved(username):
         log.error("User %s tried to log in.", username)
         return web.HTTPFound("/")
 
@@ -210,7 +211,7 @@ async def get_user_data(url, token):
         data = {"Authorization": "Bearer %s" % token}
         async with client_session.get(url, headers=data) as resp:
             data = await resp.json()
-            print("USER_DATA", data)
+            # print("USER_DATA", data)
             return data
 
 
@@ -294,7 +295,7 @@ async def check_username_availability(request):
             {"available": False, "error": "Username can only contain letters, numbers, _ and -"}
         )
 
-    if username.upper() in RESERVED_USERS:
+    if reserved(username):
         return web.json_response({"available": False, "error": "Username is reserved"})
 
     app_state = get_app_state(request.app)
@@ -335,7 +336,7 @@ async def confirm_username(request):
             {"error": "Username can only contain letters, numbers, _ and -"}, status=400
         )
 
-    if username.upper() in RESERVED_USERS:
+    if reserved(username):
         return web.json_response({"error": "Username is reserved"}, status=400)
 
     app_state = get_app_state(request.app)
