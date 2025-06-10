@@ -20,7 +20,7 @@ async def oauth(request):
     """Get oauth token with PKCE"""
 
     provider = request.match_info.get("provider")
-    redirect_uri = URI + ("/oauth" if provider is None else "/oauth/%s" % provider)
+    redirect_uri = URI + "/oauth/%s" % provider
 
     config = oauth_config.get(provider, oauth_config["lichess"])
 
@@ -87,7 +87,7 @@ async def oauth(request):
                 token = data.get("access_token")
                 if token is not None:
                     session["token"] = token
-                    return web.HTTPFound("/login" if provider is None else "/login/%s" % provider)
+                    return web.HTTPFound("/login/%s" % provider)
                 else:
                     log.error(
                         "Failed to get OAuth token from %s",
@@ -100,7 +100,7 @@ async def login(request):
     session = await aiohttp_session.get_session(request)
 
     provider = request.match_info.get("provider")
-    redirect_path = "/oauth" if provider is None else "/oauth/%s" % provider
+    redirect_path = "/oauth/%s" % provider
 
     if "token" not in session:
         return web.HTTPFound(redirect_path)
@@ -110,7 +110,7 @@ async def login(request):
 
     user_data = await get_user_data(account_api_url, session["token"])
 
-    if provider is None:
+    if provider in ("lichess", "lishogi"):
         email_data = await get_user_data(account_api_url + "/email", session["token"])
         email = email_data.get("email")
     else:
@@ -153,7 +153,7 @@ async def login(request):
     users = app_state.users
 
     # For Lichess, use the existing username directly
-    if provider is None:  # Lichess provider
+    if provider == "lichess":
         session["user_name"] = username
     else:
         # For other OAuth providers, check if user needs to choose a username

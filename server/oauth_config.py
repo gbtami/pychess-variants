@@ -2,12 +2,20 @@ import os
 
 oauth_config = {
     "lichess": {
-        "client_id": os.getenv("CLIENT_ID", "pychess"),
+        "client_id": os.getenv("LICHESS_CLIENT_ID", "pychess"),
         "client_secret": os.getenv("CLIENT_SECRET", "secret"),
         "oauth_authorize_url": "https://lichess.org/oauth",
         "oauth_token_url": "https://lichess.org/api/token",
         "scope": "email:read",
         "account_api_url": "https://lichess.org/api/account",
+    },
+    "lishogi": {
+        "client_id": os.getenv("LISHOGI_CLIENT_ID", "pychess"),
+        "client_secret": os.getenv("CLIENT_SECRET", "secret"),
+        "oauth_authorize_url": "https://lishogi.org/oauth",
+        "oauth_token_url": "https://lishogi.org/api/token",
+        "scope": "email:read",
+        "account_api_url": "https://lishogi.org/api/account",
     },
     "google": {
         "client_id": os.getenv("GOOGLE_CLIENT_ID", "pychess"),

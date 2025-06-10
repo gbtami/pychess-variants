@@ -446,12 +446,11 @@ div button.login-btn {
   transform: scale(1.05);
 }
 
-.lichess-icon {
-  background: #1a1a1a;
-  color: #fff;
+.lichess-icon, .lishogi-icon {
+  color: var(--font-color);
 }
 
-.lichess-icon svg {
+.lichess-icon svg, .lishogi-icon svg {
   fill: #fff;
 }
 
