@@ -63,11 +63,9 @@ export type PyChessModel = {
 
     blogs: string;
     corrGames: string;
-    email: string;
     oauthUsernameSelection: {
         oauth_id: string;
         oauth_provider: string;
         oauth_username: string;
-        oauth_email: string;
     } | null;
 };

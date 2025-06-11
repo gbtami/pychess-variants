@@ -110,14 +110,6 @@ async def login(request):
 
     user_data = await get_user_data(account_api_url, session["token"])
 
-    # To get email we have to use another API endpoint for lichess/lishogi
-    if provider in ("lichess", "lishogi"):
-        email_data = await get_user_data(account_api_url + "/email", session["token"])
-        email = email_data.get("email")
-    else:
-        email = user_data.get("email")
-    # print("EMAIL=", email)
-
     del session["token"]
 
     _id = user_data.get("id")
@@ -125,13 +117,6 @@ async def login(request):
     title = user_data.get("title", "")
     closed = user_data.get("closed", "")
     tosViolation = user_data.get("tosViolation", "")
-
-    if email is None:
-        log.error(
-            "Failed to get public user account data from %s",
-            account_api_url,
-        )
-        return web.HTTPFound("/")
 
     if reserved(username):
         log.error("User %s tried to log in.", username)
@@ -153,42 +138,11 @@ async def login(request):
     app_state = get_app_state(request.app)
     users = app_state.users
 
-    # For Lichess, use the existing username directly
-    if provider == "lichess":
-        session["user_name"] = username
-    else:
-        # For other OAuth providers, check if user needs to choose a username
-        existing_user = await app_state.db.user.find_one(
-            {"oauth_id": _id, "oauth_provider": provider}
-        )
-        if existing_user:
-            # User exists with this OAuth ID, use their existing username
-            session["user_name"] = existing_user["_id"]
-        else:
-            # New user from non-Lichess OAuth provider - needs to choose username
-            session["oauth_id"] = _id
-            session["oauth_provider"] = provider
-            session["oauth_username"] = username
-            session["oauth_email"] = email
-            session["oauth_title"] = title
-            return web.HTTPFound("/select-username")
-
-    username = session["user_name"]
-
-    if username:
-        doc = await app_state.db.user.find_one({"_id": username})
-        if doc is None:
-            result = await app_state.db.user.insert_one(
-                {
-                    "_id": username,
-                    "title": title,
-                    "perfs": {},
-                    "pperfs": {},
-                }
-            )
-            print("db insert user result %s" % repr(result.inserted_id))
-
-        elif not doc.get("enabled", True):
+    # For other OAuth providers, check if user needs to choose a username
+    existing_user = await app_state.db.user.find_one({"oauth_id": _id, "oauth_provider": provider})
+    if existing_user:
+        # User exists with this OAuth ID, use their existing username
+        if not existing_user.get("enabled", True):
             log.info("Closed account %s tried to log in.", username)
 
             prev_session_user = session.get("user_name")
@@ -202,6 +156,16 @@ async def login(request):
                 prev_user.update_online()
 
                 session["user_name"] = prev_session_user
+        else:
+            session["user_name"] = existing_user["_id"]
+
+    else:
+        # New user from OAuth provider - needs to choose username
+        session["oauth_id"] = _id
+        session["oauth_provider"] = provider
+        session["oauth_username"] = username
+        session["oauth_title"] = title
+        return web.HTTPFound("/select-username")
 
     return web.HTTPFound("/")
 
@@ -369,9 +333,7 @@ async def confirm_username(request):
         session.pop("oauth_id", None)
         session.pop("oauth_provider", None)
         session.pop("oauth_username", None)
-        session.pop("oauth_email", None)
         session.pop("oauth_title", None)
-        session.pop("email", None)  # Also clear the email field
 
         log.info("Created new user %s from %s OAuth", username, oauth_provider)
         return web.json_response({"success": True})

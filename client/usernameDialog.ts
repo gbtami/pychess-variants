@@ -29,7 +29,7 @@ async function checkUsernameAvailability(username: string): Promise<void> {
 
     dialogState.isChecking = true;
     dialogState.error = null;
-    
+
     try {
         const response = await fetch('/api/check-username', {
             method: 'POST',
@@ -38,9 +38,9 @@ async function checkUsernameAvailability(username: string): Promise<void> {
             },
             body: JSON.stringify({ username: username.trim() })
         });
-        
+
         const data = await response.json();
-        
+
         if (data.available) {
             dialogState.isAvailable = true;
             dialogState.error = null;
@@ -53,19 +53,19 @@ async function checkUsernameAvailability(username: string): Promise<void> {
         dialogState.isAvailable = false;
         dialogState.error = 'Failed to check username availability';
     }
-    
+
     dialogState.isChecking = false;
 }
 
 function onUsernameInput(event: Event): void {
     const target = event.target as HTMLInputElement;
     dialogState.username = target.value;
-    
+
     // Clear previous timeout
     if (checkUsernameTimeout) {
         clearTimeout(checkUsernameTimeout);
     }
-    
+
     // Debounce username checking
     checkUsernameTimeout = window.setTimeout(() => {
         checkUsernameAvailability(dialogState.username).then(() => {
@@ -79,9 +79,9 @@ async function confirmUsername(): Promise<void> {
     if (!dialogState.isAvailable || dialogState.isSubmitting) {
         return;
     }
-    
+
     dialogState.isSubmitting = true;
-    
+
     try {
         const response = await fetch('/api/confirm-username', {
             method: 'POST',
@@ -90,9 +90,9 @@ async function confirmUsername(): Promise<void> {
             },
             body: JSON.stringify({ username: dialogState.username.trim() })
         });
-        
+
         const data = await response.json();
-        
+
         if (data.success) {
             // Reload the page to refresh the session
             window.location.reload();
@@ -105,7 +105,7 @@ async function confirmUsername(): Promise<void> {
         dialogState.error = 'Failed to create account';
         dialogState.isSubmitting = false;
     }
-    
+
     renderUsernameDialog();
 }
 
@@ -125,10 +125,10 @@ let dialogVNode: VNode | null = null;
 function renderUsernameDialog(): void {
     const dialogElement = document.getElementById('username-dialog');
     if (!dialogElement) return;
-    
+
     const canSubmit = dialogState.isAvailable === true && !dialogState.isSubmitting;
     const statusIcon = getUsernameStatusIcon();
-    
+
     const vnode = h('div.username-dialog-content', [
         h('h2', _('Choose your username')),
         h('p', _('Please choose a username for your account.')),
@@ -171,7 +171,7 @@ function renderUsernameDialog(): void {
             }, dialogState.isSubmitting ? _('Creating account...') : _('Confirm'))
         ])
     ].filter((item): item is VNode => item !== null));
-    
+
     // Use Snabbdom patch to render VNode to DOM
     if (dialogVNode === null) {
         // Initial render - clear content and create new VNode
@@ -189,7 +189,6 @@ export function showUsernameDialog(oauthData: {
     oauth_id: string;
     oauth_provider: string;
     oauth_username: string;
-    oauth_email: string;
 }): void {
     // Validate oauth data
     if (!oauthData || !oauthData.oauth_id || !oauthData.oauth_provider) {
@@ -206,7 +205,7 @@ export function showUsernameDialog(oauthData: {
         error: null,
         isSubmitting: false
     };
-    
+
     // Create dialog element if it doesn't exist
     let dialogElement = document.getElementById('username-dialog');
     if (!dialogElement) {
@@ -215,12 +214,12 @@ export function showUsernameDialog(oauthData: {
         dialogElement.className = 'modal-overlay';
         document.body.appendChild(dialogElement);
     }
-    
+
     dialogElement.style.display = 'block';
-    
+
     // Initial render
     renderUsernameDialog();
-    
+
     // Focus on username input
     setTimeout(() => {
         const input = document.getElementById('username-input') as HTMLInputElement;
@@ -229,7 +228,7 @@ export function showUsernameDialog(oauthData: {
             input.select();
         }
     }, 100);
-    
+
     // Check initial username if provided
     if (dialogState.username) {
         checkUsernameAvailability(dialogState.username).then(() => {

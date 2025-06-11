@@ -64,7 +64,6 @@ function initModel(el: HTMLElement) {
         corr: el.getAttribute("data-corr") ?? "",
         level : parseInt(""+el.getAttribute("data-level")),
         username : el.getAttribute("data-username") ?? "",
-        email : el.getAttribute("data-email") ?? "",
         gameId : el.getAttribute("data-gameid") ?? "",
         tournamentId : el.getAttribute("data-tournamentid") ?? "",
         tournamentname : el.getAttribute("data-tournamentname") ?? "",
@@ -114,7 +113,6 @@ function initModel(el: HTMLElement) {
             oauth_id: el.getAttribute("data-oauth-id")!,
             oauth_provider: el.getAttribute("data-oauth-provider")!,
             oauth_username: el.getAttribute("data-oauth-username")!,
-            oauth_email: el.getAttribute("data-oauth-email")!,
         } : null,
     };
 }
@@ -169,7 +167,7 @@ export function view(el: HTMLElement, model: PyChessModel): VNode {
 function start() {
     const placeholder = document.getElementById('placeholder');
     if (placeholder && el) {
-        
+
         // Check if we need to show username selection dialog
         if (model.oauthUsernameSelection && model.oauthUsernameSelection.oauth_id) {
             try {
@@ -218,7 +216,7 @@ function start() {
     const searchIcon = document.querySelector('.search-icon') as HTMLElement;
     const searchBar = document.querySelector('.search-bar') as HTMLElement;
     const searchInput = document.querySelector('#search-input') as HTMLInputElement;
-    
+
     searchIcon.onclick = function(){
         searchBar.classList.toggle('active');
         if (searchBar.classList.contains('active'))
@@ -283,17 +281,17 @@ function initLoginDropdown() {
     // Use event delegation for better reliability
     document.addEventListener('click', (e) => {
         const target = e.target as HTMLElement;
-        
+
         // Handle login button clicks
         if (target.closest('.login-btn')) {
             e.preventDefault();
             e.stopPropagation();
-            
+
             const loginDropdown = target.closest('.login-dropdown') as HTMLElement;
             if (loginDropdown) {
                 const isOpen = loginDropdown.classList.contains('open');
                 loginDropdown.classList.toggle('open');
-                
+
                 const loginBtn = loginDropdown.querySelector('.login-btn') as HTMLButtonElement;
                 if (loginBtn) {
                     loginBtn.setAttribute('aria-expanded', (!isOpen).toString());
@@ -301,7 +299,7 @@ function initLoginDropdown() {
             }
             return;
         }
-        
+
         // Close dropdown when clicking outside
         const loginDropdown = document.querySelector('.login-dropdown.open') as HTMLElement;
         if (loginDropdown && !loginDropdown.contains(target)) {
@@ -312,7 +310,7 @@ function initLoginDropdown() {
             }
         }
     });
-    
+
     // Handle escape key
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {

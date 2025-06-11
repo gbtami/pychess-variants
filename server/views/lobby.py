@@ -18,13 +18,11 @@ async def lobby(request):
 
     # If OAuth data exists in session after oauth login, we need a new username
     session = await aiohttp_session.get_session(request)
-    context["email"] = session.get("email")
     context["oauth_username_selection"] = (
         {
             "oauth_id": session.get("oauth_id"),
             "oauth_provider": session.get("oauth_provider"),
             "oauth_username": session.get("oauth_username"),
-            "oauth_email": session.get("oauth_email"),
         }
         if session.get("oauth_id")
         else None

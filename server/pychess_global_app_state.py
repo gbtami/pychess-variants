@@ -348,6 +348,20 @@ class PychessGlobalAppState:
                     FISHNET_KEYS[doc["_id"]] = doc["name"]
                     self.fishnet_monitor[doc["name"]] = collections.deque([], 50)
 
+            # TODO: remove this after OAuth2 PR deployed !!!
+            userCollectionHasLichessOauth2Fields = await self.db.user.find_one(
+                {
+                    "_id": "Fairy-Stockfish",
+                    "oauth_id": "fairy-stockfish",
+                    "oauth_provider": "lichess",
+                }
+            )
+            if userCollectionHasLichessOauth2Fields is None:
+                await self.db.user.update_many(
+                    {},  # Empty filter to select all documents
+                    [{"$set": {"oauth_id": {"$toLower": "$_id"}, "oauth_provider": "lichess"}}],
+                )
+
         except Exception:
             log.error("init_from_db() Exception")
             raise
