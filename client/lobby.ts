@@ -72,7 +72,7 @@ export class LobbyController implements ChatController {
     streams: VNode | HTMLElement;
     spotlights: VNode | HTMLElement;
     dialogHeaderEl: VNode | HTMLElement;
-    autoPairingActions: VNode | HTMLElement;
+    autoPairingActions: VNode | HTMLElement | null;
     tvGame: TvGame;
     tvGameId: string;
     tvGameChessground: Api;
@@ -80,7 +80,7 @@ export class LobbyController implements ChatController {
         0, 1 / 4, 1 / 2, 3 / 4, 1, 3 / 2, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
         17, 18, 19, 20, 25, 30, 35, 40, 45, 60, 75, 90
     ];
-    incrementValues = [ 
+    incrementValues = [
         0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
         25, 30, 35, 40, 45, 60, 90
     ];
@@ -116,7 +116,7 @@ export class LobbyController implements ChatController {
         document.addEventListener("click", (event) => {
             if ((event.target as HTMLElement) == id01modal) this.closeSeekDialog();
         });
-        id01modal.addEventListener("cancel", this.closeSeekDialog); 
+        id01modal.addEventListener("cancel", this.closeSeekDialog);
 
         patch(document.getElementById('lobbychat') as HTMLElement, chatView(this, "lobbychat"));
 
@@ -125,7 +125,7 @@ export class LobbyController implements ChatController {
         this.streams = document.getElementById('streams') as HTMLElement;
 
         this.spotlights = document.getElementById('spotlights') as HTMLElement;
-        
+
         this.dialogHeaderEl = document.getElementById('header-block') as HTMLElement;
 
         // challenge!
@@ -169,7 +169,7 @@ export class LobbyController implements ChatController {
 
         if (!this.anon) {
             this.renderAutoPairingTable();
-            this.autoPairingActions = document.querySelector('div.auto-pairing-actions') as HTMLElement;
+            this.autoPairingActions = document.querySelector('div.auto-pairing-actions') as HTMLElement | null;
         }
 
         boardSettings.assetURL = this.assetURL;
@@ -255,7 +255,7 @@ export class LobbyController implements ChatController {
         // console.log("isNewSeek()?", variant, color, fen, minutes, increment, byoyomiPeriod, chess960, rated);
         // console.log(this.seeks);
         return !this.seeks.some(seek =>
-            seek.user === this.username && 
+            seek.user === this.username &&
             seek.variant === variant &&
             seek.fen === fen &&
             seek.color === color &&
@@ -494,7 +494,7 @@ export class LobbyController implements ChatController {
                                 h('div.radio-group', [
                                     h('input#casual', {
                                         props: { type: "radio", name: "mode", value: "0" },
-                                        attrs: { checked: vRated === "0" }, 
+                                        attrs: { checked: vRated === "0" },
                                         on: { input: e => this.setCasual((e.target as HTMLInputElement).value) },
                                         hook: { insert: vnode => this.setCasual((vnode.elm as HTMLInputElement).value) },
                                     }),
@@ -996,23 +996,27 @@ export class LobbyController implements ChatController {
         const eTimeControls = document.querySelector('div.timecontrols') as Element;
         const eVariants = document.querySelector('div.variants') as Element;
         if (autoPairingIsOn) {
-            this.autoPairingActions = patch(this.autoPairingActions,
-                h('div.auto-pairing-actions', [
-                    h('span.standingby', _('Standing by for auto pairing...')),
-                    h('button.cancel', { on: { click: () => this.autoPairingCancel() } }, [h('div.icon.icon-ban', _('CANCEL'))]),
-                ])
-            );
+            if (this.autoPairingActions) {
+                this.autoPairingActions = patch(this.autoPairingActions,
+                    h('div.auto-pairing-actions', [
+                        h('span.standingby', _('Standing by for auto pairing...')),
+                        h('button.cancel', { on: { click: () => this.autoPairingCancel() } }, [h('div.icon.icon-ban', _('CANCEL'))]),
+                    ])
+                );
+            }
             eRange.classList.toggle("disabled", true);
             eTimeControls.classList.toggle("disabled", true);
             eVariants.classList.toggle("disabled", true);
         } else {
-            this.autoPairingActions = patch(this.autoPairingActions,
-                h('div.auto-pairing-actions', [
-                    h('button.selectall', { on: { click: () => this.autoPairingSelectAll() } }, [h('div.icon.icon-check', _('SELECT ALL'))]),
-                    h('button.reset', { on: { click: () => this.autoPairingReset() } }, [h('div.icon.icon-trash-o', _('CLEAR ALL'))]),
-                    h('button.submit', { on: { click: () => this.autoPairingSubmit() } }, [h('div.icon.icon-check',  _('SUBMIT'))]),
-                ])
-            );
+            if (this.autoPairingActions) {
+                this.autoPairingActions = patch(this.autoPairingActions,
+                    h('div.auto-pairing-actions', [
+                        h('button.selectall', { on: { click: () => this.autoPairingSelectAll() } }, [h('div.icon.icon-check', _('SELECT ALL'))]),
+                        h('button.reset', { on: { click: () => this.autoPairingReset() } }, [h('div.icon.icon-trash-o', _('CLEAR ALL'))]),
+                        h('button.submit', { on: { click: () => this.autoPairingSubmit() } }, [h('div.icon.icon-check',  _('SUBMIT'))]),
+                    ])
+                );
+            }
             eRange.classList.toggle("disabled", false);
             eTimeControls.classList.toggle("disabled", false);
             eVariants.classList.toggle("disabled", false);
@@ -1304,7 +1308,7 @@ export function lobbyView(model: PyChessModel): VNode[] {
                     hook: {
                         insert: vnode => {
                             Chessground(vnode.elm as HTMLElement,  {
-                                orientation: turnColor,
+                                orientation: variant.name === 'racingkings' ? 'white' : turnColor,
                                 fen: puzzle.fen,
                                 dimensions: variant.board.dimensions,
                                 coordinates: false,
@@ -1405,7 +1409,7 @@ export function lobbyView(model: PyChessModel): VNode[] {
         ]),
         h('div.tv', [h('a#tv-game', { attrs: {href: '/tv'} })]),
         h('under-lobby', [
-            h('posts', blogs.map((post: Post) => 
+            h('posts', blogs.map((post: Post) =>
                 h('a.post', { attrs: {href: `/blogs/${post['_id']}`} }, [
                     h('img', { attrs: {src: model.assetURL + `${post['image']}`, alt: `${post['alt']}`} }),
                     h('time', `${post['date']}`),

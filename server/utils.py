@@ -49,7 +49,7 @@ if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
 from pychess_global_app_state_utils import get_app_state
 from logger import log
-from variants import TWO_BOARD_VARIANT_CODES, C2V, GRANDS, get_server_variant
+from variants import TWO_BOARD_VARIANT_CODES, C2V, GRANDS, get_server_variant, VARIANT_CONTESTANTS
 
 
 async def tv_game(app_state: PychessGlobalAppState):
@@ -743,6 +743,9 @@ def pgn(doc):
 
 
 def sanitize_fen(variant, initial_fen, chess960, base=False):
+    if variant in VARIANT_CONTESTANTS:
+        return True, initial_fen
+
     server_variant = get_server_variant(variant, chess960)
     if server_variant.two_boards and not base:
         fens = initial_fen.split(" | ")

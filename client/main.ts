@@ -29,9 +29,10 @@ import { roundView as bugRoundView } from "./bug/round.bug";
 import { analysisView as bugAnalysisView } from "./bug/analysis.bug";
 import { devVariants, variantGroups, VARIANTS } from './variants';
 import { variantsIni } from './variantsIni';
+import { showUsernameDialog } from './usernameDialog';
 
-// redirect to correct URL except Heroku preview apps
-if (window.location.href.includes('heroku') && !window.location.href.includes('-pr-')) {
+// redirect to correct URL except Heroku preview/dev apps
+if (window.location.href.includes('heroku') && !window.location.href.includes('-pr-') && !window.location.href.includes('-dev-')) {
     window.location.assign('https://www.pychess.org/');
 }
 
@@ -108,6 +109,11 @@ function initModel(el: HTMLElement) {
         puzzle: el.getAttribute("data-puzzle") ?? "",
         blogs: el.getAttribute("data-blogs") ?? "",
         corrGames: el.getAttribute("data-corrgames") ?? "",
+        oauthUsernameSelection: el.getAttribute("data-oauth-id") ? {
+            oauth_id: el.getAttribute("data-oauth-id")!,
+            oauth_provider: el.getAttribute("data-oauth-provider")!,
+            oauth_username: el.getAttribute("data-oauth-username")!,
+        } : null,
     };
 }
 
@@ -160,7 +166,18 @@ export function view(el: HTMLElement, model: PyChessModel): VNode {
 
 function start() {
     const placeholder = document.getElementById('placeholder');
-    if (placeholder && el)
+    if (placeholder && el) {
+
+        // Check if we need to show username selection dialog
+        if (model.oauthUsernameSelection && model.oauthUsernameSelection.oauth_id) {
+            try {
+                showUsernameDialog(model.oauthUsernameSelection);
+                return; // Don't render the main app until username is selected
+            } catch (error) {
+                console.error('Error showing username dialog:', error);
+                // Continue with normal app rendering if dialog fails
+            }
+        }
 
         if (['round', 'analysis', 'puzzle', 'editor', 'tv', 'embed', 'paste'].includes(el.getAttribute("data-view") ?? "")) {
             console.time('load ffish');
@@ -182,6 +199,7 @@ function start() {
         } else  {
             patch(placeholder, view(el, model));
         }
+    }
 
     if (model["embed"]) return;
 
@@ -191,13 +209,14 @@ function start() {
         }
     );
 
+
     renderTimeago();
 
     // searchbar
     const searchIcon = document.querySelector('.search-icon') as HTMLElement;
     const searchBar = document.querySelector('.search-bar') as HTMLElement;
     const searchInput = document.querySelector('#search-input') as HTMLInputElement;
-    
+
     searchIcon.onclick = function(){
         searchBar.classList.toggle('active');
         if (searchBar.classList.contains('active'))
@@ -258,6 +277,56 @@ window.addEventListener('resize', () => document.body.dispatchEvent(new Event('c
 
 zenModeSettings.update();
 
+function initLoginDropdown() {
+    // Use event delegation for better reliability
+    document.addEventListener('click', (e) => {
+        const target = e.target as HTMLElement;
+
+        // Handle login button clicks
+        if (target.closest('.login-btn')) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            const loginDropdown = target.closest('.login-dropdown') as HTMLElement;
+            if (loginDropdown) {
+                const isOpen = loginDropdown.classList.contains('open');
+                loginDropdown.classList.toggle('open');
+
+                const loginBtn = loginDropdown.querySelector('.login-btn') as HTMLButtonElement;
+                if (loginBtn) {
+                    loginBtn.setAttribute('aria-expanded', (!isOpen).toString());
+                }
+            }
+            return;
+        }
+
+        // Close dropdown when clicking outside
+        const loginDropdown = document.querySelector('.login-dropdown.open') as HTMLElement;
+        if (loginDropdown && !loginDropdown.contains(target)) {
+            loginDropdown.classList.remove('open');
+            const loginBtn = loginDropdown.querySelector('.login-btn') as HTMLButtonElement;
+            if (loginBtn) {
+                loginBtn.setAttribute('aria-expanded', 'false');
+            }
+        }
+    });
+
+    // Handle escape key
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            const loginDropdown = document.querySelector('.login-dropdown.open') as HTMLElement;
+            if (loginDropdown) {
+                loginDropdown.classList.remove('open');
+                const loginBtn = loginDropdown.querySelector('.login-btn') as HTMLButtonElement;
+                if (loginBtn) {
+                    loginBtn.setAttribute('aria-expanded', 'false');
+                    loginBtn.focus();
+                }
+            }
+        }
+    });
+}
+
 const el = document.getElementById('pychess-variants');
 export const model: PyChessModel = el? initModel(el) : initModel(new HTMLElement());
 
@@ -278,11 +347,13 @@ if (el instanceof Element) {
         i18n.setLocale(lang ?? "en");
         // console.log('Loaded translations for lang', lang);
         start();
+        initLoginDropdown();
       })
       .catch((error) => {
         console.error('Could not load translations for lang', lang);
         console.error(error);
         i18n.setLocale('');
         start();
+        initLoginDropdown();
       });
 }

@@ -19,7 +19,6 @@ NO_PUZZLE_VARIANTS = (
     "horde",
     "placement",
     "gorogoroplus",
-    "grandhouse",
     "cannonshogi",
     "bughouse",
     "fogofwar",
@@ -116,7 +115,7 @@ async def next_puzzle(request, user):
             {"$match": {"$and": filters}},
             {"$sample": {"size": 1}},
         ]
-        cursor = app_state.db.puzzle.aggregate(pipeline)
+        cursor = await app_state.db.puzzle.aggregate(pipeline)
 
         async for doc in cursor:
             puzzle = {

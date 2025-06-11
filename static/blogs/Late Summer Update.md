@@ -2,7 +2,7 @@
 <div class="meta-headline">
     <div class= "meta">
         <span class="text">2024.08.11</span>
-        <span class="text"><a href="/@/gbatmi">@gbatmi</a></span>
+        <span class="text"><a href="/@/gbtami">@gbtami</a></span>
         <span class="text">Announcements</span>
     </div>
     <div class= "headline">New variants and bug fixes</div>

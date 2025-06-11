@@ -5,6 +5,7 @@ from const import CORR_SEEK_EXPIRE_WEEKS
 from misc import time_control_str
 from newid import new_id
 from logger import log
+from variants import get_server_variant
 
 
 MAX_USER_SEEKS = 10
@@ -48,7 +49,8 @@ class Seek:
         self.base = base
         self.inc = inc
         self.byoyomi_period = byoyomi_period
-        self.day = day
+        server_variant = get_server_variant(variant, chess960)
+        self.day = 0 if server_variant.two_boards else day
         self.level = 0 if creator.username == "Random-Mover" else level
         self.chess960 = chess960
         self.target = target

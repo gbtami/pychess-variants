@@ -1,8 +1,12 @@
+from contextvars import ContextVar
+
 import aiohttp_session
 from aiohttp import web
 
 from const import LANGUAGES
 from pychess_global_app_state_utils import get_app_state
+
+LOCALE: ContextVar[str] = ContextVar("LOCALE", default="en")
 
 
 def get_locale_ext(context):
