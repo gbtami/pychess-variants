@@ -18,6 +18,7 @@ from logger import log
 
 def authorized(func):
     """Authorization decorator"""
+
     async def inner(request):
         auth = request.headers.get("Authorization")
 
