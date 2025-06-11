@@ -9,9 +9,8 @@ from aiohttp import web
 from aiohttp.web_ws import WebSocketResponse
 
 from broadcast import round_broadcast
-from const import ANON_PREFIX, STARTED, TEST_PREFIX
+from const import ANON_PREFIX, STARTED, TEST_PREFIX, reserved
 from glicko2.glicko2 import gl2, DEFAULT_PERF, Rating
-from login import RESERVED_USERS
 from newid import id8
 from notify import notify
 from const import BLOCK, MAX_USER_BLOCK, TYPE_CHECKING
@@ -128,7 +127,7 @@ class User:
         self.silence = 0
 
         # purge inactive anon users after ANON_TIMEOUT sec
-        if self.anon and self.username not in RESERVED_USERS:
+        if self.anon and not reserved(self.username):
             self.remove_task = asyncio.create_task(
                 self.remove(), name="user-remove-%s" % self.username
             )
