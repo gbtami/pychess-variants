@@ -193,7 +193,7 @@ async def event_stream(request):
     async def pinger():
         """To prevent lichess-bot.py sleep by heroku because of no activity."""
         while True:
-            await bot_player.event_queue.put("{}\n")
+            await bot_player.event_queue.put('{"type":"ping"}\n')
             await asyncio.sleep(6)
 
     pinger_task = asyncio.create_task(pinger(), name="BOT-event-stream-pinger")
@@ -254,7 +254,7 @@ async def game_stream(request):
         """To help lichess-bot.py abort games showing no activity."""
         while True:
             if gameId in bot_player.game_queues:
-                await bot_player.game_queues[gameId].put("{}\n")
+                await bot_player.game_queues[gameId].put('{"type":"xping"}\n')
                 await asyncio.sleep(6)
             else:
                 break
@@ -392,6 +392,7 @@ async def bot_chat(request):
     app_state = get_app_state(request.app)
 
     data = await request.post()
+    print("BOT-CHAT", username, data)
 
     gameId = request.match_info["gameId"]
 
