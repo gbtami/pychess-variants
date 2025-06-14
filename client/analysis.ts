@@ -3,7 +3,7 @@ import { h, VNode } from "snabbdom";
 import { _ } from './i18n';
 import { AnalysisController } from './analysisCtrl';
 import { gameInfo } from './gameInfo';
-import { selectVariant, VARIANTS } from './variants';
+import { selectVariant, VARIANTS, validVariant } from './variants';
 import { renderTimeago } from './datetime';
 import { spinner } from './view';
 import { PyChessModel } from "./types";
@@ -29,7 +29,7 @@ function leftSide(model: PyChessModel) {
             let e;
             e = document.getElementById('variant') as HTMLSelectElement;
             const variant = e.options[e.selectedIndex].value;
-            if (isInput) window.location.assign('/analysis/' + variant);
+            if (isInput) window.location.assign('/analysis/' + validVariant(variant));
         }
 
         const vVariant = model.variant || "chess";

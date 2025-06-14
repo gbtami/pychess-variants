@@ -1390,3 +1390,8 @@ export function getLastMoveFen(variantName: string, lastMove: string, fen: strin
 export function fogFen(currentFen: string): string {
     return currentFen.replace(/\*/g, '*~');
 }
+
+
+export function validVariant(variant: string): string {
+    return VARIANTS[variant] ? variant : "chess"; // Default to "chess" if invalid
+}

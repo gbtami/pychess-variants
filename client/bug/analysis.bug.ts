@@ -2,7 +2,7 @@ import { h, VNode } from "snabbdom";
 
 import { _ } from '../i18n';
 import { gameInfoBug } from './gameInfo.bug';
-import { VARIANTS, selectVariant } from "../variants"
+import { VARIANTS, selectVariant, validVariant } from "../variants"
 
 import { renderTimeago } from '../datetime';
 import { PyChessModel } from "../types";
@@ -24,7 +24,7 @@ function leftSide(model: PyChessModel) {
             e = document.getElementById('variant') as HTMLSelectElement;
             const variant = e.options[e.selectedIndex].value;
             if (isInput) {
-                window.location.assign('/analysis/' + variant);
+                window.location.assign('/analysis/' + validVariant(variant));
             }
         }
 
