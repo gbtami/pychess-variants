@@ -2,7 +2,7 @@ import { h, VNode } from "snabbdom";
 
 import { _ } from './i18n';
 import { PuzzleController } from './puzzleCtrl';
-import { selectVariant, VARIANTS, noPuzzleVariants } from './variants';
+import { selectVariant, VARIANTS, noPuzzleVariants, validVariant } from './variants';
 import { PyChessModel } from './types';
 import { analysisTools, gauge } from './analysis'
 import { analysisSettings } from './analysisSettings';
@@ -18,7 +18,7 @@ function leftSide(model: PyChessModel) {
         let e;
         e = document.getElementById('variant') as HTMLSelectElement;
         const variant = e.options[e.selectedIndex].value;
-        if (isInput) window.location.assign('/puzzle/' + variant);
+        if (isInput) window.location.assign('/puzzle/' + validVariant(variant));
     }
     return h('div', [
         h('div.puzzle-meta', [

@@ -2,7 +2,7 @@ import { h, VNode } from 'snabbdom';
 
 import { _ } from '@/i18n';
 import { PyChessModel } from "@/types";
-import { twoBoarsVariants, selectVariant, VARIANTS } from '@/variants';
+import { twoBoarsVariants, selectVariant, VARIANTS, validVariant } from '@/variants';
 import { EditorController } from './editorCtrl';
 
 function runEditor(vnode: VNode, model: PyChessModel) {
@@ -16,7 +16,7 @@ export function editorView(model: PyChessModel): VNode[] {
         let e;
         e = document.getElementById('variant') as HTMLSelectElement;
         const variant = e.options[e.selectedIndex].value;
-        if (isInput) window.location.assign('/editor/' + variant);
+        if (isInput) window.location.assign('/editor/' + validVariant(variant));
     }
 
     const vVariant = model.variant || "chess";
