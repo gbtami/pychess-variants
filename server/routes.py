@@ -53,7 +53,7 @@ from tournament.tournament_calendar import tournament_calendar
 from twitch import twitch_request_handler
 from puzzle import puzzle_complete, puzzle_vote
 from robots import robots
-from user import block_user, get_blocked_users, set_theme
+from user import block_user, get_blocked_users, set_theme, get_status
 from views import (
     about,
     allplayers,
@@ -174,6 +174,7 @@ get_routes = (
     ("/api/stats/humans", get_variant_stats),
     ("/api/games", get_games),
     ("/api/games/{variant}", get_games),
+    ("/api/users/status", get_status),
     ("/api/invites", subscribe_invites),
     ("/api/ongoing", subscribe_games),
     ("/api/names", get_names),

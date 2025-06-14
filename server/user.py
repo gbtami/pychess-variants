@@ -523,3 +523,16 @@ async def get_blocked_users(request):
         return web.json_response({})
 
     return web.json_response({"blocks": list(user.blocked)})
+
+
+async def get_status(request):
+    app_state = get_app_state(request.app)
+
+    ids = request.rel_url.query.get("ids"),split(",")
+
+    status_list = []
+    for uid in ids:
+        user = await app_state.users.get(uid)
+        status_list.append({"status": user.online, "id": uid})
+
+    return web.json_response(status_list)
