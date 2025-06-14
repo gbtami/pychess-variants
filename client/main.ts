@@ -250,7 +250,7 @@ function start() {
     searchInput.addEventListener("keyup", function(e) {
         showResults(searchInput.value);
         if (e.keyCode === 13) {
-            window.location.href = `${model["home"]}/@/${searchInput.value}`;
+            window.location.href = `${model["home"]}/@/${encodeURIComponent(searchInput.value)}`;
         }
     });
 
