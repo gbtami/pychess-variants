@@ -53,7 +53,6 @@
             {% if (not anon) and (profile_title != "BOT") %}
             <a class="icon icon-cloud-upload" href="/paste" title="{% trans %}Import game{% endtrans %}">{% trans %}Import{% endtrans %}</a>
             <a class="icon icon-download" href="/games/export/{{ profile }}" download="{{ profile }}.pgn" title="{% trans %}Export games{% endtrans %}">{% trans %}Export{% endtrans %}</a>
-            <a class="icon icon-at" href="https://lichess.org/@/{{ profile }}" rel="noopener" target="_blank" title="{% trans %}Lichess profile{% endtrans %}">{% trans %}Lichess{% endtrans %}</a>
             {% endif %}
             </div>
         </div>
