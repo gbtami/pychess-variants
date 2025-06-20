@@ -295,7 +295,9 @@ async def bot_abort(request):
 
     bot_player = app_state.users[username]  # noqa: F821
 
-    opp_name = game.wplayer.username if username == game.bplayer.username else game.bplayer.username  # noqa: F821
+    opp_name = (
+        game.wplayer.username if username == game.bplayer.username else game.bplayer.username
+    )  # noqa: F821
     opp_player = app_state.users[opp_name]
 
     response = await game.abort_by_server()
@@ -370,7 +372,9 @@ async def bot_chat(request):
 
     game = app_state.games[gameId]
 
-    opp_name = game.wplayer.username if username == game.bplayer.username else game.bplayer.username  # noqa: F821
+    opp_name = (
+        game.wplayer.username if username == game.bplayer.username else game.bplayer.username
+    )  # noqa: F821
 
     if not app_state.users[opp_name].bot:
         await app_state.users[opp_name].send_game_message(

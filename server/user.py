@@ -528,7 +528,7 @@ async def get_blocked_users(request):
 async def get_status(request):
     app_state = get_app_state(request.app)
 
-    ids = request.rel_url.query.get("ids"),split(",")
+    ids = request.rel_url.query.get("ids"), split(",")
 
     status_list = []
     for uid in ids:
