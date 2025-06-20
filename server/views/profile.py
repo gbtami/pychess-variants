@@ -104,7 +104,11 @@ async def profile(request):
     context["view"] = "profile"
     context["view_css"] = "profile.css"
     context["profile"] = profileId
-    context["lichess_id"] = profileId_user.oauth_id if profileId_user.oauth_provider == "lichess" else ""
-    context["lishogi_id"] = profileId_user.oauth_id if profileId_user.oauth_provider == "lishogi" else ""
+    context["lichess_id"] = (
+        profileId_user.oauth_id if profileId_user.oauth_provider == "lichess" else ""
+    )
+    context["lishogi_id"] = (
+        profileId_user.oauth_id if profileId_user.oauth_provider == "lishogi" else ""
+    )
 
     return context
