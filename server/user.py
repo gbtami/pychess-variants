@@ -49,12 +49,16 @@ class User:
         enabled=True,
         lang=None,
         theme="dark",
+        oauth_id="",
+        oauth_provider="",
     ):
         self.app_state = app_state
         self.bot = False if username == "PyChessBot" else bot
         self.anon = anon
         self.lang = lang
         self.theme = theme
+        self.oauth_id = oauth_id
+        self.oauth_provider = oauth_provider
         self.notifications = None
 
         if username is None:

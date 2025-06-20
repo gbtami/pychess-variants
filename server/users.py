@@ -71,6 +71,8 @@ class Users(UserDict):
                 enabled=doc.get("enabled", True),
                 lang=doc.get("lang", "en"),
                 theme=doc.get("theme", "dark"),
+                oauth_id=doc.get("oauth_id"),
+                oauth_provider=doc.get("oauth_provider"),
             )
             self.data[username] = user
 
