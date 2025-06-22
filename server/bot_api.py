@@ -1,16 +1,13 @@
 from __future__ import annotations
 import asyncio
-import json
 
 from aiohttp import web
 
 from broadcast import round_broadcast
 from const import STARTED, RESIGN
-from newid import new_id
-from seek import challenge, Seek
 from settings import BOT_TOKENS
 from user import User
-from utils import join_seek, play_move
+from utils import play_move
 from pychess_global_app_state_utils import get_app_state
 from logger import log
 
@@ -56,11 +53,6 @@ async def bot_token_test(request):
 
 
 @authorized
-async def bot_pong(request):
-    return web.json_response({"ok": True})
-
-
-@authorized
 async def account(request):
     return web.json_response({"id": username, "username": username, "title": "BOT"})  # noqa: F821
 
@@ -83,66 +75,6 @@ async def challenge_accept(request):
 
 @authorized
 async def challenge_decline(request):
-    return web.json_response({"ok": True})
-
-
-@authorized
-async def create_bot_seek(request):
-    data = await request.post()
-
-    app_state = get_app_state(request.app)
-
-    bot_player = app_state.users[username]  # noqa: F821
-
-    log.info("+++ %s created %s seek", bot_player.username, data["variant"])
-
-    # Try to create BOT vs BOT game to test TV
-    test_TV = True
-    matching_seek = None
-    if test_TV:
-        for seek in app_state.seeks.values():
-            if (
-                seek.variant == data["variant"]
-                and seek.creator.bot
-                and seek.creator.online
-                and seek.creator.username != username  # noqa: F821
-                and seek.level > 0
-            ):
-                log.debug("MATCHING BOT SEEK %s FOUND!", seek.id)
-                matching_seek = seek
-                break
-
-    if matching_seek is None:
-        seek = None
-        for existing_seek in app_state.seeks.values():
-            if existing_seek.creator == bot_player and existing_seek.variant == data["variant"]:
-                seek = existing_seek
-                break
-        if seek is None:
-            seek_id = await new_id(None if app_state.db is None else app_state.db.seek)
-            seek = Seek(seek_id, bot_player, data["variant"], player1=bot_player)
-            app_state.seeks[seek.id] = seek
-        bot_player.seeks[seek.id] = seek
-
-        # inform others
-        await app_state.lobby.lobby_broadcast_seeks()
-    else:
-        response = await join_seek(app_state, bot_player, matching_seek)
-
-        gameId = response["gameId"]
-        game = app_state.games[gameId]
-
-        chall = challenge(seek, gameId)
-
-        await seek.creator.event_queue.put(chall)
-        seek.creator.game_queues[gameId] = asyncio.Queue()
-
-        await bot_player.event_queue.put(chall)
-        bot_player.game_queues[gameId] = asyncio.Queue()
-
-        await seek.creator.event_queue.put(game.game_start)
-        await bot_player.event_queue.put(game.game_start)
-
     return web.json_response({"ok": True})
 
 
@@ -188,10 +120,6 @@ async def event_stream(request):
 
     pinger_task = asyncio.create_task(pinger(), name="BOT-event-stream-pinger")
 
-    # inform others
-    # TODO: do we need this at all?
-    await app_state.lobby.lobby_broadcast_seeks()
-
     # send "challenge" and "gameStart" events from event_queue to the BOT
     while bot_player.online:
         answer = await bot_player.event_queue.get()
@@ -199,16 +127,12 @@ async def event_stream(request):
             bot_player.event_queue.task_done()
         try:
             if request.transport is not None and request.transport.is_closing():
-                log.error(
-                    "BOT %s request.protocol.transport.is_closing() == True ...",
-                    username,  # noqa: F821
-                )
                 break
             else:
                 await resp.write(answer.encode())
                 bot_player.event_queue.task_done()
         except Exception:
-            log.error("BOT %s event_stream is broken...", username)  # noqa: F821
+            log.error("Writing %s to BOT %s event_stream is broken...", answer, username)  # fmt: skip # noqa: F821
             break
 
     try:
@@ -256,16 +180,12 @@ async def game_stream(request):
             bot_player.game_queues[gameId].task_done()
         try:
             if request.transport is not None and request.transport.is_closing():
-                log.error(
-                    "BOT %s request.protocol.transport.is_closing() == True ...",
-                    username,  # noqa: F821
-                )
                 break
             else:
                 await resp.write(answer.encode())
                 bot_player.game_queues[gameId].task_done()
         except Exception:
-            log.error("Writing %s to BOT game_stream failed!", answer)
+            log.error("Writing %s to BOT %s game_stream failed!", answer, username)  # noqa: F821
             break
 
     try:
@@ -324,44 +244,6 @@ async def bot_resign(request):
     game = app_state.games[gameId]
     game.status = RESIGN
     game.result = "0-1" if username == game.wplayer.username else "1-0"  # noqa: F821
-    return web.json_response({"ok": True})
-
-
-@authorized
-async def bot_analysis(request):
-    app_state = get_app_state(request.app)
-
-    data = await request.post()
-
-    gameId = request.match_info["gameId"]
-
-    username = data["username"]
-
-    if app_state.users[username].is_user_active_in_game(gameId):
-        game = app_state.games[gameId]
-
-        ply = data["ply"]
-        ceval = json.loads(data["ceval"])
-        print(ply, ceval)
-        if "score" in ceval:
-            game.steps[int(ply)]["eval"] = ceval["score"]
-
-        response = {
-            "type": "roundchat",
-            "user": username,
-            "room": "spectator",
-            "message": ply + " " + json.dumps(ceval),
-        }
-        await app_state.users[username].send_game_message(gameId, response)
-
-        response = {
-            "type": "analysis",
-            "ply": ply,
-            "color": data["color"],
-            "ceval": ceval,
-        }
-        await app_state.users[username].send_game_message(gameId, response)
-
     return web.json_response({"ok": True})
 
 

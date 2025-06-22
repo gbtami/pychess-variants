@@ -11,10 +11,7 @@ from bot_api import (
     bot_move,
     challenge_accept,
     challenge_decline,
-    create_bot_seek,
     challenge_create,
-    bot_pong,
-    bot_analysis,
     bot_token_test,
 )
 from fishnet import (
@@ -193,7 +190,6 @@ post_routes = (
     ("/api/token/test", bot_token_test),
     ("/api/bot/game/{gameId}/abort", bot_abort),
     ("/api/bot/game/{gameId}/resign", bot_resign),
-    ("/api/bot/game/{gameId}/analysis", bot_analysis),
     ("/api/bot/game/{gameId}/chat", bot_chat),
     ("/api/bot/game/{gameId}/move/{move}", bot_move),
     ("/api/challenge/{username}", challenge_create),
@@ -202,8 +198,6 @@ post_routes = (
     (r"/invite/cancel/{gameId:\w{8}}", cancel_invite),
     ("/api/challenge/{challengeId}/accept", challenge_accept),
     ("/api/challenge/{challengeId}/decline", challenge_decline),
-    ("/api/seek", create_bot_seek),
-    ("/api/pong", bot_pong),
     ("/api/check-username", check_username_availability),
     ("/api/confirm-username", confirm_username),
     ("/pref/theme", set_theme),
