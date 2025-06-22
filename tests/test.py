@@ -11,12 +11,11 @@ from sortedcollections import ValueSortedDict
 from mongomock_motor import AsyncMongoMockClient
 
 import game
-from const import CREATED, STALEMATE, MATE
+from const import CREATED, STALEMATE, MATE, reserved
 from fairy import FairyBoard
 from game import Game
 from bug.game_bug import GameBug
 from glicko2.glicko2 import DEFAULT_PERF, Glicko2, WIN, LOSS
-from login import RESERVED_USERS
 from newid import id8
 from server import make_app
 from user import User
@@ -219,7 +218,7 @@ class RequestLobbyTestCase(AioHTTPTestCase):
     async def tearDownAsync(self):
         app_state = get_app_state(self.app)
         for user in app_state.users.values():
-            if user.anon and user.username not in RESERVED_USERS:
+            if user.anon and not reserved(user.username):
                 user.remove_task.cancel()
 
         await self.client.close()

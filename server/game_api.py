@@ -200,15 +200,17 @@ async def get_user_games(request):
     level = request.rel_url.query.get("x")
     variant = request.path[request.path.rfind("/") + 1 :]
 
-    # produce UCI move list for puzzle generator
-    uci_moves = "/json" in request.path
+    path_parts = request.path.split("/")
 
-    if "/win" in request.path:
+    # produce UCI move list for puzzle generator
+    uci_moves = "json" in path_parts
+
+    if "win" in path_parts:
         filter_cond["$or"] = [
             {"r": "a", "us.0": profileId},
             {"r": "b", "us.1": profileId},
         ]
-    elif "/loss" in request.path:
+    elif "loss" in path_parts:
         # level8win requests Fairy-Stockfish lost games
         if level is not None:
             filter_cond["$and"] = [
@@ -229,17 +231,17 @@ async def get_user_games(request):
                 {"r": "a", "us.1": profileId},
                 {"r": "b", "us.0": profileId},
             ]
-    elif "/rated" in request.path:
+    elif "rated" in path_parts:
         filter_cond["$or"] = [{"y": 1, "us.1": profileId}, {"y": 1, "us.0": profileId}]
-    elif "/playing" in request.path:
+    elif "playing" in path_parts:
         filter_cond["$and"] = [
             {"$or": [{"c": True, "us.1": profileId}, {"c": True, "us.0": profileId}]},
             {"s": STARTED},
         ]
-    elif "/import" in request.path:
+    elif "import" in path_parts:
         filter_cond["by"] = profileId
         filter_cond["y"] = 2
-    elif ("/perf" in request.path or uci_moves) and variant in VARIANTS:
+    elif ("perf" in path_parts or uci_moves) and variant in VARIANTS:
         variant960 = variant.endswith("960")
         uci_variant = variant[:-3] if variant960 else variant
 
@@ -250,7 +252,7 @@ async def get_user_games(request):
             {"v": v.code, "z": z, "us.1": profileId},
             {"v": v.code, "z": z, "us.0": profileId},
         ]
-    elif "/me" in request.path:
+    elif "me" in path_parts:
         session = await aiohttp_session.get_session(request)
         session_user = session.get("user_name")
         filter_cond["$or"] = [
@@ -260,7 +262,7 @@ async def get_user_games(request):
     else:
         filter_cond["us"] = profileId
 
-    if "/import" not in request.path:
+    if "import" not in path_parts:
         new_filter_cond = {
             "$and": [
                 filter_cond,

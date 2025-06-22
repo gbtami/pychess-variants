@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import os
-from contextvars import ContextVar
 from datetime import timedelta, timezone, datetime, date
 from operator import neg
 import asyncio
@@ -56,7 +55,6 @@ from settings import (
     DISCORD_TOKEN,
     URI,
     STATIC_ROOT,
-    BR_EXTENSION,
     SOURCE_VERSION,
     DEV,
     static_url,
@@ -75,12 +73,11 @@ from utils import load_game
 from blogs import BLOGS
 from videos import VIDEOS
 from youtube import Youtube
+from lang import LOCALE
 from logger import log
 from variants import VARIANTS, RATED_VARIANTS
 
 GAME_KEEP_TIME = 1800  # keep game in app[games_key] for GAME_KEEP_TIME secs
-
-LOCALE: ContextVar[str] = ContextVar("LOCALE", default="en")
 
 
 class PychessGlobalAppState:
@@ -351,6 +348,20 @@ class PychessGlobalAppState:
                     FISHNET_KEYS[doc["_id"]] = doc["name"]
                     self.fishnet_monitor[doc["name"]] = collections.deque([], 50)
 
+            # TODO: remove this after OAuth2 PR deployed !!!
+            userCollectionHasLichessOauth2Fields = await self.db.user.find_one(
+                {
+                    "_id": "Fairy-Stockfish",
+                    "oauth_id": "fairy-stockfish",
+                    "oauth_provider": "lichess",
+                }
+            )
+            if userCollectionHasLichessOauth2Fields is None:
+                await self.db.user.update_many(
+                    {},  # Empty filter to select all documents
+                    [{"$set": {"oauth_id": {"$toLower": "$_id"}, "oauth_provider": "lichess"}}],
+                )
+
         except Exception:
             log.error("init_from_db() Exception")
             raise
@@ -412,7 +423,7 @@ class PychessGlobalAppState:
         env.install_gettext_translations(_Translations, newstyle=True)
 
         env.globals["static"] = static_url
-        env.globals["js"] = "/static/pychess-variants.js%s%s" % (BR_EXTENSION, SOURCE_VERSION)
+        env.globals["js"] = "/static/pychess-variants.js%s" % SOURCE_VERSION
         env.globals["dev"] = DEV
         env.globals["app_name"] = "PyChess"
         env.globals["languages"] = LANGUAGES

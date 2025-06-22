@@ -13,6 +13,8 @@
   <img src="https://github.com/gbtami/pychess-variants/blob/master/static/images/man-design-thinking.453x512.png">
 </p>
 
+"[man design thinking](https://iconduck.com/illustrations/173196/man-design-thinking)" by [Streamline](https://iconduck.com/designers/streamline) is licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)
+
 **Introduction**
 We are happy to announce Pychess’ first community contest, the Variant Design Contest! The goal of the contest is to create the *best* chess variant. *But* there will be a special theme for the contest which the designs have to make use of. The winning entry will have the honor of being added to the site. 
 

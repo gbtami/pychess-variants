@@ -35,8 +35,8 @@
                                 data-theme="{{ theme }}"
                                 data-home="{{ home }}"
                                 data-username="{{ username }}"
+                                data-email="{{ email }}"
                                 data-anon="{{ anon }}"
-                                data-country="{{ country }}"
                                 data-gameid="{{ gameid }}"
                                 data-tournamentid="{{ tournamentid }}"
                                 data-tournamentname="{{ tournamentname }}"
@@ -75,6 +75,12 @@
                                 data-corrgames="{{ corr_games }}"
                                 data-blogs="{{ blogs }}"
                                 data-tournamentdirector="{{ tournamentdirector }}"
+                                {% if oauth_username_selection %}
+                                data-oauth-id="{{ oauth_username_selection.oauth_id }}"
+                                data-oauth-provider="{{ oauth_username_selection.oauth_provider }}"
+                                data-oauth-username="{{ oauth_username_selection.oauth_username }}"
+                                data-oauth-email="{{ oauth_username_selection.oauth_email }}"
+                                {% endif %}
 
                                 data-wplayer-b="{{ wplayerB }}"
                                 data-wtitle-b="{{ wtitleB }}"

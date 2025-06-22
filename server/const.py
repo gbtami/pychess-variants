@@ -16,6 +16,20 @@ TEST_PREFIX = "Test" + DASH
 
 NONE_USER = "None" + DASH + "User"
 
+RESERVED_USERS = (
+    "Random-Mover",
+    "Fairy-Stockfish",
+    "Discord-Relay",
+    "Invite-friend",
+    "PyChess",
+    NONE_USER,
+)
+
+
+def reserved(username):
+    return username.upper() in map(str.upper, RESERVED_USERS)
+
+
 SCHEDULE_MAX_DAYS = 7
 TOURNAMENT_SPOTLIGHTS_MAX = 3
 
