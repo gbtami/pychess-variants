@@ -151,7 +151,7 @@ async def event_stream(request):
     app_state = get_app_state(request.app)
 
     resp = web.StreamResponse()
-    resp.content_type = "text/plain"
+    resp.content_type = "application/x-ndjson"
     await resp.prepare(request)
 
     if username in app_state.users:  # noqa: F821
@@ -195,24 +195,26 @@ async def event_stream(request):
     # send "challenge" and "gameStart" events from event_queue to the BOT
     while bot_player.online:
         answer = await bot_player.event_queue.get()
-        try:
+        if answer is None:
             bot_player.event_queue.task_done()
-        except ValueError:
-            log.error(
-                "task_done() called more times than there were items placed in the queue in bot_api.py event_stream()"
-            )
         try:
-            if request.protocol.transport.is_closing():
+            if request.transport is not None and request.transport.is_closing():
                 log.error(
                     "BOT %s request.protocol.transport.is_closing() == True ...",
                     username,  # noqa: F821
                 )
                 break
             else:
-                await resp.write(answer.encode("utf-8"))
+                await resp.write(answer.encode())
+                bot_player.event_queue.task_done()
         except Exception:
             log.error("BOT %s event_stream is broken...", username)  # noqa: F821
             break
+
+    try:
+        await resp.write_eof()
+    except Exception:
+        log.error("Writing EOF to BOT event_stream failed!")
 
     pinger_task.cancel()
     await bot_player.clear_seeks()
@@ -228,7 +230,7 @@ async def game_stream(request):
     game = app_state.games[gameId]
 
     resp = web.StreamResponse()
-    resp.content_type = "application/json"
+    resp.content_type = "application/x-ndjson"
     await resp.prepare(request)
 
     bot_player = app_state.users[username]  # noqa: F821
@@ -250,14 +252,18 @@ async def game_stream(request):
 
     while True:
         answer = await bot_player.game_queues[gameId].get()
-        try:
+        if answer is None:
             bot_player.game_queues[gameId].task_done()
-        except ValueError:
-            log.error(
-                "task_done() called more times than there were items placed in the queue in bot_api.py game_stream()"
-            )
         try:
-            await resp.write(answer.encode("utf-8"))
+            if request.transport is not None and request.transport.is_closing():
+                log.error(
+                    "BOT %s request.protocol.transport.is_closing() == True ...",
+                    username,  # noqa: F821
+                )
+                break
+            else:
+                await resp.write(answer.encode())
+                bot_player.game_queues[gameId].task_done()
         except Exception:
             log.error("Writing %s to BOT game_stream failed!", answer)
             break
