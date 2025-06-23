@@ -32,12 +32,13 @@ Black focuses on defending against White's attack and finding an opening for the
 The Kirin's ideology is that "**Defence** is the best **Offence**".
 
 Stalemate results in a win for the stalemated player. (why not)
+This could also be seen as Humans vs Creatures
 
 # Regions
 Region / Condition | Defined Area
 --- | ---
-All Black Pieces (expect Promoted Black Royal) | Ranks 5 - 9 & Ranks 1 - 2
-White Royal Piece | d1 d2 e1 e2 f1 f2 
+All Black Pieces (expect Promoted Kirin) | Ranks 5 - 9 & Ranks 1 - 2
+White King | d1 d2 e1 e2 f1 f2 
 Black Promotion Zone | Ranks 3 - 5
 White Promotion Zone | Rank 9
 Black Flag Zone | Rank 1
@@ -47,22 +48,23 @@ Black Flag Zone | Rank 1
 ### White's army includes: 
 Pawn (p)
 Rook (r)
-Xiangqi Horse (h)
+Lame Knight (h)
 Bishop (b)
 Chancellor (c)
 Archbishop (a) 
 and the Royal Piece, The King (k).
 
 ### Black's army includes: 
-Quadrapawn (s) 
+Log (s) 
 Centaur (m)
-Alibacka (f)
-Okapi (j) 
-Gold Defender (e) 
-and the Royal Piece Kirin (z).
+Rhino (f)
+Giraffe (j) 
+Elephonto (e) 
+and the Royal Piece, Kirin (z).
 
 # Pieces and their movement
 
+## |All movement are shown from white side|
 ### Legend
 Green = Move and Attack
 Blue = Move Only
@@ -80,10 +82,10 @@ The Pawn moves like its Chess counterpart and promotes upon reaching the 9th ran
 
 The Rook moves like its Chess counterpart.
 
-## Xiangqi Horse
+## Lame Knight
 (Image Here)
 
-The Xiangqui Horse moves like its Xiangqi counterpart i.e. like a Chess Knight which can't leap over pieces and instead moves as such:
+The Xiangqui Horse moves like a Xiangqi Horse i.e. like a Chess Knight which can't leap over pieces and instead moves as such:
 (Image Here)
 
 One square diagonally and the other orthogonally away from itself.
@@ -110,31 +112,31 @@ The King moves like its Chess counterpart, however it's restricted to its palace
 
 ![King2](https://cdn.discordapp.com/attachments/732661871261253843/1372115987620691998/image.png?ex=68259a18&is=68244898&hm=473b53b341faa117e38ca29a9a2c50d35cd6f647461c319d1146776b9d5c732b&)
 
-## Quadrapawn
+## Log
 (Image Here)
 
-The Quadrapawn moves like a Wazir and attacks like a Frez and promotes upon reaching the 5th, 4th or 3rd rank to any other piece in Black's army, except for the Kirin.
+The Log moves like a Wazir and attacks like a Frez and promotes upon reaching the 5th, 4th or 3rd rank to any other piece in Black's army, except for the Kirin.
 
 ## Centaur
 (Image Here)
 
 The Centaur moves like a Chess Knight and a Chess King.
 
-## Alibacka
+## Rhino
 (Image Here)
 
-The Alibacka moves like an Alibaba but can also move one square backwards.
+The Rhino moves like an Alibaba but can also move one square backwards.
 
-## Okapi
+## Giraffe
 (Image Here)
 
-The Okapi moves like a Chess Knight and a Zebra. The only piece in Black's army able to reach the 2nd and 1st rank without a Quadrapawn promotion required.
+The Giraffe moves like an Okapi i.e. Chess Knight and a Zebra. The only piece in Black's army able to reach the 2nd and 1st rank without a Log promotion required.
 
-## Gold Defender
+## Elephonto
 (Image Here)
 
-The Gold Defender moves and attacks like a Shoji Gold General and Forwards like a Dabbaba, while attacking forwards like a Chess Knight and Diagonally back like a Ferz.
-The Gold Defender also questions why it is protecting a ruler that wants to run away.
+The Elephonto moves and attacks like a Shoji Gold General and Forwards like a Dabbaba, while attacking forwards like a Chess Knight and Diagonally back like a Ferz.
+The Elephonto also questions why it is protecting a ruler that wants to run away.
 
 ## Kirin
 (Image Here)
