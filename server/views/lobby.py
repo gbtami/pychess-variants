@@ -52,14 +52,13 @@ async def lobby(request):
         context["profile"] = profileId
 
     if "/challenge" in request.path:
-        if user.anon and profileId != "Fairy-Stockfish":
+        context["profile"] = profileId
+        context["profile_title"] = (
+            app_state.users[profileId].title if profileId in app_state.users else ""
+        )
+        context["view_css"] = "lobby.css"
+        if user.anon and context["profile_title"] != "BOT":
             raise web.HTTPNotFound()
-        else:
-            context["profile"] = profileId
-            context["profile_title"] = (
-                app_state.users[profileId].title if profileId in app_state.users else ""
-            )
-            context["view_css"] = "lobby.css"
 
     context["title"] = "PyChess • Free Online Chess Variants"
     context["tournamentdirector"] = user.username in TOURNAMENT_DIRECTORS

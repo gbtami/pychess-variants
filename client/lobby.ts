@@ -231,7 +231,7 @@ export class LobbyController implements ChatController {
             level: level,
             chess960: chess960,
             color: color,
-            profileid: this.profileid
+            profileid: (this.profileid === "") ? "Fairy-Stockfish" : this.profileid
         });
     }
 
