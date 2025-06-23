@@ -118,8 +118,6 @@ async def handle_create_ai_challenge(app_state: PychessGlobalAppState, ws, user,
 
     variant = data["variant"]
     profileid = data["profileid"]
-    print("ITT", profileid)
-    # engine = app_state.users["Fairy-Stockfish"]
     engine = app_state.users[profileid]
 
     if variant in ("alice", "fogofwar") or data["rm"] or (engine is None) or (not engine.online):
