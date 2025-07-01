@@ -1,5 +1,6 @@
 from __future__ import annotations
 import asyncio
+import json
 
 from aiohttp import web
 
@@ -7,7 +8,7 @@ from broadcast import round_broadcast
 from const import STARTED, RESIGN
 from settings import BOT_TOKENS
 from user import User
-from utils import play_move
+from utils import load_game, new_game, play_move
 from pychess_global_app_state_utils import get_app_state
 from logger import log
 
@@ -70,11 +71,39 @@ async def challenge_create(request):
 
 @authorized
 async def challenge_accept(request):
+    print("--- BOT_API challenge_accept() ---")
+    app_state = get_app_state(request.app)
+
+    challengeId = request.match_info.get("challengeId")
+    seek = app_state.invites[challengeId]
+    gameId = seek.game_id
+
+    result = await new_game(app_state, seek, gameId)  # noqa: F821
+
+    if result["type"] == "new_game":
+        try:
+            # Put response data to sse subscribers queue
+            channels = app_state.invite_channels
+            for queue in channels:
+                await queue.put(json.dumps({"gameId": gameId}))
+        except ConnectionResetError:
+            log.error("/api/challenge/{%s}/accept ConnectionResetError", challengeId)
+
+        engine = await app_state.users.get(username)  # noqa: F821
+
+        game = await load_game(app_state, gameId)
+        if game is None:
+            raise web.HTTPNotFound()
+
+        print("--- BOT_API send game_start to the BOT ---")
+        await engine.event_queue.put(game.game_start)
+
     return web.json_response({"ok": True})
 
 
 @authorized
 async def challenge_decline(request):
+    print("--- BOT_API challenge_decline() ---")
     return web.json_response({"ok": True})
 
 

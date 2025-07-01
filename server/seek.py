@@ -144,7 +144,7 @@ class Seek:
         return "%s: **%s%s** %s" % (self.creator.username, self.variant, tail960, tc)
 
 
-async def create_seek(db, invites, seeks, user, data, empty=False):
+async def create_seek(db, invites, seeks, user, data, empty=False, engine=None):
     """Seek can be
     - invite (has reserved new game id stored in app[invites], and target is 'Invite-friend')
     - challenge (has another username as target)
@@ -162,8 +162,8 @@ async def create_seek(db, invites, seeks, user, data, empty=False):
     ) and not empty:
         return
 
-    target = data.get("target")
-    if target == "Invite-friend":
+    target = data.get("target", "")
+    if target in ("BOT_challenge", "Invite-friend"):
         game_id = await new_id(db.game)
     else:
         game_id = None
@@ -185,7 +185,7 @@ async def create_seek(db, invites, seeks, user, data, empty=False):
         chess960=data.get("chess960"),
         target=target,
         player1=None if empty else user,
-        player2=None,
+        player2=engine if target == "BOT_challenge" else None,
         game_id=game_id,
     )
 
@@ -193,7 +193,7 @@ async def create_seek(db, invites, seeks, user, data, empty=False):
     seeks[seek.id] = seek
     user.seeks[seek.id] = seek
 
-    if target == "Invite-friend":
+    if target in ("BOT_challenge", "Invite-friend"):
         invites[game_id] = seek
 
     return seek

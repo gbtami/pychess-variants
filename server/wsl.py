@@ -85,6 +85,8 @@ async def process_message(app_state: PychessGlobalAppState, user, ws, data):
         await handle_create_seek(app_state, ws, user, data)
     elif data["type"] == "create_invite":
         await handle_create_invite(app_state, ws, user, data)
+    elif data["type"] == "create_bot_challenge":
+        await handle_create_bot_challenge(app_state, ws, user, data)
     elif data["type"] == "create_host":
         await handle_create_host(app_state, ws, user, data)
     elif data["type"] == "delete_seek":
@@ -193,12 +195,35 @@ async def handle_create_invite(app_state: PychessGlobalAppState, ws, user, data)
     await ws_send_json(ws, response)
 
 
+async def handle_create_bot_challenge(app_state: PychessGlobalAppState, ws, user, data):
+    no = await send_game_in_progress_if_any(app_state, user, ws)
+    if no:
+        return
+
+    profileid = data["profileid"]
+    engine = await app_state.users.get(profileid)
+
+    if (engine is None) or (not engine.online):
+        return
+    print("--- wsl.py handle_create_bot_challenge()  ---")
+
+    log.debug("Creating BOT challenge from request: %s", data)
+    seek = await create_seek(app_state.db, app_state.invites, app_state.seeks, user, data, engine=engine)
+    log.debug("Created BOT challenge: %s", seek)
+
+    engine.game_queues[seek.game_id] = asyncio.Queue()
+    await engine.event_queue.put(challenge(seek, seek.game_id))
+
+    response = {"type": "bot_challenge_created", "gameId": seek.game_id}
+    await ws_send_json(ws, response)
+
+
 async def handle_create_host(app_state: PychessGlobalAppState, ws, user, data):
     no = user.username not in TOURNAMENT_DIRECTORS
     if no:
         return
 
-    seek = await create_seek(app_state.db, app_state.invites, app_state.seeks, user, data, True)
+    seek = await create_seek(app_state.db, app_state.invites, app_state.seeks, user, data, empty=True)
 
     response = {"type": "host_created", "gameId": seek.game_id}
     await ws_send_json(ws, response)
