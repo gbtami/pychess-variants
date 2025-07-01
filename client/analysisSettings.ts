@@ -126,13 +126,15 @@ class MultiPVSettings extends NumberSettings {
         if ('multipv' in ctrl) {
             ctrl.multipv = this.value;
             ctrl.pvboxIni();
+            ctrl.autoShapes = new Array(ctrl.multipv).fill([]);
+            ctrl.chessground.setAutoShapes([]);
             const settingsEl = document.querySelector('div.multipv_range_value') as HTMLElement;
             patch(settingsEl, h('div.multipv_range_value', `${this.value} / 5`));
         }
     }
 
     view(): VNode {
-        const els = slider(this, 'multipv', 0, 5, 1, _('Multiple lines')); 
+        const els = slider(this, 'multipv', 0, 5, 1, _('Multiple lines'));
         els.push(h('div.multipv_range_value', `${this.value} / 5`));
         return h('div.labelled', els);
     }
@@ -159,7 +161,7 @@ class ThreadsSettings extends NumberSettings {
     }
 
     view(): VNode {
-        const els = slider(this, 'threads', 1, this.maxThreads, 1, _('CPUs')); 
+        const els = slider(this, 'threads', 1, this.maxThreads, 1, _('CPUs'));
         els.push(h('div.threads_range_value', `${this.value} / ${this.maxThreads}`));
         return h('div.labelled', els);
     }
@@ -205,7 +207,7 @@ class HashSettings extends NumberSettings {
     }
 
     view(): VNode {
-        const els = slider(this, 'hash', 16, this.maxHash, 16, _('Memory')); 
+        const els = slider(this, 'hash', 16, this.maxHash, 16, _('Memory'));
         els.push(h('div.hash_range_value', `${this.value}MB`));
         return h('div.labelled', els);
     }
