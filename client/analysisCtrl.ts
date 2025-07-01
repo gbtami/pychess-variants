@@ -81,6 +81,7 @@ export class AnalysisController extends GameController {
     fsfError: string[];
     fsfEngineBoard: any;  // used to convert pv UCI move list to SAN
     variantSupportedByFSF: boolean;
+    autoShapes: DrawShape[][];
 
     constructor(el: HTMLElement, model: PyChessModel) {
         super(el, model, model.fen, document.getElementById('pocket0') as HTMLElement, document.getElementById('pocket1') as HTMLElement, '');
@@ -237,9 +238,11 @@ export class AnalysisController extends GameController {
         analysisSettings.ctrl = this;
 
         Mousetrap.bind('p', () => copyTextToClipboard(`${this.fullfen};variant ${this.variant.name};site https://www.pychess.org/${this.gameId}\n`));
-    
+
         const gaugeEl = document.getElementById('gauge') as HTMLElement;
         if (this.variant.name !== 'racingkings' && this.mycolor === 'black') gaugeEl.classList.add("flipped");
+
+        this.autoShapes = [];
     }
 
     toggleSettings() {
@@ -580,15 +583,14 @@ export class AnalysisController extends GameController {
         this.doSendMove(move);
     }
 
-    shapeFromMove (pv_move: string, turnColor: cg.Color): DrawShape[] {
-        let shapes0: DrawShape[] = [];
+    shapeFromMove (pv_idx: number, pv_move: string, turnColor: cg.Color) {
         const atPos = pv_move.indexOf('@');
         // drop
         if (atPos > -1) {
             const d = pv_move.slice(atPos + 1, atPos + 3) as cg.Key;
             const dropPieceRole = util.roleOf(pv_move.slice(0, atPos) as cg.Letter);
 
-            shapes0 = [{
+            this.autoShapes[pv_idx] = [{
                 orig: d,
                 brush: 'paleGreen',
                 piece: {
@@ -601,23 +603,23 @@ export class AnalysisController extends GameController {
             // arrow
             const o = pv_move.slice(0, 2) as cg.Key;
             const d = pv_move.slice(2, 4) as cg.Key;
-            shapes0 = [{ orig: o, dest: d, brush: 'paleGreen', piece: undefined },];
+            this.autoShapes[pv_idx] = [{ orig: o, dest: d, brush: 'paleGreen', piece: undefined, modifiers: { lineWidth: 14 - pv_idx * 2.5 } }];
 
             // duck
             if (this.variant.rules.duck) {
-                shapes0.push({
+                this.autoShapes[pv_idx] = [{
                     orig: pv_move.slice(-2) as cg.Key,
                     brush: 'paleGreen',
                     piece: {
                         color: turnColor,
                         role: '_-piece'
                     }
-                })
+                }]
             }
 
             // TODO: gating, promotion
         }
-        return shapes0
+        this.chessground.setAutoShapes(this.autoShapes.flat());
     }
 
     // Updates PV, score, gauge and the best move arrow
@@ -643,61 +645,54 @@ export class AnalysisController extends GameController {
             this.pvView(pvlineIdx, h('pvline', (this.localAnalysis) ? h('pvline', '-') : ''));
         }
 
-        // Render gauge, arrow and main score value for first PV line only
-        if (pvlineIdx > 0) return;
-
-        let shapes0: DrawShape[] = [];
-        this.chessground.setAutoShapes(shapes0);
-
-        const gaugeEl = document.getElementById('gauge') as HTMLElement;
-        if (gaugeEl && pvlineIdx === 0) {
-            const blackEl = gaugeEl.querySelector('div.black') as HTMLElement | undefined;
-            if (blackEl && ceval !== undefined) {
-                const score = ceval['s'];
-                const color = (this.variant.colors.first === "Black") ? turnColor === 'black' ? 'white' : 'black' : turnColor;
-                if (score !== undefined) {
-                    const ev = povChances(color, score);
-                    blackEl.style.height = String(100 - (ev + 1) * 50) + '%';
+        // Render gauge and main score value for first PV line only
+        if (pvlineIdx === 0) {
+            const gaugeEl = document.getElementById('gauge') as HTMLElement;
+            if (gaugeEl) {
+                const blackEl = gaugeEl.querySelector('div.black') as HTMLElement | undefined;
+                if (blackEl && ceval !== undefined) {
+                    const score = ceval['s'];
+                    const color = (this.variant.colors.first === "Black") ? turnColor === 'black' ? 'white' : 'black' : turnColor;
+                    if (score !== undefined) {
+                        const ev = povChances(color, score);
+                        blackEl.style.height = String(100 - (ev + 1) * 50) + '%';
+                    }
+                    else {
+                        blackEl.style.height = '50%';
+                    }
                 }
-                else {
-                    blackEl.style.height = '50%';
+            }
+
+            if (ceval?.d !== undefined) {
+                this.vscore = patch(this.vscore, h('score#score', scoreStr));
+                const info = [h('span', _('Depth') + ' ' + String(ceval.d) + '/' + this.maxDepth)];
+                if (ceval.k) {
+                    if (ceval.d === this.maxDepth && this.maxDepth !== 99) {
+                        info.push(
+                            h('a.icon.icon-plus-square', {
+                                props: {type: "button", title: _("Go deeper")},
+                                on: { click: () => this.onMoreDepth() }
+                            })
+                        );
+                    } else if (ceval.d !== 99) {
+                        info.push(h('span', ', ' + Math.round(ceval.k) + ' knodes/s'));
+                    }
                 }
+                this.vinfo = patch(this.vinfo, h('info#info', ''));
+                this.vinfo = patch(this.vinfo, h('info#info', info));
+            } else {
+                this.vscore = patch(this.vscore, h('score#score', ''));
+                this.vinfo = patch(this.vinfo, h('info#info', _('in local browser')));
             }
         }
 
         if (ceval?.p !== undefined) {
             // console.log("ARROW", this.arrow);
-            if (this.arrow && pvlineIdx === 0) {
+            if (this.arrow) {
                 const pv_move = uci2cg(ceval.p.split(" ")[0]);
-                shapes0 = this.shapeFromMove(pv_move, turnColor);
+                this.shapeFromMove(pvlineIdx, pv_move, turnColor);
             }
-
-            this.vscore = patch(this.vscore, h('score#score', scoreStr));
-
-            const info = [h('span', _('Depth') + ' ' + String(ceval.d) + '/' + this.maxDepth)];
-            if (ceval.k) {
-                if (ceval.d === this.maxDepth && this.maxDepth !== 99) {
-                    info.push(
-                        h('a.icon.icon-plus-square', {
-                            props: {type: "button", title: _("Go deeper")},
-                            on: { click: () => this.onMoreDepth() }
-                        })
-                    );
-                } else if (ceval.d !== 99) {
-                    info.push(h('span', ', ' + Math.round(ceval.k) + ' knodes/s'));
-                }
-            }
-            this.vinfo = patch(this.vinfo, h('info#info', ''));
-            this.vinfo = patch(this.vinfo, h('info#info', info));
-        } else {
-            this.vscore = patch(this.vscore, h('score#score', ''));
-            this.vinfo = patch(this.vinfo, h('info#info', _('in local browser')));
         }
-
-        // console.log(shapes0);
-        this.chessground.set({
-            drawable: {autoShapes: shapes0},
-        });
     }
 
     // Updates chart and score in movelist
@@ -767,7 +762,7 @@ export class AnalysisController extends GameController {
             window.fsf.postMessage(msg);
         }
     }
-    
+
     // When we are moving inside a variation move list
     // then plyVari > 0 and ply is the index inside vari movelist
     goPly(ply: number, plyVari = 0) {
@@ -815,6 +810,8 @@ export class AnalysisController extends GameController {
         }
 
         if (!this.ongoing) {
+            this.autoShapes = new Array(this.multipv).fill([]);
+            this.chessground.setAutoShapes([]);
             this.drawEval(step.ceval, step.scoreStr, step.turnColor);
             if (plyVari === 0) this.drawServerEval(ply, step.scoreStr);
         }
@@ -826,7 +823,7 @@ export class AnalysisController extends GameController {
         if (!this.puzzle && !this.ongoing) {
             const e = document.getElementById('fullfen') as HTMLInputElement;
             e.value = this.fullfen;
-        
+
             if (this.isAnalysisBoard) {
                 this.vpgn = patch(this.vpgn, h('div#pgntext', this.getPgn(idxInVari)));
             } else {
@@ -1077,7 +1074,6 @@ export class AnalysisController extends GameController {
     }
 
     private onMsgAnalysis = (msg: MsgAnalysis) => {
-        // console.log(msg);
         if (msg['ceval']['s'] === undefined) return;
 
         const scoreStr = this.buildScoreStr(msg.color, msg.ceval);

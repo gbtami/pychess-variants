@@ -1,4 +1,5 @@
 import Highcharts from "highcharts";
+import type { Options } from "highcharts";
 
 import { selectMove } from './movelist';
 import { AnalysisController } from './analysisCtrl';
@@ -245,7 +246,7 @@ export function movetimeChart(ctrl: AnalysisController) {
                 data: totalSeries.black,
             },
         ]
-    });
+    } as Options);
 }
 
 const formatClock = (movetime: number) => {

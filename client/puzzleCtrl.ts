@@ -109,7 +109,7 @@ export class PuzzleController extends AnalysisController {
 
         const engineEl = document.querySelector('.engine') as HTMLElement;
         engineEl.style.display = 'none';
-        
+
         const viewHintEl = document.querySelector('.hint') as HTMLElement;
         patch(viewHintEl,
             h('a.button.hint.button-empty',
@@ -162,7 +162,7 @@ export class PuzzleController extends AnalysisController {
             ]));
         } else {
             const ratingEl = document.querySelector('.rating') as HTMLElement;
-            patch(ratingEl, h('div.rating.casual', 
+            patch(ratingEl, h('div.rating.casual',
                 _('Your puzzle rating will not change. Note that puzzles are not a competition. Ratings help select the best puzzles for your current skill.')
                 )
             );
@@ -229,7 +229,7 @@ export class PuzzleController extends AnalysisController {
             ])
         ]));
     }
-            
+
     viewSolution() {
         this.solution.slice(this.ply).forEach((move: UCIMove) => this.makeMove(move));
         this.puzzleComplete(false);
@@ -238,10 +238,7 @@ export class PuzzleController extends AnalysisController {
     viewHint() {
         this.failed = true;
         const pv_move = uci2cg(this.solution[this.ply]);
-        const shapes0 = this.shapeFromMove(pv_move, this.turnColor);
-        this.chessground.set({
-            drawable: {autoShapes: shapes0},
-        });
+        this.shapeFromMove(0, pv_move, this.turnColor);
     }
 
     doSendMove(move: string) {
@@ -274,7 +271,7 @@ export class PuzzleController extends AnalysisController {
         }
 
         this.makeMove(move);
-        
+
         if (this.moves.length < this.solution.length) {
             this.makeMove(this.solution[this.ply]);
             this.bestMove();
@@ -391,7 +388,7 @@ export class PuzzleController extends AnalysisController {
         }
         this.completed = true;
         const feedbackEl = document.querySelector('.feedback') as HTMLInputElement;
-        patch(feedbackEl, 
+        patch(feedbackEl,
             h('div.feedback.after', [
                 h('div.complete', text),
                 h('div.puzzle_vote', [
