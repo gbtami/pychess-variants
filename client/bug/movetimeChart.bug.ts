@@ -1,4 +1,5 @@
 import Highcharts from "highcharts";
+import type { Options } from "highcharts";
 
 import { selectMove } from './movelist.bug';
 import { Step } from "../messages";
@@ -369,7 +370,7 @@ export function movetimeChart(ctrl: AnalysisControllerBughouse) {
                 data: chatSeries,
             },
         ]
-    });
+    } as Options);
 }
 
 const formatClock = (movetime: number) => {
