@@ -179,7 +179,7 @@ const isIPad = (): boolean => navigator?.maxTouchPoints > 2 && /iPad|Macintosh/.
 // scales like native stockfish with increasing hash. prefer smaller, non-crashing values
 // steer the high performance crowd towards external engine as it gets better
 const maxHashMB = (): number => {
-    let maxHash = 256; // this is conservative but safe, mostly desktop firefox / mac safari users here
+    let maxHash = 512; // allocating 1024 often fails and offers little benefit over 512, or 16 for that matter
     if (isAndroid()) maxHash = 64; // budget androids are easy to crash @ 128
     else if (isIPad()) maxHash = 64; // iPadOS safari pretends to be desktop but acts more like iphone
     else if (isIOS()) maxHash = 32;
