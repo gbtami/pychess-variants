@@ -2,7 +2,7 @@ import { h, VNode } from 'snabbdom';
 
 import { _ } from './i18n';
 import { Settings, BooleanSettings, NumberSettings, StringSettings } from './settings';
-import { nnueFile, slider, toggleSwitch } from './view';
+import { nnueFile, slider, sliderFromList, toggleSwitch } from './view';
 import { AnalysisController } from './analysisCtrl';
 import { patch } from './document';
 
@@ -207,7 +207,7 @@ class HashSettings extends NumberSettings {
     }
 
     view(): VNode {
-        const els = slider(this, 'hash', 16, this.maxHash, 16, _('Memory'));
+        const els = sliderFromList(this, 'hash', _('Memory'), "hashList", [16, 32, 64, 128, 256, 512]);
         els.push(h('div.hash_range_value', `${this.value}MB`));
         return h('div.labelled', els);
     }
