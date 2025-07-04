@@ -207,7 +207,8 @@ class HashSettings extends NumberSettings {
     }
 
     view(): VNode {
-        const els = sliderFromList(this, 'hash', _('Memory'), "hashList", [16, 32, 64, 128, 256, 512]);
+        const hashList = [...Array(10).keys()].map(i => 2 ** i).filter(n => n >= 16 && n <= this.maxHash);
+        const els = sliderFromList(this, 'hash', _('Memory'), "hashList", hashList);
         els.push(h('div.hash_range_value', `${this.value}MB`));
         return h('div.labelled', els);
     }
