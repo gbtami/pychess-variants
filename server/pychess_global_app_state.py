@@ -326,7 +326,7 @@ class PychessGlobalAppState:
                         bot_player = game.wplayer if game.wplayer.bot else game.bplayer
                         bot_player.game_queues[game_id] = asyncio.Queue()
                         await bot_player.event_queue.put(game.game_start)
-                        await bot_player.game_queues[game_id].put(game.game_state)
+                        await bot_player.game_queues[game_id].put(game.game_full)
 
                     if game.board.ply > 0:
                         self.g_cnt[0] += 1
