@@ -379,6 +379,7 @@ async def cancel_invite(request):
 
 
 async def subscribe_invites(request):
+    print("--- subscribe_invites() ---")
     app_state = get_app_state(request.app)
     try:
         async with sse_response(request) as response:
@@ -386,6 +387,7 @@ async def subscribe_invites(request):
             app_state.invite_channels.add(queue)
             while response.is_connected():
                 payload = await queue.get()
+                print("--- invit SSE send response", payload)
                 await response.send(payload)
                 queue.task_done()
     except Exception:
