@@ -520,7 +520,7 @@ msgstr "шахматы"
 
 #: ../client/i18n.ts:68
 msgid "crazyhouse"
-msgstr "крейзихаус"
+msgstr "crazyhouse"
 
 #: ../client/i18n.ts:68
 msgid "placement"
@@ -1087,7 +1087,7 @@ msgstr "ПРИСОЕДИНЯЙТЕСЬ К ИГРЕ"
 
 #: ../client/invite.ts:85 ../client/invite.ts:109
 msgid "To invite someone to play, give them this URL:"
-msgstr "Чтобы пригласить кого-нибудь поиграть, дайте ему этот URL:"
+msgstr "Чтобы пригласить кого-нибудь поиграть, поделитесь с ним этим URL:"
 
 #: ../client/invite.ts:92 ../client/invite.ts:94 ../client/invite.ts:102
 #: ../client/invite.ts:104 ../client/invite.ts:114 ../client/invite.ts:116
@@ -1536,7 +1536,7 @@ msgstr "Повторение"
 
 #: ../client/result.ts:156
 msgid "%1 won"
-msgstr "%1 побед"
+msgstr "%1 победил(а)"
 
 #: ../client/roundCtrl.ts:241 ../client/roundCtrl.ts:1245
 msgid " +15 seconds"
