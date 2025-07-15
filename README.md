@@ -20,13 +20,13 @@ On client side it is based on
 
 As you know, pychess-variants is a free server and it will remain free forever. However, maintaining and improving the server costs time and money.
 
-If you like our work and find our server useful, please donate through [patreon](https://www.patreon.com/pychess) or directly through [paypal](https://www.paypal.com/paypalme/gbtami)!!
+If you like our work and find our server useful, please donate through [patreon](https://www.patreon.com/pychess) or directly through [paypal](https://www.paypal.com/paypalme/gbtami) !!
 Your contribution will be greatly appreciated and help me continue to develop this awesome server.
 
 ## Installation
 
 ### Prerequisites
-* You need mongodb up and running. [Mongo daemon](https://www.mongodb.com/docs/manual/installation/)
+* You need MongoDB up and running. [Mongo daemon](https://www.mongodb.com/docs/manual/installation/)
 
 
 ### Project setup
