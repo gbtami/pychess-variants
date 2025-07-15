@@ -4,11 +4,11 @@
 [![Nodejs-CI](https://github.com/gbtami/pychess-variants/actions/workflows/nodejs.yml/badge.svg)](https://github.com/gbtami/pychess-variants/actions/workflows/nodejs.yml)
 [![Discord](https://img.shields.io/discord/634298688663191582?label=Discord&logo=discord&style=flat)](https://discord.gg/aPs8RKr)
 
-pychess-variants is a free, open-source chess server designed to play chess variants.
+Pychess-variants is a free, open-source chess server designed to play chess variants.
 
 Currently supported games are listed on https://www.pychess.org/variants
 
-For move generation, validation, analysis and engine play it uses
+For move generation, validation, analysis and engine play it uses:
 - [Fairy-Stockfish](https://github.com/fairy-stockfish/Fairy-Stockfish)
 - [fairy-stockfish.wasm](https://github.com/fairy-stockfish/fairy-stockfish.wasm)
 - [fairyfishnet](https://github.com/gbtami/fairyfishnet) fork of [fishnet](https://github.com/lichess-org/fishnet)
@@ -20,7 +20,7 @@ On client side it is based on
 
 As you know, pychess-variants is a free server and it will remain free forever. However, maintaining and improving the server costs time and money.
 
-If you like our work and find our server useful, please donate through [patreon](https://www.patreon.com/pychess) or directly through [paypal](https://www.paypal.com/paypalme/gbtami) !!
+If you like our work and find our server useful, please donate through [Patreon](https://www.patreon.com/pychess) or directly through [paypal](https://www.paypal.com/paypalme/gbtami) !!
 Your contribution will be greatly appreciated and help me continue to develop this awesome server.
 
 ## Installation
