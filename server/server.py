@@ -165,9 +165,13 @@ async def shutdown(app):
 
 
 async def close_mongodb_client(app):
-    if client_key in app and app[client_key] is not None:
-        await app[client_key].close()
-        log.debug("\nMongoClient closed OK.\n")
+    if client_key in app:
+        try:
+            await app[client_key].close()
+            log.debug("\nAsyncMongoClient closed OK.\n")
+        except TypeError:
+            app[client_key].close()
+            log.debug("\nAsyncMongoMockClient closed OK.\n")
 
 
 if __name__ == "__main__":
