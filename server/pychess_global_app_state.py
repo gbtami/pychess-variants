@@ -115,7 +115,7 @@ class PychessGlobalAppState:
         self.games: dict[str, Game] = {}
         self.invites: dict[str, Seek] = {}
         self.game_channels: Set[queue] = set()
-        self.invite_channels: Set[queue] = set()
+        self.invite_channels: dict[str, queue] = {}
         self.highscore = {variant: ValueSortedDict(neg) for variant in RATED_VARIANTS}
         self.shield = {}
         self.shield_owners = {}  # {variant: username, ...}
@@ -556,6 +556,27 @@ class PychessGlobalAppState:
                     ws_set = ts_dict[tid]
                     for ws in list(ws_set):
                         await ws.close()
+
+        log.debug("--- Cancel running tasks---")
+        for task in asyncio.all_tasks():
+            taskname = task.get_name()
+
+            # Let the server cancel itself at the end of graceful shutdown
+            if taskname.startswith("_run_app"):
+                continue
+
+            # AsyncMongoClient will be closed in server on_cleanup()
+            if taskname.startswith("pymongo"):
+                continue
+
+            if taskname.startswith("Task-"):
+                taskname = taskname + " " + task.get_coro().__name__
+
+            task.cancel()
+            try:
+                await task
+            except asyncio.CancelledError:
+                log.debug("%s cancelled" % taskname)
 
     def online_count(self):
         return sum((1 for user in self.users.values() if user.online))

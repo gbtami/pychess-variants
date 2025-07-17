@@ -379,21 +379,20 @@ async def cancel_invite(request):
 
 
 async def subscribe_invites(request):
-    print("--- subscribe_invites() ---")
     app_state = get_app_state(request.app)
+    gameId = request.match_info.get("gameId")
     try:
         async with sse_response(request) as response:
             queue = asyncio.Queue()
-            app_state.invite_channels.add(queue)
+            app_state.invite_channels[gameId] = queue
             while response.is_connected():
                 payload = await queue.get()
-                print("--- invit SSE send response", payload)
                 await response.send(payload)
                 queue.task_done()
     except Exception:
         pass
     finally:
-        app_state.invite_channels.discard(queue)
+        del app_state.invite_channels[gameId]
     return response
 
 

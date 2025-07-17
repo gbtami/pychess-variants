@@ -1169,10 +1169,11 @@ export class LobbyController implements ChatController {
     }
 
     private onMsgBOTChallengeCreated(msg: MsgInviteCreated) {
-        const gameURL = '/invite/' + msg.gameId;
-        const evtSource = new EventSource("/api/invites");
+        const gameURL = '/' + msg.gameId;
+        const evtSource = new EventSource("/api/invites/" + msg.gameId);
         evtSource.onmessage = function(event) {
             const message = JSON.parse(event.data);
+            // console.log("event from SSE", msg.gameId, message)
             if (message.gameId === msg.gameId) {
                 window.location.assign(gameURL);
             }

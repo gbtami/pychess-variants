@@ -149,7 +149,7 @@ async def handle_create_ai_challenge(app_state: PychessGlobalAppState, ws, user,
     if response["type"] != "error":
         gameId = response["gameId"]
         engine.game_queues[gameId] = asyncio.Queue()
-        await engine.event_queue.put(challenge(seek, gameId))
+        await engine.event_queue.put(challenge(seek))
         if engine.username not in ("Random-Mover", "Fairy-Stockfish"):
             game = app_state.games[gameId]
             await engine.event_queue.put(game.game_start)
@@ -212,7 +212,11 @@ async def handle_create_bot_challenge(app_state: PychessGlobalAppState, ws, user
     log.debug("Created BOT challenge: %s", seek)
 
     engine.game_queues[seek.game_id] = asyncio.Queue()
-    await engine.event_queue.put(challenge(seek, seek.game_id))
+    bot_challenge = challenge(seek)
+    # lichess-bot uses "standard" as variant name, grrrr
+    if seek.variant == "chess":
+        bot_challenge = bot_challenge.replace("chess", "standard")
+    await engine.event_queue.put(bot_challenge)
 
     response = {"type": "bot_challenge_created", "gameId": seek.game_id}
     await ws_send_json(ws, response)
@@ -279,7 +283,7 @@ async def handle_accept_seek(app_state: PychessGlobalAppState, ws, user, data):
         if seek.creator.bot:
             gameId = response["gameId"]
             seek.creator.game_queues[gameId] = asyncio.Queue()
-            await seek.creator.event_queue.put(challenge(seek, gameId))
+            await seek.creator.event_queue.put(challenge(seek))
         else:
             ws_set = list(seek.creator.lobby_sockets)
             if len(ws_set) == 0:
