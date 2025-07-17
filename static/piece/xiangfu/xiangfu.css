@@ -13,7 +13,10 @@
 .xiangfu piece.c-piece.white {
     background-image: url('../../images/pieces/xiangfu/1_Cannon.svg');
 }
-.xiangfu piece.k-piece.white {
+.xiangfu piece.pg-piece.white {
+    background-image: url('../../images/pieces/xiangfu/1_General.svg');
+}
+.xiangfu piece.g-piece.white {
     background-image: url('../../images/pieces/xiangfu/1_General.svg');
 }
 .xiangfu piece.a-piece.white {
@@ -35,7 +38,10 @@
 .xiangfu piece.c-piece.black {
     background-image: url('../../images/pieces/xiangfu/0_Cannon.svg');
 }
-.xiangfu piece.k-piece.black {
+.xiangfu piece.pg-piece.black {
+    background-image: url('../../images/pieces/xiangfu/0_General.svg');
+}
+.xiangfu piece.g-piece.black {
     background-image: url('../../images/pieces/xiangfu/0_General.svg');
 }
 .xiangfu piece.a-piece.black {
