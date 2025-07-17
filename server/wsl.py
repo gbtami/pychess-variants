@@ -208,7 +208,9 @@ async def handle_create_bot_challenge(app_state: PychessGlobalAppState, ws, user
     print("--- wsl.py handle_create_bot_challenge()  ---")
 
     log.debug("Creating BOT challenge from request: %s", data)
-    seek = await create_seek(app_state.db, app_state.invites, app_state.seeks, user, data, engine=engine)
+    seek = await create_seek(
+        app_state.db, app_state.invites, app_state.seeks, user, data, engine=engine
+    )
     log.debug("Created BOT challenge: %s", seek)
 
     engine.game_queues[seek.game_id] = asyncio.Queue()
@@ -227,7 +229,9 @@ async def handle_create_host(app_state: PychessGlobalAppState, ws, user, data):
     if no:
         return
 
-    seek = await create_seek(app_state.db, app_state.invites, app_state.seeks, user, data, empty=True)
+    seek = await create_seek(
+        app_state.db, app_state.invites, app_state.seeks, user, data, empty=True
+    )
 
     response = {"type": "host_created", "gameId": seek.game_id}
     await ws_send_json(ws, response)
