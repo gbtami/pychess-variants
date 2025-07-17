@@ -387,7 +387,6 @@ nFoldValue = loss
 startFen = +r+c+bk+q+a+m+w/pppppppp/8/8/8/8/PPPPPPPP/+W+M+A+QK+B+C+R[] w - 0 1
 
 # MARTIAL ARTS XIANGQI
-# V3 of my variant
 [xiangfu]
 
 # Board Parameters
@@ -397,6 +396,7 @@ maxRank = 9
 # Pieces
 
 commoner = k
+customPiece3 = g:Q1
 bishop = b
 horse = n
 rook = r
@@ -404,13 +404,11 @@ customPiece2 = e:nAnD
 cannon = c
 customPiece1 = a:mBcpB
 
-startFen = 2bre4/2can4/2k1k4/9/9/9/4K1K2/4NAC2/4ERB2[] w - 0 1
+startFen = 2rbe4/2can4/2+g1+g4/9/9/9/4+G1+G2/4NAC2/4EBR2[] w - 0 1
 
 # Palace
 mobilityRegionBlackCommoner = c3 c4 c5 c6 c7 d3 d4 d5 d6 d7 e3 e4 e5 e6 e7 f3 f4 f5 f6 f7 g3 g4 g5 g6 g7
 mobilityRegionWhiteCommoner = c3 c4 c5 c6 c7 d3 d4 d5 d6 d7 e3 e4 e5 e6 e7 f3 f4 f5 f6 f7 g3 g4 g5 g6 g7
-mobilityRegionBlackElephant = a1 e1 i1 c3 g3 a5 e5 i5 c7 g7 a9 e9 i9
-mobilityRegionWhiteElephant = a1 e1 i1 c3 g3 a5 e5 i5 c7 g7 a9 e9 i9
 
 # Drop Rules
 pieceDrops = true
@@ -422,6 +420,9 @@ blackDropRegion = *8 *9
 extinctionPieceTypes = k
 extinctionPseudoRoyal = true
 dupleCheck = true
+promotedPieceType = g:k
+promotionRegionWhite = -
+promotionRegionBlack = -
 
 # Misc Rules
 nMoveRule = 0

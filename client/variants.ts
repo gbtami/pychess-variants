@@ -341,15 +341,20 @@ export const VARIANTS: Record<string, Variant> = {
 
     xiangfu: variant({
         name: "xiangfu", tooltip: "xiangfu",
-        startFen: "2bre4/2can4/2k1k4/9/9/9/4K1K2/4NAC2/4ERB2[] w - 0 1",
+        startFen: "2rbe4/2can4/2+g1+g4/9/9/9/4+G1+G2/4NAC2/4EBR2[] w - 0 1",
         icon: "👊",
         boardFamily: "xiangfu9x9", pieceFamily: "xiangfu",
-        pieceRow: ["k", "r", "b", "e", "c", "a", "n"],
+        pieceRow: ["+g", "g", "r", "b", "e", "c", "a", "n"],
         pocket: {
-            roles: ["r", "b", "e", "c", "a", "n"],
+            roles: ["g", "r", "b", "e", "c", "a", "n"],
             captureToHand: true,
         },
         promotion: { type: "regular", roles: [] },
+        kingRoles: ["+g"],
+        alternateStart: {
+            '': "",
+            'SwitchedRB': "2bre4/2can4/2+g1+g4/9/9/9/4+G1+G2/4NAC2/4ERB2[] w - 0 1",
+        },
     }),
 
     sinting: variant({
