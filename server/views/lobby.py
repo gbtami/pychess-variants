@@ -7,6 +7,7 @@ import aiohttp_session
 
 from views import get_user_context
 from puzzle import get_daily_puzzle
+from pychess_global_app_state_utils import get_app_state
 from settings import TOURNAMENT_DIRECTORS
 from utils import corr_games, get_blogs
 from variants import VARIANTS
@@ -15,6 +16,8 @@ from variants import VARIANTS
 @aiohttp_jinja2.template("index.html")
 async def lobby(request):
     user, context = await get_user_context(request)
+
+    app_state = get_app_state(request.app)
 
     # If OAuth data exists in session after oauth login, we need a new username
     session = await aiohttp_session.get_session(request)
@@ -49,11 +52,13 @@ async def lobby(request):
         context["profile"] = profileId
 
     if "/challenge" in request.path:
-        if user.anon and profileId != "Fairy-Stockfish":
+        context["profile"] = profileId
+        context["profile_title"] = (
+            app_state.users[profileId].title if profileId in app_state.users else ""
+        )
+        context["view_css"] = "lobby.css"
+        if user.anon and context["profile_title"] != "BOT":
             raise web.HTTPNotFound()
-        else:
-            context["profile"] = profileId
-            context["view_css"] = "lobby.css"
 
     context["title"] = "PyChess • Free Online Chess Variants"
     context["tournamentdirector"] = user.username in TOURNAMENT_DIRECTORS
