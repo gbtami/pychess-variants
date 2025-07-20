@@ -1,4 +1,4 @@
-## [www.pychess.org](https://www.pychess.org)
+## [WWW.PYCHESS.ORG](https://www.pychess.org)
 
 [![Python-CI](https://github.com/gbtami/pychess-variants/actions/workflows/ci.yml/badge.svg)](https://github.com/gbtami/pychess-variants/actions/workflows/ci.yml)
 [![Nodejs-CI](https://github.com/gbtami/pychess-variants/actions/workflows/nodejs.yml/badge.svg)](https://github.com/gbtami/pychess-variants/actions/workflows/nodejs.yml)
@@ -20,7 +20,7 @@ On client side it is based on
 
 As you know, pychess-variants is a free server and it will remain free forever. However, maintaining and improving the server costs time and money.
 
-If you like our work and find our server useful, please donate through [Patreon](https://www.patreon.com/pychess) or directly through [paypal](https://www.paypal.com/paypalme/gbtami) !!
+If you like our work and find our server useful, please donate through [Patreon](https://www.patreon.com/pychess) or directly through [Paypal](https://www.paypal.com/paypalme/gbtami) !!
 Your contribution will be greatly appreciated and help me continue to develop this awesome server.
 
 ## Installation
