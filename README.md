@@ -10,8 +10,8 @@ Currently supported games are listed on https://www.pychess.org/variants
 
 For move generation, validation, analysis and engine play it uses:
 - [Fairy-Stockfish](https://github.com/fairy-stockfish/Fairy-Stockfish)
-- [fairy-stockfish.wasm](https://github.com/fairy-stockfish/fairy-stockfish.wasm)
-- [fairyfishnet](https://github.com/gbtami/fairyfishnet) fork of [fishnet](https://github.com/lichess-org/fishnet)
+- [Fairy-stockfish.wasm](https://github.com/fairy-stockfish/fairy-stockfish.wasm)
+- [Fairyfishnet](https://github.com/gbtami/fairyfishnet) fork of [fishnet](https://github.com/lichess-org/fishnet)
 
 On client side it is based on
 [chessgroundx](https://github.com/gbtami/chessgroundx) fork of [chessground](https://github.com/lichess-org/chessground)
