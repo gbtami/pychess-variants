@@ -24,7 +24,6 @@ from const import (
     CASUAL,
     RATED,
     IMPORTED,
-    MANCHU_FEN,
     T_STARTED,
 )
 from compress import R2C, C2R
@@ -33,6 +32,7 @@ from fairy import (
     BLACK,
     WHITE,
     STANDARD_FEN,
+    MANCHU_FEN,
     FairyBoard,
     FEN_OK,
     NOTATION_SAN,

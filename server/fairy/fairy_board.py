@@ -4,11 +4,11 @@ import random
 from functools import cache
 
 # -*- coding: utf-8 -*-
-from ataxx import ATAXX_FENS
-from caparandom import caparandom_rank8
-from chess960 import CHESS960_FENS
-from const import CATEGORIES, MANCHU_R_FEN
-from racingkings import RACINGKINGS_FENS
+from fairy.ataxx import ATAXX_FENS
+from fairy.caparandom import caparandom_rank8
+from fairy.chess960 import CHESS960_FENS
+from const import CATEGORIES
+from fairy.racingkings import RACINGKINGS_FENS
 from logger import log
 
 try:
@@ -33,6 +33,10 @@ WHITE, BLACK = 0, 1
 FILES = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j"]
 
 STANDARD_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+CONSERVATIVE_CAPA_FEN = "arnbqkbnrc/pppppppppp/10/10/10/10/PPPPPPPPPP/ARNBQKBNRC w KQkq - 0 1"
+LOOKING_GLASS_ALICE_FEN = "|r|n|b|q|k|b|n|r/|p|p|p|p|p|p|p|p/8/8/8/8/PPPPPPPP/RNBQKBNR w KQ - 0 1"
+MANCHU_FEN = "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/9/9/M1BAKAB2 w - - 0 1"
+MANCHU_R_FEN = "m1bakab1r/9/9/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1"
 
 
 def file_of(piece: str, rank: str) -> int:
