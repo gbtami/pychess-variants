@@ -33,10 +33,9 @@ async def invite(request):
                 inviter = "yourself"
             elif seek_status["type"] == "new_game":
                 try:
-                    # Put response data to sse subscribers queue
-                    channels = app_state.invite_channels
-                    for queue in channels:
-                        await queue.put(json.dumps({"gameId": gameId}))
+                    # Put response data to sse subscriber queue
+                    queue = app_state.invite_channels[gameId]
+                    await queue.put(json.dumps({"gameId": gameId, "accept": True}))
                     # return games[game_id]
                 except ConnectionResetError:
                     log.error("/invite/accept/ ConnectionResetError for user %s", user.username)
