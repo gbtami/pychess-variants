@@ -517,7 +517,7 @@
   dependencies:
     preact "~10.12.1"
 
-"@fullcalendar/daygrid@^6.1.18", "@fullcalendar/daygrid@~6.1.17":
+"@fullcalendar/daygrid@^6.1.18", "@fullcalendar/daygrid@~6.1.18":
   version "6.1.18"
   resolved "https://registry.yarnpkg.com/@fullcalendar/daygrid/-/daygrid-6.1.18.tgz#49b4a237d0115b4695cd8593d0dfa36d81fa5ad4"
   integrity sha512-s452Zle1SdMEzZDw+pDczm8m3JLIZzS9ANMThXTnqeqJewW1gqNFYas18aHypJSgF9Fh9rDJjTSUw04BpXB/Mg==
@@ -532,12 +532,12 @@
   resolved "https://registry.yarnpkg.com/@fullcalendar/list/-/list-6.1.17.tgz#0111df515e662f2372bc50e56b90c3a5c2dc8ce0"
   integrity sha512-fkyK49F9IxwlGUBVhJGsFpd/LTi/vRVERLIAe1HmBaGkjwpxnynm8TMLb9mZip97wvDk3CmZWduMe6PxscAlow==
 
-"@fullcalendar/timegrid@^6.1.15":
-  version "6.1.17"
-  resolved "https://registry.yarnpkg.com/@fullcalendar/timegrid/-/timegrid-6.1.17.tgz#c88f19a1417ca314545d28a2fe23b33330e086dd"
-  integrity sha512-K4PlA3L3lclLOs3IX8cvddeiJI9ZVMD7RA9IqaWwbvac771971foc9tFze9YY+Pqesf6S+vhS2dWtEVlERaGlQ==
+"@fullcalendar/timegrid@^6.1.18":
+  version "6.1.18"
+  resolved "https://registry.yarnpkg.com/@fullcalendar/timegrid/-/timegrid-6.1.18.tgz#8673c4870282ade1545f12e81c0dc11d2da039f6"
+  integrity sha512-T/ouhs+T1tM8JcW7Cjx+KiohL/qQWKqvRITwjol8ktJ1e1N/6noC40/obR1tyolqOxMRWHjJkYoj9fUqfoez9A==
   dependencies:
-    "@fullcalendar/daygrid" "~6.1.17"
+    "@fullcalendar/daygrid" "~6.1.18"
 
 "@istanbuljs/load-nyc-config@^1.0.0":
   version "1.1.0"
