@@ -52,6 +52,7 @@ from tournament.tournament_calendar import tournament_calendar
 from twitch import twitch_request_handler
 from puzzle import puzzle_complete, puzzle_vote
 from robots import robots
+from server_metrics import metrics_handler
 from user import block_user, get_blocked_users, set_theme
 from views import (
     about,
@@ -150,6 +151,7 @@ get_routes = (
     ("/variants", variants.variants),
     ("/variants/{variant}", variants.variants),
     ("/memory", memory.memory),
+    ("/metrics", metrics_handler),
     ("/video", videos.videos),
     ("/video/{videoId}", video.video),
     ("/wsl", lobby_socket_handler),

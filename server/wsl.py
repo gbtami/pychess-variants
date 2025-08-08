@@ -1,5 +1,6 @@
 from __future__ import annotations
 import asyncio
+from datetime import datetime, timezone
 
 import aiohttp_session
 from aiohttp import web
@@ -51,6 +52,7 @@ async def lobby_socket_handler(request):
 
 
 async def init_ws(app_state: PychessGlobalAppState, ws, user):
+    user.last_seen = datetime.now(timezone.utc)
     await send_game_in_progress_if_any(app_state, user, ws)
     await send_lobby_user_connected(app_state, ws, user)
     await send_get_seeks(app_state, ws, user)

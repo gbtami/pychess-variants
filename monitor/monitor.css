@@ -1,0 +1,41 @@
+Screen {
+    layout: vertical;
+}
+DataTable {
+    height: 40%;
+}
+Button {
+    margin: 1;
+    width: 100%;
+}
+Label {
+    margin: 1;
+}
+Sparkline {
+    margin: 1;
+    height: 3;
+    width: 100%;
+}
+Horizontal {
+    height: auto;
+}
+#details_table {
+    height: 40%;
+    min-height: 10;
+}
+#left_panel {
+    width: 25%;
+}
+#right_panel {
+    width: 75%;
+}
+#users_sparkline > .sparkline--max-color { color: $success; }
+#users_sparkline > .sparkline--min-color { color: $success 30%; }
+#games_sparkline > .sparkline--max-color { color: $warning; }
+#games_sparkline > .sparkline--min-color { color: $warning 30%; }
+#conn_sparkline > .sparkline--max-color { color: $accent; }
+#conn_sparkline > .sparkline--min-color { color: $accent 30%; }
+.datatable--header-cursor {
+    background: $accent;
+    color: $text;
+}

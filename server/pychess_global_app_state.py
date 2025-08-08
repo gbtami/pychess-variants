@@ -54,6 +54,7 @@ from settings import (
     FISHNET_KEYS,
     DISCORD_TOKEN,
     URI,
+    LOCALHOST,
     STATIC_ROOT,
     SOURCE_VERSION,
     DEV,
@@ -478,7 +479,7 @@ class PychessGlobalAppState:
         return result
 
     async def remove_from_cache(self, game):
-        await asyncio.sleep(GAME_KEEP_TIME)
+        await asyncio.sleep(1 if URI == LOCALHOST else GAME_KEEP_TIME)
 
         if game.id == self.tv:
             self.tv = None
