@@ -5,6 +5,14 @@ import { patch } from './document';
 import { RoundControllerBughouse } from "./bug/roundCtrl.bug";
 import { onchatclick, renderBugChatPresets} from "@/bug/chat.bug";
 
+// 1. Global color storage for usernames
+const USER_COLOR_MAP: Record<string, string> = {};
+
+// 2. Generate random color function
+function getRandomColor(): string {
+  return '#' + Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0');
+}
+
 export interface ChatController {
     anon: boolean;
     doSend: any;
@@ -49,6 +57,10 @@ export function chatView(ctrl: ChatController, chatType: string) {
         chatEntry.disabled = !activated;
         chatEntry.placeholder = activated ? (ctrl.anon ? _('Sign in to chat') : _('Please be nice in the chat!')) : _("Chat is disabled");
     }
+
+    // 4. Color existing messages on initialization
+    setTimeout(() => applyUserColors(chatType), 100);
+
     return h(`div#${chatType}.${chatType}.chat`, [
         bughouse? h('div.chatroom'): h('div.chatroom', [
             (spectator) ? _('Spectator room') : _('Chat room'),
@@ -76,6 +88,34 @@ export function chatView(ctrl: ChatController, chatType: string) {
 }
 
 
+// 3. Apply colors to all messages
+function applyUserColors(chatType: string) {
+    console.log("applyUserColors", chatType);
+    const container = document.getElementById(`${chatType}-messages`);
+    if (!container) return;
+
+    const messages = container.querySelectorAll('li.message');
+
+    messages.forEach(msg => {
+        const userEl = msg.querySelector('user');
+        if (!userEl || !userEl.textContent) return;
+
+        const username = userEl.textContent.trim();
+        if (!username) return;
+
+        // Get or assign color
+        USER_COLOR_MAP[username] = USER_COLOR_MAP[username] || getRandomColor();
+
+        // Apply directly to t element
+        const tEl = msg.querySelector('t');
+        if (!tEl || !tEl.textContent) return;
+        (tEl as HTMLElement).style.color = USER_COLOR_MAP[username];
+        console.log("applied", USER_COLOR_MAP[username]);
+    });
+}
+
+
+// 3. Modify message rendering to color usernames
 export function chatMessage (user: string, message: string, chatType: string, time?: number, ply?: number, ctrl?: RoundControllerBughouse) {
 
     const chatDiv = document.getElementById(chatType + '-messages') as HTMLElement;
@@ -97,6 +137,9 @@ export function chatMessage (user: string, message: string, chatType: string, ti
     } else {
         patch(container, h('div#messages', [ h("li.message", [h("div.time", localTime), h("user", h("a", { attrs: {href: "/@/" + user} }, user)), h("t", { attrs: {"title": ctrl?.steps[ply!].san!}, on: { click: () => { onchatclick(ply, ctrl) }}}, message)]) ]));
     }
+
+    // Apply colors after rendering
+    setTimeout(() => applyUserColors(chatType), 200);
 
     if (isBottom) setTimeout(() => {chatDiv.scrollTop = chatDiv.scrollHeight;}, 200);
 }
