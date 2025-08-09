@@ -5,13 +5,37 @@ import { patch } from './document';
 import { RoundControllerBughouse } from "./bug/roundCtrl.bug";
 import { onchatclick, renderBugChatPresets} from "@/bug/chat.bug";
 
-export interface ChatController {
-    anon: boolean;
-    doSend: any;
-    spectator?: boolean;
-    gameId?: string;
-    tournamentId?: string;
+// ------ Deterministic color assignment for usernames, theme-aware ------
+function getThemeColorParams(): { s: number; lBase: number; lMod: number } {
+    const theme = document.body?.dataset?.theme;
+    if (theme === 'dark') {
+        return { s: 100, lBase: 50, lMod: 10 };
+    } else {
+        return { s: 60, lBase: 55, lMod: 10 };
+    }
 }
+
+/**
+ * Returns a mapping from username to HSL color, deterministically assigned by
+ * alphabetical order and spaced evenly around the color wheel.
+ * Saturation and lightness are chosen based on theme and username length.
+ */
+function assignUsernameColors(usernames: string[]): Record<string, string> {
+    const { s, lBase, lMod } = getThemeColorParams();
+    const sorted = [...usernames].sort((a, b) => a.localeCompare(b));
+    const total = sorted.length;
+    const colors: Record<string, string> = {};
+    for (let i = 0; i < total; ++i) {
+        const name = sorted[i];
+        const lightness = lBase + (name.length % lMod);
+        const hue = Math.round(i * 360 / total);
+        colors[name] = `hsl(${hue}, ${s}%, ${lightness}%)`;
+    }
+    return colors;
+}
+
+// Stores all seen usernames for color assignment (session-based)
+const activeUsernames = new Set<string>();
 
 export function chatView(ctrl: ChatController, chatType: string) {
     const spectator = ("spectator" in ctrl && ctrl.spectator);
@@ -76,26 +100,76 @@ export function chatView(ctrl: ChatController, chatType: string) {
 }
 
 
-export function chatMessage (user: string, message: string, chatType: string, time?: number, ply?: number, ctrl?: RoundControllerBughouse) {
+export function chatMessage (
+    user: string,
+    message: string,
+    chatType: string,
+    time?: number,
+    ply?: number,
+    ctrl?: RoundControllerBughouse
+) {
 
     const chatDiv = document.getElementById(chatType + '-messages') as HTMLElement;
-    // You must add border widths, padding and margins to the right.
-    // Only scroll the chat on a new message if the user is at the very bottom of the chat
     const isBottom = chatDiv.scrollHeight - (chatDiv.scrollTop + chatDiv.offsetHeight) < 80;
     const localTime = time ? new Date(time * 1000).toLocaleTimeString("default", { hour: "2-digit", minute: "2-digit", hour12: false }) : "";
-
     const container = document.getElementById('messages') as HTMLElement;
+
+    // Update active usernames set
+    if (user.length && user !== '_server' && user !== 'Discord-Relay') {
+        activeUsernames.add(user);
+    }
+    // Special handling for Discord-Relay messages
+    let discordUser = "";
+    if (user === 'Discord-Relay') {
+        const colonIndex = message.indexOf(':');
+        if (colonIndex > 0) {
+            discordUser = message.substring(0, colonIndex);
+            activeUsernames.add(discordUser);
+        }
+    }
+    // Get color mapping
+    const usernameColorMap = assignUsernameColors(Array.from(activeUsernames));
+
     if (user.length === 0) {
         patch(container, h('div#messages', [ h("li.message.offer", [h("t", message)]) ]));
     } else if (user === '_server') {
         patch(container, h('div#messages', [ h("li.message.server", [h("div.time", localTime), h("user", _('Server')), h("t", message)]) ]));
     } else if (user === 'Discord-Relay') {
-        const colonIndex = message.indexOf(':'); // Discord doesn't allow colons in usernames so the first colon signifies the start of the message
-        const discordUser = message.substring(0, colonIndex);
-        const discordMessage = message.substring(colonIndex + 2);
-        patch(container, h('div#messages', [ h("li.message", [h("div.time", localTime), h("div.discord-icon-container", h("img.icon-discord-icon", { attrs: { src: '/static/icons/discord.svg', alt: "" } })), h("user", discordUser), h("t", discordMessage)]) ]));
+        const colonIndex = message.indexOf(':');
+        if (colonIndex > 0) {
+            discordUser = message.substring(0, colonIndex);
+            const discordMessage = message.substring(colonIndex + 2);
+            patch(container, h('div#messages', [
+                h("li.message", [
+                    h("div.time", localTime),
+                    h("div.discord-icon-container", h("img.icon-discord-icon", { attrs: { src: '/static/icons/discord.svg', alt: "" } })),
+                    h("user", { style: { color: usernameColorMap[discordUser] || "#aaa" } }, discordUser),
+                    h("t", discordMessage)
+                ])
+            ]));
+        } else {
+            patch(container, h('div#messages', [
+                h("li.message", [
+                    h("div.time", localTime),
+                    h("div.discord-icon-container", h("img.icon-discord-icon", { attrs: { src: '/static/icons/discord.svg', alt: "" } })),
+                    h("user", { style: { color: "#aaa" } }, user),
+                    h("t", message)
+                ])
+            ]));
+        }
     } else {
-        patch(container, h('div#messages', [ h("li.message", [h("div.time", localTime), h("user", h("a", { attrs: {href: "/@/" + user} }, user)), h("t", { attrs: {"title": ctrl?.steps[ply!].san!}, on: { click: () => { onchatclick(ply, ctrl) }}}, message)]) ]));
+        patch(container, h('div#messages', [
+            h("li.message", [
+                h("div.time", localTime),
+                h("user", [
+                    h("a", {
+                        attrs: { href: "/@/" + user },
+                        style: { color: usernameColorMap[user] || "#aaa" }
+                    }, user)
+                ]),
+                h("t", { attrs: {"title": ctrl?.steps[ply!].san!}, on: { click: () => { onchatclick(ply, ctrl) }}}, message)
+            ])
+        ]));
     }
 
     if (isBottom) setTimeout(() => {chatDiv.scrollTop = chatDiv.scrollHeight;}, 200);
