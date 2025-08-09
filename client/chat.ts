@@ -5,6 +5,14 @@ import { patch } from './document';
 import { RoundControllerBughouse } from "./bug/roundCtrl.bug";
 import { onchatclick, renderBugChatPresets} from "@/bug/chat.bug";
 
+export interface ChatController {
+    anon: boolean;
+    doSend: any;
+    spectator?: boolean;
+    gameId?: string;
+    tournamentId?: string;
+}
+
 // ------ Deterministic color assignment for usernames, theme-aware ------
 function getThemeColorParams(): { s: number; lBase: number; lMod: number } {
     const theme = document.body?.dataset?.theme;
