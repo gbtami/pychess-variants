@@ -17,7 +17,7 @@ export interface ChatController {
 function getThemeColorParams(): { s: number; lBase: number; lMod: number } {
     const theme = document.body?.dataset?.theme;
     if (theme === 'dark') {
-        return { s: 80, lBase: 50, lMod: 10 };
+        return { s: 60, lBase: 50, lMod: 10 };
     } else {
         return { s: 70, lBase: 60, lMod: 10 };
     }
