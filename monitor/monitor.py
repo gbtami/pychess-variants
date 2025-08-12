@@ -72,7 +72,7 @@ class MemoryMonitorApp(App):
         """Set up the app on startup."""
         # Configure the allocation table
         alloc_table = self.query_one("#alloc_table", DataTable)
-        alloc_table.add_columns("File", "Line", "Size (KB)", "Traceback")
+        alloc_table.add_columns("Type", "Count", "Size (bytes)", "Size (human)")
         alloc_table.zebra_stripes = True
 
         # Configure the details table with initial columns
@@ -108,10 +108,10 @@ class MemoryMonitorApp(App):
                         self.conn_memory_size = data.get("object_sizes", {}).get("connections", 0.0)
                         self.top_allocations = [
                             (
-                                alloc["file"],
-                                alloc["line"],
-                                alloc["size_kb"],
-                                alloc["traceback"],
+                                alloc["type"],
+                                alloc["count"],
+                                alloc["size_bytes"],
+                                alloc["size_human"],
                             )
                             for alloc in data.get("top_allocations", [])
                         ]
