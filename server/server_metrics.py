@@ -83,9 +83,8 @@ def memory_stats(top_n=10):
             Variant,
         ):
             obj_type = type(obj).__name__
-            print("---", obj_type)
             type_info[obj_type]["count"] += 1
-            if type(obj) == Task:
+            if type(obj) is Task:
                 type_info[obj_type]["size"] += sys.getsizeof(obj)
             else:
                 type_info[obj_type]["size"] += get_deep_size(obj)
