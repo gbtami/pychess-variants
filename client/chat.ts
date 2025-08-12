@@ -35,15 +35,21 @@ function assignUsernameColors(usernames: string[]): Record<string, string> {
     const colors: Record<string, string> = {};
     for (let i = 0; i < total; ++i) {
         const name = sorted[i];
-        const lightness = lBase + (name.length % lMod);
-        const hue = Math.round(i * 360 / total);
-        colors[name] = `hsl(${hue}, ${s}%, ${lightness}%)`;
+        if (!userColorMap[name]) {
+            const lightness = lBase + (name.length % lMod);
+            const hue = Math.round((i + 1) * 360 / (total + 1));
+            colors[name] = `hsl(${hue} ${s} ${lightness})`;
+            userColorMap[name] = colors[name];
+        } else {
+            colors[name] = userColorMap[name];
+        }
     }
     return colors;
 }
 
 // Stores all seen usernames for color assignment (session-based)
 const activeUsernames = new Set<string>();
+const userColorMap: { [username: string]: string } = {};
 
 export function chatView(ctrl: ChatController, chatType: string) {
     const spectator = ("spectator" in ctrl && ctrl.spectator);
