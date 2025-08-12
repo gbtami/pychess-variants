@@ -64,36 +64,50 @@ def memory_stats(top_n=10):
 
     objects = gc.get_objects()
 
-    type_info = defaultdict(lambda: {'count': 0, 'size': 0})
+    type_info = defaultdict(lambda: {"count": 0, "size": 0})
 
     for obj in objects:
-        if type(obj) in (Clock, Game, User, Seek, PlayerData, GameData, ArenaTournament, Lobby, WebSocketResponse, Task, FairyBoard, Rating, Variant):
+        if type(obj) in (
+            Clock,
+            Game,
+            User,
+            Seek,
+            PlayerData,
+            GameData,
+            ArenaTournament,
+            Lobby,
+            WebSocketResponse,
+            Task,
+            FairyBoard,
+            Rating,
+            Variant,
+        ):
             obj_type = type(obj).__name__
             print("---", obj_type)
-            type_info[obj_type]['count'] += 1
+            type_info[obj_type]["count"] += 1
             if type(obj) == Task:
-                type_info[obj_type]['size'] += sys.getsizeof(obj)
+                type_info[obj_type]["size"] += sys.getsizeof(obj)
             else:
-                type_info[obj_type]['size'] += get_deep_size(obj)
+                type_info[obj_type]["size"] += get_deep_size(obj)
 
     # Sort by total deep size descending
-    sorted_types = sorted(
-        type_info.items(),
-        key=lambda x: x[1]['size'],
-        reverse=True
-    )[:top_n]
+    sorted_types = sorted(type_info.items(), key=lambda x: x[1]["size"], reverse=True)[:top_n]
 
     # Convert to list of dicts for easy consumption/printing
     result = [
         {
-            'type': t,
-            'count': info['count'],
-            'size_bytes': info['size'],
-            'size_human': (
-                f"{info['size'] / 1024 / 1024:.2f} MB" if info['size'] >= 1024 * 1024 else
-                f"{info['size'] / 1024:.2f} KB" if info['size'] >= 1024 else
-                f"{info['size']} bytes"
-            )
+            "type": t,
+            "count": info["count"],
+            "size_bytes": info["size"],
+            "size_human": (
+                f"{info['size'] / 1024 / 1024:.2f} MB"
+                if info["size"] >= 1024 * 1024
+                else (
+                    f"{info['size'] / 1024:.2f} KB"
+                    if info["size"] >= 1024
+                    else f"{info['size']} bytes"
+                )
+            ),
         }
         for t, info in sorted_types
     ]
