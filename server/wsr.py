@@ -405,7 +405,7 @@ async def handle_rematch(app_state: PychessGlobalAppState, ws, user, data, game)
         response = await join_seek(app_state, engine, seek)
         await ws_send_json(ws, response)
 
-        await engine.event_queue.put(challenge(seek, response))
+        await engine.event_queue.put(challenge(seek))
         gameId = response["gameId"]
         rematch_id = gameId
         engine.game_queues[gameId] = asyncio.Queue()
@@ -676,6 +676,8 @@ async def handle_roundchat(app_state: PychessGlobalAppState, ws, user, data, gam
 
     gameId = data["gameId"]
     message = data["message"]
+    room = data["room"]
+
     # Users running a fishnet worker can ask server side analysis with chat message: !analysis
     if data["message"] == "!analysis" and user.username in app_state.fishnet_versions:
         for step in game.steps:
@@ -688,7 +690,7 @@ async def handle_roundchat(app_state: PychessGlobalAppState, ws, user, data, gam
         "roundchat",
         user.username,
         message,
-        room=data["room"],
+        room=room,
     )
 
     game.handle_chat_message(response)
@@ -698,8 +700,8 @@ async def handle_roundchat(app_state: PychessGlobalAppState, ws, user, data, gam
         if player.bot:
             if gameId in player.game_queues:
                 await player.game_queues[gameId].put(
-                    '{"type": "chatLine", "username": "%s", "room": "spectator", "text": "%s"}\n'
-                    % (user.username, message)
+                    '{"type": "chatLine", "username": "%s", "room": %s, "text": "%s"}\n'
+                    % (user.username, room, message)
                 )
         else:
             await player.send_game_message(gameId, response)

@@ -17,7 +17,7 @@ export function inviteView(model: PyChessModel): VNode[] {
     const gameURLPlayer2 = gameURL + '/player2';
     const seekEmpty = model["seekEmpty"];
 
-    const evtSource = new EventSource("/api/invites");
+    const evtSource = new EventSource("/api/invites/" + gameId);
     evtSource.onmessage = function(event) {
         const message = JSON.parse(event.data);
         if (message.gameId === gameId) {
@@ -30,7 +30,7 @@ export function inviteView(model: PyChessModel): VNode[] {
     if (!player?.match(/player[1-2]/)) player = "";
 
     switch (model["inviter"]) {
-        case "": 
+        case "":
             title = seekEmpty ? _('Host a game for others') : _('Challenge to a game');
             formAction = '/invite/cancel/' + gameId;
             buttonClass = {red: true};

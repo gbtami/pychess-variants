@@ -11,10 +11,8 @@ from bot_api import (
     bot_move,
     challenge_accept,
     challenge_decline,
-    create_bot_seek,
     challenge_create,
-    bot_pong,
-    bot_analysis,
+    bot_token_test,
 )
 from fishnet import (
     fishnet_monitor,
@@ -53,7 +51,7 @@ from twitch import twitch_request_handler
 from puzzle import puzzle_complete, puzzle_vote
 from robots import robots
 from server_metrics import metrics_handler
-from user import block_user, get_blocked_users, set_theme
+from user import block_user, get_blocked_users, set_theme, get_status
 from views import (
     about,
     allplayers,
@@ -175,7 +173,8 @@ get_routes = (
     ("/api/stats/humans", get_variant_stats),
     ("/api/games", get_games),
     ("/api/games/{variant}", get_games),
-    ("/api/invites", subscribe_invites),
+    ("/api/users/status", get_status),
+    (r"/api/invites/{gameId:\w{8}}", subscribe_invites),
     ("/api/ongoing", subscribe_games),
     ("/api/names", get_names),
     ("/paste", paste.paste),
@@ -190,19 +189,17 @@ get_routes = (
 )
 
 post_routes = (
+    ("/api/token/test", bot_token_test),
     ("/api/bot/game/{gameId}/abort", bot_abort),
     ("/api/bot/game/{gameId}/resign", bot_resign),
-    ("/api/bot/game/{gameId}/analysis", bot_analysis),
     ("/api/bot/game/{gameId}/chat", bot_chat),
     ("/api/bot/game/{gameId}/move/{move}", bot_move),
     ("/api/challenge/{username}", challenge_create),
     (r"/invite/accept/{gameId:\w{8}}", invite.invite),
     (r"/invite/accept/{gameId:\w{8}}/{player:player[1-2]}", invite.invite),
     (r"/invite/cancel/{gameId:\w{8}}", cancel_invite),
-    ("/api/challenge/{challengeId}/accept", challenge_accept),
-    ("/api/challenge/{challengeId}/decline", challenge_decline),
-    ("/api/seek", create_bot_seek),
-    ("/api/pong", bot_pong),
+    (r"/api/challenge/{gameId:\w{8}}/accept", challenge_accept),
+    (r"/api/challenge/{gameId:\w{8}}/decline", challenge_decline),
     ("/api/check-username", check_username_availability),
     ("/api/confirm-username", confirm_username),
     ("/pref/theme", set_theme),

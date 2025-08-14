@@ -883,6 +883,7 @@ class Game:
 
     @property
     def game_start(self):
+        """BOT API stream event response"""
         return (
             '{"type": "gameStart", "game": {"id": "%s", "skill_level": "%s", "chess960": "%s"}}\n'
             % (self.id, self.level, self.chess960)
@@ -894,29 +895,37 @@ class Game:
 
     @property
     def game_full(self):
+        """BOT API Stream Bot game data and state"""
         return (
-            '{"type": "gameFull", "id": "%s", "variant": {"name": "%s"}, "white": {"name": "%s"}, "black": {"name": "%s"}, "initialFen": "%s", "state": %s}\n'
+            '{"type": "gameFull", "id": "%s", "variant": {"name": "%s"}, "white": {"name": "%s"}, "black": {"name": "%s"}, "initialFen": "%s", "createdAt": %s, "state": %s}\n'
             % (
                 self.id,
                 self.variant,
                 self.wplayer.username,
                 self.bplayer.username,
                 self.initial_fen,
+                int(self.date.timestamp()),
                 self.game_state[:-1],
             )
         )
 
     @property
     def game_state(self):
+        """BOT API Stream Bot game state"""
         clocks = self.clocks
         return (
-            '{"type": "gameState", "moves": "%s", "wtime": %s, "btime": %s, "winc": %s, "binc": %s}\n'
+            '{"type": "gameState", "moves": "%s", "wtime": %s, "btime": %s, "winc": %s, "binc": %s, "wdraw": %s, "bdraw": %s, "wtakeback": %s, "btakeback": %s, "status": "%s"}\n'
             % (
                 " ".join(self.board.move_stack),
                 clocks[WHITE],
                 clocks[BLACK],
                 self.inc,
                 self.inc,
+                str(False).lower(),
+                str(False).lower(),
+                str(False).lower(),
+                str(False).lower(),
+                "started",
             )
         )
 
