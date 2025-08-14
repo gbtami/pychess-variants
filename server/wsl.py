@@ -63,6 +63,8 @@ async def finally_logic(app_state: PychessGlobalAppState, ws, user):
         if ws in user.lobby_sockets:
             user.lobby_sockets.remove(ws)
             user.update_online()
+            if len(app_state.lobby.lobbysockets[user.username]) == 0:
+                del app_state.lobby.lobbysockets[user.username]
 
         # not connected to lobby socket and not connected to game socket
         if user.is_user_active_in_game() and len(user.lobby_sockets) == 0:

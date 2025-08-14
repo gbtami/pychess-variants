@@ -1,8 +1,9 @@
+import inspect
 import json
 import os
 import sys
 import gc
-from asyncio import Task
+from asyncio import Task, Queue
 from collections import defaultdict
 from collections.abc import Iterable
 from datetime import datetime
@@ -44,7 +45,7 @@ def get_deep_size(obj, seen=None):
     return size
 
 
-def memory_stats(top_n=10):
+def memory_stats(top_n=20):
     """
     Collects memory usage statistics for the top N object types in the Python heap.
     - Performs garbage collection to clean up unreferenced objects.
@@ -66,6 +67,8 @@ def memory_stats(top_n=10):
 
     type_info = defaultdict(lambda: {"count": 0, "size": 0})
 
+    tasks = []
+
     for obj in objects:
         if type(obj) in (
             Clock,
@@ -78,6 +81,7 @@ def memory_stats(top_n=10):
             Lobby,
             WebSocketResponse,
             Task,
+            Queue,
             FairyBoard,
             Rating,
             Variant,
@@ -86,6 +90,16 @@ def memory_stats(top_n=10):
             type_info[obj_type]["count"] += 1
             if type(obj) is Task:
                 type_info[obj_type]["size"] += sys.getsizeof(obj)
+                stack = obj.get_stack(limit=1)
+                if len(stack) > 0:
+                    stack_file = inspect.getfile(stack[0])
+                    stack_source = inspect.getsource(stack[0])
+                else:
+                    stack_file = "-"
+                    stack_source = obj.get_name()
+                tasks.append(
+                    {"id": id(obj), "name": obj.get_name(), "state": obj._state, "file": stack_file, "source": stack_source}
+                )
             else:
                 type_info[obj_type]["size"] += get_deep_size(obj)
 
@@ -111,7 +125,7 @@ def memory_stats(top_n=10):
         for t, info in sorted_types
     ]
 
-    return result
+    return result, tasks
 
 
 async def metrics_handler(request):
@@ -120,7 +134,7 @@ async def metrics_handler(request):
     active_connections = app_state.lobby.lobbysockets
 
     # Take snapshot
-    top_stats = memory_stats()
+    top_stats, tasks = memory_stats()
 
     # Prepare object details
     users = [
@@ -144,13 +158,14 @@ async def metrics_handler(request):
         for game_id, game in sorted(app_state.games.items(), key=lambda x: x[1].date, reverse=True)
     ]
     connections = [
-        {"id": username, "timestamp": datetime.now().isoformat()}  # Example attributes
+        {"id": username, "timestamp": datetime.now().isoformat()}
         for username in app_state.lobby.lobbysockets
     ]
 
     # Calculate memory sizes
     user_memory_size = get_deep_size(app_state.users) / 1024  # Convert to KB
     game_memory_size = get_deep_size(app_state.games) / 1024  # Convert to KB
+    task_memory_size = sum([sys.getsizeof(obj) for obj in tasks]) / 1024  # Convert to KB
     conn_memory_size = get_deep_size(active_connections) / 1024  # Convert to KB
 
     metrics = {
@@ -169,17 +184,21 @@ async def metrics_handler(request):
         "object_counts": {
             "users": len(users),
             "games": len(games),
+            "tasks": len(tasks),
             "connections": len(connections),
         },
         "object_sizes": {
             "users": user_memory_size,
             "games": game_memory_size,
+            "tasks": task_memory_size,
             "connections": conn_memory_size,
         },
         "object_details": {
             "users": users,
             "games": games,
+            "tasks": tasks,
             "connections": connections,
         },
     }
+
     return web.json_response(metrics, dumps=partial(json.dumps, default=datetime.isoformat))
