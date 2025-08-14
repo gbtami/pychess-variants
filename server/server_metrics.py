@@ -98,7 +98,13 @@ def memory_stats(top_n=20):
                     stack_file = "-"
                     stack_source = obj.get_name()
                 tasks.append(
-                    {"id": id(obj), "name": obj.get_name(), "state": obj._state, "file": stack_file, "source": stack_source}
+                    {
+                        "id": id(obj),
+                        "name": obj.get_name(),
+                        "state": obj._state,
+                        "file": stack_file,
+                        "source": stack_source,
+                    }
                 )
             else:
                 type_info[obj_type]["size"] += get_deep_size(obj)
