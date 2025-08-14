@@ -424,12 +424,6 @@ promotedPieceType = g:k
 promotionRegionWhite = -
 promotionRegionBlack = -
 
-# Misc Rules
-nMoveRule = 0
-perpetualCheckIllegal = true
-chasingRule = axf
-stalemateValue = loss
-
 [sinting:chess]
 customPiece1 = r:vWnD
 customPiece2 = n:N
