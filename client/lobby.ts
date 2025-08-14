@@ -36,6 +36,7 @@ const autoPairingTCs: [number, number, number][] = [
 export function createModeStr(mode: CreateMode) {
     switch (mode) {
     case 'playAI': return _("Play with AI");
+    case 'playBOT': return _("Play with a BOT");
     case 'playFriend': return _("Play with a friend");
     case 'createHost': return _("Host a game for others");
     case 'createGame': return _("Create a game");
@@ -128,14 +129,14 @@ export class LobbyController implements ChatController {
 
         this.dialogHeaderEl = document.getElementById('header-block') as HTMLElement;
 
-        // challenge!
+        // challenge (or CREATE GAME from the main menu)
         if (this.profileid !== "") {
-            if (this.profileid === 'Fairy-Stockfish') {
-                this.createMode = 'playAI';
+            if (this.title === 'BOT') {
+                this.createMode = (this.profileid === 'Fairy-Stockfish') ? 'playAI' : 'playBOT';
                 this.preSelectVariant(model.variant);
             }
             else if (this.profileid === 'Invite-friend') this.createMode = 'playFriend';
-            document.getElementById('game-mode')!.style.display = (this.anon || this.createMode === 'playAI') ? 'none' : 'inline-flex';
+            document.getElementById('game-mode')!.style.display = (this.anon || this.title === 'BOT') ? 'none' : 'inline-flex';
             this.renderDialogHeader(_('Challenge %1 to a game', this.profileid));
             document.getElementById('ailevel')!.style.display = this.createMode === 'playAI' ? 'block' : 'none';
             document.getElementById('rmplay-block')!.style.display = this.createMode === 'playAI' ? 'block' : 'none';
@@ -143,6 +144,7 @@ export class LobbyController implements ChatController {
             document.getElementById('color-button-group')!.style.display = 'block';
             document.getElementById('create-button')!.style.display = 'none';
 
+            // CREATE GAME from the main menu
             if (this.profileid === 'any#') {
                 this.profileid = '';
                 this.createGame();
@@ -216,7 +218,24 @@ export class LobbyController implements ChatController {
         });
     }
 
-    createBotChallengeMsg(variant: string, color: string, fen: string, minutes: number, increment: number, byoyomiPeriod: number, level: number, rm: boolean, chess960: boolean, rated: boolean) {
+    createBOTChallengeMsg(variant: string, color: string, fen: string, minutes: number, increment: number, byoyomiPeriod: number, chess960: boolean, rated: boolean) {
+        this.doSend({
+            type: "create_bot_challenge",
+            user: this.username,
+            target: 'BOT_challenge',
+            variant: variant,
+            fen: fen,
+            minutes: minutes,
+            increment: increment,
+            byoyomiPeriod: byoyomiPeriod,
+            rated: rated,
+            chess960: chess960,
+            color: color,
+            profileid: this.profileid
+        });
+    }
+
+    createAIChallengeMsg(variant: string, color: string, fen: string, minutes: number, increment: number, byoyomiPeriod: number, level: number, rm: boolean, chess960: boolean, rated: boolean) {
         this.doSend({
             type: "create_ai_challenge",
             rm: rm,
@@ -229,7 +248,8 @@ export class LobbyController implements ChatController {
             rated: rated,
             level: level,
             chess960: chess960,
-            color: color
+            color: color,
+            profileid: (this.profileid === "") ? "Fairy-Stockfish" : this.profileid
         });
     }
 
@@ -353,7 +373,10 @@ export class LobbyController implements ChatController {
                     localStorage.seek_rmplay = e.checked;
                 }
                 const rm = e.checked;
-                this.createBotChallengeMsg(variant.name, seekColor, fen, minutes, increment, byoyomiPeriod, level, rm, chess960, rated);
+                this.createAIChallengeMsg(variant.name, seekColor, fen, minutes, increment, byoyomiPeriod, level, rm, chess960, rated);
+                break;
+            case 'playBOT':
+                this.createBOTChallengeMsg(variant.name, seekColor, fen, minutes, increment, byoyomiPeriod, chess960, rated);
                 break;
             case 'playFriend':
                 this.createInviteFriendMsg(variant.name, seekColor, fen, minutes, increment, byoyomiPeriod, day, chess960, rated);
@@ -1121,6 +1144,9 @@ export class LobbyController implements ChatController {
             case "invite_created":
                 this.onMsgInviteCreated(msg);
                 break;
+            case "bot_challenge_created":
+                this.onMsgBOTChallengeCreated(msg);
+                break;
             case "host_created":
                 this.onMsgHostCreated(msg);
                 break;
@@ -1139,6 +1165,18 @@ export class LobbyController implements ChatController {
             case "logout":
                 this.doSend({type: "logout"});
                 break;
+        }
+    }
+
+    private onMsgBOTChallengeCreated(msg: MsgInviteCreated) {
+        const gameURL = '/' + msg.gameId;
+        const evtSource = new EventSource("/api/invites/" + msg.gameId);
+        evtSource.onmessage = function(event) {
+            const message = JSON.parse(event.data);
+            // console.log("event from SSE", msg.gameId, message)
+            if (message.gameId === msg.gameId) {
+                window.location.assign(gameURL);
+            }
         }
     }
 
