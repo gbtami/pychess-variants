@@ -10,7 +10,7 @@ import { _, ngettext, languageSettings } from './i18n';
 import { patch } from './document';
 import { boardSettings } from './boardSettings';
 import { chatMessage, chatView, ChatController } from './chat';
-import { enabledVariants, twoBoarsVariants, VARIANTS, selectVariant, Variant } from './variants';
+import { contestVariants, enabledVariants, twoBoarsVariants, VARIANTS, selectVariant, Variant } from './variants';
 import { timeControlStr, changeTabs, setAriaTabClick } from './view';
 import { notify } from './notification';
 import { PyChessModel } from "./types";
@@ -1050,7 +1050,7 @@ export class LobbyController implements ChatController {
             const variant = VARIANTS[v];
             let variantName = variant.name;
             let checked = localStorage[`va_${variantName}`] ?? "false";
-            if (!variant.twoBoards) {
+            if (!variant.twoBoards && !(contestVariants.includes(variantName))) {
                 variantList.push(h('label', [h('input', { props: { name: `va_${variantName}`, type: "checkbox" }, attrs: { checked: checked === "true" } }), variantName]));
                 if (variant.chess960) {
                     variantName = variantName + '960';
