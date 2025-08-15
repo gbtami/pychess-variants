@@ -11,7 +11,7 @@ from aiohttp_sse import sse_response
 import pymongo
 
 from compress import C2R, decode_move_standard
-from const import DARK_FEN, STARTED, MATE, INVALIDMOVE, VARIANTEND, CLAIM
+from const import DARK_FEN, STARTED, MATE, INVALIDMOVE, VARIANTEND, CLAIM, SSE_GET_TIMEOUT
 from convert import zero2grand
 from settings import ADMINS
 from tournament.tournaments import get_tournament_name
@@ -381,14 +381,18 @@ async def cancel_invite(request):
 async def subscribe_invites(request):
     app_state = get_app_state(request.app)
     gameId = request.match_info.get("gameId")
+    queue = asyncio.Queue()
+    app_state.invite_channels[gameId] = queue
     try:
         async with sse_response(request) as response:
-            queue = asyncio.Queue()
-            app_state.invite_channels[gameId] = queue
             while response.is_connected():
-                payload = await queue.get()
-                await response.send(payload)
-                queue.task_done()
+                try:
+                    payload = await asyncio.wait_for(queue.get(), timeout=SSE_GET_TIMEOUT)
+                    await response.send(payload)
+                    queue.task_done()
+                except asyncio.TimeoutError:
+                    if not response.is_connected():
+                        break
     except Exception:
         pass
     finally:
@@ -403,9 +407,13 @@ async def subscribe_games(request):
     try:
         async with sse_response(request) as response:
             while response.is_connected():
-                payload = await queue.get()
-                await response.send(payload)
-                queue.task_done()
+                try:
+                    payload = await asyncio.wait_for(queue.get(), timeout=SSE_GET_TIMEOUT)
+                    await response.send(payload)
+                    queue.task_done()
+                except asyncio.TimeoutError:
+                    if not response.is_connected():
+                        break
     except Exception:
         pass
     finally:
