@@ -115,7 +115,7 @@ class PychessGlobalAppState:
         self.games: dict[str, Game] = {}
         self.invites: dict[str, Seek] = {}
         self.game_channels: Set[queue] = set()
-        self.invite_channels: dict[str, queue] = {}
+        self.invite_channels: dict[str, Set[queue]] = {}
         self.highscore = {variant: ValueSortedDict(neg) for variant in RATED_VARIANTS}
         self.shield = {}
         self.shield_owners = {}  # {variant: username, ...}

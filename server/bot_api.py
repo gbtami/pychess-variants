@@ -89,8 +89,9 @@ async def challenge_accept(request):
 
         try:
             # Put response data to sse subscriber queue
-            queue = app_state.invite_channels[gameId]
-            await queue.put(json.dumps({"gameId": gameId, "accept": True}))
+            channels = app_state.invite_channels[gameId]
+            for queue in channels:
+                await queue.put(json.dumps({"gameId": gameId, "accept": True}))
         except ConnectionResetError:
             log.error("/api/challenge/{%s}/accept ConnectionResetError", gameId)
 
@@ -120,8 +121,9 @@ async def challenge_decline(request):
 
     try:
         # Put response data to sse subscriber queue
-        queue = app_state.invite_channels[gameId]
-        await queue.put(json.dumps({"gameId": gameId, "accept": False}))
+        channels = app_state.invite_channels[gameId]
+        for queue in channels:
+            await queue.put(json.dumps({"gameId": gameId, "accept": False}))
     except ConnectionResetError:
         log.error("/api/challenge/{%s}/decline ConnectionResetError", gameId)
 
