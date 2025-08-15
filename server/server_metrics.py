@@ -25,6 +25,30 @@ from tournament.arena_new import ArenaTournament
 from pychess_global_app_state_utils import get_app_state
 
 
+def inspect_referrer(ref):
+    if isinstance(ref, dict):
+        print("  Dictionary referrer:")
+        print("     ", list(ref.keys()))
+    elif isinstance(ref, Task):
+        print("  TASK REFERRER   ")
+        print("     ", ref.get_name())
+    elif hasattr(ref, '__dict__'):
+        print("  Object referrer:")
+        print("     ", list(ref.__dict__.keys()))
+    elif isinstance(ref, set):
+        print("  Set referrer:")
+        li = list(ref)
+        print("     ", li if len(li) == 0 else li[0])
+    elif isinstance(ref, Iterable):
+        print("  Iterable referrer:")
+        try:
+            print("     ", ref if len(ref) == 0 else ref[0])
+        except TypeError:
+            print("     ", id(ref))
+    else:
+        print(f"  Other referrer: {ref}")
+
+
 # Helper function to calculate deep memory size
 def get_deep_size(obj, seen=None):
     """Recursively calculate the memory size of an object."""
@@ -68,6 +92,7 @@ def memory_stats(top_n=20):
     type_info = defaultdict(lambda: {"count": 0, "size": 0})
 
     tasks = []
+    queues = []
 
     for obj in objects:
         if type(obj) in (
@@ -92,11 +117,18 @@ def memory_stats(top_n=20):
                 type_info[obj_type]["size"] += sys.getsizeof(obj)
                 stack = obj.get_stack(limit=1)
                 if len(stack) > 0:
-                    stack_file = inspect.getfile(stack[0])
-                    stack_source = inspect.getsource(stack[0])
+                    stack_file = "/".join(inspect.getfile(stack[0]).split("/")[-2:])
+                    stack_source = inspect.getsource(stack[0])[:25]
+
+                    if 0:  # "aiohttp" in stack_file:
+                        referrers = gc.get_referrers(obj)
+                        print("------", obj.get_name())
+                        for ref in referrers:
+                            inspect_referrer(ref)
                 else:
                     stack_file = "-"
-                    stack_source = obj.get_name()
+                    stack_source = "-"
+
                 tasks.append(
                     {
                         "id": id(obj),
@@ -104,6 +136,17 @@ def memory_stats(top_n=20):
                         "state": obj._state,
                         "file": stack_file,
                         "source": stack_source,
+                    }
+                )
+
+            elif type(obj) is Queue:
+                queues.append(
+                    {
+                        "id": id(obj),
+                        "name": str(obj),
+                        "size": obj.qsize(),
+                        "file": "-",
+                        "source": "-",
                     }
                 )
             else:
@@ -131,7 +174,7 @@ def memory_stats(top_n=20):
         for t, info in sorted_types
     ]
 
-    return result, tasks
+    return result, tasks, queues
 
 
 async def metrics_handler(request):
@@ -140,7 +183,7 @@ async def metrics_handler(request):
     active_connections = app_state.lobby.lobbysockets
 
     # Take snapshot
-    top_stats, tasks = memory_stats()
+    top_stats, tasks, queues = memory_stats()
 
     # Prepare object details
     users = [
@@ -172,6 +215,7 @@ async def metrics_handler(request):
     user_memory_size = get_deep_size(app_state.users) / 1024  # Convert to KB
     game_memory_size = get_deep_size(app_state.games) / 1024  # Convert to KB
     task_memory_size = sum([sys.getsizeof(obj) for obj in tasks]) / 1024  # Convert to KB
+    queue_memory_size = sum([sys.getsizeof(obj) for obj in queues]) / 1024  # Convert to KB
     conn_memory_size = get_deep_size(active_connections) / 1024  # Convert to KB
 
     metrics = {
@@ -191,18 +235,21 @@ async def metrics_handler(request):
             "users": len(users),
             "games": len(games),
             "tasks": len(tasks),
+            "queues": len(queues),
             "connections": len(connections),
         },
         "object_sizes": {
             "users": user_memory_size,
             "games": game_memory_size,
             "tasks": task_memory_size,
+            "queues": queue_memory_size,
             "connections": conn_memory_size,
         },
         "object_details": {
             "users": users,
             "games": games,
             "tasks": tasks,
+            "queues": queues,
             "connections": connections,
         },
     }

@@ -20,7 +20,10 @@ Button {
     background: $secondary;
 }
 #conn_button {
-    background: $error;
+    background: gray;
+}
+#queues_button {
+    background: brown;
 }
 Label {
     margin: 1;
@@ -44,8 +47,6 @@ Horizontal {
 }
 #right_panel {
     width: 75%;
-    border: solid green;
-    border-title-color: green;
 }
 #users_sparkline > .sparkline--max-color { color: $success; }
 #users_sparkline > .sparkline--min-color { color: $success 30%; }
