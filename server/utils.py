@@ -24,6 +24,7 @@ from const import (
     CASUAL,
     RATED,
     IMPORTED,
+    SSE_GET_TIMEOUT,
     T_STARTED,
 )
 from compress import R2C, C2R
@@ -973,9 +974,13 @@ async def subscribe_notify(request):
     try:
         async with sse_response(request) as response:
             while response.is_connected():
-                payload = await queue.get()
-                await response.send(payload)
-                queue.task_done()
+                try:
+                    payload = await asyncio.wait_for(queue.get(), timeout=SSE_GET_TIMEOUT)
+                    await response.send(payload)
+                    queue.task_done()
+                except asyncio.TimeoutError:
+                    if not response.is_connected():
+                        break
     except Exception:
         pass
     finally:

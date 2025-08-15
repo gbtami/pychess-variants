@@ -54,6 +54,9 @@ MAX_HIGHSCORE_ITEM_LIMIT = 50
 # Show the number of spectators only after this limit
 MAX_NAMED_SPECTATORS = 20
 
+# Periodically check for sse_request is_connected()
+SSE_GET_TIMEOUT = 10
+
 
 # tournament status
 @global_enum
