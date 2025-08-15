@@ -1,0 +1,60 @@
+Screen {
+    layout: vertical;
+}
+DataTable {
+    height: 40%;
+    border: solid green;
+    border-title-color: green;
+}
+Button {
+    margin: 1;
+    width: 100%;
+}
+#users_button {
+    background: $success;
+}
+#games_button {
+    background: $warning;
+}
+#tasks_button {
+    background: $secondary;
+}
+#conn_button {
+    background: gray;
+}
+#queues_button {
+    background: brown;
+}
+Label {
+    margin: 1;
+}
+Sparkline {
+    margin: 1;
+    height: 3;
+    width: 100%;
+}
+Horizontal {
+    height: auto;
+}
+#details_table {
+    height: 1fr;
+    min-height: 10;
+}
+#left_panel {
+    width: 25%;
+    border: solid green;
+    border-title-color: green;
+}
+#right_panel {
+    width: 75%;
+}
+#users_sparkline > .sparkline--max-color { color: $success; }
+#users_sparkline > .sparkline--min-color { color: $success 30%; }
+#games_sparkline > .sparkline--max-color { color: $warning; }
+#games_sparkline > .sparkline--min-color { color: $warning 30%; }
+#conn_sparkline > .sparkline--max-color { color: $error; }
+#conn_sparkline > .sparkline--min-color { color: $error 30%; }
+.datatable--header-cursor {
+    background: $accent;
+    color: $text;
+}
