@@ -28,7 +28,9 @@ class MemoryMonitorApp(App):
 
     top_allocations = reactive([])
     selected_category = reactive("none")
-    object_details = reactive({"users": [], "games": [], "tasks": [], "queues": [], "connections": []})
+    object_details = reactive(
+        {"users": [], "games": [], "tasks": [], "queues": [], "connections": []}
+    )
 
     # Historical data for sparklines
     conn_count_history = reactive([])
@@ -55,38 +57,34 @@ class MemoryMonitorApp(App):
         yield Horizontal(
             Vertical(
                 Label("Server PID: [b]{}[/b]".format(self.server_pid), id="pid_label"),
-
                 Button(f"Tasks: {self.task_count}", id="tasks_button"),
                 Label(
                     "Taslks Mem: [b]{:.2f} KB[/b]".format(self.task_memory_size),
                     id="tasks_mem_label",
                 ),
                 Sparkline([], id="tasks_sparkline"),
-
                 Button(f"Queues: {self.queue_count}", id="queues_button"),
                 Label(
                     "Queues Mem: [b]{:.2f} KB[/b]".format(self.queue_memory_size),
                     id="queues_mem_label",
                 ),
                 Sparkline([], id="queues_sparkline"),
-
-
                 Button(f"Users: {self.user_count}", id="users_button"),
                 Label(
                     "Users Mem: [b]{:.2f} KB[/b]".format(self.user_memory_size),
                     id="users_mem_label",
                 ),
                 Sparkline([], id="users_sparkline"),
-
                 Button(f"Games: {self.game_count}", id="games_button"),
                 Label(
                     "Games Mem: [b]{:.2f} KB[/b]".format(self.game_memory_size),
                     id="games_mem_label",
                 ),
                 Sparkline([], id="games_sparkline"),
-
                 Button(f"Connections: {self.conn_count}", id="conn_button"),
-                Label("Conn Mem: [b]{:.2f} KB[/b]".format(self.conn_memory_size), id="conn_mem_label"),
+                Label(
+                    "Conn Mem: [b]{:.2f} KB[/b]".format(self.conn_memory_size), id="conn_mem_label"
+                ),
                 Sparkline([], id="conn_sparkline"),
                 id="left_panel",
             ),
@@ -110,7 +108,9 @@ class MemoryMonitorApp(App):
         details_table.add_column("ID", key="ID")
         details_table.add_column("Details", key="Details")
         # Initialize column_key_map
-        self.column_key_map = {col.key: col.label.plain for i, col in enumerate(details_table.columns.values())}
+        self.column_key_map = {
+            col.key: col.label.plain for i, col in enumerate(details_table.columns.values())
+        }
         details_table.zebra_stripes = True
         details_table.cursor_type = "row"
         details_table.show_header = True
@@ -151,7 +151,10 @@ class MemoryMonitorApp(App):
                             )
                             for alloc in data.get("top_allocations", [])
                         ]
-                        self.object_details = data.get("object_details", {"users": [], "games": [], "tasks": [], "connections": []})
+                        self.object_details = data.get(
+                            "object_details",
+                            {"users": [], "games": [], "tasks": [], "connections": []},
+                        )
 
                         # Update historical data
                         self.user_count_history = self.user_count_history + [self.user_count]
@@ -179,16 +182,24 @@ class MemoryMonitorApp(App):
         self.query_one("#pid_label").update(f"Server PID: [b]{self.server_pid}[/b]")
 
         self.query_one("#tasks_button").label = f"Tasks: {self.task_count}"
-        self.query_one("#tasks_mem_label").update(f"Tasks Mem: [b]{self.task_memory_size:.2f} KB[/b]")
+        self.query_one("#tasks_mem_label").update(
+            f"Tasks Mem: [b]{self.task_memory_size:.2f} KB[/b]"
+        )
 
         self.query_one("#queues_button").label = f"Queues: {self.queue_count}"
-        self.query_one("#queues_mem_label").update(f"Queues Mem: [b]{self.queue_memory_size:.2f} KB[/b]")
+        self.query_one("#queues_mem_label").update(
+            f"Queues Mem: [b]{self.queue_memory_size:.2f} KB[/b]"
+        )
 
         self.query_one("#users_button").label = f"Users: {self.user_count}"
-        self.query_one("#users_mem_label").update(f"Users Mem: [b]{self.user_memory_size:.2f} KB[/b]")
+        self.query_one("#users_mem_label").update(
+            f"Users Mem: [b]{self.user_memory_size:.2f} KB[/b]"
+        )
 
         self.query_one("#games_button").label = f"Games: {self.game_count}"
-        self.query_one("#games_mem_label").update(f"Games Mem: [b]{self.game_memory_size:.2f} KB[/b]")
+        self.query_one("#games_mem_label").update(
+            f"Games Mem: [b]{self.game_memory_size:.2f} KB[/b]"
+        )
 
         self.query_one("#conn_button").label = f"Connections: {self.conn_count}"
         self.query_one("#conn_mem_label").update(f"Conn Mem: [b]{self.conn_memory_size:.2f} KB[/b]")
@@ -278,7 +289,11 @@ class MemoryMonitorApp(App):
 
         if self.sort_column and self.selected_category in column_configs:
             data_key = next(
-                (dk for lbl, dk in column_configs[self.selected_category] if lbl == self.sort_column),
+                (
+                    dk
+                    for lbl, dk in column_configs[self.selected_category]
+                    if lbl == self.sort_column
+                ),
                 None,
             )
             if data_key:

@@ -32,7 +32,7 @@ def inspect_referrer(ref):
     elif isinstance(ref, Task):
         print("  TASK REFERRER   ")
         print("     ", ref.get_name())
-    elif hasattr(ref, '__dict__'):
+    elif hasattr(ref, "__dict__"):
         print("  Object referrer:")
         print("     ", list(ref.__dict__.keys()))
     elif isinstance(ref, set):
