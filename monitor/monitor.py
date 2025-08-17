@@ -1,6 +1,6 @@
 import aiohttp
 from textual.app import App, ComposeResult
-from textual.widgets import Header, Footer, DataTable, Button, Label, Sparkline
+from textual.widgets import Header, Footer, DataTable, Button, Label, Rule, Sparkline, Static, Switch
 from textual.containers import Vertical, Horizontal
 from textual.reactive import reactive
 from rich.text import Text
@@ -12,9 +12,10 @@ class MemoryMonitorApp(App):
 
     CSS_PATH = "monitor.css"
 
+    monitoring = reactive(True)  # switch on/off
+
     # Reactive variables for updating UI
     conn_count = reactive(0)
-    server_pid = reactive(0)
     user_count = reactive(0)
     game_count = reactive(0)
     task_count = reactive(0)
@@ -56,7 +57,12 @@ class MemoryMonitorApp(App):
         yield Header()
         yield Horizontal(
             Vertical(
-                Label("Server PID: [b]{}[/b]".format(self.server_pid), id="pid_label"),
+                Horizontal(
+                    Static("Monitoring:", classes="label"),
+                    Switch(value=True, id="monitoring"),
+                    classes="container",
+                ),
+                Rule(),
                 Button(f"Tasks: {self.task_count}", id="tasks_button"),
                 Label(
                     "Taslks Mem: [b]{:.2f} KB[/b]".format(self.task_memory_size),
@@ -123,12 +129,14 @@ class MemoryMonitorApp(App):
 
     async def update_metrics(self) -> None:
         """Fetch server metrics and update UI."""
+        if not self.monitoring:
+            return
+
         async with aiohttp.ClientSession() as session:
             try:
                 async with session.get(self.server_url) as response:
                     if response.status == 200:
                         data = await response.json()
-                        self.server_pid = data.get("pid", 0)
 
                         self.conn_count = data.get("object_counts", {}).get("connections", 0)
                         self.user_count = data.get("object_counts", {}).get("users", 0)
@@ -179,7 +187,6 @@ class MemoryMonitorApp(App):
 
     def refresh_ui(self) -> None:
         """Update the TUI with new data."""
-        self.query_one("#pid_label").update(f"Server PID: [b]{self.server_pid}[/b]")
 
         self.query_one("#tasks_button").label = f"Tasks: {self.task_count}"
         self.query_one("#tasks_mem_label").update(
@@ -371,6 +378,12 @@ class MemoryMonitorApp(App):
 
         details_table.refresh()
         self.refresh()
+
+    def on_switch_changed(self, event: Switch.Changed) -> None:
+        switch_id = event.switch.id
+        print(switch_id)
+        if switch_id == "monitoring":
+            self.monitoring = not self.monitoring
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         """Handle button presses to select a category."""

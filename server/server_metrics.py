@@ -1,6 +1,5 @@
 import inspect
 import json
-import os
 import sys
 import gc
 from asyncio import Task, Queue
@@ -219,7 +218,6 @@ async def metrics_handler(request):
     conn_memory_size = get_deep_size(active_connections) / 1024  # Convert to KB
 
     metrics = {
-        "pid": os.getpid(),
         "active_connections": len(active_connections),
         "timestamp": datetime.now().isoformat(),
         "top_allocations": [

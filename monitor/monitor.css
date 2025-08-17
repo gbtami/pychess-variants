@@ -1,20 +1,31 @@
 Screen {
     layout: vertical;
 }
+.container {
+    height: auto;
+    width: auto;
+}
+Static {
+    margin: 1;
+}
+Switch {
+    height: auto;
+    width: auto;
+}
 DataTable {
     height: 40%;
-    border: solid green;
-    border-title-color: green;
+    background: $panel;
+    border: $secondary;
 }
 Button {
-    margin: 1;
+    margin: 0 1;
     width: 100%;
 }
 #users_button {
     background: $success;
 }
 #games_button {
-    background: $warning;
+    background: $error;
 }
 #tasks_button {
     background: $secondary;
@@ -23,18 +34,20 @@ Button {
     background: gray;
 }
 #queues_button {
-    background: brown;
+    background: $accent;
 }
 Label {
-    margin: 1;
+    margin-left: 1;
+}
+.label {
+    width: auto;
 }
 Sparkline {
     margin: 1;
-    height: 3;
     width: 100%;
 }
-Horizontal {
-    height: auto;
+Vertical {
+    align: center middle;
 }
 #details_table {
     height: 1fr;
@@ -42,18 +55,23 @@ Horizontal {
 }
 #left_panel {
     width: 25%;
-    border: solid green;
-    border-title-color: green;
+    background: $panel;
+    border: $secondary;
+    content-align: center middle;
 }
 #right_panel {
     width: 75%;
 }
+#tasks_sparkline > .sparkline--max-color { color: $secondary; }
+#tasks_sparkline > .sparkline--min-color { color: $secondary 30%; }
 #users_sparkline > .sparkline--max-color { color: $success; }
 #users_sparkline > .sparkline--min-color { color: $success 30%; }
-#games_sparkline > .sparkline--max-color { color: $warning; }
-#games_sparkline > .sparkline--min-color { color: $warning 30%; }
-#conn_sparkline > .sparkline--max-color { color: $error; }
-#conn_sparkline > .sparkline--min-color { color: $error 30%; }
+#games_sparkline > .sparkline--max-color { color: $error; }
+#games_sparkline > .sparkline--min-color { color: $error 30%; }
+#conn_sparkline > .sparkline--max-color { color: gray; }
+#conn_sparkline > .sparkline--min-color { color: gray 30%; }
+#queues_sparkline > .sparkline--max-color { color: $accent; }
+#queues_sparkline > .sparkline--min-color { color: $accent 30%; }
 .datatable--header-cursor {
     background: $accent;
     color: $text;
