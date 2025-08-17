@@ -1,6 +1,16 @@
 import aiohttp
 from textual.app import App, ComposeResult
-from textual.widgets import Header, Footer, DataTable, Button, Label, Rule, Sparkline, Static, Switch
+from textual.widgets import (
+    Header,
+    Footer,
+    DataTable,
+    Button,
+    Label,
+    Rule,
+    Sparkline,
+    Static,
+    Switch,
+)
 from textual.containers import Vertical, Horizontal
 from textual.reactive import reactive
 from rich.text import Text
