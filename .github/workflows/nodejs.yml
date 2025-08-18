@@ -15,7 +15,7 @@ jobs:
         node-version: [22.x]
 
     steps:
-    - uses: actions/checkout@cbb722410c2e876e24abbe8de2cc27693e501dcb  # v3.5.2
+    - uses: actions/checkout@ff7abcd0c3c05ccf6adc123a8cd1fd4fb30fb493  # v3.5.2
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020  # v4.4.0
       with:
