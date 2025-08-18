@@ -15,7 +15,7 @@ pymongo==4.14.0
 pyopenssl==25.1.0
 pyffish==0.0.88
 pyffish_alice==0.0.2
-rustworkx==0.16.0
+rustworkx==0.17.1
 sortedcollections==2.1.0
 tzdata==2025.2
 python-gettext==5.0
