@@ -1,4 +1,6 @@
 import aiohttp
+import os
+
 from textual.app import App, ComposeResult
 from textual.widgets import (
     Header,
@@ -15,6 +17,10 @@ from textual.containers import Vertical, Horizontal
 from textual.reactive import reactive
 from rich.text import Text
 from datetime import datetime
+
+
+PYCHESS_MONITOR_TOKEN = os.getenv("PYCHESS_MONITOR_TOKEN")
+URL = "http://localhost:8080/metrics"
 
 
 class MemoryMonitorApp(App):
@@ -58,7 +64,6 @@ class MemoryMonitorApp(App):
 
     def __init__(self):
         super().__init__()
-        self.server_url = "http://localhost:8080/metrics"
         self.update_interval = 5
         self.max_history = 100
 
@@ -144,7 +149,8 @@ class MemoryMonitorApp(App):
 
         async with aiohttp.ClientSession() as session:
             try:
-                async with session.get(self.server_url) as response:
+                headers = {"Authorization": "Bearer %s" % PYCHESS_MONITOR_TOKEN}
+                async with session.get(URL, headers=headers) as response:
                     if response.status == 200:
                         data = await response.json()
 

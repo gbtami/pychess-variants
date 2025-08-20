@@ -13,12 +13,14 @@ from aiohttp.web_ws import WebSocketResponse
 
 from clock import Clock
 from game import Game
+from logger import log
 from lobby import Lobby
 from seek import Seek
 from user import User
 from variants import Variant
 from fairy.fairy_board import FairyBoard
 from glicko2.glicko2 import Rating
+from settings import PYCHESS_MONITOR_TOKEN
 from tournament.tournament import PlayerData, GameData
 from tournament.arena_new import ArenaTournament
 from pychess_global_app_state_utils import get_app_state
@@ -178,6 +180,16 @@ def memory_stats(top_n=20):
 
 async def metrics_handler(request):
     """Return server metrics as JSON."""
+    auth = request.headers.get("Authorization")
+    if auth is None:
+        log.error("metrics request without Authorization header!")
+        raise web.HTTPForbidden()
+
+    token = auth[auth.find("Bearer") + 7 :]
+    if token != PYCHESS_MONITOR_TOKEN:
+        log.error("Invalid pychess-metrics token!", token)
+        raise web.HTTPForbidden()
+
     app_state = get_app_state(request.app)
     active_connections = app_state.lobby.lobbysockets
 
