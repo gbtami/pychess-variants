@@ -1,25 +1,27 @@
-import aiohttp
+from datetime import datetime
 import os
+
+import aiohttp
 
 from textual.app import App, ComposeResult
 from textual.widgets import (
     Header,
     Footer,
     DataTable,
-    Button,
     Label,
     Rule,
     Sparkline,
     Static,
     Switch,
+    TabbedContent,
+    TabPane,
 )
 from textual.containers import Vertical, Horizontal
 from textual.reactive import reactive
 from rich.text import Text
-from datetime import datetime
 
 
-PYCHESS_MONITOR_TOKEN = os.getenv("PYCHESS_MONITOR_TOKEN")
+PYCHESS_MONITOR_TOKEN = os.getenv("PYCHESS_MONITOR_TOKEN", "")
 URL = "http://localhost:8080/metrics"
 
 
@@ -44,7 +46,6 @@ class MemoryMonitorApp(App):
     queue_memory_size = reactive(0.0)
 
     top_allocations = reactive([])
-    selected_category = reactive("none")
     object_details = reactive(
         {"users": [], "games": [], "tasks": [], "queues": [], "connections": []}
     )
@@ -56,88 +57,132 @@ class MemoryMonitorApp(App):
     task_count_history = reactive([])
     queue_count_history = reactive([])
 
-    # Sorting state
-    sort_column = reactive(None)
-    sort_ascending = reactive(True)
-    # Map ColumnKey objects to string keys
-    column_key_map = reactive({})
+    # Sorting states per category
+    sort_columns = reactive(
+        {
+            "users": None,
+            "games": None,
+            "tasks": None,
+            "queues": None,
+            "connections": None,
+        }
+    )
+    sort_ascendings = reactive(
+        {
+            "users": True,
+            "games": True,
+            "tasks": True,
+            "queues": True,
+            "connections": True,
+        }
+    )
 
     def __init__(self):
         super().__init__()
         self.update_interval = 5
         self.max_history = 100
+        self.categories = ["users", "games", "tasks", "queues", "connections"]
 
     def compose(self) -> ComposeResult:
         """Compose the TUI layout."""
         yield Header()
-        yield Horizontal(
-            Vertical(
-                Horizontal(
+        with Horizontal():
+            with Vertical(id="left_panel"):
+                yield Horizontal(
                     Static("Monitoring:", classes="label"),
                     Switch(value=True, id="monitoring"),
                     classes="container",
-                ),
-                Rule(),
-                Button(f"Tasks: {self.task_count}", id="tasks_button"),
-                Label(
-                    "Taslks Mem: [b]{:.2f} KB[/b]".format(self.task_memory_size),
+                )
+                yield Rule()
+                yield Label(f"Tasks: {self.task_count}", id="tasks_label")
+                yield Label(
+                    "Tasks Mem: [b]{:.2f} KB[/b]".format(self.task_memory_size),
                     id="tasks_mem_label",
-                ),
-                Sparkline([], id="tasks_sparkline"),
-                Button(f"Queues: {self.queue_count}", id="queues_button"),
-                Label(
+                )
+                yield Sparkline([], id="tasks_sparkline")
+                yield Label(f"Queues: {self.queue_count}", id="queues_label")
+                yield Label(
                     "Queues Mem: [b]{:.2f} KB[/b]".format(self.queue_memory_size),
                     id="queues_mem_label",
-                ),
-                Sparkline([], id="queues_sparkline"),
-                Button(f"Users: {self.user_count}", id="users_button"),
-                Label(
+                )
+                yield Sparkline([], id="queues_sparkline")
+                yield Label(f"Users: {self.user_count}", id="users_label")
+                yield Label(
                     "Users Mem: [b]{:.2f} KB[/b]".format(self.user_memory_size),
                     id="users_mem_label",
-                ),
-                Sparkline([], id="users_sparkline"),
-                Button(f"Games: {self.game_count}", id="games_button"),
-                Label(
+                )
+                yield Sparkline([], id="users_sparkline")
+                yield Label(f"Games: {self.game_count}", id="games_label")
+                yield Label(
                     "Games Mem: [b]{:.2f} KB[/b]".format(self.game_memory_size),
                     id="games_mem_label",
-                ),
-                Sparkline([], id="games_sparkline"),
-                Button(f"Connections: {self.conn_count}", id="conn_button"),
-                Label(
+                )
+                yield Sparkline([], id="games_sparkline")
+                yield Label(f"Connections: {self.conn_count}", id="conn_label")
+                yield Label(
                     "Conn Mem: [b]{:.2f} KB[/b]".format(self.conn_memory_size), id="conn_mem_label"
-                ),
-                Sparkline([], id="conn_sparkline"),
-                id="left_panel",
-            ),
-            Vertical(DataTable(id="alloc_table"), DataTable(id="details_table"), id="right_panel"),
-        )
+                )
+                yield Sparkline([], id="conn_sparkline")
+            with Vertical(id="right_panel"):
+                yield DataTable(id="alloc_table")
+                with TabbedContent(id="details_tabs"):
+                    for category in self.categories:
+                        with TabPane(category.capitalize(), id=f"{category}_tab"):
+                            yield DataTable(id=f"{category}_table")
         yield Footer()
 
     async def on_mount(self) -> None:
         """Set up the app on startup."""
         self.query_one("#left_panel").border_title = "App State"
         self.query_one("#alloc_table").border_title = "Alloc Table"
-        self.query_one("#details_table").border_title = "Object Detailes"
+        self.query_one("#details_tabs").border_title = "Object Details"
 
         # Configure the allocation table
         alloc_table = self.query_one("#alloc_table", DataTable)
         alloc_table.add_columns("Type", "Count", "Size (bytes)", "Size (human)")
         alloc_table.zebra_stripes = True
 
-        # Configure the details table with initial columns
-        details_table = self.query_one("#details_table", DataTable)
-        details_table.add_column("ID", key="ID")
-        details_table.add_column("Details", key="Details")
-        # Initialize column_key_map
-        self.column_key_map = {
-            col.key: col.label.plain for i, col in enumerate(details_table.columns.values())
+        # Column configurations
+        column_configs = {
+            "users": [
+                ("Title", "title"),
+                ("Username", "username"),
+                ("Online", "online"),
+                ("Last Seen", "last_seen"),
+            ],
+            "games": [
+                ("Game ID", "id"),
+                ("Status", "status"),
+                ("Players", "players"),
+                ("Date", "date"),
+            ],
+            "tasks": [
+                ("Task ID", "id"),
+                ("Name", "name"),
+                ("State", "state"),
+                ("File", "file"),
+                ("Source", "source"),
+            ],
+            "queues": [
+                ("Queue ID", "id"),
+                ("Name", "name"),
+                ("Size", "size"),
+                ("File", "file"),
+                ("Source", "source"),
+            ],
+            "connections": [("Conn ID", "id"), ("Timestamp", "timestamp")],
         }
-        details_table.zebra_stripes = True
-        details_table.cursor_type = "row"
-        details_table.show_header = True
-        details_table.show_cursor = True
-        details_table.fixed_rows = 0
-        details_table.focus()
+
+        for category in self.categories:
+            table = self.query_one(f"#{category}_table", DataTable)
+            config = column_configs[category]
+            for label, _ in config:
+                table.add_column(label, key=label)
+            table.zebra_stripes = True
+            table.cursor_type = "row"
+            table.show_header = True
+            table.show_cursor = True
+            table.fixed_rows = 0
 
         # Start periodic updates
         self.set_interval(self.update_interval, self.update_metrics)
@@ -177,7 +222,7 @@ class MemoryMonitorApp(App):
                         ]
                         self.object_details = data.get(
                             "object_details",
-                            {"users": [], "games": [], "tasks": [], "connections": []},
+                            {"users": [], "games": [], "tasks": [], "queues": [], "connections": []},
                         )
 
                         # Update historical data
@@ -203,28 +248,27 @@ class MemoryMonitorApp(App):
 
     def refresh_ui(self) -> None:
         """Update the TUI with new data."""
-
-        self.query_one("#tasks_button").label = f"Tasks: {self.task_count}"
+        self.query_one("#tasks_label").update(f"Tasks: {self.task_count}")
         self.query_one("#tasks_mem_label").update(
             f"Tasks Mem: [b]{self.task_memory_size:.2f} KB[/b]"
         )
 
-        self.query_one("#queues_button").label = f"Queues: {self.queue_count}"
+        self.query_one("#queues_label").update(f"Queues: {self.queue_count}")
         self.query_one("#queues_mem_label").update(
             f"Queues Mem: [b]{self.queue_memory_size:.2f} KB[/b]"
         )
 
-        self.query_one("#users_button").label = f"Users: {self.user_count}"
+        self.query_one("#users_label").update(f"Users: {self.user_count}")
         self.query_one("#users_mem_label").update(
             f"Users Mem: [b]{self.user_memory_size:.2f} KB[/b]"
         )
 
-        self.query_one("#games_button").label = f"Games: {self.game_count}"
+        self.query_one("#games_label").update(f"Games: {self.game_count}")
         self.query_one("#games_mem_label").update(
             f"Games Mem: [b]{self.game_memory_size:.2f} KB[/b]"
         )
 
-        self.query_one("#conn_button").label = f"Connections: {self.conn_count}"
+        self.query_one("#conn_label").update(f"Connections: {self.conn_count}")
         self.query_one("#conn_mem_label").update(f"Conn Mem: [b]{self.conn_memory_size:.2f} KB[/b]")
 
         # Update sparklines
@@ -237,20 +281,17 @@ class MemoryMonitorApp(App):
         # Update allocation table
         alloc_table = self.query_one("#alloc_table", DataTable)
         alloc_table.clear()
-        for file, line, size, traceback in self.top_allocations:
-            alloc_table.add_row(file, str(line), f"{size:.2f}", traceback)
+        for alloc_type, count, size_bytes, size_human in self.top_allocations:
+            alloc_table.add_row(alloc_type, str(count), str(size_bytes), size_human)
 
-        # Update details table
-        self.update_details_table()
+        # Update all details tables
+        for category in self.categories:
+            self.update_category_table(category)
 
-    def update_details_table(self) -> None:
-        """Update the details table based on the selected category."""
-        details_table = self.query_one("#details_table", DataTable)
-        details_table.clear()  # Clear existing rows
-
-        # Clear existing columns and set up new ones
-        for col_key in list(details_table.columns.keys()):
-            details_table.remove_column(col_key)
+    def update_category_table(self, category: str) -> None:
+        """Update the details table for a specific category."""
+        table = self.query_one(f"#{category}_table", DataTable)
+        table.clear()  # Clear existing rows
 
         # Define column labels and data keys
         column_configs = {
@@ -281,43 +322,28 @@ class MemoryMonitorApp(App):
                 ("Source", "source"),
             ],
             "connections": [("Conn ID", "id"), ("Timestamp", "timestamp")],
-            "none": [("ID", None), ("Details", None)],
         }
 
-        # Add columns based on category
-        columns = column_configs.get(self.selected_category, column_configs["none"])
-        for label, _ in columns:
-            details_table.add_column(label, key=label)
-
-        # Update column_key_map
-        self.column_key_map = {col.key: col.label.plain for col in details_table.columns.values()}
-
-        # Validate sort_column using base labels
+        columns = column_configs.get(category, [])
         base_labels = {lbl: lbl for lbl, _ in columns}
-        if self.sort_column not in base_labels:
-            self.sort_column = None
+
+        sort_column = self.sort_columns[category]
+        sort_ascending = self.sort_ascendings[category]
 
         # Update column labels with sort indicators
-        for col in details_table.columns.values():
+        for col in table.columns.values():
             base_label = base_labels.get(col.label.plain.strip(" ↑↓"), col.label.plain)
             label = base_label
-            if base_label == self.sort_column:
-                label += " ↑" if self.sort_ascending else " ↓"
-            details_table.columns[col.key].label = Text(label)
+            if base_label == sort_column:
+                label += " ↑" if sort_ascending else " ↓"
+            col.label = Text(label)
 
         # Pre-sort data
-        items = []
-        if self.selected_category in column_configs:
-            items = self.object_details.get(self.selected_category, [])
+        items = self.object_details.get(category, [])
 
-        if self.sort_column and self.selected_category in column_configs:
+        if sort_column and category in column_configs:
             data_key = next(
-                (
-                    dk
-                    for lbl, dk in column_configs[self.selected_category]
-                    if lbl == self.sort_column
-                ),
-                None,
+                (dk for lbl, dk in column_configs[category] if lbl == sort_column), None
             )
             if data_key:
 
@@ -332,8 +358,7 @@ class MemoryMonitorApp(App):
                     return value or ""
 
                 try:
-                    items = sorted(items, key=sort_key, reverse=not self.sort_ascending)
-                    # self.notify(f"Sorted by {data_key}", title="Sort", severity="information", timeout=2)
+                    items = sorted(items, key=sort_key, reverse=not sort_ascending)
                 except Exception as e:
                     self.notify(f"Sort failed: {e}", title="Error", severity="error", timeout=3)
 
@@ -344,99 +369,64 @@ class MemoryMonitorApp(App):
             except (ValueError, TypeError):
                 return "-"
 
-        row_keys = []
-        if self.selected_category == "users":
+        if category == "users":
             for user in items:
                 online_icon = "🟢" if user["online"] else "⚪"
-                row_key = details_table.add_row(
-                    str(user["title"]),
-                    user["username"],
+                table.add_row(
+                    str(user.get("title", "-")),
+                    user.get("username", "-"),
                     online_icon,
-                    format_date(user["last_seen"]),
+                    format_date(user.get("last_seen")),
                 )
-                row_keys.append(row_key)
-        elif self.selected_category == "games":
+        elif category == "games":
             for game in items:
-                row_key = details_table.add_row(
-                    str(game["id"]),
-                    game["status"],
-                    ", ".join(game["players"]) if game["players"] else "-",
-                    format_date(game["date"]),
+                table.add_row(
+                    str(game.get("id", "-")),
+                    game.get("status", "-"),
+                    ", ".join(game.get("players", [])) if game.get("players") else "-",
+                    format_date(game.get("date")),
                 )
-                row_keys.append(row_key)
-        elif self.selected_category == "tasks":
+        elif category == "tasks":
             for task in items:
-                row_key = details_table.add_row(
-                    task["id"],
-                    task["name"],
-                    task["state"],
-                    task["file"],
-                    task["source"],
+                table.add_row(
+                    task.get("id", "-"),
+                    task.get("name", "-"),
+                    task.get("state", "-"),
+                    task.get("file", "-"),
+                    task.get("source", "-"),
                 )
-                row_keys.append(row_key)
-        elif self.selected_category == "queues":
+        elif category == "queues":
             for queue in items:
-                row_key = details_table.add_row(
-                    queue["id"],
-                    queue["name"],
-                    queue["size"],
-                    queue["file"],
-                    queue["source"],
+                table.add_row(
+                    queue.get("id", "-"),
+                    queue.get("name", "-"),
+                    queue.get("size", "-"),
+                    queue.get("file", "-"),
+                    queue.get("source", "-"),
                 )
-                row_keys.append(row_key)
-        elif self.selected_category == "connections":
+        elif category == "connections":
             for conn in items:
-                row_key = details_table.add_row(str(conn["id"]), format_date(conn["timestamp"]))
-                row_keys.append(row_key)
-        else:
-            row_key = details_table.add_row("-", "Select a category")
-            row_keys.append(row_key)
+                table.add_row(str(conn.get("id", "-")), format_date(conn.get("timestamp")))
 
-        details_table.refresh()
-        self.refresh()
+        table.refresh()
 
     def on_switch_changed(self, event: Switch.Changed) -> None:
-        switch_id = event.switch.id
-        print(switch_id)
-        if switch_id == "monitoring":
+        if event.switch.id == "monitoring":
             self.monitoring = not self.monitoring
-
-    def on_button_pressed(self, event: Button.Pressed) -> None:
-        """Handle button presses to select a category."""
-        button_id = event.button.id
-        details_table = self.query_one("#details_table", DataTable)
-
-        # Reset sorting
-        self.sort_column = None
-        self.sort_ascending = True
-
-        # Update category
-        if button_id == "users_button" and self.selected_category != "users":
-            self.selected_category = "users"
-        elif button_id == "games_button" and self.selected_category != "games":
-            self.selected_category = "games"
-        elif button_id == "tasks_button" and self.selected_category != "tasks":
-            self.selected_category = "tasks"
-        elif button_id == "conn_button" and self.selected_category != "connections":
-            self.selected_category = "connections"
-        elif button_id == "queues_button" and self.selected_category != "queues":
-            self.selected_category = "queues"
-
-        details_table.focus()
-        self.update_details_table()
 
     def on_data_table_header_selected(self, event: DataTable.HeaderSelected) -> None:
         """Handle column header clicks for sorting."""
-        column_key = self.column_key_map.get(event.column_key, str(event.column_key))
-        if event.data_table.id == "details_table":
-            if self.sort_column == column_key.strip(" ↑↓"):
-                self.sort_ascending = not self.sort_ascending
-            else:
-                self.sort_column = column_key.strip(" ↑↓")
-                self.sort_ascending = True
-            self.update_details_table()
-            self.query_one("#details_table", DataTable).refresh()
-            self.refresh()
+        table_id = event.data_table.id
+        if table_id.endswith("_table"):
+            category = table_id[:-6]  # remove '_table'
+            if category in self.sort_columns:
+                column_key = event.column_key
+                if self.sort_columns[category] == column_key:
+                    self.sort_ascendings[category] = not self.sort_ascendings[category]
+                else:
+                    self.sort_columns[category] = column_key
+                    self.sort_ascendings[category] = True
+                self.update_category_table(category)
 
 
 if __name__ == "__main__":

@@ -1,67 +1,63 @@
 Screen {
     layout: vertical;
 }
+
 .container {
     height: auto;
     width: auto;
 }
+
 Static {
     margin: 1;
 }
+
 Switch {
     height: auto;
     width: auto;
 }
+
 DataTable {
-    height: 40%;
+    height: 1fr;
     background: $panel;
     border: $secondary;
 }
-Button {
+
+TabbedContent {
+    height: 1fr;
+    min-height: 10;
+    background: $panel;
+    border: $secondary;
+}
+
+Label {
     margin: 0 1;
     width: 100%;
 }
-#users_button {
-    background: $success;
-}
-#games_button {
-    background: $error;
-}
-#tasks_button {
-    background: $secondary;
-}
-#conn_button {
-    background: gray;
-}
-#queues_button {
-    background: $accent;
-}
-Label {
-    margin-left: 1;
-}
+
 .label {
     width: auto;
 }
+
 Sparkline {
     margin: 1;
     width: 100%;
 }
+
 Vertical {
     align: center middle;
 }
-#details_table {
-    height: 1fr;
-    min-height: 10;
-}
+
 #left_panel {
     width: 25%;
     background: $panel;
     border: $secondary;
     content-align: center middle;
 }
+
 #right_panel {
     width: 75%;
 }
+
 #tasks_sparkline > .sparkline--max-color { color: $secondary; }
 #tasks_sparkline > .sparkline--min-color { color: $secondary 30%; }
 #users_sparkline > .sparkline--max-color { color: $success; }
@@ -72,7 +68,14 @@ Vertical {
 #conn_sparkline > .sparkline--min-color { color: gray 30%; }
 #queues_sparkline > .sparkline--max-color { color: $accent; }
 #queues_sparkline > .sparkline--min-color { color: $accent 30%; }
+
 .datatable--header-cursor {
     background: $accent;
     color: $text;
+}
+
+#users_table, #games_table, #tasks_table, #queues_table, #connections_table {
+    height: 1fr;
+    background: $panel;
+    border: $secondary;
 }
