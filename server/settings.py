@@ -11,6 +11,9 @@ URI = os.getenv("URI", LOCALHOST)
 PROD = os.getenv("PROD") == "true"
 DEV = not PROD
 
+# lichess.org API token created by the pychess-monitor BOT user
+PYCHESS_MONITOR_TOKEN = os.getenv("PYCHESS_MONITOR_TOKEN")
+
 # lichess.org API token created by a team leader of
 # https://lichess.org/team/pychess-tournaments
 LICHESS_API_TOKEN = os.getenv("LICHESS_API_TOKEN")
