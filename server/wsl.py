@@ -22,7 +22,6 @@ from auto_pair import (
 )
 from chat import chat_response
 from const import ANON_PREFIX, STARTED
-from misc import server_state
 from newid import new_id
 from const import TYPE_CHECKING
 
@@ -400,9 +399,6 @@ async def handle_lobbychat(app_state: PychessGlobalAppState, ws, user, data):
             # Don't give it to the response variable to prevent broadcasting it
             answare = await fishnet(app_state, message)
             await ws_send_json(ws, answare)
-
-        elif message == "/state":
-            server_state(app_state)
 
         else:
             admin_command = False
