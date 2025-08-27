@@ -25,6 +25,38 @@ PYCHESS_MONITOR_TOKEN = os.getenv("PYCHESS_MONITOR_TOKEN", "")
 URL = "http://localhost:8080/metrics"
 
 
+# Column configurations
+column_configs = {
+    "users": [
+        ("Title", "title"),
+        ("Username", "username"),
+        ("Online", "online"),
+        ("Last Seen", "last_seen"),
+    ],
+    "games": [
+        ("Game ID", "id"),
+        ("Status", "status"),
+        ("Players", "players"),
+        ("Date", "date"),
+    ],
+    "tasks": [
+        ("Task ID", "id"),
+        ("Name", "name"),
+        ("State", "state"),
+        ("File", "file"),
+        ("Source", "source"),
+    ],
+    "queues": [
+        ("Queue ID", "id"),
+        ("Name", "name"),
+        ("Size", "size"),
+        ("File", "file"),
+        ("Source", "source"),
+    ],
+    "connections": [("Conn ID", "id"), ("Timestamp", "timestamp")],
+}
+
+
 class MemoryMonitorApp(App):
     """Textual TUI app to monitor aiohttp server memory usage and object usage."""
 
@@ -141,37 +173,6 @@ class MemoryMonitorApp(App):
         alloc_table = self.query_one("#alloc_table", DataTable)
         alloc_table.add_columns("Type", "Count", "Size (bytes)", "Size (human)")
         alloc_table.zebra_stripes = True
-
-        # Column configurations
-        column_configs = {
-            "users": [
-                ("Title", "title"),
-                ("Username", "username"),
-                ("Online", "online"),
-                ("Last Seen", "last_seen"),
-            ],
-            "games": [
-                ("Game ID", "id"),
-                ("Status", "status"),
-                ("Players", "players"),
-                ("Date", "date"),
-            ],
-            "tasks": [
-                ("Task ID", "id"),
-                ("Name", "name"),
-                ("State", "state"),
-                ("File", "file"),
-                ("Source", "source"),
-            ],
-            "queues": [
-                ("Queue ID", "id"),
-                ("Name", "name"),
-                ("Size", "size"),
-                ("File", "file"),
-                ("Source", "source"),
-            ],
-            "connections": [("Conn ID", "id"), ("Timestamp", "timestamp")],
-        }
 
         for category in self.categories:
             table = self.query_one(f"#{category}_table", DataTable)
@@ -292,37 +293,6 @@ class MemoryMonitorApp(App):
         """Update the details table for a specific category."""
         table = self.query_one(f"#{category}_table", DataTable)
         table.clear()  # Clear existing rows
-
-        # Define column labels and data keys
-        column_configs = {
-            "users": [
-                ("Title", "title"),
-                ("Username", "username"),
-                ("Online", "online"),
-                ("Last Seen", "last_seen"),
-            ],
-            "games": [
-                ("Game ID", "id"),
-                ("Status", "status"),
-                ("Players", "players"),
-                ("Date", "date"),
-            ],
-            "tasks": [
-                ("Task ID", "id"),
-                ("Name", "name"),
-                ("State", "state"),
-                ("File", "file"),
-                ("Source", "source"),
-            ],
-            "queues": [
-                ("Queue ID", "id"),
-                ("Name", "name"),
-                ("Size", "size"),
-                ("File", "file"),
-                ("Source", "source"),
-            ],
-            "connections": [("Conn ID", "id"), ("Timestamp", "timestamp")],
-        }
 
         columns = column_configs.get(category, [])
         base_labels = {lbl: lbl for lbl, _ in columns}

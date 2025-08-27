@@ -68,14 +68,3 @@ Vertical {
 #conn_sparkline > .sparkline--min-color { color: gray 30%; }
 #queues_sparkline > .sparkline--max-color { color: $accent; }
 #queues_sparkline > .sparkline--min-color { color: $accent 30%; }
-
-.datatable--header-cursor {
-    background: $accent;
-    color: $text;
-}
-
-#users_table, #games_table, #tasks_table, #queues_table, #connections_table {
-    height: 1fr;
-    background: $panel;
-    border: $secondary;
-}
