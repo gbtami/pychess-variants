@@ -203,6 +203,7 @@ async def metrics_handler(request):
             "username": user.username,
             "online": user.online,
             "last_seen": user.last_seen,
+            "game_queues": len(user.game_queues) if user.bot else "",
         }
         for username, user in sorted(
             app_state.users.items(), key=lambda x: x[1].last_seen, reverse=True

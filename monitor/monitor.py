@@ -32,6 +32,7 @@ column_configs = {
         ("Username", "username"),
         ("Online", "online"),
         ("Last Seen", "last_seen"),
+        ("Game Queues", "game_queues"),
     ],
     "games": [
         ("Game ID", "id"),
@@ -126,34 +127,20 @@ class MemoryMonitorApp(App):
                     classes="container",
                 )
                 yield Rule()
-                yield Label(f"Tasks: {self.task_count}", id="tasks_label")
-                yield Label(
-                    "Tasks Mem: [b]{:.2f} KB[/b]".format(self.task_memory_size),
-                    id="tasks_mem_label",
-                )
+                yield Label(id="tasks_label")
+                yield Label(id="tasks_mem_label")
                 yield Sparkline([], id="tasks_sparkline")
-                yield Label(f"Queues: {self.queue_count}", id="queues_label")
-                yield Label(
-                    "Queues Mem: [b]{:.2f} KB[/b]".format(self.queue_memory_size),
-                    id="queues_mem_label",
-                )
+                yield Label(id="queues_label")
+                yield Label(id="queues_mem_label")
                 yield Sparkline([], id="queues_sparkline")
-                yield Label(f"Users: {self.user_count}", id="users_label")
-                yield Label(
-                    "Users Mem: [b]{:.2f} KB[/b]".format(self.user_memory_size),
-                    id="users_mem_label",
-                )
+                yield Label(id="users_label")
+                yield Label(id="users_mem_label")
                 yield Sparkline([], id="users_sparkline")
-                yield Label(f"Games: {self.game_count}", id="games_label")
-                yield Label(
-                    "Games Mem: [b]{:.2f} KB[/b]".format(self.game_memory_size),
-                    id="games_mem_label",
-                )
+                yield Label(id="games_label")
+                yield Label(id="games_mem_label")
                 yield Sparkline([], id="games_sparkline")
-                yield Label(f"Connections: {self.conn_count}", id="conn_label")
-                yield Label(
-                    "Conn Mem: [b]{:.2f} KB[/b]".format(self.conn_memory_size), id="conn_mem_label"
-                )
+                yield Label(id="conn_label")
+                yield Label(id="conn_mem_label")
                 yield Sparkline([], id="conn_sparkline")
             with Vertical(id="right_panel"):
                 yield DataTable(id="alloc_table")
@@ -162,6 +149,90 @@ class MemoryMonitorApp(App):
                         with TabPane(category.capitalize(), id=f"{category}_tab"):
                             yield DataTable(id=f"{category}_table")
         yield Footer()
+
+    def watch_task_count(self, value: int) -> None:
+        """Update tasks label when task_count changes."""
+        self.query_one("#tasks_label").update(f"Tasks: {value}")
+
+    def watch_task_memory_size(self, value: float) -> None:
+        """Update tasks memory label when task_memory_size changes."""
+        self.query_one("#tasks_mem_label").update(f"Tasks Mem: [b]{value:.2f} KB[/b]")
+
+    def watch_queue_count(self, value: int) -> None:
+        """Update queues label when queue_count changes."""
+        self.query_one("#queues_label").update(f"Queues: {value}")
+
+    def watch_queue_memory_size(self, value: float) -> None:
+        """Update queues memory label when queue_memory_size changes."""
+        self.query_one("#queues_mem_label").update(f"Queues Mem: [b]{value:.2f} KB[/b]")
+
+    def watch_user_count(self, value: int) -> None:
+        """Update users label when user_count changes."""
+        self.query_one("#users_label").update(f"Users: {value}")
+
+    def watch_user_memory_size(self, value: float) -> None:
+        """Update users memory label when user_memory_size changes."""
+        self.query_one("#users_mem_label").update(f"Users Mem: [b]{value:.2f} KB[/b]")
+
+    def watch_game_count(self, value: int) -> None:
+        """Update games label when game_count changes."""
+        self.query_one("#games_label").update(f"Games: {value}")
+
+    def watch_game_memory_size(self, value: float) -> None:
+        """Update games memory label when game_memory_size changes."""
+        self.query_one("#games_mem_label").update(f"Games Mem: [b]{value:.2f} KB[/b]")
+
+    def watch_conn_count(self, value: int) -> None:
+        """Update connections label when conn_count changes."""
+        self.query_one("#conn_label").update(f"Connections: {value}")
+
+    def watch_conn_memory_size(self, value: float) -> None:
+        """Update connections memory label when conn_memory_size changes."""
+        self.query_one("#conn_mem_label").update(f"Conn Mem: [b]{value:.2f} KB[/b]")
+
+    def watch_user_count_history(self, value: list) -> None:
+        """Update users sparkline when user_count_history changes."""
+        self.query_one("#users_sparkline", Sparkline).data = value
+
+    def watch_game_count_history(self, value: list) -> None:
+        """Update games sparkline when game_count_history changes."""
+        self.query_one("#games_sparkline", Sparkline).data = value
+
+    def watch_task_count_history(self, value: list) -> None:
+        """Update tasks sparkline when task_count_history changes."""
+        self.query_one("#tasks_sparkline", Sparkline).data = value
+
+    def watch_conn_count_history(self, value: list) -> None:
+        """Update connections sparkline when conn_count_history changes."""
+        self.query_one("#conn_sparkline", Sparkline).data = value
+
+    def watch_queue_count_history(self, value: list) -> None:
+        """Update queues sparkline when queue_count_history changes."""
+        self.query_one("#queues_sparkline", Sparkline).data = value
+
+    def watch_top_allocations(self, value: list) -> None:
+        """Update allocation table when top_allocations changes."""
+        alloc_table = self.query_one("#alloc_table", DataTable)
+        alloc_table.clear()
+        for alloc_type, count, size_bytes, size_human in value:
+            alloc_table.add_row(alloc_type, str(count), str(size_bytes), size_human)
+
+    def watch_object_details(self, value: dict) -> None:
+        """Update all category tables when object_details changes."""
+        for category in self.categories:
+            self.update_category_table(category)
+
+    def watch_sort_columns(self, value: dict) -> None:
+        """Update tables when sort_columns changes."""
+        for category in value:
+            if value[category] is not None:
+                self.update_category_table(category)
+
+    def watch_sort_ascendings(self, value: dict) -> None:
+        """Update tables when sort_ascendings changes."""
+        for category in value:
+            if self.sort_columns[category] is not None:
+                self.update_category_table(category)
 
     async def on_mount(self) -> None:
         """Set up the app on startup."""
@@ -189,7 +260,7 @@ class MemoryMonitorApp(App):
         self.set_interval(self.update_interval, self.update_metrics)
 
     async def update_metrics(self) -> None:
-        """Fetch server metrics and update UI."""
+        """Fetch server metrics and update reactive variables."""
         if not self.monitoring:
             return
 
@@ -234,60 +305,15 @@ class MemoryMonitorApp(App):
                         self.queue_count_history = self.queue_count_history + [self.queue_count]
 
                         # Trim history to max length
-                        self.user_count_history = self.user_count_history[-self.max_history :]
-                        self.game_count_history = self.game_count_history[-self.max_history :]
-                        self.task_count_history = self.task_count_history[-self.max_history :]
-                        self.conn_count_history = self.conn_count_history[-self.max_history :]
-                        self.queue_count_history = self.queue_count_history[-self.max_history :]
+                        self.user_count_history = self.user_count_history[-self.max_history:]
+                        self.game_count_history = self.game_count_history[-self.max_history:]
+                        self.task_count_history = self.task_count_history[-self.max_history:]
+                        self.conn_count_history = self.conn_count_history[-self.max_history:]
+                        self.queue_count_history = self.queue_count_history[-self.max_history:]
                     else:
                         self.conn_count = -1
             except aiohttp.ClientError:
                 self.conn_count = -1
-
-        # Update UI
-        self.refresh_ui()
-
-    def refresh_ui(self) -> None:
-        """Update the TUI with new data."""
-        self.query_one("#tasks_label").update(f"Tasks: {self.task_count}")
-        self.query_one("#tasks_mem_label").update(
-            f"Tasks Mem: [b]{self.task_memory_size:.2f} KB[/b]"
-        )
-
-        self.query_one("#queues_label").update(f"Queues: {self.queue_count}")
-        self.query_one("#queues_mem_label").update(
-            f"Queues Mem: [b]{self.queue_memory_size:.2f} KB[/b]"
-        )
-
-        self.query_one("#users_label").update(f"Users: {self.user_count}")
-        self.query_one("#users_mem_label").update(
-            f"Users Mem: [b]{self.user_memory_size:.2f} KB[/b]"
-        )
-
-        self.query_one("#games_label").update(f"Games: {self.game_count}")
-        self.query_one("#games_mem_label").update(
-            f"Games Mem: [b]{self.game_memory_size:.2f} KB[/b]"
-        )
-
-        self.query_one("#conn_label").update(f"Connections: {self.conn_count}")
-        self.query_one("#conn_mem_label").update(f"Conn Mem: [b]{self.conn_memory_size:.2f} KB[/b]")
-
-        # Update sparklines
-        self.query_one("#users_sparkline", Sparkline).data = self.user_count_history
-        self.query_one("#games_sparkline", Sparkline).data = self.game_count_history
-        self.query_one("#tasks_sparkline", Sparkline).data = self.task_count_history
-        self.query_one("#conn_sparkline", Sparkline).data = self.conn_count_history
-        self.query_one("#queues_sparkline", Sparkline).data = self.queue_count_history
-
-        # Update allocation table
-        alloc_table = self.query_one("#alloc_table", DataTable)
-        alloc_table.clear()
-        for alloc_type, count, size_bytes, size_human in self.top_allocations:
-            alloc_table.add_row(alloc_type, str(count), str(size_bytes), size_human)
-
-        # Update all details tables
-        for category in self.categories:
-            self.update_category_table(category)
 
     def update_category_table(self, category: str) -> None:
         """Update the details table for a specific category."""
@@ -316,7 +342,6 @@ class MemoryMonitorApp(App):
                 (dk for lbl, dk in column_configs[category] if lbl == sort_column), None
             )
             if data_key:
-
                 def sort_key(item):
                     value = item.get(data_key, "")
                     if data_key in ["last_seen", "date", "timestamp"] and value:
@@ -347,6 +372,7 @@ class MemoryMonitorApp(App):
                     user.get("username", "-"),
                     online_icon,
                     format_date(user.get("last_seen")),
+                    user.get("game_queues", "-"),
                 )
         elif category == "games":
             for game in items:
@@ -381,8 +407,9 @@ class MemoryMonitorApp(App):
         table.refresh()
 
     def on_switch_changed(self, event: Switch.Changed) -> None:
+        """Handle monitoring switch toggle."""
         if event.switch.id == "monitoring":
-            self.monitoring = not self.monitoring
+            self.monitoring = event.switch.value
 
     def on_data_table_header_selected(self, event: DataTable.HeaderSelected) -> None:
         """Handle column header clicks for sorting."""
@@ -391,12 +418,15 @@ class MemoryMonitorApp(App):
             category = table_id[:-6]  # remove '_table'
             if category in self.sort_columns:
                 column_key = event.column_key
-                if self.sort_columns[category] == column_key:
-                    self.sort_ascendings[category] = not self.sort_ascendings[category]
+                new_sort_columns = dict(self.sort_columns)
+                new_sort_ascendings = dict(self.sort_ascendings)
+                if new_sort_columns[category] == column_key:
+                    new_sort_ascendings[category] = not new_sort_ascendings[category]
                 else:
-                    self.sort_columns[category] = column_key
-                    self.sort_ascendings[category] = True
-                self.update_category_table(category)
+                    new_sort_columns[category] = column_key
+                    new_sort_ascendings[category] = True
+                self.sort_columns = new_sort_columns
+                self.sort_ascendings = new_sort_ascendings
 
 
 if __name__ == "__main__":
