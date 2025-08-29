@@ -33,7 +33,7 @@ Your contribution will be greatly appreciated and help me continue to develop th
 ```bash
 # Install python requirements
 pip3 install -r requirements.txt --user
-# Alternatively, using uv to install python requirements in a virtual env
+# Alternatively, use uv to install python requirements in a virtual env
 uv sync
 source .venv/bin/activate
 
