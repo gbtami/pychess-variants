@@ -31,10 +31,14 @@ Your contribution will be greatly appreciated and help me continue to develop th
 
 ### Project setup
 ```
-pip3 install -r requirements.txt --user // Install python requirements
-yarn install                            // Install node requirements
-yarn dev                                // Compile typescript files to javascript
-yarn md                                 // Compile md files to html
+pip3 install -r requirements.txt --user # Install python requirements
+# Or, alternatively, using uv to install python requirements in a virtual env
+uv sync
+source .venv/bin/activate
+
+yarn install                            # Install node requirements
+yarn dev                                # Compile typescript files to javascript
+yarn md                                 # Compile md files to html
 ```
 
 ### Start server
