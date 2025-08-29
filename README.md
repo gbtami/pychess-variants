@@ -30,7 +30,7 @@ Your contribution will be greatly appreciated and help me continue to develop th
 
 
 ### Project setup
-```
+```bash
 # Install python requirements
 pip3 install -r requirements.txt --user
 # Alternatively, using uv to install python requirements in a virtual env
@@ -43,13 +43,13 @@ yarn md                                 # Compile md files to html
 ```
 
 ### Start server
-```
+```bash
 python3 server/server.py
 ```
 
 ### Docker setup
 If you want to avoid installing dependencies (mongo, node, python) you can instead run the server locally in docker using compose. To start it, simply run:
-```
+```bash
 docker compose up --build
 ```
 This recompiles the frontend and starts the server and DB. Once it is up, you can connect to `localhost:8080` in your browser.
