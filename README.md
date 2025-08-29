@@ -35,7 +35,6 @@ Your contribution will be greatly appreciated and help me continue to develop th
 pip3 install -r requirements.txt --user
 # Alternatively, use uv to install python requirements in a virtual env
 uv sync
-source .venv/bin/activate
 
 yarn install                            # Install node requirements
 yarn dev                                # Compile typescript files to javascript
@@ -45,6 +44,10 @@ yarn md                                 # Compile md files to html
 ### Start server
 ```bash
 python3 server/server.py
+```
+Or if `uv` is used
+```bash
+uv run server/server.py
 ```
 
 ### Docker setup
