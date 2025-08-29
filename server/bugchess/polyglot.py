@@ -882,7 +882,7 @@ class ZobristHasher:
 def zobrist_hash(
     board: chess.Board,
     *,
-    _hasher: Callable[[chess.Board], int] = ZobristHasher(POLYGLOT_RANDOM_ARRAY)
+    _hasher: Callable[[chess.Board], int] = ZobristHasher(POLYGLOT_RANDOM_ARRAY),
 ) -> int:
     """
     Calculates the Polyglot Zobrist hash of the position.
@@ -993,7 +993,7 @@ class MemoryMappedReader:
         board: Union[chess.Board, int],
         *,
         minimum_weight: int = 1,
-        exclude_moves: Container[chess.Move] = ()
+        exclude_moves: Container[chess.Move] = (),
     ) -> Iterator[Entry]:
         """Seeks a specific position and yields corresponding entries."""
         try:
@@ -1039,7 +1039,7 @@ class MemoryMappedReader:
         board: Union[chess.Board, int],
         *,
         minimum_weight: int = 1,
-        exclude_moves: Container[chess.Move] = ()
+        exclude_moves: Container[chess.Move] = (),
     ) -> Entry:
         """
         Finds the main entry for the given position or Zobrist hash.
@@ -1068,7 +1068,7 @@ class MemoryMappedReader:
         default: Optional[Entry] = None,
         *,
         minimum_weight: int = 1,
-        exclude_moves: Container[chess.Move] = ()
+        exclude_moves: Container[chess.Move] = (),
     ) -> Optional[Entry]:
         try:
             return self.find(board, minimum_weight=minimum_weight, exclude_moves=exclude_moves)
@@ -1081,7 +1081,7 @@ class MemoryMappedReader:
         *,
         minimum_weight: int = 1,
         exclude_moves: Container[chess.Move] = (),
-        random=random
+        random=random,
     ) -> Entry:
         """
         Uniformly selects a random entry for the given position.
@@ -1106,7 +1106,7 @@ class MemoryMappedReader:
         board: Union[chess.Board, int],
         *,
         exclude_moves: Container[chess.Move] = (),
-        random=random
+        random=random,
     ) -> Entry:
         """
         Selects a random entry for the given position, distributed by the

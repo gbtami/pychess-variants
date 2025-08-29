@@ -3531,7 +3531,7 @@ def open_tablebase(
     load_wdl: bool = True,
     load_dtz: bool = True,
     max_fds: Optional[int] = 128,
-    VariantBoard: Type[bugchess.Board] = bugchess.Board
+    VariantBoard: Type[bugchess.Board] = bugchess.Board,
 ) -> Tablebase:
     """
     Opens a collection of tables for probing. See
