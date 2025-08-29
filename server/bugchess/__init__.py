@@ -1594,7 +1594,7 @@ class Board(BaseBoard):
         fen: Optional[str] = STARTING_FEN,
         *,
         chess960: bool = False,
-        board_id: Optional[int] = None
+        board_id: Optional[int] = None,
     ) -> None:
         BaseBoard.__init__(self, None)
 
@@ -2543,7 +2543,7 @@ class Board(BaseBoard):
         *,
         ignore_turn: bool = False,
         ignore_castling: bool = False,
-        ignore_counters: bool = True
+        ignore_counters: bool = True,
     ) -> Optional[int]:
         """
         Gets the Chess960 starting position index between 0 and 956
@@ -2648,7 +2648,7 @@ class Board(BaseBoard):
         shredder: bool = False,
         en_passant: str = "legal",
         promoted: Optional[bool] = None,
-        **operations: Union[None, str, int, float, Move, Iterable[Move]]
+        **operations: Union[None, str, int, float, Move, Iterable[Move]],
     ) -> str:
         """
         Gets an EPD representation of the current position.

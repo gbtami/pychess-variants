@@ -644,7 +644,7 @@ class ThreeCheckBoard(bugchess.Board):
         shredder: bool = False,
         en_passant: str = "legal",
         promoted: Optional[bool] = None,
-        **operations: Union[None, str, int, float, bugchess.Move, Iterable[bugchess.Move]]
+        **operations: Union[None, str, int, float, bugchess.Move, Iterable[bugchess.Move]],
     ) -> str:
         epd = [
             super().epd(shredder=shredder, en_passant=en_passant, promoted=promoted),
@@ -967,7 +967,7 @@ class CrazyhouseBoard(bugchess.Board):
         shredder: bool = False,
         en_passant: str = "legal",
         promoted: Optional[bool] = None,
-        **operations: Union[None, str, int, float, bugchess.Move, Iterable[bugchess.Move]]
+        **operations: Union[None, str, int, float, bugchess.Move, Iterable[bugchess.Move]],
     ) -> str:
         epd = super().epd(shredder=shredder, en_passant=en_passant, promoted=promoted)
         board_part, info_part = epd.split(" ", 1)

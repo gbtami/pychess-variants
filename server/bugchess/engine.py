@@ -160,7 +160,7 @@ def run_in_background(
     coroutine: "Callable[[concurrent.futures.Future[T]], Coroutine[Any, Any, None]]",
     *,
     debug: bool = False,
-    _policy_lock: threading.Lock = threading.Lock()
+    _policy_lock: threading.Lock = threading.Lock(),
 ) -> T:
     """
     Runs ``coroutine(future)`` in a new event loop on a background thread.
@@ -306,7 +306,7 @@ class Limit:
         black_clock: Optional[float] = None,
         white_inc: Optional[float] = None,
         black_inc: Optional[float] = None,
-        remaining_moves: Optional[int] = None
+        remaining_moves: Optional[int] = None,
     ):
         self.time = time
         self.depth = depth
@@ -355,7 +355,7 @@ class PlayResult:
         info: Optional[InfoDict] = None,
         *,
         draw_offered: bool = False,
-        resigned: bool = False
+        resigned: bool = False,
     ) -> None:
         self.move = move
         self.ponder = ponder
@@ -804,7 +804,7 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
         info: Info = INFO_NONE,
         ponder: bool = False,
         root_moves: Optional[Iterable[chess.Move]] = None,
-        options: ConfigMapping = {}
+        options: ConfigMapping = {},
     ) -> PlayResult:
         """
         Play a position.
@@ -840,7 +840,7 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
         game: object = None,
         info: Info = INFO_ALL,
         root_moves: Optional[Iterable[chess.Move]] = None,
-        options: ConfigMapping = {}
+        options: ConfigMapping = {},
     ) -> Union[List[InfoDict], InfoDict]:
         """
         Analyses a position and returns a dictionary of
@@ -893,7 +893,7 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
         game: object = None,
         info: Info = INFO_ALL,
         root_moves: Optional[Iterable[chess.Move]] = None,
-        options: ConfigMapping = {}
+        options: ConfigMapping = {},
     ) -> "AnalysisResult":
         """
         Starts analysing a position.
@@ -935,7 +935,7 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
         *,
         setpgrp: bool = False,
         loop=None,
-        **kwargs: Any
+        **kwargs: Any,
     ) -> Tuple[asyncio.SubprocessTransport, EngineProtocolT]:
         if not isinstance(command, list):
             command = [command]
@@ -1264,7 +1264,7 @@ class UciProtocol(EngineProtocol):
         *,
         root_moves: Optional[Iterable[chess.Move]] = None,
         ponder: bool = False,
-        infinite: bool = False
+        infinite: bool = False,
     ) -> None:
         builder = ["go"]
         if ponder:
@@ -1312,7 +1312,7 @@ class UciProtocol(EngineProtocol):
         info: Info = INFO_NONE,
         ponder: bool = False,
         root_moves: Optional[Iterable[chess.Move]] = None,
-        options: ConfigMapping = {}
+        options: ConfigMapping = {},
     ) -> PlayResult:
         class Command(BaseCommand[UciProtocol, PlayResult]):
             def start(self, engine: UciProtocol) -> None:
@@ -1415,7 +1415,7 @@ class UciProtocol(EngineProtocol):
         game: object = None,
         info: Info = INFO_ALL,
         root_moves: Optional[Iterable[chess.Move]] = None,
-        options: Mapping[str, Union[str]] = {}
+        options: Mapping[str, Union[str]] = {},
     ) -> "AnalysisResult":
         class Command(BaseCommand[UciProtocol, AnalysisResult]):
             def start(self, engine: UciProtocol) -> None:
@@ -1898,7 +1898,7 @@ class XBoardProtocol(EngineProtocol):
         info: Info = INFO_NONE,
         ponder: bool = False,
         root_moves: Optional[Iterable[chess.Move]] = None,
-        options: ConfigMapping = {}
+        options: ConfigMapping = {},
     ) -> PlayResult:
         if root_moves is not None:
             raise EngineError(
@@ -2070,7 +2070,7 @@ class XBoardProtocol(EngineProtocol):
         game: object = None,
         info: Info = INFO_ALL,
         root_moves: Optional[Iterable[chess.Move]] = None,
-        options: ConfigMapping = {}
+        options: ConfigMapping = {},
     ) -> "AnalysisResult":
         if multipv is not None:
             raise EngineError("xboard engine does not support multipv")
@@ -2529,7 +2529,7 @@ class SimpleEngine:
         transport: asyncio.SubprocessTransport,
         protocol: EngineProtocol,
         *,
-        timeout: Optional[float] = 10.0
+        timeout: Optional[float] = 10.0,
     ) -> None:
         self.transport = transport
         self.protocol = protocol
@@ -2600,7 +2600,7 @@ class SimpleEngine:
         info: Info = INFO_NONE,
         ponder: bool = False,
         root_moves: Optional[Iterable[chess.Move]] = None,
-        options: ConfigMapping = {}
+        options: ConfigMapping = {},
     ) -> PlayResult:
         with self._not_shut_down():
             coro = asyncio.wait_for(
@@ -2627,7 +2627,7 @@ class SimpleEngine:
         game: object = None,
         info: Info = INFO_ALL,
         root_moves: Optional[Iterable[chess.Move]] = None,
-        options: ConfigMapping = {}
+        options: ConfigMapping = {},
     ) -> Union[InfoDict, List[InfoDict]]:
         with self._not_shut_down():
             coro = asyncio.wait_for(
@@ -2654,7 +2654,7 @@ class SimpleEngine:
         game: object = None,
         info: Info = INFO_ALL,
         root_moves: Optional[Iterable[chess.Move]] = None,
-        options: ConfigMapping = {}
+        options: ConfigMapping = {},
     ) -> "SimpleAnalysisResult":
         with self._not_shut_down():
             coro = asyncio.wait_for(
@@ -2701,7 +2701,7 @@ class SimpleEngine:
         timeout: Optional[float] = 10.0,
         debug: bool = False,
         setpgrp: bool = False,
-        **popen_args: Any
+        **popen_args: Any,
     ) -> "SimpleEngine":
         async def background(future: "concurrent.futures.Future[SimpleEngine]") -> None:
             transport, protocol = await Protocol.popen(command, setpgrp=setpgrp, **popen_args)
@@ -2725,7 +2725,7 @@ class SimpleEngine:
         timeout: Optional[float] = 10.0,
         debug: bool = False,
         setpgrp: bool = False,
-        **popen_args: Any
+        **popen_args: Any,
     ) -> "SimpleEngine":
         """
         Spawns and initializes an UCI engine.
@@ -2743,7 +2743,7 @@ class SimpleEngine:
         timeout: Optional[float] = 10.0,
         debug: bool = False,
         setpgrp: bool = False,
-        **popen_args: Any
+        **popen_args: Any,
     ) -> "SimpleEngine":
         """
         Spawns and initializes an XBoard engine.

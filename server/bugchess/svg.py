@@ -265,7 +265,7 @@ def board(
     size: Optional[int] = None,
     style: Optional[str] = None,
     base_svg: Optional[ET.Element] = None,
-    add_definitions: bool = True
+    add_definitions: bool = True,
 ) -> str:
     """
     Renders a board with pieces and/or selected squares as an SVG image.
