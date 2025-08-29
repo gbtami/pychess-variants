@@ -31,8 +31,9 @@ Your contribution will be greatly appreciated and help me continue to develop th
 
 ### Project setup
 ```
-pip3 install -r requirements.txt --user # Install python requirements
-# Or, alternatively, using uv to install python requirements in a virtual env
+# Install python requirements
+pip3 install -r requirements.txt --user
+# Alternatively, using uv to install python requirements in a virtual env
 uv sync
 source .venv/bin/activate
 
