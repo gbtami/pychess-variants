@@ -300,7 +300,7 @@ class GameNode:
         *,
         comment: str = "",
         starting_comment: str = "",
-        nags: Iterable[int] = ()
+        nags: Iterable[int] = (),
     ) -> "GameNode":
         """Creates a child node with the given attributes."""
         node = type(self).dangling_node()
@@ -337,7 +337,7 @@ class GameNode:
         *,
         comment: str = "",
         starting_comment: str = "",
-        nags: Iterable[int] = ()
+        nags: Iterable[int] = (),
     ) -> "GameNode":
         """
         Creates a sequence of child nodes for the given list of moves.
@@ -581,7 +581,7 @@ class Headers(MutableMapping[str, str]):
     def __init__(
         self,
         data: Optional[Union[Mapping[str, str], Iterable[Tuple[str, str]]]] = None,
-        **kwargs: str
+        **kwargs: str,
     ) -> None:
         self._tag_roster = {}  # type: Dict[str, str]
         self._others = {}  # type: Dict[str, str]
@@ -1042,7 +1042,7 @@ class StringExporter(BaseVisitor[str]):
         columns: Optional[int] = 80,
         headers: bool = True,
         comments: bool = True,
-        variations: bool = True
+        variations: bool = True,
     ):
         self.columns = columns
         self.headers = headers
@@ -1186,7 +1186,7 @@ class FileExporter(StringExporter):
         columns: Optional[int] = 80,
         headers: bool = True,
         comments: bool = True,
-        variations: bool = True
+        variations: bool = True,
     ):
         super().__init__(columns=columns, headers=headers, comments=comments, variations=variations)
         self.handle = handle
