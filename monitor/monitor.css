@@ -1,0 +1,70 @@
+Screen {
+    layout: vertical;
+}
+
+.container {
+    height: auto;
+    width: auto;
+}
+
+Static {
+    margin: 1;
+}
+
+Switch {
+    height: auto;
+    width: auto;
+}
+
+DataTable {
+    height: 1fr;
+    background: $panel;
+    border: $secondary;
+}
+
+TabbedContent {
+    height: 1fr;
+    min-height: 10;
+    background: $panel;
+    border: $secondary;
+}
+
+Label {
+    margin: 0 1;
+    width: 100%;
+}
+
+.label {
+    width: auto;
+}
+
+Sparkline {
+    margin: 1;
+    width: 100%;
+}
+
+Vertical {
+    align: center middle;
+}
+
+#left_panel {
+    width: 25%;
+    background: $panel;
+    border: $secondary;
+    content-align: center middle;
+}
+
+#right_panel {
+    width: 75%;
+}
+
+#tasks_sparkline > .sparkline--max-color { color: $secondary; }
+#tasks_sparkline > .sparkline--min-color { color: $secondary 30%; }
+#users_sparkline > .sparkline--max-color { color: $success; }
+#users_sparkline > .sparkline--min-color { color: $success 30%; }
+#games_sparkline > .sparkline--max-color { color: $error; }
+#games_sparkline > .sparkline--min-color { color: $error 30%; }
+#conn_sparkline > .sparkline--max-color { color: gray; }
+#conn_sparkline > .sparkline--min-color { color: gray 30%; }
+#queues_sparkline > .sparkline--max-color { color: $accent; }
+#queues_sparkline > .sparkline--min-color { color: $accent 30%; }

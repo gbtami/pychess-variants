@@ -1,7 +1,7 @@
 from __future__ import annotations
 import asyncio
 from asyncio import Queue
-from datetime import datetime, timezone
+from datetime import MINYEAR, datetime, timezone
 from typing import Set, List
 
 import aiohttp_session
@@ -17,6 +17,10 @@ from const import BLOCK, MAX_USER_BLOCK, TYPE_CHECKING
 from seek import Seek
 from websocket_utils import ws_send_json
 from variants import RATED_VARIANTS
+from settings import (
+    URI,
+    LOCALHOST,
+)
 
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
@@ -124,6 +128,8 @@ class User:
 
         self.enabled = enabled
 
+        self.last_seen = datetime(MINYEAR, 1, 1, tzinfo=timezone.utc)
+
         # last game played
         self.tv = None
 
@@ -138,7 +144,7 @@ class User:
 
     async def remove(self):
         while True:
-            await asyncio.sleep(ANON_TIMEOUT)
+            await asyncio.sleep(1 if URI == LOCALHOST else ANON_TIMEOUT)
             if not self.online:
                 # give them a second chance
                 await asyncio.sleep(3)

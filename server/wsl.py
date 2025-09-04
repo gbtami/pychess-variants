@@ -1,5 +1,6 @@
 from __future__ import annotations
 import asyncio
+from datetime import datetime, timezone
 
 import aiohttp_session
 from aiohttp import web
@@ -21,7 +22,6 @@ from auto_pair import (
 )
 from chat import chat_response
 from const import ANON_PREFIX, STARTED
-from misc import server_state
 from newid import new_id
 from const import TYPE_CHECKING
 
@@ -51,6 +51,7 @@ async def lobby_socket_handler(request):
 
 
 async def init_ws(app_state: PychessGlobalAppState, ws, user):
+    user.last_seen = datetime.now(timezone.utc)
     await send_game_in_progress_if_any(app_state, user, ws)
     await send_lobby_user_connected(app_state, ws, user)
     await send_get_seeks(app_state, ws, user)
@@ -61,6 +62,8 @@ async def finally_logic(app_state: PychessGlobalAppState, ws, user):
         if ws in user.lobby_sockets:
             user.lobby_sockets.remove(ws)
             user.update_online()
+            if len(app_state.lobby.lobbysockets[user.username]) == 0:
+                del app_state.lobby.lobbysockets[user.username]
 
         # not connected to lobby socket and not connected to game socket
         if user.is_user_active_in_game() and len(user.lobby_sockets) == 0:
@@ -396,9 +399,6 @@ async def handle_lobbychat(app_state: PychessGlobalAppState, ws, user, data):
             # Don't give it to the response variable to prevent broadcasting it
             answare = await fishnet(app_state, message)
             await ws_send_json(ws, answare)
-
-        elif message == "/state":
-            server_state(app_state)
 
         else:
             admin_command = False
