@@ -186,12 +186,12 @@ async def metrics_handler(request):
     auth = request.headers.get("Authorization")
     if auth is None:
         log.error("metrics request without Authorization header!")
-        raise web.HTTPForbidden()
+        raise web.HTTPNotFound()
 
     token = auth[auth.find("Bearer") + 7 :]
     if token != PYCHESS_MONITOR_TOKEN:
-        log.error("Invalid pychess-metrics token!", token)
-        raise web.HTTPForbidden()
+        log.error("Invalid pychess-metrics token! %s", token)
+        raise web.HTTPNotFound()
 
     app_state = get_app_state(request.app)
     active_connections = app_state.lobby.lobbysockets
