@@ -34,9 +34,9 @@ import { setPocketRowCssVars } from './pocketRow';
 import { updatePoint } from './info';
 
 const EVAL_REGEX = new RegExp(''
-  + /^info depth (\d+) seldepth \d+ multipv (\d+) /.source
+  + /^info depth (\d+)(?: seldepth \d+)? multipv (\d+) /.source
   + /score (cp|mate) ([-\d]+) /.source
-  + /(?:(upper|lower)bound )?nodes (\d+) nps \S+ /.source
+  + /(?:(upper|lower)bound )?nodes (\d+)(?: nps \S+)? /.source
   + /(?:hashfull \d+ )?(?:tbhits \d+ )?time (\S+) /.source
   + /pv (.+)/.source);
 
