@@ -606,15 +606,15 @@ export class AnalysisController extends GameController {
             this.autoShapes[pv_idx] = [{ orig: o, dest: d, brush: 'paleGreen', piece: undefined, modifiers: { lineWidth: 14 - pv_idx * 2.5 } }];
 
             // duck
-            if (this.variant.rules.duck && pv_move.includes(',')) {
-                this.autoShapes[pv_idx].push({
+            if (this.variant.rules.duck) {
+                this.autoShapes[pv_idx] = [{
                     orig: pv_move.slice(-2) as cg.Key,
                     brush: 'paleGreen',
                     piece: {
                         color: turnColor,
                         role: '_-piece'
                     }
-                })
+                }]
             }
 
             // TODO: gating, promotion
