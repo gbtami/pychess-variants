@@ -2,6 +2,7 @@ import inspect
 import json
 import sys
 import gc
+import time
 from asyncio import Task, Queue
 from collections import defaultdict
 from collections.abc import Iterable
@@ -116,8 +117,10 @@ def memory_stats(top_n=20):
             type_info[obj_type]["count"] += 1
             if type(obj) is Task:
                 type_info[obj_type]["size"] += sys.getsizeof(obj)
-                stack = obj.get_stack(limit=1)
-                if len(stack) > 0:
+                # TODO: using inspect modul is rather time consuming
+                # Add a new switch to the monitor TUI to enable this
+                stack = ""  # obj.get_stack(limit=1)
+                if 0:  # len(stack) > 0:
                     stack_file = "/".join(inspect.getfile(stack[0]).split("/")[-2:])
                     stack_source = inspect.getsource(stack[0])[:25]
 
@@ -194,7 +197,9 @@ async def metrics_handler(request):
     active_connections = app_state.lobby.lobbysockets
 
     # Take snapshot
+    start = time.process_time()
     top_stats, tasks, queues = memory_stats()
+    log.debug("Running memory_stats() time: %s", (time.process_time() - start))
 
     # Prepare object details
     users = [
@@ -264,5 +269,6 @@ async def metrics_handler(request):
             "connections": connections,
         },
     }
+    log.debug("Collecting all metrics time: %s", (time.process_time() - start))
 
     return web.json_response(metrics, dumps=partial(json.dumps, default=datetime.isoformat))
