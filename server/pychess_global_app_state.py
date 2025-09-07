@@ -277,7 +277,7 @@ class PychessGlobalAppState:
                         rrmin=doc.get("rrmin"),
                         rrmax=doc.get("rrmax"),
                         chess960=doc["chess960"],
-                    target=doc.get("target"),
+                        target=doc.get("target"),
                         player1=user,
                         expire_at=doc.get("expireAt"),
                     )

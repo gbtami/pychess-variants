@@ -294,7 +294,13 @@ class MemoryMonitorApp(App):
                         ]
                         self.object_details = data.get(
                             "object_details",
-                            {"users": [], "games": [], "tasks": [], "queues": [], "connections": []},
+                            {
+                                "users": [],
+                                "games": [],
+                                "tasks": [],
+                                "queues": [],
+                                "connections": [],
+                            },
                         )
 
                         # Update historical data
@@ -305,11 +311,11 @@ class MemoryMonitorApp(App):
                         self.queue_count_history = self.queue_count_history + [self.queue_count]
 
                         # Trim history to max length
-                        self.user_count_history = self.user_count_history[-self.max_history:]
-                        self.game_count_history = self.game_count_history[-self.max_history:]
-                        self.task_count_history = self.task_count_history[-self.max_history:]
-                        self.conn_count_history = self.conn_count_history[-self.max_history:]
-                        self.queue_count_history = self.queue_count_history[-self.max_history:]
+                        self.user_count_history = self.user_count_history[-self.max_history :]
+                        self.game_count_history = self.game_count_history[-self.max_history :]
+                        self.task_count_history = self.task_count_history[-self.max_history :]
+                        self.conn_count_history = self.conn_count_history[-self.max_history :]
+                        self.queue_count_history = self.queue_count_history[-self.max_history :]
                     else:
                         self.conn_count = -1
             except aiohttp.ClientError:
@@ -342,6 +348,7 @@ class MemoryMonitorApp(App):
                 (dk for lbl, dk in column_configs[category] if lbl == sort_column), None
             )
             if data_key:
+
                 def sort_key(item):
                     value = item.get(data_key, "")
                     if data_key in ["last_seen", "date", "timestamp"] and value:
