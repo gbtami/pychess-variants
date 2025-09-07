@@ -443,6 +443,9 @@ class User:
         """Seek is compatible when my rating is inside the seek rating range
         and the users are not blocked by any direction"""
 
+        if seek.target not in ("", self.username, seek.creator.username):
+            return False
+
         self_rating = self.get_rating_value(seek.variant, seek.chess960)
         seek_user = self.app_state.users[seek.creator.username]
         return (
