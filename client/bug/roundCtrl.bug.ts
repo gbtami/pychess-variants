@@ -1008,13 +1008,13 @@ export class RoundControllerBughouse implements ChatController {
         const step = this.steps[ply];
         console.log(step);
 
-        const board=step.boardName==='a'?this.b1:this.b2;
+        const board=step.boardName === 'a'? this.b1: this.b2;
 
         const fen=step.boardName==='a'?step.fen: step.fenB;
-        const fenPartner=step.boardName==='b'?step.fen: step.fenB;
+        const fenPartner=step.boardName === 'b'? step.fen: step.fenB;
 
-        const move = step.boardName==='a'?uci2LastMove(step.move):uci2LastMove(step.moveB);
-        const movePartner = step.boardName==='b'?uci2LastMove(step.move):uci2LastMove(step.moveB);
+        const move = step.boardName === 'a'? uci2LastMove(step.move): uci2LastMove(step.moveB);
+        const movePartner = step.boardName === 'b'? uci2LastMove(step.move): uci2LastMove(step.moveB);
 
         let capture = false;
         if (move) {

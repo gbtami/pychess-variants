@@ -40,13 +40,7 @@ async def round_view(request):
         context["tournamentname"] = tournament_name
         context["wberserk"] = game.wberserk
         context["bberserk"] = game.bberserk
-    if game.server_variant.two_boards:
-        context["wplayerB"] = game.wplayerB.username
-        context["wtitleB"] = game.wplayerB.title
-        context["wratingB"] = game.wrating_b
-        context["bplayerB"] = game.bplayerB.username
-        context["btitleB"] = game.bplayerB.title
-        context["bratingB"] = game.brating_b
+
     if game.corr and user.username in (game.wplayer.username, game.bplayer.username):
         c_games = corr_games(user.correspondence_games)
         context["corr_games"] = json.dumps(c_games, default=datetime.isoformat)
