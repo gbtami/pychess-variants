@@ -13,7 +13,7 @@ dependencies = [
     "aiomonitor==0.7.1",
     "black==25.1.0",
     "brotli==1.1.0",
-    "cryptography==45.0.6",
+    "cryptography==45.0.7",
     "discord-py==2.6.3",
     "dnspython==2.7.0",
     "flake8==7.3.0",
