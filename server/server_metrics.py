@@ -214,6 +214,20 @@ async def metrics_handler(request):
             app_state.users.items(), key=lambda x: x[1].last_seen, reverse=True
         )
     ]
+    seeks = [
+        {
+            "id": seek_id,
+            "creator": seek.creator.username,
+            "target": seek.target,
+            "expire_at": seek.expire_at,
+            "variant": seek.variant,
+            "base": seek.base,
+            "inc": seek.inc,
+            "day": seek.day,
+            "rated": seek.rated,
+        }
+        for seek_id, seek in sorted(app_state.seeks.items(), key=lambda x: x[1].expire_at, reverse=True)
+    ]
     games = [
         {
             "id": game_id,
@@ -263,6 +277,7 @@ async def metrics_handler(request):
         },
         "object_details": {
             "users": users,
+            "seeks": seeks,
             "games": games,
             "tasks": tasks,
             "queues": queues,
