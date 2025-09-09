@@ -194,7 +194,7 @@ export abstract class GameController extends ChessgroundController implements Ch
 
     setDests() {
         // console.log("gameCtrl.setDests()");
-        const legalMoves = this.ffishBoard.legalMoves().split(" ");
+        const legalMoves = this.ffishBoard.legalMoves().split(" ").filter(o => o);
         const fakeDrops = this.variant.name === 'ataxx';
         const pieces = this.chessground.state.boardState.pieces;
         const dests = moveDests(legalMoves as UCIMove[], fakeDrops, pieces, this.turnColor);

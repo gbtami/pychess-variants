@@ -117,4 +117,12 @@ def add_game_context(game, ply, user, context):
     user_color = WHITE if user == game.wplayer else BLACK if user == game.bplayer else None
     context["board"] = json.dumps(game.get_board(full=True, persp_color=user_color))
 
+    if game.server_variant.two_boards:
+        context["wplayerB"] = game.wplayerB.username
+        context["wtitleB"] = game.wplayerB.title
+        context["wratingB"] = game.wrating_b
+        context["bplayerB"] = game.bplayerB.username
+        context["btitleB"] = game.bplayerB.title
+        context["bratingB"] = game.brating_b
+
     return
