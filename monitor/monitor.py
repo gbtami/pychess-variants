@@ -235,10 +235,12 @@ class MemoryMonitorApp(App):
         if not self.monitoring:
             return
 
+        need_inspect = True
         async with aiohttp.ClientSession() as session:
             try:
                 headers = {"Authorization": "Bearer %s" % PYCHESS_MONITOR_TOKEN}
-                async with session.get(URL, headers=headers) as response:
+                url = (URL + "?inspect=True") if need_inspect else URL
+                async with session.get(url, headers=headers) as response:
                     if response.status == 200:
                         data = await response.json()
                         logger.info(f"Received metrics: {data}")

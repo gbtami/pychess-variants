@@ -71,7 +71,7 @@ def get_deep_size(obj, seen=None):
     return size
 
 
-def memory_stats(top_n=20):
+def memory_stats(top_n=20, need_inspect=False):
     """
     Collects memory usage statistics for the top N object types in the Python heap.
     - Performs garbage collection to clean up unreferenced objects.
@@ -119,10 +119,11 @@ def memory_stats(top_n=20):
                 type_info[obj_type]["size"] += sys.getsizeof(obj)
                 # TODO: using inspect modul is rather time consuming
                 # Add a new switch to the monitor TUI to enable this
-                stack = ""  # obj.get_stack(limit=1)
-                if 0:  # len(stack) > 0:
+                stack = obj.get_stack(limit=1) if need_inspect else ""
+                if len(stack) > 0:
                     stack_file = "/".join(inspect.getfile(stack[0]).split("/")[-2:])
-                    stack_source = inspect.getsource(stack[0])[:25]
+                    # stack_source = inspect.getsource(stack[0])[:25]
+                    stack_source = "-"
 
                     if 0:  # "aiohttp" in stack_file:
                         referrers = gc.get_referrers(obj)
@@ -196,9 +197,11 @@ async def metrics_handler(request):
     app_state = get_app_state(request.app)
     active_connections = app_state.lobby.lobbysockets
 
+    need_inspect = request.rel_url.query.get("inspect")
+
     # Take snapshot
     start = time.process_time()
-    top_stats, tasks, queues = memory_stats()
+    top_stats, tasks, queues = memory_stats(15, need_inspect and need_inspect == "True")
     log.debug("Running memory_stats() time: %s", (time.process_time() - start))
 
     # Prepare object details
