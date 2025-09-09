@@ -144,7 +144,9 @@ class MemoryMonitorApp(App):
     def watch_category_memories(self, value: dict) -> None:
         for cat, mem in value.items():
             try:
-                self.query_one(f"#{cat}_mem_label").update(f"{cat.capitalize()} Mem: [b]{mem:.2f} KB[/b]")
+                self.query_one(f"#{cat}_mem_label").update(
+                    f"{cat.capitalize()} Mem: [b]{mem:.2f} KB[/b]"
+                )
             except NoMatches:
                 pass
 
@@ -248,7 +250,9 @@ class MemoryMonitorApp(App):
                                 items = data["object_details"].get(cat, [])
                                 if items:
                                     keys = sorted(items[0].keys())
-                                    self.column_configs[cat] = [(k.replace("_", " ").title(), k) for k in keys]
+                                    self.column_configs[cat] = [
+                                        (k.replace("_", " ").title(), k) for k in keys
+                                    ]
                                 else:
                                     self.column_configs[cat] = []
                             self.sort_columns = {cat: None for cat in self.categories}
@@ -256,17 +260,29 @@ class MemoryMonitorApp(App):
                             self.category_histories = {cat: [] for cat in self.categories}
                             await self.setup_ui()
                             # Initialize counts and memories after UI setup
-                            self.category_counts = {cat: data.get("object_counts", {}).get(cat, 0) for cat in self.categories}
-                            self.category_memories = {cat: data.get("object_sizes", {}).get(cat, 0.0) for cat in self.categories}
+                            self.category_counts = {
+                                cat: data.get("object_counts", {}).get(cat, 0)
+                                for cat in self.categories
+                            }
+                            self.category_memories = {
+                                cat: data.get("object_sizes", {}).get(cat, 0.0)
+                                for cat in self.categories
+                            }
 
                         else:
-                            self.category_counts = {cat: data.get("object_counts", {}).get(cat, 0) for cat in self.categories}
-                            self.category_memories = {cat: data.get("object_sizes", {}).get(cat, 0.0) for cat in self.categories}
+                            self.category_counts = {
+                                cat: data.get("object_counts", {}).get(cat, 0)
+                                for cat in self.categories
+                            }
+                            self.category_memories = {
+                                cat: data.get("object_sizes", {}).get(cat, 0.0)
+                                for cat in self.categories
+                            }
 
                         histories = self.category_histories.copy()
                         for cat in self.categories:
                             histories[cat] = histories[cat] + [self.category_counts[cat]]
-                            histories[cat] = histories[cat][-self.max_history:]
+                            histories[cat] = histories[cat][-self.max_history :]
                         self.category_histories = histories
 
                         self.top_allocations = [
@@ -318,10 +334,9 @@ class MemoryMonitorApp(App):
         items = self.object_details.get(category, [])
 
         if sort_column and columns:
-            data_key = next(
-                (dk for lbl, dk in columns if lbl == sort_column), None
-            )
+            data_key = next((dk for lbl, dk in columns if lbl == sort_column), None)
             if data_key:
+
                 def sort_key(item):
                     value = item.get(data_key, "")
                     if data_key == "online":
@@ -329,7 +344,7 @@ class MemoryMonitorApp(App):
                     elif any(sub in data_key for sub in ["date", "time", "seen"]):
                         try:
                             return datetime.fromisoformat(value)
-                        except:
+                        except Exception:
                             return datetime.min
                     elif isinstance(value, list):
                         return ", ".join(map(str, value))

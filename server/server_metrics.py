@@ -226,7 +226,9 @@ async def metrics_handler(request):
             "day": seek.day,
             "rated": seek.rated,
         }
-        for seek_id, seek in sorted(app_state.seeks.items(), key=lambda x: x[1].expire_at, reverse=True)
+        for seek_id, seek in sorted(
+            app_state.seeks.items(), key=lambda x: x[1].expire_at, reverse=True
+        )
     ]
     games = [
         {
