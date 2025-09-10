@@ -53,7 +53,7 @@ class Seek:
         self.day = 0 if server_variant.two_boards else day
         self.level = 0 if creator.username == "Random-Mover" else level
         self.chess960 = chess960
-        self.target = target
+        self.target = target if target is not None else ""
         self.player1 = player1
         self.player2 = player2
         self.bugPlayer1 = bugPlayer1
@@ -90,6 +90,7 @@ class Seek:
             + "rrmax='%d', " % self.rrmax
             + game_id
             + "pending='%d', " % self.pending
+            + "target='%s', " % self.target
             + "day='%d'>" % self.day
         )
 

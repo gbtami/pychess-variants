@@ -425,6 +425,9 @@ class User:
         """Seek is auto pairing compatible when the rating ranges are ok
         and the users are not blocked by any direction"""
 
+        if seek.target not in ("", self.username, seek.creator.username):
+            return False
+
         self_rating = self.get_rating_value(seek.variant, seek.chess960)
         seek_user = self.app_state.users[seek.creator.username]
 
