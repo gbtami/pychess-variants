@@ -26,7 +26,7 @@ dependencies = [
     "pre-commit>=4.3.0",
     "pyffish==0.0.88",
     "pyffish-alice==0.0.2",
-    "pymongo==4.14.1",
+    "pymongo==4.15.0",
     "pyopenssl==25.2.0",
     "python-gettext==5.0",
     "rustworkx==0.17.1",
