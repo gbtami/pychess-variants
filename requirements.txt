@@ -21,6 +21,6 @@ python-gettext==5.0
 objgraph==3.6.2
 black==25.1.0
 flake8==7.3.0
-mypy==1.17.1
+mypy==1.18.1
 mongomock-motor==0.0.36
 pre-commit
