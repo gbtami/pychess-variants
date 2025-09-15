@@ -21,7 +21,7 @@ dependencies = [
     "minify-html==0.16.4",
     "mongomock-motor==0.0.36",
     "motor==3.7.1",
-    "mypy==1.17.1",
+    "mypy==1.18.1",
     "objgraph==3.6.2",
     "pre-commit>=4.3.0",
     "pyffish==0.0.88",
