@@ -98,8 +98,6 @@ async def cross_origin_policy_middleware(request, handler):
     return response
 
 
-
-
 def make_app(db_client=None, simple_cookie_storage=False, anon_as_test_users=False) -> Application:
     app = web.Application()
     app.middlewares.append(redirect_to_https)
@@ -147,13 +145,17 @@ def make_app(db_client=None, simple_cookie_storage=False, anon_as_test_users=Fal
     app.middlewares.append(handle_404)
 
     # Configure default CORS settings.
-    cors = aiohttp_cors.setup(app, defaults={
-        origin: aiohttp_cors.ResourceOptions(
-            allow_credentials=True,
-            expose_headers="*",
-            allow_headers="*",
-            ) for origin in ALLOWED_ORIGINS
-    })
+    cors = aiohttp_cors.setup(
+        app,
+        defaults={
+            origin: aiohttp_cors.ResourceOptions(
+                allow_credentials=True,
+                expose_headers="*",
+                allow_headers="*",
+            )
+            for origin in ALLOWED_ORIGINS
+        },
+    )
 
     # Configure CORS on all routes.
     for route in list(app.router.routes()):
