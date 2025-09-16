@@ -40,6 +40,8 @@ TWITCH_CLIENT_SECRET = os.getenv("TWITCH_CLIENT_SECRET", "")
 
 DISCORD_TOKEN = os.getenv("DISCORD_TOKEN", "")
 
+ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", "https://www.pychess.org").split(",")
+
 SOURCE_VERSION = os.getenv("SOURCE_VERSION", "")
 if SOURCE_VERSION != "":
     SOURCE_VERSION = "?v=%s" % SOURCE_VERSION

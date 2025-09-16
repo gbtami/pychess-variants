@@ -11,6 +11,7 @@ from aiohttp.log import access_logger
 from aiohttp.web_app import Application
 from aiohttp_session import SimpleCookieStorage
 from aiohttp_session.cookie_storage import EncryptedCookieStorage
+import aiohttp_cors
 import aiohttp_jinja2
 import aiohttp_session
 import jinja2
@@ -28,6 +29,7 @@ from typedefs import (
 )
 from routes import get_routes, post_routes
 from settings import (
+    ALLOWED_ORIGINS,
     MAX_AGE,
     SECRET_KEY,
     MONGO_HOST,
@@ -75,7 +77,9 @@ async def set_user_locale(request, handler):
     return await handler(request)
 
 
-async def on_prepare(request, response):
+@web.middleware
+async def cross_origin_policy_middleware(request, handler):
+    response = await handler(request)
     if (
         request.path.startswith("/variants")
         or request.path.startswith("/blogs")
@@ -83,7 +87,6 @@ async def on_prepare(request, response):
     ):
         # Learn and News pages may have links to other sites
         response.headers["Cross-Origin-Resource-Policy"] = "cross-origin"
-        return
     else:
         # required to get stockfish.wasm in Firefox
         response.headers["Cross-Origin-Opener-Policy"] = "same-origin"
@@ -92,11 +95,13 @@ async def on_prepare(request, response):
         if request.match_info.get("gameId") is not None:
             response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
             response.headers["Expires"] = "0"
+    return response
 
 
 def make_app(db_client=None, simple_cookie_storage=False, anon_as_test_users=False) -> Application:
     app = web.Application()
     app.middlewares.append(redirect_to_https)
+    app.middlewares.append(cross_origin_policy_middleware)
 
     app[anon_as_test_users_key] = anon_as_test_users
 
@@ -130,7 +135,6 @@ def make_app(db_client=None, simple_cookie_storage=False, anon_as_test_users=Fal
     app.on_startup.append(init_state)
     app.on_shutdown.append(shutdown)
     app.on_cleanup.append(close_mongodb_client)
-    app.on_response_prepare.append(on_prepare)
 
     # Setup routes.
     for route in get_routes:
@@ -139,6 +143,23 @@ def make_app(db_client=None, simple_cookie_storage=False, anon_as_test_users=Fal
         app.router.add_post(route[0], route[1])
     app.router.add_static("/static", "static", append_version=True)
     app.middlewares.append(handle_404)
+
+    # Configure default CORS settings.
+    cors = aiohttp_cors.setup(
+        app,
+        defaults={
+            origin: aiohttp_cors.ResourceOptions(
+                allow_credentials=True,
+                expose_headers="*",
+                allow_headers="*",
+            )
+            for origin in ALLOWED_ORIGINS
+        },
+    )
+
+    # Configure CORS on all routes.
+    for route in list(app.router.routes()):
+        cors.add(route)
 
     return app
 
