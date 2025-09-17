@@ -41,6 +41,14 @@ del _
 
 VIDEOS = [
     {
+        "_id": "0Jxu_9eaUz4",
+        "title": "Upside down chess II www.lichess.org",
+        "author": "Anish Giri",
+        "tags": ["Tournament"],
+        "target": "beginner",
+        "duration": "2:11:15",
+    },
+    {
         "_id": "LSW51A6AxFk",
         "title": "Interview - Stockfish creator Tord Romstad",
         "author": "Antichess Lore",
