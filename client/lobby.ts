@@ -131,18 +131,22 @@ export class LobbyController implements ChatController {
 
         // challenge (or CREATE GAME from the main menu)
         if (this.profileid !== "") {
-            if (this.title === 'BOT') {
-                this.createMode = (this.profileid === 'Fairy-Stockfish') ? 'playAI' : 'playBOT';
-                this.preSelectVariant(model.variant);
+            if (window.location.pathname.includes('play')) {
+                this.playAI(model.variant);
+            } else {
+                if (this.title === 'BOT') {
+                    this.createMode = (this.profileid === 'Fairy-Stockfish') ? 'playAI' : 'playBOT';
+                    this.preSelectVariant(model.variant);
+                }
+                else if (this.profileid === 'Invite-friend') this.createMode = 'playFriend';
+                document.getElementById('game-mode')!.style.display = (this.anon || this.title === 'BOT') ? 'none' : 'inline-flex';
+                this.renderDialogHeader(_('Challenge %1 to a game', this.profileid));
+                document.getElementById('ailevel')!.style.display = this.createMode === 'playAI' ? 'block' : 'none';
+                document.getElementById('rmplay-block')!.style.display = this.createMode === 'playAI' ? 'block' : 'none';
+                (document.getElementById('id01') as HTMLDialogElement).showModal();
+                document.getElementById('color-button-group')!.style.display = 'block';
+                document.getElementById('create-button')!.style.display = 'none';
             }
-            else if (this.profileid === 'Invite-friend') this.createMode = 'playFriend';
-            document.getElementById('game-mode')!.style.display = (this.anon || this.title === 'BOT') ? 'none' : 'inline-flex';
-            this.renderDialogHeader(_('Challenge %1 to a game', this.profileid));
-            document.getElementById('ailevel')!.style.display = this.createMode === 'playAI' ? 'block' : 'none';
-            document.getElementById('rmplay-block')!.style.display = this.createMode === 'playAI' ? 'block' : 'none';
-            (document.getElementById('id01') as HTMLDialogElement).showModal();
-            document.getElementById('color-button-group')!.style.display = 'block';
-            document.getElementById('create-button')!.style.display = 'none';
 
             // CREATE GAME from the main menu
             if (this.profileid === 'any#') {

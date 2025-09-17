@@ -136,6 +136,7 @@ get_routes = (
     ("/@/{profileId}/tv", tv.tv),
     ("/@/{profileId}/challenge", lobby.lobby),
     ("/@/{profileId}/challenge/{variant}", lobby.lobby),
+    ("/@/{profileId}/play/{variant}", lobby.lobby),
     ("/@/{profileId}/perf/{variant}", profile.profile),
     ("/@/{profileId}/rated", profile.profile),
     ("/@/{profileId}/playing", profile.profile),
