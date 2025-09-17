@@ -282,7 +282,7 @@ export class EditorController extends ChessgroundController {
 
     private setChallengeAIFen = () => {
         const fen = this.parts.join('_').replace(/\+/g, '.');
-        window.location.assign(this.model["home"] + '/@/Fairy-Stockfish/challenge/' + this.model["variant"] + '?fen=' + fen);
+        window.location.assign(this.model["home"] + '/@/Fairy-Stockfish/play/' + this.model["variant"] + '?fen=' + fen);
     }
 
     private setSeekFen = () => {

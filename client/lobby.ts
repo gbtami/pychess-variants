@@ -152,7 +152,7 @@ export class LobbyController implements ChatController {
         }
 
         // Seek from Editor with custom start position
-        if (this.fen !== "") {
+        if (this.fen !== "" && this.profileid === "") {
             this.createGame(model.variant);
         }
 
