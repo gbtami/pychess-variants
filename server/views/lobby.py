@@ -51,7 +51,7 @@ async def lobby(request):
         profileId = "any#"
         context["profile"] = profileId
 
-    if "/challenge" in request.path:
+    if "/challenge" in request.path or "/play" in request.path:
         context["profile"] = profileId
         context["profile_title"] = (
             app_state.users[profileId].title if profileId in app_state.users else ""
