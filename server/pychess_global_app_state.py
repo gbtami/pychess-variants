@@ -16,8 +16,6 @@ import aiohttp_jinja2
 from pythongettext.msgfmt import Msgfmt, PoSyntaxError
 from sortedcollections import ValueSortedDict
 
-from mongomock_motor import AsyncMongoMockClient
-
 from ai import BOT_task
 from const import (
     NONE_USER,
@@ -181,17 +179,14 @@ class PychessGlobalAppState:
                 if doc["status"] == T_STARTED or (
                     doc["status"] == T_CREATED and doc["startsAt"].date() <= to_date
                 ):
-                    # Prevent unit test slowdown when db_client is AsyncMongoMockClient
-                    if not isinstance(self.db_client, AsyncMongoMockClient):
-                        await load_tournament(self, doc["_id"])
+                    await load_tournament(self, doc["_id"])
             self.tournaments_loaded.set()
 
-            if not isinstance(self.db_client, AsyncMongoMockClient):
-                already_scheduled = await get_scheduled_tournaments(self)
-                new_tournaments_data = new_scheduled_tournaments(already_scheduled)
-                await create_scheduled_tournaments(self, new_tournaments_data)
+            already_scheduled = await get_scheduled_tournaments(self)
+            new_tournaments_data = new_scheduled_tournaments(already_scheduled)
+            await create_scheduled_tournaments(self, new_tournaments_data)
 
-                asyncio.create_task(generate_shield(self), name="generate-shield")
+            asyncio.create_task(generate_shield(self), name="generate-shield")
 
             if "highscore" not in db_collections:
                 await generate_highscore(self)

@@ -9,7 +9,6 @@ from functools import cache
 from operator import neg
 from typing import ClassVar, Deque, Tuple, Set
 
-from mongomock_motor import AsyncMongoMockClient
 from pymongo import ReturnDocument
 from sortedcollections import ValueSortedDict
 from sortedcontainers import SortedKeysView
@@ -1154,7 +1153,7 @@ class Tournament(ABC):
                 upsert=True,
                 return_document=ReturnDocument.AFTER,
             )
-            if doc_after is None and not isinstance(self.app_state.db_client, AsyncMongoMockClient):
+            if doc_after is None:
                 log.error("Failed to save %s player data update %s to mongodb", player_id, new_data)
 
         except Exception:
@@ -1171,7 +1170,7 @@ class Tournament(ABC):
             {"$set": new_data},
             return_document=ReturnDocument.AFTER,
         )
-        if doc_after is None and not isinstance(self.app_state.db_client, AsyncMongoMockClient):
+        if doc_after is None:
             log.error("Failed to save %s player data update %s to mongodb", self.id, new_data)
 
     async def save(self):
@@ -1196,7 +1195,7 @@ class Tournament(ABC):
             {"$set": new_data},
             return_document=ReturnDocument.AFTER,
         )
-        if doc_after is None and not isinstance(self.app_state.db_client, AsyncMongoMockClient):
+        if doc_after is None:
             log.error("Failed to save %s tournament data update %s to mongodb", self.id, new_data)
 
         if self.frequency == SHIELD:
