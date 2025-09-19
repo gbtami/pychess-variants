@@ -31,7 +31,7 @@ jobs:
         python -m pip install --upgrade pip
         pip install setuptools
         pip install flake8
-        pip install -r requirements.txt
+        pip install .
     - name: Lint with flake8
       run: |
         flake8 server/ --count --show-source --statistics
