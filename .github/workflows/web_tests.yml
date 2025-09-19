@@ -24,7 +24,7 @@ jobs:
           cache: 'yarn'
 
       - name: Install Python dependencies
-        run: pip install .
+        run: pip install .[dev]
 
       - name: Install Node.js dependencies
         run: yarn install

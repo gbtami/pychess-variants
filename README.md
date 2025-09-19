@@ -32,7 +32,7 @@ Your contribution will be greatly appreciated and help me continue to develop th
 ### Project setup
 ```bash
 # Install python requirements
-pip3 install . --user
+pip3 install .[dev] --user
 # Alternatively, use uv to install python requirements in a virtual env
 uv sync
 

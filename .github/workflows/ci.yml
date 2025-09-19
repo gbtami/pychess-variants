@@ -23,15 +23,13 @@ jobs:
       uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809  # v4.2.4
       with:
         path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/pyproject.toml') }}
         restore-keys: |
           ${{ runner.os }}-pip-
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install setuptools
-        pip install flake8
-        pip install .
+        pip install .[dev]
     - name: Lint with flake8
       run: |
         flake8 server/ --count --show-source --statistics
