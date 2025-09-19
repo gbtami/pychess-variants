@@ -14,7 +14,7 @@ Pychess-variants is a free, open-source chess server for playing chess variants.
 ### Development Setup
 ```bash
 # Install dependencies
-pip3 install -r requirements.txt --user
+pip3 install . --user
 yarn install
 
 # Development build (with sourcemaps)
@@ -41,8 +41,11 @@ yarn test
 # Python code formatting
 black .
 
-# Python linting 
+# Python linting
 flake8
+
+# Python unit tests
+ PYTHONPATH=server python3 -m unittest discover -s tests
 ```
 
 ### Docker Development
@@ -97,7 +100,7 @@ docker compose up --build
 ## Development Patterns
 
 ### Adding New Chess Variants
-1. Define variant rules in `variants.ini` 
+1. Define variant rules in `variants.ini`
 2. Add variant metadata to `server/variants.py`
 3. Add client-side variant info to `client/variants.ts`
 4. Add piece/board graphics to `static/` if needed
