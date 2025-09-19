@@ -31,10 +31,15 @@ Your contribution will be greatly appreciated and help me continue to develop th
 
 ### Project setup
 ```bash
-# Install python requirements
-pip3 install .[dev] --user
+# Install python requirements with pip
+pip install . --user
+# Use pip with [dev] for local development with testing tools
+pip install .[dev] --user
+
 # Alternatively, use uv to install python requirements in a virtual env
 uv sync
+# Use uv with --extra dev for local development with testing tools
+uv sync --extra dev
 
 yarn install                            # Install node requirements
 yarn dev                                # Compile typescript files to javascript
