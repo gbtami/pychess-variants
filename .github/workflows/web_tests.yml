@@ -39,3 +39,4 @@ jobs:
         run: |
           python -m playwright install --with-deps
           PYTHONPATH=server python -m pytest tests/test_e2e.py
+          PYTHONPATH=server python -m pytest tests/test_gui.py
