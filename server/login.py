@@ -335,7 +335,7 @@ async def confirm_username(request):
         session.pop("oauth_username", None)
         session.pop("oauth_title", None)
 
-        log.info("Created new user %s from %s OAuth", username, oauth_provider)
+        log.info("Created new user %s via OAuth signup", username)
         return web.json_response({"success": True})
 
     except Exception as e:
