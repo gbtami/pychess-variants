@@ -44,4 +44,4 @@ dev = [
 line-length = 100
 
 [tool.setuptools]
-packages = []  # Disable package discovery
+packages = ["server"]
