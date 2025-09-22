@@ -19,7 +19,7 @@ dependencies = [
     "pyffish==0.0.88",
     "pyffish-alice==0.0.2",
     "pymongo==4.15.1",
-    "pyopenssl==25.2.0",
+    "pyopenssl==25.3.0",
     "python-gettext==5.0",
     "rustworkx==0.17.1",
     "sortedcollections==2.1.0",
