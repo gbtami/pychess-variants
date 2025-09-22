@@ -58,7 +58,7 @@ async def oauth(request):
     else:
         state = request.rel_url.query.get("state")
         if state != client_secret:
-            log.error("State got back from %s changed", oauth_authorize_url)
+            log.error("OAuth state value mismatch for provider '%s'", provider)
             return web.HTTPFound("/")
 
         if "oauth_code_verifier" not in session:
