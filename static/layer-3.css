@@ -77,18 +77,14 @@ font-size: 1.3rem;
 }
 .l3links-cont > li {
     text-transform: uppercase;
-    font-size: 0.9em !important;
-    padding-top: 5px; 
-    padding-bottom: 5px;
-    background: var(--bg-color2); 
-    border: 1px dashed var(--font-color); 
-    border-radius: 5px;
+    font-size: 0.9em !important; padding-top: 5px; padding-bottom: 5px;
+    background: var(--bg-color1); border: 1px dashed var(--font-color); border-radius: 5px;
 }
-
 
 .layer-3-container .l3links-cont .l3links:hover {
     cursor: pointer; 
-    background: var(--bg-color1);
+    background: var(--bg-color2);
+    box-shadow: inset 0 0 8px -2px var(--font-color)
 }
 
 .layer-3-container h5 {
