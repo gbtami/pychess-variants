@@ -15,6 +15,10 @@ from user import User
 from variants import ALL_VARIANTS
 
 
+piece_css_path = Path(Path(__file__).parent.parent.parent, "static/piece-css")
+piece_sets = [x.name for x in piece_css_path.iterdir() if x.is_dir() and x.name != "mono"]
+
+
 async def get_user_context(request):
     app_state = get_app_state(request.app)
 
@@ -65,9 +69,6 @@ async def get_user_context(request):
 
     def variant_display_name(variant):
         return gettext(ALL_VARIANTS[variant].translated_name)
-
-    piece_css_path = Path(Path(__file__).parent.parent.parent, "static/piece-css")
-    piece_sets = [x.name for x in piece_css_path.iterdir() if x.is_dir() and x.name != "mono"]
 
     context = {
         "user": user,
