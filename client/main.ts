@@ -31,6 +31,17 @@ import { devVariants, variantGroups, VARIANTS } from './variants';
 import { variantsIni } from './variantsIni';
 import { showUsernameDialog } from './usernameDialog';
 
+// Utility function to validate and sanitize URLs
+function sanitizeURL(url: string | null): string {
+    try {
+        const parsedURL = new URL(url ?? "", window.location.origin);
+        return parsedURL.href;
+    } catch {
+        console.warn("Invalid URL detected, using default safe value.");
+        return window.location.origin; // Default safe value
+    }
+}
+
 // redirect to correct URL except Heroku preview/dev apps
 if (window.location.href.includes('heroku') && !window.location.href.includes('-pr-') && !window.location.href.includes('-dev-')) {
     window.location.assign('https://www.pychess.org/');
@@ -54,7 +65,7 @@ function initModel(el: HTMLElement) {
     if (board) board = JSON.parse(board);
     return {
         ffish : {} as FairyStockfish,
-        home : el.getAttribute("data-home") ?? "",
+        home : sanitizeURL(el.getAttribute("data-home")) ?? "",
         anon : el.getAttribute("data-anon") ?? "",
         profileid : el.getAttribute("data-profile") ?? "",
         title : el.getAttribute("data-title") ?? "",
