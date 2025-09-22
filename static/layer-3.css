@@ -72,9 +72,16 @@ font-size: 1.3rem;
     display: flex;
     justify-content: flex-start;
     font-size: 1rem;
-    margin-bottom: 10px;
+    margin-bottom: 1px;
     font-size: 1.2rem;
- 
+}
+.l3links-cont > li {
+    text-transform: uppercase;
+    font-size: 0.9em !important;
+    padding-top: 5px; 
+    padding-bottom: 5px;
+    background: whitesmoke; border: 1px dashed var(--font-color); 
+    border-radius: 5px;
 }
 
 
