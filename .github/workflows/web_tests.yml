@@ -1,4 +1,6 @@
 name: Web App Tests
+permissions:
+  contents: read
 
 on:
   push:
