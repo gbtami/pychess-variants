@@ -26,8 +26,8 @@
     "@fullcalendar/timegrid": "^6.1.18",
     "chessgroundx": "^10.7.2",
     "fairy-stockfish-nnue.wasm": "^1.1.10",
-    "ffish-es6": "^0.7.8",
     "ffish-alice-es6": "^0.0.1",
+    "ffish-es6": "^0.7.8",
     "gettext.js": "^2.0.3",
     "highcharts": "^12.3.0",
     "howler": "^2.2.3",
@@ -37,20 +37,20 @@
     "snabbdom": "^3.6.2"
   },
   "devDependencies": {
+    "@jest/globals": "^30",
     "@types/gettext.js": "^2.0.0",
     "@types/howler": "^2.2.12",
     "@types/mousetrap": "^1.6.11",
-    "@jest/globals": "^30",
-    "jest": "^30",
-    "ts-jest": "^29",
-    "jest-environment-jsdom": "^30",
     "esbuild": "^0.25.8",
     "esbuild-plugin-compress": "^1.0.1",
     "esm": "^3.2.25",
+    "jest": "^30",
+    "jest-environment-jsdom": "^30",
     "jsdom": "^26.1.0",
     "jsdom-global": "^3.0.2",
     "postcss": "8.x",
     "showdown": "^2.1.0",
+    "ts-jest": "^29",
     "tslib": "^2.8.1",
     "typescript": "^5.8",
     "yarn": "^1.22.22",
@@ -76,8 +76,7 @@
       "\\.[jt]sx?$": [
         "ts-jest",
         {
-          "useESM": true,
-          "isolatedModules": true
+          "useESM": true
         }
       ]
     },
@@ -85,8 +84,11 @@
       ".ts"
     ],
     "moduleNameMapper": {
-      "^gettext": "gettext.js",
-      "(.+)\\.js": "$1"
-    }
+      "^@/(.*)$": "<rootDir>/client/$1",
+      "^gettext": "gettext.js"
+    },
+    "transformIgnorePatterns": [
+      "/node_modules/(?!ffish-es6|ffish-alice-es6|chessgroundx|preact)"
+    ]
   }
 }

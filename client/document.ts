@@ -1,6 +1,6 @@
 import { VNode, init, classModule, attributesModule, propsModule, eventListenersModule, styleModule } from 'snabbdom';
 
-import { sanitizeURL } from './main';
+import { sanitizeURL } from './url';
 
 export const patch = init([classModule, attributesModule, propsModule, eventListenersModule, styleModule]);
 
