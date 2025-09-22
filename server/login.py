@@ -89,9 +89,7 @@ async def oauth(request):
                     session["token"] = token
                     return web.HTTPFound("/login/%s" % provider)
                 else:
-                    log.error(
-                        "Failed to get OAuth token for provider '%s'", provider
-                    )
+                    log.error("Failed to get OAuth token for provider '%s'", provider)
                     return web.HTTPFound("/")
 
 
