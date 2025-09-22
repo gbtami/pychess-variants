@@ -1,5 +1,7 @@
 import { VNode, init, classModule, attributesModule, propsModule, eventListenersModule, styleModule } from 'snabbdom';
 
+import { sanitizeURL } from './main';
+
 export const patch = init([classModule, attributesModule, propsModule, eventListenersModule, styleModule]);
 
 export function downloadPgnText(filename: string) {
@@ -73,9 +75,9 @@ export function changeBoardCSS(assetUrl: string, family: string, cssFile: string
 
 export function changePieceCSS(assetUrl: string, family: string, cssFile: string) {
     const cssId = `piece-set-${family}`;
-    let newUrl = `${assetUrl}/piece-css/${family}/${cssFile}.css`;
-    if (cssFile === 'letters') newUrl = `${assetUrl}/piece-css/letters.css`;
-    if (cssFile === 'invisible') newUrl = `${assetUrl}/piece-css/invisible.css`;
+    let newUrl = sanitizeURL(`${assetUrl}/piece-css/${family}/${cssFile}.css`);
+    if (cssFile === 'letters') newUrl = sanitizeURL(`${assetUrl}/piece-css/letters.css`);
+    if (cssFile === 'invisible') newUrl = sanitizeURL(`${assetUrl}/piece-css/invisible.css`);
     // console.log("changePieceCSS", family, cssFile, newUrl)
     document.getElementById(cssId)!.setAttribute("href", newUrl);
 }

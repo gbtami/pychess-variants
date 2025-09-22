@@ -32,7 +32,7 @@ import { variantsIni } from './variantsIni';
 import { showUsernameDialog } from './usernameDialog';
 
 // Utility function to validate and sanitize URLs
-function sanitizeURL(url: string | null): string {
+export function sanitizeURL(url: string | null): string {
     try {
         const parsedURL = new URL(url ?? "", window.location.origin);
         return parsedURL.href;
